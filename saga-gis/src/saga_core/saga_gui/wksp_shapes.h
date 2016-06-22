@@ -164,7 +164,7 @@ protected:
 	void						AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
 	CSG_Parameter *				BrushList_Add			(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
-	int							BrushList_Get_Style		(int Index);
+	wxBrushStyle				BrushList_Get_Style		(int Index);
 
 	CSG_Parameter *				PenList_Add				(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							PenList_Get_Style		(int Index);

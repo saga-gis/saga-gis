@@ -925,8 +925,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 
 		iField	= m_Fields[iField];
 
-		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxSOLID));
-		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxSOLID));
+		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
+		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxBRUSHSTYLE_SOLID));
 
 		ix	= DRAW_GET_XPOS(0);
 		iy	= DRAW_GET_YPOS(0);
@@ -954,7 +954,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 	iField	= m_Fields[iField];
 
-	dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxSOLID));
+	dc.SetPen(wxPen(Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{

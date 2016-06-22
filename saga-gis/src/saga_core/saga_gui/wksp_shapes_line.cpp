@@ -218,7 +218,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Pen			= wxPen(m_Def_Color, (int)m_Size, m_Line_Style);
+	m_Pen			= wxPen(m_Def_Color, (int)m_Size, (wxPenStyle)m_Line_Style);
 
 	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asBool();
 
@@ -310,23 +310,23 @@ void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
 	switch( m_Parameters("LINE_STYLE")->asInt() )
 	{
-	case  0:	m_Line_Style	= wxSOLID;				break; // Solid style.
-	case  1:	m_Line_Style	= wxDOT;				break; // Dotted style.
-	case  2:	m_Line_Style	= wxLONG_DASH;			break; // Long dashed style.
-	case  3:	m_Line_Style	= wxSHORT_DASH;			break; // Short dashed style.
-	case  4:	m_Line_Style	= wxDOT_DASH;			break; // Dot and dash style.
-	case  5:	m_Line_Style	= wxBDIAGONAL_HATCH;	break; // Backward diagonal hatch.
-	case  6:	m_Line_Style	= wxCROSSDIAG_HATCH;	break; // Cross-diagonal hatch.
-	case  7:	m_Line_Style	= wxFDIAGONAL_HATCH;	break; // Forward diagonal hatch.
-	case  8:	m_Line_Style	= wxCROSS_HATCH;		break; // Cross hatch.
-	case  9:	m_Line_Style	= wxHORIZONTAL_HATCH;	break; // Horizontal hatch.
-	case 10:	m_Line_Style	= wxVERTICAL_HATCH;		break; // Vertical hatch.
-//	case 11:	m_Line_Style	= wxSTIPPLE;			break; // Use the stipple bitmap. 
-//	case 12:	m_Line_Style	= wxUSER_DASH;			break; // Use the user dashes: see wxPen::SetDashes.
-//	case 13:	m_Line_Style	= wxTRANSPARENT;		break; // No pen is used.
+	case  0:	m_Line_Style	= wxPENSTYLE_SOLID;            break; // Solid style.
+	case  1:	m_Line_Style	= wxPENSTYLE_DOT;              break; // Dotted style.
+	case  2:	m_Line_Style	= wxPENSTYLE_LONG_DASH;        break; // Long dashed style.
+	case  3:	m_Line_Style	= wxPENSTYLE_SHORT_DASH;       break; // Short dashed style.
+	case  4:	m_Line_Style	= wxPENSTYLE_DOT_DASH;         break; // Dot and dash style.
+	case  5:	m_Line_Style	= wxPENSTYLE_BDIAGONAL_HATCH;  break; // Backward diagonal hatch.
+	case  6:	m_Line_Style	= wxPENSTYLE_CROSSDIAG_HATCH;  break; // Cross-diagonal hatch.
+	case  7:	m_Line_Style	= wxPENSTYLE_FDIAGONAL_HATCH;  break; // Forward diagonal hatch.
+	case  8:	m_Line_Style	= wxPENSTYLE_CROSS_HATCH;      break; // Cross hatch.
+	case  9:	m_Line_Style	= wxPENSTYLE_HORIZONTAL_HATCH; break; // Horizontal hatch.
+	case 10:	m_Line_Style	= wxPENSTYLE_VERTICAL_HATCH;   break; // Vertical hatch.
+//	case 11:	m_Line_Style	= wxPENSTYLE_STIPPLE;          break; // Use the stipple bitmap. 
+//	case 12:	m_Line_Style	= wxPENSTYLE_USER_DASH;        break; // Use the user dashes: see wxPen::SetDashes.
+//	case 13:	m_Line_Style	= wxPENSTYLE_TRANSPARENT;      break; // No pen is used.
 	}
 
-	m_Pen.SetStyle(m_Line_Style);
+	m_Pen.SetStyle((wxPenStyle)m_Line_Style);
 
 	dc_Map.dc.SetPen(m_Pen);
 }
@@ -344,7 +344,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 
 	if( Selection )
 	{
-		Pen	= wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), m_Line_Style);
+		Pen	= wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), (wxPenStyle)m_Line_Style);
 	}
 	else
 	{

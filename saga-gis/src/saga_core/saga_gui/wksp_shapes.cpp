@@ -1183,18 +1183,18 @@ CSG_Parameter * CWKSP_Shapes::BrushList_Add(CSG_Parameter *pNode, const CSG_Stri
 }
 
 //---------------------------------------------------------
-int CWKSP_Shapes::BrushList_Get_Style(int Index)
+wxBrushStyle CWKSP_Shapes::BrushList_Get_Style(int Index)
 {
 	switch( Index )
 	{
-	default:	return( wxSOLID				);
-	case  1:	return( wxTRANSPARENT		);
-	case  2:	return( wxBDIAGONAL_HATCH	);
-	case  3:	return( wxCROSSDIAG_HATCH	);
-	case  4:	return( wxFDIAGONAL_HATCH	);
-	case  5:	return( wxCROSS_HATCH		);
-	case  6:	return( wxHORIZONTAL_HATCH	);
-	case  7:	return( wxVERTICAL_HATCH	);
+	default:	return( wxBRUSHSTYLE_SOLID           );
+	case  1:	return( wxBRUSHSTYLE_TRANSPARENT     );
+	case  2:	return( wxBRUSHSTYLE_BDIAGONAL_HATCH );
+	case  3:	return( wxBRUSHSTYLE_CROSSDIAG_HATCH );
+	case  4:	return( wxBRUSHSTYLE_FDIAGONAL_HATCH );
+	case  5:	return( wxBRUSHSTYLE_CROSS_HATCH     );
+	case  6:	return( wxBRUSHSTYLE_HORIZONTAL_HATCH);
+	case  7:	return( wxBRUSHSTYLE_VERTICAL_HATCH  );
 	}
 }
 

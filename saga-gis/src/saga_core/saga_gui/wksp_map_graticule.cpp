@@ -507,20 +507,20 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 	switch( m_Parameters("LINE_STYLE")->asInt() )
 	{
 	default:
-	case  0:	Pen.SetStyle(wxSOLID           );	break; // Solid style.
-	case  1:	Pen.SetStyle(wxDOT             );	break; // Dotted style.
-	case  2:	Pen.SetStyle(wxLONG_DASH       );	break; // Long dashed style.
-	case  3:	Pen.SetStyle(wxSHORT_DASH      );	break; // Short dashed style.
-	case  4:	Pen.SetStyle(wxDOT_DASH        );	break; // Dot and dash style.
-	case  5:	Pen.SetStyle(wxBDIAGONAL_HATCH );	break; // Backward diagonal hatch.
-	case  6:	Pen.SetStyle(wxCROSSDIAG_HATCH );	break; // Cross-diagonal hatch.
-	case  7:	Pen.SetStyle(wxFDIAGONAL_HATCH );	break; // Forward diagonal hatch.
-	case  8:	Pen.SetStyle(wxCROSS_HATCH     );	break; // Cross hatch.
-	case  9:	Pen.SetStyle(wxHORIZONTAL_HATCH);	break; // Horizontal hatch.
-	case 10:	Pen.SetStyle(wxVERTICAL_HATCH  );	break; // Vertical hatch.
-//	case 11:	Pen.SetStyle(wxSTIPPLE         );	break; // Use the stipple bitmap. 
-//	case 12:	Pen.SetStyle(wxUSER_DASH       );	break; // Use the user dashes: see wxPen::SetDashes.
-//	case 13:	Pen.SetStyle(wxTRANSPARENT     );	break; // No pen is used.
+	case  0:	Pen.SetStyle(wxPENSTYLE_SOLID           );	break; // Solid style.
+	case  1:	Pen.SetStyle(wxPENSTYLE_DOT             );	break; // Dotted style.
+	case  2:	Pen.SetStyle(wxPENSTYLE_LONG_DASH       );	break; // Long dashed style.
+	case  3:	Pen.SetStyle(wxPENSTYLE_SHORT_DASH      );	break; // Short dashed style.
+	case  4:	Pen.SetStyle(wxPENSTYLE_DOT_DASH        );	break; // Dot and dash style.
+	case  5:	Pen.SetStyle(wxPENSTYLE_BDIAGONAL_HATCH );	break; // Backward diagonal hatch.
+	case  6:	Pen.SetStyle(wxPENSTYLE_CROSSDIAG_HATCH );	break; // Cross-diagonal hatch.
+	case  7:	Pen.SetStyle(wxPENSTYLE_FDIAGONAL_HATCH );	break; // Forward diagonal hatch.
+	case  8:	Pen.SetStyle(wxPENSTYLE_CROSS_HATCH     );	break; // Cross hatch.
+	case  9:	Pen.SetStyle(wxPENSTYLE_HORIZONTAL_HATCH);	break; // Horizontal hatch.
+	case 10:	Pen.SetStyle(wxPENSTYLE_VERTICAL_HATCH  );	break; // Vertical hatch.
+//	case 11:	Pen.SetStyle(wxPENSTYLE_STIPPLE         );	break; // Use the stipple bitmap. 
+//	case 12:	Pen.SetStyle(wxPENSTYLE_USER_DASH       );	break; // Use the user dashes: see wxPen::SetDashes.
+//	case 13:	Pen.SetStyle(wxPENSTYLE_TRANSPARENT     );	break; // No pen is used.
 	}
 
 	dc.dc.SetPen(Pen);

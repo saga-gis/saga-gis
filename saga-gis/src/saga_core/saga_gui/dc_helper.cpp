@@ -100,11 +100,11 @@ void		Draw_Edge(wxDC &dc, int Edge_Style, int ax, int ay, int bx, int by)
 	case EDGE_STYLE_SUNKEN:
 		oldPen	= dc.GetPen();
 
-		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNHIGHLIGHT), 0, wxSOLID));
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNHIGHLIGHT), 0, wxPENSTYLE_SOLID));
 		dc.DrawLine(bx, ay, bx, by);
 		dc.DrawLine(bx, by, ax, by);
 
-		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW   ), 0, wxSOLID));
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW   ), 0, wxPENSTYLE_SOLID));
 		dc.DrawLine(ax, by, ax, ay);
 		dc.DrawLine(ax, ay, bx, ay);
 
@@ -115,11 +115,11 @@ void		Draw_Edge(wxDC &dc, int Edge_Style, int ax, int ay, int bx, int by)
 	case EDGE_STYLE_RAISED:
 		oldPen	= dc.GetPen();
 
-		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW   ), 0, wxSOLID));
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW   ), 0, wxPENSTYLE_SOLID));
 		dc.DrawLine(bx, ay, bx, by);
 		dc.DrawLine(bx, by, ax, by);
 
-		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNHIGHLIGHT), 0, wxSOLID));
+		dc.SetPen(wxPen(SYS_Get_Color(wxSYS_COLOUR_BTNHIGHLIGHT), 0, wxPENSTYLE_SOLID));
 		dc.DrawLine(ax, by, ax, ay);
 		dc.DrawLine(ax, ay, bx, ay);
 

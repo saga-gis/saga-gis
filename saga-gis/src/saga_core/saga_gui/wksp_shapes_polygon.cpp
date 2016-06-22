@@ -167,7 +167,7 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
-	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxSOLID);
+	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
 	m_Brush		= wxBrush(m_Def_Color, BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 
 	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asBool();
@@ -210,8 +210,8 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	//-----------------------------------------------------
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], wxSOLID));
-		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, 0, wxSOLID));
+		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], wxBRUSHSTYLE_SOLID));
+		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, 0, wxPENSTYLE_SOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 

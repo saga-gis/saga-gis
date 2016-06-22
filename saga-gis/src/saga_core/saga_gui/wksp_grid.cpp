@@ -1700,7 +1700,7 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 		a.y	-= 1;
 		b.y	-= 1;
 
-		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), 2, wxSOLID));
+		dc_Map.dc.SetPen(wxPen(wxColour(255, 0, 0), 2, wxPENSTYLE_SOLID));
 		dc_Map.dc.DrawLine(a.x, a.y, a.x, b.y);
 		dc_Map.dc.DrawLine(a.x, b.y, b.x, b.y);
 		dc_Map.dc.DrawLine(b.x, b.y, b.x, a.y);

@@ -115,7 +115,7 @@ CWKSP_Map_DC::CWKSP_Map_DC(const CSG_Rect &rWorld, const wxRect &rDC, double Sca
 	//-----------------------------------------------------
 	dc_BMP.Create(m_rDC.GetWidth(), m_rDC.GetHeight());
 	dc.SelectObject(dc_BMP);
-	dc.SetBackground(wxBrush(wxColour(m_Background[0], m_Background[1], m_Background[2]), wxSOLID));
+	dc.SetBackground(wxBrush(wxColour(m_Background[0], m_Background[1], m_Background[2]), wxBRUSHSTYLE_SOLID));
 	dc.Clear();
 }
 

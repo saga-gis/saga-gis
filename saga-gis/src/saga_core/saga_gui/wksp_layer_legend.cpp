@@ -248,15 +248,15 @@ inline void CWKSP_Layer_Legend::_Set_Font(wxDC &dc, int Style)
 	switch( Style )
 	{
 	case FONT_TITLE:
-		dc.SetFont(wxFont(FONT_SIZE_TITLE   , wxSWISS, wxNORMAL, wxBOLD, false));
+		dc.SetFont(wxFont(FONT_SIZE_TITLE   , wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false));
 		break;
 
 	case FONT_SUBTITLE:
-		dc.SetFont(wxFont(FONT_SIZE_SUBTITLE, wxSWISS, wxNORMAL, wxBOLD));
+		dc.SetFont(wxFont(FONT_SIZE_SUBTITLE, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
 		break;
 
 	case FONT_LABEL:	default:
-		dc.SetFont(wxFont(FONT_SIZE_LABEL   , wxSWISS, wxITALIC, wxNORMAL));
+		dc.SetFont(wxFont(FONT_SIZE_LABEL   , wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL));
 		break;
 	}
 }

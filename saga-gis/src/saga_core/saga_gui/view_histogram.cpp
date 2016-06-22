@@ -179,7 +179,7 @@ void CVIEW_Histogram::Do_Update(void)
 void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
 {
 	wxFont	Font;
-	Font.SetFamily(wxSWISS);
+	Font.SetFamily(wxFONTFAMILY_SWISS);
 	dc.SetFont(Font);
 
 	r	= Draw_Get_rDiagram(r);
