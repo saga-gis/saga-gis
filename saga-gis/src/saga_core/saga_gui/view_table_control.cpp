@@ -501,21 +501,17 @@ bool CVIEW_Table_Control::_Set_Scroll_Start(int Position, bool bEnforceUpdate)
 //---------------------------------------------------------
 void CVIEW_Table_Control::AdjustScrollbars(void)
 {
+	//-----------------------------------------------------
 	m_Scroll_Range	= (GetClientSize().y - GetColLabelSize()) / GetDefaultRowSize();
+//	m_Scroll_Range	= GetGridWindow()->GetClientSize().y / GetDefaultRowSize();
 
 	SetScrollbar(wxVERTICAL, m_Scroll_Start, m_Scroll_Range, _Get_Record_Count());
 
 	//-----------------------------------------------------
-	int	Range	= 0;
+	int	Range	= GetGridWindow()->GetVirtualSize().x / GetScrollLineX();
+	int	Thumb	= GetGridWindow()->GetClientSize ().x / GetScrollLineX();
 
-	for(int i=0; i<GetNumberCols(); i++)
-	{
-		Range	+= GetColSize(i);
-	}
-
-	int	Thumb	= (GetClientSize().x - GetRowLabelSize()), dx, dy;	GetScrollPixelsPerUnit(&dx, &dy);
-
-	SetScrollbar(wxHORIZONTAL, GetScrollPos(wxHORIZONTAL), Thumb / dx, Range / dx);
+	SetScrollbar(wxHORIZONTAL, GetScrollPos(wxHORIZONTAL), Thumb, Range);
 }
 
 //---------------------------------------------------------
@@ -586,9 +582,7 @@ void CVIEW_Table_Control::On_Size(wxSizeEvent &event)//&WXUNUSED(event))
 
 		if( Scroll_Range != m_Scroll_Range )
 		{
-			Freeze();
 			_Update_Records();
-			Thaw();
 		}
 	}
 }
