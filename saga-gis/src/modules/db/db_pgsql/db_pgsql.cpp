@@ -198,6 +198,7 @@ bool CSG_PG_Connection::Destroy(void)
 #define	SG_PG_INT4		23
 #define	SG_PG_TEXT		25
 #define	SG_PG_OID		26
+#define SG_PG_DATE		1082
 #define	SG_PG_FLOAT4	700
 #define	SG_PG_FLOAT8	701
 #define SG_PG_VARCHAR	1043
@@ -208,7 +209,7 @@ CSG_String CSG_PG_Connection::Get_Type_To_SQL(TSG_Data_Type Type, int Size)
 	switch( Type )
 	{
 	case SG_DATATYPE_String:	return( CSG_String::Format("varchar(%d)", Size > 0 ? Size : 1) );
-	case SG_DATATYPE_Date:		return( "varchar(16)"      );
+	case SG_DATATYPE_Date:		return( "date"             );
 	case SG_DATATYPE_Char:		return( "char(1)"          );
 	case SG_DATATYPE_Byte:		return( "smallint"         );
 	case SG_DATATYPE_Short:		return( "smallint"         );
@@ -234,6 +235,7 @@ TSG_Data_Type CSG_PG_Connection::Get_Type_From_SQL(int Type)
 	case SG_PG_INT2   :	return( SG_DATATYPE_Short  );	// 2 bytes integer
 	case SG_PG_INT4   :	return( SG_DATATYPE_Int    );	// 4 bytes integer
 	case SG_PG_INT8   :	return( SG_DATATYPE_Long   );	// 8 bytes integer
+	case SG_PG_DATE   :	return( SG_DATATYPE_Date   );
 	case SG_PG_FLOAT4 :	return( SG_DATATYPE_Float  );	// 4 bytes floating point, inexact
 	case SG_PG_FLOAT8 :	return( SG_DATATYPE_Double );	// 8 bytes floating point, inexact
 	case SG_PG_BYTEA  :	return( SG_DATATYPE_Binary );
@@ -808,10 +810,12 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 
 		switch( Table.Get_Field_Type(iField) )
 		{
-		default:
+		case SG_DATATYPE_String: default:
+			Values[iField]	= (char *)SG_Malloc((1 + Table.Get_Field_Length(iField)) * sizeof(char));
+			break;
+
 		case SG_DATATYPE_Date:
-		case SG_DATATYPE_String:
-			Values [iField]	= (char *)SG_Malloc((1 + Table.Get_Field_Length(iField)) * sizeof(char));
+			Values[iField]	= (char *)SG_Malloc(16);
 			break;
 
 		case SG_DATATYPE_Short:
@@ -820,7 +824,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 		case SG_DATATYPE_Long:
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-			Values [iField]	= (char *)SG_Malloc(256);
+			Values[iField]	= (char *)SG_Malloc(256);
 			break;
 
 		case SG_DATATYPE_Binary:
