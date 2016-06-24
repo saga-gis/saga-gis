@@ -1068,35 +1068,35 @@ CSG_String		SG_Number_To_Date(int Value)
 
 CSG_String		SG_Number_To_Date(double Value)
 {
-	int		y, m, d;
+	int	y	= (int)(Value / 10000);	Value	-= y * 10000;
+	int	m	= (int)(Value /   100);	Value	-= m * 100;
+	int	d	= (int)(Value /     1);
 
-	y	= (int)(Value / 10000);	Value	-= y * 10000;
-	m	= (int)(Value / 100);	Value	-= m * 100;
-	d	= (int)(Value / 1);
-
-	return( CSG_String::Format(SG_T("%02d.%02d.%04d"), d, m, y) );
+	return( CSG_String::Format("%04d-%02d-%02d", y, m, d) );	// yyyy-mm-dd (ISO 8601)
 }
 
 //---------------------------------------------------------
 int				SG_Date_To_Number(const CSG_String &String)
 {
-	if( String.Length() > 0 )
+	if( String.Length() >= 10 )
 	{
-		CSG_String	s(String), sValue;
+		if( String[4] == '-' && String[7] == '-' )	// yyyy-mm-dd (ISO 8601)
+		{
+			int	y	= String.BeforeFirst('-').asInt();
+			int	m	= String.AfterFirst ('-').asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
+			int	d	= String.AfterLast  ('-').asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
 
-		sValue	= s.AfterLast	('.');
-		int	y	= sValue.asInt();
-		sValue	= s.BeforeLast	('.');	s		= sValue;
+			return( 10000 * y + 100 * m + 1 * d );
+		}
 
-		sValue	= s.AfterLast	('.');
-		int	m	= sValue.asInt();
-		sValue	= s.BeforeLast	('.');	s		= sValue;
-		int	d	= sValue.asInt();
+		if( String[2] == '.' && String[5] == '.' )	// dd.mm.yyyy
+		{
+			int	y	= String.AfterLast  ('.').asInt();
+			int	m	= String.AfterFirst ('.').asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
+			int	d	= String.BeforeFirst('.').asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
 
-		if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
-		if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
-
-		return( 10000 * y + 100 * m + 1 * d );
+			return( 10000 * y + 100 * m + 1 * d );
+		}
 	}
 
 	return( 0.0 );
