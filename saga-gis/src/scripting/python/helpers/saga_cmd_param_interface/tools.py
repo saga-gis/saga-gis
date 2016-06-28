@@ -428,7 +428,7 @@ tools = [
 ['shapes_tools', 10, 'Transform Shapes'],
 ['shapes_tools', 11, 'Create Chart Layer (bars/sectors)'],
 ['shapes_tools', 12, 'Create Graticule'],
-['shapes_tools', 13, 'Cut Shapes Layer'],
+['shapes_tools', 13, 'Copy Selected Shapes'],
 ['shapes_tools', 15, 'Split Shapes Layer'],
 ['shapes_tools', 16, 'Split Shapes Layer Randomly'],
 ['shapes_tools', 17, 'Split Table/Shapes by Attribute'],
@@ -650,5 +650,17 @@ tools = [
 ['io_gdal', 9, 'Import TMS Image'],
 ['sim_hydrology', 5, 'Surface and Gradient'],
 ['sim_hydrology', 6, 'Concentration'],
-['sim_hydrology', 7, 'Surface, Gradient and Concentration']
+['sim_hydrology', 7, 'Surface, Gradient and Concentration'],
+['climate_tools', 10, 'Bioclimatic Variables'],
+['grid_tools', 36, 'Change a Grid\'s No-Data Value'],
+['imagery_opencv', 5, 'Normal Bayes Classification (OpenCV)'],
+['imagery_opencv', 6, 'K-Nearest Neighbours Classification (OpenCV)'],
+['imagery_opencv', 7, 'Support Vector Machine Classification (OpenCV)'],
+['imagery_opencv', 8, 'Decision Tree Classification (OpenCV)'],
+['imagery_opencv', 9, 'Boosting Classification (OpenCV)'],
+['imagery_opencv', 10, 'Random Forest Classification (OpenCV)'],
+['imagery_opencv', 11, 'Artificial Neural Network Classification (OpenCV)'],
+['io_shapes', 21, 'Import Building Sketches from CityGML'],
+['statistics_grid', 14, 'Categorical Coincidence'],
+['ta_hydrology', 27, 'Maximum Flow Path Length']
 ]
