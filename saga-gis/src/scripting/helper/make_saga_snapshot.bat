@@ -8,7 +8,7 @@ ECHO Enter date of snapshot:
 SET /P DATUM=
 
 SET SAGA_VERSION=saga_%VERSION%_%DATUM%
-SET SAGA_ROOT=D:\saga\saga-code\trunk
+SET SAGA_ROOT=%SAGA%
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
 
@@ -17,7 +17,7 @@ REM win32 Binaries
 SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y "%SAGA_ROOT%\saga-gis\bin\saga_vc_%SAGA_CONFIG%"
+XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
 RMDIR /S/Q _private
 POPD
@@ -30,7 +30,7 @@ REM x64 Binaries
 SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y "%SAGA_ROOT%\saga-gis\bin\saga_vc_%SAGA_CONFIG%"
+XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
 RMDIR /S/Q _private
 POPD

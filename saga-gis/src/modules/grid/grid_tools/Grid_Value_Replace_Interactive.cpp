@@ -150,9 +150,14 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 					Set_Value(m_Kernel.Get_X(i, Point.x), m_Kernel.Get_Y(i, Point.y));
 				}
 			}
+		}
+		return( true );
 
+	case MODULE_INTERACTIVE_LUP:
+		{
 			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
 		}
+		return( true );
 
 	//-----------------------------------------------------
 	default:

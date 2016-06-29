@@ -1,7 +1,7 @@
 @ECHO OFF
 
 REM ___________________________________
-SET SAGA_ROOT=D:\saga\saga-code\trunk\saga-gis
+SET SAGA_ROOT=%SAGA%
 
 REM ___________________________________
 SET OUTDIR=ArcSAGA Toolboxes

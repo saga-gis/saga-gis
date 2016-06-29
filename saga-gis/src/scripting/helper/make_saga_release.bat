@@ -6,13 +6,13 @@ SET SAGA_VER_MINOR=3
 SET SAGA_VER_RELEASE=0
 
 SET SAGA_VERSION=saga_%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
-SET SVN__VERSION=%SAGA_VER_MAJOR%-%SAGA_VER_MINOR%-%SAGA_VER_RELEASE%
+SET TEXT_VERSION=%SAGA_VER_MAJOR%-%SAGA_VER_MINOR%-%SAGA_VER_RELEASE%
 
-SET SAGA_ROOT=D:\saga\saga-code\trunk
+SET SAGA_ROOT=%SAGA%
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
 SET ISETUP="C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
-SET SVNEXE=svn
+SET GITEXE=git
 SET DOXEXE=doxygen.exe
 SET SWIGEXE="D:\libs\swigwin-3.0.7\swig.exe"
 SET PYTHONDIR=D:\libs\Python-2.7
@@ -27,7 +27,7 @@ REM ###################################
 ECHO __________________________________
 ECHO ##################################
 ECHO #
-ECHO # MAKE SAGA RELEASE: %SVN__VERSION%
+ECHO # MAKE SAGA RELEASE: %TEXT_VERSION%
 ECHO #
 ECHO ##################################
 ECHO.
@@ -42,7 +42,7 @@ IF NOT '%CONTINUE%' == 'y' EXIT
 
 REM ___________________________________
 REM Create a branch
-REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%SVN__VERSION% -m "branch release-%SVN__VERSION% created from trunk"
+REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%TEXT_VERSION% -m "branch release-%TEXT_VERSION% created from trunk"
 
 
 REM ___________________________________
@@ -59,14 +59,14 @@ REM win32 Binaries
 SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y "%SAGA_ROOT%\saga-gis\bin\saga_vc_%SAGA_CONFIG%"
+XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
-COPY "%SAGA_ROOT%\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
-COPY "%SAGA_ROOT%\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
+COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
+COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
 %ISETUP% "%SAGA_VERSION%_%SAGA_CONFIG%\saga_setup_%SAGA_CONFIG%.iss"
 MOVE "%SAGA_VERSION%_%SAGA_CONFIG%\%SAGA_VERSION%_%SAGA_CONFIG%_setup.exe"
 
@@ -77,24 +77,24 @@ REM x64 Binaries
 SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
-XCOPY /C/S/Q/Y "%SAGA_ROOT%\saga-gis\bin\saga_vc_%SAGA_CONFIG%"
+XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
 DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
 
-COPY "%SAGA_ROOT%\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
-COPY "%SAGA_ROOT%\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
+COPY "%SAGA_ROOT%\..\saga_setup_readme.rtf" "%SAGA_VERSION%_%SAGA_CONFIG%"
+COPY "%SAGA_ROOT%\..\saga_setup_%SAGA_CONFIG%.iss" "%SAGA_VERSION%_%SAGA_CONFIG%"
 %ISETUP% "%SAGA_VERSION%_%SAGA_CONFIG%\saga_setup_%SAGA_CONFIG%.iss"
 MOVE "%SAGA_VERSION%_%SAGA_CONFIG%\%SAGA_VERSION%_%SAGA_CONFIG%_setup.exe"
 
 RMDIR /S/Q "%SAGA_VERSION%_%SAGA_CONFIG%"
 
 REM ___________________________________
-REM SVN Source Code Repository
-%SVNEXE% checkout svn://svn.code.sf.net/p/saga-gis/code-0/trunk %SAGA_VERSION%_src -q --non-interactive
+REM GIT Source Code Repository
+%GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src -q
 PUSHD %SAGA_VERSION%_src
-RMDIR /S/Q .svn
+RMDIR /S/Q .git
 POPD
 %ZIPEXE% %SAGA_VERSION%_src.zip %SAGA_VERSION%_src
 
@@ -109,8 +109,8 @@ RMDIR /S/Q "%SAGA_VERSION%_api_doc"
 REM ___________________________________
 REM SWIG/Python (win32)
 SET WXWINLIB="%WXWIN%\lib\vc_dll"
-SET SAGA="%SAGA_ROOT%\saga-gis\bin\saga_vc_Win32"
-PUSHD "%SAGA_ROOT%\saga-gis\src\saga_core\saga_api"
+SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_Win32"
+PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
 %SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
 "%PYTHONDIR%\python.exe" saga_api_to_python_win.py install
 MOVE saga_api.py "%PYTHONDIR%\Lib\site-packages\saga_api.py"
@@ -119,8 +119,8 @@ RMDIR /S/Q build
 POPD
 SET PYTHONOUT=Python%PYTHONVER%
 XCOPY /C/Q/Y "%PYTHONDIR%\Lib\site-packages\*saga*.*" "%PYTHONOUT%\Lib\site-packages\"
-COPY "%SAGA_ROOT%\saga-gis\src\scripting\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
-XCOPY /C/Q/Y "%SAGA_ROOT%\saga-gis\src\scripting\python\examples" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
+COPY "%SAGA_ROOT%\src\scripting\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
+XCOPY /C/Q/Y "%SAGA_ROOT%\src\scripting\python\examples" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 %ZIPEXE% %SAGA_VERSION%_win32_python%PYTHONVER%.zip "%PYTHONOUT%"
 RMDIR /S/Q "%PYTHONOUT%"
 
@@ -166,6 +166,6 @@ ECHO.
 ECHO - Add new bug tracker milestone for next version
 ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
 ECHO.
-ECHO - Commit a comment like: SAGA version updated to %SVN__VERSION%
+ECHO - Commit a comment like: SAGA version updated to %TEXT_VERSION%
 
 PAUSE

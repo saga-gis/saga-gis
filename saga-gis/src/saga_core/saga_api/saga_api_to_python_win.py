@@ -15,12 +15,12 @@ module1 = Extension(
 
 	library_dirs = [
 		os.environ['WXWINLIB'],
-		os.environ['SAGA']
+		os.environ['SAGA_LIB']
 	],
 
 	libraries = [
-		'wxbase30u_xml',
-		'wxbase30u',
+		'wxbase31u_xml',
+		'wxbase31u',
 		'saga_api'
 	],
 

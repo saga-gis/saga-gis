@@ -3,16 +3,16 @@
 rem #########################################
 set SWIG=D:\libs\swigwin-3.0.7
 set PYTHONPATH=D:\libs\Python-2.7
-set WXWIN=D:\libs\wxWidgets-3.0.2
+
 set WXWINLIB=%WXWIN%\lib\vc_dll
-set SAGA=D:\saga\saga-code\trunk\saga-gis\bin\saga_vc_Win32
+set SAGA_LIB=%SAGA%\bin\saga_vc_Win32
 rem set WXWINLIB=%WXWIN%\lib\vc_x64_dll
-rem set SAGA=D:\saga\saga-code\trunk\saga-gis\bin\saga_vc_x64
+rem set SAGA_LIB=%SAGA%\bin\saga_vc_x64
 
 rem #########################################
 echo ________________________________________
 echo SWIG compilation...
-"%SWIG%\swig" -c++ -python -includeall -I%SAGA%/include/saga_api -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+"%SWIG%\swig" -c++ -python -includeall -I%SAGA_LIB%/include/saga_api -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
 echo SWIG compilation finished.
 
 rem #########################################
