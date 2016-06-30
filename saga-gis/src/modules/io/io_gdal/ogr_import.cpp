@@ -187,10 +187,20 @@ bool COGR_Import::On_Execute(void)
 				{
 					Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
 
+					CSG_String	Name	= pShapes->Get_Name();
+
 					pShapes->Get_MetaData().Add_Child("GDAL_DRIVER", DataSource.Get_DriverID());
 					pShapes->Set_File_Name(Files[iFile]);
-					pShapes->Set_Name(SG_File_Get_Name(Files[iFile], false) + (DataSource.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%d]", 1 + iLayer)));
 					pShapes->Set_Description(DataSource.Get_Description(iLayer));
+
+					if( Name.is_Empty() )
+					{
+						pShapes->Set_Name(SG_File_Get_Name(Files[iFile], false) + (DataSource.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%d]", 1 + iLayer)));
+					}
+					else
+					{
+						pShapes->Set_Name(Name);
+					}
 				}
 			}
 		}
