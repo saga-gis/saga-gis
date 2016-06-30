@@ -7,7 +7,7 @@
 
 [Setup]
 AppName=SAGA - System for Automated Geoscientific Analyses
-AppVerName=SAGA 2.3.0
+AppVerName=SAGA 2.3.1
 
 DefaultDirName={pf}\SAGA-GIS
 DefaultGroupName=SAGA GIS
@@ -19,9 +19,9 @@ Compression=lzma
 SolidCompression=yes
 
 OutputDir=.
-OutputBaseFilename=saga_2.3.0_win32_setup
+OutputBaseFilename=saga_2.3.1_win32_setup
 
-VersionInfoVersion=2.3.0.0
+VersionInfoVersion=2.3.1.0
 VersionInfoCompany=SAGA User Group Association
 VersionInfoCopyright=(c) 2005-2016 by O. Conrad
 VersionInfoDescription=SAGA GIS single-file installer
@@ -46,5 +46,5 @@ Name: "{commondesktop}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: ""; ValueData: "{app}\saga_gui.exe"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\2.3.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\2.3.0"; ValueType: string; ValueName: "Version"; ValueData: "2.3.0.0"
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\2.3.1"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\2.3.1"; ValueType: string; ValueName: "Version"; ValueData: "2.3.1.0"
