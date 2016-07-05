@@ -17,29 +17,14 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="change_detection.cpp">
+    <ClCompile Include="classify_isocluster.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="classify_cluster_analysis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="classify_supervised.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="decision_tree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="classify_supervised_polygons.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="classification_quality.cpp">
+    <ClCompile Include="cluster_isodata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -91,22 +76,10 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="change_detection.h">
+    <ClInclude Include="classify_isocluster.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="classify_cluster_analysis.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="classify_supervised.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="decision_tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="classify_supervised_polygons.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="classification_quality.h">
+    <ClInclude Include="cluster_isodata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
