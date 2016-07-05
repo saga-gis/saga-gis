@@ -11,19 +11,15 @@ libimagery_classification_la_SOURCES =\
 change_detection.cpp\
 classification_quality.cpp\
 classify_cluster_analysis.cpp\
-classify_isocluster.cpp\
 classify_supervised.cpp\
 classify_supervised_polygons.cpp\
-cluster_isodata.cpp\
 decision_tree.cpp\
 MLB_Interface.cpp\
 change_detection.h\
 classification_quality.h\
 classify_cluster_analysis.h\
-classify_isocluster.h\
 classify_supervised.h\
 classify_supervised_polygons.h\
-cluster_isodata.h\
 decision_tree.h\
 MLB_Interface.h
 
