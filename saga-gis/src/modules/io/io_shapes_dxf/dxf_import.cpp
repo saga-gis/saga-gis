@@ -63,7 +63,11 @@
 //---------------------------------------------------------
 #include "dxf_import.h"
 
+#ifdef SYSTEM_DXFLIB
+#include <dxflib/dl_dxf.h>
+#else
 #include "./dxflib/dl_dxf.h"
+#endif
 
 
 ///////////////////////////////////////////////////////////

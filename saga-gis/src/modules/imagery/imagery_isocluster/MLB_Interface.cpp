@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                imagery_classification                 //
+//                  imagery_isocluster                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   MLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 3 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -34,9 +32,7 @@
 //                                                       //
 // You should have received a copy of the GNU General    //
 // Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// see <http://www.gnu.org/licenses/>.                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -44,9 +40,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -63,7 +57,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -74,16 +68,16 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case MLB_INFO_Name:	default:
-		return( _TL("Classification") );
+		return( _TL("ISODATA Clustering") );
 
 	case MLB_INFO_Category:
 		return( _TL("Imagery") );
 
 	case MLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002-11") );
+		return( SG_T("O. Conrad (c) 2016") );
 
 	case MLB_INFO_Description:
-		return( _TL("Classification tools for grids.") );
+		return( _TL("ISODATA Clustering tools") );
 
 	case MLB_INFO_Version:
 		return( SG_T("1.0") );
@@ -97,12 +91,7 @@ CSG_String Get_Info(int i)
 //---------------------------------------------------------
 // 3. Include the headers of your modules here...
 
-#include "classify_supervised.h"
-#include "classify_cluster_analysis.h"
-#include "change_detection.h"
-#include "decision_tree.h"
-#include "classify_supervised_polygons.h"
-#include "classification_quality.h"
+#include "classify_isocluster.h"
 
 
 //---------------------------------------------------------
@@ -112,15 +101,9 @@ CSG_Module *		Create_Module(int i)
 {
 	switch( i )
 	{
-	case  0:	return( new CGrid_Classify_Supervised );
-	case  1:	return( new CGrid_Cluster_Analysis );
-	case  2:	return( new CChange_Detection );
-	case  3:	return( new CDecision_Tree );
-	case  4:	return( new CPolygon_Classify_Supervised( true) );
-	case  5:	return( new CPolygon_Classify_Supervised(false) );
-	case  6:	return( new CClassification_Quality );
+	case  0:	return( new CGrid_Cluster_ISODATA );
 
-	case  8:	return( NULL );
+	case  1:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );
 	}
 }

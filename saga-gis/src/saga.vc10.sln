@@ -376,6 +376,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "modules\si
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_isocluster", "modules\imagery\imagery_isocluster\imagery_isocluster.vcxproj", "{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -990,6 +992,14 @@ Global
 		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|Win32.Build.0 = Release|Win32
 		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|x64.ActiveCfg = Release|x64
 		{C4C61CA0-282B-47D9-8046-C4C33D11C31A}.Release|x64.Build.0 = Release|x64
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Debug|Win32.Build.0 = Debug|Win32
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Debug|x64.ActiveCfg = Debug|x64
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Debug|x64.Build.0 = Debug|x64
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|Win32.ActiveCfg = Release|Win32
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|Win32.Build.0 = Release|Win32
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|x64.ActiveCfg = Release|x64
+		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
