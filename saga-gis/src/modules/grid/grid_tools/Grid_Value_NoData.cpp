@@ -77,7 +77,7 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 	Set_Author		("O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
-		"This tool allows to change a grid's no-data value or value range "
+		"This tool allows changing a grid's no-data value or value range "
 		"definition. It does not change the cell values of the grid. "
 		"Its main purpose is to support this type of operation for tool "
 		"chains and scripting environments."
