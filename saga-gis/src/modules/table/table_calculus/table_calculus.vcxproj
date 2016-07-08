@@ -312,6 +312,7 @@
     <ClCompile Include="table_fill_record_gaps.cpp" />
     <ClCompile Include="table_mRMR.cpp" />
     <ClCompile Include="table_pca.cpp" />
+    <ClCompile Include="table_record_statistics.cpp" />
     <ClCompile Include="table_running_average.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -342,6 +343,7 @@
     <ClInclude Include="table_fill_record_gaps.h" />
     <ClInclude Include="table_mRMR.h" />
     <ClInclude Include="table_pca.h" />
+    <ClInclude Include="table_record_statistics.h" />
     <ClInclude Include="table_running_average.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

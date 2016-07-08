@@ -21,6 +21,7 @@ table_field_statistics.cpp\
 table_fill_record_gaps.cpp\
 table_mRMR.cpp\
 table_pca.cpp\
+table_record_statistics.cpp\
 table_running_average.cpp\
 Fit.h\
 LMFit.h\
@@ -32,6 +33,7 @@ table_field_statistics.h\
 table_fill_record_gaps.h\
 table_mRMR.h\
 table_pca.h\
+table_record_statistics.h\
 table_running_average.h
 
 libtable_calculus_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
