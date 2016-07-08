@@ -190,7 +190,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	Quantile	= Parameters("PCTL_VAL")->asDouble() / 100.0;
+	double	Quantile	= Parameters("PCTL_VAL")->asDouble();
 
 	int	offResult	= pTable->Get_Field_Count();
 
@@ -302,6 +302,8 @@ CTable_Record_Statistics::CTable_Record_Statistics(void)
 CTable_Record_Statistics_Shapes::CTable_Record_Statistics_Shapes(void)
 	: CTable_Record_Statistics_Base()
 {
+	Set_Name		(_TL("Record Statistics (Shapes)"));
+
 	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
 		NULL	, "TABLE"		, _TL("Table"),
 		_TL(""),
