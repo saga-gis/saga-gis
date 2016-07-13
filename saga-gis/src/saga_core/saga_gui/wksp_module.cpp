@@ -698,13 +698,13 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 		s	+= "    #    fDEM    = './' + fDEM\n";
 		s	+= "    fDEM = './../test_data/test.sgrd'  # remove this line once you have edited the script\n";
 		s	+= "\n\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(1)\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(True)\n";
 		s	+= "    if os.name == 'nt':    # Windows\n";
 		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'\n";
 		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)\n";
 		s	+= "    else:                  # Linux\n";
 		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(0)\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
 		s	+= "\n";
 		s	+= "    Call_SAGA_Module(fDEM)             # pass your input file(s) here\n";
 	//	s	+= "    else:\n";
