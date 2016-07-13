@@ -194,6 +194,16 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 			continue;
 		}
 
+		if( Parameter.Get_Property("with_gui") && !IS_TRUE_PROPERTY(Parameter, "with_gui") && SG_UI_Get_Window_Main() == NULL )
+		{
+			continue;
+		}
+
+		if( Parameter.Get_Property("with_cmd") && !IS_TRUE_PROPERTY(Parameter, "with_cmd") && SG_UI_Get_Window_Main() != NULL )
+		{
+			continue;
+		}
+
 		//-------------------------------------------------
 		int			Constraint	= 0;
 		CSG_String	Value;
