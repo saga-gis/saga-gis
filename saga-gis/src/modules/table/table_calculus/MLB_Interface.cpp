@@ -106,6 +106,7 @@ CSG_String Get_Info(int i)
 #include "table_field_analyzer.h"
 #include "table_mRMR.h"
 #include "table_field_statistics.h"
+#include "table_record_statistics.h"
 
 
 //---------------------------------------------------------
@@ -132,6 +133,8 @@ CSG_Module *		Create_Module(int i)
 	case 12:	return( new CTable_mRMR );
 
 	case 15:	return( new CTable_Field_Statistics() );
+	case 16:	return( new CTable_Record_Statistics() );
+	case 17:	return( new CTable_Record_Statistics_Shapes() );
 
 	//-----------------------------------------------------
 	case 19:	return( NULL );

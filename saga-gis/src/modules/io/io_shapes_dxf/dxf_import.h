@@ -74,7 +74,11 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#ifdef SYSTEM_DXFLIB
+#include <dxflib/dl_creationadapter.h>
+#else
 #include "./dxflib/dl_creationadapter.h"
+#endif
 
 
 ///////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@
  *
  * Revisions:      15/11/2002 PS: Changed name from "utils.c"
  *                 28/02/2003 PS: Modified points_read() to do the job without
- *                   rewinding the file. This allows to read from stdin when
+ *                   rewinding the file. This allows reading from stdin when
  *                   necessary.
  *                 09/04/2003 PS: Modified points_read() to read from a
  *                   file specified by name, not by handle.

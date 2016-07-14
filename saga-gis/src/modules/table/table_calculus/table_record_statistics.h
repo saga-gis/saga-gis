@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Value_NoData.cpp 2871 2016-03-30 11:32:35Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                      Grid_Tools                       //
+//                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Grid_Value_NoData.cpp                //
+//               table_record_statistics.h               //
 //                                                       //
 //                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
@@ -51,6 +48,15 @@
 
 //---------------------------------------------------------
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -59,58 +65,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Grid_Value_NoData.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CGrid_Value_NoData::CGrid_Value_NoData(void)
+class CTable_Record_Statistics_Base : public CSG_Module  
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Change a Grid's No-Data Value"));
+public:
+	CTable_Record_Statistics_Base(void);
 
-	Set_Author		("O.Conrad (c) 2016");
 
-	Set_Description	(_TW(
-		"This tool allows changing a grid's no-data value or value range "
-		"definition. It does not change the cell values of the grid. "
-		"Its main purpose is to support this type of operation for tool "
-		"chains and scripting environments."
-	));
+protected:
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Type"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("single value"),
-			_TL("value range")
-		), 0
-	);
+	virtual bool			On_Execute				(void);
 
-	Parameters.Add_Double(
-		NULL	, "VALUE"	, _TL("No-Data Value"),
-		_TL(""),
-		-99999.
-	);
-
-	Parameters.Add_Range(
-		NULL	, "RANGE"	, _TL("No-Data Value Range"),
-		_TL(""),
-		-99999., -99999.
-	);
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -118,41 +85,12 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+class CTable_Record_Statistics : public CTable_Record_Statistics_Base  
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() )
-	{
-		CSG_Grid	*pGrid	= pParameter->asGrid();
+public:
+	CTable_Record_Statistics(void);
 
-		pParameters->Set_Parameter("VALUE",
-			pGrid->Get_NoData_Value()
-		);
-
-		pParameters->Get_Parameter("RANGE")->asRange()->Set_Range(
-			pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue()
-		);
-
-		pParameters->Set_Parameter("TYPE",
-			pGrid->Get_NoData_Value() < pGrid->Get_NoData_hiValue() ? 1 : 0
-		);
-
-		On_Parameters_Enable(pParameters, pParameters->Get_Parameter("TYPE"));
-	}
-
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
-}
-
-//---------------------------------------------------------
-int CGrid_Value_NoData::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TYPE") )
-	{
-		pParameters->Set_Enabled("VALUE", pParameter->asInt() == 0);
-		pParameters->Set_Enabled("RANGE", pParameter->asInt() == 1);
-	}
-
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -160,35 +98,14 @@ int CGrid_Value_NoData::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Value_NoData::On_Execute(void)
+class CTable_Record_Statistics_Shapes : public CTable_Record_Statistics_Base  
 {
-	//-----------------------------------------------------
-	bool	bUpdate;
+public:
+	CTable_Record_Statistics_Shapes(void);
 
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
 
-	if( Parameters("TYPE")->asInt() == 0 )
-	{
-		bUpdate	= pGrid->Set_NoData_Value(
-			Parameters("VALUE")->asDouble()
-		);
-	}
-	else
-	{
-		bUpdate	= pGrid->Set_NoData_Value_Range(
-			Parameters("RANGE")->asRange()->Get_LoVal(),
-			Parameters("RANGE")->asRange()->Get_HiVal()
-		);
-	}
-
-	if( bUpdate )
-	{
-		DataObject_Update(pGrid);
-	}
-
-	//-------------------------------------------------
-	return( true );
-}
+};
 
 
 ///////////////////////////////////////////////////////////

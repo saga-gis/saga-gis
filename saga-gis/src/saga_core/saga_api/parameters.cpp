@@ -1427,43 +1427,28 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 		}
 
 		//-------------------------------------------------
-		else
+		else if( p->is_Output() )
 		{
-			if( p->Get_Type() == PARAMETER_TYPE_Shapes
-			&&  p->asShapes() != DATAOBJECT_NOTSET
-			&&  p->asShapes() != DATAOBJECT_CREATE
-			&&  p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined )
+			if( p->is_DataObject() )
 			{
-				if( m_pManager && !m_pManager->Delete(p->asShapes()) )
+				CSG_Data_Object	*pObject	= p->asDataObject();
+
+				if( pObject != DATAOBJECT_NOTSET
+				&&  pObject != DATAOBJECT_CREATE )
 				{
-					delete(p->asShapes());
-				}
-
-				p->Set_Value(DATAOBJECT_NOTSET);
-			}
-
-			//---------------------------------------------
-			if( p->is_Output() )
-			{
-				if( p->is_DataObject()
-				&&  p->asDataObject() != DATAOBJECT_NOTSET
-				&&  p->asDataObject() != DATAOBJECT_CREATE )
-				{
-					CSG_Data_Object	*pObject	= p->asDataObject();
-
-					if( m_pManager && !m_pManager->Exists(pObject) )
+					if( pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+					&&  p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined
+					&&  (m_pManager == &SG_Get_Data_Manager() || !SG_Get_Data_Manager().Exists(pObject)) )
 					{
-						m_pManager->Add(pObject);
+						if( m_pManager && !m_pManager->Delete(pObject) )
+						{
+							delete(pObject);
+						}
+
+						p->Set_Value(DATAOBJECT_NOTSET);
 					}
-
-					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
-				}
-				else if( p->is_DataObject_List() )
-				{
-					for(int j=0; j<p->asList()->Get_Count(); j++)
+					else
 					{
-						CSG_Data_Object	*pObject	= p->asList()->asDataObject(j);
-
 						if( m_pManager && !m_pManager->Exists(pObject) )
 						{
 							m_pManager->Add(pObject);
@@ -1471,6 +1456,22 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 
 						SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 					}
+				}
+			}
+
+			//---------------------------------------------
+			else if( p->is_DataObject_List() )
+			{
+				for(int j=0; j<p->asList()->Get_Count(); j++)
+				{
+					CSG_Data_Object	*pObject	= p->asList()->asDataObject(j);
+
+					if( m_pManager && !m_pManager->Exists(pObject) )
+					{
+						m_pManager->Add(pObject);
+					}
+
+					SG_UI_DataObject_Update(pObject, SG_UI_DATAOBJECT_UPDATE_ONLY, NULL);
 				}
 			}
 		}

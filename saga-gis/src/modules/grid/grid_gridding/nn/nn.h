@@ -228,7 +228,7 @@ void nnpi_setwmin(nnpi* nn, double wmin);
 /** `nnhpi' -- "Natural Neighbours Hashing Point Interpolator" -- is a
  ** structure for conducting consequitive Natural Neighbours interpolations
  ** from the same set of observation points, designed to take advantage of
- ** repeated interpolations in the same point. It allows to modify Z
+ ** repeated interpolations in the same point. It allows modifying Z
  ** coordinate of observed data between interpolations (because this does not
  ** affect the interpolant weights).
  */
@@ -279,7 +279,7 @@ void nnhpi_setwmin(nnhpi* nn, double wmin);
 
 /** `nnai' -- "Natural Neighbours Array Interpolator" is a structure for
  ** conducting consequitive Natural Neighbours interpolations from the same
- ** set of observation points in the same set of points. It allows to modify Z
+ ** set of observation points in the same set of points. It allows modifying Z
  ** coordinate of data between interpolations (because this does not
  ** affect the interpolant weights).
  *
