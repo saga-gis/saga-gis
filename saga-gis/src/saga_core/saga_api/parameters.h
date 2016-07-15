@@ -1333,6 +1333,8 @@ public:
 	bool						Set_Value				(int               Value);
 	bool						Set_Value				(double            Value);
 	bool						Set_Value				(const CSG_String &Value);
+	bool						Set_Value				(const char       *Value);
+	bool						Set_Value				(const wchar_t    *Value);
 	bool						Set_Value				(void             *Value);
 	bool						Set_Value				(CSG_Parameter    *Value);
 

@@ -337,13 +337,16 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("COLORS_FONT")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_FONT") )
 		{
-			int		zField	= pParameters->Get_Parameter("METRIC_ATTRIB")->asInt();
+			Set_Metrics(
+				pParameters->Get_Parameter("METRIC_ATTRIB")->asInt(),
+				pParameters->Get_Parameter("METRIC_NORMAL")->asInt()
+			);
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				Get_Shapes()->Get_Minimum(zField),
-				Get_Shapes()->Get_Maximum(zField)
+				m_Metrics.Get_Minimum(),
+				m_Metrics.Get_Maximum()
 			);
 		}
 	}
@@ -351,12 +354,12 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DISPLAY_SYMBOL_TYPE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DISPLAY_SYMBOL_TYPE") )
 		{
 			pParameters->Get_Parameter("DISPLAY_SYMBOL_IMAGE")->Set_Enabled(pParameter->asInt() == pParameter->asChoice()->Get_Count() - 1);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ATTRIB")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -366,7 +369,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Get_Parameter("LABEL_ALIGN_Y"     )->Set_Enabled(Value);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SIZE_ATTRIB")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -375,7 +378,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LABEL_ANGLE_ATTRIB")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ANGLE_ATTRIB") )
 		{
 			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(pParameter->asInt() >= Get_Shapes()->Get_Field_Count());
 		}

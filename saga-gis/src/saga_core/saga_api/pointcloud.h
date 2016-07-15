@@ -200,6 +200,8 @@ public:
 protected:
 
 	virtual bool					On_Update			(void);
+	virtual bool					On_Reload			(void);
+	virtual bool					On_Delete			(void);
 
 	virtual bool					On_NoData_Changed	(void);
 

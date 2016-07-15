@@ -87,7 +87,7 @@ CWKSP_Shapes_Points::CWKSP_Shapes_Points(CSG_Shapes *pShapes)
 //---------------------------------------------------------
 void CWKSP_Shapes_Points::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_iColor >= 0 && pShape->is_NoData(m_iColor)) )
+	if( (m_iSize >= 0 && pShape->is_NoData(m_iSize)) || (m_fValue >= 0 && pShape->is_NoData(m_fValue)) )
 		return;
 
 	//-----------------------------------------------------

@@ -99,9 +99,13 @@ public:
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
+	virtual double				Get_Value_Minimum		(void);
+	virtual double				Get_Value_Maximum		(void);
 	virtual double				Get_Value_Range			(void);
+	virtual double				Get_Value_Mean			(void);
+	virtual double				Get_Value_StdDev		(void);
 
-	int							Get_Color_Field			(void)	{	return( m_Color_Field );		}
+	int							Get_Field_Value			(void)	{	return( m_fValue );		}
 
 	bool						asImage					(CSG_Grid *pImage);
 
@@ -129,7 +133,7 @@ protected:
 
 private:
 
-	int							m_Color_Field, m_PointSize, m_Aggregation;
+	int							m_fValue, m_PointSize, m_Aggregation;
 
 	wxColour					m_Color_Pen;
 

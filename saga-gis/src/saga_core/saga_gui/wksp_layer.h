@@ -102,7 +102,11 @@ public:
 	bool							Set_Color_Range			(double zMin, double zMax);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
+	virtual double					Get_Value_Minimum		(void)								= 0;
+	virtual double					Get_Value_Maximum		(void)								= 0;
 	virtual double					Get_Value_Range			(void)								= 0;
+	virtual double					Get_Value_Mean			(void)								= 0;
+	virtual double					Get_Value_StdDev		(void)								= 0;
 
 	void							Draw					(CWKSP_Map_DC &dc_Map, int Flags = 0);
 

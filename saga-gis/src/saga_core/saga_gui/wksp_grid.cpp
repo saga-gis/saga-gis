@@ -197,19 +197,29 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SHOW);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+
 	if( PGSQL_has_Connections() )
-	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
-	}
+
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SAVEAS_IMAGE);
+
+	if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
+
+	if( m_pObject->is_File_Native() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRIDS_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SCATTERPLOT);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_SET_LUT);
@@ -906,11 +916,17 @@ wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 	return( s );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CWKSP_Grid::Get_Value_Range(void)
-{
-	return( Get_Grid()->Get_ZRange() );
-}
+double CWKSP_Grid::Get_Value_Minimum(void)	{	return( ((CSG_Grid *)m_pObject)->Get_ZMin  () );	}
+double CWKSP_Grid::Get_Value_Maximum(void)	{	return( ((CSG_Grid *)m_pObject)->Get_ZMax  () );	}
+double CWKSP_Grid::Get_Value_Range  (void)	{	return( ((CSG_Grid *)m_pObject)->Get_ZRange() );	}
+double CWKSP_Grid::Get_Value_Mean   (void)	{	return( ((CSG_Grid *)m_pObject)->Get_Mean  () );	}
+double CWKSP_Grid::Get_Value_StdDev (void)	{	return( ((CSG_Grid *)m_pObject)->Get_StdDev() );	}
 
 
 ///////////////////////////////////////////////////////////

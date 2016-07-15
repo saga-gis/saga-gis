@@ -116,10 +116,15 @@ public:
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
 	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
+	virtual double				Get_Value_Minimum		(void);
+	virtual double				Get_Value_Maximum		(void);
 	virtual double				Get_Value_Range			(void);
+	virtual double				Get_Value_Mean			(void);
+	virtual double				Get_Value_StdDev		(void);
 
-	int							Get_Color_Field			(void)	{	return( m_iColor );		}
-	int							Get_Label_Field			(void)	{	return( m_iLabel );		}
+	int							Get_Field_Value			(void)	{	return( m_fValue  );	}
+	int							Get_Field_Normal		(void)	{	return( m_fNormal );	}
+	int							Get_Field_Label			(void)	{	return( m_fLabel  );	}
 
 	wxString					Get_Name_Attribute		(void);
 
@@ -139,14 +144,18 @@ protected:
 
 	bool						m_bVertices;
 
-	int							m_iColor, m_iLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint, m_Label_Eff_Size;
+	int							m_fValue, m_fNormal, m_fLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint, m_Label_Eff_Size;
 
 	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
+
+	CSG_Simple_Statistics		m_Metrics;
 
 	CSG_Shape					*m_Edit_pShape;
 
 	class CWKSP_Table			*m_pTable;
 
+
+	bool						Set_Metrics				(int zField, int nField);
 
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);

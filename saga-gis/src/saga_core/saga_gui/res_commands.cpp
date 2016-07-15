@@ -170,6 +170,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_SAVE:				return( _TL("Save") );
 	case ID_CMD_DATA_SAVEAS:			return( _TL("Save as...") );
 	case ID_CMD_DATA_SAVETODB:			return( _TL("Save to Database...") );
+	case ID_CMD_DATA_RELOAD:			return( _TL("Reload") );
+	case ID_CMD_DATA_DEL_FILES:			return( _TL("Delete Associated Files") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
 
 	case ID_CMD_GRIDS_OPEN:

@@ -75,6 +75,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Shapes::On_Reload(void)
+{
+	return( Create(Get_File_Name(false)) );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes::On_Delete(void)
+{
+	CSG_String	File_Name	= Get_File_Name(true);
+
+	SG_File_Set_Extension(File_Name, "shp"); SG_File_Delete(File_Name);
+	SG_File_Set_Extension(File_Name, "shx"); SG_File_Delete(File_Name);
+	SG_File_Set_Extension(File_Name, "dbf"); SG_File_Delete(File_Name);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 {
 	int				Type, iField, iPart, nParts, *Parts, iPoint, nPoints, iOffset;

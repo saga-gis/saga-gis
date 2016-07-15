@@ -174,22 +174,29 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SHOW);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+
 	if( PGSQL_has_Connections() )
-	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
-	}
+
+	if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
+
+	if( m_pObject->is_File_Native() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pMenu->AppendSeparator();
-
 	wxMenu	*pTable	= new wxMenu(_TL("Attributes"));
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
@@ -353,6 +360,11 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		_TL("")
 	);
 
+	AttributeList_Add(
+		m_Parameters("NODE_METRIC")		, "METRIC_NORMAL"			, _TL("Normalize"),
+		_TL("")
+	);
+
 	//-----------------------------------------------------
 	// Display...
 
@@ -481,6 +493,7 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 
 	AttributeList_Set(m_Parameters("LUT_ATTRIB"          ), false);
 	AttributeList_Set(m_Parameters("METRIC_ATTRIB"       ), false);
+	AttributeList_Set(m_Parameters("METRIC_NORMAL"       ), true );
 	AttributeList_Set(m_Parameters("LABEL_ATTRIB"        ), true );
 	AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY"), true );
 
@@ -499,35 +512,39 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:
-	case 0:	m_iColor	= -1;										break;	// CLASSIFY_UNIQUE
-	case 1:	m_iColor	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
-	case 2:	m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
-	case 3:	m_iColor	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
+	default:	// CLASSIFY_UNIQUE
+		m_fValue	= -1;
+		m_fNormal	= -1;
+		break;
+
+	case  1:	// CLASSIFY_LUT
+		m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	if( m_fValue >= Get_Shapes()->Get_Field_Count() )	{	m_fValue	= -1;	}
+		m_fNormal	= -1;
+
+		{
+			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_Parameters("LUT_ATTRIB")->asInt())) ? SG_DATATYPE_Double : SG_DATATYPE_String;
+
+			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
+			m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
+		}
+		break;
+
+	case  2:	// CLASSIFY_DISCRETE
+	case  3:	// CLASSIFY_GRADUATED
+		m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	if( m_fValue >= Get_Shapes()->Get_Field_Count() )	{	m_fValue	= -1;	}
+		m_fNormal	= m_Parameters("METRIC_NORMAL")->asInt();	if( m_fNormal >= Get_Shapes()->Get_Field_Count() )	{	m_fNormal	= -1;	}
+		break;
 	}
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == 1 )	// CLASSIFY_LUT
-	{
-		TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_Parameters("LUT_ATTRIB")->asInt())) ? SG_DATATYPE_Double : SG_DATATYPE_String;
-
-		m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MIN, Type);
-		m_Parameters("LUT")->asTable()->Set_Field_Type(LUT_MAX, Type);
-	}
-
-	if( m_iColor >= Get_Shapes()->Get_Field_Count() )
-	{
-		m_iColor	= -1;
-	}
-
-	if( m_iColor < 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
+	if( m_fValue < 0 )
 	{
 		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
 	}
 
 	//-----------------------------------------------------
-	if( (m_iLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
+	if( (m_fLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
 	{
-		m_iLabel	= -1;
+		m_fLabel	= -1;
 	}
 
 	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC"        )->asInt  () - 2;
@@ -561,19 +578,60 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Shapes::Set_Metrics(int zField, int nField)
+{
+	if( zField < Get_Shapes()->Get_Field_Count() )
+	{
+		if( nField < Get_Shapes()->Get_Field_Count() )
+		{
+			m_Metrics.Create();
+
+			for(int i=0; i<Get_Shapes()->Get_Count(); i++)
+			{
+				double	z	= Get_Shapes()->Get_Record(i)->asDouble(zField);
+				double	n	= Get_Shapes()->Get_Record(i)->asDouble(nField);
+					
+				if( !Get_Shapes()->is_NoData_Value(z) && !Get_Shapes()->is_NoData_Value(n) && n != 0.0 )
+				{
+					m_Metrics.Add_Value(z / n);
+				}
+			}
+		}
+		else
+		{
+			m_Metrics.Create(Get_Shapes()->Get_Statistics(zField));
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+//---------------------------------------------------------
 int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE")
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB") )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE"  )
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB")
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_NORMAL") )
 		{
-			int		zField	= pParameters->Get_Parameter("METRIC_ATTRIB")->asInt();
+			Set_Metrics(
+				pParameters->Get_Parameter("METRIC_ATTRIB")->asInt(),
+				pParameters->Get_Parameter("METRIC_NORMAL")->asInt()
+			);
 
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				Get_Shapes()->Get_Minimum(zField),
-				Get_Shapes()->Get_Maximum(zField)
+				m_Metrics.Get_Minimum(),
+				m_Metrics.Get_Maximum()
 			);
 		}
 
@@ -870,35 +928,50 @@ void CWKSP_Shapes::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	CSG_Shape		*pShape;
+	CSG_Shape	*pShape	= Get_Shapes()->Get_Shape(ptWorld, Epsilon);
 
-	if( (pShape = Get_Shapes()->Get_Shape(ptWorld, Epsilon)) != NULL )
+	if( pShape == NULL )
 	{
-		if( m_iColor >= 0 )
-		{
-			switch( m_pClassify->Get_Mode() )
-			{
-			case CLASSIFY_LUT:
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asString(m_iColor)) );
+		return( _TL("") );
+	}
 
-			case CLASSIFY_METRIC:	default:
-				return( pShape->asString(m_iColor) );
-			}
-		}
-		else
+	if( m_fValue < 0 )
+	{
+		return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
+	}
+
+	if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
+	{
+		return( m_pClassify->Get_Class_Name_byValue(pShape->asString(m_fValue)) );
+	}
+
+	if( !pShape->is_NoData(m_fValue) )
+	{
+		if( m_fNormal < 0 )
 		{
-			return( wxString::Format(wxT("%s: %d"), _TL("Index"), pShape->Get_Index() + 1) );
+			return( pShape->asString(m_fValue) );
+		}
+
+		if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0.0 )
+		{
+			return( wxString::Format("%f", pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal)) );
 		}
 	}
 
 	return( _TL("") );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CWKSP_Shapes::Get_Value_Range(void)
-{
-	return( m_iColor >= 0 ? Get_Shapes()->Get_Range(m_iColor) : 0.0 );
-}
+double CWKSP_Shapes::Get_Value_Minimum(void)	{	return( m_Metrics.Get_Minimum() );	}
+double CWKSP_Shapes::Get_Value_Maximum(void)	{	return( m_Metrics.Get_Maximum() );	}
+double CWKSP_Shapes::Get_Value_Range  (void)	{	return( m_Metrics.Get_Range  () );	}
+double CWKSP_Shapes::Get_Value_Mean   (void)	{	return( m_Metrics.Get_Mean   () );	}
+double CWKSP_Shapes::Get_Value_StdDev (void)	{	return( m_Metrics.Get_StdDev () );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -910,7 +983,7 @@ double CWKSP_Shapes::Get_Value_Range(void)
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Name_Attribute(void)
 {
-	return(	m_iColor < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_Shapes()->Get_Field_Name(m_iColor) );
+	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_Shapes()->Get_Field_Name(m_fValue) );
 }
 
 
@@ -994,7 +1067,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		{
 			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 			{
-				if( (m_pClassify->Get_Mode() != CLASSIFY_METRIC || m_iColor < 0 || !Get_Shapes()->Get_Shape(iShape)->is_NoData(m_iColor)) )
+				if( (m_pClassify->Get_Mode() != CLASSIFY_METRIC || m_fValue < 0 || !Get_Shapes()->Get_Shape(iShape)->is_NoData(m_fValue)) )
 				{
 					_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
 				}
@@ -1010,7 +1083,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		}
 
 		//-------------------------------------------------
-		if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_iLabel >= 0 )
+		if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_fLabel >= 0 )
 		{
 			int		iSize	= m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
 			double	dSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?
@@ -1098,7 +1171,7 @@ void CWKSP_Shapes::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Poin
 {
 	if( pShape && dc_Map.m_rWorld.Intersects(pShape->Get_Extent()) != INTERSECTION_None )
 	{
-		wxString	Label(pShape->asString(m_iLabel, m_Label_Prec));	Label.Trim(true).Trim(false);
+		wxString	Label(pShape->asString(m_fLabel, m_Label_Prec));	Label.Trim(true).Trim(false);
 
 		if( !Label.IsEmpty() )
 		{
@@ -1235,14 +1308,30 @@ int CWKSP_Shapes::PenList_Get_Style(int Index)
 //---------------------------------------------------------
 bool CWKSP_Shapes::Get_Class_Color(CSG_Shape *pShape, int &Color)
 {
-	if( pShape && Get_Shapes() && m_iColor >= 0 )
+	if( m_fValue >= 0 )
 	{
-		if( m_pClassify->Get_Mode() == CLASSIFY_LUT && !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_iColor)) )
+		if( m_pClassify->Get_Mode() == CLASSIFY_LUT )
 		{
-			return( m_pClassify->Get_Class_Color_byValue(pShape->asString(m_iColor), Color) );
+			if( !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(m_fValue)) )
+			{
+				return( m_pClassify->Get_Class_Color_byValue(pShape->asString(m_fValue), Color) );
+			}
+			else
+			{
+				return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue), Color) );
+			}
 		}
-
-		return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_iColor), Color) );
+		else if( m_fNormal >= 0 )	// normalize
+		{
+			if( !pShape->is_NoData(m_fNormal) && pShape->asDouble(m_fNormal) != 0.0 )
+			{
+				return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue) / pShape->asDouble(m_fNormal), Color) );
+			}
+		}
+		else
+		{
+			return( m_pClassify->Get_Class_Color_byValue(pShape->asDouble(m_fValue), Color) );
+		}
 	}
 
 	return( false );

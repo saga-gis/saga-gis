@@ -145,7 +145,7 @@ int		SG_Get_History_Ignore_Lists		(void)
 //---------------------------------------------------------
 CSG_Data_Object::CSG_Data_Object(void)
 {
-	m_MetaData.Set_Name(SG_T("SAGA_METADATA"));
+	m_MetaData.Set_Name("SAGA_METADATA");
 
 	m_pHistory			= m_MetaData  .Add_Child(SG_META_HST);
 
@@ -233,6 +233,57 @@ const SG_Char * CSG_Data_Object::Get_File_Name(bool bNative)	const
 int CSG_Data_Object::Get_File_Type(void)	const
 {
 	return( m_File_Type );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Data_Object::Reload(void)
+{
+	return( m_File_bNative && SG_File_Exists(m_File_Name) && On_Reload() );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Object::Delete(void)
+{
+	if( m_File_bNative && SG_File_Exists(m_File_Name) && On_Delete() )
+	{
+		CSG_String	File_Name	= m_File_Name;
+
+		switch( Get_ObjectType() )
+		{
+		case DATAOBJECT_TYPE_Grid      : SG_File_Set_Extension(File_Name, SG_META_EXT_GRID      );	break;
+		case DATAOBJECT_TYPE_Table     : SG_File_Set_Extension(File_Name, SG_META_EXT_TABLE     );	break;
+		case DATAOBJECT_TYPE_Shapes    : SG_File_Set_Extension(File_Name, SG_META_EXT_SHAPES    );	break;
+		case DATAOBJECT_TYPE_PointCloud: SG_File_Set_Extension(File_Name, SG_META_EXT_POINTCLOUD);	break;
+		case DATAOBJECT_TYPE_TIN       : SG_File_Set_Extension(File_Name, SG_META_EXT_TIN       );	break;
+		default: break;
+		}
+
+		SG_File_Delete(File_Name);
+
+		SG_File_Set_Extension(File_Name, "prj");
+		SG_File_Delete(File_Name);
+
+		//-------------------------------------------------
+		m_File_Name		= "";
+		m_File_bNative	= false;
+		m_File_Type		= 0;
+
+		m_bModified		= true;
+
+		m_pFile       ->Set_Content("");
+		m_pMetaData_DB->Del_Children();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

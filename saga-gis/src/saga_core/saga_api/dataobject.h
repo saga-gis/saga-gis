@@ -182,15 +182,23 @@ public:
 	virtual bool					Destroy			(void);
 
 	/// Returns the object type as defined by TSG_Data_Object_Type. Used for run time type checking.
-	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const									= 0;
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const	= 0;
 
-	virtual bool					is_Valid		(void)	const									= 0;
+	virtual bool					is_Valid		(void)	const	= 0;
 
 	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
+
+	/// If there is an associated file data can be reloaded with this command.
+	bool							Reload			(void);
+
+	/// Deletes all files associated with this data object if possible. Works only with native SAGA files. Returns true on success.
+	bool							Delete			(void);
 
 	void							Set_File_Name	(const CSG_String &File_Name);
 	const SG_Char *					Get_File_Name	(bool bNative = true)	const;
 	int								Get_File_Type	(void)					const;
+
+	bool							is_File_Native	(void)	const			{	return( m_File_bNative );	}
 
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
@@ -236,6 +244,9 @@ protected:
 
 	void							Set_File_Name		(const CSG_String &File_Name, bool bNative);
 	void							Set_File_Type		(int Type)			{	m_File_Type	= Type;			}
+
+	virtual bool					On_Reload			(void)	= 0;
+	virtual bool					On_Delete			(void)	= 0;
 
 	bool							Load_MetaData		(const SG_Char *File_Name);
 	bool							Save_MetaData		(const SG_Char *File_Name);

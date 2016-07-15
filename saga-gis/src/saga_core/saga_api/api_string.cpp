@@ -1166,17 +1166,17 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 
 	if( Precision >= 0 )
 	{
-		s.Printf(SG_T("%.*f"), Precision, Value);
+		s.Printf("%.*f", Precision, Value);
 	}
 	else if( Precision == -1 )
 	{
-		s.Printf(SG_T("%f"), Value);
+		s.Printf("%f", Value);
 	}
 	else // if( Precision == -2 )
 	{
 		Precision	= SG_Get_Significant_Decimals(Value, abs(Precision));
 
-		s.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(Value, abs(Precision)), Value);
+		s.Printf("%.*f", SG_Get_Significant_Decimals(Value, abs(Precision)), Value);
 
 		if( Precision > 0 )
 		{
