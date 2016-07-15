@@ -288,9 +288,9 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 {
 	CWKSP_Layer::On_Parameters_Changed();
 
-	if( (m_Color_Field = m_Parameters("METRIC_ATTRIB")->asInt()) >= Get_TIN()->Get_Field_Count() )
+	if( (m_fValue = m_Parameters("METRIC_ATTRIB")->asInt()) >= Get_TIN()->Get_Field_Count() )
 	{
-		m_Color_Field	= -1;
+		m_fValue	= -1;
 	}
 
 	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
@@ -333,7 +333,7 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 wxString CWKSP_TIN::Get_Name_Attribute(void)
 {
-	return(	m_Color_Field < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_TIN()->Get_Field_Name(m_Color_Field) );
+	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_TIN()->Get_Field_Name(m_fValue) );
 }
 
 //---------------------------------------------------------
@@ -342,11 +342,19 @@ wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 	return( _TL("") );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CWKSP_TIN::Get_Value_Range(void)
-{
-	return( m_Color_Field >= 0 ? Get_TIN()->Get_Range(m_Color_Field) : 0.0 );
-}
+double CWKSP_TIN::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0.0 : Get_TIN()->Get_Minimum(m_fValue) );	}
+double CWKSP_TIN::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0.0 : Get_TIN()->Get_Maximum(m_fValue) );	}
+double CWKSP_TIN::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0.0 : Get_TIN()->Get_Range  (m_fValue) );	}
+double CWKSP_TIN::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0.0 : Get_TIN()->Get_Mean   (m_fValue) );	}
+double CWKSP_TIN::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : Get_TIN()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -405,7 +413,7 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
 	{
-		if( m_Color_Field >= 0 )
+		if( m_fValue >= 0 )
 		{
 			_Draw_Triangles	(dc_Map);
 		}
@@ -476,7 +484,7 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 
 					p[iNode].x	= Point.x;
 					p[iNode].y	= Point.y;
-					p[iNode].z	= pNode->asDouble(m_Color_Field);
+					p[iNode].z	= pNode->asDouble(m_fValue);
 				}
 
 				_Draw_Triangle(dc_Map, p);

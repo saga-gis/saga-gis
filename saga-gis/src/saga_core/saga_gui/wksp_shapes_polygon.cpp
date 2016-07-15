@@ -232,7 +232,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	{
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
 	}
-	else if( m_iColor >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_iColor)) )
+	else if( m_fValue >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_fValue)) )
 	{
 		int	Color;
 

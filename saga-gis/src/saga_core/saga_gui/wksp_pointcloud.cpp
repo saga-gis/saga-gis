@@ -162,11 +162,20 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_SHOW);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+
+	if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
+
+	if( m_pObject->is_File_Native() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
@@ -219,22 +228,22 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 
 	case ID_CMD_POINTCLOUD_RANGE_MINMAX:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Minimum(m_Color_Field),
-			Get_PointCloud()->Get_Maximum(m_Color_Field)
+			Get_PointCloud()->Get_Minimum(m_fValue),
+			Get_PointCloud()->Get_Maximum(m_fValue)
 		);
 		break;
 
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV150:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Mean(m_Color_Field) - 1.5 * Get_PointCloud()->Get_StdDev(m_Color_Field),
-			Get_PointCloud()->Get_Mean(m_Color_Field) + 1.5 * Get_PointCloud()->Get_StdDev(m_Color_Field)
+			Get_PointCloud()->Get_Mean(m_fValue) - 1.5 * Get_PointCloud()->Get_StdDev(m_fValue),
+			Get_PointCloud()->Get_Mean(m_fValue) + 1.5 * Get_PointCloud()->Get_StdDev(m_fValue)
 		);
 		break;
 
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Mean(m_Color_Field) - 2.0 * Get_PointCloud()->Get_StdDev(m_Color_Field),
-			Get_PointCloud()->Get_Mean(m_Color_Field) + 2.0 * Get_PointCloud()->Get_StdDev(m_Color_Field)
+			Get_PointCloud()->Get_Mean(m_fValue) - 2.0 * Get_PointCloud()->Get_StdDev(m_fValue),
+			Get_PointCloud()->Get_Mean(m_fValue) + 2.0 * Get_PointCloud()->Get_StdDev(m_fValue)
 		);
 		break;
 
@@ -390,16 +399,16 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
 	default:
-	case 0:	m_Color_Field	= -1;										break;	// CLASSIFY_UNIQUE
-	case 1:	m_Color_Field	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
-	case 2:	m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
-	case 3:	m_Color_Field	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
-	case 4:	m_Color_Field	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
+	case 0:	m_fValue	= -1;										break;	// CLASSIFY_UNIQUE
+	case 1:	m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
+	case 2:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
+	case 3:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
+	case 4:	m_fValue	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
 	}
 
-	if( m_Color_Field < 0 || m_Color_Field >= Get_PointCloud()->Get_Field_Count() )
+	if( m_fValue < 0 || m_fValue >= Get_PointCloud()->Get_Field_Count() )
 	{
-		m_Color_Field	= -1;
+		m_fValue	= -1;
 
 		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
 	}
@@ -470,13 +479,13 @@ void CWKSP_PointCloud::On_Update_Views(void)
 //---------------------------------------------------------
 bool CWKSP_PointCloud::Fit_Colors(void)
 {
-	if( m_Color_Field >= Get_PointCloud()->Get_Field_Count() )
+	if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
 	{
-		m_Color_Field	= Get_PointCloud()->Get_Field_Count() - 1;
+		m_fValue	= Get_PointCloud()->Get_Field_Count() - 1;
 	}
 
-	double	m	= Get_PointCloud()->Get_Mean  (m_Color_Field);
-	double	s	= Get_PointCloud()->Get_StdDev(m_Color_Field) * 2.0;
+	double	m	= Get_PointCloud()->Get_Mean  (m_fValue);
+	double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.0;
 
 	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
 
@@ -493,7 +502,7 @@ bool CWKSP_PointCloud::Fit_Colors(void)
 //---------------------------------------------------------
 wxString CWKSP_PointCloud::Get_Name_Attribute(void)
 {
-	return(	m_Color_Field < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_PointCloud()->Get_Field_Name(m_Color_Field) );
+	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_PointCloud()->Get_Field_Name(m_fValue) );
 }
 
 //---------------------------------------------------------
@@ -756,18 +765,18 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 	if( (pShape = Get_PointCloud()->Get_Shape(ptWorld, Epsilon)) != NULL )
 	{
-		if( m_Color_Field >= 0 )
+		if( m_fValue >= 0 )
 		{
 			switch( m_pClassify->Get_Mode() )
 			{
 			case CLASSIFY_LUT:
-				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_Color_Field)) );
+				return( m_pClassify->Get_Class_Name_byValue(pShape->asDouble(m_fValue)) );
 
 			case CLASSIFY_METRIC:	default:
-				return( pShape->asString(m_Color_Field) );
+				return( pShape->asString(m_fValue) );
 
 			case CLASSIFY_RGB:
-				double	Value = pShape->asDouble(m_Color_Field);
+				double	Value = pShape->asDouble(m_fValue);
 				return( wxString::Format(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
 			}
 		}
@@ -780,11 +789,19 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 	return( _TL("") );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-double CWKSP_PointCloud::Get_Value_Range(void)
-{
-	return( m_Color_Field >= 0 ? Get_PointCloud()->Get_Range(m_Color_Field) : 0.0 );
-}
+double CWKSP_PointCloud::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Minimum(m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Maximum(m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Range  (m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Mean   (m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -1042,7 +1059,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 	{
 		pPoints->Set_Cursor(i);
 
-		if( !pPoints->is_NoData(m_Color_Field) )
+		if( !pPoints->is_NoData(m_fValue) )
 		{
 			TSG_Point_Z	Point	= pPoints->Get_Point();
 
@@ -1062,7 +1079,7 @@ void CWKSP_PointCloud::_Draw_Points(CWKSP_Map_DC &dc_Map)
 				{
 					int		Color;
 
-					m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_Color_Field), Color);
+					m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
 
 					_Draw_Point(dc_Map, x, y, Point.z, Color, m_PointSize);
 				}
@@ -1082,7 +1099,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 	{
 		pPoints->Set_Cursor(i);
 
-		if( !pPoints->is_NoData(m_Color_Field) )
+		if( !pPoints->is_NoData(m_fValue) )
 		{
 			TSG_Point_Z	Point	= pPoints->Get_Point();
 
@@ -1091,7 +1108,7 @@ void CWKSP_PointCloud::_Draw_Thumbnail(CWKSP_Map_DC &dc_Map)
 
 			int	Color;
 
-			m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_Color_Field), Color);
+			m_pClassify->Get_Class_Color_byValue(pPoints->Get_Value(m_fValue), Color);
 
 			dc_Map.IMG_Set_Pixel(x, y, Color);
 		}

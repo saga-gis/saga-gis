@@ -371,7 +371,7 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 		}
 
 		//-------------------------------------------------
-		if( m_iColor >= 0 )
+		if( m_fValue >= 0 )
 		{
 			int		Color;
 

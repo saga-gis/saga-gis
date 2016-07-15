@@ -165,10 +165,15 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
+
 		if( PGSQL_has_Connections() )
-		{
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
-		}
+
+		if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
+
+		if( m_pObject->is_File_Native() )
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
 	}
 
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLES_SHOW);

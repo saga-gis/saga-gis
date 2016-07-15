@@ -155,6 +155,20 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 		default:	break;
 		}
 		break;
+
+	case ID_CMD_DATA_RELOAD:
+		if( m_pObject->Reload() )
+		{
+			Update_Views(true);
+		}
+		break;
+
+	case ID_CMD_DATA_DEL_FILES:
+		if( m_pObject->Delete() )
+		{
+			g_pACTIVE->Update_Description();
+		}
+		break;
 	}
 
 	return( true );
@@ -174,6 +188,14 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 
 	case ID_CMD_DATA_SAVETODB:
 		event.Enable(PGSQL_has_Connections());
+		break;
+
+	case ID_CMD_DATA_RELOAD:
+		event.Enable(m_pObject->is_File_Native() && m_pObject->is_Modified());
+		break;
+
+	case ID_CMD_DATA_DEL_FILES:
+		event.Enable(m_pObject->is_File_Native() && SG_File_Exists(m_pObject->Get_File_Name()) );
 		break;
 	}
 

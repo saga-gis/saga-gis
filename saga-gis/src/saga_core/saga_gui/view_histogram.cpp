@@ -388,39 +388,17 @@ void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 {
 	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
+	case CLASSIFY_GRADUATED:
+	case CLASSIFY_METRIC   :
+	case CLASSIFY_SHADE    :
+	case CLASSIFY_OVERLAY  :
+		m_pLayer->Set_Color_Range(
+			m_pLayer->Get_Value_Minimum(),
+			m_pLayer->Get_Value_Maximum()
+		);
+
 	default:
 		break;
-
-	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-	case CLASSIFY_OVERLAY:
-		switch( m_pLayer->Get_Type() )
-		{
-		default:
-			return;
-
-		case WKSP_ITEM_Grid:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMin(),
-				((CWKSP_Grid *)m_pLayer)->Get_Grid()->Get_ZMax()
-			);
-			break;
-
-		case WKSP_ITEM_Shapes:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
-				((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
-			);
-			break;
-
-		case WKSP_ITEM_PointCloud:
-			m_pLayer->Set_Color_Range(
-				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Minimum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt()),
-				((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud()->Get_Maximum(m_pLayer->Get_Parameter("METRIC_ATTRIB")->asInt())
-			);
-			break;
-		}
 	}
 }
 
