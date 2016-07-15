@@ -86,6 +86,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Grid::On_Reload(void)
+{
+	return( Create(Get_File_Name(false)) );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::On_Delete(void)
+{
+	CSG_String	File_Name	= Get_File_Name(true);
+
+	SG_File_Set_Extension(File_Name, " dgm"); SG_File_Delete(File_Name);
+	SG_File_Set_Extension(File_Name, " dat"); SG_File_Delete(File_Name);
+	SG_File_Set_Extension(File_Name, "sgrd"); SG_File_Delete(File_Name);
+	SG_File_Set_Extension(File_Name, "sdat"); SG_File_Delete(File_Name); SG_File_Delete(File_Name + ".aux.xml");
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Grid::_Load(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
 	m_Type	= Type;

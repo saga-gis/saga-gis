@@ -977,6 +977,25 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_PointCloud::On_Reload(void)
+{
+	return( Create(Get_File_Name(false)) );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::On_Delete(void)
+{
+	return( SG_File_Delete(Get_File_Name(false)) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 {
 	SG_UI_Progress_Lock(true);

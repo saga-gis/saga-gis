@@ -288,6 +288,8 @@ protected:
 	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
 
 	virtual bool					On_Update				(void);
+	virtual bool					On_Reload				(void);
+	virtual bool					On_Delete				(void);
 
 	bool							_Destroy_Nodes			(void);
 	bool							_Destroy_Edges			(void);
