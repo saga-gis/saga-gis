@@ -777,6 +777,16 @@ bool CSG_Parameter::Set_Value(const CSG_String &Value)
 	return( false );
 }
 
+bool CSG_Parameter::Set_Value(const char *Value)
+{
+	return( Set_Value(CSG_String(Value)) );
+}
+
+bool CSG_Parameter::Set_Value(const wchar_t *Value)
+{
+	return( Set_Value(CSG_String(Value)) );
+}
+
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Value(void *Value)
 {
