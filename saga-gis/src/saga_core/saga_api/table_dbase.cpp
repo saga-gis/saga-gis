@@ -359,8 +359,25 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 			m_Fields[iField].Width		= (BYTE)1;
 			break;
 
+		case SG_DATATYPE_Bit:
+			m_Fields[iField].Type		= DBF_FT_NUMERIC;
+			m_Fields[iField].Width		= (BYTE)1;
+			break;
+
+		case SG_DATATYPE_Byte:
+			m_Fields[iField].Type		= DBF_FT_NUMERIC;
+			m_Fields[iField].Width		= (BYTE)3;
+			break;
+
+		case SG_DATATYPE_Word:
 		case SG_DATATYPE_Short:
+			m_Fields[iField].Type		= DBF_FT_NUMERIC;
+			m_Fields[iField].Width		= (BYTE)6;
+			break;
+
+		case SG_DATATYPE_DWord:
 		case SG_DATATYPE_Int:
+		case SG_DATATYPE_ULong:
 		case SG_DATATYPE_Long:
 		case SG_DATATYPE_Color:
 			m_Fields[iField].Type		= DBF_FT_NUMERIC;

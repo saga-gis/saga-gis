@@ -76,11 +76,11 @@ CGeoref_Grid::CGeoref_Grid(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Rectify Grid"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Georeferencing and rectification for grids. Either choose the attribute fields (x/y) "
-		"with the projected coordinates for the reference points (origin) or supply a "
+		"with the projected coordinates for the reference points (origin) or supply an "
 		"additional points layer with correspondend points in the target projection. "
 	));
 
@@ -159,11 +159,20 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") && pParameter->asShapes() )
 	{
-		pParameters->Get_Parameter("XFIELD")->Set_Value(pParameter->asShapes()->Get_Field("X_MAP"));
-		pParameters->Get_Parameter("YFIELD")->Set_Value(pParameter->asShapes()->Get_Field("Y_MAP"));
+		if( pParameter->asShapes()->Get_Field("X_MAP") >= 0 )
+		{
+			pParameters->Get_Parameter("XFIELD")->Set_Value(pParameter->asShapes()->Get_Field("X_MAP"));
+		}
+
+		if( pParameter->asShapes()->Get_Field("Y_MAP") >= 0 )
+		{
+			pParameters->Get_Parameter("YFIELD")->Set_Value(pParameter->asShapes()->Get_Field("Y_MAP"));
+		}
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -185,7 +194,9 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
