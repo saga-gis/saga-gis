@@ -83,6 +83,9 @@
     <ClCompile Include="LandUse_Scenario.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Shapes_Support_Tool_Chains.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -203,6 +206,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LandUse_Scenario.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shapes_Support_Tool_Chains.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

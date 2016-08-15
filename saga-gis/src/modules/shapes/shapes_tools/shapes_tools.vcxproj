@@ -324,6 +324,7 @@
     <ClCompile Include="shapes_split.cpp" />
     <ClCompile Include="shapes_split_by_attribute.cpp" />
     <ClCompile Include="shapes_split_randomly.cpp" />
+    <ClCompile Include="Shapes_Support_Tool_Chains.cpp" />
     <ClCompile Include="TransformShapes.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -366,6 +367,7 @@
     <ClInclude Include="shapes_split.h" />
     <ClInclude Include="shapes_split_by_attribute.h" />
     <ClInclude Include="shapes_split_randomly.h" />
+    <ClInclude Include="Shapes_Support_Tool_Chains.h" />
     <ClInclude Include="TransformShapes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
