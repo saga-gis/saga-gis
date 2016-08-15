@@ -96,7 +96,7 @@ protected:
 private:
 
 	bool						Get_Type			(CSG_String &WKT, CSG_Shapes &Shapes);
-
+	void						Parse_WKT			(CSG_String &WKT, CSG_Shapes *pShapes);
 
 };
 

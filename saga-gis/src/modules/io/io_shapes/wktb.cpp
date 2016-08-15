@@ -87,6 +87,8 @@ CWKT_Import::CWKT_Import(void)
 	Set_Description	(_TW(
 		"Imports vector data from 'well known text' (WKT) simple features format.\n"
 		"This import tool assumes that all features in a file are of the same type.\n"
+		"Instead of importing from file(s), the tool also supports the conversion "
+		"from a string provided with the 'WKT String' parameter.\n"
 		"\n"
 		"References:\n"
 		"<a href=\"http://www.opengeospatial.org/\">Open Geospatial Consortium</a>\n"
@@ -107,6 +109,12 @@ CWKT_Import::CWKT_Import(void)
 			_TL("All Files")						, SG_T("*.*")
 		), NULL, false, false, true
  	);
+
+	Parameters.Add_String(
+		NULL	, "WKT"				, _TL("WKT String"),
+		_TL("Import WKT from string instead of file. Just paste the WKT."),
+		SG_T(""), true
+	);
 }
 
 
@@ -118,10 +126,14 @@ CWKT_Import::CWKT_Import(void)
 bool CWKT_Import::On_Execute(void)
 {
 	//-----------------------------------------------------
+	CSG_String		WKT_str;
 	CSG_Strings		Files;
 
-	if( !Parameters("FILE")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() == 0 )
+	WKT_str			= Parameters("WKT")->asString();
+
+	if( (!Parameters("FILE")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() == 0) && WKT_str.Length() <= 0 )
 	{
+		SG_UI_Msg_Add_Error(_TL("Please provide either a file input or WKT as a string!"));
 		return( false );
 	}
 
@@ -131,36 +143,43 @@ bool CWKT_Import::On_Execute(void)
 	pList->Del_Items();
 
 	//-----------------------------------------------------
-	for(int iFile=0; iFile<Files.Get_Count() && Process_Get_Okay(); iFile++)
+	if( Files.Get_Count() > 0 )
 	{
-		CSG_String	WKT;
-		CSG_Shapes	Shapes;
-		CSG_File	Stream;
-
-		if( Stream.Open(Files[iFile], SG_FILE_R, false) && Stream.Read(WKT, Stream.Length()) && Get_Type(WKT, Shapes) )
+		for(int iFile=0; iFile<Files.Get_Count() && Process_Get_Okay(); iFile++)
 		{
-			while( WKT.Length() > 0 )
+			CSG_String	WKT;
+			CSG_Shapes	Shapes;
+			CSG_File	Stream;
+
+			if( Stream.Open(Files[iFile], SG_FILE_R, false) && Stream.Read(WKT, Stream.Length()) && Get_Type(WKT, Shapes) )
 			{
-				WKT	= WKT.AfterFirst(SEPARATOR);
+				Parse_WKT(WKT, &Shapes);
 
-				CSG_Shape	*pShape	= Shapes.Add_Shape();
-
-				pShape->Set_Value(0, Shapes.Get_Count());
-
-				if( !CSG_Shapes_OGIS_Converter::from_WKText(WKT.BeforeFirst(SEPARATOR), pShape) )
+				if( Shapes.is_Valid() && Shapes.Get_Count() > 0 )
 				{
-					Shapes.Del_Shape(Shapes.Get_Count() - 1);
+					Shapes.Set_Name(SG_File_Get_Name(Files[iFile], false));
+
+					pList->Add_Item(SG_Create_Shapes(Shapes));
 				}
-			}
-
-			if( Shapes.is_Valid() && Shapes.Get_Count() > 0 )
-			{
-				Shapes.Set_Name(SG_File_Get_Name(Files[iFile], false));
-
-				pList->Add_Item(SG_Create_Shapes(Shapes));
 			}
 		}
 	}
+	else
+	{
+		CSG_Shapes	Shapes;
+
+		Get_Type(WKT_str, Shapes);
+
+		Parse_WKT(WKT_str, &Shapes);
+
+		if( Shapes.is_Valid() && Shapes.Get_Count() > 0 )
+		{
+			Shapes.Set_Name("WKT_from_String");
+
+			pList->Add_Item(SG_Create_Shapes(Shapes));
+		}
+	}
+
 
 	return( pList->Get_Count() > 0 );
 }
@@ -218,6 +237,23 @@ bool CWKT_Import::Get_Type(CSG_String &WKT, CSG_Shapes &Shapes)
 	return( false );
 }
 
+//---------------------------------------------------------
+void CWKT_Import::Parse_WKT(CSG_String &WKT, CSG_Shapes *pShapes)
+{
+	while( WKT.Length() > 0 )
+	{
+		WKT	= WKT.AfterFirst(SEPARATOR);
+
+		CSG_Shape	*pShape	= pShapes->Add_Shape();
+
+		pShape->Set_Value(0, pShapes->Get_Count());
+
+		if( !CSG_Shapes_OGIS_Converter::from_WKText(WKT.BeforeFirst(SEPARATOR), pShape) )
+		{
+			pShapes->Del_Shape(pShapes->Get_Count() - 1);
+		}
+	}
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
