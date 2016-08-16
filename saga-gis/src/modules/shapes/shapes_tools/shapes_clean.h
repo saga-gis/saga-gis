@@ -77,6 +77,8 @@ class CShapes_Clean : public CSG_Module
 public:
 	CShapes_Clean(void);
 
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
+
 
 protected:
 
