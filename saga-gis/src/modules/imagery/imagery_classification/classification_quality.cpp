@@ -71,8 +71,6 @@
 //---------------------------------------------------------
 CClassification_Quality::CClassification_Quality(void)
 {
-	CSG_Parameter	*pNode, *pTable;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Confusion Matrix (Polygons / Grid)"));
 
@@ -89,16 +87,27 @@ CClassification_Quality::CClassification_Quality(void)
 	));
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	pNode	= Parameters.Add_Grid(
 		NULL	, "GRID"		, _TL("Classification"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pTable	= Parameters.Add_Table(pNode, "GRID_LUT" , _TL("Look-up Table"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Table_Field(pTable, "GRID_LUT_MIN", _TL("Value"          ), _TL(""), false);
-	Parameters.Add_Table_Field(pTable, "GRID_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
-	Parameters.Add_Table_Field(pTable, "GRID_LUT_NAM", _TL("Name"           ), _TL(""), true);
+	Parameters.Add_Choice(
+		pNode	, "GRID_VALUES"	, _TL("Value Interpretation"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("values are class identifiers"),
+			_TL("use look-up table")
+		), 1
+	);
+
+	pNode	= Parameters.Add_Table(pNode, "GRID_LUT", _TL("Look-up Table"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field(pNode, "GRID_LUT_MIN", _TL("Value"          ), _TL(""), false);
+	Parameters.Add_Table_Field(pNode, "GRID_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true );
+	Parameters.Add_Table_Field(pNode, "GRID_LUT_NAM", _TL("Name"           ), _TL(""), true );
 
 	pNode	= Parameters.Add_Shapes(
 		NULL	, "POLYGONS"	, _TL("Polygons"),
@@ -138,6 +147,11 @@ CClassification_Quality::CClassification_Quality(void)
 //---------------------------------------------------------
 int CClassification_Quality::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_VALUES") )
+	{
+		pParameters->Set_Enabled("GRID_LUT", pParameter->asInt() == 1);
+	}
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_LUT") )
 	{
 		pParameters->Set_Enabled("GRID_LUT_MIN", pParameter->asTable() != NULL);
@@ -199,7 +213,7 @@ bool CClassification_Quality::On_Execute(void)
 
 		for(int x=0; x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			int	iGrid	= Get_Class(pGrid->asInt(x, y));
+			int	iGrid	= Get_Class(pGrid->asDouble(x, y));
 
 			if( iGrid >= 0 )
 			{
@@ -306,7 +320,7 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 	m_Classes.Add_Field("MAX", SG_DATATYPE_Double);
 
 	Confusion.Destroy();
-	Confusion.Add_Field("CLASS", SG_DATATYPE_String);
+	Confusion.Add_Field("CLASS", pPolygons->Get_Field_Type(Field));
 
 	CSG_String	Class;
 
@@ -327,8 +341,6 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 		}
 	}
 
-	Confusion.Set_Record_Count(m_Classes.Get_Count());
-
 	//-----------------------------------------------------
 	return( m_Classes.Get_Count() > 0 );
 }
@@ -336,12 +348,23 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 //---------------------------------------------------------
 bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 {
-	int	fNam, fMin, fMax;
+	if( Parameters("GRID_VALUES")->asInt() == 0 )	// values are identifiers
+	{
+		for(int iClass=0; iClass<m_Classes.Get_Count(); iClass++)
+		{
+			m_Classes[iClass][CLASS_MIN]	= m_Classes[iClass].asDouble(CLASS_NAM);
+			m_Classes[iClass][CLASS_MAX]	= m_Classes[iClass].asDouble(CLASS_NAM);
+		}
 
-	CSG_Table	*pLUT;
+		return( true );
+	}
 
 	//-----------------------------------------------------
-	if( (pLUT = Parameters("GRID_LUT")->asTable()) != NULL )
+	int	fNam, fMin, fMax;
+
+	CSG_Table	*pLUT	= Parameters("GRID_LUT")->asTable();
+
+	if( pLUT != NULL )
 	{
 		fNam	= Parameters("GRID_LUT_NAM")->asInt();
 		fMin	= Parameters("GRID_LUT_MIN")->asInt();
@@ -350,16 +373,13 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 		if( fNam < 0 || fNam >= pLUT->Get_Field_Count() )	{	fNam	= fMin;	}
 		if( fMax < 0 || fMax >= pLUT->Get_Field_Count() )	{	fMax	= fMin;	}
 	}
-	else if( DataObject_Get_Parameter(pGrid, "LUT") )
+	else if( DataObject_Get_Parameter(pGrid, "LUT") && (pLUT = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
 	{
-		pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
-
 		fNam	= 1;
 		fMin	= 3;
 		fMax	= 4;
 	}
-
-	if( !pLUT )
+	else
 	{
 		return( false );
 	}
