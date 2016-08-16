@@ -313,6 +313,7 @@
     <ClCompile Include="SelectByTheme.cpp" />
     <ClCompile Include="SeparateShapes.cpp" />
     <ClCompile Include="shapes_buffer.cpp" />
+    <ClCompile Include="shapes_clean.cpp" />
     <ClCompile Include="shapes_convert_vertex_type.cpp" />
     <ClCompile Include="Shapes_Create_Empty.cpp" />
     <ClCompile Include="shapes_cut.cpp" />
@@ -355,6 +356,7 @@
     <ClInclude Include="SelectByTheme.h" />
     <ClInclude Include="SeparateShapes.h" />
     <ClInclude Include="shapes_buffer.h" />
+    <ClInclude Include="shapes_clean.h" />
     <ClInclude Include="shapes_convert_vertex_type.h" />
     <ClInclude Include="Shapes_Create_Empty.h" />
     <ClInclude Include="shapes_cut.h" />
