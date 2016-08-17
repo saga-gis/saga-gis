@@ -134,7 +134,7 @@ int CTPI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPara
 {
 	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

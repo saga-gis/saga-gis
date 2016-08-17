@@ -70,17 +70,14 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 {
 	Set_Name		(_TL("Terrain Ruggedness Index (TRI)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"\n"
 		"References:\n"
-		"\n"
 		"Riley, S.J., De Gloria, S.D., Elliot, R. (1999): "
 		"A Terrain Ruggedness that Quantifies Topographic Heterogeneity. "
 		"Intermountain Journal of Science, Vol.5, No.1-4, pp.23-27. "
 		"<a href=\"http://www.fw.msu.edu/~rileysh2/Terrain%20Ruggedness%20Index.pdf\">online</a>.\n"
-		"\n"
 	));
 
 	//-----------------------------------------------------
@@ -96,16 +93,36 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius (Cells)"),
+	Parameters.Add_Choice(
+		NULL	, "MODE"		, _TL("Search Mode"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		CSG_String::Format("%s|%s|",
+			_TL("Square"),
+			_TL("Circle")
+		), 1
 	);
 
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
+	Parameters.Add_Int(
+		NULL	, "RADIUS"		, _TL("Search Radius"),
+		_TL("radius in cells"),
+		1, 1, true
+	);
+
+	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
+	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CRuggedness_TRI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -116,25 +133,25 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 //---------------------------------------------------------
 bool CRuggedness_TRI::On_Execute(void)
 {
-	int		x, y;
-
 	//-----------------------------------------------------
-	m_pDEM	= Parameters("DEM")	->asGrid();
-	m_pTRI	= Parameters("TRI")	->asGrid();
+	m_pDEM	= Parameters("DEM")->asGrid();
+	m_pTRI	= Parameters("TRI")->asGrid();
 
-	DataObject_Set_Colors(m_pTRI, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pTRI, 11, SG_COLORS_RED_GREY_BLUE, true);
 
-	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
+	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
 
-	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt()) )
+	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
 			Set_Index(x, y);
 		}
@@ -157,15 +174,15 @@ bool CRuggedness_TRI::Set_Index(int x, int y)
 	if( m_pDEM->is_InGrid(x, y) )
 	{
 		int		i, ix, iy;
-		double	z, iz, iDistance, iWeight, n, s;
+		double	z, iz, Distance, Weight, n, s;
 
-		for(i=0, n=0, s=0.0, z=m_pDEM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
+		for(i=0, n=s=0.0, z=m_pDEM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, iDistance, iWeight, true) && iDistance > 0.0 && m_pDEM->is_InGrid(ix, iy) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0.0 && m_pDEM->is_InGrid(ix, iy) )
 			{
 				iz	 = m_pDEM->asDouble(ix, iy);
-				s	+= SG_Get_Square((z - iz) * iWeight);
-				n	+= iWeight;
+				s	+= SG_Get_Square((z - iz) * Weight);
+				n	+= Weight;
 			}
 		}
 
@@ -196,10 +213,9 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 {
 	Set_Name		(_TL("Vector Ruggedness Measure (VRM)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"\n"
 		"References:\n"
 		"Sappington, J.M., Longshore, K.M., Thompson, D.B. (2007): "
 		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert. "
@@ -221,16 +237,36 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius (Cells)"),
+	Parameters.Add_Choice(
+		NULL	, "MODE"		, _TL("Search Mode"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		CSG_String::Format("%s|%s|",
+			_TL("Square"),
+			_TL("Circle")
+		), 1
 	);
 
-	Parameters.Add_Parameters(
-		NULL	, "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
+	Parameters.Add_Int(
+		NULL	, "RADIUS"		, _TL("Search Radius"),
+		_TL("radius in cells"),
+		1, 1, true
+	);
+
+	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
+	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CRuggedness_VRM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+
+	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -241,20 +277,22 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 //---------------------------------------------------------
 bool CRuggedness_VRM::On_Execute(void)
 {
-	int		x, y;
-
 	//-----------------------------------------------------
-	m_pDEM	= Parameters("DEM")	->asGrid();
-	m_pVRM	= Parameters("VRM")	->asGrid();
+	m_pDEM	= Parameters("DEM")->asGrid();
+	m_pVRM	= Parameters("VRM")->asGrid();
 
-	DataObject_Set_Colors(m_pVRM, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pVRM, 11, SG_COLORS_RED_GREY_BLUE, true);
 
-	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
+	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
 
-	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt()) )
+	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0) )
 	{
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	int		x, y;
 
 	m_X.Create(*Get_System(), SG_DATATYPE_Float);
 	m_Y.Create(*Get_System(), SG_DATATYPE_Float);
@@ -262,14 +300,15 @@ bool CRuggedness_VRM::On_Execute(void)
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
 		{
 			double	slope, aspect;
 
 			if( m_pDEM->Get_Gradient(x, y, slope, aspect) )
 			{
-				m_Y.Set_Value(x, y, sin(slope) * sin(aspect));
-				m_Y.Set_Value(x, y, sin(slope) * cos(aspect));
+				m_X.Set_Value(x, y, aspect < 0.0 ? 0.0 : sin(slope) * sin(aspect));
+				m_Y.Set_Value(x, y, aspect < 0.0 ? 0.0 : sin(slope) * cos(aspect));
 				m_Z.Set_Value(x, y, cos(slope));
 			}
 			else
@@ -282,6 +321,7 @@ bool CRuggedness_VRM::On_Execute(void)
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for private(x)
 		for(x=0; x<Get_NX(); x++)
 		{
 			Set_Index(x, y);
@@ -309,16 +349,16 @@ bool CRuggedness_VRM::Set_Index(int x, int y)
 	if( m_pDEM->is_InGrid(x, y) )
 	{
 		int		i, ix, iy;
-		double	iDistance, iWeight, n, sx, sy, sz;
+		double	Distance, Weight, n, sx, sy, sz;
 
-		for(i=0, n=0, sx=0.0, sy=0.0, sz=0.0; i<m_Cells.Get_Count(); i++)
+		for(i=0, n=sx=sy=sz=0.0; i<m_Cells.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, iDistance, iWeight, true) && iDistance > 0.0 && m_X.is_InGrid(ix, iy) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0.0 && m_X.is_InGrid(ix, iy) )
 			{
-				sx	+= iWeight * m_X.asDouble(ix, iy);
-				sy	+= iWeight * m_Y.asDouble(ix, iy);
-				sz	+= iWeight * m_Z.asDouble(ix, iy);
-				n	+= iWeight;
+				sx	+= Weight * m_X.asDouble(ix, iy);
+				sy	+= Weight * m_Y.asDouble(ix, iy);
+				sz	+= Weight * m_Z.asDouble(ix, iy);
+				n	+= Weight;
 			}
 		}
 

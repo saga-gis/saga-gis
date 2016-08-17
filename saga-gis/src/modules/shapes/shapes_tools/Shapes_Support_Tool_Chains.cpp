@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id: ruggedness.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -9,14 +5,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    ta_morphometry                     //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     ruggedness.h                      //
+//             Shapes_Support_Tool_Chains.cpp            //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2016 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,27 +36,15 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Hamburg                  //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Ruggedness_H
-#define HEADER_INCLUDED__Ruggedness_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -70,65 +54,72 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRuggedness_TRI : public CSG_Module_Grid
+#include "Shapes_Support_Tool_Chains.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSelect_Shapes_From_List::CSelect_Shapes_From_List(void)
 {
-public:
-	CRuggedness_TRI(void);
+	//-----------------------------------------------------
+	Set_Name		(_TL("Select Shapes from List"));
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Indices" ));	}
+	Set_Author		("V. Wichmann (c) 2016");
 
+	Set_Description	(_TW(
+		"Main use of this tool is to support tool chain development, allowing to pick a single shapefile from a shapes list.\n"
+	));
 
-protected:
+	//-----------------------------------------------------
+	Parameters.Add_Shapes_List(
+		NULL	, "SHAPESLIST"	, _TL("Shapes List"),
+		_TL("The input shapes list."),
+		PARAMETER_INPUT
+	);
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"	, _TL("Shapes"),
+		_TL("The shapefile picked from the shapes list."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	CSG_Grid					*m_pDEM, *m_pTRI;
-
-	CSG_Grid_Cell_Addressor		m_Cells;
-
-
-	bool						Set_Index				(int x, int y);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+	Parameters.Add_Value(
+		NULL	, "INDEX"	, _TL("Index"),
+		_TL("The list index of the shapefile to pick. Indices start at zero."),
+		PARAMETER_TYPE_Int, 0, 0, true
+	);
+}
 
 //---------------------------------------------------------
-class CRuggedness_VRM : public CSG_Module_Grid
+bool CSelect_Shapes_From_List::On_Execute(void)
 {
-public:
-	CRuggedness_VRM(void);
+	CSG_Parameter_Shapes_List	*pShapes	= Parameters("SHAPESLIST")->asShapesList();
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Indices" ));	}
+	if( pShapes->Get_Count() <= 0 )
+	{
+		Error_Set(_TL("no shapes in list"));
 
+		return( false );
+	}
 
-protected:
+	int	Index	= Parameters("INDEX")->asInt();
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	if( Index >= pShapes->Get_Count() )
+	{
+		Error_Set(_TL("index out of range"));
 
-	virtual bool				On_Execute				(void);
+		return( false );
+	}
 
+	Parameters("SHAPES")->Set_Value(pShapes->asShapes(Index));
 
-private:
-
-	CSG_Grid					*m_pDEM, *m_pVRM, m_X, m_Y, m_Z;
-
-	CSG_Grid_Cell_Addressor		m_Cells;
-
-
-	bool						Set_Index				(int x, int y);
-
-};
+	return( true );	
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -138,4 +129,3 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Ruggedness_H

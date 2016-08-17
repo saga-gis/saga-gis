@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id$
+ * Version $Id: shapes_clean.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    shapes_polygons                    //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Polygon_Intersection.h                //
+//                    shapes_clean.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +44,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -55,154 +53,54 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
 //                                                       //
-//														 //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Polygon_Intersection_H
-#define HEADER_INCLUDED__Polygon_Intersection_H
+#ifndef HEADER_INCLUDED__shapes_clean_H
+#define HEADER_INCLUDED__shapes_clean_H
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Overlay : public CSG_Module
+class CShapes_Clean : public CSG_Module
 {
 public:
-	CPolygon_Overlay(const CSG_String &Name);
+	CShapes_Clean(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Overlay") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 
 
 protected:
 
-	bool					Add_Description		(const CSG_String &Text);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool					Initialize			(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBothAttributes);
-
-	bool					Get_Intersection	(CSG_Shapes *pA, CSG_Shapes *pB);
-
-	bool					Get_Difference		(CSG_Shapes *pA, CSG_Shapes *pB, bool bInvert = false);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool					m_bSplit, m_bInvert;
+	bool					Get_Known_LandUse	(int nYears, CSG_Table &Scenario, const CSG_Table &Types);
 
-	CSG_Shapes				*m_pA, *m_pB, *m_pAB;
-
-
-	CSG_Shape_Polygon *		_Add_Polygon		(int id_A, int id_B);
-	bool					_Add_Polygon		(CSG_Shape_Polygon *pPolygon, int id_A, int id_B = -1);
-	bool					_Fit_Polygon		(CSG_Shape_Polygon *pPolygon);
+	bool					Get_Scenario		(int nYears, CSG_Table &Scenario, const CSG_Matrix &Crops);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Intersection : public CPolygon_Overlay
-{
-public:
-	CPolygon_Intersection(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Difference : public CPolygon_Overlay
-{
-public:
-	CPolygon_Difference(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_SymDifference : public CPolygon_Overlay
-{
-public:
-	CPolygon_SymDifference(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Union : public CPolygon_Overlay
-{
-public:
-	CPolygon_Union(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Identity : public CPolygon_Overlay
-{
-public:
-	CPolygon_Identity(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Update : public CPolygon_Overlay
-{
-public:
-	CPolygon_Update(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Polygon_Intersection_H
+#endif // #ifndef HEADER_INCLUDED__shapes_clean_H

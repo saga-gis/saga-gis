@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-
 ///////////////////////////////////////////////////////////
 //                                                       //
 //                         SAGA                          //
@@ -9,14 +5,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    shapes_polygons                    //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Polygon_Intersection.h                //
+//             Shapes_Support_Tool_Chains.h              //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyright (C) 2016 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,14 +36,11 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -61,13 +54,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Polygon_Intersection_H
-#define HEADER_INCLUDED__Polygon_Intersection_H
+#ifndef HEADER_INCLUDED__Shapes_Support_Tool_Chains_H
+#define HEADER_INCLUDED__Shapes_Support_Tool_Chains_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -77,118 +70,17 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPolygon_Overlay : public CSG_Module
-{
-public:
-	CPolygon_Overlay(const CSG_String &Name);
-
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Overlay") );	}
-
-
-protected:
-
-	bool					Add_Description		(const CSG_String &Text);
-
-	bool					Initialize			(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBothAttributes);
-
-	bool					Get_Intersection	(CSG_Shapes *pA, CSG_Shapes *pB);
-
-	bool					Get_Difference		(CSG_Shapes *pA, CSG_Shapes *pB, bool bInvert = false);
-
-
-private:
-
-	bool					m_bSplit, m_bInvert;
-
-	CSG_Shapes				*m_pA, *m_pB, *m_pAB;
-
-
-	CSG_Shape_Polygon *		_Add_Polygon		(int id_A, int id_B);
-	bool					_Add_Polygon		(CSG_Shape_Polygon *pPolygon, int id_A, int id_B = -1);
-	bool					_Fit_Polygon		(CSG_Shape_Polygon *pPolygon);
-
-};
-
-
-///////////////////////////////////////////////////////////
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Intersection : public CPolygon_Overlay
+class CSelect_Shapes_From_List : public CSG_Module
 {
 public:
-	CPolygon_Intersection(void);
+	CSelect_Shapes_From_List(void);
 
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Difference : public CPolygon_Overlay
-{
-public:
-	CPolygon_Difference(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_SymDifference : public CPolygon_Overlay
-{
-public:
-	CPolygon_SymDifference(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Union : public CPolygon_Overlay
-{
-public:
-	CPolygon_Union(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Identity : public CPolygon_Overlay
-{
-public:
-	CPolygon_Identity(void);
-
-
-protected:
-
-	virtual bool			On_Execute			(void);
-
-};
-
-//---------------------------------------------------------
-class CPolygon_Update : public CPolygon_Overlay
-{
-public:
-	CPolygon_Update(void);
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Tools") );	}
 
 
 protected:
@@ -200,9 +92,9 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Polygon_Intersection_H
+#endif // #ifndef HEADER_INCLUDED__Shapes_Support_Tool_Chains_H

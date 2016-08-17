@@ -163,25 +163,18 @@ bool CPolygon_Overlay::Get_Intersection(CSG_Shapes *pA, CSG_Shapes *pB)
 	m_pA	= pA;
 	m_pB	= pB;
 
-	CSG_Shapes	Tmp(SHAPE_TYPE_Polygon);
+	CSG_Shapes	Result(SHAPE_TYPE_Polygon);
 
-	CSG_Shape	*pShape_AB	= Tmp.Add_Shape();
+	CSG_Shape_Polygon	*pResult	= (CSG_Shape_Polygon *)Result.Add_Shape();
 
 	//-----------------------------------------------------
 	for(int id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
 	{
-		if( m_pB->Select(m_pA->Get_Shape(id_A)->Get_Extent()) )
+		for(int id_B=0; id_B<m_pB->Get_Count(); id_B++)
 		{
-			CSG_Shape	*pShape_A	= m_pA->Get_Shape(id_A);
-
-			for(int id_B=0; id_B<m_pB->Get_Selection_Count(); id_B++)
+			if( SG_Polygon_Intersection(m_pA->Get_Shape(id_A), m_pB->Get_Shape(id_B), pResult) )
 			{
-				CSG_Shape	*pShape_B	= m_pB->Get_Selection(id_B);
-
-				if( SG_Polygon_Intersection(pShape_A, pShape_B, pShape_AB) )
-				{
-					Add_Polygon(pShape_AB, id_A, pShape_B->Get_Index());
-				}
+				_Add_Polygon(pResult, id_A, id_B);
 			}
 		}
 	}
@@ -202,35 +195,37 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 	m_pA	= pA;
 	m_pB	= pB;
 
-	CSG_Shapes	Tmp(SHAPE_TYPE_Polygon);
+	CSG_Shapes	Result(SHAPE_TYPE_Polygon);
 
-	CSG_Shape	*pShape_A	= Tmp.Add_Shape();
+	CSG_Shape_Polygon	*pResult	= (CSG_Shape_Polygon *)Result.Add_Shape();
 
 	//-----------------------------------------------------
 	for(int id_A=0; id_A<m_pA->Get_Count() && Set_Progress(id_A, m_pA->Get_Count()); id_A++)
 	{
-		if( m_pB->Select(m_pA->Get_Shape(id_A)->Get_Extent()) )
+		pResult->Assign(m_pA->Get_Shape(id_A), false);
+
+		for(int id_B=0; id_B<m_pB->Get_Count() && pResult->is_Valid(); id_B++)
 		{
-			int		nIntersections	= 0;
-
-			pShape_A->Assign(m_pA->Get_Shape(id_A));
-
-			for(int id_B=0; id_B<m_pB->Get_Selection_Count(); id_B++)
+			switch( pResult->Intersects(m_pB->Get_Shape(id_B)) )
 			{
-				if( SG_Polygon_Difference(pShape_A, m_pB->Get_Selection(id_B)) )
-				{
-					nIntersections++;
-				}
-			}
+			case INTERSECTION_None:
+				break;
 
-			if( nIntersections > 0 && pShape_A->is_Valid() )
-			{
-				Add_Polygon(pShape_A, id_A);
+			case INTERSECTION_Identical:
+			case INTERSECTION_Contained:
+				pResult->Del_Parts();
+				break;
+
+			case INTERSECTION_Contains:
+			case INTERSECTION_Overlaps:
+				SG_Polygon_Difference(pResult, m_pB->Get_Shape(id_B));
+				break;
 			}
 		}
-		else
+
+		if( pResult->is_Valid() )
 		{
-			Add_Polygon(m_pA->Get_Shape(id_A), id_A);
+			_Add_Polygon(pResult, id_A);
 		}
 	}
 
@@ -243,89 +238,104 @@ bool CPolygon_Overlay::Get_Difference(CSG_Shapes *pA, CSG_Shapes *pB, bool bInve
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shape * CPolygon_Overlay::Add_Polygon(int id_A, int id_B)
+bool CPolygon_Overlay::_Add_Polygon(CSG_Shape_Polygon *pPolygon, int id_A, int id_B)
+{
+	if( !_Fit_Polygon(pPolygon) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !m_bSplit || pPolygon->Get_Part_Count() <= 1 )
+	{
+		CSG_Shape_Polygon	*pNew	= _Add_Polygon(id_A, id_B);
+
+		if( pNew )
+		{
+			pNew->Assign(pPolygon, false);
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	{
+		CSG_Shape_Polygon	*pNew	= pPolygon->is_Lake(iPart) ? NULL : _Add_Polygon(id_A, id_B);
+
+		if( pNew )
+		{
+			pNew->Add_Part(pPolygon->Get_Part(iPart));
+
+			for(int jPart=0; jPart<pPolygon->Get_Part_Count(); jPart++)
+			{
+				if(	pPolygon->is_Lake(jPart) && pNew->Contains(pPolygon->Get_Point(0, jPart)) )
+				{
+					pNew->Add_Part(pPolygon->Get_Part(jPart));
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Shape_Polygon * CPolygon_Overlay::_Add_Polygon(int id_A, int id_B)
 {
 	CSG_Shape	*pOriginal, *pNew	= m_pAB->Add_Shape();
 
 	if( pNew )
 	{
+		if( 1 )
+		{
+			for(int i=0; i<m_pAB->Get_Field_Count(); i++)
+			{
+				pNew->Set_NoData(i);
+			}
+		}
+
 		if( (pOriginal = m_pA->Get_Shape(id_A)) != NULL )
 		{
-			for(int i=0, j=m_bInvert ? m_pB->Get_Field_Count() : 0; i<m_pA->Get_Field_Count(); i++, j++)
+			for(int i=0, j=m_bInvert ? m_pB->Get_Field_Count() : 0; i<m_pA->Get_Field_Count() && j<m_pAB->Get_Field_Count(); i++, j++)
 			{
-				if( pNew->Get_Value(j) )	*pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
+				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(i); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
 			}
 		}
 
 		if( (pOriginal = m_pB->Get_Shape(id_B)) != NULL )
 		{
-			for(int i=0, j=m_bInvert ? 0 : m_pA->Get_Field_Count(); i<m_pB->Get_Field_Count(); i++, j++)
+			for(int i=0, j=m_bInvert ? 0 : m_pA->Get_Field_Count(); i<m_pB->Get_Field_Count() && j<m_pAB->Get_Field_Count(); i++, j++)
 			{
-				if( pNew->Get_Value(j) )	*pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
+				if( pOriginal->is_NoData(i) ) pNew->Set_NoData(i); else *pNew->Get_Value(j)	= *pOriginal->Get_Value(i);
 			}
 		}
 	}
 
-	return( pNew );
+	return( (CSG_Shape_Polygon *)pNew );
 }
 
 //---------------------------------------------------------
-void CPolygon_Overlay::Add_Polygon(CSG_Shape *pShape, int id_A, int id_B)
+bool CPolygon_Overlay::_Fit_Polygon(CSG_Shape_Polygon *pPolygon)
 {
-	int			iPoint, iPart, jPart, nParts;
-	CSG_Shape	*pShape_Add;
-
-	for(iPart=pShape->Get_Part_Count()-1; iPart>=0; iPart--)
+	for(int iPart=pPolygon->Get_Part_Count()-1; iPart>=0; iPart--)
 	{
-		if( ((CSG_Shape_Polygon *)pShape)->Get_Area(iPart) <= 0.0 )
+		if( pPolygon->Get_Area(iPart) <= 0.0 )
 		{
-			pShape->Del_Part(iPart);
+			pPolygon->Del_Part(iPart);
 		}
-		else if( pShape->Get_Point_Count(iPart) <= 3 )
+		else if( pPolygon->Get_Point_Count(iPart) <= 3 )
 		{
-			CSG_Point	a(pShape->Get_Point(0, iPart)), b(pShape->Get_Point(1, iPart)), c(pShape->Get_Point(2, iPart));
+			CSG_Point	a(pPolygon->Get_Point(0, iPart)), b(pPolygon->Get_Point(1, iPart)), c(pPolygon->Get_Point(2, iPart));
 
 			if( a == b || b == c || c == a )
 			{
-				pShape->Del_Part(iPart);
+				pPolygon->Del_Part(iPart);
 			}
 		}
 	}
 
-	if( pShape->is_Valid() )
-	{
-		if( m_bSplit && pShape->Get_Part_Count() > 1 )
-		{
-			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-			{
-				if( !((CSG_Shape_Polygon *)pShape)->is_Lake(iPart) && (pShape_Add = Add_Polygon(id_A, id_B)) != NULL )
-				{
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-					{
-						pShape_Add->Add_Point(pShape->Get_Point(iPoint, iPart), 0);
-					}
-
-					for(jPart=0, nParts=0; jPart<pShape->Get_Part_Count(); jPart++)
-					{
-						if(	((CSG_Shape_Polygon *)pShape)->is_Lake(jPart)
-						&&	((CSG_Shape_Polygon *)pShape)->Contains(pShape->Get_Point(0, jPart), iPart) )
-						{
-							nParts++;
-
-							for(iPoint=0; iPoint<pShape->Get_Point_Count(jPart); iPoint++)
-							{
-								pShape_Add->Add_Point(pShape->Get_Point(iPoint, jPart), nParts);
-							}
-						}
-					}
-				}
-			}
-		}
-		else if( (pShape_Add = Add_Polygon(id_A, id_B)) != NULL )
-		{
-			pShape_Add->Assign(pShape, false);
-		}
-	}
+	return( pPolygon->is_Valid() );
 }
 
 

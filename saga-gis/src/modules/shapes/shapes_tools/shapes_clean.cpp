@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: ruggedness.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: shapes_clean.h 911 2011-02-14 16:38:15Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                    Module Library:                    //
-//                    ta_morphometry                     //
+//                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     ruggedness.h                      //
+//                   shapes_clean.cpp                    //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -49,18 +49,7 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Ruggedness_H
-#define HEADER_INCLUDED__Ruggedness_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -70,65 +59,91 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRuggedness_TRI : public CSG_Module_Grid
+#include "shapes_clean.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CShapes_Clean::CShapes_Clean(void)
 {
-public:
-	CRuggedness_TRI(void);
+	//-----------------------------------------------------
+	Set_Name		(_TL("Remove Invalid Shapes"));
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Indices" ));	}
+	Set_Author		("O.Conrad (c) 2016");
 
+	Set_Description	(_TW(
+		"This tool deletes geometrically invalid elements from a shapes layer."
+	));
 
-protected:
-
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	CSG_Grid					*m_pDEM, *m_pTRI;
-
-	CSG_Grid_Cell_Addressor		m_Cells;
-
-
-	bool						Set_Index				(int x, int y);
-
-};
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(
+		NULL	, "SHAPES"	, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRuggedness_VRM : public CSG_Module_Grid
+int CShapes_Clean::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-public:
-	CRuggedness_VRM(void);
-
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Indices" ));	}
+	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 
-protected:
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+//---------------------------------------------------------
+bool CShapes_Clean::On_Execute(void)
+{
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-	virtual bool				On_Execute				(void);
+	int	n	= pShapes->Get_Count();
 
+	//-----------------------------------------------------
+	for(int i=n-1; i>=0 && Set_Progress(n-1-i, n); i--)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-private:
+		if( !pShape->is_Valid() )
+		{
+			pShapes->Del_Shape(i);
+		}
+		else switch( pShapes->Get_Type() )
+		{
+		default:
+			break;
 
-	CSG_Grid					*m_pDEM, *m_pVRM, m_X, m_Y, m_Z;
+		case SHAPE_TYPE_Polygon:
+			if( ((CSG_Shape_Polygon *)pShape)->Get_Area() <= 0.0 )
+			{
+				pShapes->Del_Shape(i);
+			}
+			break;
+		}
+	}
 
-	CSG_Grid_Cell_Addressor		m_Cells;
+	//-----------------------------------------------------
+	Message_Add(CSG_String::Format("%s: %d", _TL("Number of removed shapes"), n - pShapes->Get_Count()));
 
+	if( n - pShapes->Get_Count() > 0 )
+	{
+		DataObject_Update(pShapes);
+	}
 
-	bool						Set_Index				(int x, int y);
-
-};
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -138,4 +153,3 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Ruggedness_H
