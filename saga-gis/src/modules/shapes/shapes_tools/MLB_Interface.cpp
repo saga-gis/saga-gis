@@ -80,13 +80,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Shapes") );
 
 	case MLB_INFO_Author:
-		return( "O. Conrad, V. Olaya, V. Wichmann" );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-2016") );
 
 	case MLB_INFO_Description:
 		return( _TL("Tools for the manipulation of vector data.") );
 
 	case MLB_INFO_Version:
-		return( "1.0" );
+		return( SG_T("1.0") );
 
 	case MLB_INFO_Menu_Path:
 		return( _TL("Shapes|Tools") );
@@ -99,6 +99,7 @@ CSG_String Get_Info(int i)
 
 #include "Shapes_Create_Empty.h"
 #include "Shapes_Merge.h"
+#include "Shapes_Support_Tool_Chains.h"
 
 #include "QueryBuilder.h"
 #include "SearchInTable.h"
@@ -167,7 +168,9 @@ CSG_Module *		Create_Module(int i)
 
 	case 25:	return( new CLandUse_Scenario );
 
-	case 26:	return( new CShapes_Clean );
+	case 26:	return( new CSelect_Shapes_From_List );
+
+	case 27:	return( new CShapes_Clean );
 
 	case 30:	return( NULL );
 	default:	return( MLB_INTERFACE_SKIP_MODULE );

@@ -83,7 +83,7 @@
     <ClCompile Include="LandUse_Scenario.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shapes_clean.cpp">
+    <ClCompile Include="Shapes_Support_Tool_Chains.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -208,7 +208,7 @@
     <ClInclude Include="LandUse_Scenario.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shapes_clean.h">
+    <ClInclude Include="Shapes_Support_Tool_Chains.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

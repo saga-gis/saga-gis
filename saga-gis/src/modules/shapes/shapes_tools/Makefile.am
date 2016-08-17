@@ -23,6 +23,7 @@ SelectByTheme.cpp\
 SeparateShapes.cpp\
 Shapes_Create_Empty.cpp\
 Shapes_Merge.cpp\
+Shapes_Support_Tool_Chains.cpp\
 TransformShapes.cpp\
 shapes_buffer.cpp\
 shapes_clean.cpp\
@@ -47,6 +48,7 @@ SelectByTheme.h\
 SeparateShapes.h\
 Shapes_Create_Empty.h\
 Shapes_Merge.h\
+Shapes_Support_Tool_Chains.h\
 TransformShapes.h\
 shapes_buffer.h\
 shapes_clean.h\
