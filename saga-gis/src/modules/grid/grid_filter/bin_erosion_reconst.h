@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class Cbin_erosion_reconst : public CSG_Module_Grid
+class Cbin_erosion_reconst : public CSG_Tool_Grid
 {
 public:
 	Cbin_erosion_reconst (void);

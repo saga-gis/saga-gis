@@ -8,7 +8,7 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CErdas_LAN_Import : public CSG_Module
+class CErdas_LAN_Import : public CSG_Tool
 {
 public:
 	CErdas_LAN_Import(void);

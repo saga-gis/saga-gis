@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CShapes_Generate::CShapes_Generate(void)
 	Set_Author(_TL("Volker Wichmann (c) 2012, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module allows one to generate point, line or polygon shapes "
+		"The tool allows one to generate point, line or polygon shapes "
 		"from a table with x and y coordinates and an identifier. The table "
 		"must be sorted in vertex order.\n\n"
 		"The identifier has different meanings:\n\n"

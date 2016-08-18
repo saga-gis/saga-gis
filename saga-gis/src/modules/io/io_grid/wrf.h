@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -109,7 +109,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWRF_Import : public CSG_Module
+class CWRF_Import : public CSG_Tool
 {
 public:
 	CWRF_Import(void);
@@ -137,7 +137,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWRF_Export : public CSG_Module_Grid
+class CWRF_Export : public CSG_Tool_Grid
 {
 public:
 	CWRF_Export(void);

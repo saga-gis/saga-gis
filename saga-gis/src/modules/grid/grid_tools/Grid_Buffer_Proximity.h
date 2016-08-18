@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,7 +59,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class grid_tools_EXPORT CGrid_Proximity_Buffer : public CSG_Module_Grid
+class grid_tools_EXPORT CGrid_Proximity_Buffer : public CSG_Tool_Grid
 {
 public:
 	CGrid_Proximity_Buffer(void);

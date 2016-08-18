@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  imagery_isocluster                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cluster_ISODATA : public CSG_Module_Grid
+class CGrid_Cluster_ISODATA : public CSG_Tool_Grid
 {
 public:
 	CGrid_Cluster_ISODATA(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      table_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@ CTable_Change_Color_Format::CTable_Change_Color_Format(void)
 	Set_Author		(SG_T("Copyrights (c) 2013 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"This module allows one to convert table fields from SAGA RGB to R, G, B values and "
+		"This tool allows one to convert table fields from SAGA RGB to R, G, B values and "
 		"vice versa.\n\n"
 	));
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -89,7 +89,7 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 
 	Set_Description	(_TW(
 		"Clips the input grid with a polygon shapefile. Select "
-        "polygons from the shapefile prior to module execution "
+        "polygons from the shapefile prior to tool execution "
         "in case you like to use only a subset from the shapefile "
         "for clipping."
 	));
@@ -156,7 +156,7 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 
 		//-------------------------------------------------
 		// Get_Mask assignes +1 values to gridcells within the shapefile
-		// The function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
+		// The function has been copied from Tool: 'Grid_Statistics_AddTo_Polygon'
 		// Function: Get_ShapeIDs(...)
 		// and check extent of valid values in Mask to 
 		// calculate GridSystem parameters pGrid_out	
@@ -287,7 +287,7 @@ bool CGrid_Polygon_Clip::is_InGrid(int x, int y, CSG_Grid *pMask, CSG_Parameter_
 
 ///////////////////////////////////////////////////////////
 //---------------------------------------------------------
-// This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
+// This function has been copied from Tool: 'Grid_Statistics_AddTo_Polygon'
 // Function: Get_ShapeIDs(...)
 // copyright by Olaf Conrad
 //

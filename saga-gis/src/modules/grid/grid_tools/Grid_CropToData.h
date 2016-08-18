@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCropToData : public CSG_Module_Grid
+class CCropToData : public CSG_Tool_Grid
 {
 public:
 	CCropToData(void);

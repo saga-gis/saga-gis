@@ -27,7 +27,7 @@
 #include "MLB_Interface.h"
 #include "firelib.h"
 
-class CSimulateVariableWind : public CSG_Module_Grid {
+class CSimulateVariableWind : public CSG_Tool_Grid {
 
 private:
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -146,7 +146,7 @@ bool CVisibility_Point::On_Execute(void)
 
 
 //---------------------------------------------------------
-bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	int		x_Pos, y_Pos;
 
@@ -154,7 +154,7 @@ bool CVisibility_Point::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 
 
 	//-----------------------------------------------------
-	if(	Mode != MODULE_INTERACTIVE_LDOWN
+	if(	Mode != TOOL_INTERACTIVE_LDOWN
 	||	!m_pDTM->is_InGrid_byPos(Get_xPosition(), Get_yPosition()) )
 	{
 		return( false );

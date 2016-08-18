@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       image_io                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                      Olaf Conrad                      //

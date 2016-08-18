@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CGDAL_Catalogue::CGDAL_Catalogue(void)
 		"that shows the extent for each valid raster file. Each extent is attributed with "
 		"the original file path and raster system properties.\n"
 		"\n"
-		"The \"GDAL Raster Import\" module imports grid data from various file formats using the "
+		"The \"GDAL Raster Import\" tool imports grid data from various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -129,7 +129,7 @@ CGDAL_Catalogue::CGDAL_Catalogue(void)
 //---------------------------------------------------------
 int CGDAL_Catalogue::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -231,7 +231,7 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 		"raster file in it. Each extent is attributed with the original file path and "
 		"raster system properties.\n"
 		"\n"
-		"The \"GDAL Raster Import\" module imports grid data from various file formats using the "
+		"The \"GDAL Raster Import\" tool imports grid data from various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -313,7 +313,7 @@ int CGDAL_Catalogues::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("CATALOGUE_UKN", pParameter->asInt() == 1);
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -551,10 +551,10 @@ bool CGDAL_Catalogues::Add_To_Geographic(CSG_Shapes *pCatalogue)
 	{
 		bool	bResult;
 
-		SG_RUN_MODULE(bResult, "pj_proj4", 2,
-				SG_MODULE_PARAMETER_SET("SOURCE"   , pCatalogue)
-			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &Catalogue)
-			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_Proj4())
+		SG_RUN_TOOL(bResult, "pj_proj4", 2,
+				SG_TOOL_PARAMETER_SET("SOURCE"   , pCatalogue)
+			&&	SG_TOOL_PARAMETER_SET("TARGET"   , &Catalogue)
+			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", Parameters("CATALOGUE_GCS")->asShapes()->Get_Projection().Get_Proj4())
 		);
 
 		if( bResult )

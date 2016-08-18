@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLandsat_Import : public CSG_Module
+class CLandsat_Import : public CSG_Tool
 {
 public: ////// public members and functions: //////////////
 

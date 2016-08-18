@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                        A1WiTh                         //
 //                                                       //
 //                       for SAGA                        //
@@ -38,7 +38,7 @@ CA1WiTh::CA1WiTh(void)
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "RESULT", _TL("AWT Grid"), _TL("New grid filtered with the A1WiTh module"), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "RESULT", _TL("AWT Grid"), _TL("New grid filtered with the A1WiTh tool"), PARAMETER_OUTPUT);
 	Parameters.Add_Value(NULL, "RX", _TL("Radius X"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
 	Parameters.Add_Value(NULL, "RY", _TL("Radius Y"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
 	Parameters.Add_Value(NULL, "THRESH", _TL("Threshold"), _TL("The values in the specified radius is used in the average calculation only if its difference with the central value is lesser or equal to this threshold."), PARAMETER_TYPE_Double, 2.0);

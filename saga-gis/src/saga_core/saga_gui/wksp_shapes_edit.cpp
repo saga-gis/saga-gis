@@ -207,7 +207,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int
 {
 	CWKSP_Layer::Edit_On_Mouse_Down(Point, ClientToWorld, Key);
 
-	if( !(Key & MODULE_INTERACTIVE_KEY_LEFT) )
+	if( !(Key & TOOL_INTERACTIVE_KEY_LEFT) )
 	{
 		return( false );
 	}
@@ -285,7 +285,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Down(CSG_Point Point, double ClientToWorld, int
 bool CWKSP_Shapes::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	//-----------------------------------------------------
-	if( Key & MODULE_INTERACTIVE_KEY_RIGHT )
+	if( Key & TOOL_INTERACTIVE_KEY_RIGHT )
 	{
 		switch( m_Edit_Mode )
 		{
@@ -359,9 +359,9 @@ bool CWKSP_Shapes::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int K
 
 		int		Count	= Get_Shapes()->Get_Selection_Count();
 
-		Get_Shapes()->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
+		Get_Shapes()->Select(rWorld, (Key & TOOL_INTERACTIVE_KEY_CTRL) != 0);
 
-		Edit_Set_Index((Key & MODULE_INTERACTIVE_KEY_CTRL) == 0 ? 0 :
+		Edit_Set_Index((Key & TOOL_INTERACTIVE_KEY_CTRL) == 0 ? 0 :
 			Count < Get_Shapes()->Get_Selection_Count() || m_Edit_Index >= Get_Shapes()->Get_Selection_Count()
 			? Get_Shapes()->Get_Selection_Count() - 1 : m_Edit_Index
 		);
@@ -405,7 +405,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Move(wxWindow *pMap, CSG_Rect rWorld, wxPoint p
 		if( m_Edit_pShape )
 		{
 			//---------------------------------------------
-			if( m_Edit_iPart >= 0 && (m_Edit_iPoint < 0 || Key & MODULE_INTERACTIVE_KEY_LEFT) && (pt.x != ptLast.x || pt.y != ptLast.y) )
+			if( m_Edit_iPart >= 0 && (m_Edit_iPoint < 0 || Key & TOOL_INTERACTIVE_KEY_LEFT) && (pt.x != ptLast.x || pt.y != ptLast.y) )
 			{
 				wxClientDC	dc(pMap);	dc.SetLogicalFunction(wxINVERT);
 
@@ -579,11 +579,11 @@ bool CWKSP_Shapes::_Edit_Split(void)
 		case EDIT_SHAPE_MODE_Split:
 			m_Edit_Mode	= EDIT_SHAPE_MODE_Normal;
 
-			CSG_Module	*pModule	= Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
-			?	SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_polygons"), 8)	// Polygon-Line Intersection
-			:	SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_lines"   ), 6); // Split Lines with Lines
+			CSG_Tool	*pTool	= Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
+			?	SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_polygons"), 8)	// Polygon-Line Intersection
+			:	SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_lines"   ), 6); // Split Lines with Lines
 
-			if(	pModule )
+			if(	pTool )
 			{
 				CSG_Shapes	Line(SHAPE_TYPE_Line), Split(Get_Shapes()->Get_Type());
 
@@ -599,23 +599,23 @@ bool CWKSP_Shapes::_Edit_Split(void)
 				//-----------------------------------------
 				bool	bResult;
 
-				CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
+				CSG_Parameters	P; P.Assign(pTool->Get_Parameters());
 
-				pModule->Set_Manager(NULL);
+				pTool->Set_Manager(NULL);
 
 				if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
 				{
-					bResult	= pModule->Get_Parameters()->Set_Parameter("POLYGONS" , &m_Edit_Shapes)
-						&&    pModule->Get_Parameters()->Set_Parameter("LINES"    , &Line)
-						&&    pModule->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
-						&&    pModule->Execute();
+					bResult	= pTool->Get_Parameters()->Set_Parameter("POLYGONS" , &m_Edit_Shapes)
+						&&    pTool->Get_Parameters()->Set_Parameter("LINES"    , &Line)
+						&&    pTool->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
+						&&    pTool->Execute();
 				}
 				else //	if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Line )
 				{
-					bResult	= pModule->Get_Parameters()->Set_Parameter("LINES"    , &m_Edit_Shapes)
-						&&    pModule->Get_Parameters()->Set_Parameter("SPLIT"    , &Line)
-						&&    pModule->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
-						&&    pModule->Execute();
+					bResult	= pTool->Get_Parameters()->Set_Parameter("LINES"    , &m_Edit_Shapes)
+						&&    pTool->Get_Parameters()->Set_Parameter("SPLIT"    , &Line)
+						&&    pTool->Get_Parameters()->Set_Parameter("INTERSECT", &Split)
+						&&    pTool->Execute();
 				}
 
 				//-----------------------------------------
@@ -657,8 +657,8 @@ bool CWKSP_Shapes::_Edit_Split(void)
 					}
 				}
 
-				pModule->Get_Parameters()->Assign_Values(&P);
-				pModule->Set_Manager(P.Get_Manager());
+				pTool->Get_Parameters()->Assign_Values(&P);
+				pTool->Set_Manager(P.Get_Manager());
 			}
 
 			Update_Views(false);

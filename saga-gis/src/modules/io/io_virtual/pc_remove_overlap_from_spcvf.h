@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPointCloud_Remove_Overlap_From_SPCVF : public CSG_Module
+class CPointCloud_Remove_Overlap_From_SPCVF : public CSG_Tool
 {
 public:
 	CPointCloud_Remove_Overlap_From_SPCVF(void);

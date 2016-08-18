@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Geometric_Figures : public CSG_Module
+class CGrid_Geometric_Figures : public CSG_Tool
 {
 public:
 	CGrid_Geometric_Figures(void);

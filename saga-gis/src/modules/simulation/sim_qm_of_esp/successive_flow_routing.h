@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      qm_of_esp                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSuccessive_Flow_Routing : public CSG_Module_Grid
+class CSuccessive_Flow_Routing : public CSG_Tool_Grid
 {
 public:
 

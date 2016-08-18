@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -16,22 +16,22 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Calculus BSL") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Grid") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("SAGA User Group Associaton (c) 2009") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Boehner's Simple Language (BSL) is a macro script language for grid based calculations.") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Grid|Calculus") );
 	}
 }
@@ -40,7 +40,7 @@ CSG_String Get_Info(int i)
 #include "bsl_interpreter.h"
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
@@ -61,6 +61,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

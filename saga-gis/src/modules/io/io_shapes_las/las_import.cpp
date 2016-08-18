@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Shapes_IO_LAS                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -117,14 +117,14 @@ CLAS_Import::CLAS_Import(void)
 	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009"));
 
 	CSG_String		Description(_TW(
-		"This module imports ASPRS LAS files (versions 1.0, 1.1 and 1.2) as Point Clouds "
+		"This tool imports ASPRS LAS files (versions 1.0, 1.1 and 1.2) as Point Clouds "
 		"using the \"libLAS\" library. "
 		"Get more information about this library at "
 		"<a href=\"http://liblas.org\">http://liblas.org</a>\n"
 		"\n"
 		"Besides the x,y,z coordinates, the user can decide upon which attributes "
 		"should be imported from the LAS file.\n\n"
-		"Module development was supported by "
+		"Tool development was supported by "
 		"<a href=\"http://www.laserdata.at\">http://Laserdata GmbH, Austria</a>\n"
 		"and "
 		"<a href=\"http://www.alp-s.at\">http://alpS GmbH, Austria</a>\n"

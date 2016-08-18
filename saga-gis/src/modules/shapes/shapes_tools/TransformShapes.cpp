@@ -29,7 +29,7 @@ CTransformShapes::CTransformShapes(void)
 	Set_Name		(_TL("Transform Shapes"));
 	Set_Author		(SG_T("(c) 2004 by Victor Olaya"));
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Use this module to move, rotate and/or scale shapes."
+		"(c) 2004 by Victor Olaya. Use this tool to move, rotate and/or scale shapes."
 	));
 
 	CSG_Parameter *pNode_0;

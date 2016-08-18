@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CProfileFromPoints : public CSG_Module_Grid {
+class CProfileFromPoints : public CSG_Tool_Grid {
 
 public:
 	CProfileFromPoints(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -180,7 +180,7 @@ int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 		pParameters->Set_Enabled("DAY", pParameter->asInt() == 0);
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -209,10 +209,10 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 		bool		bResult;
 		CSG_Grid	Lon;
 
-		SG_RUN_MODULE(bResult, "pj_proj4", 17,	// geographic coordinate grids
-				SG_MODULE_PARAMETER_SET("GRID", pTavg)
-			&&	SG_MODULE_PARAMETER_SET("LON" , &Lon)
-			&&	SG_MODULE_PARAMETER_SET("LAT" , &Lat)
+		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
+				SG_TOOL_PARAMETER_SET("GRID", pTavg)
+			&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
+			&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 		)
 
 		if( bResult )

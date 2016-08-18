@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSTL_Import : public CSG_Module
+class CSTL_Import : public CSG_Tool
 {
 public:
 	CSTL_Import(void);
@@ -120,7 +120,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSTL_Export : public CSG_Module
+class CSTL_Export : public CSG_Tool
 {
 public:
 	CSTL_Export(void);

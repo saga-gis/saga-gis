@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -77,7 +77,7 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 	Set_Author		(SG_T("O.Conrad (c) 2012"));
 
 	Set_Description	(_TW(
-		"This module imports grids NetCDF Format using the "
+		"This tool imports grids NetCDF Format using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

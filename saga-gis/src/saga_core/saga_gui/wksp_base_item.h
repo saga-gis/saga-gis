@@ -101,10 +101,10 @@
 //---------------------------------------------------------
 typedef enum
 {
-	WKSP_ITEM_Module_Manager,
-	WKSP_ITEM_Module_Group,
-	WKSP_ITEM_Module_Library,
-	WKSP_ITEM_Module,
+	WKSP_ITEM_Tool_Manager,
+	WKSP_ITEM_Tool_Group,
+	WKSP_ITEM_Tool_Library,
+	WKSP_ITEM_Tool,
 
 	WKSP_ITEM_Data_Manager,
 

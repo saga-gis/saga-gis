@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -63,13 +63,13 @@
 #include <math.h>
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	if( !bResult ) return( false );\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 //---------------------------------------------------------
 
@@ -93,14 +93,14 @@ CWETNESS::CWETNESS(void)
 
 	Set_Description	(_TW(
 		"\n"
-		"This module calculates a topographic wetness index (TWI) following Montgomery & Dietrich (1994) that can be used to estimate the degree of saturation of unconsolidated, permeable "
+		"This tool calculates a topographic wetness index (TWI) following Montgomery & Dietrich (1994) that can be used to estimate the degree of saturation of unconsolidated, permeable "
 		"materials above (more or less) impermeable bedrock. In contrast to the common TOPMODEL (Beven & Kirkby, 1979) - based TWI, this index differs in such that it considers "
 		"hydraulic conductivity to be constant in a soil mantle overlying relatively impermeable bedrock. Also, it uses the sine of the slope rather than its tangens, which is more correct "
 		"and significantly matters for steeper slopes that give raise to landslides. "
 		"For computation, a slope (in radians) and a catchment area (in m2) grid are required. "
 		"Additionally, information on groundwater recharge (m/hr), material hydraulic conductivity (m/hr), "
 		"and depth to potential shear plane (m) are required that can be specified either globally or through grids. "
-		"The module produces a continuous wetness index (-) where cells with WI values > 1 (overland flow) set to 1, and optionally creates a classified WI grid rendering three saturation classes:.\n"
+		"The tool produces a continuous wetness index (-) where cells with WI values > 1 (overland flow) set to 1, and optionally creates a classified WI grid rendering three saturation classes:.\n"
 		"0): Low moisture (WI smaller 0.1)\n"
 		"1): Partially wet (0.1 smaller WI smaller 1)\n"
 		"2): Saturation zone (WI larger 1)\n"
@@ -249,12 +249,12 @@ bool CWETNESS::On_Execute(void)
 	{
 		CSG_Grid	DEM(*Get_System(), SG_DATATYPE_Float);
 
-		RUN_MODULE("ta_preprocessor"		, 2,
+		RUN_TOOL("ta_preprocessor"		, 2,
 				SET_PARAMETER("DEM"			, pDEM)
 			&&	SET_PARAMETER("DEM_PREPROC"	, &DEM)
 		)
 
-		RUN_MODULE("ta_hydrology"			, 0,
+		RUN_TOOL("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, &DEM)
 			&&	SET_PARAMETER("FLOW"		, pB)
 			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))
@@ -262,7 +262,7 @@ bool CWETNESS::On_Execute(void)
 	}
 	else
 	{
-		RUN_MODULE("ta_hydrology"			, 0,
+		RUN_TOOL("ta_hydrology"			, 0,
 				SET_PARAMETER("ELEVATION"	, pDEM)
 			&&	SET_PARAMETER("FLOW"		, pB)
 			&&	SET_PARAMETER("METHOD"		, Parameters("METHOD"))

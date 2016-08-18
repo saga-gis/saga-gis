@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CEdgeContamination : public CSG_Module_Grid
+class CEdgeContamination : public CSG_Tool_Grid
 {
 public:
 	CEdgeContamination(void);

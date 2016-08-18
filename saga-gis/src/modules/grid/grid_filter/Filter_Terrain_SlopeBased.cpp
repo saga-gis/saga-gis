@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,9 +80,9 @@ CFilter_Terrain_SlopeBased::CFilter_Terrain_SlopeBased(void)
 	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module can be used to filter a digital surface model (DSM), i.e. to classify "
+		"The tool can be used to filter a digital surface model (DSM), i.e. to classify "
 		"its cells into bare earth and object cells (ground and nonground cells).\n\n"
-		"The module uses concepts described by VOSSELMAN (2000) and is based on the "
+		"The tool uses concepts described by VOSSELMAN (2000) and is based on the "
 		"assumption that a large height difference between two nearby cells is unlikely "
 		"to be caused by a steep slope in the terrain. The probability that the higher cell "
 		"could be a ground point decreases if the distance between the two cells decreases. "

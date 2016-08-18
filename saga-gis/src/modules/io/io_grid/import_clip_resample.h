@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CImport_Clip_Resample : public CSG_Module
+class CImport_Clip_Resample : public CSG_Tool
 {
 public:
 	CImport_Clip_Resample(void);

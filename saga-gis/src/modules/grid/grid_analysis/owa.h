@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class COWA : public CSG_Module_Grid {
+class COWA : public CSG_Tool_Grid {
 
 public:
 	COWA(void);

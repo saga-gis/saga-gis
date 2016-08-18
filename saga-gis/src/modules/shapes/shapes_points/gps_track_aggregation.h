@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGPS_Track_Aggregation : public CSG_Module
+class CGPS_Track_Aggregation : public CSG_Tool
 {
 public:
 	CGPS_Track_Aggregation(void);

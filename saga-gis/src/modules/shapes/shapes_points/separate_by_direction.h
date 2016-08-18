@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Table_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSeparate_by_Direction : public CSG_Module
+class CSeparate_by_Direction : public CSG_Tool
 {
 public:
 	CSeparate_by_Direction(void);

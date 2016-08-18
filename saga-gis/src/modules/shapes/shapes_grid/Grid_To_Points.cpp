@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CGrid_To_Points::CGrid_To_Points(void)
 	Set_Author		(SG_T("O.Conrad (c) 2001"));
 
 	Set_Description	(_TW(
-		"This module saves grid values to point (grid nodes) or polygon (grid cells) shapes. Optionally only points "
+		"This tool saves grid values to point (grid nodes) or polygon (grid cells) shapes. Optionally only points "
 		"can be saved, which are contained by polygons of the specified shapes layer. "
 		"In addition, it is possible to exclude all cells that are coded NoData in the "
 		"first grid of the grid list."

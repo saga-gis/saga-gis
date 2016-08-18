@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,7 +71,7 @@
 //---------------------------------------------------------
 CMy_Module::CMy_Module(void)
 {
-	Set_Name		(_TL("Module My_Module"));
+	Set_Name		(_TL("Tool My_Module"));
 
 	Set_Author		(SG_T("George Orwell (c) 1984"));
 

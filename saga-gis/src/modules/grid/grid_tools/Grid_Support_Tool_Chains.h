@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_Grid_From_List : public CSG_Module_Grid
+class CSelect_Grid_From_List : public CSG_Tool_Grid
 {
 public:
 	CSelect_Grid_From_List(void);

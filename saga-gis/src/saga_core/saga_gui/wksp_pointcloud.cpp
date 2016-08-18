@@ -849,7 +849,7 @@ TSG_Rect CWKSP_PointCloud::Edit_Get_Extent(void)
 //---------------------------------------------------------
 bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	if( Key & MODULE_INTERACTIVE_KEY_RIGHT )
+	if( Key & TOOL_INTERACTIVE_KEY_RIGHT )
 	{
 		return( false );
 	}
@@ -864,7 +864,7 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, i
 
 		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
-		Get_PointCloud()->Select(rWorld, (Key & MODULE_INTERACTIVE_KEY_CTRL) != 0);
+		Get_PointCloud()->Select(rWorld, (Key & TOOL_INTERACTIVE_KEY_CTRL) != 0);
 
 		//-----------------------------------------------------
 		m_Edit_Attributes.Del_Records();

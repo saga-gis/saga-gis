@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFilter_3x3 : public CSG_Module_Grid  
+class CFilter_3x3 : public CSG_Tool_Grid  
 {
 public:
 	CFilter_3x3(void);

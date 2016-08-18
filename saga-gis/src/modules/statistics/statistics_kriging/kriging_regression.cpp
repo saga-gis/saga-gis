@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -243,7 +243,7 @@ int CKriging_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 	}
 
 	//-----------------------------------------------------
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -252,7 +252,7 @@ int CKriging_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	//-----------------------------------------------------
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -278,21 +278,21 @@ bool CKriging_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	SG_RUN_MODULE_ExitOnError("statistics_regression", 1,	// Multiple Regression Analysis (Points and Predictor Grids)
-			SG_MODULE_PARAMETER_SET("PREDICTORS", Parameters("PREDICTORS"))
-		&&	SG_MODULE_PARAMETER_SET("POINTS"    , Parameters("POINTS"    ))
-		&&	SG_MODULE_PARAMETER_SET("ATTRIBUTE" , Parameters("FIELD"     ))
-		&&	SG_MODULE_PARAMETER_SET("INFO_COEFF", Parameters("INFO_COEFF"))
-		&&	SG_MODULE_PARAMETER_SET("INFO_MODEL", Parameters("INFO_MODEL"))
-		&&	SG_MODULE_PARAMETER_SET("INFO_STEPS", Parameters("INFO_STEPS"))
-		&&	SG_MODULE_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
-		&&	SG_MODULE_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
-		&&	SG_MODULE_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
-		&&	SG_MODULE_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))
-		&&	SG_MODULE_PARAMETER_SET("METHOD"    , Parameters("METHOD"    ))
-		&&	SG_MODULE_PARAMETER_SET("P_VALUE"   , Parameters("P_VALUE"   ))
-		&&	SG_MODULE_PARAMETER_SET("REGRESSION", pRegression)
-		&&	SG_MODULE_PARAMETER_SET("RESIDUALS" , &Points )
+	SG_RUN_TOOL_ExitOnError("statistics_regression", 1,	// Multiple Regression Analysis (Points and Predictor Grids)
+			SG_TOOL_PARAMETER_SET("PREDICTORS", Parameters("PREDICTORS"))
+		&&	SG_TOOL_PARAMETER_SET("POINTS"    , Parameters("POINTS"    ))
+		&&	SG_TOOL_PARAMETER_SET("ATTRIBUTE" , Parameters("FIELD"     ))
+		&&	SG_TOOL_PARAMETER_SET("INFO_COEFF", Parameters("INFO_COEFF"))
+		&&	SG_TOOL_PARAMETER_SET("INFO_MODEL", Parameters("INFO_MODEL"))
+		&&	SG_TOOL_PARAMETER_SET("INFO_STEPS", Parameters("INFO_STEPS"))
+		&&	SG_TOOL_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
+		&&	SG_TOOL_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
+		&&	SG_TOOL_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
+		&&	SG_TOOL_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))
+		&&	SG_TOOL_PARAMETER_SET("METHOD"    , Parameters("METHOD"    ))
+		&&	SG_TOOL_PARAMETER_SET("P_VALUE"   , Parameters("P_VALUE"   ))
+		&&	SG_TOOL_PARAMETER_SET("REGRESSION", pRegression)
+		&&	SG_TOOL_PARAMETER_SET("RESIDUALS" , &Points )
 	);
 
 	//-----------------------------------------------------

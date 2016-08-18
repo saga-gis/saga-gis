@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -134,7 +134,7 @@ int CTable_Record_Statistics_Base::On_Parameters_Enable(CSG_Parameters *pParamet
 		pParameters->Get_Parameter("PCTL_VAL")->Set_Enabled(pParameter->asBool());
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

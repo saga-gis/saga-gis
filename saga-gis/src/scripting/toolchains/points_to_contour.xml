@@ -28,7 +28,7 @@
 	</option>
   </parameters>
   <tools>
-    <tool library="grid_spline" module="4" name="Multilevel B-Spline Interpolation">
+    <tool library="grid_spline" tool="4" name="Multilevel B-Spline Interpolation">
       <option id="FIELD" varname="1">ATTRIBUTE</option>
       <option id="METHOD">1</option>
       <option id="EPSILON">0.000100</option>
@@ -37,7 +37,7 @@
       <option id="TARGET_USER_SIZE" varname="1">CELL_SIZE</option>
       <output id="TARGET_OUT_GRID">INTERPOLATION</output>
     </tool>
-    <tool library="shapes_grid" module="5" name="Contour Lines from Grid">
+    <tool library="shapes_grid" tool="5" name="Contour Lines from Grid">
       <option id="ZSTEP" varname="1">ZSTEP</option>
       <option id="ZMIN">0.000000</option>
       <option id="ZMAX">10000.000000</option>

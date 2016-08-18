@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -94,7 +94,7 @@ CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"This module approximates irregular scalar 2D data in specified points using "
+		"This tool approximates irregular scalar 2D data in specified points using "
 		"C1-continuous bivariate cubic spline."
 		"\n"
 		"Minimal Number of Points:"

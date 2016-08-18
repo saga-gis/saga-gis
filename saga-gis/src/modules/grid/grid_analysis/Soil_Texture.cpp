@@ -8,7 +8,7 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    grid_analysis                      //
 //                                                       //
 //-------------------------------------------------------//

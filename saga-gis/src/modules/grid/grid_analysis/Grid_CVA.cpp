@@ -44,7 +44,7 @@ CGrid_CVA::CGrid_CVA(void)
 	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2012"));
 
 	Set_Description	(_TW(
-		"This module performs a change vector analysis (CVA) for the given input features. "
+		"This tool performs a change vector analysis (CVA) for the given input features. "
 		"Input features are supplied as grid lists for initial and final state. "
 		"In both lists features have to be given in the same order. "
 		"Distance is measured as Euclidean distance in features space. When analyzing two features "

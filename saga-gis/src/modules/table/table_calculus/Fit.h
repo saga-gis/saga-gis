@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Table_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 
 //---------------------------------------------------------
 
-class CFit : public CSG_Module
+class CFit : public CSG_Tool
 {
 public:
 	CFit(void);

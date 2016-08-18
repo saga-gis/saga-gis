@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    shapes_polygons                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Shared_Edges : public CSG_Module
+class CPolygon_Shared_Edges : public CSG_Tool
 {
 public: ////// public members and functions: //////////////
 
@@ -117,7 +117,7 @@ private: ///// private members and functions: /////////////
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Vertex_Check : public CSG_Module
+class CPolygon_Vertex_Check : public CSG_Tool
 {
 public: ////// public members and functions: //////////////
 

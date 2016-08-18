@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Fractals                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBifurcation : public CSG_Module  
+class CBifurcation : public CSG_Tool  
 {
 public:
 	CBifurcation(void);

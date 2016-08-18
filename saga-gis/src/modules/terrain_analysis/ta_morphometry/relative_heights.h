@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRelative_Heights : public CSG_Module_Grid
+class CRelative_Heights : public CSG_Tool_Grid
 {
 public:
 	CRelative_Heights(void);

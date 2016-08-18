@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -217,10 +217,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class db_pgsql_EXPORT CSG_PG_Module : public CSG_Module
+class db_pgsql_EXPORT CSG_PG_Tool : public CSG_Tool
 {
 public:
-	CSG_PG_Module(void);
+	CSG_PG_Tool(void);
 
 
 protected:

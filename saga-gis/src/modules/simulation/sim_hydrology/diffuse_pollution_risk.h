@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDiffuse_Pollution_Risk : public CSG_Module_Grid
+class CDiffuse_Pollution_Risk : public CSG_Tool_Grid
 {
 public:
 	CDiffuse_Pollution_Risk(void);

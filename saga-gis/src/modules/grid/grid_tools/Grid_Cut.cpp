@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -185,7 +185,7 @@ int CGrid_Clip_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 		Fit_Extent(pParameters, pParameter, Get_System());
 	}
 
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -207,12 +207,12 @@ bool CGrid_Clip_Interactive::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )
 		{
 			m_bDown		= true;
@@ -222,7 +222,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_I
 		break;
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
 			m_bDown		= false;
@@ -390,7 +390,7 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 	Fit_Extent(pParameters, pParameter, pSystem);
 
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -410,7 +410,7 @@ int CGrid_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Enabled("BUFFER"    , pParameter->asInt() != 3);	// no buffering for polygon clip
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

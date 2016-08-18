@@ -62,7 +62,7 @@
 
 //---------------------------------------------------------
 #include "data_manager.h"
-#include "module_library.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -478,7 +478,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	//-----------------------------------------------------
 	bool		bResult	= false;
 
-	CSG_Module	*pImport;
+	CSG_Tool	*pImport;
 
 	SG_UI_Msg_Lock(true);
 
@@ -490,7 +490,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 		||	SG_File_Cmp_Extension(File, SG_T("jpg"))
 		||	SG_File_Cmp_Extension(File, SG_T("png"))
 		||	SG_File_Cmp_Extension(File, SG_T("pcx")) )
-	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module("io_grid_image", 1)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 1)) != NULL
 	&&   pImport->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -502,7 +502,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	// GDAL Import
 
 	if( !bResult
-	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module("io_gdal", 0)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -514,7 +514,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	// OGR Import
 
 	if( !bResult
-	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module("io_gdal", 3)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 3)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -526,7 +526,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	// LAS Import
 
 	if( !bResult && SG_File_Cmp_Extension(File, SG_T("las"))
-	&&  (pImport = SG_Get_Module_Library_Manager().Get_Module("io_shapes_las", 1)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_shapes_las", 1)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -759,7 +759,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	s	+= SG_T("<table border=\"0\">");
 
 	SUMMARY_ADD_INT(_TL("Available Libraries"), Get_Count());
-	SUMMARY_ADD_INT(_TL("Available Tools"    ), nModules);
+	SUMMARY_ADD_INT(_TL("Available Tools"    ), nTools);
 
 	s	+= SG_T("</table>");
 

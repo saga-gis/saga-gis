@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Gridding                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -148,7 +148,7 @@ void CShepard2d::GetValue(double px, double py, double &q)
 
 /*/////////////////////////////////////////////////////////////////////////////////////
 The following source ist an automatic translation 
-with f2c of Module 660 in TOMS
+with f2c of Tool 660 in TOMS
  
 QSHEP2D: Fortran routines implementing the quadratic Shepard method for
 bivariate interpolation of scattered data. (See R. J. Renka, ACM TOMS 14 (1988)

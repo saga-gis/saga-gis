@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 //#########################################################
 
-class CRivGridPrep : public CSG_Module_Grid
+class CRivGridPrep : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

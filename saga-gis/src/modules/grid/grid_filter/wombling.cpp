@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -134,7 +134,7 @@ CWombling_Base::CWombling_Base(void)
 //---------------------------------------------------------
 int CWombling_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

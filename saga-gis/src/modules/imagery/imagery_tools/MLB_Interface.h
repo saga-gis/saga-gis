@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                 SAGA User Group Assoc.                //

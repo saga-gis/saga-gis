@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.h 1925 2014-01-09 12:15:18Z oconrad $
+ * Version $Id: TLB_Interface.h 1925 2014-01-09 12:15:18Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Table_ODBC                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2004 by                 //
 //                      Olaf Conrad                      //

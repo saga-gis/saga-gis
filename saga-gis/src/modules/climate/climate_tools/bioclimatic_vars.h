@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBioclimatic_Vars : public CSG_Module_Grid
+class CBioclimatic_Vars : public CSG_Tool_Grid
 {
 public:
 	CBioclimatic_Vars(void);

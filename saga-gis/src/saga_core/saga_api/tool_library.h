@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  module_library.h                     //
+//                    tool_library.h                     //
 //                                                       //
 //          Copyright (C) 2006 by Olaf Conrad            //
 //                                                       //
@@ -63,8 +63,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__module_library_H
-#define HEADER_INCLUDED__SAGA_API__module_library_H
+#ifndef HEADER_INCLUDED__SAGA_API__tool_library_H
+#define HEADER_INCLUDED__SAGA_API__tool_library_H
 
 
 ///////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -84,12 +84,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Module_Library_Type
+typedef enum ESG_Tool_Library_Type
 {
-	MODULE_LIBRARY		= 0,
-	MODULE_CHAINS
+	TOOL_LIBRARY		= 0,
+	TOOL_CHAINS
 }
-TSG_Module_Library_Type;
+TSG_Tool_Library_Type;
 
 //---------------------------------------------------------
 enum
@@ -109,13 +109,13 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Library
+class SAGA_API_DLL_EXPORT CSG_Tool_Library
 {
-	friend class CSG_Module_Library_Manager;
+	friend class CSG_Tool_Library_Manager;
 
 public:
 
-	virtual TSG_Module_Library_Type	Get_Type			(void)	const	{	return( MODULE_LIBRARY );	}
+	virtual TSG_Tool_Library_Type	Get_Type			(void)	const	{	return( TOOL_LIBRARY );	}
 
 	bool							is_Valid			(void)	const	{	return( Get_Count() > 0 );	}
 
@@ -123,26 +123,26 @@ public:
 	const CSG_String &				Get_Library_Name	(void)	const	{	return( m_Library_Name );	}
 
 	virtual CSG_String				Get_Info			(int Type)	const;
-	CSG_String						Get_Name			(void)	const	{	return( Get_Info(MLB_INFO_Name       ) );	}
-	CSG_String						Get_Description		(void)	const	{	return( Get_Info(MLB_INFO_Description) );	}
-	CSG_String						Get_Author			(void)	const	{	return( Get_Info(MLB_INFO_Author     ) );	}
-	CSG_String						Get_Version			(void)	const	{	return( Get_Info(MLB_INFO_Version    ) );	}
-	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(MLB_INFO_Menu_Path  ) );	}
-	CSG_String						Get_Category		(void)	const	{	return( Get_Info(MLB_INFO_Category   ) );	}
+	CSG_String						Get_Name			(void)	const	{	return( Get_Info(TLB_INFO_Name       ) );	}
+	CSG_String						Get_Description		(void)	const	{	return( Get_Info(TLB_INFO_Description) );	}
+	CSG_String						Get_Author			(void)	const	{	return( Get_Info(TLB_INFO_Author     ) );	}
+	CSG_String						Get_Version			(void)	const	{	return( Get_Info(TLB_INFO_Version    ) );	}
+	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(TLB_INFO_Menu_Path  ) );	}
+	CSG_String						Get_Category		(void)	const	{	return( Get_Info(TLB_INFO_Category   ) );	}
 	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool							Get_Summary			(const CSG_String &Path)			const;
 
 	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
-	virtual CSG_Module *			Get_Module			(int               Index , TSG_Module_Type Type = MODULE_TYPE_Base)	const;
-	virtual CSG_Module *			Get_Module			(const CSG_String &Module, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Tool *				Get_Tool			(int              Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
+	virtual CSG_Tool *				Get_Tool			(const CSG_String &Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	CSG_Module_Grid *				Get_Module_Grid				(int               Index )	const;
-	CSG_Module_Grid *				Get_Module_Grid				(const CSG_String &Module)	const;
-	CSG_Module_Interactive *		Get_Module_Interactive		(int               Index )	const;
-	CSG_Module_Interactive *		Get_Module_Interactive		(const CSG_String &Module)	const;
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(int               Index )	const;
-	CSG_Module_Grid_Interactive *	Get_Module_Grid_Interactive	(const CSG_String &Module)	const;
+	CSG_Tool_Grid *					Get_Tool_Grid				(int              Index)	const;
+	CSG_Tool_Grid *					Get_Tool_Grid				(const CSG_String &Name)	const;
+	CSG_Tool_Interactive *			Get_Tool_Interactive		(int              Index)	const;
+	CSG_Tool_Interactive *			Get_Tool_Interactive		(const CSG_String &Name)	const;
+	CSG_Tool_Grid_Interactive *		Get_Tool_Grid_Interactive	(int              Index)	const;
+	CSG_Tool_Grid_Interactive *		Get_Tool_Grid_Interactive	(const CSG_String &Name)	const;
 
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;
@@ -150,9 +150,9 @@ public:
 
 protected:
 
-	CSG_Module_Library(void);
-	CSG_Module_Library(const CSG_String &File_Name);
-	virtual ~CSG_Module_Library(void);
+	CSG_Tool_Library(void);
+	CSG_Tool_Library(const CSG_String &File_Name);
+	virtual ~CSG_Tool_Library(void);
 
 
 	CSG_String						m_File_Name, m_Library_Name;
@@ -163,7 +163,7 @@ private:
 	bool							_Destroy			(void);
 
 
-	CSG_Module_Library_Interface	*m_pInterface;
+	CSG_Tool_Library_Interface		*m_pInterface;
 
 	class wxDynamicLibrary			*m_pLibrary;
 
@@ -177,47 +177,47 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Library_Manager
+class SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager
 {
 public:
-	CSG_Module_Library_Manager(void);
-	virtual ~CSG_Module_Library_Manager(void);
+	CSG_Tool_Library_Manager(void);
+	virtual ~CSG_Tool_Library_Manager(void);
 
-	bool							Destroy				(void);
+	bool						Destroy				(void);
 
-	int								Get_Count			(void)	const	{	return( m_nLibraries );	}
+	int							Get_Count			(void)	const	{	return( m_nLibraries );	}
 
-	CSG_Module_Library *			Add_Library			(const SG_Char *File_Name);
-	int								Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
+	CSG_Tool_Library *			Add_Library			(const SG_Char *File_Name);
+	int							Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
 
-	bool							Del_Library			(int i);
-	bool							Del_Library			(CSG_Module_Library *pLibrary);
+	bool						Del_Library			(int i);
+	bool						Del_Library			(CSG_Tool_Library *pLibrary);
 
-	CSG_Module_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
-	CSG_Module_Library *			Get_Library			(const SG_Char *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
+	CSG_Tool_Library *			Get_Library			(const SG_Char *Name, bool bLibrary)	const;
 
-	bool							is_Loaded			(CSG_Module_Library *pLibrary)	const;
+	bool						is_Loaded			(CSG_Tool_Library *pLibrary)	const;
 
-	CSG_Module *					Get_Module			(const CSG_String &Library, int               ID    )	const;
-	CSG_Module *					Get_Module			(const CSG_String &Library, const CSG_String &Module)	const;
+	CSG_Tool *					Get_Tool			(const CSG_String &Library, int               ID    )	const;
+	CSG_Tool *					Get_Tool			(const CSG_String &Library, const CSG_String &Tool)	const;
 
-	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
-	bool							Get_Summary			(const CSG_String &Path)			const;
+	CSG_String					Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
+	bool						Get_Summary			(const CSG_String &Path)			const;
 
 
 private:
 
-	int								m_nLibraries;
+	int							m_nLibraries;
 
-	CSG_Module_Library				**m_pLibraries;
+	CSG_Tool_Library			**m_pLibraries;
 
 
-	CSG_Module_Library *			_Add_Module_Chain	(const SG_Char *File_Name);
+	CSG_Tool_Library *			_Add_Tool_Chain	(const SG_Char *File_Name);
 
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(void);
+SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -227,45 +227,45 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_RUN_MODULE(bRetVal, LIBRARY, MODULE, CONDITION)	{\
+#define SG_RUN_TOOL(bRetVal, LIBRARY, TOOL, CONDITION)	{\
 	\
 	bRetVal	= false;\
 	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(LIBRARY), MODULE);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T(LIBRARY), TOOL);\
 	\
-	if(	pModule == NULL )\
+	if(	pTool == NULL )\
 	{\
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s]"), _TL("could not find tool"), SG_T(LIBRARY)));\
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("could not find tool"), SG_T(LIBRARY)));\
 	}\
 	else\
 	{\
-		SG_UI_Process_Set_Text(pModule->Get_Name());\
+		SG_UI_Process_Set_Text(pTool->Get_Name());\
 		\
-		pModule->Settings_Push();\
+		pTool->Settings_Push();\
 		\
-		if( !pModule->On_Before_Execution() || !(CONDITION) )\
+		if( !pTool->On_Before_Execution() || !(CONDITION) )\
 		{\
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not initialize tool"), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\
-		else if( !pModule->Execute() )\
+		else if( !pTool->Execute() )\
 		{\
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not execute tool"   ), SG_T(LIBRARY), pModule->Get_Name().c_str()));\
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not execute tool"   ), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
 		}\
 		else\
 		{\
 			bRetVal	= true;\
 		}\
 		\
-		pModule->Settings_Pop();\
+		pTool->Settings_Pop();\
 	}\
 }
 
 //---------------------------------------------------------
-#define SG_RUN_MODULE_ExitOnError(LIBRARY, MODULE, CONDITION)	{\
+#define SG_RUN_TOOL_ExitOnError(LIBRARY, TOOL, CONDITION)	{\
 	\
 	bool	bResult;\
 	\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	\
 	if( !bResult )\
 	{\
@@ -274,18 +274,18 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 }
 
 //---------------------------------------------------------
-#define SG_MODULE_PARAMETER_SET(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SG_TOOL_PARAMETER_SET(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
-#define SG_MODULE_PARAMLIST_ADD(IDENTIFIER, VALUE)	(\
-		pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)\
-	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
-	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Add_Item(VALUE)\
+#define SG_TOOL_PARAMLIST_ADD(IDENTIFIER, VALUE)	(\
+		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
+	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Add_Item(VALUE)\
 )
 
-#define SG_MODULE_SET_DATAOBJECT_LIST(IDENTIFIER, VALUE)	(\
-		pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)\
-	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
-	&&	pModule->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Assign(VALUE)\
+#define SG_TOOL_SET_DATAOBJECT_LIST(IDENTIFIER, VALUE)	(\
+		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)\
+	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
+	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Assign(VALUE)\
 )
 
 ///////////////////////////////////////////////////////////
@@ -295,4 +295,4 @@ SAGA_API_DLL_EXPORT CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_API__module_library_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API__tool_library_H

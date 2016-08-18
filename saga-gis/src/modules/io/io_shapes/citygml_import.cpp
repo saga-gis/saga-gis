@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_shapes                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -255,23 +255,23 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	Process_Set_Text(_TL("polygon conversion"));
 
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
-	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(SG_T("shapes_polygons"), 3)) )	// Convert Lines to Polygons
+	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_polygons"), 3)) )	// Convert Lines to Polygons
 	{
 		Error_Set(_TL("could not locate line string to polygon conversion tool"));
 
 		return( false );
 	}
 
-	CSG_Parameters	P;	P.Assign(pModule->Get_Parameters());	pModule->Set_Manager(NULL);
+	CSG_Parameters	P;	P.Assign(pTool->Get_Parameters());	pTool->Set_Manager(NULL);
 
-	bool	bResult	= pModule->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
-				&&    pModule->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)tmpMgr.Get_Shapes()->Get(0))
-				&&    pModule->Get_Parameters()->Set_Parameter("MERGE"   , true)
-				&&    pModule->Execute();
+	bool	bResult	= pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
+				&&    pTool->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)tmpMgr.Get_Shapes()->Get(0))
+				&&    pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
+				&&    pTool->Execute();
 
-	pModule->Get_Parameters()->Assign_Values(&P);	pModule->Set_Manager(P.Get_Manager());
+	pTool->Get_Parameters()->Assign_Values(&P);	pTool->Set_Manager(P.Get_Manager());
 
 	pPolygons->Set_Name(SG_File_Get_Name(File, false));
 

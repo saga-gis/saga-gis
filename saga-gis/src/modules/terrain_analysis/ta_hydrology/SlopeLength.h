@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSlopeLength : public CSG_Module_Grid
+class CSlopeLength : public CSG_Tool_Grid
 {
 public:
 	CSlopeLength(void);

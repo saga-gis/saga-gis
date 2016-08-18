@@ -42,7 +42,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygonStatisticsFromPoints : public CSG_Module
+class CPolygonStatisticsFromPoints : public CSG_Tool
 {
 public:
 	CPolygonStatisticsFromPoints(void);

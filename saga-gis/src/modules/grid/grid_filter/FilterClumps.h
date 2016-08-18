@@ -21,7 +21,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CFilterClumps : public CSG_Module_Grid
+class CFilterClumps : public CSG_Tool_Grid
 {
 public:
 	CFilterClumps(void);

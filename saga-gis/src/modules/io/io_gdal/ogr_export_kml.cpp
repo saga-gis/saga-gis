@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -76,7 +76,7 @@ COGR_Export_KML::COGR_Export_KML(void)
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"This module exports a vector layer to a Google Earth KML Format using "
+		"This tool exports a vector layer to a Google Earth KML Format using "
 		"Frank Warmerdam's \"Geospatial Data Abstraction Library\" (GDAL/OGR). "
 		"Output file will automatically re-projected to geographic coordinates "
 		"if necessary and possible. "
@@ -126,10 +126,10 @@ bool COGR_Export_KML::On_Execute(void)
 
 		bool	bResult;
 
-		SG_RUN_MODULE(bResult, "pj_proj4", 2,
-				SG_MODULE_PARAMETER_SET("SOURCE"   , pShapes)
-			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &Shapes)
-			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		SG_RUN_TOOL(bResult, "pj_proj4", 2,
+				SG_TOOL_PARAMETER_SET("SOURCE"   , pShapes)
+			&&	SG_TOOL_PARAMETER_SET("TARGET"   , &Shapes)
+			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 		);
 
 		if( bResult )

@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    module_grid.cpp                    //
+//                 tool_interactive.cpp                  //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -63,7 +63,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,91 +73,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Grid::CSG_Module_Grid(void)
-	: CSG_Module()
+CSG_Tool_Interactive::CSG_Tool_Interactive(void)
 {
-	m_pLock		= NULL;
-
-	Parameters.Create(this, SG_T(""), SG_T(""), SG_T(""), true);
+	m_pTool	= this;
 }
 
 //---------------------------------------------------------
-CSG_Module_Grid::~CSG_Module_Grid(void)
+CSG_Tool_Interactive::~CSG_Tool_Interactive(void)
 {
-	Lock_Destroy();
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Module_Grid::Set_Progress_NCells(sLong iCell)
-{
-	if( Get_System()->is_Valid() )
-	{
-		return( CSG_Module::Set_Progress((double)iCell, (double)Get_System()->Get_NCells()) );
-	}
-
-	return( is_Progress() );
-}
-
-//---------------------------------------------------------
-bool CSG_Module_Grid::Set_Progress(int iRow)
-{
-	return( CSG_Module::Set_Progress(iRow, Get_System()->Get_NY() - 1) );
-}
-
-//---------------------------------------------------------
-bool CSG_Module_Grid::Set_Progress(double Position, double Range)
-{
-	return( CSG_Module::Set_Progress(Position, Range) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Module_Grid::Lock_Create(void)
-{
-	if( Get_System()->is_Valid() )
-	{
-		if( m_pLock && Get_System()->is_Equal(m_pLock->Get_System()) )
-		{
-			m_pLock->Assign(0.0);
-		}
-		else
-		{
-			Lock_Destroy();
-
-			m_pLock	= new CSG_Grid(
-				SG_DATATYPE_Char,
-				Get_System()->Get_NX(),
-				Get_System()->Get_NY(),
-				Get_System()->Get_Cellsize(),
-				Get_System()->Get_XMin(),
-				Get_System()->Get_YMin()
-			);
-		}
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Module_Grid::Lock_Destroy(void)
-{
-	if( m_pLock )
-	{
-		delete(m_pLock);
-
-		m_pLock	= NULL;
-	}
 }
 
 

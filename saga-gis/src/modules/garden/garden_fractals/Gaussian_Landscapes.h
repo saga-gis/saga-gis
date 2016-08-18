@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Fractals                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGaussian_Landscapes : public CSG_Module
+class CGaussian_Landscapes : public CSG_Tool
 {
 public:
 	CGaussian_Landscapes(void);

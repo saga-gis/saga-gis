@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@ CBurnIn_Streams::CBurnIn_Streams(void)
 		"The third method ensures a steady downstream gradient. An elevation "
 		"decrease is only applied, if a downstream cell is equally high or higher. "
 		"You should provide a grid with flow directions for determination of "
-		"downstream cells. The 'Sink Drainage Route Detection' module offers "
+		"downstream cells. The 'Sink Drainage Route Detection' tool offers "
 		"such flow directions. "
 	));
 

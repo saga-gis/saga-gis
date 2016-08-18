@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAdd_Polygon_Attributes : public CSG_Module
+class CAdd_Polygon_Attributes : public CSG_Tool
 {
 public:
 	CAdd_Polygon_Attributes(void);

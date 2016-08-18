@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2006 by                 //
 //                      Olaf Conrad                      //

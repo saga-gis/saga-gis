@@ -33,7 +33,7 @@
 typedef std::vector<std::string> date_array;
 
 
-class Cihacres_elev_cal : public CSG_Module
+class Cihacres_elev_cal : public CSG_Tool
 {
 public:
 

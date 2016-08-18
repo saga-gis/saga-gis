@@ -1050,56 +1050,6 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="wksp_module.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="wksp_module_control.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="wksp_module_library.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="wksp_module_manager.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="wksp_module_menu.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
     <ClCompile Include="wksp_pointcloud.cpp" />
     <ClCompile Include="wksp_pointcloud_manager.cpp" />
     <ClCompile Include="wksp_shapes.cpp">
@@ -1222,107 +1172,112 @@ copy ..\..\scripting\toolchains\*.xml $(OutDir)\modules\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="wksp_tool.cpp" />
+    <ClCompile Include="wksp_tool_control.cpp" />
+    <ClCompile Include="wksp_tool_library.cpp" />
+    <ClCompile Include="wksp_tool_manager.cpp" />
+    <ClCompile Include="wksp_tool_menu.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ACTIVE.h" />
-    <ClInclude Include="ACTIVE_Attributes.h" />
+    <ClInclude Include="active.h" />
+    <ClInclude Include="active_attributes.h" />
     <ClInclude Include="active_attributes_control.h" />
-    <ClInclude Include="ACTIVE_Description.h" />
+    <ClInclude Include="active_Description.h" />
     <ClInclude Include="active_history.h" />
     <ClInclude Include="active_legend.h" />
-    <ClInclude Include="ACTIVE_Parameters.h" />
-    <ClInclude Include="Callback.h" />
+    <ClInclude Include="active_parameters.h" />
+    <ClInclude Include="callback.h" />
     <ClInclude Include="data_source.h" />
     <ClInclude Include="data_source_files.h" />
     <ClInclude Include="data_source_odbc.h" />
     <ClInclude Include="data_source_pgsql.h" />
-    <ClInclude Include="DC_Helper.h" />
+    <ClInclude Include="dc_helper.h" />
     <ClInclude Include="dlg_about.h" />
     <ClInclude Include="dlg_about_logo.h" />
-    <ClInclude Include="DLG_Base.h" />
-    <ClInclude Include="DLG_Colors.h" />
-    <ClInclude Include="DLG_Colors_Control.h" />
-    <ClInclude Include="DLG_List_Base.h" />
-    <ClInclude Include="DLG_List_Grid.h" />
+    <ClInclude Include="dlg_base.h" />
+    <ClInclude Include="dlg_colors.h" />
+    <ClInclude Include="dlg_colors_Control.h" />
+    <ClInclude Include="dlg_list_Base.h" />
+    <ClInclude Include="dlg_list_Grid.h" />
     <ClInclude Include="dlg_list_pointcloud.h" />
-    <ClInclude Include="DLG_List_Shapes.h" />
-    <ClInclude Include="DLG_List_Table.h" />
-    <ClInclude Include="DLG_List_TIN.h" />
-    <ClInclude Include="DLG_Parameters.h" />
-    <ClInclude Include="DLG_Table.h" />
+    <ClInclude Include="dlg_list_Shapes.h" />
+    <ClInclude Include="dlg_list_Table.h" />
+    <ClInclude Include="dlg_list_TIN.h" />
+    <ClInclude Include="dlg_parameters.h" />
+    <ClInclude Include="dlg_table.h" />
     <ClInclude Include="dlg_table_control.h" />
-    <ClInclude Include="DLG_Text.h" />
-    <ClInclude Include="Helper.h" />
-    <ClInclude Include="INFO.h" />
-    <ClInclude Include="INFO_Messages.h" />
-    <ClInclude Include="Parameters_Control.h" />
-    <ClInclude Include="Parameters_Properties.h" />
-    <ClInclude Include="Project.h" />
-    <ClInclude Include="RES_Commands.h" />
-    <ClInclude Include="RES_Controls.h" />
-    <ClInclude Include="RES_Dialogs.h" />
-    <ClInclude Include="RES_Images.h" />
-    <ClInclude Include="SAGA.h" />
-    <ClInclude Include="SAGA_Frame.h" />
-    <ClInclude Include="SAGA_Frame_DropTarget.h" />
-    <ClInclude Include="VIEW_Base.h" />
-    <ClInclude Include="VIEW_Histogram.h" />
-    <ClInclude Include="VIEW_Layout.h" />
-    <ClInclude Include="VIEW_Layout_Control.h" />
-    <ClInclude Include="VIEW_Layout_Info.h" />
-    <ClInclude Include="VIEW_Layout_Printout.h" />
-    <ClInclude Include="VIEW_Map.h" />
-    <ClInclude Include="VIEW_Map_3D.h" />
+    <ClInclude Include="dlg_text.h" />
+    <ClInclude Include="helper.h" />
+    <ClInclude Include="info.h" />
+    <ClInclude Include="info_messages.h" />
+    <ClInclude Include="parameters_control.h" />
+    <ClInclude Include="parameters_properties.h" />
+    <ClInclude Include="project.h" />
+    <ClInclude Include="res_commands.h" />
+    <ClInclude Include="res_controls.h" />
+    <ClInclude Include="res_dialogs.h" />
+    <ClInclude Include="res_images.h" />
+    <ClInclude Include="saga.h" />
+    <ClInclude Include="saga_frame.h" />
+    <ClInclude Include="saga_frame_DropTarget.h" />
+    <ClInclude Include="view_base.h" />
+    <ClInclude Include="view_histogram.h" />
+    <ClInclude Include="view_layout.h" />
+    <ClInclude Include="view_layout_control.h" />
+    <ClInclude Include="view_layout_info.h" />
+    <ClInclude Include="view_layout_printout.h" />
+    <ClInclude Include="view_map.h" />
+    <ClInclude Include="view_map_3d.h" />
     <ClInclude Include="view_map_3d_panel.h" />
-    <ClInclude Include="VIEW_Map_Control.h" />
-    <ClInclude Include="VIEW_Ruler.h" />
-    <ClInclude Include="VIEW_ScatterPlot.h" />
-    <ClInclude Include="VIEW_Table.h" />
-    <ClInclude Include="VIEW_Table_Control.h" />
-    <ClInclude Include="VIEW_Table_Diagram.h" />
-    <ClInclude Include="WKSP.h" />
-    <ClInclude Include="WKSP_Base_Control.h" />
-    <ClInclude Include="WKSP_Base_Item.h" />
-    <ClInclude Include="WKSP_Base_Manager.h" />
-    <ClInclude Include="WKSP_Data_Control.h" />
+    <ClInclude Include="view_map_control.h" />
+    <ClInclude Include="view_ruler.h" />
+    <ClInclude Include="view_scatterplot.h" />
+    <ClInclude Include="view_table.h" />
+    <ClInclude Include="view_table_control.h" />
+    <ClInclude Include="view_table_diagram.h" />
+    <ClInclude Include="wksp.h" />
+    <ClInclude Include="wksp_base_control.h" />
+    <ClInclude Include="wksp_base_item.h" />
+    <ClInclude Include="wksp_base_manager.h" />
+    <ClInclude Include="wksp_data_control.h" />
     <ClInclude Include="wksp_data_item.h" />
     <ClInclude Include="wksp_data_layers.h" />
-    <ClInclude Include="WKSP_Data_Manager.h" />
-    <ClInclude Include="WKSP_Data_Menu_File.h" />
-    <ClInclude Include="WKSP_Data_Menu_Files.h" />
-    <ClInclude Include="WKSP_Grid.h" />
-    <ClInclude Include="WKSP_Grid_Manager.h" />
-    <ClInclude Include="WKSP_Grid_System.h" />
-    <ClInclude Include="WKSP_Layer.h" />
-    <ClInclude Include="WKSP_Layer_Classify.h" />
-    <ClInclude Include="WKSP_Layer_Legend.h" />
-    <ClInclude Include="WKSP_Map.h" />
+    <ClInclude Include="wksp_data_manager.h" />
+    <ClInclude Include="wksp_data_menu_File.h" />
+    <ClInclude Include="wksp_data_menu_Files.h" />
+    <ClInclude Include="wksp_grid.h" />
+    <ClInclude Include="wksp_grid_manager.h" />
+    <ClInclude Include="wksp_grid_system.h" />
+    <ClInclude Include="wksp_layer.h" />
+    <ClInclude Include="wksp_layer_classify.h" />
+    <ClInclude Include="wksp_layer_legend.h" />
+    <ClInclude Include="wksp_map.h" />
     <ClInclude Include="wksp_map_basemap.h" />
     <ClInclude Include="wksp_map_buttons.h" />
-    <ClInclude Include="WKSP_Map_Control.h" />
-    <ClInclude Include="WKSP_Map_DC.h" />
+    <ClInclude Include="wksp_map_control.h" />
+    <ClInclude Include="wksp_map_dc.h" />
     <ClInclude Include="wksp_map_graticule.h" />
-    <ClInclude Include="WKSP_Map_Layer.h" />
-    <ClInclude Include="WKSP_Map_Manager.h" />
-    <ClInclude Include="WKSP_Module.h" />
-    <ClInclude Include="WKSP_Module_Control.h" />
-    <ClInclude Include="WKSP_Module_Library.h" />
-    <ClInclude Include="WKSP_Module_Manager.h" />
-    <ClInclude Include="WKSP_Module_Menu.h" />
+    <ClInclude Include="wksp_map_layer.h" />
+    <ClInclude Include="wksp_map_manager.h" />
     <ClInclude Include="wksp_pointcloud.h" />
     <ClInclude Include="wksp_pointcloud_manager.h" />
-    <ClInclude Include="WKSP_Shapes.h" />
-    <ClInclude Include="WKSP_Shapes_Line.h" />
-    <ClInclude Include="WKSP_Shapes_Manager.h" />
-    <ClInclude Include="WKSP_Shapes_Point.h" />
-    <ClInclude Include="WKSP_Shapes_Points.h" />
-    <ClInclude Include="WKSP_Shapes_Polygon.h" />
-    <ClInclude Include="WKSP_Shapes_Type.h" />
-    <ClInclude Include="WKSP_Table.h" />
-    <ClInclude Include="WKSP_Table_Manager.h" />
-    <ClInclude Include="WKSP_TIN.h" />
-    <ClInclude Include="WKSP_TIN_Manager.h" />
+    <ClInclude Include="wksp_shapes.h" />
+    <ClInclude Include="wksp_shapes_line.h" />
+    <ClInclude Include="wksp_shapes_manager.h" />
+    <ClInclude Include="wksp_shapes_point.h" />
+    <ClInclude Include="wksp_shapes_points.h" />
+    <ClInclude Include="wksp_shapes_polygon.h" />
+    <ClInclude Include="wksp_shapes_type.h" />
+    <ClInclude Include="wksp_table.h" />
+    <ClInclude Include="wksp_table_manager.h" />
+    <ClInclude Include="wksp_tin.h" />
+    <ClInclude Include="wksp_tin_manager.h" />
     <ClInclude Include="RES\resource.h" />
+    <ClInclude Include="wksp_tool.h" />
+    <ClInclude Include="wksp_tool_control.h" />
+    <ClInclude Include="wksp_tool_library.h" />
+    <ClInclude Include="wksp_tool_manager.h" />
+    <ClInclude Include="wksp_tool_menu.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="RES\colours.bmp" />

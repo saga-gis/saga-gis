@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -220,7 +220,7 @@ int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Get_Parameter("BANDS")->asChoice()->Set_Items(s);
 	}
 
-	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_PG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -356,7 +356,7 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		}
 	}
 
-	return( CSG_PG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_PG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------

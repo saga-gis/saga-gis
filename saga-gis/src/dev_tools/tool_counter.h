@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      dev_tools                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTool_Counter : public CSG_Module
+class CTool_Counter : public CSG_Tool
 {
 public:
 	CTool_Counter(void);
@@ -100,7 +100,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTool_Menus : public CSG_Module
+class CTool_Menus : public CSG_Tool
 {
 public:
 	CTool_Menus(void);

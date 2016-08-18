@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        OpenCV                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -88,7 +88,7 @@ using namespace cv::ml;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COpenCV_ML : public CSG_Module_Grid
+class COpenCV_ML : public CSG_Tool_Grid
 {
 public:
 	COpenCV_ML(bool bProbability);
@@ -281,13 +281,13 @@ protected:
 
 #else // CV_MAJOR_VERSION == 3
 
-#define new_COpenCV_ML_NBayes	MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_KNN		MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_SVM		MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_DTrees	MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_Boost	MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_RTrees	MLB_INTERFACE_SKIP_MODULE
-#define new_COpenCV_ML_ANN		MLB_INTERFACE_SKIP_MODULE
+#define new_COpenCV_ML_NBayes	TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_KNN		TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_SVM		TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_DTrees	TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_Boost	TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_RTrees	TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_ANN		TLB_INTERFACE_SKIP_TOOL
 
 #endif
 

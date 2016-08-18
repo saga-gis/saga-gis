@@ -8,13 +8,13 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                Command Line Interface                 //
+//                    User Interface                     //
 //                                                       //
-//                   Program: SAGA_CMD                   //
+//                    Program: SAGA                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   module_library.h                    //
+//                     wksp_tool.h                       //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -55,14 +55,14 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_CMD__Module_Library_H
-#define _HEADER_INCLUDED__SAGA_CMD__Module_Library_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_H
+#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,56 +72,70 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/cmdline.h>
-
-#include <saga_api/saga_api.h>
+#include "wksp_base_manager.h"
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCMD_Module
+class CWKSP_Tool : public CWKSP_Base_Item
 {
 public:
-	CCMD_Module(void);
-	CCMD_Module(CSG_Module_Library *pLibrary, CSG_Module *pModule);
-	virtual ~CCMD_Module(void);
+	CWKSP_Tool(class CSG_Tool *pTool, const wxString &Menu_Library);
+	virtual ~CWKSP_Tool(void);
 
-	bool						Create					(CSG_Module_Library *pLibrary, CSG_Module *pModule);
-	void						Destroy					(void);
+	virtual TWKSP_Item				Get_Type			(void)			{	return( WKSP_ITEM_Tool );	}
 
-	void						Usage					(void);
+	virtual wxString				Get_Name			(void);
+	virtual wxString				Get_Description		(void);
 
-	bool						Execute					(int argc, char *argv[]);
+	virtual wxMenu *				Get_Menu			(void);
 
-	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters, false) );	}
+	virtual bool					On_Command			(int Cmd_ID);
+
+	virtual class CSG_Parameters *	Get_Parameters		(void);
+
+	class CSG_Tool *				Get_Tool			(void)			{	return( m_pTool );	}
+
+	void							Set_Menu_ID			(int Menu_ID);
+	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
+
+	wxString						Get_File_Name		(void);
+
+	bool							is_Interactive		(void);
+	bool							is_Executing		(void);
+
+	bool							Execute				(bool bDialog);
+	bool							Execute				(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys);
 
 
 private:
 
-	CSG_Module_Library			*m_pLibrary;
+	int								m_Menu_ID;
 
-	CSG_Module					*m_pModule;
-
-	wxCmdLineParser				m_CMD;
+	class CSG_Tool				*m_pTool;
 
 
-	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = "");
+	void							_Save_to_Clipboard		(void);
+	void							_Save_to_Script			(void);
 
-	bool						_Set_Parameters			(CSG_Parameters *pParameters);
+	CSG_String						_Get_XML				(bool bHeader);
+	void							_Get_XML				(CSG_MetaData &Tool, CSG_Parameters *pParameters);
 
-	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
-	bool						_Get_Options			(CSG_Parameters *pParameters, bool bInitialize);
-	bool						_Get_Input				(CSG_Parameters *pParameters);
+	CSG_String						_Get_CMD				(bool bHeader, int Type = -1);
+	void							_Get_CMD				(CSG_String &Command, CSG_Parameters *pParameters);
 
-	bool						_Load_Input				(CSG_Parameter  *pParameter);
-	bool						_Save_Output			(CSG_Parameters *pParameters);
+	CSG_String						_Get_Python				(bool bHeader);
+	void							_Get_Python				(CSG_String &Command, CSG_Parameters *pParameters);
 
 };
+
+//---------------------------------------------------------
+extern CWKSP_Tool					*g_pTool;
 
 
 ///////////////////////////////////////////////////////////
@@ -131,4 +145,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_CMD__Module_Library_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_H

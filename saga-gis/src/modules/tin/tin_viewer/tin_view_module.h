@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      tin_viewer                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_View_Module : public CSG_Module  
+class CTIN_View_Module : public CSG_Tool  
 {
 public:
 	CTIN_View_Module(void);

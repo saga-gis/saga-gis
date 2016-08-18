@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CPC_Drop_Attribute::CPC_Drop_Attribute(void)
 	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
 
 	Set_Description	(_TW(
-		"The module can be used to drop attributes from a point cloud. "
+		"The tool can be used to drop attributes from a point cloud. "
 		"In case the output dataset is not set, the attribute(s) will be dropped "
 		"from the input dataset, i.e. the input dataset will be overwritten.\n\n"
 	));

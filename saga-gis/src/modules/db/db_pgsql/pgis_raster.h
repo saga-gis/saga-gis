@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRaster_Load : public CSG_PG_Module
+class CRaster_Load : public CSG_PG_Tool
 {
 public:
 	CRaster_Load(void);
@@ -103,7 +103,7 @@ protected:
 
 
 //---------------------------------------------------------
-class CRaster_Load_Band : public CSG_PG_Module
+class CRaster_Load_Band : public CSG_PG_Tool
 {
 public:
 	CRaster_Load_Band(void);
@@ -127,7 +127,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRaster_Save : public CSG_PG_Module
+class CRaster_Save : public CSG_PG_Tool
 {
 public:
 	CRaster_Save(void);
@@ -151,7 +151,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRaster_SRID_Update : public CSG_PG_Module
+class CRaster_SRID_Update : public CSG_PG_Tool
 {
 public:
 	CRaster_SRID_Update(void);

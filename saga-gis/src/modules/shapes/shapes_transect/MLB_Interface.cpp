@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Transect                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                    Johan Van de Wauw                  //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -67,63 +67,63 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Transects" ));
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Shapes") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( _TL("Johan Van de Wauw (c) 2009" ));
 
-	case MLB_INFO_Description:
-		return( _TL("A SAGA module to create transects through polygon files." ));
+	case TLB_INFO_Description:
+		return( _TL("A SAGA tool to create transects through polygon files." ));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Shapes|Lines|Transects" ));
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "Polygon_Transect.h"
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
+	// when adding new tools! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CPolygon_Transect;
+		pTool	= new CPolygon_Transect;
 		break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -136,6 +136,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

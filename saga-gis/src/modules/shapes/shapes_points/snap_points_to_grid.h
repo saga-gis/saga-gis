@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_points                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSnap_Points_to_Grid : public CSG_Module_Grid
+class CSnap_Points_to_Grid : public CSG_Tool_Grid
 {
 public:
 	CSnap_Points_to_Grid(void);

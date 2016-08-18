@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTC_Parameter_Base : public CSG_Module_Grid
+class CTC_Parameter_Base : public CSG_Tool_Grid
 {
 public:
 	CTC_Parameter_Base(void);
@@ -159,7 +159,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTC_Classification : public CSG_Module_Grid
+class CTC_Classification : public CSG_Tool_Grid
 {
 public:
 	CTC_Classification(void);

@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -65,7 +65,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Record_Statistics_Base : public CSG_Module  
+class CTable_Record_Statistics_Base : public CSG_Tool  
 {
 public:
 	CTable_Record_Statistics_Base(void);

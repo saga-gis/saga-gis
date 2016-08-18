@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRemove_Duplicates : public CSG_Module
+class CRemove_Duplicates : public CSG_Tool
 {
 public:
 	CRemove_Duplicates(void);

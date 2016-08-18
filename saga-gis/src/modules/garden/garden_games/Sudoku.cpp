@@ -129,7 +129,7 @@ void CSudoku::CreateSudoku()
 }
 
 
-bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 
 	int iXGrid, iYGrid;
@@ -137,7 +137,7 @@ bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode
 	int iBlock, iCell;
 	bool	pIsPossible[10];
 
-	if(	Mode != MODULE_INTERACTIVE_LDOWN && Mode != MODULE_INTERACTIVE_RDOWN) {
+	if(	Mode != TOOL_INTERACTIVE_LDOWN && Mode != TOOL_INTERACTIVE_RDOWN) {
 		return false;
 	}
 
@@ -163,7 +163,7 @@ bool CSudoku::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode
 
 	GetPossibleValues(iXSudoku, iYSudoku, pIsPossible);
 
-	if(	Mode == MODULE_INTERACTIVE_LDOWN ){
+	if(	Mode == TOOL_INTERACTIVE_LDOWN ){
 		do{
 			m_pSudoku[iYSudoku][iXSudoku]++;
 			if (m_pSudoku[iYSudoku][iXSudoku] > 9){

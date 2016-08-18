@@ -8,7 +8,7 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    grid_analysis                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSoil_Texture : public CSG_Module_Grid
+class CSoil_Texture : public CSG_Tool_Grid
 {
 public:
 	CSoil_Texture(void);
@@ -91,7 +91,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSoil_Texture_Table : public CSG_Module
+class CSoil_Texture_Table : public CSG_Tool
 {
 public:
 	CSoil_Texture_Table(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    shapes_polygons                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygons_From_Lines : public CSG_Module  
+class CPolygons_From_Lines : public CSG_Tool  
 {
 public:
 	CPolygons_From_Lines(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeomrec : public CSG_Module_Grid
+class CGeomrec : public CSG_Tool_Grid
 {
 public:
 	CGeomrec (void);

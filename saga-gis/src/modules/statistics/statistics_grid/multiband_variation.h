@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMultiBand_Variation : public CSG_Module_Grid
+class CMultiBand_Variation : public CSG_Tool_Grid
 {
 public:
 	CMultiBand_Variation(void);

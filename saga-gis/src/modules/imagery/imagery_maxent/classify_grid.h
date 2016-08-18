@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        maxent                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CClassify_Grid : public CSG_Module_Grid
+class CClassify_Grid : public CSG_Tool_Grid
 {
 public:
 	CClassify_Grid(void);

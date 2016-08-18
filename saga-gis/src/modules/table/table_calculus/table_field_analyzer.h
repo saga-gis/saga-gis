@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Table_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Field_Extreme : public CSG_Module
+class CTable_Field_Extreme : public CSG_Tool
 {
 public:
 	CTable_Field_Extreme(void);

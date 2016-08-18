@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                         SVM                           //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2012 by                 //
 //                      Olaf Conrad                      //
@@ -54,7 +54,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -68,16 +68,16 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("SVM") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Imagery") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O.Conrad (c) 2012") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TW(
 			"Interface to LIBSVM - A Library for Support Vector Machines.\n"
 			"Reference:\n"
@@ -86,10 +86,10 @@ CSG_String Get_Info(int i)
 			"<a target=\"_blank\" href=\"http://www.csie.ntu.edu.tw/~cjlin/libsvm\">LIBSVM Homepage</a>.\n"
 		));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( CSG_String::Format(SG_T("LIBSVM %d.%d"), libsvm_version / 100, libsvm_version - 100 * (libsvm_version / 100)) );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("SVM") );
 	}
 }
@@ -98,14 +98,14 @@ CSG_String Get_Info(int i)
 #include "svm_grids.h"
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
 	case  0:	return( new CSVM_Grids );
 
 	case 10:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
@@ -119,6 +119,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

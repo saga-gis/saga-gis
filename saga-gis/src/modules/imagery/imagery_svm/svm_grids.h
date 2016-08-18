@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                         svm                           //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVM_Grids : public CSG_Module_Grid
+class CSVM_Grids : public CSG_Tool_Grid
 {
 public:
 	CSVM_Grids(void);

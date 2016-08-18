@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                        AvWiMa                         //
 //                                                       //
 //                       for SAGA                        //
@@ -34,7 +34,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CAvWiMa2 : public CSG_Module_Grid
+class CAvWiMa2 : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

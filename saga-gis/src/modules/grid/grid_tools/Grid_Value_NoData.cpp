@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -139,7 +139,7 @@ int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		On_Parameters_Enable(pParameters, pParameters->Get_Parameter("TYPE"));
 	}
 
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -151,7 +151,7 @@ int CGrid_Value_NoData::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Set_Enabled("RANGE", pParameter->asInt() == 1);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

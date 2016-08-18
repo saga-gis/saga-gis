@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Multi_Grid_Regression : public CSG_Module_Grid
+class CGrid_Multi_Grid_Regression : public CSG_Tool_Grid
 {
 public:
 	CGrid_Multi_Grid_Regression(void);

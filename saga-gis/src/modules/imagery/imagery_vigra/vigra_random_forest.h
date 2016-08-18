@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        VIGRA                          //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_Random_Forest : public CSG_Module_Grid
+class CViGrA_Random_Forest : public CSG_Tool_Grid
 {
 public:
 	CViGrA_Random_Forest(void);
@@ -121,7 +121,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_RF_Presence : public CSG_Module_Grid
+class CViGrA_RF_Presence : public CSG_Tool_Grid
 {
 public:
 	CViGrA_RF_Presence(void);
@@ -161,8 +161,8 @@ private:
 
 #else // defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
 
-#define new_CViGrA_Random_Forest	MLB_INTERFACE_SKIP_MODULE
-#define new_CViGrA_RF_Presence		MLB_INTERFACE_SKIP_MODULE
+#define new_CViGrA_Random_Forest	TLB_INTERFACE_SKIP_TOOL
+#define new_CViGrA_RF_Presence		TLB_INTERFACE_SKIP_TOOL
 
 #endif
 

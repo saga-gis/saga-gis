@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -77,7 +77,7 @@ CGDAL_Export::CGDAL_Export(void)
 	CSG_String	Description, Formats, Filter;
 
 	Description	= _TW(
-		"The \"GDAL Raster Export\" module exports one or more grids to various file formats using the "
+		"The \"GDAL Raster Export\" tool exports one or more grids to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@ CPC_Transform::CPC_Transform(void)
 	Set_Author(_TL("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module can be used to shift, rotate and/or scale a Point Cloud.\n\n")
+		"The tool can be used to shift, rotate and/or scale a Point Cloud.\n\n")
 	);
 
 

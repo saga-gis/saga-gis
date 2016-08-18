@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -636,22 +636,22 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 	switch( Parameters("RESIDUAL_COR")->asInt() )
 	{
 	default:	// Multlevel B-Spline Interpolation
-		SG_RUN_MODULE_ExitOnError("grid_spline", 4,
-				SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-			&&  SG_MODULE_PARAMETER_SET("FIELD"            , 2)
-			&&  SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
-			&&  SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
+		SG_RUN_TOOL_ExitOnError("grid_spline", 4,
+				SG_TOOL_PARAMETER_SET("SHAPES"           , pResiduals)
+			&&  SG_TOOL_PARAMETER_SET("FIELD"            , 2)
+			&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
+			&&  SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
 		);
 		break;
 
 	case  1:	// Inverse Distance Weighted
-		SG_RUN_MODULE_ExitOnError("grid_gridding", 1,
-				SG_MODULE_PARAMETER_SET("SHAPES"           , pResiduals)
-			&&  SG_MODULE_PARAMETER_SET("FIELD"            , 2)
-			&&  SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
-			&&  SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
-			&&  SG_MODULE_PARAMETER_SET("SEARCH_RANGE"     , 1)	// global
-			&&  SG_MODULE_PARAMETER_SET("SEARCH_POINTS_ALL", 1)	// all points within search distance
+		SG_RUN_TOOL_ExitOnError("grid_gridding", 1,
+				SG_TOOL_PARAMETER_SET("SHAPES"           , pResiduals)
+			&&  SG_TOOL_PARAMETER_SET("FIELD"            , 2)
+			&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
+			&&  SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pCorrection)
+			&&  SG_TOOL_PARAMETER_SET("SEARCH_RANGE"     , 1)	// global
+			&&  SG_TOOL_PARAMETER_SET("SEARCH_POINTS_ALL", 1)	// all points within search distance
 		);
 		break;
 	}

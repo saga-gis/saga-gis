@@ -49,7 +49,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\mat_tools.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\module.h">
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\parameters.h">
@@ -73,7 +73,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\metadata.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\module_library.h">
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool_library.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h">

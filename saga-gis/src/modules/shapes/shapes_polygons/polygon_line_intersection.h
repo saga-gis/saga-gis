@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    shapes_polygons                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Line_Intersection : public CSG_Module  
+class CPolygon_Line_Intersection : public CSG_Tool  
 {
 public:
 	CPolygon_Line_Intersection(void);

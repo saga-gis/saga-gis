@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTWI : public CSG_Module_Grid
+class CTWI : public CSG_Tool_Grid
 {
 public:
 	CTWI(void);
@@ -105,7 +105,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CStream_Power : public CSG_Module_Grid
+class CStream_Power : public CSG_Tool_Grid
 {
 public:
 	CStream_Power(void);
@@ -128,7 +128,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLS_Factor : public CSG_Module_Grid
+class CLS_Factor : public CSG_Tool_Grid
 {
 public:
 	CLS_Factor(void);
@@ -158,7 +158,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTCI_Low : public CSG_Module_Grid
+class CTCI_Low : public CSG_Tool_Grid
 {
 public:
 	CTCI_Low(void);

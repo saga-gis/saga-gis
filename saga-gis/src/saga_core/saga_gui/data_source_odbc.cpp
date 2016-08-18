@@ -287,24 +287,24 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(MODULE, bRetVal, CONDITION)	{\
+#define RUN_TOOL(TOOL, bRetVal, CONDITION)	{\
 	\
 	bRetVal	= false;\
 	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), MODULE);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), TOOL);\
 	\
-	if(	pModule )\
+	if(	pTool )\
 	{\
 		SG_UI_Msg_Lock(true);\
-		pModule->Settings_Push(NULL);\
-		bRetVal	= pModule->On_Before_Execution() && (CONDITION) && pModule->Execute();\
-		pModule->Settings_Pop();\
+		pTool->Settings_Push(NULL);\
+		bRetVal	= pTool->On_Before_Execution() && (CONDITION) && pTool->Execute();\
+		pTool->Settings_Pop();\
 		SG_UI_Msg_Lock(false);\
 	}\
 }
 
 //---------------------------------------------------------
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Set_Parameter(IDENTIFIER, VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Set_Parameter(IDENTIFIER, VALUE)
 
 //---------------------------------------------------------
 bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
@@ -312,7 +312,7 @@ bool CData_Source_ODBC::is_Connected(const CSG_String &Server)
 	bool		bResult;
 	CSG_Table	Tables;
 
-	RUN_MODULE(9, bResult, SET_PARAMETER("SERVERS", &Tables) && SET_PARAMETER("CONNECTED", true));
+	RUN_TOOL(9, bResult, SET_PARAMETER("SERVERS", &Tables) && SET_PARAMETER("CONNECTED", true));
 
 	for(int i=0; bResult && i<Tables.Get_Count(); i++)
 	{
@@ -354,7 +354,7 @@ void CData_Source_ODBC::Update_Sources(void)
 	bool		bResult;
 	CSG_Table	Servers;
 
-	RUN_MODULE(9, bResult, SET_PARAMETER("SERVERS", &Servers));
+	RUN_TOOL(9, bResult, SET_PARAMETER("SERVERS", &Servers));
 
 	//-----------------------------------------------------
 	for(int i=0; i<Servers.Get_Count(); i++)
@@ -413,7 +413,7 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 		bool		bResult;
 		CSG_Table	Tables;
 
-		RUN_MODULE(10, bResult,
+		RUN_TOOL(10, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Value())
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
@@ -452,12 +452,12 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 //---------------------------------------------------------
 void CData_Source_ODBC::Source_Close_All(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), 11);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), 11);
 
-	if( pModule )
+	if( pTool )
 	{
 		SG_UI_Msg_Lock(true);
-		pModule->Execute();
+		pTool->Execute();
 		SG_UI_Msg_Lock(false);
 	}
 }
@@ -467,14 +467,14 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("db_odbc"), 1);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), 1);
 
-	if( pModule )
+	if( pTool )
 	{
 		SG_UI_Msg_Lock(true);
-		pModule->On_Before_Execution();
-		pModule->Get_Parameters()->Set_Parameter("SERVERS", pData->Get_Value());
-		pModule->Execute();
+		pTool->On_Before_Execution();
+		pTool->Get_Parameters()->Set_Parameter("SERVERS", pData->Get_Value());
+		pTool->Execute();
 		SG_UI_Msg_Lock(false);
 	}
 }
@@ -492,7 +492,7 @@ void CData_Source_ODBC::Source_Open(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(0, bResult,
+		RUN_TOOL(0, bResult,
 				SET_PARAMETER("SERVER"  , pData->Get_Value())
 			&&	SET_PARAMETER("USERNAME", Username)
 			&&	SET_PARAMETER("PASSWORD", Password)
@@ -522,7 +522,7 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	bool	bResult;
 
-	RUN_MODULE(5, bResult,
+	RUN_TOOL(5, bResult,
 			SET_PARAMETER("CONNECTION", pData->Get_Server())
 		&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		&&	SET_PARAMETER("TABLE"     , pTable)
@@ -555,7 +555,7 @@ void CData_Source_ODBC::Table_Delete(const wxTreeItemId &Item)
 
 		bool	bResult;
 
-		RUN_MODULE(7, bResult,
+		RUN_TOOL(7, bResult,
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value())
 		);

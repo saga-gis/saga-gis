@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMRVBF : public CSG_Module_Grid
+class CMRVBF : public CSG_Tool_Grid
 {
 public:
 	CMRVBF(void);

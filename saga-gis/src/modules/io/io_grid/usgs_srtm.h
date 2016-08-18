@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CUSGS_SRTM_Import : public CSG_Module
+class CUSGS_SRTM_Import : public CSG_Tool
 {
 public:
 	CUSGS_SRTM_Import(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Shapes_IO                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,13 +82,13 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2011"));
 
 	Set_Description	(_TW(
-					"Exports a point cloud to a text file. Once the module is executed, "
+					"Exports a point cloud to a text file. Once the tool is executed, "
 					"a pop-up dialog allows one to specify the fields to be exported and their "
 					"decimal precision.\n\n"
-					"Module usage is different between SAGA GUI and SAGA CMD: With "
+					"Tool usage is different between SAGA GUI and SAGA CMD: With "
 					"SAGA GUI you will get prompted to choose the fields to export "
 					"and the decimal precisions to use "
-					"once you execute the module. With SAGA CMD you have to provide "
+					"once you execute the tool. With SAGA CMD you have to provide "
 					"two strings with the -FIELDS and -PRECISIONS parameters. The first one "
 					"must contain the field numbers, the latter the precisions "
 					"(separated by semicolon). Field numbers start with 1, e.g. "

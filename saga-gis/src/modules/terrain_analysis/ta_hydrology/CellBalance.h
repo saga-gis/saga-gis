@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CCellBalance : public CSG_Module_Grid
+class CCellBalance : public CSG_Tool_Grid
 {
 public:
 	CCellBalance(void);

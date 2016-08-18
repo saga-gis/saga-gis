@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   garden_webservices                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COSM_Import : public CSG_Module_Interactive
+class COSM_Import : public CSG_Tool_Interactive
 {
 public:
 	COSM_Import(void);
@@ -90,7 +90,7 @@ protected:
 
 	virtual bool		On_Execute			(void);
 	virtual bool		On_Execute_Finish	(void);
-	virtual bool		On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool		On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

@@ -241,7 +241,7 @@ Cihacres_eq::~Cihacres_eq(void)
 ///////////////////////////////////////////////////////////////////////
 
 //---------------------------------------------------------------------
-//						Run Non-Linear Module
+//						Run Non-Linear Tool
 //---------------------------------------------------------------------
 void Cihacres_eq::RunNonLinearModule(bool TMP_data_exist, bool bSnowModule, double T_Rain)
 {

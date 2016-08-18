@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Projection_GeoTRANS                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_geotrans_EXPORT CGEOTRANS_Base : public CSG_Module  
+class pj_geotrans_EXPORT CGEOTRANS_Base : public CSG_Tool  
 {
 public:
 	CGEOTRANS_Base(void);

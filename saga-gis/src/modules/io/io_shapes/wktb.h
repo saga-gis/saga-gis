@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKT_Import : public CSG_Module
+class CWKT_Import : public CSG_Tool
 {
 public:
 	CWKT_Import(void);
@@ -106,7 +106,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKT_Export : public CSG_Module
+class CWKT_Export : public CSG_Tool
 {
 public:
 	CWKT_Export(void);

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        ihacres                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                        Author                         //
@@ -54,7 +54,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -65,22 +65,22 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Hydrology: IHACRES") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Simulation") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("Stefan Liersch (c) 2008") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TW(
 			"The metric conceptual rainfall-runoff model <b>IHACRES</b> "
 			"(Identification of unit Hydrographs and Component flows "
@@ -89,7 +89,7 @@ CSG_String Get_Info(int i)
 			"developed by: Jakeman, A.J. and G.M. Hornberger (1993); Jakeman et al. (1990).\n"
 			"\n"
 			"<b>Purpose</b>\n"
-			"The module can be used to simulate streamflow (catchment runoff) "
+			"The tool can be used to simulate streamflow (catchment runoff) "
 			"on the basis of daily rainfall and temperature data. No spatial "
 			"data, such as elevation models, soil or land use maps are required.\n"
 			"\n"
@@ -119,17 +119,17 @@ CSG_String Get_Info(int i)
 			"</ul>"
 		));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Simulation|Hydrology|IHACRES") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 //#include "ihacres_cal.h"
 #include "ihacres_cal2.h"
@@ -142,50 +142,50 @@ CSG_String Get_Info(int i)
 //#include "ihacres_auto_cal.h"
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
+	// when adding new tools! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	//case 0:
-	//	pModule = new Cihacres_cal;
+	//	pTool = new Cihacres_cal;
 	//	break;
 	case 0:
-		pModule = new Cihacres_cal2;
+		pTool = new Cihacres_cal2;
 		break;
 	case 1:
-		pModule = new Cihacres_v1;
+		pTool = new Cihacres_v1;
 		break;
 	case 2:
-		pModule = new Cihacres_basin;
+		pTool = new Cihacres_basin;
 		break;
 	case 3:
-		pModule = new Cihacres_elev;
+		pTool = new Cihacres_elev;
 		break;
 	case 4:
-		pModule = new Cihacres_elev_cal;
+		pTool = new Cihacres_elev_cal;
 		break;
 	//case 6:
-	//	pModule = new Cihacres_climate_scen;
+	//	pTool = new Cihacres_climate_scen;
 	//	break;
 	//case 7:
-	//	pModule = new Cihacres_climate_scen_db;
+	//	pTool = new Cihacres_climate_scen_db;
 	//	break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -198,6 +198,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

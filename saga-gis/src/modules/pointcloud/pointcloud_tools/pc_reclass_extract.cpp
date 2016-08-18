@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,9 +80,9 @@ CPC_Reclass_Extract::CPC_Reclass_Extract(void)
 	Set_Author(SG_T("Volker Wichmann (c) 2009, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module can be used to either reclassify a Point Cloud attribute or to extract "
+		"The tool can be used to either reclassify a Point Cloud attribute or to extract "
 		"a subset of a Point Cloud based on the values of an attribute.\n\n"
-		"The module provides three different options:\n"
+		"The tool provides three different options:\n"
 		"(a) reclassification of (or extraction based on) single values,\n"
 		"(b) reclassification of (or extraction based on) a range of values and\n"
 		"(c) reclassification of (or extraction based on) value ranges specified in a lookup table.\n\n"

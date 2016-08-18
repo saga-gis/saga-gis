@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       TIN_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -69,22 +69,22 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Tools") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("TIN") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2004") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Tools for Triangulated Irregular Network (TIN) processing.") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("TIN") );
 	}
 }
@@ -101,46 +101,46 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CTIN_From_Grid;
+		pTool	= new CTIN_From_Grid;
 		break;
 
 	case 1:
-		pModule	= new CTIN_From_Grid_Specific_Points;
+		pTool	= new CTIN_From_Grid_Specific_Points;
 		break;
 
 	case 2:
-		pModule	= new CTIN_From_Shapes;
+		pTool	= new CTIN_From_Shapes;
 		break;
 
 	case 3:
-		pModule	= new CTIN_To_Shapes;
+		pTool	= new CTIN_To_Shapes;
 		break;
 
 	case 4:
-		pModule	= new CTIN_Gradient;
+		pTool	= new CTIN_Gradient;
 		break;
 
 	case 5:
-		pModule	= new CTIN_Flow_Trace;
+		pTool	= new CTIN_Flow_Trace;
 		break;
 
 	case 6:
-		pModule	= new CTIN_Flow_Parallel;
+		pTool	= new CTIN_Flow_Parallel;
 		break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -153,6 +153,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

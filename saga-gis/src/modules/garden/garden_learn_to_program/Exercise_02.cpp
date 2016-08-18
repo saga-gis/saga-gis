@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 CExercise_02::CExercise_02(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("02: Pixel by pixel operations with two grids"));
 

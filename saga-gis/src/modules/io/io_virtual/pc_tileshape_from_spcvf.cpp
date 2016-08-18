@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,13 +79,13 @@ CPointCloud_Create_Tileshape_From_SPCVF::CPointCloud_Create_Tileshape_From_SPCVF
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows one to create a polygon shapefile with the "
+		"The tool allows one to create a polygon shapefile with the "
 		"bounding boxes of a virtual point cloud dataset. Additionally, "
 		"the header information of the chosen virtual point cloud "
 		"dataset is reported (since SPCVFDataset version 1.1).\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
-		"with the 'Create Virtual Point Cloud Dataset' module.\n\n"
+		"with the 'Create Virtual Point Cloud Dataset' tool.\n\n"
 	));
 
 

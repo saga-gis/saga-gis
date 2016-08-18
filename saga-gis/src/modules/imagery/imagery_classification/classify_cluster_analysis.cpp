@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_classification                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -170,7 +170,7 @@ int CGrid_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

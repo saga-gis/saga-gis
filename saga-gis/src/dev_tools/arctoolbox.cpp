@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      dev_tools                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -119,9 +119,9 @@ bool CArcToolBox::On_Execute(void)
 	m_ArcVersion	= Parameters("ARC_VERSION")->asInt();
 
 	//-----------------------------------------------------
-	for(int iLibrary=0; iLibrary<SG_Get_Module_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Module_Library_Manager().Get_Count()); iLibrary++)
+	for(int iLibrary=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Tool_Library_Manager().Get_Count()); iLibrary++)
 	{
-		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
+		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
 		if( !pLibrary->Get_Category().Cmp("Garden"    )
 		||  !pLibrary->Get_Category().Cmp("Reports"   )
@@ -229,7 +229,7 @@ CSG_String CArcToolBox::Get_Formatted(CSG_String String, int Type)
 }
 
 //---------------------------------------------------------
-CSG_String CArcToolBox::Get_Description(CSG_Module *pTool, int Type)
+CSG_String CArcToolBox::Get_Description(CSG_Tool *pTool, int Type)
 {
 	CSG_String	s(pTool->Get_Description());
 
@@ -539,11 +539,11 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &Code, CSG_MetaData &Description)
+bool CArcToolBox::Get_Tool(CSG_Tool_Library *pLibrary, int iTool, CSG_String &Code, CSG_MetaData &Description)
 {
-	CSG_Module	*pTool	= pLibrary->Get_Module(iTool);
+	CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
 
-	if( pTool == NULL || pTool == MLB_INTERFACE_SKIP_MODULE || pTool->needs_GUI() )
+	if( pTool == NULL || pTool == TLB_INTERFACE_SKIP_TOOL || pTool->needs_GUI() )
 	{
 		return( false );
 	}
@@ -652,7 +652,7 @@ bool CArcToolBox::Get_Tool(CSG_Module_Library *pLibrary, int iTool, CSG_String &
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CArcToolBox::Save(CSG_Module_Library *pLibrary, const CSG_String &Directory, const CSG_Strings &Names, const CSG_Strings &Codes, const CSG_Strings &Descs)
+bool CArcToolBox::Save(CSG_Tool_Library *pLibrary, const CSG_String &Directory, const CSG_Strings &Names, const CSG_Strings &Codes, const CSG_Strings &Descs)
 {
 	if( Codes.Get_Count() <= 0 )
 	{

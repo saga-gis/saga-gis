@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: module_chain.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: tool_chain.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   module_chain.cpp                    //
+//                    tool_chain.cpp                     //
 //                                                       //
 //          Copyright (C) 2014 by Olaf Conrad            //
 //                                                       //
@@ -63,7 +63,7 @@
 //---------------------------------------------------------
 #include "saga_api.h"
 
-#include "module_chain.h"
+#include "tool_chain.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -86,23 +86,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Chain::CSG_Module_Chain(void)
+CSG_Tool_Chain::CSG_Tool_Chain(void)
 {}
 
 //---------------------------------------------------------
-CSG_Module_Chain::CSG_Module_Chain(const CSG_String &File)
+CSG_Tool_Chain::CSG_Tool_Chain(const CSG_String &File)
 {
 	Create(File);
 }
 
 //---------------------------------------------------------
-CSG_Module_Chain::~CSG_Module_Chain(void)
+CSG_Tool_Chain::~CSG_Tool_Chain(void)
 {
 	Reset();
 }
 
 //---------------------------------------------------------
-void CSG_Module_Chain::Reset(void)
+void CSG_Tool_Chain::Reset(void)
 {
 	Parameters.Del_Parameters();
 
@@ -114,7 +114,7 @@ void CSG_Module_Chain::Reset(void)
 }
 
 //---------------------------------------------------------
-void CSG_Module_Chain::Set_Library_Menu(const CSG_String &Menu)
+void CSG_Tool_Chain::Set_Library_Menu(const CSG_String &Menu)
 {
 	m_Library_Menu	= Menu;
 }
@@ -125,7 +125,7 @@ void CSG_Module_Chain::Set_Library_Menu(const CSG_String &Menu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Create(const CSG_String &File)
+bool CSG_Tool_Chain::Create(const CSG_String &File)
 {
 	Reset();
 
@@ -310,7 +310,7 @@ bool CSG_Module_Chain::Create(const CSG_String &File)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Module_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSG_Tool_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	for(int iParameter=0; iParameter<m_Conditions.Get_Children_Count(); iParameter++)
 	{
@@ -329,7 +329,7 @@ int CSG_Module_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		}
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -338,7 +338,7 @@ int CSG_Module_Chain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::On_Execute(void)
+bool CSG_Tool_Chain::On_Execute(void)
 {
 	bool	bResult	= Data_Initialize();
 
@@ -363,7 +363,7 @@ bool CSG_Module_Chain::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
+bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 {
 	if( !pData )
 	{
@@ -418,7 +418,7 @@ bool CSG_Module_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Data_Exists(CSG_Data_Object *pData)
+bool CSG_Tool_Chain::Data_Exists(CSG_Data_Object *pData)
 {
 	for(int i=0; i<m_Data.Get_Count(); i++)
 	{
@@ -445,7 +445,7 @@ bool CSG_Module_Chain::Data_Exists(CSG_Data_Object *pData)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Data_Initialize(void)
+bool CSG_Tool_Chain::Data_Initialize(void)
 {
 	m_Data.Set_Manager(NULL);
 
@@ -466,7 +466,7 @@ bool CSG_Module_Chain::Data_Initialize(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Data_Finalize(void)
+bool CSG_Tool_Chain::Data_Finalize(void)
 {
 	int		i;
 
@@ -541,7 +541,7 @@ bool CSG_Module_Chain::Data_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
+bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
 {
 	//-----------------------------------------------------
 	CSG_String	Type;
@@ -667,7 +667,7 @@ bool CSG_Module_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
+bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 {
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("comment") )
@@ -694,7 +694,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 	}
 
 	//-----------------------------------------------------
-	if( !Tool.Cmp_Name("tool") || !Tool.Get_Property("library") || !Tool.Get_Property("module") )
+	if( !Tool.Cmp_Name("tool") || !Tool.Get_Property("library") || !(Tool.Get_Property("tool") || Tool.Get_Property("module")) )
 	{
 		Error_Set(_TL("invalid tool definition"));
 
@@ -702,43 +702,43 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Module(Tool.Get_Property("module"));
+	CSG_String	Name(Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module"));
 
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
-	if(	!(pModule = SG_Get_Module_Library_Manager().Get_Module(Tool.Get_Property("library"), Module)) )
+	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(Tool.Get_Property("library"), Name)) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Module.c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(pModule->Get_Name());
-	Message_Add(CSG_String::Format("\n%s: %s", _TL("Run Tool"), pModule->Get_Name().c_str()), false);
+	Process_Set_Text(pTool->Get_Name());
+	Message_Add(CSG_String::Format("\n%s: %s", _TL("Run Tool"), pTool->Get_Name().c_str()), false);
 
-	pModule->Settings_Push(&m_Data_Manager);
+	pTool->Settings_Push(&m_Data_Manager);
 
 	bool	bResult	= false;
 
-	if( !pModule->On_Before_Execution() )
+	if( !pTool->On_Before_Execution() )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("before tool execution check failed"), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("before tool execution check failed"), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
-	else if( !Tool_Initialize(Tool, pModule) )
+	else if( !Tool_Initialize(Tool, pTool) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
-	else if( !(bResult = pModule->Execute()) )
+	else if( !(bResult = pTool->Execute()) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pModule->Get_Library().c_str(), pModule->Get_Name().c_str());
+		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 
-	pModule->On_After_Execution();
+	pTool->On_After_Execution();
 
-	Tool_Finalize(Tool, pModule);
+	Tool_Finalize(Tool, pTool);
 
-	pModule->Settings_Pop();
+	pTool->Settings_Pop();
 
 	return( bResult );
 }
@@ -749,7 +749,7 @@ bool CSG_Module_Chain::Tool_Run(const CSG_MetaData &Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Tool_Check_Condition(const CSG_MetaData &Tool)
+bool CSG_Tool_Chain::Tool_Check_Condition(const CSG_MetaData &Tool)
 {
 	if( Tool("condition") )
 	{
@@ -771,33 +771,33 @@ bool CSG_Module_Chain::Tool_Check_Condition(const CSG_MetaData &Tool)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters)
+bool CSG_Tool_Chain::Tool_Get_Parameter(const CSG_MetaData &Parameter, CSG_Tool *pTool, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters)
 {
 	CSG_String	ID	= Parameter.Get_Property("id");
 
 	*ppParameters	= NULL;
 
-	CSG_Parameter	*pParameters	= pModule->Get_Parameters()->Get_Parameter(Parameter.Get_Property("parms"));
+	CSG_Parameter	*pParameters	= pTool->Get_Parameters()->Get_Parameter(Parameter.Get_Property("parms"));
 
 	if( pParameters && pParameters->Get_Type() == PARAMETER_TYPE_Parameters && pParameters->asParameters()->Get_Parameter(ID) )
 	{
 		*ppParameters	= pParameters;
 		*ppParameter	= pParameters->asParameters()->Get_Parameter(ID);
 	}
-	else if( pModule->Get_Parameters(Parameter.Get_Property("parms")) )
+	else if( pTool->Get_Parameters(Parameter.Get_Property("parms")) )
 	{
-		*ppParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID);
+		*ppParameter	= pTool->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID);
 	}
 	else
 	{
-		*ppParameter	= pModule->Get_Parameters()->Get_Parameter(ID);
+		*ppParameter	= pTool->Get_Parameters()->Get_Parameter(ID);
 	}
 
 	return( *ppParameter != NULL );
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pModule)
+bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 {
 	//-----------------------------------------------------
 	int		i;
@@ -813,7 +813,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		{
 			continue;
 		}
-		else if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
+		else if( !Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner) )
 		{
 			Error_Set(CSG_String::Format("%s: %s", _TL("parameter not found"), Parameter.Get_Property("id")));
 
@@ -892,7 +892,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 		{
 			continue;
 		}
-		else if( !Tool_Get_Parameter(Parameter, pModule, &pParameter, &pOwner) )
+		else if( !Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner) )
 		{
 			return( false );
 		}
@@ -929,7 +929,7 @@ bool CSG_Module_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Module *pMo
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModule)
+bool CSG_Tool_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 {
 	int		i;
 
@@ -942,9 +942,9 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 		{
 			CSG_String	ID	= Parameter.Get_Property("id");
 
-			CSG_Parameter	*pParameter	= pModule->Get_Parameters(Parameter.Get_Property("parms"))
-				? pModule->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID)
-				: pModule->Get_Parameters()->Get_Parameter(ID);
+			CSG_Parameter	*pParameter	= pTool->Get_Parameters(Parameter.Get_Property("parms"))
+				? pTool->Get_Parameters(Parameter.Get_Property("parms"))->Get_Parameter(ID)
+				: pTool->Get_Parameters()->Get_Parameter(ID);
 
 			if( !pParameter || !Data_Add(Parameter.Get_Content(), pParameter) )
 			{
@@ -954,9 +954,9 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 	}
 
 	//-----------------------------------------------------
-	for(i=-1; i<pModule->Get_Parameters_Count(); i++)	// save memory: free all data objects that have not been added to variable list
+	for(i=-1; i<pTool->Get_Parameters_Count(); i++)	// save memory: free all data objects that have not been added to variable list
 	{
-		CSG_Parameters	*pParameters	= i < 0 ? pModule->Get_Parameters() : pModule->Get_Parameters(i);
+		CSG_Parameters	*pParameters	= i < 0 ? pTool->Get_Parameters() : pTool->Get_Parameters(i);
 
 		for(int j=0; j<pParameters->Get_Count(); j++)
 		{
@@ -997,7 +997,7 @@ bool CSG_Module_Chain::Tool_Finalize(const CSG_MetaData &Tool, CSG_Module *pModu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Path)
+CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_String &Path)
 {
 	m_Library_Name	= Library_Name;
 
@@ -1026,21 +1026,21 @@ CSG_Module_Chains::CSG_Module_Chains(const CSG_String &Library_Name, const CSG_S
 	}
 
 	//-----------------------------------------------------
-	m_nModules	= 0;
-	m_pModules	= NULL;
+	m_nTools	= 0;
+	m_pTools	= NULL;
 }
 
 //---------------------------------------------------------
-CSG_Module_Chains::~CSG_Module_Chains(void)
+CSG_Tool_Chains::~CSG_Tool_Chains(void)
 {
-	for(int i=0; i<m_nModules; i++)
+	for(int i=0; i<m_nTools; i++)
 	{
-		delete(m_pModules[i]);
+		delete(m_pTools[i]);
 	}
 
-	SG_FREE_SAFE(m_pModules);
+	SG_FREE_SAFE(m_pTools);
 
-	m_nModules	= 0;
+	m_nTools	= 0;
 }
 
 
@@ -1049,36 +1049,36 @@ CSG_Module_Chains::~CSG_Module_Chains(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Chains::Get_Info(int Type) const
+CSG_String CSG_Tool_Chains::Get_Info(int Type) const
 {
 	switch( Type )
 	{
-	case MLB_INFO_Name       :	return( m_Name );
-	case MLB_INFO_Description:	return( m_Description );
-	case MLB_INFO_Menu_Path  :	return( m_Menu );
-	case MLB_INFO_Category   :	return( _TL("Tool Chains") );
+	case TLB_INFO_Name       :	return( m_Name );
+	case TLB_INFO_Description:	return( m_Description );
+	case TLB_INFO_Menu_Path  :	return( m_Menu );
+	case TLB_INFO_Category   :	return( _TL("Tool Chains") );
 	}
 
 	return( "" );
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chains::Add_Module(CSG_Module_Chain *pModule)
+bool CSG_Tool_Chains::Add_Tool(CSG_Tool_Chain *pTool)
 {
-	m_pModules	= (CSG_Module_Chain **)SG_Realloc(m_pModules, (m_nModules + 1) * sizeof(CSG_Module_Chain *));
-	m_pModules[m_nModules++]	= pModule;
+	m_pTools	= (CSG_Tool_Chain **)SG_Realloc(m_pTools, (m_nTools + 1) * sizeof(CSG_Tool_Chain *));
+	m_pTools[m_nTools++]	= pTool;
 
-	pModule->Set_Library_Menu(Get_Info(MLB_INFO_Menu_Path));
+	pTool->Set_Library_Menu(Get_Info(TLB_INFO_Menu_Path));
 
 	return( true );
 }
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Chains::Get_Module(int Index, TSG_Module_Type Type) const
+CSG_Tool * CSG_Tool_Chains::Get_Tool(int Index, TSG_Tool_Type Type) const
 {
-	CSG_Module	*pModule	= Index >= 0 && Index < m_nModules ? m_pModules[Index] : NULL;
+	CSG_Tool	*pTool	= Index >= 0 && Index < m_nTools ? m_pTools[Index] : NULL;
 
-	return(	pModule && (Type == MODULE_TYPE_Base || Type == pModule->Get_Type()) ? pModule : NULL );
+	return(	pTool && (Type == TOOL_TYPE_Base || Type == pTool->Get_Type()) ? pTool : NULL );
 }
 
 
@@ -1089,10 +1089,16 @@ CSG_Module * CSG_Module_Chains::Get_Module(int Index, TSG_Module_Type Type) cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const CSG_String &File)
+bool CSG_Tool_Chain::Save_History_to_Model(const CSG_MetaData &History, const CSG_String &File)
 {
-	if( SG_Compare_Version(History.Get_Property("saga-version"), "2.1.3") < 0
-	||  !History("MODULE") || !History("MODULE")->Get_Child("OUTPUT") )
+	if( SG_Compare_Version(History.Get_Property("saga-version"), "2.1.3") < 0 || !(History("TOOL") || History("MODULE")) )
+	{
+		return( false );
+	}
+
+	const CSG_MetaData	&Tool(History("TOOL") ? History["TOOL"] : History["MODULE"]);
+
+	if( !Tool("OUTPUT") )
 	{
 		return( false );
 	}
@@ -1111,13 +1117,13 @@ bool CSG_Module_Chain::Save_History_to_Model(const CSG_MetaData &History, const 
 	Chain.Add_Child   ("parameters" );
 	Chain.Add_Child   ("tools"      );
 
-	_Save_History_Add_Tool(History["MODULE"], *Chain("parameters"), *Chain("tools"), true);
+	_Save_History_Add_Tool(Tool, *Chain("parameters"), *Chain("tools"), true);
 
 	return( Chain.Save(File) );
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput)
+bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tools, bool bAddOutput)
 {
 	if( !History("OUTPUT") || !History["OUTPUT"].Get_Property("id") )
 	{
@@ -1131,7 +1137,7 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 
 	Tool.Add_Property("id"     , Tool_ID);
 	Tool.Add_Property("library", History.Get_Property("library"));
-	Tool.Add_Property("module" , History.Get_Property("id"     ));
+	Tool.Add_Property("tool"   , History.Get_Property("id"     ));
 	Tool.Add_Property("name"   , History.Get_Property("name"   ));
 
 	//-----------------------------------------------------
@@ -1215,18 +1221,23 @@ bool CSG_Module_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_M
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool)
+bool CSG_Tool_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_MetaData &Parms, CSG_MetaData &Tool)
 {
 	CSG_MetaData	*pInput	= Tool.Add_Child("input");
 
 	pInput->Add_Property("parms", History.Get_Property("parms"));
 	pInput->Add_Property("id"   , History.Get_Property("id"   ));
 
-	if( History("MODULE") && History["MODULE"]("OUTPUT") && History["MODULE"]["OUTPUT"].Get_Property("id") )
+	if( History("TOOL") || History("MODULE") )
 	{
-		pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, History["MODULE"]["OUTPUT"].Get_Property("id"));
+		const CSG_MetaData	&Tool(History("TOOL") ? History["TOOL"] : History["MODULE"]);
 
-		return( _Save_History_Add_Tool(History["MODULE"], Parms, *Tool.Get_Parent()) );
+		if( Tool("OUTPUT") && Tool["OUTPUT"].Get_Property("id") )
+		{
+			pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, Tool["OUTPUT"].Get_Property("id"));
+
+			return( _Save_History_Add_Tool(Tool, Parms, *Tool.Get_Parent()) );
+		}
 	}
 
 	CSG_String	VarName	= CSG_String::Format("%s__%s", Tool.Get_Property("id"), History.Get_Property("id"));

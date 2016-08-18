@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -64,7 +64,7 @@ using namespace std;
 //---------------------------------------------------------
 //#########################################################
 
-class CRivBasin : public CSG_Module_Grid
+class CRivBasin : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

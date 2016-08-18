@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_compound                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTA_Standard : public CSG_Module_Grid
+class CTA_Standard : public CSG_Tool_Grid
 {
 public:
 	CTA_Standard(void);

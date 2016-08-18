@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Load : public CSG_PG_Module
+class CShapes_Load : public CSG_PG_Tool
 {
 public:
 	CShapes_Load(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Save : public CSG_PG_Module
+class CShapes_Save : public CSG_PG_Tool
 {
 public:
 	CShapes_Save(void);
@@ -124,7 +124,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_SRID_Update : public CSG_PG_Module
+class CShapes_SRID_Update : public CSG_PG_Tool
 {
 public:
 	CShapes_SRID_Update(void);

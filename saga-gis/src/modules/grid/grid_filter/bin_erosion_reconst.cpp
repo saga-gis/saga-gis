@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -67,14 +67,14 @@ extern "C" {
 	#include "geodesic_morph_rec/bin_geovinc.h"
 }
 
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	if( !bResult ) return( false );\
 }
 
 #define SET_PARAMETER(IDENTIFIER, VALUE) \
-	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 
 
@@ -95,7 +95,7 @@ Cbin_erosion_reconst::Cbin_erosion_reconst(void)
 		"Common binary Opening does not guarantee, that foreground regions which "
 		"outlast the erosion step are reconstructed to their original shape in the "
 		"dilation step. Depending on the application, that might be considered as a "
-		"deficiency. Therefore this module provides a combination of erosion with "
+		"deficiency. Therefore this tool provides a combination of erosion with "
 		"the binary Geodesic Morphological Reconstruction, see \n"
 		"L. Vincent (1993): Morphological Grayscale Reconstruction in Image Analysis: "
 		"Applications and Efficient Algorithms. "
@@ -170,7 +170,7 @@ bool Cbin_erosion_reconst::On_Execute(void)
 		return (false);
 	}
 
-	RUN_MODULE("grid_filter"			, 8,
+	RUN_TOOL("grid_filter"			, 8,
 	       SET_PARAMETER("INPUT"		, pinpgrid)
 	    && SET_PARAMETER("RESULT"		, bingrid)
 	    && SET_PARAMETER("MODE"		, 1)

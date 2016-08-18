@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_profiles                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -93,7 +93,7 @@ CGrid_Profile::CGrid_Profile(void)
 		"A right mouse button click will finish the profile."
 	));
 
-	Set_Drag_Mode	(MODULE_INTERACTIVE_DRAG_LINE);
+	Set_Drag_Mode	(TOOL_INTERACTIVE_DRAG_LINE);
 
 	Parameters.Add_Grid(
 		NULL, "DEM"			, _TL("DEM"),
@@ -166,14 +166,14 @@ bool CGrid_Profile::On_Execute_Finish(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	default:
 		break;
 
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if( !m_bAdd )
 		{
 			m_bAdd	= true;
@@ -187,7 +187,7 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 		DataObject_Update(m_pLine);
 		break;
 
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 		Set_Profile();
 		m_bAdd	= false;
 		break;

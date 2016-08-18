@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     io_grid_image                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -258,7 +258,7 @@ bool CGrid_to_KML::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bDelete	= false;
 
-	CSG_Module		*pModule;
+	CSG_Tool		*pTool;
 
 	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(), Image;
 	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
@@ -291,25 +291,25 @@ bool CGrid_to_KML::On_Execute(void)
 	{
 		Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
-		if(	(pModule = SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
+		if(	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
 		{
 			return( false );
 		}
 
-		pModule->Settings_Push();
+		pTool->Settings_Push();
 
-		if( pModule->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
-		&&  pModule->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
-		&&  pModule->Set_Parameter("SOURCE"    , pGrid)
-		&&  pModule->Execute() )
+		if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
+		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
+		&&  pTool->Execute() )
 		{
 			bDelete	= true;
 
-			pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+			pGrid	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 
-			if( pShade && pModule->Set_Parameter("SOURCE", pShade) && pModule->Execute() )
+			if( pShade && pTool->Set_Parameter("SOURCE", pShade) && pTool->Execute() )
 			{
-				pShade	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+				pShade	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 			}
 			else
 			{
@@ -317,7 +317,7 @@ bool CGrid_to_KML::On_Execute(void)
 			}
 		}
 
-		pModule->Settings_Pop();
+		pTool->Settings_Pop();
 
 		if( !bDelete )
 		{
@@ -328,31 +328,31 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if(	(pModule = SG_Get_Module_Library_Manager().Get_Module("io_grid_image", 0)) == NULL )	// Export Image
+	if(	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 0)) == NULL )	// Export Image
 	{
 		return( false );
 	}
 
 	bool	bResult	= false;
 
-	pModule->Settings_Push();
+	pTool->Settings_Push();
 
-	if( pModule->Set_Parameter("GRID"        , pGrid)
-	&&  pModule->Set_Parameter("SHADE"       , pShade)
-	&&  pModule->Set_Parameter("FILE_KML"    , true)
-	&&  pModule->Set_Parameter("FILE"        , Parameters("FILE"))
-	&&  pModule->Set_Parameter("COLOURING"   , Method)
-	&&  pModule->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
-	&&  pModule->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
-	&&  pModule->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
-	&&  pModule->Set_Parameter("LUT"         , Parameters("LUT"))
-	&&  (SG_UI_Get_Window_Main() || pModule->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
-	&&  pModule->Execute() )
+	if( pTool->Set_Parameter("GRID"        , pGrid)
+	&&  pTool->Set_Parameter("SHADE"       , pShade)
+	&&  pTool->Set_Parameter("FILE_KML"    , true)
+	&&  pTool->Set_Parameter("FILE"        , Parameters("FILE"))
+	&&  pTool->Set_Parameter("COLOURING"   , Method)
+	&&  pTool->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
+	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
+	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
+	&&  pTool->Set_Parameter("LUT"         , Parameters("LUT"))
+	&&  (SG_UI_Get_Window_Main() || pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
+	&&  pTool->Execute() )
 	{
 		bResult	= true;
 	}
 
-	pModule->Settings_Pop();
+	pTool->Settings_Pop();
 
 	//-----------------------------------------------------
 	if( bDelete )

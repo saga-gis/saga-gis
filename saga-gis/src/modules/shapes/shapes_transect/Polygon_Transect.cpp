@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Transect                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ using std::pair;
 CPolygon_Transect::CPolygon_Transect(void)
 {
     //-----------------------------------------------------
-    // Give some information about your module...
+    // Give some information about your tool...
 
     Set_Name	(_TL("Transect through polygon shapefile"));
 
@@ -87,7 +87,7 @@ CPolygon_Transect::CPolygon_Transect(void)
     Set_Description	(_TW(
                     "Transect for lines and polygon shapefiles\n"
                     "\n"
-                    "The goal of this module is to create a transect along a line through a polygon map.\n"
+                    "The goal of this tool is to create a transect along a line through a polygon map.\n"
                     "Eg\n"
                     "\n"
                     "|____ST1_____!_ST2_!__ST1__!_______ST#_____|\n"
@@ -106,7 +106,7 @@ CPolygon_Transect::CPolygon_Transect(void)
                     "|   ...     |   ...   |  ...  |     ...      |</pre>\n"
                     "\n"
                     "\n"
-                    "The module requires an input shape with all the line transects [Transect_Line] \n"
+                    "The tool requires an input shape with all the line transects [Transect_Line] \n"
                     "and a polygon theme [Theme]. You also have to select which field you want to have in \n"
                     "the resulting table [Transect_Result]. This can be an ID of the polygon theme if you \n"
                     "want to link the tables later on, or any other field [Theme_Field].\n")

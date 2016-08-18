@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CFitNPointsToShape : public CSG_Module {
+class CFitNPointsToShape : public CSG_Tool {
 
 public:
 	CFitNPointsToShape(void);

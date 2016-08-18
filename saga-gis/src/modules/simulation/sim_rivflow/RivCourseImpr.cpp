@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -56,7 +56,7 @@
 
 
 #include "RivCourseImpr.h"
-#include <saga_api/module.h>
+#include <saga_api/tool.h>
 
 
 //---------------------------------------------------------
@@ -106,12 +106,12 @@ bool CRivCourseImpr::On_Execute(void){
 }
 
 
-bool CRivCourseImpr::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CRivCourseImpr::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {	
 	int iX, iY;		
 
 	//-----------------------------------------------------
-	if(	Mode != MODULE_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
+	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
 	{
 		return( false );
 	}

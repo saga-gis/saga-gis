@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSkeletonization : public CSG_Module_Grid
+class CSkeletonization : public CSG_Tool_Grid
 {
 public:
 	CSkeletonization(void);

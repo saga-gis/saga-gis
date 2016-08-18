@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CEnhanced_VI : public CSG_Module_Grid
+class CEnhanced_VI : public CSG_Tool_Grid
 {
 public:
 	CEnhanced_VI(void);

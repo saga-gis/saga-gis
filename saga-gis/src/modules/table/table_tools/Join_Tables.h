@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Shapes_Tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CJoin_Tables_Base : public CSG_Module  
+class CJoin_Tables_Base : public CSG_Tool  
 {
 protected:
 
@@ -116,7 +116,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Append_Cols : public CSG_Module  
+class CTable_Append_Cols : public CSG_Tool  
 {
 public:
 	CTable_Append_Cols(void);

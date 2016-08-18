@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Statistics_Latitudinal : public CSG_Module_Grid
+class CGrid_Statistics_Latitudinal : public CSG_Tool_Grid
 {
 public:
 	CGrid_Statistics_Latitudinal(void);
@@ -90,7 +90,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Statistics_Meridional : public CSG_Module_Grid
+class CGrid_Statistics_Meridional : public CSG_Tool_Grid
 {
 public:
 	CGrid_Statistics_Meridional(void);

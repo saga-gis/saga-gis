@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 #include "./e00compr/e00compr.h"
 
 //---------------------------------------------------------
-class CESRI_E00_Import : public CSG_Module
+class CESRI_E00_Import : public CSG_Tool
 {
 public:
 	CESRI_E00_Import(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -224,9 +224,9 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 
 		CSG_Shapes Zone(SHAPE_TYPE_Polygon);	Zone.Add_Shape(pZone);
 
-		SG_RUN_MODULE(bResult, "shapes_tools", 5,	// select points by location
-			   SG_MODULE_PARAMETER_SET("LOCATIONS", &Zone)
-			&& SG_MODULE_PARAMETER_SET("SHAPES"   , pPoints)
+		SG_RUN_TOOL(bResult, "shapes_tools", 5,	// select points by location
+			   SG_TOOL_PARAMETER_SET("LOCATIONS", &Zone)
+			&& SG_TOOL_PARAMETER_SET("SHAPES"   , pPoints)
 		);
 
 		if( !bResult )
@@ -240,9 +240,9 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 
 			CSG_Shapes	Selection;
 
-			SG_RUN_MODULE(bResult, "shapes_tools", 6,	// copy selected points to a new layer
-				   SG_MODULE_PARAMETER_SET("INPUT" , pPoints)
-				&& SG_MODULE_PARAMETER_SET("OUTPUT", &Selection)
+			SG_RUN_TOOL(bResult, "shapes_tools", 6,	// copy selected points to a new layer
+				   SG_TOOL_PARAMETER_SET("INPUT" , pPoints)
+				&& SG_TOOL_PARAMETER_SET("OUTPUT", &Selection)
 			);
 
 			pPoints->asShapes()->Select();	// unselect everything from original points layer
@@ -250,17 +250,17 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 			//---------------------------------------------
 			// perform the regression analysis, regression grid for zone is temporary
 
-			SG_RUN_MODULE(bResult, "statistics_regression", 1,	// multiple linear regression for points and predictor grids
-				   SG_MODULE_PARAMETER_SET("PREDICTORS", Parameters("PREDICTORS"))
-				&& SG_MODULE_PARAMETER_SET("REGRESSION", &Regression             )
-				&& SG_MODULE_PARAMETER_SET("POINTS"    , &Selection              )
-				&& SG_MODULE_PARAMETER_SET("ATTRIBUTE" , Parameters("ATTRIBUTE" ))
-				&& SG_MODULE_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
-				&& SG_MODULE_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
-				&& SG_MODULE_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
-				&& SG_MODULE_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))
-				&& SG_MODULE_PARAMETER_SET("METHOD"    , Parameters("METHOD"    ))
-				&& SG_MODULE_PARAMETER_SET("P_VALUE"   , Parameters("P_VALUE"   ))
+			SG_RUN_TOOL(bResult, "statistics_regression", 1,	// multiple linear regression for points and predictor grids
+				   SG_TOOL_PARAMETER_SET("PREDICTORS", Parameters("PREDICTORS"))
+				&& SG_TOOL_PARAMETER_SET("REGRESSION", &Regression             )
+				&& SG_TOOL_PARAMETER_SET("POINTS"    , &Selection              )
+				&& SG_TOOL_PARAMETER_SET("ATTRIBUTE" , Parameters("ATTRIBUTE" ))
+				&& SG_TOOL_PARAMETER_SET("RESAMPLING", Parameters("RESAMPLING"))
+				&& SG_TOOL_PARAMETER_SET("COORD_X"   , Parameters("COORD_X"   ))
+				&& SG_TOOL_PARAMETER_SET("COORD_Y"   , Parameters("COORD_Y"   ))
+				&& SG_TOOL_PARAMETER_SET("INTERCEPT" , Parameters("INTERCEPT" ))
+				&& SG_TOOL_PARAMETER_SET("METHOD"    , Parameters("METHOD"    ))
+				&& SG_TOOL_PARAMETER_SET("P_VALUE"   , Parameters("P_VALUE"   ))
 			);
 
 			//---------------------------------------------

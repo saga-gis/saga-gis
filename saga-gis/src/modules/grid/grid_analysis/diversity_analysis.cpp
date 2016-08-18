@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -163,7 +163,7 @@ int CDiversity_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	m_Search.Get_Weighting().Enable_Parameters(pParameters);
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

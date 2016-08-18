@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 		""
 	));
 
-	Set_Drag_Mode	(MODULE_INTERACTIVE_DRAG_BOX);
+	Set_Drag_Mode	(TOOL_INTERACTIVE_DRAG_BOX);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
@@ -181,7 +181,7 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 		}
 	}
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -211,12 +211,12 @@ bool CShapes_Cut_Interactive::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )
 		{
 			m_bDown	= true;
@@ -225,7 +225,7 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_
 		break;
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
 			m_bDown	= false;

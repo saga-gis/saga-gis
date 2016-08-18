@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Table_ODBC                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2004 by                 //
 //                      Olaf Conrad                      //
@@ -100,7 +100,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Table : public CSG_Module
+class CGet_Table : public CSG_Tool
 {
 public:
 	CGet_Table(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTOPMODEL : public CSG_Module_Grid
+class CTOPMODEL : public CSG_Tool_Grid
 {
 public:
 	CTOPMODEL(void);

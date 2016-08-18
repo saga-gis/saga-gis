@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connections : public CSG_Module
+class CGet_Connections : public CSG_Tool
 {
 public:
 	CGet_Connections(void);
@@ -100,7 +100,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connection : public CSG_Module
+class CGet_Connection : public CSG_Tool
 {
 public:
 	CGet_Connection(void);
@@ -118,7 +118,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connection : public CSG_PG_Module
+class CDel_Connection : public CSG_PG_Tool
 {
 public:
 	CDel_Connection(void);
@@ -136,7 +136,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connections : public CSG_Module
+class CDel_Connections : public CSG_Tool
 {
 public:
 	CDel_Connections(void);
@@ -158,7 +158,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction_Start : public CSG_PG_Module
+class CTransaction_Start : public CSG_PG_Tool
 {
 public:
 	CTransaction_Start(void);
@@ -180,7 +180,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction_Stop : public CSG_PG_Module
+class CTransaction_Stop : public CSG_PG_Tool
 {
 public:
 	CTransaction_Stop(void);
@@ -200,7 +200,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CExecute_SQL : public CSG_PG_Module
+class CExecute_SQL : public CSG_PG_Tool
 {
 public:
 	CExecute_SQL(void);
@@ -220,7 +220,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDatabase_Create : public CSG_Module
+class CDatabase_Create : public CSG_Tool
 {
 public:
 	CDatabase_Create(void);
@@ -240,7 +240,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDatabase_Destroy : public CSG_Module
+class CDatabase_Destroy : public CSG_Tool
 {
 public:
 	CDatabase_Destroy(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@ CESRI_E00_Import::CESRI_E00_Import(void)
 	Set_Description	(_TW(
 		"Import data sets from ESRI's E00 interchange format.\n\n"
 
-		"This import filter is based on the E00 format analysis of the GRASS GIS module "
+		"This import filter is based on the E00 format analysis of the GRASS GIS tool "
 		"\'m.in.e00\' written by Michel J. Wurtz. Go to the "
 		"<a target=\"_blank\" href=\"http://grass.itc.it/\">GRASS GIS Hompage</a> "
 		"for more information.\n"

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Grid : public CSG_Module_Grid
+class CPET_Hargreave_Grid : public CSG_Tool_Grid
 {
 public:
 	CPET_Hargreave_Grid(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Table : public CSG_Module
+class CPET_Hargreave_Table : public CSG_Tool
 {
 public:
 	CPET_Hargreave_Table(void);
@@ -122,7 +122,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Day_To_Hour : public CSG_Module
+class CPET_Day_To_Hour : public CSG_Tool
 {
 public:
 	CPET_Day_To_Hour(void);

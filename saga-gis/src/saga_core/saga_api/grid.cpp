@@ -65,7 +65,7 @@
 //---------------------------------------------------------
 #include "grid.h"
 #include "data_manager.h"
-#include "module_library.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -351,9 +351,9 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
 
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
 
-		if(	pModule != NULL )
+		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
@@ -361,9 +361,9 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
-			pModule->Settings_Push();
+			pTool->Settings_Push();
 
-			if( pModule->On_Before_Execution() && SG_MODULE_PARAMETER_SET("CONNECTIONS", &Connections) && pModule->Execute() )	// CGet_Connections
+			if( pTool->On_Before_Execution() && SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
 				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
 				{
@@ -374,21 +374,21 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 				}
 			}
 
-			pModule->Settings_Pop();
+			pTool->Settings_Pop();
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pModule = SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
 			{
-				pModule->Settings_Push();
+				pTool->Settings_Push();
 
-				bResult	= pModule->On_Before_Execution()
-					&& SG_MODULE_PARAMETER_SET("CONNECTION", Connection)
-					&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
-					&& SG_MODULE_PARAMETER_SET("RID"       , rid)
-					&& SG_MODULE_PARAMETER_SET("GRID"      , this)
-					&& pModule->Execute();
+				bResult	= pTool->On_Before_Execution()
+					&& SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+					&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+					&& SG_TOOL_PARAMETER_SET("RID"       , rid)
+					&& SG_TOOL_PARAMETER_SET("GRID"      , this)
+					&& pTool->Execute();
 
-				pModule->Settings_Pop();
+				pTool->Settings_Pop();
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);

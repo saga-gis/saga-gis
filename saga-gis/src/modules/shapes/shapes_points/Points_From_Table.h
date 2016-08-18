@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_From_Table : public CSG_Module
+class CPoints_From_Table : public CSG_Tool
 {
 public:
 	CPoints_From_Table(void);

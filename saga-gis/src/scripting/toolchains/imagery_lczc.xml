@@ -55,28 +55,28 @@
 	</parameters>
 	
 	<tools>
-		<tool library="io_gdal" module="3" name="OGR: Import Vector Data">
+		<tool library="io_gdal" tool="3" name="OGR: Import Vector Data">
 			<output id="SHAPES">TRAINING_SINGLE</output>
 			<option id="FILES" varname="true">FILE_TRAINING</option>
 			<option id="GEOM_TYPE">9</option>
 		</tool>
-		<tool library="shapes_tools" module="2" name="Merge Layers">
+		<tool library="shapes_tools" tool="2" name="Merge Layers">
 			<input  id="INPUT">TRAINING_SINGLE</input>
 			<option id="SRCINFO">TRUE</option>
 			<option id="MATCH">TRUE</option>
 			<output id="MERGED">TRAINING_MERGED</output>
 		</tool>
-		<tool library="grid_tools" module="32" name="Select Grid from List">
+		<tool library="grid_tools" tool="32" name="Select Grid from List">
 			<input  id="GRIDS">FEATURES</input>
 			<output id="GRID">FEATURE</output>
 			<option id="INDEX">0</option>
 		</tool>
-		<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+		<tool library="pj_proj4" tool="2" name="Coordinate Transformation (Shapes)">
 			<input	id="PICK" parms="CRS_GRID">FEATURE</input>
 			<input	id="SOURCE">TRAINING_MERGED</input>
 			<output id="TARGET">TRAINING_PROJ</output>
 		</tool>
-		<tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
+		<tool library="imagery_vigra" tool="9" name="Random Forest Classification (ViGrA)">
 			<input	id="FEATURES">FEATURES</input>
 			<input	id="TRAINING">TRAINING_PROJ</input>
 			<option id="FIELD">Source</option>
@@ -88,18 +88,18 @@
 		</tool>
 		
 		<condition type="not_equal" value="" variable="FILE_CLASS_DEF">
-			<tool library="io_table" module="1" name="Import Text Table">
+			<tool library="io_table" tool="1" name="Import Text Table">
 				<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
 				<output id="TABLE">CLASS_DEF</output>
 			</tool>
-			<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
 				<input id="GRID">LCZC</input>
 				<input id="LUT">CLASS_DEF</input>
 			</tool>
 		</condition>
 		
 		<condition type="not_equal" value="" variable="FILE_LCZC">
-			<tool library="io_grid_image" module="2" name="Export Grid to KML">
+			<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 				<input	id="GRID">LCZC</input>
 				<input	id="LUT">CLASS_DEF</input>
 				<option id="FILE" varname="true">FILE_LCZC</option>
@@ -110,17 +110,17 @@
 		</condition>
 		
 		<condition type="exists" variable="LCZC_FILTERED">
-			<tool library="grid_filter" module="6" name="Majority Filter">
+			<tool library="grid_filter" tool="6" name="Majority Filter">
 				<input	id="INPUT">LCZC</input>
 				<option id="RADIUS" varname="true">FILTER_RADIUS</option>
 				<output id="RESULT">LCZC_FILTERED</output>
 			</tool>
-			<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
 				<input id="GRID">LCZC_FILTERED</input>
 				<input id="LUT">CLASS_DEF</input>
 			</tool>
 			<condition type="not_equal" value="" variable="FILE_LCZC_FILTERED">
-				<tool library="io_grid_image" module="2" name="Export Grid to KML">
+				<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 					<input	id="GRID">LCZC_FILTERED</input>
 					<input	id="LUT">CLASS_DEF</input>
 					<option id="FILE" varname="true">FILE_LCZC_FILTERED</option>

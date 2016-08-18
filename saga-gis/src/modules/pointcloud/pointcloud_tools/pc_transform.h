@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPC_Transform : public CSG_Module
+class CPC_Transform : public CSG_Tool
 {
 public:
 	CPC_Transform(void);

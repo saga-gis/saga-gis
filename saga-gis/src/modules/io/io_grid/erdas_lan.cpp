@@ -8,7 +8,7 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@ CErdas_LAN_Import::CErdas_LAN_Import(void)
 
 	Set_Description	(_TW(
 		"Import Erdas LAN/GIS files. \n"
-		"The format analysis is based on the GRASS module i.in.erdas. "
+		"The format analysis is based on the GRASS tool i.in.erdas. "
 		"Go to the " 
 		"<a target=\"_blank\" href=\"http://grass.itc.it/\">GRASS GIS Hompage</a> "
 		"for more information.\n"

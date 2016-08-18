@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,12 +77,12 @@ CCRS_Assign::CCRS_Assign(void)
 	Set_Author		(SG_T("O.Conrad (c) 2010"));
 
 	Set_Description	(_TW(
-		"The module allows one to define the Coordinate Reference System (CRS) "
-		"of the supplied data sets. The module applies no transformation to "
+		"The tool allows one to define the Coordinate Reference System (CRS) "
+		"of the supplied data sets. The tool applies no transformation to "
 		"the data sets, it just updates their CRS metadata.\n"
 		"A complete and correct description of the CRS of a dataset is necessary "
 		"in order to be able to actually apply a projection with one of the "
-		"'Coordinate Transformation' modules later.\n\n"
+		"'Coordinate Transformation' tools later.\n\n"
 	));
 
 	//-----------------------------------------------------

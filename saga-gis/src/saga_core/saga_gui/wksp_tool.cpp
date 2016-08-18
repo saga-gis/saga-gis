@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   WKSP_Module.cpp                     //
+//                   WKSP_Tool.cpp                     //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -74,9 +74,9 @@
 
 #include "wksp_data_manager.h"
 
-#include "wksp_module_manager.h"
-#include "wksp_module_library.h"
-#include "wksp_module.h"
+#include "wksp_tool_manager.h"
+#include "wksp_tool_library.h"
+#include "wksp_tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module	*g_pModule	= NULL;
+CWKSP_Tool	*g_pTool	= NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -96,25 +96,25 @@ CWKSP_Module	*g_pModule	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Module::CWKSP_Module(CSG_Module *pModule, const wxString &Menu_Library)
+CWKSP_Tool::CWKSP_Tool(CSG_Tool *pTool, const wxString &Menu_Library)
 {
-	m_pModule	= pModule;
+	m_pTool	= pTool;
 	m_Menu_ID	= -1;
 }
 
 //---------------------------------------------------------
-CWKSP_Module::~CWKSP_Module(void)
+CWKSP_Tool::~CWKSP_Tool(void)
 {
-	if( g_pModule == this )
+	if( g_pTool == this )
 	{
-		if( g_pModule->is_Executing() )
+		if( g_pTool->is_Executing() )
 		{
 			PROCESS_Set_Okay(false);
 		}
 
-		if( m_pModule->is_Interactive() )
+		if( m_pTool->is_Interactive() )
 		{
-			((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
+			((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
 		}
 	}
 }
@@ -127,22 +127,22 @@ CWKSP_Module::~CWKSP_Module(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CWKSP_Module::Get_Name(void)
+wxString CWKSP_Tool::Get_Name(void)
 {
-	return( m_pModule->is_Interactive()
-		? wxString::Format(wxT("%s [%s]"), m_pModule->Get_Name().c_str(), _TL("interactive"))
-		: wxString::Format(wxT("%s")     , m_pModule->Get_Name().c_str())
+	return( m_pTool->is_Interactive()
+		? wxString::Format(wxT("%s [%s]"), m_pTool->Get_Name().c_str(), _TL("interactive"))
+		: wxString::Format(wxT("%s")     , m_pTool->Get_Name().c_str())
 	);
 }
 
 //---------------------------------------------------------
-wxString CWKSP_Module::Get_File_Name(void)
+wxString CWKSP_Tool::Get_File_Name(void)
 {
-	return( m_pModule->Get_File_Name().c_str() );
+	return( m_pTool->Get_File_Name().c_str() );
 }
 
 //---------------------------------------------------------
-wxString CWKSP_Module::Get_Description(void)
+wxString CWKSP_Tool::Get_Description(void)
 {
 	//-----------------------------------------------------
 	if( !Get_File_Name().IsEmpty() )
@@ -170,18 +170,18 @@ wxString CWKSP_Module::Get_Description(void)
 	}
 
 	//-----------------------------------------------------
-	wxString	Menu(m_pModule->Get_MenuPath(true).c_str()), Description;
+	wxString	Menu(m_pTool->Get_MenuPath(true).c_str()), Description;
 
-	if( g_pModules->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
+	if( g_pTools->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
 	{
-		Description	= Get_Online_Module_Description(((CWKSP_Module_Library *)Get_Manager())->Get_File_Name(), Get_Module()->Get_ID().c_str());
+		Description	= Get_Online_Tool_Description(((CWKSP_Tool_Library *)Get_Manager())->Get_File_Name(), Get_Tool()->Get_ID().c_str());
 	}
 
-	return( m_pModule->Get_Summary(true, &Menu, &Description).c_str() );
+	return( m_pTool->Get_Summary(true, &Menu, &Description).c_str() );
 }
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Module::Get_Menu(void)
+wxMenu * CWKSP_Tool::Get_Menu(void)
 {
 	wxMenu	*pMenu;
 
@@ -191,24 +191,24 @@ wxMenu * CWKSP_Module::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_SCRIPT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_SAVE_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_SAVE_SCRIPT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_SAVE_TO_CLIPBOARD);
 
-	if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+	if( m_pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
 		pMenu->AppendSeparator();
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_CHAIN_RELOAD);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_MODULES_CHAIN_EDIT);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_CHAIN_RELOAD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_CHAIN_EDIT);
 	}
 
 	return( pMenu );
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CWKSP_Module::Get_Parameters(void)
+CSG_Parameters * CWKSP_Tool::Get_Parameters(void)
 {
-	return( m_pModule->Get_Parameters() );
+	return( m_pTool->Get_Parameters() );
 }
 
 
@@ -219,7 +219,7 @@ CSG_Parameters * CWKSP_Module::Get_Parameters(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Module::On_Command(int Cmd_ID)
+bool CWKSP_Tool::On_Command(int Cmd_ID)
 {
 	switch( Cmd_ID )
 	{
@@ -230,17 +230,17 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 		Execute(true);
 		break;
 
-	case ID_CMD_MODULES_SAVE_SCRIPT:
+	case ID_CMD_TOOLS_SAVE_SCRIPT:
 		_Save_to_Script();
 		break;
 
-	case ID_CMD_MODULES_SAVE_TO_CLIPBOARD:
+	case ID_CMD_TOOLS_SAVE_TO_CLIPBOARD:
 		_Save_to_Clipboard();
 		break;
 
-	case ID_CMD_MODULES_CHAIN_RELOAD:
-		if( m_pModule->Get_Type() == MODULE_TYPE_Chain
-		&&  g_pModules->Open(m_pModule->Get_File_Name().c_str())
+	case ID_CMD_TOOLS_CHAIN_RELOAD:
+		if( m_pTool->Get_Type() == TOOL_TYPE_Chain
+		&&  g_pTools->Open(m_pTool->Get_File_Name().c_str())
 		&&  g_pACTIVE->Get_Active() == this )
 		{
 			g_pACTIVE->Set_Active(NULL);
@@ -248,10 +248,10 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 		}
 		break;
 
-	case ID_CMD_MODULES_CHAIN_EDIT:
-		if( m_pModule->Get_Type() == MODULE_TYPE_Chain )
+	case ID_CMD_TOOLS_CHAIN_EDIT:
+		if( m_pTool->Get_Type() == TOOL_TYPE_Chain )
 		{
-			Open_Application(m_pModule->Get_File_Name().c_str(), "txt");
+			Open_Application(m_pTool->Get_File_Name().c_str(), "txt");
 		}
 		break;
 	}
@@ -267,7 +267,7 @@ bool CWKSP_Module::On_Command(int Cmd_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module::Set_Menu_ID(int aMenu_ID)
+void CWKSP_Tool::Set_Menu_ID(int aMenu_ID)
 {
 	m_Menu_ID	= aMenu_ID;
 }
@@ -280,15 +280,15 @@ void CWKSP_Module::Set_Menu_ID(int aMenu_ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Module::is_Interactive(void)
+bool CWKSP_Tool::is_Interactive(void)
 {
-	return( m_pModule->is_Interactive() );
+	return( m_pTool->is_Interactive() );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module::is_Executing(void)
+bool CWKSP_Tool::is_Executing(void)
 {
-	return( m_pModule->is_Executing() );
+	return( m_pTool->is_Executing() );
 }
 
 
@@ -306,28 +306,28 @@ bool CWKSP_Module::is_Executing(void)
 							MSG_Execution_Add(b ? s1 : s2, true, true, b ? SG_UI_MSG_STYLE_SUCCESS : SG_UI_MSG_STYLE_FAILURE);
 
 //---------------------------------------------------------
-bool CWKSP_Module::Execute(bool bDialog)
+bool CWKSP_Tool::Execute(bool bDialog)
 {
 	bool	bResult	= false;
 
 	//-----------------------------------------------------
-	if( g_pModule )
+	if( g_pTool )
  	{
-		if( g_pModule == this )
+		if( g_pTool == this )
 		{
-			if( g_pModule->is_Executing() )
+			if( g_pTool->is_Executing() )
 			{
 				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
 				{
 					PROCESS_Set_Okay(false);
 				}
 			}
-			else if( m_pModule->is_Interactive() )
+			else if( m_pTool->is_Interactive() )
 			{
 				if( !bDialog || DLG_Message_Confirm(_TL("Shall execution be stopped?"), _TL("Tool Execution")) )
 				{
-					bResult		= ((CSG_Module_Interactive *)m_pModule)->Execute_Finish();
-					g_pModule	= NULL;
+					bResult		= ((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
+					g_pTool	= NULL;
 
 					PROCESS_Set_Okay(true);
 
@@ -347,25 +347,25 @@ bool CWKSP_Module::Execute(bool bDialog)
 	//-----------------------------------------------------
 	else
 	{
-		g_pModule	= this;
+		g_pTool	= this;
 
-		if( m_pModule->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pModule->Get_Parameters())) )
+		if( m_pTool->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pTool->Get_Parameters())) )
 		{
-			g_pModules->Set_Recently_Used(this);
+			g_pTools->Set_Recently_Used(this);
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing tool"), m_pModule->Get_Name().c_str()));
+			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing tool"), m_pTool->Get_Name().c_str()));
 
-			STATUSBAR_Set_Text(m_pModule->Get_Name().w_str());
+			STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 
-			bResult		= m_pModule->Execute();
+			bResult		= m_pTool->Execute();
 
-			m_pModule->On_After_Execution();
+			m_pTool->On_After_Execution();
 
-			g_pACTIVE->Get_Parameters()->Update_Parameters(m_pModule->Get_Parameters(), false);
+			g_pACTIVE->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 
-			if( m_pModule->is_Interactive() )
+			if( m_pTool->is_Interactive() )
 			{
 				MSG_ADD2(bResult,
 					_TL("Interactive tool execution has been started"),
@@ -380,12 +380,12 @@ bool CWKSP_Module::Execute(bool bDialog)
 				);
 			}
 
-			if( g_pModules && g_pModules->Do_Beep() )	{	Do_Beep();	}
+			if( g_pTools && g_pTools->Do_Beep() )	{	Do_Beep();	}
 		}
 
-		if( !m_pModule->is_Interactive() || !bResult )
+		if( !m_pTool->is_Interactive() || !bResult )
 		{
-			g_pModule	= NULL;
+			g_pTool	= NULL;
 		}
 	}
 
@@ -394,11 +394,11 @@ bool CWKSP_Module::Execute(bool bDialog)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Module::Execute(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
+bool CWKSP_Tool::Execute(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys)
 {
-	if( g_pModule == this && m_pModule->is_Interactive() )
+	if( g_pTool == this && m_pTool->is_Interactive() )
 	{
-		return( ((CSG_Module_Interactive *)m_pModule)->Execute_Position(ptWorld, Mode, Keys) );
+		return( ((CSG_Tool_Interactive *)m_pTool)->Execute_Position(ptWorld, Mode, Keys) );
 	}
 
 	return( false );
@@ -415,7 +415,7 @@ bool CWKSP_Module::Execute(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, 
 #include <wx/clipbrd.h>
 
 //---------------------------------------------------------
-void CWKSP_Module::_Save_to_Clipboard(void)
+void CWKSP_Tool::_Save_to_Clipboard(void)
 {
 	//-----------------------------------------------------
 	wxArrayString	Choices;
@@ -452,7 +452,7 @@ void CWKSP_Module::_Save_to_Clipboard(void)
 }
 
 //---------------------------------------------------------
-void CWKSP_Module::_Save_to_Script(void)
+void CWKSP_Tool::_Save_to_Script(void)
 {
 	wxString	FileName;
 
@@ -495,19 +495,19 @@ void CWKSP_Module::_Save_to_Script(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CWKSP_Module::_Get_XML(bool bHeader)
+CSG_String CWKSP_Tool::_Get_XML(bool bHeader)
 {
 	CSG_MetaData	Tool;	Tool.Set_Name("tool");
 
-	Tool.Add_Property("library", m_pModule->Get_Library());
-	Tool.Add_Property("module" , m_pModule->Get_ID     ());
-	Tool.Add_Property("name"   , m_pModule->Get_Name   ());
+	Tool.Add_Property("library", m_pTool->Get_Library());
+	Tool.Add_Property("tool"   , m_pTool->Get_ID     ());
+	Tool.Add_Property("name"   , m_pTool->Get_Name   ());
 
-	_Get_XML(Tool, m_pModule->Get_Parameters());
+	_Get_XML(Tool, m_pTool->Get_Parameters());
 
-	for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		_Get_XML(Tool, m_pModule->Get_Parameters());
+		_Get_XML(Tool, m_pTool->Get_Parameters());
 	}
 
 	if( !bHeader )
@@ -534,7 +534,7 @@ CSG_String CWKSP_Module::_Get_XML(bool bHeader)
 }
 
 //---------------------------------------------------------
-CSG_String CWKSP_Module::_Get_CMD(bool bHeader, int Type)
+CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
 {
 	CSG_String	s;
 
@@ -553,20 +553,20 @@ CSG_String CWKSP_Module::_Get_CMD(bool bHeader, int Type)
 		if( bHeader )
 		{
 			s	+= "@ECHO OFF\n\n";
-			s	+= "REM SET SAGA_MLB=C:\\SAGA\\Modules\n";
+			s	+= "REM SET SAGA_MLB=C:\\SAGA\\Tools\n";
 			s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
 			s	+= "REM Tool: ";
-			s	+= m_pModule->Get_Name() + "\n\n";
+			s	+= m_pTool->Get_Name() + "\n\n";
 		}
 
 		s	+= "saga_cmd ";
-		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID();
+		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
 
-		_Get_CMD(s, m_pModule->Get_Parameters());
+		_Get_CMD(s, m_pTool->Get_Parameters());
 
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 		{
-			_Get_CMD(s, m_pModule->Get_Parameters(i));
+			_Get_CMD(s, m_pTool->Get_Parameters(i));
 		}
 
 		if( bHeader )
@@ -583,17 +583,17 @@ CSG_String CWKSP_Module::_Get_CMD(bool bHeader, int Type)
 			s	+= "#!/bin/bash\n\n";
 			s	+= "# export SAGA_MLB=/usr/lib/saga\n\n";
 			s	+= "# tool: ";
-			s	+= m_pModule->Get_Name() + "\n\n";
+			s	+= m_pTool->Get_Name() + "\n\n";
 		}
 
 		s	+= "saga_cmd ";
-		s	+= m_pModule->Get_Library() + " " + m_pModule->Get_ID();
+		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
 
-		_Get_CMD(s, m_pModule->Get_Parameters());
+		_Get_CMD(s, m_pTool->Get_Parameters());
 
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 		{
-			_Get_CMD(s, m_pModule->Get_Parameters(i));
+			_Get_CMD(s, m_pTool->Get_Parameters(i));
 		}
 	}
 
@@ -601,7 +601,7 @@ CSG_String CWKSP_Module::_Get_CMD(bool bHeader, int Type)
 }
 
 //---------------------------------------------------------
-CSG_String CWKSP_Module::_Get_Python(bool bHeader)
+CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 {
 	CSG_String	s;
 
@@ -618,7 +618,7 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 	}
 
 	//-----------------------------------------------------
-	s	+= "def Call_SAGA_Module(fDEM):            # pass your input file(s) here\n";
+	s	+= "def Call_SAGA_Tool(fDEM):            # pass your input file(s) here\n";
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
 	s	+= "    # initialize input dataset(s)\n";
@@ -632,38 +632,38 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 	s	+= "    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())\n";
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
-	s	+= "    # call module: ";
-	s	+= m_pModule->Get_Name() + "\n";
-	s	+= "    Module = saga_api.SG_Get_Module_Library_Manager().Get_Module('";
-	s	+= m_pModule->Get_Library() + "','" + m_pModule->Get_ID() + "')\n";
+	s	+= "    # call tool: ";
+	s	+= m_pTool->Get_Name() + "\n";
+	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('";
+	s	+= m_pTool->Get_Library() + "','" + m_pTool->Get_ID() + "')\n";
 
-	if( m_pModule->Get_Type() == MODULE_TYPE_Grid )
+	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
 	{
-		s	+= "    Module.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n";
+		s	+= "    Tool.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n";
 	}
 
 	s	+= "\n";
-	s	+= "    Parms = Module.Get_Parameters() # default parameter list\n";
+	s	+= "    Parms = Tool.Get_Parameters() # default parameter list\n";
 
 	//-------------------------------------------------
-	_Get_Python(s, m_pModule->Get_Parameters());
+	_Get_Python(s, m_pTool->Get_Parameters());
 
-	for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
 		s	+= "\n";
-		s	+= CSG_String::Format("    Parms = Module.Get_Parameters(%d) # additional parameter list\n", i);
+		s	+= CSG_String::Format("    Parms = Tool.Get_Parameters(%d) # additional parameter list\n", i);
 
-		_Get_Python(s, m_pModule->Get_Parameters(i));
+		_Get_Python(s, m_pTool->Get_Parameters(i));
 	}
 
 	//-------------------------------------------------
 	s	+= "\n";
-	s	+= "    if Module.Execute() == 0:\n";
-	s	+= "        print 'Module execution failed!'\n";
+	s	+= "    if Tool.Execute() == 0:\n";
+	s	+= "        print 'Tool execution failed!'\n";
 	s	+= "        return 0\n";
 	s	+= "\n";
 	s	+= "    print\n";
-	s	+= "    print 'The module has been executed.'\n";
+	s	+= "    print 'The tool has been executed.'\n";
 	s	+= "    print 'Now you would like to save your output datasets, please edit the script to do so.'\n";
 	s	+= "    return 0                           # remove this line once you have edited the script\n";
 	s	+= "\n";
@@ -675,7 +675,7 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 	s	+= "    outgrid.Save(saga_api.CSG_String(path + '/outgrid'))\n";
 	s	+= "\n";
 	s	+= "    print\n";
-	s	+= "    print 'Module successfully executed!'\n";
+	s	+= "    print 'Tool successfully executed!'\n";
 	s	+= "    return 1\n";
 	s	+= "\n";
 
@@ -701,19 +701,19 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 		s	+= "    saga_api.SG_UI_Msg_Lock(True)\n";
 		s	+= "    if os.name == 'nt':    # Windows\n";
 		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA'] + '/bin/saga_vc_Win32/dll'\n";
-		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/modules', 0)\n";
+		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA'] + '/bin/saga_vc_Win32/tools', 0)\n";
 		s	+= "    else:                  # Linux\n";
-		s	+= "        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n";
+		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)\n";
 		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
 		s	+= "\n";
-		s	+= "    Call_SAGA_Module(fDEM)             # pass your input file(s) here\n";
+		s	+= "    Call_SAGA_Tool(fDEM)             # pass your input file(s) here\n";
 	//	s	+= "    else:\n";
 	//	s	+= "        in__grid    = saga_api.SG_Create_Grid(saga_api.CSG_String(sys.argv[1]))\n";
 	//	s	+= "        out_grid    = saga_api.SG_Create_Grid(grid_in.Get_System())\n";
 	//	s	+= "        in__shapes  = saga_api.SG_Create_Shapes(saga_api.CSG_String(sys.argv[3]))\n";
 	//	s	+= "        out_shapes  = saga_api.SG_Create_Shapes()\n";
 	//	s	+= "\n";
-	//	s	+= "        if Call_SAGA_Module(in__grid, out_grid, in__shapes, out_shapes) != 0:\n";
+	//	s	+= "        if Call_SAGA_Tool(in__grid, out_grid, in__shapes, out_shapes) != 0:\n";
 	//	s	+= "            grid_out  .Save(saga_api.CSG_String(sys.argv[2]))\n";
 	//	s	+= "            shapes_out.Save(saga_api.CSG_String(sys.argv[4]))\n";
 	}
@@ -727,7 +727,7 @@ CSG_String CWKSP_Module::_Get_Python(bool bHeader)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
+void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -806,7 +806,7 @@ void CWKSP_Module::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 #define GET_ID2(p, s)	CSG_String::Format(SG_T("%s_%s"), GET_ID1(p), s).c_str()
 
 //---------------------------------------------------------
-void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
+void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -910,7 +910,7 @@ void CWKSP_Module::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-void CWKSP_Module::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
+void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{

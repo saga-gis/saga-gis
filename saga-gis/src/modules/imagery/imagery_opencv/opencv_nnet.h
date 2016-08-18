@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: My_Module.h 1246 2011-11-25 13:42:38Z oconrad $
+ * Version $Id: OpenCVNNet.h 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       OpenCVNNet                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,15 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// Use the 'My_Module_EXPORT' macro as defined in
-// 'MLB_Interface.h' to export this class to allow other
-// programs/libraries to use its functions:
-//
-// class My_Module_EXPORT CMy_Module : public CSG_Module
-// ...
-//
-
-class COpenCV_NNet : public CSG_Module_Grid
+class COpenCV_NNet : public CSG_Tool_Grid
 {
 public:
 	COpenCV_NNet(void);
@@ -125,7 +117,7 @@ private:
 
 #else // CV_MAJOR_VERSION == 2
 
-#define new_COpenCV_NNet	MLB_INTERFACE_SKIP_MODULE
+#define new_COpenCV_NNet	TLB_INTERFACE_SKIP_TOOL
 
 #endif
 

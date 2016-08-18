@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMilankovic : public CSG_Module
+class CMilankovic : public CSG_Tool
 {
 public:
 	CMilankovic(void);
@@ -91,7 +91,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMilankovic_SR_Location : public CSG_Module
+class CMilankovic_SR_Location : public CSG_Tool
 {
 public:
 	CMilankovic_SR_Location(void);
@@ -111,7 +111,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMilankovic_SR_Day_Location : public CSG_Module
+class CMilankovic_SR_Day_Location : public CSG_Tool
 {
 public:
 	CMilankovic_SR_Day_Location(void);
@@ -131,7 +131,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMilankovic_SR_Monthly_Global : public CSG_Module
+class CMilankovic_SR_Monthly_Global : public CSG_Tool
 {
 public:
 	CMilankovic_SR_Monthly_Global(void);

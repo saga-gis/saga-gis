@@ -27,8 +27,6 @@ grid.h \
 grid_pyramid.h \
 mat_tools.h \
 metadata.h \
-module.h \
-module_library.h \
 parameters.h \
 pointcloud.h \
 saga_api.h \
@@ -36,7 +34,9 @@ shapes.h \
 table_dbase.h \
 table.h \
 table_value.h \
-tin.h
+tin.h \
+tool.h \
+tool_library.h
 
 libsaga_api_la_SOURCES =\
 api_callback.cpp\
@@ -70,14 +70,6 @@ mat_spline.cpp\
 mat_tools.cpp\
 mat_trend.cpp\
 metadata.cpp\
-module.cpp\
-module_chain.cpp\
-module_grid.cpp\
-module_grid_interactive.cpp\
-module_interactive.cpp\
-module_interactive_base.cpp\
-module_library.cpp\
-module_library_interface.cpp\
 parameter.cpp\
 parameter_data.cpp\
 parameters.cpp\
@@ -105,6 +97,14 @@ table_selection.cpp\
 tin.cpp\
 tin_elements.cpp\
 tin_triangulation.cpp\
+tool.cpp\
+tool_chain.cpp\
+tool_grid.cpp\
+tool_grid_interactive.cpp\
+tool_interactive.cpp\
+tool_interactive_base.cpp\
+tool_library.cpp\
+tool_library_interface.cpp\
 api_core.h\
 clipper.hpp\
 data_manager.h\
@@ -115,9 +115,6 @@ grid.h\
 grid_pyramid.h\
 mat_tools.h\
 metadata.h\
-module.h\
-module_chain.h\
-module_library.h\
 parameters.h\
 pointcloud.h\
 saga_api.h\
@@ -125,7 +122,10 @@ shapes.h\
 table.h\
 table_dbase.h\
 table_value.h\
-tin.h
+tin.h\
+tool.h\
+tool_chain.h\
+tool_library.h
 
 install-exec-hook:
 	-ldconfig

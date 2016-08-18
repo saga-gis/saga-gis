@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFast_Representativeness : public CSG_Module_Grid
+class CFast_Representativeness : public CSG_Tool_Grid
 {
 public:
 	CFast_Representativeness(void);

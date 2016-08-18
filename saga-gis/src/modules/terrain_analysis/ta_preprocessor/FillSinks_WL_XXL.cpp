@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -67,13 +67,13 @@ CFillSinks_WL_XXL::CFillSinks_WL_XXL(void)
 	Set_Name		(_TL("Fill Sinks XXL (Wang & Liu)"));
 	Set_Author		(_TL("Copyrights (c) 2007 by Volker Wichmann"));
 	Set_Description	(_TW(
-		"This module uses an algorithm proposed by Wang & Liu to identify and fill surface depressions in "
+		"This tool uses an algorithm proposed by Wang & Liu to identify and fill surface depressions in "
 		"digital elevation models.\n"
 		"The method was enhanced to allow the creation of hydrologic sound elevation models, i.e. not only to "
 		"fill the depression(s) but also to preserve a downward slope along the flow path. If desired, this is accomplished "
 		"by preserving a minimum slope gradient (and thus elevation difference) between cells.\n"
-		"This version of the module is designed to work on large data sets (e.g. LIDAR data), with smaller "
-		"datasets you might like to check out the fully featured standard version of the module.\n\n\n"
+		"This version of the tool is designed to work on large data sets (e.g. LIDAR data), with smaller "
+		"datasets you might like to check out the fully featured standard version of the tool.\n\n\n"
 		"References:\n"
 		"Wang, L. & H. Liu (2006): An efficient method for identifying and filling surface depressions in "
 		"digital elevation models for hydrologic analysis and modelling. International Journal of Geographical "

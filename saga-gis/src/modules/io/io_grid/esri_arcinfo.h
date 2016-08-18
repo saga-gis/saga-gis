@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CESRI_ArcInfo_Import : public CSG_Module
+class CESRI_ArcInfo_Import : public CSG_Tool
 {
 public:
 	CESRI_ArcInfo_Import(void);
@@ -107,7 +107,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CESRI_ArcInfo_Export : public CSG_Module_Grid
+class CESRI_ArcInfo_Export : public CSG_Tool_Grid
 {
 public:
 	CESRI_ArcInfo_Export(void);

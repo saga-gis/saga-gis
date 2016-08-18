@@ -65,7 +65,7 @@
 //---------------------------------------------------------
 #include "table.h"
 #include "shapes.h"
-#include "module_library.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -192,9 +192,9 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 
-		CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
 
-		if(	pModule != NULL )
+		if(	pTool != NULL )
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
 
@@ -202,9 +202,9 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
-			pModule->Settings_Push();
+			pTool->Settings_Push();
 
-			if( pModule->On_Before_Execution() && SG_MODULE_PARAMETER_SET("CONNECTIONS", &Connections) && pModule->Execute() )	// CGet_Connections
+			if( pTool->On_Before_Execution() && SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
 				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
 				{
@@ -215,20 +215,20 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 				}
 			}
 
-			pModule->Settings_Pop();
+			pTool->Settings_Pop();
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pModule = SG_Get_Module_Library_Manager().Get_Module("db_pgsql", 12)) != NULL) == true )	// CPGIS_Table_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 12)) != NULL) == true )	// CPGIS_Table_Load
 			{
-				pModule->Settings_Push();
+				pTool->Settings_Push();
 
-				bResult	= pModule->On_Before_Execution()
-					&& SG_MODULE_PARAMETER_SET("CONNECTION", Connection)
-					&& SG_MODULE_PARAMETER_SET("TABLES"    , Table)
-					&& SG_MODULE_PARAMETER_SET("TABLE"     , this)
-					&& pModule->Execute();
+				bResult	= pTool->On_Before_Execution()
+					&& SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+					&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+					&& SG_TOOL_PARAMETER_SET("TABLE"     , this)
+					&& pTool->Execute();
 
-				pModule->Settings_Pop();
+				pTool->Settings_Pop();
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);

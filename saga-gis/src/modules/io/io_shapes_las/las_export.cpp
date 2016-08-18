@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Shapes_IO_LAS                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -94,7 +94,7 @@ CLAS_Export::CLAS_Export(void)
 	Set_Author		(SG_T("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	CSG_String		Description(_TW(
-		"This module exports a SAGA Point Cloud as ASPRS LAS file (version 1.2) "
+		"This tool exports a SAGA Point Cloud as ASPRS LAS file (version 1.2) "
 		"using the \"libLAS\" library. It allows writing Point Data Record Formats 1 to 4. "
 		"Please have a look at the <a href=\"http://www.asprs.org/society/committees/standards/lidar_exchange_format.html\""
 		">ASPRS LAS 1.2 Format Specification</a> for "

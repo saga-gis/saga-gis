@@ -66,7 +66,7 @@
 #include "active.h"
 #include "active_parameters.h"
 
-#include "wksp_module_control.h"
+#include "wksp_tool_control.h"
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
 #include "wksp_map_control.h"
@@ -119,12 +119,12 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 		default:
 			break;
 
-		case WKSP_ITEM_Module_Manager:
-			g_pModule_Ctrl->Add_Group((CWKSP_Module_Group *)pItem);
+		case WKSP_ITEM_Tool_Manager:
+			g_pTool_Ctrl->Add_Group((CWKSP_Tool_Group *)pItem);
 			break;
 
-		case WKSP_ITEM_Module_Group:
-			g_pModule_Ctrl->Add_Library(GetId(), (CWKSP_Module_Library *)pItem);
+		case WKSP_ITEM_Tool_Group:
+			g_pTool_Ctrl->Add_Library(GetId(), (CWKSP_Tool_Library *)pItem);
 			break;
 
 		case WKSP_ITEM_Data_Manager:

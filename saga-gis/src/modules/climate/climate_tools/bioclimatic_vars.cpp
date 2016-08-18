@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -228,7 +228,7 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 //---------------------------------------------------------
 int CBioclimatic_Vars::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

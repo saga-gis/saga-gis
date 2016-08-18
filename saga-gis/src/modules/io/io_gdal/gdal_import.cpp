@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -79,7 +79,7 @@ CGDAL_Import::CGDAL_Import(void)
 	CSG_String	Description, Filter, Filter_All;
 
 	Description	= _TW(
-		"The \"GDAL Raster Import\" module imports grid data from various file formats using the "
+		"The \"GDAL Raster Import\" tool imports grid data from various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
@@ -192,7 +192,7 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("SELECT_SORT", pParameter->asBool());
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------

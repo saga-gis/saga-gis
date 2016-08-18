@@ -26,14 +26,14 @@
 	</option>
   </parameters>
   <tools>
-    <tool library="grid_filter" module="15" name="Sieving Classes">
+    <tool library="grid_filter" tool="15" name="Sieving Classes">
       <option id="MODE">1</option>
       <option id="ALL">1</option>
       <option id="THRESHOLD" varname="1">SIEVE</option>
       <output id="OUTPUT">SIEVED</output>
       <input id="INPUT">CLASSES</input>
     </tool>
-    <tool library="grid_tools" module="28" name="Shrink and Expand">
+    <tool library="grid_tools" tool="28" name="Shrink and Expand">
       <option id="OPERATION">3</option>
       <option id="CIRCLE">1</option>
       <option id="EXPAND">3</option>

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class Ckff_synthesis : public CSG_Module
+class Ckff_synthesis : public CSG_Tool
 {
 public:
 	Ckff_synthesis (void);

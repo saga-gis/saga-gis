@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Seeds : public CSG_Module_Grid
+class CGrid_Seeds : public CSG_Tool_Grid
 {
 public:
 	CGrid_Seeds(void);

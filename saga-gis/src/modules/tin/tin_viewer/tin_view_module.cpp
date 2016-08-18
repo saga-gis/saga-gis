@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    tin_view_module                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CTIN_View_Module::CTIN_View_Module(void)
 	Set_Author		(SG_T("O. Conrad (c) 2011"));
 
 	Set_Description	(_TW(
-		"This module is a 3D viewer for SAGA TINs. Amongst others, "
+		"This tool is a 3D viewer for SAGA TINs. Amongst others, "
 		"the viewer supports attribute based coloring, a map view to control "
 		"the area-of-interest, point size scaling based on distance, level "
 		"of detail control and an anaglyph modus (to use with red/blue or "

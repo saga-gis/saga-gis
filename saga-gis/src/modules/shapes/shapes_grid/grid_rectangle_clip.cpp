@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CGrid_Rectangle_Clip::CGrid_Rectangle_Clip(void)
 	Set_Description	(_TW(
 		"Clips the input grid with the (rectangular) extent of a shapefile. "
 		"The clipped grid will have the extent of the shapefile.\n"
-		"Select shapes from the shapefile prior to module execution "
+		"Select shapes from the shapefile prior to tool execution "
         "in case you like to use only a subset from the shapefile "
         "for clipping.\n\n"
 	));

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Normalise : public CSG_Module_Grid  
+class CGrid_Normalise : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Normalise(void);
@@ -100,7 +100,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Standardise : public CSG_Module_Grid  
+class CGrid_Standardise : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Standardise(void);

@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CImage_VI_Distance : public CSG_Module_Grid
+class CImage_VI_Distance : public CSG_Tool_Grid
 {
 public:
 	CImage_VI_Distance(void);

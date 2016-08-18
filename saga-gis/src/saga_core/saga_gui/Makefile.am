@@ -97,11 +97,6 @@ wksp_map_dc.cpp\
 wksp_map_graticule.cpp\
 wksp_map_layer.cpp\
 wksp_map_manager.cpp\
-wksp_module.cpp\
-wksp_module_control.cpp\
-wksp_module_library.cpp\
-wksp_module_manager.cpp\
-wksp_module_menu.cpp\
 wksp_pointcloud.cpp\
 wksp_pointcloud_manager.cpp\
 wksp_shapes.cpp\
@@ -116,6 +111,11 @@ wksp_table.cpp\
 wksp_table_manager.cpp\
 wksp_tin.cpp\
 wksp_tin_manager.cpp\
+wksp_tool.cpp\
+wksp_tool_control.cpp\
+wksp_tool_library.cpp\
+wksp_tool_manager.cpp\
+wksp_tool_menu.cpp\
 active.h\
 active_attributes.h\
 active_attributes_control.h\
@@ -196,11 +196,6 @@ wksp_map_dc.h\
 wksp_map_graticule.h\
 wksp_map_layer.h\
 wksp_map_manager.h\
-wksp_module.h\
-wksp_module_control.h\
-wksp_module_library.h\
-wksp_module_manager.h\
-wksp_module_menu.h\
 wksp_pointcloud.h\
 wksp_pointcloud_manager.h\
 wksp_shapes.h\
@@ -213,7 +208,12 @@ wksp_shapes_type.h\
 wksp_table.h\
 wksp_table_manager.h\
 wksp_tin.h\
-wksp_tin_manager.h
+wksp_tin_manager.h\
+wksp_tool.h\
+wksp_tool_control.h\
+wksp_tool_library.h\
+wksp_tool_manager.h\
+wksp_tool_menu.h
 
 saga_gui_LDADD = ../saga_api/libsaga_api.la ../saga_gdi/libsaga_gdi.la
 

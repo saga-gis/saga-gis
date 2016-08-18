@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCRS_Grid_GeogCoords : public CSG_Module_Grid
+class CCRS_Grid_GeogCoords : public CSG_Tool_Grid
 {
 public:
 	CCRS_Grid_GeogCoords(void);

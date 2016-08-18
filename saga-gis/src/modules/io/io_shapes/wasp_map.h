@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWASP_MAP_Export : public CSG_Module
+class CWASP_MAP_Export : public CSG_Tool
 {
 public:
 	CWASP_MAP_Export(void);
@@ -93,7 +93,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWASP_MAP_Import : public CSG_Module
+class CWASP_MAP_Import : public CSG_Tool
 {
 public:
 	CWASP_MAP_Import(void);

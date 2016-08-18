@@ -73,14 +73,14 @@ bool CCreateWebContent::On_Execute(void)
 	return true ;
 }
 
-bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	int i;
 	int iIndex, iShape;
 	CSG_Rect r;
 
 	switch( Mode ){
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		
 		if( m_bDown == false ){
 			m_bDown	= true;
@@ -89,7 +89,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 		
 		return true ;
 
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true ){
 			m_bDown	= false;
 
@@ -108,7 +108,7 @@ bool CCreateWebContent::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Intera
 		
 		return true;
 
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 
 		CSG_String	sFileName;
 		CSG_Strings	files;

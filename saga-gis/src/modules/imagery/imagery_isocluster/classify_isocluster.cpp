@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  imagery_isocluster                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -170,7 +170,7 @@ CGrid_Cluster_ISODATA::CGrid_Cluster_ISODATA(void)
 //---------------------------------------------------------
 int CGrid_Cluster_ISODATA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return(CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter));
+	return(CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter));
 }
 
 //---------------------------------------------------------
@@ -181,7 +181,7 @@ int CGrid_Cluster_ISODATA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

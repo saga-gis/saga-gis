@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Color_Blend : public CSG_Module_Grid
+class CGrid_Color_Blend : public CSG_Tool_Grid
 {
 public:
 	CGrid_Color_Blend(void);

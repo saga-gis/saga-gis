@@ -16,17 +16,14 @@
     <ClCompile Include="callback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="module_library.cpp">
+    <ClCompile Include="saga_cmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="saga_cmd.cpp">
+    <ClCompile Include="tool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="module_library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\saga_api\API_Core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -51,7 +48,7 @@
     <ClInclude Include="..\saga_api\Module.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="..\saga_api\module_library.h">
+    <ClInclude Include="..\saga_api\tool_library.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\saga_api\Parameters.h">
@@ -79,6 +76,9 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="callback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

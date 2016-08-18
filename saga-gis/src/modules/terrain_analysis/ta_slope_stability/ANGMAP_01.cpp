@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@ CANGMAP::CANGMAP(void)
 
 	Set_Description	(_TW(
 		"\n"
-		"This module computes the acute angle raster between the topographic surface defined by slope and aspect rasters internally derived from input elevation raster, and a structural plane defined by diop direction- and dip grids. "
+		"This tool computes the acute angle raster between the topographic surface defined by slope and aspect rasters internally derived from input elevation raster, and a structural plane defined by diop direction- and dip grids. "
 		"Optionally, the dip direction and dip of the cutting line linears between the two planes can be calculated"
 		"\n"
 		"Reference: "

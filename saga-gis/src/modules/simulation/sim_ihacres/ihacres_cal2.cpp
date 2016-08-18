@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ihacres_cal2                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -85,7 +85,7 @@ Cihacres_cal2::Cihacres_cal2(void)
 	));
 
 	//-----------------------------------------------------
-	// Create First Module Dialog
+	// Create First Tool Dialog
 	_CreateDialog1();
 	//-----------------------------------------------------
 }
@@ -124,7 +124,7 @@ bool Cihacres_cal2::On_Execute(void)
 	string		nse, nse_text;
 
 	//---------------------------------------------------------
-	// Assign parameters from First Module Dialog
+	// Assign parameters from First Tool Dialog
 	m_pTable		= Parameters("TABLE")			->asTable();
 	// Field numbers
 	m_dateField		= Parameters("DATE_Field")		->asInt();
@@ -143,7 +143,7 @@ bool Cihacres_cal2::On_Execute(void)
 	//m_dev_eRainPCP	= Parameters("DEV_ERAINPCP")	->asDouble();
 	m_storconf		= Parameters("STORAGE")			->asInt();
 	m_IHAC_version	= Parameters("IHACVERS")		->asInt();
-	m_bSnowModule	= Parameters("SNOW_MODULE")		->asBool();
+	m_bSnowModule	= Parameters("SNOW_TOOL")		->asBool();
 	first = last	= 0;
 	//---------------------------------------------------------
 
@@ -351,7 +351,7 @@ void Cihacres_cal2::_Calc_ObsMinInflow()
 
 ///////////////////////////////////////////////////////////////////////
 //
-//		NON-LINEAR MODULE
+//		NON-LINEAR TOOL
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -446,7 +446,7 @@ void Cihacres_cal2::_CalcNonLinearModule()
 
 ///////////////////////////////////////////////////////////////////////
 //
-//		LINEAR MODULE
+//		LINEAR TOOL
 //
 ///////////////////////////////////////////////////////////////////////
 
@@ -703,7 +703,7 @@ void Cihacres_cal2::_CreateDialog1()
 	);
 
 	//s.Printf(SG_T("Node2", 2);
-	//	pNode = Parameters.Add_Node(NULL,s,SG_T("Non-Linear Module",_TL(""));
+	//	pNode = Parameters.Add_Node(NULL,s,SG_T("Non-Linear Tool",_TL(""));
 
 	//Parameters.Add_Value(
 	//	pNode,	"DEV_ERAINDIS",	_TL("Maximum Deviation: ExcessRain-Streamflow [%]"),
@@ -745,7 +745,7 @@ void Cihacres_cal2::_CreateDialog1()
 	);
 
 	Parameters.Add_Value(
-		pNode,	"SNOW_MODULE",	_TL("Snow Module on/off"),
+		pNode,	"SNOW_TOOL",	_TL("Snow Tool on/off"),
 		_TL("If checked the snow module is active"),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -790,7 +790,7 @@ bool Cihacres_cal2::_CreateDialog2()
 	// Non-linear parameters
 	//-----------------------------------------------------------------
 	s.Printf(SG_T("Node2"), 2);
-		pNode = P.Add_Node(NULL,s,SG_T("Non-Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,SG_T("Non-Linear Tool"),_TL(""));
 
 	P.Add_Value(
 		pNode,	"TwFAC_lb",	_TL("(Tw) wetness decline time constant [lower bound]"),
@@ -876,7 +876,7 @@ bool Cihacres_cal2::_CreateDialog2()
 	{
 	case 0: // single storage
 		s.Printf(SG_T("Node3"), 3);
-		pNode = P.Add_Node(NULL,s,_TL("Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,_TL("Linear Tool"),_TL(""));
 
 		s.Printf(SG_T("Node3-1"), 3-1);
 		pNode1 = P.Add_Node(pNode,s,_TL("Parameter (a)"),_TL(""));
@@ -913,7 +913,7 @@ bool Cihacres_cal2::_CreateDialog2()
 
 	case 1: // two parallel storages
 		s.Printf(SG_T("Node3"), 3);
-		pNode = P.Add_Node(NULL,s,_TL("Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,_TL("Linear Tool"),_TL(""));
 
 		// Parameter a
 		s.Printf(SG_T("Node3-1"), 3-1);
@@ -972,7 +972,7 @@ bool Cihacres_cal2::_CreateDialog2()
 	if (m_bSnowModule) // if snow module is active
 	{
 		s.Printf(SG_T("Node2-4"), 2-4);
-		pNode = P.Add_Node(NULL,s,SG_T("Snow Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,SG_T("Snow Tool"),_TL(""));
 
 		P.Add_Value(
 			pNode,	"T_RAIN_lb",	_TL("Temperature Threshold for Rainfall (lower bound)"),

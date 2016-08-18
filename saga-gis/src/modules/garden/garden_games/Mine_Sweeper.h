@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                     Mine_Sweeper                      //
 //                                                       //
@@ -88,7 +88,7 @@ protected:
 };
 
 
-class CMine_Sweeper : public CSG_Module_Interactive
+class CMine_Sweeper : public CSG_Tool_Interactive
 {
 public:
 	CMine_Sweeper(void);
@@ -101,7 +101,7 @@ protected:
 
 	virtual bool			On_Execute(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 	bool					Get_Grid_Pos(int &x, int &y);
 

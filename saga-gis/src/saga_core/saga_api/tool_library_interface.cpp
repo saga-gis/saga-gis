@@ -8,33 +8,35 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
+//           Application Programming Interface           //
 //                                                       //
-//                    Program: SAGA                      //
+//                  Library: SAGA_API                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 WKSP_Module_Control.h                 //
+//              tool_library_interface.cpp               //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 // This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'. SAGA is free software; you   //
-// can redistribute it and/or modify it under the terms  //
-// of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Geoscientific Analyses'.                              //
 //                                                       //
-// SAGA is distributed in the hope that it will be       //
-// useful, but WITHOUT ANY WARRANTY; without even the    //
+// This library is free software; you can redistribute   //
+// it and/or modify it under the terms of the GNU Lesser //
+// General Public License as published by the Free       //
+// Software Foundation, version 2.1 of the License.      //
+//                                                       //
+// This library is distributed in the hope that it will  //
+// be useful, but WITHOUT ANY WARRANTY; without even the //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
-// PARTICULAR PURPOSE. See the GNU General Public        //
+// PARTICULAR PURPOSE. See the GNU Lesser General Public //
 // License for more details.                             //
 //                                                       //
-// You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
+// You should have received a copy of the GNU Lesser     //
+// General Public License along with this program; if    //
+// not, write to the Free Software Foundation, Inc.,     //
 // 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
 // USA.                                                  //
 //                                                       //
@@ -61,8 +63,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Control_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Control_H
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -72,43 +73,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_base_control.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CWKSP_Module_Control : public CWKSP_Base_Control
+CSG_Tool_Library_Interface::CSG_Tool_Library_Interface(void)
 {
-	DECLARE_CLASS(CWKSP_Module_Control)
-
-public:
-	CWKSP_Module_Control(wxWindow *pParent);
-	virtual ~CWKSP_Module_Control(void);
-
-	class CWKSP_Module_Manager *	Get_Manager			(void)	{	return( (class CWKSP_Module_Manager *)m_pManager );	}
-
-	void							On_Execute			(wxCommandEvent  &event);
-	void							On_Execute_UI		(wxUpdateUIEvent &event);
-
-	void							Add_Group			(class CWKSP_Module_Group *pGroup);
-	void							Add_Library			(const wxTreeItemId &Group, class CWKSP_Module_Library *pLibrary);
-	void							Add_Module			(const wxTreeItemId &Library, class CWKSP_Module *pModule);
-
-
-private:
-
+	m_nTools	= 0;
+	m_Tools	= NULL;
+}
 
 //---------------------------------------------------------
-DECLARE_EVENT_TABLE()
-};
+CSG_Tool_Library_Interface::~CSG_Tool_Library_Interface(void)
+{
+	if( m_Tools && m_nTools > 0 )
+	{
+		for(int i=0; i<m_nTools; i++)
+		{
+			if( m_Tools[i] )
+			{
+				delete(m_Tools[i]);
+			}
+		}
 
-//---------------------------------------------------------
-extern CWKSP_Module_Control			*g_pModule_Ctrl;
+		SG_Free(m_Tools);
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -118,4 +104,94 @@ extern CWKSP_Module_Control			*g_pModule_Ctrl;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Control_H
+void CSG_Tool_Library_Interface::Set_Info(int ID, const CSG_String &Info)
+{
+	if( ID <= TLB_INFO_User )
+	{
+		m_Info[ID]	= SG_Translate(Info);
+	}
+}
+
+//---------------------------------------------------------
+const CSG_String & CSG_Tool_Library_Interface::Get_Info(int ID)
+{
+	return( m_Info[ID] );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Tool_Library_Interface::Get_Count(void)
+{
+	return( m_nTools );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Library_Interface::Add_Tool(CSG_Tool *pTool, int ID)
+{
+	if( pTool == NULL )
+	{
+		return( false );
+	}
+
+	if( pTool != TLB_INTERFACE_SKIP_TOOL )
+	{
+		pTool->m_ID.Printf(SG_T("%d"), ID);
+		pTool->m_Library		= Get_Info(TLB_INFO_Library);
+		pTool->m_Library_Menu	= Get_Info(TLB_INFO_Menu_Path);
+		pTool->m_File_Name	= Get_Info(TLB_INFO_File);
+		m_Tools				= (CSG_Tool **)SG_Realloc(m_Tools, (m_nTools + 1) * sizeof(CSG_Tool *));
+		m_Tools[m_nTools++]	= pTool;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Tool * CSG_Tool_Library_Interface::Get_Tool(int iTool)
+{
+	if( iTool >= 0 && iTool < m_nTools )
+	{
+		return( m_Tools[iTool] );
+	}
+
+	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Tool_Library_Interface::Set_File_Name(const CSG_String &File_Name)
+{
+	m_Info[TLB_INFO_File]	= SG_File_Get_Path_Absolute(File_Name);
+
+	CSG_String	Library		= SG_File_Get_Name(File_Name, false);
+
+#if !defined(_SAGA_MSW)
+	if( Library.Find("lib") == 0 )
+	{
+		Library	= Library.Right(Library.Length() - 3);
+	}
+#endif
+
+	m_Info[TLB_INFO_Library]	= Library;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

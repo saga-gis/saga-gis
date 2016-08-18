@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -67,21 +67,21 @@
 CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 {
 	//-----------------------------------------------------
-	// Place information about your module here...
+	// Place information about your tool here...
 
 	Set_Name		(_TL("{STATZONAL_NAME} Zonal Grid Statistics"));
 
 	Set_Author		(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
 	Set_Description	(_TW("{STATZONAL_DESC} "
-		"The module calculates zonal statistics and reports these in a table. "
-		"The module can be used to create a contingency table of unique condition units (UCUs). These "
+		"The tool calculates zonal statistics and reports these in a table. "
+		"The tool can be used to create a contingency table of unique condition units (UCUs). These "
 		"units are delineated from a zonal grid (e.g. sub catchments) and optional categorical grids (e.g. "
 		"landcover, soil, ...). It is possible to calculate descriptive statistics (n, min, max, mean, standard "
 		"deviation and sum) for each UCU from optional grids with continious data (e.g. slope; aspect must be "
 		"handled specially, please use the \"Aspect\" input parameter for such a grid). The number "
 		"of input grids is only limited by available memory.\n\n"
-		"The module has four different modes of operation:\n"
+		"The tool has four different modes of operation:\n"
 		"(1) only a zonal grid is used as input. This results in a simple contingency table with "
 		"the number of grid cells in each zone.\n"
 		"(2) a zonal grid and additional categorical grids are used as "

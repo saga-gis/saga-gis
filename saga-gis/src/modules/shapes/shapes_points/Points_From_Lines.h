@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_From_Lines : public CSG_Module
+class CPoints_From_Lines : public CSG_Tool
 {
 public:
 	CPoints_From_Lines(void);
@@ -76,7 +76,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_From_MultiPoints : public CSG_Module
+class CPoints_From_MultiPoints : public CSG_Tool
 {
 public:
 	CPoints_From_MultiPoints(void);

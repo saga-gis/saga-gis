@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        VIGRA                          //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_Watershed : public CSG_Module_Grid
+class CViGrA_Watershed : public CSG_Tool_Grid
 {
 public:
 	CViGrA_Watershed(void);

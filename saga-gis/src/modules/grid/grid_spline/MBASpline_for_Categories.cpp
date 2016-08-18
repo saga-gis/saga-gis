@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -113,7 +113,7 @@ int CMBASpline_for_Categories::On_Parameter_Changed(CSG_Parameters *pParameters,
 
 	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -121,7 +121,7 @@ int CMBASpline_for_Categories::On_Parameters_Enable(CSG_Parameters *pParameters,
 {
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -135,10 +135,10 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	CSG_Shapes	Points;
 
 	//-----------------------------------------------------
-	SG_RUN_MODULE_ExitOnError("table_tools", 20,	// Add Indicator Fields for Categories
-			SG_MODULE_PARAMETER_SET("TABLE"     , Parameters("POINTS")->asShapes())
-		&&	SG_MODULE_PARAMETER_SET("FIELD"     , Parameters("FIELD"))
-		&&	SG_MODULE_PARAMETER_SET("OUT_SHAPES", &Points)	// >> Indicators
+	SG_RUN_TOOL_ExitOnError("table_tools", 20,	// Add Indicator Fields for Categories
+			SG_TOOL_PARAMETER_SET("TABLE"     , Parameters("POINTS")->asShapes())
+		&&	SG_TOOL_PARAMETER_SET("FIELD"     , Parameters("FIELD"))
+		&&	SG_TOOL_PARAMETER_SET("OUT_SHAPES", &Points)	// >> Indicators
 	)
 
 	int	nCategories	= Points.Get_Field_Count() - 1;
@@ -201,11 +201,11 @@ bool CMBASpline_for_Categories::On_Execute(void)
 
 		SG_UI_Progress_Lock(true);
 
-		SG_RUN_MODULE_ExitOnError("grid_spline", 4,	// Multilevel B-Spline Interpolation
-				SG_MODULE_PARAMETER_SET("SHAPES"           , &Points)
-			&&	SG_MODULE_PARAMETER_SET("FIELD"            , 1 + i)	// indicator field
-			&&	SG_MODULE_PARAMETER_SET("TARGET_DEFINITION", 1)		// grid or grid system
-			&&	SG_MODULE_PARAMETER_SET("TARGET_OUT_GRID"  , &Prop)	// target grid
+		SG_RUN_TOOL_ExitOnError("grid_spline", 4,	// Multilevel B-Spline Interpolation
+				SG_TOOL_PARAMETER_SET("SHAPES"           , &Points)
+			&&	SG_TOOL_PARAMETER_SET("FIELD"            , 1 + i)	// indicator field
+			&&	SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)		// grid or grid system
+			&&	SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , &Prop)	// target grid
 		)
 
 		SG_UI_Progress_Lock(false);

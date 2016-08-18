@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCurvature_UpDownSlope : public CSG_Module_Grid
+class CCurvature_UpDownSlope : public CSG_Tool_Grid
 {
 public:
 	CCurvature_UpDownSlope(void);

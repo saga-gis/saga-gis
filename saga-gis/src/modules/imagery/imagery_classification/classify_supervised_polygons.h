@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_classification                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Classify_Supervised : public CSG_Module
+class CPolygon_Classify_Supervised : public CSG_Tool
 {
 public:
 	CPolygon_Classify_Supervised(bool bShapes);

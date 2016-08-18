@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Aspect_Slope_Map : public CSG_Module_Grid
+class CGrid_Aspect_Slope_Map : public CSG_Tool_Grid
 {
 public:
 	CGrid_Aspect_Slope_Map(void);

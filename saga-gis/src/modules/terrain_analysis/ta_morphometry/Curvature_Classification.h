@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_morphometry_EXPORT CCurvature_Classification : public CSG_Module_Grid
+class ta_morphometry_EXPORT CCurvature_Classification : public CSG_Tool_Grid
 {
 public:
 	CCurvature_Classification(void);

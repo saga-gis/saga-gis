@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_lighting_EXPORT CSolarRadiation : public CSG_Module_Grid
+class ta_lighting_EXPORT CSolarRadiation : public CSG_Tool_Grid
 {
 public:
 	CSolarRadiation(void);

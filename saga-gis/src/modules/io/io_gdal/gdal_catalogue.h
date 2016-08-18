@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Catalogue : public CSG_Module
+class CGDAL_Catalogue : public CSG_Tool
 {
 public:
 	CGDAL_Catalogue(void);
@@ -99,7 +99,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Catalogues : public CSG_Module
+class CGDAL_Catalogues : public CSG_Tool
 {
 public:
 	CGDAL_Catalogues(void);

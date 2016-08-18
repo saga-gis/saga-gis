@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        IHACRES                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,7 +54,7 @@ typedef std::vector<std::string>	date_array;
 //
 ///////////////////////////////////////////////////////////////////////
 
-class Cihacres_cal2 : public CSG_Module
+class Cihacres_cal2 : public CSG_Tool
 {
 public:
 
@@ -124,14 +124,14 @@ private:
 	//-----------------------------------------------------------------
 	//		MODEL PARAMETERS / Cihacres_eq
 	//-----------------------------------------------------------------
-	// NON-LINEAR MODULE
+	// NON-LINEAR TOOL
 	double			m_Tw;
 	double			m_f;
 	double			m_c;
 	double			m_l;
 	double			m_p;
 
-	// LINEAR MODULE
+	// LINEAR TOOL
 	double			m_a;
 	double			m_b;
 	double			m_aq;

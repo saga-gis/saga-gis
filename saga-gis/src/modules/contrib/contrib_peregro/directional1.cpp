@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                      directional1                     //
 //                                                       //
 //                       for SAGA                        //
@@ -38,7 +38,7 @@ Cdirectional1::Cdirectional1(void)
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "RESULT", _TL("Output Grid"), _TL("New grid filtered with the directional1 module"), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "RESULT", _TL("Output Grid"), _TL("New grid filtered with the directional1 tool"), PARAMETER_OUTPUT);
 	Parameters.Add_Value(NULL, "ANG", _TL("Angle (in degrees)"), _TL("0 is horizontal, 90 is vertical."), PARAMETER_TYPE_Double, 0.0);
 	Parameters.Add_Value(NULL, "R1", _TL("Main Radius"), _TL(""), PARAMETER_TYPE_Double, 1);
 	Parameters.Add_Value(NULL, "R2", _TL("Transversal radius"), _TL(""), PARAMETER_TYPE_Double, 0.5);

@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CRealArea : public CSG_Module_Grid
+class CRealArea : public CSG_Tool_Grid
 {
 public:
 	CRealArea(void);

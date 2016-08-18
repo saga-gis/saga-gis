@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CFilter_Gauss : public CSG_Module_Grid
+class CFilter_Gauss : public CSG_Tool_Grid
 {
 public:
 	CFilter_Gauss(void);

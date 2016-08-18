@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_PCA : public CSG_Module_Grid
+class CGrid_PCA : public CSG_Tool_Grid
 {
 public:
 	CGrid_PCA(void);
@@ -107,7 +107,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_PCA_Inverse : public CSG_Module_Grid
+class CGrid_PCA_Inverse : public CSG_Tool_Grid
 {
 public:
 	CGrid_PCA_Inverse(void);

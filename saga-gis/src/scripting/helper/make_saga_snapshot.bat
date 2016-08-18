@@ -18,7 +18,7 @@ SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
+DEL /F saga_gui.cfg saga_gui.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 
@@ -31,7 +31,7 @@ SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg saga_gui.ini *.exp modules\*.exp modules\*.lib modules\dev_tools.*
+DEL /F saga_gui.cfg saga_gui.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 

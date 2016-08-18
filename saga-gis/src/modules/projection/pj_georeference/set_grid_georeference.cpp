@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -140,7 +140,7 @@ CSet_Grid_Georeference::CSet_Grid_Georeference(void)
 //---------------------------------------------------------
 int CSet_Grid_Georeference::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -169,7 +169,7 @@ int CSet_Grid_Georeference::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Set_Enabled("CELL_REF", true);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

@@ -142,7 +142,7 @@ void CSlopeLength::Get_Length(int x, int y)
 		{
 			if( m_Slope.asDouble(ix, iy) > 0.5 * m_Slope.asDouble(x, y) )	// ???
 			{
-				double	Length	= m_pLength->asDouble(x, y) + CSG_Module_Grid::Get_Length(i);
+				double	Length	= m_pLength->asDouble(x, y) + CSG_Tool_Grid::Get_Length(i);
 			
 				if( Length > m_pLength->asDouble(ix, iy) )
 				{

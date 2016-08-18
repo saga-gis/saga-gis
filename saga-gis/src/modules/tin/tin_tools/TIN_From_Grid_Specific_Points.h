@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       TIN_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_From_Grid_Specific_Points : public CSG_Module_Grid
+class CTIN_From_Grid_Specific_Points : public CSG_Tool_Grid
 {
 public:
 	CTIN_From_Grid_Specific_Points(void);

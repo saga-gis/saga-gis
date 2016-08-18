@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 WKSP_Module_Menu.cpp                  //
+//                  wksp_tool_menu.cpp                   //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -66,10 +66,10 @@
 
 #include "res_commands.h"
 
-#include "wksp_module_manager.h"
-#include "wksp_module_library.h"
-#include "wksp_module_menu.h"
-#include "wksp_module.h"
+#include "wksp_tool_manager.h"
+#include "wksp_tool_library.h"
+#include "wksp_tool_menu.h"
+#include "wksp_tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,15 +79,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Menu_Modules::CWKSP_Menu_Modules(void)
+CWKSP_Tool_Menu::CWKSP_Tool_Menu(void)
 {
-	m_Recent	= (CWKSP_Module **)SG_Calloc(RECENT_COUNT, sizeof(CWKSP_Module *));
+	m_Recent	= (CWKSP_Tool **)SG_Calloc(RECENT_COUNT, sizeof(CWKSP_Tool *));
 
 	m_pMenu		= new wxMenu;
 }
 
 //---------------------------------------------------------
-CWKSP_Menu_Modules::~CWKSP_Menu_Modules(void)
+CWKSP_Tool_Menu::~CWKSP_Tool_Menu(void)
 {
 	SG_Free(m_Recent);
 }
@@ -100,12 +100,12 @@ CWKSP_Menu_Modules::~CWKSP_Menu_Modules(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Menu_Modules::Update(void)
+void CWKSP_Tool_Menu::Update(void)
 {
 	//-----------------------------------------------------
 	CSG_MetaData	User;
 
-	if( !g_pModules->Get_Parameters()->Get_Parameter("TOOL_MENUS") || !User.Load(g_pModules->Get_Parameters()->Get_Parameter("TOOL_MENUS")->asString()) || !User.Cmp_Name("saga_gui_tool_menus") || SG_Compare_Version(User.Get_Property("saga-version"), "2.2.0") < 0 )
+	if( !g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS") || !User.Load(g_pTools->Get_Parameters()->Get_Parameter("TOOL_MENUS")->asString()) || !User.Cmp_Name("saga_gui_tool_menus") || SG_Compare_Version(User.Get_Property("saga-version"), "2.2.0") < 0 )
 	{
 		User.Destroy();
 	}
@@ -121,13 +121,13 @@ void CWKSP_Menu_Modules::Update(void)
 	delete(m_pMenu);	m_pMenu	= new wxMenu;
 
 	//-----------------------------------------------------
-	if( g_pModules->Get_Count() > 0 )
+	if( g_pTools->Get_Count() > 0 )
 	{
-		for(int iGroup=0, ID_Menu=ID_CMD_MODULE_START; iGroup<g_pModules->Get_Count(); iGroup++)
+		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_START; iGroup<g_pTools->Get_Count(); iGroup++)
 		{
-			for(int iLibrary=0; iLibrary<g_pModules->Get_Group(iGroup)->Get_Count(); iLibrary++)
+			for(int iLibrary=0; iLibrary<g_pTools->Get_Group(iGroup)->Get_Count(); iLibrary++)
 			{
-				CWKSP_Module_Library	*pLibrary	= g_pModules->Get_Group(iGroup)->Get_Library(iLibrary);
+				CWKSP_Tool_Library	*pLibrary	= g_pTools->Get_Group(iGroup)->Get_Library(iLibrary);
 
 				//-----------------------------------------
 				CSG_MetaData	*pUser	= NULL;
@@ -144,13 +144,13 @@ void CWKSP_Menu_Modules::Update(void)
 				}
 
 				//-----------------------------------------
-				for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++, ID_Menu++)
+				for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++, ID_Menu++)
 				{
-					pLibrary->Get_Module(iModule)->Set_Menu_ID(ID_Menu);
+					pLibrary->Get_Tool(iTool)->Set_Menu_ID(ID_Menu);
 
 					if( User.Get_Children_Count() <= 0 || pUser )	// ignore if have user defined menus but no entries defined for this library...
 					{
-						_Get_SubMenu(pLibrary->Get_Module(iModule), pUser);
+						_Get_SubMenu(pLibrary->Get_Tool(iTool), pUser);
 					}
 				}
 			}
@@ -158,14 +158,14 @@ void CWKSP_Menu_Modules::Update(void)
 
 		m_pMenu->InsertSeparator(0);
 
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_OPEN  , 0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_MODULES_SEARCH, 1);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOLS_OPEN  , 0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOLS_SEARCH, 1);
 
 		_Set_Recent(m_pMenu);
 	}
 	else
 	{
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_MODULES_OPEN);
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOLS_OPEN);
 	}
 
 	if( pMenuBar )
@@ -175,11 +175,11 @@ void CWKSP_Menu_Modules::Update(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser)
+bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 {
 	//-----------------------------------------------------
-	wxString	Menu	= pModule->Get_Module()->Get_MenuPath(true).c_str();
-	wxString	Name	= pModule->Get_Name();
+	wxString	Menu	= pTool->Get_Tool()->Get_MenuPath(true).c_str();
+	wxString	Name	= pTool->Get_Name();
 
 	if( pUser )
 	{
@@ -187,8 +187,8 @@ bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser
 
 		for(int i=0; i<pUser->Get_Children_Count() && !bFound; i++)
 		{
-			if( pUser->Get_Child(i)->Cmp_Property("id_or_name", pModule->Get_Module()->Get_ID  ())
-			||  pUser->Get_Child(i)->Cmp_Property("id_or_name", pModule->Get_Module()->Get_Name()) )
+			if( pUser->Get_Child(i)->Cmp_Property("id_or_name", pTool->Get_Tool()->Get_ID  ())
+			||  pUser->Get_Child(i)->Cmp_Property("id_or_name", pTool->Get_Tool()->Get_Name()) )
 			{
 				Menu	= pUser->Get_Child(i)->Get_Content().c_str();
 
@@ -226,7 +226,7 @@ bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser
 
 			for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
 			{
-			#if defined(MODULES_MENU_SORT_SIMPLE)
+			#if defined(TOOLS_MENU_SORT_SIMPLE)
 				if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(SubMenu) > 0 )
 			#else
 				if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
@@ -237,8 +237,8 @@ bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser
 				}
 			}
 
-			pMenu->Insert(iPos, ID_CMD_MODULES_FIRST, SubMenu, pSubMenu);
-		//	pMenu->Append(      ID_CMD_MODULES_FIRST, SubMenu, pSubMenu);
+			pMenu->Insert(iPos, ID_CMD_TOOLS_FIRST, SubMenu, pSubMenu);
+		//	pMenu->Append(      ID_CMD_TOOLS_FIRST, SubMenu, pSubMenu);
 		}
 
 		pMenu	= pSubMenu;
@@ -250,7 +250,7 @@ bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser
 
 	for(iPos=0; iPos<pMenu->GetMenuItemCount(); iPos++)
 	{
-	#if defined(MODULES_MENU_SORT_SIMPLE)
+	#if defined(TOOLS_MENU_SORT_SIMPLE)
 		if( pMenu->FindItemByPosition(iPos)->GetItemLabelText().Cmp(Name) > 0 )
 	#else
 		if(	pMenu->FindItemByPosition(iPos)->IsSubMenu() == false
@@ -261,14 +261,14 @@ bool CWKSP_Menu_Modules::_Get_SubMenu(CWKSP_Module *pModule, CSG_MetaData *pUser
 		}
 	}
 
-	pMenu->InsertCheckItem(iPos, pModule->Get_Menu_ID(), Name, Name);
-//	pMenu->AppendCheckItem(      pModule->Get_Menu_ID(), Name, Name);
+	pMenu->InsertCheckItem(iPos, pTool->Get_Menu_ID(), Name, Name);
+//	pMenu->AppendCheckItem(      pTool->Get_Menu_ID(), Name, Name);
 
 	return( true );
 }
 
 //---------------------------------------------------------
-wxMenu * CWKSP_Menu_Modules::_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token)
+wxMenu * CWKSP_Tool_Menu::_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token)
 {	
 	for(size_t i=0; i<pMenu->GetMenuItemCount(); i++)
 	{
@@ -291,12 +291,12 @@ wxMenu * CWKSP_Menu_Modules::_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Menu_Modules::Set_Recent(CWKSP_Module *pModule)
+void CWKSP_Tool_Menu::Set_Recent(CWKSP_Tool *pTool)
 {
-	CWKSP_Module	*pLast	= pModule;
-	CWKSP_Module	*pNext	= m_Recent[0];
+	CWKSP_Tool	*pLast	= pTool;
+	CWKSP_Tool	*pNext	= m_Recent[0];
 
-	for(int i=0; i<RECENT_COUNT && pNext!=pModule; i++)
+	for(int i=0; i<RECENT_COUNT && pNext!=pTool; i++)
 	{
 		pNext		= m_Recent[i];
 		m_Recent[i]	= pLast;
@@ -307,15 +307,15 @@ void CWKSP_Menu_Modules::Set_Recent(CWKSP_Module *pModule)
 }
 
 //---------------------------------------------------------
-void CWKSP_Menu_Modules::_Set_Recent(wxMenu *pMenu)
+void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 {
 	bool	bRecent;
 	int		i, j;
 
 	//-----------------------------------------------------
-	for(i=0, j=ID_CMD_MODULE_RECENT_FIRST, bRecent=false; i<RECENT_COUNT; i++, j++)
+	for(i=0, j=ID_CMD_TOOL_RECENT_FIRST, bRecent=false; i<RECENT_COUNT; i++, j++)
 	{
-		if( m_Recent[i] && g_pModules->Exists(m_Recent[i]) )
+		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
 		{
 			if( !bRecent )
 			{
@@ -348,9 +348,9 @@ void CWKSP_Menu_Modules::_Set_Recent(wxMenu *pMenu)
 }
 
 //---------------------------------------------------------
-int CWKSP_Menu_Modules::Get_ID_Translated(int ID)
+int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 {
-	int		i	= ID - ID_CMD_MODULE_RECENT_FIRST;
+	int		i	= ID - ID_CMD_TOOL_RECENT_FIRST;
 
 	if( i >= 0 && i < RECENT_COUNT && m_Recent[i] != NULL )
 	{

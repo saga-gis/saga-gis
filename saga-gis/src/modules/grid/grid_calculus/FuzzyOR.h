@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFuzzyOR : public CSG_Module_Grid  
+class CFuzzyOR : public CSG_Tool_Grid  
 {
 public:
 	CFuzzyOR(void);

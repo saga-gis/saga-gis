@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CCollect_Points::CCollect_Points(void)
 		"Click with the mouse on known locations in the map window "
 		"and add the reference coordinates. "
 		"After choosing 4 or more points, stop the interactive module execution "
-		"by unchecking it in the in the modules menu."
+		"by unchecking it in the in the tools menu."
 	));
 
 	//-----------------------------------------------------
@@ -209,9 +209,9 @@ bool CCollect_Points::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CCollect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( Mode == MODULE_INTERACTIVE_LUP )
+	if( Mode == TOOL_INTERACTIVE_LUP )
 	{
 		TSG_Point	ptTarget;
 

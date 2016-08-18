@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Histogram_Surface : public CSG_Module_Grid  
+class CGrid_Histogram_Surface : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Histogram_Surface(void);

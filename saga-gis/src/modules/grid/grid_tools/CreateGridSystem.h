@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   CreateGridSystem                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 
 
 //---------------------------------------------------------
-class CCreateGridSystem : public CSG_Module
+class CCreateGridSystem : public CSG_Tool
 {
 public:
 	CCreateGridSystem(void);

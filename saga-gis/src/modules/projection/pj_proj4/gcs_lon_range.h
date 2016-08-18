@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGCS_Grid_Longitude_Range : public CSG_Module_Grid
+class CGCS_Grid_Longitude_Range : public CSG_Tool_Grid
 {
 public:
 	CGCS_Grid_Longitude_Range(void);

@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Buffer : public CSG_Module_Grid
+class CGrid_Buffer : public CSG_Tool_Grid
 {
 public:
 	CGrid_Buffer(void);

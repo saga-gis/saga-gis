@@ -21,7 +21,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CInvertNoData : public CSG_Module_Grid
+class CInvertNoData : public CSG_Tool_Grid
 {
 public:
 	CInvertNoData(void);

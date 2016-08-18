@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Color_Triangle : public CSG_Module_Grid  
+class CGrid_Color_Triangle : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Color_Triangle(void);

@@ -80,7 +80,7 @@
 #include "utm.h"
 /*
  *    tranmerc.h    - Is used to convert transverse mercator coordinates
- *    utm.h         - Defines the function prototypes for the utm module.
+ *    utm.h         - Defines the function prototypes for the utm tool.
  */
 
 

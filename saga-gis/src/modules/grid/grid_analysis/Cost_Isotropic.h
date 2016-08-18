@@ -40,7 +40,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCost_Accumulated : public CSG_Module_Grid
+class CCost_Accumulated : public CSG_Tool_Grid
 {
 private:
 

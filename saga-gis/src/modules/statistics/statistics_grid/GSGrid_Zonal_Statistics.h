@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -151,7 +151,7 @@ public:
 };
 
 //---------------------------------------------------------
-class CGSGrid_Zonal_Statistics : public CSG_Module_Grid
+class CGSGrid_Zonal_Statistics : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Zonal_Statistics(void);

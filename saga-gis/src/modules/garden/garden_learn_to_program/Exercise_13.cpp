@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Lectures_Shapes                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@ CExercise_13::CExercise_13(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("13: Reprojecting a shapes layer"));
 

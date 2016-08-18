@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Random_Terrain : public CSG_Module
+class CGrid_Random_Terrain : public CSG_Tool
 {
 public:
 	CGrid_Random_Terrain(void);

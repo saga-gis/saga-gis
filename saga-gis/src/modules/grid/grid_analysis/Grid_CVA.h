@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_CVA : public CSG_Module_Grid
+class CGrid_CVA : public CSG_Tool_Grid
 {
 public:
 	CGrid_CVA(void);

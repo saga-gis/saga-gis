@@ -294,7 +294,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\metadata.h" />
-    <ClInclude Include="..\..\..\saga_core\saga_api\module_library.h" />
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool_library.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
@@ -303,7 +303,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\grid.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\mat_tools.h" />
-    <ClInclude Include="..\..\..\saga_core\saga_api\module.h" />
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\parameters.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\saga_api.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />

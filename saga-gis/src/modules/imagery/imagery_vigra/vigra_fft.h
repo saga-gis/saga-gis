@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        VIGRA                          //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_FFT : public CSG_Module_Grid
+class CViGrA_FFT : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT(void);
@@ -101,7 +101,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_FFT_Inverse : public CSG_Module_Grid
+class CViGrA_FFT_Inverse : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT_Inverse(void);
@@ -122,7 +122,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_FFT_Real : public CSG_Module_Grid
+class CViGrA_FFT_Real : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT_Real(void);
@@ -143,7 +143,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CViGrA_FFT_Filter : public CSG_Module_Grid
+class CViGrA_FFT_Filter : public CSG_Tool_Grid
 {
 public:
 	CViGrA_FFT_Filter(void);

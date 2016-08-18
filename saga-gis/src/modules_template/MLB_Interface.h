@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2007 by                 //
 //                        Author                         //
@@ -59,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Template_MLB_Interface_H
-#define HEADER_INCLUDED__Template_MLB_Interface_H
+#ifndef HEADER_INCLUDED__Template_TLB_Interface_H
+#define HEADER_INCLUDED__Template_TLB_Interface_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -80,4 +80,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Template_MLB_Interface_H
+#endif // #ifndef HEADER_INCLUDED__Template_TLB_Interface_H

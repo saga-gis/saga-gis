@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      table_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Change_Field_Type : public CSG_Module
+class CTable_Change_Field_Type : public CSG_Tool
 {
 public:
 	CTable_Change_Field_Type(void);

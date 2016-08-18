@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     io_shapes_dxf                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -88,7 +88,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDXF_Import : public CSG_Module, DL_CreationAdapter
+class CDXF_Import : public CSG_Tool, DL_CreationAdapter
 {
 public:
 	CDXF_Import(void);

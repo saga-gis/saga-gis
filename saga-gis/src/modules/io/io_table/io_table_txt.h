@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       table_io                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Text_Export : public CSG_Module  
+class CTable_Text_Export : public CSG_Tool  
 {
 public:
 	CTable_Text_Export(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Text_Import : public CSG_Module  
+class CTable_Text_Import : public CSG_Tool  
 {
 public:
 	CTable_Text_Import(void);
@@ -124,7 +124,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Text_Import_Numbers : public CSG_Module  
+class CTable_Text_Import_Numbers : public CSG_Tool  
 {
 public:
 	CTable_Text_Import_Numbers(void);
@@ -146,7 +146,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Text_Import_Fixed_Cols : public CSG_Module  
+class CTable_Text_Import_Fixed_Cols : public CSG_Tool  
 {
 public:
 	CTable_Text_Import_Fixed_Cols(void);

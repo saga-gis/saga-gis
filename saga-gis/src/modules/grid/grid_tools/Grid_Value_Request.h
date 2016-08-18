@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Tutorial                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Value_Request : public CSG_Module_Interactive
+class CGrid_Value_Request : public CSG_Tool_Interactive
 {
 public:
 	CGrid_Value_Request(void);
@@ -87,7 +87,7 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

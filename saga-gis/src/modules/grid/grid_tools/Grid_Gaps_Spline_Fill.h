@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Gaps_Spline_Fill : public CSG_Module_Grid  
+class CGrid_Gaps_Spline_Fill : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Gaps_Spline_Fill(void);

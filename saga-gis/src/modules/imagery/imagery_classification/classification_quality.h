@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_classification                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CClassification_Quality : public CSG_Module_Grid
+class CClassification_Quality : public CSG_Tool_Grid
 {
 public:
 	CClassification_Quality(void);

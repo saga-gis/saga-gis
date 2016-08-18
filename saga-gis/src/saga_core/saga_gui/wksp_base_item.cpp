@@ -69,7 +69,7 @@
 #include "wksp_base_item.h"
 #include "wksp_base_manager.h"
 
-#include "wksp_module_control.h"
+#include "wksp_tool_control.h"
 #include "wksp_data_control.h"
 #include "wksp_map_control.h"
 
@@ -85,10 +85,10 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 {
 	switch( Type )
 	{
-	case WKSP_ITEM_Module_Manager:		return( _TL("Tool Manager") );
-	case WKSP_ITEM_Module_Group:		return( _TL("Tool Set") );
-	case WKSP_ITEM_Module_Library:		return( _TL("Tool Library") );
-	case WKSP_ITEM_Module:				return( _TL("Tool") );
+	case WKSP_ITEM_Tool_Manager:		return( _TL("Tool Manager") );
+	case WKSP_ITEM_Tool_Group:		return( _TL("Tool Set") );
+	case WKSP_ITEM_Tool_Library:		return( _TL("Tool Library") );
+	case WKSP_ITEM_Tool:				return( _TL("Tool") );
 
 	case WKSP_ITEM_Data_Manager:		return( _TL("Data Manager") );
 
@@ -183,11 +183,11 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
     default:
         return( NULL );
 
-	case WKSP_ITEM_Module_Manager:
-	case WKSP_ITEM_Module_Group:
-	case WKSP_ITEM_Module_Library:
-	case WKSP_ITEM_Module:
-		return( g_pModule_Ctrl );
+	case WKSP_ITEM_Tool_Manager:
+	case WKSP_ITEM_Tool_Group:
+	case WKSP_ITEM_Tool_Library:
+	case WKSP_ITEM_Tool:
+		return( g_pTool_Ctrl );
 
 	case WKSP_ITEM_Data_Manager:
 	case WKSP_ITEM_Table_Manager:

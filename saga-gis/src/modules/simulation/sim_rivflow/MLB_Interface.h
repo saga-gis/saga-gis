@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 911 2011-11-11 11:11:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2014 by                 //
 //                   Christian Alwardt                   //
@@ -60,8 +60,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Template_MLB_Interface_H
-#define HEADER_INCLUDED__Template_MLB_Interface_H
+#ifndef HEADER_INCLUDED__Template_TLB_Interface_H
+#define HEADER_INCLUDED__Template_TLB_Interface_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -81,4 +81,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Template_MLB_Interface_H
+#endif // #ifndef HEADER_INCLUDED__Template_TLB_Interface_H

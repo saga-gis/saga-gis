@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CGPSBabel : public CSG_Module {
+class CGPSBabel : public CSG_Tool {
 
 public:
 	CGPSBabel(void);

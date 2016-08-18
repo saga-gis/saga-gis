@@ -145,8 +145,8 @@ public:
 	//-----------------------------------------------------
 	void						On_Command_Workspace		(wxCommandEvent  &event);
 	void						On_Command_Workspace_UI		(wxUpdateUIEvent &event);
-	void						On_Command_Module			(wxCommandEvent  &event);
-	void						On_Command_Module_UI		(wxUpdateUIEvent &event);
+	void						On_Command_Tool			(wxCommandEvent  &event);
+	void						On_Command_Tool_UI		(wxUpdateUIEvent &event);
 
 	void						On_Command_Child			(wxCommandEvent  &event);
 	void						On_Command_Child_UI			(wxUpdateUIEvent &event);

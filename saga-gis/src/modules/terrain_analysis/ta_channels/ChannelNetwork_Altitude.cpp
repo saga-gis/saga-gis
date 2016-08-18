@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_channels                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 	Set_Author		("O.Conrad (c) 2002");
 
 	Set_Description	(_TW(
-		"This module calculates the vertical distance to a channel network base level. "
+		"This tool calculates the vertical distance to a channel network base level. "
 		"The algorithm consists of two major steps:\n"
 		" 1. Interpolation of a channel network base level elevation\n"
 		" 2. Subtraction of this base level from the original elevations\n"
@@ -408,13 +408,13 @@ CValley_Depth::CValley_Depth(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	if( !bResult ) return( false );\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 //---------------------------------------------------------
 bool CValley_Depth::On_Execute(void)
@@ -427,14 +427,14 @@ bool CValley_Depth::On_Execute(void)
 
 	Inverse.Invert();
 
-	RUN_MODULE("ta_channels"				, 6,	// strahler order
+	RUN_TOOL("ta_channels"				, 6,	// strahler order
 			SET_PARAMETER("DEM"				, &Inverse)
 		&&	SET_PARAMETER("STRAHLER"		, &Ridges)
 	)
 
 	Ridges.Set_NoData_Value_Range(0, Parameters("ORDER")->asInt());
 
-	RUN_MODULE("ta_channels"				, 3,	// vertical channel network distance
+	RUN_TOOL("ta_channels"				, 3,	// vertical channel network distance
 			SET_PARAMETER("ELEVATION"		, &Inverse)
 		&&	SET_PARAMETER("CHANNELS"		, &Ridges)
 		&&	SET_PARAMETER("DISTANCE"		, pDepth)

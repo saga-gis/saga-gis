@@ -36,65 +36,65 @@
     </option>
   </parameters>
   <tools>
-    <tool library="ta_preprocessor" module="2" name="Sink Removal">
+    <tool library="ta_preprocessor" tool="2" name="Sink Removal">
       <input id="DEM">DEM</input>
       <output id="DEM_PREPROC">DEM_PREPROC</output>
       <option id="METHOD">1</option>
     </tool>
 	
-    <tool id="tool_02" library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
+    <tool id="tool_02" library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
       <input id="VAL_INPUT">DEM</input>
       <output id="VAL_MEAN">MEAN</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
-    <tool id="tool_01" library="grid_calculus" module="3" name="Grid Difference">
+    <tool id="tool_01" library="grid_calculus" tool="3" name="Grid Difference">
       <input id="A">MEAN</input>
       <input id="B">DEM</input>
       <output id="C">HEIGHT</output>
     </tool>
 	
-    <tool library="ta_morphometry" module="0" name="Slope, Aspect, Curvature">
+    <tool library="ta_morphometry" tool="0" name="Slope, Aspect, Curvature">
       <input id="ELEVATION">DEM</input>
       <output id="SLOPE">TMP</output>
       <output id="ASPECT">ASPECT</output>
       <option id="METHOD">6</option>
     </tool>
 	
-    <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
+    <tool library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
       <input id="VAL_INPUT">TMP</input>
       <output id="VAL_MEAN">SLOPE</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
 
-    <tool library="grid_calculus" module="1" name="Grid Calculator">
+    <tool library="grid_calculus" tool="1" name="Grid Calculator">
       <input id="GRIDS">ASPECT</input>
       <output id="RESULT">TMP</output>
       <option id="NAME">sin(aspect)</option>
       <option id="FORMULA">sin(g1)</option>
     </tool>
-    <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
+    <tool library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
       <input id="VAL_INPUT">TMP</input>
       <output id="VAL_MEAN">SIN_ASPECT</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
 	
-    <tool library="grid_calculus" module="1" name="Grid Calculator">
+    <tool library="grid_calculus" tool="1" name="Grid Calculator">
       <input id="GRIDS">ASPECT</input>
       <output id="RESULT">TMP</output>
       <option id="NAME">cos(aspect)</option>
       <option id="FORMULA">cos(g1)</option>
     </tool>
-    <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
+    <tool library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
       <input id="VAL_INPUT">TMP</input>
       <output id="VAL_MEAN">COS_ASPECT</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
 	
-    <tool library="grid_calculus" module="1" name="Grid Calculator">
+    <tool library="grid_calculus" tool="1" name="Grid Calculator">
       <input id="GRIDS">COS_ASPECT</input>
       <input id="GRIDS">SIN_ASPECT</input>
       <output id="RESULT">ASPECT</output>

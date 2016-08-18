@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Shapes_IO                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPointcloud_To_Text_File : public CSG_Module
+class CPointcloud_To_Text_File : public CSG_Tool
 {
 public:
 	CPointcloud_To_Text_File(void);

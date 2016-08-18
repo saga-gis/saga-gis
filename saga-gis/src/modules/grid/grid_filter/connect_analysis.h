@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class Cconnectivity_analysis : public CSG_Module_Grid
+class Cconnectivity_analysis : public CSG_Tool_Grid
 {
 public:
 	Cconnectivity_analysis (void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CHypsometry::CHypsometry(void)
 	Set_Description	(_TW(
 		"Calculates the hypsometric curve for a given DEM.\n\n"
 		"The hypsometric curve is an empirical cumulative distribution function of "
-		"elevations in a catchment or of a whole planet. The module calculates both "
+		"elevations in a catchment or of a whole planet. The tool calculates both "
 		"the relative (scaled from 0 to 100 percent) and absolute (minimum "
 		"to maximum values) distributions. The former scales elevation and area "
 		"by the maximum values. Such a non-dimensional curve allows one to asses the "
@@ -198,7 +198,7 @@ bool CHypsometry::On_Execute(void)
 	if( !bDown && Parameters("BZRANGE")->asBool() && Parameters("METHOD")->asInt() == 1 )
 	{
 		SG_UI_Msg_Add_Error(_TW(
-			"The selected module parameter configuration (classification constant area, "
+			"The selected tool parameter configuration (classification constant area, "
 			"upward sorting and use of an user-specified elevation range) is not supported."
 		));
 

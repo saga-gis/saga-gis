@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDVWK_SoilMoisture : public CSG_Module_Grid  
+class CDVWK_SoilMoisture : public CSG_Tool_Grid  
 {
 public:
 	CDVWK_SoilMoisture(void);

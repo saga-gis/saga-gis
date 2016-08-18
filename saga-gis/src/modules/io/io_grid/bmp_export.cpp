@@ -8,7 +8,7 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CBMP_Export::CBMP_Export(void)
 
 	Set_Description	(_TW(
 		"Export red-green-blue coded image grids to MS-Windows true color bitmaps. "
-		"This module writes the data directly to the file and is hence particularly "
+		"This tool writes the data directly to the file and is hence particularly "
 		"suitable for very large data sets. "
 	));
 

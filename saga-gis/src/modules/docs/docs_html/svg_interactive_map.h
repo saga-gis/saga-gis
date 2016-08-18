@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       docs_html                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVG_Interactive_Map : public CSG_Doc_SVG, public CSG_Module
+class CSVG_Interactive_Map : public CSG_Doc_SVG, public CSG_Tool
 {
 public:
 	CSVG_Interactive_Map(void);

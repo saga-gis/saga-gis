@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   CreateGridSystem                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,13 +72,13 @@ CCreateGridSystem::CCreateGridSystem(void)
 	Set_Author		("Volker Wichmann (c) 2007");
 	
 	Set_Description(_TW(
-		"This module creates a new user specified Grid System for use with other modules.\n\n"
-		"First of all, please consider the following issues before using the module:\n"
-		"(a) all calculations of the module refer to the lower left corner of the grid system, i.e. "
+		"This tool creates a new user specified Grid System for use with other tools.\n\n"
+		"First of all, please consider the following issues before using the tool:\n"
+		"(a) all calculations of the tool refer to the lower left corner of the grid system, i.e. "
 		"the xMin and yMin values. This coordinate is fixed unless you specify an offset.\n"
-		"(b) the module follows the philosophy of SAGA in that the values describing the extent refer to the "
+		"(b) the tool follows the philosophy of SAGA in that the values describing the extent refer to the "
 		"cell centers. If you like to match the extent with the border of a grid, use an offset.\n\n"
-		"The module provides four possibilities to set/determine the extent of the grid system:\n"
+		"The tool provides four possibilities to set/determine the extent of the grid system:\n"
 		"(1) by specifying the coordinate of the lower left cell (xMin, yMin) and the number of cells in W-E (NX) and S-N (NY) direction\n"
 		"(2) by specifying the coordinates the of lower left (xMin, yMin) and the upper right (xMax, yMax) cell\n"
 		"(3) by the extent of the shape(s) provided in the Data Objects section\n"
@@ -93,7 +93,7 @@ CCreateGridSystem::CCreateGridSystem(void)
 		"Finally it is possible to apply an offset to the lower left corner of the grid system. "
 		"In this case check the Use Offset option and specify the offset in W-E and S-N direction. Positive values "
 		"result in a shift in E/N, negative in W/S direction.\n"
-		"In order to create the grid system the module needs to create a dummy grid."
+		"In order to create the grid system the tool needs to create a dummy grid."
 	));
 
 	//-----------------------------------------------------
@@ -179,7 +179,7 @@ CCreateGridSystem::CCreateGridSystem(void)
 //---------------------------------------------------------
 int CCreateGridSystem::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -206,7 +206,7 @@ int CCreateGridSystem::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("YOFFSET", pParameter->asBool());
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

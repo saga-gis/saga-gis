@@ -983,7 +983,7 @@ bool CWKSP_Grid::Edit_On_Key_Down(int KeyCode)
 //---------------------------------------------------------
 bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	if( Key & MODULE_INTERACTIVE_KEY_LEFT )
+	if( Key & TOOL_INTERACTIVE_KEY_LEFT )
 	{
 		g_pACTIVE->Get_Attributes()->Set_Attributes();
 

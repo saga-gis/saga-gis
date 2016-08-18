@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_String : public CSG_Module
+class CSelect_String : public CSG_Tool
 {
 public:
 	CSelect_String(void);

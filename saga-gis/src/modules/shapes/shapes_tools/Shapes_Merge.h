@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTables_Merge : public CSG_Module
+class CTables_Merge : public CSG_Tool
 {
 public:
 	CTables_Merge(void);

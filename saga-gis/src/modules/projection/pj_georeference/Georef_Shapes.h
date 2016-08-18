@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeoref_Shapes : public CSG_Module 
+class CGeoref_Shapes : public CSG_Tool 
 {
 public:
 	CGeoref_Shapes(void);

@@ -446,12 +446,12 @@ bool CSG_Data_Object::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module_chain.h"
+#include "tool_chain.h"
 
 //---------------------------------------------------------
 bool CSG_Data_Object::Save_History_to_Model(const CSG_String &File)	const
 {
-	return( CSG_Module_Chain::Save_History_to_Model(Get_History(), File) );
+	return( CSG_Tool_Chain::Save_History_to_Model(Get_History(), File) );
 }
 
 

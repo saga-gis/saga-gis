@@ -1,10 +1,10 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1246 2011-11-25 13:42:38Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1246 2011-11-25 13:42:38Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -15,58 +15,58 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("ESRI E00") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Import/Export") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2004") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Import and export filter for ESRI's E00 file exchange format.") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("File|ESRI E00") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "ESRI_E00_Import.h"
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CESRI_E00_Import;
+		pTool	= new CESRI_E00_Import;
 		break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -79,6 +79,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

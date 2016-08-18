@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 #include "saga_api/saga_api.h"
 #include "saga_api/api_core.h"
-#include "saga_api/module.h"
+#include "saga_api/tool.h"
 
 
 ///////////////////////////////////////////////////////////

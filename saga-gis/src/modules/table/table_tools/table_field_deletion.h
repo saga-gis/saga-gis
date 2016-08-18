@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     table_tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Field_Deletion : public CSG_Module
+class CTable_Field_Deletion : public CSG_Tool
 {
 public:
 	CTable_Field_Deletion(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        db_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Servers : public CSG_Module
+class CGet_Servers : public CSG_Tool
 {
 public:
 	CGet_Servers(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGet_Connection : public CSG_Module
+class CGet_Connection : public CSG_Tool
 {
 public:
 	CGet_Connection(void);
@@ -122,7 +122,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connection : public CSG_ODBC_Module
+class CDel_Connection : public CSG_ODBC_Tool
 {
 public:
 	CDel_Connection(void);
@@ -140,7 +140,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDel_Connections : public CSG_Module
+class CDel_Connections : public CSG_Tool
 {
 public:
 	CDel_Connections(void);
@@ -162,7 +162,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTransaction : public CSG_ODBC_Module
+class CTransaction : public CSG_ODBC_Tool
 {
 public:
 	CTransaction(void);
@@ -184,7 +184,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CExecute_SQL : public CSG_ODBC_Module
+class CExecute_SQL : public CSG_ODBC_Tool
 {
 public:
 	CExecute_SQL(void);

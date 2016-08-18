@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CAddCoordinates : public CSG_Module
+class CAddCoordinates : public CSG_Tool
 {
 public:
 	CAddCoordinates(void);

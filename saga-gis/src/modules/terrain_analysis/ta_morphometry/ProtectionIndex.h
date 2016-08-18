@@ -21,7 +21,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CProtectionIndex : public CSG_Module_Grid
+class CProtectionIndex : public CSG_Tool_Grid
 {
 public:
 	CProtectionIndex(void);

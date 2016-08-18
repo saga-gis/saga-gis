@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Statistics : public CSG_Module_Grid  
+class CGSGrid_Statistics : public CSG_Tool_Grid  
 {
 public:
 	CGSGrid_Statistics(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSGrid_Statistics_To_Table : public CSG_Module_Grid  
+class CGSGrid_Statistics_To_Table : public CSG_Tool_Grid  
 {
 public:
 	CGSGrid_Statistics_To_Table(void);

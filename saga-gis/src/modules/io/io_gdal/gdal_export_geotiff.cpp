@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -76,7 +76,7 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 	Set_Author		("O.Conrad (c) 2007");
 
 	Set_Description	(_TW(
-		"The \"GDAL GeoTIFF Export\" module exports one or more grids to a Geocoded Tagged Image File Format using the "
+		"The \"GDAL GeoTIFF Export\" tool exports one or more grids to a Geocoded Tagged Image File Format using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

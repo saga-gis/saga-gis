@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,9 +81,9 @@ CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 	Set_Description	(_TW(
 		"Spatial Join: Retrieves information from the selected grids at the positions "
 		"of the shapes of the selected shapes layer and adds it to the resulting shapes layer. "
-		"For points this is similar to 'Add Grid Values to Points' module. "
+		"For points this is similar to 'Add Grid Values to Points' tool. "
 		"For lines and polygons average values will be calculated from interfering grid cells. "
-		"For polygons the 'Grid Statistics for Polygons' module offers more advanced options. "
+		"For polygons the 'Grid Statistics for Polygons' tool offers more advanced options. "
 	));
 
 
@@ -135,7 +135,7 @@ int CGrid_Values_AddTo_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters,
 		));
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

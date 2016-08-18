@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -68,13 +68,13 @@ extern "C" {
 }
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	if( !bResult ) return( false );\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -248,7 +248,7 @@ bool Cconnectivity_analysis::On_Execute(void)
 
 
 		//-----------------------------------------------------
-		RUN_MODULE("grid_filter"			, 13,
+		RUN_TOOL("grid_filter"			, 13,
 				SET_PARAMETER("INPUT_GRID"  , pinpgrid)
 			&&	SET_PARAMETER("OUTPUT_GRID"	, bingrid)
 			&&	SET_PARAMETER("RADIUS"		, Parameters ("SIZE")->asInt())

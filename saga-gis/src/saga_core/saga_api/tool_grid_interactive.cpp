@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//             module_library_interface.cpp              //
+//              tool_grid_interactive.cpp                //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -63,7 +63,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,118 +73,116 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library_Interface::CSG_Module_Library_Interface(void)
+CSG_Tool_Grid_Interactive::CSG_Tool_Grid_Interactive(void)
 {
-	m_nModules	= 0;
-	m_Modules	= NULL;
+	m_pTool	= this;
 }
 
 //---------------------------------------------------------
-CSG_Module_Library_Interface::~CSG_Module_Library_Interface(void)
+CSG_Tool_Grid_Interactive::~CSG_Tool_Grid_Interactive(void)
 {
-	if( m_Modules && m_nModules > 0 )
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Tool_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
+{
+	bool	bResult;
+
+	if( Get_System()->is_Valid() )
 	{
-		for(int i=0; i<m_nModules; i++)
+		bResult	= true;
+
+		//-------------------------------------------------
+		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
+
+		if( x < 0 )
 		{
-			if( m_Modules[i] )
-			{
-				delete(m_Modules[i]);
-			}
+			bResult	= false;
+			x		= 0;
+		}
+		else if( x >= Get_System()->Get_NX() )
+		{
+			bResult	= false;
+			x		= Get_System()->Get_NX() - 1;
 		}
 
-		SG_Free(m_Modules);
+		//-------------------------------------------------
+		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
+
+		if( y < 0 )
+		{
+			bResult	= false;
+			y		= 0;
+		}
+		else if( y >= Get_System()->Get_NY() )
+		{
+			bResult	= false;
+			y		= Get_System()->Get_NY() - 1;
+		}
+
+		return( bResult );
 	}
+
+	//-----------------------------------------------------
+	x		= 0;
+	y		= 0;
+
+	return( false );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_Info(int ID, const CSG_String &Info)
+int CSG_Tool_Grid_Interactive::Get_xGrid(void)
 {
-	if( ID <= MLB_INFO_User )
+	int		x;
+
+	if( Get_System()->is_Valid() )
 	{
-		m_Info[ID]	= SG_Translate(Info);
+		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
+
+		if( x < 0 )
+		{
+			x		= 0;
+		}
+		else if( x >= Get_System()->Get_NX() )
+		{
+			x		= Get_System()->Get_NX() - 1;
+		}
+
+		return( x );
 	}
+
+	return( 0 );
 }
 
 //---------------------------------------------------------
-const CSG_String & CSG_Module_Library_Interface::Get_Info(int ID)
+int CSG_Tool_Grid_Interactive::Get_yGrid(void)
 {
-	return( m_Info[ID] );
-}
+	int		y;
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CSG_Module_Library_Interface::Get_Count(void)
-{
-	return( m_nModules );
-}
-
-//---------------------------------------------------------
-bool CSG_Module_Library_Interface::Add_Module(CSG_Module *pModule, int ID)
-{
-	if( pModule == NULL )
+	if( Get_System()->is_Valid() )
 	{
-		return( false );
+		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
+
+		if( y < 0 )
+		{
+			y		= 0;
+		}
+		else if( y >= Get_System()->Get_NY() )
+		{
+			y		= Get_System()->Get_NY() - 1;
+		}
+
+		return( y );
 	}
 
-	if( pModule != MLB_INTERFACE_SKIP_MODULE )
-	{
-		pModule->m_ID.Printf(SG_T("%d"), ID);
-		pModule->m_Library		= Get_Info(MLB_INFO_Library);
-		pModule->m_Library_Menu	= Get_Info(MLB_INFO_Menu_Path);
-		pModule->m_File_Name	= Get_Info(MLB_INFO_File);
-		m_Modules				= (CSG_Module **)SG_Realloc(m_Modules, (m_nModules + 1) * sizeof(CSG_Module *));
-		m_Modules[m_nModules++]	= pModule;
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
-CSG_Module * CSG_Module_Library_Interface::Get_Module(int iModule)
-{
-	if( iModule >= 0 && iModule < m_nModules )
-	{
-		return( m_Modules[iModule] );
-	}
-
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Module_Library_Interface::Set_File_Name(const CSG_String &File_Name)
-{
-	m_Info[MLB_INFO_File]	= SG_File_Get_Path_Absolute(File_Name);
-
-	CSG_String	Library		= SG_File_Get_Name(File_Name, false);
-
-#if !defined(_SAGA_MSW)
-	if( Library.Find("lib") == 0 )
-	{
-		Library	= Library.Right(Library.Length() - 3);
-	}
-#endif
-
-	m_Info[MLB_INFO_Library]	= Library;
+	return( 0 );
 }
 
 

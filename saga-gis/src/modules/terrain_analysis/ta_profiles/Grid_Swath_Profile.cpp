@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_profiles                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -169,14 +169,14 @@ bool CGrid_Swath_Profile::On_Execute_Finish(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	default:
 		break;
 
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if( !m_bAdd )
 		{
 			m_bAdd	= true;
@@ -190,7 +190,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		DataObject_Update(m_pLine);
 		break;
 
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 		Set_Profile();
 		m_bAdd	= false;
 		break;

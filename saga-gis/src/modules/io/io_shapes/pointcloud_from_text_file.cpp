@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Shapes_IO                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -89,7 +89,7 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 					"The input file must have at least three columns holding the "
 					"x, y, z coordinates of each point. You must specify the field "
 					"numbers of these. In case you like to import additional attributes, "
-					"you have to provide the number of attribute fields. After module "
+					"you have to provide the number of attribute fields. After tool "
 					"execution, you will be prompted to provide their field numbers, "
 					"names and datatypes.\n"
 					"You have also to decide on which field separator to use and if "
@@ -98,10 +98,10 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 					"The columns in the input file can be in any order, and you can "
 					"omit columns, but you have to provide the correct field numbers "
 					"of those you like to import.\n\n"
-					"Module usage is different between SAGA GUI and SAGA CMD: With "
+					"Tool usage is different between SAGA GUI and SAGA CMD: With "
 					"SAGA GUI you will get prompted to choose the fields to export, "
 					"and to provide the field names and datatypes to use "
-					"once you execute the module.\n"
+					"once you execute the tool.\n"
 					" With SAGA CMD you have to provide three strings with the "
 					"-FIELDS, -FIELDNAMES and -FIELDTYPES parameters. The first one "
 					"must contain the field numbers, the second one the field names "

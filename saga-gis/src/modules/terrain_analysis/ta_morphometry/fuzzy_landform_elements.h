@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFuzzy_Landform_Elements : public CSG_Module_Grid
+class CFuzzy_Landform_Elements : public CSG_Tool_Grid
 {
 public:
 	CFuzzy_Landform_Elements(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -101,7 +101,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFlow : public CSG_Module_Grid  
+class CFlow : public CSG_Tool_Grid  
 {
 public:
 	CFlow(void);

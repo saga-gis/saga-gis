@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_profiles                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cross_Profiles : public CSG_Module_Grid
+class CGrid_Cross_Profiles : public CSG_Tool_Grid
 {
 public:
 	CGrid_Cross_Profiles(void);

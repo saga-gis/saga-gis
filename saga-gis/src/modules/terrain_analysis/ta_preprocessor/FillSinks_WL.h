@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -98,7 +98,7 @@ public:
 
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CFillSinks_WL : public CSG_Module_Grid
+class ta_preprocessor_EXPORT CFillSinks_WL : public CSG_Tool_Grid
 {
 public:
 	CFillSinks_WL(void);
@@ -122,7 +122,7 @@ private:
 };
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CFillSinks_WL_XXL : public CSG_Module_Grid
+class ta_preprocessor_EXPORT CFillSinks_WL_XXL : public CSG_Tool_Grid
 {
 public:
 	CFillSinks_WL_XXL(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    statistics_grid                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 
 	Set_Description	(_TW(
 		"Find the radius within which the cell values exceed the given variance criterium. "
-		"This module is closely related to the representativeness calculation "
+		"This tool is closely related to the representativeness calculation "
 		"(variance within given search radius). "
 		"For easier usage, the variance criterium is entered as standard deviation value. "
 	));

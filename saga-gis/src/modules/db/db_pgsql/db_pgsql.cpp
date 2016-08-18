@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       db_pgsql                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -1713,7 +1713,7 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_PG_Module::CSG_PG_Module(void)
+CSG_PG_Tool::CSG_PG_Tool(void)
 {
 	Parameters.Add_String(
 		NULL	, "PG_HOST"		, _TL("Host"),
@@ -1755,7 +1755,7 @@ CSG_PG_Module::CSG_PG_Module(void)
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Module::On_Before_Execution(void)
+bool CSG_PG_Tool::On_Before_Execution(void)
 {
 	m_pConnection	= NULL;
 
@@ -1801,7 +1801,7 @@ bool CSG_PG_Module::On_Before_Execution(void)
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Module::On_After_Execution(void)
+bool CSG_PG_Tool::On_After_Execution(void)
 {
 	if( !SG_UI_Get_Window_Main() )
 	{
@@ -1812,7 +1812,7 @@ bool CSG_PG_Module::On_After_Execution(void)
 }
 
 //---------------------------------------------------------
-int CSG_PG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( SG_UI_Get_Window_Main() )
 	{
@@ -1850,7 +1850,7 @@ int CSG_PG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Module::Add_SRID_Picker(CSG_Parameters *pParameters)
+bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
@@ -1887,7 +1887,7 @@ bool CSG_PG_Module::Add_SRID_Picker(CSG_Parameters *pParameters)
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Module::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEnable)
+bool CSG_PG_Tool::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bEnable)
 {
 	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
 
@@ -1902,7 +1902,7 @@ bool CSG_PG_Module::Set_SRID_Picker_Enabled(CSG_Parameters *pParameters, bool bE
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Module::Set_SRID(CSG_Parameters *pParameters, int SRID)
+bool CSG_PG_Tool::Set_SRID(CSG_Parameters *pParameters, int SRID)
 {
 	CSG_Parameter	*pParameter	= pParameters ? pParameters->Get_Parameter("CRS_EPSG") : NULL;
 
@@ -1919,7 +1919,7 @@ bool CSG_PG_Module::Set_SRID(CSG_Parameters *pParameters, int SRID)
 }
 
 //---------------------------------------------------------
-int CSG_PG_Module::Get_SRID(CSG_Parameters *pParameters)
+int CSG_PG_Tool::Get_SRID(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
@@ -1937,7 +1937,7 @@ int CSG_PG_Module::Get_SRID(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Module::Set_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
+bool CSG_PG_Tool::Set_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
 	CSG_Parameter	*pParent	= pParameters ? pParameters->Get_Parameter(Identifier) : NULL;
 
@@ -1954,7 +1954,7 @@ bool CSG_PG_Module::Set_Constraints(CSG_Parameters *pParameters, const CSG_Strin
 }
 
 //---------------------------------------------------------
-CSG_Buffer CSG_PG_Module::Get_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
+CSG_Buffer CSG_PG_Tool::Get_Constraints(CSG_Parameters *pParameters, const CSG_String &Identifier)
 {
 	CSG_Buffer		Flags;
 

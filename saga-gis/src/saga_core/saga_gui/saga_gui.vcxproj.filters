@@ -229,21 +229,6 @@
     <ClCompile Include="wksp_map_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wksp_module.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wksp_module_control.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wksp_module_library.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wksp_module_manager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="wksp_module_menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wksp_pointcloud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -314,6 +299,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wksp_map_basemap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tool_control.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tool_library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tool_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wksp_tool_menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -528,21 +528,6 @@
     <ClInclude Include="WKSP_Map_Manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WKSP_Module.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WKSP_Module_Control.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WKSP_Module_Library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WKSP_Module_Manager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WKSP_Module_Menu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wksp_pointcloud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -613,6 +598,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wksp_map_basemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_tool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_tool_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_tool_library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_tool_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wksp_tool_menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Fractals                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPythagoras_Tree : public CSG_Module
+class CPythagoras_Tree : public CSG_Tool
 {
 public:
 	CPythagoras_Tree(void);

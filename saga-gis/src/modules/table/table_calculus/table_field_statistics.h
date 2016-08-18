@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Field_Statistics : public CSG_Module
+class CTable_Field_Statistics : public CSG_Tool
 {
 public:
 	CTable_Field_Statistics(void);

@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CCrossClassification : public CSG_Module_Grid {
+class CCrossClassification : public CSG_Tool_Grid {
 
 public:
 	CCrossClassification(void);

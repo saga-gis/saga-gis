@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -65,7 +65,7 @@
 #include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
-class CFlow_Width : public CSG_Module_Grid
+class CFlow_Width : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

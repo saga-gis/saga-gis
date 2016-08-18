@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBurnIn_Streams : public CSG_Module_Grid  
+class CBurnIn_Streams : public CSG_Tool_Grid  
 {
 public:
 	CBurnIn_Streams(void);

@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CGPX2SHP : public CSG_Module {
+class CGPX2SHP : public CSG_Tool {
 
 public:
 	CGPX2SHP(void);

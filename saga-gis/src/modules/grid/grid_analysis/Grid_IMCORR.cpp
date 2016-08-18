@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid analysis                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -85,7 +85,7 @@ CGrid_IMCORR::CGrid_IMCORR(void)
 	Set_Author		(SG_T("Magnus Bremer (c) 2012"));
 
 	Set_Description	(_TW(
-		"The module performs an image correlation "
+		"The tool performs an image correlation "
 		"based on two raster data sets.\n"
 		"Additionally, two DTMs can be given and used to optain 3D displacement vectors.\n\n"
 		"This is a SAGA implementation of the standalone "

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      3d_viewer                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class C3D_Viewer_Globe_Grid : public CSG_Module_Grid
+class C3D_Viewer_Globe_Grid : public CSG_Tool_Grid
 {
 public:
 	C3D_Viewer_Globe_Grid(void);

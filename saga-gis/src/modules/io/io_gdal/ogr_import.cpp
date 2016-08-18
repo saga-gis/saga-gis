@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -76,7 +76,7 @@ COGR_Import::COGR_Import(void)
 	CSG_String	Description, Filter, Filter_All;
 
 	Description	= _TW(
-		"The \"OGR Vector Data Import\" module imports vector data from various file/database formats using the "
+		"The \"OGR Vector Data Import\" tool imports vector data from various file/database formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

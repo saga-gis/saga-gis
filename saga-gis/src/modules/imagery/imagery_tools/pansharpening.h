@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPanSharp_IHS : public CSG_Module_Grid
+class CPanSharp_IHS : public CSG_Tool_Grid
 {
 public:
 	CPanSharp_IHS(void);
@@ -90,7 +90,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPanSharp_Brovey : public CSG_Module_Grid
+class CPanSharp_Brovey : public CSG_Tool_Grid
 {
 public:
 	CPanSharp_Brovey(void);
@@ -110,7 +110,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPanSharp_CN : public CSG_Module_Grid
+class CPanSharp_CN : public CSG_Tool_Grid
 {
 public:
 	CPanSharp_CN(void);
@@ -130,7 +130,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPanSharp_PCA : public CSG_Module_Grid
+class CPanSharp_PCA : public CSG_Tool_Grid
 {
 public:
 	CPanSharp_PCA(void);

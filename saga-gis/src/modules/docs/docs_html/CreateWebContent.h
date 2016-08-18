@@ -26,7 +26,7 @@
 #include "doc_html.h"
 #include <vector>
 
-class CCreateWebContent : public CSG_Module_Interactive
+class CCreateWebContent : public CSG_Tool_Interactive
 {
 public:
 
@@ -36,7 +36,7 @@ public:
 protected:
 
 	virtual bool				On_Execute(void);
-	virtual bool				On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 	virtual bool				On_Execute_Finish(void);
 
 private:

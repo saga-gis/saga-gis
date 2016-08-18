@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -123,7 +123,7 @@ private:
 
 
 //---------------------------------------------------------
-class CPointCloud_Get_Subset_SPCVF : public CSG_Module
+class CPointCloud_Get_Subset_SPCVF : public CSG_Tool
 {
 public:
 	CPointCloud_Get_Subset_SPCVF(void);
@@ -146,7 +146,7 @@ private:
 
 
 //---------------------------------------------------------
-class CPointCloud_Get_Subset_SPCVF_Interactive : public CSG_Module_Interactive
+class CPointCloud_Get_Subset_SPCVF_Interactive : public CSG_Tool_Interactive
 {
 public:
 	CPointCloud_Get_Subset_SPCVF_Interactive(void);
@@ -157,7 +157,7 @@ public:
 protected:
 
 	virtual bool				On_Execute			(void);
-	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 

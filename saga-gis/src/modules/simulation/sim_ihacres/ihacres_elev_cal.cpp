@@ -59,7 +59,7 @@ Cihacres_elev_cal::Cihacres_elev_cal()
 	);
 
 	///////////////////////////////////////////////////////////////////
-	// FIRST MODULE DIALOG
+	// FIRST TOOL DIALOG
 	_CreateDialog1();
 	///////////////////////////////////////////////////////////////////
 }
@@ -77,7 +77,7 @@ bool Cihacres_elev_cal::On_Execute()
 	CSG_Parameters P;
 	//std::ofstream f("_out_elev.txt");
 
-	// Assign Parameters from first Module Dialog
+	// Assign Parameters from first Tool Dialog
 	//---------------------------------------------------------
 	int eb			= Parameters("NELEVBANDS")		->asInt();
 	m_nElevBands	= eb + 2; // because list starts with 2 !
@@ -85,7 +85,7 @@ bool Cihacres_elev_cal::On_Execute()
 	m_Area_tot		= Parameters("AREA_tot")		->asDouble();
 	m_IHAC_version	= Parameters("IHACVERS")		->asInt();
 	m_StorConf		= Parameters("STORAGE")			->asInt();
-	m_bSnowModule	= Parameters("SNOW_MODULE")		->asBool();
+	m_bSnowModule	= Parameters("SNOW_TOOL")		->asBool();
 	m_obj_func		= Parameters("OBJ_FUNC")		->asInt();
 	m_NSEmin		= Parameters("NSEMIN")			->asDouble();
 
@@ -711,7 +711,7 @@ void Cihacres_elev_cal::_CreateDialog1()
 	);
 
 	Parameters.Add_Value(
-		pNode,	"SNOW_MODULE",	_TL("Using the snow-melt module?"),
+		pNode,	"SNOW_TOOL",	_TL("Using the snow-melt module?"),
 		_TL("If checked, snow-melt module is used."),
 		PARAMETER_TYPE_Bool, false
 	);
@@ -821,7 +821,7 @@ bool Cihacres_elev_cal::_CreateDialog2()
 		tmpNode = SG_T("Node");
 		tmpNode+=convert_sl::Int2String(i+150).c_str();
 		s.Printf(tmpNode.c_str(), i+150);
-		pNode1 = P.Add_Node(pNode,s,SG_T("Non-Linear Module"),_TL(""));
+		pNode1 = P.Add_Node(pNode,s,SG_T("Non-Linear Tool"),_TL(""));
 
 		tmpName = SG_T("TwFAC_lb(");
 		tmpName += tmpNode;
@@ -941,7 +941,7 @@ bool Cihacres_elev_cal::_CreateDialog2()
 			tmpNode = SG_T("Node");
 			tmpNode+=convert_sl::Int2String(i+250).c_str();
 			s.Printf(tmpNode.c_str(), i+250);
-			pNode1 = P.Add_Node(pNode,s,SG_T("Linear Module"),_TL(""));
+			pNode1 = P.Add_Node(pNode,s,SG_T("Linear Tool"),_TL(""));
 
 			tmpName = SG_T("AFAC_lb(");
 			tmpName += tmpNode;
@@ -986,7 +986,7 @@ bool Cihacres_elev_cal::_CreateDialog2()
 			tmpNode = SG_T("Node");
 			tmpNode+=convert_sl::Int2String(i+250).c_str();
 			s.Printf(tmpNode.c_str(), i+250);
-			pNode1 = P.Add_Node(pNode,s,SG_T("Linear Module"),_TL(""));
+			pNode1 = P.Add_Node(pNode,s,SG_T("Linear Tool"),_TL(""));
 
 			// Parameter a
 
@@ -1076,7 +1076,7 @@ bool Cihacres_elev_cal::_CreateDialog2()
 			tmpNode = SG_T("Node");
 			tmpNode+=convert_sl::Int2String(i+350).c_str();
 			s.Printf(tmpNode.c_str(), i+350);
-			pNode1 = P.Add_Node(pNode,s,SG_T("Snow Module Parameters"),_TL(""));
+			pNode1 = P.Add_Node(pNode,s,SG_T("Snow Tool Parameters"),_TL(""));
 			
 			tmpName = SG_T("T_RAIN_lb(");
 			tmpName += tmpNode;

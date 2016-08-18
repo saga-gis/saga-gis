@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDiversity_Analysis : public CSG_Module_Grid
+class CDiversity_Analysis : public CSG_Tool_Grid
 {
 public:
 	CDiversity_Analysis(void);

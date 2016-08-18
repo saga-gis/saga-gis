@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 sim_ecosystems_hugget                 //
 //                                                       //
 //-------------------------------------------------------//

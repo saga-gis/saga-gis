@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTopographic_Openness : public CSG_Module_Grid
+class CTopographic_Openness : public CSG_Tool_Grid
 {
 public:
 	CTopographic_Openness(void);

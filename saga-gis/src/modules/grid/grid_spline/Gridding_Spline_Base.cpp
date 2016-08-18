@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -124,7 +124,7 @@ int CGridding_Spline_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 
 	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -132,7 +132,7 @@ int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

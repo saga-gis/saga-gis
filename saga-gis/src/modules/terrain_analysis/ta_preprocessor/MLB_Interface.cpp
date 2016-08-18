@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -69,22 +69,22 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Preprocessing" ));
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Terrain Analysis") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2001, V. Wichmann (c) 2003") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Tools for the preprocessing of digital terrain models." ));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis|Preprocessing" ));
 	}
 }
@@ -102,7 +102,7 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
@@ -130,6 +130,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

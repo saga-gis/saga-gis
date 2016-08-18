@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Levels_Interpolation : public CSG_Module_Grid
+class CGrid_Levels_Interpolation : public CSG_Tool_Grid
 {
 public:
 	CGrid_Levels_Interpolation(void);

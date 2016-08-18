@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CFlow_Distance::CFlow_Distance(void)
 	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
-		"This module calculates the average flow path length starting from the seeds, "
+		"This tool calculates the average flow path length starting from the seeds, "
 		"that are given by the optional \'Seeds\' grid and optionally from cells without upslope contributing areas "
 		"(i.e. summits, ridges). Seeds will be all grid cells, that "
 		"are not \'no data\' values. If seeds are not given, only summits and ridges as given by the flow routing will be taken into account. "

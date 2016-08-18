@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        db_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -1455,7 +1455,7 @@ int CSG_ODBC_Connections::Get_Connections(CSG_String &Connections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_ODBC_Module::CSG_ODBC_Module(void)
+CSG_ODBC_Tool::CSG_ODBC_Tool(void)
 {
 	Parameters.Add_String(NULL, "ODBC_DSN"  , _TL("DSN"              ), _TL("Data Source Name" ), "")->Set_UseInGUI(false);
 	Parameters.Add_String(NULL, "ODBC_USR"  , _TL("User"             ), _TL("User Name"        ), "")->Set_UseInGUI(false);
@@ -1467,7 +1467,7 @@ CSG_ODBC_Module::CSG_ODBC_Module(void)
 }
 
 //---------------------------------------------------------
-bool CSG_ODBC_Module::On_Before_Execution(void)
+bool CSG_ODBC_Tool::On_Before_Execution(void)
 {
 	m_pConnection	= NULL;
 
@@ -1525,7 +1525,7 @@ bool CSG_ODBC_Module::On_Before_Execution(void)
 }
 
 //---------------------------------------------------------
-bool CSG_ODBC_Module::On_After_Execution(void)
+bool CSG_ODBC_Tool::On_After_Execution(void)
 {
 	if( !SG_UI_Get_Window_Main() )
 	{
@@ -1536,7 +1536,7 @@ bool CSG_ODBC_Module::On_After_Execution(void)
 }
 
 //---------------------------------------------------------
-int CSG_ODBC_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( SG_UI_Get_Window_Main() && !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
 	{
@@ -1557,7 +1557,7 @@ int CSG_ODBC_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_ODBC_Module::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+bool CSG_ODBC_Tool::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
 {
 	if( !pParameters || !pTable )
 	{
@@ -1584,7 +1584,7 @@ bool CSG_ODBC_Module::Set_Constraints(CSG_Parameters *pParameters, CSG_Table *pT
 }
 
 //---------------------------------------------------------
-CSG_Buffer CSG_ODBC_Module::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
+CSG_Buffer CSG_ODBC_Tool::Get_Constraints(CSG_Parameters *pParameters, CSG_Table *pTable)
 {
 	CSG_Buffer	Flags;
 

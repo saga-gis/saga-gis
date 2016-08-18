@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTasseled_Cap : public CSG_Module_Grid
+class CTasseled_Cap : public CSG_Tool_Grid
 {
 public:
 	CTasseled_Cap(void);

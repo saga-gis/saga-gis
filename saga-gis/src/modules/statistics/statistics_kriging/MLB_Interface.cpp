@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 Geostatistics_Kriging                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -67,35 +67,35 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Kriging") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Spatial and Geostatistics") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O.Conrad (c) 2003-10") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Kriging - geostatistical procedures for the gridding of irregular distributed point data." ));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Spatial and Geostatistics|Kriging" ));
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "kriging_simple.h"
 #include "kriging_ordinary.h"
@@ -106,9 +106,9 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
@@ -120,7 +120,7 @@ CSG_Module *		Create_Module(int i)
 	case  4:	return( new CSemiVariogram );
 
 	case  5:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 
@@ -134,6 +134,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

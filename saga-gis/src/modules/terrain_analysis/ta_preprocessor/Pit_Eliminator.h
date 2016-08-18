@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_preprocessor                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CPit_Eliminator : public CSG_Module_Grid
+class ta_preprocessor_EXPORT CPit_Eliminator : public CSG_Tool_Grid
 {
 public:
 	CPit_Eliminator(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       image_io                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CGrid_Export::CGrid_Export(void)
 	Set_Author		(SG_T("O.Conrad (c) 2005"));
 
 	Set_Description	(_TW(
-		"The module allows one to save a grid as image.\n"
+		"The tool allows one to save a grid as image.\n"
 		"Optionally, a shade grid can be overlayed and it's "
 		"transparency and brightness can be adjusted.\n\n")
 	);

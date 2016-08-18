@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -223,7 +223,7 @@ int CGDAL_Import_WMS::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 		pXMax->Set_Value(pXMax->asDouble() - d * pNX->asDouble());
 	}
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -245,7 +245,7 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("CACHE_DIR", pParameter->asBool());
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -327,20 +327,20 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ());
 
 	//-----------------------------------------------------
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 2);	// Coordinate Transformation (Shapes);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes);
 
-	if(	!pModule )
+	if(	!pTool )
 	{
 		return( false );
 	}
 
-	pModule->Settings_Push();
+	pTool->Settings_Push();
 
-	if( SG_MODULE_PARAMETER_SET("CRS_PROJ4" , SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
-	&&  SG_MODULE_PARAMETER_SET("SOURCE"    , &rTarget)
-	&&  SG_MODULE_PARAMETER_SET("TARGET"    , &rSource)
-	&&  SG_MODULE_PARAMETER_SET("PRECISE"   , true)
-	&&  pModule->Execute() )
+	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4" , SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
+	&&  SG_TOOL_PARAMETER_SET("SOURCE"    , &rTarget)
+	&&  SG_TOOL_PARAMETER_SET("TARGET"    , &rSource)
+	&&  SG_TOOL_PARAMETER_SET("PRECISE"   , true)
+	&&  pTool->Execute() )
 	{
 		Extent	= rSource.Get_Extent();
 
@@ -349,12 +349,12 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 
 		System.Assign(Cellsize, Extent);
 
-		pModule->Settings_Pop();
+		pTool->Settings_Pop();
 
 		return( true );
 	}
 
-	pModule->Settings_Pop();
+	pTool->Settings_Pop();
 
 	return( false );
 }
@@ -367,37 +367,37 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 //---------------------------------------------------------
 bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 3);	// Coordinate Transformation (Grid List);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List);
 
-	if(	!pModule )
+	if(	!pTool )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	pModule->Settings_Push();
+	pTool->Settings_Push();
 
-	if( SG_MODULE_PARAMETER_SET("CRS_PROJ4" , pTarget->Get_Projection().Get_Proj4())
-	&&  SG_MODULE_PARAMETER_SET("RESAMPLING", 3)
-	&&  SG_MODULE_PARAMLIST_ADD("SOURCE"    , pBands[2])
-	&&  SG_MODULE_PARAMLIST_ADD("SOURCE"    , pBands[1])
-	&&  SG_MODULE_PARAMLIST_ADD("SOURCE"    , pBands[0])
-	&&  pModule->Get_Parameters("TARGET")->Get_Parameter("DEFINITION")->Set_Value(1)
-	&&  pModule->Get_Parameters("TARGET")->Get_Parameter("SYSTEM")->asGrid_System()->Assign(pTarget->Get_System())
-	&&  pModule->Execute() )
+	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4" , pTarget->Get_Projection().Get_Proj4())
+	&&  SG_TOOL_PARAMETER_SET("RESAMPLING", 3)
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[2])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[1])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[0])
+	&&  pTool->Get_Parameters("TARGET")->Get_Parameter("DEFINITION")->Set_Value(1)
+	&&  pTool->Get_Parameters("TARGET")->Get_Parameter("SYSTEM")->asGrid_System()->Assign(pTarget->Get_System())
+	&&  pTool->Execute() )
 	{
-		CSG_Parameter_Grid_List	*pGrids	= pModule->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
+		CSG_Parameter_Grid_List	*pGrids	= pTool->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
 
 		delete(pBands[0]);	pBands[0]	= pGrids->asGrid(0);
 		delete(pBands[1]);	pBands[1]	= pGrids->asGrid(1);
 		delete(pBands[2]);	pBands[2]	= pGrids->asGrid(2);
 
-		pModule->Settings_Pop();
+		pTool->Settings_Pop();
 
 		return( true );
 	}
 
-	pModule->Settings_Pop();
+	pTool->Settings_Pop();
 
 	return( false );
 }

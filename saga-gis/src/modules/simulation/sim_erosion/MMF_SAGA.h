@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      sim_erosion                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -119,7 +119,7 @@ const SG_Char	gMMF_KE_I_Key_Name[MMF_KE_I_Count][64]	=
 
 
 //---------------------------------------------------------
-class CMMF_SAGA : public CSG_Module_Grid
+class CMMF_SAGA : public CSG_Tool_Grid
 {
 public:
 	CMMF_SAGA(void);

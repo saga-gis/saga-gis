@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 sim_ecosystems_hugget                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CHugget_03 : public CSG_Module_Grid
+class CHugget_03 : public CSG_Tool_Grid
 {
 public:
 	CHugget_03(void);

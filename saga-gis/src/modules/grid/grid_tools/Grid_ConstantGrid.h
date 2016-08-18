@@ -39,7 +39,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CConstantGrid : public CSG_Module
+class CConstantGrid : public CSG_Tool
 {
 public:
 	CConstantGrid(void);

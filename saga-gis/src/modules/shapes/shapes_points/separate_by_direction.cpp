@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Table_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CSeparate_by_Direction::CSeparate_by_Direction(void)
 	Set_Description	(_TW(
 		"Separates points by direction. Direction is determined as average direction of three consecutive points A, B, C. "
 		"If the angle between the directions of A-B and B-C is higher than given tolerance angle the point is dropped. "
-		"This module has been designed to separate GPS tracks recorded by tractors while preparing a field. "
+		"This tool has been designed to separate GPS tracks recorded by tractors while preparing a field. "
 	));
 
 	//-----------------------------------------------------

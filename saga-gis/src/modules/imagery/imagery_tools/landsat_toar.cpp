@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -185,7 +185,7 @@ CLandsat_TOAR::CLandsat_TOAR(void)
 
 	Set_Description	(_TW(
 		"Calculation of top-of-atmosphere radiance or reflectance and temperature (TOAR) for Landsat MSS/TM/ETM+. "
-		"This module incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.toar).\n"
+		"This tool incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.toar).\n"
 		"\n"
 		"References:\n"
 		"<a target=\"_blank\" href=\"http://landsathandbook.gsfc.nasa.gov/\">Landsat 7 Science Data Users Handbook</a>"
@@ -356,7 +356,7 @@ int CLandsat_TOAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Get_Parameter("METAFILE")->Set_Value((const char *)"");
 	}
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -406,7 +406,7 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		PRM_ENABLE_OUTPUT("PAN", 8);
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

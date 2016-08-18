@@ -28,7 +28,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CStrahler : public CSG_Module_Grid {
+class CStrahler : public CSG_Tool_Grid {
 
 private:
 	CSG_Grid *m_pDEM;

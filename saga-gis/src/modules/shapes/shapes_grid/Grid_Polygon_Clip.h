@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,17 +70,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Polygon_Clip : public CSG_Module_Grid
+class CGrid_Polygon_Clip : public CSG_Tool_Grid
 {
 public:
-	// constructor
 	CGrid_Polygon_Clip(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Spatial Extent") );	}
 
 
 protected:
-	// execute module
+
 	virtual bool			On_Execute		(void);
 
 
@@ -95,7 +94,7 @@ private:
 
 	bool					is_InGrid		(int x, int y, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids);
 
-	// This function has been copied from Module: 'Grid_Statistics_AddTo_Polygon'
+	// This function has been copied from Tool: 'Grid_Statistics_AddTo_Polygon'
 	// Function: Get_ShapeIDs
 	// copyright by Olaf Conrad
 	bool					Get_Mask		(CSG_Shapes *pShapes, CSG_Grid *pMask);

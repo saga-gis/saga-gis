@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    imagery_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -656,40 +656,40 @@ CPanSharp_PCA::CPanSharp_PCA(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(BRETVAL, LIBRARY, MODULE, PARAMETERS, GRIDSYSTEM, CONDITION)	{\
+#define RUN_TOOL(BRETVAL, LIBRARY, TOOL, PARAMETERS, GRIDSYSTEM, CONDITION)	{\
 	\
 	BRETVAL	= false;\
 	\
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T(LIBRARY), MODULE);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T(LIBRARY), TOOL);\
 	\
-	if(	pModule == NULL )\
+	if(	pTool == NULL )\
 	{\
-		Error_Fmt("%s: %s", _TL("could not find module"), SG_T(LIBRARY));\
+		Error_Fmt("%s: %s", _TL("could not find tool"), SG_T(LIBRARY));\
 	}\
-	else if( pModule->is_Grid() )\
+	else if( pTool->is_Grid() )\
 	{\
-		Process_Set_Text(pModule->Get_Name());\
+		Process_Set_Text(pTool->Get_Name());\
 		\
-		pModule->Settings_Push();\
+		pTool->Settings_Push();\
 		\
-		((CSG_Module_Grid *)pModule)->Get_System()->Assign(GRIDSYSTEM);\
+		((CSG_Tool_Grid *)pTool)->Get_System()->Assign(GRIDSYSTEM);\
 		\
 		if( !(CONDITION) )\
 		{\
-			Error_Fmt("%s: %s.%s", _TL("could not initialize module"), SG_T(LIBRARY), pModule->Get_Name().c_str());\
+			Error_Fmt("%s: %s.%s", _TL("could not initialize tool"), SG_T(LIBRARY), pTool->Get_Name().c_str());\
 		}\
-		else if( !pModule->Execute() )\
+		else if( !pTool->Execute() )\
 		{\
-			Error_Fmt("%s: %s.%s", _TL("could not execute module"   ), SG_T(LIBRARY), pModule->Get_Name().c_str());\
+			Error_Fmt("%s: %s.%s", _TL("could not execute tool"   ), SG_T(LIBRARY), pTool->Get_Name().c_str());\
 		}\
 		else\
 		{\
 			BRETVAL	= true;\
 		}\
 		\
-		PARAMETERS.Assign(pModule->Get_Parameters());\
+		PARAMETERS.Assign(pTool->Get_Parameters());\
 		\
-		pModule->Settings_Pop();\
+		pTool->Settings_Pop();\
 	}\
 }
 
@@ -709,11 +709,11 @@ bool CPanSharp_PCA::On_Execute(void)
 	//-----------------------------------------------------
 	// get the principle components for the low resolution bands
 
-	RUN_MODULE(bResult, "statistics_grid", 8, Tool_Parms, *Parameters("GRIDS")->Get_Parent()->asGrid_System(),
-			SG_MODULE_PARAMETER_SET("GRIDS" , Parameters("GRIDS"))
-		&&	SG_MODULE_PARAMETER_SET("METHOD", Parameters("METHOD"))
-		&&	SG_MODULE_PARAMETER_SET("EIGEN" , &Eigen)
-		&&	SG_MODULE_PARAMETER_SET("NFIRST", 0)	// get all components
+	RUN_TOOL(bResult, "statistics_grid", 8, Tool_Parms, *Parameters("GRIDS")->Get_Parent()->asGrid_System(),
+			SG_TOOL_PARAMETER_SET("GRIDS" , Parameters("GRIDS"))
+		&&	SG_TOOL_PARAMETER_SET("METHOD", Parameters("METHOD"))
+		&&	SG_TOOL_PARAMETER_SET("EIGEN" , &Eigen)
+		&&	SG_TOOL_PARAMETER_SET("NFIRST", 0)	// get all components
 	);
 
 	if( !bResult )
@@ -794,10 +794,10 @@ bool CPanSharp_PCA::On_Execute(void)
 	//-----------------------------------------------------
 	// inverse principle component rotation for the high resolution bands
 
-	RUN_MODULE(bResult, "statistics_grid", 10, Tool_Parms, *Get_System(),
-			SG_MODULE_PARAMETER_SET("PCA"  , Tool_Parms("PCA"))
-		&&	SG_MODULE_PARAMETER_SET("GRIDS", Parameters("SHARPEN"))
-		&&	SG_MODULE_PARAMETER_SET("EIGEN", &Eigen)
+	RUN_TOOL(bResult, "statistics_grid", 10, Tool_Parms, *Get_System(),
+			SG_TOOL_PARAMETER_SET("PCA"  , Tool_Parms("PCA"))
+		&&	SG_TOOL_PARAMETER_SET("GRIDS", Parameters("SHARPEN"))
+		&&	SG_TOOL_PARAMETER_SET("EIGEN", &Eigen)
 	);
 
 	delete[](PCA);

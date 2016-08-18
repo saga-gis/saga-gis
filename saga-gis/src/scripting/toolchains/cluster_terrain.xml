@@ -26,11 +26,11 @@
 	</option>
   </parameters>
   <tools>
-    <tool library="ta_morphometry" module="14" name="Relative Heights and Slope Positions">
+    <tool library="ta_morphometry" tool="14" name="Relative Heights and Slope Positions">
       <input id="DEM">ELEVATION</input>
       <output id="NH">NORMHEIGHT</output>
     </tool>
-    <tool id="tool_06" library="ta_lighting" module="5" name="Topographic Openness">
+    <tool library="ta_lighting" tool="5" name="Topographic Openness">
       <output id="NEG">OPEN_NEG</output>
       <output id="POS">OPEN_POS</output>
       <option id="RADIUS">10000.000000</option>
@@ -39,14 +39,14 @@
       <option id="NDIRS">8</option>
       <input id="DEM">ELEVATION</input>
     </tool>
-    <tool id="tool_04" library="ta_morphometry" module="0" name="Slope, Aspect, Curvature">
+    <tool library="ta_morphometry" tool="0" name="Slope, Aspect, Curvature">
       <output id="SLOPE">SLOPE</output>
       <output id="C_TANG">C_TANG</output>
       <output id="C_LONG">C_LONG</output>
       <option id="UNIT_SLOPE">0</option>
       <input id="ELEVATION">ELEVATION</input>
     </tool>
-    <tool id="cluster" library="imagery_classification" module="1" name="Cluster Analysis for Grids">
+    <tool library="imagery_classification" tool="1" name="Cluster Analysis for Grids">
       <output id="CLUSTER">CLUSTER</output>
       <option id="METHOD">1</option>
       <option id="NCLUSTER" varname="true">NCLUSTER</option>

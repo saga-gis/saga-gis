@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSafetyfactor : public CSG_Module_Grid
+class CSafetyfactor : public CSG_Tool_Grid
 {
 public:
 	CSafetyfactor(void);

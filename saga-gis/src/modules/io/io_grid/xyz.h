@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CXYZ_Export : public CSG_Module_Grid
+class CXYZ_Export : public CSG_Tool_Grid
 {
 public:
 	CXYZ_Export(void);
@@ -105,7 +105,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CXYZ_Import : public CSG_Module
+class CXYZ_Import : public CSG_Tool
 {
 public:
 	CXYZ_Import(void);

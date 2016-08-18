@@ -55,7 +55,7 @@
 // - if TMP_data_exist = false ???
 // - hourly data (not only daily)
 //
-// - SNOW MODULE
+// - SNOW TOOL
 //		- snow module on/off
 //		- snow module integration in CalcExcessRain (add bool variable)
 // - implementation of an instanteneous store
@@ -84,7 +84,7 @@ typedef vector<double> vector_d;
 
 //---------------------------------------------------------
 //  A CLASS TO DEAL WITH PARAMETERS OF THE
-//	LINEAR STORAGE MODULE
+//	LINEAR STORAGE TOOL
 //---------------------------------------------------------
 class C_IHAC_LinearParms
 {
@@ -146,7 +146,7 @@ private:
 
 //---------------------------------------------------------
 //  A CLASS TO DEAL WITH PARAMETERS OF THE
-//	NON-LINEAR RAINFALL-LOSSES MODULE
+//	NON-LINEAR RAINFALL-LOSSES TOOL
 //---------------------------------------------------------
 class C_IHAC_NonLinearParms
 {
@@ -267,7 +267,7 @@ public:
 	// Variables
 	int				sizeAll;		// incoming data array size (number of records in input data)
 
-	CSnowModule		*m_pSnowMod;	// class Snow Module
+	CSnowModule		*m_pSnowMod;	// class Snow Tool
 
 	double*			m_pMeltRate;
 

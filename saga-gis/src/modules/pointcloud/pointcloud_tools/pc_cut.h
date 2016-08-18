@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPC_Cut : public CSG_Module
+class CPC_Cut : public CSG_Tool
 {
 public:
 	CPC_Cut(void);
@@ -103,7 +103,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPC_Cut_Interactive : public CSG_Module_Interactive
+class CPC_Cut_Interactive : public CSG_Tool_Interactive
 {
 public:
 	CPC_Cut_Interactive(void);
@@ -114,7 +114,7 @@ public:
 protected:
 
 	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

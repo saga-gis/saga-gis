@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_spline                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CGridding_Spline_BA::CGridding_Spline_BA(void)
 
 	Set_Description	(_TW(
 		"Calculates B-spline functions for chosen level of detail. "
-		"This module serves as the basis for the 'Multilevel B-Spline Interpolation' "
+		"This tool serves as the basis for the 'Multilevel B-Spline Interpolation' "
 		"and is not suited as is for spatial data interpolation from "
 		"scattered data. "
 

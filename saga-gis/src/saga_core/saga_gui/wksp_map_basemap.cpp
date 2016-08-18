@@ -388,9 +388,9 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 {
 	m_BaseMap.Destroy();
 
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module("io_gdal", 9);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 9);
 
-	if(	pModule && Get_Map()->Get_Projection().is_Okay() )
+	if(	pTool && Get_Map()->Get_Projection().is_Okay() )
 	{
 		SG_UI_Msg_Lock     (true);
 		SG_UI_Progress_Lock(true);
@@ -412,14 +412,14 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 
 		pBaseMap->Get_Projection()	= Get_Map()->Get_Projection();
 
-		pModule->Settings_Push();
+		pTool->Settings_Push();
 
-		if( pModule->Set_Parameter("TARGET"     , pBaseMap)
-		&&  pModule->Set_Parameter("TARGET_MAP" , pBaseMap)
-		&&  pModule->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
-		&&  pModule->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
-		&&  pModule->Set_Parameter("GRAYSCALE"  , m_Parameters("GRAYSCALE"  ))
-		&&  pModule->On_Before_Execution() && pModule->Execute() )
+		if( pTool->Set_Parameter("TARGET"     , pBaseMap)
+		&&  pTool->Set_Parameter("TARGET_MAP" , pBaseMap)
+		&&  pTool->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
+		&&  pTool->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
+		&&  pTool->Set_Parameter("GRAYSCALE"  , m_Parameters("GRAYSCALE"  ))
+		&&  pTool->On_Before_Execution() && pTool->Execute() )
 		{
 			if( &m_BaseMap != pBaseMap )
 			{
@@ -431,7 +431,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 			m_BaseMap.Destroy();
 		}
 
-		pModule->Settings_Pop();
+		pTool->Settings_Pop();
 
 		SG_UI_Msg_Lock     (false);
 		SG_UI_Progress_Lock(false);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -119,7 +119,7 @@ int CGrid_Plotter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 {
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

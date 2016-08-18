@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWatersheds_ext : public CSG_Module_Grid
+class CWatersheds_ext : public CSG_Tool_Grid
 {
 public:
 	CWatersheds_ext(void);

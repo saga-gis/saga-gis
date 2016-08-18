@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -68,7 +68,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CExercise_07 : public CSG_Module_Grid
+class CExercise_07 : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

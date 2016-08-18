@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -84,14 +84,14 @@ CLeastCostPathProfile_Points::CLeastCostPathProfile_Points(void)
 	Set_Author		("O. Conrad, V. Olaya, V. Wichmann (c) 2004-2010");
 
 	Set_Description(_TW(
-		"This module allows one to compute least cost path profile(s). It takes an "
+		"This tool allows one to compute least cost path profile(s). It takes an "
 		"accumulated cost surface grid and a point shapefile as input. Each "
 		"point in the shapefile represents a source for which the least cost path "
 		"is calculated.\n"
 		"In case the point shapefile has more than one source point "
 		"defined, a separate least cost path is calculated for each point. "
-		"The module outputs a point and a line shapefile for each least cost path.\n "
-		"The module allows for optional input grids. The cell values of these grids "
+		"The tool outputs a point and a line shapefile for each least cost path.\n "
+		"The tool allows for optional input grids. The cell values of these grids "
 		"along the least cost path are written to the outputs as additional table fields.\n"
 	));
 

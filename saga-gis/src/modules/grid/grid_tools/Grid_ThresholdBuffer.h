@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CThresholdBuffer : public CSG_Module_Grid
+class CThresholdBuffer : public CSG_Tool_Grid
 {
 public:
 	CThresholdBuffer(void);

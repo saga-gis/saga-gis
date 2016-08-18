@@ -8,35 +8,33 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//           Application Programming Interface           //
+//                Command Line Interface                 //
 //                                                       //
-//                  Library: SAGA_API                    //
+//                   Program: SAGA_CMD                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              module_grid_interactive.cpp              //
+//                        tool.h                         //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 // This file is part of 'SAGA - System for Automated     //
-// Geoscientific Analyses'.                              //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation; version 2 of the License.   //
 //                                                       //
-// This library is free software; you can redistribute   //
-// it and/or modify it under the terms of the GNU Lesser //
-// General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
-//                                                       //
-// This library is distributed in the hope that it will  //
-// be useful, but WITHOUT ANY WARRANTY; without even the //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
 // implied warranty of MERCHANTABILITY or FITNESS FOR A  //
-// PARTICULAR PURPOSE. See the GNU Lesser General Public //
+// PARTICULAR PURPOSE. See the GNU General Public        //
 // License for more details.                             //
 //                                                       //
-// You should have received a copy of the GNU Lesser     //
-// General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not,       //
+// write to the Free Software Foundation, Inc.,          //
 // 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
 // USA.                                                  //
 //                                                       //
@@ -57,133 +55,73 @@
 
 
 ///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef _HEADER_INCLUDED__SAGA_CMD__tool_H
+#define _HEADER_INCLUDED__SAGA_CMD__tool_H
+
+
+///////////////////////////////////////////////////////////
 //														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include <wx/cmdline.h>
+
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Grid_Interactive::CSG_Module_Grid_Interactive(void)
+class CCMD_Tool
 {
-	m_pModule	= this;
-}
+public:
+	CCMD_Tool(void);
+	CCMD_Tool(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+	virtual ~CCMD_Tool(void);
 
-//---------------------------------------------------------
-CSG_Module_Grid_Interactive::~CSG_Module_Grid_Interactive(void)
-{
-}
+	bool						Create					(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+	void						Destroy					(void);
+
+	void						Usage					(void);
+
+	bool						Execute					(int argc, char *argv[]);
+
+	bool						Get_Parameters			(CSG_Parameters *pParameters)	{	return( _Get_Parameters(pParameters, false) );	}
 
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+private:
 
-//---------------------------------------------------------
-bool CSG_Module_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
-{
-	bool	bResult;
+	CSG_Tool_Library			*m_pLibrary;
 
-	if( Get_System()->is_Valid() )
-	{
-		bResult	= true;
+	CSG_Tool					*m_pTool;
 
-		//-------------------------------------------------
-		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
+	wxCmdLineParser				m_CMD;
 
-		if( x < 0 )
-		{
-			bResult	= false;
-			x		= 0;
-		}
-		else if( x >= Get_System()->Get_NX() )
-		{
-			bResult	= false;
-			x		= Get_System()->Get_NX() - 1;
-		}
 
-		//-------------------------------------------------
-		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
+	wxString					_Get_ID					(CSG_Parameter  *pParameter, const wxString &Modifier = "");
 
-		if( y < 0 )
-		{
-			bResult	= false;
-			y		= 0;
-		}
-		else if( y >= Get_System()->Get_NY() )
-		{
-			bResult	= false;
-			y		= Get_System()->Get_NY() - 1;
-		}
+	bool						_Set_Parameters			(CSG_Parameters *pParameters);
 
-		return( bResult );
-	}
+	bool						_Get_Parameters			(CSG_Parameters *pParameters, bool bInitialize);
+	bool						_Get_Options			(CSG_Parameters *pParameters, bool bInitialize);
+	bool						_Get_Input				(CSG_Parameters *pParameters);
 
-	//-----------------------------------------------------
-	x		= 0;
-	y		= 0;
+	bool						_Load_Input				(CSG_Parameter  *pParameter);
+	bool						_Save_Output			(CSG_Parameters *pParameters);
 
-	return( false );
-}
-
-//---------------------------------------------------------
-int CSG_Module_Grid_Interactive::Get_xGrid(void)
-{
-	int		x;
-
-	if( Get_System()->is_Valid() )
-	{
-		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
-
-		if( x < 0 )
-		{
-			x		= 0;
-		}
-		else if( x >= Get_System()->Get_NX() )
-		{
-			x		= Get_System()->Get_NX() - 1;
-		}
-
-		return( x );
-	}
-
-	return( 0 );
-}
-
-//---------------------------------------------------------
-int CSG_Module_Grid_Interactive::Get_yGrid(void)
-{
-	int		y;
-
-	if( Get_System()->is_Valid() )
-	{
-		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
-
-		if( y < 0 )
-		{
-			y		= 0;
-		}
-		else if( y >= Get_System()->Get_NY() )
-		{
-			y		= Get_System()->Get_NY() - 1;
-		}
-
-		return( y );
-	}
-
-	return( 0 );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -193,3 +131,4 @@ int CSG_Module_Grid_Interactive::Get_yGrid(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef _HEADER_INCLUDED__SAGA_CMD__tool_H

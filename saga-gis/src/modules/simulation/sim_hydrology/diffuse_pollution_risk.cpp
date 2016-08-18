@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -163,7 +163,7 @@ int CDiffuse_Pollution_Risk::On_Parameters_Enable(CSG_Parameters *pParameters, C
 		pParameters->Set_Enabled("CHANNEL_START", pParameter->asGrid() == NULL);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

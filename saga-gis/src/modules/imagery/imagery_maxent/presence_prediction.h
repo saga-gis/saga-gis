@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        maxent                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPresence_Prediction : public CSG_Module_Grid
+class CPresence_Prediction : public CSG_Tool_Grid
 {
 public:
 	CPresence_Prediction(void);

@@ -33,7 +33,7 @@ CSimplifyShapes::CSimplifyShapes(void){
 	
 	Parameters.Set_Name(_TL("Simplify Lines"));
 	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Use this module to simplify a lines layer, removing points from it."));
+		"(c) 2004 by Victor Olaya. Use this tool to simplify a lines layer, removing points from it."));
 
 	Parameters.Add_Shapes(NULL, 
 						"OUT", 

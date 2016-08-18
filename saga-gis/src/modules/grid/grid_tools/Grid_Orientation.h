@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Copy : public CSG_Module_Grid
+class CGrid_Copy : public CSG_Tool_Grid
 {
 public:
 	CGrid_Copy(void);
@@ -100,7 +100,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Invert : public CSG_Module_Grid
+class CGrid_Invert : public CSG_Tool_Grid
 {
 public:
 	CGrid_Invert(void);
@@ -120,7 +120,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Mirror : public CSG_Module_Grid
+class CGrid_Mirror : public CSG_Tool_Grid
 {
 public:
 	CGrid_Mirror(void);

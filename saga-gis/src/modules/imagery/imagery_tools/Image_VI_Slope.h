@@ -49,7 +49,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CImage_VI_Slope : public CSG_Module_Grid
+class CImage_VI_Slope : public CSG_Tool_Grid
 {
 public:
 	CImage_VI_Slope(void);

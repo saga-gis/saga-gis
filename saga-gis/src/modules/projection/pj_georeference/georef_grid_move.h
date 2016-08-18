@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Grid_Georeference                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGeoref_Grid_Move : public CSG_Module_Interactive
+class CGeoref_Grid_Move : public CSG_Tool_Interactive
 {
 public:
 	CGeoref_Grid_Move(void);
@@ -92,7 +92,7 @@ public:
 protected:
 
 	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 	virtual bool				On_Execute_Finish		(void);
 
 

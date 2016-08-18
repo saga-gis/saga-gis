@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_points                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -175,11 +175,11 @@ bool CSelect_Points::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CSelect_Points::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		m_pSelection->Del_Records();
 
 		if( m_bAddCenter )

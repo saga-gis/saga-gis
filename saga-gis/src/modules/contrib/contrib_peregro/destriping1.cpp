@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                      destriping                       //
 //                                                       //
 //                       for SAGA                        //
@@ -53,7 +53,7 @@ Cdestriping1::Cdestriping1(void)
 
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "RESULT3", _TL("Destriped Grid"), _TL("New grid filtered with the destriping1 module"), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "RESULT3", _TL("Destriped Grid"), _TL("New grid filtered with the destriping1 tool"), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(NULL, "RESULT1", _TL("Low-pass 1"), _TL("Step 1: low-pass of stripe"), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(NULL, "RESULT2", _TL("Low-pass 2"), _TL("Step 2: low-pass between stripe and its surruondings"), PARAMETER_OUTPUT);
 	Parameters.Add_Value(NULL, "ANG", _TL("Angle (in degrees)"), _TL("0 is horizontal, 90 is vertical."), PARAMETER_TYPE_Double, 0.0);

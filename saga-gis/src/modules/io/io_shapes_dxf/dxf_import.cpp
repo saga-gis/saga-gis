@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     io_shapes_dxf                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -165,7 +165,7 @@ CDXF_Import::CDXF_Import(void)
 	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"This module imports DXF files using the free \"dxflib\" library. Get more information "
+		"This tool imports DXF files using the free \"dxflib\" library. Get more information "
 		"about this library from the RibbonSoft homepage at:\n"
 		"<a href=\"http://www.ribbonsoft.com/dxflib.html\">http://www.ribbonsoft.com/dxflib.html</a>"
 	));

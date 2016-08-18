@@ -21,7 +21,7 @@
 *******************************************************************************/ 
 #include "MLB_Interface.h"
 
-class CSortRaster : public CSG_Module_Grid
+class CSortRaster : public CSG_Tool_Grid
 {
 public:
 	CSortRaster(void);

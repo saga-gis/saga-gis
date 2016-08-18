@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CAHP : public CSG_Module_Grid {
+class CAHP : public CSG_Tool_Grid {
 
 public:
 	CAHP(void);

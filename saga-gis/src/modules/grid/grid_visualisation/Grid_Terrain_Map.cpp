@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -71,13 +71,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 	if( !bResult ) return( false );\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 
 //---------------------------------------------------------
@@ -89,7 +89,7 @@ CGrid_Terrain_Map::CGrid_Terrain_Map(void)
 	Set_Author(_TL("Copyrights (c) 2014 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"This module allows one to create different terrain visualisations from an elevation dataset:\n\n"
+		"This tool allows one to create different terrain visualisations from an elevation dataset:\n\n"
 		"* Topography: a simple map with an analytical hillshading of the terrain\n\n"
 		"* Morphology: a map which visualizes the terrain by combining positive and "
 		"negative openness (Yokoyama et al. 2002) with terrain slope in a single map. "
@@ -247,7 +247,7 @@ bool CGrid_Terrain_Map::Generate_Topography()
 
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_lighting"			, 0,
+	RUN_TOOL("ta_lighting"			, 0,
 			SET_PARAMETER("ELEVATION"	, Parameters("DEM"))
 		&&	SET_PARAMETER("SHADE"		, pShade)
 		&&	SET_PARAMETER("METHOD"		, 0)
@@ -309,7 +309,7 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_lighting"			, 5,
+	RUN_TOOL("ta_lighting"			, 5,
 			SET_PARAMETER("DEM"			, Parameters("DEM"))
 		&&	SET_PARAMETER("POS"			, pOpenness)
 		&&	SET_PARAMETER("NEG"			, &TMP1)
@@ -323,7 +323,7 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 
 
 	//-----------------------------------------------------
-	RUN_MODULE("ta_morphometry"			, 0,
+	RUN_TOOL("ta_morphometry"			, 0,
 			SET_PARAMETER("ELEVATION"	, Parameters("DEM"))
 		&&	SET_PARAMETER("SLOPE"		, pSlope)
 		&&	SET_PARAMETER("ASPECT"		, &TMP1)
@@ -372,7 +372,7 @@ bool CGrid_Terrain_Map::Generate_Contours()
 
 
 	//-----------------------------------------------------
-	RUN_MODULE("shapes_grid"			, 5,
+	RUN_TOOL("shapes_grid"			, 5,
 			SET_PARAMETER("GRID"		, Parameters("DEM"))
 		&&	SET_PARAMETER("CONTOUR"		, pContours)
 		&&	SET_PARAMETER("ZSTEP"		, Parameters("EQUIDISTANCE"))

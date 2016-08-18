@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -18,8 +18,8 @@
 //                 Copyright (C) 2010 by                 //
 //                    Volker Wichmann                    //
 //                                                       //
-//  This module is a port of the Grid_Cluster_Analysis   //
-//  module from the Grid_Discretisation module library,  //
+//   This tool is a port of the Grid_Cluster_Analysis    //
+//   tool from the Grid_Discretisation module library,   //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
@@ -90,7 +90,7 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 		"References:\n\n"
 
 		"This tool is a port of the 'Cluster Analysis for Grids' "
-		"module from the 'Imagery - Classification' tool library, "
+		"tool from the 'Imagery - Classification' tool library, "
 		"Copyright (C) 2003 by Olaf Conrad.\n\n"
 
 		"Iterative Minimum Distance:\n"

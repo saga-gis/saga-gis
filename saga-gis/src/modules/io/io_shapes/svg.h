@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVG_Export : public CSG_Module
+class CSVG_Export : public CSG_Tool
 {
 public:
 	CSVG_Export(void);
@@ -112,7 +112,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSVG_Import : public CSG_Module
+class CSVG_Import : public CSG_Tool
 {
 public:
 	CSVG_Import(void);

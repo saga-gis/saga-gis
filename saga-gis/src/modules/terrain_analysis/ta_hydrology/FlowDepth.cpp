@@ -120,7 +120,7 @@ bool CFlowDepth::On_Execute_Finish(){
 
 }//method
 
-bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode){	
+bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode){	
 
 	int iX, iY;	
 	int iNextX, iNextY;
@@ -129,7 +129,7 @@ bool CFlowDepth::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_M
 	double fArea;
 	double fDepth, fPreviousDepth = 0;
 
-	if(	Mode != MODULE_INTERACTIVE_LDOWN || !Get_Grid_Pos(iOutletX, iOutletY) )
+	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iOutletX, iOutletY) )
 	{
 		return( false );
 	}

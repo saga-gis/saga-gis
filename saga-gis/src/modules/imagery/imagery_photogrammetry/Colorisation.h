@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_photogrammetry                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -55,7 +55,7 @@
 #define HEADER_INCLUDED__Colorisation_H
 
 //---------------------------------------------------------
-# include "MLB_Interface.h"
+#include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CColorisation : public CSG_Module
+class CColorisation : public CSG_Tool
 {
 public:
 	CColorisation									(void);

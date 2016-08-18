@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCountPoints : public CSG_Module
+class CCountPoints : public CSG_Tool
 {
 public:
 	CCountPoints(void);

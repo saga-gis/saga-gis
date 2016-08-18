@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        OpenCV                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2009 by                 //
 //                      Olaf Conrad                      //
@@ -59,8 +59,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__MLB_OPENCV_H
-#define HEADER_INCLUDED__MLB_OPENCV_H
+#ifndef HEADER_INCLUDED__TLB_OPENCV_H
+#define HEADER_INCLUDED__TLB_OPENCV_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -73,4 +73,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__MLB_OPENCV_H
+#endif // #ifndef HEADER_INCLUDED__TLB_OPENCV_H

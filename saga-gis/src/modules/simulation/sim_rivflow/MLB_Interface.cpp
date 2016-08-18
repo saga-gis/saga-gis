@@ -5,12 +5,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2014 by                 //
 //                   Christian Alwardt                   //
@@ -49,7 +49,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -71,25 +71,25 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
 	default:
-	case MLB_INFO_Name:			return( _TL("RivFlow") );
-	case MLB_INFO_Category:		return( _TL("Simulation") );
-	case MLB_INFO_Author:		return( "Christian Alwardt" );
-	case MLB_INFO_Description:	return( _TL("RivFlow.") );
-	case MLB_INFO_Version:		return( "3.1" );
-	case MLB_INFO_Menu_Path:	return( _TL("Simulation|Hydrology|RivFlow") );
+	case TLB_INFO_Name:			return( _TL("RivFlow") );
+	case TLB_INFO_Category:		return( _TL("Simulation") );
+	case TLB_INFO_Author:		return( "Christian Alwardt" );
+	case TLB_INFO_Description:	return( _TL("RivFlow.") );
+	case TLB_INFO_Version:		return( "3.1" );
+	case TLB_INFO_Menu_Path:	return( _TL("Simulation|Hydrology|RivFlow") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "RivBasin.h"
 #include "LandFlow.h"
@@ -98,12 +98,12 @@ CSG_String Get_Info(int i)
 #include "GridComb.h"
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
+	// when adding new tools! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
@@ -129,6 +129,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

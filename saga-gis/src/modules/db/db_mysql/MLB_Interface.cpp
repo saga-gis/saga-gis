@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1925 2014-01-09 12:15:18Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1925 2014-01-09 12:15:18Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Table_ODBC                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    MLB_Interface.h                    //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2004 by                 //
 //                      Olaf Conrad                      //
@@ -83,7 +83,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -94,56 +94,56 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 const SG_Char *	Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Tables using MySQL native driver") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Import/Export") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( _TL("Ferhat Bingöl (c) 2009") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Database access through the libmysql.lib interface.") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( _TL("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("File|Table") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "Get_Table.h"
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CGet_Table;
+		pTool	= new CGet_Table;
 		break;
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -156,6 +156,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

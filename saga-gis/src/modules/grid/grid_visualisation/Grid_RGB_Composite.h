@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_RGB_Composite : public CSG_Module_Grid  
+class CGrid_RGB_Composite : public CSG_Tool_Grid  
 {
 public:
 	CGrid_RGB_Composite(void);
@@ -107,7 +107,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_RGB_Split : public CSG_Module_Grid  
+class CGrid_RGB_Split : public CSG_Tool_Grid  
 {
 public:
 	CGrid_RGB_Split(void);

@@ -84,7 +84,7 @@
 //---------------------------------------------------------
 class CVIEW_Map_3D : public CVIEW_Base
 {
-	friend class CView_Map_3DPanel;
+	friend class CVIEW_Map_3DPanel;
 
 public:
 	CVIEW_Map_3D(class CWKSP_Map *pMap);
@@ -104,7 +104,7 @@ private:
 
 	CSG_Grid						m_Map;
 
-	class CView_Map_3DPanel			*m_pPanel;
+	class CVIEW_Map_3DPanel			*m_pPanel;
 
 
 	void							On_Size					(wxSizeEvent     &event);

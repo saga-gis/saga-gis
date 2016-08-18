@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -67,35 +67,35 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Introducing Module Programming" ));
+	case TLB_INFO_Name:	default:
+		return( _TL("Introducing Tool Programming" ));
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Garden") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2003" ));
 
-	case MLB_INFO_Description:
-		return( _TL("A set of basic SAGA module programming examples." ));
+	case TLB_INFO_Description:
+		return( _TL("A set of basic SAGA tool programming examples." ));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
-		return( _TL("Garden|Introducing Module Programming" ));
+	case TLB_INFO_Menu_Path:
+		return( _TL("Garden|Introducing Tool Programming" ));
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "Exercise_01.h"
 #include "Exercise_02.h"
@@ -114,81 +114,34 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
+	// when adding new tools! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CExercise_01;
-		break;
+	case  0:	return( new CExercise_01 );
+	case  1:	return( new CExercise_02 );
+	case  2:	return( new CExercise_03 );
+	case  3:	return( new CExercise_04 );
+	case  4:	return( new CExercise_05 );
+	case  5:	return( new CExercise_06 );
+	case  6:	return( new CExercise_07 );
+	case  7:	return( new CExercise_08 );
+	case  8:	return( new CExercise_09 );
+	case  9:	return( new CExercise_10 );
+	case 10:	return( new CExercise_11 );
+	case 11:	return( new CExercise_12 );
+	case 12:	return( new CExercise_13 );
+	case 13:	return( new CExercise_14 );
 
-	case 1:
-		pModule	= new CExercise_02;
-		break;
-
-	case 2:
-		pModule	= new CExercise_03;
-		break;
-
-	case 3:
-		pModule	= new CExercise_04;
-		break;
-
-	case 4:
-		pModule	= new CExercise_05;
-		break;
-
-	case 5:
-		pModule	= new CExercise_06;
-		break;
-
-	case 6:
-		pModule	= new CExercise_07;
-		break;
-
-	case 7:
-		pModule	= new CExercise_08;
-		break;
-
-	case 8:
-		pModule	= new CExercise_09;
-		break;
-
-	case 9:
-		pModule	= new CExercise_10;
-		break;
-
-	case 10:
-		pModule	= new CExercise_11;
-		break;
-
-	case 11:
-		pModule	= new CExercise_12;
-		break;
-
-	case 12:
-		pModule	= new CExercise_13;
-		break;
-
-	case 13:
-		pModule	= new CExercise_14;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	default:	return( NULL );
 	}
-
-	return( pModule );
 }
 
 
@@ -201,6 +154,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

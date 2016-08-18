@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"This interactive module allows you to specify source cells (with a left mouse click), "
+		"This interactive tool allows you to specify source cells (with a left mouse click), "
 		"for which the downslope area shall be identified. "
 		"For the 'Deterministic Infinity' and 'Multiple Flow Direction' algorithms, "
 		"which are able to simulate flow divergence, the result will give "
@@ -293,9 +293,9 @@ bool CFlow_AreaDownslope::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( pFlow && Mode == MODULE_INTERACTIVE_LDOWN )
+	if( pFlow && Mode == TOOL_INTERACTIVE_LDOWN )
 	{
 		pFlow->Set_Point(Get_xGrid(), Get_yGrid());
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGWR_Grid_Downscaling : public CSG_Module_Grid
+class CGWR_Grid_Downscaling : public CSG_Tool_Grid
 {
 public:
 	CGWR_Grid_Downscaling(void);

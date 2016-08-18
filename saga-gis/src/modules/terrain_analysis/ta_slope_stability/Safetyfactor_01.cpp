@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,10 +74,10 @@ CSafetyfactor::CSafetyfactor(void)
 	Set_Author		(SG_T("A. G&uuml;nther (c) 2012"));
 
 	Set_Description	(_TW(
-		"This module computes a slope stability (expressed as a factor-of-safety) raster according to the traditional infinite slope model theory (see cf Selby, 1993) "
+		"This tool computes a slope stability (expressed as a factor-of-safety) raster according to the traditional infinite slope model theory (see cf Selby, 1993) "
 		"The resulting raster represents the ratio of resisting forces/driving forces (fs) on a potential shear plane with fs lesser 1 unstable, fs greater 1 stable. "
 		"Except for a slope raster (in radians), all input variables can be specified either globally or distributed (through grids). "
-		"The module creates a continuous fs raster (values above 10 are truncated), and a binary stability grid with nodata = stable, 1 = unstable (optional)."
+		"The tool creates a continuous fs raster (values above 10 are truncated), and a binary stability grid with nodata = stable, 1 = unstable (optional)."
 	));
 
 	Parameters.Add_Grid(

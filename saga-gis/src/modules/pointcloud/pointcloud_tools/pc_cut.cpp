@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -381,7 +381,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 		"point cloud datasets. The area-of-interest "
 		"is interactively defined either by dragging a box or by digitizing a polygon.\n"
 		"Best practice is to display the point cloud in a new Map View first and then "
-		"execute the module. Use the Action tool to define the AOI.\n\n"
+		"execute the tool. Use the Action tool to define the AOI.\n\n"
 	));
 
 
@@ -442,7 +442,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 	if( !m_bAOIBox )
 	{
 		m_bAdd      = false;
-        Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_LINE);
+        Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_LINE);
 
 		if( m_pAOI == NULL )
 		{
@@ -474,7 +474,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 		}
 
-		Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_BOX);
+		Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_BOX);
 	}
 
 	if( m_pAOI != NULL )
@@ -487,12 +487,12 @@ bool CPC_Cut_Interactive::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 
 		if( m_bAOIBox )
 			m_ptDown	= ptWorld;
@@ -514,7 +514,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		return( true );
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 
 		if( m_bAOIBox )
 		{
@@ -557,7 +557,7 @@ bool CPC_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		return( false );
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 
 		if( !m_bAOIBox )
 		{

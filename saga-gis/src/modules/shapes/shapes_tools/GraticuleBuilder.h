@@ -42,7 +42,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGraticuleBuilder : public CSG_Module
+class CGraticuleBuilder : public CSG_Tool
 {
 public:
 	CGraticuleBuilder(void);

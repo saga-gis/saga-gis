@@ -22,7 +22,7 @@
 
 #include "MLB_Interface.h"
 
-class CTableCalculatorShapes : public CSG_Module  
+class CTableCalculatorShapes : public CSG_Tool  
 {
 public:
 	CTableCalculatorShapes(void);

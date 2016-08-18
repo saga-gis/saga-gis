@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CLine_Smoothing::CLine_Smoothing(void)
 	Set_Author		(SG_T("V. Wichmann, J. Engels (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module provides methods for line smoothing including iterative averaging "
+		"The tool provides methods for line smoothing including iterative averaging "
 		"(SIA) and Gaussian filtering.\n\n"
 		
 		"Iterative averaging (SIA) is described by Mansouryar & Hedayati (2012). "

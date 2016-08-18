@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Fractals                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -194,7 +194,7 @@ bool CMandelbrot::On_Execute(void)
 						if( a.Get_Y() > b.Get_Y() )	{	d	= a.Get_Y(); a.Set_Y(b.Get_Y()); b.Set_Y(d);	}
 
 //---------------------------------------------------------
-bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	double	d;
 
@@ -203,13 +203,13 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_
 	default:
 		break;
 
-	case MODULE_INTERACTIVE_LDOWN:
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 		GET_POS(m_Down);
 
 		return( true );
 
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		GET_POS(m_Up);
 		SET_POS(m_Up, m_Down);
 
@@ -227,7 +227,7 @@ bool CMandelbrot::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_
 
 		return( true );
 
-	case MODULE_INTERACTIVE_RUP:
+	case TOOL_INTERACTIVE_RUP:
 		GET_POS(m_Up);
 		SET_POS(m_Up, m_Down);
 

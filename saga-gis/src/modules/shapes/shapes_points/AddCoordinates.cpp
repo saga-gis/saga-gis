@@ -30,7 +30,7 @@ CAddCoordinates::CAddCoordinates(void)
 	Set_Author		(SG_T("Victor Olaya (c) 2004"));
 
 	Set_Description	(_TW(
-		"The module attaches the x- and y-coordinates of each point to the attribute table. "
+		"The tool attaches the x- and y-coordinates of each point to the attribute table. "
 		"For 3D shapefiles, also the z/m-coordinates are reported.\n"
 	));
 

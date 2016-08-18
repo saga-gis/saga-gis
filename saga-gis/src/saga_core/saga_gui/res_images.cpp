@@ -226,7 +226,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_NB_INFO_MESSAGES:	return( nb_info_messages_xpm );
 	case ID_IMG_NB_WKSP_DATA:	return( nb_wksp_data_xpm );
 	case ID_IMG_NB_WKSP_MAPS:	return( nb_wksp_maps_xpm );
-	case ID_IMG_NB_WKSP_MODULES:	return( nb_wksp_modules_xpm );
+	case ID_IMG_NB_WKSP_TOOLS:	return( nb_wksp_modules_xpm );
 	case ID_IMG_NB_WKSP_THUMBNAILS:	return( nb_wksp_thumbnails_xpm );
 	case ID_IMG_NB_WKSP_TREEVIEW:	return( nb_wksp_treeview_xpm );
 	case ID_IMG_SAGA_ICON_16:	return( saga_icon_16_xpm );
@@ -301,7 +301,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_ZOOM_SELECTION:	return( tb_map_zoom_selection_xpm );
 	case ID_IMG_TB_OPEN:	return( tb_open_xpm );
 	case ID_IMG_TB_OPEN_GRID:	return( tb_open_grid_xpm );
-	case ID_IMG_TB_OPEN_MODULE:	return( tb_open_module_xpm );
+	case ID_IMG_TB_OPEN_TOOL:	return( tb_open_module_xpm );
 	case ID_IMG_TB_OPEN_SHAPES:	return( tb_open_shapes_xpm );
 	case ID_IMG_TB_OPEN_TABLE:	return( tb_open_table_xpm );
 	case ID_IMG_TB_OPEN_TIN:	return( tb_open_tin_xpm );
@@ -324,11 +324,11 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_WKSP_MAP_GRATICULE:	return( wksp_map_graticule_xpm );
 	case ID_IMG_WKSP_MAP_BASEMAP:	return( wnd_map_xpm );
 	case ID_IMG_WKSP_MAP_MANAGER:	return( wksp_map_manager_xpm );
-	case ID_IMG_WKSP_MODULE:	return( wksp_module_xpm );
-	case ID_IMG_WKSP_MODULE_CHAIN:	return( wksp_module_xpm );
-	case ID_IMG_WKSP_MODULE_LIBRARY:	return( wksp_module_library_xpm );
-	case ID_IMG_WKSP_MODULE_GROUP:	return( wksp_module_library_xpm );
-	case ID_IMG_WKSP_MODULE_MANAGER:	return( wksp_module_manager_xpm );
+	case ID_IMG_WKSP_TOOL:	return( wksp_module_xpm );
+	case ID_IMG_WKSP_TOOL_CHAIN:	return( wksp_module_xpm );
+	case ID_IMG_WKSP_TOOL_LIBRARY:	return( wksp_module_library_xpm );
+	case ID_IMG_WKSP_TOOL_GROUP:	return( wksp_module_library_xpm );
+	case ID_IMG_WKSP_TOOL_MANAGER:	return( wksp_module_manager_xpm );
 	case ID_IMG_WKSP_NOITEMS:	return( wksp_noitems_xpm );
 	case ID_IMG_WKSP_DB_SOURCES:	return( wksp_odbc_sources_xpm );
 	case ID_IMG_WKSP_DB_SOURCE_ON:	return( wksp_odbc_source_on_xpm );

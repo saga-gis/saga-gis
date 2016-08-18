@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_photogrammetry                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CColorisation::CColorisation(void)
 	Set_Author		(SG_T("HfT Stuttgart (c) 2013"));
 
 	Set_Description	(_TW(
-					"This module attaches the color information from a RGB image to Laser Points."
+					"This tool attaches the color information from a RGB image to Laser Points."
 					"\n The RGB Image and the Point Cloud to be colorised are the inputs along "
 					"with the interior and exterior orientation parameters of the camera. The "
 					"necessary interior orientation parameters are Focal Length (mm), Pixel "

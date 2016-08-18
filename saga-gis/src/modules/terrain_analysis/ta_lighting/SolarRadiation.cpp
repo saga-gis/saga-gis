@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -283,10 +283,10 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 		bool	bResult;
 
-		SG_RUN_MODULE(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
-				SG_MODULE_PARAMETER_SET("SOURCE"   , &srcCenter)
-			&&	SG_MODULE_PARAMETER_SET("TARGET"   , &dstCenter)
-			&&	SG_MODULE_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		SG_RUN_TOOL(bResult, "pj_proj4", 2,	// Coordinate Transformation (Shapes)
+				SG_TOOL_PARAMETER_SET("SOURCE"   , &srcCenter)
+			&&	SG_TOOL_PARAMETER_SET("TARGET"   , &dstCenter)
+			&&	SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 		)
 
 		if( bResult )
@@ -295,7 +295,7 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		}
 	}
 
-	return( CSG_Module_Grid::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -336,7 +336,7 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("LOCALSVF"      , pParameter->asInt() != 3);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -396,10 +396,10 @@ bool CSolarRadiation::On_Execute(void)
 		m_Lat		 .Create(*Get_System());
 		m_Lon		 .Create(*Get_System());
 
-		SG_RUN_MODULE_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
-				SG_MODULE_PARAMETER_SET("GRID", m_pDEM)
-			&&	SG_MODULE_PARAMETER_SET("LON" , &m_Lon)
-			&&	SG_MODULE_PARAMETER_SET("LAT" , &m_Lat)
+		SG_RUN_TOOL_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
+				SG_TOOL_PARAMETER_SET("GRID", m_pDEM)
+			&&	SG_TOOL_PARAMETER_SET("LON" , &m_Lon)
+			&&	SG_TOOL_PARAMETER_SET("LAT" , &m_Lat)
 		)
 
 		m_Lat.Set_Scaling(M_DEG_TO_RAD);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Lectures_Shapes                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -87,7 +87,7 @@
 CExercise_14::CExercise_14(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("14: Vectorising channel lines"));
 

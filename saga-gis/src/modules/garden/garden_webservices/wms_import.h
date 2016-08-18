@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   garden_webservices                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -109,7 +109,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWMS_Import : public CSG_Module
+class CWMS_Import : public CSG_Tool
 {
 public:
 	CWMS_Import(void);

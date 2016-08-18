@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDistanceMatrix : public CSG_Module
+class CDistanceMatrix : public CSG_Tool
 {
 public:
 	CDistanceMatrix(void);

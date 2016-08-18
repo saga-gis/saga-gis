@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_Location : public CSG_Module  
+class CSelect_Location : public CSG_Tool  
 {
 public:
 	CSelect_Location(void);

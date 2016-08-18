@@ -69,7 +69,7 @@
 
 #include "callback.h"
 
-#include "module_library.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,12 +79,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-static CCMD_Module	*g_pCMD_Module	= NULL;
+static CCMD_Tool	*g_pCMD_Tool	= NULL;
 
 //---------------------------------------------------------
-void			CMD_Set_Module		(CCMD_Module *pCMD_Module)
+void			CMD_Set_Tool		(CCMD_Tool *pCMD_Tool)
 {
-	g_pCMD_Module	= pCMD_Module;
+	g_pCMD_Tool	= pCMD_Tool;
 }
 
 
@@ -429,7 +429,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_DLG_PARAMETERS:
 
-		Result	= g_pCMD_Module && g_pCMD_Module->Get_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
+		Result	= g_pCMD_Tool && g_pCMD_Tool->Get_Parameters((CSG_Parameters *)Param_1.Pointer) ? 1 : 0;
 
 		break;
 

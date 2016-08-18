@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_classification                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -159,7 +159,7 @@ int CClassification_Quality::On_Parameters_Enable(CSG_Parameters *pParameters, C
 		pParameters->Set_Enabled("GRID_LUT_NAM", pParameter->asTable() != NULL);
 	}
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

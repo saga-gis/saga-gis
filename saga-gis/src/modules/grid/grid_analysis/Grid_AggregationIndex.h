@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CAggregationIndex : public CSG_Module_Grid {
+class CAggregationIndex : public CSG_Tool_Grid {
 
 public:
 	CAggregationIndex(void);

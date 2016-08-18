@@ -25,7 +25,7 @@
 
 #include "MLB_Interface.h"
 
-class CSimplifyShapes : public CSG_Module{
+class CSimplifyShapes : public CSG_Tool{
 
 public:
 	CSimplifyShapes(void);

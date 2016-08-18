@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CSurfer_Import : public CSG_Module
+class CSurfer_Import : public CSG_Tool
 {
 public:
 	CSurfer_Import(void);
@@ -88,7 +88,7 @@ private:
 };
 
 //---------------------------------------------------------
-class CSurfer_Export : public CSG_Module_Grid
+class CSurfer_Export : public CSG_Tool_Grid
 {
 public:
 	CSurfer_Export(void);

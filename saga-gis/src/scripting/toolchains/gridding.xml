@@ -26,7 +26,7 @@
     </output>
   </parameters>
   <tools>
-    <tool library="grid_spline" module="4" name="Multilevel B-Spline Interpolation">
+    <tool library="grid_spline" tool="4" name="Multilevel B-Spline Interpolation">
       <input  id="SHAPES">POINTS</input>
       <option id="FIELD" varname="true">ATTRIBUTE</option>
       <option id="TARGET_USER_SIZE" varname="true">CELL_SIZE</option>

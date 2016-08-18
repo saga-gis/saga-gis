@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Copy : public CSG_Module
+class CSelection_Copy : public CSG_Tool
 {
 public:
 	CSelection_Copy(void);
@@ -57,7 +57,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Delete : public CSG_Module
+class CSelection_Delete : public CSG_Tool
 {
 public:
 	CSelection_Delete(void);
@@ -77,7 +77,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Invert : public CSG_Module
+class CSelection_Invert : public CSG_Tool
 {
 public:
 	CSelection_Invert(void);

@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                      destriping                       //
 //                                                       //
 //                       for SAGA                        //
@@ -34,7 +34,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class Cdestriping2 : public CSG_Module_Grid
+class Cdestriping2 : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

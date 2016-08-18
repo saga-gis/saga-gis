@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ihacres_v1                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -72,7 +72,7 @@ Cihacres_v1::Cihacres_v1(void)
 	));
 
 	///////////////////////////////////////////////////////////////////
-	// FIRST MODULE DIALOG
+	// FIRST TOOL DIALOG
 	CreateDialog1();
 	///////////////////////////////////////////////////////////////////
 }
@@ -100,7 +100,7 @@ bool Cihacres_v1::On_Execute(void)
 	int				storconf;	// storage configuration
 								// 0 = single, 1 = two parallel, 2 = two in series
 
-	// Assign Parameters from first Module Dialog
+	// Assign Parameters from first Tool Dialog
 	//---------------------------------------------------------
 	pTable			= Parameters("TABLE")			->asTable();
 	// Field numbers
@@ -115,7 +115,7 @@ bool Cihacres_v1::On_Execute(void)
 	m_area			= Parameters("AREA")			->asDouble();
 	storconf		= Parameters("STORAGE")			->asInt();
 	IHAC_version	= Parameters("IHACVERS")		->asInt();
-	bSnowModule		= Parameters("SNOW_MODULE")		->asBool();
+	bSnowModule		= Parameters("SNOW_TOOL")		->asBool();
 	writeAllTimeSeries = Parameters("WRITEALL_TS")	->asBool();
 	first = last	= 0;
 	//---------------------------------------------------------
@@ -505,7 +505,7 @@ void Cihacres_v1::CreateDialog1()
 	);
 
 	s.Printf(SG_T("Node2"), 2);
-		pNode = Parameters.Add_Node(NULL,s,SG_T("Non-Linear Module"),_TL(""));
+		pNode = Parameters.Add_Node(NULL,s,SG_T("Non-Linear Tool"),_TL(""));
 
 	Parameters.Add_Value(
 		pNode,	"CFAC",	_TL("Parameter (c)"),
@@ -548,7 +548,7 @@ void Cihacres_v1::CreateDialog1()
 	);
 
 	Parameters.Add_Value(
-		pNode,	"SNOW_MODULE",	_TL("Using the snow-melt module?"),
+		pNode,	"SNOW_TOOL",	_TL("Using the snow-melt module?"),
 		_TL("If checked, snow-melt module is used."),
 		PARAMETER_TYPE_Bool, false
 	);
@@ -602,7 +602,7 @@ bool Cihacres_v1::CreateDialog2(bool bTMP, int storconf, int IHAC_version,
 	if (bTMP) // if observed temperature data are used
 	{
 		s.Printf(SG_T("Node2"), 2);
-		pNode = P.Add_Node(NULL,s,SG_T("Non-Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,SG_T("Non-Linear Tool"),_TL(""));
 
 		s.Printf(SG_T("Node2-1"), 2-1);
 		pNode1 = P.Add_Node(pNode,s,SG_T("Temperature Modulation Factor"),_TL(""));
@@ -649,7 +649,7 @@ bool Cihacres_v1::CreateDialog2(bool bTMP, int storconf, int IHAC_version,
 	{
 	case 0: // single storage
 		s.Printf(SG_T("Node3"), 3);
-		pNode = P.Add_Node(NULL,s,SG_T("Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,SG_T("Linear Tool"),_TL(""));
 
 		s.Printf(SG_T("Node3-1"), 3-1);
 		pNode1 = P.Add_Node(pNode,s,SG_T("Parameter (a)"),_TL(""));
@@ -674,7 +674,7 @@ bool Cihacres_v1::CreateDialog2(bool bTMP, int storconf, int IHAC_version,
 
 	case 1: // two parallel storages
 		s.Printf(SG_T("Node3"), 3);
-		pNode = P.Add_Node(NULL,s,SG_T("Linear Module"),_TL(""));
+		pNode = P.Add_Node(NULL,s,SG_T("Linear Tool"),_TL(""));
 
 		// Parameter a
 		s.Printf(SG_T("Node3-1"), 3-1);
@@ -712,7 +712,7 @@ bool Cihacres_v1::CreateDialog2(bool bTMP, int storconf, int IHAC_version,
 	if (bSnowModule)
 	{
 	s.Printf(SG_T("Node5"), 5);
-	pNode1 = P.Add_Node(NULL,s,SG_T("Snow Module Parameters"),_TL(""));
+	pNode1 = P.Add_Node(NULL,s,SG_T("Snow Tool Parameters"),_TL(""));
 		
 		P.Add_Value(
 			pNode1,	"T_RAIN",	_TL("Temperature Threshold for Rainfall"),

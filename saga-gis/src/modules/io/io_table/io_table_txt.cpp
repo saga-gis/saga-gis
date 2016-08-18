@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       table_io                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -290,7 +290,7 @@ int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -398,7 +398,7 @@ int CTable_Text_Import_Numbers::On_Parameters_Enable(CSG_Parameters *pParameters
 		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------

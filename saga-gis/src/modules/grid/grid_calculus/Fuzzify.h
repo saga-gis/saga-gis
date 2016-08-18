@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFuzzify : public CSG_Module_Grid
+class CFuzzify : public CSG_Tool_Grid
 {
 public:
 	CFuzzify(void);

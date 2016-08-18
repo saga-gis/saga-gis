@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Tutorial                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -91,7 +91,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"The module reads out grids values from one or more input grids and reports these in a table. "
+		"The tool reads out grids values from one or more input grids and reports these in a table. "
 		"Besides the grid value(s), the x- and y-coordinates of the queried cell(s) are reported. The "
 		"reported grid coordinates (column, row) are those of the first input grid.\n")
 	);
@@ -132,7 +132,7 @@ CGrid_Value_Request::CGrid_Value_Request(void)
 		), 3
 	);
 
-	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 }
 
 
@@ -202,7 +202,7 @@ bool CGrid_Value_Request::On_Execute(void)
 }
 
 //---------------------------------------------------------
-bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	int					iGrid;
 	double				Value;
@@ -214,7 +214,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 		{
 		//-------------------------------------------------
 		case 0:
-			if( Mode == MODULE_INTERACTIVE_LDOWN || Mode == MODULE_INTERACTIVE_MOVE_LDOWN )
+			if( Mode == TOOL_INTERACTIVE_LDOWN || Mode == TOOL_INTERACTIVE_MOVE_LDOWN )
 			{
 				m_pTable->Get_Record(FIELD_X_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
 				m_pTable->Get_Record(FIELD_Y_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
@@ -242,7 +242,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Inte
 
 		//-------------------------------------------------
 		case 1:
-			if( Mode == MODULE_INTERACTIVE_LDOWN )
+			if( Mode == TOOL_INTERACTIVE_LDOWN )
 			{
 				pRecord	= m_pTable->Add_Record();
 

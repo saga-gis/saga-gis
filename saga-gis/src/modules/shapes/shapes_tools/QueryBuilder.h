@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_Numeric : public CSG_Module  
+class CSelect_Numeric : public CSG_Tool  
 {
 public:
 	CSelect_Numeric(void);

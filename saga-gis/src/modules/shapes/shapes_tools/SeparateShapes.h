@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSeparateShapes : public CSG_Module
+class CSeparateShapes : public CSG_Tool
 {
 public:
 	CSeparateShapes(void);

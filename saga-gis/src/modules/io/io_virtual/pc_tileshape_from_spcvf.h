@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPointCloud_Create_Tileshape_From_SPCVF : public CSG_Module
+class CPointCloud_Create_Tileshape_From_SPCVF : public CSG_Tool
 {
 public:
 	CPointCloud_Create_Tileshape_From_SPCVF(void);

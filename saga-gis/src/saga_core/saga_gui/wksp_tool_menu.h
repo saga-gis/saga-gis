@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    WKSP_Module.h                      //
+//                   wksp_tool_menu.h                    //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -53,7 +53,6 @@
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -61,20 +60,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_H
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-#include "wksp_base_manager.h"
+#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Menu_H
+#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Menu_H
 
 
 ///////////////////////////////////////////////////////////
@@ -84,61 +71,47 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Module : public CWKSP_Base_Item
+#include <wx/menu.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWKSP_Tool_Menu
 {
 public:
-	CWKSP_Module(class CSG_Module *pModule, const wxString &Menu_Library);
-	virtual ~CWKSP_Module(void);
+	CWKSP_Tool_Menu(void);
+	virtual ~CWKSP_Tool_Menu(void);
 
-	virtual TWKSP_Item				Get_Type			(void)			{	return( WKSP_ITEM_Module );	}
+	void						Destroy				(void);
 
-	virtual wxString				Get_Name			(void);
-	virtual wxString				Get_Description		(void);
+	wxMenu *					Get_Menu			(void)	{	return( m_pMenu );	}
 
-	virtual wxMenu *				Get_Menu			(void);
+	void						Update				(void);
 
-	virtual bool					On_Command			(int Cmd_ID);
+	void						Set_Recent			(class CWKSP_Tool *pTool);
 
-	virtual class CSG_Parameters *	Get_Parameters		(void);
-
-	class CSG_Module *				Get_Module			(void)			{	return( m_pModule );	}
-
-	void							Set_Menu_ID			(int Menu_ID);
-	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
-
-	wxString						Get_File_Name		(void);
-
-	bool							is_Interactive		(void);
-	bool							is_Executing		(void);
-
-	bool							Execute				(bool bDialog);
-	bool							Execute				(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
+	int							Get_ID_Translated	(int ID);
 
 
 private:
 
-	int								m_Menu_ID;
+	wxMenu						*m_pMenu;
 
-	class CSG_Module				*m_pModule;
+	class CWKSP_Tool			**m_Recent;
 
 
-	void							_Save_to_Clipboard		(void);
-	void							_Save_to_Script			(void);
-
-	CSG_String						_Get_XML				(bool bHeader);
-	void							_Get_XML				(CSG_MetaData &Tool, CSG_Parameters *pParameters);
-
-	CSG_String						_Get_CMD				(bool bHeader, int Type = -1);
-	void							_Get_CMD				(CSG_String &Command, CSG_Parameters *pParameters);
-
-	CSG_String						_Get_Python				(bool bHeader);
-	void							_Get_Python				(CSG_String &Command, CSG_Parameters *pParameters);
+	void						_Update				(wxMenu *pMenu);
+	bool						_Get_SubMenu		(class CWKSP_Tool *pTool, class CSG_MetaData *pUser);
+	wxMenu *					_Get_SubMenu_byToken(wxMenu *pMenu, wxString Token);
+	void						_Set_Recent			(wxMenu *pMenu);
 
 };
 
-//---------------------------------------------------------
-extern CWKSP_Module					*g_pModule;
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -147,4 +120,4 @@ extern CWKSP_Module					*g_pModule;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Menu_H

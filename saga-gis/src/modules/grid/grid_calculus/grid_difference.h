@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Difference : public CSG_Module_Grid  
+class CGrid_Difference : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Difference(void);
@@ -98,7 +98,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Division : public CSG_Module_Grid  
+class CGrid_Division : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Division(void);
@@ -116,7 +116,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrids_Sum : public CSG_Module_Grid  
+class CGrids_Sum : public CSG_Tool_Grid  
 {
 public:
 	CGrids_Sum(void);
@@ -134,7 +134,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrids_Product : public CSG_Module_Grid  
+class CGrids_Product : public CSG_Tool_Grid  
 {
 public:
 	CGrids_Product(void);

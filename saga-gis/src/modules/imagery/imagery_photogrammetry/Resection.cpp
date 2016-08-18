@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                imagery_photogrammetry                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -106,7 +106,7 @@ CResection::CResection(void)
 		"Standard Deviation (Sigma Naught) and the Condition of Normal Matrix, and the final estimated "
 		"exterior orientation parameters (Xc, Yc, Zc, Omega, Kappa, Alpha).\n\n Optionally the Principal "
 		"Point Offsets can be estimated. This requires at least 4 image points as input."
-		"\n\n[Warning] The module is dedicated to the terrestrial case which means the viewing direction "
+		"\n\n[Warning] The tool is dedicated to the terrestrial case which means the viewing direction "
 		"must be sufficiently different from the vertical direction."
 		"\nThe estimation of Principal Point Offsets is not recommended if the condition of the Normal "
 		"Matrix is less than 10 ^ -7."

@@ -1425,7 +1425,7 @@ private:
 class SAGA_API_DLL_EXPORT CSG_Parameters
 {
 	friend class CSG_Parameter;
-	friend class CSG_Module;
+	friend class CSG_Tool;
 
 public:
 	CSG_Parameters(void);

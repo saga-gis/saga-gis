@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"The module can be used to reclassify the values of a grid. It provides three different options:\n"
+		"The tool can be used to reclassify the values of a grid. It provides three different options:\n"
 		"(a) reclassification of single values\n"
 		"(b) reclassification of a range of values\n"
 		"(c) reclassification of value ranges specified in a lookup table\n\n"
@@ -90,7 +90,7 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 		"settings. In reclassification mode (c) the option is evaluated only if the NoData value is not "
 		"included in the lookup table.\n"
 		"The 'other values' option is always evaluated after checking the 'Method' settings.\n\n"
-		"The module allows one to define the NoData value of the output grid (header): by default, the "
+		"The tool allows one to define the NoData value of the output grid (header): by default, the "
 		"output grid gets assigned the NoData value of the input grid. But it is also possible to "
 		"assign a user defined NoData value.\n\n"
 	));

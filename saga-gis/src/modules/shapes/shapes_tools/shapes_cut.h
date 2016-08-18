@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -88,7 +88,7 @@ bool			Cut_Set_Extent	(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear);
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Cut : public CSG_Module
+class CShapes_Cut : public CSG_Tool
 {
 public:
 	CShapes_Cut(void);

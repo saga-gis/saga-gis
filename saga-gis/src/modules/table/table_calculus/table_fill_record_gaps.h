@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Fill_Record_Gaps : public CSG_Module
+class CTable_Fill_Record_Gaps : public CSG_Tool
 {
 public:
 	CTable_Fill_Record_Gaps(void);

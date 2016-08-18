@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    georeferencing                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -103,7 +103,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDirect_Georeferencing : public CSG_Module_Grid
+class CDirect_Georeferencing : public CSG_Tool_Grid
 {
 public:
 	CDirect_Georeferencing(void);
@@ -131,7 +131,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDirect_Georeferencing_WorldFile : public CSG_Module
+class CDirect_Georeferencing_WorldFile : public CSG_Tool
 {
 public:
 	CDirect_Georeferencing_WorldFile(void);

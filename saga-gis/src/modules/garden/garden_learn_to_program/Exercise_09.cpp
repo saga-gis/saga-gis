@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 CExercise_09::CExercise_09(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("09: Extended neighbourhoods - catchment areas (recursive)"));
 

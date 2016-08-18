@@ -4,7 +4,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_Shapes_From_List : public CSG_Module
+class CSelect_Shapes_From_List : public CSG_Tool
 {
 public:
 	CSelect_Shapes_From_List(void);

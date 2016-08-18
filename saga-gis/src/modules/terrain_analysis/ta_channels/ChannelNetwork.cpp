@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_channels                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,7 +81,7 @@ CChannelNetwork::CChannelNetwork(void)
 	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
 	Set_Description	(_TW(
-		"This module derives a channel network based on gridded digital elevation data.\n"
+		"This tool derives a channel network based on gridded digital elevation data.\n"
 		"Use the initiation options to determine under which conditions channels shall start.\n"
 		"\n")
 	);

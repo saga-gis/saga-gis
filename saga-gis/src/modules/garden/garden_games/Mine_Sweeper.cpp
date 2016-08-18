@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                     Mine_Sweeper                      //
 //                                                       //
@@ -281,7 +281,7 @@ bool CMine_Sweeper::Get_Grid_Pos(int &x, int &y)
 }
 
 
-bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	int ok = true;
 	
@@ -301,7 +301,7 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 	default:
 		return( false );
 
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if(First_Click)
 		{
 			ResetBoard(xpos, ypos);
@@ -312,7 +312,7 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactiv
 		redraw = true;
 		break;
 
-	case MODULE_INTERACTIVE_RDOWN:
+	case TOOL_INTERACTIVE_RDOWN:
 		Mark(xpos, ypos);
 		redraw = true;
 		break;

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      statistics                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -126,7 +126,7 @@ CLandUse_Scenario::CLandUse_Scenario(void)
 		NULL	, "STATISTICS"		, _TL("Crop Statistics"),
 		_TW("The first column specifies a crop type id. "
 			"The second column provides a human readible name for the crop type (e.g. 'potatoes') ."
-			"The third column must be an integer value, though this value is not yet used by this module. "
+			"The third column must be an integer value, though this value is not yet used by this tool. "
 			"The following columns provide the yearly amount of each crop type [%] for a sequence of years. "),
 		PARAMETER_INPUT
 	);

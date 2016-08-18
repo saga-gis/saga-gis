@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@ CPC_Merge::CPC_Merge(void)
 
 	Set_Author		(SG_T("Magnus Bremer (c) 2012"));
 
-	Set_Description	(_TW("The module can be used to merge point clouds.\n"
+	Set_Description	(_TW("The tool can be used to merge point clouds.\n"
 						 "The attribute fields of the merged point cloud resemble those "
 						 "of the main point cloud. In order to merge the attributes of the "
 						 "additional point cloud layers, these must be consistent "

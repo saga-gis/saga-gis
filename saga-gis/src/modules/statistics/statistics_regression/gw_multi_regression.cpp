@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -154,7 +154,7 @@ int CGW_Multi_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 
 	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -165,7 +165,7 @@ int CGW_Multi_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 	m_Search     .On_Parameters_Enable(pParameters, pParameter);
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       image_io                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_grid_image_EXPORT CGrid_Import : public CSG_Module
+class io_grid_image_EXPORT CGrid_Import : public CSG_Tool
 {
 public:
 	CGrid_Import(void);

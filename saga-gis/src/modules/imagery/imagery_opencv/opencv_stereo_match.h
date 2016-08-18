@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        OpenCV                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -88,7 +88,7 @@ using namespace cv;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COpenCV_Stereo_Match : public CSG_Module_Grid
+class COpenCV_Stereo_Match : public CSG_Tool_Grid
 {
 public:
 	COpenCV_Stereo_Match(void);
@@ -119,7 +119,7 @@ private:
 
 #else // CV_MAJOR_VERSION == 3
 
-#define new_COpenCV_Stereo_Match	MLB_INTERFACE_SKIP_MODULE
+#define new_COpenCV_Stereo_Match	TLB_INTERFACE_SKIP_TOOL
 
 #endif
 

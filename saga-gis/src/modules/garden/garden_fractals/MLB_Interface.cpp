@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Fractals                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -67,35 +67,35 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Fractals") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Garden") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("O. Conrad (c) 2002") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TL("Fractals") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Garden|Recreations|Fractals") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "Bifurcation.h"
 #include "Grid_FractalDimension.h"
@@ -106,49 +106,21 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Module	*pModule;
-
 	switch( i )
 	{
-	case 0:
-		pModule	= new CBifurcation;
-		break;
+	case  0:	return( new CBifurcation );
+	case  1:	return( new CPythagoras_Tree );
+	case  2:	return( new CMandelbrot );
+	case  3:	return( new CGrid_FractalDimension );
+	case  4:	return( new CNewton );
+	case  5:	return( new CGaussian_Landscapes );
 
-	case 1:
-		pModule	= new CPythagoras_Tree;
-		break;
-
-	case 2:
-		pModule	= new CMandelbrot;
-		break;
-
-	case 3:
-		pModule	= new CGrid_FractalDimension;
-		break;
-
-	case 4:
-		pModule	= new CNewton;
-		break;
-
-	case 5:
-		pModule	= new CGaussian_Landscapes;
-		break;
-
-	default:
-		pModule	= NULL;
-		break;
+	default:	return( NULL );
 	}
-
-	return( pModule );
 }
 
 
@@ -161,6 +133,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

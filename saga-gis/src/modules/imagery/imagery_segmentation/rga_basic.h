@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -125,7 +125,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRGA_Basic : public CSG_Module_Grid
+class CRGA_Basic : public CSG_Tool_Grid
 {
 public:
 	CRGA_Basic(void);

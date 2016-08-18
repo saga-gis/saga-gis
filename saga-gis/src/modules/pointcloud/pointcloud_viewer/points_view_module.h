@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  points_view_module                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPoints_View_Module : public CSG_Module  
+class CPoints_View_Module : public CSG_Tool  
 {
 public:
 	CPoints_View_Module(void);

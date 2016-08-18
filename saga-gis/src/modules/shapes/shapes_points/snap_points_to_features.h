@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_points                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSnap_Points_to_Features : public CSG_Module
+class CSnap_Points_to_Features : public CSG_Tool
 {
 public:
 	CSnap_Points_to_Features(TSG_Shape_Type Type);

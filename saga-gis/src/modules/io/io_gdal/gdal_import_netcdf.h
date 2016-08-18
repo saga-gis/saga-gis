@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CGDAL_Import_NetCDF : public CSG_Module
+class io_gdal_EXPORT CGDAL_Import_NetCDF : public CSG_Tool
 {
 public:
 	CGDAL_Import_NetCDF(void);

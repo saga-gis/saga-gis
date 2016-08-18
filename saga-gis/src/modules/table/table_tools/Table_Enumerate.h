@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Table_Tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -69,7 +69,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CTable_Enumerate : public CSG_Module
+class CTable_Enumerate : public CSG_Tool
 {
 public:
 	CTable_Enumerate(void);

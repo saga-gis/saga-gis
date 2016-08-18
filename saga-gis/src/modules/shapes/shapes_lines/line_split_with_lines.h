@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_lines                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLine_Split_with_Lines : public CSG_Module  
+class CLine_Split_with_Lines : public CSG_Tool  
 {
 public:
 	CLine_Split_with_Lines(void);
@@ -103,7 +103,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLine_Split_at_Points : public CSG_Module  
+class CLine_Split_at_Points : public CSG_Tool  
 {
 public:
 	CLine_Split_at_Points(void);

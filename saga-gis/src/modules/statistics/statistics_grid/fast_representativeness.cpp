@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -90,22 +90,22 @@ CFast_Representativeness::CFast_Representativeness(void)
 	));
 
 	Parameters.Add_Grid(	NULL, "INPUT"		, _TL("Input"),
-		_TL("Input for module calculations."),
+		_TL("Input for tool calculations."),
 		PARAMETER_INPUT, true, SG_DATATYPE_Float
 	);
 
 	Parameters.Add_Grid(	NULL, "RESULT"		, _TL("Output"),
-		_TL("Output of module calculations."),
+		_TL("Output of tool calculations."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(	NULL, "RESULT_LOD", _TL("Output Lod"),
-		_TL("Output of module calculations."),
+		_TL("Output of tool calculations."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(	NULL, "SEEDS"		, _TL("Output Seeds"),
-		_TL("Output of module calculations."),
+		_TL("Output of tool calculations."),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 

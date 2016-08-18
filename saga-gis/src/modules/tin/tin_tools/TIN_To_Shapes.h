@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       TIN_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTIN_To_Shapes : public CSG_Module
+class CTIN_To_Shapes : public CSG_Tool
 {
 public:
 	CTIN_To_Shapes(void);

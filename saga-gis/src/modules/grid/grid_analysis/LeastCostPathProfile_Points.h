@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLeastCostPathProfile_Points : public CSG_Module_Grid
+class CLeastCostPathProfile_Points : public CSG_Tool_Grid
 {
 public:
 	CLeastCostPathProfile_Points(void);

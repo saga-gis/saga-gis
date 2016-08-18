@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -100,7 +100,7 @@ CLandsat_ACCA::CLandsat_ACCA(void)
 
 	Set_Description	(_TW(
 		"Automated Cloud-Cover Assessment (ACCA) for Landsat TM/ETM+ imagery as proposed by Irish (2000). "
-		"This module incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.acca).\n"
+		"This tool incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.acca).\n"
 		"\n"
 		"References:\n"
 		"- Irish, R.R. (2000): Landsat 7 Automatic Cloud Cover Assessment."
@@ -247,7 +247,7 @@ bool CLandsat_ACCA::On_Execute(void)
 
 /****************************************************************************
  *
- * MODULE:	   i.landsat.acca
+ * TOOL:	   i.landsat.acca
  *
  * AUTHOR(S):	E. Jorge Tizado - ej.tizado@unileon.es
  *

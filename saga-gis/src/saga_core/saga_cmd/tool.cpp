@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  module_library.cpp                   //
+//                        tool.cpp                       //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -65,7 +65,7 @@
 
 #include "callback.h"
 
-#include "module_library.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -75,19 +75,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CCMD_Module::CCMD_Module(void)
+CCMD_Tool::CCMD_Tool(void)
 {
 	m_pLibrary	= NULL;
-	m_pModule	= NULL;
+	m_pTool	= NULL;
 }
 
-CCMD_Module::CCMD_Module(CSG_Module_Library *pLibrary, CSG_Module *pModule)
+CCMD_Tool::CCMD_Tool(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 {
-	Create(pLibrary, pModule);
+	Create(pLibrary, pTool);
 }
 
 //---------------------------------------------------------
-CCMD_Module::~CCMD_Module(void)
+CCMD_Tool::~CCMD_Tool(void)
 {
 	Destroy();
 }
@@ -100,17 +100,17 @@ CCMD_Module::~CCMD_Module(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::Create(CSG_Module_Library *pLibrary, CSG_Module *pModule)
+bool CCMD_Tool::Create(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 {
 	Destroy();
 
-	if( (m_pLibrary = pLibrary) != NULL && (m_pModule = pModule) != NULL )
+	if( (m_pLibrary = pLibrary) != NULL && (m_pTool = pTool) != NULL )
 	{
-		_Set_Parameters(m_pModule->Get_Parameters());
+		_Set_Parameters(m_pTool->Get_Parameters());
 
-		for(int i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 		{
-			_Set_Parameters(m_pModule->Get_Parameters(i));
+			_Set_Parameters(m_pTool->Get_Parameters(i));
 		}
 
 		return( true );
@@ -120,25 +120,25 @@ bool CCMD_Module::Create(CSG_Module_Library *pLibrary, CSG_Module *pModule)
 }
 
 //---------------------------------------------------------
-void CCMD_Module::Destroy(void)
+void CCMD_Tool::Destroy(void)
 {
 	m_pLibrary	= NULL;
-	m_pModule	= NULL;
+	m_pTool	= NULL;
 
 	m_CMD.Reset();
 	m_CMD.SetSwitchChars("-");
 }
 
 //---------------------------------------------------------
-void CCMD_Module::Usage(void)
+void CCMD_Tool::Usage(void)
 {
-	if( m_pLibrary && m_pModule )
+	if( m_pLibrary && m_pTool )
 	{
 		CMD_Print("");
 
 		wxString	sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %s %s"),
 			m_pLibrary->Get_Library_Name().c_str(),
-			m_pModule ->Get_ID          ().c_str(),
+			m_pTool ->Get_ID          ().c_str(),
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 
@@ -154,10 +154,10 @@ void CCMD_Module::Usage(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::Execute(int argc, char *argv[])
+bool CCMD_Tool::Execute(int argc, char *argv[])
 {
 	//-----------------------------------------------------
-	if( !m_pLibrary || !m_pModule )
+	if( !m_pLibrary || !m_pTool )
 	{
 		return( false );
 	}
@@ -196,11 +196,11 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	int		i;
 
-	bool	bResult	= _Get_Parameters(m_pModule->Get_Parameters(), true);
+	bool	bResult	= _Get_Parameters(m_pTool->Get_Parameters(), true);
 
-	for(i=0; bResult && i<m_pModule->Get_Parameters_Count(); i++)
+	for(i=0; bResult && i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		bResult	= _Get_Parameters(m_pModule->Get_Parameters(i), true);
+		bResult	= _Get_Parameters(m_pTool->Get_Parameters(i), true);
 	}
 
 	if( !bResult )
@@ -211,32 +211,32 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	CMD_Set_Module(this);
+	CMD_Set_Tool(this);
 
-	if( m_pModule->On_Before_Execution() )
+	if( m_pTool->On_Before_Execution() )
 	{
-		bResult	= m_pModule->Execute();
+		bResult	= m_pTool->Execute();
 
-		m_pModule->On_After_Execution();
+		m_pTool->On_After_Execution();
 	}
 
-	CMD_Set_Module(NULL);
+	CMD_Set_Tool(NULL);
 
 	//-----------------------------------------------------
 	if( bResult )
 	{
-		_Save_Output(m_pModule->Get_Parameters());
+		_Save_Output(m_pTool->Get_Parameters());
 
-		for(i=0; i<m_pModule->Get_Parameters_Count(); i++)
+		for(i=0; i<m_pTool->Get_Parameters_Count(); i++)
 		{
-			_Save_Output(m_pModule->Get_Parameters(i));
+			_Save_Output(m_pTool->Get_Parameters(i));
 		}
 
 		SG_Get_Data_Manager().Delete_Unsaved();	// remove temporary data to save memory resources
 	}
 	else
 	{
-		CMD_Print_Error(_TL("executing tool"), m_pModule->Get_Name());
+		CMD_Print_Error(_TL("executing tool"), m_pTool->Get_Name());
 	}
 
 	return( bResult );
@@ -250,7 +250,7 @@ bool CCMD_Module::Execute(int argc, char *argv[])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString CCMD_Module::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifier)
+wxString CCMD_Tool::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifier)
 {
 	wxString	ID(pParameter->Get_Owner()->Get_Identifier().c_str());
 
@@ -277,7 +277,7 @@ wxString CCMD_Module::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifie
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
+bool CCMD_Tool::_Set_Parameters(CSG_Parameters *pParameters)
 {
 	if( !pParameters )
 	{
@@ -391,7 +391,7 @@ bool CCMD_Module::_Set_Parameters(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
+bool CCMD_Tool::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
 {
 	if( !pParameters )
 	{
@@ -411,7 +411,7 @@ bool CCMD_Module::_Get_Parameters(CSG_Parameters *pParameters, bool bInitialize)
 }
 
 //---------------------------------------------------------
-bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
+bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 {
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
@@ -596,13 +596,13 @@ bool CCMD_Module::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 	}
 
 	//-----------------------------------------------------
-	m_pModule->Update_Parameter_States();
+	m_pTool->Update_Parameter_States();
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CCMD_Module::_Get_Input(CSG_Parameters *pParameters)
+bool CCMD_Tool::_Get_Input(CSG_Parameters *pParameters)
 {
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
@@ -661,7 +661,7 @@ bool CCMD_Module::_Get_Input(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
+bool CCMD_Tool::_Load_Input(CSG_Parameter *pParameter)
 {
 	wxString	FileName;
 
@@ -735,7 +735,7 @@ bool CCMD_Module::_Load_Input(CSG_Parameter *pParameter)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCMD_Module::_Save_Output(CSG_Parameters *pParameters)
+bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 {
 	for(int j=0; j<pParameters->Get_Count(); j++)
 	{

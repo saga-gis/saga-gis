@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -105,7 +105,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCRS_Distance_Lines : public CSG_Module
+class CCRS_Distance_Lines : public CSG_Tool
 {
 public:
 	CCRS_Distance_Lines(void);
@@ -145,7 +145,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCRS_Distance_Interactive : public CSG_Module_Interactive
+class CCRS_Distance_Interactive : public CSG_Tool_Interactive
 {
 public:
 	CCRS_Distance_Interactive(void);
@@ -157,7 +157,7 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
-	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

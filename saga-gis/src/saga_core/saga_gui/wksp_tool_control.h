@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 WKSP_Module_Library.h                 //
+//                  wksp_tool_control.h                  //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -61,8 +61,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Library_H
-#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Library_H
+#ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Control_H
+#define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Control_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "wksp_base_manager.h"
+#include "wksp_base_control.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -82,44 +82,33 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWKSP_Module_Library : public CWKSP_Base_Manager
+class CWKSP_Tool_Control : public CWKSP_Base_Control
 {
+	DECLARE_CLASS(CWKSP_Tool_Control)
+
 public:
-	CWKSP_Module_Library(class CSG_Module_Library *pLibrary);
-	virtual ~CWKSP_Module_Library(void);
+	CWKSP_Tool_Control(wxWindow *pParent);
+	virtual ~CWKSP_Tool_Control(void);
 
-	virtual TWKSP_Item				Get_Type		(void)		{	return( WKSP_ITEM_Module_Library );	}
+	class CWKSP_Tool_Manager *	Get_Manager			(void)	{	return( (class CWKSP_Tool_Manager *)m_pManager );	}
 
-	virtual wxString				Get_Name		(void);
-	virtual wxString				Get_Description	(void);
+	void							On_Execute			(wxCommandEvent  &event);
+	void							On_Execute_UI		(wxUpdateUIEvent &event);
 
-	virtual wxMenu *				Get_Menu		(void);
-
-	virtual bool					On_Command		(int Cmd_ID);
-	virtual bool					On_Command_UI	(wxUpdateUIEvent &event);
-
-	class CSG_Module_Library *		Get_Library		(void)		{	return( m_pLibrary );	}
-
-	void							Update			(void);
-
-	class CWKSP_Module *			Get_Module		(int i)		{	return( (class CWKSP_Module *)Get_Item(i) );	}
-	class CWKSP_Module *			Get_Module		(class CWKSP_Module *pModule);
-	class CWKSP_Module *			Get_Module_byID	(int CMD_ID);
-
-	bool							is_Valid		(void);
-
-	wxString						Get_File_Name	(void);
+	void							Add_Group			(class CWKSP_Tool_Group *pGroup);
+	void							Add_Library			(const wxTreeItemId &Group, class CWKSP_Tool_Library *pLibrary);
+	void							Add_Tool			(const wxTreeItemId &Library, class CWKSP_Tool *pTool);
 
 
 private:
 
-	class CSG_Module_Library		*m_pLibrary;
 
-
-	void							_Add_Modules	(void);
-	void							_Del_Modules	(void);
-
+//---------------------------------------------------------
+DECLARE_EVENT_TABLE()
 };
+
+//---------------------------------------------------------
+extern CWKSP_Tool_Control			*g_pTool_Ctrl;
 
 
 ///////////////////////////////////////////////////////////
@@ -129,4 +118,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Module_Library_H
+#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_Control_H

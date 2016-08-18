@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -76,7 +76,7 @@ COGR_Export::COGR_Export(void)
 	CSG_String	Description, Formats, Filter;
 
 	Description	= _TW(
-		"The \"OGR Vector Data Export\" module exports vector data to various file formats using the "
+		"The \"OGR Vector Data Export\" tool exports vector data to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
 		"For more information have a look at the GDAL homepage:\n"
 		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"

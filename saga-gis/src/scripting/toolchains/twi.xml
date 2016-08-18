@@ -23,27 +23,27 @@
     </option>
   </parameters>
   <tools>
-    <tool library="ta_preprocessor" module="2" name="Sink Removal">
+    <tool library="ta_preprocessor" tool="2" name="Sink Removal">
       <input id="DEM">DEM</input>
       <output id="DEM_PREPROC">DEM_PREPROC</output>
     </tool>
-    <tool library="ta_hydrology" module="0" name="Catchment Area (Top-Down)">
+    <tool library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
       <input id="ELEVATION">DEM_PREPROC</input>
       <output id="FLOW">FLOW</output>
       <option id="METHOD" varname="true">FLOW_METHOD</option>
     </tool>
-    <tool library="ta_hydrology" module="19" name="Flow Width and Specific Catchment Area">
+    <tool library="ta_hydrology" tool="19" name="Flow Width and Specific Catchment Area">
       <input id="DEM">DEM_PREPROC</input>
       <input id="TCA">FLOW</input>
       <output id="SCA">SCA</output>
       <option id="METHOD">2</option>
     </tool>
-    <tool library="ta_morphometry" module="0" name="Slope, Aspect, Curvature">
+    <tool library="ta_morphometry" tool="0" name="Slope, Aspect, Curvature">
       <input id="ELEVATION">DEM_PREPROC</input>
       <output id="SLOPE">SLOPE</output>
       <option id="METHOD">6</option>
     </tool>
-    <tool library="ta_hydrology" module="20" name="Topographic Wetness Index (TWI)">
+    <tool library="ta_hydrology" tool="20" name="Topographic Wetness Index (TWI)">
       <input id="SLOPE">SLOPE</input>
       <input id="AREA">SCA</input>
       <output id="TWI">TWI</output>

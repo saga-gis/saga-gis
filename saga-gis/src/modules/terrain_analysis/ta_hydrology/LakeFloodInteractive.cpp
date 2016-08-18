@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -64,9 +64,9 @@ CLakeFloodInteractive::CLakeFloodInteractive(void)
 	Set_Name		(_TL("Lake Flood"));
 	Set_Author		(SG_T("Volker Wichmann (c) 2005-2010"));
 	Parameters.Set_Description(_TW(
-		"This module works interactively and can be used to flood a digital elevation model for a given water depth or water level. "
-		"Execute the module and use the action tool on a cell to flood the digital elevation model from this "
-		"location. Execute the module again to terminate module operation.\r\n")
+		"This tool works interactively and can be used to flood a digital elevation model for a given water depth or water level. "
+		"Execute the tool and use the action tool on a cell to flood the digital elevation model from this "
+		"location. Execute the tool again to terminate tool operation.\r\n")
 	);
 
 
@@ -133,10 +133,10 @@ bool CLakeFloodInteractive::On_Execute_Finish(void)
 
 
 //---------------------------------------------------------
-bool CLakeFloodInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CLakeFloodInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
-	if(  Mode == MODULE_INTERACTIVE_LDOWN )
+	if(  Mode == TOOL_INTERACTIVE_LDOWN )
 	{
 		int			x, y, ix, iy, i;
 		double		level;

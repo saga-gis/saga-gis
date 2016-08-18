@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        OpenCV                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class COpenCV_SVD : public CSG_Module_Grid
+class COpenCV_SVD : public CSG_Tool_Grid
 {
 public:
 	COpenCV_SVD(void);

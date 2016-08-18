@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Table_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Cluster_Analysis : public CSG_Module
+class CTable_Cluster_Analysis : public CSG_Tool
 {
 public:
 	CTable_Cluster_Analysis(bool bShapes);

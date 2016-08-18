@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     shapes_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CShapes_Convert_Vertex_Type::CShapes_Convert_Vertex_Type(void)
 	Set_Author(_TL("Volker Wichmann (c) 2013, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module allows one to convert the vertex type of shapes from "
+		"The tool allows one to convert the vertex type of shapes from "
 		"'XY' (2D) to 'XYZ/M' (3D) and vice versa. The conversion from "
 		"3D to 2D is not lossless for lines and polygons, as only the "
 		"Z/M value of one vertex can be retained (currently that of the "

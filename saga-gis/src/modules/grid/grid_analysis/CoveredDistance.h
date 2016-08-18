@@ -25,7 +25,7 @@
 
 #include "MLB_Interface.h"
 
-class CCoveredDistance : public CSG_Module_Grid
+class CCoveredDistance : public CSG_Tool_Grid
 {
 public:
 	CCoveredDistance(void);

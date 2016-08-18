@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                WKSP_Module_Control.cpp                //
+//                 wksp_tool_library.cpp                 //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -61,19 +61,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/image.h>
-#include <wx/imaglist.h>
+#include <wx/filename.h>
 
-#include "res_controls.h"
-#include "res_images.h"
+#include <saga_api/saga_api.h>
+
+#include "res_commands.h"
 
 #include "helper.h"
 
-#include "wksp_module_control.h"
-#include "wksp_module_manager.h"
-#include "wksp_module_library.h"
-#include "wksp_module_menu.h"
-#include "wksp_module.h"
+#include "wksp_tool_control.h"
+#include "wksp_tool_manager.h"
+#include "wksp_tool_library.h"
+#include "wksp_tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -83,143 +82,244 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+CWKSP_Tool_Library::CWKSP_Tool_Library(CSG_Tool_Library *pLibrary)
 {
-	IMG_MANAGER		= 1,
-	IMG_GROUP,
-	IMG_LIBRARY,
-	IMG_CHAIN,
-	IMG_MODULE
-};
+	m_pLibrary	= pLibrary;
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-IMPLEMENT_CLASS(CWKSP_Module_Control, CWKSP_Base_Control)
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CWKSP_Module_Control, CWKSP_Base_Control)
-END_EVENT_TABLE()
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Module_Control	*g_pModule_Ctrl	= NULL;
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CWKSP_Module_Control::CWKSP_Module_Control(wxWindow *pParent)
-	: CWKSP_Base_Control(pParent, ID_WND_WKSP_MODULES)
-{
-	g_pModule_Ctrl	= this;
-
-	//-----------------------------------------------------
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_MANAGER)
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_GROUP);
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_LIBRARY);
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE_CHAIN);
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);
-
-	//-----------------------------------------------------
-	_Set_Manager(new CWKSP_Module_Manager);
-
-	Get_Manager()->Initialise();
+	_Add_Tools();
 }
 
 //---------------------------------------------------------
-CWKSP_Module_Control::~CWKSP_Module_Control(void)
+CWKSP_Tool_Library::~CWKSP_Tool_Library(void)
 {
-//	Get_Manager()->Finalise();
+	_Del_Tools();
 
-	g_pModule_Ctrl	= NULL;
-
-	_Del_Item(m_pManager, true);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module_Control::On_Execute(wxCommandEvent &event)
-{
-	Get_Manager()->On_Execute(event);
-}
-
-//---------------------------------------------------------
-void CWKSP_Module_Control::On_Execute_UI(wxUpdateUIEvent &event)
-{
-	Get_Manager()->On_Execute_UI(event);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CWKSP_Module_Control::Add_Group(CWKSP_Module_Group *pGroup)
-{
-	_Add_Item(pGroup, IMG_GROUP, IMG_GROUP);
-}
-
-//---------------------------------------------------------
-void CWKSP_Module_Control::Add_Library(const wxTreeItemId &Group, CWKSP_Module_Library *pLibrary)
-{
-	if( pLibrary != NULL )
+	if( MDI_Get_Frame() )	// don't unload library, if gui is closing (i.e. main window == NULL)
 	{
-		wxString	Name	= pLibrary->Get_Name().AfterFirst('-');
+		SG_Get_Tool_Library_Manager().Del_Library(m_pLibrary);
+	}
+}
 
-		if( Name.IsEmpty() )
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Tool_Library::Update(void)
+{
+	int		i;
+
+	for(i=Get_Count()-1; i>=0; i--)	// first remove tools that are not available anymore
+	{
+		CWKSP_Tool	*pItem	= Get_Tool(i);
+
+		if( !m_pLibrary->Get_Tool(pItem->Get_Tool()->Get_Name()) )
 		{
-			Name	= pLibrary->Get_Name();
-		}
-		else
-		{
-			Name.Trim(false);
-		}
+			Del_Item(pItem);
 
-		AppendItem(Group, Name, IMG_LIBRARY, IMG_LIBRARY, pLibrary);
-
-		for(int i=0; i<pLibrary->Get_Count(); i++)
-		{
-			Add_Module(pLibrary->GetId(), pLibrary->Get_Module(i));
+			Get_Control()->Delete(pItem->GetId());
 		}
-
-		SortChildren(pLibrary->GetId());
 	}
 
-	SortChildren(Group);
+	for(i=0; i<m_pLibrary->Get_Count(); i++)	// then add tools that are not yet present in the list
+	{
+		CSG_Tool	*pTool	= m_pLibrary->Get_Tool(i);
+
+		if( pTool != NULL && pTool != TLB_INTERFACE_SKIP_TOOL )
+		{
+			for(int j=0; j<Get_Count() && pTool; j++)
+			{
+				if( pTool == Get_Tool(j)->Get_Tool() )
+				{
+					Get_Control()->SetItemText(Get_Tool(j)->GetId(), Get_Tool(j)->Get_Name());	// just in case name has changed
+
+					pTool	= NULL;
+				}
+			}
+
+			if( pTool )
+			{
+				CWKSP_Tool	*pItem	= new CWKSP_Tool(pTool, m_pLibrary->Get_Menu().w_str());
+
+				Add_Item(pItem);
+
+				g_pTool_Ctrl->Add_Tool(GetId(), pItem);
+			}
+		}
+	}
+
+	Get_Control()->SortChildren(GetId());
 }
 
 //---------------------------------------------------------
-void CWKSP_Module_Control::Add_Module(const wxTreeItemId &Library, CWKSP_Module *pModule)
+void CWKSP_Tool_Library::_Add_Tools(void)
 {
-	if( pModule != NULL )
+	for(int i=0; i<m_pLibrary->Get_Count(); i++)
 	{
-		AppendItem(Library, pModule->Get_Name(), IMG_MODULE, IMG_MODULE, pModule);
+		CSG_Tool	*pTool	= m_pLibrary->Get_Tool(i);
+
+		if( pTool != NULL && pTool != TLB_INTERFACE_SKIP_TOOL )
+		{
+			CWKSP_Tool	*pItem	= new CWKSP_Tool(pTool, m_pLibrary->Get_Menu().w_str());
+
+			Add_Item(pItem);
+		}
 	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Tool_Library::_Del_Tools(void)
+{
+	for(int i=Get_Count()-1; i>=0; i--)
+	{
+		CWKSP_Tool	*pItem	= Get_Tool(i);
+
+		Del_Item(pItem);
+
+	//	Get_Control()->Delete(pItem->GetId());
+	//	delete(pItem);
+	}
+}
+
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CWKSP_Tool_Library::Get_Name(void)
+{
+	return( m_pLibrary->Get_Name().c_str() );
+}
+
+//---------------------------------------------------------
+wxString CWKSP_Tool_Library::Get_Description(void)
+{
+	if( g_pTools->Get_Parameter("HELP_SOURCE")->asInt() == 1 )
+	{
+		wxString	Description	= Get_Online_Tool_Description(m_pLibrary->Get_File_Name().c_str());
+
+		if( !Description.IsEmpty() )
+		{
+			return( Description );
+		}
+	}
+
+	return( m_pLibrary->Get_Summary(SG_SUMMARY_FMT_HTML).c_str() );
+}
+
+//---------------------------------------------------------
+wxMenu * CWKSP_Tool_Library::Get_Menu(void)
+{
+	wxMenu	*pMenu;
+
+	pMenu	= new wxMenu(Get_Name());
+
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+
+	return( pMenu );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Library::On_Command(int Cmd_ID)
+{
+	switch( Cmd_ID )
+	{
+	default:
+		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
+
+	case ID_CMD_WKSP_ITEM_CLOSE:
+		SG_Get_Tool_Library_Manager().Del_Library(m_pLibrary);
+		break;
+
+	case ID_CMD_WKSP_ITEM_RETURN:
+		break;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Library::On_Command_UI(wxUpdateUIEvent &event)
+{
+	switch( event.GetId() )
+	{
+	default:
+		return( CWKSP_Base_Manager::On_Command_UI(event) );
+
+	case ID_CMD_WKSP_ITEM_CLOSE:
+		event.Enable(true);
+		break;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWKSP_Tool * CWKSP_Tool_Library::Get_Tool(CWKSP_Tool *pTool)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( pTool	== Get_Tool(i) )
+		{
+			return( pTool );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Tool * CWKSP_Tool_Library::Get_Tool_byID(int CMD_ID)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Get_Tool(i)->Get_Menu_ID() == CMD_ID )
+		{
+			return( Get_Tool(i) );
+		}
+	}
+
+	return( NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Tool_Library::is_Valid(void)
+{
+	return( m_pLibrary->is_Valid() );
+}
+
+//---------------------------------------------------------
+wxString CWKSP_Tool_Library::Get_File_Name(void)
+{
+	return( m_pLibrary->Get_File_Name().c_str() );
 }
 
 

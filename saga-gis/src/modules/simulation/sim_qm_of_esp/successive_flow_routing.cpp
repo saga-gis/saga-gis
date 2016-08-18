@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      qm_of_esp                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -222,16 +222,16 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define RUN_MODULE(LIBRARY, MODULE, CONDITION)	{\
+#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
 	bool	bResult;\
-	SG_RUN_MODULE(bResult, LIBRARY, MODULE, CONDITION)\
+	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
 }
 
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pModule->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 void CSuccessive_Flow_Routing::Fill_Sinks(void)
 {
-	RUN_MODULE("ta_preprocessor", 2,	// CPit_Eliminator
+	RUN_TOOL("ta_preprocessor", 2,	// CPit_Eliminator
 			SET_PARAMETER("DEM"	, m_pDEM)
 	)
 }

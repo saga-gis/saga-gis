@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,16 +70,16 @@ CGrid_Proximity_Buffer::CGrid_Proximity_Buffer(void){
 	Set_Name(_TL("Grid Proximity Buffer"));
 	Set_Author(_TL("Copyrights (c) 2006 by Volker Wichmann"));
 	Set_Description(_TW(
-		"This module calculates the euclidian distance within a buffer distance from all NoData cells to the nearest "
+		"This tool calculates the euclidian distance within a buffer distance from all NoData cells to the nearest "
 		"valid neighbour in a source grid. Additionally, the source cells define the zones that will be used in the "
 		"euclidean allocation calculations. Cell values in the source grid are treated as IDs (integer) and "
 		"used in the allocation grid to identify the grid value of the closest source cell. If a cell is at an equal "
-		"distance to two or more sources, the cell is assigned to the source that is first encountered in the modules scanning "
+		"distance to two or more sources, the cell is assigned to the source that is first encountered in the tools scanning "
 		"process. The buffer grid is a "
 		"reclassification of the distance grid using a user specified equidistance to create a set of discrete distance "
 		"buffers from source features. The buffer zones are coded with the maximum distance value of the corresponding buffer interval. " 
 		"The output value type for the distance grid is floating-point. The output values for the allocation and buffer "
-		"grid are of type integer. The duration of module execution is dependent on the number of source cells and the buffer distance."));
+		"grid are of type integer. The duration of tool execution is dependent on the number of source cells and the buffer distance."));
 
 	Parameters.Add_Grid(NULL, 
 						"SOURCE",

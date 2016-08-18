@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                       io_gdal                         //
 //                                                       //
@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Export_GeoTIFF : public CSG_Module_Grid
+class CGDAL_Export_GeoTIFF : public CSG_Tool_Grid
 {
 public:
 	CGDAL_Export_GeoTIFF(void);

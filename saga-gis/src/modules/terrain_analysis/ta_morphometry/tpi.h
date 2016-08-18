@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTPI : public CSG_Module_Grid
+class CTPI : public CSG_Tool_Grid
 {
 public:
 	CTPI(void);
@@ -110,7 +110,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTPI_Classification : public CSG_Module_Grid
+class CTPI_Classification : public CSG_Tool_Grid
 {
 public:
 	CTPI_Classification(void);

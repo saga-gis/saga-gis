@@ -23,7 +23,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CBSL_Interpreter : public CSG_Module_Grid
+class CBSL_Interpreter : public CSG_Tool_Grid
 {
 public:
 	CBSL_Interpreter(bool bFile);

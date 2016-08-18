@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMesh_Denoise_Grid : public CSG_Module_Grid
+class CMesh_Denoise_Grid : public CSG_Tool_Grid
 {
 public:
 	CMesh_Denoise_Grid(void);

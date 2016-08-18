@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -238,10 +238,10 @@ inline void CGrid_Fill::Pop(int &x, int &y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
-	if(  Mode == MODULE_INTERACTIVE_LDOWN )
+	if(  Mode == TOOL_INTERACTIVE_LDOWN )
 	{
 		int		x, y, i, ix, iy, nReplaced;
 		double	z, zMin, zMax;

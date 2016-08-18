@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWatershed_Segmentation : public CSG_Module_Grid
+class CWatershed_Segmentation : public CSG_Tool_Grid
 {
 public:
 	CWatershed_Segmentation(void);

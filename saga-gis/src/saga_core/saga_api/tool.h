@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                       module.h                        //
+//                        tool.h                         //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -62,8 +62,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__module_H
-#define HEADER_INCLUDED__SAGA_API__module_H
+#ifndef HEADER_INCLUDED__SAGA_API__tool_H
+#define HEADER_INCLUDED__SAGA_API__tool_H
 
 
 ///////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//		XML tags for mark-up of module synopsis	 		 //
+//		XML tags for mark-up of tool synopsis	 		 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -89,10 +89,10 @@
 #define SG_XML_LIBRARY				SG_T("library")
 #define SG_XML_LIBRARY_PATH			SG_T("path")
 #define SG_XML_LIBRARY_NAME			SG_T("name")
-#define SG_XML_MODULE				SG_T("module")
-#define SG_XML_MODULE_ATT_NAME		SG_T("name")
-#define SG_XML_MODULE_ATT_ID		SG_T("id")
-#define SG_XML_MODULE_ATT_AUTHOR	SG_T("author")
+#define SG_XML_TOOL					SG_T("module")
+#define SG_XML_TOOL_ATT_NAME		SG_T("name")
+#define SG_XML_TOOL_ATT_ID			SG_T("id")
+#define SG_XML_TOOL_ATT_AUTHOR		SG_T("author")
 #define SG_XML_SPECIFICATION		SG_T("specification")
 #define SG_XML_SPEC_ATT_GRID		SG_T("grid")
 #define SG_XML_SPEC_ATT_INTERA		SG_T("interactive")
@@ -138,15 +138,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Module_Type
+typedef enum ESG_Tool_Type
 {
-	MODULE_TYPE_Base			= 0,
-	MODULE_TYPE_Interactive,
-	MODULE_TYPE_Grid,
-	MODULE_TYPE_Grid_Interactive,
-	MODULE_TYPE_Chain
+	TOOL_TYPE_Base			= 0,
+	TOOL_TYPE_Interactive,
+	TOOL_TYPE_Grid,
+	TOOL_TYPE_Grid_Interactive,
+	TOOL_TYPE_Chain
 }
-TSG_Module_Type;
+TSG_Tool_Type;
 
 
 ///////////////////////////////////////////////////////////
@@ -156,48 +156,48 @@ TSG_Module_Type;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Module_Error
+typedef enum ESG_Tool_Error
 {
-	MODULE_ERROR_Unknown		= 0,
-	MODULE_ERROR_Calculation
+	TOOL_ERROR_Unknown		= 0,
+	TOOL_ERROR_Calculation
 }
-TSG_Module_Error;
+TSG_Tool_Error;
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						CSG_Module						 //
+//						CSG_Tool						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
-  * CSG_Module is the base class for all executable SAGA modules.
+  * CSG_Tool is the base class for all executable SAGA tools.
   * @see CSG_Parameters
-  * @see CSG_Module_Interactive
-  * @see CSG_Module_Grid
-  * @see CSG_Module_Grid_Interactive
+  * @see CSG_Tool_Interactive
+  * @see CSG_Tool_Grid
+  * @see CSG_Tool_Grid_Interactive
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module
+class SAGA_API_DLL_EXPORT CSG_Tool
 {
-	friend class CSG_Module_Interactive_Base;
-	friend class CSG_Module_Library_Interface;
-	friend class CSG_Module_Chain;
+	friend class CSG_Tool_Interactive_Base;
+	friend class CSG_Tool_Library_Interface;
+	friend class CSG_Tool_Chain;
 
 public:
 
-	CSG_Module(void);
-	virtual ~CSG_Module(void);
+	CSG_Tool(void);
+	virtual ~CSG_Tool(void);
 
 	virtual void				Destroy						(void);
 
-	virtual TSG_Module_Type		Get_Type					(void)	{	return( MODULE_TYPE_Base );	}
+	virtual TSG_Tool_Type		Get_Type					(void)	{	return( TOOL_TYPE_Base );	}
 
 	const CSG_String &			Get_ID						(void)	const	{	return( m_ID );	}
 
 	const CSG_String &			Get_Library					(void)	const;
-	const CSG_String &			Get_File_Name				(void)	const;	// Returns the file name of the module's library or, if this is a module chain, the associated XML file.
+	const CSG_String &			Get_File_Name				(void)	const;	// Returns the file name of the tool's library or, if this is a tool chain, the associated XML file.
 	const CSG_String &			Get_Name					(void)	const;
 	const CSG_String &			Get_Description				(void)	const;
 	const CSG_String &			Get_Author					(void)	const;
@@ -282,7 +282,7 @@ protected:
 	void						Message_Dlg					(const CSG_String &Text, const SG_Char *Caption = NULL);
 	bool						Message_Dlg_Confirm			(const CSG_String &Text, const SG_Char *Caption = NULL);
 
-	bool						Error_Set					(TSG_Module_Error Error_ID = MODULE_ERROR_Unknown);
+	bool						Error_Set					(TSG_Tool_Error Error_ID = TOOL_ERROR_Unknown);
 	bool						Error_Set					(const CSG_String &Error_Text);
 	bool						Error_Fmt					(const char    *Format, ...);
 	bool						Error_Fmt					(const wchar_t *Format, ...);
@@ -342,22 +342,22 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CSG_Module_Grid						 //
+//					CSG_Tool_Grid						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
-  * CSG_Module_Grid.
+  * CSG_Tool_Grid.
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Grid : public CSG_Module
+class SAGA_API_DLL_EXPORT CSG_Tool_Grid : public CSG_Tool
 {
 public:
-	CSG_Module_Grid(void);
-	virtual ~CSG_Module_Grid(void);
+	CSG_Tool_Grid(void);
+	virtual ~CSG_Tool_Grid(void);
 
-	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Grid );	}
+	virtual TSG_Tool_Type		Get_Type				(void)			{	return( TOOL_TYPE_Grid );	}
 
 	CSG_Grid_System *			Get_System				(void)			{	return( Parameters.Get_Grid_System() );	}
 
@@ -414,63 +414,63 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				CSG_Module_Interactive_Base				 //
+//				CSG_Tool_Interactive_Base				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_Module_Interactive_Mode
+typedef enum ESG_Tool_Interactive_Mode
 {
-	MODULE_INTERACTIVE_UNDEFINED		= 0,
-	MODULE_INTERACTIVE_LDOWN,
-	MODULE_INTERACTIVE_LUP,
-	MODULE_INTERACTIVE_LDCLICK,
-	MODULE_INTERACTIVE_MDOWN,
-	MODULE_INTERACTIVE_MUP,
-	MODULE_INTERACTIVE_MDCLICK,
-	MODULE_INTERACTIVE_RDOWN,
-	MODULE_INTERACTIVE_RUP,
-	MODULE_INTERACTIVE_RDCLICK,
-	MODULE_INTERACTIVE_MOVE,
-	MODULE_INTERACTIVE_MOVE_LDOWN,
-	MODULE_INTERACTIVE_MOVE_MDOWN,
-	MODULE_INTERACTIVE_MOVE_RDOWN
+	TOOL_INTERACTIVE_UNDEFINED		= 0,
+	TOOL_INTERACTIVE_LDOWN,
+	TOOL_INTERACTIVE_LUP,
+	TOOL_INTERACTIVE_LDCLICK,
+	TOOL_INTERACTIVE_MDOWN,
+	TOOL_INTERACTIVE_MUP,
+	TOOL_INTERACTIVE_MDCLICK,
+	TOOL_INTERACTIVE_RDOWN,
+	TOOL_INTERACTIVE_RUP,
+	TOOL_INTERACTIVE_RDCLICK,
+	TOOL_INTERACTIVE_MOVE,
+	TOOL_INTERACTIVE_MOVE_LDOWN,
+	TOOL_INTERACTIVE_MOVE_MDOWN,
+	TOOL_INTERACTIVE_MOVE_RDOWN
 }
-TSG_Module_Interactive_Mode;
+TSG_Tool_Interactive_Mode;
 
 //---------------------------------------------------------
-typedef enum ESG_Module_Interactive_DragMode
+typedef enum ESG_Tool_Interactive_DragMode
 {
-	MODULE_INTERACTIVE_DRAG_NONE		= 0,
-	MODULE_INTERACTIVE_DRAG_LINE,
-	MODULE_INTERACTIVE_DRAG_BOX,
-	MODULE_INTERACTIVE_DRAG_CIRCLE
+	TOOL_INTERACTIVE_DRAG_NONE		= 0,
+	TOOL_INTERACTIVE_DRAG_LINE,
+	TOOL_INTERACTIVE_DRAG_BOX,
+	TOOL_INTERACTIVE_DRAG_CIRCLE
 }
-TSG_Module_Interactive_DragMode;
+TSG_Tool_Interactive_DragMode;
 
 //---------------------------------------------------------
-#define MODULE_INTERACTIVE_KEY_LEFT		0x01
-#define MODULE_INTERACTIVE_KEY_MIDDLE	0x02
-#define MODULE_INTERACTIVE_KEY_RIGHT	0x04
-#define MODULE_INTERACTIVE_KEY_SHIFT	0x08
-#define MODULE_INTERACTIVE_KEY_ALT		0x10
-#define MODULE_INTERACTIVE_KEY_CTRL		0x20
+#define TOOL_INTERACTIVE_KEY_LEFT		0x01
+#define TOOL_INTERACTIVE_KEY_MIDDLE	0x02
+#define TOOL_INTERACTIVE_KEY_RIGHT	0x04
+#define TOOL_INTERACTIVE_KEY_SHIFT	0x08
+#define TOOL_INTERACTIVE_KEY_ALT		0x10
+#define TOOL_INTERACTIVE_KEY_CTRL		0x20
 
 //---------------------------------------------------------
 /**
-  * CSG_Module_Interactive_Base.
+  * CSG_Tool_Interactive_Base.
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Interactive_Base
+class SAGA_API_DLL_EXPORT CSG_Tool_Interactive_Base
 {
-	friend class CSG_Module_Interactive;
-	friend class CSG_Module_Grid_Interactive;
+	friend class CSG_Tool_Interactive;
+	friend class CSG_Tool_Grid_Interactive;
 
 public:
-	CSG_Module_Interactive_Base(void);
-	virtual ~CSG_Module_Interactive_Base(void);
+	CSG_Tool_Interactive_Base(void);
+	virtual ~CSG_Tool_Interactive_Base(void);
 
-	bool						Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys);
+	bool						Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode, int Keys);
 	bool						Execute_Keyboard		(int Character, int Keys);
 	bool						Execute_Finish			(void);
 
@@ -479,7 +479,7 @@ public:
 
 protected:
 
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 	virtual bool				On_Execute_Keyboard		(int Character);
 	virtual bool				On_Execute_Finish		(void);
 
@@ -491,9 +491,9 @@ protected:
 	double						Get_xPosition_Last		(void)	{	return( m_Point_Last.Get_X() );	}
 	double						Get_yPosition_Last		(void)	{	return( m_Point_Last.Get_Y() );	}
 
-	bool						is_Shift				(void)	{	return( (m_Keys & MODULE_INTERACTIVE_KEY_SHIFT) != 0 );	}
-	bool						is_Alt					(void)	{	return( (m_Keys & MODULE_INTERACTIVE_KEY_ALT)   != 0 );	}
-	bool						is_Ctrl					(void)	{	return( (m_Keys & MODULE_INTERACTIVE_KEY_CTRL)  != 0 );	}
+	bool						is_Shift				(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_SHIFT) != 0 );	}
+	bool						is_Alt					(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_ALT)   != 0 );	}
+	bool						is_Ctrl					(void)	{	return( (m_Keys & TOOL_INTERACTIVE_KEY_CTRL)  != 0 );	}
 
 	void						Set_Drag_Mode			(int Drag_Mode);
 
@@ -504,29 +504,29 @@ private:
 
 	CSG_Point					m_Point, m_Point_Last;
 
-	CSG_Module					*m_pModule;
+	CSG_Tool					*m_pTool;
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				CSG_Module_Interactive					 //
+//				CSG_Tool_Interactive					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
-  * CSG_Module_Interactive.
+  * CSG_Tool_Interactive.
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Interactive : public CSG_Module_Interactive_Base, public CSG_Module
+class SAGA_API_DLL_EXPORT CSG_Tool_Interactive : public CSG_Tool_Interactive_Base, public CSG_Tool
 {
 public:
-	CSG_Module_Interactive(void);
-	virtual ~CSG_Module_Interactive(void);
+	CSG_Tool_Interactive(void);
+	virtual ~CSG_Tool_Interactive(void);
 
-	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Interactive );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	{	return( TOOL_TYPE_Interactive );	}
 
 	virtual bool				needs_GUI				(void)	{	return( true );	}
 
@@ -537,22 +537,22 @@ public:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				CSG_Module_Grid_Interactive				 //
+//				CSG_Tool_Grid_Interactive				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
-  * CSG_Module_Grid_Interactive.
+  * CSG_Tool_Grid_Interactive.
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Grid_Interactive : public CSG_Module_Interactive_Base, public CSG_Module_Grid
+class SAGA_API_DLL_EXPORT CSG_Tool_Grid_Interactive : public CSG_Tool_Interactive_Base, public CSG_Tool_Grid
 {
 public:
-	CSG_Module_Grid_Interactive(void);
-	virtual ~CSG_Module_Grid_Interactive(void);
+	CSG_Tool_Grid_Interactive(void);
+	virtual ~CSG_Tool_Grid_Interactive(void);
 
-	virtual TSG_Module_Type		Get_Type				(void)	{	return( MODULE_TYPE_Grid_Interactive );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	{	return( TOOL_TYPE_Grid_Interactive );	}
 
 	virtual bool				needs_GUI				(void)	{	return( true );	}
 
@@ -571,72 +571,72 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			Module Library Interface Definitions		 //
+//			Tool Library Interface Definitions			 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum ESG_MLB_Info
+typedef enum ESG_TLB_Info
 {
-	MLB_INFO_Name	= 0,
-	MLB_INFO_Description,
-	MLB_INFO_Author,
-	MLB_INFO_Version,
-	MLB_INFO_Menu_Path,
-	MLB_INFO_Category,
-	MLB_INFO_User,
-	MLB_INFO_File,
-	MLB_INFO_Library,
-	MLB_INFO_Count
+	TLB_INFO_Name	= 0,
+	TLB_INFO_Description,
+	TLB_INFO_Author,
+	TLB_INFO_Version,
+	TLB_INFO_Menu_Path,
+	TLB_INFO_Category,
+	TLB_INFO_User,
+	TLB_INFO_File,
+	TLB_INFO_Library,
+	TLB_INFO_Count
 }
-TSG_MLB_Info;
+TSG_TLB_Info;
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Library_Interface
+class SAGA_API_DLL_EXPORT CSG_Tool_Library_Interface
 {
 public:
-	CSG_Module_Library_Interface(void);
-	virtual ~CSG_Module_Library_Interface(void);
+	CSG_Tool_Library_Interface(void);
+	virtual ~CSG_Tool_Library_Interface(void);
 
 	void						Set_Info				(int ID, const CSG_String &Info);
 	const CSG_String &			Get_Info				(int ID);
 
 	int							Get_Count				(void);
-	bool						Add_Module				(CSG_Module *pModule, int ID);
-	CSG_Module *				Get_Module				(int iModule);
+	bool						Add_Tool				(CSG_Tool *pTool, int ID);
+	CSG_Tool *					Get_Tool				(int iTool);
 
 	void						Set_File_Name			(const CSG_String &File_Name);
 
 
 private:
 
-	CSG_String					m_Info[MLB_INFO_Count];
+	CSG_String					m_Info[TLB_INFO_Count];
 
-	int							m_nModules;
+	int							m_nTools;
 
-	CSG_Module					**m_Modules;
+	CSG_Tool					**m_Tools;
 
 };
 
 //---------------------------------------------------------
-#define SYMBOL_MLB_Initialize			SG_T("MLB_Initialize")
-typedef bool							(* TSG_PFNC_MLB_Initialize)		(const SG_Char *);
+#define SYMBOL_TLB_Initialize			SG_T("TLB_Initialize")
+typedef bool							(* TSG_PFNC_TLB_Initialize)		(const SG_Char *);
 
-#define SYMBOL_MLB_Finalize				SG_T("MLB_Finalize")
-typedef bool							(* TSG_PFNC_MLB_Finalize)		(void);
+#define SYMBOL_TLB_Finalize				SG_T("TLB_Finalize")
+typedef bool							(* TSG_PFNC_TLB_Finalize)		(void);
 
-#define SYMBOL_MLB_Get_Interface		SG_T("MLB_Get_Interface")
-typedef CSG_Module_Library_Interface *	(* TSG_PFNC_MLB_Get_Interface)	(void);
-
-//---------------------------------------------------------
-#define MLB_INTERFACE_SKIP_MODULE		((CSG_Module *)0x1)
+#define SYMBOL_TLB_Get_Interface		SG_T("TLB_Get_Interface")
+typedef CSG_Tool_Library_Interface *	(* TSG_PFNC_TLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
-#define MLB_INTERFACE_CORE	CSG_Module_Library_Interface	MLB_Interface;\
+#define TLB_INTERFACE_SKIP_TOOL		((CSG_Tool *)0x1)
+
+//---------------------------------------------------------
+#define TLB_INTERFACE_CORE	CSG_Tool_Library_Interface	TLB_Interface;\
 \
-extern "C" _SAGA_DLL_EXPORT CSG_Module_Library_Interface *	MLB_Get_Interface   (void)\
+extern "C" _SAGA_DLL_EXPORT CSG_Tool_Library_Interface *	TLB_Get_Interface   (void)\
 {\
-	return( &MLB_Interface );\
+	return( &TLB_Interface );\
 }\
 \
 extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
@@ -645,36 +645,36 @@ extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
 }\
 
 //---------------------------------------------------------
-#define MLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool MLB_Initialize	(const SG_Char *File_Name)\
+#define TLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *File_Name)\
 {\
 	int		i;\
 \
-	MLB_Interface.Set_File_Name(File_Name);\
+	TLB_Interface.Set_File_Name(File_Name);\
 \
-	for(i=0; i<MLB_INFO_User; i++)\
+	for(i=0; i<TLB_INFO_User; i++)\
 	{\
-		MLB_Interface.Set_Info(i, Get_Info(i));\
+		TLB_Interface.Set_Info(i, Get_Info(i));\
 	}\
 \
-	for(i=0; MLB_Interface.Add_Module(Create_Module(i), i); i++)\
+	for(i=0; TLB_Interface.Add_Tool(Create_Tool(i), i); i++)\
 	{}\
 \
-	return( MLB_Interface.Get_Count() > 0 );\
+	return( TLB_Interface.Get_Count() > 0 );\
 }\
 
 //---------------------------------------------------------
-#define MLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool MLB_Finalize	(void)\
+#define TLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)\
 {\
 	return( true );\
 }\
 
 //---------------------------------------------------------
-#define MLB_INTERFACE	MLB_INTERFACE_CORE MLB_INTERFACE_INITIALIZE MLB_INTERFACE_FINALIZE
+#define TLB_INTERFACE	TLB_INTERFACE_CORE TLB_INTERFACE_INITIALIZE TLB_INTERFACE_FINALIZE
 
 //---------------------------------------------------------
 #ifndef SWIG
 
-extern CSG_Module_Library_Interface	MLB_Interface;
+extern CSG_Tool_Library_Interface	TLB_Interface;
 
 #endif	// #ifdef SWIG
 
@@ -686,4 +686,4 @@ extern CSG_Module_Library_Interface	MLB_Interface;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_API__module_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API__tool_H

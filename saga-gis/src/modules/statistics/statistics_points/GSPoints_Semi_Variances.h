@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   statistics_points                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSPoints_Semi_Variances : public CSG_Module  
+class CGSPoints_Semi_Variances : public CSG_Tool  
 {
 public:
 	CGSPoints_Semi_Variances(void);

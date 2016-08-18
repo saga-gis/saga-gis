@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 Geostatistics_Points                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSemiVariogram : public CSG_Module  
+class CSemiVariogram : public CSG_Tool  
 {
 public:
 	CSemiVariogram(void);

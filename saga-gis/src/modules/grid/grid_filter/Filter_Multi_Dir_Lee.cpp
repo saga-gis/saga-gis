@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Filter                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -190,7 +190,7 @@ CFilter_Multi_Dir_Lee::CFilter_Multi_Dir_Lee(void)
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
 	Set_Description	(_TW(
-		"The module searches for the minium variance within 16 directions "
+		"The tool searches for the minium variance within 16 directions "
 		"and applies a Lee Filter in the direction of minimum variance. The "
 		"filter is edge-preserving and can be used to remove speckle noise "
 		"from SAR images or to smooth DTMs. Applied to DTMs, this filter "

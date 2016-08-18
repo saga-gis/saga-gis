@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -83,7 +83,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CKinWav_D8 : public CSG_Module_Grid  
+class CKinWav_D8 : public CSG_Tool_Grid  
 {
 public:
 	CKinWav_D8(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        db_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -278,7 +278,7 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		Set_Constraints(pParameters->Get_Parameter("FLAGS")->asParameters(), pParameter->asTable());
 	}
 
-	return( CSG_ODBC_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_ODBC_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------

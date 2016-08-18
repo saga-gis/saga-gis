@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -67,7 +67,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Aggregate : public CSG_Module_Grid  
+class CGrid_Aggregate : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Aggregate(void);

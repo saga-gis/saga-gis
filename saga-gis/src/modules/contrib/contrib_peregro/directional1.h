@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                      directional1                     //
 //                                                       //
 //                       for SAGA                        //
@@ -34,7 +34,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class Cdirectional1 : public CSG_Module_Grid
+class Cdirectional1 : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

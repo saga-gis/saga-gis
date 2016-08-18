@@ -61,7 +61,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CProfile_Cross_Sections : public CSG_Module_Grid
+class CProfile_Cross_Sections : public CSG_Tool_Grid
 {
 public:
 	CProfile_Cross_Sections(void);

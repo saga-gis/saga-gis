@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CWaterRetentionCapacity : public CSG_Module_Grid {
+class CWaterRetentionCapacity : public CSG_Tool_Grid {
 
 public:
 	CWaterRetentionCapacity(void);

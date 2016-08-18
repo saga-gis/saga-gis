@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGradient_Cartes_To_Polar : public CSG_Module_Grid
+class CGradient_Cartes_To_Polar : public CSG_Tool_Grid
 {
 public:
 	CGradient_Cartes_To_Polar(void);
@@ -68,7 +68,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGradient_Polar_To_Cartes : public CSG_Module_Grid
+class CGradient_Polar_To_Cartes : public CSG_Tool_Grid
 {
 public:
 	CGradient_Polar_To_Cartes(void);

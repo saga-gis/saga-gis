@@ -62,7 +62,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes_Summary : public CSG_Module  
+class CShapes_Summary : public CSG_Tool  
 {
 public:
 	CShapes_Summary(void);

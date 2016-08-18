@@ -47,7 +47,7 @@
 	
 	<tools>
 		<condition type="exists" varname="LAPSE_RATES">
-			<tool library="grid_calculus" module="1" name="Grid Calculator">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
 				<input  id="GRIDS"  >LORES_DEM</input>
 				<input  id="GRIDS"  >LORES_T</input>
 				<input  id="GRIDS"  >LAPSE_RATES</input>
@@ -55,7 +55,7 @@
 				<option id="FORMULA">g2 + g1 * g3 / 100</option>
 				<option id="NAME"   >Temperature at Sea Level</option>
 			</tool>
-			<tool library="grid_calculus" module="1" name="Grid Calculator">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
 				<input  id="GRIDS"  >HIRES_DEM</input>
 				<input  id="XGRIDS" >LORES_SLT</input>
 				<input  id="XGRIDS" >LAPSE_RATES</input>
@@ -66,14 +66,14 @@
 		</condition>
 
 		<condition type="not_exists" varname="LAPSE_RATES">
-			<tool library="grid_calculus" module="1" name="Grid Calculator">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
 				<input  id="GRIDS"  >LORES_DEM</input>
 				<input  id="GRIDS"  >LORES_T</input>
 				<output id="RESULT" >LORES_SLT</output>
 				<option id="FORMULA">g2 + g1 * $(LAPSE_RATE) / 100</option>
 				<option id="NAME"   >Temperature at Sea Level</option>
 			</tool>
-			<tool library="grid_calculus" module="1" name="Grid Calculator">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
 				<input  id="GRIDS"  >HIRES_DEM</input>
 				<input  id="XGRIDS" >LORES_SLT</input>
 				<output id="RESULT" >HIRES_T</output>

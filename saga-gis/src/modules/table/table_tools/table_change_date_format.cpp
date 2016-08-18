@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      table_tools                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -182,7 +182,7 @@ int CTable_Change_Date_Format::On_Parameters_Enable(CSG_Parameters *pParameters,
 		}
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

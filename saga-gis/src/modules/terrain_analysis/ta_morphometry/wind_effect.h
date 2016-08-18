@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWind_Effect : public CSG_Module_Grid
+class CWind_Effect : public CSG_Tool_Grid
 {
 public:
 	CWind_Effect(void);
@@ -120,7 +120,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CWind_Exposition : public CSG_Module_Grid
+class CWind_Exposition : public CSG_Tool_Grid
 {
 public:
 	CWind_Exposition(void);

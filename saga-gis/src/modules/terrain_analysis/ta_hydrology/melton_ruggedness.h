@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CMelton_Ruggedness : public CSG_Module_Grid
+class CMelton_Ruggedness : public CSG_Tool_Grid
 {
 public:
 	CMelton_Ruggedness(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Grid_Visualisation                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CGrid_Aspect_Slope_Map::CGrid_Aspect_Slope_Map(void)
 	Set_Author(_TL("Copyrights (c) 2012 by Volker Wichmann"));
 
 	Set_Description	(_TW(
-		"This module creates an aspect-slope map which shows both the aspect "
+		"This tool creates an aspect-slope map which shows both the aspect "
 		"and the slope of the terrain. Aspect is symbolized by different hues, "
 		"while slope is mapped with saturation.\n\n"
 		"References:\n"

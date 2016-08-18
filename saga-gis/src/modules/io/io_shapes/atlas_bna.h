@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAtlas_BNA_Import : public CSG_Module
+class CAtlas_BNA_Import : public CSG_Tool
 {
 public:
 	CAtlas_BNA_Import(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAtlas_BNA_Export : public CSG_Module
+class CAtlas_BNA_Export : public CSG_Tool
 {
 public:
 	CAtlas_BNA_Export(void);

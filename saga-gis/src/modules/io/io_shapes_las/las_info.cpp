@@ -9,7 +9,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Shapes_IO_LAS                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -87,7 +87,7 @@ CLAS_Info::CLAS_Info(void)
 		"using the \"libLAS\" library. "
 		"Get more information about this library at "
 		"<a href=\"http://liblas.org\">http://liblas.org</a>\n"
-		"Implementation of this module builds upon the lasinfo tool of "
+		"Implementation of this tool builds upon the lasinfo tool of "
 		"<a href=\"http://www.cs.unc.edu/~isenburg/lastools\">Martin Isenburg</a>.\n"
 		"\n"
 		"\nliblas version: "

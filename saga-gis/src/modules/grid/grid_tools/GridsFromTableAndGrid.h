@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGridsFromTableAndGrid : public CSG_Module_Grid 
+class CGridsFromTableAndGrid : public CSG_Tool_Grid 
 {
 public:
 	CGridsFromTableAndGrid(void);

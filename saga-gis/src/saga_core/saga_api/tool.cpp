@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      module.cpp                       //
+//                       tool.cpp                        //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -63,7 +63,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "tool.h"
 
 #include "data_manager.h"
 
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module::CSG_Module(void)
+CSG_Tool::CSG_Tool(void)
 {
 	m_ID			= "-1";
 
@@ -92,7 +92,7 @@ CSG_Module::CSG_Module(void)
 }
 
 //---------------------------------------------------------
-CSG_Module::~CSG_Module(void)
+CSG_Tool::~CSG_Tool(void)
 {
 	if( m_Settings_Stack.Get_Size() > 0 )
 	{
@@ -123,7 +123,7 @@ CSG_Module::~CSG_Module(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Destroy(void)
+void CSG_Tool::Destroy(void)
 {
 	m_bError_Ignore	= false;
 
@@ -138,52 +138,52 @@ void CSG_Module::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CSG_String & CSG_Module::Get_Library(void) const
+const CSG_String & CSG_Tool::Get_Library(void) const
 {
 	return( m_Library );
 }
 
 //---------------------------------------------------------
-const CSG_String & CSG_Module::Get_File_Name(void) const
+const CSG_String & CSG_Tool::Get_File_Name(void) const
 {
 	return( m_File_Name );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Name(const CSG_String &String)
+void CSG_Tool::Set_Name(const CSG_String &String)
 {
 	Parameters.Set_Name(String);
 }
 
-const CSG_String & CSG_Module::Get_Name(void) const
+const CSG_String & CSG_Tool::Get_Name(void) const
 {
 	return( Parameters.Get_Name() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Description(const CSG_String &String)
+void CSG_Tool::Set_Description(const CSG_String &String)
 {
 	Parameters.Set_Description(String);
 }
 
-const CSG_String & CSG_Module::Get_Description(void) const
+const CSG_String & CSG_Tool::Get_Description(void) const
 {
 	return( Parameters.Get_Description() );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Author(const CSG_String &String)
+void CSG_Tool::Set_Author(const CSG_String &String)
 {
 	m_Author	= String;
 }
 
-const CSG_String & CSG_Module::Get_Author(void) const
+const CSG_String & CSG_Tool::Get_Author(void) const
 {
 	return( m_Author );
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Module::Get_MenuPath(bool bSolved)
+CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 {
 	if( !bSolved )
 	{
@@ -230,7 +230,7 @@ CSG_String CSG_Module::Get_MenuPath(bool bSolved)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::Execute(void)
+bool CSG_Tool::Execute(void)
 {
 	if( m_bExecutes )
 	{
@@ -256,7 +256,7 @@ bool CSG_Module::Execute(void)
 
 ///////////////////////////////////////////////////////////
 #if !defined(_DEBUG) && defined(_SAGA_VC) && defined(WXWIN_28)
-#define _MODULE_EXCEPTION
+#define _TOOL_EXCEPTION
 		__try
 		{
 #endif
@@ -265,7 +265,7 @@ bool CSG_Module::Execute(void)
 			bResult	= On_Execute();
 
 ///////////////////////////////////////////////////////////
-#ifdef _MODULE_EXCEPTION
+#ifdef _TOOL_EXCEPTION
 		}	// try
 		__except(1)
 		{
@@ -308,7 +308,7 @@ bool CSG_Module::Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::_Synchronize_DataObjects(void)
+bool CSG_Tool::_Synchronize_DataObjects(void)
 {
 	int				i;
 	CSG_Projection	Projection;
@@ -336,7 +336,7 @@ bool CSG_Module::_Synchronize_DataObjects(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Get_Projection(CSG_Projection &Projection)	const
+bool CSG_Tool::Get_Projection(CSG_Projection &Projection)	const
 {
 	Projection.Destroy();
 
@@ -377,19 +377,19 @@ bool CSG_Module::Get_Projection(CSG_Projection &Projection)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Module::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
+int CSG_Tool::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
 	{
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
-			((CSG_Module *)pParameter->Get_Owner()->Get_Owner())->
+			((CSG_Tool *)pParameter->Get_Owner()->Get_Owner())->
 				On_Parameter_Changed(pParameter->Get_Owner(), pParameter);
 		}
 
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			((CSG_Module *)pParameter->Get_Owner()->Get_Owner())->
+			((CSG_Tool *)pParameter->Get_Owner()->Get_Owner())->
 				On_Parameters_Enable(pParameter->Get_Owner(), pParameter);
 		}
 
@@ -400,13 +400,13 @@ int CSG_Module::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 }
 
 //---------------------------------------------------------
-int CSG_Module::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( true );
 }
 
 //---------------------------------------------------------
-int CSG_Module::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CSG_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	return( true );
 }
@@ -419,7 +419,7 @@ int CSG_Module::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Add_Parameters(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameters	*pParameters;
 
@@ -433,7 +433,7 @@ CSG_Parameters * CSG_Module::Add_Parameters(const CSG_String &Identifier, const 
 }
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Module::Get_Parameters(const CSG_String &Identifier)
+CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier)
 {
 	CSG_String	sIdentifier(Identifier);
 
@@ -449,7 +449,7 @@ CSG_Parameters * CSG_Module::Get_Parameters(const CSG_String &Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(const CSG_String &Identifier)
+bool CSG_Tool::Dlg_Parameters(const CSG_String &Identifier)
 {
 	CSG_Parameters	*pParameters	= Get_Parameters(Identifier);
 
@@ -464,7 +464,7 @@ bool CSG_Module::Dlg_Parameters(const CSG_String &Identifier)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
+bool CSG_Tool::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &Caption)
 {
 	return( pParameters ? SG_UI_Dlg_Parameters(pParameters, Caption) : false );
 }
@@ -477,7 +477,7 @@ bool CSG_Module::Dlg_Parameters(CSG_Parameters *pParameters, const CSG_String &C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Set_Callback(bool bActive)
+void CSG_Tool::Set_Callback(bool bActive)
 {
 	Parameters.Set_Callback(bActive);
 
@@ -488,7 +488,7 @@ void CSG_Module::Set_Callback(bool bActive)
 }
 
 //---------------------------------------------------------
-void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
+void CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
 {
 	Parameters.Set_Manager(pManager);
 
@@ -506,7 +506,7 @@ void CSG_Module::Set_Manager(class CSG_Data_Manager *pManager)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
+bool CSG_Tool::Settings_Push(CSG_Data_Manager *pManager)
 {
 	if( m_Settings_Stack.Get_Value_Size() != sizeof(CSG_Parameters *) )
 	{
@@ -533,7 +533,7 @@ bool CSG_Module::Settings_Push(CSG_Data_Manager *pManager)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Settings_Pop(void)
+bool CSG_Tool::Settings_Pop(void)
 {
 	CSG_Parameters	**pP	= (CSG_Parameters **)m_Settings_Stack.Get_Array();
 
@@ -564,37 +564,37 @@ bool CSG_Module::Settings_Pop(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Set_Show_Progress(bool bOn)
+void CSG_Tool::Set_Show_Progress(bool bOn)
 {
 	m_bShow_Progress	= bOn;
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Process_Get_Okay(bool bBlink)
+bool CSG_Tool::Process_Get_Okay(bool bBlink)
 {
 	return( SG_UI_Process_Get_Okay(bBlink) );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Process_Set_Text(const CSG_String &Text)
+void CSG_Tool::Process_Set_Text(const CSG_String &Text)
 {
 	SG_UI_Process_Set_Text(Text);
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Set_Progress(double Percent)
+bool CSG_Tool::Set_Progress(double Percent)
 {
 	return( Set_Progress(Percent, 100.0) );
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Set_Progress(double Position, double Range)
+bool CSG_Tool::Set_Progress(double Position, double Range)
 {
 	return( m_bShow_Progress ? SG_UI_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Stop_Execution(bool bDialog)
+bool CSG_Tool::Stop_Execution(bool bDialog)
 {
 	m_bExecutes	= false;
 
@@ -609,38 +609,38 @@ bool CSG_Module::Stop_Execution(bool bDialog)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module::Message_Dlg(const CSG_String &Text, const SG_Char *Caption)
+void CSG_Tool::Message_Dlg(const CSG_String &Text, const SG_Char *Caption)
 {
 	SG_UI_Dlg_Message(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name().c_str());
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Message_Dlg_Confirm(const CSG_String &Text, const SG_Char *Caption)
+bool CSG_Tool::Message_Dlg_Confirm(const CSG_String &Text, const SG_Char *Caption)
 {
 	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name().c_str()) );
 }
 
 //---------------------------------------------------------
-void CSG_Module::Message_Add(const CSG_String &Text, bool bNewLine)
+void CSG_Tool::Message_Add(const CSG_String &Text, bool bNewLine)
 {
 	SG_UI_Msg_Add_Execution(Text, bNewLine);
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Error_Set(TSG_Module_Error Error_ID)
+bool CSG_Tool::Error_Set(TSG_Tool_Error Error_ID)
 {
 	switch( Error_ID )
 	{
 	default:
 		return( Error_Set(_TL("Unknown Error")) );
 
-	case MODULE_ERROR_Calculation:
+	case TOOL_ERROR_Calculation:
 		return( Error_Set(_TL("Calculation Error")) );
 	}
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Error_Set(const CSG_String &Error_Text)
+bool CSG_Tool::Error_Set(const CSG_String &Error_Text)
 {
 	SG_UI_Msg_Add_Error(Error_Text);
 
@@ -664,7 +664,7 @@ bool CSG_Module::Error_Set(const CSG_String &Error_Text)
 //---------------------------------------------------------
 #include <wx/string.h>
 
-bool CSG_Module::Error_Fmt(const char *Format, ...)
+bool CSG_Tool::Error_Fmt(const char *Format, ...)
 {
 	wxString	Error;
 
@@ -689,7 +689,7 @@ bool CSG_Module::Error_Fmt(const char *Format, ...)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::Error_Fmt(const wchar_t *Format, ...)
+bool CSG_Tool::Error_Fmt(const wchar_t *Format, ...)
 {
 	wxString	Error;
 
@@ -721,7 +721,7 @@ bool CSG_Module::Error_Fmt(const wchar_t *Format, ...)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
+bool CSG_Tool::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 {
 	if( Parameters.Get_Manager() )
 	{
@@ -737,12 +737,12 @@ bool CSG_Module::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
+bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
 {
 	return( SG_UI_DataObject_Update(pDataObject, Show, NULL) );
 }
 
-bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
+bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
 {
 	if( !pDataObject )
 	{
@@ -757,7 +757,7 @@ bool CSG_Module::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, 
 }
 
 //---------------------------------------------------------
-void CSG_Module::DataObject_Update_All(void)
+void CSG_Tool::DataObject_Update_All(void)
 {
 	for(int i=0; i<Parameters.Get_Count(); i++)
 	{
@@ -779,19 +779,19 @@ void CSG_Module::DataObject_Update_All(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Get_Colors(CSG_Data_Object *pDataObject, CSG_Colors &Colors)
+bool CSG_Tool::DataObject_Get_Colors(CSG_Data_Object *pDataObject, CSG_Colors &Colors)
 {
 	return( SG_UI_DataObject_Colors_Get(pDataObject, &Colors) );
 }
 
-bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, const CSG_Colors &Colors)
+bool CSG_Tool::DataObject_Set_Colors(CSG_Data_Object *pDataObject, const CSG_Colors &Colors)
 {
 	CSG_Colors	c(Colors);
 
 	return( SG_UI_DataObject_Colors_Set(pDataObject, &c) );
 }
 
-bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors, int Palette, bool bRevert)
+bool CSG_Tool::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors, int Palette, bool bRevert)
 {
 	CSG_Colors	c(nColors, Palette, bRevert);
 
@@ -799,25 +799,25 @@ bool CSG_Module::DataObject_Set_Colors(CSG_Data_Object *pDataObject, int nColors
 }
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Get_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
+bool CSG_Tool::DataObject_Get_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
 {
 	return( SG_UI_DataObject_Params_Get(pDataObject, &Parameters) );
 }
 
-bool CSG_Module::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
+bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters)
 {
 	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Module::DataObject_Get_Parameter(CSG_Data_Object *pDataObject, const CSG_String &ID)
+CSG_Parameter * CSG_Tool::DataObject_Get_Parameter(CSG_Data_Object *pDataObject, const CSG_String &ID)
 {
 	static CSG_Parameters	sParameters;
 
 	return( DataObject_Get_Parameters(pDataObject, sParameters) ? sParameters(ID) : NULL );
 }
 
-bool CSG_Module::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter)
+bool CSG_Tool::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter)
 {
 	CSG_Parameters	P;
 
@@ -826,7 +826,7 @@ bool CSG_Module::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Para
 	return( DataObject_Set_Parameters(pDataObject, P) );
 }
 
-bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value)
+bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value)
 {
 	CSG_Parameters	Parameters;
 
@@ -838,7 +838,7 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	return( false );
 }
 
-bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value)
+bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value)
 {
 	CSG_Parameters	Parameters;
 
@@ -850,7 +850,7 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	return( false );
 }
 
-bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value)
+bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value)
 {
 	CSG_Parameters	Parameters;
 
@@ -862,7 +862,7 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	return( false );
 }
 
-bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value)
+bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value)
 {
 	CSG_Parameters	Parameters;
 
@@ -874,7 +874,7 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 	return( false );
 }
 
-bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal)	// Range Parameter
+bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal)	// Range Parameter
 {
 	CSG_Parameters	Parameters;
 
@@ -895,50 +895,50 @@ bool CSG_Module::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const C
 
 //---------------------------------------------------------
 /**
-  * Direct 'set a value' access to this module's default parameters list.
+  * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Module::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *pSource)
+bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *pSource)
 {
 	return( Parameters.Set_Parameter(Identifier, pSource) );
 }
 
 //---------------------------------------------------------
 /**
-  * Direct 'set a value' access to this module's default parameters list.
+  * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Module::Set_Parameter(const CSG_String &Identifier, int Value, int Type)
+bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, int Value, int Type)
 {
 	return( Parameters.Set_Parameter(Identifier, Value, Type) );
 }
 
 //---------------------------------------------------------
 /**
-  * Direct 'set a value' access to this module's default parameters list.
+  * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Module::Set_Parameter(const CSG_String &Identifier, double Value, int Type)
+bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, double Value, int Type)
 {
 	return( Parameters.Set_Parameter(Identifier, Value, Type) );
 }
 
 //---------------------------------------------------------
 /**
-  * Direct 'set a value' access to this module's default parameters list.
+  * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Module::Set_Parameter(const CSG_String &Identifier, void *Value, int Type)
+bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, void *Value, int Type)
 {
 	return( Parameters.Set_Parameter(Identifier, Value, Type) );
 }
 
 //---------------------------------------------------------
 /**
-  * Direct 'set a value' access to this module's default parameters list.
+  * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Module::Set_Parameter(const CSG_String &Identifier, const SG_Char *Value, int Type)
+bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, const SG_Char *Value, int Type)
 {
 	return( Parameters.Set_Parameter(Identifier, Value, Type) );
 }
@@ -951,7 +951,7 @@ bool CSG_Module::Set_Parameter(const CSG_String &Identifier, const SG_Char *Valu
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module::Update_Parameter_States(void)
+bool CSG_Tool::Update_Parameter_States(void)
 {
 	_Update_Parameter_States(&Parameters);
 
@@ -964,7 +964,7 @@ bool CSG_Module::Update_Parameter_States(void)
 }
 
 //---------------------------------------------------------
-void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
+void CSG_Tool::_Update_Parameter_States(CSG_Parameters *pParameters)
 {
 	if( pParameters )
 	{
@@ -995,7 +995,7 @@ void CSG_Module::_Update_Parameter_States(CSG_Parameters *pParameters)
 #include "saga_api.h"
 
 //---------------------------------------------------------
-CSG_MetaData CSG_Module::_Get_Output_History(void)
+CSG_MetaData CSG_Tool::_Get_Output_History(void)
 {
 	CSG_MetaData	History;
 
@@ -1004,29 +1004,29 @@ CSG_MetaData CSG_Module::_Get_Output_History(void)
 
 	if( SG_Get_History_Depth() )
 	{
-		CSG_MetaData	*pModule	= History.Add_Child("MODULE");
+		CSG_MetaData	*pTool	= History.Add_Child("TOOL");
 
-		pModule->Add_Property("library", Get_Library());
-		pModule->Add_Property("id"     , Get_ID     ());
-		pModule->Add_Property("name"   , Get_Name   ());
+		pTool->Add_Property("library", Get_Library());
+		pTool->Add_Property("id"     , Get_ID     ());
+		pTool->Add_Property("name"   , Get_Name   ());
 
-		Parameters.Set_History(*pModule);
+		Parameters.Set_History(*pTool);
 
-		pModule->Add_Children(History_Supplement);
+		pTool->Add_Children(History_Supplement);
 
-		CSG_MetaData	*pOutput	= pModule->Add_Child("OUTPUT");
+		CSG_MetaData	*pOutput	= pTool->Add_Child("OUTPUT");
 		pOutput->Add_Property("type", "");
 		pOutput->Add_Property("id"  , "");
 		pOutput->Add_Property("name", "");
 
-		pModule->Del_Children(SG_Get_History_Depth(), SG_T("MODULE"));
+		pTool->Del_Children(SG_Get_History_Depth(), SG_T("TOOL"));
 	}
 
 	return( History );
 }
 
 //---------------------------------------------------------
-void CSG_Module::_Set_Output_History(void)
+void CSG_Tool::_Set_Output_History(void)
 {
 	CSG_MetaData	History(_Get_Output_History());
 
@@ -1048,7 +1048,7 @@ void CSG_Module::_Set_Output_History(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Module::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
+bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *pHistory)
 {
 	if( !pParameter )
 	{
@@ -1066,7 +1066,7 @@ bool CSG_Module::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData 
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pOutput	= pHistory->Get_Child("MODULE") ? pHistory->Get_Child("MODULE")->Get_Child("OUTPUT") : NULL;
+	CSG_MetaData	*pOutput	= pHistory->Get_Child("TOOL") ? pHistory->Get_Child("TOOL")->Get_Child("OUTPUT") : NULL;
 
 	if( pOutput )
 	{
@@ -1190,7 +1190,7 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 #define SUMMARY_DO_ADD	(SG_UI_Get_Window_Main() ? Parameters(i)->do_UseInGUI() : Parameters(i)->do_UseInCMD())
 
 //---------------------------------------------------------
-CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, const CSG_String &Description, bool bXML)
+CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const CSG_String &Description, bool bXML)
 {
 	int			i;
 	CSG_String	s;
@@ -1200,10 +1200,10 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 	{
 		CSG_MetaData	m;
 
-		m.Set_Name    (SG_XML_MODULE);
-		m.Add_Property(SG_XML_MODULE_ATT_NAME  , Get_Name       ());
-		m.Add_Property(SG_XML_MODULE_ATT_ID    , Get_ID         ());
-		m.Add_Property(SG_XML_MODULE_ATT_AUTHOR, Get_Author     ());
+		m.Set_Name    (SG_XML_TOOL);
+		m.Add_Property(SG_XML_TOOL_ATT_NAME  , Get_Name       ());
+		m.Add_Property(SG_XML_TOOL_ATT_ID    , Get_ID         ());
+		m.Add_Property(SG_XML_TOOL_ATT_AUTHOR, Get_Author     ());
 		m.Add_Child   (SG_XML_DESCRIPTION      , Get_Description());
 		m.Add_Child   (SG_XML_MENU             , Get_MenuPath   ());
 		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Grid        () ? "true" : "false");
@@ -1267,7 +1267,7 @@ CSG_String CSG_Module::Get_Summary(bool bParameters, const CSG_String &Menu, con
 			s	+= SUMMARY_ADD_STR(_TL("Specification"), _TL("grid"));
 		}
 
-		if( Get_Type() == MODULE_TYPE_Chain )
+		if( Get_Type() == TOOL_TYPE_Chain )
 		{
 			s	+= SUMMARY_ADD_STR(_TL("File"), Get_File_Name().c_str() );
 		}

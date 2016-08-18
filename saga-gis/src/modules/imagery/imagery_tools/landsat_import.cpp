@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     imagery_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -337,30 +337,30 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( NULL );
 	}
 
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 4);	// Coordinate Transformation (Grid)
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("pj_proj4"), 4);	// Coordinate Transformation (Grid)
 
-	if(	pModule == NULL )
+	if(	pTool == NULL )
 	{
 		return( NULL );
 	}
 
 	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
-	pModule->Settings_Push(NULL);
+	pTool->Settings_Push(NULL);
 
-	if( pModule->Set_Parameter("CRS_PROJ4" , Proj4)
-	&&  pModule->Set_Parameter("SOURCE"    , pGrid)
-	&&  pModule->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
-	&&  pModule->Execute() )
+	if( pTool->Set_Parameter("CRS_PROJ4" , Proj4)
+	&&  pTool->Set_Parameter("SOURCE"    , pGrid)
+	&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
+	&&  pTool->Execute() )
 	{
-		pGrid	= pModule->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+		pGrid	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
 
-		pModule->Settings_Pop();
+		pTool->Settings_Pop();
 
 		return( pGrid );
 	}
 
-	pModule->Settings_Pop();
+	pTool->Settings_Pop();
 
 	Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
 

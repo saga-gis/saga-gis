@@ -67,7 +67,7 @@
 #include "res_controls.h"
 
 #include "wksp_layer.h"
-#include "wksp_module.h"
+#include "wksp_tool.h"
 #include "wksp_map_manager.h"
 
 #include "parameters_control.h"
@@ -239,11 +239,11 @@ void CACTIVE_Parameters::On_Restore_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 void CACTIVE_Parameters::On_Execute(wxCommandEvent &event)
 {
-	if( m_pItem && m_pItem->Get_Type() == WKSP_ITEM_Module )
+	if( m_pItem && m_pItem->Get_Type() == WKSP_ITEM_Tool )
 	{
 		m_pControl->Save_Changes(true);
 
-		((CWKSP_Module *)m_pItem)->Execute(false);
+		((CWKSP_Tool *)m_pItem)->Execute(false);
 	}
 }
 
@@ -300,7 +300,7 @@ bool CACTIVE_Parameters::Set_Parameters(CWKSP_Base_Item *pItem)
 
 			m_Btn_Apply		->Show(true);
 			m_Btn_Restore	->Show(true);
-			m_Btn_Execute	->Show(m_pItem->Get_Type() == WKSP_ITEM_Module);
+			m_Btn_Execute	->Show(m_pItem->Get_Type() == WKSP_ITEM_Tool);
 			m_Btn_Load		->Show(true);
 			m_Btn_Save		->Show(true);
 		}

@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //    System for an Automated Geo-Scientific Analysis    //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Fire_Spreading                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                      Olaf Conrad                      //
@@ -50,7 +50,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -60,16 +60,16 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Fire Spreading Analysis") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Simulation") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("Victor Olaya (c) 2004") );
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( _TW(
 			"Fire spreading analyses based on the BEHAVE fire modeling system "
 			"supported by the U.S. Forest Service, Fire and Aviation Management. "
@@ -81,10 +81,10 @@ CSG_String Get_Info(int i)
 			"Burn Subsystem, Part 1. U.S. Department of Agriculture, Forest Service General, Technical Report INT-194. "
 		));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Simulation|Fire Spreading") );
 	}
 }
@@ -92,27 +92,27 @@ CSG_String Get_Info(int i)
 #include "Simulate.h"
 #include "Forecasting.h"
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CForecasting;
+		pTool	= new CForecasting;
 		break;
 
 	case 1:
-		pModule	= new CSimulate;
+		pTool	= new CSimulate;
 		break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -125,6 +125,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

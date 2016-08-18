@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library                     //
+//                     Tool Library                      //
 //                                                       //
 //                      $$modul$$                        //
 //                                                       //
@@ -73,7 +73,7 @@ using namespace std;
 CNewton::CNewton(void)
 {
 	//-----------------------------------------------------
-	// Place information about your module here...
+	// Place information about your tool here...
 
 	Set_Name(_TL("Newton-Raphson"));
 
@@ -253,10 +253,10 @@ bool CNewton::doNewton()
 
 
 
-bool CNewton::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CNewton::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	//-----------------------------------------------------
-	if(	Mode != MODULE_INTERACTIVE_LDOWN && Mode != MODULE_INTERACTIVE_RDOWN )
+	if(	Mode != TOOL_INTERACTIVE_LDOWN && Mode != TOOL_INTERACTIVE_RDOWN )
 	{
 		return( false );
 	}
@@ -277,7 +277,7 @@ bool CNewton::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode
 
 	deltay = (yMax-yMin);
 
-	if(Mode == MODULE_INTERACTIVE_LDOWN)
+	if(Mode == TOOL_INTERACTIVE_LDOWN)
 	{
 		deltax/=4.0;
 		deltay/=4.0;
@@ -290,7 +290,7 @@ bool CNewton::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode
 
 	}
 
-	if(Mode == MODULE_INTERACTIVE_RDOWN)
+	if(Mode == TOOL_INTERACTIVE_RDOWN)
 	{
 		
 		xMin = xpos - deltax;

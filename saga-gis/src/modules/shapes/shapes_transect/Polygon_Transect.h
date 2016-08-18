@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Transect                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -68,7 +68,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CPolygon_Transect : public CSG_Module
+class CPolygon_Transect : public CSG_Tool
 {
 public: ////// public members and functions: //////////////
 

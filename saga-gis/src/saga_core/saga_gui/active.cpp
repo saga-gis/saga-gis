@@ -83,7 +83,7 @@
 #include "active_attributes.h"
 #include "active_legend.h"
 
-#include "wksp_module.h"
+#include "wksp_tool.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_layers.h"

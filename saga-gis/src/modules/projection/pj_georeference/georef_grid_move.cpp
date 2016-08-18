@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Grid_Georeference                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -95,7 +95,7 @@ CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 	);
 
 	//-----------------------------------------------------
-	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_LINE);
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_LINE);
 }
 
 //---------------------------------------------------------
@@ -127,13 +127,13 @@ bool CGeoref_Grid_Move::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGeoref_Grid_Move::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( Mode == MODULE_INTERACTIVE_LDOWN )
+	if( Mode == TOOL_INTERACTIVE_LDOWN )
 	{
 		m_Down	= ptWorld;
 	}
-	else if( Mode == MODULE_INTERACTIVE_LUP )
+	else if( Mode == TOOL_INTERACTIVE_LUP )
 	{
 		if( m_Down != ptWorld )
 		{

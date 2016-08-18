@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGPX_Import : public CSG_Module
+class CGPX_Import : public CSG_Tool
 {
 public:
 	CGPX_Import(void);
@@ -118,7 +118,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGPX_Export : public CSG_Module
+class CGPX_Export : public CSG_Tool
 {
 public:
 	CGPX_Export(void);

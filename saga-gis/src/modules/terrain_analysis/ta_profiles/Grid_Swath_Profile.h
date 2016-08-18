@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_profiles                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Swath_Profile : public CSG_Module_Grid_Interactive
+class CGrid_Swath_Profile : public CSG_Tool_Grid_Interactive
 {
 public:
 	CGrid_Swath_Profile(void);
@@ -85,7 +85,7 @@ protected:
 
 	virtual bool				On_Execute			(void);
 	virtual bool				On_Execute_Finish	(void);
-	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool				On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:

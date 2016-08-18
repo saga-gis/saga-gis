@@ -28,7 +28,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CGrid_Pattern : public CSG_Module_Grid {
+class CGrid_Pattern : public CSG_Tool_Grid {
 
 public:
 	CGrid_Pattern(void);

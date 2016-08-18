@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 CExercise_03::CExercise_03(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("03: Direct neighbours"));
 

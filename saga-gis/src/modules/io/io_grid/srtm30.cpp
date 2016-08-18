@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        Grid_IO                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -99,7 +99,7 @@ CSRTM30_Import::CSRTM30_Import(void)
 		"ftp://e0srp01u.ecs.nasa.gov/srtm/version2/SRTM30/</a>\n\n"
 
 		"A directory, that contains the uncompressed SRTM30 DEM files, can be located using "
-		"the \"Path\" Parameter of this module.")
+		"the \"Path\" Parameter of this tool.")
 	);
 
 	//-----------------------------------------------------

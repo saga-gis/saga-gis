@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      dev_tools                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -188,13 +188,13 @@ bool CTool_Py_Updater::On_Execute(void)
 	int	nChanged	= 0;
 	int	nAdded		= 0;
 
-	for(int iLibrary=0; iLibrary<SG_Get_Module_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Module_Library_Manager().Get_Count()); iLibrary++)
+	for(int iLibrary=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count() && Set_Progress(iLibrary, SG_Get_Tool_Library_Manager().Get_Count()); iLibrary++)
 	{
-		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
+		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
 		if( pLibrary->Get_Library_Name().Cmp("dev_tools"   )	// generally exclude some special libraries (and tool chains ?!)
 		&&  pLibrary->Get_Category().Cmp("Garden")
-		&&  pLibrary->Get_Type() != MODULE_CHAINS )
+		&&  pLibrary->Get_Type() != TOOL_CHAINS )
 		{
 			{
 				for(int i=0; i<Tools.Get_Count(); i++)
@@ -208,7 +208,7 @@ bool CTool_Py_Updater::On_Execute(void)
 
 			for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 			{
-				CSG_Module	*pTool	= pLibrary->Get_Module(iTool);
+				CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
 
 				if( !pTool->is_Interactive() )
 				{

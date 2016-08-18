@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    georeferencing                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -380,7 +380,7 @@ int CDirect_Georeferencing::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 {
 	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -388,7 +388,7 @@ int CDirect_Georeferencing::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 {
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

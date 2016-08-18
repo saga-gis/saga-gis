@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Projection_Proj4                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -91,7 +91,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CPROJ4_Base : public CSG_Module
+class pj_proj4_EXPORT CPROJ4_Base : public CSG_Tool
 {
 public:
 	CPROJ4_Base(int Interface, bool bInputList);

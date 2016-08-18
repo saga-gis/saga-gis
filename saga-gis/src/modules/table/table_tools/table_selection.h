@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     table_tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Copy : public CSG_Module
+class CSelection_Copy : public CSG_Tool
 {
 public:
 	CSelection_Copy(void);
@@ -101,7 +101,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Delete : public CSG_Module
+class CSelection_Delete : public CSG_Tool
 {
 public:
 	CSelection_Delete(void);
@@ -121,7 +121,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelection_Invert : public CSG_Module
+class CSelection_Invert : public CSG_Tool
 {
 public:
 	CSelection_Invert(void);
@@ -141,7 +141,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_Numeric : public CSG_Module  
+class CSelect_Numeric : public CSG_Tool  
 {
 public:
 	CSelect_Numeric(void);
@@ -161,7 +161,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSelect_String : public CSG_Module
+class CSelect_String : public CSG_Tool
 {
 public:
 	CSelect_String(void);

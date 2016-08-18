@@ -65,7 +65,7 @@
 #include "helper.h"
 
 #include "wksp_data_manager.h"
-#include "wksp_module.h"
+#include "wksp_tool.h"
 #include "data_source.h"
 
 #include "callback.h"
@@ -150,13 +150,13 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_STOP_EXECUTION:
 
-		if( g_pModule && g_pModule->is_Executing() )
+		if( g_pTool && g_pTool->is_Executing() )
 		{
-			Result	= g_pModule->Execute(Param_1.True) ? 1 : 0;
+			Result	= g_pTool->Execute(Param_1.True) ? 1 : 0;
 		}
-		else if( g_pModule && g_pModule->is_Interactive() )
+		else if( g_pTool && g_pTool->is_Interactive() )
 		{
-			Result	= g_pModule->Execute(Param_1.True) ? 1 : 0;
+			Result	= g_pTool->Execute(Param_1.True) ? 1 : 0;
 		}
 
 		break;

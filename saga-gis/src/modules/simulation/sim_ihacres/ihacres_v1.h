@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        IHACRES                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -58,7 +58,7 @@ typedef std::vector<std::string> date_array;
 typedef vector<double> vector_d;
 //---------------------------------------------------------
 
-class Cihacres_v1 : public CSG_Module
+class Cihacres_v1 : public CSG_Tool
 {
 public:
 
@@ -100,7 +100,7 @@ private:
 	CSG_String		date1, date2; // first and last date of selected period
 	double			m_area;		// area of the watershed in [km2]
 
-	// Non-Linear Module Parameters
+	// Non-Linear Tool Parameters
 	double			TwConst;	// Tw is approximately the time constant, or inversely,
 								// the rate at which the catchment wetness declines
 								// in the absence of rainfall.
@@ -111,7 +111,7 @@ private:
 	double			l;			// Croke et al. (2005)
 	double			p;			// Croke et al. (2005)
 
-	// Linear Module Parameters
+	// Linear Tool Parameters
 	double			a;			// linear module (single storage)
 	double			b;
 	double			aq;			// linear module (two storages)

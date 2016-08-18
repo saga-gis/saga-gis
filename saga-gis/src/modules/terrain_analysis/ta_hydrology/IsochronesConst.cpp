@@ -123,12 +123,12 @@ bool CIsochronesConst::On_Execute_Finish(void)
 
 
 //-----------------------------------------------------
-bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {	
 	int iX, iY;		
 	int iHighX, iHighY;
 
-	if(	Mode != MODULE_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
+	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
 	{
 		return( false );
 	}

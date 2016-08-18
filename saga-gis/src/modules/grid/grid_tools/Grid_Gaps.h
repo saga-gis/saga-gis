@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_tools_EXPORT CGrid_Gaps : public CSG_Module_Grid
+class grid_tools_EXPORT CGrid_Gaps : public CSG_Tool_Grid
 {
 public:
 	CGrid_Gaps(void);

@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                        A1WiTh                         //
 //                                                       //
 //                       for SAGA                        //
@@ -34,7 +34,7 @@
 #include "MLB_Interface.h"
 
 //---------------------------------------------------------
-class CA1WiTh : public CSG_Module_Grid
+class CA1WiTh : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 

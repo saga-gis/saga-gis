@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                 statistics_regression                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGW_Multi_Regression_Points : public CSG_Module
+class CGW_Multi_Regression_Points : public CSG_Tool
 {
 public:
 	CGW_Multi_Regression_Points(void);

@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CCombineGrids : public CSG_Module_Grid
+class CCombineGrids : public CSG_Tool_Grid
 {
 public:
 	CCombineGrids(void);

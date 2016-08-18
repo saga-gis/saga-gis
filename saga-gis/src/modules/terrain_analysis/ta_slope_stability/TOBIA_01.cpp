@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CTOBIA::CTOBIA(void)
 
 	Set_Description	(_TW(
 		"\n"
-		"This module computes both a continuous and a categorical TOBIA (""Topography Bedding Intersection Angle"") Index according to Meentemeyer & Moody (2000) "
+		"This tool computes both a continuous and a categorical TOBIA (""Topography Bedding Intersection Angle"") Index according to Meentemeyer & Moody (2000) "
 		"For computation, a slope and a aspect raster (both in radians) determining slope face orientations are required. "
 		"The categorical TOBIA classifies the alignement of a geological structure to Topography into seven classes:\n"
 		"0) Underdip slope\n"
@@ -90,7 +90,7 @@ CTOBIA::CTOBIA(void)
 		"6) Orthoclinal slope\n"
 		"The continuous TOBIA index ranges from -1 to 1 (parallel orientation)\n" 
 		"The structure TOBIA should be calculated with can be set either distributed (through dip direction and dip grids, in degrees!), "
-		"or globally using integers (dip and dip direction, in degrees!). The module creates a TOBIA class integer grid, and (optionally) a continuous TOBIA index grid.\n"
+		"or globally using integers (dip and dip direction, in degrees!). The tool creates a TOBIA class integer grid, and (optionally) a continuous TOBIA index grid.\n"
 		"\n"
 		"Reference: "
 		"<a href=\"http://www.sciencedirect.com/science/article/pii/S009830040000011X\">Meentemeyer R. K., Moody A. (2000). Automated mapping of conformity between topographic and geological surfaces. Computers & Geosciences, 26, 815 - 829</a>.\n"

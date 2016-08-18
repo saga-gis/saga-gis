@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -110,7 +110,7 @@ int CTC_Parameter_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 
 	m_Kernel.Get_Weighting().Enable_Parameters(pParameters);
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -627,7 +627,7 @@ int CTC_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	||	pParameters->Get_Parameter("TEXT_RECALC")->asBool()
 	);
 
-	return( CSG_Module_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

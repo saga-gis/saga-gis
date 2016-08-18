@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CVisibility_Points : public CSG_Module_Grid, CVisibility_BASE
+class CVisibility_Points : public CSG_Tool_Grid, CVisibility_BASE
 {
 public:
 	CVisibility_Points(void);

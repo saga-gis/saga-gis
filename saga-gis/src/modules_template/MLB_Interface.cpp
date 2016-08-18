@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2007 by                 //
 //                        Author                         //
@@ -54,7 +54,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -65,46 +65,46 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
-		return( _TL("Module Library Template") );
+	case TLB_INFO_Name:	default:
+		return( _TL("Tool Library Template") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Templates") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("George Orwell (c) 1984") );
 
-	case MLB_INFO_Description:
-		return( _TL("I am a module library template.") );
+	case TLB_INFO_Description:
+		return( _TL("I am a tool library template.") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Template Menu|Template Sub Menu") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "My_Module.h"
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	// Don't forget to continuously enumerate the case switches
-	// when adding new modules! Also bear in mind that the
+	// when adding new tools! Also bear in mind that the
 	// enumeration always has to start with [case 0:] and
 	// that [default:] must return NULL!...
 
@@ -126,6 +126,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

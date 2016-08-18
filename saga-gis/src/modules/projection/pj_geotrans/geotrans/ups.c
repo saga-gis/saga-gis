@@ -92,7 +92,7 @@
 /*
  *    math.h     - Is needed to call the math functions.
  *    polar.h    - Is used to convert polar stereographic coordinates
- *    ups.h      - Defines the function prototypes for the ups module.
+ *    ups.h      - Defines the function prototypes for the ups tool.
  */
 
 

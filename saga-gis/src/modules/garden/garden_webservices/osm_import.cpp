@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   garden_webservices                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ COSM_Import::COSM_Import(void)
 	Set_Author		(SG_T("O. Conrad (c) 2010"));
 
 	Set_Description	(_TW(
-		"This module works as Web Map Service (WMS) client. "
+		"This tool works as Web Map Service (WMS) client. "
 		"More information on the WMS specifications can be obtained from the "
 		"Open Geospatial Consortium (OGC) at "
 		"<a href=\"http://www.opengeospatial.org/\">http://www.opengeospatial.org/</a>. "
@@ -174,12 +174,12 @@ bool COSM_Import::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 		if( m_bDown == false )
 		{
 			m_bDown		= true;
@@ -189,7 +189,7 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_
 		break;
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		if( m_bDown == true )
 		{
 			m_bDown		= false;

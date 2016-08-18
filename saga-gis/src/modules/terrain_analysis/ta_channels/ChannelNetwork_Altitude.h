@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_channels                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CChannelNetwork_Altitude : public CSG_Module_Grid  
+class ta_channels_EXPORT CChannelNetwork_Altitude : public CSG_Tool_Grid  
 {
 public:
 	CChannelNetwork_Altitude(void);
@@ -113,7 +113,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_channels_EXPORT CValley_Depth : public CSG_Module_Grid  
+class ta_channels_EXPORT CValley_Depth : public CSG_Tool_Grid  
 {
 public:
 	CValley_Depth(void);

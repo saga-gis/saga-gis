@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSim_Diffusion_Gradient : public CSG_Module_Grid
+class CSim_Diffusion_Gradient : public CSG_Tool_Grid
 {
 public:
 	CSim_Diffusion_Gradient(void);

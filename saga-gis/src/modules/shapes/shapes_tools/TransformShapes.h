@@ -25,7 +25,7 @@
 
 #include "MLB_Interface.h"
 
-class CTransformShapes : public CSG_Module{
+class CTransformShapes : public CSG_Tool{
 
 public:
 	CTransformShapes(void);

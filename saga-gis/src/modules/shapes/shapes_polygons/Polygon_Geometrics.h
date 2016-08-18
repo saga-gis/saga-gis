@@ -48,7 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_Geometrics : public CSG_Module
+class CPolygon_Geometrics : public CSG_Tool
 {
 public:
 	CPolygon_Geometrics(void);

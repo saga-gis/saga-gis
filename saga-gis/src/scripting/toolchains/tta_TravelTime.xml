@@ -49,7 +49,7 @@
 	</parameters>
 
 	<tools>
-		<tool library="grid_tools" module="15" name="Reclassify Grid Values">
+		<tool library="grid_tools" tool="15" name="Reclassify Grid Values">
 			<option id="NODATAOPT">true</option>
 			<option id="NODATA">-99999.000000</option>
 			<option id="RESULT_NODATA_CHOICE">1</option>
@@ -63,14 +63,14 @@
 			<input  id="RETAB_2">LANDCOVER_TO_TRAVELTIME</input>
 			<output id="RESULT">TRAVELTIME_LOCAL</output>
 		</tool>
-		<tool library="grid_analysis" module="0" name="Accumulated Cost">
+		<tool library="grid_analysis" tool="0" name="Accumulated Cost">
 			<option id="THRESHOLD">0.000000</option>
 			<option id="DEST_TYPE">0</option>
 			<input  id="COST">TRAVELTIME_LOCAL</input>
 			<input  id="DEST_POINTS">DESTINATIONS</input>
 			<output id="ACCUMULATED">TRAVELTIME_ACCUMULATED</output>
 		</tool>
-		<tool library="grid_calculus" module="1" name="Grid Calculator">
+		<tool library="grid_calculus" tool="1" name="Grid Calculator">
 			<option id="FORMULA">g1/60</option>
 			<option id="TYPE">7</option>
 			<input  id="GRIDS">TRAVELTIME_ACCUMULATED</input>
@@ -78,7 +78,7 @@
 		</tool>
 		
 		<condition type="exists" variable="TRAVELTIME_LUT">
-			<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
 				<input id="GRID">TRAVELTIME_MINUTES</input>
 				<input id="LUT">TRAVELTIME_LUT</input>
 			</tool>

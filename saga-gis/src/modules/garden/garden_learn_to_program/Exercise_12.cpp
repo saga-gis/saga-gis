@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    Lectures_Shapes                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 CExercise_12::CExercise_12(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
 	Set_Name	(_TL("12: First steps with shapes"));
 

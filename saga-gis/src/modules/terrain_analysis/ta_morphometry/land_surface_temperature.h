@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CLand_Surface_Temperature : public CSG_Module_Grid
+class CLand_Surface_Temperature : public CSG_Tool_Grid
 {
 public:
 	CLand_Surface_Temperature(void);

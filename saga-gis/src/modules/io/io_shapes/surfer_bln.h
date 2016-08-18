@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       io_shapes                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSurfer_BLN_Import : public CSG_Module
+class CSurfer_BLN_Import : public CSG_Tool
 {
 public:
 	CSurfer_BLN_Import(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSurfer_BLN_Export : public CSG_Module
+class CSurfer_BLN_Export : public CSG_Tool
 {
 public:
 	CSurfer_BLN_Export(void);

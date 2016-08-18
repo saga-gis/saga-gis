@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,19 +79,19 @@ CPointCloud_Remove_Overlap_From_SPCVF::CPointCloud_Remove_Overlap_From_SPCVF(voi
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows one to remove the overlap from point cloud "
+		"The tool allows one to remove the overlap from point cloud "
 		"tiles created from a virtual point cloud dataset. The "
 		"tiles must have been created with an overlap and a spcvf "
 		"tile info file must have been outputted too. The latter "
 		"describes the original bounding boxes of the tiles (i.e. "
-		"without overlap) and is used by this module to remove "
+		"without overlap) and is used by this tool to remove "
 		"the overlap.\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
-		"with the 'Create Virtual Point Cloud Dataset' module. "
+		"with the 'Create Virtual Point Cloud Dataset' tool. "
 		"Point cloud tiles with an overlap are usually created "
 		"from such an virtual point cloud dataset with the "
-		"'Get Subset from Virtual Point Cloud' module.\n\n"
+		"'Get Subset from Virtual Point Cloud' tool.\n\n"
 	));
 
 

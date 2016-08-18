@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      sim_erosion                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CMMF_SAGA::CMMF_SAGA(void)
 
 	Set_Description(_TW("Soil erosion modelling with a modified MMF (Morgan-Morgan-Finney) model "
 						"(Morgan & Duzant 2008).<br/>"
-						"This module is called MMF-SAGA because some things have been implemented differently "
+						"This tool is called MMF-SAGA because some things have been implemented differently "
 						"compared to the original publication. The most important are:<br/><br/>"
 						"<ul>"
 						"<li>the extension of the model to support spatially distributed modelling</li>"

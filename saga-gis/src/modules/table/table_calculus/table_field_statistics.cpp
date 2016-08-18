@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@ CTable_Field_Statistics::CTable_Field_Statistics(void)
 	Set_Author		(SG_T("V. Wichmann (c) 2014"));
 
 	Set_Description	(_TW(
-		"The modules allows one to calculate statistics (n, min, max, range, sum, "
+		"The tools allows one to calculate statistics (n, min, max, range, sum, "
 		"mean, variance and standard deviation) for attribute fields of tables, "
 		"shapefiles or point clouds.\n\n"
 	));

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Lectures                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,9 +74,9 @@
 CExercise_01::CExercise_01(void)
 {
 	//-----------------------------------------------------
-	// Give some information about your module...
+	// Give some information about your tool...
 
-	Set_Name	(_TL("01: My first module"));
+	Set_Name	(_TL("01: My first tool"));
 
 	Set_Author	(_TL("Copyrights (c) 2003 by Olaf Conrad"));
 

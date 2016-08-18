@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -145,7 +145,7 @@ CImport_Clip_Resample::CImport_Clip_Resample(void)
 //---------------------------------------------------------
 int CImport_Clip_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -161,7 +161,7 @@ int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		pParameters->Set_Enabled("CELLSIZE"  , pParameter->asBool());
 	}
 
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CAnisotropic_Heating : public CSG_Module_Grid
+class CAnisotropic_Heating : public CSG_Tool_Grid
 {
 public:
 	CAnisotropic_Heating(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -96,7 +96,7 @@ CSG_String CFlow_AreaUpslope::Get_Description(void)
 {
 	return(
 		_TW(
-			"This module allows you to specify target cells, "
+			"This tool allows you to specify target cells, "
 			"for which the upslope contributing area shall be identified. "
 			"The result will give "
 			"for each cell the percentage of its flow that reaches the target cell(s).\n\n"
@@ -447,9 +447,9 @@ bool CFlow_AreaUpslope_Interactive::On_Execute_Finish(void)
 }
 
 //---------------------------------------------------------
-bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if(	Mode == MODULE_INTERACTIVE_LDOWN && m_Calculator.Get_Area(Get_xGrid(), Get_yGrid()) )
+	if(	Mode == TOOL_INTERACTIVE_LDOWN && m_Calculator.Get_Area(Get_xGrid(), Get_yGrid()) )
 	{
 		DataObject_Update(Parameters("AREA")->asGrid(), 0.0, 100.0, true);
 

@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//              module_interactive_base.cpp              //
+//                    tool_grid.cpp                      //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -63,7 +63,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,20 +73,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Interactive_Base::CSG_Module_Interactive_Base(void)
+CSG_Tool_Grid::CSG_Tool_Grid(void)
+	: CSG_Tool()
 {
-	m_pModule		= NULL;
+	m_pLock		= NULL;
 
-	m_Keys			= 0;
-	m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
-
-	m_Point			.Assign(0.0, 0.0);
-	m_Point_Last	.Assign(0.0, 0.0);
+	Parameters.Create(this, SG_T(""), SG_T(""), SG_T(""), true);
 }
 
 //---------------------------------------------------------
-CSG_Module_Interactive_Base::~CSG_Module_Interactive_Base(void)
-{}
+CSG_Tool_Grid::~CSG_Tool_Grid(void)
+{
+	Lock_Destroy();
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -96,98 +95,26 @@ CSG_Module_Interactive_Base::~CSG_Module_Interactive_Base(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Interactive_Base::Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode, int Keys)
+bool CSG_Tool_Grid::Set_Progress_NCells(sLong iCell)
 {
-	if( !m_pModule || m_pModule->m_bExecutes )
+	if( Get_System()->is_Valid() )
 	{
-		return( false );
+		return( CSG_Tool::Set_Progress((double)iCell, (double)Get_System()->Get_NCells()) );
 	}
 
-	m_pModule->m_bExecutes		= true;
-	m_pModule->m_bError_Ignore	= false;
-
-	m_Point_Last	= m_Point;
-	m_Point			= ptWorld;
-
-	m_Keys			= Keys;
-
-	bool	bResult	= On_Execute_Position(m_Point, Mode);
-
-	m_Keys			= 0;
-
-	if( bResult )
-	{
-		m_pModule->_Synchronize_DataObjects();
-	}
-
-	m_pModule->m_bExecutes		= false;
-
-	SG_UI_Process_Set_Okay();
-
-	return( bResult );
-}
-
-bool CSG_Module_Interactive_Base::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
-{
-	return( false );
+	return( is_Progress() );
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Interactive_Base::Execute_Keyboard(int Character, int Keys)
+bool CSG_Tool_Grid::Set_Progress(int iRow)
 {
-	bool	bResult	= false;
-
-	if( m_pModule && !m_pModule->m_bExecutes )
-	{
-		m_pModule->m_bExecutes		= true;
-		m_pModule->m_bError_Ignore	= false;
-
-		m_Keys						= Keys;
-
-		bResult						= On_Execute_Keyboard(Character);
-
-		m_Keys						= 0;
-
-		m_pModule->_Synchronize_DataObjects();
-
-		m_pModule->m_bExecutes		= false;
-
-		SG_UI_Process_Set_Okay();
-	}
-
-	return( bResult );
-}
-
-bool CSG_Module_Interactive_Base::On_Execute_Keyboard(int Character)
-{
-	return( false );
+	return( CSG_Tool::Set_Progress(iRow, Get_System()->Get_NY() - 1) );
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Interactive_Base::Execute_Finish(void)
+bool CSG_Tool_Grid::Set_Progress(double Position, double Range)
 {
-	bool	bResult	= false;
-
-	if( m_pModule && !m_pModule->m_bExecutes )
-	{
-		m_pModule->m_bExecutes		= true;
-		m_pModule->m_bError_Ignore	= false;
-
-		bResult						= On_Execute_Finish();
-
-		m_pModule->_Synchronize_DataObjects();
-
-		m_pModule->m_bExecutes		= false;
-
-		SG_UI_Process_Set_Okay();
-	}
-
-	return( bResult );
-}
-
-bool CSG_Module_Interactive_Base::On_Execute_Finish(void)
-{
-	return( true );
+	return( CSG_Tool::Set_Progress(Position, Range) );
 }
 
 
@@ -198,9 +125,39 @@ bool CSG_Module_Interactive_Base::On_Execute_Finish(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Module_Interactive_Base::Set_Drag_Mode(int Drag_Mode)
+void CSG_Tool_Grid::Lock_Create(void)
 {
-	m_Drag_Mode	= Drag_Mode;
+	if( Get_System()->is_Valid() )
+	{
+		if( m_pLock && Get_System()->is_Equal(m_pLock->Get_System()) )
+		{
+			m_pLock->Assign(0.0);
+		}
+		else
+		{
+			Lock_Destroy();
+
+			m_pLock	= new CSG_Grid(
+				SG_DATATYPE_Char,
+				Get_System()->Get_NX(),
+				Get_System()->Get_NY(),
+				Get_System()->Get_Cellsize(),
+				Get_System()->Get_XMin(),
+				Get_System()->Get_YMin()
+			);
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Tool_Grid::Lock_Destroy(void)
+{
+	if( m_pLock )
+	{
+		delete(m_pLock);
+
+		m_pLock	= NULL;
+	}
 }
 
 

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CRelative_Heights::CRelative_Heights(void)
 	Set_Author		(SG_T("J.Boehner, O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"The module allows one to calculate several terrain indices from a digital "
+		"The tool allows one to calculate several terrain indices from a digital "
 		"elevation model.\n\n"
 		"General information on the computational concept can be found in:\n"
 		"- Boehner, J. and Selige, T. (2006): Spatial prediction of soil attributes using "

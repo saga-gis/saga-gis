@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                Grid_Filter_in_Polygon                 //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFilter_in_Polygon : public CSG_Module_Grid
+class CFilter_in_Polygon : public CSG_Tool_Grid
 {
 public:
 	CFilter_in_Polygon(void);

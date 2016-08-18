@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   pointcloud_tools                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@ CPC_Thinning_Simple::CPC_Thinning_Simple(void)
 	Set_Author(SG_T("Volker Wichmann (c) 2010, LASERDATA GmbH"));
 
 	Set_Description	(_TW(
-		"The module can be used to remove every i-th point from a point cloud. This thinning "
+		"The tool can be used to remove every i-th point from a point cloud. This thinning "
 		"method is most suited for data in chronological order.\n\n")
 	);
 

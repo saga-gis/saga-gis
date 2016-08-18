@@ -370,11 +370,11 @@ bool CIsochronesVar::On_Execute_Finish()
 
 
 //-----------------------------------------------------
-bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	int iX, iY;
 
-	if(	Mode != MODULE_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
+	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
 	{
 		return( false );
 	}

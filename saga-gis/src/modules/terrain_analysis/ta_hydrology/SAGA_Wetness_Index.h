@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSAGA_Wetness_Index : public CSG_Module_Grid
+class CSAGA_Wetness_Index : public CSG_Tool_Grid
 {
 public:
 	CSAGA_Wetness_Index(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -118,7 +118,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CFragmentation_Base : public CSG_Module_Grid
+class CFragmentation_Base : public CSG_Tool_Grid
 {
 public:
 	CFragmentation_Base(void);

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_channels                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -411,9 +411,9 @@ void CD8_Flow_Analysis::Get_Basins(void)
 	{
 		bool	bResult;
 
-		SG_RUN_MODULE(bResult, "shapes_grid", 6,
-				pModule->Get_Parameters()->Set_Parameter(SG_T("GRID")    , m_pBasins)
-			&&	pModule->Get_Parameters()->Set_Parameter(SG_T("POLYGONS"),   pBasins)
+		SG_RUN_TOOL(bResult, "shapes_grid", 6,
+				pTool->Get_Parameters()->Set_Parameter(SG_T("GRID")    , m_pBasins)
+			&&	pTool->Get_Parameters()->Set_Parameter(SG_T("POLYGONS"),   pBasins)
 		)
 
 		pBasins->Set_Name(_TL("Drainage Basins"));

@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CErosion_LS_Fields : public CSG_Module_Grid
+class CErosion_LS_Fields : public CSG_Tool_Grid
 {
 public:
 	CErosion_LS_Fields(void);

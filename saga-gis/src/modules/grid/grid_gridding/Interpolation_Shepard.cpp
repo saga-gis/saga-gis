@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Gridding                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,8 +79,8 @@ CInterpolation_Shepard::CInterpolation_Shepard(void)
 
 	Set_Description	(_TW(
 		"Modified  Quadratic Shepard method for grid interpolation "
-		"from irregular distributed points. This module is based on "
-		"Module 660 in TOMS.\n"
+		"from irregular distributed points. This tool is based on "
+		"Tool 660 in TOMS.\n"
 
 		"QSHEP2D: Fortran routines implementing the Quadratic Shepard "
 		"method for bivariate interpolation of scattered data "

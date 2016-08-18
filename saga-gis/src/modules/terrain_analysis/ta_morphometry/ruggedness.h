@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    ta_morphometry                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -70,7 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRuggedness_TRI : public CSG_Module_Grid
+class CRuggedness_TRI : public CSG_Tool_Grid
 {
 public:
 	CRuggedness_TRI(void);
@@ -104,7 +104,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CRuggedness_VRM : public CSG_Module_Grid
+class CRuggedness_VRM : public CSG_Tool_Grid
 {
 public:
 	CRuggedness_VRM(void);

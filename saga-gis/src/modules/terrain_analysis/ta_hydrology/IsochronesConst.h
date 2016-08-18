@@ -25,7 +25,7 @@
 
 #include "MLB_Interface.h"
 
-class CIsochronesConst : public CSG_Module_Grid_Interactive
+class CIsochronesConst : public CSG_Tool_Grid_Interactive
 {
 public:
 	CIsochronesConst(void);
@@ -36,7 +36,7 @@ public:
 protected:
 	virtual bool On_Execute(void);
 	virtual bool On_Execute_Finish(void);
-	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 private:
 	CSG_Grid *m_pDEM;

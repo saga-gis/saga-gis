@@ -4,7 +4,7 @@
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Module:                        //
+//                        Tool:                        //
 //                        AvWiMa                         //
 //                                                       //
 //                       for SAGA                        //
@@ -39,7 +39,7 @@ CAvWiMa2::CAvWiMa2(void)
 	// 2. Parameters...
 	Parameters.Add_Grid(NULL, "INPUT", _TL("Input"), _TL("This must be your input data of type grid."), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "MASK", _TL("Mask Grid"), _TL("This grid indicates the cells you want calculate the average."), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "RESULT", _TL("AWM2 Grid"), _TL("New grid filtered with the AvWiMa2 module"), PARAMETER_OUTPUT);
+	Parameters.Add_Grid(NULL, "RESULT", _TL("AWM2 Grid"), _TL("New grid filtered with the AvWiMa2 tool"), PARAMETER_OUTPUT);
 	Parameters.Add_Value(NULL, "V", _TL("Mask value"), _TL("Value of right cells in the Mask Grid"), PARAMETER_TYPE_Double, 1.0);
 	Parameters.Add_Value(NULL, "RX", _TL("Radius X"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
 	Parameters.Add_Value(NULL, "RY", _TL("Radius Y"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);

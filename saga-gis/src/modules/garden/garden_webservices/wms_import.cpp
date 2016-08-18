@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   garden_webservices                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -238,7 +238,7 @@ CWMS_Import::CWMS_Import(void)
 	Set_Author		(SG_T("O. Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		"This module works as Web Map Service (WMS) client. "
+		"This tool works as Web Map Service (WMS) client. "
 		"More information on the WMS specifications can be obtained from the "
 		"Open Geospatial Consortium (OGC) at "
 		"<a href=\"http://www.opengeospatial.org/\">http://www.opengeospatial.org/</a>. "
@@ -305,13 +305,13 @@ int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		}
 	}
 
-	return( CSG_Module::On_Parameter_Changed(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CWMS_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

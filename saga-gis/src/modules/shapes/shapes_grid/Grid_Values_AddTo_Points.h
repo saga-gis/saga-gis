@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -76,7 +76,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Values_AddTo_Points : public CSG_Module  
+class CGrid_Values_AddTo_Points : public CSG_Tool  
 {
 public:
 	CGrid_Values_AddTo_Points(void);

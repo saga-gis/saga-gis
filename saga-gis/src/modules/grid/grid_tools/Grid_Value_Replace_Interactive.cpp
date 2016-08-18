@@ -45,10 +45,10 @@ CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
 	Set_Author		("Victor Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		"The module allows one to interactively change cell values of the input grid. "
-		"Once the module is executed and running, you can use the Action tool to select "
+		"The tool allows one to interactively change cell values of the input grid. "
+		"Once the tool is executed and running, you can use the Action tool to select "
 		"grid cells. While working on a grid, you can change (and apply) the 'New Value' "
-		"and the 'Method' parameters without stopping and re-starting the module.\n"
+		"and the 'Method' parameters without stopping and re-starting the tool.\n"
 	));
 
 	//-----------------------------------------------------
@@ -81,7 +81,7 @@ CGrid_Value_Replace_Interactive::CGrid_Value_Replace_Interactive(void)
 	);
 
 	//-----------------------------------------------------
-	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 }
 
 
@@ -115,13 +115,13 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Finish(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
-	case MODULE_INTERACTIVE_MOVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_MOVE_LDOWN:
 		{
 			TSG_Point_Int	Point;
 
@@ -130,7 +130,7 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 				return( false );
 			}
 
-			if( Mode == MODULE_INTERACTIVE_LDOWN )
+			if( Mode == TOOL_INTERACTIVE_LDOWN )
 			{
 				m_Last	= Point;
 			}
@@ -153,7 +153,7 @@ bool CGrid_Value_Replace_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG
 		}
 		return( true );
 
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 		{
 			DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_UPDATE_ONLY);
 		}

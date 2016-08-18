@@ -165,12 +165,12 @@ bool CSAGA::OnInit(void)
 	long			lValue;
 
 	m_Process_bContinue	= true;
-	m_Process_Frequency	= CONFIG_Read("/MODULES", "PROCESS_UPDATE", lValue) ? lValue : 0;
+	m_Process_Frequency	= CONFIG_Read("/TOOLS", "PROCESS_UPDATE", lValue) ? lValue : 0;
 
 	//-----------------------------------------------------
 	wxSplashScreen	*pLogo;
 
-	long	iLogo		= CONFIG_Read("/MODULES", "START_LOGO"    , iLogo ) ? iLogo : 1;
+	long	iLogo		= CONFIG_Read("/TOOLS", "START_LOGO"    , iLogo ) ? iLogo : 1;
 
 	switch( iLogo )
 	{
@@ -211,7 +211,7 @@ bool CSAGA::OnInit(void)
 	wxString	File;
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read("/MODULES", "LNG_FILE_DIC", File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/TOOLS", "LNG_FILE_DIC", File) || !wxFileExists(File) )
 	{
 		File	= wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
 	}
@@ -219,11 +219,11 @@ bool CSAGA::OnInit(void)
 	SG_Get_Translator().Create(&File, false);
 
 	//-----------------------------------------------------
-	long oldstyle; if( CONFIG_Read("/MODULES", "LNG_OLDSTYLE", oldstyle) && oldstyle ) SG_Set_OldStyle_Naming();
+	long oldstyle; if( CONFIG_Read("/TOOLS", "LNG_OLDSTYLE", oldstyle) && oldstyle ) SG_Set_OldStyle_Naming();
 	//-----------------------------------------------------
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read("/MODULES", "CRS_FILE_DIC", File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/TOOLS", "CRS_FILE_DIC", File) || !wxFileExists(File) )
 	{
 #if defined(_SAGA_LINUX)
 		File	= wxFileName(SHARE_PATH, "saga_prj", "dic").GetFullPath();
@@ -236,7 +236,7 @@ bool CSAGA::OnInit(void)
 	SG_Get_Projections().Load_Dictionary(&File);
 
 	//-----------------------------------------------------
-	if( !CONFIG_Read("/MODULES", "CRS_FILE_SRS", File) || !wxFileExists(File) )
+	if( !CONFIG_Read("/TOOLS", "CRS_FILE_SRS", File) || !wxFileExists(File) )
 	{
 #if defined(_SAGA_LINUX)
 		File	= wxFileName(SHARE_PATH, "saga_prj", "srs").GetFullPath();

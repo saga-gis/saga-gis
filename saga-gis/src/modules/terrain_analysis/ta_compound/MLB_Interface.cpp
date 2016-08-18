@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_compound                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2005 by                 //
 //                      Olaf Conrad                      //
@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -69,22 +69,22 @@ CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("Compound Analyses" ));
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Terrain Analysis") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( SG_T("Olaf Conrad, Goettingen (c) 2005") );
 
-	case MLB_INFO_Description:
-		return( _TL("Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA module libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n") );
+	case TLB_INFO_Description:
+		return( _TL("Terrain Analysis: Compound Analyses.\nThis library depends on the following SAGA tool libraries:\n- ta_channels\n- ta_flow\n- ta_indices\n- ta_lighting\n- ta_morphometry\n- ta_preproc\n") );
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("1.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis") );
 	}
 }
@@ -95,22 +95,22 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
-	CSG_Module	*pModule;
+	CSG_Tool	*pTool;
 
 	switch( i )
 	{
 	case 0:
-		pModule	= new CTA_Standard;
+		pTool	= new CTA_Standard;
 		break;
 
 	default:
-		pModule	= NULL;
+		pTool	= NULL;
 		break;
 	}
 
-	return( pModule );
+	return( pTool );
 }
 
 
@@ -123,6 +123,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

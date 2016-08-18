@@ -7,7 +7,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   Cost Analysis                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -149,7 +149,7 @@ bool CLeastCostPathProfile::On_Execute(void)
 	//-----------------------------------------------------
 //	DataObject_Update(m_pDEM, true);
 
-	Set_Drag_Mode(MODULE_INTERACTIVE_DRAG_NONE);
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 
 	return( true );
 }
@@ -160,12 +160,12 @@ bool CLeastCostPathProfile::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
-	case MODULE_INTERACTIVE_LDOWN:
-	case MODULE_INTERACTIVE_MOVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_MOVE_LDOWN:
 		return( Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld)) );
 
 	default:

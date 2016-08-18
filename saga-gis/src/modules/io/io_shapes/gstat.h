@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Shapes_IO                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -78,7 +78,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGStat_Export : public CSG_Module  
+class CGStat_Export : public CSG_Tool  
 {
 public:
 	CGStat_Export(void);
@@ -101,7 +101,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGStat_Import : public CSG_Module  
+class CGStat_Import : public CSG_Tool  
 {
 public:
 	CGStat_Import(void);

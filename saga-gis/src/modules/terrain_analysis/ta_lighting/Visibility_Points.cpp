@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -77,7 +77,7 @@ CVisibility_Points::CVisibility_Points(void)
 	Set_Author(SG_T("Volker Wichmann (c) 2013"));
 
 	Set_Description(_TW(
-		"This module computes a visibility analysis using observer points from a "
+		"This tool computes a visibility analysis using observer points from a "
 		"point shapefile.\n\n"
 	));
 

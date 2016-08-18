@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  module_library.cpp                   //
+//                  tool_library.cpp                     //
 //                                                       //
 //          Copyright (C) 2006 by Olaf Conrad            //
 //                                                       //
@@ -70,7 +70,7 @@
 
 #include "saga_api.h"
 
-#include "module_chain.h"
+#include "tool_chain.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -91,29 +91,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library::CSG_Module_Library(void)
+CSG_Tool_Library::CSG_Tool_Library(void)
 {
 	m_pInterface	= NULL;
 	m_pLibrary		= NULL;
 }
 
 //---------------------------------------------------------
-CSG_Module_Library::CSG_Module_Library(const CSG_String &File_Name)
+CSG_Tool_Library::CSG_Tool_Library(const CSG_String &File_Name)
 {
 	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(File_Name).c_str(), wxDL_DEFAULT|wxDL_QUIET);
 
 	if(	m_pLibrary->IsLoaded()
-	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Get_Interface)
-	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Initialize)
-	&&	m_pLibrary->HasSymbol(SYMBOL_MLB_Finalize)
-	&&	((TSG_PFNC_MLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_MLB_Initialize))(File_Name) )
+	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Get_Interface)
+	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Initialize)
+	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize)
+	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(File_Name) )
 	{
-		m_pInterface	= ((TSG_PFNC_MLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_MLB_Get_Interface))();
+		m_pInterface	= ((TSG_PFNC_TLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_TLB_Get_Interface))();
 
 		if( m_pInterface->Get_Count() > 0 )
 		{
-			m_File_Name		= m_pInterface->Get_Info(MLB_INFO_File   );
-			m_Library_Name	= m_pInterface->Get_Info(MLB_INFO_Library);
+			m_File_Name		= m_pInterface->Get_Info(TLB_INFO_File   );
+			m_Library_Name	= m_pInterface->Get_Info(TLB_INFO_Library);
 
 			return;	// success
 		}
@@ -123,21 +123,21 @@ CSG_Module_Library::CSG_Module_Library(const CSG_String &File_Name)
 }
 
 //---------------------------------------------------------
-CSG_Module_Library::~CSG_Module_Library(void)
+CSG_Tool_Library::~CSG_Tool_Library(void)
 {
 	_Destroy();
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library::_Destroy(void)
+bool CSG_Tool_Library::_Destroy(void)
 {
 	if( m_pLibrary )
 	{
-		if( m_pLibrary->IsLoaded() && m_pLibrary->HasSymbol(SYMBOL_MLB_Finalize) )
+		if( m_pLibrary->IsLoaded() && m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize) )
 		{
-			TSG_PFNC_MLB_Finalize	MLB_Finalize	= (TSG_PFNC_MLB_Finalize)m_pLibrary->GetSymbol(SYMBOL_MLB_Finalize);
+			TSG_PFNC_TLB_Finalize	TLB_Finalize	= (TSG_PFNC_TLB_Finalize)m_pLibrary->GetSymbol(SYMBOL_TLB_Finalize);
 
-			MLB_Finalize();
+			TLB_Finalize();
 		}
 
 		delete(m_pLibrary);
@@ -156,7 +156,7 @@ bool CSG_Module_Library::_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Info(int Type) const
+CSG_String CSG_Tool_Library::Get_Info(int Type) const
 {
 	if( m_pInterface != NULL )
 	{
@@ -167,7 +167,7 @@ CSG_String CSG_Module_Library::Get_Info(int Type) const
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Summary(int Format) const
+CSG_String CSG_Tool_Library::Get_Summary(int Format) const
 {
 	int			i;
 	CSG_String	s;
@@ -177,8 +177,8 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
 
-		s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(MLB_INFO_Name    );
-		s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(MLB_INFO_Category);
+		s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(TLB_INFO_Name    );
+		s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(TLB_INFO_Category);
 
 		if( !Get_File_Name().is_Empty() )
 		{
@@ -189,9 +189,9 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Module(i)->is_Interactive()) )
+			if( Get_Tool(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Tool(i)->is_Interactive()) )
 			{
-				s	+= " " + Get_Module(i)->Get_ID() + "\t" + Get_Module(i)->Get_Name() + "\n";
+				s	+= " " + Get_Tool(i)->Get_ID() + "\t" + Get_Tool(i)->Get_Name() + "\n";
 			}
 		}
 
@@ -204,9 +204,9 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 
 		s	+= "<table border=\"0\">";
 
-		s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Info(MLB_INFO_Name   ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Info(MLB_INFO_Author ).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Info(MLB_INFO_Version).c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Info(TLB_INFO_Name   ).c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Info(TLB_INFO_Author ).c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Info(TLB_INFO_Version).c_str());
 		s	+= SUMMARY_ADD_STR(_TL("File"   ), Get_File_Name()           .c_str());
 
 		s	+= "</table>";
@@ -214,7 +214,7 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 		//-------------------------------------------------
 		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
 
-		s	+= Get_Info(MLB_INFO_Description);
+		s	+= Get_Info(TLB_INFO_Description);
 
 		//-------------------------------------------------
 		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Tools"));
@@ -225,9 +225,9 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Module(i) )
+			if( Get_Tool(i) )
 			{
-				s	+= SUMMARY_ADD_STR(Get_Module(i)->Get_ID().c_str(), Get_Module(i)->Get_Name().c_str());
+				s	+= SUMMARY_ADD_STR(Get_Tool(i)->Get_ID().c_str(), Get_Tool(i)->Get_Name().c_str());
 			}
 		}
 
@@ -247,11 +247,11 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Module(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Module(i)->is_Interactive()) )
+			if( Get_Tool(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Tool(i)->is_Interactive()) )
 			{
-				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_MODULE,
-					SG_XML_MODULE_ATT_ID  , Get_Module(i)->Get_ID  ().c_str(),
-					SG_XML_MODULE_ATT_NAME, Get_Module(i)->Get_Name().c_str()
+				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_TOOL,
+					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
+					SG_XML_TOOL_ATT_NAME, Get_Tool(i)->Get_Name().c_str()
 				);
 			}
 		}
@@ -265,7 +265,7 @@ CSG_String CSG_Module_Library::Get_Summary(int Format) const
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library::Get_Summary(const CSG_String &Path)	const
+bool CSG_Tool_Library::Get_Summary(const CSG_String &Path)	const
 {
 	CSG_File	f;
 
@@ -276,9 +276,9 @@ bool CSG_Module_Library::Get_Summary(const CSG_String &Path)	const
 
 	for(int j=0; j<Get_Count(); j++)
 	{
-		if( Get_Module(j) && f.Open(SG_File_Make_Path(Path, Get_Library_Name() + "_" + Get_Module(j)->Get_ID(), SG_T("html")), SG_FILE_W) )
+		if( Get_Tool(j) && f.Open(SG_File_Make_Path(Path, Get_Library_Name() + "_" + Get_Tool(j)->Get_ID(), SG_T("html")), SG_FILE_W) )
 		{
-			f.Write(Get_Module(j)->Get_Summary());
+			f.Write(Get_Tool(j)->Get_Summary());
 		}
 	}
 
@@ -291,23 +291,23 @@ bool CSG_Module_Library::Get_Summary(const CSG_String &Path)	const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library::Get_Module(int Index, TSG_Module_Type Type) const
+CSG_Tool * CSG_Tool_Library::Get_Tool(int Index, TSG_Tool_Type Type) const
 {
-	CSG_Module	*pModule	= Index >= 0 && Index < Get_Count() ? m_pInterface->Get_Module(Index) : NULL;
+	CSG_Tool	*pTool	= Index >= 0 && Index < Get_Count() ? m_pInterface->Get_Tool(Index) : NULL;
 
-	return(	pModule && (Type == MODULE_TYPE_Base || Type == pModule->Get_Type()) ? pModule : NULL );
+	return(	pTool && (Type == TOOL_TYPE_Base || Type == pTool->Get_Type()) ? pTool : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library::Get_Module(const CSG_String &Module, TSG_Module_Type Type) const
+CSG_Tool * CSG_Tool_Library::Get_Tool(const CSG_String &Tool, TSG_Tool_Type Type) const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Module	*pModule	= Get_Module(i, Type);
+		CSG_Tool	*pTool	= Get_Tool(i, Type);
 
-		if( pModule && (!pModule->Get_ID().Cmp(Module) || !pModule->Get_Name().Cmp(Module)) )
+		if( pTool && (!pTool->Get_ID().Cmp(Tool) || !pTool->Get_Name().Cmp(Tool)) )
 		{
-			return( pModule );
+			return( pTool );
 		}
 	}
 
@@ -315,25 +315,25 @@ CSG_Module * CSG_Module_Library::Get_Module(const CSG_String &Module, TSG_Module
 }
 
 //---------------------------------------------------------
-CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(int Index) const
-{	return( (CSG_Module_Grid *)Get_Module(Index , MODULE_TYPE_Grid) );	}
+CSG_Tool_Grid * CSG_Tool_Library::Get_Tool_Grid(int Index) const
+{	return( (CSG_Tool_Grid *)Get_Tool(Index , TOOL_TYPE_Grid) );	}
 
-CSG_Module_Grid * CSG_Module_Library::Get_Module_Grid(const CSG_String &Module) const
-{	return( (CSG_Module_Grid *)Get_Module(Module, MODULE_TYPE_Grid) );	}
-
-//---------------------------------------------------------
-CSG_Module_Interactive * CSG_Module_Library::Get_Module_Interactive(int Index) const
-{	return( (CSG_Module_Interactive *)Get_Module(Index , MODULE_TYPE_Interactive) );	}
-
-CSG_Module_Interactive * CSG_Module_Library::Get_Module_Interactive(const CSG_String &Module) const
-{	return( (CSG_Module_Interactive *)Get_Module(Module, MODULE_TYPE_Interactive) );	}
+CSG_Tool_Grid * CSG_Tool_Library::Get_Tool_Grid(const CSG_String &Tool) const
+{	return( (CSG_Tool_Grid *)Get_Tool(Tool, TOOL_TYPE_Grid) );	}
 
 //---------------------------------------------------------
-CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(int Index) const
-{	return( (CSG_Module_Grid_Interactive *)Get_Module(Index , MODULE_TYPE_Grid_Interactive) );	}
+CSG_Tool_Interactive * CSG_Tool_Library::Get_Tool_Interactive(int Index) const
+{	return( (CSG_Tool_Interactive *)Get_Tool(Index , TOOL_TYPE_Interactive) );	}
 
-CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(const CSG_String &Module) const
-{	return( (CSG_Module_Grid_Interactive *)Get_Module(Module, MODULE_TYPE_Grid_Interactive) );	}
+CSG_Tool_Interactive * CSG_Tool_Library::Get_Tool_Interactive(const CSG_String &Tool) const
+{	return( (CSG_Tool_Interactive *)Get_Tool(Tool, TOOL_TYPE_Interactive) );	}
+
+//---------------------------------------------------------
+CSG_Tool_Grid_Interactive * CSG_Tool_Library::Get_Tool_Grid_Interactive(int Index) const
+{	return( (CSG_Tool_Grid_Interactive *)Get_Tool(Index , TOOL_TYPE_Grid_Interactive) );	}
+
+CSG_Tool_Grid_Interactive * CSG_Tool_Library::Get_Tool_Grid_Interactive(const CSG_String &Tool) const
+{	return( (CSG_Tool_Grid_Interactive *)Get_Tool(Tool, TOOL_TYPE_Grid_Interactive) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -341,11 +341,11 @@ CSG_Module_Grid_Interactive * CSG_Module_Library::Get_Module_Grid_Interactive(co
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library::Get_Menu(int i) const
+CSG_String CSG_Tool_Library::Get_Menu(int i) const
 {
-	if( Get_Module(i) )
+	if( Get_Tool(i) )
 	{
-		return( Get_Module(i)->Get_MenuPath(true) );
+		return( Get_Tool(i)->Get_MenuPath(true) );
 	}
 
 	return( "" );
@@ -359,12 +359,12 @@ CSG_String CSG_Module_Library::Get_Menu(int i) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library_Manager		g_Module_Library_Manager;
+CSG_Tool_Library_Manager		g_Tool_Library_Manager;
 
 //---------------------------------------------------------
-CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(void)
+CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void)
 {
-	return( g_Module_Library_Manager );
+	return( g_Tool_Library_Manager );
 }
 
 
@@ -373,19 +373,19 @@ CSG_Module_Library_Manager &	SG_Get_Module_Library_Manager	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library_Manager::CSG_Module_Library_Manager(void)
+CSG_Tool_Library_Manager::CSG_Tool_Library_Manager(void)
 {
 	m_pLibraries	= NULL;
 	m_nLibraries	= 0;
 
-	if( this == &g_Module_Library_Manager )
+	if( this == &g_Tool_Library_Manager )
 	{
 		CSG_Random::Initialize();	// initialize with current time on startup
 	}
 }
 
 //---------------------------------------------------------
-CSG_Module_Library_Manager::~CSG_Module_Library_Manager(void)
+CSG_Tool_Library_Manager::~CSG_Tool_Library_Manager(void)
 {
 	Destroy();
 }
@@ -396,7 +396,7 @@ CSG_Module_Library_Manager::~CSG_Module_Library_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File_Name)
+CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *File_Name)
 {
 	//-----------------------------------------------------
 	if( !SG_File_Cmp_Extension(File_Name, SG_T("mlb"  ))
@@ -404,7 +404,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 	&&	!SG_File_Cmp_Extension(File_Name, SG_T("so"   ))
 	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dylib")) )
 	{
-		return( _Add_Module_Chain(File_Name) );
+		return( _Add_Tool_Chain(File_Name) );
 	}
 
 	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load library"), File_Name), true);
@@ -423,11 +423,11 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 	}
 
 	//-----------------------------------------------------
-	CSG_Module_Library	*pLibrary	= new CSG_Module_Library(File_Name);
+	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(File_Name);
 
 	if( pLibrary->is_Valid() )
 	{
-		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
+		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary;
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
@@ -443,7 +443,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Add_Library(const SG_Char *File
 }
 
 //---------------------------------------------------------
-int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnlySubDirectories)
+int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnlySubDirectories)
 {
 	int		nOpened	= 0;
 	wxDir	Dir;
@@ -486,7 +486,7 @@ int CSG_Module_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOn
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char *File_Name)
+CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File_Name)
 {
 	//-----------------------------------------------------
 	if( !SG_File_Cmp_Extension(File_Name, SG_T("xml" )) )
@@ -495,22 +495,22 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	CSG_Module_Chains	*pLibrary	= NULL;
-	CSG_Module_Chain	*pModule	= NULL;
+	CSG_Tool_Chains	*pLibrary	= NULL;
+	CSG_Tool_Chain	*pTool	= NULL;
 
 	{
 		wxFileName	fn(File_Name);
 
-		for(int iLibrary=0; !pModule && iLibrary<Get_Count(); iLibrary++)
+		for(int iLibrary=0; !pTool && iLibrary<Get_Count(); iLibrary++)
 		{
-			if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS )
+			if( Get_Library(iLibrary)->Get_Type() == TOOL_CHAINS )
 			{
-				for(int iModule=0; !pModule && iModule<Get_Library(iLibrary)->Get_Count(); iModule++)
+				for(int iTool=0; !pTool && iTool<Get_Library(iLibrary)->Get_Count(); iTool++)
 				{
-					if( fn == ((CSG_Module_Chain *)Get_Library(iLibrary)->Get_Module(iModule))->Get_File_Name().c_str() )
+					if( fn == ((CSG_Tool_Chain *)Get_Library(iLibrary)->Get_Tool(iTool))->Get_File_Name().c_str() )
 					{
-						pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
-						pModule		= (CSG_Module_Chain  *)Get_Library(iLibrary)->Get_Module(iModule);
+						pLibrary	= (CSG_Tool_Chains *)Get_Library(iLibrary);
+						pTool		= (CSG_Tool_Chain  *)Get_Library(iLibrary)->Get_Tool(iTool);
 					}
 				}
 			}
@@ -518,15 +518,15 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	if( pModule )
+	if( pTool )
 	{
 		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Reload tool chain"), File_Name), true);
 
-		CSG_Module_Chain	Module;
+		CSG_Tool_Chain	Tool;
 
-		if( Module.Create(File_Name) )	// don't reset loaded module in case reloading fails!!!
+		if( Tool.Create(File_Name) )	// don't reset loaded tool in case reloading fails!!!
 		{
-			pModule->Create(File_Name);
+			pTool->Create(File_Name);
 
 			SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 		}
@@ -541,13 +541,13 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	//-----------------------------------------------------
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load tool chain"), File_Name), true);
 
-	pModule	= new CSG_Module_Chain(File_Name);
+	pTool	= new CSG_Tool_Chain(File_Name);
 
-	if( !pModule || !pModule->is_Okay() )
+	if( !pTool || !pTool->is_Okay() )
 	{
-		if( pModule )
+		if( pTool )
 		{
-			delete(pModule);
+			delete(pTool);
 		}
 
 		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
@@ -556,33 +556,33 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Library	= pModule->Get_Library();	if( Library.is_Empty() )	Library	= "toolchains";
+	CSG_String	Library	= pTool->Get_Library();	if( Library.is_Empty() )	Library	= "toolchains";
 
 	for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
 	{
-		if( Get_Library(iLibrary)->Get_Type() == MODULE_CHAINS
+		if( Get_Library(iLibrary)->Get_Type() == TOOL_CHAINS
 		&&  Get_Library(iLibrary)->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			pLibrary	= (CSG_Module_Chains *)Get_Library(iLibrary);
+			pLibrary	= (CSG_Tool_Chains *)Get_Library(iLibrary);
 		}
 	}
 
-	if( !pLibrary && (pLibrary = new CSG_Module_Chains(pModule->Get_Library(), SG_File_Get_Path(File_Name))) != NULL )
+	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(File_Name))) != NULL )
 	{
-		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Module_Library *));
+		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary;
 	}
 
 	if( !pLibrary )	// this should never happen, but who knows...
 	{
-		delete(pModule);
+		delete(pTool);
 
 		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		return( NULL );
 	}
 
-	pLibrary->Add_Module(pModule);
+	pLibrary->Add_Tool(pTool);
 
 	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
@@ -596,7 +596,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::_Add_Module_Chain(const SG_Char
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::Destroy(void)
+bool CSG_Tool_Library_Manager::Destroy(void)
 {
 	if( m_pLibraries )
 	{
@@ -627,7 +627,7 @@ bool CSG_Module_Library_Manager::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::Del_Library(CSG_Module_Library *pLibrary)
+bool CSG_Tool_Library_Manager::Del_Library(CSG_Tool_Library *pLibrary)
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -641,7 +641,7 @@ bool CSG_Module_Library_Manager::Del_Library(CSG_Module_Library *pLibrary)
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::Del_Library(int i)
+bool CSG_Tool_Library_Manager::Del_Library(int i)
 {
 	if( i >= 0 && i < Get_Count() )
 	{
@@ -652,7 +652,7 @@ bool CSG_Module_Library_Manager::Del_Library(int i)
 			m_pLibraries[i]	= m_pLibraries[i + 1];
 		}
 
-		m_pLibraries	= (CSG_Module_Library **)SG_Realloc(m_pLibraries, m_nLibraries * sizeof(CSG_Module_Library *));
+		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, m_nLibraries * sizeof(CSG_Tool_Library *));
 
 		return( true );
 	}
@@ -666,11 +666,11 @@ bool CSG_Module_Library_Manager::Del_Library(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module_Library * CSG_Module_Library_Manager::Get_Library(const SG_Char *Name, bool bLibrary) const
+CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const SG_Char *Name, bool bLibrary) const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Module_Library	*pLibrary	= Get_Library(i);
+		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
 		if( pLibrary && !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
 		{
@@ -682,7 +682,7 @@ CSG_Module_Library * CSG_Module_Library_Manager::Get_Library(const SG_Char *Name
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::is_Loaded(CSG_Module_Library *pLibrary) const
+bool CSG_Tool_Library_Manager::is_Loaded(CSG_Tool_Library *pLibrary) const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -701,19 +701,19 @@ bool CSG_Module_Library_Manager::is_Loaded(CSG_Module_Library *pLibrary) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, int ID)	const
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, int ID)	const
 {
-	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
+	CSG_Tool_Library	*pLibrary	= Get_Library(Library, true);
 
-	return( pLibrary ? pLibrary->Get_Module(CSG_String::Format("%d", ID)) : NULL );
+	return( pLibrary ? pLibrary->Get_Tool(CSG_String::Format("%d", ID)) : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, const CSG_String &Module)	const
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const CSG_String &Tool)	const
 {
-	CSG_Module_Library	*pLibrary	= Get_Library(Library, true);
+	CSG_Tool_Library	*pLibrary	= Get_Library(Library, true);
 
-	return( pLibrary ? pLibrary->Get_Module(Module) : NULL );
+	return( pLibrary ? pLibrary->Get_Tool(Tool) : NULL );
 }
 
 
@@ -722,7 +722,7 @@ CSG_Module * CSG_Module_Library_Manager::Get_Module(const CSG_String &Library, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
+CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 {
 	//-----------------------------------------------------
 	int			i, nTools;
@@ -825,11 +825,11 @@ CSG_String CSG_Module_Library_Manager::Get_Summary(int Format)	const
 }
 
 //---------------------------------------------------------
-bool CSG_Module_Library_Manager::Get_Summary(const CSG_String &Path)	const
+bool CSG_Tool_Library_Manager::Get_Summary(const CSG_String &Path)	const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
-		CSG_Module_Library	*pLibrary	= Get_Library(i);
+		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
 		CSG_String	Directory	= SG_File_Make_Path(Path, pLibrary->Get_Library_Name());
 

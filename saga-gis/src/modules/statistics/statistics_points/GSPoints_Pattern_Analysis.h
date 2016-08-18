@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                   statistics_points                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,7 +74,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGSPoints_Pattern_Analysis : public CSG_Module  
+class CGSPoints_Pattern_Analysis : public CSG_Tool  
 {
 public:
 	CGSPoints_Pattern_Analysis(void);

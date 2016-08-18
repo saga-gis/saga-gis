@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -594,7 +594,7 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows one to retrieve a point cloud from a virtual "
+		"The tool allows one to retrieve a point cloud from a virtual "
 		"point cloud dataset by applying the provided area-of-interest "
 		"(AOI). The extent of the AOI can be provided either as polygon "
 		"shapefile, grid or by coordinates. Optionally, an overlap can "
@@ -620,7 +620,7 @@ CPointCloud_Get_Subset_SPCVF::CPointCloud_Get_Subset_SPCVF(void)
 		"attribute field and a value range that must be met.\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
-		"with the 'Create Virtual Point Cloud Dataset' module.\n\n"
+		"with the 'Create Virtual Point Cloud Dataset' tool.\n\n"
 	));
 
 
@@ -902,13 +902,13 @@ CPointCloud_Get_Subset_SPCVF_Interactive::CPointCloud_Get_Subset_SPCVF_Interacti
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows one to retrieve a point cloud from a virtual "
+		"The tool allows one to retrieve a point cloud from a virtual "
 		"point cloud dataset by dragging a box (AOI) in a Map View.\n"
 		"Optionally, the query can be constrained by providing an "
 		"attribute field and a value range that must be met.\n"
 		"A virtual point cloud dataset is a simple XML format "
 		"with the file extension .spcvf, which can be created "
-		"with the 'Create Virtual Point Cloud Dataset' module.\n\n"
+		"with the 'Create Virtual Point Cloud Dataset' tool.\n\n"
 	));
 
 
@@ -973,7 +973,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute(void)
 
 
 //---------------------------------------------------------
-bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode)
+bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
 	switch( Mode )
 	{
@@ -981,20 +981,20 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
     break;
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LDOWN:
+	case TOOL_INTERACTIVE_LDOWN:
 
 		m_ptDown	= ptWorld;
 
 		return( true );
 
 	//-----------------------------------------------------
-	case MODULE_INTERACTIVE_LUP:
+	case TOOL_INTERACTIVE_LUP:
 
 		CSG_Rect	AOI(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
 
 		CSG_Parameter_PointCloud_List	PointCloudList(NULL, PARAMETER_INFORMATION);
 
-		// as long as this module only supports to drag a box, we initialize it with a fake overlap in order
+		// as long as this tool only supports to drag a box, we initialize it with a fake overlap in order
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():
 		if( !m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, SG_T(""), Parameters("FILENAME")->asString(), NULL, &PointCloudList,
 									  Parameters("CONSTRAIN_QUERY")->asBool(), Parameters("ATTR_FIELD")->asInt()-1,

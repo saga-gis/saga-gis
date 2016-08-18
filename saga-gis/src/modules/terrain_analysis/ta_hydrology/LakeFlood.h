@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -106,7 +106,7 @@ public:
 };
 
 //---------------------------------------------------------
-class CLakeFlood : public CSG_Module_Grid
+class CLakeFlood : public CSG_Tool_Grid
 {
 public:
 	CLakeFlood(void);
@@ -133,7 +133,7 @@ private:
 };
 
 //---------------------------------------------------------
-class CLakeFloodInteractive : public CSG_Module_Grid_Interactive
+class CLakeFloodInteractive : public CSG_Tool_Grid_Interactive
 {
 public:
 	CLakeFloodInteractive(void);
@@ -145,7 +145,7 @@ public:
 protected:
 	virtual bool			On_Execute			(void);
 	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Module_Interactive_Mode Mode);
+	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 private:
 	CSG_Grid				*pElev, *pOdepth, *pOlevel;

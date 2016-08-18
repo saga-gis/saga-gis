@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.h 1938 2014-01-12 13:44:06Z reklov_w $
+ * Version $Id: TLB_Interface.h 1938 2014-01-12 13:44:06Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    maximum_entropy                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2015 by                 //
 //                     Olaf Conrad                       //
@@ -50,8 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__MLB_Interface_H
-#define HEADER_INCLUDED__MLB_Interface_H
+#ifndef HEADER_INCLUDED__TLB_Interface_H
+#define HEADER_INCLUDED__TLB_Interface_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,4 +71,4 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__MLB_Interface_H
+#endif // #ifndef HEADER_INCLUDED__TLB_Interface_H

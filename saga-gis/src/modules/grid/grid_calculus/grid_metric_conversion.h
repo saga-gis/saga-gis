@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_Calculus                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Metric_Conversion : public CSG_Module_Grid  
+class CGrid_Metric_Conversion : public CSG_Tool_Grid  
 {
 public:
 	CGrid_Metric_Conversion(void);

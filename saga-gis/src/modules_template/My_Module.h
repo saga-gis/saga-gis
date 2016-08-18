@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       Template                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -74,19 +74,19 @@
 
 //---------------------------------------------------------
 // Use the 'My_Module_EXPORT' macro as defined in
-// 'MLB_Interface.h' to export this class to allow other
+// 'TLB_Interface.h' to export this class to allow other
 // programs/libraries to use its functions:
 //
-// class My_Module_EXPORT CMy_Module : public CSG_Module
+// class My_Module_EXPORT CMy_Module : public CSG_Tool
 // ...
 //
 
-class CMy_Module : public CSG_Module
+class CMy_Module : public CSG_Tool
 {
 public:
 	CMy_Module(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("My_Module Module Sub Menu") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("My_Module Tool Sub Menu") );	}
 
 
 protected:

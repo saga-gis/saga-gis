@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CCreatePointGrid : public CSG_Module {
+class CCreatePointGrid : public CSG_Tool {
 
 public:
 	CCreatePointGrid(void);

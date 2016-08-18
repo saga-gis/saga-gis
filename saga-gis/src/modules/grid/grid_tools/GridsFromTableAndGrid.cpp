@@ -51,7 +51,7 @@ CGridsFromTableAndGrid::CGridsFromTableAndGrid(void)
 
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"		, _TL("Table"),
-		_TL("The table with the (numeric) data values for each class. The module creates a grid for each table column (besides the ID)."),
+		_TL("The table with the (numeric) data values for each class. The tool creates a grid for each table column (besides the ID)."),
 		PARAMETER_INPUT
 	);
 

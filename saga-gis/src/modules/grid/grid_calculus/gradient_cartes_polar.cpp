@@ -48,7 +48,7 @@ CGradient_Cartes_To_Polar::CGradient_Cartes_To_Polar(void)
 	Set_Description	(_TW(
 		"Converts gradient vector from directional components (Cartesian) "
 		"to polar coordinates (direction or aspect angle and length or tangens of slope).\n"
-		"The module supports three conventions on how to measure and output the angle of direction:\n"
+		"The tool supports three conventions on how to measure and output the angle of direction:\n"
 		"(a) mathematical: direction angle is zero in East direction and the angle increases counterclockwise\n"
 		"(b) geographical: direction angle is zero in North direction and the angle increases clockwise\n"
 		"(c) zero direction and orientation are user defined\n"
@@ -186,7 +186,7 @@ CGradient_Polar_To_Cartes::CGradient_Polar_To_Cartes(void)
 	Set_Description	(_TW(
 		"Converts gradient vector from polar coordinates (direction or aspect angle and length or tangens of slope) "
 		"to directional components (Cartesian).\n"
-		"The module supports three conventions on how the angle of direction can be supplied:\n"
+		"The tool supports three conventions on how the angle of direction can be supplied:\n"
 		"(a) mathematical: direction angle is zero in East direction and the angle increases counterclockwise\n"
 		"(b) geographical: direction angle is zero in North direction and the angle increases clockwise\n"
 		"(c) zero direction and orientation are user defined\n"

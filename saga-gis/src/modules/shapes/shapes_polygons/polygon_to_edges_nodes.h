@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    shapes_polygons                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPolygon_to_Edges_Nodes : public CSG_Module  
+class CPolygon_to_Edges_Nodes : public CSG_Tool  
 {
 public:
 	CPolygon_to_Edges_Nodes(void);

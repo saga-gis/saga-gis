@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: module_chain.h 2111 2014-05-07 09:58:48Z oconrad $
+ * Version $Id: tool_chain.h 2111 2014-05-07 09:58:48Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    module_chain.h                     //
+//                     tool_chain.h                      //
 //                                                       //
 //          Copyright (C) 2014 by Olaf Conrad            //
 //                                                       //
@@ -60,8 +60,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__module_chain_H
-#define HEADER_INCLUDED__SAGA_API__module_chain_H
+#ifndef HEADER_INCLUDED__SAGA_API__tool_chain_H
+#define HEADER_INCLUDED__SAGA_API__tool_chain_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,31 +71,31 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module_library.h"
+#include "tool_library.h"
 #include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CSG_Module_Chain					 //
+//					CSG_Tool_Chain					 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 /**
-  * CSG_Module_Chain, the SAGA Model class.
+  * CSG_Tool_Chain, the SAGA Model class.
 */
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Chain : public CSG_Module
+class SAGA_API_DLL_EXPORT CSG_Tool_Chain : public CSG_Tool
 {
 public:
-	CSG_Module_Chain(void);
-	virtual ~CSG_Module_Chain(void);
+	CSG_Tool_Chain(void);
+	virtual ~CSG_Tool_Chain(void);
 
-								CSG_Module_Chain		(const CSG_String &File);
+								CSG_Tool_Chain		(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
 
-	virtual TSG_Module_Type		Get_Type				(void)			{	return( MODULE_TYPE_Chain );	}
+	virtual TSG_Tool_Type		Get_Type				(void)			{	return( TOOL_TYPE_Chain );	}
 
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
@@ -133,9 +133,9 @@ private:
 
 	bool						Tool_Run				(const CSG_MetaData &Tool);
 	bool						Tool_Check_Condition	(const CSG_MetaData &Tool);
-	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Module *pModule, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
-	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Module *pModule);
-	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Module *pModule);
+	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Tool *pTool, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
+	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Tool *pTool);
+	bool						Tool_Finalize			(const CSG_MetaData &Tool, CSG_Tool *pTool);
 
 
 //---------------------------------------------------------
@@ -154,36 +154,36 @@ private:	static bool			_Save_History_Add_Input		(const CSG_MetaData &History, CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Module_Chains : public CSG_Module_Library
+class SAGA_API_DLL_EXPORT CSG_Tool_Chains : public CSG_Tool_Library
 {
-	friend class CSG_Module_Library_Manager;
+	friend class CSG_Tool_Library_Manager;
 
 public:
 
-	virtual TSG_Module_Library_Type	Get_Type			(void)		const	{	return( MODULE_CHAINS );	}
+	virtual TSG_Tool_Library_Type	Get_Type			(void)		const	{	return( TOOL_CHAINS );	}
 
 	virtual CSG_String				Get_Info			(int Type)	const;
 
-	bool							Add_Module			(CSG_Module_Chain *pModule);
+	bool							Add_Tool			(CSG_Tool_Chain *pTool);
 
-	virtual int						Get_Count			(void)		const	{	return( m_nModules );	}
+	virtual int						Get_Count			(void)		const	{	return( m_nTools );	}
 
-	virtual CSG_Module *			Get_Module			(int Index, TSG_Module_Type Type = MODULE_TYPE_Base)	const;
+	virtual CSG_Tool *			Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < m_nModules ? m_pModules[Index]->Get_File_Name() : "" );	}
+	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < m_nTools ? m_pTools[Index]->Get_File_Name() : "" );	}
 
 
 protected:
 
-	CSG_Module_Chains(const CSG_String &Library_Name, const CSG_String &Path);
-	virtual ~CSG_Module_Chains(void);
+	CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_String &Path);
+	virtual ~CSG_Tool_Chains(void);
 
 
 private:
 
-	int								m_nModules;
+	int								m_nTools;
 
-	CSG_Module_Chain				**m_pModules;
+	CSG_Tool_Chain				**m_pTools;
 
 	CSG_String						m_Name, m_Description, m_Menu;
 
@@ -197,4 +197,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__SAGA_API__module_chain_H
+#endif // #ifndef HEADER_INCLUDED__SAGA_API__tool_chain_H

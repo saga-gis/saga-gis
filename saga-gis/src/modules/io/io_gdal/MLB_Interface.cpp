@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: MLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
+ * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -8,12 +8,12 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     Grid_IO_GDAL                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   MLB_Interface.cpp                   //
+//                   TLB_Interface.cpp                   //
 //                                                       //
 //                 Copyright (C) 2003 by                 //
 //                        Author                         //
@@ -52,7 +52,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//			The Module Link Library Interface			 //
+//           The Tool Link Library Interface             //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -63,39 +63,39 @@
 
 
 //---------------------------------------------------------
-// 2. Place general module library informations here...
+// 2. Place general tool library informations here...
 
 CSG_String Get_Info(int i)
 {
 	switch( i )
 	{
-	case MLB_INFO_Name:	default:
+	case TLB_INFO_Name:	default:
 		return( _TL("GDAL/OGR") );
 
-	case MLB_INFO_Category:
+	case TLB_INFO_Category:
 		return( _TL("Import/Export") );
 
-	case MLB_INFO_Author:
+	case TLB_INFO_Author:
 		return( _TL("SAGA User Group Associaton (c) 2008" ));
 
-	case MLB_INFO_Description:
+	case TLB_INFO_Description:
 		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
 			_TL("Interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL)."),
 			_TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str(),
 			_TL("Homepage"), SG_T("<a target=\"_blank\" href=\"http://www.gdal.org/\">www.gdal.org</a>\n")
 		));
 
-	case MLB_INFO_Version:
+	case TLB_INFO_Version:
 		return( SG_T("2.0") );
 
-	case MLB_INFO_Menu_Path:
+	case TLB_INFO_Menu_Path:
 		return( _TL("File") );
 	}
 }
 
 
 //---------------------------------------------------------
-// 3. Include the headers of your modules here...
+// 3. Include the headers of your tools here...
 
 #include "gdal_import.h"
 #include "gdal_export.h"
@@ -110,9 +110,9 @@ CSG_String Get_Info(int i)
 
 
 //---------------------------------------------------------
-// 4. Allow your modules to be created here...
+// 4. Allow your tools to be created here...
 
-CSG_Module *		Create_Module(int i)
+CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
@@ -128,13 +128,13 @@ CSG_Module *		Create_Module(int i)
 
 	case  5:	return( new COGR_Export_KML );
 
-	case  6:	return( SG_Get_GDAL_Drivers().Get_Driver("netCDF") ? new CGDAL_Import_NetCDF : MLB_INTERFACE_SKIP_MODULE );
+	case  6:	return( SG_Get_GDAL_Drivers().Get_Driver("netCDF") ? new CGDAL_Import_NetCDF : TLB_INTERFACE_SKIP_TOOL );
 
 	case  9:	return( new CGDAL_Import_WMS );
 
 	//-----------------------------------------------------
 	case 10:	return( NULL );
-	default:	return( MLB_INTERFACE_SKIP_MODULE );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 
 	return( NULL );
@@ -150,6 +150,6 @@ CSG_Module *		Create_Module(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	MLB_INTERFACE
+	TLB_INTERFACE
 
 //}}AFX_SAGA

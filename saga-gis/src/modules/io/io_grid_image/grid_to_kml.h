@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     io_grid_image                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_to_KML : public CSG_Module_Grid
+class CGrid_to_KML : public CSG_Tool_Grid
 {
 public:
 	CGrid_to_KML(void);
@@ -106,7 +106,7 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_from_KML : public CSG_Module
+class CGrid_from_KML : public CSG_Tool
 {
 public:
 	CGrid_from_KML(void);

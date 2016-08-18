@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  Projection_GeoTRANS                  //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 //---------------------------------------------------------
 CGEOTRANS_Base::CGEOTRANS_Base(void)
 {
-//	CSG_String	Path(SG_File_Get_Path(MLB_Interface.Get_File_Name()));
+//	CSG_String	Path(SG_File_Get_Path(TLB_Interface.Get_File_Name()));
 	CSG_Parameter	*pNode_0, *pNode_Source, *pNode_Target;
 
 	bInitialized	= false;

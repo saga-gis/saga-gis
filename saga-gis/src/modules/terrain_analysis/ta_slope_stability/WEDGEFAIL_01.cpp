@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                  ta_slope_stability                   //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@ CWEDGEFAIL::CWEDGEFAIL(void)
 
 	Set_Description	(_TW(
 		"\n"
-		"This module determines terrain elements where failure (slide- or topple movements) on geological discontinuies are kinematically possible "
+		"This tool determines terrain elements where failure (slide- or topple movements) on geological discontinuies are kinematically possible "
 		"through the spatial application of common frictional feasibility criteria (G&uuml;nther et al. 2012 and references therein). Both the orientation of slope elements "
 		"specified through aspect- and dip grids (in radians) are required together with the orientation of one planar structure defined through global- or grid dip direction and dip data, "
 		"or two planar structures defined by plunge direction and plunge information of their intersection line (in degrees). The shear strength of the discontinuities is specified "

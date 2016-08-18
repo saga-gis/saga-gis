@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      io_virtual                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
 
 	Set_Description	(_TW(
-		"The module allows one to create a virtual point cloud dataset "
+		"The tool allows one to create a virtual point cloud dataset "
 		"from a set of SAGA point cloud files. For a large number of "
 		"files, it is advised to use an input file list, i.e. a text "
 		"file with the full path to an input point cloud on each line.\n"
@@ -90,7 +90,7 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 		"dataset is a simple XML format with the file extension .spcvf, "
 		"which describes a mosaic of individual point cloud files. Such "
 		"a virtual point cloud dataset can be used for seamless data "
-		"access with the 'Get Subset from Virtual Point Cloud' module.\n"
+		"access with the 'Get Subset from Virtual Point Cloud' tool.\n"
 		"All point cloud input datasets must share the same attribute "
 		"table structure, NoData value and projection.\n\n"
 	));

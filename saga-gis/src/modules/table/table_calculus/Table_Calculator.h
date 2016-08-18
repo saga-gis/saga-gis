@@ -37,7 +37,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Calculator_Base : public CSG_Module  
+class CTable_Calculator_Base : public CSG_Tool  
 {
 public:
 	CTable_Calculator_Base(void);

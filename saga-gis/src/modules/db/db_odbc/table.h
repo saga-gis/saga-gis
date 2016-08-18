@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        db_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_List : public CSG_ODBC_Module
+class CTable_List : public CSG_ODBC_Tool
 {
 public:
 	CTable_List(void);
@@ -102,7 +102,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Info : public CSG_ODBC_Module
+class CTable_Info : public CSG_ODBC_Tool
 {
 public:
 	CTable_Info(void);
@@ -124,7 +124,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Load : public CSG_ODBC_Module
+class CTable_Load : public CSG_ODBC_Tool
 {
 public:
 	CTable_Load(void);
@@ -146,7 +146,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Save : public CSG_ODBC_Module
+class CTable_Save : public CSG_ODBC_Tool
 {
 public:
 	CTable_Save(void);
@@ -168,7 +168,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Drop : public CSG_ODBC_Module
+class CTable_Drop : public CSG_ODBC_Tool
 {
 public:
 	CTable_Drop(void);
@@ -190,7 +190,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Query : public CSG_ODBC_Module
+class CTable_Query : public CSG_ODBC_Tool
 {
 public:
 	CTable_Query(void);

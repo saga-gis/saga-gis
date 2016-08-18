@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      ta_channels                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -79,7 +79,7 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	Set_Author		(SG_T("O.Conrad (c) 2001-14"));
 
 	Set_Description	(_TW(
-		"This module calculates overland flow distances to a channel network "
+		"This tool calculates overland flow distances to a channel network "
 		"based on gridded digital elevation data and channel network information. "
 		"The flow algorithm may be either Deterministic 8 (O'Callaghan & Mark 1984) "
 		"or Multiple Flow Direction (Freeman 1991). Sediment Delivery Rates (SDR) "

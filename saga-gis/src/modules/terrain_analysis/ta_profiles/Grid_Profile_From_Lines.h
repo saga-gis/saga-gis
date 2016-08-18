@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     ta_profiles                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Profile_From_Lines : public CSG_Module_Grid
+class CGrid_Profile_From_Lines : public CSG_Tool_Grid
 {
 public:
 	CGrid_Profile_From_Lines(void);

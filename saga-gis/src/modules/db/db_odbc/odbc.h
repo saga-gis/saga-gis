@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                        db_odbc                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -240,10 +240,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class db_odbc_EXPORT CSG_ODBC_Module : public CSG_Module
+class db_odbc_EXPORT CSG_ODBC_Tool : public CSG_Tool
 {
 public:
-	CSG_ODBC_Module(void);
+	CSG_ODBC_Tool(void);
 
 
 protected:

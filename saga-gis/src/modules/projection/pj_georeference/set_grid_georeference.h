@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
@@ -80,7 +80,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSet_Grid_Georeference : public CSG_Module_Grid
+class CSet_Grid_Georeference : public CSG_Tool_Grid
 {
 public:
 	CSet_Grid_Georeference(void);

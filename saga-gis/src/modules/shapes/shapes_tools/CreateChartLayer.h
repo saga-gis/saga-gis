@@ -26,7 +26,7 @@
 
 #include "MLB_Interface.h"
 
-class CCreateChartLayer : public CSG_Module {
+class CCreateChartLayer : public CSG_Tool {
 public:
 	CCreateChartLayer();
 	virtual ~CCreateChartLayer();

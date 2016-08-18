@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
@@ -111,7 +111,7 @@ CDaily_Sun::CDaily_Sun(void)
 //---------------------------------------------------------
 int CDaily_Sun::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Module::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -147,10 +147,10 @@ bool CDaily_Sun::On_Execute(void)
 
 	CSG_Grid	Lon(*Get_System()), Lat(*Get_System());
 
-	SG_RUN_MODULE_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
-			SG_MODULE_PARAMETER_SET("GRID", pTarget)
-		&&	SG_MODULE_PARAMETER_SET("LON" , &Lon)
-		&&	SG_MODULE_PARAMETER_SET("LAT" , &Lat)
+	SG_RUN_TOOL_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
+			SG_TOOL_PARAMETER_SET("GRID", pTarget)
+		&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
+		&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 	)
 
 	Lon	*= M_DEG_TO_RAD;

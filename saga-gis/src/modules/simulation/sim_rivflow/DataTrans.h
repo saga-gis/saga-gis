@@ -5,7 +5,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                       RivFlow                         //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,7 +59,7 @@ using namespace std;
 //---------------------------------------------------------
 //#########################################################
 
-class CDataTrans : public CSG_Module_Grid
+class CDataTrans : public CSG_Tool_Grid
 {
 public: ////// public members and functions: //////////////
 
