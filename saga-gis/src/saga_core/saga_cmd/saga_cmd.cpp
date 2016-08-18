@@ -393,7 +393,7 @@ bool		Load_Libraries(void)
 	wxString	Path, CMD_Path	= SG_File_Get_Path(SG_UI_Get_Application_Path()).c_str();
 
     #if defined(_SAGA_LINUX)
-		Load_Libraries(TOOL_LIBRARY_PATH);
+		Load_Libraries(MODULE_LIBRARY_PATH);
 		Load_Libraries(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")));	// look for tool chains
 	#else
 		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();

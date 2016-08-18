@@ -264,7 +264,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
 	{
 #if defined(_SAGA_LINUX)
-	if( (SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(TOOL_LIBRARY_PATH), false)
+	if( (SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false)
 	   + SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false)) == 0 )
 #endif
 		SG_Get_Tool_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path(), true);
