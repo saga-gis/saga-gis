@@ -5,31 +5,31 @@ import saga_api, sys, os
 ##########################################
 def grid_asc2sgrd(fASC):
 
-### load all module libraries from a directory at once:
+### load all tool libraries from a directory at once:
 #    if os.name == 'nt':    # Windows
-#        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_32' ], 0)
+#        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_32' ], 0)
 #    else:                  # Linux
-#        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)
+#        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], 0)
 #    print '__________________'
-#    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Module_Library_Manager().Get_Count())
-#    print saga_api.SG_Get_Module_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE).c_str()
+#    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count())
+#    print saga_api.SG_Get_Tool_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE).c_str()
 #    print '__________________'
 
-### load just the needed module library:
+### load just the needed tool library:
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/io_grid.dll')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/tools/io_grid.dll')
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_grid.so')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_grid.so')
 
     sASC = saga_api.CSG_String(fASC)
-    m    = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('io_grid'), 1)
+    m    = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('io_grid'), 1)
     print m.Get_Description().c_str()
 
     p    = m.Get_Parameters()
     p(saga_api.CSG_String('FILE')).Set_Value(sASC)
 
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     if p(saga_api.CSG_String('GRID')).asGrid().Save(sASC) == 0:

@@ -11,17 +11,17 @@ def grid_contour(fGrid, fLines):
     
     # ------------------------------------
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/shapes_grid.dll')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/tools/shapes_grid.dll')
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
 
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('shapes_grid'), 5) # 'Contour Lines from Grid'
+    m      = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('shapes_grid'), 5) # 'Contour Lines from Grid'
     p      = m.Get_Parameters()
     p(saga_api.CSG_String('GRID'   )).Set_Value(Grid)
     p(saga_api.CSG_String('ZSTEP'  )).Set_Value(25.0)
 
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     # ------------------------------------

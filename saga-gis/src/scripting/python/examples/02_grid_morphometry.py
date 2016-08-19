@@ -25,9 +25,9 @@ def morphometry(fDEM):
     # ------------------------------------
     # 'Slope, Aspect, Curvature'
     
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('ta_morphometry'), 0)
+    m      = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('ta_morphometry'), 0)
     p      = m.Get_Parameters()
-    p.Get_Grid_System().Assign(dem.Get_System())        # grid module needs to use conformant grid system!
+    p.Get_Grid_System().Assign(dem.Get_System())        # grid tool needs to use conformant grid system!
     p(saga_api.CSG_String('ELEVATION')).Set_Value(dem)
     p(saga_api.CSG_String('SLOPE'    )).Set_Value(slope)
     p(saga_api.CSG_String('ASPECT'   )).Set_Value(aspect)
@@ -35,7 +35,7 @@ def morphometry(fDEM):
     p(saga_api.CSG_String('C_LONG'   )).Set_Value(vcurv)
 
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     slope .Save(saga_api.CSG_String(path + '/slope' ))
@@ -46,14 +46,14 @@ def morphometry(fDEM):
     # ------------------------------------
     # 'Curvature Classification'
     
-    m       = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('ta_morphometry'), 4)
+    m       = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('ta_morphometry'), 4)
     p       = m.Get_Parameters()
-    p.Get_Grid_System().Assign(dem.Get_System())        # grid module needs to use conformant grid system!
+    p.Get_Grid_System().Assign(dem.Get_System())        # grid tool needs to use conformant grid system!
     p(saga_api.CSG_String('DEM'      )).Set_Value(dem)
     p(saga_api.CSG_String('CLASS'    )).Set_Value(ccurv)
     
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     ccurv .Save(saga_api.CSG_String(path + '/ccurv' ))
@@ -82,9 +82,9 @@ if __name__ == '__main__':
     saga_api.SG_UI_Msg_Lock(True)
     if os.name == 'nt':    # Windows
         os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA_32'] + '/dll'
-        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/modules', False)
+        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/tools', False)
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)
+        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)
     saga_api.SG_UI_Msg_Lock(False)
 
     morphometry(fDEM)

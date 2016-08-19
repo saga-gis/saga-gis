@@ -30,11 +30,11 @@ def xyz2shp(fTable):
 
     # ------------------------------------
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/shapes_points.dll')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/tools/shapes_points.dll')
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_points.so')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_points.so')
 
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('shapes_points'), 0) # 'Convert Table to Points'
+    m      = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('shapes_points'), 0) # 'Convert Table to Points'
     p      = m.Get_Parameters()
     p(saga_api.CSG_String('TABLE' )).Set_Value(table)
     p(saga_api.CSG_String('POINTS')).Set_Value(points)
@@ -42,7 +42,7 @@ def xyz2shp(fTable):
     p(saga_api.CSG_String('Y'     )).Set_Value(1)
     
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     # ------------------------------------

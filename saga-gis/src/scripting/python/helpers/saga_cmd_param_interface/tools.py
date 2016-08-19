@@ -662,5 +662,11 @@ tools = [
 ['imagery_opencv', 11, 'Artificial Neural Network Classification (OpenCV)'],
 ['io_shapes', 21, 'Import Building Sketches from CityGML'],
 ['statistics_grid', 14, 'Categorical Coincidence'],
-['ta_hydrology', 27, 'Maximum Flow Path Length']
+['ta_hydrology', 27, 'Maximum Flow Path Length'],
+['imagery_isocluster', 0, 'ISODATA Clustering for Grids'],
+['shapes_lines', 9, 'Line Crossings'],
+['shapes_tools', 26, 'Select Shapes from List'],
+['shapes_tools', 27, 'Remove Invalid Shapes'],
+['table_calculus', 16, 'Record Statistics'],
+['table_calculus', 17, 'Record Statistics (Shapes)']
 ]

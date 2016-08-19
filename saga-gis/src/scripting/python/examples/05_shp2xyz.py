@@ -11,17 +11,17 @@ def shp2xyz(fshp, fxyz):
 
     # ------------------------------------
     if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/modules/io_shapes.dll')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/tools/io_shapes.dll')
     else:                  # Linux
-        saga_api.SG_Get_Module_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_shapes.so')
+        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_shapes.so')
 
-    m      = saga_api.SG_Get_Module_Library_Manager().Get_Module(saga_api.CSG_String('io_shapes'), 2) # 'Export Shapes to XYZ'
+    m      = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('io_shapes'), 2) # 'Export Shapes to XYZ'
     p      = m.Get_Parameters()
     p(saga_api.CSG_String('POINTS'  )).Set_Value(shp)
     p(saga_api.CSG_String('FILENAME')).Set_Value(saga_api.CSG_String(fxyz))
     
     if m.Execute() == 0:
-        print 'ERROR: executing module [' + m.Get_Name().c_str() + ']'
+        print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
     # ------------------------------------
