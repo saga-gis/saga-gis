@@ -27,6 +27,7 @@ AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
 AC_CHECK_HEADER([dxflib/dl_dxf.h],[AC_CHECK_LIB(libdxf,DL_ArcData,LIBDXFFOUND=1)])
+PKG_CHECK_MODULES([HDF5],[hdf5],LIBHDF5FOUND=1,LIBHDF5FOUND=0)
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -212,6 +213,7 @@ AM_CONDITIONAL(SYSTEM_DXFLIB, test -n "$LIBDXFFOUND" -a x$system_libdxf=xtrue)
     AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
     AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
     AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
+    AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
 
 
   if test -n "$CVFOUND" ; then 

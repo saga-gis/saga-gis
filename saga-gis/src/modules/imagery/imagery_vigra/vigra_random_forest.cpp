@@ -68,7 +68,6 @@
 #include <vigra/random_forest.hxx>
 
 //---------------------------------------------------------
-#define WITH_HDF5
 #if defined(WITH_HDF5)
 #include <vigra/random_forest_hdf5_impex.hxx>
 #endif
