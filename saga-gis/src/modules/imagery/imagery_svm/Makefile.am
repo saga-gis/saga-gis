@@ -9,10 +9,10 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libimagery_svm.la
 libimagery_svm_la_SOURCES =\
 MLB_Interface.cpp\
-svm.cpp\
+svm/svm.cpp\
 svm_grids.cpp\
 MLB_Interface.h\
-svm.h\
+svm/svm.h\
 svm_grids.h
 
 libimagery_svm_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
