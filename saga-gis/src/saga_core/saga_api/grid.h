@@ -580,7 +580,9 @@ public:		///////////////////////////////////////////////
 	bool						DeStandardise				(double Mean, double StdDev);
 
 	int							Get_Gradient_NeighborDir	(int x, int y, bool bDown = true, bool bNoEdges = true)	const;
-	bool						Get_Gradient				(int x, int y, double &Incline, double &Azimuth)		const;
+	bool						Get_Gradient				(int x, int y      , double &Slope, double &Aspect)	const;
+	bool						Get_Gradient				(double x, double y, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
+	bool						Get_Gradient				(const TSG_Point &p, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
 
 
 	//-----------------------------------------------------
