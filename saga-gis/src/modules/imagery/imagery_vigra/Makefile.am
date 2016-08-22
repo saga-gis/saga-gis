@@ -5,10 +5,14 @@ if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
+if HAVE_HDF5
+DEF_HDF5=-DWITH_HDF5
+endif
+
 if HAVE_VIGRA
-DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
+DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE $(DEF_HDF5)
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS) $(HDF5_CFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version -lvigraimpex -lfftw3
 pkglib_LTLIBRARIES = libimagery_vigra.la
 libimagery_vigra_la_SOURCES =\
