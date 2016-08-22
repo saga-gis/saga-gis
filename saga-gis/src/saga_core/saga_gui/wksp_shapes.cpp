@@ -531,7 +531,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 
 	case  2:	// CLASSIFY_DISCRETE
 	case  3:	// CLASSIFY_GRADUATED
-		m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	if( m_fValue >= Get_Shapes()->Get_Field_Count() )	{	m_fValue	= -1;	}
+		m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	if( m_fValue  >= Get_Shapes()->Get_Field_Count() )	{	m_fValue	= -1;	}
 		m_fNormal	= m_Parameters("METRIC_NORMAL")->asInt();	if( m_fNormal >= Get_Shapes()->Get_Field_Count() )	{	m_fNormal	= -1;	}
 		break;
 	}
@@ -649,6 +649,11 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB") )
+		{
+			pParameters->Set_Enabled("METRIC_NORMAL", pParameter->asInt() >= 0);
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTLINE") )
 		{
 			pParameters->Set_Enabled("OUTLINE_COLOR", pParameter->asBool());

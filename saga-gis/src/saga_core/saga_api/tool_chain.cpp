@@ -379,6 +379,8 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 			return( false );
 		}
 	}
+
+	//-----------------------------------------------------
 	else switch( pData->Get_Type() )
 	{
 	case PARAMETER_TYPE_PointCloud     : pParameter	= m_Data.Add_PointCloud     (NULL, ID, "", "", 0       );	break;
@@ -394,23 +396,34 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	case PARAMETER_TYPE_TIN_List       : pParameter	= m_Data.Add_TIN_List       (NULL, ID, "", "", 0       );	break;
 
 	case PARAMETER_TYPE_DataObject_Output:
-		return( true );
+		switch( pData->Get_DataObject_Type() )
+		{
+		case DATAOBJECT_TYPE_PointCloud: pParameter	= m_Data.Add_PointCloud     (NULL, ID, "", "", 0       );	break;
+		case DATAOBJECT_TYPE_Grid      : pParameter	= m_Data.Add_Grid           (NULL, ID, "", "", 0       );	break;
+		case DATAOBJECT_TYPE_Table     : pParameter	= m_Data.Add_Table          (NULL, ID, "", "", 0       );	break;
+		case DATAOBJECT_TYPE_Shapes    : pParameter	= m_Data.Add_Shapes         (NULL, ID, "", "", 0       );	break;
+		case DATAOBJECT_TYPE_TIN       : pParameter	= m_Data.Add_TIN            (NULL, ID, "", "", 0       );	break;
+		default:
+			return( true );
+		}
+		break;
 
 	default:
 		return( true );
 	}
 
-	pParameter->Assign(pData);
-
+	//-----------------------------------------------------
 	if( pData->is_DataObject() )
 	{
-		m_Data_Manager.Add(pData->asDataObject());
+		pParameter->Set_Value(pData->asDataObject());
+		m_Data_Manager.Add   (pData->asDataObject());
 	}
 	else if( pData->is_DataObject_List() )
 	{
 		for(int i=0; i<pData->asList()->Get_Count(); i++)
 		{
-			m_Data_Manager.Add(pData->asList()->asDataObject(i));
+			pParameter->asList()->Add_Item(pData->asList()->asDataObject(i));
+			m_Data_Manager.Add            (pData->asList()->asDataObject(i));
 		}
 	}
 

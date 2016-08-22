@@ -537,17 +537,19 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 {
 	switch( Get_Type() )
 	{
-	default                            :	return( DATAOBJECT_TYPE_Undefined  );
-	case PARAMETER_TYPE_Grid           :
-	case PARAMETER_TYPE_Grid_List      :	return( DATAOBJECT_TYPE_Grid       );
-	case PARAMETER_TYPE_Table          :
-	case PARAMETER_TYPE_Table_List     :	return( DATAOBJECT_TYPE_Table      );
-	case PARAMETER_TYPE_Shapes         :
-	case PARAMETER_TYPE_Shapes_List    :	return( DATAOBJECT_TYPE_Shapes     );
-	case PARAMETER_TYPE_TIN            :
-	case PARAMETER_TYPE_TIN_List       :	return( DATAOBJECT_TYPE_TIN        );
-	case PARAMETER_TYPE_PointCloud     :
-	case PARAMETER_TYPE_PointCloud_List:	return( DATAOBJECT_TYPE_PointCloud );
+	default                              :	return( DATAOBJECT_TYPE_Undefined  );
+	case PARAMETER_TYPE_Grid             :
+	case PARAMETER_TYPE_Grid_List        :	return( DATAOBJECT_TYPE_Grid       );
+	case PARAMETER_TYPE_Table            :
+	case PARAMETER_TYPE_Table_List       :	return( DATAOBJECT_TYPE_Table      );
+	case PARAMETER_TYPE_Shapes           :
+	case PARAMETER_TYPE_Shapes_List      :	return( DATAOBJECT_TYPE_Shapes     );
+	case PARAMETER_TYPE_TIN              :
+	case PARAMETER_TYPE_TIN_List         :	return( DATAOBJECT_TYPE_TIN        );
+	case PARAMETER_TYPE_PointCloud       :
+	case PARAMETER_TYPE_PointCloud_List  :	return( DATAOBJECT_TYPE_PointCloud );
+	case PARAMETER_TYPE_DataObject_Output:
+		return( ((CSG_Parameter_Data_Object_Output *)m_pData)->Get_DataObject_Type() );
 	}
 }
 
