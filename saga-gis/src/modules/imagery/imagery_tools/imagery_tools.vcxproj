@@ -312,6 +312,7 @@
     </ClCompile>
     <ClCompile Include="pansharpening.cpp" />
     <ClCompile Include="tasseled_cap.cpp" />
+    <ClCompile Include="textural_features.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h" />
@@ -341,6 +342,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="pansharpening.h" />
     <ClInclude Include="tasseled_cap.h" />
+    <ClInclude Include="textural_features.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

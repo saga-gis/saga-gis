@@ -13,10 +13,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                  textural_features.h                  //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Copyright (C) 2016 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,112 +40,79 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__textural_features_H
+#define HEADER_INCLUDED__textural_features_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
+#include <saga_api/saga_api.h>
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTextural_Features : public CSG_Tool_Grid
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Tools") );
+public:
+	CTextural_Features(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Imagery") );
-
-	case TLB_INFO_Author:
-		return( "SAGA User Group Association" );
-
-	case TLB_INFO_Description:
-		return( _TL("Image processing and analysis tools.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Imagery") );
-	}
-}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Analysis") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "Image_VI_Distance.h"
-#include "Image_VI_Slope.h"
-#include "evi.h"
-#include "tasseled_cap.h"
-
-#include "pansharpening.h"
-
-#include "landsat_toar.h"
-#include "landsat_acca.h"
-#include "landsat_import.h"
-
-#include "textural_features.h"
+	virtual bool			On_Execute		(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CImage_VI_Distance );
-	case  1:	return( new CImage_VI_Slope );
-	case  2:	return( new CEnhanced_VI );
-	case  3:	return( new CTasseled_Cap );
+	int						m_Radius, m_MaxCats;
 
-	case  4:	return( new CPanSharp_IHS );
-	case  5:	return( new CPanSharp_Brovey );
-	case  6:	return( new CPanSharp_CN );
-	case  7:	return( new CPanSharp_PCA );
+	CSG_Grid				*m_pGrid;
 
-	case  8:	return( new CLandsat_TOAR );
-	case  9:	return( new CLandsat_ACCA );
-	case 10:	return( new CLandsat_Import );
 
-	case 11:	return( new CTextural_Features );
+	int						Get_Value		(int x, int y);
 
-	//-----------------------------------------------------
-	case 12:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+	bool					Get_Matrices	(int x, int y, int d, CSG_Matrix P[4]);
+	bool					Get_Features	(CSG_Vector &Features, const CSG_Matrix &P);
+
+};
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__textural_features_H

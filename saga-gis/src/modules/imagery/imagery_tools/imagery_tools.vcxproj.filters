@@ -44,6 +44,9 @@
     <ClCompile Include="landsat_import.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="textural_features.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -125,6 +128,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="landsat_import.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textural_features.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -53,7 +53,7 @@ class CGrid_CVA : public CSG_Tool_Grid
 public:
 	CGrid_CVA(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Imagery|Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Imagery|Analysis") );	}
 
 
 protected:
