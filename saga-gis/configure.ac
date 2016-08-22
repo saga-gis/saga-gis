@@ -26,6 +26,7 @@ AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
+AC_CHECK_HEADER([libsvm/svm.h],[AC_CHECK_LIB([svm], [svm_get_svm_type], SVMFOUND=1,,)])
 PKG_CHECK_MODULES([DXFLIB], [dxflib], [LIBDXFFOUND=1],[LIBDXFFOUND=0])
 PKG_CHECK_MODULES([HDF5],[hdf5],LIBHDF5FOUND=1,LIBHDF5FOUND=0)
 
@@ -207,6 +208,14 @@ AC_ARG_WITH(system_dxflib,
     system_libdxf=true,
     )
 AM_CONDITIONAL(SYSTEM_DXFLIB, test -n "$LIBDXFFOUND" -a x$system_libdxf=xtrue)
+
+AC_ARG_WITH(system_svm,
+    AS_HELP_STRING([--with-system-svm],[Use system version of svm instead of embedded copy, requires this library (and the header files)]),
+    AC_MSG_RESULT([        using system svm]),
+    system_svm=true,
+    )
+
+AM_CONDITIONAL(SYSTEM_SVM, test -n "$SVMFOUND" -a x$system_svm=xtrue)
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
