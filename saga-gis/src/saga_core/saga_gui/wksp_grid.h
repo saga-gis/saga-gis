@@ -135,8 +135,14 @@ protected:
 
 private:
 
-	int							m_xSel, m_ySel;
+	int							m_Shade_Mode, m_xSel, m_ySel;
 
+	double						m_Shade_Parms[6];
+
+
+	void						_Set_Shading			(double Shade, int &Color);
+	int							_Get_Shading			(double x, double y, int Color, TSG_Grid_Resampling Resampling);
+	int							_Get_Shading			(int    x, int    y, int Color);
 
 	void						_LUT_Create				(void);
 

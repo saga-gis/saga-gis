@@ -106,7 +106,7 @@ CHillShade::CHillShade(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"			, _TL("Shading Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Standard"),
 			_TL("Standard (max. 90Degree)"),
 			_TL("Combined Shading"),
@@ -115,44 +115,44 @@ CHillShade::CHillShade(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "AZIMUTH"			, _TL("Azimuth [Degree]"),
-		_TL("Direction of the light source, measured in degree clockwise from the north direction."),
-		PARAMETER_TYPE_Double		, 315
+	Parameters.Add_Double(
+		NULL	, "AZIMUTH"			, _TL("Azimuth"),
+		_TL("Direction of the light source, measured in degree clockwise from the North direction."),
+		315.0, 0.0, true, 360.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DECLINATION"		, _TL("Height [Degree]"),
+	Parameters.Add_Double(
+		NULL	, "DECLINATION"		, _TL("Height"),
 		_TL("Height of the light source, measured in degree above the horizon."),
-		PARAMETER_TYPE_Double		, 45
+		45.0, 0.0, true, 90.0, true
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Double(
 		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
 		_TL("The terrain exaggeration factor allows one to increase the shading contrasts in flat areas."),
-		PARAMETER_TYPE_Double		, 4
+		4.0
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "SHADOW"			, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("slim"),
 			_TL("fat")
 		), 1
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Int(
 		NULL	, "NDIRS"			, _TL("Number of Directions"),
 		_TW("Number of sample directions for ambient occlusion. Divides azimuth range (270 to 0 to 90 degree) into sectors. "
 			"Declination (0 to 90 degree) is divided in (Number of Directions / 4) sectors."),
-		PARAMETER_TYPE_Int, 8.0, 2, true
+		8.0, 2, true
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Double(
 		NULL	, "RADIUS"			, _TL("Search Radius"),
 		_TL("Radius used to trace for shadows (ambient occlusion) [map units]."),
-		PARAMETER_TYPE_Double, 10.0, 0.001, true
+		10.0, 0.001, true
 	);
 }
 
@@ -164,7 +164,7 @@ CHillShade::CHillShade(void)
 //---------------------------------------------------------
 int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
 		pParameters->Get_Parameter("AZIMUTH"     )->Set_Enabled(pParameter->asInt()  < 4);
 		pParameters->Get_Parameter("DECLINATION" )->Set_Enabled(pParameter->asInt()  < 4);
@@ -174,7 +174,7 @@ int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("RADIUS"      )->Set_Enabled(pParameter->asInt() == 4);
 	}
 
-	return( 0 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
