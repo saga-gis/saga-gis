@@ -12,371 +12,371 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gui", "saga_core\saga_
 		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_analysis", "modules\grid\grid_analysis\grid_analysis.vcxproj", "{299C86F5-B0AE-44BC-87EC-7B09067AE1AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_analysis", "tools\grid\grid_analysis\grid_analysis.vcxproj", "{299C86F5-B0AE-44BC-87EC-7B09067AE1AD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus", "modules\grid\grid_calculus\grid_calculus.vcxproj", "{90FD5D42-700A-467E-B146-994986E447F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus", "tools\grid\grid_calculus\grid_calculus.vcxproj", "{90FD5D42-700A-467E-B146-994986E447F7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus_bsl", "modules\grid\grid_calculus_bsl\grid_calculus_bsl.vcxproj", "{9309AF5F-365D-49D2-8A11-7EA3A0DB4F11}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_calculus_bsl", "tools\grid\grid_calculus_bsl\grid_calculus_bsl.vcxproj", "{9309AF5F-365D-49D2-8A11-7EA3A0DB4F11}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_filter", "modules\grid\grid_filter\grid_filter.vcxproj", "{72FE56A4-A7E5-4097-B8EF-AA79587A3BD6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_filter", "tools\grid\grid_filter\grid_filter.vcxproj", "{72FE56A4-A7E5-4097-B8EF-AA79587A3BD6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_gridding", "modules\grid\grid_gridding\grid_gridding.vcxproj", "{B594E3C2-2FFE-46C3-B482-0A54061B18A7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_gridding", "tools\grid\grid_gridding\grid_gridding.vcxproj", "{B594E3C2-2FFE-46C3-B482-0A54061B18A7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_spline", "modules\grid\grid_spline\grid_spline.vcxproj", "{8A4F4631-0512-4B16-9E61-4733A24D11C7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_spline", "tools\grid\grid_spline\grid_spline.vcxproj", "{8A4F4631-0512-4B16-9E61-4733A24D11C7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_tools", "modules\grid\grid_tools\grid_tools.vcxproj", "{2F0EC565-613E-4621-82FD-C93A82D898FB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_tools", "tools\grid\grid_tools\grid_tools.vcxproj", "{2F0EC565-613E-4621-82FD-C93A82D898FB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_visualisation", "modules\grid\grid_visualisation\grid_visualisation.vcxproj", "{A6C28464-DF7B-42B2-A3E4-9911133D0B12}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grid_visualisation", "tools\grid\grid_visualisation\grid_visualisation.vcxproj", "{A6C28464-DF7B-42B2-A3E4-9911133D0B12}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "modules\pointcloud\pointcloud_tools\pointcloud_tools.vcxproj", "{78096DDC-4C51-4EC9-ADBB-D177FE4010D2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_tools", "tools\pointcloud\pointcloud_tools\pointcloud_tools.vcxproj", "{78096DDC-4C51-4EC9-ADBB-D177FE4010D2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "modules\pointcloud\pointcloud_viewer\pointcloud_viewer.vcxproj", "{DDA1A204-CD62-427C-97C0-C4AC8FCFC58B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_grid", "modules\shapes\shapes_grid\shapes_grid.vcxproj", "{5461E577-DAA6-4EF9-87B7-31D78C4ABA46}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_lines", "modules\shapes\shapes_lines\shapes_lines.vcxproj", "{A1EC809F-A906-499A-9B60-C5641C773744}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_points", "modules\shapes\shapes_points\shapes_points.vcxproj", "{D1B647EC-297E-4E96-9835-298EEAE83F85}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_polygons", "modules\shapes\shapes_polygons\shapes_polygons.vcxproj", "{D580A561-DC3D-4CD3-9FAC-AB9191569BF9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_transect", "modules\shapes\shapes_transect\shapes_transect.vcxproj", "{22073BFE-98A1-44DD-BDEB-72A5298A7D1C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "table_calculus", "modules\table\table_calculus\table_calculus.vcxproj", "{C0B26B43-1901-4E7C-86D9-FE614DB67FF6}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "table_tools", "modules\table\table_tools\table_tools.vcxproj", "{492566B1-1402-4528-8B11-5C97349E84A1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_tools", "modules\tin\tin_tools\tin_tools.vcxproj", "{30B03B8A-93AD-4C4F-B2CA-88D465C66D31}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_tools", "modules\shapes\shapes_tools\shapes_tools.vcxproj", "{8952050D-158C-4AE7-A5D4-98E0F60A6186}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_viewer", "modules\tin\tin_viewer\tin_viewer.vcxproj", "{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pointcloud_viewer", "tools\pointcloud\pointcloud_viewer\pointcloud_viewer.vcxproj", "{DDA1A204-CD62-427C-97C0-C4AC8FCFC58B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "climate_tools", "modules\climate\climate_tools\climate_tools.vcxproj", "{FCC348FF-34A7-4016-B3D3-7935D2AEC898}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_grid", "tools\shapes\shapes_grid\shapes_grid.vcxproj", "{5461E577-DAA6-4EF9-87B7-31D78C4ABA46}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "contrib_perego", "modules\contrib\contrib_peregro\contrib_perego.vcxproj", "{0C537B2A-9B75-4CB9-9271-4CFDC471E865}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_lines", "tools\shapes\shapes_lines\shapes_lines.vcxproj", "{A1EC809F-A906-499A-9B60-C5641C773744}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db_odbc", "modules\db\db_odbc\db_odbc.vcxproj", "{92EB3478-3A80-46AE-9289-27EC77C77925}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_points", "tools\shapes\shapes_points\shapes_points.vcxproj", "{D1B647EC-297E-4E96-9835-298EEAE83F85}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db_pgsql", "modules\db\db_pgsql\db_pgsql.vcxproj", "{B6ADFFE2-B695-4015-B235-7B57A4CA69AC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_polygons", "tools\shapes\shapes_polygons\shapes_polygons.vcxproj", "{D580A561-DC3D-4CD3-9FAC-AB9191569BF9}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_html", "modules\docs\docs_html\docs_html.vcxproj", "{90A4146C-4A4F-45D8-956F-BF38C5675F1D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_transect", "tools\shapes\shapes_transect\shapes_transect.vcxproj", "{22073BFE-98A1-44DD-BDEB-72A5298A7D1C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_pdf", "modules\docs\docs_pdf\docs_pdf.vcxproj", "{D32A5075-9393-4541-9631-4DE087FAABAC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "table_calculus", "tools\table\table_calculus\table_calculus.vcxproj", "{C0B26B43-1901-4E7C-86D9-FE614DB67FF6}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_3d_viewer", "modules\garden\garden_3d_viewer\garden_3d_viewer.vcxproj", "{2BA891A3-9872-4C14-A119-52766083A5CC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_fractals", "modules\garden\garden_fractals\garden_fractals.vcxproj", "{4E757ADA-C92E-4EF1-BA39-1ED80A1DE185}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "table_tools", "tools\table\table_tools\table_tools.vcxproj", "{492566B1-1402-4528-8B11-5C97349E84A1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_games", "modules\garden\garden_games\garden_games.vcxproj", "{7452BCEA-D3F9-4484-AA10-B9695AA6C822}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_tools", "tools\tin\tin_tools\tin_tools.vcxproj", "{30B03B8A-93AD-4C4F-B2CA-88D465C66D31}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_learn_to_program", "modules\garden\garden_learn_to_program\garden_learn_to_program.vcxproj", "{D6C98656-B6CB-493A-BA75-508A55EE29EA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shapes_tools", "tools\shapes\shapes_tools\shapes_tools.vcxproj", "{8952050D-158C-4AE7-A5D4-98E0F60A6186}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_webservices", "modules\garden\garden_webservices\garden_webservices.vcxproj", "{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_classification", "modules\imagery\imagery_classification\imagery_classification.vcxproj", "{FD8BD809-88DE-4855-9CC6-5FE7E6AB78F4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_opencv", "modules\imagery\imagery_opencv\imagery_opencv.vcxproj", "{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "modules\imagery\imagery_segmentation\imagery_segmentation.vcxproj", "{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_svm", "modules\imagery\imagery_svm\imagery_svm.vcxproj", "{3371544B-1387-439C-A4E8-717D60C3BC7F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "modules\imagery\imagery_tools\imagery_tools.vcxproj", "{D77087AD-99F6-48F6-8485-060207FDDD87}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_vigra", "modules\imagery\imagery_vigra\imagery_vigra.vcxproj", "{596A318C-D642-4397-BC7E-6B68BEAA95FC}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_esri_e00", "modules\io\io_esri_e00\io_esri_e00.vcxproj", "{953ED9E4-1771-4F8A-A9C9-31436B122D0A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_gdal", "modules\io\io_gdal\io_gdal.vcxproj", "{17711E60-C0C9-424F-A8DA-4B0AC4C45C16}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_gps", "modules\io\io_gps\io_gps.vcxproj", "{F6EFEF27-14B2-4630-8F74-8DFF323AA814}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid", "modules\io\io_grid\io_grid.vcxproj", "{7F0748EE-36B6-4F09-883A-B2D5C17CD857}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_image", "modules\io\io_grid_image\io_grid_image.vcxproj", "{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes", "modules\io\io_shapes\io_shapes.vcxproj", "{31FCAD42-283C-4877-B303-2C04ADB3BC84}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_dxf", "modules\io\io_shapes_dxf\io_shapes_dxf.vcxproj", "{75BFD0D8-116F-461E-8A86-C8DD97ECBC00}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_las", "modules\io\io_shapes_las\io_shapes_las.vcxproj", "{315A9D51-F880-4E45-A890-60FCC4AC71DA}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_table", "modules\io\io_table\io_table.vcxproj", "{099E5D86-25B7-4346-9D45-8E3C193E391D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_georeference", "modules\projection\pj_georeference\pj_georeference.vcxproj", "{969DBBFF-8141-4155-A114-AA7CD4E2CE32}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_geotrans", "modules\projection\pj_geotrans\pj_geotrans.vcxproj", "{A4D73988-49F7-4CEF-803C-16C77454263C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_proj4", "modules\projection\pj_proj4\pj_proj4.vcxproj", "{05EC4432-92F8-4400-87EA-11542DA70D07}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_cellular_automata", "modules\simulation\sim_cellular_automata\sim_cellular_automata.vcxproj", "{A4AB51A9-7DB7-472A-A183-8E9F5B8F2081}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ecosystems_hugget", "modules\simulation\sim_ecosystems_hugget\sim_ecosystems_hugget.vcxproj", "{7A9F81EE-E5AC-4BD7-90AD-4B395F6143B0}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_erosion", "modules\simulation\sim_erosion\sim_erosion.vcxproj", "{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_fire_spreading", "modules\simulation\sim_fire_spreading\sim_fire_spreading.vcxproj", "{657857DA-F8CF-4631-83B2-D1303BBDB573}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_hydrology", "modules\simulation\sim_hydrology\sim_hydrology.vcxproj", "{066F3C43-B3D4-4DA3-85A1-E8689911D75D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ihacres", "modules\simulation\sim_ihacres\sim_ihacres.vcxproj", "{A3252A1C-CF6A-4370-8B1E-B2F10A78F9A5}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_grid", "modules\statistics\statistics_grid\statistics_grid.vcxproj", "{6AAE33B1-8598-46E2-B9C2-96155E923835}"
-	ProjectSection(ProjectDependencies) = postProject
-		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_kriging", "modules\statistics\statistics_kriging\statistics_kriging.vcxproj", "{D9D425E8-68D2-4E7F-BA7C-A3036756736D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tin_viewer", "tools\tin\tin_viewer\tin_viewer.vcxproj", "{CB8ABFFF-C8DE-4D9E-AB5D-A6153BC59255}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_points", "modules\statistics\statistics_points\statistics_points.vcxproj", "{D321C022-2424-43C5-99F4-C5DACCA89465}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "climate_tools", "tools\climate\climate_tools\climate_tools.vcxproj", "{FCC348FF-34A7-4016-B3D3-7935D2AEC898}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_regression", "modules\statistics\statistics_regression\statistics_regression.vcxproj", "{93FF371F-57A6-422B-B15E-7B202039896D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "contrib_perego", "tools\contrib\contrib_peregro\contrib_perego.vcxproj", "{0C537B2A-9B75-4CB9-9271-4CFDC471E865}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "modules\terrain_analysis\ta_channels\ta_channels.vcxproj", "{87413146-7080-434B-B515-09E51DD32453}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db_odbc", "tools\db\db_odbc\db_odbc.vcxproj", "{92EB3478-3A80-46AE-9289-27EC77C77925}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "modules\terrain_analysis\ta_compound\ta_compound.vcxproj", "{4D0F256A-8D05-457C-8B45-7D889329A381}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "db_pgsql", "tools\db\db_pgsql\db_pgsql.vcxproj", "{B6ADFFE2-B695-4015-B235-7B57A4CA69AC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "modules\terrain_analysis\ta_hydrology\ta_hydrology.vcxproj", "{F3D0170D-EEE3-4ACA-AAAB-F6583C49657A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_html", "tools\docs\docs_html\docs_html.vcxproj", "{90A4146C-4A4F-45D8-956F-BF38C5675F1D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_lighting", "modules\terrain_analysis\ta_lighting\ta_lighting.vcxproj", "{4CF536D1-03E8-4912-9BBB-F27AEA8A903D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docs_pdf", "tools\docs\docs_pdf\docs_pdf.vcxproj", "{D32A5075-9393-4541-9631-4DE087FAABAC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_morphometry", "modules\terrain_analysis\ta_morphometry\ta_morphometry.vcxproj", "{B524843D-737C-49EB-95A5-30303227B004}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_3d_viewer", "tools\garden\garden_3d_viewer\garden_3d_viewer.vcxproj", "{2BA891A3-9872-4C14-A119-52766083A5CC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_fractals", "tools\garden\garden_fractals\garden_fractals.vcxproj", "{4E757ADA-C92E-4EF1-BA39-1ED80A1DE185}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_preprocessor", "modules\terrain_analysis\ta_preprocessor\ta_preprocessor.vcxproj", "{8F88184A-F069-41FB-9CF9-00D2A3818D5A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_games", "tools\garden\garden_games\garden_games.vcxproj", "{7452BCEA-D3F9-4484-AA10-B9695AA6C822}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_profiles", "modules\terrain_analysis\ta_profiles\ta_profiles.vcxproj", "{9BE5CD6A-2989-4D36-AA0D-7B0CE5B4207E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_learn_to_program", "tools\garden\garden_learn_to_program\garden_learn_to_program.vcxproj", "{D6C98656-B6CB-493A-BA75-508A55EE29EA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_slope_stability", "modules\terrain_analysis\ta_slope_stability\ta_slope_stability.vcxproj", "{0D8DDF61-FB58-46FC-ABC7-8808B7758214}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "garden_webservices", "tools\garden\garden_webservices\garden_webservices.vcxproj", "{8914FE0F-2F05-446F-AE55-8CAF6A750FB1}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_photogrammetry", "modules\imagery\imagery_photogrammetry\imagery_photogrammetry.vcxproj", "{F9248181-10AE-42B7-8987-E14B2D7EA8E8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_classification", "tools\imagery\imagery_classification\imagery_classification.vcxproj", "{FD8BD809-88DE-4855-9CC6-5FE7E6AB78F4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_virtual", "modules\io\io_virtual\io_virtual.vcxproj", "{04E57DDF-3500-4424-A1A0-A14C306B2CD1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_opencv", "tools\imagery\imagery_opencv\imagery_opencv.vcxproj", "{AC303E9F-28C5-4F95-8E25-A5D59E8DB01D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_maxent", "modules\imagery\imagery_maxent\imagery_maxent.vcxproj", "{E1C454F8-2E71-485C-B598-F58C2741ECBA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_segmentation", "tools\imagery\imagery_segmentation\imagery_segmentation.vcxproj", "{0DAF1789-55BC-46D5-BA4E-B964DB4A360B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_rivflow", "modules\simulation\sim_rivflow\sim_rivflow.vcxproj", "{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_svm", "tools\imagery\imagery_svm\imagery_svm.vcxproj", "{3371544B-1387-439C-A4E8-717D60C3BC7F}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "modules\simulation\sim_qm_of_esp\sim_qm_of_esp.vcxproj", "{C4C61CA0-282B-47D9-8046-C4C33D11C31A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_tools", "tools\imagery\imagery_tools\imagery_tools.vcxproj", "{D77087AD-99F6-48F6-8485-060207FDDD87}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_isocluster", "modules\imagery\imagery_isocluster\imagery_isocluster.vcxproj", "{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_vigra", "tools\imagery\imagery_vigra\imagery_vigra.vcxproj", "{596A318C-D642-4397-BC7E-6B68BEAA95FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_esri_e00", "tools\io\io_esri_e00\io_esri_e00.vcxproj", "{953ED9E4-1771-4F8A-A9C9-31436B122D0A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_gdal", "tools\io\io_gdal\io_gdal.vcxproj", "{17711E60-C0C9-424F-A8DA-4B0AC4C45C16}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_gps", "tools\io\io_gps\io_gps.vcxproj", "{F6EFEF27-14B2-4630-8F74-8DFF323AA814}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid", "tools\io\io_grid\io_grid.vcxproj", "{7F0748EE-36B6-4F09-883A-B2D5C17CD857}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_grid_image", "tools\io\io_grid_image\io_grid_image.vcxproj", "{22B99CFB-7BE2-49BD-B52B-EF652280B1A4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes", "tools\io\io_shapes\io_shapes.vcxproj", "{31FCAD42-283C-4877-B303-2C04ADB3BC84}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_dxf", "tools\io\io_shapes_dxf\io_shapes_dxf.vcxproj", "{75BFD0D8-116F-461E-8A86-C8DD97ECBC00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_shapes_las", "tools\io\io_shapes_las\io_shapes_las.vcxproj", "{315A9D51-F880-4E45-A890-60FCC4AC71DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_table", "tools\io\io_table\io_table.vcxproj", "{099E5D86-25B7-4346-9D45-8E3C193E391D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_georeference", "tools\projection\pj_georeference\pj_georeference.vcxproj", "{969DBBFF-8141-4155-A114-AA7CD4E2CE32}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_geotrans", "tools\projection\pj_geotrans\pj_geotrans.vcxproj", "{A4D73988-49F7-4CEF-803C-16C77454263C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pj_proj4", "tools\projection\pj_proj4\pj_proj4.vcxproj", "{05EC4432-92F8-4400-87EA-11542DA70D07}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_cellular_automata", "tools\simulation\sim_cellular_automata\sim_cellular_automata.vcxproj", "{A4AB51A9-7DB7-472A-A183-8E9F5B8F2081}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ecosystems_hugget", "tools\simulation\sim_ecosystems_hugget\sim_ecosystems_hugget.vcxproj", "{7A9F81EE-E5AC-4BD7-90AD-4B395F6143B0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_erosion", "tools\simulation\sim_erosion\sim_erosion.vcxproj", "{7335CC48-6A58-49F5-93AD-F0BB6C0FDF07}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_fire_spreading", "tools\simulation\sim_fire_spreading\sim_fire_spreading.vcxproj", "{657857DA-F8CF-4631-83B2-D1303BBDB573}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_hydrology", "tools\simulation\sim_hydrology\sim_hydrology.vcxproj", "{066F3C43-B3D4-4DA3-85A1-E8689911D75D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_ihacres", "tools\simulation\sim_ihacres\sim_ihacres.vcxproj", "{A3252A1C-CF6A-4370-8B1E-B2F10A78F9A5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_grid", "tools\statistics\statistics_grid\statistics_grid.vcxproj", "{6AAE33B1-8598-46E2-B9C2-96155E923835}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_kriging", "tools\statistics\statistics_kriging\statistics_kriging.vcxproj", "{D9D425E8-68D2-4E7F-BA7C-A3036756736D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F5137D6-9979-4829-9C23-45D9726D8554} = {5F5137D6-9979-4829-9C23-45D9726D8554}
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_points", "tools\statistics\statistics_points\statistics_points.vcxproj", "{D321C022-2424-43C5-99F4-C5DACCA89465}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "statistics_regression", "tools\statistics\statistics_regression\statistics_regression.vcxproj", "{93FF371F-57A6-422B-B15E-7B202039896D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_channels", "tools\terrain_analysis\ta_channels\ta_channels.vcxproj", "{87413146-7080-434B-B515-09E51DD32453}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_compound", "tools\terrain_analysis\ta_compound\ta_compound.vcxproj", "{4D0F256A-8D05-457C-8B45-7D889329A381}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_hydrology", "tools\terrain_analysis\ta_hydrology\ta_hydrology.vcxproj", "{F3D0170D-EEE3-4ACA-AAAB-F6583C49657A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_lighting", "tools\terrain_analysis\ta_lighting\ta_lighting.vcxproj", "{4CF536D1-03E8-4912-9BBB-F27AEA8A903D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_morphometry", "tools\terrain_analysis\ta_morphometry\ta_morphometry.vcxproj", "{B524843D-737C-49EB-95A5-30303227B004}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_preprocessor", "tools\terrain_analysis\ta_preprocessor\ta_preprocessor.vcxproj", "{8F88184A-F069-41FB-9CF9-00D2A3818D5A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_profiles", "tools\terrain_analysis\ta_profiles\ta_profiles.vcxproj", "{9BE5CD6A-2989-4D36-AA0D-7B0CE5B4207E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_slope_stability", "tools\terrain_analysis\ta_slope_stability\ta_slope_stability.vcxproj", "{0D8DDF61-FB58-46FC-ABC7-8808B7758214}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_photogrammetry", "tools\imagery\imagery_photogrammetry\imagery_photogrammetry.vcxproj", "{F9248181-10AE-42B7-8987-E14B2D7EA8E8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_virtual", "tools\io\io_virtual\io_virtual.vcxproj", "{04E57DDF-3500-4424-A1A0-A14C306B2CD1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_maxent", "tools\imagery\imagery_maxent\imagery_maxent.vcxproj", "{E1C454F8-2E71-485C-B598-F58C2741ECBA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_rivflow", "tools\simulation\sim_rivflow\sim_rivflow.vcxproj", "{7E3ED7B3-7336-4BB3-8E0E-E119B28377B9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "tools\simulation\sim_qm_of_esp\sim_qm_of_esp.vcxproj", "{C4C61CA0-282B-47D9-8046-C4C33D11C31A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_isocluster", "tools\imagery\imagery_isocluster\imagery_isocluster.vcxproj", "{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

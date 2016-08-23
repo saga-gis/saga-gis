@@ -1,1 +1,1 @@
-SUBDIRS = saga_core modules
+SUBDIRS = saga_core tools
