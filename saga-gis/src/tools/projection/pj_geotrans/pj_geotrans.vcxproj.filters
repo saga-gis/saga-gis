@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{e4ea9e42-2323-4e49-a2df-fd91ac43abac}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;rc;def;r;odl;idl;hpj;bat</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{0ffd3aba-1f98-45dc-bba6-d5a30c89d591}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl</Extensions>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{23a72118-c13b-4fb0-ad55-5ad5ddd772ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geotrans">
+      <UniqueIdentifier>{18245dc4-592d-4ac2-befe-96676b409358}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MLB_Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GEOTRANS_Base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GEOTRANS_Grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GEOTRANS_Shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\albers.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\azeq.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\bng.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\bonne.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\cassini.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\cyleqa.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\datum.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\eckert4.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\eckert6.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\ellipse.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\engine.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\eqdcyl.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\geocent.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\geoid.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\georef.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\gnomonic.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\grinten.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\lambert.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\lambert_1.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\lambert_2.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\loccart.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\mercator.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\mgrs.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\miller.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\mollweid.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\neys.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\nzmg.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\omerc.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\orthogr.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\polarst.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\polycon.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\sinusoid.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\stereogr.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\tranmerc.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\trcyleqa.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\ups.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+    <ClCompile Include="geotrans\utm.c">
+      <Filter>geotrans</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MLB_Interface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\grid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\mat_tools.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\parameters.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\saga_api.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\table.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\tin.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\metadata.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\tool_library.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="GEOTRANS_Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GEOTRANS_Grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GEOTRANS_Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\albers.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\azeq.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\bng.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\bonne.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\cassini.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\cyleqa.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\datum.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\eckert4.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\eckert6.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\ellipse.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\engine.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\eqdcyl.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\geocent.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\geoid.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\georef.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\geotrans.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\gnomonic.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\grinten.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\lambert.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\lambert_1.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\lambert_2.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\loccart.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\mercator.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\mgrs.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\miller.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\mollweid.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\neys.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\nzmg.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\omerc.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\orthogr.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\polarst.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\polycon.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\sinusoid.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\stereogr.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\tranmerc.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\trcyleqa.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\ups.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+    <ClInclude Include="geotrans\utm.h">
+      <Filter>geotrans</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

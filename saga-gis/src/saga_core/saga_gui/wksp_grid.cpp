@@ -359,16 +359,16 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		Get_Grid()->Get_Unit()
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_FACTOR"	, _TL("Z-Scale"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		m_Parameters("NODE_GENERAL")	, "GENERAL_Z_OFFSET"	, _TL("Z-Offset"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
 	//-----------------------------------------------------
@@ -383,6 +383,46 @@ void CWKSP_Grid::On_Create_Parameters(void)
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
 		), 0
+	);
+
+	m_Parameters.Add_Choice(
+		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SHADING"		, _TL("Shading"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("none"),
+			_TL("normal"),
+			_TL("inverse")
+		), 0
+	);
+
+	m_Parameters.Add_Double(
+		m_Parameters("DISPLAY_SHADING")	, "SHADING_AZIMUTH"		, _TL("Azimuth"),
+		_TL("Direction of the light source, measured in degree clockwise from the North direction."),
+		315.0, 0.0, true, 360.0, true
+	);
+
+	m_Parameters.Add_Double(
+		m_Parameters("DISPLAY_SHADING")	, "SHADING_HEIGHT"		, _TL("Height"),
+		_TL("Height of the light source, measured in degree above the horizon."),
+		45.0, 0.0, true, 90.0, true
+	);
+
+	m_Parameters.Add_Double(
+		m_Parameters("DISPLAY_SHADING")	, "SHADING_EXAGG"		, _TL("Exaggeration"),
+		_TL(""),
+		1.0
+	);
+
+	m_Parameters.Add_Double(
+		m_Parameters("DISPLAY_SHADING")	, "SHADING_MIN"			, _TL("Minimum"),
+		_TL(""),
+		0.0
+	);
+
+	m_Parameters.Add_Double(
+		m_Parameters("DISPLAY_SHADING")	, "SHADING_MAX"			, _TL("Maximum"),
+		_TL(""),
+		1.5
 	);
 
 	//-----------------------------------------------------
@@ -460,10 +500,10 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Cell Values...
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Bool(
 		m_Parameters("NODE_GENERAL")	, "VALUES_SHOW"		, _TL("Show Cell Values"),
 		_TL("shows cell values when zoomed"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
 	m_Parameters.Add_Font(
@@ -471,16 +511,16 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		m_Parameters("VALUES_SHOW")		, "VALUES_SIZE"		, _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 15, 0, true , 100.0, true
+		15, 0, true , 100.0, true
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Int(
 		m_Parameters("VALUES_SHOW")		, "VALUES_DECIMALS"	, _TL("Decimals"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 2
+		2
 	);
 
 	m_Parameters.Add_Choice(
@@ -500,10 +540,10 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Color(
 		m_Parameters("VALUES_EFFECT")	, "VALUES_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+		SG_GET_RGB(255, 255, 255)
 	);
 
 	//-----------------------------------------------------
@@ -519,10 +559,9 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
+	m_Parameters.Add_Double(
 		m_Parameters("MEMORY_MODE")		, "MEMORY_BUFFER_SIZE"		, _TL("Buffer Size MB"),
-		_TL(""),
-		PARAMETER_TYPE_Double
+		_TL("")
 	);
 }
 
@@ -655,15 +694,27 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DISPLAY_SHADING") )
+		{
+			pParameters->Set_Enabled("SHADING_AZIMUTH", pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_HEIGHT" , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_EXAGG"  , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_MIN"    , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_MAX"    , pParameter->asInt() != 0);
+		}
+
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL", Value == CLASSIFY_UNIQUE);
-			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"   , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_SHADE"    , Value == CLASSIFY_SHADE);
-			pParameters->Set_Enabled("NODE_OVERLAY"  , Value == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Value == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_LUT"          , Value == CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC"       , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_SHADE"        , Value == CLASSIFY_SHADE);
+			pParameters->Set_Enabled("NODE_OVERLAY"      , Value == CLASSIFY_OVERLAY);
+
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Value != CLASSIFY_LUT);
+			pParameters->Set_Enabled("DISPLAY_SHADING"   , Value != CLASSIFY_SHADE);
 		}
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_MODE") )
@@ -983,7 +1034,7 @@ bool CWKSP_Grid::Edit_On_Key_Down(int KeyCode)
 //---------------------------------------------------------
 bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
-	if( Key & MODULE_INTERACTIVE_KEY_LEFT )
+	if( Key & TOOL_INTERACTIVE_KEY_LEFT )
 	{
 		g_pACTIVE->Get_Attributes()->Set_Attributes();
 
@@ -1287,23 +1338,9 @@ void CWKSP_Grid::_Save_Image(void)
 	//-----------------------------------------------------
 	Parms.Set_Name(_TL("Save Grid as Image..."));
 
-	Parms.Add_Value(
-		NULL	, "WORLD"	, _TL("Save Georeference"),
-		wxT(""),
-		PARAMETER_TYPE_Bool, 1
-	);
-
-	Parms.Add_Value(
-		NULL	, "LG"	, _TL("Legend: Save"),
-		wxT(""),
-		PARAMETER_TYPE_Bool, 1
-	);
-
-	Parms.Add_Value(
-		NULL	, "LZ"	, _TL("Legend: Zoom"),
-		wxT(""),
-		PARAMETER_TYPE_Double, 1.0, 0, true
-	);
+	Parms.Add_Bool  (NULL, "WORLD", _TL("Save Georeference"), _TL(""), true);
+	Parms.Add_Bool  (NULL, "LG"   , _TL("Legend: Save"     ), _TL(""), true);
+	Parms.Add_Double(NULL, "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1.0, 0.0, true);
 
 	//-----------------------------------------------------
 	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
@@ -1454,6 +1491,21 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
+	m_Shade_Mode	= m_Parameters("COLORS_TYPE"    )->asInt() != CLASSIFY_SHADE
+					? m_Parameters("DISPLAY_SHADING")->asInt() : 0;
+
+	if( m_Shade_Mode && Get_Grid()->Get_ZRange() > 0.0 )
+	{
+	//	m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / Get_Grid()->Get_StdDev();
+		m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / 25.0;
+		m_Shade_Parms[1]	= sin(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
+		m_Shade_Parms[2]	= cos(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
+		m_Shade_Parms[3]	=     M_DEG_TO_RAD * m_Parameters("SHADING_AZIMUTH")->asDouble();
+		m_Shade_Parms[4]	= m_Parameters("SHADING_MIN")->asDouble();
+		m_Shade_Parms[5]	= m_Parameters("SHADING_MAX")->asDouble() - m_Shade_Parms[4];
+	}
+
+	//-----------------------------------------------------
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	if(	dc_Map.m_DC2World >= Get_Grid()->Get_Cellsize()
@@ -1534,6 +1586,60 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 }
 
 //---------------------------------------------------------
+inline void CWKSP_Grid::_Set_Shading(double Shade, int &Color)
+{
+	switch( m_Shade_Mode )
+	{
+	default:	Shade	=       Shade / M_PI_090;	break;
+	case  1:	Shade	= 1.0 - Shade / M_PI_090;	break;
+	}
+
+	Shade	= m_Shade_Parms[5] * (Shade - m_Shade_Parms[4]);
+
+	int	r	= (int)(Shade * SG_GET_R(Color)); if( r < 0 ) r = 0; else if( r > 255 ) r = 255;
+	int	g	= (int)(Shade * SG_GET_G(Color)); if( g < 0 ) g = 0; else if( g > 255 ) g = 255;
+	int	b	= (int)(Shade * SG_GET_B(Color)); if( b < 0 ) b = 0; else if( b > 255 ) b = 255;
+
+	Color	= SG_GET_RGB(r, g, b);
+}
+
+//---------------------------------------------------------
+inline int CWKSP_Grid::_Get_Shading(int x, int y, int Color)
+{
+	if( m_Shade_Mode )
+	{
+		double	s, a;
+
+		if( Get_Grid()->Get_Gradient(x, y, s, a) )
+		{
+			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
+
+			_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+		}
+	}
+
+	return( Color );
+}
+
+//---------------------------------------------------------
+inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resampling Resampling)
+{
+	if( m_Shade_Mode )
+	{
+		double	s, a;
+
+		if( Get_Grid()->Get_Gradient(x, y, s, a, Resampling) )
+		{
+			s	= M_PI_090 - atan(m_Shade_Parms[0] * tan(s));
+
+			_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
+		}
+	}
+
+	return( Color );
+}
+
+//---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC)
 {
 	double	xMap	= dc_Map.xDC2World(axDC);
@@ -1551,7 +1657,7 @@ void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resam
 
 				if( m_pClassify->Get_Class_Color_byValue(Value, c) )
 				{
-					dc_Map.IMG_Set_Pixel(xDC, yDC, c);
+					dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, c, Resampling));
 				}
 			}
 			else
@@ -1572,9 +1678,9 @@ void CWKSP_Grid::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resam
 
 				switch( Mode )
 				{
-				case 0:	dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(c[0], c[1], c[2]));	break;
-				case 1:	dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(c[1], c[0], c[2]));	break;
-				case 2:	dc_Map.IMG_Set_Pixel(xDC, yDC, SG_GET_RGB(c[1], c[2], c[0]));	break;
+				case 0:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[0], c[1], c[2]), Resampling));	break;
+				case 1:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[1], c[0], c[2]), Resampling));	break;
+				case 2:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[1], c[2], c[0]), Resampling));	break;
 				}
 			}
 		}
@@ -1608,7 +1714,7 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 		{
 			if( Get_Grid()->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(Get_Grid()->asDouble(x, y), Color) )
 			{
-				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, Color);
+				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, _Get_Shading(x, y, Color));
 			}
 		}
 	}

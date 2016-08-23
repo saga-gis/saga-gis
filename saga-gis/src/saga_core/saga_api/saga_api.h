@@ -81,8 +81,8 @@
 #include "grid_pyramid.h"
 #include "mat_tools.h"
 #include "metadata.h"
-#include "module.h"
-#include "module_library.h"
+#include "tool.h"
+#include "tool_library.h"
 #include "parameters.h"
 #include "pointcloud.h"
 #include "saga_api.h"
@@ -115,7 +115,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "module_library.h"
+#include "tool_library.h"
 #include "data_manager.h"
 
 

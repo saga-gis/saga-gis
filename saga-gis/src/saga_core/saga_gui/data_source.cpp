@@ -82,8 +82,8 @@
 #include "wksp_data_layers.h"
 #include "wksp_table.h"
 
-#include "wksp_module_library.h"
-#include "wksp_module.h"
+#include "wksp_tool_library.h"
+#include "wksp_tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -227,12 +227,12 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 			m_pFiles->SetPath(((CWKSP_Map_Layer      *)pItem)->Get_Layer()->Get_Object()->Get_File_Name(false));
 			break;
 
-		case WKSP_ITEM_Module_Library:
-		//	m_pFiles->SetPath(((CWKSP_Module_Library *)pItem)->Get_File_Name());
+		case WKSP_ITEM_Tool_Library:
+		//	m_pFiles->SetPath(((CWKSP_Tool_Library *)pItem)->Get_File_Name());
 			break;
 
-		case WKSP_ITEM_Module:
-		//	m_pFiles->SetPath(((CWKSP_Module         *)pItem)->Get_File_Name());
+		case WKSP_ITEM_Tool:
+		//	m_pFiles->SetPath(((CWKSP_Tool         *)pItem)->Get_File_Name());
 			break;
 
 		default:

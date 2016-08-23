@@ -126,7 +126,7 @@ dataobject.h
 geo_tools.h
 grid.h
 mat_tools.h
-module.h
+tool.h
 parameters.h
 pdf_document.h
 shapes.h

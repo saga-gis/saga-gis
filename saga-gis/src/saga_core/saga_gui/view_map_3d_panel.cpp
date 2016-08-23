@@ -71,8 +71,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CView_Map_3DPanel, CSG_3DView_Panel)
-	EVT_KEY_DOWN	(CView_Map_3DPanel::On_Key_Down)
+BEGIN_EVENT_TABLE(CVIEW_Map_3DPanel, CSG_3DView_Panel)
+	EVT_KEY_DOWN	(CVIEW_Map_3DPanel::On_Key_Down)
 END_EVENT_TABLE()
 
 
@@ -83,7 +83,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CView_Map_3DPanel::CView_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
+CVIEW_Map_3DPanel::CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 	: CSG_3DView_Panel(pParent, &m_Map)
 {
 	m_pDEM		= NULL;
@@ -101,7 +101,7 @@ CView_Map_3DPanel::CView_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CView_Map_3DPanel::Update_Statistics(void)
+void CVIEW_Map_3DPanel::Update_Statistics(void)
 {
 	//-----------------------------------------------------
 	CSG_Rect	r(m_pDEM->Get_Extent());
@@ -151,7 +151,7 @@ void CView_Map_3DPanel::Update_Statistics(void)
 }
 
 //---------------------------------------------------------
-void CView_Map_3DPanel::Update_Parent(void)
+void CVIEW_Map_3DPanel::Update_Parent(void)
 {
 	((CVIEW_Map_3D *)GetParent())->Update_StatusBar();
 }
@@ -162,7 +162,7 @@ void CView_Map_3DPanel::Update_Parent(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
+bool CVIEW_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
 {
 	if( m_pDEM == pDEM && m_DEM_Res == DEM_Res && m_Map_Res == Map_Res )
 	{
@@ -181,13 +181,13 @@ bool CView_Map_3DPanel::Set_Options(CSG_Grid *pDEM, int DEM_Res, int Map_Res)
 }
 
 //---------------------------------------------------------
-bool CView_Map_3DPanel::Inc_DEM_Res(int Step)
+bool CVIEW_Map_3DPanel::Inc_DEM_Res(int Step)
 {
 	return( m_DEM_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res + Step, m_Map_Res) : false );
 }
 
 //---------------------------------------------------------
-bool CView_Map_3DPanel::Inc_Map_Res(int Step)
+bool CVIEW_Map_3DPanel::Inc_Map_Res(int Step)
 {
 	return( m_Map_Res + Step >= 2 ? Set_Options(m_pDEM, m_DEM_Res, m_Map_Res + Step) : false );
 }
@@ -198,7 +198,7 @@ bool CView_Map_3DPanel::Inc_Map_Res(int Step)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CView_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
+void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
@@ -225,7 +225,7 @@ void CView_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Map_3DPanel::On_Before_Draw(void)
+bool CVIEW_Map_3DPanel::On_Before_Draw(void)
 {
 	if( m_Play_State == SG_3DVIEW_PLAY_STOP )
 	{
@@ -241,7 +241,7 @@ bool CView_Map_3DPanel::On_Before_Draw(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CView_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
+inline bool CVIEW_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 {
 	if( m_DEM.is_InGrid(x, y) )
 	{
@@ -263,7 +263,7 @@ inline bool CView_Map_3DPanel::Get_Node(int x, int y, TSG_Triangle_Node &Node)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CView_Map_3DPanel::On_Draw(void)
+bool CVIEW_Map_3DPanel::On_Draw(void)
 {
 	if( !m_DEM.is_Valid() )
 	{

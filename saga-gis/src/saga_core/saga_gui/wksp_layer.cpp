@@ -517,23 +517,23 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 //---------------------------------------------------------
 void CWKSP_Layer::_Set_Projection(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 15);	// CCRS_Picker
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("pj_proj4"), 15);	// CCRS_Picker
 
-	if(	pModule && Get_Object() )
+	if(	pTool && Get_Object() )
 	{
-		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
+		CSG_Parameters	P; P.Assign(pTool->Get_Parameters());
 
-		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4", Get_Object()->Get_Projection().Get_Proj4())
-		&&	pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters())
-		&&  pModule->Execute() )
+		if( pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", Get_Object()->Get_Projection().Get_Proj4())
+		&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters())
+		&&  pTool->Execute() )
 		{
-			Get_Object()->Get_Projection().Create(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			Get_Object()->Get_Projection().Create(pTool->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 			Get_Object()->Set_Modified();
 
 			DataObject_Changed();
 		}
 
-		pModule->Get_Parameters()->Assign_Values(&P);
+		pTool->Get_Parameters()->Assign_Values(&P);
 	}
 }
 

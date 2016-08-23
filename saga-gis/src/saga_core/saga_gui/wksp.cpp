@@ -77,8 +77,8 @@
 
 #include "wksp.h"
 
-#include "wksp_module_control.h"
-#include "wksp_module_manager.h"
+#include "wksp_tool_control.h"
+#include "wksp_tool_manager.h"
 
 #include "wksp_data_control.h"
 #include "wksp_data_manager.h"
@@ -98,7 +98,7 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_MODULES	= 0,
+	IMG_TOOLS	= 0,
 	IMG_DATA,
 	IMG_MAPS
 };
@@ -162,12 +162,12 @@ CWKSP::CWKSP(wxWindow *pParent)
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
 
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MODULES);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_TOOLS);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_DATA);
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
 
 	//-----------------------------------------------------
-	m_pModules		= new CWKSP_Module_Control	(this);
+	m_pTools		= new CWKSP_Tool_Control	(this);
 
 	SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
 	m_pData			= new CWKSP_Data_Control	(pNotebook);
@@ -184,7 +184,7 @@ void CWKSP::Add_Pages(void)
 	long	lValue;
 
 	//-----------------------------------------------------
-	AddPage(m_pModules          , _TL("Tools"), false, IMG_MODULES);
+	AddPage(m_pTools          , _TL("Tools"), false, IMG_TOOLS);
 	AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA);
 	AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS);
 
@@ -245,9 +245,9 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 	{
 		CWKSP_Base_Item	*pItem	= NULL;
 
-		if( GetPage(event.GetSelection()) == m_pModules )
+		if( GetPage(event.GetSelection()) == m_pTools )
 		{
-			pItem	= m_pModules->Get_Item_Selected();
+			pItem	= m_pTools->Get_Item_Selected();
 		}
 		else if( GetPage(event.GetSelection()) == m_pData->GetParent() )
 		{
@@ -293,7 +293,7 @@ void CWKSP::On_Command(wxCommandEvent &event)
 			{
 				switch( GetCurrentPage()->GetId() )
 				{
-				case ID_WND_WKSP_MODULES:	m_pModules->On_Command(event);	break;
+				case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event);	break;
 				case ID_WND_WKSP_DATA:		m_pData   ->On_Command(event);	break;
 				case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command(event);	break;
 				}
@@ -306,19 +306,19 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		{
 			switch( GetCurrentPage()->GetId() )
 			{
-			case ID_WND_WKSP_MODULES:	m_pModules->On_Command(event);	break;
+			case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event);	break;
 			case ID_WND_WKSP_DATA:		m_pData   ->On_Command(event);	break;
 			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command(event);	break;
 			}
 		}
 		break;
 
-	case ID_CMD_MODULES_OPEN:
-		m_pModules->On_Command(event);
+	case ID_CMD_TOOLS_OPEN:
+		m_pTools->On_Command(event);
 		break;
 
-	case ID_CMD_MODULES_SEARCH:
-		m_pModules->On_Command(event);
+	case ID_CMD_TOOLS_SEARCH:
+		m_pTools->On_Command(event);
 		break;
 
 	case ID_CMD_DATA_PROJECT_OPEN:
@@ -350,7 +350,7 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command_UI(event) )
 		{
-			m_pModules->On_Command_UI(event);
+			m_pTools->On_Command_UI(event);
 			m_pData   ->On_Command_UI(event);
 			m_pMaps   ->On_Command_UI(event);
 		}
@@ -361,7 +361,7 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 		{
 			switch( GetCurrentPage()->GetId() )
 			{
-			case ID_WND_WKSP_MODULES:	m_pModules->On_Command_UI(event);	break;
+			case ID_WND_WKSP_TOOLS:	m_pTools->On_Command_UI(event);	break;
 			case ID_WND_WKSP_DATA:		m_pData   ->On_Command_UI(event);	break;
 			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command_UI(event);	break;
 			}
@@ -371,8 +371,8 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_DATA_OPEN:
 		break;
 
-	case ID_CMD_MODULES_SEARCH:
-		m_pModules->On_Command_UI(event);
+	case ID_CMD_TOOLS_SEARCH:
+		m_pTools->On_Command_UI(event);
 		break;
 
 	case ID_CMD_DATA_PROJECT_SAVE:
@@ -385,14 +385,14 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
-void CWKSP::On_Command_Module(wxCommandEvent &event)
+void CWKSP::On_Command_Tool(wxCommandEvent &event)
 {
-	m_pModules->On_Execute(event);
+	m_pTools->On_Execute(event);
 }
 
-void CWKSP::On_Command_UI_Module(wxUpdateUIEvent &event)
+void CWKSP::On_Command_UI_Tool(wxUpdateUIEvent &event)
 {
-	m_pModules->On_Execute_UI(event);
+	m_pTools->On_Execute_UI(event);
 }
 
 
@@ -425,7 +425,7 @@ bool CWKSP::Open(void)
 //---------------------------------------------------------
 bool CWKSP::Open(const wxString &File_Name)
 {
-	return(	m_pModules	->Get_Manager()->Open(File_Name)
+	return(	m_pTools	->Get_Manager()->Open(File_Name)
 		||	m_pData		->Get_Manager()->Open(File_Name)
 	);
 }

@@ -1106,22 +1106,22 @@ void CWKSP_Map::_Synchronise_Extents(void)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Projection(void)
 {
-	CSG_Module	*pModule	= SG_Get_Module_Library_Manager().Get_Module(SG_T("pj_proj4"), 15);	// CCRS_Picker
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("pj_proj4"), 15);	// CCRS_Picker
 
-	if(	pModule )
+	if(	pTool )
 	{
-		CSG_Parameters	P; P.Assign(pModule->Get_Parameters());
+		CSG_Parameters	P; P.Assign(pTool->Get_Parameters());
 
-		if( pModule->Get_Parameters()->Set_Parameter("CRS_PROJ4" , m_Projection.Get_Proj4())
-		&&	pModule->On_Before_Execution() && DLG_Parameters(pModule->Get_Parameters())
-		&&  pModule->Execute() )
+		if( pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4" , m_Projection.Get_Proj4())
+		&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters())
+		&&  pTool->Execute() )
 		{
-			m_Projection.Assign(pModule->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			m_Projection.Assign(pTool->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 			View_Refresh(false);
 		}
 
-		pModule->Get_Parameters()->Assign_Values(&P);
+		pTool->Get_Parameters()->Assign_Values(&P);
 	}
 }
 
@@ -1501,11 +1501,11 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	//-----------------------------------------------------
 	bool	bResult;
 
-	SG_RUN_MODULE(bResult, "io_grid_image", 2,
-			SG_MODULE_PARAMETER_SET("GRID"     , &Map)
-		&&	SG_MODULE_PARAMETER_SET("FILE"     , FileName.GetFullPath().wc_str())
-		&&	SG_MODULE_PARAMETER_SET("COLOURING", 4)	// rgb coded values
-		&&	SG_MODULE_PARAMETER_SET("OUTPUT"   , 2)	// kmz file
+	SG_RUN_TOOL(bResult, "io_grid_image", 2,
+			SG_TOOL_PARAMETER_SET("GRID"     , &Map)
+		&&	SG_TOOL_PARAMETER_SET("FILE"     , FileName.GetFullPath().wc_str())
+		&&	SG_TOOL_PARAMETER_SET("COLOURING", 4)	// rgb coded values
+		&&	SG_TOOL_PARAMETER_SET("OUTPUT"   , 2)	// kmz file
 	);
 
 	if( bResult && P("LOAD")->asBool() )

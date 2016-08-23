@@ -71,7 +71,7 @@
 #include "wksp_table.h"
 #include "wksp_layer.h"
 #include "wksp_map_layer.h"
-#include "wksp_module_manager.h"
+#include "wksp_tool_manager.h"
 
 #include "active.h"
 #include "active_history.h"
@@ -132,7 +132,7 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
 	IMG_ADD_TO_TREECTRL(ID_IMG_NB_ACTIVE_HISTORY);		// ROOT
 	IMG_ADD_TO_TREECTRL(ID_IMG_TB_MAP_ZOOM_NEXT);		// NODE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_MODULE);			// TOOL
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TOOL);			// TOOL
 	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);				// ENTRY
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);				// GRID
 	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TABLE);				// TABLE
@@ -225,7 +225,7 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 
 	if( pObject && DLG_Get_Number(Depth, _TL("Delete History Entries"), _TL("Depth")) )
 	{
-		pObject->Get_History().Del_Children(Depth, Depth > 0 ? SG_T("MODULE") : SG_T(""));
+		pObject->Get_History().Del_Children(Depth, Depth > 0 ? SG_T("TOOL") : SG_T(""));
 		pObject->Set_Modified(true);
 
 		Set_Item(g_pACTIVE->Get_Active());
@@ -247,7 +247,7 @@ void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
 	&&  DLG_Save(File, _TL("Save History as Model"), Filter)
 	&&  pObject->Save_History_to_Model(&File) )
 	{
-		g_pModules->Open(File);
+		g_pTools->Open(File);
 	}
 }
 
@@ -359,9 +359,9 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pModule	= Data("MODULE");
+	CSG_MetaData	*pTool	= Data("TOOL") ? Data("TOOL") : Data("MODULE");
 
-	if( !pModule || !pModule->Get_Child("OUTPUT") )
+	if( !pTool || !pTool->Get_Child("OUTPUT") )
 	{
 		if( Data("FILE") )
 		{
@@ -378,17 +378,17 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 	{
 		int	i;
 
-		wxTreeItemId	Module	= AppendItem(Parent, wxString::Format("%s [%s]",
-			pModule->Get_Child("OUTPUT")->Get_Property("name"), pModule->Get_Property("name")
+		wxTreeItemId	Tool	= AppendItem(Parent, wxString::Format("%s [%s]",
+			pTool->Get_Child("OUTPUT")->Get_Property("name"), pTool->Get_Property("name")
 			), IMG_TOOL
 		);
 
 		//-------------------------------------------------
-		wxTreeItemId	Options	= AppendItem(Module, _TL("Options"), IMG_ENTRY);
+		wxTreeItemId	Options	= AppendItem(Tool, _TL("Options"), IMG_ENTRY);
 
-		for(i=0; i<pModule->Get_Children_Count(); i++)	// Options
+		for(i=0; i<pTool->Get_Children_Count(); i++)	// Options
 		{
-			CSG_MetaData		*pEntry	= pModule->Get_Child(i);
+			CSG_MetaData		*pEntry	= pTool->Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
 			TSG_Parameter_Type	Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property("type"));
 
@@ -441,21 +441,21 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 		}
 
 		//-------------------------------------------------
-		for(i=0; i<pModule->Get_Children_Count(); i++)	// Input Data
+		for(i=0; i<pTool->Get_Children_Count(); i++)	// Input Data
 		{
-			CSG_MetaData		*pEntry	= pModule->Get_Child(i);
+			CSG_MetaData		*pEntry	= pTool->Get_Child(i);
 			CSG_String			Name	= pEntry->Get_Property("name");
 			TSG_Parameter_Type	Type	= SG_Parameter_Type_Get_Type(pEntry->Get_Property("type"));
 
 			if( !pEntry->Get_Name().Cmp("INPUT") )
 			{
-				_Add_History(AppendItem(Module, wxString::Format("%s", Name.c_str()), _Get_Image(Type)), *pEntry);
+				_Add_History(AppendItem(Tool, wxString::Format("%s", Name.c_str()), _Get_Image(Type)), *pEntry);
 			}
 			else if( !pEntry->Get_Name().Cmp("INPUT_LIST") )
 			{
 				if( pEntry->Get_Children_Count() > 0 )
 				{
-					wxTreeItemId	List	= AppendItem(Module, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
+					wxTreeItemId	List	= AppendItem(Tool, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
 
 					for(int j=0; j<pEntry->Get_Children_Count(); j++)
 					{
@@ -467,7 +467,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 			}
 		}
 
-		Expand(Module);
+		Expand(Tool);
 	}
 
 	Expand(Parent);
@@ -491,9 +491,9 @@ bool CACTIVE_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	*pModule	= Data("MODULE");
+	CSG_MetaData	*pTool	= Data("MODULE");
 
-	if( !pModule )
+	if( !pTool )
 	{
 		if( Data.Get_Children_Count() > 0 )
 		{
@@ -526,10 +526,10 @@ bool CACTIVE_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 	{
 		int	i;
 
-		wxTreeItemId	Module	= AppendItem(Parent, pModule->Get_Content().c_str(), IMG_TOOL);
+		wxTreeItemId	Tool	= AppendItem(Parent, pTool->Get_Content().c_str(), IMG_TOOL);
 
 		//-------------------------------------------------
-		wxTreeItemId	Options	= AppendItem(Module, _TL("Options"), IMG_ENTRY);
+		wxTreeItemId	Options	= AppendItem(Tool, _TL("Options"), IMG_ENTRY);
 
 		for(i=0; i<Data.Get_Children_Count(); i++)	// Options
 		{
@@ -592,13 +592,13 @@ bool CACTIVE_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 
 			if( !pEntry->Get_Name().Cmp("DATA") )
 			{
-				_Add_History_OLD(AppendItem(Module, wxString::Format("%s", Name.c_str()), _Get_Image(Type)), *pEntry);
+				_Add_History_OLD(AppendItem(Tool, wxString::Format("%s", Name.c_str()), _Get_Image(Type)), *pEntry);
 			}
 			else if( !pEntry->Get_Name().Cmp("DATA_LIST") )
 			{
 				if( pEntry->Get_Children_Count() > 0 )
 				{
-					wxTreeItemId	List	= AppendItem(Module, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
+					wxTreeItemId	List	= AppendItem(Tool, wxString::Format("%s %s", Name.c_str(), _TL("List")), _Get_Image(Type));
 
 					for(int j=0; j<pEntry->Get_Children_Count(); j++)
 					{
@@ -610,7 +610,7 @@ bool CACTIVE_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 			}
 		}
 
-		Expand(Module);
+		Expand(Tool);
 	}
 
 	Expand(Parent);

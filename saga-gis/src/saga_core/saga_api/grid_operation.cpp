@@ -1004,25 +1004,28 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bDown, bool bNoEdges)	
 /**
   * Calculates the gradient of a cell interpreting all grid cell values
   * as elevation surface. Calculation uses the formulas proposed
-  * by Zevenbergen & Thorne (1986).
+  * by Zevenbergen & Thorne (1986). Slope and aspect values are calulated
+  * in radians. Aspect is zero for the North direction and increases
+  * clockwise.
 */
 //---------------------------------------------------------
-bool CSG_Grid::Get_Gradient(int x, int y, double &Incline, double &Azimuth) const
+bool CSG_Grid::Get_Gradient(int x, int y, double &Slope, double &Aspect) const
 {
 	if( is_InGrid(x, y) )
 	{
 		double	z	= asDouble(x, y), dz[4];
 
-		for(int i=0, iDir=0; i<4; i++, iDir+=2)
+		for(int i=0, iDir=0, ix, iy; i<4; i++, iDir+=2)
 		{
-			int	ix	= m_System.Get_xTo(iDir, x);
-			int	iy	= m_System.Get_yTo(iDir, y);
-
-			if( is_InGrid(ix, iy) )
+			if( is_InGrid(
+				ix = m_System.Get_xTo  (iDir, x),
+				iy = m_System.Get_yTo  (iDir, y)) )
 			{
 				dz[i]	= asDouble(ix, iy) - z;
 			}
-			else if( is_InGrid(ix = m_System.Get_xFrom(iDir, x), iy = m_System.Get_yFrom(iDir, y)) )
+			else if( is_InGrid(
+				ix = m_System.Get_xFrom(iDir, x),
+				iy = m_System.Get_yFrom(iDir, y)) )
 			{
 				dz[i]	= z - asDouble(ix, iy);
 			}
@@ -1032,19 +1035,81 @@ bool CSG_Grid::Get_Gradient(int x, int y, double &Incline, double &Azimuth) cons
 			}
 		}
 
-		double G	= (dz[0] - dz[2]) / (2.0 * m_System.Get_Cellsize());
-        double H	= (dz[1] - dz[3]) / (2.0 * m_System.Get_Cellsize());
+		double G	= (dz[0] - dz[2]) / (2.0 * Get_Cellsize());
+        double H	= (dz[1] - dz[3]) / (2.0 * Get_Cellsize());
 
-		Incline	= atan(sqrt(G*G + H*H));
-		Azimuth	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
+		Slope	= atan(sqrt(G*G + H*H));
+		Aspect	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
 
 		return( true );
 	}
 
-	Incline	=  0.0;
-	Azimuth	= -1.0;
+	Slope	=  0.0;
+	Aspect	= -1.0;
 
 	return( false );
+}
+
+//---------------------------------------------------------
+/**
+  * Calculates the gradient for the given world coordinate.
+  * Calculation uses the formulas proposed by Zevenbergen & Thorne (1986).
+  * Slope and aspect values are calulated in radians.
+  * Aspect is zero for the North direction and increases clockwise.
+*/
+//---------------------------------------------------------
+bool CSG_Grid::Get_Gradient(double x, double y, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation) const
+{
+	double	z, iz, dz[4];
+
+	if( Get_Value(x, y, z, Interpolation, false, true) )
+	{
+		for(int i=0, iDir=0; i<4; i++, iDir+=2)
+		{
+			if( Get_Value(
+				x + Get_Cellsize() * m_System.Get_xTo  (iDir),
+				y + Get_Cellsize() * m_System.Get_yTo  (iDir), iz, Interpolation, false, true) )
+			{
+				dz[i]	= iz - z;
+			}
+			else if( Get_Value(
+				x + Get_Cellsize() * m_System.Get_xFrom(iDir),
+				y + Get_Cellsize() * m_System.Get_yFrom(iDir), iz, Interpolation, false, true) )
+			{
+				dz[i]	= z - iz;
+			}
+			else
+			{
+				dz[i]	= 0.0;
+			}
+		}
+
+		double G	= (dz[0] - dz[2]) / (2.0 * Get_Cellsize());
+        double H	= (dz[1] - dz[3]) / (2.0 * Get_Cellsize());
+
+		Slope	= atan(sqrt(G*G + H*H));
+		Aspect	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
+
+		return( true );
+	}
+
+	Slope	=  0.0;
+	Aspect	= -1.0;
+
+	return( false );
+}
+
+//---------------------------------------------------------
+/**
+  * Calculates the gradient for the given world coordinate.
+  * Calculation uses the formulas proposed by Zevenbergen & Thorne (1986).
+  * Slope and aspect values are calulated in radians.
+  * Aspect is zero for the North direction and increases clockwise.
+*/
+//---------------------------------------------------------
+bool CSG_Grid::Get_Gradient(const TSG_Point &p, double &Incline, double &Azimuth, TSG_Grid_Resampling Interpolation) const
+{
+	return( Get_Gradient(p.x, p.y, Incline, Azimuth, Interpolation) );
 }
 
 

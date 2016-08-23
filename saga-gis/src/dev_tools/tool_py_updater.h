@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      dev_tools                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTool_Py_Updater : public CSG_Module
+class CTool_Py_Updater : public CSG_Tool
 {
 public:
 	CTool_Py_Updater(void);

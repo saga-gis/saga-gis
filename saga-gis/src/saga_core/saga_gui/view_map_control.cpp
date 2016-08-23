@@ -71,7 +71,7 @@
 #include "dc_helper.h"
 
 #include "wksp_map.h"
-#include "wksp_module.h"
+#include "wksp_tool.h"
 #include "wksp_grid.h"
 #include "wksp_shapes.h"
 
@@ -86,12 +86,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_KEYS(e)	((e.LeftIsDown()   ? MODULE_INTERACTIVE_KEY_LEFT   : 0)\
-					|(e.MiddleIsDown() ? MODULE_INTERACTIVE_KEY_MIDDLE : 0)\
-					|(e.RightIsDown()  ? MODULE_INTERACTIVE_KEY_RIGHT  : 0)\
-					|(e.ShiftDown()    ? MODULE_INTERACTIVE_KEY_SHIFT  : 0)\
-					|(e.AltDown()      ? MODULE_INTERACTIVE_KEY_ALT    : 0)\
-					|(e.ControlDown()  ? MODULE_INTERACTIVE_KEY_CTRL   : 0))
+#define GET_KEYS(e)	((e.LeftIsDown()   ? TOOL_INTERACTIVE_KEY_LEFT   : 0)\
+					|(e.MiddleIsDown() ? TOOL_INTERACTIVE_KEY_MIDDLE : 0)\
+					|(e.RightIsDown()  ? TOOL_INTERACTIVE_KEY_RIGHT  : 0)\
+					|(e.ShiftDown()    ? TOOL_INTERACTIVE_KEY_SHIFT  : 0)\
+					|(e.AltDown()      ? TOOL_INTERACTIVE_KEY_ALT    : 0)\
+					|(e.ControlDown()  ? TOOL_INTERACTIVE_KEY_CTRL   : 0))
 
 //---------------------------------------------------------
 #define STANDARD_ZOOM_FACTOR	50
@@ -141,7 +141,7 @@ CVIEW_Map_Control::CVIEW_Map_Control(CVIEW_Map *pParent, CWKSP_Map *pMap)
 	m_Mode		= -1;
 	Set_Mode(MAP_MODE_ZOOM);
 
-	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
+	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_NONE;
 }
 
 //---------------------------------------------------------
@@ -208,9 +208,9 @@ inline void CVIEW_Map_Control::_Set_StatusBar(CSG_Point ptWorld)
 	{
 		bBuisy	= true;
 
-		CSG_Module	*pProjector	= NULL;
+		CSG_Tool	*pProjector	= NULL;
 
-		if( m_pMap->Get_Parameter("GCS_POSITION")->asBool() && m_pMap->Get_Projection().is_Okay() && (pProjector = SG_Get_Module_Library_Manager().Get_Module("pj_proj4", 2)) != NULL )	// Coordinate Transformation (Shapes)
+		if( m_pMap->Get_Parameter("GCS_POSITION")->asBool() && m_pMap->Get_Projection().is_Okay() && (pProjector = SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2)) != NULL )	// Coordinate Transformation (Shapes)
 		{
 			if( pProjector->is_Executing() )
 			{
@@ -320,7 +320,7 @@ inline double CVIEW_Map_Control::_Get_World(double xClient)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB)
 {
-	if( m_Drag_Mode != MODULE_INTERACTIVE_DRAG_NONE )
+	if( m_Drag_Mode != TOOL_INTERACTIVE_DRAG_NONE )
 	{
 		wxClientDC	dc(this);
 
@@ -328,15 +328,15 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB)
 
 		switch( m_Drag_Mode )
 		{
-		case MODULE_INTERACTIVE_DRAG_LINE:
+		case TOOL_INTERACTIVE_DRAG_LINE:
 			dc.DrawLine			(ptA.x, ptA.y, ptB.x, ptB.y);
 			break;
 
-		case MODULE_INTERACTIVE_DRAG_BOX:
+		case TOOL_INTERACTIVE_DRAG_BOX:
 			dc.DrawRectangle	(ptA.x, ptA.y, ptB.x - ptA.x, ptB.y - ptA.y);
 			break;
 
-		case MODULE_INTERACTIVE_DRAG_CIRCLE:
+		case TOOL_INTERACTIVE_DRAG_CIRCLE:
 			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB.x, ptB.y));
 			break;
 		}
@@ -346,7 +346,7 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB)
 //---------------------------------------------------------
 void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_New)
 {
-	if( m_Drag_Mode != MODULE_INTERACTIVE_DRAG_NONE )
+	if( m_Drag_Mode != TOOL_INTERACTIVE_DRAG_NONE )
 	{
 		wxClientDC	dc(this);
 
@@ -354,17 +354,17 @@ void CVIEW_Map_Control::_Draw_Inverse(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_
 
 		switch( m_Drag_Mode )
 		{
-		case MODULE_INTERACTIVE_DRAG_LINE:
+		case TOOL_INTERACTIVE_DRAG_LINE:
 			dc.DrawLine			(ptA.x, ptA.y, ptB_Old.x, ptB_Old.y);
 			dc.DrawLine			(ptA.x, ptA.y, ptB_New.x, ptB_New.y);
 			break;
 
-		case MODULE_INTERACTIVE_DRAG_BOX:
+		case TOOL_INTERACTIVE_DRAG_BOX:
 			dc.DrawRectangle	(ptA.x, ptA.y, ptB_Old.x - ptA.x, ptB_Old.y - ptA.y);
 			dc.DrawRectangle	(ptA.x, ptA.y, ptB_New.x - ptA.x, ptB_New.y - ptA.y);
 			break;
 
-		case MODULE_INTERACTIVE_DRAG_CIRCLE:
+		case TOOL_INTERACTIVE_DRAG_CIRCLE:
 			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB_Old.x, ptB_Old.y));
 			dc.DrawCircle		(ptA.x, ptA.y, (int)SG_Get_Distance(ptA.x, ptA.y, ptB_New.x, ptB_New.y));
 			break;
@@ -688,28 +688,28 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule && g_pModule->is_Interactive() )
+		if( g_pTool && g_pTool->is_Interactive() )
 		{
-			m_Drag_Mode		= ((CSG_Module_Interactive *)g_pModule->Get_Module())->Get_Drag_Mode();
-			bCaptureMouse	= !g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_LDOWN, GET_KEYS(event));
+			m_Drag_Mode		= ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
+			bCaptureMouse	= !g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
 			switch(	Get_Active_Layer()->Get_Type() )
 			{
 			default:
-				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+				m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 				break;
 
 			case WKSP_ITEM_Grid:
 			case WKSP_ITEM_PointCloud:
-				m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
+				m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_BOX;
 				break;
 
 			case WKSP_ITEM_Shapes:
 				m_Drag_Mode		= ((CWKSP_Shapes *)Get_Active_Layer())->is_Editing()
-								? MODULE_INTERACTIVE_DRAG_NONE
-								: MODULE_INTERACTIVE_DRAG_BOX;
+								? TOOL_INTERACTIVE_DRAG_NONE
+								: TOOL_INTERACTIVE_DRAG_BOX;
 				break;
 			}
 
@@ -719,23 +719,23 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_DISTANCE:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_BOX;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_BOX;
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 		Set_Mode(MAP_MODE_PAN_DOWN);
 		break;
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN_DOWN:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 		break;
 	}
 
@@ -764,19 +764,19 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
-	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
+	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_NONE;
 
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_LUP, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
-			Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|MODULE_INTERACTIVE_KEY_LEFT);
+			Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT);
 		}
 		break;
 
@@ -809,9 +809,9 @@ void CVIEW_Map_Control::On_Mouse_LDClick(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_LDCLICK, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_LDCLICK, GET_KEYS(event));
 		}
 		break;
 
@@ -836,15 +836,15 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 	m_Mouse_Down	= m_Mouse_Move	= event.GetPosition();
 
 	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
-	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
+	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_NONE;
 
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_RDOWN, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{
@@ -863,17 +863,17 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 {
 	wxMenu	*pMenu	= NULL;
 
-	m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+	m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_RUP, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) && !Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|MODULE_INTERACTIVE_KEY_RIGHT) )
+		else if( m_pMap->Find_Layer(Get_Active_Layer()) && !Get_Active_Layer()->Edit_On_Mouse_Up(_Get_World(event.GetPosition()), _Get_World(1.0), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
 		{
 			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
 		}
@@ -924,9 +924,9 @@ void CVIEW_Map_Control::On_Mouse_RDClick(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_RDCLICK, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_RDCLICK, GET_KEYS(event));
 		}
 		break;
 
@@ -966,9 +966,9 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			g_pModule->Execute(_Get_World(event.GetPosition()), MODULE_INTERACTIVE_MDOWN, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), TOOL_INTERACTIVE_MDOWN, GET_KEYS(event));
 		}
 		break;
 
@@ -978,7 +978,7 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_ZOOM:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 		Set_Mode(MAP_MODE_PAN_DOWN);
 		break;
 
@@ -988,7 +988,7 @@ void CVIEW_Map_Control::On_Mouse_MDown(wxMouseEvent &event)
 
 	//-----------------------------------------------------
 	case MAP_MODE_PAN_DOWN:
-		m_Drag_Mode		= MODULE_INTERACTIVE_DRAG_NONE;
+		m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
 		break;
 	}
 
@@ -1010,7 +1010,7 @@ void CVIEW_Map_Control::On_Mouse_MUp(wxMouseEvent &event)
 	}
 
 	_Draw_Inverse(m_Mouse_Down, event.GetPosition());
-	m_Drag_Mode	= MODULE_INTERACTIVE_DRAG_NONE;
+	m_Drag_Mode	= TOOL_INTERACTIVE_DRAG_NONE;
 
 	switch( m_Mode )
 	{
@@ -1059,15 +1059,15 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 	{
 	//-----------------------------------------------------
 	case MAP_MODE_SELECT:
-		if( g_pModule )
+		if( g_pTool )
 		{
-			TSG_Module_Interactive_Mode	iMode
-				= event.LeftIsDown()	? MODULE_INTERACTIVE_MOVE_LDOWN
-				: event.MiddleIsDown()	? MODULE_INTERACTIVE_MOVE_MDOWN
-				: event.RightIsDown()	? MODULE_INTERACTIVE_MOVE_RDOWN
-										: MODULE_INTERACTIVE_MOVE;
+			TSG_Tool_Interactive_Mode	iMode
+				= event.LeftIsDown()	? TOOL_INTERACTIVE_MOVE_LDOWN
+				: event.MiddleIsDown()	? TOOL_INTERACTIVE_MOVE_MDOWN
+				: event.RightIsDown()	? TOOL_INTERACTIVE_MOVE_RDOWN
+										: TOOL_INTERACTIVE_MOVE;
 
-			g_pModule->Execute(_Get_World(event.GetPosition()), iMode, GET_KEYS(event));
+			g_pTool->Execute(_Get_World(event.GetPosition()), iMode, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
 		{

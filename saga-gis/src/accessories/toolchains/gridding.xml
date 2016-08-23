@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.1.3">
+  <group></group>
+  <identifier>gridding</identifier>
+  <name>Gridding of Points</name>
+  <author>O.Conrad (c) 2014</author>
+  <menu absolute="true">Garden|Tool Chain Examples</menu>
+  <description>
+	This tool chain simply demonstrates how to create an output grid without having to choose a target grid system before execution by setting the output parameter's &lt;i&gt;"target"&lt;/i&gt; attribute to &lt;i&gt;"none"&lt;/i&gt;.
+  </description>
+  <parameters>
+    <input varname="POINTS" type="shapes">
+      <name>Points</name>
+    </input>
+    <option varname="ATTRIBUTE" type="table_field" parent="POINTS">
+      <name>Attribute</name>
+      <description>attribute to become interpolated</description>
+	</option>
+    <option varname="CELL_SIZE" type="double">
+      <name>Cell Size</name>
+      <description>cell size of target grid</description>
+	  <value>10.0</value>
+	</option>
+    <output varname="INTERPOLATION" type="grid" target="none">
+      <name>Interpolation</name>
+    </output>
+  </parameters>
+  <tools>
+    <tool library="grid_spline" tool="4" name="Multilevel B-Spline Interpolation">
+      <input  id="SHAPES">POINTS</input>
+      <option id="FIELD" varname="true">ATTRIBUTE</option>
+      <option id="TARGET_USER_SIZE" varname="true">CELL_SIZE</option>
+      <output id="TARGET_OUT_GRID">INTERPOLATION</output>
+    </tool>
+  </tools>
+</toolchain>

@@ -148,7 +148,7 @@ wxString DLG_Get_FILE_Caption(int ID_DLG)
 	{
 	case ID_DLG_WKSP_OPEN:			return( _TL("Load") );
 
-	case ID_DLG_MODULES_OPEN:		return( _TL("Load Tool Library") );
+	case ID_DLG_TOOLS_OPEN:		return( _TL("Load Tool Library") );
 
 	case ID_DLG_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_DLG_PROJECT_SAVE:		return( _TL("Save Project") );
@@ -224,7 +224,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
-	case ID_DLG_MODULES_OPEN:
+	case ID_DLG_TOOLS_OPEN:
 		return( wxString::Format(
 			wxT("%s (*.dll, *.so)|*.xml;*.mlb;*.dll;*.so;*.dylib|")
 			wxT("%s (*.xml)|*.xml|")
@@ -344,7 +344,7 @@ wxString DLG_Get_FILE_Config(int ID_DLG)
 	{
 	case ID_DLG_WKSP_OPEN:			return( wxT("ALL_LOAD") );
 
-	case ID_DLG_MODULES_OPEN:		return( wxT("MLB_LOAD") );
+	case ID_DLG_TOOLS_OPEN:		return( wxT("TLB_LOAD") );
 
 	case ID_DLG_PROJECT_OPEN:		return( wxT("PRJ_LOAD") );
 	case ID_DLG_PROJECT_SAVE:		return( wxT("PRJ_SAVE") );

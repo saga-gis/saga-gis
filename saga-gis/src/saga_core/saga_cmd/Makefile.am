@@ -17,9 +17,9 @@ bin_PROGRAMS = saga_cmd
 saga_cmd_LDADD = ../saga_api/libsaga_api.la
 saga_cmd_SOURCES =\
 callback.cpp\
-module_library.cpp\
+tool.cpp\
 saga_cmd.cpp\
 callback.h\
-module_library.h
+tool.h
 
 SUBDIRS = man

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="2.2.4">
+	<group>imagery</group>
+	<identifier>obia</identifier>
+	<name>Object Based Image Segmentation</name>
+	<author>O.Conrad (c) 2014</author>
+	<menu absolute="TRUE">Imagery|Segmentation</menu>
+	<description>
+		This [[i]]Object Based Image Segmentation[[/i]] tool chain combines a number of tools for an easy derivation of geo-objects as polygons and is typically applied to satellite imagery. Segmentation is done using a 'Seeded Region Growing Algorithm'. Optionally the resulting polygons can be grouped by an unsupervised classification (k-means cluster analysis), which is performed on the basis of zonal feature grid statistics for each polygon.[[br]]
+		References:[[ul]]
+		[[li]]Adams, R. &amp; Bischof, L. (1994): Seeded Region Growing. IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.[[/li]]
+		[[li]]Bechtel, B., Ringeler, A. &amp; Boehner, J. (2008): Segmentation for Object Extraction of Trees using MATLAB and SAGA. In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70. [[a href="http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/HBPL19/hbpl19_01.pdf/download?use_mirror=freefr"]]online[[/a]][[/li]]
+		[[/ul]]
+	</description>
+  
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+			<name>Features</name>
+		</input>
+		<option varname="NORMALIZE" type="boolean" parent="FEATURES">
+			<name>Normalize</name>
+			<value>FALSE</value>
+		</option>
+		<output varname="OBJECTS" type="shapes">
+			<name>Segments</name>
+			<output_name>Segments</output_name>
+		</output>
+		<option varname="SEEDS_BAND_WIDTH" type="double">
+			<name>Band Width for Seed Point Generation</name>
+			<description>Increase band width to get less seed points.</description>
+			<value>2</value>
+		</option>
+		<option varname="MAJORITY_RADIUS" type="integer">
+			<name>Generalization</name>
+			<description>Applies a majority filter with given search radius to the segments grid. Is skipped if set to zero.</description>
+			<value>1</value>
+		</option>
+		<option varname="POSTPROCESSING" type="choice">
+			<name>Post-Processing</name>
+			<choices>none|unsupervised classification</choices>
+			<description>number of clusters</description>
+			<value>0</value>
+		</option>
+		<option varname="NCLUSTER" type="integer" parent="POSTPROCESSING">
+			<condition value="1" type="=">POSTPROCESSING</condition>
+			<name>Number of Clusters</name>
+			<description>number of clusters</description>
+			<value>12</value>
+		</option>
+		<option varname="SPLIT_CLUSTERS" type="boolean" parent="POSTPROCESSING">
+			<condition value="1" type="=">POSTPROCESSING</condition>
+			<name>Split Clusters</name>
+			<description>number of clusters</description>
+			<value>TRUE</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<tool library="imagery_segmentation" tool="2" name="Seed Generation">
+			<option id="SEED_TYPE">0</option>
+			<option id="METHOD">0</option>
+			<option id="BAND_WIDTH" varname="TRUE">SEEDS_BAND_WIDTH</option>
+			<option id="NORMALIZE" varname="TRUE">NORMALIZE</option>
+			<input  id="FEATURES">FEATURES</input>
+			<output id="SEED_GRID">SEED_GRID</output>
+		</tool>
+	
+		<tool library="imagery_segmentation" tool="3" name="Simple Region Growing">
+			<option id="NORMALIZE" varname="TRUE">NORMALIZE</option>
+			<option id="NEIGHBOUR">1</option>
+			<option id="METHOD">0</option>
+			<option id="SIG_1">1.000000</option>
+			<option id="SIG_2">1.000000</option>
+			<option id="THRESHOLD">0.000000</option>
+			<option id="REFRESH">FALSE</option>
+			<option id="LEAFSIZE">256</option>
+			<input  id="SEEDS">SEED_GRID</input>
+			<input  id="FEATURES">FEATURES</input>
+			<output id="SEGMENTS">SEGMENTS_GRID</output>
+		</tool>
+	
+		<condition value="0" type="less" variable="MAJORITY_RADIUS">
+			<tool library="grid_filter" tool="6" name="Majority Filter">
+				<option id="MODE">1</option>
+				<option id="THRESHOLD">0.000000</option>
+				<option id="RADIUS" varname="TRUE">MAJORITY_RADIUS</option>
+				<input  id="INPUT">SEGMENTS_GRID</input>
+				<output id="RESULT">SEGMENTS_GRID</output>
+			</tool>
+		</condition>
+
+		<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
+			<option id="CLASS_ALL">1</option>
+			<option id="CLASS_ID">1.000000</option>
+			<option id="SPLIT">0</option>
+			<option id="ALLVERTICES">FALSE</option>
+			<input  id="GRID">SEGMENTS_GRID</input>
+			<output id="POLYGONS">SEGMENTS</output>
+		</tool>
+		
+		<tool library="shapes_grid" tool="2" name="Grid Statistics for Polygons">
+			<option id="METHOD"  >0</option>
+			<option id="NAMING"  >1</option>
+			<option id="COUNT"   >FALSE</option>
+			<option id="MIN"     >FALSE</option>
+			<option id="MAX"     >FALSE</option>
+			<option id="RANGE"   >FALSE</option>
+			<option id="SUM"     >FALSE</option>
+			<option id="MEAN"    >TRUE</option>
+			<option id="VAR"     >FALSE</option>
+			<option id="STDDEV"  >FALSE</option>
+			<option id="QUANTILE">0</option>
+			<input  id="GRIDS"   >FEATURES</input>
+			<input  id="POLYGONS">SEGMENTS</input>
+			<output id="RESULT"  >OBJECTS</output>
+		</tool>
+
+		<condition value="1" type="=" variable="POSTPROCESSING">
+			<tool library="table_calculus" tool="14" name="Cluster Analysis (Shapes)">
+				<option id="FIELDS">3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32</option>
+				<option id="METHOD">1</option>
+				<option id="NCLUSTER"  varname="TRUE">NCLUSTER</option>
+				<option id="NORMALISE" varname="TRUE">NORMALIZE</option>
+				<input  id="INPUT" >OBJECTS</input>
+				<output id="RESULT">CLUSTERS</output>
+			</tool>
+			<condition value="FALSE" type="=" variable="SPLIT_CLUSTERS">
+				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
+					<option id="FIELD_1"  >CLUSTER</option>
+					<option id="BND_KEEP" >FALSE</option>
+					<input  id="POLYGONS" >CLUSTERS</input>
+					<output id="DISSOLVED">OBJECTS</output>
+				</tool>
+			</condition>
+			<condition value="TRUE" type="=" variable="SPLIT_CLUSTERS">
+				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
+					<option id="FIELD_1"  >CLUSTER</option>
+					<option id="BND_KEEP" >FALSE</option>
+					<input  id="POLYGONS" >CLUSTERS</input>
+					<output id="DISSOLVED">DISSOLVED</output>
+				</tool>
+				<tool library="shapes_polygons" tool="10" name="Polygon Parts to Separate Polygons">
+					<option id="LAKES"   >FALSE</option>
+					<input  id="POLYGONS">DISSOLVED</input>
+					<output id="PARTS"   >OBJECTS</output>
+				</tool>
+			</condition>
+		</condition>
+	</tools>
+</toolchain>

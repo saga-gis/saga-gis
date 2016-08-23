@@ -78,7 +78,7 @@
 #include "info.h"
 #include "info_messages.h"
 
-#include "wksp_module.h"
+#include "wksp_tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -828,7 +828,7 @@ bool		CONFIG_Write(const wxString &Group, CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool		PROCESS_is_Executing(void)
 {
-	return( g_pModule != NULL );
+	return( g_pTool != NULL );
 }
 
 //---------------------------------------------------------
@@ -974,7 +974,7 @@ bool		Open_WebBrowser(const wxString &Reference)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxString Get_Online_Module_Description(const wxString &Library, const wxString &ID)
+wxString Get_Online_Tool_Description(const wxString &Library, const wxString &ID)
 {
 	static bool	bBuisy	= false;
 

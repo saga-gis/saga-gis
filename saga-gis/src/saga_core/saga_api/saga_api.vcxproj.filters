@@ -89,27 +89,6 @@
     <ClCompile Include="metadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="module.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_grid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_grid_interactive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_interactive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_interactive_base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_library.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="module_library_interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="parameter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -200,45 +179,63 @@
     <ClCompile Include="mat_mRMR.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="module_chain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mat_regression_weighted.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="datetime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_chain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_grid_interactive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_interactive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_interactive_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tool_library_interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="API_Core.h">
+    <ClInclude Include="api_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataObject.h">
+    <ClInclude Include="dataobject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GEO_Tools.h">
+    <ClInclude Include="geo_tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Grid.h">
+    <ClInclude Include="grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_pyramid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MAT_Tools.h">
+    <ClInclude Include="mat_tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="metadata.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Module.h">
+    <ClInclude Include="tool_library.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="module_library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Parameters.h">
+    <ClInclude Include="parameters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="pointcloud.h">
@@ -247,10 +244,10 @@
     <ClInclude Include="saga_api.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shapes.h">
+    <ClInclude Include="shapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Table.h">
+    <ClInclude Include="table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_dbase.h">
@@ -259,7 +256,7 @@
     <ClInclude Include="table_value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TIN.h">
+    <ClInclude Include="tin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="clipper.hpp">
@@ -268,10 +265,13 @@
     <ClInclude Include="data_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="module_chain.h">
+    <ClInclude Include="tool_chain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="datetime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

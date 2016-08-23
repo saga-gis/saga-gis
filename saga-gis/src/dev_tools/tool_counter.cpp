@@ -8,7 +8,7 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Module Library:                    //
+//                     Tool Library                      //
 //                      dev_tools                        //
 //                                                       //
 //-------------------------------------------------------//
@@ -81,10 +81,10 @@ CTool_Counter::CTool_Counter(void)
 	Set_Author		("O. Conrad (c) 2015");
 
 	Set_Description	(
-		"Extracts SAGA tool instantiations directly from source by analyzing MLB_Interface.cpp files. "
+		"Extracts SAGA tool instantiations directly from source by analyzing TLB_Interface.cpp files. "
 		"Helps to correctly find the number of tools in a certain SAGA distribution, which became "
-		"necessary due to a tool counting bug in the module library interface function after introducing "
-		"the 'skip module' option for maintainance of module identifiers. "
+		"necessary due to a tool counting bug in the tool library interface function after introducing "
+		"the 'skip tool' option for maintainance of tool identifiers. "
 	);
 
 	//-----------------------------------------------------
@@ -155,7 +155,7 @@ int CTool_Counter::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 
 	File.AssignDir(Directory);
 
-	if(	Dir.GetFirst(&Name, "MLB_Interface.cpp", wxDIR_FILES|wxDIR_HIDDEN) )
+	if(	Dir.GetFirst(&Name, "TLB_Interface.cpp", wxDIR_FILES|wxDIR_HIDDEN) )
 	{
 		do
 		{
@@ -218,7 +218,7 @@ int CTool_Counter::Read_File(const SG_Char *File, CSG_Table &Elements)
 	//-----------------------------------------------------
 	int	i;
 
-	i	= String.Find("Create_Module");	if( i < 0 )	return( false );
+	i	= String.Find("Create_Tool");	if( i < 0 )	return( false );
 
 	String	= String.Right(String.Length() - i);
 
@@ -372,23 +372,23 @@ bool CTool_Menus::On_Execute(void)
 
 	int	Level	= Parameters("LEVEL")->asInt();
 
-	for(int iLibrary=0; iLibrary<SG_Get_Module_Library_Manager().Get_Count(); iLibrary++)
+	for(int iLibrary=0; iLibrary<SG_Get_Tool_Library_Manager().Get_Count(); iLibrary++)
 	{
-		CSG_Module_Library	*pLibrary	= SG_Get_Module_Library_Manager().Get_Library(iLibrary);
+		CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(iLibrary);
 
-		for(int iModule=0; iModule<pLibrary->Get_Count(); iModule++)
+		for(int iTool=0; iTool<pLibrary->Get_Count(); iTool++)
 		{
-			CSG_Module	*pModule	= pLibrary->Get_Module(iModule);
+			CSG_Tool	*pTool	= pLibrary->Get_Tool(iTool);
 
-			if( pModule != NULL && pModule != MLB_INTERFACE_SKIP_MODULE )
+			if( pTool != NULL && pTool != TLB_INTERFACE_SKIP_TOOL )
 			{
-				CSG_Table_Record	*pTool	= Tools.Add_Record();
+				CSG_Table_Record	*pRecord	= Tools.Add_Record();
 
-				pTool->Set_Value(0, pLibrary->Get_Name());
-				pTool->Set_Value(1, pModule ->Get_Name());
-				pTool->Set_Value(2, pModule ->Get_ID  ());
+				pRecord->Set_Value(0, pLibrary->Get_Name());
+				pRecord->Set_Value(1, pTool   ->Get_Name());
+				pRecord->Set_Value(2, pTool   ->Get_ID  ());
 
-				CSG_String	s	= pLibrary->Get_Menu(iModule);
+				CSG_String	s	= pLibrary->Get_Menu(iTool);
 
 				for(int i=0, n=0; i<s.Length() && n<Level; i++)
 				{
@@ -401,7 +401,7 @@ bool CTool_Menus::On_Execute(void)
 					}
 				}
 
-				pTool->Set_Value(3, s);
+				pRecord->Set_Value(3, s);
 			}
 		}
 	}

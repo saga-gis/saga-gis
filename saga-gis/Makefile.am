@@ -7,8 +7,8 @@ ACLOCAL_AMFLAGS = -I m4
 
 
 # additional directories to package
-EXTRA_DIST = ./src/scripting
+EXTRA_DIST = ./src/accessories
 
 toolchainsdir = $(pkgdatadir)/toolchains
 
-dist_toolchains_DATA = src/scripting/toolchains/*.xml
+dist_toolchains_DATA = src/accessories/toolchains/*.xml

@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void					CMD_Set_Module			(class CCMD_Module *pCMD_Module);
+void					CMD_Set_Tool			(class CCMD_Tool *pCMD_Tool);
 
 //---------------------------------------------------------
 void					CMD_Set_Show_Messages	(bool bOn);

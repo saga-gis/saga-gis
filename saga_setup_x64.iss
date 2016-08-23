@@ -33,12 +33,12 @@ PrivilegesRequired=admin
 Source: "saga_gui.exe"; DestDir: "{app}"
 Source: "saga_cmd.exe"; DestDir: "{app}"
 Source: "*.*"; Excludes: "*.iss,*.ini,*.cfg,*.bak,*.exe,*.bat,*.rtf"; DestDir: "{app}"
-Source: "modules\*.*"; DestDir: "{app}\modules"
-Source: "modules\toolchains\*.*"; DestDir: "{app}\modules\toolchains"
+Source: "tools\*.*"; DestDir: "{app}\tools"
+Source: "tools\toolchains\*.*"; DestDir: "{app}\tools\toolchains"
 Source: "dll\*.*"; DestDir: "{app}\dll"
 
 [Icons]
-; Start up in modules folder so SAGA will load all modules automatically.
+; Start up in tools folder so SAGA will load all tools automatically.
 Name: "{commonprograms}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
 Name: "{commondesktop}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{app}"
 

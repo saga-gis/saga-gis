@@ -164,14 +164,14 @@ TGEO_iRect;
 
 #define On_Set_Position						Execute_Position
 
-#define MODULE_INTERFACE_INFO_Name			MLB_INFO_Name
-#define MODULE_INTERFACE_INFO_Author		MLB_INFO_Author
-#define MODULE_INTERFACE_INFO_Description	MLB_INFO_Description
-#define MODULE_INTERFACE_INFO_Version		MLB_INFO_Version
-#define MODULE_INTERFACE_INFO_Menu_Path		MLB_INFO_Menu_Path
+#define TOOL_INTERFACE_INFO_Name			TLB_INFO_Name
+#define TOOL_INTERFACE_INFO_Author		TLB_INFO_Author
+#define TOOL_INTERFACE_INFO_Description	TLB_INFO_Description
+#define TOOL_INTERFACE_INFO_Version		TLB_INFO_Version
+#define TOOL_INTERFACE_INFO_Menu_Path		TLB_INFO_Menu_Path
 
-#define MODULE_INTERFACE_DLL_MAIN			MLB_INTERFACE
-#define Get_Module_Info						Get_Info
+#define TOOL_INTERFACE_DLL_MAIN			TLB_INTERFACE
+#define Get_Tool_Info						Get_Info
 
 //---------------------------------------------------------
 // ::Get_Callback()							: dropped
@@ -180,10 +180,10 @@ TGEO_iRect;
 // CSG_Shapes::Get_Table()						: returns now reference instead of pointer
 // CSG_Table::Update_Statistics()				: dropped
 // CColors::Set_Ramp()						: incompatible
-// CSG_Module_Grid::Get_Gradient()				: dropped, use CSG_Grid::Get_Gradient() instead
-// CSG_Module_Interactive::Execute_Finish()	: function has no arguments anymore
-// CSG_Module_Interactive::On_Set_Position()	: function has no 'callback' argument anymore
-// CSG_Module::Execute()						: function has no arguments anymore
+// CSG_Tool_Grid::Get_Gradient()				: dropped, use CSG_Grid::Get_Gradient() instead
+// CSG_Tool_Interactive::Execute_Finish()	: function has no arguments anymore
+// CSG_Tool_Interactive::On_Set_Position()	: function has no 'callback' argument anymore
+// CSG_Tool::Execute()						: function has no arguments anymore
 
 
 ///////////////////////////////////////////////////////////
@@ -273,11 +273,11 @@ TGEO_iRect;
 #define CDataObject						CSG_Data_Object
 #define CGrid							CSG_Grid
 #define CGrid_System					CSG_Grid_System
-#define CModule							CSG_Module
-#define CModule_Grid_Interactive		CSG_Module_Grid_Interactive
-#define CModule_Interactive				CSG_Module_Interactive
-#define CModule_Interactive_Base		CSG_Module_Interactive_Base
-#define CModule_Library_Interface		CSG_Module_Library_Interface
+#define CModule							CSG_Tool
+#define CModule_Grid_Interactive		CSG_Tool_Grid_Interactive
+#define CModule_Interactive				CSG_Tool_Interactive
+#define CModule_Interactive_Base		CSG_Tool_Interactive_Base
+#define CModule_Library_Interface		CSG_Tool_Library_Interface
 #define CShape							CSG_Shape
 #define CShape_Line						CSG_Shape_Line
 #define CShape_Point					CSG_Shape_Point
@@ -346,11 +346,11 @@ TGEO_iRect;
 #define TPDF_Page_Size					TSG_PDF_Page_Size
 #define TPDF_Title_Level				TSG_PDF_Title_Level
 #define TParameter_Type					TSG_Parameter_Type
-#define TModule_Type					TSG_Module_Type
-#define TModule_Interactive_Mode		TSG_Module_Interactive_Mode
-#define TModule_Interactive_DragMode	TSG_Module_Interactive_DragMode
-#define TModule_Error					TSG_Module_Error
-#define TMLB_Info						TSG_MLB_Info
+#define TModule_Type					TSG_Tool_Type
+#define TModule_Interactive_Mode		TSG_Tool_Interactive_Mode
+#define TModule_Interactive_DragMode	TSG_Tool_Interactive_DragMode
+#define TModule_Error					TSG_Tool_Error
+#define TTLB_Info						TSG_TLB_Info
 
 #define Add_Extra_Parameters			Add_Parameters
 #define Get_Extra_Parameters			Get_Parameters

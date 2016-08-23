@@ -68,7 +68,7 @@
 
 #include "callback.h"
 
-#include "module_library.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -89,8 +89,8 @@ bool		Check_First		(const CSG_String &Argument);
 bool		Check_Flags		(const CSG_String &Argument);
 
 void		Print_Libraries	(void);
-void		Print_Tools		(CSG_Module_Library *pLibrary);
-void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pTool);
+void		Print_Tools		(CSG_Tool_Library *pLibrary);
+void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
 
 void		Print_Logo		(void);
 void		Print_Get_Help	(void);
@@ -123,7 +123,7 @@ int		main	(int argc, char *argv[])
 
 //---------------------------------------------------------
 #if !defined(_DEBUG) && defined(_SAGA_VC)
-#define _MODULE_EXCEPTION
+#define _TOOL_EXCEPTION
 _try
 {
 #endif
@@ -137,7 +137,7 @@ _try
 	CMD_Get_Pause();
 #endif
 
-#ifdef _MODULE_EXCEPTION
+#ifdef _TOOL_EXCEPTION
 }
 _except(1)
 {
@@ -219,17 +219,17 @@ bool		Run(int argc, char *argv[])
 //---------------------------------------------------------
 bool		Execute(int argc, char *argv[])
 {
-	CSG_Module_Library	*pLibrary;
-	CSG_Module			*pTool;
+	CSG_Tool_Library	*pLibrary;
+	CSG_Tool			*pTool;
 
-	if( argc == 1 || (pLibrary = SG_Get_Module_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
+	if( argc == 1 || (pLibrary = SG_Get_Tool_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
 	{
 		Print_Libraries();
 
 		return( false );
 	}
 
-	if( argc == 2 || (pTool = pLibrary->Get_Module(argv[2])) == NULL )
+	if( argc == 2 || (pTool = pLibrary->Get_Tool(argv[2])) == NULL )
 	{
 		Print_Tools(pLibrary);
 
@@ -253,9 +253,9 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	Print_Execution(pLibrary, pTool);
 
-	CCMD_Module	CMD_Module(pLibrary, pTool);
+	CCMD_Tool	CMD_Tool(pLibrary, pTool);
 
-	return( CMD_Module.Execute(argc - 2, argv + 2) );
+	return( CMD_Tool.Execute(argc - 2, argv + 2) );
 }
 
 
@@ -381,7 +381,7 @@ bool		Load_Libraries(const CSG_String &Directory)
 	bool	bShow	= CMD_Get_Show_Messages();
 
 	CMD_Set_Show_Messages(false);
-	int	n	= SG_Get_Module_Library_Manager().Add_Directory(Directory, false);
+	int	n	= SG_Get_Tool_Library_Manager().Add_Directory(Directory, false);
 	CMD_Set_Show_Messages(bShow);
 
 	return( n > 0 );
@@ -410,7 +410,7 @@ bool		Load_Libraries(void)
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
 
-		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("modules")));
+		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
     #endif
 
 	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
@@ -423,7 +423,7 @@ bool		Load_Libraries(void)
 		}
 	}
 
-	if( SG_Get_Module_Library_Manager().Get_Count() <= 0 )
+	if( SG_Get_Tool_Library_Manager().Get_Count() <= 0 )
 	{
 		CMD_Print_Error(SG_T("could not load any tool library"));
 
@@ -574,11 +574,11 @@ void		Print_Libraries	(void)
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
+			SG_PRINTF(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
 		}
 		else
 		{
-			CMD_Print(SG_Get_Module_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
+			CMD_Print(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
 
 			CMD_Print_Error(_TL("select a library"));
 
@@ -588,7 +588,7 @@ void		Print_Libraries	(void)
 }
 
 //---------------------------------------------------------
-void		Print_Tools		(CSG_Module_Library *pLibrary)
+void		Print_Tools		(CSG_Tool_Library *pLibrary)
 {
 	if( CMD_Get_Show_Messages() )
 	{
@@ -608,7 +608,7 @@ void		Print_Tools		(CSG_Module_Library *pLibrary)
 }
 
 //---------------------------------------------------------
-void		Print_Execution	(CSG_Module_Library *pLibrary, CSG_Module *pTool)
+void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 {
 	if( CMD_Get_Show_Messages() )
 	{
@@ -703,12 +703,12 @@ void		Print_Help		(void)
 		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
 		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
-		"  <LIBRARY> <MODULE> <OPTIONS>\n"
+		"  <LIBRARY> <TOOL> <OPTIONS>\n"
 		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
 		"  <SCRIPT>\n"
 #else
 		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
-		"  <LIBRARY> <MODULE> <OPTIONS>\n"
+		"  <LIBRARY> <TOOL> <OPTIONS>\n"
 		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
 		"  <SCRIPT>\n"
 #endif
@@ -731,7 +731,7 @@ void		Print_Help		(void)
 		"  x              : use XML markups for synopses and messages\n"
 		"  o              : load old style naming\n"
 		"<LIBRARY>        : name of the library\n"
-		"<MODULE>         : either name or index of the tool\n"
+		"<TOOL>           : either name or index of the tool\n"
 		"<OPTIONS>        : tool specific options\n"
 		"<SCRIPT>         : saga cmd script file with one or more tool calls\n"
 		"\n"
@@ -743,7 +743,7 @@ void		Print_Help		(void)
 		"\n"
 		"_____________________________________________________________________________\n"
 		"\n"
-		"Tool libraries in the \'modules\' subdirectory of the SAGA installation\n"
+		"Tool libraries in the \'tools\' subdirectory of the SAGA installation\n"
 		"will be loaded automatically. Additional directories can be specified\n"
 		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
 		"or more directories, just the way it is done with the DOS \'PATH\' variable.\n"
@@ -889,7 +889,7 @@ void		Create_Docs		(void)
 
 		CMD_Set_Show_Messages(false);
 
-		SG_Get_Module_Library_Manager().Get_Summary(SG_Dir_Get_Current());
+		SG_Get_Tool_Library_Manager().Get_Summary(SG_Dir_Get_Current());
 
 		CMD_Print(_TL("okay"));
 	}

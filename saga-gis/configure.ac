@@ -1,4 +1,4 @@
-# $Id$
+
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -26,7 +26,9 @@ AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found
 AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
-AC_CHECK_HEADER([dxflib/dl_dxf.h],[AC_CHECK_LIB(libdxf,DL_ArcData,LIBDXFFOUND=1)])
+AC_CHECK_HEADER([libsvm/svm.h],[AC_CHECK_LIB([svm], [svm_get_svm_type], SVMFOUND=1,,)])
+PKG_CHECK_MODULES([DXFLIB], [dxflib], [LIBDXFFOUND=1],[LIBDXFFOUND=0])
+PKG_CHECK_MODULES([HDF5],[hdf5],LIBHDF5FOUND=1,LIBHDF5FOUND=0)
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -107,7 +109,7 @@ AC_ARG_ENABLE(debug,
  
 # gui
 AC_ARG_ENABLE(gui,
-     [  --disable-gui		  Do not build GUI and interactive modules],
+     [  --disable-gui		  Do not build GUI and interactive tools],
      [case "${enableval}" in
      	yes) gui=true ;;
 	no) gui=false ;;
@@ -116,10 +118,10 @@ AC_ARG_ENABLE(gui,
       AM_CONDITIONAL(WITH_GUI, test x$gui = xtrue)
 
   if test $gui = "false" ; then
-    AC_MSG_RESULT([        GUI and interactive modules will NOT be built])
+    AC_MSG_RESULT([        GUI and interactive tools will NOT be built])
   else
-    AC_DEFINE([WITH_GUI], [1], ["built with GUI and interactive modules"])
-    AC_MSG_RESULT([        GUI and interactive modules will be built])    
+    AC_DEFINE([WITH_GUI], [1], ["built with GUI and interactive tools"])
+    AC_MSG_RESULT([        GUI and interactive tools will be built])    
   fi
 
 # odbc
@@ -203,15 +205,24 @@ fi
 AC_ARG_WITH(system_dxflib,
     AS_HELP_STRING([--with-system-dxflib],[Use system version of dxflib instead of embedded copy, requires this library (and the header files)]),
     AC_MSG_RESULT([        using system libdxf]),
-    system_libdxf=true,
+    system_libdxf=true,system_libdxf=false
     )
-AM_CONDITIONAL(SYSTEM_DXFLIB, test -n "$LIBDXFFOUND" -a x$system_libdxf=xtrue)
+AM_CONDITIONAL(SYSTEM_DXFLIB, [test "$LIBDXFFOUND" -eq 1 -a x$system_libdxf = xtrue])
+
+AC_ARG_WITH(system_svm,
+    AS_HELP_STRING([--with-system-svm],[Use system version of svm instead of embedded copy, requires this library (and the header files)]),
+    AC_MSG_RESULT([        using system svm]),
+    system_svm=true,
+    )
+
+AM_CONDITIONAL(SYSTEM_SVM, test "$SVMFOUND" -eq 1 -a x$system_svm = xtrue)
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
     AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
     AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
     AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
+    AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
 
 
   if test -n "$CVFOUND" ; then 
@@ -266,92 +277,92 @@ AC_OUTPUT(Makefile \
 	src/saga_core/saga_gui/man/Makefile \
 	src/saga_core/saga_cmd/Makefile \
 	src/saga_core/saga_cmd/man/Makefile \
-	src/modules/Makefile \
-	src/modules/climate/Makefile \
-	src/modules/climate/climate_tools/Makefile \
-	src/modules/contrib/Makefile \
-	src/modules/contrib/contrib_peregro/Makefile \
-	src/modules/db/Makefile \
-	src/modules/db/db_odbc/Makefile \
-	src/modules/db/db_pgsql/Makefile \
-	src/modules/docs/Makefile \
-	src/modules/docs/docs_html/Makefile \
-	src/modules/docs/docs_pdf/Makefile \
-	src/modules/garden/Makefile \
-	src/modules/garden/garden_3d_viewer/Makefile \
-	src/modules/garden/garden_fractals/Makefile \
-	src/modules/garden/garden_games/Makefile \
-	src/modules/garden/garden_learn_to_program/Makefile \
-	src/modules/garden/garden_webservices/Makefile \
-	src/modules/grid/Makefile \
-	src/modules/grid/grid_analysis/Makefile \
-	src/modules/grid/grid_calculus/Makefile \
-	src/modules/grid/grid_calculus_bsl/Makefile \
-	src/modules/grid/grid_filter/Makefile \
-	src/modules/grid/grid_gridding/Makefile \
-	src/modules/grid/grid_spline/Makefile \
-	src/modules/grid/grid_tools/Makefile \
-	src/modules/grid/grid_visualisation/Makefile \
-	src/modules/imagery/Makefile \
-	src/modules/imagery/imagery_classification/Makefile \
-	src/modules/imagery/imagery_opencv/Makefile \
-	src/modules/imagery/imagery_maxent/Makefile \
-	src/modules/imagery/imagery_photogrammetry/Makefile \
-	src/modules/imagery/imagery_segmentation/Makefile \
-	src/modules/imagery/imagery_svm/Makefile \
-	src/modules/imagery/imagery_tools/Makefile \
-	src/modules/imagery/imagery_vigra/Makefile \
-	src/modules/io/Makefile \
-	src/modules/io/io_esri_e00/Makefile \
-	src/modules/io/io_gdal/Makefile \
-	src/modules/io/io_gps/Makefile \
-	src/modules/io/io_grid/Makefile \
-	src/modules/io/io_grid_image/Makefile \
-	src/modules/io/io_shapes/Makefile \
-	src/modules/io/io_shapes_dxf/Makefile \
-	src/modules/io/io_shapes_las/Makefile \
-	src/modules/io/io_table/Makefile \
-	src/modules/io/io_virtual/Makefile \
-	src/modules/pointcloud/Makefile \
-	src/modules/pointcloud/pointcloud_tools/Makefile \
-	src/modules/pointcloud/pointcloud_viewer/Makefile \
-	src/modules/projection/Makefile \
-	src/modules/projection/pj_georeference/Makefile \
-	src/modules/projection/pj_proj4/Makefile \
-	src/modules/shapes/Makefile \
-	src/modules/shapes/shapes_grid/Makefile \
-	src/modules/shapes/shapes_lines/Makefile \
-	src/modules/shapes/shapes_points/Makefile \
-	src/modules/shapes/shapes_polygons/Makefile \
-	src/modules/shapes/shapes_tools/Makefile \
-	src/modules/shapes/shapes_transect/Makefile \
-	src/modules/simulation/Makefile \
-	src/modules/simulation/sim_cellular_automata/Makefile \
-	src/modules/simulation/sim_ecosystems_hugget/Makefile \
-	src/modules/simulation/sim_erosion/Makefile \
-	src/modules/simulation/sim_fire_spreading/Makefile \
-	src/modules/simulation/sim_hydrology/Makefile \
-	src/modules/simulation/sim_ihacres/Makefile \
-	src/modules/simulation/sim_qm_of_esp/Makefile \
-	src/modules/simulation/sim_rivflow/Makefile \
-	src/modules/statistics/Makefile \
-	src/modules/statistics/statistics_grid/Makefile \
-	src/modules/statistics/statistics_kriging/Makefile \
-	src/modules/statistics/statistics_points/Makefile \
-	src/modules/statistics/statistics_regression/Makefile \
-	src/modules/table/Makefile \
-	src/modules/table/table_calculus/Makefile \
-	src/modules/table/table_tools/Makefile \
-	src/modules/terrain_analysis/Makefile \
-	src/modules/terrain_analysis/ta_channels/Makefile \
-	src/modules/terrain_analysis/ta_compound/Makefile \
-	src/modules/terrain_analysis/ta_hydrology/Makefile \
-	src/modules/terrain_analysis/ta_lighting/Makefile \
-	src/modules/terrain_analysis/ta_morphometry/Makefile \
-	src/modules/terrain_analysis/ta_preprocessor/Makefile \
-	src/modules/terrain_analysis/ta_profiles/Makefile \
-	src/modules/terrain_analysis/ta_slope_stability/Makefile \
-	src/modules/tin/Makefile \
-	src/modules/tin/tin_tools/Makefile \
-	src/modules/tin/tin_viewer/Makefile \
+	src/tools/Makefile \
+	src/tools/climate/Makefile \
+	src/tools/climate/climate_tools/Makefile \
+	src/tools/contrib/Makefile \
+	src/tools/contrib/contrib_peregro/Makefile \
+	src/tools/db/Makefile \
+	src/tools/db/db_odbc/Makefile \
+	src/tools/db/db_pgsql/Makefile \
+	src/tools/docs/Makefile \
+	src/tools/docs/docs_html/Makefile \
+	src/tools/docs/docs_pdf/Makefile \
+	src/tools/garden/Makefile \
+	src/tools/garden/garden_3d_viewer/Makefile \
+	src/tools/garden/garden_fractals/Makefile \
+	src/tools/garden/garden_games/Makefile \
+	src/tools/garden/garden_learn_to_program/Makefile \
+	src/tools/garden/garden_webservices/Makefile \
+	src/tools/grid/Makefile \
+	src/tools/grid/grid_analysis/Makefile \
+	src/tools/grid/grid_calculus/Makefile \
+	src/tools/grid/grid_calculus_bsl/Makefile \
+	src/tools/grid/grid_filter/Makefile \
+	src/tools/grid/grid_gridding/Makefile \
+	src/tools/grid/grid_spline/Makefile \
+	src/tools/grid/grid_tools/Makefile \
+	src/tools/grid/grid_visualisation/Makefile \
+	src/tools/imagery/Makefile \
+	src/tools/imagery/imagery_classification/Makefile \
+	src/tools/imagery/imagery_opencv/Makefile \
+	src/tools/imagery/imagery_maxent/Makefile \
+	src/tools/imagery/imagery_photogrammetry/Makefile \
+	src/tools/imagery/imagery_segmentation/Makefile \
+	src/tools/imagery/imagery_svm/Makefile \
+	src/tools/imagery/imagery_tools/Makefile \
+	src/tools/imagery/imagery_vigra/Makefile \
+	src/tools/io/Makefile \
+	src/tools/io/io_esri_e00/Makefile \
+	src/tools/io/io_gdal/Makefile \
+	src/tools/io/io_gps/Makefile \
+	src/tools/io/io_grid/Makefile \
+	src/tools/io/io_grid_image/Makefile \
+	src/tools/io/io_shapes/Makefile \
+	src/tools/io/io_shapes_dxf/Makefile \
+	src/tools/io/io_shapes_las/Makefile \
+	src/tools/io/io_table/Makefile \
+	src/tools/io/io_virtual/Makefile \
+	src/tools/pointcloud/Makefile \
+	src/tools/pointcloud/pointcloud_tools/Makefile \
+	src/tools/pointcloud/pointcloud_viewer/Makefile \
+	src/tools/projection/Makefile \
+	src/tools/projection/pj_georeference/Makefile \
+	src/tools/projection/pj_proj4/Makefile \
+	src/tools/shapes/Makefile \
+	src/tools/shapes/shapes_grid/Makefile \
+	src/tools/shapes/shapes_lines/Makefile \
+	src/tools/shapes/shapes_points/Makefile \
+	src/tools/shapes/shapes_polygons/Makefile \
+	src/tools/shapes/shapes_tools/Makefile \
+	src/tools/shapes/shapes_transect/Makefile \
+	src/tools/simulation/Makefile \
+	src/tools/simulation/sim_cellular_automata/Makefile \
+	src/tools/simulation/sim_ecosystems_hugget/Makefile \
+	src/tools/simulation/sim_erosion/Makefile \
+	src/tools/simulation/sim_fire_spreading/Makefile \
+	src/tools/simulation/sim_hydrology/Makefile \
+	src/tools/simulation/sim_ihacres/Makefile \
+	src/tools/simulation/sim_qm_of_esp/Makefile \
+	src/tools/simulation/sim_rivflow/Makefile \
+	src/tools/statistics/Makefile \
+	src/tools/statistics/statistics_grid/Makefile \
+	src/tools/statistics/statistics_kriging/Makefile \
+	src/tools/statistics/statistics_points/Makefile \
+	src/tools/statistics/statistics_regression/Makefile \
+	src/tools/table/Makefile \
+	src/tools/table/table_calculus/Makefile \
+	src/tools/table/table_tools/Makefile \
+	src/tools/terrain_analysis/Makefile \
+	src/tools/terrain_analysis/ta_channels/Makefile \
+	src/tools/terrain_analysis/ta_compound/Makefile \
+	src/tools/terrain_analysis/ta_hydrology/Makefile \
+	src/tools/terrain_analysis/ta_lighting/Makefile \
+	src/tools/terrain_analysis/ta_morphometry/Makefile \
+	src/tools/terrain_analysis/ta_preprocessor/Makefile \
+	src/tools/terrain_analysis/ta_profiles/Makefile \
+	src/tools/terrain_analysis/ta_slope_stability/Makefile \
+	src/tools/tin/Makefile \
+	src/tools/tin/tin_tools/Makefile \
+	src/tools/tin/tin_viewer/Makefile \
 )

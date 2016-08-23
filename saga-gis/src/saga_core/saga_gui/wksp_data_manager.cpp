@@ -94,7 +94,7 @@
 
 #include "wksp_map_manager.h"
 
-#include "wksp_module.h"
+#include "wksp_tool.h"
 
 #include "active.h"
 #include "active_parameters.h"
@@ -579,11 +579,11 @@ bool CWKSP_Data_Manager::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_DATA_PROJECT_CLOSE:
-		event.Enable(Get_Count() > 0 && g_pModule == NULL);
+		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
-		event.Enable(Get_Count() > 0 && g_pModule == NULL);
+		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
 
 	case ID_CMD_DATA_PROJECT_SAVE:

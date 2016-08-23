@@ -93,8 +93,8 @@
 #include "active.h"
 #include "wksp.h"
 
-#include "wksp_module_manager.h"
-#include "wksp_module.h"
+#include "wksp_tool_manager.h"
+#include "wksp_tool.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_menu_files.h"
@@ -241,8 +241,8 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 
 	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_MODULE_FIRST			, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_MODULE_FIRST			, ID_CMD_MODULE_LAST	, CSAGA_Frame::On_Command_Module_UI)
+	EVT_MENU_RANGE		(ID_CMD_TOOL_FIRST			, ID_CMD_TOOL_LAST	, CSAGA_Frame::On_Command_Tool)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_FIRST			, ID_CMD_TOOL_LAST	, CSAGA_Frame::On_Command_Tool_UI)
 
 	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST				, ID_CMD_CHILD_LAST		, CSAGA_Frame::On_Command_Child)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST				, ID_CMD_MAP_LAST		, CSAGA_Frame::On_Command_Child_UI)
@@ -443,15 +443,15 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 {
 	if( event.CanVeto() )
 	{
-		if( !g_pModule && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
+		if( !g_pTool && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
 		{
-			g_pModules->Finalise();
+			g_pTools->Finalise();
 
 			Destroy();
 		}
 		else
 		{
-			if( g_pModule )
+			if( g_pTool )
 			{
 				DLG_Message_Show(_TL("Please stop tool execution before exiting SAGA."), _TL("Exit SAGA"));
 			}
@@ -461,7 +461,7 @@ void CSAGA_Frame::On_Close(wxCloseEvent &event)
 	}
 	else
 	{
-		g_pModules->Finalise();
+		g_pTools->Finalise();
 
 		g_pData->Close(true);
 
@@ -798,14 +798,14 @@ void CSAGA_Frame::On_Command_Workspace_UI(wxUpdateUIEvent &event)
 }
 
 //---------------------------------------------------------
-void CSAGA_Frame::On_Command_Module(wxCommandEvent &event)
+void CSAGA_Frame::On_Command_Tool(wxCommandEvent &event)
 {
-	m_pWKSP->On_Command_Module(event);
+	m_pWKSP->On_Command_Tool(event);
 }
 
-void CSAGA_Frame::On_Command_Module_UI(wxUpdateUIEvent &event)
+void CSAGA_Frame::On_Command_Tool_UI(wxUpdateUIEvent &event)
 {
-	m_pWKSP->On_Command_UI_Module(event);
+	m_pWKSP->On_Command_UI_Tool(event);
 }
 
 //---------------------------------------------------------
@@ -1157,7 +1157,7 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	wxMenuBar	*pMenuBar	= new wxMenuBar;
 
 	pMenuBar->Append(g_pData   ->Get_Menu_Files  ()->Get_Menu(), _TL("File"         ));	// 0
-	pMenuBar->Append(g_pModules->Get_Menu_Modules()            , _TL("Geoprocessing"));	// 1
+	pMenuBar->Append(g_pTools->Get_Menu_Tools()            , _TL("Geoprocessing"));	// 1
 	pMenuBar->Append(pMenu_Window                              , _TL("Window"       ));	// 2
 	pMenuBar->Append(pMenu_Help                                , _TL("?"            ));	// 3
 
@@ -1248,7 +1248,7 @@ void CSAGA_Frame::_Bar_Show(wxWindow *pWindow, bool bShow)
 //---------------------------------------------------------
 wxToolBarBase * CSAGA_Frame::TB_Create(int ID)
 {
-	int	Size	= g_pModules->Get_Parameter("LOOK_TB_SIZE")->asInt();
+	int	Size	= g_pTools->Get_Parameter("LOOK_TB_SIZE")->asInt();
 
 	wxToolBar	*pToolBar	= new wxToolBar(this, ID, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_FLAT|wxTB_NODIVIDER);
 
@@ -1302,7 +1302,7 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
 	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MODULES_SEARCH);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TOOLS_SEARCH);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
 

@@ -206,7 +206,7 @@ void CSG_Parameters::Destroy(void)
 /**
   * Set the responsible data manager for this parameter list.
   * If it is not NULL, the parameter list will perform checks
-  * beforehand module executions, e.g. check if all data sets
+  * beforehand tool executions, e.g. check if all data sets
   * in its parameter list are really loaded.
 */
 //---------------------------------------------------------

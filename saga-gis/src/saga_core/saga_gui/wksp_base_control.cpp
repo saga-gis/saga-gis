@@ -81,9 +81,9 @@
 #include "wksp_base_control.h"
 #include "wksp_base_manager.h"
 
-#include "wksp_module_control.h"
-#include "wksp_module_manager.h"
-#include "wksp_module.h"
+#include "wksp_tool_control.h"
+#include "wksp_tool_manager.h"
+#include "wksp_tool.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
@@ -120,10 +120,10 @@ IMPLEMENT_CLASS(CWKSP_Base_Control, wxTreeCtrl)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Base_Control, wxTreeCtrl)
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_MODULES	, CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_MODULES	, CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_MODULES	, CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_MODULES	, CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_RClick)
+	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_Delete)
+	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_KeyDown)
 
 	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_RClick)
 	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_Delete)
@@ -285,7 +285,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		return( false );
 	}
 
-	if( pItem->Get_Type() == WKSP_ITEM_Module && ((CWKSP_Module *)pItem)->Get_Module()->Get_Type() != MODULE_TYPE_Chain )
+	if( pItem->Get_Type() == WKSP_ITEM_Tool && ((CWKSP_Tool *)pItem)->Get_Tool()->Get_Type() != TOOL_TYPE_Chain )
 	{	// tool libraries can be unloaded, tools not! (except of tool chain tools)
 		return( false );
 	}
@@ -318,9 +318,9 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			AppendItem		(m_pManager->GetId(), _TL("<no items>"), 0, 0, NULL);
 			Expand			(m_pManager->GetId());
 
-			if( g_pModules == m_pManager )
+			if( g_pTools == m_pManager )
 			{
-				g_pModules->Update();
+				g_pTools->Update();
 			}
 
 			//---------------------------------------------
@@ -362,9 +362,9 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 			return( _Del_Item(pItem_Manager, true) );
 		}
 
-		if( m_pManager->Get_Type() == WKSP_ITEM_Module_Manager )
+		if( m_pManager->Get_Type() == WKSP_ITEM_Tool_Manager )
 		{
-			g_pModules->Update();
+			g_pTools->Update();
 		}
 
 		if( pItem_Manager != NULL && pItem_Manager->Get_Type() == WKSP_ITEM_Map )
@@ -478,7 +478,7 @@ wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 //---------------------------------------------------------
 bool CWKSP_Base_Control::_Del_Active(bool bSilent)
 {
-	if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager && PROCESS_is_Executing() )	// never allow data deletion during module execution!
+	if( m_pManager->Get_Type() == WKSP_ITEM_Data_Manager && PROCESS_is_Executing() )	// never allow data deletion during tool execution!
 	{
 		return( false );
 	}

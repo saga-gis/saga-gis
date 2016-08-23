@@ -80,10 +80,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CView_Map_3DPanel : public ::CSG_3DView_Panel
+class CVIEW_Map_3DPanel : public ::CSG_3DView_Panel
 {
 public:
-	CView_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap);
+	CVIEW_Map_3DPanel(wxWindow *pParent, class CWKSP_Map *pMap);
 
 	double						m_zScale;
 
