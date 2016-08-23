@@ -119,8 +119,8 @@ RMDIR /S/Q build
 POPD
 SET PYTHONOUT=Python%PYTHONVER%
 XCOPY /C/Q/Y "%PYTHONDIR%\Lib\site-packages\*saga*.*" "%PYTHONOUT%\Lib\site-packages\"
-COPY "%SAGA_ROOT%\src\scripting\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
-XCOPY /C/Q/Y "%SAGA_ROOT%\src\scripting\python\examples" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
+COPY "%SAGA_ROOT%\src\accessories\python\saga_python_api.txt" "%PYTHONOUT%\Lib\site-packages\"
+XCOPY /C/Q/Y "%SAGA_ROOT%\src\accessories\python\examples" "%PYTHONOUT%\Lib\site-packages\saga_api_examples\"
 %ZIPEXE% %SAGA_VERSION%_win32_python%PYTHONVER%.zip "%PYTHONOUT%"
 RMDIR /S/Q "%PYTHONOUT%"
 
@@ -157,7 +157,7 @@ ECHO.    ./saga_api_Doxyfile
 ECHO.    ./saga-gis/configure.ac
 ECHO.    ./saga-gis/README
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
-ECHO.    ./saga-gis/src/scripting/helper/make_saga_release.bat (this file!)
+ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.
 ECHO - Create SAGA Tools Reference Documentation
 ECHO.    sagadoc-code: ./parse_modules.py

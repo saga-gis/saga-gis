@@ -155,7 +155,7 @@ copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
 md $(OutDir)\tools
 md $(OutDir)\tools\toolchains
-copy ..\..\scripting\toolchains\*.xml $(OutDir)\tools\toolchains
+copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -225,7 +225,7 @@ copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
 md $(OutDir)\tools
 md $(OutDir)\tools\toolchains
-copy ..\..\scripting\toolchains\*.xml $(OutDir)\tools\toolchains
+copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -293,7 +293,7 @@ copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
 md $(OutDir)\tools
 md $(OutDir)\tools\toolchains
-copy ..\..\scripting\toolchains\*.xml $(OutDir)\tools\toolchains
+copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -362,7 +362,7 @@ copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
 md $(OutDir)\tools
 md $(OutDir)\tools\toolchains
-copy ..\..\scripting\toolchains\*.xml $(OutDir)\tools\toolchains
+copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
