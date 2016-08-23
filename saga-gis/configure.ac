@@ -1,4 +1,4 @@
-# $Id$
+
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
@@ -205,9 +205,9 @@ fi
 AC_ARG_WITH(system_dxflib,
     AS_HELP_STRING([--with-system-dxflib],[Use system version of dxflib instead of embedded copy, requires this library (and the header files)]),
     AC_MSG_RESULT([        using system libdxf]),
-    system_libdxf=true,
+    system_libdxf=true,system_libdxf=false
     )
-AM_CONDITIONAL(SYSTEM_DXFLIB, test -n "$LIBDXFFOUND" -a x$system_libdxf=xtrue)
+AM_CONDITIONAL(SYSTEM_DXFLIB, [test "$LIBDXFFOUND" -eq 1 -a x$system_libdxf = xtrue])
 
 AC_ARG_WITH(system_svm,
     AS_HELP_STRING([--with-system-svm],[Use system version of svm instead of embedded copy, requires this library (and the header files)]),
@@ -215,7 +215,7 @@ AC_ARG_WITH(system_svm,
     system_svm=true,
     )
 
-AM_CONDITIONAL(SYSTEM_SVM, test -n "$SVMFOUND" -a x$system_svm=xtrue)
+AM_CONDITIONAL(SYSTEM_SVM, test "$SVMFOUND" -eq 1 -a x$system_svm = xtrue)
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
