@@ -93,9 +93,9 @@ protected:
 
 private:
 
-	bool					Get_Intersection	(CSG_Shape_Polygon *pPolygon, CSG_Shapes *pLines, CSG_Shapes &New_Lines);
+	bool					Get_Intersection	(CSG_Shape_Polygon *pPolygon, CSG_Shape *pLine, CSG_Shapes &Intersection);
 
-	TSG_Point				Get_Intersection	(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b);
+	int						Get_Crossings		(CSG_Shape_Polygon *pPolygon, const TSG_Point &a, const TSG_Point &b, CSG_Table &Crossings);
 
 };
 
