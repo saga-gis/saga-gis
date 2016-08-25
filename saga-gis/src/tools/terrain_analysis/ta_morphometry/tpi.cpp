@@ -71,57 +71,51 @@
 //---------------------------------------------------------
 CTPI::CTPI(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Topographic Position Index (TPI)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
 		"proposed by Wilson & Gallant (2000).\n"
 		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
-		"\n"
-		"References:\n"
-		"- Guisan, A., Weiss, S.B., Weiss, A.D. (1999): GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.\n"
-		"- Weiss, A.D. (2000): Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.\n"
-		"- Wilson, J.P. & Gallant, J.C. (2000): Terrain Analysis - Principles and Applications.\n"
+
+		"<hr><h4>References</h4><ul>"
+		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
+		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
+		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
+		"</ul>"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
+	Parameters.Add_Grid(
 		NULL	, "TPI"			, _TL("Topographic Position Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Bool(
 		NULL	, "STANDARD"	, _TL("Standardize"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS"		, _TL("Radius"),
-		_TL("radius in map units"),
+		NULL	, "RADIUS"		, _TL("Scale"),
+		_TL("kernel radius in map units"),
 		0.0, 100.0, 0.0, true
 	);
 
-	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
-	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Kernel.Get_Weighting().Set_BandWidth(75.0);	// 75%
+	m_Kernel.Get_Weighting().Create_Parameters(&Parameters, false);
 }
 
 
@@ -132,7 +126,7 @@ CTPI::CTPI(void)
 //---------------------------------------------------------
 int CTPI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+	m_Kernel.Get_Weighting().Enable_Parameters(pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -145,19 +139,19 @@ int CTPI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPara
 //---------------------------------------------------------
 bool CTPI::On_Execute(void)
 {
-	m_pDEM		= Parameters("DEM")->asGrid();
-	m_pTPI		= Parameters("TPI")->asGrid();
+	m_pDEM	= Parameters("DEM")->asGrid();
+	m_pTPI	= Parameters("TPI")->asGrid();
 
-	DataObject_Set_Colors(m_pTPI, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pTPI, 11, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
 	double	r_inner	= Parameters("RADIUS")->asRange()->Get_LoVal() / Get_Cellsize();
 	double	r_outer	= Parameters("RADIUS")->asRange()->Get_HiVal() / Get_Cellsize();
 
-	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
-	m_Cells.Get_Weighting().Set_BandWidth(r_outer * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
+	m_Kernel.Get_Weighting().Set_Parameters(&Parameters);
+	m_Kernel.Get_Weighting().Set_BandWidth(r_outer * m_Kernel.Get_Weighting().Get_BandWidth() / 100.0);
 
-	if( !m_Cells.Set_Annulus(r_inner, r_outer) )
+	if( !m_Kernel.Set_Annulus(r_inner, r_outer) )
 	{
 		return( false );
 	}
@@ -173,7 +167,7 @@ bool CTPI::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Cells.Destroy();
+	m_Kernel.Destroy();
 
 	if( Parameters("STANDARD")->asBool() )
 	{
@@ -198,9 +192,9 @@ bool CTPI::Get_Statistics(int x, int y)
 
 		CSG_Simple_Statistics	Statistics;
 
-		for(i=0, z=m_pDEM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
+		for(i=0, z=m_pDEM->asDouble(x, y); i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, id, iw, true) && id >= 0.0 && m_pDEM->is_InGrid(ix, iy) )
+			if( m_Kernel.Get_Values(i, ix = x, iy = y, id, iw, true) && id >= 0.0 && m_pDEM->is_InGrid(ix, iy) )
 			{
 				Statistics.Add_Value(m_pDEM->asDouble(ix, iy), iw);
 			}
@@ -231,52 +225,46 @@ bool CTPI::Get_Statistics(int x, int y)
 //---------------------------------------------------------
 CTPI_Classification::CTPI_Classification(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("TPI Based Landform Classification"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
 		"proposed by Wilson & Gallant (2000).\n"
 		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
-		"\n"
-		"References:\n"
-		"- Guisan, A., Weiss, S.B., Weiss, A.D. (1999): GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.\n"
-		"- Weiss, A.D. (2000): Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.\n"
-		"- Wilson, J.P. & Gallant, J.C. (2000): Terrain Analysis - Principles and Applications.\n"
+
+		"<hr><h4>References</h4><ul>"
+		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
+		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
+		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
+		"</ul>"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(
 		NULL	, "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
+	Parameters.Add_Grid(
 		NULL	, "LANDFORMS"	, _TL("Landforms"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS_A"	, _TL("Radius"),
+		NULL	, "RADIUS_A"	, _TL("Small Scale"),
 		_TL("radius in map units"),
 		0.0, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS_B"	, _TL("Radius"),
-		_TL("radius in map units"),
+		NULL	, "RADIUS_B"	, _TL("Large Scale"),
+		_TL("kernel radius in map units"),
 		0.0, 1000.0, 0.0, true
 	);
 
@@ -315,7 +303,7 @@ int CTPI_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -330,21 +318,19 @@ bool CTPI_Classification::On_Execute(void)
 	CSG_Grid	*pDEM		= Parameters("DEM"      )->asGrid();
 	CSG_Grid	*pLandforms	= Parameters("LANDFORMS")->asGrid();
 
-	CTPI	TPI;
+	CTPI	Calculator;	Calculator.Set_Manager(NULL);
 
-	TPI.Set_Manager(NULL);
+	Calculator.Get_Parameters()->Assign_Values(&Parameters);	// set DEM and Weighting scheme
 
-	TPI.Get_Parameters()->Assign_Values(&Parameters);	// set DEM and Weighting scheme
-
-	TPI.Get_Parameters()->Get_Parameter("STANDARD")->Set_Value(true);
+	Calculator.Set_Parameter("STANDARD", true);
 
 	//-----------------------------------------------------
 	CSG_Grid	gA(*Get_System());
 
-	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&gA);
-	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_A"));
+	Calculator.Set_Parameter("TPI"   , &gA);
+	Calculator.Set_Parameter("RADIUS", Parameters("RADIUS_A"));
 
-	if( !TPI.Execute() )
+	if( !Calculator.Execute() )
 	{
 		return( false );
 	}
@@ -352,10 +338,10 @@ bool CTPI_Classification::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	gB(*Get_System());
 
-	TPI.Get_Parameters()->Get_Parameter("TPI")->Set_Value(&gB);
-	TPI.Get_Parameters()->Set_Parameter("RADIUS", Parameters("RADIUS_B"));
+	Calculator.Set_Parameter("TPI"   , &gB);
+	Calculator.Set_Parameter("RADIUS", Parameters("RADIUS_B"));
 
-	if( !TPI.Execute() )
+	if( !Calculator.Execute() )
 	{
 		return( false );
 	}
@@ -457,16 +443,16 @@ bool CTPI_Classification::On_Execute(void)
 		//-------------------------------------------------
 		CSG_Strings	Name, Desc;
 
-		Name	+= _TL("Streams");				Desc	+= _TL("Canyons, Deeply Incised Streams");
-		Name	+= _TL("Midslope Drainages");	Desc	+= _TL("Midslope Drainages, Shallow Valleys");
-		Name	+= _TL("Upland Drainages");		Desc	+= _TL("Upland Drainages, Headwaters");
-		Name	+= _TL("Valleys");				Desc	+= _TL("U-shaped Valleys");
-		Name	+= _TL("Plains");				Desc	+= _TL("Plains");
-		Name	+= _TL("Open Slopes");			Desc	+= _TL("Open Slopes");
-		Name	+= _TL("Upper Slopes");			Desc	+= _TL("Upper Slopes, Mesas");
-		Name	+= _TL("Local Ridges");			Desc	+= _TL("Local Ridges, Hills in Valleys");
-		Name	+= _TL("Midslope Ridges");		Desc	+= _TL("Midslope Ridges, Small Hills in Plains");
-		Name	+= _TL("High Ridges");			Desc	+= _TL("Mountain Tops, High Ridges");
+		Name	+= _TL("Streams"           );	Desc	+= _TL("Canyons, Deeply Incised Streams"       );
+		Name	+= _TL("Midslope Drainages");	Desc	+= _TL("Midslope Drainages, Shallow Valleys"   );
+		Name	+= _TL("Upland Drainages"  );	Desc	+= _TL("Upland Drainages, Headwaters"          );
+		Name	+= _TL("Valleys"           );	Desc	+= _TL("U-shaped Valleys"                      );
+		Name	+= _TL("Plains"            );	Desc	+= _TL("Plains"                                );
+		Name	+= _TL("Open Slopes"       );	Desc	+= _TL("Open Slopes"                           );
+		Name	+= _TL("Upper Slopes"      );	Desc	+= _TL("Upper Slopes, Mesas"                   );
+		Name	+= _TL("Local Ridges"      );	Desc	+= _TL("Local Ridges, Hills in Valleys"        );
+		Name	+= _TL("Midslope Ridges"   );	Desc	+= _TL("Midslope Ridges, Small Hills in Plains");
+		Name	+= _TL("High Ridges"       );	Desc	+= _TL("Mountain Tops, High Ridges"            );
 
 		//-------------------------------------------------
 		CSG_Table	*pTable	= P("LUT")->asTable();
@@ -487,6 +473,209 @@ bool CTPI_Classification::On_Execute(void)
 		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
 
 		DataObject_Set_Parameters(pLandforms, P);
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTPI_MultiScale::CTPI_MultiScale(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Multi-Scale Topographic Position Index (TPI)"));
+
+	Set_Author		("O.Conrad (c) 2016");
+
+	Set_Description	(_TW(
+		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999).\n"
+		"\n"
+		"This implementation calculates the TPI for different scales and integrates these into one "
+		"single grid. The hierarchical integration is achieved by starting with the standardized "
+		"TPI values of the largest scale, then adding standardized values from smaller scales "
+		"where the (absolute) values from the smaller scale exceed those from the larger scale. "
+		"This integration scheme has been proposed by N. Zimmermann "
+		"(<a href=\"http://www.wsl.ch/staff/niklaus.zimmermann/programs/aml4_1.html\">toposcale.aml</a>).\n"
+
+		"<hr><h4>References</h4><ul>"
+		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
+		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
+		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
+		"</ul>"
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid(
+		NULL	, "DEM"			, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid(
+		NULL	, "TPI"			, _TL("Topographic Position Index"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Int(
+		NULL	, "SCALE_MIN"	, _TL("Minimum Scale"),
+		_TL("kernel radius in cells"),
+		1, 1, true
+	);
+
+	Parameters.Add_Int(
+		NULL	, "SCALE_MAX"	, _TL("Maximum Scale"),
+		_TL("kernel radius in cells"),
+		8, 1, true
+	);
+
+	Parameters.Add_Int(
+		NULL	, "SCALE_NUM"	, _TL("Number of Scales"),
+		_TL(""),
+		3, 2, true
+	);
+
+	Parameters.Add_Bool(
+		NULL	, "UPDATE"		, _TL("Update"),
+		_TL("update view for each integration step"),
+		false
+	)->Set_UseInCMD(false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTPI_MultiScale::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_MIN") )
+	{
+		if( pParameter->asInt() > pParameters->Get_Parameter("SCALE_MAX")->asInt() )
+		{
+			pParameter->Set_Value(pParameters->Get_Parameter("SCALE_MAX")->asInt());
+		}
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_MAX") )
+	{
+		if( pParameter->asInt() < pParameters->Get_Parameter("SCALE_MIN")->asInt() )
+		{
+			pParameter->Set_Value(pParameters->Get_Parameter("SCALE_MIN")->asInt());
+		}
+	}
+
+	//-----------------------------------------------------
+	int	Range	= pParameters->Get_Parameter("SCALE_MAX")->asInt()
+				- pParameters->Get_Parameter("SCALE_MIN")->asInt();
+
+	if( Range > 0 && Range + 1 < pParameters->Get_Parameter("SCALE_NUM")->asInt() )
+	{
+		pParameters->Set_Parameter("SCALE_NUM", Range + 1);
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CTPI_MultiScale::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	pParameters->Set_Enabled("SCALE_NUM",
+		pParameters->Get_Parameter("SCALE_MIN")->asInt() <
+		pParameters->Get_Parameter("SCALE_MAX")->asInt()
+	);
+
+	//-----------------------------------------------------
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTPI_MultiScale::On_Execute(void)
+{
+	//-----------------------------------------------------
+	int	Scale_Min	= Parameters("SCALE_MIN")->asInt();
+	int	Scale_Max	= Parameters("SCALE_MAX")->asInt();
+	int	nScales		= Parameters("SCALE_NUM")->asInt();
+
+	if( Scale_Min > Scale_Max || nScales < 2 )
+	{
+		Error_Fmt("%s (min=%d, max=%d, num=%d)", _TL("invalid parameters"), Scale_Min, Scale_Max, nScales);
+
+		return( false );
+	}
+
+	double	Scale	= Get_Cellsize() *  Scale_Max;
+	double	dScale	= Get_Cellsize() * (Scale_Max - Scale_Min) / (nScales - 1.0);
+
+	if( dScale <= 0.0 )
+	{
+		nScales	= 1;
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	TPI(*Get_System()), *pTPI	= Parameters("TPI")->asGrid();
+
+	CTPI	Calculator;	Calculator.Set_Manager(NULL);
+
+	Calculator.Set_Parameter("DEM"     , Parameters("DEM")->asGrid());
+	Calculator.Set_Parameter("TPI"     , pTPI);
+	Calculator.Set_Parameter("STANDARD", true);
+
+	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_LoVal(  0.0);
+	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_HiVal(Scale);
+
+	Process_Set_Text(CSG_String::Format(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales));
+	Message_Add     (CSG_String::Format("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales), false);
+
+	SG_UI_Msg_Lock(true);
+	Calculator.Execute();
+	SG_UI_Msg_Lock(false);
+
+	Calculator.Set_Parameter("TPI", &TPI);
+
+	//-----------------------------------------------------
+	for(int iScale=1; iScale<nScales && Process_Get_Okay(); iScale++)
+	{
+		if( Parameters("UPDATE")->asBool() )
+		{
+			DataObject_Update(pTPI);
+		}
+
+		Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_HiVal(Scale = Scale - dScale);
+
+		Process_Set_Text(CSG_String::Format(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales));
+		Message_Add     (CSG_String::Format("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales), false);
+
+		SG_UI_Msg_Lock(true);
+		Calculator.Execute();
+		SG_UI_Msg_Lock(false);
+
+		//-------------------------------------------------
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( !pTPI->is_NoData(x, y) && fabs(pTPI->asDouble(x, y)) < fabs(TPI.asDouble(x, y)) )
+				{
+					pTPI->Set_Value(x, y, TPI.asDouble(x, y));
+				}
+			}
+		}
 	}
 
 	//-----------------------------------------------------

@@ -95,7 +95,7 @@ protected:
 
 private:
 
-	CSG_Grid_Cell_Addressor	m_Cells;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
 	CSG_Grid				*m_pDEM, *m_pTPI;
 
@@ -128,6 +128,30 @@ protected:
 private:
 
 	CSG_Distance_Weighting	m_Weighting;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTPI_MultiScale : public CSG_Tool_Grid
+{
+public:
+	CTPI_MultiScale(void);
+
+
+protected:
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
 
 };
 

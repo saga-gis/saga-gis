@@ -149,6 +149,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 25:	return( new CFuzzy_Landform_Elements );
 	case 26:	return( new CCurvature_UpDownSlope );
 	case 27:	return( new CWind_Exposition );
+	case 28:	return( new CTPI_MultiScale );
 
 	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
