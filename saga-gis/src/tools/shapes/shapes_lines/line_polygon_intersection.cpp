@@ -283,7 +283,10 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 	{
 		CSG_Shape_Line	*pDifference	= (CSG_Shape_Line *)Difference.Get_Shape(iDifference);
 
-		pLine->Add_Part(pDifference->Get_Part(0));
+		if( pDifference->Get_Length(0) > 0 )
+		{
+			pLine->Add_Part(pDifference->Get_Part(0));
+		}
 	}
 
 	//-----------------------------------------------------
