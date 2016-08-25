@@ -47,6 +47,9 @@
     <ClCompile Include="textural_features.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="local_statistical_measures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -131,6 +134,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="textural_features.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="local_statistical_measures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

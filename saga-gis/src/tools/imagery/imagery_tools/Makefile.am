@@ -15,6 +15,7 @@ landsat_acca.cpp\
 landsat_import.cpp\
 landsat_toar.cpp\
 landsat_toar_core.cpp\
+local_statistical_measures.cpp\
 MLB_Interface.cpp\
 pansharpening.cpp\
 tasseled_cap.cpp\
@@ -26,6 +27,7 @@ landsat_acca.h\
 landsat_import.h\
 landsat_toar.h\
 landsat_toar_core.h\
+local_statistical_measures.h\
 MLB_Interface.h\
 pansharpening.h\
 tasseled_cap.h\
