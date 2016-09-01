@@ -116,6 +116,8 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+
 	case  0:	return( new CGDAL_Import );
 	case  1:	return( new CGDAL_Export );
 	case  2:	return( new CGDAL_Export_GeoTIFF );
@@ -133,11 +135,12 @@ CSG_Tool *		Create_Tool(int i)
 	case  9:	return( new CGDAL_Import_WMS );
 
 	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
+	case 10:	// initializations
 
-	return( NULL );
+		CPLSetErrorHandler(CPLQuietErrorHandler);
+
+		return( NULL );
+	}
 }
 
 

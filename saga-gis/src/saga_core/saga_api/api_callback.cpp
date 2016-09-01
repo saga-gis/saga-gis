@@ -396,6 +396,9 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 //---------------------------------------------------------
 void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 {
+	if( gSG_UI_Msg_Lock )
+		return;
+
 	if( gSG_UI_Callback )
 	{
 		CSG_UI_Parameter	p1(Message), p2;
