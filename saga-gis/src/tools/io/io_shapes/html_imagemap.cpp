@@ -247,22 +247,31 @@ bool CHTML_ImageMap::Get_Polygon(CSG_String &Coords, CSG_Shape_Part *pPolygon)
 {
 	double	Scale	= m_Image.Get_NX() / m_Image.Get_XRange(true);
 
+	TSG_Point	p	= pPolygon->Get_Point(0, false);	// get last point
+
+	int			n	= 0;
+
 	for(int iPoint=0; iPoint<pPolygon->Get_Count(); iPoint++)
 	{
-		TSG_Point	p	= pPolygon->Get_Point(iPoint);
+		CSG_Point	q	= pPolygon->Get_Point(iPoint);
 
-		if( iPoint > 0 )
+		if( q != p )
 		{
-			Coords	+= ",";
-		}
+			p	= q;
 
-		Coords	+= CSG_String::Format("%d,%d",
-			(int)(0.5 + (p.x - m_Image.Get_XMin(true)) * Scale),
-			(int)(0.5 + (m_Image.Get_YMax(true) - p.y) * Scale)
-		);
+			if( n++ )
+			{
+				Coords	+= ",";
+			}
+
+			Coords	+= CSG_String::Format("%d,%d",
+				(int)(0.5 + (p.x - m_Image.Get_XMin(true)) * Scale),
+				(int)(0.5 + (m_Image.Get_YMax(true) - p.y) * Scale)
+			);
+		}
 	}
 
-	return( true );
+	return( n > 2 );
 }
 
 
