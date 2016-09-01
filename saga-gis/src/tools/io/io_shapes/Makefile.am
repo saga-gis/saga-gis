@@ -19,6 +19,7 @@ citygml_import.cpp\
 generate.cpp\
 gpx.cpp\
 gstat.cpp\
+html_imagemap.cpp\
 MLB_Interface.cpp\
 pointcloud_from_file.cpp\
 pointcloud_from_text_file.cpp\
@@ -34,6 +35,7 @@ citygml_import.h\
 generate.h\
 gpx.h\
 gstat.h\
+html_imagemap.h\
 MLB_Interface.h\
 pointcloud_from_file.h\
 pointcloud_from_text_file.h\
