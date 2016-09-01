@@ -94,12 +94,16 @@ protected:
 
 private:
 
-	int						m_Radius;
+	int						m_Normalize, m_Radius;
+
+	double					m_Minimum, m_Scale;
 
 	CSG_Grid_Cell_Addressor	m_Kernel;
 
-	CSG_Grid				*m_pGrid, *m_pContrast, *m_pEnergy, *m_pEntropy, *m_pHomogeneity, *m_pVariance;
+	CSG_Grid				*m_pGrid, *m_pContrast, *m_pEnergy, *m_pEntropy, *m_pVariance;
 
+
+	bool					Get_Value				(int x, int y, double &z);
 
 	bool					Get_Measure				(int x, int y);
 

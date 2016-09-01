@@ -85,7 +85,6 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 	Parameters.Add_Grid(NULL, "CONTRAST"   , _TL("Contrast"   ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(NULL, "ENERGY"     , _TL("Energy"     ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(NULL, "ENTROPY"    , _TL("Entropy"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "HOMOGENEITY", _TL("Homogeneity"), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid(NULL, "VARIANCE"   , _TL("Variance"   ), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Choice(
@@ -100,7 +99,28 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 	Parameters.Add_Int(
 		NULL	, "RADIUS"		, _TL("Radius"),
 		_TL("kernel radius in cells"),
-		PARAMETER_TYPE_Int, 0.0, 0.0, true
+		1, 1, true
+	);
+
+	CSG_Parameter	*pNode	= Parameters.Add_Choice(
+		NULL	, "NORMALIZE"	, _TL("Normalization"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("no"),
+			_TL("scale to range")
+		), 1
+	);
+
+	Parameters.Add_Double(
+		pNode	, "NORM_MIN"	, _TL("Minimum"),
+		_TL(""),
+		1.0
+	);
+
+	Parameters.Add_Double(
+		pNode	, "NORM_MAX"	, _TL("Maximum"),
+		_TL(""),
+		255.0
 	);
 }
 
@@ -112,6 +132,12 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 //---------------------------------------------------------
 int CLocal_Statistical_Measures::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NORMALIZE") )
+	{
+		pParameters->Set_Enabled("NORM_MIN", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("NORM_MAX", pParameter->asInt() == 1);
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -126,21 +152,32 @@ bool CLocal_Statistical_Measures::On_Execute(void)
 	//-----------------------------------------------------
 	m_pGrid	= Parameters("GRID")->asGrid();
 
+	if( m_pGrid->Get_ZRange() <= 0.0 )
+	{
+		Error_Set(_TL("nothing to do, input data has no variation."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	m_pContrast		= Parameters("CONTRAST"   )->asGrid();
 	m_pEnergy		= Parameters("ENERGY"     )->asGrid();
 	m_pEntropy		= Parameters("ENTROPY"    )->asGrid();
-	m_pHomogeneity	= Parameters("HOMOGENEITY")->asGrid();
 	m_pVariance		= Parameters("VARIANCE"   )->asGrid();
 
 	DataObject_Set_Colors(m_pContrast   , 11, SG_COLORS_RAINBOW);
 	DataObject_Set_Colors(m_pEnergy     , 11, SG_COLORS_RAINBOW);
 	DataObject_Set_Colors(m_pEntropy    , 11, SG_COLORS_RAINBOW);
-	DataObject_Set_Colors(m_pHomogeneity, 11, SG_COLORS_RAINBOW);
 	DataObject_Set_Colors(m_pVariance   , 11, SG_COLORS_RAINBOW);
 
 	//-----------------------------------------------------
 	m_Kernel.Get_Weighting().Set_Parameters(&Parameters);
 	m_Kernel.Set_Radius(m_Radius = Parameters("RADIUS")->asInt(), Parameters("TYPE")->asInt() == 0);
+
+	//-----------------------------------------------------
+	m_Normalize	=  Parameters("NORMALIZE")->asInt();
+	m_Minimum	=  Parameters("NORM_MIN" )->asDouble();
+	m_Scale		= (Parameters("NORM_MAX" )->asDouble() - m_Minimum) / m_pGrid->Get_ZRange();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -164,15 +201,42 @@ bool CLocal_Statistical_Measures::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+inline bool CLocal_Statistical_Measures::Get_Value(int x, int y, double &z)
+{
+	if( m_pGrid->is_InGrid(x, y) )
+	{
+		switch( m_Normalize )
+		{
+		default:
+			z	= m_pGrid->asDouble(x, y);
+			break;
+
+		case  1:
+			z	= m_Minimum + m_Scale * (m_pGrid->asDouble(x, y) - m_pGrid->Get_ZMin());
+			break;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CLocal_Statistical_Measures::Get_Measure(int x, int y)
 {
 	//-----------------------------------------------------
-	CSG_Simple_Statistics	Statistics;
+	CSG_Simple_Statistics	s;
 
-	double	Contrast	= 0.0;
 	double	Energy		= 0.0;
 	double	Entropy		= 0.0;
-	double	Homogeneity	= 0.0;
+
+	double	z;
 
 	//-----------------------------------------------------
 	for(int i=0; i<m_Kernel.Get_Count(); i++)
@@ -180,28 +244,24 @@ bool CLocal_Statistical_Measures::Get_Measure(int x, int y)
 		int	ix	= m_Kernel.Get_X(i);
 		int	iy	= m_Kernel.Get_Y(i);
 
-		if( m_pGrid->is_InGrid(x + ix, y + iy) )
+		if( Get_Value(x + ix, y + iy, z) )
 		{
-			double	z	= m_pGrid->asDouble(x + ix, y + iy);
-
-			int	i_less_j	= (ix + m_Radius) - (iy + m_Radius);
-
-			Statistics	+= z;
-			Contrast	+= z * SG_Get_Square(i_less_j);
+			s			+= z;
 			Energy		+= z*z;
 			Entropy		+= z * log(z > 0.0 ? z : M_ALMOST_ZERO);
-			Homogeneity	+= z / (1.0 + abs(i_less_j));
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Statistics.Get_Count() > 0 )
+	if( s.Get_Count() > 0 )
 	{
-		m_pContrast   ->Set_Value(x, y, Contrast   );
+		Get_Value(x, y, z);
+
+		m_pContrast   ->Set_Value(x, y, s.Get_Mean() ? (z - s.Get_Mean()) / s.Get_Mean() : 0.0);	// Weber
+	//	m_pContrast   ->Set_Value(x, y, s.Get_Range() ? s.Get_Range() / (s.Get_Minimum() + s.Get_Maximum()) : 0.0);	// Michelson
 		m_pEnergy     ->Set_Value(x, y, Energy     );
 		m_pEntropy    ->Set_Value(x, y, Entropy    );
-		m_pHomogeneity->Set_Value(x, y, Homogeneity);
-		m_pVariance   ->Set_Value(x, y, Statistics.Get_Variance());
+		m_pVariance   ->Set_Value(x, y, s.Get_Variance());
 
 		return( true );
 	}
@@ -209,7 +269,6 @@ bool CLocal_Statistical_Measures::Get_Measure(int x, int y)
 	m_pContrast   ->Set_NoData(x, y);
 	m_pEnergy     ->Set_NoData(x, y);
 	m_pEntropy    ->Set_NoData(x, y);
-	m_pHomogeneity->Set_NoData(x, y);
 	m_pVariance   ->Set_NoData(x, y);
 
 	return( false );
