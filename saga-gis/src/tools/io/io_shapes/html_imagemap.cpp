@@ -71,9 +71,9 @@
 //---------------------------------------------------------
 CHTML_ImageMap::CHTML_ImageMap(void)
 {
-	Set_Name		(_TL("Export HTML Image Map"));
+	Set_Name		(_TL("Export Polygons to HTML Image Map"));
 
-	Set_Author		("P.Lamp, O.Conrad (c) 2016");
+	Set_Author		("P.Lamp, J.Wehberg, O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
 		"Tool to create an HTML ImageMap with polygon dataset and image. "
