@@ -1045,9 +1045,17 @@ public:
 
 	CSG_Distance_Weighting &	Get_Weighting		(void)								{	return( m_Weighting );		}
 
+	bool						is_Square			(void)	const	{	return( m_Type == 1 );	}
+	bool						is_Annulus			(void)	const	{	return( m_Type == 2 );	}
+	bool						is_Sector			(void)	const	{	return( m_Type == 3 );	}
+
 	bool						Set_Radius			(double Radius, bool bSquare = false);
 	bool						Set_Annulus			(double inner_Radius, double outer_Radius);
 	bool						Set_Sector			(double Radius, double Direction, double Tolerance);
+
+	double						Get_Radius			(bool bOuter = true)	const	{	return( m_Parms[bOuter ? 0 : 1] );	}
+	double						Get_Direction		(void)					const	{	return( m_Parms[2] );	}
+	double						Get_Tolerance		(void)					const	{	return( m_Parms[3] );	}
 
 	int							Get_Count			(void)	const						{	return( m_Cells.Get_Count() );	}
 
@@ -1085,6 +1093,10 @@ public:
 
 
 private:
+
+	int							m_Type;
+
+	double						m_Parms[4];
 
 	CSG_Distance_Weighting		m_Weighting;
 

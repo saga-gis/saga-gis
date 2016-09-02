@@ -345,6 +345,9 @@ bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius, bool bSquare)
 {
 	Destroy();
 
+	m_Type		= bSquare ? 1 : 0;
+	m_Parms[0]	= Radius;
+
 	//-----------------------------------------------------
 	if( Radius > 0.0 )
 	{
@@ -382,6 +385,10 @@ bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius, bool bSquare)
 bool CSG_Grid_Cell_Addressor::Set_Annulus(double inner_Radius, double outer_Radius)
 {
 	Destroy();
+
+	m_Type		= 2;
+	m_Parms[0]	= outer_Radius;
+	m_Parms[1]	= inner_Radius;
 
 	//-----------------------------------------------------
 	if( inner_Radius <= outer_Radius )
@@ -423,6 +430,11 @@ bool CSG_Grid_Cell_Addressor::Set_Annulus(double inner_Radius, double outer_Radi
 bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double Tolerance)
 {
 	Destroy();
+
+	m_Type		= 3;
+	m_Parms[0]	= Radius;
+	m_Parms[2]	= Direction;
+	m_Parms[3]	= Tolerance;
 
 	//-----------------------------------------------------
 	if( Radius > 0.0 )
