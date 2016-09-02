@@ -1175,6 +1175,267 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data, int x, int y, int ID)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CViGrA_RF_Table::CViGrA_RF_Table(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Random Forest Table Classification (ViGrA)"));
+
+	Set_Author		("B. Bechtel, O.Conrad (c) 2015");
+
+	Set_Description	(_TW(
+		"References:\n"
+		"ViGrA - Vision with Generic Algorithms\n"
+		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+	));
+
+	//-----------------------------------------------------
+	CSG_Parameter	 *pNode	= Parameters.Add_Table(
+		NULL	, "TABLE"		, _TL("Table"),
+		_TL("Table with features, must include class-ID"),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Fields(
+		pNode	, "FEATURES"	, _TL("Features"),
+		_TL("Select features (table fields) for classification")
+	);
+
+	Parameters.Add_Table_Field(
+		pNode	, "PREDICTION"	, _TL("Prediction"),
+		_TL("This is field that will have the prediction results. If not set it will be added to the table."),
+		true
+	);
+
+	pNode	= Parameters.Add_Table_Field(
+		pNode	, "TRAINING"	, _TL("Training"),
+		_TL("this is the table field that defines the training classes"),
+		false
+	);
+
+	Parameters.Add_Value(
+		pNode	, "LABEL_AS_ID"	, _TL("Use Label as Identifier"),
+		_TL("Use training area labels as identifier in classification result, assumes all label values are integer numbers!"),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Table(
+		NULL	, "IMPORTANCES"	, _TL("Feature Importances"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	//-----------------------------------------------------
+	CRandom_Forest::Parameters_Create(Parameters);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CViGrA_RF_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
+	{
+		bool	bTraining	= !SG_File_Exists(pParameter->asString());
+
+		pParameters->Set_Enabled("RF_OPTIONS" , bTraining);
+		pParameters->Set_Enabled("TRAINING"   , bTraining);
+		pParameters->Set_Enabled("IMPORTANCES", bTraining);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CViGrA_RF_Table::On_Execute(void)
+{
+	//-----------------------------------------------------		
+	Process_Set_Text(_TL("Initialization"));
+
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	int	*Features	= (int *)Parameters("FEATURES")->asPointer();	// gibt Pointer auf Feature List
+	int	nFeatures	=        Parameters("FEATURES")->asInt    ();	// gibt Anzahl der Features
+
+	int fPredict	= Parameters("PREDICTION")->asInt();
+
+	//-----------------------------------------------------
+	CSG_Category_Statistics	Categories;
+
+	bool	bCategories	= false;
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("Model Creation"));
+
+	CRandom_Forest	Model(&Parameters);
+
+	//-----------------------------------------------------		
+	if( Model.Load_Model(false) )	// load model from file ...
+	{
+		if( !Model.Load_Model(true) )
+		{
+			Error_Set(_TL("could not import random forest"));
+
+			return( false );
+		}
+
+		if( Model.Get_Feature_Count() != nFeatures )
+		{
+			Error_Fmt("%s\n%s: %d", _TL("invalid number of features"), _TL("expected"), Model.Get_Feature_Count());
+
+			return( false );
+		}
+
+		if( fPredict < 0 )
+		{
+			fPredict	= pTable->Get_Field_Count();
+
+			pTable->Add_Field("RF_CLASSES", SG_DATATYPE_Int);
+		}
+	}
+
+	//-----------------------------------------------------		
+	else							// train model from training data ...
+	{
+		CSG_Matrix	Data; // Matrix with Training Data for RF VIGRA [feat1, feat 2, ..., id]
+
+		int fTrain	= Parameters("TRAINING")->asInt();
+
+		bCategories	= Parameters("LABEL_AS_ID")->asBool() == false;
+
+		if( !bCategories && !SG_Data_Type_is_Numeric(pTable->Get_Field_Type(fTrain)) )
+		{
+			Error_Set(_TL("training data field must be numeric"));
+
+			return( false );
+		}
+
+		for(int iRecord=0; iRecord<pTable->Get_Count(); iRecord++) // baue trainingsdaten aus records
+		{
+			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+			if( !pRecord->is_NoData(fTrain) )	// ist trainingswertn
+			{
+				CSG_Vector	d(nFeatures + 1);
+
+				for(int iFeature=0; iFeature<nFeatures; iFeature++)
+				{
+					d[iFeature]	= pRecord->asDouble(Features[iFeature]); // andere felder aus Tabelle bauen
+				}
+
+				if( bCategories )
+				{
+					d[nFeatures] = Categories.Add_Value(pRecord->asString(fTrain)); // letztes field ist ID
+				}
+				else
+				{
+					d[nFeatures] = Categories.Add_Value(pRecord->asInt   (fTrain)); // letztes field ist ID
+				}
+
+				Data.Add_Row(d);
+			}
+		}
+
+		if( Data.Get_NRows() <= 1 )
+		{
+			Error_Set(_TL("insufficient training samples"));
+
+			return( false );
+		}
+
+		Model.Train_Model(Data);
+
+		if( fPredict < 0 )
+		{
+			fPredict	= pTable->Get_Field_Count();
+
+			pTable->Add_Field("RF_CLASSES", pTable->Get_Field_Type(fTrain));
+		}
+
+		//-------------------------------------------------
+		int	iFeature, iClass;
+
+		CSG_Table	*pImportances	= Parameters("IMPORTANCES")->asTable();
+
+		pImportances->Destroy();
+		pImportances->Set_Name(_TL("Feature Importances"));
+
+		pImportances->Add_Field(_TL("Feature"), SG_DATATYPE_String);
+
+		for(iClass=0; iClass<Categories.Get_Count(); iClass++)
+		{
+			pImportances->Add_Field(Categories.asString(iClass), SG_DATATYPE_Double);
+		}
+
+		pImportances->Add_Field(_TL("Permutation Importance"), SG_DATATYPE_Double);
+		pImportances->Add_Field(_TL("Gini Decrease"         ), SG_DATATYPE_Double);
+
+		for(iFeature=0; iFeature<nFeatures; iFeature++)
+		{
+			CSG_Table_Record	*pImportance	= pImportances->Add_Record();
+
+			pImportance->Set_Value(0, pTable->Get_Field_Name(Features[iFeature]));
+
+			for(iClass=0; iClass<Model.Get_Class_Count(); iClass++)
+			{
+				pImportance->Set_Value(1 + iClass, Model.Get_Importance(iFeature, iClass));
+			}
+
+			pImportance->Set_Value(1 + Categories.Get_Count(), Model.Get_Importance(iFeature));
+			pImportance->Set_Value(2 + Categories.Get_Count(), Model.Get_Gini      (iFeature));
+		}
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("Prediction"));
+
+	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+		vigra::Matrix<double>	features(1, nFeatures);
+
+		for(int iFeature=0; iFeature<nFeatures; iFeature++)
+		{
+			features(0, iFeature)	= pRecord->asDouble(Features[iFeature]);
+		}
+
+		int	Prediction	= Model.Get_Prediction(features);
+
+		if( bCategories )
+		{
+			pRecord->Set_Value(fPredict, Categories.asString(Prediction));
+		}
+		else
+		{
+			pRecord->Set_Value(fPredict, Categories.asInt   (Prediction));
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pTable == Parameters("TABLE")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
 
 
