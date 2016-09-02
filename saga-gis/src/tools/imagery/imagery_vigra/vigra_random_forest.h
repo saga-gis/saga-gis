@@ -189,7 +189,7 @@ private:
 
 #define new_CViGrA_Random_Forest	TLB_INTERFACE_SKIP_TOOL
 #define new_CViGrA_RF_Presence		TLB_INTERFACE_SKIP_TOOL
-
+#define new_CViGrA_RF_Table			TLB_INTERFACE_SKIP_TOOL
 #endif
 
 
