@@ -1728,7 +1728,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 
 						pEntry	= pList->Add_Child(*pList, false);
 
-						pEntry->Set_Name(pObject->Get_Name());
+						pEntry->Set_Name("INPUT");
 						
 						if( !SG_Get_History_Ignore_Lists() && pObject->Get_History().Get_Children_Count() > 0 )
 						{
