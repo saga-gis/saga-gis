@@ -568,6 +568,7 @@ public:
 	double						Get_Maximum			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Maximum  );	}
 	double						Get_Range			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Range    );	}
 	double						Get_Sum				(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Sum      );	}
+	double						Get_Sum_Of_Squares	(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Sum2     );	}
 	double						Get_Mean			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Mean     );	}
 	double						Get_Variance		(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_Variance );	}
 	double						Get_StdDev			(void)		{	if( m_bEvaluated < 1 )	_Evaluate(1); return( m_StdDev   );	}
@@ -670,6 +671,7 @@ public:
 	}
 
 	void			Add_Value				(double Value);
+	void			operator +=				(double Value)	{	Add_Value(Value);	}
 
 	int				Get_Majority			(void);
 	bool			Get_Majority			(double &Value            )	{	int	Count; return( Get_Class(Get_Majority(), Value, Count) );	}
@@ -743,6 +745,7 @@ public:
 	}
 
 	void			Add_Value				(double Value, double Weight = 1.0);
+	void			operator +=				(double Value)	{	Add_Value(Value);	}
 
 	int				Get_Majority			(void);
 	bool			Get_Majority			(double &Value);
@@ -758,6 +761,93 @@ private:
 	CSG_Array		m_Array;
 
 	TClass			*m_Classes;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Category_Statistics
+{
+public:
+	         CSG_Category_Statistics		(TSG_Data_Type Type = SG_DATATYPE_String);
+	virtual ~CSG_Category_Statistics		(void);
+
+	void			Create					(TSG_Data_Type Type = SG_DATATYPE_String);
+	void			Destroy					(void);
+
+	TSG_Data_Type	Get_Category_Type		(void)	const;
+
+	int				Add_Value				(int               Value);
+	int				Add_Value				(double            Value);
+	int				Add_Value				(const CSG_String &Value);
+
+	void			operator +=				(int               Value)	{	Add_Value(Value);	}
+	void			operator +=				(double            Value)	{	Add_Value(Value);	}
+	void			operator +=				(const CSG_String &Value)	{	Add_Value(Value);	}
+
+	bool			Sort					(void);
+
+	int				Get_Count				(void         )	const;
+	int				Get_Count				(int iCategory)	const;
+
+	int				asInt					(int iCategory)	const;
+	double			asDouble				(int iCategory)	const;
+	CSG_String		asString				(int iCategory)	const;
+
+	int				Get_Category			(int               Value)	const;
+	int				Get_Category			(double            Value)	const;
+	int				Get_Category			(const CSG_String &Value)	const;
+
+	bool			Get_Category			(int iCategory, int        &Value, int &Count)	const
+	{
+		Count	= Get_Count(iCategory);
+		Value	= asInt    (iCategory);
+
+		return( iCategory >= 0 && iCategory < Get_Count() );
+	}
+
+	bool			Get_Category			(int iCategory, double     &Value, int &Count)	const
+	{
+		Count	= Get_Count(iCategory);
+		Value	= asDouble (iCategory);
+
+		return( iCategory >= 0 && iCategory < Get_Count() );
+	}
+
+	bool			Get_Category			(int iCategory, CSG_String &Value, int &Count)	const
+	{
+		Count	= Get_Count(iCategory);
+		Value	= asString (iCategory);
+
+		return( iCategory >= 0 && iCategory < Get_Count() );
+	}
+
+	int				Get_Majority			(void);
+	bool			Get_Majority			(int        &Value            )	{	int	Count; return( Get_Category(Get_Majority(), Value, Count) );	}
+	bool			Get_Majority			(double     &Value            )	{	int	Count; return( Get_Category(Get_Majority(), Value, Count) );	}
+	bool			Get_Majority			(CSG_String &Value            )	{	int	Count; return( Get_Category(Get_Majority(), Value, Count) );	}
+	bool			Get_Majority			(int        &Value, int &Count)	{	           return( Get_Category(Get_Majority(), Value, Count) && Count > 0 );	}
+	bool			Get_Majority			(double     &Value, int &Count)	{	           return( Get_Category(Get_Majority(), Value, Count) && Count > 0 );	}
+	bool			Get_Majority			(CSG_String &Value, int &Count)	{	           return( Get_Category(Get_Majority(), Value, Count) && Count > 0 );	}
+
+	int				Get_Minority			(void);
+	bool			Get_Minority			(int        &Value            )	{	int	Count; return( Get_Category(Get_Minority(), Value, Count) );	}
+	bool			Get_Minority			(double     &Value            )	{	int	Count; return( Get_Category(Get_Minority(), Value, Count) );	}
+	bool			Get_Minority			(CSG_String &Value            )	{	int	Count; return( Get_Category(Get_Minority(), Value, Count) );	}
+	bool			Get_Minority			(int        &Value, int &Count)	{	           return( Get_Category(Get_Minority(), Value, Count) && Count > 0 );	}
+	bool			Get_Minority			(double     &Value, int &Count)	{	           return( Get_Category(Get_Minority(), Value, Count) && Count > 0 );	}
+	bool			Get_Minority			(CSG_String &Value, int &Count)	{	           return( Get_Category(Get_Minority(), Value, Count) && Count > 0 );	}
+
+
+private:
+
+	class CSG_Table	*m_pTable;
 
 };
 
