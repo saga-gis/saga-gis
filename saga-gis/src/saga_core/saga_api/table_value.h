@@ -126,10 +126,14 @@ public:
 		return( CSG_Bytes((BYTE *)s, (int)(s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
 	}
 
-	virtual const SG_Char *			asString		(int Decimals = -1)	const	= 0;
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	= 0;
 	virtual int						asInt			(void)				const	= 0;
 	virtual sLong					asLong			(void)				const	= 0;
 	virtual double					asDouble		(void)				const	= 0;
+
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const	= 0;
+	bool							operator ==		(const CSG_Table_Value &Value)	const	{	return( is_Equal(Value) );	}
 
 	//-----------------------------------------------------
 	operator const SG_Char *						(void)				const	{	return( asString() );	}
@@ -188,11 +192,18 @@ public:
 
 	//-----------------------------------------------------
 	virtual CSG_Bytes				asBinary		(void)				const	{	return( m_Value );					}
-	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
 	virtual int						asInt			(void)				const	{	return( m_Value.Get_Count() );		}
 	virtual sLong					asLong			(void)				const	{	return( m_Value.Get_Count() );		}
 	virtual double					asDouble		(void)				const	{	return( 0.0 );	}
 
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( !SG_STR_CMP(asString(), Value.asString()) );
+	}
+
+	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asBinary());	return( *this );	}
 
 	//-----------------------------------------------------
@@ -253,10 +264,16 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( m_Value );							}
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Value );							}
 	virtual int						asInt			(void)				const	{	return( m_Value.asInt() );					}
 	virtual sLong					asLong			(void)				const	{	return( m_Value.asInt() );					}
 	virtual double					asDouble		(void)				const	{	return( m_Value.asDouble() );				}
+
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( !m_Value.Cmp(Value.asString()) );
+	}
 
 	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
@@ -317,11 +334,18 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = -1)	const	{	return( m_Date );	}
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Date );	}
 	virtual int						asInt			(void)				const	{	return( m_Value );	}
 	virtual sLong					asLong			(void)				const	{	return( m_Value );	}
 	virtual double					asDouble		(void)				const	{	return( m_Value );	}
 
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( m_Value	== Value.asInt() );
+	}
+
+	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
 
 
@@ -384,7 +408,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = -1)	const
+	virtual const SG_Char *			asString		(int Decimals = 0)	const
 	{
 		static CSG_String	s;
 
@@ -397,6 +421,13 @@ public:
 	virtual sLong					asLong			(void)				const	{	return( m_Value );	}
 	virtual double					asDouble		(void)				const	{	return( m_Value );	}
 
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( m_Value	== Value.asInt() );
+	}
+
+	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asInt());	return( *this );	}
 
 
@@ -457,7 +488,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = -1)	const
+	virtual const SG_Char *			asString		(int Decimals = 0)	const
 	{
 		static CSG_String	s;
 
@@ -470,6 +501,13 @@ public:
 	virtual sLong					asLong			(void)				const	{	return(         m_Value );	}
 	virtual double					asDouble		(void)				const	{	return( (double)m_Value );	}
 
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( m_Value	== Value.asLong() );
+	}
+
+	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asLong());	return( *this );	}
 
 
@@ -530,7 +568,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = -1)	const
+	virtual const SG_Char *			asString		(int Decimals = 0)	const
 	{
 		static CSG_String	s;
 
@@ -543,6 +581,13 @@ public:
 	virtual sLong					asLong			(void)				const	{	return( (sLong)m_Value );	}
 	virtual double					asDouble		(void)				const	{	return(        m_Value );	}
 
+	//-----------------------------------------------------
+	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
+	{
+		return( m_Value	== Value.asDouble() );
+	}
+
+	//-----------------------------------------------------
 	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asDouble());	return( *this );	}
 
 
