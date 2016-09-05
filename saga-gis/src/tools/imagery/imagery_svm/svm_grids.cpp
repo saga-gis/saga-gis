@@ -675,7 +675,7 @@ bool CSVM_Grids::Training_Get_Elements(CSG_Table &Elements)
 
 	for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
 	{
-		Elements.Add_Field(SG_Get_String(iGrid, 0), SG_DATATYPE_Double);
+		Elements.Add_Field(SG_Get_String(iGrid), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

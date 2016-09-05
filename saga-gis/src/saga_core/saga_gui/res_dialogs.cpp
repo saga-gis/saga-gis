@@ -490,7 +490,7 @@ bool		DLG_Table_Fields(const wxString &Caption, CSG_Parameter_Table_Fields *pFie
 
 		for(i=0; i<pTable->Get_Field_Count(); i++)
 		{
-			P.Add_Value(NULL, SG_Get_String(i, 0), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+			P.Add_Value(NULL, SG_Get_String(i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 		}
 
 		for(i=0; i<pFields->Get_Count(); i++)

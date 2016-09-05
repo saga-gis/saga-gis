@@ -1357,6 +1357,8 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 				}
 				else if( Type == iType )
 				{
+					m_Sel_Parms[0].Set_Callback(false);
+
 					m_Sel_Items.Add(IDs[iID]);
 
 					for(int i=0; i<m_Sel_Parms[0].Get_Count(); i++)
@@ -1399,6 +1401,8 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 							}
 						}
 					}
+
+					m_Sel_Parms[0].Set_Callback(true);
 				}
 				else //  Type != iType
 				{

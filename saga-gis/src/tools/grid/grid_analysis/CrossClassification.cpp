@@ -81,7 +81,7 @@ bool CCrossClassification::On_Execute(void){
 	pTable->Set_Name(_TL("Cross-Tabulation"));
 
 	for (i = 0; i < iNumClasses; i++){
-		pTable->Add_Field(SG_Get_String(i+1,0).c_str(), SG_DATATYPE_Int);
+		pTable->Add_Field(SG_Get_String(i+1).c_str(), SG_DATATYPE_Int);
 		pTabulation[i] = new int[iNumClasses];
 		for(j=0; j < iNumClasses; j++){
 			pTabulation[i][j] = 0;

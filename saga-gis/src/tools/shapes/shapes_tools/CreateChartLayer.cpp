@@ -175,7 +175,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:	// is numeric field
 			m_pExtraParameters->Add_Value(
-				NULL, SG_Get_String(i,0).c_str(), pInput->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
+				NULL, SG_Get_String(i).c_str(), pInput->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
 			);
 			break;
 		}
@@ -183,7 +183,7 @@ bool CCreateChartLayer::GetExtraParameters(){
 
 	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pInput->Get_Field_Count(); i++){
-			sName = SG_Get_String(i,0);
+			sName = SG_Get_String(i);
 			if (pParam = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
 				m_bIncludeParam[i] = pParam->asBool();
 				bIsValidSelection = true;

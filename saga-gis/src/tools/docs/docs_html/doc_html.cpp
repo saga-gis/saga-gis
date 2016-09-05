@@ -137,11 +137,11 @@ void CSG_Doc_HTML::AddHeader(const SG_Char *Text,
 {
 
 	m_sHTMLCode.Append(SG_T("<h"));
-	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
+	m_sHTMLCode.Append(SG_Get_String(iOrder));
 	m_sHTMLCode.Append(SG_T(" align=\"left\">"));
 	m_sHTMLCode.Append(Text);
 	m_sHTMLCode.Append(SG_T("</h"));
-	m_sHTMLCode.Append(SG_Get_String(iOrder,0));
+	m_sHTMLCode.Append(SG_Get_String(iOrder));
 	m_sHTMLCode.Append(SG_T(">\n"));
 
 }
@@ -192,7 +192,7 @@ void CSG_Doc_HTML::AddThumbnail(const SG_Char *Filename,
     m_sHTMLCode.Append(SG_T("<img src=\""));
     m_sHTMLCode.Append(Filename);
     m_sHTMLCode.Append(SG_T("\" width="));
-    m_sHTMLCode.Append(SG_Get_String(iWidth,0));
+    m_sHTMLCode.Append(SG_Get_String(iWidth));
     if (bIsPercent)
     {
 		m_sHTMLCode.Append(SG_T("%"));
@@ -318,9 +318,9 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 	CSG_Doc_SVG SVG;
 
 	m_sHTMLCode.Append(SG_T("<object type=\"image/svg+xml\" width=\""));
-	m_sHTMLCode.Append(SG_Get_String(GRAPH_WIDTH + OFFSET_X, 0));
+	m_sHTMLCode.Append(SG_Get_String(GRAPH_WIDTH + OFFSET_X));
 	m_sHTMLCode.Append(SG_T("\" height=\""));
-	m_sHTMLCode.Append(SG_Get_String(GRAPH_HEIGHT + OFFSET_Y, 0));
+	m_sHTMLCode.Append(SG_Get_String(GRAPH_HEIGHT + OFFSET_Y));
 	m_sHTMLCode.Append(SG_T("\" data=\"file://"));
 	m_sHTMLCode.Append(Filename);
 	m_sHTMLCode.Append(SG_T("\"></object><br>\n"));

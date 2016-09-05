@@ -1160,26 +1160,45 @@ void			SG_Flip_Decimal_Separators(CSG_String &String)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+  * Returns floating point number 'Value' as formatted string.
+  * If 'bScientific' is true the string will always be formatted
+  * with the %e format specification (i.e.: d.dddd e dd). Else the
+  * format depends on the 'Precision' value. If Precision is 0
+  * it will simply use %f format. If Precision is positive (> 0)
+  * it specifies the fix number of decimals ("%.*f", Precision, Value),
+  * if negative only significant decimals will be plotted up to a
+  * maximum of the absolute value of 'Precision' digits.
+*/
+//---------------------------------------------------------
 CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 {
 	CSG_String	s;
 
-	if( Precision >= 0 )
+	if( bScientific )
 	{
-		s.Printf("%.*f", Precision, Value);
+		s.Printf("%e", Value);
 	}
-	else if( Precision == -1 )
+	else if( Precision == 0 )
 	{
 		s.Printf("%f", Value);
 	}
-	else // if( Precision == -2 )
+	else if( Precision > 0 )
+	{
+		s.Printf("%.*f", Precision, Value);
+	}
+	else // if( Precision < 0 )
 	{
 		Precision	= SG_Get_Significant_Decimals(Value, abs(Precision));
 
-		s.Printf("%.*f", SG_Get_Significant_Decimals(Value, abs(Precision)), Value);
-
-		if( Precision > 0 )
+		if( Precision == 0 )
 		{
+			s.Printf("%d", (int)Value);
+		}
+		else // if( Precision > 0 )
+		{
+			s.Printf("%.*f", Precision, Value);
+
 			while( s.Length() > 1 && s[s.Length() - 1] == '0' )
 			{
 				s	= s.Left(s.Length() - 1);
@@ -1195,6 +1214,12 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 	s.Replace(",", ".");
 
 	return( s );
+}
+
+//---------------------------------------------------------
+CSG_String		SG_Get_String(int Value, int Precision)
+{
+	return( CSG_String::Format("%d", Value) );
 }
 
 
