@@ -167,6 +167,7 @@ private:
 	int							_Get_Record_Count	(void);
 	CSG_Table_Record *			_Get_Record			(int iRow);
 	bool						_Set_Record			(int iRow);
+	wxString					_Get_Value			(CSG_Table_Record *pRecord, int iField);
 
 	int							_Get_Scroll_Start	(int Position);
 	bool						_Set_Scroll_Start	(int Position, bool bEnforceUpdate = true);

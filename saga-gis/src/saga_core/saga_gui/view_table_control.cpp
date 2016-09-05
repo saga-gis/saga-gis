@@ -257,7 +257,13 @@ bool CVIEW_Table_Control::Update_Table(void)
 
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-			SetColFormatFloat(iField);
+		//	SetColFormatFloat(iField);
+			SetColFormatCustom(iField, wxGRID_VALUE_STRING);
+			{
+				wxGridCellAttr	*pAttr	= new wxGridCellAttr;	pAttr->SetAlignment(wxALIGN_RIGHT, wxALIGN_TOP);
+
+				SetColAttr(iField, pAttr);
+			}
 			break;
 		}
 	}
@@ -349,7 +355,7 @@ bool CVIEW_Table_Control::_Set_Record(int iRow)
 			switch( m_pTable->Get_Field_Type(iField) )
 			{
 			default:
-				SetCellValue(iRow, iField, pRecord->is_NoData(iField) ? SG_T("") : pRecord->asString(iField));
+				SetCellValue(iRow, iField, _Get_Value(pRecord, iField));
 				break;
 
 			case SG_DATATYPE_Color:
@@ -367,6 +373,25 @@ bool CVIEW_Table_Control::_Set_Record(int iRow)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+wxString CVIEW_Table_Control::_Get_Value(CSG_Table_Record *pRecord, int iField)
+{
+	if( pRecord->is_NoData(iField) )
+	{
+		return( "" );
+	}
+
+	switch( m_pTable->Get_Field_Type(iField) )
+	{
+	default:
+		return( pRecord->asString(iField) );
+
+	case SG_DATATYPE_Float:
+	case SG_DATATYPE_Double:
+		return( SG_Get_String(pRecord->asDouble(iField), -10).c_str() );
+	}
 }
 
 
@@ -615,9 +640,18 @@ void CVIEW_Table_Control::On_Changed(wxGridEvent &event)
 
 	if( pRecord )
 	{
-		pRecord->Set_Value(event.GetCol(), GetCellValue(event.GetRow(), event.GetCol()).wx_str());
+		wxString	Value(GetCellValue(event.GetRow(), event.GetCol()));
 
-		SetCellValue(event.GetRow(), event.GetCol(), pRecord->asString(event.GetCol()));
+		if( Value.IsEmpty() )
+		{
+			pRecord->Set_NoData(event.GetCol());
+		}
+		else
+		{
+			pRecord->Set_Value(event.GetCol(), &Value);
+
+			SetCellValue(event.GetRow(), event.GetCol(), _Get_Value(pRecord, event.GetCol()));
+		}
 	}
 }
 
@@ -1018,7 +1052,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		P.Add_Value(NULL, SG_Get_String(i, 0), m_pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+		P.Add_Value(NULL, SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 	}
 
 	//-----------------------------------------------------
@@ -1026,7 +1060,7 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 	{
 		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
 		{
-			if( P(SG_Get_String(i, 0))->asBool() )
+			if( P(SG_Get_String(i))->asBool() )
 			{
 				m_pTable->Del_Field(i);
 
