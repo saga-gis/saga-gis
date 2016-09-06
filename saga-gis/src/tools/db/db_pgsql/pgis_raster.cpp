@@ -228,7 +228,12 @@ bool CRaster_Load_Band::On_Execute(void)
 {
 	CSG_String	Table	= Parameters("TABLES")->asString(), Where;
 
-	CSG_Grid	*pGrid	= SG_Create_Grid();
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	
+	if( !pGrid )
+	{
+		pGrid	= SG_Create_Grid();
+	}
 
 	if( !SG_UI_Get_Window_Main() || *Parameters("RID")->asString() )
 	{
@@ -243,7 +248,10 @@ bool CRaster_Load_Band::On_Execute(void)
 	{
 		Error_Fmt("%s: %s (%s)", _TL("could not load raster"), Table.c_str(), Where.c_str());
 
-		delete(pGrid);
+		if( pGrid != Parameters("GRID")->asGrid() )
+		{
+			delete(pGrid);
+		}
 
 		return( false );
 	}

@@ -1317,7 +1317,10 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 		else if( p->Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
-			p->Set_Value(DATAOBJECT_NOTSET);
+			if( m_pManager || p->asDataObject() == DATAOBJECT_CREATE )
+			{
+				p->Set_Value(DATAOBJECT_NOTSET);
+			}
 		}
 		else if( p->is_Input() )
 		{
