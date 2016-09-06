@@ -69,6 +69,8 @@
 
 #include "wksp_layer_classify.h"
 
+#include "wksp_data_manager.h"
+
 #include "wksp_shapes.h"
 #include "wksp_table.h"
 
@@ -372,6 +374,10 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CHART"			, _TL("Chart"),
 		_TL("")
 	);
+
+	m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Attributes Table"), _TL(""));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
 
 	//-----------------------------------------------------
 	// Label...

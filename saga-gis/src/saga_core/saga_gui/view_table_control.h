@@ -153,7 +153,7 @@ private:
 
 	bool						m_bSelOnly, m_bEditing;
 
-	int							m_Scroll_Start, m_Scroll_Range, m_Cursor;
+	int							m_Scroll_Start, m_Scroll_Range, m_Cursor, m_Decimals;
 
 	class CSG_Table				*m_pTable;
 

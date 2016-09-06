@@ -156,6 +156,8 @@ CVIEW_Table_Control::CVIEW_Table_Control(wxWindow *pParent, CSG_Table *pTable, i
 	m_Scroll_Start	= 0;
 	m_Scroll_Range	= 0;
 
+	m_Decimals		= -1;
+
 	SetRowLabelAlignment(wxALIGN_RIGHT, wxALIGN_CENTRE);
 
 	DisableDragRowSize();
@@ -229,6 +231,15 @@ bool CVIEW_Table_Control::Update_Table(void)
 	}
 
 	//-----------------------------------------------------
+	CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)g_pData->Get(m_pTable);
+
+	if( pItem && pItem->Get_Parameter("TABLE_FLT_STYLE") && pItem->Get_Parameter("TABLE_FLT_DECIMALS") )
+	{
+		m_Decimals	= pItem->Get_Parameter("TABLE_FLT_STYLE"   )->asInt() == 0 ? -1
+					: pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt();
+	}
+
+	//-----------------------------------------------------
 	for(int iField=0; iField<m_pTable->Get_Field_Count(); iField++)
 	{
 		SetColLabelValue(iField, m_pTable->Get_Field_Name(iField));
@@ -257,9 +268,14 @@ bool CVIEW_Table_Control::Update_Table(void)
 
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-		//	SetColFormatFloat(iField);
-			SetColFormatCustom(iField, wxGRID_VALUE_STRING);
+			if( m_Decimals < 0 )
 			{
+				SetColFormatFloat(iField);
+			}
+			else
+			{
+				SetColFormatCustom(iField, wxGRID_VALUE_STRING);
+
 				wxGridCellAttr	*pAttr	= new wxGridCellAttr;	pAttr->SetAlignment(wxALIGN_RIGHT, wxALIGN_TOP);
 
 				SetColAttr(iField, pAttr);
@@ -390,7 +406,18 @@ wxString CVIEW_Table_Control::_Get_Value(CSG_Table_Record *pRecord, int iField)
 
 	case SG_DATATYPE_Float:
 	case SG_DATATYPE_Double:
-		return( SG_Get_String(pRecord->asDouble(iField), -10).c_str() );
+		if( m_Decimals > 0 )
+		{
+			return( SG_Get_String(pRecord->asDouble(iField), -m_Decimals).c_str() );
+		}
+		else if( m_Decimals < 0 )
+		{
+			return( wxString::Format("%f", pRecord->asDouble(iField)) );
+		}
+		else
+		{
+			return( wxString::Format("%d", pRecord->asInt   (iField)) );
+		}
 	}
 }
 

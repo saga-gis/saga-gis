@@ -69,6 +69,8 @@
 
 #include "wksp_layer_classify.h"
 
+#include "wksp_data_manager.h"
+
 #include "wksp_tin.h"
 #include "wksp_table.h"
 
@@ -245,6 +247,11 @@ void CWKSP_TIN::On_Create_Parameters(void)
 		_TL(""),
 		PARAMETER_TYPE_Bool, false
 	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Attributes Table"), _TL(""));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Value(
