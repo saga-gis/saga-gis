@@ -98,7 +98,7 @@ private:
 	CSG_Table				m_Classes;
 
 
-	bool					Get_Classes		(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion);
+	bool					Get_Classes		(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion, bool bUnclassified);
 	bool					Get_Classes		(CSG_Grid *pGrid);
 
 	int						Get_Class		(const CSG_String &Value);

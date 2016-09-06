@@ -98,7 +98,7 @@ private:
 	bool					Get_Quality		(CSG_Table &Confusion, CSG_Table &Classes, CSG_Table &Summary);
 
 	bool					Get_Classes		(CSG_Table &Classes, CSG_Grid *pGrid, bool bInitial);
-	bool					Get_Changes		(CSG_Table &Initial, CSG_Table &Final, CSG_Table *pChanges, CSG_Matrix &Identity);
+	bool					Get_Changes		(CSG_Table &Initial, CSG_Table &Final, CSG_Table *pChanges, CSG_Matrix &Identity, bool bUnclassified);
 
 	int						Cmp_Class		(CSG_Table &Classes, double Value, int iClass);
 	int						Get_Class		(CSG_Table &Classes, double Value);

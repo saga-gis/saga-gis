@@ -137,6 +137,12 @@ CClassification_Quality::CClassification_Quality(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Bool(
+		NULL	, "NO_CLASS"	, _TL("Unclassified"),
+		_TL(""),
+		true
+	);
 }
 
 
@@ -183,9 +189,11 @@ bool CClassification_Quality::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	&Confusion	= *Parameters("CONFUSION")->asTable();
 
-	int	Field	= Parameters("FIELD")->asInt();
+	bool	bUnclassified	= Parameters("NO_CLASS")->asBool();
 
-	if( !Get_Classes(pPolygons, Field, Confusion) )
+	int		Field	= Parameters("FIELD")->asInt();
+
+	if( !Get_Classes(pPolygons, Field, Confusion, bUnclassified) )
 	{
 		Error_Set(_TL("invalid polygons"));
 
@@ -215,17 +223,20 @@ bool CClassification_Quality::On_Execute(void)
 		{
 			int	iGrid	= Get_Class(pGrid->asDouble(x, y));
 
-			for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+			if( bUnclassified || iGrid < m_Classes.Get_Count() )
 			{
-				CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
-
-				if( pPolygon->Contains(p) )
+				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
-					int	iPolygon	= Get_Class(pPolygon->asString(Field));
+					CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
-					if( iPolygon >= 0 )
+					if( pPolygon->Contains(p) )
 					{
-						Confusion[iGrid].Add_Value(1 + iPolygon, 1);
+						int	iPolygon	= Get_Class(pPolygon->asString(Field));
+
+						if( iPolygon >= 0 )
+						{
+							Confusion[iGrid].Add_Value(1 + iPolygon, 1);
+						}
 					}
 				}
 			}
@@ -246,9 +257,9 @@ bool CClassification_Quality::On_Execute(void)
 
 	sLong	nTotal = 0, nTrue = 0, nProd = 0;
 
-	for(int i=0; i<=m_Classes.Get_Count(); i++)
+	for(int i=0, n; i<m_Classes.Get_Count(); i++)
 	{
-		sLong	nPoly	= Confusion[m_Classes.Get_Count()].asLong(1 + i);	// NO_CLASS
+		sLong	nPoly	= 0;
 		sLong	nGrid	= 0;
 
 		for(int j=0; j<m_Classes.Get_Count(); j++)
@@ -257,40 +268,28 @@ bool CClassification_Quality::On_Execute(void)
 			nGrid	+= Confusion[i].asLong(1 + j);
 		}
 
-		if( i < m_Classes.Get_Count() )
-		{
-			Classes[i].Set_Value(0, m_Classes[i].asString(0));
-			Classes[i].Set_Value(1, nPoly);
-			Classes[i].Set_Value(2, nPoly <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nPoly);
-			Classes[i].Set_Value(3, nGrid);
-			Classes[i].Set_Value(4, nGrid <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nGrid);
-		}
-
-		Confusion[i].Set_Value(Confusion.Get_Count() - 2, nGrid);
-
-		if( nGrid > 0 )
-		{
-			Confusion[i].Set_Value(Confusion.Get_Count() - 1, Confusion[i].asLong(1 + i) / (double)nGrid);
-		}
-		else
-		{
-			Confusion[i].Set_NoData(Confusion.Get_Count() - 1);
-		}
-
-		Confusion[Confusion.Get_Count() - 2].Set_Value(1 + i, nPoly);
-
-		if( nPoly > 0 )
-		{
-			Confusion[Confusion.Get_Count() - 1].Set_Value(1 + i, Confusion[i].asLong(1 + i) / (double)nPoly);
-		}
-		else
-		{
-			Confusion[Confusion.Get_Count() - 1].Set_NoData(1 + i);
-		}
-
 		nTotal	+= nPoly;
 		nTrue	+= Confusion[i].asLong(1 + i);
 		nProd	+= nPoly * nGrid;
+
+		double	AccProd	= nPoly < 1 ? -1.0 : Confusion[i].asLong(1 + i) / (double)nPoly;
+		double	AccUser	= nGrid < 1 ? -1.0 : Confusion[i].asLong(1 + i) / (double)nGrid;
+
+		Classes[i].Set_Value(0, m_Classes[i].asString(0));
+		Classes[i].Set_Value(1, nPoly); if( AccProd < 0.0 ) Classes[i].Set_NoData(2); else
+		Classes[i].Set_Value(2, AccProd);
+		Classes[i].Set_Value(3, nGrid); if( AccUser < 0.0 ) Classes[i].Set_NoData(4); else
+		Classes[i].Set_Value(4, AccUser);
+
+		n	= Confusion.Get_Count() - 2;
+		Confusion[n + 0].Set_Value (1 + i, nPoly); if( AccProd < 0.0 )
+		Confusion[n + 1].Set_NoData(1 + i); else
+		Confusion[n + 1].Set_Value (1 + i, AccProd * 100.0);
+
+		n	= Confusion.Get_Field_Count() - 2;
+		Confusion[i    ].Set_Value (n + 0, nGrid); if( AccUser < 0.0 )
+		Confusion[i    ].Set_NoData(n + 1); else
+		Confusion[i    ].Set_Value (n + 1, AccUser * 100.0);
 	}
 
 	//-----------------------------------------------------
@@ -333,7 +332,7 @@ enum
 };
 
 //---------------------------------------------------------
-bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion)
+bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion, bool bUnclassified)
 {
 	CSG_Category_Statistics	Classes;
 
@@ -368,17 +367,21 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 		m_Classes.Add_Record()->Set_Value(0, Class);
 	}
 
-	Confusion.Add_Field("SUM_GRID", SG_DATATYPE_Double);
-	Confusion.Add_Field("ACC_GRID", SG_DATATYPE_Double);
+	if( bUnclassified )
+	{
+		Confusion.Add_Record()->Set_Value(0, _TL("Unclassified"));
+	}
 
-	Confusion.Add_Record()->Set_Value(0, "NO_CLASS");
-	Confusion.Add_Record()->Set_Value(0, "SUM_POLY");
-	Confusion.Add_Record()->Set_Value(0, "ACC_POLY");
+	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
+	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
 
-	Confusion[m_Classes.Get_Count() + 1].Set_NoData(m_Classes.Get_Count() + 1);
-	Confusion[m_Classes.Get_Count() + 1].Set_NoData(m_Classes.Get_Count() + 2);
-	Confusion[m_Classes.Get_Count() + 2].Set_NoData(m_Classes.Get_Count() + 1);
-	Confusion[m_Classes.Get_Count() + 2].Set_NoData(m_Classes.Get_Count() + 2);
+	Confusion.Add_Record()->Set_Value(0, "SumProd");
+	Confusion.Add_Record()->Set_Value(0, "AccProd");
+
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 2);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 2);
 
 	//-----------------------------------------------------
 	return( true );
