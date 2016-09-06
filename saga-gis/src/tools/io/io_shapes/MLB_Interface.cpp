@@ -111,6 +111,7 @@ CSG_String Get_Info(int i)
 #include "pointcloud_to_text_file.h"
 #include "wktb.h"
 #include "citygml_import.h"
+#include "html_imagemap.h"
 
 
 //---------------------------------------------------------
@@ -142,13 +143,12 @@ CSG_Tool *		Create_Tool(int i)
 	case 19:	return( new CWKT_Import );
 	case 20:	return( new CWKT_Export );
 	case 21:	return( new CCityGML_Import );
+	case 22:	return( new CHTML_ImageMap );
 
 	//-----------------------------------------------------
-	case 22:	return( NULL );
+	case 23:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
-
-	return( NULL );
 }
 
 

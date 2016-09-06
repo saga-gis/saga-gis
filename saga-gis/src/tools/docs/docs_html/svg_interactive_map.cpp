@@ -522,9 +522,9 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 	
 		m_sSVGCode.Append(SG_T("<g "));
 		s = SG_T("translate(");
-		s.Append(SG_Get_String(x,0));
+		s.Append(SG_Get_String(x));
 		s.Append(SG_T(" "));
-		s.Append(SG_Get_String(y,0));
+		s.Append(SG_Get_String(y));
 		s.Append(SG_T("))"));
 		_AddAttribute(SG_T("transform"), s);
 		m_sSVGCode.Append(SG_T(">\n"));

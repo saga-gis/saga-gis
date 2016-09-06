@@ -1243,13 +1243,13 @@ bool CSG_Tool_Chain::_Save_History_Add_Input(const CSG_MetaData &History, CSG_Me
 
 	if( History("TOOL") || History("MODULE") )
 	{
-		const CSG_MetaData	&Tool(History("TOOL") ? History["TOOL"] : History["MODULE"]);
+		const CSG_MetaData	&History_Tool(History("TOOL") ? History["TOOL"] : History["MODULE"]);
 
-		if( Tool("OUTPUT") && Tool["OUTPUT"].Get_Property("id") )
+		if( History_Tool("OUTPUT") && History_Tool["OUTPUT"].Get_Property("id") )
 		{
-			pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, Tool["OUTPUT"].Get_Property("id"));
+			pInput->Fmt_Content("tool_%02d__%s", Tool.Get_Parent()->Get_Children_Count() + 1, History_Tool["OUTPUT"].Get_Property("id"));
 
-			return( _Save_History_Add_Tool(Tool, Parms, *Tool.Get_Parent()) );
+			return( _Save_History_Add_Tool(History_Tool, Parms, *Tool.Get_Parent()) );
 		}
 	}
 

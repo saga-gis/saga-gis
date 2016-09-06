@@ -643,7 +643,7 @@ bool CWKSP_Project::_Load_DBConnections(CSG_MetaData &Data)
 //---------------------------------------------------------
 bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, bool bLoad, const CSG_String &Version)
 {
-	if( Entry.Get_Name().Cmp("DATASET") || !Entry.Get_Child("FILE") || Entry.Get_Child("FILE")->Get_Content().is_Empty() )
+	if( !Entry.Cmp_Name("DATASET") || !Entry("FILE") || Entry["FILE"].Get_Content().is_Empty() )
 	{
 		return( false );
 	}
@@ -662,15 +662,41 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	}
 
 	//-----------------------------------------------------
-	wxString	File	= Entry.Get_Child("FILE")->Get_Content().c_str();
+	wxString	File	= Entry("FILE")->Get_Content().c_str();
 
 	if( File.Find("PGSQL") != 0 && wxFileExists(Get_FilePath_Absolute(ProjectDir, File)) )
 	{
 		File	= Get_FilePath_Absolute(ProjectDir, File);
 	}
 
-	CWKSP_Base_Item	*pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
+	//-----------------------------------------------------
+	CWKSP_Base_Item	*pItem	= NULL;
 
+	if( bLoad )
+	{
+		if( Type == DATAOBJECT_TYPE_Grid && Entry("PARAMETERS"))
+		{
+			for(int i=0, Memory; i<Entry["PARAMETERS"].Get_Children_Count() && !pItem; i++)
+			{
+				if( Entry["PARAMETERS"][i].Cmp_Property("id", "MEMORY_MODE") )
+				{
+					switch( Entry["PARAMETERS"][i].Get_Property("index", Memory) ? Memory : 0 )
+					{
+					default:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Normal     ));	break;
+					case  1:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Compression));	break;
+					case  2:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Cache      ));	break;
+					}
+				}
+			}
+		}
+	}
+
+	if( !pItem )
+	{
+		pItem	= bLoad ? g_pData->Open(File, Type) : _Get_byFileName(File);
+	}
+
+	//-----------------------------------------------------
 	if( !pItem || !pItem->Get_Parameters() || !Entry.Get_Child("PARAMETERS") )
 	{
 		if( bLoad )

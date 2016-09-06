@@ -433,7 +433,7 @@ bool CSG_Table_Record::is_NoData(int iField) const
 		{
 		default:
 		case SG_DATATYPE_String:
-			return( m_Values[iField]->asString() == NULL );
+			return( !m_Values[iField]->asString() || !*m_Values[iField]->asString() );
 
 		case SG_DATATYPE_Date:
 		case SG_DATATYPE_Color:

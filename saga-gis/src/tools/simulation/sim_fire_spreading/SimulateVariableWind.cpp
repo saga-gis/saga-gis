@@ -549,7 +549,7 @@ void CSimulateVariableWind::CreateReport(){
 		for (i = 0; i < 12; i++){
 			if (m_pAreaByFuelModel[i]){
 				sFile += "\t\t\t * ";
-				sFile += SG_Get_String(i + 1, 0) + " : " + SG_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
+				sFile += SG_Get_String(i + 1) + " : " + SG_Get_String(m_pAreaByFuelModel[i]) + " ha\n";
 			}//if
 		}//for		
 		sFile += "\t\t Humedad de los combustibles muertos (1 h): ";
@@ -557,20 +557,20 @@ void CSimulateVariableWind::CreateReport(){
 		sFile += "\t\t Velocidad del viento a media llama: \n" ;
 		for(i = 0; i < m_iWindSpdGrids; i++){
 			sFile	+= "\t\t\t * ";
-			sFile	+= SG_Get_String(i * m_fInterval, 0) + " min: " 
+			sFile	+= SG_Get_String(i * m_fInterval, -1) + " min: " 
 					 + SG_Get_String(m_pMeanWindSpd[i]) + "Km/h\n";
 		}//for
 		sFile += "\t\t Dirección del vector viento, desde el norte geográfico: \n";
 		for(i = 0; i < m_iWindDirGrids; i++){
 			sFile += "\t\t\t * ";
-			sFile += SG_Get_String(i * m_fInterval, 0) + " min: " 
+			sFile += SG_Get_String(i * m_fInterval, -1) + " min: " 
 					+ SG_Get_String(m_pMeanWindDir[i]) + "º\n";
 		}//for
 
 		sFile += "\t\t Pendiente del terreno media: ";	sFile += SG_Get_String(m_fSlope) + " %\n";       
 		sFile += "\t\t Orientación del terreno: ";	sFile += SG_Get_String(m_fAspect) + "º\n";
-		sFile += "\t\t Foco de partida: X = ";	sFile += SG_Get_String(Parameters("COORDX")->asDouble(), 0) + " / Y = "
-				+ SG_Get_String(Parameters("COORDY")->asDouble(), 0) + "\n";
+		sFile += "\t\t Foco de partida: X = ";	sFile += SG_Get_String(Parameters("COORDX")->asDouble()) + " / Y = "
+				+ SG_Get_String(Parameters("COORDY")->asDouble()) + "\n";
 		sFile += "\t\t Tiempo de simulación: 3.0 h";
 
 		sFile += "\n\n\t Resultado de la simulación\n";

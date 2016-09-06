@@ -298,6 +298,7 @@
     <ClCompile Include="generate.cpp" />
     <ClCompile Include="gpx.cpp" />
     <ClCompile Include="gstat.cpp" />
+    <ClCompile Include="html_imagemap.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -330,6 +331,7 @@
     <ClInclude Include="generate.h" />
     <ClInclude Include="gpx.h" />
     <ClInclude Include="gstat.h" />
+    <ClInclude Include="html_imagemap.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

@@ -67,6 +67,7 @@
 
 //---------------------------------------------------------
 #include "mat_tools.h"
+#include "table.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -704,6 +705,258 @@ int CSG_Class_Statistics_Weighted::Get_Minority(void)
 
 bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value            )	{	int	Count; return( Get_Class(Get_Minority(), Value, Count) );	}
 bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value, int &Count)	{	           return( Get_Class(Get_Minority(), Value, Count) && Count > 0 );	}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Category_Statistics::CSG_Category_Statistics(TSG_Data_Type Type)
+{
+	m_pTable	= new CSG_Table;
+
+	Create(Type);
+}
+
+//---------------------------------------------------------
+CSG_Category_Statistics::~CSG_Category_Statistics(void)
+{
+	delete(m_pTable);
+}
+
+//---------------------------------------------------------
+void CSG_Category_Statistics::Create(TSG_Data_Type Type)
+{
+	m_pTable->Destroy();
+
+	m_pTable->Add_Field("VALUE", Type);
+	m_pTable->Add_Field("COUNT", SG_DATATYPE_ULong);
+}
+
+//---------------------------------------------------------
+void CSG_Category_Statistics::Destroy(void)
+{
+	m_pTable->Del_Records();
+}
+
+//---------------------------------------------------------
+TSG_Data_Type CSG_Category_Statistics::Get_Category_Type(void)	const
+{
+	return( m_pTable->Get_Field_Type(0) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Get_Category(int Value)	const
+{
+	for(int i=0; i<m_pTable->Get_Count(); i++)
+	{
+		if( Value == m_pTable->Get_Record_byIndex(i)->asInt(0) )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Get_Category(double Value)	const
+{
+	for(int i=0; i<m_pTable->Get_Count(); i++)
+	{
+		if( Value == m_pTable->Get_Record_byIndex(i)->asDouble(0) )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
+{
+	for(int i=0; i<m_pTable->Get_Count(); i++)
+	{
+		if( Value.Cmp(m_pTable->Get_Record_byIndex(i)->asString(0)) == 0 )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Add_Value(int Value)
+{
+	int		i	= Get_Category(Value);
+
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	if( !pRecord )
+	{
+		i	= m_pTable->Get_Count();
+
+		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+	}
+
+	pRecord->Add_Value(1, 1);
+
+	return( i );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Add_Value(double Value)
+{
+	int		i	= Get_Category(Value);
+
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	if( !pRecord )
+	{
+		i	= m_pTable->Get_Count();
+
+		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+	}
+
+	pRecord->Add_Value(1, 1);
+
+	return( i );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Add_Value(const CSG_String &Value)
+{
+	int		i	= Get_Category(Value);
+
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	if( !pRecord )
+	{
+		i	= m_pTable->Get_Count();
+
+		(pRecord = m_pTable->Add_Record())->Set_Value(0, Value);
+	}
+
+	pRecord->Add_Value(1, 1);
+
+	return( i );
+}
+
+//---------------------------------------------------------
+// sort categories ascending
+bool CSG_Category_Statistics::Sort(void)
+{
+	return( m_pTable->Set_Index(0, TABLE_INDEX_Ascending) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+// returns the number of categories.
+int CSG_Category_Statistics::Get_Count(void)	const
+{
+	return( m_pTable->Get_Count() );
+}
+
+//---------------------------------------------------------
+// returns the number of observations for the i'th category.
+int CSG_Category_Statistics::Get_Count(int i)	const
+{
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	return( pRecord ? pRecord->asInt(1) : 0.0 );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::asInt(int i)	const
+{
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	return( pRecord ? pRecord->asInt(0) : 0 );
+}
+
+//---------------------------------------------------------
+double CSG_Category_Statistics::asDouble(int i)	const
+{
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	return( pRecord ? pRecord->asDouble(0) : 0 );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Category_Statistics::asString(int i)	const
+{
+	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
+
+	return( pRecord ? pRecord->asString(0) : SG_T("") );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Get_Majority(void)
+{
+	if( m_pTable->Get_Count() > 0 )
+	{
+		int	Index = 0, Count = m_pTable->Get_Record_byIndex(0)->asInt(1);
+
+		for(int i=1; i<m_pTable->Get_Count(); i++)
+		{
+			if( Count < m_pTable->Get_Record_byIndex(i)->asInt(1) )
+			{
+				Index	= i;
+				Count	= m_pTable->Get_Record_byIndex(i)->asInt(1);
+			}
+		}
+
+		return( Index );
+	}
+
+	return( -1 );
+}
+
+//---------------------------------------------------------
+int CSG_Category_Statistics::Get_Minority(void)
+{
+	if( m_pTable->Get_Count() > 0 )
+	{
+		int	Index = 0, Count = m_pTable->Get_Record_byIndex(0)->asInt(1);
+
+		for(int i=1; i<m_pTable->Get_Count(); i++)
+		{
+			if( Count > m_pTable->Get_Record_byIndex(i)->asInt(1) )
+			{
+				Index	= i;
+				Count	= m_pTable->Get_Record_byIndex(i)->asInt(1);
+			}
+		}
+
+		return( Index );
+	}
+
+	return( -1 );
+}
 
 
 ///////////////////////////////////////////////////////////

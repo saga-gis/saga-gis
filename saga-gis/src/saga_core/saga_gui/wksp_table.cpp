@@ -67,7 +67,7 @@
 #include "helper.h"
 
 #include "wksp_base_control.h"
-
+#include "wksp_data_manager.h"
 #include "wksp_table.h"
 
 #include "view_table.h"
@@ -236,6 +236,40 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Table::On_Create_Parameters(void)
+{
+	CWKSP_Data_Item::On_Create_Parameters();
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Display"), _TL(""));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
+	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Table::On_DataObject_Changed(void)
+{
+	CWKSP_Data_Item::On_DataObject_Changed();
+
+	//-----------------------------------------------------
+	// ...
 }
 
 

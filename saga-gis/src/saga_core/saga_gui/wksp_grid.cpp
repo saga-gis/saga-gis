@@ -613,6 +613,8 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	//-----------------------------------------------------
+	Get_Grid()->Set_Buffer_Size(m_Parameters("MEMORY_BUFFER_SIZE")->asDouble() * N_MEGABYTE_BYTES);
+
 	switch( m_Parameters("MEMORY_MODE")->asInt() )
 	{
 	case 0:

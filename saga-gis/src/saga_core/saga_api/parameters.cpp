@@ -1317,7 +1317,10 @@ bool CSG_Parameters::DataObjects_Create(void)
 		}
 		else if( p->Get_Type() == PARAMETER_TYPE_DataObject_Output )
 		{
-			p->Set_Value(DATAOBJECT_NOTSET);
+			if( m_pManager || p->asDataObject() == DATAOBJECT_CREATE )
+			{
+				p->Set_Value(DATAOBJECT_NOTSET);
+			}
 		}
 		else if( p->is_Input() )
 		{
@@ -1728,7 +1731,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 
 						pEntry	= pList->Add_Child(*pList, false);
 
-						pEntry->Set_Name(pObject->Get_Name());
+						pEntry->Set_Name("INPUT");
 						
 						if( !SG_Get_History_Ignore_Lists() && pObject->Get_History().Get_Children_Count() > 0 )
 						{

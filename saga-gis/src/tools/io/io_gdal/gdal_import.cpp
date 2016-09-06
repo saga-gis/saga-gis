@@ -311,7 +311,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 
 			for(int i=0; i<Bands.Get_Count(); i++)
 			{
-				Selection.Add_Bool(Selection(1), SG_Get_String(i, 0), Bands[i].asString(0), CSG_String::Format("%s: %d\n%s: %d\n%s: %s",
+				Selection.Add_Bool(Selection(1), SG_Get_String(i), Bands[i].asString(0), CSG_String::Format("%s: %d\n%s: %d\n%s: %s",
 					_TL("List Order"), i,
 					_TL("Index"     ), Bands[i].Get_Index(),
 					_TL("Name"      ), Bands[i].asString(0)), false

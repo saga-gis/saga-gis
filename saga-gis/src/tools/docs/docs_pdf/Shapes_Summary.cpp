@@ -353,7 +353,7 @@ bool CShapes_Summary::On_Execute(void){
 				sName = pShapesTable->Get_Field_Name(i);
 				sName.Append(sParam[j]);
 				pExtraParameter[i * 5 + j] = m_pExtraParameters->Add_Value(NULL,
-																			SG_Get_String(i * 5 + j,0).c_str(),
+																			SG_Get_String(i * 5 + j).c_str(),
 																			sName.c_str(),
 																			_TL(""),
 																			PARAMETER_TYPE_Bool,
@@ -368,7 +368,7 @@ bool CShapes_Summary::On_Execute(void){
 
 	if(Dlg_Parameters("EXTRA")){
 		for (i = 0; i < pShapesTable->Get_Field_Count() * 5; i++){
-			sName = SG_Get_String(i,0);
+			sName = SG_Get_String(i);
 			if (m_bIncludeParam[i]){
 				m_bIncludeParam[i] = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())->asBool();
 			}//if			

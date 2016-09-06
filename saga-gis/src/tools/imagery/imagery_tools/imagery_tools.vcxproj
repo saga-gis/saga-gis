@@ -300,6 +300,7 @@
     <ClCompile Include="landsat_import.cpp" />
     <ClCompile Include="landsat_toar.cpp" />
     <ClCompile Include="landsat_toar_core.cpp" />
+    <ClCompile Include="local_statistical_measures.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -328,6 +329,7 @@
     <ClInclude Include="landsat_import.h" />
     <ClInclude Include="landsat_toar.h" />
     <ClInclude Include="landsat_toar_core.h" />
+    <ClInclude Include="local_statistical_measures.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />

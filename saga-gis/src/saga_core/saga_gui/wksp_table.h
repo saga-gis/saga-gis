@@ -99,6 +99,9 @@ public:
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
+	virtual void					On_Create_Parameters	(void);
+	virtual void					On_DataObject_Changed	(void);
+
 	class CVIEW_Table *				Get_View				(void)			{	return( m_pView );	}
 	void							Set_View				(bool bShow);
 	void							Toggle_View				(void);

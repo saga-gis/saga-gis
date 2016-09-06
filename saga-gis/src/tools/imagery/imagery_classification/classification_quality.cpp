@@ -137,6 +137,12 @@ CClassification_Quality::CClassification_Quality(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Bool(
+		NULL	, "NO_CLASS"	, _TL("Unclassified"),
+		_TL(""),
+		true
+	);
 }
 
 
@@ -183,9 +189,11 @@ bool CClassification_Quality::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	&Confusion	= *Parameters("CONFUSION")->asTable();
 
-	int	Field	= Parameters("FIELD")->asInt();
+	bool	bUnclassified	= Parameters("NO_CLASS")->asBool();
 
-	if( !Get_Classes(pPolygons, Field, Confusion) )
+	int		Field	= Parameters("FIELD")->asInt();
+
+	if( !Get_Classes(pPolygons, Field, Confusion, bUnclassified) )
 	{
 		Error_Set(_TL("invalid polygons"));
 
@@ -215,7 +223,7 @@ bool CClassification_Quality::On_Execute(void)
 		{
 			int	iGrid	= Get_Class(pGrid->asDouble(x, y));
 
-			if( iGrid >= 0 )
+			if( bUnclassified || iGrid < m_Classes.Get_Count() )
 			{
 				for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 				{
@@ -249,7 +257,7 @@ bool CClassification_Quality::On_Execute(void)
 
 	sLong	nTotal = 0, nTrue = 0, nProd = 0;
 
-	for(int i=0; i<m_Classes.Get_Count(); i++)
+	for(int i=0, n; i<m_Classes.Get_Count(); i++)
 	{
 		sLong	nPoly	= 0;
 		sLong	nGrid	= 0;
@@ -260,15 +268,28 @@ bool CClassification_Quality::On_Execute(void)
 			nGrid	+= Confusion[i].asLong(1 + j);
 		}
 
-		Classes[i].Set_Value(0, m_Classes[i].asString(0));
-		Classes[i].Set_Value(1, nPoly);
-		Classes[i].Set_Value(2, nPoly <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nPoly);
-		Classes[i].Set_Value(3, nGrid);
-		Classes[i].Set_Value(4, nGrid <= 0 ? -1. : Confusion[i].asLong(1 + i) / (double)nGrid);
-
 		nTotal	+= nPoly;
 		nTrue	+= Confusion[i].asLong(1 + i);
 		nProd	+= nPoly * nGrid;
+
+		double	AccProd	= nPoly < 1 ? -1.0 : Confusion[i].asLong(1 + i) / (double)nPoly;
+		double	AccUser	= nGrid < 1 ? -1.0 : Confusion[i].asLong(1 + i) / (double)nGrid;
+
+		Classes[i].Set_Value(0, m_Classes[i].asString(0));
+		Classes[i].Set_Value(1, nPoly); if( AccProd < 0.0 ) Classes[i].Set_NoData(2); else
+		Classes[i].Set_Value(2, AccProd);
+		Classes[i].Set_Value(3, nGrid); if( AccUser < 0.0 ) Classes[i].Set_NoData(4); else
+		Classes[i].Set_Value(4, AccUser);
+
+		n	= Confusion.Get_Count() - 2;
+		Confusion[n + 0].Set_Value (1 + i, nPoly); if( AccProd < 0.0 )
+		Confusion[n + 1].Set_NoData(1 + i); else
+		Confusion[n + 1].Set_Value (1 + i, AccProd * 100.0);
+
+		n	= Confusion.Get_Field_Count() - 2;
+		Confusion[i    ].Set_Value (n + 0, nGrid); if( AccUser < 0.0 )
+		Confusion[i    ].Set_NoData(n + 1); else
+		Confusion[i    ].Set_Value (n + 1, AccUser * 100.0);
 	}
 
 	//-----------------------------------------------------
@@ -311,8 +332,21 @@ enum
 };
 
 //---------------------------------------------------------
-bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion)
+bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_Table &Confusion, bool bUnclassified)
 {
+	CSG_Category_Statistics	Classes;
+
+	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	{
+		Classes	+= pPolygons->Get_Shape(iPolygon)->asString(Field);
+	}
+
+	if( Classes.Get_Count() < 1 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	m_Classes.Destroy();
 
 	m_Classes.Add_Field("NAM", SG_DATATYPE_String);
@@ -320,29 +354,37 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 	m_Classes.Add_Field("MAX", SG_DATATYPE_Double);
 
 	Confusion.Destroy();
+
 	Confusion.Add_Field("CLASS", pPolygons->Get_Field_Type(Field));
 
-	CSG_String	Class;
-
-	pPolygons->Set_Index(Field, TABLE_INDEX_Ascending);
-
-	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape_byIndex(i);
+		CSG_String	Class(Classes.asString(iClass));
 
-		if( m_Classes.Get_Count() == 0 || Class.Cmp(pPolygon->asString(Field)) )	// category changed
-		{
-			Class	= pPolygon->asString(Field);
+		Confusion.Add_Field(Class, SG_DATATYPE_Double);
+		Confusion.Add_Record()->Set_Value(0, Class);
 
-			Confusion.Add_Field(Class, SG_DATATYPE_Int);
-			Confusion.Add_Record()->Set_Value(0, Class);
-
-			m_Classes.Add_Record()->Set_Value(0, Class);
-		}
+		m_Classes.Add_Record()->Set_Value(0, Class);
 	}
 
+	if( bUnclassified )
+	{
+		Confusion.Add_Record()->Set_Value(0, _TL("Unclassified"));
+	}
+
+	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
+	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
+
+	Confusion.Add_Record()->Set_Value(0, "SumProd");
+	Confusion.Add_Record()->Set_Value(0, "AccProd");
+
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 2);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 2);
+
 	//-----------------------------------------------------
-	return( m_Classes.Get_Count() > 0 );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -385,12 +427,16 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
+	int		nMatches	= 0;
+
 	for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
 	{
 		CSG_Table_Record	*pClass	= m_Classes.Get_Record(Get_Class(pLUT->Get_Record(iClass)->asString(fNam)));
 
 		if( pClass )
 		{
+			nMatches	++;
+
 			double	min	= pLUT->Get_Record(iClass)->asDouble(fMin);
 			double	max	= pLUT->Get_Record(iClass)->asDouble(fMax);
 
@@ -400,7 +446,7 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
-	return( m_Classes.Get_Count() > 0 );
+	return( nMatches > 0 );
 }
 
 
@@ -436,7 +482,7 @@ int CClassification_Quality::Get_Class(double Value)
 		}
 	}
 
-	return( -1 );
+	return( m_Classes.Get_Count() );
 }
 
 

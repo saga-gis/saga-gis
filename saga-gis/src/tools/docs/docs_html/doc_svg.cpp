@@ -94,9 +94,9 @@ void CSG_Doc_SVG::Open(int iWidth, int iHeight)
 {
 
 	m_sSVGCode.Append(SVG_CODE_OPENING_1);
-	m_sSVGCode.Append(SG_Get_String(iWidth,0));
+	m_sSVGCode.Append(SG_Get_String(iWidth));
 	m_sSVGCode.Append(SG_T("\" height=\""));
-	m_sSVGCode.Append(SG_Get_String(iHeight,0));
+	m_sSVGCode.Append(SG_Get_String(iHeight));
 	m_sSVGCode.Append(SVG_CODE_OPENING_2);
 
 	m_iWidth = iWidth;
@@ -136,7 +136,7 @@ void CSG_Doc_SVG::_AddAttribute(const SG_Char *Attribute,
 							   int iValue)
 {
 
-	_AddAttribute(Attribute, SG_Get_String(iValue, 0));
+	_AddAttribute(Attribute, SG_Get_String(iValue));
 }
 
 void CSG_Doc_SVG::_AddAttribute(const SG_Char *Attribute, 
@@ -377,11 +377,11 @@ CSG_String CSG_Doc_SVG::_Get_SVGColor(int iColor)
 	else if (iColor == SG_COLOR_RANDOM)
 	{
 		s.Append(SG_T("rgb("));
-		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX)));
 		s.Append(SG_T(","));
-		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX)));
 		s.Append(SG_T(","));
-		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX),0));
+		s.Append(SG_Get_String((int)(255.0 * (double)rand() / (double)RAND_MAX)));
 		s.Append(SG_T(")"));
 
 		return s;
@@ -389,11 +389,11 @@ CSG_String CSG_Doc_SVG::_Get_SVGColor(int iColor)
 	else
 	{
 		s.Append(SG_T("rgb("));
-		s.Append(SG_Get_String(SG_GET_R(iColor),0));
+		s.Append(SG_Get_String(SG_GET_R(iColor)));
 		s.Append(SG_T(","));
-		s.Append(SG_Get_String(SG_GET_G(iColor),0));
+		s.Append(SG_Get_String(SG_GET_G(iColor)));
 		s.Append(SG_T(","));
-		s.Append(SG_Get_String(SG_GET_B(iColor),0));
+		s.Append(SG_Get_String(SG_GET_B(iColor)));
 		s.Append(SG_T(")"));
 
 		return s;

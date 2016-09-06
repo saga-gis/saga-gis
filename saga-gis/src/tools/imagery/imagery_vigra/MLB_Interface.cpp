@@ -142,6 +142,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  8:	return( new CViGrA_FFT_Filter );
 	case  9:	return( new_CViGrA_Random_Forest );
 	case 10:	return( new_CViGrA_RF_Presence );
+	case 11:	return( new_CViGrA_RF_Table );
 
 	default:	return( NULL );
 	}

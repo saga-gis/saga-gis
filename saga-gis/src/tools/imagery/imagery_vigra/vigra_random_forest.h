@@ -151,6 +151,31 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CViGrA_RF_Table : public CSG_Tool
+{
+public:
+	CViGrA_RF_Table(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Table|Tools") );	}
+
+
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -158,12 +183,13 @@ private:
 //---------------------------------------------------------
 #define new_CViGrA_Random_Forest	new CViGrA_Random_Forest
 #define new_CViGrA_RF_Presence		new CViGrA_RF_Presence
+#define new_CViGrA_RF_Table			new CViGrA_RF_Table
 
 #else // defined(VIGRA_VERSION_MAJOR) && VIGRA_VERSION_MAJOR >= 1 && VIGRA_VERSION_MINOR >= 10
 
 #define new_CViGrA_Random_Forest	TLB_INTERFACE_SKIP_TOOL
 #define new_CViGrA_RF_Presence		TLB_INTERFACE_SKIP_TOOL
-
+#define new_CViGrA_RF_Table			TLB_INTERFACE_SKIP_TOOL
 #endif
 
 

@@ -328,7 +328,7 @@ void CForecasting::CalculateGrids(){
 		sMessage.Printf(
 			_TL("** Warning : Number of events might not be representative.\nMinimum number recommended: ")
 		);
-		sMessage	+= SG_Get_String(iRecommendedNumFires, 0);
+		sMessage	+= SG_Get_String(iRecommendedNumFires);
 		sMessage	+= SG_T("\n");
 		Message_Add(sMessage.c_str());
 	}//if

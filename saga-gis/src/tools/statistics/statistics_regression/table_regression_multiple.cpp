@@ -165,7 +165,7 @@ int CTable_Regression_Multiple_Base::On_Parameter_Changed(CSG_Parameters *pParam
 			{
 				if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 				{
-					pPredictors->Add_Value(NULL, SG_Get_String(i, 0), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+					pPredictors->Add_Value(NULL, SG_Get_String(i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
 				}
 			}
 		}
