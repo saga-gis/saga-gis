@@ -235,8 +235,20 @@ bool CVIEW_Table_Control::Update_Table(void)
 
 	if( pItem && pItem->Get_Parameter("TABLE_FLT_STYLE") && pItem->Get_Parameter("TABLE_FLT_DECIMALS") )
 	{
-		m_Decimals	= pItem->Get_Parameter("TABLE_FLT_STYLE"   )->asInt() == 0 ? -1
-					: pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt();
+		switch( pItem->Get_Parameter("TABLE_FLT_STYLE")->asInt() )
+		{
+		default:	// system default
+			m_Decimals	= 0;
+			break;
+
+		case  1:	// maximum number of significant decimals
+			m_Decimals	= -pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt() - 1;
+			break;
+
+		case  2:	// fix number of decimals
+			m_Decimals	=  pItem->Get_Parameter("TABLE_FLT_DECIMALS")->asInt() + 1;
+			break;
+		}
 	}
 
 	//-----------------------------------------------------
@@ -268,7 +280,7 @@ bool CVIEW_Table_Control::Update_Table(void)
 
 		case SG_DATATYPE_Float:
 		case SG_DATATYPE_Double:
-			if( m_Decimals < 0 )
+			if( m_Decimals == 0 )
 			{
 				SetColFormatFloat(iField);
 			}
@@ -406,17 +418,21 @@ wxString CVIEW_Table_Control::_Get_Value(CSG_Table_Record *pRecord, int iField)
 
 	case SG_DATATYPE_Float:
 	case SG_DATATYPE_Double:
-		if( m_Decimals > 0 )
-		{
-			return( SG_Get_String(pRecord->asDouble(iField), -m_Decimals).c_str() );
-		}
-		else if( m_Decimals < 0 )
+		if( m_Decimals == 0 )		// system default
 		{
 			return( wxString::Format("%f", pRecord->asDouble(iField)) );
 		}
-		else
+		else if( abs(m_Decimals) == 1 )	// no decimals
 		{
 			return( wxString::Format("%d", pRecord->asInt   (iField)) );
+		}
+		else if( m_Decimals > 0 )	// fix number of decimals
+		{
+			return( SG_Get_String(pRecord->asDouble(iField), m_Decimals - 1).c_str() );
+		}
+		else //( m_Decimals < 0 )	// maximum number of significant decimals
+		{
+			return( SG_Get_String(pRecord->asDouble(iField), m_Decimals + 1).c_str() );
 		}
 	}
 }
