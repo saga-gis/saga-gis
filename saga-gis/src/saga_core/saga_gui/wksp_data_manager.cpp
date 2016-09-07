@@ -291,16 +291,17 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	pNode[1]	= m_Parameters.Add_Choice(
 		pNode[0]	, "TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("System"),
-			_TL("Maximum Decimals")
+		CSG_String::Format("%s|%s|%s|",
+			_TL("system default"),
+			_TL("maximum number of significant decimals"),
+			_TL("fix number of decimals")
 		), 1
 	);
 
 	m_Parameters.Add_Int(
-		pNode[1]	, "TABLE_FLT_DECIMALS"	, _TL("Maximum Decimals"),
+		pNode[1]	, "TABLE_FLT_DECIMALS"	, _TL("Decimals"),
 		_TL(""),
-		10, 0, true
+		6, 0, true
 	);
 
 	//-----------------------------------------------------
