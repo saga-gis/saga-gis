@@ -76,7 +76,7 @@ void CJoin_Tables_Base::Initialise(void)
 	CSG_Parameter	*pNode;
 
 	//-----------------------------------------------------
-	Set_Author		(SG_T("V.Olaya (c) 2005, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2005, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Joins two tables using key attributes."
@@ -97,10 +97,10 @@ void CJoin_Tables_Base::Initialise(void)
 		_TL("")
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Bool(
 		pNode	, "FIELDS_ALL"	, _TL("Add All Fields"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	Parameters.Add_Table_Fields(
@@ -108,10 +108,16 @@ void CJoin_Tables_Base::Initialise(void)
 		_TL("")
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Bool(
 		NULL	, "KEEP_ALL"	, _TL("Keep All"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
+	);
+
+	Parameters.Add_Bool(
+		NULL	, "CMP_CASE"	, _TL("Case Sensitive String Comparison"),
+		_TL(""),
+		true
 	);
 }
 
@@ -123,7 +129,7 @@ void CJoin_Tables_Base::Initialise(void)
 //---------------------------------------------------------
 int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELDS_ALL")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS_ALL") )
 	{
 		pParameters->Get_Parameter("FIELDS")->Set_Enabled(pParameter->asBool() == false);
 	}
@@ -140,14 +146,11 @@ int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 bool CJoin_Tables_Base::On_Execute(void)
 {
 	//-----------------------------------------------------
-	int			id_A, id_B;
-	CSG_Table	*pT_A, *pT_B;
+	CSG_Table	*pT_A	= Parameters("TABLE_A")->asTable();
+	int			 id_A	= Parameters(   "ID_A")->asInt();
 
-	pT_A	= Parameters("TABLE_A")->asTable();
-	id_A	= Parameters("ID_A"   )->asInt();
-
-	pT_B	= Parameters("TABLE_B")->asTable();
-	id_B	= Parameters("ID_B"   )->asInt();
+	CSG_Table	*pT_B	= Parameters("TABLE_B")->asTable();
+	int			 id_B	= Parameters(   "ID_B")->asInt();
 
 	if(	id_A < 0 || id_A >= pT_A->Get_Field_Count() || pT_A->Get_Count() <= 0
 	||	id_B < 0 || id_B >= pT_B->Get_Field_Count() || pT_B->Get_Count() <= 0 )
@@ -217,11 +220,13 @@ bool CJoin_Tables_Base::On_Execute(void)
 		}
 	}
 
-	pT_A->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pT_A->Get_Name(), pT_B->Get_Name()));
+	pT_A->Set_Name(CSG_String::Format("%s [%s]", pT_A->Get_Name(), pT_B->Get_Name()));
 
 	//-----------------------------------------------------
-	bool	bCmpNumeric	=  SG_Data_Type_is_Numeric(pT_A->Get_Field_Type(id_A))
-						|| SG_Data_Type_is_Numeric(pT_B->Get_Field_Type(id_B));
+	m_bCmpNoCase	= Parameters("CMP_CASE")->asBool() == false;
+
+	m_bCmpNumeric	=  SG_Data_Type_is_Numeric(pT_A->Get_Field_Type(id_A))
+					|| SG_Data_Type_is_Numeric(pT_B->Get_Field_Type(id_B));
 
 	CSG_Table	Delete;	if( !Parameters("KEEP_ALL")->asBool() )	Delete.Add_Field("ID", SG_DATATYPE_Int);
 
@@ -234,7 +239,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord_A	= pT_A->Get_Record_byIndex(a);
 
-		while( pRecord_B && (Cmp = Cmp_Keys(pRecord_A->Get_Value(id_A), pRecord_B->Get_Value(id_B), bCmpNumeric)) < 0 )
+		while( pRecord_B && (Cmp = Cmp_Keys(pRecord_A->Get_Value(id_A), pRecord_B->Get_Value(id_B))) < 0 )
 		{
 			pRecord_B	= pT_B->Get_Record_byIndex(++b);
 		}
@@ -276,7 +281,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 			pT_A->Del_Record(Delete[i].asInt(0));
 		}
 
-		Message_Add(CSG_String::Format(SG_T("%d %s"), pT_A->Get_Selection_Count(), _TL("unjoined records have been removed")));
+		Message_Add(CSG_String::Format("%d %s", pT_A->Get_Selection_Count(), _TL("unjoined records have been removed")));
 	}
 
 	if( pT_A == Parameters("TABLE_A")->asTable() )
@@ -293,14 +298,14 @@ bool CJoin_Tables_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB, bool bCmpNumeric)
+inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB)
 {
 	if( pB == NULL )
 	{
 		return( 1 );
 	}
 
-	if( bCmpNumeric )
+	if( m_bCmpNumeric )
 	{
 		double	d	= pB->asDouble() - pA->asDouble();
 
@@ -309,7 +314,7 @@ inline int CJoin_Tables_Base::Cmp_Keys(CSG_Table_Value *pA, CSG_Table_Value *pB,
 
 	CSG_String	Key(pB->asString());
 
-	return( Key.CmpNoCase(pA->asString()) );
+	return( m_bCmpNoCase ? Key.CmpNoCase(pA->asString()) : Key.Cmp(pA->asString()) );
 }
 
 
@@ -390,7 +395,7 @@ CTable_Append_Cols::CTable_Append_Cols(void)
 {
 	Set_Name		(_TL("Append Fields from another Table"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description(_TW(
 		""

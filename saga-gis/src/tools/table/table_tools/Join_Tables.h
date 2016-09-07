@@ -88,7 +88,10 @@ protected:
 
 private:
 
-	int							Cmp_Keys				(CSG_Table_Value *pA, CSG_Table_Value *pB, bool bCmpNumeric);
+	bool						m_bCmpNumeric, m_bCmpNoCase;
+
+
+	int							Cmp_Keys				(CSG_Table_Value *pA, CSG_Table_Value *pB);
 
 };
 
