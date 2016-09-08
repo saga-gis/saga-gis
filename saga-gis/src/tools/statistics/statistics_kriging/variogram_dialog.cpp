@@ -523,7 +523,7 @@ void CVariogram_Dialog::Set_Model(void)
 
 		m_pSummary->SetValue(s);
 
-		m_Settings("MODEL")->Set_Value(&m_pFormula->GetValue());
+		m_Settings("MODEL")->Set_Value(m_pFormula->GetValue().wx_str());
 	}
 
 	m_pDiagram->m_bPairs	= m_pPairs->GetValue();
@@ -534,7 +534,7 @@ void CVariogram_Dialog::Set_Model(void)
 //---------------------------------------------------------
 CSG_String CVariogram_Dialog::Get_Formula(void)
 {
-	CSG_String_Tokenizer	Tokens(&m_pFormula->GetValue(), ";");
+	CSG_String_Tokenizer	Tokens(m_pFormula->GetValue().wx_str(), ";");
 
 	CSG_String	Formula;
 
