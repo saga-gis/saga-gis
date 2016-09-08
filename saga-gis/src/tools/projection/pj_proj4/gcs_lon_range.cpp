@@ -74,7 +74,7 @@ CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Change Longitudinal Range for Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Change the longitudinal range of grids using geographic coordinates, "
@@ -83,13 +83,13 @@ CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "INPUT"	, _TL("Input"),
+		NULL	, "INPUT"		, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT"	, _TL("Output"),
+		NULL	, "OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, false
 	);
@@ -97,11 +97,34 @@ CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 	Parameters.Add_Choice(
 		NULL	, "DIRECTION"	, _TL("Direction"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			SG_T("0 - 360 >> -180 - 180"),
 			SG_T("-180 - 180 >> 0 - 360")
 		), 0
 	);
+
+	Parameters.Add_Bool(
+		NULL	, "PATCH"		, _TL("Patch Last Column"),
+		_TL(""),
+		true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGCS_Grid_Longitude_Range::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CSG_Grid_System	*pSystem	= pParameters->Get("INPUT")->asGridList()->Get_System();
+
+	pParameters->Set_Enabled("PATCH", pParameters->Get("DIRECTION")->asInt() == 0 && pSystem && pSystem->is_Valid()
+		&& pSystem->Get_NX() * pSystem->Get_Cellsize() == 360.0 && pSystem->Get_XMin() == 0.0
+	);
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -125,8 +148,9 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 	pOutput->Del_Items();
 
 	//-----------------------------------------------------
-	int				xZero;
 	CSG_Grid_System	Target;
+
+	int		xZero;
 
 	//-----------------------------------------------------
 	if( Parameters("DIRECTION")->asInt() == 0 )	// 0 - 360 >> -180 - 180
@@ -148,6 +172,12 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 			Error_Set(_TL("Nothing to do be done. Raster splitting is not supported."));
 
 			return( false );
+		}
+		else if( Get_NX() * Get_Cellsize() == 360.0 && Get_XMin() == 0.0 && Parameters("PATCH")->asBool() )
+		{
+			xZero	= (int)(0.5 + 180.0 / Get_Cellsize());
+
+			Target.Assign(Get_Cellsize(), -180.0, Get_YMin(), Get_NX() + 1, Get_NY());
 		}
 		else
 		{
@@ -182,7 +212,7 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 		{
 			xZero	= (int)(0.5 + 180.0 / Get_Cellsize());
 
-			Target.Assign(Get_Cellsize(), Get_XMin() - 180.0, Get_YMin(), Get_NX(), Get_NY());
+			Target.Assign(Get_Cellsize(), Get_XMin() + 180.0, Get_YMin(), Get_NX(), Get_NY());
 		}
 	}
 
@@ -200,14 +230,14 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(int x=0, xx=xZero; x<Get_NX(); x++, xx++)
+			for(int x=0, xx=xZero; x<Target.Get_NX(); x++, xx++)
 			{
 				if( xx >= Get_NX() )
 				{
 					xx	= 0;
 				}
 
-				pOut->Set_Value(xx, y, pIn->asDouble(x, y));
+				pOut->Set_Value(x, y, pIn->asDouble(xx, y));
 			}
 		}
 	}
