@@ -129,7 +129,7 @@ private:
 
 	wxChoice					*m_pFormulas;
 
-	wxTextCtrl					*m_pFormula, *m_pParameters;
+	wxTextCtrl					*m_pFormula, *m_pSummary;
 
 	CSGDI_Slider				*m_pDistance;
 
@@ -158,6 +158,7 @@ private:
 
 	void						Set_Variogram			(void);
 	void						Set_Model				(void);
+	CSG_String					Get_Formula				(void);
 
 
 	DECLARE_EVENT_TABLE()

@@ -78,12 +78,14 @@ class CGCS_Grid_Longitude_Range : public CSG_Tool_Grid
 public:
 	CGCS_Grid_Longitude_Range(void);
 
-	virtual CSG_String	Get_MenuPath	(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 };
 
