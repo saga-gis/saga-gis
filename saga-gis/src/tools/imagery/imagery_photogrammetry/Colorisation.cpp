@@ -206,7 +206,7 @@ bool CColorisation::On_Execute(void)
 	
 	for (int i = 0; i < pointCount && Set_Progress(i, pointCount); i++) {
 		
-		if ( applyTimeStamp && abs( imgTimeStamp - pPoints->Get_Attribute(i,0) ) >= timeThresh ) {
+		if ( applyTimeStamp && fabs( imgTimeStamp - pPoints->Get_Attribute(i,0) ) >= timeThresh ) {
 			
 			continue;
 
