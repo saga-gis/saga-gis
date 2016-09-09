@@ -881,25 +881,37 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 
 		Tables.Set_Index(1, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
 
+		bool	bSkipPostGISTables	= true;
+
 		for(int i=0; i<Tables.Get_Count(); i++)
 		{
-			CSG_String	s(Tables[i].asString(1));
+			CSG_String	s(Tables[i].asString(0));
 
-			TSG_Shape_Type	Shape;
-			TSG_Vertex_Type	Vertex;
-
-			if( CSG_Shapes_OGIS_Converter::to_ShapeType(s, Shape, Vertex) )
+			if( bSkipPostGISTables == false
+			|| (s.CmpNoCase("geography_columns")
+			&&  s.CmpNoCase("geometry_columns" )
+			&&  s.CmpNoCase("raster_columns"   )
+			&&  s.CmpNoCase("raster_overviews" )
+			&&  s.CmpNoCase("spatial_ref_sys"  )) )
 			{
-				switch( Shape )
+				s	= Tables[i].asString(1);
+
+				TSG_Shape_Type	Shape;
+				TSG_Vertex_Type	Vertex;
+
+				if( CSG_Shapes_OGIS_Converter::to_ShapeType(s, Shape, Vertex) )
 				{
-				case SHAPE_TYPE_Point:   Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINT  ); break;
-				case SHAPE_TYPE_Points:  Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINTS ); break;
-				case SHAPE_TYPE_Line:    Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_LINE   ); break;
-				case SHAPE_TYPE_Polygon: Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON); break;
+					switch( Shape )
+					{
+					case SHAPE_TYPE_Point  : Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINT  ); break;
+					case SHAPE_TYPE_Points : Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POINTS ); break;
+					case SHAPE_TYPE_Line   : Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_LINE   ); break;
+					case SHAPE_TYPE_Polygon: Append_Table(Item, Tables[i].asString(0), TYPE_SHAPES, IMG_POLYGON); break;
+					}
 				}
+				else if( !s.Cmp("RASTER" ) ) Append_Table(Item, Tables[i].asString(0), TYPE_GRIDS , IMG_GRIDS  );
+				else if( !s.Cmp("TABLE"  ) ) Append_Table(Item, Tables[i].asString(0), TYPE_TABLE , IMG_TABLE  );
 			}
-			else if( !s.Cmp("RASTER" ) ) Append_Table(Item, Tables[i].asString(0), TYPE_GRIDS , IMG_GRIDS  );
-			else if( !s.Cmp("TABLE"  ) ) Append_Table(Item, Tables[i].asString(0), TYPE_TABLE , IMG_TABLE  );
 		}
 
 		Expand(Item);
