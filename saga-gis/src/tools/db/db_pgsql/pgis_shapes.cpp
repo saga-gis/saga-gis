@@ -324,8 +324,10 @@ bool CShapes_Save::On_Execute(void)
 			{
 				CSG_String	s = pShape->asString(iField);
 
-				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+				switch( pShapes->Get_Field_Type(iField) )
 				{
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
 					if( 1 )
 					{
 						char	*_s	= NULL; if( s.to_ASCII(&_s) ) s = _s; SG_FREE_SAFE(_s);
@@ -334,6 +336,7 @@ bool CShapes_Save::On_Execute(void)
 					s.Replace("'", "\"");
 
 					s	= "'" + s + "'";
+					break;
 				}
 
 				SQL	+= ", "  + s;
