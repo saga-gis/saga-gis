@@ -637,7 +637,7 @@ double f13_icorr(const double **P, int Ng, const double *px, const double *py)
     }
 
     /* fprintf(stderr,"hx=%f\thxy2=%f\n",hx,hxy2); */
-    return (sqrt(abs(1 - exp(-2.0 * (hxy2 - hxy)))));
+    return (sqrt(fabs(1 - exp(-2.0 * (hxy2 - hxy)))));
 }
 
 
