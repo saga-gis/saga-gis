@@ -282,7 +282,7 @@ void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &
 //---------------------------------------------------------
 void CSG_Parameters::Add_Reference(const CSG_String &Link, const SG_Char *Link_Text)
 {
-	m_References	+= CSG_String::Format("<a href=\"%s\">%s</a>", Link.c_str(), Link_Text && *Link_Text ? Link_Text : Link);
+	m_References	+= CSG_String::Format("<a href=\"%s\">%s</a>", Link.c_str(), Link_Text && *Link_Text ? Link_Text : Link.c_str());
 }
 
 //---------------------------------------------------------
