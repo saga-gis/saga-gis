@@ -715,6 +715,8 @@ public:
 	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == true  );	}
 	bool							operator !=				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == false );	}
 
+	bool							Set_GCS_WGS84			(void);
+
 	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
 
