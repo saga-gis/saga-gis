@@ -75,66 +75,68 @@ CMorphometry::CMorphometry(void)
 {
 	Set_Name		(_TL("Slope, Aspect, Curvature"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Calculates the local morphometric terrain parameters slope, aspect and if supported "
 		"by the chosen method also the curvature. Besides tangential curvature also its "
-		"horizontal and vertical components (i.e. plan and profile curvature) can be calculated.\n"
-
-		"\nReferences:\n\n"
-
-		"Maximum Slope\n"
-		"- Travis, M.R., Elsner, G.H., Iverson, W.D., Johnson, C.G. (1975):\n"
-		"    'VIEWIT: computation of seen areas, slope, and aspect for land-use planning',\n"
-		"    USDA F.S. Gen. Tech. Rep. PSW-11/1975, 70p. Berkeley, California, U.S.A.\n\n"
-
-		"Maximum Triangle Slope\n"
-		"- Tarboton, D.G. (1997):\n"
-		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
-
-		"Least Squares or Best Fitted Plane\n"
-		"- Horn, B. K. (1981):\n"
-		"    'Hill shading and the relectance map',\n"
-		"    Proceedings of the IEEE, v. 69, no. 1, p. 14-47.\n\n"
-
-		"- Beasley, D.B., Huggins, L.F. (1982):\n"
-		"    'ANSWERS: User's manual',\n"
-		"    U.S. EPA-905/9-82-001, Chicago, IL. 54pp.\n\n"
-
-		"- Costa-Cabral, M., Burges, S.J., (1994):\n"
-		"    'Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas',\n"
-		"    Water Resources Research, v. 30, no. 6, p. 1681-1692.\n\n"
-
-		"Fit 2.Degree Polynom\n"
-		"- Evans, I.S. (1979):\n"
-		"    'An integrated system of terrain analysis and slope mapping',\n"
-		"    Final report on grant DA-ERO-591-73-G0040. University of Durham, England.\n\n"
-
-		"- Bauer, J., Rohdenburg, H., Bork, H.-R. (1985):\n"
-		"    'Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse',\n"
-		"    Landschaftsgenese und Landschaftsoekologie, H.10, Parameteraufbereitung fuer deterministische Gebiets-Wassermodelle,\n"
-		"    Grundlagenarbeiten zu Analyse von Agrar-Oekosystemen, (Eds.: Bork, H.-R. / Rohdenburg, H.), p.1-15\n\n"
-
-		"- Heerdegen, R.G., Beran, M.A. (1982):\n"
-		"    'Quantifying source areas through land surface curvature',\n"
-		"    Journal of Hydrology, Vol.57\n\n"
-
-		"- Olaya, V. (2006):\n"
-		"    'Basic Land-Surface Parameters',\n"
-		"     in: Hengl, T., Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. "
-		"     Developments in Soil Science, Elsevier, Vol.33, 141-169.\n\n"
-
-		"- Zevenbergen, L.W., Thorne, C.R. (1987):\n"
-		"    'Quantitative analysis of land surface topography',\n"
-		"    Earth Surface Processes and Landforms, 12: 47-56.\n\n"
-
-		"Fit 3.Degree Polynom\n"
-		"- R.M. Haralick (1983):\n"
-		"    'Ridge and valley detection on digital images',\n"
-		"    Computer Vision, Graphics and Image Processing, Vol.22, No.1, p.28-38\n\n"
+		"horizontal and vertical components (i.e. plan and profile curvature) can be calculated."
 	));
+
+	Add_Reference("Travis, M.R., Elsner, G.H., Iverson, W.D., Johnson, C.G.", "1975",
+		"VIEWIT: computation of seen areas, slope, and aspect for land-use planning",
+		"USDA F.S. Gen. Tech. Rep. PSW-11/1975, 70p. Berkeley, California, U.S.A."
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319."
+	);
+
+	Add_Reference("Horn, B. K.", "1981",
+		"Hill shading and the relectance map",
+		"Proceedings of the IEEE, v. 69, no. 1, p.14-47."
+	);
+
+	Add_Reference("Beasley, D.B., Huggins, L.F.", "1982",
+		"ANSWERS: User's manual",
+		"U.S. EPA-905/9-82-001, Chicago, IL. 54pp."
+	);
+
+	Add_Reference("Costa-Cabral, M., Burges, S.J.", "1994",
+		"Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas",
+		"Water Resources Research, v. 30, no. 6, p.1681-1692."
+	);
+
+	Add_Reference("Evans, I.S.", "1979",
+		"An integrated system of terrain analysis and slope mapping",
+		"Final report on grant DA-ERO-591-73-G0040, University of Durham, England."
+	);
+
+	Add_Reference("Bauer, J., Rohdenburg, H., Bork, H.-R.", "1985",
+		"Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse",
+		"In: Bork, H.-R., Rohdenburg, H. [Eds.]: Parameteraufbereitung fuer deterministische Gebietswassermodelle, Grundlagenarbeiten zur Analyse von Agrar-Oekosystemen, Landschaftsgenese und Landschaftsoekologie, H.10, p.1-15."
+	);
+
+	Add_Reference("Heerdegen, R.G., Beran, M.A.", "1982",
+		"Quantifying source areas through land surface curvature",
+		"Journal of Hydrology, Vol.57."
+	);
+
+	Add_Reference("Olaya, V.", "2006",
+		"Basic Land-Surface Parameters",
+		"In: Hengl, T., Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. Developments in Soil Science, Elsevier, Vol.33, 141-169."
+	);
+
+	Add_Reference("Zevenbergen, L.W., Thorne, C.R.", "1987",
+		"Quantitative analysis of land surface topography",
+		"Earth Surface Processes and Landforms, 12: 47-56."
+	);
+
+	Add_Reference("Haralick, R.M.", "1983",
+		"Ridge and valley detection on digital images",
+		"Computer Vision, Graphics and Image Processing, Vol.22, No.1, p.28-38."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(

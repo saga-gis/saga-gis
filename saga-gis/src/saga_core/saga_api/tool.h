@@ -199,8 +199,9 @@ public:
 	const CSG_String &			Get_Library					(void)	const;
 	const CSG_String &			Get_File_Name				(void)	const;	// Returns the file name of the tool's library or, if this is a tool chain, the associated XML file.
 	const CSG_String &			Get_Name					(void)	const;
-	const CSG_String &			Get_Description				(void)	const;
 	const CSG_String &			Get_Author					(void)	const;
+	const CSG_String &			Get_Description				(void)	const;
+	const CSG_Strings &			Get_References				(void)	const;
 	const SG_Char *				Get_Icon					(void)	{	return( NULL );	}
 	CSG_String					Get_Summary					(bool bParameters = true, const CSG_String &Menu = "", const CSG_String &Description = "", bool bXML = false);
 
@@ -252,8 +253,11 @@ protected:
 
 	//-----------------------------------------------------
 	void						Set_Name					(const CSG_String &String);
-	void						Set_Description				(const CSG_String &String);
 	void						Set_Author					(const CSG_String &String);
+	void						Set_Description				(const CSG_String &String);
+
+	void						Add_Reference				(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
+	void						Add_Reference				(const CSG_String &Link, const SG_Char *Link_Text = NULL);
 
 	//-----------------------------------------------------
 	virtual bool				On_Execute					(void)	= 0;
