@@ -359,34 +359,34 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LEGEND_SHOW"))
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEGEND_SHOW")
+		||	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
 		{
-			pParameters->Get_Parameter("LEGEND_STYLE")->Set_Enabled(
+			pParameters->Set_Enabled("LEGEND_STYLE",
 				pParameters->Get_Parameter("LEGEND_SHOW")->asBool()
 			&&	pParameters->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
 			);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHOW_ALWAYS")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
 		{
-			pParameters->Get_Parameter("SHOW_RANGE")->Set_Enabled(pParameter->asBool() == false);
+			pParameters->Set_Enabled("SHOW_RANGE", pParameter->asBool() == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLORS_TYPE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("NODE_UNISYMBOL")->Set_Enabled(Value == CLASSIFY_UNIQUE);
-			pParameters->Get_Parameter("NODE_LUT"      )->Set_Enabled(Value == CLASSIFY_LUT);
-			pParameters->Get_Parameter("NODE_METRIC"   )->Set_Enabled(Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
+			pParameters->Set_Enabled("NODE_UNISYMBOL", Value == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC"   , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
 
-			pParameters->Get_Parameter("METRIC_COLORS" )->Set_Enabled(Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METRIC_SCALE_MODE")) )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_SCALE_MODE") )
 		{
-			pParameters->Get_Parameter("METRIC_SCALE_LOG")->Set_Enabled(pParameter->asInt() != 0);
+			pParameters->Set_Enabled("METRIC_SCALE_LOG", pParameter->asInt() != 0);
 		}
 	}
 

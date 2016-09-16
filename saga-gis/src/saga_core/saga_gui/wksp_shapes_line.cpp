@@ -218,7 +218,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Pen			= wxPen(m_Def_Color, (int)m_Size, (wxPenStyle)m_Line_Style);
+	m_Pen			= wxPen(m_pClassify->Get_Unique_Color(), (int)m_Size, (wxPenStyle)m_Line_Style);
 
 	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asBool();
 
@@ -371,14 +371,11 @@ void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int 
 		}
 
 		//-------------------------------------------------
-		if( m_fValue >= 0 )
-		{
-			int		Color;
+		int		Color;
 
-			if( Get_Class_Color(pShape, Color) )
-			{
-				Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-			}
+		if( Get_Class_Color(pShape, Color) || m_bNoData )
+		{
+			Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 		}
 	}
 

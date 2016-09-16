@@ -320,8 +320,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
-	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_Def_Color, BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
+	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
+	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 }
 
 
@@ -478,7 +478,7 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxBRUSHSTYLE_SOLID));
 		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
 	}
-	else if( Get_Class_Color(pShape, Color) )
+	else if( Get_Class_Color(pShape, Color) || m_bNoData )
 	{
 		if( !m_Brush.IsTransparent() )
 		{

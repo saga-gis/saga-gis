@@ -167,8 +167,8 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
-	m_Pen		= wxPen(!m_bOutline ? m_Def_Color : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_Def_Color, BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
+	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
+	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 
 	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asBool();
 	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")->asBool();
@@ -210,7 +210,7 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	//-----------------------------------------------------
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], wxBRUSHSTYLE_SOLID));
+		dc_Map.dc.SetBrush(wxBrush(Selection == 1 ? m_Sel_Color_Fill[0] : m_Sel_Color_Fill[1], m_Brush.GetStyle()));
 		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, 0, wxPENSTYLE_SOLID));
 
 		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
@@ -222,21 +222,11 @@ void CWKSP_Shapes_Polygon::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, i
 	}
 
 	//-----------------------------------------------------
-	if( m_Brush.IsTransparent() && !m_bOutline )
-	{
-		return;	// nothing to draw !
-	}
-
-	//-----------------------------------------------------
-	if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE )
-	{
-		dc_Map.Draw_Polygon((CSG_Shape_Polygon *)pShape);
-	}
-	else if( m_fValue >= 0 && (m_pClassify->Get_Mode() != CLASSIFY_METRIC || !pShape->is_NoData(m_fValue)) )
+	if( !m_Brush.IsTransparent() || m_bOutline )
 	{
 		int	Color;
 
-		if( Get_Class_Color(pShape, Color) )
+		if( Get_Class_Color(pShape, Color) || m_bNoData )
 		{
 			m_Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
 			dc_Map.dc.SetBrush(m_Brush);
