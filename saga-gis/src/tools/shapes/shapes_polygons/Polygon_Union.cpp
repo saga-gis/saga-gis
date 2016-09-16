@@ -130,7 +130,7 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Parameters.Add_Choice(
 		pNode, "STAT_NAMING"	, _TL("Field Naming"),
 		_TL(""), 
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("variable type + original name"),
 			_TL("original name + variable type"),
 			_TL("original name"),
@@ -142,14 +142,12 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POLYGONS")) && pParameters->Get_Parameter("POLYGONS")->asShapes() != NULL )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") && pParameters->Get_Parameter("POLYGONS")->asShapes() != NULL )
 	{
 		int	nFields	= pParameters->Get_Parameter("POLYGONS")->asShapes()->Get_Field_Count();
 
@@ -157,45 +155,43 @@ int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Get_Parameter("FIELD_3")->Set_Value(nFields);
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD_1")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_1") )
 	{
-		pParameters->Get_Parameter("FIELD_2")->Set_Enabled(pParameter->asInt() >= 0);
-		pParameters->Get_Parameter("FIELD_3")->Set_Enabled(pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_2")->asInt() >= 0);
+		pParameters->Set_Enabled("FIELD_2", pParameter->asInt() >= 0);
+		pParameters->Set_Enabled("FIELD_3", pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_2")->asInt() >= 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD_2")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_2") )
 	{
-		pParameters->Get_Parameter("FIELD_3")->Set_Enabled(pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_1")->asInt() >= 0);
+		pParameters->Set_Enabled("FIELD_3", pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_1")->asInt() >= 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("STAT_FIELDS")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STAT_FIELDS") )
 	{
-		pParameters->Get_Parameter("STAT_SUM")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_AVG")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_MIN")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_MAX")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_RNG")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_DEV")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_VAR")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_LST")->Set_Enabled(pParameter->asInt() > 0);
-		pParameters->Get_Parameter("STAT_NUM")->Set_Enabled(pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_SUM", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_AVG", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_MIN", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_MAX", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_RNG", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_DEV", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_VAR", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_LST", pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_NUM", pParameter->asInt() > 0);
 
-		pParameters->Get_Parameter("STAT_NAMING")->Set_Enabled(pParameter->asInt() > 0);
+		pParameters->Set_Enabled("STAT_NAMING", pParameter->asInt() > 0);
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -240,11 +236,11 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 		pPolygons->Set_Index(Field_1, TABLE_INDEX_Ascending, Field_2, TABLE_INDEX_Ascending, Field_3, TABLE_INDEX_Ascending);
 
-		pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Dissolved"), s.c_str()));
+		pUnions->Set_Name(CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), s.c_str()));
 	}
 	else // if( Field_1 < 0 )
 	{
-		pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Dissolved"), _TL("All")));
+		pUnions->Set_Name(CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), _TL("All")));
 	}
 
 	Init_Statistics(pUnions, pPolygons);
@@ -310,8 +306,6 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -375,11 +369,10 @@ CSG_String CPolygon_Dissolve::Get_Statistics_Name(const CSG_String &Type, const 
 	
 	switch( Parameters("STAT_NAMING")->asInt() )
 	{
-	default:
-	case 0:	s.Printf(SG_T("%s_%s"), Type.c_str(), Name.c_str());	break;
-	case 1:	s.Printf(SG_T("%s_%s"), Name.c_str(), Type.c_str());	break;
-	case 2:	s.Printf(SG_T("%s"   ), Name.c_str()              );	break;
-	case 3:	s.Printf(SG_T("%s"   ), Type.c_str()              );	break;
+	default:	s.Printf("%s_%s", Type.c_str(), Name.c_str());	break;
+	case  1:	s.Printf("%s_%s", Name.c_str(), Type.c_str());	break;
+	case  2:	s.Printf("%s"   , Name.c_str()              );	break;
+	case  3:	s.Printf("%s"   , Type.c_str()              );	break;
 	}
 
 	return( s );
@@ -402,7 +395,10 @@ bool CPolygon_Dissolve::Add_Statistics(CSG_Shape *pUnion, CSG_Shape *pPolygon, b
 				}
 			}
 
-			m_Statistics[iField]	+= pPolygon->asDouble(m_Stat_pFields->Get_Index(iField));
+			if( !pPolygon->is_NoData(m_Stat_pFields->Get_Index(iField)) )
+			{
+				m_Statistics[iField]	+= pPolygon->asDouble(m_Stat_pFields->Get_Index(iField));
+			}
 
 			if( iField < m_List.Get_Count() )
 			{
@@ -411,7 +407,10 @@ bool CPolygon_Dissolve::Add_Statistics(CSG_Shape *pUnion, CSG_Shape *pPolygon, b
 					m_List[iField]	+= "|";
 				}
 
-				m_List[iField]	+= pPolygon->asString(m_Stat_pFields->Get_Index(iField));
+				if( !pPolygon->is_NoData(m_Stat_pFields->Get_Index(iField)) )
+				{
+					m_List[iField]	+= pPolygon->asString(m_Stat_pFields->Get_Index(iField));
+				}
 			}
 		}
 
