@@ -441,61 +441,46 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 	}
 
 	//-----------------------------------------------------
-	double	dSize;
-
-	if( m_iSize < 0 )	// default size
-	{
-		dSize	= m_Size;
-	}
-	else				// size by attribute value
-	{
-		dSize	= pShape->asDouble(m_iSize);
-
-		if( m_Size_Scale != 0 )	// scale to size range
-		{
-			dSize	= (dSize - m_Size_Min) * m_dSize + m_Size;
-		}
-	}
-
-	switch( m_Size_Type )
-	{
-	default:	dSize	*= dc_Map.m_Scale;		break;
-	case  1:	dSize	*= dc_Map.m_World2DC;	break;
-	}
-
-	Size	= (int)(0.5 + dSize);
-
-	if( Size <= 0 )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	int	Color;
-
 	if( Selection )
 	{
-		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, wxBRUSHSTYLE_SOLID));
-		dc_Map.dc.SetPen  (wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
+		dc_Map.dc.SetBrush(wxBrush(m_Sel_Color_Fill, m_Brush.GetStyle()));
+		dc_Map.dc.SetPen(wxPen(m_Sel_Color, Selection == 1 ? 2 : 0, wxPENSTYLE_SOLID));
 	}
-	else if( Get_Class_Color(pShape, Color) || m_bNoData )
+	else
 	{
+		int		Color;
+
+		if( !Get_Class_Color(pShape, Color) && !m_bNoData )
+		{
+			return( false );
+		}
+
 		if( !m_Brush.IsTransparent() )
 		{
-			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-
-			dc_Map.dc.SetBrush(Brush);
+			wxBrush	Brush(m_Brush);	Brush.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.dc.SetBrush(Brush);
 		}
 
 		if( !m_bOutline )
 		{
-			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-
-			dc_Map.dc.SetPen(Pen);
+			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.dc.SetPen(Pen);
 		}
 	}
 
-	return( true );
+	//-----------------------------------------------------
+	double	dSize	= m_iSize < 0 ? m_Size : pShape->asDouble(m_iSize);
+
+	if( m_Size_Scale != 0 )	// scale to size range
+	{
+		dSize	= (dSize - m_Size_Min) * m_dSize + m_Size;
+	}
+
+	switch( m_Size_Type )
+	{
+	default: dSize *= dc_Map.m_Scale   ; break;
+	case  1: dSize *= dc_Map.m_World2DC; break;
+	}
+
+	return( (Size = (int)(0.5 + dSize)) > 0 );
 }
 
 //---------------------------------------------------------
