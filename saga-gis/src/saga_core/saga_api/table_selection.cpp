@@ -225,19 +225,19 @@ int CSG_Table::Inv_Selection(void)
 	{
 		m_Selection.Set_Array((size_t)m_nRecords - m_Selection.Get_Size());
 
-		CSG_Table_Record	**pRecord	= m_Records + 0;
-
-		for(size_t i=0, n=0; i<(size_t)m_nRecords && n<Get_Selection_Count(); i++, pRecord++)
+		for(size_t i=0, n=0; i<(size_t)Get_Count(); i++)
 		{
-			if( (*pRecord)->is_Selected() )
+			CSG_Table_Record	*pRecord	= Get_Record(i);
+
+			if( pRecord->is_Selected() == false )//&& n < m_Selection.Get_Size() )
 			{
-				(*pRecord)->Set_Selected(false);
+				pRecord->Set_Selected(true);
+
+				*((size_t *)m_Selection.Get_Entry(n++))	= i;
 			}
 			else
 			{
-				(*pRecord)->Set_Selected(true);
-
-				_Set_Selection(i, n++);
+				pRecord->Set_Selected(false);
 			}
 		}
 	}
