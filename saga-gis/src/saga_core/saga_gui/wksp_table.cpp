@@ -139,6 +139,7 @@ wxString CWKSP_Table::Get_Description(void)
 
 	DESC_ADD_STR(_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_INT(_TL("Number of Records"), Get_Table()->Get_Count());
+	DESC_ADD_INT(_TL("Selected"         ), Get_Table()->Get_Selection_Count());
 
 	s	+= wxT("</table>");
 
