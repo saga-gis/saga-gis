@@ -750,6 +750,8 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 //---------------------------------------------------------
 bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
+	const float	NoData	= 1.70141e38f;
+
 	if( !SG_File_Cmp_Extension(File_Name, SG_T("grd")) )
 	{
 		return( false );
@@ -795,19 +797,26 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		//-------------------------------------------------
 		if( bLoadData )
 		{
-			float	*fLine	= (float *)SG_Malloc(Get_NX() * sizeof(float));
+			float	*Line	= (float *)SG_Malloc(Get_NX() * sizeof(float));
 
 			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				Stream.Read(fLine, sizeof(float), Get_NX());
+				Stream.Read(Line, sizeof(float), Get_NX());
 
 				for(int x=0; x<Get_NX(); x++)
 				{
-					Set_Value(x, y, fLine[x]);
+					if( Line[x] == NoData )
+					{
+						Set_NoData(x, y);
+					}
+					else
+					{
+						Set_Value(x, y, Line[x]);
+					}
 				}
 			}
 
-			SG_Free(fLine);
+			SG_Free(Line);
 		}
 
 		Get_MetaData().Add_Child("SURFER_GRID", "Surfer Grid (Binary)");
@@ -843,7 +852,14 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 				{
 					fscanf(Stream.Get_Stream(), "%lf", &d);
 
-					Set_Value(x, y, d);
+					if( d == NoData )
+					{
+						Set_NoData(x, y);
+					}
+					else
+					{
+						Set_Value(x, y, d);
+					}
 				}
 			}
 		}

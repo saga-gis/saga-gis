@@ -56,7 +56,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Surfer.h						 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -64,46 +64,59 @@
 #ifndef HEADER_INCLUDED__Surfer_H
 #define HEADER_INCLUDED__Surfer_H
 
-
 //---------------------------------------------------------
 #include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CSurfer_Import : public CSG_Tool
 {
 public:
 	CSurfer_Import(void);
-	virtual ~CSurfer_Import(void);
 
-	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-private:
+	virtual bool			On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CSurfer_Export : public CSG_Tool_Grid
 {
 public:
 	CSurfer_Export(void);
-	virtual ~CSurfer_Export(void);
 
-	virtual CSG_String		Get_MenuPath(void)				{	return( _TL("Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute(void);
-
-
-private:
+	virtual bool			On_Execute				(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Surfer_H
