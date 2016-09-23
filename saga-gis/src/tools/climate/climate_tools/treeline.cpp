@@ -111,13 +111,13 @@ void CTreeLine_Base::Add_Parameters(CSG_Parameters &Parameters)
 	//-----------------------------------------------------
 	Parameters.Add_Double(NULL,
 		"DT_MIN"		, _TL("Threshold Temperature"),
-		_TL("Threshold temperature (°C) that constrains the growing season."),
+		_TL("Threshold temperature (C) that constrains the growing season."),
 		0.9
 	);
 
 	Parameters.Add_Double(NULL,
 		"SMT_MIN"		, _TL("Minimum Mean Temperature"),
-		_TL("Minimum mean temperature (°C) for all days of the growing season."),
+		_TL("Minimum mean temperature (C) for all days of the growing season."),
 		6.4
 	);
 
