@@ -1456,6 +1456,10 @@ public:
 	void						Set_Description			(const CSG_String &String);
 	const CSG_String &			Get_Description			(void)	const	{	return( m_Description );	}
 
+	void						Add_Reference			(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);
+	void						Add_Reference			(const CSG_String &Link, const SG_Char *Link_Text = NULL);
+	const CSG_Strings &			Get_References			(void)	const	{	return( m_References );		}
+
 	void						Set_Enabled				(bool bEnabled = true);
 	void						Set_Enabled				(const CSG_String &Identifier, bool bEnabled = true);
 
@@ -1580,6 +1584,8 @@ private:
 	bool						m_bCallback;
 
 	CSG_String					m_Identifier, m_Name, m_Description;
+
+	CSG_Strings					m_References;
 
 	int							m_nParameters;
 

@@ -161,6 +161,17 @@ const CSG_String & CSG_Tool::Get_Name(void) const
 }
 
 //---------------------------------------------------------
+void CSG_Tool::Set_Author(const CSG_String &String)
+{
+	m_Author	= String;
+}
+
+const CSG_String & CSG_Tool::Get_Author(void) const
+{
+	return( m_Author );
+}
+
+//---------------------------------------------------------
 void CSG_Tool::Set_Description(const CSG_String &String)
 {
 	Parameters.Set_Description(String);
@@ -172,14 +183,19 @@ const CSG_String & CSG_Tool::Get_Description(void) const
 }
 
 //---------------------------------------------------------
-void CSG_Tool::Set_Author(const CSG_String &String)
+void CSG_Tool::Add_Reference(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link, const SG_Char *Link_Text)
 {
-	m_Author	= String;
+	Parameters.Add_Reference(Authors, Year, Title, Where, Link, Link_Text);
 }
 
-const CSG_String & CSG_Tool::Get_Author(void) const
+void CSG_Tool::Add_Reference(const CSG_String &Link, const SG_Char *Link_Text)
 {
-	return( m_Author );
+	Parameters.Add_Reference(Link, Link_Text);
+}
+
+const CSG_Strings & CSG_Tool::Get_References(void) const
+{
+	return( Parameters.Get_References() );
 }
 
 //---------------------------------------------------------
@@ -1204,14 +1220,14 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 		m.Add_Property(SG_XML_TOOL_ATT_NAME  , Get_Name       ());
 		m.Add_Property(SG_XML_TOOL_ATT_ID    , Get_ID         ());
 		m.Add_Property(SG_XML_TOOL_ATT_AUTHOR, Get_Author     ());
-		m.Add_Child   (SG_XML_DESCRIPTION      , Get_Description());
-		m.Add_Child   (SG_XML_MENU             , Get_MenuPath   ());
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Grid        () ? "true" : "false");
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID    , is_Interactive () ? "true" : "false");
+		m.Add_Child   (SG_XML_DESCRIPTION    , Get_Description());
+		m.Add_Child   (SG_XML_MENU           , Get_MenuPath   ());
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID  , is_Interactive () ? "true" : "false");
 
 	//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
-	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID    , is_Grid        () ? "true" : "false");
-	//	pChild->Add_Property(SG_XML_SPEC_ATT_INTERA  , is_Interactive () ? "true" : "false");
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");
+	//	pChild->Add_Property(SG_XML_SPEC_ATT_INTERA, is_Interactive () ? "true" : "false");
 
 		if( bParameters )
 		{
@@ -1286,7 +1302,20 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 		//-------------------------------------------------
 		s	+= CSG_String::Format("<hr><h4>%s</h4>", _TL("Description"));
 
-		s	+= Description.Length() > 0 ? Description : Get_Description();
+		s	+= !Description.is_Empty() ? Description : Get_Description();
+
+		//-------------------------------------------------
+		if( Description.is_Empty() && Get_References().Get_Count() > 0 )
+		{
+			s	+= CSG_String::Format("<hr><h4>%s</h4><ul>", _TL("References"));
+
+			for(i=0; i<Get_References().Get_Count(); i++)
+			{
+				s	+= "<li>" + Get_References()[i] + "</li>";
+			}
+
+			s	+= "</ul>";
+		}
 
 		//-------------------------------------------------
 		if( bParameters )

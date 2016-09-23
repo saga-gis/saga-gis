@@ -488,6 +488,24 @@ bool CSG_Projection::Save(CSG_MetaData &Projection) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Projection::Set_GCS_WGS84(void)
+{
+	return( Create(
+		"GEOGCS[\"WGS 84\",DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563,"
+		"AUTHORITY[\"EPSG\",\"7030\"]],"
+		"AUTHORITY[\"EPSG\",\"6326\"]],PRIMEM[\"Greenwich\",0,"
+		"AUTHORITY[\"EPSG\",\"8901\"]],UNIT[\"degree\",0.0174532925199433,"
+		"AUTHORITY[\"EPSG\",\"9122\"]],"
+		"AUTHORITY[\"EPSG\",\"4326\"]]"
+	) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Projection::is_Equal(const CSG_Projection &Projection)	const
 {
 	if( !m_Authority.is_Empty() && !Projection.m_Authority.is_Empty() )

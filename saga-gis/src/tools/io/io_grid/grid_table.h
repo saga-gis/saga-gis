@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,7 +86,6 @@ class CGrid_Table_Import : public CSG_Tool
 {
 public:
 	CGrid_Table_Import(void);
-	virtual ~CGrid_Table_Import(void);
 
 	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
@@ -95,6 +94,25 @@ protected:
 
 	virtual bool			On_Execute		(void);
 
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRU_Table_Import : public CSG_Tool
+{
+public:
+	CCRU_Table_Import(void);
+
+	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
 
 };
 

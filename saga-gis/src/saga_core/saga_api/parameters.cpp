@@ -255,6 +255,38 @@ void CSG_Parameters::Set_Description(const CSG_String &String)
 
 //---------------------------------------------------------
 /**
+  * Add a reference to the list of references.
+*/
+//---------------------------------------------------------
+void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link, const SG_Char *Link_Text)
+{
+	CSG_String	Reference	= Authors;
+
+	Reference.Printf("%s (%s): %s. %s", Authors.c_str(), Year.c_str(), Title.c_str(), Where.c_str());
+
+	if( Link && *Link )
+	{
+		Reference	+= CSG_String::Format(" <a href=\"%s\">%s</a>.", Link, Link_Text && *Link_Text ? Link_Text : Link);
+	}
+
+	if( !Reference.is_Empty() )
+	{
+		m_References	+= Reference;
+	}
+}
+
+//---------------------------------------------------------
+/**
+  * Add a reference to the list of references.
+*/
+//---------------------------------------------------------
+void CSG_Parameters::Add_Reference(const CSG_String &Link, const SG_Char *Link_Text)
+{
+	m_References	+= CSG_String::Format("<a href=\"%s\">%s</a>", Link.c_str(), Link_Text && *Link_Text ? Link_Text : Link.c_str());
+}
+
+//---------------------------------------------------------
+/**
   * Enable or disable all parameters.
 */
 //---------------------------------------------------------

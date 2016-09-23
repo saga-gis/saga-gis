@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: etp_hargreave.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    etp_hargreave.h                    //
+//                      treeline.h                       //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,7 +37,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
@@ -54,50 +51,108 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__etp_hargreave_H
-#define HEADER_INCLUDED__etp_hargreave_H
+#ifndef HEADER_INCLUDED__treeline_H
+#define HEADER_INCLUDED__treeline_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
-//---------------------------------------------------------
-double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad);
-double	Get_PET_Hargreave				(double R0, double Tmean, double Tmin, double Tmax);
-double	Get_PET_Hargreave				(int DayOfYear, double Latitude_Rad, double Tmean, double Tmin, double Tmax);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Grid : public CSG_Tool_Grid
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum ETGS_Climate
+{
+	PARM_T	= 0,
+	PARM_TMIN,
+	PARM_TMAX,
+	PARM_P,
+	PARM_CLDS
+};
+
+//---------------------------------------------------------
+#define TGS_COLD	0x01
+#define TGS_SNOW	0x02
+#define TGS_DRY		0x04
+
+//---------------------------------------------------------
+class CTreeGrowingSeason
 {
 public:
-	CPET_Hargreave_Grid(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
+	//-----------------------------------------------------
+	typedef struct TGS_Parameters
+	{
+		int		SW_MaxIter;
+
+		double	DT_min, SMT_min, LGS_min, SWC_Surface, SW_min, SW_Resist;
+	}
+	TTGS_Parameters;
 
 
-protected:
+public:
+	CTreeGrowingSeason(const TTGS_Parameters &Parms, double TSWC, double Latitude);
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	double *					Get_Monthly				(int Parameter)	{	return( m_Monthly[Parameter] );	}
 
-	virtual bool		On_Execute				(void);
+	bool						Calculate				(void);
+
+	double						Get_SMT					(void)	{	return(      m_TGS.Get_Mean () );	}
+	int							Get_LGS					(void)	{	return( (int)m_TGS.Get_Count() );	}
+
+	double						Get_T					(int iDay)	{	return( m_Daily[PARM_T][iDay] );	}
+	double						Get_P					(int iDay)	{	return( m_Daily[PARM_P][iDay] );	}
+	double						Get_Snow				(int iDay)	{	return( m_Snow         [iDay] );	}
+	double						Get_ET					(int iDay)	{	return( m_ET           [iDay] );	}
+	double						Get_SW_0				(int iDay)	{	return( m_SW[0]        [iDay] );	}
+	double						Get_SW_1				(int iDay)	{	return( m_SW[1]        [iDay] );	}
+
+
+private:
+
+	int							m_Growing[365];
+
+	double						m_Monthly[4][12], m_SWC[2], m_Lat;
+
+	TTGS_Parameters				m_Parms;
+
+	CSG_Vector					m_Daily[4], m_Snow, m_ET, m_SW[2];
+
+	CSG_Simple_Statistics		m_TGS;
+
+
+	void						Reset					(void);
+
+	bool						Get_TGS					(void);
+
+	void						Set_Daily_Spline		(CSG_Vector &Daily  , const double *Monthly);
+	void						Set_Daily_Events		(CSG_Vector &Daily_P, const double *Monthly_P, const double *Monthly_T);
+
+	bool						Set_Temperature			(void);
+
+	bool						Set_Snow_Depth			(void);
+	int							Snow_Get_Start			(const double *T);
+	double						Snow_Get_SnowMelt		(double Snow, double T, double P);
+
+	bool						Set_Soil_Water			(void);
+	int							Soil_Get_Start			(const double *P, const double *ET);
+	void						Soil_Set_ET				(double *ET);
 
 };
 
@@ -107,17 +162,27 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Table : public CSG_Tool
+class CTreeLine_Base
 {
 public:
-	CPET_Hargreave_Table(void);
-
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
+	CTreeLine_Base(void)	{}
 
 
 protected:
 
-	virtual bool		On_Execute				(void);
+	double						m_TSWC, m_Lat_Default;
+
+	CSG_Grid					*m_pTSWC, m_Lat, *m_pLat;
+
+	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
+	
+	CTreeGrowingSeason::TTGS_Parameters	m_Parms;
+
+
+	void						Add_Parameters			(CSG_Parameters &Parameters);
+	bool						Set_Parameters			(CSG_Parameters &Parameters);
+
+	bool						Get_Monthly				(double Monthly[12], int x, int y, CSG_Parameter_Grid_List *pMonthly, double Default = -1.0);;
 
 };
 
@@ -127,26 +192,55 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Day_To_Hour : public CSG_Tool
+class CTreeLine : public CSG_Tool_Grid, CTreeLine_Base
 {
 public:
-	CPET_Day_To_Hour(void);
+	CTreeLine(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool		On_Execute				(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTreeLine_Interactive : public CSG_Tool_Grid_Interactive, CTreeLine_Base
+{
+public:
+	CTreeLine_Interactive(void);
+
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
+
+	CSG_Table					*m_pSummary, *m_pDaily;
+
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute_Finish		(void);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__etp_hargreave_H
+#endif // #ifndef HEADER_INCLUDED__treeline_H

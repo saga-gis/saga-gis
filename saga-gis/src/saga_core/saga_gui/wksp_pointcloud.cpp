@@ -143,6 +143,7 @@ wxString CWKSP_PointCloud::Get_Description(void)
 	DESC_ADD_FLT(_TL("North"           ), Get_PointCloud()->Get_Extent().Get_YMax());
 	DESC_ADD_FLT(_TL("South-North"     ), Get_PointCloud()->Get_Extent().Get_YRange());
 	DESC_ADD_INT(_TL("Number of Points"), Get_PointCloud()->Get_Count());
+	DESC_ADD_INT(_TL("Selected"        ), Get_PointCloud()->Get_Selection_Count());
 
 	s	+= wxT("</table>");
 

@@ -134,9 +134,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CWRF_Import );
 	case 14:	return( new CWRF_Export );
 	case 16:	return( new CImport_Clip_Resample );
+	case 17:	return( new CCRU_Table_Import );
 
 	//-----------------------------------------------------
-	case 17:	return( NULL );
+	case 18:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

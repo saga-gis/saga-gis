@@ -453,6 +453,7 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 
 		if( g_pACTIVE->Get_Active_Data_Item() == this )
 		{
+			g_pACTIVE->Update_Description();
 			g_pACTIVE->Get_Attributes()->Set_Attributes();
 		}
 

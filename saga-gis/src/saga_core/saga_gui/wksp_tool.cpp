@@ -14,7 +14,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   WKSP_Tool.cpp                     //
+//                    WKSP_Tool.cpp                      //
 //                                                       //
 //          Copyright (C) 2005 by Olaf Conrad            //
 //                                                       //
@@ -800,10 +800,10 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 #include "wksp_data_manager.h"
 
 #define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
-						? CSG_String::Format(SG_T("%s_%s"), p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
+						? CSG_String::Format("%s_%s", p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: CSG_String::Format(p->Get_Identifier())).c_str()
 
-#define GET_ID2(p, s)	CSG_String::Format(SG_T("%s_%s"), GET_ID1(p), s).c_str()
+#define GET_ID2(p, s)	CSG_String::Format("%s_%s", GET_ID1(p), s).c_str()
 
 //---------------------------------------------------------
 void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
@@ -823,50 +823,49 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			if( p->asBool() )
-				Command	+= CSG_String::Format(SG_T(" -%s"), GET_ID1(p));
+			Command	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asBool() ? 1 : 0);
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
-			Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID1(p), p->asInt());
+			Command	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Table_Fields:
 			if( p->asString() && *p->asString() )
-				Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+				Command	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID1(p), p->asDouble());
+			Command	+= CSG_String::Format(" -%s=%f", GET_ID1(p), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T("MIN")), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T("MAX")), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_HiVal());
 			break;
 
 		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
-			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+			Command	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), p->asString());
+			Command	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
-				Command	+= CSG_String::Format(SG_T(" -%s=%d"), GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
-				Command	+= CSG_String::Format(SG_T(" -%s=%f"), GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
+				Command	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NX")), p->asGrid_System()->Get_NX());
+				Command	+= CSG_String::Format(" -%s=%d", GET_ID2(p, SG_T("NY")), p->asGrid_System()->Get_NY());
+				Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "X")), p->asGrid_System()->Get_XMin());
+				Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "Y")), p->asGrid_System()->Get_YMin());
+				Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T( "D")), p->asGrid_System()->Get_Cellsize());
 			}
 			break;
 
@@ -875,7 +874,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
-			Command	+= CSG_String::Format(SG_T(" -%s=%s"), GET_ID1(p), g_pData->Get(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("NULL"));
+			Command	+= CSG_String::Format(" -%s=%s", GET_ID1(p), g_pData->Get(p->asDataObject()) && p->asDataObject()->Get_File_Name() ? p->asDataObject()->Get_File_Name() : SG_T("NULL"));
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
@@ -885,11 +884,11 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_PointCloud_List:
 			if( p->is_Input() )
 			{
-				Command	+= CSG_String::Format(SG_T(" -%s="), GET_ID1(p));
+				Command	+= CSG_String::Format(" -%s=", GET_ID1(p));
 
 				if( p->asList()->Get_Count() == 0 )
 				{
-					Command	+= SG_T("NULL");
+					Command	+= "NULL";
 				}
 				else
 				{
@@ -898,7 +897,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 
 					for(int iObject=1; iObject<p->asList()->Get_Count(); iObject++)
 					{
-						Command	+= SG_T(";");
+						Command	+= ";";
 						Command	+= SG_File_Exists(p->asList()->asDataObject(iObject)->Get_File_Name())
 								 ? p->asList()->asDataObject(iObject)->Get_File_Name() : _TL("memory");
 					}
@@ -927,44 +926,44 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%d)\n"), p->Get_Identifier(), p->asBool() ? 1 : 0);
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asBool() ? 1 : 0);
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%d)\n"), p->Get_Identifier(), p->asInt());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Table_Fields:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%f)\n"), p->Get_Identifier(), p->asDouble());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%f)\n", p->Get_Identifier(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).asRange().Set_LoVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).asRange().Set_HiVal(%f)\n"), p->Get_Identifier(), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).asRange().Set_LoVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).asRange().Set_HiVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_HiVal());
 			break;
 
 		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(%s)\n"), p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			Command	+= CSG_String::Format(SG_T("#   Parms.Get(unicode('%s')).Set_Value(saga_api.SG_Create_Table('table.txt'))\n"), p->Get_Identifier());
+			Command	+= CSG_String::Format("#   Parms.Get(unicode('%s')).Set_Value(saga_api.SG_Create_Table('table.txt'))\n", p->Get_Identifier());
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n"), p->Get_Identifier(),
+				Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", p->Get_Identifier(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin()	, p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX()	, p->asGrid_System()->Get_NY());
@@ -972,25 +971,25 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Grid:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s grid\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s grid\n", p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_Table:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s table\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s table\n", p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_Shapes:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s shapes\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s shapes\n", p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
 
 		case PARAMETER_TYPE_TIN:
-			Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s TIN\n"), p->Get_Identifier(),
+			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s TIN\n", p->Get_Identifier(),
 				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
 			);
 			break;
@@ -1003,9 +1002,9 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			if( p->is_Input() )
 			{
 				if( !p->is_Optional() )
-					Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # data object list\n"), p->Get_Identifier());
+					Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # data object list\n", p->Get_Identifier());
 				else
-					Command	+= CSG_String::Format(SG_T("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # optional data object list\n"), p->Get_Identifier());
+					Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # optional data object list\n", p->Get_Identifier());
 			}
 			break;
 		}

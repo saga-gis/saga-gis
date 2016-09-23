@@ -218,7 +218,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Pen			= wxPen(m_Def_Color, (int)m_Size, (wxPenStyle)m_Line_Style);
+	m_Pen			= wxPen(m_pClassify->Get_Unique_Color(), (int)m_Size, (wxPenStyle)m_Line_Style);
 
 	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asBool();
 
@@ -334,52 +334,52 @@ void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)
 {
-	if( m_iSize >= 0 && pShape->is_NoData(m_iSize) )
+	wxPen	Pen(m_Pen);
+
+	//-----------------------------------------------------
+	if( Selection )
 	{
-		return;
+		Pen.SetColour(m_Sel_Color);
+		Pen.SetWidth (m_Size + (Selection == 1 ? 2 : 0));
 	}
 
 	//-----------------------------------------------------
-	wxPen	Pen(m_Pen);
-
-	if( Selection )
-	{
-		Pen	= wxPen(m_Sel_Color, m_Size + (Selection == 1 ? 2 : 0), (wxPenStyle)m_Line_Style);
-	}
 	else
 	{
+		int		Color;
+
+		if( !Get_Class_Color(pShape, Color) && !m_bNoData )
+		{
+			return;
+		}
+
+		Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
+
 		//-------------------------------------------------
+		double	Size	= m_Size;
+
 		if( m_iSize >= 0 )
 		{
-			double	dSize	= m_Size;
-
-			if( m_iSize >= 0 )
+			if( pShape->is_NoData(m_iSize) )
 			{
-				dSize	+= (pShape->asDouble(m_iSize) - m_Size_Min) * m_dSize;
+				if( !m_bNoData )
+				{
+					return;
+				}
 			}
-
-			switch( m_Size_Type )
+			else
 			{
-			default:	dSize	*= dc_Map.m_Scale;		break;
-			case  1:	dSize	*= dc_Map.m_World2DC;	break;
-			}
-
-			if( dSize >= 0 )
-			{
-				Pen.SetWidth((int)(0.5 + dSize));
+				Size	+= m_dSize * (pShape->asDouble(m_iSize) - m_Size_Min);
 			}
 		}
 
-		//-------------------------------------------------
-		if( m_fValue >= 0 )
+		switch( m_Size_Type )
 		{
-			int		Color;
-
-			if( Get_Class_Color(pShape, Color) )
-			{
-				Pen.SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color));
-			}
+		default: Size *= dc_Map.m_Scale   ; break;
+		case  1: Size *= dc_Map.m_World2DC; break;
 		}
+
+		Pen.SetWidth(Size < 0 ? 0 : (int)(0.5 + Size));
 	}
 
 	//-----------------------------------------------------

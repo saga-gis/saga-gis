@@ -142,11 +142,11 @@ public:
 
 protected:
 
-	bool						m_bVertices;
+	bool						m_bVertices, m_bNoData;
 
 	int							m_fValue, m_fNormal, m_fLabel, m_Label_Prec, m_Label_Eff, m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint, m_Label_Eff_Size;
 
-	wxColour					m_Def_Color, m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
+	wxColour					m_Edit_Color, m_Sel_Color, m_Label_Eff_Color;
 
 	CSG_Simple_Statistics		m_Metrics;
 

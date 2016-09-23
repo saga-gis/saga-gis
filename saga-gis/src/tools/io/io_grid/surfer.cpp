@@ -61,9 +61,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "surfer.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define NODATAVALUE	1.70141e38f
@@ -78,22 +81,17 @@
 //---------------------------------------------------------
 CSurfer_Import::CSurfer_Import(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Import Surfer Grid"));
 
-	Set_Name(_TL("Import Surfer Grid"));
-
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Import grid from Golden Software's Surfer grid format.\n")
 	);
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
+	CSG_Parameter	*pNode;
 
 	Parameters.Add_Grid_Output(
 		NULL	, "GRID"	, _TL("Grid"),
@@ -103,190 +101,193 @@ CSurfer_Import::CSurfer_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL("Surfer Grid (*.grd)|*.grd|All Files|*.*")
+		CSG_String::Format("%s (*.grd)|*.grd|%s|*.*",
+			_TL("Surfer Grid"),
+			_TL("All Files")
+		)
 	);
 
 	pNode	= Parameters.Add_Choice(
 		NULL	, "NODATA"	, _TL("No Data Value"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Surfer's No Data Value"),
 			_TL("User Defined")
 		), 0
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Double(
 		pNode	, "NODATA_VAL"	, _TL("User Defined No Data Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, -99999.0
+		-99999.
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CSurfer_Import::~CSurfer_Import(void)
-{}
+int CSurfer_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NODATA") )
+	{
+		pParameters->Set_Enabled("NODATA_VAL", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSurfer_Import::On_Execute(void)
 {
-	int			x, y, NX, NY;
-	short		sValue;
-	long		lValue;
-	float		*fLine;
-	double		*dLine, dValue, DX, DY, xMin, yMin;
-	FILE		*Stream;
-	CSG_String	fName;
-	CSG_Grid	*pGrid;
-
 	//-----------------------------------------------------
-	pGrid	= NULL;
-	fName	= Parameters("FILE")->asString();
+	CSG_String	File	= Parameters("FILE")->asString();
 
-	//-----------------------------------------------------
-	if( fName.Length() > 0 && (Stream = fopen(fName.b_str(), "rb")) != NULL )
+	FILE	*Stream	 = fopen(File.b_str(), "rb");
+
+	if( !Stream )
 	{
+		Error_Set(_TL("failed to open file"));
+
+		return( false );
+	}
+
+	CSG_Grid	*pGrid	= NULL;
+
+	char	Id[4];	fread(Id, 1, 4 * sizeof(char), Stream);
+
+	//-----------------------------------------------------
+	if( !strncmp(Id, "DSRB", 4) )	// Surfer 7: Binary...
+	{
+		long	lValue, nx, ny;
+		double	dValue, dx, dy, xmin, ymin;
+
+		fread(&lValue, 1, sizeof(long), Stream);		// SectionSize...
+		fread(&lValue, 1, sizeof(long), Stream);		// Version
 		fread(&lValue, 1, sizeof(long), Stream);
 
-		//-------------------------------------------------
-		// Surfer 7: Binary...
-
-		if( !strncmp((char *)&lValue, "DSRB", 4) )
+		if( lValue == 0x44495247 )						// Grid-Header...
 		{
-			fread(&lValue, 1, sizeof(long)	, Stream);			// SectionSize...
-			fread(&lValue, 1, sizeof(long)	, Stream);			// Version
-			fread(&lValue, 1, sizeof(long)	, Stream);
+			fread(&lValue, 1, sizeof(long  ), Stream);	// SectionSize...
+			fread(&ny    , 1, sizeof(long  ), Stream);
+			fread(&nx    , 1, sizeof(long  ), Stream);
+			fread(&xmin  , 1, sizeof(double), Stream);
+			fread(&ymin  , 1, sizeof(double), Stream);
+			fread(&dx    , 1, sizeof(double), Stream);
+			fread(&dy    , 1, sizeof(double), Stream);
+			fread(&dValue, 1, sizeof(double), Stream);
+			fread(&dValue, 1, sizeof(double), Stream);
+			fread(&dValue, 1, sizeof(double), Stream);	// Rotation (unused)...
+			fread(&dValue, 1, sizeof(double), Stream);	// Blank Value...
+			fread(&lValue, 1, sizeof(long  ), Stream);	// ???...
 
-			if( lValue == 0x44495247 )							// Grid-Header...
+			if( lValue == 0x41544144 )	// Load Binary Double...
 			{
-				fread(&lValue	, 1, sizeof(long)	, Stream);	// SectionSize...
+				fread(&lValue, 1, sizeof(long), Stream);	// SectionSize...
 
-				fread(&lValue	, 1, sizeof(long)	, Stream);	// NX...
-				NY		= (int)lValue;
-				fread(&lValue	, 1, sizeof(long)	, Stream);	// NY...
-				NX		= (int)lValue;
-
-				fread(&xMin		, 1, sizeof(double)	, Stream);	// xMin...
-				fread(&yMin		, 1, sizeof(double)	, Stream);	// yMin...
-
-				fread(&DX		, 1, sizeof(double)	, Stream);	// DX...
-				fread(&DY		, 1, sizeof(double)	, Stream);	// DY...
-
-				fread(&dValue	, 1, sizeof(double)	, Stream);	// zMin...
-				fread(&dValue	, 1, sizeof(double)	, Stream);	// zMax...
-
-				fread(&dValue	, 1, sizeof(double)	, Stream);	// Rotation (unused)...
-				fread(&dValue	, 1, sizeof(double)	, Stream);	// Blank Value...
-				fread(&lValue	, 1, sizeof(long)	, Stream);	// ???...
-
-				if( lValue == 0x41544144 )						// Load Binary Double...
+				//-----------------------------------------
+				if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Double, nx, ny, dx, xmin, ymin)) != NULL )
 				{
-					fread(&lValue, 1, sizeof(long)	, Stream);	// SectionSize...
+					double	*Line	= (double *)SG_Malloc(pGrid->Get_NX() * sizeof(double));
 
-					//-------------------------------------
-					if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Double, NX, NY, DX, xMin, yMin)) != NULL )
+					for(int y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
 					{
-						dLine	= (double *)SG_Malloc(pGrid->Get_NX() * sizeof(double));
+						fread(Line, pGrid->Get_NX(), sizeof(double), Stream);
 
-						for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
+						for(int x=0; x<pGrid->Get_NX(); x++)
 						{
-							fread(dLine, pGrid->Get_NX(), sizeof(double), Stream);
-
-							for(x=0; x<pGrid->Get_NX(); x++)
-							{
-								pGrid->Set_Value(x, y, dLine[x]);
-							}
+							pGrid->Set_Value(x, y, Line[x]);
 						}
-
-						SG_Free(dLine);
 					}
+
+					SG_Free(Line);
 				}
 			}
 		}
-
-		//-------------------------------------------------
-		// Surfer 6: Binary...
-
-		else if( !strncmp((char *)&lValue, "DSBB", 4) )
-		{
-			fread(&sValue	, 1, sizeof(short)	, Stream);
-			NX		= sValue;
-			fread(&sValue	, 1, sizeof(short)	, Stream);
-			NY		= sValue;
-
-			fread(&xMin		, 1, sizeof(double)	, Stream);
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// XMax
-			DX		= (dValue - xMin) / (NX - 1.0);
-
-			fread(&yMin		, 1, sizeof(double)	, Stream);
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// YMax...
-			DY		= (dValue - yMin) / (NY - 1.0);
-
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMin...
-			fread(&dValue	, 1, sizeof(double)	, Stream);	// ZMax...
-
-			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
-			{
-				fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
-
-				for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
-				{
-					fread(fLine, pGrid->Get_NX(), sizeof(float), Stream);
-
-					for(x=0; x<pGrid->Get_NX(); x++)
-					{
-						pGrid->Set_Value(x, y, fLine[x]);
-					}
-				}
-
-				SG_Free(fLine);
-			}
-		}
-
-		//-------------------------------------------------
-		// Surfer 6: ASCII...
-
-		else if( !strncmp((char *)&lValue, "DSAA", 4) )
-		{
-			fscanf(Stream, "%d %d"	, &NX	, &NY);
-
-			fscanf(Stream, "%lf %lf", &xMin	, &dValue);
-			DX		= (dValue - xMin) / (NX - 1.0);
-
-			fscanf(Stream, "%lf %lf", &yMin	, &dValue);
-			DY		= (dValue - yMin) / (NY - 1.0);
-
-			fscanf(Stream, "%lf %lf", &dValue, &dValue);
-
-			//---------------------------------------------
-			if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, NX, NY, DX, xMin, yMin)) != NULL )
-			{
-				for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
-				{
-					for(x=0; x<pGrid->Get_NX(); x++)
-					{
-						fscanf(Stream, "%lf", &dValue);
-
-						pGrid->Set_Value(x, y, dValue);
-					}
-				}
-			}
-		}
-
-		fclose(Stream);
 	}
 
 	//-----------------------------------------------------
+	else if( !strncmp(Id, "DSBB", 4) )	// Surfer 6: Binary...
+	{
+		short	sValue, nx, ny;
+		double	dValue, dx, dy, xmin, ymin;
+
+		fread(&nx    , 1, sizeof(short ), Stream);
+		fread(&ny    , 1, sizeof(short ), Stream);
+		fread(&xmin  , 1, sizeof(double), Stream);
+		fread(&dx    , 1, sizeof(double), Stream);	dx	= (dx - xmin) / (nx - 1.0);	// XMax
+		fread(&ymin  , 1, sizeof(double), Stream);
+		fread(&dy    , 1, sizeof(double), Stream);	dy	= (dy - ymin) / (ny - 1.0);	// YMax...
+		fread(&dValue, 1, sizeof(double), Stream);	// ZMin...
+		fread(&dValue, 1, sizeof(double), Stream);	// ZMax...
+
+		//-------------------------------------------------
+		if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin)) != NULL )
+		{
+			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
+
+			for(int y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
+			{
+				fread(Line, pGrid->Get_NX(), sizeof(float), Stream);
+
+				for(int x=0; x<pGrid->Get_NX(); x++)
+				{
+					pGrid->Set_Value(x, y, Line[x]);
+				}
+			}
+
+			SG_Free(Line);
+		}
+	}
+
+	//-----------------------------------------------------
+	else if( !strncmp(Id, "DSAA", 4) )	// Surfer 6: ASCII...
+	{
+		int		nx, ny;
+		double	dx, dy, xmin, ymin, dValue;
+
+		fscanf(Stream, "%d  %d" , &nx    , &ny    );
+		fscanf(Stream, "%lf %lf", &xmin	 , &dx    );	dx	= (dx - xmin) / (nx - 1.0);
+		fscanf(Stream, "%lf %lf", &ymin	 , &dy    );	dy	= (dy - ymin) / (ny - 1.0);
+		fscanf(Stream, "%lf %lf", &dValue, &dValue);
+
+		//-------------------------------------------------
+		if( !feof(Stream) && (pGrid = SG_Create_Grid(SG_DATATYPE_Float, nx, ny, dx, xmin, ymin)) != NULL )
+		{
+			for(int y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
+			{
+				for(int x=0; x<pGrid->Get_NX(); x++)
+				{
+					fscanf(Stream, "%lf", &dValue);
+
+					pGrid->Set_Value(x, y, dValue);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	fclose(Stream);
+
 	if( pGrid )
 	{
-		pGrid->Set_Name(Parameters("FILE")->asString());
+		pGrid->Set_Name(SG_File_Get_Name(File, false));
+
 		pGrid->Set_NoData_Value(Parameters("NODATA")->asInt() == 0 ? NODATAVALUE : Parameters("NODATA_VAL")->asDouble());
 
 		Parameters("GRID")->Set_Value(pGrid);
+
+		return( true );
 	}
 
-	return( pGrid != NULL );
+	return( false );
 }
 
 
@@ -300,20 +301,15 @@ bool CSurfer_Import::On_Execute(void)
 CSurfer_Export::CSurfer_Export(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Export Surfer Grid"));
 
-	Set_Name(_TL("Export Surfer Grid"));
-
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Export grid to Golden Software's Surfer grid format.\n")
 	);
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Grid(
 		NULL	, "GRID"	, _TL("Grid"),
 		_TL(""),
@@ -323,85 +319,73 @@ CSurfer_Export::CSurfer_Export(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		_TL(
-		"Surfer Grid (*.grd)|*.grd|All Files|*.*"), NULL, true
+		CSG_String::Format("%s (*.grd)|*.grd|%s|*.*",
+			_TL("Surfer Grid"),
+			_TL("All Files")
+		), NULL, true
 	);
 
 	Parameters.Add_Choice(
 		NULL	, "FORMAT"	, _TL("Format"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("binary"),
 			_TL("ASCII")
 		), 0
 	);
 
-	Parameters.Add_Value(
+	Parameters.Add_Bool(
 		NULL	, "NODATA"	, _TL("Use Surfer's No-Data Value"),
 		_TL(""),
-		PARAMETER_TYPE_Bool	, false
+		false
 	);
 }
 
-//---------------------------------------------------------
-CSurfer_Export::~CSurfer_Export(void)
-{}
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSurfer_Export::On_Execute(void)
 {
 	const char	ID_BINARY[]	= "DSBB";
 
-	bool		bNoData;
-	short		sValue;
-	int			x, y;
-	float		*fLine;
-	double		dValue;
 	FILE		*Stream;
-	CSG_String	fName;
-	CSG_Grid	*pGrid;
 
-	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")	->asGrid();
-	fName	= Parameters("FILE")	->asString();
-	bNoData	= Parameters("NODATA")	->asBool();
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	CSG_String	File	= Parameters("FILE")->asString();
+
+	bool		bNoData	= Parameters("NODATA")->asBool();
 
 	switch( Parameters("FORMAT")->asInt() )
 	{
 	//-----------------------------------------------------
 	case 0:	// Surfer 6 - Binary...
 
-		if( (Stream = fopen(fName.b_str(), "wb")) != NULL )
+		if( (Stream = fopen(File.b_str(), "wb")) != NULL )
 		{
-			fwrite(ID_BINARY, 4, sizeof(char  ), Stream);
+			short	sValue;
+			double	dValue;
 
-			sValue	= (short)pGrid->Get_NX();
-			fwrite(&sValue	, 1, sizeof(short ), Stream);
-			sValue	= (short)pGrid->Get_NY();
-			fwrite(&sValue	, 1, sizeof(short ), Stream);
+			fwrite(ID_BINARY, 4, sizeof(char), Stream);
 
-			dValue	= pGrid->Get_XMin();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
-			dValue	= pGrid->Get_XMax();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
-
-			dValue	= pGrid->Get_YMin();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
-			dValue	= pGrid->Get_YMax();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
-
-			dValue	= pGrid->Get_ZMin();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
-			dValue	= pGrid->Get_ZMax();
-			fwrite(&dValue	, 1, sizeof(double), Stream);
+			sValue	= (short)pGrid->Get_NX  (); fwrite(&sValue, 1, sizeof(short ), Stream);
+			sValue	= (short)pGrid->Get_NY  (); fwrite(&sValue, 1, sizeof(short ), Stream);
+			dValue	=        pGrid->Get_XMin(); fwrite(&dValue, 1, sizeof(double), Stream);
+			dValue	=        pGrid->Get_XMax(); fwrite(&dValue, 1, sizeof(double), Stream);
+			dValue	=        pGrid->Get_YMin(); fwrite(&dValue, 1, sizeof(double), Stream);
+			dValue	=        pGrid->Get_YMax(); fwrite(&dValue, 1, sizeof(double), Stream);
+			dValue	=        pGrid->Get_ZMin(); fwrite(&dValue, 1, sizeof(double), Stream);
+			dValue	=        pGrid->Get_ZMax(); fwrite(&dValue, 1, sizeof(double), Stream);
 
 			//---------------------------------------------
-			fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
+			float	*fLine	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
-			for(y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+			for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 			{
-				for(x=0; x<pGrid->Get_NX(); x++)
+				for(int x=0; x<pGrid->Get_NX(); x++)
 				{
 					fLine[x]	= bNoData && pGrid->is_NoData(x, y) ? NODATAVALUE : pGrid->asFloat(x, y);
 				}
@@ -420,27 +404,20 @@ bool CSurfer_Export::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	// Surfer - ASCII...
 
-		if( (Stream = fopen(fName.b_str(), "w")) != NULL )
+		if( (Stream = fopen(File.b_str(), "w")) != NULL )
 		{
-			fprintf(Stream, "DSAA\n" );
-			fprintf(Stream, "%d %d\n", pGrid->Get_NX()	, pGrid->Get_NY()	);
-			fprintf(Stream, "%f %f\n", pGrid->Get_XMin(), pGrid->Get_XMax()	);
-			fprintf(Stream, "%f %f\n", pGrid->Get_YMin(), pGrid->Get_YMax()	);
-			fprintf(Stream, "%f %f\n", pGrid->Get_ZMin(), pGrid->Get_ZMax()	);
+			fprintf(Stream, "DSAA\n");
+			fprintf(Stream, "%d %d\n", pGrid->Get_NX  (), pGrid->Get_NY  ());
+			fprintf(Stream, "%f %f\n", pGrid->Get_XMin(), pGrid->Get_XMax());
+			fprintf(Stream, "%f %f\n", pGrid->Get_YMin(), pGrid->Get_YMax());
+			fprintf(Stream, "%f %f\n", pGrid->Get_ZMin(), pGrid->Get_ZMax());
 
 			//---------------------------------------------
-			for(y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
+			for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 			{
-				for(x=0; x<pGrid->Get_NX(); x++)
+				for(int x=0; x<pGrid->Get_NX(); x++)
 				{
-					if( bNoData && pGrid->is_NoData(x, y) )
-					{
-						fprintf(Stream, "1.70141e38 ");
-					}
-					else
-					{
-						fprintf(Stream, "%f ", pGrid->asFloat(x, y));
-					}
+					fprintf(Stream, "%f ", bNoData && pGrid->is_NoData(x, y) ? NODATAVALUE : pGrid->asFloat(x, y));
 				}
 
 				fprintf(Stream, "\n");
@@ -456,3 +433,12 @@ bool CSurfer_Export::On_Execute(void)
 	//-----------------------------------------------------
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

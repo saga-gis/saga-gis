@@ -75,23 +75,34 @@ double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad)
 	double	cosLat	= cos(Latitude_Rad);
 	double	tanLat	= tan(Latitude_Rad);
 
-	// relative distance between sun and earth on any Julian day
-	double	dR		= 0.033  * cos(DayOfYear * 2.0 * M_PI / 365.0) + 1.0;
+	double	JD		= DayOfYear * M_PI * 2.0 / 365.0;
 
-	// solar declination in radians and sunset hour angle
-	double	SunHgt	= 0.4093 * sin(DayOfYear * 2.0 * M_PI / 365.0 - 1.405);
-	double	SunDir	= acos(-tanLat * tan(SunHgt));
+	double	dR		= 0.033  * cos(JD) + 1.0;	// relative distance between sun and earth on any Julian day
 
-	// water equivalent of extraterrestrial radiation (mm/day)
-	double	R0		= 15.392 * dR * (SunDir * sinLat * sin(SunHgt) + cosLat * cos(SunHgt) * sin(SunDir));
+	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
 
-	return( R0 );
+	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
+	double	SunSet	= acos(d < -1 ? -1 : d < 1 ? d : 1);
+
+	double	R0		= 15.392 * dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet));
+
+	return( R0 );	// water equivalent of extraterrestrial radiation (mm/day)
 }
 
 //---------------------------------------------------------
 double	Get_PET_Hargreave	(double R0, double Tmean, double Tmin, double Tmax)
 {
-	return( 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin) );	// potential evapotranspiration per day
+	double	ETpot	= 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
+
+	return( ETpot > 0.0 ? ETpot : 0.0 );
+}
+
+//---------------------------------------------------------
+double	Get_PET_Hargreave	(int DayOfYear, double Latitude_Rad, double Tmean, double Tmin, double Tmax)
+{
+	double	R0	= Get_Radiation_TopOfAtmosphere(DayOfYear, Latitude_Rad);
+
+	return( Get_PET_Hargreave(R0, Tmean, Tmin, Tmax) );
 }
 
 
@@ -192,8 +203,8 @@ int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 bool CPET_Hargreave_Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
-	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
+//	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
+//	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
 
 	//-----------------------------------------------------
 	CSG_Grid	*pTavg	= Parameters("T"    )->asGrid();
@@ -206,18 +217,18 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 
 	if( pTavg->Get_Projection().is_Okay() )
 	{
-		bool		bResult;
-		CSG_Grid	Lon;
+		bool	bResult;
+
+		Lat.Create(*Get_System());
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
 				SG_TOOL_PARAMETER_SET("GRID", pTavg)
-			&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
 			&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 		)
 
 		if( bResult )
 		{
-			pLat	= &Lat;
+			pLat	= &Lat;	pLat->Set_Scaling(M_DEG_TO_RAD);
 		}
 	}
 
@@ -230,14 +241,16 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	);
 
 	int		Day		= Date.Get_DayOfYear();
-	int		nDays	= Date.Get_NumberOfDays(Parameters("MONTH")->asInt());
+	int		nDays	= Date.Get_NumberOfDays((CSG_DateTime::Month)Parameters("MONTH")->asInt());
 
 	double	R0_const	= Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+#ifndef _DEBUG
 		#pragma omp parallel for
+#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pTavg->is_NoData(x, y) || pTmin->is_NoData(x, y) || pTmax->is_NoData(x, y) || (pLat && pLat->is_NoData(x, y)) )
@@ -246,7 +259,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 			}
 			else
 			{
-				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y) * M_DEG_TO_RAD) : R0_const,
+				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
 					pTavg->asDouble(x, y),
 					pTmin->asDouble(x, y),
 					pTmax->asDouble(x, y)
