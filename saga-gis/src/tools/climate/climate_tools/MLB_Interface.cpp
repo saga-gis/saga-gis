@@ -78,13 +78,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Climate") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O.Conrad (c) 2012") );
+		return( "O.Conrad (c) 2012" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for weather and climate data.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Climate") );
@@ -100,6 +100,7 @@ CSG_String Get_Info(int i)
 #include "etp_hargreave.h"
 #include "daily_sun.h"
 #include "bioclimatic_vars.h"
+#include "treeline.h"
 
 
 //---------------------------------------------------------
@@ -124,9 +125,11 @@ CSG_Tool *		Create_Tool(int i)
 	case  9:	return( new CDaily_Sun );
 
 	case 10:	return( new CBioclimatic_Vars );
+	case 11:	return( new CTreeLine );
+	case 12:	return( new CTreeLine_Interactive );
 
 	//-----------------------------------------------------
-	case 11:	return( NULL );
+	case 13:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

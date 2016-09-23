@@ -32,6 +32,9 @@
     <ClCompile Include="bioclimatic_vars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="treeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -101,6 +104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bioclimatic_vars.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="treeline.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -75,17 +75,18 @@ double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad)
 	double	cosLat	= cos(Latitude_Rad);
 	double	tanLat	= tan(Latitude_Rad);
 
-	// relative distance between sun and earth on any Julian day
-	double	dR		= 0.033  * cos(DayOfYear * 2.0 * M_PI / 365.0) + 1.0;
+	double	JD		= DayOfYear * M_PI * 2.0 / 365.0;
 
-	// solar declination in radians and sunset hour angle
-	double	SunHgt	= 0.4093 * sin(DayOfYear * 2.0 * M_PI / 365.0 - 1.405);
-	double	SunDir	= acos(-tanLat * tan(SunHgt));
+	double	dR		= 0.033  * cos(JD) + 1.0;	// relative distance between sun and earth on any Julian day
 
-	// water equivalent of extraterrestrial radiation (mm/day)
-	double	R0		= 15.392 * dR * (SunDir * sinLat * sin(SunHgt) + cosLat * cos(SunHgt) * sin(SunDir));
+	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
 
-	return( R0 );
+	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
+	double	SunSet	= acos(d < -1 ? -1 : d < 1 ? d : 1);
+
+	double	R0		= 15.392 * dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet));
+
+	return( R0 );	// water equivalent of extraterrestrial radiation (mm/day)
 }
 
 //---------------------------------------------------------
@@ -216,12 +217,12 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 
 	if( pTavg->Get_Projection().is_Okay() )
 	{
-		bool		bResult;
-		CSG_Grid	Lon;
+		bool	bResult;
+
+		Lat.Create(*Get_System());
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
 				SG_TOOL_PARAMETER_SET("GRID", pTavg)
-			&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
 			&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 		)
 
@@ -247,7 +248,9 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+#ifndef _DEBUG
 		#pragma omp parallel for
+#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pTavg->is_NoData(x, y) || pTmin->is_NoData(x, y) || pTmax->is_NoData(x, y) || (pLat && pLat->is_NoData(x, y)) )

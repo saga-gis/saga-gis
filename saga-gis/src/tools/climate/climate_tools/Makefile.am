@@ -17,12 +17,14 @@ etp_hargreave.cpp\
 grid_levels_interpolation.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
+treeline.cpp\
 bioclimatic_vars.h\
 daily_sun.h\
 etp_hargreave.h\
 grid_levels_interpolation.h\
 milankovic.h\
-MLB_Interface.h
+MLB_Interface.h\
+treeline.h
 
 libclimate_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
