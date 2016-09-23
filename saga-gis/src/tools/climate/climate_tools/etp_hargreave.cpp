@@ -91,7 +91,17 @@ double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad)
 //---------------------------------------------------------
 double	Get_PET_Hargreave	(double R0, double Tmean, double Tmin, double Tmax)
 {
-	return( 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin) );	// potential evapotranspiration per day
+	double	ETpot	= 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
+
+	return( ETpot > 0.0 ? ETpot : 0.0 );
+}
+
+//---------------------------------------------------------
+double	Get_PET_Hargreave	(int DayOfYear, double Latitude_Rad, double Tmean, double Tmin, double Tmax)
+{
+	double	R0	= Get_Radiation_TopOfAtmosphere(DayOfYear, Latitude_Rad);
+
+	return( Get_PET_Hargreave(R0, Tmean, Tmin, Tmax) );
 }
 
 
@@ -192,8 +202,8 @@ int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 bool CPET_Hargreave_Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
-	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
+//	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
+//	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
 
 	//-----------------------------------------------------
 	CSG_Grid	*pTavg	= Parameters("T"    )->asGrid();
@@ -217,7 +227,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 
 		if( bResult )
 		{
-			pLat	= &Lat;
+			pLat	= &Lat;	pLat->Set_Scaling(M_DEG_TO_RAD);
 		}
 	}
 
@@ -230,7 +240,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	);
 
 	int		Day		= Date.Get_DayOfYear();
-	int		nDays	= Date.Get_NumberOfDays(Parameters("MONTH")->asInt());
+	int		nDays	= Date.Get_NumberOfDays((CSG_DateTime::Month)Parameters("MONTH")->asInt());
 
 	double	R0_const	= Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
 
@@ -246,7 +256,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 			}
 			else
 			{
-				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y) * M_DEG_TO_RAD) : R0_const,
+				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
 					pTavg->asDouble(x, y),
 					pTmin->asDouble(x, y),
 					pTmax->asDouble(x, y)
