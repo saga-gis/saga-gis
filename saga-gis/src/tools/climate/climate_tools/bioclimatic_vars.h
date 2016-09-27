@@ -93,7 +93,7 @@ class CBioclimatic_Vars : public CSG_Tool_Grid
 public:
 	CBioclimatic_Vars(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Bioclimatology") );	}
 
 
 protected:

@@ -307,7 +307,7 @@ CTree_Growth::CTree_Growth(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Tree Growth Season"));
 
-	Set_Author		("O.Conrad (c) 2016");
+	Set_Author		("O.Conrad, L.Landschreiber (c) 2016");
 
 	Set_Description	(_TW(
 		"The 'Tree Growth Season' tool estimates the potential number of days "
@@ -543,7 +543,7 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Soil Water Balance"));
 
-	Set_Author		("O.Conrad (c) 2016");
+	Set_Author		("O.Conrad, L.Landschreiber (c) 2016");
 
 	Set_Description	(_TW(
 		"This tool calculates the water balance for the selected position on a daily basis. "
