@@ -61,7 +61,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -125,8 +125,8 @@ CSG_Tool *		Create_Tool(int i)
 	case  9:	return( new CDaily_Sun );
 
 	case 10:	return( new CBioclimatic_Vars );
-	case 11:	return( new CTreeLine );
-	case 12:	return( new CTreeLine_Interactive );
+	case 11:	return( new CTree_Growth );
+	case 12:	return( new CWater_Balance_Interactive );
 
 	//-----------------------------------------------------
 	case 13:	return( NULL );

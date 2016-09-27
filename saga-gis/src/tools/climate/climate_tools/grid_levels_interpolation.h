@@ -63,7 +63,7 @@
 #define HEADER_INCLUDED__grid_Levels_interpolation_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////

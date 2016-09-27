@@ -35,11 +35,11 @@
     <ClCompile Include="treeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="climate_tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -107,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="treeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="climate_tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
