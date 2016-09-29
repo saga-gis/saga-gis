@@ -269,7 +269,7 @@ bool CChange_Detection::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCombined, "LUT");
 
-	if( pLUT->asTable() )
+	if( pLUT && pLUT->asTable() )
 	{
 		pLUT->asTable()->Del_Records();
 
