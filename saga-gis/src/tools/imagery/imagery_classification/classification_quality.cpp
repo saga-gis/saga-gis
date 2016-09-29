@@ -205,7 +205,7 @@ bool CClassification_Quality::On_Execute(void)
 
 	if( !Get_Classes(pGrid, &Confusion) )
 	{
-		Error_Set(_TL("no class definitions for grid"));
+		Error_Set(_TL("no class overlap between polygons and grid"));
 
 		return( false );
 	}
