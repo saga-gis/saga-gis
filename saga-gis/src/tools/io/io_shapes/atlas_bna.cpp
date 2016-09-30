@@ -81,7 +81,7 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		"\n"
+		""
 	));
 
 
@@ -91,8 +91,8 @@ CAtlas_BNA_Import::CAtlas_BNA_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.bna|%s|*.*"),
-			_TL("Atlas Boundary Files (*.bna)"),
+		CSG_String::Format("%s (*.bna)|*.bna|%s|*.*",
+			_TL("Atlas Boundary Files"),
 			_TL("All Files")
 		)
 	);
@@ -273,7 +273,7 @@ bool CAtlas_BNA_Export::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W, false) )
 	{
 		return( false );
 	}
@@ -303,14 +303,14 @@ bool CAtlas_BNA_Export::On_Execute(void)
 		case SHAPE_TYPE_Point:
 			if( pShape->is_Valid() )
 			{
-				Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
+				Stream.Printf("\"%s\",\"%s\",%d\n",
 					pShape->asString(iName1),
 					pShape->asString(iName2),
 					1
 				);
 
 				TSG_Point	p	= pShape->Get_Point(0);
-				Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
+				Stream.Printf("%f,%f\n", p.x, p.y);
 			}
 			break;
 
@@ -320,7 +320,7 @@ bool CAtlas_BNA_Export::On_Execute(void)
 			{
 				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
-					Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
+					Stream.Printf("\"%s\",\"%s\",%d\n",
 						pShape->asString(iName1),
 						pShape->asString(iName2),
 						pShape->Get_Point_Count(iPart)
@@ -329,7 +329,7 @@ bool CAtlas_BNA_Export::On_Execute(void)
 					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
 						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
-						Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
+						Stream.Printf("%f,%f\n", p.x, p.y);
 					}
 				}
 			}
@@ -339,7 +339,7 @@ bool CAtlas_BNA_Export::On_Execute(void)
 		case SHAPE_TYPE_Polygon:
 			if( pShape->is_Valid() )
 			{
-				Stream.Printf(SG_T("\"%s\",\"%s\",%d\n"),
+				Stream.Printf("\"%s\",\"%s\",%d\n",
 					pShape->asString(iName1),
 					pShape->asString(iName2),
 					pShape->Get_Point_Count()
@@ -350,7 +350,7 @@ bool CAtlas_BNA_Export::On_Execute(void)
 					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 					{
 						TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
-						Stream.Printf(SG_T("%f,%f\n"), p.x, p.y);
+						Stream.Printf("%f,%f\n", p.x, p.y);
 					}
 				}
 			}
