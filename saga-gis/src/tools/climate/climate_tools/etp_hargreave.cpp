@@ -59,51 +59,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "climate_tools.h"
+
 #include "etp_hargreave.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad)
-{
-	double	sinLat	= sin(Latitude_Rad);
-	double	cosLat	= cos(Latitude_Rad);
-	double	tanLat	= tan(Latitude_Rad);
-
-	double	JD		= DayOfYear * M_PI * 2.0 / 365.0;
-
-	double	dR		= 0.033  * cos(JD) + 1.0;	// relative distance between sun and earth on any Julian day
-
-	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
-
-	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
-	double	SunSet	= acos(d < -1 ? -1 : d < 1 ? d : 1);
-
-	double	R0		= 15.392 * dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet));
-
-	return( R0 );	// water equivalent of extraterrestrial radiation (mm/day)
-}
-
-//---------------------------------------------------------
-double	Get_PET_Hargreave	(double R0, double Tmean, double Tmin, double Tmax)
-{
-	double	ETpot	= 0.0023 * R0 * (Tmean + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
-
-	return( ETpot > 0.0 ? ETpot : 0.0 );
-}
-
-//---------------------------------------------------------
-double	Get_PET_Hargreave	(int DayOfYear, double Latitude_Rad, double Tmean, double Tmin, double Tmax)
-{
-	double	R0	= Get_Radiation_TopOfAtmosphere(DayOfYear, Latitude_Rad);
-
-	return( Get_PET_Hargreave(R0, Tmean, Tmin, Tmax) );
-}
 
 
 ///////////////////////////////////////////////////////////
@@ -115,10 +73,8 @@ double	Get_PET_Hargreave	(int DayOfYear, double Latitude_Rad, double Tmean, doub
 //---------------------------------------------------------
 CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name		(_TL("PET (after Hargreaves, Grid)"));
+	Set_Name		(_TL("ETpot (after Hargreaves, Grid)"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
@@ -126,20 +82,29 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 		"Estimation of daily potential evapotranspiration from daily average, minimum and maximum temperatures "
 		"using Hargreave's empirical equation. In order to estimate extraterrestrial net radiation "
 		"geographic latitude of observation and Julian day have to be supplied too. "
-		"\nReferences:\n"
-		"- Ambikadevi, K.M. (2004): Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts. "
-		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst "
-		"<a target=\"_blank\" href=\"http://scholarworks.umass.edu/cee_ewre/22/\">online</a>\n"
-		"- Hargraeves, G.H., Samani, Z.A. (1985): Reference crop evapotranspiration from ambient air temperatures. "
-		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado. "
-		"<a target=\"_blank\" href=\"http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf\">online</a>\n"
-		"Allen, R.G., Pereira, L.S., Raes, D., Smith, M. (1998): Crop evapotranspiration - Guidelines for computing crop water requirements. "
-		"FAO Irrigation and drainage paper 56. "
-		"<a target=\"_blank\" href=\"http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents\">online</a>\n"
 	));
 
+	Add_Reference("Ambikadevi, K.M.", "2004",
+		"Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts.",
+		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst.",
+		SG_T("http://scholarworks.umass.edu/cee_ewre/22/")
+	);
+
+	Add_Reference("Hargraeves, G.H., Samani, Z.A.", "1985",
+		"Reference crop evapotranspiration from ambient air temperatures.",
+		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado.",
+		SG_T("http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf")
+	);
+
+	Add_Reference("Allen, R.G., Pereira, L.S., Raes, D., Smith, M.", "1998",
+		"Crop evapotranspiration - Guidelines for computing crop water requirements.",
+		"FAO Irrigation and drainage paper 56.",
+		SG_T("http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents")
+	);
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	Parameters.Add_Grid(NULL, "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid(NULL, "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
@@ -203,10 +168,6 @@ int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 bool CPET_Hargreave_Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
-//	const int	DaysBefore[12]	= {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-//	const int	DaysCount [12]	= {  31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31 };
-
-	//-----------------------------------------------------
 	CSG_Grid	*pTavg	= Parameters("T"    )->asGrid();
 	CSG_Grid	*pTmin	= Parameters("T_MIN")->asGrid();
 	CSG_Grid	*pTmax	= Parameters("T_MAX")->asGrid();
@@ -219,16 +180,19 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	{
 		bool	bResult;
 
+		CSG_Grid	Lon(*Get_System());
+
 		Lat.Create(*Get_System());
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
 				SG_TOOL_PARAMETER_SET("GRID", pTavg)
+			&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
 			&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
 		)
 
 		if( bResult )
 		{
-			pLat	= &Lat;	pLat->Set_Scaling(M_DEG_TO_RAD);
+			pLat	= &Lat;
 		}
 	}
 
@@ -243,7 +207,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	int		Day		= Date.Get_DayOfYear();
 	int		nDays	= Date.Get_NumberOfDays((CSG_DateTime::Month)Parameters("MONTH")->asInt());
 
-	double	R0_const	= Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
+	double	R0_const	= CT_Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -259,7 +223,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 			}
 			else
 			{
-				double	PET	= Get_PET_Hargreave(pLat ? Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
+				double	PET	= CT_Get_ETpot_Hargreave(pLat ? CT_Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
 					pTavg->asDouble(x, y),
 					pTmin->asDouble(x, y),
 					pTmax->asDouble(x, y)
@@ -284,10 +248,8 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 //---------------------------------------------------------
 CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name		(_TL("PET (after Hargreaves, Table)"));
+	Set_Name		(_TL("ETpot (after Hargreaves, Table)"));
 
 	Set_Author		("O.Conrad (c) 2011");
 
@@ -295,19 +257,29 @@ CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 		"Estimation of daily potential evapotranspiration from daily average, minimum and maximum temperatures "
 		"using Hargreave's empirical equation. In order to estimate extraterrestrial net radiation "
 		"geographic latitude of observation and Julian day have to be supplied too. "
-		"\nReferences:\n"
-		"- Ambikadevi, K.M. (2004): Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts. "
-		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst "
-		"<a target=\"_blank\" href=\"http://scholarworks.umass.edu/cee_ewre/22/\">online</a>\n"
-		"- Hargraeves, G.H., Samani, Z.A. (1985): Reference crop evapotranspiration from ambient air temperatures. "
-		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado. "
-		"<a target=\"_blank\" href=\"http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf\">online</a>\n"
-		"FAO Irrigation and drainage paper 56. "
-		"<a target=\"_blank\" href=\"http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents\">online</a>\n"
 	));
 
+	Add_Reference("Ambikadevi, K.M.", "2004",
+		"Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts.",
+		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst.",
+		SG_T("http://scholarworks.umass.edu/cee_ewre/22/")
+	);
+
+	Add_Reference("Hargraeves, G.H., Samani, Z.A.", "1985",
+		"Reference crop evapotranspiration from ambient air temperatures.",
+		"Paper presented in ASAE Regional Meeting, Grand Junction, Colorado.",
+		SG_T("http://cagesun.nmsu.edu/~zsamani/papers/Hargreaves_Samani_85.pdf")
+	);
+
+	Add_Reference("Allen, R.G., Pereira, L.S., Raes, D., Smith, M.", "1998",
+		"Crop evapotranspiration - Guidelines for computing crop water requirements.",
+		"FAO Irrigation and drainage paper 56.",
+		SG_T("http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents")
+	);
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	pNode	= Parameters.Add_Table(
 		NULL	, "TABLE"			, _TL("Data"),
 		_TL(""),
@@ -355,7 +327,7 @@ bool CPET_Hargreave_Table::On_Execute(void)
 	CSG_Table	*pTable;
 
 	pTable	= Parameters("TABLE")->asTable ();
-	Lat		= Parameters("LAT"  )->asDouble() * M_DEG_TO_RAD;
+	Lat		= Parameters("LAT"  )->asDouble();
 	fDay	= Parameters("JD"   )->asInt   ();
 	fT		= Parameters("T"    )->asInt   ();
 	fTmin	= Parameters("T_MIN")->asInt   ();
@@ -375,7 +347,7 @@ bool CPET_Hargreave_Table::On_Execute(void)
 		}
 		else
 		{
-			pRecord->Set_Value(fET, Get_PET_Hargreave(Get_Radiation_TopOfAtmosphere(
+			pRecord->Set_Value(fET, CT_Get_ETpot_Hargreave(CT_Get_Radiation_TopOfAtmosphere(
 				pRecord->asInt   (fDay ), Lat),
 				pRecord->asDouble(fT   ),
 				pRecord->asDouble(fTmin),
@@ -400,23 +372,24 @@ bool CPET_Hargreave_Table::On_Execute(void)
 //---------------------------------------------------------
 CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name		(_TL("Daily to Hourly PET"));
+	Set_Name		(_TL("Daily to Hourly ETpot"));
 
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Derive hourly from daily evapotranspiration using sinusoidal distribution. "
-		"\nReferences:\n"
-		"- Ambikadevi, K.M. (2004): Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts. "
-		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst "
-		"<a target=\"_blank\" href=\"http://scholarworks.umass.edu/cee_ewre/22/\">online</a>\n"
 	));
 
+	Add_Reference("Ambikadevi, K.M.", "2004",
+		"Simulation of Evapotranspiration and Rainfall-runoff for the Stillwater River Watershed in Central Massachusetts.",
+		"Environmental & Water Resources Engineering Masters Projects, University of Massachusetts, Amherst.",
+		SG_T("http://scholarworks.umass.edu/cee_ewre/22/")
+	);
 
 	//-----------------------------------------------------
+	CSG_Parameter	*pNode;
+
 	pNode	= Parameters.Add_Table(
 		NULL	, "DAYS"			, _TL("Daily Data"),
 		_TL(""),
@@ -471,8 +444,8 @@ bool CPET_Day_To_Hour::On_Execute(void)
 	fET		= Parameters("ET"   )->asInt();
 	fP		= Parameters("P"    )->asInt();
 
-	sinLat	= sin(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
-	cosLat	= cos(Parameters("LAT")	->asDouble() * M_DEG_TO_RAD);
+	sinLat	= sin(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
+	cosLat	= cos(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
 	sinHgt	= 0.0;	// -0.0145;	// >> -50'' desired height of horizon
 
 	pHours->Destroy();

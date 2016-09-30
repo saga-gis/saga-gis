@@ -203,12 +203,29 @@ bool CClassification_Quality::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	if( !Get_Classes(pGrid) )
+	if( !Get_Classes(pGrid, &Confusion) )
 	{
-		Error_Set(_TL("no class definitions for grid"));
+		Error_Set(_TL("no class overlap between polygons and grid"));
 
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	if( bUnclassified )
+	{
+		Confusion.Add_Record()->Set_Value(0, _TL("Unclassified"));
+	}
+
+	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
+	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
+
+	Confusion.Add_Record()->Set_Value(0, "SumProd");
+	Confusion.Add_Record()->Set_Value(0, "AccProd");
+
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 2);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 1);
+	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 2);
 
 	Confusion.Set_Name(CSG_String::Format("%s [%s - %s]", _TL("Confusion Matrix"), pPolygons->Get_Name(), pGrid->Get_Name()));
 
@@ -367,30 +384,14 @@ bool CClassification_Quality::Get_Classes(CSG_Shapes *pPolygons, int Field, CSG_
 		m_Classes.Add_Record()->Set_Value(0, Class);
 	}
 
-	if( bUnclassified )
-	{
-		Confusion.Add_Record()->Set_Value(0, _TL("Unclassified"));
-	}
-
-	Confusion.Add_Field("SumUser", SG_DATATYPE_Double);
-	Confusion.Add_Field("AccUser", SG_DATATYPE_Double);
-
-	Confusion.Add_Record()->Set_Value(0, "SumProd");
-	Confusion.Add_Record()->Set_Value(0, "AccProd");
-
-	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 1);
-	Confusion[Confusion.Get_Count() - 1].Set_NoData(Confusion.Get_Field_Count() - 2);
-	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 1);
-	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 2);
-
 	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
+bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid, CSG_Table *pConfusion)
 {
-	if( Parameters("GRID_VALUES")->asInt() == 0 )	// values are identifiers
+	if( Parameters("GRID_VALUES")->asInt() == 0 && !pConfusion )	// values are identifiers
 	{
 		for(int iClass=0; iClass<m_Classes.Get_Count(); iClass++)
 		{
@@ -404,9 +405,30 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 	//-----------------------------------------------------
 	int	fNam, fMin, fMax;
 
-	CSG_Table	*pLUT	= Parameters("GRID_LUT")->asTable();
+	CSG_Table	*pLUT, m_LUT;
 
-	if( pLUT != NULL )
+	if( Parameters("GRID_VALUES")->asInt() == 0 )
+	{
+		CSG_Category_Statistics	Categories;
+
+		for(sLong iCell=0; iCell<pGrid->Get_NCells(); iCell++)
+		{
+			if( !pGrid->is_NoData(iCell) )
+			{
+				Categories	+= pGrid->asDouble(iCell);
+			}
+		}
+
+		m_LUT.Add_Field("VAL", pGrid->Get_Type());	fNam = fMin = fMax = 0;
+
+		for(int iCategory=0; iCategory<Categories.Get_Count(); iCategory++)
+		{
+			m_LUT.Add_Record()->Set_Value(0, Categories.asString(iCategory));
+		}
+
+		pLUT	= &m_LUT;
+	}
+	else if( (pLUT = Parameters("GRID_LUT")->asTable()) != NULL )
 	{
 		fNam	= Parameters("GRID_LUT_NAM")->asInt();
 		fMin	= Parameters("GRID_LUT_MIN")->asInt();
@@ -431,12 +453,26 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid)
 
 	for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
 	{
-		CSG_Table_Record	*pClass	= m_Classes.Get_Record(Get_Class(pLUT->Get_Record(iClass)->asString(fNam)));
+		CSG_String	Class(pLUT->Get_Record(iClass)->asString(fNam));
+
+		CSG_Table_Record	*pClass	= m_Classes.Get_Record(Get_Class(Class));
 
 		if( pClass )
 		{
 			nMatches	++;
+		}
+		else if( pConfusion )
+		{
+			pClass	= m_Classes.Add_Record();
 
+			pConfusion->Add_Field(Class, SG_DATATYPE_Double);
+			pConfusion->Add_Record()->Set_Value(0, Class);
+
+			pClass->Set_Value(0, Class);
+		}
+
+		if( pClass )
+		{
 			double	min	= pLUT->Get_Record(iClass)->asDouble(fMin);
 			double	max	= pLUT->Get_Record(iClass)->asDouble(fMax);
 

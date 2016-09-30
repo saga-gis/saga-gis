@@ -401,48 +401,51 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 //---------------------------------------------------------
 bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator)
 {
-	int			iField, iRecord;
 	CSG_File	Stream;
 
-	if( Get_Field_Count() > 0 )
+	if( Get_Field_Count() <= 0 || Stream.Open(File_Name, SG_FILE_W, false) == false )
 	{
-		if( Stream.Open(File_Name, SG_FILE_W, false) )
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	{
+		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
-			for(iField=0; iField<Get_Field_Count(); iField++)
-			{
-				Stream.Printf(SG_T("%s%c"), Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
-			}
-
-			for(iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
-			{
-				for(iField=0; iField<Get_Field_Count(); iField++)
-				{
-					if( !Get_Record(iRecord)->is_NoData(iField) )
-					{
-						switch( Get_Field_Type(iField) )
-						{
-						case SG_DATATYPE_String:
-						case SG_DATATYPE_Date:
-							Stream.Printf(SG_T("\"%s\""), Get_Record(iRecord)->asString(iField));
-							break;
-
-						default:
-							Stream.Printf(SG_T("%s")    , Get_Record(iRecord)->asString(iField));
-							break;
-						}
-					}
-
-					Stream.Printf(SG_T("%c"), iField < Get_Field_Count() - 1 ? Separator : '\n');
-				}
-			}
-
-			SG_UI_Process_Set_Ready();
-
-			return( true );
+			Stream.Printf("%s%c", Get_Field_Name(iField), iField < Get_Field_Count() - 1 ? Separator : '\n');
 		}
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	for(int iRecord=0; iRecord<Get_Record_Count() && SG_UI_Process_Set_Progress(iRecord, Get_Record_Count()); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= Get_Record_byIndex(iRecord);
+
+		for(int iField=0; iField<Get_Field_Count(); iField++)
+		{
+			if( !pRecord->is_NoData(iField) )
+			{
+				switch( Get_Field_Type(iField) )
+				{
+				case SG_DATATYPE_String:
+				case SG_DATATYPE_Date:
+					Stream.Printf("\"%s\"", pRecord->asString(iField));
+					break;
+
+				default:
+					Stream.Printf("%s"    , pRecord->asString(iField));
+					break;
+				}
+			}
+
+			Stream.Printf("%c", iField < Get_Field_Count() - 1 ? Separator : '\n');
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
+	return( true );
 }
 
 

@@ -70,12 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
-//---------------------------------------------------------
-double	Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude_Rad);
-double	Get_PET_Hargreave				(double R0, double Tmean, double Tmin, double Tmax);
-double	Get_PET_Hargreave				(int DayOfYear, double Latitude_Rad, double Tmean, double Tmin, double Tmax);
+#include "climate_tools.h"
 
 
 ///////////////////////////////////////////////////////////

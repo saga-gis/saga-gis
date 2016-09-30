@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include "climate_tools.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -77,82 +77,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum ETGS_Climate
-{
-	PARM_T	= 0,
-	PARM_TMIN,
-	PARM_TMAX,
-	PARM_P,
-	PARM_CLDS
-};
-
-//---------------------------------------------------------
-#define TGS_COLD	0x01
-#define TGS_SNOW	0x02
-#define TGS_DRY		0x04
-
-//---------------------------------------------------------
-class CTreeGrowingSeason
+class CCT_Growing_Season : public CCT_Water_Balance
 {
 public:
+	CCT_Growing_Season(void);
+	CCT_Growing_Season(const CCT_Growing_Season &Copy);
 
-	//-----------------------------------------------------
-	typedef struct TGS_Parameters
-	{
-		int		SW_MaxIter;
+	bool						Set_DT_min				(double Value);
+	double						Get_DT_min				(void)	const	{	return( m_DT_min  );	}
 
-		double	DT_min, SMT_min, LGS_min, SWC_Surface, SW_min, SW_Resist;
-	}
-	TTGS_Parameters;
+	bool						Set_LGS_min				(int    Value);
+	int							Get_LGS_min				(void)	const	{	return( m_LGS_min );	}
 
+	bool						Set_SMT_min				(double Value);
+	double						Get_SMT_min				(void)	const	{	return( m_SMT_min );	}
 
-public:
-	CTreeGrowingSeason(const TTGS_Parameters &Parms, double TSWC, double Latitude);
+	bool						Set_SW_min				(double Value);
+	double						Get_SW_min				(void)	const	{	return( m_SW_min  );	}
 
-	double *					Get_Monthly				(int Parameter)	{	return( m_Monthly[Parameter] );	}
+	virtual bool				Calculate				(double TSWC, double Latitude);
+	virtual bool				Calculate				(double TSWC, double Latitude, double &Height, double maxDiff = 1000.0);
 
-	bool						Calculate				(void);
-
-	double						Get_SMT					(void)	{	return(      m_TGS.Get_Mean () );	}
-	int							Get_LGS					(void)	{	return( (int)m_TGS.Get_Count() );	}
-
-	double						Get_T					(int iDay)	{	return( m_Daily[PARM_T][iDay] );	}
-	double						Get_P					(int iDay)	{	return( m_Daily[PARM_P][iDay] );	}
-	double						Get_Snow				(int iDay)	{	return( m_Snow         [iDay] );	}
-	double						Get_ET					(int iDay)	{	return( m_ET           [iDay] );	}
-	double						Get_SW_0				(int iDay)	{	return( m_SW[0]        [iDay] );	}
-	double						Get_SW_1				(int iDay)	{	return( m_SW[1]        [iDay] );	}
+	int							Get_LGS					(void)		{	return( (int)m_T_Season.Get_Count() );	}
+	double						Get_SMT					(void)		{	return(      m_T_Season.Get_Mean () );	}
 
 
 private:
 
-	int							m_Growing[365];
+	int							m_LGS_min;
 
-	double						m_Monthly[4][12], m_SWC[2], m_Lat;
+	double						m_DT_min, m_SMT_min, m_SW_min;
 
-	TTGS_Parameters				m_Parms;
-
-	CSG_Vector					m_Daily[4], m_Snow, m_ET, m_SW[2];
-
-	CSG_Simple_Statistics		m_TGS;
+	CSG_Simple_Statistics		m_T_Season;
 
 
-	void						Reset					(void);
+	bool						is_Growing				(double SWC, double Latitude, double Height);
 
-	bool						Get_TGS					(void);
-
-	void						Set_Daily_Spline		(CSG_Vector &Daily  , const double *Monthly);
-	void						Set_Daily_Events		(CSG_Vector &Daily_P, const double *Monthly_P, const double *Monthly_T);
-
-	bool						Set_Temperature			(void);
-
-	bool						Set_Snow_Depth			(void);
-	int							Snow_Get_Start			(const double *T);
-	double						Snow_Get_SnowMelt		(double Snow, double T, double P);
-
-	bool						Set_Soil_Water			(void);
-	int							Soil_Get_Start			(const double *P, const double *ET);
-	void						Soil_Set_ET				(double *ET);
+	bool						Get_T_Season			(const double *T, const double *Snow = NULL, const double *S0 = NULL, const double *S1 = NULL);
 
 };
 
@@ -162,42 +123,12 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTreeLine_Base
+class CTree_Growth : public CSG_Tool_Grid
 {
 public:
-	CTreeLine_Base(void)	{}
+	CTree_Growth(void);
 
-
-protected:
-
-	double						m_TSWC, m_Lat_Default;
-
-	CSG_Grid					*m_pTSWC, m_Lat, *m_pLat;
-
-	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
-	
-	CTreeGrowingSeason::TTGS_Parameters	m_Parms;
-
-
-	void						Add_Parameters			(CSG_Parameters &Parameters);
-	bool						Set_Parameters			(CSG_Parameters &Parameters);
-
-	bool						Get_Monthly				(double Monthly[12], int x, int y, CSG_Parameter_Grid_List *pMonthly, double Default = -1.0);;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTreeLine : public CSG_Tool_Grid, CTreeLine_Base
-{
-public:
-	CTreeLine(void);
-
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Bioclimatology") );	}
 
 
 protected:
@@ -206,6 +137,11 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+
+private:
+
+	CCT_Growing_Season			m_Model;
+
 };
 
 
@@ -214,17 +150,25 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTreeLine_Interactive : public CSG_Tool_Grid_Interactive, CTreeLine_Base
+class CWater_Balance_Interactive : public CSG_Tool_Grid_Interactive
 {
 public:
-	CTreeLine_Interactive(void);
+	CWater_Balance_Interactive(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
 
 
 protected:
 
+	double						m_SWC_Def, m_SWC_Surface, m_Lat_Def;
+
+	CSG_Grid					*m_pSWC, m_Lat, *m_pLat;
+
+	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
+
 	CSG_Table					*m_pSummary, *m_pDaily;
+
+	CCT_Water_Balance			m_Model;
 
 
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);

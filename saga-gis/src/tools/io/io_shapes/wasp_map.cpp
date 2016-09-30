@@ -74,11 +74,9 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 
 	Set_Author		("O.Conrad (c) 2006");
 
-	Set_Description	(_TW(
-		"Reference:\n"
-		"<a href=\"http://www.risoe.dk/vea/projects/nimo/WAsPHelp/Wasp8.htm#FileFormatofMAP.htm\" target=\"_blank\">"
-		"http://www.risoe.dk/vea/projects/nimo/WAsPHelp/Wasp8.htm#FileFormatofMAP.htm</a>"
-	));
+	Set_Description	(_TL("Export WAsP (Wind Atlas Analysis and Application Program) terrain map file"));
+
+	Add_Reference	("www.wasp.dk", _TL("WAsP - Homepage"));
 
 	//-----------------------------------------------------
 	CSG_Parameter	*pShapes	= Parameters.Add_Shapes(
@@ -95,7 +93,7 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("File Name"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.map|%s|*.*"),
+		CSG_String::Format("%s|*.map|%s|*.*",
 			_TL("WASP Map Files (*.map)"),
 			_TL("All Files")
 		), NULL, true
@@ -108,7 +106,7 @@ bool CWASP_MAP_Export::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W) )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_W, false) )
 	{
 		return( false );
 	}
@@ -123,25 +121,25 @@ bool CWASP_MAP_Export::On_Execute(void)
 	//-----------------------------------------------------
 	// 1)	Text string identifying the terrain map: + ...
 
-	Stream.Printf(SG_T("+ %s\n"), pLines->Get_Name());
+	Stream.Printf("+ %s\n", pLines->Get_Name());
 
 
 	// 2)	Fixed point #1 in user and metric [m] coordinates:
 	//			X1(user) Y1(user) X1(metric) Y1(metric)
 
-	Stream.Printf(SG_T("%f %f %f %f\n"), 0.0, 0.0, 0.0, 0.0);
+	Stream.Printf("%f %f %f %f\n", 0.0, 0.0, 0.0, 0.0);
 
 
 	// 3)	Fixed point #2 in user and metric [m] coordinates:
 	//			X2(user) Y2(user) X2(metric) Y2(metric)
 
-	Stream.Printf(SG_T("%f %f %f %f\n"), 1.0, 1.0, 1.0, 1.0);
+	Stream.Printf("%f %f %f %f\n", 1.0, 1.0, 1.0, 1.0);
 
 
 	// 4)	Scaling factor and offset for height scale (Z):
 	//			Zmetric = {scaling factor}(Zuser + {offset})
 
-	Stream.Printf(SG_T("%f %f\n"), 1.0, 0.0);
+	Stream.Printf("%f %f\n", 1.0, 0.0);
 
 	int	zField	= Parameters("ELEVATION")->asInt();
 
@@ -157,7 +155,7 @@ bool CWASP_MAP_Export::On_Execute(void)
 				// 5a)	Height contour: elevation (Z) and number of points (n) in line:
 				//			Z n
 
-				Stream.Printf(SG_T("%f %d\n"), pLine->asDouble(zField), pLine->Get_Point_Count(iPart));
+				Stream.Printf("%f %d\n", pLine->asDouble(zField), pLine->Get_Point_Count(iPart));
 
 
 				// 5b)	Roughness change line:
@@ -180,7 +178,7 @@ bool CWASP_MAP_Export::On_Execute(void)
 				{
 					TSG_Point	p	= pLine->Get_Point(iPoint, iPart);
 
-					Stream.Printf(SG_T("%f\t%f\n"), p.x, p.y);
+					Stream.Printf("%f\t%f\n", p.x, p.y);
 				}
 			}
 		}
@@ -204,11 +202,9 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 
 	Set_Author		("O.Conrad (c) 2006");
 
-	Set_Description	(_TW(
-		"Reference:\n"
-		"<a href=\"http://www.risoe.dk/vea/projects/nimo/WAsPHelp/Wasp8.htm#FileFormatofMAP.htm\" target=\"_blank\">"
-		"http://www.risoe.dk/vea/projects/nimo/WAsPHelp/Wasp8.htm#FileFormatofMAP.htm</a>"
-	));
+	Set_Description	(_TL("Import WAsP (Wind Atlas Analysis and Application Program) terrain map file"));
+
+	Add_Reference	("www.wasp.dk", _TL("WAsP - Homepage"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
@@ -220,7 +216,7 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"		, _TL("File Name"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.map|%s|*.*"),
+		CSG_String::Format("%s|*.map|%s|*.*",
 			_TL("WASP Map Files (*.map)"),
 			_TL("All Files")
 		), NULL, false
@@ -229,7 +225,7 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Input Specification"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("elevation"),
 			_TL("roughness"),
 			_TL("elevation and roughness")

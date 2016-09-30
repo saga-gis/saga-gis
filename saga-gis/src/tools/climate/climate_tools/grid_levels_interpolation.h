@@ -63,7 +63,7 @@
 #define HEADER_INCLUDED__grid_Levels_interpolation_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ class CGrid_Levels_Interpolation : public CSG_Tool_Grid
 public:
 	CGrid_Levels_Interpolation(void);
 
-//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:

@@ -12,6 +12,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libclimate_tools.la
 libclimate_tools_la_SOURCES =\
 bioclimatic_vars.cpp\
+climate_tools.cpp\
 daily_sun.cpp\
 etp_hargreave.cpp\
 grid_levels_interpolation.cpp\
@@ -19,6 +20,7 @@ milankovic.cpp\
 MLB_Interface.cpp\
 treeline.cpp\
 bioclimatic_vars.h\
+climate_tools.h\
 daily_sun.h\
 etp_hargreave.h\
 grid_levels_interpolation.h\
