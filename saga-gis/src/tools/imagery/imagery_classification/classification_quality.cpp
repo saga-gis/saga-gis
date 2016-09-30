@@ -415,7 +415,7 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid, CSG_Table *pConfusion
 		{
 			if( !pGrid->is_NoData(iCell) )
 			{
-				Categories	+= pGrid->asDouble(iCell);
+				Categories	+= SG_Get_String(pGrid->asDouble(iCell), -10);
 			}
 		}
 
@@ -453,7 +453,7 @@ bool CClassification_Quality::Get_Classes(CSG_Grid *pGrid, CSG_Table *pConfusion
 
 	for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
 	{
-		CSG_String	Class(pLUT->Get_Record(iClass)->asString(fNam));
+		CSG_String	Class(pLUT->Get_Record(iClass)->asString(fNam, -10));
 
 		CSG_Table_Record	*pClass	= m_Classes.Get_Record(Get_Class(Class));
 
