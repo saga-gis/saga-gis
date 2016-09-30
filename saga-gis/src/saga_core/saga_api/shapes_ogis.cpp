@@ -1230,10 +1230,8 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 	case SG_DATATYPE_Word  : Flags =  6; break;	//  6: 16-bit unsigned integer
 	case SG_DATATYPE_Int   : Flags =  7; break;	//  7: 32-bit   signed integer
 	case SG_DATATYPE_DWord : Flags =  8; break;	//  8: 32-bit unsigned integer
-	case SG_DATATYPE_Float : Flags = 10; break;	// 10: 32-bit float
+	default                : Flags = 10; break;	// 10: 32-bit float
 	case SG_DATATYPE_Double: Flags = 11; break;	// 11: 64-bit float
-	default:
-		break;
 	}
 
 //	Flags	|= 0x80;	// isOffline: no, never here!
@@ -1245,36 +1243,34 @@ bool CSG_Grid_OGIS_Converter::to_WKBinary(CSG_Bytes &Bytes, class CSG_Grid *pGri
 
 	switch( pGrid->Get_Type() )
 	{
-	case SG_DATATYPE_Bit   : Bytes	+= (BYTE  )0; break;	//  0:  1-bit boolean
+	case SG_DATATYPE_Bit   : Bytes	+= (BYTE  )0                        ; break;	//  0:  1-bit boolean
 	case SG_DATATYPE_Char  : Bytes	+= (char  )pGrid->Get_NoData_Value(); break;	//  3:  8-bit   signed integer
 	case SG_DATATYPE_Byte  : Bytes	+= (BYTE  )pGrid->Get_NoData_Value(); break;	//  4:  8-bit unsigned integer
 	case SG_DATATYPE_Short : Bytes	+= (short )pGrid->Get_NoData_Value(); break;	//  5: 16-bit   signed integer
 	case SG_DATATYPE_Word  : Bytes	+= (WORD  )pGrid->Get_NoData_Value(); break;	//  6: 16-bit unsigned integer
 	case SG_DATATYPE_Int   : Bytes	+= (int   )pGrid->Get_NoData_Value(); break;	//  7: 32-bit   signed integer
 	case SG_DATATYPE_DWord : Bytes	+= (DWORD )pGrid->Get_NoData_Value(); break;	//  8: 32-bit unsigned integer
-	case SG_DATATYPE_Float : Bytes	+= (float )pGrid->Get_NoData_Value(); break;	//  9: 32-bit float
+	default                : Bytes	+= (float )pGrid->Get_NoData_Value(); break;	//  9: 32-bit float
 	case SG_DATATYPE_Double: Bytes	+= (double)pGrid->Get_NoData_Value(); break;	// 10: 64-bit float
-	default:
-		break;
 	}
 
 	for(int y=0; y<pGrid->Get_NY() && SG_UI_Process_Set_Progress(y, pGrid->Get_NY()); y++)
 	{
 		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
+			double	Value	= pGrid->is_NoData(x, y) ? pGrid->Get_NoData_Value() : pGrid->asDouble(x, y);
+
 			switch( pGrid->Get_Type() )
 			{
-			case SG_DATATYPE_Bit   : Bytes	+= (BYTE  )pGrid->asDouble(x, y); break;	//  0:  1-bit boolean
-			case SG_DATATYPE_Char  : Bytes	+= (char  )pGrid->asDouble(x, y); break;	//  3:  8-bit   signed integer
-			case SG_DATATYPE_Byte  : Bytes	+= (BYTE  )pGrid->asDouble(x, y); break;	//  4:  8-bit unsigned integer
-			case SG_DATATYPE_Short : Bytes	+= (short )pGrid->asDouble(x, y); break;	//  5: 16-bit   signed integer
-			case SG_DATATYPE_Word  : Bytes	+= (WORD  )pGrid->asDouble(x, y); break;	//  6: 16-bit unsigned integer
-			case SG_DATATYPE_Int   : Bytes	+= (int   )pGrid->asDouble(x, y); break;	//  7: 32-bit   signed integer
-			case SG_DATATYPE_DWord : Bytes	+= (DWORD )pGrid->asDouble(x, y); break;	//  8: 32-bit unsigned integer
-			case SG_DATATYPE_Float : Bytes	+= (float )pGrid->asDouble(x, y); break;	//  9: 32-bit float
-			case SG_DATATYPE_Double: Bytes	+= (double)pGrid->asDouble(x, y); break;	// 10: 64-bit float
-			default:
-				break;	  
+			case SG_DATATYPE_Bit   : Bytes	+= (BYTE  )Value; break;	//  0:  1-bit boolean
+			case SG_DATATYPE_Char  : Bytes	+= (char  )Value; break;	//  3:  8-bit   signed integer
+			case SG_DATATYPE_Byte  : Bytes	+= (BYTE  )Value; break;	//  4:  8-bit unsigned integer
+			case SG_DATATYPE_Short : Bytes	+= (short )Value; break;	//  5: 16-bit   signed integer
+			case SG_DATATYPE_Word  : Bytes	+= (WORD  )Value; break;	//  6: 16-bit unsigned integer
+			case SG_DATATYPE_Int   : Bytes	+= (int   )Value; break;	//  7: 32-bit   signed integer
+			case SG_DATATYPE_DWord : Bytes	+= (DWORD )Value; break;	//  8: 32-bit unsigned integer
+			default                : Bytes	+= (float )Value; break;	//  9: 32-bit float
+			case SG_DATATYPE_Double: Bytes	+= (double)Value; break;	// 10: 64-bit float
 			}
 		}
 	}

@@ -353,11 +353,11 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	{
 		for(int i=0; i<pParameter->asList()->Get_Count(); i++)
 		{
-			CSG_Projection	p	= pParameter->asGridList()->asGrid(i)->Get_Projection();
-
-			if( p.is_Okay() && p.Get_EPSG() > 0 )
+			CSG_Grid	*pGrid	= pParameter->asGridList()->asGrid(i);
+			
+			if( SG_Get_Data_Manager().Exists(pGrid) && pGrid->Get_Projection().is_Okay() && pGrid->Get_Projection().Get_EPSG() > 0 )
 			{
-				Set_SRID(pParameters, p.Get_EPSG());
+				Set_SRID(pParameters, pGrid->Get_Projection().Get_EPSG());
 
 				break;
 			}
