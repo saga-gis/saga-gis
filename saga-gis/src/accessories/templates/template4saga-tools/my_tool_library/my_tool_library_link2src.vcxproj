@@ -307,6 +307,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="my_tool.h" />
+    <ClInclude Include="TLB_Interface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
