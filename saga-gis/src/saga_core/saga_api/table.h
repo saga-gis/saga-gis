@@ -148,8 +148,8 @@ public:
 	bool						is_NoData		(int              iField)	const;
 	bool						is_NoData		(const CSG_String &Field)	const;
 
-	const SG_Char *				asString		(int              iField, int Decimals = -1)	const;
-	const SG_Char *				asString		(const CSG_String &Field, int Decimals = -1)	const;
+	const SG_Char *				asString		(int              iField, int Decimals = 0)	const;
+	const SG_Char *				asString		(const CSG_String &Field, int Decimals = 0)	const;
 
 	SG_Char						asChar			(int              iField)	const	{	return( (SG_Char)asInt   (iField) );	}
 	SG_Char						asChar			(const CSG_String &Field)	const	{	return( (SG_Char)asInt   ( Field) );	}
