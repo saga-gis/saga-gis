@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libshapes_grid.la
 libshapes_grid_la_SOURCES =\
+Grid_Class_Statistics_For_Polygons.cpp\
 Grid_Classes_To_Shapes.cpp\
 grid_extent.cpp\
 grid_local_extremes_to_points.cpp\
@@ -25,6 +26,7 @@ Grid_To_Points_Random.cpp\
 Grid_Values_AddTo_Points.cpp\
 Grid_Values_AddTo_Shapes.cpp\
 MLB_Interface.cpp\
+Grid_Class_Statistics_For_Polygons.h\
 Grid_Classes_To_Shapes.h\
 grid_extent.h\
 grid_local_extremes_to_points.h\

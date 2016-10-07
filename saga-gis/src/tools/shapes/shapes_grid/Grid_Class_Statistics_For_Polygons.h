@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//           Grid_Class_Statistics_For_Polygons.h        //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,105 +51,65 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
+#define HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
+#include <saga_api/saga_api.h>
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Class_Statistics_For_Polygons : public CSG_Tool_Grid  
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Grid Tools") );
+public:
+	CGrid_Class_Statistics_For_Polygons(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V.Wichmann (c) 2002-13") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools related to gridded and vector data (conversions, combinations, etc.).") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
-	}
-}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Grid Values") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "Grid_Values_AddTo_Points.h"
-#include "Grid_Values_AddTo_Shapes.h"
-#include "Grid_Statistics_AddTo_Polygon.h"
-#include "Grid_Statistics_For_Points.h"
-#include "Grid_To_Points.h"
-#include "Grid_To_Points_Random.h"
-#include "Grid_To_Contour.h"
-#include "Grid_Classes_To_Shapes.h"
-#include "Grid_Polygon_Clip.h"
-#include "Grid_To_Gradient.h"
-#include "grid_local_extremes_to_points.h"
-#include "grid_extent.h"
-#include "grid_rectangle_clip.h"
-#include "Grid_Class_Statistics_For_Polygons.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CGrid_Values_AddTo_Points );
-	case  1:	return( new CGrid_Values_AddTo_Shapes );
-	case  2:	return( new CGrid_Statistics_AddTo_Polygon );
-	case  8:	return( new CGrid_Statistics_For_Points );
-	case  3:	return( new CGrid_To_Points );
-	case  4:	return( new CGrid_To_Points_Random );
-	case  5:	return( new CGrid_To_Contour );
-	case  6:	return( new CGrid_Classes_To_Shapes );
-	case  7:	return( new CGrid_Polygon_Clip );
+	CSG_Category_Statistics	m_Classes;
 
-	case  9:	return( new CGrid_Local_Extremes_to_Points );
-	case 10:	return( new CGrid_Extent );
-	case 11:	return( new CGrid_Rectangle_Clip );
 
-	case 15:	return( new CGrid_To_Gradient(0) );
-	case 16:	return( new CGrid_To_Gradient(1) );
-	case 17:	return( new CGrid_To_Gradient(2) );
+	bool					Get_Classes				(CSG_Grid *pGrid);
+	int						Get_Class				(double Value);
 
-	case 18:	return( new CGrid_Class_Statistics_For_Polygons );
+	double					Get_Intersection		(CSG_Shape_Polygon *pPolygon, TSG_Point p, bool bCenter);
 
-	case 20:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
