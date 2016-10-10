@@ -94,11 +94,12 @@ protected:
 
 private:
 
-	CSG_Category_Statistics	m_Classes;
+	CSG_Grid				m_Classes;
 
 
-	bool					Get_Classes				(CSG_Grid *pGrid);
-	int						Get_Class				(double Value);
+	bool					Get_Classes				(CSG_Grid *pGrid, CSG_Shapes *pPolygons);
+
+	int						Get_Class				(double Value, const CSG_Table &LUT, int fMin, int fMax);
 
 	double					Get_Intersection		(CSG_Shape_Polygon *pPolygon, TSG_Point p, bool bCenter);
 
