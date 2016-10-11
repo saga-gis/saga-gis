@@ -19,6 +19,7 @@ grid_levels_interpolation.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
 treeline.cpp\
+windeffect_correction.cpp\
 bioclimatic_vars.h\
 climate_tools.h\
 daily_sun.h\
@@ -26,7 +27,8 @@ etp_hargreave.h\
 grid_levels_interpolation.h\
 milankovic.h\
 MLB_Interface.h\
-treeline.h
+treeline.h\
+windeffect_correction.h
 
 libclimate_tools_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

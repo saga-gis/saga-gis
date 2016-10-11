@@ -1193,7 +1193,7 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 
 		if( Precision == 0 )
 		{
-			s.Printf("%d", (int)Value);
+			s.Printf("%.0f", Value);
 		}
 		else // if( Precision > 0 )
 		{
