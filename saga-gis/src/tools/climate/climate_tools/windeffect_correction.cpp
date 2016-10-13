@@ -86,30 +86,30 @@ CWindeffect_Correction::CWindeffect_Correction(void)
 
 	Parameters.Add_Grid(NULL,
 		"WIND"			, _TL("Wind Effect"),
-		_TL("The uncorrected Windeffect."),
+		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(NULL,
-		"OBSERVED"		, _TL("Obserations"),
-		_TL("Observed values (e.g. precipitation, cloudiness) for calibration."),
+		"OBSERVED"		, _TL("Observations"),
+		_TL("Observations used for local scaling factor calibration (e.g. precipitation, cloudiness)."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(NULL,
-		"B_GRID"		, _TL("Slope Factor"),
-		_TL("Calibrated scaling factor for the slope."),
+		"B_GRID"		, _TL("Calibrated Scaling Factor"),
+		_TL("Calibrated scaling factor used in the wind effect correction."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(NULL,
-		"WINDCORR"		, _TL("Corrected Windeffect"),
-		_TL("The corrected windeffect"),
+		"WINDCORR"		, _TL("Corrected Wind Effect"),
+		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(NULL,
-		"B_SOURCE"		, _TL("Slope Factor"),
+		"B_SOURCE"		, _TL("Scaling Factor"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("constant"),
@@ -118,13 +118,13 @@ CWindeffect_Correction::CWindeffect_Correction(void)
 	);
 
 	Parameters.Add_Double(Parameters("B_SOURCE"),
-		"B_CONST"		, _TL("Slope Factor"),
-		_TL("Apply a constant scaling factor for the slope."),
-		0.01
+		"B_CONST"		, _TL("Constant Scaling Factor"),
+		_TL("Constant scaling factor used in the wind effect correction."),
+		0.01, 0.0, true
 	);
 
 	Parameters.Add_Double(Parameters("B_SOURCE"),
-		"B_MAX"			, _TL("Maximum Slope Factor"),
+		"B_MAX"			, _TL("Maximum Scaling Factor"),
 		_TL(""),
 		0.05, 0.0, true
 	);
@@ -135,19 +135,19 @@ CWindeffect_Correction::CWindeffect_Correction(void)
 		10, 1, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice(Parameters("B_SOURCE"),
 		"KERNEL_TYPE"	, _TL("Kernel Type"),
-		_TL(""),
+		_TL("Kernel specification used to request observations for local scaling factor calibration."),
 		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int(Parameters("B_SOURCE"),
 		"KERNEL_SIZE"	, _TL("Kernel Size"),
-		_TL(""),
-		1, 1, true
+		_TL("Kernel specification used to request observations for local scaling factor calibration."),
+		2, 1, true
 	);
 }
 
@@ -161,9 +161,13 @@ int CWindeffect_Correction::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_SOURCE") )
 	{
-		pParameters->Set_Enabled("B_CONST" , pParameter->asInt() == 0);
-		pParameters->Set_Enabled("B_GRID"  , pParameter->asInt() == 1);
-		pParameters->Set_Enabled("OBSERVED", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("B_CONST"    , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("OBSERVED"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("B_GRID"     , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("B_MAX"      , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("B_STEPS"    , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("KERNEL_TYPE", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("KERNEL_SIZE", pParameter->asInt() == 1);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -295,7 +299,7 @@ bool CWindeffect_Correction::Get_Data(int x, int y, CSG_Matrix &Data, CSG_Simple
 		}
 	}
 
-	return( statsObserved.Get_Count() >= 7 );
+	return( statsObserved.Get_Count() >= 5 );
 }
 
 //---------------------------------------------------------
@@ -328,7 +332,7 @@ bool CWindeffect_Correction::Fit_Scaling_Factor(int x, int y, double &B, double 
 
 		for(i=0; i<Data.Get_NRows(); i++)
 		{
-			Statistics[VAL]	+= Statistics[COR].Get_Value(i)	/ Statistics[COR].Get_Mean();
+			Statistics[VAL]	+= Statistics[OBS].Get_Mean() * Statistics[COR].Get_Value(i) / Statistics[COR].Get_Mean();
 		}
 
 		double	d	= fabs(Statistics[VAL].Get_StdDev() - Statistics[OBS].Get_StdDev());
