@@ -48,47 +48,51 @@ CPolygon_Geometrics::CPolygon_Geometrics(void)
 		"General and geometric properties of polygons."
 	));
 
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes(NULL,
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Polygons with Property Attributes"),
+	Parameters.Add_Shapes(NULL,
+		"OUTPUT"	, _TL("Polygons with Property Attributes"),
 		_TL("If not set property attributes will be added to the orignal layer."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BPARTS"		, _TL("Number of Parts"),
+	Parameters.Add_Bool(NULL,
+		"BPARTS"	, _TL("Number of Parts"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BPOINTS"		, _TL("Number of Vertices"),
+	Parameters.Add_Bool(NULL,
+		"BPOINTS"	, _TL("Number of Vertices"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BLENGTH"		, _TL("Perimeter"),
+	Parameters.Add_Bool(NULL,
+		"BLENGTH"	, _TL("Perimeter"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BAREA"		, _TL("Area"),
+	Parameters.Add_Bool(NULL,
+		"BAREA"		, _TL("Area"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
+	);
+
+	Parameters.Add_Double(NULL,
+		"SCALING"	, _TL("Scaling"),
+		_TL("Scaling factor for perimeter and area (squared). meter to feet = 1 / 0.3048 = 3.2808"),
+		1.0, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -96,10 +100,10 @@ CPolygon_Geometrics::CPolygon_Geometrics(void)
 bool CPolygon_Geometrics::On_Execute(void)
 {
 	//-------------------------------------------------
-	int	bParts	= Parameters("BPARTS")	->asBool() ? 0 : -1;
-	int	bPoints	= Parameters("BPOINTS")	->asBool() ? 0 : -1;
-	int	bLength	= Parameters("BLENGTH")	->asBool() ? 0 : -1;
-	int	bArea	= Parameters("BAREA")	->asBool() ? 0 : -1;
+	int	bParts	= Parameters("BPARTS" )->asBool() ? 0 : -1;
+	int	bPoints	= Parameters("BPOINTS")->asBool() ? 0 : -1;
+	int	bLength	= Parameters("BLENGTH")->asBool() ? 0 : -1;
+	int	bArea	= Parameters("BAREA"  )->asBool() ? 0 : -1;
 
 	if( bParts && bPoints && bLength && bArea )
 	{
@@ -113,7 +117,7 @@ bool CPolygon_Geometrics::On_Execute(void)
 
 	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() <= 0 )
 	{
-		Error_Set(_TL("invalid lines layer"));
+		Error_Set(_TL("invalid layer"));
 
 		return( false );
 	}
@@ -125,20 +129,23 @@ bool CPolygon_Geometrics::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	if( !bParts )	{	bParts	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("NPARTS")   , SG_DATATYPE_Int   );	}
-	if( !bPoints )	{	bPoints	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("NPOINTS")  , SG_DATATYPE_Int   );	}
-	if( !bLength )	{	bLength	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("PERIMETER"), SG_DATATYPE_Double);	}
-	if( !bArea )	{	bArea	= pPolygons->Get_Field_Count();	pPolygons->Add_Field(SG_T("AREA")     , SG_DATATYPE_Double);	}
+	if( !bParts  )	{	bParts	= pPolygons->Get_Field_Count();	pPolygons->Add_Field("NPARTS"   , SG_DATATYPE_Int   );	}
+	if( !bPoints )	{	bPoints	= pPolygons->Get_Field_Count();	pPolygons->Add_Field("NPOINTS"  , SG_DATATYPE_Int   );	}
+	if( !bLength )	{	bLength	= pPolygons->Get_Field_Count();	pPolygons->Add_Field("PERIMETER", SG_DATATYPE_Double);	}
+	if( !bArea   )	{	bArea	= pPolygons->Get_Field_Count();	pPolygons->Add_Field("AREA"     , SG_DATATYPE_Double);	}
+
+	//-------------------------------------------------
+	double	Scaling	= Parameters("SCALING")->asDouble();
 
 	//-------------------------------------------------
 	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(i);
 
 		if( bParts  >= 0 )	pPolygon->Set_Value(bParts , pPolygon->Get_Part_Count());
-		if( bPoints >= 0 )	pPolygon->Set_Value(bPoints, pPolygon->Get_Point_Count());
-		if( bLength >= 0 )	pPolygon->Set_Value(bLength, ((CSG_Shape_Polygon *)pPolygon)->Get_Perimeter());
-		if( bArea   >= 0 )	pPolygon->Set_Value(bArea  , ((CSG_Shape_Polygon *)pPolygon)->Get_Area());
+		if( bPoints >= 0 )	pPolygon->Set_Value(bPoints, ((CSG_Shape *)pPolygon)->Get_Point_Count());
+		if( bLength >= 0 )	pPolygon->Set_Value(bLength, pPolygon->Get_Perimeter() * Scaling);
+		if( bArea   >= 0 )	pPolygon->Set_Value(bArea  , pPolygon->Get_Area() * Scaling*Scaling);
 	}
 
 	//-------------------------------------------------

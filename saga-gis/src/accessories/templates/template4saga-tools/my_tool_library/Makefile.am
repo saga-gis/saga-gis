@@ -15,6 +15,7 @@ pkglib_LTLIBRARIES = libmy_tool_library.la
 libmy_tool_library_la_SOURCES =\
 TLB_Interface.cpp\
 my_tool.cpp\
+TLB_Interface.h\
 my_tool.h
 
 libmy_tool_library_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

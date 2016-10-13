@@ -71,124 +71,116 @@
 //---------------------------------------------------------
 CGrid_Tiling::CGrid_Tiling(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Tiling"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		""
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"			, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"GRID"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "TILES"			, _TL("Tiles"),
+	Parameters.Add_Grid_List(NULL,
+		"TILES"			, _TL("Tiles"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "OVERLAP"			, _TL("Overlapping Cells"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+	//-----------------------------------------------------
+	Parameters.Add_Bool(NULL,
+		"TILES_SAVE"	, _TL("Save Tiles to Disk"),
+		_TL("Save tiles to disk individually"),
+		false
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "OVERLAP_SYM"		, _TL("Add Cells"),
+	Parameters.Add_FilePath(Parameters("TILES_SAVE"),
+		"TILES_PATH"    , _TL("Output Directory"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		NULL, NULL, true, true
+	);
+
+	Parameters.Add_String(Parameters("TILES_SAVE"),
+		"TILES_NAME"	, _TL("Base Name"),
+		_TL("The base name of the tiles"),
+		"tile"
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Int(NULL,
+		"OVERLAP"		, _TL("Overlapping Cells"),
+		_TL(""),
+		0, 0, true
+	);
+
+	Parameters.Add_Choice(Parameters("OVERLAP"),
+		"OVERLAP_SYM"	, _TL("Add Cells"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("symmetric"),
 			_TL("bottom / left"),
 			_TL("top / right")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Tile Size Definition"),
+	//-----------------------------------------------------
+	Parameters.Add_Choice(NULL,
+		"METHOD"		, _TL("Tile Size Definition"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("number of grid cells per tile"),
 			_TL("coordinates (offset, range, cell size, tile size)")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SAVE_TILES"			, _TL("Save Tiles to Disk"),
-		_TL("Save tiles to disk individually"),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_String(
-		Parameters("SAVE_TILES"),	"TILE_BASENAME"	, _TL("Base Name"),
-		_TL("The base name of the tiles"),
-		SG_T("")
-	);
-
-	Parameters.Add_FilePath(
-		Parameters("SAVE_TILES"),	"TILE_PATH"    , _TL("Output Directory"),
+	//-----------------------------------------------------
+	Parameters.Add_Int(Parameters("METHOD"),
+		"NX"			, _TL("Number of Column Cells"),
 		_TL(""),
-		NULL, NULL, true, true
+		100, 1, true
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_A"			, _TL("Number of Grid Cells"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "NX"				, _TL("Number of Column Cells"),
+	Parameters.Add_Int(Parameters("METHOD"),
+		"NY"			, _TL("Number of Row Cells"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NY"				, _TL("Number of Row Cells"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
-	);
-
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_B"			, _TL("Coordinates"),
-		_TL("")
-	);
-
-	Parameters.Add_Range(
-		pNode	, "XRANGE"			, _TL("Offset and Range (X)"),
+	//-----------------------------------------------------
+	Parameters.Add_Range(Parameters("METHOD"),
+		"XRANGE"		, _TL("Offset and Range (X)"),
 		_TL(""),
 		0.0, 1000.0
 	);
 
-	Parameters.Add_Range(
-		pNode	, "YRANGE"			, _TL("Offset and Range (Y)"),
+	Parameters.Add_Range(Parameters("METHOD"),
+		"YRANGE"		, _TL("Offset and Range (Y)"),
 		_TL(""),
 		0.0, 1000.0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DCELL"			, _TL("Cell Size"),
+	Parameters.Add_Double(Parameters("METHOD"),
+		"DCELL"			, _TL("Cell Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DX"				, _TL("Tile Size (X)"),
+	Parameters.Add_Double(Parameters("METHOD"),
+		"DX"			, _TL("Tile Size (X)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
+		100.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DY"				, _TL("Tile Size (Y)"),
+	Parameters.Add_Double(Parameters("METHOD"),
+		"DY"			, _TL("Tile Size (Y)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
+		100.0, 0.0, true
 	);
 }
 
@@ -200,7 +192,7 @@ CGrid_Tiling::CGrid_Tiling(void)
 //---------------------------------------------------------
 int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PARAMETERS_GRID_SYSTEM")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") )
 	{
 		CSG_Grid_System	System(1.0, 0.0, 0.0, 101, 101);
 
@@ -209,17 +201,48 @@ int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			System	= *pParameter->asGrid_System();
 		}
 
-		pParameters->Get_Parameter("NX")	->Set_Value(System.Get_NX() / 2);
-		pParameters->Get_Parameter("NY")	->Set_Value(System.Get_NX() / 2);
+		pParameters->Get_Parameter("NX"    )->Set_Value(System.Get_NX() / 2);
+		pParameters->Get_Parameter("NY"    )->Set_Value(System.Get_NX() / 2);
 
 		pParameters->Get_Parameter("XRANGE")->asRange()->Set_Range(System.Get_XMin(), System.Get_XMax());
 		pParameters->Get_Parameter("YRANGE")->asRange()->Set_Range(System.Get_YMin(), System.Get_YMax());
-		pParameters->Get_Parameter("DCELL")	->Set_Value(System.Get_Cellsize());
-		pParameters->Get_Parameter("DX")	->Set_Value(System.Get_XRange() / 2.0);
-		pParameters->Get_Parameter("DY")	->Set_Value(System.Get_YRange() / 2.0);
+		pParameters->Get_Parameter("DCELL" )->Set_Value(System.Get_Cellsize());
+		pParameters->Get_Parameter("DX"    )->Set_Value(System.Get_XRange() / 2.0);
+		pParameters->Get_Parameter("DY"    )->Set_Value(System.Get_YRange() / 2.0);
 	}
 
-	return( 0 );
+	//-----------------------------------------------------
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGrid_Tiling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TILES_SAVE") )
+	{
+		pParameters->Set_Enabled("TILES_PATH", pParameter->asBool());
+		pParameters->Set_Enabled("TILES_NAME", pParameter->asBool());
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAP") )
+	{
+		pParameters->Set_Enabled("OVERLAP_SYM", pParameter->asInt() > 0);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("NX"    , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("NY"    , pParameter->asInt() == 0);
+
+		pParameters->Set_Enabled("XRANGE", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("YRANGE", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("DCELL" , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("DX"    , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("DY"    , pParameter->asInt() == 1);
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -230,77 +253,47 @@ int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrid_Tiling::On_Execute(void)
 {
-	bool					bSaveTiles;
-	int						ix, iy, nx, ny, Overlap;
-	double					y, x, dx, dy, dCell;
-	CSG_String				FilePath, BaseName;
-	TSG_Data_Type			Type;
-	TSG_Rect				Extent;
-	TSG_Grid_Resampling	Interpolation;
-	CSG_Grid				*pGrid, *pTile;
-	CSG_Parameter_Grid_List	*pTiles;
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	CSG_Parameter_Grid_List	*pTiles	= Parameters("TILES")->asGridList();
+
+	pTiles->Del_Items();
 
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")	->asGrid();
-	pTiles	= Parameters("TILES")	->asGridList();
-	Overlap	= Parameters("OVERLAP")	->asInt();
-
-	bSaveTiles	= Parameters("SAVE_TILES")		->asBool();
-	BaseName	= Parameters("TILE_BASENAME")	->asString();
-	FilePath	= Parameters("TILE_PATH")		->asString();
-
+	int					nx, ny;
+	double				dx, dy, dCell;
+	TSG_Rect			Extent;
+	TSG_Grid_Resampling	Resampling;
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0: default:
-		Extent.xMin		= pGrid->Get_XMin();
-		Extent.xMax		= pGrid->Get_XMax();
-		Extent.yMin		= pGrid->Get_YMin();
-		Extent.yMax		= pGrid->Get_YMax();
-		dCell			= pGrid->Get_Cellsize();
-		nx				= Parameters("NX")		->asInt();
-		ny				= Parameters("NY")		->asInt();
-		dx				= dCell * nx;
-		dy				= dCell * ny;
-		Type			= pGrid->Get_Type();
-		Interpolation	= GRID_RESAMPLING_NearestNeighbour;
+	default:	// number of grid cells per tile
+		Extent.xMin	= pGrid->Get_XMin();
+		Extent.xMax	= pGrid->Get_XMax();
+		Extent.yMin	= pGrid->Get_YMin();
+		Extent.yMax	= pGrid->Get_YMax();
+		dCell		= pGrid->Get_Cellsize();
+		nx			= Parameters("NX")->asInt();
+		ny			= Parameters("NY")->asInt();
+		dx			= dCell * nx;
+		dy			= dCell * ny;
+		Resampling	= GRID_RESAMPLING_NearestNeighbour;
 		break;
 
-	case 1:
-		Extent.xMin		= Parameters("XRANGE")	->asRange()->Get_LoVal();
-		Extent.xMax		= Parameters("XRANGE")	->asRange()->Get_HiVal();
-		Extent.yMin		= Parameters("YRANGE")	->asRange()->Get_LoVal();
-		Extent.yMax		= Parameters("YRANGE")	->asRange()->Get_HiVal();
-		dCell			= Parameters("DCELL")	->asDouble();
-		dx				= Parameters("DX")		->asDouble();
-		dy				= Parameters("DY")		->asDouble();
-		nx				= (int)(dx / dCell);
-		ny				= (int)(dy / dCell);
-		Type			= pGrid->Get_Type();
-		Interpolation	= GRID_RESAMPLING_Undefined;
+	case  1:	// coordinates (offset, range, cell size, tile size)
+		Extent.xMin	= Parameters("XRANGE")->asRange()->Get_LoVal();
+		Extent.xMax	= Parameters("XRANGE")->asRange()->Get_HiVal();
+		Extent.yMin	= Parameters("YRANGE")->asRange()->Get_LoVal();
+		Extent.yMax	= Parameters("YRANGE")->asRange()->Get_HiVal();
+		dCell		= Parameters("DCELL" )->asDouble();
+		dx			= Parameters("DX"    )->asDouble();
+		dy			= Parameters("DY"    )->asDouble();
+		nx			= (int)(dx / dCell);
+		ny			= (int)(dy / dCell);
+		Resampling	= GRID_RESAMPLING_Undefined;
 		break;
 	}
-
-	switch( Parameters("OVERLAP_SYM")->asInt() )
-	{
-	case 0: default:	// symetric
-		nx		+= Overlap * 2;
-		ny		+= Overlap * 2;
-		break;
-
-	case 1:				// bottom / left
-		nx		+= Overlap;
-		ny		+= Overlap;
-		break;
-
-	case 2:				// top / right
-		nx		+= Overlap;
-		ny		+= Overlap;
-		Overlap	 = 0;
-		break;
-	}
-
-	pTiles->Del_Items();
 
 	//-----------------------------------------------------
 	if( dx <= 0.0 || dy <= 0.0 || dCell <= 0.0 )
@@ -310,31 +303,70 @@ bool CGrid_Tiling::On_Execute(void)
 		return( false );
 	}
 
-	if( bSaveTiles )
+	//-----------------------------------------------------
+	int	Overlap	= Parameters("OVERLAP")->asInt();
+
+	switch( Parameters("OVERLAP_SYM")->asInt() )
 	{
-		if( !SG_STR_CMP(BaseName, SG_T("")) )
+	default:	// symetric
+		nx		+= Overlap * 2;
+		ny		+= Overlap * 2;
+		break;
+
+	case  1:	// bottom / left
+		nx		+= Overlap;
+		ny		+= Overlap;
+		break;
+
+	case  2:	// top / right
+		nx		+= Overlap;
+		ny		+= Overlap;
+		Overlap	 = 0;
+		break;
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Tiles_Name, Tiles_Path;
+
+	bool	Tiles_bSave	= Parameters("TILES_SAVE")->asBool();
+
+	if( Tiles_bSave )
+	{
+		Tiles_Name	= Parameters("TILES_NAME")->asString();
+
+		if( Tiles_Name.is_Empty() )
 		{
 			SG_UI_Msg_Add_Error(_TL("Please provide a valid base name for the output files!"));
+
 			return( false );
 		}
-		if( !SG_STR_CMP(FilePath, SG_T("")) )
+
+		Tiles_Path	= Parameters("TILES_PATH")->asString();
+
+		if( !SG_Dir_Exists(SG_File_Get_Path(Tiles_Path)) )
 		{
 			SG_UI_Msg_Add_Error(_TL("Please provide a valid output directory for the output files!"));
+
 			return( false );
 		}
 	}
 
 
 	//-----------------------------------------------------
-	int		iTiles = 0;
+	int	iy	= 1, nTiles = 0;
 
-	for(y=Extent.yMin, iy=1; y<Extent.yMax && Process_Get_Okay(); y+=dy, iy++)
+	for(double y=Extent.yMin; y<Extent.yMax && Process_Get_Okay(); y+=dy, iy++)
 	{
-		for(x=Extent.xMin, ix=1; x<Extent.xMax; x+=dx, ix++)
+		int	ix	= 1;
+
+		for(double x=Extent.xMin; x<Extent.xMax; x+=dx, ix++)
 		{
-			pTile	= SG_Create_Grid(Type, nx, ny, dCell, x - dCell * Overlap, y - dCell * Overlap);
-			pTile	->Assign(pGrid, Interpolation);
-			pTile	->Set_Name(CSG_String::Format(SG_T("%s [%d, %d]"), pGrid->Get_Name(), iy, ix));
+			CSG_Grid	*pTile	= SG_Create_Grid(pGrid->Get_Type(), nx, ny, dCell,
+				x - dCell * Overlap,
+				y - dCell * Overlap
+			);
+
+			pTile->Assign(pGrid, Resampling);
 
 			if( pTile->Get_NoData_Count() == pTile->Get_NCells() )
 			{
@@ -342,46 +374,31 @@ bool CGrid_Tiling::On_Execute(void)
 			}
 			else
 			{
-				if( bSaveTiles )
+				if( Tiles_bSave )
 				{
-					CSG_String FileName = CSG_String::Format(SG_T("%s/%s_%d_%d"), FilePath.c_str(), BaseName.c_str(), iy, ix);
+					CSG_String FileName = CSG_String::Format("%s/%s_%d_%d.sgrd", Tiles_Path.c_str(), Tiles_Name.c_str(), iy, ix);
+
 					pTile->Save(FileName);
+
 					delete(pTile);
 				}
 				else
 				{
+					pTile->Set_Name(CSG_String::Format("%s [%d, %d]", pGrid->Get_Name(), iy, ix));
+
 					pTiles->Add_Item(pTile);
 				}
 
-				iTiles++;
+				nTiles++;
 			}
 		}
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("%d tiles created."), iTiles), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %d", _TL("Number of tiles"), nTiles), true);
 
-	return( iTiles > 0 );
+	return( nTiles > 0 );
 }
 
-
-//---------------------------------------------------------
-int CGrid_Tiling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
-	{
-		pParameters->Get_Parameter("NODE_A"			)->Set_Enabled( pParameter->asInt() == 0 );
-		pParameters->Get_Parameter("NODE_B"			)->Set_Enabled( pParameter->asInt() == 1 );
-	}
-
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_TILES")) )
-	{
-		pParameters->Get_Parameter("TILE_BASENAME"	)->Set_Enabled( pParameter->asBool() );
-		pParameters->Get_Parameter("TILE_PATH"		)->Set_Enabled( pParameter->asBool() );
-	}
-
-	//-----------------------------------------------------
-	return( 1 );
-}
 
 ///////////////////////////////////////////////////////////
 //														 //

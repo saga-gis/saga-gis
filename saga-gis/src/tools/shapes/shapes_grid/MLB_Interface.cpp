@@ -110,6 +110,7 @@ CSG_String Get_Info(int i)
 #include "grid_local_extremes_to_points.h"
 #include "grid_extent.h"
 #include "grid_rectangle_clip.h"
+#include "Grid_Class_Statistics_For_Polygons.h"
 
 
 //---------------------------------------------------------
@@ -136,6 +137,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 15:	return( new CGrid_To_Gradient(0) );
 	case 16:	return( new CGrid_To_Gradient(1) );
 	case 17:	return( new CGrid_To_Gradient(2) );
+
+	case 18:	return( new CGrid_Class_Statistics_For_Polygons );
 
 	case 20:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

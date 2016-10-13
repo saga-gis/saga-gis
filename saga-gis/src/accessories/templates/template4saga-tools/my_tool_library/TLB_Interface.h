@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library:                     //
-//                       my_tools                        //
+//                    TLB_Interfaces                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    TLB_Interface.h                    //
 //                                                       //
 //                 Copyright (C) 2016 by                 //
 //                      Hein Bloed                       //
@@ -50,75 +50,45 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//             The Tool Library Interface                //
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "TLB_Interface.h"
-
+#ifndef HEADER_INCLUDED__TLB_Interface_H
+#define HEADER_INCLUDED__TLB_Interface_H
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("My Tools") );
-
-	case TLB_INFO_Category:
-		return( _TL("My Tool Libraries") );
-
-	case TLB_INFO_Author:
-		return( "Hein Bloed (c) 2016" );
-
-	case TLB_INFO_Description:
-		return( _TL("Hein Bloed's tools.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("My Tools|My Submenu") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "my_tool.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CMy_Tool );
-
-	case 11:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#if SAGA_MAJOR_VERSION <= 2 && SAGA_MINOR_VERSION < 4
+	#define TLB_INFO_Name			MLB_INFO_Name
+	#define TLB_INFO_Category		MLB_INFO_Category
+	#define TLB_INFO_Author			MLB_INFO_Author
+	#define TLB_INFO_Description	MLB_INFO_Description
+	#define TLB_INFO_Version		MLB_INFO_Version
+	#define TLB_INFO_Menu_Path		MLB_INFO_Menu_Path
+	#define TLB_INTERFACE_SKIP_TOOL	MLB_INTERFACE_SKIP_MODULE
+	#define TLB_INTERFACE			MLB_INTERFACE
+	#define Create_Tool				Create_Module
+	#define CSG_Tool				CSG_Module
+#endif
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__TLB_Interface_H

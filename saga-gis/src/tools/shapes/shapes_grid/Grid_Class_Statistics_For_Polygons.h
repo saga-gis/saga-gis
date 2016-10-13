@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1383 2012-04-26 15:44:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     climate_tools                     //
+//                      Grid_Shapes                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//           Grid_Class_Statistics_For_Polygons.h        //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,99 +51,66 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
+#define HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Tools") );
-
-	case TLB_INFO_Category:
-		return( _TL("Climate") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2012" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for weather and climate data.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Climate") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "grid_levels_interpolation.h"
-#include "milankovic.h"
-#include "etp_hargreave.h"
-#include "daily_sun.h"
-#include "bioclimatic_vars.h"
-#include "treeline.h"
-#include "windeffect_correction.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: 	return( new CGrid_Levels_to_Surface );
-	case  1: 	return( new CGrid_Levels_to_Points );
-
-	case  2:	return( new CMilankovic );
-	case  3:	return( new CMilankovic_SR_Location );
-	case  4:	return( new CMilankovic_SR_Day_Location );
-	case  5:	return( new CMilankovic_SR_Monthly_Global );
-
-	case  8:	return( new CPET_Hargreave_Grid );
-	case  6:	return( new CPET_Hargreave_Table );
-	case  7:	return( new CPET_Day_To_Hour );
-
-	case  9:	return( new CDaily_Sun );
-
-	case 10:	return( new CBioclimatic_Vars );
-	case 11:	return( new CTree_Growth );
-	case 12:	return( new CWater_Balance_Interactive );
-
-	case 13:	return( new CWindeffect_Correction );
-
-	//-----------------------------------------------------
-	case 14:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
-
-
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+class CGrid_Class_Statistics_For_Polygons : public CSG_Tool_Grid  
+{
+public:
+	CGrid_Class_Statistics_For_Polygons(void);
 
-	TLB_INTERFACE
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Grid Values") );	}
 
-//}}AFX_SAGA
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Grid				m_Classes;
+
+
+	bool					Get_Classes				(CSG_Grid *pGrid, CSG_Shapes *pPolygons);
+
+	int						Get_Class				(double Value, const CSG_Table &LUT, int fMin, int fMax);
+
+	double					Get_Intersection		(CSG_Shape_Polygon *pPolygon, TSG_Point p, bool bCenter);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H

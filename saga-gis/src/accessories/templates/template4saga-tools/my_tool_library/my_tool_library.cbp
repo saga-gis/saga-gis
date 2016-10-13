@@ -46,6 +46,7 @@
 			<Add directory="/usr/local/lib" />
 		</Linker>
 		<Unit filename="TLB_Interface.cpp" />
+		<Unit filename="TLB_Interface.h" />
 		<Unit filename="my_tool.cpp" />
 		<Unit filename="my_tool.h" />
 		<Extensions>

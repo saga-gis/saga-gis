@@ -29,8 +29,8 @@ tools = [
 ['climate_tools', 3, 'Annual Course of Daily Insolation'],
 ['climate_tools', 4, 'Daily Insolation over Latitude'],
 ['climate_tools', 5, 'Monthly Global by Latitude'],
-['climate_tools', 6, 'PET (after Hargreaves, Table)'],
-['climate_tools', 7, 'Daily to Hourly PET'],
+['climate_tools', 6, 'ETpot (after Hargreaves, Table)'],
+['climate_tools', 7, 'Daily to Hourly ETpot'],
 ['contrib_perego', 0, 'Average With Thereshold 1'],
 ['contrib_perego', 1, 'Average With Thereshold 2'],
 ['contrib_perego', 2, 'Average With Thereshold 3'],
@@ -618,7 +618,7 @@ tools = [
 ['sim_rivflow', 3, 'RiverGridGeneration'],
 ['sim_rivflow', 4, 'GridCombination'],
 ['io_grid', 16, 'Import, Clip and Resample Grids'],
-['climate_tools', 8, 'PET (after Hargreaves, Grid)'],
+['climate_tools', 8, 'ETpot (after Hargreaves, Grid)'],
 ['grid_visualisation', 10, 'Select Look-up Table for Grid Visualization'],
 ['grid_tools', 32, 'Select Grid from List'],
 ['imagery_maxent', 0, 'Maximum Entropy Classifcation'],
@@ -668,5 +668,12 @@ tools = [
 ['shapes_tools', 26, 'Select Shapes from List'],
 ['shapes_tools', 27, 'Remove Invalid Shapes'],
 ['table_calculus', 16, 'Record Statistics'],
-['table_calculus', 17, 'Record Statistics (Shapes)']
+['table_calculus', 17, 'Record Statistics (Shapes)'],
+['climate_tools', 11, 'Tree Growth Season'],
+['imagery_tools', 11, 'Textural Features'],
+['imagery_tools', 12, 'Local Statistical Measures'],
+['imagery_vigra', 11, 'Random Forest Table Classification (ViGrA)'],
+['io_grid', 17, 'Import CRU Grids'],
+['io_shapes', 22, 'Export Polygons to HTML Image Map'],
+['ta_morphometry', 28, 'Multi-Scale Topographic Position Index (TPI)']
 ]

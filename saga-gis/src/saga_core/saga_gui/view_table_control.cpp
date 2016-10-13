@@ -418,21 +418,25 @@ wxString CVIEW_Table_Control::_Get_Value(CSG_Table_Record *pRecord, int iField)
 
 	case SG_DATATYPE_Float:
 	case SG_DATATYPE_Double:
-		if( m_Decimals == 0 )		// system default
 		{
-			return( wxString::Format("%f", pRecord->asDouble(iField)) );
-		}
-		else if( abs(m_Decimals) == 1 )	// no decimals
-		{
-			return( wxString::Format("%d", pRecord->asInt   (iField)) );
-		}
-		else if( m_Decimals > 0 )	// fix number of decimals
-		{
-			return( SG_Get_String(pRecord->asDouble(iField), m_Decimals - 1).c_str() );
-		}
-		else //( m_Decimals < 0 )	// maximum number of significant decimals
-		{
-			return( SG_Get_String(pRecord->asDouble(iField), m_Decimals + 1).c_str() );
+			double	Value	= pRecord->asDouble(iField);
+
+			if( m_Decimals == 0 )		// system default
+			{
+				return( wxString::Format("%f", Value) );
+			}
+			else if( abs(m_Decimals) == 1 )	// no decimals
+			{
+				return( wxString::Format("%.0f", Value) );
+			}
+			else if( m_Decimals > 0 )	// fix number of decimals
+			{
+				return( wxString::Format("%.*f", m_Decimals - 1, Value) );
+			}
+			else //( m_Decimals < 0 )	// maximum number of significant decimals
+			{
+				return( SG_Get_String(Value, m_Decimals + 1).c_str() );
+			}
 		}
 	}
 }
