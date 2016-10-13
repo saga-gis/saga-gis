@@ -1013,13 +1013,52 @@ CSG_MetaData CSG_Projections::WKT_to_MetaData(const CSG_String &WKT)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// DATUM  ["<name>",
+//     SPHEROID["<name>", <semi-major axis>, <inverse flattening>]
+//    *TOWGS84 [<dx>, <dy>, <dz>, <ex>, <ey>, <ez>, <ppm>]
+// ]
+//---------------------------------------------------------
+bool CSG_Projections::_WKT_to_Proj4_Set_Datum(CSG_String &Proj4, const CSG_MetaData &WKT) const
+{
+	double	a, b;
+
+	if(	!WKT("SPHEROID")
+	||	 WKT["SPHEROID"].Get_Children_Count() != 2
+	||	!WKT["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
+	||	!WKT["SPHEROID"][1].Get_Content().asDouble(b) || b <  0.0 )
+	{
+		return( false );
+	}
+
+	b	= b > 0.0 ? a - a / b : a;
+
+	Proj4	+= CSG_String::Format(" +a=%f", a);	// Semimajor radius of the ellipsoid axis
+	Proj4	+= CSG_String::Format(" +b=%f", b);	// Semiminor radius of the ellipsoid axis
+
+	if(	WKT("TOWGS84") && WKT["TOWGS84"].Get_Children_Count() == 7 )
+	{
+		Proj4	+= " +towgs84=";
+
+		for(int i=0; i<7; i++)
+		{
+			if( i > 0 )
+			{
+				Proj4	+= ",";
+			}
+
+			Proj4	+= WKT["TOWGS84"][i].Get_Content();
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) const
 {
 	Proj4.Clear();
 
 	CSG_MetaData	m	= WKT_to_MetaData(WKT);
-
-//	m.Save("e:/wkt_metadata.xml");
 
 	if( m.Get_Children_Count() == 0 )
 	{
@@ -1037,132 +1076,89 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 	}
 
 	//-----------------------------------------------------
-	int			i;
-	double		a, d;
-	CSG_String	s;
+	double	d;
 
 	//-----------------------------------------------------
-	if( !m.Get_Name().Cmp("GEOCCS") )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	// GEOGCS["<name>
-	//    DATUM  ["<name>
-	//        SPHEROID["<name>", <semi-major axis>, <inverse flattening>],
-	//       *TOWGS84 [<dx>, <dy>, <dz>, <ex>, <ey>, <ez>, <ppm>]
-	//    ],
+	// GEOCCS["<name>",
+	//    DATUM  ["<name>", ...],
 	//    PRIMEM ["<name>", <longitude>],
 	//    UNIT   ["<name>", <conversion factor>],
-	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER],
-	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
+	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER], AXIS...
 	// ]
-	if( !m.Get_Name().Cmp("GEOGCS") )
+	if( m.Cmp_Name("GEOCCS") )
 	{
-		if(	!m("DATUM")
-		||	!m["DATUM"]("SPHEROID")
-		||	 m["DATUM"]["SPHEROID"].Get_Children_Count() != 2
-		||	!m["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
-		||	!m["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
+		Proj4	= CSG_String::Format("+proj=geocent");
+
+		if( !m("DATUM") || !_WKT_to_Proj4_Set_Datum(Proj4, m["DATUM"]) )
 		{
 			return( false );
 		}
 
-		Proj4	+= CSG_String::Format(SG_T( "+proj=longlat"));
-
-		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);						// Semimajor radius of the ellipsoid axis
-		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), d > 0.0 ? a - a / d : a);	// Semiminor radius of the ellipsoid axis
-
-		if(	m["DATUM"]("TOWGS84") && m["DATUM"]["TOWGS84"].Get_Children_Count() == 7 )
+		if( m("PRIMEM") && m["PRIMEM"].Get_Content().asDouble(d) && d != 0.0 )
 		{
-			for(i=0; i<7; i++)
-			{
-				Proj4	+= (i == 0 ? SG_T(" +towgs84=") : SG_T(",")) + m["DATUM"]["TOWGS84"][i].Get_Content();
-			}
+			Proj4	+= CSG_String::Format(" +pm=%f", d);
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	// GEOGCS["<name>,
+	//    DATUM  ["<name>", ...],
+	//    PRIMEM ["<name>", <longitude>],
+	//    UNIT   ["<name>", <conversion factor>],
+	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER], AXIS...
+	// ]
+	if( m.Cmp_Name("GEOGCS") )
+	{
+		Proj4	= "+proj=longlat";
+
+		if( !m("DATUM") || !_WKT_to_Proj4_Set_Datum(Proj4, m["DATUM"]) )
+		{
+			return( false );
 		}
 
 		if( m("PRIMEM") && m["PRIMEM"].Get_Content().asDouble(d) && d != 0.0 )
 		{
-			Proj4	+= CSG_String::Format(SG_T(" +pm=%f"), d);
+			Proj4	+= CSG_String::Format(" +pm=%f", d);
 		}
 	}
 
 	//-----------------------------------------------------
-	// PROJCS["<name>
-	//     GEOGCS["<name>
-	//           DATUM  ["<name>
-	//                   SPHEROID["<name>", <semi-major axis>, <inverse flattening>],
-	//                  *TOWGS84 [<dx>, <dy>, <dz>, <ex>, <ey>, <ez>, <ppm>]
-	//           ],
-	//           PRIMEM ["<name>", <longitude>],
-	//           UNIT   ["<name>", <conversion factor>],
-	//          *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER],
-	//          *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
-	//     ],
+	// PROJCS["<name>,
+	//     GEOGCS    ["<name>, ...],
 	//     PROJECTION["<name>"],
-	//    *PARAMETER ["<name>", <value>], ...
+	//    *PARAMETER ["<name>", <value>], PARAMETER...
 	//     UNIT      ["<name>", <conversion factor>],
-	//    *AXIS      ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER],
-	//    *AXIS      ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
+	//    *AXIS      ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER], AXIS...
 	// ]
-	if( !m.Get_Name().Cmp(SG_T("PROJCS")) )
+	if( m.Cmp_Name("PROJCS") && m("GEOGCS") && m("PROJECTION") && m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), Proj4) )
 	{
-		if( !m("PROJECTION") )
-		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), _TL("no projection specified")));
+		Proj4	= "+proj=" + Proj4;
 
+		if(	!m["GEOGCS"]("DATUM") || !_WKT_to_Proj4_Set_Datum(Proj4, m["GEOGCS"]["DATUM"]) )
+		{
 			return( false );
-		}
-
-		if( !m_WKT_to_Proj4.Get_Translation(m["PROJECTION"].Get_Content(), s) )
-		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), _TL("unknown projection"), m["PROJECTION"].Get_Content().c_str()));
-
-			return( false );
-		}
-
-		if(	!m("GEOGCS")
-		||	!m["GEOGCS"]("DATUM")
-		||	!m["GEOGCS"]["DATUM"]("SPHEROID")
-		||	 m["GEOGCS"]["DATUM"]["SPHEROID"].Get_Children_Count() != 2
-		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][0].Get_Content().asDouble(a) || a <= 0.0
-		||	!m["GEOGCS"]["DATUM"]["SPHEROID"][1].Get_Content().asDouble(d) || d <  0.0 )
-		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s"), _TL("invalid geographic coordinate system / datum")));
-
-			return( false );
-		}
-
-		Proj4	+= CSG_String::Format(SG_T( "+proj=%s"), s.c_str());
-
-		Proj4	+= CSG_String::Format(SG_T(" +a=%f"), a);
-		Proj4	+= CSG_String::Format(SG_T(" +b=%f"), d <= 0.0 ? a : a - a / d);	// Semiminor radius of the ellipsoid axis
-
-		if(	m["GEOGCS"]["DATUM"]("TOWGS84") && m["GEOGCS"]["DATUM"]["TOWGS84"].Get_Children_Count() == 7 )
-		{
-			for(i=0; i<7; i++)
-			{
-				Proj4	+= (i == 0 ? SG_T(" +towgs84=") : SG_T(",")) + m["GEOGCS"]["DATUM"]["TOWGS84"][i].Get_Content();
-			}
 		}
 
 		if( m("PRIMEM") && m["PRIMEM"].Get_Content().asDouble(d) && d != 0.0 )
 		{
-			Proj4	+= CSG_String::Format(SG_T(" +pm=%f"), d);
+			Proj4	+= CSG_String::Format(" +pm=%f", d);
 		}
 
-		for(i=0; i<m.Get_Children_Count(); i++)
+		for(int i=0; i<m.Get_Children_Count(); i++)
 		{
-			if( !m[i].Get_Name().Cmp(SG_T("PARAMETER")) )
+			if( m[i].Cmp_Name("PARAMETER") )
 			{
-				if( !m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), s) )
+				CSG_String	Parameter;
+
+				if( m_WKT_to_Proj4.Get_Translation(m[i].Get_Property("name"), Parameter) )
 				{
-					SG_UI_Msg_Add_Error(CSG_String::Format(SG_T(">> WKT: %s [%s]"), _TL("unknown parameter"), m[i].Get_Property("name")));
+					Proj4	+= " +" + Parameter + "=" + m[i].Get_Content();
 				}
 				else
 				{
-					Proj4	+= CSG_String::Format(SG_T(" +%s=%s"), s.c_str(), m[i].Get_Content().c_str());
+					SG_UI_Msg_Add_Error(CSG_String::Format(">> WKT: %s [%s]", _TL("unknown parameter"), m[i].Get_Property("name")));
 				}
 			}
 		}

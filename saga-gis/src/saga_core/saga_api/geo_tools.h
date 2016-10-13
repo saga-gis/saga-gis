@@ -814,9 +814,11 @@ private:
 	class CSG_Table					*m_pProjections;
 
 
-	void							_On_Construction		(void);
+	void							_On_Construction			(void);
 
-	static bool						_WKT_to_MetaData		(CSG_MetaData &MetaData, const CSG_String &WKT);
+	static bool						_WKT_to_MetaData			(CSG_MetaData &MetaData, const CSG_String &WKT);
+
+	bool							_WKT_to_Proj4_Set_Datum		(CSG_String &Proj4, const CSG_MetaData &WKT)	const;
 
 	bool							_Proj4_Read_Parameter		(CSG_String &Value, const CSG_String &Proj4, const CSG_String &Key)	const;
 	bool							_Proj4_Get_Ellipsoid		(CSG_String &Value, const CSG_String &Proj4)	const;
