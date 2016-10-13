@@ -675,5 +675,7 @@ tools = [
 ['imagery_vigra', 11, 'Random Forest Table Classification (ViGrA)'],
 ['io_grid', 17, 'Import CRU Grids'],
 ['io_shapes', 22, 'Export Polygons to HTML Image Map'],
-['ta_morphometry', 28, 'Multi-Scale Topographic Position Index (TPI)']
+['ta_morphometry', 28, 'Multi-Scale Topographic Position Index (TPI)'],
+['climate_tools', 13, 'Wind Effect Correction'],
+['shapes_grid', 18, 'Grid Classes Area for Polygons']
 ]

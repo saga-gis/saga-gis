@@ -5,13 +5,15 @@
 	<identifier>lczc</identifier>
 	<menu absolute="true">Imagery|Classification</menu>
 	<name>Local Climate Zone Classification</name>
-	<author>B. Bechtel, O. Conrad (c) 2015</author>
+	
+	<author>B. Bechtel, O. Conrad (c) 2015/16</author>
 	<description>
 		Reference:
 		Bechtel, B., Alexander, P. J., Böhner, J., Ching, J., Conrad, O., Feddema, J., Gerald, M., See, L., Stewart, I. (2015). Mapping local climate zones for a worldwide database of the form and function of cities. ISPRS International Journal of Geo-Information, 4(1), 199-219. doi:10.3390/ijgi4010199.
 		______________
 		UPDATES
 		20160815	Automated filtering of Style Place Holders
+		20160907	added cmd line support for kml import
 	</description>
 	
 	<parameters>
@@ -56,6 +58,12 @@
 		<output varname="LCZC_FILTERED" type="grid" optional="true" parent="GRID_SYSTEM">
 			<name>LCZC (Filtered)</name>
 		</output>
+		<option varname="GRIDDEFILE" type="file">
+		  <condition type="has_gui" variable="false"></condition>
+		  <name>grid definition for KML2shp conversion</name>
+		  <description>well known text, prj file - workaround for command line</description>
+		<filter>Well known text|*.prj;|All Files|*.*</filter>
+		</option>
 	</parameters>
 	
 	<tools>
@@ -79,11 +87,26 @@
 			<output id="GRID">FEATURE</output>
 			<option id="INDEX">0</option>
 		</tool>
-		<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
-			<input	id="PICK" parms="CRS_GRID">FEATURE</input>
-			<input	id="SOURCE">TRAINING_MERGED_FILT</input>
-			<output id="TARGET">TRAINING_PROJ</output>
-		</tool>
+		
+		
+		<!-- with GUI - pick definition from Grid -->
+		<condition type="has_gui" variable="true">
+			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+				<input	id="PICK" parms="CRS_GRID">FEATURE</input>
+				<input	id="SOURCE">TRAINING_MERGED_FILT</input>
+				<output id="TARGET">TRAINING_PROJ</output>
+			</tool>
+		</condition>
+		<!-- without GUI - pick definition from prj file -->
+		<condition type="has_gui" variable="false">
+			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+				<option	id="CRS_METHOD">2</option>
+				<option	id="CRS_FILE" varname="true">GRIDDEFILE</option>
+				<input	id="SOURCE">TRAINING_MERGED_FILT</input>
+				<output id="TARGET">TRAINING_PROJ</output>
+			</tool>
+		</condition>
+	
 		<tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
 			<input	id="FEATURES">FEATURES</input>
 			<input	id="TRAINING">TRAINING_PROJ</input>
@@ -94,16 +117,17 @@
 			<option id="RF_TREE_SAMPLES">1.000000</option>
 			<output id="CLASSES">LCZC</output>
 		</tool>
-		
-		<condition type="not_equal" value="" variable="FILE_CLASS_DEF">
-			<tool library="io_table" module="1" name="Import Text Table">
-				<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
-				<output id="TABLE">CLASS_DEF</output>
-			</tool>
-			<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
-				<input id="GRID">LCZC</input>
-				<input id="LUT">CLASS_DEF</input>
-			</tool>
+		<condition type="has_gui" variable="true">
+			<condition type="not_equal" value="" variable="FILE_CLASS_DEF">
+				<tool library="io_table" module="1" name="Import Text Table">
+					<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
+					<output id="TABLE">CLASS_DEF</output>
+				</tool>
+				<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+					<input id="GRID">LCZC</input>
+					<input id="LUT">CLASS_DEF</input>
+				</tool>
+			</condition>
 		</condition>
 		
 		<condition type="not_equal" value="" variable="FILE_LCZC">
@@ -123,10 +147,12 @@
 				<option id="RADIUS" varname="true">FILTER_RADIUS</option>
 				<output id="RESULT">LCZC_FILTERED</output>
 			</tool>
-			<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
-				<input id="GRID">LCZC_FILTERED</input>
-				<input id="LUT">CLASS_DEF</input>
-			</tool>
+			<condition type="has_gui" variable="true">
+				<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+					<input id="GRID">LCZC_FILTERED</input>
+					<input id="LUT">CLASS_DEF</input>
+				</tool>
+			</condition>
 			<condition type="not_equal" value="" variable="FILE_LCZC_FILTERED">
 				<tool library="io_grid_image" module="2" name="Export Grid to KML">
 					<input	id="GRID">LCZC_FILTERED</input>
