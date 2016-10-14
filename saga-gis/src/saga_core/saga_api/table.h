@@ -377,7 +377,8 @@ private:
 	bool							_Inc_Array			(void);
 	bool							_Dec_Array			(void);
 
-	int								_Load_Text_Trim		(CSG_String &Text, const SG_Char Separator);
+	size_t							_Load_Text_Trim		(      CSG_String &Text, const SG_Char Separator);
+	size_t							_Load_Text_EndQuote	(const CSG_String &Text, const SG_Char Separator);
 
 	bool							_Load_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator);
 	bool							_Save_Text			(const CSG_String &File_Name, bool bHeadline, const SG_Char Separator);
