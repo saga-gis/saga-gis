@@ -283,21 +283,24 @@ bool CSG_Projection::Assign(const CSG_Projection &Projection)
 }
 
 //---------------------------------------------------------
-CSG_Projection::CSG_Projection(int EPSG_SRID)
+CSG_Projection::CSG_Projection(int Authority_ID, const SG_Char *Authority)
 {
 	Destroy();
 
-	Create(EPSG_SRID);
+	Create(Authority_ID, Authority);
 }
 
-bool CSG_Projection::Create(int EPSG_SRID)
+bool CSG_Projection::Create(int Authority_ID, const SG_Char *Authority)
 {
-	return( Assign(EPSG_SRID) );
+	return( Assign(Authority_ID, Authority) );
 }
 
-bool CSG_Projection::Assign(int EPSG_SRID)
+bool CSG_Projection::Assign(int Authority_ID, const SG_Char *Authority)
 {
-	return( Assign(CSG_String::Format(SG_T("%d"), EPSG_SRID), SG_PROJ_FMT_EPSG) );
+	return( Authority && *Authority
+		? gSG_Projections.Get_Projection(*this, Authority, Authority_ID)
+		: gSG_Projections.Get_Projection(*this,            Authority_ID)
+	);
 }
 
 //---------------------------------------------------------
@@ -315,10 +318,6 @@ bool CSG_Projection::Create(const CSG_String &Projection, TSG_Projection_Format 
 
 bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format Format)
 {
-	int				i;
-	CSG_String		s;
-	CSG_MetaData	m;
-
 	Destroy();
 
 	if( Projection.is_Empty() )
@@ -327,14 +326,20 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 	}
 
 	//-----------------------------------------------------
+	int				i;
+	CSG_String		s;
+	CSG_MetaData	m;
+
 	switch( Format )
 	{
 	default:
 		return( false );
 
+	//-----------------------------------------------------
 	case SG_PROJ_FMT_EPSG:
-		return( Projection.asInt(i) && gSG_Projections.Get_Projection(*this, i) );
+		return( Projection.asInt(i) && Assign(i, SG_T("EPSG")) );
 
+	//-----------------------------------------------------
 	case SG_PROJ_FMT_Proj4:
 		if( !gSG_Projections.WKT_from_Proj4(s, Projection) )
 		{
@@ -348,10 +353,11 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 
 		break;
 
+	//-----------------------------------------------------
 	case SG_PROJ_FMT_WKT:
 		m		= gSG_Projections.WKT_to_MetaData(Projection);
 
-		if(	m.Get_Property("authority_name", s) && s.CmpNoCase(SG_T("EPSG")) == 0
+		if(	m.Get_Property("authority_name", s) && s.CmpNoCase("EPSG") == 0
 		&&	m.Get_Property("authority_code", i) && gSG_Projections.Get_Projection(*this, i) )
 		{
 			return( true );
@@ -399,10 +405,11 @@ void CSG_Projection::Destroy(void)
 bool CSG_Projection::Load(const CSG_String &File_Name, TSG_Projection_Format Format)
 {
 	CSG_File	Stream;
-	CSG_String	s;
 
 	if( Stream.Open(File_Name, SG_FILE_R, false) )
 	{
+		CSG_String	s;
+
 		Stream.Read(s, Stream.Length());
 
 		return( Assign(s, Format) );
@@ -455,11 +462,11 @@ bool CSG_Projection::Load(const CSG_MetaData &Projection)
 {
 	CSG_MetaData	*pEntry;
 
-	if( (pEntry = Projection.Get_Child(SG_T("OGC_WKT"))) != NULL )
+	if( (pEntry = Projection.Get_Child("OGC_WKT")) != NULL )
 	{
 		Assign(pEntry->Get_Content(), SG_PROJ_FMT_WKT);
 
-		if( (pEntry = Projection.Get_Child(SG_T("PROJ4"))) != NULL )
+		if( (pEntry = Projection.Get_Child("PROJ4")) != NULL )
 		{
 			m_Proj4	= pEntry->Get_Content();
 		}
@@ -527,14 +534,14 @@ CSG_String CSG_Projection::Get_Description(void)	const
 	{
 		if( m_Authority.Length() > 0 && m_Authority_ID > 0 )
 		{
-			s	+= CSG_String::Format(SG_T(" [%s %d]"), m_Authority.c_str(), m_Authority_ID);
+			s	+= CSG_String::Format(" [%s %d]", m_Authority.c_str(), m_Authority_ID);
 		}
 
-		s	+= SG_T(":\n") + m_Name;
+		s	+= ":\n" + m_Name;
 
 		if( m_Proj4.Length() > 0 )
 		{
-			s	+= CSG_String::Format(SG_T("\n[%s]"), m_Proj4.c_str());
+			s	+= "\n[" + m_Proj4 + "]";
 		}
 	}
 
@@ -761,9 +768,9 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 		CSG_MetaData	m	= WKT_to_MetaData(Projection.m_WKT);
 
 		Projection.m_Name	= m.Get_Property("name");
-		Projection.m_Type	= !m.Get_Name().Cmp(SG_T("GEOCCS")) ? SG_PROJ_TYPE_CS_Geocentric
-							: !m.Get_Name().Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
-							: !m.Get_Name().Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
+		Projection.m_Type	= !m.Get_Name().Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
+							: !m.Get_Name().Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
+							: !m.Get_Name().Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
 							: SG_PROJ_TYPE_CS_Undefined;
 
 		SG_Set_Projection_Unit(m, Projection.m_Unit, Projection.m_Unit_Name, Projection.m_Unit_To_Meter);
@@ -775,7 +782,7 @@ CSG_Projection CSG_Projections::Get_Projection(int Index)	const
 //---------------------------------------------------------
 bool CSG_Projections::Get_Projection(CSG_Projection &Projection, int EPSG_ID)	const
 {
-	return( Get_Projection(Projection, SG_T("EPSG"), EPSG_ID) );
+	return( Get_Projection(Projection, "", EPSG_ID) );
 }
 
 bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_String &Authority, int Authority_ID)	const
@@ -784,8 +791,8 @@ bool CSG_Projections::Get_Projection(CSG_Projection &Projection, const CSG_Strin
 	{
 		CSG_Table_Record	*pProjection	= m_pProjections->Get_Record(i);
 
-		if( Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) == 0
-		&&	Authority_ID ==     pProjection->asInt   (PRJ_FIELD_AUTH_SRID)	)
+		if( Authority_ID == pProjection->asInt(PRJ_FIELD_AUTH_SRID)
+		&& (Authority.is_Empty() || Authority.CmpNoCase(pProjection->asString(PRJ_FIELD_AUTH_NAME)) == 0) )
 		{
 			Projection	= Get_Projection(i);
 
@@ -814,7 +821,7 @@ bool CSG_Projections::EPSG_to_Proj4(CSG_String &Proj4, int EPSG_Code) const
 		}
 	}
 
-	Proj4.Printf(SG_T("+init=epsg:%d "), EPSG_Code);
+	Proj4.Printf("+init=epsg:%d ", EPSG_Code);
 
 	return( false );
 }
@@ -854,21 +861,21 @@ CSG_String CSG_Projections::Get_Names_List(TSG_Projection_Type Type) const
 
 		TSG_Projection_Type	iType;
 
-		iType	= !WKT.BeforeFirst('[').Cmp(SG_T("PROJCS")) ? SG_PROJ_TYPE_CS_Projected
-				: !WKT.BeforeFirst('[').Cmp(SG_T("GEOGCS")) ? SG_PROJ_TYPE_CS_Geographic
-				: !WKT.BeforeFirst('[').Cmp(SG_T("GEOCCS")) ? SG_PROJ_TYPE_CS_Geocentric
+		iType	= !WKT.BeforeFirst('[').Cmp("PROJCS") ? SG_PROJ_TYPE_CS_Projected
+				: !WKT.BeforeFirst('[').Cmp("GEOGCS") ? SG_PROJ_TYPE_CS_Geographic
+				: !WKT.BeforeFirst('[').Cmp("GEOCCS") ? SG_PROJ_TYPE_CS_Geocentric
 				: SG_PROJ_TYPE_CS_Undefined;
 
 		if( Type == SG_PROJ_TYPE_CS_Undefined )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s: %s|"), SRID,
+			Names	+= CSG_String::Format("{%d}%s: %s|", SRID,
 				SG_Get_Projection_Type_Name(iType).c_str(),
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
 		else if( Type == iType )
 		{
-			Names	+= CSG_String::Format(SG_T("{%d}%s|"), SRID,
+			Names	+= CSG_String::Format("{%d}%s|", SRID,
 				WKT.AfterFirst('\"').BeforeFirst('\"').c_str()
 			);
 		}
@@ -898,10 +905,10 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 		{
 			switch( WKT[i] )
 			{
-			default:		Key	+= WKT[i];	break;
-			case SG_T(' '):	break;
-			case SG_T('['): case SG_T('('):	l	 = 1;	break;
-			case SG_T(')'): case SG_T(']'):	return( false );
+			default :           Key += WKT[i]; break;
+			case ' ':	                       break;
+			case '[': case '(':	l    = 1;      break;
+			case ')': case ']':	               return( false );
 			}
 		}
 		else		// read content
@@ -910,11 +917,11 @@ bool CSG_Projections::_WKT_to_MetaData(CSG_MetaData &MetaData, const CSG_String 
 
 			switch( WKT[i] )
 			{
-			default:							bAdd	= true;		break;
-			case SG_T('\"'): case SG_T(' '):	bAdd	= false;	break;
-			case SG_T('[') : case SG_T('('):	bAdd	= ++l > 1;	break;
-			case SG_T(']') : case SG_T(')'):	bAdd	= l-- > 1;	break;
-			case SG_T(',') : if( !(bAdd = l > 1) )	Content.Add(SG_T(""));	break;
+			default:				bAdd	= true;		break;
+			case '\"': case ' ':	bAdd	= false;	break;
+			case '[' : case '(':	bAdd	= ++l > 1;	break;
+			case ']' : case ')':	bAdd	= l-- > 1;	break;
+			case ',' : if( !(bAdd = l > 1) )	Content.Add("");	break;
 			}
 
 			if( bAdd )
@@ -1185,7 +1192,7 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 {
 	Value.Clear();
 
-	int		l, i	= Proj4.Find(CSG_String::Format(SG_T("+%s="), Key.c_str()));
+	int		l, i	= Proj4.Find(CSG_String::Format("+%s=", Key.c_str()));
 
 	if( i >= 0 )
 	{
@@ -1193,9 +1200,9 @@ bool CSG_Projections::_Proj4_Read_Parameter(CSG_String &Value, const CSG_String 
 		{
 			switch( Proj4[i] )
 			{
-			case SG_T('='):	l++;	break;
-			case SG_T('+'):	l=2;	break;
-			case SG_T(' '):	l=2;	break;
+			case '=':	l++;	break;
+			case '+':	l=2;	break;
+			case ' ':	l=2;	break;
 			default:
 				if( l == 1 )
 				{
@@ -1309,7 +1316,7 @@ bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &
 		{
 			if( !Value.CmpNoCase(ellipsoid[i][0]) )
 			{
-				Value.Printf(SG_T("SPHEROID[\"%s\",%s]"), SG_STR_MBTOSG(ellipsoid[i][0]), SG_STR_MBTOSG(ellipsoid[i][1]));
+				Value.Printf("SPHEROID[\"%s\",%s]", SG_STR_MBTOSG(ellipsoid[i][0]), SG_STR_MBTOSG(ellipsoid[i][1]));
 
 				return( true );
 			}
@@ -1328,7 +1335,7 @@ bool CSG_Projections::_Proj4_Get_Ellipsoid(CSG_String &Value, const CSG_String &
 		: _Proj4_Read_Parameter(Value, Proj4, "es") && Value.asDouble(b) ? a / (a - sqrt( b  - a*a))
 		: 298.2572236;
 
-	Value	= CSG_String::Format(SG_T("SPHEROID[\"Ellipsoid\",%f,%f]"), a, b);
+	Value	= CSG_String::Format("SPHEROID[\"Ellipsoid\",%f,%f]", a, b);
 
 	return( true );
 }
@@ -1359,7 +1366,7 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 		{
 			if( !Value.CmpNoCase(datum[i][0]) && _Proj4_Get_Ellipsoid(Spheroid, CSG_String::Format(SG_T("+ellps=%s"), SG_STR_MBTOSG(datum[i][1]))) )
 			{
-				Value.Printf(SG_T("DATUM[\"%s\",%s,TOWGS84[%s]]"), SG_STR_MBTOSG(datum[i][0]), Spheroid.c_str(), SG_STR_MBTOSG(datum[i][2]));
+				Value.Printf("DATUM[\"%s\",%s,TOWGS84[%s]]", SG_STR_MBTOSG(datum[i][0]), Spheroid.c_str(), SG_STR_MBTOSG(datum[i][2]));
 
 				return( true );
 			}
@@ -1369,24 +1376,24 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 	//-----------------------------------------------------
 	if( _Proj4_Get_Ellipsoid(Spheroid, Proj4) )
 	{
-		Value	 = CSG_String::Format(SG_T("DATUM[\"Datum\",%s"), Spheroid.c_str());
+		Value	 = "DATUM[\"Datum\","+ Spheroid;
 
 		if( _Proj4_Read_Parameter(ToWGS84, Proj4, "towgs84") )
 		{
-			Value	+= CSG_String::Format(SG_T(",TOWGS84[%s]"), ToWGS84.c_str());
+			Value	+= ",TOWGS84[" + ToWGS84 + "]";
 		}
 		else
 		{
-			Value	+= SG_T(",TOWGS84[0,0,0,0,0,0,0]");
+			Value	+= ",TOWGS84[0,0,0,0,0,0,0]";
 		}
 
-		Value	+= SG_T("]");
+		Value	+= "]";
 
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	Value	= SG_T("DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563],TOWGS84[0,0,0,0,0,0,0]]");
+	Value	= "DATUM[\"WGS_1984\",SPHEROID[\"WGS 84\",6378137,298.257223563],TOWGS84[0,0,0,0,0,0,0]]";
 
 	return( false );
 }
@@ -1417,7 +1424,7 @@ bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_Str
 		{
 			if( !Value.CmpNoCase(meridian[i][0]) )
 			{
-				Value.Printf(SG_T("PRIMEM[\"%s\",%s]"), SG_STR_MBTOSG(meridian[i][0]), SG_STR_MBTOSG(meridian[i][1]));
+				Value.Printf("PRIMEM[\"%s\",%s]", SG_STR_MBTOSG(meridian[i][0]), SG_STR_MBTOSG(meridian[i][1]));
 
 				return( true );
 			}
@@ -1427,14 +1434,14 @@ bool CSG_Projections::_Proj4_Get_Prime_Meridian(CSG_String &Value, const CSG_Str
 
 		if( Value.asDouble(d) && d != 0.0 )
 		{
-			Value.Printf(SG_T("PRIMEM[\"Prime_Meridian\",%f]"), d);
+			Value.Printf("PRIMEM[\"Prime_Meridian\",%f]", d);
 
 			return( true );
 		}
 	}
 
 	//-----------------------------------------------------
-	Value	= SG_T("PRIMEM[\"Greenwich\",0]");
+	Value	= "PRIMEM[\"Greenwich\",0]";
 
 	return( false );
 }
@@ -1457,13 +1464,13 @@ bool CSG_Projections::_Proj4_Get_Unit(CSG_String &Value, const CSG_String &Proj4
 
 	if( _Proj4_Read_Parameter(Value, Proj4, "to_meter") && Value.asDouble(d) && d > 0.0 && d != 1.0 )
 	{
-		Value.Printf(SG_T("UNIT[\"Unit\",%f]"), d);
+		Value.Printf("UNIT[\"Unit\",%f]", d);
 
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	Value	= SG_T("UNIT[\"metre\",1]");
+	Value	= "UNIT[\"metre\",1]";
 
 	return( false );
 }
@@ -1476,7 +1483,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	//-----------------------------------------------------
 	if( !_Proj4_Read_Parameter(ProjCS, Proj4, "proj") )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), _TL("no projection type defined")));
+		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 >> WKT: %s", _TL("no projection type defined")));
 
 		return( false );
 	}
@@ -1493,12 +1500,12 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	//   *AXIS   ["<name>", NORTH|SOUTH|EAST|WEST|UP|DOWN|OTHER]
 	// ]
 
-	GeogCS	 = SG_T("GEOGCS[\"GCS\",");
+	GeogCS	 = "GEOGCS[\"GCS\",";
 
 	_Proj4_Get_Datum			(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= SG_T(",");
 	_Proj4_Get_Prime_Meridian	(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= SG_T(",");
 
-	GeogCS	+= SG_T("UNIT[\"degree\",0.01745329251994328]]");
+	GeogCS	+= "UNIT[\"degree\",0.01745329251994328]]";
 
 	//-----------------------------------------------------
 	if(	!ProjCS.CmpNoCase("lonlat") || !ProjCS.CmpNoCase("longlat")
@@ -1521,12 +1528,12 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 	if( !m_Proj4_to_WKT.Get_Translation(ProjCS, Value) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s [%s]"), _TL("no translation available"), ProjCS.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 >> WKT: %s [%s]", _TL("no translation available"), ProjCS.c_str()));
 
 		return( false );
 	}
 
-	WKT		 = CSG_String::Format(SG_T("PROJCS[\"%s\",%s,PROJECTION[%s]"), Value.c_str(), GeogCS.c_str(), Value.c_str());
+	WKT		 = CSG_String::Format("PROJCS[\"%s\",%s,PROJECTION[%s]", Value.c_str(), GeogCS.c_str(), Value.c_str());
 
 	//-----------------------------------------------------
 	// UTM ...
@@ -1537,19 +1544,19 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 		if( !_Proj4_Read_Parameter(Value, Proj4, "zone") || !Value.asDouble(Zone) )
 		{
-			SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("Proj4 >> WKT: %s"), _TL("invalid utm zone")));
+			SG_UI_Msg_Add_Error(CSG_String::Format("Proj4 >> WKT: %s", _TL("invalid utm zone")));
 
 			return( false );
 		}
 
 		Northing	= _Proj4_Read_Parameter(Value, Proj4, "south") ? 10000000 : 0;
 
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("latitude_of_origin"), 0.0);
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("central_meridian")  , Zone * 6.0 - 183);
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("scale_factor")      , 0.9996);
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_easting")     , 500000.0);
-		WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%f]"), SG_T("false_northing")    , Northing);
-		WKT		+= SG_T(",UNIT[\"metre\",1]]");
+		WKT		+= CSG_String::Format(",PARAMETER[\"%s\",%f]", SG_T("latitude_of_origin"), 0.0);
+		WKT		+= CSG_String::Format(",PARAMETER[\"%s\",%f]", SG_T("central_meridian"  ), Zone * 6.0 - 183);
+		WKT		+= CSG_String::Format(",PARAMETER[\"%s\",%f]", SG_T("scale_factor"      ), 0.9996);
+		WKT		+= CSG_String::Format(",PARAMETER[\"%s\",%f]", SG_T("false_easting"     ), 500000.0);
+		WKT		+= CSG_String::Format(",PARAMETER[\"%s\",%f]", SG_T("false_northing"    ), Northing);
+		WKT		+= ",UNIT[\"metre\",1]]";
 
 		return( true );
 	}
@@ -1559,12 +1566,12 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 	ProjCS	= Proj4;
 
-	while( ProjCS.Find(SG_T('+')) >= 0 )
+	while( ProjCS.Find('+') >= 0 )
 	{
 		CSG_String	Key;
 
-		ProjCS	= ProjCS.AfterFirst (SG_T('+'));
-		Value	= ProjCS.BeforeFirst(SG_T('='));
+		ProjCS	= ProjCS.AfterFirst ('+');
+		Value	= ProjCS.BeforeFirst('=');
 
 		if( m_Proj4_to_WKT.Get_Translation(Value, Key) )
 		{
@@ -1572,10 +1579,10 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 			if( Value.Find(SG_T('+')) >= 0 )
 			{
-				Value	= Value.BeforeFirst(SG_T('+'));
+				Value	= Value.BeforeFirst('+');
 			}
 
-			WKT		+= CSG_String::Format(SG_T(",PARAMETER[\"%s\",%s]"), Key.c_str(), Value.c_str());
+			WKT	+= ",PARAMETER[\"" + Key + "\"," + Value + "]";
 		}
 	}
 
@@ -1584,7 +1591,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 	_Proj4_Get_Unit(Value, Proj4);
 
-	WKT	+= CSG_String::Format(SG_T(",%s]"), Value.c_str());
+	WKT	+= "," + Value + "]";
 
 	//-----------------------------------------------------
 	return( true );

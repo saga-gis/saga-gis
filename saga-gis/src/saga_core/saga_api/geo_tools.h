@@ -700,10 +700,10 @@ public:
 	bool							Assign					(const CSG_Projection &Projection);
 	CSG_Projection &				operator =				(const CSG_Projection &Projection)	{	Assign(Projection);	return( *this );	}
 
-									CSG_Projection			(int EPSG_ID);
-	bool							Create					(int EPSG_ID);
-	bool							Assign					(int EPSG_ID);
-	CSG_Projection &				operator =				(int EPSG_ID)						{	Assign(EPSG_ID);	return( *this );	}
+									CSG_Projection			(int Authority_ID, const SG_Char *Authority = NULL);
+	bool							Create					(int Authority_ID, const SG_Char *Authority = NULL);
+	bool							Assign					(int Authority_ID, const SG_Char *Authority = NULL);
+	CSG_Projection &				operator =				(int Authority_ID)					{	Assign(Authority_ID);	return( *this );	}
 
 									CSG_Projection			(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	bool							Create					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
@@ -728,7 +728,7 @@ public:
 	const CSG_String &				Get_Proj4				(void)	const	{	return( m_Proj4         );	}
 	const CSG_String &				Get_Authority			(void)	const	{	return( m_Authority     );	}
 	int								Get_Authority_ID		(void)	const	{	return( m_Authority_ID  );	}
-	int								Get_EPSG				(void)	const	{	return( m_Authority.Cmp(SG_T("EPSG")) ? -1 : m_Authority_ID );	}
+	int								Get_EPSG				(void)	const	{	return( m_Authority.Cmp("EPSG") ? -1 : m_Authority_ID );	}
 
 	CSG_String						Get_Description			(void)	const;
 

@@ -144,9 +144,15 @@ CCRS_Base::CCRS_Base(void)
 
 	//-----------------------------------------------------
 	pNode_1	= Parameters.Add_Value(
-		pNode_0	, "CRS_EPSG"	, _TL("EPSG Code"),
+		pNode_0	, "CRS_EPSG"	, _TL("Authority Code"),
 		_TL(""),
 		PARAMETER_TYPE_Int, m_Projection.Get_EPSG(), -1, true
+	);
+
+	Parameters.Add_String(
+		pNode_1	, "CRS_EPSG_AUTH"	, _TL("Authority"),
+		_TL(""),
+		"EPSG"
 	);
 
 	if( SG_UI_Get_Window_Main() )
@@ -233,11 +239,14 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_AUTH") )
 	{
-		if (!Projection.Create(pParameter->asInt()))
+		if( !Projection.Create(
+			pParameters->Get_Parameter("CRS_EPSG"     )->asInt   (),
+			pParameters->Get_Parameter("CRS_EPSG_AUTH")->asString()) )
 		{
-			SG_UI_Dlg_Message(_TL("Unknown EPSG Code"), _TL("WARNING"));
+			SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("WARNING"));
 		}
 	}
 
@@ -271,7 +280,11 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 		m_Projection	= Projection;
 
 		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(m_Projection.Get_Proj4());
-		pParameters->Get_Parameter("CRS_EPSG" )->Set_Value(m_Projection.Get_EPSG ());
+
+		if( !m_Projection.Get_Authority().CmpNoCase("EPSG") )
+		{
+			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(m_Projection.Get_EPSG());
+		}
 
 		if( pParameters->Get_Parameter("CRS_DIALOG") )
 		{
@@ -357,14 +370,14 @@ bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 		break;
 
 	case  1:	// EPSG Code
-		if( !Projection.Create(Parameters("CRS_EPSG" )->asInt()) )
+		if( !Projection.Create(Parameters("CRS_EPSG")->asInt(), Parameters("CRS_EPSG_AUTH")->asString()) )
 		{
-			Error_Set(_TL("EPSG code error"));
+			Error_Set(_TL("Authority code error"));
 		}
 		break;
 
 	case  2:	// Well Known Text File
-		if( !Projection.Load (Parameters("CRS_FILE"  )->asString()) )
+		if( !Projection.Load (Parameters("CRS_FILE")->asString()) )
 		{
 			Error_Set(_TL("Well Known Text file error"));
 		}
