@@ -236,20 +236,55 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, SG_Char Separator)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CSG_Table::_Load_Text_Trim(CSG_String &String, const SG_Char Separator)
+size_t CSG_Table::_Load_Text_Trim(CSG_String &s, const SG_Char Separator)
 {
-	for(size_t i=0; i<String.Length(); i++)
+	for(size_t i=0; i<s.Length(); i++)
 	{
-		SG_Char	c	= String[i];
+		SG_Char	c	= s[i];
 
 		if( c == Separator || (c != ' ' && c != '\t' && c != '\n' && c != '\v' && c != '\f' && c != '\r') )
 		{
 			if( i > 0 )
 			{
-				String	= String.Right(String.Length() - i);
+				s	= s.Right(s.Length() - i);
 			}
 
 			return( i );
+		}
+	}
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+size_t	CSG_Table::_Load_Text_EndQuote(const CSG_String &s, const SG_Char Separator)
+{
+	if( s.Length() > 1 && s[0] == '\"' )
+	{
+		bool	bInQuotes	= true;
+
+		for(size_t i=1; i<s.Length(); i++)
+		{
+			if( bInQuotes )
+			{
+				if( s[i] == '\"' )
+				{
+					bInQuotes	= false;
+				}
+			}
+			else if( s[i] == '\"' )
+			{
+				bInQuotes	= true;
+			}
+			else if( s[i] == Separator )
+			{
+				return( i );
+			}
+		}
+
+		if( s[s.Length() - 1] == '\"' )
+		{
+			return( s.Length() );
 		}
 	}
 
@@ -327,10 +362,12 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 		for(iField=0; iField<Table.Get_Field_Count() && !sLine.is_Empty(); iField++)
 		{
-			if( sLine[0] == '\"' )	// value in quotas
+			size_t	Position	= _Load_Text_EndQuote(sLine, Separator);
+
+			if( Position > 0 )	// value in quotas !!!
 			{
-				sField	= sLine.AfterFirst('\"').BeforeFirst('\"');
-				sLine	= sLine.AfterFirst('\"').AfterFirst ('\"');
+				sField	= sLine.Mid(1, Position - 2);
+				sLine	= sLine.Right(sLine.Length() - Position);
 
 				Type[iField]	= SG_DATATYPE_String;
 			}
