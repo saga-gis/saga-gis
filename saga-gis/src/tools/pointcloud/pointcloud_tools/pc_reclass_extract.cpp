@@ -91,7 +91,7 @@ CPC_Reclass_Extract::CPC_Reclass_Extract(void)
 		"In addition to these settings, two special cases ('NoData values' and 'other values' not "
 		"included in the parameter setup) are supported:\n"
 		"In mode (a) and (b) the 'NoData option' is evaluated before the method settings, in mode "
-		"(c) the option is evaluated only if the NoData value ins't included in the lookup table.\n"
+		"(c) the option is evaluated only if the NoData value isn't included in the lookup table.\n"
 		"The 'other values' option is always evaluated after checking the method settings.\n\n")
 	);
 

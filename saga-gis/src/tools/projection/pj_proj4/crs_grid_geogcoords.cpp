@@ -79,7 +79,7 @@ CCRS_Grid_GeogCoords::CCRS_Grid_GeogCoords(void)
 	Set_Description	(_TW(
 		"Creates for a given grid geographic coordinate information, "
 		"i.e. two grids specifying the longitude and latitude for each cell. "
-		"The coodinate system of the input grid has to be defined. "
+		"The coordinate system of the input grid has to be defined. "
 	));
 
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());

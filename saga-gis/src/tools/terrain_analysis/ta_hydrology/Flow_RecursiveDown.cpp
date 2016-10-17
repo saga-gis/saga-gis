@@ -128,7 +128,7 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 	Parameters.Add_Value(
 		NULL	, "MINDQV"		, _TL("DEMON - Min. DQV"),
-		_TL("DEMON - Minium Drainage Quota Volume (DQV) for traced flow tubes"),
+		_TL("DEMON - Minimum Drainage Quota Volume (DQV) for traced flow tubes"),
 		PARAMETER_TYPE_Double	,	0.0, 0.0, true, 1.0, true
 	);
 
