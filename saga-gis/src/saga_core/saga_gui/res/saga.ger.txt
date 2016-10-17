@@ -1241,7 +1241,7 @@ TEXT	TRANSLATION
 "DEM without Sinks"	
 "DEMON"	
 "DEMON - Min. DQV"	
-"DEMON - Minium Drainage Quota Volume (DQV) for traced flow tubes"	
+"DEMON - Minimum Drainage Quota Volume (DQV) for traced flow tubes"	
 "DESCRIPTION"	
 "DIFF_MEAN"	
 "DN"	
