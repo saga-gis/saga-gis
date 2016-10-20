@@ -50,7 +50,7 @@ PROJ4	DIR	WKT	DESC
 "hammer"	" "	"Hammer_Eckert_Greifendorff"	"*) Hammer & Eckert-Greifendorff"
 "hatano"	" "	"Hatano_Asymmetrical_Equal_Area"	"*) Hatano Asymmetrical Equal Area"
 "igh"	" "	"Interrupted_Goodes_Homolosine"	"*) Interrupted Goode's Homolosine"
-"imw_p"	" "	"Internation_Map_of_the_World_Polyconic"	"*) Internation Map of the World Polyconic"
+"imw_p"	" "	"International_Map_of_the_World_Polyconic"	"*) International Map of the World Polyconic"
 "kav5"	" "	"Kavraisky_V"	"*) Kavraisky V"
 "kav7"	" "	"Kavraisky_VII"	"*) Kavraisky VII"
 "krovak"	" "	"Krovak"	"Krovak"

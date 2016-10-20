@@ -1660,7 +1660,7 @@ bool CSG_Projections::_Set_Dictionary(CSG_Table &Dictionary, int Direction)
 		{	"hammer"	, " ", "Hammer_Eckert_Greifendorff"				, "*) Hammer & Eckert-Greifendorff"	},
 		{	"hatano"	, " ", "Hatano_Asymmetrical_Equal_Area"			, "*) Hatano Asymmetrical Equal Area"	},
 		{	"igh"		, " ", "World_Goode_Homolosine_Land"			, "*) Interrupted Goode Homolosine"	},
-		{	"imw_p"		, " ", "Internation_Map_of_the_World_Polyconic"	, "*) Internation Map of the World Polyconic"	},
+		{	"imw_p"		, " ", "International_Map_of_the_World_Polyconic", "*) International Map of the World Polyconic"	},
 		{	"kav5"		, " ", "Kavraisky_V"							, "*) Kavraisky V"	},
 		{	"kav7"		, " ", "Kavraisky_VII"							, "*) Kavraisky VII"	},
 		{	"krovak"	, " ", "Krovak"									, "Krovak"	},
