@@ -213,78 +213,43 @@ void CSG_Colors::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Colors::Set_Count(int nColors)
 {
-	int		i, j, ja, jb;
-	long	*Colors;
-	double	d, dj, dRed, dGreen, dBlue;
-
-	if( nColors > 0 && nColors != m_nColors )
+	if( nColors == m_nColors )
 	{
-		if( m_nColors == 0 )
-		{
-			Set_Default(nColors);
-		}
-		else
-		{
-			Colors	= (long *)SG_Malloc(nColors * sizeof(long));
-
-			//---------------------------------------------
-			if( nColors < m_nColors )
-			{
-				d	= (double)m_nColors / (double)nColors;
-
-				for(i=0; i<nColors; i++)
-				{
-					j	= (int)(i * d);
-
-					Colors[i]	= SG_GET_RGB(Get_Red(j), Get_Green(j), Get_Blue(j));
-				}
-			}
-
-			//---------------------------------------------
-			else
-			{
-				jb	= 0;
-				d	= (double)nColors / (double)(m_nColors - 1);
-
-				for(i=0; i<m_nColors-1; i++)
-				{
-					ja	= jb;
-					jb	= (int)((i + 1.0) * d);
-					dj	= jb - ja;
-
-					if( dj > 0 )
-					{
-						dRed	= (double)(Get_Red  (i) - Get_Red  (i + 1)) / dj;
-						dGreen	= (double)(Get_Green(i) - Get_Green(i + 1)) / dj;
-						dBlue	= (double)(Get_Blue (i) - Get_Blue (i + 1)) / dj;
-
-						for(j=ja; j<jb; j++)
-						{
-							Colors[j]	= SG_GET_RGB(
-								Get_Red  (i) - (j - ja) * dRed,
-								Get_Green(i) - (j - ja) * dGreen,
-								Get_Blue (i) - (j - ja) * dBlue
-							);
-						}
-					}
-					else
-					{
-						Colors[ja]	= m_Colors[i];
-					}
-				}
-			}
-
-			//---------------------------------------------
-			SG_Free(m_Colors);
-
-			m_nColors	= nColors;
-			m_Colors	= Colors;
-		}
-
 		return( true );
 	}
 
-	return( false );
+	if( nColors < 1 )
+	{
+		return( false );
+	}
+
+	if( m_nColors == 0 )
+	{
+		return( Set_Default(nColors) );
+	}
+
+	//-----------------------------------------------------
+	CSG_Colors	Colors(*this);
+
+	m_nColors	= nColors;
+	m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
+
+	double	dStep	= Get_Count() > 1 ? (Colors.Get_Count() - 1.0) / (Get_Count() - 1.0) : 0.0;
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Get_Count() < Colors.Get_Count() )
+		{
+			m_Colors[i]	= Colors[(int)(i * dStep)];
+		}
+		else // if( Get_Count() > Colors.Get_Count() )
+		{
+			m_Colors[i]	= Colors.Get_Interpolated(i * dStep);
+		}
+	}
+
+	//---------------------------------------------
+	return( true );
 }
 
 
@@ -516,11 +481,11 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_RED_GREEN:
 		Set_Count(5);
-		Set_Color(0, SG_GET_RGB(  0, 255,   0));
-		Set_Color(1, SG_GET_RGB(191, 191,   0));
-		Set_Color(2, SG_GET_RGB(255, 127,   0));
-		Set_Color(3, SG_GET_RGB(223,  63,   0));
-		Set_Color(4, SG_GET_RGB( 63,   0,   0));
+		Set_Color(0, SG_GET_RGB(159,   0,   0));
+		Set_Color(1, SG_GET_RGB(255, 159,   0));
+		Set_Color(2, SG_GET_RGB(255, 255,   0));
+		Set_Color(3, SG_GET_RGB(159, 255,   0));
+		Set_Color(4, SG_GET_RGB(  0, 159,   0));
 		break;
 
 	case SG_COLORS_RED_BLUE:
@@ -535,7 +500,7 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 		Set_Count(5);
 		Set_Color(0, SG_GET_RGB(127,   0,   0));
 		Set_Color(1, SG_GET_RGB(255, 127,   0));
-		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(2, SG_GET_RGB(239, 239, 239));
 		Set_Color(3, SG_GET_RGB(  0, 127, 255));
 		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;
@@ -544,7 +509,7 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 		Set_Count(5);
 		Set_Color(0, SG_GET_RGB(127,   0,   0));
 		Set_Color(1, SG_GET_RGB(255, 127,   0));
-		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(2, SG_GET_RGB(239, 239, 239));
 		Set_Color(3, SG_GET_RGB(  0, 255, 127));
 		Set_Color(4, SG_GET_RGB(  0, 127,   0));
 		break;
@@ -553,7 +518,7 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 		Set_Count(5);
 		Set_Color(0, SG_GET_RGB(  0, 127,   0));
 		Set_Color(1, SG_GET_RGB(127, 255,   0));
-		Set_Color(2, SG_GET_RGB(200, 200, 200));
+		Set_Color(2, SG_GET_RGB(239, 239, 239));
 		Set_Color(3, SG_GET_RGB(  0, 127, 255));
 		Set_Color(4, SG_GET_RGB(  0,   0, 127));
 		break;

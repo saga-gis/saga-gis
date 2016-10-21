@@ -92,6 +92,7 @@ BEGIN_EVENT_TABLE(CDLG_Colors_Control, wxPanel)
 	EVT_LEFT_DOWN		(CDLG_Colors_Control::On_Mouse_LDown)
 	EVT_MOTION			(CDLG_Colors_Control::On_Mouse_Motion)
 	EVT_LEFT_UP			(CDLG_Colors_Control::On_Mouse_LUp)
+	EVT_RIGHT_DOWN		(CDLG_Colors_Control::On_Mouse_RUp)
 END_EVENT_TABLE()
 
 
@@ -298,6 +299,29 @@ void CDLG_Colors_Control::On_Mouse_LUp(wxMouseEvent &event)
 	}
 }
 
+//---------------------------------------------------------
+#include "res_dialogs.h"
+
+void CDLG_Colors_Control::On_Mouse_RUp(wxMouseEvent &event)
+{
+	wxPoint	P	= event.GetPosition();
+	int	selBox	= Get_SelBox(P);
+
+	if( selBox >= 0 )
+	{
+		P	= Get_ColorPosition(P, selBox);
+
+		long	Color;
+
+		if( DLG_Color(Color = m_pColors->Get_Color(P.x)) )
+		{
+			m_pColors->Set_Color(P.x, Color);
+
+			Refresh(false);
+		}
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -314,65 +338,47 @@ wxPoint CDLG_Colors_Control::Get_ColorPosition(wxPoint p, int BoxID)
 	{
 		KeepInBoxRect(p, BoxID);
 
-		p.x	= (int)((double)(p.x - r.GetLeft())		* m_pColors->Get_Count() / r.GetWidth());
-		p.y	= (int)((double)(r.GetBottom() - p.y)	* 256.0 / r.GetHeight());
+		p.x	= (int)((p.x   - r.GetLeft()) * m_pColors->Get_Count() / (double)r.GetWidth ());
+		p.y	= (int)((r.GetBottom() - p.y) * 256.0                  / (double)r.GetHeight());
 	}
 
 	return( p );
 }
 
 //---------------------------------------------------------
-void CDLG_Colors_Control::Set_Colors(wxPoint pA, wxPoint pB, int BoxID) 
+void CDLG_Colors_Control::Set_Colors(wxPoint A, wxPoint B, int BoxID) 
 {
-	int		i, x, Value;
-	double	dy;
-	wxPoint	p;
+	A	= Get_ColorPosition(A, BoxID);
+	B	= Get_ColorPosition(B, BoxID);
+
+	if( A.x > B.x )
+	{
+		wxPoint	P = A; A = B; B = P;
+	}
+
+	if( A.x < 0 )
+	{
+		A.x	= 0;
+	}
+
+	if( B.x >= m_pColors->Get_Count() )
+	{
+		B.x	= m_pColors->Get_Count() - 1;
+	}
+
+	double	dy	= A.x == B.x ? 0.0 : (B.y - A.y) / (double)(B.x - A.x);
 
 	//-----------------------------------------------------
-	pA	= Get_ColorPosition(pA, BoxID);
-	pB	= Get_ColorPosition(pB, BoxID);
-
-	if( pA.x > pB.x )
+	for(int iColor=A.x, x=0; iColor<=B.x; iColor++, x++)
 	{
-		p	= pA;
-		pA	= pB;
-		pB	= p;
-	}
-
-	if( pA.x < 0 )
-	{
-		pA.x	= 0;
-	}
-
-	if( pB.x >= m_pColors->Get_Count() )
-	{
-		pB.x	= m_pColors->Get_Count() - 1;
-	}
-
-	dy	= pA.x == pB.x ? 0 : (double)(pB.y - pA.y) / (double)(pB.x - pA.x);
-
-	//-----------------------------------------------------
-	for(i=pA.x, x=0; i<=pB.x; i++, x++)
-	{
-		Value	= (int)(pA.y + dy * x);
+		int	Color	= (int)(0.5 + A.y + dy * x);
 
 		switch( BoxID )
 		{
-		case 0:
-			m_pColors->Set_Red			(i, Value);
-			break;
-
-		case 1:
-			m_pColors->Set_Green		(i, Value);
-			break;
-
-		case 2:
-			m_pColors->Set_Blue			(i, Value);
-			break;
-
-		case 3:
-			m_pColors->Set_Brightness	(i, Value);
-			break;
+		case 0: m_pColors->Set_Red       (iColor, Color); break;
+		case 1: m_pColors->Set_Green     (iColor, Color); break;
+		case 2: m_pColors->Set_Blue      (iColor, Color); break;
+		case 3: m_pColors->Set_Brightness(iColor, Color); break;
 		}
 	}
 }
