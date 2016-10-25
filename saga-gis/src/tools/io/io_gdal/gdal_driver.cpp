@@ -814,30 +814,49 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	pGrid->Set_Unit			(CSG_String(pBand->GetUnitType()));
 	pGrid->Set_Scaling		(zScale, zOffset);
 
-	pBand->GetNoDataValue(&bSuccess);
-
-	if( bSuccess )
-	{
-		pGrid->Set_NoData_Value(pBand->GetNoDataValue(&bSuccess));
-	}
-
 	pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
 
 	Get_MetaData(i, pGrid->Get_MetaData());
 
+	pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", Get_DriverID());
+
 	//-------------------------------------------------
-	double	*zLine	= (double *)SG_Malloc(Get_NX() * sizeof(double));
+	double	zNoData	= pBand->GetNoDataValue(&bSuccess);
+
+	if( bSuccess )
+	{
+		switch( Type )
+		{
+		default                : pGrid->Set_NoData_Value(   (int)zNoData); break;
+		case SG_DATATYPE_Float : pGrid->Set_NoData_Value( (float)zNoData); break;
+		case SG_DATATYPE_Double: pGrid->Set_NoData_Value((double)zNoData); break;
+		}
+	}
+
+	//-------------------------------------------------
+	void	*zLine;	GDALDataType	zType;
+
+	switch( Type )
+	{
+	default                : zLine = SG_Malloc(Get_NX() * sizeof(   int)); zType = GDT_Int32  ; break;
+	case SG_DATATYPE_Float : zLine = SG_Malloc(Get_NX() * sizeof( float)); zType = GDT_Float32; break;
+	case SG_DATATYPE_Double: zLine = SG_Malloc(Get_NX() * sizeof(double)); zType = GDT_Float64; break;
+	}
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
 		int	yy	= m_bTransform ? y : Get_NY() - 1 - y;
 
-		if( pBand->RasterIO(GF_Read, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, GDT_Float64, 0, 0) == CE_None )
+		if( pBand->RasterIO(GF_Read, 0, y, Get_NX(), 1, zLine, Get_NX(), 1, zType, 0, 0) == CE_None )
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
-			//	double	NaN	= 0.0;	NaN	= -1.0 / NaN;	if( NaN == zLine[x] )	pGrid->Set_NoData(x, yy); else
-				pGrid->Set_Value(x, yy, zLine[x], false);
+				switch( Type )
+				{
+				default                : pGrid->Set_Value(x, yy, ((int    *)zLine)[x], false); break;
+				case SG_DATATYPE_Float : pGrid->Set_Value(x, yy, ((float  *)zLine)[x], false); break;
+				case SG_DATATYPE_Double: pGrid->Set_Value(x, yy, ((double *)zLine)[x], false); break;
+				}
 			}
 		}
 	}
