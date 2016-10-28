@@ -19,6 +19,7 @@ frost_change_frequency.cpp\
 grid_levels_interpolation.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
+thermal_belts.cpp\
 treeline.cpp\
 windeffect_correction.cpp\
 bioclimatic_vars.h\
@@ -29,6 +30,7 @@ frost_change_frequency.h\
 grid_levels_interpolation.h\
 milankovic.h\
 MLB_Interface.h\
+thermal_belts.h\
 treeline.h\
 windeffect_correction.h
 

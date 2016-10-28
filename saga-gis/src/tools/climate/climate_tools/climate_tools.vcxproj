@@ -310,6 +310,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="thermal_belts.cpp" />
     <ClCompile Include="treeline.cpp" />
     <ClCompile Include="windeffect_correction.cpp" />
   </ItemGroup>
@@ -338,6 +339,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="thermal_belts.h" />
     <ClInclude Include="treeline.h" />
     <ClInclude Include="windeffect_correction.h" />
   </ItemGroup>

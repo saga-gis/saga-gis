@@ -103,6 +103,7 @@ CSG_String Get_Info(int i)
 #include "treeline.h"
 #include "windeffect_correction.h"
 #include "frost_change_frequency.h"
+#include "thermal_belts.h"
 
 
 //---------------------------------------------------------
@@ -133,9 +134,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CWindeffect_Correction );
 
 	case 14:	return( new CFrost_Change_Frequency );
+	case 15:	return( new CThermal_Belts );
 
 	//-----------------------------------------------------
-	case 15:	return( NULL );
+	case 16:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
