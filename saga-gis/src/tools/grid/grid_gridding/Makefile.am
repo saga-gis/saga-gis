@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libgrid_gridding.la
 libgrid_gridding_la_SOURCES =\
+grid_cell_polygon_coverage.cpp\
 Interpolation.cpp\
 Interpolation_AngularDistance.cpp\
 Interpolation_InverseDistance.cpp\
@@ -30,6 +31,7 @@ Shepard.cpp\
 ./nn/nncommon.c\
 ./nn/nncommon-vulnerable.c\
 ./nn/nnpi.c\
+grid_cell_polygon_coverage.h\
 Interpolation.h\
 Interpolation_AngularDistance.h\
 Interpolation_InverseDistance.h\

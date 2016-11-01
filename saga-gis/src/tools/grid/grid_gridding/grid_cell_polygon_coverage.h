@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Grid_Gridding                     //
+//                     grid_gridding                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//              grid_cell_polygon_coverage.h             //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -44,9 +41,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -56,94 +51,57 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__grid_cell_polygon_coverage_H
+#define HEADER_INCLUDED__grid_cell_polygon_coverage_H
 
-#include "MLB_Interface.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
+#include <saga_api/saga_api.h>
 
-CSG_String Get_Info(int i)
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Cell_Polygon_Coverage : public CSG_Tool_Grid  
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Gridding") );
+public:
+	CGrid_Cell_Polygon_Coverage(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Grid") );
-
-	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002-10") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for the gridding of points and other vector data.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Grid|Gridding") );
-	}
-}
+//	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Grid Values") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "Interpolation_InverseDistance.h"
-#include "Interpolation_AngularDistance.h"
-#include "Interpolation_NearestNeighbour.h"
-#include "Interpolation_NaturalNeighbour.h"
-#include "Interpolation_Shepard.h"
-#include "Interpolation_Triangulation.h"
-#include "Shapes2Grid.h"
-#include "kernel_density.h"
-#include "grid_cell_polygon_coverage.h"
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CShapes2Grid );
-
-	case  1:	return( new CInterpolation_InverseDistance );
-	case  7:	return( new CInterpolation_AngularDistance );
-	case  2:	return( new CInterpolation_NearestNeighbour );
-	case  3:	return( new CInterpolation_NaturalNeighbour );
-	case  4:	return( new CInterpolation_Shepard );
-	case  5:	return( new CInterpolation_Triangulation );
-
-	case  6:	return( new CKernel_Density );
-
-	case  8:	return( new CGrid_Cell_Polygon_Coverage );
-
-	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__grid_cell_polygon_coverage_H
