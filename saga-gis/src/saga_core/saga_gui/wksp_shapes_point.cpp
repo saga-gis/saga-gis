@@ -281,7 +281,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Size_Type		= m_Parameters("SIZE_TYPE") ->asInt();
+	m_Size_Type		= m_Parameters("SIZE_TYPE" )->asInt();
 	m_Size_Scale	= m_Parameters("SIZE_SCALE")->asInt();
 
 	if(	(m_iSize	= m_Parameters("SIZE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count()
@@ -289,6 +289,8 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	{
 		m_iSize		= -1;
 		m_Size		= m_Parameters("SIZE_DEFAULT")->asDouble();
+		m_dSize		= 0.0;
+		m_Size_Min	= 0.0;
 	}
 	else
 	{
