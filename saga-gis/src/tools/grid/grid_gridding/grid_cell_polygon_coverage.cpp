@@ -92,12 +92,21 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 	);
 
 	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
+		_TL("Choose cell wise, if you have not many polygons. Polygon wise will show much better performance, if you have many (small) polygons."),
+		CSG_String::Format("%s|%s|",
+			_TL("cell wise"),
+			_TL("polygon wise")
+		), 1
+	);
+
+	Parameters.Add_Choice(NULL,
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("area"),
 			_TL("percentage")
-		), 0
+		), 1
 	);
 
 	Parameters.Add_Bool(NULL,
@@ -129,6 +138,10 @@ int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameter
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GET_NPOLYGONS	(bSelection ? pPolygons->Get_Selection_Count() : pPolygons->Get_Count())
+#define GET_POLYGON(i)	((CSG_Shape_Polygon *)(bSelection ? pPolygons->Get_Selection(i) : pPolygons->Get_Shape(i)))
+
+//---------------------------------------------------------
 bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 {
 	//-----------------------------------------------------
@@ -145,57 +158,116 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 
 	//-----------------------------------------------------
 	bool	bSelection	= pPolygons->Get_Selection_Count() > 0 ? Parameters("SELECTION")->asBool() : false;
-	bool	bPercentage	= Parameters("OUTPUT")->asInt() == 1;
 
-	pArea->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
+	pArea->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Coverage")));
+
+	DataObject_Set_Colors(pArea, 11, SG_COLORS_RED_GREEN, true);
 
 	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( Parameters("METHOD")->asInt() == 0 )
 	{
-		double	py	= Get_YMin() + Get_Cellsize() * (y - 0.5);
-
-		#ifndef _DEBUG
-		#pragma omp parallel for
-		#endif
-		for(int x=0; x<Get_NX(); x++)
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			double	px	= Get_XMin() + Get_Cellsize() * (x - 0.5);
+			double	py	= Get_YMin() + Get_Cellsize() * (y - 0.5);
 
-			CSG_Shapes	Cell(SHAPE_TYPE_Polygon);
-			CSG_Shape_Polygon	*pCell	= (CSG_Shape_Polygon *)Cell.Add_Shape();
-
-			pCell->Add_Point(px                 , py                 );
-			pCell->Add_Point(px + Get_Cellsize(), py                 );
-			pCell->Add_Point(px + Get_Cellsize(), py + Get_Cellsize());
-			pCell->Add_Point(px                 , py + Get_Cellsize());
-
-			//---------------------------------------------
-			if( pPolygons->Get_Extent().Intersects(pCell->Get_Extent()) )
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( bSelection )
+				double	px	= Get_XMin() + Get_Cellsize() * (x - 0.5);
+
+				CSG_Shapes	Cell(SHAPE_TYPE_Polygon);
+				CSG_Shape_Polygon	*pCell	= (CSG_Shape_Polygon *)Cell.Add_Shape();
+
+				pCell->Add_Point(px                 , py                 );
+				pCell->Add_Point(px + Get_Cellsize(), py                 );
+				pCell->Add_Point(px + Get_Cellsize(), py + Get_Cellsize());
+				pCell->Add_Point(px                 , py + Get_Cellsize());
+
+				//---------------------------------------------
+				if( pPolygons->Get_Extent().Intersects(pCell->Get_Extent()) )
 				{
-					for(int i=0; pCell->Get_Area() > 0.0 && i<pPolygons->Get_Selection_Count(); i++)
+					for(size_t i=0; pCell->Get_Area() > 0.0 && i<GET_NPOLYGONS; i++)
 					{
-						SG_Polygon_Difference(pCell, (CSG_Shape_Polygon *)pPolygons->Get_Selection(i));
+						SG_Polygon_Difference(pCell, GET_POLYGON(i));
 					}
 				}
-				else
-				{
-					for(int i=0; pCell->Get_Area() > 0.0 && i<pPolygons->Get_Count(); i++)
-					{
-						SG_Polygon_Difference(pCell, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i));
-					}
-				}
+
+				pArea->Set_Value(x, y, Get_Cellarea() - pCell->Get_Area());
 			}
-
-			double	Area	= Get_Cellarea() - pCell->Get_Area();
-
-			pArea->Set_Value(x, y, bPercentage ? 100.0 * Area / Get_Cellarea() : Area);
 		}
 	}
 
 	//-----------------------------------------------------
+	else
+	{
+		pArea->Assign(0.0);
+
+		for(size_t i=0; i<GET_NPOLYGONS && Set_Progress(i, GET_NPOLYGONS); i++)
+		{
+			Get_Area(GET_POLYGON(i), pArea);
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("OUTPUT")->asInt() == 1 )	// Percentage
+	{
+		pArea->Multiply(100.0 / Get_Cellarea());
+	}
+
+	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, CSG_Grid *pArea)
+{
+	int	xMin = Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()); if( xMin <  0        ) xMin = 0;
+	int	xMax = Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMin = Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()); if( yMin <  0        ) yMin = 0;
+	int	yMax = Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+
+	TSG_Point	p;	p.y	= Get_YMin() + Get_Cellsize() * yMin;
+
+	for(int y=yMin; y<=yMax; y++, p.y+=Get_Cellsize())
+	{
+		p.x	= Get_XMin() + Get_Cellsize() * xMin;
+
+		for(int x=xMin; x<=xMax; x++, p.x+=Get_Cellsize())
+		{
+			double	Area	= Get_Area(pPolygon, p);
+
+			if( Area > 0.0 )
+			{
+				pArea->Add_Value(x, y, Area);
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+double CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, TSG_Point p)
+{
+	CSG_Shapes	Cells(SHAPE_TYPE_Polygon);
+	CSG_Shape	*pCell	= Cells.Add_Shape();
+
+	pCell->Add_Point(p.x - 0.5 * Get_Cellsize(), p.y - 0.5 * Get_Cellsize());
+	pCell->Add_Point(p.x - 0.5 * Get_Cellsize(), p.y + 0.5 * Get_Cellsize());
+	pCell->Add_Point(p.x + 0.5 * Get_Cellsize(), p.y + 0.5 * Get_Cellsize());
+	pCell->Add_Point(p.x + 0.5 * Get_Cellsize(), p.y - 0.5 * Get_Cellsize());
+
+	if( SG_Polygon_Intersection(pCell, pPolygon) )
+	{
+		return( ((CSG_Shape_Polygon *)pCell)->Get_Area() );
+	}
+
+	return( 0.0 );
 }
 
 

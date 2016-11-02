@@ -94,6 +94,9 @@ protected:
 
 private:
 
+	bool					Get_Area				(CSG_Shape_Polygon *pPolygon, CSG_Grid *pArea);
+	double					Get_Area				(CSG_Shape_Polygon *pPolygon, TSG_Point p);
+
 };
 
 
