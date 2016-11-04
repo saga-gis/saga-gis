@@ -189,18 +189,23 @@ bool CSG_PG_Connection::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_PG_BIT		1560
 #define SG_PG_BOOL		16
 #define	SG_PG_BYTEA		17
 #define	SG_PG_CHAR		18
-#define	SG_PG_NAME		19
-#define	SG_PG_INT8		20
-#define	SG_PG_INT2		21
-#define	SG_PG_INT4		23
-#define	SG_PG_TEXT		25
-#define	SG_PG_OID		26
 #define SG_PG_DATE		1082
 #define	SG_PG_FLOAT4	700
 #define	SG_PG_FLOAT8	701
+#define	SG_PG_INT2		21
+#define	SG_PG_INT4		23
+#define	SG_PG_INT8		20
+#define	SG_PG_MONEY		790
+#define	SG_PG_NAME		19
+#define	SG_PG_NUMERIC	1700
+#define	SG_PG_OID		26
+#define	SG_PG_TEXT		25
+#define	SG_PG_TIME		1083
+#define	SG_PG_TIMESTAMP	1114
 #define SG_PG_VARCHAR	1043
 
 //---------------------------------------------------------
@@ -208,19 +213,18 @@ CSG_String CSG_PG_Connection::Get_Type_To_SQL(TSG_Data_Type Type, int Size)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_String:	return( CSG_String::Format("varchar(%d)", Size > 0 ? Size : 1) );
-	case SG_DATATYPE_Date:		return( "date"             );
-	case SG_DATATYPE_Char:		return( "char(1)"          );
-	case SG_DATATYPE_Byte:		return( "smallint"         );
-	case SG_DATATYPE_Short:		return( "smallint"         );
-	case SG_DATATYPE_Int:		return( "integer"          );
-	case SG_DATATYPE_Long:		return( "bigint"           );
-	case SG_DATATYPE_Color:		return( "integer"          );
-	case SG_DATATYPE_Float:		return( "real"             );
-	case SG_DATATYPE_Double:	return( "double precision" );
-	case SG_DATATYPE_Binary:	return( "bytea"            );
-
-	default:	return( "text" );
+	case SG_DATATYPE_String: return( CSG_String::Format("varchar(%d)", Size > 0 ? Size : 1) );
+	case SG_DATATYPE_Date  : return( "date"             );
+	case SG_DATATYPE_Char  : return( "char(1)"          );
+	case SG_DATATYPE_Byte  : return( "smallint"         );
+	case SG_DATATYPE_Short : return( "smallint"         );
+	case SG_DATATYPE_Int   : return( "integer"          );
+	case SG_DATATYPE_Long  : return( "bigint"           );
+	case SG_DATATYPE_Color : return( "integer"          );
+	case SG_DATATYPE_Float : return( "real"             );
+	case SG_DATATYPE_Double: return( "double precision" );
+	case SG_DATATYPE_Binary: return( "bytea"            );
+	default                : return( "text"             );
 	}
 }
 
@@ -236,6 +240,7 @@ TSG_Data_Type CSG_PG_Connection::Get_Type_From_SQL(int Type)
 	case SG_PG_INT4   :	return( SG_DATATYPE_Int    );	// 4 bytes integer
 	case SG_PG_INT8   :	return( SG_DATATYPE_Long   );	// 8 bytes integer
 	case SG_PG_DATE   :	return( SG_DATATYPE_Date   );
+	case SG_PG_NUMERIC:	return( SG_DATATYPE_Float  );
 	case SG_PG_FLOAT4 :	return( SG_DATATYPE_Float  );	// 4 bytes floating point, inexact
 	case SG_PG_FLOAT8 :	return( SG_DATATYPE_Double );	// 8 bytes floating point, inexact
 	case SG_PG_BYTEA  :	return( SG_DATATYPE_Binary );
