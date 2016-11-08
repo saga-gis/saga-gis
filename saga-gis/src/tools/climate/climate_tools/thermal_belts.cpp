@@ -91,6 +91,26 @@ CThermal_Belts::CThermal_Belts(void)
 	);
 
 	Parameters.Add_Grid(NULL,
+		"FROST", _TL("Frost occurence"),
+		_TL("Frost occurence as binary factor."),
+		PARAMETER_INPUT
+		);
+
+	Parameters.Add_Value(
+		NULL, "NIVAL_TEMP", "Minimum Temperature Nival",
+		"Minimum Temperature for nival belt.",
+		PARAMETER_TYPE_Double,
+		3.5
+		);
+
+	Parameters.Add_Value(
+		NULL, "TREE_TEMP", "Minimum Temperature Treeline",
+		"Minimum Temperature for treeline.",
+		PARAMETER_TYPE_Double,
+		6.4
+		);
+
+	Parameters.Add_Grid(NULL,
 		"ATB"	, _TL("Thermal Belts"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
@@ -108,8 +128,13 @@ bool CThermal_Belts::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pL		= Parameters("GSL")->asGrid();
 	CSG_Grid	*pT		= Parameters("GST")->asGrid();
+	CSG_Grid	*pF		= Parameters("FROST")->asGrid();
+
 	CSG_Grid	*pBelt	= Parameters("ATB")->asGrid();
 
+	double TH,NT;
+	NT = Parameters("NIVAL_TEMP")->asDouble();
+	TH = Parameters("TREE_TEMP")->asDouble();
 	//-----------------------------------------------------
 	pBelt->Set_NoData_Value(0.0);
 
@@ -130,7 +155,10 @@ bool CThermal_Belts::On_Execute(void)
 		LUT_ADD_CLASS(3, 128,   0, 255, _TL("Lower Alpine" ));
 		LUT_ADD_CLASS(4,   0, 255, 128, _TL("Upper Montane"));
 		LUT_ADD_CLASS(5,   0, 128,  64, _TL("Lower Montane"));
-		LUT_ADD_CLASS(6, 225, 225, 225, _TL("other"));
+		LUT_ADD_CLASS(6, 225, 225,   0, _TL("Freezing"));
+		LUT_ADD_CLASS(7, 225, 102,   0, _TL("No Freezing"));
+
+		LUT_ADD_CLASS(8, 225, 225, 225, _TL("other"));
 		
 		DataObject_Set_Parameter(pBelt, pLUT);
 		DataObject_Set_Parameter(pBelt, "COLORS_TYPE", 1);	// set color classification type to 'Look-up Table'
@@ -146,17 +174,18 @@ bool CThermal_Belts::On_Execute(void)
 
 			if( !pL->is_NoData(x, y) )
 			{
-				Belt	= 6;	// no growing season days
+				Belt	= 8;	// no growing season days
 
 				if( !pT->is_NoData(x, y) )
 				{
 					double	T	= pT->asDouble(x, y);
+					double	F   = pF->asInt(x, y);
 
-					if     ( T <   3.5 )
+					if     ( T <   NT )
 					{
 						Belt	= pL->asInt(x, y) <= 10 ? 1 : 2;
 					}
-					else if( T <   6.4 )
+					else if (T <   TH)
 					{
 						Belt	= 3;
 					}
@@ -168,6 +197,15 @@ bool CThermal_Belts::On_Execute(void)
 					{
 						Belt	= 5;
 					}
+					else if (F == 1)
+					{
+						Belt	= 6;
+					}
+					else if (F == 0)
+					{
+						Belt	= 7;
+					}
+
 				}
 			}
 
