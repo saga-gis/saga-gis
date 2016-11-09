@@ -220,7 +220,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 
 				bool bSuccess = false;
 
-				if( pShape_Source->Get_Type() == SG_VERTEX_TYPE_XY )
+				if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XY )
 				{
 					if( m_Projector.Get_Projection(Point.x, Point.y) )
 					{
@@ -238,7 +238,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 						pShape_Target->Set_Z(z, iPoint, iPart);
 						bSuccess = true;
 
-						if( pShape_Source->Get_Type() == SG_VERTEX_TYPE_XYZM )
+						if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
 						{
 							pShape_Target->Set_M(pShape_Source->Get_M(iPoint, iPart), iPoint, iPart);
 						}
