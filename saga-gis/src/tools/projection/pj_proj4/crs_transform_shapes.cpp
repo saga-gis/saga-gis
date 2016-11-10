@@ -140,7 +140,7 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 		for(int i=0; i<pSources->Get_Count() && Process_Get_Okay(false); i++)
 		{
 			CSG_Shapes	*pSource	= pSources->asShapes(i);
-			CSG_Shapes	*pTarget	= SG_Create_Shapes(pSource);
+			CSG_Shapes	*pTarget	= SG_Create_Shapes(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
 
 			if( Transform(pSource, pTarget) )
 			{
@@ -161,7 +161,7 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 
 		if( pSource == pTarget )
 		{
-			pTarget	= SG_Create_Shapes(pSource);
+			pTarget	= SG_Create_Shapes(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
 
 			if( Transform(pSource, pTarget) )
 			{
@@ -218,11 +218,34 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 			{
 				TSG_Point	Point	= pShape_Source->Get_Point(iPoint, iPart);
 
-				if( m_Projector.Get_Projection(Point.x, Point.y) )
+				bool bSuccess = false;
+
+				if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XY )
 				{
-					pShape_Target->Add_Point(Point.x, Point.y, iPart);
+					if( m_Projector.Get_Projection(Point.x, Point.y) )
+					{
+						pShape_Target->Add_Point(Point.x, Point.y, iPart);
+						bSuccess = true;
+					}
 				}
 				else
+				{
+					double z = pShape_Source->Get_Z(iPoint, iPart);
+
+					if( m_Projector.Get_Projection(Point.x, Point.y, z) )
+					{
+						pShape_Target->Add_Point(Point.x, Point.y, iPart);
+						pShape_Target->Set_Z(z, iPoint, iPart);
+						bSuccess = true;
+
+						if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						{
+							pShape_Target->Set_M(pShape_Source->Get_M(iPoint, iPart), iPoint, iPart);
+						}
+					}
+				}
+
+				if (!bSuccess)
 				{
 					nDropped++;
 

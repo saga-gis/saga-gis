@@ -255,15 +255,15 @@ inline void CVIEW_Map_Control::_Set_StatusBar(CSG_Point ptWorld)
 
 		if( m_Mode == MAP_MODE_DISTANCE )
 		{
-			STATUSBAR_Set_Text(wxString::Format(wxT("D %f"), m_Distance + m_Distance_Move), STATUSBAR_VIEW_Z);
+			STATUSBAR_Set_Text(wxString::Format("D %f", m_Distance + m_Distance_Move), STATUSBAR_VIEW_Z);
 		}
 		else if( Get_Active_Layer() )
 		{
-			STATUSBAR_Set_Text(wxString::Format(wxT("Z %s"), Get_Active_Layer()->Get_Value(ptWorld, _Get_World(2.0)).c_str()), STATUSBAR_VIEW_Z);
+			STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(ptWorld, _Get_World(2.0)).c_str()), STATUSBAR_VIEW_Z);
 		}
 		else
 		{
-			STATUSBAR_Set_Text(wxT("Z"), STATUSBAR_VIEW_Z);
+			STATUSBAR_Set_Text("Z", STATUSBAR_VIEW_Z);
 		}
 
 		bBuisy	= false;

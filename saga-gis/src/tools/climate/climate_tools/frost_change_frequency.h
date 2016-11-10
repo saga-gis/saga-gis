@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: TLB_Interface.cpp 1383 2012-04-26 15:44:11Z oconrad $
+ * Version $Id: frost_change_frequency.h 1380 2012-04-26 12:02:19Z reklov_w $
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -13,9 +13,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                frost_change_frequency.h               //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -54,93 +54,54 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__frost_change_frequency_H
+#define HEADER_INCLUDED__frost_change_frequency_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CFrost_Change_Frequency : public CSG_Tool_Grid
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Tools") );
+public:
+	CFrost_Change_Frequency(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Climate") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2012" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for weather and climate data.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Climate") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "grid_levels_interpolation.h"
-#include "milankovic.h"
-#include "etp_hargreave.h"
-#include "daily_sun.h"
-#include "bioclimatic_vars.h"
-#include "treeline.h"
-#include "windeffect_correction.h"
-#include "frost_change_frequency.h"
-#include "thermal_belts.h"
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: 	return( new CGrid_Levels_to_Surface );
-	case  1: 	return( new CGrid_Levels_to_Points );
+	bool						Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+	bool						Get_From_Daily			(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+	bool						Get_From_Monthly		(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
 
-	case  2:	return( new CMilankovic );
-	case  3:	return( new CMilankovic_SR_Location );
-	case  4:	return( new CMilankovic_SR_Day_Location );
-	case  5:	return( new CMilankovic_SR_Monthly_Global );
-
-	case  8:	return( new CPET_Hargreave_Grid );
-	case  6:	return( new CPET_Hargreave_Table );
-	case  7:	return( new CPET_Day_To_Hour );
-
-	case  9:	return( new CDaily_Sun );
-
-	case 10:	return( new CBioclimatic_Vars );
-	case 11:	return( new CTree_Growth );
-	case 12:	return( new CWater_Balance_Interactive );
-
-	case 13:	return( new CWindeffect_Correction );
-
-	case 14:	return( new CFrost_Change_Frequency );
-	case 15:	return( new CThermal_Belts );
-
-	//-----------------------------------------------------
-	case 16:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -150,8 +111,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__frost_change_frequency_H

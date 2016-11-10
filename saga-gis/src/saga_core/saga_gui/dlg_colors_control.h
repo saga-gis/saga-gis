@@ -96,6 +96,7 @@ public:
 	void						On_Mouse_LDown		(wxMouseEvent &event);
 	void						On_Mouse_Motion		(wxMouseEvent &event);
 	void						On_Mouse_LUp		(wxMouseEvent &event);
+	void						On_Mouse_RUp		(wxMouseEvent &event);
 
 	void						Set_Positions		(void);
 

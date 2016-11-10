@@ -41,6 +41,12 @@
     <ClCompile Include="windeffect_correction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="frost_change_frequency.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="thermal_belts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -116,6 +122,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="windeffect_correction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="frost_change_frequency.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thermal_belts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -938,30 +938,36 @@ void CWKSP_Grid::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	double		Value;
 	wxString	s;
+
+	double	Value;
 
 	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
 	{
 		switch( m_pClassify->Get_Mode() )
 		{
-		case CLASSIFY_LUT:
-			s	= m_pClassify->Get_Class_Name_byValue(Value);
-			break;
-
 		default:
-			if( ::SG_Get_Significant_Decimals(Value) > 0 )
+			if( SG_Get_Significant_Decimals(Value) > 0 )
 			{
-				s.Printf(wxT("%f%s"),      Value, Get_Grid()->Get_Unit());
+				s.Printf("%f"  , Value);
 			}
 			else
 			{
-				s.Printf(wxT("%d%s"), (int)Value, Get_Grid()->Get_Unit());
+				s.Printf("%.0f", Value);
+			}
+
+			if( Get_Grid()->Get_Unit() && *Get_Grid()->Get_Unit() )
+			{
+				s += " "; s += Get_Grid()->Get_Unit();
 			}
 			break;
 
 		case CLASSIFY_RGB:
-			s.Printf(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
+			s.Printf("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value));
+			break;
+
+		case CLASSIFY_LUT:
+			s	= m_pClassify->Get_Class_Name_byValue(Value);
 			break;
 		}
 	}

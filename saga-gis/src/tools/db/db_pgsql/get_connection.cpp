@@ -73,14 +73,14 @@ CGet_Connections::CGet_Connections(void)
 {
 	Set_Name		(_TL("List PostgreSQL Connections"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Lists all PostgreSQL sources."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "CONNECTIONS"		, _TL("Connections"),
+	Parameters.Add_Table(NULL,
+		"CONNECTIONS"	, _TL("Connections"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -129,38 +129,38 @@ CGet_Connection::CGet_Connection(void)
 {
 	Set_Name		(_TL("Connect to PostgreSQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Connect to PostgreSQL data source."
 	));
 
-	Parameters.Add_String(
-		NULL	, "PG_HOST"		, _TL("Host"),
+	Parameters.Add_String(NULL,
+		"PG_HOST"	, _TL("Host"),
 		_TL("Password"),
 		"localhost"
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PG_PORT"		, _TL("Port"),
+	Parameters.Add_Int(NULL,
+		"PG_PORT"	, _TL("Port"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5432, 0, true
+		5432, 0, true
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_NAME"		, _TL("Database"),
+	Parameters.Add_String(NULL,
+		"PG_NAME"	, _TL("Database"),
 		_TL("Database Name"),
 		"geo_test"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_USER"		, _TL("User"),
+	Parameters.Add_String(NULL,
+		"PG_USER"	, _TL("User"),
 		_TL("User Name"),
 		"postgres"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_PWD"		, _TL("Password"),
+	Parameters.Add_String(NULL,
+		"PG_PWD"	, _TL("Password"),
 		_TL("Password"),
 		"postgres", false, true
 	);
@@ -169,7 +169,7 @@ CGet_Connection::CGet_Connection(void)
 //---------------------------------------------------------
 bool CGet_Connection::On_Execute(void)
 {
-	CSG_String	Connection	= CSG_String::Format(SG_T("%s [%s:%d]"),
+	CSG_String	Connection	= CSG_String::Format("%s [%s:%d]",
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_HOST")->asString(),
 		Parameters("PG_PORT")->asInt()
@@ -216,16 +216,16 @@ CDel_Connection::CDel_Connection(void)
 {
 	Set_Name		(_TL("Disconnect from PostgreSQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Disconnect PostgreSQL data source."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+	Parameters.Add_Choice(NULL,
+		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -263,16 +263,16 @@ CDel_Connections::CDel_Connections(void)
 {
 	Set_Name		(_TL("Disconnect All"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Disconnects all PostgreSQL connections."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+	Parameters.Add_Choice(NULL,
+		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -324,15 +324,15 @@ CTransaction_Start::CTransaction_Start(void)
 {
 	Set_Name		(_TL("Begin Transaction"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Begins a transaction, which will be finished later with a commit or rollback. "
 		"Tries to add a save point, if already in transaction mode. "
 	));
 
-	Parameters.Add_String(
-		NULL	, "SAVEPOINT"	, _TL("Save Point"),
+	Parameters.Add_String(NULL,
+		"SAVEPOINT"	, _TL("Save Point"),
 		_TL(""),
 		"SAVEPOINT_01"
 	);
@@ -385,23 +385,23 @@ CTransaction_Stop::CTransaction_Stop(void)
 {
 	Set_Name		(_TL("Commit/Rollback Transaction"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Execute a commit or rollback on open transactions with PostgreSQL source."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+	Parameters.Add_Choice(NULL,
+		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
 	);
 
-	Parameters.Add_String(
-		NULL	, "SAVEPOINT"	, _TL("Save Point"),
+	Parameters.Add_String(NULL,
+		"SAVEPOINT"	, _TL("Save Point"),
 		_TL(""),
 		""
 	);
@@ -457,119 +457,134 @@ CExecute_SQL::CExecute_SQL(void)
 {
 	Set_Name		(_TL("Execute SQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Execute SQL commands on a connected PostgreSQL source. "
 		"Separate different commands with a semicolon (\';\'). "
 	));
 
-	Parameters.Add_String(
-		NULL	, "SQL"			, _TL("SQL Statement"),
+	Parameters.Add_String(NULL,
+		"SQL"	, _TL("SQL Statement"),
 		_TL(""),
-		SG_T("CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n")
-		SG_T("INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n")
-		SG_T("DROP TABLE myTable1;\n"),
+		"CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n"
+		"INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n"
+		"DROP TABLE myTable1;\n",
 		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "OUTPUT"		, _TL("Show Results"),
+	Parameters.Add_Table_List(NULL,
+		"TABLES", _TL("Tables"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STOP"		, _TL("Stop on Error"),
+	Parameters.Add_Choice(NULL,
+		"OUTPUT", _TL("Output"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		CSG_String::Format("%s|%s|%s",
+			_TL("none"),
+			_TL("message window"),
+			_TL("tables")
+		), 2
+	);
+
+	Parameters.Add_Bool(NULL,
+		"STOP"	, _TL("Stop on Error"),
+		_TL(""),
+		false
 	);
 }
 
 //---------------------------------------------------------
 bool CExecute_SQL::On_Execute(void)
 {
-	//-----------------------------------------------------
-	bool		bOutput	= Parameters("OUTPUT")->asBool  ();
-	bool		bStop	= Parameters("STOP"  )->asBool  ();
-	CSG_String	SQL		= Parameters("SQL"   )->asString();
+	CSG_String	SQL	= Parameters("SQL")->asString();
 
-	//-----------------------------------------------------
-	if( SQL.Find(SG_T(';')) < 0 )
+	if( SQL.is_Empty() )
 	{
-		return( Get_Connection()->Execute(SQL) );
+		Error_Set(_TL("empty string"));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	int		nSuccess = 0, nErrors = 0;
+	int		nErrors = 0;
 
-	SQL	+= SG_T(';');
+	int		Output	= Parameters("OUTPUT")->asInt();
+	bool	bStop	= Parameters("STOP"  )->asBool();
 
-	do
+	CSG_Parameter_Table_List	*pTables	= Parameters("TABLES")->asTableList();
+
+	//-----------------------------------------------------
+	CSG_String_Tokenizer	Commands(SQL, ";");
+
+	while( Commands.Has_More_Tokens() && (!nErrors || !bStop) )
 	{
-		CSG_String	s	= SQL.BeforeFirst(SG_T(';'));
+		CSG_String	Command	= Commands.Get_Next_Token(); Command.Trim(true); Command.Trim(false);
 
-		s.Trim();
-
-		if( s.Length() > 0 )
+		if( !Command.is_Empty() )
 		{
-			CSG_Table	Table, *pTable;	pTable	= bOutput ? &Table : NULL;
+			CSG_Table	*pTable	= Output ? SG_Create_Table() : NULL;
 
-			Message_Add(s);
-
-			if( Get_Connection()->Execute(s, pTable) )
+			if( !Get_Connection()->Execute(Command, pTable) )
 			{
-				nSuccess++;
+				nErrors++;
 
-				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("okay")), false);
+				Error_Set(CSG_String::Format("%s: %s", _TL("Error"), Command.c_str()));
+			}
+			else
+			{
+				Message_Add(CSG_String::Format("\n%s: %s", _TL("Success"), Command.c_str()), false);
 
-				if( pTable && pTable->Get_Count() )
+				if( pTable && pTable->Get_Count() > 0 )
 				{
-					int		iField, iRecord;
-
-					s	= "\n";
-
-					for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+					if( Output == 2 )	// tables
 					{
-						s	+= iField > 0 ? "\t" : "\n";
-						s	+= pTable->Get_Field_Name(iField);
+						pTables->Add_Item(pTable);
+
+						pTable	= NULL;
 					}
-
-					s	= "\n___";
-
-					for(iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+					else	// message window
 					{
-						CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+						int			iField, iRecord;
+						CSG_String	s	= "\n";
 
 						for(iField=0; iField<pTable->Get_Field_Count(); iField++)
 						{
 							s	+= iField > 0 ? "\t" : "\n";
-							s	+= pRecord->asString(iField);
+							s	+= pTable->Get_Field_Name(iField);
 						}
 
-						Message_Add(s, false);	s.Clear();
-					}
+						s	= "\n___";
 
-					Message_Add("\n", false);
+						for(iRecord=0; iRecord<pTable->Get_Count(); iRecord++)
+						{
+							CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+							for(iField=0; iField<pTable->Get_Field_Count(); iField++)
+							{
+								s	+= iField > 0 ? "\t" : "\n";
+								s	+= pRecord->asString(iField);
+							}
+
+							Message_Add(s, false);	s.Clear();
+						}
+
+						Message_Add("\n", false);
+					}
 				}
 			}
-			else
+
+			//---------------------------------------------
+			if( pTable )
 			{
-				nErrors++;
-
-				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("failed")));
-
-				if( bStop )
-				{
-					return( false );
-				}
+				delete(pTable);
 			}
 		}
-
-		SQL	= SQL.AfterFirst(SG_T(';'));
 	}
-	while( SQL.Length() > 0 );
 
+	//-----------------------------------------------------
 	return( nErrors == 0 );
 }
 
@@ -585,38 +600,38 @@ CDatabase_Create::CDatabase_Create(void)
 {
 	Set_Name		(_TL("Create Database"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2015"));
+	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
 		"Creates a new PostgreSQL Database."
 	));
 
-	Parameters.Add_String(
-		NULL	, "PG_HOST"		, _TL("Host"),
+	Parameters.Add_String(NULL,
+		"PG_HOST"		, _TL("Host"),
 		_TL("Password"),
 		"localhost"
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PG_PORT"		, _TL("Port"),
+	Parameters.Add_Int(NULL,
+		"PG_PORT"		, _TL("Port"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5432, 0, true
+		5432, 0, true
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_NAME"		, _TL("Database"),
+	Parameters.Add_String(NULL,
+		"PG_NAME"		, _TL("Database"),
 		_TL("Database Name"),
 		"geo_test"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_USER"		, _TL("User"),
+	Parameters.Add_String(NULL,
+		"PG_USER"		, _TL("User"),
 		_TL("User Name"),
 		"postgres"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_PWD"		, _TL("Password"),
+	Parameters.Add_String(NULL,
+		"PG_PWD"		, _TL("Password"),
 		_TL("Password"),
 		"postgres", false, true
 	);
@@ -676,38 +691,38 @@ CDatabase_Destroy::CDatabase_Destroy(void)
 {
 	Set_Name		(_TL("Drop Database"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2015"));
+	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
 		"Deletes a PostgreSQL Database."
 	));
 
-	Parameters.Add_String(
-		NULL	, "PG_HOST"		, _TL("Host"),
+	Parameters.Add_String(NULL,
+		"PG_HOST"	, _TL("Host"),
 		_TL("Password"),
 		"localhost"
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PG_PORT"		, _TL("Port"),
+	Parameters.Add_Int(NULL,
+		"PG_PORT"	, _TL("Port"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5432, 0, true
+		5432, 0, true
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_NAME"		, _TL("Database"),
+	Parameters.Add_String(NULL,
+		"PG_NAME"	, _TL("Database"),
 		_TL("Database Name"),
 		"geo_test"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_USER"		, _TL("User"),
+	Parameters.Add_String(NULL,
+		"PG_USER"	, _TL("User"),
 		_TL("User Name"),
 		"postgres"
 	);
 
-	Parameters.Add_String(
-		NULL	, "PG_PWD"		, _TL("Password"),
+	Parameters.Add_String(NULL,
+		"PG_PWD"	, _TL("Password"),
 		_TL("Password"),
 		"postgres", false, true
 	);
@@ -719,8 +734,8 @@ bool CDatabase_Destroy::On_Execute(void)
 	const SG_Char	*Host, *Name, *User, *Password;
 
 	Host		= Parameters("PG_HOST")->asString();
-	int	Port	= Parameters("PG_PORT")->asInt();
-	Name		= Parameters("PG_NAME")->asString(),
+	int	Port	= Parameters("PG_PORT")->asInt   ();
+	Name		= Parameters("PG_NAME")->asString();
 	User		= Parameters("PG_USER")->asString();
 	Password	= Parameters("PG_PWD" )->asString();
 

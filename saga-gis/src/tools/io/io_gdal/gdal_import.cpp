@@ -387,10 +387,8 @@ bool CGDAL_Import::Load(const CSG_String &File)
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}
 
-				pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
 				pGrid->Set_File_Name(DataSet.Get_File_Name());
 				pGrid->Set_Name(SG_File_Get_Name(File, false) + (DataSet.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", Bands[i].asString(0))));
-				pGrid->Set_Description(DataSet.Get_Description(Bands[i].Get_Index()));
 
 				m_pGrids->Add_Item(pGrid);
 

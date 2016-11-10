@@ -425,7 +425,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 					xSource	+= 360.0;
 				}
 
-				for(i=0; i<pTargets->Get_Count(); i++)
+				for(i=0; i<pSources->Get_Count(); i++)
 				{
 					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
 					{

@@ -105,6 +105,7 @@ CSG_String Get_Info(int i)
 #include "Interpolation_Triangulation.h"
 #include "Shapes2Grid.h"
 #include "kernel_density.h"
+#include "grid_cell_polygon_coverage.h"
 
 
 //---------------------------------------------------------
@@ -124,6 +125,8 @@ CSG_Tool *		Create_Tool(int i)
 	case  5:	return( new CInterpolation_Triangulation );
 
 	case  6:	return( new CKernel_Density );
+
+	case  8:	return( new CGrid_Cell_Polygon_Coverage );
 
 	//-----------------------------------------------------
 	case 10:	return( NULL );
