@@ -747,7 +747,10 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 
-	pTool->On_After_Execution();
+	if( bResult )
+	{
+		pTool->On_After_Execution();
+	}
 
 	Tool_Finalize(Tool, pTool);
 
