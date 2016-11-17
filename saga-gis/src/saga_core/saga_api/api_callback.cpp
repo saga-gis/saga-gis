@@ -159,7 +159,7 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 //---------------------------------------------------------
 bool		SG_UI_Process_Set_Okay(bool bOkay)
 {
-	if( gSG_UI_Callback )
+	if( gSG_UI_Progress_Lock == 0 && gSG_UI_Callback )
 	{
 		CSG_UI_Parameter	p1(bOkay), p2;
 
@@ -531,7 +531,7 @@ bool		SG_UI_DataObject_Colors_Get(CSG_Data_Object *pDataObject, CSG_Colors *pCol
 //---------------------------------------------------------
 bool		SG_UI_DataObject_Colors_Set(CSG_Data_Object *pDataObject, CSG_Colors *pColors)
 {
-	if( gSG_UI_Callback && pDataObject && pColors )
+	if( gSG_UI_Progress_Lock == 0 && gSG_UI_Callback && pDataObject && pColors )
 	{
 		CSG_UI_Parameter	p1(pDataObject), p2(pColors);
 
