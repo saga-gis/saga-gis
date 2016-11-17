@@ -230,10 +230,10 @@ inline void CVIEW_Map_Control::_Set_StatusBar(CSG_Point ptWorld)
 				&&  pProjector->Set_Parameter("TARGET"   , &gcs)
 				&&  pProjector->Execute() )
 				{
-					ptWorld	= gcs.Get_Shape(0)->Get_Point(0);
+					CSG_Point ptWorld_gcs	= gcs.Get_Shape(0)->Get_Point(0);
 
-					STATUSBAR_Set_Text(wxString::Format("X %s", SG_Double_To_Degree(ptWorld.Get_X()).c_str()), STATUSBAR_VIEW_X);
-					STATUSBAR_Set_Text(wxString::Format("Y %s", SG_Double_To_Degree(ptWorld.Get_Y()).c_str()), STATUSBAR_VIEW_Y);
+					STATUSBAR_Set_Text(wxString::Format("X %s", SG_Double_To_Degree(ptWorld_gcs.Get_X()).c_str()), STATUSBAR_VIEW_X);
+					STATUSBAR_Set_Text(wxString::Format("Y %s", SG_Double_To_Degree(ptWorld_gcs.Get_Y()).c_str()), STATUSBAR_VIEW_Y);
 
 					pProjector->Settings_Pop();
 				}
@@ -607,11 +607,11 @@ void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 	case WXK_PAGEUP:
 		_Zoom(m_pMap->Get_Extent().Get_Center(), true);
 		break;
-		
+
 	case WXK_PAGEDOWN:
 		_Zoom(m_pMap->Get_Extent().Get_Center(), false);
 		break;
-		
+
 	case WXK_LEFT:
 		_Move(wxPoint(-10,   0));
 		break;
