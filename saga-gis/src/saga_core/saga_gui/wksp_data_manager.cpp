@@ -181,6 +181,17 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		m_Numbering = 2, -1, true
 	);
 
+	m_Parameters.Add_Colors(
+		pNode[0]	, "COLORS_DEFAULT"			, _TL("Default Colors"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Bool(
+		pNode[0]	, "COLORS_FROM_TOOL"		, _TL("Tool Set Colors"),
+		_TL("Allow tools to change data set colors programmatically."),
+		true
+	);
+
 	//-----------------------------------------------------
 	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_HISTORY", _TL("History"), _TL(""));
 
@@ -1275,6 +1286,11 @@ bool CWKSP_Data_Manager::Get_Colors(CSG_Data_Object *pObject, CSG_Colors *pColor
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Set_Colors(CSG_Data_Object *pObject, CSG_Colors *pColors)
 {
+	if( m_Parameters("COLORS_FROM_TOOL")->asBool() == false )
+	{
+		return( true );
+	}
+
 	CWKSP_Layer	*pLayer	= Get_Layer(pObject);
 
 	return( pLayer && pLayer->Set_Colors(pColors) );
