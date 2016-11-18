@@ -108,6 +108,7 @@ private:
 	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPoints);
 
 	void						Get_MinMax					(TSG_Rect &r, double x, double y);
+	bool						Set_Target_System			(CSG_Parameters *pParameters, int Resolution = 256, bool bEdges = true);
 	bool						Get_Target_System			(const CSG_Grid_System &System, bool bEdge);
 
 	bool						Set_Target_Area				(const CSG_Grid_System &Source, const CSG_Grid_System &Target);
