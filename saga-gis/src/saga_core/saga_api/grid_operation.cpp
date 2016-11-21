@@ -77,49 +77,54 @@
 //---------------------------------------------------------
 void CSG_Grid::Assign_NoData(void)
 {
-	Assign(Get_NoData_Value());
+	double	Value	= Get_NoData_Value();
+
+	#pragma omp parallel for
+	for(sLong i=0; i<Get_NCells(); i++)
+	{
+		Set_Value(i, Value, false);
+	}
 }
 
 //---------------------------------------------------------
 bool CSG_Grid::Assign(double Value)
 {
-	if( is_Valid() )
+	if( !is_Valid() )
 	{
-		if( Value == 0.0 && m_Memory_Type == GRID_MEMORY_Normal )
-		{
-			int	n	= _Get_nLineBytes();
-
-			#pragma omp parallel for
-			for(int y=0; y<Get_NY(); y++)
-			{
-				memset(m_Values[y], 0, n);
-			}
-		}
-		else
-		{
-			#pragma omp parallel for
-			for(int y=0; y<Get_NY(); y++)
-			{
-				for(int x=0; x<Get_NX(); x++)
-				{
-					Set_Value(x, y, Value);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		Get_History().Destroy();
-		Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Assign"));
-
-		//-------------------------------------------------
-		m_zStats.Invalidate();
-
-		Set_Update_Flag(false);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( Value == 0.0 && m_Memory_Type == GRID_MEMORY_Normal )
+	{
+		int	n	= _Get_nLineBytes();
+
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
+		{
+			memset(m_Values[y], 0, n);
+		}
+	}
+	else
+	{
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				Set_Value(x, y, Value);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Get_History().Destroy();
+	Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Assign"));
+
+	m_zStats.Invalidate();
+
+	Set_Update_Flag(false);
+
+	return( true );
 }
 
 
