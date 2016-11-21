@@ -105,36 +105,36 @@ CSG_String		SG_Colors_Get_Name	(int Identifier)
 {
 	switch( Identifier )
 	{
-	case SG_COLORS_DEFAULT:			return( _TL("default") );
-	case SG_COLORS_DEFAULT_BRIGHT:	return( _TL("default (same brightness)") );
-	case SG_COLORS_BLACK_WHITE:		return( _TL("greyscale") );
-	case SG_COLORS_BLACK_RED:		return( _TL("black > red") );
-	case SG_COLORS_BLACK_GREEN:		return( _TL("black > green") );
-	case SG_COLORS_BLACK_BLUE:		return( _TL("black > blue") );
-	case SG_COLORS_WHITE_RED:		return( _TL("white > red") );
-	case SG_COLORS_WHITE_GREEN:		return( _TL("white > green") );
-	case SG_COLORS_WHITE_BLUE:		return( _TL("white > blue") );
-	case SG_COLORS_YELLOW_RED:		return( _TL("yellow > red") );
-	case SG_COLORS_YELLOW_GREEN:	return( _TL("yellow > green") );
-	case SG_COLORS_YELLOW_BLUE:		return( _TL("yellow > blue") );
-	case SG_COLORS_RED_GREEN:		return( _TL("red > green") );
-	case SG_COLORS_RED_BLUE:		return( _TL("red > blue") );
-	case SG_COLORS_GREEN_BLUE:		return( _TL("green > blue") );
-	case SG_COLORS_RED_GREY_BLUE:	return( _TL("red > grey > blue") );
-	case SG_COLORS_RED_GREY_GREEN:	return( _TL("red > grey > green") );
+	case SG_COLORS_DEFAULT        :	return( _TL("default") );
+	case SG_COLORS_DEFAULT_BRIGHT :	return( _TL("default (same brightness)") );
+	case SG_COLORS_BLACK_WHITE    :	return( _TL("greyscale") );
+	case SG_COLORS_BLACK_RED      :	return( _TL("black > red") );
+	case SG_COLORS_BLACK_GREEN    :	return( _TL("black > green") );
+	case SG_COLORS_BLACK_BLUE     :	return( _TL("black > blue") );
+	case SG_COLORS_WHITE_RED      :	return( _TL("white > red") );
+	case SG_COLORS_WHITE_GREEN    :	return( _TL("white > green") );
+	case SG_COLORS_WHITE_BLUE     :	return( _TL("white > blue") );
+	case SG_COLORS_YELLOW_RED     :	return( _TL("yellow > red") );
+	case SG_COLORS_YELLOW_GREEN   :	return( _TL("yellow > green") );
+	case SG_COLORS_YELLOW_BLUE    :	return( _TL("yellow > blue") );
+	case SG_COLORS_RED_GREEN      :	return( _TL("red > green") );
+	case SG_COLORS_RED_BLUE       :	return( _TL("red > blue") );
+	case SG_COLORS_GREEN_BLUE     :	return( _TL("green > blue") );
+	case SG_COLORS_RED_GREY_BLUE  :	return( _TL("red > grey > blue") );
+	case SG_COLORS_RED_GREY_GREEN :	return( _TL("red > grey > green") );
 	case SG_COLORS_GREEN_GREY_BLUE:	return( _TL("green > grey > blue") );
-	case SG_COLORS_RED_GREEN_BLUE:	return( _TL("red > green > blue") );
-	case SG_COLORS_RED_BLUE_GREEN:	return( _TL("red > blue > green") );
-	case SG_COLORS_GREEN_RED_BLUE:	return( _TL("green > red > blue") );
-	case SG_COLORS_RAINBOW:			return( _TL("rainbow") );
-	case SG_COLORS_NEON:			return( _TL("neon") );
-	case SG_COLORS_TOPOGRAPHY:		return( _TL("topography") );
-	case SG_COLORS_ASPECT_1:		return( _TL("aspect 1") );
-	case SG_COLORS_ASPECT_2:		return( _TL("aspect 2") );
-	case SG_COLORS_ASPECT_3:		return( _TL("aspect 3") );
+	case SG_COLORS_RED_GREEN_BLUE :	return( _TL("red > green > blue") );
+	case SG_COLORS_RED_BLUE_GREEN :	return( _TL("red > blue > green") );
+	case SG_COLORS_GREEN_RED_BLUE :	return( _TL("green > red > blue") );
+	case SG_COLORS_RAINBOW        :	return( _TL("rainbow") );
+	case SG_COLORS_NEON           :	return( _TL("neon") );
+	case SG_COLORS_TOPOGRAPHY     :	return( _TL("topography") );
+	case SG_COLORS_ASPECT_1       :	return( _TL("aspect 1") );
+	case SG_COLORS_ASPECT_2       :	return( _TL("aspect 2") );
+	case SG_COLORS_ASPECT_3       :	return( _TL("aspect 3") );
 	}
 
-	return( SG_T("") );
+	return( "" );
 }
 
 
@@ -552,7 +552,7 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_RAINBOW:
 		Set_Count(8);
-		Set_Color(0, SG_GET_RGB(127,   0, 127));
+		Set_Color(0, SG_GET_RGB( 64,   0, 127));
 		Set_Color(1, SG_GET_RGB(  0,   0, 255));
 		Set_Color(2, SG_GET_RGB(  0, 255, 255));
 		Set_Color(3, SG_GET_RGB(  0, 191,   0));
@@ -792,6 +792,7 @@ CSG_Colors & CSG_Colors::operator = (const CSG_Colors &Colors)
 	return( *this );
 }
 
+//---------------------------------------------------------
 bool CSG_Colors::Assign(const CSG_Colors &Colors)
 {
 	if( Colors.m_nColors > 0 )
@@ -807,6 +808,7 @@ bool CSG_Colors::Assign(const CSG_Colors &Colors)
 	return( false );
 }
 
+//---------------------------------------------------------
 bool CSG_Colors::Assign(CSG_Colors *pColors)
 {
 	return( pColors ? Assign(*pColors) : false );
@@ -888,7 +890,7 @@ bool CSG_Colors::Save(const CSG_String &File_Name, bool bBinary)
 		}
 		else
 		{
-			Stream.Printf(SG_T("%s\n"), COLORS_SERIAL_VERSION__ASCII);
+			Stream.Printf("%s\n", COLORS_SERIAL_VERSION__ASCII);
 		}
 
 		Serialize(Stream, true, bBinary);
@@ -909,10 +911,9 @@ bool CSG_Colors::Save(const CSG_String &File_Name, bool bBinary)
 //---------------------------------------------------------
 bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 {
-	int		i, r, g, b;
-
 	if( Stream.is_Open() )
 	{
+		//-------------------------------------------------
 		if( bBinary )
 		{
 			if( bSave )
@@ -925,29 +926,31 @@ bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 			}
 			else
 			{
-				Stream.Read(&i, sizeof(m_nColors));
+				int	nColors;
 
-				if( i > 0 )
+				Stream.Read(&nColors, sizeof(m_nColors));
+
+				if( Set_Count(nColors) )
 				{
-					Set_Count(i);
-
 					Stream.Read(m_Colors, sizeof(long), m_nColors);
 				}
 			}
 
 			return( true );
 		}
+
+		//-------------------------------------------------
 		else
 		{
 			if( bSave )
 			{
-				if( m_nColors > 0 )
+				if( Get_Count() > 0 )
 				{
-					Stream.Printf(SG_T("%d\n"), m_nColors);
+					Stream.Printf("%d\n", Get_Count());
 
-					for(i=0; i<m_nColors; i++)
+					for(int i=0; i<Get_Count(); i++)
 					{
-						Stream.Printf(SG_T("%03d %03d %03d\n"), (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
+						Stream.Printf("%03d %03d %03d\n", (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
 					}
 				}
 			}
@@ -955,19 +958,17 @@ bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 			{
 				CSG_String	sLine;
 
-				if( Stream.Read_Line(sLine) && (i = sLine.asInt()) > 0 )
+				if( Stream.Read_Line(sLine) && Set_Count(sLine.asInt()) )
 				{
-					Set_Count(i);
-
-					for(i=0; i<m_nColors; i++)
+					for(int i=0; i<Get_Count(); i++)
 					{
 						Stream.Read_Line(sLine);
 
-						r	= sLine                      .asInt();
-						g	= sLine.AfterFirst(SG_T(' ')).asInt();
-						b	= sLine.AfterLast (SG_T(' ')).asInt();
-
-						m_Colors[i]	= SG_GET_RGB(r, g, b);
+						Set_Color(i,
+							sLine                .asInt(),
+							sLine.AfterFirst(' ').asInt(),
+							sLine.AfterLast (' ').asInt()
+						);
 					}
 				}
 			}
@@ -982,36 +983,39 @@ bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 //---------------------------------------------------------
 bool CSG_Colors::to_Text(CSG_String &String)
 {
-	String.Clear();
-
-	for(int i=0; i<m_nColors; i++)
+	if( Get_Count() > 0 )
 	{
-		String	+= CSG_String::Format(SG_T("%03d %03d %03d\n"), (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
+		String.Clear();
+
+		for(int i=0; i<Get_Count(); i++)
+		{
+			String	+= CSG_String::Format("%03d %03d %03d;", (int)Get_Red(i), (int)Get_Green(i), (int)Get_Blue(i));
+		}
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Colors::from_Text(const CSG_String &String)
 {
-	Set_Count((int)String.Length() / 12);
-
-	CSG_String	Colors(String), Color;
-
-	for(int i=0; i<Get_Count() && Colors.Length()>0; i++)
+	if( Set_Count((int)String.Length() / 12) )
 	{
-		Color	= Colors.BeforeFirst('\n');
-		Colors	= Colors.AfterFirst ('\n');
+		for(int i=0, j=0; i<Get_Count(); i++, j+=12)
+		{
+			Set_Color(i,
+				String.Mid(j + 0, 4).asInt(),
+				String.Mid(j + 4, 4).asInt(),
+				String.Mid(j + 8, 4).asInt()
+			);
+		}
 
-		m_Colors[i]	= SG_GET_RGB(
-			Color.BeforeFirst(' ').asInt(),
-			Color.BeforeLast (' ').asInt(),
-			Color.AfterLast  (' ').asInt()
-		);
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 

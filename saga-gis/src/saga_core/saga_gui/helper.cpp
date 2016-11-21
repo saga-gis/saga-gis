@@ -701,8 +701,6 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 	switch( pParameter->Get_Type() )
 	{
-	default:	return( false );
-
 	case PARAMETER_TYPE_Bool    :
 	case PARAMETER_TYPE_Int     :
 	case PARAMETER_TYPE_Choice  :
@@ -731,8 +729,14 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 		&&	pConfig->Read(Entry + "_COLOR", &l) && pParameter->Set_Value((int)l)
 		);
 
+	case PARAMETER_TYPE_Colors  :
+		return( pConfig->Read(Entry, &s) && pParameter->asColors()->from_Text(&s) );
+
 	case PARAMETER_TYPE_Parameters:
 		return( CONFIG_Read(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
+
+	default:
+		return( false );
 	}
 }
 
@@ -760,8 +764,6 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 		switch( pParameter->Get_Type() )
 		{
-		default:	return( false );
-
 		case PARAMETER_TYPE_Bool    :
 		case PARAMETER_TYPE_Int     :
 		case PARAMETER_TYPE_Choice  :
@@ -790,8 +792,18 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 			&&	pConfig->Write(Entry + "_COLOR", pParameter->asInt())
 			);
 
+		case PARAMETER_TYPE_Colors  :
+			{
+				CSG_String	s;
+
+				return( pParameter->asColors()->to_Text(s) && pConfig->Write(Entry, s.c_str()) );
+			}
+
 		case PARAMETER_TYPE_Parameters:
 			return( CONFIG_Write(Entry + "/" + pParameter->Get_Identifier(), pParameter->asParameters()) );
+
+		default:
+			return( false );
 		}
 	}
 
