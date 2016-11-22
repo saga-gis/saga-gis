@@ -135,7 +135,7 @@ CView_Shed::CView_Shed(void)
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Maximum Search Radius"),
-		_TL("This value is ignored if set to zero."),
+		_TL("The maximum search radius [map units]. This value is ignored if set to zero."),
 		PARAMETER_TYPE_Double	, 10000.0, 0.0, true
 	);
 
