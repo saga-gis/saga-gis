@@ -634,8 +634,8 @@ bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, TSG_
 {
 	if(	m_System.Get_Extent(true).Contains(xPosition, yPosition) )
 	{
-		int		x	= (int)(xPosition	= (xPosition - Get_XMin()) / Get_Cellsize());
-		int		y	= (int)(yPosition	= (yPosition - Get_YMin()) / Get_Cellsize());
+		int		x	= (int)floor(xPosition	= (xPosition - Get_XMin()) / Get_Cellsize());
+		int		y	= (int)floor(yPosition	= (yPosition - Get_YMin()) / Get_Cellsize());
 
 		double	dx	= xPosition - x;
 		double	dy	= yPosition - y;
@@ -1134,7 +1134,7 @@ bool CSG_Grid::_Set_Index(void)
 	}
 
 	//-----------------------------------------------------
-	if( m_Index == NULL && (m_Index = (sLong *)SG_Malloc(Get_NCells() * sizeof(sLong))) == NULL )
+	if( m_Index == NULL && (m_Index = (sLong *)SG_Malloc((size_t)Get_NCells() * sizeof(sLong))) == NULL )
 	{
 		SG_UI_Msg_Add_Error(_TL("could not create index: insufficient memory"));
 
@@ -1168,7 +1168,7 @@ bool CSG_Grid::_Set_Index(void)
 	ir		= Get_Data_Count() - 1;
 
 	nstack	= 64;
-	istack	= (sLong *)SG_Malloc(nstack * sizeof(sLong));
+	istack	= (sLong *)SG_Malloc((size_t)nstack * sizeof(sLong));
 	jstack	= 0;
 
 	for(;;)
@@ -1254,7 +1254,7 @@ bool CSG_Grid::_Set_Index(void)
 			if( jstack >= nstack )
 			{
 				nstack	+= 64;
-				istack	= (sLong *)SG_Realloc(istack, nstack * sizeof(int));
+				istack	= (sLong *)SG_Realloc(istack, (size_t)nstack * sizeof(int));
 			}
 
 			if( ir - i + 1 >= j - l )

@@ -189,6 +189,22 @@ CGrid_Export::CGrid_Export(void)
         0.0, 100.0
     );
 
+	Parameters.Add_Choice(
+		NULL	, "SCALE_MODE"	, _TL("Scaling Mode"),
+		_TL("Scaling mode applied to colouring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
+		CSG_String::Format(SG_T("%s|%s|%s|"),
+			_TL("Linear"),
+			_TL("Logarithmic (up)"),
+			_TL("Logarithmic (down)")
+		), 0
+	);
+
+	Parameters.Add_Value(
+		NULL	, "SCALE_LOG"	, _TL("Logarithmic Scale Factor"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 1.0, 0.001, true
+	);
+
 	Parameters.Add_Table(
 		NULL	, "LUT"			, _TL("Lookup Table"),
 		_TL(""),
@@ -221,9 +237,17 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COLOURING")) )
 	{
 		pParameters->Get_Parameter("COL_PALETTE")->Set_Enabled(pParameter->asInt() <= 2);
-		pParameters->Get_Parameter("STDDEV"     )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("STRETCH"    )->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("STDDEV"		)->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Get_Parameter("STRETCH"	)->Set_Enabled(pParameter->asInt() == 2);
+		pParameters->Get_Parameter("SCALE_MODE"	)->Set_Enabled(pParameter->asInt() <= 2);
+		pParameters->Get_Parameter("SCALE_LOG"	)->Set_Enabled(pParameter->asInt() <= 2
+								&& pParameters->Get_Parameter("SCALE_MODE")->asInt() > 0);
 		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SCALE_MODE")) )
+	{
+		pParameters->Get_Parameter("SCALE_LOG"	)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHADE")) )
@@ -246,14 +270,16 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 bool CGrid_Export::On_Execute(void)
 {
 	//-----------------------------------------------------
-	int			y, iy, Method;
-	double		dTrans;
+	int			y, iy, Method, ScaleMode;
+	double		dTrans, ScaleLog;
 	CSG_Grid	*pGrid, *pShade, Grid, Shade;
 
 	//-----------------------------------------------------
 	pGrid		= Parameters("GRID"			)->asGrid();
 	pShade		= Parameters("SHADE"		)->asGrid();
-	Method		= Parameters("COLOURING"	)->asInt ();
+	Method		= Parameters("COLOURING"	)->asInt();
+	ScaleMode	= Parameters("SCALE_MODE"	)->asInt();
+	ScaleLog	= Parameters("SCALE_LOG"	)->asDouble();
 	dTrans		= Parameters("SHADE_TRANS"	)->asDouble() / 100.0;
 
 	if( !pGrid )
@@ -273,7 +299,7 @@ bool CGrid_Export::On_Execute(void)
 	}
 	else
 	{
-		double		zMin, zScale;
+		double		zMin, zMax, zScale;
 		CSG_Colors	Colors;
 		CSG_Table	LUT;
 
@@ -293,24 +319,30 @@ bool CGrid_Export::On_Execute(void)
 		switch( Method )
 		{
 		case 0:	// stretch to grid's standard deviation
-			zMin	= pGrid->Get_Mean() -  Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
-			zScale	= Colors.Get_Count() / (2 * Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev());
+			zMin	= pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
+			zMax	= pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
+			if( zMin < pGrid->Get_ZMin() )
+				zMin = pGrid->Get_ZMin();
+			if( zMax > pGrid->Get_ZMax() )
+				zMax = pGrid->Get_ZMax();
+			zScale	= Colors.Get_Count() / (zMax - zMin);
 			break;
 
 		case 1:	// stretch to grid's value range
 			zMin	= pGrid->Get_ZMin();
+			zMax	= pGrid->Get_ZMax();
 			zScale	= Colors.Get_Count() / pGrid->Get_ZRange();
 			break;
 
 		case 2:	// stretch to specified value range
 			zMin	= Parameters("STRETCH")->asRange()->Get_LoVal();
-			if( zMin >= (zScale = Parameters("STRETCH")->asRange()->Get_HiVal()) )
+			if( zMin >= (zMax = Parameters("STRETCH")->asRange()->Get_HiVal()) )
 			{
 				Error_Set(_TL("invalid user specified value range."));
 
 				return( false );
 			}
-			zScale	= Colors.Get_Count() / (zScale - zMin);
+			zScale	= Colors.Get_Count() / (zMax - zMin);
 			break;
 
 		case 3:	// lookup table
@@ -373,7 +405,46 @@ bool CGrid_Export::On_Execute(void)
 				}
 				else
 				{
-					int	i	= (int)(zScale * (z - zMin));
+					int i = 0;
+
+					if( ScaleMode != 0 )
+					{
+						if( pGrid->Get_ZRange() != 0 )
+						{
+							double Value = (z - zMin) / (zMax - zMin);
+
+							if( ScaleMode == 1 )	// logarithmic up
+							{
+								if( Value > 0.0 )
+								{
+									Value	= log(1.0 + ScaleLog * Value) / log(1.0 + ScaleLog);
+								}
+								else
+								{
+									Value	= 0.0;
+								}
+							}
+							else					// logarithmic down
+							{
+								if( Value < 1.0 )
+								{
+									Value	= 1.0 - Value;
+									Value	= log(1.0 + ScaleLog * Value) / log(1.0 + ScaleLog);
+									Value	= 1.0 - Value;
+								}
+								else
+								{
+									Value	= 1.0;
+								}
+							}
+
+							i	= (int)(Value * Colors.Get_Count());
+						}
+					}
+					else	// linear
+					{
+						i	= (int)(zScale * (z - zMin));
+					}
 
 					Grid.Set_Value(x, iy, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
 				}

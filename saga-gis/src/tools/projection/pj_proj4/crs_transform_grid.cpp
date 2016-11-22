@@ -71,8 +71,6 @@
 //---------------------------------------------------------
 CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 {
-	CSG_Parameter	*pNode;
-
 	m_bList	= bList;
 
 	//-----------------------------------------------------
@@ -90,41 +88,36 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")), false);
+	Parameters.Add_Node(NULL,
+		"SOURCE_NODE"	, _TL("Source"),
+		_TL("")
+	);
 
 	if( m_bList )
 	{
-		pNode	= Parameters.Add_Grid_List(
-			NULL	, "SOURCE"		, _TL("Source"),
+		Parameters.Add_Grid_List(Parameters("SOURCE_NODE"),
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
-
-		Parameters.Add_Grid_List(
-			NULL	, "GRIDS"		, _TL("Target"),
-			_TL(""),
-			PARAMETER_OUTPUT_OPTIONAL
-		);
 	}
-
-	//-----------------------------------------------------
 	else
 	{
-		pNode	= Parameters.Add_Grid(
-			NULL	, "SOURCE"		, _TL("Source"),
+		Parameters.Add_Grid(Parameters("SOURCE_NODE"),
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
-
-		m_Grid_Target.Add_Grid("GRID", _TL("Target"), false);
 	}
 
-	m_Grid_Target.Add_Grid("OUT_X", _TL("X Coordinates"), true);
-	m_Grid_Target.Add_Grid("OUT_Y", _TL("Y Coordinates"), true);
-
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Node(NULL,
+		"TARGET_NODE"	, _TL("Target"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice(Parameters("TARGET_NODE"),
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -134,18 +127,36 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		pNode	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
+	Parameters.Add_Bool(Parameters("TARGET_NODE"),
+		"KEEP_TYPE"		, _TL("Preserve Data Type"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		false
+	);
+
+	Parameters.Add_Bool(Parameters("TARGET_NODE"),
+		"TARGET_AREA"	, _TL("Use Target Area Polygon"),
+		_TL("Restricts targeted grid cells to area of the projected bounding rectangle. Useful with certain projections for global data."),
+		false
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		pNode	, "TARGET_AREA"	, _TL("Use Target Area Polygon"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	m_Grid_Target.Create(&Parameters, false, Parameters("TARGET_NODE"), "TARGET_");
+
+	if( m_bList )
+	{
+		Parameters.Add_Grid_List(Parameters("TARGET_NODE"),
+			"GRIDS"		, _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL
+		);
+	}
+	else
+	{
+		m_Grid_Target.Add_Grid("GRID", _TL("Target"), false);
+	}
+
+	m_Grid_Target.Add_Grid("OUT_X", _TL("X Coordinates"), true);
+	m_Grid_Target.Add_Grid("OUT_Y", _TL("Y Coordinates"), true);
 }
 
 
@@ -156,17 +167,41 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 //---------------------------------------------------------
 int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
+	int	Result	= CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_METHOD")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_PROJ4")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_DIALOG")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_GRID")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_SHAPES")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_AUTH")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
+	{
+		Set_Target_System(pParameters);
+	}
+	else
+	{
+		m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+	}
+
+	return( Result );
 }
 
 //---------------------------------------------------------
 int CCRS_Transform_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CCRS_Transform::On_Parameters_Enable(pParameters, pParameter);
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLING") )
+	{
+		pParameters->Set_Enabled("KEEP_TYPE", pParameter->asInt() != 0);	// nearest neighbour
+	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CCRS_Transform::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -180,9 +215,9 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
 	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	//-----------------------------------------------------
@@ -199,7 +234,7 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 
 		pGrids		= Grids.Add_Grid_List(NULL, "GRD", SG_T(""), SG_T(""), PARAMETER_INPUT, false)->asGridList();
 
-		for(i=0; i<pSources->Get_Count(); i++)
+		for(i=pSources->Get_Count()-1; i>=0; i--)
 		{
 			if( pSources->asGrid(i)->Get_Projection().is_Okay() )
 			{
@@ -207,7 +242,7 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 			}
 			else
 			{
-				Error_Set(CSG_String::Format(SG_T("%s: %s\n"), _TL("unknown projection"), pSources->asGrid(i)->Get_Name()));
+				Error_Fmt("%s: %s\n", _TL("unknown projection"), pSources->asGrid(i)->Get_Name());
 			}
 		}
 
@@ -252,8 +287,8 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 {
-	if( pGrid->Get_Projection().is_Okay() && m_Projector.Set_Source(pGrid->Get_Projection())
-	&&  Get_Target_System(pGrid->Get_System(), true) )
+	if( m_Grid_Target.Get_System().is_Valid() && pGrid
+	&&  m_Projector.Set_Source(pGrid->Get_Projection()) )
 	{
 		TSG_Data_Type	Type	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("KEEP_TYPE")->asBool() ? pGrid->Get_Type() : SG_DATATYPE_Float;
 
@@ -266,8 +301,8 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids)
 {
-	if( pGrids->Get_Count() > 0 && m_Projector.Set_Source(pGrids->asGrid(0)->Get_Projection())
-	&&  Get_Target_System(pGrids->asGrid(0)->Get_System(), true) )
+	if( m_Grid_Target.Get_System().is_Valid() && pGrids->Get_Count() > 0
+	&&  m_Projector.Set_Source(pGrids->asGrid(0)->Get_Projection()) )
 	{
 		CSG_Grid_System	System(m_Grid_Target.Get_System());
 
@@ -313,12 +348,14 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pGrid->Get_XMax() > 180.0;
 
 	//-------------------------------------------------
-	pTarget->Set_NoData_Value_Range	(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
-	pTarget->Set_Scaling			(pGrid->Get_Scaling(), pGrid->Get_Offset());
-	pTarget->Set_Name				(CSG_String::Format(SG_T("%s"), pGrid->Get_Name()));
-	pTarget->Set_Unit				(pGrid->Get_Unit());
-	pTarget->Assign_NoData();
+	pTarget->Set_NoData_Value_Range (pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+	pTarget->Set_Scaling            (pGrid->Get_Scaling(), pGrid->Get_Offset());
+	pTarget->Set_Name               (pGrid->Get_Name());
+	pTarget->Set_Unit               (pGrid->Get_Unit());
 	pTarget->Get_Projection().Create(m_Projector.Get_Target());
+	pTarget->Assign_NoData();
+
+//	CSG_Parameters Parms; if( DataObject_Get_Parameters(pGrid, Parms) ) { DataObject_Add(pTarget); DataObject_Set_Parameters(pTarget, Parms); }
 
 	//-----------------------------------------------------
 	for(int y=0; y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++)
@@ -332,15 +369,22 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 
 			if( is_In_Target_Area(x, y) && m_Projector.Get_Projection(xSource, ySource = yTarget) )
 			{
-				if( pX )	pX->Set_Value(x, y, xSource);
-				if( pY )	pY->Set_Value(x, y, ySource);
-
-				if( bGeogCS_Adjust && xSource < 0.0 )
+				if( bGeogCS_Adjust )
 				{
-					xSource	+= 360.0;
+					if( xSource < 0.0 )
+					{
+						xSource	+= 360.0;
+					}
+					else if( xSource >= 360.0 )
+					{
+						xSource	-= 360.0;
+					}
 				}
 
-				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling) )
+				if( pX ) pX->Set_Value(x, y, xSource);
+				if( pY ) pY->Set_Value(x, y, ySource);
+
+				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling, false, true) )
 				{
 					pTarget->Set_Value(x, y, z);
 				}
@@ -384,24 +428,28 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 
 	Set_Target_Area(pSources->asGrid(0)->Get_System(), Target_System);
 
+	bool	bKeepType	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("KEEP_TYPE")->asBool();
+
 	//-----------------------------------------------------
 	int	i, n	= pTargets->Get_Count();
 
 	for(i=0; i<pSources->Get_Count(); i++)
 	{
 		CSG_Grid	*pSource	= pSources->asGrid(i);
-		CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, m_Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float);
+		CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, bKeepType ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 		if( pTarget )
 		{
-			pTarget->Set_NoData_Value_Range	(pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
-			pTarget->Set_Scaling			(pSource->Get_Scaling(), pSource->Get_Offset());
-			pTarget->Set_Name				(CSG_String::Format(SG_T("%s"), pSource->Get_Name()));
-			pTarget->Set_Unit				(pSource->Get_Unit());
-			pTarget->Assign_NoData();
-			pTarget->Get_Projection().Create(m_Projector.Get_Target());
-
 			pTargets->Add_Item(pTarget);
+
+			pTarget->Set_NoData_Value_Range (pSource->Get_NoData_Value(), pSource->Get_NoData_hiValue());
+			pTarget->Set_Scaling            (pSource->Get_Scaling(), pSource->Get_Offset());
+			pTarget->Set_Name               (pSource->Get_Name());
+			pTarget->Set_Unit               (pSource->Get_Unit());
+			pTarget->Get_Projection().Create(m_Projector.Get_Target());
+			pTarget->Assign_NoData();
+
+			CSG_Parameters Parms; if( DataObject_Get_Parameters(pSource, Parms) ) { DataObject_Add(pTarget); DataObject_Set_Parameters(pTarget, Parms); }
 		}
 	}
 
@@ -417,17 +465,24 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 
 			if( is_In_Target_Area(x, y) && m_Projector.Get_Projection(xSource, ySource = yTarget) )
 			{
-				if( pX )	pX->Set_Value(x, y, xSource);
-				if( pY )	pY->Set_Value(x, y, ySource);
-
-				if( bGeogCS_Adjust && xSource < 0.0 )
+				if( bGeogCS_Adjust )
 				{
-					xSource	+= 360.0;
+					if( xSource < 0.0 )
+					{
+						xSource	+= 360.0;
+					}
+					else if( xSource >= 360.0 )
+					{
+						xSource	-= 360.0;
+					}
 				}
+
+				if( pX ) pX->Set_Value(x, y, xSource);
+				if( pY ) pY->Set_Value(x, y, ySource);
 
 				for(i=0; i<pSources->Get_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
+					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling, false, true) )
 					{
 						pTargets->asGrid(n + i)->Set_Value(x, y, z);
 					}
@@ -579,6 +634,83 @@ inline void CCRS_Transform_Grid::Get_MinMax(TSG_Rect &r, double x, double y)
 			r.yMax	= y;
 		}
 	}
+}
+
+//---------------------------------------------------------
+bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Resolution, bool bEdges)
+{
+	if( !pParameters || !pParameters->Get_Parameter("SOURCE") || !pParameters->Get_Parameter("CRS_PROJ4") )
+	{
+		return( false );
+	}
+
+	CSG_Grid	*pGrid	= m_bList
+		? pParameters->Get_Parameter("SOURCE")->asGridList()->asGrid(0)
+		: pParameters->Get_Parameter("SOURCE")->asGrid();
+
+	if( !pGrid || !pGrid->is_Valid() || !pGrid->Get_Projection().is_Okay()
+	||  !m_Projector.Set_Target(CSG_Projection(pParameters->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4))
+	||  !m_Projector.Get_Target().is_Okay()
+	||  !m_Projector.Set_Source(pGrid->Get_Projection()) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int			x, y;
+	TSG_Rect	Extent;
+
+	Extent.xMin	= Extent.yMin	= 1.0;
+	Extent.xMax	= Extent.yMax	= 0.0;
+
+	Get_MinMax(Extent, pGrid->Get_XMin(), pGrid->Get_YMin());
+	Get_MinMax(Extent, pGrid->Get_XMax(), pGrid->Get_YMin());
+	Get_MinMax(Extent, pGrid->Get_XMin(), pGrid->Get_YMax());
+	Get_MinMax(Extent, pGrid->Get_XMax(), pGrid->Get_YMax());
+
+	//-----------------------------------------------------
+	if( bEdges )	// edges
+	{
+		double	d;
+
+		int	yStep	= 1 + pGrid->Get_NY() / Resolution;
+
+		for(y=0, d=pGrid->Get_YMin(); y<pGrid->Get_NY(); y+=yStep, d+=yStep*pGrid->Get_Cellsize())
+		{
+			Get_MinMax(Extent, pGrid->Get_XMin(), d);
+			Get_MinMax(Extent, pGrid->Get_XMax(), d);
+		}
+
+		int	xStep	= 1 + pGrid->Get_NX() / Resolution;
+
+		for(x=0, d=pGrid->Get_XMin(); x<pGrid->Get_NX(); x+=xStep, d+=xStep*pGrid->Get_Cellsize())
+		{
+			Get_MinMax(Extent, d, pGrid->Get_YMin());
+			Get_MinMax(Extent, d, pGrid->Get_YMax());
+		}
+	}
+
+	//-----------------------------------------------------
+	else			// all cells
+	{
+		TSG_Point	p;
+
+		int	xStep	= 1 + pGrid->Get_NX() / Resolution;
+		int	yStep	= 1 + pGrid->Get_NY() / Resolution;
+
+		for(y=0, p.y=pGrid->Get_YMin(); y<pGrid->Get_NY(); y+=yStep, p.y+=yStep*pGrid->Get_Cellsize())
+		{
+			for(x=0, p.x=pGrid->Get_XMin(); x<pGrid->Get_NX(); x+=xStep, p.x+=xStep*pGrid->Get_Cellsize())
+			{
+				Get_MinMax(Extent, p.x, p.y);
+			}
+		}
+	}
+
+	return(	Extent.xMin < Extent.xMax && Extent.yMin < Extent.yMax
+		&&	m_Grid_Target.Set_User_Defined(pParameters, Extent, pGrid->Get_NY())
+		&&  m_Grid_Target.Get_System().is_Valid()
+	);
 }
 
 //---------------------------------------------------------

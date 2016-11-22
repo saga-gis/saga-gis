@@ -78,6 +78,7 @@
 #include "wksp_map.h"
 #include "wksp_map_layer.h"
 
+#include "wksp_data_manager.h"
 #include "wksp_data_layers.h"
 
 #include "wksp_layer.h"
@@ -223,14 +224,14 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// General...
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_GENERAL"), "LEGEND_SHOW"   , _TL("Show Legend"),
+	m_Parameters.Add_Value(m_Parameters("NODE_GENERAL"),
+		"LEGEND_SHOW"   , _TL("Show Legend"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LEGEND_SHOW" ), "LEGEND_STYLE"  , _TL("Style"),
+	m_Parameters.Add_Choice(m_Parameters("LEGEND_SHOW"),
+		"LEGEND_STYLE"	, _TL("Style"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("vertical"),
@@ -242,20 +243,20 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Display...
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "DISPLAY_TRANSPARENCY", _TL("Transparency [%]"),
+	m_Parameters.Add_Value(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_TRANSPARENCY", _TL("Transparency [%]"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "SHOW_ALWAYS"         , _TL("Show at all scales"),
+	m_Parameters.Add_Value(m_Parameters("NODE_DISPLAY"),
+		"SHOW_ALWAYS"	, _TL("Show at all scales"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("SHOW_ALWAYS" ), "SHOW_RANGE"			, _TL("Scale Range"),
+	m_Parameters.Add_Range(m_Parameters("SHOW_ALWAYS"),
+		"SHOW_RANGE"	, _TL("Scale Range"),
 		_TL("only show within scale range; values are given as extent measured in map units"),
 		100.0, 1000.0, 0.0, true
 	);
@@ -264,10 +265,10 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_COLORS" ), "COLORS_TYPE"			, _TL("Type"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_COLORS"),
+		"COLORS_TYPE"	, _TL("Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
 			_TL("Lookup Table"    ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
@@ -279,15 +280,15 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification: Unique Value...
 
-	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS"   ), "NODE_UNISYMBOL"		, _TL("Single Symbol"),
+	m_Parameters.Add_Node(m_Parameters("NODE_COLORS"),
+		"NODE_UNISYMBOL"	, _TL("Single Symbol"),
 		_TL("")
 	);
 
 	static	BYTE	s_Def_Layer_Colour	= 0;
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_UNISYMBOL"), "UNISYMBOL_COLOR"		, _TL("Color"),
+	m_Parameters.Add_Value(m_Parameters("NODE_UNISYMBOL"),
+		"UNISYMBOL_COLOR"	, _TL("Color"),
 		_TL(""),
 		PARAMETER_TYPE_Color, s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
 	//	PARAMETER_TYPE_Color, SG_GET_RGB(Get_Random(128, 250), Get_Random(128, 200), Get_Random(128, 200))
@@ -297,20 +298,20 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification: Lookup Table...
 
-	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_LUT"			, _TL("Lookup Table"),
+	m_Parameters.Add_Node(m_Parameters("NODE_COLORS"),
+		"NODE_LUT"			, _TL("Lookup Table"),
 		_TL("")
 	);
 
 	CSG_Table	LUT;
-	LUT.Add_Field(_TL("COLOR")			, SG_DATATYPE_Color);
-	LUT.Add_Field(_TL("NAME")			, SG_DATATYPE_String);
-	LUT.Add_Field(_TL("DESCRIPTION")	, SG_DATATYPE_String);
-	LUT.Add_Field(_TL("MINIMUM")		, SG_DATATYPE_Double);
-	LUT.Add_Field(_TL("MAXIMUM")		, SG_DATATYPE_Double);
+	LUT.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
+	LUT.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
+	LUT.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
+	LUT.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_Double);
+	LUT.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_Double);
 
-	m_Parameters.Add_FixedTable(
-		m_Parameters("NODE_LUT")		, "LUT"					, _TL("Table"),
+	m_Parameters.Add_FixedTable(m_Parameters("NODE_LUT"),
+		"LUT"				, _TL("Table"),
 		_TL(""),
 		&LUT
 	);
@@ -319,23 +320,24 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification: Metric...
 
-	m_Parameters.Add_Node(
-		m_Parameters("NODE_COLORS")		, "NODE_METRIC"			, _TL("Scaling"),
+	m_Parameters.Add_Node(m_Parameters("NODE_COLORS"),
+		"NODE_METRIC"		, _TL("Scaling"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Colors(
-		m_Parameters("NODE_METRIC")		, "METRIC_COLORS"		, _TL("Colors"),
+	m_Parameters.Add_Colors(m_Parameters("NODE_METRIC"),
+		"METRIC_COLORS"		, _TL("Colors"),
+		_TL(""),
+		g_pData->Get_Parameter("COLORS_DEFAULT")->asColors()
+	);
+
+	m_Parameters.Add_Range(m_Parameters("NODE_METRIC"),
+		"METRIC_ZRANGE"		, _TL("Value Range"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("NODE_METRIC")		, "METRIC_ZRANGE"		, _TL("Value Range"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_MODE"	, _TL("Mode"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_METRIC"),
+		"METRIC_SCALE_MODE"	, _TL("Mode"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Linear"),
@@ -344,8 +346,8 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_METRIC")		, "METRIC_SCALE_LOG"	, _TL("Logarithmic Stretch Factor"),
+	m_Parameters.Add_Value(m_Parameters("NODE_METRIC"),
+		"METRIC_SCALE_LOG"	, _TL("Logarithmic Stretch Factor"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 1.0
 	);
