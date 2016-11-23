@@ -90,6 +90,8 @@ private:
 
 	double				Get_Mean			(int x, int y);
 
+	virtual bool		On_After_Execution	(void);
+
 };
 
 //---------------------------------------------------------
