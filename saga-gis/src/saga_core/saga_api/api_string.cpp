@@ -1060,23 +1060,42 @@ double			SG_Degree_To_Double(const CSG_String &String)
 	return( sig * (d + h / 60.0 + s / (60.0 * 60.0)) );
 }
 
-//---------------------------------------------------------
-CSG_String		SG_Number_To_Date(int Value)
-{
-	return( SG_Number_To_Date((double)Value) );
-}
 
-CSG_String		SG_Number_To_Date(double Value)
-{
-	int	y	= (int)(Value / 10000);	Value	-= y * 10000;
-	int	m	= (int)(Value /   100);	Value	-= m * 100;
-	int	d	= (int)(Value /     1);
-
-	return( CSG_String::Format("%04d-%02d-%02d", y, m, d) );	// yyyy-mm-dd (ISO 8601)
-}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int				SG_Date_To_Number(const CSG_String &String)
+#include "datetime.h"
+
+//---------------------------------------------------------
+/**
+  * Expects 'Value' to be the Julian Day Number.
+*/
+//---------------------------------------------------------
+CSG_String		SG_JulianDayNumber_To_Date(int Value)
+{
+	return( SG_JulianDayNumber_To_Date(Value + 0.5) );
+}
+
+//---------------------------------------------------------
+/**
+  * Expects 'Value' to be the Julian Day Number.
+*/
+//---------------------------------------------------------
+CSG_String		SG_JulianDayNumber_To_Date(double Value)
+{
+	CSG_DateTime	Date(Value);
+
+	return( Date.Format("%Y-%m-%d") );	// yyyy-mm-dd (ISO 8601)
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the Julian Day Number.
+*/
+//---------------------------------------------------------
+double			SG_Date_To_JulianDayNumber(const CSG_String &String)
 {
 	if( String.Length() >= 10 )
 	{
@@ -1086,7 +1105,9 @@ int				SG_Date_To_Number(const CSG_String &String)
 			int	m	= String.AfterFirst ('-').asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
 			int	d	= String.AfterLast  ('-').asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
 
-			return( 10000 * y + 100 * m + 1 * d );
+			CSG_DateTime	Date((CSG_DateTime::TSG_DateTime)d, (CSG_DateTime::Month)(m - 1), y);
+
+			return( Date.Get_JDN() );
 		}
 
 		if( String[2] == '.' && String[5] == '.' )	// dd.mm.yyyy
@@ -1095,7 +1116,9 @@ int				SG_Date_To_Number(const CSG_String &String)
 			int	m	= String.AfterFirst ('.').asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
 			int	d	= String.BeforeFirst('.').asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
 
-			return( 10000 * y + 100 * m + 1 * d );
+			CSG_DateTime	Date((CSG_DateTime::TSG_DateTime)d, (CSG_DateTime::Month)(m - 1), y);
+
+			return( Date.Get_JDN() );
 		}
 	}
 

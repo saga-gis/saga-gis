@@ -1287,7 +1287,7 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 			case 13:	Type	= SG_DATATYPE_Binary;	break;
 			}
 
-			if( Type != Types[i] )
+			if( Type != m_pTable->Get_Field_Type(i) )
 			{
 				m_pTable->Set_Field_Type(i, Type);
 

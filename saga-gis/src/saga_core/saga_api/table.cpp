@@ -580,41 +580,23 @@ bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
 {
 	if( iField >= 0 && iField < m_nFields )
 	{
-		if( Type != Get_Field_Type(iField) )
+		if( m_Field_Type[iField] != Type )
 		{
 			m_Field_Type[iField]	= Type;
 
 			for(int i=0; i<m_nRecords; i++)
 			{
-				CSG_Table_Value	*pOld	= m_Records[i]->m_Values[iField];
+				CSG_Table_Record	*pRecord	= m_Records[i];
+
 				CSG_Table_Value	*pNew	= CSG_Table_Record::_Create_Value(Type);
 
-				switch( Type )
-				{
-				default:
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:		pNew->Set_Value(pOld->asString());	break;
+				(*pNew)	= *pRecord->m_Values[iField];
 
-				case SG_DATATYPE_Color:
-				case SG_DATATYPE_Byte:
-				case SG_DATATYPE_Char:
-				case SG_DATATYPE_Word:
-				case SG_DATATYPE_Short:
-				case SG_DATATYPE_DWord:
-				case SG_DATATYPE_Int:
-				case SG_DATATYPE_ULong:
-				case SG_DATATYPE_Long:		pNew->Set_Value(pOld->asInt   ());	break;
+				delete(pRecord->m_Values[iField]);
 
-				case SG_DATATYPE_Float:
-				case SG_DATATYPE_Double:	pNew->Set_Value(pOld->asDouble());	break;
+				pRecord->m_Values[iField]	= pNew;
 
-				case SG_DATATYPE_Binary:	pNew->Set_Value(pOld->asBinary());	break;
-				}
-
-				m_Records[i]->m_Values[iField]	= pNew;
-				m_Records[i]->Set_Modified();
-
-				delete(pOld);
+				pRecord->Set_Modified();
 			}
 
 			Set_Modified();

@@ -81,10 +81,10 @@ CFilter_Gauss::CFilter_Gauss(void)
 	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
 
 	Set_Description	(_TW(
-		"The Gauss Filter is a smoothing operator that is used to `blur' or 'soften' Grid Data\n"
-		"and remove detail and noise.\n"
-		"The degree of smoothing is determined by the standard deviation.\n"
-		"For higher standard deviations you need a greater Radius\n"
+		"The Gaussian filter is a smoothing operator that is used to 'blur' or 'soften' data "
+		"and to remove detail and noise.\n"
+		"The degree of smoothing is determined by the standard deviation. "
+		"For higher standard deviations you need to use a larger search radius.\n"
 	));
 
 
@@ -105,13 +105,13 @@ CFilter_Gauss::CFilter_Gauss(void)
 
 	Parameters.Add_Value(
 		NULL, "SIGMA"		, _TL("Standard Deviation"),
-		_TL(""),
+		_TL("The standard deviation, determines the degree of smoothing."),
 		PARAMETER_TYPE_Double, 1, 0.0001, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
@@ -120,7 +120,7 @@ CFilter_Gauss::CFilter_Gauss(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Search Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 2, 1, true
 	);
 }
@@ -141,7 +141,7 @@ bool CFilter_Gauss::On_Execute(void)
 {
 	int			Mode, Radius;
 	double		Sigma;
-	CSG_Grid	*pResult;
+	CSG_Grid	*pResult, Result;
 
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")	->asGrid();
@@ -155,7 +155,9 @@ bool CFilter_Gauss::On_Execute(void)
 	{
 		if( !pResult || pResult == m_pInput )
 		{
-			pResult	= SG_Create_Grid(m_pInput);
+			pResult	= &Result;
+		
+			pResult->Create(m_pInput);
 		}
 		else
 		{
@@ -182,13 +184,16 @@ bool CFilter_Gauss::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+		if( pResult == &Result )
 		{
-			m_pInput->Assign(pResult);
+			CSG_MetaData	History	= m_pInput->Get_History();
 
-			delete(pResult);
+			m_pInput->Assign(pResult);
+			m_pInput->Get_History() = History;
 
 			DataObject_Update(m_pInput);
+
+			Parameters("RESULT")->Set_Value(m_pInput);
 		}
 
 		m_Weights.Destroy();
@@ -283,6 +288,16 @@ double CFilter_Gauss::Get_Mean(int x, int y)
 	return( n > 0.0 ? s / n : m_pInput->Get_NoData_Value() );
 }
 
+//---------------------------------------------------------
+bool CFilter_Gauss::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
