@@ -264,10 +264,10 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Value );							}
-	virtual int						asInt			(void)				const	{	return( m_Value.asInt() );					}
-	virtual sLong					asLong			(void)				const	{	return( m_Value.asInt() );					}
-	virtual double					asDouble		(void)				const	{	return( m_Value.asDouble() );				}
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Value            );	}
+	virtual int						asInt			(void)				const	{	return( m_Value.asInt   () );	}
+	virtual sLong					asLong			(void)				const	{	return( m_Value.asInt   () );	}
+	virtual double					asDouble		(void)				const	{	return( m_Value.asDouble() );	}
 
 	//-----------------------------------------------------
 	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
@@ -307,14 +307,24 @@ public:
 
 	virtual bool					Set_Value		(const SG_Char   *Value)
 	{
-		return( Set_Value(SG_Date_To_Number(Value)) );
+		return( Set_Value(SG_Date_To_JulianDayNumber(Value)) );
 	}
 
 	virtual bool					Set_Value		(int              Value)
 	{
+		return( Set_Value((double)Value) );
+	}
+
+	virtual bool					Set_Value		(sLong            Value)
+	{
+		return( Set_Value((double)Value) );
+	}
+
+	virtual bool					Set_Value		(double           Value)
+	{
 		if( m_Value != Value )
 		{
-			m_Date	= SG_Number_To_Date(Value);
+			m_Date	= SG_JulianDayNumber_To_Date(Value);
 			m_Value	= Value;
 
 			return( true );
@@ -323,37 +333,40 @@ public:
 		return( false );
 	}
 
-	virtual bool					Set_Value		(sLong            Value)
-	{
-		return( Set_Value((int)Value) );
-	}
-
-	virtual bool					Set_Value		(double           Value)
-	{
-		return( Set_Value((int)Value) );
-	}
-
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Date );	}
-	virtual int						asInt			(void)				const	{	return( m_Value );	}
-	virtual sLong					asLong			(void)				const	{	return( m_Value );	}
-	virtual double					asDouble		(void)				const	{	return( m_Value );	}
+	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return(        m_Date  );	}
+	virtual int						asInt			(void)				const	{	return(   (int)m_Value );	}
+	virtual sLong					asLong			(void)				const	{	return( (sLong)m_Value );	}
+	virtual double					asDouble		(void)				const	{	return(        m_Value );	}
 
 	//-----------------------------------------------------
 	virtual bool					is_Equal		(const CSG_Table_Value &Value)	const
 	{
-		return( m_Value	== Value.asInt() );
+		return( m_Value	== Value.asDouble() );
 	}
 
 	//-----------------------------------------------------
-	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)	{	Set_Value(Value.asString());	return( *this );	}
+	virtual CSG_Table_Value &		operator = (const CSG_Table_Value &Value)
+	{
+		switch( Value.Get_Type() )
+		{
+		case SG_TABLE_VALUE_TYPE_Binary:
+		case SG_TABLE_VALUE_TYPE_String:
+			Set_Value(Value.asString());
+			return( *this );
+
+		default:
+			Set_Value(Value.asDouble());
+			return( *this );
+		}
+	}
 
 
 private:
 
-	int								m_Value;
+	double							m_Value;	// Julian Day Number
 
-	CSG_String						m_Date;
+	CSG_String						m_Date;		// yyyy-mm-dd (ISO 8601)
 
 };
 
