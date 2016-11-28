@@ -69,52 +69,35 @@
 #define USE_GDAL_V2
 #endif
 
-//---------------------------------------------------------
-typedef enum ESG_Geom_Type_Choice_Key
-{
-	AUTOMATIC				= 0,
-	WKBPOINT,
-	WKBPOINT25D,
-	WKBMULTIPOINT,
-	WKBMULTIPOINT25D,
-	WKBLINESTRING,
-	WKBLINESTRING25D,
-	WKBMULTILINESTRING,
-	WKBMULTILINESTRING25D,
-	WKBPOLYGON,
-	WKBPOLYGON25D,
-	WKBMULTIPOLYGON,
-	WKBMULTIPOLYGON25D,
-	WKBGEOMETRYCOLLECTION,
-	WKBGEOMETRYCOLLECTION25D,
-	GEOM_TYPE_KEY_Count
-}
-TSG_Geom_Type_Choice_Key;
-
-//---------------------------------------------------------
-const SG_Char	gSG_Geom_Type_Choice_Key_Name[GEOM_TYPE_KEY_Count][32]	=
-{
-	SG_T("automatic"),
-	SG_T("wkbPoint"),
-	SG_T("wkbPoint25D"),
-	SG_T("wkbMultiPoint"),
-	SG_T("wkbMultiPoint25D"),
-	SG_T("wkbLineString"),
-	SG_T("wkbLineString25D"),
-	SG_T("wkbMultiLineString"),
-	SG_T("wkbMultiLineString25D"),
-	SG_T("wkbPolygon"),
-	SG_T("wkbPolygon25D"),
-	SG_T("wkbMultiPolygon"),
-	SG_T("wkbMultiPolygon25D"),
-	SG_T("wkbGeometryCollection"),
-	SG_T("wkbGeometryCollection25D")
-};
-
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_OGR_WKB_Type_Choice
+{
+	OGR_WKB_AUTOMATIC = 0,
+	OGR_WKB_POINT             , OGR_WKB_POINT25D             ,
+	OGR_WKB_MULTIPOINT        , OGR_WKB_MULTIPOINT25D        ,
+	OGR_WKB_LINESTRING        , OGR_WKB_LINESTRING25D        ,
+	OGR_WKB_MULTILINESTRING   , OGR_WKB_MULTILINESTRING25D   ,
+	OGR_WKB_POLYGON           , OGR_WKB_POLYGON25D           ,
+	OGR_WKB_MULTIPOLYGON      , OGR_WKB_MULTIPOLYGON25D      ,
+//	OGR_WKB_GEOMETRYCOLLECTION, OGR_WKB_GEOMETRYCOLLECTION25D,
+	OGR_WKB_TYPE_Count
+}
+TSG_OGR_WKB_Type_Choice;
+
+//---------------------------------------------------------
+OGRwkbGeometryType	SG_Get_OGR_WKB_Type_Choice_Key	(int Type);
+CSG_String			SG_Get_OGR_WKB_Type_Choice_Name	(int Type);
+CSG_String			SG_Get_OGR_WKB_Type_Choices		(void);
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -146,9 +129,9 @@ public:
 	bool						Can_Read			(int Index)					const;
 	bool						Can_Write			(int Index)					const;
 
-	static TSG_Vertex_Type		Get_Vertex_Type		(int Type);
-	static TSG_Shape_Type		Get_Shape_Type		(int Type);
-	static int					Get_Shape_Type		(TSG_Shape_Type Type, bool bZ);
+	static TSG_Vertex_Type		Get_Vertex_Type		(OGRwkbGeometryType Type);
+	static TSG_Shape_Type		Get_Shape_Type		(OGRwkbGeometryType Type);
+	static int					Get_Shape_Type		(    TSG_Shape_Type Type, bool bZ);
 
 	static TSG_Data_Type		Get_Data_Type		(int            Type);
 	static int					Get_Data_Type		(TSG_Data_Type  Type);
@@ -207,8 +190,6 @@ private:
 	class OGRDataSource			*m_pDataSet;
 #endif
 
-
-	int							_Get_GeomType_Choice(int iGeomTypeChoice);
 
 	bool						_Read_Geometry		(CSG_Shape *pShape, class OGRGeometry *pGeometry);
 	bool						_Read_Line			(CSG_Shape *pShape, class OGRLineString *pLine);

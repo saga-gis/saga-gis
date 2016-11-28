@@ -102,6 +102,7 @@ private:
 
 	double					Get_Majority	(int x, int y);
 
+	virtual bool			On_After_Execution(void);
 };
 
 

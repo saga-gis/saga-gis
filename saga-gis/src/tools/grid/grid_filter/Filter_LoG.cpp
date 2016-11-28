@@ -136,20 +136,20 @@ CFilter_LoG::CFilter_LoG(void)
 	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_USER", _TL("User Defined Kernel"), _TL(""));
 
 	Parameters.Add_Value(
-		pNode	, "SIGMA"		, _TL("Standard Deviation (Percent of Radius)"),
-		_TL(""),
+		pNode	, "SIGMA"		, _TL("Standard Deviation"),
+		_TL("The standard deviation, expressed as a percentage of the radius."),
 		PARAMETER_TYPE_Double, 50.0, 0.00001, true
 	);
 
 	Parameters.Add_Value(
 		pNode	, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 3, 1, true
 	);
 
 	Parameters.Add_Choice(
 		pNode	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("square"),
 			_TL("circle")
@@ -165,9 +165,29 @@ CFilter_LoG::CFilter_LoG(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CFilter_LoG::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	{
+		pParameters->Get_Parameter("SIGMA"	)->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Get_Parameter("RADIUS"	)->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Get_Parameter("MODE"	)->Set_Enabled(pParameter->asInt() == 3);
+	}
+
+	//-----------------------------------------------------
+	return (1);
+}
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	CSG_Grid	*pResult;
+	CSG_Grid	*pResult, Result;
 
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")	->asGrid();
@@ -178,7 +198,9 @@ bool CFilter_LoG::On_Execute(void)
 	{
 		if( !pResult || pResult == m_pInput )
 		{
-			pResult	= SG_Create_Grid(m_pInput);
+			pResult	= &Result;
+		
+			pResult->Create(m_pInput);
 		}
 		else
 		{
@@ -203,17 +225,21 @@ bool CFilter_LoG::On_Execute(void)
 			}
 		}
 
-		//-------------------------------------------------
-		if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
-		{
-			m_pInput->Assign(pResult);
-
-			delete(pResult);
-
-			pResult	= m_pInput;
-		}
 
 		DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
+
+		//-------------------------------------------------
+		if( pResult == &Result )
+		{
+			CSG_MetaData	History	= m_pInput->Get_History();
+
+			m_pInput->Assign(pResult);
+			m_pInput->Get_History() = History;
+
+			DataObject_Update(m_pInput);
+
+			Parameters("RESULT")->Set_Value(m_pInput);
+		}
 
 		m_Kernel.Destroy();
 
@@ -327,6 +353,17 @@ double CFilter_LoG::Get_Value(int x, int y)
 
 	//-----------------------------------------------------
 	return( s );
+}
+
+//---------------------------------------------------------
+bool CFilter_LoG::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
 }
 
 

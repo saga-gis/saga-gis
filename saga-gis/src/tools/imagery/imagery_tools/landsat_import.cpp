@@ -85,35 +85,33 @@ CLandsat_Import::CLandsat_Import(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Files"),
+	Parameters.Add_FilePath(NULL,
+		"FILES"		, _TL("Files"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.tif;*.tiff|%s|*.*"),
+		CSG_String::Format("%s|*.tif;*.tiff|%s|*.*",
 			_TL("GeoTIFF (*.tif)"),
 			_TL("All Files")
 		), NULL, false, false, true
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "BANDS"		, _TL("Bands"),
+	Parameters.Add_Grid_List(NULL,
+		"BANDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "PROJECTION"	, _TL("Coordinate System"),
+	Parameters.Add_Choice(NULL,
+		"PROJECTION", _TL("Coordinate System"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Geographic Coordinates")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice(Parameters("PROJECTION"),
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -123,8 +121,8 @@ CLandsat_Import::CLandsat_Import(void)
 		), 3
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "SHOW_RGB"	, _TL("Show a Composite"),
+	CSG_Parameter	*pNode	= Parameters.Add_Value(NULL,
+		"SHOW_RGB"	, _TL("Show a Composite"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -208,7 +206,7 @@ bool CLandsat_Import::On_Execute(void)
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), SG_File_Get_Name(Files[i], false).c_str()));
+		Message_Add(CSG_String::Format("%s: %s", _TL("loading"), SG_File_Get_Name(Files[i], false).c_str()));
 
 		CSG_Grid	*pBand	= Get_Band(Files[i]);
 
@@ -255,7 +253,7 @@ CSG_Grid * CLandsat_Import::Get_Band(const CSG_String &File)
 
 	if( !tmpMgr.Add(File) || !tmpMgr.Get_Grid_System(0) || !tmpMgr.Get_Grid_System(0)->Get(0) )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("could not load file"), File.c_str()));
+		Error_Set(CSG_String::Format("%s: %s", _TL("could not load file"), File.c_str()));
 
 		return( NULL );
 	}
@@ -337,14 +335,14 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( NULL );
 	}
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("pj_proj4"), 4);	// Coordinate Transformation (Grid)
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 	if(	pTool == NULL )
 	{
 		return( NULL );
 	}
 
-	Message_Add(CSG_String::Format(SG_T("\n%s (%s: %s)\n"), _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
+	Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
 
 	pTool->Settings_Push(NULL);
 
@@ -353,7 +351,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 	&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 	&&  pTool->Execute() )
 	{
-		pGrid	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+		pGrid	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 
 		pTool->Settings_Pop();
 
@@ -362,7 +360,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	pTool->Settings_Pop();
 
-	Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("re-projection"), _TL("failed")), false);
+	Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed")), false);
 
 	return( NULL );
 }

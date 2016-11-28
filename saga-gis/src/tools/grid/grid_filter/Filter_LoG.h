@@ -92,6 +92,8 @@ protected:
 
 	virtual bool		On_Execute		(void);
 
+	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 
 private:
 
@@ -104,6 +106,7 @@ private:
 
 	double				Get_Value		(int x, int y);
 
+	virtual bool		On_After_Execution(void);
 };
 
 

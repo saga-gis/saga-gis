@@ -115,33 +115,26 @@ COGR_Import::COGR_Import(void)
 
 	Set_Description(Description);
 
-	Filter.Prepend(CSG_String::Format("%s|%s|" , _TL("All Recognized Files"), Filter_All.c_str()));
-	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
+	Filter.Prepend(CSG_String::Format("%s|%s|", _TL("All Recognized Files"), Filter_All.c_str()));
+	Filter.Append (CSG_String::Format("%s|*.*", _TL("All Files")));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes_List(NULL,
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILES"	, _TL("Files"),
+	Parameters.Add_FilePath(NULL,
+		"FILES"	, _TL("Files"),
 		_TL(""),
 		Filter, NULL, false, false, true
 	);
 
-	CSG_String	sChoices;
-	for(int i=0; i<GEOM_TYPE_KEY_Count; i++)
-	{
-		sChoices += gSG_Geom_Type_Choice_Key_Name[i];	sChoices += "|";
-	}
-
-	Parameters.Add_Choice(
-		NULL	, "GEOM_TYPE"	, _TL("Geometry Type"),
+	Parameters.Add_Choice(NULL,
+		"GEOM_TYPE"	, _TL("Geometry Type"),
 		_TL("Some OGR drivers are unable to determine the geometry type automatically, please choose the appropriate one in this case"),
-		sChoices,
-		0
+		SG_Get_OGR_WKB_Type_Choices(), 0
 	);
 }
 
@@ -153,10 +146,9 @@ COGR_Import::COGR_Import(void)
 //---------------------------------------------------------
 bool COGR_Import::On_Execute(void)
 {
-	CSG_Strings		Files;
-	CSG_OGR_DataSet	DataSource;
-
 	//-----------------------------------------------------
+	CSG_Strings		Files;
+
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) )
 	{
 		return( false );
@@ -167,7 +159,9 @@ bool COGR_Import::On_Execute(void)
 
 	for(int iFile=0; iFile<Files.Get_Count(); iFile++)
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("loading"), Files[iFile].c_str()));
+		Message_Add(CSG_String::Format("%s: %s", _TL("loading"), Files[iFile].c_str()));
+
+		CSG_OGR_DataSet	DataSource;
 
 		if( !DataSource.Create(Files[iFile]) )
 		{
@@ -177,35 +171,33 @@ bool COGR_Import::On_Execute(void)
 		{
 			Message_Add(_TL("no layers in data source"));
 		}
-		else
+		else for(int iLayer=0; iLayer<DataSource.Get_Count(); iLayer++)
 		{
-			for(int iLayer=0; iLayer<DataSource.Get_Count(); iLayer++)
+			CSG_Shapes	*pShapes	= DataSource.Read(iLayer, Parameters("GEOM_TYPE")->asInt());
+
+			if( pShapes )
 			{
-				CSG_Shapes	*pShapes	= DataSource.Read(iLayer, Parameters("GEOM_TYPE")->asInt());
+				Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
 
-				if( pShapes )
+				CSG_String	Name	= pShapes->Get_Name();
+
+				pShapes->Get_MetaData().Add_Child("GDAL_DRIVER", DataSource.Get_DriverID());
+				pShapes->Set_File_Name(Files[iFile]);
+				pShapes->Set_Description(DataSource.Get_Description(iLayer));
+
+				if( Name.is_Empty() )
 				{
-					Parameters("SHAPES")->asShapesList()->Add_Item(pShapes);
-
-					CSG_String	Name	= pShapes->Get_Name();
-
-					pShapes->Get_MetaData().Add_Child("GDAL_DRIVER", DataSource.Get_DriverID());
-					pShapes->Set_File_Name(Files[iFile]);
-					pShapes->Set_Description(DataSource.Get_Description(iLayer));
-
-					if( Name.is_Empty() )
-					{
-						pShapes->Set_Name(SG_File_Get_Name(Files[iFile], false) + (DataSource.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%d]", 1 + iLayer)));
-					}
-					else
-					{
-						pShapes->Set_Name(Name);
-					}
+					pShapes->Set_Name(SG_File_Get_Name(Files[iFile], false) + (DataSource.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%d]", 1 + iLayer)));
+				}
+				else
+				{
+					pShapes->Set_Name(Name);
 				}
 			}
 		}
 	}
 
+	//-----------------------------------------------------
 	return( Parameters("SHAPES")->asShapesList()->Get_Count() > 0 );
 }
 
@@ -221,7 +213,7 @@ bool	SG_OGR_Import	(const CSG_String &File_Name)
 {
 	COGR_Import	Import;
 
-	if(	!Import.Get_Parameters()->Set_Parameter(SG_T("FILES"), File_Name, PARAMETER_TYPE_FilePath) )
+	if(	!Import.Get_Parameters()->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
 	{
 		return( false );
 	}
@@ -231,7 +223,7 @@ bool	SG_OGR_Import	(const CSG_String &File_Name)
 		return( false );
 	}
 
-	CSG_Parameter_Shapes_List	*pShapes	= Import.Get_Parameters()->Get_Parameter(SG_T("SHAPES"))->asShapesList();
+	CSG_Parameter_Shapes_List	*pShapes	= Import.Get_Parameters()->Get_Parameter("SHAPES")->asShapesList();
 
 	for(int i=0; i<pShapes->Get_Count(); i++)
 	{

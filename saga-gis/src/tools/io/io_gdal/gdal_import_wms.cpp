@@ -336,10 +336,10 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 
 	pTool->Settings_Push();
 
-	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4" , SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
-	&&  SG_TOOL_PARAMETER_SET("SOURCE"    , &rTarget)
-	&&  SG_TOOL_PARAMETER_SET("TARGET"    , &rSource)
-	&&  SG_TOOL_PARAMETER_SET("PRECISE"   , true)
+	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
+	&&  SG_TOOL_PARAMETER_SET("SOURCE"   , &rTarget)
+	&&  SG_TOOL_PARAMETER_SET("TARGET"   , &rSource)
+	&&  SG_TOOL_PARAMETER_SET("PRECISE"  , true)
 	&&  pTool->Execute() )
 	{
 		Extent	= rSource.Get_Extent();
@@ -377,13 +377,13 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 	//-----------------------------------------------------
 	pTool->Settings_Push();
 
-	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4" , pTarget->Get_Projection().Get_Proj4())
-	&&  SG_TOOL_PARAMETER_SET("RESAMPLING", 3)
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[2])
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[1])
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"    , pBands[0])
-	&&  pTool->Get_Parameters("TARGET")->Get_Parameter("DEFINITION")->Set_Value(1)
-	&&  pTool->Get_Parameters("TARGET")->Get_Parameter("SYSTEM")->asGrid_System()->Assign(pTarget->Get_System())
+	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4"        , pTarget->Get_Projection().Get_Proj4())
+	&&  SG_TOOL_PARAMETER_SET("RESAMPLING"       , 3)
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[2])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[1])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[0])
+	&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)
+	&&  SG_TOOL_PARAMETER_SET("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
 	&&  pTool->Execute() )
 	{
 		CSG_Parameter_Grid_List	*pGrids	= pTool->Get_Parameters()->Get_Parameter("GRIDS")->asGridList();
