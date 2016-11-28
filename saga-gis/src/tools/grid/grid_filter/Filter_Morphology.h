@@ -100,6 +100,7 @@ private:
 
 	bool					Get_Range		(int x, int y, double &Minimum, double &Maximum);
 
+	virtual bool			On_After_Execution(void);
 };
 
 

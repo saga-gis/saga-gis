@@ -100,7 +100,7 @@ CFilter_Morphology::CFilter_Morphology(void)
 
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
@@ -109,13 +109,13 @@ CFilter_Morphology::CFilter_Morphology(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Method"),
-		_TL(""),
+		_TL("Choose the operation to perform."),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("Dilation"),
 			_TL("Erosion"),
@@ -168,7 +168,9 @@ bool CFilter_Morphology::On_Execute(void)
 	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= SG_Create_Grid(m_pInput);
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
 	}
 	else
 	{
@@ -223,14 +225,17 @@ bool CFilter_Morphology::On_Execute(void)
 		}
 	}
 
-	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+	//-------------------------------------------------
+	if( pResult == &Result )
 	{
-		m_pInput->Assign(pResult);
+		CSG_MetaData	History	= m_pInput->Get_History();
 
-		delete(pResult);
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
 
 		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Kernel.Destroy();
@@ -273,6 +278,17 @@ bool CFilter_Morphology::Get_Range(int x, int y, double &Minimum, double &Maximu
 				}
 			}
 		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CFilter_Morphology::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
 	}
 
 	return( true );
