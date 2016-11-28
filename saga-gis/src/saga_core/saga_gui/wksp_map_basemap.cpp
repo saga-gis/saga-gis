@@ -103,9 +103,8 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	pNode_1	= m_Parameters.Add_Choice(
 		pNode	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
-			_TL("MapQuest"),
 			_TL("Google Map"),
 			_TL("Google Satellite"),
 			_TL("Google Hybrid"),
@@ -344,7 +343,7 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
 		{
-			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= 8);	// user defined
+			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);	// user defined
 		}
 	}
 

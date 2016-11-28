@@ -349,6 +349,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 	if( pTool->Set_Parameter("CRS_PROJ4" , Proj4)
 	&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 	&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
+	&&  pTool->Set_Parameter("KEEP_TYPE" , true)
 	&&  pTool->Execute() )
 	{
 		pGrid	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
