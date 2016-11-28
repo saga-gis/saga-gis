@@ -100,7 +100,7 @@ CFilter_Majority::CFilter_Majority(void)
 
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
@@ -109,13 +109,13 @@ CFilter_Majority::CFilter_Majority(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	Parameters.Add_Value(
-		NULL, "THRESHOLD"	, _TL("Threshold [Percent]"),
-		_TL(""),
+		NULL, "THRESHOLD"	, _TL("Threshold"),
+		_TL("The majority threshold [percent]."),
 		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
 	);
 }
@@ -138,11 +138,13 @@ bool CFilter_Majority::On_Execute(void)
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid	Result, *pResult = Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
 	}
 	else
 	{
@@ -168,10 +170,17 @@ bool CFilter_Majority::On_Execute(void)
 		}
 	}
 
-	//-----------------------------------------------------
-	if( m_pInput == &Input )
+	//-------------------------------------------------
+	if( pResult == &Result )
 	{
-		DataObject_Update(pResult);
+		CSG_MetaData	History	= m_pInput->Get_History();
+
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
+
+		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Kernel.Destroy();
@@ -210,6 +219,17 @@ double CFilter_Majority::Get_Majority(int x, int y)
 	Majority.Get_Majority(Value, Count);
 
 	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
+}
+
+//---------------------------------------------------------
+bool CFilter_Majority::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
 }
 
 
