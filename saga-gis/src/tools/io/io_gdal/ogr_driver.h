@@ -64,6 +64,7 @@
 #include "MLB_Interface.h"
 
 #include <gdal.h>
+#include <ogr_core.h>
 
 #if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR == 2
 #define USE_GDAL_V2
