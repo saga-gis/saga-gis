@@ -305,11 +305,11 @@ bool CGrid_to_KML::On_Execute(void)
 		{
 			bDelete	= true;
 
-			pGrid	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+			pGrid	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 
 			if( pShade && pTool->Set_Parameter("SOURCE", pShade) && pTool->Execute() )
 			{
-				pShade	= pTool->Get_Parameters("TARGET")->Get_Parameter("GRID")->asGrid();
+				pShade	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 			}
 			else
 			{
