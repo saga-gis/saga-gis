@@ -112,9 +112,8 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	pNode	= Parameters.Add_Choice(
 		NULL	, "SERVER"		, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
-			_TL("MapQuest"),
 			_TL("Google Map"),
 			_TL("Google Satellite"),
 			_TL("Google Hybrid"),
@@ -237,7 +236,7 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
 	{
-		pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CACHE") )
@@ -379,9 +378,10 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 
 	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4"        , pTarget->Get_Projection().Get_Proj4())
 	&&  SG_TOOL_PARAMETER_SET("RESAMPLING"       , 3)
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[2])
-	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[1])
+	&&  SG_TOOL_PARAMETER_SET("KEEP_TYPE"        , true)
 	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[0])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[1])
+	&&  SG_TOOL_PARAMLIST_ADD("SOURCE"           , pBands[2])
 	&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)
 	&&  SG_TOOL_PARAMETER_SET("TARGET_SYSTEM"    , (void *)&pTarget->Get_System())
 	&&  pTool->Execute() )
@@ -515,14 +515,13 @@ CSG_String CGDAL_Import_WMS::Get_Request(void)
 	switch( Parameters("SERVER")->asInt() )
 	{
 	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                    ;	break;	// Open Street Map
-	case  1:	Server	= "otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png"                                          ;	break;	// MapQuest
-	case  2:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Map
-	case  3:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Satellite
-	case  4:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Hybrid
-	case  5:	Server	= "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain
-	case  6:	Server	= "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain, Streets and Water
-	case  7:	Server	= "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}";	break;	// ArcGIS MapServer Tiles
-	case  8:	Server	= Parameters("SERVER_USER")->asString()                                                          ;	break;	// user defined
+	case  1:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Map
+	case  2:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Satellite
+	case  3:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Hybrid
+	case  4:	Server	= "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain
+	case  5:	Server	= "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain, Streets and Water
+	case  6:	Server	= "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}";	break;	// ArcGIS MapServer Tiles
+	case  7:	Server	= Parameters("SERVER_USER")->asString()                                                          ;	break;	// user defined
 //	case  x:	Server	= "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                              ;	break;	// Blue Marble
 	}
 
