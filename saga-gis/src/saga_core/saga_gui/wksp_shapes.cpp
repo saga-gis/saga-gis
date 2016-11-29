@@ -156,7 +156,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 	DESC_ADD_STR(_TL("Type"            ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
 	DESC_ADD_STR(_TL("Vertex Type"     ), Get_Shapes()->Get_Vertex_Type() == 0 ? _TL("X, Y") : Get_Shapes()->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
 	DESC_ADD_INT(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
-	DESC_ADD_INT(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_SIZET(_TL("Selected"      ), Get_Shapes()->Get_Selection_Count());
 
 	s	+= wxT("</table>");
 
