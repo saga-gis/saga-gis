@@ -97,7 +97,7 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Choice(
 		NULL	, "METHOD"		, _TL("Filter"),
-		_TL(""),
+		_TL("Choose the filter method."),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Smooth"),
 			_TL("Sharpen"),
@@ -107,7 +107,7 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Choice(
 		NULL	, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
@@ -116,25 +116,9 @@ CFilter::CFilter(void)
 
 	Parameters.Add_Value(
 		NULL	, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CFilter::On_Before_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
 }
 
 
@@ -148,13 +132,14 @@ bool CFilter::On_Execute(void)
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
+
 
 	if( !pResult || pResult == m_pInput )
 	{
-		Parameters("RESULT")->Set_Value(pResult = m_pInput);
-		Input.Create(*m_pInput);
-		m_pInput	= &Input;
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
 	}
 	else
 	{
@@ -196,6 +181,19 @@ bool CFilter::On_Execute(void)
 				pResult->Set_NoData(x, y);
 			}
 		}
+	}
+
+	//-------------------------------------------------
+	if( pResult == &Result )
+	{
+		CSG_MetaData	History	= m_pInput->Get_History();
+
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
+
+		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Kernel.Destroy();
@@ -240,6 +238,16 @@ bool CFilter::Get_Mean(int x, int y, double &Value)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CFilter::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
