@@ -1,0 +1,10 @@
+message("folder: tools/simulation")
+
+add_subdirectory(sim_cellular_automata)
+add_subdirectory(sim_ecosystems_hugget)
+add_subdirectory(sim_erosion)
+add_subdirectory(sim_fire_spreading)
+add_subdirectory(sim_hydrology)
+add_subdirectory(sim_ihacres)
+add_subdirectory(sim_qm_of_esp)
+add_subdirectory(sim_rivflow)

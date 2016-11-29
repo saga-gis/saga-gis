@@ -1,0 +1,10 @@
+message("folder: tools/terrain_analysis")
+
+add_subdirectory(ta_channels)
+add_subdirectory(ta_compound)
+add_subdirectory(ta_hydrology)
+add_subdirectory(ta_lighting)
+add_subdirectory(ta_morphometry)
+add_subdirectory(ta_preprocessor)
+add_subdirectory(ta_profiles)
+add_subdirectory(ta_slope_stability)
