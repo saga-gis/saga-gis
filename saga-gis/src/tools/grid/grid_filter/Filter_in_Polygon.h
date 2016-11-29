@@ -105,6 +105,7 @@ private:
 	double					Get_Mean_Square	(int x, int y, int Radius);
 	double					Get_Mean_Circle	(int x, int y);
 
+	virtual bool			On_After_Execution(void);
 };
 
 
