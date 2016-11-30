@@ -109,15 +109,10 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	//-----------------------------------------------------
 	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
 
-	m_Parameters.Add_Choice(
+	m_Parameters.Add_Bool(
 		pNode	, "START_LOGO"		, _TL("Show Logo at Start Up"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
-			_TL("do not show"),
-			_TL("only during start up phase"),
-			_TL("20 seconds"),
-			_TL("until user closes it")
-		), 1
+		true
 	);
 
 	m_Parameters.Add_Value(

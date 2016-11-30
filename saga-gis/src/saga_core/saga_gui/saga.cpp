@@ -158,7 +158,6 @@ bool CSAGA::OnInit(void)
 	//setlocale(LC_NUMERIC, "C");
 	m_wxLocale.Init(wxLANGUAGE_ENGLISH);
 
-
 	_Init_Config();
 
 	//-----------------------------------------------------
@@ -168,25 +167,13 @@ bool CSAGA::OnInit(void)
 	m_Process_Frequency	= CONFIG_Read("/TOOLS", "PROCESS_UPDATE", lValue) ? lValue : 0;
 
 	//-----------------------------------------------------
-	wxSplashScreen	*pLogo;
+	bool	bLogo	= argc <= 1 && CONFIG_Read("/TOOLS", "START_LOGO", bLogo) ? bLogo : true;
 
-	long	iLogo		= CONFIG_Read("/TOOLS", "START_LOGO"    , iLogo ) ? iLogo : 1;
-
-	switch( iLogo )
-	{
-	default:
-		pLogo	= NULL;
-		break;
-
-	case 1:
-	case 3:
-		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_NO_TIMEOUT, 0, NULL, -1);
-		break;
-
-	case 2:
-		pLogo	= new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH), wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT, 20000, NULL, -1);
-		break;
-	}
+	wxSplashScreen	*pLogo	= !bLogo ? NULL :
+		new wxSplashScreen(IMG_Get_Bitmap(ID_IMG_SAGA_SPLASH),
+			wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_NO_TIMEOUT, 0, NULL, -1,
+			wxDefaultPosition, wxDefaultSize, wxBORDER_SIMPLE
+		);
 
 	wxYield();
 
@@ -252,7 +239,7 @@ bool CSAGA::OnInit(void)
 	SetTopWindow(new CSAGA_Frame());
 
 	//-----------------------------------------------------
-	if( pLogo && (iLogo == 1 || argc > 1) )
+	if( pLogo )
 	{
 		pLogo->Destroy();
 
