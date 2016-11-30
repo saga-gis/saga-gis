@@ -90,7 +90,6 @@ public:
 
 protected:
 
-	virtual bool			On_Before_Execution		(void);
 	virtual bool			On_Execute				(void);
 
 
@@ -103,6 +102,7 @@ private:
 
 	bool					Get_Mean		(int x, int y, double &Value);
 
+	virtual bool			On_After_Execution(void);
 };
 
 

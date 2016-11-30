@@ -100,7 +100,7 @@ CFilter_Rank::CFilter_Rank(void)
 
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
@@ -109,13 +109,13 @@ CFilter_Rank::CFilter_Rank(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 
 	Parameters.Add_Value(
-		NULL, "RANK"		, _TL("Rank [Percent]"),
-		_TL(""),
+		NULL, "RANK"		, _TL("Rank"),
+		_TL("The rank [percent]."),
 		PARAMETER_TYPE_Double, 50.0, 0.0, true, 100.0, true
 	);
 }
@@ -138,11 +138,13 @@ bool CFilter_Rank::On_Execute(void)
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		Input.Create(*m_pInput); pResult = m_pInput; m_pInput = &Input;
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
 	}
 	else
 	{
@@ -170,10 +172,18 @@ bool CFilter_Rank::On_Execute(void)
 		}
 	}
 
-	//-----------------------------------------------------
-	if( m_pInput == &Input )
+
+	//-------------------------------------------------
+	if( pResult == &Result )
 	{
-		DataObject_Update(pResult);
+		CSG_MetaData	History	= m_pInput->Get_History();
+
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
+
+		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Kernel.Destroy();
@@ -244,6 +254,16 @@ bool CFilter_Rank::Get_Value(int x, int y, double Rank, double &Value)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CFilter_Rank::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //

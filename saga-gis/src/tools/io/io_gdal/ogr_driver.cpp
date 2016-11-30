@@ -171,7 +171,7 @@ CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 //---------------------------------------------------------
 CSG_OGR_Drivers::~CSG_OGR_Drivers(void)
 {
-//	OGRCleanupAll();	
+//	OGRCleanupAll();
 }
 
 
@@ -333,7 +333,7 @@ TSG_Vertex_Type CSG_OGR_Drivers::Get_Vertex_Type(OGRwkbGeometryType Type)
 	case wkbMultiLineString25D   :	// 2.5D extension as per 99-402
 	case wkbPolygon25D           :	// 2.5D extension as per 99-402
 	case wkbMultiPolygon25D      :	// 2.5D extension as per 99-402
-	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402 
+	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402
 		return( SG_VERTEX_TYPE_XYZ );
 
 	default:
@@ -371,7 +371,7 @@ TSG_Shape_Type CSG_OGR_Drivers::Get_Shape_Type(OGRwkbGeometryType Type)
 	case wkbNone                 :	// non-standard, for pure attribute records
 	case wkbLinearRing           :	// non-standard, just for createGeometry()
 	case wkbGeometryCollection   :	// geometric object that is a collection of 1 or more geometric objects, standard WKB
-	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402 
+	case wkbGeometryCollection25D:	// 2.5D extension as per 99-402
 		return( SHAPE_TYPE_Undefined );
 	}
 }
@@ -403,7 +403,7 @@ TSG_Data_Type CSG_OGR_Drivers::Get_Data_Type(int Type)
 	case OFTString        :	// String of ASCII chars
 		return( SG_DATATYPE_String );
 
-	case OFTDateTime      :	// Date and Time 
+	case OFTDateTime      :	// Date and Time
 		return( SG_DATATYPE_Date );
 
 	default:
@@ -631,14 +631,14 @@ TSG_Shape_Type CSG_OGR_DataSet::Get_Type(int iLayer)	const
 		return( SHAPE_TYPE_Undefined );
 	}
 
-	OGRwkbGeometryType	Type	= pLayer->GetGeomType();
+	OGRwkbGeometryType	Type	= pLayer->GetLayerDefn()->GetGeomType();
 
 	if( Type == wkbNone || Type == wkbUnknown )
 	{
 		pLayer->ResetReading();
 
 		OGRFeature	*pFeature;
-		
+
 		while( (Type == wkbNone || Type == wkbUnknown) && (pFeature = pLayer->GetNextFeature()) != NULL )
 		{
 			if( pFeature->GetGeometryRef() )

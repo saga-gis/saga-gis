@@ -109,7 +109,7 @@ CFilter_in_Polygon::CFilter_in_Polygon(void)
 
 	Parameters.Add_Choice(
 		NULL, "MODE"		, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the filter method."),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("Square"),
 			_TL("Circle")
@@ -118,7 +118,7 @@ CFilter_in_Polygon::CFilter_in_Polygon(void)
 
 	Parameters.Add_Choice(
 		NULL, "METHOD"		, _TL("Filter"),
-		_TL(""),
+		_TL("Choose the shape of the filter kernel."),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("Smooth"),
 			_TL("Sharpen"),
@@ -128,7 +128,7 @@ CFilter_in_Polygon::CFilter_in_Polygon(void)
 
 	Parameters.Add_Value(
 		NULL, "RADIUS"		, _TL("Radius"),
-		_TL(""),
+		_TL("The search radius [cells]."),
 		PARAMETER_TYPE_Int, 1, 1, true
 	);
 }
@@ -145,7 +145,7 @@ bool CFilter_in_Polygon::On_Execute(void)
 {
 	int			Mode, Radius, Method;
 	double		Mean;
-	CSG_Grid	*pResult;
+	CSG_Grid	Result, *pResult;
 	
 
 	//-----------------------------------------------------
@@ -168,7 +168,9 @@ bool CFilter_in_Polygon::On_Execute(void)
 	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= SG_Create_Grid(m_pInput);
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
 	}
 	else
 	{
@@ -179,7 +181,7 @@ bool CFilter_in_Polygon::On_Execute(void)
 
 
 
-		Process_Set_Text(_TL("Initializing Fields"));
+	Process_Set_Text(_TL("Initializing Fields"));
 
 	int m_nFields	= Boundaries->Get_Count();
 
@@ -244,14 +246,17 @@ bool CFilter_in_Polygon::On_Execute(void)
 		}
 	}
 
-	//-----------------------------------------------------
-	if( !Parameters("RESULT")->asGrid() || Parameters("RESULT")->asGrid() == m_pInput )
+	//-------------------------------------------------
+	if( pResult == &Result )
 	{
-		m_pInput->Assign(pResult);
+		CSG_MetaData	History	= m_pInput->Get_History();
 
-		delete(pResult);
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
 
 		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Radius.Destroy();
@@ -309,6 +314,16 @@ double CFilter_in_Polygon::Get_Mean_Circle(int x, int y)
 	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
 }
 
+//---------------------------------------------------------
+bool CFilter_in_Polygon::On_After_Execution(void)
+{
+	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //

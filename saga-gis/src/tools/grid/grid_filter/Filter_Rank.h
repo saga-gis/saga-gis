@@ -100,6 +100,7 @@ private:
 
 	bool					Get_Value		(int x, int y, double Rank, double &Value);
 
+	virtual bool			On_After_Execution(void);
 };
 
 
