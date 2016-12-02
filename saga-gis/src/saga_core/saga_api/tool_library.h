@@ -260,12 +260,59 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 	}\
 }
 
-//---------------------------------------------------------
 #define SG_RUN_TOOL_ExitOnError(LIBRARY, TOOL, CONDITION)	{\
 	\
 	bool	bResult;\
 	\
 	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
+	\
+	if( !bResult )\
+	{\
+		return( false );\
+	}\
+}
+
+//---------------------------------------------------------
+#define SG_RUN_TOOL_KEEP_PARMS(bRetVal, LIBRARY, TOOL, PARMS, CONDITION)	{\
+	\
+	bRetVal	= false;\
+	\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T(LIBRARY), TOOL);\
+	\
+	if(	pTool == NULL )\
+	{\
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("could not find tool"), SG_T(LIBRARY)));\
+	}\
+	else\
+	{\
+		SG_UI_Process_Set_Text(pTool->Get_Name());\
+		\
+		pTool->Settings_Push();\
+		\
+		if( !pTool->On_Before_Execution() || !(CONDITION) )\
+		{\
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not initialize tool"), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
+		}\
+		else if( !pTool->Execute() )\
+		{\
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s].[%s]", _TL("could not execute tool"   ), SG_T(LIBRARY), pTool->Get_Name().c_str()));\
+		}\
+		else\
+		{\
+			bRetVal	= true;\
+		}\
+		\
+		PARMS.Assign(pTool->Get_Parameters());\
+		\
+		pTool->Settings_Pop();\
+	}\
+}
+
+#define SG_RUN_TOOL_KEEP_PARMS_ExitOnError(LIBRARY, TOOL, CONDITION)	{\
+	\
+	bool	bResult;\
+	\
+	SG_RUN_TOOL_KEEP_PARMS(bResult, LIBRARY, TOOL, PARMS, CONDITION)\
 	\
 	if( !bResult )\
 	{\
@@ -287,6 +334,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()\
 	&&	pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)->asList()->Assign(VALUE)\
 )
+
 
 ///////////////////////////////////////////////////////////
 //														 //

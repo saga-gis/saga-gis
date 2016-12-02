@@ -262,7 +262,7 @@ void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &
 {
 	CSG_String	Reference	= Authors;
 
-	Reference.Printf("%s (%s): %s. %s", Authors.c_str(), Year.c_str(), Title.c_str(), Where.c_str());
+	Reference.Printf("<b>%s (%s):</b> %s. %s", Authors.c_str(), Year.c_str(), Title.c_str(), Where.c_str());
 
 	if( Link && *Link )
 	{
