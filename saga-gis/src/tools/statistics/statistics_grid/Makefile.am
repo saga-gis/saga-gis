@@ -16,6 +16,7 @@ fast_representativeness.cpp\
 grid_autocorrelation.cpp\
 grid_latlon_statistics.cpp\
 grid_pca.cpp\
+grid_pca_focal.cpp\
 multiband_variation.cpp\
 GSGrid_Directional_Statistics.cpp\
 GSGrid_Residuals.cpp\
@@ -29,6 +30,7 @@ fast_representativeness.h\
 grid_autocorrelation.h\
 grid_latlon_statistics.h\
 grid_pca.h\
+grid_pca_focal.h\
 multiband_variation.h\
 GSGrid_Directional_Statistics.h\
 GSGrid_Residuals.h\

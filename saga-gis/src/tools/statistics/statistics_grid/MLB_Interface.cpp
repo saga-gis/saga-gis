@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -80,7 +77,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Spatial and Geostatistics") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O.Conrad, V.Wichmann (c) 2002-10" ));
+		return( SG_T("O.Conrad, V.Wichmann (c) 2002-16" ));
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for spatial and geostatistical analyses.") );
@@ -109,6 +106,7 @@ CSG_String Get_Info(int i)
 #include "multiband_variation.h"
 #include "grid_latlon_statistics.h"
 #include "categorical_variation.h"
+#include "grid_pca_focal.h"
 
 
 //---------------------------------------------------------
@@ -133,8 +131,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 12:	return( new CGrid_Statistics_Meridional );
 	case 13:	return( new CGSGrid_Statistics_To_Table );
 	case 14:	return( new CCategorical_Variation );
+	case 15:	return( new CGrid_PCA_Focal );
 
-	case 15:	return( NULL );
+	case 16:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

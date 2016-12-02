@@ -53,6 +53,9 @@
     <ClCompile Include="categorical_variation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid_pca_focal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="categorical_variation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_pca_focal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

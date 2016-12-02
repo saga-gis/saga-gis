@@ -298,6 +298,7 @@
     <ClCompile Include="grid_autocorrelation.cpp" />
     <ClCompile Include="grid_latlon_statistics.cpp" />
     <ClCompile Include="grid_pca.cpp" />
+    <ClCompile Include="grid_pca_focal.cpp" />
     <ClCompile Include="GSGrid_Directional_Statistics.cpp" />
     <ClCompile Include="GSGrid_Residuals.cpp" />
     <ClCompile Include="GSGrid_Statistics.cpp" />
@@ -328,6 +329,7 @@
     <ClInclude Include="grid_autocorrelation.h" />
     <ClInclude Include="grid_latlon_statistics.h" />
     <ClInclude Include="grid_pca.h" />
+    <ClInclude Include="grid_pca_focal.h" />
     <ClInclude Include="GSGrid_Directional_Statistics.h" />
     <ClInclude Include="GSGrid_Residuals.h" />
     <ClInclude Include="GSGrid_Statistics.h" />
