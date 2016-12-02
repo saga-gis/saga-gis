@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_pca.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -74,52 +71,60 @@ CGrid_PCA::CGrid_PCA(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Principle Components Analysis"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Principle Components Analysis (PCA) for grids. "
-		"Implementation based on F. Murtagh's "
-		"<a target=\"_blank\" href=\"http://lib.stat.cmu.edu/multi/pca.c\">code</a> "
-		"as provided by the "
-		"<a target=\"_blank\" href=\"http://lib.stat.cmu.edu\">StatLib</a> web site.\n"
-		"\n"
-		"References:\n"
-		"Bahrenberg, G., Giese, E., Nipper, J. (1992): Statistische Methoden in der Geographie 2 - Multivariate Statistik. pp.198-277.\n"
+		"PCA implementation is based on F.Murtagh's code as provided by the StatLib web site."
 	));
 
+	Add_Reference("Bahrenberg, G., Giese, E., Nipper, J.", "1992",
+		"Statistische Methoden in der Geographie 2 - Multivariate Statistik", "pp.198-277."
+	);
+
+	Add_Reference("http://lib.stat.cmu.edu/multi/pca.c", SG_T("C-code by F.Murtagh"));
+	Add_Reference("http://lib.stat.cmu.edu"            , SG_T("StatLib Web Site"   ));
+
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List(NULL,
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "PCA"			, _TL("Principle Components"),
+	Parameters.Add_Grid_List(NULL,
+		"PCA"		, _TL("Principle Components"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "EIGEN"		, _TL("Eigen Vectors"),
+	Parameters.Add_Table(NULL,
+		"EIGEN"		, _TL("Eigen Vectors"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("correlation matrix"),
 			_TL("variance-covariance matrix"),
 			_TL("sums-of-squares-and-cross-products matrix")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NFIRST"		, _TL("Number of Components"),
-		_TL("maximum number of calculated first components; set to zero to get all"),
-		PARAMETER_TYPE_Int, 3, 0, true
+	Parameters.Add_Int(NULL,
+		"COMPONENTS", _TL("Number of Components"),
+		_TL("number of first components in the output; set to zero to get all"),
+		3, 0, true
+	);
+
+	Parameters.Add_Bool(NULL,
+		"OVERWRITE"	, _TL("Overwrite Previous Results"),
+		_TL(""),
+		true
 	);
 }
 
@@ -158,7 +163,8 @@ bool CGrid_PCA::On_Execute(void)
 
 	//-----------------------------------------------------
 	Print_Eigen_Values (Eigen_Values );
-	Print_Eigen_Vectors(Eigen_Vectors);
+
+//	Print_Eigen_Vectors(Eigen_Vectors);
 
 	Get_Components(Eigen_Vectors);
 
@@ -216,8 +222,7 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 	switch( m_Method )
 	{
 	//-----------------------------------------------------
-	default:
-	case 0:	// Correlation matrix: Center and reduce the column vectors.
+	default:	// Correlation matrix: Center and reduce the column vectors.
 		for(j1=0; j1<m_nFeatures; j1++)
 		{
 			Matrix[j1][j1] = 1.0;
@@ -239,8 +244,8 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 		break;
 
 	//-----------------------------------------------------
-	case 1:	// Variance-covariance matrix: Center the column vectors.
-	case 2:	// Sums-of-squares-and-cross-products matrix
+	case  1:	// Variance-covariance matrix: Center the column vectors.
+	case  2:	// Sums-of-squares-and-cross-products matrix
 		for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 		{
 			if( !is_NoData(iCell) )
@@ -287,13 +292,13 @@ void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 
 	Sum	= Sum > 0.0 ? 100.0 / Sum : 0.0;
 
-	Message_Add(CSG_String::Format(SG_T("\n%s, %s, %s\n"), _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue")), false);
+	Message_Add(CSG_String::Format("\n%s, %s, %s\n", _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue")), false);
 
 	for(i=m_nFeatures-1; i>=0; i--)
 	{
 		Cum	+= Eigen_Values[i];
 
-		Message_Add(CSG_String::Format(SG_T("%d.\t%.2f\t%.2f\t%f\n"),
+		Message_Add(CSG_String::Format("%d.\t%.2f\t%.2f\t%f\n",
 				m_nFeatures - i,
 				Sum * Eigen_Values[i],
 				Sum * Cum,
@@ -306,17 +311,17 @@ void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 //---------------------------------------------------------
 void CGrid_PCA::Print_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 {
-	Message_Add(CSG_String::Format(SG_T("\n%s:\n"), _TL("Eigenvectors")), false);
+	Message_Add(CSG_String::Format("\n%s:\n", _TL("Eigenvectors")), false);
 
 	for(int i=0; i<m_nFeatures; i++)
 	{
 		for(int j=m_nFeatures-1; j>=0; j--)
 		{
-			Message_Add(CSG_String::Format(SG_T("%.4f\t"), Eigen_Vectors[i][j]), false);
+			Message_Add(CSG_String::Format("%.4f\t", Eigen_Vectors[i][j]), false);
 		}
 
 		Message_Add(m_pGrids->asGrid(i)->Get_Name(), false);
-		Message_Add(SG_T("\n"), false);
+		Message_Add("\n", false);
 	}
 }
 
@@ -369,7 +374,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	int	nComponents	= Parameters("NFIRST")->asInt();
+	int	nComponents	= Parameters("COMPONENTS")->asInt();
 
 	if( nComponents <= 0 || nComponents > m_nFeatures )
 	{
@@ -379,12 +384,19 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pPCA	= Parameters("PCA")->asGridList();
 
-	pPCA->Del_Items();
+	if( !Parameters("OVERWRITE")->asBool() )
+	{
+		pPCA->Del_Items();
+	}
 
 	for(i=0; i<nComponents; i++)
 	{
-		pPCA->Add_Item(SG_Create_Grid(*Get_System()));
-		pPCA->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s %d"), _TL("Component"), i + 1));
+		if( !pPCA->asGrid(i) )
+		{
+			pPCA->Add_Item(SG_Create_Grid(*Get_System()));
+		}
+
+		pPCA->asGrid(i)->Set_Name(CSG_String::Format("PC%0*d", nComponents < 10 ? 1 : 2, i + 1));
 	}
 
 	//-----------------------------------------------------
@@ -444,30 +456,31 @@ CGrid_PCA_Inverse::CGrid_PCA_Inverse(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Principle Components Rotation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Inverse principle components rotation for grids. "
-		"\n"
-		"References:\n"
-		"Bahrenberg, G., Giese, E., Nipper, J. (1992): Statistische Methoden in der Geographie 2 - Multivariate Statistik. pp.198-277.\n"
+		"Inverse principle components rotation for grids."
 	));
 
+	Add_Reference("Bahrenberg, G., Giese, E., Nipper, J.", "1992",
+		"Statistische Methoden in der Geographie 2 - Multivariate Statistik", "pp.198-277."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "PCA"			, _TL("Principle Components"),
+	Parameters.Add_Grid_List(NULL,
+		"PCA"		, _TL("Principle Components"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "EIGEN"		, _TL("Eigen Vectors"),
+	Parameters.Add_Table(NULL,
+		"EIGEN"		, _TL("Eigen Vectors"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List(NULL,
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -547,7 +560,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	for(i=0; i<nFeatures; i++)
 	{
 		pGrids->Add_Item(SG_Create_Grid(*Get_System()));
-		pGrids->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s %d"), _TL("Feature"), i + 1));
+		pGrids->asGrid(i)->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
 	}
 
 	//-----------------------------------------------------
