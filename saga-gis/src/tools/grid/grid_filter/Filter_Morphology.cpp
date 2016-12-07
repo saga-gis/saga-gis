@@ -72,55 +72,54 @@
 CFilter_Morphology::CFilter_Morphology(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Morphological Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Morphological filter for grids."
+		"Morphological filter for grids. "
+		"Dilation returns the maximum and erosion the minimum value "
+		"found in a cell's neighbourhood as defined by the kernel. "
+		"Opening applies first an erosion followed by a dilation and "
+		"closing is a dilation followed by an erosion. "
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
+	Parameters.Add_Choice(NULL,
+		"KERNEL_TYPE"	, _TL("Kernel Type"),
 		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 1, 1, true
+	Parameters.Add_Int(NULL,
+		"KERNEL_RADIUS"	, _TL("Kernel Radius"),
+		_TL("Kernel radius in cells."),
+		2, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"		, _TL("Method"),
 		_TL("Choose the operation to perform."),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Dilation"),
-			_TL("Erosion"),
-			_TL("Opening"),
-			_TL("Closing")
+			_TL("Erosion" ),
+			_TL("Opening" ),
+			_TL("Closing" )
 		), 0
 	);
 }
@@ -128,114 +127,85 @@ CFilter_Morphology::CFilter_Morphology(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_Morphology::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_Morphology::On_Execute(void)
 {
-	int			x, y, ix, iy, Method;
-	double		Minimum, Maximum;
-	CSG_Grid	*pResult, Result;
-
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	m_Radius	= Parameters("RADIUS")	->asInt();
-	Method		= Parameters("METHOD")	->asInt();
+	m_Kernel.Set_Radius(
+		Parameters("KERNEL_RADIUS")->asInt(),
+		Parameters("KERNEL_TYPE"  )->asInt() == 0
+	);
 
-	//-----------------------------------------------------
-	m_Kernel.Create(SG_DATATYPE_Byte, 1 + 2 * m_Radius, 1 + 2 * m_Radius);
-	m_Kernel.Set_NoData_Value(0.0);
-	m_Kernel.Assign(1.0);
-	m_Kernel.Set_Value(m_Radius, m_Radius, 0.0);
+	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid(), Tmp;
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
 
-	if( Parameters("MODE")->asInt() == 1 )
+	if( !pResult )
 	{
-		for(y=-m_Radius, iy=0; y<=m_Radius; y++, iy++)
-		{
-			for(x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
-			{
-				if( x*x + y*y > m_Radius*m_Radius )
-				{
-					m_Kernel.Set_Value(ix, iy, 0.0);
-				}
-			}
-		}
+		pResult	= pInput;
 	}
 
 	//-----------------------------------------------------
-	if( !pResult || pResult == m_pInput )
+	switch( Parameters("METHOD")->asInt() )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(m_pInput);
-	}
-	else
-	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), Parameters("METHOD")->asString()));
+	case 2:	// Opening (Erosion + Dilation)
+		Get_Extreme(true , pInput, &Tmp);	pInput	= &Tmp;
+		break;
 
-		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+	case 3:	// Closing (Dilation + Erosion)
+		Get_Extreme(false, pInput, &Tmp);	pInput	= &Tmp;
+		break;
 	}
 
 	//-----------------------------------------------------
-	if( Method == 2 || Method == 3 )
+	if( pResult == pInput )
 	{
-		Result.Create(*Get_System());
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( Get_Range(x, y, Minimum, Maximum) )
-				{
-					switch( Method )
-					{
-					case 2:	Result.Set_Value(x, y, Minimum);	break;	// Opening = Erosion + Dilation
-					case 3:	Result.Set_Value(x, y, Maximum);	break;	// Closing = Dilation + Erosion
-					}
-				}
-				else
-				{
-					Result.Set_NoData(x, y);
-				}
-			}
-		}
-
-		m_pInput	= &Result;
+		Tmp.Create(*pInput);
+		pResult	= pInput;
+		pInput	= &Tmp;
 	}
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	switch( Parameters("METHOD")->asInt() )
 	{
-		for(x=0; x<Get_NX(); x++)
-		{
-			if( Get_Range(x, y, Minimum, Maximum) )
-			{
-				switch( Method )
-				{
-				case 0: case 2:	pResult->Set_Value(x, y, Maximum);	break;	// Dilation
-				case 1: case 3:	pResult->Set_Value(x, y, Minimum);	break;	// Erosion
-				}
-			}
-			else
-			{
-				pResult->Set_NoData(x, y);
-			}
-		}
+	case 0: case 2:	// Dilation, Opening (Erosion + Dilation)
+		Get_Extreme(false, pInput, pResult);
+		break;
+
+	case 1: case 3:	// Erosion, Closing (Dilation + Erosion)
+		Get_Extreme(true , pInput, pResult);
+		break;
 	}
 
 	//-------------------------------------------------
-	if( pResult == &Result )
+	if( pResult == Parameters("INPUT")->asGrid() )
 	{
-		CSG_MetaData	History	= m_pInput->Get_History();
+		DataObject_Update(pResult);
 
-		m_pInput->Assign(pResult);
-		m_pInput->Get_History() = History;
-
-		DataObject_Update(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
+		Parameters("RESULT")->Set_Value(pResult);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format("%s [%s]",
+			Parameters("INPUT")->asGrid()->Get_Name(),
+			Parameters("METHOD")->asString()
+		));
 	}
 
 	m_Kernel.Destroy();
@@ -246,36 +216,30 @@ bool CFilter_Morphology::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter_Morphology::Get_Range(int x, int y, double &Minimum, double &Maximum)
+bool CFilter_Morphology::Get_Extreme(bool bMinimum, CSG_Grid *pInput, CSG_Grid *pResult)
 {
-	if( !m_pInput->is_InGrid(x, y) )
+	if( !Get_System()->is_Equal(pResult->Get_System()) )
 	{
-		return( false );
+		pResult->Create(*Get_System());
 	}
 
-	Minimum	= Maximum	= m_pInput->asDouble(x, y);
-
-	for(int iy=0, jy=y-m_Radius; iy<m_Kernel.Get_NY(); iy++, jy++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(int ix=0, jx=x-m_Radius; ix<m_Kernel.Get_NX(); ix++, jx++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_Kernel.asByte(ix, iy) && m_pInput->is_InGrid(jx, jy) )
-			{
-				double	z	= m_pInput->asDouble(jx, jy);
+			double	Value;
 
-				if( Minimum > z )
-				{
-					Minimum	= z;
-				}
-				else if( Maximum < z )
-				{
-					Maximum	= z;
-				}
+			if( Get_Extreme(bMinimum, pInput, x, y, Value) )
+			{
+				pResult->Set_Value(x, y, Value);
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
 			}
 		}
 	}
@@ -284,14 +248,32 @@ bool CFilter_Morphology::Get_Range(int x, int y, double &Minimum, double &Maximu
 }
 
 //---------------------------------------------------------
-bool CFilter_Morphology::On_After_Execution(void)
+bool CFilter_Morphology::Get_Extreme(bool bMinimum, CSG_Grid *pInput, int x, int y, double &Value)
 {
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	if( pInput->is_InGrid(x, y) )
 	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+		CSG_Simple_Statistics	s;
+
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
+		{
+			int	ix	= m_Kernel.Get_X(i, x);
+			int	iy	= m_Kernel.Get_Y(i, y);
+
+			if( pInput->is_InGrid(ix, iy) )
+			{
+				s	+= pInput->asDouble(ix, iy);
+			}
+		}
+
+		if( s.Get_Count() > 0 )
+		{
+			Value	= bMinimum ? s.Get_Minimum() : s.Get_Maximum();
+
+			return( true );
+		}
 	}
 
-	return( true );
+	return( false );
 }
 
 
