@@ -88,19 +88,19 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
+
+	virtual bool			On_After_Execution	(void);
 
 
 private:
 
-	int						m_Radius, m_Threshold;
-
-	CSG_Grid				m_Kernel, *m_pInput;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
 
-	bool					Get_Range		(int x, int y, double &Minimum, double &Maximum);
+	bool					Get_Extreme		(bool bMinimum, CSG_Grid *pInput, CSG_Grid *pResult);
+	bool					Get_Extreme		(bool bMinimum, CSG_Grid *pInput, int x, int y, double &Value);
 
-	virtual bool			On_After_Execution(void);
 };
 
 
