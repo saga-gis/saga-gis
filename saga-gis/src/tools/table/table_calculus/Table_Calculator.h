@@ -40,30 +40,45 @@
 class CTable_Calculator_Base : public CSG_Tool  
 {
 public:
-	CTable_Calculator_Base(void);
+	CTable_Calculator_Base(bool bShapes);
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	CSG_String				Get_Formula			(CSG_String sFormula, CSG_Table *pTable, int *Fields, int &nFields);
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_String				Get_Formula				(CSG_String sFormula, CSG_Table *pTable, CSG_Array_Int &Fields);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTable_Calculator : public CTable_Calculator_Base  
 {
 public:
-	CTable_Calculator(void);
+	CTable_Calculator(void) : CTable_Calculator_Base(false)	{}
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CTable_Calculator_Shapes : public CTable_Calculator_Base  
 {
 public:
-	CTable_Calculator_Shapes(void);
+	CTable_Calculator_Shapes(void) : CTable_Calculator_Base(true)	{}
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
 

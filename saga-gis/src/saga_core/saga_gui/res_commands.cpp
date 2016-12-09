@@ -314,6 +314,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_FIELD_SORT:		return( _TL("Sort Fields") );
 	case ID_CMD_TABLE_FIELD_RENAME:		return( _TL("Rename Fields") );
 	case ID_CMD_TABLE_FIELD_TYPE:		return( _TL("Change Field Type") );
+	case ID_CMD_TABLE_FIELD_CALC:		return( _TL("Field Calculator") );
 	case ID_CMD_TABLE_FIELD_OPEN_APP:	return( _TL("Open with external application") );
 	case ID_CMD_TABLE_FIELD_OPEN_DATA:	return( _TL("Open as data set") );
 	case ID_CMD_TABLE_RECORD_ADD:		return( _TL("Add Record") );
