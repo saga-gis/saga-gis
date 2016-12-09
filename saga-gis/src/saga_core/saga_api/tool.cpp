@@ -825,6 +825,20 @@ bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Param
 	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
 }
 
+bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_Object *pSource)
+{
+	if( pDataObject == pSource )
+	{
+		return( true );
+	}
+
+	CSG_Parameters	Parms;
+	
+	return( DataObject_Get_Parameters(pSource    , Parms)
+		&&  DataObject_Set_Parameters(pDataObject, Parms)
+	);
+}
+
 //---------------------------------------------------------
 CSG_Parameter * CSG_Tool::DataObject_Get_Parameter(CSG_Data_Object *pDataObject, const CSG_String &ID)
 {
