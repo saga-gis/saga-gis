@@ -73,85 +73,102 @@
 //---------------------------------------------------------
 CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 {
-	Set_Name(_TL("Close One Cell Gaps"));
+	Set_Name		(_TL("Close One Cell Gaps"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Closes one cell gaps using the mean value of the surrounding cell values. "
-		"If the target is not set, the changes will be stored to the original grid. ")
-	);
+		"If the target is not set, the changes will be stored to the original grid. "
+	));
 
-	Parameters.Add_Grid(
-		NULL, "INPUT"	, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"	, _TL("Changed Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
-}
 
-//---------------------------------------------------------
-CGrid_Gaps_OneCell::~CGrid_Gaps_OneCell(void)
-{}
+	Parameters.Add_Choice(NULL,
+		"MODE"		, _TL("Neighbourhood"),
+		_TL("Neumann: the four horizontally and vertically neighboured cells; Moore: all eight adjacent cells"),
+		CSG_String::Format("%s|%s|",
+			_TL("Neumann"),
+			_TL("Moore")
+		), 1
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Gaps_OneCell::On_Execute(void)
 {
-	bool	bCloseGap;
-	int		x, y, i, ix, iy;
-	double	Sum;
-	CSG_Grid	*pInput, *pResult;
+	CSG_Grid	*pInput		= Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
 
-	pInput	= Parameters("INPUT")->asGrid();
-	pResult	= Parameters("RESULT")->asGrid();
+	DataObject_Set_Parameters(pResult, pInput);
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	pResult->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Close Gaps")));
+
+	int	iStep	= Parameters("MODE")->asInt() == 0 ? 2 : 1;
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pInput->is_NoData(x, y) )
+			if( !pInput->is_NoData(x, y) )
 			{
-				for(i=0, bCloseGap=true, Sum=0.0; i<8 && bCloseGap; i++)
-				{
-					Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy);
+				pResult->Set_Value(x, y, pInput->asDouble(x, y));
+			}
+			else
+			{
+				bool	bClose	= true;
 
-					if( !pInput->is_InGrid(ix, iy) )
+				CSG_Simple_Statistics	s;
+
+				for(int i=0; i<8 && bClose; i+=iStep)
+				{
+					int	ix	= Get_xTo(i, x);
+					int	iy	= Get_yTo(i, y);
+
+					if( (bClose = pInput->is_InGrid(ix, iy)) == true )
 					{
-						bCloseGap	= false;
-					}
-					else
-					{
-						Sum			+= pInput->asDouble(ix, iy);
+						s	+= pInput->asDouble(ix, iy);
 					}
 				}
 
-				if( bCloseGap )
+				if( bClose )
 				{
-					pResult->Set_Value(x, y, Sum / 8.0);
+					pResult->Set_Value(x, y, s.Get_Mean());
 				}
 				else
 				{
 					pResult->Set_NoData(x, y);
 				}
 			}
-			else
-			{
-				pResult->Set_Value(x, y, pInput->asDouble(x, y));
-			}
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
