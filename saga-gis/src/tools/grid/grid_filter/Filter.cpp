@@ -83,20 +83,20 @@ CFilter::CFilter(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Filter"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Filter"),
 		_TL("Choose the filter method."),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Smooth"),
@@ -105,20 +105,23 @@ CFilter::CFilter(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format("%s|%s|",
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
+}
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
 }
 
 
@@ -130,10 +133,11 @@ CFilter::CFilter(void)
 bool CFilter::On_Execute(void)
 {
 	//-----------------------------------------------------
+	int	Method	= Parameters("METHOD")->asInt();
+
 	m_pInput	= Parameters("INPUT")->asGrid();
 
 	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
-
 
 	if( !pResult || pResult == m_pInput )
 	{
@@ -144,14 +148,24 @@ bool CFilter::On_Execute(void)
 	else
 	{
 		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Filter")));
+
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+
+		if( Method != 2 )	// Edge...
+		{
+			DataObject_Set_Parameters(pResult, m_pInput);
+		}
 	}
 
 	//-----------------------------------------------------
-	int	Method	= Parameters("METHOD")->asInt();
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
 
-	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
+		return( false );
+	}
 
+	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
@@ -205,8 +219,6 @@ bool CFilter::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -238,16 +250,6 @@ bool CFilter::Get_Mean(int x, int y, double &Value)
 	return( false );
 }
 
-//---------------------------------------------------------
-bool CFilter::On_After_Execution(void)
-{
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -90,22 +90,20 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
+
+	virtual bool			On_After_Execution	(void);
 
 
 private:
 
-	CSG_Grid_Radius			m_Radius;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
 	CSG_Grid				*m_pInput, m_Fields;
 
-	CSG_Shapes				*Boundaries;
 
+	bool					Get_Mean			(int x, int y, double &Value);
 
-	double					Get_Mean_Square	(int x, int y, int Radius);
-	double					Get_Mean_Circle	(int x, int y);
-
-	virtual bool			On_After_Execution(void);
 };
 
 

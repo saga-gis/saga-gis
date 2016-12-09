@@ -72,58 +72,54 @@
 CFilter_Rank::CFilter_Rank(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Rank Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Rank filter for grids. Set rank to fifty percent to apply a median filter."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL, "RANK"		, _TL("Rank"),
+	Parameters.Add_Double(NULL,
+		"RANK"		, _TL("Rank"),
 		_TL("The rank [percent]."),
-		PARAMETER_TYPE_Double, 50.0, 0.0, true, 100.0, true
+		50.0, 0.0, true, 100.0, true
 	);
+
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_Rank::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -131,7 +127,12 @@ CFilter_Rank::CFilter_Rank(void)
 bool CFilter_Rank::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
 
 	double	Rank	= Parameters("RANK")->asDouble() / 100.0;
 
@@ -148,9 +149,11 @@ bool CFilter_Rank::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s: %.1f]"), m_pInput->Get_Name(), _TL("Rank"), 100.0 * Rank));
+		pResult->Set_Name(CSG_String::Format("%s [%s: %.1f]", m_pInput->Get_Name(), _TL("Rank"), 100.0 * Rank));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+
+		DataObject_Set_Parameters(pResult, m_pInput);
 	}
 
 	//-----------------------------------------------------
@@ -194,8 +197,6 @@ bool CFilter_Rank::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -205,7 +206,7 @@ bool CFilter_Rank::Get_Value(int x, int y, double Rank, double &Value)
 	{
 		CSG_Table	Values;
 
-		Values.Add_Field(SG_T("Z"), SG_DATATYPE_Double);
+		Values.Add_Field("Z", SG_DATATYPE_Double);
 
 		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
@@ -254,16 +255,6 @@ bool CFilter_Rank::Get_Value(int x, int y, double Rank, double &Value)
 	return( false );
 }
 
-//---------------------------------------------------------
-bool CFilter_Rank::On_After_Execution(void)
-{
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
 
 ///////////////////////////////////////////////////////////
 //														 //

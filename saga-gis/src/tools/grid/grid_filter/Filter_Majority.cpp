@@ -72,8 +72,6 @@
 CFilter_Majority::CFilter_Majority(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Majority Filter"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -82,48 +80,46 @@ CFilter_Majority::CFilter_Majority(void)
 		"Majority filter for grids."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format("%s|%s|",
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
-
-	Parameters.Add_Value(
-		NULL, "THRESHOLD"	, _TL("Threshold"),
+	Parameters.Add_Double(NULL,
+		"THRESHOLD"	, _TL("Threshold"),
 		_TL("The majority threshold [percent]."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
+		0.0, 0.0, true, 100.0, true
 	);
+
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_Majority::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -131,7 +127,12 @@ CFilter_Majority::CFilter_Majority(void)
 bool CFilter_Majority::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_Kernel.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0);
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
 
 	m_Threshold	= 1 + (int)((1 + m_Kernel.Get_Count()) * Parameters("THRESHOLD")->asDouble() / 100.0);
 
@@ -148,9 +149,11 @@ bool CFilter_Majority::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Majority Filter")));
+		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Majority Filter")));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+
+		DataObject_Set_Parameters(pResult, m_pInput);
 	}
 
 	//-----------------------------------------------------
@@ -191,8 +194,6 @@ bool CFilter_Majority::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -219,17 +220,6 @@ double CFilter_Majority::Get_Majority(int x, int y)
 	Majority.Get_Majority(Value, Count);
 
 	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
-}
-
-//---------------------------------------------------------
-bool CFilter_Majority::On_After_Execution(void)
-{
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
 }
 
 

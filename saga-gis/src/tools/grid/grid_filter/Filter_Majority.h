@@ -88,21 +88,22 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
+
+	virtual bool			On_After_Execution	(void);
 
 
 private:
 
 	int						m_Threshold;
 
-	CSG_Grid				*m_pInput;
-
 	CSG_Grid_Cell_Addressor	m_Kernel;
 
+	CSG_Grid				*m_pInput;
 
-	double					Get_Majority	(int x, int y);
 
-	virtual bool			On_After_Execution(void);
+	double					Get_Majority		(int x, int y);
+
 };
 
 

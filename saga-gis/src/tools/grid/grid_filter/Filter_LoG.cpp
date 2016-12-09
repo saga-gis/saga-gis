@@ -74,11 +74,9 @@
 CFilter_LoG::CFilter_LoG(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Laplacian Filter"));
 
-	Set_Author		(SG_T("(c) 2003 by A. Ringeler, (c) 2008 by O. Conrad"));
+	Set_Author		("A.Ringeler (c) 2003, O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		 "Other Common Names: Laplacian, Laplacian of Gaussian, LoG, Marr Filter\n"
@@ -106,26 +104,23 @@ CFilter_LoG::CFilter_LoG(void)
 		 "\n"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("standard kernel 1"),
 			_TL("standard kernel 2"),
 			_TL("Standard kernel 3"),
@@ -133,138 +128,131 @@ CFilter_LoG::CFilter_LoG(void)
 		), 3
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_USER", _TL("User Defined Kernel"), _TL(""));
-
-	Parameters.Add_Value(
-		pNode	, "SIGMA"		, _TL("Standard Deviation"),
+	Parameters.Add_Double(NULL,
+		"SIGMA"		, _TL("Standard Deviation"),
 		_TL("The standard deviation, expressed as a percentage of the radius."),
-		PARAMETER_TYPE_Double, 50.0, 0.00001, true
+		50.0, 0.00001, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 3, 1, true
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("square"),
-			_TL("circle")
-		), 1
-	);
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CFilter_LoG::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		pParameters->Get_Parameter("SIGMA"	)->Set_Enabled(pParameter->asInt() == 3);
-		pParameters->Get_Parameter("RADIUS"	)->Set_Enabled(pParameter->asInt() == 3);
-		pParameters->Get_Parameter("MODE"	)->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Set_Enabled("SIGMA"        , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("KERNEL_RADIUS", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("KERNEL_TYPE"  , pParameter->asInt() == 3);
 	}
 
-	//-----------------------------------------------------
-	return (1);
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
+
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_LoG::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	CSG_Grid	*pResult, Result;
-
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-
-	//-----------------------------------------------------
-	if( Initialise() )
+	if( !Initialise() )
 	{
-		if( !pResult || pResult == m_pInput )
-		{
-			pResult	= &Result;
-		
-			pResult->Create(m_pInput);
-		}
-		else
-		{
-			pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Laplace Filter")));
-
-			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-		}
-
-		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				if( m_pInput->is_InGrid(x, y) )
-				{
-					pResult->Set_Value(x, y, Get_Value(x, y));
-				}
-				else
-				{
-					pResult->Set_NoData(x, y);
-				}
-			}
-		}
-
-
-		DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
-
-		//-------------------------------------------------
-		if( pResult == &Result )
-		{
-			CSG_MetaData	History	= m_pInput->Get_History();
-
-			m_pInput->Assign(pResult);
-			m_pInput->Get_History() = History;
-
-			DataObject_Update(m_pInput);
-
-			Parameters("RESULT")->Set_Value(m_pInput);
-		}
-
-		m_Kernel.Destroy();
-
-		return( true );
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	m_pInput	= Parameters("INPUT")->asGrid();
+
+	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
+
+	if( !pResult || pResult == m_pInput )
+	{
+		pResult	= &Result;
+		
+		pResult->Create(m_pInput);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Laplace Filter")));
+
+		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( m_pInput->is_InGrid(x, y) )
+			{
+				pResult->Set_Value(x, y, Get_Value(x, y));
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pResult == &Result )
+	{
+		CSG_MetaData	History	= m_pInput->Get_History();
+
+		m_pInput->Assign(pResult);
+		m_pInput->Get_History() = History;
+
+		DataObject_Update(m_pInput);
+
+		Parameters("RESULT")->Set_Value(m_pInput);
+	}
+
+	DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
+
+	m_Kernel.Destroy();
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_LoG::Initialise(void)
 {
-	int		Method		= Parameters("METHOD")	->asInt();
-	bool	bCircle		= Parameters("MODE")	->asInt() == 1;
-	double	Sigma		= Parameters("SIGMA")	->asDouble();
+	bool	bCircle	= Parameters("KERNEL_TYPE")->asInt() == 1;
 
-	switch( Method )
+	double	Sigma	= Parameters("SIGMA")->asDouble();
+
+	switch( Parameters("METHOD")->asInt() )
 	{
 	case 0:
 		m_Radius	= 1;
@@ -291,7 +279,7 @@ bool CFilter_LoG::Initialise(void)
 		break;
 
 	case 3:	default:
-		m_Radius	= Parameters("RADIUS")->asInt();
+		m_Radius	= Parameters("KERNEL_RADIUS")->asInt();
 
 		if( Sigma <= 0.0 )
 		{
@@ -306,7 +294,7 @@ bool CFilter_LoG::Initialise(void)
 		{
 			for(int x=-m_Radius, ix=0; x<=m_Radius; x++, ix++)
 			{
-				double	d	= x * x + y * y;
+				double	d	= x*x + y*y;
 
 				if( bCircle && d > m_Radius*m_Radius )
 				{
@@ -330,8 +318,6 @@ bool CFilter_LoG::Initialise(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -353,17 +339,6 @@ double CFilter_LoG::Get_Value(int x, int y)
 
 	//-----------------------------------------------------
 	return( s );
-}
-
-//---------------------------------------------------------
-bool CFilter_LoG::On_After_Execution(void)
-{
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
 }
 
 

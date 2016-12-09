@@ -88,7 +88,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute			(void);
+
+	virtual bool			On_After_Execution	(void);
 
 
 private:
@@ -98,9 +100,8 @@ private:
 	CSG_Grid				*m_pInput;
 
 
-	bool					Get_Value		(int x, int y, double Rank, double &Value);
+	bool					Get_Value			(int x, int y, double Rank, double &Value);
 
-	virtual bool			On_After_Execution(void);
 };
 
 
