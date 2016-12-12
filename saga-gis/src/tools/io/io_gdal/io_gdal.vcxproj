@@ -297,6 +297,7 @@
     <ClCompile Include="gdal_driver.cpp" />
     <ClCompile Include="gdal_export.cpp" />
     <ClCompile Include="gdal_export_geotiff.cpp" />
+    <ClCompile Include="gdal_formats.cpp" />
     <ClCompile Include="gdal_import.cpp" />
     <ClCompile Include="gdal_import_netcdf.cpp" />
     <ClCompile Include="gdal_import_wms.cpp" />
@@ -326,6 +327,7 @@
     <ClInclude Include="gdal_driver.h" />
     <ClInclude Include="gdal_export.h" />
     <ClInclude Include="gdal_export_geotiff.h" />
+    <ClInclude Include="gdal_formats.h" />
     <ClInclude Include="gdal_import.h" />
     <ClInclude Include="gdal_import_netcdf.h" />
     <ClInclude Include="gdal_import_wms.h" />

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                                                       //
 //                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.h                     //
+//                    gdal_formats.h                     //
 //                                                       //
-//            Copyright (C) 2007 O. Conrad               //
+//                 Copyright (C) 2016 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -50,31 +47,15 @@
 ///////////////////////////////////////////////////////////
 
 
-
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_gdal_H
-#define HEADER_INCLUDED__io_gdal_H
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-#include <gdal.h>
-#if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR == 2
-#define USE_GDAL_V2
-#endif
-
-//---------------------------------------------------------
-#ifdef io_gdal_EXPORTS
-	#define	io_gdal_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	io_gdal_EXPORT	_SAGA_DLL_IMPORT
-#endif
+#ifndef HEADER_INCLUDED__gdal_formats_H
+#define HEADER_INCLUDED__gdal_formats_H
 
 
 ///////////////////////////////////////////////////////////
@@ -84,4 +65,39 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_gdal_H
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGDAL_Formats : public CSG_Tool
+{
+public:
+	CGDAL_Formats(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Reports") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__gdal_formats_H
