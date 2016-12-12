@@ -113,12 +113,12 @@ wxString DLG_Get_Text(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_ABOUT:					return( _TL("SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0") );
-	case ID_DLG_CLOSE:					return( _TL("Do you want to exit SAGA?") );
-	case ID_DLG_DELETE:					return( _TL("Do you want to delete the selection?") );
+	case ID_DLG_ABOUT :	return( _TL("SAGA\nSystem for Automated Geoscientific Analyses\nVersion 2.0") );
+	case ID_DLG_CLOSE :	return( _TL("Do you want to exit SAGA?") );
+	case ID_DLG_DELETE:	return( _TL("Do you want to delete the selection?") );
 	}
 
-	return( _TL("This is not a text!") );
+	return( _TL("") );
 }
 
 //---------------------------------------------------------
@@ -126,12 +126,12 @@ wxString DLG_Get_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_CLOSE:					return( _TL("Exit") );
-	case ID_DLG_ABOUT:					return( _TL("About SAGA") );
-	case ID_DLG_DELETE:					return( _TL("Delete") );
+	case ID_DLG_CLOSE :	return( _TL("Exit") );
+	case ID_DLG_ABOUT :	return( _TL("About SAGA") );
+	case ID_DLG_DELETE:	return( _TL("Delete") );
 	}
 
-	return( _TL("This Is Not A Caption!") );
+	return( _TL("") );
 }
 
 
@@ -146,84 +146,101 @@ wxString DLG_Get_FILE_Caption(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_WKSP_OPEN:			return( _TL("Load") );
+	case ID_DLG_WKSP_OPEN      :	return( _TL("Load") );
 
-	case ID_DLG_TOOLS_OPEN:		return( _TL("Load Tool Library") );
+	case ID_DLG_TOOLS_OPEN     :	return( _TL("Load Tool Library") );
 
-	case ID_DLG_PROJECT_OPEN:		return( _TL("Load Project") );
-	case ID_DLG_PROJECT_SAVE:		return( _TL("Save Project") );
+	case ID_DLG_PROJECT_OPEN   :	return( _TL("Load Project") );
+	case ID_DLG_PROJECT_SAVE   :	return( _TL("Save Project") );
 
-	case ID_DLG_GRIDS_OPEN:			return( _TL("Load Grid") );
-	case ID_DLG_GRIDS_SAVE:			return( _TL("Save Grid") );
+	case ID_DLG_GRIDS_OPEN     :	return( _TL("Load Grid") );
+	case ID_DLG_GRIDS_SAVE     :	return( _TL("Save Grid") );
 
-	case ID_DLG_SHAPES_OPEN:		return( _TL("Load Shapes") );
-	case ID_DLG_SHAPES_SAVE:		return( _TL("Save Shapes") );
+	case ID_DLG_SHAPES_OPEN    :	return( _TL("Load Shapes") );
+	case ID_DLG_SHAPES_SAVE    :	return( _TL("Save Shapes") );
 
-	case ID_DLG_TABLES_OPEN:		return( _TL("Load Table") );
-	case ID_DLG_TABLES_SAVE:		return( _TL("Save Table") );
+	case ID_DLG_TABLES_OPEN    :	return( _TL("Load Table") );
+	case ID_DLG_TABLES_SAVE    :	return( _TL("Save Table") );
 
-	case ID_DLG_TIN_OPEN:			return( _TL("Load TIN") );
-	case ID_DLG_TIN_SAVE:			return( _TL("Save TIN") );
+	case ID_DLG_TIN_OPEN       :	return( _TL("Load TIN") );
+	case ID_DLG_TIN_SAVE       :	return( _TL("Save TIN") );
 
 	case ID_DLG_POINTCLOUD_OPEN:	return( _TL("Load Point Cloud") );
 	case ID_DLG_POINTCLOUD_SAVE:	return( _TL("Save Point Cloud") );
 
-	case ID_DLG_TEXT_OPEN:			return( _TL("Load Text") );
-	case ID_DLG_TEXT_SAVE:			return( _TL("Save Text") );
+	case ID_DLG_TEXT_OPEN      :	return( _TL("Load Text") );
+	case ID_DLG_TEXT_SAVE      :	return( _TL("Save Text") );
 
 	case ID_DLG_PARAMETERS_OPEN:	return( _TL("Load Settings") );
 	case ID_DLG_PARAMETERS_SAVE:	return( _TL("Save Settings") );
 
-	case ID_DLG_COLORS_OPEN:		return( _TL("Load Colors") );
-	case ID_DLG_COLORS_SAVE:		return( _TL("Save Colors") );
+	case ID_DLG_COLORS_OPEN    :	return( _TL("Load Colors") );
+	case ID_DLG_COLORS_SAVE    :	return( _TL("Save Colors") );
 	}
 
 	return( _TL("Select File") );
 }
 
 //---------------------------------------------------------
+bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
+{
+	bool		bResult;
+	CSG_Table	Formats;
+
+	SG_RUN_TOOL(bResult, "io_gdal", 10,	// GDAL Formats
+		SG_TOOL_PARAMETER_SET("FORMATS"   , &Formats)
+	&&	SG_TOOL_PARAMETER_SET("TYPE"      , Type    )	// all (rasters and vectors)
+	&&	SG_TOOL_PARAMETER_SET("ACCESS"    , 0       )	// read
+	&&	SG_TOOL_PARAMETER_SET("RECOGNIZED", true    )	// add an entry for all recognized files
+	);
+
+	if( bResult && Formats.Get_Count() > 0 )
+	{
+		Filter	+= Formats[Formats.Get_Count() - 1].asString(2);
+
+		Filter.Replace("*.sdat;", "");
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
 wxString DLG_Get_FILE_Filter(int ID_DLG)
 {
+	wxString	Recognized;
+
 	switch( ID_DLG )
 	{
+	//-----------------------------------------------------
 	case ID_DLG_ALLFILES_OPEN:
-		return( wxString::Format(
-			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.csv;*.dbf;*.bmp;*.gif;*.jpg;*.png;*.pcx;*.tif;*.img;*.asc;*.flt;*.bil|")
-			wxT("%s (*.sprj)|*.sprj|")
-			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
-			wxT("%s (*.shp)|*.shp|")
-			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
-			wxT("%s (*.spc)|*.spc|")
-			wxT("%s|*.*"),
-			_TL("Recognised Files"),
-			_TL("SAGA Projects"),
-			_TL("Grids"),
-			_TL("ESRI Shape Files"),
-			_TL("Tables"),
-			_TL("Point Clouds"),
-			_TL("All Files")
-		));
-
 	case ID_DLG_WKSP_OPEN:
+		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized =
+			"*.dll;*.so;"
+			"*.sprj;"
+			"*.sgrd;*.dgm;*.grd;*.bmp;*.jpg;*.png;*.pcx;*.tif;"
+			"*.shp;*.spc;*.las;*.txt;*.csv;*.dbf;"
+		);
+
 		return( wxString::Format(
-			wxT("%s|*.sprj;*.mlb;*.dll;*.so;*sgrd;*.dgm;*.grd;*.shp;*.spc;*.txt;*.csv;*.dbf|")
-			wxT("%s (*.sprj)|*.sprj|")
+			wxT("%s|%s|")
 			wxT("%s (*.dll, *.so)|*.dll;*.so;*.mlb|")
+			wxT("%s (*.sprj)|*.sprj|")
 			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
 			wxT("%s (*.shp)|*.shp|")
 			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
 			wxT("%s (*.spc)|*.spc|")
 			wxT("%s|*.*"),
-			_TL("All Recognised Files"),
-			_TL("SAGA Projects"),
+			_TL("Recognized Files"), Recognized.c_str(),
 			_TL("SAGA Tool Libraries"),
-			_TL("Grids"),
+			_TL("SAGA Projects"),
+			_TL("SAGA Grids"),
 			_TL("ESRI Shape Files"),
 			_TL("Tables"),
-			_TL("Point Clouds"),
+			_TL("SAGA Point Clouds"),
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_TOOLS_OPEN:
 		return( wxString::Format(
 			wxT("%s (*.dll, *.so)|*.xml;*.mlb;*.dll;*.so;*.dylib|")
@@ -234,6 +251,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_PROJECT_OPEN:
 	case ID_DLG_PROJECT_SAVE:
 		return( wxString::Format(
@@ -243,11 +261,16 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_GRIDS_OPEN:
+		DLG_Get_FILE_Filter_GDAL_Read(0, Recognized = "*.sgrd;*.dgm;*.grd;*.bmp;*.jpg;*.png;*.pcx;*.tif;");
+
 		return( wxString::Format(
-			wxT("%s (*.sgrd)|*.sgrd;*.dgm;*.grd|")
+			wxT("%s|%s|")
+			wxT("%s (*.sgrd)|*.sgrd;*.dgm;|")
 			wxT("%s|*.*"),
-			_TL("Grids"),
+			_TL("Recognized Files"), Recognized.c_str(),
+			_TL("SAGA Grids"),
 			_TL("All Files")
 		));
 
@@ -255,11 +278,23 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		return( wxString::Format(
 			wxT("%s (*.sgrd)|*.sgrd|")
 			wxT("%s|*.*"),
-			_TL("Grids"),
+			_TL("SAGA Grids"),
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_SHAPES_OPEN:
+		DLG_Get_FILE_Filter_GDAL_Read(1, Recognized = "*.shp;");
+
+		return( wxString::Format(
+			wxT("%s|%s|")
+			wxT("%s (*.shp)|*.shp|")
+			wxT("%s|*.*"),
+			_TL("Recognized Files"), Recognized.c_str(),
+			_TL("ESRI Shape Files"),
+			_TL("All Files")
+		));
+
 	case ID_DLG_SHAPES_SAVE:
 		return( wxString::Format(
 			wxT("%s (*.shp)|*.shp|")
@@ -268,6 +303,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_TABLES_OPEN:
 		return( wxString::Format(
 			wxT("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|")
@@ -288,6 +324,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_TIN_OPEN:
 	case ID_DLG_TIN_SAVE:
 		return( wxString::Format(
@@ -297,6 +334,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_POINTCLOUD_OPEN:
 	case ID_DLG_POINTCLOUD_SAVE:
 		return( wxString::Format(
@@ -306,6 +344,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_TEXT_OPEN:
 	case ID_DLG_TEXT_SAVE:
 		return( wxString::Format(
@@ -315,6 +354,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_PARAMETERS_OPEN:
 	case ID_DLG_PARAMETERS_SAVE:
 		return( wxString::Format(
@@ -324,6 +364,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			_TL("All Files")
 		));
 
+	//-----------------------------------------------------
 	case ID_DLG_COLORS_OPEN:
 	case ID_DLG_COLORS_SAVE:
 		return( wxString::Format(
@@ -334,7 +375,8 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		));
 	}
 
-	return( wxString::Format(wxT("%s|*.*"), _TL("All Files")) );
+	//-----------------------------------------------------
+	return( wxString::Format("%s|*.*", _TL("All Files")) );
 }
 
 //---------------------------------------------------------
@@ -342,39 +384,39 @@ wxString DLG_Get_FILE_Config(int ID_DLG)
 {
 	switch( ID_DLG )
 	{
-	case ID_DLG_WKSP_OPEN:			return( wxT("ALL_LOAD") );
+	case ID_DLG_WKSP_OPEN      :	return( "ALL_LOAD" );
 
-	case ID_DLG_TOOLS_OPEN:		return( wxT("TLB_LOAD") );
+	case ID_DLG_TOOLS_OPEN     :	return( "TLB_LOAD" );
 
-	case ID_DLG_PROJECT_OPEN:		return( wxT("PRJ_LOAD") );
-	case ID_DLG_PROJECT_SAVE:		return( wxT("PRJ_SAVE") );
+	case ID_DLG_PROJECT_OPEN   :	return( "PRJ_LOAD" );
+	case ID_DLG_PROJECT_SAVE   :	return( "PRJ_SAVE" );
 
-	case ID_DLG_GRIDS_OPEN:			return( wxT("GRD_LOAD") );
-	case ID_DLG_GRIDS_SAVE:			return( wxT("GRD_SAVE") );
+	case ID_DLG_GRIDS_OPEN     :	return( "GRD_LOAD" );
+	case ID_DLG_GRIDS_SAVE     :	return( "GRD_SAVE" );
 
-	case ID_DLG_SHAPES_OPEN:		return( wxT("SHP_LOAD") );
-	case ID_DLG_SHAPES_SAVE:		return( wxT("SHP_SAVE") );
+	case ID_DLG_SHAPES_OPEN    :	return( "SHP_LOAD" );
+	case ID_DLG_SHAPES_SAVE    :	return( "SHP_SAVE" );
 
-	case ID_DLG_TABLES_OPEN:		return( wxT("TAB_LOAD") );
-	case ID_DLG_TABLES_SAVE:		return( wxT("TAB_SAVE") );
+	case ID_DLG_TABLES_OPEN    :	return( "TAB_LOAD" );
+	case ID_DLG_TABLES_SAVE    :	return( "TAB_SAVE" );
 
-	case ID_DLG_TIN_OPEN:			return( wxT("TIN_LOAD") );
-	case ID_DLG_TIN_SAVE:			return( wxT("TIN_SAVE") );
+	case ID_DLG_TIN_OPEN       :	return( "TIN_LOAD" );
+	case ID_DLG_TIN_SAVE       :	return( "TIN_SAVE" );
 
-	case ID_DLG_POINTCLOUD_OPEN:	return( wxT("PTS_LOAD") );
-	case ID_DLG_POINTCLOUD_SAVE:	return( wxT("PTS_SAVE") );
+	case ID_DLG_POINTCLOUD_OPEN:	return( "PTS_LOAD" );
+	case ID_DLG_POINTCLOUD_SAVE:	return( "PTS_SAVE" );
 
-	case ID_DLG_TEXT_OPEN:			return( wxT("TXT_LOAD") );
-	case ID_DLG_TEXT_SAVE:			return( wxT("TXT_SAVE") );
+	case ID_DLG_TEXT_OPEN      :	return( "TXT_LOAD" );
+	case ID_DLG_TEXT_SAVE      :	return( "TXT_SAVE" );
 
-	case ID_DLG_PARAMETERS_OPEN:	return( wxT("PRM_LOAD") );
-	case ID_DLG_PARAMETERS_SAVE:	return( wxT("PRM_SAVE") );
+	case ID_DLG_PARAMETERS_OPEN:	return( "PRM_LOAD" );
+	case ID_DLG_PARAMETERS_SAVE:	return( "PRM_SAVE" );
 
-	case ID_DLG_COLORS_OPEN:		return( wxT("COL_LOAD") );
-	case ID_DLG_COLORS_SAVE:		return( wxT("COL_SAVE") );
+	case ID_DLG_COLORS_OPEN    :	return( "COL_LOAD" );
+	case ID_DLG_COLORS_SAVE    :	return( "COL_SAVE" );
 	}
 
-	return( wxT("FILE") );
+	return( "FILE" );
 }
 
 

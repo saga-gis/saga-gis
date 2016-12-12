@@ -236,7 +236,7 @@ bool CGDAL_Formats::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( true );
+	return( pFormats->Get_Count() > 0 );
 }
 
 
