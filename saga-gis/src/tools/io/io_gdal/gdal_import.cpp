@@ -69,8 +69,6 @@
 //---------------------------------------------------------
 CGDAL_Import::CGDAL_Import(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name	(_TL("Import Raster"));
 
@@ -122,55 +120,53 @@ CGDAL_Import::CGDAL_Import(void)
 	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List(NULL,
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Files"),
+	Parameters.Add_FilePath(NULL,
+		"FILES"		, _TL("Files"),
 		_TL(""),
 		Filter, NULL, false, false, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_String(
-		NULL	, "SELECTION"	, _TL("Select from Multiple Bands"),
+	Parameters.Add_String(NULL,
+		"SELECTION"		, _TL("Select from Multiple Bands"),
 		_TL("Semicolon separated list of band indexes. Do not set to select all bands for import."),
 		""
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Bool(
-		NULL	, "SELECT"		, _TL("Select from Multiple Bands"),
+	Parameters.Add_Bool(NULL,
+		"SELECT"		, _TL("Select from Multiple Bands"),
 		_TL(""),
 		true
 	)->Set_UseInCMD(false);
 
-	pNode	= SG_UI_Get_Window_Main() ? Parameters("SELECT") : NULL;
-
-	Parameters.Add_Bool(
-		pNode	, "SELECT_SORT"	, _TL("Alphanumeric Sorting"),
+	Parameters.Add_Bool(SG_UI_Get_Window_Main() ? Parameters("SELECT") : NULL,
+		"SELECT_SORT"	, _TL("Alphanumeric Sorting"),
 		_TL(""),
 		true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Bool(
-		NULL	, "TRANSFORM"	, _TL("Transformation"),
+	Parameters.Add_Bool(NULL,
+		"TRANSFORM"		, _TL("Transformation"),
 		_TL("align grid to coordinate system"),
 		true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
-		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
+	Parameters.Add_Choice(Parameters("TRANSFORM"),
+		"RESAMPLING"	, _TL("Resampling"),
+		_TL("Resampling type to be used, if grid needs to be aligned to coordinate system."),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
-		), 3
+		), 0
 	);
 }
 
