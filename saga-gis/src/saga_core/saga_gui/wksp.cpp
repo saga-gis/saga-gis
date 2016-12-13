@@ -167,15 +167,15 @@ CWKSP::CWKSP(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_WKSP_MAPS);
 
 	//-----------------------------------------------------
-	m_pTools		= new CWKSP_Tool_Control	(this);
+	m_pTools		= new CWKSP_Tool_Control(this);
 
 	SUBNB_CREATE(ID_WND_WKSP_DATA, _TL("Data"));
-	m_pData			= new CWKSP_Data_Control	(pNotebook);
-	m_pData_Buttons	= new CWKSP_Data_Buttons	(pNotebook);
+	m_pData			= new CWKSP_Data_Control(pNotebook);
+	m_pData_Buttons	= new CWKSP_Data_Buttons(pNotebook);
 
 	SUBNB_CREATE(ID_WND_WKSP_MAPS, _TL("Maps"));
-	m_pMaps			= new CWKSP_Map_Control		(pNotebook);
-	m_pMaps_Buttons	= new CWKSP_Map_Buttons		(pNotebook);
+	m_pMaps			= new CWKSP_Map_Control (pNotebook);
+	m_pMaps_Buttons	= new CWKSP_Map_Buttons (pNotebook);
 }
 
 //---------------------------------------------------------
@@ -184,9 +184,9 @@ void CWKSP::Add_Pages(void)
 	long	lValue;
 
 	//-----------------------------------------------------
-	AddPage(m_pTools          , _TL("Tools"), false, IMG_TOOLS);
-	AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA);
-	AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS);
+	AddPage(m_pTools            , _TL("Tools"), false, IMG_TOOLS);
+	AddPage(m_pData->GetParent(), _TL("Data" ), false, IMG_DATA );
+	AddPage(m_pMaps->GetParent(), _TL("Maps" ), false, IMG_MAPS );
 
 	if( CONFIG_Read("/DATA", "TAB", lValue) )
 	{
@@ -220,7 +220,7 @@ CWKSP::~CWKSP(void)
 	CONFIG_Write("/DATA/BUTTONS", "TAB", (long)((wxNotebook *)m_pData->GetParent())->GetSelection());
 	CONFIG_Write("/MAPS/BUTTONS", "TAB", (long)((wxNotebook *)m_pMaps->GetParent())->GetSelection());
 
-	g_pWKSP		= NULL;
+	g_pWKSP	= NULL;
 }
 
 
@@ -275,14 +275,14 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST       && event.GetId() <= ID_CMD_TABLES_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST)
-	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST        && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST)
+	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST       && event.GetId() <= ID_CMD_TABLES_RECENT_LAST      )
+	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST      )
+	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST  )
+	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST         )
+	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST        && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST       )
 	||	(event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
 	{
-		m_pData   ->On_Command(event);
+		m_pData->On_Command(event);
 	}
 	else switch( event.GetId() )
 	{
@@ -294,8 +294,8 @@ void CWKSP::On_Command(wxCommandEvent &event)
 				switch( GetCurrentPage()->GetId() )
 				{
 				case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event);	break;
-				case ID_WND_WKSP_DATA:		m_pData   ->On_Command(event);	break;
-				case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command(event);	break;
+				case ID_WND_WKSP_DATA :	m_pData ->On_Command(event);	break;
+				case ID_WND_WKSP_MAPS :	m_pMaps ->On_Command(event);	break;
 				}
 			}
 		}
@@ -306,9 +306,9 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		{
 			switch( GetCurrentPage()->GetId() )
 			{
-			case ID_WND_WKSP_TOOLS:	m_pTools->On_Command(event);	break;
-			case ID_WND_WKSP_DATA:		m_pData   ->On_Command(event);	break;
-			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command(event);	break;
+			case ID_WND_WKSP_TOOLS: m_pTools->On_Command(event);	break;
+			case ID_WND_WKSP_DATA : m_pData ->On_Command(event);	break;
+			case ID_WND_WKSP_MAPS : m_pMaps ->On_Command(event);	break;
 			}
 		}
 		break;
@@ -351,8 +351,8 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command_UI(event) )
 		{
 			m_pTools->On_Command_UI(event);
-			m_pData   ->On_Command_UI(event);
-			m_pMaps   ->On_Command_UI(event);
+			m_pData ->On_Command_UI(event);
+			m_pMaps ->On_Command_UI(event);
 		}
 		break;
 
@@ -362,8 +362,8 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 			switch( GetCurrentPage()->GetId() )
 			{
 			case ID_WND_WKSP_TOOLS:	m_pTools->On_Command_UI(event);	break;
-			case ID_WND_WKSP_DATA:		m_pData   ->On_Command_UI(event);	break;
-			case ID_WND_WKSP_MAPS:		m_pMaps   ->On_Command_UI(event);	break;
+			case ID_WND_WKSP_DATA :	m_pData ->On_Command_UI(event);	break;
+			case ID_WND_WKSP_MAPS :	m_pMaps ->On_Command_UI(event);	break;
 			}
 		}
 		break;
@@ -407,7 +407,7 @@ bool CWKSP::Open(void)
 {
 	wxArrayString	File_Paths;
 
-	if( DLG_Open(File_Paths, ID_DLG_WKSP_OPEN) )
+	if( DLG_Open(File_Paths, ID_DLG_FILES_OPEN) )
 	{
 		MSG_General_Add_Line();
 
@@ -425,8 +425,8 @@ bool CWKSP::Open(void)
 //---------------------------------------------------------
 bool CWKSP::Open(const wxString &File_Name)
 {
-	return(	m_pTools	->Get_Manager()->Open(File_Name)
-		||	m_pData		->Get_Manager()->Open(File_Name)
+	return(	m_pTools->Get_Manager()->Open(File_Name)
+		||  m_pData ->Get_Manager()->Open(File_Name)
 	);
 }
 
