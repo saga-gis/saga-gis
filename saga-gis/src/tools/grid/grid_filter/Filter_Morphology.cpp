@@ -98,21 +98,6 @@ CFilter_Morphology::CFilter_Morphology(void)
 	);
 
 	Parameters.Add_Choice(NULL,
-		"KERNEL_TYPE"	, _TL("Kernel Type"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format("%s|%s|",
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Int(NULL,
-		"KERNEL_RADIUS"	, _TL("Kernel Radius"),
-		_TL("Kernel radius in cells."),
-		2, 1, true
-	);
-
-	Parameters.Add_Choice(NULL,
 		"METHOD"		, _TL("Method"),
 		_TL("Choose the operation to perform."),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -122,6 +107,8 @@ CFilter_Morphology::CFilter_Morphology(void)
 			_TL("Closing" )
 		), 0
 	);
+
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
 
 
@@ -149,10 +136,12 @@ bool CFilter_Morphology::On_After_Execution(void)
 bool CFilter_Morphology::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_Kernel.Set_Radius(
-		Parameters("KERNEL_RADIUS")->asInt(),
-		Parameters("KERNEL_TYPE"  )->asInt() == 0
-	);
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
 
 	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid(), Tmp;
 	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Grid_IO_GDAL                      //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -108,6 +105,8 @@ CSG_String Get_Info(int i)
 #include "ogr_export.h"
 #include "ogr_export_kml.h"
 
+#include "gdal_formats.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your tools to be created here...
@@ -134,8 +133,11 @@ CSG_Tool *		Create_Tool(int i)
 
 	case  9:	return( new CGDAL_Import_WMS );
 
+	case 10:	return( new CGDAL_Formats );
+
+
 	//-----------------------------------------------------
-	case 10:	// initializations
+	case 11:	// initializations
 
 		CPLSetErrorHandler(CPLQuietErrorHandler);
 

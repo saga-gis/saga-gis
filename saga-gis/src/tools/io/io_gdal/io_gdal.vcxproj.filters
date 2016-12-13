@@ -50,6 +50,9 @@
     <ClCompile Include="gdal_import_wms.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gdal_formats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -137,6 +140,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gdal_import_wms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gdal_formats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

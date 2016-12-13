@@ -1036,6 +1036,15 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_GRIDCELLADDR_PARM_SQUARE		0x01
+#define SG_GRIDCELLADDR_PARM_CIRCLE		0x02
+#define SG_GRIDCELLADDR_PARM_ANNULUS	0x04
+#define SG_GRIDCELLADDR_PARM_SECTOR		0x08
+#define SG_GRIDCELLADDR_PARM_SIZEDBL	0x10
+#define SG_GRIDCELLADDR_PARM_MAPUNIT	0x20
+#define SG_GRIDCELLADDR_PARM_DEFAULT	(SG_GRIDCELLADDR_PARM_SQUARE|SG_GRIDCELLADDR_PARM_CIRCLE)
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Grid_Cell_Addressor
 {
 public:
@@ -1043,7 +1052,15 @@ public:
 
 	bool						Destroy				(void);
 
-	CSG_Distance_Weighting &	Get_Weighting		(void)								{	return( m_Weighting );		}
+	static bool					Add_Parameters		(class CSG_Parameters &Parameters, const SG_Char *Parent = NULL, int Style = SG_GRIDCELLADDR_PARM_DEFAULT);
+	bool						Set_Parameters		(class CSG_Parameters &Parameters, int Type = 0);
+	bool						Set_Square			(class CSG_Parameters &Parameters);
+	bool						Set_Circle			(class CSG_Parameters &Parameters);
+	bool						Set_Annulus			(class CSG_Parameters &Parameters);
+	bool						Set_Sector			(class CSG_Parameters &Parameters);
+	static bool					On_Parameters_Enable(class CSG_Parameters &pParameters);
+
+	CSG_Distance_Weighting &	Get_Weighting		(void)			{	return( m_Weighting );		}
 
 	bool						is_Square			(void)	const	{	return( m_Type == 1 );	}
 	bool						is_Annulus			(void)	const	{	return( m_Type == 2 );	}
@@ -1053,9 +1070,9 @@ public:
 	bool						Set_Annulus			(double inner_Radius, double outer_Radius);
 	bool						Set_Sector			(double Radius, double Direction, double Tolerance);
 
-	double						Get_Radius			(bool bOuter = true)	const	{	return( m_Parms[bOuter ? 0 : 1] );	}
-	double						Get_Direction		(void)					const	{	return( m_Parms[2] );	}
-	double						Get_Tolerance		(void)					const	{	return( m_Parms[3] );	}
+	double						Get_Radius			(bool bOuter = true)		const	{	return( m_Parms[bOuter ? 0 : 1] );	}
+	double						Get_Direction		(void)						const	{	return( m_Parms[2] );	}
+	double						Get_Tolerance		(void)						const	{	return( m_Parms[3] );	}
 
 	int							Get_Count			(void)	const						{	return( m_Cells.Get_Count() );	}
 

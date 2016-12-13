@@ -910,6 +910,8 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 	SG_Free(paramFormats);
 //	SG_Free(paramTypes);
 
+	SG_UI_Process_Set_Progress(0.0, 0.0);
+
 	return( bResult );
 }
 
@@ -1035,6 +1037,8 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 
 	//-----------------------------------------------------
 	PQclear(pResult);
+
+	SG_UI_Process_Set_Progress(0.0, 0.0);
 
 	return( true );
 }
@@ -1277,6 +1281,8 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	PQclear(pResult);
 
 	Add_MetaData(*pShapes, Name, Select);
+
+	SG_UI_Process_Set_Progress(0.0, 0.0);
 
 	return( true );
 }

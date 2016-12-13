@@ -118,12 +118,14 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_DEL			, CVIEW_Table_Control::On_Field_Del)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_DEL			, CVIEW_Table_Control::On_Field_Del_UI)
-	EVT_MENU					(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort)
-	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_RENAME		, CVIEW_Table_Control::On_Field_Rename_UI)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_TYPE		, CVIEW_Table_Control::On_Field_Type_UI)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_SORT		, CVIEW_Table_Control::On_Field_Sort_UI)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_CALC		, CVIEW_Table_Control::On_Field_Calc)
+	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_CALC		, CVIEW_Table_Control::On_Field_Calc_UI)
 
 	EVT_MENU					(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_RECORD_ADD		, CVIEW_Table_Control::On_Record_Add_UI)
@@ -870,12 +872,13 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL);
-
-		Menu.AppendSeparator();
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE);
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC);
+		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
 	}
@@ -895,10 +898,8 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_INS);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_RECORD_DEL_ALL);
-
 		//	Menu.AppendSeparator();
 		//	CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
-
 			Menu.AppendSeparator();
 			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_CLEAR);
@@ -995,18 +996,16 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 {
-	int				i;
-	CSG_String		sFields;
-	CSG_Parameters	P;
-
 	//-----------------------------------------------------
-	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	CSG_String	Fields;
+
+	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append(wxT('|'));
+		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String('|');
 	}
 
 	//-----------------------------------------------------
-	P.Set_Name(_TL("Add Field"));
+	CSG_Parameters	P(NULL, _TL("Add Field"), SG_T(""));
 
 	P.Add_String(
 		NULL	, "NAME"	, _TL("Name"),
@@ -1038,7 +1037,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	P.Add_Choice(
 		NULL	, "FIELD"	, _TL("Insert Position"),
 		_TL(""),
-		sFields, m_pTable->Get_Field_Count() - 1
+		Fields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
@@ -1122,55 +1121,6 @@ void CVIEW_Table_Control::On_Field_Del(wxCommandEvent &event)
 void CVIEW_Table_Control::On_Field_Del_UI(wxUpdateUIEvent &event)
 {
 	event.Enable(m_pTable->Get_Field_Count() > 0);
-}
-
-//---------------------------------------------------------
-void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
-{
-	CSG_String		sFields, sOrder;
-	CSG_Parameter	*pNode;
-	CSG_Parameters	P;
-
-	//-----------------------------------------------------
-	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
-	{
-		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append('|');
-	}
-
-	sOrder.Printf("%s|%s|%s|",
-		_TL("do not sort"),
-		_TL("ascending"),
-		_TL("descending")
-	);
-
-	//-----------------------------------------------------
-	P.Set_Name(_TL("Sort Table"));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_1"	, _TL("Sort first by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	pNode	= P.Add_Choice(pNode, "ORDER_1"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_2"	, _TL("Sort second by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	pNode	= P.Add_Choice(pNode, "ORDER_2"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_3"	, _TL("Sort third by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	pNode	= P.Add_Choice(pNode, "ORDER_3"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
-
-	//-----------------------------------------------------
-	if( DLG_Parameters(&P) )
-	{
-		m_pTable->Set_Index(
-			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
-			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
-			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None
-		);
-
-		_Update_Records();
-	}
-}
-
-void CVIEW_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
-{
-	event.Enable(m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Record_Count() > 1);
 }
 
 //---------------------------------------------------------
@@ -1305,6 +1255,99 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 }
 
 void CVIEW_Table_Control::On_Field_Type_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_pTable->Get_Field_Count() > 0);
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
+{
+	//-----------------------------------------------------
+	CSG_String	Fields, Order;
+
+	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String("|");
+	}
+
+	Order.Printf("%s|%s|%s|",
+		_TL("do not sort"),
+		_TL("ascending"),
+		_TL("descending")
+	);
+
+	//-----------------------------------------------------
+	CSG_Parameters	P(NULL, _TL("Sort Table"), SG_T(""));
+
+	CSG_Parameter	*pNode;
+
+	pNode	= P.Add_Choice(NULL , "FIELD_1", _TL("Sort first by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
+	pNode	= P.Add_Choice(pNode, "ORDER_1", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+
+	pNode	= P.Add_Choice(NULL , "FIELD_2", _TL("Sort second by"), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+	pNode	= P.Add_Choice(pNode, "ORDER_2", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+
+	pNode	= P.Add_Choice(NULL , "FIELD_3", _TL("Sort third by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
+	pNode	= P.Add_Choice(pNode, "ORDER_3", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		m_pTable->Set_Index(
+			P("FIELD_1")->asInt(), P("ORDER_1")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_1")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
+			P("FIELD_2")->asInt(), P("ORDER_2")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_2")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None,
+			P("FIELD_3")->asInt(), P("ORDER_3")->asInt() == 1 ? TABLE_INDEX_Ascending : P("ORDER_3")->asInt() == 2 ? TABLE_INDEX_Descending : TABLE_INDEX_None
+		);
+
+		_Update_Records();
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Sort_UI(wxUpdateUIEvent &event)
+{
+	event.Enable(m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Record_Count() > 1);
+}
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
+{
+	//-----------------------------------------------------
+	CSG_String	Fields;
+
+	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String("|");
+	}
+
+	//-----------------------------------------------------
+	if( m_Field_Calc.Get_Count() == 0 )
+	{
+		m_Field_Calc.Set_Name(_TL("Table Field Calculator"));
+
+		m_Field_Calc.Add_Choice(NULL, "FIELD"    , _TL("Result"   ), _TL(""), Fields);
+		m_Field_Calc.Add_Bool  (NULL, "SELECTION", _TL("Selection"), _TL(""), true);
+		m_Field_Calc.Add_String(NULL, "FORMULA"  , _TL("Formula"  ), _TL(""), "f1 + f2");
+	}
+
+	m_Field_Calc("FIELD")->asChoice()->Set_Items(Fields);
+
+	m_Field_Calc.Set_Enabled("SELECTION", m_pTable->Get_Selection_Count() > 0);
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&m_Field_Calc) )
+	{
+		bool	bResult;
+
+		SG_RUN_TOOL(bResult, "table_calculus", 1,	// table field calculator
+				SG_TOOL_PARAMETER_SET("TABLE"    , m_pTable)
+			&&	SG_TOOL_PARAMETER_SET("FIELD"    , m_Field_Calc("FIELD"    )->asInt   ())
+			&&	SG_TOOL_PARAMETER_SET("SELECTION", m_Field_Calc("SELECTION")->asBool  ())
+			&&	SG_TOOL_PARAMETER_SET("FORMULA"  , m_Field_Calc("FORMULA"  )->asString())
+		);
+	}
+}
+
+void CVIEW_Table_Control::On_Field_Calc_UI(wxUpdateUIEvent &event)
 {
 	event.Enable(m_pTable->Get_Field_Count() > 0);
 }

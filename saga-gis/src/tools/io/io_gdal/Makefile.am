@@ -16,6 +16,7 @@ gdal_catalogue.cpp\
 gdal_driver.cpp\
 gdal_export.cpp\
 gdal_export_geotiff.cpp\
+gdal_formats.cpp\
 gdal_import.cpp\
 gdal_import_netcdf.cpp\
 gdal_import_wms.cpp\
@@ -28,6 +29,7 @@ gdal_catalogue.h\
 gdal_driver.h\
 gdal_export.h\
 gdal_export_geotiff.h\
+gdal_formats.h\
 gdal_import.h\
 gdal_import_netcdf.h\
 gdal_import_wms.h\

@@ -63,6 +63,7 @@
 //---------------------------------------------------------
 #include "grid.h"
 #include "shapes.h"
+#include "parameters.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -312,16 +313,129 @@ bool CSG_Grid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
 //---------------------------------------------------------
 CSG_Grid_Cell_Addressor::CSG_Grid_Cell_Addressor(void)
 {
-	m_Cells.Add_Field(SG_T("X"), SG_DATATYPE_Int);
-	m_Cells.Add_Field(SG_T("Y"), SG_DATATYPE_Int);
-	m_Cells.Add_Field(SG_T("D"), SG_DATATYPE_Double);
-	m_Cells.Add_Field(SG_T("W"), SG_DATATYPE_Double);
+	m_Cells.Add_Field("X", SG_DATATYPE_Int   );
+	m_Cells.Add_Field("Y", SG_DATATYPE_Int   );
+	m_Cells.Add_Field("D", SG_DATATYPE_Double);
+	m_Cells.Add_Field("W", SG_DATATYPE_Double);
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Destroy(void)
 {
 	m_Cells.Del_Records();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const SG_Char *Parent, int Style)
+{
+	Parameters.Add_Choice(NULL, "KERNEL_TYPE", _TL("Kernel Type"),
+		_TL("The shape of the filter kernel."),
+		"0|1|", 1
+	);
+
+	CSG_String	Unit	= (Style & SG_GRIDCELLADDR_PARM_MAPUNIT) == 0
+		? _TL("The kernel radius in cells.")
+		: _TL("The kernel radius in map units.");
+
+	if( (Style & SG_GRIDCELLADDR_PARM_SIZEDBL) == 0 )
+	{
+		Parameters.Add_Int   (NULL, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2  , 1  , true);
+	}
+	else
+	{
+		Parameters.Add_Double(NULL, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1.0, 0.0, true);
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Types;
+
+	if( (Style & SG_GRIDCELLADDR_PARM_SQUARE) != 0 )
+	{
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SQUARE , _TL("Square"));
+	}
+
+	if( (Style & SG_GRIDCELLADDR_PARM_CIRCLE) != 0 )
+	{
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_CIRCLE , _TL("Circle"));
+	}
+
+	if( (Style & SG_GRIDCELLADDR_PARM_ANNULUS) != 0 )
+	{
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_ANNULUS, _TL("Annulus"));
+
+		Parameters.Add_Double(NULL, "KERNEL_INNER", _TL("Inner Kernel Radius"), _TL(""));
+	}
+
+	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR) != 0 )
+	{
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SECTOR , _TL("Sector"));
+
+		Parameters.Add_Double(NULL, "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
+		Parameters.Add_Double(NULL, "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
+	}
+
+	Parameters("KERNEL_TYPE")->asChoice()->Set_Items(Types);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Parameters(CSG_Parameters &Parameters, int Type)
+{
+	if( Type == 0 && Parameters("KERNEL_TYPE") )
+	{
+		Type	= Parameters("KERNEL_TYPE")->asChoice()->Get_Item_Data(Parameters("KERNEL_TYPE")->asInt()).asInt();
+	}
+
+	switch( Type )
+	{
+	case SG_GRIDCELLADDR_PARM_SQUARE:
+		return( Set_Radius(
+			Parameters("KERNEL_RADIUS"   )->asDouble(),
+			true
+		));
+
+	case SG_GRIDCELLADDR_PARM_CIRCLE:
+		return( Set_Radius(
+			Parameters("KERNEL_RADIUS"   )->asDouble(),
+			false
+		));
+
+	case SG_GRIDCELLADDR_PARM_ANNULUS:
+		return( Set_Annulus(
+			Parameters("KERNEL_INNER"    )->asDouble(),
+			Parameters("KERNEL_RADIUS"   )->asDouble()
+		));
+
+	case SG_GRIDCELLADDR_PARM_SECTOR:
+		return( Set_Sector(
+			Parameters("KERNEL_RADIUS"   )->asDouble(),
+			Parameters("KERNEL_DIRECTION")->asDouble(),
+			Parameters("KERNEL_TOLERANCE")->asDouble()
+		));
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::On_Parameters_Enable(CSG_Parameters &Parameters)
+{
+	if( Parameters("KERNEL_TYPE") )
+	{
+		int	Type	= Parameters("KERNEL_TYPE")->asChoice()->Get_Item_Data(Parameters("KERNEL_TYPE")->asInt()).asInt();
+
+		Parameters.Set_Enabled("KERNEL_INNER"    , Type == SG_GRIDCELLADDR_PARM_ANNULUS);
+		Parameters.Set_Enabled("KERNEL_DIRECTION", Type == SG_GRIDCELLADDR_PARM_SECTOR );
+		Parameters.Set_Enabled("KERNEL_TOLERANCE", Type == SG_GRIDCELLADDR_PARM_SECTOR );
+	}
 
 	return( true );
 }

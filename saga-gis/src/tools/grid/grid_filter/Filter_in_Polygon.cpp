@@ -74,46 +74,31 @@
 CFilter_in_Polygon::CFilter_in_Polygon(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Simple Filter (Restricted to Polygons)"));
 
-	Set_Name		(_TL("Simple Filter within shapes"));
-
-	Set_Author		(SG_T("Johan Van de Wauw, 2015"));
+	Set_Author		("Johan Van de Wauw, 2015");
 
 	Set_Description	(_TW(
-		"Simple standard filters for grids, evaluation within shapes."
+		"Simple standard filters for grids, evaluation within polygons."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "SHAPES",_TL("Boundaries"),
-		_TL("Boundaries: the simple filter will only operate on grid cells which fall in the same shape"),
-		PARAMETER_INPUT,
-		SHAPE_TYPE_Polygon
-		);
-
-	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the filter method."),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Square"),
-			_TL("Circle")
-		), 1
+	Parameters.Add_Shapes(NULL,
+		"SHAPES"	,_TL("pPolygons"),
+		_TL("pPolygons: the simple filter will only operate on grid cells which fall in the same shape"),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
@@ -126,44 +111,39 @@ CFilter_in_Polygon::CFilter_in_Polygon(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 1, 1, true
-	);
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_in_Polygon::On_After_Execution(void)
+{
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
+	{
+		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_in_Polygon::On_Execute(void)
 {
-	int			Mode, Radius, Method;
-	double		Mean;
-	CSG_Grid	Result, *pResult;
-	
-
 	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	Radius		= Parameters("RADIUS")	->asInt();
-	Mode		= Parameters("MODE")	->asInt();
-	Method		= Parameters("METHOD")	->asInt();
-	Boundaries  = Parameters("SHAPES")  ->asShapes();
+	int	Method	= Parameters("METHOD")->asInt();
 
+	m_pInput	= Parameters("INPUT")->asGrid();
 
-
-
-	switch( Mode )
-	{
-	case 0:								break;
-	case 1:	m_Radius.Create(Radius);	break;
-	}
+	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
 
 	//-----------------------------------------------------
 	if( !pResult || pResult == m_pInput )
@@ -174,25 +154,38 @@ bool CFilter_in_Polygon::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Filter")));
+		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Filter")));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+
+		if( Method != 2 )	// Edge...
+		{
+			DataObject_Set_Parameters(pResult, m_pInput);
+		}
 	}
 
+	//-----------------------------------------------------
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
 
+		return( false );
+	}
 
+	//-----------------------------------------------------
 	Process_Set_Text(_TL("Initializing Fields"));
 
-	int m_nFields	= Boundaries->Get_Count();
+	CSG_Shapes	*pPolygons	= Parameters("SHAPES")->asShapes();
+
+	int m_nFields	= pPolygons->Get_Count();
 
 	m_Fields.Create(*Get_System(), m_nFields < pow(2.0, 16.0) - 1.0 ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
 	m_Fields.Set_NoData_Value(m_nFields);
 	m_Fields.Assign_NoData();
 
-	//-----------------------------------------------------
-	for(int iField=0; iField<Boundaries->Get_Count() && Set_Progress(iField, Boundaries->Get_Count()); iField++)
+	for(int iField=0; iField<pPolygons->Get_Count() && Set_Progress(iField, pPolygons->Get_Count()); iField++)
 	{
-		CSG_Shape_Polygon	*pField	= (CSG_Shape_Polygon *)Boundaries->Get_Shape(iField);
+		CSG_Shape_Polygon	*pField	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iField);
 
 		int	xMin	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMin()) - 1; if( xMin <  0        ) xMin = 0;
 		int	xMax	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMax()) + 1; if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
@@ -214,27 +207,24 @@ bool CFilter_in_Polygon::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pInput->is_InGrid(x, y) )
-			{
-				switch( Mode )
-				{
-				case 0:		Mean	= Get_Mean_Square(x, y, Radius);	break;
-				case 1:		Mean	= Get_Mean_Circle(x, y);			break;
-				}
+			double	Mean;
 
+			if( Get_Mean(x, y, Mean) )
+			{
 				switch( Method )
 				{
-				case 0:	default:	// Smooth...
+				default:	// Smooth...
 					pResult->Set_Value(x, y, Mean);
 					break;
 
-				case 1:				// Sharpen...
+				case  1:	// Sharpen...
 					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) + (m_pInput->asDouble(x, y) - Mean));
 					break;
 
-				case 2:				// Edge...
+				case  2:	// Edge...
 					pResult->Set_Value(x, y, m_pInput->asDouble(x, y) - Mean);
 					break;
 				}
@@ -259,7 +249,7 @@ bool CFilter_in_Polygon::On_Execute(void)
 		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
-	m_Radius.Destroy();
+	m_Fields.Destroy();
 
 	return( true );
 }
@@ -267,63 +257,39 @@ bool CFilter_in_Polygon::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CFilter_in_Polygon::Get_Mean_Square(int x, int y, int Radius)
+bool CFilter_in_Polygon::Get_Mean(int x, int y, double &Value)
 {
-	int		ix, iy, n;
-	double	s;
+	CSG_Simple_Statistics	s;
 
-	int shapeID = m_Fields.asInt(x,y);
-	for(n=0, s=0.0, iy=y-Radius; iy<=y+Radius; iy++)
+	if( m_pInput->is_InGrid(x, y) )
 	{
-		for(ix=x-Radius; ix<=x+Radius; ix++)
+		int	Field = m_Fields.asInt(x, y);
+
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_pInput->is_InGrid(ix, iy) && shapeID==m_Fields.asInt(ix,iy))
+			int	ix	= m_Kernel.Get_X(i, x);
+			int	iy	= m_Kernel.Get_Y(i, y);
+
+			if( m_pInput->is_InGrid(ix, iy) && Field == m_Fields.asInt(ix, iy) )
 			{
 				s	+= m_pInput->asDouble(ix, iy);
-				n	++;
 			}
 		}
 	}
 
-	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
-}
-
-//---------------------------------------------------------
-double CFilter_in_Polygon::Get_Mean_Circle(int x, int y)
-{
-	int		i, ix, iy, n;
-	double	s;
-
-	int shapeID = m_Fields.asInt(x,y);
-	for(n=0, s=0.0, i=0; i<m_Radius.Get_nPoints(); i++)
+	if( s.Get_Count() > 0 )
 	{
-		m_Radius.Get_Point(i, x, y, ix, iy);
+		Value	= s.Get_Mean();
 
-		if( m_pInput->is_InGrid(ix, iy)  && shapeID==m_Fields.asInt(ix,iy))
-		{
-			s	+= m_pInput->asDouble(ix, iy);
-			n	++;
-		}
+		return( true );
 	}
 
-	return( n > 0 ? s / n : m_pInput->Get_NoData_Value() );
+	return( false );
 }
 
-//---------------------------------------------------------
-bool CFilter_in_Polygon::On_After_Execution(void)
-{
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
 
 ///////////////////////////////////////////////////////////
 //														 //

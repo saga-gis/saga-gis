@@ -109,7 +109,7 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	Connect(m_pControl->GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_MENU      , wxTreeEventHandler(CData_Source_Files::On_TreeEvent));
 
 	//-----------------------------------------------------
-	wxString	Filter(DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN));
+	wxString	Filter(DLG_Get_FILE_Filter(ID_DLG_FILES_OPEN));
 
 	wxArrayString	Choices;
 
@@ -123,7 +123,7 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	m_pFilter	= new wxChoice(this, ID_WND_DATA_SOURCE_FILES, wxDefaultPosition, wxDefaultSize, Choices);
 
 	m_pFilter	->Select(0);
-	m_pControl	->SetFilter(DLG_Get_FILE_Filter(ID_DLG_ALLFILES_OPEN));
+	m_pControl	->SetFilter(DLG_Get_FILE_Filter(ID_DLG_FILES_OPEN));
 	m_pControl	->SetFilterIndex(m_pFilter->GetSelection());
 	m_pControl	->ReCreateTree();
 

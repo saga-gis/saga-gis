@@ -1090,13 +1090,13 @@ bool CSG_Distance_Weighting::Set_Parameters(CSG_Parameters *pParameters)
 	switch( m_pParameters->Get_Parameter("DW_WEIGHTING")->asInt() )
 	{
 	default:
-	case 0:	Set_Weighting(SG_DISTWGHT_None);	break;
-	case 1:	Set_Weighting(SG_DISTWGHT_IDW);		break;
-	case 2:	Set_Weighting(SG_DISTWGHT_EXP);		break;
+	case 0:	Set_Weighting(SG_DISTWGHT_None );	break;
+	case 1:	Set_Weighting(SG_DISTWGHT_IDW  );	break;
+	case 2:	Set_Weighting(SG_DISTWGHT_EXP  );	break;
 	case 3:	Set_Weighting(SG_DISTWGHT_GAUSS);	break;
 	}
 
-	Set_IDW_Offset	(m_pParameters->Get_Parameter("DW_IDW_OFFSET")->asBool());
+	Set_IDW_Offset	(m_pParameters->Get_Parameter("DW_IDW_OFFSET")->asBool  ());
 	Set_IDW_Power	(m_pParameters->Get_Parameter("DW_IDW_POWER" )->asDouble());
 	Set_BandWidth	(m_pParameters->Get_Parameter("DW_BANDWIDTH" )->asDouble());
 

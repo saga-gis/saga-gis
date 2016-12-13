@@ -90,9 +90,11 @@ public:
 
 protected:
 
-	virtual bool		On_Execute		(void);
-
 	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute			(void);
+
+	virtual bool		On_After_Execution	(void);
 
 
 private:
@@ -102,11 +104,10 @@ private:
 	CSG_Grid			*m_pInput, m_Kernel;
 
 
-	bool				Initialise		(void);
+	bool				Initialise			(void);
 
-	double				Get_Value		(int x, int y);
+	double				Get_Value			(int x, int y);
 
-	virtual bool		On_After_Execution(void);
 };
 
 

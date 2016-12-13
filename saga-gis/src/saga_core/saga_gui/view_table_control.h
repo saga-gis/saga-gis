@@ -138,6 +138,8 @@ protected:
 	void						On_Field_Rename_UI	(wxUpdateUIEvent  &event);
 	void						On_Field_Type		(wxCommandEvent   &event);
 	void						On_Field_Type_UI	(wxUpdateUIEvent  &event);
+	void						On_Field_Calc		(wxCommandEvent   &event);
+	void						On_Field_Calc_UI	(wxUpdateUIEvent  &event);
 
 	void						On_Record_Add		(wxCommandEvent   &event);
 	void						On_Record_Add_UI	(wxUpdateUIEvent  &event);
@@ -155,7 +157,9 @@ private:
 
 	int							m_Scroll_Start, m_Scroll_Range, m_Cursor, m_Decimals;
 
-	class CSG_Table				*m_pTable;
+	CSG_Table					*m_pTable;
+
+	CSG_Parameters				m_Field_Calc;
 
 
 	void						_Update_Views		(void);

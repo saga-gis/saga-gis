@@ -74,230 +74,146 @@
 CFilter_Gauss::CFilter_Gauss(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name(_TL("Gaussian Filter"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Andre Ringeler"));
+	Set_Author(SG_T("A.Ringeler (c) 2003"));
 
 	Set_Description	(_TW(
 		"The Gaussian filter is a smoothing operator that is used to 'blur' or 'soften' data "
-		"and to remove detail and noise.\n"
+		"and to remove detail and noise. "
 		"The degree of smoothing is determined by the standard deviation. "
-		"For higher standard deviations you need to use a larger search radius.\n"
+		"For higher standard deviations you need to use a larger search radius."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+	Parameters.Add_Grid(NULL,
+		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "SIGMA"		, _TL("Standard Deviation"),
-		_TL("The standard deviation, determines the degree of smoothing."),
-		PARAMETER_TYPE_Double, 1, 0.0001, true
+	Parameters.Add_Double(NULL,
+		"SIGMA"		, _TL("Standard Deviation"),
+		_TL("The standard deviation as percentage of the kernel radius, determines the degree of smoothing."),
+		50.0, 0.0001, true
 	);
 
-	Parameters.Add_Choice(
-		NULL, "MODE"		, _TL("Search Mode"),
-		_TL("Choose the shape of the filter kernel."),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Search Radius"),
-		_TL("The search radius [cells]."),
-		PARAMETER_TYPE_Int, 2, 1, true
-	);
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
 }
-
-//---------------------------------------------------------
-CFilter_Gauss::~CFilter_Gauss(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CFilter_Gauss::On_Execute(void)
-{
-	int			Mode, Radius;
-	double		Sigma;
-	CSG_Grid	*pResult, Result;
-
-	//-----------------------------------------------------
-	m_pInput	= Parameters("INPUT")	->asGrid();
-	pResult		= Parameters("RESULT")	->asGrid();
-	Radius		= Parameters("RADIUS")	->asInt();
-	Mode		= Parameters("MODE")	->asInt();
-	Sigma		= Parameters("SIGMA")	->asDouble();
-
-	//-----------------------------------------------------
-	if( Initialise(Radius, Sigma, Mode) )
-	{
-		if( !pResult || pResult == m_pInput )
-		{
-			pResult	= &Result;
-		
-			pResult->Create(m_pInput);
-		}
-		else
-		{
-			pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pInput->Get_Name(), _TL("Gaussian Filter")));
-
-			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-		}
-
-		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
-			{
-				if( m_pInput->is_InGrid(x, y) )
-				{
-					pResult->Set_Value(x, y, Get_Mean(x, y));
-				}
-				else
-				{
-					pResult->Set_NoData(x, y);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( pResult == &Result )
-		{
-			CSG_MetaData	History	= m_pInput->Get_History();
-
-			m_pInput->Assign(pResult);
-			m_pInput->Get_History() = History;
-
-			DataObject_Update(m_pInput);
-
-			Parameters("RESULT")->Set_Value(m_pInput);
-		}
-
-		m_Weights.Destroy();
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CFilter_Gauss::Initialise(int Radius, double Sigma, int Mode)
-{
-	int		x, y;
-	double	dx, dy, val, min, max;
-
-	//-----------------------------------------------------
-	m_Weights.Create(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
-
-	//-----------------------------------------------------
-	for(y=0, dy=-Radius, min=1.0, max=0.0; y<m_Weights.Get_NY(); y++, dy++)
-	{
-		for(x=0, dx=-Radius; x<m_Weights.Get_NX(); x++, dx++)
-		{
-			switch( Mode )
-			{
-			case 1:
-				val	= sqrt(dx*dx + dy*dy) > Radius
-					? 0.0
-					: exp(-(dx*dx + dy*dy) / (2.0 * Sigma*Sigma)) / (M_PI * 2.0 * Sigma*Sigma);
-				break;
-
-			case 0:
-				val	= exp(-(dx*dx + dy*dy) / (2.0 * Sigma*Sigma)) / (M_PI * 2.0 * Sigma*Sigma);
-				break;
-			}
-
-			m_Weights.Set_Value(x, y, val);
-
-			if( min > max )
-			{
-				min	= max	= val;
-			}
-			else if( val < min )
-			{
-				min	= val;
-			}
-			else if( val > max )
-			{
-				max	= val;
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( max == 0.0 )
-	{
-		Message_Dlg(_TL("Radius is too small"));
-	}
-	else if( min / max > 0.367 / 2.0 )
-	{
-		Message_Dlg(_TL("Radius is too small for your Standard Deviation"), Get_Name());
-	}
-	else
-	{
-		return( true );
-	}
-
-	m_Weights.Destroy();
-
-	return( false );
-}
-
-//---------------------------------------------------------
-double CFilter_Gauss::Get_Mean(int x, int y)
-{
-	int		ix, iy, jx, jy;
-	double	s, n, w;
-
-	for(n=0.0, s=0.0, jy=0, iy=y-(m_Weights.Get_NY()-1)/2; jy<m_Weights.Get_NY(); jy++, iy++)
-	{
-		for(jx=0, ix=x-(m_Weights.Get_NX()-1)/2; jx<m_Weights.Get_NX(); jx++, ix++)
-		{
-			if( (w = m_Weights.asDouble(jx, jy)) > 0.0 && m_pInput->is_InGrid(ix, iy) )
-			{
-				s	+= w * m_pInput->asDouble(ix, iy);
-				n	+= w;
-			}
-		}
-	}
-
-	return( n > 0.0 ? s / n : m_pInput->Get_NoData_Value() );
-}
 
 //---------------------------------------------------------
 bool CFilter_Gauss::On_After_Execution(void)
 {
-	if (Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid())
+	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
 	{
 		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
 	}
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFilter_Gauss::On_Execute(void)
+{
+	//-----------------------------------------------------
+	double	Sigma	= Parameters("SIGMA")->asDouble();
+
+	CSG_Grid_Cell_Addressor	Kernel;
+
+	Kernel.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
+	Kernel.Get_Weighting().Set_BandWidth(Sigma * Parameters("KERNEL_RADIUS")->asDouble() / 100.0);
+
+	if( !Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid(), Result;
+
+	if( !pResult || pResult == pInput )
+	{
+		pResult	= &Result;
+		
+		pResult->Create(*pInput);
+	}
+	else
+	{
+		pResult->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Gaussian Filter")));
+
+		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+
+		DataObject_Set_Parameters(pResult, pInput);
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			CSG_Simple_Statistics	s;
+
+			if( !pInput->is_NoData(x, y) )
+			{
+				for(int i=0; i<Kernel.Get_Count(); i++)
+				{
+					int	ix	= Kernel.Get_X(i, x);
+					int	iy	= Kernel.Get_Y(i, y);
+
+					if( pInput->is_InGrid(ix, iy) )
+					{
+						s.Add_Value(pInput->asDouble(ix, iy), Kernel.Get_Weight(i));
+					}
+				}
+			}
+
+			if( s.Get_Weights() > 0.0 )
+			{
+				pResult->Set_Value(x, y, s.Get_Mean());
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pResult == &Result )
+	{
+		CSG_MetaData	History	= pInput->Get_History();
+
+		pInput->Assign(pResult);
+		pInput->Get_History() = History;
+
+		DataObject_Update(pInput);
+
+		Parameters("RESULT")->Set_Value(pInput);
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

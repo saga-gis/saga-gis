@@ -64,35 +64,40 @@
 #ifndef HEADER_INCLUDED__Filter_Gauss_H
 #define HEADER_INCLUDED__Filter_Gauss_H
 
-
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class CFilter_Gauss : public CSG_Tool_Grid
 {
 public:
 	CFilter_Gauss(void);
-	virtual ~CFilter_Gauss(void);
 	
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual bool			On_Execute			(void);
+
+	virtual bool			On_After_Execution	(void);
 
 
 private:
 
-	CSG_Grid			*m_pInput, m_Weights;
-
-
-	bool				Initialise			(int Radius, double Sigma, int Mode);
-
-	double				Get_Mean			(int x, int y);
-
-	virtual bool		On_After_Execution	(void);
-
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Filter_Gauss_H

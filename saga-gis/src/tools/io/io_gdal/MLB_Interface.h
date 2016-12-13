@@ -64,6 +64,11 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <gdal.h>
+#if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR == 2
+#define USE_GDAL_V2
+#endif
+
 //---------------------------------------------------------
 #ifdef io_gdal_EXPORTS
 	#define	io_gdal_EXPORT	_SAGA_DLL_EXPORT

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      Grid_Tools                       //
+//                       io_gdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Grid_Gaps_OneCell.cpp                 //
+//                    gdal_formats.h                     //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2016 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,19 +37,15 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                Bundesstr. 55                          //
+//                D-20146 Hamburg                        //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-//---------------------------------------------------------
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -61,7 +54,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Grid_Gaps_OneCell.h"
+#ifndef HEADER_INCLUDED__gdal_formats_H
+#define HEADER_INCLUDED__gdal_formats_H
 
 
 ///////////////////////////////////////////////////////////
@@ -71,98 +65,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
+#include "MLB_Interface.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGDAL_Formats : public CSG_Tool
 {
-	Set_Name		(_TL("Close One Cell Gaps"));
+public:
+	CGDAL_Formats(void);
 
-	Set_Author		("O.Conrad (c) 2001");
-
-	Set_Description	(_TW(
-		"Closes one cell gaps using the mean value of the surrounding cell values. "
-		"If the target is not set, the changes will be stored to the original grid. "
-	));
-
-	Parameters.Add_Grid(NULL,
-		"INPUT"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(NULL,
-		"RESULT"	, _TL("Changed Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Choice(NULL,
-		"MODE"		, _TL("Neighbourhood"),
-		_TL("Neumann: the four horizontally and vertically neighboured cells; Moore: all eight adjacent cells"),
-		CSG_String::Format("%s|%s|",
-			_TL("Neumann"),
-			_TL("Moore")
-		), 1
-	);
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Reports") );	}
 
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+protected:
 
-//---------------------------------------------------------
-bool CGrid_Gaps_OneCell::On_Execute(void)
-{
-	CSG_Grid	*pInput		= Parameters("INPUT" )->asGrid();
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+	virtual bool				On_Execute				(void);
 
-	DataObject_Set_Parameters(pResult, pInput);
 
-	pResult->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Close Gaps")));
+private:
 
-	int	iStep	= Parameters("MODE")->asInt() == 0 ? 2 : 1;
-
-	//-----------------------------------------------------
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
-		{
-			if( !pInput->is_NoData(x, y) )
-			{
-				pResult->Set_Value(x, y, pInput->asDouble(x, y));
-			}
-			else
-			{
-				bool	bClose	= true;
-
-				CSG_Simple_Statistics	s;
-
-				for(int i=0; i<8 && bClose; i+=iStep)
-				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
-
-					if( (bClose = pInput->is_InGrid(ix, iy)) == true )
-					{
-						s	+= pInput->asDouble(ix, iy);
-					}
-				}
-
-				if( bClose )
-				{
-					pResult->Set_Value(x, y, s.Get_Mean());
-				}
-				else
-				{
-					pResult->Set_NoData(x, y);
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	return( true );
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -172,3 +100,4 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__gdal_formats_H
