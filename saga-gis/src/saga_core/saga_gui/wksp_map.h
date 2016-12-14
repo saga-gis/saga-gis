@@ -191,8 +191,10 @@ public:
 	void						Draw_Frame				(wxDC &dc, wxRect rMap, int Width);
 	void						Draw_Frame				(wxDC &dc, const CSG_Rect &rWorld, wxRect rMap, int Width);
 	bool						Draw_Legend				(wxDC &dc, double Zoom_Map, double Zoom, wxPoint Position, wxSize *pSize = NULL);
-	bool						Draw_North_Arrow		(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient);
-	bool						Draw_ScaleBar			(wxDC &dc, const CSG_Rect &rWorld, const wxRect &rClient);
+
+	bool						Draw_North_Arrow		(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
+	bool						Draw_ScaleBar			(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
+	bool						Draw_Extent				(class CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, const wxRect &rClient);
 
 	const wxBitmap &			Get_Thumbnail			(int dx, int dy);
 
