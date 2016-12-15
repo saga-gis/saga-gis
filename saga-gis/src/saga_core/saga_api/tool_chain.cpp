@@ -567,7 +567,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	//-----------------------------------------------------
 	CSG_String	Variable;
 
-	if( !Condition.Get_Property("variable", Variable) )
+	if( !Condition.Get_Property("varname", Variable) && !Condition.Get_Property("variable", Variable) )
 	{
 		Variable	= Condition.Get_Content();
 	}
