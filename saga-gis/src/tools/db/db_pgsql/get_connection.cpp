@@ -148,12 +148,6 @@ CGet_Connection::CGet_Connection(void)
 	);
 
 	Parameters.Add_String(NULL,
-		"PG_NAME"	, _TL("Database"),
-		_TL("Database Name"),
-		"geo_test"
-	);
-
-	Parameters.Add_String(NULL,
 		"PG_USER"	, _TL("User"),
 		_TL("User Name"),
 		"postgres"
@@ -164,6 +158,70 @@ CGet_Connection::CGet_Connection(void)
 		_TL("Password"),
 		"postgres", false, true
 	);
+
+	Parameters.Add_String(NULL,
+		"PG_NAME"	, _TL("Database"),
+		_TL("Database Name"),
+		""
+	);
+
+	Parameters.Add_Choice(NULL,
+		"PG_LIST"	, _TL("Database"),
+		_TL("Database Name"),
+		""
+	)->Set_UseInCMD(false);
+
+	Parameters("PG_LIST")->Set_Enabled(false);
+}
+
+//---------------------------------------------------------
+int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( SG_UI_Get_Window_Main() )
+	{
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "PG_HOST")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_PORT")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_USER")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_PWD" ) )
+		{
+			CSG_Table	DBs;
+
+			CSG_PG_Connection	Connection(
+				pParameters->Get_Parameter("PG_HOST")->asString(),
+				pParameters->Get_Parameter("PG_PORT")->asInt   (),
+				"",
+				pParameters->Get_Parameter("PG_USER")->asString(),
+				pParameters->Get_Parameter("PG_PWD" )->asString()
+			);
+
+			if( Connection.is_Connected() && Connection.Execute("SELECT datname FROM pg_database", &DBs) )
+			{
+				CSG_String	List;
+
+				for(int i=0; i<DBs.Get_Count(); i++)
+				{
+					List	+= DBs[i].asString(0) + CSG_String("|");
+				}
+
+				pParameters->Get_Parameter("PG_LIST")->asChoice()->Set_Items(List);
+				pParameters->Set_Enabled  ("PG_LIST",  true);
+				pParameters->Set_Enabled  ("PG_NAME", false);
+				pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameters->Get_Parameter("PG_LIST")->asString());
+			}
+			else
+			{
+				pParameters->Set_Enabled  ("PG_LIST", false);
+				pParameters->Set_Enabled  ("PG_NAME",  true);
+			}
+		}
+
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "PG_LIST") )
+		{
+			pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameter->asString());
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -183,11 +241,13 @@ bool CGet_Connection::On_Execute(void)
 	}
 
 	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
+		Parameters("PG_LIST") && Parameters("PG_LIST")->is_Enabled() ?
+		Parameters("PG_LIST")->asString() :
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_USER")->asString(),
 		Parameters("PG_PWD" )->asString(),
 		Parameters("PG_HOST")->asString(),
-		Parameters("PG_PORT")->asInt()
+		Parameters("PG_PORT")->asInt   ()
 	);
 
 	if( pConnection )
