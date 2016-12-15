@@ -77,14 +77,17 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
+	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-16"));
 
 	Set_Description	(_TW(
 		"This tool allows one to extract subsets from one or several "
 		"point cloud datasets. The area-of-interest "
 		"is defined either by bounding box coordinates, the extent of a grid system or "
 		"a shapes layer, or by polygons of a shapes layer. Note that the latter "
-		"does not support the inverse selection.\n\n"
+		"does not support the inverse selection in case the shapes layer contains more "
+		"than one polygon.\n"
+		"In case a polygon shapes layer is used and one or more polygons are selected, "
+		"only the selected polygons are processed.\n\n"
 	));
 
 
@@ -350,6 +353,11 @@ bool CPC_Cut::Contains(CSG_Shapes *pPolygons, double x, double y)
 		for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
 			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+
+			if( pPolygons->Get_Selection_Count() > 0 && !pPolygon->is_Selected() )
+			{
+				continue;
+			}
 
 			if( pPolygon->Contains(x, y) )
 			{
