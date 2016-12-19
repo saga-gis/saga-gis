@@ -230,7 +230,7 @@ bool CGet_Connection::On_Execute(void)
 	CSG_String	Connection	= CSG_String::Format("%s [%s:%d]",
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_HOST")->asString(),
-		Parameters("PG_PORT")->asInt()
+		Parameters("PG_PORT")->asInt   ()
 	);
 
 	if( SG_PG_Get_Connection_Manager().Get_Connection(Connection) )
@@ -241,7 +241,7 @@ bool CGet_Connection::On_Execute(void)
 	}
 
 	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
-		Parameters("PG_LIST") && Parameters("PG_LIST")->is_Enabled() ?
+		Parameters("PG_LIST")->is_Enabled() ?
 		Parameters("PG_LIST")->asString() :
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_USER")->asString(),
