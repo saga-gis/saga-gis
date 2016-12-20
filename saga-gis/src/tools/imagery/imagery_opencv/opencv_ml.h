@@ -93,7 +93,7 @@ class COpenCV_ML : public CSG_Tool_Grid
 public:
 	COpenCV_ML(bool bProbability);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification|Machine Learning (OpenCV)") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification|Machine Learning") );	}
 
 
 protected:
