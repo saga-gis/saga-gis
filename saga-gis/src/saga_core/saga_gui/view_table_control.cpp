@@ -63,6 +63,7 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/filename.h>
+#include <wx/clipbrd.h>
 
 #include <saga_api/saga_api.h>
 
@@ -113,6 +114,8 @@ BEGIN_EVENT_TABLE(CVIEW_Table_Control, wxGrid)
 
 	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_APP	, CVIEW_Table_Control::On_Cell_Open)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_DATA	, CVIEW_Table_Control::On_Cell_Open)
+
+	EVT_MENU					(ID_CMD_TABLE_TO_CLIPBOARD		, CVIEW_Table_Control::On_ToClipboard)
 
 	EVT_MENU					(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add)
 	EVT_UPDATE_UI				(ID_CMD_TABLE_FIELD_ADD			, CVIEW_Table_Control::On_Field_Add_UI)
@@ -878,6 +881,7 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_SORT);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_CALC);
 		Menu.AppendSeparator();
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
@@ -891,6 +895,8 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 		if( m_bSelOnly )
 		{
 			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
+			Menu.AppendSeparator();
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		}
 		else
 		{
@@ -903,6 +909,8 @@ void CVIEW_Table_Control::On_RClick_Label(wxGridEvent &event)
 			Menu.AppendSeparator();
 			CMD_Menu_Add_Item(&Menu,  true, ID_CMD_TABLE_SELECTION_ONLY);
 			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_SELECTION_CLEAR);
+			Menu.AppendSeparator();
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		}
 
 		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
@@ -986,6 +994,54 @@ void CVIEW_Table_Control::On_Cell_Open(wxCommandEvent &event)
 			DLG_Message_Show_Error(_TL("failed"), CMD_Get_Name(ID_CMD_TABLE_FIELD_OPEN_DATA));
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CVIEW_Table_Control::On_ToClipboard(wxCommandEvent &event)
+{
+	_ToClipboard();
+}
+
+//---------------------------------------------------------
+bool CVIEW_Table_Control::_ToClipboard(void)
+{
+	if( wxTheClipboard->Open() )
+	{
+		wxString	Data;
+
+		int	i, j, n	= m_pTable->Get_Selection_Count()
+			? m_pTable->Get_Selection_Count() : m_pTable->Get_Count();
+
+		for(j=0; j<m_pTable->Get_Field_Count(); j++)
+		{
+			Data	+= m_pTable->Get_Field_Name(j);
+			Data	+= j + 1 < m_pTable->Get_Field_Count() ? '\t' : '\n';
+		}
+
+		for(i=0; i<n; i++)
+		{
+			CSG_Table_Record	*pRecord	= m_pTable->Get_Selection_Count()
+				? m_pTable->Get_Selection(i) : m_pTable->Get_Record_byIndex(i);
+
+			for(j=0; j<m_pTable->Get_Field_Count(); j++)
+			{
+				Data	+= pRecord->asString(j);
+				Data	+= j + 1 < m_pTable->Get_Field_Count() ? '\t' : '\n';
+			}
+		}
+
+		wxTheClipboard->SetData(new wxTextDataObject(Data));
+		wxTheClipboard->Close();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

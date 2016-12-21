@@ -130,6 +130,7 @@ wxMenu * CVIEW_Table::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_SORT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_FIELD_CALC);
 	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
 	return( pMenu );
@@ -202,6 +203,7 @@ void CVIEW_Table::On_Command(wxCommandEvent &event)
 	case ID_CMD_TABLE_RECORD_DEL    :
 	case ID_CMD_TABLE_RECORD_DEL_ALL:
 
+	case ID_CMD_TABLE_TO_CLIPBOARD  :
 	case ID_CMD_TABLE_AUTOSIZE_COLS :
 		m_pControl->ProcessWindowEvent(event);
 	}

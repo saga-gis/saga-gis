@@ -325,6 +325,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_SELECTION_ONLY:	return( _TL("Show Selection") );
 	case ID_CMD_TABLE_AUTOSIZE_COLS:	return( _TL("Fit Column Sizes") );
 	case ID_CMD_TABLE_AUTOSIZE_ROWS:	return( _TL("Fit Row Sizes") );
+	case ID_CMD_TABLE_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_DIAGRAM_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_DIAGRAM_SIZE_FIT:		return( _TL("Fit Diagram to Window") );

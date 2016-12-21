@@ -128,6 +128,8 @@ protected:
 
 	void						On_Cell_Open		(wxCommandEvent   &event);
 
+	void						On_ToClipboard		(wxCommandEvent   &event);
+
 	void						On_Field_Add		(wxCommandEvent   &event);
 	void						On_Field_Add_UI		(wxUpdateUIEvent  &event);
 	void						On_Field_Del		(wxCommandEvent   &event);
@@ -177,6 +179,8 @@ private:
 	bool						_Set_Scroll_Start	(int Position, bool bEnforceUpdate = true);
 
 	bool						_Get_DataSource		(wxString &Source);
+
+	bool						_ToClipboard		(void);
 
 
 //---------------------------------------------------------
