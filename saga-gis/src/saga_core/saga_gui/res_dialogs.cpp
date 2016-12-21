@@ -187,12 +187,16 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 	bool		bResult;
 	CSG_Table	Formats;
 
+	SG_UI_ProgressAndMsg_Lock(true);
+
 	SG_RUN_TOOL(bResult, "io_gdal", 10,	// GDAL Formats
 		SG_TOOL_PARAMETER_SET("FORMATS"   , &Formats)
 	&&	SG_TOOL_PARAMETER_SET("TYPE"      , Type    )	// all (rasters and vectors)
 	&&	SG_TOOL_PARAMETER_SET("ACCESS"    , 0       )	// read
 	&&	SG_TOOL_PARAMETER_SET("RECOGNIZED", true    )	// add an entry for all recognized files
 	);
+
+	SG_UI_ProgressAndMsg_Lock(false);
 
 	if( bResult && Formats.Get_Count() > 0 )
 	{
