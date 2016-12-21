@@ -74,138 +74,219 @@
 CGrid_Value_Replace::CGrid_Value_Replace(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Change Grid Values"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Changes values of a grid according to the rules of a user defined lookup table. "
 		"Values or value ranges that are not listed in the lookup table remain unchanged. "
-		"If the target is not set, the changes will be stored to the original grid. ")
-	);
-
+		"If the target is not set, the changes will be stored to the original grid. "
+	));
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL	, "GRID_IN"		, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "GRID_OUT"	, _TL("Changed Grid"),
+	Parameters.Add_Grid(NULL,
+		"OUTPUT"	, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Replace Condition"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Replace Condition"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("Grid value equals low value"),
-			_TL("Low value < grid value < high value"),
-			_TL("Low value <= grid value < high value")
+		CSG_String::Format("%s|%s|%s|",
+			_TL("identity"),
+			_TL("range"),
+			_TL("synchronize look-up table classification")
 		)
 	);
 
 	//-----------------------------------------------------
-	CSG_Table			*pLookup;
-	CSG_Table_Record	*pRecord;
+	CSG_Table	*pLUT;
 
-	pLookup	= Parameters.Add_FixedTable(
-		NULL	, "LOOKUP"		, _TL("Lookup Table"),
+	pLUT	= Parameters.Add_FixedTable(NULL,
+		"IDENTITY"	, _TL("Lookup Table"),
 		_TL("")
 	)->asTable();
 
-	pLookup->Add_Field(_TL("Low Value")		, SG_DATATYPE_Double);
-	pLookup->Add_Field(_TL("High Value")		, SG_DATATYPE_Double);
-	pLookup->Add_Field(_TL("Replace with")	, SG_DATATYPE_Double);
+	pLUT->Add_Field(_TL("New Value"), SG_DATATYPE_Double);
+	pLUT->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+	pLUT->Add_Record();
 
-	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 0.0);	pRecord->Set_Value(1, 0.0);	pRecord->Set_Value(2, 10.0);
-	pRecord	= pLookup->Add_Record();	pRecord->Set_Value(0, 1.0);	pRecord->Set_Value(1, 4.0);	pRecord->Set_Value(2, 11.0);
+	pLUT	= Parameters.Add_FixedTable(NULL,
+		"RANGE"		, _TL("Lookup Table"),
+		_TL("")
+	)->asTable();
+
+	pLUT->Add_Field(_TL("New Value"), SG_DATATYPE_Double);
+	pLUT->Add_Field(_TL("Minimum"  ), SG_DATATYPE_Double);
+	pLUT->Add_Field(_TL("Maximum"  ), SG_DATATYPE_Double);
+	pLUT->Add_Record();
+
+	Parameters.Add_Grid(NULL,
+		"GRID"		, _TL("Grid Classification"),
+		_TL("Synchronize with look-up table classification of another grid (gui only)."),
+		PARAMETER_INPUT
+	);
 }
-
-//---------------------------------------------------------
-CGrid_Value_Replace::~CGrid_Value_Replace(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Value_Replace::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("IDENTITY", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("RANGE"   , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("GRID"    , pParameter->asInt() == 2);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Value_Replace::On_Execute(void)
 {
-	bool			bReplace;
-	int				x, y, iRecord, Method;
-	double			Value;
-	CSG_Grid			*pGrid;
-	CSG_Table			*pLookup;
-	CSG_Table_Record	*pRecord;
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("OUTPUT")->asGrid();
+
+	if( !pGrid || pGrid == Parameters("INPUT")->asGrid() )
+	{
+		pGrid	= Parameters("INPUT")->asGrid();
+	}
+	else
+	{
+		pGrid->Assign(Parameters("INPUT")->asGrid());
+
+		DataObject_Set_Parameters(pGrid, Parameters("INPUT")->asGrid());
+
+		pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed")));
+	}
 
 	//-----------------------------------------------------
-	pLookup	= Parameters("LOOKUP")->asTable();
+	int		Method	= Parameters("METHOD")->asInt();
 
-	if( pLookup->Get_Record_Count() > 0 )
+	CSG_Table	LUT;
+
+	switch( Method )
 	{
-		if( Parameters("GRID_OUT")->asGrid() == NULL || Parameters("GRID_IN")->asGrid() == Parameters("GRID_OUT")->asGrid() )
+	default:	LUT.Create(*Parameters("IDENTITY")->asTable());	break;
+	case  1:	LUT.Create(*Parameters("RANGE"   )->asTable());	break;
+	case  2:	LUT.Create( Parameters("RANGE"   )->asTable());
+		if( SG_UI_Get_Window_Main()	// gui only
+		&&  DataObject_Get_Parameter(Parameters("GRID" )->asGrid(), "LUT")
+		&&  DataObject_Get_Parameter(Parameters("INPUT")->asGrid(), "LUT") )
 		{
-			pGrid	= Parameters("GRID_IN")	->asGrid();
-		}
-		else
-		{
-			pGrid	= Parameters("GRID_OUT")->asGrid();
-			pGrid->Assign(Parameters("GRID_IN")->asGrid());
-		}
+			CSG_Table	LUTs[2];
 
-		Method	= Parameters("METHOD")->asInt();
+			LUTs[0].Create(*DataObject_Get_Parameter(Parameters("GRID" )->asGrid(), "LUT")->asTable());
+			LUTs[1].Create(*DataObject_Get_Parameter(Parameters("INPUT")->asGrid(), "LUT")->asTable());
 
-		//-------------------------------------------------
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			for(x=0; x<Get_NX(); x++)
+			for(int i=0; i<LUTs[0].Get_Count(); i++)
 			{
-				Value	= pGrid->asDouble(x, y);
+				CSG_String	Name	= LUTs[0][i].asString(1);
 
-				for(iRecord=0, bReplace=false; iRecord<pLookup->Get_Record_Count() && !bReplace; iRecord++)
+				for(int j=LUTs[1].Get_Count()-1; j>=0; j--)
 				{
-					pRecord	= pLookup->Get_Record(iRecord);
-
-					switch( Method )
+					if( !Name.Cmp(LUTs[1][j].asString(1)) )
 					{
-					case 0:	// grid value equals low value...
-						bReplace	= Value == pRecord->asDouble(0);
-						break;
+						CSG_Table_Record	*pReplace	= LUT.Add_Record();
 
-					case 1:	// low value < grid value < high value...
-						bReplace	= pRecord->asDouble(0) < Value && Value < pRecord->asDouble(1);
-						break;
+						pReplace->Set_Value(0, LUTs[0][i].asDouble(3));
+						pReplace->Set_Value(1, LUTs[1][j].asDouble(3));
+						pReplace->Set_Value(2, LUTs[1][j].asDouble(4));
 
-					case 2:	// low value <= grid value <= high value...
-						bReplace	= pRecord->asDouble(0) <= Value && Value <= pRecord->asDouble(1);
+						LUTs[1].Del_Record(j);
+
 						break;
 					}
+				}
+			}
 
-					if( bReplace )
+			for(int j=0; j<LUTs[1].Get_Count(); j++)
+			{
+				LUTs[0].Add_Record(LUTs[1].Get_Record(j));
+			}
+
+			DataObject_Add(pGrid);
+			CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pGrid, "LUT");
+			pLUT->asTable()->Assign_Values(&LUTs[0]);
+			DataObject_Set_Parameter(pGrid, pLUT);
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( LUT.Get_Count() == 0 )
+	{
+		Error_Set(_TL("empty look-up table, nothing to replace"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#ifndef _DEBUG
+		#pragma omp parallel for
+		#endif
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	Value	= pGrid->asDouble(x, y);
+
+			for(int i=0; i<LUT.Get_Count(); i++)
+			{
+				if( Method == 0 )
+				{
+					if( LUT[i].asDouble(1) == Value )
 					{
-						pGrid->Set_Value(x, y, pRecord->asDouble(2));
+						pGrid->Set_Value(x, y, LUT[i].asDouble(0));
+
+						break;
+					}
+				}
+				else
+				{
+					if( LUT[i].asDouble(1) <= Value && Value <= LUT[i].asDouble(2) )
+					{
+						pGrid->Set_Value(x, y, LUT[i].asDouble(0));
+
+						break;
 					}
 				}
 			}
 		}
-
-		//-------------------------------------------------
-		DataObject_Update(pGrid, pGrid->Get_ZMin(), pGrid->Get_ZMax());
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( pGrid == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pGrid);
+	}
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

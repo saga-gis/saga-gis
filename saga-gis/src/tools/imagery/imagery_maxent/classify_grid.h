@@ -88,7 +88,7 @@ class CClassify_Grid : public CSG_Tool_Grid
 public:
 	CClassify_Grid(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Imagery|Classification|Machine Learning") );	}
 
 
 protected:

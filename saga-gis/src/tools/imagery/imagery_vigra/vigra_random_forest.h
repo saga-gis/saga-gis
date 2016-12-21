@@ -88,7 +88,7 @@ class CViGrA_Random_Forest : public CSG_Tool_Grid
 public:
 	CViGrA_Random_Forest(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Classification") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Imagery|Classification|Machine Learning") );	}
 
 
 protected:

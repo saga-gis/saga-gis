@@ -164,6 +164,8 @@ private:
 
 	bool							_Initialise_Grids		(void);
 
+	bool							_Get_Cross_Validation	(void);
+
 };
 
 

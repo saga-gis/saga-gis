@@ -73,8 +73,6 @@
 //---------------------------------------------------------
 CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Multiple Regression Analysis (Points and Predictor Grids)"));
 
@@ -84,70 +82,71 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		"Linear regression analysis of point attributes with multiple grids. "
 		"Details of the regression/correlation analysis will be saved to a table. "
 		"The regression function is used to create a new grid with regression based values. "
-		"The multiple regression analysis uses a forward selection procedure. \n"
-		"\n"
-		"Reference:\n"
-		"- Bahrenberg, G., Giese, E., Nipper, J. (1992): "
-		"'Statistische Methoden in der Geographie 2 - Multivariate Statistik', "
-		"Stuttgart, 415p.\n"
+		"The multiple regression analysis uses a forward selection procedure."
 	));
 
+	Add_Reference(
+		"Bahrenberg, G., Giese, E., Nipper, J.", "1992",
+		"Statistische Methoden in der Geographie 2 - Multivariate Statistik",
+		"Stuttgart, 415p."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Grid_List(NULL,
+		"PREDICTORS"	, _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT, true
 	);
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes(NULL,
+		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field(Parameters("POINTS"),
+		"ATTRIBUTE"		, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_COEFF"	, _TL("Details: Coefficients"),
+	Parameters.Add_Table(NULL,
+		"INFO_COEFF"	, _TL("Details: Coefficients"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_MODEL"	, _TL("Details: Model"),
+	Parameters.Add_Table(NULL,
+		"INFO_MODEL"	, _TL("Details: Model"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "INFO_STEPS"	, _TL("Details: Steps"),
+	Parameters.Add_Table(NULL,
+		"INFO_STEPS"	, _TL("Details: Steps"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Shapes(NULL,
+		"RESIDUALS"		, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Grid(NULL,
+		"REGRESSION"	, _TL("Regression"),
 		_TL("regression model applied to predictor grids"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESCORR"	, _TL("Regression with Residual Correction"),
+	Parameters.Add_Grid(NULL,
+		"REGRESCORR"	, _TL("Regression with Residual Correction"),
 		_TL("regression model applied to predictor grids with interpolated residuals added"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice(NULL,
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -157,28 +156,28 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "COORD_X"		, _TL("Include X Coordinate"),
+	Parameters.Add_Bool(NULL,
+		"COORD_X"		, _TL("Include X Coordinate"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "COORD_Y"		, _TL("Include Y Coordinate"),
+	Parameters.Add_Bool(NULL,
+		"COORD_Y"		, _TL("Include Y Coordinate"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "INTERCEPT"	, _TL("Intercept"),
+	Parameters.Add_Bool(NULL,
+		"INTERCEPT"		, _TL("Intercept"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"METHOD"		, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -186,16 +185,16 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_VALUE"		, _TL("Significance Level"),
+	Parameters.Add_Double(NULL,
+		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
+		5.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"CROSSVAL"		, _TL("Cross Validation"),
+	Parameters.Add_Choice(NULL,
+		"CROSSVAL"		, _TL("Cross Validation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("none"),
 			_TL("leave one out"),
 			_TL("2-fold"),
@@ -203,17 +202,17 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
+	Parameters.Add_Int(NULL,
+		"CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
 		_TL("number of subsamples for k-fold cross validation"),
-		PARAMETER_TYPE_Int, 10, 2, true
+		10, 2, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	,"RESIDUAL_COR"	, _TL("Residual Interpolation"),
+	Parameters.Add_Choice(NULL,
+		"RESIDUAL_COR"	, _TL("Residual Interpolation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Multleve B-Spline Interpolation"),
+		CSG_String::Format("%s|%s|",
+			_TL("Multilevel B-Spline Interpolation"),
 			_TL("Inverse Distance Weighted")
 		), 0
 	);
@@ -284,11 +283,10 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	default:
-	case 0:	bResult	= m_Regression.Get_Model         (Samples      , &Names);	break;
-	case 1:	bResult	= m_Regression.Get_Model_Forward (Samples, P   , &Names);	break;
-	case 2:	bResult	= m_Regression.Get_Model_Backward(Samples,    P, &Names);	break;
-	case 3:	bResult	= m_Regression.Get_Model_Stepwise(Samples, P, P, &Names);	break;
+	default: bResult = m_Regression.Get_Model         (Samples      , &Names);	break;
+	case  1: bResult = m_Regression.Get_Model_Forward (Samples, P   , &Names);	break;
+	case  2: bResult = m_Regression.Get_Model_Backward(Samples,    P, &Names);	break;
+	case  3: bResult = m_Regression.Get_Model_Stepwise(Samples, P, P, &Names);	break;
 	}
 
 	if( bResult == false )
@@ -306,20 +304,20 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 
 	switch( Parameters("CROSSVAL")->asInt() )
 	{
-	default:	CrossVal	= 0;									break;	// none
-	case 1:		CrossVal	= 1;									break;	// leave one out (LOOVC)
-	case 2:		CrossVal	= 2;									break;	// 2-fold
-	case 3:		CrossVal	= Parameters("CROSSVAL_K")->asInt();	break;	// k-fold
+	default: CrossVal = 0;                                 break;	// none
+	case  1: CrossVal = 1;                                 break;	// leave one out (LOOVC)
+	case  2: CrossVal = 2;                                 break;	// 2-fold
+	case  3: CrossVal = Parameters("CROSSVAL_K")->asInt(); break;	// k-fold
 	}
 
 	if( CrossVal > 0 && m_Regression.Get_CrossValidation(CrossVal) )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s:\n"      ), _TL("Cross Validation")), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%s\n"  ), _TL("Type"   ), Parameters("CROSSVAL")->asString() ), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%d\n"  ), _TL("Samples"), m_Regression.Get_CV_nSamples()     ), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%f\n"  ), _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         ), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0), false);
+		Message_Add(CSG_String::Format("\n%s:\n"      , _TL("Cross Validation")), false);
+		Message_Add(CSG_String::Format("\t%s:\t%s\n"  , _TL("Type"   ), Parameters("CROSSVAL")->asString() ), false);
+		Message_Add(CSG_String::Format("\t%s:\t%d\n"  , _TL("Samples"), m_Regression.Get_CV_nSamples()     ), false);
+		Message_Add(CSG_String::Format("\t%s:\t%f\n"  , _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         ), false);
+		Message_Add(CSG_String::Format("\t%s:\t%.2f\n", _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0), false);
+		Message_Add(CSG_String::Format("\t%s:\t%.2f\n", _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0), false);
 	}
 
 	//-----------------------------------------------------
@@ -376,10 +374,10 @@ bool CPoint_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, 
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
+	case  1: Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2: Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3: Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	Names	+= pPoints->Get_Field_Name(iAttribute);		// Dependent Variable
@@ -389,8 +387,8 @@ bool CPoint_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, 
 		Names	+= pGrids->asGrid(iGrid)->Get_Name();
 	}
 
-	if( bCoord_X )	{	Names	+= SG_T("X");	}
-	if( bCoord_Y )	{	Names	+= SG_T("Y");	}
+	if( bCoord_X )	{	Names	+= "X";	}
+	if( bCoord_Y )	{	Names	+= "Y";	}
 
 	Sample.Create(1 + pGrids->Get_Count() + (bCoord_X ? 1 : 0) + (bCoord_Y ? 1 : 0));
 
@@ -692,7 +690,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 //	Parameters.Add_Choice(
 //		NULL	,"CORRECTION"	, _TL("Adjustment"),
 //		_TL(""),
-//		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+//		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 //			_TL("Smith"),
 //			_TL("Wherry 1"),
 //			_TL("Wherry 2"),
