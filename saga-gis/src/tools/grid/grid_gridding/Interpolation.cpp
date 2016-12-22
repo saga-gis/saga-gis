@@ -71,8 +71,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CInterpolation::CInterpolation(bool bCrossValidation)
+CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 {
+	m_bMultiThreading	= bMultiThreading;
+
+	//-----------------------------------------------------
 	Parameters.Add_Shapes(NULL,
 		"POINTS"	, _TL("Points"),
 		_TL(""),
@@ -201,6 +204,21 @@ bool CInterpolation::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+inline void CInterpolation::_Interpolate(int x, int y)
+{
+	double	z;
+
+	if( Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z) )
+	{
+		m_pGrid->Set_Value(x, y, z);
+	}
+	else
+	{
+		m_pGrid->Set_NoData(x, y);
+	}
+}
+
+//---------------------------------------------------------
 bool CInterpolation::Interpolate(void)
 {
 	if( !On_Initialize() )
@@ -211,18 +229,19 @@ bool CInterpolation::Interpolate(void)
 	//-----------------------------------------------------
 	for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 	{
-		#pragma omp parallel for
-		for(int x=0; x<m_pGrid->Get_NX(); x++)
+		if( m_bMultiThreading )
 		{
-			double	z;
-
-			if( Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z) )
+			#pragma omp parallel for
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
 			{
-				m_pGrid->Set_Value(x, y, z);
+				_Interpolate(x, y);
 			}
-			else
+		}
+		else
+		{
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
 			{
-				m_pGrid->Set_NoData(x, y);
+				_Interpolate(x, y);
 			}
 		}
 	}

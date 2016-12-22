@@ -85,7 +85,7 @@
 class CInterpolation : public CSG_Tool
 {
 public:
-	CInterpolation(bool bCrossValidation = true);
+	CInterpolation(bool bCrossValidation = true, bool bMultiThreading = true);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Interpolation from Points") );	}
 
@@ -112,6 +112,8 @@ protected:
 
 private:
 
+	bool						m_bMultiThreading;
+
 	int							m_zField;
 
 	CSG_Shapes					*m_pPoints;
@@ -120,6 +122,8 @@ private:
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
+
+	void						_Interpolate			(int x, int y);
 
 	bool						_Get_Cross_Validation	(void);
 

@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 CInterpolation_Shepard::CInterpolation_Shepard(void)
+	: CInterpolation(true, false)
 {
 	Set_Name		(_TL("Modifed Quadratic Shepard"));
 
@@ -110,6 +111,10 @@ bool CInterpolation_Shepard::On_Initialize(void)
 {
 	CSG_Shapes	*pPoints	= Get_Points();
 
+	m_Points[0].Destroy();
+	m_Points[1].Destroy();
+	m_Points[2].Destroy();
+
 	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
@@ -123,6 +128,8 @@ bool CInterpolation_Shepard::On_Initialize(void)
 	}
 
 	Remove_Duplicate();
+
+	Interpolator.Set_Missing(Get_Grid()->Get_NoData_Value());
 
 	Interpolator.Interpolate(
 		m_Points[0].Get_Data(),
