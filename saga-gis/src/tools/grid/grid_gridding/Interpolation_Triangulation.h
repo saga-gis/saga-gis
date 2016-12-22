@@ -75,7 +75,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_Triangulation : public CInterpolation  
+class CInterpolation_Triangulation : public CInterpolation  
 {
 public:
 	CInterpolation_Triangulation(void);
@@ -87,6 +87,9 @@ protected:
 
 
 private:
+
+	CSG_Grid					*m_pGrid;
+
 
 	void						Set_Triangle				(TSG_Point_Z p[3]);
 	void						Set_Triangle_Line			(int y, double xa, double za, double xb, double zb);

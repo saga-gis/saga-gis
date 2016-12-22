@@ -72,10 +72,11 @@
 
 //---------------------------------------------------------
 CInterpolation_Triangulation::CInterpolation_Triangulation(void)
+	: CInterpolation(false)
 {
 	Set_Name		(_TL("Triangulation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2004"));
+	Set_Author		("O.Conrad (c) 2004");
 
 	Set_Description	(_TW(
 		"Gridding of a shapes layer using Delaunay Triangulation."
@@ -85,8 +86,6 @@ CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -94,39 +93,39 @@ bool CInterpolation_Triangulation::Interpolate(void)
 {
 	CSG_TIN	TIN;
 
-	if( TIN.Create(Get_Points()) )
+	if( !TIN.Create(Get_Points()) )
 	{
-		m_pGrid->Assign_NoData();
-
-		for(int iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
-		{
-			CSG_TIN_Triangle	*pTriangle	= TIN.Get_Triangle(iTriangle);
-
-			if( m_pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
-			{
-				TSG_Point_Z	p[3];
-
-				for(int iPoint=0; iPoint<3; iPoint++)
-				{
-					p[iPoint].x	= (pTriangle->Get_Node(iPoint)->Get_X() - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
-					p[iPoint].y	= (pTriangle->Get_Node(iPoint)->Get_Y() - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
-					p[iPoint].z	=  pTriangle->Get_Node(iPoint)->asDouble(m_zField);
-				}
-
-				Set_Triangle(p);
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	m_pGrid	= Get_Grid();
+
+	m_pGrid->Assign_NoData();
+
+	for(int iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
+	{
+		CSG_TIN_Triangle	*pTriangle	= TIN.Get_Triangle(iTriangle);
+
+		if( m_pGrid->Get_Extent().Intersects(pTriangle->Get_Extent()) != INTERSECTION_None )
+		{
+			TSG_Point_Z	p[3];
+
+			for(int iPoint=0; iPoint<3; iPoint++)
+			{
+				p[iPoint].x	= (pTriangle->Get_Node(iPoint)->Get_X() - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
+				p[iPoint].y	= (pTriangle->Get_Node(iPoint)->Get_Y() - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
+				p[iPoint].z	=  pTriangle->Get_Node(iPoint)->asDouble(Get_Field());
+			}
+
+			Set_Triangle(p);
+		}
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

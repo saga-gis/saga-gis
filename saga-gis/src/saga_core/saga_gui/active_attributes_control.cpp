@@ -61,6 +61,7 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/filename.h>
+#include <wx/clipbrd.h>
 
 #include <saga_api/saga_api.h>
 
@@ -104,6 +105,8 @@ BEGIN_EVENT_TABLE(CActive_Attributes_Control, wxGrid)
 
 	EVT_MENU					(ID_CMD_TABLE_AUTOSIZE_COLS		, CActive_Attributes_Control::On_Autosize_Cols)
 	EVT_MENU					(ID_CMD_TABLE_AUTOSIZE_ROWS		, CActive_Attributes_Control::On_Autosize_Rows)
+
+	EVT_MENU					(ID_CMD_TABLE_TO_CLIPBOARD		, CActive_Attributes_Control::On_ToClipboard)
 END_EVENT_TABLE()
 
 
@@ -387,6 +390,44 @@ void CActive_Attributes_Control::On_Autosize_Rows(wxCommandEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CActive_Attributes_Control::On_ToClipboard(wxCommandEvent &event)
+{
+	_ToClipboard();
+}
+
+//---------------------------------------------------------
+bool CActive_Attributes_Control::_ToClipboard(void)
+{
+	if( wxTheClipboard->Open() )
+	{
+		wxString	Data;
+
+		for(int i=0; i<m_pTable->Get_Count(); i++)
+		{
+			CSG_Table_Record	*pRecord	= m_pTable->Get_Record(i);
+
+			for(int j=0; j<m_pTable->Get_Field_Count(); j++)
+			{
+				Data	+= pRecord->asString(j);
+				Data	+= j + 1 < m_pTable->Get_Field_Count() ? '\t' : '\n';
+			}
+		}
+
+		wxTheClipboard->SetData(new wxTextDataObject(Data));
+		wxTheClipboard->Close();
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CActive_Attributes_Control::On_LClick(wxGridEvent &event)
 {
 	int					iField		= m_Field_Offset + event.GetCol();
@@ -533,25 +574,32 @@ void CActive_Attributes_Control::On_LClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 {
+	wxMenu	Menu;
+
 	//-----------------------------------------------------
 	if( event.GetCol() != -1 )
 	{
-		wxMenu	Menu(_TL("Columns"));
+		Menu.SetTitle(_TL("Columns"));
 
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
+	}
+	else if( event.GetRow() != -1 )
+	{
+		Menu.SetTitle(_TL("Rows"));
 
-		PopupMenu(&Menu, event.GetPosition().x, event.GetPosition().y - GetColLabelSize());
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
+	}
+	else
+	{
+		Menu.SetTitle(_TL("Attributes"));
+
+		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 	}
 
 	//-----------------------------------------------------
-	else if( event.GetRow() != -1 )
-	{
-		wxMenu	Menu(_TL("Rows"));
-
-		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_ROWS);
-
-		PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
-	}
+	PopupMenu(&Menu, event.GetPosition().x - GetRowLabelSize(), event.GetPosition().y);
 }
 
 

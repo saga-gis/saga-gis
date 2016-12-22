@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_InverseDistance : public CInterpolation  
+class CInterpolation_InverseDistance : public CInterpolation  
 {
 public:
 	CInterpolation_InverseDistance(void);

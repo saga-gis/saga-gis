@@ -83,27 +83,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef struct 
-{
-    double x ;
-    double y ;
-	double val;
-}
-Data_Point;
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_Shepard : public CInterpolation  
+class CInterpolation_Shepard : public CInterpolation  
 {
 public:
 	CInterpolation_Shepard(void);
-	virtual ~CInterpolation_Shepard(void);
 
 
 protected:
@@ -116,9 +99,7 @@ protected:
 
 private:
 
-	int						m_MaxPoints, m_Quadratic_Neighbors, m_Weighting_Neighbors;
-
-	double					*x_vals, *y_vals, *f_vals;
+	CSG_Vector				m_Points[3];
 
 	CShepard2d				Interpolator;
 

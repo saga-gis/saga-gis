@@ -71,33 +71,68 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CInterpolation::CInterpolation(void)
+CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 {
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Points"),
+	m_bMultiThreading	= bMultiThreading;
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes(NULL,
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field(Parameters("POINTS"),
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
+	//-----------------------------------------------------
+	if( bCrossValidation )
+	{
+		Parameters.Add_Choice(NULL,
+			"CV_METHOD"		, _TL("Cross Validation"),
+			_TL(""),
+			CSG_String::Format("%s|%s|%s|%s|",
+				_TL("none"),
+				_TL("leave one out"),
+				_TL("2-fold"),
+				_TL("k-fold")
+			), 0
+		);
+
+		Parameters.Add_Table(Parameters("CV_METHOD"),
+			"CV_SUMMARY"	, _TL("Cross Validation Summary"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL
+		);
+
+		Parameters.Add_Shapes(Parameters("CV_METHOD"),
+			"CV_RESIDUALS"	, _TL("Cross Validation Residuals"),
+			_TL(""),
+			PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
+		);
+
+		Parameters.Add_Int(Parameters("CV_METHOD"),
+			"CV_SAMPLES"	, _TL("Cross Validation Subsamples"),
+			_TL("number of subsamples for k-fold cross validation"),
+			10, 2, true
+		);
+	}
+
+	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -110,6 +145,13 @@ int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CInterpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CV_METHOD") )
+	{
+		pParameters->Set_Enabled("CV_SUMMARY"  , pParameter->asInt() != 0);	// !none
+		pParameters->Set_Enabled("CV_RESIDUALS", pParameter->asInt() == 1);	// leave one out
+		pParameters->Set_Enabled("CV_SAMPLES"  , pParameter->asInt() == 3);	// k-fold
+	}
+
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -118,118 +160,302 @@ int CInterpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CInterpolation::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pShapes	= Parameters("SHAPES")->asShapes();
-	m_zField	= Parameters("FIELD" )->asInt();
+	m_pPoints	= Parameters("POINTS")->asShapes();
+	m_zField	= Parameters("FIELD" )->asInt   ();
 
-	//-----------------------------------------------------
-	bool	bResult	= false;
-
-	if( (m_pGrid = m_Grid_Target.Get_Grid()) != NULL )
+	if( m_pPoints->Get_Count() < 3 )
 	{
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("FIELD")->asString(), Get_Name().c_str()));
+		Error_Set(_TL("not enough points"));
 
-		bResult	= Interpolate();
+		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( m_pShapes != Parameters("SHAPES")->asShapes() )
+	m_pGrid		= m_Grid_Target.Get_Grid();
+
+	if( m_pGrid == NULL )
 	{
-		delete(m_pShapes);
+		return( false );
 	}
 
-	return( bResult );
+	m_pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("FIELD")->asString(), Get_Name().c_str()));
+
+	//-----------------------------------------------------
+	if( !Interpolate() )
+	{
+		return( false );
+	}
+
+	_Get_Cross_Validation();
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline void CInterpolation::_Interpolate(int x, int y)
+{
+	double	z;
+
+	if( Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z) )
+	{
+		m_pGrid->Set_Value(x, y, z);
+	}
+	else
+	{
+		m_pGrid->Set_NoData(x, y);
+	}
+}
 
 //---------------------------------------------------------
 bool CInterpolation::Interpolate(void)
 {
-	if( On_Initialize() )
+	if( !On_Initialize() )
 	{
-		int		ix, iy;
-		double	x, y, z;
-
-		for(iy=0, y=m_pGrid->Get_YMin(); iy<m_pGrid->Get_NY() && Set_Progress(iy, m_pGrid->Get_NY()); iy++, y+=m_pGrid->Get_Cellsize())
-		{
-			for(ix=0, x=m_pGrid->Get_XMin(); ix<m_pGrid->Get_NX(); ix++, x+=m_pGrid->Get_Cellsize())
-			{
-				if( Get_Value(x, y, z) )
-				{
-					m_pGrid->Set_Value(ix, iy, z);
-				}
-				else
-				{
-					m_pGrid->Set_NoData(ix, iy);
-				}
-			}
-		}
-
-		On_Finalize();
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+	{
+		if( m_bMultiThreading )
+		{
+			#pragma omp parallel for
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
+			{
+				_Interpolate(x, y);
+			}
+		}
+		else
+		{
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
+			{
+				_Interpolate(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	On_Finalize();
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes * CInterpolation::Get_Points(bool bOnlyNonPoints)
+bool CInterpolation::_Get_Cross_Validation(void)
 {
-	m_pShapes	= Parameters("SHAPES")	->asShapes();
-
-	if( !bOnlyNonPoints || m_pShapes->Get_Type() != SHAPE_TYPE_Point )
+	if( !Parameters("CV_METHOD") )
 	{
-		CSG_Shapes	*pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point);
+		return( true );
+	}
 
-		pPoints->Set_NoData_Value_Range(m_pShapes->Get_NoData_Value(), m_pShapes->Get_NoData_hiValue());
-		pPoints->Add_Field(SG_T("Z"), SG_DATATYPE_Double);
+	//-----------------------------------------------------
+	int nSubSets;
 
-		for(int iShape=0; iShape<m_pShapes->Get_Count() && Set_Progress(iShape, m_pShapes->Get_Count()); iShape++)
+	switch( Parameters("CV_METHOD")->asInt() )
+	{
+	default:	// none
+		return( true );
+
+	case  1:	// leave one out (LOOVC)
+		nSubSets = 1;
+		break;
+
+	case  2:	// 2-fold
+		nSubSets = 2;
+		break;
+
+	case  3:	// k-fold
+		nSubSets = Parameters("CV_SAMPLES")->asInt();
+		break;
+	}
+
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("Cross Validation"));
+
+	CSG_Simple_Statistics	SFull, SR, SE;
+
+	CSG_Shapes	*pFull	= m_pPoints;
+
+	int		i, nSamples	= 0;
+
+	for(i=0; i<pFull->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+
+		if( !pPoint->is_NoData(m_zField) )
 		{
-			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iShape);
+			SFull	+= pPoint->asDouble(m_zField);
+		}
+	}
 
-			if( !pShape->is_NoData(m_zField) )
+	//-----------------------------------------------------
+	// leave-one-out cross validation (LOOCV)
+
+	if( nSubSets <= 1 || nSubSets > pFull->Get_Count() / 2 )
+	{
+		CSG_Shapes	Sample(*pFull), *pResiduals;	m_pPoints	= &Sample;
+
+		if( (pResiduals = Parameters("CV_RESIDUALS")->asShapes()) != NULL )
+		{
+			pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s, %s]", m_pPoints->Get_Name(), Get_Name().c_str(), _TL("Residuals")));
+			pResiduals->Add_Field(pFull->Get_Field_Name(m_zField), SG_DATATYPE_Double);
+			pResiduals->Add_Field("PREDICTED", SG_DATATYPE_Double);
+			pResiduals->Add_Field("RESIDUALS" , SG_DATATYPE_Double);
+		}
+
+		for(i=pFull->Get_Count()-1; i>=0 && Set_Progress(pFull->Get_Count()-1-i, pFull->Get_Count()); i--)
+		{
+			CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+
+			Sample.Del_Shape(i);
+
+			double	z;
+
+			if( !pPoint->is_NoData(m_zField) && On_Initialize() && Get_Value(pPoint->Get_Point(0), z) )
 			{
-				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+				nSamples++;
+
+				SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
+				SR	+= SG_Get_Square(z - (SFull.Get_Sum() - pPoint->asDouble(m_zField)) / Sample.Get_Count());
+
+				if( pResiduals )
 				{
-					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+					CSG_Shape	*pResidual	= pResiduals->Add_Shape();
+
+					pResidual->Add_Point(pPoint->Get_Point(0));
+					pResidual->Set_Value(0, pPoint->asDouble(m_zField));
+					pResidual->Set_Value(1, z);
+					pResidual->Set_Value(2, pPoint->asDouble(m_zField) - z);
+				}
+			}
+
+			Sample.Add_Shape(pPoint);
+		}
+	}
+
+	//-----------------------------------------------------
+	// k-fold cross validation
+
+	else
+	{
+		CSG_Array_Int	SubSet(pFull->Get_Count());
+
+		for(i=0; i<pFull->Get_Count(); i++)
+		{
+			SubSet[i]	= i % nSubSets;
+		}
+
+		//-------------------------------------------------
+		for(int iSubSet=0; iSubSet<nSubSets && Process_Get_Okay(); iSubSet++)
+		{
+			CSG_Simple_Statistics	iSFull;
+
+			CSG_Shapes	Sample[2];
+
+			Sample[0].Create(SHAPE_TYPE_Point, SG_T(""), pFull); m_pPoints = &Sample[0];
+			Sample[1].Create(SHAPE_TYPE_Point, SG_T(""), pFull);
+
+			for(i=0; i<pFull->Get_Count(); i++)
+			{
+				CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+
+				if( !pPoint->is_NoData(m_zField) )
+				{
+					if( SubSet[i] == iSubSet )
 					{
-						CSG_Shape	*pPoint	= pPoints->Add_Shape();
+						Sample[1].Add_Shape(pPoint);
+					}
+					else
+					{
+						Sample[0].Add_Shape(pPoint);
 
-						pPoint->Add_Point(pShape->Get_Point(iPoint, iPart));
+						iSFull	+= pPoint->asDouble(m_zField);
+					}
+				}
+			}
 
-						pPoint->Set_Value(0, pShape->asDouble(m_zField));
+			//---------------------------------------------
+			if( On_Initialize() )
+			{
+				nSamples++;
+
+				for(i=0; i<Sample[1].Get_Count(); i++)
+				{
+					CSG_Shape	*pPoint	= Sample[1].Get_Shape(i);
+
+					double	z;
+
+					if( Get_Value(pPoint->Get_Point(0), z) )
+					{
+						SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
+						SR	+= SG_Get_Square(z - iSFull.Get_Mean());
 					}
 				}
 			}
 		}
-
-		m_zField	= 0;
-		m_pShapes	= pPoints;
 	}
 
-	return( m_pShapes );
+	//-----------------------------------------------------
+	if( nSamples == 0 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	*pSummary	= Parameters("CV_SUMMARY")->asTable();
+
+	if( pSummary )
+	{
+		pSummary->Destroy();
+		pSummary->Set_Name(_TL("Cross Validation"));
+
+		pSummary->Add_Field(_TL("Parameter"), SG_DATATYPE_String);
+		pSummary->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+
+		#define CV_ADD_SUMMARY(name, value)	{ CSG_Table_Record *pR = pSummary->Add_Record();\
+			pR->Set_Value(0, name);\
+			pR->Set_Value(1, value);\
+		}
+
+		CV_ADD_SUMMARY("SAMPLES", nSamples);
+		CV_ADD_SUMMARY("MSE"    ,      SE.Get_Mean());
+		CV_ADD_SUMMARY("RMSE"   , sqrt(SE.Get_Mean()));
+		CV_ADD_SUMMARY("NRMSE"  , sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.0);
+		CV_ADD_SUMMARY("R2"     , SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.0);
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Message;
+
+	Message	+= CSG_String::Format("\n%s:\n"      , _TL("Cross Validation"));
+	Message	+= CSG_String::Format("\t%s:\t%s\n"  , _TL("Method" ), Parameters("CV_METHOD")->asString());
+	Message	+= CSG_String::Format("\t%s:\t%d\n"  , _TL("Samples"), nSamples);
+	Message	+= CSG_String::Format("\t%s:\t%f\n"  , _TL("MSE"    ),      SE.Get_Mean());
+	Message	+= CSG_String::Format("\t%s:\t%f\n"  , _TL("RMSE"   ), sqrt(SE.Get_Mean()));
+	Message	+= CSG_String::Format("\t%s:\t%.2f\n", _TL("NRMSE"  ), sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.0);
+	Message	+= CSG_String::Format("\t%s:\t%.2f\n", _TL("R2"     ), SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.0);
+
+	Message_Add(Message, false);
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

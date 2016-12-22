@@ -106,7 +106,7 @@ CInterpolation_AngularDistance::CInterpolation_AngularDistance(void)
 //---------------------------------------------------------
 int CInterpolation_AngularDistance::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
@@ -139,7 +139,7 @@ int CInterpolation_AngularDistance::On_Parameters_Enable(CSG_Parameters *pParame
 //---------------------------------------------------------
 bool CInterpolation_AngularDistance::On_Initialize(void)
 {
-	return(	m_Search.Initialize(m_pShapes, m_zField)
+	return(	m_Search.Initialize(Get_Points(), Get_Field())
 		&&  m_Weighting.Set_Parameters(&Parameters) 
 	);
 }

@@ -72,103 +72,89 @@
 
 //---------------------------------------------------------
 CInterpolation_Shepard::CInterpolation_Shepard(void)
+	: CInterpolation(true, false)
 {
 	Set_Name		(_TL("Modifed Quadratic Shepard"));
 
-	Set_Author		(_TL("Copyrights (c) 2003 by Andre Ringeler"));
+	Set_Author		("A.Ringeler (c) 2003");
 
 	Set_Description	(_TW(
 		"Modified  Quadratic Shepard method for grid interpolation "
 		"from irregular distributed points. This tool is based on "
 		"Tool 660 in TOMS.\n"
-
 		"QSHEP2D: Fortran routines implementing the Quadratic Shepard "
 		"method for bivariate interpolation of scattered data "
 		"(see R. J. Renka, ACM TOMS 14 (1988) pp.149-150).\n"
-
 		"Classes: E2b. Interpolation of scattered, non-gridded multivariate data."
 	));
 
-	Parameters.Add_Value(
-		NULL	, "QUADRATIC_NEIGHBORS"	, _TL("Quadratic Neighbors"),
+	Parameters.Add_Int(NULL,
+		"QUADRATIC_NEIGHBORS"	, _TL("Quadratic Neighbors"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 13, 5, true
+		13, 5, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "WEIGHTING_NEIGHBORS"	, _TL("Weighting Neighbors"),
+	Parameters.Add_Int(NULL,
+		"WEIGHTING_NEIGHBORS"	, _TL("Weighting Neighbors"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 19, 3, true
+		19, 3, true
 	);
-
-
 }
-
-//---------------------------------------------------------
-CInterpolation_Shepard::~CInterpolation_Shepard(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CInterpolation_Shepard::On_Initialize(void)
 {
-	m_Quadratic_Neighbors	= Parameters("QUADRATIC_NEIGHBORS")	->asInt();
-	m_Weighting_Neighbors	= Parameters("WEIGHTING_NEIGHBORS")	->asInt();
+	CSG_Shapes	*pPoints	= Get_Points();
 
-	m_pShapes	= Get_Points();
-	m_MaxPoints	= 0;
+	m_Points[0].Destroy();
+	m_Points[1].Destroy();
+	m_Points[2].Destroy();
 
-	if( m_pShapes->Get_Count() > 1 )
+	for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 	{
-		x_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
-		y_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
-		f_vals		= (double *)malloc(m_pShapes->Get_Count() * sizeof(double));
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
-		for(int iPoint=0; iPoint<m_pShapes->Get_Count(); iPoint++)
+		if( !pPoint->is_NoData(Get_Field()) )
 		{
-			CSG_Shape	*pShape	= m_pShapes->Get_Shape(iPoint);
-
-			if( !pShape->is_NoData(m_zField) )
-			{
-				x_vals[m_MaxPoints]	= pShape->Get_Point(0).x;
-				y_vals[m_MaxPoints]	= pShape->Get_Point(0).y;
-				f_vals[m_MaxPoints]	= pShape->asDouble(m_zField);
-
-				m_MaxPoints++;
-			}
+			m_Points[0].Add_Row(pPoint->Get_Point(0).x);
+			m_Points[1].Add_Row(pPoint->Get_Point(0).y);
+			m_Points[2].Add_Row(pPoint->asDouble(Get_Field()));
 		}
-
-		Remove_Duplicate();
-
-		Interpolator.Interpolate(x_vals, y_vals, f_vals, m_MaxPoints - 1, m_Quadratic_Neighbors, m_Weighting_Neighbors);
 	}
 
-	return( m_MaxPoints > 1 );
+	Remove_Duplicate();
+
+	Interpolator.Set_Missing(Get_Grid()->Get_NoData_Value());
+
+	Interpolator.Interpolate(
+		m_Points[0].Get_Data(),
+		m_Points[1].Get_Data(),
+		m_Points[2].Get_Data(),
+		m_Points[0].Get_Size() - 1,
+		Parameters("QUADRATIC_NEIGHBORS")->asInt(),
+		Parameters("WEIGHTING_NEIGHBORS")->asInt()
+	);
+
+	return( m_Points[0].Get_Size() > 1 );
 }
 
 //---------------------------------------------------------
 bool CInterpolation_Shepard::On_Finalize(void)
 {
-	if( m_pShapes->Get_Count() > 1 )
-	{
-		free(x_vals);
-		free(y_vals);
-		free(f_vals);
-	}
+	m_Points[0].Destroy();
+	m_Points[1].Destroy();
+	m_Points[2].Destroy();
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -188,10 +174,17 @@ bool CInterpolation_Shepard::Get_Value(double x, double y, double &z)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef struct 
+{
+	double	x, y, z;
+}
+Data_Point;
+
+//---------------------------------------------------------
 static int Comp_Func(const void * vData1, const void * vData2)
 {
-	Data_Point * val_1	=	(Data_Point *)vData1;
-    Data_Point * val_2	=	(Data_Point *)vData2;
+	Data_Point	*val_1	= (Data_Point *)vData1;
+    Data_Point	*val_2	= (Data_Point *)vData2;
 	
     if (val_1->y < val_2->y)
 	{
@@ -218,51 +211,59 @@ static int Comp_Func(const void * vData1, const void * vData2)
 //---------------------------------------------------------
 void CInterpolation_Shepard::Remove_Duplicate()
 {
-	Data_Point * Data;
-	int i,j;
+	Data_Point	*Data;
 
-	Data = (Data_Point * ) malloc (m_MaxPoints * sizeof(Data_Point) );
+	size_t	i, j, n	= m_Points[0].Get_Size() - 1;
 
-	for (i = 0; i < m_MaxPoints; i++)
+	Data	= (Data_Point *)malloc(n * sizeof(Data_Point));
+
+	for(i=0; i<n; i++)
 	{
-		Data[i].x	=	x_vals[i];
-		Data[i].y	=	y_vals[i];
-		Data[i].val	=	f_vals[i];
+		Data[i].x	= m_Points[0][i];
+		Data[i].y	= m_Points[1][i];
+		Data[i].z	= m_Points[2][i];
 	}
 
-	qsort((void *)Data, m_MaxPoints, sizeof(Data_Point), Comp_Func);
+	qsort((void *)Data, n, sizeof(Data_Point), Comp_Func);
 
-	bool durty = true;
+	bool	dirty	= true;
 	
-	while (durty)
+	while( dirty && n > 1 )
 	{
-		durty = false;
+		dirty = false;
 
-		for (i = 0; i < m_MaxPoints -1; ++i)
+		for(i=0; n>1 && i<n-1; ++i)
 		{
 			if( fabs(Data[i].y - Data[i + 1].y) < eps
 			&&	fabs(Data[i].x - Data[i + 1].x) < eps )
 			{
-				for (j = i; j < m_MaxPoints -1; j++)
+				for(j=i; j<n-1; j++)
 				{
-					Data[j].x	=	Data[j + 1].x;
-					Data[j].y	=	Data[j + 1].y;
-					Data[j].val	=	Data[j + 1].val;
+					Data[j].x	= Data[j + 1].x;
+					Data[j].y	= Data[j + 1].y;
+					Data[j].z	= Data[j + 1].z;
 				}
 				
-				m_MaxPoints--;
-				durty	=	true;
+				n--;
+				dirty	= true;
 			}
 		}
 
-		qsort((void *)Data, m_MaxPoints, sizeof(Data_Point), Comp_Func);
+		qsort((void *)Data, n, sizeof(Data_Point), Comp_Func);
 	}
 
-	for (i = 0; i < m_MaxPoints; i++)
+	if( n < m_Points[0].Get_Size() )
 	{
-		x_vals[i]	=	Data[i].x;
-		y_vals[i]	=	Data[i].y;
-		f_vals[i]	=	Data[i].val;
+		m_Points[0].Create(n);
+		m_Points[1].Create(n);
+		m_Points[2].Create(n);
+
+		for(i=0; i<n; i++)
+		{
+			m_Points[0][i]	= Data[i].x;
+			m_Points[1][i]	= Data[i].y;
+			m_Points[2][i]	= Data[i].z;
+		}
 	}
 
 	free( Data );
