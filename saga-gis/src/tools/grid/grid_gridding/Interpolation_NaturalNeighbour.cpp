@@ -78,6 +78,7 @@ extern "C"
 
 //---------------------------------------------------------
 CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
+	: CInterpolation(false)
 {
 	Set_Name		(_TL("Natural Neighbour"));
 
@@ -91,8 +92,8 @@ CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
 		"<a href=\"http://github.com/sakov/nn-c\">github.com/sakov/nn-c</a>."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Linear"),
@@ -101,8 +102,8 @@ CInterpolation_NaturalNeighbour::CInterpolation_NaturalNeighbour(void)
 		), 1
 	);
 
-	Parameters.Add_Double(
-		NULL	, "WEIGHT"	, _TL("Minimum Weight"),
+	Parameters.Add_Double(NULL,
+		"WEIGHT"	, _TL("Minimum Weight"),
 		_TL("restricts extrapolation by assigning minimal allowed weight for a vertex (normally \"-1\" or so; lower values correspond to lower reliability; \"0\" means no extrapolation)"),
 		0.0, 0.0, false, 0.0, true
 	);
@@ -119,18 +120,20 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	//-----------------------------------------------------
 	// initialize points
 
+	CSG_Shapes	*pPoints	= Get_Points();
+
 	int		 nn_nPoints	= 0;
-	point	*nn_pPoints	= (point *)SG_Malloc(m_pShapes->Get_Count() * sizeof(point));
+	point	*nn_pPoints	= (point *)SG_Malloc(pPoints->Get_Count() * sizeof(point));
 
-	for(int iPoint=0; iPoint<m_pShapes->Get_Count() && Set_Progress(iPoint, m_pShapes->Get_Count()); iPoint++)
+	for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pShape	= m_pShapes->Get_Shape(iPoint);
+		CSG_Shape	*pShape	= pPoints->Get_Shape(iPoint);
 
-		if( !pShape->is_NoData(m_zField) )
+		if( !pShape->is_NoData(Get_Field()) )
 		{
 			nn_pPoints[nn_nPoints].x	= pShape->Get_Point(0).x;
 			nn_pPoints[nn_nPoints].y	= pShape->Get_Point(0).y;
-			nn_pPoints[nn_nPoints].z	= pShape->asDouble(m_zField);
+			nn_pPoints[nn_nPoints].z	= pShape->asDouble(Get_Field());
 
 			nn_nPoints++;
 		}
@@ -148,17 +151,19 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 	//-----------------------------------------------------
 	// initialize grid
 
+	CSG_Grid	*pGrid	= Get_Grid();
+
 	int		 nn_nCells;
 	point	*nn_pCells	= NULL;
 
 	points_generate(
-		m_pGrid->Get_XMin(), m_pGrid->Get_XMax(),
-		m_pGrid->Get_YMin(), m_pGrid->Get_YMax(),
-		m_pGrid->Get_NX  (), m_pGrid->Get_NY  (),
+		pGrid->Get_XMin(), pGrid->Get_XMax(),
+		pGrid->Get_YMin(), pGrid->Get_YMax(),
+		pGrid->Get_NX  (), pGrid->Get_NY  (),
 		&nn_nCells, &nn_pCells
 	);
 
-	if( nn_nCells != m_pGrid->Get_NCells() )
+	if( nn_nCells != pGrid->Get_NCells() )
 	{
 		SG_FREE_SAFE(nn_pPoints);
 		SG_FREE_SAFE(nn_pCells );
@@ -192,17 +197,17 @@ bool CInterpolation_NaturalNeighbour::Interpolate(void)
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
-	for(int iCell=0; iCell<m_pGrid->Get_NCells(); iCell++)
+	for(int iCell=0; iCell<pGrid->Get_NCells(); iCell++)
 	{
 		double	z	= nn_pCells[iCell].z;
 
 		if( SG_is_NaN(z) )
 		{
-			m_pGrid->Set_NoData(iCell);
+			pGrid->Set_NoData(iCell);
 		}
 		else
 		{
-			m_pGrid->Set_Value(iCell, z);
+			pGrid->Set_Value(iCell, z);
 		}
 	}
 

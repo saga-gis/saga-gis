@@ -93,6 +93,8 @@ public:
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
+	void						On_ToClipboard		(wxCommandEvent  &event);
+
 	void						On_Size				(wxSizeEvent     &event);
 	void						On_Key				(wxKeyEvent      &event);
 
@@ -123,6 +125,8 @@ private:
 	bool						_Set_Record			(int iRecord);
 
 	bool						_Get_DataSource		(wxString &Source);
+
+	bool						_ToClipboard		(void);
 
 
 //---------------------------------------------------------

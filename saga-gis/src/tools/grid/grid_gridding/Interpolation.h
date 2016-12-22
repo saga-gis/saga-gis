@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,10 +82,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation : public CSG_Tool
+class CInterpolation : public CSG_Tool
 {
 public:
-	CInterpolation(void);
+	CInterpolation(bool bCrossValidation = true);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Interpolation from Points") );	}
 
@@ -97,27 +97,31 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-
-	int							m_zField;
-
-	CSG_Grid					*m_pGrid;
-
-	CSG_Shapes					*m_pShapes;
-
-
 	virtual bool				Interpolate				(void);
 
-	virtual bool				On_Initialize			(void)							{	return( true );	}
-	virtual bool				On_Finalize				(void)							{	return( true );	}
+	int							Get_Field				(void)	{	return( m_zField  );	}
+	CSG_Shapes *				Get_Points				(void)	{	return( m_pPoints );	}
+	CSG_Grid *					Get_Grid				(void)	{	return( m_pGrid   );	}
+
+	virtual bool				On_Initialize			(void)	{	return( true );	}
+	virtual bool				On_Finalize				(void)	{	return( true );	}
 
 	virtual bool				Get_Value				(double x, double y, double &z)	{	return( true );	}
-
-	CSG_Shapes *				Get_Points				(bool bOnlyNonPoints = false);
+	virtual bool				Get_Value				(const TSG_Point &p, double &z)	{	return( Get_Value(p.x, p.y, z) );	}
 
 
 private:
 
+	int							m_zField;
+
+	CSG_Shapes					*m_pPoints;
+
+	CSG_Grid					*m_pGrid;
+
 	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						_Get_Cross_Validation	(void);
 
 };
 

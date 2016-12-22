@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_AngularDistance : public CInterpolation  
+class CInterpolation_AngularDistance : public CInterpolation  
 {
 public:
 	CInterpolation_AngularDistance(void);

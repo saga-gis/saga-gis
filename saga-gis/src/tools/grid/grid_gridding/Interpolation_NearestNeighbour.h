@@ -82,7 +82,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CInterpolation_NearestNeighbour : public CInterpolation  
+class CInterpolation_NearestNeighbour : public CInterpolation  
 {
 public:
 	CInterpolation_NearestNeighbour(void);
@@ -93,7 +93,7 @@ protected:
 	virtual bool				On_Initialize		(void);
 	virtual bool				On_Finalize			(void);
 
-	virtual bool				Get_Value			(double x, double y, double &z);
+	virtual bool				Get_Value			(const TSG_Point &p, double &z);
 
 
 private:

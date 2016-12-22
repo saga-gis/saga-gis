@@ -90,7 +90,7 @@ CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 //---------------------------------------------------------
 bool CInterpolation_NearestNeighbour::On_Initialize(void)
 {
-	return( m_Search.Create(m_pShapes, m_zField) );
+	return( m_Search.Create(Get_Points(), Get_Field()) );
 }
 
 //---------------------------------------------------------
@@ -107,12 +107,12 @@ bool CInterpolation_NearestNeighbour::On_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_NearestNeighbour::Get_Value(double x, double y, double &z)
+bool CInterpolation_NearestNeighbour::Get_Value(const TSG_Point &p, double &z)
 {
 	double		Distance;
 	TSG_Point	Point;
 
-	return( m_Search.Get_Nearest_Point(x, y, Point, z, Distance) );
+	return( m_Search.Get_Nearest_Point(p, Point, z, Distance) );
 }
 
 
