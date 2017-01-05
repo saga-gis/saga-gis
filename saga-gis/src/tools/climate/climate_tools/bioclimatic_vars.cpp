@@ -180,26 +180,26 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "TMEAN"		, _TL("Mean Temperature"),
+	Parameters.Add_Grid_List(NULL,
+		"TMEAN"	, _TL("Mean Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "TMIN"		, _TL("Minimum Temperature"),
+	Parameters.Add_Grid_List(NULL,
+		"TMIN"	, _TL("Minimum Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "TMAX"		, _TL("Maximum Temperature"),
+	Parameters.Add_Grid_List(NULL,
+		"TMAX"	, _TL("Maximum Temperature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "P"			, _TL("Precipitation"),
+	Parameters.Add_Grid_List(NULL,
+		"P"		, _TL("Precipitation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -210,8 +210,8 @@ CBioclimatic_Vars::CBioclimatic_Vars(void)
 		Parameters.Add_Grid(NULL, CSG_String::Format("BIO_%02d", i + 1), Vars[i][0], Vars[i][1], PARAMETER_OUTPUT);
 	}
 
-	Parameters.Add_Choice(
-		NULL	, "SEASONALITY"	, _TL("Temperature Seasonality"),
+	Parameters.Add_Choice(NULL,
+		"SEASONALITY", _TL("Temperature Seasonality"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Coefficient of Variation"),
@@ -404,7 +404,7 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[10], x, y, T4[T4min]);
 
 	// Annual Precipitation
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[11], x, y, sP.Get_Mean());
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[11], x, y, sP.Get_Sum());
 
 	// Precipitation of Wettest Month
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[12], x, y, sP.Get_Maximum());
@@ -413,7 +413,7 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[13], x, y, sP.Get_Minimum());
 
 	// Precipitation Seasonality (Coefficient of Variation)
-	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[14], x, y, sP.Get_StdDev() * 100.0 /sP.Get_Mean());
+	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[14], x, y, sP.Get_StdDev() * 100.0 / sP.Get_Mean());
 
 	// Precipitation of Wettest Quarter
 	SG_GRID_PTR_SAFE_SET_VALUE(m_pVars[15], x, y, P4[P4max]);
