@@ -204,6 +204,34 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 
 		Filter.Replace("*.sdat;", "");	// we go for *.sgrd
 		Filter.Replace("*.xml;" , "");	// too much noise
+
+		#define ADD_FILTER(ext)	{ wxString s("*."); s += ext; if( Filter.Find(s) < 0 ) Filter += ";" + s; }
+
+		if( Type == 2 || Type == 0 )	// raster
+		{
+			ADD_FILTER("sgrd");
+			ADD_FILTER( "dgm");
+			ADD_FILTER( "grd");
+			ADD_FILTER( "bmp");
+			ADD_FILTER( "jpg");
+			ADD_FILTER( "png");
+			ADD_FILTER( "pcx");
+		}
+
+		if( Type == 2 || Type == 1 )	// vector
+		{
+			ADD_FILTER( "shp");
+		}
+
+		if( Type == 2 )	// all recognized
+		{
+			ADD_FILTER("sprj");
+			ADD_FILTER( "spc");
+			ADD_FILTER( "las");
+			ADD_FILTER( "txt");
+			ADD_FILTER( "csv");
+			ADD_FILTER( "dbf");
+		}
 	}
 
 	return( bResult );
@@ -218,12 +246,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	//-----------------------------------------------------
 	case ID_DLG_FILES_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized =
-			"*.sprj;"
-			"*.sgrd;*.dgm;*.grd;*.bmp;*.jpg;*.png;*.pcx;"
-			"*.shp;*.spc;*.las;"
-			"*.txt;*.csv;*.dbf;"
-		);
+		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.spc;*.las;*.txt;*.csv;*.dbf;");
 
 		return( wxString::Format(
 			"%s|%s|"
@@ -269,7 +292,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	//-----------------------------------------------------
 	case ID_DLG_GRIDS_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(0, Recognized = "*.sgrd;*.dgm;*.grd;*.bmp;*.jpg;*.png;*.pcx;");
+		DLG_Get_FILE_Filter_GDAL_Read(0, Recognized);
 
 		return( wxString::Format(
 			"%s|%s|"
@@ -290,7 +313,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	//-----------------------------------------------------
 	case ID_DLG_SHAPES_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(1, Recognized = "*.shp;");
+		DLG_Get_FILE_Filter_GDAL_Read(1, Recognized);
 
 		return( wxString::Format(
 			"%s|%s|"
