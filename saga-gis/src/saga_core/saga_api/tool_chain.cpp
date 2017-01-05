@@ -841,9 +841,18 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{	// does option want a value from tool chain parameters and do these provide one ?
 				pParameter->Assign(Parameters(Parameter.Get_Content()));
 			}
-			else
+			else switch( pParameter->Get_Type() )
 			{
+			default:
 				pParameter->Set_Value(Parameter.Get_Content());
+				break;
+
+			case PARAMETER_TYPE_FixedTable:
+				if( Parameter("OPTION") )
+				{
+					pParameter->Serialize(*Parameter("OPTION"), false);
+				}
+				break;
 			}
 		}
 		else if( Parameter.Cmp_Name("input") )
@@ -918,12 +927,23 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{	// does option want a value from tool chain parameters and do these provide one ?
 				pParameter->Assign(Parameters(Parameter.Get_Content()));
 			}
-			else
+			else switch( pParameter->Get_Type() )
 			{
-				CSG_String	Value(Parameter.Get_Content());
+			default:
+				pParameter->Set_Value(Parameter.Get_Content());
+				break;
 
-				if( pParameter->Get_Type() == PARAMETER_TYPE_String )
+			case PARAMETER_TYPE_FixedTable:
+				if( Parameter("OPTION") )
 				{
+					pParameter->Serialize(*Parameter("OPTION"), false);
+				}
+				break;
+
+			case PARAMETER_TYPE_String:
+				{
+					CSG_String	Value(Parameter.Get_Content());
+
 					for(int j=0; j<Parameters.Get_Count(); j++)
 					{
 						CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
@@ -933,9 +953,10 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 							Value.Replace(Var, Parameters(j)->asString());
 						}
 					}
-				}
 
-				pParameter->Set_Value(Value);
+					pParameter->Set_Value(Value);
+				}
+				break;
 			}
 		}
 	}
