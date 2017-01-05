@@ -721,7 +721,9 @@ const SG_Char * CSG_Parameter_Degree::asString(void)
 //---------------------------------------------------------
 CSG_Parameter_Date::CSG_Parameter_Date(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_Data(pOwner, Constraint)
-{}
+{
+	Set_Value(CSG_DateTime::Now().Get_JDN());
+}
 
 CSG_Parameter_Date::~CSG_Parameter_Date(void)
 {}
@@ -741,7 +743,7 @@ bool CSG_Parameter_Date::Set_Value(int Value)
 //---------------------------------------------------------
 bool CSG_Parameter_Date::Set_Value(double Value)
 {
-	m_Date.Set(Value);
+	m_Date.Set(floor(Value) + 0.5);	// always adjust to high noon, prevents rounding problems (we're not intested in time, just date!)
 
 	return( true );
 }
@@ -749,7 +751,7 @@ bool CSG_Parameter_Date::Set_Value(double Value)
 //---------------------------------------------------------
 bool CSG_Parameter_Date::Set_Value(const CSG_String &Value)
 {
-	return( m_Date.Parse_Date(Value) );
+	return( m_Date.Parse_Date(Value) && Set_Value(m_Date.Get_JDN()) );
 }
 
 //---------------------------------------------------------

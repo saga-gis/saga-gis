@@ -767,6 +767,11 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 			pChild	= Tool.Add_Child("option", p->asInt());
 			break;
 
+		case PARAMETER_TYPE_FixedTable  :
+			pChild	= Tool.Add_Child("option");
+			p->Serialize(*pChild, true);
+			break;
+
 		case PARAMETER_TYPE_Grid_System :
 			if( p->Get_Children_Count() == 0 )
 			{
