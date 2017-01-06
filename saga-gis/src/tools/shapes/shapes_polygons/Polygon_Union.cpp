@@ -73,8 +73,6 @@
 //---------------------------------------------------------
 CPolygon_Dissolve::CPolygon_Dissolve(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Dissolve"));
 
@@ -84,51 +82,47 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 		"Merges polygons, which share the same attribute value, and "
 		"(optionally) dissolves borders between adjacent polygon parts. "
 		"If no attribute or combination of attributes is chosen, all polygons will be merged. "
-		"\nUses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
-		"<a target=\"_blank\" href=\"http://www.angusj.com/delphi/clipper.php\">Clipper Homepage</a>\n"
-		"<a target=\"_blank\" href=\"http://sourceforge.net/projects/polyclipping/\">Clipper at SourceForge</a>\n"
+		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson."
 	));
 
+	Add_Reference("http://www.angusj.com/delphi/clipper.php"     , SG_T("Clipper Homepage"      ));
+	Add_Reference("http://sourceforge.net/projects/polyclipping/", SG_T("Clipper at SourceForge"));
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes(NULL,
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(pNode, "FIELD_1", _TL("1. Attribute"), _TL(""), true);
-	Parameters.Add_Table_Field(pNode, "FIELD_2", _TL("2. Attribute"), _TL(""), true);
-	Parameters.Add_Table_Field(pNode, "FIELD_3", _TL("3. Attribute"), _TL(""), true);
-
-	Parameters.Add_Shapes(
-		NULL	, "DISSOLVED"	, _TL("Dissolved Polygons"),
+	Parameters.Add_Shapes(NULL,
+		"DISSOLVED"	, _TL("Dissolved Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BND_KEEP"	, _TL("Keep Boundaries"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	pNode	= Parameters.Add_Table_Fields(
-		pNode	, "STAT_FIELDS"	, _TL("Statistics"),
+	Parameters.Add_Table_Fields(Parameters("POLYGONS"),
+		"FIELDS"	, _TL("Dissolve Field(s)"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(pNode, "STAT_SUM", _TL("Sum"      ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_AVG", _TL("Mean"     ), _TL(""), PARAMETER_TYPE_Bool, true );
-	Parameters.Add_Value(pNode, "STAT_MIN", _TL("Minimum"  ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_MAX", _TL("Maximum"  ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_RNG", _TL("Range"    ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_DEV", _TL("Deviation"), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_VAR", _TL("Variance" ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_LST", _TL("Listing"  ), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode, "STAT_NUM", _TL("Count"    ), _TL(""), PARAMETER_TYPE_Bool, false);
+	Parameters.Add_Table_Fields(Parameters("POLYGONS"),
+		"STATISTICS", _TL("Statistics Field(s)"),
+		_TL("")
+	);
 
-	Parameters.Add_Choice(
-		pNode, "STAT_NAMING"	, _TL("Field Naming"),
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_SUM", _TL("Sum"      ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_AVG", _TL("Mean"     ), _TL(""), true );
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_MIN", _TL("Minimum"  ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_MAX", _TL("Maximum"  ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_RNG", _TL("Range"    ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_DEV", _TL("Deviation"), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_VAR", _TL("Variance" ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_LST", _TL("Listing"  ), _TL(""), false);
+	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_NUM", _TL("Count"    ), _TL(""), false);
+
+	Parameters.Add_Choice(Parameters("STATISTICS"),
+		"STAT_NAMING", _TL("Field Naming"),
 		_TL(""), 
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("variable type + original name"),
@@ -136,6 +130,18 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 			_TL("original name"),
 			_TL("variable type")
 		), 0
+	);
+
+	Parameters.Add_Bool(NULL,
+		"BND_KEEP"	, _TL("Keep Boundaries"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Double(NULL,
+		"MIN_AREA"	, _TL("Minimum Area"),
+		_TL(""),
+		0.0, 0.0, true
 	);
 }
 
@@ -147,32 +153,13 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 //---------------------------------------------------------
 int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") && pParameters->Get_Parameter("POLYGONS")->asShapes() != NULL )
-	{
-		int	nFields	= pParameters->Get_Parameter("POLYGONS")->asShapes()->Get_Field_Count();
-
-		pParameters->Get_Parameter("FIELD_2")->Set_Value(nFields);
-		pParameters->Get_Parameter("FIELD_3")->Set_Value(nFields);
-	}
-
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_1") )
-	{
-		pParameters->Set_Enabled("FIELD_2", pParameter->asInt() >= 0);
-		pParameters->Set_Enabled("FIELD_3", pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_2")->asInt() >= 0);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_2") )
-	{
-		pParameters->Set_Enabled("FIELD_3", pParameter->asInt() >= 0 && pParameters->Get_Parameter("FIELD_1")->asInt() >= 0);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STAT_FIELDS") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STATISTICS") )
 	{
 		pParameters->Set_Enabled("STAT_SUM", pParameter->asInt() > 0);
 		pParameters->Set_Enabled("STAT_AVG", pParameter->asInt() > 0);
@@ -187,6 +174,11 @@ int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("STAT_NAMING", pParameter->asInt() > 0);
 	}
 
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BND_KEEP") )
+	{
+		pParameters->Set_Enabled("MIN_AREA", pParameter->asBool() == false);
+	}
+
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -199,7 +191,8 @@ int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 bool CPolygon_Dissolve::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS" )->asShapes();
+	CSG_Shapes	*pDissolved	= Parameters("DISSOLVED")->asShapes();
 
 	if(	!pPolygons->is_Valid() || pPolygons->Get_Count() < 2 )
 	{
@@ -209,88 +202,107 @@ bool CPolygon_Dissolve::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pUnions	= Parameters("DISSOLVED")->asShapes();
+	pDissolved->Create(SHAPE_TYPE_Polygon);
 
-	pUnions->Create(SHAPE_TYPE_Polygon);
+	CSG_Parameter_Table_Fields	&Fields	= *Parameters("FIELDS")->asTableFields();
 
-	int	Field_1	= Parameters("FIELD_1")->asInt();
-	int	Field_2	= Parameters("FIELD_2")->asInt();	if( Field_1 < 0 )	Field_2	= -1;
-	int	Field_3	= Parameters("FIELD_3")->asInt();	if( Field_2 < 0 )	Field_3	= -1;
+	CSG_Table	Dissolve;
 
-	if( Field_1 >= 0 )
+	if( Fields.Get_Count() == 0 )
 	{
-		CSG_String	s	= pPolygons->Get_Field_Name(Field_1);
-		pUnions->Add_Field(pPolygons->Get_Field_Name(Field_1), pPolygons->Get_Field_Type(Field_1));
+		pDissolved->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Dissolved")));
+	}
+	else
+	{
+		Dissolve.Add_Field("INDEX", SG_DATATYPE_Int   );
+		Dissolve.Add_Field("VALUE", SG_DATATYPE_String);
 
-		if( Field_2 >= 0 )
+		Dissolve.Set_Record_Count(pPolygons->Get_Count());
+
+		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
-			s	+= CSG_String(" | ") + pPolygons->Get_Field_Name(Field_2);
-			pUnions->Add_Field(pPolygons->Get_Field_Name(Field_2), pPolygons->Get_Field_Type(Field_2));
+			CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 
-			if( Field_3 >= 0 )
+			CSG_String	Value;
+
+			for(int iField=0; iField<Fields.Get_Count(); iField++)
 			{
-				s	+= CSG_String(" | ") + pPolygons->Get_Field_Name(Field_3);
-				pUnions->Add_Field(pPolygons->Get_Field_Name(Field_3), pPolygons->Get_Field_Type(Field_3));
+				Value	+= pPolygon->asString(Fields.Get_Index(iField));
 			}
+
+			Dissolve[i].Set_Value(0, i);
+			Dissolve[i].Set_Value(1, Value);
 		}
 
-		pPolygons->Set_Index(Field_1, TABLE_INDEX_Ascending, Field_2, TABLE_INDEX_Ascending, Field_3, TABLE_INDEX_Ascending);
+		Dissolve.Set_Index(1, TABLE_INDEX_Ascending);
 
-		pUnions->Set_Name(CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), s.c_str()));
-	}
-	else // if( Field_1 < 0 )
-	{
-		pUnions->Set_Name(CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), _TL("All")));
+		//-------------------------------------------------
+		CSG_String	Name;
+
+		for(int iField=0; iField<Fields.Get_Count(); iField++)
+		{
+			if( iField > 0 )
+			{
+				Name	+= "; ";
+			}
+
+			Name	+= pPolygons->Get_Field_Name(Fields.Get_Index(iField));
+
+			pDissolved->Add_Field(
+				pPolygons->Get_Field_Name(Fields.Get_Index(iField)),
+				pPolygons->Get_Field_Type(Fields.Get_Index(iField))
+			);
+		}
+
+		pDissolved->Set_Name(CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), Name.c_str()));
 	}
 
-	Init_Statistics(pUnions, pPolygons);
+	Statistics_Initialize(pDissolved, pPolygons);
 
 	//-----------------------------------------------------
+	bool	bDissolve	= Parameters("BND_KEEP")->asBool() == false;
+	double	minArea		= Parameters("MIN_AREA")->asDouble();
+
 	CSG_String	Value;
 
-	CSG_Shape	*pUnion		= NULL;
-
-	bool		bDissolve	= Parameters("BND_KEEP")->asBool() == false;
+	CSG_Shape	*pDissolve	= NULL;
 
 	//-----------------------------------------------------
-	for(int iPolygon=0; iPolygon<pPolygons->Get_Count() && Set_Progress(iPolygon, pPolygons->Get_Count()); iPolygon++)
+	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(pPolygons->Get_Record_byIndex(iPolygon)->Get_Index());
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(
+			!Dissolve.Get_Count() ? i : Dissolve[i].asInt(0));
 
-		CSG_String	s;
-
-		if( Field_1 >= 0 )	s	 = pPolygon->asString(Field_1);
-		if( Field_2 >= 0 )	s	+= pPolygon->asString(Field_2);
-		if( Field_3 >= 0 )	s	+= pPolygon->asString(Field_3);
-
-		if( pUnion == NULL || (Field_1 >= 0 && Value.Cmp(s)) )
+		if( !pDissolve || (Dissolve.Get_Count() && Value.Cmp(Dissolve[i].asString(1))) )
 		{
-			Set_Union(pUnion, bDissolve);
+			Get_Dissolved(pDissolve, bDissolve, minArea);
 
-			Value	= s;
-			pUnion	= pUnions->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
+			if( Dissolve.Get_Count() )
+			{
+				Value	= Dissolve[i].asString(1);
+			}
 
-			if( Field_1 >= 0 )	pUnion->Set_Value(0, pPolygon->asString(Field_1));
-			if( Field_2 >= 0 )	pUnion->Set_Value(1, pPolygon->asString(Field_2));
-			if( Field_3 >= 0 )	pUnion->Set_Value(2, pPolygon->asString(Field_3));
+			pDissolve	= pDissolved->Add_Shape(pPolygon, SHAPE_COPY_GEOM);
 
-			Add_Statistics(pUnion, pPolygon, true);
+			for(int iField=0; iField<Fields.Get_Count(); iField++)
+			{
+				*pDissolve->Get_Value(iField)	= *pPolygon->Get_Value(Fields.Get_Index(iField));
+			}
+
+			Statistics_Add(pDissolve, pPolygon, true);
 		}
 		else
 		{
 			for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 			{
-				for(int iPoint=0, nParts=pUnion->Get_Part_Count(); iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
-				{
-					pUnion->Add_Point(pPolygon->Get_Point(iPoint, iPart), nParts);
-				}
+				pDissolve->Add_Part(pPolygon->Get_Part(iPart));
 			}
 
-			Add_Statistics(pUnion, pPolygon, false);
+			Statistics_Add(pDissolve, pPolygon, false);
 		}
 	}
 
-	Set_Union(pUnion, bDissolve);
+	Get_Dissolved(pDissolve, bDissolve, minArea);
 
 	//-----------------------------------------------------
 	if( m_Statistics )
@@ -300,7 +312,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 	m_List.Clear();
 
-	return( pUnions->is_Valid() );
+	return( pDissolved->is_Valid() );
 }
 
 
@@ -309,9 +321,57 @@ bool CPolygon_Dissolve::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygon_Dissolve::Init_Statistics(CSG_Shapes *pUnions, CSG_Shapes *pPolygons)
+bool CPolygon_Dissolve::Get_Dissolved(CSG_Shape *pDissolve, bool bDissolve, double minArea)
 {
-	m_Stat_pFields	= Parameters("STAT_FIELDS")->asTableFields();
+	if( !pDissolve )
+	{
+		return( false );
+	}
+
+	if( bDissolve )
+	{
+		SG_Polygon_Dissolve(pDissolve);
+
+		if( minArea > 0.0 )
+		{
+			for(int iPart=pDissolve->Get_Part_Count()-1; iPart>=0; iPart--)
+			{
+				if( ((CSG_Shape_Polygon *)pDissolve)->Get_Area(iPart) < minArea )
+				{
+					pDissolve->Del_Part(iPart);
+				}
+			}
+		}
+	}
+
+	if( m_Statistics )
+	{
+		for(int iField=0, jField=m_Stat_Offset; iField<m_Stat_pFields->Get_Count(); iField++)
+		{
+			if( m_bSUM ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Sum     ());
+			if( m_bAVG ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Mean    ());
+			if( m_bMIN ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Minimum ());
+			if( m_bMAX ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Maximum ());
+			if( m_bRNG ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Range   ());
+			if( m_bDEV ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_StdDev  ());
+			if( m_bVAR ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Variance());
+			if( m_bNUM ) pDissolve->Set_Value(jField++, m_Statistics[iField].Get_Count   ());
+			if( m_bLST ) pDissolve->Set_Value(jField++, m_List      [iField]);
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPolygon_Dissolve::Statistics_Initialize(CSG_Shapes *pDissolved, CSG_Shapes *pPolygons)
+{
+	m_Stat_pFields	= Parameters("STATISTICS")->asTableFields();
 
 	m_bSUM	= Parameters("STAT_SUM")->asBool();
 	m_bAVG	= Parameters("STAT_AVG")->asBool();
@@ -327,21 +387,21 @@ bool CPolygon_Dissolve::Init_Statistics(CSG_Shapes *pUnions, CSG_Shapes *pPolygo
 	{
 		m_Statistics	= new CSG_Simple_Statistics[m_Stat_pFields->Get_Count()];
 
-		m_Stat_Offset	= pUnions->Get_Field_Count();
+		m_Stat_Offset	= pDissolved->Get_Field_Count();
 
 		for(int iField=0; iField<m_Stat_pFields->Get_Count(); iField++)
 		{
 			CSG_String	s	= pPolygons->Get_Field_Name(m_Stat_pFields->Get_Index(iField));
 
-			if( m_bSUM )	pUnions->Add_Field(Get_Statistics_Name("SUM", s), SG_DATATYPE_Double);
-			if( m_bAVG )	pUnions->Add_Field(Get_Statistics_Name("AVG", s), SG_DATATYPE_Double);
-			if( m_bMIN )	pUnions->Add_Field(Get_Statistics_Name("MIN", s), SG_DATATYPE_Double);
-			if( m_bMAX )	pUnions->Add_Field(Get_Statistics_Name("MAX", s), SG_DATATYPE_Double);
-			if( m_bRNG )	pUnions->Add_Field(Get_Statistics_Name("RNG", s), SG_DATATYPE_Double);
-			if( m_bDEV )	pUnions->Add_Field(Get_Statistics_Name("STD", s), SG_DATATYPE_Double);
-			if( m_bVAR )	pUnions->Add_Field(Get_Statistics_Name("VAR", s), SG_DATATYPE_Double);
-			if( m_bNUM )	pUnions->Add_Field(Get_Statistics_Name("NUM", s), SG_DATATYPE_Int   );
-			if( m_bLST )	pUnions->Add_Field(Get_Statistics_Name("LST", s), SG_DATATYPE_String);
+			if( m_bSUM ) pDissolved->Add_Field(Statistics_Get_Name("SUM", s), SG_DATATYPE_Double);
+			if( m_bAVG ) pDissolved->Add_Field(Statistics_Get_Name("AVG", s), SG_DATATYPE_Double);
+			if( m_bMIN ) pDissolved->Add_Field(Statistics_Get_Name("MIN", s), SG_DATATYPE_Double);
+			if( m_bMAX ) pDissolved->Add_Field(Statistics_Get_Name("MAX", s), SG_DATATYPE_Double);
+			if( m_bRNG ) pDissolved->Add_Field(Statistics_Get_Name("RNG", s), SG_DATATYPE_Double);
+			if( m_bDEV ) pDissolved->Add_Field(Statistics_Get_Name("STD", s), SG_DATATYPE_Double);
+			if( m_bVAR ) pDissolved->Add_Field(Statistics_Get_Name("VAR", s), SG_DATATYPE_Double);
+			if( m_bNUM ) pDissolved->Add_Field(Statistics_Get_Name("NUM", s), SG_DATATYPE_Int   );
+			if( m_bLST ) pDissolved->Add_Field(Statistics_Get_Name("LST", s), SG_DATATYPE_String);
 		}
 
 		if( m_bLST )
@@ -354,32 +414,32 @@ bool CPolygon_Dissolve::Init_Statistics(CSG_Shapes *pUnions, CSG_Shapes *pPolygo
 
 	m_Statistics	= NULL;
 
-	if( pUnions->Get_Field_Count() == 0 )
+	if( pDissolved->Get_Field_Count() == 0 )
 	{
-		pUnions->Add_Field("OID", SG_DATATYPE_Int);
+		pDissolved->Add_Field("OID", SG_DATATYPE_Int);
 	}
 
 	return( false );
 }
 
 //---------------------------------------------------------
-CSG_String CPolygon_Dissolve::Get_Statistics_Name(const CSG_String &Type, const CSG_String &Name)
+CSG_String CPolygon_Dissolve::Statistics_Get_Name(const CSG_String &Type, const CSG_String &Name)
 {
 	CSG_String	s;
 	
 	switch( Parameters("STAT_NAMING")->asInt() )
 	{
-	default:	s.Printf("%s_%s", Type.c_str(), Name.c_str());	break;
-	case  1:	s.Printf("%s_%s", Name.c_str(), Type.c_str());	break;
-	case  2:	s.Printf("%s"   , Name.c_str()              );	break;
-	case  3:	s.Printf("%s"   , Type.c_str()              );	break;
+	default: s.Printf("%s_%s", Type.c_str(), Name.c_str());	break;
+	case  1: s.Printf("%s_%s", Name.c_str(), Type.c_str());	break;
+	case  2: s.Printf("%s"   , Name.c_str()              );	break;
+	case  3: s.Printf("%s"   , Type.c_str()              );	break;
 	}
 
 	return( s );
 }
 
 //---------------------------------------------------------
-bool CPolygon_Dissolve::Add_Statistics(CSG_Shape *pUnion, CSG_Shape *pPolygon, bool bReset)
+bool CPolygon_Dissolve::Statistics_Add(CSG_Shape *pDissolve, CSG_Shape *pPolygon, bool bReset)
 {
 	if( m_Statistics )
 	{
@@ -418,38 +478,6 @@ bool CPolygon_Dissolve::Add_Statistics(CSG_Shape *pUnion, CSG_Shape *pPolygon, b
 	}
 
 	return( false );
-}
-
-//---------------------------------------------------------
-bool CPolygon_Dissolve::Set_Union(CSG_Shape *pUnion, bool bDissolve)
-{
-	if( !pUnion )
-	{
-		return( false );
-	}
-
-	if( bDissolve )
-	{
-		SG_Polygon_Dissolve(pUnion);
-	}
-
-	if( m_Statistics )
-	{
-		for(int iField=0, jField=m_Stat_Offset; iField<m_Stat_pFields->Get_Count(); iField++)
-		{
-			if( m_bSUM )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Sum     ());
-			if( m_bAVG )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Mean    ());
-			if( m_bMIN )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Minimum ());
-			if( m_bMAX )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Maximum ());
-			if( m_bRNG )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Range   ());
-			if( m_bDEV )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_StdDev  ());
-			if( m_bVAR )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Variance());
-			if( m_bNUM )	pUnion->Set_Value(jField++, m_Statistics[iField].Get_Count   ());
-			if( m_bLST )	pUnion->Set_Value(jField++, m_List      [iField]);
-		}
-	}
-
-	return( true );
 }
 
 
