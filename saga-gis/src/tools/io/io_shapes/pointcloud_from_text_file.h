@@ -88,14 +88,19 @@ class CPointCloud_From_Text_File : public CSG_Tool
 public:
 	CPointCloud_From_Text_File(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:
 
-	virtual bool			On_Execute	(void);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-    TSG_Data_Type           Get_Data_Type(int iType);
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	bool					Get_Data_Type			(TSG_Data_Type &Type, const CSG_String &Value);
 
 };
 
