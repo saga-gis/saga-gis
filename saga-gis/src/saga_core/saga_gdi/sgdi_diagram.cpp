@@ -71,6 +71,7 @@
 #include <wx/settings.h>
 #include <wx/dc.h>
 #include <wx/dcclient.h>
+#include <wx/dcmemory.h>
 #include <wx/clipbrd.h>
 
 //---------------------------------------------------------
