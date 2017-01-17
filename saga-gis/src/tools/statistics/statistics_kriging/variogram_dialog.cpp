@@ -259,11 +259,15 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		double	x, dx;
 
 		//-------------------------------------------------
-		if( m_pModel->Get_Data_Count() > 0 )
+		if( m_pModel->Get_Data_Count() > 0 && !dc.IsKindOf(wxCLASSINFO(wxMemoryDC)) )
 		{
 			ix	= Get_xToScreen(m_pModel->Get_Data_XMax());
-			dc.SetPen  (wxPen(wxColour(  0, 127,   0), 2));
-			dc.DrawLine(ix, Get_yToScreen(m_yMin), ix, Get_yToScreen(m_yMax));
+			
+			if( ix < rDraw.GetRight() )
+			{
+				dc.SetPen  (wxPen(wxColour(  0, 127,   0), 2));
+				dc.DrawLine(ix, Get_yToScreen(m_yMin), ix, Get_yToScreen(m_yMax));
+			}
 		}
 
 		//-------------------------------------------------
@@ -352,14 +356,14 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	wxArrayString	Formulas;
 
-	Formulas.Add("a + b * x"                              );	// 1st order polynom (linear)
-	Formulas.Add("a + b * x + c * x^2"                    );	// 2nd order polynom (quadric)
-	Formulas.Add("a + b * x + c * x^2 + d * x^3"          );	// 3rd order polynom (cubic)
-	Formulas.Add("a + b * x + c * x^2 + d * x^3 + e * x^4");	// 4th order polynom (quartic)
-	Formulas.Add("a + b * sqrt(x)"                        );	// square root
-	Formulas.Add("a + b * ln(x)"                          );	// logarithmic
-	Formulas.Add("a + b * x^c"                            );	// exponential
-	Formulas.Add("a + b * (1 - exp(-(x / b)^2))"          );	// gaussian
+	Formulas.Add("a + b * x"                                                                   );	// 1st order polynom (linear)
+	Formulas.Add("a + b * x + c * x^2"                                                         );	// 2nd order polynom (quadric)
+	Formulas.Add("a + b * x + c * x^2 + d * x^3"                                               );	// 3rd order polynom (cubic)
+	Formulas.Add("a + b * x + c * x^2 + d * x^3 + e * x^4"                                     );	// 4th order polynom (quartic)
+	Formulas.Add("a + b * sqrt(x)"                                                             );	// square root
+	Formulas.Add("a + b * ln(x)"                                                               );	// logarithmic
+	Formulas.Add("a + b * x^c"                                                                 );	// exponential
+	Formulas.Add("n + (s - n) * (1 - exp(-(x / r)^2)); n=n; s=s; r=r"                          );	// gaussian
 	Formulas.Add("n + (s - n) * ifelse(x > r, 1, 1.5 * x / r - 0.5 * x^3 / r^3); n=n; s=s; r=r");	// spherical
 
 	//-----------------------------------------------------
@@ -409,6 +413,7 @@ bool CVariogram_Dialog::Execute(CSG_Shapes *pPoints, int Attribute, bool bLog, C
 	m_bLog			= bLog;
 	m_pVariogram	= pVariogram;
 	m_pModel		= pModel;
+	m_Distance		= -1.0;
 
 	m_pDiagram->Initialize(m_pModel, m_pVariogram);
 
