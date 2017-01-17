@@ -109,13 +109,11 @@ private:
 	CSG_Simple_Statistics		*m_Statistics;
 
 
-	CSG_String					Get_Statistics_Name		(const CSG_String &Type, const CSG_String &Name);
+	bool						Get_Dissolved			(CSG_Shape *pDissolve, bool bDissolve, double nimArea);
 
-	bool						Init_Statistics			(CSG_Shapes *pUnions, CSG_Shapes *pPolygons);
-
-	bool						Add_Statistics			(CSG_Shape *pUnion, CSG_Shape *pPolygon, bool bReset);
-
-	bool						Set_Union				(CSG_Shape *pUnion, bool bDissolve);
+	bool						Statistics_Initialize	(CSG_Shapes *pDissolved, CSG_Shapes *pPolygons);
+	CSG_String					Statistics_Get_Name		(const CSG_String &Type, const CSG_String &Name);
+	bool						Statistics_Add			(CSG_Shape *pDissolve, CSG_Shape *pPolygon, bool bReset);
 
 };
 

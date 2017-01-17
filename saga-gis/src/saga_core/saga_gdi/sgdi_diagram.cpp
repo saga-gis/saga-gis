@@ -71,6 +71,7 @@
 #include <wx/settings.h>
 #include <wx/dc.h>
 #include <wx/dcclient.h>
+#include <wx/clipbrd.h>
 
 //---------------------------------------------------------
 #include "sgdi_diagram.h"
@@ -84,14 +85,13 @@
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSGDI_Diagram, wxPanel)
+	EVT_LEFT_DOWN			(CSGDI_Diagram::_On_Mouse_Click)
+	EVT_RIGHT_DOWN			(CSGDI_Diagram::_On_Mouse_Click)
 	EVT_PAINT				(CSGDI_Diagram::_On_Paint)
-	EVT_LEFT_DOWN			(CSGDI_Diagram::_On_Mouse_Click_Left)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -113,14 +113,34 @@ CSGDI_Diagram::~CSGDI_Diagram(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSGDI_Diagram::_On_Mouse_Click_Left(wxMouseEvent &WXUNUSED(event))
+void CSGDI_Diagram::_On_Mouse_Click(wxMouseEvent &event)
 {
 //	wxMessageBox("Sonk", "Sonk");
+
+	if( event.RightDown() && SG_UI_Dlg_Continue(_TL("Copy to Clipboard"), _TL("Variogram")) )
+	{
+		wxBitmap	BMP(GetSize());
+		wxMemoryDC	dc;
+	
+		dc.SelectObject(BMP);
+		dc.SetBackground(*wxWHITE_BRUSH);
+		dc.Clear();
+
+		_Draw(dc);
+
+		dc.SelectObject(wxNullBitmap);
+
+		if( wxTheClipboard->Open() )
+		{
+			wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+			pBMP->SetBitmap(BMP);
+			wxTheClipboard->SetData(pBMP);
+			wxTheClipboard->Close();
+		}
+	}
 }
 
 //---------------------------------------------------------
@@ -133,8 +153,6 @@ void CSGDI_Diagram::_On_Paint(wxPaintEvent &WXUNUSED(event))
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

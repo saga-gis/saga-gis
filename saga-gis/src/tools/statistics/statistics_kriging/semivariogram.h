@@ -78,6 +78,7 @@ class CSemiVariogram : public CSG_Tool
 {
 public:
 	CSemiVariogram(void);
+	virtual ~CSemiVariogram(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Spatial and Geostatistics|Points") );	}
 
@@ -86,6 +87,10 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
+
+private:
+
+	class CVariogram_Dialog	*m_pVariogram;
 
 };
 
