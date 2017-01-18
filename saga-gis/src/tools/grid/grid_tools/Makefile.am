@@ -15,6 +15,7 @@ CreateGridSystem.cpp\
 Grid_Aggregate.cpp\
 Grid_Buffer.cpp\
 Grid_Buffer_Proximity.cpp\
+Grid_Combine_Classes.cpp\
 Grid_CombineGrids.cpp\
 Grid_Completion.cpp\
 Grid_ConstantGrid.cpp\
@@ -49,6 +50,7 @@ CreateGridSystem.h\
 Grid_Aggregate.h\
 Grid_Buffer.h\
 Grid_Buffer_Proximity.h\
+Grid_Combine_Classes.h\
 Grid_CombineGrids.h\
 Grid_Completion.h\
 Grid_ConstantGrid.h\

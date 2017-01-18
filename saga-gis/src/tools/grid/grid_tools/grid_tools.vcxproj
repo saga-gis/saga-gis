@@ -299,6 +299,7 @@
     <ClCompile Include="Grid_Buffer.cpp" />
     <ClCompile Include="Grid_Buffer_Proximity.cpp" />
     <ClCompile Include="Grid_CombineGrids.cpp" />
+    <ClCompile Include="Grid_Combine_Classes.cpp" />
     <ClCompile Include="Grid_Completion.cpp" />
     <ClCompile Include="Grid_ConstantGrid.cpp" />
     <ClCompile Include="Grid_CropToData.cpp" />
@@ -350,6 +351,7 @@
     <ClInclude Include="Grid_Buffer.h" />
     <ClInclude Include="Grid_Buffer_Proximity.h" />
     <ClInclude Include="Grid_CombineGrids.h" />
+    <ClInclude Include="Grid_Combine_Classes.h" />
     <ClInclude Include="Grid_Completion.h" />
     <ClInclude Include="Grid_ConstantGrid.h" />
     <ClInclude Include="Grid_CropToData.h" />
