@@ -492,7 +492,7 @@ void CWKSP_Map::On_Create_Parameters(void)
 	m_Parameters.Add_Bool(m_Parameters("NORTH_SHOW"),
 		"NORTH_EXTENT"	, _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
-		true
+		false
 	);
 
 	//-----------------------------------------------------
@@ -544,7 +544,7 @@ void CWKSP_Map::On_Create_Parameters(void)
 	m_Parameters.Add_Bool(m_Parameters("SCALE_SHOW"),
 		"SCALE_EXTENT"	, _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
-		true
+		false
 	);
 
 	//-----------------------------------------------------
