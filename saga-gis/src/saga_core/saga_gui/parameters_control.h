@@ -118,6 +118,8 @@ private:
 
 	class CSG_Parameters		*m_pParameters, *m_pOriginal;
 
+	class CParameters_Grid_Manager	*m_pPGM;
+
 	class wxPropertyGrid		*m_pPG;
 
 

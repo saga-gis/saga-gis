@@ -188,11 +188,11 @@ CParameters_Control::CParameters_Control(wxWindow *pParent, bool bDialog)
 
 	m_bFocus		= 0;
 
-	CParameters_Grid_Manager	*pPGM	= new CParameters_Grid_Manager;
+	m_pPGM	= new CParameters_Grid_Manager;
 	
-	m_pPG	= pPGM->Initialize(this);
+	m_pPG	= m_pPGM->Initialize(this);
 
-//	pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
+//	m_pPGM->SetDescBoxHeight(bDialog ? 100 : 50);
 
 	m_pPG->AddActionTrigger(wxPG_ACTION_PRESS_BUTTON , WXK_SPACE);
 
@@ -376,6 +376,9 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 
 		m_bModified	= false;
 		m_pPG->ClearModifiedStatus();
+
+		m_pPG->ClearSelection();
+		m_pPGM->SetDescription("", "");
 
 		if( pParameters == NULL || pParameters->Get_Count() == 0 )
 		{
