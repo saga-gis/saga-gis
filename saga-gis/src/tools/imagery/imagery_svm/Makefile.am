@@ -11,14 +11,15 @@ libimagery_svm_la_SOURCES =\
 MLB_Interface.cpp\
 svm_grids.cpp\
 MLB_Interface.h\
-svm_grids.h\
-svm/svm.h
+svm_grids.h
 
 if SYSTEM_SVM
 AM_LDFLAGS += -lsvm
+DEF_SAGA += -DSYSTEM_SVM
 else
 libimagery_svm_la_SOURCES +=\
-svm/svm.cpp
+svm/svm.cpp\
+svm/svm.h
 endif
 
 libimagery_svm_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
