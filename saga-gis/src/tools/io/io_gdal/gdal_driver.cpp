@@ -139,26 +139,42 @@ GDALDriver * CSG_GDAL_Drivers::Get_Driver(int Index) const
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Name(int Index) const
 {
+	if( !Get_Driver(Index) )	return( "" );
+
 	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Description(int Index) const
 {
+	if( !Get_Driver(Index) )	return( "" );
+
 	return( Get_Driver(Index)->GetDescription() );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_GDAL_Drivers::Get_Extension(int Index) const
 {
+	if( !Get_Driver(Index) )	return( "" );
+
 	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION) );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_Drivers::has_Capability(GDALDriver *pDriver, const char *Capapility)
+{
+	if( !pDriver )	return( false );
+
+	const char	*Item	= pDriver->GetMetadataItem(Capapility);
+
+	return( Item && SG_STR_CMP(Item, "YES") == 0 );
 }
 
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::is_Raster(int Index) const
 {
 #ifdef USE_GDAL_V2
-	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_RASTER, false) );
+	return( has_Capability(Get_Driver(Index), GDAL_DCAP_RASTER) );
 #else
 	return( true );
 #endif
@@ -167,13 +183,19 @@ bool CSG_GDAL_Drivers::is_Raster(int Index) const
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::Can_Read(int Index) const
 {
-	return( Get_Driver(Index) != NULL );	// ? CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) != 0 : false );
+	return( has_Capability(Get_Driver(Index), GDAL_DCAP_OPEN) );
 }
 
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::Can_Write(int Index) const
 {
-	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) );
+	return( has_Capability(Get_Driver(Index), GDAL_DCAP_CREATE) );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_Drivers::Can_Copy(int Index) const
+{
+	return( has_Capability(Get_Driver(Index), GDAL_DCAP_CREATECOPY) );
 }
 
 
@@ -186,17 +208,17 @@ int CSG_GDAL_Drivers::Get_GDAL_Type(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	case SG_DATATYPE_Bit: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Byte: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Char: 		return( GDT_Byte );			// Eight bit unsigned integer
-	case SG_DATATYPE_Word:		return( GDT_UInt16 );		// Sixteen bit unsigned integer
-	case SG_DATATYPE_Short:		return( GDT_Int16 );		// Sixteen bit signed integer
-	case SG_DATATYPE_DWord:		return( GDT_UInt32 );		// Thirty two bit unsigned integer
-	case SG_DATATYPE_Int: 		return( GDT_Int32 );		// Thirty two bit signed integer
-	case SG_DATATYPE_Float: 	return( GDT_Float32 );		// Thirty two bit floating point
-	case SG_DATATYPE_Double: 	return( GDT_Float64 );		// Sixty four bit floating point
+	case SG_DATATYPE_Bit   :	return( GDT_Byte    );	// Eight bit unsigned integer
+	case SG_DATATYPE_Byte  :	return( GDT_Byte    );	// Eight bit unsigned integer
+	case SG_DATATYPE_Char  :	return( GDT_Byte    );	// Eight bit unsigned integer
+	case SG_DATATYPE_Word  :	return( GDT_UInt16  );	// Sixteen bit unsigned integer
+	case SG_DATATYPE_Short :	return( GDT_Int16   );	// Sixteen bit signed integer
+	case SG_DATATYPE_DWord :	return( GDT_UInt32  );	// Thirty two bit unsigned integer
+	case SG_DATATYPE_Int   :	return( GDT_Int32   );	// Thirty two bit signed integer
+	case SG_DATATYPE_Float :	return( GDT_Float32 );	// Thirty two bit floating point
+	case SG_DATATYPE_Double:	return( GDT_Float64 );	// Sixty four bit floating point
 
-	default:					return( GDT_Float64 );
+	default                :	return( GDT_Float64 );
 	}
 }
 
@@ -205,20 +227,20 @@ TSG_Data_Type CSG_GDAL_Drivers::Get_SAGA_Type(int Type)
 {
 	switch( Type )
 	{
-	case GDT_Byte: 		return( SG_DATATYPE_Byte );			// Eight bit unsigned integer
-	case GDT_UInt16:	return( SG_DATATYPE_Word );			// Sixteen bit unsigned integer
-	case GDT_Int16:		return( SG_DATATYPE_Short );		// Sixteen bit signed integer
-	case GDT_UInt32:	return( SG_DATATYPE_DWord );		// Thirty two bit unsigned integer
-	case GDT_Int32: 	return( SG_DATATYPE_Int );			// Thirty two bit signed integer
-	case GDT_Float32: 	return( SG_DATATYPE_Float );		// Thirty two bit floating point
-	case GDT_Float64: 	return( SG_DATATYPE_Double );		// Sixty four bit floating point
+	case GDT_Byte    :	return( SG_DATATYPE_Byte      );	// Eight bit unsigned integer
+	case GDT_UInt16  :	return( SG_DATATYPE_Word      );	// Sixteen bit unsigned integer
+	case GDT_Int16   :	return( SG_DATATYPE_Short     );	// Sixteen bit signed integer
+	case GDT_UInt32  :	return( SG_DATATYPE_DWord     );	// Thirty two bit unsigned integer
+	case GDT_Int32   : 	return( SG_DATATYPE_Int       );	// Thirty two bit signed integer
+	case GDT_Float32 : 	return( SG_DATATYPE_Float     );	// Thirty two bit floating point
+	case GDT_Float64 : 	return( SG_DATATYPE_Double    );	// Sixty four bit floating point
 
-	case GDT_CInt16: 	return( SG_DATATYPE_Undefined );	// Complex Int16
-	case GDT_CInt32: 	return( SG_DATATYPE_Undefined );	// Complex Int32
+	case GDT_CInt16  : 	return( SG_DATATYPE_Undefined );	// Complex Int16
+	case GDT_CInt32  : 	return( SG_DATATYPE_Undefined );	// Complex Int32
 	case GDT_CFloat32: 	return( SG_DATATYPE_Undefined );	// Complex Float32
 	case GDT_CFloat64: 	return( SG_DATATYPE_Undefined );	// Complex Float64
 
-	default:			return( SG_DATATYPE_Undefined );
+	default          :	return( SG_DATATYPE_Undefined );
 	}
 }
 
@@ -427,19 +449,19 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 
 	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(Driver)) == NULL )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("driver not found."), Driver.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("driver not found."), Driver.c_str()));
 
 		return( false );
 	}
 
 	if( !GDALValidateCreationOptions(pDriver, pOptions) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format(SG_T("%s: %s"), _TL("Creation option(s) not supported by the driver"), Options.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("Creation option(s) not supported by the driver"), Options.c_str()));
 
 		return( false );
 	}
 
-	if( CSLFetchBoolean(pDriver->GetMetadata(), GDAL_DCAP_CREATE, false) == false )
+	if( !CSG_GDAL_Drivers::has_Capability(pDriver, GDAL_DCAP_CREATE) )
 	{
 		SG_UI_Msg_Add_Error(_TL("Driver does not support file creation."));
 
