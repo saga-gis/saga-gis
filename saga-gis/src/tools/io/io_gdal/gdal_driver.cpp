@@ -183,7 +183,11 @@ bool CSG_GDAL_Drivers::is_Raster(int Index) const
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::Can_Read(int Index) const
 {
+#ifdef GDAL_DCAP_OPEN
 	return( has_Capability(Get_Driver(Index), GDAL_DCAP_OPEN) );
+#else
+	return( true );
+#endif
 }
 
 //---------------------------------------------------------
