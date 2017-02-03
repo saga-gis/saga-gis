@@ -71,18 +71,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CGDAL_Export : public CSG_Tool_Grid
+class CGDAL_Export : public CSG_Tool_Grid
 {
 public:
 	CGDAL_Export(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Grid|Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Export") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual bool				On_Execute				(void);
 
 };
 

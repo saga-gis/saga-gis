@@ -239,12 +239,9 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_AUTH") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG") )
 	{
-		if( !Projection.Create(
-			pParameters->Get_Parameter("CRS_EPSG"     )->asInt   (),
-			pParameters->Get_Parameter("CRS_EPSG_AUTH")->asString()) )
+		if( !Projection.Create(pParameters->Get_Parameter("CRS_EPSG")->asInt()) )
 		{
 			SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("WARNING"));
 		}

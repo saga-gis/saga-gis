@@ -169,6 +169,8 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown"       ), false));
 	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description"),  true));
 
+	Add_References();
+
 	CSG_String	Description	= Get_Description();
 	Description.Replace("[[", "<");	// support for xml/html tags
 	Description.Replace("]]", ">");
@@ -302,6 +304,39 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 
 	//-----------------------------------------------------
 	return( is_Okay() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Tool_Chain::Add_References(void)
+{
+	for(int i=0; i<m_Chain.Get_Children_Count(); i++)
+	{
+		if( !m_Chain[i].Get_Name().CmpNoCase("REFERENCE") )
+		{
+			CSG_String	Authors, Year, Title, Where, Link, Link_Text;
+
+			if( m_Chain[i]("AUTHORS"  ) ) Authors   = m_Chain[i].Get_Content("AUTHORS"  );
+			if( m_Chain[i]("YEAR"     ) ) Year      = m_Chain[i].Get_Content("YEAR"     );
+			if( m_Chain[i]("TITLE"    ) ) Title     = m_Chain[i].Get_Content("TITLE"    );
+			if( m_Chain[i]("WHERE"    ) ) Where     = m_Chain[i].Get_Content("WHERE"    );
+			if( m_Chain[i]("LINK"     ) ) Link      = m_Chain[i].Get_Content("LINK"     );
+			if( m_Chain[i]("LINK_TEXT") ) Link_Text = m_Chain[i].Get_Content("LINK_TEXT");
+
+			if( !Authors.is_Empty() && !Year.is_Empty() && !Title.is_Empty() )
+			{
+				Add_Reference(Authors, Year, Title, Where, Link.c_str(), Link_Text.c_str());
+			}
+			else if( !Link.is_Empty() )
+			{
+				Add_Reference(Link, Link_Text.c_str());
+			}
+		}
+	}
 }
 
 

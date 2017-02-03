@@ -72,7 +72,11 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#if defined(SYSTEM_SVM)
+#include <libsvm/svm.h>
+#else
 #include "svm/svm.h"
+#endif
 
 
 ///////////////////////////////////////////////////////////

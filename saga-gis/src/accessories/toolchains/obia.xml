@@ -6,12 +6,22 @@
 	<author>O.Conrad (c) 2014</author>
 	<menu absolute="TRUE">Imagery|Segmentation</menu>
 	<description>
-		This [[i]]Object Based Image Segmentation[[/i]] tool chain combines a number of tools for an easy derivation of geo-objects as polygons and is typically applied to satellite imagery. Segmentation is done using a 'Seeded Region Growing Algorithm'. Optionally the resulting polygons can be grouped by an unsupervised classification (k-means cluster analysis), which is performed on the basis of zonal feature grid statistics for each polygon.[[br]]
-		References:[[ul]]
-		[[li]]Adams, R. &amp; Bischof, L. (1994): Seeded Region Growing. IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.[[/li]]
-		[[li]]Bechtel, B., Ringeler, A. &amp; Boehner, J. (2008): Segmentation for Object Extraction of Trees using MATLAB and SAGA. In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70. [[a href="http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/HBPL19/hbpl19_01.pdf/download?use_mirror=freefr"]]online[[/a]][[/li]]
-		[[/ul]]
+		This [[i]]Object Based Image Segmentation[[/i]] tool chain combines a number of tools for an easy derivation of geo-objects as polygons and is typically applied to satellite imagery. Segmentation is done using a 'Seeded Region Growing Algorithm'. Optionally the resulting polygons can be grouped by an unsupervised classification (k-means cluster analysis), which is performed on the basis of zonal feature grid statistics for each polygon.
 	</description>
+	<reference>
+		<authors>Adams, R. &amp; Bischof, L.</authors>
+		<year>1994</year>
+		<title>Seeded Region Growing</title>
+		<where>IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.</where>
+	</reference>
+	<reference>
+		<authors>Bechtel, B., Ringeler, A. &amp; Boehner, J.</authors>
+		<year>2008</year>
+		<title>Segmentation for Object Extraction of Trees using MATLAB and SAGA</title>
+		<where>In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70.</where>
+		<link>http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/HBPL19/hbpl19_01.pdf/download?use_mirror=freefr</link>
+		<link_text>online</link_text>
+	</reference>
   
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">
@@ -84,17 +94,15 @@
 	
 		<condition value="0" type="less" variable="MAJORITY_RADIUS">
 			<tool library="grid_filter" tool="6" name="Majority Filter">
-				<option id="MODE">1</option>
+				<option id="KERNEL_TYPE">1</option>
+				<option id="KERNEL_RADIUS" varname="TRUE">MAJORITY_RADIUS</option>
 				<option id="THRESHOLD">0.000000</option>
-				<option id="RADIUS" varname="TRUE">MAJORITY_RADIUS</option>
 				<input  id="INPUT">SEGMENTS_GRID</input>
-				<output id="RESULT">SEGMENTS_GRID</output>
 			</tool>
 		</condition>
 
 		<tool library="shapes_grid" tool="6" name="Vectorising Grid Classes">
 			<option id="CLASS_ALL">1</option>
-			<option id="CLASS_ID">1.000000</option>
 			<option id="SPLIT">0</option>
 			<option id="ALLVERTICES">FALSE</option>
 			<input  id="GRID">SEGMENTS_GRID</input>
@@ -129,7 +137,7 @@
 			</tool>
 			<condition value="FALSE" type="=" variable="SPLIT_CLUSTERS">
 				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-					<option id="FIELD_1"  >CLUSTER</option>
+					<option id="FIELDS"   >CLUSTER</option>
 					<option id="BND_KEEP" >FALSE</option>
 					<input  id="POLYGONS" >CLUSTERS</input>
 					<output id="DISSOLVED">OBJECTS</output>
@@ -137,7 +145,7 @@
 			</condition>
 			<condition value="TRUE" type="=" variable="SPLIT_CLUSTERS">
 				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-					<option id="FIELD_1"  >CLUSTER</option>
+					<option id="FIELDS"   >CLUSTER</option>
 					<option id="BND_KEEP" >FALSE</option>
 					<input  id="POLYGONS" >CLUSTERS</input>
 					<output id="DISSOLVED">DISSOLVED</output>
