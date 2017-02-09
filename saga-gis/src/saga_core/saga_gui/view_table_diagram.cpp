@@ -950,26 +950,27 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, double dy, int iField)
 {
-	if( m_pTable->Get_Count() >= 2 )
+	if( m_pTable->Get_Count() > 1 )
 	{
-		int		ix, iy, jx, jy;
-
 		iField	= m_Fields[iField];
 
 		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
 		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxBRUSHSTYLE_SOLID));
 
-		ix	= DRAW_GET_XPOS(0);
-		iy	= DRAW_GET_YPOS(0);
+		int	jx, ix	= DRAW_GET_XPOS(0);
+		int	jy, iy	= DRAW_GET_YPOS(0);
 
-		for(int iRecord=1; iRecord<m_pTable->Get_Count(); iRecord++)
+		for(int i=1; i<m_pTable->Get_Count(); i++)
 		{
-			if( !m_pTable->Get_Record_byIndex(iRecord)->is_NoData(iField) )
+			if( !m_pTable->Get_Record_byIndex(i)->is_NoData(iField) )
 			{
-				jx	= ix;	ix	= DRAW_GET_XPOS(iRecord);
-				jy	= iy;	iy	= DRAW_GET_YPOS(iRecord);
+				jx	= ix;	ix	= DRAW_GET_XPOS(i);
+				jy	= iy;	iy	= DRAW_GET_YPOS(i);
 
-				dc.DrawLine(jx, jy, ix, iy);
+				if( !m_pTable->Get_Record_byIndex(i - 1)->is_NoData(iField) )
+				{
+					dc.DrawLine(jx, jy, ix, iy);
+				}
 			}
 		}
 	}
