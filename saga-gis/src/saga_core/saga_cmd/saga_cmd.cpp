@@ -415,11 +415,11 @@ bool		Load_Libraries(void)
 
 	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
 	{
-		while( Path.Length() > 0 )
-		{
-			Load_Libraries(CSG_String(&Path).BeforeFirst(';'));
+		CSG_String_Tokenizer	Paths(&Path, ";");
 
-			Path	= Path.AfterFirst(';');
+		while( Paths.Has_More_Tokens() )
+		{
+			Load_Libraries(Paths.Get_Next_Token());
 		}
 	}
 
