@@ -815,19 +815,21 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 
 		switch( Table.Get_Field_Type(iField) )
 		{
-		case SG_DATATYPE_String: default:
+		case SG_DATATYPE_String:
 			Values[iField]	= (char *)SG_Malloc((1 + Table.Get_Field_Length(iField)) * sizeof(char));
 			break;
 
-		case SG_DATATYPE_Date:
+		case SG_DATATYPE_Date  :
 			Values[iField]	= (char *)SG_Malloc(16);
 			break;
-
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_Color:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Float:
+ 
+		default                :
+		case SG_DATATYPE_Byte  :
+		case SG_DATATYPE_Short :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_Color :
+		case SG_DATATYPE_Long  :
+		case SG_DATATYPE_Float :
 		case SG_DATATYPE_Double:
 			Values[iField]	= (char *)SG_Malloc(256);
 			break;
