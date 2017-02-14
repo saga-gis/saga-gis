@@ -91,12 +91,14 @@ public:
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 
 private:
 
-	double				m_dTime, Newton_MaxIter, Newton_Epsilon;
+	double				m_dTime, m_MaxIter, m_Epsilon;
 
 	CSG_Grid			*m_pDEM, *m_pFlow, m_Direction, m_Alpha, m_Flow_Last;
 
@@ -105,16 +107,16 @@ private:
 	CSG_Shapes			*m_pGauges;
 
 
-	void				Get_Runoff			(int x, int y);
-	double				Get_Runoff			(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
+	bool				Initialize				(void);
+	bool				Finalize				(void);
 
-	bool				Initialize			(double Roughness);
-	bool				Finalize			(void);
+	void				Set_Flow				(double Time);
 
-	bool				Gauges_Initialise	(void);
-	bool				Gauges_Set_Flow		(double Time);
+	void				Set_Runoff				(int x, int y);
+	double				Set_Runoff				(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
 
-	void				Get_Precipitation	(double Time);
+	bool				Gauges_Initialise		(void);
+	bool				Gauges_Set_Flow			(double Time);
 
 };
 
