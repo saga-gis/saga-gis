@@ -247,7 +247,7 @@ bool CVIEW_Table_Diagram_Control::Set_Size(const wxSize &Size)
 		
 			SetScrollbars(SCROLL_RATE, SCROLL_RATE, (m_sDraw.x + SCROLL_BAR_DX) / SCROLL_RATE, (m_sDraw.y + SCROLL_BAR_DY) / SCROLL_RATE);
 
-			Refresh();
+			Refresh(false);
 
 			m_bFitSize	= bFitSize;
 		}
@@ -504,7 +504,7 @@ bool CVIEW_Table_Diagram_Control::_Create(void)
 		}
 	}
 
-	Refresh();
+	Refresh(false);
 
 	return( m_nFields > 0 );
 }
@@ -686,7 +686,19 @@ int CVIEW_Table_Diagram_Control::_Get_Field_By_Name(const CSG_String &sField)
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::OnDraw(wxDC &dc)
 {
-	_Draw(dc, wxRect(0, 0, m_sDraw.x, m_sDraw.y));
+	wxBitmap	bmp(m_sDraw);
+
+	wxMemoryDC	dcMem;
+
+	dcMem.SelectObject(bmp);
+	dcMem.SetBackground(*wxWHITE_BRUSH);
+	dcMem.Clear();
+
+	_Draw(dcMem, m_sDraw);
+
+	dcMem.SelectObject(wxNullBitmap);
+
+	dc.DrawBitmap(bmp, 0, 0);
 }
 
 

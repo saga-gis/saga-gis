@@ -285,7 +285,11 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 			                                 ? Parameters.Add_Grid_Output    (   NULL, ID, Name, Desc)
 			                                 : Parameters.Add_Grid           (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_Table            : Parameters.Add_Table          (pParent, ID, Name, Desc, Constraint);	break;
-		case PARAMETER_TYPE_Shapes           : Parameters.Add_Shapes         (pParent, ID, Name, Desc, Constraint);	break;
+		case PARAMETER_TYPE_Shapes           : Parameters.Add_Shapes         (pParent, ID, Name, Desc, Constraint,
+												   Parameter.Cmp_Property("feature_type", "point"  ) ? SHAPE_TYPE_Point   :
+												   Parameter.Cmp_Property("feature_type", "points" ) ? SHAPE_TYPE_Points  :
+												   Parameter.Cmp_Property("feature_type", "line"   ) ? SHAPE_TYPE_Line    :
+												   Parameter.Cmp_Property("feature_type", "polygon") ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Undefined);	break;
 		case PARAMETER_TYPE_TIN              : Parameters.Add_TIN            (pParent, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_PointCloud       : Parameters.Add_PointCloud     (pParent, ID, Name, Desc, Constraint);	break;
 

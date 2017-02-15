@@ -42,65 +42,65 @@ CCellBalance::CCellBalance(void)
 {
 	Set_Name		(_TL("Cell Balance"));
 
-	Set_Author		(SG_T("(c) 2004 by V.Olaya, (c) 2006 by O.Conrad"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Cell Balance Calculation\r\n"
-		"References:\r\n 1. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004"
+		"Cell Balance"
 	));
 
-	Parameters.Add_Grid(
-		NULL, "DEM"		, _TL("Elevation"),
+	Add_Reference(
+		"Olaya, V.", "2004", "Hidrologia computacional y modelos digitales del terreno", "Alqua. 536 pp."
+	);
+
+	Parameters.Add_Grid(NULL,
+		"DEM"		, _TL("Elevation"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_or_Const(
-		NULL, "WEIGHTS"	, _TL("Weights"),
+	Parameters.Add_Grid_or_Const(NULL,
+		"WEIGHTS"	, _TL("Weights"),
 		_TL(""),
 		1.0, 0.0, true
 	);
 
-	Parameters.Add_Grid(
-		NULL, "BALANCE"	, _TL("Cell Balance"),
+	Parameters.Add_Grid(NULL,
+		"BALANCE"	, _TL("Cell Balance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL, "METHOD"	, _TL("Method"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction")
-		)
+		), 1
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CCellBalance::On_Execute(void)
 {
-	int			Method;
-	double		Weight;
-	CSG_Grid	*pWeights;
-
 	m_pDEM		= Parameters("DEM"    )->asGrid();
-	pWeights	= Parameters("WEIGHTS")->asGrid();
-	Weight		= Parameters("WEIGHTS")->asDouble();
 	m_pBalance	= Parameters("BALANCE")->asGrid();
-	Method		= Parameters("METHOD" )->asInt();
+
+	int	Method	= Parameters("METHOD" )->asInt();
+
+	CSG_Grid	*pWeight	= Parameters("WEIGHTS")->asGrid  ();
+	double		  Weight	= Parameters("WEIGHTS")->asDouble();
 
 	m_pBalance->Assign(0.0);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
@@ -109,19 +109,16 @@ bool CCellBalance::On_Execute(void)
 			}
 			else
 			{
-				if( pWeights )
-				{
-					Weight	= pWeights->is_NoData(x, y) ? 0.0 : pWeights->asDouble(x, y);
-				}
+				double	w	= pWeight && !pWeight->is_NoData(x, y) ? pWeight->asDouble(x, y) : Weight;
 
-				if( Weight )
+				if( w > 0.0 )
 				{
-					m_pBalance->Add_Value(x, y, -Weight);
+					m_pBalance->Add_Value(x, y, -w);
 
 					switch( Method )
 					{
-					case 0:	Set_D8	(x, y, Weight);	break;
-					case 1:	Set_MFD	(x, y, Weight);	break;
+					case  0:	Set_D8 (x, y, w);	break;
+					default:	Set_MFD(x, y, w);	break;
 					}
 				}
 			}
@@ -134,21 +131,19 @@ bool CCellBalance::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CCellBalance::Set_D8(int x, int y, double Weight)
 {
-	int		Dir;
+	int	Dir	= m_pDEM->Get_Gradient_NeighborDir(x, y);
 
-	if( (Dir = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+	if( Dir >= 0 )
 	{
 		x	+= Get_xTo(Dir);
 		y	+= Get_yTo(Dir);
 
-		if( is_InGrid(x, y) )
+		if( m_pDEM->is_InGrid(x, y) )
 		{
 			m_pBalance->Add_Value(x, y, Weight);
 		}
@@ -160,16 +155,14 @@ void CCellBalance::Set_MFD(int x, int y, double Weight)
 {
 	const double	MFD_Converge	= 1.1;
 
-	int		i, ix, iy;
-	double	z, d, dzSum, dz[8];
+	int		i;
 
-	z		= m_pDEM->asDouble(x, y);
-	dzSum	= 0.0;
+	double	d, dz[8], dzSum = 0.0, z = m_pDEM->asDouble(x, y);
 
 	for(i=0; i<8; i++)
 	{
-		ix		= Get_xTo(i, x);
-		iy		= Get_yTo(i, y);
+		int	ix	= Get_xTo(i, x);
+		int	iy	= Get_yTo(i, y);
 
 		if( m_pDEM->is_InGrid(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
 		{
@@ -184,14 +177,14 @@ void CCellBalance::Set_MFD(int x, int y, double Weight)
 
 	if( dzSum > 0.0 )
 	{
-		d		= Weight / dzSum;
+		d	= Weight / dzSum;
 
 		for(i=0; i<8; i++)
 		{
 			if( dz[i] > 0.0 )
 			{
-				ix		= Get_xTo(i, x);
-				iy		= Get_yTo(i, y);
+				int	ix	= Get_xTo(i, x);
+				int	iy	= Get_yTo(i, y);
 
 				m_pBalance->Add_Value(ix, iy, dz[i] * d);
 			}
