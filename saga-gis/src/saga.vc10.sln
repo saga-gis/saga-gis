@@ -378,6 +378,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "tools\simu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_isocluster", "tools\imagery\imagery_isocluster\imagery_isocluster.vcxproj", "{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_geomorphology", "tools\simulation\sim_geomorphology\sim_geomorphology.vcxproj", "{BFA29823-586C-4639-8330-75FD41604B18}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1000,6 +1002,14 @@ Global
 		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|Win32.Build.0 = Release|Win32
 		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|x64.ActiveCfg = Release|x64
 		{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}.Release|x64.Build.0 = Release|x64
+		{BFA29823-586C-4639-8330-75FD41604B18}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BFA29823-586C-4639-8330-75FD41604B18}.Debug|Win32.Build.0 = Debug|Win32
+		{BFA29823-586C-4639-8330-75FD41604B18}.Debug|x64.ActiveCfg = Debug|x64
+		{BFA29823-586C-4639-8330-75FD41604B18}.Debug|x64.Build.0 = Debug|x64
+		{BFA29823-586C-4639-8330-75FD41604B18}.Release|Win32.ActiveCfg = Release|Win32
+		{BFA29823-586C-4639-8330-75FD41604B18}.Release|Win32.Build.0 = Release|Win32
+		{BFA29823-586C-4639-8330-75FD41604B18}.Release|x64.ActiveCfg = Release|x64
+		{BFA29823-586C-4639-8330-75FD41604B18}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
