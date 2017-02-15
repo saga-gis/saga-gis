@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                     Tool Library                      //
+//                      Grid_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Parameters_Control.h                  //
+//                 Grid_Combine_Classes.h                //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2017 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,15 +37,13 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
-//                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__Parameters_Control_H
-#define _HEADER_INCLUDED__SAGA_GUI__Parameters_Control_H
+#ifndef HEADER_INCLUDED__Grid_Combine_Classes_H
+#define HEADER_INCLUDED__Grid_Combine_Classes_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <wx/propgrid/propgrid.h>
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,63 +77,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CParameters_Control : public wxPanel
+class CGrid_Combine_Classes : public CSG_Tool_Grid
 {
-	DECLARE_CLASS(CParameters_Control)
-
 public:
-	CParameters_Control(wxWindow *pParent, bool bDialog = false);
-	virtual ~CParameters_Control(void);
+	CGrid_Combine_Classes(void);
 
-	void						On_Size				(wxSizeEvent         &event);
-	void						On_Key				(wxKeyEvent          &event);
-	void						On_PG_Selected		(wxPropertyGridEvent &event);
-	void						On_PG_Changed		(wxPropertyGridEvent &event);
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
 
-	bool						Update_DataObjects	(void);
+	virtual bool				needs_GUI				(void)	{	return( true );	}
 
-	bool						Set_Parameters		(class CSG_Parameters *pParameters);
-	class CSG_Parameters *		Get_Parameters		(void)	{	return( m_pParameters );	}
 
-	bool						is_Modified			(void)	{	return( m_bModified );	}
+protected:
 
-	bool						Save_Changes		(bool bSilent);
-	bool						Restore				(void);
-	bool						Restore_Defaults	(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Load				(void);
-	bool						Save				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool						m_bModified;
-	
-	int							m_bFocus;
+	bool						Set_Classes				(CSG_Parameters *pParameters);
 
-	class CSG_Parameters		*m_pParameters, *m_pOriginal;
+	int							Get_Class				(const CSG_Table &LUT, double Value);
 
-	class CParameters_Grid_Manager	*m_pPGM;
-
-	class wxPropertyGrid		*m_pPG;
-
-
-	wxString					_Get_Identifier		(class CSG_Parameter *pParameter);
-	bool						_Get_Enabled		(class CSG_Parameter *pParameter);
-
-	void						_Add_Properties		(class CSG_Parameters *pParameters);
-	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
-	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
-
-	void						_Set_Parameter		(wxPGProperty *pProperty);
-	class CSG_Parameter *		_Get_Parameter		(wxPGProperty *pProperty);
-	void						_Update_Parameters	(void);
-	void						_Update_Parameter	(class CSG_Parameter *pParameter);
-	void						_Init_Pararameters	(void);
-
-
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
 };
 
 
@@ -149,4 +111,4 @@ DECLARE_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__Parameters_Control_H
+#endif // #ifndef HEADER_INCLUDED__Grid_Combine_Classes_H

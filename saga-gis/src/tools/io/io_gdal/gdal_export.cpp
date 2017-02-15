@@ -119,26 +119,26 @@ CGDAL_Export::CGDAL_Export(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grid(s)"),
+	Parameters.Add_Grid_List(NULL,
+		"GRIDS"		, _TL("Grid(s)"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+	Parameters.Add_FilePath(NULL,
+		"FILE"		, _TL("File"),
 		_TL("The GDAL dataset to be created."),
 		Filter, NULL, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FORMAT"		, _TL("Format"),
+	Parameters.Add_Choice(NULL,
+		"FORMAT"	, _TL("Format"),
 		_TL("The GDAL raster format (driver) to be used."),
 		Formats
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Data Type"),
+	Parameters.Add_Choice(NULL,
+		"TYPE"		, _TL("Data Type"),
 		_TL("The GDAL datatype of the created dataset."),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("match input data"),
@@ -152,20 +152,19 @@ CGDAL_Export::CGDAL_Export(void)
 		), 0
 	);
 	
-	Parameters.Add_Bool(
-		NULL	, "SET_NODATA"	, _TL("Set Custom NoData"),
+	Parameters.Add_Bool(NULL,
+		"SET_NODATA", _TL("Set Custom NoData"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(
-		NULL	, "NODATA"		, _TL("NoData Value"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
+	Parameters.Add_Double(Parameters("SET_NODATA"),
+		"NODATA"	, _TL("NoData Value"),
+		_TL("")
 	);
 
-	Parameters.Add_String(
-		NULL	, "OPTIONS"		, _TL("Creation Options"),
+	Parameters.Add_String(NULL,
+		"OPTIONS"	, _TL("Creation Options"),
 		_TL("A space separated list of key-value pairs (K=V)."), _TL("")		
 	);
 }
@@ -173,48 +172,63 @@ CGDAL_Export::CGDAL_Export(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGDAL_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SET_NODATA") )
+	{
+		pParameters->Set_Enabled("NODATA", pParameter->asBool());
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGDAL_Export::On_Execute(void)
 {
-	TSG_Data_Type			Type;
-	CSG_String				File_Name, Driver, Options;
-	CSG_Projection			Projection;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_GDAL_DataSet		DataSet;
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	File_Name	= Parameters("FILE")	->asString();
-	Options		= Parameters("OPTIONS")	->asString();
+	TSG_Data_Type	Type;
 
-	Get_Projection(Projection);
-
-	//-----------------------------------------------------
 	switch( Parameters("TYPE")->asInt() )
 	{
 	default:
 	case 0:	Type	= SG_Get_Grid_Type(pGrids);	break;	// match input data
-	case 1:	Type	= SG_DATATYPE_Byte;			break;	// Eight bit unsigned integer
-	case 2:	Type	= SG_DATATYPE_Word;			break;	// Sixteen bit unsigned integer
-	case 3:	Type	= SG_DATATYPE_Short;		break;	// Sixteen bit signed integer
-	case 4:	Type	= SG_DATATYPE_DWord;		break;	// Thirty two bit unsigned integer
-	case 5:	Type	= SG_DATATYPE_Int;			break;	// Thirty two bit signed integer
-	case 6:	Type	= SG_DATATYPE_Float;		break;	// Thirty two bit floating point
-	case 7:	Type	= SG_DATATYPE_Double;		break;	// Sixty four bit floating point
+	case 1:	Type	= SG_DATATYPE_Byte        ;	break;	// Eight bit unsigned integer
+	case 2:	Type	= SG_DATATYPE_Word        ;	break;	// Sixteen bit unsigned integer
+	case 3:	Type	= SG_DATATYPE_Short       ;	break;	// Sixteen bit signed integer
+	case 4:	Type	= SG_DATATYPE_DWord       ;	break;	// Thirty two bit unsigned integer
+	case 5:	Type	= SG_DATATYPE_Int         ;	break;	// Thirty two bit signed integer
+	case 6:	Type	= SG_DATATYPE_Float       ;	break;	// Thirty two bit floating point
+	case 7:	Type	= SG_DATATYPE_Double      ;	break;	// Sixty four bit floating point
 	}
 
 	//-----------------------------------------------------
+	CSG_Projection	Projection;
+
+	Get_Projection(Projection);
+
+	//-----------------------------------------------------
+	CSG_String	Driver;
+
 	if( !Parameters("FORMAT")->asChoice()->Get_Data(Driver) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, Driver, Options, Type, pGrids->Get_Count(), *Get_System(), Projection) )
+	CSG_GDAL_DataSet	DataSet;
+
+	if( !DataSet.Open_Write(Parameters("FILE")->asString(), Driver, Parameters("OPTIONS")->asString(), Type, pGrids->Get_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}
@@ -222,7 +236,7 @@ bool CGDAL_Export::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Count(); i++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
+		Process_Set_Text(CSG_String::Format("%s %d", _TL("Band"), i + 1));
 
 		if ( Parameters("SET_NODATA")->asBool() )
 		{

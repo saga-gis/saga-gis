@@ -85,19 +85,11 @@ protected:
 
 private:
 
-	bool					m_bNoData;
+	bool					Get_Output		(const CSG_Grid &Mask, CSG_Parameter_Grid_List *pOutput, CSG_Grid_System &System);
 
+	bool					Has_Data		(int x, int y, CSG_Parameter_Grid_List *pInput);
 
-	// estimates the Extent of the new grid
-	bool					Get_Extent		(int &xMin, int &xCount,
-											 int &yMin, int &yCount, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids);
-
-	bool					is_InGrid		(int x, int y, CSG_Grid *pMask, CSG_Parameter_Grid_List *pGrids);
-
-	// This function has been copied from Tool: 'Grid_Statistics_AddTo_Polygon'
-	// Function: Get_ShapeIDs
-	// copyright by Olaf Conrad
-	bool					Get_Mask		(CSG_Shapes *pShapes, CSG_Grid *pMask);
+	bool					Get_Mask		(CSG_Grid &Mask);
 
 };
 

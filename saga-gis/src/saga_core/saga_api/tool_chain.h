@@ -77,7 +77,7 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CSG_Tool_Chain					 //
+//					CSG_Tool_Chain						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ public:
 	CSG_Tool_Chain(void);
 	virtual ~CSG_Tool_Chain(void);
 
-								CSG_Tool_Chain		(const CSG_String &File);
+								CSG_Tool_Chain			(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
 
 	virtual TSG_Tool_Type		Get_Type				(void)			{	return( TOOL_TYPE_Chain );	}
@@ -123,6 +123,8 @@ private:
 
 
 	void						Reset					(void);
+
+	void						Add_References			(void);
 
 	bool						Data_Add				(const CSG_String &ID, CSG_Parameter *pData);
 	bool						Data_Exists				(CSG_Data_Object *pData);

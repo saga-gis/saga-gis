@@ -3,7 +3,7 @@
  *********************************************************/
 /*******************************************************************************
     Fuzzify.cpp
-    Copyright (C) Victor Olaya
+    Copyright (DecMin) Victor Olaya
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    MERCHANTABILITY or FITNESS FOR IncMin PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
@@ -41,186 +41,184 @@ CFuzzify::CFuzzify(void)
 {
 	Set_Name		(_TL("Fuzzify"));
 
-	Set_Author		(SG_T("Victor Olaya (c) 2004"));
+	Set_Author		("V.Olaya (c) 2004");
 
 	Set_Description	(_TW(
-		"Translates grid values into fuzzy set membership as preparation for fuzzy logic analysis."
+		"Translates grid values into fuzzy set membership as preparation for fuzzy set analysis. "
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "INPUT"	, _TL("Grid"),
+	Parameters.Add_Grid(NULL,
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Fuzzified Grid"),
+	Parameters.Add_Grid(NULL,
+		"OUTPUT"	, _TL("Fuzzified Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Node(
-		NULL	, "NODE_PTS", _TL("Control Points"),
-		_TL("")
-	);
+	Parameters.Add_Node(NULL, "INCREASE", _TL("Increase"), _TL(""));
+	Parameters.Add_Double(Parameters("INCREASE"), "INC_MIN", _TL("From"), _TL(""), 0.0);
+	Parameters.Add_Double(Parameters("INCREASE"), "INC_MAX", _TL("To"  ), _TL(""), 0.3);
 
-	Parameters.Add_Value(
-		pNode	, "A"		, _TL("A"),
-		_TL("Values lower than A will be set to 0."),
-		PARAMETER_TYPE_Double, 10
-	);
+	Parameters.Add_Node(NULL, "DECREASE", _TL("Decrease"), _TL(""));
+	Parameters.Add_Double(Parameters("DECREASE"), "DEC_MIN", _TL("From"), _TL(""), 0.7);
+	Parameters.Add_Double(Parameters("DECREASE"), "DEC_MAX", _TL("To"  ), _TL(""), 1.0);
 
-	Parameters.Add_Value(
-		pNode	, "B"		, _TL("B"),
-		_TL("Values between A and B increase from 0 to 1, values between B and C will be set to 1."),
-		PARAMETER_TYPE_Double, 10
-	);
-
-	Parameters.Add_Value(
-		pNode	, "C"		, _TL("C"),
-		_TL("Values between B and C will be set to 1, values between C and D decrease from 1 to 0."),
-		PARAMETER_TYPE_Double, 10
-	);
-
-	Parameters.Add_Value(
-		pNode	, "D"		, _TL("D"),
-		_TL("Values greater than D will be set to 0."),
-		PARAMETER_TYPE_Double, 10
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Membership Function Type"),
+	Parameters.Add_Choice(NULL,
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Increase"),
+			_TL("Decrease"),
+			_TL("Increase and Decrease")
+		), 0
+	);
+
+	Parameters.Add_Choice(NULL,
+		"TRANSITION", _TL("Transition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("linear"),
 			_TL("sigmoidal"),
 			_TL("j-shaped")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "AUTOFIT"	, _TL("Adjust to Grid"),
+	Parameters.Add_Bool(
+		NULL	, "INVERT"	, _TL("Invert"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Bool(
+		NULL	, "AUTOFIT"	, _TL("Adjust"),
 		_TL("Automatically adjust control points to grid's data range"),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CFuzzify::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AUTOFIT")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT"  )
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "AUTOFIT")
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD" ) )
 	{
 		if( pParameters->Get_Parameter("AUTOFIT")->asBool() && pParameters->Get_Parameter("INPUT")->asGrid() )
 		{
 			CSG_Grid	*pGrid	= pParameters->Get_Parameter("INPUT")->asGrid();
 
-			pParameters->Get_Parameter("A")->Set_Value(pGrid->Get_ZMin());
-			pParameters->Get_Parameter("B")->Set_Value(pGrid->Get_ZMin() + 0.3 * pGrid->Get_ZRange());
-			pParameters->Get_Parameter("C")->Set_Value(pGrid->Get_ZMax() - 0.3 * pGrid->Get_ZRange());
-			pParameters->Get_Parameter("D")->Set_Value(pGrid->Get_ZMax());
+			switch( pParameters->Get_Parameter("METHOD")->asInt() )
+			{
+			case  0:	// Increase
+				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_ZMin());
+				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_ZMax());
+				break;
+
+			case  1:	// Decrease
+				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_ZMin());
+				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_ZMax());
+				break;
+
+			default:	// Increase and Decrease
+				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_ZMin());
+				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_ZMin() + 0.3 * pGrid->Get_ZRange());
+				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_ZMax() - 0.3 * pGrid->Get_ZRange());
+				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_ZMax());
+				break;
+			}
 		}
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("A")) )
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CFuzzify::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		if( pParameter->asDouble() > pParameters->Get_Parameter("B")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("B")->asDouble());
-		}
+		pParameters->Set_Enabled("INCREASE", pParameter->asInt() != 1);
+		pParameters->Set_Enabled("DECREASE", pParameter->asInt() != 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("B")) )
-	{
-		if( pParameter->asDouble() < pParameters->Get_Parameter("A")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("A")->asDouble());
-		}
-		else if( pParameter->asDouble() > pParameters->Get_Parameter("C")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("C")->asDouble());
-		}
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("C")) )
-	{
-		if( pParameter->asDouble() < pParameters->Get_Parameter("B")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("B")->asDouble());
-		}
-		else if( pParameter->asDouble() > pParameters->Get_Parameter("D")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("D")->asDouble());
-		}
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("D")) )
-	{
-		if( pParameter->asDouble() < pParameters->Get_Parameter("C")->asDouble() )
-		{
-			pParameter->Set_Value(pParameters->Get_Parameter("C")->asDouble());
-		}
-	}
-
-	return( 0 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFuzzify::On_Execute(void)
 {
-	int			Type;
-	double		A, B, C, D;
-	CSG_Grid	*pInput, *pOutput;
+	//-----------------------------------------------------
+	CSG_Grid	*pInput	= Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pFuzzy	= Parameters("OUTPUT")->asGrid();
+
+	pFuzzy->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Fuzzified")));
 
 	//-----------------------------------------------------
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-	Type	= Parameters("TYPE")	->asInt();
-	A		= Parameters("A")		->asDouble();
-	B		= Parameters("B")		->asDouble();
-	C		= Parameters("C")		->asDouble();
-	D		= Parameters("D")		->asDouble();
+	bool	bInvert	= Parameters("INVERT")->asBool();
 
-	if( A > B || B > C || C > D )
+	double	IncMin	= Parameters("INC_MIN")->asDouble();
+	double	IncMax	= Parameters("INC_MAX")->asDouble();
+	double	DecMin	= Parameters("DEC_MIN")->asDouble();
+	double	DecMax	= Parameters("DEC_MAX")->asDouble();
+
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case  0:	// Increase
+		DecMin = DecMax = pInput->Get_ZMax();
+		break;
+
+	case  1:	// Decrease
+		IncMin = IncMax = pInput->Get_ZMin();
+		break;
+
+	default:	// Increase and Decrease
+		break;
+	}
+
+	if( IncMin > IncMax || DecMin > DecMax || IncMax > DecMin )
 	{
 		Error_Set(_TL("invalid control points"));
 
 		return( false );
 	}
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Fuzzified")));
-
-	DataObject_Set_Colors(pOutput, 100, SG_COLORS_BLACK_WHITE);
+	if( IncMax > DecMin )	// overlap !
+	{
+		IncMax	= (DecMin = DecMin + (IncMax - DecMin) / 2.0);
+	}
 
 	//-----------------------------------------------------
+	int	Type	= Parameters("TRANSITION")->asInt();
+
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pInput->is_InGrid(x, y) )
 			{
 				double	Value	= pInput->asDouble(x, y);
 
-				if( Value <= A || Value >= D )
+				if( Value <= IncMin || Value >= DecMax )
 				{
 					Value	= 0.0;
 				}
-				else if( Value >= B && Value <= C )
+				else if( Value >= IncMax && Value <= DecMin )
 				{
 					Value	= 1.0;
 				}
@@ -228,30 +226,30 @@ bool CFuzzify::On_Execute(void)
 				{
 					double	dX, dW;
 
-					if( Value < B )
+					if( Value < IncMax )
 					{
-						dX	= Value - A;
-						dW	= B     - A;
+						dX	= Value  - IncMin;
+						dW	= IncMax - IncMin;
 					}
 					else
 					{
-						dX	= D - Value;
-						dW	= D - C;
+						dX	= DecMax - Value ;
+						dW	= DecMax - DecMin;
 					}
 
 					switch( Type )
 					{
-					case 0:	Value	= dX / dW;									break;
-					case 1:	Value	= pow(sin(dX / dW * M_PI_090), 2.0);		break;
-					case 2:	Value	= 1.0 / (1.0 + pow((dW - dX) / dW, 2.0));	break;
+					default: Value = dX / dW;									break;
+					case  1: Value = pow(sin(dX / dW * M_PI_090), 2.0);			break;
+					case  2: Value = 1.0 / (1.0 + pow((dW - dX) / dW, 2.0));	break;
 					}
 				}
 
-				pOutput->Set_Value(x, y, Value);
+				pFuzzy->Set_Value(x, y, bInvert ? 1.0 - Value : Value);
 			}
 			else
 			{
-				pOutput->Set_NoData(x, y);
+				pFuzzy->Set_NoData(x, y);
 			}
 		}
 	}

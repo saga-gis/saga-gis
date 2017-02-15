@@ -73,8 +73,6 @@
 //---------------------------------------------------------
 CSemiVariogram::CSemiVariogram(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Variogram (Dialog)"));
 
@@ -85,83 +83,92 @@ CSemiVariogram::CSemiVariogram(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes(NULL,
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
+	Parameters.Add_Table_Field(Parameters("POINTS"),
+		"ATTRIBUTE"	, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "VARIOGRAM"	, _TL("Variogram"),
+	Parameters.Add_Table(NULL,
+		"VARIOGRAM"	, _TL("Variogram"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LOG"			, _TL("Logarithmic Transformation"),
+	Parameters.Add_Value(NULL,
+		"LOG"		, _TL("Logarithmic Transformation"),
 		_TL(""),
 		PARAMETER_TYPE_Bool
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
+	Parameters.Add_Double(NULL,
+		"VAR_MAXDIST"	, _TL("Maximum Distance"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, -1.0
+		-1.0
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Value(
-		NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+	Parameters.Add_Int(NULL,
+		"VAR_NCLASSES"	, _TL("Lag Distance Classes"),
 		_TL("initial number of lag distance classes"),
-		PARAMETER_TYPE_Int		, 100, 1, true
+		100, 1, true
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Value(
-		NULL	, "VAR_NSKIP"		, _TL("Skip"),
+	Parameters.Add_Int(NULL,
+		"VAR_NSKIP"		, _TL("Skip"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_String(
-		NULL	, "VAR_MODEL"		, _TL("Model"),
+	Parameters.Add_String(NULL,
+		"VAR_MODEL"		, _TL("Model"),
 		_TL(""),
-		SG_T("a + b * x")
+		"a + b * x"
 	)->Set_UseInGUI(false);
+
+	//-----------------------------------------------------
+	m_pVariogram	= SG_UI_Get_Window_Main() ? new CVariogram_Dialog : NULL;
+}
+
+//---------------------------------------------------------
+CSemiVariogram::~CSemiVariogram(void)
+{
+	if( m_pVariogram && SG_UI_Get_Window_Main() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
+	{
+		m_pVariogram->Destroy();
+
+		delete(m_pVariogram);
+	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSemiVariogram::On_Execute(void)
 {
-	bool		bLog, bResult	= false;
-	int			Attribute;
+	//-----------------------------------------------------
+	CSG_Table	*pVariogram	= Parameters("VARIOGRAM")->asTable();
+
 	CSG_Trend	Model;
-	CSG_Shapes	*pPoints;
-	CSG_Table	*pVariogram;
+
+	bool	bResult	= false;
 
 	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS")		->asShapes();
-	Attribute	= Parameters("ATTRIBUTE")	->asInt();
-	bLog		= Parameters("LOG")			->asBool();
-	pVariogram	= Parameters("VARIOGRAM")	->asTable();
-
-	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
+	if( m_pVariogram )
 	{
-		static CVariogram_Dialog	dlg;
-
-		if( dlg.Execute(pPoints, Attribute, bLog, pVariogram, &Model) )
+		if( m_pVariogram->Execute(
+			Parameters("POINTS"      )->asShapes(),
+			Parameters("ATTRIBUTE"   )->asInt   (),
+			Parameters("LOG"         )->asBool  (),
+			pVariogram, &Model) )
 		{
 			bResult	= true;
 		}
@@ -170,13 +177,15 @@ bool CSemiVariogram::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		int		nSkip		= Parameters("VAR_NSKIP")		->asInt();
-		int		nClasses	= Parameters("VAR_NCLASSES")	->asInt();
-		double	maxDistance	= Parameters("VAR_MAXDIST")		->asDouble();
-
 		Model.Set_Formula(Parameters("VAR_MODEL")->asString());
 
-		if( CSG_Variogram::Calculate(pPoints, Attribute, bLog, pVariogram, nClasses, maxDistance, nSkip) )
+		if( CSG_Variogram::Calculate(
+			Parameters("POINTS"      )->asShapes(),
+			Parameters("ATTRIBUTE"   )->asInt   (),
+			Parameters("LOG"         )->asBool  (), pVariogram,
+			Parameters("VAR_NCLASSES")->asInt   (),
+			Parameters("VAR_MAXDIST" )->asDouble(),
+			Parameters("VAR_NSKIP"   )->asInt   ()) )
 		{
 			Model.Clr_Data();
 

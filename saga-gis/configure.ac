@@ -209,13 +209,27 @@ AC_ARG_WITH(system_dxflib,
     )
 AM_CONDITIONAL(SYSTEM_DXFLIB, [test "$LIBDXFFOUND" -eq 1 -a x$system_libdxf = xtrue])
 
-AC_ARG_WITH(system_svm,
+# check for --with-system-svm
+AC_ARG_WITH([system_svm],
     AS_HELP_STRING([--with-system-svm],[Use system version of svm instead of embedded copy, requires this library (and the header files)]),
-    AC_MSG_RESULT([        using system svm]),
     system_svm=true,
     )
 
-AM_CONDITIONAL(SYSTEM_SVM, test "$SVMFOUND" -eq 1 -a x$system_svm = xtrue)
+AC_MSG_CHECKING([usage of system libsvm])
+
+if test "$with_system_svm" = yes ; then
+    if test "$SVMFOUND" = 1 ; then
+        AC_MSG_RESULT([yes])
+        SYSTEM_SVM=yes
+    else
+        AC_MSG_FAILURE([--with-system-svm was given but test for libsvm failed])
+    fi
+else
+    SYSTEM_SVM=no
+    AC_MSG_RESULT([no])
+fi
+
+AM_CONDITIONAL([SYSTEM_SVM], [test x$SYSTEM_SVM = xyes])
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
     AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")

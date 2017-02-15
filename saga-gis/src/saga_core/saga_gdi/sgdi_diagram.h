@@ -111,7 +111,7 @@ private:
 
 	wxRect				m_rDiagram;
 
-	void				_On_Mouse_Click_Left	(wxMouseEvent	&event);
+	void				_On_Mouse_Click			(wxMouseEvent	&event);
 	void				_On_Paint				(wxPaintEvent	&event);
 
 	bool				_Draw					(wxDC &dc);

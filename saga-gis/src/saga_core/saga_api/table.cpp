@@ -393,16 +393,16 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 
 	CSG_Table	*pTable	= (CSG_Table *)pObject;
 
-	int		i;
+	Set_NoData_Value_Range(pTable->Get_NoData_Value(), pTable->Get_NoData_hiValue());
 
-	for(i=0; i<pTable->m_nFields; i++)
+	for(int iField=0; iField<pTable->m_nFields; iField++)
 	{
-		Add_Field(pTable->m_Field_Name[i]->c_str(), pTable->m_Field_Type[i]);
+		Add_Field(pTable->m_Field_Name[iField]->c_str(), pTable->m_Field_Type[iField]);
 	}
 
-	for(i=0; i<pTable->m_nRecords; i++)
+	for(int iRecord=0; iRecord<pTable->m_nRecords; iRecord++)
 	{
-		Add_Record(pTable->m_Records[i]);
+		Add_Record(pTable->m_Records[iRecord]);
 	}
 
 	Get_History()	= pTable->Get_History();

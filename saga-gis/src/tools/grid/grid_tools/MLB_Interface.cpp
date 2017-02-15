@@ -139,6 +139,7 @@ CSG_String Get_Info(int i)
 #include "Grid_Transpose.h"
 
 #include "Grid_Support_Tool_Chains.h"
+#include "Grid_Combine_Classes.h"
 
 
 //---------------------------------------------------------
@@ -195,6 +196,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 33:	return( new CGrid_Copy );
 	case 34:	return( new CGrid_Invert );
 	case 35:	return( new CGrid_Mirror );
+
+	case 37:	return( new CGrid_Combine_Classes );
 
 	case 40:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

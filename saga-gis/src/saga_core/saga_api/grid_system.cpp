@@ -426,6 +426,17 @@ bool CSG_Grid_Cell_Addressor::Set_Parameters(CSG_Parameters &Parameters, int Typ
 }
 
 //---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Square (CSG_Parameters &Parameters)	{	return( Set_Parameters(Parameters, SG_GRIDCELLADDR_PARM_SQUARE ) );	}
+bool CSG_Grid_Cell_Addressor::Set_Circle (CSG_Parameters &Parameters)	{	return( Set_Parameters(Parameters, SG_GRIDCELLADDR_PARM_CIRCLE ) );	}
+bool CSG_Grid_Cell_Addressor::Set_Annulus(CSG_Parameters &Parameters)	{	return( Set_Parameters(Parameters, SG_GRIDCELLADDR_PARM_ANNULUS) );	}
+bool CSG_Grid_Cell_Addressor::Set_Sector (CSG_Parameters &Parameters)	{	return( Set_Parameters(Parameters, SG_GRIDCELLADDR_PARM_SECTOR ) );	}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::On_Parameters_Enable(CSG_Parameters &Parameters)
 {
 	if( Parameters("KERNEL_TYPE") )

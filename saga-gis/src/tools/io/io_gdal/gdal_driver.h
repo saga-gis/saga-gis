@@ -92,9 +92,12 @@ public:
 
 	bool						Can_Read			(int Index)					const;
 	bool						Can_Write			(int Index)					const;
+	bool						Can_Copy			(int Index)					const;
 
 	static int					Get_GDAL_Type		(TSG_Data_Type Type);
 	static TSG_Data_Type		Get_SAGA_Type		(int           Type);
+
+	static bool					has_Capability		(class GDALDriver *pDriver, const char *Capapility);
 
 
 private:
