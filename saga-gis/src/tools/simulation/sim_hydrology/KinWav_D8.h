@@ -98,9 +98,11 @@ protected:
 
 private:
 
-	double				m_dTime, m_MaxIter, m_Epsilon;
+	int					m_Routing, m_MaxIter;
 
-	CSG_Grid			*m_pDEM, *m_pFlow, m_Direction, m_Alpha, m_Flow_Last;
+	double				m_dTime, m_Epsilon;
+
+	CSG_Grid			*m_pDEM, *m_pFlow, m_Flow_t0, *m_dFlow, m_Length, m_Alpha;
 
 	CSG_Table			*m_pGauges_Flow;
 
@@ -110,10 +112,13 @@ private:
 	bool				Initialize				(void);
 	bool				Finalize				(void);
 
+	void				Set_D8					(int x, int y);
+	void				Set_MFD					(int x, int y);
+
 	void				Set_Flow				(double Time);
 
 	void				Set_Runoff				(int x, int y);
-	double				Set_Runoff				(double q_Up, double q_Last, double alpha, double dL, double r, double r_Last);
+	void				Set_Runoff				(int x, int y, double Q);
 
 	bool				Gauges_Initialise		(void);
 	bool				Gauges_Set_Flow			(double Time);
