@@ -355,6 +355,7 @@ AC_OUTPUT(Makefile \
 	src/tools/simulation/sim_ecosystems_hugget/Makefile \
 	src/tools/simulation/sim_erosion/Makefile \
 	src/tools/simulation/sim_fire_spreading/Makefile \
+	src/tools/simulation/sim_geomorphology/Makefile \
 	src/tools/simulation/sim_hydrology/Makefile \
 	src/tools/simulation/sim_ihacres/Makefile \
 	src/tools/simulation/sim_qm_of_esp/Makefile \
