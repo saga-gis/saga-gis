@@ -122,10 +122,12 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CTable_Save );
 	case 14:	return( new CTable_Drop );
 	case 15:	return( new CTable_Query );
+	case 16:	return( new CTable_Query_GUI );
 
 	case 20:	return( new CShapes_Load );
 	case 21:	return( new CShapes_Save );
 	case 22:	return( new CShapes_SRID_Update );
+	case 23:	return( new CShapes_Join );
 
 	case 30:	return( new CRaster_Load );
 	case 33:	return( new CRaster_Load_Band );

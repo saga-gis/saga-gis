@@ -1061,9 +1061,20 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Nam
 //---------------------------------------------------------
 bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
 {
-	CSG_String	Select;
+	CSG_String	Select("SELECT");
 
-	Select.Printf("SELECT %s %s FROM %s", bDistinct ? SG_T("DISTINCT") : SG_T("ALL"), Fields.c_str(), Tables.c_str());
+	Select	+= bDistinct ? " DISTINCT" : " ALL";
+
+	if( Fields.is_Empty() )
+	{
+		Select	+= " *";
+	}
+	else
+	{
+		Select	+= " " + Fields;
+	}
+
+	Select	+= " FROM " + Tables;
 
 	if( Where.Length() )
 	{
@@ -1101,6 +1112,9 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define GEOMETRY_FIELD	SG_T("__geometry__")
+
+//---------------------------------------------------------
 bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 {
 	CSG_Table	Info;
@@ -1136,6 +1150,53 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 	Fields	+= (bBinary ? "ST_AsBinary(" : "ST_AsText(") + Geometry + ") AS __geometry__";
 
 	if( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary, SRID) )
+	{
+		Add_MetaData(*pShapes, Name);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+{
+	CSG_Table	Info;
+
+	if( !Table_Load(Info, "geometry_columns", "*", "f_table_name='" + geoTable + "'") || Info.Get_Count() != 1 )
+	{
+		_Error_Message(_TL("table has no geometry field"));
+
+		return( false );
+	}
+
+	int	SRID	= Info[0].asInt("srid");
+
+	bool	bBinary	= has_Version(9);	// previous versions did not support hex strings
+
+	//-----------------------------------------------------
+	CSG_String	Select;
+
+	Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM %s ",
+		Fields.c_str(),
+		bBinary ? SG_T("Binary") : SG_T("Text"),
+		Info[0].asString("f_geometry_column"),
+		GEOMETRY_FIELD,
+		geoTable.c_str()
+	);
+
+	if( !Tables.is_Empty() )
+	{
+		Select	+= "," + Tables;
+	}
+
+	if( !Where.is_Empty() )
+	{
+		Select	+= " WHERE " + Where;
+	}
+
+	if( Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, bBinary, SRID) )
 	{
 		Add_MetaData(*pShapes, Name);
 
@@ -1770,8 +1831,6 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_Before_Execution(void)
 {
-	m_pConnection	= NULL;
-
 	if( !SG_UI_Get_Window_Main() )
 	{
 		m_pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
@@ -1798,16 +1857,23 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 			return( false );
 		}
 
-		if( nConnections == 1 || !(m_pConnection = SG_PG_Get_Connection_Manager().Get_Connection(Parameters("CONNECTION")->asString())) )
+		CSG_PG_Connection	*pConnection	= NULL;
+
+		if( nConnections == 1 || !(pConnection = SG_PG_Get_Connection_Manager().Get_Connection(Parameters("CONNECTION")->asString())) )
 		{
-			m_pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(0);
+			pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(0);
+		}
+
+		if( m_pConnection != pConnection )
+		{
+			m_pConnection	= pConnection;
+
+			On_Connection_Changed(&Parameters);
 		}
 
 		Parameters("CONNECTION")->asChoice()->Set_Items(Connections);
 		Parameters("CONNECTION")->Set_Enabled(nConnections > 1);
-		Parameters("CONNECTION")->Set_Value(m_pConnection->Get_Connection());
-
-		On_Parameter_Changed(&Parameters, Parameters("CONNECTION"));
+		Parameters("CONNECTION")->Set_Value(pConnection->Get_Connection());
 	}
 
 	return( true );
@@ -1844,10 +1910,12 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		//-------------------------------------------------
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
 		{
-			m_pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
+			CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
-			if( m_pConnection )
+			if( m_pConnection != pConnection )
 			{
+				m_pConnection	= pConnection;
+
 				On_Connection_Changed(pParameters);
 			}
 		}
