@@ -204,6 +204,7 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 				}
 
 				pParameters->Get_Parameter("PG_LIST")->asChoice()->Set_Items(List);
+				pParameters->Get_Parameter("PG_LIST")->Set_Value(pParameters->Get_Parameter("PG_NAME")->asString());
 				pParameters->Set_Enabled  ("PG_LIST",  true);
 				pParameters->Set_Enabled  ("PG_NAME", false);
 				pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameters->Get_Parameter("PG_LIST")->asString());
@@ -241,8 +242,6 @@ bool CGet_Connection::On_Execute(void)
 	}
 
 	CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
-		Parameters("PG_LIST")->is_Enabled() ?
-		Parameters("PG_LIST")->asString() :
 		Parameters("PG_NAME")->asString(),
 		Parameters("PG_USER")->asString(),
 		Parameters("PG_PWD" )->asString(),
