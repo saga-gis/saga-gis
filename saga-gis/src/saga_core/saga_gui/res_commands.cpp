@@ -140,12 +140,13 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
 	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Query") );
 
-	case ID_CMD_TOOLS_OPEN:			return( _TL("Load Tool Library") );
+	case ID_CMD_TOOLS_OPEN:				return( _TL("Load Tool Library") );
+	case ID_CMD_TOOLS_RELOAD:			return( _TL("Reload Standard Tool Libraries") );
 	case ID_CMD_TOOLS_SEARCH:			return( _TL("Find and Run Tool") );
 	case ID_CMD_TOOLS_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
 	case ID_CMD_TOOLS_SAVE_SCRIPT:		return( _TL("Save to Script File") );
 	case ID_CMD_TOOLS_SAVE_TO_CLIPBOARD:	return( _TL("Save to Clipboard") );
-	case ID_CMD_TOOLS_CHAIN_RELOAD:	return( _TL("Reload") );
+	case ID_CMD_TOOLS_CHAIN_RELOAD:		return( _TL("Reload") );
 	case ID_CMD_TOOLS_CHAIN_EDIT:		return( _TL("Edit") );
 
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
