@@ -1013,6 +1013,26 @@ bool CSG_Parameters::Del_Parameter(int iParameter)
 			Del_Parameter(pParameter->Get_Child(iParameter)->Get_Identifier());
 		}
 
+		CSG_Parameter	*pParent	= pParameter->Get_Parent();
+
+		if( pParent )
+		{
+			for(iParameter=0; iParameter<pParent->m_nChildren; iParameter++)
+			{
+				if( pParent->m_Children[iParameter] == pParameter )
+				{
+					pParent->m_nChildren--;
+
+					for( ; iParameter<pParent->m_nChildren; iParameter++)
+					{
+						pParent->m_Children[iParameter]	= pParent->m_Children[iParameter + 1];
+					}
+				}
+			}
+
+			pParent->m_Children	= (CSG_Parameter **)SG_Realloc(pParent->m_Children, pParent->m_nChildren * sizeof(CSG_Parameter *));
+		}
+
 		delete(pParameter);
 
 		return( true );
