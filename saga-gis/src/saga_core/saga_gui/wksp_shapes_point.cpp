@@ -99,33 +99,33 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
 
-	BrushList_Add(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("Fill Style"),
+	BrushList_Add(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_BRUSH"		, _TL("Fill Style"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, _TL("Outline"),
+	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+		"OUTLINE"			, _TL("Outline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("OUTLINE"),
+		"OUTLINE_COLOR"		, _TL("Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
+		SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, _TL("Size"),
+	m_Parameters.Add_Int(m_Parameters("OUTLINE"),
+		"OUTLINE_SIZE"		, _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		1, 1, true
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_SYMBOL_TYPE"		, _TL("Symbol Type"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_SYMBOL_TYPE"	, _TL("Symbol Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("circle"),
 			_TL("square"),
 			_TL("rhombus"),
@@ -143,19 +143,19 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_FilePath(
-		m_Parameters("DISPLAY_SYMBOL_TYPE")	, "DISPLAY_SYMBOL_IMAGE"	, _TL("Symbol Image"),
+	m_Parameters.Add_FilePath(m_Parameters("DISPLAY_SYMBOL_TYPE"),
+		"DISPLAY_SYMBOL_IMAGE"	, _TL("Symbol Image"),
 		_TL(""),
 		CSG_String::Format(
-			SG_T("%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|")
-			SG_T("%s (*.bmp)|*.bmp|")
-			SG_T("%s (*.jpg)|*.jpg;*.jif;*.jpeg|")
-			SG_T("%s (*.png)|*.png|")
-			SG_T("%s (*.pcx)|*.pcx|")
-			SG_T("%s (*.xpm)|*.xpm|")
-			SG_T("%s (*.tif)|*.tif;*.tiff|")
-			SG_T("%s (*.gif)|*.gif|")
-			SG_T("%s|*.*"),
+			"%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
+			"%s (*.bmp)|*.bmp|"
+			"%s (*.jpg)|*.jpg;*.jif;*.jpeg|"
+			"%s (*.png)|*.png|"
+			"%s (*.pcx)|*.pcx|"
+			"%s (*.xpm)|*.xpm|"
+			"%s (*.tif)|*.tif;*.tiff|"
+			"%s (*.gif)|*.gif|"
+			"%s|*.*",
 			_TL("Image Files"),
 			_TL("Windows or OS/2 Bitmap"),
 			_TL("JPEG - JFIF Compliant"),
@@ -168,85 +168,88 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		)
 	);
 
+
 	//-----------------------------------------------------
 	// Label...
 
-	AttributeList_Add(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ANGLE_ATTRIB"	, _TL("Rotation by Attribute"),
+	AttributeList_Add(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ANGLE_ATTRIB", _TL("Rotation by Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("LABEL_ANGLE_ATTRIB"), "LABEL_ANGLE"		, _TL("Default Rotation"),
+	m_Parameters.Add_Double(m_Parameters("LABEL_ANGLE_ATTRIB"),
+		"LABEL_ANGLE"		, _TL("Default Rotation"),
 		_TL("rotation clockwise in degree"),
-		PARAMETER_TYPE_Double, 0.0, -360.0, true, 360.0, true
+		0.0, -360.0, true, 360.0, true
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_X"		, _TL("Horizontal Align"),
+	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ALIGN_X"		, _TL("Horizontal Align"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("left"),
 			_TL("center"),
 			_TL("right")
 		), 1
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB")	, "LABEL_ALIGN_Y"		, _TL("Vertical Align"),
+	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ALIGN_Y"		, _TL("Vertical Align"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("top"),
 			_TL("center"),
 			_TL("bottom")
 		), 0
 	);
 
+
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("Size relates to..."),
+	m_Parameters.Add_Choice(m_Parameters("NODE_SIZE"),
+		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Screen"),
 			_TL("Map Units")
 		), 0
 	);
 
-	AttributeList_Add(
-		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
+	AttributeList_Add(m_Parameters("NODE_SIZE"),
+		"SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_SCALE"		, _TL("Attribute Values"),
+	m_Parameters.Add_Choice(m_Parameters("SIZE_ATTRIB"),
+		"SIZE_SCALE"		, _TL("Attribute Values"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("no scaling"),
 			_TL("scale to size range")
 		), 1
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("Size Range"),
+	m_Parameters.Add_Range(m_Parameters("SIZE_ATTRIB"),
+		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		2, 10, 0, true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("Default Size"),
+	m_Parameters.Add_Double(m_Parameters("SIZE_ATTRIB"),
+		"SIZE_DEFAULT"		, _TL("Default Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 5, 0, true
+		5, 0, true
 	);
+
 
 	//-----------------------------------------------------
 	// Edit...
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL"	, _TL("Fill Color"),
+	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+		"SEL_COLOR_FILL"	, _TL("Fill Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 0)
+		SG_GET_RGB(255, 255, 0)
 	);
 }
 

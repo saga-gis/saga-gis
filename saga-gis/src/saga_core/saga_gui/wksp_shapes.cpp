@@ -379,18 +379,18 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Label...
 
-	AttributeList_Add(
-		m_Parameters("NODE_LABEL"  ), "LABEL_ATTRIB"     , _TL("Attribute"),
+	AttributeList_Add(m_Parameters("NODE_LABEL"),
+		"LABEL_ATTRIB"			, _TL("Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Font(
-		m_Parameters("LABEL_ATTRIB"), "LABEL_ATTRIB_FONT", _TL("Font"),
+	m_Parameters.Add_Font(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ATTRIB_FONT"		, _TL("Font"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB"), "LABEL_ATTRIB_PREC", _TL("Numerical Precision"),
+	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ATTRIB_PREC"		, _TL("Numerical Precision"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("fit to value"),
@@ -399,8 +399,8 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB"), "LABEL_ATTRIB_SIZE_TYPE", _TL("Size relates to..."),
+	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ATTRIB_SIZE_TYPE", _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Screen"),
@@ -408,8 +408,8 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("LABEL_ATTRIB"), "LABEL_ATTRIB_EFFECT", _TL("Boundary Effect"),
+	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ATTRIB_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("none"),
@@ -425,25 +425,25 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Color(
-		m_Parameters("LABEL_ATTRIB_EFFECT" ), "LABEL_ATTRIB_EFFECT_COLOR", _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("LABEL_ATTRIB_EFFECT"),
+		"LABEL_ATTRIB_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(255, 255, 255)
 	);
 
-	m_Parameters.Add_Int(
-		m_Parameters("LABEL_ATTRIB_EFFECT" ), "LABEL_ATTRIB_EFFECT_SIZE" , _TL("Size"),
+	m_Parameters.Add_Int(m_Parameters("LABEL_ATTRIB_EFFECT"),
+		"LABEL_ATTRIB_EFFECT_SIZE"	, _TL("Size"),
 		_TL(""),
 		1, 1, true
 	);
 
-	AttributeList_Add(
-		m_Parameters("LABEL_ATTRIB"        ), "LABEL_ATTRIB_SIZE_BY"     , _TL("Size by Attribute"),
+	AttributeList_Add(m_Parameters("LABEL_ATTRIB"),
+		"LABEL_ATTRIB_SIZE_BY"		, _TL("Size by Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Double(
-		m_Parameters("LABEL_ATTRIB_SIZE_BY"), "LABEL_ATTRIB_SIZE"        , _TL("Default Size"),
+	m_Parameters.Add_Double(m_Parameters("LABEL_ATTRIB_SIZE_BY"),
+		"LABEL_ATTRIB_SIZE"			, _TL("Default Size"),
 		_TL(""),
 		100.0, 0.0, true
 	);
@@ -451,8 +451,8 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Selection...
 
-	m_Parameters.Add_Color(
-		m_Parameters("NODE_SELECTION"), "SEL_COLOR"     , _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+		"SEL_COLOR"		, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(255, 0, 0)
 	);
@@ -460,20 +460,20 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Edit...
 
-	m_Parameters.Add_Color(
-		m_Parameters("NODE_EDIT"     ), "EDIT_COLOR"    , _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("NODE_EDIT"),
+		"EDIT_COLOR"	, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Shapes_List(
-		m_Parameters("NODE_EDIT"     ), "EDIT_SNAP_LIST", _TL("Snap to..."),
+	m_Parameters.Add_Shapes_List(m_Parameters("NODE_EDIT"),
+		"EDIT_SNAP_LIST", _TL("Snap to..."),
 		_TL(""),
 		PARAMETER_INPUT
 	)->asShapesList()->Add_Item(m_pObject);
 
-	m_Parameters.Add_Int(
-		m_Parameters("EDIT_SNAP_LIST"), "EDIT_SNAP_DIST", _TL("Snap Distance"),
+	m_Parameters.Add_Int(m_Parameters("EDIT_SNAP_LIST"),
+		"EDIT_SNAP_DIST", _TL("Snap Distance"),
 		_TL("snap distance in screen units (pixels)"),
 		10, 0, true
 	);

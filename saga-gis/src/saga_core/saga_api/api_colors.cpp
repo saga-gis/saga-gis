@@ -853,7 +853,7 @@ bool CSG_Colors::Load(const CSG_String &File_Name)
 
 		if( Set_Count(nColors) )	// different os, different sizeof(long) !!
 		{
-			size_t	ValueSize	= (Stream.Length() - (sizeof(COLORS_SERIAL_VERSION_BINARY) + sizeof(int))) / (size_t)nColors;
+			size_t	ValueSize	= (size_t)((Stream.Length() - (sizeof(COLORS_SERIAL_VERSION_BINARY) + sizeof(int))) / nColors);
 
 			if( ValueSize > 0 )
 			{

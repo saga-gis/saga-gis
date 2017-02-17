@@ -99,51 +99,51 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Display...
 
-	BrushList_Add(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_BRUSH"			, _TL("Fill Style"),
+	BrushList_Add(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_BRUSH"		, _TL("Fill Style"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "OUTLINE"					, _TL("Outline"),
+	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+		"OUTLINE"			, _TL("Outline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_COLOR"			, _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("OUTLINE"),
+		"OUTLINE_COLOR"		, _TL("Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
+		SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("OUTLINE")			, "OUTLINE_SIZE"			, _TL("Size"),
+	m_Parameters.Add_Int(m_Parameters("OUTLINE"),
+		"OUTLINE_SIZE"		, _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		1, 1, true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, _TL("Show Vertices"),
+	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_CENTROID"		, _TL("Show Centroid"),
+	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_CENTROID"	, _TL("Show Centroid"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL_0"		, _TL("Fill Color 1"),
+	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+		"SEL_COLOR_FILL_0"	, _TL("Fill Color 1"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 225, 0)
+		SG_GET_RGB(255, 225, 0)
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_SELECTION")	, "SEL_COLOR_FILL_1"		, _TL("Fill Color 2"),
+	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+		"SEL_COLOR_FILL_1"	, _TL("Fill Color 2"),
 		_TL("if more than one feature is in selection, this colour is used for the non active features"),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 127)
+		SG_GET_RGB(255, 255, 127)
 	);
 }
 
