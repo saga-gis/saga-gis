@@ -192,29 +192,27 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 	//-----------------------------------------------------
 	switch( m_pLayer->Get_Type() )
 	{
-	default:	break;
-
-	case WKSP_ITEM_Shapes:
+	default                    : break;
+	case WKSP_ITEM_Shapes      :
 		switch( ((CWKSP_Shapes *)m_pLayer)->Get_Shapes()->Get_Type() )
 		{
-		default:	break;
-
-		case SHAPE_TYPE_Point:
-		case SHAPE_TYPE_Points:	_Draw_Point		(dc, (CWKSP_Shapes_Point   *)m_pLayer);	break;
-		case SHAPE_TYPE_Line:	_Draw_Line		(dc, (CWKSP_Shapes_Line    *)m_pLayer);	break;
-		case SHAPE_TYPE_Polygon:_Draw_Polygon	(dc, (CWKSP_Shapes_Polygon *)m_pLayer);	break;
+		default                : break;
+		case SHAPE_TYPE_Point  :
+		case SHAPE_TYPE_Points : _Draw_Point     (dc, (CWKSP_Shapes_Point   *)m_pLayer); break;
+		case SHAPE_TYPE_Line   : _Draw_Line      (dc, (CWKSP_Shapes_Line    *)m_pLayer); break;
+		case SHAPE_TYPE_Polygon: _Draw_Polygon   (dc, (CWKSP_Shapes_Polygon *)m_pLayer); break;
 		}
 		break;
 
-	case WKSP_ITEM_TIN:			_Draw_TIN       (dc, (CWKSP_TIN            *)m_pLayer);	break;
-	case WKSP_ITEM_PointCloud:	_Draw_PointCloud(dc, (CWKSP_PointCloud     *)m_pLayer);	break;
-	case WKSP_ITEM_Grid:		_Draw_Grid      (dc, (CWKSP_Grid           *)m_pLayer);	break;
+	case WKSP_ITEM_TIN         : _Draw_TIN       (dc, (CWKSP_TIN            *)m_pLayer); break;
+	case WKSP_ITEM_PointCloud  : _Draw_PointCloud(dc, (CWKSP_PointCloud     *)m_pLayer); break;
+	case WKSP_ITEM_Grid        : _Draw_Grid      (dc, (CWKSP_Grid           *)m_pLayer); break;
 	}
 
 	//-----------------------------------------------------
-	dc.SetPen	(m_oldPen);
-	dc.SetBrush	(m_oldBrush);
-	dc.SetFont	(m_oldFont);
+	dc.SetPen  (m_oldPen  );
+	dc.SetBrush(m_oldBrush);
+	dc.SetFont (m_oldFont );
 
 	//-----------------------------------------------------
 	if( pSize )

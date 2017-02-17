@@ -205,6 +205,38 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Query_GUI : public CSG_PG_Tool
+{
+public:
+	CTable_Query_GUI(void);
+
+	virtual bool				needs_GUI				(void)	{	return( true );	}
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tables") );	}
+
+
+protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_String					Get_Selection			(const CSG_String &Parameter);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

@@ -95,19 +95,20 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
 
+
 	//-----------------------------------------------------
 	// Display...
 
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY"), "DISPLAY_POINTS"	, _TL("Show Vertices"),
+	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY"), "LINE_STYLE"		, _TL("Line Style"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+		"LINE_STYLE"		, _TL("Line Style"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Solid style"),
 			_TL("Dotted style"),
 			_TL("Long dashed style"),
@@ -125,43 +126,44 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
+
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_SIZE")		, "SIZE_TYPE"		, _TL("Size relates to..."),
+	m_Parameters.Add_Choice(m_Parameters("NODE_SIZE"),
+		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Screen"),
 			_TL("Map Units")
 		), 0
 	);
 
-	AttributeList_Add(
-		m_Parameters("NODE_SIZE")		, "SIZE_ATTRIB"		, _TL("Attribute"),
+	AttributeList_Add(m_Parameters("NODE_SIZE"),
+		"SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Range(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_RANGE"		, _TL("Size Range"),
+	m_Parameters.Add_Range(m_Parameters("SIZE_ATTRIB"),
+		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		0, 10, 0, true
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("SIZE_ATTRIB")		, "SIZE_DEFAULT"	, _TL("Default Size"),
+	m_Parameters.Add_Int(m_Parameters("SIZE_ATTRIB"),
+		"SIZE_DEFAULT"		, _TL("Default Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		1, 1, true
 	);
 
 
 	//-----------------------------------------------------
 	// Boundary Effect...
 
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_DISPLAY")	, "BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+		"BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("none"),
 			_TL("all sides"),
 			_TL("top"),
@@ -175,10 +177,10 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Value(
-		m_Parameters("BOUNDARY_EFFECT")	, "BOUNDARY_EFFECT_COLOR"	, _TL("Color"),
+	m_Parameters.Add_Color(m_Parameters("BOUNDARY_EFFECT"),
+		"BOUNDARY_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+		SG_GET_RGB(255, 255, 255)
 	);
 }
 

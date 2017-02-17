@@ -144,7 +144,9 @@ public:
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Table );
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
 
-	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Table);
+	bool						Shapes_Geometry_Info	(const CSG_String &geoTable, CSG_String *geoField, int *SRID);
+	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &geoTable);
+	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
 	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids    , const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "");

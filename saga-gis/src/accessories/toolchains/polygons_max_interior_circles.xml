@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="3.1.0">
-  <group>polygons</group>
+  <group></group>
   <identifier>polygons_max_interior_circles</identifier>
   <name>Largest Circles in Polygons</name>
   <description>created from history</description>

@@ -394,6 +394,7 @@ wxMenu * CWKSP_Tool_Manager::Get_Menu(void)
 	pMenu	= new wxMenu(_TL("Tool Libraries"));
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_OPEN);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_RELOAD);
 
 	if( Get_Count() > 0 )
 	{
@@ -422,6 +423,16 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 
 	case ID_CMD_TOOLS_OPEN:
 		Open();
+		break;
+
+	case ID_CMD_TOOLS_RELOAD:
+		#if defined(_SAGA_LINUX)
+			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false);
+			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false);
+		#else
+			SG_Get_Tool_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path() + "/tools", false);
+		#endif
+			_Update(false);
 		break;
 
 	case ID_CMD_TOOLS_SEARCH:
