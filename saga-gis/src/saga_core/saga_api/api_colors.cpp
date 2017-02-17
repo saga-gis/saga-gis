@@ -824,56 +824,91 @@ bool CSG_Colors::Assign(CSG_Colors *pColors)
 //---------------------------------------------------------
 bool CSG_Colors::Load(const CSG_String &File_Name)
 {
-	CSG_String	Version;
 	CSG_File	Stream;
 
-	if( Stream.Open(File_Name, SG_FILE_R, true) )
+	if( !Stream.Open(File_Name, SG_FILE_R, true) )
 	{
-		Stream.Read(Version, sizeof(COLORS_SERIAL_VERSION_BINARY));
+		return( false );
+	}
 
-		if( !Version.Cmp(COLORS_SERIAL_VERSION_BINARY) )
-		{
-			return( Serialize(Stream, false, true) );
-		}
-		else if( !Version.Cmp(COLORS_SERIAL_VERSION__ASCII) )
-		{
-			return( Serialize(Stream, false, false) );
-		}
-		else	// SAGA 1.x compatibility...
-		{
-			short		nColors;
+	CSG_String	Version;
 
-			Stream.Seek_Start();
-			Stream.Read(&nColors, sizeof(short));
+	Stream.Read(Version, sizeof(COLORS_SERIAL_VERSION__ASCII));
 
-			if( Stream.Length() == (int)(sizeof(short) + 3 * nColors) )
+	//-----------------------------------------------------
+	if( Version.Find(COLORS_SERIAL_VERSION__ASCII) == 0 )
+	{
+		return( Serialize(Stream, false, false) );
+	}
+
+	//-----------------------------------------------------
+	Stream.Seek_Start();
+	Stream.Read(Version, sizeof(COLORS_SERIAL_VERSION_BINARY));
+
+	if( Version.Find(COLORS_SERIAL_VERSION_BINARY) == 0 )
+	{
+		int	nColors;
+
+		Stream.Read(&nColors, sizeof(nColors));
+
+		if( Set_Count(nColors) )	// different os, different sizeof(long) !!
+		{
+			size_t	ValueSize	= (Stream.Length() - (sizeof(COLORS_SERIAL_VERSION_BINARY) + sizeof(int))) / (size_t)nColors;
+
+			if( ValueSize > 0 )
 			{
-				BYTE	*R, *G, *B;
-
-				R	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-				G	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-				B	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-
-				Stream.Read(R, nColors * sizeof(BYTE));
-				Stream.Read(G, nColors * sizeof(BYTE));
-				Stream.Read(B, nColors * sizeof(BYTE));
-
-				Set_Count(nColors);
+				BYTE	*c	= (BYTE *)SG_Malloc(ValueSize);
 
 				for(int i=0; i<nColors; i++)
 				{
-					Set_Color(i, R[i], G[i], B[i]);
+					Stream.Read(c, ValueSize);
+
+					Set_Color(i, c[0], c[1], c[2]);
 				}
 
-				SG_Free(R);
-				SG_Free(G);
-				SG_Free(B);
-
-				return( true );
+				SG_Free(c);
 			}
+
+			return( true );
 		}
 	}
 
+	//-----------------------------------------------------
+	else // SAGA 1.x compatibility...
+	{
+		short		nColors;
+
+		Stream.Seek_Start();
+		Stream.Read(&nColors, sizeof(short));
+
+		if( Stream.Length() == (int)(sizeof(short) + 3 * nColors) )
+		{
+			BYTE	*R, *G, *B;
+
+			R	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
+			G	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
+			B	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
+
+			Stream.Read(R, nColors * sizeof(BYTE));
+			Stream.Read(G, nColors * sizeof(BYTE));
+			Stream.Read(B, nColors * sizeof(BYTE));
+
+			Set_Count(nColors);
+
+			for(int i=0; i<nColors; i++)
+			{
+				Set_Color(i, R[i], G[i], B[i]);
+			}
+
+			SG_Free(R);
+			SG_Free(G);
+			SG_Free(B);
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
 	return( false );
 }
 
@@ -882,7 +917,7 @@ bool CSG_Colors::Save(const CSG_String &File_Name, bool bBinary)
 {
 	CSG_File	Stream;
 
-	if( Stream.Open(File_Name, SG_FILE_W, true) )
+	if( Stream.Open(File_Name, SG_FILE_W, bBinary) )
 	{
 		if( bBinary )
 		{
@@ -890,7 +925,7 @@ bool CSG_Colors::Save(const CSG_String &File_Name, bool bBinary)
 		}
 		else
 		{
-			Stream.Printf("%s\n", COLORS_SERIAL_VERSION__ASCII);
+			Stream.Write(COLORS_SERIAL_VERSION__ASCII); Stream.Write("\n");
 		}
 
 		Serialize(Stream, true, bBinary);

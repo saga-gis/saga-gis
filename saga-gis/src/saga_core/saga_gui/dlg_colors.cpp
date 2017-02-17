@@ -185,7 +185,7 @@ void CDLG_Colors::On_Save(wxCommandEvent &event)
 
 	if( DLG_Save(File_Path, ID_DLG_COLORS_SAVE) )
 	{
-		if( m_pColors->Save(&File_Path, true) == false )
+		if( m_pColors->Save(&File_Path, false) == false )
 		{
 			DLG_Message_Show(_TL("Colors file could not be exported."), _TL("Save Colors"));
 		}
