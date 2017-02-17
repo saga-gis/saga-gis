@@ -73,26 +73,26 @@ CRaster_Load::CRaster_Load(void)
 {
 	Set_Name		(_TL("Import Raster from PostGIS"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Imports grids from a PostGIS database."
 	));
 
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List(NULL,
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+	Parameters.Add_Choice(NULL,
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_String(
-		NULL	, "WHERE"		, _TL("Where"),
+	Parameters.Add_String(NULL,
+		"WHERE"		, _TL("Where"),
 		_TL(""),
 		""
 	);
@@ -104,11 +104,11 @@ void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 	CSG_String	s;
 	CSG_Table	t;
 
-	if( Get_Connection()->Table_Load(t, SG_T("raster_columns")) )
+	if( Get_Connection()->Table_Load(t, "raster_columns") )
 	{
 		for(int i=0; i<t.Get_Count(); i++)
 		{
-			s	+= t[i].asString(SG_T("r_table_name")) + CSG_String("|");
+			s	+= t[i].asString("r_table_name") + CSG_String("|");
 		}
 	}
 
@@ -150,25 +150,25 @@ CRaster_Load_Band::CRaster_Load_Band(void)
 		"Imports grids from a PostGIS database."
 	));
 
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid_Output(NULL,
+		"GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+	Parameters.Add_Choice(NULL,
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "BANDS"		, _TL("Bands"),
+	Parameters.Add_Choice(NULL,
+		"BANDS"		, _TL("Bands"),
 		_TL(""),
 		""
 	)->Set_UseInCMD(false);
 
-	Parameters.Add_String(
-		NULL	, "RID"			, _TL("Raster Band Identifier"),
+	Parameters.Add_String(NULL,
+		"RID"		, _TL("Raster Band Identifier"),
 		_TL(""),
 		""
 	)->Set_UseInGUI(false);
@@ -271,8 +271,6 @@ bool CRaster_Load_Band::On_Execute(void)
 //---------------------------------------------------------
 CRaster_Save::CRaster_Save(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export Raster to PostGIS"));
 
@@ -283,33 +281,33 @@ CRaster_Save::CRaster_Save(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid_System(
-		NULL	, "GRID_SYSTEM"	, _TL("Grid System"),
+	Parameters.Add_Grid_System(NULL,
+		"GRID_SYSTEM"	, _TL("Grid System"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_List(
-		pNode	, "GRIDS"		, _TL("Bands"),
+	Parameters.Add_Grid_List(Parameters("GRID_SYSTEM"),
+		"GRIDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "TABLE"		, _TL("Add to Table"),
+	Parameters.Add_Choice(NULL,
+		"TABLE"		, _TL("Add to Table"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_String(
-		pNode	, "NAME"		, _TL("Table Name"),
+	Parameters.Add_String(Parameters("TABLE"),
+		"NAME"		, _TL("Table Name"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_Value(
-		pNode	, "GRID_NAME"	, _TL("Band Name Field"),
+	Parameters.Add_Bool(Parameters("TABLE"),
+		"GRID_NAME"	, _TL("Band Name Field"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	Add_SRID_Picker();
@@ -462,14 +460,14 @@ CRaster_SRID_Update::CRaster_SRID_Update(void)
 {
 	Set_Name		(_TL("Update Raster SRID"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		" Change the SRID of all rasters in the user-specified column and table."
 	));
 
-	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+	Parameters.Add_Choice(NULL,
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
 	);
@@ -483,11 +481,11 @@ void CRaster_SRID_Update::On_Connection_Changed(CSG_Parameters *pParameters)
 	CSG_String	s;
 	CSG_Table	t;
 
-	if( Get_Connection()->Table_Load(t, SG_T("raster_columns")) )
+	if( Get_Connection()->Table_Load(t, "raster_columns") )
 	{
 		for(int i=0; i<t.Get_Count(); i++)
 		{
-			s	+= t[i].asString(SG_T("r_table_name")) + CSG_String("|");
+			s	+= t[i].asString("r_table_name") + CSG_String("|");
 		}
 	}
 
@@ -503,14 +501,14 @@ bool CRaster_SRID_Update::On_Execute(void)
 	CSG_String	Select;
 	CSG_Table	Table;
 
-	Select.Printf(SG_T("r_table_name='%s'"), Parameters("TABLES")->asString());
+	Select.Printf("r_table_name='%s'", Parameters("TABLES")->asString());
 
 	if( !Get_Connection()->Table_Load(Table, "raster_columns", "*", Select) || Table.Get_Count() != 1 )
 	{
 		return( false );
 	}
 
-	Select.Printf(SG_T("SELECT UpdateRasterSRID('%s', '%s', %d)"),
+	Select.Printf("SELECT UpdateRasterSRID('%s', '%s', %d)",
 		Parameters("TABLES")->asString(),
 		Table[0].asString("r_raster_column"),
 		Get_SRID()

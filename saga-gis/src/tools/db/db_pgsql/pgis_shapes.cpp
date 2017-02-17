@@ -106,7 +106,7 @@ void CShapes_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 		}
 	}
 
-	Parameters("TABLES")->asChoice()->Set_Items(s);
+	pParameters->Get_Parameter("TABLES")->asChoice()->Set_Items(s);
 }
 
 //---------------------------------------------------------
