@@ -1112,46 +1112,14 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GEOMETRY_FIELD	SG_T("__geometry__")
-
-//---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
+bool CSG_PG_Connection::Shapes_Geometry_Info(const CSG_String &geoTable, CSG_String *geoField, int *geoSRID)
 {
-	CSG_Table	Info;
+	CSG_Table	Table_Info;
 
-	if( !Table_Load(Info, "geometry_columns", "*", "f_table_name='" + Name + "'") || Info.Get_Count() != 1 )
+	if( Table_Load(Table_Info, "geometry_columns", "*", "f_table_name='" + geoTable + "'") && Table_Info.Get_Count() == 1 )
 	{
-		_Error_Message(_TL("table has no geometry field"));
-
-		return( false );
-	}
-
-	int	SRID	= Info[0].asInt("srid");
-
-	CSG_String	Fields, Geometry	= Info[0].asString("f_geometry_column");
-
-	Info	= Get_Field_Desc(Name);
-
-	if( Info.Get_Count() == 0 )
-	{
-		return( false );
-	}
-
-	for(int i=0; i<Info.Get_Count(); i++)
-	{
-		if( Geometry.Cmp(Info[i].asString(0)) )
-		{
-			Fields	+= CSG_String::Format("\"%s\",", Info[i].asString(0));
-		}
-	}
-
-	bool	bBinary	= has_Version(9);	// previous versions did not support hex strings
-
-	Fields	+= (bBinary ? "ST_AsBinary(" : "ST_AsText(") + Geometry + ") AS __geometry__";
-
-	if( Shapes_Load(pShapes, Name, "SELECT " + Fields + " FROM \"" + Name + "\"", "__geometry__", bBinary, SRID) )
-	{
-		Add_MetaData(*pShapes, Name);
+		if( geoField ) *geoField	= Table_Info[0].asString("f_geometry_column");
+		if( geoSRID  ) *geoSRID 	= Table_Info[0].asInt   ("srid"             );
 
 		return( true );
 	}
@@ -1160,18 +1128,48 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name)
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &geoTable)
 {
-	CSG_Table	Info;
+	CSG_Table	Field_Info	= Get_Field_Desc(geoTable);
 
-	if( !Table_Load(Info, "geometry_columns", "*", "f_table_name='" + geoTable + "'") || Info.Get_Count() != 1 )
+	if( Field_Info.Get_Count() > 0 )
 	{
-		_Error_Message(_TL("table has no geometry field"));
+		CSG_String	Fields, geoField;
+		
+		Shapes_Geometry_Info(geoTable, &geoField, NULL);
 
-		return( false );
+		for(int i=0; i<Field_Info.Get_Count(); i++)
+		{
+			if( geoField.Cmp(Field_Info[i].asString(0)) )
+			{
+				if( !Fields.is_Empty() )
+				{
+					Fields	+= ",";
+				}
+
+				Fields	+= CSG_String::Format("\"%s\"", Field_Info[i].asString(0));
+			}
+		}
+
+		return( Shapes_Load(pShapes, geoTable, geoTable, "", Fields, "") );
 	}
 
-	int	SRID	= Info[0].asInt("srid");
+	return( false );
+}
+
+//---------------------------------------------------------
+#define GEOMETRY_FIELD	SG_T("__geometry__")
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where)
+{
+	int			geoSRID;
+	CSG_String	geoField;
+
+	if( !Shapes_Geometry_Info(geoTable, &geoField, &geoSRID) )
+	{
+		return( false );
+	}
 
 	bool	bBinary	= has_Version(9);	// previous versions did not support hex strings
 
@@ -1181,7 +1179,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM %s ",
 		Fields.c_str(),
 		bBinary ? SG_T("Binary") : SG_T("Text"),
-		Info[0].asString("f_geometry_column"),
+		geoField.c_str(),
 		GEOMETRY_FIELD,
 		geoTable.c_str()
 	);
@@ -1196,7 +1194,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 		Select	+= " WHERE " + Where;
 	}
 
-	if( Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, bBinary, SRID) )
+	if( Shapes_Load(pShapes, Name, Select, GEOMETRY_FIELD, bBinary, geoSRID) )
 	{
 		Add_MetaData(*pShapes, Name);
 
@@ -1873,7 +1871,7 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 
 		Parameters("CONNECTION")->asChoice()->Set_Items(Connections);
 		Parameters("CONNECTION")->Set_Enabled(nConnections > 1);
-		Parameters("CONNECTION")->Set_Value(pConnection->Get_Connection());
+		Parameters("CONNECTION")->Set_Value(m_pConnection->Get_Connection());
 	}
 
 	return( true );

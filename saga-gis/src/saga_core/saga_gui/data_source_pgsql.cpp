@@ -158,8 +158,9 @@ static	wxString	g_Password	= "postgres";
 	if(	pTool )\
 	{\
 		SG_UI_Msg_Lock(true);\
+		pTool->On_Before_Execution();\
 		pTool->Settings_Push(bManager ? &SG_Get_Data_Manager() : NULL);\
-		bResult	= pTool->On_Before_Execution() && (CONDITION) && pTool->Execute();\
+		bResult	= (CONDITION) && pTool->Execute();\
 		pTool->Settings_Pop();\
 		SG_UI_Msg_Lock(false);\
 	}\
@@ -1143,7 +1144,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	{
 		CSG_Table	*pTable	= SG_Create_Table();
 
-		RUN_TOOL(DB_PGSQL_Table_Load, true,	// CTable_Load
+		RUN_TOOL(DB_PGSQL_Table_Load, false,	// CTable_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
 			&&	SET_PARAMETER("TABLE"     , pTable)
@@ -1151,6 +1152,7 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 
 		if( bResult )
 		{
+			SG_Get_Data_Manager().Add(pTable);
 			g_pData->Show(pTable, 0);
 		}
 		else
@@ -1162,22 +1164,10 @@ void CData_Source_PgSQL::Table_Open(const wxTreeItemId &Item)
 	//-----------------------------------------------------
 	if( pData->Get_Type() == TYPE_SHAPES )
 	{
-		CSG_Shapes	*pShapes	= SG_Create_Shapes();
-
 		RUN_TOOL(DB_PGSQL_Shapes_Load, true,	// CPGIS_Shapes_Load
 				SET_PARAMETER("CONNECTION", pData->Get_Server())
 			&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
-			&&	SET_PARAMETER("SHAPES"    , pShapes)
 		);
-
-		if( bResult )
-		{
-		//	g_pData->Show(pShapes, SG_UI_DATAOBJECT_SHOW_NEW_MAP);
-		}
-		else
-		{
-			delete(pShapes);
-		}
 	}
 
 	//-----------------------------------------------------
@@ -1245,6 +1235,7 @@ void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
 
 			RUN_TOOL(DB_PGSQL_Execute_SQL, false,
 					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("OUTPUT"    , 0)	// none
 				&&	SET_PARAMETER("SQL"       , SQL)
 			);
 
@@ -1263,6 +1254,7 @@ void CData_Source_PgSQL::Table_Rename(const wxTreeItemId &Item)
 
 			RUN_TOOL(DB_PGSQL_Execute_SQL, false,
 					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("OUTPUT"    , 0)	// none
 				&&	SET_PARAMETER("SQL"       , SQL)
 			);
 
@@ -1282,7 +1274,7 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 
 	CSG_Table	*pTable	= SG_Create_Table();
 
-	RUN_TOOL(DB_PGSQL_Table_Info, true,	// CTable_Info
+	RUN_TOOL(DB_PGSQL_Table_Info, false,	// CTable_Info
 			SET_PARAMETER("CONNECTION", pData->Get_Server())
 		&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
 		&&	SET_PARAMETER("TABLE"     , pTable)
@@ -1290,6 +1282,7 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 
 	if( bResult )
 	{
+		SG_Get_Data_Manager().Add(pTable);
 		g_pData->Show(pTable, 0);
 	}
 	else
@@ -1319,6 +1312,7 @@ void CData_Source_PgSQL::Table_Drop(const wxTreeItemId &Item)
 
 			RUN_TOOL(DB_PGSQL_Execute_SQL, false,
 					SET_PARAMETER("CONNECTION", pData->Get_Server())
+				&&	SET_PARAMETER("OUTPUT"    , 0)	// none
 				&&	SET_PARAMETER("SQL"       , SQL)
 			);
 
