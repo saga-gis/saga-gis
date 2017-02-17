@@ -162,6 +162,12 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
+
+private:
+
+	void						Update_Fields			(CSG_Parameters *pParameters, bool bGeoTable);
+
+
 };
 
 

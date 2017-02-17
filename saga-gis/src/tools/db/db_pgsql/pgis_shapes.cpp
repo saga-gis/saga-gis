@@ -461,9 +461,9 @@ bool CShapes_SRID_Update::On_Execute(void)
 //---------------------------------------------------------
 CShapes_Join::CShapes_Join(void)
 {
-	Set_Name		(_TL("Import Shapes with Joined Data from PostGIS"));
+	Set_Name		(_TL("Import Shapes with Joined Data from PostGIS (GUI)"));
 
-	Set_Author		("O.Conrad (c) 2013");
+	Set_Author		("O.Conrad (c) 2017");
 
 	Set_Description	(_TW(
 		"Imports shapes with joined data from a PostGIS database."
@@ -475,29 +475,11 @@ CShapes_Join::CShapes_Join(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
-		"GEO_TABLE"	, _TL("Geometry Table"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_Choice(NULL                    ,  "GEO_TABLE", _TL("Geometry Table"), _TL(""), "");
+	Parameters.Add_Choice(Parameters( "GEO_TABLE"),  "GEO_KEY"  , _TL("Key"           ), _TL(""), "");
 
-	Parameters.Add_Choice(Parameters("GEO_TABLE"),
-		"GEO_KEY"	, _TL("Key"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_Choice(NULL,
-		"JOIN_TABLE", _TL("Join Table"),
-		_TL(""),
-		""
-	);
-
-	Parameters.Add_Choice(Parameters("JOIN_TABLE"),
-		"JOIN_KEY"	, _TL("Key"),
-		_TL(""),
-		""
-	);
+	Parameters.Add_Choice(NULL                    , "JOIN_TABLE", _TL("Join Table"    ), _TL(""), "");
+	Parameters.Add_Choice(Parameters("JOIN_TABLE"), "JOIN_KEY"  , _TL("Key"           ), _TL(""), "");
 
 	Parameters.Add_Parameters(NULL,
 		"FIELDS"	, _TL("Fields"),
@@ -541,36 +523,15 @@ int CShapes_Join::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	if( !SG_STR_CMP(pParameter->Get_Identifier(),  "GEO_TABLE")
 	||  !SG_STR_CMP(pParameter->Get_Identifier(), "JOIN_TABLE") )
 	{
-		CSG_Parameters	&Fields	= *pParameters->Get_Parameter("FIELDS")->asParameters();
+		Update_Fields(pParameters,  true);
+		Update_Fields(pParameters, false);
+	}
 
-		Fields.Del_Parameters();
-
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), "FIELDS") && !pParameter->Get_Parent() )
+	{
+		for(int i=0; i<pParameter->Get_Children_Count(); i++)
 		{
-			CSG_String	s, Field, Table(pParameters->Get_Parameter("GEO_TABLE")->asString());
-			CSG_Table	t	= Get_Connection()->Get_Field_Desc(Table);
-
-			for(int i=0; i<t.Get_Count(); i++)
-			{
-				s	+= t[i].asString(0) + CSG_String("|");
-				Field.Printf("%s.%s", Table.c_str(), t[i].asString(0));
-				Fields.Add_Bool(NULL, Field, Field, "");
-			}
-
-			pParameters->Get_Parameter("GEO_KEY")->asChoice()->Set_Items(s);
-		}
-
-		{
-			CSG_String	s, Field, Table(pParameters->Get_Parameter("JOIN_TABLE")->asString());
-			CSG_Table	t	= Get_Connection()->Get_Field_Desc(Table);
-
-			for(int i=0; i<t.Get_Count(); i++)
-			{
-				s	+= t[i].asString(0) + CSG_String("|");
-				Field.Printf("%s.%s", Table.c_str(), t[i].asString(0));
-				Fields.Add_Bool(NULL, Field, Field, "");
-			}
-
-			pParameters->Get_Parameter("JOIN_KEY")->asChoice()->Set_Items(s);
+			pParameter->Get_Child(i)->Set_Enabled(pParameter->asBool() == false);
 		}
 	}
 
@@ -578,10 +539,45 @@ int CShapes_Join::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 }
 
 //---------------------------------------------------------
+void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
+{
+	CSG_Parameters	&Fields	= *pParameters->Get_Parameter("FIELDS")->asParameters();
+
+	if( bGeoTable )
+	{
+		Fields.Del_Parameters();
+	}
+
+	CSG_String	FieldList, geoField, Table(pParameters->Get_Parameter(bGeoTable ? "GEO_TABLE" : "JOIN_TABLE")->asString());
+	CSG_Table	t	= Get_Connection()->Get_Field_Desc(Table);
+	CSG_Parameter	*pNode	= Fields.Add_Bool(NULL, Table, Table, "");
+
+	Get_Connection()->Shapes_Geometry_Info(Table, &geoField, NULL);
+
+	for(int i=0; i<t.Get_Count(); i++)
+	{
+		if( geoField.Cmp(t[i].asString(0)) )
+		{
+			FieldList	+= t[i].asString(0) + CSG_String("|");
+			Fields.Add_Bool(pNode, CSG_String::Format("%s.%s", Table.c_str(), t[i].asString(0)), t[i].asString(0), "");
+		}
+	}
+
+	pParameters->Get_Parameter(bGeoTable ? "GEO_KEY" : "JOIN_KEY")->asChoice()->Set_Items(FieldList);
+}
+
+//---------------------------------------------------------
 bool CShapes_Join::On_Execute(void)
 {
 	CSG_String	geoTable	= Parameters("GEO_TABLE" )->asString();
 	CSG_String	joinTable	= Parameters("JOIN_TABLE")->asString();
+
+	if( !geoTable.Cmp(joinTable) )
+	{
+		Error_Set(_TL("Geometry and join table must not be identical."));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	CSG_String	Join, Where	= Parameters("WHERE")->asString();
@@ -593,7 +589,7 @@ bool CShapes_Join::On_Execute(void)
 
 	if( !Where.is_Empty() )
 	{
-		Join	+= " AND " + Where;
+		Join	+= " AND (" + Where + ")";
 	}
 
 	//-----------------------------------------------------
@@ -603,7 +599,7 @@ bool CShapes_Join::On_Execute(void)
 
 	for(int i=0; i<P.Get_Count(); i++)
 	{
-		if( P[i].Get_Type() == PARAMETER_TYPE_Bool && P[i].asBool() )
+		if( P[i].Get_Parent() && (P[i].asBool() || P[i].Get_Parent()->asBool()) )
 		{
 			if( !Fields.is_Empty() )
 			{
