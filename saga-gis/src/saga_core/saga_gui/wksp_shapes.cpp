@@ -1006,7 +1006,21 @@ double CWKSP_Shapes::Get_Value_StdDev (void)	{	return( m_Metrics.Get_StdDev () )
 //---------------------------------------------------------
 wxString CWKSP_Shapes::Get_Name_Attribute(void)
 {
-	return(	m_fValue < 0 || m_pClassify->Get_Mode() == CLASSIFY_UNIQUE ? SG_T("") : Get_Shapes()->Get_Field_Name(m_fValue) );
+	wxString	s;
+
+	if(	m_fValue >= 0 && m_pClassify->Get_Mode() != CLASSIFY_UNIQUE )
+	{
+		s	= Get_Shapes()->Get_Field_Name(m_fValue);
+
+		if( m_fNormal >= 0
+		&& (m_pClassify->Get_Mode() == CLASSIFY_METRIC
+		||  m_pClassify->Get_Mode() == CLASSIFY_GRADUATED) )
+		{
+			s	+= " / "; s += Get_Shapes()->Get_Field_Name(m_fNormal);
+		}
+	}
+
+	return( s );
 }
 
 
