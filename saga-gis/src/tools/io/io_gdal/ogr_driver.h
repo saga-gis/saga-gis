@@ -63,6 +63,8 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
+#include <ogr_api.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -161,7 +163,7 @@ public:
 	CSG_String					Get_Description		(int iLayer)	const;
 
 	int							Get_Count			(void)			const;
-	OGRSFDriverH				Get_Layer			(int iLayer)	const;
+	OGRLayerH					Get_Layer			(int iLayer)	const;
 	TSG_Shape_Type				Get_Type			(int iLayer)	const;
 	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer)	const;
 	CSG_Projection				Get_Projection		(int iLayer)	const;

@@ -62,6 +62,7 @@
 #include <cpl_string.h>
 #include <ogr_api.h>
 #include <ogr_srs_api.h>
+#include <ogrsf_frmts.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -237,12 +238,12 @@ bool CSG_OGR_Drivers::Can_Write(int Index) const
 
 #else
 //---------------------------------------------------------
-OGRSFDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
+OGRSFDriverH CSG_OGR_Drivers::Get_Driver(int Index) const
 {
 	return( OGRGetDriver(Index) );
 }
 
-OGRSFDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
+OGRSFDriverH CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
 	return( OGRGetDriverByName(Name) );
 }
@@ -554,7 +555,7 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSet	= OGRSFDriverRegistrar::Open(File);
+	m_pDataSet	= OGROpen(File, 0, 0);
 
 	return( m_pDataSet != NULL );
 }
@@ -722,7 +723,7 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_Fld_GetNameRef(pDefn)), NULL, Get_Coordinate_Type(iLayer));
+	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_L_GetName(pLayer)), NULL, Get_Coordinate_Type(iLayer));
 
 	pShapes->Get_Projection()	= Get_Projection(iLayer);
 
@@ -893,9 +894,15 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
 	}
 
+#ifdef USE_GDAL_V2
 	OGRLayerH	pLayer	= GDALDatasetCreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
 		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
 	);
+#else
+	OGRLayerH	pLayer	= OGR_DS_CreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
+	);
+#endif
 
 	if( !pLayer )
 	{
@@ -1013,7 +1020,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 		{
 			OGRGeometryH	Line	= OGR_G_CreateGeometry(wkbLineString);
 
-			_Write_Line(pShape, &Line, 0, bZ);
+			_Write_Line(pShape, Line, 0, bZ);
 
 			return( OGR_F_SetGeometryDirectly(pFeature, Line) == OGRERR_NONE );
 		}
@@ -1025,7 +1032,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 			{
 				OGRGeometryH	Line	= OGR_G_CreateGeometry(wkbLineString);
 
-				if( _Write_Line(pShape, &Line, iPart, bZ) )
+				if( _Write_Line(pShape, Line, iPart, bZ) )
 				{
 					OGR_G_AddGeometry(Lines, Line);
 				}
@@ -1043,7 +1050,7 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, b
 			{
 				OGRGeometryH	Ring	= OGR_G_CreateGeometry(wkbLinearRing);
 
-				if( _Write_Line(pShape, &Ring, iPart, bZ) )
+				if( _Write_Line(pShape, Ring, iPart, bZ) )
 				{
 					OGR_G_AddGeometry(Polygon, Ring);
 				}
