@@ -816,13 +816,13 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
-		m_pLo	= m_pRange->Add_Info_Value(m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Info_Value(m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		m_pLo	= m_pRange->Add_Value     (m_pOwner, "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Value     (m_pOwner, "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pLo	= m_pRange->Add_Value     (m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pHi	= m_pRange->Add_Value     (m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 }
 
@@ -1735,9 +1735,11 @@ bool CSG_Parameter_Table_Field::Add_Default(double Value, double Minimum, bool b
 	{
 		m_Default	= m_pOwner->Get_Children_Count();
 
-		m_pOwner->Get_Owner()->Add_Value(m_pOwner, CSG_String::Format(SG_T("%s_DEFAULT"),
-			m_pOwner->Get_Identifier()), _TL("Default"), _TL("default value if no attribute has been selected"),
-			PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum
+		m_pOwner->Get_Owner()->Add_Double(
+			m_pOwner->Get_Identifier(),
+			CSG_String::Format("%s_DEFAULT", m_pOwner->Get_Identifier()),
+			_TL("Default"), _TL("default value if no attribute has been selected"),
+			Value, Minimum, bMinimum, Maximum, bMaximum
 		);
 	}
 
@@ -2218,9 +2220,11 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 	{
 		m_Default	= m_pOwner->Get_Children_Count();
 
-		m_pOwner->Get_Owner()->Add_Value(m_pOwner, CSG_String::Format(SG_T("%s_DEFAULT"),
-			m_pOwner->Get_Identifier()), _TL("Default"), _TL("default value if no grid has been selected"),
-			PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum
+		m_pOwner->Get_Owner()->Add_Double(
+			m_pOwner->Get_Identifier(),
+			CSG_String::Format("%s_DEFAULT", m_pOwner->Get_Identifier()),
+			_TL("Default"), _TL("default value if no grid has been selected"),
+			Value, Minimum, bMinimum, Maximum, bMaximum
 		);
 	}
 

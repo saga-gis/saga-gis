@@ -882,7 +882,7 @@ int CSG_Category_Statistics::Get_Count(int i)	const
 {
 	CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(i);
 
-	return( pRecord ? pRecord->asInt(1) : 0.0 );
+	return( pRecord ? pRecord->asInt(1) : 0 );
 }
 
 //---------------------------------------------------------

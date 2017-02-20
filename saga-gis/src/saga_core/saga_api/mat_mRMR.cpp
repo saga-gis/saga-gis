@@ -185,28 +185,30 @@ CSG_String CSG_mRMR::Get_Description(void)
 //---------------------------------------------------------
 bool CSG_mRMR::Parameters_Add(CSG_Parameters *pParameters, CSG_Parameter *pNode)
 {
-	pParameters->Add_Value(
-		pNode	, "mRMR_NFEATURES"	, _TL("Number of Features"),
+	CSG_String	ParentID(pNode ? pNode->Get_Identifier() : SG_T(""));
+
+	pParameters->Add_Int(
+		ParentID, "mRMR_NFEATURES"	, _TL("Number of Features"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 50, 1, true
+		50, 1, true
 	);
 
-	pParameters->Add_Value(
-		pNode	, "mRMR_DISCRETIZE"	, _TL("Discretization"),
+	pParameters->Add_Bool(
+		ParentID, "mRMR_DISCRETIZE"	, _TL("Discretization"),
 		_TL("uncheck this means no discretizaton (i.e. data is already integer)"),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	pParameters->Add_Value(
-		pNode	, "mRMR_THRESHOLD"	, _TL("Discretization Threshold"),
+	pParameters->Add_Double(
+		ParentID, "mRMR_THRESHOLD"	, _TL("Discretization Threshold"),
 		_TL("a double number of the discretization threshold; set to 0 to make binarization"),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
 	pParameters->Add_Choice(
-		pNode	, "mRMR_METHOD"		, _TL("Selection Method"),
+		ParentID, "mRMR_METHOD"		, _TL("Selection Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Mutual Information Difference (MID)"),
 			_TL("Mutual Information Quotient (MIQ)")
 		), 0

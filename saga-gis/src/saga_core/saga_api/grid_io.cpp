@@ -609,19 +609,17 @@ sLong SG_Grid_Cache_Check(CSG_Grid_System &m_System, int nValueBytes)
 			{
 				CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
 
-				p.Add_Value(
-					NULL	, SG_T("BUFFERSIZE")	, _TL("Buffer Size [MB]"),
-					SG_T(""),
-					PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
+				p.Add_Double("", "BUFFERSIZE", _TL("Buffer Size [MB]"), "",
+					SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 				);
 
 				if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
 				{
 				//	Memory_Type	= GRID_MEMORY_Cache;
 
-				//	Set_Buffer_Size((sLong)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES));
+				//	Set_Buffer_Size((sLong)(p("BUFFERSIZE")->asDouble() * N_MEGABYTE_BYTES));
 
-					return( (sLong)(p(SG_T("BUFFERSIZE"))->asDouble() * N_MEGABYTE_BYTES) );
+					return( (sLong)(p("BUFFERSIZE")->asDouble() * N_MEGABYTE_BYTES) );
 				}
 			}
 			break;

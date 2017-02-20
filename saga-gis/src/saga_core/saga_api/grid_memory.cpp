@@ -189,10 +189,8 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 				{
 					CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
 
-					p.Add_Value(
-						NULL	, SG_T("BUFFERSIZE")	, _TL("Buffer Size [MB]"),
-						SG_T(""),
-						PARAMETER_TYPE_Double, SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
+					p.Add_Double("", "BUFFERSIZE", _TL("Buffer Size [MB]"), "",
+						SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 					);
 
 					if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
@@ -696,7 +694,7 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 			}
 
 			m_Cache_Stream.Seek(Line_Pos);
-			m_Cache_Stream.Write(pLine->Data, sizeof(char), Line_Size);
+			m_Cache_Stream.Write(pLine->Data, sizeof(char), (size_t)Line_Size);
 			m_Cache_Stream.Flush();
 
 			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
@@ -728,7 +726,7 @@ void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
 
 			//-------------------------------------------------
 			m_Cache_Stream.Seek(Line_Pos);
-			m_Cache_Stream.Read(pLine->Data, sizeof(char), Line_Size);
+			m_Cache_Stream.Read(pLine->Data, sizeof(char), (size_t)Line_Size);
 
 			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
 			{
