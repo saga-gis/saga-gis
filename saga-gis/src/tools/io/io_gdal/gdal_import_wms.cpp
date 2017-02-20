@@ -69,8 +69,6 @@
 //---------------------------------------------------------
 CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name	(_TL("Import TMS Image"));
 
@@ -91,26 +89,26 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
-		NULL	, "TARGET"		, _TL("Target System"),
+	Parameters.Add_Grid("",
+		"TARGET"	, _TL("Target System"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	)->Get_Parent();
 
-	Parameters.Add_Grid(
-		pNode	, "TARGET_MAP"	, _TL("Target Map"),
+	Parameters.Add_Grid("TARGET",
+		"TARGET_MAP"	, _TL("Target Map"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "MAP"			, _TL("Map"),
+	Parameters.Add_Grid_Output("",
+		"MAP"		, _TL("Map"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "SERVER"		, _TL("Server"),
+	Parameters.Add_Choice("",
+		"SERVER"	, _TL("Server"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
@@ -124,45 +122,45 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "BLOCKSIZE"	, _TL("Block Size"),
+	Parameters.Add_Int("SERVER",
+		"BLOCKSIZE"	, _TL("Block Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 256, 32, true
+		256, 32, true
 	);
 
-	Parameters.Add_String(
-		pNode	, "SERVER_USER"	, _TL("Server"),
+	Parameters.Add_String("SERVER",
+		"SERVER_USER", _TL("Server"),
 		_TL(""),
 		"tile.openstreetmap.org/${z}/${x}/${y}.png"
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "CACHE"		, _TL("Cache"),
+	Parameters.Add_Bool("",
+		"CACHE"		, _TL("Cache"),
 		_TL("Enable local disk cache. Allows for offline operation."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_FilePath(
-		pNode	, "CACHE_DIR"	, _TL("Cache Directory"),
+	Parameters.Add_FilePath("CACHE",
+		"CACHE_DIR"	, _TL("Cache Directory"),
 		_TL("If not specified the cache will be created in the current user's temporary directory."),
 		NULL, NULL, false, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "GRAYSCALE"	, _TL("Gray Scale Image"),
+	Parameters.Add_Bool("",
+		"GRAYSCALE"	, _TL("Gray Scale Image"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(NULL, "TARGET_NODE", _TL("Target Grid"), _TL(""));
+	Parameters.Add_Node("", "TARGET_NODE", _TL("Target Grid"), _TL(""));
 
-	Parameters.Add_Value(pNode, "XMIN", _TL("West"   ), _TL(""), PARAMETER_TYPE_Double, -20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Value(pNode, "YMIN", _TL("South"  ), _TL(""), PARAMETER_TYPE_Double, -20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Value(pNode, "XMAX", _TL("East"   ), _TL(""), PARAMETER_TYPE_Double,  20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Value(pNode, "YMAX", _TL("North"  ), _TL(""), PARAMETER_TYPE_Double,  20037508.34, -20037508.34, true, 20037508.34, true);
-	Parameters.Add_Value(pNode, "NX"  , _TL("Columns"), _TL(""), PARAMETER_TYPE_Int, 600, 1, true);
-	Parameters.Add_Value(pNode, "NY"  , _TL("Rows"   ), _TL(""), PARAMETER_TYPE_Int, 600, 1, true);
+	Parameters.Add_Double("TARGET_NODE", "XMIN", _TL("West"   ), _TL(""), -20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Double("TARGET_NODE", "YMIN", _TL("South"  ), _TL(""), -20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Double("TARGET_NODE", "XMAX", _TL("East"   ), _TL(""),  20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Double("TARGET_NODE", "YMAX", _TL("North"  ), _TL(""),  20037508.34, -20037508.34, true, 20037508.34, true);
+	Parameters.Add_Int   ("TARGET_NODE", "NX"  , _TL("Columns"), _TL(""),  600, 1, true);
+	Parameters.Add_Int   ("TARGET_NODE", "NY"  , _TL("Rows"   ), _TL(""),  600, 1, true);
 }
 
 

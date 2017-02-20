@@ -86,14 +86,14 @@ COGR_Export_KML::COGR_Export_KML(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
 		_TL(""),
 		CSG_String::Format(
 			"%s|*.kml;*.kml|%s|*.*",
@@ -105,8 +105,6 @@ COGR_Export_KML::COGR_Export_KML(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

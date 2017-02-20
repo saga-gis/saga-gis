@@ -118,20 +118,20 @@ COGR_Export::COGR_Export(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
 		_TL(""),
 		Filter, NULL, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FORMAT"	, _TL("Format"),
+	Parameters.Add_Choice("",
+		"FORMAT"	, _TL("Format"),
 		_TL(""),
 		Formats
 	);
@@ -139,8 +139,6 @@ COGR_Export::COGR_Export(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -103,13 +103,13 @@ CGDAL_Formats::CGDAL_Formats(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"FORMATS"	, _TL("GDAL Formats"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -119,7 +119,7 @@ CGDAL_Formats::CGDAL_Formats(void)
 		), 2
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"ACCESS"	, _TL("Access"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -129,7 +129,7 @@ CGDAL_Formats::CGDAL_Formats(void)
 		), 2
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"RECOGNIZED", _TL("All Recognized Files"),
 		_TL("Add an entry for all recognized files."),
 		true

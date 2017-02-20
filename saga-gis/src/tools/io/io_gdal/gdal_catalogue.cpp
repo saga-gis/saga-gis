@@ -108,14 +108,14 @@ CGDAL_Catalogue::CGDAL_Catalogue(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "CATALOGUE"	, _TL("Raster Catalogue"),
+	Parameters.Add_Shapes("",
+		"CATALOGUE"	, _TL("Raster Catalogue"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Files"),
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Files"),
 		_TL(""),
 		NULL, NULL, false, false, true
 	);

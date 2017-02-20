@@ -118,25 +118,25 @@ CGDAL_Export::CGDAL_Export(void)
 	Set_Description(Description);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grid(s)"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(NULL,
+	Parameters.Add_FilePath("",
 		"FILE"		, _TL("File"),
 		_TL("The GDAL dataset to be created."),
 		Filter, NULL, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"FORMAT"	, _TL("Format"),
 		_TL("The GDAL raster format (driver) to be used."),
 		Formats
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Data Type"),
 		_TL("The GDAL datatype of the created dataset."),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
@@ -151,18 +151,18 @@ CGDAL_Export::CGDAL_Export(void)
 		), 0
 	);
 	
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"SET_NODATA", _TL("Set Custom NoData"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(Parameters("SET_NODATA"),
+	Parameters.Add_Double("SET_NODATA",
 		"NODATA"	, _TL("NoData Value"),
 		_TL("")
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"OPTIONS"	, _TL("Creation Options"),
 		_TL("A space separated list of key-value pairs (K=V)."), _TL("")		
 	);

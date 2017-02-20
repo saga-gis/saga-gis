@@ -84,33 +84,31 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL, "GRIDS"	, _TL("Grid(s)"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"	, _TL("Grid(s)"),
 		_TL("The SAGA grids to be exported."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"	, _TL("File"),
 		_TL("The GeoTIFF File to be created."),
 		CSG_String::Format(
-			SG_T("%s|*.tif;*.tiff|%s|*.*"),
+			"%s|*.tif;*.tiff|%s|*.*",
 			_TL("TIFF files (*.tif)"),
 			_TL("All Files")
 		), NULL, true
 	);
 	
-	Parameters.Add_String(
-		NULL, "OPTIONS"	, _TL("Creation Options"),
-		_TL("A space separated list of key-value pairs (K=V)."), _TL("")
-		
+	Parameters.Add_String("",
+		"OPTIONS", _TL("Creation Options"),
+		_TL("A space separated list of key-value pairs (K=V)."),
+		_TL("")
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -123,13 +121,13 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	CSG_GDAL_DataSet		DataSet;
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS")	->asGridList();
-	File_Name	= Parameters("FILE")	->asString();
-	Options		= Parameters("OPTIONS")	->asString();
+	pGrids		= Parameters("GRIDS"  )->asGridList();
+	File_Name	= Parameters("FILE"   )->asString();
+	Options		= Parameters("OPTIONS")->asString();
 	Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, SG_T("GTiff"), Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}
@@ -137,7 +135,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Count(); i++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s %d"), _TL("Band"), i + 1));
+		Process_Set_Text(CSG_String::Format("%s %d", _TL("Band"), i + 1));
 
 		DataSet.Write(i, pGrids->asGrid(i));
 	}
