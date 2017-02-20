@@ -63,8 +63,6 @@
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
-#include <ogr_core.h>
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -109,11 +107,11 @@ public:
 	int							Get_Count			(void)						const;
 
 #ifdef USE_GDAL_V2
-	class GDALDriver *			Get_Driver			(const CSG_String &Name)	const;
-	class GDALDriver *			Get_Driver			(int Index)					const;
+	GDALDriverH					Get_Driver			(const CSG_String &Name)	const;
+	GDALDriverH					Get_Driver			(int Index)					const;
 #else
-	class OGRSFDriver *			Get_Driver			(const CSG_String &Name)	const;
-	class OGRSFDriver *			Get_Driver			(int Index)					const;
+	OGRSFDriverH				Get_Driver			(const CSG_String &Name)	const;
+	OGRSFDriverH				Get_Driver			(int Index)					const;
 #endif
 
 	CSG_String					Get_Name			(int Index)					const;
@@ -134,12 +132,6 @@ public:
 
 
 private:
-
-#ifdef USE_GDAL_V2
-	class GDALDriverManager		*m_pDrivers;
-#else
-	class OGRSFDriverRegistrar	*m_pDrivers;
-#endif
 
 };
 
@@ -169,7 +161,7 @@ public:
 	CSG_String					Get_Description		(int iLayer)	const;
 
 	int							Get_Count			(void)			const;
-	class OGRLayer *			Get_Layer			(int iLayer)	const;
+	OGRSFDriverH				Get_Layer			(int iLayer)	const;
 	TSG_Shape_Type				Get_Type			(int iLayer)	const;
 	TSG_Vertex_Type				Get_Coordinate_Type	(int iLayer)	const;
 	CSG_Projection				Get_Projection		(int iLayer)	const;
@@ -181,18 +173,18 @@ public:
 private:
 
 #ifdef USE_GDAL_V2
-	class GDALDataset			*m_pDataSet;
+	GDALDatasetH				m_pDataSet;
 #else
-	class OGRDataSource			*m_pDataSet;
+	OGRDataSourceH				m_pDataSet;
 #endif
 
 
-	bool						_Read_Geometry		(CSG_Shape *pShape, class OGRGeometry *pGeometry);
-	bool						_Read_Line			(CSG_Shape *pShape, class OGRLineString *pLine);
-	bool						_Read_Polygon		(CSG_Shape *pShape, class OGRPolygon *pPolygon);
+	bool						_Read_Geometry		(CSG_Shape *pShape, OGRGeometryH pGeometry);
+	bool						_Read_Line			(CSG_Shape *pShape, OGRGeometryH pLine);
+	bool						_Read_Polygon		(CSG_Shape *pShape, OGRGeometryH pPolygon);
 
-	bool						_Write_Geometry		(CSG_Shape *pShape, class OGRFeature *pFeature, bool bZ);
-	bool						_Write_Line			(CSG_Shape *pShape, class OGRLineString *pLine, int iPart, bool bZ);
+	bool						_Write_Geometry		(CSG_Shape *pShape, OGRFeatureH pFeature, bool bZ);
+	bool						_Write_Line			(CSG_Shape *pShape, OGRGeometryH pLine, int iPart, bool bZ);
 
 };
 
