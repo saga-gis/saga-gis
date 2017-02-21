@@ -63,6 +63,12 @@
 //---------------------------------------------------------
 #include "PROJ4_Base.h"
 
+//---------------------------------------------------------
+#define PJ_GET_PROJS	pj_get_list_ref()
+#define PJ_GET_DATUMS	pj_get_datums_ref()
+#define PJ_GET_ELLPS	pj_get_ellps_ref()
+#define PJ_GET_UNITS	pj_get_units_ref()
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -358,7 +364,7 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	//-----------------------------------------------------
 	sPrj	.Clear();
 
-	sPrj	+= STR_ADD_STR(SG_T("proj")	, SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
+	sPrj	+= STR_ADD_STR(SG_T("proj")	, SG_STR_MBTOSG(PJ_GET_PROJS[P("PROJ_TYPE")->asInt()].id));
 
 	if( P("LON_0")->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("lon_0")	, P("LON_0")->asDouble());
 	if( P("LAT_0")->asDouble() )	sPrj	+= STR_ADD_FLT(SG_T("lat_0")	, P("LAT_0")->asDouble());
@@ -371,14 +377,14 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 		sPrj	+= STR_ADD_FLT(SG_T("k_0")	, P("K_0"  )->asDouble());
 	}
 
-	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(pj_units[P("UNIT")->asInt()].id));
+	sPrj	+= STR_ADD_STR(SG_T("units")	, SG_STR_MBTOSG(PJ_GET_UNITS[P("UNIT")->asInt()].id));
 
 	//-----------------------------------------------------
 	switch( P("DATUM_DEF")->asInt() )
 	{
 	case 0:	// predefined datum
 
-		sPrj	+= STR_ADD_STR(SG_T("datum")	, SG_STR_MBTOSG(pj_datums[P("DATUM")->asInt()].id));
+		sPrj	+= STR_ADD_STR(SG_T("datum")	, SG_STR_MBTOSG(PJ_GET_DATUMS[P("DATUM")->asInt()].id));
 
 		break;
 
@@ -388,7 +394,7 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
-			sPrj	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(pj_ellps[P("ELLPS_PREDEF")->asInt()].id));
+			sPrj	+= STR_ADD_STR(SG_T("ellps")	, SG_STR_MBTOSG(PJ_GET_ELLPS[P("ELLPS_PREDEF")->asInt()].id));
 			break;
 
 		case 1:	// Semiminor axis
@@ -450,14 +456,14 @@ bool CPROJ4_Base::_Get_Projection(CSG_String &sPrj, CSG_Parameters &P)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters	*pParms	= Get_Parameters(SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id));
+	CSG_Parameters	*pParms	= Get_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[P("PROJ_TYPE")->asInt()].id));
 
 	if( pParms == NULL || pParms->Get_Count() <= 0 )
 	{
 		return( true );
 	}
 
-	if( Dlg_Parameters(SG_STR_MBTOSG(pj_list[P("PROJ_TYPE")->asInt()].id)) )
+	if( Dlg_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[P("PROJ_TYPE")->asInt()].id)) )
 	{
 		for(int i=0; i<pParms->Get_Count(); i++)
 		{
@@ -500,7 +506,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 
 	sList.Clear();
 
-	for(struct PJ_LIST *pProjection=pj_list; pProjection->id; ++pProjection)
+	for(struct PJ_LIST *pProjection=PJ_GET_PROJS; pProjection->id; ++pProjection)
 	{
 		sArgs	= *pProjection->descr;
 		sName	= sArgs.BeforeFirst('\n');
@@ -535,7 +541,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 
 	sList.Clear();
 
-	for(struct PJ_DATUMS *pDatum=pj_datums; pDatum->id; ++pDatum)
+	for(struct PJ_DATUMS *pDatum=PJ_GET_DATUMS; pDatum->id; ++pDatum)
 	{
 		sList	+= CSG_String::Format(SG_T("[%s]"), SG_STR_MBTOSG(pDatum->id));
 
@@ -591,7 +597,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	//-----------------------------------------------------
 	sList.Clear();
 
-	for(struct PJ_ELLPS *pEllipse=pj_ellps; pEllipse->id; ++pEllipse)
+	for(struct PJ_ELLPS *pEllipse=PJ_GET_ELLPS; pEllipse->id; ++pEllipse)
 	{
 		sList	+= CSG_String::Format(SG_T("[%s] %s (%s, %s)|"), SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
 	}
@@ -736,7 +742,7 @@ bool CPROJ4_Base::_Init_Projection(CSG_Parameters &P)
 	//-----------------------------------------------------
 	sList.Clear();
 
-	for(struct PJ_UNITS *pUnit=pj_units; pUnit->id; ++pUnit)
+	for(struct PJ_UNITS *pUnit=PJ_GET_UNITS; pUnit->id; ++pUnit)
 	{
 		sList	+= CSG_String::Format(SG_T("%s (%s)|"), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
 	}

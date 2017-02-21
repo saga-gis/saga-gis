@@ -83,28 +83,28 @@ CTA_Standard::CTA_Standard(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid  (NULL, "ELEVATION"  , _TL("Elevation"                 ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid  (NULL, "SHADE"      , _TL("Analytical Hillshading"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "SLOPE"      , _TL("Slope"                     ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "ASPECT"     , _TL("Aspect"                    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "HCURV"      , _TL("Plan Curvature"            ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "VCURV"      , _TL("Profile Curvature"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "CONVERGENCE", _TL("Convergence Index"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "SINKS"      , _TL("Closed Depressions"        ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "FLOW"       , _TL("Total Catchment Area"      ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "WETNESS"    , _TL("Topographic Wetness Index" ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "LSFACTOR"   , _TL("LS-Factor"                 ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Shapes(NULL, "CHANNELS"   , _TL("Channel Network"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);
-	Parameters.Add_Shapes(NULL, "BASINS"     , _TL("Drainage Basins"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Polygon);
-	Parameters.Add_Grid  (NULL, "CHNL_BASE"  , _TL("Channel Network Base Level"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "CHNL_DIST"  , _TL("Channel Network Distance"  ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "VALL_DEPTH" , _TL("Valley Depth"              ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid  (NULL, "RSP"        , _TL("Relative Slope Position"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "ELEVATION"  , _TL("Elevation"                 ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid  ("", "SHADE"      , _TL("Analytical Hillshading"    ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "SLOPE"      , _TL("Slope"                     ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "ASPECT"     , _TL("Aspect"                    ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "HCURV"      , _TL("Plan Curvature"            ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "VCURV"      , _TL("Profile Curvature"         ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "CONVERGENCE", _TL("Convergence Index"         ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "SINKS"      , _TL("Closed Depressions"        ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "FLOW"       , _TL("Total Catchment Area"      ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "WETNESS"    , _TL("Topographic Wetness Index" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "LSFACTOR"   , _TL("LS-Factor"                 ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Shapes("", "CHANNELS"   , _TL("Channel Network"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Line);
+	Parameters.Add_Shapes("", "BASINS"     , _TL("Drainage Basins"           ), _TL(""), PARAMETER_OUTPUT, SHAPE_TYPE_Polygon);
+	Parameters.Add_Grid  ("", "CHNL_BASE"  , _TL("Channel Network Base Level"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "CHNL_DIST"  , _TL("Channel Network Distance"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "VALL_DEPTH" , _TL("Valley Depth"              ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid  ("", "RSP"        , _TL("Relative Slope Position"   ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Channel Density"), 
+	Parameters.Add_Int(
+		"", "THRESHOLD"	, _TL("Channel Density"), 
 		_TL("Strahler order to begin a channel."), 
-		PARAMETER_TYPE_Int, 5, 1, true
+		5, 1, true
 	);
 }
 
@@ -157,7 +157,7 @@ bool CTA_Standard::On_Execute(void)
 	SG_RUN_TOOL_ExitOnError("grid_filter"        , 0,
 			SG_TOOL_PARAMETER_SET("INPUT"        , &DEMP)
 		&&	SG_TOOL_PARAMETER_SET("RESULT"       , &TMP1)
-		&&	SG_TOOL_PARAMETER_SET("RADIUS"       , 3)
+		&&	SG_TOOL_PARAMETER_SET("KERNEL_RADIUS", 3)
 	)
 
 	SG_RUN_TOOL_ExitOnError("ta_morphometry"     , 0,

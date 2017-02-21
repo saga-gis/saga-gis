@@ -59,9 +59,10 @@
 //---------------------------------------------------------
 #include "ogr_driver.h"
 
-#include <gdal_priv.h>
+#include <cpl_string.h>
+#include <ogr_api.h>
+#include <ogr_srs_api.h>
 #include <ogrsf_frmts.h>
-#include <ogr_core.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -156,15 +157,11 @@ const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void)
 CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 {
 	GDALAllRegister();
-
-	m_pDrivers	= GetGDALDriverManager();
 }
 #else
 CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 {
 	OGRRegisterAll();
-
-	m_pDrivers	= OGRSFDriverRegistrar::GetRegistrar();
 }
 #endif
 
@@ -188,43 +185,43 @@ CSG_String CSG_OGR_Drivers::Get_Version(void) const
 //---------------------------------------------------------
 int CSG_OGR_Drivers::Get_Count(void) const
 {
-	return( m_pDrivers->GetDriverCount() );
+	return( GDALGetDriverCount() );
 }
 
 #ifdef USE_GDAL_V2
 //---------------------------------------------------------
-GDALDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
+GDALDriverH CSG_OGR_Drivers::Get_Driver(int Index) const
 {
-	return( m_pDrivers->GetDriver(Index) );
+	return( GDALGetDriver(Index) );
 }
 
-GDALDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
+GDALDriverH CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
-	return( m_pDrivers ? m_pDrivers->GetDriverByName(Name) : NULL );
+	return( GDALGetDriverByName(Name) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
 {
-	return( m_pDrivers->GetDriver(Index)->GetMetadataItem(GDAL_DMD_LONGNAME) );
+	return( GDALGetDriverLongName(Get_Driver(Index)) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 {
-	return( m_pDrivers->GetDriver(Index)->GetDescription() );
+	return( GDALGetDescription(Get_Driver(Index)) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Extension(int Index) const
 {
-	return( Get_Driver(Index)->GetMetadataItem(GDAL_DMD_EXTENSION) );
+	return( GDALGetMetadataItem(Get_Driver(Index), GDAL_DMD_EXTENSION, "") );
 }
 
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::is_Vector(int Index) const
 {
-	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_VECTOR, false) );
+	return( CSLFetchBoolean(GDALGetMetadata(Get_Driver(Index), 0), GDAL_DCAP_VECTOR, false) != 0 );
 }
 
 //---------------------------------------------------------
@@ -236,55 +233,56 @@ bool CSG_OGR_Drivers::Can_Read(int Index) const
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::Can_Write(int Index) const
 {
-	return( Get_Driver(Index) && CSLFetchBoolean(Get_Driver(Index)->GetMetadata(), GDAL_DCAP_CREATE, false) );
+	return( CSLFetchBoolean(GDALGetMetadata(Get_Driver(Index), 0), GDAL_DCAP_CREATE, false) != 0 );
 }
 
 #else
 //---------------------------------------------------------
-OGRSFDriver * CSG_OGR_Drivers::Get_Driver(int Index) const
+OGRSFDriverH CSG_OGR_Drivers::Get_Driver(int Index) const
 {
-	return( m_pDrivers->GetDriver(Index) );
+	return( OGRGetDriver(Index) );
 }
 
-OGRSFDriver * CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
+OGRSFDriverH CSG_OGR_Drivers::Get_Driver(const CSG_String &Name) const
 {
-	return( m_pDrivers ? m_pDrivers->GetDriverByName(Name) : NULL );
+	return( OGRGetDriverByName(Name) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Name(int Index) const
 {
-	return( m_pDrivers->GetDriver(Index)->GetName() );
+	return( OGR_Dr_GetName(OGRGetDriver(Index)) );
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 {
-	OGRSFDriver	*pDriver	= m_pDrivers->GetDriver(Index);
+	OGRSFDriverH	pDriver	= Get_Driver(Index);
+
 	CSG_String	s;
 
-	s	+= pDriver->TestCapability(ODrCCreateDataSource)	? SG_T("\n[x] ") : SG_T("\n[ ] ");
+	s	+= OGR_Dr_TestCapability(pDriver, ODrCCreateDataSource) ? SG_T("\n[x] ") : SG_T("\n[ ] ");
 	s	+= _TL("create data source");
 
-	s	+= pDriver->TestCapability(ODrCDeleteDataSource)	? SG_T("\n[x] ") : SG_T("\n[ ] ");
+	s	+= OGR_Dr_TestCapability(pDriver, ODrCDeleteDataSource)	? SG_T("\n[x] ") : SG_T("\n[ ] ");
 	s	+= _TL("delete data source");
 
-/*	s	+= pDriver->TestCapability(ODsCCreateLayer)			? SG_T("\n[x]") : SG_T("\n[ ]");
+/*	s	+= OGR_Dr_TestCapability(pDriver, ODsCCreateLayer     ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("create layer");
 
-	s	+= pDriver->TestCapability(ODsCDeleteLayer)			? SG_T("\n[x]") : SG_T("\n[ ]");
+	s	+= OGR_Dr_TestCapability(pDriver, ODsCDeleteLayer     ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("delete layer");
 
-	s	+= pDriver->TestCapability(OLCDeleteFeature)		? SG_T("\n[x]") : SG_T("\n[ ]");
+	s	+= OGR_Dr_TestCapability(pDriver, OLCDeleteFeature    ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("delete feature");
 
-	s	+= pDriver->TestCapability(OLCRandomRead)			? SG_T("\n[x]") : SG_T("\n[ ]");
+	s	+= OGR_Dr_TestCapability(pDriver, OLCRandomRead       ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("random read");
 
-	s	+= pDriver->TestCapability(OLCRandomWrite)			? SG_T("\n[x]") : SG_T("\n[ ]");
+	s	+= OGR_Dr_TestCapability(pDriver, OLCRandomWrite      ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("random write");
 
-	s	+= pDriver->TestCapability(OLCSequentialWrite)		? SG_T("\n[x]") : SG_T("\n[ ]");
+	s	+= OGR_Dr_TestCapability(pDriver, OLCSequentialWrite  ) ? SG_T("\n[x]") : SG_T("\n[ ]");
 	s	+= _TL("sequential write");
 /**/
 
@@ -476,20 +474,20 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSet	= (GDALDataset *)GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
+	m_pDataSet	= GDALOpenEx(File, GDAL_OF_VECTOR, NULL, NULL, NULL);
 
 	return( m_pDataSet != NULL );
 }
 
 bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
 {
-	GDALDriver	*pDriver;
+	GDALDriverH	pDriver;
 
 	Destroy();
 
 	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
 	{
-		m_pDataSet	= pDriver->Create(File, 0, 0, 0, GDT_Unknown, NULL);
+		m_pDataSet	= GDALCreate(pDriver, File, 0, 0, 0, GDT_Unknown, NULL);
 	}
 
 	return( m_pDataSet != NULL );
@@ -511,13 +509,17 @@ bool CSG_OGR_DataSet::Destroy(void)
 //---------------------------------------------------------
 CSG_String CSG_OGR_DataSet::Get_DriverID(void)	const
 {
-	return( m_pDataSet && m_pDataSet->GetDriver() && m_pDataSet->GetDriver()->GetDescription() ? m_pDataSet->GetDriver()->GetDescription() : "" );
+	return( GDALGetDescription(GDALGetDatasetDriver(m_pDataSet))
+		? GDALGetDescription(GDALGetDatasetDriver(m_pDataSet)) : ""
+	);
 }
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_DataSet::Get_Description(void)	const
 {
-	return( m_pDataSet ? m_pDataSet->GetDescription() : "" );
+	return( GDALGetDescription(m_pDataSet)
+		? GDALGetDescription(m_pDataSet) : ""
+	);
 }
 
 //---------------------------------------------------------
@@ -525,11 +527,11 @@ CSG_String CSG_OGR_DataSet::Get_Description(int i)	const
 {
 	CSG_String		Description;
 
-	OGRLayer	*pLayer	= Get_Layer(i);
+	OGRLayerH	pLayer	= Get_Layer(i);
 
 	if( pLayer != NULL )
 	{
-		char	**pMetaData	= pLayer->GetMetadata() + 0;
+		char	**pMetaData	= GDALGetMetadata(pLayer, 0);
 
 		if( pMetaData )
 		{
@@ -553,20 +555,20 @@ bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
 	Destroy();
 
-	m_pDataSet	= OGRSFDriverRegistrar::Open(File);
+	m_pDataSet	= OGROpen(File, 0, 0);
 
 	return( m_pDataSet != NULL );
 }
 
 bool CSG_OGR_DataSet::Create(const CSG_String &File, const CSG_String &DriverName)
 {
-	OGRSFDriver	*pDriver;
-
 	Destroy();
 
-	if( (pDriver = gSG_OGR_Drivers.Get_Driver(DriverName)) != NULL )
+	OGRSFDriverH	pDriver	= gSG_OGR_Drivers.Get_Driver(DriverName);
+
+	if( pDriver != NULL )
 	{
-		m_pDataSet	= pDriver->CreateDataSource(File, NULL);
+		m_pDataSet	= OGR_Dr_CreateDataSource(pDriver, File, NULL);
 	}
 
 	return( m_pDataSet != NULL );
@@ -577,7 +579,7 @@ bool CSG_OGR_DataSet::Destroy(void)
 {
 	if( m_pDataSet )
 	{
-		OGRDataSource::DestroyDataSource(m_pDataSet);
+		OGRReleaseDataSource(m_pDataSet);
 
 		m_pDataSet	= NULL;
 	}
@@ -602,20 +604,15 @@ CSG_String CSG_OGR_DataSet::Get_Description(int i)	const	{	return( "" );	}
 //---------------------------------------------------------
 int CSG_OGR_DataSet::Get_Count(void)	const
 {
-	if( m_pDataSet )
-	{
-		return( m_pDataSet->GetLayerCount() );
-	}
-
-	return( 0 );
+	return( m_pDataSet ? OGR_DS_GetLayerCount(m_pDataSet) : 0 );
 }
 
 //---------------------------------------------------------
-OGRLayer * CSG_OGR_DataSet::Get_Layer(int iLayer)	const
+OGRLayerH CSG_OGR_DataSet::Get_Layer(int iLayer)	const
 {
-	if( m_pDataSet && iLayer >= 0 && iLayer < m_pDataSet->GetLayerCount() )
+	if( m_pDataSet && iLayer >= 0 && iLayer < Get_Count() )
 	{
-		return( m_pDataSet->GetLayer(iLayer) );
+		return( OGR_DS_GetLayer(m_pDataSet, iLayer) );
 	}
 
 	return( NULL );
@@ -624,32 +621,32 @@ OGRLayer * CSG_OGR_DataSet::Get_Layer(int iLayer)	const
 //---------------------------------------------------------
 TSG_Shape_Type CSG_OGR_DataSet::Get_Type(int iLayer)	const
 {
-	OGRLayer	*pLayer	= Get_Layer(iLayer);
+	OGRLayerH	pLayer	= Get_Layer(iLayer);
 
 	if( !pLayer )
 	{
 		return( SHAPE_TYPE_Undefined );
 	}
 
-	OGRwkbGeometryType	Type	= pLayer->GetLayerDefn()->GetGeomType();
+	OGRwkbGeometryType	Type	= OGR_FD_GetGeomType(OGR_L_GetLayerDefn(pLayer));
 
 	if( Type == wkbNone || Type == wkbUnknown )
 	{
-		pLayer->ResetReading();
+		OGR_L_ResetReading(pLayer);
 
-		OGRFeature	*pFeature;
+		OGRFeatureH	pFeature;
 
-		while( (Type == wkbNone || Type == wkbUnknown) && (pFeature = pLayer->GetNextFeature()) != NULL )
+		while( (Type == wkbNone || Type == wkbUnknown) && (pFeature = OGR_L_GetNextFeature(pLayer)) != NULL )
 		{
-			if( pFeature->GetGeometryRef() )
+			if( OGR_F_GetGeometryRef(pFeature) )
 			{
-				Type	= pFeature->GetGeometryRef()->getGeometryType();
+				Type	= OGR_G_GetGeometryType(OGR_F_GetGeometryRef(pFeature));
 			}
 
-			OGRFeature::DestroyFeature(pFeature);
+			OGR_F_Destroy(pFeature);
 		}
 
-		pLayer->ResetReading();
+		OGR_L_ResetReading(pLayer);
 	}
 
 	return( CSG_OGR_Drivers::Get_Shape_Type(Type) );
@@ -660,7 +657,7 @@ TSG_Vertex_Type CSG_OGR_DataSet::Get_Coordinate_Type(int iLayer)	const
 {
 	if( Get_Layer(iLayer) )
 	{
-		return( CSG_OGR_Drivers::Get_Vertex_Type(Get_Layer(iLayer)->GetLayerDefn()->GetGeomType()) );
+		return( CSG_OGR_Drivers::Get_Vertex_Type(OGR_FD_GetGeomType(OGR_L_GetLayerDefn(Get_Layer(iLayer)))) );
 	}
 
 	return( SG_VERTEX_TYPE_XY );
@@ -671,12 +668,12 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 {
 	CSG_Projection	Projection;
 
-	if( Get_Layer(iLayer) && Get_Layer(iLayer)->GetSpatialRef() )
+	if( Get_Layer(iLayer) && OGR_L_GetSpatialRef(Get_Layer(iLayer)) )
 	{
 		char	*p	= NULL;
 
 		//-------------------------------------------------
-		if( !Projection.is_Okay() && Get_Layer(iLayer)->GetSpatialRef()->exportToWkt  (&p) == OGRERR_NONE && p && *p )
+		if( !Projection.is_Okay() && OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
 		{
 			Projection.Create(p, SG_PROJ_FMT_WKT);
 		}
@@ -684,7 +681,7 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 		if( p )	{	OGRFree(p);	p	= NULL;	}
 
 		//-------------------------------------------------
-		if( !Projection.is_Okay() && Get_Layer(iLayer)->GetSpatialRef()->exportToProj4(&p) == OGRERR_NONE && p && *p )
+		if( !Projection.is_Okay() && OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
 		{
 			Projection.Create(p, SG_PROJ_FMT_Proj4);
 		}
@@ -706,16 +703,18 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 {
 	//-----------------------------------------------------
-	OGRLayer	*pLayer	= Get_Layer(iLayer);
+	OGRLayerH	pLayer	= Get_Layer(iLayer);
 
 	if( !pLayer )
 	{
 		return( NULL );
 	}
 
+	OGRFeatureDefnH	pDefn	= OGR_L_GetLayerDefn(pLayer);
+
 	if( iGeomTypeChoice != 0 )
 	{
-		pLayer->GetLayerDefn()->SetGeomType(SG_Get_OGR_WKB_Type_Choice_Key(iGeomTypeChoice));
+		OGR_FD_SetGeomType(pDefn, (OGRwkbGeometryType)SG_Get_OGR_WKB_Type_Choice_Key(iGeomTypeChoice));
 	}
 
 	if( Get_Type(iLayer) == SHAPE_TYPE_Undefined )
@@ -724,44 +723,46 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 	}
 
 	//-----------------------------------------------------
-	OGRFeatureDefn	*pDef		= pLayer->GetLayerDefn();
-	CSG_Shapes		*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(pDef->GetName()), NULL, Get_Coordinate_Type(iLayer));
+#ifdef GDAL_OLDER_THAN_V1_8
+	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_FD_GetName(OGR_L_GetLayerDefn(pLayer))), NULL, Get_Coordinate_Type(iLayer));
+#else
+	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_L_GetName(pLayer)), NULL, Get_Coordinate_Type(iLayer));
+#endif
 
 	pShapes->Get_Projection()	= Get_Projection(iLayer);
 
 	//-----------------------------------------------------
 	{
-		for(int iField=0; iField<pDef->GetFieldCount(); iField++)
+		for(int iField=0; iField<OGR_FD_GetFieldCount(pDefn); iField++)
 		{
-			OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
+			OGRFieldDefnH	pDefnField	= OGR_FD_GetFieldDefn(pDefn, iField);
 
-			pShapes->Add_Field(pDefField->GetNameRef(), CSG_OGR_Drivers::Get_Data_Type(pDefField->GetType()));
+			pShapes->Add_Field(OGR_Fld_GetNameRef(pDefnField), CSG_OGR_Drivers::Get_Data_Type(OGR_Fld_GetType(pDefnField)));
 		}
 	}
 
 	//-----------------------------------------------------
-	pLayer->ResetReading();
+	OGR_L_ResetReading(pLayer);
 
-	OGRFeature	*pFeature;
+	OGRFeatureH	pFeature;
 
-	while( (pFeature = pLayer->GetNextFeature()) != NULL && SG_UI_Process_Get_Okay(false) )
+	while( (pFeature = OGR_L_GetNextFeature(pLayer)) != NULL && SG_UI_Process_Get_Okay(false) )
 	{
-		OGRGeometry	*pGeometry	= pFeature->GetGeometryRef();
+		OGRGeometryH	pGeometry	= OGR_F_GetGeometryRef(pFeature);
 
 		if( pGeometry != NULL )
 		{
 			CSG_Shape	*pShape	= pShapes->Add_Shape();
 
-			for(int iField=0; iField<pDef->GetFieldCount(); iField++)
+			for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 			{
-				OGRFieldDefn	*pDefField	= pDef->GetFieldDefn(iField);
-
-				switch( pDefField->GetType() )
+				switch( pShapes->Get_Field_Type(iField) )
 				{
-				default        :	pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
-				case OFTString :	pShape->Set_Value(iField, pFeature->GetFieldAsString (iField));	break;
-				case OFTInteger:	pShape->Set_Value(iField, pFeature->GetFieldAsInteger(iField));	break;
-				case OFTReal   :	pShape->Set_Value(iField, pFeature->GetFieldAsDouble (iField));	break;
+				default                : pShape->Set_Value(iField, OGR_F_GetFieldAsString (pFeature, iField)); break;
+				case SG_DATATYPE_String: pShape->Set_Value(iField, OGR_F_GetFieldAsString (pFeature, iField)); break;
+				case SG_DATATYPE_Int   : pShape->Set_Value(iField, OGR_F_GetFieldAsInteger(pFeature, iField)); break;
+				case SG_DATATYPE_Float : pShape->Set_Value(iField, OGR_F_GetFieldAsDouble (pFeature, iField)); break;
+				case SG_DATATYPE_Double: pShape->Set_Value(iField, OGR_F_GetFieldAsDouble (pFeature, iField)); break;
 				}
 			}
 
@@ -772,38 +773,38 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 			}
 		}
 
-		OGRFeature::DestroyFeature(pFeature);
+		OGR_F_Destroy(pFeature);
 	}
 
 	return( pShapes );
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
+bool CSG_OGR_DataSet::_Read_Geometry(CSG_Shape *pShape, OGRGeometryH pGeometry)
 {
 	if( !pShape || !pGeometry )
 	{
 		return( false );
 	}
 
-	switch( pGeometry->getGeometryType() )
+	switch( OGR_G_GetGeometryType(pGeometry) )
 	{
 	//-----------------------------------------------------
 	case wkbPoint             :	// 0-dimensional geometric object, standard WKB
 	case wkbPoint25D          :	// 2.5D extension as per 99-402
-		pShape->Add_Point(((OGRPoint *)pGeometry)->getX(), ((OGRPoint *)pGeometry)->getY());
-		pShape->Set_Z(((OGRPoint *)pGeometry)->getZ(), 0);
+		pShape->Add_Point(OGR_G_GetX(pGeometry, 0), OGR_G_GetY(pGeometry, 0));
+		pShape->Set_Z(OGR_G_GetZ(pGeometry, 0), 0);
 		return( true );
 
 	//-----------------------------------------------------
 	case wkbLineString        :	// 1-dimensional geometric object with linear interpolation between Points, standard WKB
 	case wkbLineString25D     :	// 2.5D extension as per 99-402
-		return( _Read_Line(pShape, (OGRLineString *)pGeometry) );
+		return( _Read_Line(pShape, pGeometry) );
 
 	//-----------------------------------------------------
 	case wkbPolygon           :	// planar 2-dimensional geometric object defined by 1 exterior boundary and 0 or more interior boundaries, standard WKB
 	case wkbPolygon25D        :	// 2.5D extension as per 99-402
-		return( _Read_Polygon(pShape, (OGRPolygon *)pGeometry) );
+		return( _Read_Polygon(pShape, pGeometry) );
 
 	//-----------------------------------------------------
 	case wkbMultiPoint        :	// GeometryCollection of Points, standard WKB
@@ -813,9 +814,9 @@ bool CSG_OGR_DataSet::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 	case wkbMultiPolygon      :	// GeometryCollection of Polygons, standard WKB
 	case wkbMultiPolygon25D   :	// 2.5D extension as per 99-402
 		{
-			for(int i=0; i<((OGRGeometryCollection *)pGeometry)->getNumGeometries(); i++)
+			for(int i=0; i<OGR_G_GetGeometryCount(pGeometry); i++)
 			{
-				if( _Read_Geometry(pShape, ((OGRGeometryCollection *)pGeometry)->getGeometryRef(i)) == false )
+				if( _Read_Geometry(pShape, OGR_G_GetGeometryRef(pGeometry, i)) == false )
 				{
 					return( false );
 				}
@@ -831,17 +832,22 @@ bool CSG_OGR_DataSet::_Read_Geometry(CSG_Shape *pShape, OGRGeometry *pGeometry)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
+bool CSG_OGR_DataSet::_Read_Line(CSG_Shape *pShape, OGRGeometryH pLine)
 {
-	if( pShape && pLine && pLine->getNumPoints() > 0 )
+	if( pShape && pLine && OGR_G_GetPointCount(pLine) > 0 )
 	{
 		int		iPart	= pShape->Get_Part_Count();
 
-		for(int iPoint=0; iPoint<pLine->getNumPoints(); iPoint++)
+		for(int iPoint=0; iPoint<OGR_G_GetPointCount(pLine); iPoint++)
 		{
-			pShape->Add_Point(pLine->getX(iPoint), pLine->getY(iPoint), iPart);
+			pShape->Add_Point(
+				OGR_G_GetX(pLine, iPoint),
+				OGR_G_GetY(pLine, iPoint), iPart
+			);
 
-			pShape->Set_Z(pLine->getZ(iPoint), iPoint, iPart);
+			pShape->Set_Z(
+				OGR_G_GetZ(pLine, iPoint), iPoint, iPart
+			);
 		}
 
 		return( true );
@@ -851,15 +857,13 @@ bool CSG_OGR_DataSet::_Read_Line(CSG_Shape *pShape, OGRLineString *pLine)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::_Read_Polygon(CSG_Shape *pShape, OGRPolygon *pPolygon)
+bool CSG_OGR_DataSet::_Read_Polygon(CSG_Shape *pShape, OGRGeometryH pPolygon)
 {
 	if( pShape && pPolygon )
 	{
-		_Read_Line(pShape, pPolygon->getExteriorRing());
-
-		for(int i=0; i<pPolygon->getNumInteriorRings(); i++)
+		for(int i=0; i<OGR_G_GetGeometryCount(pPolygon); i++)
 		{
-			pPolygon->getInteriorRing(i);
+			_Read_Line(pShape, OGR_G_GetGeometryRef(pPolygon, i));
 		}
 
 		return( true );
@@ -884,18 +888,25 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 	}
 
 	//-----------------------------------------------------
-	OGRSpatialReference	*pSRS	= NULL;
+	OGRSpatialReferenceH	pSRS	= NULL;
 
 	if( pShapes->Get_Projection().is_Okay() )
 	{
-		pSRS	= new OGRSpatialReference(pShapes->Get_Projection().Get_WKT());
+		pSRS	= OSRNewSpatialReference(pShapes->Get_Projection().Get_WKT());
+	//	pSRS	= new OGRSpatialReference(pShapes->Get_Projection().Get_WKT());
 	//	pSRS	= new OGRSpatialReference();
 	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
 	}
 
-	OGRLayer	*pLayer	= m_pDataSet->CreateLayer(CSG_String(pShapes->Get_Name()), pSRS,
-		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY)
+#ifdef USE_GDAL_V2
+	OGRLayerH	pLayer	= GDALDatasetCreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
 	);
+#else
+	OGRLayerH	pLayer	= OGR_DS_CreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
+		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
+	);
+#endif
 
 	if( !pLayer )
 	{
@@ -904,7 +915,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 
 	//-------------------------------------------------
 #ifdef USE_GDAL_V2
-	if( SG_STR_CMP(m_pDataSet->GetDriver()->GetDescription(), "DXF") )
+	if( SG_STR_CMP(GDALGetDescription(GDALGetDatasetDriver(m_pDataSet)), "DXF") )
 	{
 		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;
 		// it seems like there is no method in OGR to check whether a driver supports field creation or not;
@@ -914,9 +925,9 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 
 		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-			OGRFieldDefn	DefField(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
+			OGRFieldDefnH	DefnField	= OGR_Fld_Create(CSG_String(pShapes->Get_Field_Name(iField)), (OGRFieldType)gSG_OGR_Drivers.Get_Data_Type(pShapes->Get_Field_Type(iField)));
 
-			if( pLayer->CreateField(&DefField) != OGRERR_NONE )
+			if( OGR_L_CreateField(pLayer, DefnField, TRUE) != OGRERR_NONE )
 			{
 				return( false );
 			}
@@ -928,7 +939,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 	for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 	{
 		CSG_Shape	*pShape		= pShapes->Get_Shape(iShape);
-		OGRFeature	*pFeature	= OGRFeature::CreateFeature(pLayer->GetLayerDefn());
+		OGRFeatureH pFeature	= OGR_F_Create(OGR_L_GetLayerDefn(pLayer));
 
 		if( _Write_Geometry(pShape, pFeature, pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY) )
 		{
@@ -940,27 +951,27 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 				case SG_DATATYPE_Date  :
 				case SG_DATATYPE_Char  :
 				case SG_DATATYPE_String: default:
-					pFeature->SetField(iField, CSG_String(pShape->asString(iField)));
+					OGR_F_SetFieldString (pFeature, iField, CSG_String(pShape->asString(iField)));
 					break;
 
 				case SG_DATATYPE_Short :
 				case SG_DATATYPE_Int   :
 				case SG_DATATYPE_Long  :
 				case SG_DATATYPE_Color :
-					pFeature->SetField(iField, pShape->asInt(iField));
+					OGR_F_SetFieldInteger(pFeature, iField, pShape->asInt(iField));
 					break;
 
 				case SG_DATATYPE_Float :
 				case SG_DATATYPE_Double:
-					pFeature->SetField(iField, pShape->asDouble(iField));
+					OGR_F_SetFieldDouble (pFeature, iField, pShape->asDouble(iField));
 					break;
 				}
 			}
 
-			pLayer->CreateFeature(pFeature);
+			OGR_L_CreateFeature(pLayer, pFeature);
 		}
 
-		OGRFeature::DestroyFeature(pFeature);
+		OGR_F_Destroy(pFeature);
 	}
 
 	//-----------------------------------------------------
@@ -968,7 +979,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, bool bZ)
+bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeatureH pFeature, bool bZ)
 {
 	if( !pShape || !pFeature )
 	{
@@ -982,15 +993,17 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, b
 		{
 			TSG_Point	p	= pShape->Get_Point(0);
 
-			OGRPoint	Point(p.x, p.y, pShape->Get_Z(0));
+			OGRGeometryH	Point	= OGR_G_CreateGeometry(wkbPoint);
 
-			return( pFeature->SetGeometry(&Point) == OGRERR_NONE );
+			OGR_G_SetPoint(Point, 0, p.x, p.y, pShape->Get_Z(0));
+
+			return( OGR_F_SetGeometryDirectly(pFeature, Point) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
 	case SHAPE_TYPE_Points:
 		{
-			OGRMultiPoint	Points;
+			OGRGeometryH	Points	= OGR_G_CreateGeometry(wkbMultiPoint);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
@@ -998,58 +1011,56 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, b
 				{
 					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-					OGRPoint	Point(p.x, p.y, pShape->Get_Z(0));
-
-					Points.addGeometry(&Point);
+					OGR_G_AddPoint(Points, p.x, p.y, pShape->Get_Z(0));
 				}
 			}
 
-			return( pFeature->SetGeometry(&Points) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, Points) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
 	case SHAPE_TYPE_Line:
 		if( pShape->Get_Part_Count() == 1 )
 		{
-			OGRLineString	Line;
+			OGRGeometryH	Line	= OGR_G_CreateGeometry(wkbLineString);
 
-			_Write_Line(pShape, &Line, 0, bZ);
+			_Write_Line(pShape, Line, 0, bZ);
 
-			return( pFeature->SetGeometry(&Line) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, Line) == OGRERR_NONE );
 		}
 		else
 		{
-			OGRMultiLineString	Lines;
+			OGRGeometryH	Lines	= OGR_G_CreateGeometry(wkbMultiLineString);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				OGRLineString	Line;
+				OGRGeometryH	Line	= OGR_G_CreateGeometry(wkbLineString);
 
-				if( _Write_Line(pShape, &Line, iPart, bZ) )
+				if( _Write_Line(pShape, Line, iPart, bZ) )
 				{
-					Lines.addGeometry(&Line);
+					OGR_G_AddGeometry(Lines, Line);
 				}
 			}
 
-			return( pFeature->SetGeometry(&Lines) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, Lines) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
 	case SHAPE_TYPE_Polygon:
 		{
-			OGRPolygon	Polygon;
+			OGRGeometryH	Polygon	= OGR_G_CreateGeometry(wkbPolygon);
 
 			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				OGRLinearRing	Ring;
+				OGRGeometryH	Ring	= OGR_G_CreateGeometry(wkbLinearRing);
 
-				if( _Write_Line(pShape, &Ring, iPart, bZ) )
+				if( _Write_Line(pShape, Ring, iPart, bZ) )
 				{
-					Polygon.addRing(&Ring);
+					OGR_G_AddGeometry(Polygon, Ring);
 				}
 			}
 
-			return( pFeature->SetGeometry(&Polygon) == OGRERR_NONE );
+			return( OGR_F_SetGeometryDirectly(pFeature, Polygon) == OGRERR_NONE );
 		}
 
 	//-----------------------------------------------------
@@ -1059,17 +1070,15 @@ bool CSG_OGR_DataSet::_Write_Geometry(CSG_Shape *pShape, OGRFeature *pFeature, b
 }
 
 //---------------------------------------------------------
-bool CSG_OGR_DataSet::_Write_Line(CSG_Shape *pShape, OGRLineString *pLine, int iPart, bool bZ)
+bool CSG_OGR_DataSet::_Write_Line(CSG_Shape *pShape, OGRGeometryH pLine, int iPart, bool bZ)
 {
 	if( pLine && pShape && iPart >= 0 && iPart < pShape->Get_Part_Count() )
 	{
-		pLine->empty();
-
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-			pLine->addPoint(p.x, p.y, pShape->Get_Z(iPoint, iPart));
+			OGR_G_AddPoint(pLine, p.x, p.y, pShape->Get_Z(iPoint, iPart));
 		}
 
 		return( true );

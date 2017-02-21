@@ -767,7 +767,7 @@ bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, do
 
 	CSG_Parameters	Parameters;
 
-	Parameters.Add_Range(NULL, SG_T("METRIC_ZRANGE"), SG_T(""), SG_T(""), Parm_1, Parm_2);
+	Parameters.Add_Range("", "METRIC_ZRANGE", "", "", Parm_1, Parm_2);
 
 	return( SG_UI_DataObject_Update(pDataObject, Show, &Parameters) );
 }

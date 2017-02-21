@@ -119,19 +119,19 @@ COGR_Import::COGR_Import(void)
 	Filter.Append (CSG_String::Format("%s|*.*", _TL("All Files")));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes_List(NULL,
+	Parameters.Add_Shapes_List("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_FilePath(NULL,
-		"FILES"	, _TL("Files"),
+	Parameters.Add_FilePath("",
+		"FILES"		, _TL("Files"),
 		_TL(""),
 		Filter, NULL, false, false, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"GEOM_TYPE"	, _TL("Geometry Type"),
 		_TL("Some OGR drivers are unable to determine the geometry type automatically, please choose the appropriate one in this case"),
 		SG_Get_OGR_WKB_Type_Choices(), 0

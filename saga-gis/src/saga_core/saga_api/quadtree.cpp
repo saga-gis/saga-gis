@@ -853,27 +853,27 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 	m_pParameters	= pParameters;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pSub;
+	CSG_String		ParentID(pNode ? pNode->Get_Identifier() : SG_T(""));
 
-	pSub	= m_pParameters->Add_Choice(
-		pNode	, "SEARCH_RANGE"		, _TL("Search Range"),
+	pNode	= m_pParameters->Add_Choice(ParentID,
+		"SEARCH_RANGE"		, _TL("Search Range"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("local"),
 			_TL("global")
 		)
 	);
 
-	m_pParameters->Add_Value(
-		pSub	, "SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
+	m_pParameters->Add_Double(pNode->Get_Identifier(),
+		"SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
 		_TL("local maximum search distance given in map units"),
-		PARAMETER_TYPE_Double	, 1000.0, 0, true
+		1000.0, 0, true
 	);
 
-	pSub	= m_pParameters->Add_Choice(
-		pNode	, "SEARCH_POINTS_ALL"	, _TL("Number of Points"),
+	pNode	= m_pParameters->Add_Choice(ParentID,
+		"SEARCH_POINTS_ALL"	, _TL("Number of Points"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("maximum number of nearest points"),
 			_TL("all points within search distance")
 		)
@@ -881,23 +881,23 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 
 	if( m_nPoints_Min >= 0 )
 	{
-		m_pParameters->Add_Value(
-			pSub	, "SEARCH_POINTS_MIN"	, _TL("Minimum"),
+		m_pParameters->Add_Int(pNode->Get_Identifier(),
+			"SEARCH_POINTS_MIN"	, _TL("Minimum"),
 			_TL("minimum number of points to use"),
-			PARAMETER_TYPE_Int, nPoints_Min, 1, true
+			nPoints_Min, 1, true
 		);
 	}
 
-	m_pParameters->Add_Value(
-		pSub	, "SEARCH_POINTS_MAX"	, _TL("Maximum"),
+	m_pParameters->Add_Int(pNode->Get_Identifier(),
+		"SEARCH_POINTS_MAX"	, _TL("Maximum"),
 		_TL("maximum number of nearest points"),
-		PARAMETER_TYPE_Int, 20, 1, true
+		20, 1, true
 	);
 
-	m_pParameters->Add_Choice(
-		pSub	, "SEARCH_DIRECTION"	, _TL("Direction"),
+	m_pParameters->Add_Choice(pNode->Get_Identifier(),
+		"SEARCH_DIRECTION"	, _TL("Direction"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("all directions"),
 			_TL("quadrants")
 		)

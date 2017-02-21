@@ -69,12 +69,10 @@
 //---------------------------------------------------------
 CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import NetCDF"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"This tool imports grids NetCDF Format using the "
@@ -85,43 +83,43 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
 		_TL(""),
 		CSG_String::Format(
-			SG_T("%s|*.nc|%s|*.*"),
+			"%s|*.nc|%s|*.*",
 			_TL("NetCDF Files (*.nc)"),
 			_TL("All Files")
 		), NULL, false
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "SAVE_FILE"	, _TL("Save to File"),
+	Parameters.Add_Bool("",
+		"SAVE_FILE"	, _TL("Save to File"),
 		_TL("save output to file instead of memory"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_FilePath(
-		pNode	, "SAVE_PATH"	, _TL("Save to Path"),
+	Parameters.Add_FilePath("SAVE_FILE",
+		"SAVE_PATH"	, _TL("Save to Path"),
 		_TL(""),
 		NULL, NULL, true, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Value(
-		NULL	, "TRANSFORM"	, _TL("Transformation"),
+	Parameters.Add_Value("",
+		"TRANSFORM"	, _TL("Transformation"),
 		_TL("apply coordinate transformation if appropriate"),
 		PARAMETER_TYPE_Bool, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice("TRANSFORM",
+		"RESAMPLING", _TL("Resampling"),
 		_TL("interpolation method to use if grid needs to be aligned to coordinate system"),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -243,14 +241,14 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 	if( !DataSet.Open_Read(Parameters("FILE")->asString()) )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("could not open file"), Parameters("FILE")->asString()));
+		Error_Set(CSG_String::Format("%s [%s]", _TL("could not open file"), Parameters("FILE")->asString()));
 
 		return( false );
 	}
 
 	if( DataSet.Get_DriverID().Cmp("netCDF") )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s]"), _TL("invalid NetCDF file"), Parameters("FILE")->asString()));
+		Error_Set(CSG_String::Format("%s [%s]", _TL("invalid NetCDF file"), Parameters("FILE")->asString()));
 
 		return( false );
 	}
@@ -264,13 +262,13 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 		for(i=0, n=0; i==n; i++)
 		{
-			CSG_MetaData	*pEntry	= MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_NAME"), i + 1));
+			CSG_MetaData	*pEntry	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_NAME", i + 1));
 
 			if( pEntry && DataSet.Open_Read(pEntry->Get_Content()) )
 			{
 				CSG_String	Desc	= _TL("unknown");
 
-				if( (pEntry = MetaData.Get_Child(CSG_String::Format(SG_T("SUBDATASET_%d_DESC"), i + 1))) != NULL )
+				if( (pEntry = MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_DESC", i + 1))) != NULL )
 				{
 					Desc	= pEntry->Get_Content();
 				}
@@ -354,7 +352,7 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 		P("LEVEL_ALL")->Set_Enabled(pLevel->Get_Count() > 1);
 
 		//-------------------------------------------------
-		if( !Dlg_Parameters(&P, CSG_String::Format(SG_T("%s: %s"), _TL("Import NetCDF"), Description.c_str())) )
+		if( !Dlg_Parameters(&P, CSG_String::Format("%s: %s", _TL("Import NetCDF"), Description.c_str())) )
 		{
 			return( false );
 		}
@@ -394,7 +392,7 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Desc
 			{
 				if( bTransform )
 				{
-					Process_Set_Text(CSG_String::Format(SG_T("%s [%d/%d]"), _TL("band transformation"), i + 1, DataSet.Get_Count()));
+					Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count()));
 
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}

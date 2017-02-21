@@ -335,7 +335,7 @@ bool CSG_Grid_Cell_Addressor::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const SG_Char *Parent, int Style)
 {
-	Parameters.Add_Choice(NULL, "KERNEL_TYPE", _TL("Kernel Type"),
+	Parameters.Add_Choice("", "KERNEL_TYPE", _TL("Kernel Type"),
 		_TL("The shape of the filter kernel."),
 		"0|1|", 1
 	);
@@ -346,11 +346,11 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 
 	if( (Style & SG_GRIDCELLADDR_PARM_SIZEDBL) == 0 )
 	{
-		Parameters.Add_Int   (NULL, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2  , 1  , true);
+		Parameters.Add_Int   ("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2  , 1  , true);
 	}
 	else
 	{
-		Parameters.Add_Double(NULL, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1.0, 0.0, true);
+		Parameters.Add_Double("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1.0, 0.0, true);
 	}
 
 	//-----------------------------------------------------
@@ -370,15 +370,15 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_ANNULUS, _TL("Annulus"));
 
-		Parameters.Add_Double(NULL, "KERNEL_INNER", _TL("Inner Kernel Radius"), _TL(""));
+		Parameters.Add_Double("", "KERNEL_INNER", _TL("Inner Kernel Radius"), _TL(""));
 	}
 
 	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR) != 0 )
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SECTOR , _TL("Sector"));
 
-		Parameters.Add_Double(NULL, "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
-		Parameters.Add_Double(NULL, "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
+		Parameters.Add_Double("", "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
+		Parameters.Add_Double("", "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
 	}
 
 	Parameters("KERNEL_TYPE")->asChoice()->Set_Items(Types);

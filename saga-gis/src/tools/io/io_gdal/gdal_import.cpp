@@ -120,45 +120,45 @@ CGDAL_Import::CGDAL_Import(void)
 	Filter.Append (CSG_String::Format("%s|*.*" , _TL("All Files")));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_FilePath(NULL,
+	Parameters.Add_FilePath("",
 		"FILES"		, _TL("Files"),
 		_TL(""),
 		Filter, NULL, false, false, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"SELECTION"		, _TL("Select from Multiple Bands"),
 		_TL("Semicolon separated list of band indexes. Do not set to select all bands for import."),
 		""
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"SELECT"		, _TL("Select from Multiple Bands"),
 		_TL(""),
 		true
 	)->Set_UseInCMD(false);
 
-	Parameters.Add_Bool(SG_UI_Get_Window_Main() ? Parameters("SELECT") : NULL,
+	Parameters.Add_Bool(SG_UI_Get_Window_Main() ? "SELECT" : "",
 		"SELECT_SORT"	, _TL("Alphanumeric Sorting"),
 		_TL(""),
 		true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"TRANSFORM"		, _TL("Transformation"),
 		_TL("align grid to coordinate system"),
 		true
 	);
 
-	Parameters.Add_Choice(Parameters("TRANSFORM"),
+	Parameters.Add_Choice("TRANSFORM",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL("Resampling type to be used, if grid needs to be aligned to coordinate system."),
 		CSG_String::Format("%s|%s|%s|%s|",

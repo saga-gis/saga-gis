@@ -968,24 +968,26 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	m_Prefix		= Prefix;
 
 	//-----------------------------------------------------
-	pNode	= m_pParameters->Add_Choice(
-		pNode, m_Prefix + "DEFINITION", _TL("Target Grid System"),
+	CSG_String	ParentID(pNode ? pNode->Get_Identifier() : SG_T("")), TargetID(m_Prefix + "DEFINITION");
+
+	m_pParameters->Add_Choice(
+		ParentID, TargetID, _TL("Target Grid System"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("user defined"),
 			_TL("grid or grid system")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMIN", _TL("Left"    ), _TL(""), PARAMETER_TYPE_Double,   0.0);
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_XMAX", _TL("Right"   ), _TL(""), PARAMETER_TYPE_Double, 100.0);
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMIN", _TL("Bottom"  ), _TL(""), PARAMETER_TYPE_Double,   0.0);
-	m_pParameters->Add_Value     (pNode, m_Prefix + "USER_YMAX", _TL("Top"     ), _TL(""), PARAMETER_TYPE_Double, 100.0);
-	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_COLS", _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int   , 100);
-	m_pParameters->Add_Info_Value(pNode, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int   , 100);
-	m_pParameters->Add_Choice    (pNode, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
+	m_pParameters->Add_Value     (TargetID, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), PARAMETER_TYPE_Double, 1.0, 0.0, true);
+	m_pParameters->Add_Value     (TargetID, m_Prefix + "USER_XMIN", _TL("Left"    ), _TL(""), PARAMETER_TYPE_Double,   0.0);
+	m_pParameters->Add_Value     (TargetID, m_Prefix + "USER_XMAX", _TL("Right"   ), _TL(""), PARAMETER_TYPE_Double, 100.0);
+	m_pParameters->Add_Value     (TargetID, m_Prefix + "USER_YMIN", _TL("Bottom"  ), _TL(""), PARAMETER_TYPE_Double,   0.0);
+	m_pParameters->Add_Value     (TargetID, m_Prefix + "USER_YMAX", _TL("Top"     ), _TL(""), PARAMETER_TYPE_Double, 100.0);
+	m_pParameters->Add_Info_Value(TargetID, m_Prefix + "USER_COLS", _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int   , 100);
+	m_pParameters->Add_Info_Value(TargetID, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int   , 100);
+	m_pParameters->Add_Choice    (TargetID, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("nodes"),
 			_TL("cells")
@@ -993,11 +995,11 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_pParameters->Add_Grid_System(pNode, m_Prefix + "SYSTEM", _TL("Grid System"), _TL(""));
+	m_pParameters->Add_Grid_System(TargetID, m_Prefix + "SYSTEM", _TL("Grid System"), _TL(""));
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		m_pParameters->Add_Grid(pNode, m_Prefix + "TEMPLATE", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
+		m_pParameters->Add_Grid(m_Prefix + "SYSTEM", m_Prefix + "TEMPLATE", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
 	}
 
 	//-----------------------------------------------------
@@ -1287,7 +1289,7 @@ bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CS
 		}
 	}
 
-	m_pParameters->Add_Grid(pSystem, Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
+	m_pParameters->Add_Grid(pSystem ? pSystem->Get_Identifier() : SG_T(""), Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
 	if( bOptional && SG_UI_Get_Window_Main() )
 	{
@@ -1295,10 +1297,10 @@ bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CS
 
 		if( !pNode )
 		{
-			pNode	= m_pParameters->Add_Node(pTarget, m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
+			pNode	= m_pParameters->Add_Node(pTarget->Get_Identifier(), m_Prefix + "USER_OPTS", _TL("Optional Target Grids"), _TL(""));
 		}
 
-		m_pParameters->Add_Value(pNode, Identifier + "_CREATE", Name, _TL(""), PARAMETER_TYPE_Bool, false);
+		m_pParameters->Add_Value(pNode->Get_Identifier(), Identifier + "_CREATE", Name, _TL(""), PARAMETER_TYPE_Bool, false);
 	}
 
 	return( true );

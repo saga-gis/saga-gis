@@ -176,11 +176,7 @@ bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *De
 
 	if( bGrid_System )
 	{
-		m_pGrid_System	= Add_Grid_System(
-			NULL, SG_T("PARAMETERS_GRID_SYSTEM"),
-			_TL("Grid system"),
-			_TL("Grid system")
-		);
+		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid system"), _TL(""));
 	}
 
 	return( true );
@@ -327,9 +323,9 @@ CSG_Parameter * CSG_Parameters::Add_Parameter(CSG_Parameter *pParameter)
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Node(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Node(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
-	return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Node, PARAMETER_INFORMATION) );
+	return( _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Node, PARAMETER_INFORMATION) );
 }
 
 //---------------------------------------------------------
@@ -341,65 +337,65 @@ CSG_Parameter * CSG_Parameters::Add_Node(CSG_Parameter *pParent, const CSG_Strin
   *	PARAMETER_TYPE_Degree
   * PARAMETER_TYPE_Color
 */
-CSG_Parameter * CSG_Parameters::Add_Value(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+CSG_Parameter * CSG_Parameters::Add_Value(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	return( _Add_Value(pParent, Identifier, Name, Description, false, Type, Value, Minimum, bMinimum, Maximum, bMaximum) );
+	return( _Add_Value(ParentID, ID, Name, Description, false, Type, Value, Minimum, bMinimum, Maximum, bMaximum) );
 }
 
-CSG_Parameter * CSG_Parameters::Add_Info_Value(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value)
+CSG_Parameter * CSG_Parameters::Add_Info_Value(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, double Value)
 {
-	return( _Add_Value(pParent, Identifier, Name, Description,  true, Type, Value, 0.0, false, 0.0, false) );
-}
-
-//---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Bool  (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool   Value)
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Bool  , Value ? 1.0 : 0.0) );
-}
-
-CSG_Parameter * CSG_Parameters::Add_Int   (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value, int    Minimum, bool bMinimum, int    Maximum, bool bMaximum)
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Int   , Value, Minimum, bMinimum, Maximum, bMaximum) );
-}
-
-CSG_Parameter * CSG_Parameters::Add_Double(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum) );
-}
-
-CSG_Parameter * CSG_Parameters::Add_Degree(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Degree, Value, Minimum, bMinimum, Maximum, bMaximum) );
-}
-
-CSG_Parameter * CSG_Parameters::Add_Date(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value)	// Julian Day Number
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Date  , Value) );
-}
-
-CSG_Parameter * CSG_Parameters::Add_Color (CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int    Value)
-{
-	return( Add_Value(pParent, Identifier, Name, Description, PARAMETER_TYPE_Color , Value) );
+	return( _Add_Value(ParentID, ID, Name, Description,  true, Type, Value, 0.0, false, 0.0, false) );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Range(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+CSG_Parameter * CSG_Parameters::Add_Bool  (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool   Value)
 {
-	return( _Add_Range(pParent, Identifier, Name, Description, false, Range_Min, Range_Max, Minimum, bMinimum, Maximum, bMaximum) );
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Bool  , Value ? 1.0 : 0.0) );
 }
 
-CSG_Parameter * CSG_Parameters::Add_Info_Range(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Range_Min, double Range_Max)
+CSG_Parameter * CSG_Parameters::Add_Int   (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int    Value, int    Minimum, bool bMinimum, int    Maximum, bool bMaximum)
 {
-	return( _Add_Range(pParent, Identifier, Name, Description,  true, Range_Min, Range_Max, 0.0, false, 0.0, false) );
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Int   , Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Double(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Double, Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Degree(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Degree, Value, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Date  (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value)	// Julian Day Number
+{
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Date  , Value) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Color (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int    Value)
+{
+	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Color , Value) );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Choice(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default)
+CSG_Parameter * CSG_Parameters::Add_Range (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+{
+	return( _Add_Range(ParentID, ID, Name, Description, false, Range_Min, Range_Max, Minimum, bMinimum, Maximum, bMaximum) );
+}
+
+CSG_Parameter * CSG_Parameters::Add_Info_Range(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min, double Range_Max)
+{
+	return( _Add_Range(ParentID, ID, Name, Description,  true, Range_Min, Range_Max, 0.0, false, 0.0, false) );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Choice(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default)
 {
 	CSG_Parameter			*pParameter;
 	CSG_Parameter_Choice	*m_pData;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Choice, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Choice, 0);
 
 	m_pData		= (CSG_Parameter_Choice *)pParameter->m_pData;
 	m_pData->Set_Items(Items);
@@ -413,23 +409,23 @@ CSG_Parameter * CSG_Parameters::Add_Choice(CSG_Parameter *pParent, const CSG_Str
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_String(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText, bool bPassword)
+CSG_Parameter * CSG_Parameters::Add_String(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText, bool bPassword)
 {
-	return( _Add_String(pParent, Identifier, Name, Description, false, String, bLongText, bPassword) );
+	return( _Add_String(ParentID, ID, Name, Description, false, String, bLongText, bPassword) );
 }
 
-CSG_Parameter * CSG_Parameters::Add_Info_String(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText)
+CSG_Parameter * CSG_Parameters::Add_Info_String(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText)
 {
-	return( _Add_String(pParent, Identifier, Name, Description,  true, String, bLongText, false) );
+	return( _Add_String(ParentID, ID, Name, Description,  true, String, bLongText, false) );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_FilePath(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, const SG_Char *Filter, const SG_Char *Default, bool bSave, bool bDirectory, bool bMultiple)
+CSG_Parameter * CSG_Parameters::Add_FilePath(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const SG_Char *Filter, const SG_Char *Default, bool bSave, bool bDirectory, bool bMultiple)
 {
 	CSG_Parameter			*pParameter;
 	CSG_Parameter_File_Name	*m_pData;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_FilePath, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_FilePath, 0);
 
 	m_pData		= (CSG_Parameter_File_Name *)pParameter->m_pData;
 	m_pData->Set_Filter			(Filter);
@@ -446,11 +442,11 @@ CSG_Parameter * CSG_Parameters::Add_FilePath(CSG_Parameter *pParent, const CSG_S
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Font(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, const SG_Char *pInit)
+CSG_Parameter * CSG_Parameters::Add_Font(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const SG_Char *pInit)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Font, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Font, 0);
 
 	if( pInit && *pInit )
 	{
@@ -464,11 +460,11 @@ CSG_Parameter * CSG_Parameters::Add_Font(CSG_Parameter *pParent, const CSG_Strin
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Colors(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, CSG_Colors *pInit)
+CSG_Parameter * CSG_Parameters::Add_Colors(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Colors *pInit)
 {
 	CSG_Parameter			*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Colors, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Colors, 0);
 
 	pParameter->asColors()->Assign(pInit);
 
@@ -476,11 +472,11 @@ CSG_Parameter * CSG_Parameters::Add_Colors(CSG_Parameter *pParent, const CSG_Str
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_FixedTable(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, CSG_Table *pTemplate)
+CSG_Parameter * CSG_Parameters::Add_FixedTable(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Table *pTemplate)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_FixedTable, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_FixedTable, 0);
 
 	pParameter->asTable()->Create(pTemplate);
 
@@ -503,11 +499,11 @@ CSG_Parameter * CSG_Parameters::Add_FixedTable(CSG_Parameter *pParent, const CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid_System(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, CSG_Grid_System *pInit)
+CSG_Parameter * CSG_Parameters::Add_Grid_System(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, CSG_Grid_System *pInit)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Grid_System, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Grid_System, 0);
 
 	if( pInit )
 	{
@@ -518,23 +514,27 @@ CSG_Parameter * CSG_Parameters::Add_Grid_System(CSG_Parameter *pParent, const CS
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent, TSG_Data_Type Preferred_Type)
+CSG_Parameter * CSG_Parameters::Add_Grid(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent, TSG_Data_Type Preferred_Type)
 {
-	CSG_Parameter	*pParameter;
+	CSG_Parameter	*pParameter, *pParent = Get_Parameter(ParentID);
 
-	if( !pParent || pParent->Get_Type() != PARAMETER_TYPE_Grid_System )
+	CSG_String	SystemID;
+
+	if( pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
-		if( bSystem_Dependent && m_pGrid_System )
-		{
-			pParent	= m_pGrid_System;
-		}
-		else
-		{
-			pParent	= Add_Grid_System(pParent, CSG_String::Format(SG_T("%s_GRIDSYSTEM"), Identifier.c_str()), _TL("Grid system"), SG_T(""));
-		}
+		SystemID	= pParent->Get_Identifier();
+	}
+	else if( bSystem_Dependent && m_pGrid_System )
+	{
+		SystemID	= m_pGrid_System->Get_Identifier();
+	}
+	else
+	{
+		pParent		= Add_Grid_System(pParent ? pParent->Get_Identifier() : SG_T(""), ID + "_GRIDSYSTEM", _TL("Grid system"), "");
+		SystemID	= pParent->Get_Identifier();
 	}
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Grid, Constraint);
+	pParameter	= _Add(SystemID, ID, Name, Description, PARAMETER_TYPE_Grid, Constraint);
 
 	((CSG_Parameter_Grid *)pParameter->m_pData)->Set_Preferred_Type(Preferred_Type);
 
@@ -542,9 +542,9 @@ CSG_Parameter * CSG_Parameters::Add_Grid(CSG_Parameter *pParent, const CSG_Strin
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid_or_Const(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum, bool bSystem_Dependent)
+CSG_Parameter * CSG_Parameters::Add_Grid_or_Const(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum, bool bSystem_Dependent)
 {
-	CSG_Parameter	*pParameter	= Add_Grid(pParent, Identifier, Name, Description, PARAMETER_INPUT_OPTIONAL, bSystem_Dependent);
+	CSG_Parameter	*pParameter	= Add_Grid(ParentID, ID, Name, Description, PARAMETER_INPUT_OPTIONAL, bSystem_Dependent);
 
 	((CSG_Parameter_Grid *)pParameter->m_pData)->Add_Default(Value, Minimum, bMinimum, Maximum, bMaximum);
 
@@ -552,11 +552,11 @@ CSG_Parameter * CSG_Parameters::Add_Grid_or_Const(CSG_Parameter *pParent, const 
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Grid_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
 	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Grid);
 
@@ -564,19 +564,27 @@ CSG_Parameter * CSG_Parameters::Add_Grid_Output(CSG_Parameter *pParent, const CS
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Grid_List(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent)
+CSG_Parameter * CSG_Parameters::Add_Grid_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent)
 {
-	CSG_Parameter	*pParameter;
+	CSG_Parameter	*pParameter, *pParent = Get_Parameter(ParentID);
 
-	if( !pParent || pParent->Get_Type() != PARAMETER_TYPE_Grid_System )
+	CSG_String	SystemID;
+
+	if( pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
-		if( bSystem_Dependent && m_pGrid_System && (Constraint & PARAMETER_INPUT) )
-		{
-			pParent	= m_pGrid_System;
-		}
+		SystemID	= pParent->Get_Identifier();
+	}
+	else if( bSystem_Dependent && m_pGrid_System && (Constraint & PARAMETER_INPUT) )
+	{
+		SystemID	= m_pGrid_System->Get_Identifier();
+	}
+	else
+	{
+		pParent		= Add_Grid_System(pParent ? pParent->Get_Identifier() : SG_T(""), ID + "_GRIDSYSTEM", _TL("Grid system"), "");
+		SystemID	= pParent->Get_Identifier();
 	}
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Grid_List, Constraint);
+	pParameter	= _Add(SystemID, ID, Name, Description, PARAMETER_TYPE_Grid_List, Constraint);
 
 	return( pParameter );
 }
@@ -589,24 +597,26 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(CSG_Parameter *pParent, const CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_Field(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bAllowNone)
+CSG_Parameter * CSG_Parameters::Add_Table_Field(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bAllowNone)
 {
-	if( pParent
-	&&	(	pParent->Get_Type() == PARAMETER_TYPE_Table
-		||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
-		||	pParent->Get_Type() == PARAMETER_TYPE_TIN
-		||	pParent->Get_Type() == PARAMETER_TYPE_PointCloud	) )
+	CSG_Parameter	*pParent = Get_Parameter(ParentID);
+
+	if( pParent && (
+		pParent->Get_Type() == PARAMETER_TYPE_Table
+	||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
+	||	pParent->Get_Type() == PARAMETER_TYPE_TIN
+	||	pParent->Get_Type() == PARAMETER_TYPE_PointCloud) )
 	{
-		return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_Field, bAllowNone ? PARAMETER_OPTIONAL : 0) );
+		return( _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Table_Field, bAllowNone ? PARAMETER_OPTIONAL : 0) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_Field_or_Const(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+CSG_Parameter * CSG_Parameters::Add_Table_Field_or_Const(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
-	CSG_Parameter	*pParameter	= Add_Table_Field(pParent, Identifier, Name, Description, true);
+	CSG_Parameter	*pParameter	= Add_Table_Field(ParentID, ID, Name, Description, true);
 
 	if( pParameter )
 	{
@@ -617,36 +627,38 @@ CSG_Parameter * CSG_Parameters::Add_Table_Field_or_Const(CSG_Parameter *pParent,
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_Fields(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Table_Fields(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
-	if( pParent
-	&&	(	pParent->Get_Type() == PARAMETER_TYPE_Table
-		||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
-		||	pParent->Get_Type() == PARAMETER_TYPE_TIN
-		||	pParent->Get_Type() == PARAMETER_TYPE_PointCloud	) )
+	CSG_Parameter	*pParent = Get_Parameter(ParentID);
+
+	if( pParent && (
+		pParent->Get_Type() == PARAMETER_TYPE_Table
+	||	pParent->Get_Type() == PARAMETER_TYPE_Shapes
+	||	pParent->Get_Type() == PARAMETER_TYPE_TIN
+	||	pParent->Get_Type() == PARAMETER_TYPE_PointCloud) )
 	{
-		return( _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_Fields, 0) );
+		return( _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Table_Fields, 0) );
 	}
 
 	return( NULL );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_Table(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Table, Constraint);
 
 	return( pParameter );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Table_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
 	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Table);
 
@@ -654,11 +666,11 @@ CSG_Parameter * CSG_Parameters::Add_Table_Output(CSG_Parameter *pParent, const C
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Table_List(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_Table_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Table_List, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Table_List, Constraint);
 
 	return( pParameter );
 }
@@ -671,11 +683,11 @@ CSG_Parameter * CSG_Parameters::Add_Table_List(CSG_Parameter *pParent, const CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Shapes(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, TSG_Shape_Type Shape_Type)
+CSG_Parameter * CSG_Parameters::Add_Shapes(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, TSG_Shape_Type Shape_Type)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Shapes, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Shapes, Constraint);
 
 	((CSG_Parameter_Shapes *)pParameter->m_pData)->Set_Shape_Type(Shape_Type);
 
@@ -683,11 +695,11 @@ CSG_Parameter * CSG_Parameters::Add_Shapes(CSG_Parameter *pParent, const CSG_Str
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Shapes_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Shapes_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
 	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Shapes);
 
@@ -695,11 +707,11 @@ CSG_Parameter * CSG_Parameters::Add_Shapes_Output(CSG_Parameter *pParent, const 
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Shapes_List(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint, TSG_Shape_Type Type)
+CSG_Parameter * CSG_Parameters::Add_Shapes_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, TSG_Shape_Type Type)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Shapes_List, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Shapes_List, Constraint);
 
 	((CSG_Parameter_Shapes_List *)pParameter->m_pData)->Set_Shape_Type(Type);
 
@@ -714,21 +726,21 @@ CSG_Parameter * CSG_Parameters::Add_Shapes_List(CSG_Parameter *pParent, const CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_TIN(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_TIN(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_TIN, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_TIN, Constraint);
 
 	return( pParameter );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_TIN_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_TIN_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
 	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_TIN);
 
@@ -736,11 +748,11 @@ CSG_Parameter * CSG_Parameters::Add_TIN_Output(CSG_Parameter *pParent, const CSG
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_TIN_List(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_TIN_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_TIN_List, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_TIN_List, Constraint);
 
 	return( pParameter );
 }
@@ -753,21 +765,21 @@ CSG_Parameter * CSG_Parameters::Add_TIN_List(CSG_Parameter *pParent, const CSG_S
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_PointCloud(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_PointCloud(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_PointCloud, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_PointCloud, Constraint);
 
 	return( pParameter );
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
 	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_PointCloud);
 
@@ -775,11 +787,11 @@ CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(CSG_Parameter *pParent, co
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_PointCloud_List(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter * CSG_Parameters::Add_PointCloud_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_PointCloud_List, Constraint);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_PointCloud_List, Constraint);
 
 	return( pParameter );
 }
@@ -792,11 +804,11 @@ CSG_Parameter * CSG_Parameters::Add_PointCloud_List(CSG_Parameter *pParent, cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
+CSG_Parameter * CSG_Parameters::Add_Parameters(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Parameters, 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Parameters, 0);
 
 	pParameter->asParameters()->m_Callback	= m_Callback;
 
@@ -811,7 +823,7 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(CSG_Parameter *pParent, const CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+CSG_Parameter * CSG_Parameters::_Add_Value(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
 	switch( Type )	// Check if Type is valid...
 	{
@@ -827,7 +839,7 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 		Type	= PARAMETER_TYPE_Double;
 	}
 
-	CSG_Parameter	*pParameter	= _Add(pParent, Identifier, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
+	CSG_Parameter	*pParameter	= _Add(ParentID, ID, Name, Description, Type, bInformation ? PARAMETER_INFORMATION : 0);
 
 	if( !bInformation )
 	{
@@ -867,7 +879,7 @@ CSG_Parameter * CSG_Parameters::_Add_Value(CSG_Parameter *pParent, const CSG_Str
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::_Add_Range(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bInformation, double Default_Min, double Default_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
+CSG_Parameter * CSG_Parameters::_Add_Range(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, double Default_Min, double Default_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum)
 {
 	double				d;
 	CSG_Parameter		*pParameter;
@@ -882,7 +894,7 @@ CSG_Parameter * CSG_Parameters::_Add_Range(CSG_Parameter *pParent, const CSG_Str
 	}
 
 	//-----------------------------------------------------
-	pParameter	= _Add(pParent, Identifier, Name, Description, PARAMETER_TYPE_Range, bInformation ? PARAMETER_INFORMATION : 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Range, bInformation ? PARAMETER_INFORMATION : 0);
 
 	pData		= pParameter->asRange();
 
@@ -901,11 +913,11 @@ CSG_Parameter * CSG_Parameters::_Add_Range(CSG_Parameter *pParent, const CSG_Str
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::_Add_String(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, bool bInformation, const SG_Char *String, bool bLongText, bool bPassword)
+CSG_Parameter * CSG_Parameters::_Add_String(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, const SG_Char *String, bool bLongText, bool bPassword)
 {
 	CSG_Parameter	*pParameter;
 
-	pParameter	= _Add(pParent, Identifier, Name, Description, bLongText ? PARAMETER_TYPE_Text : PARAMETER_TYPE_String, bInformation ? PARAMETER_INFORMATION : 0);
+	pParameter	= _Add(ParentID, ID, Name, Description, bLongText ? PARAMETER_TYPE_Text : PARAMETER_TYPE_String, bInformation ? PARAMETER_INFORMATION : 0);
 
 	bool	bCallback	= Set_Callback(false);
 	pParameter->Set_Value  (String);
@@ -925,18 +937,14 @@ CSG_Parameter * CSG_Parameters::_Add_String(CSG_Parameter *pParent, const CSG_St
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint)
+CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint)
 {
-	CSG_Parameter	*pParameter;
+	if( ID.is_Empty() )
+	{
+		return( NULL );
+	}
 
-	if( Identifier.Length() > 0 )
-	{
-		pParameter	= new CSG_Parameter(this, pParent, Identifier, Name, Description, Type, Constraint);
-	}
-	else
-	{
-		pParameter	= new CSG_Parameter(this, pParent, CSG_String::Format(SG_T("%d"), m_nParameters), Name, Description, Type, Constraint);
-	}
+	CSG_Parameter	*pParameter	= new CSG_Parameter(this, Get_Parameter(ParentID), ID, Name, Description, Type, Constraint);
 
 	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
 	m_Parameters[m_nParameters++]	= pParameter;
@@ -947,24 +955,18 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pParent, const CSG_String &I
 //---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 {
-	CSG_Parameter	*pParameter;
+	CSG_Parameter	*pParameter	= !pSource ? NULL : _Add(
+		pSource->Get_Parent() ? pSource->Get_Parent()->Get_Identifier() : SG_T(""),
+		pSource->Get_Identifier(),
+		pSource->Get_Name(),
+		pSource->Get_Description(),
+		pSource->Get_Type(),
+		pSource->m_pData->Get_Constraint()
+	);
 
-	if( pSource )
+	if( pParameter )
 	{
-		pParameter	= _Add(
-			pSource->Get_Parent() ? Get_Parameter(pSource->Get_Parent()->Get_Identifier()) : NULL,
-			pSource->Get_Identifier(),
-			pSource->Get_Name(),
-			pSource->Get_Description(),
-			pSource->Get_Type(),
-			pSource->m_pData->Get_Constraint()
-		);
-
 		pParameter->Assign(pSource);
-	}
-	else
-	{
-		pParameter	= NULL;
 	}
 
 	return( pParameter );
