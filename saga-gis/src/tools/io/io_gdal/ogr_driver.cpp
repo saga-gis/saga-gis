@@ -723,7 +723,11 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 	}
 
 	//-----------------------------------------------------
+#ifdef GDAL_OLDER_THAN_V1_8
+	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_FD_GetName(OGR_L_GetLayerDefn(pLayer))), NULL, Get_Coordinate_Type(iLayer));
+#else
 	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_L_GetName(pLayer)), NULL, Get_Coordinate_Type(iLayer));
+#endif
 
 	pShapes->Get_Projection()	= Get_Projection(iLayer);
 
@@ -1070,8 +1074,6 @@ bool CSG_OGR_DataSet::_Write_Line(CSG_Shape *pShape, OGRGeometryH pLine, int iPa
 {
 	if( pLine && pShape && iPart >= 0 && iPart < pShape->Get_Part_Count() )
 	{
-		OGR_G_SetPointCount(pLine, 0);
-
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
