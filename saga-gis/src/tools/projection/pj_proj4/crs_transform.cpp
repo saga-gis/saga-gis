@@ -59,11 +59,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "crs_transform.h"
-
-extern "C" {
 #include <projects.h>
-}
+
+#include "crs_transform.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -116,7 +114,13 @@ bool CSG_CRSProjector::Destroy(void)
 //---------------------------------------------------------
 CSG_String CSG_CRSProjector::Get_Version(void)
 {
-	return( CSG_String::Format("%.2f", PJ_VERSION / 100) );
+	return( pj_release );
+
+//	int	rel	= PJ_VERSION;
+//	int	maj	= rel / 100; rel -= 100 * maj;
+//	int	min	= rel /  10; rel -=  10 * min;
+
+//	return( CSG_String::Format("%d.%d.%d", maj, min, rel) );
 }
 
 //---------------------------------------------------------
