@@ -256,9 +256,10 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
+			pTool->On_Before_Execution();
 			pTool->Settings_Push();
 
-			if( pTool->On_Before_Execution() && SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
+			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
 				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
 				{
@@ -274,13 +275,13 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			//---------------------------------------------
 			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 20)) != NULL) == true )	// CPGIS_Shapes_Load
 			{
+				pTool->On_Before_Execution();
 				pTool->Settings_Push();
 
-				bResult	= pTool->On_Before_Execution()
-					&& SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-					&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
-					&& SG_TOOL_PARAMETER_SET("SHAPES"    , this)
-					&& pTool->Execute();
+				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("SHAPES"    , this)
+						&& pTool->Execute();
 
 				pTool->Settings_Pop();
 			}
