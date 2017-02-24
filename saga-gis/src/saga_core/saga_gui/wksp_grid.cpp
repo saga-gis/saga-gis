@@ -150,13 +150,13 @@ wxString CWKSP_Grid::Get_Description(void)
 
 	DESC_ADD_STR (_TL("Modified"          ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
 	DESC_ADD_STR (_TL("Projection"        ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT (_TL("West"              ), Get_Grid()->Get_XMin        ());
-	DESC_ADD_FLT (_TL("East"              ), Get_Grid()->Get_XMax        ());
-	DESC_ADD_FLT (_TL("West-East"         ), Get_Grid()->Get_XRange      ());
-	DESC_ADD_FLT (_TL("South"             ), Get_Grid()->Get_YMin        ());
-	DESC_ADD_FLT (_TL("North"             ), Get_Grid()->Get_YMax        ());
-	DESC_ADD_FLT (_TL("South-North"       ), Get_Grid()->Get_YRange      ());
-	DESC_ADD_FLT (_TL("Cell Size"         ), Get_Grid()->Get_Cellsize    ());
+	DESC_ADD_STR (_TL("West"              ), SG_Get_String(Get_Grid()->Get_XMin        (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("East"              ), SG_Get_String(Get_Grid()->Get_XMax        (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("West-East"         ), SG_Get_String(Get_Grid()->Get_XRange      (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("South"             ), SG_Get_String(Get_Grid()->Get_YMin        (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("North"             ), SG_Get_String(Get_Grid()->Get_YMax        (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("South-North"       ), SG_Get_String(Get_Grid()->Get_YRange      (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("Cell Size"         ), SG_Get_String(Get_Grid()->Get_Cellsize    (), -CSG_Grid_System::Get_Precision()).c_str());
 	DESC_ADD_INT (_TL("Number of Columns" ), Get_Grid()->Get_NX          ());
 	DESC_ADD_INT (_TL("Number of Rows"    ), Get_Grid()->Get_NY          ());
 	DESC_ADD_LONG(_TL("Number of Cells"   ), Get_Grid()->Get_NCells      ());
@@ -180,7 +180,7 @@ wxString CWKSP_Grid::Get_Description(void)
 		DESC_ADD_FLT(_TL("File Cache [MB]")		, Get_Grid()->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
 	}
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	//-----------------------------------------------------
 //	s.Append(wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History")));

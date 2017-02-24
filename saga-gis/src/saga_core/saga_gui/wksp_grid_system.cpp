@@ -110,20 +110,20 @@ wxString CWKSP_Grid_System::Get_Description(void)
 
 	s	+= "<table border=\"0\">";
 
-	DESC_ADD_STR (_TL("Name")				, Get_Name());
-	DESC_ADD_INT (_TL("Number of Grids")	, Get_Count());
-	DESC_ADD_FLT (_TL("West")				, m_System.Get_XMin());
-	DESC_ADD_FLT (_TL("East")				, m_System.Get_XMax());
-	DESC_ADD_FLT (_TL("West-East")			, m_System.Get_XRange());
-	DESC_ADD_FLT (_TL("South")				, m_System.Get_YMin());
-	DESC_ADD_FLT (_TL("North")				, m_System.Get_YMax());
-	DESC_ADD_FLT (_TL("South-North")		, m_System.Get_YRange());
-	DESC_ADD_FLT (_TL("Cell Size")			, m_System.Get_Cellsize());
-	DESC_ADD_INT (_TL("Number of Columns")	, m_System.Get_NX());
-	DESC_ADD_INT (_TL("Number of Rows")		, m_System.Get_NY());
-	DESC_ADD_LONG(_TL("Number of Cells")	, m_System.Get_NCells());
+	DESC_ADD_STR (_TL("Name"             ), Get_Name());
+	DESC_ADD_INT (_TL("Number of Grids"  ), Get_Count());
+	DESC_ADD_STR (_TL("West"             ), SG_Get_String(m_System.Get_XMin    (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("East"             ), SG_Get_String(m_System.Get_XMax    (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("West-East"        ), SG_Get_String(m_System.Get_XRange  (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("South"            ), SG_Get_String(m_System.Get_YMin    (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("North"            ), SG_Get_String(m_System.Get_YMax    (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("South-North"      ), SG_Get_String(m_System.Get_YRange  (), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_STR (_TL("Cell Size"        ), SG_Get_String(m_System.Get_Cellsize(), -CSG_Grid_System::Get_Precision()).c_str());
+	DESC_ADD_INT (_TL("Number of Columns"), m_System.Get_NX());
+	DESC_ADD_INT (_TL("Number of Rows"   ), m_System.Get_NY());
+	DESC_ADD_LONG(_TL("Number of Cells"  ), m_System.Get_NCells());
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	//-----------------------------------------------------
 	return( s );
