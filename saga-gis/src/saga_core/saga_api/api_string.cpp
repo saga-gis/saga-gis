@@ -915,6 +915,28 @@ bool CSG_Strings::Add(const CSG_String &String)
 }
 
 //---------------------------------------------------------
+bool CSG_Strings::Del(int Index)
+{
+	if( Index >= 0 && Index < m_nStrings )
+	{
+		delete(m_Strings[Index]);
+
+		m_nStrings--;
+
+		for(int i=Index; i<m_nStrings; i++)
+		{
+			m_Strings[i]	= m_Strings[i + 1];
+		}
+
+		m_Strings	= (CSG_String **)SG_Realloc(m_Strings, m_nStrings * sizeof(CSG_String *));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 CSG_Strings & CSG_Strings::operator  += (const CSG_String &String)
 {
 	Add(String);

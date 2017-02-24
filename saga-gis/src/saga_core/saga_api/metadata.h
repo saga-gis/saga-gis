@@ -171,6 +171,8 @@ public:
 	bool						Set_Property		(const CSG_String &Name, double            Value, bool bAddIfNotExists = true);
 	bool						Set_Property		(const CSG_String &Name, int               Value, bool bAddIfNotExists = true);
 	bool						Cmp_Property		(const CSG_String &Name, const CSG_String &String, bool bNoCase = false)	const;
+	bool						Del_Property		(const CSG_String &Name);
+	bool						Del_Property		(int i);
 
 	CSG_String					asText				(int Flags = 0) const;
 	class CSG_Table				asTable				(int Flags = 0) const;

@@ -379,6 +379,8 @@ public:
 	bool							Add					(const CSG_String &String);
 	CSG_Strings &					operator +=			(const CSG_String &String);
 
+	bool							Del					(int Index);
+
 	bool							Set_Count			(int nStrings);
 	int								Get_Count			(void)		const	{	return( m_nStrings );	}
 

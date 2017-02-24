@@ -414,7 +414,7 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 
 	if( pParameter )	// don't add twice with same identifier
 	{
-		if( pParameter->Get_Type() != pData->Get_Type() )
+		if(0&& pParameter->Get_Type() != pData->Get_Type() )
 		{
 			return( false );
 		}
@@ -455,8 +455,16 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	//-----------------------------------------------------
 	if( pData->is_DataObject() )
 	{
-		pParameter->Set_Value(pData->asDataObject());
-		m_Data_Manager.Add   (pData->asDataObject());
+		if( pParameter->is_DataObject() )
+		{
+			pParameter->Set_Value(pData->asDataObject());
+		}
+		else
+		{
+			pParameter->asList()->Add_Item(pData->asDataObject());
+		}
+
+		m_Data_Manager.Add(pData->asDataObject());
 	}
 	else if( pData->is_DataObject_List() )
 	{
@@ -897,37 +905,45 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 		}
 		else if( Parameter.Cmp_Name("input") )
 		{
-			CSG_Parameter	*pData	= m_Data(Parameter.Get_Content());
+			bool	bResult	= false;
 
-			if( !pData )	// each input for this tool should be available now !!!
+			int	Index;
+
+			if( Parameter.Get_Content().Find('[') < 1 || !Parameter.Get_Content().AfterFirst('[').asInt(Index) )
 			{
-				Error_Set(CSG_String::Format("%s: %s", _TL("input"), Parameter.Get_Property("id")));
+				Index	= -1;
+			}
+
+			CSG_Parameter	*pData	= m_Data(Index < 0 ? Parameter.Get_Content() : Parameter.Get_Content().BeforeFirst('['));
+
+			if( pData && (pParameter->is_DataObject() || pParameter->is_DataObject_List()) )
+			{
+				if( pParameter->Get_Type() == pData->Get_Type() )
+				{
+					bResult	= pParameter->Assign(pData);
+				}
+				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
+				{
+					bResult	= pParameter->asList()->Add_Item(pData->asDataObject());
+				}
+				else if( pParameter->is_DataObject() && pData->is_DataObject_List() && Index >= 0 )
+				{
+					bResult	= pParameter->Set_Value(pData->asList()->asDataObject(Index));
+				}
+			}
+
+			if( !bResult )
+			{
+				Error_Set(CSG_String::Format("%s: %s", _TL("set input"), Parameter.Get_Property("id")));
 
 				return( false );
 			}
 
-			if( pParameter->is_DataObject() || pParameter->is_DataObject_List() )
+			pParameter->has_Changed();
+
+			if( pOwner )
 			{
-				if( pParameter->Get_Type() == pData->Get_Type() )
-				{
-					if( !pParameter->Assign(pData) )
-					{
-						Error_Set(CSG_String::Format("%s: %s", _TL("set input"), Parameter.Get_Property("id")));
-
-						return( false );
-					}
-				}
-				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
-				{
-					pParameter->asList()->Add_Item(pData->asDataObject());
-				}
-
-				pParameter->has_Changed();
-
-				if( pOwner )
-				{
-					pOwner->has_Changed();
-				}
+				pOwner->has_Changed();
 			}
 		}
 		else if( Parameter.Cmp_Name("output") )
@@ -1195,6 +1211,11 @@ bool CSG_Tool_Chain::Save_History_to_Model(const CSG_MetaData &History, const CS
 	Chain.Add_Child   ("tools"      );
 
 	_Save_History_Add_Tool(Tool, *Chain("parameters"), *Chain("tools"), true);
+
+	for(int i=0; i<Chain["tools"].Get_Children_Count(); i++)
+	{
+		Chain["tools"](i)->Del_Property("id");
+	}
 
 	return( Chain.Save(File) );
 }
