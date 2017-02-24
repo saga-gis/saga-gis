@@ -133,6 +133,8 @@ private:
 
 	bool						Check_Condition			(const CSG_MetaData &Condition, CSG_Parameters *pData);
 
+	bool						ForEach_ObjectInList	(const CSG_MetaData &Commands);
+
 	bool						Tool_Run				(const CSG_MetaData &Tool);
 	bool						Tool_Check_Condition	(const CSG_MetaData &Tool);
 	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Tool *pTool, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
@@ -170,7 +172,7 @@ public:
 
 	virtual int						Get_Count			(void)		const	{	return( m_nTools );	}
 
-	virtual CSG_Tool *			Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
+	virtual CSG_Tool *				Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
 	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < m_nTools ? m_pTools[Index]->Get_File_Name() : "" );	}
 
@@ -185,7 +187,7 @@ private:
 
 	int								m_nTools;
 
-	CSG_Tool_Chain				**m_pTools;
+	CSG_Tool_Chain					**m_pTools;
 
 	CSG_String						m_Name, m_Description, m_Menu;
 

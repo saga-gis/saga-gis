@@ -728,6 +728,76 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::ForEach_ObjectInList(const CSG_MetaData &Commands)
+{
+	CSG_String	ListVarName;
+	
+	if( !Commands.Get_Property("input", ListVarName) )
+	{
+		return( false );
+	}
+
+	CSG_Parameter	*pList	= m_Data(ListVarName);
+
+	if( !pList || !pList->is_DataObject_List() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists
+	{
+		const CSG_MetaData	&Item	= Commands[i];
+
+		CSG_String	VarName;
+
+		if( Item.Cmp_Name("output") && !m_Data(Item.Get_Content()) )
+		{
+			switch( SG_Parameter_Type_Get_Type(Item.Get_Property("type")) )
+			{
+			default:	break;
+			case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List("", Item.Get_Content(), "", "", 0       );	break;
+			case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      ("", Item.Get_Content(), "", "", 0, false);	break;
+			case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     ("", Item.Get_Content(), "", "", 0       );	break;
+			case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    ("", Item.Get_Content(), "", "", 0       );	break;
+			case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       ("", Item.Get_Content(), "", "", 0       );	break;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	bool	bResult	= true;
+
+	for(int iObject=0; bResult && iObject<pList->asList()->Get_Count(); iObject++)
+	{
+		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+		{
+			const CSG_MetaData	&Tool	= Commands[iTool];
+
+			if( Tool.Cmp_Name("tool") )
+			{
+				for(int j=0; j<Tool.Get_Children_Count(); j++)
+				{
+					if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
+					{
+						Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject)); 
+					}
+				}
+
+				bResult	= Tool_Run(Tool);
+			}
+		}
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 {
 	//-----------------------------------------------------
@@ -752,6 +822,12 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 		}
 
 		return( bResult );
+	}
+
+	//-----------------------------------------------------
+	if( Tool.Cmp_Name("foreach") )
+	{
+		return( ForEach_ObjectInList(Tool) );
 	}
 
 	//-----------------------------------------------------
