@@ -293,6 +293,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="config.cpp" />
     <ClCompile Include="saga_cmd.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -324,6 +325,7 @@
     <ClInclude Include="..\saga_api\table_value.h" />
     <ClInclude Include="..\saga_api\TIN.h" />
     <ClInclude Include="callback.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="tool.h" />
   </ItemGroup>
   <ItemGroup>

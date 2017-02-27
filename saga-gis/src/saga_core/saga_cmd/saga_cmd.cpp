@@ -66,8 +66,8 @@
 #include <wx/app.h>
 #include <wx/utils.h>
 
+#include "config.h"
 #include "callback.h"
-
 #include "tool.h"
 
 
@@ -76,6 +76,9 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		g_bConfig	= false;
 
 //---------------------------------------------------------
 bool		Run				(int argc, char *argv[]);
@@ -178,6 +181,11 @@ bool		Run(int argc, char *argv[])
 	while( argc > 1 && Check_Flags(argv[1]) )
 	{
 		argc--;	argv++;
+	}
+
+	if( !g_bConfig )
+	{
+		Config_Load();
 	}
 
 	Print_Logo();
@@ -398,7 +406,7 @@ bool		Load_Libraries(void)
 	#else
 		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
 
-		if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
+		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
 		{
 			wxSetEnv("PATH", DLL_Path + wxT(";") + Path);
 		}
@@ -413,7 +421,7 @@ bool		Load_Libraries(void)
 		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
     #endif
 
-	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
+	if( wxGetEnv("SAGA_MLB", &Path) )
 	{
 		CSG_String_Tokenizer	Paths(&Path, ";");
 
@@ -486,7 +494,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	//-----------------------------------------------------
 	CSG_String	s(Argument.BeforeFirst('='));
 
-	if( !s.CmpNoCase("-f") || !s.CmpNoCase("--flags") )
+	if( !s.Cmp("-f") || !s.Cmp("--flags") )
 	{
 		s	= CSG_String(Argument).AfterFirst('=');
 
@@ -527,7 +535,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	}
 
 	//-----------------------------------------------------
-	else if( !s.CmpNoCase("-c") || !s.CmpNoCase("--cores") )
+	else if( !s.Cmp("-c") || !s.Cmp("--cores") )
 	{
 		#ifdef _OPENMP
 		int	nCores	= 1;
@@ -544,13 +552,30 @@ bool		Check_Flags		(const CSG_String &Argument)
 	}
 
 	//-----------------------------------------------------
-	else if( !s.CmpNoCase("-s") || !s.CmpNoCase("--story") )
+	else if( !s.Cmp("-s") || !s.Cmp("--story") )
 	{
 		int	Depth;
 
 		if( CSG_String(Argument).AfterFirst('=').asInt(Depth) )
 		{
 			SG_Set_History_Depth(Depth);
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	else if( !s.Cmp("-C") || !s.Cmp("--config") )
+	{
+		s	= CSG_String(Argument).AfterFirst('=');
+
+		if( !SG_File_Exists(s) )
+		{
+			Config_Create(s);
+		}
+		else if( Config_Load(s) )
+		{
+			g_bConfig	= true;
 		}
 
 		return( true );
@@ -702,15 +727,15 @@ void		Print_Help		(void)
 		"saga_cmd [-b, --batch]\n"
 		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
-		"  <LIBRARY> <TOOL> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
-		"  <SCRIPT>\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-c, --cores][=#]\n"
+		"  [-f, --flags][=qrsilpxo] <LIBRARY> <TOOL> <OPTIONS>\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-c, --cores][=#]\n"
+		"  [-f, --flags][=qrsilpxo] <SCRIPT>\n"
 #else
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
-		"  <LIBRARY> <TOOL> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
-		"  <SCRIPT>\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#]\n"
+		"  [-f, --flags][=qrsilpxo] <LIBRARY> <TOOL> <OPTIONS>\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#]\n"
+		"  [-f, --flags][=qrsilpxo] <SCRIPT>\n"
 #endif
 		"\n"
 		"[-h], [--help]   : help on usage\n"
@@ -718,6 +743,7 @@ void		Print_Help		(void)
 		"[-b], [--batch]  : create a batch file example\n"
 		"[-d], [--docs]   : create tool documentation in current working directory\n"
 		"[-s], [--story]  : maximum data history depth (default is unlimited)\n"
+		"[-C], [--config] : configuration file (default is 'saga_cmd.ini' or similar)\n"
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
