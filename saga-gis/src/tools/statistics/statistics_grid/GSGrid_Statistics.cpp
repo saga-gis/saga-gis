@@ -213,7 +213,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 		return( false );
 	}
 
-	double	dRank	= Parameters("PCTL_VAL")->asDouble() / 100.0;
+	double	dRank	= Parameters("PCTL_VAL")->asDouble();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -227,16 +227,18 @@ bool CGSGrid_Statistics::On_Execute(void)
 			{
 				if( !pGrids->asGrid(i)->is_NoData(x, y) )
 				{
-					double	z	= pGrids->asGrid(i)->asDouble(x, y), w = 1.0;
-
-					if( pWeights && !pWeights->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling, false, true) )
+					if( pWeights )
 					{
-						w	= 0.0;
+						double	w = 0.0;
+
+						if( pWeights->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling, false, true) && w > 0.0 )
+						{
+							s.Add_Value(pGrids->asGrid(i)->asDouble(x, y), w);
+						}
 					}
-
-					if( w > 0.0 )
+					else
 					{
-						s.Add_Value(z, w);
+						s.Add_Value(pGrids->asGrid(i)->asDouble(x, y));
 					}
 				}
 			}
