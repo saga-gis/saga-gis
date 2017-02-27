@@ -127,6 +127,8 @@ void CSG_Tool_Chain::Set_Library_Menu(const CSG_String &Menu)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::Create(const CSG_String &File)
 {
+	bool	bReload	= is_Okay();
+
 	Reset();
 
 	//-----------------------------------------------------
@@ -149,8 +151,6 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 
 	if( !m_Chain.Cmp_Name("toolchain") || !m_Chain("identifier") || !m_Chain("parameters") )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("missing tool chain tags"), File.c_str()));
-
 		Reset();	return( false );
 	}
 
@@ -158,6 +158,8 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("WARNING"), _TL("unsupported tool chain version"), File.c_str()));
 	}
+
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", bReload ? _TL("Reload tool chain") : _TL("Load tool chain"), File.c_str()), true);
 
 	//-----------------------------------------------------
 	m_File_Name		= File;
@@ -308,7 +310,16 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	return( is_Okay() );
+	if( is_Okay() )
+	{
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 
