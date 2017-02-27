@@ -1245,8 +1245,8 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 		case SG_DATATYPE_Binary:	Types[i]	= 13;	break;
 		}
 
-        P.Add_Choice(NULL, "", m_pTable->Get_Field_Name(i), _TL(""),
-            CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		P.Add_Choice("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
@@ -1261,8 +1261,8 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
-            ), Types[i]
-        );
+			), Types[i]
+		);
 	}
 
 	//-----------------------------------------------------
@@ -1276,8 +1276,7 @@ void CVIEW_Table_Control::On_Field_Type(wxCommandEvent &event)
 
 			switch( P(i)->asInt() )
 			{
-			default:
-			case  0:	Type	= SG_DATATYPE_String;	break;
+			default:	Type	= SG_DATATYPE_String;	break;
 			case  1:	Type	= SG_DATATYPE_Date  ;	break;
 			case  2:	Type	= SG_DATATYPE_Color ;	break;
 			case  3:	Type	= SG_DATATYPE_Byte  ;	break;
