@@ -1107,7 +1107,7 @@ CSG_String		SG_JulianDayNumber_To_Date(int Value)
 //---------------------------------------------------------
 CSG_String		SG_JulianDayNumber_To_Date(double Value)
 {
-	CSG_DateTime	Date(Value);
+	CSG_DateTime	Date(0.5 + (int)Value);
 
 	return( Date.Format("%Y-%m-%d") );	// yyyy-mm-dd (ISO 8601)
 }

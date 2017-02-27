@@ -337,7 +337,7 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 	{
 		CSG_String	Name(pTable->Get_Field_Name(iField));
 
-		for(int j=0; j<11 && j<Name.Length(); j++)
+		for(int j=0; j<11 && j<(int)Name.Length(); j++)
 		{
 			m_Fields[iField].Name[j]	= Name.b_str()[j];
 		}
@@ -735,16 +735,16 @@ CSG_String CSG_Table_DBase::asString(int iField)
 		{
 			char	*s	= m_Record + m_Fields[iField].Offset;
 
-			Value	+= s[6];	// D1
-			Value	+= s[7];	// D2
-			Value	+= '.';
-			Value	+= s[4];	// M1
-			Value	+= s[5];	// M2
-			Value	+= '.';
 			Value	+= s[0];	// Y1
 			Value	+= s[1];	// Y2
 			Value	+= s[2];	// Y3
 			Value	+= s[3];	// Y4
+			Value	+= '-';
+			Value	+= s[4];	// M1
+			Value	+= s[5];	// M2
+			Value	+= '-';
+			Value	+= s[6];	// D1
+			Value	+= s[7];	// D2
 		}
 	}
 
@@ -837,18 +837,18 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 			return( true );
 		}
 
-		if( m_Fields[iField].Type == DBF_FT_DATE && n == 10 )	// SAGA(DD.MM.YYYY) to DBASE(YYYYMMDD)
+		if( m_Fields[iField].Type == DBF_FT_DATE && n == 10 )	// SAGA(YYYY-MM-DD) to DBASE(YYYYMMDD)
 		{	// 8 bytes - date stored as a string in the format YYYYMMDD
 			char	*s	= m_Record + m_Fields[iField].Offset;
 
-			s[0]	= Value[6];	// Y1
-			s[1]	= Value[7];	// Y2
-			s[2]	= Value[8];	// Y3
-			s[3]	= Value[9];	// Y4
-			s[4]	= Value[3];	// M1
-			s[5]	= Value[4];	// M2
-			s[6]	= Value[0];	// D1
-			s[7]	= Value[1];	// D2
+			s[0]	= Value[0];	// Y1
+			s[1]	= Value[1];	// Y2
+			s[2]	= Value[2];	// Y3
+			s[3]	= Value[3];	// Y4
+			s[4]	= Value[5];	// M1
+			s[5]	= Value[6];	// M2
+			s[6]	= Value[8];	// D1
+			s[7]	= Value[9];	// D2
 
 			m_bModified	= true;
 
