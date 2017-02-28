@@ -92,14 +92,19 @@ double			SG_Get_Square(double Value)
 //---------------------------------------------------------
 double			SG_Get_Rounded(double Value, int Decimals)
 {
-	if( Decimals <= 0 )
+	if( Decimals < 0 )
 	{
-		return( (int)(0.5 + Value) );
+		return( Value );
 	}
 
-	double	d	= pow(10.0, Decimals);
+	if( Decimals == 0 )
+	{
+		return( floor(0.5 + Value) );
+	}
 
-	return( ((int)(0.5 + d * Value)) / d );
+	double	Precision	= pow(10.0, Decimals);
+
+	return( floor(0.5 + Value * Precision) / Precision );
 }
 
 //---------------------------------------------------------

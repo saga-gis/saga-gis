@@ -73,17 +73,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_SYSTEM_PRECISION 10000000000	// 10 decimal digits, precision used for storing cellsize and extent
+int		CSG_Grid_System::m_Precision	= 10;	// 10 decimal digits, default precision used for storing cellsize and extent
 
 //---------------------------------------------------------
-double SG_Get_Limited_Precision(double Value, double Precision)
+int CSG_Grid_System::Set_Precision(int Decimals)
 {
-	if( Precision > 0.0 )
+	if( Decimals >= 0 )
 	{
-		return( floor(Value * Precision + 0.5) / Precision );
+		m_Precision	= Decimals;
 	}
 
-	return( Value );
+	return( m_Precision );
+}
+
+//---------------------------------------------------------
+int CSG_Grid_System::Get_Precision(void)
+{
+	return( m_Precision );
 }
 
 
@@ -238,9 +244,9 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 {
 	if( Cellsize > 0.0 && NX > 0 && NY > 0 )
 	{
-		Cellsize	= SG_Get_Limited_Precision(Cellsize, GRID_SYSTEM_PRECISION);
-		xMin		= SG_Get_Limited_Precision(xMin    , GRID_SYSTEM_PRECISION);
-		yMin		= SG_Get_Limited_Precision(yMin    , GRID_SYSTEM_PRECISION);
+		Cellsize	= SG_Get_Rounded(Cellsize, m_Precision);
+		xMin		= SG_Get_Rounded(xMin    , m_Precision);
+		yMin		= SG_Get_Rounded(yMin    , m_Precision);
 
 		if( Cellsize > 0.0 )
 		{

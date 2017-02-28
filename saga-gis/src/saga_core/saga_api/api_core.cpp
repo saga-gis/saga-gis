@@ -83,7 +83,11 @@ int		g_SG_OMP_Max_Num_Threads	= omp_get_num_procs();
 //---------------------------------------------------------
 void	SG_OMP_Set_Max_Num_Threads		(int iCores)
 {
-	if( iCores > omp_get_num_procs() )
+	if( iCores < 1 )
+	{
+		iCores	= 1;
+	}
+	else if( iCores > omp_get_num_procs() )
 	{
 		iCores	= omp_get_num_procs();
 	}

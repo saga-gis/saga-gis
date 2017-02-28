@@ -131,25 +131,25 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_pMenu_Files	= new CWKSP_Data_Menu_Files;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode[3];
+	m_Parameters.Add_Node("",
+		"NODE_GENERAL"			, _TL("General"),
+		_TL("")
+	);
 
-	//-----------------------------------------------------
-	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
-
-	m_Parameters.Add_Choice(
-		pNode[0]	, "PROJECT_START"			, _TL("Startup Project"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"PROJECT_START"			, _TL("Startup Project"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("empty"),
 			_TL("last state"),
 			_TL("always ask what to do")
 		), 2
 	);
 
-	pNode[1]	= m_Parameters.Add_Choice(
-		pNode[0]	, "PROJECT_MAP_ARRANGE"		, _TL("Map Window Arrangement"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"PROJECT_MAP_ARRANGE"	, _TL("Map Window Arrangement"),
 		_TL("initial map window arrangement after a project is loaded"),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Cascade"),
 			_TL("Tile Horizontally"),
 			_TL("Tile Vertically")
@@ -157,11 +157,11 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 #ifndef _SAGA_MSW
-	pNode[1]->Set_Enabled(false);
+	m_Parameters.Set_Enabled("PROJECT_MAP_ARRANGE", false);
 #endif
 
-	pNode[1]	= m_Parameters.Add_Choice(
-		pNode[0]	, "PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
 		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted paswords for automatic connection will be stored."),
 		CSG_String::Format("%s|%s|",
 			_TL("no"),
@@ -169,138 +169,165 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 0
 	);
 
-	m_Parameters.Add_Bool(
-		pNode[0]	, "SHOW_FILE_SOURCES"		, _TL("Show Data File Sources"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"SHOW_FILE_SOURCES"		, _TL("Show Data File Sources"),
 		_TL("Show data sources tab for file system. Disabling might speed up start-up. Changes take effect after restart."),
 		true
 	);
 
-	m_Parameters.Add_Int(
-		pNode[0]	, "NUMBERING"				, _TL("Numbering of Data Sets"),
+	m_Parameters.Add_Int("NODE_GENERAL",
+		"NUMBERING"				, _TL("Numbering of Data Sets"),
 		_TL("Leading zeros for data set numbering. Set to -1 for not using numbers at all."),
 		m_Numbering = 2, -1, true
 	);
 
-	m_Parameters.Add_Colors(
-		pNode[0]	, "COLORS_DEFAULT"			, _TL("Default Colors"),
+	m_Parameters.Add_Colors("NODE_GENERAL",
+		"COLORS_DEFAULT"		, _TL("Default Colors"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Bool(
-		pNode[0]	, "COLORS_FROM_TOOL"		, _TL("Tool Set Colors"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"COLORS_FROM_TOOL"		, _TL("Tool Set Colors"),
 		_TL("Allow tools to change data set colors programmatically."),
 		true
 	);
 
 	//-----------------------------------------------------
-	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_HISTORY", _TL("History"), _TL(""));
+	m_Parameters.Add_Node("",
+		"NODE_HISTORY"			, _TL("History"),
+		_TL("")
+	);
 
-	m_Parameters.Add_Int(
-		pNode[0]	, "HISTORY_DEPTH"			, _TL("History Depth"),
+	m_Parameters.Add_Int("NODE_HISTORY",
+		"HISTORY_DEPTH"			, _TL("History Depth"),
 		_TL("Depth to which data history is stored. Set -1 keeps all history entries (default), 0 switches history option off."),
 		SG_Get_History_Depth(), -1, true
 	);
 
-	m_Parameters.Add_Bool(
-		pNode[0]	, "HISTORY_LISTS"			, _TL("Ignore Input Lists"),
+	m_Parameters.Add_Bool("NODE_HISTORY",
+		"HISTORY_LISTS"			, _TL("Ignore Input Lists"),
 		_TL(""),
 		SG_Get_History_Ignore_Lists() != 0
 	);
 
 	//-----------------------------------------------------
-	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
+	m_Parameters.Add_Node("",
+		"NODE_THUMBNAILS"		, _TL("Thumbnails"),
+		_TL("")
+	);
 
-	m_Parameters.Add_Int(
-		pNode[0]	, "THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+	m_Parameters.Add_Int("NODE_THUMBNAILS",
+		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
 		_TL(""),
 		75, 10, true
 	);
 
-	m_Parameters.Add_Bool(
-		pNode[0]	, "THUMBNAIL_CATEGORY"	, _TL("Show Categories"),
+	m_Parameters.Add_Bool("NODE_THUMBNAILS",
+		"THUMBNAIL_CATEGORY"	, _TL("Show Categories"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Color(
-		pNode[0]	, "THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+	m_Parameters.Add_Color("NODE_THUMBNAILS",
+		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
 		_TL(""),
 		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
 	);
 
 	//-----------------------------------------------------
-	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_GRID", _TL("Grids"), _TL(""));
+	m_Parameters.Add_Node("",
+		"NODE_GRID"				, _TL("Grids"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Int("NODE_GRID",
+		"GRID_COORD_PRECISION"	, _TL("Coordinate Precision"),
+		_TL("Precision used to store coordinates and cell sizes (i.e. number of decimals)."),
+		10, 0, true
+	);
 
 	//-----------------------------------------------------
-	pNode[1]	= m_Parameters.Add_Node(pNode[0], "NODE_GRID_DISPLAY", _TL("Display"), _TL(""));
+	m_Parameters.Add_Node("NODE_GRID",
+		"NODE_GRID_DISPLAY"		, _TL("Display"),
+		_TL("")
+	);
 
-	pNode[2]	= m_Parameters.Add_Choice(
-		pNode[1]	, "GRID_COLORS_FIT"			, _TL("Histogram Stretch"),
+	m_Parameters.Add_Choice("NODE_GRID_DISPLAY",
+		"GRID_COLORS_FIT"		, _TL("Histogram Stretch"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Minimum/Maximum"),
 			_TL("Standard Deviation"),
 			_TL("Percentile")
 		), 1
 	);
 
-	m_Parameters.Add_Double(
-		pNode[2]	, "GRID_COLORS_FIT_STDDEV"	, _TL("Standard Deviation"),
+	m_Parameters.Add_Double("GRID_COLORS_FIT",
+		"GRID_COLORS_FIT_STDDEV", _TL("Standard Deviation"),
 		_TL("Multiple of Standard Deviation used as default for histogram stretch."),
 		2.0, 0.01, true
 	);
 
-	m_Parameters.Add_Double(
-		pNode[2]	, "GRID_COLORS_FIT_PCTL"	, _TL("Percentile"),
+	m_Parameters.Add_Double("GRID_COLORS_FIT",
+		"GRID_COLORS_FIT_PCTL"	, _TL("Percentile"),
 		_TL("Percentile used as default for histogram stretch."),
 		2.0, 0.0, true, 50.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode[1]	= m_Parameters.Add_Node(pNode[0], "NODE_GRID_SELECTION", _TL("Selection"), _TL(""));
+	m_Parameters.Add_Node("NODE_GRID",
+		"NODE_GRID_SELECTION"	, _TL("Selection"),
+		_TL("")
+	);
 
-	m_Parameters.Add_Int(
-		pNode[1]	, "GRID_SELECT_MAX"			, _TL("Maximum Selection"),
+	m_Parameters.Add_Int("NODE_GRID_SELECTION",
+		"GRID_SELECT_MAX"		, _TL("Maximum Selection"),
 		_TL("Maximum number of rows/columns in selection of grid cells."),
 		100, 1, true
 	);
 
 	//-----------------------------------------------------
-	pNode[1]	= m_Parameters.Add_Node(pNode[0], "NODE_GRID_CACHE", _TL("File Caching"), _TL(""));
+	m_Parameters.Add_Node("NODE_GRID",
+		"NODE_GRID_CACHE"		, _TL("File Caching"),
+		_TL("")
+	);
 
-	m_Parameters.Add_Bool(
-		pNode[1]	, "GRID_CACHE_AUTO"		, _TL("Automatic"),
+	m_Parameters.Add_Bool("NODE_GRID_CACHE",
+		"GRID_CACHE_AUTO"		, _TL("Automatic"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
 		SG_Grid_Cache_Get_Automatic()
 	);
 
-	m_Parameters.Add_Double(
-		pNode[1]	, "GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
+	m_Parameters.Add_Double("NODE_GRID_CACHE",
+		"GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
 		_TL(""),
 		SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 	);
 
-	m_Parameters.Add_Choice(
-		pNode[1]	, "GRID_CACHE_CONFIRM"	, _TL("Confirm file caching"),
+	m_Parameters.Add_Choice("NODE_GRID_CACHE",
+		"GRID_CACHE_CONFIRM"	, _TL("Confirm file caching"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("do not confirm"),
 			_TL("confirm"),
 			_TL("confirm with options")
 		), SG_Grid_Cache_Get_Confirm()
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode[1]	, "GRID_CACHE_TMPDIR"	, _TL("Temporary files"),
+	m_Parameters.Add_FilePath("NODE_GRID_CACHE",
+		"GRID_CACHE_TMPDIR"		, _TL("Temporary files"),
 		_TL("Directory, where temporary cache files shall be saved."),
 		NULL, SG_Grid_Cache_Get_Directory(), true, true
 	);
 
 	//-----------------------------------------------------
-	pNode[0]	= m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Tables"), _TL(""));
+	m_Parameters.Add_Node("",
+		"NODE_TABLE"			, _TL("Tables"),
+		_TL("")
+	);
 
-	pNode[1]	= m_Parameters.Add_Choice(
-		pNode[0]	, "TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
+	m_Parameters.Add_Choice("NODE_TABLE",
+		"TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("system default"),
@@ -309,8 +336,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		), 1
 	);
 
-	m_Parameters.Add_Int(
-		pNode[1]	, "TABLE_FLT_DECIMALS"	, _TL("Decimals"),
+	m_Parameters.Add_Int("NODE_TABLE",
+		"TABLE_FLT_DECIMALS"	, _TL("Decimals"),
 		_TL(""),
 		6, 0, true
 	);
@@ -318,13 +345,15 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	//-----------------------------------------------------
 	CONFIG_Read("/DATA", &m_Parameters);
 
-	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR" )->asString());
-	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"   )->asBool  ());
-	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD")->asDouble());
-	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM")->asInt   ());
+	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
+	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"     )->asBool  ());
+	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
+	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM"  )->asInt   ());
 
-	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"     )->asInt   ());
-	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"     )->asInt   ());
+	CSG_Grid_System::Set_Precision(m_Parameters("GRID_COORD_PRECISION")->asInt   ());
+
+	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"       )->asInt   ());
+	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"       )->asInt   ());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
 }
@@ -654,13 +683,15 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 		return;
 	}
 
-	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR" )->asString());
-	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"   )->asBool  ());
-	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD")->asDouble());
-	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM")->asInt   ());
+	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
+	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"     )->asBool  ());
+	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
+	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM"  )->asInt   ());
 
-	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"     )->asInt   ());
-	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"     )->asInt   ());
+	CSG_Grid_System::Set_Precision(m_Parameters("GRID_COORD_PRECISION")->asInt   ());
+
+	SG_Set_History_Depth          (m_Parameters("HISTORY_DEPTH"       )->asInt   ());
+	SG_Set_History_Ignore_Lists   (m_Parameters("HISTORY_LISTS"       )->asInt   ());
 
 	m_Numbering	= m_Parameters("NUMBERING")->asInt();
 

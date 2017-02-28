@@ -937,12 +937,12 @@ CSG_Parameter * CSG_Parameters::_Add_String(const CSG_String &ParentID, const CS
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/debug.h>
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint)
 {
-	if( ID.is_Empty() )
-	{
-		return( NULL );
-	}
+	wxASSERT_MSG(!ID.is_Empty(), "CSG_Parameter::Add: ID is empty");
 
 	CSG_Parameter	*pParameter	= new CSG_Parameter(this, Get_Parameter(ParentID), ID, Name, Description, Type, Constraint);
 

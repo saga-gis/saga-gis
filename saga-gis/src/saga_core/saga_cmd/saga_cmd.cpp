@@ -66,8 +66,8 @@
 #include <wx/app.h>
 #include <wx/utils.h>
 
+#include "config.h"
 #include "callback.h"
-
 #include "tool.h"
 
 
@@ -76,6 +76,9 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool		g_bConfig	= false;
 
 //---------------------------------------------------------
 bool		Run				(int argc, char *argv[]);
@@ -97,8 +100,8 @@ void		Print_Get_Help	(void);
 void		Print_Help		(void);
 void		Print_Version	(void);
 
-void		Create_Example	(void);
-void		Create_Docs		(void);
+void		Create_Batch	(const CSG_String &File);
+void		Create_Docs		(const CSG_String &Directory);
 
 
 ///////////////////////////////////////////////////////////
@@ -112,7 +115,7 @@ int		main	(int argc, char *argv[])
 {
 	if( !wxInitialize() )
 	{
-		CMD_Print_Error(SG_T("initialisation failed"));
+		CMD_Print_Error("initialisation failed");
 
 		return( 1 );
 	}
@@ -178,6 +181,11 @@ bool		Run(int argc, char *argv[])
 	while( argc > 1 && Check_Flags(argv[1]) )
 	{
 		argc--;	argv++;
+	}
+
+	if( !g_bConfig )
+	{
+		Config_Load();
 	}
 
 	Print_Logo();
@@ -398,7 +406,7 @@ bool		Load_Libraries(void)
 	#else
 		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
 
-		if( wxGetEnv(wxT("PATH"), &Path) && Path.Length() > 0 )
+		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
 		{
 			wxSetEnv("PATH", DLL_Path + wxT(";") + Path);
 		}
@@ -413,7 +421,7 @@ bool		Load_Libraries(void)
 		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
     #endif
 
-	if( wxGetEnv(SG_T("SAGA_MLB"), &Path) )
+	if( wxGetEnv("SAGA_MLB", &Path) )
 	{
 		CSG_String_Tokenizer	Paths(&Path, ";");
 
@@ -425,7 +433,7 @@ bool		Load_Libraries(void)
 
 	if( SG_Get_Tool_Library_Manager().Get_Count() <= 0 )
 	{
-		CMD_Print_Error(SG_T("could not load any tool library"));
+		CMD_Print_Error("could not load any tool library");
 
 		return( false );
 	}
@@ -443,30 +451,37 @@ bool		Load_Libraries(void)
 //---------------------------------------------------------
 bool		Check_First		(const CSG_String &Argument)
 {
-	if( !Argument.CmpNoCase("-h") || !Argument.CmpNoCase("--help") )
+	if( !Argument.Cmp("-h") || !Argument.Cmp("--help") )
 	{
 		Print_Help();
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase("-v") || !Argument.CmpNoCase("--version") )
+	if( !Argument.Cmp("-v") || !Argument.Cmp("--version") )
 	{
 		Print_Version();
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase("-b") || !Argument.CmpNoCase("--batch") )
+	if( !Argument.Find("--create-config") )
 	{
-		Create_Example();
+		Config_Create(Argument.AfterFirst('='));
 
 		return( true );
 	}
 
-	if( !Argument.CmpNoCase("-d") || !Argument.CmpNoCase("--docs") )
+	if( !Argument.Find("--create-batch") )
 	{
-		Create_Docs();
+		Create_Batch(Argument.AfterFirst('='));
+
+		return( true );
+	}
+
+	if( !Argument.Find("--create-docs") )
+	{
+		Create_Docs(Argument.AfterFirst('='));
 
 		return( true );
 	}
@@ -486,7 +501,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	//-----------------------------------------------------
 	CSG_String	s(Argument.BeforeFirst('='));
 
-	if( !s.CmpNoCase("-f") || !s.CmpNoCase("--flags") )
+	if( !s.Cmp("-f") || !s.Cmp("--flags") )
 	{
 		s	= CSG_String(Argument).AfterFirst('=');
 
@@ -495,29 +510,24 @@ bool		Check_Flags		(const CSG_String &Argument)
 		CMD_Set_Interactive  (s.Find('i') >= 0                  );	// i: allow user interaction
 		CMD_Set_XML          (s.Find('x') >= 0                  );	// x: message output as xml
 
-		//-------------------------------------------------
 		if( s.Find('l') >= 0 )	// l: load translation dictionary
 		{
 			SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
-
 			SG_Printf(CSG_String::Format("\n%s.\n",
 				SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
 				? _TL("success") : _TL("failed")
 			));
 		}
 
-		//-------------------------------------------------
 		if( s.Find('p') >= 0 )	// p: load projections dictionary
 		{
 			SG_Printf(CSG_String::Format("\n%s:", _TL("loading spatial reference system database")));
-
 			SG_Printf(CSG_String::Format("\n%s.\n",
 				SG_Get_Projections().Create(SG_File_Make_Path(Path_Shared, SG_T("saga_prj"), SG_T("srs")))
 				? _TL("success") : _TL("failed")
 			));
 		}
 
-		//-------------------------------------------------
 		if( s.Find('o') >= 0 )	// o: load old style naming, has no effect if l-flag is set.
 		{
 			SG_Set_OldStyle_Naming();
@@ -527,30 +537,37 @@ bool		Check_Flags		(const CSG_String &Argument)
 	}
 
 	//-----------------------------------------------------
-	else if( !s.CmpNoCase("-c") || !s.CmpNoCase("--cores") )
+	else if( !s.Cmp("-c") || !s.Cmp("--cores") )
 	{
-		#ifdef _OPENMP
 		int	nCores	= 1;
 
-		if( !CSG_String(Argument).AfterFirst('=').asInt(nCores) || nCores > SG_OMP_Get_Max_Num_Procs() )
+		if( CSG_String(Argument).AfterFirst('=').asInt(nCores) )
 		{
-			nCores	= SG_OMP_Get_Max_Num_Procs();
+			SG_OMP_Set_Max_Num_Threads(nCores);
 		}
-
-		SG_OMP_Set_Max_Num_Threads(nCores);
-		#endif // _OPENMP
 
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	else if( !s.CmpNoCase("-s") || !s.CmpNoCase("--story") )
+	else if( !s.Cmp("-s") || !s.Cmp("--story") )
 	{
 		int	Depth;
 
 		if( CSG_String(Argument).AfterFirst('=').asInt(Depth) )
 		{
 			SG_Set_History_Depth(Depth);
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	else if( !s.Cmp("-C") || !s.Cmp("--config") )
+	{
+		if( Config_Load(CSG_String(Argument).AfterFirst('=')) )
+		{
+			g_bConfig	= true;
 		}
 
 		return( true );
@@ -699,25 +716,22 @@ void		Print_Help		(void)
 		"\n"
 		"saga_cmd [-h, --help]\n"
 		"saga_cmd [-v, --version]\n"
-		"saga_cmd [-b, --batch]\n"
-		"saga_cmd [-d, --docs]\n"
 #ifdef _OPENMP
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-c, --cores][=#][-f, --flags][=#]\n"
 		"  <LIBRARY> <TOOL> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#][-c, --cores][=#]\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-c, --cores][=#][-f, --flags][=#]\n"
 		"  <SCRIPT>\n"
 #else
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-f, --flags][=#]\n"
 		"  <LIBRARY> <TOOL> <OPTIONS>\n"
-		"saga_cmd [-f, --flags][=qrsilpxo][-s, --story][=#]\n"
+		"saga_cmd [-C, --config][=#][-s, --story][=#][-f, --flags][=#]\n"
 		"  <SCRIPT>\n"
 #endif
 		"\n"
 		"[-h], [--help]   : help on usage\n"
-		"[-v], [--version]: print version information\n"
-		"[-b], [--batch]  : create a batch file example\n"
-		"[-d], [--docs]   : create tool documentation in current working directory\n"
+		"[-v], [--version]: version information\n"
 		"[-s], [--story]  : maximum data history depth (default is unlimited)\n"
+		"[-C], [--config] : configuration file (default is 'saga_cmd.ini')\n"
 #ifdef _OPENMP
 		"[-c], [--cores]  : number of physical processors to use for computation\n"
 #endif
@@ -735,11 +749,22 @@ void		Print_Help		(void)
 		"<OPTIONS>        : tool specific options\n"
 		"<SCRIPT>         : saga cmd script file with one or more tool calls\n"
 		"\n"
+		"saga_cmd --create-config[=file]\n"
+		"   creates a default configuration file. If no file name is specified\n"
+		"   it will use \'saga_cmd.ini\'.\n"
+		"\n"
+		"saga_cmd --create-batch[=file]\n"
+		"   creates a batch script file example.\n"
+		"\n"
+		"saga_cmd --create-docs[=directory]\n"
+		"   creates tool documentation in current working directory, if no other\n"
+		"   directory is given.\n"
+		"\n"
 		"_____________________________________________________________________________\n"
 		"\n"
 		"Example:\n"
 		"\n"
-		"  saga_cmd -f=s ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
+		"  saga_cmd ta_lighting 0 -ELEVATION=c:\\dem.sgrd -SHADE=c:\\shade.sgrd\n"
 		"\n"
 		"_____________________________________________________________________________\n"
 		"\n"
@@ -748,9 +773,15 @@ void		Print_Help		(void)
 		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
 		"or more directories, just the way it is done with the DOS \'PATH\' variable.\n"
 		"\n"
+		"A more convenient way to set various saga_cmd options is to edit a\n"
+		"configuration file. The default configuration file \'saga_cmd.ini\' will be\n"
+		"loaded automatically, if present. You can specify a different configuration "
+		"file with the \'-C\' or \'--config\' option. Use \'--create-config\' to\n"
+		"generate such a file with default options and edit it to fit your purposes.\n"
+		"\n"
 		"The SAGA command line interpreter is particularly useful for the processing\n"
 		"of complex work flows by defining a series of subsequent tool calls in a\n"
-		"script file. Calling saga_cmd with the option \'-b\' or \'--batch\' will\n"
+		"script file. Calling saga_cmd with the option \'--create-batch\' will\n"
 		"create an example of a DOS batch script file, which might be a good starting\n"
 		"point for the implementation of your own specific work flows.\n"
 		"\n"
@@ -775,22 +806,24 @@ void		Print_Help		(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Create_Example	(void)
+void		Create_Batch	(const CSG_String &File)
 {
 	Print_Logo();
 
 	CSG_File	Stream;
 
-	CMD_Print(_TL("creating batch file example"));
+	CSG_String	_File(File.is_Empty() ? SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd"), SG_T("bat")) : File);
 
-	//-----------------------------------------------------
-	if( !Stream.Open(SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd_example"), SG_T("bat")), SG_FILE_W, false) )
+	CMD_Print(CSG_String::Format("%s [%s]", _TL("creating batch file example"), _File.c_str()));
+
+	if( !Stream.Open(_File, SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
 
 		return;
 	}
 
+	//-----------------------------------------------------
 	Stream.Printf(
 		"@ECHO OFF\n"
 		"\n"
@@ -836,7 +869,11 @@ void		Create_Example	(void)
 	);
 
 	//-----------------------------------------------------
-	if( !Stream.Open(SG_File_Make_Path(SG_Dir_Get_Current(), SG_T("saga_cmd_example"), SG_T("txt")), SG_FILE_W, false) )
+	SG_File_Set_Extension(_File, SG_T("txt"));
+
+	CMD_Print(CSG_String::Format("%s [%s]", _TL("creating sub script example"), _File.c_str()));
+
+	if( !Stream.Open(_File, SG_FILE_W, false) )
 	{
 		CMD_Print(_TL("failed"));
 
@@ -879,17 +916,26 @@ void		Create_Example	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void		Create_Docs		(void)
+void		Create_Docs		(const CSG_String &Directory)
 {
 	Print_Logo();
 
+	CMD_Print(_TL("creating tool documentation files"));
+
+	CSG_String	_Directory(Directory.is_Empty() ? SG_Dir_Get_Current() : Directory);
+
+	if( !SG_Dir_Exists(_Directory) )
+	{
+		CMD_Print(_TL("directory does not exist"));
+
+		return;
+	}
+
 	if( Load_Libraries() )
 	{
-		CMD_Print(_TL("creating tool documentation files"));
-
 		CMD_Set_Show_Messages(false);
 
-		SG_Get_Tool_Library_Manager().Get_Summary(SG_Dir_Get_Current());
+		SG_Get_Tool_Library_Manager().Get_Summary(_Directory);
 
 		CMD_Print(_TL("okay"));
 	}

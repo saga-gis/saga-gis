@@ -515,6 +515,33 @@ bool CSG_MetaData::Add_Property(const CSG_String &Name, int Value)
 }
 
 //---------------------------------------------------------
+bool CSG_MetaData::Del_Property(const CSG_String &Name)
+{
+	for(int i=0; i<Get_Property_Count(); i++)
+	{
+		if( !Get_Property_Name(i).CmpNoCase(Name) )
+		{
+			return( Del_Property(i) );
+		}
+	}
+
+	return( false );
+}
+
+bool CSG_MetaData::Del_Property(int i)
+{
+	if( i >= 0 && i < Get_Property_Count() )
+	{
+		m_Prop_Names .Del(i);
+		m_Prop_Values.Del(i);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_MetaData::Set_Property(const CSG_String &Name, const CSG_String &Value, bool bAddIfNotExists)
 {
 	int		Index;

@@ -352,6 +352,9 @@ public:
 	double						Get_Length			(int Direction)				const	{	return( Direction % 2 ? m_Diagonal : m_Cellsize );	}
 	static double				Get_UnitLength		(int Direction)						{	return( Direction % 2 ? sqrt(2.0)  : 1.0 );			}
 
+	static int					Set_Precision		(int Decimals);
+	static int					Get_Precision		(void);
+
 
 private:	///////////////////////////////////////////////
 
@@ -364,6 +367,8 @@ private:	///////////////////////////////////////////////
 	CSG_Rect					m_Extent, m_Extent_Cells;
 
 	CSG_String					m_Name;
+
+	static int					m_Precision;
 
 };
 

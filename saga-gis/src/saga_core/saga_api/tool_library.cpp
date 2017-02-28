@@ -407,9 +407,9 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *File_Nam
 		return( _Add_Tool_Chain(File_Name) );
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load library"), File_Name), true);
-
 	//-----------------------------------------------------
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), File_Name), true);
+
 	wxFileName	fn(File_Name);
 
 	for(int i=0; i<Get_Count(); i++)
@@ -496,9 +496,10 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	//-----------------------------------------------------
 	CSG_Tool_Chains	*pLibrary	= NULL;
-	CSG_Tool_Chain	*pTool	= NULL;
+	CSG_Tool_Chain	*pTool		= NULL;
 
-	{
+	//-----------------------------------------------------
+	{	// is tool chain already loaded ?
 		wxFileName	fn(File_Name);
 
 		for(int iLibrary=0; !pTool && iLibrary<Get_Count(); iLibrary++)
@@ -515,32 +516,23 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 				}
 			}
 		}
+
+		if( pTool )	// ...then try to reload !
+		{
+			SG_UI_ProgressAndMsg_Lock(true);
+			CSG_Tool_Chain	Tool(File_Name);	// don't reset loaded tool in case reloading fails!!!
+			SG_UI_ProgressAndMsg_Lock(false);
+
+			if( Tool.is_Okay() )
+			{
+				pTool->Create(File_Name);
+			}
+
+			return( pLibrary );
+		}
 	}
 
 	//-----------------------------------------------------
-	if( pTool )
-	{
-		SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Reload tool chain"), File_Name), true);
-
-		CSG_Tool_Chain	Tool;
-
-		if( Tool.Create(File_Name) )	// don't reset loaded tool in case reloading fails!!!
-		{
-			pTool->Create(File_Name);
-
-			SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-		}
-		else
-		{
-			SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		}
-
-		return( pLibrary );
-	}
-
-	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load tool chain"), File_Name), true);
-
 	pTool	= new CSG_Tool_Chain(File_Name);
 
 	if( !pTool || !pTool->is_Okay() )
@@ -549,8 +541,6 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 		{
 			delete(pTool);
 		}
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 		return( NULL );
 	}
@@ -575,16 +565,14 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	if( !pLibrary )	// this should never happen, but who knows...
 	{
-		delete(pTool);
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("ERROR"), _TL("tool chain library"), File_Name));
 
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		delete(pTool);
 
 		return( NULL );
 	}
 
 	pLibrary->Add_Tool(pTool);
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 	//-----------------------------------------------------
 	return( pLibrary );

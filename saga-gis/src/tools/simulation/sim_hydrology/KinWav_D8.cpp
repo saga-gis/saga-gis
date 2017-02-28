@@ -92,19 +92,19 @@ CKinWav_D8::CKinWav_D8(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_or_Const(NULL,
+	Parameters.Add_Grid_or_Const("",
 		"ROUGHNESS"		, _TL("Manning Roughness"),
 		_TL(""),
 		0.03, 0.0, true
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"FLOW"			, _TL("Runoff"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -117,49 +117,49 @@ CKinWav_D8::CKinWav_D8(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"GAUGES_FLOW"	, _TL("Flow at Gauges"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(Parameters("GAUGES_FLOW"),
+	Parameters.Add_Shapes("GAUGES_FLOW",
 		"GAUGES"		, _TL("Gauges"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"TIME_SPAN"		, _TL("Simulation Time [h]"),
 		_TL(""),
 		24.0, 0.0, true
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"TIME_STEP"		, _TL("Simulation Time Step [h]"),
 		_TL(""),
 		0.1, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Node(NULL,
+	Parameters.Add_Node("",
 		"MODEL"			, _TL("Model Options"), _TL("")
 	);
 
-	Parameters.Add_Int(Parameters("MODEL"),
+	Parameters.Add_Int("MODEL",
 		"MAXITER"		, _TL("Maximum Iterations"),
 		_TL(""),
 		100, 1, true
 	);
 
-	Parameters.Add_Double(Parameters("MODEL"),
+	Parameters.Add_Double("MODEL",
 		"EPSILON"		, _TL("Epsilon"),
 		_TL(""),
 		0.0001, 0.0, true
 	);
 
-	Parameters.Add_Choice(Parameters("MODEL"),
+	Parameters.Add_Choice("MODEL",
 		"ROUTING"		, _TL("Flow Routing"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -169,7 +169,7 @@ CKinWav_D8::CKinWav_D8(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"P_DISTRIB"		, _TL("Precipitation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -179,13 +179,13 @@ CKinWav_D8::CKinWav_D8(void)
 		)
 	);
 
-	Parameters.Add_Double(Parameters("P_DISTRIB"),
+	Parameters.Add_Double("P_DISTRIB",
 		"P_THRESHOLD"	, _TL("Above Elevation"),
 		_TL(""),
 		0.0
 	);
 
-	Parameters.Add_Double(Parameters("P_DISTRIB"),
+	Parameters.Add_Double("P_DISTRIB",
 		"P_RATE"		, _TL("Precipitation [mm]"),
 		_TL(""),
 		10.0
