@@ -75,42 +75,77 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	Config_Create	(const CSG_String &File)
+bool	Config_Read(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, bool &Value)
 {
-	wxString	_File	= File.c_str();
+	pConfig->SetPath("/" + Group);	return( pConfig->Read(Key, &Value) );
+}
 
-	if( File.is_Empty() )
-	{
-		wxFileName	fLocal(SG_UI_Get_Application_Path().c_str());
-		
-		fLocal.SetExt("ini");
+bool	Config_Read(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, int &Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Read(Key, &Value) );
+}
 
-		_File	= fLocal.GetFullPath();
-	}
+bool	Config_Read(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, double &Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Read(Key, &Value) );
+}
 
-	SG_Printf(CSG_String::Format("\n%s...\n", _TL("writing configuration file")));
+bool	Config_Read(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, wxString &Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Read(Key, &Value) );
+}
 
-	wxConfigBase	*pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, _File, _File, wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+//---------------------------------------------------------
+bool	Config_Write(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, bool Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Write(Key, Value) ? pConfig->Flush() : false );
+}
 
-	//-----------------------------------------------------
-	pConfig->Write("CMD_NO_PROGRESS"     , false);	// q, s: no progress report
-	pConfig->Write("CMD_NO_MESSAGES"     , false);	// r, s: no messages report
-	pConfig->Write("CMD_INTERACTIVE"     , false);	// i: allow user interaction
-	pConfig->Write("CMD_XML_MESSAGE"     , false);	// x: message output as xml
+bool	Config_Write(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, int Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Write(Key, Value) ? pConfig->Flush() : false );
+}
 
-	pConfig->Write("TRANSLATIONS"        , false);	// load translation dictionary
-	pConfig->Write("PROJECTIONS"         , false);	// load projections dictionary
+bool	Config_Write(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, double Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Write(Key, Value) ? pConfig->Flush() : false );
+}
 
-	pConfig->Write("CORES"               , SG_OMP_Get_Max_Num_Procs      ());	// number of cores
-	pConfig->Write("HISTORY_DEPTH"       , SG_Get_History_Depth          ());	// history
-	pConfig->Write("GRID_COORD_PRECISION", CSG_Grid_System::Get_Precision());	// grid system coordinate precision
+bool	Config_Write(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, const wxString &Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Write(Key, Value) ? pConfig->Flush() : false );
+}
 
-	pConfig->Write("ADD_LIB_PATHS"       , ";"  );	// additional tool library paths (aka SAGA_MLB)
+bool	Config_Write(wxConfigBase *pConfig, const wxString &Group, const wxString &Key, const SG_Char *Value)
+{
+	pConfig->SetPath("/" + Group);	return( pConfig->Write(Key, Value) ? pConfig->Flush() : false );
+}
 
-	pConfig->Write("OLDSTYLE"            , false);	// load old style naming, has no effect if l-flag is set.
 
-	//-----------------------------------------------------
-	delete(pConfig);
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	Config_Create	(wxConfigBase *pConfig)
+{
+	Config_Write(pConfig,   "CMD", "NO_PROGRESS"         , false   );	// q, s: no progress report
+	Config_Write(pConfig,   "CMD", "NO_MESSAGES"         , false   );	// r, s: no messages report
+	Config_Write(pConfig,   "CMD", "INTERACTIVE"         , false   );	// i: allow user interaction
+	Config_Write(pConfig,   "CMD", "XML_MESSAGE"         , false   );	// x: message output as xml
+
+	Config_Write(pConfig, "TOOLS", "LNG_OLDSTYLE"        , false   );	// load old style naming, has no effect if l-flag is set.
+	Config_Write(pConfig, "TOOLS", "LNG_FILE_DIC"        , SG_T(""));	// translation dictionary
+	Config_Write(pConfig, "TOOLS", "PROJECTIONS"         , false   );	// load projections dictionary
+	Config_Write(pConfig, "TOOLS", "OMP_THREADS_MAX"     , SG_OMP_Get_Max_Num_Procs());
+	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(";"));	// additional tool library paths (aka SAGA_MLB)
+
+	Config_Write(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , SG_Grid_Cache_Get_Directory   ());
+	Config_Write(pConfig,  "DATA", "GRID_CACHE_AUTO"     , SG_Grid_Cache_Get_Automatic   ());
+	Config_Write(pConfig,  "DATA", "GRID_CACHE_THRSHLD"  , SG_Grid_Cache_Get_Threshold_MB());
+	Config_Write(pConfig,  "DATA", "GRID_COORD_PRECISION", CSG_Grid_System::Get_Precision());
+	Config_Write(pConfig,  "DATA", "HISTORY_DEPTH"       , SG_Get_History_Depth());
+	Config_Write(pConfig,  "DATA", "HISTORY_LISTS"       , SG_Get_History_Ignore_Lists() != 0);
 
 	return( true );
 }
@@ -124,28 +159,31 @@ bool	Config_Load		(wxConfigBase *pConfig)
 	CSG_String	Path_Shared	= SG_File_Get_Path(SG_UI_Get_Application_Path());
 #endif
 
-	bool		bValue;
-	long		lValue;
-//	double		dValue;
-	wxString	sValue;
+	bool bValue; int iValue; double dValue; wxString sValue;
 
 	//-----------------------------------------------------
-	pConfig->Read("CMD_NO_PROGRESS", &bValue, false); CMD_Set_Show_Progress(bValue == false);	// q, s: no progress report
-	pConfig->Read("CMD_NO_MESSAGES", &bValue, false); CMD_Set_Show_Messages(bValue == false);	// r, s: no messages report
-	pConfig->Read("CMD_INTERACTIVE", &bValue, false); CMD_Set_Interactive  (bValue ==  true);	// i: allow user interaction
-	pConfig->Read("CMD_XML_MESSAGE", &bValue, false); CMD_Set_XML          (bValue ==  true);	// x: message output as xml
+	Config_Read(pConfig, "CMD", "NO_PROGRESS", bValue = false); CMD_Set_Show_Progress(bValue == false);	// q, s: no progress report
+	Config_Read(pConfig, "CMD", "NO_MESSAGES", bValue = false); CMD_Set_Show_Messages(bValue == false);	// r, s: no messages report
+	Config_Read(pConfig, "CMD", "INTERACTIVE", bValue = false); CMD_Set_Interactive  (bValue ==  true);	// i: allow user interaction
+	Config_Read(pConfig, "CMD", "XML_MESSAGE", bValue = false); CMD_Set_XML          (bValue ==  true);	// x: message output as xml
 
 	//-----------------------------------------------------
-	if( pConfig->Read("TRANSLATIONS", &bValue) && bValue == true )	// load translation dictionary
+	if( Config_Read(pConfig, "TOOLS", "LNG_OLDSTYLE", bValue) && bValue == true )	// load old style naming, has no effect if l-flag is set.
+	{
+		SG_Set_OldStyle_Naming();
+	}
+
+	if( Config_Read(pConfig, "TOOLS", "LNG_FILE_DIC", sValue) && wxFileExists(sValue) )	// load translation dictionary
 	{
 		SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
 		SG_Printf(CSG_String::Format("\n%s.\n",
-			SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
+		//	SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
+			SG_Get_Translator().Create(&sValue, false)
 			? _TL("success") : _TL("failed")
 		));
 	}
 
-	if( pConfig->Read("PROJECTIONS", &bValue) && bValue == true )	// load projections dictionary
+	if( Config_Read(pConfig, "TOOLS", "PROJECTIONS", bValue) && bValue == true )	// load projections dictionary
 	{
 		SG_Printf(CSG_String::Format("\n%s:", _TL("loading spatial reference system database")));
 		SG_Printf(CSG_String::Format("\n%s.\n",
@@ -154,33 +192,19 @@ bool	Config_Load		(wxConfigBase *pConfig)
 		));
 	}
 
-	//-----------------------------------------------------
-	if( pConfig->Read("CORES", &lValue) && lValue > 0 )	// number of cores
-	{
-		SG_OMP_Set_Max_Num_Threads(M_GET_MIN(lValue, SG_OMP_Get_Max_Num_Procs()));
-	}
+	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
 
-	if( pConfig->Read("HISTORY_DEPTH", &lValue) )	// history
-	{
-		SG_Set_History_Depth(lValue);
-	}
-
-	if( pConfig->Read("GRID_COORD_PRECISION", &lValue) && lValue >= 0 )	// grid system coordinate precision
-	{
-		CSG_Grid_System::Set_Precision((int)lValue);
-	}
+	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) )	{	wxSetEnv("SAGA_MLB", sValue);	}
 
 	//-----------------------------------------------------
-	if( pConfig->Read("ADD_LIB_PATHS", &sValue) )	// additional tool library paths (aka SAGA_MLB)
-	{
-		wxSetEnv("SAGA_MLB", sValue);
-	}
+	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , sValue) )	{	SG_Grid_Cache_Set_Directory   (sValue);	}
+	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_AUTO"     , bValue) )	{	SG_Grid_Cache_Set_Automatic   (bValue);	}
+	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_THRSHLD"  , dValue) )	{	SG_Grid_Cache_Set_Threshold_MB(dValue);	}
 
-	//-----------------------------------------------------
-	if( pConfig->Read("OLDSTYLE", &bValue) && bValue == true )	// load old style naming, has no effect if l-flag is set.
-	{
-		SG_Set_OldStyle_Naming();
-	}
+	if( Config_Read(pConfig,  "DATA", "GRID_COORD_PRECISION", iValue) )	{	CSG_Grid_System::Set_Precision(iValue);	}
+
+	if( Config_Read(pConfig,  "DATA", "HISTORY_DEPTH"       , iValue) )	{	SG_Set_History_Depth       (iValue     );	}
+	if( Config_Read(pConfig,  "DATA", "HISTORY_LISTS"       , iValue) )	{	SG_Set_History_Ignore_Lists(iValue != 0);	}
 
 	//-----------------------------------------------------
 	return( true );
@@ -200,6 +224,22 @@ wxConfigBase *	Config_Default(void)
 	wxFileName	fLocal(SG_UI_Get_Application_Path().c_str());
 
 	fLocal.SetExt("ini");
+
+	if( ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
+	||  (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ())) )
+	{
+		wxFileName	fUser (wxGetHomeDir(), "saga_cmd", "ini");
+	//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_cmd", "ini");
+
+		if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fUser.FileExists() )	// create a copy in user's home directory
+		{
+			wxFileInputStream	is(fLocal.GetFullPath());
+			wxFileOutputStream	os(fUser .GetFullPath());
+			wxFileConfig		ic(is);	ic.Save(os);
+		}
+
+		fLocal	= fUser;
+	}
 
 	if( (fLocal.FileExists() && fLocal.IsFileWritable()) || (!fLocal.FileExists() && fLocal.IsDirWritable()) )
 	{
@@ -221,23 +261,56 @@ bool	Config_Load		(void)
 {
 	wxConfigBase	*pConfig	= Config_Default();
 
-	bool	bResult	= Config_Load(pConfig);
+	Config_Load(pConfig);
 
 	delete(pConfig);
 
-	return( bResult );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool	Config_Load		(const CSG_String &File)
 {
+	if( !SG_File_Exists(File) )
+	{
+		return( false );
+	}
+
 	wxConfigBase	*pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
 
-	bool	bResult	= Config_Load(pConfig);
+	Config_Load(pConfig);
 
 	delete(pConfig);
 
-	return( bResult );
+	return( true );
+}
+
+
+//---------------------------------------------------------
+bool	Config_Create	(const CSG_String &File)
+{
+	wxConfigBase	*pConfig;
+
+	if( File.is_Empty() )
+	{
+		SG_Printf(CSG_String::Format("\n%s...", _TL("creating default configuration")));
+
+		pConfig	= Config_Default();
+	}
+	else
+	{
+		SG_Printf(CSG_String::Format("\n%s\n>>%s\n...", _TL("creating default configuration"), File.c_str()));
+
+		pConfig	= new wxFileConfig(wxEmptyString, wxEmptyString, File.c_str(), File.c_str(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+	}
+
+	Config_Create(pConfig);
+
+	delete(pConfig);
+
+	SG_Printf(CSG_String::Format("%s\n", _TL("ready")));
+
+	return( true );
 }
 
 
