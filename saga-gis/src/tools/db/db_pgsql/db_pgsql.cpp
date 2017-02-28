@@ -472,25 +472,64 @@ bool CSG_PG_Connection::Table_Exists(const CSG_String &Table_Name) const
 }
 
 //---------------------------------------------------------
-CSG_Table CSG_PG_Connection::Get_Field_Desc(const CSG_String &Table_Name) const
+CSG_Table CSG_PG_Connection::Get_Field_Desc(const CSG_String &Table_Name, bool bVerbose) const
 {
 	CSG_Table	Fields;
 
 	Fields.Set_Name(CSG_String::Format("%s [%s]", Table_Name.c_str(), _TL("Field Description")));
 
-	Fields.Add_Field(_TL("NAME"     ), SG_DATATYPE_String);
-	Fields.Add_Field(_TL("TYPE"     ), SG_DATATYPE_String);
-	Fields.Add_Field(_TL("SIZE"     ), SG_DATATYPE_Int);
-	Fields.Add_Field(_TL("PRECISION"), SG_DATATYPE_Int);
+	if( bVerbose )
+	{
+		Fields.Add_Field(_TL("Name"     ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Type"     ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Primary"  ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("NotNull"  ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Default"  ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Comment"  ), SG_DATATYPE_String);
+	}
+	else
+	{
+		Fields.Add_Field(_TL("Name"     ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Type"     ), SG_DATATYPE_String);
+		Fields.Add_Field(_TL("Size"     ), SG_DATATYPE_Int   );
+		Fields.Add_Field(_TL("Precision"), SG_DATATYPE_Int   );
+	}
 
 	if( is_Connected() )
 	{
 		CSG_String	s;
 
-		s	+= "SELECT column_name, udt_name, character_maximum_length, numeric_precision ";
-		s	+= "FROM information_schema.columns WHERE table_schema='public' AND table_name='";
-		s	+= Table_Name;
-		s	+= "' ORDER BY ordinal_position";
+		if( bVerbose )
+		{
+			s	+= "SELECT DISTINCT ";
+			s	+= "  a.attnum, ";
+			s	+= "  a.attname, ";
+			s	+= "  format_type(a.atttypid, a.atttypmod), ";
+			s	+= "  coalesce(i.indisprimary,false), ";
+			s	+= "  a.attnotnull, ";
+			s	+= "  def.adsrc, ";
+			s	+= "  com.description ";
+			s	+= "FROM pg_attribute a ";
+			s	+= "  JOIN pg_class pgc ON pgc.oid=a.attrelid ";
+			s	+= "  LEFT JOIN pg_index i ON ";
+			s	+= "    (pgc.oid=i.indrelid AND i.indkey[0]=a.attnum) ";
+			s	+= "  LEFT JOIN pg_description com on ";
+			s	+= "    (pgc.oid=com.objoid AND a.attnum=com.objsubid) ";
+			s	+= "  LEFT JOIN pg_attrdef def ON ";
+			s	+= "    (a.attrelid=def.adrelid AND a.attnum=def.adnum) ";
+			s	+= "WHERE a.attnum>0 AND pgc.oid=a.attrelid ";
+			s	+= "  AND pg_table_is_visible(pgc.oid) ";
+			s	+= "  AND NOT a.attisdropped ";
+			s	+= "  AND pgc.relname='" + Table_Name + "' ";
+			s	+= "ORDER BY a.attnum ";
+		}
+		else
+		{
+			s	+= "SELECT column_name, udt_name, character_maximum_length, numeric_precision ";
+			s	+= "FROM information_schema.columns ";
+			s	+= "WHERE table_name='" + Table_Name + "' ";
+			s	+= "ORDER BY ordinal_position";
+		}
 
 		PGresult	*pResult	= PQexec(m_pgConnection, s);
 
@@ -506,7 +545,16 @@ CSG_Table CSG_PG_Connection::Get_Field_Desc(const CSG_String &Table_Name) const
 
 				for(int iField=0; iField<Fields.Get_Field_Count(); iField++)
 				{
-					pRecord->Set_Value(iField, PQgetvalue(pResult, iRecord, iField));
+					char	*Value	= PQgetvalue(pResult, iRecord, iField + (bVerbose ? 1 : 0));
+
+					if( bVerbose && (iField == 2 || iField == 3) )
+					{
+						pRecord->Set_Value(iField, *Value == 't' ? _TL("yes") : _TL("no"));
+					}
+					else
+					{
+						pRecord->Set_Value(iField, Value);
+					}
 				}
 			}
 		}

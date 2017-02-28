@@ -81,7 +81,7 @@ CTable_List::CTable_List(void)
 		"Lists all tables of an PostgreSQL data source."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -147,16 +147,22 @@ CTable_Info::CTable_Info(void)
 		"Loads table information from PostgreSQL data source."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLE"		, _TL("Field Description"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
-		"TABLES"	, _TL("Tables"),
+	Parameters.Add_Choice("",
+		"TABLES"	, _TL("Table"),
 		_TL(""),
 		""
+	);
+
+	Parameters.Add_Bool("",
+		"VERBOSE"	, _TL("Verbose"),
+		_TL(""),
+		false
 	);
 }
 
@@ -175,8 +181,7 @@ bool CTable_Info::On_Execute(void)
 	CSG_String	Table	= Parameters("TABLES")->asString();
 	CSG_Table	*pTable	= Parameters("TABLE" )->asTable();
 
-	CSG_Table tab = Get_Connection()->Get_Field_Desc(Table);
-	pTable->Assign(&tab);
+	pTable->Create(Get_Connection()->Get_Field_Desc(Table, Parameters("VERBOSE")->asBool()));
 	pTable->Set_Name(Table + " [" + _TL("Field Description") + "]");
 
 	return( true );
@@ -200,13 +205,13 @@ CTable_Load::CTable_Load(void)
 		"Imports a table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
@@ -248,7 +253,7 @@ CTable_Save::CTable_Save(void)
 		"Exports a table to a PostgreSQL database."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
@@ -256,13 +261,13 @@ CTable_Save::CTable_Save(void)
 
 	Set_Constraints(&Parameters, "TABLE");
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"NAME"		, _TL("Table Name"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"EXISTS"	, _TL("If table exists..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -367,7 +372,7 @@ CTable_Drop::CTable_Drop(void)
 		"Deletes a table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
@@ -414,19 +419,19 @@ CTable_Query::CTable_Query(void)
 		"Import a SQL table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLE"		, _TL("Query Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_String(NULL, "TABLES"  , _TL("Tables"  ), _TL(""), "");
-	Parameters.Add_String(NULL, "FIELDS"  , _TL("Fields"  ), _TL(""), "");
-	Parameters.Add_String(NULL, "WHERE"   , _TL("Where"   ), _TL(""), "");
-	Parameters.Add_String(NULL, "GROUP"   , _TL("Group by"), _TL(""), "");
-	Parameters.Add_String(NULL, "HAVING"  , _TL("Having"  ), _TL(""), "");
-	Parameters.Add_String(NULL, "ORDER"   , _TL("Order by"), _TL(""), "");
-	Parameters.Add_Bool  (NULL, "DISTINCT", _TL("Distinct"), _TL("")    );
+	Parameters.Add_String("", "TABLES"  , _TL("Tables"  ), _TL(""), "");
+	Parameters.Add_String("", "FIELDS"  , _TL("Fields"  ), _TL(""), "");
+	Parameters.Add_String("", "WHERE"   , _TL("Where"   ), _TL(""), "");
+	Parameters.Add_String("", "GROUP"   , _TL("Group by"), _TL(""), "");
+	Parameters.Add_String("", "HAVING"  , _TL("Having"  ), _TL(""), "");
+	Parameters.Add_String("", "ORDER"   , _TL("Order by"), _TL(""), "");
+	Parameters.Add_Bool  ("", "DISTINCT", _TL("Distinct"), _TL("")    );
 }
 
 //---------------------------------------------------------
@@ -462,19 +467,19 @@ CTable_Query_GUI::CTable_Query_GUI(void)
 		"Import a SQL table from a PostgreSQL database."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"TABLE"		, _TL("Query Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Parameters(NULL, "TABLES"  , _TL("Tables"  ), _TL("")    );
-	Parameters.Add_Parameters(NULL, "FIELDS"  , _TL("Fields"  ), _TL("")    );
-	Parameters.Add_String    (NULL, "WHERE"   , _TL("Where"   ), _TL(""), "");
-	Parameters.Add_Parameters(NULL, "GROUP"   , _TL("Group by"), _TL("")    );
-	Parameters.Add_String    (NULL, "HAVING"  , _TL("Having"  ), _TL(""), "");
-	Parameters.Add_String    (NULL, "ORDER"   , _TL("Order by"), _TL(""), "");
-	Parameters.Add_Bool      (NULL, "DISTINCT", _TL("Distinct"), _TL("")    );
+	Parameters.Add_Parameters("", "TABLES"  , _TL("Tables"  ), _TL("")    );
+	Parameters.Add_Parameters("", "FIELDS"  , _TL("Fields"  ), _TL("")    );
+	Parameters.Add_String    ("", "WHERE"   , _TL("Where"   ), _TL(""), "");
+	Parameters.Add_Parameters("", "GROUP"   , _TL("Group by"), _TL("")    );
+	Parameters.Add_String    ("", "HAVING"  , _TL("Having"  ), _TL(""), "");
+	Parameters.Add_String    ("", "ORDER"   , _TL("Order by"), _TL(""), "");
+	Parameters.Add_Bool      ("", "DISTINCT", _TL("Distinct"), _TL("")    );
 }
 
 //---------------------------------------------------------
@@ -490,7 +495,7 @@ void CTable_Query_GUI::On_Connection_Changed(CSG_Parameters *pParameters)
 	{
 		for(int i=0; i<Tables.Get_Count(); i++)
 		{
-			pTables->Add_Bool(NULL, Tables[i], Tables[i], "");
+			pTables->Add_Bool("", Tables[i], Tables[i], "");
 		}
 	}
 
@@ -517,8 +522,8 @@ int CTable_Query_GUI::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			{
 				CSG_Table	Desc	= Get_Connection()->Get_Field_Desc(Table);
 
-				CSG_Parameter	*pFields	= Fields.Add_Node(NULL, Table, Table, "");
-				CSG_Parameter	*pGroup 	= Group .Add_Node(NULL, Table, Table, "");
+				CSG_Parameter	*pFields	= Fields.Add_Node("", Table, Table, "");
+				CSG_Parameter	*pGroup 	= Group .Add_Node("", Table, Table, "");
 
 				for(int j=0; j<Desc.Get_Count(); j++)
 				{
