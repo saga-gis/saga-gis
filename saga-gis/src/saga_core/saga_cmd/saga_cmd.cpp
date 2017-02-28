@@ -120,6 +120,9 @@ int		main	(int argc, char *argv[])
 		return( 1 );
 	}
 
+	wxTheApp->SetVendorName("www.saga-gis.org");
+	wxTheApp->SetAppName   ("saga_cmd");
+
 #if !defined(_DEBUG)
 	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
 #endif
