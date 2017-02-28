@@ -134,16 +134,16 @@ CSAGA::~CSAGA(void)
 bool CSAGA::OnInit(void)
 {
 	//-----------------------------------------------------
-	g_pSAGA				= this;
+	g_pSAGA	= this;
 
-	SetVendorName		("SAGA-GIS.org");
-	SetAppName			("SAGA");
+	SetVendorName("www.saga-gis.org");
+	SetAppName   ("saga_gui");
 
 	wxInitAllImageHandlers();
 
-	wxFileName			App_Path(argv[0]);	App_Path.MakeAbsolute();
+	wxFileName	App_Path(argv[0]);	App_Path.MakeAbsolute();
 
-	m_App_Path			= App_Path.GetPath();
+	m_App_Path	= App_Path.GetPath();
 
 #if !defined(_DEBUG)
 	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds

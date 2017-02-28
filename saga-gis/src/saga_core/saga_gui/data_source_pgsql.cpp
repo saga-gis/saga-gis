@@ -1278,6 +1278,7 @@ void CData_Source_PgSQL::Table_Info(const wxTreeItemId &Item)
 			SET_PARAMETER("CONNECTION", pData->Get_Server())
 		&&	SET_PARAMETER("TABLES"    , pData->Get_Value ())
 		&&	SET_PARAMETER("TABLE"     , pTable)
+		&&	SET_PARAMETER("VERBOSE"   , true)
 	);
 
 	if( bResult )

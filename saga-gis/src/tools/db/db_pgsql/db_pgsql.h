@@ -123,7 +123,7 @@ public:
 	int							Get_Tables				(CSG_Strings &Tables)			const;
 	CSG_String					Get_Tables				(void)							const;
 	CSG_String					Get_Field_Names			(const CSG_String &Table_Name)	const;
-	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name)	const;
+	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name, bool bVerbose = false)	const;
 
 	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL);
 
