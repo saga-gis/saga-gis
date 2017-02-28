@@ -81,22 +81,21 @@ CGPP_Model::CGPP_Model(void)
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
 						 "run-out area of gravitational processes based on a digital terrain model (DTM). The tool "
 						 "combines several sub-models (process path, run-out length and material deposition) to "
-						 "simulate the movement of a mass point from an initiation site to the deposition area.\n"
+						 "simulate the movement of a mass point from an initiation site to the deposition area. "
 						 "For each sub-model several modeling approaches are provided, which makes the tool configurable "
-						 "for different processes like rockfall, debris flows or snow avalanches. The tool can be applied "
-						 "to large-coverage studies like natural hazard susceptibility mapping on a regional scale but "
-						 "also contains components for scenario based modeling of single events. The modeling "
-						 "approaches have proven their practicability in numerous studies, including also geomorphological "
-						 "research questions like the delineation of sediment cascades or the study of process connectivity.\n\n"
-						 "Please provide the following reference in your work if you are using the GPP model:\n\n"
-						 "Wichmann, V.: The Gravitational Process Path (GPP) model (v1.0) - a GIS-based simulation "
-						 "framework for gravitational processes, Geosci. Model Dev. Discuss., doi:10.5194/gmd-2017-5, in review, 2017.\n"
+						 "for different processes like rockfall, debris flows or snow avalanches. <br/><br/>"
+						 "The tool can be applied to large-coverage studies like natural hazard susceptibility mapping "
+						 "on a regional scale but also contains components for scenario based modeling of single events. "
+						 "The modeling approaches have proven their practicability in numerous studies, including also geomorphological "
+						 "research questions like the delineation of sediment cascades or the study of process connectivity.<br/><br/>"
+						 "Please provide the following reference in your work if you are using the GPP model:"
 	));
 
-	Add_Reference("http://www.geosci-model-dev-discuss.net/gmd-2017-5/gmd-2017-5.pdf",
-		SG_T("PDF")
+	Add_Reference("Wichmann, V.", "2017",
+		"The Gravitational Process Path (GPP) model (v1.0) - a GIS-based simulation framework for gravitational processes",
+		"Geosci. Model Dev. Discuss., doi:10.5194/gmd-2017-5, in review",
+		SG_T("http://www.geosci-model-dev-discuss.net/gmd-2017-5/gmd-2017-5.pdf")
 	);
-
 
 	Add_Dataset_Parameters(Get_Parameters());
 
