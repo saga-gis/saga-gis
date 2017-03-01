@@ -216,14 +216,15 @@ bool	Config_Load		(wxConfigBase *pConfig)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-wxConfigBase *	Config_Default(void)
+wxConfigBase *	Config_Default(bool bCreate)
 {
-	wxConfigBase	*pConfig;
-
 #if defined(_SAGA_MSW)
-	wxFileName	fLocal(SG_UI_Get_Application_Path().c_str());
+	wxFileName	fLocal(SG_UI_Get_Application_Path().c_str());	fLocal.SetExt("ini");
 
-	fLocal.SetExt("ini");
+	if( !fLocal.FileExists() && !bCreate )
+	{
+		return( NULL );
+	}
 
 	if( ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
 	||  (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ())) )
@@ -243,29 +244,28 @@ wxConfigBase *	Config_Default(void)
 
 	if( (fLocal.FileExists() && fLocal.IsFileWritable()) || (!fLocal.FileExists() && fLocal.IsDirWritable()) )
 	{
-		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fLocal.GetFullPath(), fLocal.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+		return( new wxFileConfig(wxEmptyString, wxEmptyString, fLocal.GetFullPath(), fLocal.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH) );
 	}
-	else
-	{
-		pConfig	= new wxConfig;	// this might go to registry
-	}
-#else
-	pConfig	= new wxConfig;
 #endif
 
-	return(pConfig);
+	return( new wxConfig );	// this might go to registry
 }
 
 //---------------------------------------------------------
 bool	Config_Load		(void)
 {
-	wxConfigBase	*pConfig	= Config_Default();
+	wxConfigBase	*pConfig	= Config_Default(false);
 
-	Config_Load(pConfig);
+	if( pConfig )
+	{
+		Config_Load(pConfig);
 
-	delete(pConfig);
+		delete(pConfig);
 
-	return( true );
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -295,7 +295,7 @@ bool	Config_Create	(const CSG_String &File)
 	{
 		SG_Printf(CSG_String::Format("\n%s...", _TL("creating default configuration")));
 
-		pConfig	= Config_Default();
+		pConfig	= Config_Default(true);
 	}
 	else
 	{
