@@ -686,5 +686,19 @@ tools = [
 ['grid_tools', 37, 'Combine Classes'],
 ['io_gdal', 10, 'GDAL Formats'],
 ['sim_geomorphology', 0, 'Gravitational Process Path Model'],
-['statistics_grid', 15, 'Focal PCA on a Grid']
+['statistics_grid', 15, 'Focal PCA on a Grid'],
+['chelsa', 0, 'NCAR Climate Import'],
+['chelsa', 1, 'WRF Extract Data'],
+['chelsa', 2, 'WRF Extract and Downscale to DEM'],
+['chelsa', 3, 'Temperature from Pressure Levels to Surface'],
+['chelsa', 4, 'REMO Level Interpolation'],
+['climate_data', 0, 'Import GSOD Stations to Data Base'],
+['climate_data', 1, 'Import GSOD to Data Base'],
+['salem', 0, 'SALEM'],
+['salem', 1, 'LEM 2013-02-21'],
+['sim_runoff', 0, 'Runoff to Water Body'],
+['sim_runoff', 1, 'ETpot'],
+['urban_modelling', 0, 'Urban Traffic Simulation'],
+['urban_modelling', 1, 'Urban Agents'],
+['urban_modelling', 2, 'Simple Agents']
 ]
