@@ -2,11 +2,11 @@
 
 REM ___________________________________
 SET SAGA_VER_MAJOR=4
-SET SAGA_VER_MINOR=0
+SET SAGA_VER_MINOR=1
 SET SAGA_VER_RELEASE=0
 
-SET SAGA_VERSION=saga_%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
-SET TEXT_VERSION=%SAGA_VER_MAJOR%-%SAGA_VER_MINOR%-%SAGA_VER_RELEASE%
+SET SAGA_VERSION=saga-%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
+SET TEXT_VERSION=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
 
 SET SAGA_ROOT=%SAGA%
 
@@ -60,7 +60,7 @@ SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg saga_gui.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
+DEL /F saga_gui.cfg *.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
@@ -78,7 +78,7 @@ SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg saga_gui.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
+DEL /F saga_gui.cfg *.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
