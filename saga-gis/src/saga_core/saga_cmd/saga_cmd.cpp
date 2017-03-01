@@ -78,9 +78,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		g_bConfig	= false;
-
-//---------------------------------------------------------
 bool		Run				(int argc, char *argv[]);
 
 bool		Execute			(int argc, char *argv[]);
@@ -174,6 +171,8 @@ bool		Run(int argc, char *argv[])
 
 	SG_Set_UI_Callback(CMD_Get_Callback());
 
+	Config_Load();	// first load default configuration (if available). can be modified subsequently by flags
+
 	//-----------------------------------------------------
 	if( Check_First(argv[1]) )
 	{
@@ -184,11 +183,6 @@ bool		Run(int argc, char *argv[])
 	while( argc > 1 && Check_Flags(argv[1]) )
 	{
 		argc--;	argv++;
-	}
-
-	if( !g_bConfig )
-	{
-		Config_Load();
 	}
 
 	Print_Logo();
@@ -568,10 +562,7 @@ bool		Check_Flags		(const CSG_String &Argument)
 	//-----------------------------------------------------
 	else if( !s.Cmp("-C") || !s.Cmp("--config") )
 	{
-		if( Config_Load(CSG_String(Argument).AfterFirst('=')) )
-		{
-			g_bConfig	= true;
-		}
+		Config_Load(CSG_String(Argument).AfterFirst('='));
 
 		return( true );
 	}

@@ -38,7 +38,7 @@ PROJECT_NAME           = "SAGA API"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = v4.0.0
+PROJECT_NUMBER         = v4.1.0
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -58,7 +58,7 @@ PROJECT_LOGO           = saga-gis/src/saga_core/saga_gui/res/saga_icon_64.png
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ../saga_4.0.0_api_doc
+OUTPUT_DIRECTORY       = ../saga-4.1.0_api_doc
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and

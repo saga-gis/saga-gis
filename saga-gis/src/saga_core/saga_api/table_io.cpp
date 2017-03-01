@@ -366,7 +366,15 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 			if( Position > 0 )	// value in quotas !!!
 			{
-				sField	= sLine.Mid(1, Position - 2);
+				if( Position - 2 > 0 )
+				{
+					sField	= sLine.Mid(1, Position - 2);
+				}
+				else
+				{
+					sField.Clear();
+				}
+
 				sLine	= sLine.Right(sLine.Length() - Position);
 
 				Type[iField]	= SG_DATATYPE_String;
@@ -460,19 +468,26 @@ bool CSG_Table::_Save_Text(const CSG_String &File_Name, bool bHeadline, const SG
 
 		for(int iField=0; iField<Get_Field_Count(); iField++)
 		{
-			if( !pRecord->is_NoData(iField) )
+			switch( Get_Field_Type(iField) )
 			{
-				switch( Get_Field_Type(iField) )
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date:
+				if( !pRecord->is_NoData(iField) )
 				{
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
 					Stream.Printf("\"%s\"", pRecord->asString(iField));
-					break;
-
-				default:
-					Stream.Printf("%s"    , pRecord->asString(iField));
-					break;
 				}
+				else
+				{
+					Stream.Printf("\"\"");
+				}
+				break;
+
+			default:
+				if( !pRecord->is_NoData(iField) )
+				{
+					Stream.Printf("%s", pRecord->asString(iField));
+				}
+				break;
 			}
 
 			Stream.Printf("%c", iField < Get_Field_Count() - 1 ? Separator : '\n');

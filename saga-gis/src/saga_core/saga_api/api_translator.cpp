@@ -183,7 +183,7 @@ bool CSG_Translator::Create(class CSG_Table *pTranslations, int iText, int iTran
 
 	Destroy();
 
-	if( iText != iTranslation && pTranslations && pTranslations->Get_Field_Count() > iText && pTranslations->Get_Field_Count() > iTranslation && pTranslations->Get_Record_Count() > 0 )
+	if( iText != iTranslation && pTranslations && pTranslations->Get_Field_Count() > iText && pTranslations->Get_Field_Count() > iTranslation && pTranslations->Get_Count() > 0 )
 	{
 		int		i;
 
@@ -191,31 +191,34 @@ bool CSG_Translator::Create(class CSG_Table *pTranslations, int iText, int iTran
 
 		if( m_bCmpNoCase )
 		{
-			for(i=0; i<pTranslations->Get_Record_Count(); i++)
+			for(i=0; i<pTranslations->Get_Count(); i++)
 			{
 				CSG_Table_Record	*pRecord	= pTranslations->Get_Record(i);
 
-				CSG_String	s	= pRecord->asString(iText);
+				if( !pRecord->is_NoData(iText) )
+				{
+					CSG_String	s	= pRecord->asString(iText);
 
-				pRecord->Set_Value(iText, s.Make_Lower().c_str());
+					pRecord->Set_Value(iText, s.Make_Lower().c_str());
+				}
 			}
 		}
 
 		pTranslations->Set_Index(iText, TABLE_INDEX_Ascending);
 
-		m_Translations	= (CSG_Translation **)SG_Malloc(pTranslations->Get_Record_Count() * sizeof(CSG_Translation *));
+		m_Translations	= (CSG_Translation **)SG_Malloc(pTranslations->Get_Count() * sizeof(CSG_Translation *));
 
-		for(i=0; i<pTranslations->Get_Record_Count(); i++)
+		for(i=0; i<pTranslations->Get_Count(); i++)
 		{
 			CSG_Table_Record	*pRecord	= pTranslations->Get_Record_byIndex(i);
 
-			if( *pRecord->asString(iText) && *pRecord->asString(iTranslation) )
+			if( !pRecord->is_NoData(iText) && !pRecord->is_NoData(iTranslation) )
 			{
 				m_Translations[m_nTranslations++]	= new CSG_Translation(pRecord->asString(iText), pRecord->asString(iTranslation));
 			}
 		}
 
-		if( m_nTranslations < pTranslations->Get_Record_Count() )
+		if( m_nTranslations < pTranslations->Get_Count() )
 		{
 			m_Translations	= (CSG_Translation **)SG_Realloc(m_Translations, m_nTranslations * sizeof(CSG_Translation *));
 		}
