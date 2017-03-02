@@ -76,7 +76,7 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("SAGA Wetness Index"));
 
-	Set_Author		(SG_T("(c) 2001 by J.Boehner, O.Conrad"));
+	Set_Author		("J.Boehner, O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"The 'SAGA Wetness Index' is, as the name says, similar to the "
@@ -85,112 +85,114 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"not think of the flow as very thin film. As result it predicts for "
 		"cells situated in valley floors with a small vertical distance to "
 		"a channel a more realistic, higher potential soil moisture compared "
-		"to the standard TWI calculation.\n\n"
-
-		"References\n"
-
-		"- Boehner, J., Koethe, R. Conrad, O., Gross, J., Ringeler, A., Selige, T. (2002): "
-		"Soil Regionalisation by Means of Terrain Analysis and Process Parameterisation. "
-		"In: Micheli, E., Nachtergaele, F., Montanarella, L. [Ed.]: Soil Classification 2001. "
-		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222.\n\n"
-		"- Boehner, J. and Selige, T. (2006): Spatial prediction of soil attributes using "
-		"terrain analysis and climate regionalisation. In: Boehner, J., McCloy, K.R., Strobl, J. "
-		"[Ed.]: SAGA - Analysis and Modelling Applications, Goettinger Geographische Abhandlungen, "
-		"Goettingen: 13-28. "
-		"(<a target=\"_blank\" href=\"http://downloads.sourceforge.net/saga-gis/gga115_02.pdf\">pdf</a>)\n\n"
+		"to the standard TWI calculation."
 	));
+
+	Add_Reference(
+		"Boehner, J., Koethe, R. Conrad, O., Gross, J., Ringeler, A., Selige, T.", "2002",
+		"Soil Regionalisation by Means of Terrain Analysis and Process Parameterisation",
+		"In: Micheli, E., Nachtergaele, F., Montanarella, L. [Ed.]: Soil Classification 2001. "
+		"European Soil Bureau, Research Report No. 7, EUR 20398 EN, Luxembourg. pp.213-222.",
+		SG_T("http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf")
+	);
+
+	Add_Reference(
+		"Boehner, J., Selige, T.", "2006",
+		"Spatial prediction of soil attributes using terrain analysis and climate regionalisation",
+		"In: Boehner, J., McCloy, K.R., Strobl, J. [Eds.]: SAGA - Analysis and Modelling Applications, "
+		"Goettinger Geographische Abhandlungen, Goettingen: 13-28.",
+		SG_T("http://downloads.sourceforge.net/saga-gis/gga115_02.pdf")
+	);
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "WEIGHT"		, _TL("Weights"),
+	Parameters.Add_Grid("",
+		"WEIGHT"	, _TL("Weights"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"		, _TL("Catchment area"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Catchment slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"		, _TL("Catchment Slope"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA_MOD"	, _TL("Modified Catchment Area"),
+	Parameters.Add_Grid("",
+		"AREA_MOD"	, _TL("Modified Catchment Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TWI"			, _TL("Topographic Wetness Index"),
+	Parameters.Add_Grid("",
+		"TWI"		, _TL("Topographic Wetness Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SUCTION"		, _TL("Suction"),
+	Parameters.Add_Double("",
+		"SUCTION"	, _TL("Suction"),
 		_TL("the lower this value is the stronger is the suction effect"),
-		PARAMETER_TYPE_Double	, 10.0, 0.0, true
+		10.0, 0.0, true
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Node(
-		NULL	, "TWI_NODE"	, _TL("Topograpic Wetness Index Calculation"),
+	Parameters.Add_Node("",
+		"TWI_NODE"	, _TL("Topograpic Wetness Index Calculation"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "AREA_TYPE"	, _TL("Type of Area"),
+	Parameters.Add_Choice("TWI_NODE",
+		"AREA_TYPE"	, _TL("Type of Area"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("absolute catchment area"),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("total catchment area"),
 			_TL("square root of catchment area"),
 			_TL("specific catchment area")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "SLOPE_TYPE"	, _TL("Type of Slope"),
+	Parameters.Add_Choice("TWI_NODE",
+		"SLOPE_TYPE", _TL("Type of Slope"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("local slope"),
 			_TL("catchment slope")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SLOPE_MIN"	, _TL("Minimum Slope"),
+	Parameters.Add_Double("",
+		"SLOPE_MIN"	, _TL("Minimum Slope"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SLOPE_OFF"	, _TL("Offset Slope"),
+	Parameters.Add_Double("",
+		"SLOPE_OFF"	, _TL("Offset Slope"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.1, 0.0, true
+		0.1, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SLOPE_WEIGHT", _TL("Slope Weighting"),
+	Parameters.Add_Double("",
+		"SLOPE_WEIGHT", _TL("Slope Weighting"),
 		_TL("weighting factor for slope in index calculation"),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -232,8 +234,6 @@ bool CSAGA_Wetness_Index::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -254,8 +254,6 @@ double CSAGA_Wetness_Index::Get_Local_Maximum(CSG_Grid *pGrid, int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -349,8 +347,6 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -473,8 +469,6 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
