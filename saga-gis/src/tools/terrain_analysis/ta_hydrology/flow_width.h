@@ -64,29 +64,37 @@
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 class CFlow_Width : public CSG_Tool_Grid
 {
-public: ////// public members and functions: //////////////
-
+public:
 	CFlow_Width(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
-private: ///// private members and functions: /////////////
+private:
 
 	CSG_Grid				*m_pDEM;
 
 
-	double					Get_D8			(int x, int y);
-	double					Get_MFD			(int x, int y);
-	double					Get_Aspect		(int x, int y);
+	double					Get_D8					(int x, int y);
+	double					Get_MFD					(int x, int y);
+	double					Get_Aspect				(int x, int y);
 
 };
 
