@@ -3,7 +3,7 @@
   <group>toolchains</group>
   <identifier>grid_list_simple_filter</identifier>
   <name>Simple Filter for Multiple Grids</name>
-  <menu>Grid|Filter</menu>
+  <menu absolute="true">Grid|Filter</menu>
   <description>
 	Apply a simple filter simultaneously to multiple grids.
 	Demonstrates the [[i]]For-Each tool[[/i]] chain option which easily allows

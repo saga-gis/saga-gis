@@ -72,50 +72,57 @@ CFlow_Width::CFlow_Width(void)
 {
 	Set_Name		(_TL("Flow Width and Specific Catchment Area"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"Flow width and specific catchment area (SCA) calculation.\n"
-		"\n"
-		"References:\n"
-		"Gruber, S., Peckham, S. (2008): Land-Surface Parameters and Objects in Hydrology. "
-		"In: Hengl, T. and Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. "
-		"Developments in Soil Science, Elsevier, 33:293-308.\n"
-		"\n"
-		"Quinn, P.F., Beven, K.J., Chevallier, P., Planchon, O. (1991): "
-		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models. "
-		"Hydrological Processes, 5:59-79\n"
+		"Flow width and specific catchment area (SCA) calculation. "
+		"SCA calculation needs total catchment area (TCA) as input, "
+		"which can be calculated with one of the flow accumulation tools. "
 	));
 
+	Add_Reference(
+		"Gruber, S., Peckham, S.", "2008",
+		"Land-Surface Parameters and Objects in Hydrology",
+		"In: Hengl, T. and Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. Developments in Soil Science, Elsevier, 33:293-308.",
+		SG_T("https://www.elsevier.com/books/geomorphometry/hengl/978-0-12-374345-9")
+	);
+
+	Add_Reference(
+		"Quinn, P.F., Beven, K.J., Chevallier, P., Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1002/hyp.3360050106/full")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"		, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "WIDTH"	, _TL("Flow Width"),
+	Parameters.Add_Grid("",
+		"WIDTH"	, _TL("Flow Width"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TCA"		, _TL("Total Catchment Area (TCA)"),
+	Parameters.Add_Grid("",
+		"TCA"	, _TL("Total Catchment Area (TCA)"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SCA"		, _TL("Specific Catchment Area (SCA)"),
+	Parameters.Add_Grid("",
+		"SCA"	, _TL("Specific Catchment Area (SCA)"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD", _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction (Quinn et al. 1991)"),
 			_TL("Aspect")
@@ -126,71 +133,80 @@ CFlow_Width::CFlow_Width(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CFlow_Width::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TCA") )
+	{
+		pParameters->Set_Enabled("SCA", pParameter->asGrid() != NULL);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFlow_Width::On_Execute(void)
 {
-	int			x, y, Method;
-	double		Width;
 	CSG_Grid	*pWidth, *pTCA, *pSCA;
 
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	pWidth		= Parameters("WIDTH")	->asGrid();
-	pTCA		= Parameters("TCA")		->asGrid();
-	pSCA		= Parameters("SCA")		->asGrid();
-	Method		= Parameters("METHOD")	->asInt();
+	m_pDEM	= Parameters("DEM"  )->asGrid();
+	pWidth	= Parameters("WIDTH")->asGrid();
+	pTCA	= Parameters("TCA"  )->asGrid();
+	pSCA	= Parameters("SCA"  )->asGrid();
 
-	if( pTCA )
+	if( !pTCA )
 	{
-		if( pSCA == NULL )
-		{
-			Parameters("SCA")->Set_Value(pSCA = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float));
-		}
-
-		pSCA->Set_Name(_TL("Specific Catchment Area"));
+		pSCA	= NULL;
 	}
 
+	DataObject_Set_Colors(pSCA, 11, SG_COLORS_YELLOW_BLUE);
+
+	int	Method	= Parameters("METHOD")->asInt();
+
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
+			double	Width;
+
 			switch( Method )
 			{
-			case 0:				// Deterministic 8
-				Width	= Get_D8	(x, y);
-				break;
-
-			case 1:				// Multiple Flow Direction (Quinn et al. 1991)
-				Width	= Get_MFD	(x, y);
-				break;
-
-			case 2:	default:	// Aspect
-				Width	= Get_Aspect(x, y);
-				break;
+			case  0: Width = Get_D8    (x, y); break;	// Deterministic 8
+			case  1: Width = Get_MFD   (x, y); break;	// Multiple Flow Direction (Quinn et al. 1991)
+			default: Width = Get_Aspect(x, y); break;	// Aspect
 			}
 
-			//---------------------------------------------
 			if( Width > 0.0 )
 			{
 				pWidth->Set_Value(x, y, Width);
+
+				if( pSCA )
+				{
+					if( !pTCA->is_NoData(x, y) )
+					{
+						pSCA->Set_Value(x, y, pTCA->asDouble(x, y) / Width);
+					}
+					else
+					{
+						pSCA->Set_NoData(x, y);
+					}
+				}
 			}
 			else
 			{
 				pWidth->Set_NoData(x, y);
-			}
 
-			if( pTCA && pSCA )
-			{
-				if( Width > 0.0 && !pTCA->is_NoData(x, y) )
-				{
-					pSCA->Set_Value(x, y, pTCA->asDouble(x, y) / Width);
-				}
-				else
+				if( pSCA )
 				{
 					pSCA->Set_NoData(x, y);
 				}
@@ -204,8 +220,6 @@ bool CFlow_Width::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

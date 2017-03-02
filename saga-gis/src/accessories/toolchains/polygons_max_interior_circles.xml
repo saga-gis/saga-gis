@@ -4,6 +4,7 @@
   <identifier>polygons_max_interior_circles</identifier>
   <name>Largest Circles in Polygons</name>
   <description>created from history</description>
+  <menu absolute="true">Shapes|Polygons</menu>
   
   <parameters>
     <input varname="POLYGONS" type="shapes" feature_type="polygon">
