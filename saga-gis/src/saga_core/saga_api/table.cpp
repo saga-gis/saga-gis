@@ -884,7 +884,7 @@ bool CSG_Table::Del_Record(int iRecord)
 //---------------------------------------------------------
 bool CSG_Table::Del_Records(void)
 {
-	if( m_Records > 0 )
+	if( m_nRecords > 0 )
 	{
 		_Index_Destroy();
 
