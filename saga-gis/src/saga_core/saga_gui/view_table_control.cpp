@@ -1189,7 +1189,7 @@ void CVIEW_Table_Control::On_Field_Rename(wxCommandEvent &event)
 
 	for(i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		P.Add_String(NULL, "", m_pTable->Get_Field_Name(i), _TL(""), m_pTable->Get_Field_Name(i));
+		P.Add_String(NULL, SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), m_pTable->Get_Field_Name(i));
 	}
 
 	//-----------------------------------------------------
