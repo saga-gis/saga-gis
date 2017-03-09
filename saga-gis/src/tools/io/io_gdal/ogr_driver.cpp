@@ -604,7 +604,11 @@ CSG_String CSG_OGR_DataSet::Get_Description(int i)	const	{	return( "" );	}
 //---------------------------------------------------------
 int CSG_OGR_DataSet::Get_Count(void)	const
 {
+#ifdef USE_GDAL_V2
+	return( m_pDataSet ? GDALDatasetGetLayerCount(m_pDataSet) : 0 );
+#else
 	return( m_pDataSet ? OGR_DS_GetLayerCount(m_pDataSet) : 0 );
+#endif
 }
 
 //---------------------------------------------------------
@@ -612,7 +616,11 @@ OGRLayerH CSG_OGR_DataSet::Get_Layer(int iLayer)	const
 {
 	if( m_pDataSet && iLayer >= 0 && iLayer < Get_Count() )
 	{
+#ifdef USE_GDAL_V2
+		return( GDALDatasetGetLayer(m_pDataSet, iLayer) );
+#else
 		return( OGR_DS_GetLayer(m_pDataSet, iLayer) );
+#endif
 	}
 
 	return( NULL );
