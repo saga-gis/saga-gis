@@ -578,11 +578,6 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(const CSG_String &ParentID, const 
 	{
 		SystemID	= m_pGrid_System->Get_Identifier();
 	}
-	else
-	{
-		pParent		= Add_Grid_System(pParent ? pParent->Get_Identifier() : SG_T(""), ID + "_GRIDSYSTEM", _TL("Grid system"), "");
-		SystemID	= pParent->Get_Identifier();
-	}
 
 	pParameter	= _Add(SystemID, ID, Name, Description, PARAMETER_TYPE_Grid_List, Constraint);
 
