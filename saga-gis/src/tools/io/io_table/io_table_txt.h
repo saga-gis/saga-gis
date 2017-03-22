@@ -138,6 +138,11 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
+
+private:
+
+	bool					Import					(const CSG_String &File);
+
 };
 
 

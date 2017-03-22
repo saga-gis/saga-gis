@@ -66,171 +66,164 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Export							 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CTable_Text_Export::CTable_Text_Export(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export Text Table"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "HEADLINE"	, _TL("Save Headline"),
+	Parameters.Add_Bool("",
+		"HEADLINE"	, _TL("Headline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STRQUOTA"	, _TL("Strings in Quota"),
+	Parameters.Add_Bool("",
+		"STRQUOTA"	, _TL("Strings in Quota"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "SEPARATOR"	, _TL("Separator"),
+	Parameters.Add_Choice("",
+		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|;|,|%s|%s|",
 			_TL("tabulator"),
-			SG_T(";"),
-			SG_T(","),
 			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
-	Parameters.Add_String(
-		pNode	, "SEP_OTHER"	, _TL("other"),
+	Parameters.Add_String("SEPARATOR",
+		"SEP_OTHER"	, _TL("other"),
 		_TL(""),
-		SG_T("*")
+		"*"
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILENAME"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
-			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
-			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
-			_TL("All Files")			, SG_T("*.*")
+		CSG_String::Format("%s|*.txt|%s|*.csv|%s|*.*",
+			_TL("Text Files (*.txt)"),
+			_TL("CSV Files (*.csv)"),
+			_TL("All Files")
 		), NULL, true
 	);
-}
-
-//---------------------------------------------------------
-bool CTable_Text_Export::On_Execute(void)
-{
-	CSG_String	StrFormat, Separator;
-	CSG_File	Stream;
-	CSG_Table	*pTable;
-
-	//-----------------------------------------------------
-	pTable		= Parameters("TABLE"   )->asTable();
-	StrFormat	= Parameters("STRQUOTA")->asBool() ? SG_T("\"%s\"") : SG_T("%s");
-
-	switch( Parameters("SEPARATOR")->asInt() )
-	{
-	case 0:		Separator	= "\t";	break;
-	case 1:		Separator	=  ";";	break;
-	case 2:		Separator	=  ",";	break;
-	case 3:		Separator	=  " ";	break;
-	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
-	}
-
-	//-----------------------------------------------------
-	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
-	{
-		Message_Add(_TL("file could not be opened."));
-	}
-
-	//-----------------------------------------------------
-	else
-	{
-		if( Parameters("HEADLINE")->asBool() )
-		{
-			for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
-			{
-				Stream.Printf(StrFormat.c_str(), pTable->Get_Field_Name(iField));
-				Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
-			}
-		}
-
-		//-------------------------------------------------
-		for(int iRecord=0; iRecord<pTable->Get_Record_Count() && Set_Progress(iRecord, pTable->Get_Record_Count()); iRecord++)
-		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
-
-			for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
-			{
-				switch( pTable->Get_Field_Type(iField) )
-				{
-				default:
-				case SG_DATATYPE_Char:
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
-					Stream.Printf(StrFormat.c_str(), pRecord->asString(iField));
-					break;
-
-				case SG_DATATYPE_Short:
-				case SG_DATATYPE_Int:
-				case SG_DATATYPE_Color:
-					Stream.Printf(SG_T("%d")	, pRecord->asInt(iField));
-					break;
-
-				case SG_DATATYPE_Long:
-					Stream.Printf(SG_T("%ld")	, (long)pRecord->asDouble(iField));
-					break;
-
-				case SG_DATATYPE_ULong:
-					Stream.Printf(SG_T("%lu")	, (unsigned long)pRecord->asDouble(iField));
-					break;
-
-				case SG_DATATYPE_Float:
-				case SG_DATATYPE_Double:
-					Stream.Printf(SG_T("%f")	, pRecord->asDouble(iField));
-					break;
-				}
-
-				Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
-			}
-		}
-
-		//-------------------------------------------------
-		Stream.Close();
-
-		return( true );
-	}
-
-	return( false );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Import							 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Text_Export::On_Execute(void)
+{
+	CSG_File	Stream;
+
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
+	{
+		Message_Add(_TL("file could not be opened."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Table	*pTable		= Parameters("TABLE")->asTable();
+
+	CSG_String	StrFormat	= Parameters("STRQUOTA")->asBool() ? SG_T("\"%s\"") : SG_T("%s");
+
+	CSG_String	Separator;
+
+	switch( Parameters("SEPARATOR")->asInt() )
+	{
+	default:	Separator	= Parameters("SEP_OTHER")->asString();	break;
+	case  0:	Separator	= "\t";	break;
+	case  1:	Separator	=  ";";	break;
+	case  2:	Separator	=  ",";	break;
+	case  3:	Separator	=  " ";	break;
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("HEADLINE")->asBool() )
+	{
+		for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
+		{
+			Stream.Printf(StrFormat.c_str(), pTable->Get_Field_Name(iField));
+			Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+
+		for(int iField=0; iField<pTable->Get_Field_Count(); iField++)
+		{
+			switch( pTable->Get_Field_Type(iField) )
+			{
+			case SG_DATATYPE_Char  : default:
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date  :
+				Stream.Printf(StrFormat.c_str(), pRecord->asString(iField));
+				break;
+
+			case SG_DATATYPE_Short :
+			case SG_DATATYPE_Int   :
+			case SG_DATATYPE_Color :
+				Stream.Printf("%d" , pRecord->asInt(iField));
+				break;
+
+			case SG_DATATYPE_Long  :
+				Stream.Printf("%ld", (long)pRecord->asDouble(iField));
+				break;
+
+			case SG_DATATYPE_ULong :
+				Stream.Printf("%lu", (unsigned long)pRecord->asDouble(iField));
+				break;
+
+			case SG_DATATYPE_Float :
+			case SG_DATATYPE_Double:
+				Stream.Printf("%f" , pRecord->asDouble(iField));
+				break;
+			}
+
+			Stream.Printf(iField < pTable->Get_Field_Count() - 1 ? Separator.c_str() : SG_T("\n"));
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CTable_Text_Import::CTable_Text_Import(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Text Table"));
 
@@ -241,46 +234,50 @@ CTable_Text_Import::CTable_Text_Import(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "HEADLINE"	, _TL("File contains headline"),
+	Parameters.Add_Bool("",
+		"HEADLINE"	, _TL("Headline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "SEPARATOR"	, _TL("Separator"),
+	Parameters.Add_Choice("",
+		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|;|,|%s|%s|",
 			_TL("tabulator"),
-			SG_T(";"),
-			SG_T(","),
 			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
-	Parameters.Add_String(
-		pNode	, "SEP_OTHER"	, _TL("Separator (other)"),
+	Parameters.Add_String("SEPARATOR",
+		"SEP_OTHER"	, _TL("Separator (other)"),
 		_TL(""),
-		SG_T("*")
+		"*"
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILENAME"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
-			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
-			_TL("All Files")			, SG_T("*.*")
+		CSG_String::Format("%s|*.txt;*.csv|%s|*.txt|%s|*.csv|%s|*.*",
+			_TL("Recognized Files"),
+			_TL("Text Files (*.txt)"),
+			_TL("CSV Files (*.csv)"),
+			_TL("All Files")
 		), NULL, false
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -292,6 +289,11 @@ int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Text_Import::On_Execute(void)
@@ -324,15 +326,13 @@ bool CTable_Text_Import::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Import							 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Text Table with Numbers only"));
 
@@ -343,52 +343,56 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table_List("",
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SKIP"		, _TL("Skip Lines"),
+	Parameters.Add_Int("",
+		"SKIP"		, _TL("Skip Leading Lines"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		0, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "HEADLINE"	, _TL("Headline"),
+	Parameters.Add_Bool("",
+		"HEADLINE"	, _TL("Headline"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "SEPARATOR"	, _TL("Separator"),
+	Parameters.Add_Choice("",
+		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|;|,|%s|%s|",
 			_TL("tabulator"),
-			SG_T(";"),
-			SG_T(","),
 			_TL("space"),
 			_TL("other")
 		), 0
 	);
 
-	Parameters.Add_String(
-		pNode	, "SEP_OTHER"	, _TL("other"),
+	Parameters.Add_String("SEPARATOR",
+		"SEP_OTHER"	, _TL("other"),
 		_TL(""),
-		SG_T("*")
+		"*"
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILENAME"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
-			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
-			_TL("All Files")			, SG_T("*.*")
-		), NULL, false
+		CSG_String::Format("%s|*.txt;*.csv|%s|*.txt|%s|*.csv|%s|*.*",
+			_TL("Recognized Files"),
+			_TL("Text Files (*.txt)"),
+			_TL("CSV Files (*.csv)"),
+			_TL("All Files")
+		), NULL, false, false, true
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CTable_Text_Import_Numbers::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -401,31 +405,52 @@ int CTable_Text_Import_Numbers::On_Parameters_Enable(CSG_Parameters *pParameters
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CTable_Text_Import_Numbers::On_Execute(void)
+{
+	CSG_Strings	Files;
+
+	Parameters("FILENAME")->asFilePath()->Get_FilePaths(Files);
+
+	Parameters("TABLES")->asTableList()->Del_Items();
+
+	for(int i=0; i<Files.Get_Count(); i++)
+	{
+		if( !Import(Files[i]) )
+		{
+			Message_Add(CSG_String::Format("\n%s: %s", _TL("failed to import table"), Files[i].c_str()), false);
+		}
+	}
+
+	return( Parameters("TABLES")->asTableList()->Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool CTable_Text_Import_Numbers::Import(const CSG_String &File)
 {
 	CSG_String	sHead, sLine, Separator;
 	CSG_File	Stream;
 
 	//-----------------------------------------------------
-	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, false) )
+	if( !Stream.Open(File, SG_FILE_R, false) )
 	{
-		Error_Set(_TL("file could not be opened"));
-
 		return( false );
 	}
 
 	if( Parameters("SKIP")->asInt() > 0 )
 	{
 		int	i	= Parameters("SKIP")->asInt();
-		
+
 		while( i > 0 && Stream.Read_Line(sLine) )	{ i--; }
 	}
 
 	if( !Stream.Read_Line(sHead) || sHead.Length() == 0 )
 	{
-		Error_Set(_TL("empty or corrupted file"));
-
 		return( false );
 	}
 
@@ -435,8 +460,6 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 	}
 	else if( !Stream.Read_Line(sLine) || sLine.Length() == 0 )
 	{
-		Error_Set(_TL("empty or corrupted file"));
-
 		return( false );
 	}
 
@@ -451,10 +474,9 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+	CSG_Table	*pTable	= SG_Create_Table();
 
-	pTable->Destroy();
-	pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+	pTable->Set_Name(SG_File_Get_Name(File, false));
 
 	sHead.Trim(true);
 	sHead.Replace(Separator, "\t");
@@ -477,13 +499,13 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 
 	if( pTable->Get_Field_Count() <= 0 )
 	{
-		Error_Set(_TL("empty or corrupted file"));
+		delete(pTable);
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int		fLength	= Stream.Length();
+	sLong	fLength	= Stream.Length();
 
 	bool	bOkay	= true;
 
@@ -511,9 +533,19 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 			}
 		}
 	}
-	while( bOkay && Stream.Read_Line(sLine) && Set_Progress(Stream.Tell(), fLength) );
+	while( bOkay && Stream.Read_Line(sLine) && Set_Progress((double)Stream.Tell(), (double)fLength) );
 
-	return( pTable->Get_Count() > 0 );
+	//-----------------------------------------------------
+	if( pTable->Get_Count() > 0 )
+	{
+		Parameters("TABLES")->asTableList()->Add_Item(pTable);
+
+		return( true );
+	}
+
+	delete(pTable);
+
+	return( false );
 }
 
 
@@ -528,56 +560,62 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 {
 	Set_Name		(_TL("Import Text Table (Fixed Column Sizes)"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "HEADLINE"	, _TL("File contains headline"),
+	Parameters.Add_Int("",
+		"SKIP"		, _TL("Skip Leading Lines"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		0, 0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FIELDDEF"	, _TL("Field Definition"),
+	Parameters.Add_Bool("",
+		"HEADLINE"	, _TL("Headline"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		true
+	);
+
+	Parameters.Add_Choice("",
+		"FIELDDEF"	, _TL("Field Definition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("mark breaks in first line"),
 			_TL("specify fields with type"),
 			_TL("from list")
 		), 2
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NFIELDS"		, _TL("Number of Fields"),
+	Parameters.Add_Int("",
+		"NFIELDS"	, _TL("Number of Fields"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 1, 1, true
+		1, 1, true
 	);
 
-	CSG_Table	*pList	= Parameters.Add_FixedTable(
-		NULL	, "LIST"		, _TL("List"),
+	CSG_Table	*pList	= Parameters.Add_FixedTable("",
+		"LIST"		, _TL("List"),
 		_TL("")
 	)->asTable();
 
-	pList->Add_Field(_TL("Name")	, SG_DATATYPE_String);
-	pList->Add_Field(_TL("Size")	, SG_DATATYPE_Int);
-	pList->Add_Field(_TL("Numeric")	, SG_DATATYPE_Byte);
+	pList->Add_Field(_TL("Name"   ), SG_DATATYPE_String);
+	pList->Add_Field(_TL("Size"   ), SG_DATATYPE_Int   );
+	pList->Add_Field(_TL("Numeric"), SG_DATATYPE_Byte  );
 
-	Parameters.Add_FilePath(
-		NULL	, "FILENAME"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
-			_TL("All Files")			, SG_T("*.*")
+		CSG_String::Format("%s|*.txt|%s|*.*",
+			_TL("Text Files (*.txt)"),
+			_TL("All Files")
 		), NULL, false
 	);
 
@@ -585,40 +623,55 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 	Add_Parameters("FIELDS", _TL("Fields"), _TL(""));
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 int CTable_Text_Import_Fixed_Cols::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELDDEF")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELDDEF") )
 	{
-	//	pParameters->Get_Parameter("BREAKS" )->Set_Enabled(pParameter->asInt() == 0);
-	//	pParameters->Get_Parameter("FIELDS" )->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("NFIELDS")->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("LIST"   )->Set_Enabled(pParameter->asInt() == 2);
+	//	pParameters->Set_Enabled("BREAKS" , pParameter->asInt() == 0);
+	//	pParameters->Set_Enabled("FIELDS" , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("LIST"   , pParameter->asInt() == 2);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 {
-	bool			bHeader;
-	int				i, nChars, iField, nFields, *iFirst, *iLength;
-	CSG_String		sLine;
-	CSG_File		Stream;
-	CSG_Table		*pTable;
-
 	//-----------------------------------------------------
-	pTable	= Parameters("TABLE")		->asTable();
-	bHeader	= Parameters("HEADLINE")	->asBool();
+	CSG_File	Stream;
 
-	//-----------------------------------------------------
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, true) )
 	{
 		Message_Add(_TL("file could not be opened"));
 
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	CSG_String	sLine;
+
+	if( Parameters("SKIP")->asInt() > 0 )
+	{
+		int	i	= Parameters("SKIP")->asInt();
+
+		while( i > 0 && Stream.Read_Line(sLine) )	{ i--; }
+	}
+
+	//-----------------------------------------------------
+	int		nChars;
 
 	if( !Stream.Read_Line(sLine) || (nChars = (int)sLine.Length()) <= 0 )
 	{
@@ -628,8 +681,18 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
 	pTable->Destroy();
+
 	pTable->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+	//-----------------------------------------------------
+	bool	bHeader	= Parameters("HEADLINE")->asBool();
+
+	int		i, iField, nFields;
+
+	CSG_Array_Int	First, Length;
 
 	switch( Parameters("FIELDDEF")->asInt() )
 	{
@@ -642,10 +705,10 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 			for(i=0; i<nChars; i++)
 			{
-				pBreaks->Add_Value(NULL,
-					CSG_String::Format(SG_T("%03d"), i),
-					CSG_String::Format(SG_T("%03d %c"), i + 1, sLine[i]),
-					_TL(""), PARAMETER_TYPE_Bool, false
+				pBreaks->Add_Bool("",
+					CSG_String::Format("%03d", i),
+					CSG_String::Format("%03d %c", i + 1, sLine[i]),
+					_TL(""), false
 				);
 			}
 
@@ -664,25 +727,25 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 			}
 
 			//-------------------------------------------------
-			iFirst		= new int[nFields];
-			iLength		= new int[nFields];
+			First .Set_Array(nFields);
+			Length.Set_Array(nFields);
 
-			iFirst[0]	= 0;
+			First[0]	= 0;
 
 			for(i=0, iField=1; i<pBreaks->Get_Count() && iField<nFields; i++)
 			{
 				if( pBreaks->Get_Parameter(i)->asBool() )
 				{
-					iFirst[iField++]	= i + 1;
+					First[iField++]	= i + 1;
 				}
 			}
 
 			//-------------------------------------------------
 			for(iField=0; iField<nFields; iField++)
 			{
-				iLength[iField]	= (iField < nFields - 1 ? iFirst[iField + 1] : (int)sLine.Length()) - iFirst[iField];
+				Length[iField]	= (iField < nFields - 1 ? First[iField + 1] : (int)sLine.Length()) - First[iField];
 
-				pTable->Add_Field(bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1), SG_DATATYPE_String);
+				pTable->Add_Field(bHeader ? sLine.Mid(First[iField], Length[iField]) : CSG_String::Format("FIELD%03d", iField + 1), SG_DATATYPE_String);
 			}
 		}
 		break;
@@ -698,17 +761,17 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 			for(iField=0; iField<nFields; iField++)
 			{
-				CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
-				CSG_Parameter	*pNode	= pFields->Add_Node(NULL, SG_T("NODE") + s, _TL("Field") + s, _TL(""));
-				pFields->Add_Value	(pNode, SG_T("LENGTH") + s, _TL("Length"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
-			//	pFields->Add_Value	(pNode, SG_T("IMPORT") + s, _TL("Import"), _TL(""), PARAMETER_TYPE_Bool, true);
-				pFields->Add_Choice	(pNode, SG_T("TYPE")   + s, _TL("Type")  , _TL(""), CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+				CSG_String	s	= CSG_String::Format("%03d", iField);
+				pFields->Add_Node("", "NODE" + s, _TL("Field") + s, _TL(""));
+				pFields->Add_Int   ("NODE" + s, "LENGTH" + s, _TL("Length"), _TL(""), 1, 1, true);
+			//	pFields->Add_Bool  ("NODE" + s, "IMPORT" + s, _TL("Import"), _TL(""), true);
+				pFields->Add_Choice("NODE" + s, "TYPE"   + s, _TL("Type"  ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s|",
 					_TL("text"),
 					_TL("2 byte integer"),
 					_TL("4 byte integer"),
 					_TL("4 byte float"),
-					_TL("8 byte float"))
-				);
+					_TL("8 byte float")
+				));
 			}
 
 			if( !Dlg_Parameters("FIELDS") )
@@ -717,30 +780,29 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 			}
 
 			//-------------------------------------------------
-			iFirst		= new int[nFields];
-			iLength		= new int[nFields];
+			First .Set_Array(nFields);
+			Length.Set_Array(nFields);
 
-			iFirst[0]	= 0;
+			First[0]	= 0;
 
 			for(iField=0, i=0; iField<nFields && i<nChars; iField++)
 			{
-				CSG_String		s		= CSG_String::Format(SG_T("%03d"), iField);
+				CSG_String	s	= CSG_String::Format("%03d", iField);
 
-				iFirst [iField]	= i;
-				iLength[iField]	= pFields->Get_Parameter(SG_T("LENGTH") + s)->asInt();
+				First [iField]	= i;
+				Length[iField]	= pFields->Get_Parameter("LENGTH" + s)->asInt();
 
-				i	+= iLength[iField];
+				i	+= Length[iField];
 
-				CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String::Format(SG_T("FIELD%03d"), iField + 1);
+				CSG_String	Name	= bHeader ? sLine.Mid(First[iField], Length[iField]) : CSG_String::Format("FIELD%03d", iField + 1);
 
-				switch( pFields->Get_Parameter(SG_T("TYPE") + s)->asInt() )
+				switch( pFields->Get_Parameter("TYPE" + s)->asInt() )
 				{
-				default:
-				case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
-				case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
-				case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
-				case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
-				case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				default:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+				case  1:	pTable->Add_Field(Name, SG_DATATYPE_Short );	break;
+				case  2:	pTable->Add_Field(Name, SG_DATATYPE_Int   );	break;
+				case  3:	pTable->Add_Field(Name, SG_DATATYPE_Float );	break;
+				case  4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
 				}
 			}
 		}
@@ -754,28 +816,27 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 			nFields	= pList->Get_Count();
 
 			//-------------------------------------------------
-			iFirst		= new int[nFields];
-			iLength		= new int[nFields];
+			First .Set_Array(nFields);
+			Length.Set_Array(nFields);
 
-			iFirst[0]	= 0;
+			First[0]	= 0;
 
 			for(iField=0, i=0; iField<nFields && i<nChars; iField++)
 			{
-				iFirst [iField]	= i;
-				iLength[iField]	= pList->Get_Record(iField)->asInt(1);
+				First [iField]	= i;
+				Length[iField]	= pList->Get_Record(iField)->asInt(1);
 
-				i	+= iLength[iField];
+				i	+= Length[iField];
 
-				CSG_String		Name	= bHeader ? sLine.Mid(iFirst[iField], iLength[iField]) : CSG_String(pList->Get_Record(iField)->asString(0));
+				CSG_String	Name	= bHeader ? sLine.Mid(First[iField], Length[iField]) : CSG_String(pList->Get_Record(iField)->asString(0));
 
 				switch( pList->Get_Record(iField)->asInt(2) )
 				{
-				case 0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
-				case 1:	pTable->Add_Field(Name, SG_DATATYPE_Short);		break;
-				case 2:	pTable->Add_Field(Name, SG_DATATYPE_Int);		break;
-				case 3:	pTable->Add_Field(Name, SG_DATATYPE_Float);		break;
-				default:
-				case 4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				case  0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+				case  1:	pTable->Add_Field(Name, SG_DATATYPE_Short );	break;
+				case  2:	pTable->Add_Field(Name, SG_DATATYPE_Int   );	break;
+				case  3:	pTable->Add_Field(Name, SG_DATATYPE_Float );	break;
+				default:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
 				}
 			}
 		}
@@ -789,7 +850,7 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int		fLength	= Stream.Length();
+	sLong	fLength	= Stream.Length();
 
 	do
 	{
@@ -799,15 +860,11 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 			for(iField=0; iField<nFields; iField++)
 			{
-				pRecord->Set_Value(iField, sLine.Mid(iFirst[iField], iLength[iField]));
+				pRecord->Set_Value(iField, sLine.Mid(First[iField], Length[iField]));
 			}
 		}
 	}
-	while( Stream.Read_Line(sLine) && Set_Progress(Stream.Tell(), fLength) );
-
-	//-----------------------------------------------------
-	delete[](iFirst);
-	delete[](iLength);
+	while( Stream.Read_Line(sLine) && Set_Progress((double)Stream.Tell(), (double)fLength) );
 
 	//-----------------------------------------------------
 	return( true );
