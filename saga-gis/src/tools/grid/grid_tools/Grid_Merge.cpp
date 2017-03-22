@@ -76,27 +76,27 @@ CGrid_Merge::CGrid_Merge(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Mosaicking"));
 
-	Set_Author		("O.Conrad (c) 2003-12");
+	Set_Author		("O.Conrad (c) 2003-17");
 
 	Set_Description	(_TW(
 		"Merges multiple grids into one single grid."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Input Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Input Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_String(
-		NULL	, "NAME"		, _TL("Name"),
+	Parameters.Add_String("",
+		"NAME"		, _TL("Name"),
 		_TL(""),
 		_TL("Mosaic")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Data Storage Type"),
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("1 bit"),
@@ -111,8 +111,8 @@ CGrid_Merge::CGrid_Merge(void)
 		), 7
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"		, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -122,8 +122,8 @@ CGrid_Merge::CGrid_Merge(void)
 		), 3
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "OVERLAP"		, _TL("Overlapping Areas"),
+	Parameters.Add_Choice("",
+		"OVERLAP"	, _TL("Overlapping Areas"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("first"),
@@ -136,14 +136,14 @@ CGrid_Merge::CGrid_Merge(void)
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BLEND_DIST"	, _TL("Blending Distance"),
+	Parameters.Add_Value("",
+		"BLEND_DIST", _TL("Blending Distance"),
 		_TL("blending distance given in map units"),
 		PARAMETER_TYPE_Double, 10.0, 0.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "MATCH"		, _TL("Match"),
+	Parameters.Add_Choice("",
+		"MATCH"		, _TL("Match"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("none"),
@@ -298,9 +298,9 @@ bool CGrid_Merge::Initialize(void)
 	m_pGrids	= Parameters("GRIDS"     )->asGridList();
 	m_dBlend	= Parameters("BLEND_DIST")->asDouble();
 
-	if( m_pGrids->Get_Count() < 2 )
+	if( m_pGrids->Get_Count() < 1 )
 	{
-		Error_Set(_TL("nothing to do, there are less than two grids in input list."));
+		Error_Set(_TL("nothing to do, there is no grid in the input list."));
 
 		return( false );
 	}
@@ -309,9 +309,9 @@ bool CGrid_Merge::Initialize(void)
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
 	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	//-----------------------------------------------------
@@ -319,16 +319,15 @@ bool CGrid_Merge::Initialize(void)
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default:	Type	= SG_DATATYPE_Float;	break;
-	case 0:		Type	= SG_DATATYPE_Bit;		break;
-	case 1:		Type	= SG_DATATYPE_Byte;		break;
-	case 2:		Type	= SG_DATATYPE_Char;		break;
-	case 3:		Type	= SG_DATATYPE_Word;		break;
-	case 4:		Type	= SG_DATATYPE_Short;	break;
-	case 5:		Type	= SG_DATATYPE_DWord;	break;
-	case 6:		Type	= SG_DATATYPE_Int;		break;
-	case 7: 	Type	= SG_DATATYPE_Float;	break;
-	case 8:		Type	= SG_DATATYPE_Double;	break;
+	case  0:	Type	= SG_DATATYPE_Bit   ;	break;
+	case  1:	Type	= SG_DATATYPE_Byte  ;	break;
+	case  2:	Type	= SG_DATATYPE_Char  ;	break;
+	case  3:	Type	= SG_DATATYPE_Word  ;	break;
+	case  4:	Type	= SG_DATATYPE_Short ;	break;
+	case  5:	Type	= SG_DATATYPE_DWord ;	break;
+	case  6:	Type	= SG_DATATYPE_Int   ;	break;
+	default:	Type	= SG_DATATYPE_Float ;	break;
+	case  8:	Type	= SG_DATATYPE_Double;	break;
 	}
 
 	if( (m_pMosaic = m_Grid_Target.Get_Grid(Type)) == NULL )
