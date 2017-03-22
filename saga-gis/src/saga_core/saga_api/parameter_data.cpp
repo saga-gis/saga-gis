@@ -88,44 +88,44 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
-	default:								return( _TL("Parameter") );
+	default                              :	return( _TL("Parameter"       ) );
 
-	case PARAMETER_TYPE_Node:				return( _TL("Node") );
+	case PARAMETER_TYPE_Node             :	return( _TL("Node"            ) );
 
-	case PARAMETER_TYPE_Bool:				return( _TL("Boolean") );
-	case PARAMETER_TYPE_Int:				return( _TL("Integer") );
-	case PARAMETER_TYPE_Double:				return( _TL("Floating point") );
-	case PARAMETER_TYPE_Degree:				return( _TL("Degree") );
-	case PARAMETER_TYPE_Date:				return( _TL("Date") );
-	case PARAMETER_TYPE_Range:				return( _TL("Value range") );
-	case PARAMETER_TYPE_Choice:				return( _TL("Choice") );
+	case PARAMETER_TYPE_Bool             :	return( _TL("Boolean"         ) );
+	case PARAMETER_TYPE_Int              :	return( _TL("Integer"         ) );
+	case PARAMETER_TYPE_Double           :	return( _TL("Floating point"  ) );
+	case PARAMETER_TYPE_Degree           :	return( _TL("Degree"          ) );
+	case PARAMETER_TYPE_Date             :	return( _TL("Date"            ) );
+	case PARAMETER_TYPE_Range            :	return( _TL("Value range"     ) );
+	case PARAMETER_TYPE_Choice           :	return( _TL("Choice"          ) );
 
-	case PARAMETER_TYPE_String:				return( _TL("Text") );
-	case PARAMETER_TYPE_Text:				return( _TL("Long text") );
-	case PARAMETER_TYPE_FilePath:			return( _TL("File path") );
+	case PARAMETER_TYPE_String           :	return( _TL("Text"            ) );
+	case PARAMETER_TYPE_Text             :	return( _TL("Long text"       ) );
+	case PARAMETER_TYPE_FilePath         :	return( _TL("File path"       ) );
 
-	case PARAMETER_TYPE_Font:				return( _TL("Font") );
-	case PARAMETER_TYPE_Color:				return( _TL("Color") );
-	case PARAMETER_TYPE_Colors:				return( _TL("Colors") );
-	case PARAMETER_TYPE_FixedTable:			return( _TL("Static table") );
-	case PARAMETER_TYPE_Grid_System:		return( _TL("Grid system") );
-	case PARAMETER_TYPE_Table_Field:		return( _TL("Table field") );
-	case PARAMETER_TYPE_Table_Fields:		return( _TL("Table fields") );
+	case PARAMETER_TYPE_Font             :	return( _TL("Font"            ) );
+	case PARAMETER_TYPE_Color            :	return( _TL("Color"           ) );
+	case PARAMETER_TYPE_Colors           :	return( _TL("Colors"          ) );
+	case PARAMETER_TYPE_FixedTable       :	return( _TL("Static table"    ) );
+	case PARAMETER_TYPE_Grid_System      :	return( _TL("Grid system"     ) );
+	case PARAMETER_TYPE_Table_Field      :	return( _TL("Table field"     ) );
+	case PARAMETER_TYPE_Table_Fields     :	return( _TL("Table fields"    ) );
 
-	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object") );
-	case PARAMETER_TYPE_Grid:				return( _TL("Grid") );
-	case PARAMETER_TYPE_Table:				return( _TL("Table") );
-	case PARAMETER_TYPE_Shapes:				return( _TL("Shapes") );
-	case PARAMETER_TYPE_TIN:				return( _TL("TIN") );
-	case PARAMETER_TYPE_PointCloud:			return( _TL("Point Cloud") );
+	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object"     ) );
+	case PARAMETER_TYPE_Grid             :	return( _TL("Grid"            ) );
+	case PARAMETER_TYPE_Table            :	return( _TL("Table"           ) );
+	case PARAMETER_TYPE_Shapes           :	return( _TL("Shapes"          ) );
+	case PARAMETER_TYPE_TIN              :	return( _TL("TIN"             ) );
+	case PARAMETER_TYPE_PointCloud       :	return( _TL("Point Cloud"     ) );
 
-	case PARAMETER_TYPE_Grid_List:			return( _TL("Grid list") );
-	case PARAMETER_TYPE_Table_List:			return( _TL("Table list") );
-	case PARAMETER_TYPE_Shapes_List:		return( _TL("Shapes list") );
-	case PARAMETER_TYPE_TIN_List:			return( _TL("TIN list") );
-	case PARAMETER_TYPE_PointCloud_List:	return( _TL("Point Cloud list") );
+	case PARAMETER_TYPE_Grid_List        :	return( _TL("Grid list"       ) );
+	case PARAMETER_TYPE_Table_List       :	return( _TL("Table list"      ) );
+	case PARAMETER_TYPE_Shapes_List      :	return( _TL("Shapes list"     ) );
+	case PARAMETER_TYPE_TIN_List         :	return( _TL("TIN list"        ) );
+	case PARAMETER_TYPE_PointCloud_List  :	return( _TL("Point Cloud list") );
 
-	case PARAMETER_TYPE_Parameters:			return( _TL("Parameters") );
+	case PARAMETER_TYPE_Parameters       :	return( _TL("Parameters"      ) );
 	}
 }
 
@@ -134,85 +134,85 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
-	default:								return( SG_T("parameter") );
+	default                              :	return( "parameter"    );
 
-	case PARAMETER_TYPE_Node:				return( SG_T("node") );
+	case PARAMETER_TYPE_Node             :	return( "node"         );
 
-	case PARAMETER_TYPE_Bool:				return( SG_T("boolean") );
-	case PARAMETER_TYPE_Int:				return( SG_T("integer") );
-	case PARAMETER_TYPE_Double:				return( SG_T("double") );
-	case PARAMETER_TYPE_Degree:				return( SG_T("degree") );
-	case PARAMETER_TYPE_Date:				return( SG_T("date") );
-	case PARAMETER_TYPE_Range:				return( SG_T("range") );
-	case PARAMETER_TYPE_Choice:				return( SG_T("choice") );
+	case PARAMETER_TYPE_Bool             :	return( "boolean"      );
+	case PARAMETER_TYPE_Int              :	return( "integer"      );
+	case PARAMETER_TYPE_Double           :	return( "double"       );
+	case PARAMETER_TYPE_Degree           :	return( "degree"       );
+	case PARAMETER_TYPE_Date             :	return( "date"         );
+	case PARAMETER_TYPE_Range            :	return( "range"        );
+	case PARAMETER_TYPE_Choice           :	return( "choice"       );
 
-	case PARAMETER_TYPE_String:				return( SG_T("text") );
-	case PARAMETER_TYPE_Text:				return( SG_T("long_text") );
-	case PARAMETER_TYPE_FilePath:			return( SG_T("file") );
+	case PARAMETER_TYPE_String           :	return( "text"         );
+	case PARAMETER_TYPE_Text             :	return( "long_text"    );
+	case PARAMETER_TYPE_FilePath         :	return( "file"         );
 
-	case PARAMETER_TYPE_Font:				return( SG_T("font") );
-	case PARAMETER_TYPE_Color:				return( SG_T("color") );
-	case PARAMETER_TYPE_Colors:				return( SG_T("colors") );
-	case PARAMETER_TYPE_FixedTable:			return( SG_T("static_table") );
-	case PARAMETER_TYPE_Grid_System:		return( SG_T("grid_system") );
-	case PARAMETER_TYPE_Table_Field:		return( SG_T("table_field") );
-	case PARAMETER_TYPE_Table_Fields:		return( SG_T("table_fields") );
+	case PARAMETER_TYPE_Font             :	return( "font"         );
+	case PARAMETER_TYPE_Color            :	return( "color"        );
+	case PARAMETER_TYPE_Colors           :	return( "colors"       );
+	case PARAMETER_TYPE_FixedTable       :	return( "static_table" );
+	case PARAMETER_TYPE_Grid_System      :	return( "grid_system"  );
+	case PARAMETER_TYPE_Table_Field      :	return( "table_field"  );
+	case PARAMETER_TYPE_Table_Fields     :	return( "table_fields" );
 
-	case PARAMETER_TYPE_DataObject_Output:	return( SG_T("data_object") );
-	case PARAMETER_TYPE_Grid:				return( SG_T("grid") );
-	case PARAMETER_TYPE_Table:				return( SG_T("table") );
-	case PARAMETER_TYPE_Shapes:				return( SG_T("shapes") );
-	case PARAMETER_TYPE_TIN:				return( SG_T("tin") );
-	case PARAMETER_TYPE_PointCloud:			return( SG_T("points") );
+	case PARAMETER_TYPE_DataObject_Output:	return( "data_object"  );
+	case PARAMETER_TYPE_Grid             :	return( "grid"         );
+	case PARAMETER_TYPE_Table            :	return( "table"        );
+	case PARAMETER_TYPE_Shapes           :	return( "shapes"       );
+	case PARAMETER_TYPE_TIN              :	return( "tin"          );
+	case PARAMETER_TYPE_PointCloud       :	return( "points"       );
 
-	case PARAMETER_TYPE_Grid_List:			return( SG_T("grid_list") );
-	case PARAMETER_TYPE_Table_List:			return( SG_T("table_list") );
-	case PARAMETER_TYPE_Shapes_List:		return( SG_T("shapes_list") );
-	case PARAMETER_TYPE_TIN_List:			return( SG_T("tin_list") );
-	case PARAMETER_TYPE_PointCloud_List:	return( SG_T("points_list") );
+	case PARAMETER_TYPE_Grid_List        :	return( "grid_list"    );
+	case PARAMETER_TYPE_Table_List       :	return( "table_list"   );
+	case PARAMETER_TYPE_Shapes_List      :	return( "shapes_list"  );
+	case PARAMETER_TYPE_TIN_List         :	return( "tin_list"     );
+	case PARAMETER_TYPE_PointCloud_List  :	return( "points_list"  );
 
-	case PARAMETER_TYPE_Parameters:			return( SG_T("parameters") );
+	case PARAMETER_TYPE_Parameters       :	return( "parameters"   );
 	}
 }
 
 //---------------------------------------------------------
 TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 {
-	if( !Identifier.Cmp(SG_T("node"			)) )	{	return( PARAMETER_TYPE_Node					);	}
-	if( !Identifier.Cmp(SG_T("boolean"		)) )	{	return( PARAMETER_TYPE_Bool					);	}
-	if( !Identifier.Cmp(SG_T("integer"		)) )	{	return( PARAMETER_TYPE_Int					);	}
-	if( !Identifier.Cmp(SG_T("double"		)) )	{	return( PARAMETER_TYPE_Double				);	}
-	if( !Identifier.Cmp(SG_T("degree"		)) )	{	return( PARAMETER_TYPE_Degree				);	}
-	if( !Identifier.Cmp(SG_T("date"			)) )	{	return( PARAMETER_TYPE_Date					);	}
-	if( !Identifier.Cmp(SG_T("range"		)) )	{	return( PARAMETER_TYPE_Range				);	}
-	if( !Identifier.Cmp(SG_T("choice"		)) )	{	return( PARAMETER_TYPE_Choice				);	}
+	if( !Identifier.Cmp("node"        ) )	{	return( PARAMETER_TYPE_Node             );	}
+	if( !Identifier.Cmp("boolean"     ) )	{	return( PARAMETER_TYPE_Bool             );	}
+	if( !Identifier.Cmp("integer"     ) )	{	return( PARAMETER_TYPE_Int              );	}
+	if( !Identifier.Cmp("double"      ) )	{	return( PARAMETER_TYPE_Double           );	}
+	if( !Identifier.Cmp("degree"      ) )	{	return( PARAMETER_TYPE_Degree           );	}
+	if( !Identifier.Cmp("date"        ) )	{	return( PARAMETER_TYPE_Date             );	}
+	if( !Identifier.Cmp("range"       ) )	{	return( PARAMETER_TYPE_Range            );	}
+	if( !Identifier.Cmp("choice"      ) )	{	return( PARAMETER_TYPE_Choice           );	}
 
-	if( !Identifier.Cmp(SG_T("text"			)) )	{	return( PARAMETER_TYPE_String				);	}
-	if( !Identifier.Cmp(SG_T("long_text"	)) )	{	return( PARAMETER_TYPE_Text					);	}
-	if( !Identifier.Cmp(SG_T("file"			)) )	{	return( PARAMETER_TYPE_FilePath				);	}
+	if( !Identifier.Cmp("text"        ) )	{	return( PARAMETER_TYPE_String           );	}
+	if( !Identifier.Cmp("long_text"   ) )	{	return( PARAMETER_TYPE_Text             );	}
+	if( !Identifier.Cmp("file"        ) )	{	return( PARAMETER_TYPE_FilePath         );	}
 
-	if( !Identifier.Cmp(SG_T("font"			)) )	{	return( PARAMETER_TYPE_Font					);	}
-	if( !Identifier.Cmp(SG_T("color"		)) )	{	return( PARAMETER_TYPE_Color				);	}
-	if( !Identifier.Cmp(SG_T("colors"		)) )	{	return( PARAMETER_TYPE_Colors				);	}
-	if( !Identifier.Cmp(SG_T("static_table"	)) )	{	return( PARAMETER_TYPE_FixedTable			);	}
-	if( !Identifier.Cmp(SG_T("grid_system"	)) )	{	return( PARAMETER_TYPE_Grid_System			);	}
-	if( !Identifier.Cmp(SG_T("table_field"	)) )	{	return( PARAMETER_TYPE_Table_Field			);	}
-	if( !Identifier.Cmp(SG_T("table_fields"	)) )	{	return( PARAMETER_TYPE_Table_Fields			);	}
+	if( !Identifier.Cmp("font"        ) )	{	return( PARAMETER_TYPE_Font             );	}
+	if( !Identifier.Cmp("color"       ) )	{	return( PARAMETER_TYPE_Color            );	}
+	if( !Identifier.Cmp("colors"      ) )	{	return( PARAMETER_TYPE_Colors           );	}
+	if( !Identifier.Cmp("static_table") )	{	return( PARAMETER_TYPE_FixedTable       );	}
+	if( !Identifier.Cmp("grid_system" ) )	{	return( PARAMETER_TYPE_Grid_System      );	}
+	if( !Identifier.Cmp("table_field" ) )	{	return( PARAMETER_TYPE_Table_Field      );	}
+	if( !Identifier.Cmp("table_fields") )	{	return( PARAMETER_TYPE_Table_Fields     );	}
 
-	if( !Identifier.Cmp(SG_T("data_object"	)) )	{	return( PARAMETER_TYPE_DataObject_Output	);	}
-	if( !Identifier.Cmp(SG_T("grid"			)) )	{	return( PARAMETER_TYPE_Grid					);	}
-	if( !Identifier.Cmp(SG_T("table"		)) )	{	return( PARAMETER_TYPE_Table				);	}
-	if( !Identifier.Cmp(SG_T("shapes"		)) )	{	return( PARAMETER_TYPE_Shapes				);	}
-	if( !Identifier.Cmp(SG_T("tin"			)) )	{	return( PARAMETER_TYPE_TIN					);	}
-	if( !Identifier.Cmp(SG_T("points"		)) )	{	return( PARAMETER_TYPE_PointCloud			);	}
+	if( !Identifier.Cmp("data_object" ) )	{	return( PARAMETER_TYPE_DataObject_Output);	}
+	if( !Identifier.Cmp("grid"        ) )	{	return( PARAMETER_TYPE_Grid             );	}
+	if( !Identifier.Cmp("table"       ) )	{	return( PARAMETER_TYPE_Table            );	}
+	if( !Identifier.Cmp("shapes"      ) )	{	return( PARAMETER_TYPE_Shapes           );	}
+	if( !Identifier.Cmp("tin"         ) )	{	return( PARAMETER_TYPE_TIN              );	}
+	if( !Identifier.Cmp("points"      ) )	{	return( PARAMETER_TYPE_PointCloud       );	}
 
-	if( !Identifier.Cmp(SG_T("grid_list"	)) )	{	return( PARAMETER_TYPE_Grid_List			);	}
-	if( !Identifier.Cmp(SG_T("table_list"	)) )	{	return( PARAMETER_TYPE_Table_List			);	}
-	if( !Identifier.Cmp(SG_T("shapes_list"	)) )	{	return( PARAMETER_TYPE_Shapes_List			);	}
-	if( !Identifier.Cmp(SG_T("tin_list"		)) )	{	return( PARAMETER_TYPE_TIN_List				);	}
-	if( !Identifier.Cmp(SG_T("points_list"	)) )	{	return( PARAMETER_TYPE_PointCloud_List		);	}
+	if( !Identifier.Cmp("grid_list"   ) )	{	return( PARAMETER_TYPE_Grid_List        );	}
+	if( !Identifier.Cmp("table_list"  ) )	{	return( PARAMETER_TYPE_Table_List       );	}
+	if( !Identifier.Cmp("shapes_list" ) )	{	return( PARAMETER_TYPE_Shapes_List      );	}
+	if( !Identifier.Cmp("tin_list"    ) )	{	return( PARAMETER_TYPE_TIN_List         );	}
+	if( !Identifier.Cmp("points_list" ) )	{	return( PARAMETER_TYPE_PointCloud_List  );	}
 
-	if( !Identifier.Cmp(SG_T("parameters"	)) )	{	return( PARAMETER_TYPE_Parameters			);	}
+	if( !Identifier.Cmp("parameters"  ) )	{	return( PARAMETER_TYPE_Parameters       );	}
 
 	return( PARAMETER_TYPE_Undefined );
 }
@@ -1270,7 +1270,7 @@ bool CSG_Parameter_File_Name::Get_FilePaths(CSG_Strings &FilePaths)	const
 		}
 		else
 		{
-			CSG_String	s(m_String), sTmp;
+			CSG_String	s(m_String);
 
 			while( s.Length() > 2 )
 			{

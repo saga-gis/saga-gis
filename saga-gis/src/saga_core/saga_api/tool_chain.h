@@ -133,7 +133,9 @@ private:
 
 	bool						Check_Condition			(const CSG_MetaData &Condition, CSG_Parameters *pData);
 
-	bool						ForEach_ObjectInList	(const CSG_MetaData &Commands);
+	bool						ForEach					(const CSG_MetaData &Commands);
+	bool						ForEach_Object			(const CSG_MetaData &Commands, const CSG_String &ListVarName);
+	bool						ForEach_File			(const CSG_MetaData &Commands, const CSG_String &ListVarName);
 
 	bool						Tool_Run				(const CSG_MetaData &Tool);
 	bool						Tool_Check_Condition	(const CSG_MetaData &Tool);

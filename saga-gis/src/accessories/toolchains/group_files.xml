@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+	<group>group_files</group>
+	<identifier>files</identifier>
+	<name>Files</name>
+	<menu>File</menu>
+	<description>
+		Tool chains related to file access.
+	</description>
+</toolchains>

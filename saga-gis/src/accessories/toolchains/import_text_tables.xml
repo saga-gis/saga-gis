@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="4.1.0">
+	<group>group_files</group>
+	<identifier>import_text_tables</identifier>
+	<name>Import Text Tables</name>
+	<author>O.Conrad (c) 2017</author>
+	<menu>Tables|Import</menu>
+	<description>
+	</description>
+
+	<parameters>
+		<output varname="TABLES" type="table_list">
+			<name>Tables</name>
+		</output>
+		<option varname="FILES" type="file" multiple="true">
+			<name>Files</name>
+			<filter>Recognized Files|*.txt;*.csv|Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv|All Files|*.*</filter>
+		</option>
+		<option varname="HEADLINE" type="boolean">
+			<name>Headline</name>
+			<value>true</value>
+		</option>
+		<option varname="SEPARATOR" type="choice">
+			<name>Separator</name>
+			<choices>tabulator|;|,|space|other</choices>
+		</option>
+		<option varname="SEP_OTHER" type="text" parent="SEPARATOR">
+			<name>Separator (other)</name>
+			<value>*</value>
+			<condition value="4" type="=">SEPARATOR</condition>
+		</option>
+	</parameters>
+  
+	<tools>
+		<foreach input="FILES">
+			<tool library="io_table" tool="1" name="Import Text Table">
+				<option id="HEADLINE"  varname="true">HEADLINE</option>
+				<option id="SEPARATOR" varname="true">SEPARATOR</option>
+				<option id="SEP_OTHER" varname="true">SEP_OTHER</option>
+				<option id="FILENAME"  varname="true">FILES</option>
+				<output id="TABLE">TABLES</output>
+			</tool>
+		</foreach>
+	</tools>
+</toolchain>
