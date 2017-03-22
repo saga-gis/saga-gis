@@ -25,6 +25,7 @@
 		</input>
 		<output varname="LORES_SLT" type="grid" parent="LORES_GRID_SYSTEM" optional="true">
 			<name>Temperature at Sea Level</name>
+			<output_name input="true" suffix="Sea Level">LORES_T</output_name>
 		</output>
 
 		<option varname="HIRES_GRID_SYSTEM" type="grid_system">
@@ -35,6 +36,7 @@
 		</input>
 		<output varname="HIRES_T" type="grid" parent="HIRES_GRID_SYSTEM">
 			<name>Temperature</name>
+			<output_name input="true">LORES_T</output_name>
 		</output>
 		
 		<option varname="LAPSE_RATE" type="double">

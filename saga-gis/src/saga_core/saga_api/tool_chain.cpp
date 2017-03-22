@@ -588,9 +588,28 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 
 			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() )
 			{
-				if( Parameter("output_name") && !Parameter["output_name"].Get_Content().is_Empty() )
+				if( Parameter("output_name") )
 				{
-					pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
+					if( IS_TRUE_PROPERTY(Parameter["output_name"], "input") )
+					{
+						CSG_Parameter	*pInput	= Parameters(Parameter["output_name"].Get_Content());
+
+						if( pInput && pInput->is_DataObject() && pInput->asDataObject() )
+						{
+							CSG_String	Suffix;
+
+							if( Parameter["output_name"].Get_Property("suffix", Suffix) && !Suffix.is_Empty() )
+							{
+								Suffix	= " [" + Suffix + "]";
+							}
+
+							pParameter->asDataObject()->Set_Name(pInput->asDataObject()->Get_Name() + Suffix);
+						}
+					}
+					else if( !Parameter["output_name"].Get_Content().is_Empty() )
+					{
+						pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
+					}
 				}
 
 				if( Parameter("colours") )
