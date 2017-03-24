@@ -80,6 +80,34 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CFrost_Change_Frequency_Calculator
+{
+public:
+	CFrost_Change_Frequency_Calculator(void);
+
+	bool						Set_Temperatures		(CSG_Parameter_Grid_List *pTmin, CSG_Parameter_Grid_List *pTmax);
+
+	bool						Get_Statistics			(int x, int y, CSG_Simple_Statistics &Dif, CSG_Simple_Statistics &Min);
+	bool						Get_Statistics			(int x, int y, CSG_Simple_Statistics &Dif, CSG_Simple_Statistics &Min, CSG_Vector &Tmin, CSG_Vector &Tmax);
+
+
+private:
+
+	CSG_Parameter_Grid_List		*m_pTmin, *m_pTmax;
+
+
+	bool						Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+	bool						Get_From_Daily			(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+	bool						Get_From_Monthly		(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CFrost_Change_Frequency : public CSG_Tool_Grid
 {
 public:
@@ -90,16 +118,35 @@ public:
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CFrost_Change_Frequency_Interactive : public CSG_Tool_Grid_Interactive
+{
+public:
+	CFrost_Change_Frequency_Interactive(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
 
 	virtual bool				On_Execute				(void);
+	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:
 
-	bool						Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
-	bool						Get_From_Daily			(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
-	bool						Get_From_Monthly		(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily);
+	CFrost_Change_Frequency_Calculator	m_Calculator;
+
+	CSG_Table					*m_pStatistics, *m_pDaily;
 
 };
 

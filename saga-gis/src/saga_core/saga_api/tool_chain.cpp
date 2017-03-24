@@ -588,9 +588,28 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 
 			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() )
 			{
-				if( Parameter("output_name") && !Parameter["output_name"].Get_Content().is_Empty() )
+				if( Parameter("output_name") )
 				{
-					pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
+					if( IS_TRUE_PROPERTY(Parameter["output_name"], "input") )
+					{
+						CSG_Parameter	*pInput	= Parameters(Parameter["output_name"].Get_Content());
+
+						if( pInput && pInput->is_DataObject() && pInput->asDataObject() )
+						{
+							CSG_String	Suffix;
+
+							if( Parameter["output_name"].Get_Property("suffix", Suffix) && !Suffix.is_Empty() )
+							{
+								Suffix	= " [" + Suffix + "]";
+							}
+
+							pParameter->asDataObject()->Set_Name(pInput->asDataObject()->Get_Name() + Suffix);
+						}
+					}
+					else if( !Parameter["output_name"].Get_Content().is_Empty() )
+					{
+						pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
+					}
 				}
 
 				if( Parameter("colours") )
@@ -739,7 +758,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Chain::ForEach_ObjectInList(const CSG_MetaData &Commands)
+bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 {
 	CSG_String	ListVarName;
 	
@@ -748,15 +767,8 @@ bool CSG_Tool_Chain::ForEach_ObjectInList(const CSG_MetaData &Commands)
 		return( false );
 	}
 
-	CSG_Parameter	*pList	= m_Data(ListVarName);
-
-	if( !pList || !pList->is_DataObject_List() )
-	{
-		return( false );
-	}
-
 	//-----------------------------------------------------
-	for(int i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists
+	for(int i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists, if any..
 	{
 		const CSG_MetaData	&Item	= Commands[i];
 
@@ -777,6 +789,21 @@ bool CSG_Tool_Chain::ForEach_ObjectInList(const CSG_MetaData &Commands)
 	}
 
 	//-----------------------------------------------------
+	return( ForEach_Object(Commands, ListVarName)
+		||  ForEach_File  (Commands, ListVarName) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_String &ListVarName)
+{
+	CSG_Parameter	*pList	= m_Data(ListVarName);
+
+	if( !pList || !pList->is_DataObject_List() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	bool	bResult	= true;
 
 	for(int iObject=0; bResult && iObject<pList->asList()->Get_Count(); iObject++)
@@ -791,11 +818,63 @@ bool CSG_Tool_Chain::ForEach_ObjectInList(const CSG_MetaData &Commands)
 				{
 					if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
 					{
-						Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject)); 
+						Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
 					}
 				}
 
 				bResult	= Tool_Run(Tool);
+			}
+		}
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String &ListVarName)
+{
+	CSG_Parameter	*pList	= Parameters(ListVarName);
+
+	if( !pList || pList->Get_Type() != PARAMETER_TYPE_FilePath )
+	{
+		return( false );
+	}
+
+	CSG_Strings	Files;
+
+	pList->asFilePath()->Get_FilePaths(Files);
+
+	//-----------------------------------------------------
+	bool	bResult	= true;
+
+	for(int iFile=0; bResult && iFile<Files.Get_Count(); iFile++)
+	{
+		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+		{
+			const CSG_MetaData	&Tool	= Commands[iTool];
+
+			if( Tool.Cmp_Name("tool") )
+			{
+				CSG_Array_Int	Input;
+
+				for(int j=0; j<Tool.Get_Children_Count(); j++)
+				{
+					if( Tool[j].Cmp_Name("option") && Tool[j].Get_Content().Find(ListVarName) == 0 && IS_TRUE_PROPERTY(Tool[j], "varname") )
+					{
+						Tool(j)->Set_Content(Files[iFile]);
+						Tool(j)->Set_Property("varname", "false");
+
+						Input	+= j;
+					}
+				}
+
+				bResult	= Tool_Run(Tool);
+
+				for(size_t i=0; i<Input.Get_Size(); i++)
+				{
+					Tool(Input[i])->Set_Content(ListVarName);
+					Tool(Input[i])->Set_Property("varname", "true");
+				}
 			}
 		}
 	}
@@ -838,7 +917,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("foreach") )
 	{
-		return( ForEach_ObjectInList(Tool) );
+		return( ForEach(Tool) );
 	}
 
 	//-----------------------------------------------------

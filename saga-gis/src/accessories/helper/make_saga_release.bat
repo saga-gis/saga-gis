@@ -4,9 +4,8 @@ REM ___________________________________
 SET SAGA_VER_MAJOR=4
 SET SAGA_VER_MINOR=1
 SET SAGA_VER_RELEASE=0
-
-SET SAGA_VERSION=saga-%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
-SET TEXT_VERSION=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
+SET SAGA_VER_TEXT=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
+SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
 
 SET SAGA_ROOT=%SAGA%
 
@@ -27,7 +26,7 @@ REM ###################################
 ECHO __________________________________
 ECHO ##################################
 ECHO #
-ECHO # MAKE SAGA RELEASE: %TEXT_VERSION%
+ECHO # MAKE SAGA RELEASE: %SAGA_VER_TEXT%
 ECHO #
 ECHO ##################################
 ECHO.
@@ -35,14 +34,19 @@ ECHO Things you should have updated before:
 ECHO - ArcSAGA Tools
 ECHO - Translation Files
 ECHO - Python Tools Interface Update
+ECHO - Update version numbers in:
+ECHO.    ./saga_setup_win32.iss
+ECHO.    ./saga_setup_x64.iss
+ECHO.    ./saga_api_Doxyfile
+ECHO.    ./saga-gis/configure.ac
+ECHO.    ./saga-gis/README
+ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
+ECHO - Create new branch: release-%SAGA_VER_TEXT%
 ECHO.
 ECHO Enter 'y' to continue!
 SET /P CONTINUE=
 IF NOT '%CONTINUE%' == 'y' EXIT
-
-REM ___________________________________
-REM Create a branch
-REM %SVNEXE% copy svn://svn.code.sf.net/p/saga-gis/code-0/trunk svn://svn.code.sf.net/p/saga-gis/code-0/branches/release-%TEXT_VERSION% -m "branch release-%TEXT_VERSION% created from trunk"
 
 
 REM ___________________________________
@@ -94,6 +98,9 @@ REM ___________________________________
 REM GIT Source Code Repository
 %GITEXE% clone git://git.code.sf.net/p/saga-gis/code %SAGA_VERSION%_src -q
 PUSHD %SAGA_VERSION%_src
+REM Create a branch (better do manually)
+REM %GITEXE% branch release-%SAGA_VER_TEXT%
+%GITEXE% checkout release-%SAGA_VER_TEXT%
 RMDIR /S/Q .git
 POPD
 %ZIPEXE% %SAGA_VERSION%_src.zip %SAGA_VERSION%_src
@@ -150,22 +157,13 @@ ECHO.    including an up-to-date 'readme.txt'
 ECHO.
 ECHO - Upload API Documentation to saga-gis.org
 ECHO.
-ECHO - Update version numbers in:
-ECHO.    ./saga_setup_win32.iss
-ECHO.    ./saga_setup_x64.iss
-ECHO.    ./saga_api_Doxyfile
-ECHO.    ./saga-gis/configure.ac
-ECHO.    ./saga-gis/README
-ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
-ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
-ECHO.
 ECHO - Create SAGA Tools Reference Documentation
 ECHO.    sagadoc-code: ./parse_modules.py
 ECHO.    upload created version folder to saga-gis.org and update link
 ECHO.
-ECHO - Add new bug tracker milestone for next version
+ECHO - Add new bug tracker milestone for next aspired version
 ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
 ECHO.
-ECHO - Commit a comment like: SAGA version updated to %TEXT_VERSION%
+ECHO - Commit a comment like: SAGA version updated to %SAGA_VER_TEXT%
 
 PAUSE

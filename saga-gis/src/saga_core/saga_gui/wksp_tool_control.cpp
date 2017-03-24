@@ -189,7 +189,7 @@ void CWKSP_Tool_Control::Add_Library(const wxTreeItemId &Group, CWKSP_Tool_Libra
 {
 	if( pLibrary != NULL )
 	{
-		wxString	Name	= pLibrary->Get_Name().AfterFirst('-');
+		wxString	Name	= pLibrary->Get_Name();
 
 		if( Name.IsEmpty() )
 		{

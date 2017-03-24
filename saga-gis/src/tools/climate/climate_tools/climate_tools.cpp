@@ -146,8 +146,8 @@ bool	CT_Get_Daily_Splined(CSG_Vector &Daily, const double Monthly[12])
 
 	CSG_Spline	Spline;
 
-	Spline.Add(MidOfMonth[11] - 365, Monthly[11]);
 	Spline.Add(MidOfMonth[10] - 365, Monthly[10]);
+	Spline.Add(MidOfMonth[11] - 365, Monthly[11]);
 
 	for(int iMonth=0; iMonth<12; iMonth++)
 	{

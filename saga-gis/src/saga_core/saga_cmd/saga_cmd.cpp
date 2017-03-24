@@ -817,6 +817,8 @@ void		Create_Batch	(const CSG_String &File)
 		return;
 	}
 
+	SG_File_Set_Extension(_File, SG_T("txt"));
+
 	//-----------------------------------------------------
 	Stream.Printf(
 		"@ECHO OFF\n"
@@ -857,14 +859,12 @@ void		Create_Batch	(const CSG_String &File)
 		"ECHO ____________________________\n"
 		"ECHO run saga cmd script\n"
 		"SET INPUT=dem.sgrd;slope.sgrd;hcurv.sgrd;vcurv.sgrd\n"
-		"saga_cmd %%FLAGS%% saga_cmd_example.txt\n"
+		"saga_cmd %%FLAGS%% %s\n"
 		"\n"
-		"PAUSE\n"
+		"PAUSE\n", _File.c_str()
 	);
 
 	//-----------------------------------------------------
-	SG_File_Set_Extension(_File, SG_T("txt"));
-
 	CMD_Print(CSG_String::Format("%s [%s]", _TL("creating sub script example"), _File.c_str()));
 
 	if( !Stream.Open(_File, SG_FILE_W, false) )

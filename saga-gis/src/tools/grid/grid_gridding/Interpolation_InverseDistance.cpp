@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
+	: CInterpolation(true, false)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Distance Weighted"));

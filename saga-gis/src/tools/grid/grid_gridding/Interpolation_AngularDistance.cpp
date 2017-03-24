@@ -72,6 +72,7 @@
 
 //---------------------------------------------------------
 CInterpolation_AngularDistance::CInterpolation_AngularDistance(void)
+	: CInterpolation(true, false)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Angular Distance Weighted"));

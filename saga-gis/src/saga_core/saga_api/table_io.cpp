@@ -127,6 +127,8 @@ bool CSG_Table::Load(const CSG_String &File_Name, int Format, SG_Char Separator)
 	}
 
 	//-----------------------------------------------------
+	Set_Name(SG_File_Get_Name(File_Name, false));
+
 	Load_MetaData(File_Name);
 
 	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");
@@ -177,17 +179,9 @@ bool CSG_Table::Save(const CSG_String &File_Name, int Format, SG_Char Separator)
 
 	switch( Format )
 	{
-	case TABLE_FILETYPE_Text:
-		bResult	= _Save_Text (File_Name, true , Separator);
-		break;
-
-	case TABLE_FILETYPE_Text_NoHeadLine:
-		bResult	= _Save_Text (File_Name, false, Separator);
-		break;
-
-	case TABLE_FILETYPE_DBase:
-		bResult	= _Save_DBase(File_Name);
-		break;
+	case TABLE_FILETYPE_Text:   default:	bResult	= _Save_Text (File_Name, true , Separator);	break;
+	case TABLE_FILETYPE_Text_NoHeadLine:	bResult	= _Save_Text (File_Name, false, Separator);	break;
+	case TABLE_FILETYPE_DBase          :	bResult	= _Save_DBase(File_Name                  );	break;
 	}
 
 	//-----------------------------------------------------
@@ -423,8 +417,8 @@ bool CSG_Table::_Load_Text(const CSG_String &File_Name, bool bHeadline, const SG
 				{
 					switch( Get_Field_Type(iField) )
 					{
-					default:					pRecord->Set_Value(iField, Table[iRecord].asString(iField));	break;
-					case SG_DATATYPE_Int:		pRecord->Set_Value(iField, Table[iRecord].asInt   (iField));	break;
+					default                :	pRecord->Set_Value(iField, Table[iRecord].asString(iField));	break;
+					case SG_DATATYPE_Int   :	pRecord->Set_Value(iField, Table[iRecord].asInt   (iField));	break;
 					case SG_DATATYPE_Double:	pRecord->Set_Value(iField, Table[iRecord].asDouble(iField));	break;
 					}
 				}
