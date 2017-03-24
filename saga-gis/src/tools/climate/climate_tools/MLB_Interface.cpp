@@ -134,10 +134,11 @@ CSG_Tool *		Create_Tool(int i)
 	case 13:	return( new CWindeffect_Correction );
 
 	case 14:	return( new CFrost_Change_Frequency );
+	case 16:	return( new CFrost_Change_Frequency_Interactive );
 	case 15:	return( new CThermal_Belts );
 
 	//-----------------------------------------------------
-	case 16:	return( NULL );
+	case 17:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

@@ -599,6 +599,9 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
+
+	//-----------------------------------------------------
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
 }
 
 
@@ -687,7 +690,7 @@ bool CWater_Balance_Interactive::On_Execute_Finish(void)
 //---------------------------------------------------------
 bool CWater_Balance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( Mode != TOOL_INTERACTIVE_LDOWN )
+	if( Mode != TOOL_INTERACTIVE_LDOWN && Mode != TOOL_INTERACTIVE_MOVE_LDOWN )
 	{
 		return( false );
 	}
