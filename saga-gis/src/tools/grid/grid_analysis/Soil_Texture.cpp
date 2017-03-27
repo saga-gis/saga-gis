@@ -139,7 +139,7 @@ class CSoil_Texture_Classifier
 public:
 	CSoil_Texture_Classifier(void)	{}
 
-	CSoil_Texture_Classifier(int Scheme)	{	Initialize(Scheme);	}
+	CSoil_Texture_Classifier(int Scheme, int Colors_Default)	{	Initialize(Scheme, Colors_Default);	}
 
 	//-----------------------------------------------------
 	static CSG_String		Get_Description	(void)
@@ -158,7 +158,7 @@ public:
 	CSG_String				Get_Key			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asString(2) : SG_T("") );	}
 	CSG_String				Get_Name		(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asString(3) : SG_T("") );	}
 
-	bool					Get_Polygons	(CSG_Shapes *pPolygons, int Axes)	const
+	bool					Get_Polygons	(CSG_Shapes *pPolygons, int Axes, bool bIsosceles)	const
 	{
 		if( !pPolygons || !m_Classes.is_Valid() )
 		{
@@ -167,20 +167,28 @@ public:
 
 		pPolygons->Create(m_Classes);
 
-		for(int i=0; Axes!=0 && i<pPolygons->Get_Count(); i++)
+		for(int i=0; (Axes!=0 || bIsosceles) && i<pPolygons->Get_Count(); i++)
 		{
 			CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
 
 			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
 			{
-				TSG_Point	p	= pPolygon->Get_Point(iPoint);
+				TSG_Point	q, p	= pPolygon->Get_Point(iPoint);
 
 				switch( Axes )
 				{
-				case 0: pPolygon->Set_Point(p.x,              p.y , iPoint); break;	// x=sand, y=clay
-				case 1: pPolygon->Set_Point(p.x, 100 - (p.x + p.y), iPoint); break;	// x=sand, y=silt
-				case 2: pPolygon->Set_Point(p.y, 100 - (p.x + p.y), iPoint); break;	// x=clay, y=silt
+				case 0: q.x = p.x; q.y = p.y              ; break;	// x=sand, y=clay
+				case 1: q.x = p.x; q.y = 100 - (p.x + p.y); break;	// x=sand, y=silt
+				case 2: q.x = p.y; q.y = 100 - (p.x + p.y); break;	// x=clay, y=silt
 				}
+
+				if( bIsosceles )
+				{
+					q.x	+= 0.5 * q.y;
+					q.y	*= 0.8660254038;	// sqrt(100*100 - 50*50) / 100.
+				}
+
+				pPolygon->Set_Point(q, iPoint, 0);
 			}
 		}
 
@@ -190,6 +198,11 @@ public:
 	//-----------------------------------------------------
 	static bool	Get_Table	(CSG_Table &Classes, int Definition)
 	{
+		if( Definition < 0 || Definition > 2 )
+		{
+			return( false );
+		}
+
 		Classes.Destroy();
 
 		Classes.Add_Field("COLOR"  , SG_DATATYPE_String);
@@ -203,7 +216,7 @@ public:
 
 			switch( Definition )
 			{
-			default: Class = Classes_USDA   [i]; break;
+			case  0: Class = Classes_USDA   [i]; break;
 			case  1: Class = Classes_KA5    [i]; break;
 			case  2: Class = Classes_Belgium[i]; break;
 			}
@@ -223,13 +236,13 @@ public:
 	}
 
 	//-----------------------------------------------------
-	bool	Initialize	(int Definition)
+	bool	Initialize	(int Definition, int Colors_Default)
 	{
-		CSG_Table	Classes;	return( Get_Table(Classes, Definition) && Initialize(Classes) );
+		CSG_Table	Classes;	return( Get_Table(Classes, Definition) && Initialize(Classes, Colors_Default) );
 	}
 
 	//-----------------------------------------------------
-	bool	Initialize	(const CSG_Table &Classes)
+	bool	Initialize	(const CSG_Table &Classes, int Colors_Default)
 	{
 		m_Classes.Create(SHAPE_TYPE_Polygon);
 
@@ -276,11 +289,24 @@ public:
 				{
 					TSG_Point	c	= pClass->Get_Centroid();
 
-					int	r	= (255. / 100.) * c.x;
-					int	g	= (255. / 100.) * (100 - (c.x + c.y));
-					int	b	= (255. / 100.) * c.y;
+					double	Sand, Silt, Clay, r, g, b;
 
-					pClass->Set_Value(1, SG_GET_RGB(r, g, b));
+					Sand	= 0.01 * c.x;
+					Silt	= 0.01 * (100 - (c.x + c.y));
+					Clay	= 0.01 * c.y;
+
+					switch( Colors_Default )
+					{
+					default: r = Sand + Silt; g = Silt + Silt; b = Clay + Silt; break;
+					case  1: r = Sand + Silt; g = Silt       ; b = Clay       ; break;
+					case  2: r = Sand       ; g = Silt       ; b = Clay       ; break;
+					}
+
+					pClass->Set_Value(1, SG_GET_RGB(
+						(int)(255 * (r < 1 ? r : 1.)),
+						(int)(255 * (g < 1 ? g : 1.)),
+						(int)(255 * (b < 1 ? b : 1.))
+					));
 				}
 			}
 		}
@@ -434,6 +460,16 @@ CSoil_Texture::CSoil_Texture(void)
 		)
 	);
 
+	Parameters.Add_Choice("",
+		"COLORS"	, _TL("Default Color Scheme"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			SG_T("1"),
+			SG_T("2"),
+			SG_T("3")
+		)
+	);
+
 	Parameters.Add_FixedTable("SCHEME",
 		"USER"		, _TL("User Definition"),
 		_TL("")
@@ -448,12 +484,21 @@ CSoil_Texture::CSoil_Texture(void)
 	);
 
 	Parameters.Add_Choice("POLYGONS",
-		"XY_AXES"		, _TL("X/Y Axes"),
+		"XY_AXES"	, _TL("X/Y Axes"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Sand and Clay"),
 			_TL("Sand and Silt"),
 			_TL("Clay and Silt")
+		)
+	);
+
+	Parameters.Add_Choice("POLYGONS",
+		"TRIANGLE"	, _TL("Triangle"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("right-angled"),
+			_TL("isosceles")
 		)
 	);
 }
@@ -464,11 +509,23 @@ CSoil_Texture::CSoil_Texture(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSoil_Texture::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	{
+		CSoil_Texture_Classifier::Get_Table(*pParameters->Get_Parameter("USER")->asTable(), pParameter->asInt());
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CSoil_Texture::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
 	{
-		pParameters->Set_Enabled("XY_AXES", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("XY_AXES" , pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("TRIANGLE", pParameter->asShapes() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
@@ -503,9 +560,9 @@ bool CSoil_Texture::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt());
+	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt(), Parameters("COLORS")->asInt());
 
-	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable()) )	// user defined
+	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable(), Parameters("COLORS")->asInt()) )	// user defined
 	{
 		return( false );
 	}
@@ -523,7 +580,8 @@ bool CSoil_Texture::On_Execute(void)
 		DataObject_Set_Parameter(pClass, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
-	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt()) && (pLUT = DataObject_Get_Parameter(pClass, "LUT")) != NULL && pLUT->asTable() )
+	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt(), Parameters("TRIANGLE")->asInt() == 1)
+	&& (pLUT = DataObject_Get_Parameter(pClass, "LUT")) != NULL && pLUT->asTable() )
 	{
 		Classifier.Set_LUT(pLUT->asTable(), true);
 
@@ -628,6 +686,16 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 		)
 	);
 
+	Parameters.Add_Choice("",
+		"COLORS"	, _TL("Default Color Scheme"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			SG_T("1"),
+			SG_T("2"),
+			SG_T("3")
+		)
+	);
+
 	Parameters.Add_FixedTable("SCHEME",
 		"USER"		, _TL("User Definition"),
 		_TL("")
@@ -642,12 +710,21 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 	);
 
 	Parameters.Add_Choice("POLYGONS",
-		"XY_AXES"		, _TL("X/Y Axes"),
+		"XY_AXES"	, _TL("X/Y Axes"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Sand and Clay"),
 			_TL("Sand and Silt"),
 			_TL("Clay and Silt")
+		)
+	);
+
+	Parameters.Add_Choice("POLYGONS",
+		"TRIANGLE"	, _TL("Triangle"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("right-angled"),
+			_TL("isosceles")
 		)
 	);
 }
@@ -658,11 +735,23 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSoil_Texture_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	{
+		CSoil_Texture_Classifier::Get_Table(*pParameters->Get_Parameter("USER")->asTable(), pParameter->asInt());
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CSoil_Texture_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
 	{
-		pParameters->Set_Enabled("XY_AXES", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("XY_AXES" , pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("TRIANGLE", pParameter->asShapes() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
@@ -698,9 +787,9 @@ bool CSoil_Texture_Table::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt());
+	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt(), Parameters("COLORS")->asInt());
 
-	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable()) )	// user defined
+	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable(), Parameters("COLORS")->asInt()) )	// user defined
 	{
 		return( false );
 	}
@@ -752,7 +841,8 @@ bool CSoil_Texture_Table::On_Execute(void)
 		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , iTexture);	// Lookup Table Attribute
 	}
 
-	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt()) && (pLUT = DataObject_Get_Parameter(pTable, "LUT")) != NULL && pLUT->asTable() )
+	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt(), Parameters("TRIANGLE")->asInt() == 1)
+	&& (pLUT = DataObject_Get_Parameter(pTable, "LUT")) != NULL && pLUT->asTable() )
 	{
 		Classifier.Set_LUT(pLUT->asTable(), true);
 
