@@ -67,149 +67,66 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-struct SClass
-{
-	int			Color;
-	CSG_String	Key, Name;
-	double		Sand[10], Clay[10];
-};
+const CSG_String	Classes_USDA[][4]	=
+{ {	"000, 000, 255", "C"   , _TL("Clay"           ), "  0 100,   0   60,  20  40,  45  40,  45  55,   0 100"
+},{	"000, 200, 255", "SiC" , _TL("Silty Clay"     ), "  0 100,   0   60,  20  40,   0  40,   0 100"
+},{	"000, 200, 200", "SiCL", _TL("Silty Clay Loam"), "  0  40,   0   27,  20  27,  20  40,   0  40"
+},{	"200, 000, 255", "SC"  , _TL("Sandy Clay"     ), " 45  55,  45   35,  65  35,  45  55"
+},{	"200, 200, 200", "SCL" , _TL("Sandy Clay Loam"), " 45  35,  45   27,  52  20,  80  20,  65  35,  45  35"
+},{	"127, 127, 200", "CL"  , _TL("Clay Loam"      ), " 20  40,  20   27,  45  27,  45  40,  20  40"
+},{	"000, 255, 000", "Si"  , _TL("Silt"           ), "  0  12,   0    0,  20   0,   8  12,   0  12"
+},{	"127, 255, 127", "SiL" , _TL("Silt Loam"      ), "  8  12,  20    0,  50   0,  23  27,   0  27,   0  12,   8  12"
+},{	"127, 127, 127", "L"   , _TL("Loam"           ), " 23  27,  43    7,  52   7,  52  20,  45  27,  23  27"
+},{	"255, 000, 000", "S"   , _TL("Sand"           ), " 85   0, 100    0,  90  10,  85   0"
+},{	"255, 000, 127", "LS"  , _TL("Loamy Sand"     ), " 70   0,  85    0,  90  10,  85  15,  70   0"
+},{	"200, 127, 127", "SL"  , _TL("Sandy Loam"     ), " 43   7,  50    0,  70   0,  85  15,  80  20,  52  20,  52   7,  43   7"
+},{	"", "", "", ""	}	};
 
 //---------------------------------------------------------
-const struct SClass	Classes_USDA[]	= {
-{	SG_GET_RGB(000, 000, 255), "C"   , _TL("Clay"           ),
-	{   0,   0,  20,  45,  45,   0          ,  -1	},
-	{ 100,  60,  40,  40,  55, 100          ,  -1	}	},
-{	SG_GET_RGB(000, 200, 255), "SiC" , _TL("Silty Clay"     ),
-	{   0,   0,  20,   0                    ,  -1	},
-	{ 100,  60,  40,  40                    ,  -1	}	},
-{	SG_GET_RGB(000, 200, 200), "SiCL", _TL("Silty Clay Loam"),
-	{   0,   0,  20,  20,   0               ,  -1	},
-	{  40,  27,  27,  40,  40               ,  -1	}	},
-{	SG_GET_RGB(200, 000, 255), "SC"  , _TL("Sandy Clay"     ),
-	{  45,  45,  65,  45                    ,  -1	},
-	{  55,  35,  35,  55                    ,  -1	}	},
-{	SG_GET_RGB(200, 200, 200), "SCL" , _TL("Sandy Clay Loam"),
-	{  45,  45,  52,  80,  65,  45          ,  -1	},
-	{  35,  27,  20,  20,  35,  35          ,  -1	}	},
-{	SG_GET_RGB(127, 127, 200), "CL"  , _TL("Clay Loam"      ),
-	{  20,  20,  45,  45,  20               ,  -1	},
-	{  40,  27,  27,  40,  40               ,  -1	}	},
-{	SG_GET_RGB(000, 255, 000), "Si"  , _TL("Silt"           ),
-	{   0,   0,  20,   8,   0               ,  -1	},
-	{  12,   0,   0,  12,  12               ,  -1	}	},
-{	SG_GET_RGB(127, 255, 127), "SiL" , _TL("Silt Loam"      ),
-	{   8,  20,  50,  23,   0,   0,   8     ,  -1	},
-	{  12,   0,   0,  27,  27,  12,  12     ,  -1	}	},
-{	SG_GET_RGB(127, 127, 127), "L"   , _TL("Loam"           ),
-	{  23,  43,  52,  52,  45,  23          ,  -1	},
-	{  27,   7,   7,  20,  27,  27          ,  -1	}	},
-{	SG_GET_RGB(255, 000, 000), "S"   , _TL("Sand"           ),
-	{  85, 100,  90,  85                    ,  -1	},
-	{   0,   0,  10,   0                    ,  -1	}	},
-{	SG_GET_RGB(255, 000, 127), "LS"  , _TL("Loamy Sand"     ),
-	{  70,  85,  90,  85,  70               ,  -1	},
-	{   0,   0,  10,  15,   0               ,  -1	}	},
-{	SG_GET_RGB(200, 127, 127), "SL"  , _TL("Sandy Loam"     ),
-	{  43,  50,  70,  85,  80,  52,  52,  43,  -1	},
-	{   7,   0,   0,  15,  20,  20,   7,   7,  -1	}	},
-{	0, "", "", NULL, NULL	}	};
+const CSG_String	Classes_KA5[][4]	=
+{ {	"", "Ss" , _TL("Reinsand"                ), "100  0, 95   5, 85  5, 90  0, 100  0"
+},{	"", "Sl2", _TL("schwach lehmiger Sand"   ), " 85  5, 82   8, 67  8, 70  5,  85  5"
+},{	"", "Sl3", _TL("mittel lehmiger Sand"    ), " 82  8, 78  12, 48 12, 52  8,  82  8"
+},{	"", "Sl4", _TL("stark lehmiger Sand"     ), " 78 12, 73  17, 43 17, 48 12,  78 12"
+},{	"", "Slu", _TL("schluffig-lemiger Sand"  ), " 52  8, 43  17, 33 17, 42  8,  52  8"
+},{	"", "St2", _TL("schwach toniger Sand"    ), " 95  5, 83  17, 73 17, 85  5,  95  5"
+},{	"", "St3", _TL("mittel toniger Sand"     ), " 83 17, 75  25, 60 25, 68 17,  83 17"
+},{	"", "Su2", _TL("schwach schluffiger Sand"), " 90  0, 85   5, 70  5, 75  0,  90  0"
+},{	"", "Su3", _TL("mittel schluffiger Sand" ), " 75  0, 67   8, 52  8, 60  0,  75  0"
+},{	"", "Su4", _TL("stark schluffiger Sand"  ), " 60  0, 52   8, 42  8, 50  0,  60  0"
+},{	"", "Ls2", _TL("schwach sandiger Lehm"   ), " 43 17, 35  25, 25 25, 33 17,  43 17"
+},{	"", "Ls3", _TL("mittel sandiger Lehm"    ), " 53 17, 45  25, 35 25, 43 17,  53 17"
+},{	"", "Ls4", _TL("stark sandiger Lehm"     ), " 68 17, 60  25, 45 25, 53 17,  68 17"
+},{	"", "Lt2", _TL("schwach toniger Lehm"    ), " 45 25, 35  35, 15 35, 25 25,  45 25"
+},{	"", "Lt3", _TL("mittel toniger Lehm"     ), " 35 35, 25  45,  5 45, 15 35,  35 35"
+},{	"", "Lts", _TL("sandig-toniger Lehm"     ), " 60 25, 40  45, 25 45, 45 25,  60 25"
+},{	"", "Lu" , _TL("schluffiger Lehm"        ), " 33 17, 20  30,  5 30, 18 17,  33 17"
+},{	"", "Uu" , _TL("reiner schluff"          ), " 20  0, 12   8,  0  8,  0  0,  20  0"
+},{	"", "Uls" , _TL("sandig-lehmiger Schluff"), " 42  8, 33  17, 18 17, 27  8,  42  8"
+},{	"", "Us" , _TL("sandiger Schluff"        ), " 50  0, 42   8, 12  8, 20  0,  50  0"
+},{	"", "Ut2", _TL("schwach toniger Schluff" ), " 27  8, 23  12,  0 12,  0  8,  27  8"
+},{	"", "Ut3", _TL("mittel toniger Schluff"  ), " 23 12, 18  17,  0 17,  0 12,  23 12"
+},{	"", "Ut4", _TL("stark toniger Schluff"   ), " 18 17, 10  25,  0 25,  0 17,  18 17"
+},{	"", "Tt" , _TL("reiner Ton"              ), " 35 65,  0 100,  0 65, 35 65"
+},{	"", "Tl" , _TL("lehmiger Ton"            ), " 40 45, 20  65,  5 65, 25 45,  40 45"
+},{	"", "Tu2", _TL("schwach schluffiger Ton" ), " 25 45,  5  65,  0 65,  0 45,  25 45"
+},{	"", "Tu3", _TL("mittel schluffiger Ton"  ), " 20 30,  5  45,  0 45,  0 35,   5 30, 20 30"
+},{	"", "Tu4", _TL("stark schluffiger Ton"   ), " 10 25,  0  35,  0 25, 10 25"
+},{	"", "Ts2" , _TL("schwach sandiger Ton"   ), " 55 45, 35  65, 20 65, 40 45,  55 45"
+},{	"", "Ts3" , _TL("mittel sandiger Ton"    ), " 65 35, 55  45, 40 45, 50 35,  65 35"
+},{	"", "Ts4"  , _TL("stark sandiger Ton"    ), " 75 25, 65  35, 50 35, 60 25,  75 25"
+},{	"", "", "", ""	}	};
 
 //---------------------------------------------------------
-const struct SClass	Classes_KA5[]	= {	
-{	SG_GET_RGB(000, 000, 255), "Ss"  , _TL("Reinsand"),
-	{   0,   5,   5,   0,   0               ,  -1	},
-	{   0,   0,  10,  10,   0               ,  -1	}	},
-{	SG_GET_RGB(000, 200, 255), "Sl2", _TL("schwach lehmiger Sand"),
-	{   5,   8,   8,   5,   5               ,  -1	},
-	{  10,  10,  25,  25,  10               ,  -1	}	},
-{	SG_GET_RGB(000, 200, 200), "Sl3", _TL("mittel lehmiger Sand"),
-	{   8,  12,  12,   8,   8               ,  -1	},
-	{  10,  10,  40,  40,  10               ,  -1	}	},
-{	SG_GET_RGB(200, 000, 255), "Sl4", _TL("stark lehmiger Sand"),
-	{  12,  17,  17,  12,  12               ,  -1	},
-	{  10,  10,  40,  40,  10               ,  -1	}	},
-{	SG_GET_RGB(200, 200, 200), "Slu", _TL("schluffig-lemiger Sand"),
-	{   8,  17,  17,   8,   8               ,  -1	},
-	{  40,  40,  50,  50,  40               ,  -1	}	},
-{	SG_GET_RGB(127, 127, 200), "St2", _TL("schwach toniger Sand"),
-	{   5,  17,  17,   5,   5               ,  -1	},
-	{   0,   0,  10,  10,   0               ,  -1	}	},
-{	SG_GET_RGB(000, 255, 000), "St3", _TL("mittel toniger Sand"),
-	{  17,  25,  25,  17,  17               ,  -1	},
-	{   0,   0,  15,  15,   0               ,  -1	}	},
-{	SG_GET_RGB(127, 255, 127), "Su2", _TL("schwach schluffiger Sand"),
-	{   0,   5,   5,   0,   0               ,  -1	},
-	{  10,  10,  25,  25,  10               ,  -1	}	},
-{	SG_GET_RGB(127, 127, 127), "Su3", _TL("mittel schluffiger Sand"),
-	{   0,   8,   8,   0,   0               ,  -1	},
-	{  25,  25,  40,  40,  25               ,  -1	}	},
-{	SG_GET_RGB(255, 000, 000), "Su4", _TL("stark schluffiger Sand"),
-	{   0,   8,   8,   0,   0               ,  -1	},
-	{  40,  40,  50,  50,  40               ,  -1	}	},
-{	SG_GET_RGB(255, 000, 127), "Ls2", _TL("schwach sandiger Lehm"),
-	{  17,  25,  25,  17,  17               ,  -1	},
-	{  40,  40,  50,  50,  40               ,  -1	}	},
-{	SG_GET_RGB(200, 127, 127), "Ls3", _TL("mittel sandiger Lehm"),
-	{  17,  25,  25,  17,  17               ,  -1	},
-	{  30,  30,  40,  40,  30               ,  -1	}	},
-{	SG_GET_RGB(032, 178, 170), "Ls4", _TL("stark sandiger Lehm"),
-	{  17,  25,  25,  17,  17               ,  -1	},
-	{  15,  15,  30,  30,  15               ,  -1	}	},
-{	SG_GET_RGB(152, 251, 152), "Lt2", _TL("schwach toniger Lehm"),
-	{  25,  35,  35,  25,  25               ,  -1	},
-	{  30,  30,  50,  50,  30               ,  -1	}	},
-{	SG_GET_RGB(255, 160, 122), "Lt3", _TL("mittel toniger Lehm"),
-	{  35,  45,  45,  35,  35               ,  -1	},
-	{  30,  30,  50,  50,  30               ,  -1	}	},
-{	SG_GET_RGB(238, 213, 183), "Lts", _TL("sandig-toniger Lehm"),
-	{  25,  45,  45,  25,  25               ,  -1	},
-	{  15,  15,  30,  30,  15               ,  -1	}	},
-{	SG_GET_RGB(255, 165, 000), "Lu" , _TL("schluffiger Lehm"),
-	{  17,  30,  30,  17,  17               ,  -1	},
-	{  50,  50,  65,  65,  50               ,  -1	}	},
-{	SG_GET_RGB(255, 106, 106), "Uu" , _TL("reiner schluff"),
-	{   0,   8,   8,   0,   0               ,  -1	},
-	{  80,  80,  92, 100,  80               ,  -1	}	},
-{	SG_GET_RGB(255, 69, 000), "Uls" , _TL("sandig-lehmiger Schluff"),
-	{   8,  17,  17,   8,   8               ,  -1	},
-	{  50,  50,  65,  65,  50               ,  -1	}	},
-{	SG_GET_RGB(178, 034, 034), "Us" , _TL("sandiger Schluff"),
-	{   0,   8,   8,   0,   0               ,  -1	},
-	{  50,  50,  80,  80,  50               ,  -1	}	},
-{	SG_GET_RGB(255, 215, 000), "Ut2", _TL("schwach toniger Schluff"),
-	{   8,  12,  12,   8,   8               ,  -1	},
-	{  65,  65,  88,  92,  65               ,  -1	}	},
-{	SG_GET_RGB(255, 228, 181), "Ut3", _TL("mittel toniger Schluff"),
-	{  12,  17,  17,  12,  12               ,  -1	},
-	{  65,  65,  83,  88,  65               ,  -1	}	},
-{	SG_GET_RGB(255, 000, 127), "Ut4", _TL("stark toniger Schluff"),
-	{  17,  25,  25,  17,  17               ,  -1	},
-	{  65,  65,  75,  83,  65               ,  -1	}	},
-{	SG_GET_RGB(255, 133, 000), "Tt" , _TL("reiner Ton"),
-	{  65, 100,  65,  65                    ,  -1	},
-	{   0,   0,  35,   0                    ,  -1	}	},
-{	SG_GET_RGB(000, 205, 000), "Tl" , _TL("lehmiger Ton"),
-	{  45,  65,  65,  45,  45               ,  -1	},
-	{  15,  15,  30,  30,  15               ,  -1	}	},
-{	SG_GET_RGB(202, 255, 112), "Tu2", _TL("schwach schluffiger Ton"),
-	{  45,  65,  65,  45,  45               ,  -1	},
-	{  30,  30,  35,  55,  30               ,  -1	}	},
-{	SG_GET_RGB(173, 255, 047), "Tu3", _TL("mittel schluffiger Ton"),
-	{  30,  45,  45,  35,  30,  30          ,  -1	},
-	{  50,  50,  55,  65,  65,	50          ,  -1	}	},
-{	SG_GET_RGB(255, 228, 196), "Tu4", _TL("stark schluffiger Ton"),
-	{  25,  35,  25,  25                    ,  -1	},
-	{  65,  65,  75,  65                    ,  -1	}	},
-{	SG_GET_RGB(139, 90, 000), "Ts2" , _TL("schwach sandiger Ton"),
-	{  45,  65,  65,  45,  45               ,  -1	},
-	{   0,   0,  15,  15,   0               ,  -1	}	},
-{	SG_GET_RGB(160, 82, 045), "Ts3" , _TL("mittel sandiger Ton"),
-	{  35,  45,  45,  35,  35               ,  -1	},
-	{   0,   0,  15,  15,   0               ,  -1	}	},
-{	SG_GET_RGB(205, 92, 92), "Ts4"  , _TL("stark sandiger Ton"),
-	{  25,  35,  35,  25,  25               ,  -1	},
-	{   0,   0,  15,  15,   0               ,  -1	}	},
-{	0, "", "", NULL, NULL	}	};
+CSG_String	Classes_Belgium[][4]	=
+{ {	"", "L", _TL("L"), " 50.000   0.000, 15.000  0.000, 15.000 22.500, 20.000  20.000,  25.000 18.125, 30.000 17.500, 67.500 17.500, 67.500 11.250, 50.000 11.250, 50.000  0.000"
+},{	"", "P", _TL("P"), " 67.500   0.000, 50.000  0.000, 50.000 11.250, 67.500  11.250,  67.500  0.000"
+},{	"", "S", _TL("S"), " 82.500   0.000, 67.500  0.000, 67.500 11.250, 67.500  17.500,  82.500 17.500, 91.250  8.750, 82.500  8.750, 82.500  0.000"
+},{	"", "U", _TL("U"), " 65.000  35.000, 10.000 35.000,  0.000 45.000,  0.000 100.000,  65.000 35.000"
+},{	"", "Z", _TL("Z"), "100.000   0.000, 82.500  0.000, 82.500  8.750, 91.250   8.750, 100.000  0.000"
+},{	"", "A", _TL("A"), " 15.000   0.000,  0.000  0.000,  0.000 30.000, 15.000  22.500,  15.000  0.000"
+},{	"", "E", _TL("E"), " 82.500  17.500, 67.500 17.500, 30.000 17.500, 25.000  18.125,  20.000 20.000, 15.000 22.500,  0.000 30.000,  0.000 45.000, 10.000 35.000, 65.000 35.000, 82.500 17.500"
+},{	"", "", "", ""	}	};
 
 
 ///////////////////////////////////////////////////////////
@@ -241,10 +158,78 @@ public:
 	CSG_String				Get_Key			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asString(2) : SG_T("") );	}
 	CSG_String				Get_Name		(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].asString(3) : SG_T("") );	}
 
-	const CSG_Shapes &		Get_Polygons	(void)	const	{	return( m_Classes );	}
+	bool					Get_Polygons	(CSG_Shapes *pPolygons, int Axes)	const
+	{
+		if( !pPolygons || !m_Classes.is_Valid() )
+		{
+			return( false );
+		}
+
+		pPolygons->Create(m_Classes);
+
+		for(int i=0; Axes!=0 && i<pPolygons->Get_Count(); i++)
+		{
+			CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+
+			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
+			{
+				TSG_Point	p	= pPolygon->Get_Point(iPoint);
+
+				switch( Axes )
+				{
+				case 0: pPolygon->Set_Point(p.x,              p.y , iPoint); break;	// x=sand, y=clay
+				case 1: pPolygon->Set_Point(p.x, 100 - (p.x + p.y), iPoint); break;	// x=sand, y=silt
+				case 2: pPolygon->Set_Point(p.y, 100 - (p.x + p.y), iPoint); break;	// x=clay, y=silt
+				}
+			}
+		}
+
+		return( true );
+	}
 
 	//-----------------------------------------------------
-	bool	Initialize	(int Classification)
+	static bool	Get_Table	(CSG_Table &Classes, int Definition)
+	{
+		Classes.Destroy();
+
+		Classes.Add_Field("COLOR"  , SG_DATATYPE_String);
+		Classes.Add_Field("KEY"    , SG_DATATYPE_String);
+		Classes.Add_Field("NAME"   , SG_DATATYPE_String);
+		Classes.Add_Field("POLYGON", SG_DATATYPE_String);
+
+		for(int i=0; ; i++)
+		{
+			const CSG_String	*Class;
+
+			switch( Definition )
+			{
+			default: Class = Classes_USDA   [i]; break;
+			case  1: Class = Classes_KA5    [i]; break;
+			case  2: Class = Classes_Belgium[i]; break;
+			}
+
+			if( Class[1].is_Empty() )	{	break;	}	else
+			{
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
+
+				pClass->Set_Value(0, Class[0]);
+				pClass->Set_Value(1, Class[1]);
+				pClass->Set_Value(2, Class[2]);
+				pClass->Set_Value(3, Class[3]);
+			}
+		}
+
+		return( Classes.Get_Count() > 0 );
+	}
+
+	//-----------------------------------------------------
+	bool	Initialize	(int Definition)
+	{
+		CSG_Table	Classes;	return( Get_Table(Classes, Definition) && Initialize(Classes) );
+	}
+
+	//-----------------------------------------------------
+	bool	Initialize	(const CSG_Table &Classes)
 	{
 		m_Classes.Create(SHAPE_TYPE_Polygon);
 
@@ -254,32 +239,48 @@ public:
 		m_Classes.Add_Field("NAME" , SG_DATATYPE_String);
 
 		//-------------------------------------------------
-		const struct SClass	*Classes;
-
-		switch( Classification )
+		for(int i=0; i<Classes.Get_Count(); i++)
 		{
-		default: Classes = Classes_USDA; break;
-		case  1: Classes = Classes_KA5 ; break;
-		}
+			CSG_String_Tokenizer	Items(Classes[i].asString(3), ",");
 
-		//-------------------------------------------------
-		for(int i=0; ; i++)
-		{
-			if( Classes[i].Key.is_Empty() )	{	break;	}	else
+			if( Items.Get_Tokens_Count() >= 3 )
 			{
-				CSG_Shape	*pClass	= m_Classes.Add_Shape();
+				CSG_Shape_Polygon	*pClass	= (CSG_Shape_Polygon *)m_Classes.Add_Shape();
 
-				pClass->Set_Value(0, i + 1           );
-				pClass->Set_Value(1, Classes[i].Color);
-				pClass->Set_Value(2, Classes[i].Key  );
-				pClass->Set_Value(3, Classes[i].Name );
+				pClass->Set_Value(0, i + 1);
+				pClass->Set_Value(2, Classes[i].asString(1));
+				pClass->Set_Value(3, Classes[i].asString(2));
 
-				for(int j=0; j<8; j++)
+				do
 				{
-					if( Classes[i].Sand[j] < 0 )	{	break;	}	else
-					{
-						pClass->Add_Point(Classes[i].Sand[j], Classes[i].Clay[j]);
-					}
+					CSG_String	Point(Items.Get_Next_Token());	Point.Trim();
+
+					double	Sand	= Point.BeforeFirst(' ').asDouble();
+					double	Clay	= Point.AfterFirst (' ').asDouble();
+
+					pClass->Add_Point(Sand, Clay);
+				}
+				while( Items.Has_More_Tokens() );
+
+				Items.Set_String(Classes[i].asString(0), ",");
+
+				if( Items.Get_Tokens_Count() == 3 )
+				{
+					int	r	= Items.Get_Next_Token().asInt();
+					int	g	= Items.Get_Next_Token().asInt();
+					int	b	= Items.Get_Next_Token().asInt();
+
+					pClass->Set_Value(1, SG_GET_RGB(r, g, b));
+				}
+				else
+				{
+					TSG_Point	c	= pClass->Get_Centroid();
+
+					int	r	= (255. / 100.) * c.x;
+					int	g	= (255. / 100.) * (100 - (c.x + c.y));
+					int	b	= (255. / 100.) * c.y;
+
+					pClass->Set_Value(1, SG_GET_RGB(r, g, b));
 				}
 			}
 		}
@@ -320,8 +321,8 @@ public:
 			CSG_Table_Record	*pClass	= pClasses->Get_Record(i);
 
 			pClasses->Set_Value(i, 0, Get_Color(i));
-			pClasses->Set_Value(i, 1, Get_Name (i));
-			pClasses->Set_Value(i, 2, Get_Key  (i));
+			pClasses->Set_Value(i, 1, Get_Key  (i));
+			pClasses->Set_Value(i, 2, Get_Name (i));
 
 			if( bID )
 			{
@@ -425,17 +426,57 @@ CSoil_Texture::CSoil_Texture(void)
 	Parameters.Add_Choice("",
 		"SCHEME"	, _TL("Classification"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("USDA"),
-			_TL("Kartieranleitung 5")
+			_TL("Germany KA5"),
+			_TL("Belgium/France"),
+			_TL("user defined")
 		)
 	);
+
+	Parameters.Add_FixedTable("SCHEME",
+		"USER"		, _TL("User Definition"),
+		_TL("")
+	);
+
+	CSoil_Texture_Classifier::Get_Table(*Parameters("USER")->asTable(), 0);
 
 	Parameters.Add_Shapes("",
 		"POLYGONS"	, _TL("Scheme as Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
+
+	Parameters.Add_Choice("POLYGONS",
+		"XY_AXES"		, _TL("X/Y Axes"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Sand and Clay"),
+			_TL("Sand and Silt"),
+			_TL("Clay and Silt")
+		)
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSoil_Texture::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	{
+		pParameters->Set_Enabled("XY_AXES", pParameter->asShapes() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	{
+		pParameters->Set_Enabled("USER", pParameter->asInt() == 3);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -464,6 +505,11 @@ bool CSoil_Texture::On_Execute(void)
 	//-----------------------------------------------------
 	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt());
 
+	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable()) )	// user defined
+	{
+		return( false );
+	}
+
 	//-----------------------------------------------------
 	pClass->Set_NoData_Value(0.0);
 
@@ -477,10 +523,8 @@ bool CSoil_Texture::On_Execute(void)
 		DataObject_Set_Parameter(pClass, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
 
-	if( Parameters("POLYGONS")->asShapes() && (pLUT = DataObject_Get_Parameter(pClass, "LUT")) != NULL && pLUT->asTable() )
+	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt()) && (pLUT = DataObject_Get_Parameter(pClass, "LUT")) != NULL && pLUT->asTable() )
 	{
-		Parameters("POLYGONS")->asShapes()->Create(Classifier.Get_Polygons());
-
 		Classifier.Set_LUT(pLUT->asTable(), true);
 
 		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), pLUT            );	// Lookup Table
@@ -576,11 +620,57 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 	Parameters.Add_Choice("",
 		"SCHEME"	, _TL("Classification"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("USDA"),
-			_TL("Kartieranleitung 5")
+			_TL("Germany KA5"),
+			_TL("Belgium/France"),
+			_TL("user defined")
 		)
 	);
+
+	Parameters.Add_FixedTable("SCHEME",
+		"USER"		, _TL("User Definition"),
+		_TL("")
+	);
+
+	CSoil_Texture_Classifier::Get_Table(*Parameters("USER")->asTable(), 0);
+
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Scheme as Polygons"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Choice("POLYGONS",
+		"XY_AXES"		, _TL("X/Y Axes"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Sand and Clay"),
+			_TL("Sand and Silt"),
+			_TL("Clay and Silt")
+		)
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSoil_Texture_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	{
+		pParameters->Set_Enabled("XY_AXES", pParameter->asShapes() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	{
+		pParameters->Set_Enabled("USER", pParameter->asInt() == 3);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -609,6 +699,11 @@ bool CSoil_Texture_Table::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSoil_Texture_Classifier	Classifier(Parameters("SCHEME")->asInt());
+
+	if( Parameters("SCHEME")->asInt() == 3 && !Classifier.Initialize(*Parameters("USER")->asTable()) )	// user defined
+	{
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	if( iTexture < 0 )
@@ -655,6 +750,15 @@ bool CSoil_Texture_Table::On_Execute(void)
 		DataObject_Set_Parameter(pTable, pLUT                   );	// Lookup Table
 		DataObject_Set_Parameter(pTable, "COLORS_TYPE", 1       );	// Color Classification Type: Lookup Table
 		DataObject_Set_Parameter(pTable, "LUT_ATTRIB" , iTexture);	// Lookup Table Attribute
+	}
+
+	if( Classifier.Get_Polygons(Parameters("POLYGONS")->asShapes(), Parameters("XY_AXES")->asInt()) && (pLUT = DataObject_Get_Parameter(pTable, "LUT")) != NULL && pLUT->asTable() )
+	{
+		Classifier.Set_LUT(pLUT->asTable(), true);
+
+		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), pLUT            );	// Lookup Table
+		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+		DataObject_Set_Parameter(Parameters("POLYGONS")->asShapes(), "LUT_ATTRIB" , 0);	// Lookup Table Attribute
 	}
 
 	//-----------------------------------------------------
