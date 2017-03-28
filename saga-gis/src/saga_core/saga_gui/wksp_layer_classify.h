@@ -234,6 +234,8 @@ public: ///////////////////////////////////////////////////
 		case CLASSIFY_LUT:
 			if( iClass < 0 || iClass >= m_pLUT->Get_Record_Count() )
 			{
+				Color	= m_UNI_Color;
+
 				return( false );
 			}
 
