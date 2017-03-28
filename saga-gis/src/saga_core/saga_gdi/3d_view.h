@@ -112,6 +112,7 @@ public:
 	virtual bool				Update_View				(bool bStatistics = false);
 
 	bool						Save_asImage			(const CSG_String &FileName);
+	bool						Save_toClipboard		(void);
 
 	void						Play_Pos_Add			(void);
 	void						Play_Pos_Del			(void);
