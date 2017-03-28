@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CSG_String	Classes_USDA[][4]	=
+const CSG_String	Definition_USDA[][4]	=
 { {	"000, 000, 255", "C"   , _TL("Clay"           ), "  0 100,   0   60,  20  40,  45  40,  45  55,   0 100"
 },{	"000, 200, 255", "SiC" , _TL("Silty Clay"     ), "  0 100,   0   60,  20  40,   0  40,   0 100"
 },{	"000, 200, 200", "SiCL", _TL("Silty Clay Loam"), "  0  40,   0   27,  20  27,  20  40,   0  40"
@@ -83,49 +83,60 @@ const CSG_String	Classes_USDA[][4]	=
 },{	"", "", "", ""	}	};
 
 //---------------------------------------------------------
-const CSG_String	Classes_KA5[][4]	=
-{ {	"", "Ss" , _TL("Reinsand"                ), "100  0, 95   5, 85  5, 90  0, 100  0"
-},{	"", "Sl2", _TL("schwach lehmiger Sand"   ), " 85  5, 82   8, 67  8, 70  5,  85  5"
-},{	"", "Sl3", _TL("mittel lehmiger Sand"    ), " 82  8, 78  12, 48 12, 52  8,  82  8"
-},{	"", "Sl4", _TL("stark lehmiger Sand"     ), " 78 12, 73  17, 43 17, 48 12,  78 12"
-},{	"", "Slu", _TL("schluffig-lemiger Sand"  ), " 52  8, 43  17, 33 17, 42  8,  52  8"
-},{	"", "St2", _TL("schwach toniger Sand"    ), " 95  5, 83  17, 73 17, 85  5,  95  5"
-},{	"", "St3", _TL("mittel toniger Sand"     ), " 83 17, 75  25, 60 25, 68 17,  83 17"
-},{	"", "Su2", _TL("schwach schluffiger Sand"), " 90  0, 85   5, 70  5, 75  0,  90  0"
-},{	"", "Su3", _TL("mittel schluffiger Sand" ), " 75  0, 67   8, 52  8, 60  0,  75  0"
-},{	"", "Su4", _TL("stark schluffiger Sand"  ), " 60  0, 52   8, 42  8, 50  0,  60  0"
-},{	"", "Ls2", _TL("schwach sandiger Lehm"   ), " 43 17, 35  25, 25 25, 33 17,  43 17"
-},{	"", "Ls3", _TL("mittel sandiger Lehm"    ), " 53 17, 45  25, 35 25, 43 17,  53 17"
-},{	"", "Ls4", _TL("stark sandiger Lehm"     ), " 68 17, 60  25, 45 25, 53 17,  68 17"
-},{	"", "Lt2", _TL("schwach toniger Lehm"    ), " 45 25, 35  35, 15 35, 25 25,  45 25"
-},{	"", "Lt3", _TL("mittel toniger Lehm"     ), " 35 35, 25  45,  5 45, 15 35,  35 35"
-},{	"", "Lts", _TL("sandig-toniger Lehm"     ), " 60 25, 40  45, 25 45, 45 25,  60 25"
-},{	"", "Lu" , _TL("schluffiger Lehm"        ), " 33 17, 20  30,  5 30, 18 17,  33 17"
-},{	"", "Uu" , _TL("reiner schluff"          ), " 20  0, 12   8,  0  8,  0  0,  20  0"
-},{	"", "Uls" , _TL("sandig-lehmiger Schluff"), " 42  8, 33  17, 18 17, 27  8,  42  8"
-},{	"", "Us" , _TL("sandiger Schluff"        ), " 50  0, 42   8, 12  8, 20  0,  50  0"
-},{	"", "Ut2", _TL("schwach toniger Schluff" ), " 27  8, 23  12,  0 12,  0  8,  27  8"
-},{	"", "Ut3", _TL("mittel toniger Schluff"  ), " 23 12, 18  17,  0 17,  0 12,  23 12"
-},{	"", "Ut4", _TL("stark toniger Schluff"   ), " 18 17, 10  25,  0 25,  0 17,  18 17"
-},{	"", "Tt" , _TL("reiner Ton"              ), " 35 65,  0 100,  0 65, 35 65"
-},{	"", "Tl" , _TL("lehmiger Ton"            ), " 40 45, 20  65,  5 65, 25 45,  40 45"
-},{	"", "Tu2", _TL("schwach schluffiger Ton" ), " 25 45,  5  65,  0 65,  0 45,  25 45"
-},{	"", "Tu3", _TL("mittel schluffiger Ton"  ), " 20 30,  5  45,  0 45,  0 35,   5 30, 20 30"
-},{	"", "Tu4", _TL("stark schluffiger Ton"   ), " 10 25,  0  35,  0 25, 10 25"
-},{	"", "Ts2" , _TL("schwach sandiger Ton"   ), " 55 45, 35  65, 20 65, 40 45,  55 45"
-},{	"", "Ts3" , _TL("mittel sandiger Ton"    ), " 65 35, 55  45, 40 45, 50 35,  65 35"
-},{	"", "Ts4"  , _TL("stark sandiger Ton"    ), " 75 25, 65  35, 50 35, 60 25,  75 25"
+const CSG_String	Definition_Belgium[][4]	=
+{ {	"", "U", _TL("Heavy Clay"      ), " 65.000  35.000, 10.000 35.000,  0.000 45.000,  0.000 100.000,  65.000 35.000"
+},{	"", "E", _TL("Clay"            ), " 82.500  17.500, 67.500 17.500, 30.000 17.500, 25.000  18.125,  20.000 20.000, 15.000 22.500,  0.000 30.000,  0.000 45.000, 10.000 35.000, 65.000 35.000, 82.500 17.500"
+},{	"", "A", _TL("Silt Loam"       ), " 15.000   0.000,  0.000  0.000,  0.000 30.000, 15.000  22.500,  15.000  0.000"
+},{	"", "L", _TL("Sandy Loam"      ), " 50.000   0.000, 15.000  0.000, 15.000 22.500, 20.000  20.000,  25.000 18.125, 30.000 17.500, 67.500 17.500, 67.500 11.250, 50.000 11.250, 50.000  0.000"
+},{	"", "P", _TL("Light Sandy Loam"), " 67.500   0.000, 50.000  0.000, 50.000 11.250, 67.500  11.250,  67.500  0.000"
+},{	"", "S", _TL("Loamy Sand"      ), " 82.500   0.000, 67.500  0.000, 67.500 11.250, 67.500  17.500,  82.500 17.500, 91.250  8.750, 82.500  8.750, 82.500  0.000"
+},{	"", "Z", _TL("Sand"            ), "100.000   0.000, 82.500  0.000, 82.500  8.750, 91.250   8.750, 100.000  0.000"
 },{	"", "", "", ""	}	};
 
 //---------------------------------------------------------
-CSG_String	Classes_Belgium[][4]	=
-{ {	"", "L", _TL("L"), " 50.000   0.000, 15.000  0.000, 15.000 22.500, 20.000  20.000,  25.000 18.125, 30.000 17.500, 67.500 17.500, 67.500 11.250, 50.000 11.250, 50.000  0.000"
-},{	"", "P", _TL("P"), " 67.500   0.000, 50.000  0.000, 50.000 11.250, 67.500  11.250,  67.500  0.000"
-},{	"", "S", _TL("S"), " 82.500   0.000, 67.500  0.000, 67.500 11.250, 67.500  17.500,  82.500 17.500, 91.250  8.750, 82.500  8.750, 82.500  0.000"
-},{	"", "U", _TL("U"), " 65.000  35.000, 10.000 35.000,  0.000 45.000,  0.000 100.000,  65.000 35.000"
-},{	"", "Z", _TL("Z"), "100.000   0.000, 82.500  0.000, 82.500  8.750, 91.250   8.750, 100.000  0.000"
-},{	"", "A", _TL("A"), " 15.000   0.000,  0.000  0.000,  0.000 30.000, 15.000  22.500,  15.000  0.000"
-},{	"", "E", _TL("E"), " 82.500  17.500, 67.500 17.500, 30.000 17.500, 25.000  18.125,  20.000 20.000, 15.000 22.500,  0.000 30.000,  0.000 45.000, 10.000 35.000, 65.000 35.000, 82.500 17.500"
+const CSG_String	Definition_KA5[][4]	=
+{ {	"", "Ss" , _TL("Reiner Sand"             ), "100  0, 95   5, 85  5, 90  0, 100  0"
+
+},{	"", "Su2", _TL("Schwach schluffiger Sand"), " 90  0, 85   5, 70  5, 75  0,  90  0"
+},{	"", "Sl2", _TL("Schwach lehmiger Sand"   ), " 85  5, 82   8, 67  8, 70  5,  85  5"
+},{	"", "Sl3", _TL("Mittel lehmiger Sand"    ), " 82  8, 78  12, 48 12, 52  8,  82  8"
+},{	"", "St2", _TL("Schwach toniger Sand"    ), " 95  5, 83  17, 73 17, 85  5,  95  5"
+
+},{	"", "Su3", _TL("Mittel schluffiger Sand" ), " 75  0, 67   8, 52  8, 60  0,  75  0"
+},{	"", "Su4", _TL("Stark schluffiger Sand"  ), " 60  0, 52   8, 42  8, 50  0,  60  0"
+
+},{	"", "Slu", _TL("Schluffig-lemiger Sand"  ), " 52  8, 43  17, 33 17, 42  8,  52  8"
+},{	"", "Sl4", _TL("Stark lehmiger Sand"     ), " 78 12, 73  17, 43 17, 48 12,  78 12"
+},{	"", "St3", _TL("Mittel toniger Sand"     ), " 83 17, 75  25, 60 25, 68 17,  83 17"
+
+},{	"", "Ls2", _TL("Schwach sandiger Lehm"   ), " 43 17, 35  25, 25 25, 33 17,  43 17"
+},{	"", "Ls3", _TL("Mittel sandiger Lehm"    ), " 53 17, 45  25, 35 25, 43 17,  53 17"
+},{	"", "Ls4", _TL("Stark sandiger Lehm"     ), " 68 17, 60  25, 45 25, 53 17,  68 17"
+},{	"", "Lt2", _TL("Schwach toniger Lehm"    ), " 45 25, 35  35, 15 35, 25 25,  45 25"
+
+},{	"", "Lts", _TL("Sandig-toniger Lehm"     ), " 60 25, 40  45, 25 45, 45 25,  60 25"
+},{	"", "Ts4", _TL("Stark sandiger Ton"      ), " 75 25, 65  35, 50 35, 60 25,  75 25"
+},{	"", "Ts3", _TL("Mittel sandiger Ton"     ), " 65 35, 55  45, 40 45, 50 35,  65 35"
+
+},{	"", "Uu" , _TL("Reiner Schluff"          ), " 20  0, 12   8,  0  8,  0  0,  20  0"
+},{	"", "Us" , _TL("Sandiger Schluff"        ), " 50  0, 42   8, 12  8, 20  0,  50  0"
+
+},{	"", "Ut2", _TL("Schwach toniger Schluff" ), " 27  8, 23  12,  0 12,  0  8,  27  8"
+},{	"", "Ut3", _TL("Mittel toniger Schluff"  ), " 23 12, 18  17,  0 17,  0 12,  23 12"
+},{	"", "Uls", _TL("Sandig-lehmiger Schluff" ), " 42  8, 33  17, 18 17, 27  8,  42  8"
+
+},{	"", "Ut4", _TL("Stark toniger Schluff"   ), " 18 17, 10  25,  0 25,  0 17,  18 17"
+},{	"", "Lu" , _TL("Schluffiger Lehm"        ), " 33 17, 20  30,  5 30, 18 17,  33 17"
+
+},{	"", "Lt3", _TL("Mittel toniger Lehm"     ), " 35 35, 25  45,  5 45, 15 35,  35 35"
+},{	"", "Tu3", _TL("Mittel schluffiger Ton"  ), " 20 30,  5  45,  0 45,  0 35,   5 30, 20 30"
+},{	"", "Tu4", _TL("Stark schluffiger Ton"   ), " 10 25,  0  35,  0 25, 10 25"
+
+},{	"", "Ts2", _TL("Schwach sandiger Ton"    ), " 55 45, 35  65, 20 65, 40 45,  55 45"
+},{	"", "Tl" , _TL("Lehmiger Ton"            ), " 40 45, 20  65,  5 65, 25 45,  40 45"
+},{	"", "Tu2", _TL("Schwach schluffiger Ton" ), " 25 45,  5  65,  0 65,  0 45,  25 45"
+},{	"", "Tt" , _TL("Reiner Ton"              ), " 35 65,  0 100,  0 65, 35 65"
+
 },{	"", "", "", ""	}	};
 
 
@@ -173,22 +184,29 @@ public:
 
 			for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(0); iPoint++)
 			{
-				TSG_Point	q, p	= pPolygon->Get_Point(iPoint);
+				TSG_Point	p	= pPolygon->Get_Point(iPoint);
+
+				double	Sand	= p.x;
+				double	Silt	= 100 - (p.x + p.y);
+				double	Clay	= p.y;
 
 				switch( Axes )
 				{
-				case 0: q.x = p.x; q.y = p.y              ; break;	// x=sand, y=clay
-				case 1: q.x = p.x; q.y = 100 - (p.x + p.y); break;	// x=sand, y=silt
-				case 2: q.x = p.y; q.y = 100 - (p.x + p.y); break;	// x=clay, y=silt
+				case 0: p.x = Sand; p.y = Clay; break;
+				case 1: p.x = Sand; p.y = Silt; break;
+				case 2: p.x = Silt; p.y = Sand; break;
+				case 3: p.x = Silt; p.y = Clay; break;
+				case 4: p.x = Clay; p.y = Sand; break;
+				case 5: p.x = Clay; p.y = Silt; break;
 				}
 
 				if( bIsosceles )
 				{
-					q.x	+= 0.5 * q.y;
-					q.y	*= 0.8660254038;	// sqrt(100*100 - 50*50) / 100.
+					p.x	+= 0.5 * p.y;
+					p.y	*= 0.8660254038;	// sqrt(100*100 - 50*50) / 100.
 				}
 
-				pPolygon->Set_Point(q, iPoint, 0);
+				pPolygon->Set_Point(p, iPoint, 0);
 			}
 		}
 
@@ -216,9 +234,9 @@ public:
 
 			switch( Definition )
 			{
-			case  0: Class = Classes_USDA   [i]; break;
-			case  1: Class = Classes_KA5    [i]; break;
-			case  2: Class = Classes_Belgium[i]; break;
+			case  0: Class = Definition_USDA   [i]; break;
+			case  1: Class = Definition_KA5    [i]; break;
+			case  2: Class = Definition_Belgium[i]; break;
 			}
 
 			if( Class[1].is_Empty() )	{	break;	}	else
@@ -461,18 +479,22 @@ CSoil_Texture::CSoil_Texture(void)
 	);
 
 	Parameters.Add_Choice("",
-		"COLORS"	, _TL("Default Color Scheme"),
+		"COLORS"	, _TL("Default Colour Scheme"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			SG_T("1"),
-			SG_T("2"),
-			SG_T("3")
+		CSG_String::Format("%s 1|%s 2|%s 3|",
+			_TL("Scheme"),
+			_TL("Scheme"),
+			_TL("Scheme")
 		)
 	);
 
 	Parameters.Add_FixedTable("SCHEME",
 		"USER"		, _TL("User Definition"),
-		_TL("")
+		_TW("The colour is defined as comma separated red, green and blue values (in the range 0 to 255). "
+			"If the colour field is empty it will be generated from the chosen default colour scheme. "
+			"Key and name are simple text labels specifying each class. The polygon is defined as pairs of "
+			"sand (=x) and clay (=y) separated by a blank and separated from the next pair by a comma. "
+		)
 	);
 
 	CSoil_Texture_Classifier::Get_Table(*Parameters("USER")->asTable(), 0);
@@ -486,11 +508,14 @@ CSoil_Texture::CSoil_Texture(void)
 	Parameters.Add_Choice("POLYGONS",
 		"XY_AXES"	, _TL("X/Y Axes"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("Sand and Clay"),
 			_TL("Sand and Silt"),
+			_TL("Silt and Sand"),
+			_TL("Silt and Clay"),
+			_TL("Clay and Sand"),
 			_TL("Clay and Silt")
-		)
+		), 3
 	);
 
 	Parameters.Add_Choice("POLYGONS",
@@ -499,7 +524,7 @@ CSoil_Texture::CSoil_Texture(void)
 		CSG_String::Format("%s|%s|",
 			_TL("right-angled"),
 			_TL("isosceles")
-		)
+		), 1
 	);
 }
 
@@ -687,18 +712,22 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 	);
 
 	Parameters.Add_Choice("",
-		"COLORS"	, _TL("Default Color Scheme"),
+		"COLORS"	, _TL("Default Colour Scheme"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			SG_T("1"),
-			SG_T("2"),
-			SG_T("3")
+		CSG_String::Format("%s 1|%s 2|%s 3|",
+			_TL("Scheme"),
+			_TL("Scheme"),
+			_TL("Scheme")
 		)
 	);
 
 	Parameters.Add_FixedTable("SCHEME",
 		"USER"		, _TL("User Definition"),
-		_TL("")
+		_TW("The colour is defined as comma separated red, green and blue values (in the range 0 to 255). "
+			"If the colour field is empty it will be generated from the chosen default colour scheme. "
+			"Key and name are simple text labels specifying each class. The polygon is defined as pairs of "
+			"sand (=x) and clay (=y) separated by a blank and separated from the next pair by a comma. "
+		)
 	);
 
 	CSoil_Texture_Classifier::Get_Table(*Parameters("USER")->asTable(), 0);
@@ -712,11 +741,14 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 	Parameters.Add_Choice("POLYGONS",
 		"XY_AXES"	, _TL("X/Y Axes"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("Sand and Clay"),
 			_TL("Sand and Silt"),
+			_TL("Silt and Sand"),
+			_TL("Silt and Clay"),
+			_TL("Clay and Sand"),
 			_TL("Clay and Silt")
-		)
+		), 3
 	);
 
 	Parameters.Add_Choice("POLYGONS",
@@ -725,7 +757,7 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 		CSG_String::Format("%s|%s|",
 			_TL("right-angled"),
 			_TL("isosceles")
-		)
+		), 1
 	);
 }
 
