@@ -9,13 +9,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Projection_Proj4                    //
+//                       pj_proj4                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  crs_transform_grid.h                 //
+//                  crs_transform_utm.h                  //
 //                                                       //
-//                 Copyright (C) 2010 by                 //
+//                 Copyright (C) 2017 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -59,11 +59,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__crs_transform_grid_H
-#define HEADER_INCLUDED__crs_transform_grid_H
+#ifndef HEADER_INCLUDED__crs_transform_utm_H
+#define HEADER_INCLUDED__crs_transform_utm_H
 
 //---------------------------------------------------------
-#include "crs_base.h"
+#include "crs_transform_grid.h"
+#include "crs_transform_shapes.h"
+#include "crs_transform_pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -73,47 +75,57 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCRS_Transform_Grid : public CCRS_Transform
+class CCRS_Transform_UTM_Grids : public CCRS_Transform_Grid
 {
 public:
-	CCRS_Transform_Grid(bool bList);
+	CCRS_Transform_UTM_Grids(bool bList);
+
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("UTM Projection") );	}
 
 
 protected:
 
 	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute_Transformation	(void);
-
-	bool						Set_Target_System			(CSG_Parameters *pParameters, int Resolution = 256, bool bEdges = true);
+};
 
 
-private:
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	bool						m_bList;
+//---------------------------------------------------------
+class CCRS_Transform_UTM_Shapes : public CCRS_Transform_Shapes
+{
+public:
+	CCRS_Transform_UTM_Shapes(bool bList);
 
-	TSG_Grid_Resampling			m_Resampling;
-
-	CSG_Parameters_Grid_Target	m_Grid_Target;
-
-	CSG_Grid					m_Target_Area;
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("UTM Projection") );	}
 
 
-	bool						Transform					(CSG_Grid                *pGrid );
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids);
+protected:
 
-	bool						Transform					(CSG_Grid                *pGrid , CSG_Grid                *pTarget );
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Parameter_Grid_List *pTargets, const CSG_Grid_System &Target_System);
+	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Transform					(CSG_Grid                *pGrid , CSG_Shapes *pPoints);
-	bool						Transform					(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPoints);
+};
 
-	void						Get_MinMax					(TSG_Rect &r, double x, double y);
-	bool						Get_Target_System			(const CSG_Grid_System &System, bool bEdge);
 
-	bool						Set_Target_Area				(const CSG_Grid_System &Source, const CSG_Grid_System &Target);
-	bool						is_In_Target_Area			(int x, int y);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Transform_UTM_PointCloud : public CCRS_Transform_PointCloud
+{
+public:
+	CCRS_Transform_UTM_PointCloud(bool bList);
+
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("UTM Projection") );	}
+
+
+protected:
+
+	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 };
 
@@ -125,4 +137,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__crs_transform_grid_H
+#endif // #ifndef HEADER_INCLUDED__crs_transform_utm_H
