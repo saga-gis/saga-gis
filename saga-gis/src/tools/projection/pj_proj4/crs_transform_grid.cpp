@@ -74,28 +74,27 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	m_bList	= bList;
 
 	//-----------------------------------------------------
-	Set_Name		(m_bList
-		? _TL("Coordinate Transformation (Grid List)")
-		: _TL("Coordinate Transformation (Grid)")
-	);
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Coordinate Transformation"),
+		bList ? _TL("Grid List") : _TL("Grid")
+	));
 
 	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Coordinate transformation for grids.\n"
+		"Coordinate transformation for grids."
 	));
 
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	Parameters.Add_Node(NULL,
+	Parameters.Add_Node("",
 		"SOURCE_NODE"	, _TL("Source"),
 		_TL("")
 	);
 
 	if( m_bList )
 	{
-		Parameters.Add_Grid_List(Parameters("SOURCE_NODE"),
+		Parameters.Add_Grid_List("SOURCE_NODE",
 			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
@@ -103,7 +102,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	}
 	else
 	{
-		Parameters.Add_Grid(Parameters("SOURCE_NODE"),
+		Parameters.Add_Grid("SOURCE_NODE",
 			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
@@ -111,12 +110,12 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	}
 
 	//-----------------------------------------------------
-	Parameters.Add_Node(NULL,
+	Parameters.Add_Node("",
 		"TARGET_NODE"	, _TL("Target"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(Parameters("TARGET_NODE"),
+	Parameters.Add_Choice("TARGET_NODE",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -127,13 +126,13 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 		), 3
 	);
 
-	Parameters.Add_Bool(Parameters("TARGET_NODE"),
+	Parameters.Add_Bool("TARGET_NODE",
 		"KEEP_TYPE"		, _TL("Preserve Data Type"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool(Parameters("TARGET_NODE"),
+	Parameters.Add_Bool("TARGET_NODE",
 		"TARGET_AREA"	, _TL("Use Target Area Polygon"),
 		_TL("Restricts targeted grid cells to area of the projected bounding rectangle. Useful with certain projections for global data."),
 		false
@@ -144,7 +143,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 
 	if( m_bList )
 	{
-		Parameters.Add_Grid_List(Parameters("TARGET_NODE"),
+		Parameters.Add_Grid_List("TARGET_NODE",
 			"GRIDS"		, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL

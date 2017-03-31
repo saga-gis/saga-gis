@@ -74,15 +74,14 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 	m_bList	= bList;
 
 	//-----------------------------------------------------
-	Set_Name		(m_bList
-		? _TL("Coordinate Transformation (Shapes List)")
-		: _TL("Coordinate Transformation (Shapes)")
-	);
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Coordinate Transformation"),
+		bList ? _TL("Shapes List") : _TL("Shapes")
+	));
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Coordinate transformation for shapes.\n"
+		"Coordinate transformation for shapes."
 	));
 
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
@@ -90,14 +89,14 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 	//-----------------------------------------------------
 	if( m_bList )
 	{
-		Parameters.Add_Shapes_List(
-			NULL	, "SOURCE"	, _TL("Source"),
+		Parameters.Add_Shapes_List("",
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Shapes_List(
-			NULL	, "TARGET"	, _TL("Target"),
+		Parameters.Add_Shapes_List("",
+			"TARGET"	, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
@@ -106,14 +105,14 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 	//-----------------------------------------------------
 	else
 	{
-		Parameters.Add_Shapes(
-			NULL	, "SOURCE"	, _TL("Source"),
+		Parameters.Add_Shapes("",
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Shapes(
-			NULL	, "TARGET"	, _TL("Target"),
+		Parameters.Add_Shapes("",
+			"TARGET"	, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT
 		);

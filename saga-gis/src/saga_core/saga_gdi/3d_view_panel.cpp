@@ -61,6 +61,7 @@
 
 //---------------------------------------------------------
 #include <wx/dcclient.h>
+#include <wx/clipbrd.h>
 
 #include "3d_view.h"
 
@@ -300,42 +301,23 @@ void CSG_3DView_Panel::Update_Parent(void)
 //---------------------------------------------------------
 void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 {
-	if( !event.ControlDown() )
+	//-----------------------------------------------------
+	if( event.ControlDown() )
 	{
 		switch( event.GetKeyCode() )
 		{
-		default:	event.Skip();	return;
+		case 'A': Play_Pos_Add();	return;
+		case 'D': Play_Pos_Del();	return;
+		case 'X': Play_Pos_Clr();	return;
 
-		case WXK_NUMPAD_ADD:
-		case WXK_ADD:		m_Projector.Set_xRotation(m_Projector.Get_xRotation() - 4.0 * M_DEG_TO_RAD);	break;
-		case WXK_NUMPAD_SUBTRACT:
-		case WXK_SUBTRACT:	m_Projector.Set_xRotation(m_Projector.Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
+		case 'P': Play_Once   ();	return;
+		case 'L': Play_Loop   ();	return;
+		case 'S': Play_Save   ();	return;
 
-		case WXK_F3:		m_Projector.Set_yRotation(m_Projector.Get_yRotation() - 4.0 * M_DEG_TO_RAD);	break;
-		case WXK_F4:		m_Projector.Set_yRotation(m_Projector.Get_yRotation() + 4.0 * M_DEG_TO_RAD);	break;
-
-		case WXK_NUMPAD_MULTIPLY:
-		case WXK_MULTIPLY:	m_Projector.Set_zRotation(m_Projector.Get_zRotation() - 4.0 * M_DEG_TO_RAD);	break;
-		case WXK_NUMPAD_DIVIDE:
-		case WXK_DIVIDE:	m_Projector.Set_zRotation(m_Projector.Get_zRotation() + 4.0 * M_DEG_TO_RAD);	break;
-
-		case WXK_INSERT:	m_Projector.Set_xShift   (m_Projector.Get_xShift   () - 10.0);	break;
-		case WXK_DELETE:	m_Projector.Set_xShift   (m_Projector.Get_xShift   () + 10.0);	break;
-
-		case WXK_HOME:		m_Projector.Set_yShift   (m_Projector.Get_yShift   () - 10.0);	break;
-		case WXK_END:		m_Projector.Set_yShift   (m_Projector.Get_yShift   () + 10.0);	break;
-
-		case WXK_PAGEUP:	m_Projector.Set_zShift   (m_Projector.Get_zShift   () - 10.0);	break;
-		case WXK_PAGEDOWN:	m_Projector.Set_zShift   (m_Projector.Get_zShift   () + 10.0);	break;
-
-		case 'B':			m_Parameters("DRAW_BOX")->Set_Value(m_Parameters("DRAW_BOX")->asBool() == false);	break;
-		case 'S':			m_Parameters("STEREO"  )->Set_Value(m_Parameters("STEREO"  )->asBool() == false);	break;
-
-		case WXK_ESCAPE:	if( m_Play_State )	{ Play_Stop(); break; } else return;
+		case 'C': Save_toClipboard();	return;
 		}
 
-		Update_Parent();
-		Update_View();
+		event.Skip();
 	}
 
 	//-----------------------------------------------------
@@ -343,16 +325,78 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 	{
 		switch( event.GetKeyCode() )
 		{
-		default:	event.Skip();	return;
+		default:
+			event.Skip();
+			return;
 
-		case 'A':	Play_Pos_Add ();	break;
-		case 'D':	Play_Pos_Del ();	break;
-		case 'X':	Play_Pos_Clr ();	break;
+		case WXK_ESCAPE:
+			if( !m_Play_State )
+			{
+				return;
+			}
 
-		case 'P':	Play_Once    ();	break;
-		case 'L':	Play_Loop    ();	break;
-		case 'S':	Play_Save    ();	break;
+			Play_Stop();
+			break;
+
+		case WXK_DOWN: case WXK_NUMPAD_DOWN: case WXK_ADD: case WXK_NUMPAD_ADD:
+			m_Projector.Set_xRotation(m_Projector.Get_xRotation() - 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_UP: case WXK_NUMPAD_UP: case WXK_SUBTRACT: case WXK_NUMPAD_SUBTRACT:
+			m_Projector.Set_xRotation(m_Projector.Get_xRotation() + 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_F3:
+			m_Projector.Set_yRotation(m_Projector.Get_yRotation() - 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_F4:
+			m_Projector.Set_yRotation(m_Projector.Get_yRotation() + 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_RIGHT: case WXK_NUMPAD_RIGHT: case WXK_MULTIPLY: case WXK_NUMPAD_MULTIPLY:
+			m_Projector.Set_zRotation(m_Projector.Get_zRotation() - 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_LEFT: case WXK_NUMPAD_LEFT: case WXK_DIVIDE: case WXK_NUMPAD_DIVIDE:
+			m_Projector.Set_zRotation(m_Projector.Get_zRotation() + 4.0 * M_DEG_TO_RAD);
+			break;
+
+		case WXK_INSERT:
+			m_Projector.Set_xShift   (m_Projector.Get_xShift   () - 10.0);
+			break;
+
+		case WXK_DELETE:
+			m_Projector.Set_xShift   (m_Projector.Get_xShift   () + 10.0);
+			break;
+
+		case WXK_HOME:
+			m_Projector.Set_yShift   (m_Projector.Get_yShift   () - 10.0);
+			break;
+
+		case WXK_END:
+			m_Projector.Set_yShift   (m_Projector.Get_yShift   () + 10.0);
+			break;
+
+		case WXK_PAGEUP:
+			m_Projector.Set_zShift   (m_Projector.Get_zShift   () - 10.0);
+			break;
+
+		case WXK_PAGEDOWN:
+			m_Projector.Set_zShift   (m_Projector.Get_zShift   () + 10.0);
+			break;
+
+		case 'B':
+			m_Parameters("DRAW_BOX")->Set_Value(m_Parameters("DRAW_BOX")->asBool() == false);
+			break;
+
+		case 'S':
+			m_Parameters("STEREO"  )->Set_Value(m_Parameters("STEREO"  )->asBool() == false);
+			break;
 		}
+
+		Update_Parent();
+		Update_View();
 	}
 }
 
@@ -589,6 +633,22 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 bool CSG_3DView_Panel::Save_asImage(const CSG_String &FileName)
 {
 	return( m_Image.SaveFile(FileName.c_str()) );
+}
+
+//---------------------------------------------------------
+bool CSG_3DView_Panel::Save_toClipboard(void)
+{
+	if( m_Image.IsOk() && m_Image.GetWidth() > 0 && m_Image.GetHeight() > 0 && wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBMP	= new wxBitmapDataObject;
+		pBMP->SetBitmap(m_Image);
+		wxTheClipboard->SetData(pBMP);
+		wxTheClipboard->Close();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 

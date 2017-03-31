@@ -76,15 +76,14 @@ CCRS_Transform_PointCloud::CCRS_Transform_PointCloud(bool bList)
 	m_bList	= bList;
 
 	//-----------------------------------------------------
-	Set_Name		(m_bList
-		? _TL("Coordinate Transformation (Point Cloud List)")
-		: _TL("Coordinate Transformation (Point Cloud)")
-	);
+	Set_Name		(CSG_String::Format("%s (%s)", _TL("Coordinate Transformation"),
+		bList ? _TL("Point Cloud List") : _TL("Point Cloud")
+	));
 
-	Set_Author		(SG_T("V. Wichmann, O. Conrad (c) 2014"));
+	Set_Author		("V. Wichmann, O. Conrad (c) 2014");
 
 	Set_Description	(_TW(
-		"Coordinate transformation for point clouds.\n"
+		"Coordinate transformation for point clouds."
 	));
 
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
@@ -92,14 +91,14 @@ CCRS_Transform_PointCloud::CCRS_Transform_PointCloud(bool bList)
 	//-----------------------------------------------------
 	if( m_bList )
 	{
-		Parameters.Add_PointCloud_List(
-			NULL	, "SOURCE"	, _TL("Source"),
+		Parameters.Add_PointCloud_List("",
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_PointCloud_List(
-			NULL	, "TARGET"	, _TL("Target"),
+		Parameters.Add_PointCloud_List("",
+			"TARGET"	, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
@@ -108,14 +107,14 @@ CCRS_Transform_PointCloud::CCRS_Transform_PointCloud(bool bList)
 	//-----------------------------------------------------
 	else
 	{
-		Parameters.Add_PointCloud(
-			NULL	, "SOURCE"	, _TL("Source"),
+		Parameters.Add_PointCloud("",
+			"SOURCE"	, _TL("Source"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_PointCloud(
-			NULL	, "TARGET"	, _TL("Target"),
+		Parameters.Add_PointCloud("",
+			"TARGET"	, _TL("Target"),
 			_TL(""),
 			PARAMETER_OUTPUT
 		);

@@ -22,6 +22,7 @@ crs_transform.cpp\
 crs_transform_grid.cpp\
 crs_transform_pointcloud.cpp\
 crs_transform_shapes.cpp\
+crs_transform_utm.cpp\
 gcs_graticule.cpp\
 gcs_lon_range.cpp\
 PROJ4_Base.cpp\
@@ -37,6 +38,7 @@ crs_transform.h\
 crs_transform_grid.h\
 crs_transform_pointcloud.h\
 crs_transform_shapes.h\
+crs_transform_utm.h\
 gcs_graticule.h\
 gcs_lon_range.h\
 PROJ4_Base.h\

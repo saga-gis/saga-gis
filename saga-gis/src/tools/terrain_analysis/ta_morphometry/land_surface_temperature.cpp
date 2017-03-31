@@ -76,123 +76,116 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	//-----------------------------------------------------
 	Set_Name	(_TL("Land Surface Temperature"));
 
-	Set_Author	(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author	("O.Conrad (c) 2008");
 
 	Set_Description(_TW(
-		"References:\n"
-		"Bohner, J., Antonic, O. (2008): "
-		"'Land-suface parameters specific to topo-climatology'. "
-		"in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications', in press\n"
+		""
 	));
 
+	Add_Reference("Boehner, J., Antonic, O.", "2009", "Land-surface parameters specific to topo-climatology",
+		"In: Hengl, T., Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. Developments in soil science, 33, 195-226."
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation [m]"),
+	Parameters.Add_Grid("",
+		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SWR"			, _TL("Short Wave Radiation [kW/m2]"),
+	Parameters.Add_Grid("",
+		"SWR"			, _TL("Short Wave Radiation"),
+		_TL("[kW / m2]"),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid("",
+		"LAI"			, _TL("Leaf Area Index"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LAI"			, _TL("Leaf Area Index"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "LST"			, _TL("Land Surface Temperature [Deg.Celsius]"),
+	Parameters.Add_Grid("",
+		"LST"			, _TL("Land Surface Temperature"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "Z_REFERENCE"	, _TL("Elevation at Reference Station [m]"),
+	Parameters.Add_Double("",
+		"Z_REFERENCE"	, _TL("Elevation at Reference Station"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "T_REFERENCE"	, _TL("Temperature at Reference Station [Deg.Celsius]"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
+	Parameters.Add_Double("",
+		"T_REFERENCE"	, _TL("Temperature at Reference Station"),
+		_TL("Temperature at reference station in °C."),
+		0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "T_GRADIENT"	, _TL("Temperature Gradient [Deg.Celsius/km]"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 6.5
+	Parameters.Add_Double("",
+		"T_GRADIENT"	, _TL("Lapse Rate"),
+		_TL("Vertical temperature gradient in °C per 100 meter."),
+		0.6
 	);
 
-	Parameters.Add_Value(
-		NULL	, "C_FACTOR"	, _TL("C Factor"),
+	Parameters.Add_Double("",
+		"C_FACTOR"		, _TL("C Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0
+		1.0
+	);
+
+	Parameters.Add_Double("",
+		"LAI_MAX"		, _TL("C Factor"),
+		_TL(""),
+		8.0, 0.01, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CLand_Surface_Temperature::On_Execute(void)
 {
-	double		Z_reference, T_reference, T_gradient, C_Factor, LAI_max, Z, SWR, LAI, LST;
-	CSG_Grid	*pDEM, *pSWR, *pLAI, *pLST;
+	//-----------------------------------------------------
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+	CSG_Grid	*pSWR	= Parameters("SWR")->asGrid();
+	CSG_Grid	*pLAI	= Parameters("LAI")->asGrid();
+	CSG_Grid	*pLST	= Parameters("LST")->asGrid();
+
+	double	Z_reference	= Parameters("Z_REFERENCE")->asDouble();
+	double	T_reference	= Parameters("T_REFERENCE")->asDouble();
+	double	T_gradient	= Parameters("T_GRADIENT" )->asDouble() / 100.0;
+	double	C_Factor	= Parameters("C_FACTOR"   )->asDouble();
+	double	LAI_max		= Parameters("LAI_MAX"    )->asDouble();
 
 	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")			->asGrid();
-	pSWR		= Parameters("SWR")			->asGrid();
-	pLAI		= Parameters("LAI")			->asGrid();
-	pLST		= Parameters("LST")			->asGrid();
-
-	Z_reference	= Parameters("Z_REFERENCE")	->asDouble();
-	T_reference	= Parameters("T_REFERENCE")	->asDouble();
-	T_gradient	= Parameters("T_GRADIENT")	->asDouble();
-	C_Factor	= Parameters("C_FACTOR")	->asDouble();
-
-	LAI_max		= pLAI->Get_ZMax();
-
-	//-----------------------------------------------------
-	if( LAI_max > 0.0 )
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(int x=0; x<Get_NX(); x++)
+			if( pDEM->is_NoData(x, y) || pSWR->is_NoData(x, y) || pLAI->is_NoData(x, y) || pSWR->asDouble(x, y) <= 0.0 )
 			{
-				if( pDEM->is_NoData(x, y) || pSWR->is_NoData(x, y) || pLAI->is_NoData(x, y) || (SWR = pSWR->asDouble(x, y)) <= 0.0 )
-				{
-					pLST->Set_NoData(x, y);
-				}
-				else
-				{
-					Z	= pDEM->asDouble(x, y);
-					SWR	= pSWR->asDouble(x, y);
-					LAI	= pLAI->asDouble(x, y);
+				pLST->Set_NoData(x, y);
+			}
+			else
+			{
+				double	T	= T_reference - T_gradient * (pDEM->asDouble(x, y) - Z_reference);
 
-					LST	= T_reference
-						- (T_gradient * (Z - Z_reference)) / 1000.0
-						+ C_Factor * (SWR - 1.0 / SWR) * (1.0 - LAI / LAI_max);
+				double	SWR	= pSWR->asDouble(x, y);
+				double	LAI	= pLAI->asDouble(x, y);
 
-					pLST->Set_Value(x, y, LST);
-				}
+				pLST->Set_Value(x, y, T + C_Factor * (SWR - 1.0 / SWR) * (1.0 - LAI / LAI_max));
 			}
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	return( true );
 }
 
 
