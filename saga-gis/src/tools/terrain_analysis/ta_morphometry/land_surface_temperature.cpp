@@ -136,7 +136,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 	);
 
 	Parameters.Add_Double("",
-		"LAI_MAX"		, _TL("C Factor"),
+		"LAI_MAX"		, _TL("Maximum LAI"),
 		_TL(""),
 		8.0, 0.01, true
 	);
