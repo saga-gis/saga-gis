@@ -119,13 +119,13 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 
 	Parameters.Add_Double("",
 		"T_REFERENCE"	, _TL("Temperature at Reference Station"),
-		_TL("Temperature at reference station in °C."),
+		_TL("Temperature at reference station in degree Celsius."),
 		0.0
 	);
 
 	Parameters.Add_Double("",
 		"T_GRADIENT"	, _TL("Lapse Rate"),
-		_TL("Vertical temperature gradient in °C per 100 meter."),
+		_TL("Vertical temperature gradient in degree Celsius per 100 meter."),
 		0.6
 	);
 
