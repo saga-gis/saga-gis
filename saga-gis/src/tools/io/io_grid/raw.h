@@ -86,7 +86,6 @@ class CRaw_Import : public CSG_Tool
 {
 public:
 	CRaw_Import(void);
-	virtual ~CRaw_Import(void);
 
 	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
 
@@ -98,7 +97,10 @@ protected:
 
 private:
 
-	CSG_Grid *					Load_Data		(FILE *Stream, TSG_Data_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig);
+	bool					Skip			(CSG_File &Stream, size_t nBytes);
+
+	CSG_Grid *				Get_Grid		(void);
+
 
 };
 
