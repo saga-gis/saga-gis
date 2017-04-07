@@ -74,76 +74,70 @@ CPolygon_Split_Parts::CPolygon_Split_Parts(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Parts to Separate Polygons"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Splits parts of multipart polygons into separate polygons. "
 		"This can be done only for islands (outer rings) or for all "
-		"parts (inner and outer rings) by checking the 'ignore lakes' "
-		"option."
+		"parts (inner and outer rings) by checking the 'lakes' option."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "PARTS"		, _TL("Polygon Parts"),
+	Parameters.Add_Shapes("",
+		"PARTS"		, _TL("Polygon Parts"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LAKES"		, _TL("Ignore Lakes"),
+	Parameters.Add_Bool("",
+		"LAKES"		, _TL("Lakes"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPolygon_Split_Parts::On_Execute(void)
 {
-	bool		bIgnoreLakes;
-	CSG_Shapes	*pPolygons, *pParts;
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes	*pParts		= Parameters("PARTS"   )->asShapes();
 
-	pPolygons		= Parameters("POLYGONS")	->asShapes();
-	pParts			= Parameters("PARTS")		->asShapes();
-	bIgnoreLakes	= Parameters("LAKES")		->asBool();
+	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Parts")), pPolygons);
 
-	pParts->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("Parts")), pPolygons);
+	bool	bLakes	= Parameters("LAKES")->asBool();
 
 	//-----------------------------------------------------
 	for(int iShape=0; iShape<pPolygons->Get_Count() && Set_Progress(iShape, pPolygons->Get_Count()); iShape++)
 	{
-		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(iShape);
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pPolygon->Get_Part_Count() && Process_Get_Okay(); iPart++)
 		{
-			if( bIgnoreLakes || !((CSG_Shape_Polygon *)pPolygon)->is_Lake(iPart) )
+			if( bLakes || !pPolygon->is_Lake(iPart) )
 			{
-				CSG_Shape	*pPart	= pParts->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
+				CSG_Shape_Polygon	*pPart	= (CSG_Shape_Polygon *)pParts->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 
 				for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 				{
 					pPart->Add_Point(pPolygon->Get_Point(iPoint, iPart));
 				}
 
-				if( !bIgnoreLakes )
+				if( !bLakes )
 				{
 					for(int jPart=0; jPart<pPolygon->Get_Part_Count(); jPart++)
 					{
-						if(	((CSG_Shape_Polygon *)pPolygon)->is_Lake(jPart)
-						&&	((CSG_Shape_Polygon *)pPart)->Contains(pPolygon->Get_Point(0, jPart)) )
+						if(	pPolygon->is_Lake(jPart) && pPart->Contains(pPolygon->Get_Point(0, jPart)) )
 						{
 							for(int jPoint=0, nPart=pPart->Get_Part_Count(); jPoint<pPolygon->Get_Point_Count(jPart); jPoint++)
 							{
@@ -156,6 +150,7 @@ bool CPolygon_Split_Parts::On_Execute(void)
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
