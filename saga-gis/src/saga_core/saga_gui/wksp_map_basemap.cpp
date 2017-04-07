@@ -70,6 +70,7 @@
 #include "res_dialogs.h"
 
 #include "wksp_map.h"
+#include "wksp_map_manager.h"
 #include "wksp_map_basemap.h"
 #include "wksp_map_dc.h"
 
@@ -86,22 +87,20 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_bShow		= true;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
-
 	m_Parameters.Set_Name      ("BASEMAP");
 	m_Parameters.Set_Identifier("BASEMAP");
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL"	,_TL("General")	, _TL(""));
+	m_Parameters.Add_Node("", "NODE_GENERAL",_TL("General")	, _TL(""));
 
-	m_Parameters.Add_String(
-		pNode	, "NAME"		, _TL("Name"),
+	m_Parameters.Add_String("NODE_GENERAL",
+		"NAME"		, _TL("Name"),
 		_TL(""),
 		_TL("Base Map")
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "SERVER"		, _TL("Server"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"SERVER"	, _TL("Server"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Open Street Map"),
@@ -115,49 +114,61 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 		), 0
 	);
 
-	m_Parameters.Add_String(
-		pNode_1	, "SERVER_USER"	, _TL("Server"),
+	m_Parameters.Add_String("SERVER",
+		"SERVER_USER", _TL("Server"),
 		_TL(""),
 		"tile.openstreetmap.org/${z}/${x}/${y}.png"
 	);
 
-	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "SHOW_ALWAYS"	, _TL("Show at all scales"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"CACHE"		, _TL("Cache"),
+		_TL("Enable local disk cache. Allows for offline operation."),
+		g_pMaps->Get_Parameter("CACHE")->asBool()
 	);
 
-	m_Parameters.Add_Range(
-		pNode_1	, "SHOW_RANGE"	, _TL("Scale Range"),
+	m_Parameters.Add_FilePath("CACHE",
+		"CACHE_DIR"	, _TL("Cache Directory"),
+		_TL("If not specified the cache will be created in the current user's temporary directory."),
+		NULL, g_pMaps->Get_Parameter("CACHE_DIR")->asString(), false, true
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"SHOW_ALWAYS"	, _TL("Show at all scales"),
+		_TL(""),
+		true
+	);
+
+	m_Parameters.Add_Range("NODE_GENERAL",
+		"SHOW_RANGE"	, _TL("Scale Range"),
 		_TL("only show within scale range; values are given as extent measured in map units"),
 		100.0, 1000.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_DISPLAY"	,_TL("Display")	, _TL(""));
+	m_Parameters.Add_Node("", "NODE_DISPLAY",_TL("Display")	, _TL(""));
 
-	m_Parameters.Add_Double(
-		pNode	, "TRANSPARENCY", _TL("Transparency [%]"),
+	m_Parameters.Add_Double("NODE_DISPLAY",
+		"TRANSPARENCY"	, _TL("Transparency [%]"),
 		_TL(""),
 		0.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Bool(
-		pNode	, "GRAYSCALE"	, _TL("Gray Scale Image"),
+	m_Parameters.Add_Bool("NODE_DISPLAY",
+		"GRAYSCALE"		, _TL("Gray Scale Image"),
 		_TL(""),
 		false
 	);
 
-	m_Parameters.Add_Double(
-		pNode	, "RESOLUTION"	, _TL("Resolution"),
+	m_Parameters.Add_Double("NODE_DISPLAY",
+		"RESOLUTION"	, _TL("Resolution"),
 		_TL("resolution measured in screen pixels"),
 		1.0, 1.0, true
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Choice(
-		pNode	, "POSITION"	, _TL("Position"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
+		"POSITION"	, _TL("Position"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("top"),
@@ -338,12 +349,17 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
 		{
-			pParameters->Set_Enabled("SHOW_RANGE", pParameter->asBool() == false);
+			pParameters->Set_Enabled("SHOW_RANGE" , pParameter->asBool() == false);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
 		{
 			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);	// user defined
+		}
+
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "CACHE") )
+		{
+			pParameters->Set_Enabled("CACHE_DIR"  , pParameter->asBool());
 		}
 	}
 
@@ -417,6 +433,8 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 		&&  pTool->Set_Parameter("TARGET_MAP" , pBaseMap)
 		&&  pTool->Set_Parameter("SERVER"     , m_Parameters("SERVER"     ))
 		&&  pTool->Set_Parameter("SERVER_USER", m_Parameters("SERVER_USER"))
+		&&  pTool->Set_Parameter("CACHE"      , m_Parameters("CACHE"      ))
+		&&  pTool->Set_Parameter("CACHE_DIR"  , m_Parameters("CACHE_DIR"  ))
 		&&  pTool->Set_Parameter("GRAYSCALE"  , m_Parameters("GRAYSCALE"  ))
 		&&  pTool->On_Before_Execution() && pTool->Execute() )
 		{
