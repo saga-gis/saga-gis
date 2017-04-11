@@ -101,7 +101,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	g_pMaps		= this;
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "", _TL("Defaults for New Maps"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
 		"GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
