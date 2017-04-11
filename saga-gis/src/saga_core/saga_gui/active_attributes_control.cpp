@@ -529,11 +529,12 @@ void CActive_Attributes_Control::On_Field_Open(wxCommandEvent &event)
 //---------------------------------------------------------
 bool CActive_Attributes_Control::_Get_DataSource(wxString &Source)
 {
-	if( Source.Find("PGSQL:" ) == 0
-	||	Source.Find("ftp://" ) == 0
-	||	Source.Find("http://") == 0
-	||	Source.Find("file://") == 0
-	||  wxFileExists(Source) )
+	if( Source.Find("PGSQL:"  ) == 0
+	||	Source.Find("ftp://"  ) == 0
+	||	Source.Find("http://" ) == 0
+	||	Source.Find("https://") == 0
+	||	Source.Find("file://" ) == 0
+	||  wxFileExists(Source)  )
 	{
 		return( true );
 	}
