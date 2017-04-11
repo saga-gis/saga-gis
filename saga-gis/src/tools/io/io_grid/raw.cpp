@@ -74,286 +74,338 @@
 CRaw_Import::CRaw_Import(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
+	Set_Name		(_TL("Import Binary Raw Data"));
 
-	Set_Name(_TL("Import Binary Raw Data"));
-
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Imports grid from binary raw data.\n")
-	);
-
-
-	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"			, _TL("Grid"),
-		_TL("")
-	);
-
-	Parameters.Add_FilePath(
-		NULL	, "FILE_DATA"		, _TL("Raw Data File"),
-		_TL("")
-	);
-
+		"Imports grid from binary raw data."
+	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NX"				, _TL("Cell Count (X)"),
-		_TL(""),
-		PARAMETER_TYPE_Int			, 1
-	);
-
-	Parameters.Add_Value(
-		NULL	, "NY"				, _TL("Cell Count (Y)"),
-		_TL(""),
-		PARAMETER_TYPE_Int			, 1
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DXY"				, _TL("Cell Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "XMIN"			, _TL("Left Border (X)"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 0.0
-	);
-
-	Parameters.Add_Value(
-		NULL	, "YMIN"			, _TL("Lower Border (Y)"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 0.0
-	);
-
-	Parameters.Add_String(
-		NULL	, "UNIT"			, _TL("Unit Name"),
-		_TL(""),
+	Parameters.Add_Grid_Output("",
+		"GRID"			, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZFACTOR"			, _TL("Z Multiplier"),
-		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0
+	Parameters.Add_FilePath("",
+		"FILE"			, _TL("File"),
+		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NODATA"			, _TL("No Data Value"),
+	//-----------------------------------------------------
+	Parameters.Add_Int("",
+		"NX"			, _TL("Number of Columns"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, -99999.0
+		1, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DATA_OFFSET"		, _TL("Data Offset (Bytes)"),
+	Parameters.Add_Int("",
+		"NY"			, _TL("Number of Rows"),
 		_TL(""),
-		PARAMETER_TYPE_Int			, 0.0
+		1, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LINE_OFFSET"		, _TL("Line Offset (Bytes)"),
+	Parameters.Add_Double("",
+		"CELLSIZE"		, _TL("Cell Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int			, 0.0
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LINE_ENDSET"		, _TL("Line Endset (Bytes)"),
+	Parameters.Add_Choice("",
+		"POS_VECTOR"	, _TL("Position Vector"),
 		_TL(""),
-		PARAMETER_TYPE_Int			, 0.0
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "DATA_TYPE"		, _TL("Data Type"),
-		_TL(""),
-		_TW(
-			"1 Byte Integer (unsigned)|"
-			"1 Byte Integer (signed)|"
-			"2 Byte Integer (unsigned)|"
-			"2 Byte Integer (signed)|"
-			"4 Byte Integer (unsigned)|"
-			"4 Byte Integer (signed)|"
-			"4 Byte Floating Point|"
-			"8 Byte Floating Point|"
+		CSG_String::Format("%s|%s|",
+			_TL("cell's center"),
+			_TL("cell's corner")
 		)
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "BYTEORDER_BIG"	, _TL("Byte Order"),
-		_TL(""),
+	Parameters.Add_Double("POS_VECTOR",
+		"POS_X"			, _TL("X"),
+		_TL("")
+	);
 
-		CSG_String::Format(SG_T("%s|%s|"),
+	Parameters.Add_Choice("POS_X",
+		"POS_X_SIDE"	, _TL("Side"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("left"),
+			_TL("right")
+		)
+	);
+
+	Parameters.Add_Double("POS_VECTOR",
+		"POS_Y"			, _TL("Y"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice("POS_Y",
+		"POS_Y_SIDE"	, _TL("Side"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("top"),
+			_TL("bottom")
+		)
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"DATA_TYPE"		, _TL("Data Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+			_TL("8 bit unsigned integer"),
+			_TL("8 bit signed integer"),
+			_TL("16 bit unsigned integer"),
+			_TL("16 bit signed integer"),
+			_TL("32 bit unsigned integer"),
+			_TL("32 bit signed integer"),
+			_TL("32 bit floating point"),
+			_TL("64 bit floating point")
+		)
+	);
+
+	Parameters.Add_Choice("",
+		"BYTEORDER"		, _TL("Byte Order"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
 			_TL("Little Endian (Intel)"),
 			_TL("Big Endian (Motorola)")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TOPDOWN"			, _TL("Line Order"),
+	Parameters.Add_String("",
+		"UNIT"			, _TL("Unit"),
 		_TL(""),
+		""
+	);
 
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("Bottom to Top"),
-			_TL("Top to Bottom")
+	Parameters.Add_Double("",
+		"ZFACTOR"		, _TL("Z-Scale"),
+		_TL(""),
+		1.0
+	);
+
+	Parameters.Add_Double("",
+		"NODATA"		, _TL("No Data Value"),
+		_TL(""),
+		-99999
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Int("",
+		"DATA_OFFSET"	, _TL("Data Offset (Bytes)"),
+		_TL("")
+	);
+
+	Parameters.Add_Int("",
+		"LINE_OFFSET"	, _TL("Record Offset (Bytes)"),
+		_TL("")
+	);
+
+	Parameters.Add_Int("",
+		"LINE_ENDSET"	, _TL("Record Endset (Bytes)"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice("",
+		"ORDER"		, _TL("Value Order"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("columns by rows"),
+			_TL("rows by columns")
 		), 0
+	);
+
+	Parameters.Add_Bool("",
+		"TOPDOWN"		, _TL("Invert Row Order"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Bool("",
+		"LEFTRIGHT"		, _TL("Invert Column Order"),
+		_TL(""),
+		false
 	);
 }
 
-//---------------------------------------------------------
-CRaw_Import::~CRaw_Import(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CRaw_Import::On_Execute(void)
 {
-	bool		bDown, bBig;
-	int			nx, ny, data_head, line_head, line_tail;
-	double		dxy, xmin, ymin, zFactor, zNoData;
-	FILE		*Stream;
-	TSG_Data_Type	data_type;
-	CSG_String	FileName, Unit;
-	CSG_Grid		*pGrid;
-
 	//-----------------------------------------------------
-	pGrid		= NULL;
+	CSG_File	Stream;
 
-	FileName	= Parameters("FILE_DATA")		->asString();
-	nx			= Parameters("NX")				->asInt();
-	ny			= Parameters("NY")				->asInt();
-	dxy			= Parameters("DXY")				->asDouble();
-	xmin		= Parameters("XMIN")			->asDouble();
-	ymin		= Parameters("YMIN")			->asDouble();
-	data_head	= Parameters("DATA_OFFSET")		->asInt();
-	line_head	= Parameters("LINE_OFFSET")		->asInt();
-	line_tail	= Parameters("LINE_ENDSET")		->asInt();
-	bDown		= Parameters("TOPDOWN")			->asInt() == 1;
-	bBig		= Parameters("BYTEORDER_BIG")	->asInt() == 1;
-	Unit		= Parameters("UNIT")			->asString();
-	zFactor		= Parameters("ZFACTOR")			->asDouble();
-	zNoData		= Parameters("NODATA")			->asDouble();
-
-	switch( Parameters("DATA_TYPE")->asInt() )
+	if( !Stream.Open(Parameters("FILE")->asString(), SG_FILE_R, true) )
 	{
-	default:	data_type	= SG_DATATYPE_Undefined;	break;	// not handled
-	case 0:		data_type	= SG_DATATYPE_Byte;			break;	// 1 Byte Integer (unsigned)
-	case 1:		data_type	= SG_DATATYPE_Char;			break;	// 1 Byte Integer (signed)
-	case 2:		data_type	= SG_DATATYPE_Word;			break;	// 2 Byte Integer (unsigned)
-	case 3:		data_type	= SG_DATATYPE_Short;		break;	// 2 Byte Integer (signed)
-	case 4:		data_type	= SG_DATATYPE_DWord;		break;	// 4 Byte Integer (unsigned)
-	case 5:		data_type	= SG_DATATYPE_Int;			break;	// 4 Byte Integer (signed)
-	case 6:		data_type	= SG_DATATYPE_Float;		break;	// 4 Byte Floating Point
-	case 7:		data_type	= SG_DATATYPE_Double;		break;	// 8 Byte Floating Point
+		Error_Fmt("%s [%s]", _TL("could not open file"), Parameters("FILE")->asString());
+
+		return( false );
 	}
 
-	//-----------------------------------------------------
-	if( data_type != SG_DATATYPE_Undefined && (Stream = fopen(FileName.b_str(), "rb")) != NULL )
-	{
-		if( (pGrid = Load_Data(Stream, data_type, nx, ny, dxy, xmin, ymin, data_head, line_head, line_tail, bDown, bBig)) != NULL )
-		{
-			pGrid->Set_Unit			(Unit);
-			pGrid->Set_Scaling		(zFactor);
-			pGrid->Set_NoData_Value	(zNoData);
-			pGrid->Set_Name			(SG_File_Get_Name(FileName, false));
+	Skip(Stream, Parameters("DATA_OFFSET")->asInt());
 
-			Parameters("GRID")->Set_Value(pGrid);
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Get_Grid();
+
+	if( !pGrid )
+	{
+		Error_Set(_TL("could not create grid"));
+
+		return( false );
+	}
+
+	pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
+
+	Parameters("GRID")->Set_Value(pGrid);
+
+	//-----------------------------------------------------
+	bool	bRecIsRow	= Parameters("ORDER"    )->asInt() == 0;
+	bool	bRecInvert	= Parameters("TOPDOWN"  )->asBool() == false;
+	bool	bValInvert	= Parameters("LEFTRIGHT")->asBool() == false;
+
+	int	nRecords	= bRecIsRow ? pGrid->Get_NY() : pGrid->Get_NX();
+	int	nValues		= bRecIsRow ? pGrid->Get_NX() : pGrid->Get_NY();
+
+	CSG_Array	Record(SG_Data_Type_Get_Size(pGrid->Get_Type()), nValues);
+
+	bool	bBigOrder	= Record.Get_Value_Size() > 1 && Parameters("BYTEORDER")->asInt() == 1;
+
+	int		Record_Head	= Parameters("LINE_OFFSET")->asInt();
+	int		Record_Tail	= Parameters("LINE_ENDSET")->asInt();
+
+	//-----------------------------------------------------
+	for(int iRecord=0; !Stream.is_EOF() && iRecord<nRecords && Set_Progress(iRecord, nRecords); iRecord++)
+	{
+		Skip(Stream, Record_Head);
+
+		Stream.Read(Record.Get_Array(), Record.Get_Value_Size() * Record.Get_Size());
+
+		for(int iValue=0; iValue<nValues; iValue++)
+		{
+			if( bBigOrder )
+			{
+				SG_Swap_Bytes(Record.Get_Entry(iValue), Record.Get_Value_Size());
+			}
+
+			int	y	= bRecIsRow ? iRecord : iValue; if( bRecInvert ) y = pGrid->Get_NY() - 1 - y;
+			int	x	= bRecIsRow ? iValue : iRecord; if( bRecInvert ) x = pGrid->Get_NX() - 1 - x;
+
+			switch( pGrid->Get_Type() )
+			{
+			default: break;
+			case SG_DATATYPE_Byte  : pGrid->Set_Value(x, y, *(unsigned char  *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Char  : pGrid->Set_Value(x, y, *(signed char    *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Word  : pGrid->Set_Value(x, y, *(unsigned short *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Short : pGrid->Set_Value(x, y, *(signed short   *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_DWord : pGrid->Set_Value(x, y, *(unsigned int   *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Int   : pGrid->Set_Value(x, y, *(signed int     *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Float : pGrid->Set_Value(x, y, *(float          *)Record.Get_Entry(iValue)); break;
+			case SG_DATATYPE_Double: pGrid->Set_Value(x, y, *(double         *)Record.Get_Entry(iValue)); break;
+			}
 		}
 
-		fclose(Stream);
+		Skip(Stream, Record_Tail);
 	}
 
 	//-----------------------------------------------------
-	return( pGrid != NULL );
+	pGrid->Set_Unit        (Parameters("UNIT"   )->asString());
+	pGrid->Set_Scaling     (Parameters("ZFACTOR")->asDouble());
+	pGrid->Set_NoData_Value(Parameters("NODATA" )->asDouble());
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CRaw_Import::Skip(CSG_File &Stream, size_t nBytes)
+{
+	for(size_t i=0; i<nBytes && !Stream.is_EOF(); i++)
+	{
+		Stream.Read_Char();
+	}
+
+	return( !Stream.is_EOF() );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CRaw_Import::Load_Data(FILE *Stream, TSG_Data_Type data_type, int nx, int ny, double dxy, double xmin, double ymin, int data_head, int line_head, int line_tail, bool bDown, bool bBig)
+CSG_Grid * CRaw_Import::Get_Grid(void)
 {
-	char	*pLine, *pValue;
-	int		x, y, nBytes_Value, nBytes_Line;
+	TSG_Data_Type	Type;
 
-	CSG_Grid	*pGrid	= NULL;
-
-	//-----------------------------------------------------
-	if( Stream && data_type != SG_DATATYPE_Undefined )
+	switch( Parameters("DATA_TYPE")->asInt() )
 	{
-		for(x=0; x<data_head && !feof(Stream); x++)
-		{
-			fgetc(Stream);
-		}
-
-		//-------------------------------------------------
-		if( !feof(Stream) )
-		{
-			pGrid			= SG_Create_Grid(data_type, nx, ny, dxy, xmin, ymin);
-			nBytes_Value	= (int)SG_Data_Type_Get_Size(data_type);
-			nBytes_Line		= nBytes_Value * nx;
-			pLine			= (char *)SG_Malloc(nBytes_Line);
-
-			//---------------------------------------------
-			for(y=0; y<pGrid->Get_NY() && !feof(Stream) && Set_Progress(y, pGrid->Get_NY()); y++)
-			{
-				for(x=0; x<line_head; x++)
-				{
-					fgetc(Stream);
-				}
-
-				fread(pLine, nBytes_Line, sizeof(char), Stream);
-
-				for(x=0, pValue=pLine; x<pGrid->Get_NX(); x++, pValue+=nBytes_Value)
-				{
-					if( bBig )
-					{
-						SG_Swap_Bytes(pValue, nBytes_Value);
-					}
-
-					switch( data_type )
-					{
-					case SG_DATATYPE_Byte:		pGrid->Set_Value(x, y, *(unsigned char  *)pValue);	break;	// 1 Byte Integer (unsigned)
-					case SG_DATATYPE_Char:		pGrid->Set_Value(x, y, *(signed char    *)pValue);	break;	// 1 Byte Integer (signed)
-					case SG_DATATYPE_Word:		pGrid->Set_Value(x, y, *(unsigned short *)pValue);	break;	// 2 Byte Integer (unsigned)
-					case SG_DATATYPE_Short:		pGrid->Set_Value(x, y, *(signed short   *)pValue);	break;	// 2 Byte Integer (signed)
-					case SG_DATATYPE_DWord:		pGrid->Set_Value(x, y, *(unsigned int   *)pValue);	break;	// 4 Byte Integer (unsigned)
-					case SG_DATATYPE_Int:		pGrid->Set_Value(x, y, *(signed int     *)pValue);	break;	// 4 Byte Integer (signed)
-					case SG_DATATYPE_Float:		pGrid->Set_Value(x, y, *(float          *)pValue);	break;	// 4 Byte Floating Point
-					case SG_DATATYPE_Double:	pGrid->Set_Value(x, y, *(double         *)pValue);	break;	// 8 Byte Floating Point
-					}
-				}
-
-				for(x=0; x<line_tail; x++)
-				{
-					fgetc(Stream);
-				}
-			}
-
-			//---------------------------------------------
-			SG_Free(pLine);
-
-			if( bDown )
-			{
-				pGrid->Flip();
-			}
-		}
+	default: return( NULL );
+	case  0: Type	= SG_DATATYPE_Byte  ;	break;
+	case  1: Type	= SG_DATATYPE_Char  ;	break;
+	case  2: Type	= SG_DATATYPE_Word  ;	break;
+	case  3: Type	= SG_DATATYPE_Short ;	break;
+	case  4: Type	= SG_DATATYPE_DWord ;	break;
+	case  5: Type	= SG_DATATYPE_Int   ;	break;
+	case  6: Type	= SG_DATATYPE_Float ;	break;
+	case  7: Type	= SG_DATATYPE_Double;	break;
 	}
 
 	//-----------------------------------------------------
-	return( pGrid );
+	int	nx	= Parameters("NX")->asInt();
+	int	ny	= Parameters("NY")->asInt();
+
+	double	cs	= Parameters("CELLSIZE")->asDouble();
+
+	bool	bCorner	= Parameters("POS_VECTOR")->asInt() == 1;
+
+	//-----------------------------------------------------
+	double	x	= Parameters("POS_X")->asDouble();
+
+	if( Parameters("POS_X_SIDE")->asInt() == 1 )	// right
+	{
+		x	-= cs * nx;
+		
+		if( bCorner )
+		{
+			x	-= cs / 2.0;
+		}
+
+	}
+	else if( bCorner )
+	{
+		x	+= cs / 2.0;
+	}
+
+	//-----------------------------------------------------
+	double	y	= Parameters("POS_Y")->asDouble();
+
+	if( Parameters("POS_Y_SIDE")->asInt() == 0 )	// top
+	{
+		y	-= cs * ny;
+
+		if( bCorner )
+		{
+			y	-= cs / 2.0;
+		}
+	}
+	else if( bCorner )
+	{
+		y	+= cs / 2.0;
+	}
+
+	//-----------------------------------------------------
+	return( SG_Create_Grid(Type, nx, ny, cs, x, y) );
 }
 
 

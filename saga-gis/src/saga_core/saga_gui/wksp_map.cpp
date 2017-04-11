@@ -1152,18 +1152,19 @@ void CWKSP_Map::Set_Projection(void)
 
 	if(	pTool )
 	{
-		CSG_Parameters	P; P.Assign(pTool->Get_Parameters());
+		pTool->Settings_Push();
 
-		if( pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4" , m_Projection.Get_Proj4())
-		&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters())
-		&&  pTool->Execute() )
+		if( pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
+		&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
 		{
-			m_Projection.Assign(pTool->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			pTool->Execute();
+
+			m_Projection.Assign(pTool->Get_Parameters()->Get("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 			View_Refresh(false);
 		}
 
-		pTool->Get_Parameters()->Assign_Values(&P);
+		pTool->Settings_Pop();
 	}
 }
 
@@ -1199,9 +1200,14 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 	if( m_pView_3D )	m_pView_3D->Do_Update();
 	if( m_pLayout  )	m_pLayout ->Do_Update();
 
-	if( !bMapOnly && g_pACTIVE && g_pACTIVE->Get_Legend() )
+	if( !bMapOnly && g_pACTIVE )
 	{
-		g_pACTIVE->Get_Legend()->Refresh(true);
+		g_pACTIVE->Update_Description();
+
+		if( g_pACTIVE->Get_Legend() )
+		{
+			g_pACTIVE->Get_Legend()->Refresh(true);
+		}
 	}
 
 	_Set_Thumbnail();

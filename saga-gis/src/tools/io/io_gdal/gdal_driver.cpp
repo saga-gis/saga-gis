@@ -61,6 +61,8 @@
 
 #include <gdal_vrt.h>
 
+#include <ogr_srs_api.h>
+
 #include <cpl_string.h>
 #include <cpl_error.h>
 
@@ -844,11 +846,35 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	pGrid->Set_Unit			(CSG_String(GDALGetRasterUnitType(pBand)));
 	pGrid->Set_Scaling		(zScale, zOffset);
 
-	pGrid->Get_Projection().Create(Get_Projection(), SG_PROJ_FMT_WKT);
+	//-------------------------------------------------
+	OGRSpatialReferenceH	SRef	= OSRNewSpatialReference(Get_Projection());
 
-	Get_MetaData(i, pGrid->Get_MetaData());
+	char	*Proj4	= NULL;
 
-	pGrid->Get_MetaData().Add_Child("GDAL_DRIVER", Get_DriverID());
+	if( OSRExportToProj4(SRef, &Proj4) == OGRERR_NONE )
+	{
+		pGrid->Get_Projection().Create(Proj4, SG_PROJ_FMT_Proj4);
+
+		CPLFree(Proj4);
+	}
+
+	CPLFree(SRef);
+
+	//-------------------------------------------------
+	CSG_MetaData	&MetaData	= pGrid->Get_MetaData();
+
+	Get_MetaData(i, MetaData);
+
+	MetaData.Add_Child("GDAL_DRIVER", Get_DriverID());
+
+	if( MetaData("GDAL_WKT") )
+	{
+		MetaData("GDAL_WKT")->Set_Content(Get_Projection());
+	}
+	else
+	{
+		MetaData.Add_Child("GDAL_WKT", Get_Projection());
+	}
 
 	//-------------------------------------------------
 	double	zNoData	= GDALGetRasterNoDataValue(pBand, &bSuccess);

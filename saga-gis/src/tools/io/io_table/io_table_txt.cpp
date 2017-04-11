@@ -442,6 +442,8 @@ bool CTable_Text_Import_Numbers::Import(const CSG_String &File)
 		return( false );
 	}
 
+	sLong	fLength	= Stream.Length();
+
 	if( Parameters("SKIP")->asInt() > 0 )
 	{
 		int	i	= Parameters("SKIP")->asInt();
@@ -505,8 +507,6 @@ bool CTable_Text_Import_Numbers::Import(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	sLong	fLength	= Stream.Length();
-
 	bool	bOkay	= true;
 
 	do
@@ -659,6 +659,8 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 		return( false );
 	}
+
+	sLong	fLength	= Stream.Length();
 
 	//-----------------------------------------------------
 	CSG_String	sLine;
@@ -850,8 +852,6 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	sLong	fLength	= Stream.Length();
-
 	do
 	{
 		if( sLine.Length() == nChars )

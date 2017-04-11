@@ -17,6 +17,7 @@ daily_sun.cpp\
 etp_hargreave.cpp\
 frost_change_frequency.cpp\
 grid_levels_interpolation.cpp\
+growing_degree_days.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
 thermal_belts.cpp\
@@ -28,6 +29,7 @@ daily_sun.h\
 etp_hargreave.h\
 frost_change_frequency.h\
 grid_levels_interpolation.h\
+growing_degree_days.h\
 milankovic.h\
 MLB_Interface.h\
 thermal_belts.h\

@@ -101,93 +101,105 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	g_pMaps		= this;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
+	m_Parameters.Add_Node("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
 
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
-
-	m_Parameters.Add_Value(
-		pNode	, "GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
+	m_Parameters.Add_Bool("NODE_DEFAULTS",
+		"GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "SCALE_BAR"		, _TL("Show Scale Bar"),
+	m_Parameters.Add_Bool("NODE_DEFAULTS",
+		"SCALE_BAR"		, _TL("Show Scale Bar"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_FRAME", _TL("Frame"), _TL(""));
+	m_Parameters.Add_Node("NODE_DEFAULTS", "NODE_FRAME", _TL("Frame"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_SHOW"		, _TL("Show"),
+	m_Parameters.Add_Bool("NODE_FRAME",
+		"FRAME_SHOW"	, _TL("Show"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "FRAME_WIDTH"		, _TL("Width"),
+	m_Parameters.Add_Int("NODE_FRAME",
+		"FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 17, 5, true
-	);
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
-
-	m_Parameters.Add_Value(
-		pNode	, "CLIP_NX"			, _TL("Width"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 400, 10, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "CLIP_NY"			, _TL("Height"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 400, 10, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "CLIP_FRAME"		, _TL("Frame Width"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 17, 0, true
+		17, 5, true
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Node(pNode, "NODE_CLIP_LEGEND", _TL("Legend"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_CLIPBOARD", _TL("Clipboard"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_SCALE", _TL("Scale"),
+	m_Parameters.Add_Int("NODE_CLIPBOARD",
+		"CLIP_NX"			, _TL("Width"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 1.0, true
+		400, 10, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_FRAME", _TL("Frame Width"),
+	m_Parameters.Add_Int("NODE_CLIPBOARD",
+		"CLIP_NY"			, _TL("Height"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 10, 0, true
+		400, 10, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "CLIP_LEGEND_COLOR", _TL("Border Color"),
+	m_Parameters.Add_Int("NODE_CLIPBOARD",
+		"CLIP_FRAME"		, _TL("Frame Width"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(0, 0, 0)
+		17, 0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
+	m_Parameters.Add_Node("NODE_CLIPBOARD", "NODE_CLIP_LEGEND", _TL("Legend"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode	, "THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+	m_Parameters.Add_Double("NODE_CLIP_LEGEND",
+		"CLIP_LEGEND_SCALE", _TL("Scale"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 75, 10, true
+		2.0, 1.0, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+	m_Parameters.Add_Int("NODE_CLIP_LEGEND",
+		"CLIP_LEGEND_FRAME", _TL("Frame Width"),
 		_TL(""),
-		PARAMETER_TYPE_Color, Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+		10, 0, true
+	);
+
+	m_Parameters.Add_Color("NODE_CLIP_LEGEND",
+		"CLIP_LEGEND_COLOR", _TL("Border Color"),
+		_TL(""),
+		SG_GET_RGB(0, 0, 0)
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("", "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
+
+	m_Parameters.Add_Int("NODE_THUMBNAILS",
+		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
+		75, 10, true
+	);
+
+	m_Parameters.Add_Color("NODE_THUMBNAILS",
+		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
+		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("", "NODE_GLOBALS", _TL("Global Settings"), _TL(""));
+
+	m_Parameters.Add_Bool("NODE_GLOBALS",
+		"CACHE"		, _TL("Cache"),
+		_TL("Enable local disk cache. Allows for offline operation."),
+		false
+	);
+
+	m_Parameters.Add_FilePath("CACHE",
+		"CACHE_DIR"	, _TL("Cache Directory"),
+		_TL("If not specified the cache will be created in the current user's temporary directory."),
+		NULL, NULL, false, true
 	);
 
 	//-----------------------------------------------------
