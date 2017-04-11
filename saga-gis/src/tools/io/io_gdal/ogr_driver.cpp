@@ -681,17 +681,17 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 		char	*p	= NULL;
 
 		//-------------------------------------------------
-		if( !Projection.is_Okay() && OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
+		if( !Projection.is_Okay() && OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
 		{
-			Projection.Create(p, SG_PROJ_FMT_WKT);
+			Projection.Create(p, SG_PROJ_FMT_Proj4);
 		}
 
 		if( p )	{	OGRFree(p);	p	= NULL;	}
 
 		//-------------------------------------------------
-		if( !Projection.is_Okay() && OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
+		if( !Projection.is_Okay() && OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
 		{
-			Projection.Create(p, SG_PROJ_FMT_Proj4);
+			Projection.Create(p, SG_PROJ_FMT_WKT);
 		}
 
 		if( p )	{	OGRFree(p);	p	= NULL;	}
