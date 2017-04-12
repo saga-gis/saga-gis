@@ -83,19 +83,19 @@ CKriging_Universal::CKriging_Universal(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Node(
-		NULL	, "NODE_UK"		, _TL("Universal Kriging"),
+	Parameters.Add_Node("",
+		"NODE_UK"	, _TL("Universal Kriging"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_List(
-		pNode	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Grid_List("NODE_UK",
+		"PREDICTORS", _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "RESAMPLING"		, _TL("Resampling"),
+	Parameters.Add_Choice("NODE_UK",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -105,10 +105,10 @@ CKriging_Universal::CKriging_Universal(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		pNode	, "COORDS"		, _TL("Coordinates"),
+	Parameters.Add_Bool("NODE_UK",
+		"COORDS"	, _TL("Coordinates"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 

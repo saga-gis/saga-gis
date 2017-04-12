@@ -70,6 +70,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "kriging_simple.h"
 #include "kriging_ordinary.h"
 
 
@@ -95,6 +96,8 @@ protected:
 
 
 private:
+
+	CKriging_Simple					m_SK;
 
 	CKriging_Ordinary				m_OK;
 

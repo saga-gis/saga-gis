@@ -71,8 +71,6 @@
 //---------------------------------------------------------
 CKriging_Regression::CKriging_Regression(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Regression Kriging"));
 
@@ -84,122 +82,67 @@ CKriging_Regression::CKriging_Regression(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Grid_List("",
+		"PREDICTORS", _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT, true
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Grid("",
+		"REGRESSION", _TL("Regression"),
 		_TL("regression model applied to predictor grids"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PREDICTION"	, _TL("Prediction"),
+	Parameters.Add_Grid("",
+		"PREDICTION", _TL("Prediction"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Grid("",
+		"RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "VARIANCE"	, _TL("Quality Measure"),
+	Parameters.Add_Grid("",
+		"VARIANCE"	, _TL("Quality Measure"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TQUALITY"	, _TL("Type of Quality Measure"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("standard deviation"),
-			_TL("variance")
-		), 0
-	);
-
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "LOG"			, _TL("Logarithmic Transformation"),
-		_TL(""),
-		PARAMETER_TYPE_Bool
-	);
+	Parameters.Add_Table("", "INFO_COEFF", _TL("Regression: Coefficients"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table("", "INFO_MODEL", _TL("Regression: Model"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table("", "INFO_STEPS", _TL("Regression: Steps"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "BLOCK"		, _TL("Block Kriging"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Value(
-		pNode	, "DBLOCK"		, _TL("Block Size"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
-	);
-
-	///////////////////////////////////////////////////////
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "VAR_MAXDIST"		, _TL("Maximum Distance"),
-		_TL("maximum distance for variogram estimation"),
-		PARAMETER_TYPE_Double, -1.0
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_Value(
-		NULL	, "VAR_NCLASSES"	, _TL("Lag Distance Classes"),
-		_TL("initial number of lag distance classes for variogram estimation"),
-		PARAMETER_TYPE_Int, 100, 1, true
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_Value(
-		NULL	, "VAR_NSKIP"		, _TL("Skip"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_String(
-		NULL	, "VAR_MODEL"		, _TL("Variogram Model"),
-		_TL(""),
-		"a + b * x"
-	)->Set_UseInGUI(false);
-
-	///////////////////////////////////////////////////////
-	//-----------------------------------------------------
-	Parameters.Add_Table(NULL	, "INFO_COEFF"	, _TL("Regression: Coefficients"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Table(NULL	, "INFO_MODEL"	, _TL("Regression: Model"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Table(NULL	, "INFO_STEPS"	, _TL("Regression: Steps"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_REG",	_TL("Regression"),
+	Parameters.Add_Node("",
+		"NODE_REG"	,	_TL("Regression"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(pNode	, "COORD_X"		, _TL("Include X Coordinate"), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode	, "COORD_Y"		, _TL("Include Y Coordinate"), _TL(""), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode	, "INTERCEPT"	, _TL("Intercept"           ), _TL(""), PARAMETER_TYPE_Bool, true );
+	Parameters.Add_Bool("NODE_REG", "COORD_X"  , _TL("Include X Coordinate"), _TL(""), false);
+	Parameters.Add_Bool("NODE_REG", "COORD_Y"  , _TL("Include Y Coordinate"), _TL(""), false);
+	Parameters.Add_Bool("NODE_REG", "INTERCEPT", _TL("Intercept"           ), _TL(""), true );
 
-	Parameters.Add_Choice(
-		pNode	,"METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("NODE_REG",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -207,14 +150,14 @@ CKriging_Regression::CKriging_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		pNode	, "P_VALUE"		, _TL("Significance Level"),
+	Parameters.Add_Double("NODE_REG",
+		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 100.0, true
+		5.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice("NODE_REG",
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -226,7 +169,76 @@ CKriging_Regression::CKriging_Regression(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	Parameters.Add_Double("",
+		"VAR_MAXDIST"	, _TL("Maximum Distance"),
+		_TL("maximum distance for variogram estimation, ignored if set to zero"),
+		0.0, 0.0, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Int("",
+		"VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+		_TL("initial number of lag distance classes for variogram estimation"),
+		100, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Int("",
+		"VAR_NSKIP"		, _TL("Skip"),
+		_TL(""),
+		1, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_String("",
+		"VAR_MODEL"		, _TL("Variogram Model"),
+		_TL(""),
+		"a + b * x"
+	)->Set_UseInGUI(false);
+
+	///////////////////////////////////////////////////////
+	//-----------------------------------------------------
+	Parameters.Add_Node("",
+		"NODE_KRG"	, _TL("Kriging"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice("NODE_KRG",
+		"KRIGING"	, _TL("Kriging Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Simple Kriging"),
+			_TL("Ordinary Kriging")
+		)
+	);
+
+	Parameters.Add_Choice("NODE_KRG",
+		"TQUALITY"	, _TL("Type of Quality Measure"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("standard deviation"),
+			_TL("variance")
+		), 0
+	);
+
+	Parameters.Add_Bool("NODE_KRG",
+		"LOG"		, _TL("Logarithmic Transformation"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Bool("NODE_KRG",
+		"BLOCK"		, _TL("Block Kriging"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Double("BLOCK",
+		"DBLOCK"	, _TL("Block Size"),
+		_TL(""),
+		100.0, 0.0, true
+	);
+
+	///////////////////////////////////////////////////////
+	//-----------------------------------------------------
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 }
 
 
@@ -296,39 +308,41 @@ bool CKriging_Regression::On_Execute(void)
 	);
 
 	//-----------------------------------------------------
-	Process_Set_Text(m_OK.Get_Name());
+	CSG_Tool	*pK	= Parameters("KRIGING")->asInt() == 0 ? (CSG_Tool *)&m_SK : (CSG_Tool *)&m_OK;
 
-	m_OK.Set_Manager(NULL);
+	Process_Set_Text(pK->Get_Name());
 
-	if( !m_OK.Set_Parameter("POINTS"           , &Points)
-	||  !m_OK.Set_Parameter("FIELD"            , 2)	// residual
-	||  !m_OK.Set_Parameter("LOG"              , Parameters("LOG"              ))
-	||  !m_OK.Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
-	||  !m_OK.Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
-	||  !m_OK.Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
-	||  !m_OK.Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
-	||  !m_OK.Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
-	||  !m_OK.Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
-	||  !m_OK.Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-	||  !m_OK.Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
-	||  !m_OK.Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
-	||  !m_OK.Set_Parameter("PREDICTION"       , pResiduals)
-	||  !m_OK.Set_Parameter("VARIANCE"         , pVariance )
+	pK->Set_Manager(NULL);
+
+	if( !pK->Set_Parameter("POINTS"           , &Points)
+	||  !pK->Set_Parameter("FIELD"            , 2)	// residual
+	||  !pK->Set_Parameter("LOG"              , Parameters("LOG"              ))
+	||  !pK->Set_Parameter("BLOCK"            , Parameters("BLOCK"            ))
+	||  !pK->Set_Parameter("DBLOCK"           , Parameters("DBLOCK"           ))
+	||  !pK->Set_Parameter("SEARCH_RANGE"     , Parameters("SEARCH_RANGE"     ))
+	||  !pK->Set_Parameter("SEARCH_RADIUS"    , Parameters("SEARCH_RADIUS"    ))
+	||  !pK->Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
+	||  !pK->Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
+	||  !pK->Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
+	||  !pK->Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
+	||  !pK->Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
+	||  !pK->Set_Parameter("PREDICTION"       , pResiduals)
+	||  !pK->Set_Parameter("VARIANCE"         , pVariance )
 
 	|| (!SG_UI_Get_Window_Main() && (	// saga_cmd
-	    !m_OK.Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
-	||  !m_OK.Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
-	||  !m_OK.Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
-	||  !m_OK.Set_Parameter("VAR_MODEL"        , Parameters("VAR_MODEL"        )))) )
+	    !pK->Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
+	||  !pK->Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
+	||  !pK->Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))
+	||  !pK->Set_Parameter("VAR_MODEL"        , Parameters("VAR_MODEL"        )))) )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not initialize tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));
+		Error_Set(CSG_String::Format("%s [%s].[%s]", _TL("could not initialize tool"), _TL("statistics_regression"), pK->Get_Name().c_str()));
 
 		return( false );
 	}
 
-	if( !m_OK.Execute() )
+	if( !pK->Execute() )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s [%s].[%s]"), _TL("could not execute tool"), SG_T("statistics_regression"), m_OK.Get_Name().c_str()));\
+		Error_Set(CSG_String::Format("%s [%s].[%s]", _TL("could not execute tool"   ), _TL("statistics_regression"), pK->Get_Name().c_str()));
 
 		return( false );
 	}
