@@ -678,23 +678,24 @@ CSG_Projection CSG_OGR_DataSet::Get_Projection(int iLayer)	const
 
 	if( Get_Layer(iLayer) && OGR_L_GetSpatialRef(Get_Layer(iLayer)) )
 	{
-		char	*p	= NULL;
+		char	*pWKT	= NULL;	OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &pWKT  );
+		char	*pProj4	= NULL;	OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &pProj4);
 
-		//-------------------------------------------------
-		if( !Projection.is_Okay() && OSRExportToProj4(OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
+		if( pWKT && *pWKT && pProj4 && *pProj4 )
 		{
-			Projection.Create(p, SG_PROJ_FMT_Proj4);
+			Projection.Create(pWKT, pProj4);
+		}
+		else if( pWKT   && *pWKT   )
+		{
+			Projection.Create(pWKT  , SG_PROJ_FMT_WKT  );
+		}
+		else if( pProj4 && *pProj4 )
+		{
+			Projection.Create(pProj4, SG_PROJ_FMT_Proj4);
 		}
 
-		if( p )	{	OGRFree(p);	p	= NULL;	}
-
-		//-------------------------------------------------
-		if( !Projection.is_Okay() && OSRExportToWkt  (OGR_L_GetSpatialRef(Get_Layer(iLayer)), &p) == OGRERR_NONE && p && *p )
-		{
-			Projection.Create(p, SG_PROJ_FMT_WKT);
-		}
-
-		if( p )	{	OGRFree(p);	p	= NULL;	}
+		if( pWKT   ) { OGRFree(pWKT  ); }
+		if( pProj4 ) { OGRFree(pProj4); }
 	}
 
 	return( Projection );

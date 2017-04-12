@@ -853,9 +853,13 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 
 	if( OSRExportToProj4(SRef, &Proj4) == OGRERR_NONE )
 	{
-		pGrid->Get_Projection().Create(Proj4, SG_PROJ_FMT_Proj4);
+		pGrid->Get_Projection().Create(Get_Projection(), Proj4);
 
 		CPLFree(Proj4);
+	}
+	else
+	{
+		pGrid->Get_Projection().Create(Get_Projection());
 	}
 
 	CPLFree(SRef);
@@ -866,15 +870,6 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	Get_MetaData(i, MetaData);
 
 	MetaData.Add_Child("GDAL_DRIVER", Get_DriverID());
-
-	if( MetaData("GDAL_WKT") )
-	{
-		MetaData("GDAL_WKT")->Set_Content(Get_Projection());
-	}
-	else
-	{
-		MetaData.Add_Child("GDAL_WKT", Get_Projection());
-	}
 
 	//-------------------------------------------------
 	double	zNoData	= GDALGetRasterNoDataValue(pBand, &bSuccess);

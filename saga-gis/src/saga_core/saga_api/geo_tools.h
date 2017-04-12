@@ -710,6 +710,10 @@ public:
 	bool							Assign					(const CSG_String &Projection, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	CSG_Projection &				operator =				(const CSG_String &Projection)		{	Assign(Projection);	return( *this );	}
 
+									CSG_Projection			(const CSG_String &WKT, const CSG_String &Proj4);
+	bool							Create					(const CSG_String &WKT, const CSG_String &Proj4);
+	bool							Assign					(const CSG_String &WKT, const CSG_String &Proj4);
+
 	bool							is_Okay					(void)	const	{	return( m_Type != SG_PROJ_TYPE_CS_Undefined );	}
 	bool							is_Equal				(const CSG_Projection &Projection)	const;
 	bool							operator ==				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == true  );	}
