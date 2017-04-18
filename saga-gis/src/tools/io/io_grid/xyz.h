@@ -86,21 +86,18 @@ class CXYZ_Export : public CSG_Tool_Grid
 {
 public:
 	CXYZ_Export(void);
-	virtual ~CXYZ_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)			{	return( _TL("Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool			On_Execute				(void);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -110,20 +107,22 @@ class CXYZ_Import : public CSG_Tool
 public:
 	CXYZ_Import(void);
 
-	virtual CSG_String		Get_MenuPath	(void)			{	return( _TL("Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	SG_Char					m_Separator;
+	CSG_String				m_Delimiters;
 
 
-	bool					Read_Values		(CSG_File &Stream, double &x, double &y, double &z);
+	bool					Read_Values				(CSG_File &Stream, double &x, double &y, double &z);
 
 };
 
