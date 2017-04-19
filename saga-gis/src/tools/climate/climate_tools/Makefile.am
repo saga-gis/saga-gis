@@ -20,6 +20,7 @@ grid_levels_interpolation.cpp\
 growing_degree_days.cpp\
 milankovic.cpp\
 MLB_Interface.cpp\
+snow_cover.cpp\
 thermal_belts.cpp\
 treeline.cpp\
 windeffect_correction.cpp\
@@ -32,6 +33,7 @@ grid_levels_interpolation.h\
 growing_degree_days.h\
 milankovic.h\
 MLB_Interface.h\
+snow_cover.h\
 thermal_belts.h\
 treeline.h\
 windeffect_correction.h

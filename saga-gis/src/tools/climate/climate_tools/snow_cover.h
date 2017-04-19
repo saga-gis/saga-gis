@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      treeline.h                       //
+//                     snow_cover.h                      //
 //                                                       //
-//                 Copyright (C) 2016 by                 //
+//                 Copyright (C) 2017 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -56,8 +56,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__treeline_H
-#define HEADER_INCLUDED__treeline_H
+#ifndef HEADER_INCLUDED__snow_cover_H
+#define HEADER_INCLUDED__snow_cover_H
 
 
 ///////////////////////////////////////////////////////////
@@ -77,58 +77,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCT_Growing_Season : public CCT_Water_Balance
+class CSnow_Cover : public CSG_Tool_Grid
 {
 public:
-	CCT_Growing_Season(void);
-	CCT_Growing_Season(const CCT_Growing_Season &Copy);
+	CSnow_Cover(void);
 
-	bool						Set_DT_min				(double Value);
-	double						Get_DT_min				(void)	const	{	return( m_DT_min  );	}
-
-	bool						Set_LGS_min				(int    Value);
-	int							Get_LGS_min				(void)	const	{	return( m_LGS_min );	}
-
-	bool						Set_SMT_min				(double Value);
-	double						Get_SMT_min				(void)	const	{	return( m_SMT_min );	}
-
-	bool						Set_SW_min				(double Value);
-	double						Get_SW_min				(void)	const	{	return( m_SW_min  );	}
-
-	virtual bool				Calculate				(double TSWC, double Latitude);
-	virtual bool				Calculate				(double TSWC, double Latitude, double &Height, double maxDiff = 1000.0);
-
-	int							Get_LGS					(void)		{	return( (int)m_T_Season.Get_Count() );	}
-	double						Get_SMT					(void)		{	return(      m_T_Season.Get_Mean () );	}
-
-
-private:
-
-	int							m_LGS_min;
-
-	double						m_DT_min, m_SMT_min, m_SW_min;
-
-	CSG_Simple_Statistics		m_T_Season;
-
-
-	bool						is_Growing				(double SWC, double Latitude, double Height);
-
-	bool						Get_T_Season			(const double *T, const double *Snow = NULL, const double *S0 = NULL, const double *S1 = NULL);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTree_Growth : public CSG_Tool_Grid
-{
-public:
-	CTree_Growth(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Bioclimatology") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
@@ -140,42 +94,13 @@ protected:
 
 private:
 
-	CCT_Growing_Season			m_Model;
-
-};
+	CSG_Parameter_Grid_List		*m_pT, *m_pP;
 
 
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
+	bool						Get_Monthly				(int x, int y, CSG_Parameter_Grid_List *pMonthly, CSG_Vector &Monthly);
+	bool						Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pDaily  , CSG_Vector &Daily  );
 
-//---------------------------------------------------------
-class CWater_Balance_Interactive : public CSG_Tool_Grid_Interactive
-{
-public:
-	CWater_Balance_Interactive(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
-
-
-protected:
-
-	double						m_SWC_Def, m_SWC_Surface, m_Lat_Def;
-
-	CSG_Grid					*m_pSWC, m_Lat, *m_pLat;
-
-	CSG_Parameter_Grid_List		*m_pT, *m_pTmin, *m_pTmax, *m_pP;
-
-	CSG_Table					*m_pSummary, *m_pDaily;
-
-	CCT_Water_Balance			m_Model;
-
-
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-	virtual bool				On_Execute_Finish		(void);
-	virtual bool				On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	bool						Get_Snow_Cover			(int x, int y, CCT_Snow_Accumulation &Snow);
 
 };
 
@@ -187,4 +112,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__treeline_H
+#endif // #ifndef HEADER_INCLUDED__snow_cover_H

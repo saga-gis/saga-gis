@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1383 2012-04-26 15:44:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,7 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation; version >=2 of the License. //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -104,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "windeffect_correction.h"
 #include "frost_change_frequency.h"
 #include "thermal_belts.h"
+#include "snow_cover.h"
 
 
 //---------------------------------------------------------
@@ -137,8 +135,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 16:	return( new CFrost_Change_Frequency_Interactive );
 	case 15:	return( new CThermal_Belts );
 
+	case 17:	return( new CSnow_Cover );
+
 	//-----------------------------------------------------
-	case 17:	return( NULL );
+	case 18:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

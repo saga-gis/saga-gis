@@ -24,7 +24,7 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation; version >=2 of the License. //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -60,32 +60,6 @@
 
 //---------------------------------------------------------
 #include "treeline.h"
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool	SG_Grid_Get_Geographic_Coordinates	(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat)
-{
-	bool	bResult	= false;
-
-	if( pGrid && pGrid->is_Valid() && pGrid->Get_Projection().is_Okay() && (pLon || pLat) )
-	{
-		CSG_Grid Lon; if( !pLon ) { pLon = &Lon; } pLon->Create(pGrid->Get_System());
-		CSG_Grid Lat; if( !pLat ) { pLat = &Lat; } pLat->Create(pGrid->Get_System());
-
-		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
-				SG_TOOL_PARAMETER_SET("GRID", pGrid)
-			&&	SG_TOOL_PARAMETER_SET("LON" , pLon )
-			&&	SG_TOOL_PARAMETER_SET("LAT" , pLat )
-		)
-	}
-
-	return( bResult );
-}
 
 
 ///////////////////////////////////////////////////////////
@@ -324,81 +298,81 @@ CTree_Growth::CTree_Growth(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL, "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_or_Const(NULL,
+	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
 		_TL("Total soil water capacity (mm H2O)."),
 		220.0, 0.0, true
 	);
 
-	Parameters.Add_Double(Parameters("SWC"),
+	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
 		10.0, 0.0, true
 	);
 
-	Parameters.Add_Double(Parameters("SWC"),
+	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
 		1.0, 0.1, true
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"LAT_DEF"		, _TL("Default Latitude"),
 		_TL(""),
 		50.0, -90.0, true, 90.0, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"SMT"		, _TL("Mean Temperature"),
 		_TL("Mean temperature of the growing season."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"LGS"		, _TL("Length"),
 		_TL("Number of days of the growing season."),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"TLH"		, _TL("Tree Line Height"),
 		_TL("Estimated relative tree line height."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"DT_MIN"		, _TL("Threshold Temperature"),
 		_TL("Threshold temperature (C) that constrains the growing season."),
 		0.9
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"SW_MIN"		, _TL("Minimum Soil Water Content (Percent)"),
 		_TL(""),
 		2.0, 0.0, true
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"LGS_MIN"		, _TL("Minimum Length"),
 		_TL("Minimum length (days) of the growing season."),
 		94, 1, true
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"SMT_MIN"		, _TL("Minimum Mean Temperature"),
 		_TL("Minimum mean temperature (C) for all days of the growing season."),
 		6.4
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"TLH_MAX_DIFF"	, _TL("Maximum Tree Line Height Difference"),
 		_TL(""),
 		1000.0, 0.0, true
@@ -557,44 +531,44 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL, "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List(NULL, "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_or_Const(NULL,
+	Parameters.Add_Grid_or_Const("",
 		"SWC"			, _TL("Soil Water Capacity of Profile"),
 		_TL("Total soil water capacity (mm H2O)."),
 		220.0, 0.0, true
 	);
 
-	Parameters.Add_Double(Parameters("SWC"),
+	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
 		10.0, 0.0, true
 	);
 
-	Parameters.Add_Double(Parameters("SWC"),
+	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
 		1.0, 0.1, true
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"LAT_DEF"		, _TL("Default Latitude"),
 		_TL(""),
 		50.0, -90.0, true, 90.0, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"SUMMARY"	, _TL("Summary"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"DAILY"		, _TL("Daily"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -612,7 +586,7 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 //---------------------------------------------------------
 int CWater_Balance_Interactive::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	return( CSG_Tool_Grid_Interactive::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
