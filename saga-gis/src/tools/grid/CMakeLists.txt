@@ -1,0 +1,10 @@
+message("folder: tools/grid")
+
+add_subdirectory(grid_analysis)
+add_subdirectory(grid_calculus)
+add_subdirectory(grid_calculus_bsl)
+add_subdirectory(grid_filter)
+add_subdirectory(grid_gridding)
+add_subdirectory(grid_spline)
+add_subdirectory(grid_tools)
+add_subdirectory(grid_visualisation)

@@ -1,0 +1,11 @@
+message("folder: tools/imagery")
+
+add_subdirectory(imagery_classification)
+add_subdirectory(imagery_isocluster)
+add_subdirectory(imagery_maxent)
+add_subdirectory(imagery_opencv)
+add_subdirectory(imagery_photogrammetry)
+add_subdirectory(imagery_segmentation)
+add_subdirectory(imagery_svm)
+add_subdirectory(imagery_tools)
+add_subdirectory(imagery_vigra)
