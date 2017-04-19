@@ -380,6 +380,4 @@ AC_OUTPUT(Makefile \
 	src/tools/tin/Makefile \
 	src/tools/tin/tin_tools/Makefile \
 	src/tools/tin/tin_viewer/Makefile \
-	src/tools/riegl/Makefile \
-	src/tools/riegl/riegl_io_rdb2_import/Makefile \
 )
