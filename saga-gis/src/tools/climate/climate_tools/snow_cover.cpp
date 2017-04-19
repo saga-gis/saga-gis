@@ -112,12 +112,32 @@ CSnow_Cover::CSnow_Cover(void)
 	Parameters.Add_Choice("",
 		"TIME"		, _TL("Time"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("Year"),
 			_TL("January - March"),
 			_TL("April - June"),
 			_TL("July - September"),
-			_TL("October - November")
+			_TL("October - December"),
+			_TL("Single Month")
+		)
+	);
+
+	Parameters.Add_Choice("TIME",
+		"MONTH"		, _TL("Month"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			_TL("January"),
+			_TL("February"),
+			_TL("March"),
+			_TL("April"),
+			_TL("May"),
+			_TL("June"),
+			_TL("July"),
+			_TL("August"),
+			_TL("September"),
+			_TL("October"),
+			_TL("November"),
+			_TL("December")
 		)
 	);
 }
@@ -130,6 +150,16 @@ CSnow_Cover::CSnow_Cover(void)
 //---------------------------------------------------------
 int CSnow_Cover::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "QUANTILE") )
+	{
+		pParameters->Set_Enabled("QUANT_VAL", pParameter->asGrid() != NULL);
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )
+	{
+		pParameters->Set_Enabled("MONTH", pParameter->asInt() == 5);
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -175,19 +205,26 @@ bool CSnow_Cover::On_Execute(void)
 	double	Quantile	= Parameters("QUANT_VAL")->asDouble();
 
 	//-----------------------------------------------------
-	// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
-	//	 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334
+	const int Month[]	= {
+	// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC YEAR
+		 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+	};
 
 	int	Days[2];
 
 	switch( Parameters("TIME")->asInt() )
 	{
-	default: Days[0] =   0; Days[1] = 365; break; // year
-	case  1: Days[0] =   0; Days[1] =  90; break; // January - March
-	case  2: Days[0] =  90; Days[1] = 181; break; // April - June
-	case  3: Days[0] = 181; Days[1] = 273; break; // July - September
-	case  4: Days[0] = 273; Days[1] = 365; break; // October - November
+	default: Days[0] =  1; Days[1] = 12; break; // Year
+	case  1: Days[0] =  1; Days[1] =  3; break; // January - March
+	case  2: Days[0] =  4; Days[1] =  6; break; // April - June
+	case  3: Days[0] =  7; Days[1] =  9; break; // July - September
+	case  4: Days[0] = 10; Days[1] = 12; break; // October - December
+	case  5: Days[0] =     Days[1] =
+		Parameters("MONTH")->asInt() + 1; break; // Month
 	}
+
+	Days[0] = Month[Days[0] - 1];
+	Days[1] = Month[Days[1]    ];
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
