@@ -147,7 +147,18 @@ bool COGR_Export::On_Execute(void)
 {
 	CSG_OGR_DataSet	DataSource;
 
-	if( !DataSource.Create(Parameters("FILE")->asString(), Parameters("FORMAT")->asString()) )
+	CSG_String Driver;
+
+#ifdef USE_GDAL_V2
+	if( !Parameters("FORMAT")->asChoice()->Get_Data(Driver) )
+	{
+		return( false );
+	}
+#else
+	Driver = Parameters("FORMAT")->asString();
+#endif
+
+	if( !DataSource.Create(Parameters("FILE")->asString(), Driver) )
 	{
 		Error_Set(_TL("data set creation failed"));
 
