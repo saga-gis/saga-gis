@@ -14,6 +14,7 @@ libtable_calculus_la_SOURCES =\
 Fit.cpp\
 LMFit.cpp\
 MLB_Interface.cpp\
+table_aggregate_by_field.cpp\
 Table_Calculator.cpp\
 table_cluster_analysis.cpp\
 table_field_analyzer.cpp\
@@ -26,6 +27,7 @@ table_running_average.cpp\
 Fit.h\
 LMFit.h\
 MLB_Interface.h\
+table_aggregate_by_field.h\
 Table_Calculator.h\
 table_cluster_analysis.h\
 table_field_analyzer.h\

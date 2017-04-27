@@ -107,6 +107,7 @@ CSG_String Get_Info(int i)
 #include "table_mRMR.h"
 #include "table_field_statistics.h"
 #include "table_record_statistics.h"
+#include "table_aggregate_by_field.h"
 
 
 //---------------------------------------------------------
@@ -135,6 +136,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 15:	return( new CTable_Field_Statistics() );
 	case 16:	return( new CTable_Record_Statistics() );
 	case 17:	return( new CTable_Record_Statistics_Shapes() );
+
+	case 18:	return( new CTable_Aggregate_by_Field() );
 
 	//-----------------------------------------------------
 	case 19:	return( NULL );
