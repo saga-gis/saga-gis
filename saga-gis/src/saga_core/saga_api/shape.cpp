@@ -184,7 +184,7 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 	}
 
 	//-----------------------------------------------------
-	if( Get_Part_Count() == pShape->Get_Part_Count() && Get_Point_Count() == pShape->Get_Point_Count() )
+	if( Get_Extent().is_Equal(pShape->Get_Extent()) && Get_Part_Count() == pShape->Get_Part_Count() && Get_Point_Count() == pShape->Get_Point_Count() )
 	{
 		bool	bIdentical	= true;
 
@@ -194,16 +194,13 @@ TSG_Intersection CSG_Shape::Intersects(CSG_Shape *pShape)
 			{
 				bIdentical	= false;
 			}
-			else
+			else for(int iPoint=0; iPoint<Get_Point_Count(iPart) && bIdentical; iPoint++)
 			{
-				for(int iPoint=0; iPoint<Get_Point_Count(iPart) && bIdentical; iPoint++)
-				{
-					CSG_Point	Point(Get_Point(iPoint, iPart));
+				CSG_Point	Point(Get_Point(iPoint, iPart));
 
-					if( !Point.is_Equal(pShape->Get_Point(iPoint, iPart)) )
-					{
-						bIdentical	= false;
-					}
+				if( !Point.is_Equal(pShape->Get_Point(iPoint, iPart)) )
+				{
+					bIdentical	= false;
 				}
 			}
 		}

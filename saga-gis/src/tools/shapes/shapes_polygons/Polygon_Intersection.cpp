@@ -76,7 +76,7 @@ CPolygon_Overlay::CPolygon_Overlay(const CSG_String &Name)
 	//-----------------------------------------------------
 	Set_Name		(Name);
 
-	Set_Author		(SG_T("O.Conrad (c) 2003-13"));
+	Set_Author		("O.Conrad (c) 2003-17");
 
 	Set_Description	(_TW(
 		"Uses the free and open source software library <b>Clipper</b> created by Angus Johnson.\n"
@@ -85,28 +85,28 @@ CPolygon_Overlay::CPolygon_Overlay(const CSG_String &Name)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "A"		, _TL("Layer A"),
+	Parameters.Add_Shapes("",
+		"A"		, _TL("Layer A"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "B"		, _TL("Layer B"),
+	Parameters.Add_Shapes("",
+		"B"		, _TL("Layer B"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESULT"	, Name,
+	Parameters.Add_Shapes("",
+		"RESULT", Name,
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SPLIT"	, _TL("Split Parts"),
+	Parameters.Add_Bool("",
+		"SPLIT"	, _TL("Split Parts"),
 		_TL("Set true if you want multipart polygons to become separate polygons."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
@@ -137,7 +137,7 @@ bool CPolygon_Overlay::Initialize(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBoth
 	m_pAB	= Parameters("RESULT")->asShapes();
 
 	m_pAB->Create(SHAPE_TYPE_Polygon, SG_T(""), *ppA);
-	m_pAB->Set_Name(CSG_String::Format(SG_T("%s [%s]-[%s]"), Get_Name().c_str(), (*ppA)->Get_Name(), (*ppB)->Get_Name()));
+	m_pAB->Set_Name(CSG_String::Format("%s [%s]-[%s]", Get_Name().c_str(), (*ppA)->Get_Name(), (*ppB)->Get_Name()));
 
 	if( bBothAttributes )
 	{
