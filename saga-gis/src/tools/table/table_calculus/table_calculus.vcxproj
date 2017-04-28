@@ -305,6 +305,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="table_aggregate_by_field.cpp" />
     <ClCompile Include="Table_Calculator.cpp" />
     <ClCompile Include="table_cluster_analysis.cpp" />
     <ClCompile Include="table_field_analyzer.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="table_aggregate_by_field.h" />
     <ClInclude Include="Table_Calculator.h" />
     <ClInclude Include="table_cluster_analysis.h" />
     <ClInclude Include="table_field_analyzer.h" />

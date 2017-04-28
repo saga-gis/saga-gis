@@ -145,10 +145,11 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_Choice("",
 		"MATCH"		, _TL("Match"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("none"),
-			_TL("regression"),
-			_TL("histogram match")
+			_TL("match histogram of first grid in list"),
+			_TL("match histogram of overlapping area"),
+			_TL("regression")
 		), 0
 	);
 
@@ -418,9 +419,13 @@ bool CGrid_Merge::is_Aligned(CSG_Grid *pGrid)
 //---------------------------------------------------------
 inline void CGrid_Merge::Set_Value(int x, int y, double Value, double Weight)
 {
-	if( m_Match.Get_N() == 2 )
+	if( m_Match.Get_N() == 2 )		// regression
 	{
 		Value	= m_Match[0] + m_Match[1] * Value;
+	}
+	else if( m_Match.Get_N() == 3 )	// standardization
+	{
+		Value	= m_Match[0] + m_Match[1] * (Value - m_Match[2]);
 	}
 
 	switch( m_Overlap )
@@ -650,53 +655,88 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 //---------------------------------------------------------
 void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 {
-	if( pGrid && Parameters("MATCH")->asInt() )
+	if( pGrid && Parameters("MATCH")->asInt() != 0 )
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("matching histogram"), pGrid->Get_Name()));
-
-		int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());	if( ax < 0 )	ax	= 0;
-		int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());	if( ay < 0 )	ay	= 0;
-
-		int	nx	= 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() )	nx	= m_pMosaic->Get_NX();
-		int	ny	= 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() )	ny	= m_pMosaic->Get_NY();
-
-		CSG_Vector	Z[2];
-
-		for(int y=ay; y<ny && Set_Progress(y-ay, ny-ay); y++)
+		//-------------------------------------------------
+		if( Parameters("MATCH")->asInt() == 1 )	// match histogram of first grid in list
 		{
-			double	py	= m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
+			m_Match.Create(3);
 
-			for(int x=ax; x<nx; x++)
-			{
-				if( !m_pMosaic->is_NoData(x, y) )
-				{
-					double	z, px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
-
-					if( pGrid->Get_Value(px, py, z, GRID_RESAMPLING_NearestNeighbour) )
-					{
-						Z[0].Add_Row(z);
-						Z[1].Add_Row(m_pMosaic->asDouble(x, y));
-					}
-				}
-			}
-		}
-
-		CSG_Regression	r;
-
-		if( r.Calculate((int)Z[0].Get_Size(), Z[0].Get_Data(), Z[1].Get_Data()) )
-		{
-			m_Match.Create(2);
-
-			m_Match[0]	= r.Get_Constant();
-			m_Match[1]	= r.Get_Coefficient();
-
-			Message_Add("histogram stretch:\n", false);
-			Message_Add(r.asString(), false);
+			m_Match[0]	= m_pGrids->asGrid(0)->Get_Mean();
+			m_Match[2]	= pGrid->Get_Mean();
+			m_Match[1]	= pGrid->Get_StdDev() ? m_pGrids->asGrid(0)->Get_StdDev() / pGrid->Get_StdDev() : 0.0;
 
 			return;
 		}
+
+		//-------------------------------------------------
+		else	// investigate overlapping areas
+		{
+			Process_Set_Text(CSG_String::Format("%s: %s", _TL("analyzing overlap"), pGrid->Get_Name()));
+
+			int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());	if( ax < 0 )	ax	= 0;
+			int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());	if( ay < 0 )	ay	= 0;
+
+			int	nx	= 1 + m_pMosaic->Get_System().Get_xWorld_to_Grid(pGrid->Get_XMax()); if( nx > m_pMosaic->Get_NX() )	nx	= m_pMosaic->Get_NX();
+			int	ny	= 1 + m_pMosaic->Get_System().Get_yWorld_to_Grid(pGrid->Get_YMax()); if( ny > m_pMosaic->Get_NY() )	ny	= m_pMosaic->Get_NY();
+
+			CSG_Vector	Z[2];
+
+			for(int y=ay; y<ny && Set_Progress(y-ay, ny-ay); y++)
+			{
+				double	py	= m_pMosaic->Get_YMin() + y * m_pMosaic->Get_Cellsize();
+
+				for(int x=ax; x<nx; x++)
+				{
+					if( !m_pMosaic->is_NoData(x, y) )
+					{
+						double	z, px	= m_pMosaic->Get_XMin() + x * m_pMosaic->Get_Cellsize();
+
+						if( pGrid->Get_Value(px, py, z, GRID_RESAMPLING_NearestNeighbour) )
+						{
+							Z[0].Add_Row(z);
+							Z[1].Add_Row(m_pMosaic->asDouble(x, y));
+						}
+					}
+				}
+			}
+
+			//---------------------------------------------
+			if( Parameters("MATCH")->asInt() == 2 )	// match histogram of overlapping area
+			{
+				CSG_Simple_Statistics	S0(Z[0]), S1(Z[1]);
+
+				m_Match.Create(3);
+
+				m_Match[0]	= S1.Get_Mean();
+				m_Match[2]	= S0.Get_Mean();
+				m_Match[1]	= S0.Get_StdDev() ? S1.Get_StdDev() / S0.Get_StdDev() : 0.0;
+
+				return;
+			}
+
+			//---------------------------------------------
+			else	// regression
+			{
+				CSG_Regression	r;
+
+				if( r.Calculate((int)Z[0].Get_Size(), Z[0].Get_Data(), Z[1].Get_Data()) )
+				{
+					m_Match.Create(2);
+
+					m_Match[0]	= r.Get_Constant();
+					m_Match[1]	= r.Get_Coefficient();
+
+					Message_Add("histogram stretch:\n", false);
+					Message_Add(r.asString(), false);
+
+					return;
+				}
+			}
+		}
 	}
 
+	//-----------------------------------------------------
 	m_Match.Destroy();
 }
 

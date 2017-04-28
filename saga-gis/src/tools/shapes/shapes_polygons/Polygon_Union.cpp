@@ -89,39 +89,39 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 	Add_Reference("http://sourceforge.net/projects/polyclipping/", SG_T("Clipper at SourceForge"));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"DISSOLVED"	, _TL("Dissolved Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Fields(Parameters("POLYGONS"),
+	Parameters.Add_Table_Fields("POLYGONS",
 		"FIELDS"	, _TL("Dissolve Field(s)"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Fields(Parameters("POLYGONS"),
+	Parameters.Add_Table_Fields("POLYGONS",
 		"STATISTICS", _TL("Statistics Field(s)"),
 		_TL("")
 	);
 
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_SUM", _TL("Sum"      ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_AVG", _TL("Mean"     ), _TL(""), true );
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_MIN", _TL("Minimum"  ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_MAX", _TL("Maximum"  ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_RNG", _TL("Range"    ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_DEV", _TL("Deviation"), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_VAR", _TL("Variance" ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_LST", _TL("Listing"  ), _TL(""), false);
-	Parameters.Add_Bool(Parameters("STATISTICS"), "STAT_NUM", _TL("Count"    ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_SUM", _TL("Sum"      ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_AVG", _TL("Mean"     ), _TL(""), true );
+	Parameters.Add_Bool("STATISTICS", "STAT_MIN", _TL("Minimum"  ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_MAX", _TL("Maximum"  ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_RNG", _TL("Range"    ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_DEV", _TL("Deviation"), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_VAR", _TL("Variance" ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_LST", _TL("Listing"  ), _TL(""), false);
+	Parameters.Add_Bool("STATISTICS", "STAT_NUM", _TL("Count"    ), _TL(""), false);
 
-	Parameters.Add_Choice(Parameters("STATISTICS"),
+	Parameters.Add_Choice("STATISTICS",
 		"STAT_NAMING", _TL("Field Naming"),
 		_TL(""), 
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -132,13 +132,13 @@ CPolygon_Dissolve::CPolygon_Dissolve(void)
 		), 0
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"BND_KEEP"	, _TL("Keep Boundaries"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"MIN_AREA"	, _TL("Minimum Area"),
 		_TL(""),
 		0.0, 0.0, true

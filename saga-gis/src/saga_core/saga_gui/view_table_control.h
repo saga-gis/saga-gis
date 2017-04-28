@@ -182,6 +182,8 @@ private:
 
 	bool						_ToClipboard		(void);
 
+	static int					_Parameter_Callback	(CSG_Parameter *pParameter, int Flags);
+
 
 //---------------------------------------------------------
 DECLARE_EVENT_TABLE()

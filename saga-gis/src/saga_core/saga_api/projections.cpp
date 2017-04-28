@@ -306,8 +306,6 @@ bool CSG_Projection::Assign(int Authority_ID, const SG_Char *Authority)
 //---------------------------------------------------------
 CSG_Projection::CSG_Projection(const CSG_String &Projection, TSG_Projection_Format Format)
 {
-	Destroy();
-
 	Create(Projection, Format);
 }
 
@@ -380,6 +378,29 @@ bool CSG_Projection::Assign(const CSG_String &Projection, TSG_Projection_Format 
 	SG_Set_Projection_Unit(m, m_Unit, m_Unit_Name, m_Unit_To_Meter);
 
 	return( true );
+}
+
+//---------------------------------------------------------
+CSG_Projection::CSG_Projection(const CSG_String &WKT, const CSG_String &Proj4)
+{
+	Create(WKT, Proj4);
+}
+
+bool CSG_Projection::Create(const CSG_String &WKT, const CSG_String &Proj4)
+{
+	return( Assign(WKT, Proj4) );
+}
+
+bool CSG_Projection::Assign(const CSG_String &WKT, const CSG_String &Proj4)
+{
+	if( Assign(WKT) )
+	{
+		m_Proj4	= Proj4;
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1172,12 +1193,12 @@ bool CSG_Projections::WKT_to_Proj4(CSG_String &Proj4, const CSG_String &WKT) con
 
 		if( m("UNIT") && m["UNIT"].Get_Content().asDouble(d) && d != 0.0 && d != 1.0 )
 		{
-			Proj4	+= CSG_String::Format(SG_T(" +to_meter=%f"), d);
+			Proj4	+= CSG_String::Format(" +to_meter=%f", d);
 		}
 	}
 
 	//-----------------------------------------------------
-	Proj4	+= CSG_String::Format(SG_T(" +no_defs"));	// Don't use the /usr/share/proj/proj_def.dat defaults file
+	Proj4	+= CSG_String::Format(" +no_defs");	// Don't use the /usr/share/proj/proj_def.dat defaults file
 
 	return( true );
 }
@@ -1364,7 +1385,7 @@ bool CSG_Projections::_Proj4_Get_Datum(CSG_String &Value, const CSG_String &Proj
 	{
 		for(int i=0; i<9; i++)
 		{
-			if( !Value.CmpNoCase(datum[i][0]) && _Proj4_Get_Ellipsoid(Spheroid, CSG_String::Format(SG_T("+ellps=%s"), SG_STR_MBTOSG(datum[i][1]))) )
+			if( !Value.CmpNoCase(datum[i][0]) && _Proj4_Get_Ellipsoid(Spheroid, CSG_String::Format("+ellps=%s", SG_STR_MBTOSG(datum[i][1]))) )
 			{
 				Value.Printf("DATUM[\"%s\",%s,TOWGS84[%s]]", SG_STR_MBTOSG(datum[i][0]), Spheroid.c_str(), SG_STR_MBTOSG(datum[i][2]));
 
@@ -1502,8 +1523,8 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 	GeogCS	 = "GEOGCS[\"GCS\",";
 
-	_Proj4_Get_Datum			(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= SG_T(",");
-	_Proj4_Get_Prime_Meridian	(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= SG_T(",");
+	_Proj4_Get_Datum			(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= ",";
+	_Proj4_Get_Prime_Meridian	(Value, Proj4);	GeogCS	+= Value;	GeogCS	+= ",";
 
 	GeogCS	+= "UNIT[\"degree\",0.01745329251994328]]";
 
@@ -1538,7 +1559,7 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 	//-----------------------------------------------------
 	// UTM ...
 
-	if( !ProjCS.CmpNoCase(SG_T("utm")) )
+	if( !ProjCS.CmpNoCase("utm") )
 	{
 		double	Zone, Northing;
 
@@ -1575,9 +1596,9 @@ bool CSG_Projections::WKT_from_Proj4(CSG_String &WKT, const CSG_String &Proj4) c
 
 		if( m_Proj4_to_WKT.Get_Translation(Value, Key) )
 		{
-			Value	= ProjCS.AfterFirst(SG_T('='));
+			Value	= ProjCS.AfterFirst('=');
 
-			if( Value.Find(SG_T('+')) >= 0 )
+			if( Value.Find('+') >= 0 )
 			{
 				Value	= Value.BeforeFirst('+');
 			}

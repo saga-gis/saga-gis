@@ -50,6 +50,9 @@
     <ClCompile Include="growing_degree_days.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="snow_cover.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -134,6 +137,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="growing_degree_days.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="snow_cover.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

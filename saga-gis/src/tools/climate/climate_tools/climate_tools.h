@@ -21,7 +21,7 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation; version >=2 of the License. //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -73,6 +73,14 @@
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	SG_Grid_Get_Geographic_Coordinates		(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat);
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 

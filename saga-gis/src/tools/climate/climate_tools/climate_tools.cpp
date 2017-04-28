@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: climate_tools.cpp 1380 2012-04-26 12:02:19Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,7 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation; version >=2 of the License. //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -60,6 +57,33 @@
 
 //---------------------------------------------------------
 #include "climate_tools.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool	SG_Grid_Get_Geographic_Coordinates	(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat)
+{
+	bool	bResult	= false;
+
+	if( pGrid && pGrid->is_Valid() && pGrid->Get_Projection().is_Okay() && (pLon || pLat) )
+	{
+		CSG_Grid Lon; if( !pLon ) { pLon = &Lon; } pLon->Create(pGrid->Get_System());
+		CSG_Grid Lat; if( !pLat ) { pLat = &Lat; } pLat->Create(pGrid->Get_System());
+
+		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
+				SG_TOOL_PARAMETER_SET("GRID", pGrid)
+			&&	SG_TOOL_PARAMETER_SET("LON" , pLon )
+			&&	SG_TOOL_PARAMETER_SET("LAT" , pLat )
+		)
+	}
+
+	return( bResult );
+}
 
 
 ///////////////////////////////////////////////////////////

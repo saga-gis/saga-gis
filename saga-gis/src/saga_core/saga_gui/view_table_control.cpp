@@ -466,7 +466,7 @@ bool CVIEW_Table_Control::Update_Selection(void)
 	{
 		_Update_Records();
 	}
-	else if( m_pTable->Get_Selection_Count() >= m_pTable->Get_Count() )
+	else if( m_pTable->Get_Selection_Count() >= (size_t)m_pTable->Get_Count() )
 	{
 		SelectAll();
 	}
@@ -818,11 +818,12 @@ void CVIEW_Table_Control::On_LDClick_Label(wxGridEvent &event)
 //---------------------------------------------------------
 bool CVIEW_Table_Control::_Get_DataSource(wxString &Source)
 {
-	if( Source.Find("PGSQL:" ) == 0
-	||	Source.Find("ftp://" ) == 0
-	||	Source.Find("http://") == 0
-	||	Source.Find("file://") == 0
-	||  wxFileExists(Source) )
+	if( Source.Find("PGSQL:"  ) == 0
+	||	Source.Find("ftp://"  ) == 0
+	||	Source.Find("http://" ) == 0
+	||	Source.Find("https://") == 0
+	||	Source.Find("file://" ) == 0
+	||  wxFileExists(Source)  )
 	{
 		return( true );
 	}
@@ -1374,14 +1375,19 @@ void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
 		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String("|");
 	}
 
+	Fields	+= _TL("<new>") + CSG_String("|");
+
 	//-----------------------------------------------------
 	if( m_Field_Calc.Get_Count() == 0 )
 	{
-		m_Field_Calc.Set_Name(_TL("Table Field Calculator"));
+		m_Field_Calc.Create(this, _TL("Table Field Calculator"), _TL(""), SG_T("FIELD_CALCULATOR"));
 
-		m_Field_Calc.Add_Choice(NULL, "FIELD"    , _TL("Result"   ), _TL(""), Fields);
-		m_Field_Calc.Add_Bool  (NULL, "SELECTION", _TL("Selection"), _TL(""), true);
-		m_Field_Calc.Add_String(NULL, "FORMULA"  , _TL("Formula"  ), _TL(""), "f1 + f2");
+		m_Field_Calc.Set_Callback_On_Parameter_Changed(_Parameter_Callback);
+
+		m_Field_Calc.Add_Choice(""     , "FIELD"    , _TL("Target Field"), _TL(""), Fields, m_pTable->Get_Field_Count());
+		m_Field_Calc.Add_String("FIELD", "NAME"     , _TL("Field Name"  ), _TL(""), _TL("Result"));
+		m_Field_Calc.Add_Bool  (""     , "SELECTION", _TL("Selection"   ), _TL(""), true);
+		m_Field_Calc.Add_String(""     , "FORMULA"  , _TL("Formula"     ), _TL(""), "f1 + f2");
 	}
 
 	m_Field_Calc("FIELD")->asChoice()->Set_Items(Fields);
@@ -1396,6 +1402,7 @@ void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
 		SG_RUN_TOOL(bResult, "table_calculus", 1,	// table field calculator
 				SG_TOOL_PARAMETER_SET("TABLE"    , m_pTable)
 			&&	SG_TOOL_PARAMETER_SET("FIELD"    , m_Field_Calc("FIELD"    )->asInt   ())
+			&&	SG_TOOL_PARAMETER_SET("NAME"     , m_Field_Calc("NAME"     )->asString())
 			&&	SG_TOOL_PARAMETER_SET("SELECTION", m_Field_Calc("SELECTION")->asBool  ())
 			&&	SG_TOOL_PARAMETER_SET("FORMULA"  , m_Field_Calc("FORMULA"  )->asString())
 		);
@@ -1405,6 +1412,33 @@ void CVIEW_Table_Control::On_Field_Calc(wxCommandEvent &event)
 void CVIEW_Table_Control::On_Field_Calc_UI(wxUpdateUIEvent &event)
 {
 	event.Enable(m_pTable->Get_Field_Count() > 0);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CVIEW_Table_Control::_Parameter_Callback(CSG_Parameter *pParameter, int Flags)
+{
+	CSG_Parameters	*pParameters	= pParameter && pParameter->Get_Owner() ? pParameter->Get_Owner() : NULL;
+
+	if( pParameters )
+	{
+		if( !SG_STR_CMP(pParameters->Get_Identifier(), "FIELD_CALCULATOR") )
+		{
+			if( Flags & PARAMETER_CHECK_ENABLE )
+			{
+				if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELD") )
+				{
+					pParameters->Set_Enabled("NAME", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
+				}
+			}
+		}
+	}
+
+	return( 0 );
 }
 
 

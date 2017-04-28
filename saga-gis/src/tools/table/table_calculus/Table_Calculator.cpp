@@ -55,38 +55,38 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 
 	if( bShapes )
 	{
-		Set_Name(CSG_String::Format("%s [%s]", _TL("Table Field Calculator"), _TL("Shapes")));
+		Set_Name(CSG_String::Format("%s [%s]", _TL("Field Calculator"), _TL("Shapes")));
 
-		Parameters.Add_Shapes(NULL, "TABLE" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes(NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Shapes("", "TABLE" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 	else
 	{
-		Set_Name(_TL("Table Field Calculator"));
+		Set_Name(_TL("Field Calculator"));
 
-		Parameters.Add_Table (NULL, "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table (NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Table ("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Table ("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
-	Parameters.Add_Table_Field(Parameters("TABLE"),
+	Parameters.Add_Table_Field("TABLE",
 		"FIELD"    , _TL("Field"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_String(Parameters("TABLE"),
+	Parameters.Add_String("TABLE",
 		"NAME"     , _TL("Field Name"),
 		_TL(""),
 		_TL("Calculation")
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"FORMULA"  , _TL("Formula"),
 		_TL(""),
 		"f1 + f2"
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"SELECTION", _TL("Selection"),
 		_TL(""),
 		true

@@ -76,19 +76,55 @@
 CKriging_Base::CKriging_Base(void)
 {
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(Parameters("POINTS"),
+	Parameters.Add_Table_Field("POINTS",
 		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(NULL,
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+
+	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
+	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
+
+	//-----------------------------------------------------
+	Parameters.Add_Double("",
+		"VAR_MAXDIST"	, _TL("Maximum Distance"),
+		_TL("maximum distance for variogram estimation, ignored if set to zero"),
+		0.0, 0.0, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Int("",
+		"VAR_NCLASSES"	, _TL("Lag Distance Classes"),
+		_TL("initial number of lag distance classes"),
+		100, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_Int("",
+		"VAR_NSKIP"		, _TL("Skip"),
+		_TL(""),
+		1, 1, true
+	)->Set_UseInGUI(false);
+
+	Parameters.Add_String("",
+		"VAR_MODEL"		, _TL("Model"),
+		_TL(""),
+		"a + b * x"
+	)->Set_UseInGUI(false);
+
+	//-----------------------------------------------------
+	Parameters.Add_Node("",
+		"NODE_KRG"	, _TL("Kriging"),
+		_TL("")
+	);
+
+	Parameters.Add_Choice("NODE_KRG",
 		"TQUALITY"	, _TL("Type of Quality Measure"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -97,60 +133,26 @@ CKriging_Base::CKriging_Base(void)
 		), 0
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("NODE_KRG",
 		"LOG"		, _TL("Logarithmic Transformation"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("NODE_KRG",
 		"BLOCK"		, _TL("Block Kriging"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Double(Parameters("BLOCK"),
+	Parameters.Add_Double("BLOCK",
 		"DBLOCK"	, _TL("Block Size"),
 		_TL(""),
 		100.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL,
-		"VAR_MAXDIST"	, _TL("Maximum Distance"),
-		_TL(""),
-		-1.0
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_Int(NULL,
-		"VAR_NCLASSES"	, _TL("Lag Distance Classes"),
-		_TL("initial number of lag distance classes"),
-		100, 1, true
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_Int(NULL,
-		"VAR_NSKIP"		, _TL("Skip"),
-		_TL(""),
-		1, 1, true
-	)->Set_UseInGUI(false);
-
-	Parameters.Add_String(NULL,
-		"VAR_MODEL"		, _TL("Model"),
-		_TL(""),
-		"a + b * x"
-	)->Set_UseInGUI(false);
-
-	if( !SG_UI_Get_Window_Main() )
-	{
-		m_pVariogram	= NULL;
-	}
-	else
-	{
-		m_pVariogram	= new CVariogram_Dialog;
-	}
-
-	//-----------------------------------------------------
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("NODE_KRG",
 		"CV_METHOD"		, _TL("Cross Validation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -161,32 +163,36 @@ CKriging_Base::CKriging_Base(void)
 		), 0
 	);
 
-	Parameters.Add_Table(Parameters("CV_METHOD"),
+	Parameters.Add_Table("CV_METHOD",
 		"CV_SUMMARY"	, _TL("Cross Validation Summary"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(Parameters("CV_METHOD"),
+	Parameters.Add_Shapes("CV_METHOD",
 		"CV_RESIDUALS"	, _TL("Cross Validation Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Int(Parameters("CV_METHOD"),
+	Parameters.Add_Int("CV_METHOD",
 		"CV_SAMPLES"	, _TL("Cross Validation Subsamples"),
 		_TL("number of subsamples for k-fold cross validation"),
 		10, 2, true
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
-
-	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
-	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	if( !SG_UI_Get_Window_Main() )
+	{
+		m_pVariogram	= NULL;
+	}
+	else
+	{
+		m_pVariogram	= new CVariogram_Dialog;
+	}
 }
 
 

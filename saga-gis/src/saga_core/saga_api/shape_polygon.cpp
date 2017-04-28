@@ -274,15 +274,15 @@ void CSG_Shape_Polygon::_Invalidate(void)
 //---------------------------------------------------------
 TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 {
-	int		iPart, iPoint;
-
 	//-----------------------------------------------------
+	int		iPart;
+
 	bool	bIn		= false;
 	bool	bOut	= false;
 
-	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
 			if( Contains(pShape->Get_Point(iPoint, iPart)) )
 			{
@@ -293,7 +293,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 				bOut	= true;
 			}
 
-			if( bIn && bOut )
+			if( bIn && bOut )	// some vertices are in, some are out
 			{
 				return( INTERSECTION_Overlaps );
 			}
@@ -303,54 +303,61 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 	//-----------------------------------------------------
 	if( pShape->Get_Type() == SHAPE_TYPE_Point || pShape->Get_Type() == SHAPE_TYPE_Points )
 	{
-		return( bIn ? INTERSECTION_Contains : INTERSECTION_None );
+		return( bIn ? INTERSECTION_Contains : INTERSECTION_None );	// there are no other options for points
 	}
 
 	//-----------------------------------------------------
-	TSG_Point	iA, iB, jA, jB, Crossing;
-
-	for(iPart=0; iPart<m_nParts; iPart++)
+	for(iPart=0; iPart<Get_Part_Count(); iPart++)
 	{
-		if( Get_Point_Count(iPart) > 2 )
+		if( Get_Point_Count(iPart) < 3 )
 		{
-			iA	= Get_Point(Get_Point_Count(iPart) - 1, iPart);
+			continue;
+		}
 
-			for(iPoint=0; iPoint<Get_Point_Count(iPart); iPoint++)
+		TSG_Point	A[2], B[2], C;	A[0]	= Get_Point(0, iPart, false);
+
+		for(int iPoint=0; iPoint<Get_Point_Count(iPart); iPoint++)
+		{
+			if( pShape->Get_Type() == SHAPE_TYPE_Polygon )
 			{
-				iB	= iA;
-				iA	= Get_Point(iPoint, iPart);
-
-				for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
+				if( ((CSG_Shape_Polygon *)pShape)->Contains(Get_Point(iPoint, iPart)) )
 				{
-					if( pShape->Get_Type() == SHAPE_TYPE_Line && pShape->Get_Point_Count(jPart) > 1 )
+					return( INTERSECTION_Overlaps );
+				}
+			}
+
+			A[1]	= A[0];	A[0]	= Get_Point(iPoint, iPart);
+
+			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)
+			{
+				//-----------------------------------------
+				if( pShape->Get_Type() == SHAPE_TYPE_Line && pShape->Get_Point_Count(jPart) >= 2 )
+				{
+					B[0]	= pShape->Get_Point(0, jPart);
+
+					for(int jPoint=1; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
 					{
-						jA	= pShape->Get_Point(0, jPart);
+						B[1]	= B[0];	B[0]	= pShape->Get_Point(jPoint, jPart);
 
-						for(int jPoint=1; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
+						if( SG_Get_Crossing(C, A[0], A[1], B[0], B[1]) )
 						{
-							jB	= jA;
-							jA	= pShape->Get_Point(jPoint, jPart);
-
-							if( SG_Get_Crossing(Crossing, iA, iB, jA, jB) )
-							{
-								return( INTERSECTION_Overlaps );
-							}
+							return( INTERSECTION_Overlaps );
 						}
 					}
+				}
 
-					if( pShape->Get_Type() == SHAPE_TYPE_Polygon && pShape->Get_Point_Count(jPart) > 2 )
+				//-----------------------------------------
+				if( pShape->Get_Type() == SHAPE_TYPE_Polygon && pShape->Get_Point_Count(jPart) >= 3 )
+				{
+					B[0]	= pShape->Get_Point(0, jPart, false);
+
+					for(int jPoint=0; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
 					{
-						jA	= pShape->Get_Point(pShape->Get_Point_Count(jPart) - 1, jPart);
+						B[1]	= B[0];	B[0]	= pShape->Get_Point(jPoint, jPart);
 
-						for(int jPoint=0; jPoint<pShape->Get_Point_Count(jPart); jPoint++)
+						if( SG_Get_Crossing(C, A[0], A[1], B[0], B[1]) )
 						{
-							jB	= jA;
-							jA	= pShape->Get_Point(jPoint, jPart);
-
-							if( SG_Get_Crossing(Crossing, iA, iB, jA, jB) )
-							{
-								return( INTERSECTION_Overlaps );
-							}
+							return( INTERSECTION_Overlaps );
 						}
 					}
 				}
@@ -358,6 +365,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 		}
 	}
 
+	//-----------------------------------------------------
 	return( bIn ? INTERSECTION_Contains : INTERSECTION_None );
 }
 
