@@ -77,72 +77,66 @@
 CGrid_Fill::CGrid_Fill(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Change Grid Values - Flood Fill"));
 
-	Set_Author		(SG_T("(c) 2005 by A.Ringeler, (c) 2006 by O.Conrad"));
+	Set_Author		("A.Ringeler (c) 2005, O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Interactively use the flood fill method to replace a grid's cell values. "
 		"If the target is not set, the changes will be stored to the original grid. ")
 	);
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Grid(
-		NULL	, "GRID_IN"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID_IN"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "GRID_OUT"	, _TL("Changed Grid"),
+	Parameters.Add_Grid("",
+		"GRID_OUT"	, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FILL"		, _TL("Fill Value"),
+	Parameters.Add_Double("",
+		"FILL"		, _TL("Fill Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1
+		1
 	); 
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Value to be replaced"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Value to be replaced"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("value at mouse position"),
 			_TL("fixed value"),
 			_TL("tolerance as absolute values")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZFIXED"		, _TL("Fixed value to be replaced"),
+	Parameters.Add_Double("",
+		"ZFIXED"	, _TL("Fixed value to be replaced"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	); 
 
-	Parameters.Add_Value(
-		NULL	, "DZMAX"		, _TL("Upper Tolerance"),
+	Parameters.Add_Double("",
+		"DZMAX"		, _TL("Upper Tolerance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	); 
 
-	Parameters.Add_Value(
-		NULL	, "DZMIN"		, _TL("Lower Tolerance"),
+	Parameters.Add_Double("",
+		"DZMIN"		, _TL("Lower Tolerance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, -1.0
+		-1.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NODATA"		, _TL("Fill NoData"),
+	Parameters.Add_Bool("",
+		"NODATA"	, _TL("Fill NoData"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	); 
 }
 
@@ -296,9 +290,9 @@ bool CGrid_Fill::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mod
 
 			//---------------------------------------------
 			Message_Add(_TL("ready"), false);
-			Message_Add(CSG_String::Format(SG_T("%d %s"), nReplaced, _TL("replacements")));
+			Message_Add(CSG_String::Format("%d %s", nReplaced, _TL("replacements")));
 
-			DataObject_Update(m_pGrid, m_pGrid->Get_ZMin(), m_pGrid->Get_ZMax());
+			DataObject_Update(m_pGrid, m_pGrid->Get_Min(), m_pGrid->Get_Max());
 
 			return( true );
 		}

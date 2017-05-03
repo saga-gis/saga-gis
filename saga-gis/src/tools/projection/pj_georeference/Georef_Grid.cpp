@@ -420,7 +420,7 @@ bool CGeoref_Grid::Set_Grid(CSG_Grid *pGrid, CSG_Grid *pReferenced, TSG_Grid_Res
 			double		z;
 			TSG_Point	p	= pReferenced->Get_System().Get_Grid_to_World(x, y);
 
-			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Resampling, bBytewise) )
+			if( m_Engine.Get_Converted(p, true) && pGrid->Get_Value(p, z, Resampling, false, bBytewise) )
 			{
 				pReferenced->Set_Value(x, y, z);
 			}

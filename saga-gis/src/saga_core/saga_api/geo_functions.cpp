@@ -234,6 +234,16 @@ double		SG_Get_Angle_Of_Direction(const TSG_Point &A, const TSG_Point &B)
 	return( SG_Get_Angle_Of_Direction(B.x - A.x, B.y - A.y) );
 }
 
+//---------------------------------------------------------
+double		SG_Get_Angle_Difference(double a, double b)
+{
+	double	d	= fmod(b - a, M_PI_360);
+
+	if( d < 0.0 )	d	+= M_PI_360;
+
+	return( d > M_PI_180 ? d - M_PI_180 : d );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

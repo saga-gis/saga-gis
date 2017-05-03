@@ -179,7 +179,7 @@ bool CHugget_03::On_Execute(void)
 
 		if( bUpdate )
 		{
-			DataObject_Update(pN, pN->Get_ZMin(), pN->Get_ZMax(), true);
+			DataObject_Update(pN, pN->Get_Min(), pN->Get_Max(), true);
 		}
 
 		//-------------------------------------------------

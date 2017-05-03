@@ -663,7 +663,7 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 				{
 					double	xWorld	= Get_XMin() + x * Get_Cellsize(), Value;
 
-					if( Grid.Get_Value(xWorld, yWorld, Value, Interpolation, false, true) )
+					if( Grid.Get_Value(xWorld, yWorld, Value, Interpolation) )
 					{
 						switch( Operation )
 						{
@@ -778,10 +778,10 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 //---------------------------------------------------------
 void CSG_Grid::Invert(void)
 {
-	if( is_Valid() && Get_ZRange() > 0.0 )
+	if( is_Valid() && Get_Range() > 0.0 )
 	{
-		double	zMin	= Get_ZMin();
-		double	zMax	= Get_ZMax();
+		double	Min	= Get_Min();
+		double	Max	= Get_Max();
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
@@ -790,7 +790,7 @@ void CSG_Grid::Invert(void)
 			{
 				if( !is_NoData(x, y) )
 				{
-					Set_Value(x, y, zMax - (asDouble(x, y) - zMin));
+					Set_Value(x, y, Max - (asDouble(x, y) - Min));
 				}
 			}
 		}
@@ -849,10 +849,10 @@ void CSG_Grid::Mirror(void)
 //---------------------------------------------------------
 bool CSG_Grid::Normalise(void)
 {
-	if( is_Valid() && Get_ZRange() > 0.0 )
+	if( is_Valid() && Get_Range() > 0.0 )
 	{
-		double	zMin	= Get_ZMin  ();
-		double	zRange	= Get_ZRange();
+		double	Min		= Get_Min  ();
+		double	Range	= Get_Range();
 
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
@@ -861,7 +861,7 @@ bool CSG_Grid::Normalise(void)
 			{
 				if( !is_NoData(x, y) )
 				{
-					Set_Value(x, y, (asDouble(x, y) - zMin) / zRange);
+					Set_Value(x, y, (asDouble(x, y) - Min) / Range);
 				}
 			}
 		}
@@ -1067,19 +1067,19 @@ bool CSG_Grid::Get_Gradient(double x, double y, double &Slope, double &Aspect, T
 {
 	double	z, iz, dz[4];
 
-	if( Get_Value(x, y, z, Interpolation, false, true) )
+	if( Get_Value(x, y, z, Interpolation) )
 	{
 		for(int i=0, iDir=0; i<4; i++, iDir+=2)
 		{
 			if( Get_Value(
 				x + Get_Cellsize() * m_System.Get_xTo  (iDir),
-				y + Get_Cellsize() * m_System.Get_yTo  (iDir), iz, Interpolation, false, true) )
+				y + Get_Cellsize() * m_System.Get_yTo  (iDir), iz, Interpolation) )
 			{
 				dz[i]	= iz - z;
 			}
 			else if( Get_Value(
 				x + Get_Cellsize() * m_System.Get_xFrom(iDir),
-				y + Get_Cellsize() * m_System.Get_yFrom(iDir), iz, Interpolation, false, true) )
+				y + Get_Cellsize() * m_System.Get_yFrom(iDir), iz, Interpolation) )
 			{
 				dz[i]	= z - iz;
 			}

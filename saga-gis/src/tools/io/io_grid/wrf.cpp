@@ -913,8 +913,8 @@ bool CWRF_Export::On_Execute(void)
 
 	if( m_Index.m_TILE_Z == 1 )
 	{
-		m_Index.m_CATEGORY_MIN	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_ZMin() : 0;
-		m_Index.m_CATEGORY_MAX	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_ZMax() : 0;
+		m_Index.m_CATEGORY_MIN	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_Min() : 0;
+		m_Index.m_CATEGORY_MAX	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_Max() : 0;
 	}
 	else
 	{

@@ -86,14 +86,13 @@ class ta_morphometry_EXPORT CHypsometry : public CSG_Tool_Grid
 {
 public:
 	CHypsometry(void);
-	virtual ~CHypsometry(void);
 
 
 protected:
 
-	virtual bool		On_Execute		(void);
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool		On_Execute				(void);
 
 
 private:

@@ -75,36 +75,35 @@ CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 {
 	Set_Name		(_TL("Fit Color Palette to Grid Values"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		""
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "COUNT"	, _TL("Number of Colors"),
+	Parameters.Add_Int("",
+		"COUNT"	, _TL("Number of Colors"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 100, 2, true
+		100, 2, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SCALE"	, _TL("Scale"),
+	Parameters.Add_Choice("",
+		"SCALE"	, _TL("Scale"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Grid range"),
 			_TL("User defined range")
 		), 0
 	);
 
-	Parameters.Add_Range(
-		NULL	, "RANGE"	, _TL("User defined range"),
+	Parameters.Add_Range("",
+		"RANGE"	, _TL("User defined range"),
 		_TL(""),
 		0.0, 1.0
 	);
@@ -113,83 +112,83 @@ CGrid_Colors_Fit::CGrid_Colors_Fit(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Colors_Fit::On_Execute(void)
 {
-	int		iColor;
-	long	aC, bC;
-	double	aZ, bZ, dColor, zMin, zRange;
-	CSG_Colors	Colors_Old, Colors_New;
-	CSG_Grid	*pGrid;
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	pGrid	= Parameters("GRID")->asGrid();
-
-	Colors_New.Set_Count(Parameters("COUNT")->asInt());
+	//-----------------------------------------------------
+	double	zMin, zRange;
 
 	switch( Parameters("SCALE")->asInt() )
 	{
-	case 0:	default:
-		zMin	= pGrid->Get_ZMin();
-		zRange	= pGrid->Get_ZMax() - zMin;
+	default:
+		zMin	= pGrid->Get_Min();
+		zRange	= pGrid->Get_Max() - zMin;
 		break;
 
-	case 1:
+	case  1:
 		zMin	= Parameters("RANGE")->asRange()->Get_LoVal();
 		zRange	= Parameters("RANGE")->asRange()->Get_HiVal() - zMin;
 		break;
 	}
 
-	DataObject_Get_Colors(pGrid, Colors_Old);
-
-	if( Colors_Old.Get_Count() > 1 && pGrid->Get_ZRange() > 0.0 && zRange != 0.0 )
+	if( zRange == 0.0 )
 	{
-		dColor	= 100.0 / Colors_Old.Get_Count();
-
-		aZ		= 0.0;
-		aC		= Colors_Old.Get_Color(0);
-
-		for(iColor=1; iColor<Colors_Old.Get_Count()-1; iColor++)
-		{
-			bZ	= aZ;
-			bC	= aC;
-			aZ	= (pGrid->Get_Percentile(iColor * dColor) - zMin) / zRange;
-			aC	= Colors_Old.Get_Color(iColor);
-			_Set_Colors(Colors_New, bZ, bC, aZ, aC);
-		}
-
-		bZ	= aZ;
-		bC	= aC;
-		aZ	= 1.0;
-		aC	= Colors_Old.Get_Color(Colors_Old.Get_Count() - 1);
-		_Set_Colors(Colors_New, bZ, bC, aZ, aC);
-
-		DataObject_Set_Colors	(pGrid, Colors_New);
-		DataObject_Update		(pGrid, zMin, zMin + zRange);
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	CSG_Colors	Colors_Old, Colors_New;
+
+	Colors_New.Set_Count(Parameters("COUNT")->asInt());
+
+	DataObject_Get_Colors(pGrid, Colors_Old);
+
+	if( Colors_Old.Get_Count() < 2 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double	dColor	= 100.0 / Colors_Old.Get_Count();
+
+	double	bZ, aZ	= 0.0;
+	long	bC, aC	= Colors_Old.Get_Color(0);
+
+	for(int iColor=1; iColor<Colors_Old.Get_Count()-1; iColor++)
+	{
+		bZ	= aZ;
+		bC	= aC;
+		aZ	= (pGrid->Get_Quantile(iColor * dColor) - zMin) / zRange;
+		aC	= Colors_Old.Get_Color(iColor);
+		_Set_Colors(Colors_New, bZ, bC, aZ, aC);
+	}
+
+	bZ	= aZ;
+	bC	= aC;
+	aZ	= 1.0;
+	aC	= Colors_Old.Get_Color(Colors_Old.Get_Count() - 1);
+	_Set_Colors(Colors_New, bZ, bC, aZ, aC);
+
+	DataObject_Set_Colors(pGrid, Colors_New);
+	DataObject_Update    (pGrid, zMin, zMin + zRange);
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CGrid_Colors_Fit::_Set_Colors(CSG_Colors &Colors, double pos_a, long color_a, double pos_b, long color_b)
 {
-	int		a, b;
-
-	a	= (int)(pos_a * Colors.Get_Count());	if( a < 0 )	a	= 0;	else if( a >= Colors.Get_Count() )	a	= Colors.Get_Count() - 1;
-	b	= (int)(pos_b * Colors.Get_Count());	if( b < 0 )	b	= 0;	else if( b >= Colors.Get_Count() )	b	= Colors.Get_Count() - 1;
+	int a = (int)(pos_a * Colors.Get_Count()); if( a < 0 ) a = 0; else if( a >= Colors.Get_Count() ) a = Colors.Get_Count() - 1;
+	int b = (int)(pos_b * Colors.Get_Count()); if( b < 0 ) b = 0; else if( b >= Colors.Get_Count() ) b = Colors.Get_Count() - 1;
 
 	Colors.Set_Ramp(color_a, color_b, a, b);
 }

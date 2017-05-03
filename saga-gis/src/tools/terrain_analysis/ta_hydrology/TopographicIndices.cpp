@@ -76,55 +76,58 @@ CTWI::CTWI(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Topographic Wetness Index (TWI)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Calculation of the slope and specific catchment area (SCA) based Topographic Wetness Index (TWI)\n"
-	//	"ln(SCA / tan(Slope))\n"
-		"\n"
-		"References:\n"
-		"\n"
-		"Beven, K.J., Kirkby, M.J. (1979):\n"
-		"A physically-based variable contributing area model of basin hydrology'\n"
-		"Hydrology Science Bulletin 24(1), p.43-69\n"
-		"\n"
-		"Boehner, J., Selige, T. (2006):\n"
-		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation'\n"
-		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
-		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27\n"
-		"\n"
-		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991):\n"
-		"'Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications'\n"
-		"Hydrological Processes, Vol.5, No.1\n"
+		"Calculation of the slope and specific catchment area (SCA) based Topographic Wetness Index (TWI)."
 	));
 
+	Add_Reference(
+		"Beven, K.J., Kirkby, M.J.", "1979",
+		"A physically-based variable contributing area model of basin hydrology",
+		"Hydrology Science Bulletin 24(1), p.43-69."
+	);
+
+	Add_Reference(
+		"Boehner, J., Selige, T.", "2006",
+		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation",
+		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
+		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27."
+	);
+
+	Add_Reference(
+		"Moore, I.D., Grayson, R.B., Ladson, A.R.", "1991",
+		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications",
+		"Hydrological Processes, Vol.5, No.1."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL, "SLOPE"		, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"	, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "AREA"		, _TL("Catchment Area"),
+	Parameters.Add_Grid("",
+		"AREA"	, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "TRANS"		, _TL("Transmissivity"),
+	Parameters.Add_Grid("",
+		"TRANS"	, _TL("Transmissivity"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL, "TWI"			, _TL("Topographic Wetness Index"),
+	Parameters.Add_Grid("",
+		"TWI"	, _TL("Topographic Wetness Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "CONV"	, _TL("Area Conversion"),
+	Parameters.Add_Choice("",
+		"CONV"	, _TL("Area Conversion"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("no conversion (areas already given as specific catchment area)"),
@@ -132,10 +135,10 @@ CTWI::CTWI(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Method (TWI)"),
+	Parameters.Add_Choice("",
+		"METHOD", _TL("Method (TWI)"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Standard"),
 			_TL("TOPMODEL")
 		), 0
@@ -156,12 +159,13 @@ bool CTWI::On_Execute(void)
 	CSG_Grid	*pArea, *pSlope, *pKf, *pTWI;
 
 	//-----------------------------------------------------
-	pSlope		= Parameters("SLOPE")	->asGrid();
-	pArea		= Parameters("AREA")	->asGrid();
-	pKf			= Parameters("TRANS")	->asGrid();
-	pTWI		= Parameters("TWI")		->asGrid();
-	bConvert	= Parameters("CONV")	->asInt() == 1;
-	bTopmodel	= Parameters("METHOD")	->asInt() == 1;
+	pSlope		= Parameters("SLOPE" )->asGrid();
+	pArea		= Parameters("AREA"  )->asGrid();
+	pKf			= Parameters("TRANS" )->asGrid();
+	pTWI		= Parameters("TWI"   )->asGrid();
+
+	bConvert	= Parameters("CONV"  )->asInt() == 1;
+	bTopmodel	= Parameters("METHOD")->asInt() == 1;
 
 	DataObject_Set_Colors(pTWI, 100, SG_COLORS_RED_GREY_BLUE);
 
@@ -274,42 +278,42 @@ CStream_Power::CStream_Power(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Stream Power Index"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Calculation of stream power index based on slope and specific catchment area (SCA).\n"
-		"SPI = SCA * tan(Slope)\n"
-		"\n"
-		"References:\n"
-		"\n"
-		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991):\n"
-		"'Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications'\n"
-		"Hydrological Processes, Vol.5, No.1\n"
+		"SPI = SCA * tan(Slope)"
 	));
 
+	Add_Reference(
+		"Moore, I.D., Grayson, R.B., Ladson, A.R.", "1991",
+		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications",
+		"Hydrological Processes, Vol.5, No.1\n"
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"	, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"	, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"	, _TL("Catchment Area"),
+	Parameters.Add_Grid("",
+		"AREA"	, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SPI"		, _TL("Stream Power Index"),
+	Parameters.Add_Grid("",
+		"SPI"	, _TL("Stream Power Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "CONV"	, _TL("Area Conversion"),
+	Parameters.Add_Choice("",
+		"CONV"	, _TL("Area Conversion"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (pseudo specific catchment area)")
 		), 0
@@ -328,10 +332,10 @@ bool CStream_Power::On_Execute(void)
 	CSG_Grid	*pArea, *pSlope, *pSPI;
 
 	//-----------------------------------------------------
-	pSlope		= Parameters("SLOPE")	->asGrid();
-	pArea		= Parameters("AREA")	->asGrid();
-	pSPI		= Parameters("SPI")		->asGrid();
-	bConvert	= Parameters("CONV")	->asInt() == 1;
+	pSlope		= Parameters("SLOPE")->asGrid();
+	pArea		= Parameters("AREA" )->asGrid();
+	pSPI		= Parameters("SPI"  )->asGrid();
+	bConvert	= Parameters("CONV" )->asInt() == 1;
 
 	DataObject_Set_Colors(pSPI, 100, SG_COLORS_RED_GREY_GREEN, true);
 
@@ -365,63 +369,69 @@ bool CStream_Power::On_Execute(void)
 //---------------------------------------------------------
 CLS_Factor::CLS_Factor(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("LS Factor"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Calculation of slope length (LS) factor as used by the Universal Soil Loss Equation (USLE), "
-		"based on slope and specific catchment area (SCA, as substitute for slope length). "
-		"\n"
-		"References:\n"
-		"\n"
-		"Boehner, J., Selige, T. (2006):\n"
-		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation'\n"
-		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
-		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27\n"
-		"\n"
-		"Desmet & Govers (1996):\n"
-		"'A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units'\n"
-		"Journal of Soil and Water Conservation, 51(5):427.433\n"
-		"\n"
-		"Kinnell, P.I.A. (2005):\n"
-		"'Alternative Approaches for Determining the USLE-M Slope Length Factor for Grid Cells.'\n"
-		"<a href=\"http://soil.scijournals.org/cgi/content/full/69/3/674\">http://soil.scijournals.org/cgi/content/full/69/3/674</a>\n"
-		"\n"
-		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991):\n"
-		"'Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications'\n"
-		"Hydrological Processes, Vol.5, No.1\n"
-		"\n"
-		"Wischmeier, W.H., Smith, D.D. (1978):\n"
-		"'Predicting rainfall erosion losses - A guide to conservation planning'\n"
-		"Agriculture Handbook No. 537: US Department of Agriculture, Washington DC.\n"
+		"based on slope and specific catchment area (SCA, as substitute for slope length)."
 	));
 
+	Add_Reference(
+		"Boehner, J., Selige, T.", "2006",
+		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation",
+		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
+		"Goettinger Geographische Abhandlungen, Vol.115, p.13-27."
+	);
+
+	Add_Reference(
+		"Desmet & Govers", "1996",
+		"A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units",
+		"Journal of Soil and Water Conservation, 51(5):427.433."
+	);
+
+	Add_Reference(
+		"Kinnell, P.I.A.", "2005",
+		"'Alternative Approaches for Determining the USLE-M Slope Length Factor for Grid Cells",
+		"soil.scijournals.org, 69/3/674", SG_T("http://soil.scijournals.org/cgi/content/full/69/3/674")
+	);
+
+	Add_Reference(
+		"Moore, I.D., Grayson, R.B., Ladson, A.R.", "1991",
+		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications",
+		"Hydrological Processes, Vol.5, No.1."
+	);
+
+	Add_Reference(
+		"Wischmeier, W.H., Smith, D.D.", "1978",
+		"Predicting rainfall erosion losses - A guide to conservation planning",
+		"Agriculture Handbook No. 537: US Department of Agriculture, Washington DC."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"	, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"		, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"	, _TL("Catchment Area"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "LS"		, _TL("LS Factor"),
+	Parameters.Add_Grid("",
+		"LS"		, _TL("LS Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "CONV"			, _TL("Area to Length Conversion"),
+	Parameters.Add_Choice("",
+		"CONV"		, _TL("Area to Length Conversion"),
 		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method."),
 		CSG_String::Format(SG_T("%s|%s|%s|"),
 			_TL("no conversion (areas already given as specific catchment area)"),
@@ -431,31 +441,31 @@ CLS_Factor::CLS_Factor(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method (LS)"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method (LS)"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Moore et al. 1991"),
 			_TL("Desmet & Govers 1996"),
 			_TL("Boehner & Selige 2006")
 		), 0
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_DG"		, _TL("Desmet & Govers"),
+	Parameters.Add_Node("",
+		"NODE_DG"	, _TL("Desmet & Govers"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
+	Parameters.Add_Double("NODE_DG",
+		"EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "STABILITY"	, _TL("Stability"),
+	Parameters.Add_Choice("NODE_DG",
+		"STABILITY"	, _TL("Stability"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("stable"),
 			_TL("instable (thawing)")
 		), 0
@@ -474,13 +484,14 @@ bool CLS_Factor::On_Execute(void)
 	CSG_Grid	*pArea, *pSlope, *pLS;
 
 	//-----------------------------------------------------
-	pSlope		= Parameters("SLOPE")		->asGrid();
-	pArea		= Parameters("AREA")		->asGrid();
-	pLS			= Parameters("LS")			->asGrid();
-	Conversion	= Parameters("CONV")		->asInt();
-	m_Method	= Parameters("METHOD")		->asInt();
-	m_Erosivity	= Parameters("EROSIVITY")	->asInt();
-	m_Stability	= Parameters("STABILITY")	->asInt();
+	pSlope		= Parameters("SLOPE"    )->asGrid();
+	pArea		= Parameters("AREA"     )->asGrid();
+	pLS			= Parameters("LS"       )->asGrid();
+
+	Conversion	= Parameters("CONV"     )->asInt();
+	m_Method	= Parameters("METHOD"   )->asInt();
+	m_Erosivity	= Parameters("EROSIVITY")->asInt();
+	m_Stability	= Parameters("STABILITY")->asInt();
 
 	DataObject_Set_Colors(pLS, 100, SG_COLORS_RED_GREY_GREEN, true);
 
@@ -606,35 +617,36 @@ CTCI_Low::CTCI_Low(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("TCI Low"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Terrain Classification Index for Lowlands (TCI Low).\n"
-		"\n"
-		"Reference:\n"
-		"Bock, M., Boehner, J., Conrad, O., Koethe, R., Ringeler, A. (2007): "
-		"Methods for creating Functional Soil Databases and applying Digital Soil Mapping with SAGA GIS. "
-		"In: Hengl, T., Panagos, P., Jones, A., Toth, G. [Eds.]: "
-		"Status and prospect of soil information in south-eastern Europe: soil databases, projects and applications. "
-		"EUR 22646 EN Scientific and Technical Research series, Office for Official Publications of the European Communities, Luxemburg, p.149-162. "
-		"<a target=\"_blank\" href=\"http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf\">online</a>.\n"
+		"Terrain Classification Index for Lowlands (TCI Low)."
 	));
 
+	Add_Reference(
+		"Bock, M., Boehner, J., Conrad, O., Koethe, R., Ringeler, A.", "2007",
+		"Methods for creating Functional Soil Databases and applying Digital Soil Mapping with SAGA GIS",
+		"In: Hengl, T., Panagos, P., Jones, A., Toth, G. [Eds.]: "
+		"Status and prospect of soil information in south-eastern Europe: soil databases, projects and applications. "
+		"EUR 22646 EN Scientific and Technical Research series, Office for Official Publications of the European Communities, Luxemburg, p.149-162.",
+		SG_T("http://eusoils.jrc.ec.europa.eu/ESDB_Archive/eusoils_docs/esb_rr/EUR22646EN.pdf")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("Vertical Distance to Channel Network"),
+	Parameters.Add_Grid("",
+		"DISTANCE"	, _TL("Vertical Distance to Channel Network"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TWI"			, _TL("Topographic Wetness Index"),
+	Parameters.Add_Grid("",
+		"TWI"		, _TL("Topographic Wetness Index"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TCILOW"		, _TL("TCI Low"),
+	Parameters.Add_Grid("",
+		"TCILOW"	, _TL("TCI Low"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -655,10 +667,10 @@ bool CTCI_Low::On_Execute(void)
 
 	DataObject_Set_Colors(pTCI_Low, 100, SG_COLORS_RED_GREY_BLUE, false);
 
-	double	dMax	= pDistance->Get_ZMax();
-	double	dRange	= pDistance->Get_ZRange();
-	double	wMin	= pTWI->Get_ZMin();
-	double	wRange	= log(1.0 + pTWI->Get_ZRange());
+	double	dMax	= pDistance->Get_Max();
+	double	dRange	= pDistance->Get_Range();
+	double	wMin	= pTWI->Get_Min();
+	double	wRange	= log(1.0 + pTWI->Get_Range());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)

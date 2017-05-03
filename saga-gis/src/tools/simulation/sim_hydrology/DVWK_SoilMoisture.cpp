@@ -254,7 +254,7 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		DataObject_Update(pWi_mm, 0, pFK_mm ? pFK_mm->Get_ZMax() : FK_mm_Def, true);
+		DataObject_Update(pWi_mm, 0, pFK_mm ? pFK_mm->Get_Max() : FK_mm_Def, true);
 
 		for(Day=0; Day<365 && Set_Progress(Day, 365); Day++)
 		{

@@ -529,7 +529,7 @@ bool CRelative_Heights::Get_Results(CSG_Grid *pDEM, CSG_Grid *pHO, CSG_Grid *pHU
 				nh	= 0.5 * (1.0 + (ho - hu) / (ho + hu));
 
 				pNH->Set_Value(x, y, nh);
-				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - pDEM->Get_ZMin()) + pDEM->Get_ZMin());	//, nh * pDEM->asDouble(x, y));
+				pSH->Set_Value(x, y, nh * (pDEM->asDouble(x, y) - pDEM->Get_Min()) + pDEM->Get_Min());	//, nh * pDEM->asDouble(x, y));
 				pMS->Set_Value(x, y, fabs(2.0 * nh - 1.0));
 			}
 		}

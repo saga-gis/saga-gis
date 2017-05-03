@@ -705,8 +705,8 @@ bool CLandsat_TOAR::On_Execute(void)
 			pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Radiance"   )));
 			pOutput->asGrid()->Set_NoData_Value(MaxVal);
 
-			double	min	= lsat_qcal2rad(pInput->Get_ZMin(), &lsat.band[iBand]);
-			double	max	= lsat_qcal2rad(pInput->Get_ZMax(), &lsat.band[iBand]);
+			double	min	= lsat_qcal2rad(pInput->Get_Min(), &lsat.band[iBand]);
+			double	max	= lsat_qcal2rad(pInput->Get_Max(), &lsat.band[iBand]);
 
 			pOutput->asGrid()->Set_Scaling((max - min) / (MaxVal - 1.0), min);
 		}

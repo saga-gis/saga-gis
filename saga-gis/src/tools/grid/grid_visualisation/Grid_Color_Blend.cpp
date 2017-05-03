@@ -170,13 +170,13 @@ bool CGrid_Color_Blend::On_Execute(void)
 
 	case 1:	// fit to overall range
 		{
-			m_Range_Min	= pGrids->asGrid(0)->Get_ZMin();
-			m_Range_Max	= pGrids->asGrid(0)->Get_ZMax();
+			m_Range_Min	= pGrids->asGrid(0)->Get_Min();
+			m_Range_Max	= pGrids->asGrid(0)->Get_Max();
 
 			for(int i=1; i<pGrids->Get_Count(); i++)
 			{
-				if( m_Range_Min > pGrids->asGrid(i)->Get_ZMin() )	m_Range_Min	= pGrids->asGrid(i)->Get_ZMin();
-				if( m_Range_Max < pGrids->asGrid(i)->Get_ZMax() )	m_Range_Max	= pGrids->asGrid(i)->Get_ZMax();
+				if( m_Range_Min > pGrids->asGrid(i)->Get_Min() )	m_Range_Min	= pGrids->asGrid(i)->Get_Min();
+				if( m_Range_Max < pGrids->asGrid(i)->Get_Max() )	m_Range_Max	= pGrids->asGrid(i)->Get_Max();
 			}
 		}
 		break;

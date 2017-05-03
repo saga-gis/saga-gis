@@ -451,27 +451,31 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	CSG_Grid(void);
 
-								CSG_Grid	(const CSG_Grid &Grid);
-	bool						Create		(const CSG_Grid &Grid);
+									CSG_Grid		(const CSG_Grid &Grid);
+	bool							Create			(const CSG_Grid &Grid);
 
-								CSG_Grid	(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
-	bool						Create		(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
+									CSG_Grid		(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
+	bool							Create			(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
 
-								CSG_Grid	(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
-	bool						Create		(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+									CSG_Grid		(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+	bool							Create			(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
-								CSG_Grid	(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
-	bool						Create		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+									CSG_Grid		(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+	bool							Create			(const CSG_Grid_System &System, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
-								CSG_Grid	(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
-	bool						Create		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+									CSG_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
+	bool							Create			(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 
 
 	//-----------------------------------------------------
 	virtual ~CSG_Grid(void);
 
-	virtual bool				Destroy	(void);
+	virtual bool					Destroy			(void);
 
+
+	//-----------------------------------------------------
+	virtual bool					Save			(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
+	virtual bool					Save			(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
 
 	//-----------------------------------------------------
 	/** Data object type information.
@@ -482,122 +486,127 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Data-Info...
 
-	TSG_Data_Type				Get_Type		(void)	const	{	return( m_Type );					}
+	TSG_Data_Type					Get_Type		(void)	const	{	return( m_Type );					}
 
-	int							Get_nValueBytes	(void)	const	{	return( (int)SG_Data_Type_Get_Size(m_Type) );	}
-	int							Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? (int)SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
+	int								Get_nValueBytes	(void)	const	{	return( (int)SG_Data_Type_Get_Size(m_Type) );	}
+	int								Get_nLineBytes	(void)	const	{	return( m_Type != SG_DATATYPE_Bit ? (int)SG_Data_Type_Get_Size(m_Type) * Get_NX() : 1 + Get_NX() / 8 );	}
 
-	void						Set_Unit		(const SG_Char *String);
-	const SG_Char *				Get_Unit		(void)	const;
+	void							Set_Unit		(const CSG_String &Unit);
+	const CSG_String &				Get_Unit		(void)	const	{	return( m_Unit );	}
 
-	const CSG_Grid_System &		Get_System		(void)	const	{	return( m_System );					}
 
-	int							Get_NX			(void)	const	{	return( m_System.Get_NX() );		}
-	int							Get_NY			(void)	const	{	return( m_System.Get_NY() );		}
-	sLong						Get_NCells		(void)	const	{	return( m_System.Get_NCells() );	}
+	//-----------------------------------------------------
+	// Georeference...
 
-	double						Get_Cellsize	(void)	const	{	return( m_System.Get_Cellsize() );	}
-	double						Get_Cellarea	(void)	const	{	return( m_System.Get_Cellarea() );	}
+	const CSG_Grid_System &			Get_System		(void)	const	{	return( m_System );					}
 
-	const CSG_Rect &			Get_Extent		(bool bCells = false)	const	{	return( m_System.Get_Extent(bCells) );	}
+	int								Get_NX			(void)	const	{	return( m_System.Get_NX() );		}
+	int								Get_NY			(void)	const	{	return( m_System.Get_NY() );		}
+	sLong							Get_NCells		(void)	const	{	return( m_System.Get_NCells() );	}
 
-	double						Get_XMin		(bool bCells = false)	const	{	return( m_System.Get_XMin  (bCells) );	}
-	double						Get_XMax		(bool bCells = false)	const	{	return( m_System.Get_XMax  (bCells) );	}
-	double						Get_XRange		(bool bCells = false)	const	{	return( m_System.Get_XRange(bCells) );	}
+	double							Get_Cellsize	(void)	const	{	return( m_System.Get_Cellsize() );	}
+	double							Get_Cellarea	(void)	const	{	return( m_System.Get_Cellarea() );	}
 
-	double						Get_YMin		(bool bCells = false)	const	{	return( m_System.Get_YMin  (bCells) );	}
-	double						Get_YMax		(bool bCells = false)	const	{	return( m_System.Get_YMax  (bCells) );	}
-	double						Get_YRange		(bool bCells = false)	const	{	return( m_System.Get_YRange(bCells) );	}
+	const CSG_Rect &				Get_Extent		(bool bCells = false)	const	{	return( m_System.Get_Extent(bCells) );	}
 
-	double						Get_ZMin		(void);
-	double						Get_ZMax		(void);
-	double						Get_ZRange		(void);
+	double							Get_XMin		(bool bCells = false)	const	{	return( m_System.Get_XMin  (bCells) );	}
+	double							Get_XMax		(bool bCells = false)	const	{	return( m_System.Get_XMax  (bCells) );	}
+	double							Get_XRange		(bool bCells = false)	const	{	return( m_System.Get_XRange(bCells) );	}
 
-	void						Set_Scaling		(double Scale = 1.0, double Offset = 0.0);
-	double						Get_Scaling		(void)	const;
-	double						Get_Offset		(void)	const;
-	bool						is_Scaled		(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
+	double							Get_YMin		(bool bCells = false)	const	{	return( m_System.Get_YMin  (bCells) );	}
+	double							Get_YMax		(bool bCells = false)	const	{	return( m_System.Get_YMax  (bCells) );	}
+	double							Get_YRange		(bool bCells = false)	const	{	return( m_System.Get_YRange(bCells) );	}
 
-	double						Get_Mean		(void);
-	double						Get_StdDev		(void);
-	double						Get_Variance	(void);
-	double						Get_Percentile	(double Percent);
 
-	sLong						Get_Data_Count	(void);
-	sLong						Get_NoData_Count(void);
+	//-----------------------------------------------------
+	// Values...
 
-	virtual bool				Save	(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
-	virtual bool				Save	(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
+	void							Set_Scaling			(double Scale = 1.0, double Offset = 0.0);
+	double							Get_Scaling			(void)	const;
+	double							Get_Offset			(void)	const;
+	bool							is_Scaled			(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
+
+	const CSG_Simple_Statistics &	Get_Statistics		(void);
+	double							Get_Mean			(void);
+	double							Get_Min				(void);
+	double							Get_Max				(void);
+	double							Get_Range			(void);
+	double							Get_StdDev			(void);
+	double							Get_Variance		(void);
+	double							Get_Quantile		(double Quantile);
+
+	sLong							Get_Data_Count		(void);
+	sLong							Get_NoData_Count	(void);
 
 
 	//-----------------------------------------------------
 	// Checks...
 
-	virtual bool				is_Valid		(void)	const;
+	virtual bool					is_Valid			(void)	const;
 
-	TSG_Intersection			is_Intersecting	(const CSG_Rect &Extent) const;
-	TSG_Intersection			is_Intersecting	(const TSG_Rect &Extent) const;
-	TSG_Intersection			is_Intersecting	(double xMin, double yMin, double xMax, double yMax) const;
+	TSG_Intersection				is_Intersecting		(const CSG_Rect &Extent) const;
+	TSG_Intersection				is_Intersecting		(const TSG_Rect &Extent) const;
+	TSG_Intersection				is_Intersecting		(double xMin, double yMin, double xMax, double yMax) const;
 
-	bool						is_Compatible	(CSG_Grid *pGrid) const;
-	bool						is_Compatible	(const CSG_Grid_System &System) const;
-	bool						is_Compatible	(int NX, int NY, double Cellsize, double xMin, double yMin) const;
+	bool							is_Compatible		(CSG_Grid *pGrid) const;
+	bool							is_Compatible		(const CSG_Grid_System &System) const;
+	bool							is_Compatible		(int NX, int NY, double Cellsize, double xMin, double yMin) const;
 
-	bool						is_InGrid		(int    x, int    y, bool bCheckNoData = true)	const	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || !is_NoData(x, y)) );	}
-	bool						is_InGrid_byPos	(double x, double y, bool bCheckNoData = true)	const	{	return( x >= Get_XMin() && x <= Get_XMax() && y >= Get_YMin() && y <= Get_YMax() && (!bCheckNoData || !is_NoData(m_System.Get_xWorld_to_Grid(x), m_System.Get_yWorld_to_Grid(y))) );	}
-	bool						is_InGrid_byPos	(TSG_Point Position, bool bCheckNoData = true)	const	{	return( is_InGrid_byPos(Position.x, Position.y, bCheckNoData) );	}
+	bool							is_InGrid			(int    x, int    y, bool bCheckNoData = true)	const	{	return( m_System.is_InGrid(x, y) && (!bCheckNoData || !is_NoData(x, y)) );	}
+	bool							is_InGrid_byPos		(double x, double y, bool bCheckNoData = true)	const	{	return( Get_Extent(true).Contains(x, y) && (!bCheckNoData || !is_NoData(m_System.Get_xWorld_to_Grid(x), m_System.Get_yWorld_to_Grid(y))) );	}
+	bool							is_InGrid_byPos		(const TSG_Point &p, bool bCheckNoData = true)	const	{	return( is_InGrid_byPos(p.x, p.y, bCheckNoData) );	}
 
 
 	//-----------------------------------------------------
 	// Memory...
 
-	sLong						Get_Memory_Size				(void)		const	{	return( Get_NCells() * Get_nValueBytes() );	}
-	double						Get_Memory_Size_MB			(void)		const	{	return( (double)Get_Memory_Size() / N_MEGABYTE_BYTES );	}
+	sLong							Get_Memory_Size			(void)		const	{	return( Get_NCells() * Get_nValueBytes() );	}
+	double							Get_Memory_Size_MB		(void)		const	{	return( (double)Get_Memory_Size() / N_MEGABYTE_BYTES );	}
 
-	bool						Set_Buffer_Size				(sLong nBytes);
-	int							Get_Buffer_Size				(void)		const	{	return( m_LineBuffer_Count * Get_nLineBytes() );	}
+	bool							Set_Buffer_Size			(sLong nBytes);
+	int								Get_Buffer_Size			(void)		const	{	return( m_LineBuffer_Count * Get_nLineBytes() );	}
 
-	bool						Set_Cache					(bool bOn);
-	bool						is_Cached					(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Cache );	}
+	bool							Set_Cache				(bool bOn);
+	bool							is_Cached				(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Cache );	}
 
-	bool						Set_Compression				(bool bOn);
-	bool						is_Compressed				(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Compression );	};
-	double						Get_Compression_Ratio		(void)		const;
+	bool							Set_Compression			(bool bOn);
+	bool							is_Compressed			(void)		const	{	return( m_Memory_Type == GRID_MEMORY_Compression );	};
+	double							Get_Compression_Ratio	(void)		const;
 
 
 	//-----------------------------------------------------
 	// Operations...
 
-	void						Assign_NoData				(void);
+	void							Assign_NoData				(void);
 
-	virtual bool				Assign						(double Value = 0.0);
-	virtual bool				Assign						(CSG_Data_Object *pObject);
-	virtual bool				Assign						(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation);
+	virtual bool					Assign						(double Value = 0.0);
+	virtual bool					Assign						(CSG_Data_Object *pObject);
+	virtual bool					Assign						(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation);
 
-	void						Flip						(void);
-	void						Mirror						(void);
-	void						Invert						(void);
+	void							Flip						(void);
+	void							Mirror						(void);
+	void							Invert						(void);
 
-	bool						Normalise					(void);
-	bool						DeNormalise					(double Minimum, double Maximum);
+	bool							Normalise					(void);
+	bool							DeNormalise					(double Minimum, double Maximum);
 
-	bool						Standardise					(void);
-	bool						DeStandardise				(double Mean, double StdDev);
+	bool							Standardise					(void);
+	bool							DeStandardise				(double Mean, double StdDev);
 
-	int							Get_Gradient_NeighborDir	(int x, int y, bool bDown = true, bool bNoEdges = true)	const;
-	bool						Get_Gradient				(int x, int y      , double &Slope, double &Aspect)	const;
-	bool						Get_Gradient				(double x, double y, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
-	bool						Get_Gradient				(const TSG_Point &p, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
+	int								Get_Gradient_NeighborDir	(int x, int y, bool bDown = true, bool bNoEdges = true)	const;
+	bool							Get_Gradient				(int x, int y      , double &Slope, double &Aspect)	const;
+	bool							Get_Gradient				(double x, double y, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
+	bool							Get_Gradient				(const TSG_Point &p, double &Slope, double &Aspect, TSG_Grid_Resampling Interpolation)	const;
 
 
 	//-----------------------------------------------------
 	// Set update flag when modified...
 
-	virtual void				Set_Modified	(bool bOn = true)
+	virtual void					Set_Modified	(bool bModified = true)
 	{
-		CSG_Data_Object::Set_Modified(bOn);
+		CSG_Data_Object::Set_Modified(bModified);
 
-		if( bOn )
+		if( bModified )
 		{
 			Set_Update_Flag();
 
@@ -609,7 +618,7 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Index...
 
-	bool						Set_Index		(bool bOn = true)
+	bool							Set_Index		(bool bOn = true)
 	{
 		if( !bOn )
 		{
@@ -621,7 +630,7 @@ public:		///////////////////////////////////////////////
 		return( m_bIndex || _Set_Index() );
 	}
 
-	sLong						Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
+	sLong							Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
 		if( Position >= 0 && Position < Get_NCells() && (m_bIndex || _Set_Index()) )
 		{
@@ -636,12 +645,12 @@ public:		///////////////////////////////////////////////
 		return( -1 );
 	}
 
-	bool						Get_Sorted		(sLong Position, sLong &n, bool bDown = true, bool bCheckNoData = true)
+	bool							Get_Sorted		(sLong Position, sLong &i, bool bDown = true, bool bCheckNoData = true)
 	{
-		return( (n = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(n)) );
+		return( (i = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(i)) );
 	}
 
-	bool						Get_Sorted		(sLong Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
+	bool							Get_Sorted		(sLong Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
 	{
 		if( (Position = Get_Sorted(Position, bDown, false)) >= 0 )
 		{
@@ -658,78 +667,78 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// No Data Value...
 
-	virtual bool				is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y, false)) );	}
-	virtual bool				is_NoData		(sLong n)		const	{	return( is_NoData_Value(asDouble(   n, false)) );	}
+	virtual bool					is_NoData		(int x, int y)	const	{	return( is_NoData_Value(asDouble(x, y, false)) );	}
+	virtual bool					is_NoData		(sLong      i)	const	{	return( is_NoData_Value(asDouble(   i, false)) );	}
 
-	virtual void				Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value(), false);	}
-	virtual void				Set_NoData		(sLong n)		{	Set_Value(   n, Get_NoData_Value(), false);	}
+	virtual void					Set_NoData		(int x, int y)	{	Set_Value(x, y, Get_NoData_Value(), false);	}
+	virtual void					Set_NoData		(sLong      i)	{	Set_Value(   i, Get_NoData_Value(), false);	}
 
 
 	//-----------------------------------------------------
 	// Operators...
 
-	virtual CSG_Grid &			operator  =		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			operator  =		(double Value);
+	virtual CSG_Grid &				operator  =		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				operator  =		(double Value);
 
-	virtual CSG_Grid			operator +		(const CSG_Grid &Grid)	const;
-	virtual CSG_Grid			operator +		(double Value)			const;
-	virtual CSG_Grid &			operator +=		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			operator +=		(double Value);
-	virtual CSG_Grid &			Add				(const CSG_Grid &Grid);
-	virtual CSG_Grid &			Add				(double Value);
+	virtual CSG_Grid				operator +		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid				operator +		(double Value)			const;
+	virtual CSG_Grid &				operator +=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				operator +=		(double Value);
+	virtual CSG_Grid &				Add				(const CSG_Grid &Grid);
+	virtual CSG_Grid &				Add				(double Value);
 
-	virtual CSG_Grid			operator -		(const CSG_Grid &Grid)	const;
-	virtual CSG_Grid			operator -		(double Value)			const;
-	virtual CSG_Grid &			operator -=		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			operator -=		(double Value);
-	virtual CSG_Grid &			Subtract		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			Subtract		(double Value);
+	virtual CSG_Grid				operator -		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid				operator -		(double Value)			const;
+	virtual CSG_Grid &				operator -=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				operator -=		(double Value);
+	virtual CSG_Grid &				Subtract		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				Subtract		(double Value);
 
-	virtual CSG_Grid			operator *		(const CSG_Grid &Grid)	const;
-	virtual CSG_Grid			operator *		(double Value)			const;
-	virtual CSG_Grid &			operator *=		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			operator *=		(double Value);
-	virtual CSG_Grid &			Multiply		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			Multiply		(double Value);
+	virtual CSG_Grid				operator *		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid				operator *		(double Value)			const;
+	virtual CSG_Grid &				operator *=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				operator *=		(double Value);
+	virtual CSG_Grid &				Multiply		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				Multiply		(double Value);
 
-	virtual CSG_Grid			operator /		(const CSG_Grid &Grid)	const;
-	virtual CSG_Grid			operator /		(double Value)			const;
-	virtual CSG_Grid &			operator /=		(const CSG_Grid &Grid);
-	virtual CSG_Grid &			operator /=		(double Value);
-	virtual CSG_Grid &			Divide			(const CSG_Grid &Grid);
-	virtual CSG_Grid &			Divide			(double Value);
+	virtual CSG_Grid				operator /		(const CSG_Grid &Grid)	const;
+	virtual CSG_Grid				operator /		(double Value)			const;
+	virtual CSG_Grid &				operator /=		(const CSG_Grid &Grid);
+	virtual CSG_Grid &				operator /=		(double Value);
+	virtual CSG_Grid &				Divide			(const CSG_Grid &Grid);
+	virtual CSG_Grid &				Divide			(double Value);
 
-	virtual double				operator ()		(int x, int y) const	{	return( asDouble(x, y) );	}
+	virtual double					operator ()		(int x, int y) const	{	return( asDouble(x, y) );	}
 
 
 	//-----------------------------------------------------
 	// Get Value...
 
-	double						Get_Value(double xPos, double yPos,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	double						Get_Value(TSG_Point Position      ,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(double xPos, double yPos, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
-	bool						Get_Value(TSG_Point Position      , double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bByteWise = false, bool bOnlyValidCells = false) const;
+	double							Get_Value	(double x, double y,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline                      , bool bByteWise = false) const;
+	double							Get_Value	(const TSG_Point &p,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline                      , bool bByteWise = false) const;
+	bool							Get_Value	(double x, double y, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bNoData = false, bool bByteWise = false) const;
+	bool							Get_Value	(const TSG_Point &p, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, bool bNoData = false, bool bByteWise = false) const;
 
-	virtual BYTE				asByte	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(x, y, bScaled)) );	}
-	virtual BYTE				asByte	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(   n, bScaled)) );	}
-	virtual char				asChar	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(x, y, bScaled)) );	}
-	virtual char				asChar	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(   n, bScaled)) );	}
-	virtual short				asShort	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(x, y, bScaled)) );	}
-	virtual short				asShort	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(   n, bScaled)) );	}
-	virtual int					asInt	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(x, y, bScaled)) );	}
-	virtual int					asInt	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(   n, bScaled)) );	}
-	virtual sLong				asLong	(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(x, y, bScaled)) );	}
-	virtual sLong				asLong	(     sLong n, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(   n, bScaled)) );	}
-	virtual float				asFloat	(int x, int y, bool bScaled = true) const	{	return( (float)          (asDouble(x, y, bScaled)) );	}
-	virtual float				asFloat	(     sLong n, bool bScaled = true) const	{	return( (float)          (asDouble(   n, bScaled)) );	}
+	virtual BYTE					asByte		(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(x, y, bScaled)) );	}
+	virtual BYTE					asByte		(     sLong i, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(   i, bScaled)) );	}
+	virtual char					asChar		(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(x, y, bScaled)) );	}
+	virtual char					asChar		(     sLong i, bool bScaled = true) const	{	return( SG_ROUND_TO_CHAR (asDouble(   i, bScaled)) );	}
+	virtual short					asShort		(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(x, y, bScaled)) );	}
+	virtual short					asShort		(     sLong i, bool bScaled = true) const	{	return( SG_ROUND_TO_SHORT(asDouble(   i, bScaled)) );	}
+	virtual int						asInt		(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(x, y, bScaled)) );	}
+	virtual int						asInt		(     sLong i, bool bScaled = true) const	{	return( SG_ROUND_TO_INT  (asDouble(   i, bScaled)) );	}
+	virtual sLong					asLong		(int x, int y, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(x, y, bScaled)) );	}
+	virtual sLong					asLong		(     sLong i, bool bScaled = true) const	{	return( SG_ROUND_TO_SLONG(asDouble(   i, bScaled)) );	}
+	virtual float					asFloat		(int x, int y, bool bScaled = true) const	{	return( (float)          (asDouble(x, y, bScaled)) );	}
+	virtual float					asFloat		(     sLong i, bool bScaled = true) const	{	return( (float)          (asDouble(   i, bScaled)) );	}
 
 	//-----------------------------------------------------
-	virtual double				asDouble(     sLong n, bool bScaled = true) const
+	virtual double					asDouble(     sLong i, bool bScaled = true) const
 	{
-		return( asDouble((int)(n % Get_NX()), (int)(n / Get_NX()), bScaled) );
+		return( asDouble((int)(i % Get_NX()), (int)(i / Get_NX()), bScaled) );
 	}
 
-	virtual double				asDouble(int x, int y, bool bScaled = true) const
+	virtual double					asDouble(int x, int y, bool bScaled = true) const
 	{
 		double	Value;
 
@@ -740,16 +749,16 @@ public:		///////////////////////////////////////////////
 		else switch( m_Type )
 		{
 			default:	return( 0.0 );
-			case SG_DATATYPE_Byte:		Value	= (double)((BYTE   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Char:		Value	= (double)((char   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Word:		Value	= (double)((WORD   **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Short:		Value	= (double)((short  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_DWord:		Value	= (double)((DWORD  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Int:		Value	= (double)((int    **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Long:		Value	= (double)((sLong  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Float:		Value	= (double)((float  **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Double:	Value	= (double)((double **)m_Values)[y][x];	break;
-			case SG_DATATYPE_Bit:		Value	=(double)(((BYTE   **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
+			case SG_DATATYPE_Byte  : Value = (double)((BYTE   **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Char  : Value = (double)((char   **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Word  : Value = (double)((WORD   **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Short : Value = (double)((short  **)m_Values)[y][x]; break;
+			case SG_DATATYPE_DWord : Value = (double)((DWORD  **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Int   : Value = (double)((int    **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Long  : Value = (double)((sLong  **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Float : Value = (double)((float  **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Double: Value = (double)((double **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Bit   : Value = (double)(((BYTE  **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
 		}
 
 		if( bScaled && is_Scaled() )
@@ -764,19 +773,19 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Set Value...
 
-	virtual void				Add_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) + Value );	}
-	virtual void				Add_Value(     sLong n, double Value)	{	Set_Value(   n, asDouble(   n) + Value );	}
+	virtual void					Add_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) + Value );	}
+	virtual void					Add_Value(sLong      i, double Value)	{	Set_Value(   i, asDouble(   i) + Value );	}
 
-	virtual void				Mul_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) * Value );	}
-	virtual void				Mul_Value(     sLong n, double Value)	{	Set_Value(   n, asDouble(   n) * Value );	}
+	virtual void					Mul_Value(int x, int y, double Value)	{	Set_Value(x, y, asDouble(x, y) * Value );	}
+	virtual void					Mul_Value(sLong      i, double Value)	{	Set_Value(   i, asDouble(   i) * Value );	}
 
 	//-----------------------------------------------------
-	virtual void				Set_Value(     sLong n, double Value, bool bScaled = true)
+	virtual void					Set_Value(sLong      i, double Value, bool bScaled = true)
 	{
-		Set_Value((int)(n % Get_NX()), (int)(n / Get_NX()), Value, bScaled);
+		Set_Value((int)(i % Get_NX()), (int)(i / Get_NX()), Value, bScaled);
 	}
 
-	virtual void				Set_Value(int x, int y, double Value, bool bScaled = true)
+	virtual void					Set_Value(int x, int y, double Value, bool bScaled = true)
 	{
 		if( bScaled && is_Scaled() )
 		{
@@ -790,16 +799,16 @@ public:		///////////////////////////////////////////////
 		else switch( m_Type )
 		{
 			default:	return;
-			case SG_DATATYPE_Byte:		((BYTE   **)m_Values)[y][x]	= SG_ROUND_TO_BYTE (Value);	break;
-			case SG_DATATYPE_Char:		((char   **)m_Values)[y][x]	= SG_ROUND_TO_CHAR (Value);	break;
-			case SG_DATATYPE_Word:		((WORD   **)m_Values)[y][x]	= SG_ROUND_TO_WORD (Value);	break;
-			case SG_DATATYPE_Short:		((short  **)m_Values)[y][x]	= SG_ROUND_TO_SHORT(Value);	break;
-			case SG_DATATYPE_DWord:		((DWORD  **)m_Values)[y][x]	= SG_ROUND_TO_DWORD(Value);	break;
-			case SG_DATATYPE_Int:		((int    **)m_Values)[y][x]	= SG_ROUND_TO_INT  (Value);	break;
-			case SG_DATATYPE_Long:		((sLong  **)m_Values)[y][x]	= SG_ROUND_TO_SLONG(Value);	break;
-			case SG_DATATYPE_Float:		((float  **)m_Values)[y][x]	= (float )Value;			break;
-			case SG_DATATYPE_Double:	((double **)m_Values)[y][x]	= (double)Value;			break;
-			case SG_DATATYPE_Bit:		((BYTE   **)m_Values)[y][x / 8]	= Value != 0.0
+			case SG_DATATYPE_Byte  : ((BYTE   **)m_Values)[y][x] = SG_ROUND_TO_BYTE (Value); break;
+			case SG_DATATYPE_Char  : ((char   **)m_Values)[y][x] = SG_ROUND_TO_CHAR (Value); break;
+			case SG_DATATYPE_Word  : ((WORD   **)m_Values)[y][x] = SG_ROUND_TO_WORD (Value); break;
+			case SG_DATATYPE_Short : ((short  **)m_Values)[y][x] = SG_ROUND_TO_SHORT(Value); break;
+			case SG_DATATYPE_DWord : ((DWORD  **)m_Values)[y][x] = SG_ROUND_TO_DWORD(Value); break;
+			case SG_DATATYPE_Int   : ((int    **)m_Values)[y][x] = SG_ROUND_TO_INT  (Value); break;
+			case SG_DATATYPE_Long  : ((sLong  **)m_Values)[y][x] = SG_ROUND_TO_SLONG(Value); break;
+			case SG_DATATYPE_Float : ((float  **)m_Values)[y][x] = (float          )(Value); break;
+			case SG_DATATYPE_Double: ((double **)m_Values)[y][x] = (double         )(Value); break;
+			case SG_DATATYPE_Bit   : ((BYTE   **)m_Values)[y][x / 8] = Value != 0.0
 					? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
 					: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
 				break;

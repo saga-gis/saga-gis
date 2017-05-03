@@ -335,8 +335,8 @@ CSG_Grid * CGrid_Color_Triangle::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Para
 			break;
 
 		case 1:	// Rescale to 0 - 1
-			Min		= pGrid->Get_ZMin();
-			Range	= pGrid->Get_ZRange();
+			Min		= pGrid->Get_Min();
+			Range	= pGrid->Get_Range();
 			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
 			break;
 

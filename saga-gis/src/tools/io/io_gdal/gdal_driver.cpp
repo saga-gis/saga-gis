@@ -954,7 +954,7 @@ bool CSG_GDAL_DataSet::Write(int i, CSG_Grid *pGrid, double noDataValue)
 
 	//-----------------------------------------------------
 	GDALSetRasterNoDataValue(pBand, noDataValue);
-	GDALSetRasterStatistics (pBand, pGrid->Get_ZMin(), pGrid->Get_ZMax(), pGrid->Get_Mean(), pGrid->Get_StdDev());
+	GDALSetRasterStatistics (pBand, pGrid->Get_Min(), pGrid->Get_Max(), pGrid->Get_Mean(), pGrid->Get_StdDev());
 
 	return( true );	
 }
@@ -1067,7 +1067,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling	Interpolation, const CSG_Grid_System &System, bool bVerbose)	const
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling Interpolation, const CSG_Grid_System &System, bool bVerbose)	const
 {
 	if( !System.is_Valid() )
 	{
@@ -1120,7 +1120,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling
 
 			vImage	= BInv * (vWorld - A);
 
-			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, false, true) )
+			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation) )
 			{
 				pWorld->Set_Value(x, y, z);
 			}

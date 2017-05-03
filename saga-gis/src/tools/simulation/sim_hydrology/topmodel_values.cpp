@@ -189,8 +189,8 @@ void CTOPMODEL_Values::Create(double dTime, int anTimeSteps, CSG_Parameters *pPa
 			Classes[iClass]	= new CTOPMODEL_Class(pParameters->Get_Parameter("P_SR0")->asDouble());
 		}
 
-		zMin		= pAtanB->Get_ZMin();
-		zRange		= pAtanB->Get_ZMax() - zMin;
+		zMin		= pAtanB->Get_Min();
+		zRange		= pAtanB->Get_Max() - zMin;
 		dz			= zRange / (nClasses + 1);
 		nCells		= 0;
 

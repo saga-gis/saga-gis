@@ -210,8 +210,8 @@ bool CFragmentation_Resampling::Get_Fragmentation(int x, int y, double &Density,
 
 	//	for(int iGrid=m_Radius_iMin+1; iGrid<m_Density.Get_Count(); iGrid++)
 
-		Density			= 0.0;	m_Density		.Get_Grid(0)->Get_Value(p, Density);
-		Connectivity	= 0.0;	m_Connectivity	.Get_Grid(0)->Get_Value(p, Connectivity);
+		Density			= 0.0;	m_Density     .Get_Grid(0)->Get_Value(p, Density);
+		Connectivity	= 0.0;	m_Connectivity.Get_Grid(0)->Get_Value(p, Connectivity);
 
 		for(int iGrid=1; iGrid<m_Density.Get_Count(); iGrid++)
 		{
@@ -221,12 +221,12 @@ bool CFragmentation_Resampling::Get_Fragmentation(int x, int y, double &Density,
 			{
 				switch( m_Aggregation )
 				{
-				case 0:	default:
+				default:
 					Density			= 0.5 * (d + Density);
 					Connectivity	= 0.5 * (c + Connectivity);
 					break;
 
-				case 1:
+				case  1:
 					Density			*= d;
 					Connectivity	*= c;
 					break;

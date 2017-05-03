@@ -708,7 +708,7 @@ private:
 
 			double	dx	= m_Count.Get_XRange() / (double)m_Image.GetWidth ();
 			double	dy	= m_Count.Get_YRange() / (double)m_Image.GetHeight();
-			double	dz	= (Colors.Get_Count() - 2.0) / (bCount ? log(1.0 + m_Count.Get_ZMax()) : 4.0 * m_Value.Get_StdDev());
+			double	dz	= (Colors.Get_Count() - 2.0) / (bCount ? log(1.0 + m_Count.Get_Max()) : 4.0 * m_Value.Get_StdDev());
 
 			#pragma omp parallel for
 			for(int y=0; y<m_Image.GetHeight(); y++)

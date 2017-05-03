@@ -130,8 +130,8 @@ CTextural_Features::CTextural_Features(void)
 		"</li></ul>"
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
@@ -141,8 +141,8 @@ CTextural_Features::CTextural_Features(void)
 		Parameters.Add_Grid(NULL, g_Features[i][0], g_Features[i][1], _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
-	Parameters.Add_Choice(
-		NULL	, "DIRECTION"	, _TL("Direction"),
+	Parameters.Add_Choice("",
+		"DIRECTION"	, _TL("Direction"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("all"),
@@ -153,20 +153,20 @@ CTextural_Features::CTextural_Features(void)
 		), 0
 	);
 
-	Parameters.Add_Int(
-		NULL	, "RADIUS"		, _TL("Radius"),
+	Parameters.Add_Int("",
+		"RADIUS"	, _TL("Radius"),
 		_TL("kernel radius in cells"),
 		1, 1, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "DISTANCE"	, _TL("Distance"),
+	Parameters.Add_Int("",
+		"DISTANCE"	, _TL("Distance"),
 		_TL("The distance between two samples."),
 		1, 1, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "MAX_CATS"	, _TL("Maximum Number of Categories"),
+	Parameters.Add_Int("",
+		"MAX_CATS"	, _TL("Maximum Number of Categories"),
 		_TL(""),
 		256, 2, true
 	);
@@ -205,7 +205,7 @@ bool CTextural_Features::On_Execute(void)
 	//-----------------------------------------------------
 	m_pGrid	= Parameters("GRID")->asGrid();
 
-	if( m_pGrid->Get_ZRange() <= 0.0 )
+	if( m_pGrid->Get_Range() <= 0.0 )
 	{
 		Error_Set(_TL("Nothing to do. No variation in input grid."));
 
@@ -292,7 +292,7 @@ inline int CTextural_Features::Get_Value(int x, int y)
 {
 	if( m_pGrid->is_InGrid(x, y) )
 	{
-		return( (int)((m_pGrid->asDouble(x, y) - m_pGrid->Get_ZMin()) * (m_MaxCats - 1) / m_pGrid->Get_ZRange()) );
+		return( (int)((m_pGrid->asDouble(x, y) - m_pGrid->Get_Min()) * (m_MaxCats - 1) / m_pGrid->Get_Range()) );
 	}
 
 	return( -1 );
@@ -346,10 +346,10 @@ bool CTextural_Features::Get_Matrices(int x, int y, int d, CSG_Matrix P[4])
 	Tones.Set_Array(nTones);
 
 	//-----------------------------------------------------
-	P[0].Create(nTones, nTones);
-	P[1].Create(nTones, nTones);
-	P[2].Create(nTones, nTones);
-	P[3].Create(nTones, nTones);
+	P[0].Create((int)nTones, (int)nTones);
+	P[1].Create((int)nTones, (int)nTones);
+	P[2].Create((int)nTones, (int)nTones);
+	P[3].Create((int)nTones, (int)nTones);
 
 	//-----------------------------------------------------
 	// Find gray-Tones spatial dependence matrix

@@ -523,7 +523,7 @@ inline void CGrid_Merge::Set_Value(int x, int y, CSG_Grid *pGrid, double px, dou
 		{
 			double	w;
 
-			if( m_Weight.Get_Value(px, py, w, GRID_RESAMPLING_BSpline, true) )
+			if( m_Weight.Get_Value(px, py, w) )
 			{
 				Set_Value(x, y, z, w);
 			}

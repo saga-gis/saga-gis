@@ -152,18 +152,18 @@ bool CExercise_11::On_Execute(void)
 	CSG_Grid	*pDEM;
 
 	//-----------------------------------------------------
-	sTime	= Parameters("TIME_SPAN")	->asDouble();
-	dTime	= Parameters("TIME_STEP")	->asDouble();
+	sTime	= Parameters("TIME_SPAN")->asDouble();
+	dTime	= Parameters("TIME_STEP")->asDouble();
 	nSteps	= (int)(sTime / dTime);
 
-	bUpdate	= Parameters("UPDATE")		->asBool();
+	bUpdate	= Parameters("UPDATE"   )->asBool();
 
-	N_Init	= Parameters("NINIT")		->asDouble();
-	N_Rain	= Parameters("NRAIN")		->asDouble();
+	N_Init	= Parameters("NINIT"    )->asDouble();
+	N_Rain	= Parameters("NRAIN"    )->asDouble();
 
-	pDEM	= Parameters("DEM")			->asGrid();
+	pDEM	= Parameters("DEM"      )->asGrid();
 
-	m_pN	= Parameters("NSTORE")		->asGrid();
+	m_pN	= Parameters("NSTORE"   )->asGrid();
 	m_pN->Assign(N_Init);
 	DataObject_Set_Colors(m_pN, 100, SG_COLORS_YELLOW_GREEN);
 
@@ -172,11 +172,11 @@ bool CExercise_11::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("Time [a]: %f (%f)"), dTime * iStep, sTime));
+		Process_Set_Text(CSG_String::Format("Time [a]: %f (%f)", dTime * iStep, sTime));
 
 		if( bUpdate )
 		{
-			DataObject_Update(m_pN, m_pN->Get_ZMin(), m_pN->Get_ZMax(), true);
+			DataObject_Update(m_pN, m_pN->Get_Min(), m_pN->Get_Max(), true);
 		}
 
 		Next_Step(N_Rain, dTime);

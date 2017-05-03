@@ -231,7 +231,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 					{
 						double	w = 0.0;
 
-						if( pWeights->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling, false, true) && w > 0.0 )
+						if( pWeights->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
 						{
 							s.Add_Value(pGrids->asGrid(i)->asDouble(x, y), w);
 						}
@@ -404,9 +404,9 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		pRecord->Set_Value("NODATA_CELLS", pGrid->Get_NoData_Count());
 		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize());
 		pRecord->Set_Value("MEAN"        , pGrid->Get_Mean());
-		pRecord->Set_Value("MIN"         , pGrid->Get_ZMin());
-		pRecord->Set_Value("MAX"         , pGrid->Get_ZMax());
-		pRecord->Set_Value("RANGE"       , pGrid->Get_ZRange());
+		pRecord->Set_Value("MIN"         , pGrid->Get_Min());
+		pRecord->Set_Value("MAX"         , pGrid->Get_Max());
+		pRecord->Set_Value("RANGE"       , pGrid->Get_Range());
 		pRecord->Set_Value("VAR"         , pGrid->Get_Variance());
 		pRecord->Set_Value("STDDEV"      , pGrid->Get_StdDev());
 		pRecord->Set_Value("STDDEVLO"    , pGrid->Get_Mean() - pGrid->Get_StdDev());
@@ -414,7 +414,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 		if( dRank > 0.0 && dRank < 100.0 )
 		{
-			pRecord->Set_Value("PCTL", pGrid->Get_Percentile(dRank));	// this is a time consuming operation
+			pRecord->Set_Value("PCTL", pGrid->Get_Quantile(dRank));	// this is a time consuming operation
 		}
 	}
 

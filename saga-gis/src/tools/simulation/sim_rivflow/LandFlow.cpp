@@ -929,7 +929,7 @@ bool CLandFlow::On_Execute(void)
 		nMax = nCr;
 	//-----------------------------------------------------
 		
-	zMax = m_pGrad->Get_ZMax();			//liefert maximale Steigung des DEM Grids ueber GradGrid
+	zMax = m_pGrad->Get_Max();			//liefert maximale Steigung des DEM Grids ueber GradGrid
 	//minimalsten Retetionskoeffizienten der jeweiligen Abflussarten bestimmen
 	kMinG = G0/(nG*2) * (m_pDTM->Get_Cellsize() / 1000 ) / pow(zMax, 0.1 );		//anhand zMax Berechnung der kleinsten GroundFlow-Lagtime
 	kMinC = C0/(nC*2) * (m_pDTM->Get_Cellsize() / 1000 ) / pow(zMax, 0.1 );		//anhand zMax Berechnung der kleinsten ChannelFlow-Lagtime
@@ -944,7 +944,7 @@ bool CLandFlow::On_Execute(void)
 	{
 		if( m_pRivGrids && m_pRivGrad)
 		{
-			zMax2 = m_pRivGrad->Get_ZMax(); //liefert maximale Steigung der RiverGrids ueber RiverGradIn
+			zMax2 = m_pRivGrad->Get_Max(); //liefert maximale Steigung der RiverGrids ueber RiverGradIn
 			kMinCr = C0r/(nCr*2) * (m_pDTM->Get_Cellsize() / 1000 ) / pow(zMax2, 0.1 );	//anhand zMax2 Berechnung der kleinsten ChannelFlow River-Lagtime
 			vMaxCr =  m_pDTM->Get_Cellsize() / 1000 / kMinCr / nCr / 24;
 			//-----------------------------------------------------

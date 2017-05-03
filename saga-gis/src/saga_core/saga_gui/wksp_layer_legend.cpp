@@ -491,9 +491,9 @@ void CWKSP_Layer_Legend::_Draw_Grid(wxDC &dc, CWKSP_Grid *pLayer)
 	case CLASSIFY_GRADUATED:
 	case CLASSIFY_METRIC:
 	case CLASSIFY_SHADE:
-		if( pLayer->Get_Grid()->Get_Unit() && *pLayer->Get_Grid()->Get_Unit() )
+		if( !pLayer->Get_Grid()->Get_Unit().is_Empty() )
 		{
-			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format(wxT("[%s]"), pLayer->Get_Grid()->Get_Unit()));
+			_Draw_Title(dc, FONT_SUBTITLE, wxString::Format("[%s]", pLayer->Get_Grid()->Get_Unit().c_str()));
 		}
 
 	default:

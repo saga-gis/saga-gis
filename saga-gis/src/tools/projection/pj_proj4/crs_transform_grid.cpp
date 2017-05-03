@@ -383,7 +383,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 				if( pX ) pX->Set_Value(x, y, xSource);
 				if( pY ) pY->Set_Value(x, y, ySource);
 
-				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling, false, true) )
+				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling) )
 				{
 					pTarget->Set_Value(x, y, z);
 				}
@@ -481,7 +481,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 
 				for(i=0; i<pSources->Get_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling, false, true) )
+					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
 					{
 						pTargets->asGrid(n + i)->Set_Value(x, y, z);
 					}

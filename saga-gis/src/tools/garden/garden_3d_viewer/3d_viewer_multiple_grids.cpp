@@ -133,53 +133,50 @@ C3D_Viewer_Multiple_Grids_Panel::C3D_Viewer_Multiple_Grids_Panel(wxWindow *pPare
 	m_pGrids	= pGrids;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
+	m_Parameters("NODE_GENERAL");
 
-	//-----------------------------------------------------
-	pNode	= m_Parameters("NODE_GENERAL");
-
-	m_Parameters.Add_Value(
-		pNode	, "Z_SCALE"			, _TL("Exaggeration"),
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(
-		NULL	, "NODE_VIEW"		, _TL("Grid View Settings"),
+	m_Parameters.Add_Node("",
+		"NODE_VIEW"		, _TL("Grid View Settings"),
 		_TL("")
 	);
 
-	pNode_1	= m_Parameters.Add_Colors(
-		pNode	, "COLORS"			, _TL("Colours"),
+	m_Parameters.Add_Colors("NODE_VIEW",
+		"COLORS"		, _TL("Colours"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "COLORS_GRAD"		, _TL("Graduated"),
+	m_Parameters.Add_Bool("COLORS",
+		"COLORS_GRAD"	, _TL("Graduated"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "SHADING"			, _TL("Shading"),
+	m_Parameters.Add_Choice("NODE_VIEW",
+		"SHADING"		, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("none"),
 			_TL("shading")
 		), 1
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "SHADE_DEC"		, _TL("Light Source Height"),
+	m_Parameters.Add_Double("SHADING",
+		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, -90.0, true, 90.0, true
+		0.0, -90.0, true, 90.0, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "SHADE_AZI"		, _TL("Light Source Direction"),
+	m_Parameters.Add_Double("SHADING",
+		"SHADE_AZI"		, _TL("Light Source Direction"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 315.0, 0.0, true, 360.0, true
+		315.0, 0.0, true, 360.0, true
 	);
 
 	//-----------------------------------------------------
@@ -196,8 +193,8 @@ int C3D_Viewer_Multiple_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParam
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHADING") )
 	{
-		pParameters->Get_Parameter("SHADE_DEC")->Set_Enabled(pParameter->asBool());
-		pParameters->Get_Parameter("SHADE_AZI")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("SHADE_DEC", pParameter->asBool());
+		pParameters->Set_Enabled("SHADE_AZI", pParameter->asBool());
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -217,8 +214,8 @@ void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 	m_Data_Min.y	= m_pGrids->asGrid(0)->Get_YMin();
 	m_Data_Max.y	= m_pGrids->asGrid(0)->Get_YMax();
 
-	m_Data_Min.z	= m_pGrids->asGrid(0)->Get_ZMin();
-	m_Data_Max.z	= m_pGrids->asGrid(0)->Get_ZMax();
+	m_Data_Min.z	= m_pGrids->asGrid(0)->Get_Min();
+	m_Data_Max.z	= m_pGrids->asGrid(0)->Get_Max();
 
 	for(int i=1; i<m_pGrids->Get_Count(); i++)
 	{
@@ -234,10 +231,10 @@ void C3D_Viewer_Multiple_Grids_Panel::Update_Statistics(void)
 		if( m_Data_Max.y < pGrid->Get_YMax() )
 			m_Data_Max.y = pGrid->Get_YMax();
 
-		if( m_Data_Min.z > pGrid->Get_ZMin() )
-			m_Data_Min.z = pGrid->Get_ZMin();	else
-		if( m_Data_Max.z < pGrid->Get_ZMax() )
-			m_Data_Max.z = pGrid->Get_ZMax();
+		if( m_Data_Min.z > pGrid->Get_Min() )
+			m_Data_Min.z = pGrid->Get_Min();	else
+		if( m_Data_Max.z < pGrid->Get_Max() )
+			m_Data_Max.z = pGrid->Get_Max();
 	}
 
 	Update_View();
@@ -361,8 +358,8 @@ void C3D_Viewer_Multiple_Grids_Panel::Draw_Grid(CSG_Grid *pGrid)
 
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 
-	m_Color_Min		= pGrid->Get_ZMin();
-	m_Color_Scale	= pGrid->Get_ZRange() > 0.0 ? m_Colors.Get_Count() / pGrid->Get_ZRange() : 0.0;
+	m_Color_Min		= pGrid->Get_Min();
+	m_Color_Scale	= pGrid->Get_Range() > 0.0 ? m_Colors.Get_Count() / pGrid->Get_Range() : 0.0;
 
 	//-----------------------------------------------------
 	int		Shading		= m_Parameters("SHADING"  )->asInt   ();

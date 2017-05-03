@@ -74,9 +74,9 @@
 CHypsometry::CHypsometry(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Hypsometry"));
+	Set_Name		(_TL("Hypsometry"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"Calculates the hypsometric curve for a given DEM.\n\n"
@@ -95,87 +95,96 @@ CHypsometry::CHypsometry(void)
 		"plot the non-dimensional hypsometric curve as diagram, use the relative "
 		"area as x-axis values and the relative height for the y-axis. For a "
 		"diagram with absolute values, use the absolute area as x-axis values "
-		"and the absolute height for the y-axis.\n\n"
-		"References:\n"
-		"- Harlin, J.M (1978):\n"
-		"    'Statistical moments of the hypsometric curve and its density function',\n"
-		"    J. Int. Assoc. Math. Geol., Vol.10, p.59-72\n\n"
-		"- Luo, W. (2000):\n"
-		"    'Quantifying groundwater-sapping landforms with a hypsometric technique',\n"
-		"    J. of Geophysical Research, Vol.105, No.E1, p.1685-1694\n\n")
+		"and the absolute height for the y-axis."
+	));
+
+	Add_Reference(
+		"Harlin, J.M", "1978",
+		"Statistical moments of the hypsometric curve and its density function", 
+		"J. Int. Assoc. Math. Geol., Vol.10, p.59-72."
 	);
 
+	Add_Reference(
+		"Luo, W.", "2000",
+		"Quantifying groundwater-sapping landforms with a hypsometric technique",
+		"J. of Geophysical Research, Vol.105, No.E1, p.1685-1694."
+	);
 
 	//-----------------------------------------------------
-	// Input...
-
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-
-	//-----------------------------------------------------
-	// Output...
-
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Hypsometry"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Hypsometry"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-
 	//-----------------------------------------------------
-	// Options...
-
-	Parameters.Add_Value(
-		NULL	, "COUNT"		, _TL("Number of Classes"),
+	Parameters.Add_Int("",
+		"COUNT"		, _TL("Number of Classes"),
 		_TL("Number of discrete intervals (bins) used for sampling"),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SORTING"		, _TL("Sort"),
+	Parameters.Add_Choice("",
+		"SORTING"	, _TL("Sort"),
 		_TL("Choose how to sort the elevation dataset before sampling"),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("up"),
 			_TL("down")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Classification Constant"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Classification Constant"),
 		_TL("Choose the classification constant to use"),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("height"),
 			_TL("area")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BZRANGE"		, _TL("Use Z-Range"),
+	Parameters.Add_Bool("",
+		"BZRANGE"	, _TL("Use Z-Range"),
 		_TL("Use a user-specified elevation range instead of min/max of the input dataset"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Range(
-		NULL	, "ZRANGE"		, _TL("Z-Range"),
+	Parameters.Add_Range("",
+		"ZRANGE"	, _TL("Z-Range"),
 		_TL("User specified elevation range"),
 		0.0, 1000.0
 	);
 }
 
-//---------------------------------------------------------
-CHypsometry::~CHypsometry(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CHypsometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("BZRANGE", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("ZRANGE" , pParameter->asInt() == 1);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BZRANGE") )
+	{
+		pParameters->Set_Enabled("ZRANGE" , pParameter->asBool());
+	}
+	
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -213,16 +222,16 @@ bool CHypsometry::On_Execute(void)
 	}
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
+	pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
 	pTable->Add_Field(_TL("Relative Height"), SG_DATATYPE_Double);
-	pTable->Add_Field(_TL("Relative Area")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Relative Area"  ), SG_DATATYPE_Double);
 	pTable->Add_Field(_TL("Absolute Height"), SG_DATATYPE_Double);
-	pTable->Add_Field(_TL("Absolute Area")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("Absolute Area"  ), SG_DATATYPE_Double);
 
 	switch( Parameters("METHOD")->asInt() )
 	{
-	case 0:				return( Calculate_A(pDEM, pTable, bDown, nClasses) );
-	case 1:	default:	return( Calculate_B(pDEM, pTable, bDown, nClasses, zMin, zMax) );
+	case  0: return( Calculate_A(pDEM, pTable, bDown, nClasses            ) );
+	default: return( Calculate_B(pDEM, pTable, bDown, nClasses, zMin, zMax) );
 	}
 
 	return( false );
@@ -230,8 +239,6 @@ bool CHypsometry::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -322,8 +329,6 @@ bool CHypsometry::Calculate_A(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -334,7 +339,7 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 	double	z, zRange;
 
 	//-----------------------------------------------------
-	if( zMin < zMax && zMin < pDEM->Get_ZMax() && zMax > pDEM->Get_ZMin() )
+	if( zMin < zMax && zMin < pDEM->Get_Max() && zMax > pDEM->Get_Min() )
 	{
 		for(nMin=0; nMin<pDEM->Get_NCells() && Set_Progress_NCells(nMin); nMin++)
 		{
@@ -356,8 +361,8 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 	}
 	else
 	{
-		zMin	= pDEM->Get_ZMin();
-		zMax	= pDEM->Get_ZMax();
+		zMin	= pDEM->Get_Min();
+		zMax	= pDEM->Get_Max();
 		nMin	= 0;
 		nMax	= pDEM->Get_NCells() - 1;
 	}
@@ -370,11 +375,11 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 		pTable->Destroy();
 
 		pTable->Add_Field(_TL("Relative Height"), SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Relative Area")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Relative Area"  ), SG_DATATYPE_Double);
 		pTable->Add_Field(_TL("Absolute Height"), SG_DATATYPE_Double);
-		pTable->Add_Field(_TL("Absolute Area")	, SG_DATATYPE_Double);
+		pTable->Add_Field(_TL("Absolute Area"  ), SG_DATATYPE_Double);
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Hypsometric Curve"), pDEM->Get_Name()));
+		pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Hypsometric Curve"), pDEM->Get_Name()));
 
 		//-------------------------------------------------
 		nStep	= nRange / nClasses;
@@ -396,28 +401,9 @@ bool CHypsometry::Calculate_B(CSG_Grid *pDEM, CSG_Table *pTable, bool bDown, int
 		return( true );
 	}
 
-	SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Elevation range (zMax (%.2f) - zMin (%.2f)) is equal or lower than zero!"), zMax, zMin));
+	SG_UI_Msg_Add_Error(CSG_String::Format("%s (%.2f > %.2f", _TL("Elevation range is equal to or lower than zero!"), zMin, zMax));
 
 	return( false );
-}
-
-
-//---------------------------------------------------------
-int CHypsometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
-	{
-		pParameters->Get_Parameter("BZRANGE")->Set_Enabled(pParameter->asInt() == 1);
-		pParameters->Get_Parameter("ZRANGE")->Set_Enabled(pParameter->asInt() == 1);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("BZRANGE")) )
-	{
-		pParameters->Get_Parameter("ZRANGE")->Set_Enabled(pParameter->asBool());
-	}
-	
-	//-----------------------------------------------------
-	return (1);
 }
 
 

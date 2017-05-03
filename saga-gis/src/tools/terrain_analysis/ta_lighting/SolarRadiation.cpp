@@ -405,8 +405,8 @@ bool CSolarRadiation::On_Execute(void)
 		m_Lat.Set_Scaling(M_DEG_TO_RAD);
 		m_Lon.Set_Scaling(M_DEG_TO_RAD, -M_DEG_TO_RAD * m_Lon.asDouble(Get_NX() / 2, Get_NY() / 2));
 
-		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Longitude"), M_RAD_TO_DEG * m_Lon.Get_ZMin(), M_RAD_TO_DEG * m_Lon.Get_ZMax()), false);
-		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Latitude" ), M_RAD_TO_DEG * m_Lat.Get_ZMin(), M_RAD_TO_DEG * m_Lat.Get_ZMax()), false);
+		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Longitude"), M_RAD_TO_DEG * m_Lon.Get_Min(), M_RAD_TO_DEG * m_Lon.Get_Max()), false);
+		Message_Add(CSG_String::Format("\n%s: %f <-> %f", _TL("Latitude" ), M_RAD_TO_DEG * m_Lat.Get_Min(), M_RAD_TO_DEG * m_Lat.Get_Max()), false);
 	}
 
 	//-----------------------------------------------------

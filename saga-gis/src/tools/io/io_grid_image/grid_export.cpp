@@ -78,7 +78,7 @@ CGrid_Export::CGrid_Export(void)
 {
 	Set_Name		(_TL("Export Image (bmp, jpg, pcx, png, tif)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2005"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		"The tool allows one to save a grid as image.\n"
@@ -86,20 +86,20 @@ CGrid_Export::CGrid_Export(void)
 		"transparency and brightness can be adjusted.\n\n")
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SHADE"		, _TL("Shade"),
+	Parameters.Add_Grid("",
+		"SHADE"		, _TL("Shade"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("Image File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("Image File"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
@@ -110,18 +110,18 @@ CGrid_Export::CGrid_Export(void)
 		), NULL, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FILE_KML"	, _TL("Create KML File"),
+	Parameters.Add_Bool("",
+		"FILE_KML"	, _TL("Create KML File"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	if( SG_UI_Get_Window_Main() )
 	{
-		Parameters.Add_Choice(
-			NULL	, "COLOURING"	, _TL("Colouring"),
+		Parameters.Add_Choice("",
+			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -131,17 +131,17 @@ CGrid_Export::CGrid_Export(void)
 			), 5
 		);
 
-		Parameters.Add_Colors(
-			NULL	, "COL_PALETTE"	, _TL("Colours Palette"),
+		Parameters.Add_Colors("",
+			"COL_PALETTE"	, _TL("Colours Palette"),
 			_TL("")
 		);
 	}
 	else
 	{
-		Parameters.Add_Choice(
-			NULL	, "COLOURING"	, _TL("Colouring"),
+		Parameters.Add_Choice("",
+			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+			CSG_String::Format("%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -150,75 +150,75 @@ CGrid_Export::CGrid_Export(void)
 			), 0
 		);
 
-		Parameters.Add_Choice(
-			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
+		Parameters.Add_Choice("",
+			"COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-				_TL("DEFAULT"),			_TL("DEFAULT_BRIGHT"),	_TL("BLACK_WHITE"),		_TL("BLACK_RED"),
-				_TL("BLACK_GREEN"),		_TL("BLACK_BLUE"),		_TL("WHITE_RED"),		_TL("WHITE_GREEN"),
-				_TL("WHITE_BLUE"),		_TL("YELLOW_RED"),		_TL("YELLOW_GREEN"),	_TL("YELLOW_BLUE"),
-				_TL("RED_GREEN"),		_TL("RED_BLUE"),		_TL("GREEN_BLUE"),		_TL("RED_GREY_BLUE"),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+				_TL("DEFAULT"       ),	_TL("DEFAULT_BRIGHT" ),	_TL("BLACK_WHITE"   ),	_TL("BLACK_RED"     ),
+				_TL("BLACK_GREEN"   ),	_TL("BLACK_BLUE"     ),	_TL("WHITE_RED"     ),	_TL("WHITE_GREEN"   ),
+				_TL("WHITE_BLUE"    ),	_TL("YELLOW_RED"     ),	_TL("YELLOW_GREEN"  ),	_TL("YELLOW_BLUE"   ),
+				_TL("RED_GREEN"     ),	_TL("RED_BLUE"       ),	_TL("GREEN_BLUE"    ),	_TL("RED_GREY_BLUE" ),
 				_TL("RED_GREY_GREEN"),	_TL("GREEN_GREY_BLUE"),	_TL("RED_GREEN_BLUE"),	_TL("RED_BLUE_GREEN"),
-				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"),			_TL("NEON"),			_TL("TOPOGRAPHY"),
-				_TL("ASPECT_1"),		_TL("ASPECT_2"),		_TL("ASPECT_3")
+				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"        ),	_TL("NEON"          ),	_TL("TOPOGRAPHY"    ),
+				_TL("ASPECT_1"      ),	_TL("ASPECT_2"       ),	_TL("ASPECT_3"      )
 			), 0
 		);
 
-		Parameters.Add_Value(
-			NULL	, "COL_COUNT"	, _TL("Number of Colors"),
+		Parameters.Add_Int("",
+			"COL_COUNT"		, _TL("Number of Colors"),
 			_TL(""),
-			PARAMETER_TYPE_Int, 100
+			100
 		);
 
-		Parameters.Add_Value(
-			NULL	, "COL_REVERT"	, _TL("Revert Palette"),
+		Parameters.Add_Bool("",
+			"COL_REVERT"	, _TL("Revert Palette"),
 			_TL(""),
-			PARAMETER_TYPE_Bool, false
+			false
 		);
 	}
 
-	Parameters.Add_Value(
-		NULL	, "STDDEV"		, _TL("Standard Deviation"),
+	Parameters.Add_Value("",
+		"STDDEV"		, _TL("Standard Deviation"),
 		_TL(""),
 		PARAMETER_TYPE_Double, 2.0, 0.0, true
 	);
 
-	Parameters.Add_Range(
-        NULL	, "STRETCH"		, _TL("Stretch to Value Range"),
+	Parameters.Add_Range("",
+		"STRETCH"		, _TL("Stretch to Value Range"),
         _TL(""),
         0.0, 100.0
     );
 
-	Parameters.Add_Choice(
-		NULL	, "SCALE_MODE"	, _TL("Scaling Mode"),
+	Parameters.Add_Choice("",
+		"SCALE_MODE"	, _TL("Scaling Mode"),
 		_TL("Scaling mode applied to colouring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Linear"),
 			_TL("Logarithmic (up)"),
 			_TL("Logarithmic (down)")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SCALE_LOG"	, _TL("Logarithmic Scale Factor"),
+	Parameters.Add_Double("",
+		"SCALE_LOG"		, _TL("Logarithmic Scale Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.001, true
+		1.0, 0.001, true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "LUT"			, _TL("Lookup Table"),
+	Parameters.Add_Table("",
+		"LUT"			, _TL("Lookup Table"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SHADE_TRANS"	, _TL("Shade Transparency [%]"),
+	Parameters.Add_Double("",
+		"SHADE_TRANS"	, _TL("Shade Transparency [%]"),
 		_TL("The transparency of the shade [%]"),
-		PARAMETER_TYPE_Double, 40.0, 0.0, true, 100.0, true
+		40.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Range(
-		NULL	, "SHADE_BRIGHT", _TL("Shade Brightness [%]"),
+	Parameters.Add_Range("",
+		"SHADE_BRIGHT"	, _TL("Shade Brightness [%]"),
 		_TL("Allows one to scale shade brightness [%]"),
 		0.0, 100.0, 0.0, true, 100.0, true
 	);
@@ -321,17 +321,17 @@ bool CGrid_Export::On_Execute(void)
 		case 0:	// stretch to grid's standard deviation
 			zMin	= pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
 			zMax	= pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev();
-			if( zMin < pGrid->Get_ZMin() )
-				zMin = pGrid->Get_ZMin();
-			if( zMax > pGrid->Get_ZMax() )
-				zMax = pGrid->Get_ZMax();
+			if( zMin < pGrid->Get_Min() )
+				zMin = pGrid->Get_Min();
+			if( zMax > pGrid->Get_Max() )
+				zMax = pGrid->Get_Max();
 			zScale	= Colors.Get_Count() / (zMax - zMin);
 			break;
 
 		case 1:	// stretch to grid's value range
-			zMin	= pGrid->Get_ZMin();
-			zMax	= pGrid->Get_ZMax();
-			zScale	= Colors.Get_Count() / pGrid->Get_ZRange();
+			zMin	= pGrid->Get_Min();
+			zMax	= pGrid->Get_Max();
+			zScale	= Colors.Get_Count() / pGrid->Get_Range();
 			break;
 
 		case 2:	// stretch to specified value range
@@ -409,7 +409,7 @@ bool CGrid_Export::On_Execute(void)
 
 					if( ScaleMode != 0 )
 					{
-						if( pGrid->Get_ZRange() != 0 )
+						if( pGrid->Get_Range() != 0 )
 						{
 							double Value = (z - zMin) / (zMax - zMin);
 
@@ -453,7 +453,7 @@ bool CGrid_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !pShade || pShade->Get_ZRange() <= 0.0 )
+	if( !pShade || pShade->Get_Range() <= 0.0 )
 	{
 		pShade	= NULL;
 	}
@@ -488,7 +488,7 @@ bool CGrid_Export::On_Execute(void)
 				}
 				else
 				{
-					Shade.Set_Value (x, iy, Colors[(int)(nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_ZMin()) / pShade->Get_ZRange() + dMinBright)]);
+					Shade.Set_Value (x, iy, Colors[(int)(nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_Min()) / pShade->Get_Range() + dMinBright)]);
 				}
 			}
 		}

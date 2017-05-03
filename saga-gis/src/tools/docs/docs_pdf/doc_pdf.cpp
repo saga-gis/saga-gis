@@ -1426,7 +1426,7 @@ bool CSG_Doc_PDF::Draw_Grid(const CSG_Rect &r, CSG_Grid *pGrid, const CSG_Colors
 	double		x, y, z, d, xFit, yFit, dFit;
 	CSG_Rect	rWorld, rFit;
 
-	if( Is_Ready_To_Draw() && pGrid && pGrid->is_Valid() && pGrid->Get_ZRange() > 0.0 )
+	if( Is_Ready_To_Draw() && pGrid && pGrid->is_Valid() && pGrid->Get_Range() > 0.0 )
 	{
 		rWorld	= prWorld ? *prWorld : pGrid->Get_Extent();
 
@@ -1439,8 +1439,8 @@ bool CSG_Doc_PDF::Draw_Grid(const CSG_Rect &r, CSG_Grid *pGrid, const CSG_Colors
 
 			if( zMin >= zMax )
 			{
-				zMin	= pGrid->Get_ZMin();
-				zMax	= pGrid->Get_ZMax();
+				zMin	= pGrid->Get_Min();
+				zMax	= pGrid->Get_Max();
 			}
 
 			zMax	= Colors.Get_Count() / (zMax - zMin);

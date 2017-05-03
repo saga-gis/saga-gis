@@ -136,16 +136,16 @@ bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 
 	//-----------------------------------------------------
 #if defined(WITH_HDF5)
-	Parameters.Add_FilePath(
-		NULL	, "RF_IMPORT"			, _TL("Import from File"),
+	Parameters.Add_FilePath("",
+		"RF_IMPORT"			, _TL("Import from File"),
 		_TL(""),
 		NULL, NULL, false
 	);
 #endif
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "RF_OPTIONS"			, _TL("Random Forest Options"),
+	pNode	= Parameters.Add_Node("",
+		"RF_OPTIONS"			, _TL("Random Forest Options"),
 		_TL("")
 	);
 
@@ -332,8 +332,6 @@ enum
 //---------------------------------------------------------
 CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Random Forest Classification (ViGrA)"));
 
@@ -346,64 +344,64 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"			, _TL("Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES"		, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CLASSES"				, _TL("Random Forest Classification"),
+	Parameters.Add_Grid("",
+		"CLASSES"		, _TL("Random Forest Classification"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PROBABILITY"			, _TL("Prediction Probability"),
+	Parameters.Add_Grid("",
+		"PROBABILITY"	, _TL("Prediction Probability"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BPROBABILITIES"		, _TL("Feature Probabilities"),
+	Parameters.Add_Bool("",
+		"BPROBABILITIES", _TL("Feature Probabilities"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "PROBABILITIES"		, _TL("Feature Probabilities"),
+	Parameters.Add_Grid_List("",
+		"PROBABILITIES"	, _TL("Feature Probabilities"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "IMPORTANCES"			, _TL("Feature Importances"),
+	Parameters.Add_Table("",
+		"IMPORTANCES"	, _TL("Feature Importances"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "TRAINING"			, _TL("Training Areas"),
+	Parameters.Add_Shapes("",
+		"TRAINING"		, _TL("Training Areas"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"				, _TL("Label Field"),
+	Parameters.Add_Table_Field("TRAINING",
+		"FIELD"			, _TL("Label Field"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LABEL_AS_ID"			, _TL("Use Label as Identifier"),
+	Parameters.Add_Bool("TRAINING",
+		"LABEL_AS_ID"	, _TL("Use Label as Identifier"),
 		_TL("Use training area labels as identifier in classification result, assumes all label values are integer numbers!"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Value(
-		pNode	, "DO_MRMR"				, _TL("Minimum Redundancy Feature Selection"),
+	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Bool("TRAINING",
+		"DO_MRMR"		, _TL("Minimum Redundancy Feature Selection"),
 		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
-		PARAMETER_TYPE_Bool, false
+		false
 	));
 
 	//-----------------------------------------------------
@@ -460,9 +458,9 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	for(int i=pFeatures->Get_Count()-1; i>=0; i--)
 	{
-		if( pFeatures->asGrid(i)->Get_ZRange() <= 0.0 )
+		if( pFeatures->asGrid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
+			Message_Add(CSG_String::Format("%s: %s", _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
 		}
 		else
 		{
@@ -496,7 +494,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 		if( Model.Get_Feature_Count() != m_nFeatures )
 		{
-			Error_Set(CSG_String::Format(SG_T("%s\n%s: %d"), _TL("invalid number of features"), _TL("expected"), Model.Get_Feature_Count()));
+			Error_Set(CSG_String::Format("%s\n%s: %d", _TL("invalid number of features"), _TL("expected"), Model.Get_Feature_Count()));
 
 			return( false );
 		}
@@ -558,7 +556,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	CSG_Parameter_Grid_List	*pProbabilities	= Get_Propability_Grids(Classes);
 
-	if( pProbability && !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
+	if( pProbability && !pProbability->Get_Range() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_WHITE_GREEN);
 
 
 	//-----------------------------------------------------
@@ -632,9 +630,9 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 	int		Field	= Parameters("FIELD")->asInt();
 
 	Classes.Destroy();
-	Classes.Add_Field(SG_T("ID"   ), SG_DATATYPE_Int);		// CLASS_ID
-	Classes.Add_Field(SG_T("NAME" ), SG_DATATYPE_String);	// CLASS_NAME
-	Classes.Add_Field(SG_T("COUNT"), SG_DATATYPE_Int);		// CLASS_COUNT
+	Classes.Add_Field("ID"   , SG_DATATYPE_Int   );	// CLASS_ID
+	Classes.Add_Field("NAME" , SG_DATATYPE_String);	// CLASS_NAME
+	Classes.Add_Field("COUNT", SG_DATATYPE_Int   );	// CLASS_COUNT
 
 	CSG_String	Label;
 
@@ -877,41 +875,41 @@ CViGrA_RF_Presence::CViGrA_RF_Presence(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"			, _TL("Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES"		, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PREDICTION"			, _TL("Presence Prediction"),
+	Parameters.Add_Grid("",
+		"PREDICTION"	, _TL("Presence Prediction"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PROBABILITY"			, _TL("Presence Probability"),
+	Parameters.Add_Grid("",
+		"PROBABILITY"	, _TL("Presence Probability"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "PRESENCE"			, _TL("Presence Data"),
+	Parameters.Add_Shapes("",
+		"PRESENCE"		, _TL("Presence Data"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BACKGROUND"			, _TL("Background Sample Density [Percent]"),
+	Parameters.Add_Double("",
+		"BACKGROUND"	, _TL("Background Sample Density [Percent]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.0, true, 100, true
+		1, 0.0, true, 100, true
 	);
 
 	//-----------------------------------------------------
-	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Value(
-		NULL	, "DO_MRMR"				, _TL("Minimum Redundancy Feature Selection"),
+	CSG_mRMR::Parameters_Add(&Parameters, Parameters.Add_Bool("",
+		"DO_MRMR"		, _TL("Minimum Redundancy Feature Selection"),
 		_TL("Use only features selected by the minimum Redundancy Maximum Relevance (mRMR) algorithm"),
-		PARAMETER_TYPE_Bool, false
+		false
 	));
 
 	//-----------------------------------------------------
@@ -965,7 +963,7 @@ bool CViGrA_RF_Presence::On_Execute(void)
 
 	for(int i=pFeatures->Get_Count()-1; i>=0; i--)
 	{
-		if( pFeatures->asGrid(i)->Get_ZRange() <= 0.0 )
+		if( pFeatures->asGrid(i)->Get_Range() <= 0.0 )
 		{
 			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
 		}
@@ -1021,8 +1019,8 @@ bool CViGrA_RF_Presence::On_Execute(void)
 	CSG_Grid	*pPrediction	= Parameters("PREDICTION" )->asGrid();
 	CSG_Grid	*pProbability	= Parameters("PROBABILITY")->asGrid();
 
-	if( !pPrediction ->Get_ZRange() ) DataObject_Set_Colors(pPrediction , 11, SG_COLORS_YELLOW_GREEN);
-	if( !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_YELLOW_GREEN);
+	if( !pPrediction ->Get_Range() ) DataObject_Set_Colors(pPrediction , 11, SG_COLORS_YELLOW_GREEN);
+	if( !pProbability->Get_Range() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_YELLOW_GREEN);
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
@@ -1189,37 +1187,37 @@ CViGrA_RF_Table::CViGrA_RF_Table(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	 *pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"			, _TL("Table"),
 		_TL("Table with features, must include class-ID"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FEATURES"	, _TL("Features"),
+	Parameters.Add_Table_Fields("TABLE",
+		"FEATURES"		, _TL("Features"),
 		_TL("Select features (table fields) for classification")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "PREDICTION"	, _TL("Prediction"),
+	Parameters.Add_Table_Field("TABLE",
+		"PREDICTION"	, _TL("Prediction"),
 		_TL("This is field that will have the prediction results. If not set it will be added to the table."),
 		true
 	);
 
-	pNode	= Parameters.Add_Table_Field(
-		pNode	, "TRAINING"	, _TL("Training"),
+	Parameters.Add_Table_Field("TABLE",
+		"TRAINING"		, _TL("Training"),
 		_TL("this is the table field that defines the training classes"),
 		false
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LABEL_AS_ID"	, _TL("Use Label as Identifier"),
+	Parameters.Add_Bool("TRAINING",
+		"LABEL_AS_ID"	, _TL("Use Label as Identifier"),
 		_TL("Use training area labels as identifier in classification result, assumes all label values are integer numbers!"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Table(
-		NULL	, "IMPORTANCES"	, _TL("Feature Importances"),
+	Parameters.Add_Table("",
+		"IMPORTANCES"	, _TL("Feature Importances"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);

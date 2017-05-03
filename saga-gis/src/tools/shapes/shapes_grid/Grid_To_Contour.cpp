@@ -158,7 +158,7 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() != NULL )
 	{
-		double	zStep	= SG_Get_Rounded_To_SignificantFigures(pParameter->asGrid()->Get_ZRange() / 10.0, 1);
+		double	zStep	= SG_Get_Rounded_To_SignificantFigures(pParameter->asGrid()->Get_Range() / 10.0, 1);
 
 		pParameters->Get_Parameter("ZSTEP")->Set_Value(zStep);
 
@@ -166,13 +166,13 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 		if( zStep > 0.0 )
 		{
-			pParameters->Get_Parameter("ZMIN")->Set_Value(zStep * floor(pParameter->asGrid()->Get_ZMin() / zStep));
-			pParameters->Get_Parameter("ZMAX")->Set_Value(zStep * ceil (pParameter->asGrid()->Get_ZMax() / zStep));
+			pParameters->Get_Parameter("ZMIN")->Set_Value(zStep * floor(pParameter->asGrid()->Get_Min() / zStep));
+			pParameters->Get_Parameter("ZMAX")->Set_Value(zStep * ceil (pParameter->asGrid()->Get_Max() / zStep));
 		}
 		else
 		{
-			pParameters->Get_Parameter("ZMIN")->Set_Value(pParameter->asGrid()->Get_ZMin());
-			pParameters->Get_Parameter("ZMAX")->Set_Value(pParameter->asGrid()->Get_ZMax());
+			pParameters->Get_Parameter("ZMIN")->Set_Value(pParameter->asGrid()->Get_Min());
+			pParameters->Get_Parameter("ZMAX")->Set_Value(pParameter->asGrid()->Get_Max());
 		}
 	}
 
@@ -229,17 +229,17 @@ bool CGrid_To_Contour::On_Execute(void)
 	}
 	else
 	{
-		if( zMin < m_pGrid->Get_ZMin() )
+		if( zMin < m_pGrid->Get_Min() )
 		{
-			zMin	+= zStep * (int)((m_pGrid->Get_ZMin() - zMin) / zStep);
+			zMin	+= zStep * (int)((m_pGrid->Get_Min() - zMin) / zStep);
 		}
 
 		Name = Name.Format("%s [%s %s]", m_pGrid->Get_Name(), _TL("Interval"), SG_Get_String(zStep).c_str());
 	}
 
-	if( zMax > m_pGrid->Get_ZMax() )
+	if( zMax > m_pGrid->Get_Max() )
 	{
-		zMax	= m_pGrid->Get_ZMax();
+		zMax	= m_pGrid->Get_Max();
 	}
 
 	//-----------------------------------------------------
@@ -282,7 +282,7 @@ bool CGrid_To_Contour::On_Execute(void)
 
 	for(double z=zMin; z<=zMax && Set_Progress(z - zMin, zMax - zMin); z+=zStep)
 	{
-		if( z >= m_pGrid->Get_ZMin() && z <= m_pGrid->Get_ZMax() )
+		if( z >= m_pGrid->Get_Min() && z <= m_pGrid->Get_Max() )
 		{
 			Process_Set_Text(CSG_String::Format("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str()));
 
@@ -569,8 +569,8 @@ bool CGrid_To_Contour::Get_Polygons(CSG_Shape_Line *pContour_Lo, CSG_Shape_Line 
 	int		x, y;
 
 	//-----------------------------------------------------
-	double	zMin	= pContour_Lo ? pContour_Lo->asDouble(1) : m_pGrid->Get_ZMin();
-	double	zMax	= pContour_Hi ? pContour_Hi->asDouble(1) : m_pGrid->Get_ZMax();
+	double	zMin	= pContour_Lo ? pContour_Lo->asDouble(1) : m_pGrid->Get_Min();
+	double	zMax	= pContour_Hi ? pContour_Hi->asDouble(1) : m_pGrid->Get_Max();
 
 	#pragma omp parallel for private(x, y)
 	for(y=0; y<m_pGrid->Get_NY(); y++)

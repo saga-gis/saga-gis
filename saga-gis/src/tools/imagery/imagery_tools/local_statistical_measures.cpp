@@ -80,15 +80,15 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 		"</ul>"
 	));
 
-	Parameters.Add_Grid(NULL, "GRID"       , _TL("Grid"       ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "GRID"    , _TL("Grid"    ), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid(NULL, "CONTRAST"   , _TL("Contrast"   ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "ENERGY"     , _TL("Energy"     ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "ENTROPY"    , _TL("Entropy"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "VARIANCE"   , _TL("Variance"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "CONTRAST", _TL("Contrast"), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "ENERGY"  , _TL("Energy"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "ENTROPY" , _TL("Entropy" ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "VARIANCE", _TL("Variance"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Kernel"),
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Kernel"),
 		_TL("kernel radius in cells"),
 		CSG_String::Format("%s|%s|",
 			_TL("square"),
@@ -96,14 +96,14 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 		), 1
 	);
 
-	Parameters.Add_Int(
-		NULL	, "RADIUS"		, _TL("Radius"),
+	Parameters.Add_Int("",
+		"RADIUS"	, _TL("Radius"),
 		_TL("kernel radius in cells"),
 		1, 1, true
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Choice(
-		NULL	, "NORMALIZE"	, _TL("Normalization"),
+	Parameters.Add_Choice("",
+		"NORMALIZE"	, _TL("Normalization"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("no"),
@@ -111,14 +111,14 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 		), 1
 	);
 
-	Parameters.Add_Double(
-		pNode	, "NORM_MIN"	, _TL("Minimum"),
+	Parameters.Add_Double("NORMALIZE",
+		"NORM_MIN"	, _TL("Minimum"),
 		_TL(""),
 		1.0
 	);
 
-	Parameters.Add_Double(
-		pNode	, "NORM_MAX"	, _TL("Maximum"),
+	Parameters.Add_Double("NORMALIZE",
+		"NORM_MAX"	, _TL("Maximum"),
 		_TL(""),
 		255.0
 	);
@@ -152,7 +152,7 @@ bool CLocal_Statistical_Measures::On_Execute(void)
 	//-----------------------------------------------------
 	m_pGrid	= Parameters("GRID")->asGrid();
 
-	if( m_pGrid->Get_ZRange() <= 0.0 )
+	if( m_pGrid->Get_Range() <= 0.0 )
 	{
 		Error_Set(_TL("nothing to do, input data has no variation."));
 
@@ -177,7 +177,7 @@ bool CLocal_Statistical_Measures::On_Execute(void)
 	//-----------------------------------------------------
 	m_Normalize	=  Parameters("NORMALIZE")->asInt();
 	m_Minimum	=  Parameters("NORM_MIN" )->asDouble();
-	m_Scale		= (Parameters("NORM_MAX" )->asDouble() - m_Minimum) / m_pGrid->Get_ZRange();
+	m_Scale		= (Parameters("NORM_MAX" )->asDouble() - m_Minimum) / m_pGrid->Get_Range();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -212,7 +212,7 @@ inline bool CLocal_Statistical_Measures::Get_Value(int x, int y, double &z)
 			break;
 
 		case  1:
-			z	= m_Minimum + m_Scale * (m_pGrid->asDouble(x, y) - m_pGrid->Get_ZMin());
+			z	= m_Minimum + m_Scale * (m_pGrid->asDouble(x, y) - m_pGrid->Get_Min());
 			break;
 		}
 

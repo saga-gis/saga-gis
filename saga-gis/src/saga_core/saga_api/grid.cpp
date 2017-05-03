@@ -508,14 +508,9 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 }
 
 //---------------------------------------------------------
-void CSG_Grid::Set_Unit(const SG_Char *String)
+void CSG_Grid::Set_Unit(const CSG_String &Unit)
 {
-	m_Unit	= String ? String : SG_T("");
-}
-
-const SG_Char * CSG_Grid::Get_Unit(void) const
-{
-	return( m_Unit.c_str() );
+	m_Unit	= Unit;
 }
 
 //---------------------------------------------------------
@@ -611,55 +606,51 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Value(TSG_Point Position, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(const TSG_Point &p, TSG_Grid_Resampling Resampling, bool bByteWise) const
 {
 	double	Value;
 
-	return( Get_Value(Position.x, Position.y, Value, Resampling, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(p.x, p.y, Value, Resampling, false, bByteWise) ? Value : Get_NoData_Value() );
 }
 
-double CSG_Grid::Get_Value(double xPosition, double yPosition, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
+double CSG_Grid::Get_Value(double x, double y, TSG_Grid_Resampling Resampling, bool bByteWise) const
 {
 	double	Value;
 
-	return( Get_Value(xPosition, yPosition, Value, Resampling, bByteWise, bOnlyValidCells) ? Value : Get_NoData_Value() );
+	return( Get_Value(x, y, Value, Resampling, false, bByteWise) ? Value : Get_NoData_Value() );
 }
 
-bool CSG_Grid::Get_Value(TSG_Point Position, double &Value, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(const TSG_Point &p, double &Value, TSG_Grid_Resampling Resampling, bool bNoData, bool bByteWise) const
 {
-	return( Get_Value(Position.x, Position.y, Value, Resampling, bByteWise, bOnlyValidCells) );
+	return( Get_Value(p.x, p.y, Value, Resampling, bNoData, bByteWise) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Get_Value(double xPosition, double yPosition, double &Value, TSG_Grid_Resampling Resampling, bool bByteWise, bool bOnlyValidCells) const
+bool CSG_Grid::Get_Value(double x, double y, double &Value, TSG_Grid_Resampling Resampling, bool bNoData, bool bByteWise) const
 {
-	if(	m_System.Get_Extent(true).Contains(xPosition, yPosition) )
+	if(	m_System.Get_Extent(true).Contains(x, y) )
 	{
-		int		x	= (int)floor(xPosition	= (xPosition - Get_XMin()) / Get_Cellsize());
-		int		y	= (int)floor(yPosition	= (yPosition - Get_YMin()) / Get_Cellsize());
+		int	ix = (int)floor(x = (x - Get_XMin()) / Get_Cellsize()); double dx = x - ix;
+		int	iy = (int)floor(y = (y - Get_YMin()) / Get_Cellsize()); double dy = y - iy;
 
-		double	dx	= xPosition - x;
-		double	dy	= yPosition - y;
-
-		if( !bOnlyValidCells || is_InGrid(x + (int)(0.5 + dx), y + (int)(0.5 + dy)) )
+		if( bNoData || is_InGrid(ix + (int)(0.5 + dx), iy + (int)(0.5 + dy)) )
 		{
 			switch( Resampling )
 			{
 			case GRID_RESAMPLING_NearestNeighbour:
-				Value	= _Get_ValAtPos_NearestNeighbour(x, y, dx, dy);
+				Value	= _Get_ValAtPos_NearestNeighbour(ix, iy, dx, dy);
 				break;
 
 			case GRID_RESAMPLING_Bilinear:
-				Value	= _Get_ValAtPos_BiLinear		(x, y, dx, dy, bByteWise);
+				Value	= _Get_ValAtPos_BiLinear        (ix, iy, dx, dy, bByteWise);
 				break;
 
 			case GRID_RESAMPLING_BicubicSpline:
-				Value	= _Get_ValAtPos_BiCubicSpline	(x, y, dx, dy, bByteWise);
+				Value	= _Get_ValAtPos_BiCubicSpline   (ix, iy, dx, dy, bByteWise);
 				break;
 
-			default:
-			case GRID_RESAMPLING_BSpline:
-				Value	= _Get_ValAtPos_BSpline			(x, y, dx, dy, bByteWise);
+			case GRID_RESAMPLING_BSpline: default:
+				Value	= _Get_ValAtPos_BSpline         (ix, iy, dx, dy, bByteWise);
 				break;
 			}
 
@@ -1061,24 +1052,29 @@ bool CSG_Grid::On_Update(void)
 }
 
 //---------------------------------------------------------
-double CSG_Grid::Get_ZMin(void)
+const CSG_Simple_Statistics & CSG_Grid::Get_Statistics(void)
 {
-	Update();	return( m_zStats.Get_Minimum() );
-}
-
-double CSG_Grid::Get_ZMax(void)
-{
-	Update();	return( m_zStats.Get_Maximum() );
-}
-
-double CSG_Grid::Get_ZRange(void)
-{
-	Update();	return( m_zStats.Get_Range() );
+	Update();	return( m_zStats );
 }
 
 double CSG_Grid::Get_Mean(void)
 {
 	Update();	return( m_zStats.Get_Mean() );
+}
+
+double CSG_Grid::Get_Min(void)
+{
+	Update();	return( m_zStats.Get_Minimum() );
+}
+
+double CSG_Grid::Get_Max(void)
+{
+	Update();	return( m_zStats.Get_Maximum() );
+}
+
+double CSG_Grid::Get_Range(void)
+{
+	Update();	return( m_zStats.Get_Range() );
 }
 
 double CSG_Grid::Get_StdDev(void)
@@ -1103,11 +1099,11 @@ sLong CSG_Grid::Get_NoData_Count(void)
 }
 
 //---------------------------------------------------------
-double CSG_Grid::Get_Percentile(double Percent)
+double CSG_Grid::Get_Quantile(double Quantile)
 {
-	Percent	= Percent <= 0.0 ? 0.0 : Percent >= 100.0 ? 1.0 : Percent / 100.0;
+	Quantile	= Quantile <= 0.0 ? 0.0 : Quantile >= 100.0 ? 1.0 : Quantile / 100.0;
 
-	sLong	n	= (sLong)(Percent * (Get_Data_Count() - 1));
+	sLong	n	= (sLong)(Quantile * (Get_Data_Count() - 1));
 
 	if( Get_Sorted(n, n, false) )
 	{

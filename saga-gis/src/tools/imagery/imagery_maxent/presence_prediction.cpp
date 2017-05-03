@@ -77,61 +77,63 @@ using namespace std;
 //---------------------------------------------------------
 CPresence_Prediction::CPresence_Prediction(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Maximum Entropy Presence Prediction"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"\nReferences:\n"
-		"- Yoshimasa Tsuruoka: A simple C++ library for maximum entropy classification. "
-		" <a target=\"_blank\" href=\"http://www.logos.t.u-tokyo.ac.jp/~tsuruoka/maxent/\">online</a>.\n"
-		"- Dekang Lin: A MaxEnt Package in C++. "
-		" <a target=\"_blank\" href=\"http://webdocs.cs.ualberta.ca/~lindek/downloads.htm\">online</a>.\n"
+		""
 	));
 
+	Add_Reference("http://www.logos.t.u-tokyo.ac.jp/~tsuruoka/maxent/",
+		SG_T("Yoshimasa Tsuruoka: A simple C++ library for maximum entropy classification.")
+	);
+
+	Add_Reference("http://webdocs.cs.ualberta.ca/~lindek/downloads.htm",
+		SG_T("Dekang Lin: A MaxEnt Package in C++.")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "PRESENCE"		, _TL("Presence Data"),
+	Parameters.Add_Shapes("",
+		"PRESENCE"		, _TL("Presence Data"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES_NUM"	, _TL("Numerical Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES_NUM"	, _TL("Numerical Features"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES_CAT"	, _TL("Categorical Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES_CAT"	, _TL("Categorical Features"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PREDICTION"		, _TL("Presence Prediction"),
+	Parameters.Add_Grid("",
+		"PREDICTION"		, _TL("Presence Prediction"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "PROBABILITY"		, _TL("Presence Probability"),
+	Parameters.Add_Grid("",
+		"PROBABILITY"		, _TL("Presence Probability"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BACKGROUND"		, _TL("Background Sample Density [Percent]"),
+	Parameters.Add_Double("",
+		"BACKGROUND"		, _TL("Background Sample Density [Percent]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.0, true, 100, true
+		1.0, 0.0, true, 100, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"			, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Yoshimasa Tsuruoka"),
@@ -140,64 +142,64 @@ CPresence_Prediction::CPresence_Prediction(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_FilePath(
-		NULL	, "YT_FILE_LOAD"	, _TL("Load from File..."),
+	Parameters.Add_FilePath("",
+		"YT_FILE_LOAD"	, _TL("Load from File..."),
 		_TL(""),
 		NULL, NULL, false
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "YT_FILE_SAVE"	, _TL("Save to File..."),
+	Parameters.Add_FilePath("",
+		"YT_FILE_SAVE"	, _TL("Save to File..."),
 		_TL(""),
 		NULL, NULL, true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "YT_REGUL"		, _TL("Regularization"),
+	Parameters.Add_Choice("",
+		"YT_REGUL"		, _TL("Regularization"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("none"),
 			SG_T("L1"),
 			SG_T("L2")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		pNode	, "YT_REGUL_VAL"	, _TL("Regularization Factor"),
+	Parameters.Add_Double("YT_REGUL",
+		"YT_REGUL_VAL"	, _TL("Regularization Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "YT_NUMASREAL"	, _TL("Real-valued Numerical Features"),
+	Parameters.Add_Bool("",
+		"YT_NUMASREAL"	, _TL("Real-valued Numerical Features"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "DL_ALPHA"		, _TL("Alpha"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.1
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DL_THRESHOLD"	, _TL("Threshold"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DL_ITERATIONS"	, _TL("Maximum Iterations"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NUM_CLASSES"		, _TL("Number of Numeric Value Classes"),
+	Parameters.Add_Double("",
+		"DL_ALPHA"		, _TL("Alpha"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 32, 1, true
+		0.1
+	);
+
+	Parameters.Add_Double("",
+		"DL_THRESHOLD"	, _TL("Threshold"),
+		_TL(""),
+		0.0, 0.0, true
+	);
+
+	Parameters.Add_Int("",
+		"DL_ITERATIONS"	, _TL("Maximum Iterations"),
+		_TL(""),
+		100, 1, true
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Int("",
+		"NUM_CLASSES"		, _TL("Number of Numeric Value Classes"),
+		_TL(""),
+		32, 1, true
 	);
 }
 
@@ -248,8 +250,8 @@ bool CPresence_Prediction::On_Execute(void)
 	CSG_Grid	*pPrediction	= Parameters("PREDICTION" )->asGrid();
 	CSG_Grid	*pProbability	= Parameters("PROBABILITY")->asGrid();
 
-	if( !pPrediction ->Get_ZRange() ) DataObject_Set_Colors(pPrediction , 11, SG_COLORS_YELLOW_GREEN);
-	if( !pProbability->Get_ZRange() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_YELLOW_GREEN);
+	if( !pPrediction ->Get_Range() ) DataObject_Set_Colors(pPrediction , 11, SG_COLORS_YELLOW_GREEN);
+	if( !pProbability->Get_Range() ) DataObject_Set_Colors(pProbability, 11, SG_COLORS_YELLOW_GREEN);
 
 	m_Method		= Parameters("METHOD"      )->asInt ();
 	m_nNumClasses	= Parameters("NUM_CLASSES" )->asInt ();
@@ -367,7 +369,7 @@ CSG_String CPresence_Prediction::Get_Feature(int x, int y, int i)
 
 	if( m_nNumClasses > 1 && m_Features[i].bNumeric )
 	{
-		return( CSG_String::Format("%d", (int)(m_nNumClasses * (pFeature->asDouble(x, y) - pFeature->Get_ZMin()) / pFeature->Get_ZRange())) );
+		return( CSG_String::Format("%d", (int)(m_nNumClasses * (pFeature->asDouble(x, y) - pFeature->Get_Min()) / pFeature->Get_Range())) );
 	}
 
 	return( SG_Get_String(pFeature->asDouble(x, y), -2) );

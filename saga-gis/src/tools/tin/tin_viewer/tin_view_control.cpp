@@ -930,7 +930,7 @@ inline void CTIN_View_Control::_Draw_Triangle_Line(int y, double xa, double xb, 
 
 			if( m_bRGB )
 			{
-				if( m_pRGB->Get_Value(c, d, c, m_Resampling, false, true) )
+				if( m_pRGB->Get_Value(c, d, c, m_Resampling) )
 				{
 					_Draw_Pixel(x, y, z, _Dim_Color(c, dim));
 				}

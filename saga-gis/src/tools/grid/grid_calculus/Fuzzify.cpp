@@ -48,27 +48,27 @@ CFuzzify::CFuzzify(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"OUTPUT"	, _TL("Fuzzified Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Node(NULL, "INCREASE", _TL("Increase"), _TL(""));
-	Parameters.Add_Double(Parameters("INCREASE"), "INC_MIN", _TL("From"), _TL(""), 0.0);
-	Parameters.Add_Double(Parameters("INCREASE"), "INC_MAX", _TL("To"  ), _TL(""), 0.3);
+	Parameters.Add_Node("", "INCREASE", _TL("Increase"), _TL(""));
+	Parameters.Add_Double("INCREASE", "INC_MIN", _TL("From"), _TL(""), 0.0);
+	Parameters.Add_Double("INCREASE", "INC_MAX", _TL("To"  ), _TL(""), 0.3);
 
-	Parameters.Add_Node(NULL, "DECREASE", _TL("Decrease"), _TL(""));
-	Parameters.Add_Double(Parameters("DECREASE"), "DEC_MIN", _TL("From"), _TL(""), 0.7);
-	Parameters.Add_Double(Parameters("DECREASE"), "DEC_MAX", _TL("To"  ), _TL(""), 1.0);
+	Parameters.Add_Node("", "DECREASE", _TL("Decrease"), _TL(""));
+	Parameters.Add_Double("DECREASE", "DEC_MIN", _TL("From"), _TL(""), 0.7);
+	Parameters.Add_Double("DECREASE", "DEC_MAX", _TL("To"  ), _TL(""), 1.0);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -78,7 +78,7 @@ CFuzzify::CFuzzify(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TRANSITION", _TL("Transition"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -88,14 +88,14 @@ CFuzzify::CFuzzify(void)
 		), 0
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "INVERT"	, _TL("Invert"),
+	Parameters.Add_Bool("",
+		"INVERT"	, _TL("Invert"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "AUTOFIT"	, _TL("Adjust"),
+	Parameters.Add_Bool("",
+		"AUTOFIT"	, _TL("Adjust"),
 		_TL("Automatically adjust control points to grid's data range"),
 		true
 	);
@@ -120,20 +120,20 @@ int CFuzzify::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *p
 			switch( pParameters->Get_Parameter("METHOD")->asInt() )
 			{
 			case  0:	// Increase
-				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_ZMin());
-				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_ZMax());
+				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_Min());
+				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_Max());
 				break;
 
 			case  1:	// Decrease
-				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_ZMin());
-				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_ZMax());
+				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_Min());
+				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_Max());
 				break;
 
 			default:	// Increase and Decrease
-				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_ZMin());
-				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_ZMin() + 0.3 * pGrid->Get_ZRange());
-				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_ZMax() - 0.3 * pGrid->Get_ZRange());
-				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_ZMax());
+				pParameters->Get_Parameter("INC_MIN")->Set_Value(pGrid->Get_Min());
+				pParameters->Get_Parameter("INC_MAX")->Set_Value(pGrid->Get_Min() + 0.3 * pGrid->Get_Range());
+				pParameters->Get_Parameter("DEC_MIN")->Set_Value(pGrid->Get_Max() - 0.3 * pGrid->Get_Range());
+				pParameters->Get_Parameter("DEC_MAX")->Set_Value(pGrid->Get_Max());
 				break;
 			}
 		}
@@ -179,11 +179,11 @@ bool CFuzzify::On_Execute(void)
 	switch( Parameters("METHOD")->asInt() )
 	{
 	case  0:	// Increase
-		DecMin = DecMax = pInput->Get_ZMax();
+		DecMin = DecMax = pInput->Get_Max();
 		break;
 
 	case  1:	// Decrease
-		IncMin = IncMax = pInput->Get_ZMin();
+		IncMin = IncMax = pInput->Get_Min();
 		break;
 
 	default:	// Increase and Decrease

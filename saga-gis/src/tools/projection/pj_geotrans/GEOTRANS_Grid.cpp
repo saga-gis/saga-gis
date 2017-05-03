@@ -73,62 +73,55 @@
 //---------------------------------------------------------
 CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 {
-	CSG_Parameters	*pParameters;
-
 	//-----------------------------------------------------
-	Set_Name	(_TL("GeoTrans (Grid)"));
+	Set_Name		(_TL("GeoTrans (Grid)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Coordinate Transformation for Grids. "
 		"This library makes use of the Geographic Translator (GeoTrans) library. "
-		"\n"
-		"GeoTrans is maintained by the National Geospatial Agency (NGA).\n"
-		"  <a target=\"_blank\" href=\"http://earth-info.nga.mil/GandG/geotrans/\">"
-		"  http://earth-info.nga.mil/GandG/geotrans/</a>\n"
+		"The GeoTrans library is maintained by the National Geospatial Agency (NGA)."
 	));
 
+	Add_Reference("http://earth-info.nga.mil/GandG/geotrans/");
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_GRID"	, _TL("Grid"),
+	Parameters.Add_Grid_Output("",
+		"OUT_GRID"	, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_X"		, _TL("X Coordinates"),
+	Parameters.Add_Grid_Output("",
+		"OUT_X"		, _TL("X Coordinates"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_Y"		, _TL("Y Coordinates"),
+	Parameters.Add_Grid_Output("",
+		"OUT_Y"		, _TL("Y Coordinates"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes_Output(
-		NULL	, "OUT_SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes_Output("",
+		"OUT_SHAPES", _TL("Shapes"),
 		_TL("")
 	);
-
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		Parameters("SOURCE_NODE"),
-		"SOURCE"		, _TL("Source"),
+	Parameters.Add_Grid("SOURCE_NODE",
+		"SOURCE"	, _TL("Source"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Value(
-		Parameters("TARGET_NODE"),
-		"CREATE_XY"		, _TL("Create X/Y Grids"),
+	Parameters.Add_Bool("TARGET_NODE",
+		"CREATE_XY"	, _TL("Create X/Y Grids"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Choice(
-		Parameters("TARGET_NODE")	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice("TARGET_NODE",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -138,15 +131,12 @@ CGEOTRANS_Grid::CGEOTRANS_Grid(void)
 		), 3
 	);
 
-
 	//-----------------------------------------------------
 	m_Grid_Target.Create(Add_Parameters("TARGET", _TL("Target Grid System"), _TL("")));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -165,8 +155,6 @@ int CGEOTRANS_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -182,9 +170,9 @@ bool CGEOTRANS_Grid::On_Execute_Conversion(void)
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
 	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	//-----------------------------------------------------

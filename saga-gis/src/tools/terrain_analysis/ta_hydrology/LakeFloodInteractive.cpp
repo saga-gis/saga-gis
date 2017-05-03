@@ -53,6 +53,7 @@
 //---------------------------------------------------------
 #include "LakeFlood.h"
 
+
 ///////////////////////////////////////////////////////////
 //														 //
 //				Construction/Destruction				 //
@@ -130,7 +131,6 @@ bool CLakeFloodInteractive::On_Execute_Finish(void)
 {
 	return( true );
 }
-
 
 //---------------------------------------------------------
 bool CLakeFloodInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
@@ -212,8 +212,8 @@ bool CLakeFloodInteractive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Inte
 			}
 
 			SG_UI_Msg_Add(_TL("ready ..."), true);
-			DataObject_Update(pOdepth, pOdepth->Get_ZMin(), pOdepth->Get_ZMax());
-			DataObject_Update(pOlevel, pOlevel->Get_ZMin(), pOlevel->Get_ZMax());
+			DataObject_Update(pOdepth, pOdepth->Get_Min(), pOdepth->Get_Max());
+			DataObject_Update(pOlevel, pOlevel->Get_Min(), pOlevel->Get_Max());
 			return( true );
 		}
 	}

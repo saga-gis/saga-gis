@@ -92,43 +92,33 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
+	Parameters.Add_Grid  (""        , "R_GRID"  , _TL("Red"               ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Choice("R_GRID"  , "R_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("R_METHOD", "R_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
+	Parameters.Add_Range ("R_METHOD", "R_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
+	Parameters.Add_Double("R_METHOD", "R_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
 
-	pNode	=
-	Parameters.Add_Grid  (NULL , "R_GRID"  , _TL("Red"               ), _TL(""), PARAMETER_INPUT);
-	pNode	=
-	Parameters.Add_Choice(pNode, "R_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range (pNode, "R_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range (pNode, "R_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Value (pNode, "R_STDDEV", _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Double, 2.0, 0.0, true);
+	Parameters.Add_Grid  (""        , "G_GRID"  , _TL("Green"             ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Choice("G_GRID"  , "G_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("G_METHOD", "G_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
+	Parameters.Add_Range ("G_METHOD", "G_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
+	Parameters.Add_Double("G_METHOD", "G_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
 
-	pNode	=
-	Parameters.Add_Grid  (NULL , "G_GRID"  , _TL("Green"             ), _TL(""), PARAMETER_INPUT);
-	pNode	=
-	Parameters.Add_Choice(pNode, "G_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range (pNode, "G_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range (pNode, "G_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Value (pNode, "G_STDDEV", _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Double, 2.0, 0.0, true);
+	Parameters.Add_Grid  (""        , "B_GRID"  , _TL("Blue"              ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Choice("B_GRID"  , "B_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("B_METHOD", "B_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
+	Parameters.Add_Range ("B_METHOD", "B_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
+	Parameters.Add_Double("B_METHOD", "B_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
 
-	pNode	=
-	Parameters.Add_Grid  (NULL , "B_GRID"  , _TL("Blue"              ), _TL(""), PARAMETER_INPUT);
-	pNode	=
-	Parameters.Add_Choice(pNode, "B_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range (pNode, "B_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range (pNode, "B_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Value (pNode, "B_STDDEV", _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Double, 2.0, 0.0, true);
-
-	pNode	=
-	Parameters.Add_Grid  (NULL , "A_GRID"  , _TL("Alpha"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	pNode	=
-	Parameters.Add_Choice(pNode, "A_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range (pNode, "A_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range (pNode, "A_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Value (pNode, "A_STDDEV", _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Double, 2.0, 0.0, true);
+	Parameters.Add_Grid  (""        , "A_GRID"  , _TL("Alpha"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Choice("A_GRID"  , "A_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("A_METHOD", "A_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
+	Parameters.Add_Range ("A_METHOD", "A_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
+	Parameters.Add_Double("A_METHOD", "A_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "RGB"	, _TL("Composite"),
+	Parameters.Add_Grid("",
+		"RGB"	, _TL("Composite"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 	);
@@ -190,7 +180,7 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 		pParameters->Set_Enabled("A_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -283,8 +273,8 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 			break;
 
 		case 1:	// Rescale to 0 - 255
-			Min		= pGrid->Get_ZMin();
-			Range	= pGrid->Get_ZRange();
+			Min		= pGrid->Get_Min  ();
+			Range	= pGrid->Get_Range();
 			break;
 
 		case 2:	// User defined rescale
@@ -293,8 +283,8 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 			break;
 
 		case 3:	// Percentile
-			Min		= pGrid->Get_Percentile(pPerctl->Get_LoVal());
-			Range	= pGrid->Get_Percentile(pPerctl->Get_HiVal()) - Min;
+			Min		= pGrid->Get_Quantile(pPerctl->Get_LoVal());
+			Range	= pGrid->Get_Quantile(pPerctl->Get_HiVal()) - Min;
 			break;
 
 		case 4:	// Standard deviation
@@ -330,40 +320,40 @@ CGrid_RGB_Split::CGrid_RGB_Split(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "RGB"		, _TL("RGB Composite"),
+	Parameters.Add_Grid("",
+		"RGB"	, _TL("RGB Composite"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "R"		, _TL("Red"),
+	Parameters.Add_Grid("",
+		"R"		, _TL("Red"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "G"		, _TL("Green"),
+	Parameters.Add_Grid("",
+		"G"		, _TL("Green"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "B"		, _TL("Blue"),
+	Parameters.Add_Grid("",
+		"B"		, _TL("Blue"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "A"		, _TL("Alpha"),
+	Parameters.Add_Grid("",
+		"A"		, _TL("Alpha"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NODATA"	, _TL("Ignore No Data"),
+	Parameters.Add_Bool("",
+		"NODATA", _TL("Ignore No Data"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 

@@ -20,52 +20,52 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+//---------------------------------------------------------
 #include "Helper.h"
 #include "IsochronesConst.h"
 
-//-----------------------------------------------------
-CIsochronesConst::CIsochronesConst(void){
+//---------------------------------------------------------
+CIsochronesConst::CIsochronesConst(void)
+{
+	Set_Name		(_TL("Isochrones Constant Speed"));
 
-	Set_Name(_TL("Isochrones Constant Speed"));
-	Set_Author(_TL("V.Olaya (c) 2004, V.Wichmann (c) 2015"));
-	Set_Description	(_TW("Isochrones calculation with constant speed based on a user "
-						"provided Time of Concentration. For each selected pour point, "
-						"the longest watercourse length and the average slope of the "
-						"watercourse are reported. These can be used to estimate the "
-						"Time of Concentration with one of the empirical equations "
-						"available.\n\n"));
+	Set_Author		("V.Olaya (c) 2004, V.Wichmann (c) 2015");
 
-	Parameters.Add_Grid(NULL, 
-						"DEM", 
-						_TL("Elevation Grid"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+	Set_Description	(_TW(
+		"Isochrones calculation with constant speed based on a user "
+		"provided Time of Concentration. For each selected pour point, "
+		"the longest watercourse length and the average slope of the "
+		"watercourse are reported. These can be used to estimate the "
+		"Time of Concentration with one of the empirical equations "
+		"available."
+	));
 
-	Parameters.Add_Grid(NULL, 
-						"TIME", 
-						_TL("Time Out [min]"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
-
-	Parameters.Add_Value(
-		NULL, "TIME_OF_CONCENTRATION", _TL("Time of Concentration [min]"),
-		_TL("Time of Concentration [min] used to estimate flow speed."),
-		PARAMETER_TYPE_Double, 60.0, 0.001, true
+	Parameters.Add_Grid("",
+		"DEM"	, _TL("Elevation Grid"),
+		_TL(""), 
+		PARAMETER_INPUT
 	);
-		
 
-}//constructor
+	Parameters.Add_Grid("",
+		"TIME"	, _TL("Time Out [min]"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
 
+	Parameters.Add_Double("",
+		"TIME_OF_CONCENTRATION", _TL("Time of Concentration [min]"),
+		_TL("Time of Concentration [min] used to estimate flow speed."),
+		60.0, 0.001, true
+	);
+}
 
-//-----------------------------------------------------
-CIsochronesConst::~CIsochronesConst(void){
+//---------------------------------------------------------
+CIsochronesConst::~CIsochronesConst(void)
+{
 	On_Execute_Finish();
 }
 
-
-//-----------------------------------------------------
+//---------------------------------------------------------
 void CIsochronesConst::_CalculateDistance(int x, int y)
 {
 	CSG_Grid_Stack	Stack;
@@ -94,8 +94,7 @@ void CIsochronesConst::_CalculateDistance(int x, int y)
 	return;
 }
 
-
-//-----------------------------------------------------
+//---------------------------------------------------------
 bool CIsochronesConst::On_Execute(void)
 {	
 	m_pDEM = Parameters("DEM")->asGrid(); 
@@ -112,8 +111,7 @@ bool CIsochronesConst::On_Execute(void)
 	return( true );
 }
 
-
-//-----------------------------------------------------
+//---------------------------------------------------------
 bool CIsochronesConst::On_Execute_Finish(void)
 {
 	m_Direction.Destroy();
@@ -121,8 +119,7 @@ bool CIsochronesConst::On_Execute_Finish(void)
 	return( true );
 }
 
-
-//-----------------------------------------------------
+//---------------------------------------------------------
 bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {	
 	int iX, iY;		
@@ -137,7 +134,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 	
 	_CalculateDistance(iX, iY);
     
-	double	dMax = m_pTime->Get_ZMax();
+	double	dMax = m_pTime->Get_Max();
 	bool	bMaxFound = false;
 
     for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -162,7 +159,7 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
         }// for
     }// for
 	
-	double dMaxDist = m_pTime->Get_ZMax();
+	double dMaxDist = m_pTime->Get_Max();
 	double dH1 = m_pDEM->asDouble(iX, iY);
 	double dH2 = m_pDEM->asDouble(iHighX, iHighY);
 	double dSpeed = dMaxDist / m_dConcTime;
@@ -189,3 +186,5 @@ bool CIsochronesConst::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interacti
 	return (true);
 
 }//method
+
+//---------------------------------------------------------

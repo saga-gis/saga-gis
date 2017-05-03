@@ -490,7 +490,7 @@ bool CMRVBF::Get_Flatness(CSG_Grid *pSlopes, CSG_Grid *pPercentiles, CSG_Grid *p
 		{
 			for(x=0, xp=Get_XMin(); x<Get_NX(); x++, xp+=Get_Cellsize())
 			{
-				if( pSlopes		->Get_Value(xp, yp, Slope     )
+				if( pSlopes     ->Get_Value(xp, yp, Slope     )
 				&&	pPercentiles->Get_Value(xp, yp, Percentile) )
 				{
 					cf	= pCF->asDouble(x, y) * Get_Transformation(Slope, T_Slope, m_P_Slope);

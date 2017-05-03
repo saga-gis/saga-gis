@@ -75,7 +75,7 @@ CGrid_Normalise::CGrid_Normalise(void)
 {
 	Set_Name		(_TL("Grid Normalisation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Normalise the values of a grid. "
@@ -83,20 +83,20 @@ CGrid_Normalise::CGrid_Normalise(void)
 		"usually 0 to 1. "
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "INPUT"	,_TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"	,_TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Normalised Grid"),
+	Parameters.Add_Grid("",
+		"OUTPUT"	, _TL("Normalised Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Range(
-		NULL	, "RANGE"	, _TL("Target Range"),
+	Parameters.Add_Range("",
+		"RANGE"	, _TL("Target Range"),
 		_TL(""),
 		0.0, 1.0
 	);
@@ -126,12 +126,12 @@ bool CGrid_Normalise::On_Execute(void)
 	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Normalised")));
 
 	//-----------------------------------------------------
-	double		Minimum, Maximum, zMin, Stretch;
+	double		Minimum, Maximum, Offset, Scale;
 
 	Minimum	= Parameters("RANGE")->asRange()->Get_LoVal();
 	Maximum	= Parameters("RANGE")->asRange()->Get_HiVal();
-	zMin	= pGrid->Get_ZMin();
-	Stretch	= (Maximum - Minimum) / pGrid->Get_ZRange();
+	Offset	= pGrid->Get_Min();
+	Scale	= (Maximum - Minimum) / pGrid->Get_Range();
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
@@ -139,7 +139,7 @@ bool CGrid_Normalise::On_Execute(void)
 		{
 			if( !pGrid->is_NoData(x, y) )
 			{
-				pGrid->Set_Value(x, y, Minimum + Stretch * (pGrid->asDouble(x, y) - zMin));
+				pGrid->Set_Value(x, y, Minimum + Scale * (pGrid->asDouble(x, y) - Offset));
 			}
 		}
 	}
@@ -165,7 +165,7 @@ CGrid_Standardise::CGrid_Standardise(void)
 {
 	Set_Name		(_TL("Grid Standardisation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2003"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Standardise the values of a grid. "
@@ -174,22 +174,22 @@ CGrid_Standardise::CGrid_Standardise(void)
 		"z = (x - m) * s"
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "INPUT"	,_TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"	,_TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Standardised Grid"),
+	Parameters.Add_Grid("",
+		"OUTPUT"	, _TL("Standardised Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STRETCH"	, _TL("Stretch Factor"),
+	Parameters.Add_Double("",
+		"STRETCH"	, _TL("Stretch Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 }
 
@@ -214,7 +214,7 @@ bool CGrid_Standardise::On_Execute(void)
 		pGrid	->Assign(Parameters("INPUT")->asGrid());
 	}
 
-	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Standard Score")));
+	pGrid->Set_Name(CSG_String::Format("%s (%s)", pGrid->Get_Name(), _TL("Standard Score")));
 
 	//-----------------------------------------------------
 	double	Mean	= pGrid->Get_Mean();

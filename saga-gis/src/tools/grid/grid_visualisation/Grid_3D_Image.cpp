@@ -211,7 +211,7 @@ bool CGrid_3D_Image::On_Execute(void)
 
 	m_ZExagg		= Parameters("ZEXAGG")			->asDouble();
 	m_ZExagg_Min	= Parameters("ZEXAGG_MIN")		->asDouble() / 100.0;
-	m_ZMean			= Parameters("X_ROTATE_LEVEL")	->asInt() == 0 ? 0.0 : m_pDEM->Get_ZMin() + m_pDEM->Get_ZRange() / 2.0;
+	m_ZMean			= Parameters("X_ROTATE_LEVEL")	->asInt() == 0 ? 0.0 : m_pDEM->Get_Min() + m_pDEM->Get_Range() / 2.0;
 	m_XRotate		= Parameters("X_ROTATE")		->asDouble() * M_DEG_TO_RAD;
 	m_ZRotate		= Parameters("Z_ROTATE")		->asDouble() * M_DEG_TO_RAD;
 

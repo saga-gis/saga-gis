@@ -189,7 +189,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 			{
 				double	z, px	= Get_XMin() + x * Get_Cellsize();
 
-				if( pValues->is_NoData(x, y) || !Values.Get_Value(px, py, z, GRID_RESAMPLING_BSpline) )
+				if( pValues->is_NoData(x, y) || !Values.Get_Value(px, py, z) )
 				{
 					pParameter->Set_NoData(x, y);
 				}
