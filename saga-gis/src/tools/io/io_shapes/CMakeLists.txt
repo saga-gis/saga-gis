@@ -1,6 +1,6 @@
 option(WITH_TOOL_IO_SHAPES "Check to install tool io_shapes" OFF)
 
-if (WITH_TOOL_IO_SHAPES OR WITH_ALL_TOOLS)
+if (WITH_TOOL_IO_SHAPES OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(io_shapes)
 
 	# load common tool template

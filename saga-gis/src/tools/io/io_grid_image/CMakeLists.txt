@@ -1,6 +1,6 @@
 option(WITH_TOOL_IO_GRID_IMAGE "Check to install tool io_grid_image" OFF)
 
-if (WITH_TOOL_IO_GRID_IMAGE OR WITH_ALL_TOOLS)
+if (WITH_TOOL_IO_GRID_IMAGE OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(io_grid_image)
 
 	# load common tool template

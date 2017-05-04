@@ -1,6 +1,6 @@
 option(WITH_TOOL_TA_CHANNELS "Check to install tool ta_channels" OFF)
 
-if (WITH_TOOL_TA_CHANNELS OR WITH_ALL_TOOLS)
+if (WITH_TOOL_TA_CHANNELS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(ta_channels)
 
 	# load common tool template

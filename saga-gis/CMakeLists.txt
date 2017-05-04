@@ -24,6 +24,7 @@ endif()
 # options
 option (WITH_GUI "Build saga-gis with GUI" ON)
 option (WITH_TOOLS "Build saga-gis with tools" ON)
+option (WITH_ALL_STANDARD_TOOLS "Build all saga-gis tools, which have no external dependencies" OFF)
 option (WITH_ALL_TOOLS "Build all saga-gis tools" OFF)
 option (WITH_LINK_TESTER "Check to enable testing if tools are successfully linking" OFF)
 option (WITH_OPENMP "Compile with OpenMP optimizations" ON)
