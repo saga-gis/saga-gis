@@ -1,6 +1,6 @@
 message("folder: tools/garden")
 
-if(WITH_GUI)
+if(WITH_GDI)
 	add_subdirectory(garden_3d_viewer)
 	add_subdirectory(garden_webservices)
 endif()

@@ -22,6 +22,7 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 endif()
 
 # options
+option (WITH_GDI "Build saga-gdi. Dependency of the GUI and some tools" ON)
 option (WITH_GUI "Build saga-gis with GUI" ON)
 option (WITH_TOOLS "Build saga-gis with tools" ON)
 option (WITH_ALL_STANDARD_TOOLS "Build all saga-gis tools, which have no external dependencies" OFF)
