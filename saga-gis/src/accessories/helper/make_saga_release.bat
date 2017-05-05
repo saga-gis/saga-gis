@@ -39,6 +39,7 @@ ECHO.    ./saga_setup_win32.iss
 ECHO.    ./saga_setup_x64.iss
 ECHO.    ./saga_api_Doxyfile
 ECHO.    ./saga-gis/configure.ac
+ECHO.    ./saga-gis/version.cmake
 ECHO.    ./saga-gis/README
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
