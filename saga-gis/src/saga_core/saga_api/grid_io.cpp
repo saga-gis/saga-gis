@@ -490,32 +490,18 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, int xA, int yA, int xN, int yN, TS
 //---------------------------------------------------------
 bool CSG_Grid::_Load_ASCII(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip)
 {
-	int		x, y, iy, dy;
-	double	Value;
-
 	if( Stream.is_Open() && m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && _Memory_Create(Memory_Type) )
 	{
 		Set_File_Type(GRID_FILE_FORMAT_ASCII);
 
-		if( bFlip )
-		{
-			y	= Get_NY() - 1;
-			dy	= -1;
-		}
-		else
-		{
-			y	= 0;
-			dy	= 1;
-		}
+		int	iy	= bFlip ? Get_NY() - 1 : 0;
+		int	dy	= bFlip ?           -1 : 1;
 
-		//-------------------------------------------------
-		for(iy=0; iy<Get_NY() && SG_UI_Process_Set_Progress(iy, Get_NY()); iy++, y+=dy)
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++, iy+=dy)
 		{
-			for(x=0; x<Get_NX(); x++)
+			for(int x=0; x<Get_NX(); x++)
 			{
-				fscanf(Stream.Get_Stream(), "%lf", &Value);
-
-				Set_Value(x, y, Value);
+				Set_Value(x, iy, Stream.Scan_Double());
 			}
 		}
 
@@ -823,20 +809,20 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 	//-----------------------------------------------------
 	else if( !strncmp(Identifier, "DSAA", 4) )	// ASCII...
 	{
-		int			nx, ny;
-		double		d;
-		TSG_Rect	r;
+		int		nx		= Stream.Scan_Int   ();
+		int		ny		= Stream.Scan_Int   ();
+		double	xMin	= Stream.Scan_Double();
+		double	xMax	= Stream.Scan_Double();
+		double	yMin	= Stream.Scan_Double();
+		double	yMax	= Stream.Scan_Double();
+		double	dx		= Stream.Scan_Double();
+		double	dy		= Stream.Scan_Double();
 
-		fscanf(Stream.Get_Stream(), "%d  %d ", &nx    , &ny    );
-		fscanf(Stream.Get_Stream(), "%lf %lf", &r.xMin, &r.xMax);
-		fscanf(Stream.Get_Stream(), "%lf %lf", &r.yMin, &r.yMax);
-		fscanf(Stream.Get_Stream(), "%lf %lf", &d     , &d     );
-
-		d	= (r.xMax - r.xMin) / (nx - 1.0);
-	//	d	= (r.yMax - r.yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
+		dx	= (xMax - xMin) / (nx - 1.0);
+		dy	= (yMax - yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
-		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) || Stream.is_EOF() )
+		if( !Create(SG_DATATYPE_Float, nx, ny, dx, xMin, yMin, Memory_Type) || Stream.is_EOF() )
 		{
 			return( false );
 		}
@@ -848,15 +834,15 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 			{
 				for(int x=0; x<Get_NX(); x++)
 				{
-					fscanf(Stream.Get_Stream(), "%lf", &d);
+					double	Value;
 
-					if( d == NoData )
+					if( Stream.Scan(Value) && Value != NoData )
 					{
-						Set_NoData(x, y);
+						Set_Value(x, y, Value);
 					}
 					else
 					{
-						Set_Value(x, y, d);
+						Set_NoData(x, y);
 					}
 				}
 			}

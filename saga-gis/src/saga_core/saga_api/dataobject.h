@@ -92,11 +92,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_META_EXT_GRID		SG_T("mgrd")
-#define SG_META_EXT_TABLE		SG_T("mtab")
-#define SG_META_EXT_SHAPES		SG_T("mshp")
-#define SG_META_EXT_TIN			SG_T("mtin")
-#define SG_META_EXT_POINTCLOUD	SG_T("mpts")
+#define SG_META_EXT_GRID		SG_T("mgrd" )
+#define SG_META_EXT_GRIDS		SG_T("mgrds")
+#define SG_META_EXT_TABLE		SG_T("mtab" )
+#define SG_META_EXT_SHAPES		SG_T("mshp" )
+#define SG_META_EXT_TIN			SG_T("mtin" )
+#define SG_META_EXT_POINTCLOUD	SG_T("mpts" )
 
 //---------------------------------------------------------
 #define SG_META_SRC				SG_T("SOURCE")
@@ -125,11 +126,13 @@
   * @see CSG_Shapes
   * @see CSG_TIN
   * @see CSG_Grid
+  * @see CSG_Grids
 */
 //---------------------------------------------------------
 typedef enum ESG_Data_Object_Type
 {
 	DATAOBJECT_TYPE_Grid,
+	DATAOBJECT_TYPE_Grids,
 	DATAOBJECT_TYPE_Table,
 	DATAOBJECT_TYPE_Shapes,
 	DATAOBJECT_TYPE_TIN,
@@ -171,6 +174,7 @@ SAGA_API_DLL_EXPORT int			SG_Get_History_Ignore_Lists		(void);
   * @see CSG_TIN
   * @see CSG_PointCloud
   * @see CSG_Grid
+  * @see CSG_Grids
 */
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Data_Object
@@ -226,6 +230,7 @@ public:
 	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
 	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
 	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
+	class CSG_Grids *				asGrids			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grids      ? (class CSG_Grids      *)this : NULL );	}
 
 	bool							Set_NoData_Value		(double Value);
 	bool							Set_NoData_Value_Range	(double loValue, double hiValue);

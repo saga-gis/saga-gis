@@ -592,6 +592,74 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(const CSG_String &ParentID, const 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Grids(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent, TSG_Data_Type Preferred_Type)
+{
+	CSG_Parameter	*pParameter, *pParent = Get_Parameter(ParentID);
+
+	CSG_String	SystemID;
+
+	if( pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System )
+	{
+		SystemID	= pParent->Get_Identifier();
+	}
+	else if( bSystem_Dependent && m_pGrid_System )
+	{
+		SystemID	= m_pGrid_System->Get_Identifier();
+	}
+	else
+	{
+		pParent		= Add_Grid_System(pParent ? pParent->Get_Identifier() : SG_T(""), ID + "_GRIDSYSTEM", _TL("Grid system"), "");
+		SystemID	= pParent->Get_Identifier();
+	}
+
+	pParameter	= _Add(SystemID, ID, Name, Description, PARAMETER_TYPE_Grids, Constraint);
+
+	((CSG_Parameter_Grids *)pParameter->m_pData)->Set_Preferred_Type(Preferred_Type);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Grids_Output(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description)
+{
+	CSG_Parameter	*pParameter;
+
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
+
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Grids);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Grids_List(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint, bool bSystem_Dependent)
+{
+	CSG_Parameter	*pParameter, *pParent = Get_Parameter(ParentID);
+
+	CSG_String	SystemID;
+
+	if( pParent && pParent->Get_Type() == PARAMETER_TYPE_Grid_System )
+	{
+		SystemID	= pParent->Get_Identifier();
+	}
+	else if( bSystem_Dependent && m_pGrid_System && (Constraint & PARAMETER_INPUT) )
+	{
+		SystemID	= m_pGrid_System->Get_Identifier();
+	}
+
+	pParameter	= _Add(SystemID, ID, Name, Description, PARAMETER_TYPE_Grids_List, Constraint);
+
+	return( pParameter );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_Table_Field(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bAllowNone)
 {
 	CSG_Parameter	*pParent = Get_Parameter(ParentID);
@@ -1340,14 +1408,14 @@ bool CSG_Parameters::DataObjects_Check(bool bSilent)
 		{
 			bResult	= false;
 
-			sError.Append(CSG_String::Format(SG_T("\n%s: %s"), m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
+			sError.Append(CSG_String::Format("\n%s: %s", m_Parameters[i]->Get_Type_Name().c_str(), m_Parameters[i]->Get_Name()));
 		}
 	}
 
 	//-----------------------------------------------------
 	if( !bResult && !bSilent )
 	{
-		SG_UI_Dlg_Message(CSG_String::Format(SG_T("%s\n%s"), _TL("invalid input!"), sError.c_str()), Get_Name() );
+		SG_UI_Dlg_Message(CSG_String::Format("%s\n%s", _TL("invalid input!"), sError.c_str()), Get_Name() );
 	}
 
 	return( bResult );
@@ -1412,23 +1480,31 @@ bool CSG_Parameters::DataObjects_Create(void)
 
 				switch( p->Get_Type() )
 				{
-				default:
-					break;
-
-				case PARAMETER_TYPE_Table:		pDataObject	= SG_Create_Table();		break;
-				case PARAMETER_TYPE_TIN:		pDataObject	= SG_Create_TIN();			break;
+				case PARAMETER_TYPE_Table     :	pDataObject	= SG_Create_Table     ();	break;
+				case PARAMETER_TYPE_TIN       :	pDataObject	= SG_Create_TIN       ();	break;
 				case PARAMETER_TYPE_PointCloud:	pDataObject	= SG_Create_PointCloud();	break;
-				case PARAMETER_TYPE_Shapes:		pDataObject	= SG_Create_Shapes(
+				case PARAMETER_TYPE_Shapes    :	pDataObject	= SG_Create_Shapes(
 						((CSG_Parameter_Shapes *)p->Get_Data())->Get_Shape_Type()
 					);
 					break;
 
-				case PARAMETER_TYPE_Grid:
+				case PARAMETER_TYPE_Grid      :
+				case PARAMETER_TYPE_Grids     :
 					if(	p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System 
 					&&	p->Get_Parent()->asGrid_System() && p->Get_Parent()->asGrid_System()->is_Valid() )
 					{
-						pDataObject	= SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						if( p->Get_Type() == PARAMETER_TYPE_Grid )
+						{
+							pDataObject	= SG_Create_Grid(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						}
+						else
+						{
+							pDataObject	= SG_Create_Grids(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+						}
 					}
+					break;
+
+				default:
 					break;
 				}
 			}
@@ -1748,7 +1824,8 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					pEntry->Add_Property("name" , p->Get_Name           ());
 					pEntry->Add_Property("parms",    Get_Identifier     ());
 
-					if( p->Get_Type() == PARAMETER_TYPE_Grid )
+					if( p->Get_Type() == PARAMETER_TYPE_Grid
+					||  p->Get_Type() == PARAMETER_TYPE_Grids )
 					{
 						pEntry->Add_Property("system", p->Get_Parent()->Get_Identifier());
 					}
@@ -1772,7 +1849,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					pList->Add_Property("name" , p->Get_Name           ());
 					pList->Add_Property("parms",    Get_Identifier     ());
 
-					if( p->Get_Type() == PARAMETER_TYPE_Grid_List && p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
+					if( (p->Get_Type() == PARAMETER_TYPE_Grid_List || p->Get_Type() == PARAMETER_TYPE_Grids_List) && p->Get_Parent() && p->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System )
 					{
 						pList->Add_Property("system", p->Get_Parent()->Get_Identifier());
 					}
@@ -1913,19 +1990,16 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			case  6: // PARAMETER_TYPE_Choice:
 			case 11: // PARAMETER_TYPE_Color:
 			case 15: // PARAMETER_TYPE_Table_Field:
-				fscanf(Stream.Get_Stream(), "%d", &i);
-				pParameter->Set_Value(i);
+				pParameter->Set_Value(Stream.Scan_Int());
 				break;
 
 			case  3: // PARAMETER_TYPE_Double:
 			case  4: // PARAMETER_TYPE_Degree:
-				fscanf(Stream.Get_Stream(), "%lf", &d);
-				pParameter->Set_Value(d);
+				pParameter->Set_Value(Stream.Scan_Double());
 				break;
 
 			case  5: // PARAMETER_TYPE_Range:
-				fscanf(Stream.Get_Stream(), "%lf %lf", &d, &e);
-				pParameter->asRange()->Set_Range(d, e);
+				pParameter->asRange()->Set_Range(Stream.Scan_Double(), Stream.Scan_Double());
 				break;
 
 			case  7: // PARAMETER_TYPE_String:
@@ -1936,9 +2010,9 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 
 			case  8: // PARAMETER_TYPE_Text:
 				s.Clear();
-				while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[TEXT_ENTRY_END]")) )
+				while( Stream.Read_Line(sLine) && sLine.Cmp("[TEXT_ENTRY_END]") )
 				{
-					s	+= sLine + SG_T("\n");
+					s	+= sLine + "\n";
 				}
 				pParameter->Set_Value(s);
 				break;
@@ -1972,7 +2046,7 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			case 24: // PARAMETER_TYPE_DataObject_Output:
 				if( Stream.Read_Line(sLine) )
 				{
-					if( !sLine.Cmp(SG_T("[ENTRY_DATAOBJECT_CREATE]")) )
+					if( !sLine.Cmp("[ENTRY_DATAOBJECT_CREATE]") )
 					{
 						pParameter->Set_Value(DATAOBJECT_CREATE);
 					}

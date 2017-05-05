@@ -252,7 +252,9 @@ bool CSG_Grid_Collection::Exists(CSG_Data_Object *pObject) const
 //---------------------------------------------------------
 bool CSG_Grid_Collection::Add(CSG_Data_Object *pObject)
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE
+	&& (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid
+	||  pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grids) )
 	{
 		CSG_Grid_System	System	= ((CSG_Grid *)pObject)->Get_System();
 
@@ -314,14 +316,14 @@ CSG_Data_Collection * CSG_Data_Manager::_Get_Collection(CSG_Data_Object *pObject
 	{
 		switch( pObject->Get_ObjectType() )
 		{
-		default: break;
-
-		case DATAOBJECT_TYPE_Table:      return( m_pTable       );
-		case DATAOBJECT_TYPE_TIN:        return( m_pTIN         );
+		case DATAOBJECT_TYPE_Table     : return( m_pTable       );
+		case DATAOBJECT_TYPE_TIN       : return( m_pTIN         );
 		case DATAOBJECT_TYPE_PointCloud: return( m_pPoint_Cloud );
-		case DATAOBJECT_TYPE_Shapes:     return( m_pShapes      );
+		case DATAOBJECT_TYPE_Shapes    : return( m_pShapes      );
+		case DATAOBJECT_TYPE_Grid      : return( Get_Grid_System(((CSG_Grid  *)pObject)->Get_System()) );
+		case DATAOBJECT_TYPE_Grids     : return( Get_Grid_System(((CSG_Grids *)pObject)->Get_System()) );
 
-		case DATAOBJECT_TYPE_Grid:       return( Get_Grid_System(((CSG_Grid *)pObject)->Get_System()) );
+		default: break;
 		}
 	}
 
@@ -399,7 +401,7 @@ bool CSG_Data_Manager::Add(CSG_Data_Object *pObject)
 {
 	CSG_Data_Collection	*pCollection	= _Get_Collection(pObject);
 
-	if( pCollection == NULL && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid && m_Grid_Systems.Inc_Array() )
+	if( pCollection == NULL && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid || pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grids) && m_Grid_Systems.Inc_Array() )
 	{
 		pCollection	= new CSG_Grid_Collection(this);
 
@@ -415,28 +417,33 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 	//-----------------------------------------------------
 	if( Type == DATAOBJECT_TYPE_Undefined )
 	{
-		if( SG_File_Cmp_Extension(File, SG_T("txt" ))
-		||	SG_File_Cmp_Extension(File, SG_T("csv" ))
-		||	SG_File_Cmp_Extension(File, SG_T("dbf" )) )
+		if( SG_File_Cmp_Extension(File, SG_T("txt"  ))
+		||	SG_File_Cmp_Extension(File, SG_T("csv"  ))
+		||	SG_File_Cmp_Extension(File, SG_T("dbf"  )) )
 		{
 			Type	= DATAOBJECT_TYPE_Table;
 		}
 
-		if( SG_File_Cmp_Extension(File, SG_T("shp" )) )
+		if( SG_File_Cmp_Extension(File, SG_T("shp"  )) )
 		{
 			Type	= DATAOBJECT_TYPE_Shapes;
 		}
 
-		if( SG_File_Cmp_Extension(File, SG_T("spc" )) )
+		if( SG_File_Cmp_Extension(File, SG_T("spc"  )) )
 		{
 			Type	= DATAOBJECT_TYPE_PointCloud;
 		}
 
-		if(	SG_File_Cmp_Extension(File, SG_T("sgrd"))
-		||	SG_File_Cmp_Extension(File, SG_T("dgm" ))
-		||	SG_File_Cmp_Extension(File, SG_T("grd" )) )
+		if(	SG_File_Cmp_Extension(File, SG_T("sgrd" ))
+		||	SG_File_Cmp_Extension(File, SG_T("dgm"  ))
+		||	SG_File_Cmp_Extension(File, SG_T("grd"  )) )
 		{
 			Type	= DATAOBJECT_TYPE_Grid;
+		}
+
+		if(	SG_File_Cmp_Extension(File, SG_T("sgrds")) )
+		{
+			Type	= DATAOBJECT_TYPE_Grids;
 		}
 	}
 
@@ -445,12 +452,13 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 
 	switch( Type )
 	{
-	default:							pObject	= NULL;							break;
-	case DATAOBJECT_TYPE_Table:			pObject	= new CSG_Table			(File);	break;
-	case DATAOBJECT_TYPE_Shapes:		pObject	= new CSG_Shapes		(File);	break;
-	case DATAOBJECT_TYPE_TIN:			pObject	= new CSG_TIN			(File);	break;
-	case DATAOBJECT_TYPE_PointCloud:	pObject	= new CSG_PointCloud	(File);	break;
-	case DATAOBJECT_TYPE_Grid:			pObject	= new CSG_Grid			(File);	break;
+	case DATAOBJECT_TYPE_Table     : pObject = new CSG_Table     (File); break;
+	case DATAOBJECT_TYPE_Shapes    : pObject = new CSG_Shapes    (File); break;
+	case DATAOBJECT_TYPE_TIN       : pObject = new CSG_TIN       (File); break;
+	case DATAOBJECT_TYPE_PointCloud: pObject = new CSG_PointCloud(File); break;
+	case DATAOBJECT_TYPE_Grid      : pObject = new CSG_Grid      (File); break;
+	case DATAOBJECT_TYPE_Grids     : pObject = new CSG_Grids     (File); break;
+	default                        : pObject = NULL                    ; break;
 	}
 
 	if( pObject )

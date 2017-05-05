@@ -728,67 +728,42 @@ inline double CSG_Grid::_Get_ValAtPos_BiLinear(int x, int y, double dx, double d
 }
 
 //---------------------------------------------------------
-inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double z_xy[4][4]) const
+inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(double dx, double dy, double v_xy[4][4]) const
 {
-	#define BiCubicSpline(d, z) (z[1] + 0.5 * d * (z[2] - z[0] + d * (2 * z[0] - 5 * z[1] + 4 * z[2] - z[3] + d * (3 * (z[1] - z[2]) + z[3] - z[0]))))
+	#define BiCubicSpline(d, v) (v[1] + 0.5 * d * (v[2] - v[0] + d * (2 * v[0] - 5 * v[1] + 4 * v[2] - v[3] + d * (3 * (v[1] - v[2]) + v[3] - v[0]))))
 
-	double	z_x[4];
+	double	v_x[4];
 
-	z_x[0]	= BiCubicSpline(dy, z_xy[0]);
-	z_x[1]	= BiCubicSpline(dy, z_xy[1]);
-	z_x[2]	= BiCubicSpline(dy, z_xy[2]);
-	z_x[3]	= BiCubicSpline(dy, z_xy[3]);
+	for(int ix=0; ix<4; ix++)
+	{
+		v_x[ix]	= BiCubicSpline(dy, v_xy[ix]);
+	}
 
-	return( BiCubicSpline(dx, z_x) );
-
-	//double	a0, a2, a3, b1, b2, b3, c[4];
-
-	//for(int i=0; i<4; i++)
-	//{
-	//	a0		= z_xy[0][i] - z_xy[1][i];
-	//	a2		= z_xy[2][i] - z_xy[1][i];
-	//	a3		= z_xy[3][i] - z_xy[1][i];
-
-	//	b1		= -a0 / 3.0 + a2       - a3 / 6.0;
-	//	b2		=  a0 / 2.0 + a2 / 2.0;
-	//	b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
-
-	//	c[i]	= z_xy[1][i] + b1 * dx + b2 * dx*dx + b3 * dx*dx*dx;
-	//}
-
-	//a0		= c[0] - c[1];
-	//a2		= c[2] - c[1];
-	//a3		= c[3] - c[1];
-
-	//b1		= -a0 / 3.0 + a2       - a3 / 6.0;
-	//b2		=  a0 / 2.0 + a2 / 2.0;
-	//b3		= -a0 / 6.0 - a2 / 2.0 + a3 / 6.0;
-
-	//return( c[1] + b1 * dy + b2 * dy*dy + b3 * dy*dy*dy );
+	return( BiCubicSpline(dx, v_x) );
 }
 
 inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, double dy, bool bByteWise) const
 {
 	if( !bByteWise )
 	{
-		double	z_xy[4][4];
+		double	v_xy[4][4];
 
-		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, v_xy) )
 		{
-			return( _Get_ValAtPos_BiCubicSpline(dx, dy, z_xy) );
+			return( _Get_ValAtPos_BiCubicSpline(dx, dy, v_xy) );
 		}
 	}
 	else
 	{
-		double	z_xy[4][4][4];
+		double	v_xy[4][4][4];
 
-		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, v_xy) )
 		{
 			return( SG_GET_LONG(
-				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[0]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[1]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[2]),
-				_Get_ValAtPos_BiCubicSpline(dx, dy, z_xy[3])
+				_Get_ValAtPos_BiCubicSpline(dx, dy, v_xy[0]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, v_xy[1]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, v_xy[2]),
+				_Get_ValAtPos_BiCubicSpline(dx, dy, v_xy[3])
 			));
 		}
 	}
@@ -797,7 +772,7 @@ inline double CSG_Grid::_Get_ValAtPos_BiCubicSpline(int x, int y, double dx, dou
 }
 
 //---------------------------------------------------------
-inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[4][4]) const
+inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double v_xy[4][4]) const
 {
 	double	Rx[4], Ry[4];
 
@@ -828,7 +803,7 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double z_xy[
 	{
 		for(int ix=0; ix<4; ix++)
 		{
-			z	+= z_xy[ix][iy] * Rx[ix] * Ry[iy];
+			z	+= v_xy[ix][iy] * Rx[ix] * Ry[iy];
 		}
 	}
 
@@ -839,24 +814,24 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy
 {
 	if( !bByteWise )
 	{
-		double	z_xy[4][4];
+		double	v_xy[4][4];
 
-		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, v_xy) )
 		{
-			return( _Get_ValAtPos_BSpline(dx, dy, z_xy) );
+			return( _Get_ValAtPos_BSpline(dx, dy, v_xy) );
 		}
 	}
 	else
 	{
-		double	z_xy[4][4][4];
+		double	v_xy[4][4][4];
 
-		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, z_xy) )
+		if( _Get_ValAtPos_Fill4x4Submatrix(x, y, v_xy) )
 		{
 			return( SG_GET_LONG(
-				_Get_ValAtPos_BSpline(dx, dy, z_xy[0]),
-				_Get_ValAtPos_BSpline(dx, dy, z_xy[1]),
-				_Get_ValAtPos_BSpline(dx, dy, z_xy[2]),
-				_Get_ValAtPos_BSpline(dx, dy, z_xy[3])
+				_Get_ValAtPos_BSpline(dx, dy, v_xy[0]),
+				_Get_ValAtPos_BSpline(dx, dy, v_xy[1]),
+				_Get_ValAtPos_BSpline(dx, dy, v_xy[2]),
+				_Get_ValAtPos_BSpline(dx, dy, v_xy[3])
 			));
 		}
 	}
@@ -865,7 +840,7 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(int x, int y, double dx, double dy
 }
 
 //---------------------------------------------------------
-inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4]) const
+inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4][4]) const
 {
 	int		ix, iy, jx, jy, nNoData	= 0;
 
@@ -876,11 +851,11 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 		{
 			if( is_InGrid(jx, jy) )
 			{
-				z_xy[ix][iy]	= asDouble(jx, jy);
+				v_xy[ix][iy]	= asDouble(jx, jy);
 			}
 			else
 			{
-				z_xy[ix][iy]	= Get_NoData_Value();
+				v_xy[ix][iy]	= Get_NoData_Value();
 
 				nNoData++;
 			}
@@ -894,7 +869,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
 		{
-			t_xy[ix][iy]	= z_xy[ix][iy];
+			t_xy[ix][iy]	= v_xy[ix][iy];
 		}
 
 		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
@@ -920,7 +895,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 				if( n > 0 )
 				{
-					z_xy[ix][iy]	= s / n;
+					v_xy[ix][iy]	= s / n;
 
 					nNoData--;
 				}
@@ -933,7 +908,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 }
 
 //---------------------------------------------------------
-inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4][4][4]) const
+inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4][4][4]) const
 {
 	int		ix, iy, jx, jy, nNoData	= 0;
 
@@ -946,14 +921,14 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 			{
 				int	z	= asInt(jx, jy);
 
-				z_xy[0][ix][iy]	= SG_GET_BYTE_0(z);
-				z_xy[1][ix][iy]	= SG_GET_BYTE_1(z);
-				z_xy[2][ix][iy]	= SG_GET_BYTE_2(z);
-				z_xy[3][ix][iy]	= SG_GET_BYTE_3(z);
+				v_xy[0][ix][iy]	= SG_GET_BYTE_0(z);
+				v_xy[1][ix][iy]	= SG_GET_BYTE_1(z);
+				v_xy[2][ix][iy]	= SG_GET_BYTE_2(z);
+				v_xy[3][ix][iy]	= SG_GET_BYTE_3(z);
 			}
 			else
 			{
-				z_xy[0][ix][iy]	= -1;
+				v_xy[0][ix][iy]	= -1;
 
 				nNoData++;
 			}
@@ -967,10 +942,10 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
 		{
-			t_xy[0][ix][iy]	= z_xy[0][ix][iy];
-			t_xy[1][ix][iy]	= z_xy[1][ix][iy];
-			t_xy[2][ix][iy]	= z_xy[2][ix][iy];
-			t_xy[3][ix][iy]	= z_xy[3][ix][iy];
+			t_xy[0][ix][iy]	= v_xy[0][ix][iy];
+			t_xy[1][ix][iy]	= v_xy[1][ix][iy];
+			t_xy[2][ix][iy]	= v_xy[2][ix][iy];
+			t_xy[3][ix][iy]	= v_xy[3][ix][iy];
 		}
 
 		for(iy=0; iy<4; iy++)	for(ix=0; ix<4; ix++)
@@ -1004,10 +979,10 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double z_xy[4
 
 				if( n > 0 )
 				{
-					z_xy[0][ix][iy]	= s[0] / n;
-					z_xy[1][ix][iy]	= s[1] / n;
-					z_xy[2][ix][iy]	= s[2] / n;
-					z_xy[3][ix][iy]	= s[3] / n;
+					v_xy[0][ix][iy]	= s[0] / n;
+					v_xy[1][ix][iy]	= s[1] / n;
+					v_xy[2][ix][iy]	= s[2] / n;
+					v_xy[3][ix][iy]	= s[3] / n;
 
 					nNoData--;
 				}

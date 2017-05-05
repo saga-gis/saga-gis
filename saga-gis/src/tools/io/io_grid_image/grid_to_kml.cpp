@@ -85,20 +85,20 @@ CGrid_to_KML::CGrid_to_KML(void)
 		"coordinate system, if its projection is known and not geographic. "
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SHADE"		, _TL("Shade"),
+	Parameters.Add_Grid("",
+		"SHADE"		, _TL("Shade"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("Image File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("Image File"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
@@ -109,8 +109,8 @@ CGrid_to_KML::CGrid_to_KML(void)
 		), NULL, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Choice("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("kml and image files"),
@@ -121,8 +121,8 @@ CGrid_to_KML::CGrid_to_KML(void)
 
 	if( SG_UI_Get_Window_Main() )
 	{
-		Parameters.Add_Choice(
-			NULL	, "COLOURING"	, _TL("Colouring"),
+		Parameters.Add_Choice("",
+			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
@@ -134,15 +134,15 @@ CGrid_to_KML::CGrid_to_KML(void)
 			), 5
 		);
 
-		Parameters.Add_Colors(
-			NULL	, "COL_PALETTE"	, _TL("Colours Palette"),
+		Parameters.Add_Colors("",
+			"COL_PALETTE"	, _TL("Colours Palette"),
 			_TL("")
 		);
 	}
 	else
 	{
-		Parameters.Add_Choice(
-			NULL	, "COLOURING"	, _TL("Colouring"),
+		Parameters.Add_Choice("",
+			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s|",
 				_TL("stretch to grid's standard deviation"),
@@ -153,61 +153,61 @@ CGrid_to_KML::CGrid_to_KML(void)
 			), 0
 		);
 
-		Parameters.Add_Choice(
-			NULL	, "COL_PALETTE"	, _TL("Color Palette"),
+		Parameters.Add_Choice("",
+			"COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
-				_TL("DEFAULT"),			_TL("DEFAULT_BRIGHT"),	_TL("BLACK_WHITE"),		_TL("BLACK_RED"),
-				_TL("BLACK_GREEN"),		_TL("BLACK_BLUE"),		_TL("WHITE_RED"),		_TL("WHITE_GREEN"),
-				_TL("WHITE_BLUE"),		_TL("YELLOW_RED"),		_TL("YELLOW_GREEN"),	_TL("YELLOW_BLUE"),
-				_TL("RED_GREEN"),		_TL("RED_BLUE"),		_TL("GREEN_BLUE"),		_TL("RED_GREY_BLUE"),
+				_TL("DEFAULT"       ),	_TL("DEFAULT_BRIGHT" ),	_TL("BLACK_WHITE"   ),	_TL("BLACK_RED"     ),
+				_TL("BLACK_GREEN"   ),	_TL("BLACK_BLUE"     ),	_TL("WHITE_RED"     ),	_TL("WHITE_GREEN"   ),
+				_TL("WHITE_BLUE"    ),	_TL("YELLOW_RED"     ),	_TL("YELLOW_GREEN"  ),	_TL("YELLOW_BLUE"   ),
+				_TL("RED_GREEN"     ),	_TL("RED_BLUE"       ),	_TL("GREEN_BLUE"    ),	_TL("RED_GREY_BLUE" ),
 				_TL("RED_GREY_GREEN"),	_TL("GREEN_GREY_BLUE"),	_TL("RED_GREEN_BLUE"),	_TL("RED_BLUE_GREEN"),
-				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"),			_TL("NEON"),			_TL("TOPOGRAPHY"),
-				_TL("ASPECT_1"),		_TL("ASPECT_2"),		_TL("ASPECT_3")
+				_TL("GREEN_RED_BLUE"),	_TL("RAINBOW"        ),	_TL("NEON"          ),	_TL("TOPOGRAPHY"    ),
+				_TL("ASPECT_1"      ),	_TL("ASPECT_2"       ),	_TL("ASPECT_3"      )
 			), 0
 		);
 
-		Parameters.Add_Value(
-			NULL	, "COL_COUNT"	, _TL("Number of Colors"),
+		Parameters.Add_Int("",
+			"COL_COUNT"		, _TL("Number of Colors"),
 			_TL(""),
-			PARAMETER_TYPE_Int, 100
+			100
 		);
 
-		Parameters.Add_Value(
-			NULL	, "COL_REVERT"	, _TL("Revert Palette"),
+		Parameters.Add_Bool("",
+			"COL_REVERT"	, _TL("Revert Palette"),
 			_TL(""),
-			PARAMETER_TYPE_Bool, false
+			false
 		);
 	}
 
-	Parameters.Add_Value(
-		NULL	, "STDDEV"		, _TL("Standard Deviation"),
+	Parameters.Add_Double("",
+		"STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 0.0, true
+		2.0, 0.0, true
 	);
 
-	Parameters.Add_Range(
-        NULL	, "STRETCH"		, _TL("Stretch to Value Range"),
+	Parameters.Add_Range("",
+		"STRETCH"	, _TL("Stretch to Value Range"),
         _TL(""),
         0.0, 100.0
     );
 
-	Parameters.Add_Table(
-		NULL	, "LUT"			, _TL("Lookup Table"),
+	Parameters.Add_Table("",
+		"LUT"		, _TL("Lookup Table"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-        NULL	, "RESAMPLING"	, _TL("Interpolation"),
-        _TL("Resampling method used when projection is needed"),
-        PARAMETER_TYPE_Bool, true
-    );
+	Parameters.Add_Bool("",
+		"RESAMPLING", _TL("Interpolation"),
+		_TL("Resampling method used when projection is needed"),
+		true
+	);
 
 	if( !SG_UI_Get_Window_Main() )
 	{
-		Parameters.Add_Range(
-			NULL	, "SHADE_BRIGHT", _TL("Shade Brightness"),
+		Parameters.Add_Range("",
+			"SHADE_BRIGHT", _TL("Shade Brightness"),
 			_TL("Allows one to scale shade brightness [percent]"),
 			0.0, 100.0, 0.0, true, 100.0, true
 		);
@@ -224,27 +224,27 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
 	{
-		pParameters->Get_Parameter("COL_PALETTE")->Set_Enabled(pParameter->asInt() <= 2);
-		pParameters->Get_Parameter("STDDEV"     )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("STRETCH"    )->Set_Enabled(pParameter->asInt() == 2);
-		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
+		pParameters->Set_Enabled("COL_PALETTE", pParameter->asInt() <= 2);
+		pParameters->Set_Enabled("STDDEV"     , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("STRETCH"    , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("LUT"        , pParameter->asInt() == 3);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") && pParameters->Get_Parameter("SHADE_BRIGHT") )
 	{
-		pParameters->Get_Parameter("SHADE_BRIGHT")->Set_Enabled(pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("SHADE_BRIGHT", pParameter->asGrid() != NULL);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") || !SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
 	{
 		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
 
-		pParameters->Get_Parameter("RESAMPLING")->Set_Enabled(
+		pParameters->Set_Enabled("RESAMPLING",
 			pGrid && pGrid->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Projected && pParameters->Get_Parameter("COLOURING")->asInt() < 4
 		);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -258,7 +258,7 @@ bool CGrid_to_KML::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bDelete	= false;
 
-	CSG_Tool		*pTool;
+	CSG_Tool	*pTool;
 
 	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(), Image;
 	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
@@ -438,14 +438,14 @@ CGrid_from_KML::CGrid_from_KML(void)
 		"Uses 'Import Image' tool to load the ground overlay image files associated with the kml. "
 	));
 
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("KML/KMZ File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("KML/KMZ File"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("KML/KMZ Files"), SG_T("*.kml;*.kmz"),

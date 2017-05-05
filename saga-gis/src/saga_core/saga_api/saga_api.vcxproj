@@ -498,6 +498,7 @@ copy tin.h $(OutDir)include\saga_api
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="grids.cpp" />
     <ClCompile Include="grid_io.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -865,6 +866,7 @@ copy tin.h $(OutDir)include\saga_api
     <ClInclude Include="datetime.h" />
     <ClInclude Include="geo_tools.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="grids.h" />
     <ClInclude Include="grid_pyramid.h" />
     <ClInclude Include="mat_tools.h" />
     <ClInclude Include="metadata.h" />

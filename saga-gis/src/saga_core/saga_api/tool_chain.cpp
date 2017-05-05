@@ -287,16 +287,24 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 		case PARAMETER_TYPE_Grid             : Parameter.Cmp_Property("target", "none") 
 			                                 ? Parameters.Add_Grid_Output    (      "", ID, Name, Desc)
 			                                 : Parameters.Add_Grid           (ParentID, ID, Name, Desc, Constraint);	break;
+
+		case PARAMETER_TYPE_Grids            : Parameter.Cmp_Property("target", "none") 
+			                                 ? Parameters.Add_Grids_Output   (      "", ID, Name, Desc)
+			                                 : Parameters.Add_Grids          (ParentID, ID, Name, Desc, Constraint);	break;
+
 		case PARAMETER_TYPE_Table            : Parameters.Add_Table          (ParentID, ID, Name, Desc, Constraint);	break;
+
 		case PARAMETER_TYPE_Shapes           : Parameters.Add_Shapes         (ParentID, ID, Name, Desc, Constraint,
 												   Parameter.Cmp_Property("feature_type", "point"  ) ? SHAPE_TYPE_Point   :
 												   Parameter.Cmp_Property("feature_type", "points" ) ? SHAPE_TYPE_Points  :
 												   Parameter.Cmp_Property("feature_type", "line"   ) ? SHAPE_TYPE_Line    :
 												   Parameter.Cmp_Property("feature_type", "polygon") ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Undefined);	break;
+
 		case PARAMETER_TYPE_TIN              : Parameters.Add_TIN            (ParentID, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_PointCloud       : Parameters.Add_PointCloud     (ParentID, ID, Name, Desc, Constraint);	break;
 
 		case PARAMETER_TYPE_Grid_List        : Parameters.Add_Grid_List      (ParentID, ID, Name, Desc, Constraint, !IS_TRUE_PROPERTY(Parameter, "no_system"));	break;
+		case PARAMETER_TYPE_Grids_List       : Parameters.Add_Grids_List     (ParentID, ID, Name, Desc, Constraint, !IS_TRUE_PROPERTY(Parameter, "no_system"));	break;
 		case PARAMETER_TYPE_Table_List       : Parameters.Add_Table_List     (ParentID, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_Shapes_List      : Parameters.Add_Shapes_List    (ParentID, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_TIN_List         : Parameters.Add_TIN_List       (ParentID, ID, Name, Desc, Constraint);	break;
@@ -436,12 +444,14 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 	{
 	case PARAMETER_TYPE_PointCloud     : pParameter	= m_Data.Add_PointCloud     ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_Grid           : pParameter	= m_Data.Add_Grid           ("", ID, "", "", 0       );	break;
+	case PARAMETER_TYPE_Grids          : pParameter	= m_Data.Add_Grids          ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_Table          : pParameter	= m_Data.Add_Table          ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_Shapes         : pParameter	= m_Data.Add_Shapes         ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_TIN            : pParameter	= m_Data.Add_TIN            ("", ID, "", "", 0       );	break;
 
 	case PARAMETER_TYPE_PointCloud_List: pParameter	= m_Data.Add_PointCloud_List("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_Grid_List      : pParameter	= m_Data.Add_Grid_List      ("", ID, "", "", 0, false);	break;
+	case PARAMETER_TYPE_Grids_List     : pParameter	= m_Data.Add_Grids_List     ("", ID, "", "", 0, false);	break;
 	case PARAMETER_TYPE_Table_List     : pParameter	= m_Data.Add_Table_List     ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_Shapes_List    : pParameter	= m_Data.Add_Shapes_List    ("", ID, "", "", 0       );	break;
 	case PARAMETER_TYPE_TIN_List       : pParameter	= m_Data.Add_TIN_List       ("", ID, "", "", 0       );	break;
@@ -451,6 +461,7 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 		{
 		case DATAOBJECT_TYPE_PointCloud: pParameter	= m_Data.Add_PointCloud     ("", ID, "", "", 0       );	break;
 		case DATAOBJECT_TYPE_Grid      : pParameter	= m_Data.Add_Grid           ("", ID, "", "", 0       );	break;
+		case DATAOBJECT_TYPE_Grids     : pParameter	= m_Data.Add_Grids          ("", ID, "", "", 0       );	break;
 		case DATAOBJECT_TYPE_Table     : pParameter	= m_Data.Add_Table          ("", ID, "", "", 0       );	break;
 		case DATAOBJECT_TYPE_Shapes    : pParameter	= m_Data.Add_Shapes         ("", ID, "", "", 0       );	break;
 		case DATAOBJECT_TYPE_TIN       : pParameter	= m_Data.Add_TIN            ("", ID, "", "", 0       );	break;
@@ -781,6 +792,7 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 			default:	break;
 			case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List("", Item.Get_Content(), "", "", 0       );	break;
 			case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      ("", Item.Get_Content(), "", "", 0, false);	break;
+			case PARAMETER_TYPE_Grids_List     : m_Data.Add_Grids_List     ("", Item.Get_Content(), "", "", 0, false);	break;
 			case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     ("", Item.Get_Content(), "", "", 0       );	break;
 			case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    ("", Item.Get_Content(), "", "", 0       );	break;
 			case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       ("", Item.Get_Content(), "", "", 0       );	break;

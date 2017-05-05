@@ -600,21 +600,21 @@ bool CWKSP_Data_Manager::On_Command(int Cmd_ID)
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
 	//-----------------------------------------------------
-	case ID_CMD_DATA_PROJECT_OPEN:		m_pProject->Load(false);			break;
-	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load(true);				break;
-	case ID_CMD_DATA_PROJECT_BROWSE:	Open_Browser();						break;
-	case ID_CMD_DATA_PROJECT_CLOSE:		Close(false);						break;
-	case ID_CMD_DATA_PROJECT_SAVE:		m_pProject->Save(true);				break;
-	case ID_CMD_DATA_PROJECT_SAVE_AS:	m_pProject->Save();					break;
-	case ID_CMD_DATA_PROJECT_COPY:		m_pProject->Copy();					break;
-	case ID_CMD_DATA_PROJECT_COPY_DB:	m_pProject->CopyToDB();				break;
+	case ID_CMD_DATA_PROJECT_OPEN    :	m_pProject->Load(false);	break;
+	case ID_CMD_DATA_PROJECT_OPEN_ADD:	m_pProject->Load( true);	break;
+	case ID_CMD_DATA_PROJECT_BROWSE  :	Open_Browser();				break;
+	case ID_CMD_DATA_PROJECT_CLOSE   :	Close(false);				break;
+	case ID_CMD_DATA_PROJECT_SAVE    :	m_pProject->Save(true);		break;
+	case ID_CMD_DATA_PROJECT_SAVE_AS :	m_pProject->Save();			break;
+	case ID_CMD_DATA_PROJECT_COPY    :	m_pProject->Copy();			break;
+	case ID_CMD_DATA_PROJECT_COPY_DB :	m_pProject->CopyToDB();		break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLES_OPEN:			Open(DATAOBJECT_TYPE_Table);		break;
-	case ID_CMD_SHAPES_OPEN:			Open(DATAOBJECT_TYPE_Shapes);		break;
-	case ID_CMD_TIN_OPEN:				Open(DATAOBJECT_TYPE_TIN);			break;
-	case ID_CMD_POINTCLOUD_OPEN:		Open(DATAOBJECT_TYPE_PointCloud);	break;
-	case ID_CMD_GRIDS_OPEN:				Open(DATAOBJECT_TYPE_Grid);			break;
+	case ID_CMD_TABLES_OPEN          :	Open(DATAOBJECT_TYPE_Table     );	break;
+	case ID_CMD_SHAPES_OPEN          :	Open(DATAOBJECT_TYPE_Shapes    );	break;
+	case ID_CMD_TIN_OPEN             :	Open(DATAOBJECT_TYPE_TIN       );	break;
+	case ID_CMD_POINTCLOUD_OPEN      :	Open(DATAOBJECT_TYPE_PointCloud);	break;
+	case ID_CMD_GRIDS_OPEN           :	Open(DATAOBJECT_TYPE_Grid      );	break;
 
 	//-----------------------------------------------------
 	case ID_CMD_WKSP_ITEM_RETURN:
@@ -716,11 +716,11 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 
 	switch( DataType )
 	{
-	case DATAOBJECT_TYPE_Table:			pObject	= SG_Create_Table		(&File);	break;
-	case DATAOBJECT_TYPE_Shapes:		pObject	= SG_Create_Shapes		(&File);	break;
-	case DATAOBJECT_TYPE_TIN:			pObject	= SG_Create_TIN			(&File);	break;
-	case DATAOBJECT_TYPE_PointCloud:	pObject	= SG_Create_PointCloud	(&File);	break;
-	case DATAOBJECT_TYPE_Grid:			pObject	= SG_Create_Grid		(&File);	break;
+	case DATAOBJECT_TYPE_Table     :	pObject	= SG_Create_Table     (&File);	break;
+	case DATAOBJECT_TYPE_Shapes    :	pObject	= SG_Create_Shapes    (&File);	break;
+	case DATAOBJECT_TYPE_TIN       :	pObject	= SG_Create_TIN       (&File);	break;
+	case DATAOBJECT_TYPE_PointCloud:	pObject	= SG_Create_PointCloud(&File);	break;
+	case DATAOBJECT_TYPE_Grid      :	pObject	= SG_Create_Grid      (&File);	break;
 	}
 
 	if( pObject )

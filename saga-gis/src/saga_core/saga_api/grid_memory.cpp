@@ -545,8 +545,8 @@ bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Data_Type File_Type, s
 		m_Cache_Path	= FilePath;
 
 		if( m_Type == File_Type
-		&&	(	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_RWA, true)
-			||	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_R  , true)) )
+		&&	(	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_RW, true)
+			||	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_R , true)) )
 		{
 			m_Memory_bLock	= true;
 
@@ -695,7 +695,6 @@ void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
 
 			m_Cache_Stream.Seek(Line_Pos);
 			m_Cache_Stream.Write(pLine->Data, sizeof(char), (size_t)Line_Size);
-			m_Cache_Stream.Flush();
 
 			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
 			{

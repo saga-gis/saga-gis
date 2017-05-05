@@ -753,9 +753,7 @@ bool CSG_MetaData::Load(CSG_File &File)
 
 	wxXmlDocument	XML;
 
-	wxFFileInputStream	Stream(File.Get_Stream());
-
-	if( Stream.IsOk() && XML.Load(Stream) )
+	if( File.is_Reading() && XML.Load(*((wxInputStream *)File.Get_Stream())) )
 	{
 		_Load(XML.GetRoot());
 
@@ -830,9 +828,7 @@ bool CSG_MetaData::Save(CSG_File &File) const
 
 	_Save(pRoot);
 
-	wxFFileOutputStream	Stream(File.Get_Stream());
-
-	if( Stream.IsOk() && XML.Save(Stream) )
+	if( File.is_Writing() && XML.Save(*((wxOutputStream *)File.Get_Stream())) )
 	{
 		return( true );
 	}

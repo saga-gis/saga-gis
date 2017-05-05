@@ -98,10 +98,10 @@ public:
 
 	void							On_Command				(wxCommandEvent  &event);
 	void							On_Command_UI			(wxUpdateUIEvent &event);
-	void							On_Command_Tool		(wxCommandEvent  &event);
-	void							On_Command_UI_Tool	(wxUpdateUIEvent &event);
+	void							On_Command_Tool			(wxCommandEvent  &event);
+	void							On_Command_UI_Tool		(wxUpdateUIEvent &event);
 
-	class CWKSP_Tool_Control *	Get_Tools				(void)	{	return( m_pTools );		}
+	class CWKSP_Tool_Control *		Get_Tools				(void)	{	return( m_pTools );		}
 	class CWKSP_Data_Control *		Get_Data				(void)	{	return( m_pData );			}
 	class CWKSP_Data_Buttons *		Get_Data_Buttons		(void)	{	return( m_pData_Buttons );	}
 	class CWKSP_Map_Control *		Get_Maps				(void)	{	return( m_pMaps );			}

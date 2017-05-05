@@ -95,60 +95,62 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	}
 
 	//-----------------------------------------------------
-	m_pData			= NULL;
+	m_pData;
 
 	switch( Type )
 	{
-	default:	break;
+	default                              : m_pData	= NULL                                                  ;	break;
 
-	case PARAMETER_TYPE_Node:				m_pData	= new CSG_Parameter_Node				(this, Constraint);	break;
+	case PARAMETER_TYPE_Node             : m_pData	= new CSG_Parameter_Node              (this, Constraint);	break;
 
-	case PARAMETER_TYPE_Bool:				m_pData	= new CSG_Parameter_Bool				(this, Constraint);	break;
-	case PARAMETER_TYPE_Int:				m_pData	= new CSG_Parameter_Int					(this, Constraint);	break;
-	case PARAMETER_TYPE_Double:				m_pData	= new CSG_Parameter_Double				(this, Constraint);	break;
-	case PARAMETER_TYPE_Degree:				m_pData	= new CSG_Parameter_Degree				(this, Constraint);	break;
-	case PARAMETER_TYPE_Date:				m_pData	= new CSG_Parameter_Date				(this, Constraint);	break;
-	case PARAMETER_TYPE_Range:				m_pData	= new CSG_Parameter_Range				(this, Constraint);	break;
-	case PARAMETER_TYPE_Choice:				m_pData	= new CSG_Parameter_Choice				(this, Constraint);	break;
+	case PARAMETER_TYPE_Bool             : m_pData	= new CSG_Parameter_Bool              (this, Constraint);	break;
+	case PARAMETER_TYPE_Int              : m_pData	= new CSG_Parameter_Int               (this, Constraint);	break;
+	case PARAMETER_TYPE_Double           : m_pData	= new CSG_Parameter_Double            (this, Constraint);	break;
+	case PARAMETER_TYPE_Degree           : m_pData	= new CSG_Parameter_Degree            (this, Constraint);	break;
+	case PARAMETER_TYPE_Date             : m_pData	= new CSG_Parameter_Date              (this, Constraint);	break;
+	case PARAMETER_TYPE_Range            : m_pData	= new CSG_Parameter_Range             (this, Constraint);	break;
+	case PARAMETER_TYPE_Choice           : m_pData	= new CSG_Parameter_Choice            (this, Constraint);	break;
 
-	case PARAMETER_TYPE_String:				m_pData	= new CSG_Parameter_String				(this, Constraint);	break;
-	case PARAMETER_TYPE_Text:				m_pData	= new CSG_Parameter_Text				(this, Constraint);	break;
-	case PARAMETER_TYPE_FilePath:			m_pData	= new CSG_Parameter_File_Name			(this, Constraint);	break;
+	case PARAMETER_TYPE_String           : m_pData	= new CSG_Parameter_String            (this, Constraint);	break;
+	case PARAMETER_TYPE_Text             : m_pData	= new CSG_Parameter_Text              (this, Constraint);	break;
+	case PARAMETER_TYPE_FilePath         : m_pData	= new CSG_Parameter_File_Name         (this, Constraint);	break;
 
-	case PARAMETER_TYPE_Font:				m_pData	= new CSG_Parameter_Font				(this, Constraint);	break;
-	case PARAMETER_TYPE_Color:				m_pData	= new CSG_Parameter_Color				(this, Constraint);	break;
-	case PARAMETER_TYPE_Colors:				m_pData	= new CSG_Parameter_Colors				(this, Constraint);	break;
-	case PARAMETER_TYPE_FixedTable:			m_pData	= new CSG_Parameter_Fixed_Table			(this, Constraint);	break;
-	case PARAMETER_TYPE_Grid_System:		m_pData	= new CSG_Parameter_Grid_System			(this, Constraint);	break;
-	case PARAMETER_TYPE_Table_Field:		m_pData	= new CSG_Parameter_Table_Field			(this, Constraint);	break;
-	case PARAMETER_TYPE_Table_Fields:		m_pData	= new CSG_Parameter_Table_Fields		(this, Constraint);	break;
+	case PARAMETER_TYPE_Font             : m_pData	= new CSG_Parameter_Font              (this, Constraint);	break;
+	case PARAMETER_TYPE_Color            : m_pData	= new CSG_Parameter_Color             (this, Constraint);	break;
+	case PARAMETER_TYPE_Colors           : m_pData	= new CSG_Parameter_Colors            (this, Constraint);	break;
+	case PARAMETER_TYPE_FixedTable       : m_pData	= new CSG_Parameter_Fixed_Table       (this, Constraint);	break;
+	case PARAMETER_TYPE_Grid_System      : m_pData	= new CSG_Parameter_Grid_System       (this, Constraint);	break;
+	case PARAMETER_TYPE_Table_Field      : m_pData	= new CSG_Parameter_Table_Field       (this, Constraint);	break;
+	case PARAMETER_TYPE_Table_Fields     : m_pData	= new CSG_Parameter_Table_Fields      (this, Constraint);	break;
 
-	case PARAMETER_TYPE_DataObject_Output:	m_pData	= new CSG_Parameter_Data_Object_Output	(this, Constraint);	break;
-	case PARAMETER_TYPE_Grid:				m_pData	= new CSG_Parameter_Grid				(this, Constraint);	break;
-	case PARAMETER_TYPE_Table:				m_pData	= new CSG_Parameter_Table				(this, Constraint);	break;
-	case PARAMETER_TYPE_Shapes:				m_pData	= new CSG_Parameter_Shapes				(this, Constraint);	break;
-	case PARAMETER_TYPE_TIN:				m_pData	= new CSG_Parameter_TIN					(this, Constraint);	break;
-	case PARAMETER_TYPE_PointCloud:			m_pData	= new CSG_Parameter_PointCloud			(this, Constraint);	break;
+	case PARAMETER_TYPE_DataObject_Output: m_pData	= new CSG_Parameter_Data_Object_Output(this, Constraint);	break;
+	case PARAMETER_TYPE_Grid             : m_pData	= new CSG_Parameter_Grid              (this, Constraint);	break;
+	case PARAMETER_TYPE_Grids            : m_pData	= new CSG_Parameter_Grids             (this, Constraint);	break;
+	case PARAMETER_TYPE_Table            : m_pData	= new CSG_Parameter_Table             (this, Constraint);	break;
+	case PARAMETER_TYPE_Shapes           : m_pData	= new CSG_Parameter_Shapes            (this, Constraint);	break;
+	case PARAMETER_TYPE_TIN              : m_pData	= new CSG_Parameter_TIN               (this, Constraint);	break;
+	case PARAMETER_TYPE_PointCloud       : m_pData	= new CSG_Parameter_PointCloud        (this, Constraint);	break;
 
-	case PARAMETER_TYPE_Grid_List:			m_pData	= new CSG_Parameter_Grid_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_Table_List:			m_pData	= new CSG_Parameter_Table_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_Shapes_List:		m_pData	= new CSG_Parameter_Shapes_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_TIN_List:			m_pData	= new CSG_Parameter_TIN_List			(this, Constraint);	break;
-	case PARAMETER_TYPE_PointCloud_List:	m_pData	= new CSG_Parameter_PointCloud_List		(this, Constraint);	break;
+	case PARAMETER_TYPE_Grid_List        : m_pData	= new CSG_Parameter_Grid_List         (this, Constraint);	break;
+	case PARAMETER_TYPE_Grids_List       : m_pData	= new CSG_Parameter_Grids_List        (this, Constraint);	break;
+	case PARAMETER_TYPE_Table_List       : m_pData	= new CSG_Parameter_Table_List        (this, Constraint);	break;
+	case PARAMETER_TYPE_Shapes_List      : m_pData	= new CSG_Parameter_Shapes_List       (this, Constraint);	break;
+	case PARAMETER_TYPE_TIN_List         : m_pData	= new CSG_Parameter_TIN_List          (this, Constraint);	break;
+	case PARAMETER_TYPE_PointCloud_List  : m_pData	= new CSG_Parameter_PointCloud_List   (this, Constraint);	break;
 
-	case PARAMETER_TYPE_Parameters:			m_pData	= new CSG_Parameter_Parameters			(this, Constraint);	break;
+	case PARAMETER_TYPE_Parameters       : m_pData	= new CSG_Parameter_Parameters        (this, Constraint);	break;
 	}
 
 	//-----------------------------------------------------
 	switch( Type )
 	{
-	default:
-		break;
-
 	case PARAMETER_TYPE_Range:
 		SG_Free(m_Children);
-		m_nChildren		= 0;
-		m_Children		= NULL;
+		m_nChildren	= 0;
+		m_Children	= NULL;
+		break;
+
+	default:
 		break;
 	}
 
@@ -285,35 +287,28 @@ bool CSG_Parameter::is_Option(void)	const
 	{
 		switch( Get_Type() )
 		{
+		case PARAMETER_TYPE_Bool        :
+		case PARAMETER_TYPE_Int         :
+		case PARAMETER_TYPE_Double      :
+		case PARAMETER_TYPE_Degree      :
+		case PARAMETER_TYPE_Date        :
+		case PARAMETER_TYPE_Range       :
+		case PARAMETER_TYPE_Choice      :
+		case PARAMETER_TYPE_String      :
+		case PARAMETER_TYPE_Text        :
+		case PARAMETER_TYPE_FilePath    :
+		case PARAMETER_TYPE_Font        :
+		case PARAMETER_TYPE_Color       :
+		case PARAMETER_TYPE_Colors      :
+		case PARAMETER_TYPE_FixedTable  :
+		case PARAMETER_TYPE_Grid_System :
+		case PARAMETER_TYPE_Table_Field :
+		case PARAMETER_TYPE_Table_Fields:
+		case PARAMETER_TYPE_Parameters  :
+			return( true );
+
 		default:
 			return( false );
-
-		case PARAMETER_TYPE_Bool:
-		case PARAMETER_TYPE_Int:
-		case PARAMETER_TYPE_Double:
-		case PARAMETER_TYPE_Degree:
-		case PARAMETER_TYPE_Date:
-		case PARAMETER_TYPE_Range:
-		case PARAMETER_TYPE_Choice:
-
-		case PARAMETER_TYPE_String:
-		case PARAMETER_TYPE_Text:
-		case PARAMETER_TYPE_FilePath:
-
-		case PARAMETER_TYPE_Font:
-
-		case PARAMETER_TYPE_Color:
-		case PARAMETER_TYPE_Colors:
-
-		case PARAMETER_TYPE_FixedTable:
-
-		case PARAMETER_TYPE_Grid_System:
-		case PARAMETER_TYPE_Table_Field:
-		case PARAMETER_TYPE_Table_Fields:
-
-		case PARAMETER_TYPE_Parameters:
-
-			return( true );
 		}
 	}
 
@@ -325,17 +320,17 @@ bool CSG_Parameter::is_DataObject(void)	const
 {
 	switch( Get_Type() )
 	{
+	case PARAMETER_TYPE_DataObject_Output:
+	case PARAMETER_TYPE_Grid             :
+	case PARAMETER_TYPE_Grids            :
+	case PARAMETER_TYPE_Table            :
+	case PARAMETER_TYPE_Shapes           :
+	case PARAMETER_TYPE_TIN              :
+	case PARAMETER_TYPE_PointCloud       :
+		return( true );
+
 	default:
 		return( false );
-
-	case PARAMETER_TYPE_DataObject_Output:
-	case PARAMETER_TYPE_Grid:
-	case PARAMETER_TYPE_Table:
-	case PARAMETER_TYPE_Shapes:
-	case PARAMETER_TYPE_TIN:
-	case PARAMETER_TYPE_PointCloud:
-
-		return( true );
 	}
 }
 
@@ -344,16 +339,16 @@ bool CSG_Parameter::is_DataObject_List(void)	const
 {
 	switch( Get_Type() )
 	{
+	case PARAMETER_TYPE_Grid_List      :
+	case PARAMETER_TYPE_Grids_List     :
+	case PARAMETER_TYPE_Table_List     :
+	case PARAMETER_TYPE_Shapes_List    :
+	case PARAMETER_TYPE_TIN_List       :
+	case PARAMETER_TYPE_PointCloud_List:
+		return( true );
+
 	default:
 		return( false );
-
-	case PARAMETER_TYPE_Grid_List:
-	case PARAMETER_TYPE_Table_List:
-	case PARAMETER_TYPE_Shapes_List:
-	case PARAMETER_TYPE_TIN_List:
-	case PARAMETER_TYPE_PointCloud_List:
-
-		return( true );
 	}
 }
 
@@ -368,12 +363,12 @@ bool CSG_Parameter::is_Serializable(void)	const
 {
 	switch( Get_Type() )
 	{
-	case PARAMETER_TYPE_Undefined:
-	case PARAMETER_TYPE_Node:
+	case PARAMETER_TYPE_Undefined        :
+	case PARAMETER_TYPE_Node             :
 	case PARAMETER_TYPE_DataObject_Output:
 		return( false );
 
-	case PARAMETER_TYPE_String:
+	case PARAMETER_TYPE_String           :
 		return( ((CSG_Parameter_String *)Get_Data())->is_Password() == false );
 
 	default:
@@ -418,7 +413,8 @@ bool CSG_Parameter::is_Compatible(CSG_Parameter *pParameter)	const
 			}
 
 		//-------------------------------------------------
-		default:	return( true );
+		default:
+			return( true );
 		}
 	}
 
@@ -489,6 +485,7 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 		//-------------------------------------------------
 		case PARAMETER_TYPE_DataObject_Output:
 		case PARAMETER_TYPE_Grid             :
+		case PARAMETER_TYPE_Grids            :
 		case PARAMETER_TYPE_Table            :
 		case PARAMETER_TYPE_Shapes           :
 		case PARAMETER_TYPE_TIN              :
@@ -496,6 +493,7 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 
 		//-------------------------------------------------
 		case PARAMETER_TYPE_Grid_List        :
+		case PARAMETER_TYPE_Grids_List       :
 		case PARAMETER_TYPE_Table_List       :
 		case PARAMETER_TYPE_Shapes_List      :
 		case PARAMETER_TYPE_TIN_List         :
@@ -540,6 +538,8 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 	default                              :	return( DATAOBJECT_TYPE_Undefined  );
 	case PARAMETER_TYPE_Grid             :
 	case PARAMETER_TYPE_Grid_List        :	return( DATAOBJECT_TYPE_Grid       );
+	case PARAMETER_TYPE_Grids            :
+	case PARAMETER_TYPE_Grids_List       :	return( DATAOBJECT_TYPE_Grids      );
 	case PARAMETER_TYPE_Table            :
 	case PARAMETER_TYPE_Table_List       :	return( DATAOBJECT_TYPE_Table      );
 	case PARAMETER_TYPE_Shapes           :

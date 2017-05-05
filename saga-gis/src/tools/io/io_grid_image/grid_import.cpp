@@ -79,53 +79,53 @@ CGrid_Import::CGrid_Import(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		"Loads an image."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_GRID"	, _TL("Image"),
+	Parameters.Add_Grid_Output("",
+		"OUT_GRID"	, _TL("Image"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_RED"		, _TL("Image (Red Channel)"),
+	Parameters.Add_Grid_Output("",
+		"OUT_RED"	, _TL("Image (Red Channel)"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_GREEN"	, _TL("Image (Green Channel)"),
+	Parameters.Add_Grid_Output("",
+		"OUT_GREEN"	, _TL("Image (Green Channel)"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "OUT_BLUE"	, _TL("Image (Blue Channel)"),
+	Parameters.Add_Grid_Output("",
+		"OUT_BLUE"	, _TL("Image (Blue Channel)"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("Image File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
-			_TL("All Recognized File Types")					, SG_T("*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm"),
-			_TL("CompuServe Graphics Interchange (*.gif)")		, SG_T("*.gif"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
-			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
-			_TL("All Files")									, SG_T("*.*")
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			_TL("All Recognized File Types"                   ), SG_T("*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm"),
+			_TL("CompuServe Graphics Interchange (*.gif)"     ), SG_T("*.gif"),
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"), SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Portable Network Graphics (*.png)"           ), SG_T("*.png"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)"    ), SG_T("*.tif;*.tiff"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)"              ), SG_T("*.bmp"),
+			_TL("Zsoft Paintbrush (*.pcx)"                    ), SG_T("*.pcx"),
+			_TL("All Files"                                   ), SG_T("*.*")
 		)
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Options"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Options"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Standard"),
 			_TL("Split Channels"),
 			_TL("Enforce True Color")
@@ -135,8 +135,6 @@ CGrid_Import::CGrid_Import(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -166,7 +164,7 @@ bool CGrid_Import::On_Execute(void)
 	{
 		CSG_String	fName = SG_File_Get_Name(fImage, true);
 
-		if( SG_File_Cmp_Extension(fName, SG_T("jpg")) )
+		if(      SG_File_Cmp_Extension(fName, SG_T("jpg")) )
 			pImgHandler = new wxJPEGHandler;
 		else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) )
 			pImgHandler = new wxPCXHandler;
@@ -182,7 +180,7 @@ bool CGrid_Import::On_Execute(void)
 		else if( SG_File_Cmp_Extension(fName, SG_T("bmp")) )
 			pImgHandler = new wxBMPHandler;
 #endif
-		else // if( SG_File_Cmp_Extension(fName, SG_T("png")) )
+		else if( SG_File_Cmp_Extension(fName, SG_T("png")) )
 			pImgHandler = new wxPNGHandler;
 
 		wxImage::AddHandler(pImgHandler);
@@ -194,7 +192,7 @@ bool CGrid_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	     if( SG_File_Cmp_Extension(fImage, SG_T("bmp")) )
+	if(      SG_File_Cmp_Extension(fImage, SG_T("bmp")) )
 	{
 		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("bpw"));
 	}
@@ -220,7 +218,7 @@ bool CGrid_Import::On_Execute(void)
 	yMin		= 0.0;
 	Cellsize	= 1.0;
 
-	if(	Stream.Open(fWorld, SG_FILE_R, false) && fscanf(Stream.Get_Stream(), "%lf %lf %lf %lf %lf %lf ", &dx, &ry, &rx, &dy, &ax, &ay) == 6 )
+	if(	Stream.Open(fWorld, SG_FILE_R, false) && Stream.Scan(dx) && Stream.Scan(ry) && Stream.Scan(rx) && Stream.Scan(dy) && Stream.Scan(ax) && Stream.Scan(ay) )
 	{
 		if( dx != -dy || rx != 0.0 || ry != 0.0 )
 		{
@@ -233,7 +231,6 @@ bool CGrid_Import::On_Execute(void)
 			Cellsize	= dx;
 		}
 	}
-
 
 	//-----------------------------------------------------
 	// color look-up table...
@@ -326,17 +323,17 @@ bool CGrid_Import::On_Execute(void)
 			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 
-			pR->Set_Name(CSG_String::Format(SG_T("%s [R]"), Name.c_str()));
-			pG->Set_Name(CSG_String::Format(SG_T("%s [G]"), Name.c_str()));
-			pB->Set_Name(CSG_String::Format(SG_T("%s [B]"), Name.c_str()));
+			pR->Set_Name(CSG_String::Format("%s [R]", Name.c_str()));
+			pG->Set_Name(CSG_String::Format("%s [G]", Name.c_str()));
+			pB->Set_Name(CSG_String::Format("%s [B]", Name.c_str()));
 
 			pR->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
 			pG->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
 			pB->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
 
-			Parameters("OUT_RED")	->Set_Value(pR);
-			Parameters("OUT_GREEN")	->Set_Value(pG);
-			Parameters("OUT_BLUE")	->Set_Value(pB);
+			Parameters("OUT_RED"  )->Set_Value(pR);
+			Parameters("OUT_GREEN")->Set_Value(pG);
+			Parameters("OUT_BLUE" )->Set_Value(pB);
 
 			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_RED);
 			DataObject_Set_Colors(pG, 100, SG_COLORS_BLACK_GREEN);
@@ -356,8 +353,6 @@ bool CGrid_Import::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -650,6 +650,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	TSG_Data_Object_Type	Type	=
 		Entry.Cmp_Property("type", "GRID"  ) ? DATAOBJECT_TYPE_Grid
+	:	Entry.Cmp_Property("type", "GRIDS" ) ? DATAOBJECT_TYPE_Grids
 	:	Entry.Cmp_Property("type", "TABLE" ) ? DATAOBJECT_TYPE_Table
 	:	Entry.Cmp_Property("type", "SHAPES") ? DATAOBJECT_TYPE_Shapes
 	:	Entry.Cmp_Property("type", "TIN"   ) ? DATAOBJECT_TYPE_TIN
@@ -754,6 +755,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	{
 	default:	return( false );
 	case DATAOBJECT_TYPE_Grid      :	pEntry->Add_Property("type", "GRID"  );	break;
+	case DATAOBJECT_TYPE_Grids     :	pEntry->Add_Property("type", "GRIDS" );	break;
 	case DATAOBJECT_TYPE_Table     :	pEntry->Add_Property("type", "TABLE" );	break;
 	case DATAOBJECT_TYPE_Shapes    :	pEntry->Add_Property("type", "SHAPES");	break;
 	case DATAOBJECT_TYPE_TIN       :	pEntry->Add_Property("type", "TIN"   );	break;

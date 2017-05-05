@@ -114,12 +114,14 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 
 	case PARAMETER_TYPE_DataObject_Output:	return( _TL("Data Object"     ) );
 	case PARAMETER_TYPE_Grid             :	return( _TL("Grid"            ) );
+	case PARAMETER_TYPE_Grids            :	return( _TL("Grids"           ) );
 	case PARAMETER_TYPE_Table            :	return( _TL("Table"           ) );
 	case PARAMETER_TYPE_Shapes           :	return( _TL("Shapes"          ) );
 	case PARAMETER_TYPE_TIN              :	return( _TL("TIN"             ) );
 	case PARAMETER_TYPE_PointCloud       :	return( _TL("Point Cloud"     ) );
 
 	case PARAMETER_TYPE_Grid_List        :	return( _TL("Grid list"       ) );
+	case PARAMETER_TYPE_Grids_List       :	return( _TL("Grids list"      ) );
 	case PARAMETER_TYPE_Table_List       :	return( _TL("Table list"      ) );
 	case PARAMETER_TYPE_Shapes_List      :	return( _TL("Shapes list"     ) );
 	case PARAMETER_TYPE_TIN_List         :	return( _TL("TIN list"        ) );
@@ -160,12 +162,14 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 
 	case PARAMETER_TYPE_DataObject_Output:	return( "data_object"  );
 	case PARAMETER_TYPE_Grid             :	return( "grid"         );
+	case PARAMETER_TYPE_Grids            :	return( "grids"        );
 	case PARAMETER_TYPE_Table            :	return( "table"        );
 	case PARAMETER_TYPE_Shapes           :	return( "shapes"       );
 	case PARAMETER_TYPE_TIN              :	return( "tin"          );
 	case PARAMETER_TYPE_PointCloud       :	return( "points"       );
 
 	case PARAMETER_TYPE_Grid_List        :	return( "grid_list"    );
+	case PARAMETER_TYPE_Grids_List       :	return( "grids_list"    );
 	case PARAMETER_TYPE_Table_List       :	return( "table_list"   );
 	case PARAMETER_TYPE_Shapes_List      :	return( "shapes_list"  );
 	case PARAMETER_TYPE_TIN_List         :	return( "tin_list"     );
@@ -201,12 +205,14 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 
 	if( !Identifier.Cmp("data_object" ) )	{	return( PARAMETER_TYPE_DataObject_Output);	}
 	if( !Identifier.Cmp("grid"        ) )	{	return( PARAMETER_TYPE_Grid             );	}
+	if( !Identifier.Cmp("grids"       ) )	{	return( PARAMETER_TYPE_Grids            );	}
 	if( !Identifier.Cmp("table"       ) )	{	return( PARAMETER_TYPE_Table            );	}
 	if( !Identifier.Cmp("shapes"      ) )	{	return( PARAMETER_TYPE_Shapes           );	}
 	if( !Identifier.Cmp("tin"         ) )	{	return( PARAMETER_TYPE_TIN              );	}
 	if( !Identifier.Cmp("points"      ) )	{	return( PARAMETER_TYPE_PointCloud       );	}
 
 	if( !Identifier.Cmp("grid_list"   ) )	{	return( PARAMETER_TYPE_Grid_List        );	}
+	if( !Identifier.Cmp("grids_list"  ) )	{	return( PARAMETER_TYPE_Grids_List       );	}
 	if( !Identifier.Cmp("table_list"  ) )	{	return( PARAMETER_TYPE_Table_List       );	}
 	if( !Identifier.Cmp("shapes_list" ) )	{	return( PARAMETER_TYPE_Shapes_List      );	}
 	if( !Identifier.Cmp("tin_list"    ) )	{	return( PARAMETER_TYPE_TIN_List         );	}
@@ -1623,9 +1629,8 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 	{
 		m_System.Assign(*((CSG_Grid_System *)Value));
 
-		//-------------------------------------------------
-		CSG_Data_Manager	*pManager		= m_pOwner->Get_Manager();
-		CSG_Parameters		*pParameters	= m_pOwner->Get_Owner();
+		CSG_Data_Manager *pManager    = m_pOwner->Get_Manager();
+		CSG_Parameters   *pParameters = m_pOwner->Get_Owner  ();
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
@@ -1633,37 +1638,44 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 
 			if(	pParameter->Get_Parent() == m_pOwner )
 			{
-				switch( pParameter->Get_Type() )
+				//-----------------------------------------
+				if( pParameter->is_DataObject() )
 				{
-				default:
-					break;
+					CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-				case PARAMETER_TYPE_Grid:
+					if( !(pManager && pManager->Exists(pObject)) || !m_System.is_Valid() )
 					{
-						CSG_Grid	*pGrid	= pParameter->asGrid();
+						pParameter->Set_Value(DATAOBJECT_NOTSET);
+					}
+					else if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
+					{
+						CSG_Grid_System	System		= pParameter->Get_Type() == PARAMETER_TYPE_Grid
+							? pParameter->asGrid ()->Get_System()
+							: pParameter->asGrids()->Get_System();
 
-						if(	!m_System.is_Valid() || !(pManager && pManager->Exists(pGrid))
-						||  (pGrid != DATAOBJECT_NOTSET && pGrid != DATAOBJECT_CREATE && !m_System.is_Equal(pGrid->Get_System())) )
+						if( !m_System.is_Equal(System) )
 						{
 							pParameter->Set_Value(DATAOBJECT_NOTSET);
 						}
 					}
-					break;
+				}
+				else if( pParameter->is_DataObject_List() )
+				{
+					CSG_Parameter_List	*pList	= pParameter->asList();
 
-				case PARAMETER_TYPE_Grid_List:
+					for(int j=pList->Get_Count()-1; j>=0; j--)
 					{
-						CSG_Parameter_Grid_List	*pGrids	= pParameter->asGridList();
+						CSG_Data_Object	*pObject	= pList->asDataObject(j);
 
-						for(int j=pGrids->Get_Count()-1; j>=0; j--)
+						CSG_Grid_System	System		= pParameter->Get_Type() == PARAMETER_TYPE_Grid_List
+							? *pParameter->asGridList ()->Get_System()
+							: *pParameter->asGridsList()->Get_System();
+
+						if( !(pManager && pManager->Exists(pList->asDataObject(j))) || !m_System.is_Valid() || !m_System.is_Equal(System) )
 						{
-							if( !m_System.is_Valid() || !(pManager && pManager->Exists(pGrids->asGrid(j)))
-							||  m_System.is_Equal(pGrids->asGrid(j)->Get_System()) == false )
-							{
-								pGrids->Del_Item(j);
-							}
+							pList->Del_Item(j);
 						}
 					}
-					break;
 				}
 			}
 		}
@@ -2164,16 +2176,18 @@ bool CSG_Parameter_Data_Object_Output::Set_DataObject_Type(TSG_Data_Object_Type 
 	{
 		switch( Type )
 		{
-		default:
-			break;
-
-		case DATAOBJECT_TYPE_Grid:
-		case DATAOBJECT_TYPE_Table:
-		case DATAOBJECT_TYPE_Shapes:
-		case DATAOBJECT_TYPE_TIN:
+		case DATAOBJECT_TYPE_Grid      :
+		case DATAOBJECT_TYPE_Grids     :
+		case DATAOBJECT_TYPE_Table     :
+		case DATAOBJECT_TYPE_Shapes    :
+		case DATAOBJECT_TYPE_TIN       :
 		case DATAOBJECT_TYPE_PointCloud:
 			m_Type	= Type;
+
 			return( true );
+
+		default:
+			return( false );
 		}
 	}
 
@@ -2234,39 +2248,47 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 //---------------------------------------------------------
 bool CSG_Parameter_Grid::Set_Value(void *Value)
 {
-	if( m_pDataObject == Value )	// nothing to do
+	if( Value == m_pDataObject )	// nothing to do
 	{
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE // && m_pOwner->Get_Manager()
-	&&  Get_System() && !Get_System()->is_Equal(((CSG_Grid *)Value)->Get_System()) )
+	if( Value != DATAOBJECT_NOTSET && Value != DATAOBJECT_CREATE && Get_System() )// && m_pOwner->Get_Manager()
 	{
-		for(int i=0; i<m_pOwner->Get_Parent()->Get_Children_Count(); i++)
+		CSG_Grid_System	System	= Get_Type() == PARAMETER_TYPE_Grid
+			? ((CSG_Grid  *)Value)->Get_System()
+			: ((CSG_Grids *)Value)->Get_System();
+
+		if( !Get_System()->is_Equal(System) )
 		{
-			CSG_Parameter	*pChild	= m_pOwner->Get_Parent()->Get_Child(i);
-
-			if( pChild->Get_Type() == PARAMETER_TYPE_Grid )
+			for(int i=0; i<m_pOwner->Get_Parent()->Get_Children_Count(); i++)
 			{
-				if( pChild->asGrid() != DATAOBJECT_NOTSET
-				&&  pChild->asGrid() != DATAOBJECT_CREATE
-				&&  pChild->asGrid() != m_pDataObject )
+				CSG_Parameter	*pChild	= m_pOwner->Get_Parent()->Get_Child(i);
+
+				if( pChild->Get_Type() == PARAMETER_TYPE_Grid
+				||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
 				{
-					return( false );
+					if( pChild->asDataObject() != DATAOBJECT_NOTSET
+					&&  pChild->asDataObject() != DATAOBJECT_CREATE
+					&&  pChild->asDataObject() != m_pDataObject )
+					{
+						return( false );
+					}
+				}
+
+				if( pChild->is_DataObject_List() && pChild->asList()->Get_Count() > 0 )
+				{
+					if( (pChild->Get_Type() == PARAMETER_TYPE_Grid_List  && pChild->asGridList ()->Get_System())
+					||  (pChild->Get_Type() == PARAMETER_TYPE_Grids_List && pChild->asGridsList()->Get_System()) )
+					{
+						return( false );
+					}
 				}
 			}
 
-			if( pChild->Get_Type() == PARAMETER_TYPE_Grid_List )
-			{
-				if( pChild->asGridList()->Get_System() && pChild->asGridList()->Get_Count() > 0 )
-				{
-					return( false );
-				}
-			}
+			Get_System()->Assign(((CSG_Grid *)Value)->Get_System());
 		}
-
-		Get_System()->Assign(((CSG_Grid *)Value)->Get_System());
 	}
 
 	//-----------------------------------------------------
@@ -2301,6 +2323,18 @@ void CSG_Parameter_Grid::On_Assign(CSG_Parameter_Data *pSource)
 
 	Set_Value(pSource->asPointer());
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Grids							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Grids::CSG_Parameter_Grids(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Grid(pOwner, Constraint)
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -2511,23 +2545,23 @@ const SG_Char * CSG_Parameter_List::asString(void)
 {
 	if( Get_Count() > 0 )
 	{
-		m_String.Printf(SG_T("%d %s ("), Get_Count(), Get_Count() == 1 ? _TL("object") : _TL("objects"));
+		m_String.Printf("%d %s (", Get_Count(), Get_Count() == 1 ? _TL("object") : _TL("objects"));
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			if( i > 0 )
 			{
-				m_String.Append(SG_T(", "));
+				m_String	+= ", ";
 			}
 
-			m_String.Append(asDataObject(i)->Get_Name());
+			m_String	+= asDataObject(i)->Get_Name();
 		}
 
-		m_String.Append(SG_T(")"));
+		m_String	+= ")";
 	}
 	else
 	{
-		m_String.Printf(_TL("No objects"));
+		m_String	= _TL("No objects");
 	}
 
 	return( m_String );
@@ -2555,13 +2589,11 @@ bool CSG_Parameter_List::Add_Item(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 int CSG_Parameter_List::Del_Item(int iObject)
 {
-	int		i;
-
 	if( iObject >= 0 && iObject < m_nObjects )
 	{
 		m_nObjects--;
 
-		for(i=iObject; i<m_nObjects; i++)
+		for(int i=iObject; i<m_nObjects; i++)
 		{
 			m_Objects[i]	= m_Objects[i + 1];
 		}
@@ -2574,9 +2606,7 @@ int CSG_Parameter_List::Del_Item(int iObject)
 
 int CSG_Parameter_List::Del_Item(CSG_Data_Object *pObject)
 {
-	int		i;
-
-	for(i=0; i<m_nObjects; i++)
+	for(int i=0; i<m_nObjects; i++)
 	{
 		if( pObject == m_Objects[i] )
 		{
@@ -2652,7 +2682,6 @@ bool CSG_Parameter_List::On_Serialize(CSG_MetaData &Entry, bool bSave)
 //														 //
 ///////////////////////////////////////////////////////////
 
-
 //---------------------------------------------------------
 CSG_Parameter_Grid_List::CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint)
 	: CSG_Parameter_List(pOwner, Constraint)
@@ -2672,41 +2701,64 @@ CSG_Grid_System * CSG_Parameter_Grid_List::Get_System(void)
 //---------------------------------------------------------
 bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 {
-	if( !pObject || pObject->Get_ObjectType() != DATAOBJECT_TYPE_Grid )
+	if( pObject == NULL
+	||  (Get_Type() == PARAMETER_TYPE_Grid  && pObject->Get_ObjectType() != DATAOBJECT_TYPE_Grid )
+	||  (Get_Type() == PARAMETER_TYPE_Grids && pObject->Get_ObjectType() != DATAOBJECT_TYPE_Grids)  )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Get_System() && !Get_System()->is_Equal(((CSG_Grid *)pObject)->Get_System()) )
+	if( Get_System() )	// check grid system compatibility
 	{
-		for(int i=0; i<m_pOwner->Get_Parent()->Get_Children_Count(); i++)
+		CSG_Grid_System	System	= Get_Type() == PARAMETER_TYPE_Grid_List
+			? ((CSG_Grid  *)pObject)->Get_System()
+			: ((CSG_Grids *)pObject)->Get_System();
+
+		if( !Get_System()->is_Equal(System) )
 		{
-			CSG_Parameter	*pChild	= m_pOwner->Get_Parent()->Get_Child(i);
-
-			if( pChild->Get_Type() == PARAMETER_TYPE_Grid )
+			for(int i=0; i<m_pOwner->Get_Parent()->Get_Children_Count(); i++)
 			{
-				if( pChild->asGrid() != DATAOBJECT_NOTSET
-				&&  pChild->asGrid() != DATAOBJECT_CREATE )
+				CSG_Parameter	*pChild	= m_pOwner->Get_Parent()->Get_Child(i);
+
+				if( pChild->Get_Type() == PARAMETER_TYPE_Grid
+				||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
 				{
-					return( false );
+					if( pChild->asDataObject() != DATAOBJECT_NOTSET
+					&&  pChild->asDataObject() != DATAOBJECT_CREATE )
+					{
+						return( false );
+					}
+				}
+
+				if( pChild->is_DataObject_List() && pChild->asList()->Get_Count() > 0 )
+				{
+					if( (pChild->Get_Type() == PARAMETER_TYPE_Grid_List  && pChild->asGridList ()->Get_System())
+					||  (pChild->Get_Type() == PARAMETER_TYPE_Grids_List && pChild->asGridsList()->Get_System()) )
+					{
+						return( false );
+					}
 				}
 			}
 
-			if( pChild->Get_Type() == PARAMETER_TYPE_Grid_List )
-			{
-				if( pChild->asGridList()->Get_System() && pChild->asGridList()->Get_Count() > 0 )
-				{
-					return( false );
-				}
-			}
+			Get_System()->Assign(((CSG_Grid *)pObject)->Get_System());
 		}
-
-		Get_System()->Assign(((CSG_Grid *)pObject)->Get_System());
 	}
 
 	return( CSG_Parameter_List::Add_Item(pObject) );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Grids_List						 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Grids_List::CSG_Parameter_Grids_List(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Grid_List(pOwner, Constraint)
+{}
 
 
 ///////////////////////////////////////////////////////////

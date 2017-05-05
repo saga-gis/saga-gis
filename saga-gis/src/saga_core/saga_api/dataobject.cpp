@@ -77,13 +77,13 @@ CSG_String	SG_Get_DataObject_Identifier(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default:
-	case DATAOBJECT_TYPE_Undefined:		return( SG_T("UNDEFINED") );
-	case DATAOBJECT_TYPE_Grid:			return( SG_T("GRID") );
-	case DATAOBJECT_TYPE_Table:			return( SG_T("TABLE") );
-	case DATAOBJECT_TYPE_Shapes:		return( SG_T("SHAPES") );
-	case DATAOBJECT_TYPE_TIN:			return( SG_T("TIN") );
-	case DATAOBJECT_TYPE_PointCloud:	return( SG_T("POINTS") );
+	default                        : return( "UNDEFINED");
+	case DATAOBJECT_TYPE_Grid      : return( "GRID"     );
+	case DATAOBJECT_TYPE_Grids     : return( "GRIDS"    );
+	case DATAOBJECT_TYPE_Table     : return( "TABLE"    );
+	case DATAOBJECT_TYPE_Shapes    : return( "SHAPES"   );
+	case DATAOBJECT_TYPE_TIN       : return( "TIN"      );
+	case DATAOBJECT_TYPE_PointCloud: return( "POINTS"   );
 	}
 }
 
@@ -92,13 +92,13 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default:
-	case DATAOBJECT_TYPE_Undefined:		return( _TL("Undefined") );
-	case DATAOBJECT_TYPE_Grid:			return( _TL("Grid") );
-	case DATAOBJECT_TYPE_Table:			return( _TL("Table") );
-	case DATAOBJECT_TYPE_Shapes:		return( _TL("Shapes") );
-	case DATAOBJECT_TYPE_TIN:			return( _TL("TIN") );
-	case DATAOBJECT_TYPE_PointCloud:	return( _TL("Point Cloud") );
+	default                        : return( _TL("Undefined"  ) );
+	case DATAOBJECT_TYPE_Grid      : return( _TL("Grid"       ) );
+	case DATAOBJECT_TYPE_Grids     : return( _TL("Grids"      ) );
+	case DATAOBJECT_TYPE_Table     : return( _TL("Table"      ) );
+	case DATAOBJECT_TYPE_Shapes    : return( _TL("Shapes"     ) );
+	case DATAOBJECT_TYPE_TIN       : return( _TL("TIN"        ) );
+	case DATAOBJECT_TYPE_PointCloud: return( _TL("Point Cloud") );
 	}
 }
 
@@ -258,6 +258,7 @@ bool CSG_Data_Object::Delete(void)
 		switch( Get_ObjectType() )
 		{
 		case DATAOBJECT_TYPE_Grid      : SG_File_Set_Extension(File_Name, SG_META_EXT_GRID      );	break;
+		case DATAOBJECT_TYPE_Grids     : SG_File_Set_Extension(File_Name, SG_META_EXT_GRIDS     );	break;
 		case DATAOBJECT_TYPE_Table     : SG_File_Set_Extension(File_Name, SG_META_EXT_TABLE     );	break;
 		case DATAOBJECT_TYPE_Shapes    : SG_File_Set_Extension(File_Name, SG_META_EXT_SHAPES    );	break;
 		case DATAOBJECT_TYPE_PointCloud: SG_File_Set_Extension(File_Name, SG_META_EXT_POINTCLOUD);	break;
@@ -341,12 +342,13 @@ bool CSG_Data_Object::Load_MetaData(const SG_Char *File_Name)
 
 	switch( Get_ObjectType() )
 	{
-	default:							return( false );
-	case DATAOBJECT_TYPE_Grid:			m.Load(File_Name, SG_META_EXT_GRID);		break;
-	case DATAOBJECT_TYPE_Table:			m.Load(File_Name, SG_META_EXT_TABLE);		break;
-	case DATAOBJECT_TYPE_Shapes:		m.Load(File_Name, SG_META_EXT_SHAPES);		break;
-	case DATAOBJECT_TYPE_TIN:			m.Load(File_Name, SG_META_EXT_TIN);			break;
-	case DATAOBJECT_TYPE_PointCloud:	m.Load(File_Name, SG_META_EXT_POINTCLOUD);	break;
+	default                        : return( false );
+	case DATAOBJECT_TYPE_Grid      : m.Load(File_Name, SG_META_EXT_GRID      ); break;
+	case DATAOBJECT_TYPE_Grids     : m.Load(File_Name, SG_META_EXT_GRIDS     ); break;
+	case DATAOBJECT_TYPE_Table     : m.Load(File_Name, SG_META_EXT_TABLE     ); break;
+	case DATAOBJECT_TYPE_Shapes    : m.Load(File_Name, SG_META_EXT_SHAPES    ); break;
+	case DATAOBJECT_TYPE_TIN       : m.Load(File_Name, SG_META_EXT_TIN       ); break;
+	case DATAOBJECT_TYPE_PointCloud: m.Load(File_Name, SG_META_EXT_POINTCLOUD); break;
 	}
 
 	if( (p = m.Get_Child("DESCRIPTION")) != NULL && !p->Get_Content().is_Empty() )
@@ -403,12 +405,13 @@ bool CSG_Data_Object::Save_MetaData(const SG_Char *File_Name)
 
 	switch( Get_ObjectType() )
 	{
-	default:							return( m_MetaData.Save(File_Name) );
-	case DATAOBJECT_TYPE_Grid:			return( m_MetaData.Save(File_Name, SG_META_EXT_GRID) );
-	case DATAOBJECT_TYPE_Table:			return( m_MetaData.Save(File_Name, SG_META_EXT_TABLE) );
-	case DATAOBJECT_TYPE_Shapes:		return( m_MetaData.Save(File_Name, SG_META_EXT_SHAPES) );
-	case DATAOBJECT_TYPE_TIN:			return( m_MetaData.Save(File_Name, SG_META_EXT_TIN) );
-	case DATAOBJECT_TYPE_PointCloud:	return( m_MetaData.Save(File_Name, SG_META_EXT_POINTCLOUD) );
+	default                        : return( m_MetaData.Save(File_Name                        ) );
+	case DATAOBJECT_TYPE_Grid      : return( m_MetaData.Save(File_Name, SG_META_EXT_GRID      ) );
+	case DATAOBJECT_TYPE_Grids     : return( m_MetaData.Save(File_Name, SG_META_EXT_GRIDS     ) );
+	case DATAOBJECT_TYPE_Table     : return( m_MetaData.Save(File_Name, SG_META_EXT_TABLE     ) );
+	case DATAOBJECT_TYPE_Shapes    : return( m_MetaData.Save(File_Name, SG_META_EXT_SHAPES    ) );
+	case DATAOBJECT_TYPE_TIN       : return( m_MetaData.Save(File_Name, SG_META_EXT_TIN       ) );
+	case DATAOBJECT_TYPE_PointCloud: return( m_MetaData.Save(File_Name, SG_META_EXT_POINTCLOUD) );
 	}
 }
 

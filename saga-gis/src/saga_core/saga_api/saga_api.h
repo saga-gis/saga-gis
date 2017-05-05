@@ -78,6 +78,7 @@
 #include "data_manager.h"
 #include "geo_tools.h"
 #include "grid.h"
+#include "grids.h"
 #include "grid_pyramid.h"
 #include "mat_tools.h"
 #include "metadata.h"
