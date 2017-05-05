@@ -1,4 +1,6 @@
 message("folder: tools/tin")
 
 add_subdirectory(tin_tools)
-add_subdirectory(tin_viewer)
+if(WITH_GUI)
+	add_subdirectory(tin_viewer)
+endif()
