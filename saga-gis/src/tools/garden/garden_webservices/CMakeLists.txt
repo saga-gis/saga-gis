@@ -1,6 +1,6 @@
 option(WITH_TOOL_GARDEN_WEBSERVICES "Check to install tool garden_webservices" OFF)
 
-if (WITH_TOOL_GARDEN_WEBSERVICES OR WITH_ALL_TOOLS)
+if (WITH_TOOL_GARDEN_WEBSERVICES OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(garden_webservices)
 
 	# load common tool template

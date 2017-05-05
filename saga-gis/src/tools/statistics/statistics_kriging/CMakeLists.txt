@@ -1,6 +1,6 @@
 option(WITH_TOOL_STATISTICS_KRIGING "Check to install tool statistics_kriging" OFF)
 
-if (WITH_TOOL_STATISTICS_KRIGING OR WITH_ALL_TOOLS)
+if (WITH_TOOL_STATISTICS_KRIGING OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(statistics_kriging)
 
 	# load common tool template
