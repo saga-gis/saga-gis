@@ -800,6 +800,35 @@ int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 	return( -1 );
 }
 
+double CSG_Simple_Statistics::Get_Gini()
+{
+	if( m_Values.Get_Size() > 1 )
+	{
+		if( !m_bSorted )
+		{
+			qsort(m_Values.Get_Array(), m_Values.Get_Size(), sizeof(double), SG_Compare_Double);
+
+			m_bSorted	= true;
+		}
+		double sum = this->Get_Sum();
+		double cumsum = 0;
+		int n = m_Values.Get_Size();
+
+		for (int i =0; i< n; i++)
+		{
+			cumsum += (i+1) * Get_Value(i);
+		}
+
+		double gini = 2 * cumsum / (n*sum) - (n + 1) / n;
+
+		return( gini);
+	}
+	else
+	{
+		return( -1 );
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
