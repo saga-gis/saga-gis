@@ -1,6 +1,6 @@
 option(WITH_TOOL_PJ_PROJ4 "Check to install tool pj_proj4" OFF)
 
-if (WITH_TOOL_PJ_PROJ4 OR WITH_ALL_TOOLS)
+if (WITH_TOOL_PJ_PROJ4 OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(pj_proj4)
 
 	# load common tool template

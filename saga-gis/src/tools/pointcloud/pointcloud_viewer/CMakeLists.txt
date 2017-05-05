@@ -1,6 +1,6 @@
 option(WITH_TOOL_POINTCLOUD_VIEWER "Check to install tool pointcloud_viewer" OFF)
 
-if (WITH_TOOL_POINTCLOUD_VIEWER OR WITH_ALL_TOOLS)
+if (WITH_TOOL_POINTCLOUD_VIEWER OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(pointcloud_viewer)
 
 	# load common tool template
