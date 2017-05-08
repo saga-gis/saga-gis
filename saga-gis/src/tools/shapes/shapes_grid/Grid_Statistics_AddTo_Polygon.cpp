@@ -144,7 +144,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
 		PARAMETER_TYPE_Int, 0, 0, true, 50, true
 	);
-	Parameters.Add_Value(pNode, "GINI", _TL("Gini"), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Value(pNode, "GINI", _TL("Gini"), _TL(""), PARAMETER_TYPE_Bool, false);
 }
 
 
