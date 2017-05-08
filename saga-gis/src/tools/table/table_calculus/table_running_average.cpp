@@ -107,7 +107,7 @@ CTable_Running_Average::CTable_Running_Average(void)
 	);
 
 	//-----------------------------------------------------
-	#define ADD_OUTPUT(id, name, yes)	Parameters.Add_Bool("", id, name, "", yes); Parameters.Add_Table_Field("INPUT", "FIELD_"id, name, "", true);
+	#define ADD_OUTPUT(id, name, yes)	Parameters.Add_Bool("", id, name, "", yes); Parameters.Add_Table_Field("INPUT", CSG_String("FIELD_") + id, name, "", true);
 
 	ADD_OUTPUT("MEAN"   , _TL("Mean"                     ),  true);
 	ADD_OUTPUT("MEDIAN" , _TL("Median"                   ), false);
@@ -126,7 +126,7 @@ CTable_Running_Average::CTable_Running_Average(void)
 //---------------------------------------------------------
 int CTable_Running_Average::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	#define SET_ENABLED(id)	if( !SG_STR_CMP(pParameter->Get_Identifier(), id) ) { pParameters->Set_Enabled("FIELD_"id, pParameter->asBool()); }
+	#define SET_ENABLED(id)	if( !SG_STR_CMP(pParameter->Get_Identifier(), id) ) { pParameters->Set_Enabled(CSG_String("FIELD_") + id, pParameter->asBool()); }
 
 	SET_ENABLED("MEAN"   );
 	SET_ENABLED("MEDIAN" );
@@ -167,15 +167,15 @@ bool CTable_Running_Average::On_Execute(void)
 	int	Range	= Parameters("RANGE")->asInt();
 
 	//-----------------------------------------------------
-	#define GET_FIELD(id, name)	(!Parameters(id)->asBool() ? -1 : Parameters("FIELD_"id)->asInt() < 0 && pTable->Add_Field(CSG_String::Format("%s [%s]", pTable->Get_Field_Name(fValue), name), SG_DATATYPE_Double) ? pTable->Get_Field_Count() - 1 : Parameters("FIELD_"id)->asInt())
+	#define GET_FIELD(id, name)	(!Parameters(id)->asBool() ? -1 : Parameters(CSG_String("FIELD_") + id)->asInt() < 0 && pTable->Add_Field(CSG_String::Format("%s [%s]", pTable->Get_Field_Name(fValue), name), SG_DATATYPE_Double) ? pTable->Get_Field_Count() - 1 : Parameters(CSG_String("FIELD_") + id)->asInt())
 
-	int	fMean	= GET_FIELD("MEAN"   , SG_T("MEAN"     )); if( fMean   >= 0 ) Parameters("FIELD_" "MEAN"   )->Set_Value(fMean  );
-	int	fMedian	= GET_FIELD("MEDIAN" , SG_T("MEDIAN"   )); if( fMedian >= 0 ) Parameters("FIELD_" "MEDIAN" )->Set_Value(fMedian);
-	int	fMin	= GET_FIELD("MIN"    , SG_T("MINIMUM"  )); if( fMin    >= 0 ) Parameters("FIELD_" "MIN"    )->Set_Value(fMin   );
-	int	fMax	= GET_FIELD("MAX"    , SG_T("MAXIMUM"  )); if( fMax    >= 0 ) Parameters("FIELD_" "MAX"    )->Set_Value(fMax   );
-	int	fStDv	= GET_FIELD("STDV"   , SG_T("STDV"     )); if( fStDv   >= 0 ) Parameters("FIELD_" "STDV"   )->Set_Value(fStDv  );
-	int	fStDvLo	= GET_FIELD("STDV_LO", SG_T("STDV_LOW" )); if( fStDvLo >= 0 ) Parameters("FIELD_" "STDV_LO")->Set_Value(fStDvLo);
-	int	fStDvHi	= GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_" "STDV_HI")->Set_Value(fStDvHi);
+	int	fMean	= GET_FIELD("MEAN"   , SG_T("MEAN"     )); if( fMean   >= 0 ) Parameters("FIELD_MEAN"   )->Set_Value(fMean  );
+	int	fMedian	= GET_FIELD("MEDIAN" , SG_T("MEDIAN"   )); if( fMedian >= 0 ) Parameters("FIELD_MEDIAN" )->Set_Value(fMedian);
+	int	fMin	= GET_FIELD("MIN"    , SG_T("MINIMUM"  )); if( fMin    >= 0 ) Parameters("FIELD_MIN"    )->Set_Value(fMin   );
+	int	fMax	= GET_FIELD("MAX"    , SG_T("MAXIMUM"  )); if( fMax    >= 0 ) Parameters("FIELD_MAX"    )->Set_Value(fMax   );
+	int	fStDv	= GET_FIELD("STDV"   , SG_T("STDV"     )); if( fStDv   >= 0 ) Parameters("FIELD_STDV"   )->Set_Value(fStDv  );
+	int	fStDvLo	= GET_FIELD("STDV_LO", SG_T("STDV_LOW" )); if( fStDvLo >= 0 ) Parameters("FIELD_STDV_LO")->Set_Value(fStDvLo);
+	int	fStDvHi	= GET_FIELD("STDV_HI", SG_T("STDV_HIGH")); if( fStDvHi >= 0 ) Parameters("FIELD_STDV_HI")->Set_Value(fStDvHi);
 
 	//-----------------------------------------------------
 	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)

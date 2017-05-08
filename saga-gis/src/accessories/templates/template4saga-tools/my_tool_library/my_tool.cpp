@@ -12,7 +12,7 @@
 //                                                       //
 //                     my_tool.cpp                       //
 //                                                       //
-//                 Copyright (C) 2016 by                 //
+//                 Copyright (C) 2017 by                 //
 //                      Hein Bloed                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -21,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version >=2 of the License. //
+// Free Software Foundation, either version 2.1 of the   //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -30,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -70,14 +69,14 @@ CMy_Tool::CMy_Tool(void)
 {
 	Set_Name		(_TL("My Tool"));
 
-	Set_Author		("H.Bloed (c) 2016");
+	Set_Author		("H.Bloed (c) 2017");
 
 	Set_Description	(_TW(
 		"My tool description. "
 	));
 
-	Parameters.Add_Double(
-		NULL	, "VALUE"	, _TL("Value"),
+	Parameters.Add_Double("",
+		"VALUE"	, _TL("Value"),
 		_TL(""),
 		M_PI
 	);
