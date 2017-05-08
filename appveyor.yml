@@ -10,7 +10,7 @@ environment:
   OPENCV: C:\deps\libs4saga_x64\opencv-3.1.0
   PGSQL: C:\deps\libs4saga_x64\pgsql-9.5.3
   PROJ4: C:\deps\proj4.9.3-vs140
-  VIGRA: c:\deps\libs4saga_x64\vigra-1.10.0
+  VIGRA: c:\deps\libs4saga_x64\vigra-1.11.0
   WXWIN: c:\deps\wxWidgets-3.1.0
   VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\bin\\amd64\\vcvars64.bat"
 
