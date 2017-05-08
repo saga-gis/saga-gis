@@ -4,7 +4,7 @@ configuration: Release
 
 environment:
   SAGA: c:\project\saga
-  GDAL: C:\deps\libs4saga_x64\gdal-2.1.0
+  GDAL: C:\deps\libs4saga_x64\gdal-2.1.3
   HARU: C:\deps\libs4saga_x64\libharu-2.2.0
   LIBLAS: C:\deps\libs4saga_x64\liblas-1.2.1
   OPENCV: C:\deps\libs4saga_x64\opencv-3.1.0
@@ -26,8 +26,8 @@ before_build:
     #small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
-  - ps: Start-FileDownload http://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_x64.zip
-  - cmd: 7z x libs4saga_x64.zip -oc:\deps\
+  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_20170221_x64.zip
+  - cmd: 7z x libs4saga_20170221_x64.zip -oc:\deps\
   # proj4 is not used from libs4saga as this version does not work nicely with vc140
   - ps: Start-FileDownload http://gisky.be/proj4.9.3-vs140.7z
   - cmd: 7z x proj4.9.3-vs140.7z -oc:\deps
