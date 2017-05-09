@@ -602,7 +602,7 @@ protected:
 
 	sLong						m_nValues;
 
-	double						m_Weights, m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev, m_Kurtosis, m_Skewness;
+	double						m_Weights, m_Sum, m_Sum2, m_Minimum, m_Maximum, m_Range, m_Mean, m_Variance, m_StdDev, m_Kurtosis, m_Skewness, m_Gini;
 
 	CSG_Array					m_Values;
 
