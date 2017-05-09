@@ -33,6 +33,8 @@ before_build:
   - cmd: 7z x proj4.9.3-vs140.7z -oc:\deps
   #disable build of liblas modules as they don't work with vs 2015 yet
   - cmd: sed -i '/{315A9D51-F880-4E45-A890-60FCC4AC71DA}.*Build\.0.*/d' saga-gis/src/saga.vc10.sln
+  # disable riegl import as it requires an SDK
+  - cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc10.sln
   #upgrade to visual studio 2015 (v14) to enable openmp
   - CALL "%VCVARS%"
   - cmd: devenv c:\project\saga\saga-gis\src\saga.vc10.sln /upgrade
