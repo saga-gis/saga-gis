@@ -144,6 +144,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
 		PARAMETER_TYPE_Int, 0, 0, true, 50, true
 	);
+	Parameters.Add_Value(pNode, "GINI", _TL("Gini"), _TL(""), PARAMETER_TYPE_Bool, false);
 }
 
 
@@ -212,6 +213,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	int	fMEAN		= Parameters("MEAN"    )->asBool() ? nFields++ : -1;
 	int	fVAR		= Parameters("VAR"     )->asBool() ? nFields++ : -1;
 	int	fSTDDEV		= Parameters("STDDEV"  )->asBool() ? nFields++ : -1;
+	int	fGINI		= Parameters("GINI"    )->asBool() ? nFields++ : -1;
 	int	fQUANTILE	= Quantile > 0                     ? nFields++ : -1;
 
 	if( nFields == 0 )
@@ -253,8 +255,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Count(), pGrids->asGrid(iGrid)->Get_Name()));
 
-		if( (Method == 0 && Get_Simple (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0, Index))
-		||  (Method != 0 && Get_Precise(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0, bParallelized)) )
+		if( (Method == 0 && Get_Simple (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, Index))
+		||  (Method != 0 && Get_Precise(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, bParallelized)) )
 		{
 			nFields	= pPolygons->Get_Field_Count();
 
@@ -266,6 +268,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			if( fMEAN     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("MEAN"    )), SG_DATATYPE_Double);
 			if( fVAR      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("VARIANCE")), SG_DATATYPE_Double);
 			if( fSTDDEV   >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("STDDEV"  )), SG_DATATYPE_Double);
+			if (fGINI   >= 0)		pPolygons->Add_Field(GET_FIELD_NAME(_TL("GINI")), SG_DATATYPE_Double);
 			if( fQUANTILE >= 0 )
 			{
 				for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
@@ -289,6 +292,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fMEAN     >= 0 )	pPolygon->Set_NoData(nFields + fMEAN  );
 					if( fVAR      >= 0 )	pPolygon->Set_NoData(nFields + fVAR   );
 					if( fSTDDEV   >= 0 )	pPolygon->Set_NoData(nFields + fSTDDEV);
+					if( fGINI     >= 0 )	pPolygon->Set_NoData(nFields + fGINI);
 					if( fQUANTILE >= 0 )
 					{
 						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
@@ -307,6 +311,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fMEAN     >= 0 )	pPolygon->Set_Value(nFields + fMEAN  , Statistics[i].Get_Mean    ());
 					if( fVAR      >= 0 )	pPolygon->Set_Value(nFields + fVAR   , Statistics[i].Get_Variance());
 					if( fSTDDEV   >= 0 )	pPolygon->Set_Value(nFields + fSTDDEV, Statistics[i].Get_StdDev  ());
+					if( fGINI     >= 0 )	pPolygon->Set_Value(nFields + fGINI  , Statistics[i].Get_Gini    ());
 					if( fQUANTILE >= 0 )
 					{
 						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
@@ -333,7 +338,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, bool bParallelized)
+bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bHoldValues, bool bParallelized)
 {
 	int	Method	= Parameters("METHOD")->asInt();
 
@@ -342,14 +347,14 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pP
 		#pragma omp parallel for
 		for(int i=0; i<pPolygons->Get_Count(); i++)
 		{
-			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bQuantiles, Method);
+			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bHoldValues, Method);
 		}
 	}
 	else
 	{
 		for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 		{
-			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bQuantiles, Method);
+			Get_Precise(pGrid, (CSG_Shape_Polygon *)pPolygons->Get_Shape(i), Statistics[i], bHoldValues, Method);
 		}
 	}
 
@@ -357,7 +362,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shapes *pP
 }
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Polygon *pPolygon, CSG_Simple_Statistics &Statistics, bool bQuantiles, int Method)
+bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Polygon *pPolygon, CSG_Simple_Statistics &Statistics, bool bHoldValues, int Method)
 {
 	//-----------------------------------------------------
 	CSG_Shapes	Intersect(SHAPE_TYPE_Polygon);
@@ -371,7 +376,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Poly
 	}
 
 	//-----------------------------------------------------
-	Statistics.Create(bQuantiles);
+	Statistics.Create(bHoldValues);
 
 	int	ax	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
 	int	bx	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
@@ -449,13 +454,13 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Poly
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Statistics_AddTo_Polygon::Get_Simple(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bQuantiles, CSG_Grid &Index)
+bool CGrid_Statistics_AddTo_Polygon::Get_Simple(CSG_Grid *pGrid, CSG_Shapes *pPolygons, CSG_Simple_Statistics *Statistics, bool bHoldValues, CSG_Grid &Index)
 {
 	int		i;
 
 	for(i=0; i<pPolygons->Get_Count(); i++)
 	{
-		Statistics[i].Create(bQuantiles);
+		Statistics[i].Create(bHoldValues);
 	}
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
