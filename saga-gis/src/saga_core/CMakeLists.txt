@@ -8,8 +8,10 @@ set(MSHAREPATH "SHARE_PATH=\"${CMAKE_INSTALL_PREFIX}/share/saga\"")
 add_subdirectory(saga_api)
 add_subdirectory(saga_cmd)
 
-if(WITH_GUI)
+if(WITH_GDI)
 	add_subdirectory(saga_gdi)
-	add_subdirectory(saga_gui)
+	if(WITH_GUI)
+		add_subdirectory(saga_gui)
+	endif()
 endif()
 

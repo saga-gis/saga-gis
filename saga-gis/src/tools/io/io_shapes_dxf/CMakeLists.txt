@@ -4,7 +4,7 @@ option(WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF "Check to use system version of dx
 if (WITH_TOOL_IO_SHAPES_DXF OR WITH_ALL_TOOLS)
 	project(io_shapes_dxf)
 
-	if (NOT WITH_TOOL_IMAGERY_SVM_USE_SYSTEM_SVM)
+	if (NOT WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF)
 		# add files in sudirectories
 		set(SAGA_TOOL_CUSTOM_SOURCE_LIST
 			dxflib/dl_dxf.cpp
@@ -25,7 +25,7 @@ if (WITH_TOOL_IO_SHAPES_DXF OR WITH_ALL_TOOLS)
 	endif()
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake)
-	if (WITH_TOOL_IMAGERY_SVM_USE_SYSTEM_SVM)
+	if (WITH_TOOL_IO_SHAPES_DXF_USE_SYSTEM_DXF)
 		# link dxflib library
 		# Ubuntu 16.04 package libdxflib-dev
 		find_package(dxflib REQUIRED)
