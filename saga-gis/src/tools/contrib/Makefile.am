@@ -1,1 +1,1 @@
-SUBDIRS = contrib_peregro
+SUBDIRS = contrib_perego
