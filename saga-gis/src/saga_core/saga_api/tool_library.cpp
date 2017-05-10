@@ -456,7 +456,7 @@ int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnly
 		{
 			do
 			{	if( File_Name.Find("saga_") < 0 && File_Name.Find("wx") < 0 )
-				if( Add_Library(SG_File_Make_Path(Dir.GetName(), File_Name, NULL)) )
+				if( Add_Library(SG_File_Make_Path(&Dir.GetName(), &File_Name)) )
 				{
 					nOpened++;
 				}
@@ -470,7 +470,7 @@ int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnly
 			{
 				if( File_Name.CmpNoCase("dll") )
 				{
-					nOpened	+= Add_Directory(SG_File_Make_Path(Dir.GetName(), File_Name, NULL), false);
+					nOpened	+= Add_Directory(SG_File_Make_Path(&Dir.GetName(), &File_Name), false);
 				}
 			}
 			while( Dir.GetNext(&File_Name) );

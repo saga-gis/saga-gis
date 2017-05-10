@@ -552,7 +552,7 @@ bool CGrid_Export::On_Execute(void)
 	&&  !SG_File_Cmp_Extension(fName, SG_T("png"))
 	&&  !SG_File_Cmp_Extension(fName, SG_T("tif")) )
 	{
-		fName	= SG_File_Make_Path(NULL, fName, SG_T("png"));
+		fName	= SG_File_Make_Path("", fName, "png");
 
 		Parameters("FILE")->Set_Value(fName);
 	}
@@ -585,20 +585,20 @@ bool CGrid_Export::On_Execute(void)
 		return( false );
 	}
 
-	pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")), SG_PROJ_FMT_WKT);
+	pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"), SG_PROJ_FMT_WKT);
 
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if(      SG_File_Cmp_Extension(fName, SG_T("bmp")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("bpw")), SG_FILE_W, false);
-	else if( SG_File_Cmp_Extension(fName, SG_T("jpg")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("jgw")), SG_FILE_W, false);
-	else if( SG_File_Cmp_Extension(fName, SG_T("pcx")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("pxw")), SG_FILE_W, false);
-	else if( SG_File_Cmp_Extension(fName, SG_T("png")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("pgw")), SG_FILE_W, false);
-	else if( SG_File_Cmp_Extension(fName, SG_T("tif")) ) Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("tfw")), SG_FILE_W, false);
+	if(      SG_File_Cmp_Extension(fName, "bmp") ) Stream.Open(SG_File_Make_Path("", fName, "bpw"), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, "jpg") ) Stream.Open(SG_File_Make_Path("", fName, "jgw"), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, "pcx") ) Stream.Open(SG_File_Make_Path("", fName, "pxw"), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, "png") ) Stream.Open(SG_File_Make_Path("", fName, "pgw"), SG_FILE_W, false);
+	else if( SG_File_Cmp_Extension(fName, "tif") ) Stream.Open(SG_File_Make_Path("", fName, "tfw"), SG_FILE_W, false);
 
 	if( Stream.is_Open() )
 	{
-		Stream.Printf(SG_T("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n"),
+		Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
 			 pGrid->Get_Cellsize(),
 			 0.0, 0.0,
 			-pGrid->Get_Cellsize(),

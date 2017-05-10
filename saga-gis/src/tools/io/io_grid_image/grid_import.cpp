@@ -192,25 +192,25 @@ bool CGrid_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if(      SG_File_Cmp_Extension(fImage, SG_T("bmp")) )
+	if(           SG_File_Cmp_Extension(fImage, "bmp") )
 	{
-		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("bpw"));
+		fWorld	= SG_File_Make_Path("", fImage, "bpw");
 	}
-	else if( SG_File_Cmp_Extension(fImage, SG_T("jpg")) )
+	else if(      SG_File_Cmp_Extension(fImage, "jpg") )
 	{
-		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("jgw"));
+		fWorld	= SG_File_Make_Path("", fImage, "jgw");
 	}
-	else if( SG_File_Cmp_Extension(fImage, SG_T("png")) )
+	else if(      SG_File_Cmp_Extension(fImage, "png") )
 	{
-		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("pgw"));
+		fWorld	= SG_File_Make_Path("", fImage, "pgw");
 	}
-	else if( SG_File_Cmp_Extension(fImage, SG_T("tif")) )
+	else if(      SG_File_Cmp_Extension(fImage, "tif") )
 	{
-		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("tfw"));
+		fWorld	= SG_File_Make_Path("", fImage, "tfw");
 	}
 	else
 	{
-		fWorld	= SG_File_Make_Path(NULL, fImage, SG_T("world"));
+		fWorld	= SG_File_Make_Path("", fImage, "world");
 	}
 
 	bTransform	= false;
@@ -262,7 +262,7 @@ bool CGrid_Import::On_Execute(void)
 		}
 
 		pImage->Set_Name(Name);
-		pImage->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
+		pImage->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
 		Parameters("OUT_GRID")->Set_Value(pImage);
 		DataObject_Set_Colors(pImage, Colors);
 		DataObject_Update(pImage, 0, Colors.Get_Count() - 1);
@@ -294,7 +294,7 @@ bool CGrid_Import::On_Execute(void)
 		{
 			pImage->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 			pImage->Set_Name(Name);
-			pImage->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
+			pImage->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
 			Parameters("OUT_GRID")->Set_Value(pImage);
 			DataObject_Set_Colors(pImage, 100, SG_COLORS_BLACK_WHITE);
 			DataObject_Set_Parameter(pImage, "COLORS_TYPE", 6);	// Color Classification Type: RGB
@@ -327,9 +327,9 @@ bool CGrid_Import::On_Execute(void)
 			pG->Set_Name(CSG_String::Format("%s [G]", Name.c_str()));
 			pB->Set_Name(CSG_String::Format("%s [B]", Name.c_str()));
 
-			pR->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
-			pG->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
-			pB->Get_Projection().Load(SG_File_Make_Path(NULL, fImage, SG_T("prj")));
+			pR->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
+			pG->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
+			pB->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
 
 			Parameters("OUT_RED"  )->Set_Value(pR);
 			Parameters("OUT_GREEN")->Set_Value(pG);

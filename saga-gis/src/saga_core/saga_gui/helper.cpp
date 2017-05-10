@@ -1000,7 +1000,7 @@ wxString Get_Online_Tool_Description(const wxString &Library, const wxString &ID
 		wxHTTP			Server;
 
 		wxString	sServer	= "sourceforge.net";
-		wxString	sPath	= SG_File_Get_Name(Library, false).c_str();
+		wxString	sPath	= SG_File_Get_Name(&Library, false).c_str();
 
 		if( sPath.Find("lib") == 0 )	// remove linux prefix 'lib'
 		{

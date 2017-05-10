@@ -67,6 +67,8 @@
 #include <wx/filename.h>
 #include <wx/dir.h>
 #include <wx/wxcrtvararg.h>
+#include <wx/wfstream.h>
+#include <wx/zipstrm.h>
 
 #include "api_core.h"
 
@@ -79,6 +81,7 @@
 	#define SG_FILE_SEEK	fseek
 	#define SG_FILE_SIZE	long
 #endif
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -108,56 +111,50 @@ CSG_File::~CSG_File(void)
 }
 
 //---------------------------------------------------------
-bool CSG_File::Attach(FILE *Stream)
+bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
 {
 	Close();
 
-	m_pStream	= Stream;
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Detach(void)
-{
-	m_pStream	= NULL;
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Open(const CSG_String &File_Name, int Mode, bool bBinary, int Encoding)
-{
-	Close();
-
+	m_Mode		= Mode;
 	m_Encoding	= Encoding;
 
-	CSG_String	sMode;
-
-	switch( Mode )
-	{
-	default:	return( false );
-	case SG_FILE_R:		sMode	= bBinary ? SG_T("rb" ) : SG_T("r" );	break;
-	case SG_FILE_W:		sMode	= bBinary ? SG_T("wb" ) : SG_T("w" );	break;
-	case SG_FILE_RW:	sMode	= bBinary ? SG_T("wb+") : SG_T("w+");	break;
-	case SG_FILE_WA:	sMode	= bBinary ? SG_T("ab" ) : SG_T("a" );	break;
-	case SG_FILE_RWA:	sMode	= bBinary ? SG_T("rb+") : SG_T("r+");	break;
-	}
+	wxString	sEncoding;
 
 	switch( Encoding )
 	{
-	case SG_FILE_ENCODING_CHAR:		default:	break;
-	case SG_FILE_ENCODING_UNICODE:	sMode	+= SG_T(", ccs=UNICODE");	break;
-	case SG_FILE_ENCODING_UTF8:		sMode	+= SG_T(", ccs=UTF-8"  );	break;
-	case SG_FILE_ENCODING_UTF16:	sMode	+= SG_T(", ccs=UTF-16" );	break;
+	default                      :	sEncoding	= ""             ;	break;
+	case SG_FILE_ENCODING_UNICODE:	sEncoding	= ", ccs=UNICODE";	break;
+	case SG_FILE_ENCODING_UTF8   :	sEncoding	= ", ccs=UTF-8"  ;	break;
+	case SG_FILE_ENCODING_UTF16  :	sEncoding	= ", ccs=UTF-16" ;	break;
 	}
 
-	if( File_Name.Length() > 0 )
+	if( Mode == SG_FILE_W )
 	{
-		m_pStream	= fopen(File_Name, sMode);
+		wxString	sMode	= bBinary ? "wb" : "w";
+
+		m_pStream	= new wxFFileOutputStream(FileName.c_str(), sMode + sEncoding);
+	}
+	else if( Mode == SG_FILE_R && SG_File_Exists(FileName) )
+	{
+		wxString	sMode	= bBinary ? "rb" : "r";
+
+		m_pStream	= new wxFFileInputStream (FileName.c_str(), sMode + sEncoding);
+	}
+	else if( Mode == SG_FILE_RW && SG_File_Exists(FileName) )
+	{
+		wxString	sMode	= bBinary ? "r+b" : "r+";
+
+		m_pStream	= (wxInputStream *)new wxFFileStream(FileName.c_str(), sMode + sEncoding);
 	}
 
-	return( m_pStream != NULL );
+	if( !m_pStream || !m_pStream->IsOk() )
+	{
+		Close();
+
+		return( false );
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -165,7 +162,7 @@ bool CSG_File::Close(void)
 {
 	if( m_pStream )
 	{
-		fclose(m_pStream);
+		delete(m_pStream);
 
 		m_pStream	= NULL;
 
@@ -176,123 +173,124 @@ bool CSG_File::Close(void)
 }
 
 //---------------------------------------------------------
-sLong CSG_File::Length(void)	const
+sLong CSG_File::Length(void) const
 {
-	if( m_pStream )
-	{
-		SG_FILE_SIZE	pos	= SG_FILE_TELL(m_pStream);	SG_FILE_SEEK(m_pStream,   0, SEEK_END);
-		SG_FILE_SIZE	len	= SG_FILE_TELL(m_pStream);	SG_FILE_SEEK(m_pStream, pos, SEEK_SET);
+	return( m_pStream ? m_pStream->GetLength() : -1 );
+}
 
-		return( len );
+//---------------------------------------------------------
+bool CSG_File::is_EOF(void)	const
+{
+	return( is_Reading() && ((wxInputStream *)m_pStream)->Eof() );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Seek(sLong Offset, int Origin) const
+{
+	if( is_Reading() )
+	{
+		switch( Origin )
+		{
+		default             : return( ((wxInputStream  *)m_pStream)->SeekI(Offset, wxFromStart  ) != wxInvalidOffset );
+		case SG_FILE_CURRENT: return( ((wxInputStream  *)m_pStream)->SeekI(Offset, wxFromCurrent) != wxInvalidOffset );
+		case SG_FILE_END    : return( ((wxInputStream  *)m_pStream)->SeekI(Offset, wxFromEnd    ) != wxInvalidOffset );
+		}
+	}
+
+	if( is_Writing() )
+	{
+		switch( Origin )
+		{
+		default             : return( ((wxOutputStream *)m_pStream)->SeekO(Offset, wxFromStart  ) != wxInvalidOffset );
+		case SG_FILE_CURRENT: return( ((wxOutputStream *)m_pStream)->SeekO(Offset, wxFromCurrent) != wxInvalidOffset );
+		case SG_FILE_END    : return( ((wxOutputStream *)m_pStream)->SeekO(Offset, wxFromEnd    ) != wxInvalidOffset );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_File::Seek_Start(void) const	{	return( Seek(0, SEEK_SET) );	}
+bool CSG_File::Seek_End  (void) const	{	return( Seek(0, SEEK_END) );	}
+
+//---------------------------------------------------------
+sLong CSG_File::Tell(void) const
+{
+	if( is_Reading() )
+	{
+		return( ((wxInputStream  *)m_pStream)->TellI() );
+	}
+
+	if( is_Writing() )
+	{
+		return( ((wxOutputStream *)m_pStream)->TellO() );
 	}
 
 	return( -1 );
 }
 
 //---------------------------------------------------------
-bool CSG_File::is_EOF(void)	const
-{
-	return( m_pStream == NULL || feof(m_pStream) != 0 );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Seek(sLong Offset, int Origin) const
-{
-	switch( Origin )
-	{
-	default:
-	case SG_FILE_START:		Origin	= SEEK_SET;	break;
-	case SG_FILE_CURRENT:	Origin	= SEEK_CUR;	break;
-	case SG_FILE_END:		Origin	= SEEK_END;	break;
-	}
-
-	return( m_pStream ? !SG_FILE_SEEK(m_pStream, Offset, Origin) : false );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Seek_Start(void) const
-{
-	return( m_pStream && SG_FILE_SEEK(m_pStream, 0, SEEK_SET) == 0 );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Seek_End(void) const
-{
-	return( m_pStream && SG_FILE_SEEK(m_pStream, 0, SEEK_END) == 0 );
-}
-
-//---------------------------------------------------------
-sLong CSG_File::Tell(void) const
-{
-	return( m_pStream ? SG_FILE_TELL(m_pStream) : -1 );
-}
-
-//---------------------------------------------------------
-bool CSG_File::Flush(void) const
-{
-	return( m_pStream ? !fflush(m_pStream) : false );
-}
-
-//---------------------------------------------------------
 int CSG_File::Printf(const char *Format, ...)
 {
-	if( !m_pStream )
+	if( !is_Writing() )
 	{
 		return( 0 );
 	}
 
-#ifdef _SAGA_LINUX
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
-	va_list	argptr; va_start(argptr, _Format);
-	int	result	= wxVfprintf(m_pStream, _Format, argptr);
-#else
-	va_list	argptr;	va_start(argptr, Format);
+	wxString	String, _Format(Format);
 
-	int	result	= wxVfprintf(m_pStream, Format, argptr);
+#ifdef _SAGA_LINUX
+	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
 #endif
 
+	va_list	argptr;
+
+	va_start(argptr, _Format);
+	int	Result	= String.PrintfV(_Format, argptr);
 	va_end(argptr);
 
-	return( result );
+	return( Result );
 }
 
 //---------------------------------------------------------
 int CSG_File::Printf(const wchar_t *Format, ...)
 {
-	if( !m_pStream )
+	if( !is_Writing() )
 	{
 		return( 0 );
 	}
 
-#ifdef _SAGA_LINUX
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
-	va_list	argptr; va_start(argptr, _Format);
-	int	result	= wxVfprintf(m_pStream, _Format, argptr);
-#else
-	va_list	argptr;	va_start(argptr, Format);
+	wxString	String, _Format(Format);
 
-	int	result	= wxVfprintf(m_pStream, Format, argptr);
+#ifdef _SAGA_LINUX
+	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
 #endif
 
+	va_list	argptr;
+
+	va_start(argptr, _Format);
+	int	Result	= String.PrintfV(_Format, argptr);
 	va_end(argptr);
 
-	return( result );
+	return( Result );
 }
 
 //---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
-	return( m_pStream ? fread(Buffer, Size, Count, m_pStream) : 0 );
+	return( is_Reading() && Size > 0 ? ((wxInputStream *)m_pStream)->Read(Buffer, Size * Count).LastRead() / Size : 0 );
 }
 
 size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
-	if( m_pStream )
+	if( is_Reading() )
 	{
-		char	*b	= (char *)SG_Calloc(Size + 1, sizeof(char));
-		size_t	 i	= fread(b, sizeof(char), Size, m_pStream);
-		Buffer		= b;
-		SG_Free(b);
+		CSG_Array	b(1, Size);
+
+		size_t	 i	= Read(b.Get_Array(), b.Get_Value_Size(), Size);
+
+		Buffer	= (const char *)b.Get_Array();
 
 		return( i );
 	}
@@ -303,7 +301,7 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 //---------------------------------------------------------
 size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
 {
-	return( m_pStream && Size > 0 && Count > 0 ? fwrite(Buffer, Size, Count, m_pStream) : 0 );
+	return( is_Writing() ? ((wxOutputStream *)m_pStream)->Write(Buffer, Size * Count).LastWrite() : 0 );
 }
 
 size_t CSG_File::Write(const CSG_String &Buffer) const
@@ -314,13 +312,13 @@ size_t CSG_File::Write(const CSG_String &Buffer) const
 //---------------------------------------------------------
 bool CSG_File::Read_Line(CSG_String &sLine)	const
 {
-	int		c;
-
-	if( m_pStream && !feof(m_pStream) )
+	if( is_Reading() && !is_EOF() )
 	{
 		sLine.Clear();
 
-		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != 0x0A && c != EOF )
+		int		c;
+
+		while( !is_EOF() && (c = ((wxInputStream *)m_pStream)->GetC()) != 0x0A && c != EOF )
 		{
 			if( c != 0x0D )
 			{
@@ -337,12 +335,7 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 //---------------------------------------------------------
 int CSG_File::Read_Char(void) const
 {
-	if( m_pStream )
-	{
-		return( getc(m_pStream) );
-	}
-
-	return( 0 );
+	return( is_Reading() ? ((wxInputStream *)m_pStream)->GetC() : 0 );
 }
 
 //---------------------------------------------------------
@@ -400,23 +393,61 @@ bool CSG_File::Write_Double(double Value, bool bByteOrderBig)
 //---------------------------------------------------------
 bool CSG_File::Scan(int &Value) const
 {
-	return( m_pStream && fscanf(m_pStream, "%d" , &Value) == 1 );
+	if( is_Reading() )
+	{
+		int		c;
+
+		while( !is_EOF() && isspace(c = Read_Char()) );	// remove leading white space
+
+		if( isdigit(c) || strchr("-+", c) )
+		{
+			CSG_String	s	= (char)c;
+
+			while( !is_EOF() && isdigit(c = Read_Char()) )
+			{
+				s	+= (char)c;
+			}
+
+			return( s.asInt(Value) );
+		}
+	}
+
+	return( false );
 }
 
 bool CSG_File::Scan(double &Value) const
 {
-	return( m_pStream && fscanf(m_pStream, "%lf", &Value) == 1 );
+	if( is_Reading() )
+	{
+		int		c;
+
+		while( !is_EOF() && isspace(c = Read_Char()) );	// remove leading white space
+
+		if( isdigit(c) || strchr("-+.,eE", c) )
+		{
+			CSG_String	s	= (char)c;
+
+			while( !is_EOF() && (isdigit(c = Read_Char()) || strchr("", c)) )
+			{
+				s	+= (char)c;
+			}
+
+			return( s.asDouble(Value) );
+		}
+	}
+
+	return( false );
 }
 
 bool CSG_File::Scan(CSG_String &Value, SG_Char Separator) const
 {
-	if( m_pStream && !feof(m_pStream) )
+	if( is_Reading() && !is_EOF() )
 	{
-		int		c;
-
 		Value.Clear();
 
-		while( !feof(m_pStream) && (c = fgetc(m_pStream)) != Separator && c != EOF )
+		int		c;
+
+		while( !is_EOF() && (c = ((wxInputStream *)m_pStream)->GetC()) != Separator && c != EOF )
 		{
 			Value	+= (char)c;
 		}
@@ -459,20 +490,163 @@ CSG_String CSG_File::Scan_String(SG_Char Separator) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			SG_Dir_Exists(const SG_Char *Directory)
+CSG_File_Zip::CSG_File_Zip(void)
 {
-	return( Directory && *Directory && wxFileName::DirExists(Directory) );
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_Create(const SG_Char *Directory)
+CSG_File_Zip::~CSG_File_Zip(void)
+{
+	Close();
+}
+
+//---------------------------------------------------------
+CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode)
+{
+	Open(FileName, Mode);
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode)
+{
+	Close();
+
+	m_Mode	= Mode;
+
+	if( Mode == SG_FILE_W )
+	{
+		m_pStream	= new wxZipOutputStream(new wxFileOutputStream(FileName.c_str()));
+	}
+	else if( Mode == SG_FILE_R && SG_File_Exists(FileName) )
+	{
+		m_pStream	= new wxZipInputStream(new wxFileInputStream(FileName.c_str()));
+	}
+
+	if( !m_pStream || !m_pStream->IsOk() )
+	{
+		Close();
+
+		return( false );
+	}
+
+	if( is_Reading() )
+	{
+		wxZipEntry	*pEntry;
+
+		while( (pEntry = ((wxZipInputStream *)m_pStream)->GetNextEntry()) != NULL )
+		{
+			m_Files	+= pEntry;
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Close(void)
+{
+	for(size_t i=0; i<m_Files.Get_Size(); i++)
+	{
+		delete((wxZipEntry *)m_Files[i]);
+	}
+
+	m_Files.Set_Array(0);
+
+	return( CSG_File::Close() );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Add_Directory(const CSG_String &Name)
+{
+	return( is_Writing() && ((wxZipOutputStream *)m_pStream)->PutNextDirEntry(Name.c_str()) );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Add_File(const CSG_String &Name, bool bBinary)
+{
+	if( is_Writing() )
+	{
+		wxZipEntry	*pEntry	= new wxZipEntry(Name.c_str());
+
+		pEntry->SetIsText(bBinary == false);
+
+		return( ((wxZipOutputStream *)m_pStream)->PutNextEntry(pEntry) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::is_Directory(size_t Index)
+{
+	if( is_Reading() && m_Files[Index] )
+	{
+		return( ((wxZipEntry *)m_Files[Index])->IsDir() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Get_File(size_t Index)
+{
+	if( is_Reading() && m_Files[Index] )
+	{
+		return( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[Index]) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_File_Zip::Get_File(const CSG_String &Name)
+{
+	for(size_t i=0; i<m_Files.Get_Size(); i++)
+	{
+		if( !Name.Cmp(&((wxZipEntry *)m_Files[i])->GetName()) )
+		{
+			return( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[i]) );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
+{
+	CSG_String	s;
+
+	if( is_Reading() && m_Files[Index] )
+	{
+		s	= &((wxZipEntry *)m_Files[Index])->GetName();
+	}
+
+	return( s );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool			SG_Dir_Exists(const CSG_String &Directory)
+{
+	return( wxFileName::DirExists(Directory.c_str()) );
+}
+
+//---------------------------------------------------------
+bool			SG_Dir_Create(const CSG_String &Directory)
 {
 	if( SG_Dir_Exists(Directory) )
 	{
 		return( true );
 	}
 
-	return( wxFileName::Mkdir(Directory) );
+	return( wxFileName::Mkdir(Directory.c_str()) );
 }
 
 //---------------------------------------------------------
@@ -506,7 +680,7 @@ bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Director
 		{
 			do
 			{
-				List	+= SG_File_Make_Path(Directory, FileName);
+				List	+= SG_File_Make_Path(Directory, &FileName);
 			}
 			while( Dir.GetNext(&FileName) );
 		}
@@ -516,7 +690,12 @@ bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Director
 }
 
 //---------------------------------------------------------
-bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const SG_Char *Extension)
+bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory)
+{
+	return( SG_Dir_List_Files(List, Directory, "") );
+}
+
+bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension)
 {
 	List.Clear();
 
@@ -530,9 +709,9 @@ bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, cons
 		{
 			do
 			{
-				if( !Extension || !*Extension || SG_File_Cmp_Extension(FileName, Extension) )
+				if( Extension.is_Empty() || SG_File_Cmp_Extension(&FileName, Extension) )
 				{
-					List	+= SG_File_Make_Path(Directory, FileName);
+					List	+= SG_File_Make_Path(Directory, &FileName);
 				}
 			}
 			while( Dir.GetNext(&FileName) );
@@ -550,115 +729,115 @@ bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool			SG_File_Exists(const SG_Char *FileName)
+bool			SG_File_Exists(const CSG_String &FileName)
 {
-	return( FileName && *FileName && wxFileExists(FileName) );
+	return( wxFileExists(FileName.c_str()) );
 }
 
 //---------------------------------------------------------
-bool			SG_File_Delete(const SG_Char *FileName)
+bool			SG_File_Delete(const CSG_String &FileName)
 {
-	return( SG_File_Exists(FileName) && wxRemoveFile(FileName) );
+	return( SG_File_Exists(FileName) && wxRemoveFile(FileName.c_str()) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Name_Temp(const SG_Char *Prefix, const SG_Char *Directory)
+CSG_String		SG_File_Get_Name_Temp(const CSG_String &Prefix)
+{
+	return( SG_File_Get_Name_Temp(Prefix, "") );
+}
+
+CSG_String		SG_File_Get_Name_Temp(const CSG_String &Prefix, const CSG_String &Directory)
 {
 	if( !SG_Dir_Exists(Directory) )
 	{
-		return( CSG_String(wxFileName::CreateTempFileName(Prefix).wc_str()) );
+		return( CSG_String(wxFileName::CreateTempFileName(Prefix.c_str()).wc_str()) );
 	}
 
 	return( CSG_String(wxFileName::CreateTempFileName(SG_File_Make_Path(Directory, Prefix).w_str()).wc_str()) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Name(const SG_Char *full_Path, bool bExtension)
+CSG_String		SG_File_Get_Name(const CSG_String &full_Path, bool bExtension)
 {
-	wxFileName	fn(full_Path);
-	CSG_String	s(fn.GetFullName().wc_str());
+	wxFileName	fn(full_Path.c_str());
 
-	return( !bExtension && s.Find(SG_T(".")) >= 0 ? s.BeforeLast(SG_T('.')) : s );
-}
-
-//---------------------------------------------------------
-CSG_String		SG_File_Get_Path(const SG_Char *full_Path)
-{
-	if( full_Path && *full_Path )
+	if( bExtension )
 	{
-		wxFileName	fn(full_Path);
-
-		return( CSG_String(fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR).wc_str()) );
+		return( CSG_String(&fn.GetFullName()) );
 	}
 
-	return( SG_T("") );
+	return( CSG_String(&fn.GetName()) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Path_Absolute	(const SG_Char *full_Path)
+CSG_String		SG_File_Get_Path(const CSG_String &full_Path)
 {
-	wxString	Path;
+	wxFileName	fn(full_Path.c_str());
 
-	if( full_Path && *full_Path )
-	{
-		wxFileName	fn(full_Path);
-
-		fn.MakeAbsolute();
-
-		Path	= fn.GetFullPath();
-	}
-
-	return( &Path );
+	return( CSG_String(&fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR)) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Path_Relative	(const SG_Char *Directory, const SG_Char *full_Path)
+CSG_String		SG_File_Get_Path_Absolute(const CSG_String &full_Path)
 {
-	wxFileName	fn(full_Path);
+	wxFileName	fn(full_Path.c_str());
 
-	fn.MakeRelativeTo(Directory);
+	fn.MakeAbsolute();
 
-	return( CSG_String(fn.GetFullPath().wc_str()) );
+	return( CSG_String(&fn.GetFullPath()) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Make_Path(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension)
+CSG_String		SG_File_Get_Path_Relative(const CSG_String &Directory, const CSG_String &full_Path)
+{
+	wxFileName	fn(full_Path.c_str());
+
+	fn.MakeRelativeTo(Directory.c_str());
+
+	return( CSG_String(&fn.GetFullPath()) );
+}
+
+//---------------------------------------------------------
+CSG_String		SG_File_Make_Path(const CSG_String &Directory, const CSG_String &Name)
+{
+	return( SG_File_Make_Path(Directory, Name, "") );
+}
+
+CSG_String		SG_File_Make_Path(const CSG_String &Directory, const CSG_String &Name, const CSG_String &Extension)
 {
 	wxFileName	fn;
 
-	fn.AssignDir(Directory && *Directory ? Directory : SG_File_Get_Path(Name).c_str());
+	fn.AssignDir(!Directory.is_Empty() ? Directory.c_str() : SG_File_Get_Path(Name).c_str());
 
-	if( Extension && *Extension )
+	if( !Extension.is_Empty() )
 	{
 		fn.SetName		(SG_File_Get_Name(Name, false).c_str());
-		fn.SetExt		(Extension);
+		fn.SetExt		(Extension.c_str());
 	}
 	else
 	{
 		fn.SetFullName	(SG_File_Get_Name(Name,  true).c_str());
 	}
 
-	return( CSG_String(fn.GetFullPath().wc_str()) );
+	return( CSG_String(&fn.GetFullPath()) );
 }
 
 //---------------------------------------------------------
-bool			SG_File_Cmp_Extension(const SG_Char *File_Name, const SG_Char *Extension)
+bool			SG_File_Cmp_Extension(const CSG_String &FileName, const CSG_String &Extension)
 {
-	wxFileName	fn(File_Name);
-
-	return( fn.GetExt().CmpNoCase(Extension) == 0 );
+	return( SG_File_Get_Extension(FileName).CmpNoCase(Extension) == 0 );
 }
 
 //---------------------------------------------------------
-bool			SG_File_Set_Extension(CSG_String &File_Name, const CSG_String &Extension)
+bool			SG_File_Set_Extension(CSG_String &FileName, const CSG_String &Extension)
 {
-	if( File_Name.Length() > 0 && Extension.Length() > 0 )
+	if( FileName.Length() > 0 && Extension.Length() > 0 )
 	{
-		wxFileName	fn(File_Name.w_str());
+		wxFileName	fn(FileName.c_str());
 
-		fn.SetExt(Extension.w_str());
+		fn.SetExt(Extension.c_str());
 
-		File_Name	= fn.GetFullPath().wc_str();
+		FileName	= &fn.GetFullPath();
 
 		return( true );
 	}
@@ -667,38 +846,11 @@ bool			SG_File_Set_Extension(CSG_String &File_Name, const CSG_String &Extension)
 }
 
 //---------------------------------------------------------
-CSG_String		SG_File_Get_Extension(const SG_Char *File_Name)
+CSG_String		SG_File_Get_Extension(const CSG_String &FileName)
 {
-	wxFileName	fn(File_Name);
+	wxFileName	fn(FileName.c_str());
 
-	return( CSG_String(fn.GetExt().wc_str()) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool			SG_Read_Line(FILE *Stream, CSG_String &Line)
-{
-	char	c;
-
-	if( Stream && !feof(Stream) )
-	{
-		Line.Clear();
-
-		while( !feof(Stream) && (c = fgetc(Stream)) != 0x0A && c != 0x0D )
-		{
-			Line.Append(c);
-		}
-
-		return( true );
-	}
-
-	return( false );
+	return( CSG_String(&fn.GetExt()) );
 }
 
 
@@ -711,7 +863,7 @@ bool			SG_Read_Line(FILE *Stream, CSG_String &Line)
 //---------------------------------------------------------
 bool			SG_Get_Environment(const CSG_String &Variable, CSG_String *Value)
 {
-	if( Value == NULL)
+	if( Value == NULL )
 	{
 		return( wxGetEnv(Variable.w_str(), NULL) );
 	}

@@ -443,6 +443,56 @@ bool CSG_Array::Dec_Array		(void **pArray, bool bShrink)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void ** CSG_Array_Pointer::Create(const CSG_Array_Pointer &Array)
+{
+	m_Array.Create(Array.m_Array);
+
+	return( (void **)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+void ** CSG_Array_Pointer::Create(size_t nValues, TSG_Array_Growth Growth)
+{
+	m_Array.Create(sizeof(void *), nValues, Growth);
+
+	return( (void **)m_Array.Get_Array() );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Pointer::Add(void *Value)
+{
+	if( Inc_Array() )
+	{
+		Get_Array()[Get_Size() - 1]	= Value;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Pointer::Add(const CSG_Array_Pointer &Array)
+{
+	for(size_t i=0; i<Array.Get_Size(); i++)
+	{
+		if( Add(Array[i]) == false )
+		{
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 int * CSG_Array_Int::Create(const CSG_Array_Int &Array)
 {
 	m_Array.Create(Array.m_Array);

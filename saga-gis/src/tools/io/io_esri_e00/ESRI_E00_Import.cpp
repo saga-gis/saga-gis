@@ -199,7 +199,7 @@ const char * CESRI_E00_Import::E00_Read_Line(void)
 
 	if( line == NULL )
 	{
-		FILE	*fp	= fopen(SG_File_Make_Path(NULL, m_e00_Name, CSG_String::Format(SG_T("e%02d"), m_iFile + 1)), "rb");
+		FILE	*fp	= fopen(SG_File_Make_Path("", m_e00_Name, CSG_String::Format("e%02d", m_iFile + 1)), "rb");
 
 		if( fp )
 		{

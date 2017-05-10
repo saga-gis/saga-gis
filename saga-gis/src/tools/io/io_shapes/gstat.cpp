@@ -61,8 +61,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <string.h>
-
 #include "gstat.h"
 
 
@@ -75,39 +73,32 @@
 //---------------------------------------------------------
 CGStat_Export::CGStat_Export(void)
 {
-	CSG_Parameter	*pNode_0;
+	Set_Name		(_TL("Export GStat Shapes"));
+
+	Set_Author		("O.Conrad (c) 2003");
+
+	Set_Description(_TW(
+		"GStat shapes format export."
+	));
 
 	//-----------------------------------------------------
-	Set_Name(_TL("Export GStat Shapes"));
-
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
-
-	Set_Description(
-		_TL("GStat shapes format export.")
-	);
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode_0	= Parameters.Add_FilePath(
-		NULL	, "FILENAME", _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
 
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
 			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
 			_TL("All Files")				, SG_T("*.*")
 		), NULL, true
 	);
 }
-
-//---------------------------------------------------------
-CGStat_Export::~CGStat_Export(void)
-{}
 
 //---------------------------------------------------------
 bool CGStat_Export::On_Execute(void)
@@ -120,8 +111,8 @@ bool CGStat_Export::On_Execute(void)
 	CSG_String	fName;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")		->asShapes();
-	fName		= Parameters("FILENAME")	->asString();
+	pShapes		= Parameters("SHAPES"  )->asShapes();
+	fName		= Parameters("FILENAME")->asString();
 
 	//-----------------------------------------------------
 	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
@@ -243,29 +234,24 @@ bool CGStat_Export::On_Execute(void)
 //---------------------------------------------------------
 CGStat_Import::CGStat_Import(void)
 {
-	CSG_Parameter	*pNode_0;
+	Set_Name		(_TL("Import GStat Shapes"));
 
-	//-----------------------------------------------------
-	Set_Name(_TL("Import GStat Shapes"));
+	Set_Author		("O.Conrad (c) 2003");
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Description(_TW(
+		"GStat shapes format import."
+	));
 
-	Set_Description(
-		_TL("GStat shapes format import.")
-	);
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode_0	= Parameters.Add_FilePath(
-		NULL	, "FILENAME", _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
 			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
 			_TL("All Files")				, SG_T("*.*")
@@ -274,32 +260,26 @@ CGStat_Import::CGStat_Import(void)
 }
 
 //---------------------------------------------------------
-CGStat_Import::~CGStat_Import(void)
-{}
-
-//---------------------------------------------------------
 bool CGStat_Import::On_Execute(void)
 {
 	char		c[3];
 	int			i, nFields, fLength;
 	double		x, y, Value;
-	FILE		*Stream;
+	CSG_File	Stream;
 	CSG_String	s, fName;
 	CSG_Shape	*pShape;
 	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")		->asShapes();
-	fName	= Parameters("FILENAME")	->asString();
+	pShapes	= Parameters("SHAPES"  )->asShapes();
+	fName	= Parameters("FILENAME")->asString();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "rb")) != NULL )
+	if( Stream.Open(fName, SG_FILE_R) )
 	{
-		fseek(Stream, 0, SEEK_END);
-		fLength	= ftell(Stream);
-		fseek(Stream, 0, SEEK_SET);
+		fLength	= Stream.Length();
 
-		if( fLength > 0 && SG_Read_Line(Stream, s) )
+		if( fLength > 0 && Stream.Read_Line(s) )
 		{
 			//---------------------------------------------
 			// Point...
@@ -311,13 +291,13 @@ bool CGStat_Import::On_Execute(void)
 				// Load Header...
 
 				// Field Count...
-				fscanf(Stream, "%d", &nFields);
-				SG_Read_Line(Stream, s);	// zur naexten Zeile...
+				nFields	= Stream.Scan_Int();
+				Stream.Read_Line(s);	// zur naexten Zeile...
 
 				// Fields...
 				for(i=0; i<nFields; i++)
 				{
-					if( SG_Read_Line(Stream, s) )
+					if( Stream.Read_Line(s) )
 					{
 						if( !s.CmpNoCase(SG_T("[ignore]")) || s[0] == '%' )
 						{
@@ -337,18 +317,19 @@ bool CGStat_Import::On_Execute(void)
 				}
 				else
 				{
-					while( !feof(Stream) && Set_Progress(ftell(Stream), fLength) )
+					while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
 					{
-						fscanf(Stream, "%lf%lf", &x, &y); 
+						x	= Stream.Scan_Double();
+						y	= Stream.Scan_Double();
 
-						if( !feof(Stream) )
+						if( !Stream.is_EOF() )
 						{
 							pShape	= pShapes->Add_Shape();
 							pShape->Add_Point(x, y);
 							pShape->Set_Value(0, x);
 							pShape->Set_Value(1, y);
 
-							for(i=2; i<nFields && !feof(Stream); i++)
+							for(i=2; i<nFields && !Stream.is_EOF(); i++)
 							{
 								if( SG_STR_CMP(pShapes->Get_Field_Name(i), SG_T("[ignore]")) )
 								{
@@ -362,12 +343,11 @@ bool CGStat_Import::On_Execute(void)
 								}
 								else
 								{
-									fscanf(Stream, "%lf", &Value);
-									pShape->Set_Value(i, Value);
+									pShape->Set_Value(i, Stream.Scan_Double());
 								}
 							}
 
-							SG_Read_Line(Stream, s);
+							Stream.Read_Line(s);
 						}
 					}
 				}
@@ -377,7 +357,7 @@ bool CGStat_Import::On_Execute(void)
 			// Line, Polygon...
 			else
 			{
-				fread(c, 3, sizeof(char), Stream);
+				Stream.Read(c, 3, sizeof(char));
 
 				if( !strncmp(c, "ARC", 3) )
 				{
@@ -385,11 +365,15 @@ bool CGStat_Import::On_Execute(void)
 					pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
 
 					//---------------------------------------------
-					while( !feof(Stream) && Set_Progress(ftell(Stream), fLength) )
+					while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
 					{
-						fscanf(Stream, "%lf", &Value);						// i_ok...
-						fscanf(Stream, "%d%d%d%d%d", &i, &i, &i, &i, &i);	// dummy 1..5
-						fscanf(Stream, "%d", &nFields);
+						Value	= Stream.Scan_Double();	// i_ok...
+						Stream.Scan_Int();	// dummy 1..5
+						Stream.Scan_Int();	// dummy 2..5
+						Stream.Scan_Int();	// dummy 3..5
+						Stream.Scan_Int();	// dummy 4..5
+						Stream.Scan_Int();	// dummy 5..5
+						nFields	= Stream.Scan_Int();
 
 						if( nFields > 0 )
 						{
@@ -397,9 +381,10 @@ bool CGStat_Import::On_Execute(void)
 
 							for(i=0; i<nFields; i++)
 							{
-								fscanf(Stream, "%lf%lf", &x, &y);
+								x	= Stream.Scan_Double();
+								y	= Stream.Scan_Double();
 
-								if( !feof(Stream) )
+								if( !Stream.is_EOF() )
 								{
 									if( !pShape )
 									{
@@ -419,8 +404,6 @@ bool CGStat_Import::On_Execute(void)
 				}
 			}
 		}
-
-		fclose(Stream);
 	}
 
 	return( pShapes->Get_Count() > 0 );
@@ -429,51 +412,43 @@ bool CGStat_Import::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					Import - Helper						 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGStat_Import::Stream_Find_NextWhiteChar(CSG_File &Stream)
+{
+	while( !Stream.is_EOF() && Stream.Read_Char() > 32 );
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGStat_Import::Stream_Get_StringInQuota(CSG_File &Stream, CSG_String &String)
+{
+	String.Clear();
+
+	while( !Stream.is_EOF() && Stream.Read_Char() != '\"' );
+
+	if( !Stream.is_EOF() )
+	{
+		char	c;
+
+		while( !Stream.is_EOF() && (c = (char)Stream.Read_Char()) != '\"' )
+		{
+			String	+= c;
+		}
+
+		return( c == '\"' );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGStat_Import::Stream_Find_NextWhiteChar(FILE *Stream)
-{
-	char	c;
-
-	if( Stream )
-	{
-		do
-		{
-			c	= fgetc(Stream);
-		}
-		while( !feof(Stream) && c > 32 );
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-bool CGStat_Import::Stream_Get_StringInQuota(FILE *Stream, CSG_String &String)
-{
-	char	c;
-
-	String.Clear();
-
-	if( Stream )
-	{
-		do
-		{
-			c	= fgetc(Stream);
-		}
-		while( !feof(Stream) && c != '\"' );
-
-		while( !feof(Stream) && (c = fgetc(Stream)) != '\"' )
-		{
-			String.Append(c);
-		}
-
-		return( true );
-	}
-
-	return( false );
-}

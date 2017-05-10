@@ -227,6 +227,7 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 		{
 			ADD_FILTER("sprj");
 			ADD_FILTER( "spc");
+			ADD_FILTER("spcz");
 			ADD_FILTER( "las");
 			ADD_FILTER( "txt");
 			ADD_FILTER( "csv");
@@ -246,7 +247,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	//-----------------------------------------------------
 	case ID_DLG_FILES_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.spc;*.las;*.txt;*.csv;*.dbf;");
+		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.spc;*.spcz;*.las;*.txt;*.csv;*.dbf;");
 
 		return( wxString::Format(
 			"%s|%s|"
@@ -254,7 +255,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 			"%s (*.sprj)|*.sprj|"
 			"%s (*.sgrd)|*.sgrd;*.dgm;*.grd|"
 			"%s (*.shp)|*.shp|"
-			"%s (*.spc)|*.spc|"
+			"%s (*.spc, *spcz)|*.spc;*.spcz|"
 			"%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|"
 			"%s|*.*",
 			_TL("Recognized Files"), Recognized.c_str(),
@@ -365,11 +366,20 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 
 	//-----------------------------------------------------
 	case ID_DLG_POINTCLOUD_OPEN:
+		return( wxString::Format(
+			"%s (*.spc, *.spcz)|*.spc;*spcz|"
+			"%s|*.*",
+			_TL("SAGA Point Clouds"),
+			_TL("All Files")
+		));
+
 	case ID_DLG_POINTCLOUD_SAVE:
 		return( wxString::Format(
 			"%s (*.spc)|*.spc|"
+			"%s (*.spcz)|*.spcz|"
 			"%s|*.*",
 			_TL("SAGA Point Clouds"),
+			_TL("SAGA Compressed Point Clouds"),
 			_TL("All Files")
 		));
 
@@ -795,7 +805,7 @@ bool		DLG_Directory(wxString &Directory, const wxString &Caption, const wxString
 
 bool		DLG_Directory(wxString &Directory, const wxString &Caption)
 {
-	return( DLG_Directory(Directory, Caption, SG_File_Get_Path(Directory).w_str()) );
+	return( DLG_Directory(Directory, Caption, SG_File_Get_Path(&Directory).w_str()) );
 }
 
 //---------------------------------------------------------
@@ -816,7 +826,7 @@ bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &def
 
 		if( !wxDirExists(def_Dir) )
 		{
-			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(&File_Path).w_str());
 		}
 
 		return( true );
@@ -829,8 +839,8 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 {
 	wxString	def_Dir, def_Name;
 
-	def_Name	= SG_File_Get_Name(File_Path, true).w_str();
-	def_Dir		= SG_File_Get_Path(File_Path).w_str();
+	def_Name	= SG_File_Get_Name(&File_Path, true).w_str();
+	def_Dir		= SG_File_Get_Path(&File_Path).w_str();
 
 	if( !wxDirExists(def_Dir) )
 	{
@@ -839,7 +849,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 
 	if( DLG_Save(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, def_Name, DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path).w_str());
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(&File_Path).w_str());
 
 		return( true );
 	}
@@ -849,7 +859,7 @@ bool		DLG_Save(wxString &File_Path, int ID_DLG)
 
 bool		DLG_Save(wxString &File_Path, const wxString &Caption, const wxString &Filter)
 {
-	return( DLG_Save(File_Path, Caption, SG_File_Get_Path(File_Path).w_str(), SG_File_Get_Name(File_Path, true).w_str(), Filter) );
+	return( DLG_Save(File_Path, Caption, SG_File_Get_Path(&File_Path).w_str(), SG_File_Get_Name(&File_Path, true).w_str(), Filter) );
 }
 
 //---------------------------------------------------------
@@ -870,7 +880,7 @@ bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &def
 
 		if( !wxDirExists(def_Dir) )
 		{
-			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(&File_Path).w_str());
 		}
 
 		return( true );
@@ -887,7 +897,7 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 
 	if( DLG_Open(File_Path, DLG_Get_FILE_Caption(ID_DLG), def_Dir, wxT(""), DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Path).w_str());
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(&File_Path).w_str());
 
 		return( true );
 	}
@@ -897,7 +907,7 @@ bool		DLG_Open(wxString &File_Path, int ID_DLG)
 
 bool		DLG_Open(wxString &File_Path, const wxString &Caption, const wxString &Filter)
 {
-	return( DLG_Open(File_Path, Caption, SG_File_Get_Path(File_Path).w_str(), SG_File_Get_Name(File_Path, true).w_str(), Filter) );
+	return( DLG_Open(File_Path, Caption, SG_File_Get_Path(&File_Path).w_str(), SG_File_Get_Name(&File_Path, true).w_str(), Filter) );
 }
 
 //---------------------------------------------------------
@@ -920,7 +930,7 @@ bool		DLG_Open(wxArrayString &File_Paths, const wxString &Caption, const wxStrin
 		{
 			if( !wxDirExists(def_Dir) )
 			{
-				CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Paths[0]).w_str());
+				CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(&File_Paths[0]).w_str());
 			}
 
 			return( true );
@@ -938,7 +948,7 @@ bool		DLG_Open(wxArrayString &File_Paths, int ID_DLG)
 
 	if( DLG_Open(File_Paths, DLG_Get_FILE_Caption(ID_DLG), def_Dir, DLG_Get_FILE_Filter(ID_DLG)) )
 	{
-		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(File_Paths[0]).w_str());
+		CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(ID_DLG), SG_File_Get_Path(&File_Paths[0]).w_str());
 
 		return( true );
 	}
@@ -1007,7 +1017,7 @@ bool		DLG_Image_Save(wxString &File_Path, int &Type, const wxString &def_Dir, co
 
 		if( !wxDirExists(def_Dir) )
 		{
-			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(File_Path).w_str());
+			CONFIG_Write(CONFIG_GROUP_FILE_DLG, DLG_Get_FILE_Config(-1), SG_File_Get_Path(&File_Path).w_str());
 		}
 
 		return( true );

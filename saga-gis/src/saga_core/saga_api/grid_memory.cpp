@@ -575,7 +575,7 @@ bool CSG_Grid::_Cache_Create(void)
 
 	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
-		m_Cache_Path	= SG_File_Get_Name_Temp(SG_T("sg_grd"), SG_Grid_Cache_Get_Directory());
+		m_Cache_Path	= SG_File_Get_Name_Temp("sg_grd", SG_Grid_Cache_Get_Directory());
 
 		if( m_Cache_Stream.Open(m_Cache_Path, SG_FILE_RW, true) )
 		{

@@ -1978,7 +1978,7 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 		&&	Stream.Read_Line(sLine) )
 		{
 			int			i;
-			double		d, e;
+			double		d;
 			TSG_Rect	r;
 			CSG_String	s;
 			CSG_Table	t;

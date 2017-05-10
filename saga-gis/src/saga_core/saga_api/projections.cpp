@@ -431,7 +431,7 @@ bool CSG_Projection::Load(const CSG_String &File_Name, TSG_Projection_Format For
 	{
 		CSG_String	s;
 
-		Stream.Read(s, Stream.Length());
+		Stream.Read(s, (size_t)Stream.Length());
 
 		return( Assign(s, Format) );
 	}

@@ -274,11 +274,12 @@ bool CWKSP_Project::_Copy_To_File(CWKSP_Data_Item *pItem, const wxString &Direct
 
 	switch( pItem->Get_Type() )
 	{
-	case WKSP_ITEM_Table     :	Path.SetExt("txt" );	break;
-	case WKSP_ITEM_Shapes    :	Path.SetExt("shp" );	break;
-	case WKSP_ITEM_TIN       :	Path.SetExt("shp" );	break;
-	case WKSP_ITEM_PointCloud:	Path.SetExt("spc" );	break;
-	case WKSP_ITEM_Grid      :	Path.SetExt("sgrd");	break;
+	case WKSP_ITEM_Table     :	Path.SetExt("txt"  );	break;
+	case WKSP_ITEM_Shapes    :	Path.SetExt("shp"  );	break;
+	case WKSP_ITEM_TIN       :	Path.SetExt("shp"  );	break;
+	case WKSP_ITEM_PointCloud:	Path.SetExt("spcz" );	break;
+	case WKSP_ITEM_Grid      :	Path.SetExt("sgrd" );	break;
+//	case WKSP_ITEM_Grids     :	Path.SetExt("sgrds");	break;
 	default:	return( false );
 	}
 
@@ -387,12 +388,12 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 
 		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), true , Version);
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), true , Version);
 		}
 
 		for(i=0; i<pNode->Get_Children_Count(); i++)
 		{
-			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(FileName).w_str(), false, Version);
+			_Load_Data(*pNode->Get_Child(i), SG_File_Get_Path(&FileName).w_str(), false, Version);
 		}
 
 		g_pData->Get_Menu_Files()->Set_Update(true);
@@ -404,7 +405,7 @@ bool CWKSP_Project::_Load(const wxString &FileName, bool bAdd, bool bUpdateMenu)
 		{
 			for(int j=0; j<pNode->Get_Children_Count(); j++)
 			{
-				_Load_Map(*pNode->Get_Child(j), SG_File_Get_Path(FileName).w_str());
+				_Load_Map(*pNode->Get_Child(j), SG_File_Get_Path(&FileName).w_str());
 			}
 		}
 
@@ -467,7 +468,7 @@ bool CWKSP_Project::_Save(const wxString &FileName, bool bSaveModified, bool bUp
 	}
 
 	//-----------------------------------------------------
-	ProjectDir	= SG_File_Get_Path(FileName).w_str();
+	ProjectDir	= SG_File_Get_Path(&FileName).w_str();
 
 	Project.Set_Name    ("SAGA_PROJECT");
 	Project.Add_Property("VERSION", SAGA_VERSION);
@@ -764,7 +765,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	if( wxFileExists(pDataObject->Get_File_Name(false)) )
 	{
-		pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(ProjectDir, pDataObject->Get_File_Name(false)));
+		pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, pDataObject->Get_File_Name(false)));
 	}
 	else if( pDataObject->Get_MetaData_DB().Get_Children_Count() > 0 )
 	{
@@ -792,7 +793,7 @@ bool CWKSP_Project::_Save_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 				if( File.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File) )
 				{
-					pEntry->Get_Child(i)->Set_Content(SG_File_Get_Path_Relative(ProjectDir, File.w_str()));
+					pEntry->Get_Child(i)->Set_Content(SG_File_Get_Path_Relative(&ProjectDir, File.w_str()));
 				}
 			}
 		}
@@ -949,7 +950,7 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 				}
 				else if( wxFileExists(FileName) )
 				{
-					pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(ProjectDir, FileName));
+					pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName));
 				}
 			}
 		}
@@ -1063,7 +1064,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 	g_pSAGA_Frame->Freeze();
 
 	g_pData->Get_Menu_Files()->Set_Update(false);
-	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(FileName).w_str()) );
+	while( _Compatibility_Load_Data(Stream, SG_File_Get_Path(&FileName).w_str()) );
 	g_pData->Get_Menu_Files()->Set_Update(true);
 
 	//-------------------------------------------------
@@ -1071,7 +1072,7 @@ bool CWKSP_Project::_Compatibility_Load_Data(const wxString &FileName)
 
 	if( !sLine.Cmp(MAP_ENTRIES_BEGIN) )
 	{
-		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(FileName).w_str()) );
+		while( _Compatibility_Load_Map(Stream, SG_File_Get_Path(&FileName).w_str()) );
 	}
 
 	switch( g_pData->Get_Parameter("PROJECT_MAP_ARRANGE")->asInt() )

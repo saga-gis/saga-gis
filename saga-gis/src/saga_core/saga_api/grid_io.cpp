@@ -183,7 +183,7 @@ bool CSG_Grid::Save(const CSG_String &File_Name, int Format)
 bool CSG_Grid::Save(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN)
 {
 	bool		bResult;
-	CSG_String	sFile_Name	= SG_File_Make_Path(NULL, File_Name, SG_T("sgrd"));
+	CSG_String	sFile_Name	= SG_File_Make_Path("", File_Name, "sgrd");
 
 	//-----------------------------------------------------
 	if( xA	< 0 || xA >= Get_NX() - 1 )
@@ -652,9 +652,9 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 
 	if( !SG_Data_Type_is_Numeric(m_Type) )	// ASCII...
 	{
-		if(	Stream.Open(Info.m_Data_File                                , SG_FILE_R, false)
-		||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), SG_FILE_R, false)
-		||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_R, false) )
+		if(	Stream.Open(Info.m_Data_File                        , SG_FILE_R, false)
+		||	Stream.Open(SG_File_Make_Path("", File_Name,  "dat"), SG_FILE_R, false)
+		||	Stream.Open(SG_File_Make_Path("", File_Name, "sdat"), SG_FILE_R, false) )
 		{
 			Stream.Seek((long)Info.m_Offset);
 
@@ -669,9 +669,9 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 		{
 			Set_Buffer_Size(SG_Grid_Cache_Check(m_System, Get_nValueBytes()));
 
-			if( _Cache_Create(Info.m_Data_File                                , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
-			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
-			||	_Cache_Create(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
+			if( _Cache_Create(Info.m_Data_File                        , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path("", File_Name,  "dat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
+			||	_Cache_Create(SG_File_Make_Path("", File_Name, "sdat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
 			{
 				return( true );
 			}
@@ -681,9 +681,9 @@ bool CSG_Grid::_Load_Native(const CSG_String &File_Name, TSG_Grid_Memory_Type Me
 
 		if( _Memory_Create(Memory_Type) )
 		{
-			if(	Stream.Open(Info.m_Data_File                                , SG_FILE_R, true)
-			||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T( "dat")), SG_FILE_R, true)
-			||	Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_R, true) )
+			if(	Stream.Open(Info.m_Data_File                        , SG_FILE_R, true)
+			||	Stream.Open(SG_File_Make_Path("", File_Name,  "dat"), SG_FILE_R, true)
+			||	Stream.Open(SG_File_Make_Path("", File_Name, "sdat"), SG_FILE_R, true) )
 			{
 				Stream.Seek((long)Info.m_Offset);
 
@@ -704,7 +704,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &File_Name, int xA, int yA, int xN,
 	{
 		CSG_File	Stream;
 
-		if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")), SG_FILE_W, true) )
+		if( Stream.Open(SG_File_Make_Path("", File_Name, "sdat"), SG_FILE_W, true) )
 		{
 			if( bBinary )
 			{
@@ -1015,7 +1015,7 @@ bool CSG_Grid_File_Info::Create(const CSG_String &File_Name)
 	while( !Stream.is_EOF() );
 
 	//-----------------------------------------------------
-	m_Projection.Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	m_Projection.Load(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
 
 	if( !m_System.Assign(Cellsize, xMin, yMin, (int)NX, (int)NY) )
 	{
@@ -1092,9 +1092,9 @@ bool CSG_Grid_File_Info::Save(const CSG_String &File_Name, int xStart, int yStar
 
 		if( m_Projection.is_Okay() )
 		{
-			m_Projection.Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+			m_Projection.Save(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
 
-			if( Stream.Open(SG_File_Make_Path(NULL, File_Name, SG_T("sdat")) + ".aux.xml", SG_FILE_W, false) )	// store srs information that is recognized by ArcGIS
+			if( Stream.Open(SG_File_Make_Path("", File_Name, "sdat") + ".aux.xml", SG_FILE_W, false) )	// store srs information that is recognized by ArcGIS
 			{
 				Stream.Write("<PAMDataset>\n<SRS>");
 				Stream.Write(m_Projection.Get_WKT());

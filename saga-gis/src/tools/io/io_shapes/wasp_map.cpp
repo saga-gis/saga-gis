@@ -79,19 +79,19 @@ CWASP_MAP_Export::CWASP_MAP_Export(void)
 	Add_Reference	("www.wasp.dk", _TL("WAsP - Homepage"));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pShapes	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Contour Lines"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Contour Lines"),
 		_TL(""),
-		PARAMETER_INPUT			, SHAPE_TYPE_Line
+		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Table_Field(
-		pShapes	, "ELEVATION"	, _TL("Map File"),
+	Parameters.Add_Table_Field("SHAPES",
+		"ELEVATION"	, _TL("Map File"),
 		_TL("")
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File Name"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File Name"),
 		_TL(""),
 		CSG_String::Format("%s|*.map|%s|*.*",
 			_TL("WASP Map Files (*.map)"),
@@ -207,14 +207,14 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 	Add_Reference	("www.wasp.dk", _TL("WAsP - Homepage"));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Contour Lines"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Contour Lines"),
 		_TL(""),
-		PARAMETER_OUTPUT		, SHAPE_TYPE_Line
+		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File Name"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File Name"),
 		_TL(""),
 		CSG_String::Format("%s|*.map|%s|*.*",
 			_TL("WASP Map Files (*.map)"),
@@ -222,8 +222,8 @@ CWASP_MAP_Import::CWASP_MAP_Import(void)
 		), NULL, false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Input Specification"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Input Specification"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("elevation"),
@@ -238,7 +238,7 @@ bool CWASP_MAP_Import::On_Execute(void)
 {
 	int			n, Method, nLength;
 	double		z, dz, zMin, rLeft, rRight;
-	FILE		*Stream;
+	CSG_File	Stream;
 	TSG_Point	p, pu[2], pm[2];
 	CSG_String	fName, sLine;
 	CSG_Shape	*pLine;
@@ -250,11 +250,9 @@ bool CWASP_MAP_Import::On_Execute(void)
 	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "r")) != NULL )
+	if( Stream.Open(fName, SG_FILE_R) )
 	{
-		fseek(Stream, 0, SEEK_END);
-		nLength	= ftell(Stream);
-		fseek(Stream, 0, SEEK_SET);
+		nLength	= Stream.Length();
 
 		pLines->Create(SHAPE_TYPE_Line, SG_File_Get_Name(fName, false));
 
@@ -279,28 +277,38 @@ bool CWASP_MAP_Import::On_Execute(void)
 
 		// 1)	Text string identifying the terrain map: + ...
 
-		SG_Read_Line(Stream, sLine);
+		Stream.Read_Line(sLine);
 
 
 		// 2)	Fixed point #1 in user and metric [m] coordinates:
 		//			X1(user) Y1(user) X1(metric) Y1(metric)
 
-		fscanf(Stream, "%lf %lf %lf %lf", &pu[0].x, &pu[0].y, &pm[0].x, &pm[0].y);
+	//	fscanf(Stream, "%lf %lf %lf %lf", &pu[0].x, &pu[0].y, &pm[0].x, &pm[0].y);
+		pu[0].x	= Stream.Scan_Double();
+		pu[0].y	= Stream.Scan_Double();
+		pm[0].x	= Stream.Scan_Double();
+		pm[0].y	= Stream.Scan_Double();
 
 
 		// 3)	Fixed point #2 in user and metric [m] coordinates:
 		//			X2(user) Y2(user) X2(metric) Y2(metric)
 
-		fscanf(Stream, "%lf %lf %lf %lf", &pu[1].x, &pu[1].y, &pm[1].x, &pm[1].y);
+	//	fscanf(Stream, "%lf %lf %lf %lf", &pu[1].x, &pu[1].y, &pm[1].x, &pm[1].y);
+		pu[1].x	= Stream.Scan_Double();
+		pu[1].y	= Stream.Scan_Double();
+		pm[1].x	= Stream.Scan_Double();
+		pm[1].y	= Stream.Scan_Double();
 
 
 		// 4)	Scaling factor and offset for height scale (Z):
 		//			Zmetric = {scaling factor}(Zuser + {offset})
 
-		fscanf(Stream, "%lf %lf", &dz, &zMin);
+	//	fscanf(Stream, "%lf %lf", &dz, &zMin);
+		dz		= Stream.Scan_Double();
+		zMin	= Stream.Scan_Double();
 
 
-		while( !feof(Stream) && Set_Progress(ftell(Stream), nLength) )
+		while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), nLength) )
 		{
 			pLine	= NULL;
 
@@ -310,9 +318,11 @@ bool CWASP_MAP_Import::On_Execute(void)
 				// 5a)	Height contour: elevation (Z) and number of points (n) in line:
 				//			Z n
 
-				fscanf(Stream, "%lf %d", &z, &n);
+			//	fscanf(Stream, "%lf %d", &z, &n);
+				z		= Stream.Scan_Double();
+				n		= Stream.Scan_Int   ();
 
-				if( !feof(Stream) && n > 1 )
+				if( !Stream.is_EOF() && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
 					pLine->Set_Value(0, zMin + dz * z);
@@ -325,9 +335,12 @@ bool CWASP_MAP_Import::On_Execute(void)
 				//			respectively, and number of points:
 				//				z0l z0r n
 
-				fscanf(Stream, "%lf %lf %d", &rLeft, &rRight, &n);
+			//	fscanf(Stream, "%lf %lf %d", &rLeft, &rRight, &n);
+				rLeft	= Stream.Scan_Double();
+				rRight	= Stream.Scan_Double();
+				n		= Stream.Scan_Int   ();
 
-				if( !feof(Stream) && n > 1 )
+				if( !Stream.is_EOF() && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
 					pLine->Set_Value(0, rLeft);
@@ -341,9 +354,13 @@ bool CWASP_MAP_Import::On_Execute(void)
 				//			respectively, elevation and number of points:
 				//				z0l z0r Z n
 
-				fscanf(Stream, "%lf %lf %lf %d", &rLeft, &rRight, &z, &n);
+			//	fscanf(Stream, "%lf %lf %lf %d", &rLeft, &rRight, &z, &n);
+				rLeft	= Stream.Scan_Double();
+				rRight	= Stream.Scan_Double();
+				z		= Stream.Scan_Double();
+				n		= Stream.Scan_Int   ();
 
-				if( !feof(Stream) && n > 1 )
+				if( !Stream.is_EOF() && n > 1 )
 				{
 					pLine	= pLines->Add_Shape();
 					pLine->Set_Value(0, zMin + dz * z);
@@ -359,15 +376,15 @@ bool CWASP_MAP_Import::On_Execute(void)
 			//			Xn+1 Yn+1
 			//			... where [] embrace optional numbers and n is > 0
 
-			for(int i=0; i<n && !feof(Stream) && Process_Get_Okay(false); i++)
+			for(int i=0; i<n && !Stream.is_EOF() && Process_Get_Okay(false); i++)
 			{
-				fscanf(Stream, "%lf %lf", &p.x, &p.y);
+			//	fscanf(Stream, "%lf %lf", &p.x, &p.y);
+				p.x	= Stream.Scan_Double();
+				p.y	= Stream.Scan_Double();
 
 				pLine->Add_Point(p);
 			}
 		}
-
-		fclose(Stream);
 
 		return( true );
 	}

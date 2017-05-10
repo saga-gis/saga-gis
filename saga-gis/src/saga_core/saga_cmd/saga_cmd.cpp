@@ -401,7 +401,7 @@ bool		Load_Libraries(void)
 		Load_Libraries(MODULE_LIBRARY_PATH);
 		Load_Libraries(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")));	// look for tool chains
 	#else
-		wxString	DLL_Path	= SG_File_Make_Path(CMD_Path, SG_T("dll")).c_str();
+		wxString	DLL_Path	= SG_File_Make_Path(&CMD_Path, "dll").c_str();
 
 		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
 		{
@@ -415,7 +415,7 @@ bool		Load_Libraries(void)
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
 
-		Load_Libraries(SG_File_Make_Path(CMD_Path, SG_T("tools")));
+		Load_Libraries(SG_File_Make_Path(&CMD_Path, "tools"));
     #endif
 
 	if( wxGetEnv("SAGA_MLB", &Path) )

@@ -73,11 +73,7 @@
 //---------------------------------------------------------
 CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Import Surfer Blanking Files"));
 
 	Set_Author		("O.Conrad (c) 2006");
@@ -86,32 +82,29 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 		"Import polygons/polylines from Golden Software's Surfer Blanking File format.\n"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"	, _TL("Look up table (Points)"),
+	Parameters.Add_Table("",
+		"TABLE"	, _TL("Look up table (Points)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"	, _TL("File"),
 		_TL(""),
 		_TL("Surfer Blanking Files (*.bln)|*.bln|All Files|*.*")
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Shape Type"),
+	Parameters.Add_Choice("",
+		"TYPE"	, _TL("Shape Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("points"),
 			_TL("lines"),
 			_TL("polygons")
@@ -125,7 +118,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 	bool				bOk;
 	int					ID, Flag, iPoint, nPoints;
 	double				x, y;
-	FILE				*Stream;
+	CSG_File			Stream;
 	TSG_Shape_Type		Type;
 	CSG_String			FileName, sLine, sName, sDesc, sTemp;
 	CSG_Table_Record	*pRecord;
@@ -134,19 +127,19 @@ bool CSurfer_BLN_Import::On_Execute(void)
 	CSG_Shapes			*pShapes;
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	pTable		= Parameters("TABLE")	->asTable();
-	FileName	= Parameters("FILE")	->asString();
+	pShapes		= Parameters("SHAPES")->asShapes();
+	pTable		= Parameters("TABLE" )->asTable();
+	FileName	= Parameters("FILE"  )->asString();
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	case 0:				Type	= SHAPE_TYPE_Point;		break;
-	case 1:	default:	Type	= SHAPE_TYPE_Line;		break;
-	case 2:				Type	= SHAPE_TYPE_Polygon;	break;
+	case  0: Type = SHAPE_TYPE_Point  ; break;
+	default: Type = SHAPE_TYPE_Line   ; break;
+	case  2: Type = SHAPE_TYPE_Polygon; break;
 	}
 
 	//-----------------------------------------------------
-	if( (Stream = fopen(FileName.b_str(), "r")) != NULL )
+	if( Stream.Open(FileName, SG_FILE_R) )
 	{
 		bOk		= true;
 		ID		= 0;
@@ -175,25 +168,25 @@ bool CSurfer_BLN_Import::On_Execute(void)
 				pTable->Destroy();
 			}
 
-			pTable ->Add_Field("ID"		, SG_DATATYPE_Int);
-			pTable ->Add_Field("FLAG"	, SG_DATATYPE_Int);
-			pTable ->Add_Field("NAME"	, SG_DATATYPE_String);
-			pTable ->Add_Field("DESC"	, SG_DATATYPE_String);
+			pTable ->Add_Field("ID"    , SG_DATATYPE_Int   );
+			pTable ->Add_Field("FLAG"  , SG_DATATYPE_Int   );
+			pTable ->Add_Field("NAME"  , SG_DATATYPE_String);
+			pTable ->Add_Field("DESC"  , SG_DATATYPE_String);
 
-			pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
-			pShapes->Add_Field("ID_LUT"	, SG_DATATYPE_Int);
-			pShapes->Add_Field("Z"		, SG_DATATYPE_Double);
+			pShapes->Add_Field("ID"    , SG_DATATYPE_Int   );
+			pShapes->Add_Field("ID_LUT", SG_DATATYPE_Int   );
+			pShapes->Add_Field("Z"     , SG_DATATYPE_Double);
 		}
 		else
 		{
-			pShapes->Add_Field("ID"		, SG_DATATYPE_Int);
-			pShapes->Add_Field("FLAG"	, SG_DATATYPE_Int);
+			pShapes->Add_Field("ID"		, SG_DATATYPE_Int   );
+			pShapes->Add_Field("FLAG"	, SG_DATATYPE_Int   );
 			pShapes->Add_Field("NAME"	, SG_DATATYPE_String);
 			pShapes->Add_Field("DESC"	, SG_DATATYPE_String);
 		}
 
 		//-------------------------------------------------
-		while( bOk && SG_Read_Line(Stream, sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
+		while( bOk && Stream.Read_Line(sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
 		{
 			Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), ++ID, _TL("shape in process")));
 
@@ -218,7 +211,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
-					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
+					if( (bOk = Stream.Read_Line(sLine)) == true )
 					{
 						pShape	= pShapes->Add_Shape();
 						pShape->Set_Value(0, iPoint + 1);
@@ -241,7 +234,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 
 				for(iPoint=0; iPoint<nPoints && bOk; iPoint++)
 				{
-					if( (bOk = SG_Read_Line(Stream, sLine)) == true )
+					if( (bOk = Stream.Read_Line(sLine)) == true )
 					{
 						x	= sLine.BeforeFirst(',').asDouble();
 						y	= sLine.AfterFirst (',').asDouble();
@@ -250,8 +243,6 @@ bool CSurfer_BLN_Import::On_Execute(void)
 				}
 			}
 		}
-
-		fclose(Stream);
 	}
 
 	//-----------------------------------------------------
@@ -274,8 +265,6 @@ bool CSurfer_BLN_Import::On_Execute(void)
 CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Export Surfer Blanking File"));
 
 	Set_Author		("O.Conrad (c) 2006");
@@ -284,24 +273,21 @@ CSurfer_BLN_Export::CSurfer_BLN_Export(void)
 		"Export shapes to Golden Software's Surfer Blanking File format.\n"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES", _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(pNode, "NAME", _TL("Name"       ), _TL(""), true);
-	Parameters.Add_Table_Field(pNode, "DESC", _TL("Description"), _TL(""), true);
-	Parameters.Add_Table_Field(pNode, "ZVAL", _TL("z values"   ), _TL(""), true);
+	Parameters.Add_Table_Field("SHAPES", "NAME", _TL("Name"       ), _TL(""), true);
+	Parameters.Add_Table_Field("SHAPES", "DESC", _TL("Description"), _TL(""), true);
+	Parameters.Add_Table_Field("SHAPES", "ZVAL", _TL("z values"   ), _TL(""), true);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*bln|%s|*.*"),
+		CSG_String::Format("%s|*bln|%s|*.*",
 			_TL("Surfer Blanking Files (*.bln)"),
 			_TL("All Files")
 		), NULL, true
@@ -327,9 +313,9 @@ bool CSurfer_BLN_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int iName	= Parameters("BNAME" )->asBool() ? Parameters("NAME")->asInt() : -1;
-	int iDesc	= Parameters("BDESC" )->asBool() ? Parameters("DESC")->asInt() : -1;
-	int iZVal	= Parameters("BZVAL" )->asBool() ? Parameters("ZVAL")->asInt() : -1;
+	int iName	= Parameters("BNAME")->asBool() ? Parameters("NAME")->asInt() : -1;
+	int iDesc	= Parameters("BDESC")->asBool() ? Parameters("DESC")->asInt() : -1;
+	int iZVal	= Parameters("BZVAL")->asBool() ? Parameters("ZVAL")->asInt() : -1;
 
 	int Flag	= 1;
 
@@ -342,10 +328,10 @@ bool CSurfer_BLN_Export::On_Execute(void)
 		{
 			Stream.Printf(SG_T("%d,%d"), pShape->Get_Point_Count(iPart), Flag);
 
-			if( iName >= 0 )	{	Stream.Printf(SG_T(",\"%s\""), pShape->asString(iName));	}
-			if( iDesc >= 0 )	{	Stream.Printf(SG_T(",\"%s\""), pShape->asString(iDesc));	}
+			if( iName >= 0 )	{	Stream.Printf(",\"%s\"", pShape->asString(iName));	}
+			if( iDesc >= 0 )	{	Stream.Printf(",\"%s\"", pShape->asString(iDesc));	}
 
-			Stream.Printf(SG_T("\n"));
+			Stream.Printf("\n");
 
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
@@ -353,11 +339,11 @@ bool CSurfer_BLN_Export::On_Execute(void)
 
 				if( iZVal >= 0 )
 				{
-					Stream.Printf(SG_T("%f,%f,%f\n"), p.x, p.y, pShape->asDouble(iZVal));
+					Stream.Printf("%f,%f,%f\n", p.x, p.y, pShape->asDouble(iZVal));
 				}
 				else
 				{
-					Stream.Printf(SG_T("%f,%f\n"   ), p.x, p.y);
+					Stream.Printf("%f,%f\n"   , p.x, p.y);
 				}
 			}
 		}

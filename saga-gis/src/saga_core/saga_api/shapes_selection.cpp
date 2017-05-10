@@ -134,7 +134,7 @@ const CSG_Rect & CSG_Shapes::Get_Selection_Extent(void)
 	{
 		m_Extent_Selected	= Get_Selection(0)->Get_Extent();
 
-		for(int i=1; i<Get_Selection_Count(); i++)
+		for(int i=1; i<(int)Get_Selection_Count(); i++)
 		{
 			m_Extent_Selected.Union(Get_Selection(i)->Get_Extent());
 		}

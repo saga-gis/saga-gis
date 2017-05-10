@@ -112,7 +112,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Open DBase File...
 
-	if( !fDBF.Open_Read(SG_File_Make_Path(NULL, File_Name, SG_T("dbf")), this, false) )
+	if( !fDBF.Open_Read(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
 	{
 		SG_UI_Msg_Add_Error(_TL("DBase file could not be opened."));
 
@@ -129,7 +129,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Open Shapes File...
 
-	if( !fSHP.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shp")), SG_FILE_R, true) )
+	if( !fSHP.Open(SG_File_Make_Path("", File_Name, "shp"), SG_FILE_R, true) )
 	{
 		SG_UI_Msg_Add_Error(_TL("Shape file could not be opened."));
 
@@ -367,7 +367,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	}
 
 	//-----------------------------------------------------
-	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
 
 	//-----------------------------------------------------
 	Load_MetaData(File_Name);
@@ -435,7 +435,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// DBase File Access...
 
-	if( !fDBF.Open_Write(SG_File_Make_Path(NULL, File_Name, SG_T("dbf")), this, false) )
+	if( !fDBF.Open_Write(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
 	{
 		return( false );
 	}
@@ -443,14 +443,14 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	// Shape File Access...
 
-	if( !fSHX.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shx")), SG_FILE_W, true) )
+	if( !fSHX.Open(SG_File_Make_Path("", File_Name, "shx"), SG_FILE_W, true) )
 	{
 		SG_UI_Msg_Add_Error(_TL("index file could not be opened"));
 
 		return( false );
 	}
 
-	if( !fSHP.Open(SG_File_Make_Path(NULL, File_Name, SG_T("shp")), SG_FILE_W, true) )
+	if( !fSHP.Open(SG_File_Make_Path("", File_Name, "shp"), SG_FILE_W, true) )
 	{
 		SG_UI_Msg_Add_Error(_TL("shape file could not be opened."));
 
@@ -673,7 +673,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 	fSHX.Write_Int(fSHX_Size, true);
 
 	//-----------------------------------------------------
-	Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
 
 	//-----------------------------------------------------
 	CSG_MetaData	*pFields	= Get_MetaData_DB().Get_Child("FIELDS");

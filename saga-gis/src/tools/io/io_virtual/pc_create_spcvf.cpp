@@ -79,7 +79,7 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 {
 	Set_Name		(_TL("Create Virtual Point Cloud Dataset"));
 
-	Set_Author		(SG_T("V. Wichmann, LASERDATA GmbH (c) 2014"));
+	Set_Author		("V. Wichmann, LASERDATA GmbH (c) 2014");
 
 	Set_Description	(_TW(
 		"The tool allows one to create a virtual point cloud dataset "
@@ -97,29 +97,29 @@ CPointCloud_Create_SPCVF::CPointCloud_Create_SPCVF(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Input Files"),
+		"", "FILES"				, _TL("Input Files"),
 		_TL("The input point cloud files to use"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("SAGA Point Clouds")	, SG_T("*.spc"),
-            _TL("All Files")            , SG_T("*.*")
+		CSG_String::Format("%s|*.spc;*.spcz|%s|*.*",
+			_TL("SAGA Point Clouds"),
+            _TL("All Files")
         ), NULL, false, false, true
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "INPUT_FILE_LIST"		, _TL("Input File List"),
+		"", "INPUT_FILE_LIST"	, _TL("Input File List"),
 		_TL("A text file with the full path to an input point cloud on each line"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("Text Files")			, SG_T("*.txt"),
-            _TL("All Files")            , SG_T("*.*")
+		CSG_String::Format("%s|*.txt|%s|*.*",
+			_TL("Text Files"),
+            _TL("All Files" )
         ), NULL, false, false, false
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILENAME"		, _TL("Filename"),
+		"", "FILENAME"			, _TL("Filename"),
 		_TL("The full path and name of the .spcvf file"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("SAGA Point Cloud Virtual Format (*.spcvf)")	, SG_T("*.spcvf"),
-			_TL("All Files")									, SG_T("*.*")
+		CSG_String::Format("%s|*.spcvf|%s|*.*",
+			_TL("SAGA Point Cloud Virtual Format (*.spcvf)"),
+			_TL("All Files")
 		), NULL, true, false, false
  	);
 

@@ -160,7 +160,7 @@ void CSG_Translator::Destroy(void)
 bool CSG_Translator::Create(const CSG_String &File_Name, bool bSetExtension, int iText, int iTranslation, bool bCmpNoCase)
 {
 	CSG_Table	Translations;
-	CSG_String	fName(bSetExtension ? SG_File_Make_Path(NULL, File_Name, SG_T("lng")) : File_Name);
+	CSG_String	fName(bSetExtension ? SG_File_Make_Path("", File_Name, "lng") : File_Name);
 
 	SG_UI_Msg_Lock(true);
 

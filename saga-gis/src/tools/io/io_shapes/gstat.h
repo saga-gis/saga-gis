@@ -82,7 +82,6 @@ class CGStat_Export : public CSG_Tool
 {
 public:
 	CGStat_Export(void);
-	virtual ~CGStat_Export(void);
 
 	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Export") );	}
 
@@ -96,8 +95,6 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -105,7 +102,6 @@ class CGStat_Import : public CSG_Tool
 {
 public:
 	CGStat_Import(void);
-	virtual ~CGStat_Import(void);
 
 	virtual CSG_String		Get_MenuPath(void)		{	return( _TL("Import") );	}
 
@@ -117,9 +113,17 @@ protected:
 
 private:
 
-	bool					Stream_Find_NextWhiteChar	(FILE *Stream);
-	bool					Stream_Get_StringInQuota	(FILE *Stream, CSG_String &String);
+	bool					Stream_Find_NextWhiteChar	(CSG_File &Stream);
+	bool					Stream_Get_StringInQuota	(CSG_File &Stream, CSG_String &String);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__GSTAT_H

@@ -735,7 +735,7 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 	//-----------------------------------------------------
 	wxXmlDocument	XML;
 
-	if( SG_File_Exists(SG_File_Make_Path(NULL, File, Extension)) && XML.Load(SG_File_Make_Path(NULL, File, Extension).c_str()) )
+	if( SG_File_Exists(SG_File_Make_Path("", File, Extension)) && XML.Load(SG_File_Make_Path("", File, Extension).c_str()) )
 	{
 		_Load(XML.GetRoot());
 
@@ -809,7 +809,7 @@ bool CSG_MetaData::Save(const CSG_String &File, const SG_Char *Extension) const
 
 	_Save(pRoot);
 
-	if( XML.Save(SG_File_Make_Path(NULL, File, Extension).c_str()) )
+	if( XML.Save(SG_File_Make_Path("", File, Extension).c_str()) )
 	{
 		return( true );
 	}

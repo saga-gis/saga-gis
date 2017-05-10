@@ -417,31 +417,32 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 	//-----------------------------------------------------
 	if( Type == DATAOBJECT_TYPE_Undefined )
 	{
-		if( SG_File_Cmp_Extension(File, SG_T("txt"  ))
-		||	SG_File_Cmp_Extension(File, SG_T("csv"  ))
-		||	SG_File_Cmp_Extension(File, SG_T("dbf"  )) )
+		if( SG_File_Cmp_Extension(File, "txt"  )
+		||	SG_File_Cmp_Extension(File, "csv"  )
+		||	SG_File_Cmp_Extension(File, "dbf"  ) )
 		{
 			Type	= DATAOBJECT_TYPE_Table;
 		}
 
-		if( SG_File_Cmp_Extension(File, SG_T("shp"  )) )
+		if( SG_File_Cmp_Extension(File, "shp"  ) )
 		{
 			Type	= DATAOBJECT_TYPE_Shapes;
 		}
 
-		if( SG_File_Cmp_Extension(File, SG_T("spc"  )) )
+		if( SG_File_Cmp_Extension(File, "spc"  )
+		||  SG_File_Cmp_Extension(File, "spcz" ) )
 		{
 			Type	= DATAOBJECT_TYPE_PointCloud;
 		}
 
-		if(	SG_File_Cmp_Extension(File, SG_T("sgrd" ))
-		||	SG_File_Cmp_Extension(File, SG_T("dgm"  ))
-		||	SG_File_Cmp_Extension(File, SG_T("grd"  )) )
+		if(	SG_File_Cmp_Extension(File, "sgrd" )
+		||	SG_File_Cmp_Extension(File, "dgm"  )
+		||	SG_File_Cmp_Extension(File, "grd"  ) )
 		{
 			Type	= DATAOBJECT_TYPE_Grid;
 		}
 
-		if(	SG_File_Cmp_Extension(File, SG_T("sgrds")) )
+		if(	SG_File_Cmp_Extension(File, "sgrds") )
 		{
 			Type	= DATAOBJECT_TYPE_Grids;
 		}

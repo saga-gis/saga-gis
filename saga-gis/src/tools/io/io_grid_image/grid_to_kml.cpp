@@ -392,9 +392,9 @@ bool CGrid_to_KML::On_Execute(void)
 
 			do
 			{
-				if( !SG_File_Cmp_Extension(file, SG_T("kmz")) )
+				if( !SG_File_Cmp_Extension(&file, "kmz") )
 				{
-					Files	+= SG_File_Make_Path(SG_File_Get_Path(Filename), file);
+					Files	+= SG_File_Make_Path(SG_File_Get_Path(Filename), &file);
 				}
 			}
 			while( dir.GetNext(&file) );
@@ -435,7 +435,7 @@ CGrid_from_KML::CGrid_from_KML(void)
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"Uses 'Import Image' tool to load the ground overlay image files associated with the kml. "
+		"Uses 'Import Image' tool to load the ground overlay image files associated with the kml."
 	));
 
 	Parameters.Add_Grid_List("",
@@ -447,9 +447,9 @@ CGrid_from_KML::CGrid_from_KML(void)
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("KML/KMZ File"),
 		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("KML/KMZ Files"), SG_T("*.kml;*.kmz"),
-			_TL("All Files"    ), SG_T("*.*")
+		CSG_String::Format("%s|*.kml;*.kmz|%s|*.*",
+			_TL("KML/KMZ Files"),
+			_TL("All Files"    )
 		), NULL, false
 	);
 }
@@ -466,11 +466,11 @@ bool CGrid_from_KML::On_Execute(void)
 	wxString	Dir, File	= Parameters("FILE")->asString();
 
 	//-----------------------------------------------------
-	bool	bKMZ	= SG_File_Cmp_Extension(File, SG_T("kmz"));
+	bool	bKMZ	= SG_File_Cmp_Extension(&File, "kmz");
 
 	if( !bKMZ )
 	{
-		Dir	= SG_File_Get_Path(File).c_str();
+		Dir	= SG_File_Get_Path(&File).c_str();
 	}
 	else	// unzip to temporary directory
 	{

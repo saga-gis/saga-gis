@@ -456,26 +456,26 @@ void CWKSP_Tool::_Save_to_Script(void)
 {
 	wxString	FileName;
 
-	if( DLG_Save(FileName, _TL("Create Script Command File"), SG_T("DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py|SAGA Tool Chain (*.xml)|*.xml")) )
+	if( DLG_Save(FileName, _TL("Create Script Command File"), "DOS Batch Script (*.bat)|*.bat|Bash Script (*.sh)|*.sh|Python Script (*.py)|*.py|SAGA Tool Chain (*.xml)|*.xml") )
 	{
 		CSG_String	Script;
 
-		if( SG_File_Cmp_Extension(FileName, SG_T("xml")) )
+		if( SG_File_Cmp_Extension(&FileName, "xml") )
 		{
 			Script	= _Get_XML(true);
 		}
 
-		if( SG_File_Cmp_Extension(FileName, SG_T("bat")) )
+		if( SG_File_Cmp_Extension(&FileName, "bat") )
 		{
 			Script	= _Get_CMD(true, 0);
 		}
 
-		if( SG_File_Cmp_Extension(FileName, SG_T("sh")) )
+		if( SG_File_Cmp_Extension(&FileName, "sh") )
 		{
 			Script	= _Get_CMD(true, 1);
 		}
 
-		if( SG_File_Cmp_Extension(FileName, SG_T("py")) )
+		if( SG_File_Cmp_Extension(&FileName, "py") )
 		{
 			Script	= _Get_Python(true);
 		}

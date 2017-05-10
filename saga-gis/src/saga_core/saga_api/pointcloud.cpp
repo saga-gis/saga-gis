@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -129,7 +128,7 @@ bool CSG_PointCloud::Create(void)
 {
 	Destroy();
 
-	Add_Field(SG_T(""), SG_DATATYPE_Undefined);	// add x, y, z fields
+	Add_Field("", SG_DATATYPE_Undefined);	// add x, y, z fields
 
 	return( true );
 }
@@ -243,9 +242,9 @@ bool CSG_PointCloud::Destroy(void)
 			delete(m_Field_Stats[i]);
 		}
 
-		SG_Free(m_Field_Name);
-		SG_Free(m_Field_Type);
-		SG_Free(m_Field_Stats);
+		SG_Free(m_Field_Name  );
+		SG_Free(m_Field_Type  );
+		SG_Free(m_Field_Stats );
 		SG_Free(m_Field_Offset);
 
 		_On_Construction();
@@ -266,60 +265,96 @@ bool CSG_PointCloud::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 {
-	TSG_Data_Type	Type;
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load point cloud"), File_Name.c_str()), true);
 
-	char		ID[6];
-	int			i, iBuffer, nPointBytes, nFields;
-	char		Name[1024];
-	CSG_File	Stream;
+	bool	bResult	= false;
 
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Load point cloud"), File_Name.c_str()), true);
-
-	//-----------------------------------------------------
-	if( !Stream.Open(File_Name, SG_FILE_R, true) )
+	if( SG_File_Cmp_Extension(File_Name, "spcz") ) // POINTCLOUD_FILETYPE_Compressed
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		CSG_File_Zip	Stream(File_Name, SG_FILE_R);
+
+		bResult	= Stream.Get_File(0) && _Load(Stream);
+	}
+	else // if( SG_File_Cmp_Extension(File_Name, "spc") ) // POINTCLOUD_FILETYPE_Normal
+	{
+		CSG_File	Stream(File_Name, SG_FILE_R, true);
+
+		bResult	= _Load(Stream);
+	}
+
+	if( !bResult )
+	{
 		SG_UI_Msg_Add_Error(_TL("file could not be opened."));
+
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Process_Set_Ready();
 
 		return( false );
 	}
+
+	Set_File_Name(File_Name, true);
+
+	Load_MetaData(File_Name);
+
+	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
+
+	if( Get_Count() <= 0 )
+	{
+		SG_UI_Msg_Add_Error(_TL("no records in file."));
+
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Process_Set_Ready();
+
+		return( false );
+	}
+
+	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+	SG_UI_Process_Set_Ready();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::_Load(CSG_File &Stream)
+{
+	if( !Stream.is_Reading() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	char	ID[6];
 
 	if( !Stream.Read(ID, 6) || strncmp(ID, PC_FILE_VERSION, 5) != 0 )
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("incompatible file."));
-
 		return( false );
 	}
+
+	int		nPointBytes;
 
 	if( !Stream.Read(&nPointBytes, sizeof(int)) || nPointBytes < (int)(3 * sizeof(float)) )
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("incompatible file."));
-
 		return( false );
 	}
 
+	int		nFields;
+
 	if( !Stream.Read(&nFields, sizeof(int)) || nFields < 3 )
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("incompatible file."));
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	Destroy();
 
-	for(i=0; i<nFields; i++)
+	for(int i=0; i<nFields; i++)
 	{
-		if( !Stream.Read(&Type		, sizeof(TSG_Data_Type))
-		||	!Stream.Read(&iBuffer	, sizeof(int)) || !(iBuffer > 0 && iBuffer < 1024)
-		||	!Stream.Read(Name		, iBuffer) )
-		{
-			SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-			SG_UI_Msg_Add_Error(_TL("incompatible file."));
+		TSG_Data_Type Type; int iBuffer; char Name[1024];
 
+		if( !Stream.Read(&Type   , sizeof(TSG_Data_Type))
+		||  !Stream.Read(&iBuffer, sizeof(int)) || !(iBuffer > 0 && iBuffer < 1024)
+		||  !Stream.Read(Name    , iBuffer) )
+		{
 			return( false );
 		}
 
@@ -327,13 +362,13 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 		{
 			switch( Type )
 			{
-			default:	Type	= SG_DATATYPE_Undefined;	break;
-			case 1:		Type	= SG_DATATYPE_Char;			break;
-			case 2:		Type	= SG_DATATYPE_Short;		break;
-			case 3:		Type	= SG_DATATYPE_Int;			break;
-			case 4:		Type	= SG_DATATYPE_Long;			break;
-			case 5:		Type	= SG_DATATYPE_Float;		break;
-			case 6:		Type	= SG_DATATYPE_Double;		break;
+			default: Type = SG_DATATYPE_Undefined; break;
+			case  1: Type = SG_DATATYPE_Char     ; break;
+			case  2: Type = SG_DATATYPE_Short    ; break;
+			case  3: Type = SG_DATATYPE_Int      ; break;
+			case  4: Type = SG_DATATYPE_Long     ; break;
+			case  5: Type = SG_DATATYPE_Float    ; break;
+			case  6: Type = SG_DATATYPE_Double   ; break;
 			}
 		}
 
@@ -341,73 +376,108 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 
 		if( !_Add_Field(CSG_String((const char *)Name), Type) )
 		{
-			SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-			SG_UI_Msg_Add_Error(_TL("incompatible file."));
-
 			return( false );
 		}
 	}
 
 	if( m_nPointBytes != nPointBytes + 1 )
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("incompatible file."));
-
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	sLong		fLength	= Stream.Length();
+	sLong	fLength	= Stream.Length();
 
 	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{}
 
 	_Dec_Array();
 
-	Set_File_Name(File_Name, true);
+	return( true );
+}
 
-	Load_MetaData(File_Name);
+//---------------------------------------------------------
+bool CSG_PointCloud::Save(const CSG_String &File_Name, int Format)
+{
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save point cloud"), File_Name.c_str()), true);
 
-	if( 0 > Get_Count() )
+	if( Format == POINTCLOUD_FILETYPE_Undefined )
 	{
+		Format	= SG_File_Cmp_Extension(File_Name, "spc")
+			? POINTCLOUD_FILETYPE_Normal
+			: POINTCLOUD_FILETYPE_Compressed;
+	}
+
+	CSG_String	sFile_Name(File_Name);
+
+	switch( Format )
+	{
+	case POINTCLOUD_FILETYPE_Normal: default:
+		{
+			SG_File_Set_Extension(sFile_Name, "spc");
+
+			CSG_File	Stream(sFile_Name, SG_FILE_W, true);
+
+			if( !_Save(Stream) )
+			{
+				sFile_Name.Clear();
+			}
+		}
+		break;
+
+	case POINTCLOUD_FILETYPE_Compressed:
+		{
+			SG_File_Set_Extension(sFile_Name, "spcz");
+
+			CSG_File_Zip	Stream(sFile_Name, SG_FILE_W);
+
+			if( !Stream.Add_File(SG_File_Get_Name(File_Name, false) + ".spc") || !_Save(Stream) )
+			{
+				sFile_Name.Clear();
+			}
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( sFile_Name.is_Empty() )
+	{
+		SG_UI_Msg_Add_Error(_TL("could not save file."));
+
 		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("no records in file."));
+		SG_UI_Process_Set_Ready();
 
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	SG_UI_Process_Set_Ready();
+	Set_File_Name(sFile_Name, true);
 
-	Get_Projection().Load(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
+	Set_Modified(false);
+
+	Save_MetaData(File_Name);
+
+	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
 
 	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+	SG_UI_Process_Set_Ready();
 
 	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::_Save(const CSG_String &File_Name)
+bool CSG_PointCloud::_Save(CSG_File &Stream)
 {
-	CSG_File	Stream;
-
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Save point cloud"), File_Name.c_str()), true);
-
-	CSG_String	sFile_Name = SG_File_Make_Path(NULL, File_Name, SG_T("spc"));
-
-	if( Stream.Open(sFile_Name, SG_FILE_W, true) == false )
+	if( !Stream.is_Writing() )
 	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Msg_Add_Error(_TL("unable to create file."));
-
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	int		i, iBuffer, nPointBytes	= m_nPointBytes - 1;
 
 	Stream.Write((void *)PC_FILE_VERSION, 6);
-	Stream.Write(&nPointBytes	, sizeof(int));
-	Stream.Write(&m_nFields		, sizeof(int));
+	Stream.Write(&nPointBytes, sizeof(int));
+	Stream.Write(&m_nFields  , sizeof(int));
 
 	for(i=0; i<m_nFields; i++)
 	{
@@ -425,24 +495,7 @@ bool CSG_PointCloud::_Save(const CSG_String &File_Name)
 		Stream.Write(m_Points[i] + 1, nPointBytes);
 	}
 
-	Set_Modified(false);
-
-	Set_File_Name(sFile_Name, true);
-
-	Save_MetaData(File_Name);
-
-	Get_Projection().Save(SG_File_Make_Path(NULL, File_Name, SG_T("prj")), SG_PROJ_FMT_WKT);
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-
-	SG_UI_Process_Set_Ready();
-
 	return( true );
-}
-
-bool CSG_PointCloud::Save(const CSG_String &File_Name, int Format)
-{
-	return( _Save(File_Name) );
 }
 
 
@@ -630,18 +683,17 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 
 		switch( m_Field_Type[iField] )
 		{
-		default:
-		case SG_DATATYPE_Undefined:	break;
-		case SG_DATATYPE_Byte  :	*((BYTE   *)pPoint)	= (BYTE  )Value;	break;
-		case SG_DATATYPE_Char  :	*((char   *)pPoint)	= (char  )Value;	break;
-		case SG_DATATYPE_Word  :	*((WORD   *)pPoint)	= (WORD  )Value;	break;
-		case SG_DATATYPE_Short :	*((short  *)pPoint)	= (short )Value;	break;
-		case SG_DATATYPE_DWord :	*((DWORD  *)pPoint)	= (DWORD )Value;	break;
-		case SG_DATATYPE_Int   :	*((int    *)pPoint)	= (int   )Value;	break;
-		case SG_DATATYPE_Long  :	*((long   *)pPoint)	= (long  )Value;	break;
-		case SG_DATATYPE_Float :	*((float  *)pPoint)	= (float )Value;	break;
-		case SG_DATATYPE_Double:	*((double *)pPoint)	= (double)Value;	break;
-		case SG_DATATYPE_String:	sprintf(    pPoint, "%f"    , Value);	break;
+		case SG_DATATYPE_Byte  : *((BYTE   *)pPoint) = (BYTE  )Value ; break;
+		case SG_DATATYPE_Char  : *((char   *)pPoint) = (char  )Value ; break;
+		case SG_DATATYPE_Word  : *((WORD   *)pPoint) = (WORD  )Value ; break;
+		case SG_DATATYPE_Short : *((short  *)pPoint) = (short )Value ; break;
+		case SG_DATATYPE_DWord : *((DWORD  *)pPoint) = (DWORD )Value ; break;
+		case SG_DATATYPE_Int   : *((int    *)pPoint) = (int   )Value ; break;
+		case SG_DATATYPE_Long  : *((long   *)pPoint) = (long  )Value ; break;
+		case SG_DATATYPE_Float : *((float  *)pPoint) = (float )Value ; break;
+		case SG_DATATYPE_Double: *((double *)pPoint) = (double)Value ; break;
+		case SG_DATATYPE_String: sprintf(    pPoint, "%f"    , Value); break;
+		default                :                                       break;
 		}
 
 		m_Field_Stats[iField]->Invalidate();
@@ -661,17 +713,17 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 
 		switch( m_Field_Type[iField] )
 		{
-		case SG_DATATYPE_Undefined:		default:	break;
-		case SG_DATATYPE_Byte  :	return( *((BYTE   *)pPoint) );
-		case SG_DATATYPE_Char  :	return( *((char   *)pPoint) );
-		case SG_DATATYPE_Word  :	return( *((WORD   *)pPoint) );
-		case SG_DATATYPE_Short :	return( *((short  *)pPoint) );
-		case SG_DATATYPE_DWord :	return( *((DWORD  *)pPoint) );
-		case SG_DATATYPE_Int   :	return( *((int    *)pPoint) );
-		case SG_DATATYPE_Long  :	return( *((long   *)pPoint) );
-		case SG_DATATYPE_Float :	return( *((float  *)pPoint) );
-		case SG_DATATYPE_Double:	return( *((double *)pPoint) );
-		case SG_DATATYPE_String:	return( atof(       pPoint) );
+		case SG_DATATYPE_Byte  : return( *((BYTE   *)pPoint) );
+		case SG_DATATYPE_Char  : return( *((char   *)pPoint) );
+		case SG_DATATYPE_Word  : return( *((WORD   *)pPoint) );
+		case SG_DATATYPE_Short : return( *((short  *)pPoint) );
+		case SG_DATATYPE_DWord : return( *((DWORD  *)pPoint) );
+		case SG_DATATYPE_Int   : return( *((int    *)pPoint) );
+		case SG_DATATYPE_Long  : return( *((long   *)pPoint) );
+		case SG_DATATYPE_Float : return( *((float  *)pPoint) );
+		case SG_DATATYPE_Double: return( *((double *)pPoint) );
+		case SG_DATATYPE_String: return( atof(       pPoint) );
+		default                : break;
 		}
 	}
 

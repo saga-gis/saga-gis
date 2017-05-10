@@ -180,9 +180,9 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	//-----------------------------------------------------
 	// Binary...
 
-	if( Stream.Open(SG_File_Make_Path(NULL, Parameters("FILE")->asString(), SG_T("hdr")), SG_FILE_R, false) && (pGrid = Read_Header(Stream)) != NULL )
+	if( Stream.Open(SG_File_Make_Path("", Parameters("FILE")->asString(), "hdr"), SG_FILE_R, false) && (pGrid = Read_Header(Stream)) != NULL )
 	{
-		if( Stream.Open(SG_File_Make_Path(NULL, Parameters("FILE")->asString(), SG_T("flt")), SG_FILE_R, true) )
+		if( Stream.Open(SG_File_Make_Path("", Parameters("FILE")->asString(), "flt"), SG_FILE_R, true) )
 		{
 			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
@@ -237,7 +237,7 @@ bool CESRI_ArcInfo_Import::On_Execute(void)
 	{
 		pGrid->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false));
 
-		pGrid->Get_Projection().Load(SG_File_Make_Path(NULL, Parameters("FILE")->asString(), SG_T("prj")));
+		pGrid->Get_Projection().Load(SG_File_Make_Path("", Parameters("FILE")->asString(), "prj"));
 
 		Parameters("GRID")->Set_Value(pGrid);
 
@@ -513,9 +513,9 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 	if( Parameters("FORMAT")->asInt() == 0 )
 	{
-		if( Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("hdr")), SG_FILE_W, false)
+		if( Stream.Open(SG_File_Make_Path("", fName, "hdr"), SG_FILE_W, false)
 		&&	Write_Header(Stream, pGrid, bComma)
-		&&	Stream.Open(SG_File_Make_Path(NULL, fName, SG_T("flt")), SG_FILE_W, true) )
+		&&	Stream.Open(SG_File_Make_Path("", fName, "flt"), SG_FILE_W, true) )
 		{
 			float	*Line	= (float *)SG_Malloc(pGrid->Get_NX() * sizeof(float));
 
@@ -536,7 +536,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 
 			SG_Free(Line);
 
-			pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")));
+			pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"));
 
 			return( true );
 		}
@@ -563,7 +563,7 @@ bool CESRI_ArcInfo_Export::On_Execute(void)
 			Stream.Write("\n");
 		}
 
-		pGrid->Get_Projection().Save(SG_File_Make_Path(NULL, fName, SG_T("prj")));
+		pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"));
 
 		return( true );
 	}

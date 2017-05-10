@@ -747,33 +747,39 @@ CWKSP_Base_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Open(const wxString &File)
 {
-	if( SG_File_Cmp_Extension(File, SG_T("sprj")) )
+	if( SG_File_Cmp_Extension(&File, "sprj") )
 	{
 		return( m_pProject->Load(File, false, true) );
 	}
 
-	if( SG_File_Cmp_Extension(File, SG_T("txt" ))
-	||	SG_File_Cmp_Extension(File, SG_T("csv" ))
-	||	SG_File_Cmp_Extension(File, SG_T("dbf" )) )
+	if( SG_File_Cmp_Extension(&File, "txt"  )
+	||	SG_File_Cmp_Extension(&File, "csv"  )
+	||	SG_File_Cmp_Extension(&File, "dbf"  ) )
 	{
 		return( Open(File, DATAOBJECT_TYPE_Table     ) != NULL );
 	}
 
-	if( SG_File_Cmp_Extension(File, SG_T("shp" )) )
+	if( SG_File_Cmp_Extension(&File, "shp"  ) )
 	{
 		return( Open(File, DATAOBJECT_TYPE_Shapes    ) != NULL );
 	}
 
-	if( SG_File_Cmp_Extension(File, SG_T("spc" )) )
+	if( SG_File_Cmp_Extension(&File, "spc"  )
+	||  SG_File_Cmp_Extension(&File, "spcz" ) )
 	{
 		return( Open(File, DATAOBJECT_TYPE_PointCloud) != NULL );
 	}
 
-	if(	SG_File_Cmp_Extension(File, SG_T("sgrd"))
-	||	SG_File_Cmp_Extension(File, SG_T("dgm" ))
-	||	SG_File_Cmp_Extension(File, SG_T("grd" )) )
+	if(	SG_File_Cmp_Extension(&File, "sgrd" )
+	||	SG_File_Cmp_Extension(&File, "dgm"  )
+	||	SG_File_Cmp_Extension(&File, "grd"  ) )
 	{
 		return( Open(File, DATAOBJECT_TYPE_Grid      ) != NULL );
+	}
+
+	if( SG_File_Cmp_Extension(&File, "sgrds") )
+	{
+		return( Open(File, DATAOBJECT_TYPE_Grids     ) != NULL );
 	}
 
 	return( SG_Get_Data_Manager().Add(&File) );
@@ -791,11 +797,11 @@ bool CWKSP_Data_Manager::Open(int DataType)
 	switch( DataType )
 	{
 	default:	return( false );
-	case DATAOBJECT_TYPE_Table:			ID	= ID_DLG_TABLES_OPEN;		break;
-	case DATAOBJECT_TYPE_Shapes:		ID	= ID_DLG_SHAPES_OPEN;		break;
-	case DATAOBJECT_TYPE_TIN:			ID	= ID_DLG_TIN_OPEN;			break;
-	case DATAOBJECT_TYPE_PointCloud:	ID	= ID_DLG_POINTCLOUD_OPEN;	break;
-	case DATAOBJECT_TYPE_Grid:			ID	= ID_DLG_GRIDS_OPEN;		break;
+	case DATAOBJECT_TYPE_Table     : ID = ID_DLG_TABLES_OPEN    ; break;
+	case DATAOBJECT_TYPE_Shapes    : ID = ID_DLG_SHAPES_OPEN    ; break;
+	case DATAOBJECT_TYPE_TIN       : ID = ID_DLG_TIN_OPEN       ; break;
+	case DATAOBJECT_TYPE_PointCloud: ID = ID_DLG_POINTCLOUD_OPEN; break;
+	case DATAOBJECT_TYPE_Grid      : ID = ID_DLG_GRIDS_OPEN     ; break;
 	}
 
 	//-----------------------------------------------------
@@ -1045,12 +1051,12 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 
 	switch( pItem->Get_Type() )
 	{
+	case WKSP_ITEM_Table     :	Extension	= "txt" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE    );	break;
+	case WKSP_ITEM_Shapes    :	Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE    );	break;
+	case WKSP_ITEM_TIN       :	Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE       );	break;
+	case WKSP_ITEM_PointCloud:	Extension	= "spcz";	Filter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
+	case WKSP_ITEM_Grid      :	Extension	= "sgrd";	Filter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE     );	break;
 	default:	return( false );
-	case WKSP_ITEM_Table:		Extension	= "txt" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TABLES_SAVE    );	break;
-	case WKSP_ITEM_Shapes:		Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_SHAPES_SAVE    );	break;
-	case WKSP_ITEM_TIN:			Extension	= "shp" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_TIN_SAVE       );	break;
-	case WKSP_ITEM_PointCloud:	Extension	= "spc" ;	Filter	= DLG_Get_FILE_Filter(ID_DLG_POINTCLOUD_SAVE);	break;
-	case WKSP_ITEM_Grid:		Extension	= "sgrd";	Filter	= DLG_Get_FILE_Filter(ID_DLG_GRIDS_SAVE     );	break;
 	}
 
 	//-----------------------------------------------------

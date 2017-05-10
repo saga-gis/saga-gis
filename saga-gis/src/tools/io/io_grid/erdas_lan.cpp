@@ -165,7 +165,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 		//-------------------------------------------------
 		CSG_File	fWorld;
 
-		if( fWorld.Open(SG_File_Make_Path(NULL, FileName, SG_T("lnw")), SG_FILE_R, false) )
+		if( fWorld.Open(SG_File_Make_Path("", FileName, "lnw"), SG_FILE_R, false) )
 		{
 			double		d;
 			CSG_String	sLine;

@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -436,6 +435,8 @@ private:
 };
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool			SG_is_Character_Numeric			(int Character);
+
 SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
 SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream, const SG_Char *Format, ...);
 
@@ -495,9 +496,11 @@ public:
 
 	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
 	void *				Get_Entry		(size_t Index)	const	{	return( Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );	}
+	void *				operator []		(size_t Index)	const	{	return( Get_Entry(Index) );	}
 
 	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
 	void *				Get_Entry		(int    Index)	const	{	return( Index >= 0 ? Get_Entry((size_t)Index) : NULL );	}
+	void *				operator []		(int    Index)	const	{	return( Get_Entry(Index) );	}
 
 	void *				Get_Array		(void)	const			{	return( m_Values );		}
 	void *				Get_Array		(size_t nValues)		{	Set_Array(nValues);	return( m_Values );	}
@@ -519,6 +522,55 @@ private:
 	size_t				m_nValues, m_nBuffer, m_Value_Size;
 
 	void				*m_Values;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Array_Pointer
+{
+public:
+	CSG_Array_Pointer					(const CSG_Array_Pointer &Array)			{	Create(Array);	}
+	void **				Create			(const CSG_Array_Pointer &Array);
+
+	CSG_Array_Pointer					(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	void **				Create			(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+
+	void				Destroy			(void)									{	m_Array.Destroy();	}
+
+	bool				Set_Growth		(TSG_Array_Growth Growth)				{	return( m_Array.Set_Growth(Growth) );	}
+	int					Get_Growth		(void)	const							{	return( m_Array.Get_Growth()       );	}
+
+	size_t				Get_Size		(void)	const							{	return( m_Array.Get_Size() );	}
+
+	void **				Get_Array		(void)	const							{	return( (void **)m_Array.Get_Array()        );	}
+	void **				Get_Array		(size_t nValues)						{	return( (void **)m_Array.Get_Array(nValues) );	}
+
+	bool				Set_Array		(size_t nValues, bool bShrink = true)	{	return( m_Array.Set_Array(nValues, bShrink) );	}
+	bool				Inc_Array		(size_t nValues = 1)					{	return( m_Array.Inc_Array(nValues) );	}
+	bool				Dec_Array		(                bool bShrink = true)	{	return( m_Array.Dec_Array(bShrink) );	}
+
+	bool				Add				(void *Value);
+	bool				Add				(const CSG_Array_Pointer &Array);
+
+	CSG_Array_Pointer &	operator =		(const CSG_Array_Pointer &Array)		{	Create(Array);	return( *this );	}
+
+	void *&				operator []		(size_t Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				operator []		(size_t Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *&				operator []		(int    Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				operator []		(int    Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+
+	CSG_Array_Pointer &	operator +=		(void *Value)							{	Add(Value);	return( *this );	}
+	CSG_Array_Pointer &	operator +=		(const CSG_Array_Pointer &Array)		{	Add(Array);	return( *this );	}
+
+
+private:
+
+	CSG_Array			m_Array;
 
 };
 
@@ -885,22 +937,22 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 {
 	switch( Type )
 	{
-	default:					return( 0 );
-	case SG_DATATYPE_Bit:		return( 0 );
-	case SG_DATATYPE_Byte:		return( sizeof(unsigned char) );
-	case SG_DATATYPE_Char:		return( sizeof(char) );
-	case SG_DATATYPE_Word:		return( sizeof(unsigned short int) );
-	case SG_DATATYPE_Short:		return( sizeof(short int) );
-	case SG_DATATYPE_DWord:		return( sizeof(unsigned int) );
-	case SG_DATATYPE_Int:		return( sizeof(int) );
-	case SG_DATATYPE_ULong:		return( sizeof(uLong) );
-	case SG_DATATYPE_Long:		return( sizeof(sLong) );
-	case SG_DATATYPE_Float:		return( sizeof(float) );
-	case SG_DATATYPE_Double:	return( sizeof(double) );
-	case SG_DATATYPE_String:	return( 0 );
-	case SG_DATATYPE_Date:		return( 0 );
-	case SG_DATATYPE_Color:		return( sizeof(unsigned int) );
-	case SG_DATATYPE_Binary:	return( 0 );
+	case SG_DATATYPE_Bit   : return( 0 );
+	case SG_DATATYPE_Byte  : return( sizeof(unsigned char) );
+	case SG_DATATYPE_Char  : return( sizeof(char) );
+	case SG_DATATYPE_Word  : return( sizeof(unsigned short int) );
+	case SG_DATATYPE_Short : return( sizeof(short int) );
+	case SG_DATATYPE_DWord : return( sizeof(unsigned int) );
+	case SG_DATATYPE_Int   : return( sizeof(int) );
+	case SG_DATATYPE_ULong : return( sizeof(uLong) );
+	case SG_DATATYPE_Long  : return( sizeof(sLong) );
+	case SG_DATATYPE_Float : return( sizeof(float) );
+	case SG_DATATYPE_Double: return( sizeof(double) );
+	case SG_DATATYPE_String: return( 0 );
+	case SG_DATATYPE_Date  : return( 0 );
+	case SG_DATATYPE_Color : return( sizeof(unsigned int) );
+	case SG_DATATYPE_Binary: return( 0 );
+	default                : return( 0 );
 	}
 }
 
@@ -921,9 +973,7 @@ enum ESG_File_Flags_Open
 {
 	SG_FILE_R,
 	SG_FILE_W,
-	SG_FILE_RW,
-	SG_FILE_WA,
-	SG_FILE_RWA
+	SG_FILE_RW
 };
 
 //---------------------------------------------------------
@@ -951,18 +1001,18 @@ public:
 	CSG_File(void);
 	virtual ~CSG_File(void);
 
-									CSG_File			(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
-	bool							Open				(const CSG_String &File_Name, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
+									CSG_File			(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
+	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
 
-	bool							Close				(void);
+	virtual bool					Close				(void);
 
-	bool							Attach				(FILE *Stream);
-	bool							Detach				(void);
+	class wxStreamBase *			Get_Stream			(void)	const	{	return( m_pStream );	}
 
-	FILE *							Get_Stream			(void)	const	{	return( m_pStream );	}
 	int								Get_Encoding		(void)	const	{	return( m_Encoding );	}
 
 	bool							is_Open				(void)	const	{	return( m_pStream != NULL );	}
+	bool							is_Reading			(void)	const	{	return( m_pStream != NULL && m_Mode != SG_FILE_W );	}
+	bool							is_Writing			(void)	const	{	return( m_pStream != NULL && m_Mode != SG_FILE_R );	}
 	bool							is_EOF				(void)	const;
 
 	sLong							Length				(void)	const;
@@ -972,8 +1022,6 @@ public:
 	bool							Seek_End			(void)	const;
 
 	sLong							Tell				(void)	const;
-
-	bool							Flush				(void)	const;
 
 	int								Printf				(const char    *Format, ...);
 	int								Printf				(const wchar_t *Format, ...);
@@ -1000,39 +1048,68 @@ public:
 	CSG_String						Scan_String			(SG_Char Separator)	const;
 
 
-private:
+protected:
 
-	int								m_Encoding;
+	int								m_Mode, m_Encoding;
 
-	FILE							*m_pStream;
+	class wxStreamBase				*m_pStream;
 
 };
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool			SG_Dir_Exists				(const SG_Char *Directory);
-SAGA_API_DLL_EXPORT bool			SG_Dir_Create				(const SG_Char *Directory);
+class SAGA_API_DLL_EXPORT CSG_File_Zip : public CSG_File
+{
+public:
+
+	CSG_File_Zip(void);
+	virtual ~CSG_File_Zip(void);
+
+									CSG_File_Zip		(const CSG_String &FileName, int Mode = SG_FILE_R);
+	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R);
+	virtual bool					Close				(void);
+
+	bool							Add_Directory		(const CSG_String &Name);
+	bool							Add_File			(const CSG_String &Name, bool bBinary = true);
+
+	size_t							Get_File_Count		(void)	{	return( m_Files.Get_Size() );	}
+	bool							is_Directory		(size_t Index);
+	bool							Get_File			(size_t Index);
+	bool							Get_File			(const CSG_String &Name);
+	CSG_String						Get_File_Name		(size_t Index);
+
+
+protected:
+
+	CSG_Array_Pointer				m_Files;
+
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool			SG_Dir_Exists				(const CSG_String &Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_Create				(const CSG_String &Directory);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Current			(void);
 SAGA_API_DLL_EXPORT CSG_String		SG_Dir_Get_Temp				(void);
 SAGA_API_DLL_EXPORT bool			SG_Dir_List_Subdirectories	(CSG_Strings &List, const CSG_String &Directory);
-SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const SG_Char *Extension = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory);
+SAGA_API_DLL_EXPORT bool			SG_Dir_List_Files			(CSG_Strings &List, const CSG_String &Directory, const CSG_String &Extension);
 
-SAGA_API_DLL_EXPORT bool			SG_File_Exists				(const SG_Char *FileName);
-SAGA_API_DLL_EXPORT bool			SG_File_Delete				(const SG_Char *FileName);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name_Temp		(const SG_Char *Prefix, const SG_Char *Directory = NULL);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name			(const SG_Char *full_Path, bool bExtension);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path			(const SG_Char *full_Path);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Absolute	(const SG_Char *full_Path);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Relative	(const SG_Char *Directory, const SG_Char *full_Path);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const SG_Char *Directory, const SG_Char *Name, const SG_Char *Extension = NULL);
-SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension		(const SG_Char *File_Name, const SG_Char *Extension);
-SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension		(const SG_Char *File_Name);
-SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension		(CSG_String &File_Name, const CSG_String &Extension);
-
-SAGA_API_DLL_EXPORT bool			SG_Read_Line			(FILE *Stream, CSG_String &Line);
+SAGA_API_DLL_EXPORT bool			SG_File_Exists				(const CSG_String &FileName);
+SAGA_API_DLL_EXPORT bool			SG_File_Delete				(const CSG_String &FileName);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name_Temp		(const CSG_String &Prefix);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name_Temp		(const CSG_String &Prefix, const CSG_String &Directory);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Name			(const CSG_String &full_Path, bool bExtension);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path			(const CSG_String &full_Path);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Absolute	(const CSG_String &full_Path);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Path_Relative	(const CSG_String &Directory, const CSG_String &full_Path);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const CSG_String &Directory, const CSG_String &Name);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Make_Path			(const CSG_String &Directory, const CSG_String &Name, const CSG_String &Extension);
+SAGA_API_DLL_EXPORT bool			SG_File_Cmp_Extension		(const CSG_String &FileName, const CSG_String &Extension);
+SAGA_API_DLL_EXPORT CSG_String		SG_File_Get_Extension		(const CSG_String &FileName);
+SAGA_API_DLL_EXPORT bool			SG_File_Set_Extension		(      CSG_String &FileName, const CSG_String &Extension);
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT bool			SG_Get_Environment		(const CSG_String &Variable,       CSG_String *Value = NULL);
-SAGA_API_DLL_EXPORT bool			SG_Set_Environment		(const CSG_String &Variable, const CSG_String &Value);
+SAGA_API_DLL_EXPORT bool			SG_Get_Environment			(const CSG_String &Variable,       CSG_String *Value = NULL);
+SAGA_API_DLL_EXPORT bool			SG_Set_Environment			(const CSG_String &Variable, const CSG_String &Value);
 
 
 ///////////////////////////////////////////////////////////
