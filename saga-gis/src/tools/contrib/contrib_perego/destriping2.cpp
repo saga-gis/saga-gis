@@ -49,7 +49,7 @@ Cdestriping2::Cdestriping2(void)
 		"Proceedings of the Fourteenth International Conference on Applied Geologic Remote Sensing, "
 		"6-8 November, Las Vegas, NV.\n"
 		"\n"
-		"- Peregro, A. (2009): SRTM DEM destriping with SAGA GIS: consequences on drainage network extraction. "
+		"- Perego, A. (2009): SRTM DEM destriping with SAGA GIS: consequences on drainage network extraction. "
 		"<a target=\"_blank\" href=\"http://www.webalice.it/alper78/saga_mod/destriping/destriping.html\">online</a>.\n"
 	));
 
