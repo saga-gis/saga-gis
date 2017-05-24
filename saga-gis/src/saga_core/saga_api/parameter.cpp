@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -499,11 +498,11 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 		case PARAMETER_TYPE_TIN_List         :
 		case PARAMETER_TYPE_PointCloud_List  :
 			{
-				bool	bResult	= pParameter->asList()->Get_Count() == asList()->Get_Count();
+				bool	bResult	= pParameter->asList()->Get_Item_Count() == asList()->Get_Item_Count();
 
-				for(int i=0; bResult && i<asList()->Get_Count(); i++)
+				for(int i=0; bResult && i<asList()->Get_Item_Count(); i++)
 				{
-					bResult	= pParameter->asList()->asDataObject(i) == asList()->asDataObject(i);
+					bResult	= pParameter->asList()->Get_Item(i) == asList()->Get_Item(i);
 				}
 
 				return( bResult );
@@ -535,19 +534,19 @@ TSG_Data_Object_Type CSG_Parameter::Get_DataObject_Type(void)	const
 {
 	switch( Get_Type() )
 	{
-	default                              :	return( DATAOBJECT_TYPE_Undefined  );
+	default                              :	return( SG_DATAOBJECT_TYPE_Undefined  );
 	case PARAMETER_TYPE_Grid             :
-	case PARAMETER_TYPE_Grid_List        :	return( DATAOBJECT_TYPE_Grid       );
+	case PARAMETER_TYPE_Grid_List        :	return( SG_DATAOBJECT_TYPE_Grid       );
 	case PARAMETER_TYPE_Grids            :
-	case PARAMETER_TYPE_Grids_List       :	return( DATAOBJECT_TYPE_Grids      );
+	case PARAMETER_TYPE_Grids_List       :	return( SG_DATAOBJECT_TYPE_Grids      );
 	case PARAMETER_TYPE_Table            :
-	case PARAMETER_TYPE_Table_List       :	return( DATAOBJECT_TYPE_Table      );
+	case PARAMETER_TYPE_Table_List       :	return( SG_DATAOBJECT_TYPE_Table      );
 	case PARAMETER_TYPE_Shapes           :
-	case PARAMETER_TYPE_Shapes_List      :	return( DATAOBJECT_TYPE_Shapes     );
+	case PARAMETER_TYPE_Shapes_List      :	return( SG_DATAOBJECT_TYPE_Shapes     );
 	case PARAMETER_TYPE_TIN              :
-	case PARAMETER_TYPE_TIN_List         :	return( DATAOBJECT_TYPE_TIN        );
+	case PARAMETER_TYPE_TIN_List         :	return( SG_DATAOBJECT_TYPE_TIN        );
 	case PARAMETER_TYPE_PointCloud       :
-	case PARAMETER_TYPE_PointCloud_List  :	return( DATAOBJECT_TYPE_PointCloud );
+	case PARAMETER_TYPE_PointCloud_List  :	return( SG_DATAOBJECT_TYPE_PointCloud );
 	case PARAMETER_TYPE_DataObject_Output:
 		return( ((CSG_Parameter_Data_Object_Output *)m_pData)->Get_DataObject_Type() );
 	}
@@ -871,17 +870,19 @@ bool CSG_Parameter::Check(bool bSilent)
 	//-----------------------------------------------------
 	else if( is_DataObject_List() )
 	{
-		for(int j=asList()->Get_Count()-1; j>=0; j--)
+		for(int j=asList()->Get_Item_Count()-1; j>=0; j--)
 		{
-			CSG_Data_Object	*pDataObject	= asList()->asDataObject(j);
+			CSG_Data_Object	*pDataObject	= asList()->Get_Item(j);
 
 			if( !pDataObject || (m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(pDataObject)) )
 			{
-				asList()->Del_Item(j);
+				asList()->Del_Item(j, false);
 			}
 		}
 
-		return( is_Output() || is_Optional() || asList()->Get_Count() > 0 );
+		asList()->Update_Data();
+
+		return( is_Output() || is_Optional() || asList()->Get_Item_Count() > 0 );
 	}
 
 	//-----------------------------------------------------

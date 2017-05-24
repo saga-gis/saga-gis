@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -483,6 +482,44 @@ bool CSG_Array_Pointer::Add(const CSG_Array_Pointer &Array)
 	}
 
 	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Pointer::Del(int Index)
+{
+	return( Del((size_t)Index) );
+}
+
+//---------------------------------------------------------
+bool CSG_Array_Pointer::Del(size_t Index)
+{
+	if( Index < Get_Size() )
+	{
+		for(size_t i=Index+1; i<Get_Size(); i++, Index++)
+		{
+			(*this)[Index]	= (*this)[i];
+		}
+
+		return( Dec_Array() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+size_t CSG_Array_Pointer::Del(void *Value)
+{
+	size_t	n	= 0;
+
+	for(size_t i=Get_Size(); i>0; i--)
+	{
+		if( Value == (*this)[i] && Del(i) )
+		{
+			n++;
+		}
+	}
+
+	return( n );
 }
 
 

@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -269,16 +268,12 @@ CSG_String CSG_String::Format(const char *Format, ...)
 {
 	CSG_String	s;
 
-	va_list	argptr;
-	
 #ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
 	s.m_pString->PrintfV(_Format, argptr);
 #else
-	va_start(argptr, Format);
+	va_list	argptr; va_start(argptr, Format);
 	s.m_pString->PrintfV(Format, argptr);
 #endif
 
@@ -292,16 +287,12 @@ CSG_String CSG_String::Format(const wchar_t *Format, ...)
 {
 	CSG_String	s;
 
-	va_list	argptr;
-	
 #ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
 	s.m_pString->PrintfV(_Format, argptr);
 #else
-	va_start(argptr, Format);
+	va_list	argptr; va_start(argptr, Format);
 	s.m_pString->PrintfV(Format, argptr);
 #endif
 
@@ -313,43 +304,35 @@ CSG_String CSG_String::Format(const wchar_t *Format, ...)
 //---------------------------------------------------------
 int CSG_String::Printf(const char *Format, ...)
 {
-	va_list	argptr;
-
 #ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	m_pString->PrintfV(_Format, argptr);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
+	int Result	= m_pString->PrintfV(_Format, argptr);
 #else
-	va_start(argptr, Format);
-	m_pString->PrintfV(Format, argptr);
+	va_list	argptr; va_start(argptr, Format);
+	int Result	= m_pString->PrintfV(Format, argptr);
 #endif
 
 	va_end(argptr);
 
-	return( (int)Length() );
+	return( Result );
 }
 
 //---------------------------------------------------------
 int CSG_String::Printf(const wchar_t *Format, ...)
 {
-	va_list	argptr;
-
 #ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	m_pString->PrintfV(_Format, argptr);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
+	int Result	= m_pString->PrintfV(_Format, argptr);
 #else
-	va_start(argptr, Format);
-	m_pString->PrintfV(Format, argptr);
+	va_list	argptr; va_start(argptr, Format);
+	int Result	= m_pString->PrintfV(Format, argptr);
 #endif
 
 	va_end(argptr);
 
-	return( (int)Length() );
+	return( Result );
 }
 
 

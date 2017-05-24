@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -885,7 +884,7 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 				_Set_Error(_TL("undeclared parameter"));
 
 				i_error	= scan;
-				*error	= i_error - source;
+				*error	= (int)(i_error - source);
 				
 				SG_Free(source);
 
@@ -933,7 +932,7 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 
 	if( !result || m_bError )
 	{
-		*error	= i_error ? i_error - source : -1;
+		*error	= (int)(i_error ? i_error - source : -1);
 
 		SG_Free(source);
 		SG_Free(code);
@@ -945,7 +944,7 @@ CSG_Formula::TMAT_Formula CSG_Formula::_Translate(const SG_Char *sourc, const SG
 	{
 		*result	= SG_T('\0');
 		*error	= -1;
-		*leng	= result - code;
+		*leng	= (int)(result - code);
 
 		if( ((*leng) + 1) * sizeof(SG_Char) > size_estim )
 		{

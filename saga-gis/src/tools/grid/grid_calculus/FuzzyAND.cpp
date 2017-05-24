@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -126,7 +125,7 @@ bool CFuzzyAND::On_Execute(void)
 	Type	= Parameters("TYPE")	->asInt();
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		return( false );
 	}
@@ -136,14 +135,14 @@ bool CFuzzyAND::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool	bNoData	= pGrids->asGrid(0)->is_NoData(x, y);
-			double	AND		= pGrids->asGrid(0)->asDouble (x, y);
+			bool	bNoData	= pGrids->Get_Grid(0)->is_NoData(x, y);
+			double	AND		= pGrids->Get_Grid(0)->asDouble (x, y);
 
-			for(int i=1; i<pGrids->Get_Count() && !bNoData; i++)
+			for(int i=1; i<pGrids->Get_Grid_Count() && !bNoData; i++)
 			{
-				if( !(bNoData = pGrids->asGrid(i)->is_NoData(x, y)) )
+				if( !(bNoData = pGrids->Get_Grid(i)->is_NoData(x, y)) )
 				{
-					double	iz	= pGrids->asGrid(i)->asDouble(x, y);
+					double	iz	= pGrids->Get_Grid(i)->asDouble(x, y);
 
 					switch( Type )
 					{

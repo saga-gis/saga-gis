@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -472,7 +471,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	pOutput->Del_Items();
 
-	if( pInput->Get_Count() <= 0 )
+	if( pInput->Get_Grid_Count() <= 0 )
 	{
 		return( false );
 	}
@@ -493,9 +492,9 @@ bool CDirect_Georeferencing::On_Execute(void)
 		default:	Type	= SG_DATATYPE_Undefined;	break;
 		}
 
-		for(int i=0; i<pInput->Get_Count(); i++)
+		for(int i=0; i<pInput->Get_Grid_Count(); i++)
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->asGrid(i)->Get_Type());
+			CSG_Grid	*pGrid	= SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type());
 
 			if( !pGrid || !pGrid->is_Valid() )
 			{
@@ -509,7 +508,7 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 			pOutput->Add_Item(pGrid);
 
-			pGrid->Set_Name(pInput->asGrid(i)->Get_Name());
+			pGrid->Set_Name(pInput->Get_Grid(i)->Get_Name());
 		}
 	}
 
@@ -535,15 +534,15 @@ bool CDirect_Georeferencing::On_Execute(void)
 				p.y	= (Get_NY() - 1) - p.y;
 			}
 
-			for(int i=0; i<pInput->Get_Count(); i++)
+			for(int i=0; i<pInput->Get_Grid_Count(); i++)
 			{
-				if( pInput->asGrid(i)->Get_Value(p.x, p.y, pz, Resampling) )
+				if( pInput->Get_Grid(i)->Get_Value(p.x, p.y, pz, Resampling) )
 				{
-					pOutput->asGrid(i)->Set_Value(x, y, pz);
+					pOutput->Get_Grid(i)->Set_Value(x, y, pz);
 				}
 				else
 				{
-					pOutput->asGrid(i)->Set_NoData(x, y);
+					pOutput->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 		}

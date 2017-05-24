@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -96,9 +95,13 @@ public:
 
 	virtual wxMenu *				Get_Menu			(void);
 
-	class CWKSP_Grid *				Get_Data			(int i)		{	return( (class CWKSP_Grid *)Get_Item(i) );	}
-	class CWKSP_Grid *				Get_Data			(CSG_Grid *pGrid);
-	class CWKSP_Grid *				Add_Data			(CSG_Grid *pGrid);
+	class CWKSP_Data_Item *			Get_Data			(int iItem)	{	return( (CWKSP_Data_Item *)Get_Item(iItem) );	}
+
+	class CWKSP_Grid *				Get_Grid			(CSG_Grid *pGrid);
+	class CWKSP_Grid *				Add_Grid			(CSG_Grid *pGrid);
+
+	class CWKSP_Grids *				Get_Grids			(CSG_Grids *pGrids);
+	class CWKSP_Grids *				Add_Grids			(CSG_Grids *pGrids);
 
 	const CSG_Grid_System &			Get_System			(void)		{	return( m_System );	}
 

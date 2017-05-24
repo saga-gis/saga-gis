@@ -22,7 +22,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -31,10 +32,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -103,8 +102,8 @@ protected:
 
 	virtual bool				On_Execute				(void);
 
-	int							Get_Feature_Count		(void)	{	return( m_pFeatures->Get_Count() );	}
-	int							Get_Class_Count			(void)	{	return( m_Classes   .Get_Count() );	}
+	int							Get_Feature_Count		(void)	{	return( m_pFeatures->Get_Grid_Count() );	}
+	int							Get_Class_Count			(void)	{	return( m_Classes   .Get_Count     () );	}
 
 	virtual Ptr<StatModel>		Get_Model				(void)	= 0;
 	virtual Ptr<TrainData>		Get_Training			(const CSG_Matrix &Data);

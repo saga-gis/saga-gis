@@ -23,7 +23,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -32,10 +33,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -144,7 +143,7 @@ bool CSVG_Interactive_Map::Create_From_Map(CSG_Parameter_Shapes_List *pList, CSG
 {
 	int		i;
 
-	if( pList->Get_Count() <= 0 )
+	if( pList->Get_Item_Count() <= 0 )
 	{
 		return( false );
 	}
@@ -152,11 +151,11 @@ bool CSVG_Interactive_Map::Create_From_Map(CSG_Parameter_Shapes_List *pList, CSG
 	//-----------------------------------------------------
 	m_Directory	= SG_File_Get_Path(Filename);
 
-	CSG_Rect	r(pList->asShapes(0)->Get_Extent());
+	CSG_Rect	r(pList->Get_Shapes(0)->Get_Extent());
 
-	for(i=1; i<pList->Get_Count(); i++)
+	for(i=1; i<pList->Get_Item_Count(); i++)
 	{
-		r.Union(pList->asShapes(i)->Get_Extent());
+		r.Union(pList->Get_Shapes(i)->Get_Extent());
 	}
 
 	_Add_Opening(r);
@@ -164,9 +163,9 @@ bool CSVG_Interactive_Map::Create_From_Map(CSG_Parameter_Shapes_List *pList, CSG
 	//-----------------------------------------------------
 	m_sSVGCode.Append(SG_T("<g id=\"mainMapGroup\" transform=\"translate(0,0)\">\n"));
 
-	for(i=pList->Get_Count()-1; i>=0; i--)
+	for(i=pList->Get_Item_Count()-1; i>=0; i--)
 	{
-		_Add_Shapes	(pList->asShapes(i));
+		_Add_Shapes	(pList->Get_Shapes(i));
 	}
 
 	m_sSVGCode.Append(SG_T("</g>\n</svg>\n"));
@@ -506,7 +505,7 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 	m_sSVGCode.Append(_TL("Layers"));
 	m_sSVGCode.Append(SG_T("</text>\n"));
 
-	for (i = 0; i < pList->Get_Count(); i++)
+	for (i = 0; i < pList->Get_Item_Count(); i++)
 	{
 		y = iRow * 30;
 
@@ -531,18 +530,18 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 
 		m_sSVGCode.Append(SG_T("<use "));
 		s = SG_T("checkBox");
-		s.Append(pList->asShapes(i)->Get_Name());
+		s.Append(pList->Get_Shapes(i)->Get_Name());
 		_AddAttribute(SG_T("id"), s);
 		_AddAttribute(SG_T("xlink:href"), SG_T("#checkBoxRect"));
 		s = SG_T("checkBoxScript(evt,'");
-		s.Append(pList->asShapes(i)->Get_Name());
+		s.Append(pList->Get_Shapes(i)->Get_Name());
 		s.Append(SG_T("');"));
 		_AddAttribute(SG_T("onclick"), s);
 		m_sSVGCode.Append(SG_T("/>\n"));
 
 		m_sSVGCode.Append(SG_T("<use "));
 		s = SG_T("checkCross");
-		s.Append(pList->asShapes(i)->Get_Name());
+		s.Append(pList->Get_Shapes(i)->Get_Name());
 		_AddAttribute(SG_T("id"), s);
 		_AddAttribute(SG_T("xlink:href"), SG_T("#checkBoxCross"));		
 		_AddAttribute(SG_T("visibility"), SG_T("visible"));
@@ -555,7 +554,7 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 	
 	iRow = 1;
 		
-	for (i = 0; i < pList->Get_Count(); i++)
+	for (i = 0; i < pList->Get_Item_Count(); i++)
 	{
 		y = iRow * 30 + 6;
 
@@ -573,7 +572,7 @@ void CSVG_Interactive_Map::_Add_CheckBoxes(CSG_Parameter_Shapes_List *pList)
 		_AddAttribute(SG_T("x"), x);
 		_AddAttribute(SG_T("y"), y);
 		m_sSVGCode.Append(SG_T(">"));
-		m_sSVGCode.Append(pList->asShapes(i)->Get_Name());
+		m_sSVGCode.Append(pList->Get_Shapes(i)->Get_Name());
 		m_sSVGCode.Append(SG_T("</text>\n"));	
 
 	}

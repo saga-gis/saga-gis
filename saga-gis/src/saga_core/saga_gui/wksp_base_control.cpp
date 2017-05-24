@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -290,7 +289,7 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 		return( false );
 	}
 
-	if( pItem->Get_Type() == WKSP_ITEM_Table &&	((CWKSP_Table *)pItem)->Get_Object()->Get_ObjectType() != DATAOBJECT_TYPE_Table )
+	if( pItem->Get_Type() == WKSP_ITEM_Table &&	((CWKSP_Table *)pItem)->Get_Object()->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table )
 	{
 		return( false );
 	}
@@ -513,6 +512,7 @@ bool CWKSP_Base_Control::_Show_Active(void)
 				switch( pItem->Get_Type() )
 				{
 				case WKSP_ITEM_Grid:
+				case WKSP_ITEM_Grids:
 				case WKSP_ITEM_Shapes:
 				case WKSP_ITEM_TIN:
 				case WKSP_ITEM_PointCloud:
@@ -540,6 +540,7 @@ bool CWKSP_Base_Control::_Show_Active(void)
 					switch( pItem->Get_Type() )
 					{
 					case WKSP_ITEM_Grid:
+					case WKSP_ITEM_Grids:
 					case WKSP_ITEM_Shapes:
 					case WKSP_ITEM_TIN:
 					case WKSP_ITEM_PointCloud:

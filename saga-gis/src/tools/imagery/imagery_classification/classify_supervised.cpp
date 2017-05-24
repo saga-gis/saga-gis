@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -216,7 +215,7 @@ int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters,
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
 	{
-		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
+		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -265,7 +264,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 		{
 			int			Class;
 			double		Quality;
-			CSG_Vector	Features(m_pFeatures->Get_Count());
+			CSG_Vector	Features(m_pFeatures->Get_Grid_Count());
 
 			if( Get_Features(x, y, Features) && Classifier.Get_Class(Features, Class, Quality, Method) )
 			{
@@ -295,25 +294,25 @@ bool CGrid_Classify_Supervised::Get_Features(void)
 	m_pFeatures		= Parameters("GRIDS"    )->asGridList();
 	m_bNormalise	= Parameters("NORMALISE")->asBool();
 
-	for(int i=m_pFeatures->Get_Count()-1; i>=0; i--)
+	for(int i=m_pFeatures->Get_Grid_Count()-1; i>=0; i--)
 	{
-		if( m_pFeatures->asGrid(i)->Get_Range() <= 0.0 )
+		if( m_pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("feature has been dropped"), m_pFeatures->asGrid(i)->Get_Name()));
+			Message_Add(CSG_String::Format("%s: %s", _TL("feature has been dropped"), m_pFeatures->Get_Grid(i)->Get_Name()));
 
 			m_pFeatures->Del_Item(i);
 		}
 	}
 
-	return( m_pFeatures->Get_Count() > 0 );
+	return( m_pFeatures->Get_Grid_Count() > 0 );
 }
 
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
 {
-	for(int i=0; i<m_pFeatures->Get_Count(); i++)
+	for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pGrid	= m_pFeatures->asGrid(i);
+		CSG_Grid	*pGrid	= m_pFeatures->Get_Grid(i);
 
 		if( pGrid->is_NoData(x, y) )
 		{
@@ -334,7 +333,7 @@ bool CGrid_Classify_Supervised::Get_Features(int x, int y, CSG_Vector &Features)
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classifier)
 {
-	Classifier.Create(m_pFeatures->Get_Count());
+	Classifier.Create(m_pFeatures->Get_Grid_Count());
 
 	Classifier.Set_Threshold_Distance   (Parameters("THRESHOLD_DIST" )->asDouble());
 	Classifier.Set_Threshold_Angle      (Parameters("THRESHOLD_ANGLE")->asDouble() * M_DEG_TO_RAD);
@@ -386,7 +385,7 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 
 		for(int x=0; x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			CSG_Vector	Features(m_pFeatures->Get_Count());
+			CSG_Vector	Features(m_pFeatures->Get_Grid_Count());
 
 			if( Get_Features(x, y, Features) )
 			{
@@ -432,7 +431,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 	{
 		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-		bool	bRGB	= pGrids->Get_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+		bool	bRGB	= pGrids->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
 
 		for(int iClass=0; iClass<Classifier.Get_Class_Count(); iClass++)
 		{
@@ -450,7 +449,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 
 			if( bRGB )
 			{
-				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Classifier.Get_Class_Mean(iClass, i) - pGrids->asGrid(i)->Get_Mean()) * 127 / pGrids->asGrid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Classifier.Get_Class_Mean(iClass, i) - pGrids->Get_Grid(i)->Get_Mean()) * 127 / pGrids->Get_Grid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
 
 				int	r; SET_COLOR_COMPONENT(r, 2);
 				int	g; SET_COLOR_COMPONENT(g, 1);

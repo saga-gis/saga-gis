@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -835,19 +834,19 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	//---------------------------------------------------------
 	if( SG_UI_Get_Window_Main() )
 	{
-		for(int i=0; i<pPointCloudList->Get_Count(); i++)
+		for(int i=0; i<pPointCloudList->Get_Item_Count(); i++)
 		{
 			CSG_Parameters	sParms;
-			DataObject_Get_Parameters(pPointCloudList->asPointCloud(i), sParms);
+			DataObject_Get_Parameters(pPointCloudList->Get_PointCloud(i), sParms);
 
 			if( sParms("METRIC_ZRANGE") )
 			{
-				sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPointCloudList->asPointCloud(i)->Get_Minimum(2), pPointCloudList->asPointCloud(i)->Get_Maximum(2));
+				sParms("METRIC_ZRANGE")->asRange()->Set_Range(pPointCloudList->Get_PointCloud(i)->Get_Minimum(2), pPointCloudList->Get_PointCloud(i)->Get_Maximum(2));
 			}
 
-			DataObject_Set_Parameters(pPointCloudList->asPointCloud(i), sParms);
+			DataObject_Set_Parameters(pPointCloudList->Get_PointCloud(i), sParms);
 
-			DataObject_Update(pPointCloudList->asPointCloud(i));
+			DataObject_Update(pPointCloudList->Get_PointCloud(i));
 		}
 	}
 
@@ -1008,7 +1007,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 		if( bResult )
 		{
-			Parameters("PC_OUT")->Set_Value(PointCloudList.asPointCloud(0));
+			Parameters("PC_OUT")->Set_Value(PointCloudList.Get_PointCloud(0));
 			CSG_PointCloud *pPC = Parameters("PC_OUT")->asPointCloud();
 
 			CSG_Parameters	sParms;

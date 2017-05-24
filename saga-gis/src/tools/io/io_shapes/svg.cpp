@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -127,7 +126,7 @@ bool CSVG_Export::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Shapes_List	*pList	= Parameters("SHAPES")->asShapesList();
 
-	if( pList->Get_Count() <= 0 )
+	if( pList->Get_Item_Count() <= 0 )
 	{
 		return( false );
 	}
@@ -142,11 +141,11 @@ bool CSVG_Export::On_Execute(void)
 	Width	= 800;
 	Height	= 800;
 
-	Extent	= pList->asShapes(0)->Get_Extent();
+	Extent	= pList->Get_Shapes(0)->Get_Extent();
 
-	for(i=1; i<pList->Get_Count() && Process_Get_Okay(); i++)
+	for(i=1; i<pList->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
-		Extent.Union(pList->asShapes(i)->Get_Extent());
+		Extent.Union(pList->Get_Shapes(i)->Get_Extent());
 	}
 
 	//-----------------------------------------------------
@@ -165,9 +164,9 @@ bool CSVG_Export::On_Execute(void)
 	m_dStroke	= Extent.Get_XRange() / 1000.0;
 
 	//-----------------------------------------------------
-	for(i=0; i<pList->Get_Count() && Process_Get_Okay(); i++)
+	for(i=0; i<pList->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Shapes	*pShapes	= pList->asShapes(i);
+		CSG_Shapes	*pShapes	= pList->Get_Shapes(i);
 
 		pGroup	= SVG.Add_Child(SG_T("g"));
 		pGroup->Add_Property(SG_T("id")			, pShapes->Get_Name());
@@ -344,7 +343,7 @@ bool CSVG_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( pList->Get_Count() > 0 );
+	return( pList->Get_Item_Count() > 0 );
 }
 
 

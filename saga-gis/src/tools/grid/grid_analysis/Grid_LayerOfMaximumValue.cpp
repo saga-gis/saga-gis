@@ -70,7 +70,7 @@ bool CLayerOfMaximumValue::On_Execute(void)
 
 	pParm_Grids	= Parameters("GRIDS")	->asGridList();
 	pResult		= Parameters("RESULT")		->asGrid();
-	nGrids		= pParm_Grids			->Get_Count();
+	nGrids		= pParm_Grids			->Get_Grid_Count();
 	iCriteria = Parameters("CRITERIA")->asInt();	
 
 	//-----------------------------------------------------
@@ -81,7 +81,7 @@ bool CLayerOfMaximumValue::On_Execute(void)
 			for(x=0; x<Get_NX(); x++)
 			{
 				for(iGrid=0; iGrid<nGrids; iGrid++){
-					pGrid = pParm_Grids->asGrid(iGrid);
+					pGrid = pParm_Grids->Get_Grid(iGrid);
 					if (!pGrid->is_NoData(x,y)){
 						dExtremeValue = pGrid->asDouble(x, y);						
 						break;
@@ -92,7 +92,7 @@ bool CLayerOfMaximumValue::On_Execute(void)
 
 				for(iGrid=0; iGrid<nGrids; iGrid++){
 
-					pGrid = pParm_Grids->asGrid(iGrid);
+					pGrid = pParm_Grids->Get_Grid(iGrid);
 
 					if (!pGrid->is_NoData(x,y)){ 
 

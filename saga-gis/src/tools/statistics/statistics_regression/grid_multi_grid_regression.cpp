@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -341,15 +340,15 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 
 	Names	+= pDependent->Get_Name();					// Dependent Variable
 
-	for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)	// Independent Variables
+	for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)	// Independent Variables
 	{
-		Names	+= pGrids->asGrid(iGrid)->Get_Name();
+		Names	+= pGrids->Get_Grid(iGrid)->Get_Name();
 	}
 
 	if( bCoord_X )	{	Names	+= SG_T("X");	}
 	if( bCoord_Y )	{	Names	+= SG_T("Y");	}
 
-	Sample.Create(1 + pGrids->Get_Count() + (bCoord_X ? 1 : 0) + (bCoord_Y ? 1 : 0));
+	Sample.Create(1 + pGrids->Get_Grid_Count() + (bCoord_X ? 1 : 0) + (bCoord_Y ? 1 : 0));
 
 	//-----------------------------------------------------
 	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
@@ -360,9 +359,9 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 			{
 				bool		bAdd	= true;
 
-				for(iGrid=0; iGrid<pGrids->Get_Count() && bAdd; iGrid++)
+				for(iGrid=0; iGrid<pGrids->Get_Grid_Count() && bAdd; iGrid++)
 				{
-					if( pGrids->asGrid(iGrid)->Get_Value(p, zGrid, Resampling) )
+					if( pGrids->Get_Grid(iGrid)->Get_Value(p, zGrid, Resampling) )
 					{
 						Sample[1 + iGrid]	= zGrid;
 					}
@@ -386,7 +385,7 @@ bool CGrid_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, C
 	}
 
 	//-----------------------------------------------------
-	return( Samples.Get_NRows() >= pGrids->Get_Count() );
+	return( Samples.Get_NRows() >= pGrids->Get_Grid_Count() );
 }
 
 
@@ -420,11 +419,11 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids
 
 	for(iGrid=0, nGrids=0; iGrid<m_Regression.Get_nPredictors(); iGrid++)
 	{
-		if( m_Regression.Get_Predictor(iGrid) < pGrids->Get_Count() )
+		if( m_Regression.Get_Predictor(iGrid) < pGrids->Get_Grid_Count() )
 		{
-			ppGrids[nGrids++]	= pGrids->asGrid(m_Regression.Get_Predictor(iGrid));
+			ppGrids[nGrids++]	= pGrids->Get_Grid(m_Regression.Get_Predictor(iGrid));
 		}
-		else if( m_Regression.Get_Predictor(iGrid) == pGrids->Get_Count() && Parameters("COORD_X")->asBool() )
+		else if( m_Regression.Get_Predictor(iGrid) == pGrids->Get_Grid_Count() && Parameters("COORD_X")->asBool() )
 		{
 			bCoord_X = true;
 		}

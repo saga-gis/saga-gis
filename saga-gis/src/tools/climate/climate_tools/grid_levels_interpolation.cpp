@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -212,14 +211,14 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 	}
 
 	//-----------------------------------------------------
-	if( m_pVariables->Get_Count() != (m_xSource == 0 ? m_pXTable->Get_Count() : m_pXGrids->Get_Count()) )
+	if( m_pVariables->Get_Grid_Count() != (m_xSource == 0 ? m_pXTable->Get_Count() : m_pXGrids->Get_Grid_Count()) )
 	{
 		Error_Set(_TL("variable and height levels have to be of same number"));
 
 		return( false );
 	}
 
-	if( m_vMethod == 1 && m_pVariables->Get_Count() <= m_Trend_Order )
+	if( m_vMethod == 1 && m_pVariables->Get_Grid_Count() <= m_Trend_Order )
 	{
 		Error_Set(_TL("fitting a polynom of ith order needs at least i + 1 samples"));
 
@@ -245,9 +244,9 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 
 		CSG_Parameter_Grid_List	*pXGrids	= Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList();
 
-		for(int i=0; i<m_pXGrids->Get_Count(); i++)
+		for(int i=0; i<m_pXGrids->Get_Grid_Count(); i++)
 		{
-			CSG_Grid	*pHeight	= SG_Create_Grid(*m_pXGrids->asGrid(i));
+			CSG_Grid	*pHeight	= SG_Create_Grid(*m_pXGrids->Get_Grid(i));
 
 			#pragma omp parallel for
 			for(int y=0; y<Get_NY(); y++)
@@ -290,7 +289,7 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 
 				CSG_Trend_Polynom	Trend;	Trend.Set_Order(m_Trend_Order);
 
-				for(i=0; i<m_pVariables->Get_Count(); i++)
+				for(i=0; i<m_pVariables->Get_Grid_Count(); i++)
 				{
 					double	Height, Variable;
 
@@ -328,9 +327,9 @@ bool CGrid_Levels_Interpolation::Finalize(void)
 	if( Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")
 	&&  Get_Parameters("INTERNAL")->Get_Parameter("X_GRIDS")->asGridList() == m_pXGrids )
 	{
-		for(int i=0; i<m_pXGrids->Get_Count(); i++)
+		for(int i=0; i<m_pXGrids->Get_Grid_Count(); i++)
 		{
-			delete(m_pXGrids->asGrid(i));
+			delete(m_pXGrids->Get_Grid(i));
 		}
 
 		m_pXGrids->Del_Items();
@@ -354,13 +353,13 @@ bool CGrid_Levels_Interpolation::Finalize(void)
 //---------------------------------------------------------
 inline double CGrid_Levels_Interpolation::Get_Variable(double x, double y, int iLevel)
 {
-	return( m_pVariables->asGrid(iLevel)->Get_Value(x, y, m_hMethod) );
+	return( m_pVariables->Get_Grid(iLevel)->Get_Value(x, y, m_hMethod) );
 }
 
 //---------------------------------------------------------
 inline bool CGrid_Levels_Interpolation::Get_Variable(double x, double y, int iLevel, double &Variable)
 {
-	return( m_pVariables->asGrid(iLevel)->Get_Value(x, y, Variable, m_hMethod) );
+	return( m_pVariables->Get_Grid(iLevel)->Get_Value(x, y, Variable, m_hMethod) );
 }
 
 //---------------------------------------------------------
@@ -371,7 +370,7 @@ inline double CGrid_Levels_Interpolation::Get_Height(double x, double y, int iLe
 		return( m_pXTable->Get_Record(iLevel)->asDouble(0) );
 	}
 
-	return( m_pXGrids->asGrid(iLevel)->Get_Value(x, y, m_hMethod) );
+	return( m_pXGrids->Get_Grid(iLevel)->Get_Value(x, y, m_hMethod) );
 }
 
 //---------------------------------------------------------
@@ -384,7 +383,7 @@ inline bool CGrid_Levels_Interpolation::Get_Height(double x, double y, int iLeve
 		return( true );
 	}
 
-	return( m_pXGrids->asGrid(iLevel)->Get_Value(x, y, Height, m_hMethod) );
+	return( m_pXGrids->Get_Grid(iLevel)->Get_Value(x, y, Height, m_hMethod) );
 }
 
 
@@ -400,7 +399,7 @@ bool CGrid_Levels_Interpolation::Get_Values(double x, double y, double z, int &i
 	Values.Add_Field("h", SG_DATATYPE_Double);
 	Values.Add_Field("v", SG_DATATYPE_Double);
 
-	for(int i=0; i<m_pVariables->Get_Count(); i++)
+	for(int i=0; i<m_pVariables->Get_Grid_Count(); i++)
 	{
 		double	Height, Variable;
 
@@ -480,7 +479,7 @@ bool CGrid_Levels_Interpolation::Get_Linear_Sorted(double x, double y, double z,
 {
 	int		iLevel;
 
-	for(iLevel=1; iLevel<m_pVariables->Get_Count()-1; iLevel++)
+	for(iLevel=1; iLevel<m_pVariables->Get_Grid_Count()-1; iLevel++)
 	{
 		if( Get_Height(x, y, iLevel) > z )
 		{
@@ -543,7 +542,7 @@ bool CGrid_Levels_Interpolation::Get_Spline_All(double x, double y, double z, do
 {
 	CSG_Spline	Spline;
 
-	for(int i=0; i<m_pVariables->Get_Count(); i++)
+	for(int i=0; i<m_pVariables->Get_Grid_Count(); i++)
 	{
 		double	Height, Variable;
 
@@ -608,7 +607,7 @@ bool CGrid_Levels_Interpolation::Get_Trend(double x, double y, double z, double 
 
 	Trend.Set_Order(m_Trend_Order);
 
-	for(int i=0; i<m_pVariables->Get_Count(); i++)
+	for(int i=0; i<m_pVariables->Get_Grid_Count(); i++)
 	{
 		double	Height, Variable;
 

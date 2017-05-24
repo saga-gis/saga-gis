@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -98,7 +97,7 @@ CWKSP_Table::CWKSP_Table(CSG_Table *pTable)
 //---------------------------------------------------------
 CWKSP_Table::~CWKSP_Table(void)
 {
-	if( m_pObject->Get_ObjectType() != DATAOBJECT_TYPE_Table )
+	if( m_pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table )
 	{
 		m_pObject	= NULL;
 	}
@@ -161,7 +160,7 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 
 	pMenu	= new wxMenu(m_pObject->Get_Name());
 
-	if( m_pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
@@ -177,9 +176,9 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
 	}
 
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLES_SHOW);
-	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLES_DIAGRAM);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLES_SCATTERPLOT);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SHOW);
+	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_DIAGRAM);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_SCATTERPLOT);
 
 	return( pMenu );
 }
@@ -203,15 +202,15 @@ bool CWKSP_Table::On_Command(int Cmd_ID)
 		Set_View(true);
 		break;
 
-	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TABLE_SHOW:
 		Toggle_View();
 		break;
 
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_TABLE_DIAGRAM:
 		Toggle_Diagram();
 		break;
 
-	case ID_CMD_TABLES_SCATTERPLOT:
+	case ID_CMD_TABLE_SCATTERPLOT:
 		Add_ScatterPlot();
 		break;
 	}
@@ -227,11 +226,11 @@ bool CWKSP_Table::On_Command_UI(wxUpdateUIEvent &event)
 	default:
 		return( CWKSP_Data_Item::On_Command_UI(event) );
 
-	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TABLE_SHOW:
 		event.Check(m_pView != NULL);
 		break;
 
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_TABLE_DIAGRAM:
 		event.Check(m_pDiagram != NULL);
 		break;
 	}

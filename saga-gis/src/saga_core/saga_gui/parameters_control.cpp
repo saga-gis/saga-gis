@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -430,103 +429,105 @@ bool CParameters_Control::Set_Parameters(CSG_Parameters *pParameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CHECK_LIST_OUTPUT(p)	if( p->is_Output() )	{	pRoot	= NULL;	break;	}
+#define CHECK_LIST_OUTPUT(p)	if( p->is_Output() ) { pRoot = NULL; break; }
 
 //---------------------------------------------------------
 #define CHECK_DATA_NODE(pNode, Name, ID)	if( !pNode )\
 	{\
 		pNode	= new wxPropertyCategory(Name, ID);\
+		\
 		if( !pData )\
-			m_pPG->Append(pData = new wxPropertyCategory(_TL("Data Objects"), wxT("_DATAOBJECT_DATAOBJECTS")));\
+		{\
+			m_pPG->Append(pData = new wxPropertyCategory(_TL("Data Objects"), "_DATAOBJECT_DATAOBJECTS"));\
+		}\
+		\
 		m_pPG->Insert(pData, -1, pNode);\
 	}\
+	\
 	pRoot	= pNode;
 
 //---------------------------------------------------------
 void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 {
-	wxPGProperty	*pGrids, *pShapes, *pTables, *pTINs, *pPointClouds, *pOptions, *pData, *pRoot;
-
-	pData			= NULL;
-	pGrids			= NULL;
-	pShapes			= NULL;
-	pTables			= NULL;
-	pTINs			= NULL;
-	pPointClouds	= NULL;
-	pOptions		= NULL;
+	wxPGProperty *pData        = NULL;
+	wxPGProperty *pGrids       = NULL;
+	wxPGProperty *pShapes      = NULL;
+	wxPGProperty *pTables      = NULL;
+	wxPGProperty *pTINs        = NULL;
+	wxPGProperty *pPointClouds = NULL;
+	wxPGProperty *pOptions     = NULL;
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
-		if(	pParameters->Get_Parameter(i)->do_UseInGUI() && pParameters->Get_Parameter(i)->Get_Parent() == NULL )
-		{
-			pRoot	= NULL;
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-			switch( pParameters->Get_Parameter(i)->Get_Type() )
+		if(	pParameter->do_UseInGUI() && pParameter->Get_Parent() == NULL )
+		{
+			wxPGProperty	*pRoot	= NULL;
+
+			switch( pParameter->Get_Type() )
 			{
 			case PARAMETER_TYPE_DataObject_Output:
 				break;
 
 			case PARAMETER_TYPE_Grid_System:
-				if( pParameters->Get_Parameter(i)->Get_Children_Count() == 0 )
+				if( pParameter->Get_Children_Count() == 0 )
 				{
-					CHECK_DATA_NODE( pGrids	, _TL("Grids"), wxT("_DATAOBJECT_GRIDS") );
+					CHECK_DATA_NODE(pGrids, _TL("Grids"), "_DATAOBJECT_GRIDS");
 				}
-				else
+				else for(int j=0; j<pParameter->Get_Children_Count() && !pRoot; j++)
 				{
-					for(int j=0; j<pParameters->Get_Parameter(i)->Get_Children_Count() && !pRoot; j++)
+					if(	(pParameter->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grid_List
+					  && pParameter->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grids_List)
+					||   pParameter->Get_Child(j)->is_Input() )
 					{
-						if(	pParameters->Get_Parameter(i)->Get_Child(j)->Get_Type() != PARAMETER_TYPE_Grid_List
-						||	pParameters->Get_Parameter(i)->Get_Child(j)->is_Input() )
-						{
-							CHECK_DATA_NODE( pGrids	, _TL("Grids"), wxT("_DATAOBJECT_GRIDS") );
-						}
+						CHECK_DATA_NODE(pGrids, _TL("Grids"), "_DATAOBJECT_GRIDS");
 					}
 				}
 				break;
 
-			case PARAMETER_TYPE_Grid_List:
-				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
-			case PARAMETER_TYPE_Grid:
-				CHECK_DATA_NODE(pGrids		, _TL("Grids") , wxT("_DATAOBJECT_GRIDS"));
+			case PARAMETER_TYPE_Grid_List      : CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_Grid           :
+				CHECK_DATA_NODE(pGrids      , _TL("Grids"       ), "_DATAOBJECT_GRIDS"      );
 				break;
 
-			case PARAMETER_TYPE_Table_List:
-				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
-			case PARAMETER_TYPE_Table:
-				CHECK_DATA_NODE(pTables		, _TL("Tables"), wxT("_DATAOBJECT_TABLES"));
+			case PARAMETER_TYPE_Grids_List     : CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_Grids          :
+				CHECK_DATA_NODE(pGrids      , _TL("Grids"       ), "_DATAOBJECT_GRIDS"      );
 				break;
 
-			case PARAMETER_TYPE_Shapes_List:
-				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
-			case PARAMETER_TYPE_Shapes:
-				CHECK_DATA_NODE(pShapes		, _TL("Shapes"), wxT("_DATAOBJECT_SHAPES"));
+			case PARAMETER_TYPE_Table_List     : CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_Table          :
+				CHECK_DATA_NODE(pTables     , _TL("Tables"      ), "_DATAOBJECT_TABLES"     );
 				break;
 
-			case PARAMETER_TYPE_TIN_List:
-				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
-			case PARAMETER_TYPE_TIN:
-				CHECK_DATA_NODE(pTINs		, _TL("TIN"), wxT("_DATAOBJECT_TINS"));
+			case PARAMETER_TYPE_Shapes_List    : CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_Shapes         :
+				CHECK_DATA_NODE(pShapes     , _TL("Shapes"      ), "_DATAOBJECT_SHAPES"     );
 				break;
 
-			case PARAMETER_TYPE_PointCloud_List:
-				CHECK_LIST_OUTPUT(pParameters->Get_Parameter(i));
-			case PARAMETER_TYPE_PointCloud:
-				CHECK_DATA_NODE(pPointClouds, _TL("Point Clouds"), wxT("_DATAOBJECT_POINTCLOUDS"));
+			case PARAMETER_TYPE_TIN_List       : CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_TIN            :
+				CHECK_DATA_NODE(pTINs       , _TL("TIN"         ), "_DATAOBJECT_TINS"       );
+				break;
+
+			case PARAMETER_TYPE_PointCloud_List: CHECK_LIST_OUTPUT(pParameter);
+			case PARAMETER_TYPE_PointCloud     :
+				CHECK_DATA_NODE(pPointClouds, _TL("Point Clouds"), "_DATAOBJECT_POINTCLOUDS");
 				break;
 
 			default:
 				if( !pOptions )
 				{
-					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("Options"), wxT("_DATAOBJECT_OPTIONS")));
+					m_pPG->Append(pOptions = new wxPropertyCategory(_TL("Options"), "_DATAOBJECT_OPTIONS"));
 				}
-
 				pRoot	= pOptions;
 				break;
 			}
 
 			if( pRoot )
 			{
-				_Add_Property(pRoot, pParameters->Get_Parameter(i));
+				_Add_Property(pRoot, pParameter);
 			}
 		}
 	}
@@ -636,6 +637,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Table_Field:
 	case PARAMETER_TYPE_Grid_System:
 	case PARAMETER_TYPE_Grid:
+	case PARAMETER_TYPE_Grids:
 	case PARAMETER_TYPE_Table:
 	case PARAMETER_TYPE_Shapes:
 	case PARAMETER_TYPE_TIN:
@@ -893,6 +895,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Table_Field:
 		case PARAMETER_TYPE_Grid_System:
 		case PARAMETER_TYPE_Grid:
+		case PARAMETER_TYPE_Grids:
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
@@ -906,6 +909,7 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_Table_Fields:
 		case PARAMETER_TYPE_FixedTable:
 		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Grids_List:
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
@@ -936,6 +940,7 @@ bool CParameters_Control::Update_DataObjects(void)
 
 				case PARAMETER_TYPE_Grid_System:
 				case PARAMETER_TYPE_Grid:
+				case PARAMETER_TYPE_Grids:
 				case PARAMETER_TYPE_Table:
 				case PARAMETER_TYPE_Shapes:
 				case PARAMETER_TYPE_TIN:
@@ -944,6 +949,7 @@ bool CParameters_Control::Update_DataObjects(void)
 					break;
 
 				case PARAMETER_TYPE_Grid_List:
+				case PARAMETER_TYPE_Grids_List:
 				case PARAMETER_TYPE_Table_List:
 				case PARAMETER_TYPE_Shapes_List:
 				case PARAMETER_TYPE_TIN_List:

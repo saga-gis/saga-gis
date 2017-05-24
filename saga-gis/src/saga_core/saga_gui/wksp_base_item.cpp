@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -85,35 +84,36 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 {
 	switch( Type )
 	{
-	case WKSP_ITEM_Tool_Manager:		return( _TL("Tool Manager") );
-	case WKSP_ITEM_Tool_Group:		return( _TL("Tool Set") );
-	case WKSP_ITEM_Tool_Library:		return( _TL("Tool Library") );
-	case WKSP_ITEM_Tool:				return( _TL("Tool") );
+	case WKSP_ITEM_Tool_Manager      :	return( _TL("Tool Manager"       ) );
+	case WKSP_ITEM_Tool_Group        :	return( _TL("Tool Set"           ) );
+	case WKSP_ITEM_Tool_Library      :	return( _TL("Tool Library"       ) );
+	case WKSP_ITEM_Tool              :	return( _TL("Tool"               ) );
 
-	case WKSP_ITEM_Data_Manager:		return( _TL("Data Manager") );
+	case WKSP_ITEM_Data_Manager      :	return( _TL("Data Manager"       ) );
 
-	case WKSP_ITEM_Table_Manager:		return( _TL("Table Manager") );
-	case WKSP_ITEM_Table:				return( _TL("Table") );
+	case WKSP_ITEM_Table_Manager     :	return( _TL("Table Manager"      ) );
+	case WKSP_ITEM_Table             :	return( _TL("Table"              ) );
 
-	case WKSP_ITEM_Shapes_Manager:		return( _TL("Shapes Manager") );
-	case WKSP_ITEM_Shapes_Type:			return( _TL("Shape Type Manager") );
-	case WKSP_ITEM_Shapes:				return( _TL("Shapes") );
+	case WKSP_ITEM_Shapes_Manager    :	return( _TL("Shapes Manager"     ) );
+	case WKSP_ITEM_Shapes_Type       :	return( _TL("Shape Type Manager" ) );
+	case WKSP_ITEM_Shapes            :	return( _TL("Shapes"             ) );
 
-	case WKSP_ITEM_TIN_Manager:			return( _TL("TIN Manager") );
-	case WKSP_ITEM_TIN:					return( _TL("TIN") );
+	case WKSP_ITEM_TIN_Manager       :	return( _TL("TIN Manager"        ) );
+	case WKSP_ITEM_TIN               :	return( _TL("TIN"                ) );
 
 	case WKSP_ITEM_PointCloud_Manager:	return( _TL("Point Cloud Manager") );
-	case WKSP_ITEM_PointCloud:			return( _TL("Point Cloud") );
+	case WKSP_ITEM_PointCloud        :	return( _TL("Point Cloud"        ) );
 
-	case WKSP_ITEM_Grid_Manager:		return( _TL("Grid Manager") );
-	case WKSP_ITEM_Grid_System:			return( _TL("Grid System") );
-	case WKSP_ITEM_Grid:				return( _TL("Grid") );
+	case WKSP_ITEM_Grid_Manager      :	return( _TL("Grid Manager"       ) );
+	case WKSP_ITEM_Grid_System       :	return( _TL("Grid System"        ) );
+	case WKSP_ITEM_Grid              :	return( _TL("Grid"               ) );
+	case WKSP_ITEM_Grids             :	return( _TL("Grids"              ) );
 
-	case WKSP_ITEM_Map_Manager:			return( _TL("Map Manager") );
-	case WKSP_ITEM_Map:					return( _TL("Map") );
-	case WKSP_ITEM_Map_Layer:			return( _TL("Map Layer") );
+	case WKSP_ITEM_Map_Manager       :	return( _TL("Map Manager"        ) );
+	case WKSP_ITEM_Map               :	return( _TL("Map"                ) );
+	case WKSP_ITEM_Map_Layer         :	return( _TL("Map Layer"          ) );
 
-	default:							return( _TL("unkown") );
+	default                          :	return( _TL("unkown"             ) );
 	}
 }
 
@@ -202,6 +202,7 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
 	case WKSP_ITEM_Grid_Manager:
 	case WKSP_ITEM_Grid_System:
 	case WKSP_ITEM_Grid:
+	case WKSP_ITEM_Grids:
 		return( g_pData_Ctrl );
 
 	case WKSP_ITEM_Map_Manager:

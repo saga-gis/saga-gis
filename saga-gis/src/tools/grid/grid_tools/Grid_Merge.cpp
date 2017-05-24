@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -199,9 +198,9 @@ bool CGrid_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<m_pGrids->Get_Count(); i++)
+	for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pGrid	= m_pGrids->asGrid(i);
+		CSG_Grid	*pGrid	= m_pGrids->Get_Grid(i);
 
 		Set_Weight(pGrid);
 
@@ -213,7 +212,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		if(	is_Aligned(pGrid) )
 		{
-			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Count(), _TL("copying"), pGrid->Get_Name()));
+			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("copying"), pGrid->Get_Name()));
 
 			int	nx	= pGrid->Get_NX(); if( nx > m_pMosaic->Get_NX() - ax )	nx	= m_pMosaic->Get_NX() - ax;
 			int	ny	= pGrid->Get_NY(); if( ny > m_pMosaic->Get_NY() - ay )	ny	= m_pMosaic->Get_NY() - ay;
@@ -237,7 +236,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		else
 		{
-			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Count(), _TL("resampling"), pGrid->Get_Name()));
+			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("resampling"), pGrid->Get_Name()));
 
 			if( ax < 0 )	ax	= 0;
 			if( ay < 0 )	ay	= 0;
@@ -299,7 +298,7 @@ bool CGrid_Merge::Initialize(void)
 	m_pGrids	= Parameters("GRIDS"     )->asGridList();
 	m_dBlend	= Parameters("BLEND_DIST")->asDouble();
 
-	if( m_pGrids->Get_Count() < 1 )
+	if( m_pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("nothing to do, there is no grid in the input list."));
 
@@ -350,7 +349,7 @@ bool CGrid_Merge::Initialize(void)
 	switch( m_Overlap )
 	{
 	case 4:	// mean
-		if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
+		if( !m_Weights.Create(m_pMosaic->Get_System(), m_pGrids->Get_Grid_Count() < 256 ? SG_DATATYPE_Byte : SG_DATATYPE_Word) )
 		{
 			Error_Set(_TL("could not create weights grid"));
 
@@ -383,19 +382,19 @@ bool CGrid_Merge::Initialize(void)
 //---------------------------------------------------------
 bool CGrid_Merge::Set_Target(CSG_Parameters *pParameters, CSG_Parameter_Grid_List *pGrids)
 {
-	if( pParameters && pGrids && pGrids->Get_Count() > 0 )
+	if( pParameters && pGrids && pGrids->Get_Grid_Count() > 0 )
 	{
-		double		d	= pGrids->asGrid(0)->Get_Cellsize();
-		CSG_Rect	r	= pGrids->asGrid(0)->Get_Extent();
+		double		d	= pGrids->Get_Grid(0)->Get_Cellsize();
+		CSG_Rect	r	= pGrids->Get_Grid(0)->Get_Extent();
 
-		for(int i=1; i<pGrids->Get_Count(); i++)
+		for(int i=1; i<pGrids->Get_Grid_Count(); i++)
 		{
-			if( d > pGrids->asGrid(i)->Get_Cellsize() )
+			if( d > pGrids->Get_Grid(i)->Get_Cellsize() )
 			{
-				d	= pGrids->asGrid(i)->Get_Cellsize();
+				d	= pGrids->Get_Grid(i)->Get_Cellsize();
 			}
 
-			r.Union(pGrids->asGrid(i)->Get_Extent());
+			r.Union(pGrids->Get_Grid(i)->Get_Extent());
 		}
 
 		int	nx	= 1 + (int)(r.Get_XRange() / d);
@@ -662,9 +661,9 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 		{
 			m_Match.Create(3);
 
-			m_Match[0]	= m_pGrids->asGrid(0)->Get_Mean();
+			m_Match[0]	= m_pGrids->Get_Grid(0)->Get_Mean();
 			m_Match[2]	= pGrid->Get_Mean();
-			m_Match[1]	= pGrid->Get_StdDev() ? m_pGrids->asGrid(0)->Get_StdDev() / pGrid->Get_StdDev() : 0.0;
+			m_Match[1]	= pGrid->Get_StdDev() ? m_pGrids->Get_Grid(0)->Get_StdDev() / pGrid->Get_StdDev() : 0.0;
 
 			return;
 		}

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -106,11 +105,11 @@ int CSelection_Copy::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
 		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
 		);
 
 		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 		);
 	}
 
@@ -131,7 +130,7 @@ bool CSelection_Copy::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pInput->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+	if( pInput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
 		CSG_Shapes	*pOutput	= Parameters("OUT_SHAPES")->asShapes();
 
@@ -150,7 +149,7 @@ bool CSelection_Copy::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	else // if( pInput->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	else // if( pInput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
 		CSG_Table	*pOutput	= Parameters("OUT_TABLE" )->asTable();
 

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -201,9 +200,9 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 	wxMenu	*pTable	= new wxMenu(_TL("Attributes"));
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
-	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
+	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_SCATTERPLOT);
 	CMD_Menu_Add_Item(pTable, false, ID_CMD_SHAPES_SAVE_ATTRIBUTES);
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
 
@@ -253,10 +252,10 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		break;
 
 	//-----------------------------------------------------
-	case ID_CMD_TABLES_SHOW   :	m_pTable->Toggle_View   ();	break;
-	case ID_CMD_TABLES_DIAGRAM:	m_pTable->Toggle_Diagram();	break;
+	case ID_CMD_TABLE_SHOW   :	m_pTable->Toggle_View   ();	break;
+	case ID_CMD_TABLE_DIAGRAM:	m_pTable->Toggle_Diagram();	break;
 
-	case ID_CMD_TABLES_SCATTERPLOT:
+	case ID_CMD_TABLE_SCATTERPLOT:
 		Add_ScatterPlot();
 		break;
 
@@ -264,7 +263,7 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 		{
 			wxString	File(m_pObject->Get_File_Name());
 
-			if( DLG_Save(File, ID_DLG_TABLES_SAVE) )
+			if( DLG_Save(File, ID_DLG_TABLE_SAVE) )
 			{
 				CSG_Table	Table(*((CSG_Table *)m_pObject));
 
@@ -318,11 +317,11 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 		event.Enable(m_Edit_pShape == NULL);
 		break;
 
-	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TABLE_SHOW:
 		event.Check(m_pTable->Get_View() != NULL);
 		break;
 
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_TABLE_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 
@@ -707,7 +706,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "EDIT_SNAP_LIST") )
 		{
-			pParameters->Set_Enabled("EDIT_SNAP_DIST", pParameter->asList()->Get_Count() > 0);
+			pParameters->Set_Enabled("EDIT_SNAP_DIST", pParameter->asList()->Get_Item_Count() > 0);
 		}
 
 		if(	!SG_STR_CMP(pParameters->Get_Identifier(), "DISPLAY_CHART") )

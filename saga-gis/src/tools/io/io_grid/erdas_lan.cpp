@@ -24,7 +24,8 @@
 // Geo-Scientific Analysis'. SAGA is free software; you  //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -219,7 +218,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			for(i=0; i<nBands; i++)
 			{
 				Grids->Add_Item(SG_Create_Grid(gType, nx, ny, Cellsize, xMin, yMin));
-				Grids->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), SG_File_Get_Name(FileName, false).c_str(), i + 1));
+				Grids->Get_Grid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), SG_File_Get_Name(FileName, false).c_str(), i + 1));
 			}
 
 			//---------------------------------------------
@@ -261,7 +260,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 							break;
 						}
 
-						Grids->asGrid(i)->Set_Value(x, ny - y - 1, Value);
+						Grids->Get_Grid(i)->Set_Value(x, ny - y - 1, Value);
 					}
 				}
 			}
@@ -271,8 +270,8 @@ bool CErdas_LAN_Import::On_Execute(void)
 
 			for(i=0; i<nBands; i++)
 			{
-				DataObject_Add			(Grids->asGrid(i));
-				DataObject_Set_Colors	(Grids->asGrid(i), 100, SG_COLORS_BLACK_WHITE);
+				DataObject_Add			(Grids->Get_Grid(i));
+				DataObject_Set_Colors	(Grids->Get_Grid(i), 100, SG_COLORS_BLACK_WHITE);
 			}
 		}
 

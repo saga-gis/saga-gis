@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -91,14 +88,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_META_EXT_GRID		SG_T("mgrd" )
-#define SG_META_EXT_GRIDS		SG_T("mgrds")
-#define SG_META_EXT_TABLE		SG_T("mtab" )
-#define SG_META_EXT_SHAPES		SG_T("mshp" )
-#define SG_META_EXT_TIN			SG_T("mtin" )
-#define SG_META_EXT_POINTCLOUD	SG_T("mpts" )
-
-//---------------------------------------------------------
 #define SG_META_SRC				SG_T("SOURCE")
 #define SG_META_SRC_FILE		SG_T("FILE")
 #define SG_META_SRC_DB			SG_T("DATABASE")
@@ -130,13 +119,13 @@
 //---------------------------------------------------------
 typedef enum ESG_Data_Object_Type
 {
-	DATAOBJECT_TYPE_Grid,
-	DATAOBJECT_TYPE_Grids,
-	DATAOBJECT_TYPE_Table,
-	DATAOBJECT_TYPE_Shapes,
-	DATAOBJECT_TYPE_TIN,
-	DATAOBJECT_TYPE_PointCloud,
-	DATAOBJECT_TYPE_Undefined
+	SG_DATAOBJECT_TYPE_Grid,
+	SG_DATAOBJECT_TYPE_Grids,
+	SG_DATAOBJECT_TYPE_Table,
+	SG_DATAOBJECT_TYPE_Shapes,
+	SG_DATAOBJECT_TYPE_TIN,
+	SG_DATAOBJECT_TYPE_PointCloud,
+	SG_DATAOBJECT_TYPE_Undefined
 }
 TSG_Data_Object_Type;
 
@@ -189,7 +178,7 @@ public:
 
 	virtual bool					is_Valid		(void)	const	= 0;
 
-	virtual bool					Save			(const CSG_String &File_Name, int Format = 0)	= 0;
+	virtual bool					Save			(const CSG_String &FileName, int Format = 0)	= 0;
 
 	/// If there is an associated file data can be reloaded with this command.
 	bool							Reload			(void);
@@ -197,7 +186,7 @@ public:
 	/// Deletes all files associated with this data object if possible. Works only with native SAGA files. Returns true on success.
 	bool							Delete			(void);
 
-	void							Set_File_Name	(const CSG_String &File_Name);
+	void							Set_File_Name	(const CSG_String &FileName);
 	const SG_Char *					Get_File_Name	(bool bNative = true)	const;
 	int								Get_File_Type	(void)					const;
 
@@ -206,15 +195,17 @@ public:
 	virtual bool					Assign			(CSG_Data_Object *pObject);
 
 	void							Set_Name		(const CSG_String &Name);
-	const SG_Char *					Get_Name		(void)	const			{	return( m_Name );			}
+	const SG_Char *					Get_Name		(void)	const;
 
 	void							Set_Description	(const CSG_String &Description);
-	const SG_Char *					Get_Description	(void)	const			{	return( m_Description );	}
+	const SG_Char *					Get_Description	(void)	const;
 
-	virtual void					Set_Modified	(bool bOn = true)		{	m_bModified	= bOn;			}
+	virtual void					Set_Modified	(bool bOn = true)		{	m_bModified	= bOn; if( bOn && m_pOwner ) m_pOwner->Set_Modified(bOn);	}
 	bool							is_Modified		(void)	const			{	return( m_bModified );		}
 	bool							Update			(void);
 
+	CSG_Data_Object *				Get_Owner		(void)	const				{	return( m_pOwner );		}
+	void							Set_Owner		(CSG_Data_Object *pOwner)	{	m_pOwner = pOwner;		}
 
 	CSG_MetaData &					Get_MetaData	(void)	const			{	return( *m_pMetaData );		}
 	CSG_MetaData &					Get_MetaData_DB	(void)					{	return( *m_pMetaData_DB );	}
@@ -224,15 +215,15 @@ public:
 	CSG_Projection &				Get_Projection	(void)					{	return( m_Projection );		}
 	const CSG_Projection &			Get_Projection	(void)	const			{	return( m_Projection );		}
 
-	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
-	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
-	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
-	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
-	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
-	class CSG_Grids *				asGrids			(void)	{	return( Get_ObjectType() == DATAOBJECT_TYPE_Grids      ? (class CSG_Grids      *)this : NULL );	}
+	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
+	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}
+	class CSG_TIN *					asTIN			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN        ? (class CSG_TIN        *)this : NULL );	}
+	class CSG_PointCloud *			asPointCloud	(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? (class CSG_PointCloud *)this : NULL );	}
+	class CSG_Grid *				asGrid			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid       ? (class CSG_Grid       *)this : NULL );	}
+	class CSG_Grids *				asGrids			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids      ? (class CSG_Grids      *)this : NULL );	}
 
-	bool							Set_NoData_Value		(double Value);
-	bool							Set_NoData_Value_Range	(double loValue, double hiValue);
+	virtual bool					Set_NoData_Value		(double Value);
+	virtual bool					Set_NoData_Value_Range	(double loValue, double hiValue);
 	double							Get_NoData_Value		(void)	const	{	return( m_NoData_Value );	}
 	double							Get_NoData_hiValue		(void)	const	{	return( m_NoData_hiValue );	}
 
@@ -246,14 +237,19 @@ public:
 
 protected:
 
-	void							Set_File_Name		(const CSG_String &File_Name, bool bNative);
+	CSG_Data_Object					*m_pOwner;
+
+
+	void							Set_File_Name		(const CSG_String &FileName, bool bNative);
 	void							Set_File_Type		(int Type)			{	m_File_Type	= Type;			}
 
 	virtual bool					On_Reload			(void)	= 0;
 	virtual bool					On_Delete			(void)	= 0;
 
-	bool							Load_MetaData		(const SG_Char *File_Name);
-	bool							Save_MetaData		(const SG_Char *File_Name);
+	bool							Load_MetaData		(const CSG_String &FileName);
+	bool							Load_MetaData		(CSG_File &Stream);
+	bool							Save_MetaData		(const CSG_String &FileName);
+	bool							Save_MetaData		(CSG_File &Stream);
 
 	void							Set_Update_Flag		(bool bOn = true)	{	m_bUpdate	= bOn;			}
 	bool							Get_Update_Flag		(void)				{	return( m_bUpdate );		}
@@ -269,7 +265,7 @@ private:
 
 	double							m_NoData_Value, m_NoData_hiValue;
 
-	CSG_String						m_File_Name, m_Name, m_Description;
+	CSG_String						m_FileName, m_Name, m_Description;
 
 
 	CSG_MetaData					m_MetaData, *m_pMetaData, *m_pHistory, *m_pFile, *m_pProjection, *m_pMetaData_DB;

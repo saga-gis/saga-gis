@@ -164,14 +164,14 @@ bool CGridsFromTableAndGrid::On_Execute(void)
 			{
 				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
 				{
-					pGrids->asGrid(iAttribute)->Set_NoData(jCell);
+					pGrids->Get_Grid(iAttribute)->Set_NoData(jCell);
 				}
 			}
 			else
 			{
 				for(iAttribute=0; iAttribute<nAttributes; iAttribute++)
 				{
-					pGrids->asGrid(iAttribute)->Set_Value(jCell, pRecord->asDouble(Attribute[iAttribute]));
+					pGrids->Get_Grid(iAttribute)->Set_Value(jCell, pRecord->asDouble(Attribute[iAttribute]));
 				}
 			}
 		}

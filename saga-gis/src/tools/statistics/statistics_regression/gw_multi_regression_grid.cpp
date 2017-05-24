@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -242,15 +241,15 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 		if( m_dimModel.Get_Cellsize() > Get_Cellsize() )	// scaling
 		{
 			m_pPredictors[i]	= SG_Create_Grid(m_dimModel);
-			m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
+			m_pPredictors[i]	->Assign(pPredictors->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
 		}
 		else
 		{
-			m_pPredictors[i]	= pPredictors->asGrid(i);
+			m_pPredictors[i]	= pPredictors->Get_Grid(i);
 		}
 
 		m_pModel     [i]	= SG_Create_Grid(m_dimModel);
-		m_pModel     [i]	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPredictors->asGrid(i)->Get_Name(), _TL("Factor")));
+		m_pModel     [i]	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor")));
 	}
 
 	m_pModel[m_nPredictors]	= SG_Create_Grid(m_dimModel);
@@ -268,7 +267,7 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 		{
 			delete(m_pPredictors[i]);
 
-			m_pPredictors[i]	= pPredictors->asGrid(i);
+			m_pPredictors[i]	= pPredictors->Get_Grid(i);
 		}
 	}
 
@@ -318,7 +317,7 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, CSG_Parameter_Grid_List *pPredictors)
 {
 	//-----------------------------------------------------
-	if( (m_nPredictors = pPredictors->Get_Count()) <= 0 )
+	if( (m_nPredictors = pPredictors->Get_Grid_Count()) <= 0 )
 	{
 		return( false );
 	}
@@ -337,9 +336,9 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	m_Points.Set_Name (Parameters("DEPENDENT")->asString());
 	m_Points.Add_Field(Parameters("DEPENDENT")->asString(), SG_DATATYPE_Double);
 
-	for(iPredictor=0; iPredictor<pPredictors->Get_Count(); iPredictor++)
+	for(iPredictor=0; iPredictor<pPredictors->Get_Grid_Count(); iPredictor++)
 	{
-		m_Points.Add_Field(pPredictors->asGrid(iPredictor)->Get_Name(), SG_DATATYPE_Double);
+		m_Points.Add_Field(pPredictors->Get_Grid(iPredictor)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -355,7 +354,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 
 			for(iPredictor=0; bAdd && iPredictor<m_nPredictors; iPredictor++)
 			{
-				if( !pPredictors->asGrid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Resampling) )
+				if( !pPredictors->Get_Grid(iPredictor)->Get_Value(Point, z[iPredictor + 1], Resampling) )
 				{
 					bAdd	= false;
 				}

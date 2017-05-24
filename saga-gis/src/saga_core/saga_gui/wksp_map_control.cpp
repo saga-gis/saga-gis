@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -99,7 +98,8 @@ enum
 	IMG_SHAPES_POLYGON,
 	IMG_TIN,
 	IMG_POINTCLOUD,
-	IMG_GRID
+	IMG_GRID,
+	IMG_GRIDS
 };
 
 
@@ -215,19 +215,20 @@ inline int CWKSP_Map_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 
 			switch( pItem->Get_Type() )
 			{
-			default:						break;
-			case WKSP_ITEM_Grid:			return( IMG_GRID );
-			case WKSP_ITEM_TIN:				return( IMG_TIN );
-			case WKSP_ITEM_PointCloud:		return( IMG_POINTCLOUD );
-			case WKSP_ITEM_Shapes:
+			case WKSP_ITEM_Grid        :	return( IMG_GRID );
+			case WKSP_ITEM_Grids       :	return( IMG_GRIDS );
+			case WKSP_ITEM_TIN         :	return( IMG_TIN );
+			case WKSP_ITEM_PointCloud  :	return( IMG_POINTCLOUD );
+			case WKSP_ITEM_Shapes      :
 				switch( ((CWKSP_Shapes *)pItem)->Get_Shapes()->Get_Type() )
 				{
-				case SHAPE_TYPE_Point:		return( IMG_SHAPES_POINT );
-				case SHAPE_TYPE_Points:		return( IMG_SHAPES_POINTS );
-				case SHAPE_TYPE_Line:		return( IMG_SHAPES_LINE );
+				case SHAPE_TYPE_Point  :	return( IMG_SHAPES_POINT );
+				case SHAPE_TYPE_Points :	return( IMG_SHAPES_POINTS );
+				case SHAPE_TYPE_Line   :	return( IMG_SHAPES_LINE );
 				case SHAPE_TYPE_Polygon:	return( IMG_SHAPES_POLYGON );
 				default:	break;
 				}
+			default:	break;
 			}
 		}
 	}

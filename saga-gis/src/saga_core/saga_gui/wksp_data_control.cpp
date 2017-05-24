@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -212,13 +211,10 @@ inline int CWKSP_Data_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 	{
 		switch( pItem->Get_Type() )
 		{
-		default:
-			break;
-
-		case WKSP_ITEM_Data_Manager:		return( IMG_DATA_MANAGER );
-		case WKSP_ITEM_Table_Manager:		return( IMG_TABLE_MANAGER );
-		case WKSP_ITEM_Table:				return( IMG_TABLE );
-		case WKSP_ITEM_Shapes_Manager:		return( IMG_SHAPES_MANAGER );
+		case WKSP_ITEM_Data_Manager      :	return( IMG_DATA_MANAGER );
+		case WKSP_ITEM_Table_Manager     :	return( IMG_TABLE_MANAGER );
+		case WKSP_ITEM_Table             :	return( IMG_TABLE );
+		case WKSP_ITEM_Shapes_Manager    :	return( IMG_SHAPES_MANAGER );
 
 		case WKSP_ITEM_Shapes_Type:
 		case WKSP_ITEM_Shapes:
@@ -226,20 +222,22 @@ inline int CWKSP_Data_Control::_Get_Image_ID(CWKSP_Base_Item *pItem)
 				?	((CWKSP_Shapes *)pItem)->Get_Shapes()->Get_Type()
 				:	((CWKSP_Shapes_Type *)pItem)->Get_Shape_Type() )
 			{
-			default:
-			case SHAPE_TYPE_Point:			return( IMG_SHAPES_POINT );
-			case SHAPE_TYPE_Points:			return( IMG_SHAPES_POINTS );
-			case SHAPE_TYPE_Line:			return( IMG_SHAPES_LINE );
-			case SHAPE_TYPE_Polygon:		return( IMG_SHAPES_POLYGON );
+			case SHAPE_TYPE_Point        :	return( IMG_SHAPES_POINT );
+			case SHAPE_TYPE_Points       :	return( IMG_SHAPES_POINTS );
+			case SHAPE_TYPE_Line         :	return( IMG_SHAPES_LINE );
+			case SHAPE_TYPE_Polygon      :	return( IMG_SHAPES_POLYGON );
+			default                      :	return( 0 );
 			}
 
-		case WKSP_ITEM_TIN_Manager:			return( IMG_TIN_MANAGER );
-		case WKSP_ITEM_TIN:					return( IMG_TIN );
+		case WKSP_ITEM_TIN_Manager       :	return( IMG_TIN_MANAGER );
+		case WKSP_ITEM_TIN               :	return( IMG_TIN );
 		case WKSP_ITEM_PointCloud_Manager:	return( IMG_POINTCLOUD_MANAGER );
-		case WKSP_ITEM_PointCloud:			return( IMG_POINTCLOUD );
-		case WKSP_ITEM_Grid_Manager:		return( IMG_GRID_MANAGER );
-		case WKSP_ITEM_Grid_System:			return( IMG_GRID_SYSTEM );
-		case WKSP_ITEM_Grid:				return( IMG_GRID );
+		case WKSP_ITEM_PointCloud        :	return( IMG_POINTCLOUD );
+		case WKSP_ITEM_Grid_Manager      :	return( IMG_GRID_MANAGER );
+		case WKSP_ITEM_Grid_System       :	return( IMG_GRID_SYSTEM );
+		case WKSP_ITEM_Grid              :	return( IMG_GRID );
+		case WKSP_ITEM_Grids             :	return( IMG_GRID );
+		default                          :	return( 0 );
 		}
 	}
 

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -143,7 +142,7 @@ bool CSeparate_by_Direction::On_Execute(void)
 	for(iSector=0; iSector<m_nSectors; iSector++)
 	{
 		pOutput->Add_Item(SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format(SG_T("Direction %.2f"), iSector * m_dSector * M_RAD_TO_DEG), pPoints));
-		pOutput->asShapes(iSector)->Add_Field(_TL("Direction"), SG_DATATYPE_Double);
+		pOutput->Get_Shapes(iSector)->Add_Field(_TL("Direction"), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -183,24 +182,24 @@ bool CSeparate_by_Direction::On_Execute(void)
 
 			if( iSector >= 0 && iSector < m_nSectors )
 			{
-				pOutput->asShapes(iSector)->Add_Shape(pt_B)->Set_Value(dir_Field, dir * M_RAD_TO_DEG);
+				pOutput->Get_Shapes(iSector)->Add_Shape(pt_B)->Set_Value(dir_Field, dir * M_RAD_TO_DEG);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	for(iSector=pOutput->Get_Count()-1; iSector>=0; iSector--)
+	for(iSector=pOutput->Get_Item_Count()-1; iSector>=0; iSector--)
 	{
-		if( pOutput->asShapes(iSector)->Get_Count() == 0 )
+		if( pOutput->Get_Shapes(iSector)->Get_Count() == 0 )
 		{
-			delete(pOutput->asShapes(iSector));
+			delete(pOutput->Get_Shapes(iSector));
 
 			pOutput->Del_Item(iSector);
 		}
 	}
 
 	//-----------------------------------------------------
-	return( pOutput->Get_Count() > 0 );
+	return( pOutput->Get_Item_Count() > 0 );
 }
 
 

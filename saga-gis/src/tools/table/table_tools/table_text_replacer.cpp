@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -147,11 +146,11 @@ int CTable_Text_Replacer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
 		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
 		);
 
 		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 		);
 	}
 
@@ -169,7 +168,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	if( pTable->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+	if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
 		CSG_Shapes	*pOutput	= Parameters("OUT_SHAPES")->asShapes();
 
@@ -180,7 +179,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 			pTable	= pOutput;
 		}
 	}
-	else // if( pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	else // if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
 		CSG_Table	*pOutput	= Parameters("OUT_TABLE" )->asTable();
 

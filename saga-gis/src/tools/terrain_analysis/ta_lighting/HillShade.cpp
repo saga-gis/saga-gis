@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -81,30 +80,31 @@ CHillShade::CHillShade(void)
 	Set_Description(_TW(
 		"Analytical hillshading calculation.\n"
 		"Method 'Ambient Occlusion' is based on concepts of Tarini et al. (2006), but only "
-		"the northern half-space is considered.\n"
-		"\n"
-		"References:\n"
-		"Tarini, M. / Cignoni, P. / Montani, C. (2006): Ambient Occlusion and Edge Cueing "
-		"to Enhance Real Time Molecular Visualization. "
-		"IEEE Transactions on Visualization and Computer Graphics, Vol. 12, No. 5, pp. 1237-1244.\n"
+		"the northern half-space is considered."
 	));
 
+	Add_Reference(
+		"Tarini, M. / Cignoni, P. / Montani, C.", "2006",
+		"Ambient Occlusion and Edge Cueing to Enhance Real Time Molecular Visualization",
+		"IEEE Transactions on Visualization and Computer Graphics, Vol. 12, No. 5, pp. 1237-1244."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"		, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SHADE"			, _TL("Analytical Hillshading"),
+	Parameters.Add_Grid("",
+		"SHADE"			, _TL("Analytical Hillshading"),
 		_TL("The angle between the surface and the incoming light beams, measured in radians."),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Shading Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Shading Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Standard"),
@@ -115,26 +115,26 @@ CHillShade::CHillShade(void)
 		), 0
 	);
 
-	Parameters.Add_Double(
-		NULL	, "AZIMUTH"			, _TL("Azimuth"),
+	Parameters.Add_Double("",
+		"AZIMUTH"		, _TL("Azimuth"),
 		_TL("Direction of the light source, measured in degree clockwise from the North direction."),
 		315.0, 0.0, true, 360.0, true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "DECLINATION"		, _TL("Height"),
+	Parameters.Add_Double("",
+		"DECLINATION"	, _TL("Height"),
 		_TL("Height of the light source, measured in degree above the horizon."),
 		45.0, 0.0, true, 90.0, true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "EXAGGERATION"	, _TL("Exaggeration"),
+	Parameters.Add_Double("",
+		"EXAGGERATION"	, _TL("Exaggeration"),
 		_TL("The terrain exaggeration factor allows one to increase the shading contrasts in flat areas."),
 		4.0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SHADOW"			, _TL("Shadow"),
+	Parameters.Add_Choice("",
+		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow. The first is slightly faster but might show some artifacts."),
 		CSG_String::Format("%s|%s|",
 			_TL("slim"),
@@ -142,15 +142,15 @@ CHillShade::CHillShade(void)
 		), 1
 	);
 
-	Parameters.Add_Int(
-		NULL	, "NDIRS"			, _TL("Number of Directions"),
+	Parameters.Add_Int("",
+		"NDIRS"			, _TL("Number of Directions"),
 		_TW("Number of sample directions for ambient occlusion. Divides azimuth range (270 to 0 to 90 degree) into sectors. "
 			"Declination (0 to 90 degree) is divided in (Number of Directions / 4) sectors."),
-		8.0, 2, true
+		8, 2, true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "RADIUS"			, _TL("Search Radius"),
+	Parameters.Add_Double("",
+		"RADIUS"		, _TL("Search Radius"),
 		_TL("Radius used to trace for shadows (ambient occlusion) [map units]."),
 		10.0, 0.001, true
 	);

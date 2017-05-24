@@ -23,7 +23,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -32,10 +33,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -135,9 +134,9 @@ bool CLeastCostPathProfile::On_Execute(void)
 	m_pPoints->Add_Field("Y" , SG_DATATYPE_Double);
 	m_pPoints->Add_Field("Z" , SG_DATATYPE_Double);
 
-	for(int i=0; i<m_pValues->Get_Count(); i++)
+	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
-		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(m_pValues->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -234,9 +233,9 @@ bool CLeastCostPathProfile::Add_Point(int x, int y)
 	pPoint->Set_Value(3, Point.y);
 	pPoint->Set_Value(4, m_pDEM->asDouble(x, y));
 
-	for(int i=0; i<m_pValues->Get_Count(); i++)
+	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
-		pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->asGrid(i)->asDouble(x, y));
+		pPoint->Set_Value(VALUE_OFFSET + i, m_pValues->Get_Grid(i)->asDouble(x, y));
 	}
 
 	m_pLine->Add_Point(Point);

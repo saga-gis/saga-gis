@@ -21,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -114,16 +115,16 @@ bool CDataTrans::On_Execute(void)
 	CSG_Parameter_Grid_List	*pSources1	= Parameters("SOURCE1")->asGridList(); //RunOff Liste
 	CSG_Parameter_Grid_List	*pSources2	= Parameters("SOURCE2")->asGridList(); //Drainage Liste
 
-	if( pSources1->Get_Count() > 0 && pSources2->Get_Count() > 0)
+	if( pSources1->Get_Grid_Count() > 0 && pSources2->Get_Grid_Count() > 0)
 	{
-		if( pSources1->Get_Count() == pSources2->Get_Count()) 
+		if( pSources1->Get_Grid_Count() == pSources2->Get_Grid_Count()) 
 		{
-			m_pID = pSources1->Get_Count();
+			m_pID = pSources1->Get_Grid_Count();
 
-			for(i=0; i < pSources1->Get_Count(); i++)
+			for(i=0; i < pSources1->Get_Grid_Count(); i++)
 			{
-				pSource1 = pSources1->asGrid(i);
-				pSource2 = pSources2->asGrid(i);
+				pSource1 = pSources1->Get_Grid(i);
+				pSource2 = pSources2->Get_Grid(i);
 	
 				Set_TFile(pSource1, pSource2);
 			}

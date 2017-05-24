@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -145,7 +144,7 @@ int CGSGrid_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Count() > 0);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Grid_Count() > 0);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -162,7 +161,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() <= 1 )
+	if( pGrids->Get_Grid_Count() <= 1 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -172,11 +171,11 @@ bool CGSGrid_Statistics::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pWeights	= Parameters("WEIGHTS")->asGridList();
 
-	if( pWeights->Get_Count() == 0 )
+	if( pWeights->Get_Grid_Count() == 0 )
 	{
 		pWeights	= NULL;
 	}
-	else if( pWeights->Get_Count() != pGrids->Get_Count() )
+	else if( pWeights->Get_Grid_Count() != pGrids->Get_Grid_Count() )
 	{
 		Error_Set(_TL("number of weight grids have to be equal to the number of value grids"));
 
@@ -223,22 +222,22 @@ bool CGSGrid_Statistics::On_Execute(void)
 		{
 			CSG_Simple_Statistics	s(pPercentile != NULL);
 
-			for(int i=0; i<pGrids->Get_Count(); i++)
+			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 			{
-				if( !pGrids->asGrid(i)->is_NoData(x, y) )
+				if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
 					if( pWeights )
 					{
 						double	w = 0.0;
 
-						if( pWeights->asGrid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
+						if( pWeights->Get_Grid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
 						{
-							s.Add_Value(pGrids->asGrid(i)->asDouble(x, y), w);
+							s.Add_Value(pGrids->Get_Grid(i)->asDouble(x, y), w);
 						}
 					}
 					else
 					{
-						s.Add_Value(pGrids->asGrid(i)->asDouble(x, y));
+						s.Add_Value(pGrids->Get_Grid(i)->asDouble(x, y));
 					}
 				}
 			}
@@ -357,7 +356,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -394,9 +393,9 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 	double	dRank	= Parameters("PCTL")->asBool() ? Parameters("PCTL_VAL")->asDouble() : -1.0;
 
 	//-----------------------------------------------------
-	for(int i=0; i<pGrids->Get_Count() && Process_Get_Okay(); i++)
+	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Grid			*pGrid		= pGrids->asGrid(i);
+		CSG_Grid			*pGrid		= pGrids->Get_Grid(i);
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
 		pRecord->Set_Value("NAME"        , pGrid->Get_Name());

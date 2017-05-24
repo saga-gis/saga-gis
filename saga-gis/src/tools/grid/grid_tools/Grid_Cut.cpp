@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -264,16 +263,16 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
 			CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
 
-			for(int i=0; i<pInput->Get_Count(); i++)
+			for(int i=0; i<pInput->Get_Grid_Count(); i++)
 			{
-				CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->asGrid(i)->Get_Type());
+				CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->Get_Grid(i)->Get_Type());
 
-				pClip->Set_Name              (pInput->asGrid(i)->Get_Name());
-				pClip->Set_Description       (pInput->asGrid(i)->Get_Description());
-				pClip->Set_Unit              (pInput->asGrid(i)->Get_Unit());
-				pClip->Set_NoData_Value_Range(pInput->asGrid(i)->Get_NoData_Value(), pInput->asGrid(i)->Get_NoData_hiValue());
-				pClip->Set_Scaling           (pInput->asGrid(i)->Get_Scaling(), pInput->asGrid(i)->Get_Offset());
-				pClip->Assign                (pInput->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
+				pClip->Set_Name              (pInput->Get_Grid(i)->Get_Name());
+				pClip->Set_Description       (pInput->Get_Grid(i)->Get_Description());
+				pClip->Set_Unit              (pInput->Get_Grid(i)->Get_Unit());
+				pClip->Set_NoData_Value_Range(pInput->Get_Grid(i)->Get_NoData_Value(), pInput->Get_Grid(i)->Get_NoData_hiValue());
+				pClip->Set_Scaling           (pInput->Get_Grid(i)->Get_Scaling(), pInput->Get_Grid(i)->Get_Offset());
+				pClip->Assign                (pInput->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
 
 				pOutput->Add_Item(pClip);
 				DataObject_Add   (pClip);
@@ -475,16 +474,16 @@ bool CGrid_Clip::On_Execute(void)
 	CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
 	CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
 
-	for(int i=0; i<pInput->Get_Count(); i++)
+	for(int i=0; i<pInput->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->asGrid(i)->Get_Type());
+		CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->Get_Grid(i)->Get_Type());
 
-		pClip->Set_Name              (pInput->asGrid(i)->Get_Name());
-		pClip->Set_Description       (pInput->asGrid(i)->Get_Description());
-		pClip->Set_Unit              (pInput->asGrid(i)->Get_Unit());
-		pClip->Set_NoData_Value_Range(pInput->asGrid(i)->Get_NoData_Value(), pInput->asGrid(i)->Get_NoData_hiValue());
-		pClip->Set_Scaling           (pInput->asGrid(i)->Get_Scaling(), pInput->asGrid(i)->Get_Offset());
-		pClip->Assign                (pInput->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
+		pClip->Set_Name              (pInput->Get_Grid(i)->Get_Name());
+		pClip->Set_Description       (pInput->Get_Grid(i)->Get_Description());
+		pClip->Set_Unit              (pInput->Get_Grid(i)->Get_Unit());
+		pClip->Set_NoData_Value_Range(pInput->Get_Grid(i)->Get_NoData_Value(), pInput->Get_Grid(i)->Get_NoData_hiValue());
+		pClip->Set_Scaling           (pInput->Get_Grid(i)->Get_Scaling(), pInput->Get_Grid(i)->Get_Offset());
+		pClip->Assign                (pInput->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
 
 		if( Mask.is_Valid() ) // && Parameters("EXTENT")->asInt() == 3 )	// polygon clip
 		{

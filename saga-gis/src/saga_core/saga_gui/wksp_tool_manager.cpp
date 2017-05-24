@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -393,8 +392,8 @@ wxMenu * CWKSP_Tool_Manager::Get_Menu(void)
 
 	pMenu	= new wxMenu(_TL("Tool Libraries"));
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_OPEN);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_RELOAD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_OPEN);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
 
 	if( Get_Count() > 0 )
 	{
@@ -402,7 +401,7 @@ wxMenu * CWKSP_Tool_Manager::Get_Menu(void)
 		pMenu->AppendSeparator();
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_SAVE_DOCS);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_DOCS);
 	}
 
 	return( pMenu );
@@ -421,11 +420,11 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 	default:
 		return( CWKSP_Base_Manager::On_Command(Cmd_ID) );
 
-	case ID_CMD_TOOLS_OPEN:
+	case ID_CMD_TOOL_OPEN:
 		Open();
 		break;
 
-	case ID_CMD_TOOLS_RELOAD:
+	case ID_CMD_TOOL_RELOAD:
 		#if defined(_SAGA_LINUX)
 			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false);
 			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false);
@@ -435,7 +434,7 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 			_Update(false);
 		break;
 
-	case ID_CMD_TOOLS_SEARCH:
+	case ID_CMD_TOOL_SEARCH:
 		{
 			CWKSP_Base_Item	*pItem	= g_pTool_Ctrl->Search_Item(_TL("Run Tool"), WKSP_ITEM_Tool);
 
@@ -446,7 +445,7 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 		}
 		break;
 
-	case ID_CMD_TOOLS_SAVE_DOCS:
+	case ID_CMD_TOOL_SAVE_DOCS:
 		{
 			wxString	Path;
 
@@ -474,8 +473,8 @@ bool CWKSP_Tool_Manager::On_Command_UI(wxUpdateUIEvent &event)
 		return( CWKSP_Base_Manager::On_Command_UI(event) );
 
 	case ID_CMD_WKSP_ITEM_CLOSE:
-	case ID_CMD_TOOLS_SEARCH:
-	case ID_CMD_TOOLS_SAVE_DOCS:
+	case ID_CMD_TOOL_SEARCH:
+	case ID_CMD_TOOL_SAVE_DOCS:
 		event.Enable(Get_Count() > 0 && g_pTool == NULL);
 		break;
 	}
@@ -625,7 +624,7 @@ void CWKSP_Tool_Manager::Open(void)
 {
 	wxArrayString	File_Paths;
 
-	if( DLG_Open(File_Paths, ID_DLG_TOOLS_OPEN) )
+	if( DLG_Open(File_Paths, ID_DLG_TOOL_OPEN) )
 	{
 		MSG_General_Add_Line();
 

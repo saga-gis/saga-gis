@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -255,7 +254,7 @@ bool CGrids_Sum::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS" )->asGridList();
 
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no grid in list"));
 
@@ -276,16 +275,16 @@ bool CGrids_Sum::On_Execute(void)
 			int		n	= 0;
 			double	d	= 0.0;
 
-			for(int i=0; i<pGrids->Get_Count(); i++)
+			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 			{
-				if( pGrids->asGrid(i)->is_InGrid(x, y) )
+				if( pGrids->Get_Grid(i)->is_InGrid(x, y) )
 				{
 					n	++;
-					d	+= pGrids->asGrid(i)->asDouble(x, y);
+					d	+= pGrids->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
-			if( bNoData ? n > 0 : n == pGrids->Get_Count() )
+			if( bNoData ? n > 0 : n == pGrids->Get_Grid_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}
@@ -348,7 +347,7 @@ bool CGrids_Product::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS" )->asGridList();
 
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no grid in list"));
 
@@ -369,22 +368,22 @@ bool CGrids_Product::On_Execute(void)
 			int		n	= 0;
 			double	d	= 0.0;
 
-			for(int i=0; i<pGrids->Get_Count(); i++)
+			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 			{
-				if( pGrids->asGrid(i)->is_InGrid(x, y) )
+				if( pGrids->Get_Grid(i)->is_InGrid(x, y) )
 				{
 					if( n++ < 1 )
 					{
-						d 	 = pGrids->asGrid(i)->asDouble(x, y);
+						d 	 = pGrids->Get_Grid(i)->asDouble(x, y);
 					}
 					else
 					{
-						d	*= pGrids->asGrid(i)->asDouble(x, y);
+						d	*= pGrids->Get_Grid(i)->asDouble(x, y);
 					}
 				}
 			}
 
-			if( bNoData ? n > 0 : n == pGrids->Get_Count() )
+			if( bNoData ? n > 0 : n == pGrids->Get_Grid_Count() )
 			{
 				pResult->Set_Value(x, y, d);
 			}

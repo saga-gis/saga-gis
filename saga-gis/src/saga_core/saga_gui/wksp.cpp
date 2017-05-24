@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -275,11 +274,11 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 //---------------------------------------------------------
 void CWKSP::On_Command(wxCommandEvent &event)
 {
-	if(	(event.GetId() >= ID_CMD_TABLES_RECENT_FIRST       && event.GetId() <= ID_CMD_TABLES_RECENT_LAST      )
+	if(	(event.GetId() >= ID_CMD_TABLE_RECENT_FIRST        && event.GetId() <= ID_CMD_TABLE_RECENT_LAST       )
 	||	(event.GetId() >= ID_CMD_SHAPES_RECENT_FIRST       && event.GetId() <= ID_CMD_SHAPES_RECENT_LAST      )
 	||	(event.GetId() >= ID_CMD_POINTCLOUD_RECENT_FIRST   && event.GetId() <= ID_CMD_POINTCLOUD_RECENT_LAST  )
 	||	(event.GetId() >= ID_CMD_TIN_RECENT_FIRST          && event.GetId() <= ID_CMD_TIN_RECENT_LAST         )
-	||	(event.GetId() >= ID_CMD_GRIDS_RECENT_FIRST        && event.GetId() <= ID_CMD_GRIDS_RECENT_LAST       )
+	||	(event.GetId() >= ID_CMD_GRID_RECENT_FIRST         && event.GetId() <= ID_CMD_GRID_RECENT_LAST        )
 	||	(event.GetId() >= ID_CMD_DATA_PROJECT_RECENT_FIRST && event.GetId() <= ID_CMD_DATA_PROJECT_RECENT_LAST) )
 	{
 		m_pData->On_Command(event);
@@ -313,11 +312,11 @@ void CWKSP::On_Command(wxCommandEvent &event)
 		}
 		break;
 
-	case ID_CMD_TOOLS_OPEN:
+	case ID_CMD_TOOL_OPEN:
 		m_pTools->On_Command(event);
 		break;
 
-	case ID_CMD_TOOLS_SEARCH:
+	case ID_CMD_TOOL_SEARCH:
 		m_pTools->On_Command(event);
 		break;
 
@@ -329,11 +328,11 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	case ID_CMD_DATA_PROJECT_COPY:
 	case ID_CMD_DATA_PROJECT_COPY_DB:
 	case ID_CMD_DATA_PROJECT_BROWSE:
-	case ID_CMD_TABLES_OPEN:
+	case ID_CMD_TABLE_OPEN:
 	case ID_CMD_SHAPES_OPEN:
 	case ID_CMD_TIN_OPEN:
 	case ID_CMD_POINTCLOUD_OPEN:
-	case ID_CMD_GRIDS_OPEN:
+	case ID_CMD_GRID_OPEN:
 		m_pData->On_Command(event);
 		break;
 
@@ -371,7 +370,7 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_DATA_OPEN:
 		break;
 
-	case ID_CMD_TOOLS_SEARCH:
+	case ID_CMD_TOOL_SEARCH:
 		m_pTools->On_Command_UI(event);
 		break;
 
@@ -407,7 +406,7 @@ bool CWKSP::Open(void)
 {
 	wxArrayString	File_Paths;
 
-	if( DLG_Open(File_Paths, ID_DLG_FILES_OPEN) )
+	if( DLG_Open(File_Paths, ID_DLG_FILE_OPEN) )
 	{
 		MSG_General_Add_Line();
 

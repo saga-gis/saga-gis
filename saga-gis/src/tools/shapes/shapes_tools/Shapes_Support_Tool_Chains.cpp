@@ -20,7 +20,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -29,10 +30,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -100,7 +99,7 @@ bool CSelect_Shapes_From_List::On_Execute(void)
 {
 	CSG_Parameter_Shapes_List	*pShapes	= Parameters("SHAPESLIST")->asShapesList();
 
-	if( pShapes->Get_Count() <= 0 )
+	if( pShapes->Get_Item_Count() <= 0 )
 	{
 		Error_Set(_TL("no shapes in list"));
 
@@ -109,14 +108,14 @@ bool CSelect_Shapes_From_List::On_Execute(void)
 
 	int	Index	= Parameters("INDEX")->asInt();
 
-	if( Index >= pShapes->Get_Count() )
+	if( Index >= pShapes->Get_Item_Count() )
 	{
 		Error_Set(_TL("index out of range"));
 
 		return( false );
 	}
 
-	Parameters("SHAPES")->Set_Value(pShapes->asShapes(Index));
+	Parameters("SHAPES")->Set_Value(pShapes->Get_Shapes(Index));
 
 	return( true );	
 }

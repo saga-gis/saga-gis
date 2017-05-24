@@ -130,23 +130,23 @@ bool CTables_Merge::On_Execute(void)
 
 	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
 	{
-		int	n	= pList->Get_Count();
+		int	n	= pList->Get_Item_Count();
 
 		for(int i=n-1; i>0; i--)
 		{
-			if( ((CSG_Shapes *)pList->asDataObject(0))->Get_Type() != ((CSG_Shapes *)pList->asDataObject(i))->Get_Type() )
+			if( ((CSG_Shapes *)pList->Get_Item(0))->Get_Type() != ((CSG_Shapes *)pList->Get_Item(i))->Get_Type() )
 			{
 				pList->Del_Item(i);
 			}
 		}
 
-		if( n > pList->Get_Count() )
+		if( n > pList->Get_Item_Count() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s [%d]"), _TL("incompatible items have been removed from input list"), n - pList->Get_Count()));
+			Message_Add(CSG_String::Format(SG_T("%s [%d]"), _TL("incompatible items have been removed from input list"), n - pList->Get_Item_Count()));
 		}
 	}
 
-	if( pList->Get_Count() < 2 )
+	if( pList->Get_Item_Count() < 2 )
 	{
 		Error_Set(_TL("Nothing to do! Merging needs more than one input data set."));
 
@@ -158,7 +158,7 @@ bool CTables_Merge::On_Execute(void)
 
 	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
 	{
-		CSG_Shapes	*pShapesIn = ((CSG_Shapes *)pList->asDataObject(0));
+		CSG_Shapes	*pShapesIn = ((CSG_Shapes *)pList->Get_Item(0));
 
 		((CSG_Shapes *)pMerged)->Create(pShapesIn->Get_Type(), pShapesIn->Get_Name(), pShapesIn, pShapesIn->Get_Vertex_Type());
 
@@ -189,7 +189,7 @@ bool CTables_Merge::On_Execute(void)
 	}
 	else // if( pList->Get_Type() == PARAMETER_TYPE_Table_List )
 	{
-		pMerged->Create(*((CSG_Table *)pList->asDataObject(0)));
+		pMerged->Create(*((CSG_Table *)pList->Get_Item(0)));
 	}
 
 	pMerged->Set_Name(_TL("Merged Layers"));
@@ -203,16 +203,16 @@ bool CTables_Merge::On_Execute(void)
 
 		for(int i=0; i<pMerged->Get_Count(); i++)
 		{
-			pMerged->Set_Value(i, 0, pList->asDataObject(0)->Get_Name());
+			pMerged->Set_Value(i, 0, pList->Get_Item(0)->Get_Name());
 		}
 	}
 
 	int		*Index	= NULL;
 
 	//-----------------------------------------------------
-	for(int iTable=1; iTable<pList->Get_Count() && Process_Get_Okay(); iTable++)
+	for(int iTable=1; iTable<pList->Get_Item_Count() && Process_Get_Okay(); iTable++)
 	{
-		CSG_Table	*pTable	= (CSG_Table *)pList->asDataObject(iTable);
+		CSG_Table	*pTable	= (CSG_Table *)pList->Get_Item(iTable);
 
 		//-------------------------------------------------
 		if( Parameters("MATCH")->asBool() )	// see which fields are in both attributes tables
@@ -240,7 +240,7 @@ bool CTables_Merge::On_Execute(void)
 		{
 			CSG_Table_Record	*pOutput, *pInput 	= pTable->Get_Record(iRecord);
 
-			if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+			if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 			{
 				CSG_Shape	*pShapeOut;
 
@@ -264,7 +264,7 @@ bool CTables_Merge::On_Execute(void)
 					}
 				}
 			}
-			else // if( pMerged->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+			else // if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 			{
 				pOutput	= pMerged->Add_Record();
 			}

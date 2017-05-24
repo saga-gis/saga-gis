@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -145,7 +144,7 @@ bool CGrid_Value_Request::On_Execute(void)
 {
 	int		iGrid;
 
-	if( m_pGrids->Get_Count() > 0 )
+	if( m_pGrids->Get_Grid_Count() > 0 )
 	{
 		m_Method	= Parameters("METHOD")->asInt();
 
@@ -172,9 +171,9 @@ bool CGrid_Value_Request::On_Execute(void)
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("X Grid 1"));
 			m_pTable->Add_Record()->Set_Value(FIELD_NAME, _TL("Y Grid 1"));
 
-			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+			for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 			{
-				m_pTable->Add_Record()->Set_Value(FIELD_NAME, m_pGrids->asGrid(iGrid)->Get_Name());
+				m_pTable->Add_Record()->Set_Value(FIELD_NAME, m_pGrids->Get_Grid(iGrid)->Get_Name());
 			}
 			break;
 
@@ -184,9 +183,9 @@ bool CGrid_Value_Request::On_Execute(void)
 			m_pTable->Add_Field(_TL("X Grid 1"), SG_DATATYPE_Int);
 			m_pTable->Add_Field(_TL("Y Grid 1"), SG_DATATYPE_Int);
 
-			for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+			for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 			{
-				m_pTable->Add_Field(m_pGrids->asGrid(iGrid)->Get_Name(), SG_DATATYPE_Double);
+				m_pTable->Add_Field(m_pGrids->Get_Grid(iGrid)->Get_Name(), SG_DATATYPE_Double);
 			}
 			break;
 		}
@@ -208,7 +207,7 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 	double				Value;
 	CSG_Table_Record	*pRecord;
 
-	if( m_pGrids->Get_Count() > 0 )
+	if( m_pGrids->Get_Grid_Count() > 0 )
 	{
 		switch( m_Method )
 		{
@@ -219,12 +218,12 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 				m_pTable->Get_Record(FIELD_X_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_X());
 				m_pTable->Get_Record(FIELD_Y_WORLD)->Set_Value(FIELD_VALUE, ptWorld.Get_Y());
 
-				m_pTable->Get_Record(FIELD_X_GRID)->Set_Value(FIELD_VALUE, m_pGrids->asGrid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
-				m_pTable->Get_Record(FIELD_Y_GRID)->Set_Value(FIELD_VALUE, m_pGrids->asGrid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
+				m_pTable->Get_Record(FIELD_X_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
+				m_pTable->Get_Record(FIELD_Y_GRID)->Set_Value(FIELD_VALUE, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
 
-				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+				for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Resampling) )
+					if( m_pGrids->Get_Grid(iGrid)->Get_Value(ptWorld, Value, m_Resampling) )
 					{
 						m_pTable->Get_Record(iGrid + FIELD_GRIDS)->Set_Value(FIELD_VALUE, Value);
 					}
@@ -249,12 +248,12 @@ bool CGrid_Value_Request::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 				pRecord->Set_Value(FIELD_X_WORLD, ptWorld.Get_X());
 				pRecord->Set_Value(FIELD_Y_WORLD, ptWorld.Get_Y());
 
-				pRecord->Set_Value(FIELD_X_GRID, m_pGrids->asGrid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
-				pRecord->Set_Value(FIELD_Y_GRID, m_pGrids->asGrid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
+				pRecord->Set_Value(FIELD_X_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_xWorld_to_Grid(ptWorld.Get_X()));
+				pRecord->Set_Value(FIELD_Y_GRID, m_pGrids->Get_Grid(0)->Get_System().Get_yWorld_to_Grid(ptWorld.Get_Y()));
 
-				for(iGrid=0; iGrid<m_pGrids->Get_Count(); iGrid++)
+				for(iGrid=0; iGrid<m_pGrids->Get_Grid_Count(); iGrid++)
 				{
-					if( m_pGrids->asGrid(iGrid)->Get_Value(ptWorld, Value, m_Resampling) )
+					if( m_pGrids->Get_Grid(iGrid)->Get_Value(ptWorld, Value, m_Resampling) )
 					{
 						pRecord->Set_Value(FIELD_GRIDS + iGrid, Value);
 					}

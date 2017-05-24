@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -161,9 +160,9 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	{
 		double	Scaling	= 0.0;
 
-		if( pParameters->Get_Parameter("INPUT")->asGridList()->Get_Count() > 0 )
+		if( pParameters->Get_Parameter("INPUT")->asGridList()->Get_Grid_Count() > 0 )
 		{
-			double	Input	= pParameters->Get_Parameter("INPUT")->asGridList()->asGrid(0)->Get_System().Get_Cellsize();
+			double	Input	= pParameters->Get_Parameter("INPUT")->asGridList()->Get_Grid(0)->Get_System().Get_Cellsize();
 
 			if( pParameters->Get_Parameter("TARGET_DEFINITION")->asInt() == 0 )	// user defined
 			{
@@ -198,13 +197,13 @@ bool CGrid_Resample::On_Execute(void)
 	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT" )->asGridList();
 	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT")->asGridList();
 
-	if( pInputs->Get_Count() <= 0 )
+	if( pInputs->Get_Grid_Count() <= 0 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	Input	= pInputs->asGrid(0)->Get_System();
+	CSG_Grid_System	Input	= pInputs->Get_Grid(0)->Get_System();
 
 	CSG_Grid_System	Output	= m_Grid_Target.Get_System();
 
@@ -247,9 +246,9 @@ bool CGrid_Resample::On_Execute(void)
 	//-------------------------------------------------
 	pOutputs->Del_Items();
 
-	for(int i=0; i<pInputs->Get_Count() && Process_Get_Okay(); i++)
+	for(int i=0; i<pInputs->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Grid	*pInput		= pInputs->asGrid(i);
+		CSG_Grid	*pInput		= pInputs->Get_Grid(i);
 
 		CSG_Grid	*pOutput	= SG_Create_Grid(Output,
 			Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined

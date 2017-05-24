@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -1449,7 +1448,7 @@ int CVIEW_Table_Control::_Parameter_Callback(CSG_Parameter *pParameter, int Flag
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 {
-	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table && m_pTable->Add_Record() )
+	if( m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table && m_pTable->Add_Record() )
 	{
 		_Set_Scroll_Start(m_pTable->Get_Count() - 1);
 	}
@@ -1457,13 +1456,13 @@ void CVIEW_Table_Control::On_Record_Add(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Add_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table && !m_pTable->is_Indexed());
+	event.Enable(m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table && !m_pTable->is_Indexed());
 }
 
 //---------------------------------------------------------
 void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 {
-	if( m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table && m_pTable->Ins_Record(m_Scroll_Start + GetGridCursorRow()) )
+	if( m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table && m_pTable->Ins_Record(m_Scroll_Start + GetGridCursorRow()) )
 	{
 		_Update_Records();
 	}
@@ -1471,7 +1470,7 @@ void CVIEW_Table_Control::On_Record_Ins(wxCommandEvent &event)
 
 void CVIEW_Table_Control::On_Record_Ins_UI(wxUpdateUIEvent &event)
 {
-	event.Enable(m_pTable->Get_ObjectType() == DATAOBJECT_TYPE_Table && !m_pTable->is_Indexed());
+	event.Enable(m_pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table && !m_pTable->is_Indexed());
 }
 
 //---------------------------------------------------------

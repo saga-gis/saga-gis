@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -122,7 +121,7 @@ wxMenu * CWKSP_Grid_Manager::Get_Menu(void)
 {
 	wxMenu	*pMenu	= new wxMenu(_TL("Grids"));
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_OPEN);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_OPEN);
 
 	if( Get_Count() > 0 )
 	{
@@ -174,26 +173,52 @@ CWKSP_Grid_System * CWKSP_Grid_Manager::_Get_System(const CSG_Grid_System &Syste
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_Manager::Get_Data(CSG_Grid *pObject)
+CWKSP_Grid * CWKSP_Grid_Manager::Get_Data(CSG_Grid *pGrid)
 {
 	CWKSP_Grid	*pItem	= NULL;
 
 	for(int i=0; !pItem && i<Get_Count(); i++)
 	{
-		pItem	= ((CWKSP_Grid_System *)Get_Item(i))->Get_Data(pObject);
+		pItem	= ((CWKSP_Grid_System *)Get_Item(i))->Get_Grid(pGrid);
 	}
 
 	return( pItem );
 }
 
 //---------------------------------------------------------
-CWKSP_Grid * CWKSP_Grid_Manager::Add_Data(CSG_Grid *pObject)
+CWKSP_Grid * CWKSP_Grid_Manager::Add_Data(CSG_Grid *pGrid)
 {
-	CWKSP_Grid	*pItem	= Get_Data(pObject);
+	CWKSP_Grid	*pItem	= Get_Data(pGrid);
 
-	if( pItem == NULL && pObject != NULL && pObject->is_Valid() )
+	if( pItem == NULL && pGrid != NULL && pGrid->is_Valid() )
 	{
-		pItem	= _Get_System(pObject->Get_System())->Add_Data(pObject);
+		pItem	= _Get_System(pGrid->Get_System())->Add_Grid(pGrid);
+	}
+
+	return( pItem );
+}
+
+//---------------------------------------------------------
+CWKSP_Grids * CWKSP_Grid_Manager::Get_Data(CSG_Grids *pGrids)
+{
+	CWKSP_Grids	*pItem	= NULL;
+
+	for(int i=0; !pItem && i<Get_Count(); i++)
+	{
+		pItem	= ((CWKSP_Grid_System *)Get_Item(i))->Get_Grids(pGrids);
+	}
+
+	return( pItem );
+}
+
+//---------------------------------------------------------
+CWKSP_Grids * CWKSP_Grid_Manager::Add_Data(CSG_Grids *pGrids)
+{
+	CWKSP_Grids	*pItem	= Get_Data(pGrids);
+
+	if( pItem == NULL && pGrids != NULL && pGrids->is_Valid() )
+	{
+		pItem	= _Get_System(pGrids->Get_System())->Add_Grids(pGrids);
 	}
 
 	return( pItem );

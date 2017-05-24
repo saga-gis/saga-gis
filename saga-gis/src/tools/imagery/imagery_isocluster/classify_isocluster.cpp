@@ -178,7 +178,7 @@ int CGrid_Cluster_ISODATA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FEATURES") )
 	{
-		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Count() >= 3);
+		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -216,11 +216,11 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	{
 		Data_Type	= SG_DATATYPE_Char;
 
-		for(iFeature=0; iFeature<pFeatures->Get_Count(); iFeature++)
+		for(iFeature=0; iFeature<pFeatures->Get_Grid_Count(); iFeature++)
 		{
-			if( Data_Type < pFeatures->asGrid(iFeature)->Get_Type() )
+			if( Data_Type < pFeatures->Get_Grid(iFeature)->Get_Type() )
 			{
-				Data_Type	= pFeatures->asGrid(iFeature)->Get_Type();
+				Data_Type	= pFeatures->Get_Grid(iFeature)->Get_Type();
 			}
 		}
 
@@ -228,7 +228,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CCluster_ISODATA	Cluster(pFeatures->Get_Count(), Data_Type);
+	CCluster_ISODATA	Cluster(pFeatures->Get_Grid_Count(), Data_Type);
 
 	Cluster.Set_Max_Iterations(Parameters("ITERATIONS" )->asInt   ());
 	Cluster.Set_Ini_Clusters  (Parameters("CLUSTER_INI")->asInt   ());
@@ -240,21 +240,21 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	//-----------------------------------------------------
 	for(iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
 	{
-		CSG_Vector	Features(pFeatures->Get_Count());
+		CSG_Vector	Features(pFeatures->Get_Grid_Count());
 
-		for(iFeature=0; Features.Get_Size() && iFeature<pFeatures->Get_Count(); iFeature++)
+		for(iFeature=0; Features.Get_Size() && iFeature<pFeatures->Get_Grid_Count(); iFeature++)
 		{
-			if( pFeatures->asGrid(iFeature)->is_NoData(iCell) )
+			if( pFeatures->Get_Grid(iFeature)->is_NoData(iCell) )
 			{
 				Features.Destroy();
 			}
 			else
 			{
-				Features[iFeature]	= pFeatures->asGrid(iFeature)->asDouble(iCell);
+				Features[iFeature]	= pFeatures->Get_Grid(iFeature)->asDouble(iCell);
 
 				if( bNormalize )
 				{
-					Features[iFeature]	= (Features[iFeature] - pFeatures->asGrid(iFeature)->Get_Mean()) / pFeatures->asGrid(iFeature)->Get_StdDev();
+					Features[iFeature]	= (Features[iFeature] - pFeatures->Get_Grid(iFeature)->Get_Mean()) / pFeatures->Get_Grid(iFeature)->Get_StdDev();
 				}
 			}
 		}
@@ -296,10 +296,10 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	Statistics.Add_Field("ELEMENTS", SG_DATATYPE_Int);
 	Statistics.Add_Field("MEANDIST", SG_DATATYPE_Double);
 
-	for(iFeature=0; iFeature<pFeatures->Get_Count(); iFeature++)
+	for(iFeature=0; iFeature<pFeatures->Get_Grid_Count(); iFeature++)
 	{
-		Statistics.Add_Field(CSG_String::Format("MEAN.%s", pFeatures->asGrid(iFeature)->Get_Name()), SG_DATATYPE_Double);
-		Statistics.Add_Field(CSG_String::Format("STDV.%s", pFeatures->asGrid(iFeature)->Get_Name()), SG_DATATYPE_Double);
+		Statistics.Add_Field(CSG_String::Format("MEAN.%s", pFeatures->Get_Grid(iFeature)->Get_Name()), SG_DATATYPE_Double);
+		Statistics.Add_Field(CSG_String::Format("STDV.%s", pFeatures->Get_Grid(iFeature)->Get_Name()), SG_DATATYPE_Double);
 	}
 
 	for(iCluster=0; iCluster<Cluster.Get_Cluster_Count(); iCluster++)
@@ -310,15 +310,15 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 		Record.Set_Value(1, Cluster.Get_Cluster_Count (iCluster));
 		Record.Set_Value(2, Cluster.Get_Cluster_StdDev(iCluster));
 
-		for(iFeature=0; iFeature<pFeatures->Get_Count(); iFeature++)
+		for(iFeature=0; iFeature<pFeatures->Get_Grid_Count(); iFeature++)
 		{
 			double	Mean	= Cluster.Get_Cluster_Mean  (iCluster, iFeature);
 			double	Stdv	= Cluster.Get_Cluster_StdDev(iCluster, iFeature);
 
 			if( bNormalize )
 			{
-				Mean	= Mean * pFeatures->asGrid(iFeature)->Get_StdDev() + pFeatures->asGrid(iFeature)->Get_Mean();
-				Stdv	= Stdv * pFeatures->asGrid(iFeature)->Get_StdDev();
+				Mean	= Mean * pFeatures->Get_Grid(iFeature)->Get_StdDev() + pFeatures->Get_Grid(iFeature)->Get_Mean();
+				Stdv	= Stdv * pFeatures->Get_Grid(iFeature)->Get_StdDev();
 			}
 
 			Record.Set_Value(3 + 2 * iFeature + 0, Mean);
@@ -331,7 +331,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 
 	if( pLUT && pLUT->asTable() )
 	{
-		bool	bRGB	= pFeatures->Get_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+		bool	bRGB	= pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
 
 		for(iCluster=0; iCluster<Statistics.Get_Count(); iCluster++)
 		{
@@ -349,7 +349,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 
 			if( bRGB )
 			{
-				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Statistics[iCluster].asDouble(3 + 2 * i) - pFeatures->asGrid(i)->Get_Mean()) * 127 / pFeatures->asGrid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Statistics[iCluster].asDouble(3 + 2 * i) - pFeatures->Get_Grid(i)->Get_Mean()) * 127 / pFeatures->Get_Grid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
 
 				int	r; SET_COLOR_COMPONENT(r, 2);
 				int	g; SET_COLOR_COMPONENT(g, 1);

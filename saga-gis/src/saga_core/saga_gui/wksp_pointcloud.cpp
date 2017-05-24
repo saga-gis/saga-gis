@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -198,9 +197,9 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 	//-----------------------------------------------------
 	wxMenu	*pTable	= new wxMenu(_TL("Table"));
 
-	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_SHOW);
-//	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLES_DIAGRAM);
-//	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLES_SCATTERPLOT);
+	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
+//	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
+//	CMD_Menu_Add_Item(pTable, false, ID_CMD_TABLE_SCATTERPLOT);
 
 	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Attributes"), pTable);
 
@@ -269,11 +268,11 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 		}
 		break;
 
-	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TABLE_SHOW:
 		m_pTable->Toggle_View();
 		break;
 
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_TABLE_DIAGRAM:
 		m_pTable->Toggle_Diagram();
 		break;
 
@@ -296,11 +295,11 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_POINTCLOUD_LAST:
 		break;
 
-	case ID_CMD_TABLES_SHOW:
+	case ID_CMD_TABLE_SHOW:
 		event.Check(m_pTable->Get_View() != NULL);
 		break;
 
-	case ID_CMD_TABLES_DIAGRAM:
+	case ID_CMD_TABLE_DIAGRAM:
 		event.Check(m_pTable->Get_Diagram() != NULL);
 		break;
 	}

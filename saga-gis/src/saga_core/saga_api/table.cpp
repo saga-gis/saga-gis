@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -85,11 +84,11 @@ CSG_Table * SG_Create_Table(const CSG_Table &Table)
 {
 	switch( Table.Get_ObjectType() )
 	{
-	case DATAOBJECT_TYPE_Table:
+	case SG_DATAOBJECT_TYPE_Table:
 		return( new CSG_Table(Table) );
 
-	case DATAOBJECT_TYPE_Shapes:
-	case DATAOBJECT_TYPE_PointCloud:
+	case SG_DATAOBJECT_TYPE_Shapes:
+	case SG_DATAOBJECT_TYPE_PointCloud:
 		return( SG_Create_Shapes(*((CSG_Shapes *)&Table)) );
 
 	default:
@@ -110,11 +109,11 @@ CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 	{
 		switch( pTemplate->Get_ObjectType() )
 		{
-		case DATAOBJECT_TYPE_Table:
+		case SG_DATAOBJECT_TYPE_Table:
 			return( new CSG_Table(pTemplate) );
 
-		case DATAOBJECT_TYPE_Shapes:
-		case DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_Shapes:
+		case SG_DATAOBJECT_TYPE_PointCloud:
 			return( SG_Create_Shapes((CSG_Shapes *)pTemplate) );
 
 		default:
@@ -383,9 +382,9 @@ CSG_Table & CSG_Table::operator = (const CSG_Table &Table)
 bool CSG_Table::Assign(CSG_Data_Object *pObject)
 {
 	if( !pObject || !pObject->is_Valid()
-	||	(	pObject->Get_ObjectType() != DATAOBJECT_TYPE_Table
-		&&	pObject->Get_ObjectType() != DATAOBJECT_TYPE_Shapes
-		&&	pObject->Get_ObjectType() != DATAOBJECT_TYPE_PointCloud	) )
+	||	(	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Table
+		&&	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Shapes
+		&&	pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud	) )
 	{
 		return( false );
 	}
@@ -744,7 +743,7 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 	{
 		if( pCopy )
 		{
-			if( Get_ObjectType() == DATAOBJECT_TYPE_Shapes && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+			if( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes && pCopy->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 			{
 				((CSG_Shape *)pRecord)->Assign((CSG_Shape *)pCopy, true);
 			}

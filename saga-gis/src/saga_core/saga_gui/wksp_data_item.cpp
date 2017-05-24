@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -270,12 +269,12 @@ bool CWKSP_Data_Item::Save(void)
 
 	switch( Get_Type() )
 	{
-	case WKSP_ITEM_Table     :	idDlg	= ID_DLG_TABLES_SAVE    ;	break;
-	case WKSP_ITEM_TIN       :
+	case WKSP_ITEM_Table     :	idDlg	= ID_DLG_TABLE_SAVE     ;	break;
+	case WKSP_ITEM_TIN       :	idDlg	= ID_DLG_SHAPES_SAVE    ;	break;
 	case WKSP_ITEM_Shapes    :	idDlg	= ID_DLG_SHAPES_SAVE    ;	break;
 	case WKSP_ITEM_PointCloud:	idDlg	= ID_DLG_POINTCLOUD_SAVE;	break;
-	case WKSP_ITEM_Grid      :	idDlg	= ID_DLG_GRIDS_SAVE     ;	break;
-
+	case WKSP_ITEM_Grid      :	idDlg	= ID_DLG_GRID_SAVE      ;	break;
+	case WKSP_ITEM_Grids     :	idDlg	= ID_DLG_GRIDS_SAVE     ;	break;
 	default:	return( false );
 	}
 
@@ -375,7 +374,7 @@ bool CWKSP_Data_Item::DataObject_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 void CWKSP_Data_Item::On_DataObject_Changed(void)
 {
-	m_Parameters.Set_Name(CSG_String::Format(SG_T("%02d. %s"), 1 + Get_ID(), m_pObject->Get_Name()));
+	m_Parameters.Set_Name(CSG_String::Format("%02d. %s", 1 + Get_ID(), m_pObject->Get_Name()));
 
 	m_Parameters("OBJECT_NAME")->Set_Value(m_pObject->Get_Name());
 	m_Parameters("OBJECT_DESC")->Set_Value(m_pObject->Get_Description());

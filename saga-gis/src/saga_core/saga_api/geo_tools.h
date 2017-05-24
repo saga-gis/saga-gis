@@ -720,8 +720,11 @@ public:
 
 	bool							Set_GCS_WGS84			(void);
 
-	bool							Load					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
-	bool							Save					(const CSG_String &File_Name, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
+	bool							Load					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Save					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
+
+	bool							Load					(CSG_File &Stream, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
+	bool							Save					(CSG_File &Stream, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;
 
 	bool							Load					(const CSG_MetaData &Projection);
 	bool							Save					(      CSG_MetaData &Projection)	const;
@@ -782,11 +785,11 @@ public:
 	void							Destroy					(void);
 
 	bool							Reset_Dictionary		(void);
-	bool							Load_Dictionary			(const CSG_String &File_Name);
-	bool							Save_Dictionary			(const CSG_String &File_Name);
+	bool							Load_Dictionary			(const CSG_String &FileName);
+	bool							Save_Dictionary			(const CSG_String &FileName);
 
-	bool							Load_DB					(const CSG_String &File_Name, bool bAppend = false);
-	bool							Save_DB					(const CSG_String &File_Name);
+	bool							Load_DB					(const CSG_String &FileName, bool bAppend = false);
+	bool							Save_DB					(const CSG_String &FileName);
 
 	int								Get_Count				(void)	const;
 

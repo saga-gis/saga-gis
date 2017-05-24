@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -97,7 +96,11 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() && !p->is_DataObject_List() ? wxString::Format(p->Get_Name()) : wxString::Format(wxT("%s %s"), p->is_Input() ? (p->is_Optional() ? wxT(">") : wxT(">>")) : (p->is_Optional() ? wxT("<") : wxT("<<")), p->Get_Name()))
+#define GET_DATAOBJECT_LABEL(p)	(!p->is_DataObject() && !p->is_DataObject_List()\
+	? wxString::Format(p->Get_Name())\
+	: wxString::Format("%s %s", p->is_Input()\
+	? (p->is_Optional() ? ">" : ">>")\
+	: (p->is_Optional() ? "<" : "<<"), p->Get_Name()))
 
 
 ///////////////////////////////////////////////////////////
@@ -132,15 +135,16 @@ void CParameters_PG_Choice::_Create(void)
 
 		switch( m_pParameter->Get_Type() )
 		{
-		default:							break;
-		case PARAMETER_TYPE_Choice:			iSelection = _Set_Choice();			break;
-		case PARAMETER_TYPE_Grid_System:	iSelection = _Set_Grid_System();	break;
-		case PARAMETER_TYPE_Table_Field:	iSelection = _Set_Table_Field();	break;
-		case PARAMETER_TYPE_Grid:			iSelection = _Set_Grid();			break;
-		case PARAMETER_TYPE_Table:			iSelection = _Set_Table();			break;
-		case PARAMETER_TYPE_Shapes:			iSelection = _Set_Shapes();			break;
-		case PARAMETER_TYPE_TIN:			iSelection = _Set_TIN();			break;
-		case PARAMETER_TYPE_PointCloud:		iSelection = _Set_PointCloud();		break;
+		case PARAMETER_TYPE_Choice     : iSelection = _Set_Choice     ();	break;
+		case PARAMETER_TYPE_Grid_System: iSelection = _Set_Grid_System();	break;
+		case PARAMETER_TYPE_Table_Field: iSelection = _Set_Table_Field();	break;
+		case PARAMETER_TYPE_Grid       : iSelection = _Set_Grid       ();	break;
+		case PARAMETER_TYPE_Grids      : iSelection = _Set_Grid       ();	break;
+		case PARAMETER_TYPE_Table      : iSelection = _Set_Table      ();	break;
+		case PARAMETER_TYPE_Shapes     : iSelection = _Set_Shapes     ();	break;
+		case PARAMETER_TYPE_TIN        : iSelection = _Set_TIN        ();	break;
+		case PARAMETER_TYPE_PointCloud : iSelection = _Set_PointCloud ();	break;
+		default:	break;
 		}
 
 		if( GetGrid() )
@@ -195,11 +199,11 @@ int CParameters_PG_Choice::_Set_Table_Field(void)
 	{
 		switch( pParent->Get_Type() )
 		{
-	    default:						pTable	= NULL;						break;
-		case PARAMETER_TYPE_Table:		pTable	= pParent->asTable();		break;
-		case PARAMETER_TYPE_Shapes:		pTable	= pParent->asShapes();		break;
-		case PARAMETER_TYPE_TIN:		pTable	= pParent->asTIN();			break;
-		case PARAMETER_TYPE_PointCloud:	pTable	= pParent->asPointCloud();	break;
+		case PARAMETER_TYPE_Table     : pTable = pParent->asTable     (); break;
+		case PARAMETER_TYPE_Shapes    : pTable = pParent->asShapes    (); break;
+		case PARAMETER_TYPE_TIN       : pTable = pParent->asTIN       (); break;
+		case PARAMETER_TYPE_PointCloud:	pTable = pParent->asPointCloud(); break;
+	    default                       : pTable = NULL                   ; break;
 		}
 
 		if( pTable && pTable != DATAOBJECT_CREATE )
@@ -366,15 +370,51 @@ int CParameters_PG_Choice::_Set_Grid_System(void)
 //---------------------------------------------------------
 int CParameters_PG_Choice::_Set_Grid(void)
 {
-	CWKSP_Grid_System	*pManager
+	CWKSP_Grid_System	*pGrid_System
 		= m_pParameter->Get_Parent() && m_pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Grid_System && g_pData->Get_Grids()
 		? g_pData->Get_Grids()->Get_System(*m_pParameter->Get_Parent()->asGrid_System()) : NULL;
 
-	if( pManager )
+	if( pGrid_System )
 	{
-		for(int i=0; i<pManager->Get_Count(); i++)
+		for(int i=0; i<pGrid_System->Get_Count(); i++)
 		{
-			_Append(pManager->Get_Data(i)->Get_Name(), pManager->Get_Data(i)->Get_Object());
+			CWKSP_Data_Item	*pItem	= pGrid_System->Get_Data(i);
+
+			switch( m_pParameter->Get_Type() )
+			{
+			case PARAMETER_TYPE_Grid:
+				switch( pItem->Get_Type() )
+				{
+				case WKSP_ITEM_Grid:
+					_Append(pItem->Get_Name(), pItem->Get_Object());
+					break;
+
+				case WKSP_ITEM_Grids:
+					if( m_pParameter->is_Input() ) // && pItem->Get_Type() == WKSP_ITEM_Grids )
+					{
+						CSG_Grids	*pGrids	= (CSG_Grids *)pItem->Get_Object();
+
+						for(int j=0; j<pGrids->Get_Grid_Count(); j++)
+						{
+							_Append(wxString::Format("%s.%03d", pItem->Get_Name(), j + 1), pGrids->Get_Grid_Ptr(j));
+						}
+					}
+					break;
+
+				default:
+					break;
+				}
+
+			case PARAMETER_TYPE_Grids:
+				if( pItem->Get_Type() == WKSP_ITEM_Grids )
+				{
+					_Append(pItem->Get_Name(), pItem->Get_Object());
+				}
+				break;
+
+			default:
+				break;
+			}
 		}
 	}
 
@@ -416,8 +456,6 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 	{
 		switch( m_pParameter->Get_Type() )
 		{
-		default:	return;
-
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
 			m_pParameter->Set_Value(iChoice);
@@ -430,6 +468,7 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 			break;
 
 		case PARAMETER_TYPE_Grid:
+		case PARAMETER_TYPE_Grids:
 			m_pParameter->Set_Value((void *)m_choices_data.Item(m_choices.GetValue(iChoice)));
 			break;
 
@@ -441,6 +480,9 @@ void CParameters_PG_Choice::_Set_Parameter_Value(int iChoice)
 
 			_Update_TableFields();
 			break;
+
+		default:
+			return;
 		}
 
 		GetGrid()->EditorsValueWasModified();
@@ -524,9 +566,10 @@ void CParameters_PG_Choice::_Update_Grids(void)
 		{
 			CSG_Parameter	*pChild	= m_pParameter->Get_Child(i);
 
-			if( pChild->Get_Type() == PARAMETER_TYPE_Grid )
+			if( pChild->Get_Type() == PARAMETER_TYPE_Grid
+			||  pChild->Get_Type() == PARAMETER_TYPE_Grids )
 			{
-				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
 				if( pProperty )
 				{
@@ -548,7 +591,7 @@ void CParameters_PG_Choice::_Update_TableFields(void)
 
 			if(	pChild->Get_Type() == PARAMETER_TYPE_Table_Field )
 			{
-				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format(wxT("%s.%s"), m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
+				wxPGProperty	*pProperty	= GetGrid()->GetProperty(wxString::Format("%s.%s", m_pParameter->Get_Identifier(), pChild->Get_Identifier()));
 
 				if( pProperty )
 				{
@@ -605,15 +648,16 @@ bool CPG_Parameter_Value::Check(void) const
 	{
 		switch( m_pParameter->Get_Type() )
 		{
-		default:
+		case PARAMETER_TYPE_Table_List     :
+		case PARAMETER_TYPE_Shapes_List    :
+		case PARAMETER_TYPE_TIN_List       :
+		case PARAMETER_TYPE_PointCloud_List:
+		case PARAMETER_TYPE_Grid_List      :
+		case PARAMETER_TYPE_Grids_List     :
+			m_pParameter->Check();
 			break;
 
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
-		case PARAMETER_TYPE_PointCloud_List:
-		case PARAMETER_TYPE_Grid_List:
-			m_pParameter->Check();
+		default:
 			break;
 		}
 
@@ -633,9 +677,6 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 	{
 		switch( m_pParameter->Get_Type() )
 		{
-		default:
-			break;
-
 		case PARAMETER_TYPE_Text:
 			bModified	= DLG_Text			(m_pParameter->Get_Name(), Text = m_pParameter->asString());
 
@@ -676,9 +717,8 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 						for(size_t i=0; i<Files.GetCount(); i++)
 						{
-							Text.Append(i > 0 ? wxT(" \"") : wxT("\""));
-							Text.Append(Files.Item(i));
-							Text.Append(wxT("\""));
+							Text	+= i > 0 ? " \"" : "\"";
+							Text	+= Files.Item(i) + "\"";
 						}
 					}
 					else
@@ -704,10 +744,11 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 			bModified	= DLG_Table			(m_pParameter->Get_Name(), m_pParameter->asTable());
 			break;
 
-		case PARAMETER_TYPE_Grid_List:
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_Grid_List      :
+		case PARAMETER_TYPE_Grids_List     :
+		case PARAMETER_TYPE_Table_List     :
+		case PARAMETER_TYPE_Shapes_List    :
+		case PARAMETER_TYPE_TIN_List       :
 		case PARAMETER_TYPE_PointCloud_List:
 			bModified	= DLG_List			(m_pParameter->Get_Name(), m_pParameter->asList());
 			break;
@@ -722,6 +763,9 @@ bool CPG_Parameter_Value::Do_Dialog(void)
 
 		case PARAMETER_TYPE_Parameters:
 			bModified	= DLG_Parameters	(m_pParameter->asParameters());
+			break;
+
+		default:
 			break;
 		}
 	}
@@ -749,8 +793,8 @@ CParameters_PG_Range::CParameters_PG_Range(const wxString &label, const wxString
 	{
 		m_value	= WXVARIANT(CPG_Parameter_Value(pParameter));
 
-		AddPrivateChild( new wxFloatProperty(wxT("Minimum")	, wxPG_LABEL, pParameter->asRange()->Get_LoVal()) );
-		AddPrivateChild( new wxFloatProperty(wxT("Maximum")	, wxPG_LABEL, pParameter->asRange()->Get_HiVal()) );
+		AddPrivateChild( new wxFloatProperty("Minimum", wxPG_LABEL, pParameter->asRange()->Get_LoVal()) );
+		AddPrivateChild( new wxFloatProperty("Maximum", wxPG_LABEL, pParameter->asRange()->Get_HiVal()) );
 	}
 }
 
@@ -802,9 +846,9 @@ CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxStri
 
 		Decimal_To_Degree(pParameter->asDouble(), d, m, s);
 
-		AddPrivateChild( new wxIntProperty  (wxT("Degree")	, wxPG_LABEL, (int)d) );
-		AddPrivateChild( new wxIntProperty  (wxT("Minute")	, wxPG_LABEL, (int)m) );
-		AddPrivateChild( new wxFloatProperty(wxT("Second")	, wxPG_LABEL,      s) );
+		AddPrivateChild( new wxIntProperty  ("Degree", wxPG_LABEL, (int)d));
+		AddPrivateChild( new wxIntProperty  ("Minute", wxPG_LABEL, (int)m));
+		AddPrivateChild( new wxFloatProperty("Second", wxPG_LABEL,      s));
 	}
 }
 
@@ -873,7 +917,7 @@ wxString CParameters_PG_Dialog::ValueToString(wxVariant &new_value, int argFlags
 		return( value.to_String() );
 	}
 
-	return( wxT("---") );
+	return( "---" );
 }
 
 //---------------------------------------------------------

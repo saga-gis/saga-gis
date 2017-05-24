@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -248,13 +247,13 @@ bool CCreateGridSystem::On_Execute(void)
 		{
 			CSG_Parameter_Shapes_List	*pList	= Parameters("SHAPESLIST")->asShapesList();
 
-			if( pList->Get_Count() > 0 )
+			if( pList->Get_Item_Count() > 0 )
 			{
-				CSG_Rect	Extent(pList->asShapes(0)->Get_Extent());
+				CSG_Rect	Extent(pList->Get_Shapes(0)->Get_Extent());
 
-				for(int i=1; i<pList->Get_Count(); i++)
+				for(int i=1; i<pList->Get_Item_Count(); i++)
 				{
-					Extent.Union(pList->asShapes(i)->Get_Extent());
+					Extent.Union(pList->Get_Shapes(i)->Get_Extent());
 				}
 
 				System	= Get_Adjusted(Parameters("CELLSIZE")->asDouble(), Extent);
@@ -267,13 +266,13 @@ bool CCreateGridSystem::On_Execute(void)
 		{
 			CSG_Parameter_Grid_List	*pList	= Parameters("GRIDLIST")->asGridList();
 
-			if( pList->Get_Count() > 0 )
+			if( pList->Get_Grid_Count() > 0 )
 			{
-				CSG_Rect	Extent(pList->asGrid(0)->Get_Extent());
+				CSG_Rect	Extent(pList->Get_Grid(0)->Get_Extent());
 
-				for(int i=1; i<pList->Get_Count(); i++)
+				for(int i=1; i<pList->Get_Grid_Count(); i++)
 				{
-					Extent.Union(pList->asGrid(i)->Get_Extent());
+					Extent.Union(pList->Get_Grid(i)->Get_Extent());
 				}
 
 				System	= Get_Adjusted(Parameters("CELLSIZE")->asDouble(), Extent);

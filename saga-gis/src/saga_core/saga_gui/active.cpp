@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -223,6 +222,7 @@ CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
 		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_Grid:
+		case WKSP_ITEM_Grids:
 			return( (CWKSP_Data_Item *)m_pItem );
 		}
 	}
@@ -320,10 +320,10 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	CSG_Data_Object	*pObject	= Get_Active_Data_Item() ? Get_Active_Data_Item()->Get_Object() : NULL;
 
 	if( SG_Get_Data_Manager().Exists(pObject) &&
-	(	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_TIN        && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud && ((CSG_PointCloud *)pObject)->Get_Selection_Count() > 0)
-	||	(pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes     && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)) )
+	(	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      && ((CSG_Table      *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN        && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud && ((CSG_PointCloud *)pObject)->Get_Selection_Count() > 0)
+	||	(pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     && ((CSG_Shapes     *)pObject)->Get_Selection_Count() > 0)) )
 	{
 		g_pData->Update_Views(pObject);
 	}

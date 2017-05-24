@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -890,9 +889,9 @@ bool CWRF_Export::On_Execute(void)
 	m_Index.m_TILE_BDR		= Parameters("TILE_BDR")	->asInt();
 	m_Index.m_TILE_X		= Get_NX() - 2 * m_Index.m_TILE_BDR;
 	m_Index.m_TILE_Y		= Get_NY() - 2 * m_Index.m_TILE_BDR;
-	m_Index.m_TILE_Z		= pGrids->Get_Count();
+	m_Index.m_TILE_Z		= pGrids->Get_Grid_Count();
 	m_Index.m_TILE_Z_START	= 1;
-	m_Index.m_TILE_Z_END	= pGrids->Get_Count();
+	m_Index.m_TILE_Z_END	= pGrids->Get_Grid_Count();
 	m_Index.m_DX			= Get_Cellsize();
 	m_Index.m_DY			= Get_Cellsize();
 	m_Index.m_ENDIAN		= VAL_ENDIAN_LITTLE;
@@ -913,8 +912,8 @@ bool CWRF_Export::On_Execute(void)
 
 	if( m_Index.m_TILE_Z == 1 )
 	{
-		m_Index.m_CATEGORY_MIN	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_Min() : 0;
-		m_Index.m_CATEGORY_MAX	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->asGrid(0)->Get_Max() : 0;
+		m_Index.m_CATEGORY_MIN	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->Get_Grid(0)->Get_Min() : 0;
+		m_Index.m_CATEGORY_MAX	= m_Index.m_TYPE == VAL_CATEGORICAL ? (int)pGrids->Get_Grid(0)->Get_Max() : 0;
 	}
 	else
 	{
@@ -985,9 +984,9 @@ bool CWRF_Export::Save(const CSG_String &Directory, CSG_Parameter_Grid_List *pGr
 	pLine		= (char *)SG_Malloc(nBytes_Line);
 
 	//-----------------------------------------------------
-	for(int z=0; z<pGrids->Get_Count() && Process_Get_Okay(); z++)
+	for(int z=0; z<pGrids->Get_Grid_Count() && Process_Get_Okay(); z++)
 	{
-		CSG_Grid	*pGrid	= pGrids->asGrid(z);
+		CSG_Grid	*pGrid	= pGrids->Get_Grid(z);
 
 		//-------------------------------------------------
 		for(y=0; y<pGrid->Get_NY() && !Stream.is_EOF() && Set_Progress(y, pGrid->Get_NY()); y++)

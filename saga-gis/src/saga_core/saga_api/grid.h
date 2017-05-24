@@ -43,9 +43,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -104,7 +102,8 @@ typedef enum ESG_Grid_File_Format
 {
 	GRID_FILE_FORMAT_Undefined			= 0,
 	GRID_FILE_FORMAT_Binary,
-	GRID_FILE_FORMAT_ASCII
+	GRID_FILE_FORMAT_ASCII,
+	GRID_FILE_FORMAT_Compressed
 }
 TSG_Grid_File_Format;
 
@@ -394,17 +393,23 @@ public:		///////////////////////////////////////////////
 								CSG_Grid_File_Info		(const CSG_Grid_File_Info &Info);
 	bool						Create					(const CSG_Grid_File_Info &Info);
 
-								CSG_Grid_File_Info		(const CSG_String &File_Name);
-	bool						Create					(const CSG_String &File_Name);
+								CSG_Grid_File_Info		(const CSG_String &FileName);
+	bool						Create					(const CSG_String &FileName);
+
+								CSG_Grid_File_Info		(CSG_File &Stream);
+	bool						Create					(CSG_File &Stream);
 
 								CSG_Grid_File_Info		(const CSG_Grid &Grid);
 	bool						Create					(const CSG_Grid &Grid);
 
-	bool						Save					(const CSG_String &File_Name                                                                      , bool bBinary = true);
-	bool						Save					(const CSG_String &File_Name                      , int xStart, int yStart, int xCount, int yCount, bool bBinary = true);
-	static bool					Save					(const CSG_String &File_Name, const CSG_Grid &Grid                                                , bool bBinary = true);
-	static bool					Save					(const CSG_String &File_Name, const CSG_Grid &Grid, int xStart, int yStart, int xCount, int yCount, bool bBinary = true);
+	bool						Save					(const CSG_String &FileName, bool bBinary = true);
+	bool						Save					(const CSG_File   &Stream  , bool bBinary = true);
 
+	static bool					Save					(const CSG_String &FileName, const CSG_Grid &Grid, bool bBinary = true);
+	static bool					Save					(const CSG_File   &Stream  , const CSG_Grid &Grid, bool bBinary = true);
+
+	bool						Save_AUX_XML			(const CSG_String &FileName);
+	bool						Save_AUX_XML			(CSG_File &Stream);
 
 	//-----------------------------------------------------
 	bool						m_bFlip, m_bSwapBytes;
@@ -453,8 +458,8 @@ public:		///////////////////////////////////////////////
 									CSG_Grid		(const CSG_Grid &Grid);
 	bool							Create			(const CSG_Grid &Grid);
 
-									CSG_Grid		(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
-	bool							Create			(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
+									CSG_Grid		(const CSG_String &FileName, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
+	bool							Create			(const CSG_String &FileName, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
 
 									CSG_Grid		(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
 	bool							Create			(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);
@@ -473,14 +478,12 @@ public:		///////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	virtual bool					Save			(const CSG_String &File_Name, int Format = GRID_FILE_FORMAT_Binary);
-	virtual bool					Save			(const CSG_String &File_Name, int Format, int xA, int yA, int xN, int yN);
+	virtual bool					Save			(const CSG_String &FileName, int Format = GRID_FILE_FORMAT_Binary);
 
 	//-----------------------------------------------------
 	/** Data object type information.
 	*/
-	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const	{	return( DATAOBJECT_TYPE_Grid );		}
-
+	virtual TSG_Data_Object_Type	Get_ObjectType	(void)	const	{	return( SG_DATAOBJECT_TYPE_Grid );		}
 
 	//-----------------------------------------------------
 	// Data-Info...
@@ -747,7 +750,8 @@ public:		///////////////////////////////////////////////
 		}
 		else switch( m_Type )
 		{
-			default:	return( 0.0 );
+			case SG_DATATYPE_Float : Value = (double)((float  **)m_Values)[y][x]; break;
+			case SG_DATATYPE_Double: Value = (double)((double **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Byte  : Value = (double)((BYTE   **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Char  : Value = (double)((char   **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Word  : Value = (double)((WORD   **)m_Values)[y][x]; break;
@@ -755,9 +759,10 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_DWord : Value = (double)((DWORD  **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Int   : Value = (double)((int    **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Long  : Value = (double)((sLong  **)m_Values)[y][x]; break;
-			case SG_DATATYPE_Float : Value = (double)((float  **)m_Values)[y][x]; break;
-			case SG_DATATYPE_Double: Value = (double)((double **)m_Values)[y][x]; break;
 			case SG_DATATYPE_Bit   : Value = (double)(((BYTE  **)m_Values)[y][x / 8] & m_Bitmask[x % 8]) == 0 ? 0.0 : 1.0;	break;
+
+			default:
+				return( 0.0 );
 		}
 
 		if( bScaled && is_Scaled() )
@@ -797,7 +802,8 @@ public:		///////////////////////////////////////////////
 		}
 		else switch( m_Type )
 		{
-			default:	return;
+			case SG_DATATYPE_Float : ((float  **)m_Values)[y][x] = (float          )(Value); break;
+			case SG_DATATYPE_Double: ((double **)m_Values)[y][x] = (double         )(Value); break;
 			case SG_DATATYPE_Byte  : ((BYTE   **)m_Values)[y][x] = SG_ROUND_TO_BYTE (Value); break;
 			case SG_DATATYPE_Char  : ((char   **)m_Values)[y][x] = SG_ROUND_TO_CHAR (Value); break;
 			case SG_DATATYPE_Word  : ((WORD   **)m_Values)[y][x] = SG_ROUND_TO_WORD (Value); break;
@@ -805,12 +811,13 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_DWord : ((DWORD  **)m_Values)[y][x] = SG_ROUND_TO_DWORD(Value); break;
 			case SG_DATATYPE_Int   : ((int    **)m_Values)[y][x] = SG_ROUND_TO_INT  (Value); break;
 			case SG_DATATYPE_Long  : ((sLong  **)m_Values)[y][x] = SG_ROUND_TO_SLONG(Value); break;
-			case SG_DATATYPE_Float : ((float  **)m_Values)[y][x] = (float          )(Value); break;
-			case SG_DATATYPE_Double: ((double **)m_Values)[y][x] = (double         )(Value); break;
 			case SG_DATATYPE_Bit   : ((BYTE   **)m_Values)[y][x / 8] = Value != 0.0
 					? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
 					: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
 				break;
+
+			default:
+				return;
 		}
 
 		Set_Modified();
@@ -839,17 +846,17 @@ private:	///////////////////////////////////////////////
 
 	double						m_zOffset, m_zScale;
 
-	CSG_Simple_Statistics		m_zStats;
+	TSG_Data_Type				m_Type;
+
+	CSG_String					m_Unit, m_Cache_Path;
+
+	CSG_Simple_Statistics		m_Statistics;
 
 	CSG_File					m_Cache_Stream;
-
-	TSG_Data_Type				m_Type;
 
 	TSG_Grid_Memory_Type		m_Memory_Type;
 
 	CSG_Grid_System				m_System;
-
-	CSG_String					m_Unit, m_Cache_Path;
 
 
 	//-----------------------------------------------------
@@ -870,7 +877,7 @@ private:	///////////////////////////////////////////////
 	//-----------------------------------------------------
 	void						_On_Construction		(void);
 
-	void						_Set_Properties			(TSG_Data_Type m_Type, int NX, int NY, double Cellsize, double xMin, double yMin);
+	void						_Set_Properties			(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin);
 
 	bool						_Set_Index				(void);
 
@@ -880,7 +887,7 @@ private:	///////////////////////////////////////////////
 
 	int							_Get_nLineBytes			(void)	{	return( m_Type == SG_DATATYPE_Bit ? Get_NX() / 8 + 1 : Get_NX() * Get_nValueBytes() );	}
 
-	bool						_Memory_Create			(TSG_Grid_Memory_Type aMemory_Type);
+	bool						_Memory_Create			(TSG_Grid_Memory_Type Memory_Type);
 	void						_Memory_Destroy			(void);
 
 	void						_LineBuffer_Create		(void);
@@ -893,6 +900,7 @@ private:	///////////////////////////////////////////////
 	bool						_Array_Create			(void);
 	void						_Array_Destroy			(void);
 
+	sLong						_Cache_Check			(void);
 	bool						_Cache_Create			(const SG_Char *FilePath, TSG_Data_Type File_Type, sLong Offset, bool bSwap, bool bFlip);
 	bool						_Cache_Create			(void);
 	bool						_Cache_Destroy			(bool bMemory_Restore);
@@ -908,18 +916,22 @@ private:	///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// File access...
 
-	void						_Swap_Bytes				(char *Bytes, int nBytes)			const;
+	void						_Swap_Bytes				(char *Bytes, int nBytes)		const;
 
-	bool						_Load					(const CSG_String &File_Name, TSG_Data_Type m_Type, TSG_Grid_Memory_Type aMemory_Type, bool bLoadData);
+	bool						_Load					(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
+
+	bool						_Load_Native			(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
+	bool						_Save_Native			(const CSG_String &FileName, bool bBinary);
+
+	bool						_Load_Compressed		(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
+	bool						_Save_Compressed		(const CSG_String &FileName);
 
 	bool						_Load_Binary			(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes);
-	bool						_Save_Binary			(CSG_File &Stream, int xA, int yA, int xN, int yN, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes);
-	bool						_Load_ASCII				(CSG_File &Stream, TSG_Grid_Memory_Type aMemory_Type, bool bFlip = false);
-	bool						_Save_ASCII				(CSG_File &Stream, int xA, int yA, int xN, int yN, bool bFlip = false);
-	bool						_Load_Native			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type, bool bLoadData);
-	bool						_Save_Native			(const CSG_String &File_Name, int xA, int yA, int xN, int yN, bool bBinary = true);
+	bool						_Save_Binary			(CSG_File &Stream, TSG_Data_Type File_Type, bool bFlip, bool bSwapBytes);
+	bool						_Load_ASCII				(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip = false);
+	bool						_Save_ASCII				(CSG_File &Stream, bool bFlip = false);
 
-	bool						_Load_Surfer			(const CSG_String &File_Name, TSG_Grid_Memory_Type aMemory_Type, bool bLoadData);
+	bool						_Load_Surfer			(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
 
 	//-----------------------------------------------------
 	CSG_Grid &					_Operation_Arithmetic	(const CSG_Grid &Grid, TSG_Grid_Operation Operation);
@@ -965,7 +977,7 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(void);
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid &Grid);
 
 /** Safe grid construction */
-SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_String &File_Name, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
+SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_String &FileName, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal, bool bLoadData = true);
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(CSG_Grid *pGrid, TSG_Data_Type Type = SG_DATATYPE_Undefined, TSG_Grid_Memory_Type Memory_Type = GRID_MEMORY_Normal);

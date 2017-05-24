@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -129,7 +128,7 @@ bool CRaster_Load::On_Execute(void)
 		return( false );
 	}
 
-	return( pGrids->Get_Count() > 0 );
+	return( pGrids->Get_Grid_Count() > 0 );
 }
 
 
@@ -349,9 +348,9 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
 	{
-		for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+		for(int i=0; i<pParameter->asGridList()->Get_Grid_Count(); i++)
 		{
-			CSG_Grid	*pGrid	= pParameter->asGridList()->asGrid(i);
+			CSG_Grid	*pGrid	= pParameter->asGridList()->Get_Grid(i);
 			
 			if( SG_Get_Data_Manager().Exists(pGrid) && pGrid->Get_Projection().is_Okay() && pGrid->Get_Projection().Get_EPSG() > 0 )
 			{
@@ -409,11 +408,11 @@ bool CRaster_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pGrids->Get_Count(); i++)
+	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s [%d/%d]", _TL("export grid"), pGrids->asGrid(i)->Get_Name(), i + 1, pGrids->Get_Count()));
+		Process_Set_Text(CSG_String::Format("%s: %s [%d/%d]", _TL("export grid"), pGrids->Get_Grid(i)->Get_Name(), i + 1, pGrids->Get_Grid_Count()));
 
-		if( !Get_Connection()->Raster_Save(pGrids->asGrid(i), Get_SRID(), Table, pGrids->asGrid(i)->Get_Name()) )
+		if( !Get_Connection()->Raster_Save(pGrids->Get_Grid(i), Get_SRID(), Table, pGrids->Get_Grid(i)->Get_Name()) )
 		{
 			Get_Connection()->Rollback(SavePoint);
 
@@ -423,12 +422,12 @@ bool CRaster_Save::On_Execute(void)
 		//{
 		//	CSG_Bytes	WKB;
 
-		//	if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->asGrid(i), Get_SRID()) )
+		//	if( CSG_Grid_OGIS_Converter::to_WKBinary(WKB, pGrids->Get_Grid(i), Get_SRID()) )
 		//	{
 		//		CSG_String	SQL	= "INSERT INTO \"" + Table + "\" (\"raster\", \"name\") VALUES("
 		//			+ "ST_AddBand('" + WKB.toHexString() + "'::raster, '"
-		//			+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->asGrid(i)->Get_Type()) + "'::text, 0, NULL), '"
-		//			+ pGrids->asGrid(i)->Get_Name() + "')";
+		//			+ CSG_PG_Connection::Get_Raster_Type_To_SQL(pGrids->Get_Grid(i)->Get_Type()) + "'::text, 0, NULL), '"
+		//			+ pGrids->Get_Grid(i)->Get_Name() + "')";
 
 		//		if( !Get_Connection()->Execute(SQL) )
 		//		{

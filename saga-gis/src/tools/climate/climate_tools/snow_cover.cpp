@@ -30,10 +30,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -175,8 +173,8 @@ bool CSnow_Cover::On_Execute(void)
 	m_pT	= Parameters("T")->asGridList();
 	m_pP	= Parameters("P")->asGridList();
 
-	if( (m_pT->Get_Count() != 12 && m_pT->Get_Count() < 365)
-	||  (m_pP->Get_Count() != 12 && m_pP->Get_Count() < 365) || m_pT->Get_Count() != m_pP->Get_Count() )
+	if( (m_pT->Get_Grid_Count() != 12 && m_pT->Get_Grid_Count() < 365)
+	||  (m_pP->Get_Grid_Count() != 12 && m_pP->Get_Grid_Count() < 365) || m_pT->Get_Grid_Count() != m_pP->Get_Grid_Count() )
 	{
 		Error_Set(_TL("Input has to be provided on a monthly (12) or daily (365) basis."));
 
@@ -288,19 +286,19 @@ bool CSnow_Cover::Get_Snow_Cover(int x, int y, CCT_Snow_Accumulation &Snow)
 	CSG_Vector	T, P;
 
 	//-----------------------------------------------------
-	if( m_pT->Get_Count() == 12 )
+	if( m_pT->Get_Grid_Count() == 12 )
 	{
 		double	Tm[12], Pm[12];
 
 		for(int i=0; i<12; i++)
 		{
-			if( m_pT->asGrid(i)->is_NoData(x, y) || m_pP->asGrid(i)->is_NoData(x, y) )
+			if( m_pT->Get_Grid(i)->is_NoData(x, y) || m_pP->Get_Grid(i)->is_NoData(x, y) )
 			{
 				return( false );
 			}
 
-			Tm[i]	= m_pT->asGrid(i)->asDouble(x, y);
-			Pm[i]	= m_pP->asGrid(i)->asDouble(x, y);
+			Tm[i]	= m_pT->Get_Grid(i)->asDouble(x, y);
+			Pm[i]	= m_pP->Get_Grid(i)->asDouble(x, y);
 		}
 
 		if( !CT_Get_Daily_Splined(T, Tm) || !CT_Get_Daily_Precipitation(P, Pm, Tm) )
@@ -316,13 +314,13 @@ bool CSnow_Cover::Get_Snow_Cover(int x, int y, CCT_Snow_Accumulation &Snow)
 
 		for(int i=0; i<365; i++)
 		{
-			if( m_pT->asGrid(i)->is_NoData(x, y) || m_pP->asGrid(i)->is_NoData(x, y) )
+			if( m_pT->Get_Grid(i)->is_NoData(x, y) || m_pP->Get_Grid(i)->is_NoData(x, y) )
 			{
 				return( false );
 			}
 
-			T[i]	= m_pT->asGrid(i)->asDouble(x, y);
-			P[i]	= m_pP->asGrid(i)->asDouble(x, y);
+			T[i]	= m_pT->Get_Grid(i)->asDouble(x, y);
+			P[i]	= m_pP->Get_Grid(i)->asDouble(x, y);
 		}
 	}
 

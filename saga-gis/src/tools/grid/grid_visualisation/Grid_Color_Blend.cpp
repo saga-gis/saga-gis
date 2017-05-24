@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -153,7 +152,7 @@ bool CGrid_Color_Blend::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() < 2 )
+	if( pGrids->Get_Grid_Count() < 2 )
 	{
 		return( false );
 	}
@@ -170,13 +169,13 @@ bool CGrid_Color_Blend::On_Execute(void)
 
 	case 1:	// fit to overall range
 		{
-			m_Range_Min	= pGrids->asGrid(0)->Get_Min();
-			m_Range_Max	= pGrids->asGrid(0)->Get_Max();
+			m_Range_Min	= pGrids->Get_Grid(0)->Get_Min();
+			m_Range_Max	= pGrids->Get_Grid(0)->Get_Max();
 
-			for(int i=1; i<pGrids->Get_Count(); i++)
+			for(int i=1; i<pGrids->Get_Grid_Count(); i++)
 			{
-				if( m_Range_Min > pGrids->asGrid(i)->Get_Min() )	m_Range_Min	= pGrids->asGrid(i)->Get_Min();
-				if( m_Range_Max < pGrids->asGrid(i)->Get_Max() )	m_Range_Max	= pGrids->asGrid(i)->Get_Max();
+				if( m_Range_Min > pGrids->Get_Grid(i)->Get_Min() )	m_Range_Min	= pGrids->Get_Grid(i)->Get_Min();
+				if( m_Range_Max < pGrids->Get_Grid(i)->Get_Max() )	m_Range_Max	= pGrids->Get_Grid(i)->Get_Max();
 			}
 		}
 		break;
@@ -185,13 +184,13 @@ bool CGrid_Color_Blend::On_Execute(void)
 		{
 			double	StdDev	= Parameters("STDDEV")->asDouble();
 
-			m_Range_Min	= pGrids->asGrid(0)->Get_Mean() - StdDev * pGrids->asGrid(0)->Get_StdDev();
-			m_Range_Max	= pGrids->asGrid(0)->Get_Mean() + StdDev * pGrids->asGrid(0)->Get_StdDev();
+			m_Range_Min	= pGrids->Get_Grid(0)->Get_Mean() - StdDev * pGrids->Get_Grid(0)->Get_StdDev();
+			m_Range_Max	= pGrids->Get_Grid(0)->Get_Mean() + StdDev * pGrids->Get_Grid(0)->Get_StdDev();
 
-			for(int i=1; i<pGrids->Get_Count(); i++)
+			for(int i=1; i<pGrids->Get_Grid_Count(); i++)
 			{
-				double	Min	= pGrids->asGrid(i)->Get_Mean() - StdDev * pGrids->asGrid(i)->Get_StdDev();
-				double	Max	= pGrids->asGrid(i)->Get_Mean() + StdDev * pGrids->asGrid(i)->Get_StdDev();
+				double	Min	= pGrids->Get_Grid(i)->Get_Mean() - StdDev * pGrids->Get_Grid(i)->Get_StdDev();
+				double	Max	= pGrids->Get_Grid(i)->Get_Mean() + StdDev * pGrids->Get_Grid(i)->Get_StdDev();
 
 				if( m_Range_Min > Min )	m_Range_Min	= Min;
 				if( m_Range_Max < Max )	m_Range_Max	= Max;
@@ -203,20 +202,20 @@ bool CGrid_Color_Blend::On_Execute(void)
 	//-----------------------------------------------------
 	m_pGrid	= Parameters("GRID")->asGrid();
 	m_pGrid	->Set_Name(_TL("Color Blending"));
-	m_pGrid	->Assign(pGrids->asGrid(0));
+	m_pGrid	->Assign(pGrids->Get_Grid(0));
 
 	DataObject_Update(m_pGrid, SG_UI_DATAOBJECT_SHOW);
 
 	do
 	{
-		for(int i=1; i<pGrids->Get_Count() && Set_Progress(i, pGrids->Get_Count() - 1); i++)
+		for(int i=1; i<pGrids->Get_Grid_Count() && Set_Progress(i, pGrids->Get_Grid_Count() - 1); i++)
 		{
-			Blend(pGrids->asGrid(i - 1), pGrids->asGrid(i));
+			Blend(pGrids->Get_Grid(i - 1), pGrids->Get_Grid(i));
 		}
 
 		if( Parameters("LOOP")->asBool() && Process_Get_Okay() )
 		{
-			Blend(pGrids->asGrid(pGrids->Get_Count() - 1), pGrids->asGrid(0));
+			Blend(pGrids->Get_Grid(pGrids->Get_Grid_Count() - 1), pGrids->Get_Grid(0));
 		}
 	}
 	while( Parameters("LOOP")->asBool() && Process_Get_Okay() );

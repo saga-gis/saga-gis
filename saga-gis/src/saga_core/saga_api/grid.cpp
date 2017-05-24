@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,17 +37,13 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
@@ -120,31 +117,13 @@ CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_T
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(System, Type, Memory_Type);
-
-	if( pGrid && !pGrid->is_Valid() )
-	{
-		delete(pGrid);
-
-		pGrid	= NULL;
-	}
-
-	return( pGrid );
+	return( new CSG_Grid(System, Type, Memory_Type) );
 }
 
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type);
-
-	if( pGrid && !pGrid->is_Valid() )
-	{
-		delete(pGrid);
-
-		pGrid	= NULL;
-	}
-
-	return( pGrid );
+	return( new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, Memory_Type) );
 }
 
 
@@ -160,7 +139,6 @@ CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, d
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(void)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 }
@@ -171,7 +149,6 @@ CSG_Grid::CSG_Grid(void)
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -184,7 +161,6 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -197,7 +173,6 @@ CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Mem
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -210,7 +185,6 @@ CSG_Grid::CSG_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, TSG_Grid_Memory_Type Mem
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -226,7 +200,6 @@ CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Grid_M
 */
 //---------------------------------------------------------
 CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, TSG_Grid_Memory_Type Memory_Type)
-	: CSG_Data_Object()
 {
 	_On_Construction();
 
@@ -235,8 +208,6 @@ CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double x
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -260,13 +231,13 @@ void CSG_Grid::_On_Construction(void)
 	m_Index				= NULL;
 	m_bIndex			= false;
 
+	m_pOwner			= NULL;
+
 	Set_Update_Flag();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -404,6 +375,7 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 		Set_Modified(false);
 		Set_Update_Flag();
 
+		SG_UI_Process_Set_Ready();
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
@@ -412,6 +384,7 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 	//-----------------------------------------------------
 	Destroy();
 
+	SG_UI_Process_Set_Ready();
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
@@ -503,7 +476,7 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 
 	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
 
-	m_zStats.Invalidate();
+	m_Statistics.Invalidate();
 
 }
 
@@ -1006,7 +979,7 @@ bool CSG_Grid::On_Update(void)
 {
 	if( is_Valid() )
 	{
-		m_zStats.Invalidate();
+		m_Statistics.Invalidate();
 
 		for(int y=0; y<Get_NY(); y++)
 		{
@@ -1014,7 +987,7 @@ bool CSG_Grid::On_Update(void)
 			{
 				if( !is_NoData(x, y) )
 				{
-					m_zStats.Add_Value(asDouble(x, y));
+					m_Statistics.Add_Value(asDouble(x, y));
 				}
 			}
 		}
@@ -1029,48 +1002,48 @@ bool CSG_Grid::On_Update(void)
 //---------------------------------------------------------
 const CSG_Simple_Statistics & CSG_Grid::Get_Statistics(void)
 {
-	Update();	return( m_zStats );
+	Update();	return( m_Statistics );
 }
 
 double CSG_Grid::Get_Mean(void)
 {
-	Update();	return( m_zStats.Get_Mean() );
+	Update();	return( m_Statistics.Get_Mean() );
 }
 
 double CSG_Grid::Get_Min(void)
 {
-	Update();	return( m_zStats.Get_Minimum() );
+	Update();	return( m_Statistics.Get_Minimum() );
 }
 
 double CSG_Grid::Get_Max(void)
 {
-	Update();	return( m_zStats.Get_Maximum() );
+	Update();	return( m_Statistics.Get_Maximum() );
 }
 
 double CSG_Grid::Get_Range(void)
 {
-	Update();	return( m_zStats.Get_Range() );
+	Update();	return( m_Statistics.Get_Range() );
 }
 
 double CSG_Grid::Get_StdDev(void)
 {
-	Update();	return( m_zStats.Get_StdDev() );
+	Update();	return( m_Statistics.Get_StdDev() );
 }
 
 double CSG_Grid::Get_Variance(void)
 {
-	Update();	return( m_zStats.Get_Variance() );
+	Update();	return( m_Statistics.Get_Variance() );
 }
 
 //---------------------------------------------------------
 sLong CSG_Grid::Get_Data_Count(void)
 {
-	Update();	return( m_zStats.Get_Count() );
+	Update();	return( m_Statistics.Get_Count() );
 }
 
 sLong CSG_Grid::Get_NoData_Count(void)
 {
-	Update();	return( Get_NCells() - m_zStats.Get_Count() );
+	Update();	return( Get_NCells() - m_Statistics.Get_Count() );
 }
 
 //---------------------------------------------------------

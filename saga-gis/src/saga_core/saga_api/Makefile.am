@@ -18,12 +18,12 @@ lib_LTLIBRARIES = libsaga_api.la
 
 otherincludedir = $(pkgincludedir)/saga_core/saga_api
 otherinclude_HEADERS = api_core.h \
-compatibility.h \
 data_manager.h \
 dataobject.h \
 datetime.h \
 geo_tools.h \
 grid.h \
+grids.h \
 grid_pyramid.h \
 mat_tools.h \
 metadata.h \
@@ -53,6 +53,7 @@ datetime.cpp\
 geo_classes.cpp\
 geo_functions.cpp\
 grid.cpp\
+grids.cpp \
 grid_io.cpp\
 grid_memory.cpp\
 grid_operation.cpp\

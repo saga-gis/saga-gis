@@ -557,12 +557,24 @@ public:
 	bool				Add				(void *Value);
 	bool				Add				(const CSG_Array_Pointer &Array);
 
+	bool				Del				(int    Index);
+	bool				Del				(size_t Index);
+	size_t				Del				(void  *Value);
+
+	bool				Set				(size_t Index, void *Value)				{	if( Index >= Get_Size() ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	bool				Set				(int    Index, void *Value)				{	return( Set((size_t)Index, Value) );	}
+
+	void *&				Get				(size_t Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				Get				(size_t Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *&				Get				(int    Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				Get				(int    Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+
 	CSG_Array_Pointer &	operator =		(const CSG_Array_Pointer &Array)		{	Create(Array);	return( *this );	}
 
-	void *&				operator []		(size_t Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *				operator []		(size_t Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *&				operator []		(int    Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *				operator []		(int    Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *&				operator []		(size_t Index)							{	return( Get(Index) );	}
+	void *				operator []		(size_t Index)	const					{	return( Get(Index) );	}
+	void *&				operator []		(int    Index)							{	return( Get(Index) );	}
+	void *				operator []		(int    Index)	const					{	return( Get(Index) );	}
 
 	CSG_Array_Pointer &	operator +=		(void *Value)							{	Add(Value);	return( *this );	}
 	CSG_Array_Pointer &	operator +=		(const CSG_Array_Pointer &Array)		{	Add(Array);	return( *this );	}
@@ -606,12 +618,20 @@ public:
 	bool				Add				(int Value);
 	bool				Add				(const CSG_Array_Int &Array);
 
+	bool				Set				(size_t Index, int Value)				{	if( Index >= Get_Size() ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	bool				Set				(int    Index, int Value)				{	return( Set((size_t)Index, Value) );	}
+
+	int &				Get				(size_t Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int	 				Get				(size_t Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int &				Get				(int    Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int	 				Get				(int    Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+
 	CSG_Array_Int &		operator =		(const CSG_Array_Int &Array)			{	Create(Array);	return( *this );	}
 
-	int &				operator []		(size_t Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int					operator []		(size_t Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int &				operator []		(int    Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int					operator []		(int    Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int &				operator []		(size_t Index)							{	return( Get(Index) );	}
+	int  				operator []		(size_t Index)	const					{	return( Get(Index) );	}
+	int &				operator []		(int    Index)							{	return( Get(Index) );	}
+	int  				operator []		(int    Index)	const					{	return( Get(Index) );	}
 
 	CSG_Array_Int &		operator +=		(int Value)								{	Add(Value);	return( *this );	}
 	CSG_Array_Int &		operator +=		(const CSG_Array_Int &Array)			{	Add(Array);	return( *this );	}
@@ -912,24 +932,24 @@ typedef enum ESG_Data_Type
 TSG_Data_Type;
 
 //---------------------------------------------------------
-const SG_Char	gSG_Data_Type_Identifier[][32]	=
+const char	gSG_Data_Type_Identifier[][32]	=
 {
-	SG_T("BIT"),
-	SG_T("BYTE_UNSIGNED"),
-	SG_T("BYTE"),
-	SG_T("SHORTINT_UNSIGNED"),
-	SG_T("SHORTINT"),
-	SG_T("INTEGER_UNSIGNED"),
-	SG_T("INTEGER"),
-	SG_T("LONGINT_UNSIGNED"),
-	SG_T("LONGINT"),
-	SG_T("FLOAT"),
-	SG_T("DOUBLE"),
-	SG_T("STRING"),
-	SG_T("DATE"),
-	SG_T("COLOR"),
-	SG_T("BINARY"),
-	SG_T("UNDEFINED")
+	"BIT",
+	"BYTE_UNSIGNED",
+	"BYTE",
+	"SHORTINT_UNSIGNED",
+	"SHORTINT",
+	"INTEGER_UNSIGNED",
+	"INTEGER",
+	"LONGINT_UNSIGNED",
+	"LONGINT",
+	"FLOAT",
+	"DOUBLE",
+	"STRING",
+	"DATE",
+	"COLOR",
+	"BINARY",
+	"UNDEFINED"
 };
 
 //---------------------------------------------------------
@@ -957,9 +977,11 @@ inline size_t	SG_Data_Type_Get_Size	(TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name	(TSG_Data_Type Type);
-SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric	(TSG_Data_Type Type);
-SAGA_API_DLL_EXPORT bool			SG_DataType_Range_Check	(TSG_Data_Type Type, double &Value);
+SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Name		(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT CSG_String		SG_Data_Type_Get_Identifier	(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT TSG_Data_Type	SG_Data_Type_Get_Type		(const CSG_String &Identifier);
+SAGA_API_DLL_EXPORT bool			SG_Data_Type_is_Numeric		(TSG_Data_Type Type);
+SAGA_API_DLL_EXPORT bool			SG_Data_Type_Range_Check	(TSG_Data_Type Type, double &Value);
 
 
 ///////////////////////////////////////////////////////////
@@ -967,6 +989,14 @@ SAGA_API_DLL_EXPORT bool			SG_DataType_Range_Check	(TSG_Data_Type Type, double &
 //						File							 //
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_File_Type
+{
+	SG_FILE_TYPE_NORMAL,
+	SG_FILE_TYPE_ZIP
+}
+TSG_File_Type;
 
 //---------------------------------------------------------
 enum ESG_File_Flags_Open
@@ -1005,6 +1035,9 @@ public:
 	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R, bool bBinary = true, int Encoding = SG_FILE_ENCODING_CHAR);
 
 	virtual bool					Close				(void);
+
+	virtual const CSG_String &		Get_File_Name		(void)	const	{	return( m_FileName );	}
+	virtual TSG_File_Type			Get_File_Type		(void)	const	{	return( SG_FILE_TYPE_NORMAL );	}
 
 	class wxStreamBase *			Get_Stream			(void)	const	{	return( m_pStream );	}
 
@@ -1052,6 +1085,8 @@ protected:
 
 	int								m_Mode, m_Encoding;
 
+	CSG_String						m_FileName;
+
 	class wxStreamBase				*m_pStream;
 
 };
@@ -1066,16 +1101,19 @@ public:
 
 									CSG_File_Zip		(const CSG_String &FileName, int Mode = SG_FILE_R);
 	virtual bool					Open				(const CSG_String &FileName, int Mode = SG_FILE_R);
+
 	virtual bool					Close				(void);
+
+	virtual TSG_File_Type			Get_File_Type		(void)	const	{	return( SG_FILE_TYPE_ZIP );	}
 
 	bool							Add_Directory		(const CSG_String &Name);
 	bool							Add_File			(const CSG_String &Name, bool bBinary = true);
 
 	size_t							Get_File_Count		(void)	{	return( m_Files.Get_Size() );	}
-	bool							is_Directory		(size_t Index);
-	bool							Get_File			(size_t Index);
 	bool							Get_File			(const CSG_String &Name);
-	CSG_String						Get_File_Name		(size_t Index);
+	bool							Get_File			(size_t Index);
+	virtual CSG_String				Get_File_Name		(size_t Index);
+	bool							is_Directory		(size_t Index);
 
 
 protected:

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -143,7 +142,7 @@ bool CMultiBand_Variation::On_Execute(void)
 	m_pDiff		= Parameters("DIFF"  )->asGrid();
 
 	//-----------------------------------------------------
-	if( m_pBands->Get_Count() < 1 )
+	if( m_pBands->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no input"));
 
@@ -173,9 +172,9 @@ bool CMultiBand_Variation::On_Execute(void)
 		{
 			bool	bNoData	= false;
 
-			for(int iBand=0; iBand<m_pBands->Get_Count() && !bNoData; iBand++)
+			for(int iBand=0; iBand<m_pBands->Get_Grid_Count() && !bNoData; iBand++)
 			{
-				if( m_pBands->asGrid(iBand)->is_NoData(x, y) )
+				if( m_pBands->Get_Grid(iBand)->is_NoData(x, y) )
 				{
 					bNoData	= true;
 				}
@@ -214,16 +213,16 @@ bool CMultiBand_Variation::Get_Variation(int x, int y)
 	{
 		int			iBand, iCell, ix, iy;
 		double		iDistance, iWeight, Weights, Distance;
-		CSG_Vector	Centroid(m_pBands->Get_Count());
+		CSG_Vector	Centroid(m_pBands->Get_Grid_Count());
 
 		//-------------------------------------------------
 		for(iCell=0, Weights=0.0; iCell<m_Cells.Get_Count(); iCell++)
 		{
 			if( m_Cells.Get_Values(iCell, ix = x, iy = y, iDistance, iWeight, true) && m_Mask.is_InGrid(ix, iy) )
 			{
-				for(iBand=0; iBand<m_pBands->Get_Count(); iBand++)
+				for(iBand=0; iBand<m_pBands->Get_Grid_Count(); iBand++)
 				{
-					Centroid[iBand]	+= iWeight * m_pBands->asGrid(iBand)->asDouble(ix, iy);
+					Centroid[iBand]	+= iWeight * m_pBands->Get_Grid(iBand)->asDouble(ix, iy);
 				}
 
 				Weights			+= iWeight;
@@ -241,9 +240,9 @@ bool CMultiBand_Variation::Get_Variation(int x, int y)
 			{
 				if( m_Cells.Get_Values(iCell, ix = x, iy = y, iDistance, iWeight, true) && m_Mask.is_InGrid(ix, iy) )
 				{
-					for(iBand=0, Distance=0.0; iBand<m_pBands->Get_Count(); iBand++)
+					for(iBand=0, Distance=0.0; iBand<m_pBands->Get_Grid_Count(); iBand++)
 					{
-						Distance	+= SG_Get_Square(Centroid[iBand] - m_pBands->asGrid(iBand)->asDouble(ix, iy));
+						Distance	+= SG_Get_Square(Centroid[iBand] - m_pBands->Get_Grid(iBand)->asDouble(ix, iy));
 					}
 
 					s.Add_Value(sqrt(Distance), iWeight);

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -178,8 +177,8 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 	pOutTab		= Parameters("OUTTAB")		->asTable();
 	bShortNames	= Parameters("SHORTNAMES")	->asBool();
 
-	nCatGrids	= pCatList	->Get_Count();
-	nStatGrids	= pStatList	->Get_Count();
+	nCatGrids	= pCatList	->Get_Grid_Count();
+	nStatGrids	= pStatList	->Get_Grid_Count();
 
 	NDcount		= 0;						// NoData Counter (ZoneGrid)
 	NDcountStat	= 0;						// NoData Counter (StatGrids)
@@ -255,7 +254,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 				runList = runList->sub;
 
-				pGrid	= pCatList->asGrid(iGrid);
+				pGrid	= pCatList->Get_Grid(iGrid);
 				if( !pGrid->is_NoData(x, y) )
 					catID	= pGrid->asInt(x, y);
 				else
@@ -322,9 +321,9 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 					runStats = runStats->next;
 				}
-				if( !pStatList->asGrid(iGrid)->is_NoData(x, y) )
+				if( !pStatList->Get_Grid(iGrid)->is_NoData(x, y) )
 				{
-					statID		= pStatList->asGrid(iGrid)->asDouble(x, y);
+					statID		= pStatList->Get_Grid(iGrid)->asDouble(x, y);
 
 					if( runStats->dummy == true )
 					{
@@ -406,7 +405,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	for(iGrid=0; iGrid<nCatGrids; iGrid++)
 	{
-		fieldName = CSG_String::Format(SG_T("%s"),pCatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
+		fieldName = CSG_String::Format(SG_T("%s"),pCatList->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
 		if (bShortNames && fieldName.Length() > 10)
 			fieldName.Remove(10, fieldName.Length()-10);
 		pOutTab->Add_Field(fieldName, SG_DATATYPE_Int);
@@ -416,7 +415,7 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	for( iGrid=0; iGrid<nStatGrids; iGrid++ )
 	{
-		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
+		tmpName		= CSG_String::Format(SG_T("%s"),pStatList->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.'));
 
 		fieldName	= tmpName;
 		if (bShortNames && fieldName.Length()+1 > 10)

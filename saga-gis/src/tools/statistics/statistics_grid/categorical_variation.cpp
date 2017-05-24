@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -151,7 +150,7 @@ bool CCategorical_Variation::On_Execute(void)
 	DataObject_Set_Colors(m_pMaj_Count, 11, SG_COLORS_DEFAULT, true);
 
 	//-----------------------------------------------------
-	if( m_pGrids->Get_Count() < 1 )
+	if( m_pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no input"));
 
@@ -195,11 +194,11 @@ bool CCategorical_Variation::Get_Variation(int x, int y)
 		{
 			if( is_InGrid(ix = m_Cells.Get_X(iCell, x), iy = m_Cells.Get_Y(iCell, y)) )
 			{
-				for(int iBand=0; iBand<m_pGrids->Get_Count(); iBand++)
+				for(int iBand=0; iBand<m_pGrids->Get_Grid_Count(); iBand++)
 				{
-					if( !m_pGrids->asGrid(iBand)->is_NoData(ix, iy) )
+					if( !m_pGrids->Get_Grid(iBand)->is_NoData(ix, iy) )
 					{
-						s.Add_Value(m_pGrids->asGrid(iBand)->asDouble(ix, iy));
+						s.Add_Value(m_pGrids->Get_Grid(iBand)->asDouble(ix, iy));
 					}
 				}
 			}
@@ -207,11 +206,11 @@ bool CCategorical_Variation::Get_Variation(int x, int y)
 	}
 	else
 	{
-		for(int iBand=0; iBand<m_pGrids->Get_Count(); iBand++)
+		for(int iBand=0; iBand<m_pGrids->Get_Grid_Count(); iBand++)
 		{
-			if( !m_pGrids->asGrid(iBand)->is_NoData(x, y) )
+			if( !m_pGrids->Get_Grid(iBand)->is_NoData(x, y) )
 			{
-				s.Add_Value(m_pGrids->asGrid(iBand)->asDouble(x, y));
+				s.Add_Value(m_pGrids->Get_Grid(iBand)->asDouble(x, y));
 			}
 		}
 	}

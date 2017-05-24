@@ -28,7 +28,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -37,10 +38,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -169,7 +168,7 @@ int CGrid_Statistics_AddTo_Polygon::On_Parameters_Enable(CSG_Parameters *pParame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format("G%02d_%s", iGrid + 1, VAR) : CSG_String::Format("%s [%s]", pGrids->asGrid(iGrid)->Get_Name(), VAR)
+#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format("G%02d_%s", iGrid + 1, VAR) : CSG_String::Format("%s [%s]", pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
 
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
@@ -187,7 +186,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -251,12 +250,12 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pPolygons->Get_Count()];
 
 	//-----------------------------------------------------
-	for(int iGrid=0; iGrid<pGrids->Get_Count() && Process_Get_Okay(); iGrid++)
+	for(int iGrid=0; iGrid<pGrids->Get_Grid_Count() && Process_Get_Okay(); iGrid++)
 	{
-		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Count(), pGrids->asGrid(iGrid)->Get_Name()));
+		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Grid_Count(), pGrids->Get_Grid(iGrid)->Get_Name()));
 
-		if( (Method == 0 && Get_Simple (pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, Index))
-		||  (Method != 0 && Get_Precise(pGrids->asGrid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, bParallelized)) )
+		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, Index))
+		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, bParallelized)) )
 		{
 			nFields	= pPolygons->Get_Field_Count();
 

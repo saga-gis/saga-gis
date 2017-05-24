@@ -21,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -30,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -143,7 +142,7 @@ bool CGrid_PCA::On_Execute(void)
 	m_pGrids	= Parameters("GRIDS" )->asGridList();
 	m_Method	= Parameters("METHOD")->asInt();
 
-	m_nFeatures	= m_pGrids->Get_Count();
+	m_nFeatures	= m_pGrids->Get_Grid_Count();
 
 	//-----------------------------------------------------
 	if( !Get_Matrix(Matrix) )
@@ -182,7 +181,7 @@ inline bool CGrid_PCA::is_NoData(sLong iCell)
 {
 	for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 	{
-		if( m_pGrids->asGrid(iFeature)->is_NoData(iCell) )
+		if( m_pGrids->Get_Grid(iFeature)->is_NoData(iCell) )
 		{
 			return( true );
 		}
@@ -194,7 +193,7 @@ inline bool CGrid_PCA::is_NoData(sLong iCell)
 //---------------------------------------------------------
 inline double CGrid_PCA::Get_Value(sLong iCell, int iFeature)
 {
-	CSG_Grid	*pGrid	= m_pGrids->asGrid(iFeature);
+	CSG_Grid	*pGrid	= m_pGrids->Get_Grid(iFeature);
 
 	switch( m_Method )
 	{
@@ -320,7 +319,7 @@ void CGrid_PCA::Print_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 			Message_Add(CSG_String::Format("%.4f\t", Eigen_Vectors[i][j]), false);
 		}
 
-		Message_Add(m_pGrids->asGrid(i)->Get_Name(), false);
+		Message_Add(m_pGrids->Get_Grid(i)->Get_Name(), false);
 		Message_Add("\n", false);
 	}
 }
@@ -358,7 +357,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 		for(i=0; i<m_nFeatures; i++)
 		{
-			pEigen->Add_Field(m_pGrids->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+			pEigen->Add_Field(m_pGrids->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		for(i=0; i<m_nFeatures; i++)
@@ -391,12 +390,12 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 	for(i=0; i<nComponents; i++)
 	{
-		if( !pPCA->asGrid(i) )
+		if( !pPCA->Get_Grid(i) )
 		{
 			pPCA->Add_Item(SG_Create_Grid(*Get_System()));
 		}
 
-		pPCA->asGrid(i)->Set_Name(CSG_String::Format("PC%0*d", nComponents < 10 ? 1 : 2, i + 1));
+		pPCA->Get_Grid(i)->Set_Name(CSG_String::Format("PC%0*d", nComponents < 10 ? 1 : 2, i + 1));
 	}
 
 	//-----------------------------------------------------
@@ -411,13 +410,13 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 			for(i=0; i<m_nFeatures && !bNoData; i++)
 			{
-				if( m_pGrids->asGrid(i)->is_NoData(x, y) )
+				if( m_pGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
 					bNoData	= true;
 				}
 				else
 				{
-					X[i]	= m_pGrids->asGrid(i)->asDouble(x, y);
+					X[i]	= m_pGrids->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
@@ -425,7 +424,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 			{
 				for(i=0; i<nComponents; i++)
 				{
-					pPCA->asGrid(i)->Set_NoData(x, y);
+					pPCA->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 			else
@@ -434,7 +433,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 				for(i=0; i<nComponents; i++)
 				{
-					pPCA->asGrid(i)->Set_Value(x, y, Y[i]);
+					pPCA->Get_Grid(i)->Set_Value(x, y, Y[i]);
 				}
 			}
 		}
@@ -517,13 +516,13 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 		}
 	}
 
-	if( nFeatures != pPCA->Get_Count() )
+	if( nFeatures != pPCA->Get_Grid_Count() )
 	{
 		Error_Set(_TL("warning: number of component grids and components differs."));
 
-		if( nFeatures > pPCA->Get_Count() )
+		if( nFeatures > pPCA->Get_Grid_Count() )
 		{
-			nFeatures	= pPCA->Get_Count();
+			nFeatures	= pPCA->Get_Grid_Count();
 		}
 	}
 
@@ -560,7 +559,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	for(i=0; i<nFeatures; i++)
 	{
 		pGrids->Add_Item(SG_Create_Grid(*Get_System()));
-		pGrids->asGrid(i)->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
+		pGrids->Get_Grid(i)->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
 	}
 
 	//-----------------------------------------------------
@@ -575,13 +574,13 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 
 			for(i=0; i<nFeatures && !bNoData; i++)
 			{
-				if( pPCA->asGrid(i)->is_NoData(x, y) )
+				if( pPCA->Get_Grid(i)->is_NoData(x, y) )
 				{
 					bNoData	= true;
 				}
 				else
 				{
-					Y[i]	= pPCA->asGrid(i)->asDouble(x, y);
+					Y[i]	= pPCA->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
@@ -589,7 +588,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 			{
 				for(i=0; i<nFeatures; i++)
 				{
-					pGrids->asGrid(i)->Set_NoData(x, y);
+					pGrids->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 			else
@@ -598,7 +597,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 
 				for(i=0; i<nFeatures; i++)
 				{
-					pGrids->asGrid(i)->Set_Value(x, y, X[i]);
+					pGrids->Get_Grid(i)->Set_Value(x, y, X[i]);
 				}
 			}
 		}

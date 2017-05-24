@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -558,7 +557,7 @@ CSG_Parameter * CSG_Parameters::Add_Grid_Output(const CSG_String &ParentID, cons
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Grid);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_Grid);
 
 	return( pParameter );
 }
@@ -626,7 +625,7 @@ CSG_Parameter * CSG_Parameters::Add_Grids_Output(const CSG_String &ParentID, con
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Grids);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_Grids);
 
 	return( pParameter );
 }
@@ -723,7 +722,7 @@ CSG_Parameter * CSG_Parameters::Add_Table_Output(const CSG_String &ParentID, con
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Table);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_Table);
 
 	return( pParameter );
 }
@@ -764,7 +763,7 @@ CSG_Parameter * CSG_Parameters::Add_Shapes_Output(const CSG_String &ParentID, co
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_Shapes);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_Shapes);
 
 	return( pParameter );
 }
@@ -805,7 +804,7 @@ CSG_Parameter * CSG_Parameters::Add_TIN_Output(const CSG_String &ParentID, const
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_TIN);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_TIN);
 
 	return( pParameter );
 }
@@ -844,7 +843,7 @@ CSG_Parameter * CSG_Parameters::Add_PointCloud_Output(const CSG_String &ParentID
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_DataObject_Output, PARAMETER_OUTPUT_OPTIONAL);
 
-	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(DATAOBJECT_TYPE_PointCloud);
+	((CSG_Parameter_Data_Object_Output *)pParameter->Get_Data())->Set_DataObject_Type(SG_DATAOBJECT_TYPE_PointCloud);
 
 	return( pParameter );
 }
@@ -1450,9 +1449,9 @@ bool CSG_Parameters::DataObjects_Create(void)
 		//-------------------------------------------------
 		else if( p->is_DataObject_List() )
 		{
-			for(int j=p->asList()->Get_Count()-1; j>=0; j--)
+			for(int j=p->asList()->Get_Item_Count()-1; j>=0; j--)
 			{
-				if( m_pManager && !m_pManager->Exists(p->asList()->asDataObject(j)) )
+				if( m_pManager && !m_pManager->Exists(p->asList()->Get_Item(j)) )
 				{
 					p->asList()->Del_Item(j);
 				}
@@ -1499,7 +1498,7 @@ bool CSG_Parameters::DataObjects_Create(void)
 						}
 						else
 						{
-							pDataObject	= SG_Create_Grids(*p->Get_Parent()->asGrid_System(), ((CSG_Parameter_Grid *)p->Get_Data())->Get_Preferred_Type());
+							pDataObject	= SG_Create_Grids(*p->Get_Parent()->asGrid_System(), 0, 0.0, ((CSG_Parameter_Grids *)p->Get_Data())->Get_Preferred_Type());
 						}
 					}
 					break;
@@ -1567,7 +1566,7 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 				if( pObject != DATAOBJECT_NOTSET
 				&&  pObject != DATAOBJECT_CREATE )
 				{
-					if( pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+					if( pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 					&&  p->asShapes()->Get_Type() == SHAPE_TYPE_Undefined
 					&&  (m_pManager == &SG_Get_Data_Manager() || !SG_Get_Data_Manager().Exists(pObject)) )
 					{
@@ -1593,9 +1592,9 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 			//---------------------------------------------
 			else if( p->is_DataObject_List() )
 			{
-				for(int j=0; j<p->asList()->Get_Count(); j++)
+				for(int j=0; j<p->asList()->Get_Item_Count(); j++)
 				{
-					CSG_Data_Object	*pObject	= p->asList()->asDataObject(j);
+					CSG_Data_Object	*pObject	= p->asList()->Get_Item(j);
 
 					if( m_pManager && !m_pManager->Exists(pObject) )
 					{
@@ -1663,9 +1662,9 @@ bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	cons
 				}
 				else if( p->is_DataObject_List() )
 				{
-					for(int j=0; j<p->asList()->Get_Count(); j++)
+					for(int j=0; j<p->asList()->Get_Item_Count(); j++)
 					{
-						P	= p->asList()->asDataObject(j)->Get_Projection();
+						P	= p->asList()->Get_Item(j)->Get_Projection();
 
 						if( P.is_Okay() )
 						{
@@ -1710,9 +1709,9 @@ bool CSG_Parameters::DataObjects_Set_Projection(const CSG_Projection &Projection
 				}
 				else if( p->is_DataObject_List() )
 				{
-					for(int j=0; j<p->asList()->Get_Count(); j++)
+					for(int j=0; j<p->asList()->Get_Item_Count(); j++)
 					{
-						p->asList()->asDataObject(j)->Get_Projection()	= Projection;
+						p->asList()->Get_Item(j)->Get_Projection()	= Projection;
 					}
 				}
 			}
@@ -1840,7 +1839,7 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 					}
 				}
 
-				else if( p->is_DataObject_List() && p->asList()->Get_Count() > 0 )
+				else if( p->is_DataObject_List() && p->asList()->Get_Item_Count() > 0 )
 				{
 					CSG_MetaData	*pList	= MetaData.Add_Child("INPUT_LIST");
 
@@ -1854,9 +1853,9 @@ bool CSG_Parameters::Set_History(CSG_MetaData &MetaData, bool bOptions, bool bDa
 						pList->Add_Property("system", p->Get_Parent()->Get_Identifier());
 					}
 
-					for(int j=0; j<p->asList()->Get_Count(); j++)
+					for(int j=0; j<p->asList()->Get_Item_Count(); j++)
 					{
-						pObject	= p->asList()->asDataObject(j);
+						pObject	= p->asList()->Get_Item(j);
 
 						pEntry	= pList->Add_Child(*pList, false);
 

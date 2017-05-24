@@ -21,12 +21,7 @@ set(SAGA_GUI_SOURCES
 	dlg_base.cpp
 	dlg_colors.cpp
 	dlg_colors_control.cpp
-	dlg_list_base.cpp
-	dlg_list_grid.cpp
-	dlg_list_pointcloud.cpp
-	dlg_list_shapes.cpp
-	dlg_list_table.cpp
-	dlg_list_tin.cpp
+	dlg_list.cpp
 	dlg_parameters.cpp
 	dlg_table.cpp
 	dlg_table_control.cpp
@@ -72,6 +67,7 @@ set(SAGA_GUI_SOURCES
 	wksp_grid.cpp
 	wksp_grid_manager.cpp
 	wksp_grid_system.cpp
+	wksp_grids.cpp
 	wksp_layer.cpp
 	wksp_layer_classify.cpp
 	wksp_layer_legend.cpp
@@ -120,12 +116,7 @@ set(SAGA_GUI_SOURCES
 	dlg_base.h
 	dlg_colors.h
 	dlg_colors_control.h
-	dlg_list_base.h
-	dlg_list_grid.h
-	dlg_list_pointcloud.h
-	dlg_list_shapes.h
-	dlg_list_table.h
-	dlg_list_tin.h
+	dlg_list.h
 	dlg_parameters.h
 	dlg_table.h
 	dlg_table_control.h
@@ -171,6 +162,7 @@ set(SAGA_GUI_SOURCES
 	wksp_grid.h
 	wksp_grid_manager.h
 	wksp_grid_system.h
+	wksp_grids.h
 	wksp_layer.h
 	wksp_layer_classify.h
 	wksp_layer_legend.h

@@ -25,7 +25,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -34,10 +35,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -487,7 +486,7 @@ bool CRGA_Basic::On_Execute(void)
 	//-----------------------------------------------------
 	m_pSegments		= Parameters("SEGMENTS"  )->asGrid();
 	m_pFeatures		= Parameters("FEATURES"  )->asGridList();
-	m_nFeatures		= m_pFeatures->Get_Count();
+	m_nFeatures		= m_pFeatures->Get_Grid_Count();
 
 	pSeeds			= Parameters("SEEDS"     )->asGrid();
 	m_pSeeds		= Parameters("TABLE"     )->asTable();
@@ -520,9 +519,9 @@ bool CRGA_Basic::On_Execute(void)
 	m_pSeeds->Add_Field(_TL("X"   ), SG_DATATYPE_Double);
 	m_pSeeds->Add_Field(_TL("Y"   ), SG_DATATYPE_Double);
 
-	for(i=0; i<m_pFeatures->Get_Count(); i++)
+	for(i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 	{
-		m_pSeeds->Add_Field(m_pFeatures->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+		m_pSeeds->Add_Field(m_pFeatures->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
 	}
 
 	m_Candidates.Create(Parameters("LEAFSIZE")->asInt());
@@ -540,7 +539,7 @@ bool CRGA_Basic::On_Execute(void)
 				pRec->Set_Value(SEEDFIELD_X, x);
 				pRec->Set_Value(SEEDFIELD_Y, y);
 
-				for(i=0; i<m_pFeatures->Get_Count(); i++)
+				for(i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 				{
 					pRec->Set_Value(SEEDFIELD_Z + i, Get_Feature(x, y, i));
 				}
@@ -590,11 +589,11 @@ bool CRGA_Basic::On_Execute(void)
 //---------------------------------------------------------
 inline double CRGA_Basic::Get_Feature(int x, int y, int iFeature)
 {
-	double	Value	= m_pFeatures->asGrid(iFeature)->asDouble(x, y);
+	double	Value	= m_pFeatures->Get_Grid(iFeature)->asDouble(x, y);
 
 	if( m_bNormalize )
 	{
-		Value	= (Value - m_pFeatures->asGrid(iFeature)->Get_Mean()) / m_pFeatures->asGrid(iFeature)->Get_StdDev();
+		Value	= (Value - m_pFeatures->Get_Grid(iFeature)->Get_Mean()) / m_pFeatures->Get_Grid(iFeature)->Get_StdDev();
 	}
 
 	return( Value );

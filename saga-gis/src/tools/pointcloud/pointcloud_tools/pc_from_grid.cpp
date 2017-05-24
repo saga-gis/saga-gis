@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -125,9 +124,9 @@ bool CPC_From_Grid::On_Execute(void)
 	pPoints->Create();
 	pPoints->Set_Name(pGrid->Get_Name());
 
-	for(i=0; i<pGrids->Get_Count(); i++)
+	for(i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		pPoints->Add_Field(pGrids->asGrid(i)->Get_Name(), SG_DATATYPE_Float);
+		pPoints->Add_Field(pGrids->Get_Grid(i)->Get_Name(), SG_DATATYPE_Float);
 	}
 
 	//-----------------------------------------------------
@@ -139,9 +138,9 @@ bool CPC_From_Grid::On_Execute(void)
 			{
 				pPoints->Add_Point(p.x, p.y, pGrid->asDouble(x, y));
 
-				for(i=0; i<pGrids->Get_Count(); i++)
+				for(i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					pPoints->Set_Value(3 + i, pGrids->asGrid(i)->Get_Value(p));
+					pPoints->Set_Value(3 + i, pGrids->Get_Grid(i)->Get_Value(p));
 				}
 			}
 		}

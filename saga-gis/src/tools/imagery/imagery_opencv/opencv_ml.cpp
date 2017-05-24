@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -156,7 +155,7 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FEATURES") )
 	{
-		pParameters->Set_Enabled("RGB_COLORS"     , pParameter->asGridList()->Get_Count() >= 3);
+		pParameters->Set_Enabled("RGB_COLORS"     , pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}
 
 	//-----------------------------------------------------
@@ -186,9 +185,9 @@ bool COpenCV_ML::_Initialize(void)
 		{
 			bool	bNoData	= false;
 
-			for(int i=0; !bNoData && i<m_pFeatures->Get_Count(); i++)
+			for(int i=0; !bNoData && i<m_pFeatures->Get_Grid_Count(); i++)
 			{
-				bNoData	= m_pFeatures->asGrid(i)->is_NoData(x, y);
+				bNoData	= m_pFeatures->Get_Grid(i)->is_NoData(x, y);
 			}
 
 			m_pClasses->Set_Value(x, y, bNoData ? -1.0 : 0.0);
@@ -206,7 +205,7 @@ bool COpenCV_ML::_Finalize(void)
 
 	if( pLUT && m_Classes.Get_Count() > 0 )
 	{
-		bool	bRGB	= m_pFeatures->Get_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+		bool	bRGB	= m_pFeatures->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
 
 		for(int i=0; i<m_Classes.Get_Count(); i++)
 		{
@@ -224,7 +223,7 @@ bool COpenCV_ML::_Finalize(void)
 
 			if( bRGB )
 			{
-				#define SET_COLOR_COMPONENT(c, i)	c = 127 + 127 * (m_bNormalize ? c : (c - m_pFeatures->asGrid(i)->Get_Mean()) / m_pFeatures->asGrid(i)->Get_StdDev());\
+				#define SET_COLOR_COMPONENT(c, i)	c = 127 + 127 * (m_bNormalize ? c : (c - m_pFeatures->Get_Grid(i)->Get_Mean()) / m_pFeatures->Get_Grid(i)->Get_StdDev());\
 					if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
 
 				double	r = m_Classes[i].asDouble(CLASS_R) / m_Classes[i].asInt(CLASS_COUNT); SET_COLOR_COMPONENT(r, 2);
@@ -262,7 +261,7 @@ bool COpenCV_ML::_Finalize(void)
 //---------------------------------------------------------
 inline double COpenCV_ML::_Get_Feature(int x, int y, int iFeature)
 {
-	CSG_Grid	*pFeature	= m_pFeatures->asGrid(iFeature);
+	CSG_Grid	*pFeature	= m_pFeatures->Get_Grid(iFeature);
 
 	double	Feature	= pFeature->asDouble(x, y);
 
@@ -289,9 +288,9 @@ bool COpenCV_ML::_Get_Prediction(const Ptr<StatModel> &Model)
 		{
 			if( !m_pClasses->is_NoData(x, y) )
 			{
-				Mat	Sample(1, m_pFeatures->Get_Count(), CV_32FC1);
+				Mat	Sample(1, m_pFeatures->Get_Grid_Count(), CV_32FC1);
 
-				for(int i=0; i<m_pFeatures->Get_Count(); i++)
+				for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 				{
 					Sample.at<float>(i)	= (float)_Get_Feature(x, y, i);
 				}
@@ -384,18 +383,18 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_S
 		{
 			if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System()->Get_Grid_to_World(x, y)) )
 			{
-				CSG_Vector	z(1 + m_pFeatures->Get_Count());
+				CSG_Vector	z(1 + m_pFeatures->Get_Grid_Count());
 
-				z[m_pFeatures->Get_Count()]	= ID;
+				z[m_pFeatures->Get_Grid_Count()]	= ID;
 
-				for(int i=0; i<m_pFeatures->Get_Count(); i++)
+				for(int i=0; i<m_pFeatures->Get_Grid_Count(); i++)
 				{
 					z[i]	= _Get_Feature(x, y, i);
 				}
 
 				Data.Add_Row(z);
 
-				if( m_pFeatures->Get_Count() >= 3 )
+				if( m_pFeatures->Get_Grid_Count() >= 3 )
 				{
 					r += z[2]; g += z[1]; b += z[0];
 				}

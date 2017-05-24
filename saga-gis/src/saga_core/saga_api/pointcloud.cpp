@@ -97,9 +97,9 @@ CSG_PointCloud * SG_Create_PointCloud(const CSG_PointCloud &PointCloud)
 }
 
 //---------------------------------------------------------
-CSG_PointCloud * SG_Create_PointCloud(const CSG_String &File_Name)
+CSG_PointCloud * SG_Create_PointCloud(const CSG_String &FileName)
 {
-	return( new CSG_PointCloud(File_Name) );
+	return( new CSG_PointCloud(FileName) );
 }
 
 //---------------------------------------------------------
@@ -155,17 +155,17 @@ bool CSG_PointCloud::Create(const CSG_PointCloud &PointCloud)
 }
 
 //---------------------------------------------------------
-CSG_PointCloud::CSG_PointCloud(const CSG_String &File_Name)
+CSG_PointCloud::CSG_PointCloud(const CSG_String &FileName)
 	: CSG_Shapes()
 {
 	_On_Construction();
 
-	Create(File_Name);
+	Create(FileName);
 }
 
-bool CSG_PointCloud::Create(const CSG_String &File_Name)
+bool CSG_PointCloud::Create(const CSG_String &FileName)
 {
-	return( _Load(File_Name) );
+	return( _Load(FileName) );
 }
 
 //---------------------------------------------------------
@@ -263,44 +263,47 @@ bool CSG_PointCloud::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PointCloud::_Load(const CSG_String &File_Name)
+bool CSG_PointCloud::_Load(const CSG_String &FileName)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load point cloud"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load point cloud"), FileName.c_str()), true);
 
 	bool	bResult	= false;
 
-	if( SG_File_Cmp_Extension(File_Name, "spcz") ) // POINTCLOUD_FILETYPE_Compressed
+	if( SG_File_Cmp_Extension(FileName, "sg-pts-z") ) // POINTCLOUD_FILE_FORMAT_Compressed
 	{
-		CSG_File_Zip	Stream(File_Name, SG_FILE_R);
+		CSG_File_Zip	Stream(FileName, SG_FILE_R);
 
-		bResult	= Stream.Get_File(0) && _Load(Stream);
+		CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
+
+		if( (bResult = Stream.Get_File(_FileName + "sg-pts")) == true && _Load(Stream) )
+		{
+			if( Stream.Get_File(_FileName + "sg-info") )
+			{
+				Load_MetaData(Stream);
+			}
+
+			if( Stream.Get_File(_FileName + "sg-prj") )
+			{
+				Get_Projection().Load(Stream, SG_PROJ_FMT_WKT);
+			}
+		}
 	}
-	else // if( SG_File_Cmp_Extension(File_Name, "spc") ) // POINTCLOUD_FILETYPE_Normal
+	else // if( SG_File_Cmp_Extension(FileName, "sg-pts"/"spc") ) // POINTCLOUD_FILE_FORMAT_Normal
 	{
-		CSG_File	Stream(File_Name, SG_FILE_R, true);
+		if( (bResult = _Load(CSG_File(FileName, SG_FILE_R, true))) == true )
+		{
+			Load_MetaData(FileName);
 
-		bResult	= _Load(Stream);
+			Get_Projection().Load(SG_File_Make_Path("", FileName, "sg-prj"), SG_PROJ_FMT_WKT);
+		}
 	}
 
+	//-----------------------------------------------------
 	if( !bResult )
 	{
+		Set_File_Name(FileName, true);
+
 		SG_UI_Msg_Add_Error(_TL("file could not be opened."));
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Process_Set_Ready();
-
-		return( false );
-	}
-
-	Set_File_Name(File_Name, true);
-
-	Load_MetaData(File_Name);
-
-	Get_Projection().Load(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
-
-	if( Get_Count() <= 0 )
-	{
-		SG_UI_Msg_Add_Error(_TL("no records in file."));
 
 		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 		SG_UI_Process_Set_Ready();
@@ -311,8 +314,94 @@ bool CSG_PointCloud::_Load(const CSG_String &File_Name)
 	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	SG_UI_Process_Set_Ready();
 
+	Set_Modified(false);
+
 	return( true );
 }
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
+{
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save point cloud"), FileName.c_str()), true);
+
+	if( Format == POINTCLOUD_FILE_FORMAT_Undefined )
+	{
+		Format	= SG_File_Cmp_Extension(FileName, "sg-pts-z")
+			? POINTCLOUD_FILE_FORMAT_Compressed
+			: POINTCLOUD_FILE_FORMAT_Normal;
+	}
+
+	bool	bResult	= false;
+
+	switch( Format )
+	{
+	//-----------------------------------------------------
+	case POINTCLOUD_FILE_FORMAT_Compressed:
+		{
+			CSG_File_Zip	Stream(FileName, SG_FILE_W);
+
+			CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
+
+			if( Stream.Add_File(_FileName + "sg-pts") && _Save(Stream) )
+			{
+				if( Stream.Add_File(_FileName + "sg-info") )
+				{
+					Save_MetaData(Stream);
+				}
+
+				if( Get_Projection().is_Okay() && Stream.Add_File(_FileName + "sg-prj") )
+				{
+					Get_Projection().Save(Stream);
+				}
+
+				bResult	= true;
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case POINTCLOUD_FILE_FORMAT_Normal: default:
+		{
+			if( _Save(CSG_File(FileName, SG_FILE_W, true)) )
+			{
+				Save_MetaData(FileName);
+
+				if( Get_Projection().is_Okay() )
+				{
+					Get_Projection().Save(SG_File_Make_Path("", FileName, "sg-prj"), SG_PROJ_FMT_WKT);
+				}
+
+				bResult	= true;
+			}
+		}
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		Set_File_Name(FileName, true);
+
+		SG_UI_Msg_Add_Error(_TL("could not save file."));
+
+		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+		SG_UI_Process_Set_Ready();
+
+		return( false );
+	}
+
+	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+	SG_UI_Process_Set_Ready();
+
+	Set_Modified(false);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_PointCloud::_Load(CSG_File &Stream)
@@ -392,74 +481,6 @@ bool CSG_PointCloud::_Load(CSG_File &Stream)
 	{}
 
 	_Dec_Array();
-
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_PointCloud::Save(const CSG_String &File_Name, int Format)
-{
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save point cloud"), File_Name.c_str()), true);
-
-	if( Format == POINTCLOUD_FILETYPE_Undefined )
-	{
-		Format	= SG_File_Cmp_Extension(File_Name, "spc")
-			? POINTCLOUD_FILETYPE_Normal
-			: POINTCLOUD_FILETYPE_Compressed;
-	}
-
-	CSG_String	sFile_Name(File_Name);
-
-	switch( Format )
-	{
-	case POINTCLOUD_FILETYPE_Normal: default:
-		{
-			SG_File_Set_Extension(sFile_Name, "spc");
-
-			CSG_File	Stream(sFile_Name, SG_FILE_W, true);
-
-			if( !_Save(Stream) )
-			{
-				sFile_Name.Clear();
-			}
-		}
-		break;
-
-	case POINTCLOUD_FILETYPE_Compressed:
-		{
-			SG_File_Set_Extension(sFile_Name, "spcz");
-
-			CSG_File_Zip	Stream(sFile_Name, SG_FILE_W);
-
-			if( !Stream.Add_File(SG_File_Get_Name(File_Name, false) + ".spc") || !_Save(Stream) )
-			{
-				sFile_Name.Clear();
-			}
-		}
-		break;
-	}
-
-	//-----------------------------------------------------
-	if( sFile_Name.is_Empty() )
-	{
-		SG_UI_Msg_Add_Error(_TL("could not save file."));
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Process_Set_Ready();
-
-		return( false );
-	}
-
-	Set_File_Name(sFile_Name, true);
-
-	Set_Modified(false);
-
-	Save_MetaData(File_Name);
-
-	Get_Projection().Save(SG_File_Make_Path("", File_Name, "prj"), SG_PROJ_FMT_WKT);
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-	SG_UI_Process_Set_Ready();
 
 	return( true );
 }
@@ -1307,13 +1328,13 @@ bool CSG_PointCloud::is_Selected(int iRecord)	const
 //---------------------------------------------------------
 CSG_Shape * CSG_PointCloud::Get_Selection(size_t Index)
 {
-	return( Index < Get_Selection_Count() ? _Set_Shape(Get_Selection_Index(Index)) : NULL );
+	return( Index < Get_Selection_Count() ? _Set_Shape((int)Get_Selection_Index(Index)) : NULL );
 }
 
 //---------------------------------------------------------
 const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 {
-	if( Get_Selection_Count() > 0 && Set_Cursor(Get_Selection_Index(0)) )
+	if( Get_Selection_Count() > 0 && Set_Cursor((int)Get_Selection_Index(0)) )
 	{
 		TSG_Rect	r;
 
@@ -1322,7 +1343,7 @@ const CSG_Rect & CSG_PointCloud::Get_Selection_Extent(void)
 
 		for(size_t i=1; i<Get_Selection_Count(); i++)
 		{
-			if( Set_Cursor(Get_Selection_Index(i)) )
+			if( Set_Cursor((int)Get_Selection_Index(i)) )
 			{
 				if( Get_X() < r.xMin )	r.xMin	= Get_X();	else if( Get_X() > r.xMax )	r.xMax	= Get_X();
 				if( Get_Y() < r.yMin )	r.yMin	= Get_Y();	else if( Get_Y() > r.yMax )	r.yMax	= Get_Y();
@@ -1400,7 +1421,7 @@ int CSG_PointCloud::Inv_Selection(void)
 		}
 	}
 
-	return( Get_Selection_Count() );
+	return( (int)Get_Selection_Count() );
 }
 
 

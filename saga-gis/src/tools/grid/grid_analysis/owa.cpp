@@ -79,31 +79,31 @@ bool COWA::On_Execute(void){
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
 
 	if( (pGridsList = (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
-			NULL && pGridsList->Get_Count() > 0 ){
+			NULL && pGridsList->Get_Grid_Count() > 0 ){
 
-		if (pTable->Get_Record_Count() < pGridsList->Get_Count()){
+		if (pTable->Get_Record_Count() < pGridsList->Get_Grid_Count()){
 			Message_Add(_TL("Error : Wrong weights table. Check table dimensions"));
 			return false;
 		}//if
-		pCoefs			= new double [pGridsList->Get_Count()];
-		pOrderedValues	= new double [pGridsList->Get_Count()];	// OC:
-		for (i = 0; i<pGridsList->Get_Count(); i++){
+		pCoefs			= new double [pGridsList->Get_Grid_Count()];
+		pOrderedValues	= new double [pGridsList->Get_Grid_Count()];	// OC:
+		for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
 			pRecord = pTable->Get_Record(i);
 			pCoefs[i] = pRecord->asDouble(0);
 			dSum += pRecord->asDouble(0);
 		}//for
-		for (i = 0; i<pGridsList->Get_Count(); i++){
+		for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
 			pCoefs[i] = pCoefs[i] / dSum;	
 		}//for
 		for(y=0; y<Get_NY() && Set_Progress(y); y++){
 			for(x=0; x<Get_NX(); x++){
 				dValue = 0;
 				bAllValuesAreOK = true;
-				for (i = 0; i<pGridsList->Get_Count(); i++){
+				for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
 // OC:				if (!pGrids[i]->is_NoData(x,y)){
-					if (!pGridsList->asGrid(i)->is_NoData(x,y)){
+					if (!pGridsList->Get_Grid(i)->is_NoData(x,y)){
 // OC:					pOrderedValues[i] = pGrids[i]->asDouble(x,y);
-						pOrderedValues[i] = pGridsList->asGrid(i)->asDouble(x,y);
+						pOrderedValues[i] = pGridsList->Get_Grid(i)->asDouble(x,y);
 					}//if
 					else{
 						bAllValuesAreOK = false;
@@ -111,8 +111,8 @@ bool COWA::On_Execute(void){
 					}//else
 				}//for
 				if (bAllValuesAreOK){
-					Sort(pOrderedValues, pGridsList->Get_Count());
-					for (i = 0; i<pGridsList->Get_Count(); i++){
+					Sort(pOrderedValues, pGridsList->Get_Grid_Count());
+					for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
 						dValue += pCoefs[i] * pOrderedValues[i];
 					}//for
 					pOutputGrid->Set_Value(x,y,dValue);

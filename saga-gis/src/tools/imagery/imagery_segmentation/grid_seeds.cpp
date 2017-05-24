@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -167,7 +166,7 @@ bool CGrid_Seeds::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pFeatures	= Parameters("FEATURES")->asGridList();
 
-	if( (m_nFeatures = pFeatures->Get_Count()) <= 0 )
+	if( (m_nFeatures = pFeatures->Get_Grid_Count()) <= 0 )
 	{
 		Error_Set(_TL("no features in input list") );
 
@@ -193,15 +192,15 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("resampling"), pFeatures->asGrid(i)->Get_Name()));
+			Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("resampling"), pFeatures->Get_Grid(i)->Get_Name()));
 
 			SG_UI_Progress_Lock(true);
 
-			Smoothed.Assign(pFeatures->asGrid(i), GRID_RESAMPLING_Mean_Cells);
+			Smoothed.Assign(pFeatures->Get_Grid(i), GRID_RESAMPLING_Mean_Cells);
 
 			m_pFeatures[i]	= new CSG_Grid(*Get_System(), SG_DATATYPE_Float);
 			m_pFeatures[i]	->Assign(&Smoothed, GRID_RESAMPLING_BSpline);
-			m_pFeatures[i]	->Set_Name(pFeatures->asGrid(i)->Get_Name());
+			m_pFeatures[i]	->Set_Name(pFeatures->Get_Grid(i)->Get_Name());
 
 			SG_UI_Progress_Lock(false);
 		}
@@ -213,7 +212,7 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			m_pFeatures[i]	= pFeatures->asGrid(i);
+			m_pFeatures[i]	= pFeatures->Get_Grid(i);
 		}
 	}
 
@@ -224,8 +223,8 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			m_Norm[0][i]	= pFeatures->asGrid(i)->Get_Mean  ();
-			m_Norm[1][i]	= pFeatures->asGrid(i)->Get_StdDev();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
+			m_Norm[0][i]	= pFeatures->Get_Grid(i)->Get_Mean  ();
+			m_Norm[1][i]	= pFeatures->Get_Grid(i)->Get_StdDev();	if( m_Norm[1][i] == 0.0 )	m_Norm[1][i]	= 1.0;
 		}
 	}
 

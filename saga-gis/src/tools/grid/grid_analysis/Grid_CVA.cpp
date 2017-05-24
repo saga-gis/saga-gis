@@ -133,14 +133,14 @@ bool CGrid_CVA::On_Execute(void)
 	CSG_Parameter_Grid_List	*pB	= Parameters("B")->asGridList();
 	CSG_Parameter_Grid_List	*pC	= Parameters("C")->asGridList();
 
-	if( pA->Get_Count() != pB->Get_Count() )
+	if( pA->Get_Grid_Count() != pB->Get_Grid_Count() )
 	{
 		Error_Set(_TL("number of initial and final state grids differs"));
 
 		return( false );
 	}
 
-	if( pA->Get_Count() == 0 )
+	if( pA->Get_Grid_Count() == 0 )
 	{
 		Error_Set(_TL("no grids in list"));
 
@@ -148,7 +148,7 @@ bool CGrid_CVA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	n	= pA->Get_Count();
+	int	n	= pA->Get_Grid_Count();
 
 	bool		bAngle	= Parameters("ANGLE")->asBool() && n == 2;
 	bool		bC_Out	= Parameters("C_OUT")->asBool();
@@ -231,13 +231,13 @@ bool CGrid_CVA::On_Execute(void)
 
 			for(i=0, bOkay=true; i<n && bOkay; i++)
 			{
-				if( pA->asGrid(i)->is_NoData(x, y) || pB->asGrid(i)->is_NoData(x, y) )
+				if( pA->Get_Grid(i)->is_NoData(x, y) || pB->Get_Grid(i)->is_NoData(x, y) )
 				{
 					bOkay	= false;
 				}
 				else
 				{
-					v[i]	= pB->asGrid(i)->asDouble(x, y) - pA->asGrid(i)->asDouble(x, y);
+					v[i]	= pB->Get_Grid(i)->asDouble(x, y) - pA->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
@@ -261,7 +261,7 @@ bool CGrid_CVA::On_Execute(void)
 
 				for(i=0; i<n && bC_Out; i++)
 				{
-					pC->asGrid(i)->Set_Value(x, y, v[i]);
+					pC->Get_Grid(i)->Set_Value(x, y, v[i]);
 				}
 			}
 
@@ -273,7 +273,7 @@ bool CGrid_CVA::On_Execute(void)
 
 				for(i=0; i<n && bC_Out; i++)
 				{
-					pC->asGrid(i)->Set_NoData(x, y);
+					pC->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
         }

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -1150,11 +1149,11 @@ TSG_Data_Type	SG_Get_Grid_Type	(CSG_Parameter_Grid_List *pGrids)
 
 	if( pGrids )
 	{
-		for(int i=0; i<pGrids->Get_Count(); i++)
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			if( SG_Data_Type_Get_Size(Type) <= SG_Data_Type_Get_Size(pGrids->asGrid(i)->Get_Type()) )
+			if( SG_Data_Type_Get_Size(Type) <= SG_Data_Type_Get_Size(pGrids->Get_Grid(i)->Get_Type()) )
 			{
-				Type	= pGrids->asGrid(i)->Get_Type();
+				Type	= pGrids->Get_Grid(i)->Get_Type();
 			}
 		}
 	}

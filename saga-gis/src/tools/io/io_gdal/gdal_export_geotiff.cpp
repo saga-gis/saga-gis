@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -127,17 +126,17 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), *Get_System(), Projection) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pGrids->Get_Count(); i++)
+	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
 		Process_Set_Text(CSG_String::Format("%s %d", _TL("Band"), i + 1));
 
-		DataSet.Write(i, pGrids->asGrid(i));
+		DataSet.Write(i, pGrids->Get_Grid(i));
 	}
 
 	if( !DataSet.Close() )

@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -357,15 +356,15 @@ inline bool CSG_Shapes_OGIS_Converter::_WKT_Write_Point(CSG_String &Text, CSG_Sh
 	switch( ((CSG_Shapes *)pShape->Get_Table())->Get_Vertex_Type() )
 	{
 	case SG_VERTEX_TYPE_XY:
-		Text	+= CSG_String::Format(SG_T("%f %f")      , Point.x, Point.y);
+		Text	+= CSG_String::Format("%f %f"      , Point.x, Point.y);
 		break;
 
 	case SG_VERTEX_TYPE_XYZ:
-		Text	+= CSG_String::Format(SG_T("%f %f %f")   , Point.x, Point.y, pShape->Get_Z(iPoint, iPart));
+		Text	+= CSG_String::Format("%f %f %f"   , Point.x, Point.y, pShape->Get_Z(iPoint, iPart));
 		break;
 
 	case SG_VERTEX_TYPE_XYZM:
-		Text	+= CSG_String::Format(SG_T("%f %f %f %f"), Point.x, Point.y, pShape->Get_Z(iPoint, iPart), pShape->Get_M(iPoint, iPart));
+		Text	+= CSG_String::Format("%f %f %f %f", Point.x, Point.y, pShape->Get_Z(iPoint, iPart), pShape->Get_M(iPoint, iPart));
 		break;
 	}
 

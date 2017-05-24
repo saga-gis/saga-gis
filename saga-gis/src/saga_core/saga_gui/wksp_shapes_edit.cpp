@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -580,8 +579,8 @@ bool CWKSP_Shapes::_Edit_Split(void)
 			m_Edit_Mode	= EDIT_SHAPE_MODE_Normal;
 
 			CSG_Tool	*pTool	= Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
-			?	SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_polygons"), 8)	// Polygon-Line Intersection
-			:	SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_lines"   ), 6); // Split Lines with Lines
+			?	SG_Get_Tool_Library_Manager().Get_Tool("shapes_polygons", 8)	// Polygon-Line Intersection
+			:	SG_Get_Tool_Library_Manager().Get_Tool("shapes_lines"   , 6); // Split Lines with Lines
 
 			if(	pTool )
 			{
@@ -1014,7 +1013,7 @@ void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 			_Edit_Shape_Draw_Point(dc_Map.dc, dc_Map.World2DC(m_Edit_pShape->Get_Point(m_Edit_iPoint, m_Edit_iPart)), true);
 		}
 
-		if( m_Parameters("EDIT_SNAP_LIST")->asShapesList()->Get_Count() > 0 )
+		if( m_Parameters("EDIT_SNAP_LIST")->asShapesList()->Get_Item_Count() > 0 )
 		{
 			iPoint	= m_Parameters("EDIT_SNAP_DIST")->asInt();
 
@@ -1047,7 +1046,7 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 	{
 		CSG_Parameter_Shapes_List	*pList	= m_Parameters("EDIT_SNAP_LIST")->asShapesList();
 
-		if( pList->Get_Count() > 0 )
+		if( pList->Get_Item_Count() > 0 )
 		{
 			int			i;
 			double		snap_Dist, max_Dist;
@@ -1056,9 +1055,9 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 			max_Dist	= m_Parameters("EDIT_SNAP_DIST")->asDouble() * ClientToWorld;
 			snap_Dist	= max_Dist + 1.0;
 
-			for(i=0; i<pList->Get_Count(); i++)
+			for(i=0; i<pList->Get_Item_Count(); i++)
 			{
-				_Edit_Snap_Point(Point, snap_Point, snap_Dist, pList->asShapes(i), false);
+				_Edit_Snap_Point(Point, snap_Point, snap_Dist, pList->Get_Shapes(i), false);
 			}
 
 			if( snap_Dist <= max_Dist )
@@ -1067,9 +1066,9 @@ void CWKSP_Shapes::_Edit_Snap_Point(CSG_Point &Point, double ClientToWorld)
 			}
 			else if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Line || Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
 			{
-				for(i=0; i<pList->Get_Count(); i++)
+				for(i=0; i<pList->Get_Item_Count(); i++)
 				{
-					_Edit_Snap_Point(Point, snap_Point, snap_Dist, pList->asShapes(i), true);
+					_Edit_Snap_Point(Point, snap_Point, snap_Dist, pList->Get_Shapes(i), true);
 				}
 
 				if( snap_Dist <= max_Dist )

@@ -174,7 +174,7 @@ public:
 	bool						Del_Property		(int i);
 
 	CSG_String					asText				(int Flags = 0) const;
-	class CSG_Table				asTable				(int Flags = 0) const;
+	class CSG_Table				Get_Table				(int Flags = 0) const;
 
 
 private:

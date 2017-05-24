@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -86,7 +85,7 @@
 CWKSP_Data_Menu_File::CWKSP_Data_Menu_File(void)
 {
 	m_Recent	= NULL;
-	m_DataType	= DATAOBJECT_TYPE_Undefined;
+	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
 }
 
 //---------------------------------------------------------
@@ -102,20 +101,18 @@ void CWKSP_Data_Menu_File::Destroy(void)
 	{
 		for(int i=0; i<m_Recent_Count; i++)
 		{
-			CONFIG_Write(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), m_Recent[i]);
+			CONFIG_Write(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), m_Recent[i]);
 		}
 
 		delete[](m_Recent);
 	}
 
 	m_Recent	= NULL;
-	m_DataType	= DATAOBJECT_TYPE_Undefined;
+	m_DataType	= SG_DATAOBJECT_TYPE_Undefined;
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -129,46 +126,52 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 	//-----------------------------------------------------
 	switch( m_DataType )
 	{
+	case SG_DATAOBJECT_TYPE_Undefined:
+		m_Recent_First	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_DATA_PROJECT_RECENT_LAST - m_Recent_First + 1;
+		m_Recent_Group	= "Project";
+		break;
+
+	case SG_DATAOBJECT_TYPE_Table:
+		m_Recent_First	= ID_CMD_TABLE_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_TABLE_RECENT_LAST        - m_Recent_First + 1;
+		m_Recent_Group	= "Table";
+		break;
+
+	case SG_DATAOBJECT_TYPE_Shapes:
+		m_Recent_First	= ID_CMD_SHAPES_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_SHAPES_RECENT_LAST       - m_Recent_First + 1;
+		m_Recent_Group	= "Shapes";
+		break;
+
+	case SG_DATAOBJECT_TYPE_TIN:
+		m_Recent_First	= ID_CMD_TIN_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_TIN_RECENT_LAST          - m_Recent_First + 1;
+		m_Recent_Group	= "TIN";
+		break;
+
+	case SG_DATAOBJECT_TYPE_PointCloud:
+		m_Recent_First	= ID_CMD_POINTCLOUD_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_POINTCLOUD_RECENT_LAST   - m_Recent_First + 1;
+		m_Recent_Group	= "Point Cloud";
+		break;
+
+	case SG_DATAOBJECT_TYPE_Grid:
+		m_Recent_First	= ID_CMD_GRID_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_GRID_RECENT_LAST         - m_Recent_First + 1;
+		m_Recent_Group	= "Grid";
+		break;
+
+	case SG_DATAOBJECT_TYPE_Grids:
+		m_Recent_First	= ID_CMD_GRIDS_RECENT_FIRST;
+		m_Recent_Count	= ID_CMD_GRIDS_RECENT_LAST        - m_Recent_First + 1;
+		m_Recent_Group	= "Grids";
+		break;
+
 	default:
 		m_Recent_First	= 0;
 		m_Recent_Count	= 0;
-		m_Recent_Group	= wxT("");
-		break;
-
-	case DATAOBJECT_TYPE_Undefined:
-		m_Recent_First	= ID_CMD_DATA_PROJECT_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_DATA_PROJECT_RECENT_LAST   - m_Recent_First + 1;
-		m_Recent_Group	= wxT("Projects");
-		break;
-
-	case DATAOBJECT_TYPE_Table:
-		m_Recent_First	= ID_CMD_TABLES_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_TABLES_RECENT_LAST - m_Recent_First + 1;
-		m_Recent_Group	= wxT("Tables");
-		break;
-
-	case DATAOBJECT_TYPE_Shapes:
-		m_Recent_First	= ID_CMD_SHAPES_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_SHAPES_RECENT_LAST - m_Recent_First + 1;
-		m_Recent_Group	= wxT("Shapes");
-		break;
-
-	case DATAOBJECT_TYPE_TIN:
-		m_Recent_First	= ID_CMD_TIN_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_TIN_RECENT_LAST    - m_Recent_First + 1;
-		m_Recent_Group	= wxT("TIN");
-		break;
-
-	case DATAOBJECT_TYPE_PointCloud:
-		m_Recent_First	= ID_CMD_POINTCLOUD_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_POINTCLOUD_RECENT_LAST    - m_Recent_First + 1;
-		m_Recent_Group	= wxT("Point Cloud");
-		break;
-
-	case DATAOBJECT_TYPE_Grid:
-		m_Recent_First	= ID_CMD_GRIDS_RECENT_FIRST;
-		m_Recent_Count	= ID_CMD_GRIDS_RECENT_LAST  - m_Recent_First + 1;
-		m_Recent_Group	= wxT("Grids");
+		m_Recent_Group	= "";
 		break;
 	}
 
@@ -180,7 +183,7 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 		{
 			wxString	Recent;
 
-			CONFIG_Read(wxString::Format(wxT("RECENT_FILES/%s"), m_Recent_Group.c_str()), wxString::Format(wxT("FILE_%02d"), i + 1), Recent);
+			CONFIG_Read(wxString::Format("RECENT_FILES/%s", m_Recent_Group.c_str()), wxString::Format("FILE_%02d", i + 1), Recent);
 
 			if( wxFileExists(Recent) )
 			{
@@ -199,8 +202,6 @@ wxMenu * CWKSP_Data_Menu_File::Create(TSG_Data_Object_Type DataType)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -221,10 +222,7 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 		//-------------------------------------------------
 		switch( m_DataType )
 		{
-		default:
-			return;
-
-		case DATAOBJECT_TYPE_Undefined:
+		case SG_DATAOBJECT_TYPE_Undefined:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN);
 		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_OPEN_ADD);
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_BROWSE);
@@ -235,25 +233,32 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 		//	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECT_COPY_DB);
 			break;
 
-		case DATAOBJECT_TYPE_Table:
-			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLES_OPEN);
+		case SG_DATAOBJECT_TYPE_Table:
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TABLE_OPEN);
 			break;
 
-		case DATAOBJECT_TYPE_Shapes:
+		case SG_DATAOBJECT_TYPE_Shapes:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_OPEN);
 			break;
 
-		case DATAOBJECT_TYPE_TIN:
+		case SG_DATAOBJECT_TYPE_TIN:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_OPEN);
 			break;
 
-		case DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_PointCloud:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_POINTCLOUD_OPEN);
 			break;
 
-		case DATAOBJECT_TYPE_Grid:
+		case SG_DATAOBJECT_TYPE_Grid:
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_OPEN);
+			break;
+
+		case SG_DATAOBJECT_TYPE_Grids:
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRIDS_OPEN);
 			break;
+
+		default:
+			return;
 		}
 
 		//-------------------------------------------------
@@ -283,8 +288,6 @@ void CWKSP_Data_Menu_File::Update(wxMenu *pMenu)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -363,8 +366,6 @@ bool CWKSP_Data_Menu_File::Get(wxArrayString &FileNames, bool bAppend)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -378,16 +379,20 @@ bool CWKSP_Data_Menu_File::Open(int Cmd_ID)
 
 		switch( m_DataType )
 		{
-		case DATAOBJECT_TYPE_Undefined:
+		case SG_DATAOBJECT_TYPE_Undefined:
 			bSuccess	= g_pData->Open(File);
 			break;
 
-		case DATAOBJECT_TYPE_Table:
-		case DATAOBJECT_TYPE_Shapes:
-		case DATAOBJECT_TYPE_TIN:
-		case DATAOBJECT_TYPE_PointCloud:
-		case DATAOBJECT_TYPE_Grid:
+		case SG_DATAOBJECT_TYPE_Table     :
+		case SG_DATAOBJECT_TYPE_Shapes    :
+		case SG_DATAOBJECT_TYPE_TIN       :
+		case SG_DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_Grid      :
+		case SG_DATAOBJECT_TYPE_Grids     :
 			bSuccess	= g_pData->Open(File, m_DataType) != NULL;
+			break;
+
+		default:
 			break;
 		}
 	}

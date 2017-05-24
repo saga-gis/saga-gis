@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -151,7 +150,7 @@ bool CGrid_To_Points::On_Execute(void)
 	Type		= Parameters("TYPE")	->asInt();
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() > 0 )
+	if( pGrids->Get_Grid_Count() > 0 )
 	{
 		switch( Type )
 		{
@@ -163,9 +162,9 @@ bool CGrid_To_Points::On_Execute(void)
 		pShapes->Add_Field("X"	, SG_DATATYPE_Double);
 		pShapes->Add_Field("Y"	, SG_DATATYPE_Double);
 
-		for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+		for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 		{
-			pShapes->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->asGrid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), SG_DATATYPE_Double);
+			pShapes->Add_Field(CSG_String::Format(SG_T("%s"),pGrids->Get_Grid(iGrid)->Get_Name()).BeforeFirst(SG_Char('.')).c_str(), SG_DATATYPE_Double);
 		}
 
 		//-------------------------------------------------
@@ -173,7 +172,7 @@ bool CGrid_To_Points::On_Execute(void)
 		{
 			for(x=0, xPos=Get_XMin() - (Type ? 0.5 * Get_Cellsize() : 0.0); x<Get_NX(); x++, xPos+=Get_Cellsize())
 			{
-				if( (!bNoNoData || (bNoNoData && !pGrids->asGrid(0)->is_NoData(x, y)))
+				if( (!bNoNoData || (bNoNoData && !pGrids->Get_Grid(0)->is_NoData(x, y)))
 				&&	(!pPolygons || is_Contained(xPos, yPos, pPolygons)) )
 				{
 					pShape	= pShapes->Add_Shape();
@@ -196,9 +195,9 @@ bool CGrid_To_Points::On_Execute(void)
 					pShape->Set_Value(1, xPos);
 					pShape->Set_Value(2, yPos);
 
-					for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+					for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 					{
-						pGrid	= pGrids->asGrid(iGrid);
+						pGrid	= pGrids->Get_Grid(iGrid);
 
 						pShape->Set_Value(iGrid + 3, pGrid->is_NoData(x, y) ? -99999 : pGrid->asDouble(x, y));
 					}

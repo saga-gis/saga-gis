@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: data_manager.cpp 1495 2012-10-19 14:03:30Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -133,7 +132,7 @@ bool CSG_Data_Collection::Exists(CSG_Data_Object *pObject) const
 //---------------------------------------------------------
 bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && pObject->Get_ObjectType() == m_Type )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 	{
 		if( Exists(pObject) )
 		{
@@ -235,15 +234,35 @@ bool CSG_Data_Collection::Delete_Unsaved(bool bDetachOnly)
 
 //---------------------------------------------------------
 CSG_Grid_Collection::CSG_Grid_Collection(CSG_Data_Manager *pManager)
-	: CSG_Data_Collection(pManager, DATAOBJECT_TYPE_Grid)
+	: CSG_Data_Collection(pManager, SG_DATAOBJECT_TYPE_Grid)
 {}
 
 //---------------------------------------------------------
 bool CSG_Grid_Collection::Exists(CSG_Data_Object *pObject) const
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
+	if( pObject == DATAOBJECT_NOTSET || pObject == DATAOBJECT_CREATE )
 	{
-		return( CSG_Data_Collection::Exists(pObject) );
+		return( false );
+	}
+
+	for(size_t i=0; i<Count(); i++)
+	{
+		if( pObject == Get(i) )
+		{
+			return( true );
+		}
+		else if( Get(i)->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+		{	// does object (CSG_Grid) belong to a grid collection (CSG_Grids)
+			CSG_Grids	*pGrids	= (CSG_Grids *)Get(i);
+
+			for(int j=0; j<pGrids->Get_NZ(); j++)
+			{
+				if( pObject == pGrids->Get_Grid_Ptr(j) )
+				{
+					return( true );
+				}
+			}
+		}
 	}
 
 	return( false );
@@ -252,11 +271,17 @@ bool CSG_Grid_Collection::Exists(CSG_Data_Object *pObject) const
 //---------------------------------------------------------
 bool CSG_Grid_Collection::Add(CSG_Data_Object *pObject)
 {
-	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE
-	&& (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid
-	||  pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grids) )
+	if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 	{
-		CSG_Grid_System	System	= ((CSG_Grid *)pObject)->Get_System();
+		CSG_Grid_System	System;
+
+		switch( pObject->Get_ObjectType() )
+		{
+		case SG_DATAOBJECT_TYPE_Grid :	System	= ((CSG_Grid  *)pObject)->Get_System(); break;
+		case SG_DATAOBJECT_TYPE_Grids:	System	= ((CSG_Grids *)pObject)->Get_System(); break;
+
+		default:	return( false );
+		}
 
 		if( System.is_Valid() )
 		{
@@ -285,10 +310,10 @@ bool CSG_Grid_Collection::Add(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CSG_Data_Manager::CSG_Data_Manager(void)
 {
-	m_pTable		= new CSG_Data_Collection(this, DATAOBJECT_TYPE_Table     );
-	m_pTIN			= new CSG_Data_Collection(this, DATAOBJECT_TYPE_TIN       );
-	m_pPoint_Cloud	= new CSG_Data_Collection(this, DATAOBJECT_TYPE_PointCloud);
-	m_pShapes		= new CSG_Data_Collection(this, DATAOBJECT_TYPE_Shapes    );
+	m_pTable		= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_Table     );
+	m_pTIN			= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_TIN       );
+	m_pPoint_Cloud	= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_PointCloud);
+	m_pShapes		= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_Shapes    );
 
 	m_Grid_Systems.Create(sizeof(CSG_Grid_Collection *));
 }
@@ -316,12 +341,12 @@ CSG_Data_Collection * CSG_Data_Manager::_Get_Collection(CSG_Data_Object *pObject
 	{
 		switch( pObject->Get_ObjectType() )
 		{
-		case DATAOBJECT_TYPE_Table     : return( m_pTable       );
-		case DATAOBJECT_TYPE_TIN       : return( m_pTIN         );
-		case DATAOBJECT_TYPE_PointCloud: return( m_pPoint_Cloud );
-		case DATAOBJECT_TYPE_Shapes    : return( m_pShapes      );
-		case DATAOBJECT_TYPE_Grid      : return( Get_Grid_System(((CSG_Grid  *)pObject)->Get_System()) );
-		case DATAOBJECT_TYPE_Grids     : return( Get_Grid_System(((CSG_Grids *)pObject)->Get_System()) );
+		case SG_DATAOBJECT_TYPE_Table     : return( m_pTable       );
+		case SG_DATAOBJECT_TYPE_TIN       : return( m_pTIN         );
+		case SG_DATAOBJECT_TYPE_PointCloud: return( m_pPoint_Cloud );
+		case SG_DATAOBJECT_TYPE_Shapes    : return( m_pShapes      );
+		case SG_DATAOBJECT_TYPE_Grid      : return( Get_Grid_System(((CSG_Grid  *)pObject)->Get_System()) );
+		case SG_DATAOBJECT_TYPE_Grids     : return( Get_Grid_System(((CSG_Grids *)pObject)->Get_System()) );
 
 		default: break;
 		}
@@ -401,7 +426,7 @@ bool CSG_Data_Manager::Add(CSG_Data_Object *pObject)
 {
 	CSG_Data_Collection	*pCollection	= _Get_Collection(pObject);
 
-	if( pCollection == NULL && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grid || pObject->Get_ObjectType() == DATAOBJECT_TYPE_Grids) && m_Grid_Systems.Inc_Array() )
+	if( pCollection == NULL && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE && (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids) && m_Grid_Systems.Inc_Array() )
 	{
 		pCollection	= new CSG_Grid_Collection(this);
 
@@ -415,36 +440,40 @@ bool CSG_Data_Manager::Add(CSG_Data_Object *pObject)
 bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 {
 	//-----------------------------------------------------
-	if( Type == DATAOBJECT_TYPE_Undefined )
+	if( Type == SG_DATAOBJECT_TYPE_Undefined )
 	{
-		if( SG_File_Cmp_Extension(File, "txt"  )
-		||	SG_File_Cmp_Extension(File, "csv"  )
-		||	SG_File_Cmp_Extension(File, "dbf"  ) )
+		if( SG_File_Cmp_Extension(File, "txt"     )
+		||	SG_File_Cmp_Extension(File, "csv"     )
+		||	SG_File_Cmp_Extension(File, "dbf"     ) )
 		{
-			Type	= DATAOBJECT_TYPE_Table;
+			Type	= SG_DATAOBJECT_TYPE_Table;
 		}
 
-		if( SG_File_Cmp_Extension(File, "shp"  ) )
+		if( SG_File_Cmp_Extension(File, "shp"     ) )
 		{
-			Type	= DATAOBJECT_TYPE_Shapes;
+			Type	= SG_DATAOBJECT_TYPE_Shapes;
 		}
 
-		if( SG_File_Cmp_Extension(File, "spc"  )
-		||  SG_File_Cmp_Extension(File, "spcz" ) )
+		if( SG_File_Cmp_Extension(File, "sg-pts-z")
+		||  SG_File_Cmp_Extension(File, "sg-pts"  )
+		||  SG_File_Cmp_Extension(File, "spc"     ) )
 		{
-			Type	= DATAOBJECT_TYPE_PointCloud;
+			Type	= SG_DATAOBJECT_TYPE_PointCloud;
 		}
 
-		if(	SG_File_Cmp_Extension(File, "sgrd" )
-		||	SG_File_Cmp_Extension(File, "dgm"  )
-		||	SG_File_Cmp_Extension(File, "grd"  ) )
+		if(	SG_File_Cmp_Extension(File, "sg-grd-z")
+		||	SG_File_Cmp_Extension(File, "sg-grd"  )
+		||	SG_File_Cmp_Extension(File, "sgrd"    )
+		||	SG_File_Cmp_Extension(File, "dgm"     )
+		||	SG_File_Cmp_Extension(File, "grd"     ) )
 		{
-			Type	= DATAOBJECT_TYPE_Grid;
+			Type	= SG_DATAOBJECT_TYPE_Grid;
 		}
 
-		if(	SG_File_Cmp_Extension(File, "sgrds") )
+		if( SG_File_Cmp_Extension(File, "sg-gds-z")
+		||  SG_File_Cmp_Extension(File, "sg-gds"  ) )
 		{
-			Type	= DATAOBJECT_TYPE_Grids;
+			Type	= SG_DATAOBJECT_TYPE_Grids;
 		}
 	}
 
@@ -453,12 +482,12 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 
 	switch( Type )
 	{
-	case DATAOBJECT_TYPE_Table     : pObject = new CSG_Table     (File); break;
-	case DATAOBJECT_TYPE_Shapes    : pObject = new CSG_Shapes    (File); break;
-	case DATAOBJECT_TYPE_TIN       : pObject = new CSG_TIN       (File); break;
-	case DATAOBJECT_TYPE_PointCloud: pObject = new CSG_PointCloud(File); break;
-	case DATAOBJECT_TYPE_Grid      : pObject = new CSG_Grid      (File); break;
-	case DATAOBJECT_TYPE_Grids     : pObject = new CSG_Grids     (File); break;
+	case SG_DATAOBJECT_TYPE_Table     : pObject = new CSG_Table     (File); break;
+	case SG_DATAOBJECT_TYPE_Shapes    : pObject = new CSG_Shapes    (File); break;
+	case SG_DATAOBJECT_TYPE_TIN       : pObject = new CSG_TIN       (File); break;
+	case SG_DATAOBJECT_TYPE_PointCloud: pObject = new CSG_PointCloud(File); break;
+	case SG_DATAOBJECT_TYPE_Grid      : pObject = new CSG_Grid      (File); break;
+	case SG_DATAOBJECT_TYPE_Grids     : pObject = new CSG_Grids     (File); break;
 	default                        : pObject = NULL                    ; break;
 	}
 
@@ -645,7 +674,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Collection *pCollection, bool bDetachOnly
 	if( pCollection == m_pShapes      )	{	return( pCollection->Delete_All(bDetachOnly) );	}
 
 	//-----------------------------------------------------
-	if( pCollection->m_Type == DATAOBJECT_TYPE_Grid )
+	if( pCollection->m_Type == SG_DATAOBJECT_TYPE_Grid )
 	{
 		CSG_Grid_Collection	**pSystems	= (CSG_Grid_Collection **)m_Grid_Systems.Get_Array();
 
@@ -687,7 +716,7 @@ bool CSG_Data_Manager::Delete(CSG_Data_Object *pObject, bool bDetachOnly)
 
 	if( pCollection && pCollection->Delete(pObject, bDetachOnly) )
 	{
-		if( pCollection->m_Type == DATAOBJECT_TYPE_Grid && pCollection->Count() == 0 )
+		if( pCollection->m_Type == SG_DATAOBJECT_TYPE_Grid && pCollection->Count() == 0 )
 		{
 			Delete(pCollection, bDetachOnly);
 		}

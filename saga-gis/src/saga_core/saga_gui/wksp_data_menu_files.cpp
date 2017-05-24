@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -88,12 +87,13 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
 
 	m_pMenu->AppendSeparator();
-	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project")    , m_Projects   .Create(DATAOBJECT_TYPE_Undefined));
-	m_pMenu->Append(ID_CMD_TABLES_FIRST    , _TL("Table")      , m_Tables     .Create(DATAOBJECT_TYPE_Table));
-	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes")     , m_Shapes     .Create(DATAOBJECT_TYPE_Shapes));
-	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"), m_PointClouds.Create(DATAOBJECT_TYPE_PointCloud));
-	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN")        , m_TINs       .Create(DATAOBJECT_TYPE_TIN));
-	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grid")       , m_Grids      .Create(DATAOBJECT_TYPE_Grid));
+	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"    ), m_Project   .Create(SG_DATAOBJECT_TYPE_Undefined ));
+	m_pMenu->Append(ID_CMD_TABLE_FIRST     , _TL("Table"      ), m_Table     .Create(SG_DATAOBJECT_TYPE_Table     ));
+	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes"     ), m_Shapes    .Create(SG_DATAOBJECT_TYPE_Shapes    ));
+	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"), m_PointCloud.Create(SG_DATAOBJECT_TYPE_PointCloud));
+	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN"        ), m_TIN       .Create(SG_DATAOBJECT_TYPE_TIN       ));
+	m_pMenu->Append(ID_CMD_GRID_FIRST      , _TL("Grid"       ), m_Grid      .Create(SG_DATAOBJECT_TYPE_Grid      ));
+	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grids"      ), m_Grids     .Create(SG_DATAOBJECT_TYPE_Grids     ));
 	m_pMenu->AppendSeparator();
 
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);
@@ -106,19 +106,18 @@ CWKSP_Data_Menu_Files::~CWKSP_Data_Menu_Files(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CWKSP_Data_Menu_Files::Recent_Open(int Cmd_ID)
 {
-	return(	m_Projects   .Open(Cmd_ID)
-		||	m_Tables     .Open(Cmd_ID)
-		||	m_Shapes     .Open(Cmd_ID)
-		||	m_TINs       .Open(Cmd_ID)
-		||	m_PointClouds.Open(Cmd_ID)
-		||	m_Grids      .Open(Cmd_ID)
+	return(	m_Project   .Open(Cmd_ID)
+		||	m_Table     .Open(Cmd_ID)
+		||	m_Shapes    .Open(Cmd_ID)
+		||	m_TIN       .Open(Cmd_ID)
+		||	m_PointCloud.Open(Cmd_ID)
+		||	m_Grid      .Open(Cmd_ID)
+		||	m_Grids     .Open(Cmd_ID)
 	);
 }
 
@@ -160,12 +159,13 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 {
 	switch( DataType )
 	{
-	case DATAOBJECT_TYPE_Undefined:		return( &m_Projects );
-	case DATAOBJECT_TYPE_Table:			return( &m_Tables );
-	case DATAOBJECT_TYPE_Shapes:		return( &m_Shapes );
-	case DATAOBJECT_TYPE_TIN:			return( &m_TINs );
-	case DATAOBJECT_TYPE_PointCloud:	return( &m_PointClouds );
-	case DATAOBJECT_TYPE_Grid:			return( &m_Grids );
+	case SG_DATAOBJECT_TYPE_Undefined : return( &m_Project    );
+	case SG_DATAOBJECT_TYPE_Table     : return( &m_Table      );
+	case SG_DATAOBJECT_TYPE_Shapes    : return( &m_Shapes     );
+	case SG_DATAOBJECT_TYPE_TIN       : return( &m_TIN        );
+	case SG_DATAOBJECT_TYPE_PointCloud: return( &m_PointCloud );
+	case SG_DATAOBJECT_TYPE_Grid      : return( &m_Grid       );
+	case SG_DATAOBJECT_TYPE_Grids     : return( &m_Grids      );
 	}
 
 	return( NULL );
@@ -174,20 +174,19 @@ inline CWKSP_Data_Menu_File * CWKSP_Data_Menu_Files::_Get_Menu(int DataType)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Data_Menu_Files::_Update(void)
 {
 	g_pSAGA_Frame->Freeze();
-	m_Projects   .Update(m_pMenu->FindItem(ID_CMD_DATA_FIRST      )->GetSubMenu());
-	m_Tables     .Update(m_pMenu->FindItem(ID_CMD_TABLES_FIRST    )->GetSubMenu());
-	m_Shapes     .Update(m_pMenu->FindItem(ID_CMD_SHAPES_FIRST    )->GetSubMenu());
-	m_TINs       .Update(m_pMenu->FindItem(ID_CMD_TIN_FIRST       )->GetSubMenu());
-	m_PointClouds.Update(m_pMenu->FindItem(ID_CMD_POINTCLOUD_FIRST)->GetSubMenu());
-	m_Grids      .Update(m_pMenu->FindItem(ID_CMD_GRIDS_FIRST     )->GetSubMenu());
+	m_Project   .Update(m_pMenu->FindItem(ID_CMD_DATA_FIRST      )->GetSubMenu());
+	m_Table     .Update(m_pMenu->FindItem(ID_CMD_TABLE_FIRST     )->GetSubMenu());
+	m_Shapes    .Update(m_pMenu->FindItem(ID_CMD_SHAPES_FIRST    )->GetSubMenu());
+	m_TIN       .Update(m_pMenu->FindItem(ID_CMD_TIN_FIRST       )->GetSubMenu());
+	m_PointCloud.Update(m_pMenu->FindItem(ID_CMD_POINTCLOUD_FIRST)->GetSubMenu());
+	m_Grid      .Update(m_pMenu->FindItem(ID_CMD_GRID_FIRST      )->GetSubMenu());
+	m_Grids     .Update(m_pMenu->FindItem(ID_CMD_GRIDS_FIRST     )->GetSubMenu());
 	g_pSAGA_Frame->Thaw();
 }
 

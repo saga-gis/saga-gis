@@ -161,7 +161,7 @@ public:
 	virtual ~CSG_Data_Manager(void);
 
 	CSG_Data_Collection *				Get_Table			(void)		const	{	return( m_pTable       );	}
-	CSG_Data_Collection *				Get_TIN				(void)		const	{	return( m_pTIN         );	}
+	CSG_Data_Collection *				asTIN				(void)		const	{	return( m_pTIN         );	}
 	CSG_Data_Collection *				Get_Point_Cloud		(void)		const	{	return( m_pPoint_Cloud );	}
 	CSG_Data_Collection *				Get_Shapes			(void)		const	{	return( m_pShapes      );	}
 
@@ -170,14 +170,14 @@ public:
 	CSG_Grid_Collection *				Get_Grid_System		(const CSG_Grid_System &System)	const;
 
 	bool								Add					(CSG_Data_Object *pObject);
-	bool								Add					(const CSG_String &File, TSG_Data_Object_Type Type = DATAOBJECT_TYPE_Undefined);
+	bool								Add					(const CSG_String &File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined);
 
-	CSG_Table *							Add_Table			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Table     ) ? (CSG_Table      *)Find(File) : NULL );	}
-	CSG_TIN *							Add_TIN				(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_TIN       ) ? (CSG_TIN        *)Find(File) : NULL );	}
-	CSG_PointCloud *					Add_PointCloud		(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_PointCloud) ? (CSG_PointCloud *)Find(File) : NULL );	}
-	CSG_Shapes *						Add_Shapes			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Shapes    ) ? (CSG_Shapes     *)Find(File) : NULL );	}
-	CSG_Grid *							Add_Grid			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Grid      ) ? (CSG_Grid       *)Find(File) : NULL );	}
-	CSG_Grids *							Add_Grids			(const SG_Char *File)	{	return( Add(File, DATAOBJECT_TYPE_Grids     ) ? (CSG_Grids      *)Find(File) : NULL );	}
+	CSG_Table *							Add_Table			(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Table     ) ? (CSG_Table      *)Find(File) : NULL );	}
+	CSG_TIN *							Add_TIN				(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_TIN       ) ? (CSG_TIN        *)Find(File) : NULL );	}
+	CSG_PointCloud *					Add_PointCloud		(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_PointCloud) ? (CSG_PointCloud *)Find(File) : NULL );	}
+	CSG_Shapes *						Add_Shapes			(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Shapes    ) ? (CSG_Shapes     *)Find(File) : NULL );	}
+	CSG_Grid *							Add_Grid			(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Grid      ) ? (CSG_Grid       *)Find(File) : NULL );	}
+	CSG_Grids *							Add_Grids			(const SG_Char *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Grids     ) ? (CSG_Grids      *)Find(File) : NULL );	}
 
 	CSG_Table *							Add_Table			(void);
 	CSG_TIN *							Add_TIN				(void);

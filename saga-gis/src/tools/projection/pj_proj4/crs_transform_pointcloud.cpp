@@ -25,7 +25,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -34,10 +35,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -138,9 +137,9 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 
 		pTargets->Del_Items();
 
-		for(int i=0; i<pSources->Get_Count() && Process_Get_Okay(false); i++)
+		for(int i=0; i<pSources->Get_Item_Count() && Process_Get_Okay(false); i++)
 		{
-			CSG_PointCloud	*pSource	= pSources->asPointCloud(i);
+			CSG_PointCloud	*pSource	= pSources->Get_PointCloud(i);
 			CSG_PointCloud	*pTarget	= SG_Create_PointCloud(pSource);
 
 			pTarget->Set_Name(CSG_String::Format(SG_T("%s_transformed"), pSource->Get_Name()));
@@ -155,7 +154,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 			}
 		}
 
-		return( pTargets->Get_Count() > 0 );
+		return( pTargets->Get_Item_Count() > 0 );
 	}
 	else
 	{

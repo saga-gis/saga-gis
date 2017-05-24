@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -125,7 +124,7 @@ bool CXYZ_Export::On_Execute(void)
 {
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() <= 0 )
+	if( pGrids->Get_Grid_Count() <= 0 )
 	{
 		return( false );
 	}
@@ -145,9 +144,9 @@ bool CXYZ_Export::On_Execute(void)
 	{
 		Stream.Printf("\"X\"\t\"Y\"");
 
-		for(int i=0; i<pGrids->Get_Count(); i++)
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			Stream.Printf("\t\"%s\"", pGrids->asGrid(i)->Get_Name());
+			Stream.Printf("\t\"%s\"", pGrids->Get_Grid(i)->Get_Name());
 		}
 
 		Stream.Printf("\n");
@@ -164,13 +163,13 @@ bool CXYZ_Export::On_Execute(void)
 
 		for(int x=0; x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			if( bNoData || !pGrids->asGrid(0)->is_NoData(x, y) )
+			if( bNoData || !pGrids->Get_Grid(0)->is_NoData(x, y) )
 			{
 				Stream.Printf("%f\t%f", p.x, p.y);
 
-				for(int i=0; i<pGrids->Get_Count(); i++)
+				for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					Stream.Printf("\t%f", pGrids->asGrid(i)->asDouble(x, y));
+					Stream.Printf("\t%f", pGrids->Get_Grid(i)->asDouble(x, y));
 				}
 
 				Stream.Printf("\n");

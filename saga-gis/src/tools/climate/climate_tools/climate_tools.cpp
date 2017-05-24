@@ -30,10 +30,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -604,13 +602,13 @@ bool CCT_Water_Balance::Set_Monthly(int Type, int x, int y, CSG_Parameter_Grid_L
 
 	double *Monthly	= m_Monthly[Type].Get_Data();
 
-	if( pMonthly->Get_Count() == 12 )
+	if( pMonthly->Get_Grid_Count() == 12 )
 	{
 		bool	bOkay	= true;
 
 		for(int iMonth=0; iMonth<12; iMonth++)
 		{
-			if( pMonthly->asGrid(iMonth)->is_NoData(x, y) )
+			if( pMonthly->Get_Grid(iMonth)->is_NoData(x, y) )
 			{
 				bOkay	= false;
 
@@ -618,7 +616,7 @@ bool CCT_Water_Balance::Set_Monthly(int Type, int x, int y, CSG_Parameter_Grid_L
 			}
 			else
 			{
-				Monthly[iMonth]	= pMonthly->asGrid(iMonth)->asDouble(x, y);
+				Monthly[iMonth]	= pMonthly->Get_Grid(iMonth)->asDouble(x, y);
 			}
 		}
 

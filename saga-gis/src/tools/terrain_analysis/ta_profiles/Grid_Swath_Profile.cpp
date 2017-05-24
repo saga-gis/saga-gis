@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -225,14 +224,14 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	m_pPoints->Add_Field("Z [min_sd]", SG_DATATYPE_Double);
 	m_pPoints->Add_Field("Z [max_sd]", SG_DATATYPE_Double);
 
-	for(i=0; i<m_pValues->Get_Count(); i++)
+	for(i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
-		m_pPoints->Add_Field(m_pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("mean"  ), m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min"   ), m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max"   ), m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min_sd"), m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max_sd"), m_pValues->asGrid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(m_pValues->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("mean"  ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
@@ -389,9 +388,9 @@ bool CGrid_Swath_Profile::Add_Point(CSG_Point Point, CSG_Point Left, CSG_Point R
 
 	Add_Swath(pPoint, 4, m_pDEM, Left, Right, Step);
 
-	for(int i=0, j=VALUE_OFFSET; i<m_pValues->Get_Count(); i++, j+=6)
+	for(int i=0, j=VALUE_OFFSET; i<m_pValues->Get_Grid_Count(); i++, j+=6)
 	{
-		Add_Swath(pPoint, j, m_pValues->asGrid(i), Left, Right, Step);
+		Add_Swath(pPoint, j, m_pValues->Get_Grid(i), Left, Right, Step);
 	}
 
 	return( true );

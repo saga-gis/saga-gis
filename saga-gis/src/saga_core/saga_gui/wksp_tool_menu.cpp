@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -123,7 +122,7 @@ void CWKSP_Tool_Menu::Update(void)
 	//-----------------------------------------------------
 	if( g_pTools->Get_Count() > 0 )
 	{
-		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_START; iGroup<g_pTools->Get_Count(); iGroup++)
+		for(int iGroup=0, ID_Menu=ID_CMD_TOOL_MENU_START; iGroup<g_pTools->Get_Count(); iGroup++)
 		{
 			for(int iLibrary=0; iLibrary<g_pTools->Get_Group(iGroup)->Get_Count(); iLibrary++)
 			{
@@ -158,14 +157,14 @@ void CWKSP_Tool_Menu::Update(void)
 
 		m_pMenu->InsertSeparator(0);
 
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOLS_OPEN  , 0);
-		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOLS_SEARCH, 1);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_OPEN  , 0);
+		CMD_Menu_Ins_Item(m_pMenu, false, ID_CMD_TOOL_SEARCH, 1);
 
 		_Set_Recent(m_pMenu);
 	}
 	else
 	{
-		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOLS_OPEN);
+		CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_TOOL_OPEN);
 	}
 
 	if( pMenuBar )
@@ -237,8 +236,8 @@ bool CWKSP_Tool_Menu::_Get_SubMenu(CWKSP_Tool *pTool, CSG_MetaData *pUser)
 				}
 			}
 
-			pMenu->Insert(iPos, ID_CMD_TOOLS_FIRST, SubMenu, pSubMenu);
-		//	pMenu->Append(      ID_CMD_TOOLS_FIRST, SubMenu, pSubMenu);
+			pMenu->Insert(iPos, ID_CMD_TOOL_FIRST, SubMenu, pSubMenu);
+		//	pMenu->Append(      ID_CMD_TOOL_FIRST, SubMenu, pSubMenu);
 		}
 
 		pMenu	= pSubMenu;
@@ -313,7 +312,7 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 	int		i, j;
 
 	//-----------------------------------------------------
-	for(i=0, j=ID_CMD_TOOL_RECENT_FIRST, bRecent=false; i<RECENT_COUNT; i++, j++)
+	for(i=0, j=ID_CMD_TOOL_MENU_RECENT_FIRST, bRecent=false; i<RECENT_COUNT; i++, j++)
 	{
 		if( m_Recent[i] && g_pTools->Exists(m_Recent[i]) )
 		{
@@ -350,7 +349,7 @@ void CWKSP_Tool_Menu::_Set_Recent(wxMenu *pMenu)
 //---------------------------------------------------------
 int CWKSP_Tool_Menu::Get_ID_Translated(int ID)
 {
-	int		i	= ID - ID_CMD_TOOL_RECENT_FIRST;
+	int		i	= ID - ID_CMD_TOOL_MENU_RECENT_FIRST;
 
 	if( i >= 0 && i < RECENT_COUNT && m_Recent[i] != NULL )
 	{

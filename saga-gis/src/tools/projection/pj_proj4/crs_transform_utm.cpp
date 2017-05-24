@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -152,7 +151,7 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 	//-----------------------------------------------------
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
 	{
-		int Zone; bool bSouth; CSG_Grid *pObject = (CSG_Grid *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->asDataObject(0));
+		int Zone; bool bSouth; CSG_Grid *pObject = (CSG_Grid *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
 
 		if( pObject && CRS_Get_UTM_Zone(pObject->Get_Extent(), pObject->Get_Projection(), Zone, bSouth) )
 		{
@@ -229,7 +228,7 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 	//-----------------------------------------------------
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
 	{
-		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->asDataObject(0));
+		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
 
 		if( pObject && CRS_Get_UTM_Zone(pObject->Get_Extent(), pObject->Get_Projection(), Zone, bSouth) )
 		{
@@ -306,7 +305,7 @@ int CCRS_Transform_UTM_PointCloud::On_Parameter_Changed(CSG_Parameters *pParamet
 	//-----------------------------------------------------
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
 	{
-		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->asDataObject(0));
+		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
 
 		if( pObject && CRS_Get_UTM_Zone(pObject->Get_Extent(), pObject->Get_Projection(), Zone, bSouth) )
 		{

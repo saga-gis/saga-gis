@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -138,7 +137,7 @@ bool CXYZ_Export::On_Execute(void)
 	Field		= Parameters("FIELD"   )->asInt();
 	Separate	= pPoints->Get_Type() == SHAPE_TYPE_Point ? 0
 				: Parameters("SEPARATE")->asInt();
-	off_Field	= pPoints->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud ? 2 : 0;
+	off_Field	= pPoints->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud ? 2 : 0;
 
 	//-----------------------------------------------------
 	if( pPoints->Get_Field_Count() == 0 )

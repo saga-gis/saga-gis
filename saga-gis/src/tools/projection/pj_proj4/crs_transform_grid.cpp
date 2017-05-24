@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -233,30 +232,30 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 
 		pGrids		= Grids.Add_Grid_List(NULL, "GRD", SG_T(""), SG_T(""), PARAMETER_INPUT, false)->asGridList();
 
-		for(i=pSources->Get_Count()-1; i>=0; i--)
+		for(i=pSources->Get_Grid_Count()-1; i>=0; i--)
 		{
-			if( pSources->asGrid(i)->Get_Projection().is_Okay() )
+			if( pSources->Get_Grid(i)->Get_Projection().is_Okay() )
 			{
-				pGrids->Add_Item(pSources->asGrid(i));
+				pGrids->Add_Item(pSources->Get_Grid(i));
 			}
 			else
 			{
-				Error_Fmt("%s: %s\n", _TL("unknown projection"), pSources->asGrid(i)->Get_Name());
+				Error_Fmt("%s: %s\n", _TL("unknown projection"), pSources->Get_Grid(i)->Get_Name());
 			}
 		}
 
 		pSources	= Grids.Add_Grid_List(NULL, "SRC", SG_T(""), SG_T(""), PARAMETER_INPUT, false)->asGridList();
 
-		while( pGrids->Get_Count() > 0 )
+		while( pGrids->Get_Grid_Count() > 0 )
 		{
-			pSources->Add_Item(pGrids->asGrid(pGrids->Get_Count() - 1));
-			pGrids  ->Del_Item(pGrids->Get_Count() - 1);
+			pSources->Add_Item(pGrids->Get_Grid(pGrids->Get_Grid_Count() - 1));
+			pGrids  ->Del_Item(pGrids->Get_Grid_Count() - 1);
 
-			for(i=pGrids->Get_Count()-1; i>=0; i--)
+			for(i=pGrids->Get_Grid_Count()-1; i>=0; i--)
 			{
-				if( pGrids->asGrid(i)->Get_Projection() == pSources->asGrid(0)->Get_Projection() )
+				if( pGrids->Get_Grid(i)->Get_Projection() == pSources->Get_Grid(0)->Get_Projection() )
 				{
-					pSources->Add_Item(pGrids->asGrid(i));
+					pSources->Add_Item(pGrids->Get_Grid(i));
 					pGrids  ->Del_Item(i);
 				}
 			}
@@ -268,7 +267,7 @@ bool CCRS_Transform_Grid::On_Execute_Transformation(void)
 			pSources->Del_Items();
 		}
 
-		return( pTargets->Get_Count() > 0 );
+		return( pTargets->Get_Grid_Count() > 0 );
 	}
 
 	//-----------------------------------------------------
@@ -300,8 +299,8 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids)
 {
-	if( m_Grid_Target.Get_System().is_Valid() && pGrids->Get_Count() > 0
-	&&  m_Projector.Set_Source(pGrids->asGrid(0)->Get_Projection()) )
+	if( m_Grid_Target.Get_System().is_Valid() && pGrids->Get_Grid_Count() > 0
+	&&  m_Projector.Set_Source(pGrids->Get_Grid(0)->Get_Projection()) )
 	{
 		CSG_Grid_System	System(m_Grid_Target.Get_System());
 
@@ -400,7 +399,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets, const CSG_Grid_System &Target_System)
 {
-	if( !m_Projector.Set_Inverse(true) || !pTargets || !pSources || pSources->Get_Count() < 1 )
+	if( !m_Projector.Set_Inverse(true) || !pTargets || !pSources || pSources->Get_Grid_Count() < 1 )
 	{
 		return( false );
 	}
@@ -423,18 +422,18 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 	}
 
 	//-----------------------------------------------------
-	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pSources->asGrid(0)->Get_System().Get_XMax() > 180.0;
+	bool	bGeogCS_Adjust	= m_Projector.Get_Source().Get_Type() == SG_PROJ_TYPE_CS_Geographic && pSources->Get_Grid(0)->Get_System().Get_XMax() > 180.0;
 
-	Set_Target_Area(pSources->asGrid(0)->Get_System(), Target_System);
+	Set_Target_Area(pSources->Get_Grid(0)->Get_System(), Target_System);
 
 	bool	bKeepType	= m_Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("KEEP_TYPE")->asBool();
 
 	//-----------------------------------------------------
-	int	i, n	= pTargets->Get_Count();
+	int	i, n	= pTargets->Get_Grid_Count();
 
-	for(i=0; i<pSources->Get_Count(); i++)
+	for(i=0; i<pSources->Get_Grid_Count(); i++)
 	{
-		CSG_Grid	*pSource	= pSources->asGrid(i);
+		CSG_Grid	*pSource	= pSources->Get_Grid(i);
 		CSG_Grid	*pTarget	= SG_Create_Grid(Target_System, bKeepType ? pSource->Get_Type() : SG_DATATYPE_Float);
 
 		if( pTarget )
@@ -479,11 +478,11 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pSources, CSG_Param
 				if( pX ) pX->Set_Value(x, y, xSource);
 				if( pY ) pY->Set_Value(x, y, ySource);
 
-				for(i=0; i<pSources->Get_Count(); i++)
+				for(i=0; i<pSources->Get_Grid_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
+					if( pSources->Get_Grid(i)->Get_Value(xSource, ySource, z, m_Resampling) )
 					{
-						pTargets->asGrid(n + i)->Set_Value(x, y, z);
+						pTargets->Get_Grid(n + i)->Set_Value(x, y, z);
 					}
 				}
 			}
@@ -544,12 +543,12 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Shapes *pPoints)
 //---------------------------------------------------------
 bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids, CSG_Shapes *pPoints)
 {
-	if( !pPoints || !pGrids || pGrids->Get_Count() < 1 )
+	if( !pPoints || !pGrids || pGrids->Get_Grid_Count() < 1 )
 	{
 		return( false );
 	}
 
-	CSG_Grid	*pGrid	= pGrids->asGrid(0);
+	CSG_Grid	*pGrid	= pGrids->Get_Grid(0);
 
 	if( !m_Projector.Set_Source(pGrid->Get_Projection()) )
 	{
@@ -562,9 +561,9 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids, CSG_Shapes 
 	pPoints->Create(SHAPE_TYPE_Point, _TL("Points"));
 	pPoints->Get_Projection()	= m_Projector.Get_Target();
 
-	for(i=0; i<pGrids->Get_Count(); i++)
+	for(i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		pPoints->Add_Field(pGrids->asGrid(i)->Get_Name(), pGrids->asGrid(i)->Get_Type());
+		pPoints->Add_Field(pGrids->Get_Grid(i)->Get_Name(), pGrids->Get_Grid(i)->Get_Type());
 	}
 
 	for(y=0, Point.y=pGrid->Get_YMin(); y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, Point.y+=pGrid->Get_Cellsize())
@@ -579,11 +578,11 @@ bool CCRS_Transform_Grid::Transform(CSG_Parameter_Grid_List *pGrids, CSG_Shapes 
 
 				pPoint->Add_Point(Point_Transformed);
 
-				for(i=0; i<pGrids->Get_Count(); i++)
+				for(i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					if( !pGrids->asGrid(i)->is_NoData(x, y) )
+					if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
 					{
-						pPoint->Set_Value(i, pGrids->asGrid(i)->asDouble(x, y));
+						pPoint->Set_Value(i, pGrids->Get_Grid(i)->asDouble(x, y));
 					}
 					else
 					{
@@ -644,7 +643,7 @@ bool CCRS_Transform_Grid::Set_Target_System(CSG_Parameters *pParameters, int Res
 	}
 
 	CSG_Grid	*pGrid	= m_bList
-		? pParameters->Get_Parameter("SOURCE")->asGridList()->asGrid(0)
+		? pParameters->Get_Parameter("SOURCE")->asGridList()->Get_Grid(0)
 		: pParameters->Get_Parameter("SOURCE")->asGrid();
 
 	if( !pGrid || !pGrid->is_Valid() || !pGrid->Get_Projection().is_Okay()

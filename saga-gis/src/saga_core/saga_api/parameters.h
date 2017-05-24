@@ -1083,16 +1083,21 @@ public:
 	virtual ~CSG_Parameter_List(void);
 
 	virtual const SG_Char *		asString				(void);
-	virtual int					asInt					(void)	const	{	return( m_nObjects );	}
-	virtual void *				asPointer				(void)	const	{	return( m_Objects );	}
+	virtual int					asInt					(void)	const	{	return( Get_Item_Count() );	}
+	virtual void *				asPointer				(void)	const	{	return( m_Objects.Get_Array() );	}
 
 	virtual bool				Add_Item				(CSG_Data_Object *pItem);
-	int							Del_Item				(int Index);
-	int							Del_Item				(CSG_Data_Object *pItem);
-	void						Del_Items				(void);
+	virtual bool				Del_Item				(CSG_Data_Object *pItem, bool bUpdateData = true);
+	virtual bool				Del_Item				(int Index             , bool bUpdateData = true);
+	virtual bool				Del_Items				(void);
 
-	int							Get_Count				(void)			const	{	return( m_nObjects );	}
-	CSG_Data_Object *			asDataObject			(int iObject)	const	{	return( iObject >= 0 && iObject < m_nObjects ? m_Objects[iObject] : NULL );	}
+	int							Get_Item_Count			(void)		const	{	return( (int)m_Objects.Get_Size() );	}
+	CSG_Data_Object *			Get_Item				(int Index)	const	{	return( Index >= 0 && Index < Get_Item_Count() ? (CSG_Data_Object *)m_Objects[Index] : NULL );	}
+
+	virtual bool				Update_Data				(void)	{	return( true );	}
+
+	virtual int					Get_Data_Count			(void)		const	{	return( Get_Item_Count() );	}
+	virtual CSG_Data_Object *	Get_Data				(int Index)	const	{	return( Get_Item(Index) );	}
 
 
 protected:
@@ -1103,9 +1108,7 @@ protected:
 
 private:
 
-	int							m_nObjects;
-
-	CSG_Data_Object				**m_Objects;
+	CSG_Array_Pointer			m_Objects;
 
 };
 
@@ -1123,11 +1126,25 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Grid_List );		}
 
-	CSG_Grid_System *			Get_System				(void);
-
-	CSG_Grid *					asGrid					(int Index)	const	{	return( (CSG_Grid *)asDataObject(Index) );	}
+	CSG_Grid_System *			Get_System				(void)		const;
 
 	virtual bool				Add_Item				(CSG_Data_Object *pItem);
+	virtual bool				Del_Item				(CSG_Data_Object *pItem, bool bUpdateData = true);
+	virtual bool				Del_Item				(int Index             , bool bUpdateData = true);
+	virtual bool				Del_Items				(void);
+
+	virtual bool				Update_Data				(void);
+
+	virtual int					Get_Data_Count			(void)		const	{	return( Get_Grid_Count() );	}
+	virtual CSG_Data_Object *	Get_Data				(int Index)	const	{	return( (CSG_Data_Object *)Get_Grid(Index) );	}
+
+	int							Get_Grid_Count			(void)		const	{	return( (int)m_Grids.Get_Size() );	}
+	CSG_Grid *					Get_Grid				(int Index)	const	{	return( Index >= 0 && Index < Get_Data_Count() ? (CSG_Grid *)m_Grids[Index] : NULL );	}
+
+
+protected:
+
+	CSG_Array_Pointer			m_Grids;
 
 };
 
@@ -1137,7 +1154,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Grids_List : public CSG_Parameter_Grid_List
+class SAGA_API_DLL_EXPORT CSG_Parameter_Grids_List : public CSG_Parameter_List
 {
 public:
 	CSG_Parameter_Grids_List(CSG_Parameter *pOwner, long Constraint);
@@ -1145,7 +1162,11 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Grids_List );		}
 
-	CSG_Grids *					asGrids					(int Index)	const	{	return( (CSG_Grids *)asDataObject(Index) );	}
+	CSG_Grid_System *			Get_System				(void)		const;
+
+	virtual bool				Add_Item				(CSG_Data_Object *pItem);
+
+	CSG_Grids *					Get_Grids				(int Index)	const	{	return( (CSG_Grids *)Get_Item(Index) );	}
 
 };
 
@@ -1163,7 +1184,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Table_List );		}
 
-	CSG_Table *					asTable					(int Index)	const	{	return( (CSG_Table *)asDataObject(Index) );	}
+	CSG_Table *					Get_Table				(int Index)	const	{	return( (CSG_Table *)Get_Item(Index) );	}
 
 };
 
@@ -1184,7 +1205,7 @@ public:
 	void						Set_Shape_Type			(TSG_Shape_Type Type);
 	TSG_Shape_Type				Get_Shape_Type			(void)		const	{	return( m_Type );}
 
-	CSG_Shapes *				asShapes				(int Index)	const	{	return( (CSG_Shapes *)asDataObject(Index) );	}
+	CSG_Shapes *				Get_Shapes				(int Index)	const	{	return( (CSG_Shapes *)Get_Item(Index) );	}
 
 
 protected:
@@ -1210,7 +1231,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_TIN_List );		}
 
-	CSG_TIN *					asTIN					(int Index)	const	{	return( (CSG_TIN *)asDataObject(Index) );	}
+	CSG_TIN *					asTIN					(int Index)	const	{	return( (CSG_TIN *)Get_Item(Index) );	}
 
 };
 
@@ -1228,7 +1249,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_PointCloud_List );		}
 
-	CSG_PointCloud *			asPointCloud			(int Index)	const	{	return( (CSG_PointCloud *)asDataObject(Index) );	}
+	CSG_PointCloud *			Get_PointCloud			(int Index)	const	{	return( (CSG_PointCloud *)Get_Item(Index) );	}
 
 };
 

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -205,7 +204,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pPredictors	= Parameters("PREDICTORS")->asGridList();
 
-	if( (m_nPredictors = pPredictors->Get_Count()) <= 0 )
+	if( (m_nPredictors = pPredictors->Get_Grid_Count()) <= 0 )
 	{
 		return( false );
 	}
@@ -228,10 +227,10 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 	for(i=0; i<m_nPredictors; i++)
 	{
 		m_pPredictors[i]	= SG_Create_Grid(m_pDependent->Get_System());
-		m_pPredictors[i]	->Assign(pPredictors->asGrid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
+		m_pPredictors[i]	->Assign(pPredictors->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);	// GRID_RESAMPLING_Mean_Cells
 
 		m_pModel     [i]	= SG_Create_Grid(m_pDependent->Get_System());
-		m_pModel     [i]	->Set_Name(CSG_String::Format("%s [%s]", pPredictors->asGrid(i)->Get_Name(), _TL("Factor")));
+		m_pModel     [i]	->Set_Name(CSG_String::Format("%s [%s]", pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor")));
 	}
 
 	m_pModel[m_nPredictors]	= SG_Create_Grid(m_pDependent->Get_System());
@@ -247,7 +246,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 	{
 		delete(m_pPredictors[i]);
 
-		m_pPredictors[i]	= pPredictors->asGrid(i);
+		m_pPredictors[i]	= pPredictors->Get_Grid(i);
 	}
 
 	//-----------------------------------------------------

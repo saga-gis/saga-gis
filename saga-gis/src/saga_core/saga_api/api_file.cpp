@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -71,16 +70,6 @@
 #include <wx/zipstrm.h>
 
 #include "api_core.h"
-
-#if defined(_SAGA_VC)
-	#define SG_FILE_TELL	_ftelli64
-	#define SG_FILE_SEEK	_fseeki64
-	#define SG_FILE_SIZE	__int64
-#else
-	#define SG_FILE_TELL	ftell
-	#define SG_FILE_SEEK	fseek
-	#define SG_FILE_SIZE	long
-#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -117,6 +106,7 @@ bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Enco
 
 	m_Mode		= Mode;
 	m_Encoding	= Encoding;
+	m_FileName	= FileName;
 
 	wxString	sEncoding;
 
@@ -238,17 +228,19 @@ int CSG_File::Printf(const char *Format, ...)
 		return( 0 );
 	}
 
-	wxString	String, _Format(Format);
+	wxString	String;
 
 #ifdef _SAGA_LINUX
-	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
-#endif
-
-	va_list	argptr;
-
-	va_start(argptr, _Format);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
 	int	Result	= String.PrintfV(_Format, argptr);
+#else
+	va_list	argptr; va_start(argptr, Format);
+	int	Result	= String.PrintfV(Format, argptr);
+#endif
 	va_end(argptr);
+
+	Write(&String);
 
 	return( Result );
 }
@@ -261,17 +253,20 @@ int CSG_File::Printf(const wchar_t *Format, ...)
 		return( 0 );
 	}
 
-	wxString	String, _Format(Format);
+	wxString	String;
 
 #ifdef _SAGA_LINUX
-	_Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format);
+	int	Result	= String.PrintfV(_Format, argptr);
+#else
+	va_list	argptr; va_start(argptr, Format);
+	int	Result	= String.PrintfV(Format, argptr);
 #endif
 
-	va_list	argptr;
-
-	va_start(argptr, _Format);
-	int	Result	= String.PrintfV(_Format, argptr);
 	va_end(argptr);
+
+	Write(&String);
 
 	return( Result );
 }
@@ -570,7 +565,12 @@ bool CSG_File_Zip::Add_File(const CSG_String &Name, bool bBinary)
 
 		pEntry->SetIsText(bBinary == false);
 
-		return( ((wxZipOutputStream *)m_pStream)->PutNextEntry(pEntry) );
+		if( ((wxZipOutputStream *)m_pStream)->PutNextEntry(pEntry) )
+		{
+			m_FileName	= Name;
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -592,7 +592,12 @@ bool CSG_File_Zip::Get_File(size_t Index)
 {
 	if( is_Reading() && m_Files[Index] )
 	{
-		return( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[Index]) );
+		if( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[Index]) )
+		{
+			m_FileName	= Get_File_Name(Index);
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -601,11 +606,14 @@ bool CSG_File_Zip::Get_File(size_t Index)
 //---------------------------------------------------------
 bool CSG_File_Zip::Get_File(const CSG_String &Name)
 {
-	for(size_t i=0; i<m_Files.Get_Size(); i++)
+	if( is_Reading() )
 	{
-		if( !Name.Cmp(&((wxZipEntry *)m_Files[i])->GetName()) )
+		for(size_t i=0; i<m_Files.Get_Size(); i++)
 		{
-			return( ((wxZipInputStream *)m_pStream)->OpenEntry(*(wxZipEntry *)m_Files[i]) );
+			if( !Name.Cmp(&((wxZipEntry *)m_Files[i])->GetName()) )
+			{
+				return( Get_File(i) );
+			}
 		}
 	}
 

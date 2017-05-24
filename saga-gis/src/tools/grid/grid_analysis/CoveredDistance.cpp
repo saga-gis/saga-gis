@@ -58,15 +58,15 @@ bool CCoveredDistance::On_Execute(void)
 			bool	bNoData	= false;
 			double	dDifSum	= 0.0;
 
-			for(int i=0, j=1; j<pGrids->Get_Count() && !bNoData; i++, j++)
+			for(int i=0, j=1; j<pGrids->Get_Grid_Count() && !bNoData; i++, j++)
 			{
-				if( pGrids->asGrid(i)->is_NoData(x, y) || pGrids->asGrid(j)->is_NoData(x, y) )
+				if( pGrids->Get_Grid(i)->is_NoData(x, y) || pGrids->Get_Grid(j)->is_NoData(x, y) )
 				{
 					bNoData	= true;
 				}
 				else
 				{
-					dDifSum	+= fabs(pGrids->asGrid(i)->asDouble(x, y) - pGrids->asGrid(j)->asDouble(x, y));
+					dDifSum	+= fabs(pGrids->Get_Grid(i)->asDouble(x, y) - pGrids->Get_Grid(j)->asDouble(x, y));
 				}
 			}//for
 

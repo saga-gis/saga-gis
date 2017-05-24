@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -188,14 +187,14 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		CSG_Parameter_Grid_List	*pSources	= Parameters("SOURCE")->asGridList();
 		CSG_Parameter_Grid_List	*pTargets	= Parameters("TARGET")->asGridList();
 
-		if( pSources->Get_Count() < 1 )
+		if( pSources->Get_Grid_Count() < 1 )
 		{
 			return( false );
 		}
 
-		if( Get_Target_Extent(pSources->asGrid(0), Extent) )
+		if( Get_Target_Extent(pSources->Get_Grid(0), Extent) )
 		{
-			m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSources->asGrid(0)->Get_NY());
+			m_Grid_Target.Set_User_Defined(Get_Parameters("TARGET"), Extent, pSources->Get_Grid(0)->Get_NY());
 		}
 
 		if( !Dlg_Parameters("TARGET") )
@@ -210,11 +209,11 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 		{
 			pTargets->Del_Items();
 
-			for(int i=0; i<pSources->Get_Count(); i++)
+			for(int i=0; i<pSources->Get_Grid_Count(); i++)
 			{
-				pTargets->Add_Item(SG_Create_Grid(System, m_Resampling == 0 ? pSources->asGrid(i)->Get_Type() : SG_DATATYPE_Float));
+				pTargets->Add_Item(SG_Create_Grid(System, m_Resampling == 0 ? pSources->Get_Grid(i)->Get_Type() : SG_DATATYPE_Float));
 
-				Init_Target(pSources->asGrid(i), pTargets->asGrid(i));
+				Init_Target(pSources->Get_Grid(i), pTargets->Get_Grid(i));
 			}
 
 			return( Set_Grids(pSources, pTargets) );
@@ -259,7 +258,7 @@ bool CPROJ4_Grid::On_Execute_Conversion(void)
 //---------------------------------------------------------
 bool CPROJ4_Grid::Set_Grids(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Grid_List *pTargets)
 {
-	if( !pSources || pSources->Get_Count() < 1 || !pTargets || pTargets->Get_Count() != pSources->Get_Count() || !Set_Inverse() )
+	if( !pSources || pSources->Get_Grid_Count() < 1 || !pTargets || pTargets->Get_Grid_Count() != pSources->Get_Grid_Count() || !Set_Inverse() )
 	{
 		return( false );
 	}
@@ -271,7 +270,7 @@ bool CPROJ4_Grid::Set_Grids(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Gri
 	CSG_Grid_System	System;
 	CSG_Grid		*pX, *pY;
 
-	System	= pTargets->asGrid(0)->Get_System();
+	System	= pTargets->Get_Grid(0)->Get_System();
 
 	Init_XY(System, &pX, &pY);
 
@@ -287,11 +286,11 @@ bool CPROJ4_Grid::Set_Grids(CSG_Parameter_Grid_List *pSources, CSG_Parameter_Gri
 				if( pX )	pX->Set_Value(x, y, Pt_Source.x);
 				if( pY )	pY->Set_Value(x, y, Pt_Source.y);
 
-				for(i=0; i<pSources->Get_Count(); i++)
+				for(i=0; i<pSources->Get_Grid_Count(); i++)
 				{
-					if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Resampling) )
+					if( pSources->Get_Grid(i)->Get_Value(Pt_Source, z, m_Resampling) )
 					{
-						pTargets->asGrid(i)->Set_Value(x, y, z);
+						pTargets->Get_Grid(i)->Set_Value(x, y, z);
 					}
 				}
 			}
@@ -310,15 +309,15 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Parameter_Grid_List *pSources, CSG_Shapes *pTar
 	CSG_Grid	*pSource;
 	CSG_Shape	*pShape;
 
-	if( pSources && pSources->Get_Count() > 0 && pTarget )
+	if( pSources && pSources->Get_Grid_Count() > 0 && pTarget )
 	{
-		pSource	= pSources->asGrid(0);
+		pSource	= pSources->Get_Grid(0);
 
 		pTarget->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()));
 
-		for(i=0; i<pSources->Get_Count(); i++)
+		for(i=0; i<pSources->Get_Grid_Count(); i++)
 		{
-			pTarget->Add_Field(pSources->asGrid(i)->Get_Name(), pSources->asGrid(i)->Get_Type());
+			pTarget->Add_Field(pSources->Get_Grid(i)->Get_Name(), pSources->Get_Grid(i)->Get_Type());
 		}
 
 		for(y=0, Pt_Source.y=pSource->Get_YMin(); y<pSource->Get_NY() && Set_Progress(y, pSource->Get_NY()); y++, Pt_Source.y+=pSource->Get_Cellsize())
@@ -334,9 +333,9 @@ bool CPROJ4_Grid::Set_Shapes(CSG_Parameter_Grid_List *pSources, CSG_Shapes *pTar
 						pShape	= pTarget->Add_Shape();
 						pShape->Add_Point(Pt_Target);
 
-						for(i=0; i<pSources->Get_Count(); i++)
+						for(i=0; i<pSources->Get_Grid_Count(); i++)
 						{
-							if( pSources->asGrid(i)->Get_Value(Pt_Source, z, m_Resampling) )
+							if( pSources->Get_Grid(i)->Get_Value(Pt_Source, z, m_Resampling) )
 							{
 								pShape->Set_Value(i, z);
 							}

@@ -24,7 +24,8 @@
 // Simulation Framework'. MicroCity is free software;you //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // MicroCity is distributed in the hope that it will be  //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -109,7 +108,7 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	Connect(m_pControl->GetTreeCtrl()->GetId(), wxEVT_COMMAND_TREE_ITEM_MENU      , wxTreeEventHandler(CData_Source_Files::On_TreeEvent));
 
 	//-----------------------------------------------------
-	wxString	Filter(DLG_Get_FILE_Filter(ID_DLG_FILES_OPEN));
+	wxString	Filter(DLG_Get_FILE_Filter(ID_DLG_FILE_OPEN));
 
 	wxArrayString	Choices;
 
@@ -123,7 +122,7 @@ CData_Source_Files::CData_Source_Files(wxWindow *pParent)
 	m_pFilter	= new wxChoice(this, ID_WND_DATA_SOURCE_FILES, wxDefaultPosition, wxDefaultSize, Choices);
 
 	m_pFilter	->Select(0);
-	m_pControl	->SetFilter(DLG_Get_FILE_Filter(ID_DLG_FILES_OPEN));
+	m_pControl	->SetFilter(DLG_Get_FILE_Filter(ID_DLG_FILE_OPEN));
 	m_pControl	->SetFilterIndex(m_pFilter->GetSelection());
 	m_pControl	->ReCreateTree();
 

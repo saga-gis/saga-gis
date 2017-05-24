@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -191,15 +190,15 @@ wxMenu * CWKSP_Tool::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_SAVE_SCRIPT);
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_SAVE_TO_CLIPBOARD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_SCRIPT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_TO_CLIPBOARD);
 
 	if( m_pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
 		pMenu->AppendSeparator();
 
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_CHAIN_RELOAD);
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOLS_CHAIN_EDIT);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_CHAIN_RELOAD);
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_CHAIN_EDIT);
 	}
 
 	return( pMenu );
@@ -230,15 +229,15 @@ bool CWKSP_Tool::On_Command(int Cmd_ID)
 		Execute(true);
 		break;
 
-	case ID_CMD_TOOLS_SAVE_SCRIPT:
+	case ID_CMD_TOOL_SAVE_SCRIPT:
 		_Save_to_Script();
 		break;
 
-	case ID_CMD_TOOLS_SAVE_TO_CLIPBOARD:
+	case ID_CMD_TOOL_SAVE_TO_CLIPBOARD:
 		_Save_to_Clipboard();
 		break;
 
-	case ID_CMD_TOOLS_CHAIN_RELOAD:
+	case ID_CMD_TOOL_CHAIN_RELOAD:
 		if( m_pTool->Get_Type() == TOOL_TYPE_Chain
 		&&  g_pTools->Open(m_pTool->Get_File_Name().c_str())
 		&&  g_pACTIVE->Get_Active() == this )
@@ -248,7 +247,7 @@ bool CWKSP_Tool::On_Command(int Cmd_ID)
 		}
 		break;
 
-	case ID_CMD_TOOLS_CHAIN_EDIT:
+	case ID_CMD_TOOL_CHAIN_EDIT:
 		if( m_pTool->Get_Type() == TOOL_TYPE_Chain )
 		{
 			Open_Application(m_pTool->Get_File_Name().c_str(), "txt");
@@ -891,20 +890,20 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			{
 				Command	+= CSG_String::Format(" -%s=", GET_ID1(p));
 
-				if( p->asList()->Get_Count() == 0 )
+				if( p->asList()->Get_Item_Count() == 0 )
 				{
 					Command	+= "NULL";
 				}
 				else
 				{
-					Command	+= SG_File_Exists(p->asList()->asDataObject(0)->Get_File_Name())
-							 ? p->asList()->asDataObject(0)->Get_File_Name() : _TL("memory");
+					Command	+= SG_File_Exists(p->asList()->Get_Item(0)->Get_File_Name())
+							 ? p->asList()->Get_Item(0)->Get_File_Name() : _TL("memory");
 
-					for(int iObject=1; iObject<p->asList()->Get_Count(); iObject++)
+					for(int iObject=1; iObject<p->asList()->Get_Item_Count(); iObject++)
 					{
 						Command	+= ";";
-						Command	+= SG_File_Exists(p->asList()->asDataObject(iObject)->Get_File_Name())
-								 ? p->asList()->asDataObject(iObject)->Get_File_Name() : _TL("memory");
+						Command	+= SG_File_Exists(p->asList()->Get_Item(iObject)->Get_File_Name())
+								 ? p->asList()->Get_Item(iObject)->Get_File_Name() : _TL("memory");
 					}
 				}
 			}

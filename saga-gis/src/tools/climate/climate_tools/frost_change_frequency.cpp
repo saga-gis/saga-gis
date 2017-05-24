@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -78,8 +77,8 @@ CFrost_Change_Frequency_Calculator::CFrost_Change_Frequency_Calculator(void)
 //---------------------------------------------------------
 bool CFrost_Change_Frequency_Calculator::Set_Temperatures(CSG_Parameter_Grid_List *pTmin, CSG_Parameter_Grid_List *pTmax)
 {
-	if( !(pTmin->Get_Count() == 12 || pTmin->Get_Count() >= 365)
-	||  !(pTmax->Get_Count() == 12 || pTmax->Get_Count() >= 365) )
+	if( !(pTmin->Get_Grid_Count() == 12 || pTmin->Get_Grid_Count() >= 365)
+	||  !(pTmax->Get_Grid_Count() == 12 || pTmax->Get_Grid_Count() >= 365) )
 	{
 		SG_UI_Msg_Add_Error(_TL("Input has to be provided on a monthly (12) or daily (365) basis."));
 
@@ -124,12 +123,12 @@ bool CFrost_Change_Frequency_Calculator::Get_Statistics(int x, int y, CSG_Simple
 //---------------------------------------------------------
 bool CFrost_Change_Frequency_Calculator::Get_Daily(int x, int y, CSG_Parameter_Grid_List *pTemperatures, CSG_Vector &Daily)
 {
-	if( pTemperatures->Get_Count() == 12 )
+	if( pTemperatures->Get_Grid_Count() == 12 )
 	{
 		return( Get_From_Monthly(x, y, pTemperatures, Daily) );
 	}
 
-	if( pTemperatures->Get_Count() >= 365 )
+	if( pTemperatures->Get_Grid_Count() >= 365 )
 	{
 		return( Get_From_Daily(x, y, pTemperatures, Daily) );
 	}
@@ -144,12 +143,12 @@ bool CFrost_Change_Frequency_Calculator::Get_From_Daily(int x, int y, CSG_Parame
 
 	for(int iDay=0; iDay<365; iDay++)
 	{
-		if( pTemperatures->asGrid(iDay)->is_NoData(x, y) )
+		if( pTemperatures->Get_Grid(iDay)->is_NoData(x, y) )
 		{
 			return( false );
 		}
 
-		Daily[iDay]	= pTemperatures->asGrid(iDay)->asDouble(x, y);
+		Daily[iDay]	= pTemperatures->Get_Grid(iDay)->asDouble(x, y);
 	}
 
 	return( true );
@@ -166,21 +165,21 @@ bool CFrost_Change_Frequency_Calculator::Get_From_Monthly(int x, int y, CSG_Para
 	//-----------------------------------------------------
 	CSG_Spline	Spline;
 
-	Spline.Add(MidOfMonth[10] - 365, pTemperatures->asGrid(10)->asDouble(x, y));
-	Spline.Add(MidOfMonth[11] - 365, pTemperatures->asGrid(11)->asDouble(x, y));
+	Spline.Add(MidOfMonth[10] - 365, pTemperatures->Get_Grid(10)->asDouble(x, y));
+	Spline.Add(MidOfMonth[11] - 365, pTemperatures->Get_Grid(11)->asDouble(x, y));
 
 	for(int iMonth=0; iMonth<12; iMonth++)
 	{
-		if( pTemperatures->asGrid(iMonth)->is_NoData(x, y) )
+		if( pTemperatures->Get_Grid(iMonth)->is_NoData(x, y) )
 		{
 			return( false );
 		}
 
-		Spline.Add(MidOfMonth[iMonth], pTemperatures->asGrid(iMonth)->asDouble(x, y));
+		Spline.Add(MidOfMonth[iMonth], pTemperatures->Get_Grid(iMonth)->asDouble(x, y));
 	}
 
-	Spline.Add(MidOfMonth[ 0] + 365, pTemperatures->asGrid( 0)->asDouble(x, y));
-	Spline.Add(MidOfMonth[ 1] + 365, pTemperatures->asGrid( 1)->asDouble(x, y));
+	Spline.Add(MidOfMonth[ 0] + 365, pTemperatures->Get_Grid( 0)->asDouble(x, y));
+	Spline.Add(MidOfMonth[ 1] + 365, pTemperatures->Get_Grid( 1)->asDouble(x, y));
 
 	//-----------------------------------------------------
 	Daily.Create(365);

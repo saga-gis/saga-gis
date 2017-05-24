@@ -33,10 +33,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -404,10 +402,10 @@ bool CTree_Growth::On_Execute(void)
 	CSG_Parameter_Grid_List	*pTmax	= Parameters("TMAX")->asGridList();
 	CSG_Parameter_Grid_List	*pP   	= Parameters("P"   )->asGridList();
 
-	if( pT   ->Get_Count() != 12
-	||  pTmin->Get_Count() != 12
-	||  pTmax->Get_Count() != 12
-	||  pP   ->Get_Count() != 12 )
+	if( pT   ->Get_Grid_Count() != 12
+	||  pTmin->Get_Grid_Count() != 12
+	||  pTmax->Get_Grid_Count() != 12
+	||  pP   ->Get_Grid_Count() != 12 )
 	{
 		SG_UI_Msg_Add_Error(_TL("there has to be one input grid for each month"));
 
@@ -417,7 +415,7 @@ bool CTree_Growth::On_Execute(void)
 	//-----------------------------------------------------
 	double	Lat_Def	= Parameters("LAT_DEF")->asDouble();
 
-	CSG_Grid Lat; CSG_Grid *pLat = SG_Grid_Get_Geographic_Coordinates(pT->asGrid(0), NULL, &Lat) ? &Lat : NULL;
+	CSG_Grid Lat; CSG_Grid *pLat = SG_Grid_Get_Geographic_Coordinates(pT->Get_Grid(0), NULL, &Lat) ? &Lat : NULL;
 
 	//-----------------------------------------------------
 	double		SWC_Def	= Parameters("SWC")->asDouble();
@@ -603,10 +601,10 @@ bool CWater_Balance_Interactive::On_Execute(void)
 	m_pTmax	= Parameters("TMAX")->asGridList();
 	m_pP   	= Parameters("P"   )->asGridList();
 
-	if( m_pT   ->Get_Count() != 12
-	||  m_pTmin->Get_Count() != 12
-	||  m_pTmax->Get_Count() != 12
-	||  m_pP   ->Get_Count() != 12 )
+	if( m_pT   ->Get_Grid_Count() != 12
+	||  m_pTmin->Get_Grid_Count() != 12
+	||  m_pTmax->Get_Grid_Count() != 12
+	||  m_pP   ->Get_Grid_Count() != 12 )
 	{
 		SG_UI_Msg_Add_Error(_TL("there has to be one input grid for each month"));
 
@@ -615,7 +613,7 @@ bool CWater_Balance_Interactive::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Lat_Def	= Parameters("LAT_DEF")->asDouble();
-	m_pLat		= SG_Grid_Get_Geographic_Coordinates(m_pT->asGrid(0), NULL, &m_Lat) ? &m_Lat : NULL;
+	m_pLat		= SG_Grid_Get_Geographic_Coordinates(m_pT->Get_Grid(0), NULL, &m_Lat) ? &m_Lat : NULL;
 
 	//-----------------------------------------------------
 	m_SWC_Def	= Parameters("SWC")->asDouble();

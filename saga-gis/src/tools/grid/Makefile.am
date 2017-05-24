@@ -1,1 +1,1 @@
-SUBDIRS = grid_visualisation grid_tools grid_spline grid_gridding grid_filter grid_calculus grid_calculus_bsl grid_analysis
+SUBDIRS = grid_visualisation grid_tools grid_spline grid_gridding grid_filter grid_calculus grid_calculus_bsl grid_analysis grids_tools

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -245,10 +244,10 @@ bool CBioclimatic_Vars::On_Execute(void)
 	m_pTmax		= Parameters("TMAX" )->asGridList();
 	m_pP		= Parameters("P"    )->asGridList();
 
-	if( m_pT   ->Get_Count() != 12
-	||  m_pTmin->Get_Count() != 12
-	||  m_pTmax->Get_Count() != 12
-	||  m_pP   ->Get_Count() != 12 )
+	if( m_pT   ->Get_Grid_Count() != 12
+	||  m_pTmin->Get_Grid_Count() != 12
+	||  m_pTmax->Get_Grid_Count() != 12
+	||  m_pP   ->Get_Grid_Count() != 12 )
 	{
 		Error_Set(_TL("there has to be one input grid for each month"));
 
@@ -322,18 +321,18 @@ bool CBioclimatic_Vars::Set_Variables(int x, int y)
 	//-----------------------------------------------------
 	for(i=0; i<12; i++)
 	{
-		if( m_pT   ->asGrid(i)->is_NoData(x, y)
-		||  m_pTmin->asGrid(i)->is_NoData(x, y)
-		||  m_pTmax->asGrid(i)->is_NoData(x, y)
-		||  m_pP   ->asGrid(i)->is_NoData(x, y) )
+		if( m_pT   ->Get_Grid(i)->is_NoData(x, y)
+		||  m_pTmin->Get_Grid(i)->is_NoData(x, y)
+		||  m_pTmax->Get_Grid(i)->is_NoData(x, y)
+		||  m_pP   ->Get_Grid(i)->is_NoData(x, y) )
 		{
 			return( false );
 		}
 
-		T   [i]	= m_pT   ->asGrid(i)->asDouble(x, y);
-		Tmin[i]	= m_pTmin->asGrid(i)->asDouble(x, y);
-		Tmax[i]	= m_pTmax->asGrid(i)->asDouble(x, y);
-		P   [i]	= m_pP   ->asGrid(i)->asDouble(x, y);
+		T   [i]	= m_pT   ->Get_Grid(i)->asDouble(x, y);
+		Tmin[i]	= m_pTmin->Get_Grid(i)->asDouble(x, y);
+		Tmax[i]	= m_pTmax->Get_Grid(i)->asDouble(x, y);
+		P   [i]	= m_pP   ->Get_Grid(i)->asDouble(x, y);
 		dTD [i]	= Tmax[i] - Tmin[i];
 	}
 

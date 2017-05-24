@@ -645,7 +645,7 @@ public:
 
 	virtual bool					Destroy					(void);
 
-	virtual TSG_Data_Object_Type	Get_ObjectType			(void)	const			{	return( DATAOBJECT_TYPE_Shapes );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType			(void)	const			{	return( SG_DATAOBJECT_TYPE_Shapes );	}
 
 	virtual bool					Assign					(CSG_Data_Object *pObject);
 

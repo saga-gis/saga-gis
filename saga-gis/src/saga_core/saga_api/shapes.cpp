@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -107,10 +106,10 @@ CSG_Shapes *		SG_Create_Shapes(const CSG_Shapes &Shapes)
 {
 	switch( Shapes.Get_ObjectType() )
 	{
-	case DATAOBJECT_TYPE_Shapes:
+	case SG_DATAOBJECT_TYPE_Shapes:
 		return( new CSG_Shapes(Shapes) );
 
-	case DATAOBJECT_TYPE_PointCloud:
+	case SG_DATAOBJECT_TYPE_PointCloud:
 		return( SG_Create_PointCloud(*((CSG_PointCloud *)&Shapes)) );
 
 	default:
@@ -137,10 +136,10 @@ CSG_Shapes *		SG_Create_Shapes(CSG_Shapes *pTemplate)
 	{
 		switch( pTemplate->Get_ObjectType() )
 		{
-		case DATAOBJECT_TYPE_Shapes:
+		case SG_DATAOBJECT_TYPE_Shapes:
 			return( new CSG_Shapes(pTemplate->Get_Type(), pTemplate->Get_Name(), pTemplate, pTemplate->Get_Vertex_Type()) );
 
-		case DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_PointCloud:
 			return( SG_Create_PointCloud((CSG_PointCloud *)pTemplate) );
 
 		default:
@@ -370,7 +369,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 	CSG_Shapes	*pShapes;
 
 	//-----------------------------------------------------
-	if(	pObject && pObject->is_Valid() && (pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes || pObject->Get_ObjectType() == DATAOBJECT_TYPE_PointCloud) )
+	if(	pObject && pObject->is_Valid() && (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 	{
 		pShapes	= (CSG_Shapes *)pObject;
 
@@ -475,7 +474,7 @@ CSG_Shape * CSG_Shapes::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Copy_Mo
 			((CSG_Table_Record *)pShape)->Assign(pCopy);
 		}
 
-		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM) && pCopy->Get_Table()->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+		if( (mCopy == SHAPE_COPY || mCopy == SHAPE_COPY_GEOM) && pCopy->Get_Table()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
 			pShape->Assign((CSG_Shape *)pCopy, false);
 		}

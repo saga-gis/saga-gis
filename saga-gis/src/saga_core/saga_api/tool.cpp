@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -785,9 +784,9 @@ void CSG_Tool::DataObject_Update_All(void)
 			}
 			else if( Parameters(i)->is_DataObject_List() )
 			{
-				for(int j=0; j<Parameters(i)->asList()->Get_Count(); j++)
+				for(int j=0; j<Parameters(i)->asList()->Get_Item_Count(); j++)
 				{
-					DataObject_Update(Parameters(i)->asList()->asDataObject(j), false);
+					DataObject_Update(Parameters(i)->asList()->Get_Item(j), false);
 				}
 			}
 		}
@@ -1124,14 +1123,14 @@ bool CSG_Tool::DataObject_Set_History(CSG_Parameter *pParameter, CSG_MetaData *p
 	//-----------------------------------------------------
 	else if( pParameter->is_DataObject_List() )
 	{
-		for(int j=0; j<pParameter->asList()->Get_Count(); j++)
+		for(int j=0; j<pParameter->asList()->Get_Item_Count(); j++)
 		{
 			if( pOutput )
 			{
-				pOutput->Set_Content(pParameter->asList()->asDataObject(j)->Get_Name());
+				pOutput->Set_Content(pParameter->asList()->Get_Item(j)->Get_Name());
 			}
 
-			pParameter->asList()->asDataObject(j)->Get_History().Assign(*pHistory);
+			pParameter->asList()->Get_Item(j)->Get_History().Assign(*pHistory);
 		}
 
 		return( true );

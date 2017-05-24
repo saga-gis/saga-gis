@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -113,9 +112,9 @@ CCRS_Assign::CCRS_Assign(void)
 //---------------------------------------------------------
 bool CCRS_Assign::On_Execute(void)
 {
-	int	nTotal	= Parameters("GRIDS" )->asList()->Get_Count()
-				+ Parameters("SHAPES")->asList()->Get_Count();
-	//			+ Parameters("TINS"  )->asList()->Get_Count();
+	int	nTotal	= Parameters("GRIDS" )->asList()->Get_Item_Count()
+				+ Parameters("SHAPES")->asList()->Get_Item_Count();
+	//			+ Parameters("TINS"  )->asList()->Get_Item_Count();
 
 	if( nTotal <= 0 )
 	{
@@ -153,13 +152,13 @@ int CCRS_Assign::Set_Projections(const CSG_Projection &Projection, CSG_Parameter
 {
 	int	nProjected	= 0;
 
-	for(int i=0; i<pList->Get_Count(); i++)
+	for(int i=0; i<pList->Get_Item_Count(); i++)
 	{
-		if( pList->asDataObject(i)->Get_Projection().Create(Projection) )
+		if( pList->Get_Item(i)->Get_Projection().Create(Projection) )
 		{
-			pList->asDataObject(i)->Set_Modified();
+			pList->Get_Item(i)->Set_Modified();
 
-			DataObject_Update(pList->asDataObject(i));
+			DataObject_Update(pList->Get_Item(i));
 
 			nProjected++;
 		}

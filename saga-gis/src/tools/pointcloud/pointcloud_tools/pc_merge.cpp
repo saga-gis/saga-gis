@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -182,15 +181,15 @@ bool CPC_Merge::On_Execute(void)
 
 
 	//copy additional layer into destination
-	if( (pPointCloudList = Parameters("PC_LAYERS")->asPointCloudList()) != NULL && pPointCloudList->Get_Count() > 0 )
+	if( (pPointCloudList = Parameters("PC_LAYERS")->asPointCloudList()) != NULL && pPointCloudList->Get_Item_Count() > 0 )
 	{
-		for(int iLayer=0; iLayer<pPointCloudList->Get_Count(); iLayer++)
+		for(int iLayer=0; iLayer<pPointCloudList->Get_Item_Count(); iLayer++)
 		{
-			if( (pAdd = pPointCloudList->asPointCloud(iLayer)) != NULL )
+			if( (pAdd = pPointCloudList->Get_PointCloud(iLayer)) != NULL )
 			{
 				if( pAdd->Get_Type() == pMain->Get_Type() )
 				{
-					pAdd = pPointCloudList->asPointCloud(iLayer);
+					pAdd = pPointCloudList->Get_PointCloud(iLayer);
 
 					std::vector<int>	FieldMapping(FieldNames.size(), -1);	// pMain to pAdd
 

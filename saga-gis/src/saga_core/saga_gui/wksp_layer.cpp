@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -178,7 +177,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 
 	case ID_CMD_WKSP_ITEM_RETURN:
 	case ID_CMD_SHAPES_SHOW:
-	case ID_CMD_GRIDS_SHOW:
+	case ID_CMD_GRID_SHOW:
 	case ID_CMD_TIN_SHOW:
 	case ID_CMD_POINTCLOUD_SHOW:
 		g_pMaps->Add(this);
@@ -489,16 +488,19 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 	{
 		switch( m_pObject->Get_ObjectType() )
 		{
-		case DATAOBJECT_TYPE_Grid:
+		case SG_DATAOBJECT_TYPE_Grid:
 			return( ((CSG_Grid       *)m_pObject)->Get_Extent(true) );
 
-		case DATAOBJECT_TYPE_Shapes:
+		case SG_DATAOBJECT_TYPE_Grids:
+			return( ((CSG_Grids      *)m_pObject)->Get_Extent(true) );
+
+		case SG_DATAOBJECT_TYPE_Shapes:
 			return( ((CSG_Shapes     *)m_pObject)->Get_Extent() );
 
-		case DATAOBJECT_TYPE_TIN:
+		case SG_DATAOBJECT_TYPE_TIN:
 			return( ((CSG_TIN        *)m_pObject)->Get_Extent() );
 
-		case DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_PointCloud:
 			return( ((CSG_PointCloud *)m_pObject)->Get_Extent() );
 
 		default:
@@ -585,7 +587,7 @@ bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 {
 	CSG_Parameters	Parameters;
 
-	Parameters.Add_Range(NULL, "METRIC_ZRANGE"	, _TL(""), _TL(""), zMin, zMax);
+	Parameters.Add_Range("", "METRIC_ZRANGE", _TL(""), _TL(""), zMin, zMax);
 
 	return( DataObject_Changed(&Parameters) );
 }

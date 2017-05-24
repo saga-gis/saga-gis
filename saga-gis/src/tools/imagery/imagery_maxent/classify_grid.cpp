@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -328,9 +327,9 @@ bool CClassify_Grid::On_Execute(void)
 			{
 				pClasses->Set_NoData(x, y);
 
-				for(i=0; m_pProbs && i<m_pProbs->Get_Count(); i++)
+				for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count(); i++)
 				{
-					m_pProbs->asGrid(i)->Set_NoData(x, y);
+					m_pProbs->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 			else switch( m_Method )
@@ -357,9 +356,9 @@ bool CClassify_Grid::On_Execute(void)
 					pProb   ->Set_Value(x, y, Probs[i = m_YT_Model.get_class_id(Sample.label)]);
 					pClasses->Set_Value(x, y, Probs[i] >= minProb ? i : -1);
 
-					for(i=0; m_pProbs && i<m_pProbs->Get_Count() && i<(int)Probs.size(); i++)
+					for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
 					{
-						m_pProbs->asGrid(i)->Set_Value(x, y, Probs[i]);
+						m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
 					}
 				}
 				break;
@@ -379,9 +378,9 @@ bool CClassify_Grid::On_Execute(void)
 					pProb   ->Set_Value(x, y, Probs[i = m_DL_Model->getProbs(Event, Probs)]);
 					pClasses->Set_Value(x, y, Probs[i] >= minProb ? i : -1);
 
-					for(i=0; m_pProbs && i<m_pProbs->Get_Count() && i<(int)Probs.size(); i++)
+					for(i=0; m_pProbs && i<m_pProbs->Get_Grid_Count() && i<(int)Probs.size(); i++)
 					{
-						m_pProbs->asGrid(i)->Set_Value(x, y, Probs[i]);
+						m_pProbs->Get_Grid(i)->Set_Value(x, y, Probs[i]);
 					}
 				}
 				break;
@@ -416,19 +415,19 @@ bool CClassify_Grid::Get_Features(CSG_Array &Features)
 	CSG_Parameter_Grid_List	*pNum	= Parameters("FEATURES_NUM")->asGridList();
 	CSG_Parameter_Grid_List	*pCat	= Parameters("FEATURES_CAT")->asGridList();
 
-	m_Features	= (TFeature *)Features.Create(sizeof(TFeature), m_nFeatures = pNum->Get_Count() + pCat->Get_Count());
+	m_Features	= (TFeature *)Features.Create(sizeof(TFeature), m_nFeatures = pNum->Get_Grid_Count() + pCat->Get_Grid_Count());
 
 	for(int i=0; i<m_nFeatures; i++)
 	{
-		if( i < pNum->Get_Count() )
+		if( i < pNum->Get_Grid_Count() )
 		{
 			m_Features[i].bNumeric	= true;
-			m_Features[i].pGrid		= pNum->asGrid(i);
+			m_Features[i].pGrid		= pNum->Get_Grid(i);
 		}
 		else
 		{
 			m_Features[i].bNumeric	= false;
-			m_Features[i].pGrid		= pCat->asGrid(i - pNum->Get_Count());
+			m_Features[i].pGrid		= pCat->Get_Grid(i - pNum->Get_Grid_Count());
 		}
 
 		CSG_String	Name(m_Features[i].pGrid->Get_Name());
@@ -474,7 +473,7 @@ bool CClassify_Grid::Get_Training(void)
 
 			if( m_pProbs )
 			{
-				CSG_Grid	*pGrid	= m_pProbs->asGrid(i);
+				CSG_Grid	*pGrid	= m_pProbs->Get_Grid(i);
 
 				if( !pGrid )
 				{
@@ -724,7 +723,7 @@ bool CClassify_Grid::Get_File(const CSG_String &File)
 	{
 		if( m_pProbs )
 		{
-			CSG_Grid	*pGrid	= m_pProbs->asGrid(iClass);
+			CSG_Grid	*pGrid	= m_pProbs->Get_Grid(iClass);
 
 			if( !pGrid )
 			{

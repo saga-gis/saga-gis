@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    User Interface                     //
-//                                                       //
-//                    Program: SAGA                      //
+//                     Tool Library                      //
+//                     climate_tools                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  DLG_List_Shapes.h                    //
+//                   grid_collection.h                   //
 //                                                       //
-//          Copyright (C) 2005 by Olaf Conrad            //
+//                 Copyright (C) 2017 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,22 +31,18 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    contact:    Olaf Conrad                            //
-//                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
-//                Germany                                //
-//                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -61,8 +55,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_List_Shapes_H
-#define _HEADER_INCLUDED__SAGA_GUI__DLG_List_Shapes_H
+#ifndef HEADER_INCLUDED__grid_collection_H
+#define HEADER_INCLUDED__grid_collection_H
 
 
 ///////////////////////////////////////////////////////////
@@ -72,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "dlg_list_base.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,24 +76,48 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDLG_List_Shapes : public CDLG_List_Base
+class CGrids_Create : public CSG_Tool_Grid
 {
-	DECLARE_CLASS(CDLG_List_Shapes)
-
 public:
-	CDLG_List_Shapes(CSG_Parameter_Shapes_List *pList, wxString Caption);
+	CGrids_Create(void);
+
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	int							m_Shape_Type;
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
-	void						_Set_Data		(void);
+private:
 
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+class CGrids_Extract : public CSG_Tool_Grid
+{
+public:
+	CGrids_Extract(void);
+
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
 };
 
 
@@ -110,4 +128,4 @@ DECLARE_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_List_Shapes_H
+#endif // #ifndef HEADER_INCLUDED__grid_collection_H

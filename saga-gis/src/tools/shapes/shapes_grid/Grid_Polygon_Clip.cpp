@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -129,7 +128,7 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pInput	= Parameters("INPUT")->asGridList();
 
-	if( pInput->Get_Count() == 0 )
+	if( pInput->Get_Grid_Count() == 0 )
 	{
 		return( false );
 	}
@@ -155,16 +154,16 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 		{
 			if( Mask.asByte(ix, iy) )
 			{
-				for(int i=0; i<pInput->Get_Count(); i++)
+				for(int i=0; i<pInput->Get_Grid_Count(); i++)
 				{
-					pOutput->asGrid(i)->Set_Value(x, y, pInput->asGrid(i)->asDouble(ix, iy));
+					pOutput->Get_Grid(i)->Set_Value(x, y, pInput->Get_Grid(i)->asDouble(ix, iy));
 				}
 			}
 			else
 			{
-				for(int i=0; i<pInput->Get_Count(); i++)
+				for(int i=0; i<pInput->Get_Grid_Count(); i++)
 				{
-					pOutput->asGrid(i)->Set_NoData(x, y);
+					pOutput->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 		}
@@ -231,17 +230,17 @@ bool CGrid_Polygon_Clip::Get_Output(const CSG_Grid &Mask, CSG_Parameter_Grid_Lis
 	{
 		pOutput->Del_Items();
 
-		for(int i=0; i<pInput->Get_Count(); i++)
+		for(int i=0; i<pInput->Get_Grid_Count(); i++)
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(System, pInput->asGrid(i)->Get_Type());
+			CSG_Grid	*pGrid	= SG_Create_Grid(System, pInput->Get_Grid(i)->Get_Type());
 
-			pGrid->Set_Name        (pInput->asGrid(i)->Get_Name        ());
-			pGrid->Set_NoData_Value(pInput->asGrid(i)->Get_NoData_Value());
+			pGrid->Set_Name        (pInput->Get_Grid(i)->Get_Name        ());
+			pGrid->Set_NoData_Value(pInput->Get_Grid(i)->Get_NoData_Value());
 
 			pOutput->Add_Item(pGrid);
 
 			DataObject_Add(pGrid);
-			DataObject_Set_Parameters(pGrid, pInput->asGrid(i));
+			DataObject_Set_Parameters(pGrid, pInput->Get_Grid(i));
 		}
 
 		return( true );
@@ -253,9 +252,9 @@ bool CGrid_Polygon_Clip::Get_Output(const CSG_Grid &Mask, CSG_Parameter_Grid_Lis
 //---------------------------------------------------------
 bool CGrid_Polygon_Clip::Has_Data(int x, int y, CSG_Parameter_Grid_List *pInput)
 {
-	for(int i=0; i<pInput->Get_Count(); i++)
+	for(int i=0; i<pInput->Get_Grid_Count(); i++)
 	{
-		if( !pInput->asGrid(i)->is_NoData(x, y) )
+		if( !pInput->Get_Grid(i)->is_NoData(x, y) )
 		{
 			return( true );
 		}

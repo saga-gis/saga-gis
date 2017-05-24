@@ -30,10 +30,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -116,7 +114,7 @@ bool CGrowing_Degree_Days::On_Execute(void)
 {
 	CSG_Parameter_Grid_List	*pTmean	= Parameters("TMEAN")->asGridList();
 
-	if( pTmean->Get_Count() != 12 && pTmean->Get_Count() < 365 )
+	if( pTmean->Get_Grid_Count() != 12 && pTmean->Get_Grid_Count() < 365 )
 	{
 		SG_UI_Msg_Add_Error(_TL("There has to be one input grid eiter for each month (12) or for each day of the year (365)."));
 
@@ -136,19 +134,19 @@ bool CGrowing_Degree_Days::On_Execute(void)
 		{
 			CSG_Vector	T;
 
-			if( pTmean->Get_Count() == 12 )
+			if( pTmean->Get_Grid_Count() == 12 )
 			{
 				CSG_Vector	Tmonth(12);
 
 				for(int i=0; i<Tmonth.Get_N(); i++)
 				{
-					if( pTmean->asGrid(i)->is_NoData(x, y) )
+					if( pTmean->Get_Grid(i)->is_NoData(x, y) )
 					{
 						Tmonth.Destroy();
 					}
 					else
 					{
-						Tmonth[i] = pTmean->asGrid(i)->asDouble(x, y);
+						Tmonth[i] = pTmean->Get_Grid(i)->asDouble(x, y);
 					}
 				}
 
@@ -163,13 +161,13 @@ bool CGrowing_Degree_Days::On_Execute(void)
 
 				for(int i=0; i<T.Get_N(); i++)
 				{
-					if( pTmean->asGrid(i)->is_NoData(x, y) )
+					if( pTmean->Get_Grid(i)->is_NoData(x, y) )
 					{
 						T.Destroy();
 					}
 					else
 					{
-						T[i] = pTmean->asGrid(i)->asDouble(x, y);
+						T[i] = pTmean->Get_Grid(i)->asDouble(x, y);
 					}
 				}
 			}

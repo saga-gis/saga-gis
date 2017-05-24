@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -216,7 +215,7 @@ int CGrid_Calculator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XGRIDS") )
 	{
-		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Count() > 0);
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Grid_Count() > 0);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -252,7 +251,7 @@ bool CGrid_Calculator::On_Execute(void)
 	//-----------------------------------------------------
 	Formula.Add_Function(SG_T("nodata"), (TSG_PFNC_Formula_1)Get_NoData_Value, 0, 0);
 
-	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Count(), pXGrids->Get_Count(), bPosition) )
+	if( !Get_Formula(Formula, Parameters("FORMULA")->asString(), pGrids->Get_Grid_Count(), pXGrids->Get_Grid_Count(), bPosition) )
 	{
 		return( false );
 	}
@@ -294,7 +293,7 @@ bool CGrid_Calculator::On_Execute(void)
 
 	g_NoData_Value	= pResult->Get_NoData_Value();
 
-	int	nValues	= pGrids->Get_Count() + pXGrids->Get_Count()
+	int	nValues	= pGrids->Get_Grid_Count() + pXGrids->Get_Grid_Count()
 		+ (bPosition[0] ? 1 : 0)
 		+ (bPosition[1] ? 1 : 0)
 		+ (bPosition[2] ? 1 : 0)
@@ -313,17 +312,17 @@ bool CGrid_Calculator::On_Execute(void)
 			double		Result, px	= Get_XMin() + x * Get_Cellsize();
 			CSG_Vector	Values(nValues);
 
-			for(i=0; bOkay && i<pGrids->Get_Count() ; i++, n++)
+			for(i=0; bOkay && i<pGrids->Get_Grid_Count() ; i++, n++)
 			{
-				if( (bOkay = bUseNoData || !pGrids->asGrid(i)->is_NoData(x, y)) == true )
+				if( (bOkay = bUseNoData || !pGrids->Get_Grid(i)->is_NoData(x, y)) == true )
 				{
-					Values[n]	= pGrids->asGrid(i)->asDouble(x, y);
+					Values[n]	= pGrids->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
-			for(i=0; bOkay && i<pXGrids->Get_Count(); i++, n++)
+			for(i=0; bOkay && i<pXGrids->Get_Grid_Count(); i++, n++)
 			{
-				bOkay	= pXGrids->asGrid(i)->Get_Value(px, py, Values[n], Resampling);
+				bOkay	= pXGrids->Get_Grid(i)->Get_Value(px, py, Values[n], Resampling);
 			}
 
 			if( bOkay )

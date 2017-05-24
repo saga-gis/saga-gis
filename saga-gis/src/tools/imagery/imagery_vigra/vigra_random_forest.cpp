@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -451,20 +450,20 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 	CSG_Parameter_Grid_List		*pFeatures	= Parameters("FEATURES")->asGridList();
 
-	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Count());
+	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Grid_Count());
 
 	m_pFeatures	= (CSG_Grid **)Features.Get_Array();
 	m_nFeatures	= 0;
 
-	for(int i=pFeatures->Get_Count()-1; i>=0; i--)
+	for(int i=pFeatures->Get_Grid_Count()-1; i>=0; i--)
 	{
-		if( pFeatures->asGrid(i)->Get_Range() <= 0.0 )
+		if( pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
+			Message_Add(CSG_String::Format("%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name()));
 		}
 		else
 		{
-			m_pFeatures[m_nFeatures++]	= pFeatures->asGrid(i);
+			m_pFeatures[m_nFeatures++]	= pFeatures->Get_Grid(i);
 		}
 	}
 
@@ -588,9 +587,9 @@ bool CViGrA_Random_Forest::On_Execute(void)
 
 					SG_GRID_PTR_SAFE_SET_VALUE(pProbability, x, y, p(0, id - 1));
 
-					for(int i=0; pProbabilities && i<pProbabilities->Get_Count(); i++)
+					for(int i=0; pProbabilities && i<pProbabilities->Get_Grid_Count(); i++)
 					{
-						pProbabilities->asGrid(i)->Set_Value(x, y, p(0, i));
+						pProbabilities->Get_Grid(i)->Set_Value(x, y, p(0, i));
 					}
 				}
 			}
@@ -598,9 +597,9 @@ bool CViGrA_Random_Forest::On_Execute(void)
 			{
 				SG_GRID_PTR_SAFE_SET_NODATA(pProbability, x, y);
 
-				for(int i=0; pProbabilities && i<pProbabilities->Get_Count(); i++)
+				for(int i=0; pProbabilities && i<pProbabilities->Get_Grid_Count(); i++)
 				{
-					pProbabilities->asGrid(i)->Set_NoData(x, y);
+					pProbabilities->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 		}
@@ -833,9 +832,9 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 		{
 			CSG_Grid	*pGrid;
 			
-			if( i < pGrids->Get_Count() )
+			if( i < pGrids->Get_Grid_Count() )
 			{
-				pGrid	= pGrids->asGrid(i);
+				pGrid	= pGrids->Get_Grid(i);
 			}
 			else
 			{
@@ -956,20 +955,20 @@ bool CViGrA_RF_Presence::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List		*pFeatures	= Parameters("FEATURES")->asGridList();
 
-	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Count());
+	CSG_Array	Features(sizeof(CSG_Grid *), pFeatures->Get_Grid_Count());
 
 	m_pFeatures	= (CSG_Grid **)Features.Get_Array();
 	m_nFeatures	= 0;
 
-	for(int i=pFeatures->Get_Count()-1; i>=0; i--)
+	for(int i=pFeatures->Get_Grid_Count()-1; i>=0; i--)
 	{
-		if( pFeatures->asGrid(i)->Get_Range() <= 0.0 )
+		if( pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->asGrid(i)->Get_Name()));
+			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name()));
 		}
 		else
 		{
-			m_pFeatures[m_nFeatures++]	= pFeatures->asGrid(i);
+			m_pFeatures[m_nFeatures++]	= pFeatures->Get_Grid(i);
 		}
 	}
 

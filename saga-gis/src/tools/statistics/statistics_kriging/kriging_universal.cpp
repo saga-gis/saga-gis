@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -144,9 +143,9 @@ bool CKriging_Universal::On_Initialize(void)
 			{
 				bool	bAdd	= true;	// for better performance, make sure all predictors supply a value now
 
-				for(int j=0; bAdd && j<m_pGrids->Get_Count(); j++)
+				for(int j=0; bAdd && j<m_pGrids->Get_Grid_Count(); j++)
 				{
-					bAdd	= m_pGrids->asGrid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
+					bAdd	= m_pGrids->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
 				}
 
 				if( bAdd )
@@ -172,9 +171,9 @@ bool CKriging_Universal::On_Initialize(void)
 			{
 				bool	bAdd	= true;	// for better performance, make sure all predictors supply a value now
 
-				for(int j=0; bAdd && j<m_pGrids->Get_Count(); j++)
+				for(int j=0; bAdd && j<m_pGrids->Get_Grid_Count(); j++)
 				{
-					bAdd	= m_pGrids->asGrid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
+					bAdd	= m_pGrids->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
 				}
 
 				if( bAdd )
@@ -206,7 +205,7 @@ bool CKriging_Universal::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 		int	i, j, k;
 
 		int	nCoords	= m_bCoords ? 2 : 0;
-		int	nGrids	= m_pGrids->Get_Count();
+		int	nGrids	= m_pGrids->Get_Grid_Count();
 
 		W.Create(n + 1 + nGrids + nCoords, n + 1 + nGrids + nCoords);
 
@@ -223,7 +222,7 @@ bool CKriging_Universal::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 
 			for(k=0, j=n+1; k<nGrids; k++, j++)
 			{
-				W[i][j]	= W[j][i]	= m_pGrids->asGrid(k)->Get_Value(Points.Get_X(i), Points.Get_Y(i), m_Resampling);
+				W[i][j]	= W[j][i]	= m_pGrids->Get_Grid(k)->Get_Value(Points.Get_X(i), Points.Get_Y(i), m_Resampling);
 			}
 
 			for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
@@ -279,7 +278,7 @@ bool CKriging_Universal::Get_Value(const TSG_Point &p, double &z, double &v)
 	if(	(n = pData->Get_Count()) > 0 )
 	{
 		int	nCoords	= m_bCoords ? 2 : 0;
-		int	nGrids	= m_pGrids->Get_Count();
+		int	nGrids	= m_pGrids->Get_Grid_Count();
 
 		CSG_Vector	G(n + 1 + nGrids + nCoords);
 
@@ -292,7 +291,7 @@ bool CKriging_Universal::Get_Value(const TSG_Point &p, double &z, double &v)
 
 		for(i=0, j=n+1; i<nGrids; i++, j++)
 		{
-			if( !m_pGrids->asGrid(i)->Get_Value(p, G[j], m_Resampling) )
+			if( !m_pGrids->Get_Grid(i)->Get_Value(p, G[j], m_Resampling) )
 			{
 				return( false );
 			}

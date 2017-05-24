@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -205,9 +204,9 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 		Points.Create(SHAPE_TYPE_Point);
 		Points.Add_Field(_TL("VALUE"), SG_DATATYPE_Double);
 
-		for(i=0; i<pValues->Get_Count(); i++)
+		for(i=0; i<pValues->Get_Grid_Count(); i++)
 		{
-			Points.Add_Field(pValues->asGrid(i)->Get_Name(), SG_DATATYPE_Double);
+			Points.Add_Field(pValues->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
 		}
 
 		for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
@@ -225,9 +224,9 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 
 					pPoint->Set_Value(0, pGrid->asDouble(x, y));
 
-					for(i=0; i<pValues->Get_Count(); i++)
+					for(i=0; i<pValues->Get_Grid_Count(); i++)
 					{
-						pPoint->Set_Value(1 + i, pValues->asGrid(i)->asDouble(x, y));
+						pPoint->Set_Value(1 + i, pValues->Get_Grid(i)->asDouble(x, y));
 					}
 				}
 			}

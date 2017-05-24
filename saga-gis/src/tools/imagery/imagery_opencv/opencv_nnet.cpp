@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -543,7 +542,7 @@ bool COpenCV_NNet::On_Execute(void)
 				for(i_Grid=0, b_NoData=false; i_Grid<gl_TrainInputs->Get_Count() && !b_NoData; i_Grid++)
 				{
 					// If there is one grid that has no data in this point p, then set the no data flag
-					if( gl_TrainInputs->asGrid(i_Grid)->is_NoData(x, y) )
+					if( gl_TrainInputs->Get_Grid(i_Grid)->is_NoData(x, y) )
 					{
 						b_NoData = true;
 					}
@@ -741,7 +740,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Count() && !b_NoData; i_Grid++)
 			{
 				// If there is one grid that has no data in this point p, then set the no data flag
-				if( gl_grids->asGrid(i_Grid)->is_NoData(x, y) )
+				if( gl_grids->Get_Grid(i_Grid)->is_NoData(x, y) )
 				{
 					b_NoData = true;
 				}
@@ -753,7 +752,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 				tr_rec = t_data->Add_Record();
 				for(i_Grid=0; i_Grid<gl_grids->Get_Count(); i_Grid++)
 				{
-					tr_rec->Set_Value(i_Grid, (float) gl_grids->asGrid(i_Grid)->asFloat(x, y));
+					tr_rec->Set_Value(i_Grid, (float) gl_grids->Get_Grid(i_Grid)->asFloat(x, y));
 				}				
 			}
 		}
@@ -879,7 +878,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Count() && !b_NoData; i_Grid++)
 			{
 				// If there is one grid that has no data in this point p, then set the no data flag
-				if( gl_grids->asGrid(i_Grid)->is_NoData(x, y) )
+				if( gl_grids->Get_Grid(i_Grid)->is_NoData(x, y) )
 				{
 					b_NoData = true;
 				}
@@ -908,7 +907,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 						tr_rec = t_data->Add_Record();
 						for(i_Grid=0; i_Grid<gl_grids->Get_Count(); i_Grid++)
 						{
-							tr_rec->Set_Value(i_Grid, (float) gl_grids->asGrid(i_Grid)->asFloat(x, y));
+							tr_rec->Set_Value(i_Grid, (float) gl_grids->Get_Grid(i_Grid)->asFloat(x, y));
 						}
 						tr_rec->Set_Value(gl_grids->Get_Count(), sp_inputArea->asString(i_classId));
 					}

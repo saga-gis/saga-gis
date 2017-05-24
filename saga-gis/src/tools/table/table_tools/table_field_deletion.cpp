@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -118,11 +117,11 @@ int CTable_Field_Deletion::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
 		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Table
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
 		);
 
 		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == DATAOBJECT_TYPE_Shapes
+			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
 		);
 	}
 
@@ -152,14 +151,14 @@ bool CTable_Field_Deletion::On_Execute(void)
 	CSG_Table	*pInput  = Parameters("TABLE")->asTable();
 	CSG_Table	*pOutput = NULL;
 
-	if( pInput->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+	if( pInput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
 		if( (pOutput = Parameters("OUT_SHAPES")->asShapes()) != NULL && pOutput != pInput )
 		{
 			((CSG_Shapes *)pOutput)->Create(((CSG_Shapes *)pInput)->Get_Type(), (const wchar_t*)0, (CSG_Table *)0, ((CSG_Shapes *)pInput)->Get_Vertex_Type());
 		}
 	}
-	else // if( pInput->Get_ObjectType() == DATAOBJECT_TYPE_Table )
+	else // if( pInput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
 		if( (pOutput = Parameters("OUT_TABLE" )->asTable()) != NULL && pOutput != pInput )
 		{
@@ -204,7 +203,7 @@ bool CTable_Field_Deletion::On_Execute(void)
 		{
 			CSG_Table_Record	*pOut, *pIn	= pInput->Get_Record(iRecord);
 
-			if( pOutput->Get_ObjectType() == DATAOBJECT_TYPE_Shapes )
+			if( pOutput->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 			{
 				pOut	= ((CSG_Shapes *)pOutput)->Add_Shape(pIn, SHAPE_COPY_GEOM);
 			}

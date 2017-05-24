@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -162,7 +161,7 @@ bool CPC_To_Grid::On_Execute(void)
 		for(iField=3; iField<pPoints->Get_Field_Count(); iField++)
 		{
 			pGrids->Add_Item(SG_Create_Grid(System, SG_DATATYPE_Float));
-			pGrids->asGrid(iField - 3)->Set_Name(CSG_String::Format(SG_T("%s - %s"), pPoints->Get_Name(), pPoints->Get_Field_Name(iField)));
+			pGrids->Get_Grid(iField - 3)->Set_Name(CSG_String::Format(SG_T("%s - %s"), pPoints->Get_Name(), pPoints->Get_Field_Name(iField)));
 		}
 	}
 
@@ -184,9 +183,9 @@ bool CPC_To_Grid::On_Execute(void)
 			int		n	= m_pCount->asInt(x, y);
 			double	z	= pPoints->Get_Z();
 
-			for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+			for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 			{
-				Set_Value(x, y, z, n, pPoints->Get_Value(iGrid + 3), pGrids->asGrid(iGrid));
+				Set_Value(x, y, z, n, pPoints->Get_Value(iGrid + 3), pGrids->Get_Grid(iGrid));
 			}
 
 			Set_Value(x, y, z, n, z, m_pGrid);
@@ -207,9 +206,9 @@ bool CPC_To_Grid::On_Execute(void)
 			case 0:
 				m_pGrid->Set_NoData(x, y);
 
-				for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+				for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 				{
-					pGrids->asGrid(iGrid)->Set_NoData(x, y);
+					pGrids->Get_Grid(iGrid)->Set_NoData(x, y);
 				}
 				break;
 
@@ -221,9 +220,9 @@ bool CPC_To_Grid::On_Execute(void)
 				{
 					m_pGrid->Mul_Value(x, y, 1.0 / n);
 
-					for(iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+					for(iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 					{
-						pGrids->asGrid(iGrid)->Mul_Value(x, y, 1.0 / n);
+						pGrids->Get_Grid(iGrid)->Mul_Value(x, y, 1.0 / n);
 					}
 				}
 				break;

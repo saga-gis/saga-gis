@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -343,13 +342,13 @@ int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
 	{
-		if( pParameter->asShapesList()->Get_Count() > 0 )
+		if( pParameter->asShapesList()->Get_Item_Count() > 0 )
 		{
-			CSG_Rect	Extent(pParameter->asShapesList()->asShapes(0)->Get_Extent());
+			CSG_Rect	Extent(pParameter->asShapesList()->Get_Shapes(0)->Get_Extent());
 
-			for(int i=1; i<pParameter->asShapesList()->Get_Count(); i++)
+			for(int i=1; i<pParameter->asShapesList()->Get_Item_Count(); i++)
 			{
-				Extent.Union(pParameter->asShapesList()->asShapes(i)->Get_Extent());
+				Extent.Union(pParameter->asShapesList()->Get_Shapes(i)->Get_Extent());
 			}
 
 			pParameters->Set_Parameter("AX", Extent.Get_XMin  ());
@@ -430,9 +429,9 @@ int CShapes_Cut::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 
 			bEnable	= false;
 
-			for(int i=0; !bEnable && i<pShapes->Get_Count(); i++)
+			for(int i=0; !bEnable && i<pShapes->Get_Item_Count(); i++)
 			{
-				bEnable	= pShapes->asShapes(i)->Get_Type() == SHAPE_TYPE_Polygon;
+				bEnable	= pShapes->Get_Shapes(i)->Get_Type() == SHAPE_TYPE_Polygon;
 			}
 		}
 
@@ -452,7 +451,7 @@ bool CShapes_Cut::On_Execute(void)
 {
 	CSG_Parameter_Shapes_List	*pShapes	= Parameters("SHAPES")->asShapesList();
 
-	if( pShapes->Get_Count() < 1 )
+	if( pShapes->Get_Item_Count() < 1 )
 	{
 		return( false );
 	}
@@ -506,9 +505,9 @@ bool CShapes_Cut::On_Execute(void)
 
 	double	Overlap	= Parameters("OVERLAP")->asDouble() / 100.0;
 
-	for(int i=0; i<pShapes->Get_Count(); i++)
+	for(int i=0; i<pShapes->Get_Item_Count(); i++)
 	{
-		CSG_Shapes	*pCut	= Cut_Shapes(pPolygons, Method, pShapes->asShapes(i), Overlap);
+		CSG_Shapes	*pCut	= Cut_Shapes(pPolygons, Method, pShapes->Get_Shapes(i), Overlap);
 
 		if( pCut )
 		{
@@ -517,7 +516,7 @@ bool CShapes_Cut::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( pCuts->Get_Count() > 0 );
+	return( pCuts->Get_Item_Count() > 0 );
 }
 
 

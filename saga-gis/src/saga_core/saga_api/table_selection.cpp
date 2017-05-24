@@ -26,7 +26,8 @@
 // This library is free software; you can redistribute   //
 // it and/or modify it under the terms of the GNU Lesser //
 // General Public License as published by the Free       //
-// Software Foundation, version 2.1 of the License.      //
+// Software Foundation, either version 2.1 of the        //
+// License, or (at your option) any later version.       //
 //                                                       //
 // This library is distributed in the hope that it will  //
 // be useful, but WITHOUT ANY WARRANTY; without even the //
@@ -36,9 +37,7 @@
 //                                                       //
 // You should have received a copy of the GNU Lesser     //
 // General Public License along with this program; if    //
-// not, write to the Free Software Foundation, Inc.,     //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -227,7 +226,7 @@ int CSG_Table::Inv_Selection(void)
 
 		for(size_t i=0, n=0; i<(size_t)Get_Count(); i++)
 		{
-			CSG_Table_Record	*pRecord	= Get_Record(i);
+			CSG_Table_Record	*pRecord	= Get_Record((int)i);
 
 			if( pRecord->is_Selected() == false )//&& n < m_Selection.Get_Size() )
 			{
@@ -242,7 +241,7 @@ int CSG_Table::Inv_Selection(void)
 		}
 	}
 
-	return( Get_Selection_Count() );
+	return( (int)Get_Selection_Count() );
 }
 
 

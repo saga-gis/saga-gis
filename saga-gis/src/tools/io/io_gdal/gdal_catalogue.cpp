@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -384,9 +383,9 @@ bool CGDAL_Catalogues::On_Execute(void)
 			Parameters("CATALOGUE_UKN")->asShapes(), _TL("Raster Catalogue (unknown CRS)")
 		);
 
-		for(int i=m_pCatalogues->Get_Count()-1; i>=0 && Process_Get_Okay(true); i--)
+		for(int i=m_pCatalogues->Get_Item_Count()-1; i>=0 && Process_Get_Okay(true); i--)
 		{
-			CSG_Shapes	*pCatalogue	= m_pCatalogues->asShapes(i);
+			CSG_Shapes	*pCatalogue	= m_pCatalogues->Get_Shapes(i);
 
 			Add_To_Geographic(pCatalogue);
 
@@ -431,16 +430,16 @@ CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection, C
 //---------------------------------------------------------
 CSG_Shapes * CGDAL_Catalogues::Get_Catalogue(const CSG_Projection &Projection)
 {
-	for(int i=0; i<m_pCatalogues->Get_Count(); i++)
+	for(int i=0; i<m_pCatalogues->Get_Item_Count(); i++)
 	{
-		if( Projection.is_Equal(m_pCatalogues->asShapes(i)->Get_Projection()) )
+		if( Projection.is_Equal(m_pCatalogues->Get_Shapes(i)->Get_Projection()) )
 		{
-			return( m_pCatalogues->asShapes(i) );
+			return( m_pCatalogues->Get_Shapes(i) );
 		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pCatalogue	= Get_Catalogue(Projection, SG_Create_Shapes(), CSG_String::Format("%s No.%d", _TL("Raster Catalogue"), 1 + m_pCatalogues->Get_Count()));
+	CSG_Shapes	*pCatalogue	= Get_Catalogue(Projection, SG_Create_Shapes(), CSG_String::Format("%s No.%d", _TL("Raster Catalogue"), 1 + m_pCatalogues->Get_Item_Count()));
 
 	m_pCatalogues->Add_Item(pCatalogue);
 

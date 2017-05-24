@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -190,7 +189,7 @@ bool CGrids_Trend::On_Execute(void)
 	xSource	= Parameters("XSOURCE")->asInt();
 
 	//-----------------------------------------------------
-	nGrids	= pYGrids->Get_Count();
+	nGrids	= pYGrids->Get_Grid_Count();
 
 	if( nGrids <= Order )
 	{
@@ -202,23 +201,23 @@ bool CGrids_Trend::On_Execute(void)
 	//-----------------------------------------------------
 	switch( xSource )
 	{
-	case 0:	nGrids	= pYGrids->Get_Count();	break;	// list order
-	case 1:	nGrids	= pXTable->Get_Count();	break;	// table
-	case 2:	nGrids	= pXGrids->Get_Count();	break;	// grid list
+	case 0:	nGrids	= pYGrids->Get_Grid_Count();	break;	// list order
+	case 1:	nGrids	= pXTable->Get_Count     ();	break;	// table
+	case 2:	nGrids	= pXGrids->Get_Grid_Count();	break;	// grid list
 	}
 
-	if( nGrids < pXGrids->Get_Count() )
+	if( nGrids < pXGrids->Get_Grid_Count() )
 	{
 		Error_Set(_TL("There are less predictor variables then dependent ones."));
 
 		return( false );
 	}
 
-	if( nGrids > pXGrids->Get_Count() )
+	if( nGrids > pXGrids->Get_Grid_Count() )
 	{
 		Message_Add(_TL("Warning: there are more predictor variables then dependent ones, surplus will be ignored."));
 
-		nGrids	= pYGrids->Get_Count();
+		nGrids	= pYGrids->Get_Grid_Count();
 	}
 
 	//-----------------------------------------------------
@@ -227,7 +226,7 @@ bool CGrids_Trend::On_Execute(void)
 	for(int i=0; i<=Order; i++)
 	{
 		pCoeff->Add_Item(SG_Create_Grid(*Get_System()));
-		pCoeff->asGrid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), i + 1));
+		pCoeff->Get_Grid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), _TL("Polynomial Coefficient"), i + 1));
 	}
 
 	if( pR2 )
@@ -247,22 +246,22 @@ bool CGrids_Trend::On_Execute(void)
 
 			for(int i=0; i<nGrids; i++)
 			{
-				if( !pYGrids->asGrid(i)->is_NoData(x, y) )
+				if( !pYGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
 					switch( xSource )
 					{
 					case 0:	// list order
-						Trend.Add_Data(i, pYGrids->asGrid(i)->asDouble(x, y));
+						Trend.Add_Data(i, pYGrids->Get_Grid(i)->asDouble(x, y));
 						break;
 
 					case 1:	// table
-						Trend.Add_Data(pXTable->Get_Record(i)->asDouble(0), pYGrids->asGrid(i)->asDouble(x, y));
+						Trend.Add_Data(pXTable->Get_Record(i)->asDouble(0), pYGrids->Get_Grid(i)->asDouble(x, y));
 						break;
 
 					case 2:	// grid list
-						if( !pXGrids->asGrid(i)->is_NoData(x, y) )
+						if( !pXGrids->Get_Grid(i)->is_NoData(x, y) )
 						{
-							Trend.Add_Data(pXGrids->asGrid(i)->asDouble(x, y), pYGrids->asGrid(i)->asDouble(x, y));
+							Trend.Add_Data(pXGrids->Get_Grid(i)->asDouble(x, y), pYGrids->Get_Grid(i)->asDouble(x, y));
 						}
 						break;
 					}
@@ -273,7 +272,7 @@ bool CGrids_Trend::On_Execute(void)
 			{
 				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
 				{
-					pCoeff->asGrid(iOrder)->Set_Value(x, y, Trend.Get_Coefficient(iOrder));
+					pCoeff->Get_Grid(iOrder)->Set_Value(x, y, Trend.Get_Coefficient(iOrder));
 				}
 
 				if( pR2 )	pR2->Set_Value(x, y, Trend.Get_R2());
@@ -282,7 +281,7 @@ bool CGrids_Trend::On_Execute(void)
 			{
 				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
 				{
-					pCoeff->asGrid(iOrder)->Set_NoData(x, y);
+					pCoeff->Get_Grid(iOrder)->Set_NoData(x, y);
 				}
 
 				if( pR2 )	pR2->Set_NoData(x, y);

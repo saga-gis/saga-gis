@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -90,18 +89,20 @@ enum ID_DIALOGS
 
 	ID_DLG_DELETE,
 
-	ID_DLG_FILES_OPEN,
-	ID_DLG_TOOLS_OPEN,
+	ID_DLG_FILE_OPEN,
+	ID_DLG_TOOL_OPEN,
 	ID_DLG_PROJECT_OPEN,
 	ID_DLG_PROJECT_SAVE,
-	ID_DLG_TABLES_OPEN,
-	ID_DLG_TABLES_SAVE,
+	ID_DLG_TABLE_OPEN,
+	ID_DLG_TABLE_SAVE,
 	ID_DLG_SHAPES_OPEN,
 	ID_DLG_SHAPES_SAVE,
 	ID_DLG_TIN_OPEN,
 	ID_DLG_TIN_SAVE,
 	ID_DLG_POINTCLOUD_OPEN,
 	ID_DLG_POINTCLOUD_SAVE,
+	ID_DLG_GRID_OPEN,
+	ID_DLG_GRID_SAVE,
 	ID_DLG_GRIDS_OPEN,
 	ID_DLG_GRIDS_SAVE,
 

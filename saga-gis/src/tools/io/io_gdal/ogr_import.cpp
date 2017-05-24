@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -198,7 +197,7 @@ bool COGR_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( Parameters("SHAPES")->asShapesList()->Get_Count() > 0 );
+	return( Parameters("SHAPES")->asShapesList()->Get_Item_Count() > 0 );
 }
 
 
@@ -225,9 +224,9 @@ bool	SG_OGR_Import	(const CSG_String &File_Name)
 
 	CSG_Parameter_Shapes_List	*pShapes	= Import.Get_Parameters()->Get_Parameter("SHAPES")->asShapesList();
 
-	for(int i=0; i<pShapes->Get_Count(); i++)
+	for(int i=0; i<pShapes->Get_Item_Count(); i++)
 	{
-		SG_UI_DataObject_Add(pShapes->asShapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
+		SG_UI_DataObject_Add(pShapes->Get_Shapes(i), SG_UI_DATAOBJECT_UPDATE_ONLY);
 	}
 
 	return( true );

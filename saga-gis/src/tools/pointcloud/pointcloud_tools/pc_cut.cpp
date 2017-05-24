@@ -25,7 +25,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -34,10 +35,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -236,11 +235,11 @@ bool CPC_Cut::On_Execute(void)
 //---------------------------------------------------------
 bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, const CSG_Rect &Extent, bool bInverse)
 {
-	for(int iItem=0; iItem<pPointsList->Get_Count(); iItem++)
+	for(int iItem=0; iItem<pPointsList->Get_Item_Count(); iItem++)
 	{
 		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
 
-		CSG_PointCloud	*pPoints = pPointsList->asPointCloud(iItem);
+		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
 		if( pPoints && pPoints->is_Valid() )
 		{
@@ -292,11 +291,11 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 //---------------------------------------------------------
 bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_PointCloud_List *pCutList, CSG_Shapes *pPolygons, bool bInverse)
 {
-	for(int iItem=0; iItem<pPointsList->Get_Count(); iItem++)
+	for(int iItem=0; iItem<pPointsList->Get_Item_Count(); iItem++)
 	{
 		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
 
-		CSG_PointCloud	*pPoints = pPointsList->asPointCloud(iItem);
+		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
 		if( pPoints && pPoints->is_Valid() )
 		{

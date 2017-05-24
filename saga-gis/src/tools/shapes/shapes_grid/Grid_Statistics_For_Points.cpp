@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -159,7 +158,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	if( pGrids->Get_Count() < 1 )
+	if( pGrids->Get_Grid_Count() < 1 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -212,13 +211,13 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 
 	//-----------------------------------------------------
 	{
-		#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format(SG_T("G%02d_%s"), iGrid + 1, VAR) : CSG_String::Format(SG_T("%s [%s]"), pGrids->asGrid(iGrid)->Get_Name(), VAR)
+		#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format(SG_T("G%02d_%s"), iGrid + 1, VAR) : CSG_String::Format(SG_T("%s [%s]"), pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
 
 		int	Naming	= Parameters("NAMING")->asInt();
 
 		offField	= pPoints->Get_Field_Count();
 
-		for(int iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+		for(int iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 		{
 			int	iField	= pPoints->Get_Field_Count();
 
@@ -250,13 +249,13 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
-		for(int iGrid=0; iGrid<pGrids->Get_Count(); iGrid++)
+		for(int iGrid=0; iGrid<pGrids->Get_Grid_Count(); iGrid++)
 		{
 			CSG_Simple_Statistics	Statistics(Quantile >= 0);
 
 			int	iField	= offField + iGrid * nFields;
 
-			if( !Get_Statistics(pPoint->Get_Point(0), pGrids->asGrid(iGrid), Statistics) )
+			if( !Get_Statistics(pPoint->Get_Point(0), pGrids->Get_Grid(iGrid), Statistics) )
 			{
 				if( fCOUNT    >= 0 )	pPoint->Set_NoData(iField + fCOUNT );
 				if( fMIN      >= 0 )	pPoint->Set_NoData(iField + fMIN   );

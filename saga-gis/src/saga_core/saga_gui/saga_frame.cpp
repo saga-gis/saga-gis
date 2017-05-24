@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -241,8 +240,8 @@ BEGIN_EVENT_TABLE(CSAGA_Frame, MDI_ParentFrame)
 
 	EVT_MENU_RANGE		(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_WKSP_FIRST				, ID_CMD_WKSP_LAST		, CSAGA_Frame::On_Command_Workspace_UI)
-	EVT_MENU_RANGE		(ID_CMD_TOOL_FIRST			, ID_CMD_TOOL_LAST	, CSAGA_Frame::On_Command_Tool)
-	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_FIRST			, ID_CMD_TOOL_LAST	, CSAGA_Frame::On_Command_Tool_UI)
+	EVT_MENU_RANGE		(ID_CMD_TOOL_MENU_FIRST			, ID_CMD_TOOL_MENU_LAST	, CSAGA_Frame::On_Command_Tool)
+	EVT_UPDATE_UI_RANGE	(ID_CMD_TOOL_MENU_FIRST			, ID_CMD_TOOL_MENU_LAST	, CSAGA_Frame::On_Command_Tool_UI)
 
 	EVT_MENU_RANGE		(ID_CMD_CHILD_FIRST				, ID_CMD_CHILD_LAST		, CSAGA_Frame::On_Command_Child)
 	EVT_UPDATE_UI_RANGE	(ID_CMD_MAP_FIRST				, ID_CMD_MAP_LAST		, CSAGA_Frame::On_Command_Child_UI)
@@ -1053,24 +1052,24 @@ void CSAGA_Frame::On_Child_Activates(int View_ID)
 
 	switch( View_ID )
 	{
-	case ID_VIEW_TABLE:			pToolBar = m_pTB_Table      ; pMenu	= m_pMN_Table      ; Title = _TL("Table"      ); break;
-	case ID_VIEW_TABLE_DIAGRAM:	pToolBar = m_pTB_Diagram    ; pMenu	= m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
-	case ID_VIEW_MAP:			pToolBar = m_pTB_Map        ; pMenu	= m_pMN_Map        ; Title = _TL("Map"        ); break;
-	case ID_VIEW_MAP_3D:		pToolBar = m_pTB_Map_3D     ; pMenu	= m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
-	case ID_VIEW_HISTOGRAM:		pToolBar = m_pTB_Histogram  ; pMenu	= m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
-	case ID_VIEW_SCATTERPLOT:	pToolBar = m_pTB_ScatterPlot; pMenu	= m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
-	case ID_VIEW_LAYOUT:		pToolBar = m_pTB_Layout     ; pMenu	= m_pMN_Layout     ; Title = _TL("Layout"     ); break;
+	case ID_VIEW_TABLE        : pToolBar = m_pTB_Table      ; pMenu	= m_pMN_Table      ; Title = _TL("Table"      ); break;
+	case ID_VIEW_TABLE_DIAGRAM: pToolBar = m_pTB_Diagram    ; pMenu	= m_pMN_Diagram    ; Title = _TL("Diagram"    ); break;
+	case ID_VIEW_MAP          : pToolBar = m_pTB_Map        ; pMenu	= m_pMN_Map        ; Title = _TL("Map"        ); break;
+	case ID_VIEW_MAP_3D       : pToolBar = m_pTB_Map_3D     ; pMenu	= m_pMN_Map_3D     ; Title = _TL("3D View"    ); break;
+	case ID_VIEW_HISTOGRAM    : pToolBar = m_pTB_Histogram  ; pMenu	= m_pMN_Histogram  ; Title = _TL("Histogram"  ); break;
+	case ID_VIEW_SCATTERPLOT  : pToolBar = m_pTB_ScatterPlot; pMenu	= m_pMN_ScatterPlot; Title = _TL("Scatterplot"); break;
+	case ID_VIEW_LAYOUT       : pToolBar = m_pTB_Layout     ; pMenu	= m_pMN_Layout     ; Title = _TL("Layout"     ); break;
 	}
 
 	//-----------------------------------------------------
-	_Bar_Show(m_pTB_Main		, true);
-	_Bar_Show(m_pTB_Table		, pToolBar == m_pTB_Table);
-	_Bar_Show(m_pTB_Diagram		, pToolBar == m_pTB_Diagram);
-	_Bar_Show(m_pTB_Map			, pToolBar == m_pTB_Map);
-	_Bar_Show(m_pTB_Map_3D		, pToolBar == m_pTB_Map_3D);
-	_Bar_Show(m_pTB_Histogram	, pToolBar == m_pTB_Histogram);
-	_Bar_Show(m_pTB_ScatterPlot	, pToolBar == m_pTB_ScatterPlot);
-	_Bar_Show(m_pTB_Layout		, pToolBar == m_pTB_Layout);
+	_Bar_Show(m_pTB_Main       , true                         );
+	_Bar_Show(m_pTB_Table      , pToolBar == m_pTB_Table      );
+	_Bar_Show(m_pTB_Diagram    , pToolBar == m_pTB_Diagram    );
+	_Bar_Show(m_pTB_Map        , pToolBar == m_pTB_Map        );
+	_Bar_Show(m_pTB_Map_3D     , pToolBar == m_pTB_Map_3D     );
+	_Bar_Show(m_pTB_Histogram  , pToolBar == m_pTB_Histogram  );
+	_Bar_Show(m_pTB_ScatterPlot, pToolBar == m_pTB_ScatterPlot);
+	_Bar_Show(m_pTB_Layout     , pToolBar == m_pTB_Layout     );
 
 	//-----------------------------------------------------
 	wxMenuBar	*pMenuBar	= GetMenuBar();
@@ -1156,10 +1155,10 @@ wxMenuBar * CSAGA_Frame::_Create_MenuBar(void)
 	//-----------------------------------------------------
 	wxMenuBar	*pMenuBar	= new wxMenuBar;
 
-	pMenuBar->Append(g_pData   ->Get_Menu_Files  ()->Get_Menu(), _TL("File"         ));	// 0
+	pMenuBar->Append(g_pData ->Get_Menu_Files()->Get_Menu(), _TL("File"         ));	// 0
 	pMenuBar->Append(g_pTools->Get_Menu_Tools()            , _TL("Geoprocessing"));	// 1
-	pMenuBar->Append(pMenu_Window                              , _TL("Window"       ));	// 2
-	pMenuBar->Append(pMenu_Help                                , _TL("?"            ));	// 3
+	pMenuBar->Append(pMenu_Window                          , _TL("Window"       ));	// 2
+	pMenuBar->Append(pMenu_Help                            , _TL("?"            ));	// 3
 
 	SetMenuBar(pMenuBar);
 
@@ -1302,7 +1301,7 @@ wxToolBarBase * CSAGA_Frame::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_DATA_SOURCE_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_FRAME_INFO_SHOW);
 	CMD_ToolBar_Add_Separator(pToolBar);
-	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TOOLS_SEARCH);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_TOOL_SEARCH);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_FRAME_HELP);
 

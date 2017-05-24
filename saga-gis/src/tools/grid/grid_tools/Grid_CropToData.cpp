@@ -74,7 +74,7 @@ bool CCropToData::On_Execute(void)
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("INPUT")->asGridList();
 
 	//-----------------------------------------------------
-	if( pGrids->Get_Count() <= 0 )
+	if( pGrids->Get_Grid_Count() <= 0 )
 	{
 		Error_Set(_TL("no grids in selection"));
 
@@ -93,9 +93,9 @@ bool CCropToData::On_Execute(void)
 		{
 			bool	bData	= false;
 
-			for(int i=0; i<pGrids->Get_Count() && !bData; i++)
+			for(int i=0; i<pGrids->Get_Grid_Count() && !bData; i++)
 			{
-				if( !pGrids->asGrid(i)->is_NoData(x, y) )
+				if( !pGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
 					bData	= true;
 				}
@@ -149,10 +149,10 @@ bool CCropToData::On_Execute(void)
 
 		pCropped->Del_Items();
 
-		for(int i=0; i<pGrids->Get_Count(); i++)
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
 			CSG_Grid	*pGrid	= SG_Create_Grid(
-				pGrids->asGrid(i)->Get_Type(),
+				pGrids->Get_Grid(i)->Get_Type(),
 				1 + xMax - xMin,
 				1 + yMax - yMin,
 				Get_Cellsize(),
@@ -160,8 +160,8 @@ bool CCropToData::On_Execute(void)
 				Get_YMin() + yMin * Get_Cellsize()
 			);
 
-			pGrid->Assign(pGrids->asGrid(i), GRID_RESAMPLING_NearestNeighbour);
-			pGrid->Set_Name(pGrids->asGrid(i)->Get_Name());
+			pGrid->Assign(pGrids->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
+			pGrid->Set_Name(pGrids->Get_Grid(i)->Get_Name());
 
 			pCropped->Add_Item(pGrid);
 		}

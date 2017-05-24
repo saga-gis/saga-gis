@@ -21,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -30,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -252,20 +251,20 @@ bool CGrid_PCA_Focal::On_Execute(void)
 		pGrids->Del_Items();
 	}
 
-	for(i=0; i<pPCA->Get_Count(); i++)
+	for(i=0; i<pPCA->Get_Grid_Count(); i++)
 	{
-		if( pGrids->asGrid(i) )
+		if( pGrids->Get_Grid(i) )
 		{
-			pGrids->asGrid(i)->Assign(pPCA->asGrid(i));
+			pGrids->Get_Grid(i)->Assign(pPCA->Get_Grid(i));
 
-			delete(pPCA->asGrid(i));
+			delete(pPCA->Get_Grid(i));
 		}
 		else
 		{
-			pGrids->Add_Item(pPCA->asGrid(i));
+			pGrids->Add_Item(pPCA->Get_Grid(i));
 		}
 
-		pGrids->asGrid(i)->Set_Name(CSG_String::Format("%s [PC%0*d]", pGrid->Get_Name(), pPCA->Get_Count() < 10 ? 1 : 2, i + 1));
+		pGrids->Get_Grid(i)->Set_Name(CSG_String::Format("%s [PC%0*d]", pGrid->Get_Name(), pPCA->Get_Grid_Count() < 10 ? 1 : 2, i + 1));
 	}
 
 	//-----------------------------------------------------

@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -487,11 +486,11 @@ bool CWombling::On_Execute(void)
 	{
 		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRADIENTS")->asGridList();
 
-		if( pGrids->asGrid(0) && pGrids->asGrid(0)->Get_System().is_Equal(Gradient[0].Get_System())
-		&&  pGrids->asGrid(1) && pGrids->asGrid(1)->Get_System().is_Equal(Gradient[1].Get_System()) )
+		if( pGrids->Get_Grid(0) && pGrids->Get_Grid(0)->Get_System().is_Equal(Gradient[0].Get_System())
+		&&  pGrids->Get_Grid(1) && pGrids->Get_Grid(1)->Get_System().is_Equal(Gradient[1].Get_System()) )
 		{
-			pGrids->asGrid(0)->Assign(&Gradient[0]);
-			pGrids->asGrid(1)->Assign(&Gradient[1]);
+			pGrids->Get_Grid(0)->Assign(&Gradient[0]);
+			pGrids->Get_Grid(1)->Assign(&Gradient[1]);
 		}
 		else
 		{
@@ -605,9 +604,9 @@ bool CWombling_MultiFeature::On_Execute(void)
 	{
 		pOutput	= Parameters("OUTPUT")->asGridList();
 
-		for(int i=pOutput->Get_Count()-1; i>=0; i--)
+		for(int i=pOutput->Get_Grid_Count()-1; i>=0; i--)
 		{
-			if( !pOutput->asGrid(i)->Get_System().is_Equal(Gradient[0].Get_System()) )
+			if( !pOutput->Get_Grid(i)->Get_System().is_Equal(Gradient[0].Get_System()) )
 			{
 				pOutput->Del_Item(i);
 			}
@@ -615,7 +614,7 @@ bool CWombling_MultiFeature::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	Count, *pCount	= Parameters("EDGE_CELLS")->asGridList()->asGrid(0);
+	CSG_Grid	Count, *pCount	= Parameters("EDGE_CELLS")->asGridList()->Get_Grid(0);
 
 	if( !pCount || !pCount->Get_System().is_Equal(Gradient[0].Get_System()) )
 	{
@@ -628,11 +627,11 @@ bool CWombling_MultiFeature::On_Execute(void)
 	pCount->Set_NoData_Value(-1.0);
 
 	//-----------------------------------------------------
-	for(int i=0; i<pFeatures->Get_Count() && Process_Get_Okay(); i++)
+	for(int i=0; i<pFeatures->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		Edges.Set_Name(CSG_String::Format("%s [%s]", pFeatures->asGrid(i)->Get_Name(), _TL("Edges")));
+		Edges.Set_Name(CSG_String::Format("%s [%s]", pFeatures->Get_Grid(i)->Get_Name(), _TL("Edges")));
 
-		Get_Gradient(Gradient, pFeatures->asGrid(i), false);
+		Get_Gradient(Gradient, pFeatures->Get_Grid(i), false);
 
 		Get_Edge_Cells(Gradient, &Edges);
 
@@ -640,12 +639,12 @@ bool CWombling_MultiFeature::On_Execute(void)
 
 		if( pOutput )
 		{
-			if( !pOutput->asGrid(i) )
+			if( !pOutput->Get_Grid(i) )
 			{
 				pOutput->Add_Item(SG_Create_Grid());
 			}
 
-			pOutput->asGrid(i)->Create(Parameters("OUTPUT_ADD")->asInt() == 1 ? Gradient[0] : Edges);
+			pOutput->Get_Grid(i)->Create(Parameters("OUTPUT_ADD")->asInt() == 1 ? Gradient[0] : Edges);
 		}
 	}
 

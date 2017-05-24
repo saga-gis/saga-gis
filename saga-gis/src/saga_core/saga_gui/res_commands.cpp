@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -140,14 +139,14 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DB_TABLE_INFO:			return( _TL("Field Description") );
 	case ID_CMD_DB_TABLE_FROM_QUERY:	return( _TL("Query") );
 
-	case ID_CMD_TOOLS_OPEN:				return( _TL("Load Tool Library") );
-	case ID_CMD_TOOLS_RELOAD:			return( _TL("Reload Standard Tool Libraries") );
-	case ID_CMD_TOOLS_SEARCH:			return( _TL("Find and Run Tool") );
-	case ID_CMD_TOOLS_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
-	case ID_CMD_TOOLS_SAVE_SCRIPT:		return( _TL("Save to Script File") );
-	case ID_CMD_TOOLS_SAVE_TO_CLIPBOARD:	return( _TL("Save to Clipboard") );
-	case ID_CMD_TOOLS_CHAIN_RELOAD:		return( _TL("Reload") );
-	case ID_CMD_TOOLS_CHAIN_EDIT:		return( _TL("Edit") );
+	case ID_CMD_TOOL_OPEN:				return( _TL("Load Tool Library") );
+	case ID_CMD_TOOL_RELOAD:			return( _TL("Reload Standard Tool Libraries") );
+	case ID_CMD_TOOL_SEARCH:			return( _TL("Find and Run Tool") );
+	case ID_CMD_TOOL_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
+	case ID_CMD_TOOL_SAVE_SCRIPT:		return( _TL("Save to Script File") );
+	case ID_CMD_TOOL_SAVE_TO_CLIPBOARD:	return( _TL("Save to Clipboard") );
+	case ID_CMD_TOOL_CHAIN_RELOAD:		return( _TL("Reload") );
+	case ID_CMD_TOOL_CHAIN_EDIT:		return( _TL("Edit") );
 
 	case ID_CMD_DATA_PROJECT_OPEN:		return( _TL("Load Project") );
 	case ID_CMD_DATA_PROJECT_OPEN_ADD:	return( _TL("Add Project") );
@@ -175,38 +174,47 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_DEL_FILES:			return( _TL("Delete Associated Files") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
 
+	case ID_CMD_GRID_OPEN:
 	case ID_CMD_GRIDS_OPEN:
 	case ID_CMD_SHAPES_OPEN:
-	case ID_CMD_TABLES_OPEN:
+	case ID_CMD_TABLE_OPEN:
 	case ID_CMD_TIN_OPEN:
 	case ID_CMD_POINTCLOUD_OPEN:		return( _TL("Load") );
 
+	case ID_CMD_GRID_SHOW:
 	case ID_CMD_GRIDS_SHOW:
 	case ID_CMD_SHAPES_SHOW:
 	case ID_CMD_TIN_SHOW:
 	case ID_CMD_POINTCLOUD_SHOW:		return( _TL("Add to Map") );
 
-	case ID_CMD_TABLES_SHOW:			return( _TL("Show") );
+	case ID_CMD_TABLE_SHOW:			return( _TL("Show") );
 
-	case ID_CMD_GRIDS_SET_LUT:
+	case ID_CMD_GRID_SET_LUT:
 	case ID_CMD_SHAPES_SET_LUT:			return( _TL("Create Lookup Table") );
 
-	case ID_CMD_GRIDS_HISTOGRAM:
+	case ID_CMD_GRID_HISTOGRAM:
 	case ID_CMD_SHAPES_HISTOGRAM:		return( _TL("Histogram") );
 
+	case ID_CMD_GRID_SCATTERPLOT:
 	case ID_CMD_GRIDS_SCATTERPLOT:
-	case ID_CMD_TABLES_SCATTERPLOT:		return( _TL("Scatterplot") );
+	case ID_CMD_TABLE_SCATTERPLOT:		return( _TL("Scatterplot") );
 
-	case ID_CMD_TABLES_DIAGRAM:			return( _TL("Diagram") );
+	case ID_CMD_TABLE_DIAGRAM:			return( _TL("Diagram") );
+
+	case ID_CMD_GRID_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
+	case ID_CMD_GRID_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
+	case ID_CMD_GRID_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
+	case ID_CMD_GRID_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
+	case ID_CMD_GRID_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
+	case ID_CMD_GRID_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
+	case ID_CMD_GRID_SEL_CLEAR:		return( _TL("Clear Selection") );
+	case ID_CMD_GRID_SEL_DELETE:		return( _TL("Delete Selection") );
 
 	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
-	case ID_CMD_GRIDS_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
 	case ID_CMD_GRIDS_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
 	case ID_CMD_GRIDS_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
 	case ID_CMD_GRIDS_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
 	case ID_CMD_GRIDS_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
-	case ID_CMD_GRIDS_SEL_CLEAR:		return( _TL("Clear Selection") );
-	case ID_CMD_GRIDS_SEL_DELETE:		return( _TL("Delete Selection") );
 
 	case ID_CMD_SHAPES_SAVE_ATTRIBUTES:	return( _TL("Save Attributes as...") );
 	case ID_CMD_SHAPES_EDIT_SHAPE:		return( _TL("Edit Selection") );
@@ -372,10 +380,11 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_DATA_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( ID_IMG_TB_SAVE );
-	case ID_CMD_TOOLS_OPEN:			return( ID_IMG_TB_OPEN_TOOL );
-	case ID_CMD_TOOLS_SEARCH:			return( ID_IMG_NB_WKSP_TOOLS );
-	case ID_CMD_TABLES_OPEN:			return( ID_IMG_TB_OPEN_TABLE );
+	case ID_CMD_TOOL_OPEN:			return( ID_IMG_TB_OPEN_TOOL );
+	case ID_CMD_TOOL_SEARCH:			return( ID_IMG_NB_WKSP_TOOLS );
+	case ID_CMD_TABLE_OPEN:			return( ID_IMG_TB_OPEN_TABLE );
 	case ID_CMD_SHAPES_OPEN:			return( ID_IMG_TB_OPEN_SHAPES );
+	case ID_CMD_GRID_OPEN:				return( ID_IMG_TB_OPEN_GRID );
 	case ID_CMD_GRIDS_OPEN:				return( ID_IMG_TB_OPEN_GRID );
 	case ID_CMD_TIN_OPEN:				return( ID_IMG_TB_OPEN_TIN );
 	case ID_CMD_POINTCLOUD_OPEN:		return( ID_IMG_TB_OPEN_POINTCLOUD );

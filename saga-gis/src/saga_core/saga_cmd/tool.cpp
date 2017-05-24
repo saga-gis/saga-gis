@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -32,11 +33,9 @@
 // PARTICULAR PURPOSE. See the GNU General Public        //
 // License for more details.                             //
 //                                                       //
-// You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// You should have received a copy of the GNU Lesser     //
+// General Public License along with this program; if    //
+// not, see <http://www.gnu.org/licenses/>.              //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -136,9 +135,9 @@ void CCMD_Tool::Usage(void)
 	{
 		CMD_Print("");
 
-		wxString	sUsage = wxString::Format(SG_T("Usage: saga_cmd %s %s %s"),
+		wxString	sUsage = wxString::Format("Usage: saga_cmd %s %s %s",
 			m_pLibrary->Get_Library_Name().c_str(),
-			m_pTool ->Get_ID          ().c_str(),
+			m_pTool   ->Get_ID          ().c_str(),
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 
@@ -256,14 +255,14 @@ wxString CCMD_Tool::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifier)
 
 	if( ID.Length() > 0 )
 	{
-		ID	+= SG_T("_");
+		ID	+= "_";
 	}
 
 	ID	+= pParameter->Get_Identifier();
 
 	if( Modifier.Length() > 0 )
 	{
-		ID	+= SG_T("_") + Modifier;
+		ID	+= "_" + Modifier;
 	}
 
 	return( ID );
@@ -758,9 +757,9 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 
 			else if( pParameter->is_DataObject_List() )
 			{
-				for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+				for(int i=0; i<pParameter->asList()->Get_Item_Count(); i++)
 				{
-					CSG_Data_Object	*pObject	= pParameter->asList()->asDataObject(i);
+					CSG_Data_Object	*pObject	= pParameter->asList()->Get_Item(i);
 
 					if( pObject->is_Modified() && SG_File_Exists(pObject->Get_File_Name()) )
 					{
@@ -785,7 +784,7 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 			{
 				CSG_Strings	FileNames;
 
-				while( !FileName.IsEmpty() && FileNames.Get_Count() < pParameter->asList()->Get_Count() )
+				while( !FileName.IsEmpty() && FileNames.Get_Count() < pParameter->asList()->Get_Item_Count() )
 				{
 					wxString	s = FileName.BeforeFirst(';'); s.Trim(true); s.Trim(false);
 
@@ -799,19 +798,19 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 
 				if( FileNames.Get_Count() > 0 )	// e.g.: GRIDS=" ;;"
 				{
-					int	nFileNames	= pParameter->asList()->Get_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
+					int	nFileNames	= pParameter->asList()->Get_Item_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
 
-					for(int i=0; i<pParameter->asList()->Get_Count(); i++)
+					for(int i=0; i<pParameter->asList()->Get_Item_Count(); i++)
 					{
 						if( i < nFileNames )
 						{
-							pParameter->asList()->asDataObject(i)->Save(FileNames[i]);
+							pParameter->asList()->Get_Item(i)->Save(FileNames[i]);
 						}
 						else
 						{
-							pParameter->asList()->asDataObject(i)->Save(CSG_String::Format(SG_T("%s_%0*d"),
+							pParameter->asList()->Get_Item(i)->Save(CSG_String::Format("%s_%0*d",
 								FileNames[nFileNames].c_str(),
-								SG_Get_Digit_Count(pParameter->asList()->Get_Count()),
+								SG_Get_Digit_Count(pParameter->asList()->Get_Item_Count()),
 								1 + i - nFileNames
 							));
 						}

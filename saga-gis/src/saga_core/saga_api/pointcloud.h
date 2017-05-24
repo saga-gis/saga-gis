@@ -83,9 +83,9 @@
 //---------------------------------------------------------
 typedef enum ESG_PointCloud_FileType
 {
-	POINTCLOUD_FILETYPE_Undefined	= 0,
-	POINTCLOUD_FILETYPE_Normal,
-	POINTCLOUD_FILETYPE_Compressed,
+	POINTCLOUD_FILE_FORMAT_Undefined	= 0,
+	POINTCLOUD_FILE_FORMAT_Normal,
+	POINTCLOUD_FILE_FORMAT_Compressed
 }
 TSG_PointCloud_File_Type;
 
@@ -117,7 +117,7 @@ public:
 
 	virtual bool					Destroy				(void);
 
-	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const			{	return( DATAOBJECT_TYPE_PointCloud );	}
+	virtual TSG_Data_Object_Type	Get_ObjectType		(void)	const			{	return( SG_DATAOBJECT_TYPE_PointCloud );	}
 
 	virtual bool					Assign				(CSG_Data_Object *pSource);
 

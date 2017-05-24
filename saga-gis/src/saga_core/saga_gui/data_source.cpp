@@ -24,7 +24,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +34,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -213,18 +212,19 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 		switch( pItem->Get_Type() )
 		{
 		case WKSP_ITEM_Table:
-			m_pFiles->SetPath(((CWKSP_Table          *)pItem)->Get_Table()->Get_File_Name());
+			m_pFiles->SetPath(((CWKSP_Table        *)pItem)->Get_Table()->Get_File_Name());
 			break;
 
 		case WKSP_ITEM_Shapes:
 		case WKSP_ITEM_TIN:
 		case WKSP_ITEM_PointCloud:
 		case WKSP_ITEM_Grid:
-			m_pFiles->SetPath(((CWKSP_Layer          *)pItem)->Get_Object()->Get_File_Name(false));
+		case WKSP_ITEM_Grids:
+			m_pFiles->SetPath(((CWKSP_Layer        *)pItem)->Get_Object()->Get_File_Name(false));
 			break;
 
 		case WKSP_ITEM_Map_Layer:
-			m_pFiles->SetPath(((CWKSP_Map_Layer      *)pItem)->Get_Layer()->Get_Object()->Get_File_Name(false));
+			m_pFiles->SetPath(((CWKSP_Map_Layer    *)pItem)->Get_Layer()->Get_Object()->Get_File_Name(false));
 			break;
 
 		case WKSP_ITEM_Tool_Library:

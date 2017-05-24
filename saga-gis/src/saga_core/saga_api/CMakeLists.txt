@@ -6,12 +6,12 @@ message(STATUS "project: ${PROJECT_NAME}")
 # define headers
 set(SAGA_API_PUBLIC_HEADERS
 	api_core.h
-	compatibility.h
 	data_manager.h
 	dataobject.h
 	datetime.h
 	geo_tools.h
 	grid.h
+	grids.h
 	grid_pyramid.h
 	mat_tools.h
 	metadata.h
@@ -47,6 +47,7 @@ set(SAGA_API_SOURCES
 	grid_operation.cpp
 	grid_pyramid.cpp
 	grid_system.cpp
+	grids.cpp
 	mat_formula.cpp
 	mat_grid_radius.cpp
 	mat_indexing.cpp
