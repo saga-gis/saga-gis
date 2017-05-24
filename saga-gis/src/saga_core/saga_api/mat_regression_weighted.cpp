@@ -316,7 +316,7 @@ bool CSG_Regression_Weighted::Get_CrossValidation(int nSubSamples)
 	m_CV_NRMSE		= sqrt(SE.Get_Mean()) / Stats.Get_Range();
 	m_CV_R2			= SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum());
 	m_CV_nSamples	= nModels;
-/**/
+*/
 	//-----------------------------------------------------
 	return( true );
 }

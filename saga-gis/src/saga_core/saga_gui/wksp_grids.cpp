@@ -570,7 +570,7 @@ void CWKSP_Grids::_LUT_Create(void)
 
 	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters.Create("", _TL("Create Lookup Table"), _TL(""));
+		Parameters.Create(NULL, _TL("Create Lookup Table"), _TL(""));
 
 		Parameters.Add_Colors("",
 			"COLOR"	, _TL("Colors"),

@@ -610,7 +610,7 @@ bool CSG_File_Zip::Get_File(const CSG_String &Name)
 	{
 		for(size_t i=0; i<m_Files.Get_Size(); i++)
 		{
-			if( !Name.Cmp(&((wxZipEntry *)m_Files[i])->GetName()) )
+			if( !((wxZipEntry *)m_Files[i])->GetName().Cmp(Name.c_str()) )
 			{
 				return( Get_File(i) );
 			}
@@ -627,7 +627,7 @@ CSG_String CSG_File_Zip::Get_File_Name(size_t Index)
 
 	if( is_Reading() && m_Files[Index] )
 	{
-		s	= &((wxZipEntry *)m_Files[Index])->GetName();
+		wxString Name(((wxZipEntry *)m_Files[Index])->GetName()); s	= &Name;
 	}
 
 	return( s );
@@ -771,18 +771,18 @@ CSG_String		SG_File_Get_Name(const CSG_String &full_Path, bool bExtension)
 
 	if( bExtension )
 	{
-		return( CSG_String(&fn.GetFullName()) );
+		wxString s(fn.GetFullName()); return( CSG_String(&s) );
 	}
 
-	return( CSG_String(&fn.GetName()) );
+	wxString s(fn.GetName()); return( &s );
 }
 
 //---------------------------------------------------------
 CSG_String		SG_File_Get_Path(const CSG_String &full_Path)
 {
-	wxFileName	fn(full_Path.c_str());
+	wxString	s(wxFileName(full_Path.c_str()).GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR));
 
-	return( CSG_String(&fn.GetPath(wxPATH_GET_VOLUME|wxPATH_GET_SEPARATOR)) );
+	return( CSG_String(&s) );
 }
 
 //---------------------------------------------------------
@@ -792,7 +792,7 @@ CSG_String		SG_File_Get_Path_Absolute(const CSG_String &full_Path)
 
 	fn.MakeAbsolute();
 
-	return( CSG_String(&fn.GetFullPath()) );
+	wxString s(fn.GetFullPath()); return( &s );
 }
 
 //---------------------------------------------------------
@@ -802,7 +802,7 @@ CSG_String		SG_File_Get_Path_Relative(const CSG_String &Directory, const CSG_Str
 
 	fn.MakeRelativeTo(Directory.c_str());
 
-	return( CSG_String(&fn.GetFullPath()) );
+	wxString s(fn.GetFullPath()); return( &s );
 }
 
 //---------------------------------------------------------
@@ -827,7 +827,7 @@ CSG_String		SG_File_Make_Path(const CSG_String &Directory, const CSG_String &Nam
 		fn.SetFullName	(SG_File_Get_Name(Name,  true).c_str());
 	}
 
-	return( CSG_String(&fn.GetFullPath()) );
+	wxString s(fn.GetFullPath()); return( &s );
 }
 
 //---------------------------------------------------------
@@ -845,7 +845,9 @@ bool			SG_File_Set_Extension(CSG_String &FileName, const CSG_String &Extension)
 
 		fn.SetExt(Extension.c_str());
 
-		FileName	= &fn.GetFullPath();
+		wxString s(fn.GetFullPath());
+		
+		FileName	= &s;
 
 		return( true );
 	}
@@ -858,7 +860,7 @@ CSG_String		SG_File_Get_Extension(const CSG_String &FileName)
 {
 	wxFileName	fn(FileName.c_str());
 
-	return( CSG_String(&fn.GetExt()) );
+	wxString s(fn.GetExt()); return( &s );
 }
 
 

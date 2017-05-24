@@ -290,7 +290,9 @@ bool CSG_PointCloud::_Load(const CSG_String &FileName)
 	}
 	else // if( SG_File_Cmp_Extension(FileName, "sg-pts"/"spc") ) // POINTCLOUD_FILE_FORMAT_Normal
 	{
-		if( (bResult = _Load(CSG_File(FileName, SG_FILE_R, true))) == true )
+		CSG_File	Stream(FileName, SG_FILE_R, true);
+
+		if( (bResult = _Load(Stream)) == true )
 		{
 			Load_MetaData(FileName);
 
@@ -362,7 +364,9 @@ bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
 	//-----------------------------------------------------
 	case POINTCLOUD_FILE_FORMAT_Normal: default:
 		{
-			if( _Save(CSG_File(FileName, SG_FILE_W, true)) )
+			CSG_File	Stream(FileName, SG_FILE_W, true);
+
+			if( _Save(Stream) )
 			{
 				Save_MetaData(FileName);
 

@@ -787,13 +787,13 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 		int		ny		= Stream.Scan_Int   ();
 		double	xMin	= Stream.Scan_Double();
 		double	xMax	= Stream.Scan_Double();
-		double	yMin	= Stream.Scan_Double();
-		double	yMax	= Stream.Scan_Double();
-		double	dx		= Stream.Scan_Double();
-		double	dy		= Stream.Scan_Double();
+		double	yMin	= Stream.Scan_Double(); Stream.Scan_Double();
+	//	double	yMax	= Stream.Scan_Double();
+		double	dx		= Stream.Scan_Double(); Stream.Scan_Double();
+	//	double	dy		= Stream.Scan_Double();
 
 		dx	= (xMax - xMin) / (nx - 1.0);
-		dy	= (yMax - yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
+	//	dy	= (yMax - yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
 		if( !Create(SG_DATATYPE_Float, nx, ny, dx, xMin, yMin, Memory_Type) || Stream.is_EOF() )
@@ -922,7 +922,9 @@ CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_String &FileName)
 
 bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
 {
-	return( Create(CSG_File(FileName, SG_FILE_R, false)) );
+	CSG_File	Stream(FileName, SG_FILE_R, false);
+	
+	return( Create(Stream) );
 }
 
 //---------------------------------------------------------
@@ -1088,7 +1090,9 @@ bool CSG_Grid_File_Info::Save(const CSG_String &FileName, const CSG_Grid &Grid, 
 //---------------------------------------------------------
 bool CSG_Grid_File_Info::Save_AUX_XML(const CSG_String &FileName)
 {
-	return( m_Projection.is_Okay() && Save_AUX_XML(CSG_File(FileName + ".aux.xml", SG_FILE_W, false)) );
+	CSG_File	Stream;
+	
+	return( m_Projection.is_Okay() && Stream.Open(FileName + ".aux.xml", SG_FILE_W, false) && Save_AUX_XML(Stream) );
 }
 
 //---------------------------------------------------------

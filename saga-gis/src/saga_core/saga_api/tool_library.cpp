@@ -97,15 +97,15 @@ CSG_Tool_Library::CSG_Tool_Library(void)
 }
 
 //---------------------------------------------------------
-CSG_Tool_Library::CSG_Tool_Library(const CSG_String &File_Name)
+CSG_Tool_Library::CSG_Tool_Library(const CSG_String &FileName)
 {
-	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(File_Name).c_str(), wxDL_DEFAULT|wxDL_QUIET);
+	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(FileName).c_str(), wxDL_DEFAULT|wxDL_QUIET);
 
 	if(	m_pLibrary->IsLoaded()
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Get_Interface)
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Initialize)
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize)
-	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(File_Name) )
+	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(FileName) )
 	{
 		m_pInterface	= ((TSG_PFNC_TLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_TLB_Get_Interface))();
 
@@ -395,21 +395,21 @@ CSG_Tool_Library_Manager::~CSG_Tool_Library_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *File_Name)
+CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *FileName)
 {
 	//-----------------------------------------------------
-	if( !SG_File_Cmp_Extension(File_Name, SG_T("mlb"  ))
-	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dll"  ))
-	&&	!SG_File_Cmp_Extension(File_Name, SG_T("so"   ))
-	&&	!SG_File_Cmp_Extension(File_Name, SG_T("dylib")) )
+	if( !SG_File_Cmp_Extension(FileName, SG_T("mlb"  ))
+	&&	!SG_File_Cmp_Extension(FileName, SG_T("dll"  ))
+	&&	!SG_File_Cmp_Extension(FileName, SG_T("so"   ))
+	&&	!SG_File_Cmp_Extension(FileName, SG_T("dylib")) )
 	{
-		return( _Add_Tool_Chain(File_Name) );
+		return( _Add_Tool_Chain(FileName) );
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), File_Name), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), FileName), true);
 
-	wxFileName	fn(File_Name);
+	wxFileName	fn(FileName);
 
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -422,7 +422,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *File_Nam
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(File_Name);
+	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(FileName);
 
 	if( pLibrary->is_Valid() )
 	{
@@ -449,30 +449,30 @@ int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnly
 
 	if( Dir.Open(Directory) )
 	{
-		wxString	File_Name;
+		wxString	FileName, DirName(Dir.GetName());
 
-		if( !bOnlySubDirectories && Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_FILES) )
+		if( !bOnlySubDirectories && Dir.GetFirst(&FileName, wxEmptyString, wxDIR_FILES) )
 		{
 			do
-			{	if( File_Name.Find("saga_") < 0 && File_Name.Find("wx") < 0 )
-				if( Add_Library(SG_File_Make_Path(&Dir.GetName(), &File_Name)) )
+			{	if( FileName.Find("saga_") < 0 && FileName.Find("wx") < 0 )
+				if( Add_Library(SG_File_Make_Path(&DirName, &FileName)) )
 				{
 					nOpened++;
 				}
 			}
-			while( Dir.GetNext(&File_Name) );
+			while( Dir.GetNext(&FileName) );
 		}
 
-		if( Dir.GetFirst(&File_Name, wxEmptyString, wxDIR_DIRS) )
+		if( Dir.GetFirst(&FileName, wxEmptyString, wxDIR_DIRS) )
 		{
 			do
 			{
-				if( File_Name.CmpNoCase("dll") )
+				if( FileName.CmpNoCase("dll") )
 				{
-					nOpened	+= Add_Directory(SG_File_Make_Path(&Dir.GetName(), &File_Name), false);
+					nOpened	+= Add_Directory(SG_File_Make_Path(&DirName, &FileName), false);
 				}
 			}
-			while( Dir.GetNext(&File_Name) );
+			while( Dir.GetNext(&FileName) );
 		}
 	}
 
@@ -485,10 +485,10 @@ int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnly
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File_Name)
+CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *FileName)
 {
 	//-----------------------------------------------------
-	if( !SG_File_Cmp_Extension(File_Name, SG_T("xml" )) )
+	if( !SG_File_Cmp_Extension(FileName, SG_T("xml" )) )
 	{
 		return( NULL );
 	}
@@ -499,7 +499,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	//-----------------------------------------------------
 	{	// is tool chain already loaded ?
-		wxFileName	fn(File_Name);
+		wxFileName	fn(FileName);
 
 		for(int iLibrary=0; !pTool && iLibrary<Get_Count(); iLibrary++)
 		{
@@ -519,12 +519,12 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 		if( pTool )	// ...then try to reload !
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
-			CSG_Tool_Chain	Tool(File_Name);	// don't reset loaded tool in case reloading fails!!!
+			CSG_Tool_Chain	Tool(FileName);	// don't reset loaded tool in case reloading fails!!!
 			SG_UI_ProgressAndMsg_Lock(false);
 
 			if( Tool.is_Okay() )
 			{
-				pTool->Create(File_Name);
+				pTool->Create(FileName);
 			}
 
 			return( pLibrary );
@@ -532,7 +532,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 	}
 
 	//-----------------------------------------------------
-	pTool	= new CSG_Tool_Chain(File_Name);
+	pTool	= new CSG_Tool_Chain(FileName);
 
 	if( !pTool || !pTool->is_Okay() )
 	{
@@ -556,7 +556,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 		}
 	}
 
-	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(File_Name))) != NULL )
+	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(FileName))) != NULL )
 	{
 		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary;
@@ -564,7 +564,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	if( !pLibrary )	// this should never happen, but who knows...
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("ERROR"), _TL("tool chain library"), File_Name));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("ERROR"), _TL("tool chain library"), FileName));
 
 		delete(pTool);
 

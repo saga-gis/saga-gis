@@ -424,13 +424,17 @@ void CSG_Projection::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Projection::Load(const CSG_String &FileName, TSG_Projection_Format Format)
 {
-	return( Load(CSG_File(FileName, SG_FILE_R, false), Format) );
+	CSG_File	Stream(FileName, SG_FILE_R, false);
+
+	return( Load(Stream, Format) );
 }
 
 //---------------------------------------------------------
 bool CSG_Projection::Save(const CSG_String &FileName, TSG_Projection_Format Format) const
 {
-	return( is_Okay() && Save(CSG_File(FileName, SG_FILE_W, false), Format) );
+	CSG_File	Stream(FileName, SG_FILE_W, false);
+
+	return( is_Okay() && Save(Stream, Format) );
 }
 
 //---------------------------------------------------------
