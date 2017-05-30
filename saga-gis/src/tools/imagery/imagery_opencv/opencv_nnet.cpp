@@ -392,7 +392,7 @@ bool COpenCV_NNet::On_Execute(void)
 	else
 	{
 		// TODO: Add some grid validation logic
-		i_trainFeatTotalCount = gl_TrainInputs->Get_Count();
+		i_trainFeatTotalCount = gl_TrainInputs->Get_Data_Count();
 		i_outputFeatureCount = s_TrainInputAreas->Get_Count();
 
 		// Convert the data from the grid into the matrix from
@@ -539,7 +539,7 @@ bool COpenCV_NNet::On_Execute(void)
 		{
 			for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 			{
-				for(i_Grid=0, b_NoData=false; i_Grid<gl_TrainInputs->Get_Count() && !b_NoData; i_Grid++)
+				for(i_Grid=0, b_NoData=false; i_Grid<gl_TrainInputs->Get_Data_Count() && !b_NoData; i_Grid++)
 				{
 					// If there is one grid that has no data in this point p, then set the no data flag
 					if( gl_TrainInputs->Get_Grid(i_Grid)->is_NoData(x, y) )
@@ -727,7 +727,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 	t_data = new CSG_Table();
 	
 	// We need a column for each grid and the output lable
-	for (int i = 0; i < gl_grids->Get_Count(); i++)
+	for (int i = 0; i < gl_grids->Get_Data_Count(); i++)
 	{
 		t_data->Add_Field(CSG_String::Format(SG_T("GRID_%d"), i), SG_DATATYPE_Float, i); 
 	}
@@ -737,7 +737,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Count() && !b_NoData; i_Grid++)
+			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Data_Count() && !b_NoData; i_Grid++)
 			{
 				// If there is one grid that has no data in this point p, then set the no data flag
 				if( gl_grids->Get_Grid(i_Grid)->is_NoData(x, y) )
@@ -750,7 +750,7 @@ CvMat* COpenCV_NNet::GetEvalMatrix(CSG_Parameter_Grid_List *gl_grids, int type)
 			{
 				// We have data in all grids, so lets add them to the eval data table
 				tr_rec = t_data->Add_Record();
-				for(i_Grid=0; i_Grid<gl_grids->Get_Count(); i_Grid++)
+				for(i_Grid=0; i_Grid<gl_grids->Get_Data_Count(); i_Grid++)
 				{
 					tr_rec->Set_Value(i_Grid, (float) gl_grids->Get_Grid(i_Grid)->asFloat(x, y));
 				}				
@@ -862,12 +862,12 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	t_data = new CSG_Table();
 	
 	// We need a column for each grid and the output lable
-	for (int i = 0; i < gl_grids->Get_Count(); i++)
+	for (int i = 0; i < gl_grids->Get_Data_Count(); i++)
 	{
 		t_data->Add_Field(CSG_String::Format(SG_T("GRID_%d"), i), SG_DATATYPE_Float, i); 
 	}
 
-	t_data->Add_Field("CLASS", SG_DATATYPE_String, gl_grids->Get_Count());
+	t_data->Add_Field("CLASS", SG_DATATYPE_String, gl_grids->Get_Data_Count());
 
 
 	// Traverse all grids, every point
@@ -875,7 +875,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	{
 		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
 		{
-			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Count() && !b_NoData; i_Grid++)
+			for(i_Grid=0, b_NoData=false; i_Grid<gl_grids->Get_Data_Count() && !b_NoData; i_Grid++)
 			{
 				// If there is one grid that has no data in this point p, then set the no data flag
 				if( gl_grids->Get_Grid(i_Grid)->is_NoData(x, y) )
@@ -905,11 +905,11 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 					if (sp_inputArea->Contains(p))
 					{
 						tr_rec = t_data->Add_Record();
-						for(i_Grid=0; i_Grid<gl_grids->Get_Count(); i_Grid++)
+						for(i_Grid=0; i_Grid<gl_grids->Get_Data_Count(); i_Grid++)
 						{
 							tr_rec->Set_Value(i_Grid, (float) gl_grids->Get_Grid(i_Grid)->asFloat(x, y));
 						}
-						tr_rec->Set_Value(gl_grids->Get_Count(), sp_inputArea->asString(i_classId));
+						tr_rec->Set_Value(gl_grids->Get_Data_Count(), sp_inputArea->asString(i_classId));
 					}
 				}
 			}
@@ -917,14 +917,14 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	}
 
 	// Now that we have got all values in t_data for all points and the classes let's create the mats
-	mat_trainData = cvCreateMat(t_data->Get_Count(), gl_grids->Get_Count(), type);
+	mat_trainData = cvCreateMat(t_data->Get_Count(), gl_grids->Get_Data_Count(), type);
 
 	// Extract only the train data from the table
 	for(int i=0; i<t_data->Get_Count(); i++)
 	{
 		tr_rec = t_data->Get_Record(i);
 
-		for(int j=0; j<gl_grids->Get_Count(); j++)
+		for(int j=0; j<gl_grids->Get_Data_Count(); j++)
 		{
 			d_value = tr_rec->Get_Value(j)->asDouble();
 			cvSetReal2D(mat_trainData, i, j, (float)d_value);
@@ -937,7 +937,7 @@ CvMat** COpenCV_NNet::GetTrainAndOutputMatrix(CSG_Parameter_Grid_List *gl_grids,
 	for(int i=0; i<t_data->Get_Count(); i++)
 	{
 		tr_rec = t_data->Get_Record(i);
-		s_class = tr_rec->Get_Value(gl_grids->Get_Count())->asString();
+		s_class = tr_rec->Get_Value(gl_grids->Get_Data_Count())->asString();
 
 		v_outVec = GetClassVectorByName(s_areas, s_class, i_classId);
 
