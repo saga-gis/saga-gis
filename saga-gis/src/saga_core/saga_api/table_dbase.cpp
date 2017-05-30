@@ -69,6 +69,7 @@
 #include "api_core.h"
 #include "table_dbase.h"
 #include "table.h"
+#include "datetime.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -800,12 +801,10 @@ bool CSG_Table_DBase::Set_Value(int iField, double Value)
 		}
 
 		if( m_Fields[iField].Type == DBF_FT_DATE )
-		{
-			int		y	= (int)(Value / 10000);	Value	-= y * 10000;
-			int		m	= (int)(Value / 100);	Value	-= m * 100;
-			int		d	= (int)(Value / 1);
+		{	// Value is expected to be Julian Day Number
+			CSG_DateTime	d(Value);
 
-			sprintf(s, "%04d%02d%02d", y, m, d);
+			sprintf(s, "%04d-%02d-%02d", d.Get_Year(), 1 + (int)d.Get_Month(), 1 + d.Get_Day());
 
 			return( Set_Value(iField, s) );
 		}

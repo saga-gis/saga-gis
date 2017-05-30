@@ -774,7 +774,7 @@ double CSG_Parameter_Date::asDouble(void)	const
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Date::asString(void)
 {
-	m_String	= m_Date.Format_Date();
+	m_String	= m_Date.Format_ISODate();
 
 	return( m_String );
 }
