@@ -97,7 +97,7 @@ CSG_String	CRS_Get_UTM_Proj4	(int Zone, bool bSouth)
 		
 	if( bSouth )
 	{
-		s	+= "+south";
+		s	+= " +south";
 	}
 
 	return( s );
