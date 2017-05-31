@@ -408,6 +408,20 @@ CSG_Parameter * CSG_Parameters::Add_Choice(const CSG_String &ParentID, const CSG
 }
 
 //---------------------------------------------------------
+CSG_Parameter * CSG_Parameters::Add_Choices(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items)
+{
+	CSG_Parameter			*pParameter;
+	CSG_Parameter_Choices	*m_pData;
+
+	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Choices, 0);
+
+	m_pData		= (CSG_Parameter_Choices *)pParameter->m_pData;
+	m_pData->Set_Items(Items);
+
+	return( pParameter );
+}
+
+//---------------------------------------------------------
 CSG_Parameter * CSG_Parameters::Add_String(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText, bool bPassword)
 {
 	return( _Add_String(ParentID, ID, Name, Description, false, String, bLongText, bPassword) );

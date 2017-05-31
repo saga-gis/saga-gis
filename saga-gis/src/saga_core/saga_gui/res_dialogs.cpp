@@ -80,6 +80,7 @@
 #include "dlg_parameters.h"
 #include "dlg_text.h"
 #include "dlg_table.h"
+#include "dlg_choices.h"
 #include "dlg_list.h"
 #include "dlg_colors.h"
 
@@ -636,6 +637,14 @@ bool		DLG_Table_Fields(const wxString &Caption, CSG_Parameter_Table_Fields *pFie
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool		DLG_Choices(const wxString &Caption, CSG_Parameter_Choices *pChoices)
+{
+	CDLG_Choices	dlg(pChoices, Caption);
+
+	return( dlg.ShowModal() == wxID_OK );
 }
 
 //---------------------------------------------------------

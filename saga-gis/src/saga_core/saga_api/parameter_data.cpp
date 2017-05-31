@@ -98,6 +98,7 @@ CSG_String SG_Parameter_Type_Get_Name(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Date             :	return( _TL("Date"            ) );
 	case PARAMETER_TYPE_Range            :	return( _TL("Value range"     ) );
 	case PARAMETER_TYPE_Choice           :	return( _TL("Choice"          ) );
+	case PARAMETER_TYPE_Choices          :	return( _TL("Choices"         ) );
 
 	case PARAMETER_TYPE_String           :	return( _TL("Text"            ) );
 	case PARAMETER_TYPE_Text             :	return( _TL("Long text"       ) );
@@ -146,6 +147,7 @@ CSG_String SG_Parameter_Type_Get_Identifier(TSG_Parameter_Type Type)
 	case PARAMETER_TYPE_Date             :	return( "date"         );
 	case PARAMETER_TYPE_Range            :	return( "range"        );
 	case PARAMETER_TYPE_Choice           :	return( "choice"       );
+	case PARAMETER_TYPE_Choices          :	return( "choices"      );
 
 	case PARAMETER_TYPE_String           :	return( "text"         );
 	case PARAMETER_TYPE_Text             :	return( "long_text"    );
@@ -189,6 +191,7 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 	if( !Identifier.Cmp("date"        ) )	{	return( PARAMETER_TYPE_Date             );	}
 	if( !Identifier.Cmp("range"       ) )	{	return( PARAMETER_TYPE_Range            );	}
 	if( !Identifier.Cmp("choice"      ) )	{	return( PARAMETER_TYPE_Choice           );	}
+	if( !Identifier.Cmp("choices"     ) )	{	return( PARAMETER_TYPE_Choices          );	}
 
 	if( !Identifier.Cmp("text"        ) )	{	return( PARAMETER_TYPE_String           );	}
 	if( !Identifier.Cmp("long_text"   ) )	{	return( PARAMETER_TYPE_Text             );	}
@@ -1135,6 +1138,170 @@ bool CSG_Parameter_Choice::On_Serialize(CSG_MetaData &Entry, bool bSave)
 		int	Index;
 
 		return( (Entry.Get_Property("index", Index) || Entry.Get_Content().asInt(Index)) && CSG_Parameter_Int::Set_Value(Index) );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//						Choice							 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Parameter_Choices::CSG_Parameter_Choices(CSG_Parameter *pOwner, long Constraint)
+	: CSG_Parameter_Data(pOwner, Constraint)
+{}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choices::Set_Value(const CSG_String &Value)
+{
+	CSG_String_Tokenizer	Tokens(Value, ";");
+
+	m_Selection.Destroy();
+
+	while( Tokens.Has_More_Tokens() )
+	{
+		int	Index;
+
+		if( Tokens.Get_Next_Token().asInt(Index) )
+		{
+			Select(Index);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+const SG_Char * CSG_Parameter_Choices::asString(void)
+{
+	m_String.Clear();
+
+	for(size_t i=0; i<m_Selection.Get_Size(); i++)
+	{
+		m_String	+= CSG_String::Format("%d;", m_Selection[i]);
+	}
+
+	return( m_String );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choices::Set_Items(const CSG_String &Items)
+{
+	Del_Items();
+
+	CSG_String_Tokenizer	Tokens(Items, "|");
+
+	while( Tokens.Has_More_Tokens() )
+	{
+		Add_Item(Tokens.Get_Next_Token());
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choices::Set_Items(const CSG_Strings &Items)
+{
+	Del_Items();
+
+	for(int i=0; i<Items.Get_Count(); i++)
+	{
+		Add_Item(Items[i]);
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choices::Del_Items(void)
+{
+	m_Items[0].Clear();
+	m_Items[1].Clear();
+
+	m_Selection.Destroy();
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choices::Add_Item(const CSG_String &Item, const CSG_String &Data)
+{
+	m_Items[0]	+= Item;
+	m_Items[1]	+= Data;
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choices::is_Selected(int Index)
+{
+	for(size_t i=0; i<m_Selection.Get_Size(); i++)
+	{
+		if( Index == m_Selection[i] )
+		{
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choices::Select(int Index, bool bSelect)
+{
+	if( Index >= 0 && Index < Get_Item_Count() )
+	{
+		if( bSelect && !is_Selected(Index) )
+		{
+			m_Selection	+= Index;
+		}
+		else if( !bSelect )
+		{
+			for(size_t i=0; i<m_Selection.Get_Size(); i++)
+			{
+				if( Index == m_Selection[i] )
+				{
+					for(size_t j=i+1; j<m_Selection.Get_Size(); i++, j++)
+					{
+						m_Selection[i]	= m_Selection[j];
+					}
+
+					m_Selection.Dec_Array();
+				}
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choices::Clr_Selection(void)
+{
+	m_Selection.Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choices::On_Assign(CSG_Parameter_Data *pSource)
+{
+	m_Items[0]	= ((CSG_Parameter_Choices *)pSource)->m_Items[0];
+	m_Items[1]	= ((CSG_Parameter_Choices *)pSource)->m_Items[1];
+
+	m_Selection	= ((CSG_Parameter_Choices *)pSource)->m_Selection;
+
+	CSG_Parameter_Data::On_Assign(pSource);
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter_Choices::On_Serialize(CSG_MetaData &Entry, bool bSave)
+{
+	if( bSave )
+	{
+		Entry.Set_Content(asString());
+
+		return( true );
+	}
+	else
+	{
+		return( Set_Value(Entry.Get_Content()) );
 	}
 }
 

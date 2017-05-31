@@ -714,6 +714,7 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 	case PARAMETER_TYPE_String  :
 	case PARAMETER_TYPE_Text    :
 	case PARAMETER_TYPE_FilePath:
+	case PARAMETER_TYPE_Choices :
 		return( pConfig->Read(Entry, &s) && pParameter->Set_Value((const SG_Char *)s) );
 
 	case PARAMETER_TYPE_Range   :
@@ -777,6 +778,7 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 		case PARAMETER_TYPE_String  :
 		case PARAMETER_TYPE_Text    :
 		case PARAMETER_TYPE_FilePath:
+		case PARAMETER_TYPE_Choices :
 			return( pConfig->Write(Entry, pParameter->asString()) );
 
 		case PARAMETER_TYPE_Range   :

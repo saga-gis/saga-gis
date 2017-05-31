@@ -144,14 +144,14 @@ wxString CWKSP_PointCloud::Get_Description(void)
 	DESC_ADD_INT(_TL("Number of Points"), Get_PointCloud()->Get_Count());
 	DESC_ADD_SIZET(_TL("Selected"      ), Get_PointCloud()->Get_Selection_Count());
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	s	+= Get_TableInfo_asHTML(Get_PointCloud());
 
 	//-----------------------------------------------------
-//	s	+= wxString::Format(wxT("<hr><b>%s</b><font size=\"-1\">"), _TL("Data History"));
+//	s	+= wxString::Format("<hr><b>%s</b><font size=\"-1\">", _TL("Data History"));
 //	s	+= Get_PointCloud()->Get_History().Get_HTML();
-//	s	+= wxString::Format(wxT("</font"));
+//	s	+= wxString::Format("</font");
 
 	//-----------------------------------------------------
 	return( s );
@@ -534,12 +534,12 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 
 		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format(wxT("%s|"), Get_PointCloud()->Get_Field_Name(i)));
+			s.Append(wxString::Format("%s|", Get_PointCloud()->Get_Field_Name(i)));
 		}
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format(wxT("%s|"), _TL("<none>")));
+			s.Append(wxString::Format("%s|", _TL("<none>")));
 		}
 
 		pFields->asChoice()->Set_Items(s);
@@ -784,12 +784,12 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 			case CLASSIFY_RGB:
 				double	Value = pShape->asDouble(m_fValue);
-				return( wxString::Format(wxT("R%03d G%03d B%03d"), SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
+				return( wxString::Format("R%03d G%03d B%03d", SG_GET_R((int)Value), SG_GET_G((int)Value), SG_GET_B((int)Value)) );
 			}
 		}
 		else
 		{
-			return( wxString::Format(wxT("%s: %d"), _TL("Index"), pShape->Get_Index() + 1) );
+			return( wxString::Format("%s: %d", _TL("Index"), pShape->Get_Index() + 1) );
 		}
 	}
 

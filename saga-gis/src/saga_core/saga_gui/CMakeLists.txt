@@ -19,6 +19,7 @@ set(SAGA_GUI_SOURCES
 	dlg_about.cpp
 	dlg_about_logo.cpp
 	dlg_base.cpp
+	dlg_choices.cpp
 	dlg_colors.cpp
 	dlg_colors_control.cpp
 	dlg_list.cpp
@@ -114,6 +115,7 @@ set(SAGA_GUI_SOURCES
 	dlg_about.h
 	dlg_about_logo.h
 	dlg_base.h
+	dlg_choices.h
 	dlg_colors.h
 	dlg_colors_control.h
 	dlg_list.h

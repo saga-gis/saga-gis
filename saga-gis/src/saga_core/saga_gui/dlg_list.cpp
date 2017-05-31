@@ -124,14 +124,14 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
+CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pParameter, wxString Caption)
 	: CDLG_Base(-1, Caption)
 {
-	m_pList			= pList;
+	m_pParameter	= pParameter;
 	m_Type			= SG_DATAOBJECT_TYPE_Undefined;
 
-	m_pSelect		= new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
-	m_pAdd			= new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pChoices		= new wxListBox(this, ID_LISTBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
+	m_pSelection	= new wxListBox(this, ID_LISTBOX_ADD   , wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_EXTENDED|wxLB_NEEDED_SB);
 
 	m_pBtn_Add_All	= new wxButton (this, ID_BTN_ADD_ALL   , ">>");
 	m_pBtn_Add		= new wxButton (this, ID_BTN_ADD       , ">" );
@@ -140,20 +140,20 @@ CDLG_List_Base::CDLG_List_Base(CSG_Parameter_List *pList, wxString Caption)
 	m_pBtn_Up		= new wxButton (this, ID_BTN_UP        , CTRL_Get_Name(ID_BTN_UP));
 	m_pBtn_Down		= new wxButton (this, ID_BTN_DOWN      , CTRL_Get_Name(ID_BTN_DOWN));
 
-	m_btn_height	= m_pBtn_Add->GetDefaultSize().y;
+	m_Btn_Height	= m_pBtn_Add->GetDefaultSize().y;
 
 	//-----------------------------------------------------
-	for(int i=m_pList->Get_Item_Count()-1; i>=0; i--)
+	for(int i=m_pParameter->Get_Item_Count()-1; i>=0; i--)
 	{
-		CWKSP_Data_Item	*pItem	= g_pData->Get(m_pList->Get_Item(i));
+		CWKSP_Data_Item	*pItem	= g_pData->Get(m_pParameter->Get_Item(i));
 
-		if( pItem && SG_Get_Data_Manager().Exists(m_pList->Get_Item(i)) )
+		if( pItem && SG_Get_Data_Manager().Exists(m_pParameter->Get_Item(i)) )
 		{
-			m_pAdd->Insert(pItem->Get_Name(), 0, (void *)m_pList->Get_Item(i));
+			m_pSelection->Insert(pItem->Get_Name(), 0, (void *)m_pParameter->Get_Item(i));
 		}
 		else
 		{
-			m_pList->Del_Item(i);
+			m_pParameter->Del_Item(i);
 		}
 	}
 
@@ -174,12 +174,12 @@ void CDLG_List_Base::Set_Position(wxRect r)
 	int	Center	= r.GetLeft() + r.GetWidth() / 2;
 
 	r.SetWidth(r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST));
-	m_pSelect->SetSize(r);
+	m_pChoices->SetSize(r);
 
 	r.SetLeft(Center            + (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST));
-	m_pAdd->SetSize(r);
+	m_pSelection->SetSize(r);
 
-	r		= wxRect(Center - DLG_LIST_BTN_WIDTH / 2, r.GetTop(), DLG_LIST_BTN_WIDTH, m_btn_height);
+	r		= wxRect(Center - DLG_LIST_BTN_WIDTH / 2, r.GetTop(), DLG_LIST_BTN_WIDTH, m_Btn_Height);
 	m_pBtn_Add_All->SetSize(r);
 
 	r.SetTop(r.GetBottom() + DLG_LIST_BTN_DIST);
@@ -214,9 +214,9 @@ void CDLG_List_Base::Set_Data(CWKSP_Base_Manager *pManager)
 
 			if( m_Type == SG_DATAOBJECT_TYPE_Undefined || m_Type == pItem->Get_Object()->Get_ObjectType() )
 			{
-				for(size_t j=0; j<m_pAdd->GetCount() && pItem; j++)
+				for(size_t j=0; j<m_pSelection->GetCount() && pItem; j++)
 				{
-					if( pItem->Get_Object() == m_pAdd->GetClientData(j) )
+					if( pItem->Get_Object() == m_pSelection->GetClientData(j) )
 					{
 						pItem	= NULL;
 					}
@@ -224,7 +224,7 @@ void CDLG_List_Base::Set_Data(CWKSP_Base_Manager *pManager)
 
 				if( pItem )
 				{
-					m_pSelect->Append(pItem->Get_Name(), (void *)pItem->Get_Object());
+					m_pChoices->Append(pItem->Get_Name(), (void *)pItem->Get_Object());
 				}
 			}
 		}
@@ -234,11 +234,11 @@ void CDLG_List_Base::Set_Data(CWKSP_Base_Manager *pManager)
 //---------------------------------------------------------
 void CDLG_List_Base::Save_Changes(void)
 {
-	m_pList->Del_Items();
+	m_pParameter->Del_Items();
 
-	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
+	for(unsigned int i=0; i<m_pSelection->GetCount(); i++)
 	{
-		m_pList->Add_Item((CSG_Data_Object *)m_pAdd->GetClientData(i));
+		m_pParameter->Add_Item((CSG_Data_Object *)m_pSelection->GetClientData(i));
 	}
 }
 
@@ -248,13 +248,13 @@ void CDLG_List_Base::Save_Changes(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int ArrayInt_CMP_Up(int *first, int *second)
+int CDLG_List_Base::_Compare_Up(int *first, int *second)
 {
 	return( *first - *second );
 }
 
 //---------------------------------------------------------
-int ArrayInt_CMP_Down(int *first, int *second)
+int CDLG_List_Base::_Compare_Down(int *first, int *second)
 {
 	return( *second - *first );
 }
@@ -274,28 +274,28 @@ void CDLG_List_Base::_Del(void)
 {
 	wxArrayInt	Selections;
 
-	if( m_pAdd->GetSelections(Selections) > 0 )
+	if( m_pSelection->GetSelections(Selections) > 0 )
 	{
-		Selections.Sort(ArrayInt_CMP_Down);
+		Selections.Sort(_Compare_Down);
 
 		for(size_t i=0; i<Selections.GetCount(); i++)
 		{
 			size_t	j	= Selections.Item(i);
 
-			m_pSelect->Append(m_pAdd->GetString(j), m_pAdd->GetClientData(j));
-			m_pAdd->Delete(j);
+			m_pChoices->Append(m_pSelection->GetString(j), m_pSelection->GetClientData(j));
+			m_pSelection->Delete(j);
 		}
 	}
 }
 
 void CDLG_List_Base::On_Del_All(wxCommandEvent &event)
 {
-	for(unsigned int i=0; i<m_pAdd->GetCount(); i++)
+	for(unsigned int i=0; i<m_pSelection->GetCount(); i++)
 	{
-		m_pSelect->Append(m_pAdd->GetString(i), m_pAdd->GetClientData(i));
+		m_pChoices->Append(m_pSelection->GetString(i), m_pSelection->GetClientData(i));
 	}
 
-	m_pAdd->Clear();
+	m_pSelection->Clear();
 }
 
 //---------------------------------------------------------
@@ -313,28 +313,28 @@ void CDLG_List_Base::_Add(void)
 {
 	wxArrayInt	Selections;
 
-	if( m_pSelect->GetSelections(Selections) > 0 )
+	if( m_pChoices->GetSelections(Selections) > 0 )
 	{
-		Selections.Sort(ArrayInt_CMP_Down);
+		Selections.Sort(_Compare_Down);
 
-		for(size_t i=0, Position=m_pAdd->GetCount(); i<Selections.GetCount(); i++)
+		for(size_t i=0, Position=m_pSelection->GetCount(); i<Selections.GetCount(); i++)
 		{
 			size_t	j	= Selections.Item(i);
 
-			m_pAdd->Insert(m_pSelect->GetString(j), Position, m_pSelect->GetClientData(j));
-			m_pSelect->Delete(j);
+			m_pSelection->Insert(m_pChoices->GetString(j), Position, m_pChoices->GetClientData(j));
+			m_pChoices->Delete(j);
 		}
 	}
 }
 
 void CDLG_List_Base::On_Add_All(wxCommandEvent &event)
 {
-	for(unsigned int i=0; i<m_pSelect->GetCount(); i++)
+	for(unsigned int i=0; i<m_pChoices->GetCount(); i++)
 	{
-		m_pAdd->Append(m_pSelect->GetString(i), m_pSelect->GetClientData(i));
+		m_pSelection->Append(m_pChoices->GetString(i), m_pChoices->GetClientData(i));
 	}
 
-	m_pSelect->Clear();
+	m_pChoices->Clear();
 }
 
 
@@ -347,9 +347,9 @@ void CDLG_List_Base::On_Up(wxCommandEvent &event)
 {
 	wxArrayInt	Selections;
 
-	if( m_pAdd->GetSelections(Selections) > 0 && Selections.GetCount() < m_pAdd->GetCount() )
+	if( m_pSelection->GetSelections(Selections) > 0 && Selections.GetCount() < m_pSelection->GetCount() )
 	{
-		Selections.Sort(ArrayInt_CMP_Up);
+		Selections.Sort(_Compare_Up);
 
 		if( Selections.Item(0) > 0 )
 		{
@@ -357,16 +357,16 @@ void CDLG_List_Base::On_Up(wxCommandEvent &event)
 			{
 				size_t	j	= Selections.Item(i);
 
-				wxString	String	= m_pAdd->GetString    (j);
-				void		*pData	= m_pAdd->GetClientData(j);
+				wxString	String	= m_pSelection->GetString    (j);
+				void		*pData	= m_pSelection->GetClientData(j);
 
-				m_pAdd->SetString    (j    , m_pAdd->GetString    (j - 1));
-				m_pAdd->SetClientData(j    , m_pAdd->GetClientData(j - 1));
-				m_pAdd->SetSelection (j    , m_pAdd->IsSelected   (j - 1));
+				m_pSelection->SetString    (j    , m_pSelection->GetString    (j - 1));
+				m_pSelection->SetClientData(j    , m_pSelection->GetClientData(j - 1));
+				m_pSelection->SetSelection (j    , m_pSelection->IsSelected   (j - 1));
 
-				m_pAdd->SetString    (j - 1, String);
-				m_pAdd->SetClientData(j - 1, pData);
-				m_pAdd->SetSelection (j - 1, true);
+				m_pSelection->SetString    (j - 1, String);
+				m_pSelection->SetClientData(j - 1, pData);
+				m_pSelection->SetSelection (j - 1, true);
 			}
 		}
 	}
@@ -377,26 +377,26 @@ void CDLG_List_Base::On_Down(wxCommandEvent &event)
 {
 	wxArrayInt	Selections;
 
-	if( m_pAdd->GetSelections(Selections) > 0 && Selections.GetCount() < m_pAdd->GetCount() )
+	if( m_pSelection->GetSelections(Selections) > 0 && Selections.GetCount() < m_pSelection->GetCount() )
 	{
-		Selections.Sort(ArrayInt_CMP_Down);
+		Selections.Sort(_Compare_Down);
 
-		if( (int)Selections.Item(0) < m_pAdd->GetCount() - 1 )
+		if( (int)Selections.Item(0) < m_pSelection->GetCount() - 1 )
 		{
 			for(size_t i=0; i<Selections.GetCount(); i++)
 			{
 				size_t	j	= Selections.Item(i);
 
-				wxString	String	= m_pAdd->GetString(j);
-				void		*pData	= m_pAdd->GetClientData(j);
+				wxString	String	= m_pSelection->GetString(j);
+				void		*pData	= m_pSelection->GetClientData(j);
 
-				m_pAdd->SetString    (j    , m_pAdd->GetString    (j + 1));
-				m_pAdd->SetClientData(j    , m_pAdd->GetClientData(j + 1));
-				m_pAdd->SetSelection (j    , m_pAdd->IsSelected   (j + 1));
+				m_pSelection->SetString    (j    , m_pSelection->GetString    (j + 1));
+				m_pSelection->SetClientData(j    , m_pSelection->GetClientData(j + 1));
+				m_pSelection->SetSelection (j    , m_pSelection->IsSelected   (j + 1));
 
-				m_pAdd->SetString    (j + 1, String);
-				m_pAdd->SetClientData(j + 1, pData);
-				m_pAdd->SetSelection (j + 1, true);
+				m_pSelection->SetString    (j + 1, String);
+				m_pSelection->SetClientData(j + 1, pData);
+				m_pSelection->SetSelection (j + 1, true);
 			}
 		}
 	}
@@ -536,7 +536,7 @@ void CDLG_List_Grid_Base::Set_Position(wxRect r)
 		int	Width	= r.GetWidth() / 2 - (DLG_LIST_BTN_WIDTH / 2 + DLG_LIST_BTN_DIST);
 
 		m_pSystems	->SetSize(r.GetLeft(), r.GetTop()         , Width,                 Height);
-		m_pSelect	->SetSize(r.GetLeft(), r.GetTop() + Height, Width, r.GetHeight() - Height);
+		m_pChoices	->SetSize(r.GetLeft(), r.GetTop() + Height, Width, r.GetHeight() - Height);
 	}
 }
 
@@ -549,7 +549,7 @@ void CDLG_List_Grid_Base::On_Select_System(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_List_Grid_Base::_Set_Data(void)
 {
-	m_pSelect->Clear();
+	m_pChoices->Clear();
 
 	if( m_pSystem )
 	{

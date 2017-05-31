@@ -1177,6 +1177,18 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 		break;
 
 	//-----------------------------------------------------
+	case PARAMETER_TYPE_Choices:
+		{
+			CSG_MetaData	*pChild	= pItem->Add_Child(SG_XML_PARAM_LIST);
+
+			for(int i=0; i<pParameter->asChoices()->Get_Item_Count(); i++)
+			{
+				pChild->Add_Child(SG_XML_PARAM_ITEM, pParameter->asChoices()->Get_Item(i));
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
 	case PARAMETER_TYPE_FixedTable:
 		{
 			CSG_MetaData	*pChild	= pItem->Add_Child(SG_XML_PARAM_TABLE);

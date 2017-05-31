@@ -1466,9 +1466,10 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 							case PARAMETER_TYPE_Table_Field:
 							case PARAMETER_TYPE_Choice     :	Parameter.Set_Value(0.0);	break;
 
+							case PARAMETER_TYPE_Choices    :
 							case PARAMETER_TYPE_String     :
 							case PARAMETER_TYPE_Text       :
-							case PARAMETER_TYPE_FilePath   :	Parameter.Set_Value(CSG_String(""));	break;
+							case PARAMETER_TYPE_FilePath   :	Parameter.Set_Value("");	break;
 							}
 						}
 					}

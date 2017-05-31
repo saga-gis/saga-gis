@@ -757,6 +757,7 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_String      :
 		case PARAMETER_TYPE_Text        :
 		case PARAMETER_TYPE_FilePath    :
+		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Field :
 		case PARAMETER_TYPE_Table_Fields:
 			pChild	= Tool.Add_Child("option", p->asString());
@@ -836,6 +837,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			Command	+= CSG_String::Format(" -%s=%d", GET_ID1(p), p->asInt());
 			break;
 
+		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Fields:
 			if( p->asString() && *p->asString() )
 				Command	+= CSG_String::Format(" -%s=%s", GET_ID1(p), p->asString());
@@ -939,6 +941,7 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asInt());
 			break;
 
+		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Fields:
 			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
 			break;

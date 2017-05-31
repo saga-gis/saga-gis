@@ -127,6 +127,7 @@ typedef enum ESG_Parameter_Type
 
 	PARAMETER_TYPE_Range,
 	PARAMETER_TYPE_Choice,
+	PARAMETER_TYPE_Choices,
 
 	PARAMETER_TYPE_String,
 	PARAMETER_TYPE_Text,
@@ -552,6 +553,55 @@ public:
 protected:
 
 	CSG_Strings					m_Items;
+
+
+	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameter_Choices : public CSG_Parameter_Data
+{
+public:
+	CSG_Parameter_Choices(CSG_Parameter *pOwner, long Constraint);
+	virtual ~CSG_Parameter_Choices(void)	{}
+
+	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choices );	}
+
+	virtual bool				Set_Value				(const CSG_String &Value);
+
+	virtual const SG_Char *		asString				(void);
+
+	void						Set_Items				(const CSG_String  &Items);
+	void						Set_Items				(const CSG_Strings &Items);
+	void						Del_Items				(void);
+	void						Add_Item				(const CSG_String &Item, const CSG_String &Data = "");
+
+	int							Get_Item_Count			(void)	const	{	return( m_Items[0].Get_Count() );	}
+	const CSG_String &			Get_Item				(int i)	const	{	return( m_Items[0][i] );	}
+	const CSG_String &			Get_Item_Data			(int i)	const	{	return( m_Items[1][i] );	}
+
+	int							Get_Selection_Count		(void)	const	{	return( (int)m_Selection.Get_Size() );	}
+	const CSG_String &			Get_Selection			(int i)	const	{	return( Get_Item     (Get_Selection_Index(i)) );	}
+	const CSG_String &			Get_Selection_Data		(int i)	const	{	return( Get_Item_Data(Get_Selection_Index(i)) );	}
+	int							Get_Selection_Index		(int i)	const	{	return( i >= 0 && i < Get_Selection_Count() ? m_Selection[i] : -1 );	}
+
+	bool						is_Selected				(int Index);
+	bool						Select					(int Index, bool bSelect = true);
+	bool						Clr_Selection			(void);
+
+
+protected:
+
+	CSG_Strings					m_Items[2];
+	
+	CSG_Array_Int				m_Selection;
 
 
 	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
@@ -1433,6 +1483,7 @@ public:
 	CSG_Parameter_Value *			asValue					(void)	const	{	return( (CSG_Parameter_Value           *)m_pData );	}
 	CSG_Parameter_Date *			asDate					(void)	const	{	return( (CSG_Parameter_Date            *)m_pData );	}
 	CSG_Parameter_Choice *			asChoice				(void)	const	{	return( (CSG_Parameter_Choice          *)m_pData );	}
+	CSG_Parameter_Choices *			asChoices				(void)	const	{	return( (CSG_Parameter_Choices         *)m_pData );	}
 	CSG_Parameter_Range *			asRange					(void)	const	{	return( (CSG_Parameter_Range           *)m_pData );	}
 	CSG_Parameter_File_Name *		asFilePath				(void)	const	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
 	CSG_Parameter_Table_Fields *	asTableFields			(void)	const	{	return( (CSG_Parameter_Table_Fields    *)m_pData );	}
@@ -1569,6 +1620,7 @@ public:
 	CSG_Parameter *				Add_Info_Range			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Range_Min = 0.0, double Range_Max = 0.0);
 
 	CSG_Parameter *				Add_Choice				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items, int Default = 0);
+	CSG_Parameter *				Add_Choices				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &Items);
 
 	CSG_Parameter *				Add_String				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText = false, bool bPassword = false);
 	CSG_Parameter *				Add_Info_String			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, const CSG_String &String, bool bLongText = false);

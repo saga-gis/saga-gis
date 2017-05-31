@@ -560,41 +560,23 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 
 	switch( pParameter->Get_Type() )
 	{
-	case PARAMETER_TYPE_Node:	default:
+	default:
 		if( pParameter->Get_Children_Count() > 0 )
 		{
-			if( pParameter->Get_Parent() == NULL || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
-				pProperty	= new wxPropertyCategory	(Name, ID);
+			if( !pParameter->Get_Parent() || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
+				pProperty	= new wxPropertyCategory(Name, ID);
 			else
-				pProperty	= new wxStringProperty		(Name, ID, wxT(""));
+				pProperty	= new wxStringProperty	(Name, ID, wxT(""));
 		}
 		break;
 
-	case PARAMETER_TYPE_Bool:
-		pProperty	= new wxBoolProperty		(Name, ID, pParameter->asBool());
-		break;
-
-	case PARAMETER_TYPE_Int:
-		pProperty	= new wxIntProperty			(Name, ID, pParameter->asInt());
-		break;
-
-	case PARAMETER_TYPE_Double:
-		pProperty	= new wxFloatProperty		(Name, ID, pParameter->asDouble());
-		break;
-
-	case PARAMETER_TYPE_Range:
-		pProperty	= new CParameters_PG_Range	(Name, ID, pParameter);
-		break;
-
-	case PARAMETER_TYPE_Degree:
-		pProperty	= new CParameters_PG_Degree	(Name, ID, pParameter);
-		break;
-
-	case PARAMETER_TYPE_Date:
-		pProperty	= new wxDateProperty		(Name, ID, pParameter->asDouble());	// from JDN
-		break;
-
-	case PARAMETER_TYPE_String:
+	case PARAMETER_TYPE_Bool            : pProperty	= new wxBoolProperty		(Name, ID, pParameter->asBool  ()); break;
+	case PARAMETER_TYPE_Int             : pProperty	= new wxIntProperty			(Name, ID, pParameter->asInt   ()); break;
+	case PARAMETER_TYPE_Double          : pProperty	= new wxFloatProperty		(Name, ID, pParameter->asDouble()); break;
+	case PARAMETER_TYPE_Range           : pProperty	= new CParameters_PG_Range	(Name, ID, pParameter            ); break;
+	case PARAMETER_TYPE_Degree          : pProperty	= new CParameters_PG_Degree	(Name, ID, pParameter            ); break;
+	case PARAMETER_TYPE_Date            : pProperty	= new wxDateProperty		(Name, ID, pParameter->asDouble()); break;	// from JDN
+	case PARAMETER_TYPE_String          :
 		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
 		{
 			pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
@@ -605,45 +587,37 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		}
 		break;
 
-	case PARAMETER_TYPE_Color:
-		pProperty	= new wxColourProperty		(Name, ID, Get_Color_asWX(pParameter->asColor()));
-		break;
+	case PARAMETER_TYPE_Color          : pProperty	= new wxColourProperty		(Name, ID, Get_Color_asWX(pParameter->asColor())); break;
+	case PARAMETER_TYPE_Colors         : pProperty	= new CParameters_PG_Colors	(Name, ID, pParameter                           ); break;
 
-	case PARAMETER_TYPE_Colors:
-		pProperty	= new CParameters_PG_Colors	(Name, ID, pParameter);
-		break;
+	case PARAMETER_TYPE_Text           :
+	case PARAMETER_TYPE_FilePath       :
+	case PARAMETER_TYPE_Font           :
+	case PARAMETER_TYPE_Table_Fields   :
+	case PARAMETER_TYPE_Choices        :
+	case PARAMETER_TYPE_FixedTable     :
+	case PARAMETER_TYPE_Parameters     : pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter); break;
 
-	case PARAMETER_TYPE_Text:
-	case PARAMETER_TYPE_FilePath:
-	case PARAMETER_TYPE_Font:
-	case PARAMETER_TYPE_Table_Fields:
-	case PARAMETER_TYPE_FixedTable:
-	case PARAMETER_TYPE_Parameters:
-		pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
-		break;
-
-	case PARAMETER_TYPE_Grid_List:
-	case PARAMETER_TYPE_Table_List:
-	case PARAMETER_TYPE_Shapes_List:
-	case PARAMETER_TYPE_TIN_List:
+	case PARAMETER_TYPE_Grid_List      :
+	case PARAMETER_TYPE_Table_List     :
+	case PARAMETER_TYPE_Shapes_List    :
+	case PARAMETER_TYPE_TIN_List       :
 	case PARAMETER_TYPE_PointCloud_List:
 		if( !pParameter->is_Output() )
 		{
-			pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter);
+			pProperty	= new CParameters_PG_Dialog(Name, ID, pParameter);
 		}
 		break;
 
-	case PARAMETER_TYPE_Choice:
-	case PARAMETER_TYPE_Table_Field:
-	case PARAMETER_TYPE_Grid_System:
-	case PARAMETER_TYPE_Grid:
-	case PARAMETER_TYPE_Grids:
-	case PARAMETER_TYPE_Table:
-	case PARAMETER_TYPE_Shapes:
-	case PARAMETER_TYPE_TIN:
-	case PARAMETER_TYPE_PointCloud:
-		pProperty	= new CParameters_PG_Choice	(pParameter);
-		break;
+	case PARAMETER_TYPE_Choice         :
+	case PARAMETER_TYPE_Table_Field    :
+	case PARAMETER_TYPE_Grid_System    :
+	case PARAMETER_TYPE_Grid           :
+	case PARAMETER_TYPE_Grids          :
+	case PARAMETER_TYPE_Table          :
+	case PARAMETER_TYPE_Shapes         :
+	case PARAMETER_TYPE_TIN            :
+	case PARAMETER_TYPE_PointCloud     : pProperty	= new CParameters_PG_Choice	(pParameter); break;
 	}
 
 	//-----------------------------------------------------
@@ -891,30 +865,31 @@ void CParameters_Control::_Update_Parameter(CSG_Parameter *pParameter)
 			}
 			break;
 
-		case PARAMETER_TYPE_Choice:
-		case PARAMETER_TYPE_Table_Field:
-		case PARAMETER_TYPE_Grid_System:
-		case PARAMETER_TYPE_Grid:
-		case PARAMETER_TYPE_Grids:
-		case PARAMETER_TYPE_Table:
-		case PARAMETER_TYPE_Shapes:
-		case PARAMETER_TYPE_TIN:
-		case PARAMETER_TYPE_PointCloud:
+		case PARAMETER_TYPE_Choice         :
+		case PARAMETER_TYPE_Table_Field    :
+		case PARAMETER_TYPE_Grid_System    :
+		case PARAMETER_TYPE_Grid           :
+		case PARAMETER_TYPE_Grids          :
+		case PARAMETER_TYPE_Table          :
+		case PARAMETER_TYPE_Shapes         :
+		case PARAMETER_TYPE_TIN            :
+		case PARAMETER_TYPE_PointCloud     :
 			((CParameters_PG_Choice *)pProperty)->Update();
 		break;
 
-		case PARAMETER_TYPE_Text:
-		case PARAMETER_TYPE_FilePath:
-		case PARAMETER_TYPE_Font:
-		case PARAMETER_TYPE_Table_Fields:
-		case PARAMETER_TYPE_FixedTable:
-		case PARAMETER_TYPE_Grid_List:
-		case PARAMETER_TYPE_Grids_List:
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
+		case PARAMETER_TYPE_Text           :
+		case PARAMETER_TYPE_FilePath       :
+		case PARAMETER_TYPE_Font           :
+		case PARAMETER_TYPE_Table_Fields   :
+		case PARAMETER_TYPE_Choices        :
+		case PARAMETER_TYPE_FixedTable     :
+		case PARAMETER_TYPE_Grid_List      :
+		case PARAMETER_TYPE_Grids_List     :
+		case PARAMETER_TYPE_Table_List     :
+		case PARAMETER_TYPE_Shapes_List    :
+		case PARAMETER_TYPE_TIN_List       :
 		case PARAMETER_TYPE_PointCloud_List:
-		case PARAMETER_TYPE_Parameters:
+		case PARAMETER_TYPE_Parameters     :
 			((CParameters_PG_Dialog *)pProperty)->Update();
 			break;
 		}

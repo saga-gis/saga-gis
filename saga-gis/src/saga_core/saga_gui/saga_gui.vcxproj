@@ -473,6 +473,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="dlg_choices.cpp" />
     <ClCompile Include="dlg_colors.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1146,6 +1147,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <ClInclude Include="dlg_about.h" />
     <ClInclude Include="dlg_about_logo.h" />
     <ClInclude Include="dlg_base.h" />
+    <ClInclude Include="dlg_choices.h" />
     <ClInclude Include="dlg_colors.h" />
     <ClInclude Include="dlg_colors_Control.h" />
     <ClInclude Include="dlg_list.h" />

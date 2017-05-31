@@ -264,6 +264,7 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 
 		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (ParentID, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble(), Min, bMin, Max, bMax);	break;
 		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (ParentID, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
+		case PARAMETER_TYPE_Choices          : Parameters.Add_Choices        (ParentID, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
 
 		case PARAMETER_TYPE_String           : Parameters.Add_String         (ParentID, ID, Name, Desc, Value, false);	break;
 		case PARAMETER_TYPE_Text             : Parameters.Add_String         (ParentID, ID, Name, Desc, Value,  true);	break;
@@ -1456,6 +1457,7 @@ bool CSG_Tool_Chain::_Save_History_Add_Tool(const CSG_MetaData &History, CSG_Met
 			case PARAMETER_TYPE_FilePath    :
 			case PARAMETER_TYPE_Table_Field :
 			case PARAMETER_TYPE_Table_Fields:
+			case PARAMETER_TYPE_Choices     :
 				pParameter	= Tool.Add_Child("option", pChild->Get_Content());
 				break;
 

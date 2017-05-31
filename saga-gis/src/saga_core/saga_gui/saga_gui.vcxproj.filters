@@ -304,6 +304,9 @@
     <ClCompile Include="dlg_list.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dlg_choices.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ACTIVE.h">
@@ -589,6 +592,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dlg_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dlg_choices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
