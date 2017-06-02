@@ -91,8 +91,6 @@ CSG_Data_Collection::CSG_Data_Collection(CSG_Data_Manager *pManager, TSG_Data_Ob
 {
 	m_pManager	= pManager;
 	m_Type		= Type;
-
-	m_Objects.Create(sizeof(CSG_Data_Object *));
 }
 
 //---------------------------------------------------------
@@ -141,7 +139,7 @@ bool CSG_Data_Collection::Add(CSG_Data_Object *pObject)
 
 		if( m_Objects.Inc_Array() )
 		{
-			((CSG_Data_Object **)m_Objects.Get_Array())[Count() - 1]	= pObject;
+			m_Objects[Count() - 1]	= pObject;
 
 			if( m_pManager == &g_Data_Manager )
 			{
@@ -314,8 +312,6 @@ CSG_Data_Manager::CSG_Data_Manager(void)
 	m_pTIN			= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_TIN       );
 	m_pPoint_Cloud	= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_PointCloud);
 	m_pShapes		= new CSG_Data_Collection(this, SG_DATAOBJECT_TYPE_Shapes    );
-
-	m_Grid_Systems.Create(sizeof(CSG_Grid_Collection *));
 }
 
 //---------------------------------------------------------
@@ -430,7 +426,7 @@ bool CSG_Data_Manager::Add(CSG_Data_Object *pObject)
 	{
 		pCollection	= new CSG_Grid_Collection(this);
 
-		((CSG_Data_Collection **)m_Grid_Systems.Get_Array())[m_Grid_Systems.Get_Size() - 1]	= pCollection;
+		m_Grid_Systems[m_Grid_Systems.Get_Size() - 1]	= pCollection;
 	}
 
 	return( pCollection && pCollection->Add(pObject) );
@@ -488,7 +484,7 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 	case SG_DATAOBJECT_TYPE_PointCloud: pObject = new CSG_PointCloud(File); break;
 	case SG_DATAOBJECT_TYPE_Grid      : pObject = new CSG_Grid      (File); break;
 	case SG_DATAOBJECT_TYPE_Grids     : pObject = new CSG_Grids     (File); break;
-	default                        : pObject = NULL                    ; break;
+	default                           : pObject = NULL                    ; break;
 	}
 
 	if( pObject )
@@ -523,11 +519,11 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	//-----------------------------------------------------
 	// Image Import
 
-	if(	(	SG_File_Cmp_Extension(File, SG_T("bmp"))
-		||	SG_File_Cmp_Extension(File, SG_T("gif"))
-		||	SG_File_Cmp_Extension(File, SG_T("jpg"))
-		||	SG_File_Cmp_Extension(File, SG_T("png"))
-		||	SG_File_Cmp_Extension(File, SG_T("pcx")) )
+	if(	(	SG_File_Cmp_Extension(File, "bmp")
+		||	SG_File_Cmp_Extension(File, "gif")
+		||	SG_File_Cmp_Extension(File, "jpg")
+		||	SG_File_Cmp_Extension(File, "png")
+		||	SG_File_Cmp_Extension(File, "pcx") )
 	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 1)) != NULL
 	&&   pImport->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
 	{
@@ -563,7 +559,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	//-----------------------------------------------------
 	// LAS Import
 
-	if( !bResult && SG_File_Cmp_Extension(File, SG_T("las"))
+	if( !bResult && SG_File_Cmp_Extension(File, "las")
 	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_shapes_las", 1)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
@@ -784,7 +780,7 @@ bool CSG_Data_Manager::Delete_Unsaved(bool bDetachOnly)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format(SG_T("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>"), label, value)
+#define SUMMARY_ADD_INT(label, value)	s += CSG_String::Format("<tr><td valign=\"top\">%s</td><td valign=\"top\">%d</td></tr>", label, value)
 
 //---------------------------------------------------------
 CSG_String CSG_Data_Manager::Get_Summary(void)	const
@@ -792,19 +788,19 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	//-----------------------------------------------------
 	CSG_String	s;
 
-/*	s	+= CSG_String::Format(SG_T("<b>%s</b>"), _TL("Tool Libraries"));
+/*	s	+= CSG_String::Format("<b>%s</b>", _TL("Tool Libraries"));
 
-	s	+= SG_T("<table border=\"0\">");
+	s	+= "<table border=\"0\">";
 
 	SUMMARY_ADD_INT(_TL("Available Libraries"), Get_Count());
 	SUMMARY_ADD_INT(_TL("Available Tools"    ), nTools);
 
-	s	+= SG_T("</table>");
+	s	+= "</table>";
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("<hr><b>%s:</b><table border=\"1\">"), _TL("Tool Libraries"));
+	s	+= CSG_String::Format("<hr><b>%s:</b><table border=\"1\">", _TL("Tool Libraries"));
 
-	s	+= CSG_String::Format(SG_T("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>"),
+	s	+= CSG_String::Format("<tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr>",
 			_TL("Library"),
 			_TL("Tools"),
 			_TL("Name"),
@@ -813,7 +809,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 
 	for(i=0; i<Get_Count(); i++)
 	{
-		s	+= CSG_String::Format(SG_T("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>"),
+		s	+= CSG_String::Format("<tr><td>%s</td><td>%d</td><td>%s</td><td>%s</td></tr>",
 				SG_File_Get_Name(Get_Library(i)->Get_File_Name(), false).c_str(),
 				Get_Library(i)->Get_Count(),
 				Get_Library(i)->Get_Name().c_str(),
@@ -821,7 +817,7 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 			);
 	}
 
-	s	+= SG_T("</table>");
+	s	+= "</table>";
 
 */
 	//-----------------------------------------------------

@@ -274,6 +274,7 @@ public:
 	//-----------------------------------------------------
 	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL);
 	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
+	virtual bool					Set_Record			(int iRecord, CSG_Table_Record *pCopy);
 	virtual bool					Del_Record			(int iRecord);
 	virtual bool					Del_Records			(void);
 	virtual bool					Set_Record_Count	(int nRecords);
@@ -299,6 +300,10 @@ public:
 
 		return( NULL );
 	}
+
+	//-----------------------------------------------------
+	virtual bool					Find_Record			(int &iRecord, int iField, const CSG_String &Value, bool bCreateIndex = false);
+	virtual bool					Find_Record			(int &iRecord, int iField, double            Value, bool bCreateIndex = false);
 
 	//-----------------------------------------------------
 	virtual bool					Set_Value			(int iRecord, int iField, const SG_Char  *Value);

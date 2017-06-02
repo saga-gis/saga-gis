@@ -73,6 +73,7 @@
 
 #include "grid.h"
 #include "data_manager.h"
+#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -109,78 +110,6 @@ bool CSG_Grid::On_Delete(void)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Grid::_Load(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
-{
-	m_Type	= Type;
-
-	//-----------------------------------------------------
-	if( SG_File_Cmp_Extension(FileName, "sg-grd-z")
-	&&  _Load_Compressed(FileName, Memory_Type, bLoadData) )
-	{
-		Set_File_Name(FileName, true);
-
-		return( true );
-	}
-
-	if( _Load_Native(FileName, Memory_Type, bLoadData) )
-	{
-		Set_File_Name(FileName, true);
-
-		return( true );
-	}
-
-	if( _Load_Surfer(FileName, Memory_Type, bLoadData) )
-	{
-		Set_File_Name(FileName, true);
-
-		return( true );
-	}
-
-	if( SG_File_Cmp_Extension(FileName, "sg-grd-z")
-	||  SG_File_Cmp_Extension(FileName, "sg-grd"  )
-	||	SG_File_Cmp_Extension(FileName, "sgrd"    )
-	||  SG_File_Cmp_Extension(FileName, "dgm"     ) )
-	{	// unable to load a native saga raster ??! then return immediately !!!
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_Data_Manager	tmpMgr;
-
-	if( tmpMgr.Add(FileName) && tmpMgr.Get_Grid_System(0) && tmpMgr.Get_Grid_System(0)->Get(0) && tmpMgr.Get_Grid_System(0)->Get(0)->is_Valid() )
-	{
-		CSG_Grid	*pGrid	= (CSG_Grid *)tmpMgr.Get_Grid_System(0)->Get(0);
-
-		if( pGrid->is_Cached() || pGrid->is_Compressed() )
-		{
-			return( Create(*pGrid) );
-		}
-
-		Set_File_Name(FileName, false);
-
-		Set_Name			(pGrid->Get_Name());
-		Set_Description		(pGrid->Get_Description());
-
-		m_System			= pGrid->m_System;
-		m_Type				= pGrid->m_Type;
-		m_Values			= pGrid->m_Values;	pGrid->m_Values	= NULL;	// take ownership of data array
-
-		m_zOffset			= pGrid->m_zOffset;
-		m_zScale			= pGrid->m_zScale;
-		m_Unit				= pGrid->m_Unit;
-
-		Get_MetaData  ()	= pGrid->Get_MetaData  ();
-		Get_Projection()	= pGrid->Get_Projection();
-
-		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
-		
-		return( true );
-	}
-
-	return( false );
-}
 
 //---------------------------------------------------------
 bool CSG_Grid::Save(const CSG_String &FileName, int Format)
@@ -226,6 +155,153 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Grid::_Load_External(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+{
+	bool	bResult	= false;
+
+	CSG_Data_Manager	Data;
+
+	CSG_Tool	*pTool;
+
+	SG_UI_Msg_Lock(true);
+
+	//-----------------------------------------------------
+	// Image Import
+
+	if( (	SG_File_Cmp_Extension(FileName, "bmp")
+		||	SG_File_Cmp_Extension(FileName, "gif")
+		||	SG_File_Cmp_Extension(FileName, "jpg")
+		||	SG_File_Cmp_Extension(FileName, "png")
+		||	SG_File_Cmp_Extension(FileName, "pcx") )
+	&&  !bResult
+	&&	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 1)) != NULL && pTool->Settings_Push(&Data) )
+	{
+		bResult	=  pTool->Set_Parameter("FILE", FileName)
+				&& pTool->Execute();
+
+		pTool->Settings_Pop();
+	}
+
+	//-----------------------------------------------------
+	// GDAL Import
+
+	if( !bResult
+	&&  (pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0)) != NULL && pTool->Settings_Push(&Data) )
+	{
+		bResult	=  pTool->Set_Parameter("FILES"   , FileName)
+				&& pTool->Set_Parameter("MULTIPLE", 0       )	// output as single grid(s)
+				&& pTool->Execute();
+
+		pTool->Settings_Pop();
+	}
+
+	SG_UI_Msg_Lock(false);
+
+	//-----------------------------------------------------
+	if( bResult && Data.Get_Grid_System(0) && Data.Get_Grid_System(0)->Get(0) && Data.Get_Grid_System(0)->Get(0)->is_Valid() )
+	{
+		CSG_Grid	*pGrid	= (CSG_Grid *)Data.Get_Grid_System(0)->Get(0);
+
+		if( pGrid->is_Cached() || pGrid->is_Compressed() )
+		{
+			return( Create(*pGrid) );
+		}
+
+		Set_File_Name(FileName, false);
+
+		Set_Name			(pGrid->Get_Name());
+		Set_Description		(pGrid->Get_Description());
+
+		m_System			= pGrid->m_System;
+		m_Type				= pGrid->m_Type;
+		m_Values			= pGrid->m_Values;	pGrid->m_Values	= NULL;	// take ownership of data array
+
+		m_zOffset			= pGrid->m_zOffset;
+		m_zScale			= pGrid->m_zScale;
+		m_Unit				= pGrid->m_Unit;
+
+		Get_MetaData  ()	= pGrid->Get_MetaData  ();
+		Get_Projection()	= pGrid->Get_Projection();
+
+		Set_NoData_Value_Range(pGrid->Get_NoData_Value(), pGrid->Get_NoData_hiValue());
+		
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+{
+	bool	bResult	= false;
+
+	if( FileName.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	{
+		CSG_String	s(FileName);
+
+		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
+
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
+
+		if(	pTool != NULL )
+		{
+			SG_UI_ProgressAndMsg_Lock(true);
+
+			//---------------------------------------------
+			CSG_Table	Connections;
+			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+
+			pTool->On_Before_Execution();
+			pTool->Settings_Push();
+
+			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
+			{
+				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
+				{
+					if( !Connection.Cmp(Connections[i].asString(0)) )
+					{
+						bResult	= true;
+					}
+				}
+			}
+
+			pTool->Settings_Pop();
+
+			//---------------------------------------------
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
+			{
+				pTool->On_Before_Execution();
+				pTool->Settings_Push();
+
+				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("RID"       , rid)
+						&& SG_TOOL_PARAMETER_SET("GRID"      , this)
+						&& pTool->Execute();
+
+				pTool->Settings_Pop();
+			}
+
+			SG_UI_ProgressAndMsg_Lock(false);
+		}
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						Native							 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -239,6 +315,8 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 	{
 		return( false );
 	}
+
+	Set_File_Name(FileName, true);
 
 	Set_Name        (Info.m_Name);
 	Set_Description (Info.m_Description);
@@ -349,6 +427,13 @@ bool CSG_Grid::_Save_Native(const CSG_String &FileName, bool bBinary)
 //---------------------------------------------------------
 bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
+	if( !SG_File_Cmp_Extension(_FileName, "sg-grd-z") )
+	{
+		return( false );
+	}
+
+	Set_File_Name(_FileName, true);
+
 	CSG_File_Zip	Stream(_FileName, SG_FILE_R);
 
 	if( !Stream.is_Reading() )
@@ -716,6 +801,8 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 	{
 		return( false );
 	}
+
+	Set_File_Name(FileName, true);
 
 	//-----------------------------------------------------
 	CSG_File	Stream;

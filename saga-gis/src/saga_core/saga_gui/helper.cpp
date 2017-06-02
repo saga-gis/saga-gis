@@ -219,7 +219,7 @@ wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &FileNa
 }
 
 //---------------------------------------------------------
-wxString		Get_TableInfo_asHTML(CSG_Table *pTable)
+wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
 {
 	wxString	s;
 

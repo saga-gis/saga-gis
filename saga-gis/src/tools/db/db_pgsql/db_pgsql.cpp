@@ -1512,7 +1512,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 
 			Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[iBand].asInt(0)));
 
-			SG_Get_Data_Manager().Add(pGrid);
+		//	SG_Get_Data_Manager().Add(pGrid);
 
 			if( pGrids )
 			{

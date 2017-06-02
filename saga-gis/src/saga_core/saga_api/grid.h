@@ -528,7 +528,6 @@ public:		///////////////////////////////////////////////
 	double							Get_Offset			(void)	const;
 	bool							is_Scaled			(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
 
-	const CSG_Simple_Statistics &	Get_Statistics		(void);
 	double							Get_Mean			(void);
 	double							Get_Min				(void);
 	double							Get_Max				(void);
@@ -536,6 +535,9 @@ public:		///////////////////////////////////////////////
 	double							Get_StdDev			(void);
 	double							Get_Variance		(void);
 	double							Get_Quantile		(double Quantile);
+
+	const CSG_Simple_Statistics &	Get_Statistics		(void);
+	bool							Get_Statistics		(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues = false)	const;
 
 	sLong							Get_Data_Count		(void);
 	sLong							Get_NoData_Count	(void);
@@ -624,17 +626,17 @@ public:		///////////////////////////////////////////////
 	{
 		if( !bOn )
 		{
-			m_bIndex	= false;
+			SG_FREE_SAFE(m_Index);
 
 			return( true );
 		}
 
-		return( m_bIndex || _Set_Index() );
+		return( m_Index || _Set_Index() );
 	}
 
 	sLong							Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && (m_bIndex || _Set_Index()) )
+		if( Position >= 0 && Position < Get_NCells() && (m_Index || _Set_Index()) )
 		{
 			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
 
@@ -837,7 +839,7 @@ private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_bIndex, m_Memory_bLock,
+	bool						m_bCreated, m_Memory_bLock,
 								m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
 
 	int							m_LineBuffer_Count;
@@ -918,7 +920,8 @@ private:	///////////////////////////////////////////////
 
 	void						_Swap_Bytes				(char *Bytes, int nBytes)		const;
 
-	bool						_Load					(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
+	bool						_Load_External			(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
+	bool						_Load_PGSQL				(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
 
 	bool						_Load_Native			(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData);
 	bool						_Save_Native			(const CSG_String &FileName, bool bBinary);

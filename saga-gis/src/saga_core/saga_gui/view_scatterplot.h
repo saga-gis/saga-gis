@@ -100,6 +100,8 @@ private:
 
 	CSG_Grid						*m_pGrid, m_Count;
 
+	CSG_Grids						*m_pGrids;
+
 	CSG_Table						*m_pTable;
 
 	CSG_Regression					m_Regression;
@@ -123,7 +125,7 @@ private:
 	bool							_Update_Data				(void);
 
 	bool							_Initialize_Count			(void);
-	bool							_Initialize_Grids			(void);
+	bool							_Initialize_Grids			(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y);
 	bool							_Initialize_Shapes			(void);
 	bool							_Initialize_Table			(void);
 

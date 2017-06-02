@@ -383,6 +383,11 @@ public: ///////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
+	double						Get_Metric_Minimum		(void)	const	{	return( m_zMin            );	}
+	double						Get_Metric_Maximum		(void)	const	{	return( m_zMin + m_zRange );	}
+	double						Get_Metric_Range		(void)	const	{	return(          m_zRange );	}
+
+	//-----------------------------------------------------
 	double						Get_MetricToRelative	(double Value)
 	{
 		if( m_zRange > 0.0 )

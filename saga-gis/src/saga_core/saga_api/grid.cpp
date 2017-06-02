@@ -62,7 +62,6 @@
 //---------------------------------------------------------
 #include "grid.h"
 #include "data_manager.h"
-#include "tool_library.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -94,9 +93,9 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 }
 
 //---------------------------------------------------------
-CSG_Grid * SG_Create_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+CSG_Grid * SG_Create_Grid(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
-	CSG_Grid	*pGrid	= new CSG_Grid(File_Name, Type, Memory_Type, bLoadData);
+	CSG_Grid	*pGrid	= new CSG_Grid(FileName, Type, Memory_Type, bLoadData);
 
 	if( pGrid->is_Valid() )
 	{
@@ -160,11 +159,11 @@ CSG_Grid::CSG_Grid(const CSG_Grid &Grid)
   * Create a grid from file.
 */
 //---------------------------------------------------------
-CSG_Grid::CSG_Grid(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+CSG_Grid::CSG_Grid(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
 	_On_Construction();
 
-	Create(File_Name, Type, Memory_Type, bLoadData);
+	Create(FileName, Type, Memory_Type, bLoadData);
 }
 
 //---------------------------------------------------------
@@ -229,7 +228,6 @@ void CSG_Grid::_On_Construction(void)
 	m_zOffset			= 0.0;
 
 	m_Index				= NULL;
-	m_bIndex			= false;
 
 	m_pOwner			= NULL;
 
@@ -297,78 +295,19 @@ bool CSG_Grid::Create(const CSG_Grid_System &System, TSG_Data_Type Type, TSG_Gri
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::Create(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load grid"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load grid"), FileName.c_str()), true);
 
-	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && _Load(File_Name, Type, Memory_Type, bLoadData);
+	m_Type	= Type;
 
-	if( bResult )
-	{
-		// nop
-	}
-
-	//-----------------------------------------------------
-	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
-	{
-		CSG_String	s(File_Name);
-
-		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
-		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
-
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
-
-		if(	pTool != NULL )
-		{
-			SG_UI_ProgressAndMsg_Lock(true);
-
-			//---------------------------------------------
-			CSG_Table	Connections;
-			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
-
-			pTool->On_Before_Execution();
-			pTool->Settings_Push();
-
-			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
-			{
-				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
-				{
-					if( !Connection.Cmp(Connections[i].asString(0)) )
-					{
-						bResult	= true;
-					}
-				}
-			}
-
-			pTool->Settings_Pop();
-
-			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
-			{
-				pTool->On_Before_Execution();
-				pTool->Settings_Push();
-
-				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
-						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
-						&& SG_TOOL_PARAMETER_SET("RID"       , rid)
-						&& SG_TOOL_PARAMETER_SET("GRID"      , this)
-						&& pTool->Execute();
-
-				pTool->Settings_Pop();
-			}
-
-			SG_UI_ProgressAndMsg_Lock(false);
-		}
-	}
-
-	//-----------------------------------------------------
-	if( bResult )
+	if( _Load_PGSQL     (FileName, Memory_Type, bLoadData)
+	||  _Load_Native    (FileName, Memory_Type, bLoadData)
+	||  _Load_Compressed(FileName, Memory_Type, bLoadData)
+	||  _Load_Surfer    (FileName, Memory_Type, bLoadData)
+	||  _Load_External  (FileName, Memory_Type, bLoadData) )
 	{
 		m_bCreated	= true;
 
@@ -381,7 +320,6 @@ bool CSG_Grid::Create(const CSG_String &File_Name, TSG_Data_Type Type, TSG_Grid_
 		return( true );
 	}
 
-	//-----------------------------------------------------
 	Destroy();
 
 	SG_UI_Process_Set_Ready();
@@ -992,7 +930,6 @@ bool CSG_Grid::On_Update(void)
 			}
 		}
 
-		m_bIndex	= false;
 		SG_FREE_SAFE(m_Index);
 	}
 
@@ -1000,11 +937,6 @@ bool CSG_Grid::On_Update(void)
 }
 
 //---------------------------------------------------------
-const CSG_Simple_Statistics & CSG_Grid::Get_Statistics(void)
-{
-	Update();	return( m_Statistics );
-}
-
 double CSG_Grid::Get_Mean(void)
 {
 	Update();	return( m_Statistics.Get_Mean() );
@@ -1064,6 +996,58 @@ double CSG_Grid::Get_Quantile(double Quantile)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+  * Returns the statistics for the whole data set. It is
+  * automatically updated if necessary. Statistics give no
+  * access to parameters like quantiles that need values
+  * to be kept internally. Use Get_Quantile() function instead.
+*/
+const CSG_Simple_Statistics & CSG_Grid::Get_Statistics(void)
+{
+	Update();	return( m_Statistics );
+}
+
+//---------------------------------------------------------
+/**
+  * Calulate statistics for the region specified with rWorld.
+  * Returns false, if there is no overlapping. Set bHoldValues
+  * to true, if you need to obtain quantiles.
+*/
+//---------------------------------------------------------
+bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues) const
+{
+	int	xMin	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) xMin = 0;
+	int	yMin	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) yMin = 0;
+	int	xMax	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMax	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+
+	if( xMin > xMax || yMin > yMax )
+	{
+		return( false );	// no overlap
+	}
+
+	Statistics.Create(bHoldValues);
+
+	for(int y=yMin; y<=yMax; y++)
+	{
+		for(int x=xMin; x<=xMax; x++)
+		{
+			if( !is_NoData(x, y) )
+			{
+				Statistics	+= asDouble(x, y);
+			}
+		}
+	}
+
+	return( Statistics.Get_Count() > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						Index							 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -1093,7 +1077,7 @@ bool CSG_Grid::_Set_Index(void)
 	double	a;
 
 	//-----------------------------------------------------
-	SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Create index"), Get_Name()));
+	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", _TL("Create index"), Get_Name()));
 
 	for(i=0, j=0, k=Get_Data_Count(); i<Get_NCells(); i++)
 	{
@@ -1221,8 +1205,6 @@ bool CSG_Grid::_Set_Index(void)
 	SG_Free(istack);
 
 	SG_UI_Process_Set_Ready();
-
-	m_bIndex	= true;
 
 	return( true );
 }

@@ -180,17 +180,14 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 	m_pItem		= pItem;
 
 	m_pGrid		= NULL;
+	m_pGrids	= NULL;
 	m_pTable	= NULL;
 
 	switch( m_pItem->Get_Type() )
 	{
-	case WKSP_ITEM_Grid:
-		m_pGrid		= pItem->Get_Object()->asGrid();
-		break;
-
-	default:
-		m_pTable	= pItem->Get_Object()->asTable();
-		break;
+	case WKSP_ITEM_Grid : m_pGrid  = pItem->Get_Object()->asGrid (); break;
+	case WKSP_ITEM_Grids: m_pGrids = pItem->Get_Object()->asGrids(); break;
+	default             : m_pTable = pItem->Get_Object()->asTable(); break;
 	}
 
 	m_Parameters.Set_Name(CSG_String::Format("%s: %s", _TL("Scatterplot"), m_pItem->Get_Object()->Get_Name()));
@@ -212,8 +209,6 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -224,8 +219,6 @@ void CVIEW_ScatterPlot::Do_Update(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -303,6 +296,18 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 			_TL("")
 		);
 	}
+	else if( m_pGrids )
+	{
+		CSG_String	sChoices;
+
+		for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
+		{
+			sChoices.Append(CSG_String::Format("%s|", m_pGrids->Get_Grid(i).Get_Name()));
+		}
+
+		m_Parameters.Add_Choice("", "BAND_X", "X", _TL(""), sChoices, 0);
+		m_Parameters.Add_Choice("", "BAND_Y", "Y", _TL(""), sChoices, 1);
+	}
 	else if( m_pTable )
 	{
 		CSG_String	sChoices;
@@ -312,8 +317,8 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 			sChoices.Append(CSG_String::Format("%s|", m_pTable->Get_Field_Name(i)));
 		}
 
-		m_Parameters.Add_Choice("", "FIELD_X", "X", _TL(""), sChoices);
-		m_Parameters.Add_Choice("", "FIELD_Y", "Y", _TL(""), sChoices);
+		m_Parameters.Add_Choice("", "FIELD_X", "X", _TL(""), sChoices, 0);
+		m_Parameters.Add_Choice("", "FIELD_Y", "Y", _TL(""), sChoices, 1);
 	}
 
 	//-----------------------------------------------------
@@ -363,7 +368,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 		CSG_String::Format("%s|%s|",
 			_TL("Points"),
 			_TL("Density")
-		), m_pGrid ? 1 : 0
+		), m_pGrid || m_pGrids ? 1 : 0
 	);
 
 	m_Options.Add_Int("DISPLAY",
@@ -743,18 +748,20 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 
 	if( m_pGrid )
 	{
-		if( m_Parameters("CMP_WITH")->asInt() == 0 )
-		{
-			bResult	= _Initialize_Grids ();
-		}
-		else
-		{
-			bResult	= _Initialize_Shapes();
-		}
+		bResult	= m_Parameters("CMP_WITH")->asInt() == 0
+			? _Initialize_Grids(m_pGrid, m_Parameters("GRID")->asGrid())
+			: _Initialize_Shapes();
+	}
+	else if( m_pGrids )
+	{
+		bResult	= _Initialize_Grids(
+			m_pGrids->Get_Grid_Ptr(m_Parameters("BAND_X")->asInt()),
+			m_pGrids->Get_Grid_Ptr(m_Parameters("BAND_Y")->asInt())
+		);
 	}
 	else // if( m_pTable )
 	{
-		bResult	= _Initialize_Table ();
+		bResult	= _Initialize_Table();
 	}
 
 	PROCESS_Set_Okay(true);
@@ -806,53 +813,51 @@ bool CVIEW_ScatterPlot::_Initialize_Count(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CVIEW_ScatterPlot::_Initialize_Grids()
+bool CVIEW_ScatterPlot::_Initialize_Grids(CSG_Grid *pGrid_X, CSG_Grid *pGrid_Y)
 {
-	CSG_Grid	*pGrid_Y	= m_Parameters("GRID")->asGrid();
-
-	CHECK_DATA(m_pGrid);
+	CHECK_DATA(pGrid_X);
 	CHECK_DATA(pGrid_Y);
 
-	if( !m_pGrid || !pGrid_Y )
+	if( !pGrid_X || !pGrid_Y )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_sTitle.Printf("%s: [%s/%s]", _TL("Scatterplot"), m_pGrid->Get_Name(), pGrid_Y->Get_Name());
+	m_sTitle.Printf("%s: [%s/%s]", _TL("Scatterplot"), pGrid_X->Get_Name(), pGrid_Y->Get_Name());
 
-	m_sX.Printf("%s", m_pGrid->Get_Name());
+	m_sX.Printf("%s", pGrid_X->Get_Name());
 	m_sY.Printf("%s", pGrid_Y->Get_Name());
 
-	bool	bEqual			= m_pGrid->Get_System() == pGrid_Y->Get_System();
+	bool	bEqual			= pGrid_X->Get_System() == pGrid_Y->Get_System();
 	int		maxSamples		= m_Options("SAMPLES_MAX")->asInt();
-	double	Step			= maxSamples > 0 && m_pGrid->Get_NCells() > maxSamples ? m_pGrid->Get_NCells() / maxSamples : 1.0;
+	double	Step			= maxSamples > 0 && pGrid_X->Get_NCells() > maxSamples ? pGrid_X->Get_NCells() / maxSamples : 1.0;
 
-	for(double dCell=0; dCell<m_pGrid->Get_NCells() && PROGRESSBAR_Set_Position(dCell, m_pGrid->Get_NCells()); dCell+=Step)
+	for(double dCell=0; dCell<pGrid_X->Get_NCells() && PROGRESSBAR_Set_Position(dCell, pGrid_X->Get_NCells()); dCell+=Step)
 	{
 		sLong	iCell	= (sLong)dCell;
 
-		if( !m_pGrid->is_NoData(iCell) )
+		if( !pGrid_X->is_NoData(iCell) )
 		{
 			if( bEqual )
 			{
 				if( !pGrid_Y->is_NoData(iCell) )
 				{
-					m_Regression.Add_Values(m_pGrid->asDouble(iCell), pGrid_Y->asDouble(iCell));
+					m_Regression.Add_Values(pGrid_X->asDouble(iCell), pGrid_Y->asDouble(iCell));
 				}
 			}
 			else
 			{
-				TSG_Point	p	= m_pGrid->Get_System().Get_Grid_to_World(
-					(int)(iCell % m_pGrid->Get_NX()),
-					(int)(iCell / m_pGrid->Get_NX())
+				TSG_Point	p	= pGrid_X->Get_System().Get_Grid_to_World(
+					(int)(iCell % pGrid_X->Get_NX()),
+					(int)(iCell / pGrid_X->Get_NX())
 				);
 
 				double	z;
 
 				if(	pGrid_Y->Get_Value(p, z) )
 				{
-					m_Regression.Add_Values(m_pGrid->asDouble(iCell), z);
+					m_Regression.Add_Values(pGrid_X->asDouble(iCell), z);
 				}
 			}
 		}

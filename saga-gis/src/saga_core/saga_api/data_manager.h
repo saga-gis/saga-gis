@@ -89,7 +89,7 @@ public:
 
 	size_t							Count				(void)		const	{	return( m_Objects.Get_Size() );	}
 
-	CSG_Data_Object *				Get					(size_t i)	const	{	return( i < Count() ? ((CSG_Data_Object **)m_Objects.Get_Array())[i] : NULL );	}
+	CSG_Data_Object *				Get					(size_t i)	const	{	return( i < Count() ? (CSG_Data_Object *)m_Objects[i] : NULL );	}
 	CSG_Data_Object *				Get					(const CSG_String &File, bool bNative = true)	const;
 
 	virtual bool					Exists				(CSG_Data_Object *pObject)	const;
@@ -111,7 +111,7 @@ protected:
 
 	TSG_Data_Object_Type			m_Type;
 
-	CSG_Array						m_Objects;
+	CSG_Array_Pointer				m_Objects;
 
 };
 
@@ -166,7 +166,7 @@ public:
 	CSG_Data_Collection *				Get_Shapes			(void)		const	{	return( m_pShapes      );	}
 
 	size_t								Grid_System_Count	(void)		const	{	return( m_Grid_Systems.Get_Size() );	}
-	CSG_Grid_Collection *				Get_Grid_System		(size_t i)	const	{	return( i < Grid_System_Count() ? ((CSG_Grid_Collection **)m_Grid_Systems.Get_Array())[i] : NULL );	}
+	CSG_Grid_Collection *				Get_Grid_System		(size_t i)	const	{	return( i < Grid_System_Count() ? (CSG_Grid_Collection *)m_Grid_Systems[i] : NULL );	}
 	CSG_Grid_Collection *				Get_Grid_System		(const CSG_Grid_System &System)	const;
 
 	bool								Add					(CSG_Data_Object *pObject);
@@ -202,7 +202,7 @@ public:
 
 private:
 
-	CSG_Array							m_Grid_Systems;
+	CSG_Array_Pointer					m_Grid_Systems;
 
 	CSG_Data_Collection					*m_pTable, *m_pTIN, *m_pPoint_Cloud, *m_pShapes;
 	

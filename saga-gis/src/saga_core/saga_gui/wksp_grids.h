@@ -70,6 +70,7 @@
 
 //---------------------------------------------------------
 #include "wksp_layer.h"
+#include "wksp_layer_classify.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -104,7 +105,7 @@ public:
 
 	virtual TSG_Rect			Edit_Get_Extent			(void)	{	return( Get_Extent() );	}
 
-	bool						Fit_Color_Range			(CSG_Rect rWorld);
+	bool						Fit_Colors				(const CSG_Rect &rWorld);
 
 	virtual bool				asImage					(CSG_Grid *pImage);
 
@@ -128,17 +129,25 @@ protected:
 
 private:
 
+	CWKSP_Layer_Classify		m_Classify[3];
+
+
 	CSG_Grid *					Get_Grid				(void);
+	CSG_Grid *					Get_Grid				(int i);
 
 	CSG_String					_Get_Bands_List			(void);
+
+	bool						_Fit_Colors				(int Method, bool bRefresh = false);
+	bool						_Fit_Colors				(int Method, CSG_Grid *pGrid);
+	bool						_Fit_Colors				(int Method, CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
 
 	void						_LUT_Create				(void);
 
 	void						_Save_Image				(void);
 
-	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], CWKSP_Layer_Classify Classify[3], TSG_Grid_Resampling Resampling);
-	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], CWKSP_Layer_Classify Classify[3], TSG_Grid_Resampling Resampling, int Mode, int yDC, int axDC, int bxDC);
-	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], CWKSP_Layer_Classify Classify[3]);
+	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], TSG_Grid_Resampling Resampling);
+	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], TSG_Grid_Resampling Resampling, int Mode, int yDC, int axDC, int bxDC);
+	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3]);
 
 };
 

@@ -132,6 +132,16 @@ CGDAL_Import::CGDAL_Import(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"MULTIPLE"		, _TL("Multiple Bands Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("single grids"),
+			_TL("grid collection"),
+			_TL("automatic")
+		), 2
+	);
+
 	Parameters.Add_String("",
 		"SELECTION"		, _TL("Select from Multiple Bands"),
 		_TL("Semicolon separated list of band indexes. Do not set to select all bands for import."),
@@ -141,7 +151,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Bool("",
 		"SELECT"		, _TL("Select from Multiple Bands"),
 		_TL(""),
-		true
+		false
 	)->Set_UseInCMD(false);
 
 	Parameters.Add_Bool(SG_UI_Get_Window_Main() ? "SELECT" : "",
@@ -225,7 +235,7 @@ bool CGDAL_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	(m_pGrids = Parameters("GRIDS")->asGridList())->Del_Items();
+	Parameters("GRIDS")->asGridList()->Del_Items();
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
@@ -238,7 +248,7 @@ bool CGDAL_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	return( m_pGrids->Get_Grid_Count() > 0 );
+	return( Parameters("GRIDS")->asGridList()->Get_Grid_Count() > 0 );
 }
 
 
@@ -297,27 +307,24 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		}
 		else if( Parameters("SELECT")->asBool() )
 		{
-			CSG_Parameters	Selection(this, _TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
+			CSG_Parameters	P(this, _TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
 
-			Selection.Set_Callback_On_Parameter_Changed(&On_Selection_Changed);
+			P.Set_Callback_On_Parameter_Changed(&On_Selection_Changed);
 
-			Selection.Add_Bool(NULL, "ALL"  , _TL("Load all bands"), _TL(""), false);
-			Selection.Add_Node(NULL, "BANDS", _TL("Bands"         ), _TL(""));
+			P.Add_Bool("", "ALL", _TL("Load all bands"), _TL(""), false);
+
+			CSG_Parameter_Choices	*pBands	= P.Add_Choices("", "BANDS", _TL("Bands"), _TL(""), "")->asChoices();
 
 			for(int i=0; i<Bands.Get_Count(); i++)
 			{
-				Selection.Add_Bool(Selection(1), SG_Get_String(i), Bands[i].asString(0), CSG_String::Format("%s: %d\n%s: %d\n%s: %s",
-					_TL("List Order"), i,
-					_TL("Index"     ), Bands[i].Get_Index(),
-					_TL("Name"      ), Bands[i].asString(0)), false
-				);
+				pBands->Add_Item(Bands[i].asString(0));
 			}
 
-			if( Dlg_Parameters(&Selection, _TL("Select from Multiple Bands")) )
+			if( Dlg_Parameters(&P, _TL("Select from Multiple Bands")) )
 			{
 				for(int i=0; i<Bands.Get_Count(); i++)
 				{
-					if( Selection(0)->asBool() || Selection(i + 2)->asBool() )
+					if( P[0].asBool() || pBands->is_Selected(i) )
 					{
 						Bands.Select(Bands[i].Get_Index(), true);
 					}
@@ -337,9 +344,9 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
 	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	CSG_Vector	A;	CSG_Matrix	B;	DataSet.Get_Transformation(A, B);
@@ -363,6 +370,8 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	CSG_Array_Pointer	pGrids;
+
 	for(int i=0; i<DataSet.Get_Count() && Process_Get_Okay(); i++)
 	{
 		if( !Bands.Get_Selection_Count() || Bands[i].is_Selected() )
@@ -385,13 +394,39 @@ bool CGDAL_Import::Load(const CSG_String &File)
 				pGrid->Set_File_Name(DataSet.Get_File_Name());
 				pGrid->Set_Name(SG_File_Get_Name(File, false) + (DataSet.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", Bands[i].asString(0))));
 
-				m_pGrids->Add_Item(pGrid);
-
-				DataObject_Add       (pGrid);
-				DataObject_Set_Colors(pGrid, CSG_Colors(11, SG_COLORS_RAINBOW, false));
+				pGrids.Add(pGrid);
 			}
 		}
     }
+
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pList	= Parameters("GRIDS")->asGridList();
+
+	if( Parameters("MULTIPLE")->asInt() == 0 || (Parameters("MULTIPLE")->asInt() == 2 && pGrids.Get_Size() == 1) )
+	{
+		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		{
+			pList->Add_Item((CSG_Grid *)pGrids[i]);
+		}
+	}
+	else if( pGrids.Get_Size() > 0 )
+	{
+		CSG_Grids	*pCollection	= SG_Create_Grids();
+
+		pCollection->Set_File_Name(DataSet.Get_File_Name());
+
+		pCollection->Set_Name(SG_File_Get_Name(File, false));
+		pCollection->Set_Description(DataSet.Get_Description());
+
+		pCollection->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
+
+		for(size_t i=0; i<pGrids.Get_Size(); i++)
+		{
+			pCollection->Add_Grid(i, (CSG_Grid *)pGrids.Get(i), true);
+		}
+
+		pList->Add_Item(pCollection);
+	}
 
 	//-----------------------------------------------------
 	return( true );
@@ -423,7 +458,7 @@ bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 
 		if( MetaData(ID + "NAME") )
 		{
-			Subsets.Add_Bool(NULL,
+			Subsets.Add_Bool("",
 				MetaData.Get_Content(ID + "NAME"),
 				MetaData.Get_Content(ID + "DESC"),
 				"", SG_UI_Get_Window_Main() == NULL

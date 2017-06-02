@@ -115,6 +115,9 @@ public:		///////////////////////////////////////////////
 									CSG_Grids			(const CSG_Grids &Grids);
 	virtual bool					Create				(const CSG_Grids &Grids);
 
+									CSG_Grids			(CSG_Grids *pGrids, bool bCopyData = false);
+	virtual bool					Create				(CSG_Grids *pGrids, bool bCopyData = false);
+
 									CSG_Grids			(const CSG_String &FileName, bool bLoadData = true);
 	virtual bool					Create				(const CSG_String &FileName, bool bLoadData = true);
 
@@ -189,7 +192,8 @@ public:		///////////////////////////////////////////////
 	bool							Add_Attribute		(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
 	bool							Del_Attribute		(int iField);
 
-	const CSG_Table &				Get_Attributes		(void)	const	{	return( m_Attributes );	}
+	const CSG_Table &				Get_Attributes		(void)	const	{	return(  m_Attributes );	}
+	CSG_Table *						Get_Attributes_Ptr	(void)			{	return( &m_Attributes );	}
 
 	CSG_Table_Record &				Get_Attributes		(int i)	const	{	return( m_Attributes[i] );	}
 
@@ -208,14 +212,17 @@ public:		///////////////////////////////////////////////
 	bool							Set_Grid_Count		(int Count);
 	int								Get_Grid_Count		(void)	const	{	return( m_Attributes.Get_Count() );	}
 
-	bool							Add_Grid			(double Z);
-	bool							Add_Grid			(double Z, CSG_Grid *pGrid, bool bAttach = false);
+	bool							Add_Grid			(double                     Z);
+	bool							Add_Grid			(double                     Z, CSG_Grid *pGrid, bool bAttach = false);
+	bool							Add_Grid			(CSG_Table_Record &Attributes);
+	bool							Add_Grid			(CSG_Table_Record &Attributes, CSG_Grid *pGrid, bool bAttach = false);
 
 	bool							Del_Grid			(int i, bool bDetach = false);
-	bool							Del_Grids			(void);
+	bool							Del_Grids			(       bool bDetach = false);
 
 	const CSG_Grid &				Get_Grid			(int i)	const	{	return( *m_pGrids[i] );	}
 	CSG_Grid *						Get_Grid_Ptr		(int i)	const	{	return(  m_pGrids[i] );	}
+	CSG_String						Get_Grid_Name		(int i)	const;
 
 	sLong							Get_Memory_Size		(void)	const	{	return( m_pGrids[0]->Get_Memory_Size() * Get_NZ() );	}
 
@@ -234,6 +241,10 @@ public:		///////////////////////////////////////////////
 	double							Get_Range			(void);
 	double							Get_StdDev			(void);
 	double							Get_Variance		(void);
+	double							Get_Quantile		(double Quantile);
+
+	const CSG_Simple_Statistics &	Get_Statistics		(void);
+	bool							Get_Statistics		(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues = false)	const;
 
 
 	//-----------------------------------------------------
@@ -336,9 +347,9 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	virtual double					asDouble(sLong             i, bool bScaled = true) const
 	{
-		int	z	= (int)(i % m_pGrids[0]->Get_NCells());
+		int	z	= (int)(i / m_pGrids[0]->Get_NCells());
 
-		return( m_pGrids[z]->asDouble((sLong)(i / m_pGrids[0]->Get_NCells()), bScaled) );
+		return( m_pGrids[z]->asDouble((sLong)(i % m_pGrids[0]->Get_NCells()), bScaled) );
 	}
 
 	virtual double					asDouble(int x, int y, int z, bool bScaled = true) const
@@ -359,14 +370,67 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	virtual void					Set_Value(sLong             i, double Value, bool bScaled = true)
 	{
-		int	z	= (int)(i % m_pGrids[0]->Get_NCells());
+		int	z	= (int)(i / m_pGrids[0]->Get_NCells());
 
-		m_pGrids[z]->Set_Value((sLong)(i / m_pGrids[0]->Get_NCells()), Value, bScaled);
+		m_pGrids[z]->Set_Value((sLong)(i % m_pGrids[0]->Get_NCells()), Value, bScaled);
 	}
 
 	virtual void					Set_Value(int x, int y, int z, double Value, bool bScaled = true)
 	{
 		m_pGrids[z]->Set_Value(x, y, Value, bScaled);
+	}
+
+
+	//-----------------------------------------------------
+	// Index...
+
+	bool							Set_Index		(bool bOn = true)
+	{
+		if( !bOn )
+		{
+			SG_FREE_SAFE(m_Index);
+
+			return( true );
+		}
+
+		return( m_Index || _Set_Index() );
+	}
+
+	sLong							Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
+	{
+		if( Position >= 0 && Position < Get_NCells() && (m_Index || _Set_Index()) )
+		{
+			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
+
+			if( !bCheckNoData || !is_NoData(Position) )
+			{
+				return( Position );
+			}
+		}
+
+		return( -1 );
+	}
+
+	bool							Get_Sorted		(sLong Position, sLong &i, bool bDown = true, bool bCheckNoData = true)
+	{
+		return( (i = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(i)) );
+	}
+
+	bool							Get_Sorted		(sLong Position, int &x, int &y, int &z, bool bDown = true, bool bCheckNoData = true)
+	{
+		if( (Position = Get_Sorted(Position, bDown, false)) >= 0 )
+		{
+			z	= (int)(Position / m_pGrids[0]->Get_NCells());
+
+			Position	= Position % m_pGrids[0]->Get_NCells();
+
+			x	= (int)(Position % Get_NX());
+			y	= (int)(Position / Get_NX());
+
+			return( !bCheckNoData || !is_NoData(x, y, z) );
+		}
+
+		return( false );
 	}
 
 
@@ -383,6 +447,8 @@ private:	///////////////////////////////////////////////
 
 	int								m_Z_Attribute;
 
+	sLong							*m_Index;
+
 	CSG_Table						m_Attributes;
 
 	CSG_Array_Pointer				m_Grids;
@@ -398,6 +464,15 @@ private:	///////////////////////////////////////////////
 	void							_Synchronize			(CSG_Grid *pGrid);
 
 	//-----------------------------------------------------
+	bool							_Get_Z					(double Value, int &iz, double &dz)	const;
+
+	//-----------------------------------------------------
+	bool							_Set_Index				(void);
+
+	//-----------------------------------------------------
+	bool							_Load_External			(const CSG_String &FileName);
+	bool							_Load_PGSQL				(const CSG_String &FileName);
+
 	bool							_Load_Normal			(const CSG_String &FileName);
 	bool							_Save_Normal			(const CSG_String &FileName);
 
@@ -411,22 +486,14 @@ private:	///////////////////////////////////////////////
 	bool							_Save_Data				(CSG_File &Stream, CSG_Grid *pGrid);
 
 	//-----------------------------------------------------
-	double							_Get_ValAtPos_NearestNeighbour	(int x, int y, int z, double dx, double dy, double dz)	const;
-	double							_Get_ValAtPos_BiLinear			(int x, int y, int z, double dx, double dy, double dz)	const;
-	double							_Get_ValAtPos_InverseDistance	(int x, int y, int z, double dx, double dy, double dz)	const;
-	double							_Get_ValAtPos_BiCubicSpline		(int x, int y, int z, double dx, double dy, double dz)	const;
-	double							_Get_ValAtPos_BSpline			(int x, int y, int z, double dx, double dy, double dz)	const;
-	bool							_Get_ValAtPos_Fill4x4Submatrix	(int x, int y, int z, double v[4][4][4])	const;
-
-	//-----------------------------------------------------
 	bool							_Assign_Interpolated	(CSG_Grids *pSource, TSG_Grid_Resampling Interpolation);
 	bool							_Assign_MeanValue		(CSG_Grids *pSource, bool bAreaProportional);
 	bool							_Assign_ExtremeValue	(CSG_Grids *pSource, bool bMaximum);
 	bool							_Assign_Majority		(CSG_Grids *pSource);
 
 	//-----------------------------------------------------
-	CSG_Grid &						_Operation_Arithmetic	(const CSG_Grids &Grids, TSG_Grid_Operation Operation);
-	CSG_Grid &						_Operation_Arithmetic	(double Value          , TSG_Grid_Operation Operation);
+	CSG_Grids &						_Operation_Arithmetic	(const CSG_Grids &Grids, TSG_Grid_Operation Operation);
+	CSG_Grids &						_Operation_Arithmetic	(double Value          , TSG_Grid_Operation Operation);
 
 };
 
@@ -446,7 +513,10 @@ private:	///////////////////////////////////////////////
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(void);
 
 /** Safe construction of a grid collection */
-SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grid &Grid);
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grids &Grids);
+
+/** Safe construction of a grid collection */
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(CSG_Grids *pGrids, bool bCopyData);
 
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_String &FileName, bool bLoadData = true);

@@ -78,22 +78,32 @@ CRaster_Load::CRaster_Load(void)
 		"Imports grids from a PostGIS database."
 	));
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"WHERE"		, _TL("Where"),
 		_TL(""),
 		""
+	);
+
+	Parameters.Add_Choice("",
+		"MULTIPLE"	, _TL("Multiple Bands Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("single grids"),
+			_TL("grid collection"),
+			_TL("automatic")
+		), 2
 	);
 }
 
@@ -128,6 +138,30 @@ bool CRaster_Load::On_Execute(void)
 		return( false );
 	}
 
+	if( Parameters("MULTIPLE")->asInt() == 0 || (Parameters("MULTIPLE")->asInt() == 2 && pGrids->Get_Grid_Count() == 1) )
+	{
+		// nop
+	}
+	else if( pGrids->Get_Grid_Count() > 0 )
+	{
+		CSG_Grids	*pCollection	= SG_Create_Grids();
+
+	//	pCollection->Set_File_Name(Get_File_Name());
+
+		pCollection->Set_Name(Parameters("TABLES")->asString());
+	//	pCollection->Set_Description(DataSet.Get_Description());
+
+	//	pCollection->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
+
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+		{
+			pCollection->Add_Grid(i, pGrids->Get_Grid(i), true);
+		}
+
+		pGrids->Del_Items();
+		pGrids->Add_Item(pCollection);
+	}
+
 	return( pGrids->Get_Grid_Count() > 0 );
 }
 
@@ -149,24 +183,24 @@ CRaster_Load_Band::CRaster_Load_Band(void)
 		"Imports grids from a PostGIS database."
 	));
 
-	Parameters.Add_Grid_Output(NULL,
+	Parameters.Add_Grid_Output("",
 		"GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"BANDS"		, _TL("Bands"),
 		_TL(""),
 		""
 	)->Set_UseInCMD(false);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"RID"		, _TL("Raster Band Identifier"),
 		_TL(""),
 		""
@@ -280,30 +314,30 @@ CRaster_Save::CRaster_Save(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_System(NULL,
+	Parameters.Add_Grid_System("",
 		"GRID_SYSTEM"	, _TL("Grid System"),
 		_TL("")
 	);
 
-	Parameters.Add_Grid_List(Parameters("GRID_SYSTEM"),
+	Parameters.Add_Grid_List("GRID_SYSTEM",
 		"GRIDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLE"		, _TL("Add to Table"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_String(Parameters("TABLE"),
+	Parameters.Add_String("TABLE",
 		"NAME"		, _TL("Table Name"),
 		_TL(""),
 		""
 	);
 
-	Parameters.Add_Bool(Parameters("TABLE"),
+	Parameters.Add_Bool("TABLE",
 		"GRID_NAME"	, _TL("Band Name Field"),
 		_TL(""),
 		true
@@ -465,7 +499,7 @@ CRaster_SRID_Update::CRaster_SRID_Update(void)
 		" Change the SRID of all rasters in the user-specified column and table."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""

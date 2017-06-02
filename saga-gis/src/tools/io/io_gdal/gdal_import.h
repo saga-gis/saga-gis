@@ -94,9 +94,6 @@ protected:
 
 private:
 
-	CSG_Parameter_Grid_List		*m_pGrids;
-
-
 	static int					On_Selection_Changed	(CSG_Parameter *pParameter, int Flags);
 
 	bool						Load					(const CSG_String &File);

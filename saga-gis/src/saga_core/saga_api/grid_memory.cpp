@@ -268,7 +268,6 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 //---------------------------------------------------------
 void CSG_Grid::_Memory_Destroy(void)
 {
-	m_bIndex	= false;
 	SG_FREE_SAFE(m_Index);
 
 	switch( m_Memory_Type )

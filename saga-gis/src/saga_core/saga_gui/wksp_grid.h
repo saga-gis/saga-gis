@@ -104,7 +104,7 @@ public:
 	virtual double				Get_Value_Mean			(void);
 	virtual double				Get_Value_StdDev		(void);
 
-	bool						Fit_Color_Range			(CSG_Rect rWorld);
+	bool						Fit_Colors				(const CSG_Rect &rWorld);
 
 	virtual bool				asImage					(CSG_Grid *pImage);
 

@@ -105,7 +105,7 @@ wxString			Get_FilePath_Relative			(const wxString &Directory, const wxString &F
 wxString			Get_FilePath_Absolute			(const wxString &Directory, const wxString &FileName);
 
 //---------------------------------------------------------
-wxString			Get_TableInfo_asHTML			(class CSG_Table *pTable);
+wxString			Get_TableInfo_asHTML			(const class CSG_Table *pTable);
 
 //---------------------------------------------------------
 bool				Set_Font						(CSG_Parameter *pFont, wxFont &Font, wxColour &Colour);

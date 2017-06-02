@@ -447,6 +447,12 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		2.0, 0.0, true
 	);
 
+	m_Parameters.Add_Bool("STRETCH_STDDEV",
+		"STRETCH_INRANGE"	, _TL("Keep in Range"),
+		_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
+		true
+	);
+
 	m_Parameters.Add_Double("STRETCH_DEFAULT",
 		"STRETCH_PCTL"		, _TL("Percentile"),
 		_TL(""),
@@ -1183,100 +1189,55 @@ bool CWKSP_Grid::Fit_Colors(void)
 {
 	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-	default:
-		{
-			double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
+	default: {
+		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
 
-			return( Set_Color_Range(
-				Get_Grid()->Get_Min() + d,
-				Get_Grid()->Get_Max() - d
-			));
-		}
+		return( Set_Color_Range(Get_Grid()->Get_Min() + d, Get_Grid()->Get_Max() - d) );	}
 
-	case  1:
-		{
-			double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
+	case  1: {
+		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
 
-			return( Set_Color_Range(
-				Get_Grid()->Get_Mean() - d,
-				Get_Grid()->Get_Mean() + d
-			));
-		}
+		double	min	= Get_Grid()->Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && min < Get_Grid()->Get_Min() ) min = Get_Grid()->Get_Min();
+		double	max	= Get_Grid()->Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && max > Get_Grid()->Get_Max() ) max = Get_Grid()->Get_Max();
 
-	case  2:
-		{
-			double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
+		return( Set_Color_Range(min, max) );	}
 
-			return( Set_Color_Range(
-				Get_Grid()->Get_Quantile(        d),
-				Get_Grid()->Get_Quantile(100.0 - d)
-			));
-		}
+	case  2: {
+		double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
+
+		return( Set_Color_Range(Get_Grid()->Get_Quantile(d), Get_Grid()->Get_Quantile(100 - d)));	}
 	}
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Fit_Color_Range(CSG_Rect rWorld)
+bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 {
-	if( !rWorld.Intersect(Get_Extent()) )
-	{
-		return( false );
-	}
+	CSG_Simple_Statistics	s;
 
-	CSG_Simple_Statistics	s(m_Parameters("STRETCH_DEFAULT")->asInt() == 2);
-
-	int	xMin	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin());
-	int	yMin	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin());
-	int	xMax	= Get_Grid()->Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax());
-	int	yMax	= Get_Grid()->Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax());
-
-	for(int y=yMin; y<=yMax; y++)
-	{
-		for(int x=xMin; x<=xMax; x++)
-		{
-			if( Get_Grid()->is_InGrid(x, y) )
-			{
-				s	+= Get_Grid()->asDouble(x, y);
-			}
-		}
-	}
-
-	if( s.Get_Count() <= 0 )
+	if( !Get_Grid()->Get_Statistics(rWorld, s, m_Parameters("STRETCH_DEFAULT")->asInt() == 2) )
 	{
 		return( false );
 	}
 
 	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-	default:
-		{
-			double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+	default: {
+		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
 
-			return( Set_Color_Range(
-				s.Get_Minimum() + d,
-				s.Get_Maximum() - d)
-			);
-		}
+		return( Set_Color_Range(s.Get_Minimum() + d, s.Get_Maximum() - d) );	}
 
-	case  1:
-		{
-			double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+	case  1: {
+		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
 
-			return( Set_Color_Range(
-				s.Get_Mean() - d,
-				s.Get_Mean() + d)
-			);
-		}
+		double	min	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && min < Get_Grid()->Get_Min() ) min = Get_Grid()->Get_Min();
+		double	max	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && max > Get_Grid()->Get_Max() ) max = Get_Grid()->Get_Max();
 
-	case  2:
-		{
-			double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
+		return( Set_Color_Range(min, max) );	}
 
-			return( Set_Color_Range(
-				s.Get_Quantile(        d),
-				s.Get_Quantile(100.0 - d))
-			);
-		}
+	case  2: {
+		double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
+
+		return( Set_Color_Range(s.Get_Quantile(d), s.Get_Quantile(100 - d)));	}
 	}
 }
 

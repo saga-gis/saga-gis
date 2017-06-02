@@ -381,7 +381,7 @@ void CDLG_List_Base::On_Down(wxCommandEvent &event)
 	{
 		Selections.Sort(_Compare_Down);
 
-		if( (int)Selections.Item(0) < m_pSelection->GetCount() - 1 )
+		if( (unsigned int)Selections.Item(0) < m_pSelection->GetCount() - 1 )
 		{
 			for(size_t i=0; i<Selections.GetCount(); i++)
 			{

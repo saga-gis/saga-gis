@@ -828,6 +828,17 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 }
 
 //---------------------------------------------------------
+bool CSG_Table::Set_Record(int iRecord, CSG_Table_Record *pCopy)
+{
+	if( iRecord >= 0 && iRecord < m_nRecords && pCopy )
+	{
+		return( m_Records[iRecord]->Assign(pCopy) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 bool CSG_Table::Del_Record(int iRecord)
 {
 	if( iRecord >= 0 && iRecord < m_nRecords )
@@ -916,6 +927,127 @@ bool CSG_Table::Set_Record_Count(int nRecords)
 	}
 
 	return( m_nRecords == nRecords );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Table::Find_Record(int &iRecord, int iField, const CSG_String &Value, bool bCreateIndex)
+{
+	if( iField >= 0 && iField < m_nFields )
+	{
+		if( bCreateIndex && iField != Get_Index_Field(0) )
+		{
+			Set_Index(iField, TABLE_INDEX_Ascending);
+		}
+
+		if( iField == Get_Index_Field(0) )
+		{
+			bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+
+			for(iRecord=0; iRecord<m_nRecords; iRecord++)
+			{
+				CSG_Table_Record	*pRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord);
+
+				if( !pRecord->is_NoData(iField) )
+				{
+					int	Dif	= Value.Cmp(pRecord->asString(iField));
+
+					if( Dif == 0 )
+					{
+						return( true );
+					}
+
+					if( Dif > 0 )
+					{
+						iRecord--;
+
+						return( false );
+					}
+				}
+			}
+
+			return( false );
+		}
+		else
+		{
+			for(int i=0; i<m_nRecords; i++)
+			{
+				if( !Value.Cmp(m_Records[i]->asString(iField)) )
+				{
+					iRecord	= i;
+
+					return( true );
+				}
+			}
+		}
+	}
+
+	iRecord	= -2;
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::Find_Record(int &iRecord, int iField, double Value, bool bCreateIndex)
+{
+	if( iField >= 0 && iField < m_nFields )
+	{
+		if( bCreateIndex && iField != Get_Index_Field(0) )
+		{
+			Set_Index(iField, TABLE_INDEX_Ascending);
+		}
+
+		if( iField == Get_Index_Field(0) )
+		{
+			bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+
+			for(iRecord=0; iRecord<m_nRecords; iRecord++)
+			{
+				CSG_Table_Record	*pRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord);
+
+				if( !pRecord->is_NoData(iField) )
+				{
+					double	Dif	= Value - pRecord->asDouble(iField);
+
+					if( Dif == 0.0 )
+					{
+						return( true );
+					}
+
+					if( Dif > 0.0 )
+					{
+						iRecord--;
+
+						return( false );
+					}
+				}
+			}
+
+			return( false );
+		}
+		else
+		{
+			for(int i=0; i<m_nRecords; i++)
+			{
+				if( Value == m_Records[i]->asDouble(iField) )
+				{
+					iRecord	= i;
+
+					return( true );
+				}
+			}
+		}
+	}
+
+	iRecord	= -2;
+
+	return( false );
 }
 
 
