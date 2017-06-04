@@ -704,7 +704,7 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 			for(i=0; i<asChoices()->Get_Item_Count(); i++)
 			{
-				s	+= CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i));
+				s	+= CSG_String::Format("%s[%d] %s", Separator, i, asChoices()->Get_Item(i).c_str());
 			}
 			break;
 
