@@ -114,7 +114,7 @@ bool CSG_Grid::On_Delete(void)
 //---------------------------------------------------------
 bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save grid"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving grid"), FileName.c_str()), true);
 
 	//-----------------------------------------------------
 	if( Format == GRID_FILE_FORMAT_Undefined )
@@ -134,6 +134,8 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 	}
 
 	//-----------------------------------------------------
+	SG_UI_Process_Set_Ready();
+
 	if( bResult )
 	{
 		Set_Modified(false);
@@ -141,15 +143,13 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 		Set_File_Name(FileName, true);
 
 		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-	}
-	else
-	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+		return( true );
 	}
 
-	SG_UI_Process_Set_Ready();
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
-	return( bResult );
+	return( false );
 }
 
 

@@ -299,7 +299,7 @@ bool CSG_Grid::Create(const CSG_String &FileName, TSG_Data_Type Type, TSG_Grid_M
 {
 	Destroy();
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load grid"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading grid"), FileName.c_str()), true);
 
 	m_Type	= Type;
 

@@ -265,7 +265,7 @@ bool CSG_PointCloud::Destroy(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Load(const CSG_String &FileName)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load point cloud"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading point cloud"), FileName.c_str()), true);
 
 	bool	bResult	= false;
 
@@ -301,30 +301,28 @@ bool CSG_PointCloud::_Load(const CSG_String &FileName)
 	}
 
 	//-----------------------------------------------------
-	if( !bResult )
-	{
-		Set_File_Name(FileName, true);
-
-		SG_UI_Msg_Add_Error(_TL("file could not be opened."));
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Process_Set_Ready();
-
-		return( false );
-	}
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	SG_UI_Process_Set_Ready();
 
-	Set_Modified(false);
+	if( bResult )
+	{
+		Set_Modified(false);
 
-	return( true );
+		Set_File_Name(FileName, true);
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save point cloud"), FileName.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
 
 	if( Format == POINTCLOUD_FILE_FORMAT_Undefined )
 	{
@@ -382,24 +380,22 @@ bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
 	}
 
 	//-----------------------------------------------------
-	if( bResult )
-	{
-		Set_File_Name(FileName, true);
-
-		SG_UI_Msg_Add_Error(_TL("could not save file."));
-
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Process_Set_Ready();
-
-		return( false );
-	}
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	SG_UI_Process_Set_Ready();
 
-	Set_Modified(false);
+	if( bResult )
+	{
+		Set_Modified(false);
 
-	return( true );
+		Set_File_Name(FileName, true);
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 

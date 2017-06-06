@@ -1430,18 +1430,18 @@ bool CSG_Grids::Load(const CSG_String &FileName, bool bLoadData)
 	||  _Load_Compressed(FileName)
 	||  _Load_External  (FileName) )
 	{
-		Set_Name(SG_File_Get_Name(FileName, false));
-
 		Set_Modified(false);
 
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+		Set_Name(SG_File_Get_Name(FileName, false));
+
 		SG_UI_Process_Set_Ready();
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 
 		return( true );
 	}
 
-	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 	SG_UI_Process_Set_Ready();
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
 	return( false );
 }
@@ -1467,22 +1467,22 @@ bool CSG_Grids::Save(const CSG_String &FileName, int Format)
 	}
 
 	//-----------------------------------------------------
-	if( !bResult )
-	{
-		SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-		SG_UI_Process_Set_Ready();
-
-		return( false );
-	}
-
-	Set_File_Name(FileName, true);
-
-	Set_Modified(false);
-
-	SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
 	SG_UI_Process_Set_Ready();
 
-	return( true );
+	if( bResult )
+	{
+		Set_Modified(false);
+
+		Set_File_Name(FileName, true);
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
 }
 
 
