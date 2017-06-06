@@ -573,7 +573,7 @@ bool		SG_UI_ODBC_Update		(const CSG_String &Server)
 	{
 		CSG_UI_Parameter	p1(Server), p2;
 
-		return( gSG_UI_Callback(CALLBACK_ODBC_UPDATE, p1, p2) != 0 );
+		return( gSG_UI_Callback(CALLBACK_DATABASE_UPDATE, p1, p2) != 0 );
 	}
 
 	return( false );

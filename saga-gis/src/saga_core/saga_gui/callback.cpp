@@ -315,9 +315,9 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 
 	//-----------------------------------------------------
-	case CALLBACK_ODBC_UPDATE:
+	case CALLBACK_DATABASE_UPDATE:
 
-		Result	= g_pData_Source->Update_ODBC_Source(Param_1.String.c_str()) ? 1 : 0;
+		Result	= g_pData_Source->Update_Database(Param_1.String.c_str()) ? 1 : 0;
 
 		break;
 

@@ -90,6 +90,7 @@ enum
 	IMG_TOOL,
 	IMG_ENTRY,
 	IMG_GRID,
+	IMG_GRIDS,
 	IMG_TABLE,
 	IMG_SHAPES,
 	IMG_POINTCLOUD,
@@ -129,16 +130,17 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_ACTIVE_HISTORY , wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
-	IMG_ADD_TO_TREECTRL(ID_IMG_NB_ACTIVE_HISTORY);		// ROOT
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_MAP_ZOOM_NEXT);		// NODE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TOOL);			// TOOL
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO);				// ENTRY
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID);				// GRID
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TABLE);				// TABLE
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON);	// SHAPES
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_POINTCLOUD);		// POINTCLOUD
-	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TIN);				// TIN
-	IMG_ADD_TO_TREECTRL(ID_IMG_TB_OPEN);				// FILE
+	IMG_ADD_TO_TREECTRL(ID_IMG_NB_ACTIVE_HISTORY  ); // IMG_ROOT
+	IMG_ADD_TO_TREECTRL(ID_IMG_TB_MAP_ZOOM_NEXT   ); // IMG_NODE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TOOL          ); // IMG_TOOL
+	IMG_ADD_TO_TREECTRL(ID_IMG_TB_INFO            ); // IMG_ENTRY
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRID          ); // IMG_GRID
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_GRIDS         ); // IMG_GRIDS
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TABLE         ); // IMG_TABLE
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_SHAPES_POLYGON); // IMG_SHAPES
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_POINTCLOUD    ); // IMG_POINTCLOUD
+	IMG_ADD_TO_TREECTRL(ID_IMG_WKSP_TIN           ); // IMG_TIN
+	IMG_ADD_TO_TREECTRL(ID_IMG_TB_OPEN            ); // IMG_FILE
 
 	m_pItem		= NULL;
 }
@@ -321,19 +323,19 @@ int CACTIVE_History::_Get_Image(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
-	case PARAMETER_TYPE_Grid:				return( IMG_GRID		);
-	case PARAMETER_TYPE_Table:				return( IMG_TABLE		);
-	case PARAMETER_TYPE_Shapes:				return( IMG_SHAPES		);
-	case PARAMETER_TYPE_PointCloud:			return( IMG_POINTCLOUD	);
-	case PARAMETER_TYPE_TIN:				return( IMG_TIN			);
-
-	case PARAMETER_TYPE_Grid_List:			return( IMG_GRID		);
-	case PARAMETER_TYPE_Table_List:			return( IMG_TABLE		);
-	case PARAMETER_TYPE_Shapes_List:		return( IMG_SHAPES		);
-	case PARAMETER_TYPE_PointCloud_List:	return( IMG_POINTCLOUD	);
-	case PARAMETER_TYPE_TIN_List:			return( IMG_TIN			);
-
-	default:								return( IMG_NODE );
+	case PARAMETER_TYPE_Grid           : return( IMG_GRID       );
+	case PARAMETER_TYPE_Grids          : return( IMG_GRIDS      );
+	case PARAMETER_TYPE_Table          : return( IMG_TABLE      );
+	case PARAMETER_TYPE_Shapes         : return( IMG_SHAPES     );
+	case PARAMETER_TYPE_PointCloud     : return( IMG_POINTCLOUD );
+	case PARAMETER_TYPE_TIN            : return( IMG_TIN        );
+	case PARAMETER_TYPE_Grid_List      : return( IMG_GRID       );
+	case PARAMETER_TYPE_Grids_List     : return( IMG_GRIDS      );
+	case PARAMETER_TYPE_Table_List     : return( IMG_TABLE      );
+	case PARAMETER_TYPE_Shapes_List    : return( IMG_SHAPES     );
+	case PARAMETER_TYPE_PointCloud_List: return( IMG_POINTCLOUD	);
+	case PARAMETER_TYPE_TIN_List       : return( IMG_TIN        );
+	default                            : return( IMG_NODE       );
 	}
 }
 

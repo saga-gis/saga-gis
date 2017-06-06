@@ -1483,7 +1483,7 @@ bool CSG_PG_Connection::_Raster_Load(CSG_Grid *pGrid, bool bFirst, bool bBinary)
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order)
+bool CSG_PG_Connection::Raster_Load(CSG_Data_Manager &Grids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order)
 {
 	//-----------------------------------------------------
 	bool		bBinary	= true;
@@ -1506,20 +1506,73 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 
 			return( false );
 		}
-		else
+
+		pGrid->Set_Name(Table + " [" + Info[iBand].asString(1) + "]");
+
+		Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[iBand].asInt(0))).Add_Child("ID", Info[iBand].asInt(0));
+
+		Grids.Add(pGrid);
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where, const CSG_String &Order, int OutputType)
+{
+	//-----------------------------------------------------
+	CSG_Data_Manager	Grids;
+
+	if( !Raster_Load(Grids, Table, Where, Order) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(size_t iSystem=0; iSystem<Grids.Grid_System_Count(); iSystem++)
+	{
+		CSG_Grid_Collection	*pSystem	= Grids.Get_Grid_System(iSystem);
+
+		if( OutputType == 0 || (OutputType == 2 && pSystem->Count() == 1) )	// OutputType: 0 == single grid(s), 1 == grid collection, 2 == automatic
 		{
-			pGrid->Set_Name(Table + " [" + Info[iBand].asString(1) + "]");
-
-			Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[iBand].asInt(0)));
-
-		//	SG_Get_Data_Manager().Add(pGrid);
-
-			if( pGrids )
+			for(size_t iGrid=0; iGrid<pSystem->Count(); iGrid++)
 			{
-				pGrids->Add_Item(pGrid);
+				pGrids->Add_Item(pSystem->Get(iGrid));
 			}
 		}
+		else if( pSystem->Count() > 0 )
+		{
+			CSG_Grids	*pCollection	= SG_Create_Grids();
+
+			CSG_String	rids;
+
+			for(int iGrid=0; iGrid<pSystem->Count(); iGrid++)
+			{
+				pCollection->Add_Grid(iGrid, (CSG_Grid *)pSystem->Get(iGrid), true);
+
+				CSG_String	rid(pSystem->Get(iGrid)->Get_MetaData_DB().Get_Content("ID"));
+
+				if( !rid.is_Empty() )
+				{
+					if( !rids.is_Empty() )
+					{
+						rids	+= ",";
+					}
+
+					rids	+= rid;
+				}
+			}
+
+			pCollection->Set_Name(Table);
+
+			Add_MetaData(*pCollection, Table + ":rid=" + rids);
+
+			pGrids->Add_Item(pCollection);
+		}
 	}
+
+	Grids.Delete_All(true);
 
 	//-----------------------------------------------------
 	return( true );
@@ -1534,7 +1587,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Grid *pGrid, const CSG_String &Table, co
 	{
 		pGrid->Set_Name(Table + " [" + Info[0].asString(1) + "]");
 
-		Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[0].asInt(0)));
+		Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", Info[0].asInt(0))).Add_Child("ID", Info[0].asInt(0));
 
 		SG_Get_Data_Manager().Add(pGrid);
 

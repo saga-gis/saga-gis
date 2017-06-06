@@ -92,7 +92,7 @@ public:
 	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
 
 	bool							Set_Data_Source			(class CWKSP_Base_Item *pItem);
-	bool							Update_ODBC_Source		(const wxString &Server);
+	bool							Update_Database			(const wxString &Server);
 
 
 private:

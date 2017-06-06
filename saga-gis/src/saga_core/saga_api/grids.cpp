@@ -279,15 +279,7 @@ bool CSG_Grids::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Grids::Create(const CSG_Grids &Grids)
 {
-	if( Grids.is_Valid() && Create(Grids.Get_System(), Grids.Get_Attributes(), Grids.Get_Z_Attribute(), Grids.Get_Type()) )
-	{
-		for(size_t i=0; i<Grids.m_Grids.Get_Size(); i++)
-		{
-			m_pGrids[i]->Assign(Grids.m_pGrids[i], GRID_RESAMPLING_NearestNeighbour);
-		}
-	}
-
-	return( false );
+	return( Create((CSG_Grids *)&Grids, true) );
 }
 
 //---------------------------------------------------------
@@ -305,6 +297,11 @@ bool CSG_Grids::Create(CSG_Grids *pGrids, bool bCopyData)
 				Add_Grid(pGrids->Get_Attributes(i), pGrids->Get_Grid_Ptr(i));
 			}
 		}
+
+		Get_MetaData_DB().Del_Children();
+		Get_MetaData_DB().Add_Children(pGrids->Get_MetaData_DB());
+
+		Get_Projection().Create(pGrids->Get_Projection());
 
 		return( true );
 	}
@@ -1536,11 +1533,97 @@ bool CSG_Grids::_Load_External(const CSG_String &FileName)
 //---------------------------------------------------------
 bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 {
-	if( FileName.BeforeFirst(':').Cmp("PGSQL") == 0 )
+	bool	bResult	= false;
+
+	if( FileName.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
+		CSG_String	s(FileName);
+
+		s	= s.AfterFirst(':');	CSG_String	Host  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Port  (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
+		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
+
+		//-------------------------------------------------
+		CSG_String_Tokenizer	rids(rid, ",");	rid.Clear();
+
+		while( rids.Has_More_Tokens() )
+		{
+			if( !rid.is_Empty() )
+			{
+				rid	+= " OR ";
+			}
+
+			rid	+= "rid=\'" + rids.Get_Next_Token() + "\'";
+		}
+
+		//-------------------------------------------------
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
+
+		if(	pTool != NULL )
+		{
+			SG_UI_ProgressAndMsg_Lock(true);
+
+			//---------------------------------------------
+			CSG_Table	Connections;
+			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
+
+			pTool->On_Before_Execution();
+			pTool->Settings_Push();
+
+			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
+			{
+				for(int i=0; !bResult && i<Connections.Get_Count(); i++)
+				{
+					if( !Connection.Cmp(Connections[i].asString(0)) )
+					{
+						bResult	= true;
+					}
+				}
+			}
+
+			pTool->Settings_Pop();
+
+			//---------------------------------------------
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 30)) != NULL) == true )	// CPGIS_Raster_Load
+			{
+				CSG_Data_Manager	Grids;
+
+				pTool->On_Before_Execution();
+				pTool->Settings_Push(&Grids);
+
+				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
+						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
+						&& SG_TOOL_PARAMETER_SET("MULTIPLE"  , 1)	// grid collection
+						&& SG_TOOL_PARAMETER_SET("WHERE"     , rid)
+						&& pTool->Execute();
+
+				pTool->Settings_Pop();
+
+				//-----------------------------------------
+				if( Grids.Grid_System_Count() > 0 && Grids.Get_Grid_System(0)->Get(0) )
+				{
+					CSG_Grids	*pGrids	= (CSG_Grids *)Grids.Get_Grid_System(0)->Get(0);
+
+					Set_File_Name(FileName);
+
+					Create(pGrids);
+
+					for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+					{
+						Add_Grid(pGrids->Get_Attributes(i), pGrids->Get_Grid_Ptr(i), true);
+					}
+
+					pGrids->Del_Grids(true);
+				}
+			}
+
+			SG_UI_ProgressAndMsg_Lock(false);
+		}
 	}
 
-	return( false );
+	return( Get_NZ() > 0 );
 }
 
 

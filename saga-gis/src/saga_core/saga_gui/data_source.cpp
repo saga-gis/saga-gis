@@ -251,7 +251,7 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CData_Source::Update_ODBC_Source(const wxString &Server)
+bool CData_Source::Update_Database(const wxString &Server)
 {
 	m_pODBC ->Update_Source(Server);
 	m_pPgSQL->Update_Source(Server);

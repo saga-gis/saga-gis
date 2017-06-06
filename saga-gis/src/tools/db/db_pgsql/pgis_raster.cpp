@@ -127,42 +127,14 @@ void CRaster_Load::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CRaster_Load::On_Execute(void)
 {
-	CSG_String	Table	= Parameters("TABLES")->asString();
+	Parameters("GRIDS")->asGridList()->Del_Items();
 
-	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
-
-	pGrids->Del_Items();
-
-	if( !Get_Connection()->Raster_Load(pGrids, Table, Parameters("WHERE")->asString()) )
-	{
-		return( false );
-	}
-
-	if( Parameters("MULTIPLE")->asInt() == 0 || (Parameters("MULTIPLE")->asInt() == 2 && pGrids->Get_Grid_Count() == 1) )
-	{
-		// nop
-	}
-	else if( pGrids->Get_Grid_Count() > 0 )
-	{
-		CSG_Grids	*pCollection	= SG_Create_Grids();
-
-	//	pCollection->Set_File_Name(Get_File_Name());
-
-		pCollection->Set_Name(Parameters("TABLES")->asString());
-	//	pCollection->Set_Description(DataSet.Get_Description());
-
-	//	pCollection->Get_MetaData().Add_Child("GDAL_DRIVER", DataSet.Get_DriverID());
-
-		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
-		{
-			pCollection->Add_Grid(i, pGrids->Get_Grid(i), true);
-		}
-
-		pGrids->Del_Items();
-		pGrids->Add_Item(pCollection);
-	}
-
-	return( pGrids->Get_Grid_Count() > 0 );
+	return( Get_Connection()->Raster_Load(
+		Parameters("GRIDS"   )->asGridList(),
+		Parameters("TABLES"  )->asString  (),
+		Parameters("WHERE"   )->asString  (), "",
+		Parameters("MULTIPLE")->asInt     ()
+	));
 }
 
 
@@ -564,4 +536,3 @@ bool CRaster_SRID_Update::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-	

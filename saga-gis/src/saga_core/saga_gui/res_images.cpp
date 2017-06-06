@@ -316,9 +316,10 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_WKSP:	return( tb_wksp_xpm );
 
 	case ID_IMG_WKSP_DATA_MANAGER:	return( wksp_data_manager_xpm );
-	case ID_IMG_WKSP_GRID:	return( wksp_grid_xpm );
 	case ID_IMG_WKSP_GRID_MANAGER:	return( wksp_grid_manager_xpm );
 	case ID_IMG_WKSP_GRID_SYSTEM:	return( wksp_grid_system_xpm );
+	case ID_IMG_WKSP_GRID:	return( wksp_grid_xpm );
+	case ID_IMG_WKSP_GRIDS:	return( wksp_grid_manager_xpm );
 	case ID_IMG_WKSP_MAP:	return( wksp_map_xpm );
 	case ID_IMG_WKSP_MAP_GRATICULE:	return( wksp_map_graticule_xpm );
 	case ID_IMG_WKSP_MAP_BASEMAP:	return( wnd_map_xpm );
