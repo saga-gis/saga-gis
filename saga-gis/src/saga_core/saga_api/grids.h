@@ -90,6 +90,12 @@ typedef enum ESG_Grids_File_Format
 }
 TSG_Grids_File_Format;
 
+//---------------------------------------------------------
+#define SG_GRIDS_NAME_OWNER	0x01
+#define SG_GRIDS_NAME_INDEX	0x02
+#define SG_GRIDS_NAME_VALUE	0x04
+#define SG_GRIDS_NAME_GRID	0x08
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -115,8 +121,8 @@ public:		///////////////////////////////////////////////
 									CSG_Grids			(const CSG_Grids &Grids);
 	virtual bool					Create				(const CSG_Grids &Grids);
 
-									CSG_Grids			(CSG_Grids *pGrids, bool bCopyData = false);
-	virtual bool					Create				(CSG_Grids *pGrids, bool bCopyData = false);
+									CSG_Grids			(const CSG_Grids *pGrids, bool bCopyData = false);
+	virtual bool					Create				(const CSG_Grids *pGrids, bool bCopyData = false);
 
 									CSG_Grids			(const CSG_String &FileName, bool bLoadData = true);
 	virtual bool					Create				(const CSG_String &FileName, bool bLoadData = true);
@@ -124,8 +130,8 @@ public:		///////////////////////////////////////////////
 									CSG_Grids			(const CSG_Grid_System &System, int NZ = 0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 	virtual bool					Create				(const CSG_Grid_System &System, int NZ = 0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
-									CSG_Grids			(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
-	virtual bool					Create				(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
+									CSG_Grids			(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCreateGrids = false);
+	virtual bool					Create				(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCreateGrids = false);
 
 									CSG_Grids			(int NX, int NY, int NZ = 0, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 	virtual bool					Create				(int NX, int NY, int NZ = 0, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
@@ -222,7 +228,7 @@ public:		///////////////////////////////////////////////
 
 	const CSG_Grid &				Get_Grid			(int i)	const	{	return( *m_pGrids[i] );	}
 	CSG_Grid *						Get_Grid_Ptr		(int i)	const	{	return(  m_pGrids[i] );	}
-	CSG_String						Get_Grid_Name		(int i)	const;
+	CSG_String						Get_Grid_Name		(int i, int Style = 0)	const;
 
 	sLong							Get_Memory_Size		(void)	const	{	return( m_pGrids[0]->Get_Memory_Size() * Get_NZ() );	}
 
@@ -516,7 +522,7 @@ SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(void);
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grids &Grids);
 
 /** Safe construction of a grid collection */
-SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(CSG_Grids *pGrids, bool bCopyData);
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grids *pGrids, bool bCopyData = false);
 
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_String &FileName, bool bLoadData = true);
@@ -525,7 +531,7 @@ SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_String &FileName, b
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grid_System &System, int NZ = 0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
 
 /** Safe construction of a grid collection */
-SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined);
+SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute = 0, TSG_Data_Type Type = SG_DATATYPE_Undefined, bool bCreateGrids = false);
 
 /** Safe construction of a grid collection */
 SAGA_API_DLL_EXPORT CSG_Grids *		SG_Create_Grids		(int NX, int NY, int NZ = 0, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, double zMin = 0.0, TSG_Data_Type Type = SG_DATATYPE_Undefined);

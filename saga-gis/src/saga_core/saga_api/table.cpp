@@ -268,7 +268,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, 
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(CSG_Table *pTemplate)
+CSG_Table::CSG_Table(const CSG_Table *pTemplate)
 	: CSG_Data_Object()
 {
 	_On_Construction();
@@ -276,7 +276,7 @@ CSG_Table::CSG_Table(CSG_Table *pTemplate)
 	Create(pTemplate);
 }
 
-bool CSG_Table::Create(CSG_Table *pTemplate)
+bool CSG_Table::Create(const CSG_Table *pTemplate)
 {
 	Destroy();
 
@@ -894,24 +894,19 @@ bool CSG_Table::Del_Record(int iRecord)
 //---------------------------------------------------------
 bool CSG_Table::Del_Records(void)
 {
-	if( m_nRecords > 0 )
+	_Index_Destroy();
+
+	for(int iRecord=0; iRecord<m_nRecords; iRecord++)
 	{
-		_Index_Destroy();
-
-		for(int iRecord=0; iRecord<m_nRecords; iRecord++)
-		{
-			delete(m_Records[iRecord]);
-		}
-
-		SG_Free(m_Records);
-		m_Records	= NULL;
-		m_nRecords	= 0;
-		m_nBuffer	= 0;
-
-		return( true );
+		delete(m_Records[iRecord]);
 	}
 
-	return( false );
+	SG_FREE_SAFE(m_Records);
+
+	m_nRecords	= 0;
+	m_nBuffer	= 0;
+
+	return( true );
 }
 
 //---------------------------------------------------------

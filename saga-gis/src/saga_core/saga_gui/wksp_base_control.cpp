@@ -276,6 +276,11 @@ bool CWKSP_Base_Control::_Add_Item(CWKSP_Base_Item *pItem, int Image, int selIma
 }
 
 //---------------------------------------------------------
+bool CWKSP_Base_Control::Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
+{
+	return( _Del_Item(pItem, bSilent) );
+}
+
 bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 {
 	//-----------------------------------------------------

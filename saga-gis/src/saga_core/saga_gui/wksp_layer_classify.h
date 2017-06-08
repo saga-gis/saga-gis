@@ -150,11 +150,6 @@ public: ///////////////////////////////////////////////////
 	void						Set_Unique_Color		(int Color);
 	int							Get_Unique_Color		(void)		{	return( m_UNI_Color );	}
 
-	void						Set_Metric				(int Mode, double LogFactor, double zMin, double zMax);
-	int							Get_Metric_Mode			(void)		{	return( m_zMode );		}
-	CSG_Colors *				Get_Metric_Colors		(void)		{	return( m_pColors );	}
-
-	void						Metric2EqualElements	(void);
 
 	///////////////////////////////////////////////////////
 
@@ -165,15 +160,15 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE:	default:
+		case CLASSIFY_UNIQUE   : default:
 			return( 1 );
 
-		case CLASSIFY_LUT:
+		case CLASSIFY_LUT      :
 			return( m_pLUT->Get_Record_Count() );
 
 		case CLASSIFY_GRADUATED:
-		case CLASSIFY_SHADE:
-		case CLASSIFY_OVERLAY:
+		case CLASSIFY_SHADE    :
+		case CLASSIFY_OVERLAY  :
 			return( m_Count );
 
 		case CLASSIFY_METRIC:
@@ -186,16 +181,16 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE:	default:
+		case CLASSIFY_UNIQUE   : default:
 			return( 0 );
 
-		case CLASSIFY_LUT:
+		case CLASSIFY_LUT      :
 			return( _LUT_Get_Class(Value) );
 
 		case CLASSIFY_GRADUATED:
-		case CLASSIFY_METRIC:
-		case CLASSIFY_SHADE:
-		case CLASSIFY_OVERLAY:
+		case CLASSIFY_METRIC   :
+		case CLASSIFY_SHADE    :
+		case CLASSIFY_OVERLAY  :
 			return( _METRIC_Get_Class(Value) );
 		}
 	}
@@ -321,14 +316,14 @@ public: ///////////////////////////////////////////////////
 				switch( m_Shade_Mode )
 				{
 				default:
-				case SHADE_MODE_DSC_GREY:		Color	= SG_GET_RGB(255 - iClass, 255 - iClass, 255 - iClass);	break;
-				case SHADE_MODE_DSC_CYAN:		Color	= SG_GET_RGB(255 - iClass, 255         , 255         );	break;
-				case SHADE_MODE_DSC_MAGENTA:	Color	= SG_GET_RGB(255         , 255 - iClass, 255         );	break;
-				case SHADE_MODE_DSC_YELLOW:		Color	= SG_GET_RGB(255         , 255         , 255 - iClass);	break;
-				case SHADE_MODE_ASC_GREY:		Color	= SG_GET_RGB(      iClass,       iClass,       iClass);	break;
-				case SHADE_MODE_ASC_CYAN:		Color	= SG_GET_RGB(      iClass, 255         , 255         );	break;
-				case SHADE_MODE_ASC_MAGENTA:	Color	= SG_GET_RGB(255         ,       iClass, 255         );	break;
-				case SHADE_MODE_ASC_YELLOW:		Color	= SG_GET_RGB(255         , 255         ,       iClass);	break;
+				case SHADE_MODE_DSC_GREY   : Color = SG_GET_RGB(255 - iClass, 255 - iClass, 255 - iClass);	break;
+				case SHADE_MODE_DSC_CYAN   : Color = SG_GET_RGB(255 - iClass, 255         , 255         );	break;
+				case SHADE_MODE_DSC_MAGENTA: Color = SG_GET_RGB(255         , 255 - iClass, 255         );	break;
+				case SHADE_MODE_DSC_YELLOW : Color = SG_GET_RGB(255         , 255         , 255 - iClass);	break;
+				case SHADE_MODE_ASC_GREY   : Color = SG_GET_RGB(      iClass,       iClass,       iClass);	break;
+				case SHADE_MODE_ASC_CYAN   : Color = SG_GET_RGB(      iClass, 255         , 255         );	break;
+				case SHADE_MODE_ASC_MAGENTA: Color = SG_GET_RGB(255         ,       iClass, 255         );	break;
+				case SHADE_MODE_ASC_YELLOW : Color = SG_GET_RGB(255         , 255         ,       iClass);	break;
 				}
 
 				return( true );
@@ -383,9 +378,15 @@ public: ///////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
 
 	//-----------------------------------------------------
+	void						Set_Metric				(int Mode, double LogFactor, double zMin, double zMax);
+	int							Get_Metric_Mode			(void)		{	return( m_zMode );		}
+	CSG_Colors *				Get_Metric_Colors		(void)		{	return( m_pColors );	}
 	double						Get_Metric_Minimum		(void)	const	{	return( m_zMin            );	}
 	double						Get_Metric_Maximum		(void)	const	{	return( m_zMin + m_zRange );	}
 	double						Get_Metric_Range		(void)	const	{	return(          m_zRange );	}
+	double						Get_Metric_LogFactor	(void)	const	{	return( m_zLogRange );	}
+
+	void						Metric2EqualElements	(void);
 
 	//-----------------------------------------------------
 	double						Get_MetricToRelative	(double Value)
@@ -513,7 +514,8 @@ protected: ////////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	bool						_Histogram_Update		(CSG_Grid *pGrid);
+	bool						_Histogram_Update		(CSG_Grid  *pGrid );
+	bool						_Histogram_Update		(CSG_Grids *pGrids);
 	bool						_Histogram_Update		(CSG_Shapes *pShapes, int Attribute, int Normalize = -1);
 
 };

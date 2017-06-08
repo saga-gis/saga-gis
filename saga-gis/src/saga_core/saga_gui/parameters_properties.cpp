@@ -396,7 +396,7 @@ int CParameters_PG_Choice::_Set_Grid(void)
 
 						for(int j=0; j<pGrids->Get_Grid_Count(); j++)
 						{
-							_Append(wxString::Format("%s.%03d", pItem->Get_Name(), j + 1), pGrids->Get_Grid_Ptr(j));
+							_Append(pGrids->Get_Grid_Name(j).c_str(), pGrids->Get_Grid_Ptr(j));
 						}
 					}
 					break;
@@ -404,6 +404,7 @@ int CParameters_PG_Choice::_Set_Grid(void)
 				default:
 					break;
 				}
+				break;
 
 			case PARAMETER_TYPE_Grids:
 				if( pItem->Get_Type() == WKSP_ITEM_Grids )

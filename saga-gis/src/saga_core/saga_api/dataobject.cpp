@@ -336,6 +336,23 @@ bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Projection & CSG_Data_Object::Get_Projection(void)
+{
+	return( m_pOwner ? m_pOwner->m_Projection : m_Projection );
+}
+
+//---------------------------------------------------------
+const CSG_Projection & CSG_Data_Object::Get_Projection(void) const
+{
+	return( m_pOwner ? m_pOwner->m_Projection : m_Projection );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Data_Object::Load_MetaData(const CSG_String &_FileName)
 {
 	CSG_String	FileName(_FileName);

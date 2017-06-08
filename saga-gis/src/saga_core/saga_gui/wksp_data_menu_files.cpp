@@ -87,13 +87,13 @@ CWKSP_Data_Menu_Files::CWKSP_Data_Menu_Files(void)
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_DATA_OPEN);
 
 	m_pMenu->AppendSeparator();
-	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"    ), m_Project   .Create(SG_DATAOBJECT_TYPE_Undefined ));
-	m_pMenu->Append(ID_CMD_TABLE_FIRST     , _TL("Table"      ), m_Table     .Create(SG_DATAOBJECT_TYPE_Table     ));
-	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes"     ), m_Shapes    .Create(SG_DATAOBJECT_TYPE_Shapes    ));
-	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"), m_PointCloud.Create(SG_DATAOBJECT_TYPE_PointCloud));
-	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN"        ), m_TIN       .Create(SG_DATAOBJECT_TYPE_TIN       ));
-	m_pMenu->Append(ID_CMD_GRID_FIRST      , _TL("Grid"       ), m_Grid      .Create(SG_DATAOBJECT_TYPE_Grid      ));
-	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grids"      ), m_Grids     .Create(SG_DATAOBJECT_TYPE_Grids     ));
+	m_pMenu->Append(ID_CMD_DATA_FIRST      , _TL("Project"        ), m_Project   .Create(SG_DATAOBJECT_TYPE_Undefined ));
+	m_pMenu->Append(ID_CMD_TABLE_FIRST     , _TL("Table"          ), m_Table     .Create(SG_DATAOBJECT_TYPE_Table     ));
+	m_pMenu->Append(ID_CMD_SHAPES_FIRST    , _TL("Shapes"         ), m_Shapes    .Create(SG_DATAOBJECT_TYPE_Shapes    ));
+	m_pMenu->Append(ID_CMD_POINTCLOUD_FIRST, _TL("Point Cloud"    ), m_PointCloud.Create(SG_DATAOBJECT_TYPE_PointCloud));
+	m_pMenu->Append(ID_CMD_TIN_FIRST       , _TL("TIN"            ), m_TIN       .Create(SG_DATAOBJECT_TYPE_TIN       ));
+	m_pMenu->Append(ID_CMD_GRID_FIRST      , _TL("Grid"           ), m_Grid      .Create(SG_DATAOBJECT_TYPE_Grid      ));
+	m_pMenu->Append(ID_CMD_GRIDS_FIRST     , _TL("Grid Collection"), m_Grids     .Create(SG_DATAOBJECT_TYPE_Grids     ));
 	m_pMenu->AppendSeparator();
 
 	CMD_Menu_Add_Item(m_pMenu, false, ID_CMD_FRAME_QUIT);

@@ -1697,12 +1697,17 @@ bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	cons
 		}
 	}
 
-	return( true );
+	return( Projection.is_Okay() );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Set_Projection(const CSG_Projection &Projection)
 {
+	if( !Projection.is_Okay() )
+	{
+		return( false );
+	}
+
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Parameter	*p	= m_Parameters[i];

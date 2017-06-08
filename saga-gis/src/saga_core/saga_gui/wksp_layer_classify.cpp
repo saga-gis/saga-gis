@@ -65,6 +65,7 @@
 #include "wksp_layer.h"
 #include "wksp_layer_classify.h"
 #include "wksp_grid.h"
+#include "wksp_grids.h"
 #include "wksp_shapes.h"
 #include "wksp_pointcloud.h"
 
@@ -524,7 +525,18 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 		switch( m_pLayer->Get_Type() )
 		{
 		case WKSP_ITEM_Grid:
-			_Histogram_Update(((CWKSP_Grid *)m_pLayer)->Get_Grid());
+			_Histogram_Update(((CWKSP_Grid  *)m_pLayer)->Get_Grid ());
+			break;
+
+		case WKSP_ITEM_Grids:
+			if( m_Mode == CLASSIFY_OVERLAY )
+			{
+				_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grids());
+			}
+			else
+			{
+				_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grid ());
+			}
 			break;
 
 		case WKSP_ITEM_Shapes:
@@ -577,6 +589,33 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 				if( Class >= 0 && Class < Get_Class_Count() )
 				{
 					m_HST_Count[Class]++;
+				}
+			}
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
+{
+	sLong	i	= 0;
+
+	for(int z=0; z<pGrids->Get_NZ() && PROCESS_Get_Okay(false); z++)
+	{
+		for(int y=0; y<pGrids->Get_NY() && PROGRESSBAR_Set_Position(i, pGrids->Get_NCells()); y++)
+		{
+			for(int x=0; x<pGrids->Get_NX(); x++, i++)
+			{
+				if( !pGrids->is_NoData(x, y, z) )
+				{
+					int		Class	= Get_Class(pGrids->asDouble(x, y, z));
+				
+					if( Class >= 0 && Class < Get_Class_Count() )
+					{
+						m_HST_Count[Class]++;
+					}
 				}
 			}
 		}

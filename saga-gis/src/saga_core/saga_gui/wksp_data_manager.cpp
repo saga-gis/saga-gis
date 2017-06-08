@@ -1282,7 +1282,23 @@ bool CWKSP_Data_Manager::Update(CSG_Data_Object *pObject, CSG_Parameters *pParam
 {
 	CWKSP_Data_Item	*pItem	= Get(pObject);
 
-	return( pItem && pItem->DataObject_Changed(pParameters) );
+	if( !pItem )
+	{
+		return( false );
+	}
+
+	if( SG_Get_Data_Manager().Exists(pObject) )
+	{
+		return( pItem->DataObject_Changed(pParameters) );
+	}
+
+	Get_Control()->Del_Item(pItem, true);
+
+	return( true );
+
+	//CWKSP_Data_Item	*pItem	= Get(pObject);
+
+	//return( pItem && pItem->DataObject_Changed(pParameters) );
 }
 
 //---------------------------------------------------------

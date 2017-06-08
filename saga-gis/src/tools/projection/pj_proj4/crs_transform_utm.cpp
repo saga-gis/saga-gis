@@ -151,14 +151,19 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 	//-----------------------------------------------------
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
 	{
-		int Zone; bool bSouth; CSG_Grid *pObject = (CSG_Grid *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
+		int Zone; bool bSouth; CSG_Data_Object *pObject = pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asList()->Get_Item(0);
 
-		if( pObject && CRS_Get_UTM_Zone(pObject->Get_Extent(), pObject->Get_Projection(), Zone, bSouth) )
+		if( pObject )
 		{
-			pParameters->Set_Parameter("UTM_ZONE" , Zone);
-			pParameters->Set_Parameter("UTM_SOUTH", bSouth);
+			CSG_Grid	*pGrid	= pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? pObject->asGrid() : pObject->asGrids()->Get_Grid_Ptr(0);
 
-			pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(Zone, bSouth));
+			if( CRS_Get_UTM_Zone(pGrid->Get_Extent(), pGrid->Get_Projection(), Zone, bSouth) )
+			{
+				pParameters->Set_Parameter("UTM_ZONE" , Zone);
+				pParameters->Set_Parameter("UTM_SOUTH", bSouth);
+
+				pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(Zone, bSouth));
+			}
 		}
 
 		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );

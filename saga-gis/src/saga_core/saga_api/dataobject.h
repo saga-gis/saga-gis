@@ -208,12 +208,12 @@ public:
 	void							Set_Owner		(CSG_Data_Object *pOwner)	{	m_pOwner = pOwner;		}
 
 	CSG_MetaData &					Get_MetaData	(void)	const			{	return( *m_pMetaData );		}
-	CSG_MetaData &					Get_MetaData_DB	(void)					{	return( *m_pMetaData_DB );	}
+	CSG_MetaData &					Get_MetaData_DB	(void)	const 			{	return( *m_pMetaData_DB );	}
 	CSG_MetaData &					Get_History		(void)					{	return( *m_pHistory );		}
 	const CSG_MetaData &			Get_History		(void)	const			{	return( *m_pHistory );		}
 
-	CSG_Projection &				Get_Projection	(void)					{	return( m_Projection );		}
-	const CSG_Projection &			Get_Projection	(void)	const			{	return( m_Projection );		}
+	CSG_Projection &				Get_Projection	(void);
+	const CSG_Projection &			Get_Projection	(void)	const;
 
 	class CSG_Table *				asTable			(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Table      ? (class CSG_Table      *)this : NULL );	}
 	class CSG_Shapes *				asShapes		(void)	{	return( Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes     ? (class CSG_Shapes     *)this : NULL );	}

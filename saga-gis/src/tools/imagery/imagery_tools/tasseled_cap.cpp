@@ -72,82 +72,40 @@ CTasseled_Cap::CTasseled_Cap(void)
 {
 	Set_Name		(_TL("Tasseled Cap Transformation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Tasseled Cap Transformation as proposed for Landsat Thematic Mapper.\n"
-		"\n"
-		"References:\n"
-		"Kauth R. J. und G. S. Thomas (1976): "
-		"The Tasseled Cap - A Graphic Description of the Spectral-Temporal Development of Agricultural Crops as Seen by LANDSAT. "
-		"Proceedings of the Symposium on Machine Processing of Remotely Sensed Data. "
-		"<a target=\"_blank\" href=\"http://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1160&context=lars_symp&sei-redir=1&referer=http%3A%2F%2Fwww.google.de%2Furl%3Fsa%3Dt%26rct%3Dj%26q%3Dthe%2520tasseled%2520cap%2520--%2520a%2520graphic%2520description%2520of%2520the%2520spectral-temporal%2520development%2520of%2520agricultural%2520crops%26source%3Dweb%26cd%3D1%26ved%3D0CCEQFjAA%26url%3Dhttp%253A%252F%252Fdocs.lib.purdue.edu%252Fcgi%252Fviewcontent.cgi%253Farticle%253D1160%2526context%253Dlars_symp%26ei%3D1-jcTvq2NpGPsAb4tK2ODA%26usg%3DAFQjCNFLCISdiKdt2njGl6Dj1FC4Bac0ag#search=%22tasseled%20cap%20--%20graphic%20description%20spectral-temporal%20development%20agricultural%20crops%22\">online at Purdue University</a>\n"
-		"\n"
-		"Huang, C., B. Wylie, L. Yang, C. Homer, and G. Zylstra. "
-		"Derivation of a Tasseled Cap Transformation Based on Landsat 7 At-Satellite Reflectance. "
-		"USGS EROS Data Center White Paper. "
-		"<a target=\"_blank\" href=\"http://landcover.usgs.gov/pdf/tasseled.pdf\">online at USGS</a>\n"
+		"Tasseled Cap Transformation as proposed for Landsat Thematic Mapper."
 	));
 
-	Parameters.Add_Grid(
-		NULL, "BLUE"		, _TL("Blue (TM 1)"),
-		_TL(""), 
-		PARAMETER_INPUT_OPTIONAL
+	Add_Reference(
+		"Kauth, R.J., Thomas, G.S.", "1976",
+		"The Tasseled Cap - A Graphic Description of the Spectral-Temporal Development of Agricultural Crops as Seen by LANDSAT",
+		"Proceedings of the Symposium on Machine Processing of Remotely Sensed Data.",
+		SG_T("http://docs.lib.purdue.edu/cgi/viewcontent.cgi?article=1160&context=lars_symp")
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RED"			, _TL("Red (TM 2)"),
-		_TL(""), 
-		PARAMETER_INPUT
+	Add_Reference(
+		"Huang, C., Wylie, B., Yang, L., Homer, C., Zylstra, G.", "2002",
+		"Derivation of a tasselled cap transformation based on Landsat 7 at-satellite reflectance",
+		"International Journal of Remote Sensing, 23(8), 1741-1748.",
+		SG_T("http://www.tandfonline.com/doi/pdf/10.1080/01431160110106113")
 	);
 
-	Parameters.Add_Grid(
-		NULL, "GREEN"		, _TL("Green (TM 3)"), 
-		_TL(""), 
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid("", "BLUE"      , _TL("Blue (TM 1)"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "GREEN"     , _TL("Green (TM 2)"        ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "RED"       , _TL("Red (TM 3)"          ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "NIR"       , _TL("Near Infrared (TM 4)"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "MIR1"      , _TL("Mid Infrared (TM 5)" ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "MIR2"      , _TL("Mid Infrared (TM 7)" ), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid(
-		NULL, "NIR"			, _TL("Near Infrared (TM 4)"), 
-		_TL(""), 
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL, "MIR1"		, _TL("Mid Infrared (TM 5)"), 
-		_TL(""), 
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL, "MIR2"		, _TL("Mid Infrared (TM 7)"), 
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL, "BRIGHTNESS"	, _TL("Brightness"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL, "GREENNESS"	, _TL("Greenness"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		NULL, "WETNESS"		, _TL("Wetness"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
+	Parameters.Add_Grid("", "BRIGHTNESS", _TL("Brightness"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "GREENNESS" , _TL("Greenness"           ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "WETNESS"   , _TL("Wetness"             ), _TL(""), PARAMETER_OUTPUT);
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -173,6 +131,7 @@ bool CTasseled_Cap::On_Execute(void)
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if(	pBand[0]->is_NoData(x, y)
@@ -198,15 +157,15 @@ bool CTasseled_Cap::On_Execute(void)
 				b[4]	= pBand[4]->asDouble(x, y);
 				b[5]	= pBand[5]->asDouble(x, y);
 
-			    pBright	->Set_Value(x, y,
+			    pBright->Set_Value(x, y,
 					 0.3037 * b[0] + 0.2793 * b[1] + 0.4743 * b[2] + 0.5585 * b[3] + 0.5082 * b[4] + 0.1863 * b[5]
 				);
 
-				pGreen	->Set_Value(x, y,
+				pGreen ->Set_Value(x, y,
 					-0.2848 * b[0] - 0.2435 * b[1] - 0.5436 * b[2] + 0.7243 * b[3] + 0.0840 * b[4] - 0.1800 * b[5]
 				);
 
-				pWet	->Set_Value(x, y,
+				pWet   ->Set_Value(x, y,
 					 0.1509 * b[0] + 0.1973 * b[1] + 0.3279 * b[2] + 0.3406 * b[3] - 0.7112 * b[4] - 0.4572 * b[5]
 				);
 			}

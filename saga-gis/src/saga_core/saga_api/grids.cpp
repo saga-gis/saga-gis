@@ -86,7 +86,7 @@ CSG_Grids * SG_Create_Grids(const CSG_Grids &Grids)
 }
 
 //---------------------------------------------------------
-CSG_Grids * SG_Create_Grids(CSG_Grids *pGrids, bool bCopyData)
+CSG_Grids * SG_Create_Grids(const CSG_Grids *pGrids, bool bCopyData)
 {
 	return( new CSG_Grids(pGrids, bCopyData) );
 }
@@ -107,21 +107,21 @@ CSG_Grids * SG_Create_Grids(const CSG_String &FileName, bool bLoadData)
 }
 
 //---------------------------------------------------------
-CSG_Grids * SG_Create_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
-{
-	return( new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type) );
-}
-
-//---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
 {
 	return( new CSG_Grids(System, NZ, zMin, Type) );
 }
 
 //---------------------------------------------------------
-CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type)
+CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type, bool bCreateGrids)
 {
 	return( new CSG_Grids(System, Attributes, zAttribute, Type) );
+}
+
+//---------------------------------------------------------
+CSG_Grids * SG_Create_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
+{
+	return( new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type) );
 }
 
 
@@ -172,7 +172,7 @@ CSG_Grids::CSG_Grids(const CSG_Grids &Grid)
   * initial data.
 */
 //---------------------------------------------------------
-CSG_Grids::CSG_Grids(CSG_Grids *pGrids, bool bCopyData)
+CSG_Grids::CSG_Grids(const CSG_Grids *pGrids, bool bCopyData)
 {
 	_On_Construction();
 
@@ -220,11 +220,11 @@ CSG_Grids::CSG_Grids(const CSG_Grid_System &System, int NZ, double zMin, TSG_Dat
   * Create a grid collection with specified dimensions'.
 */
 //---------------------------------------------------------
-CSG_Grids::CSG_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type)
+CSG_Grids::CSG_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type, bool bCreateGrids)
 {
 	_On_Construction();
 
-	Create(System, Attributes, zAttribute, Type);
+	Create(System, Attributes, zAttribute, Type, bCreateGrids);
 }
 
 
@@ -283,7 +283,7 @@ bool CSG_Grids::Create(const CSG_Grids &Grids)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Create(CSG_Grids *pGrids, bool bCopyData)
+bool CSG_Grids::Create(const CSG_Grids *pGrids, bool bCopyData)
 {
 	if( pGrids && pGrids->is_Valid() && Create(pGrids->Get_System(), 0, 0.0, pGrids->Get_Type()) )
 	{
@@ -318,19 +318,42 @@ bool CSG_Grids::Create(const CSG_String &FileName, bool bLoadData)
 //---------------------------------------------------------
 bool CSG_Grids::Create(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
 {
-	return( Create(System.Get_NX(), System.Get_NY(), NZ, System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(), zMin, Type) );
+	Destroy();
+
+	if( m_pGrids[0]->Create(System, Type) )
+	{
+		for(int i=0; i<NZ; i++, zMin+=System.Get_Cellsize())
+		{
+			if( !Add_Grid(zMin) )
+			{
+				return( false );
+			}
+		}
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Create(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type)
+bool CSG_Grids::Create(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type, bool bCreateGrids)
 {
-	if( Create(System.Get_NX(), System.Get_NY(), Attributes.Get_Count(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(), Attributes.Get_Minimum(zAttribute), Type) )
-	{
-		if( Attributes.Get_Field_Count() > 0 )
-		{
-			m_Attributes.Create(Attributes);
+	Destroy();
 
-			Set_Z_Attribute(zAttribute);
+	if( m_Attributes.Create(&Attributes) && m_pGrids[0]->Create(System, Type) )
+	{
+		Set_Z_Attribute(zAttribute);
+
+		if( bCreateGrids )
+		{
+			for(int i=0; i<Attributes.Get_Count(); i++)
+			{
+				if( !Add_Grid(Attributes[i]) )
+				{
+					return( false );
+				}
+			}
 		}
 
 		return( true );
@@ -342,19 +365,7 @@ bool CSG_Grids::Create(const CSG_Grid_System &System, const CSG_Table &Attribute
 //---------------------------------------------------------
 bool CSG_Grids::Create(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
 {
-	Destroy();
-
-	m_pGrids[0]->Create(Type, NX, NY, Cellsize, xMin, yMin);
-
-	for(int i=0; i<NZ; i++, zMin+=Cellsize)
-	{
-		if( !Add_Grid(zMin) )
-		{
-			return( false );
-		}
-	}
-
-	return( true );
+	return( Create(CSG_Grid_System(Cellsize, xMin, yMin, NX, NY), NZ, zMin, Type) );
 }
 
 
@@ -382,7 +393,7 @@ void CSG_Grids::Set_Scaling(double Scale, double Offset)
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Set_NoData_Value_Range	(double loValue, double hiValue)
+bool CSG_Grids::Set_NoData_Value_Range(double loValue, double hiValue)
 {
 	if( CSG_Data_Object::Set_NoData_Value_Range(loValue, hiValue) )	// this is a CSG_Data_Object base class property
 	{
@@ -401,6 +412,11 @@ bool CSG_Grids::Set_NoData_Value_Range	(double loValue, double hiValue)
 void CSG_Grids::_Synchronize(CSG_Grid *pGrid)
 {
 	pGrid->Set_Owner(this);
+
+	if( Get_Projection().is_Okay() && pGrid->Get_Projection().is_Okay() )
+	{
+		Get_Projection().Create(pGrid->Get_Projection());
+	}
 
 	if( pGrid == m_pGrids[0] )
 	{
@@ -786,9 +802,36 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CSG_Grids::Get_Grid_Name(int i) const
+CSG_String CSG_Grids::Get_Grid_Name(int i, int Style) const
 {
-	return(  m_pGrids[i]->Get_Name() );
+	if( Style == 0 )
+	{
+		Style	= SG_GRIDS_NAME_OWNER|SG_GRIDS_NAME_INDEX;
+	}
+
+	CSG_String	s;
+
+	if( (Style & SG_GRIDS_NAME_INDEX) != 0 )
+	{
+		s.Printf("%s %d", _TL("Band"), i + 1);
+	}
+
+	if( (Style & SG_GRIDS_NAME_VALUE) != 0 )
+	{
+		s	+= (s.is_Empty() ? "[" : " [") + SG_Get_String(Get_Z(i), -10) + "]";
+	}
+
+	if( (Style & SG_GRIDS_NAME_GRID ) != 0 && *m_pGrids[i]->Get_Name() != '\0' )
+	{
+		s	+= (s.is_Empty() ? "(" : " (") + CSG_String(m_pGrids[i]->Get_Name()) + ")";
+	}
+
+	if( (Style & SG_GRIDS_NAME_OWNER) != 0 )
+	{
+		s	= CSG_String(Get_Name()) + "." + s;
+	}
+
+	return( s );
 }
 
 
@@ -1869,6 +1912,8 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 		{
 			const CSG_MetaData	&Records	= Header["ATTRIBUTES"]["RECORDS"];
 
+			CSG_Strings	Names;
+
 			for(int iRecord=0; iRecord<Records.Get_Children_Count(); iRecord++)
 			{
 				if( Records[iRecord].Cmp_Name("RECORD") )
@@ -1880,6 +1925,17 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 					for(iField=0; Values.Has_More_Tokens() && iField<Attributes.Get_Field_Count(); iField++)
 					{
 						pRecord->Set_Value(iField, Values.Get_Next_Token());
+					}
+
+					CSG_String	Name;
+
+					if( Records[iRecord].Get_Property("NAME", Name) )
+					{
+						Names	+= Name;
+					}
+					else
+					{
+						Names	+= "";
 					}
 				}
 			}
@@ -1893,7 +1949,17 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 					zAttribute	= 0;
 				}
 
-				return( Create(System, Attributes, zAttribute, Type) );
+				if( Create(System, Attributes, zAttribute, Type, true) )
+				{
+					for(int iGrid=0; iGrid<Get_Grid_Count() && iGrid<Names.Get_Count(); iGrid++)
+					{
+						m_pGrids[iGrid]->Set_Name(Names[iGrid]);
+					}
+
+					return( true );
+				}
+
+				return( false );
 			}
 		}
 	}

@@ -107,6 +107,8 @@ public:
 
 	CWKSP_Base_Item	*			Search_Item			(const wxString &Caption, TWKSP_Item Type = WKSP_ITEM_Undefined);
 
+	bool						Del_Item			(class CWKSP_Base_Item *pItem, bool bSilent);
+
 
 protected:
 

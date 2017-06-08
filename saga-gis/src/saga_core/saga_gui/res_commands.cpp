@@ -203,11 +203,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 
 	case ID_CMD_GRID_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
 	case ID_CMD_GRID_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
-	case ID_CMD_GRID_FIT_MINMAX:		return( _TL("Histogram Stretch to Minimum/Maximum") );
-	case ID_CMD_GRID_FIT_STDDEV:		return( _TL("Histogram Stretch to Standard Deviation") );
-	case ID_CMD_GRID_FIT_PCTL  :		return( _TL("Histogram Stretch to Percentile") );
-	case ID_CMD_GRID_FIT_DIALOG:		return( _TL("Histogram Stretch Dialog") );
-	case ID_CMD_GRID_SEL_CLEAR:		return( _TL("Clear Selection") );
+	case ID_CMD_GRID_SEL_CLEAR:			return( _TL("Clear Selection") );
 	case ID_CMD_GRID_SEL_DELETE:		return( _TL("Delete Selection") );
 
 	case ID_CMD_GRIDS_SAVEAS_IMAGE:		return( _TL("Save as Image...") );

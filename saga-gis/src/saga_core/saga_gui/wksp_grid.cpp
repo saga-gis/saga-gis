@@ -221,15 +221,6 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SET_LUT);
 
-	//-----------------------------------------------------
-	wxMenu	*pSubMenu	= new wxMenu(_TL("Histogram Stretch"));
-
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRID_FIT_MINMAX);
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRID_FIT_STDDEV);
-	CMD_Menu_Add_Item(pSubMenu, false, ID_CMD_GRID_FIT_PCTL);
-
-	pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Histogram Stretch"), pSubMenu);
-
 	return( pMenu );
 }
 
@@ -256,42 +247,6 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRID_SCATTERPLOT:
 		Add_ScatterPlot();
-		break;
-
-	case ID_CMD_GRID_FIT_MINMAX:
-		{
-			double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
-
-			Set_Color_Range(
-				Get_Grid()->Get_Min() + d,
-				Get_Grid()->Get_Max() - d
-			);
-		}
-		break;
-
-	case ID_CMD_GRID_FIT_STDDEV:
-		{
-			double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
-
-			Set_Color_Range(
-				Get_Grid()->Get_Mean() - d,
-				Get_Grid()->Get_Mean() + d
-			);
-		}
-		break;
-
-	case ID_CMD_GRID_FIT_PCTL:
-		{
-			double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
-
-			Set_Color_Range(
-				Get_Grid()->Get_Quantile(        d),
-				Get_Grid()->Get_Quantile(100.0 - d)
-			);
-		}
-		break;
-
-	case ID_CMD_GRID_FIT_DIALOG:
 		break;
 
 	case ID_CMD_GRID_SET_LUT:
@@ -677,16 +632,30 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_FACTOR")
 		||	!SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_OFFSET") )
 		{
-			double	newFactor	= pParameters->Get_Parameter("GENERAL_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("GENERAL_Z_FACTOR")->asDouble();
-			double	newOffset	= pParameters->Get_Parameter("GENERAL_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("GENERAL_Z_OFFSET")->asDouble();
+			double	newFactor	= pParameters->Get("GENERAL_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("GENERAL_Z_FACTOR")->asDouble();
+			double	newOffset	= pParameters->Get("GENERAL_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("GENERAL_Z_OFFSET")->asDouble();
 
 			if( newFactor != 0.0 && oldFactor != 0.0 )
 			{
-				CSG_Parameter_Range	*newRange	= pParameters->Get_Parameter("METRIC_ZRANGE")->asRange();
-				CSG_Parameter_Range	*oldRange	= m_Parameters.Get_Parameter("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*newRange	= pParameters->Get("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*oldRange	= m_Parameters.Get("METRIC_ZRANGE")->asRange();
 
 				newRange->Set_LoVal(((oldRange->Get_LoVal() - oldOffset) / oldFactor) * newFactor + newOffset);
 				newRange->Set_HiVal(((oldRange->Get_HiVal() - oldOffset) / oldFactor) * newFactor + newOffset);
+			}
+		}
+
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_LINEAR" )
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_STDDEV" )
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_INRANGE")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_PCTL"   ) )
+		{
+			double	Minimum, Maximum;
+
+			if( _Fit_Colors(*pParameters, Minimum, Maximum) )
+			{
+				pParameters->Get("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
 			}
 		}
 	}
@@ -719,33 +688,34 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_MODE") )
 		{
-			pParameters->Get_Parameter("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
-			pParameters->Get_Parameter("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
-			pParameters->Get_Parameter("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
+			pParameters->Get("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
+			pParameters->Get("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
+			pParameters->Get("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_SHOW") )
 		{
-			bool	Value	= pParameter->asBool();
-
-			pParameters->Set_Enabled("VALUES_FONT"    , Value);
-			pParameters->Set_Enabled("VALUES_SIZE"    , Value);
-			pParameters->Set_Enabled("VALUES_DECIMALS", Value);
-			pParameters->Set_Enabled("VALUES_EFFECT"  , Value);
+			pParameters->Set_Enabled("VALUES_FONT"    , pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_SIZE"    , pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_DECIMALS", pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_EFFECT"  , pParameter->asBool());
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_EFFECT") )
 		{
-			bool	Value	= pParameter->asInt() > 0;
-
-			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", Value);
+			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "MEMORY_MODE") )
 		{
-			int		Value	= pParameter->asInt();
+			pParameters->Set_Enabled("MEMORY_BUFFER_SIZE", pParameter->asInt() != 0);
+		}
 
-			pParameters->Set_Enabled("MEMORY_BUFFER_SIZE", Value != 0);
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT") )
+		{
+			pParameters->Set_Enabled("STRETCH_LINEAR", pParameter->asInt() == 0);
+			pParameters->Set_Enabled("STRETCH_STDDEV", pParameter->asInt() == 1);
+			pParameters->Set_Enabled("STRETCH_PCTL"  , pParameter->asInt() == 2);
 		}
 	}
 
@@ -1187,26 +1157,33 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::Fit_Colors(void)
 {
-	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
+	double	Minimum, Maximum;
+
+	return( _Fit_Colors(m_Parameters, Minimum, Maximum) && Set_Color_Range(Minimum, Maximum) );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grid::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double &Maximum)
+{
+	switch( Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-	default: {
-		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
+	default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
+		Minimum	= Get_Grid()->Get_Min() + d;
+		Maximum	= Get_Grid()->Get_Max() - d;
+		break;	}
 
-		return( Set_Color_Range(Get_Grid()->Get_Min() + d, Get_Grid()->Get_Max() - d) );	}
+	case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
+		Minimum	= Get_Grid()->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < Get_Grid()->Get_Min() ) Minimum = Get_Grid()->Get_Min();
+		Maximum	= Get_Grid()->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > Get_Grid()->Get_Max() ) Maximum = Get_Grid()->Get_Max();
+		break;	}
 
-	case  1: {
-		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
-
-		double	min	= Get_Grid()->Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && min < Get_Grid()->Get_Min() ) min = Get_Grid()->Get_Min();
-		double	max	= Get_Grid()->Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && max > Get_Grid()->Get_Max() ) max = Get_Grid()->Get_Max();
-
-		return( Set_Color_Range(min, max) );	}
-
-	case  2: {
-		double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
-
-		return( Set_Color_Range(Get_Grid()->Get_Quantile(d), Get_Grid()->Get_Quantile(100 - d)));	}
+	case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
+		Minimum	= Get_Grid()->Get_Quantile(      d);
+		Maximum	= Get_Grid()->Get_Quantile(100 - d);
+		break;	}
 	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -1219,26 +1196,27 @@ bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 		return( false );
 	}
 
+	double	Minimum, Maximum;
+
 	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-	default: {
-		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+	default: {	double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+		Minimum	= s.Get_Minimum() + d;
+		Maximum	= s.Get_Maximum() - d;
+		break;	}
 
-		return( Set_Color_Range(s.Get_Minimum() + d, s.Get_Maximum() - d) );	}
+	case  1: {	double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+		Minimum	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Minimum < Get_Grid()->Get_Min() ) Minimum = Get_Grid()->Get_Min();
+		Maximum	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Maximum > Get_Grid()->Get_Max() ) Maximum = Get_Grid()->Get_Max();
+		break;	}
 
-	case  1: {
-		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
-
-		double	min	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && min < Get_Grid()->Get_Min() ) min = Get_Grid()->Get_Min();
-		double	max	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && max > Get_Grid()->Get_Max() ) max = Get_Grid()->Get_Max();
-
-		return( Set_Color_Range(min, max) );	}
-
-	case  2: {
-		double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
-
-		return( Set_Color_Range(s.Get_Quantile(d), s.Get_Quantile(100 - d)));	}
+	case  2: {	double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
+		Minimum	= s.Get_Quantile(      d);
+		Maximum	= s.Get_Quantile(100 - d);
+		break;	}
 	}
+
+	return( Set_Color_Range(Minimum, Maximum) );
 }
 
 

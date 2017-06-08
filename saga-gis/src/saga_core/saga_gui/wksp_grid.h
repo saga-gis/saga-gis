@@ -139,6 +139,8 @@ private:
 	double						m_Shade_Parms[6];
 
 
+	bool						_Fit_Colors				(CSG_Parameters &Parameters, double &Minimum, double &Maximum);
+
 	void						_Set_Shading			(double Shade, int &Color);
 	int							_Get_Shading			(double x, double y, int Color, TSG_Grid_Resampling Resampling);
 	int							_Get_Shading			(int    x, int    y, int Color);

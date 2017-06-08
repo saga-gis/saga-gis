@@ -197,6 +197,8 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 		int		ax, ay, bx, by;
 		double	dx, Value;
 
+		wxColor	Color	= SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
+
 		dx	= (double)r.GetWidth() / (double)nClasses;
 		ay	= r.GetBottom();
 		bx	= r.GetLeft();
@@ -211,7 +213,12 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 			bx	= r.GetLeft() + (int)(dx * (iClass + 1.0));
 			by	= ay - (int)(r.GetHeight() * Value);
 
-			Draw_FillRect(dc, m_pLayer->Get_Classifier()->Get_Class_Color(iClass), ax, ay, bx, by);
+			if( m_pLayer->Get_Classifier()->Get_Mode() != CLASSIFY_OVERLAY )
+			{
+				Color	= m_pLayer->Get_Classifier()->Get_Class_Color(iClass);
+			}
+
+			Draw_FillRect(dc, Color, ax, ay, bx, by);
 		}
 	}
 	else
@@ -362,6 +369,8 @@ void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
+#include "active.h"
+
 void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 {
 	if( m_bMouse_Down )
@@ -373,12 +382,17 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 
 		wxRect	r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
 
-		m_pLayer->Set_Color_Range(
-			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
-			m_pLayer->Get_Classifier()->Get_RelativeToMetric(
-				(double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
-		);
+		CWKSP_Layer_Classify	*pClassify	= m_pLayer->Get_Classifier();
+
+		double	Minimum	= pClassify->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth());
+		double	Maximum	= pClassify->Get_RelativeToMetric((double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth());
+
+		m_pLayer->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
+		pClassify->Set_Metric(pClassify->Get_Metric_Mode(), pClassify->Get_Metric_Mode(), Minimum, Maximum);
+		g_pACTIVE->Update(m_pLayer, false);
+		m_pLayer->Update_Views();
+
+	//	m_pLayer->Set_Color_Range(Minimum, Maximum);
 	}
 }
 

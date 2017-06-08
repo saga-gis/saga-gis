@@ -63,8 +63,15 @@
 #ifndef HEADER_INCLUDED__Shapes_Create_Empty_H
 #define HEADER_INCLUDED__Shapes_Create_Empty_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -91,7 +98,10 @@ protected:
 
 private:
 
-	void						_Set_Field_Count		(CSG_Parameters *pAttributes, int nAttributes);
+	void						Set_Field_Count			(CSG_Parameters *pFields, int nFields);
+
+	CSG_String					Get_Field_Name			(int iField);
+	TSG_Data_Type				Get_Field_Type			(int iField);
 
 };
 

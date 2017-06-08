@@ -89,6 +89,9 @@ public:
 
 	CSG_Grids *					Get_Grids				(void)	{	return( (CSG_Grids *)m_pObject );	}
 
+	CSG_Grid *					Get_Grid				(void);
+	CSG_Grid *					Get_Grid				(int i);
+
 	virtual wxString			Get_Description			(void);
 
 	virtual wxMenu *			Get_Menu				(void);
@@ -132,14 +135,11 @@ private:
 	CWKSP_Layer_Classify		m_Classify[3];
 
 
-	CSG_Grid *					Get_Grid				(void);
-	CSG_Grid *					Get_Grid				(int i);
-
 	CSG_String					_Get_Bands_List			(void);
 
-	bool						_Fit_Colors				(int Method, bool bRefresh = false);
-	bool						_Fit_Colors				(int Method, CSG_Grid *pGrid);
-	bool						_Fit_Colors				(int Method, CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
+	bool						_Fit_Colors				(bool bRefresh = false);
+	bool						_Fit_Colors				(CSG_Parameters &Parameters, double &Minimum, double &Maximum);
+	bool						_Fit_Colors				(CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
 
 	void						_LUT_Create				(void);
 
