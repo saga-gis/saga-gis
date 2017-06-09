@@ -127,6 +127,7 @@ protected: ////////////////////////////////////////////////
 	void						_Draw_Title			(wxDC &dc, int Style, wxString Text);
 	void						_Draw_Label			(wxDC &dc, int y, wxString Text, int yAlign);
 
+	void						_Draw_Box			(wxDC &dc, int y, int dy, int Style, int LineColor, int FillColor, wxString Text);
 	void						_Draw_Box			(wxDC &dc, int y, int dy, int Style, int iClass);
 	void						_Draw_Boxes			(wxDC &dc, int y, int Style, double zFactor = 1.0);
 
@@ -136,8 +137,9 @@ protected: ////////////////////////////////////////////////
 	void						_Draw_TIN			(wxDC &dc, class CWKSP_TIN            *pLayer);
 	void						_Draw_PointCloud	(wxDC &dc, class CWKSP_PointCloud     *pLayer);
 	void						_Draw_Grid			(wxDC &dc, class CWKSP_Grid           *pLayer);
+	void						_Draw_Grids			(wxDC &dc, class CWKSP_Grids          *pLayer);
 
-	void						_Draw_Grid_Image	(wxDC &dc, int y, class CSG_Grid *pGrid);
+	void						_Draw_Layer_Image	(wxDC &dc, int y, class CWKSP_Layer *pLayer);
 
 	void						_Draw_Continuum		(wxDC &dc, int y, double zFactor);
 	void						_Draw_Continuum_V	(wxDC &dc, int y, double yToDC, double zMin, double zMax, double zFactor, double dz, int dyFont);

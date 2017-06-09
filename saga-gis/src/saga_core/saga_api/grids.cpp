@@ -411,12 +411,12 @@ bool CSG_Grids::Set_NoData_Value_Range(double loValue, double hiValue)
 //---------------------------------------------------------
 void CSG_Grids::_Synchronize(CSG_Grid *pGrid)
 {
-	pGrid->Set_Owner(this);
-
-	if( Get_Projection().is_Okay() && pGrid->Get_Projection().is_Okay() )
+	if( !Get_Projection().is_Okay() && pGrid->Get_Projection().is_Okay() )
 	{
 		Get_Projection().Create(pGrid->Get_Projection());
 	}
+
+	pGrid->Set_Owner(this);
 
 	if( pGrid == m_pGrids[0] )
 	{

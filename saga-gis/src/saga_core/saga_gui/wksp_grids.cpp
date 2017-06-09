@@ -443,6 +443,7 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	//-----------------------------------------------------
 	CSG_String	Bands	= _Get_Bands_List();
 
+	((CSG_Parameter_Choice *)m_Parameters("BAND"  )->Get_Data())->Set_Items(Bands);
 	((CSG_Parameter_Choice *)m_Parameters("BAND_R")->Get_Data())->Set_Items(Bands);
 	((CSG_Parameter_Choice *)m_Parameters("BAND_G")->Get_Data())->Set_Items(Bands);
 	((CSG_Parameter_Choice *)m_Parameters("BAND_B")->Get_Data())->Set_Items(Bands);

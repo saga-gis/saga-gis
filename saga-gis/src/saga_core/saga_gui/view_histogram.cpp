@@ -70,6 +70,9 @@
 
 #include "helper.h"
 #include "dc_helper.h"
+#include "res_dialogs.h"
+
+#include "active.h"
 
 #include "wksp_data_manager.h"
 #include "wksp_layer_classify.h"
@@ -78,6 +81,9 @@
 #include "wksp_pointcloud.h"
 
 #include "view_histogram.h"
+
+//---------------------------------------------------------
+#define IS_BAND_WISE_FIT(pLayer)	(m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_STATISTICS")->asInt() != 0)
 
 
 ///////////////////////////////////////////////////////////
@@ -100,6 +106,7 @@ BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
 	EVT_RIGHT_DOWN	(CVIEW_Histogram::On_Mouse_RDown)
 
 	EVT_MENU		(ID_CMD_HISTOGRAM_CUMULATIVE  , CVIEW_Histogram::On_Cumulative)
+	EVT_MENU		(ID_CMD_HISTOGRAM_CLASS_COUNT , CVIEW_Histogram::On_Cumulative)
 	EVT_MENU		(ID_CMD_HISTOGRAM_AS_TABLE    , CVIEW_Histogram::On_AsTable)
 	EVT_MENU		(ID_CMD_HISTOGRAM_TO_CLIPBOARD, CVIEW_Histogram::On_ToClipboard)
 END_EVENT_TABLE()
@@ -163,6 +170,11 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 //---------------------------------------------------------
 void CVIEW_Histogram::Do_Update(void)
 {
+	if( IS_BAND_WISE_FIT(pLayer) )
+	{
+		m_pLayer->Get_Classifier()->Set_Metric(0, 1, m_pLayer->Get_Value_Minimum(), m_pLayer->Get_Value_Maximum());
+	}
+
 	if( m_pLayer->Get_Classifier()->Histogram_Update() )
 	{
 		Refresh();
@@ -352,25 +364,27 @@ void CVIEW_Histogram::On_Mouse_Motion(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Mouse_LDown(wxMouseEvent &event)
 {
+	if( IS_BAND_WISE_FIT(pLayer) )
+	{
+		return;
+	}
+
 	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
-	default:
-		break;
-
 	case CLASSIFY_GRADUATED:
-	case CLASSIFY_METRIC:
-	case CLASSIFY_SHADE:
-	case CLASSIFY_OVERLAY:
+	case CLASSIFY_METRIC   :
+	case CLASSIFY_SHADE    :
+	case CLASSIFY_OVERLAY  :
 		m_bMouse_Down	= true;
 		m_Mouse_Move	= m_Mouse_Down	= event.GetPosition();
 
 		CaptureMouse();
+
+	default: break;
 	}
 }
 
 //---------------------------------------------------------
-#include "active.h"
-
 void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 {
 	if( m_bMouse_Down )
@@ -399,6 +413,11 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 //---------------------------------------------------------
 void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 {
+	if( IS_BAND_WISE_FIT(pLayer) )
+	{
+		return;
+	}
+
 	switch( m_pLayer->Get_Classifier()->Get_Mode() )
 	{
 	case CLASSIFY_GRADUATED:
@@ -410,8 +429,7 @@ void CVIEW_Histogram::On_Mouse_RDown(wxMouseEvent &event)
 			m_pLayer->Get_Value_Maximum()
 		);
 
-	default:
-		break;
+	default: break;
 	}
 }
 
@@ -425,12 +443,19 @@ void CVIEW_Histogram::On_Command_UI(wxUpdateUIEvent &event)
 {
 	switch( event.GetId() )
 	{
-	default:
-		break;
-
 	case ID_CMD_HISTOGRAM_CUMULATIVE:
 		event.Check(m_bCumulative);
 		break;
+
+	case ID_CMD_HISTOGRAM_CLASS_COUNT:
+		event.Enable(
+			m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_GRADUATED
+		||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_SHADE
+		||	m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY
+		);
+		break;
+
+	default: break;
 	}
 }
 
@@ -440,6 +465,19 @@ void CVIEW_Histogram::On_Cumulative(wxCommandEvent &event)
 	m_bCumulative	= !m_bCumulative;
 
 	Refresh();
+}
+
+//---------------------------------------------------------
+void CVIEW_Histogram::On_ClassCount(wxCommandEvent &event)
+{
+	int	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
+
+	if( DLG_Get_Number(nClasses, _TL("Histogram"), _TL("Number of Classes")) && nClasses > 1 )
+	{
+		m_pLayer->Get_Classifier()->Set_Class_Count(nClasses);
+
+		Refresh();
+	}
 }
 
 //---------------------------------------------------------

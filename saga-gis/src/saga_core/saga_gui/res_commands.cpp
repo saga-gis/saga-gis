@@ -344,6 +344,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_SCATTERPLOT_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_HISTOGRAM_CUMULATIVE:		return( _TL("Cumulative") );
+	case ID_CMD_HISTOGRAM_CLASS_COUNT:		return( _TL("Change Number of Classes") );
 	case ID_CMD_HISTOGRAM_AS_TABLE:			return( _TL("Convert To Table") );
 	case ID_CMD_HISTOGRAM_TO_CLIPBOARD:		return( _TL("Copy to Clipboard") );
 	}

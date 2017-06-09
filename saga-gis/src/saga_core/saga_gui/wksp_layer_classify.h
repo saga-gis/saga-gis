@@ -171,7 +171,7 @@ public: ///////////////////////////////////////////////////
 		case CLASSIFY_OVERLAY  :
 			return( m_Count );
 
-		case CLASSIFY_METRIC:
+		case CLASSIFY_METRIC   :
 			return( m_pColors->Get_Count() );
 		}
 	}
@@ -221,11 +221,11 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE:	default:
+		case CLASSIFY_UNIQUE   : default:
 			Color	= m_UNI_Color;
 			break;
 
-		case CLASSIFY_LUT:
+		case CLASSIFY_LUT      :
 			if( iClass < 0 || iClass >= m_pLUT->Get_Record_Count() )
 			{
 				Color	= m_UNI_Color;
@@ -237,13 +237,13 @@ public: ///////////////////////////////////////////////////
 			break;
 
 
-		case CLASSIFY_METRIC:
+		case CLASSIFY_METRIC   :
 			Color	= m_pColors->Get_Color(iClass < 0 ? 0 : iClass >= m_pColors->Get_Count() ? m_pColors->Get_Count() - 1 : iClass);
 			break;
 
 		case CLASSIFY_GRADUATED:
-		case CLASSIFY_SHADE:
-		case CLASSIFY_OVERLAY:
+		case CLASSIFY_SHADE    :
+		case CLASSIFY_OVERLAY  :
 			Get_Class_Color_byValue(Get_RelativeToMetric(iClass / (double)m_Count), Color);
 			break;
 		}
@@ -264,17 +264,17 @@ public: ///////////////////////////////////////////////////
 	{
 		switch( m_Mode )
 		{
-		case CLASSIFY_UNIQUE:	default:
+		case CLASSIFY_UNIQUE   : default:
 			{
 				return( Get_Class_Color(0, Color) );
 			}
 
-		case CLASSIFY_LUT:
+		case CLASSIFY_LUT      :
 			{
 				return( Get_Class_Color(_LUT_Get_Class(Value), Color) );
 			}
 
-		case CLASSIFY_METRIC:
+		case CLASSIFY_METRIC   :
 			{
 				return( Get_Class_Color(_METRIC_Get_Class(Value), Color) );
 			}
@@ -307,7 +307,7 @@ public: ///////////////////////////////////////////////////
 				return( true );
 			}
 
-		case CLASSIFY_SHADE:
+		case CLASSIFY_SHADE    :
 			{
 				int	iClass	= (int)(255.0 * Get_MetricToRelative(Value));
 
@@ -329,7 +329,7 @@ public: ///////////////////////////////////////////////////
 				return( true );
 			}
 
-		case CLASSIFY_OVERLAY:
+		case CLASSIFY_OVERLAY  :
 			{
 				int	iClass	= (int)(255.0 * Get_MetricToRelative(Value));
 			
@@ -340,7 +340,7 @@ public: ///////////////////////////////////////////////////
 				return( true );
 			}
 
-		case CLASSIFY_RGB:
+		case CLASSIFY_RGB      :
 			{
 				Color	= (int)Value;
 			
@@ -397,32 +397,15 @@ public: ///////////////////////////////////////////////////
 
 			switch( m_zMode )
 			{
+			default:
+				return( Value );
+
 			case METRIC_MODE_LOGUP:
-				if( Value > 0.0 )
-				{
-					Value	= log(1.0 + m_zLogRange * Value) / m_zLogMax;
-				}
-				else
-				{
-					Value	= 0.0;
-				}
-				break;
+				return( Value > 0.0 ?       (log(1.0 + m_zLogRange * (      Value)) / m_zLogMax) : 0.0 );
 
 			case METRIC_MODE_LOGDOWN:
-				if( Value < 1.0 )
-				{
-					Value	= 1.0 - Value;
-					Value	= log(1.0 + m_zLogRange * Value) / m_zLogMax;
-					Value	= 1.0 - Value;
-				}
-				else
-				{
-					Value	= 1.0;
-				}
-				break;
+				return( Value < 1.0 ? 1.0 - (log(1.0 + m_zLogRange * (1.0 - Value)) / m_zLogMax) : 1.0 );
 			}
-
-			return( Value );
 		}
 
 		return( 0.0 );
@@ -434,13 +417,11 @@ public: ///////////////////////////////////////////////////
 		switch( m_zMode )
 		{
 		case METRIC_MODE_LOGUP:
-			Value	= (exp(m_zLogMax * Value) - 1.0) / m_zLogRange;
+			Value	=       ((exp(m_zLogMax * (      Value)) - 1.0) / m_zLogRange);
 			break;
 
 		case METRIC_MODE_LOGDOWN:
-			Value	= 1.0 - Value;
-			Value	= (exp(m_zLogMax * Value) - 1.0) / m_zLogRange;
-			Value	= 1.0 - Value;
+			Value	= 1.0 - ((exp(m_zLogMax * (1.0 - Value)) - 1.0) / m_zLogRange);
 			break;
 		}
 
