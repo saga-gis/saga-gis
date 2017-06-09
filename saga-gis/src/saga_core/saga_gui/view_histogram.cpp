@@ -106,7 +106,7 @@ BEGIN_EVENT_TABLE(CVIEW_Histogram, CVIEW_Base)
 	EVT_RIGHT_DOWN	(CVIEW_Histogram::On_Mouse_RDown)
 
 	EVT_MENU		(ID_CMD_HISTOGRAM_CUMULATIVE  , CVIEW_Histogram::On_Cumulative)
-	EVT_MENU		(ID_CMD_HISTOGRAM_CLASS_COUNT , CVIEW_Histogram::On_Cumulative)
+	EVT_MENU		(ID_CMD_HISTOGRAM_CLASS_COUNT , CVIEW_Histogram::On_ClassCount)
 	EVT_MENU		(ID_CMD_HISTOGRAM_AS_TABLE    , CVIEW_Histogram::On_AsTable)
 	EVT_MENU		(ID_CMD_HISTOGRAM_TO_CLIPBOARD, CVIEW_Histogram::On_ToClipboard)
 END_EVENT_TABLE()
@@ -141,6 +141,7 @@ wxMenu * CVIEW_Histogram::_Create_Menu(void)
 	wxMenu	*pMenu	= new wxMenu;
 
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_HISTOGRAM_CUMULATIVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_CLASS_COUNT);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_AS_TABLE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);

@@ -293,6 +293,19 @@ void CWKSP_Layer_Classify::Set_Unique_Color(int Color)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWKSP_Layer_Classify::Set_Class_Count(int Count)
+{
+	if( Count > 0 && Count != m_Count )
+	{
+		m_Count	= Count;
+
+		return( Histogram_Update() );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, double zMax)
 {
 	m_zMode		= Mode;

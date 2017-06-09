@@ -153,9 +153,9 @@ public: ///////////////////////////////////////////////////
 
 	///////////////////////////////////////////////////////
 
-	void						Set_Class_Count			(int Count)	{	if( Count > 0 )	m_Count	= Count;	}
-
 	//-----------------------------------------------------
+	bool						Set_Class_Count			(int Count);
+
 	int							Get_Class_Count			(void)
 	{
 		switch( m_Mode )
