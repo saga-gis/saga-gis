@@ -102,6 +102,18 @@ CGrowing_Degree_Days::CGrowing_Degree_Days(void)
 		_TL("Integral of daily temperature above base temperature."),
 		PARAMETER_OUTPUT
 	);
+
+	Parameters.Add_Grid("",
+		"FIRST"	, _TL("First Growing Degree Day"),
+		_TL("First growing degree day of the year (1-365)."),
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid("",
+		"LAST"	, _TL("Last Growing Degree Day"),
+		_TL("Last growing degree day of the year (1-365)."),
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
+	);
 }
 
 
@@ -121,18 +133,25 @@ bool CGrowing_Degree_Days::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid	*pNGDD	= Parameters("NGDD")->asGrid();
-	CSG_Grid	*pTSum	= Parameters("TSUM")->asGrid();
+	CSG_Grid	*pNGDD	= Parameters("NGDD" )->asGrid();
+	CSG_Grid	*pTSum	= Parameters("TSUM" )->asGrid();
+	CSG_Grid	*pFirst	= Parameters("FIRST")->asGrid();
+	CSG_Grid	*pLast	= Parameters("LAST" )->asGrid();
 
 	double	Tbase	= Parameters("TBASE")->asDouble();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#ifndef _DEBUG
 		#pragma omp parallel for
+		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
 			CSG_Vector	T;
+
+			//---------------------------------------------
+			// 1. get the temperatures for all 365 days of the year
 
 			if( pTmean->Get_Grid_Count() == 12 )
 			{
@@ -159,7 +178,7 @@ bool CGrowing_Degree_Days::On_Execute(void)
 			{
 				T.Create(365);
 
-				for(int i=0; i<T.Get_N(); i++)
+				for(int i=0; i<365; i++)
 				{
 					if( pTmean->Get_Grid(i)->is_NoData(x, y) )
 					{
@@ -173,19 +192,41 @@ bool CGrowing_Degree_Days::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			if( T.Get_N() == 365 )
+			// 2. analyze the temperatures
+
+			if( pFirst ) pFirst->Set_NoData(x, y);
+			if( pLast  ) pLast ->Set_NoData(x, y);
+
+			if( T.Get_N() < 365 )	// insufficient data !
 			{
+				pNGDD->Set_NoData(x, y);
+				pTSum->Set_NoData(x, y);
+			}
+			else
+			{
+				T	-= Tbase;	// we only need temperatures relative to Tbase
+
 				CSG_Simple_Statistics	Tgrow;
 
-				for(int i=0; i<T.Get_N(); i++)
+				for(int i=0; i<365; i++)
 				{
-					if( T[i] > Tbase )
+					if( T[i] > 0.0 )	// it's a growing degree day !
 					{
-						Tgrow	+= T[i] - Tbase;
+						Tgrow	+= T[i];
+
+						if( pFirst && T[(365 + i - 1) % 365] <= 0.0 )	// is the previous day a not growing day ?
+						{
+							pFirst->Set_Value(x, y, 1 + i);
+						}
+
+						if( pLast  && T[(365 + i + 1) % 365] <= 0.0 )	// is the following day a not growing day ?
+						{
+							pLast ->Set_Value(x, y, 1 + i);	// in the end this will be the last growing degree day !
+						}
 					}
 				}
 
-				pNGDD->Set_Value(x, y, Tgrow.Get_Count());
+				pNGDD->Set_Value(x, y, (double)Tgrow.Get_Count());
 
 				if( Tgrow.Get_Count() > 0 )
 				{
@@ -195,11 +236,6 @@ bool CGrowing_Degree_Days::On_Execute(void)
 				{
 					pTSum->Set_NoData(x, y);
 				}
-			}
-			else
-			{
-				pTSum->Set_NoData(x, y);
-				pTSum->Set_NoData(x, y);
 			}
 		}
 	}

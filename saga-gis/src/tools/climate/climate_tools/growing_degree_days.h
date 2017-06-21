@@ -80,17 +80,16 @@ class CGrowing_Degree_Days : public CSG_Tool_Grid
 public:
 	CGrowing_Degree_Days(void);
 
-	virtual CSG_String			Get_MenuPath(void)	{ return(_TL("Tools")); }
+	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Bioclimatology") );	}
 
 
 protected:
 
-	virtual bool				On_Execute(void);
+	virtual bool				On_Execute			(void);
 
 };
 
 
-//
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //

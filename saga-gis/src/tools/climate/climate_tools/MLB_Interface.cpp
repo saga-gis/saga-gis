@@ -100,6 +100,7 @@ CSG_String Get_Info(int i)
 #include "frost_change_frequency.h"
 #include "thermal_belts.h"
 #include "snow_cover.h"
+#include "growing_degree_days.h"
 
 
 //---------------------------------------------------------
@@ -134,9 +135,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 15:	return( new CThermal_Belts );
 
 	case 17:	return( new CSnow_Cover );
+	case 18:	return( new CGrowing_Degree_Days );
 
 	//-----------------------------------------------------
-	case 18:	return( NULL );
+	case 19:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
