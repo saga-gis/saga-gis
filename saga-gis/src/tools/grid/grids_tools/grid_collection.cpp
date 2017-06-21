@@ -491,3 +491,109 @@ bool CGrids_Extract::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CGrids_Delete::CGrids_Delete(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Delete Grids from a Grid Collection"));
+
+	Set_Author		("O.Conrad (c) 2017");
+
+	Set_Description	(_TW(
+		""
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grids("",
+		"GRIDS"		, _TL("Grid Collection"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Choices("",
+		"SELECTION"	, _TL("Selection"),
+		_TL(""),
+		""
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrids_Delete::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	{
+		CSG_Parameter_Choices	*pChoices	= pParameters->Get("SELECTION")->asChoices();
+
+		pChoices->Del_Items();
+
+		for(int i=0; pParameter->asGrids() && i<pParameter->asGrids()->Get_Grid_Count(); i++)
+		{
+			pChoices->Add_Item(pParameter->asGrids()->Get_Grid_Name(i));
+		}
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGrids_Delete::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Delete::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Parameter_Choices	*pSelection	= Parameters("SELECTION")->asChoices();
+
+	if( pSelection->Get_Selection_Count() <= 0 )
+	{
+		Error_Set(_TL("No grids in selection"));
+
+		return( false );
+	}
+
+	if( pSelection->Get_Selection_Count() >= pSelection->Get_Item_Count() )
+	{
+		Error_Set(_TL("It is not allowed to remove all grids from a grid collection."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
+
+	for(int i=pGrids->Get_Grid_Count()-1; i>=0 && Process_Get_Okay(); i--)
+	{
+		if( pSelection->is_Selected(i) )
+		{
+			pGrids->Del_Grid(i);
+		}
+	}
+
+	On_Parameter_Changed(&Parameters, Parameters("GRIDS"));
+
+	DataObject_Update(pGrids);
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

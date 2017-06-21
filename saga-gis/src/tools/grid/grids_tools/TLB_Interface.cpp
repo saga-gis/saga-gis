@@ -101,8 +101,9 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case  0: 	return( new CGrids_Create );
+	case  0: 	return( new CGrids_Create  );
 	case  1: 	return( new CGrids_Extract );
+	case  2: 	return( new CGrids_Delete  );
 
 	//-----------------------------------------------------
 	case 10:	return( NULL );
