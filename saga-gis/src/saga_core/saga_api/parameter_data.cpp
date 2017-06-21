@@ -1784,51 +1784,58 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 		m_System.Assign(*((CSG_Grid_System *)Value));
 
 		CSG_Data_Manager *pManager    = m_pOwner->Get_Manager();
-		CSG_Parameters   *pParameters = m_pOwner->Get_Owner  ();
 
-		for(int i=0; i<pParameters->Get_Count(); i++)
+		for(int i=0; i<m_pOwner->Get_Children_Count(); i++)
 		{
-			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+			CSG_Parameter	*pParameter	= m_pOwner->Get_Child(i);
 
-			if(	pParameter->Get_Parent() == m_pOwner )
+			//--------------------------------------------
+			if( pParameter->is_DataObject() )
 			{
-				//-----------------------------------------
-				if( pParameter->is_DataObject() )
+				CSG_Data_Object	*pObject	= pParameter->asDataObject();
+
+				bool	bInvalid	= !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
+
+				if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 				{
-					CSG_Data_Object	*pObject	= pParameter->asDataObject();
-
-					if( !(pManager && pManager->Exists(pObject)) || !m_System.is_Valid() )
+					switch( pObject->Get_ObjectType() )
 					{
-						pParameter->Set_Value(DATAOBJECT_NOTSET);
-					}
-					else if( pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
-					{
-						CSG_Grid_System	System		= pParameter->Get_Type() == PARAMETER_TYPE_Grid
-							? pParameter->asGrid ()->Get_System()
-							: pParameter->asGrids()->Get_System();
-
-						if( !m_System.is_Equal(System) )
-						{
-							pParameter->Set_Value(DATAOBJECT_NOTSET);
-						}
+					case SG_DATAOBJECT_TYPE_Grid : bInvalid = !m_System.is_Equal(((CSG_Grid  *)pObject)->Get_System()); break;
+					case SG_DATAOBJECT_TYPE_Grids: bInvalid = !m_System.is_Equal(((CSG_Grids *)pObject)->Get_System()); break;
+					default: break;
 					}
 				}
-				else if( pParameter->is_DataObject_List() )
+
+				if( bInvalid )
 				{
-					CSG_Parameter_List	*pList	= pParameter->asList();
+					pParameter->Set_Value(DATAOBJECT_NOTSET);
+				}
+			}
 
-					for(int j=pList->Get_Item_Count()-1; j>=0; j--)
+			//--------------------------------------------
+			else if( pParameter->is_DataObject_List() )
+			{
+				CSG_Parameter_List	*pList	= pParameter->asList();
+
+				for(int j=pList->Get_Item_Count()-1; j>=0; j--)
+				{
+					CSG_Data_Object	*pObject	= pList->Get_Item(j);
+
+					bool	bInvalid	= !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
+
+					if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 					{
-						CSG_Data_Object	*pObject	= pList->Get_Item(j);
-
-						CSG_Grid_System	System		= pParameter->Get_Type() == PARAMETER_TYPE_Grid_List
-							? *pParameter->asGridList ()->Get_System()
-							: *pParameter->asGridsList()->Get_System();
-
-						if( !(pManager && pManager->Exists(pList->Get_Item(j))) || !m_System.is_Valid() || !m_System.is_Equal(System) )
+						switch( pObject->Get_ObjectType() )
 						{
-							pList->Del_Item(j);
+						case SG_DATAOBJECT_TYPE_Grid : bInvalid = !m_System.is_Equal(((CSG_Grid  *)pObject)->Get_System()); break;
+						case SG_DATAOBJECT_TYPE_Grids: bInvalid = !m_System.is_Equal(((CSG_Grids *)pObject)->Get_System()); break;
+						default: break;
 						}
+					}
+
+					if( bInvalid )
+					{
+						pList->Del_Item(j);
 					}
 				}
 			}
