@@ -100,11 +100,11 @@ CGrid_to_KML::CGrid_to_KML(void)
 		"FILE"		, _TL("Image File"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
-			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx")
+			_TL("Portable Network Graphics (*.png)"           ), SG_T("*.png"),
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"), SG_T("*.jpg;*.jif;*.jpeg"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)"    ), SG_T("*.tif;*.tiff"),
+			_TL("Windows or OS/2 Bitmap (*.bmp)"              ), SG_T("*.bmp"),
+			_TL("Zsoft Paintbrush (*.pcx)"                    ), SG_T("*.pcx")
 		), NULL, true
 	);
 

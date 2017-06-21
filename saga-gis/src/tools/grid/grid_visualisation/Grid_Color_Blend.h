@@ -91,19 +91,28 @@ public:
 
 protected:
 
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
 
+	virtual bool			Set_Progress			(double Position, double Range);
+
 
 private:
+
+	int						m_nFiles;
 
 	double					m_Range_Min, m_Range_Max;
 
 	CSG_Grid				*m_pGrid;
 
+	CSG_Parameter_Grid_List	*m_pGrids;
 
-	void					Blend					(CSG_Grid *pA, CSG_Grid *pB);
+
+	void					Blend					(int iGrid);
+
+	void					Save					(void);
 
 };
 
