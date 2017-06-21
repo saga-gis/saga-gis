@@ -68,6 +68,7 @@
 #include "res_controls.h"
 #include "res_images.h"
 
+#include "wksp.h"
 #include "wksp_table.h"
 
 #include "view_table.h"
@@ -205,6 +206,10 @@ void CVIEW_Table::On_Command(wxCommandEvent &event)
 	case ID_CMD_TABLE_TO_CLIPBOARD  :
 	case ID_CMD_TABLE_AUTOSIZE_COLS :
 		m_pControl->ProcessWindowEvent(event);
+		break;
+
+	default:
+		g_pWKSP->On_Command(event);
 	}
 }
 
@@ -224,6 +229,10 @@ void CVIEW_Table::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_TABLE_RECORD_DEL    :
 	case ID_CMD_TABLE_RECORD_DEL_ALL:
 		m_pControl->ProcessWindowEvent(event);
+		break;
+
+	default:
+		g_pWKSP->On_Command_UI(event);
 	}
 }
 
