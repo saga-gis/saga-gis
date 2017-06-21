@@ -279,10 +279,17 @@ public:		///////////////////////////////////////////////
 	{
 		CSG_Data_Object::Set_Modified(bModified);
 
+		m_Attributes.Set_Modified(bModified);
+
 		if( bModified )
 		{
 			Set_Update_Flag();
 		}
+	}
+
+	virtual bool					is_Modified		(void)	const
+	{
+		return( CSG_Data_Object::is_Modified() || m_Attributes.is_Modified() );
 	}
 
 

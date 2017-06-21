@@ -201,7 +201,7 @@ public:
 	const SG_Char *					Get_Description	(void)	const;
 
 	virtual void					Set_Modified	(bool bOn = true)		{	m_bModified	= bOn; if( bOn && m_pOwner ) m_pOwner->Set_Modified(bOn);	}
-	bool							is_Modified		(void)	const			{	return( m_bModified );		}
+	virtual bool					is_Modified		(void)	const			{	return( m_bModified );		}
 	bool							Update			(void);
 
 	CSG_Data_Object *				Get_Owner		(void)	const				{	return( m_pOwner );		}

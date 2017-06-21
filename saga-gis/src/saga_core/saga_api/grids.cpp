@@ -239,6 +239,8 @@ void CSG_Grids::_On_Construction(void)
 	m_pGrids[0]	= SG_Create_Grid();	// The Dummy
 	m_pGrids[0]->Set_Owner(this);
 
+	m_Attributes.Set_Owner(this);
+
 	m_Index		= NULL;
 
 	Destroy();
