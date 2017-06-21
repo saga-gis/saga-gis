@@ -209,19 +209,25 @@ bool CGDAL_Formats::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("RECOGNIZED")->asBool() )
 	{
-		CSG_String	Filter_All;
+		CSG_String	Filter_All, Filter_Last;
+
+		pFormats->Set_Index(GDAL_LIST_FMT_FILTER, TABLE_INDEX_Ascending);
 
 		for(int i=0; i<pFormats->Get_Count(); i++)
 		{
-			CSG_String	Filter	= pFormats->Get_Record(i)->asString(GDAL_LIST_FMT_FILTER);
+			CSG_String	Filter	= pFormats->Get_Record_byIndex(i)->asString(GDAL_LIST_FMT_FILTER);
 
-			if( !Filter.is_Empty() )
+			if( !Filter.is_Empty() && Filter.Cmp(Filter_Last) )
 			{
 				Filter.Replace("/", ";");
 
 				Filter_All	+= (Filter_All.is_Empty() ? "*." : ";*.") + Filter;
+
+				Filter_Last	 = Filter;
 			}
 		}
+
+		pFormats->Del_Index();
 
 		if( !Filter_All.is_Empty() )
 		{
