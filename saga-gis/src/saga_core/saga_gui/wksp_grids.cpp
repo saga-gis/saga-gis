@@ -680,6 +680,13 @@ double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->
 //---------------------------------------------------------
 bool CWKSP_Grids::Fit_Colors(void)
 {
+	CSG_String	Bands	= _Get_Bands_List();
+
+	((CSG_Parameter_Choice *)m_Parameters("BAND"  )->Get_Data())->Set_Items(Bands);
+	((CSG_Parameter_Choice *)m_Parameters("BAND_R")->Get_Data())->Set_Items(Bands);
+	((CSG_Parameter_Choice *)m_Parameters("BAND_G")->Get_Data())->Set_Items(Bands);
+	((CSG_Parameter_Choice *)m_Parameters("BAND_B")->Get_Data())->Set_Items(Bands);
+
 	return( _Fit_Colors() );
 }
 

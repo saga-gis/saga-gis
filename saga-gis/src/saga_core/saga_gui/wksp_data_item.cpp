@@ -158,7 +158,7 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_RELOAD:
 		if( m_pObject->Reload() )
 		{
-			Update_Views(true);
+			DataObject_Changed();
 		}
 		break;
 
