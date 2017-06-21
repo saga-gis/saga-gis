@@ -83,6 +83,9 @@
     <ClInclude Include="MLB_Interface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="3d_viewer_grids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3d_viewer_globe_grid.cpp">
@@ -101,6 +104,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MLB_Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="3d_viewer_grids.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

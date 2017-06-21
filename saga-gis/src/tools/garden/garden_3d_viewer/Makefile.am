@@ -13,12 +13,14 @@ pkglib_LTLIBRARIES = libgarden_3d_viewer.la
 libgarden_3d_viewer_la_SOURCES =\
 MLB_Interface.cpp\
 3d_viewer_globe_grid.cpp\
+3d_viewer_grids.cpp\
 3d_viewer_multiple_grids.cpp\
 3d_viewer_pointcloud.cpp\
 3d_viewer_shapes.cpp\
 3d_viewer_tin.cpp\
 MLB_Interface.h\
 3d_viewer_globe_grid.h\
+3d_viewer_grids.h\
 3d_viewer_multiple_grids.h\
 3d_viewer_pointcloud.h\
 3d_viewer_shapes.h\
