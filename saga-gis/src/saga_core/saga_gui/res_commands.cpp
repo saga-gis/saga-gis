@@ -144,7 +144,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TOOL_SEARCH:			return( _TL("Find and Run Tool") );
 	case ID_CMD_TOOL_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
 	case ID_CMD_TOOL_SAVE_SCRIPT:		return( _TL("Save to Script File") );
-	case ID_CMD_TOOL_SAVE_TO_CLIPBOARD:	return( _TL("Save to Clipboard") );
+	case ID_CMD_TOOL_SAVE_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 	case ID_CMD_TOOL_CHAIN_RELOAD:		return( _TL("Reload") );
 	case ID_CMD_TOOL_CHAIN_EDIT:		return( _TL("Edit") );
 
@@ -202,6 +202,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_DIAGRAM:			return( _TL("Diagram") );
 
 	case ID_CMD_GRID_SAVEAS_IMAGE:		return( _TL("Save as Image...") );
+	case ID_CMD_GRID_CLIPBOARD_IMAGE:	return( _TL("Copy to Clipboard") );
 	case ID_CMD_GRID_EQUALINTERVALS:	return( _TL("Create Normalised Classification") );
 	case ID_CMD_GRID_SEL_CLEAR:			return( _TL("Clear Selection") );
 	case ID_CMD_GRID_SEL_DELETE:		return( _TL("Delete Selection") );

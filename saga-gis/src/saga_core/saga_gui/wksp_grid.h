@@ -150,7 +150,8 @@ private:
 	bool						_Edit_Clr_Selection		(void);
 	bool						_Edit_Del_Selection		(void);
 
-	void						_Save_Image				(void);
+	bool						_Save_Image				(void);
+	bool						_Save_Image_Clipboard	(void);
 
 	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
 	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC);

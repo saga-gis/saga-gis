@@ -64,6 +64,7 @@
 #include <wx/dcmemory.h>
 #include <wx/image.h>
 #include <wx/filename.h>
+#include <wx/clipbrd.h>
 
 #include "res_commands.h"
 #include "res_dialogs.h"
@@ -203,6 +204,7 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SAVEAS_IMAGE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_CLIPBOARD_IMAGE);
 
 	if( m_pObject->is_File_Native() && m_pObject->is_Modified() )
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_RELOAD);
@@ -239,6 +241,10 @@ bool CWKSP_Grid::On_Command(int Cmd_ID)
 
 	case ID_CMD_GRID_SAVEAS_IMAGE:
 		_Save_Image();
+		break;
+
+	case ID_CMD_GRID_CLIPBOARD_IMAGE:
+		_Save_Image_Clipboard();
 		break;
 
 	case ID_CMD_GRID_HISTOGRAM:
@@ -1251,64 +1257,85 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Save_Image(void)
+bool CWKSP_Grid::_Save_Image(void)
 {
-	int				type;
-	wxString		file;
-	wxBitmap		BMP;
-	CSG_File		Stream;
-	CSG_Parameters	Parms;
+	static CSG_Parameters	P(NULL, _TL("Save Grid as Image..."), _TL(""), SG_T(""));
 
-	//-----------------------------------------------------
-	Parms.Set_Name(_TL("Save Grid as Image..."));
-
-	Parms.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""), true);
-	Parms.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), true);
-	Parms.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1.0, 0.0, true);
-
-	//-----------------------------------------------------
-	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
+	if( P.Get_Count() == 0 )
 	{
-		if( Get_Image_Grid(BMP) )
+		P.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""), true);
+		P.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), true);
+		P.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1.0, 0.0, true);
+	}
+
+	//-----------------------------------------------------
+	int			Type;
+	wxString	File;
+	wxBitmap	Bitmap;
+
+	if( !DLG_Image_Save(File, Type) || !DLG_Parameters(&P) || !Get_Image_Grid(Bitmap) )
+	{
+		return( false );
+	}
+
+	Bitmap.SaveFile(File, (wxBitmapType)Type);
+
+	//-----------------------------------------------------
+	if( P("LG")->asBool() && Get_Image_Legend(Bitmap, P("LZ")->asDouble()) )
+	{
+		wxFileName	fn(File); fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
+
+		Bitmap.SaveFile(fn.GetFullPath(), (wxBitmapType)Type);
+	}
+
+	if( P("WORLD")->asBool() )
+	{
+		wxFileName	fn(File);
+
+		switch( Type )
 		{
-			BMP.SaveFile(file, (wxBitmapType)type);
+		default                : fn.SetExt("world");	break;
+		case wxBITMAP_TYPE_BMP : fn.SetExt("bpw"  );	break;
+		case wxBITMAP_TYPE_GIF : fn.SetExt("gfw"  );	break;
+		case wxBITMAP_TYPE_JPEG: fn.SetExt("jgw"  );	break;
+		case wxBITMAP_TYPE_PNG : fn.SetExt("pgw"  );	break;
+		case wxBITMAP_TYPE_PCX : fn.SetExt("pxw"  );	break;
+		case wxBITMAP_TYPE_TIF : fn.SetExt("tfw"  );	break; 
 		}
 
-		if( Parms("LG")->asBool() && Get_Image_Legend(BMP, Parms("LZ")->asDouble()) )
+		CSG_File	Stream;
+
+		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 		{
-			wxFileName	fn(file);
-			fn.SetName(wxString::Format("%s_legend", fn.GetName().c_str()));
-
-			BMP.SaveFile(fn.GetFullPath(), (wxBitmapType)type);
-		}
-
-		if( Parms("WORLD")->asBool() )
-		{
-			wxFileName	fn(file);
-
-			switch( type )
-			{
-			default                : fn.SetExt("world");	break;
-			case wxBITMAP_TYPE_BMP : fn.SetExt("bpw"  );	break;
-			case wxBITMAP_TYPE_GIF : fn.SetExt("gfw"  );	break;
-			case wxBITMAP_TYPE_JPEG: fn.SetExt("jgw"  );	break;
-			case wxBITMAP_TYPE_PNG : fn.SetExt("pgw"  );	break;
-			case wxBITMAP_TYPE_PCX : fn.SetExt("pxw"  );	break;
-			case wxBITMAP_TYPE_TIF : fn.SetExt("tfw"  );	break; 
-			}
-
-			if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
-			{
-				Stream.Printf("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n",
-					 Get_Grid()->Get_Cellsize(),
-					 0.0, 0.0,
-					-Get_Grid()->Get_Cellsize(),
-					 Get_Grid()->Get_XMin(),
-					 Get_Grid()->Get_YMax()
-				);
-			}
+			Stream.Printf("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n",
+				 Get_Grid()->Get_Cellsize(),
+				 0.0, 0.0,
+				-Get_Grid()->Get_Cellsize(),
+				 Get_Grid()->Get_XMin(),
+				 Get_Grid()->Get_YMax()
+			);
 		}
 	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grid::_Save_Image_Clipboard(void)
+{
+	wxBitmap	Bitmap;
+
+	if( Get_Image_Grid(Bitmap) && wxTheClipboard->Open() )
+	{
+		wxBitmapDataObject	*pBitmap	= new wxBitmapDataObject;
+		pBitmap->SetBitmap(Bitmap);
+		wxTheClipboard->SetData(pBitmap);
+		wxTheClipboard->Close();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
