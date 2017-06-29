@@ -488,16 +488,16 @@ void CSG_Simple_Statistics::Add_Value(double Value, double Weight)
 		m_Sum2			+= Weight * Value*Value;
 
 		m_bEvaluated	= 0;
+
+		if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
+		{
+			m_bSorted		= false;
+
+			((double *)m_Values.Get_Array())[m_nValues]	= Value;
+		}
+
+		m_nValues++;
 	}
-
-	if( m_Values.Get_Value_Size() > 0 && m_Values.Inc_Array() )
-	{
-		m_bSorted		= false;
-
-		((double *)m_Values.Get_Array())[m_nValues]	= Value;
-	}
-
-	m_nValues++;
 }
 
 //---------------------------------------------------------
