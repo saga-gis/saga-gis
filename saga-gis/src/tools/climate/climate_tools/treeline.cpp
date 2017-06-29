@@ -251,17 +251,34 @@ bool CCT_Growing_Season::Get_T_Season(const double *T, const double *Snow, const
 {
 	m_T_Season.Create();
 
-	double	SWC	= S0 && S1 ? m_Soil.Get_Capacity(0) + m_Soil.Get_Capacity(1) : 0.0;
+	m_GDay_First = m_GDay_Last = -1;	// invalidate first and last growing day
 
-	for(int iDay=0; iDay<365; iDay++)
+	int	i;	bool	*bGrowing	= new bool[365];
+
+	for(i=0; i<365; i++)	// 1. identify growing days
 	{
-		if( T[iDay] >= m_DT_min
-		&&  (!Snow || Snow[iDay] <= 0.0)
-		&&  (!(S0 && S1) || (S0[iDay] > 0.0 || S1[iDay] >= m_SW_min * m_Soil.Get_Capacity(1))) )
+		bGrowing[i]	= T[i] >= m_DT_min && (!Snow || Snow[i] <= 0.0) && (!(S0 && S1) || (S0[i] > 0.0 || S1[i] >= m_SW_min * m_Soil.Get_Capacity(1)));
+	}
+
+	for(i=0; i<365; i++)	// 2. evaluate growing days
+	{
+		if( bGrowing[i] )
 		{
-			m_T_Season	+= T[iDay];
+			m_T_Season	+= T[i];
+
+			if( m_GDay_First < 0 && !bGrowing[(365 + i - 1) % 365] )	// is the previous day a not growing day ?
+			{
+				m_GDay_First	= i;
+			}
+
+			if( m_GDay_Last  < 0 && !bGrowing[(365 + i + 1) % 365] )	// is the following day a not growing day ?
+			{
+				m_GDay_Last		= i;
+			}
 		}
 	}
+
+	delete[](bGrowing);
 
 	return( m_T_Season.Get_Count() >= m_LGS_min && m_T_Season.Get_Mean() >= m_SMT_min );
 }
@@ -337,6 +354,18 @@ CTree_Growth::CTree_Growth(void)
 		"LGS"		, _TL("Length"),
 		_TL("Number of days of the growing season."),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid("",
+		"FIRST"	, _TL("First Growing Day"),
+		_TL("First growing day of the year (1-365)."),
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Grid("",
+		"LAST"	, _TL("Last Growing Day"),
+		_TL("Last degree day of the year (1-365)."),
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
 	);
 
 	Parameters.Add_Grid("",
@@ -425,9 +454,11 @@ bool CTree_Growth::On_Execute(void)
 	m_Model.Get_Soil().Set_ET_Resistance(1, Parameters("SW1_RESIST" )->asDouble());
 
 	//-----------------------------------------------------
-	CSG_Grid	*pSMT	= Parameters("SMT")->asGrid();
-	CSG_Grid	*pLGS	= Parameters("LGS")->asGrid();
-	CSG_Grid	*pTLH	= Parameters("TLH")->asGrid();
+	CSG_Grid	*pSMT	= Parameters("SMT"  )->asGrid();
+	CSG_Grid	*pLGS	= Parameters("LGS"  )->asGrid();
+	CSG_Grid	*pFirst	= Parameters("FIRST")->asGrid();
+	CSG_Grid	*pLast	= Parameters("LAST" )->asGrid();
+	CSG_Grid	*pTLH	= Parameters("TLH"  )->asGrid();
 
 	DataObject_Set_Colors(pLGS, 11, SG_COLORS_GREEN_GREY_BLUE, true);
 	DataObject_Set_Colors(pTLH, 11, SG_COLORS_GREEN_GREY_BLUE, true);
@@ -448,6 +479,12 @@ bool CTree_Growth::On_Execute(void)
 #endif
 		for(int x=0; x<Get_NX(); x++)
 		{
+			SG_GRID_PTR_SAFE_SET_NODATA(pLGS  , x, y);
+			SG_GRID_PTR_SAFE_SET_NODATA(pSMT  , x, y);
+			SG_GRID_PTR_SAFE_SET_NODATA(pFirst, x, y);
+			SG_GRID_PTR_SAFE_SET_NODATA(pLast , x, y);
+			SG_GRID_PTR_SAFE_SET_NODATA(pTLH  , x, y);
+
 			CCT_Growing_Season	Model(m_Model);	// copy model setup
 
 			if( Model.Set_Monthly(CCT_Water_Balance::MONTHLY_T   , x, y, pT   )
@@ -466,9 +503,15 @@ bool CTree_Growth::On_Execute(void)
 				{
 					pSMT->Set_Value(x, y, Model.Get_SMT());
 				}
-				else
+
+				if( pFirst && Model.Get_GDay_First() >= 0 )
 				{
-					pSMT->Set_NoData(x, y);
+					pFirst->Set_Value(x, y, 1 + Model.Get_GDay_First());
+				}
+
+				if( pLast  && Model.Get_GDay_Last () >= 0 )
+				{
+					pLast ->Set_Value(x, y, 1 + Model.Get_GDay_Last());
 				}
 
 				if( pTLH )
@@ -483,16 +526,6 @@ bool CTree_Growth::On_Execute(void)
 					{
 						pTLH->Set_NoData(x, y);
 					}
-				}
-			}
-			else
-			{
-				pLGS->Set_NoData(x, y);
-				pSMT->Set_NoData(x, y);
-
-				if( pTLH )
-				{
-					pTLH->Set_NoData(x, y);
 				}
 			}
 		}

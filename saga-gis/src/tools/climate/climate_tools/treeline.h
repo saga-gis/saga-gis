@@ -98,11 +98,13 @@ public:
 
 	int							Get_LGS					(void)		{	return( (int)m_T_Season.Get_Count() );	}
 	double						Get_SMT					(void)		{	return(      m_T_Season.Get_Mean () );	}
+	int							Get_GDay_First			(void)		{	return( m_GDay_First );	}
+	int							Get_GDay_Last			(void)		{	return( m_GDay_Last  );	}
 
 
 private:
 
-	int							m_LGS_min;
+	int							m_LGS_min, m_GDay_First, m_GDay_Last;
 
 	double						m_DT_min, m_SMT_min, m_SW_min;
 
