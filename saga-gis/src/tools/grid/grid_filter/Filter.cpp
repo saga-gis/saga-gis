@@ -82,19 +82,19 @@ CFilter::CFilter(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Filter"),
 		_TL("Choose the filter method."),
 		CSG_String::Format("%s|%s|%s|",

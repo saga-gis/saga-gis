@@ -5,16 +5,20 @@
 	<identifier>lczc</identifier>
 	<menu absolute="true">Imagery|Classification</menu>
 	<name>Local Climate Zone Classification</name>
-	
 	<author>B. Bechtel, O. Conrad (c) 2015/16</author>
 	<description>
-		Reference:
-		Bechtel, B., Alexander, P. J., Böhner, J., Ching, J., Conrad, O., Feddema, J., Gerald, M., See, L., Stewart, I. (2015). Mapping local climate zones for a worldwide database of the form and function of cities. ISPRS International Journal of Geo-Information, 4(1), 199-219. doi:10.3390/ijgi4010199.
-		______________
-		UPDATES
-		20160815	Automated filtering of Style Place Holders
-		20160907	added cmd line support for kml import
+		Updates:
+		[[ul]]
+		[[li]][[b]]2016/08/15[[/b]] Automated filtering of Style Place Holders[[/li]]
+		[[li]][[b]]2016/09/07[[/b]] added cmd line support for kml import[[/li]]
+		[[/ul]]		
 	</description>
+	<reference>
+		<authors>Bechtel, B., Alexander, P. J., Böhner, J., Ching, J., Conrad, O., Feddema, J., Gerald, M., See, L., Stewart, I.</authors>
+		<year>2015</year>
+		<title>Mapping local climate zones for a worldwide database of the form and function of cities</title>
+		<where>ISPRS International Journal of Geo-Information, 4(1), 199-219. doi:10.3390/ijgi4010199.</where>
+	</reference>
 	
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">

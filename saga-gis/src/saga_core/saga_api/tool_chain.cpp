@@ -808,33 +808,61 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 //---------------------------------------------------------
 bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_String &ListVarName)
 {
+	bool	bResult	= false;
+
 	CSG_Parameter	*pList	= m_Data(ListVarName);
 
-	if( !pList || !pList->is_DataObject_List() )
+	if( pList )
 	{
-		return( false );
-	}
+		bResult	= true;
 
-	//-----------------------------------------------------
-	bool	bResult	= true;
-
-	for(int iObject=0; bResult && iObject<pList->asList()->Get_Data_Count(); iObject++)
-	{
-		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+		//-------------------------------------------------
+		if( pList->is_DataObject_List() )
 		{
-			const CSG_MetaData	&Tool	= Commands[iTool];
-
-			if( Tool.Cmp_Name("tool") )
+			for(int iObject=0; bResult && iObject<pList->asList()->Get_Data_Count(); iObject++)
 			{
-				for(int j=0; j<Tool.Get_Children_Count(); j++)
+				for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
 				{
-					if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
+					const CSG_MetaData	&Tool	= Commands[iTool];
+
+					if( Tool.Cmp_Name("tool") )
 					{
-						Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
+						for(int j=0; j<Tool.Get_Children_Count(); j++)
+						{
+							if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
+							{
+								Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
+							}
+						}
+
+						bResult	= Tool_Run(Tool);
 					}
 				}
+			}
+		}
 
-				bResult	= Tool_Run(Tool);
+		//-------------------------------------------------
+		else if( pList->Get_Type() == PARAMETER_TYPE_Grids )
+		{
+			for(int iObject=0; bResult && iObject<pList->asGrids()->Get_Grid_Count(); iObject++)
+			{
+				for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
+				{
+					const CSG_MetaData	&Tool	= Commands[iTool];
+
+					if( Tool.Cmp_Name("tool") )
+					{
+						for(int j=0; j<Tool.Get_Children_Count(); j++)
+						{
+							if( Tool[j].Cmp_Name("input") && Tool[j].Get_Content().Find(ListVarName) == 0 )
+							{
+								Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
+							}
+						}
+
+						bResult	= Tool_Run(Tool);
+					}
+				}
 			}
 		}
 	}
@@ -1065,7 +1093,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 		{
 			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
-				pParameter->Assign(Parameters(Parameter.Get_Content()));
+				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
 			}
 			else switch( pParameter->Get_Type() )
 			{
@@ -1108,6 +1136,10 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 				{
 					bResult	= pParameter->Set_Value(pData->asList()->Get_Data(Index));
 				}
+				else if( pParameter->is_DataObject() && pData->asGrids() && Index >= 0 )
+				{
+					bResult	= pParameter->Set_Value(pData->asGrids()->Get_Grid_Ptr(Index));
+				}
 			}
 
 			if( !bResult )
@@ -1136,6 +1168,10 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 				{
 					pParameter->asList()->Del_Items();
 				}
+				else if( pParameter->asGrids() )
+				{
+					pParameter->asGrids()->Del_Grids();
+				}
 			}
 		}
 	}
@@ -1159,7 +1195,7 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 		{
 			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
-				pParameter->Assign(Parameters(Parameter.Get_Content()));
+				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
 			}
 			else switch( pParameter->Get_Type() )
 			{

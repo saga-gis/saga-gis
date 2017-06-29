@@ -1,45 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="4.0.0">
-  <group>toolchains</group>
-  <identifier>grid_list_simple_filter</identifier>
-  <name>Simple Filter for Multiple Grids</name>
-  <menu absolute="true">Grid|Filter</menu>
-  <description>
-	Apply a simple filter simultaneously to multiple grids.
-	Demonstrates the [[i]]For-Each tool[[/i]] chain option which easily allows
-	to apply a single input grid tool to multiple input grids.
-  </description>
-  
-  <parameters>
-    <input varname="GRIDS" type="grid_list">
-      <name>Grids</name>
-    </input>
-    <output varname="FILTERED" type="grid_list">
-      <name>Filtered Grids</name>
-    </output>
-	<option varname="METHOD" type="choice">
-	  <name>Filter</name>
-	  <choices>Smooth|Sharpen|Edge</choices>
-	</option>
-	<option varname="KERNEL_TYPE" type="choice">
-	  <name>Kernel Type</name>
-	  <choices>Square|Circle</choices>
-	  <value>1</value>
-	</option>
-    <option varname="KERNEL_RADIUS" type="integer">
-      <name>Kernel Radius</name>
-	  <value>2</value>
-	</option>
-  </parameters>
-  
-  <tools>
-	<foreach input="GRIDS">
-		<tool library="grid_filter" tool="0" name="Simple Filter">
-		  <option id="METHOD" varname="TRUE">METHOD</option>
-		  <option id="KERNEL_RADIUS" varname="TRUE">KERNEL_RADIUS</option>
-		  <input  id="INPUT">GRIDS</input>
-		  <output id="RESULT">FILTERED</output>
-		</tool>
-	</foreach>
-  </tools>
+	<group>toolchains</group>
+	<identifier>grid_list_simple_filter</identifier>
+	<name>Simple Filter for Multiple Grids</name>
+	<menu absolute="true">Grid|Filter</menu>
+	<description>
+		Apply a simple filter simultaneously to multiple grids.
+		Demonstrates the [[i]]For-Each tool[[/i]] chain option which easily allows
+		to apply a single input grid tool to multiple input grids.
+	</description>
+
+	<parameters>
+		<input varname="GRIDS" type="grid_list">
+			<name>Grids</name>
+		</input>
+		<output varname="FILTERED" type="grid_list">
+			<name>Filtered Grids</name>
+		</output>
+		<option varname="METHOD" type="choice">
+			<name>Filter</name>
+			<choices>Smooth|Sharpen|Edge</choices>
+		</option>
+		<option varname="KERNEL_TYPE" type="choice">
+			<name>Kernel Type</name>
+			<choices>Square|Circle</choices>
+			<value>1</value>
+		</option>
+		<option varname="KERNEL_RADIUS" type="integer">
+			<name>Kernel Radius</name>
+			<value>2</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<foreach input="GRIDS">
+			<tool library="grid_filter" tool="0" name="Simple Filter">
+				<option id="METHOD" varname="TRUE">METHOD</option>
+				<option id="KERNEL_TYPE"   varname="TRUE">KERNEL_TYPE</option>
+				<option id="KERNEL_RADIUS" varname="TRUE">KERNEL_RADIUS</option>
+				<input  id="INPUT">GRIDS</input>
+				<output id="RESULT">FILTERED</output>
+			</tool>
+		</foreach>
+	</tools>
 </toolchain>

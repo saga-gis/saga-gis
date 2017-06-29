@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="5.0.0">
+	<group>gc_tools</group>
+	<identifier>gc_filter_simple</identifier>
+	<name>Simple Filter</name>
+	<author>O.Conrad (c) 2017</author>
+	<description>Simple standard filters for grid collections.</description>
+	<menu>Filter</menu>
+	
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="GRIDS" type="grids" parent="GRID_SYSTEM">
+			<name>Grid Collection</name>
+		</input>
+		<output varname="FILTERED" type="grids" parent="GRID_SYSTEM">
+			<name>Filtered Grid Collection</name>
+		</output>
+		<option varname="METHOD" type="choice">
+			<name>Filter</name>
+			<choices>Smooth|Sharpen|Edge</choices>
+		</option>
+<!---->	<option varname="KERNEL_TYPE" type="choice">
+			<name>Kernel Type</name>
+			<choices>Square|Circle</choices>
+			<value>1</value>
+		</option>
+		<option varname="KERNEL_RADIUS" type="integer">
+			<name>Kernel Radius</name>
+			<value>2</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<foreach input="GRIDS">
+			<output type="grid_list">LIST</output>
+			
+			<tool library="grid_filter" tool="0" name="Simple Filter">
+				<option id="METHOD"        varname="TRUE">METHOD</option>
+				<option id="KERNEL_TYPE"   varname="TRUE">KERNEL_TYPE</option>
+				<option id="KERNEL_RADIUS" varname="TRUE">KERNEL_RADIUS</option>
+				<input  id="INPUT" >GRIDS</input>
+				<output id="RESULT">LIST</output>
+			</tool>
+		</foreach>
+		
+		<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+			<input  id="LIST">LIST</input>
+			<output id="GRIDS">FILTERED</output>
+		</tool>		
+	</tools>
+</toolchain>
