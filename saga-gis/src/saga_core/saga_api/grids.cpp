@@ -517,6 +517,8 @@ bool CSG_Grids::Set_Z(int i, double Value)
 //---------------------------------------------------------
 bool CSG_Grids::Update_Z_Order(void)
 {
+	bool	bChanged	= false; 
+
 	CSG_Table	Attributes(m_Attributes);
 
 	if( Attributes.Set_Index(m_Z_Attribute, TABLE_INDEX_Ascending) )
@@ -531,14 +533,16 @@ bool CSG_Grids::Update_Z_Order(void)
 
 			if( Index != i )
 			{
+				bChanged	= true;
+
 				m_pGrids[i]	= pGrids[Index];
 
-				m_Attributes[i].Assign(&Attributes[Index]);
+				m_Attributes[i].Assign(&Attributes[i]);
 			}
 		}
 	}
 
-	return( true );
+	return( bChanged );
 }
 
 

@@ -154,6 +154,7 @@ wxString CWKSP_Grids::Get_Description(void)
 	DESC_ADD_INT (_TL("Number of Bands"   ), Get_Grids()->Get_NZ          ());
 	DESC_ADD_LONG(_TL("Number of Cells"   ), Get_Grids()->Get_NCells      ());
 	DESC_ADD_LONG(_TL("No Data Cells"     ), Get_Grids()->Get_NoData_Count());
+	DESC_ADD_STR (_TL("Z-Attribute"       ), Get_Grids()->Get_Attributes().Get_Field_Name(Get_Grids()->Get_Z_Attribute()));
 	DESC_ADD_STR (_TL("Value Type"        ), SG_Data_Type_Get_Name(Get_Grids()->Get_Type()).c_str());
 	DESC_ADD_FLT (_TL("Value Minimum"     ), Get_Grids()->Get_Min         ());
 	DESC_ADD_FLT (_TL("Value Maximum"     ), Get_Grids()->Get_Max         ());
@@ -469,6 +470,21 @@ bool CWKSP_Grids::Update(CWKSP_Layer *pChanged)
 {
 	if( pChanged == this )
 	{
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Grids::Edit_Set_Attributes(void)
+{
+	if( Get_Grids()->Get_Attributes_Ptr()->Assign_Values(&m_Edit_Attributes) && Get_Grids()->Update_Z_Order() )
+	{
+		DataObject_Changed();
+
+	//	_Fit_Colors(true); Update_Views(true);
+
 		return( true );
 	}
 

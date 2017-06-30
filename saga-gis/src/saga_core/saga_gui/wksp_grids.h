@@ -107,6 +107,7 @@ public:
 	virtual double				Get_Value_StdDev		(void);
 
 	virtual TSG_Rect			Edit_Get_Extent			(void)	{	return( Get_Extent() );	}
+	virtual bool				Edit_Set_Attributes		(void);
 
 	bool						Fit_Colors				(const CSG_Rect &rWorld);
 
