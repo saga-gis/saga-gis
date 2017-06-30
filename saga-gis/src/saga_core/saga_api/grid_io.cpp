@@ -1169,6 +1169,14 @@ bool CSG_Grid_File_Info::Save(const CSG_String &FileName, const CSG_Grid &Grid, 
 	return( Info.Save(FileName, bBinary) );
 }
 
+//---------------------------------------------------------
+bool CSG_Grid_File_Info::Save(const CSG_File &Stream, const CSG_Grid &Grid, bool bBinary)
+{
+	CSG_Grid_File_Info	Info(Grid);
+
+	return( Info.Save(Stream, bBinary) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
