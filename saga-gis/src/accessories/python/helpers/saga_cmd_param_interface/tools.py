@@ -197,7 +197,7 @@ tools = [
 ['grid_tools', 30, 'Transpose Grids'],
 ['grid_tools', 31, 'Clip Grids'],
 ['grid_visualisation', 0, 'Color Palette Rotation'],
-['grid_visualisation', 1, 'Color Blending'],
+['grid_visualisation', 1, 'Grid Animation'],
 ['grid_visualisation', 2, 'Fit Color Palette to Grid Values'],
 ['grid_visualisation', 3, 'RGB Composite'],
 ['grid_visualisation', 4, 'Create 3D Image'],
@@ -694,5 +694,10 @@ tools = [
 ['pj_proj4', 26, 'UTM Projection (Shapes)'],
 ['pj_proj4', 27, 'UTM Projection (Point Cloud List)'],
 ['pj_proj4', 28, 'UTM Projection (Point Cloud)'],
-['table_calculus', 18, 'Aggregate Values by Attributes']
+['table_calculus', 18, 'Aggregate Values by Attributes'],
+['climate_tools', 18, 'Growing Degree Days'],
+['garden_3d_viewer', 5, 'Grid Collection Viewer'],
+['grids_tools', 0, 'Create a Grid Collection'],
+['grids_tools', 1, 'Extract Grids from a Grid Collection'],
+['grids_tools', 2, 'Delete Grids from a Grid Collection']
 ]

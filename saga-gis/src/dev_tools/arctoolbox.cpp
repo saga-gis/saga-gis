@@ -665,7 +665,7 @@ bool CArcToolBox::Save(CSG_Tool_Library *pLibrary, const CSG_String &Directory, 
 
 	CSG_String	FileName	= Parameters("BOX_NAMING")->asInt() == 0
 		? SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Library_Name(), FORMAT_FILE), SG_T(""))
-		: SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Category    (), FORMAT_FILE), SG_T("")) + " - " + pLibrary->Get_Name();
+		: SG_File_Make_Path(Directory, Get_Formatted(pLibrary->Get_Category    (), FORMAT_FILE), SG_T("")) + " - " + Get_Formatted(pLibrary->Get_Name(), FORMAT_FILE);
 
 	if( !f.Open(FileName + ".pyt", SG_FILE_W, true) )
 	{
