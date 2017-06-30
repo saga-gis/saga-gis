@@ -2,7 +2,7 @@
 
 REM ___________________________________
 SET SAGA_VER_MAJOR=5
-SET SAGA_VER_MINOR=0
+SET SAGA_VER_MINOR=1
 SET SAGA_VER_RELEASE=0
 SET SAGA_VER_TEXT=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
@@ -34,16 +34,6 @@ ECHO Things you should have updated before:
 ECHO - ArcSAGA Tools
 ECHO - Translation Files
 ECHO - Python Tools Interface Update
-ECHO - Update version numbers in:
-ECHO.    ./saga_setup_win32.iss
-ECHO.    ./saga_setup_x64.iss
-ECHO.    ./saga_api_Doxyfile
-ECHO.    ./saga-gis/configure.ac
-ECHO.    ./saga-gis/version.cmake
-ECHO.    ./saga-gis/README
-ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
-ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
-ECHO - Create new branch: release-%SAGA_VER_TEXT%
 ECHO.
 ECHO Enter 'y' to continue!
 SET /P CONTINUE=
@@ -162,8 +152,20 @@ ECHO - Create SAGA Tools Reference Documentation
 ECHO.    sagadoc-code: ./parse_modules.py
 ECHO.    upload created version folder to saga-gis.org and update link
 ECHO.
+ECHO - Create new branch: release-%SAGA_VER_TEXT%
+ECHO.
 ECHO - Add new bug tracker milestone for next aspired version
 ECHO.    https://sourceforge.net/p/saga-gis/bugs/milestones
+ECHO.
+ECHO - Update version numbers accordingly:
+ECHO.    ./saga_setup_win32.iss
+ECHO.    ./saga_setup_x64.iss
+ECHO.    ./saga_api_Doxyfile
+ECHO.    ./saga-gis/configure.ac
+ECHO.    ./saga-gis/version.cmake
+ECHO.    ./saga-gis/README
+ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.
 ECHO - Commit a comment like: SAGA version updated to %SAGA_VER_TEXT%
 
