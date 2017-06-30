@@ -274,21 +274,26 @@ int CSG_File::Printf(const wchar_t *Format, ...)
 //---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
-	return( is_Reading() && Size > 0 ? ((wxInputStream *)m_pStream)->Read(Buffer, Size * Count).LastRead() / Size : 0 );
+	return( is_Reading() && Size > 0 && Count > 0 ? ((wxInputStream *)m_pStream)->Read(Buffer, Size * Count).LastRead() / Size : 0 );
 }
 
 size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
-	if( is_Reading() )
+	if( is_Reading() && Size > 0 )
 	{
 		CSG_Array	b(1, Size);
 
 		size_t	 i	= Read(b.Get_Array(), b.Get_Value_Size(), Size);
 
-		Buffer	= (const char *)b.Get_Array();
+		if( i > 0 )
+		{
+			Buffer	= (const char *)b.Get_Array();
 
-		return( i );
+			return( i );
+		}
 	}
+
+	Buffer.Clear();
 
 	return( 0 );
 }

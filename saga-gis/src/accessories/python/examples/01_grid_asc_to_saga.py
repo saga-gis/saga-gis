@@ -15,24 +15,18 @@ def grid_asc2sgrd(fASC):
 #    print saga_api.SG_Get_Tool_Library_Manager().Get_Summary(saga_api.SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE).c_str()
 #    print '__________________'
 
-### load just the needed tool library:
-    if os.name == 'nt':    # Windows
-        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_32' ] + '/tools/io_grid.dll')
-    else:                  # Linux
-        saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libio_grid.so')
-
     sASC = saga_api.CSG_String(fASC)
-    m    = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('io_grid'), 1)
-    print m.Get_Description().c_str()
+    m    = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('io_gdal'), 0)
 
     p    = m.Get_Parameters()
-    p(saga_api.CSG_String('FILE')).Set_Value(sASC)
+    p(saga_api.CSG_String('FILES')).Set_Value(sASC)
 
     if m.Execute() == 0:
         print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
-    if p(saga_api.CSG_String('GRID')).asGrid().Save(sASC) == 0:
+    saga_api.SG_File_Set_Extension(sASC, saga_api.CSG_String('sgrd'))
+    if p(saga_api.CSG_String('GRIDS')).asGridList().Get_Grid(0).Save(sASC) == 0:
         print 'ERROR: saving grid [' + sASC + ']'
         return 0
 
@@ -53,5 +47,13 @@ if __name__ == '__main__':
         fASC    = sys.argv[1]
         if os.path.split(fASC)[0] == '':
             fASC    = './' + fASC
+
+    saga_api.SG_UI_Msg_Lock(True)
+    if os.name == 'nt':    # Windows
+        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA_32'] + '/dll'
+        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/tools', False)
+    else:                  # Linux
+        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)
+    saga_api.SG_UI_Msg_Lock(False)
 	
     grid_asc2sgrd(fASC)

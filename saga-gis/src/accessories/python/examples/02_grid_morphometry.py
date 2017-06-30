@@ -11,6 +11,7 @@ def morphometry(fDEM):
     if dem == None or dem.is_Valid() == 0:
         print 'ERROR: loading grid [' + fDEM + ']'
         return 0
+    print 'grid file [' + fDEM + '] ahs been loaded'
     
     path   = os.path.split(fDEM)[0]
     if path == '':
@@ -38,10 +39,10 @@ def morphometry(fDEM):
         print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
-    slope .Save(saga_api.CSG_String(path + '/slope' ))
-    aspect.Save(saga_api.CSG_String(path + '/aspect'))
-    hcurv .Save(saga_api.CSG_String(path + '/hcurv' ))
-    vcurv .Save(saga_api.CSG_String(path + '/vcurv' ))
+    slope .Save(saga_api.CSG_String(path + '/slope'  + '.sgrd'))
+    aspect.Save(saga_api.CSG_String(path + '/aspect' + '.sgrd'))
+    hcurv .Save(saga_api.CSG_String(path + '/hcurv'  + '.sgrd'))
+    vcurv .Save(saga_api.CSG_String(path + '/vcurv'  + '.sgrd'))
     
     # ------------------------------------
     # 'Curvature Classification'
@@ -56,7 +57,7 @@ def morphometry(fDEM):
         print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
-    ccurv .Save(saga_api.CSG_String(path + '/ccurv' ))
+    ccurv .Save(saga_api.CSG_String(path + '/ccurv' + '.sgrd'))
     
     # ------------------------------------
     print 'success'
