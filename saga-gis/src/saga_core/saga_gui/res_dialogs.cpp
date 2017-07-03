@@ -251,7 +251,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	//-----------------------------------------------------
 	case ID_DLG_FILE_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.sg-gds;*.sg-gds-z;*.spc;*.sg-pts;*.sg-pts-z;*.las;*.txt;*.csv;*.dbf;");
+		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.sg-gds;*.sg-gds-z;*.shp;*.spc;*.sg-pts;*.sg-pts-z;*.las;*.txt;*.csv;*.dbf;");
 
 		return( wxString::Format(
 			"%s|%s|"
