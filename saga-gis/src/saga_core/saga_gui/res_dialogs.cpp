@@ -203,40 +203,40 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 
 		Filter.Replace("*.sdat;", "");	// we go for *.sgrd
 		Filter.Replace("*.xml;" , "");	// too much noise
+	}
 
-		#define ADD_FILTER(ext)	{ wxString s("*."); s += ext; if( Filter.Find(s) < 0 ) Filter += ";" + s; }
+	#define ADD_FILTER(ext)	{ wxString s("*."); s += ext; if( Filter.Find(s) < 0 ) Filter += ";" + s; }
 
-		if( Type == 2 || Type == 0 )	// raster
-		{
-			ADD_FILTER("sg-grd-z");
-			ADD_FILTER("sg-grd"  );
-			ADD_FILTER("sg-gds-z");
-			ADD_FILTER("sg-gds"  );
-			ADD_FILTER("sgrd"    );
-			ADD_FILTER("dgm"     );
-			ADD_FILTER("grd"     );
-			ADD_FILTER("bmp"     );
-			ADD_FILTER("jpg"     );
-			ADD_FILTER("png"     );
-			ADD_FILTER("pcx"     );
-		}
+	if( Type == 2 || Type == 0 )	// raster
+	{
+		ADD_FILTER("sg-grd-z");
+		ADD_FILTER("sg-grd"  );
+		ADD_FILTER("sg-gds-z");
+		ADD_FILTER("sg-gds"  );
+		ADD_FILTER("sgrd"    );
+		ADD_FILTER("dgm"     );
+		ADD_FILTER("grd"     );
+		ADD_FILTER("bmp"     );
+		ADD_FILTER("jpg"     );
+		ADD_FILTER("png"     );
+		ADD_FILTER("pcx"     );
+	}
 
-		if( Type == 2 || Type == 1 )	// vector
-		{
-			ADD_FILTER( "shp");
-		}
+	if( Type == 2 || Type == 1 )	// vector
+	{
+		ADD_FILTER("shp");
+	}
 
-		if( Type == 2 )	// all recognized
-		{
-			ADD_FILTER("sprj"    );
-			ADD_FILTER("sg-pts-z");
-			ADD_FILTER("sg-pts"  );
-			ADD_FILTER("spc"     );
-			ADD_FILTER("las"     );
-			ADD_FILTER("txt"     );
-			ADD_FILTER("csv"     );
-			ADD_FILTER("dbf"     );
-		}
+	if( Type == 2 )	// all recognized
+	{
+		ADD_FILTER("sprj"    );
+		ADD_FILTER("sg-pts-z");
+		ADD_FILTER("sg-pts"  );
+		ADD_FILTER("spc"     );
+		ADD_FILTER("las"     );
+		ADD_FILTER("txt"     );
+		ADD_FILTER("csv"     );
+		ADD_FILTER("dbf"     );
 	}
 
 	return( bResult );
@@ -251,7 +251,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 	{
 	//-----------------------------------------------------
 	case ID_DLG_FILE_OPEN:
-		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized = "*.sprj;*.sg-gds;*.sg-gds-z;*.shp;*.spc;*.sg-pts;*.sg-pts-z;*.las;*.txt;*.csv;*.dbf;");
+		DLG_Get_FILE_Filter_GDAL_Read(2, Recognized);
 
 		return( wxString::Format(
 			"%s|%s|"
