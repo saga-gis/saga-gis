@@ -80,39 +80,39 @@ CCategorical_Variation::CCategorical_Variation(void)
 	));
 
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+		"", "GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CATEGORIES"	, _TL("Number of Categories"),
+		"", "CATEGORIES"	, _TL("Number of Categories"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "COINCIDENCE"	, _TL("Coincidence"),
+		"", "COINCIDENCE"	, _TL("Coincidence"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MAJ_COUNT"	, _TL("Dominance of Majority"),
+		"", "MAJ_COUNT"	, _TL("Dominance of Majority"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MAJ_VALUE"	, _TL("Value of Majority"),
+		"", "MAJ_VALUE"	, _TL("Value of Majority"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius [Cells]"),
+	Parameters.Add_Int(
+		"", "RADIUS"		, _TL("Radius [Cells]"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0.0, 0.0, true
+		0, 0, true
 	);
 
 //	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
@@ -185,7 +185,7 @@ bool CCategorical_Variation::On_Execute(void)
 //---------------------------------------------------------
 bool CCategorical_Variation::Get_Variation(int x, int y)
 {
-	CSG_Class_Statistics	s;
+	CSG_Unique_Number_Statistics	s;
 
 	//-----------------------------------------------------
 	if( m_Cells.Get_Count() > 1 )
@@ -225,7 +225,7 @@ bool CCategorical_Variation::Get_Variation(int x, int y)
 
 		for(int iClass=0; iClass<s.Get_Count(); iClass++)
 		{
-			int	nClass	= s.Get_Class_Count(iClass);
+			int	nClass	= s.Get_Count(iClass);
 
 			nValues		+= nClass;
 			Coincidence	+= GET_COINCIDENCE(nClass);

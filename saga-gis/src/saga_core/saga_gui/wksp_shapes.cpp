@@ -742,58 +742,33 @@ void CWKSP_Shapes::On_Update_Views(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::_LUT_Create(void)
 {
-	int				iField, Method;
-	CSG_Colors		*pColors;
-	CSG_Table		*pLUT;
-
 	//-----------------------------------------------------
-	if( Get_Shapes()->Get_Field_Count() <= 0 || Get_Shapes()->Get_Record_Count() < 1 )
+	if( Get_Shapes()->Get_Field_Count() <= 0 || Get_Shapes()->Get_Count() < 1 )
 	{
-		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Create Lookup Table"));
+		DLG_Message_Show(_TL("Function failed because no attributes are available"), _TL("Classify"));
 
 		return;
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sFields;
-
-	for(iField=0; iField<Get_Shapes()->Get_Field_Count(); iField++)
-	{
-		sFields	+= Get_Shapes()->Get_Field_Name(iField);	sFields	+= SG_T("|");
-	}
-
-	//-----------------------------------------------------
 	static CSG_Parameters	Parameters;
 
-	if( Parameters.Get_Count() != 0 )
+	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters("FIELD")->asChoice()->Set_Items(sFields);
-	}
-	else
-	{
-		Parameters.Create(NULL, _TL("Create Lookup Table"), _TL(""));
-
-		Parameters.Add_Choice(
-			NULL, "FIELD"	, _TL("Attribute"),
-			_TL(""),
-			sFields
-		);
-
-		Parameters.Add_Colors(
-			NULL, "COLOR"	, _TL("Colors"),
-			_TL("")
-		)->asColors()->Set_Count(10);
-
-		Parameters.Add_Choice(
-			NULL, "METHOD"	, _TL("Classification Method"),
-			_TL(""),
-			CSG_String::Format(SG_T("%s|%s|%s|"),
+		Parameters.Create(NULL, _TL("Classify"), _TL(""));
+		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"     ), _TL(""), "");
+		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
+		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s|",
 				_TL("unique values"),
 				_TL("equal intervals"),
-				_TL("quantiles")
+				_TL("quantiles"),
+				_TL("natural breaks")
 			), 0
 		);
 	}
+
+	AttributeList_Set(Parameters("FIELD"), false);
 
 	if( !DLG_Parameters(&Parameters) )
 	{
@@ -803,57 +778,46 @@ void CWKSP_Shapes::_LUT_Create(void)
 	//-----------------------------------------------------
 	DataObject_Changed();
 
-	pColors	= Parameters("COLOR" )->asColors();
-	iField	= Parameters("FIELD" )->asInt();
-	Method	= !SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(iField)) ? 0	// unique values
-			: Parameters("METHOD")->asInt();
+	int	Field	= Parameters("FIELD")->asInt();
 
-	pLUT	= m_Parameters("LUT" )->asTable();
-	pLUT	->Del_Records();
+	CSG_Colors	Colors(*Parameters("COLOR")->asColors());
 
-	switch( Method )
+	CSG_Table	Classes(m_Parameters("LUT")->asTable());
+
+	switch( SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0 )
 	{
 	//-----------------------------------------------------
 	case 0:	// unique values
 		{
-			TSG_Table_Index_Order	old_Order	= Get_Shapes()->Get_Index_Order(0);
-			int						old_Field	= Get_Shapes()->Get_Index_Field(0);
-
-			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(iField))
+			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field))
 									? SG_DATATYPE_Double : SG_DATATYPE_String;
 
-			pLUT->Set_Field_Type(LUT_MIN, Type);
-			pLUT->Set_Field_Type(LUT_MAX, Type);
+			Classes.Set_Field_Type(LUT_MIN, Type);
+			Classes.Set_Field_Type(LUT_MAX, Type);
 
-			Get_Shapes()->Set_Index(iField, TABLE_INDEX_Ascending);
+			CSG_Unique_String_Statistics	s;
 
-			CSG_String	sValue;
+			#define MAX_CLASSES	1024
 
-			for(int iRecord=0; iRecord<Get_Shapes()->Get_Count(); iRecord++)
+			for(int iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
 			{
-				CSG_Table_Record	*pRecord	= Get_Shapes()->Get_Record_byIndex(iRecord);
-
-				if( iRecord == 0 || sValue.Cmp(pRecord->asString(iField)) )
-				{
-					sValue	= pRecord->asString(iField);
-
-					CSG_Table_Record	*pClass	= pLUT->Add_Record();
-
-					pClass->Set_Value(1, sValue);	// Name
-					pClass->Set_Value(2, sValue);	// Description
-					pClass->Set_Value(3, sValue);	// Minimum
-					pClass->Set_Value(4, sValue);	// Maximum
-				}
+				s	+= Get_Shapes()->Get_Shape(iShape)->asString(Field);
 			}
 
-			pColors->Set_Count(pLUT->Get_Count());
+			Colors.Set_Count(s.Get_Count());
 
-			for(int iClass=0; iClass<pLUT->Get_Count(); iClass++)
+			for(int iClass=0; iClass<s.Get_Count(); iClass++)
 			{
-				pLUT->Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
-			}
+				CSG_String	Value	= s.Get_Value(iClass);
 
-			Get_Shapes()->Set_Index(old_Field, old_Order);
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
+
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Value         );	// Name
+				pClass->Set_Value(2, Value         );	// Description
+				pClass->Set_Value(3, Value         );	// Minimum
+				pClass->Set_Value(4, Value         );	// Maximum
+			}
 		}
 		break;
 
@@ -862,28 +826,26 @@ void CWKSP_Shapes::_LUT_Create(void)
 		{
 			double	Minimum, Maximum, Interval;
 
-			Interval	= Get_Shapes()->Get_Range  (iField) / (double)pColors->Get_Count();
-			Minimum		= Get_Shapes()->Get_Minimum(iField);
+			Interval	= Get_Shapes()->Get_Range  (Field) / (double)Colors.Get_Count();
+			Minimum		= Get_Shapes()->Get_Minimum(Field);
 
-			pLUT->Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			pLUT->Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
-			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : Get_Shapes()->Get_Maximum(iField) + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Shapes()->Get_Maximum(Field) + 1.0;
 
-				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
-					SG_Get_String(Minimum, -2).c_str(),
-					SG_Get_String(Maximum, -2).c_str()
-				);
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
 
-				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-				pClass->Set_Value(0, pColors->Get_Color(iClass));
-				pClass->Set_Value(1, sValue);	// Name
-				pClass->Set_Value(2, sValue);	// Description
-				pClass->Set_Value(3, Minimum);	// Minimum
-				pClass->Set_Value(4, Maximum);	// Maximum
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
 			}
 		}
 		break;
@@ -894,50 +856,82 @@ void CWKSP_Shapes::_LUT_Create(void)
 			TSG_Table_Index_Order	old_Order	= Get_Shapes()->Get_Index_Order(0);
 			int						old_Field	= Get_Shapes()->Get_Index_Field(0);
 
-			Get_Shapes()->Set_Index(iField, TABLE_INDEX_Ascending);
+			Get_Shapes()->Set_Index(Field, TABLE_INDEX_Ascending);
 
-			pLUT->Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
-			pLUT->Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
-			if( Get_Shapes()->Get_Count() < pColors->Get_Count() )
+			if( Get_Shapes()->Get_Count() < Colors.Get_Count() )
 			{
-				pColors->Set_Count(Get_Shapes()->Get_Count());
+				Colors.Set_Count(Get_Shapes()->Get_Count());
 			}
 
 			double	Minimum, Maximum, Count, iRecord;
 
-			Maximum	= Get_Shapes()->Get_Minimum(iField);
-			iRecord	= Count	= Get_Shapes()->Get_Count() / (double)pColors->Get_Count();
+			Maximum	= Get_Shapes()->Get_Minimum(Field);
+			iRecord	= Count	= Get_Shapes()->Get_Count() / (double)Colors.Get_Count();
 
-			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iRecord+=Count)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iRecord+=Count)
 			{
 				Minimum	= Maximum;
-				Maximum	= iRecord < Get_Shapes()->Get_Count() ? Get_Shapes()->Get_Record_byIndex((int)iRecord)->asDouble(iField) : Get_Shapes()->Get_Maximum(iField) + 1.0;
+				Maximum	= iRecord < Get_Shapes()->Get_Count() ? Get_Shapes()->Get_Record_byIndex((int)iRecord)->asDouble(Field) : Get_Shapes()->Get_Maximum(Field) + 1.0;
 
-				CSG_String	sValue;	sValue.Printf(SG_T("%s - %s"),
-					SG_Get_String(Minimum, -2).c_str(),
-					SG_Get_String(Maximum, -2).c_str()
-				);
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
 
-				CSG_Table_Record	*pClass	= pLUT->Add_Record();
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-				pClass->Set_Value(0, pColors->Get_Color(iClass));
-				pClass->Set_Value(1, sValue);	// Name
-				pClass->Set_Value(2, sValue);	// Description
-				pClass->Set_Value(3, Minimum);	// Minimum
-				pClass->Set_Value(4, Maximum);	// Maximum
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
 			}
 
 			Get_Shapes()->Set_Index(old_Field, old_Order);
 		}
 		break;
+
+	//-----------------------------------------------------
+	case 3:	// natural breaks
+		{
+			CSG_Natural_Breaks	Breaks(Get_Shapes(), Field, Colors.Get_Count(), 0);//Get_Shapes()->Get_Count() > 1024 ? 255 : 0);
+
+			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
+
+			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
+			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
+			{
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
+
+				double	Minimum	= Breaks[iClass    ];
+				double	Maximum	= Breaks[iClass + 1];
+
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
+
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
+			}
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
-	m_Parameters("LUT_ATTRIB" )->Set_Value(iField);
+	if( Classes.Get_Count() > 0 )
+	{
+		m_Parameters("LUT")->asTable()->Assign(&Classes);
 
-	Parameters_Changed();
+		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
+		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
+
+		Parameters_Changed();
+	}
 }
 
 

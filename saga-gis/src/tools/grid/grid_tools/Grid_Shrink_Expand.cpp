@@ -352,7 +352,7 @@ bool CGrid_Shrink_Expand::Get_Expand_Value(int x, int y, int Method, double &Val
 	//-----------------------------------------------------
 	if( Method == EXPAND_MAJORITY )
 	{
-		CSG_Class_Statistics	Majority;
+		CSG_Unique_Number_Statistics	Majority;
 
 		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{

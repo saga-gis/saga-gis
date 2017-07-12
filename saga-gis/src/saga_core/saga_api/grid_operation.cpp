@@ -397,8 +397,6 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	}
 
 	//-----------------------------------------------------
-	CSG_Class_Statistics	m;
-
 	Set_NoData_Value(pGrid->Get_NoData_Value());
 
 	Assign_NoData();
@@ -432,7 +430,7 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 
 				if( ax < pGrid->Get_NX() && bx > 0 )
 				{
-					m.Reset();
+					CSG_Unique_Number_Statistics	s;
 
 					if( ax < 0 )
 					{
@@ -450,15 +448,14 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 						{
 							if( !pGrid->is_NoData(ix, iy) )
 							{
-								m.Add_Value(pGrid->asDouble(ix, iy));
+								s	+= pGrid->asDouble(ix, iy);
 							}
 						}
 					}
 
-					int		n;
-					double	z;
+					int	n; double	z;
 
-					if( m.Get_Majority(z, n) )//&& n > 1 )
+					if( s.Get_Majority(z, n) )//&& n > 1 )
 					{
 						Set_Value(x, y, z);
 					}

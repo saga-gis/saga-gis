@@ -66,7 +66,10 @@
 
 //---------------------------------------------------------
 #include "mat_tools.h"
+
 #include "table.h"
+#include "grid.h"
+#include "grids.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -613,43 +616,27 @@ double CSG_Simple_Statistics::Get_Gini(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Class_Statistics::Create(void)
-{
-	m_Array.Create(sizeof(TClass), 0, SG_ARRAY_GROWTH_1);
-
-	m_Classes	= NULL;
-}
-
-//---------------------------------------------------------
-void CSG_Class_Statistics::Add_Value(double Value)
-{
-	for(size_t i=0; i<m_Array.Get_Size(); i++)
-	{
-		if( m_Classes[i].Value == Value )
-		{
-			m_Classes[i].Count  ++;
-
-			return;
-		}
-	}
-
-	if( m_Array.Inc_Array((void **)&m_Classes) )
-	{
-		m_Classes[Get_Count() - 1].Count	= 1;
-		m_Classes[Get_Count() - 1].Value	= Value;
-	}
-}
-
-//---------------------------------------------------------
-int CSG_Class_Statistics::Get_Majority(void)
+int CSG_Unique_Value_Statistics::Get_Majority(bool bWeighted) const
 {
 	int		Index	= 0;
 
+	bWeighted	= bWeighted && m_bWeights;
+
 	for(int i=1; i<Get_Count(); i++)
 	{
-		if( m_Classes[i].Count > m_Classes[Index].Count )
+		if( bWeighted )
 		{
-			Index	= i;
+			if( m_Weight[i] > m_Weight[Index] )
+			{
+				Index = i;
+			}
+		}
+		else
+		{
+			if( m_Count[i] > m_Count[Index] )
+			{
+				Index = i;
+			}
 		}
 	}
 
@@ -657,15 +644,27 @@ int CSG_Class_Statistics::Get_Majority(void)
 }
 
 //---------------------------------------------------------
-int CSG_Class_Statistics::Get_Minority(void)
+int CSG_Unique_Value_Statistics::Get_Minority(bool bWeighted) const
 {
 	int		Index	= 0;
 
+	bWeighted	= bWeighted && m_bWeights;
+
 	for(int i=1; i<Get_Count(); i++)
 	{
-		if( m_Classes[i].Count > m_Classes[Index].Count )
+		if( bWeighted )
 		{
-			Index	= i;
+			if( m_Weight[i] < m_Weight[Index] )
+			{
+				Index = i;
+			}
+		}
+		else
+		{
+			if( m_Count[i] < m_Count[Index] )
+			{
+				Index = i;
+			}
 		}
 	}
 
@@ -678,72 +677,81 @@ int CSG_Class_Statistics::Get_Minority(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Class_Statistics_Weighted::Create(void)
+void CSG_Unique_Number_Statistics::Create(bool bWeights)
 {
-	m_Array.Create(sizeof(TClass), 0, SG_ARRAY_GROWTH_1);
+	m_bWeights	= bWeights;
 
-	m_Classes	= NULL;
+	m_Count.Destroy();
+	m_Value.Destroy();
 }
 
 //---------------------------------------------------------
-void CSG_Class_Statistics_Weighted::Add_Value(double Value, double Weight)
+void CSG_Unique_Number_Statistics::Add_Value(double Value, double Weight)
 {
-	for(size_t i=0; i<m_Array.Get_Size(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
-		if( m_Classes[i].Value == Value )
+		if( Value == m_Value[i] )
 		{
-			m_Classes[i].Count  ++;
-			m_Classes[i].Weight	+= Weight;
+			m_Count[i]++;
+
+			if( m_bWeights && Weight > 0.0 )
+			{
+				m_Weight[i]	+= Weight;
+			}
 
 			return;
 		}
 	}
 
-	if( m_Array.Inc_Array((void **)&m_Classes) )
+	m_Count.Add(1);
+	m_Value.Add_Row(Value);
+
+	if( m_bWeights && Weight > 0.0 )
 	{
-		m_Classes[Get_Count() - 1].Count	= 1;
-		m_Classes[Get_Count() - 1].Value	= Value;
-		m_Classes[Get_Count() - 1].Weight	= Weight;
+		m_Weight.Add_Row(Weight);
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Unique_String_Statistics::Create(bool bWeights)
+{
+	m_bWeights	= bWeights;
+
+	m_Count.Destroy();
+	m_Value.Clear();
 }
 
 //---------------------------------------------------------
-int CSG_Class_Statistics_Weighted::Get_Majority(void)
+void CSG_Unique_String_Statistics::Add_Value(const CSG_String &Value, double Weight)
 {
-	int		Index	= 0;
-
-	for(int i=1; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
-		if( m_Classes[i].Count > m_Classes[Index].Count )
+		if( Value.Cmp(m_Value[i]) == 0 )
 		{
-			Index	= i;
+			m_Count[i]++;
+
+			if( m_bWeights && Weight > 0.0 )
+			{
+				m_Weight[i]	+= Weight;
+			}
+
+			return;
 		}
 	}
 
-	return( Index );
-}
+	m_Count.Add(1);
+	m_Value.Add(Value);
 
-bool CSG_Class_Statistics_Weighted::Get_Majority(double &Value            )	{	int	Count; return( Get_Class(Get_Majority(), Value, Count) );	}
-bool CSG_Class_Statistics_Weighted::Get_Majority(double &Value, int &Count)	{	           return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );	}
-
-//---------------------------------------------------------
-int CSG_Class_Statistics_Weighted::Get_Minority(void)
-{
-	int		Index	= 0;
-
-	for(int i=1; i<Get_Count(); i++)
+	if( m_bWeights && Weight > 0.0 )
 	{
-		if( m_Classes[i].Count > m_Classes[Index].Count )
-		{
-			Index	= i;
-		}
+		m_Weight.Add_Row(Weight);
 	}
-
-	return( Index );
 }
-
-bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value            )	{	int	Count; return( Get_Class(Get_Minority(), Value, Count) );	}
-bool CSG_Class_Statistics_Weighted::Get_Minority(double &Value, int &Count)	{	           return( Get_Class(Get_Minority(), Value, Count) && Count > 0 );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -995,6 +1003,511 @@ int CSG_Category_Statistics::Get_Minority(void)
 	}
 
 	return( -1 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Histogram::CSG_Histogram(void)
+{
+	_On_Construction();
+}
+
+//---------------------------------------------------------
+CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values)
+{
+	_On_Construction();
+
+	Create(nClasses, Minimum, Maximum, Values);
+}
+
+//---------------------------------------------------------
+CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field)
+{
+	_On_Construction();
+
+	Create(nClasses, Minimum, Maximum, pTable, Field);
+}
+
+//---------------------------------------------------------
+CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, class CSG_Grid *pGrid)
+{
+	_On_Construction();
+
+	Create(nClasses, Minimum, Maximum, pGrid);
+}
+
+//---------------------------------------------------------
+CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, CSG_Grids *pGrids)
+{
+	_On_Construction();
+
+	Create(nClasses, Minimum, Maximum, pGrids);
+}
+
+//---------------------------------------------------------
+CSG_Histogram::~CSG_Histogram(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::Destroy(void)
+{
+	SG_FREE_SAFE(m_Elements  );
+	SG_FREE_SAFE(m_Cumulative);
+
+	_On_Construction();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Histogram::_On_Construction(void)
+{
+	m_Count			= 0;
+	m_Elements		= NULL;
+	m_Cumulative	= NULL;
+	m_Minimum		= 0.0;
+	m_Maximum		= 0.0;
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::_Create(int nClasses, double Minimum, double Maximum)
+{
+	if( nClasses > 0 && Minimum < Maximum )
+	{
+		Destroy();
+
+		m_Elements		= (unsigned int *)SG_Calloc(nClasses, sizeof(unsigned int));
+		m_Cumulative	= (unsigned int *)SG_Calloc(nClasses, sizeof(unsigned int));
+
+		if( m_Elements && m_Cumulative )
+		{
+			m_Count		= nClasses;
+			m_Minimum	= Minimum;
+			m_Maximum	= Maximum;
+
+			return( true );
+		}
+	}
+
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::_Cumulative(void)
+{
+	if( m_Count > 0 )
+	{
+		m_Cumulative[0]	= m_Elements[0];
+
+		for(size_t i=1; i<m_Count; i++)
+		{
+			m_Cumulative[i]	= m_Cumulative[i - 1] + m_Elements[i];
+		}
+
+		return( m_Cumulative[m_Count - 1] > 0 );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline void CSG_Histogram::_Add_Value(double Value)
+{
+	if( m_Minimum <= Value && Value <= m_Maximum )
+	{
+		int	Class	= (int)(m_Count * (Value - m_Minimum) / (m_Maximum - m_Minimum));
+
+		if( Class < 0 )
+		{
+			Class	= 0;
+		}
+		else if( Class >= (int)m_Count )
+		{
+			Class	= m_Count - 1;
+		}
+
+		m_Elements[Class]++;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values)
+{
+	if( Minimum >= Maximum )
+	{
+		CSG_Simple_Statistics	s(Values);
+
+		Minimum	= s.Get_Minimum();
+		Maximum	= s.Get_Maximum();
+	}
+
+	if( !_Create(nClasses, Minimum, Maximum) )
+	{
+		return( false );
+	}
+
+	for(int i=0; i<Values.Get_N(); i++)
+	{
+		_Add_Value(Values[i]);
+	}
+
+	return( _Cumulative() );
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field)
+{
+	if( !pTable || Field < 0 || Field >= pTable->Get_Field_Count() || !_Create(nClasses,
+		Minimum < Maximum ? Minimum : pTable->Get_Minimum(Field),
+		Minimum < Maximum ? Maximum : pTable->Get_Maximum(Field)) )
+	{
+		return( false );
+	}
+
+	for(int i=0; i<pTable->Get_Count(); i++)
+	{
+		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+
+		if( !pRecord->is_NoData(Field) )
+		{
+			_Add_Value(pRecord->asDouble(Field));
+		}
+	}
+
+	return( _Cumulative() );
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Grid *pGrid)
+{
+	if( !pGrid || !_Create(nClasses,
+		Minimum < Maximum ? Minimum : pGrid->Get_Min(),
+		Minimum < Maximum ? Maximum : pGrid->Get_Max()) )
+	{
+		return( false );
+	}
+
+	for(sLong i=0; i<pGrid->Get_NCells(); i++)
+	{
+		if( !pGrid->is_NoData(i) )
+		{
+			_Add_Value(pGrid->asDouble(i));
+		}
+	}
+
+	return( _Cumulative() );
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Grids *pGrids)
+{
+	if( !pGrids || !_Create(nClasses,
+		Minimum < Maximum ? Minimum : pGrids->Get_Min(),
+		Minimum < Maximum ? Maximum : pGrids->Get_Max()) )
+	{
+		return( false );
+	}
+
+	for(sLong i=0; i<pGrids->Get_NCells(); i++)
+	{
+		if( !pGrids->is_NoData(i) )
+		{
+			_Add_Value(pGrids->asDouble(i));
+		}
+	}
+
+	return( _Cumulative() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::CSG_Natural_Breaks(void)
+{}
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::~CSG_Natural_Breaks(void)
+{}
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::CSG_Natural_Breaks(CSG_Table *pTable, int Field, int nClasses, int Histogram)
+{
+	Create(pTable, Field, nClasses, Histogram);
+}
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::CSG_Natural_Breaks(CSG_Grid *pGrid, int nClasses, int Histogram)
+{
+	Create(pGrid, nClasses, Histogram);
+}
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::CSG_Natural_Breaks(CSG_Grids *pGrids, int nClasses, int Histogram)
+{
+	Create(pGrids, nClasses, Histogram);
+}
+
+//---------------------------------------------------------
+CSG_Natural_Breaks::CSG_Natural_Breaks(const CSG_Vector &Values, int nClasses, int Histogram)
+{
+	Create(Values, nClasses, Histogram);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::Create(CSG_Table *pTable, int Field, int nClasses, int Histogram)
+{
+	bool	bResult	= false;
+
+	if( Histogram > 0 )
+	{
+		bResult	= m_Histogram.Create(Histogram, 0, 0, pTable, Field) && _Histogram(nClasses);
+	}
+	else if( Field >= 0 && Field < pTable->Get_Field_Count() )
+	{
+		for(int i=0; i<pTable->Get_Count(); i++)
+		{
+			CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
+
+			if( !pRecord->is_NoData(Field) )
+			{
+				m_Values.Add_Row(pRecord->asDouble(Field));
+			}
+		}
+
+		bResult	= m_Values.Sort() && _Calculate(nClasses);
+
+		m_Values.Destroy();
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::Create(CSG_Grid *pGrid, int nClasses, int Histogram)
+{
+	bool	bResult	= false;
+
+	if( Histogram > 0 )
+	{
+		bResult	= m_Histogram.Create(Histogram, 0, 0, pGrid) && _Histogram(nClasses);
+	}
+	else
+	{
+		for(sLong i=0; i<pGrid->Get_NCells(); i++)
+		{
+			if( !pGrid->is_NoData(i) )
+			{
+				m_Values.Add_Row(pGrid->asDouble(i));
+			}
+		}
+
+		bResult	= m_Values.Sort() && _Calculate(nClasses);
+
+		m_Values.Destroy();
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::Create(CSG_Grids *pGrids, int nClasses, int Histogram)
+{
+	bool	bResult	= false;
+
+	if( Histogram > 0 )
+	{
+		bResult	= m_Histogram.Create(Histogram, 0, 0, pGrids) && _Histogram(nClasses);
+	}
+	else
+	{
+		for(sLong i=0; i<pGrids->Get_NCells(); i++)
+		{
+			if( !pGrids->is_NoData(i) )
+			{
+				m_Values.Add_Row(pGrids->asDouble(i));
+			}
+		}
+
+		bResult	= m_Values.Sort() && _Calculate(nClasses);
+
+		m_Values.Destroy();
+	}
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::Create(const CSG_Vector &Values, int nClasses, int Histogram)
+{
+	bool	bResult	= false;
+
+	if( Histogram > 0 )
+	{
+		bResult	= m_Histogram.Create(Histogram, 0, 0, Values) && _Histogram(nClasses);
+	}
+	else
+	{
+		bResult	= m_Values.Create(Values) && m_Values.Sort() && _Calculate(nClasses);
+
+		m_Values.Destroy();
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::_Histogram(int nClasses)
+{
+	if( _Calculate(nClasses) )
+	{
+		double	d	= (double)m_Histogram.Get_Count() / m_Histogram.Get_Cumulative(m_Histogram.Get_Count() - 1);
+
+		m_Breaks[0]	= m_Histogram.Get_Break(0);
+
+		for(int i=1; i<Get_Count(); i++)
+		{
+			m_Breaks[i]	= m_Histogram.Get_Value(m_Breaks[i] * d);
+		}
+
+		m_Breaks[nClasses]	= m_Histogram.Get_Break(m_Histogram.Get_Count());
+
+		m_Histogram.Destroy();
+
+		return( true );
+	}
+
+	m_Histogram.Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
+inline double CSG_Natural_Breaks::_Get_Value(int i)
+{
+	if( m_Histogram.Get_Count() > 0 )
+	{
+		return( m_Histogram.Get_Cumulative(i) );
+	}
+
+	return( m_Values[i] );
+}
+
+//---------------------------------------------------------
+bool CSG_Natural_Breaks::_Calculate(int nClasses)
+{
+	if( m_Histogram.Get_Count() == 0 && m_Values.Get_Size() == 0 )
+	{
+		return( false );
+	}
+
+	int		nValues	= m_Histogram.Get_Count() > 0 ? m_Histogram.Get_Count() : m_Values.Get_N();
+
+	CSG_Matrix	mv(nClasses, nValues); mv.Assign(FLT_MAX);
+
+	int	i, **mc	= (int **)SG_Malloc(nValues * sizeof(int *));
+
+	mc[0]	= (int *)SG_Calloc(nClasses * nValues, sizeof(int));
+
+	for(i=0; i<nValues; i++)
+	{
+		mc[i]	= mc[0] + i * nClasses;
+	}
+
+	//-----------------------------------------------------
+	for(i=1; i<nValues; i++)
+	{
+		double	v = 0.0, s1 = 0.0, s2 = 0.0, w = 0.0;
+
+		for(int m=0, n=i+1; m<=i; m++, n--)
+		{
+			v	 = _Get_Value(n);
+			s2	+= v*v;
+			s1	+= v;
+			w	++;
+			v	 = s2 - (s1 * s1) / w;
+
+			if( n > 0 )
+			{
+				for(int j=1; j<nClasses; j++)
+				{
+					if( mv[i][j] >= (v + mv[n - 1][j - 1]) )
+					{
+						mc[i][j]	= n;
+						mv[i][j]	= v + mv[n - 1][j - 1];
+					}
+				}
+			}
+		}
+
+		mc[i][0]	= 0;
+		mv[i][0]	= v;
+	}
+
+	//-----------------------------------------------------
+	CSG_Array_Int	Class(nClasses);
+
+	for(i=0; i<nClasses; i++)
+	{
+		Class[i] = i;
+	}
+
+	int	j = Class[nClasses - 1] = nValues - 1;
+
+	for(i=nClasses-1; i>0; i--)
+	{
+		Class[i - 1] = j = mc[j - 1][i];
+	}
+
+	//-----------------------------------------------------
+	m_Breaks.Create(nClasses + 1);
+
+	m_Breaks[0] = _Get_Value(0);
+
+	for(i=1; i<nClasses; i++)
+	{
+		m_Breaks[i] = _Get_Value(Class[i - 1]);
+	}
+
+	m_Breaks[nClasses] = _Get_Value(nValues - 1);
+
+	SG_Free(mc[0]); SG_Free(mc);
+
+	return( true );
 }
 
 

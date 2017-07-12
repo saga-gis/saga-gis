@@ -71,7 +71,7 @@
 CFilter_Majority::CFilter_Majority(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Majority Filter"));
+	Set_Name		(_TL("Majority/Minority Filter"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
@@ -80,21 +80,30 @@ CFilter_Majority::CFilter_Majority(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Majority"),
+			_TL("Minority")
+		), 0
+	);
+
+	Parameters.Add_Double("",
 		"THRESHOLD"	, _TL("Threshold"),
-		_TL("The majority threshold [percent]."),
+		_TL("The majority/minority threshold [percent]."),
 		0.0, 0.0, true, 100.0, true
 	);
 
@@ -133,7 +142,16 @@ bool CFilter_Majority::On_Execute(void)
 		return( false );
 	}
 
-	m_Threshold	= 1 + (int)((1 + m_Kernel.Get_Count()) * Parameters("THRESHOLD")->asDouble() / 100.0);
+	m_Type	= Parameters("TYPE")->asInt();
+
+	double	d	= Parameters("THRESHOLD")->asDouble() / 100.0;
+
+	if( m_Type == 1 )
+	{
+		d	= 1.0 - m_Threshold;
+	}
+
+	m_Threshold	= (int)(0.5 + d * m_Kernel.Get_Count());
 
 	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")->asGrid();
@@ -198,9 +216,7 @@ bool CFilter_Majority::On_Execute(void)
 //---------------------------------------------------------
 double CFilter_Majority::Get_Majority(int x, int y)
 {
-	CSG_Class_Statistics	Majority;
-
-	Majority.Add_Value(m_pInput->asDouble(x, y));
+	CSG_Unique_Number_Statistics	s;
 
 	for(int i=0; i<m_Kernel.Get_Count(); i++)
 	{
@@ -209,16 +225,25 @@ double CFilter_Majority::Get_Majority(int x, int y)
 
 		if( m_pInput->is_InGrid(ix, iy) )
 		{
-			Majority.Add_Value(m_pInput->asDouble(ix, iy));
+			s.Add_Value(m_pInput->asDouble(ix, iy));
 		}
 	}
 
 	int		Count;
 	double	Value;
 
-	Majority.Get_Majority(Value, Count);
+	if( m_Type == 0 )
+	{
+		s.Get_Majority(Value, Count);
 
-	return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
+		return( Count > m_Threshold ? Value : m_pInput->asDouble(x, y) );
+	}
+	else
+	{
+		s.Get_Minority(Value, Count);
+
+		return( Count < m_Threshold ? Value : m_pInput->asDouble(x, y) );
+	}
 }
 
 

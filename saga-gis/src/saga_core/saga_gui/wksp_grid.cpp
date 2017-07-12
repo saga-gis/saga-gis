@@ -220,8 +220,8 @@ wxMenu * CWKSP_Grid::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SCATTERPLOT);
 
 	pMenu->AppendSeparator();
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	return( pMenu );
 }
@@ -374,7 +374,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
-			_TL("Lookup Table"    ),	// CLASSIFY_LUT
+			_TL("Classified"      ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
 			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
 			_TL("Shade"           ),	// CLASSIFY_SHADE
@@ -736,29 +736,19 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 void CWKSP_Grid::_LUT_Create(void)
 {
-	int				Type;
-	CSG_Colors		*pColors;
-	CSG_Table		LUT;
-
 	//-----------------------------------------------------
 	static CSG_Parameters	Parameters;
 
 	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, _TL("Create Lookup Table"), _TL(""));
-
-		Parameters.Add_Colors("",
-			"COLOR"	, _TL("Colors"),
-			_TL("")
-		)->asColors()->Set_Count(10);
-
-		Parameters.Add_Choice("",
-			"TYPE"	, _TL("Classification Type"),
-			_TL(""),
-			CSG_String::Format("%s|%s|%s|",
+		Parameters.Create(NULL, _TL("Classify"), _TL(""));
+		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
+		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s|",
 				_TL("unique values"),
 				_TL("equal intervals"),
-				_TL("quantiles")
+				_TL("quantiles"),
+				_TL("natural breaks")
 			), 1
 		);
 	}
@@ -769,69 +759,70 @@ void CWKSP_Grid::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	pColors	= Parameters("COLOR")->asColors();
-	Type	= Parameters("TYPE" )->asInt();
+	CSG_Colors	Colors(*Parameters("COLOR")->asColors());
 
-	LUT.Create(*m_Parameters("LUT")->asTable());
-	LUT.Del_Records();
+	CSG_Table	Classes(m_Parameters("LUT")->asTable());
 
-	switch( Type )
+	switch( Parameters("METHOD")->asInt() )
 	{
 	//-----------------------------------------------------
 	case 0:	// unique values
-		if( Get_Grid()->Set_Index() )
+	{
+		CSG_Unique_Number_Statistics	s;
+
+		#define MAX_CLASSES	1024
+
+		for(sLong iCell = 0; iCell<Get_Grid()->Get_NCells() && s.Get_Count()<MAX_CLASSES && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
 		{
-			double		Value;
-
-			for(sLong iCell=0, jCell; iCell<Get_Grid()->Get_NCells() && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
+			if( !Get_Grid()->is_NoData(iCell) )
 			{
-				if( Get_Grid()->Get_Sorted(iCell, jCell, false) && (LUT.Get_Record_Count() == 0 || Value != Get_Grid()->asDouble(jCell)) )
-				{
-					Value	= Get_Grid()->asDouble(jCell);
-
-					CSG_Table_Record	*pClass	= LUT.Add_Record();
-
-					pClass->Set_Value(1, SG_Get_String(Value, -2));		// Name
-					pClass->Set_Value(2, SG_Get_String(Value, -2));		// Description
-					pClass->Set_Value(3, Value);						// Minimum
-					pClass->Set_Value(4, Value);						// Maximum
-				}
-			}
-
-			pColors->Set_Count(LUT.Get_Count());
-
-			for(int iClass=0; iClass<LUT.Get_Count(); iClass++)
-			{
-				LUT.Get_Record(iClass)->Set_Value(0, pColors->Get_Color(iClass));
+				s	+= Get_Grid()->asDouble(iCell);
 			}
 		}
+
+		Colors.Set_Count(s.Get_Count());
+
+		for(int iClass=0; iClass<s.Get_Count(); iClass++)
+		{
+			double		Value	= s.Get_Value(iClass);
+
+			CSG_String	Name	= SG_Get_String(Value, -2);
+
+			CSG_Table_Record	*pClass	= Classes.Add_Record();
+
+			pClass->Set_Value(0, Colors[iClass]);	// Color
+			pClass->Set_Value(1, Name          );	// Name
+			pClass->Set_Value(2, Name          );	// Description
+			pClass->Set_Value(3, Value         );	// Minimum
+			pClass->Set_Value(4, Value         );	// Maximum
+		}
+
 		break;
+	}
 
 	//-----------------------------------------------------
 	case 1:	// equal intervals
-		if( Get_Grid()->Get_Range() && pColors->Get_Count() > 0 )
+		if( Get_Grid()->Get_Range() && Colors.Get_Count() > 0 )
 		{
 			double	Minimum, Maximum, Interval;
 
-			Interval	= Get_Grid()->Get_Range() / (double)pColors->Get_Count();
+			Interval	= Get_Grid()->Get_Range() / (double)Colors.Get_Count();
 			Minimum		= Get_Grid()->Get_Min  ();
 
-			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, Minimum+=Interval)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < pColors->Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_Max() + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_Max() + 1.0;
 
-				CSG_String	sValue;	sValue.Printf("%s - %s",
-					SG_Get_String(Minimum, -2).c_str(),
-					SG_Get_String(Maximum, -2).c_str()
-				);
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
 
-				CSG_Table_Record	*pClass	= LUT.Add_Record();
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-				pClass->Set_Value(0, pColors->Get_Color(iClass));
-				pClass->Set_Value(1, sValue);	// Name
-				pClass->Set_Value(2, sValue);	// Description
-				pClass->Set_Value(3, Minimum);	// Minimum
-				pClass->Set_Value(4, Maximum);	// Maximum
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
 			}
 		}
 		break;
@@ -839,9 +830,9 @@ void CWKSP_Grid::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 2:	// quantiles
 		{
-			if( Get_Grid()->Get_NCells() < pColors->Get_Count() )
+			if( Get_Grid()->Get_NCells() < Colors.Get_Count() )
 			{
-				pColors->Set_Count(Get_Grid()->Get_NCells());
+				Colors.Set_Count(Get_Grid()->Get_NCells());
 			}
 
 			sLong	jCell, nCells;
@@ -849,7 +840,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			Maximum	= Get_Grid()->Get_Min();
 			nCells	= Get_Grid()->Get_NCells() - Get_Grid()->Get_NoData_Count();
-			iCell	= Count	= nCells / (double)pColors->Get_Count();
+			iCell	= Count	= nCells / (double)Colors.Get_Count();
 
 			for(iCell=0.0; iCell<Get_Grid()->Get_NCells(); iCell++)
 			{
@@ -861,25 +852,49 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			iCell	+= Count;
 
-			for(int iClass=0; iClass<pColors->Get_Count(); iClass++, iCell+=Count)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iCell+=Count)
 			{
 				Get_Grid()->Get_Sorted(iCell, jCell, false);
 
 				Minimum	= Maximum;
 				Maximum	= iCell < Get_Grid()->Get_NCells() ? Get_Grid()->asDouble(jCell) : Get_Grid()->Get_Max() + 1.0;
 
-				CSG_String	sValue;	sValue.Printf("%s - %s",
-					SG_Get_String(Minimum, -2).c_str(),
-					SG_Get_String(Maximum, -2).c_str()
-				);
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
 
-				CSG_Table_Record	*pClass	= LUT.Add_Record();
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-				pClass->Set_Value(0, pColors->Get_Color(iClass));
-				pClass->Set_Value(1, sValue);	// Name
-				pClass->Set_Value(2, sValue);	// Description
-				pClass->Set_Value(3, Minimum);	// Minimum
-				pClass->Set_Value(4, Maximum);	// Maximum
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case 3:	// natural breaks
+		{
+			CSG_Natural_Breaks	Breaks(Get_Grid(), Colors.Get_Count(), 255);
+
+			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
+
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
+			{
+				CSG_Table_Record	*pClass	= Classes.Add_Record();
+
+				double	Minimum	= Breaks[iClass    ];
+				double	Maximum	= Breaks[iClass + 1];
+
+				CSG_String	Name	= SG_Get_String(Minimum, -2)
+							+ " - " + SG_Get_String(Maximum, -2);
+
+				pClass->Set_Value(0, Colors[iClass]);	// Color
+				pClass->Set_Value(1, Name          );	// Name
+				pClass->Set_Value(2, Name          );	// Description
+				pClass->Set_Value(3, Minimum       );	// Minimum
+				pClass->Set_Value(4, Maximum       );	// Maximum
 			}
 		}
 		break;
@@ -888,11 +903,9 @@ void CWKSP_Grid::_LUT_Create(void)
 	//-----------------------------------------------------
 	PROGRESSBAR_Set_Position(0);
 
-	if( LUT.Get_Count() > 0 )
+	if( Classes.Get_Count() > 0 )
 	{
-		m_Parameters("LUT")->asTable()->Assign(&LUT);
-
-		DataObject_Changed();
+		m_Parameters("LUT")->asTable()->Assign(&Classes);
 
 		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 

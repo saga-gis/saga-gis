@@ -269,7 +269,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
-			_TL("Lookup Table"    ),	// CLASSIFY_LUT
+			_TL("Classified"      ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
 			_TL("Graduated Colors") 	// CLASSIFY_GRADUATED
 		), 0
@@ -298,7 +298,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	// Classification: Lookup Table...
 
 	m_Parameters.Add_Node(m_Parameters("NODE_COLORS"),
-		"NODE_LUT"			, _TL("Lookup Table"),
+		"NODE_LUT"			, _TL("Classified"),
 		_TL("")
 	);
 

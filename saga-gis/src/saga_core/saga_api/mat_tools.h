@@ -618,149 +618,97 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Class_Statistics
+class SAGA_API_DLL_EXPORT CSG_Unique_Value_Statistics
 {
-private:
-
-	typedef struct SClass
-	{
-		int		Count;
-
-		double	Value;
-	}
-	TClass;
-
-
 public:
-	         CSG_Class_Statistics			(void)	{	Create ();	}
-	virtual ~CSG_Class_Statistics			(void)	{	Destroy();	}
+	CSG_Unique_Value_Statistics					(void)	{}
+	virtual ~CSG_Unique_Value_Statistics		(void)	{}
 
-	void			Create					(void);
-	void			Destroy					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes);	}
-	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
+	virtual void			Create				(bool bWeights = false)	{	m_bWeights	= bWeights;	}
 
-	int				Get_Count				(void)	{	return( (int)m_Array.Get_Size() );	}
+	int						Get_Count			(void)	const	{	return( (int)m_Count.Get_Size() );	}
+	int						Get_Count			(int i)	const	{	return( m_Count[i] );	}
+	double					Get_Weight			(int i)	const	{	return( m_bWeights ? m_Weight[i] : m_Count[i] );	}
 
-	int				Get_Class_Count			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Count : 0 );	}
-	double			Get_Class_Value			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Value : 0 );	}
-
-	bool			Get_Class				(int i, double &Value, int &Count)
-	{
-		if( i >= 0 && i < Get_Count() )
-		{
-			Count	= m_Classes[i].Count;
-			Value	= m_Classes[i].Value;
-
-			return( true );
-		}
-
-		return( false );
-	}
-
-	bool			Get_Class				(int i, int &Value, int &Count)
-	{
-		if( i >= 0 && i < Get_Count() )
-		{
-			Count	=      m_Classes[i].Count;
-			Value	= (int)m_Classes[i].Value;
-
-			return( true );
-		}
-
-		return( false );
-	}
-
-	void			Add_Value				(double Value);
-	void			operator +=				(double Value)	{	Add_Value(Value);	}
-
-	int				Get_Majority			(void);
-	bool			Get_Majority			(double &Value            )	{	int	Count; return( Get_Class(Get_Majority(), Value, Count) );	}
-	bool			Get_Majority			(double &Value, int &Count)	{	           return( Get_Class(Get_Majority(), Value, Count) && Count > 0 );	}
-
-	int				Get_Minority			(void);
-	bool			Get_Minority			(double &Value            )	{	int	Count; return( Get_Class(Get_Minority(), Value, Count) );	}
-	bool			Get_Minority			(double &Value, int &Count)	{	           return( Get_Class(Get_Minority(), Value, Count) && Count > 0 );	}
+	virtual int				Get_Majority		(bool bWeighted = false)	const;
+	virtual int				Get_Minority		(bool bWeighted = false)	const;
 
 
-private:
+protected:
 
-	CSG_Array		m_Array;
+	bool					m_bWeights;
 
-	TClass			*m_Classes;
+	CSG_Array_Int			m_Count;
+
+	CSG_Vector				m_Weight;
 
 };
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Class_Statistics_Weighted
+class SAGA_API_DLL_EXPORT CSG_Unique_Number_Statistics : public CSG_Unique_Value_Statistics
 {
-private:
-
-	typedef struct SClass
-	{
-		int		Count;
-
-		double	Value, Weight;
-	}
-	TClass;
-
-
 public:
-	         CSG_Class_Statistics_Weighted	(void)	{	Create ();	}
-	virtual ~CSG_Class_Statistics_Weighted	(void)	{	Destroy();	}
+	CSG_Unique_Number_Statistics				(bool bWeights = false)	{	Create(bWeights);	}
+	virtual ~CSG_Unique_Number_Statistics		(void)	{}
 
-	void			Create					(void);
-	void			Destroy					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes);	}
-	void			Reset					(void)	{	m_Array.Set_Array(0, (void **)&m_Classes, false);	}
+	virtual void			Create				(bool bWeights = false);
 
-	int				Get_Count				(void)	{	return( (int)m_Array.Get_Size() );	}
-
-	int				Get_Class_Count			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Count : 0 );	}
-	double			Get_Class_Value			(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Value : 0 );	}
-	double			Get_Class_Weight		(int i)	{	return( i >= 0 && i < Get_Count() ? m_Classes[i].Weight : 0 );	}
-
-	bool			Get_Class				(int i, double &Value, int &Count)
+	void					operator +=			(double Value)	{	Add_Value(Value);	}
+	void					Add_Value			(double Value, double Weight = 1.0);
+	double					Get_Value			(int i)	const	{	return( m_Value[i] );	}
+	bool					Get_Class			(int i, double &Value, int &Count)	const
 	{
-		if( i >= 0 && i < Get_Count() )
-		{
-			Count	= m_Classes[i].Count;
-			Value	= m_Classes[i].Value;
+		if( i < 0 || i >= Get_Count() )	return( false );
 
-			return( true );
-		}
+		Count	= m_Count[i];
+		Value	= m_Value[i];
 
-		return( false );
+		return( true );
 	}
 
-	bool			Get_Class				(int i, int &Value, int &Count)
-	{
-		if( i >= 0 && i < Get_Count() )
-		{
-			Count	=      m_Classes[i].Count;
-			Value	= (int)m_Classes[i].Value;
-
-			return( true );
-		}
-
-		return( false );
-	}
-
-	void			Add_Value				(double Value, double Weight = 1.0);
-	void			operator +=				(double Value)	{	Add_Value(Value);	}
-
-	int				Get_Majority			(void);
-	bool			Get_Majority			(double &Value);
-	bool			Get_Majority			(double &Value, int &Count);
-
-	int				Get_Minority			(void);
-	bool			Get_Minority			(double &Value);
-	bool			Get_Minority			(double &Value, int &Count);
+	bool					Get_Majority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
+	bool					Get_Majority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
+	bool					Get_Minority		(double &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
+	bool					Get_Minority		(double &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
 
 
 private:
 
-	CSG_Array		m_Array;
+	CSG_Vector				m_Value;
 
-	TClass			*m_Classes;
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Unique_String_Statistics : public CSG_Unique_Value_Statistics
+{
+public:
+	CSG_Unique_String_Statistics				(bool bWeights = false)	{	Create(bWeights);	}
+	virtual ~CSG_Unique_String_Statistics		(void)	{}
+
+	virtual void			Create				(bool bWeights = false);
+
+	void					operator +=			(const CSG_String &Value)	{	Add_Value(Value);	}
+	void					Add_Value			(const CSG_String &Value, double Weight = 1.0);
+	const SG_Char *			Get_Value			(int i)	const	{	return( m_Value[i] );	}
+	bool					Get_Class			(int i, CSG_String &Value, int &Count)	const
+	{
+		if( i < 0 || i >= Get_Count() )	return( false );
+
+		Count	= m_Count[i];
+		Value	= m_Value[i];
+
+		return( true );
+	}
+
+	bool					Get_Majority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) );	}
+	bool					Get_Majority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Majority(), Value, Count) && Count > 0 );	}
+	bool					Get_Minority		(CSG_String &Value            )	const	{	int	Count; return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) );	}
+	bool					Get_Minority		(CSG_String &Value, int &Count)	const	{	           return( Get_Class(CSG_Unique_Value_Statistics::Get_Minority(), Value, Count) && Count > 0 );	}
+
+
+private:
+
+	CSG_Strings				m_Value;
 
 };
 
@@ -859,6 +807,118 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Histogram
+{
+public:
+	CSG_Histogram(void);
+	virtual ~CSG_Histogram(void);
+
+	bool			Destroy			(void);
+
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values);
+	bool			Create			(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values);
+
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field);
+
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid);
+
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids);
+
+	unsigned int	Get_Count		(void)		const	{	return( m_Count );	}
+
+	unsigned int	Get_Elements	(int    i)	const	{	return( Get_Elements((size_t)i) );	}
+	unsigned int	Get_Elements	(size_t i)	const	{	return( i < m_Count ? m_Elements[i] : 0 );	}
+
+	unsigned int	Get_Cumulative	(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
+	unsigned int	Get_Cumulative	(size_t i)	const	{	return( i < m_Count ? m_Cumulative[i] : 0 );	}
+
+	double			Get_Value		(double i)	const	{	return( m_Count > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_Count : m_Minimum );	}
+
+	double			Get_Break		(int    i)	const	{	return( Get_Value(i) );	}
+	double			Get_Break		(size_t i)	const	{	return( Get_Value(i) );	}
+
+	double			Get_Center		(int    i)	const	{	return( Get_Value(i + 0.5) );	}
+	double			Get_Center		(size_t i)	const	{	return( Get_Value(i + 0.5) );	}
+
+	unsigned int	operator []		(int    i)	const	{	return( Get_Elements(i) );	}
+	unsigned int	operator []		(size_t i)	const	{	return( Get_Elements(i) );	}
+
+
+private:
+
+	unsigned int	m_Count, *m_Elements, *m_Cumulative;
+
+	double			m_Minimum, m_Maximum;
+
+
+	void			_On_Construction	(void);
+
+	bool			_Create				(int nClasses, double Minimum, double Maximum);
+
+	bool			_Cumulative			(void);
+
+	void			_Add_Value			(double Value);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Natural_Breaks
+{
+public:
+	CSG_Natural_Breaks(void);
+	virtual ~CSG_Natural_Breaks(void);
+
+	CSG_Natural_Breaks				(class CSG_Table *pTable, int Field, int nClasses, int Histogram = 0);
+	bool			Create			(class CSG_Table *pTable, int Field, int nClasses, int Histogram = 0);
+
+	CSG_Natural_Breaks				(class CSG_Grid  *pGrid            , int nClasses, int Histogram = 0);
+	bool			Create			(class CSG_Grid  *pGrid            , int nClasses, int Histogram = 0);
+
+	CSG_Natural_Breaks				(class CSG_Grids *pGrids           , int nClasses, int Histogram = 0);
+	bool			Create			(class CSG_Grids *pGrids           , int nClasses, int Histogram = 0);
+
+	CSG_Natural_Breaks				(const CSG_Vector &Values          , int nClasses, int Histogram = 0);
+	bool			Create			(const CSG_Vector &Values          , int nClasses, int Histogram = 0);
+
+	int				Get_Count		(void)	const	{	return( m_Breaks.Get_N() );	}
+	double			Get_Break		(int i)	const	{	return( m_Breaks[i] );	}
+
+	double			operator []		(int i)	const	{	return( m_Breaks[i] );	}
+
+
+private:
+
+	CSG_Histogram	m_Histogram;
+
+	CSG_Vector		m_Breaks, m_Values;
+
+
+	bool			_Histogram		(int nClasses);
+
+	double			_Get_Value		(int i);
+
+	bool			_Calculate		(int nClasses);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 enum ESG_Cluster_Analysis_Method
 {
 	SG_CLUSTERANALYSIS_Minimum_Distance	= 0,
@@ -871,8 +931,8 @@ class SAGA_API_DLL_EXPORT CSG_Cluster_Analysis
 {
 public:
 	CSG_Cluster_Analysis(void);
-	~CSG_Cluster_Analysis(void);
-	
+	virtual ~CSG_Cluster_Analysis(void);
+
 	bool					Create				(int nFeatures);
 	bool					Destroy				(void);
 

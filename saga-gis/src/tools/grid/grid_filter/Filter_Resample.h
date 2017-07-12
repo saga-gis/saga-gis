@@ -87,19 +87,19 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual bool				On_Execute		(void);
 
 
 private:
 
-	int						m_Radius, m_Threshold;
+	int							m_Radius, m_Threshold;
 
-	CSG_Grid				m_Kernel, *m_pInput;
+	CSG_Grid					m_Kernel, *m_pInput;
 
-	CSG_Class_Statistics	m_Majority;
+	CSG_Unique_Value_Statistics	m_Majority;
 
 
-	double					Get_Majority	(int x, int y);
+	double						Get_Majority	(int x, int y);
 
 };
 

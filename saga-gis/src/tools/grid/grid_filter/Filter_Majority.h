@@ -94,7 +94,7 @@ protected:
 
 private:
 
-	int						m_Threshold;
+	int						m_Type, m_Threshold;
 
 	CSG_Grid_Cell_Addressor	m_Kernel;
 

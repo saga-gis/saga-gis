@@ -190,7 +190,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TABLE_SHOW:			return( _TL("Show") );
 
 	case ID_CMD_GRID_SET_LUT:
-	case ID_CMD_SHAPES_SET_LUT:			return( _TL("Create Lookup Table") );
+	case ID_CMD_SHAPES_SET_LUT:			return( _TL("Classify") );
 
 	case ID_CMD_GRID_HISTOGRAM:
 	case ID_CMD_SHAPES_HISTOGRAM:		return( _TL("Histogram") );

@@ -172,7 +172,14 @@ void CDLG_Table::Set_Position(wxRect r)
 //---------------------------------------------------------
 void CDLG_Table::Save_Changes(void)
 {
-	m_pTable->Assign(m_pControl->Get_Table());
+	CSG_Table	*pTable	= m_pControl->Get_Table();
+
+	m_pTable->Del_Records();
+
+	for(int i=0; i<pTable->Get_Count(); i++)
+	{
+		m_pTable->Add_Record(pTable->Get_Record_byIndex(i));	// apply any sorting
+	}
 }
 
 

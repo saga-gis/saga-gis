@@ -247,7 +247,7 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 	CCounter	*Counters	= new CCounter[m_Radius + 1];
 	int			iRadius		= 0;
 
-	CSG_Class_Statistics	Classes;
+	CSG_Unique_Number_Statistics	Classes;
 
 	for(int iCell=0; iCell<m_Search.Get_Count(); iCell++)
 	{
