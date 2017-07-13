@@ -78,37 +78,49 @@ CTPI::CTPI(void)
 	Set_Description	(_TW(
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
-		"proposed by Wilson & Gallant (2000).\n"
-		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
-
-		"<hr><h4>References</h4><ul>"
-		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
-		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
-		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
-		"</ul>"
+		"proposed by Wilson & Gallant (2000). "
+		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius."
 	));
+
+	Add_Reference(
+		"Guisan, A., Weiss, S.B., Weiss, A.D.", "1999",
+		"GLM versus CCA spatial modeling of plant species distribution",
+		"Plant Ecology 143: 107-122."
+	);
+
+	Add_Reference(
+		"Weiss, A.D.", "2000",
+		"Topographic Position and Landforms Analysis",
+		"Poster", SG_T("http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf")
+	);
+
+	Add_Reference(
+		"Wilson, J.P. & Gallant, J.C.", "2000",
+		"Primary Topographic Attributes",
+		"In: Wilson, J.P. & Gallant, J.C. [Eds.]: Terrain Analysis: Principles and Applications, John Wiley & Sons, p.51-85."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "TPI"			, _TL("Topographic Position Index"),
+		"", "TPI"			, _TL("Topographic Position Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Bool(
-		NULL	, "STANDARD"	, _TL("Standardize"),
+		"", "STANDARD"	, _TL("Standardize"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS"		, _TL("Scale"),
+		"", "RADIUS"		, _TL("Scale"),
 		_TL("kernel radius in map units"),
 		0.0, 100.0, 0.0, true
 	);
@@ -232,37 +244,49 @@ CTPI_Classification::CTPI_Classification(void)
 	Set_Description	(_TW(
 		"Topographic Position Index (TPI) calculation as proposed by Guisan et al. (1999). "
 		"This is literally the same as the difference to the mean calculation (residual analysis) "
-		"proposed by Wilson & Gallant (2000).\n"
-		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius.\n"
-
-		"<hr><h4>References</h4><ul>"
-		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
-		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
-		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
-		"</ul>"
+		"proposed by Wilson & Gallant (2000). "
+		"The bandwidth parameter for distance weighting is given as percentage of the (outer) radius."
 	));
+
+	Add_Reference(
+		"Guisan, A., Weiss, S.B., Weiss, A.D.", "1999",
+		"GLM versus CCA spatial modeling of plant species distribution",
+		"Plant Ecology 143: 107-122."
+	);
+
+	Add_Reference(
+		"Weiss, A.D.", "2000",
+		"Topographic Position and Landforms Analysis",
+		"Poster", SG_T("http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf")
+	);
+
+	Add_Reference(
+		"Wilson, J.P. & Gallant, J.C.", "2000",
+		"Primary Topographic Attributes",
+		"In: Wilson, J.P. & Gallant, J.C. [Eds.]: Terrain Analysis: Principles and Applications, John Wiley & Sons, p.51-85."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "LANDFORMS"	, _TL("Landforms"),
+		"", "LANDFORMS"	, _TL("Landforms"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS_A"	, _TL("Small Scale"),
+		"", "RADIUS_A"	, _TL("Small Scale"),
 		_TL("radius in map units"),
 		0.0, 100.0, 0.0, true
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RADIUS_B"	, _TL("Large Scale"),
+		"", "RADIUS_B"	, _TL("Large Scale"),
 		_TL("kernel radius in map units"),
 		0.0, 1000.0, 0.0, true
 	);
@@ -500,49 +524,65 @@ CTPI_MultiScale::CTPI_MultiScale(void)
 		"single grid. The hierarchical integration is achieved by starting with the standardized "
 		"TPI values of the largest scale, then adding standardized values from smaller scales "
 		"where the (absolute) values from the smaller scale exceed those from the larger scale. "
-		"This integration scheme has been proposed by N. Zimmermann "
-		"(<a href=\"http://www.wsl.ch/staff/niklaus.zimmermann/programs/aml4_1.html\">toposcale.aml</a>).\n"
-
-		"<hr><h4>References</h4><ul>"
-		"<li><b>Guisan, A., Weiss, S.B., Weiss, A.D. (1999):</b> GLM versus CCA spatial modeling of plant species distribution. Plant Ecology 143: 107-122.</li>"
-		"<li><b>Weiss, A.D. (2000):</b> Topographic Position and Landforms Analysis. <a target=\"_blank\" href=\"http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf\">poster</a>.</li>"
-		"<li><b>Wilson, J.P. & Gallant, J.C. (2000):</b> Terrain Analysis - Principles and Applications.</li>"
-		"</ul>"
+		"This integration scheme has been proposed by N. Zimmermann."
 	));
+
+	Add_Reference(
+		"Guisan, A., Weiss, S.B., Weiss, A.D.", "1999",
+		"GLM versus CCA spatial modeling of plant species distribution",
+		"Plant Ecology 143: 107-122."
+	);
+
+	Add_Reference(
+		"Weiss, A.D.", "2000",
+		"Topographic Position and Landforms Analysis",
+		"Poster", SG_T("http://www.jennessent.com/downloads/tpi-poster-tnc_18x22.pdf")
+	);
+
+	Add_Reference(
+		"Wilson, J.P. & Gallant, J.C.", "2000",
+		"Primary Topographic Attributes",
+		"In: Wilson, J.P. & Gallant, J.C. [Eds.]: Terrain Analysis: Principles and Applications, John Wiley & Sons, p.51-85."
+	);
+
+	Add_Reference(
+		"www.wsl.ch/staff/niklaus.zimmermann/programs/aml4_1.html",
+		SG_T("toposcale.aml script by N.Zimmermann")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "TPI"			, _TL("Topographic Position Index"),
+		"", "TPI"			, _TL("Topographic Position Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Int(
-		NULL	, "SCALE_MIN"	, _TL("Minimum Scale"),
+		"", "SCALE_MIN"	, _TL("Minimum Scale"),
 		_TL("kernel radius in cells"),
 		1, 1, true
 	);
 
 	Parameters.Add_Int(
-		NULL	, "SCALE_MAX"	, _TL("Maximum Scale"),
+		"", "SCALE_MAX"	, _TL("Maximum Scale"),
 		_TL("kernel radius in cells"),
 		8, 1, true
 	);
 
 	Parameters.Add_Int(
-		NULL	, "SCALE_NUM"	, _TL("Number of Scales"),
+		"", "SCALE_NUM"	, _TL("Number of Scales"),
 		_TL(""),
 		3, 2, true
 	);
 
 	Parameters.Add_Bool(
-		NULL	, "UPDATE"		, _TL("Update"),
+		"", "UPDATE"		, _TL("Update"),
 		_TL("update view for each integration step"),
 		false
 	)->Set_UseInCMD(false);
