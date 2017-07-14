@@ -372,6 +372,21 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_JulianDayNumber_To_Date		(double JDN, int &y, int &m, int &d);
+SAGA_API_DLL_EXPORT CSG_String	SG_JulianDayNumber_To_Date		(double JDN);
+SAGA_API_DLL_EXPORT CSG_String	SG_JulianDayNumber_To_Date		(int    JDN);
+
+SAGA_API_DLL_EXPORT double		SG_Date_To_JulianDayNumber		(int y, int m, int d);
+SAGA_API_DLL_EXPORT double		SG_Date_To_JulianDayNumber		(const CSG_String &Date);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double &RA, double &Dec);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double &RA, double &Dec);
 

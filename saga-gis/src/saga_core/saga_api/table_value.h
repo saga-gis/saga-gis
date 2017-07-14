@@ -73,7 +73,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "api_core.h"
+#include "datetime.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -249,17 +249,17 @@ public:
 
 	virtual bool					Set_Value		(int              Value)
 	{
-		return( Set_Value(CSG_String::Format(SG_T("%d"), Value).c_str()) );
+		return( Set_Value(CSG_String::Format("%d" , Value).c_str()) );
 	}
 
 	virtual bool					Set_Value		(sLong            Value)
 	{
-		return( Set_Value(CSG_String::Format(SG_T("%ld"), Value).c_str()) );
+		return( Set_Value(CSG_String::Format("%ld", Value).c_str()) );
 	}
 
 	virtual bool					Set_Value		(double           Value)
 	{
-		return( Set_Value(CSG_String::Format(SG_T("%f"), Value).c_str()) );
+		return( Set_Value(CSG_String::Format("%f" , Value).c_str()) );
 	}
 
 	//-----------------------------------------------------
@@ -293,7 +293,7 @@ private:
 class CSG_Table_Value_Date : public CSG_Table_Value
 {
 public:
-	CSG_Table_Value_Date(void) {	Set_Value(SG_T("0"));	}
+	CSG_Table_Value_Date(void) {	m_Value	= 0.0;	}
 	virtual ~CSG_Table_Value_Date(void) {}
 
 	virtual TSG_Table_Value_Type	Get_Type		(void)				const	{	return( SG_TABLE_VALUE_TYPE_Date );	}
@@ -323,8 +323,8 @@ public:
 	{
 		if( m_Value != Value )
 		{
-			m_Date	= SG_JulianDayNumber_To_Date(Value);
 			m_Value	= Value;
+			m_Date	= SG_JulianDayNumber_To_Date(m_Value);
 
 			return( true );
 		}
@@ -365,7 +365,7 @@ private:
 
 	double							m_Value;	// Julian Day Number
 
-	CSG_String						m_Date;		// yyyy-mm-dd (ISO 8601)
+	CSG_String						m_Date ;	// yyyy-mm-dd (ISO 8601)
 
 };
 
@@ -424,7 +424,7 @@ public:
 	{
 		static CSG_String	s;
 
-		s.Printf(SG_T("%d"), m_Value);
+		s.Printf("%d", m_Value);
 
 		return( s.c_str() );
 	}
@@ -504,7 +504,7 @@ public:
 	{
 		static CSG_String	s;
 
-		s.Printf(SG_T("%ld"), m_Value);
+		s.Printf("%ld", m_Value);
 
 		return( s.c_str() );
 	}

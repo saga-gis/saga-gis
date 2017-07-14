@@ -72,66 +72,86 @@
 //---------------------------------------------------------
 CSolarRadiation::CSolarRadiation(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Potential Incoming Solar Radiation"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Calculation of potential incoming solar radiation (insolation).\n"
+		"Calculation of potential incoming solar radiation (insolation). "
 		"Times of sunrise/sunset will only be calculated if time span is set to single day.\n"
-		"\n"
-		"References:\n<ul>"
-		"<li>Boehner, J., Antonic, O. (2009): Land Surface Parameters Specific to Topo-Climatology. in Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications.</li>"
-		"<li>Oke, T.R. (1988): Boundary Layer Climates. London, Taylor & Francis.</li>"
-		"<li>Wilson, J.P., Gallant, J.C. [Eds.] (2000): Terrain Analysis - Principles and Applications. New York, John Wiley & Sons, Inc.</li>"
-		"<li>Joint Research Centre: <a target=\"_blank\" href=\"http://re.jrc.ec.europa.eu/pvgis/\">GIS solar radiation database for Europe</a> and  <a target=\"_blank\" href=\"http://re.jrc.ec.europa.eu/pvgis/solres/solmod3.htm\">Solar radiation and GIS</a>.</li>"
-		"<li>Hofierka, J., Suri, M. (2002): The solar radiation model for Open source GIS: implementation and applications. International GRASS users conference in Trento, Italy, September 2002. <a target=\"_blank\" href=\"http://skagit.meas.ncsu.edu/~jaroslav/trento/Hofierka_Jaroslav.pdf\">pdf</a>.</li>"
-		"</ul>\n"
-
-		"\n*) Most options should do well, but TAPES-G based diffuse irradiance calculation ('Atmospheric Effects' methods 2 and 3) needs further revision!"
+		"Most options should do well, but TAPES-G based diffuse irradiance calculation ('Atmospheric Effects' methods 2 and 3) needs further revision!"
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid         (NULL, "GRD_DEM"     , _TL("Elevation"                   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid         (NULL, "GRD_SVF"     , _TL("Sky View Factor"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid_or_Const(NULL, "GRD_VAPOUR"  , _TL("Water Vapour Pressure [mbar]"), _TL(""), 10.0, 0.0, true);
-	Parameters.Add_Grid_or_Const(NULL, "GRD_LINKE"   , _TL("Linke Turbidity Coefficient" ), _TL(""),  3.0, 0.0, true);
-	Parameters.Add_Grid         (NULL, "GRD_DIRECT"  , _TL("Direct Insolation"           ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid         (NULL, "GRD_DIFFUS"  , _TL("Diffuse Insolation"          ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid         (NULL, "GRD_TOTAL"   , _TL("Total Insolation"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid         (NULL, "GRD_RATIO"   , _TL("Direct to Diffuse Ratio"     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid         (NULL, "GRD_DURATION", _TL("Duration of Insolation"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid         (NULL, "GRD_SUNRISE" , _TL("Sunrise"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
-	Parameters.Add_Grid         (NULL, "GRD_SUNSET"  , _TL("Sunset"                      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Add_Reference(
+		"Boehner, J., Antonic, O.", "2009", "Land Surface Parameters Specific to Topo-Climatology",
+		"In: Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry - Concepts, Software, Applications."
+	);
+
+	Add_Reference(
+		"Oke, T.R.", "1988", "Boundary Layer Climates",
+		"London, Taylor & Francis."
+	);
+
+	Add_Reference(
+		"Wilson, J.P., Gallant, J.C.", "2000", "Secondary topographic attributes",
+		"In: Wilson, J.P., Gallant, J.C. [Eds.]: Terrain analysis: Principles and applications. New York, John Wiley & Sons, Inc., 87-131.",
+		SG_T("https://www.researchgate.net/publication/308880524_Secondary_Topographic_Attributes"), SG_T("ResearchGate")
+	);
+
+	Add_Reference(
+		"Hofierka, J., Suri, M.", "2002", "The solar radiation model for Open source GIS: implementation and applications",
+		"International GRASS users conference in Trento, Italy, September 2002",
+		SG_T("http://skagit.meas.ncsu.edu/~jaroslav/trento/Hofierka_Jaroslav.pdf")
+	);
+
+	Add_Reference(
+		"http://re.jrc.ec.europa.eu/pvgis/", SG_T("Joint Research Centre: GIS solar radiation database for Europe")
+	);
+
+	Add_Reference(
+		"http://re.jrc.ec.europa.eu/pvgis/solres/solmod3.htm", SG_T("Joint Research Centre: Solar radiation and GIS")
+	);
+
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "SOLARCONST"		, _TL("Solar Constant [W / m\xb2]"),
+	Parameters.Add_Grid         ("", "GRD_DEM"     , _TL("Elevation"                   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid         ("", "GRD_SVF"     , _TL("Sky View Factor"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid_or_Const("", "GRD_VAPOUR"  , _TL("Water Vapour Pressure [mbar]"), _TL(""), 10.0, 0.0, true);
+	Parameters.Add_Grid_or_Const("", "GRD_LINKE"   , _TL("Linke Turbidity Coefficient" ), _TL(""),  3.0, 0.0, true);
+	Parameters.Add_Grid         ("", "GRD_DIRECT"  , _TL("Direct Insolation"           ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid         ("", "GRD_DIFFUS"  , _TL("Diffuse Insolation"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid         ("", "GRD_TOTAL"   , _TL("Total Insolation"            ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         ("", "GRD_RATIO"   , _TL("Direct to Diffuse Ratio"     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         ("", "GRD_DURATION", _TL("Duration of Insolation"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         ("", "GRD_SUNRISE" , _TL("Sunrise"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid         ("", "GRD_SUNSET"  , _TL("Sunset"                      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
+	//-----------------------------------------------------
+	Parameters.Add_Double("",
+		"SOLARCONST"	, _TL("Solar Constant [W / m\xb2]"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 1367.0, 0.0, true
+		1367.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LOCALSVF"		, _TL("Local Sky View Factor"),
+	Parameters.Add_Bool("",
+		"LOCALSVF"		, _TL("Local Sky View Factor"),
 		_TL("Use sky view factor based on local slope (after Oke 1988), if no sky viev factor grid is given."),
-		PARAMETER_TYPE_Bool			, true
+		true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "UNITS"			, _TL("Units"),
+	Parameters.Add_Choice("",
+		"UNITS"			, _TL("Units"),
 		_TL("Units for output radiation values."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			SG_T("kWh / m2"),
 			SG_T("kJ / m2"),
 			SG_T("J / cm2")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SHADOW"			, _TL("Shadow"),
+	Parameters.Add_Choice("",
+		"SHADOW"		, _TL("Shadow"),
 		_TL("Choose 'slim' to trace grid node's shadow, 'fat' to trace the whole cell's shadow, or ignore shadowing effects. The first is slightly faster but might show some artifacts."),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("slim"),
@@ -141,8 +161,8 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "LOCATION"		, _TL("Location"),
+	Parameters.Add_Choice("",
+		"LOCATION"		, _TL("Location"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("constant latitude"),
@@ -150,15 +170,15 @@ CSolarRadiation::CSolarRadiation(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LATITUDE"		, _TL("Latitude"),
+	Parameters.Add_Degree("LOCATION",
+		"LATITUDE"		, _TL("Latitude"),
 		_TL(""),
-		PARAMETER_TYPE_Degree		, 53.0, -90.0, true, 90.0, true
+		53.0, -90.0, true, 90.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "PERIOD"			, _TL("Time Period"),
+	Parameters.Add_Choice("",
+		"PERIOD"		, _TL("Time Period"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("moment"),
@@ -167,47 +187,45 @@ CSolarRadiation::CSolarRadiation(void)
 		), 1
 	);
 
-	pNode	= Parameters.Add_Date(
-		pNode	, "DAY"				, _TL("Day"),
+	Parameters.Add_Date("PERIOD",
+		"DAY"			, _TL("Day"),
 		_TL(""),
 		CSG_DateTime::Now().Get_JDN()
 	);
 
-	Parameters.Add_Date(
-		pNode	, "DAY_STOP"		, _TL("Last Day"),
+	Parameters.Add_Date("DAY",
+		"DAY_STOP"		, _TL("Last Day"),
 		_TL(""),
 		CSG_DateTime::Now().Get_JDN()
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DAYS_STEP"		, _TL("Resolution [d]"),
+	Parameters.Add_Int("DAY",
+		"DAYS_STEP"		, _TL("Resolution [d]"),
 		_TL("Time step size for a range of days calculation given in days."),
-		PARAMETER_TYPE_Int			, 5, 1, true
+		5, 1, true
 	);
 
-	pNode	= Parameters("PERIOD");
-
-	Parameters.Add_Value(
-		pNode	, "MOMENT"			, _TL("Moment [h]"),
+	Parameters.Add_Double("PERIOD",
+		"MOMENT"		, _TL("Moment [h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 12.0, 0.0, true, 24.0, true
+		12.0, 0.0, true, 24.0, true
 	);
 
-	Parameters.Add_Range(
-		pNode	, "HOUR_RANGE"		, _TL("Time Span [h]"),
+	Parameters.Add_Range("PERIOD",
+		"HOUR_RANGE"	, _TL("Time Span [h]"),
 		_TL("Time span used for the calculation of daily radiation sums."),
 		 0.0, 24.0, 0.0	, true, 24.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "HOUR_STEP"		, _TL("Resolution [h]"),
+	Parameters.Add_Double("PERIOD",
+		"HOUR_STEP"		, _TL("Resolution [h]"),
 		_TL("Time step size for a day's calculation given in hours."),
-		PARAMETER_TYPE_Double		, 0.5, 0.0, true, 24.0, true
+		0.5, 0.0, true, 24.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Atmospheric Effects"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Atmospheric Effects"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Height of Atmosphere and Vapour Pressure"),
@@ -217,51 +235,51 @@ CSolarRadiation::CSolarRadiation(void)
 		), 2
 	);
 
-	Parameters.Add_Value(
-		pNode	, "ATMOSPHERE"		, _TL("Height of Atmosphere [m]"),
+	Parameters.Add_Double("METHOD",
+		"ATMOSPHERE"	, _TL("Height of Atmosphere [m]"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 12000.0, 0.0, true
+		12000.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "PRESSURE"		, _TL("Barometric Pressure [mbar]"),
+	Parameters.Add_Double("METHOD",
+		"PRESSURE"		, _TL("Barometric Pressure [mbar]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1013, 0.0, true
+		1013, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "WATER"			, _TL("Water Content [cm]"),
+	Parameters.Add_Double("METHOD",
+		"WATER"			, _TL("Water Content [cm]"),
 		_TL("Water content of a vertical slice of atmosphere in cm: 1.5 to 1.7, average=1.68"),
-		PARAMETER_TYPE_Double, 1.68, 0.0, true
+		1.68, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DUST"			, _TL("Dust [ppm]"),
+	Parameters.Add_Double("METHOD",
+		"DUST"			, _TL("Dust [ppm]"),
 		_TL("Dust factor: 100 ppm (standard)"),
-		PARAMETER_TYPE_Double, 100, 0.0, true
+		100, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LUMPED"			, _TL("Lumped Atmospheric Transmittance [Percent]"),
+	Parameters.Add_Double("METHOD",
+		"LUMPED"		, _TL("Lumped Atmospheric Transmittance [Percent]"),
 		_TL("The transmittance of the atmosphere, usually between 60 and 80 percent."),
-		PARAMETER_TYPE_Double, 70, 0.0, true, 100.0, true
+		70, 0.0, true, 100.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "UPDATE"			, _TL("Update"),
+	Parameters.Add_Choice("",
+		"UPDATE"		, _TL("Update"),
 		_TL("show direct insolation for each time step."),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("do not update"),
 			_TL("fit histogram stretch for each time step"),
 			_TL("constant histogram stretch for all time steps")
 		), 0
-	);	pNode->Set_UseInCMD(false);
+	)->Set_UseInCMD(false);
 
-	Parameters.Add_Value(
-		pNode	, "UPDATE_STRETCH"	, _TL("Constant Histogram Stretch"),
+	Parameters.Add_Double("UPDATE",
+		"UPDATE_STRETCH", _TL("Constant Histogram Stretch"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 }
 

@@ -568,6 +568,111 @@ CSG_String CSG_DateTime::Get_Month_Choices(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+  * Expects 'Value' to be the Julian Day Number.
+*/
+//---------------------------------------------------------
+bool		SG_JulianDayNumber_To_Date(double JDN, int &y, int &m, int &d)
+{
+	int	J	= (int)floor(JDN);
+	int	f	= J + 1401 + (((4 * J + 274277) / 146097) * 3) / 4 - 38;
+	int	e	= 4 * f + 3;
+	int	g	= (e % 1461) / 4;
+	int	h	= 5 * g + 2;
+
+	d	= (h % 153) / 5 + 1;
+	m	= (h / 153 + 2) % 12 + 1;
+	y	= (e / 1461) - 4716 + (12 + 2 - m) / 12; 
+
+	return( true );
+}
+
+//---------------------------------------------------------
+/**
+  * Calculates Gregorian date from Julian Day Number and returns it as ISO 8601 string (yyyy-mm-dd).
+*/
+//---------------------------------------------------------
+CSG_String		SG_JulianDayNumber_To_Date(double JDN)
+{
+	JDN	= 0.5 + floor(JDN);
+
+	CSG_String	Date;
+
+	int	y, m, d;
+
+	if( SG_JulianDayNumber_To_Date(JDN, y, m, d) )
+	{
+		Date.Printf("%04d-%02d-%02d", y, m, d);	// yyyy-mm-dd (ISO 8601)
+	}
+
+	return( Date );
+}
+
+//---------------------------------------------------------
+/**
+  * Calculates Gregorian date from Julian Day Number and returns it as ISO 8601 string (yyyy-mm-dd).
+*/
+//---------------------------------------------------------
+CSG_String		SG_JulianDayNumber_To_Date(int JDN)
+{
+	return( SG_JulianDayNumber_To_Date(JDN + 0.5) );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the Julian Day Number calculated from Gregorian date (year, month, day).
+*/
+//---------------------------------------------------------
+double			SG_Date_To_JulianDayNumber(int y, int m, int d)
+{
+	int	a	= m <= 2 ? 1 : 0;
+
+	y	+= 4800 - a;
+	m	+= 12 * a - 3;
+
+	double	JDN	= d + floor((153. * m + 2.) / 5.) + 365. * y + floor(y / 4.) - floor(y / 100.) + floor(y / 400.) - 32045.;
+
+	return( JDN );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the Julian Day Number.
+*/
+//---------------------------------------------------------
+double			SG_Date_To_JulianDayNumber(const CSG_String &Date)
+{
+	if( Date.Length() < 10 )
+	{
+		return( 0.0 );
+	}
+
+	int	bBC	= Date[0] == '-' ? -1 : 1;
+
+	CSG_String_Tokenizer	t(bBC < 0 ? Date.AfterFirst('-') : Date, "-./");
+
+	if( t.Get_Tokens_Count() < 3 )
+	{
+		return( 0.0 );
+	}
+
+	CSG_Strings	s; for(int i=0; i<3; i++) s += t.Get_Next_Token();
+
+	bool	bISO	= s[0].Length() == 4;	// yyyy-mm-dd (ISO 8601)
+
+	int	y	= s[bISO ? 0 : 2].asInt() * bBC;
+	int	m	= s[         1  ].asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
+	int	d	= s[bISO ? 2 : 0].asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
+
+	return( SG_Date_To_JulianDayNumber(y, m, d) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
