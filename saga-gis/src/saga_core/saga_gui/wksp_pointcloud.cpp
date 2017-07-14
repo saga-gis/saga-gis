@@ -180,6 +180,8 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
+
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
@@ -709,7 +711,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 3:	// natural breaks
 		{
-			CSG_Natural_Breaks	Breaks(Get_PointCloud(), Field, Colors.Get_Count(), Get_PointCloud()->Get_Count() > 255 ? 255 : 0);
+			CSG_Natural_Breaks	Breaks(Get_PointCloud(), Field, Colors.Get_Count(), Get_PointCloud()->Get_Count() > 4096 ? 256 : 0);
 
 			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
 

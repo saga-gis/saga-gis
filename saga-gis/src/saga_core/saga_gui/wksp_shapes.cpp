@@ -195,6 +195,8 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_SHAPES_HISTOGRAM);
+
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
@@ -895,7 +897,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 3:	// natural breaks
 		{
-			CSG_Natural_Breaks	Breaks(Get_Shapes(), Field, Colors.Get_Count(), 0);//Get_Shapes()->Get_Count() > 1024 ? 255 : 0);
+			CSG_Natural_Breaks	Breaks(Get_Shapes(), Field, Colors.Get_Count(), Get_Shapes()->Get_Count() > 4096 ? 256 : 0);
 
 			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
 

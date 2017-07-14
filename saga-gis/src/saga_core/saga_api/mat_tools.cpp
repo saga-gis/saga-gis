@@ -1395,7 +1395,7 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 {
 	if( _Calculate(nClasses) )
 	{
-		double	d	= (double)m_Histogram.Get_Count() / m_Histogram.Get_Cumulative(m_Histogram.Get_Count() - 1);
+		double	d	= (double)m_Histogram.Get_Count() / m_Histogram.Get_Cumulative((int)(m_Histogram.Get_Count() - 1));
 
 		m_Breaks[0]	= m_Histogram.Get_Break(0);
 
@@ -1404,7 +1404,7 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 			m_Breaks[i]	= m_Histogram.Get_Value(m_Breaks[i] * d);
 		}
 
-		m_Breaks[nClasses]	= m_Histogram.Get_Break(m_Histogram.Get_Count());
+		m_Breaks[nClasses]	= m_Histogram.Get_Break((int)m_Histogram.Get_Count());
 
 		m_Histogram.Destroy();
 

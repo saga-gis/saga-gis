@@ -837,11 +837,11 @@ public:
 
 	double			Get_Value		(double i)	const	{	return( m_Count > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_Count : m_Minimum );	}
 
-	double			Get_Break		(int    i)	const	{	return( Get_Value(i) );	}
-	double			Get_Break		(size_t i)	const	{	return( Get_Value(i) );	}
+	double			Get_Break		(int    i)	const	{	return( Get_Value((double)(i)) );	}
+	double			Get_Break		(size_t i)	const	{	return( Get_Value((double)(i)) );	}
 
-	double			Get_Center		(int    i)	const	{	return( Get_Value(i + 0.5) );	}
-	double			Get_Center		(size_t i)	const	{	return( Get_Value(i + 0.5) );	}
+	double			Get_Center		(int    i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
+	double			Get_Center		(size_t i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
 
 	unsigned int	operator []		(int    i)	const	{	return( Get_Elements(i) );	}
 	unsigned int	operator []		(size_t i)	const	{	return( Get_Elements(i) );	}
