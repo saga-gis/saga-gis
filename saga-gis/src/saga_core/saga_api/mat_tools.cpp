@@ -1428,6 +1428,11 @@ inline double CSG_Natural_Breaks::_Get_Value(int i)
 }
 
 //---------------------------------------------------------
+#ifndef FLT_MAX
+#define FLT_MAX	3.402823466e+38F /* max value */
+#endif
+
+//---------------------------------------------------------
 bool CSG_Natural_Breaks::_Calculate(int nClasses)
 {
 	if( m_Histogram.Get_Count() == 0 && m_Values.Get_Size() == 0 )
