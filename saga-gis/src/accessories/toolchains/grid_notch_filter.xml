@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="5.0.0">
+  <group>grid_filter</group>
+  <identifier>grid_notch_filter</identifier>
+  <name>Notch Filter for Grids</name>
+  <author>Angus Jack</author>
+  <description>This tool chain uses the Grid > Filter > Resampling Filter tool to simulate a wide notch filter applied between the two resampling cell sizes chosen.</description>
+  <menu></menu>
+  <parameters>
+   <option varname="GRID_SYSTEM" type="grid_system">
+      <name>Grid System</name>
+    </option>
+    <input varname="INPUT_GRID" type="grid" parent="GRID_SYSTEM">
+      <name>Input Grid</name>
+    </input>
+	<output varname="LOWPASS_UPPER" type="grid" parent="GRID_SYSTEM">
+      <name>Lowpass Upper</name>
+	  <output_name>Lowpass Upper</output_name>
+    </output>
+	<output varname="HIPASS_LOWER" type="grid" parent="GRID_SYSTEM">
+      <name>Highpass Lower</name>
+	   <output_name>Highpass Lower</output_name>
+    </output>
+	<output varname="FILTERED_GRID" type="grid" parent="GRID_SYSTEM">
+      <name>Notch</name>
+	  <output_name>Notch</output_name>
+    </output>
+    <option varname="HIGH_PASS" type="double">
+      <name>Upper search distance </name>
+	  <value>75</value>
+	</option>
+    <option varname="LOW_PASS" type="double">
+      <name>Lower search distance</name>
+	  <value>25</value>
+	</option>
+  </parameters>
+  <tools>
+    <tool library="grid_filter" tool="11" name="Resampling Filter">
+      <input id="GRID">INPUT_GRID</input>
+      <output id="LOPASS">LOWPASS_UPPER</output>
+      <option id="SCALE" varname="TRUE">HIGH_PASS</option>
+    </tool>
+	<tool library="grid_filter" tool="11" name="Resampling Filter">
+      <input id="GRID">INPUT_GRID</input>
+      <output id="HIPASS">HIPASS_LOWER</output>
+      <option id="SCALE" varname="TRUE ">LOW_PASS</option>
+    </tool>
+	<tool library="grid_calculus" tool="8" name="Grids Sum">
+      <input id="GRIDS">LOWPASS_UPPER</input>
+      <input id="GRIDS">HIPASS_LOWER</input>
+      <output id="RESULT">FILTERED_GRID</output>
+      <option id="NODATA">false</option>
+    </tool>
+  </tools>
+</toolchain>

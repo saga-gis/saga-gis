@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="4.0.0">
-	<group>toolchains</group>
+	<group>grid_filter</group>
 	<identifier>grid_list_simple_filter</identifier>
 	<name>Simple Filter for Multiple Grids</name>
 	<menu absolute="true">Grid|Filter</menu>

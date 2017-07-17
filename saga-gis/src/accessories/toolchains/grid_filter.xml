@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchains version="1.0.0">
+  <group>grid_filter</group>
+  <identifier>grid_filter</identifier>
+  <name>Grid Filters</name>
+	<menu>Grid|Filter</menu>
+	<description>
+		Filters for grids.
+	</description>
+</toolchains>
