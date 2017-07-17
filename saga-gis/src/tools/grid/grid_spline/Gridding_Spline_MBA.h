@@ -85,7 +85,6 @@ class grid_spline_EXPORT CGridding_Spline_MBA : public CGridding_Spline_Base
 {
 public:
 	CGridding_Spline_MBA(void);
-	virtual ~CGridding_Spline_MBA(void);
 
 
 protected:

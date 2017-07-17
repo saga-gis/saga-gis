@@ -488,7 +488,7 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 
 		m_Data_Manager.Add(pData->asDataObject());
 	}
-	else if( pData->is_DataObject_List() )
+	else if( pData->is_DataObject_List() && pParameter->is_DataObject_List() )
 	{
 		for(int i=0; i<pData->asList()->Get_Data_Count(); i++)
 		{

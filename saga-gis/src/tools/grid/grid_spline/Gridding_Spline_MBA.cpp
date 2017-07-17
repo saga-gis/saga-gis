@@ -79,60 +79,56 @@ CGridding_Spline_MBA::CGridding_Spline_MBA(void)
 
 	Set_Description	(_TW(
 		"Multilevel B-spline algorithm for spatial interpolation of scattered data "
-		"as proposed by Lee, Wolberg and Shin (1997). "
+		"as proposed by Lee, Wolberg and Shin (1997).\n"
 		"The algorithm makes use of a coarse-to-fine hierarchy of control lattices to "
 		"generate a sequence of bicubic B-spline functions, whose sum approaches the "
 		"desired interpolation function. Large performance gains are realized by using "
 		"B-spline refinement to reduce the sum of these functions into one equivalent "
-		"B-spline function. "
-		"\n\n"
+		"B-spline function.\n"
 		"The 'Maximum Level' determines the maximum size of the final B-spline matrix "
 		"and increases exponential with each level. Where level=10 requires about 1mb "
 		"level=12 needs about 16mb and level=14 about 256mb(!) of additional memory. "
-		"\n\n"
-		"Reference:\n"
-		" - Lee, S., Wolberg, G., Shin, S.Y. (1997):"
-		" 'Scattered Data Interpolation with Multilevel B-Splines',"
-		" IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3\n"
 	));
+
+	Add_Reference(
+		"Lee, S., Wolberg, G., Shin, S.Y.", "1997",
+		"Scattered Data Interpolation with Multilevel B-Splines",
+		"IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3., p.228-244.",
+		SG_T("https://www.researchgate.net/profile/George_Wolberg/publication/3410822_Scattered_Data_Interpolation_with_Multilevel_B-Splines/links/00b49518719ac9f08a000000/Scattered-Data-Interpolation-with-Multilevel-B-Splines.pdf"),
+		SG_T("ResearchGate")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		"", "METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("without B-spline refinement"),
 			_TL("with B-spline refinement")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Threshold Error"),
+	Parameters.Add_Double(
+		"", "EPSILON"	, _TL("Threshold Error"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0001, 0.0, true
+		0.0001, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LEVEL_MAX"	, _TL("Maximum Level"),
+	Parameters.Add_Int(
+		"", "LEVEL_MAX"	, _TL("Maximum Level"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 11, 1, true, 14, true
+		11, 1, true, 14, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "UPDATE"		, _TL("Update View"),
+	Parameters.Add_Bool(
+		"", "UPDATE"	, _TL("Update View"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		false
 	)->Set_UseInCMD(false);
 }
 
-//---------------------------------------------------------
-CGridding_Spline_MBA::~CGridding_Spline_MBA(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -143,21 +139,16 @@ bool CGridding_Spline_MBA::On_Execute(void)
 
 	if( Initialise(m_Points, true) )
 	{
-		m_Epsilon	= Parameters("EPSILON")		->asDouble();
-		m_Level_Max	= Parameters("LEVEL_MAX")	->asInt();
-		m_bUpdate	= Parameters("UPDATE")		->asBool();
+		m_Epsilon	= Parameters("EPSILON"  )->asDouble();
+		m_Level_Max	= Parameters("LEVEL_MAX")->asInt();
+		m_bUpdate	= Parameters("UPDATE"   )->asBool();
 
 		double	dCell	= m_pGrid->Get_XRange() > m_pGrid->Get_YRange() ? m_pGrid->Get_XRange() : m_pGrid->Get_YRange();
 
 		switch( Parameters("METHOD") ? Parameters("METHOD")->asInt() : 0 )
 		{
-		case 0:	// without B-spline refinement
-			bResult	= _Set_MBA				(dCell);
-			break;
-
-		case 1:	// with B-spline refinement
-			bResult	= _Set_MBA_Refinement	(dCell);
-			break;
+		case  0: bResult = _Set_MBA           (dCell); break;	// without B-spline refinement
+		default: bResult = _Set_MBA_Refinement(dCell); break;	// with B-spline refinement
 		}
 	}
 
@@ -169,22 +160,18 @@ bool CGridding_Spline_MBA::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Set_MBA(double dCell)
 {
-	bool	bContinue;
-	int		nCells;
 	CSG_Grid	Phi;
 
-	for(bContinue=true, nCells=1; bContinue; nCells*=2, dCell/=2.0)
+	for(int bContinue=1, nCells=1; bContinue; nCells*=2, dCell/=2.)
 	{
-		bContinue	= _Get_Phi(Phi, dCell, nCells);
+		bContinue	= _Get_Phi(Phi, dCell, nCells) ? 1 : 0;
 
-		BA_Set_Grid	(Phi, nCells > 1);
+		BA_Set_Grid(Phi, nCells > 1);
 
 		if( m_bUpdate )
 		{
@@ -198,27 +185,25 @@ bool CGridding_Spline_MBA::_Set_MBA(double dCell)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Set_MBA_Refinement(double dCell)
 {
-	bool	bContinue;
-	int		nCells;
-	CSG_Grid	A, B, *Phi, *Psi, *pTmp;
+	CSG_Grid	A, B, *Phi, *Psi;
 
-	for(bContinue=true, Psi=&A, Phi=&B, nCells=1; bContinue; nCells*=2, dCell/=2.0)
+	int	bContinue, nCells;
+
+	for(bContinue=1, Psi=&A, Phi=&B, nCells=1; bContinue; nCells*=2, dCell/=2.)
 	{
-		bContinue	= _Get_Phi(*Phi, dCell, nCells);
+		bContinue	= _Get_Phi(*Phi, dCell, nCells) ? 1 : 0;
 
 		if( nCells > 1 )
 		{
 			_Set_MBA_Refinement(Psi, Phi);
 		}
 
-		pTmp	= Phi;	Phi	= Psi;	Psi	= pTmp;
+		CSG_Grid *pTmp = Phi; Phi = Psi; Psi = pTmp;
 
 		if( m_bUpdate )
 		{
@@ -291,15 +276,13 @@ bool CGridding_Spline_MBA::_Set_MBA_Refinement(CSG_Grid *Psi_A, CSG_Grid *Psi_B)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGridding_Spline_MBA::_Get_Phi(CSG_Grid &Phi, double dCell, int nCells)
 {
-	Phi.Create	(SG_DATATYPE_Float, nCells + 4, nCells + 4, dCell, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
-	BA_Get_Phi	(Phi);
+	Phi.Create(SG_DATATYPE_Float, nCells + 4, nCells + 4, dCell, m_pGrid->Get_XMin(), m_pGrid->Get_YMin());
+	BA_Get_Phi(Phi);
 
 	return( _Get_Difference(Phi) );
 }
@@ -357,8 +340,6 @@ bool CGridding_Spline_MBA::_Get_Difference(CSG_Grid &Phi)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

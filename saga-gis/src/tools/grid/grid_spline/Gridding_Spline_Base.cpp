@@ -72,39 +72,33 @@
 //---------------------------------------------------------
 CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 {
-	//-----------------------------------------------------
 	if( bGridPoints )
 	{
-		Parameters.Add_Grid(
-			NULL	, "GRID"	, _TL("Grid"),
+		Parameters.Add_Grid("",
+			"GRID"	, _TL("Grid"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 	}
-
-	//-----------------------------------------------------
 	else
 	{
-		CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-			NULL	, "SHAPES"	, _TL("Points"),
+		Parameters.Add_Shapes("",
+			"SHAPES", _TL("Points"),
 			_TL(""),
 			PARAMETER_INPUT
 		);
 
-		Parameters.Add_Table_Field(
-			pNode	, "FIELD"	, _TL("Attribute"),
+		Parameters.Add_Table_Field("SHAPES",
+			"FIELD"	, _TL("Attribute"),
 			_TL("")
 		);
 	}
 
-	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -137,8 +131,6 @@ int CGridding_Spline_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -156,8 +148,6 @@ bool CGridding_Spline_Base::Initialise(CSG_Points_Z &Points, bool bInGridOnly)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -173,7 +163,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 			return( false );
 		}
 
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), Get_Name().c_str()));
+		m_pGrid->Set_Name(CSG_String::Format("%s [%s]", pPoints->Get_Name(), Get_Name().c_str()));
 	}
 
 	//-----------------------------------------------------
@@ -186,7 +176,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 			return( false );
 		}
 
-		m_pGrid->Set_Name(CSG_String::Format(SG_T("%s.%s [%s]"), pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));
+		m_pGrid->Set_Name(CSG_String::Format("%s.%s [%s]", pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));
 	}
 
 	//-----------------------------------------------------
@@ -198,8 +188,6 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -210,13 +198,15 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 	//-----------------------------------------------------
 	if( Parameters("GRID") )
 	{
-		int			x, y;
-		TSG_Point	p;
 		CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-		for(y=0, p.y=pGrid->Get_YMin(); y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, p.y+=pGrid->Get_Cellsize())
+		TSG_Point	p; p.y	= pGrid->Get_YMin();
+
+		for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, p.y+=pGrid->Get_Cellsize())
 		{
-			for(x=0, p.x=pGrid->Get_XMin(); x<pGrid->Get_NX(); x++, p.x+=pGrid->Get_Cellsize())
+			p.x	= pGrid->Get_XMin();
+
+			for(int x=0; x<pGrid->Get_NX(); x++, p.x+=pGrid->Get_Cellsize())
 			{
 				if( !pGrid->is_NoData(x, y) && (!bInGridOnly || m_pGrid->is_InGrid_byPos(p, false)) )
 				{
@@ -230,15 +220,16 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 	else
 	{
 		CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
-		int			zField		= Parameters("FIELD" )->asInt   ();
+
+		int	Field	= Parameters("FIELD")->asInt();
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
 			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-			if( !pShape->is_NoData(zField) )
+			if( !pShape->is_NoData(Field) )
 			{
-				double		zValue	= pShape->asDouble(zField);
+				double	z	= pShape->asDouble(Field);
 
 				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 				{
@@ -248,7 +239,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 
 						if( !bInGridOnly || m_pGrid->is_InGrid_byPos(p, false) )
 						{
-							Points.Add(p.x, p.y, zValue);
+							Points.Add(p.x, p.y, z);
 						}
 					}
 				}
@@ -256,6 +247,7 @@ bool CGridding_Spline_Base::_Get_Points(CSG_Points_Z &Points, bool bInGridOnly)
 		}
 	}
 
+	//-----------------------------------------------------
 	return( Points.Get_Count() >= 3 );
 }
 
