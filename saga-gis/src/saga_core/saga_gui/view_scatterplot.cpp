@@ -185,9 +185,11 @@ CVIEW_ScatterPlot::CVIEW_ScatterPlot(CWKSP_Data_Item *pItem)
 
 	switch( m_pItem->Get_Type() )
 	{
-	case WKSP_ITEM_Grid : m_pGrid  = pItem->Get_Object()->asGrid (); break;
-	case WKSP_ITEM_Grids: m_pGrids = pItem->Get_Object()->asGrids(); break;
-	default             : m_pTable = pItem->Get_Object()->asTable(); break;
+	case WKSP_ITEM_Grid      : m_pGrid  = pItem->Get_Object()->asGrid      (); break;
+	case WKSP_ITEM_Grids     : m_pGrids = pItem->Get_Object()->asGrids     (); break;
+	case WKSP_ITEM_Shapes    : m_pTable = pItem->Get_Object()->asShapes    (); break;
+	case WKSP_ITEM_PointCloud: m_pTable = pItem->Get_Object()->asPointCloud(); break;
+	default                  : m_pTable = pItem->Get_Object()->asTable     (); break;
 	}
 
 	m_Parameters.Set_Name(CSG_String::Format("%s: %s", _TL("Scatterplot"), m_pItem->Get_Object()->Get_Name()));
