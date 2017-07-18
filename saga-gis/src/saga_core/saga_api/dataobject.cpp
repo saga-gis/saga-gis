@@ -364,7 +364,8 @@ bool CSG_Data_Object::Load_MetaData(const CSG_String &_FileName)
 	case SG_DATAOBJECT_TYPE_Table     : SG_File_Set_Extension(FileName, "mtab"   ); break;
 	case SG_DATAOBJECT_TYPE_Shapes    : SG_File_Set_Extension(FileName, "mshp"   ); break;
 	case SG_DATAOBJECT_TYPE_TIN       : SG_File_Set_Extension(FileName, "sg-info"); break;
-	case SG_DATAOBJECT_TYPE_PointCloud: SG_File_Set_Extension(FileName, "sg-info"); break;
+	case SG_DATAOBJECT_TYPE_PointCloud: SG_File_Set_Extension(FileName, "sg-info");
+		if( !SG_File_Get_Extension(_FileName).CmpNoCase("spc") ) SG_File_Set_Extension(FileName, "mpts"); break;
 
 	default:	return( false );
 	}
