@@ -166,7 +166,7 @@ bool CGCS_Grid_Longitude_Range::On_Execute(void)
 
 			Target.Assign(Get_Cellsize(), Get_XMin() - 360.0, Get_YMin(), Get_NX(), Get_NY());
 		}
-		else if( Get_XMax() - 360.0 < Get_XMin() - Get_Cellsize() )
+		else if( Get_XMin() > 0.0 && Get_XMax() - 360.0 < Get_XMin() - Get_Cellsize() )
 		{
 			Error_Set(_TL("Nothing to do be done. Raster splitting is not supported."));
 
