@@ -427,7 +427,7 @@ bool CSG_File::Scan(double &Value) const
 		{
 			CSG_String	s	= (char)c;
 
-			while( !is_EOF() && (isdigit(c = Read_Char()) || strchr("", c)) )
+			while( !is_EOF() && (isdigit(c = Read_Char()) || strchr(".,eE", c) || strchr("", c)) )
 			{
 				s	+= (char)c;
 			}
