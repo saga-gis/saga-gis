@@ -63,7 +63,7 @@
 
 //---------------------------------------------------------
 #include <time.h>
-
+#include <cfloat>
 //---------------------------------------------------------
 #include "mat_tools.h"
 
@@ -1426,11 +1426,6 @@ inline double CSG_Natural_Breaks::_Get_Value(int i)
 
 	return( m_Values[i] );
 }
-
-//---------------------------------------------------------
-#ifndef FLT_MAX
-#define FLT_MAX	3.402823466e+38F /* max value */
-#endif
 
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::_Calculate(int nClasses)
