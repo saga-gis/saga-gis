@@ -312,6 +312,7 @@
     <ClCompile Include="pc_from_table.cpp" />
     <ClCompile Include="pc_merge.cpp" />
     <ClCompile Include="pc_reclass_extract.cpp" />
+    <ClCompile Include="pc_support_tool_chains.cpp" />
     <ClCompile Include="pc_thinning_simple.cpp" />
     <ClCompile Include="pc_to_grid.cpp" />
     <ClCompile Include="pc_to_shapes.cpp" />
@@ -345,6 +346,7 @@
     <ClInclude Include="pc_from_table.h" />
     <ClInclude Include="pc_merge.h" />
     <ClInclude Include="pc_reclass_extract.h" />
+    <ClInclude Include="pc_support_tool_chains.h" />
     <ClInclude Include="pc_thinning_simple.h" />
     <ClInclude Include="pc_to_grid.h" />
     <ClInclude Include="pc_to_shapes.h" />

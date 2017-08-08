@@ -21,6 +21,7 @@ pc_from_shapes.cpp\
 pc_from_table.cpp\
 pc_merge.cpp\
 pc_reclass_extract.cpp\
+pc_support_tool_chains.cpp\
 pc_thinning_simple.cpp\
 pc_to_grid.cpp\
 pc_to_shapes.cpp\
@@ -35,6 +36,7 @@ pc_from_shapes.h\
 pc_from_table.h\
 pc_merge.h\
 pc_reclass_extract.h\
+pc_support_tool_chains.h\
 pc_thinning_simple.h\
 pc_to_grid.h\
 pc_to_shapes.h\
