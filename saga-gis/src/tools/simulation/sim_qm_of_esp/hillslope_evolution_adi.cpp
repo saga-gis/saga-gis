@@ -114,75 +114,76 @@ bool tridag(const CSG_Vector &a, const CSG_Vector &b, const CSG_Vector &c, const
 //---------------------------------------------------------
 CHillslope_Evolution_ADI::CHillslope_Evolution_ADI(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name	(_TL("Diffusive Hillslope Evolution (ADI)"));
+	Set_Name		(_TL("Diffusive Hillslope Evolution (ADI)"));
 
-	Set_Author	("O.Conrad (c) 2013");
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Simulation of diffusive hillslope evolution using an Alternating-Direction-Implicit (ADI) method.\n"
-		"\nReferences:\n"
-		"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p.\n"
+		"Simulation of diffusive hillslope evolution using an Alternating-Direction-Implicit (ADI) method."
 	));
 
+	Add_Reference("Pelletier, J.D.",
+		"2008", "Quantitative Modeling of Earth Surface Processes",
+		"Cambridge, 295p."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CHANNELS"	, _TL("Channel Mask"),
+	Parameters.Add_Grid("",
+		"CHANNELS"	, _TL("Channel Mask"),
 		_TL("use a zero value for hillslopes, any other value for channel cells."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "MODEL"		, _TL("Modelled Elevation"),
+	Parameters.Add_Grid("",
+		"MODEL"		, _TL("Modelled Elevation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DIFF"		, _TL("Elevation Difference"),
+	Parameters.Add_Grid("",
+		"DIFF"		, _TL("Elevation Difference"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "UPDATE"		, _TL("Update"),
+	Parameters.Add_Bool("DIFF",
+		"UPDATE"	, _TL("Update"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "KAPPA"		, _TL("Diffusivity [m2 / kyr]"),
+	Parameters.Add_Double("",
+		"KAPPA"		, _TL("Diffusivity [m2 / kyr]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+		10.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DURATION"	, _TL("Simulation Time [kyr]"),
+	Parameters.Add_Double("",
+		"DURATION"	, _TL("Simulation Time [kyr]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10000.0, 0.0, true
+		10000.0, 0.0, true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "TIMESTEP"	, _TL("Time Step"),
+	Parameters.Add_Choice("",
+		"TIMESTEP"	, _TL("Time Step"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("user defined"),
 			_TL("automatically")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DTIME"		, _TL("Time Step [kyr]"),
+	Parameters.Add_Double("TIMESTEP",
+		"DTIME"		, _TL("Time Step [kyr]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1000.0, 0.0, true
+		1000.0, 0.0, true
 	);
 }
 
@@ -196,15 +197,15 @@ int CHillslope_Evolution_ADI::On_Parameters_Enable(CSG_Parameters *pParameters, 
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIMESTEP") )
 	{
-		pParameters->Get_Parameter("DTIME")->Set_Enabled(pParameter->asInt() == 0);
+		pParameters->Set_Enabled("DTIME", pParameter->asInt() == 0);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIFF") )
 	{
-		pParameters->Get_Parameter("UPDATE")->Set_Enabled(pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("UPDATE", pParameter->asGrid() != NULL);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -244,18 +245,18 @@ bool CHillslope_Evolution_ADI::On_Execute(void)
 
 	if( dTime > nTime )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s: %s [%f]"), _TL("Warning"), _TL("Time step exceeds duration"), dTime), false);
+		Message_Add(CSG_String::Format("\n%s: %s [%f]", _TL("Warning"), _TL("Time step exceeds duration"), dTime), false);
 
 		dTime	= nTime;
 	}
 
-	Message_Add(CSG_String::Format(SG_T("\n%s: %f"), _TL("Time Step"), dTime), false);
-	Message_Add(CSG_String::Format(SG_T("\n%s: %d"), _TL("Steps"), (int)(nTime / dTime)), false);
+	Message_Add(CSG_String::Format("\n%s: %f", _TL("Time Step"), dTime), false);
+	Message_Add(CSG_String::Format("\n%s: %d", _TL("Steps"), (int)(nTime / dTime)), false);
 
 	//-----------------------------------------------------
 	for(double iTime=dTime; iTime<=nTime && Set_Progress(iTime, nTime); iTime+=dTime)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %.2f [%.2f]"), _TL("Simulation Time"), iTime, nTime));
+		Process_Set_Text(CSG_String::Format("%s: %.2f [%.2f]", _TL("Simulation Time"), iTime, nTime));
 
 		SG_UI_Progress_Lock(true);
 

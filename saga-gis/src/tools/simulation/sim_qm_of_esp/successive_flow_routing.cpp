@@ -71,48 +71,54 @@
 CSuccessive_Flow_Routing::CSuccessive_Flow_Routing(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Successive Flow Routing"));
+	Set_Name		(_TL("Successive Flow Routing"));
 
-	Set_Author	("O.Conrad (c) 2013");
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Calculation of flow accumulation, aka upslope contributing area, with the "
-		"multiple flow direction method after Freeman (1991).\n"
-		"\nReferences:\n"
-		"Freeman, G.T. (1991): Calculating catchment area with divergent flow based on a rectangular grid. "
-		"Computers & Geosciences, 17, pp.413-422.\n"
-		"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p.\n"
+		"Calculation of flow accumulation, aka upslope contributing area, "
+		"with the multiple flow direction method after Freeman (1991)."
 	));
 
+	Add_Reference("Freeman, G.T.",
+		"1991", "Calculating catchment area with divergent flow based on a rectangular grid",
+		"Computers & Geosciences, 17, pp.413-422."
+	);
+
+	Add_Reference("Pelletier, J.D.",
+		"2008", "Quantitative Modeling of Earth Surface Processes",
+		"Cambridge, 295p."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "FLOW"		, _TL("Flow"),
+	Parameters.Add_Grid("",
+		"FLOW"		, _TL("Flow"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ITERATIONS"	, _TL("Iterations"),
+	Parameters.Add_Int("",
+		"ITERATIONS", _TL("Iterations"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RUNOFF"		, _TL("Runoff"),
+	Parameters.Add_Double("",
+		"RUNOFF"	, _TL("Runoff"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MANNING"		, _TL("Manning's Roughness"),
+	Parameters.Add_Double("",
+		"MANNING"	, _TL("Manning's Roughness"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.2
+		0.2
 	);
 }
 
@@ -160,7 +166,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 	//-----------------------------------------------------
 	for(int Iteration=1; Iteration<=nIterations && Process_Get_Okay(); Iteration++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d [%d]"), _TL("Iteration"), Iteration, nIterations));
+		Process_Set_Text(CSG_String::Format("%s: %d [%d]", _TL("Iteration"), Iteration, nIterations));
 
 		SG_UI_Progress_Lock(true);
 

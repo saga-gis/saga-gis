@@ -77,7 +77,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Simulation") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2013") );
+		return( "O.Conrad (c) 2013" );
 
 	case TLB_INFO_Description:
 		return( _TW(
@@ -87,7 +87,7 @@ CSG_String Get_Info(int i)
 		));
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Simulation|Quantitative Modeling of Earth Surface Processes") );

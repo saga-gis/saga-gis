@@ -120,39 +120,42 @@ public:
 CFill_Sinks::CFill_Sinks(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Fill Sinks (QM of ESP)"));
+	Set_Name		(_TL("Fill Sinks (QM of ESP)"));
 
-	Set_Author	("O.Conrad (c) 2013");
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Filling in pits and flats in a DEM.\n"
-		"\nReferences:\n"
-		"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p.\n"
+		"Filling in pits and flats in a DEM."
 	));
 
+	Add_Reference("Pelletier, J.D.",
+		"2008", "Quantitative Modeling of Earth Surface Processes",
+		"Cambridge, 295p."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "FILLED"		, _TL("DEM without Sinks"),
+	Parameters.Add_Grid("",
+		"FILLED"	, _TL("DEM without Sinks"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SINKS"		, _TL("Sinks"),
+	Parameters.Add_Grid("",
+		"SINKS"		, _TL("Sinks"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DZFILL"		, _TL("Fill Increment"),
+	Parameters.Add_Double("",
+		"DZFILL"	, _TL("Fill Increment"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.01, 0.0000001, true
+		0.01, 0.0000001, true
 	);
 }
 
@@ -172,7 +175,7 @@ bool CFill_Sinks::On_Execute(void)
 	m_dzFill	= Parameters("DZFILL")->asDouble();
 
 	m_pDEM->Assign(pDEM);
-	m_pDEM->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pDEM->Get_Name(), _TL("No Sinks")));
+	m_pDEM->Set_Name(CSG_String::Format("%s [%s]", pDEM->Get_Name(), _TL("No Sinks")));
 
 	if( !Fill_Sinks() )
 	{

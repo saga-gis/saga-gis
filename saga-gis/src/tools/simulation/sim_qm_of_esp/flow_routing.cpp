@@ -71,45 +71,52 @@
 CFlow_Routing::CFlow_Routing(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Flow Accumulation (QM of ESP)"));
+	Set_Name		(_TL("Flow Accumulation (QM of ESP)"));
 
-	Set_Author	("O.Conrad (c) 2013");
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Calculation of flow accumulation, aka upslope contributing area, with the "
-		"multiple flow direction method after Freeman (1991).\n"
-		"\nReferences:\n"
-		"Freeman, G.T. (1991): Calculating catchment area with divergent flow based on a rectangular grid. Computers & Geosciences, 17, pp.413-422.\n"
-		"Pelletier, J.D. (2008): Quantitative Modeling of Earth Surface Processes. Cambridge, 295p.\n"
+		"Calculation of flow accumulation, aka upslope contributing area, "
+		"with the multiple flow direction method after Freeman (1991)."
 	));
 
+	Add_Reference("Freeman, G.T.",
+		"1991", "Calculating catchment area with divergent flow based on a rectangular grid",
+		"Computers & Geosciences, 17, pp.413-422."
+	);
+
+	Add_Reference("Pelletier, J.D.",
+		"2008", "Quantitative Modeling of Earth Surface Processes",
+		"Cambridge, 295p."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("DEM"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "FLOW"		, _TL("Contributing Area"),
+	Parameters.Add_Grid("",
+		"FLOW"		, _TL("Contributing Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "PREPROC"		, _TL("Preprocessing"),
+	Parameters.Add_Choice("",
+		"PREPROC"	, _TL("Preprocessing"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("none"),
 			_TL("fill sinks temporarily"),
 			_TL("fill sinks permanently")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DZFILL"		, _TL("Fill Increment"),
+	Parameters.Add_Double("",
+		"DZFILL"	, _TL("Fill Increment"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.01, 0.0000001, true
+		0.01, 0.0000001, true
 	);
 }
 
@@ -123,10 +130,10 @@ int CFlow_Routing::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PREPROC") )
 	{
-		pParameters->Get_Parameter("DZFILL")->Set_Enabled(pParameter->asInt() != 0);
+		pParameters->Set_Enabled("DZFILL", pParameter->asInt() != 0);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
