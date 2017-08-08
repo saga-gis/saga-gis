@@ -875,33 +875,23 @@ bool CSG_Colors::Load(const CSG_String &File_Name)
 	//-----------------------------------------------------
 	else // SAGA 1.x compatibility...
 	{
-		short		nColors;
+		short	nColors;
 
 		Stream.Seek_Start();
 		Stream.Read(&nColors, sizeof(short));
 
-		if( Stream.Length() == (int)(sizeof(short) + 3 * nColors) )
+		if( Stream.Length() == (int)(sizeof(short) + 3 * nColors) && Set_Count(nColors) )
 		{
-			BYTE	*R, *G, *B;
-
-			R	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-			G	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-			B	= (BYTE *)SG_Malloc(nColors * sizeof(BYTE));
-
-			Stream.Read(R, nColors * sizeof(BYTE));
-			Stream.Read(G, nColors * sizeof(BYTE));
-			Stream.Read(B, nColors * sizeof(BYTE));
-
-			Set_Count(nColors);
+			BYTE *R = (BYTE *)SG_Malloc(nColors * sizeof(BYTE)); Stream.Read(R, nColors * sizeof(BYTE));
+			BYTE *G = (BYTE *)SG_Malloc(nColors * sizeof(BYTE)); Stream.Read(G, nColors * sizeof(BYTE));
+			BYTE *B = (BYTE *)SG_Malloc(nColors * sizeof(BYTE)); Stream.Read(B, nColors * sizeof(BYTE));
 
 			for(int i=0; i<nColors; i++)
 			{
 				Set_Color(i, R[i], G[i], B[i]);
 			}
 
-			SG_Free(R);
-			SG_Free(G);
-			SG_Free(B);
+			SG_Free(R); SG_Free(G); SG_Free(B);
 
 			return( true );
 		}
@@ -992,7 +982,9 @@ bool CSG_Colors::Serialize(CSG_File &Stream, bool bSave, bool bBinary)
 			{
 				CSG_String	sLine;
 
-				if( Stream.Read_Line(sLine) && Set_Count(sLine.asInt()) )
+				while( Stream.Read_Line(sLine) && sLine.is_Empty() ) {}	// skip empty lines
+
+				if( Set_Count(sLine.asInt()) )
 				{
 					for(int i=0; i<Get_Count(); i++)
 					{
