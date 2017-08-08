@@ -497,7 +497,7 @@ void CSAGA_Frame::On_Quit(wxCommandEvent &WXUNUSED(event))
 //---------------------------------------------------------
 void CSAGA_Frame::On_Help(wxCommandEvent &WXUNUSED(event))
 {
-	if( !Open_WebBrowser(SG_T("http://sourceforge.net/apps/trac/saga-gis/wiki/WikiStart")) )
+	if( !Open_WebBrowser("https://sourceforge.net/p/saga-gis/wiki/Home/") )
 	{
 	//	DLG_Message_Show(_TL("Online Help"), _TL("SAGA Help"));
 	}
