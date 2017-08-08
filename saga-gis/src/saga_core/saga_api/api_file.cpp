@@ -281,13 +281,15 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
 	if( is_Reading() && Size > 0 )
 	{
-		CSG_Array	b(1, Size);
+		CSG_Array	b(sizeof(char), Size + 1);
 
 		size_t	 i	= Read(b.Get_Array(), b.Get_Value_Size(), Size);
 
 		if( i > 0 )
 		{
-			Buffer	= (const char *)b.Get_Array();
+			char	*s	= (char *)b.Get_Array(); s[Size] = '\0';
+
+			Buffer	= s;
 
 			return( i );
 		}
