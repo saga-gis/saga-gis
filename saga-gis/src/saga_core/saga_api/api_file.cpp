@@ -68,6 +68,7 @@
 #include <wx/wxcrtvararg.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
+#include <wx/log.h>
 
 #include "api_core.h"
 
@@ -511,6 +512,8 @@ CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode)
 //---------------------------------------------------------
 bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode)
 {
+	wxLogNull	logNo;	// suppress user notification dialog for invalid zip files
+
 	Close();
 
 	m_Mode	= Mode;
