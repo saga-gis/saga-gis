@@ -1035,7 +1035,7 @@ public:
 	virtual const CSG_String &		Get_File_Name		(void)	const	{	return( m_FileName );	}
 	virtual TSG_File_Type			Get_File_Type		(void)	const	{	return( SG_FILE_TYPE_NORMAL );	}
 
-	class wxStreamBase *			Get_Stream			(void)	const	{	return( m_pStream );	}
+	class wxStreamBase *			Get_Stream			(void)	const	{	return( (class wxStreamBase *)m_pStream );	}
 
 	int								Get_Encoding		(void)	const	{	return( m_Encoding );	}
 
@@ -1083,7 +1083,7 @@ protected:
 
 	CSG_String						m_FileName;
 
-	class wxStreamBase				*m_pStream;
+	void							*m_pStream;
 
 };
 

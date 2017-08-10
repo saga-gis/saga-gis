@@ -607,8 +607,6 @@ bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Data_Type File_Type, s
 //---------------------------------------------------------
 bool CSG_Grid::_Cache_Create(void)
 {
-	TSG_Grid_Line	Line;
-
 	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
 	{
 		m_Cache_Path	= SG_File_Get_Name_Temp("sg_grd", SG_Grid_Cache_Get_Directory());
@@ -627,7 +625,7 @@ bool CSG_Grid::_Cache_Create(void)
 
 			if( m_Values )
 			{
-				Line.Data	= (char *)SG_Malloc(Get_nLineBytes());
+				TSG_Grid_Line	Line;	Line.Data	= (char *)SG_Malloc(Get_nLineBytes());
 
 				for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
 				{
@@ -654,9 +652,6 @@ bool CSG_Grid::_Cache_Create(void)
 //---------------------------------------------------------
 bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 {
-	int				y;
-	TSG_Grid_Line	*pLine;
-
 	if( is_Valid() && m_Memory_Type == GRID_MEMORY_Cache )
 	{
 		m_Memory_bLock	= true;
@@ -668,9 +663,11 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 
 		if( bMemory_Restore && _Array_Create() )
 		{
-			for(y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
+				TSG_Grid_Line	*pLine	= _LineBuffer_Get_Line(y);
+
+				if( pLine )
 				{
 					memcpy(m_Values[y], pLine->Data, Get_nLineBytes());
 				}
