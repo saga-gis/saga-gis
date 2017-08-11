@@ -143,8 +143,8 @@ bool	Config_Create	(wxConfigBase *pConfig)
 	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(";"));	// additional tool library paths (aka SAGA_MLB)
 
 	Config_Write(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , SG_Grid_Cache_Get_Directory   ());
-	Config_Write(pConfig,  "DATA", "GRID_CACHE_AUTO"     , SG_Grid_Cache_Get_Automatic   ());
-	Config_Write(pConfig,  "DATA", "GRID_CACHE_THRSHLD"  , SG_Grid_Cache_Get_Threshold_MB());
+	Config_Write(pConfig,  "DATA", "GRID_CACHE_MODE"     , SG_Grid_Cache_Get_Mode        ());
+	Config_Write(pConfig,  "DATA", "GRID_CACHE_THRESHLOD", SG_Grid_Cache_Get_Threshold_MB());
 	Config_Write(pConfig,  "DATA", "GRID_COORD_PRECISION", CSG_Grid_System::Get_Precision());
 	Config_Write(pConfig,  "DATA", "HISTORY_DEPTH"       , SG_Get_History_Depth());
 	Config_Write(pConfig,  "DATA", "HISTORY_LISTS"       , SG_Get_History_Ignore_Lists() != 0);
@@ -200,8 +200,8 @@ bool	Config_Load		(wxConfigBase *pConfig)
 
 	//-----------------------------------------------------
 	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , sValue) )	{	SG_Grid_Cache_Set_Directory   (sValue);	}
-	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_AUTO"     , bValue) )	{	SG_Grid_Cache_Set_Automatic   (bValue);	}
-	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_THRSHLD"  , dValue) )	{	SG_Grid_Cache_Set_Threshold_MB(dValue);	}
+	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_MODE"     , iValue) )	{	SG_Grid_Cache_Set_Mode        (iValue);	}
+	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_THRESHLOD", dValue) )	{	SG_Grid_Cache_Set_Threshold_MB(dValue);	}
 
 	if( Config_Read(pConfig,  "DATA", "GRID_COORD_PRECISION", iValue) )	{	CSG_Grid_System::Set_Precision(iValue);	}
 
