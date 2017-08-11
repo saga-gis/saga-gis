@@ -160,7 +160,7 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_External(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLoadData)
 {
 	bool	bResult	= false;
 
@@ -207,7 +207,7 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, TSG_Grid_Memory_Type M
 	{
 		CSG_Grid	*pGrid	= (CSG_Grid *)Data.Get_Grid_System(0)->Get(0);
 
-		if( pGrid->is_Cached() || pGrid->is_Compressed() )
+		if( pGrid->is_Cached() )
 		{
 			return( Create(*pGrid) );
 		}
@@ -237,7 +237,7 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, TSG_Grid_Memory_Type M
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadData)
 {
 	bool	bResult	= false;
 
@@ -307,7 +307,7 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, TSG_Grid_Memory_Type Memo
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Native(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoadData)
 {
 	CSG_Grid_File_Info	Info;
 
@@ -328,11 +328,14 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 	m_zScale		= Info.m_zScale;
 	m_zOffset		= Info.m_zOffset;
 
+	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
+	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+
 	Get_Projection().Load(SG_File_Make_Path("", FileName, "prj"), SG_PROJ_FMT_WKT);
 
 	if( !bLoadData )
 	{
-		return( _Memory_Create(Memory_Type) );
+		return( _Memory_Create(bCached) );
 	}
 
 	Load_MetaData(FileName);
@@ -348,30 +351,29 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 		{
 			Stream.Seek(Info.m_Offset);
 
-			return( _Load_ASCII(Stream, Memory_Type, Info.m_bFlip) );
+			return( _Load_ASCII(Stream, bCached, Info.m_bFlip) );
 		}
 	}
 
 	//-----------------------------------------------------
 	else	// Binary...
 	{
-		sLong	Cache	= _Cache_Check();
-
-		if( Cache > 0 )
+		if(	_Cache_Check() )
 		{
-			Set_Buffer_Size(Cache);
-
 			if( _Cache_Create(Info.m_Data_File                       , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
 			||	_Cache_Create(SG_File_Make_Path("", FileName,  "dat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
 			||	_Cache_Create(SG_File_Make_Path("", FileName, "sdat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip) )
 			{
 				return( true );
 			}
-
-			Memory_Type	= GRID_MEMORY_Cache;
 		}
 
-		if( _Memory_Create(Memory_Type) )
+		m_Cache_File	= Info.m_Data_File;
+		m_Cache_Offset	= Info.m_Offset;
+		m_Cache_bSwap	= Info.m_bSwapBytes;
+		m_Cache_bFlip	= Info.m_bFlip;
+
+		if( _Memory_Create(bCached) )
 		{
 			if(	Stream.Open(Info.m_Data_File                       , SG_FILE_R, true)
 			||	Stream.Open(SG_File_Make_Path("", FileName,  "dat"), SG_FILE_R, true)
@@ -425,7 +427,7 @@ bool CSG_Grid::_Save_Native(const CSG_String &FileName, bool bBinary)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool bLoadData)
 {
 	Set_File_Name(_FileName, true);
 
@@ -456,6 +458,9 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, TSG_Grid_Memory_Typ
 	m_zScale		= Info.m_zScale;
 	m_zOffset		= Info.m_zOffset;
 
+	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
+	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+
 	if( Stream.Get_File(FileName + "prj") )
 	{
 		Get_Projection().Load(Stream, SG_PROJ_FMT_WKT);
@@ -463,7 +468,7 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, TSG_Grid_Memory_Typ
 
 	if( !bLoadData )
 	{
-		return( _Memory_Create(Memory_Type) );
+		return( _Memory_Create(bCached) );
 	}
 
 	if( Stream.Get_File(FileName + "mgrd") )
@@ -472,15 +477,12 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, TSG_Grid_Memory_Typ
 	}
 
 	//-----------------------------------------------------
-	sLong	Cache	= _Cache_Check();
-
-	if( Cache > 0 )
+	if( _Cache_Check() )
 	{
-		Set_Buffer_Size(Cache);
-		Memory_Type	= GRID_MEMORY_Cache;
+		bCached	= true;
 	}
 
-	return( Stream.Get_File(FileName + "sdat") && _Memory_Create(Memory_Type)
+	return( Stream.Get_File(FileName + "sdat") && _Memory_Create(bCached)
 		&& _Load_Binary(Stream, m_Type, Info.m_bFlip, Info.m_bSwapBytes)
 	);
 }
@@ -557,7 +559,7 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 	{
 		int	nLineBytes	= Get_NX() / 8 + 1;
 
-		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
+		if( m_Type == File_Type && !is_Cached() )
 		{
 			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
@@ -591,7 +593,7 @@ bool CSG_Grid::_Load_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 		int	nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
 		int	nLineBytes	= Get_NX() * nValueBytes;
 
-		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
+		if( m_Type == File_Type && !is_Cached() && !bSwapBytes )
 		{
 			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
@@ -652,7 +654,7 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 	{
 		int	nLineBytes	= Get_NX() / 8 + 1;
 
-		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal )
+		if( m_Type == File_Type && !is_Cached() )
 		{
 			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
@@ -686,7 +688,7 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 		int	nValueBytes	= (int)SG_Data_Type_Get_Size(File_Type);
 		int	nLineBytes	= Get_NX() * nValueBytes;
 
-		if( m_Type == File_Type && m_Memory_Type == GRID_MEMORY_Normal && !bSwapBytes )
+		if( m_Type == File_Type && !is_Cached() && !bSwapBytes )
 		{
 			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
@@ -739,9 +741,9 @@ bool CSG_Grid::_Save_Binary(CSG_File &Stream, TSG_Data_Type File_Type, bool bFli
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_ASCII(CSG_File &Stream, TSG_Grid_Memory_Type Memory_Type, bool bFlip)
+bool CSG_Grid::_Load_ASCII(CSG_File &Stream, bool bCached, bool bFlip)
 {
-	if( !Stream.is_Reading() || !_Memory_Create(Memory_Type) )
+	if( !Stream.is_Reading() || !_Memory_Create(bCached) )
 	{
 		return( false );
 	}
@@ -788,7 +790,7 @@ bool CSG_Grid::_Save_ASCII(CSG_File &Stream, bool bFlip)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, TSG_Grid_Memory_Type Memory_Type, bool bLoadData)
+bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoadData)
 {
 	const float	NoData	= 1.70141e38f;
 
@@ -831,7 +833,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 	//	d	= (r.yMax - r.yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
-		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, Memory_Type) || Stream.is_EOF() )
+		if( !Create(SG_DATATYPE_Float, nx, ny, d, r.xMin, r.yMin, bCached) || Stream.is_EOF() )
 		{
 			return( false );
 		}
@@ -878,7 +880,7 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, TSG_Grid_Memory_Type Mem
 	//	dy	= (yMax - yMin) / (ny - 1.0);	// we could proof for equal cellsize in direction of y...
 
 		//-------------------------------------------------
-		if( !Create(SG_DATATYPE_Float, nx, ny, dx, xMin, yMin, Memory_Type) || Stream.is_EOF() )
+		if( !Create(SG_DATATYPE_Float, nx, ny, dx, xMin, yMin, bCached) || Stream.is_EOF() )
 		{
 			return( false );
 		}

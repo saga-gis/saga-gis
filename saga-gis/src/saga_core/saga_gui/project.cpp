@@ -683,9 +683,8 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 				{
 					switch( Entry["PARAMETERS"][i].Get_Property("index", Memory) ? Memory : 0 )
 					{
-					default:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Normal     ));	break;
-					case  1:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Compression));	break;
-					case  2:	pItem	= g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, GRID_MEMORY_Cache      ));	break;
+					case  0: pItem = g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined, false)); break;
+					default: pItem = g_pData->Add(SG_Create_Grid(&File, SG_DATATYPE_Undefined,  true)); break;
 					}
 				}
 			}

@@ -91,29 +91,16 @@ void				SG_Grid_Cache_Set_Directory(const SG_Char *Directory)
 }
 
 //---------------------------------------------------------
-static bool			gSG_Grid_Cache_bAutomatic	= false;
+static int			gSG_Grid_Cache_Mode	= 0;
 
-void				SG_Grid_Cache_Set_Automatic(bool bOn)
+void				SG_Grid_Cache_Set_Mode(int Mode)
 {
-	gSG_Grid_Cache_bAutomatic	= bOn;
+	gSG_Grid_Cache_Mode	= Mode;
 }
 
-bool				SG_Grid_Cache_Get_Automatic(void)
+int					SG_Grid_Cache_Get_Mode(void)
 {
-	return( gSG_Grid_Cache_bAutomatic );
-}
-
-//---------------------------------------------------------
-static int			gSG_Grid_Cache_Confirm		= 2;
-
-void				SG_Grid_Cache_Set_Confirm(int Confirm)
-{
-	gSG_Grid_Cache_Confirm		= Confirm;
-}
-
-int					SG_Grid_Cache_Get_Confirm(void)
-{
-	return( gSG_Grid_Cache_Confirm );
+	return( gSG_Grid_Cache_Mode );
 }
 
 //---------------------------------------------------------
@@ -145,65 +132,12 @@ double				SG_Grid_Cache_Get_Threshold_MB(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-sLong CSG_Grid::_Cache_Check(void)
-{
-	int	nValueBytes	= Get_nValueBytes();
-
-	if(	SG_Grid_Cache_Get_Automatic() && (m_System.Get_NCells() * nValueBytes) > SG_Grid_Cache_Get_Threshold() )
-	{
-		switch( SG_Grid_Cache_Get_Confirm() )
-		{
-		case 1:	{
-			CSG_String	s;
-
-			s.Printf("%s\n%s\n%s: %.2fMB",
-				_TL("Shall I activate file caching for new grid."),
-				m_System.Get_Name(),
-				_TL("Total memory size"),
-				(m_System.Get_NCells() * nValueBytes) / (double)N_MEGABYTE_BYTES
-			);
-
-			if( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) )
-			{
-				return( SG_Grid_Cache_Get_Threshold() );
-			}
-		}	break;
-
-		case 2:	{
-			CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
-
-			p.Add_Double("", "BUFFERSIZE", _TL("Buffer Size [MB]"), "",
-				SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
-			);
-
-			if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
-			{
-				return( (sLong)(p("BUFFERSIZE")->asDouble() * N_MEGABYTE_BYTES) );
-			}
-		}	break;
-
-		default:
-			break;
-		}
-	}
-
-	return( 0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //						Memory							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
+bool CSG_Grid::_Memory_Create(bool bCached)
 {
 	if( !m_System.is_Valid() || m_Type == SG_DATATYPE_Undefined )
 	{
@@ -212,57 +146,12 @@ bool CSG_Grid::_Memory_Create(TSG_Grid_Memory_Type Memory_Type)
 
 	_Memory_Destroy();
 
-	Set_Buffer_Size(gSG_Grid_Cache_Threshold);
-
-	if(	Memory_Type != GRID_MEMORY_Cache && gSG_Grid_Cache_bAutomatic && Get_Memory_Size() > gSG_Grid_Cache_Threshold )
+	if(	bCached || _Cache_Check() )
 	{
-		switch( gSG_Grid_Cache_Confirm )
-		{
-		case 1:	{
-			CSG_String	s;
-
-			s.Printf("%s\n%s\n%s: %.2fMB",
-				_TL("Shall I activate file caching for new grid."),
-				m_System.Get_Name(),
-				_TL("Total memory size"),
-				Get_Memory_Size_MB()
-			);
-
-			if( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) )
-			{
-				Memory_Type	= GRID_MEMORY_Cache;
-			}
-		}	break;
-
-		case 2:	{
-			CSG_Parameters	p(NULL, _TL("Activate Grid File Cache?"), SG_T(""));
-
-			p.Add_Double("", "BUFFERSIZE", _TL("Buffer Size [MB]"), "",
-				SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
-			);
-
-			if( SG_UI_Dlg_Parameters(&p, _TL("Activate Grid File Cache?")) )
-			{
-				Memory_Type	= GRID_MEMORY_Cache;
-
-				Set_Buffer_Size((sLong)(p("BUFFERSIZE")->asDouble() * N_MEGABYTE_BYTES));
-			}
-		}	break;
-
-		default:
-			Memory_Type	= GRID_MEMORY_Cache;
-			break;
-		}
+		return( _Cache_Create() );
 	}
 
-	//-------------------------------------------------
-	switch( Memory_Type )
-	{
-	default:
-	case GRID_MEMORY_Normal     : return( _Array_Create() );
-	case GRID_MEMORY_Cache      : return( _Cache_Create() );
-	case GRID_MEMORY_Compression: return( _Compr_Create() );
-	}
+	return( _Array_Create() );
 }
 
 //---------------------------------------------------------
@@ -270,235 +159,12 @@ void CSG_Grid::_Memory_Destroy(void)
 {
 	SG_FREE_SAFE(m_Index);
 
-	switch( m_Memory_Type )
+	if( is_Cached() )
 	{
-	default:
-	case GRID_MEMORY_Normal     : _Array_Destroy(     ); break;
-	case GRID_MEMORY_Cache      : _Cache_Destroy(false); break;
-	case GRID_MEMORY_Compression: _Compr_Destroy(false); break;
+		_Cache_Destroy(false);
 	}
 
-	_LineBuffer_Destroy();
-
-	m_Memory_Type	= GRID_MEMORY_Normal;
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//						LineBuffer						 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CSG_Grid::_LineBuffer_Create(void)
-{
-	_LineBuffer_Destroy();
-
-	m_LineBuffer	= (TSG_Grid_Line *)SG_Malloc(m_LineBuffer_Count * sizeof(TSG_Grid_Line));
-
-	for(int i=0; i<m_LineBuffer_Count; i++)
-	{
-		m_LineBuffer[i].Data		= (char *)SG_Malloc(Get_nLineBytes());
-		m_LineBuffer[i].y			= -1;
-		m_LineBuffer[i].bModified	= false;
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Grid::_LineBuffer_Destroy(void)
-{
-	if( m_LineBuffer )
-	{
-		for(int i=0; i<m_LineBuffer_Count; i++)
-		{
-			if( m_LineBuffer[i].Data )
-			{
-				SG_Free(m_LineBuffer[i].Data);
-			}
-		}
-
-		SG_FREE_SAFE(m_LineBuffer);
-	}
-}
-
-//---------------------------------------------------------
-bool CSG_Grid::Set_Buffer_Size(sLong nBytes)
-{
-	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined )
-	{
-		int	nLines	= (int)(nBytes / Get_nLineBytes());
-
-		if( nLines < 1 )
-		{
-			nLines	= 1;
-		}
-		else if( nLines >= Get_NY() )
-		{
-			nLines	= Get_NY() - 1;
-		}
-
-		if( nLines != m_LineBuffer_Count )
-		{
-			if( m_LineBuffer )
-			{
-				if( nLines > m_LineBuffer_Count )
-				{
-					m_LineBuffer	= (TSG_Grid_Line *)SG_Realloc(m_LineBuffer, nLines * sizeof(TSG_Grid_Line));
-
-					for(int i=m_LineBuffer_Count; i<nLines; i++)
-					{
-						m_LineBuffer[i].Data		= (char *)SG_Malloc(Get_nLineBytes());
-						m_LineBuffer[i].y			= -1;
-						m_LineBuffer[i].bModified	= false;
-					}
-				}
-				else
-				{
-					for(int i=nLines; i<m_LineBuffer_Count; i++)
-					{
-						if( m_LineBuffer[i].Data )
-						{
-							SG_Free(m_LineBuffer[i].Data);
-						}
-					}
-
-					m_LineBuffer	= (TSG_Grid_Line *)SG_Realloc(m_LineBuffer, nLines * sizeof(TSG_Grid_Line));
-				}
-			}
-
-			m_LineBuffer_Count	= nLines;
-		}
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-void CSG_Grid::_LineBuffer_Flush(void)
-{
-	if( m_LineBuffer )
-	{
-		for(int i=0; i<m_LineBuffer_Count; i++)
-		{
-			switch( m_Memory_Type )
-			{
-			case GRID_MEMORY_Cache      : _Cache_LineBuffer_Save(m_LineBuffer + i); break;
-			case GRID_MEMORY_Compression: _Compr_LineBuffer_Save(m_LineBuffer + i); break;
-			default:	break;
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------
-CSG_Grid::TSG_Grid_Line * CSG_Grid::_LineBuffer_Get_Line(int y) const
-{
-	if( !m_LineBuffer || y < 0 || y >= Get_NY() )
-	{
-		return( NULL );
-	}
-
-	//-----------------------------------------------------
-	if( y != m_LineBuffer[0].y )
-	{
-		int		i, iLine;
-
-		for(i=1, iLine=0; i<m_LineBuffer_Count && !iLine; i++)
-		{
-			if( y == m_LineBuffer[i].y )
-			{
-				iLine	= i;
-			}
-		}
-
-		//-------------------------------------------------
-		if( !iLine )
-		{
-			iLine	= m_LineBuffer_Count - 1;
-
-			switch( m_Memory_Type )
-			{
-			case GRID_MEMORY_Cache:
-				_Cache_LineBuffer_Save(m_LineBuffer + iLine);
-				_Cache_LineBuffer_Load(m_LineBuffer + iLine, y);
-				break;
-
-			case GRID_MEMORY_Compression:
-				_Compr_LineBuffer_Save(m_LineBuffer + iLine);
-				_Compr_LineBuffer_Load(m_LineBuffer + iLine, y);
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		//-------------------------------------------------
-		TSG_Grid_Line	tmp_Line	= m_LineBuffer[iLine];
-
-		for(i=iLine; i>0; i--)
-		{
-			m_LineBuffer[i]	= m_LineBuffer[i - 1];
-		}	// memmove(m_LineBuffer + 1, m_LineBuffer, (iLine - 1) * sizeof(TSG_Grid_Line));
-
-		m_LineBuffer[0]	= tmp_Line;
-	}
-
-	//-----------------------------------------------------
-	return( m_LineBuffer );
-}
-
-//---------------------------------------------------------
-void CSG_Grid::_LineBuffer_Set_Value(int x, int y, double Value)
-{
-	TSG_Grid_Line	*pLine;
-
-	if( (pLine = _LineBuffer_Get_Line(y)) != NULL )
-	{
-		switch( m_Type )
-		{
-		case SG_DATATYPE_Byte  : ((BYTE   *)pLine->Data)[x] = (BYTE  )Value; break;
-		case SG_DATATYPE_Char  : ((char   *)pLine->Data)[x] = (char  )Value; break;
-		case SG_DATATYPE_Word  : ((WORD   *)pLine->Data)[x] = (WORD  )Value; break;
-		case SG_DATATYPE_Short : ((short  *)pLine->Data)[x] = (short )Value; break;
-		case SG_DATATYPE_DWord : ((DWORD  *)pLine->Data)[x] = (DWORD )Value; break;
-		case SG_DATATYPE_Int   : ((int    *)pLine->Data)[x] = (int   )Value; break;
-		case SG_DATATYPE_Long  : ((sLong  *)pLine->Data)[x] = (int   )Value; break;
-		case SG_DATATYPE_Float : ((float  *)pLine->Data)[x] = (float )Value; break;
-		case SG_DATATYPE_Double: ((double *)pLine->Data)[x] = (double)Value; break;
-		default:	break;
-		}
-
-		pLine->bModified	= true;
-	}
-}
-
-//---------------------------------------------------------
-double CSG_Grid::_LineBuffer_Get_Value(int x, int y) const
-{
-	TSG_Grid_Line	*pLine	= _LineBuffer_Get_Line(y);
-
-	if( pLine )
-	{
-		switch( m_Type )
-		{
-		case SG_DATATYPE_Byte  : return( (double)((BYTE   *)pLine->Data)[x] );
-		case SG_DATATYPE_Char  : return( (double)((char   *)pLine->Data)[x] );
-		case SG_DATATYPE_Word  : return( (double)((WORD   *)pLine->Data)[x] );
-		case SG_DATATYPE_Short : return( (double)((short  *)pLine->Data)[x] );
-		case SG_DATATYPE_DWord : return( (double)((DWORD  *)pLine->Data)[x] );
-		case SG_DATATYPE_Int   : return( (double)((int    *)pLine->Data)[x] );
-		case SG_DATATYPE_Long  : return( (double)((sLong  *)pLine->Data)[x] );
-		case SG_DATATYPE_Float : return( (double)((float  *)pLine->Data)[x] );
-		case SG_DATATYPE_Double: return( (double)((double *)pLine->Data)[x] );
-		default:	break;
-		}
-	}
-
-	return( 0.0 );
+	_Array_Destroy();
 }
 
 
@@ -517,13 +183,12 @@ bool CSG_Grid::_Array_Create(void)
 
 		if( (m_Values = (void **)SG_Malloc(Get_NY() * sizeof(void *))) != NULL )
 		{		
-			if( (m_Values[0] = (void  *)SG_Calloc(Get_NY(), _Get_nLineBytes())) != NULL )
+			if( (m_Values[0] = (void  *)SG_Calloc(Get_NY(), Get_nLineBytes())) != NULL )
 			{
 				char	*pLine	= (char *)m_Values[0];
 
-				for(int y=1; y<Get_NY(); y++)
+				for(int y=0; y<Get_NY(); y++, pLine+=Get_nLineBytes())
 				{
-					pLine		+=_Get_nLineBytes();
 					m_Values[y]	 = pLine;
 				}
 
@@ -535,7 +200,7 @@ bool CSG_Grid::_Array_Create(void)
 			m_Values	= NULL;
 		}
 
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s [%.2fmb]", _TL("grid"), _TL("memory allocation failed"), Get_NY() * _Get_nLineBytes() / (double)N_MEGABYTE_BYTES));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s [%.2fmb]", _TL("grid"), _TL("memory allocation failed"), Get_NY() * Get_nLineBytes() / (double)N_MEGABYTE_BYTES));
 	}
 
 	return( false );
@@ -561,132 +226,54 @@ void CSG_Grid::_Array_Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define CACHE_FILE_POS(x, y)	(m_Cache_Offset + (m_Cache_bFlip ? Get_NY() - 1 - y : y) * m_nBytes_Line + x * m_nBytes_Value)
+
+//---------------------------------------------------------
+#if defined(_SAGA_LINUX)
+#define CACHE_FILE_SEEK	fseek
+#else
+#define CACHE_FILE_SEEK	_fseeki64
+#endif
+
+//---------------------------------------------------------
 bool CSG_Grid::Set_Cache(bool bOn)
 {
-	return( bOn ? _Cache_Create() : _Cache_Destroy(true) );
+	if( bOn )
+	{
+		return( _Cache_Create(m_Cache_File                                  , m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			||  _Cache_Create(SG_File_Make_Path("", Get_File_Name(),  "dat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			||  _Cache_Create(SG_File_Make_Path("", Get_File_Name(), "sdat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			||  _Cache_Create()
+		);
+	}
+
+	return( _Cache_Destroy(true) );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Cache: Create / Destroy					 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid::_Cache_Create(const SG_Char *FilePath, TSG_Data_Type File_Type, sLong Offset, bool bSwap, bool bFlip)
+bool CSG_Grid::_Cache_Check(void)
 {
-	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
+	sLong	nBytes	= m_System.Get_NCells() * Get_nValueBytes();
+
+	if(	SG_Grid_Cache_Get_Mode() > 0 && nBytes > SG_Grid_Cache_Get_Threshold() )
 	{
-		m_Cache_Path	= FilePath;
-
-		if( m_Type == File_Type
-		&&	(	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_RW, true)
-			||	m_Cache_Stream.Open(m_Cache_Path, SG_FILE_R , true)) )
+		if( SG_Grid_Cache_Get_Mode() == 2 )	// confirm
 		{
-			m_Memory_bLock	= true;
+			CSG_String	s;
 
-			m_Cache_bTemp	= false;
+			s.Printf("%s\n%s\n%s: %.2fMB",
+				_TL("Shall I activate file caching for new grid."),
+				m_System.Get_Name(),
+				_TL("Total memory size"),
+				(double)nBytes / (double)N_MEGABYTE_BYTES
+			);
 
-			m_Cache_Offset	= Offset;
-			m_Cache_bSwap	= bSwap;
-			m_Cache_bFlip	= bFlip;
-
-			_LineBuffer_Create();
-
-			m_Memory_bLock	= false;
-			m_Memory_Type	= GRID_MEMORY_Cache;
-
-			_Array_Destroy();
-		}
-	}
-
-	return( is_Cached() );
-}
-
-//---------------------------------------------------------
-bool CSG_Grid::_Cache_Create(void)
-{
-	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
-	{
-		m_Cache_Path	= SG_File_Get_Name_Temp("sg_grd", SG_Grid_Cache_Get_Directory());
-
-		if( m_Cache_Stream.Open(m_Cache_Path, SG_FILE_RW, true) )
-		{
-			m_Memory_bLock	= true;
-
-			m_Cache_bTemp	= true;
-
-			m_Cache_Offset	= 0;
-			m_Cache_bSwap	= false;
-			m_Cache_bFlip	= false;
-
-			_LineBuffer_Create();
-
-			if( m_Values )
-			{
-				TSG_Grid_Line	Line;	Line.Data	= (char *)SG_Malloc(Get_nLineBytes());
-
-				for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
-				{
-					Line.bModified	= true;
-					memcpy(Line.Data, m_Values[Line.y], Get_nLineBytes());
-					_Cache_LineBuffer_Save(&Line);
-				}
-
-				SG_Free(Line.Data);
-
-				_Array_Destroy();
-
-				SG_UI_Process_Set_Ready();
-			}
-
-			m_Memory_bLock	= false;
-			m_Memory_Type	= GRID_MEMORY_Cache;
-		}
-	}
-
-	return( is_Cached() );
-}
-
-//---------------------------------------------------------
-bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
-{
-	if( is_Valid() && m_Memory_Type == GRID_MEMORY_Cache )
-	{
-		m_Memory_bLock	= true;
-
-		if( !m_Cache_bTemp )
-		{
-			_LineBuffer_Flush();
-		}
-
-		if( bMemory_Restore && _Array_Create() )
-		{
-			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-			{
-				TSG_Grid_Line	*pLine	= _LineBuffer_Get_Line(y);
-
-				if( pLine )
-				{
-					memcpy(m_Values[y], pLine->Data, Get_nLineBytes());
-				}
-			}
-
-			SG_UI_Process_Set_Ready();
-		}
-
-		_LineBuffer_Destroy();
-
-		m_Memory_bLock	= false;
-		m_Memory_Type	= GRID_MEMORY_Normal;
-
-		//-------------------------------------------------
-		m_Cache_Stream.Close();
-
-		if( m_Cache_bTemp )
-		{
-			SG_File_Delete(m_Cache_Path);
+			return( SG_UI_Dlg_Continue(s, _TL("Activate Grid File Cache?")) );
 		}
 
 		return( true );
@@ -698,393 +285,179 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					Cache: Save / Load					 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Cache_LineBuffer_Save(TSG_Grid_Line *pLine) const
+bool CSG_Grid::_Cache_Create(const CSG_String &File, TSG_Data_Type Data_Type, sLong Offset, bool bSwap, bool bFlip)	// open existing file for caching
 {
-	if( pLine && pLine->bModified )
-	{
-		pLine->bModified	= false;
-
-		if( pLine->y >= 0 && pLine->y < Get_NY() )
-		{
-			sLong	Line_Y		= m_Cache_bFlip ? Get_NY() - 1 - pLine->y : pLine->y;
-			sLong	Line_Size	= Get_nLineBytes();
-			sLong	Line_Pos	= m_Cache_Offset + Line_Y * Line_Size;
-
-			//-------------------------------------------------
-			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
-			{
-				char	*pValue	= pLine->Data;
-
-				for(int x=0; x<Get_NX(); x++, pValue+=Get_nValueBytes())
-				{
-					_Swap_Bytes(pValue, Get_nValueBytes());
-				}
-			}
-
-			m_Cache_Stream.Seek(Line_Pos);
-			m_Cache_Stream.Write(pLine->Data, sizeof(char), (size_t)Line_Size);
-
-			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
-			{
-				char	*pValue	= pLine->Data;
-
-				for(int x=0; x<Get_NX(); x++, pValue+=Get_nValueBytes())
-				{
-					_Swap_Bytes(pValue, Get_nValueBytes());
-				}
-			}
-		}
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Grid::_Cache_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
-{
-	if( pLine )
-	{
-		pLine->bModified	= false;
-		pLine->y			= y;
-
-		if( pLine->y >= 0 && pLine->y < Get_NY() )
-		{
-			sLong	Line_Y		= m_Cache_bFlip ? Get_NY() - 1 - pLine->y : pLine->y;
-			sLong	Line_Size	= Get_nLineBytes();
-			sLong	Line_Pos	= m_Cache_Offset + Line_Y * Line_Size;
-
-			//-------------------------------------------------
-			m_Cache_Stream.Seek(Line_Pos);
-			m_Cache_Stream.Read(pLine->Data, sizeof(char), (size_t)Line_Size);
-
-			if( m_Cache_bSwap && m_Type != SG_DATATYPE_Bit )
-			{
-				char	*pValue	= pLine->Data;
-
-				for(int x=0; x<Get_NX(); x++, pValue+=Get_nValueBytes())
-				{
-					_Swap_Bytes(pValue, Get_nValueBytes());
-				}
-			}
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					RTL - Compression					 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Grid::Set_Compression(bool bOn)
-{
-	return( bOn ? _Compr_Create() : _Compr_Destroy(true) );
-}
-
-//---------------------------------------------------------
-double CSG_Grid::Get_Compression_Ratio(void) const
-{
-	if( is_Valid() && is_Compressed() )
-	{
-		sLong	nCompressed	= 0;
-
-		for(int y=0; y<Get_NY(); y++)
-		{
-			nCompressed	+= *((int *)m_Values[y]);
-		}
-
-		return( (double)nCompressed / (double)(Get_NCells() * Get_nValueBytes()) );
-	}
-
-	return( 1.0 );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			RTL - Compression: Create / Destroy			 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CSG_Grid::_Compr_Create(void)
-{
-	TSG_Grid_Line	Line;
-
-	if( m_System.is_Valid() && m_Type != SG_DATATYPE_Undefined && m_Memory_Type == GRID_MEMORY_Normal )
-	{
-		m_Memory_bLock	= true;
-
-		Line.Data		= (char *)SG_Calloc(1, _Get_nLineBytes());
-
-		if( m_Values )	// compress loaded data...
-		{
-			void	**Values	= m_Values;
-			
-			m_Values	= (void **)SG_Calloc(Get_NY(), sizeof(void *));
-
-			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
-			{
-				memcpy(Line.Data, Values[Line.y], Get_nLineBytes());
-				Line.bModified	= true;
-				_Compr_LineBuffer_Save(&Line);
-			}
-
-			SG_Free(Values[0]);
-			SG_Free(Values);
-		}
-		else			// create empty grid...
-		{
-			m_Values	= (void **)SG_Malloc(Get_NY() * sizeof(void *));
-
-			for(Line.y=0; Line.y<Get_NY() && SG_UI_Process_Set_Progress(Line.y, Get_NY()); Line.y++)
-			{
-				m_Values[Line.y]	= (void *)SG_Calloc(1, Get_nLineBytes());
-				Line.bModified	= true;
-				_Compr_LineBuffer_Save(&Line);
-			}
-		}
-
-		SG_Free(Line.Data);
-
-		_LineBuffer_Create();
-
-		m_Memory_bLock	= false;
-		m_Memory_Type	= GRID_MEMORY_Compression;
-
-		SG_UI_Process_Set_Ready();
-	}
-
-	return( is_Compressed() );
-}
-
-//---------------------------------------------------------
-bool CSG_Grid::_Compr_Destroy(bool bMemory_Restore)
-{
-	TSG_Grid_Line	Line;
-
-	if( !is_Valid() || m_Memory_Type != GRID_MEMORY_Compression )
+	if( !m_System.is_Valid() || m_Type != Data_Type || !SG_File_Exists(File) )
 	{
 		return( false );
 	}
 
-	m_Memory_bLock	= true;
-
-	//-----------------------------------------------------
-	if( !bMemory_Restore )
+	if( (m_Cache_Stream = fopen(File, "r+b")) == NULL	// read and write
+	&&  (m_Cache_Stream = fopen(File, "rb" )) == NULL )	// read only
 	{
-		_Array_Destroy();
-	}
-	else
-	{
-		_LineBuffer_Flush();
-
-		void	**vCompr	= m_Values;
-
-		m_Values	= NULL;
-
-		if( !_Array_Create() )
-		{
-			m_Values		= vCompr;
-			m_Memory_bLock	= false;
-
-			return( false );
-		}
-
-		void	**vArray	= m_Values;
-
-		m_Values	= vCompr;
-		Line.Data	= (char *)SG_Calloc(1, _Get_nLineBytes());
-
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-		{
-			_Compr_LineBuffer_Load(&Line, y);
-			memcpy(vArray[y], Line.Data, Get_nLineBytes());
-			SG_Free(vCompr[y]);
-		}
-
-		m_Values	= vArray;
-
-		SG_Free(vCompr);
-
-		SG_Free(Line.Data);
-
-		SG_UI_Process_Set_Ready();
+		return( false );
 	}
 
-	//-----------------------------------------------------
-	_LineBuffer_Destroy();
+	m_Cache_File	= File;
+	m_Cache_bTemp	= false;
+	m_Cache_Offset	= Offset;
+	m_Cache_bSwap	= m_Type == SG_DATATYPE_Bit ? false : bSwap;
+	m_Cache_bFlip	= bFlip;
 
-	m_Memory_bLock	= false;
-	m_Memory_Type	= GRID_MEMORY_Normal;
+	_Array_Destroy();
 
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CSG_Grid::_Cache_Create(void)	// create temporary cache file
+{
+	if( !m_System.is_Valid() || m_Type == SG_DATATYPE_Undefined && is_Cached() )
+	{
+		return( false );
+	}
+
+	CSG_String	File	= SG_File_Get_Name_Temp("sg_grd", SG_Grid_Cache_Get_Directory());
+
+	if( (m_Cache_Stream = fopen(File, "w+b")) == NULL )	// read and write, create empty
+	{
+		return( false );
+	}
+
+	m_Cache_File	= File;
+	m_Cache_bTemp	= true;
+	m_Cache_Offset	= 0;
+	m_Cache_bSwap	= false;
+	m_Cache_bFlip	= false;
+
+	CSG_Array	Values(1, m_Values ? 0 : Get_nLineBytes());	// dummy
+
+	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+	{
+		fwrite(m_Values ? m_Values[y] : Values.Get_Array(), 1, Get_nLineBytes(), m_Cache_Stream);
+	}
+
+	SG_UI_Process_Set_Ready();
+
+	_Array_Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
+{
+	if( is_Cached() )
+	{
+		if( bMemory_Restore && _Array_Create() && !CACHE_FILE_SEEK(m_Cache_Stream, 0, SEEK_SET) )
+		{
+			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+			{
+				fread(m_Values[y], 1, Get_nLineBytes(), m_Cache_Stream);
+
+				if( m_Cache_bSwap )
+				{
+					char	*pValue	= (char *)m_Values[y];
+
+					for(int x=0; x<Get_NX(); x++, pValue+=Get_nValueBytes())
+					{
+						_Swap_Bytes(pValue, Get_nValueBytes());
+					}
+				}
+			}
+
+			SG_UI_Process_Set_Ready();
+		}
+
+		//-------------------------------------------------
+		fclose(m_Cache_Stream);
+
+		m_Cache_Stream	= NULL;
+
+		if( m_Cache_bTemp )
+		{
+			SG_File_Delete(m_Cache_File);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//			RTL - Compression: Save / Load				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CSG_Grid::_Compr_LineBuffer_Save(TSG_Grid_Line *pLine) const
+void CSG_Grid::_Cache_Set_Value(int x, int y, double Value)
 {
-	char	*pResult, *pNoCompress, *pCompress, *pNext;
-	int		x, ix, Threshold, nCompress, nNoCompress, nBytesTotal, Line_Pos;
+	char	Buffer[8];
 
-	if( pLine && pLine->bModified )
+	switch( m_Type )
 	{
-		pLine->bModified	= false;
+	case SG_DATATYPE_Float : (*(float  *)Buffer) = (float          )(Value); break;
+	case SG_DATATYPE_Double: (*(double *)Buffer) = (double         )(Value); break;
+	case SG_DATATYPE_Byte  : (*(BYTE   *)Buffer) = SG_ROUND_TO_BYTE (Value); break;
+	case SG_DATATYPE_Char  : (*(char   *)Buffer) = SG_ROUND_TO_CHAR (Value); break;
+	case SG_DATATYPE_Word  : (*(WORD   *)Buffer) = SG_ROUND_TO_WORD (Value); break;
+	case SG_DATATYPE_Short : (*(short  *)Buffer) = SG_ROUND_TO_SHORT(Value); break;
+	case SG_DATATYPE_DWord : (*(DWORD  *)Buffer) = SG_ROUND_TO_DWORD(Value); break;
+	case SG_DATATYPE_Int   : (*(int    *)Buffer) = SG_ROUND_TO_INT  (Value); break;
+	case SG_DATATYPE_Long  : (*(sLong  *)Buffer) = SG_ROUND_TO_SLONG(Value); break;
 
-		if( pLine->y >= 0 && pLine->y < Get_NY() )
-		{
-			Threshold	= 1 + (sizeof(WORD) + sizeof(bool) + Get_nValueBytes()) / Get_nValueBytes();
+	default:
+		return;
+	}
 
-			nBytesTotal	= Line_Pos	= sizeof(nBytesTotal);
-			pResult		= (char *)SG_Malloc(nBytesTotal);
-			pNoCompress	= pLine->Data;
-			nNoCompress	= 0;
+	if( m_Cache_bSwap )
+	{
+		_Swap_Bytes(Buffer, Get_nValueBytes());
+	}
 
-			//---------------------------------------------
-			for(x=0; x<Get_NX(); )
-			{
-				nCompress	= 1;
-				pCompress	= pLine->Data + x * Get_nValueBytes();
-				pNext		= pCompress + Get_nValueBytes();
-
-				for(ix=x+1; ix<Get_NX(); ix++, pNext+=Get_nValueBytes())
-				{
-					if( memcmp(pCompress, pNext, Get_nValueBytes()) )
-					{
-						break;
-					}
-					else
-					{
-						nCompress++;
-					}
-				}
-
-				//-----------------------------------------
-				if( nCompress <= Threshold )
-				{
-					nNoCompress++;
-					x++;
-				}
-				else
-				{
-					nBytesTotal	+= sizeof(WORD) + sizeof(bool) + Get_nValueBytes();
-
-					if( nNoCompress > 0 )
-					{
-						nBytesTotal	+= sizeof(WORD) + sizeof(bool) + nNoCompress * Get_nValueBytes();
-						pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
-
-						*((WORD *)(pResult + Line_Pos))	= nNoCompress;
-						Line_Pos	+= sizeof(WORD);
-						*((bool *)(pResult + Line_Pos))	= false;
-						Line_Pos	+= sizeof(bool);
-
-						memcpy(pResult + Line_Pos, pNoCompress, nNoCompress * Get_nValueBytes());
-						Line_Pos	+= nNoCompress * Get_nValueBytes();
-
-						nNoCompress	= 0;
-					}
-					else
-					{
-						pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
-					}
-
-					*((WORD *)(pResult + Line_Pos))	= nCompress;
-					Line_Pos	+= sizeof(WORD);
-					*((bool *)(pResult + Line_Pos))	= true;
-					Line_Pos	+= sizeof(bool);
-
-					memcpy(pResult + Line_Pos, pCompress, Get_nValueBytes());
-					Line_Pos	+= Get_nValueBytes();
-
-					pNoCompress	= pCompress + nCompress * Get_nValueBytes();
-					x			+= nCompress;
-				}
-			}
-
-			//---------------------------------------------
-			if( nNoCompress > 0 )
-			{
-				nBytesTotal	+= sizeof(WORD) + sizeof(bool) + nNoCompress * Get_nValueBytes();
-				pResult	= (char *)SG_Realloc(pResult, nBytesTotal);
-
-				*((WORD *)(pResult + Line_Pos))	= nNoCompress;
-				Line_Pos	+= sizeof(WORD);
-				*((bool *)(pResult + Line_Pos))	= false;
-				Line_Pos	+= sizeof(bool);
-
-				memcpy(pResult + Line_Pos, pNoCompress, nNoCompress * Get_nValueBytes());
-			}
-
-			//-------------------------------------------------
-			memcpy(pResult, &nBytesTotal, sizeof(nBytesTotal));
-
-			if( m_Values[pLine->y] )
-			{
-				SG_Free(m_Values[pLine->y]);
-			}
-
-			m_Values[pLine->y]	= pResult;
-		}
+	if( !CACHE_FILE_SEEK(m_Cache_Stream, CACHE_FILE_POS(x, y), SEEK_SET) )
+	{
+		fwrite(Buffer, 1, Get_nValueBytes(), m_Cache_Stream);
 	}
 }
 
 //---------------------------------------------------------
-void CSG_Grid::_Compr_LineBuffer_Load(TSG_Grid_Line *pLine, int y) const
+double CSG_Grid::_Cache_Get_Value(int x, int y) const
 {
-	bool	bCompressed;
-	char	*pData, *pValue;
-	int		x, iValue;
-	WORD	nValues;
-
-	if( pLine )
+	if( !CACHE_FILE_SEEK(m_Cache_Stream, CACHE_FILE_POS(x, y), SEEK_SET) )
 	{
-		pLine->bModified	= false;
-		pLine->y			= y;
+		char	Buffer[8];
 
-		if( pLine->y >= 0 && pLine->y < Get_NY() )
+		if( fread(Buffer, 1, Get_nValueBytes(), m_Cache_Stream) == (size_t)Get_nValueBytes() )
 		{
-			pValue		= (char *)m_Values[y] + sizeof(int);
-			pData		= pLine->Data;
-
-			for(x=0; x<Get_NX(); )
+			switch( m_Type )
 			{
-				nValues		= *((WORD *)pValue);
-				pValue		+= sizeof(WORD);
-				bCompressed	= *((bool *)pValue);
-				pValue		+= sizeof(bool);
+			case SG_DATATYPE_Byte  : return( (double)(*(BYTE   *)Buffer) );
+			case SG_DATATYPE_Char  : return( (double)(*(char   *)Buffer) );
+			case SG_DATATYPE_Word  : return( (double)(*(WORD   *)Buffer) );
+			case SG_DATATYPE_Short : return( (double)(*(short  *)Buffer) );
+			case SG_DATATYPE_DWord : return( (double)(*(DWORD  *)Buffer) );
+			case SG_DATATYPE_Int   : return( (double)(*(int    *)Buffer) );
+			case SG_DATATYPE_Long  : return( (double)(*(sLong  *)Buffer) );
+			case SG_DATATYPE_Float : return( (double)(*(float  *)Buffer) );
+			case SG_DATATYPE_Double: return( (double)(*(double *)Buffer) );
 
-				if( bCompressed )
-				{
-					for(iValue=0; iValue<nValues && x<Get_NX(); iValue++, x++, pData+=Get_nValueBytes())
-					{
-						memcpy(pData, pValue, Get_nValueBytes());
-					}
+			default:
+				break;
+			}
 
-					pValue	+= Get_nValueBytes();
-				}
-				else
-				{
-					memcpy(pData, pValue, Get_nValueBytes() * nValues);
-					x		+= nValues;
-					pData	+= Get_nValueBytes() * nValues;
-					pValue	+= Get_nValueBytes() * nValues;
-				}
+			if( m_Cache_bSwap )
+			{
+				_Swap_Bytes(Buffer, Get_nValueBytes());
 			}
 		}
 	}
+
+	return( 0.0 );
 }
 
 

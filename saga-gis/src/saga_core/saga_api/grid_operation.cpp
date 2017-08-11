@@ -93,14 +93,12 @@ bool CSG_Grid::Assign(double Value)
 		return( false );
 	}
 
-	if( Value == 0.0 && m_Memory_Type == GRID_MEMORY_Normal )
+	if( Value == 0.0 && !is_Cached() )
 	{
-		int	n	= _Get_nLineBytes();
-
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
 		{
-			memset(m_Values[y], 0, n);
+			memset(m_Values[y], 0, Get_nLineBytes());
 		}
 	}
 	else
@@ -117,7 +115,7 @@ bool CSG_Grid::Assign(double Value)
 
 	//-----------------------------------------------------
 	Get_History().Destroy();
-	Get_History().Add_Child(SG_T("GRID_OPERATION"), Value)->Add_Property(SG_T("NAME"), _TL("Assign"));
+	Get_History().Add_Child("GRID_OPERATION", Value)->Add_Property("NAME", _TL("Assign"));
 
 	m_Statistics.Invalidate();
 

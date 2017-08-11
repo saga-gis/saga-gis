@@ -268,34 +268,23 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("NODE_GRID",
-		"NODE_GRID_CACHE"		, _TL("File Caching"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("NODE_GRID_CACHE",
-		"GRID_CACHE_AUTO"		, _TL("Automatic"),
+	m_Parameters.Add_Choice("NODE_GRID",
+		"GRID_CACHE_MODE"		, _TL("File Cache"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
-		SG_Grid_Cache_Get_Automatic()
+		CSG_String::Format("%s|%s|%s|",
+			_TL("no"),
+			_TL("yes"),
+			_TL("after confirmation")
+		), SG_Grid_Cache_Get_Mode()
 	);
 
-	m_Parameters.Add_Double("NODE_GRID_CACHE",
+	m_Parameters.Add_Double("GRID_CACHE_MODE",
 		"GRID_CACHE_THRSHLD"	, _TL("Threshold for automatic mode [MB]"),
 		_TL(""),
 		SG_Grid_Cache_Get_Threshold_MB(), 0.0, true
 	);
 
-	m_Parameters.Add_Choice("NODE_GRID_CACHE",
-		"GRID_CACHE_CONFIRM"	, _TL("Confirm file caching"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("do not confirm"),
-			_TL("confirm"),
-			_TL("confirm with options")
-		), SG_Grid_Cache_Get_Confirm()
-	);
-
-	m_Parameters.Add_FilePath("NODE_GRID_CACHE",
+	m_Parameters.Add_FilePath("GRID_CACHE_MODE",
 		"GRID_CACHE_TMPDIR"		, _TL("Temporary files"),
 		_TL("Directory, where temporary cache files shall be saved."),
 		NULL, SG_Grid_Cache_Get_Directory(), true, true
@@ -326,10 +315,9 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	//-----------------------------------------------------
 	CONFIG_Read("/DATA", &m_Parameters);
 
-	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
-	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"     )->asBool  ());
+	SG_Grid_Cache_Set_Mode        (m_Parameters("GRID_CACHE_MODE"     )->asInt   ());
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
-	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM"  )->asInt   ());
+	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
 
 	CSG_Grid_System::Set_Precision(m_Parameters("GRID_COORD_PRECISION")->asInt   ());
 
@@ -670,10 +658,9 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 		return;
 	}
 
-	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
-	SG_Grid_Cache_Set_Automatic   (m_Parameters("GRID_CACHE_AUTO"     )->asBool  ());
+	SG_Grid_Cache_Set_Mode        (m_Parameters("GRID_CACHE_MODE"     )->asInt   ());
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
-	SG_Grid_Cache_Set_Confirm     (m_Parameters("GRID_CACHE_CONFIRM"  )->asInt   ());
+	SG_Grid_Cache_Set_Directory   (m_Parameters("GRID_CACHE_TMPDIR"   )->asString());
 
 	CSG_Grid_System::Set_Precision(m_Parameters("GRID_COORD_PRECISION")->asInt   ());
 

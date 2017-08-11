@@ -168,14 +168,9 @@ wxString CWKSP_Grid::Get_Description(void)
 	DESC_ADD_FLT (_TL("Standard Deviation"), Get_Grid()->Get_StdDev      ());
 	DESC_ADD_STR (_TL("Memory Size"       ), Get_nBytes_asString(Get_Grid()->Get_Memory_Size(), 2).c_str());
 
-	if( Get_Grid()->is_Compressed() )
-	{
-		DESC_ADD_FLT(_TL("Memory Compression")	, 100.0 * Get_Grid()->Get_Compression_Ratio());
-	}
-
 	if( Get_Grid()->is_Cached() )
 	{
-		DESC_ADD_FLT(_TL("File Cache [MB]")		, Get_Grid()->Get_Buffer_Size() / (double)N_MEGABYTE_BYTES);
+		DESC_ADD_STR(_TL("File Cache"     ), _TL("activated"));
 	}
 
 	s	+= "</table>";
@@ -514,15 +509,10 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_GENERAL", "MEMORY_MODE"		, _TL("Memory Handling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("Normal"),
-			_TL("RTL Compression"),
+		CSG_String::Format("%s|%s|",
+			_TL("Memory"),
 			_TL("File Cache")
 		), 0
-	);
-
-	m_Parameters.Add_Double("MEMORY_MODE", "MEMORY_BUFFER_SIZE"	, _TL("Buffer Size MB"),
-		_TL("")
 	);
 }
 
@@ -551,11 +541,7 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 
 	//-----------------------------------------------------
 	m_Parameters("MEMORY_MODE"       )->Set_Value(
-		Get_Grid()->is_Compressed() ? 1 : (Get_Grid()->is_Cached() ? 2 : 0)
-	);
-
-	m_Parameters("MEMORY_BUFFER_SIZE")->Set_Value(
-		(double)Get_Grid()->Get_Buffer_Size() / N_MEGABYTE_BYTES
+		Get_Grid()->is_Cached() ? 1 : 0
 	);
 }
 
@@ -572,34 +558,19 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	//-----------------------------------------------------
-	Get_Grid()->Set_Buffer_Size(m_Parameters("MEMORY_BUFFER_SIZE")->asDouble() * N_MEGABYTE_BYTES);
-
-	switch( m_Parameters("MEMORY_MODE")->asInt() )
+	if( m_Parameters("MEMORY_MODE")->asInt() == 0 )
 	{
-	case 0:
-		if( Get_Grid()->is_Compressed() )
-		{
-			Get_Grid()->Set_Compression(false);
-		}
-		else if( Get_Grid()->is_Cached() )
+		if( Get_Grid()->is_Cached() )
 		{
 			Get_Grid()->Set_Cache(false);
 		}
-		break;
-
-	case 1:
-		if( !Get_Grid()->is_Compressed() )
-		{
-			Get_Grid()->Set_Compression(true);
-		}
-		break;
-
-	case 2:
+	}
+	else
+	{
 		if( !Get_Grid()->is_Cached() )
 		{
 			Get_Grid()->Set_Cache(true);
 		}
-		break;
 	}
 }
 
@@ -710,11 +681,6 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_EFFECT") )
 		{
 			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
-		}
-
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "MEMORY_MODE") )
-		{
-			pParameters->Set_Enabled("MEMORY_BUFFER_SIZE", pParameter->asInt() != 0);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT") )
@@ -1530,7 +1496,7 @@ void CWKSP_Grid::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 	int	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	int	nyDC	= abs(ayDC - byDC);
 
-	if( Get_Grid()->is_Cached() || Get_Grid()->is_Compressed() )
+	if( Get_Grid()->is_Cached() )
 	{
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
