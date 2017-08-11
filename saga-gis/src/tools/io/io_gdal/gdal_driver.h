@@ -139,8 +139,8 @@ public:
 	double						Get_Cellsize		(void)	const	{	return( m_Cellsize );	}
 	double						Get_xMin			(void)	const	{	return( m_xMin );		}
 	double						Get_yMin			(void)	const	{	return( m_yMin );		}
-	double						Get_xMax			(void)	const	{	return( m_xMin + m_NX * m_Cellsize );	}
-	double						Get_yMax			(void)	const	{	return( m_yMin + m_NY * m_Cellsize );	}
+	double						Get_xMax			(void)	const	{	return( m_xMin + (m_NX - 1) * m_Cellsize );	}
+	double						Get_yMax			(void)	const	{	return( m_yMin + (m_NY - 1) * m_Cellsize );	}
 
 	CSG_Rect					Get_Extent			(bool bTransform = true)	const;
 	CSG_Grid_System				Get_System			(void)	const;

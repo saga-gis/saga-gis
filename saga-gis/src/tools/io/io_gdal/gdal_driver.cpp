@@ -391,8 +391,8 @@ bool CSG_GDAL_DataSet::_Set_Transformation(void)
 	{
 		m_bTransform	= false;
 		m_Cellsize		= 1.0;
-		m_xMin			= 0.5;
-		m_yMin			= 0.5;
+		m_xMin			= 0.0;
+		m_yMin			= 0.0;
 	}
 	else if( Transform[1] == -Transform[5] && Transform[2] == 0.0 && Transform[4] == 0.0 )	// nothing to transform
 	{
@@ -405,8 +405,8 @@ bool CSG_GDAL_DataSet::_Set_Transformation(void)
 	{
 		m_bTransform	= true;
 		m_Cellsize		= 1.0;
-		m_xMin			= 0.0;
-		m_yMin			= 0.0;
+		m_xMin			= 0.5;
+		m_yMin			= 0.5;
 	}
 
 	m_TF_A[0]		= Transform[0];
@@ -1017,13 +1017,13 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid_System &System, bool bVerbose
 		CSG_Vector	v(2);
 		CSG_Rect	r;
 
-		v[0]	= Get_xMin() + 0.5;	v[1]	= Get_yMin() + 0.5;	v	= B * v + A;	r.Assign(v[0], v[1], v[0], v[1]);
-		v[0]	= Get_xMin() + 0.5;	v[1]	= Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= Get_xMax() - 0.5;	v[1]	= Get_yMax() - 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
-		v[0]	= Get_xMax() - 0.5;	v[1]	= Get_yMin() + 0.5;	v	= B * v + A;	r.Union(CSG_Point(v[0], v[1]));
+		v[0] = Get_xMin(); v[1] = Get_yMin(); v	= B * v + A; r.Assign(v[0], v[1], v[0], v[1]);
+		v[0] = Get_xMin(); v[1] = Get_yMax(); v	= B * v + A; r.Union(CSG_Point(v[0], v[1]));
+		v[0] = Get_xMax(); v[1] = Get_yMax(); v	= B * v + A; r.Union(CSG_Point(v[0], v[1]));
+		v[0] = Get_xMax(); v[1] = Get_yMin(); v	= B * v + A; r.Union(CSG_Point(v[0], v[1]));
 
-		v[0]	= 1;	v[1] = 0;	v = B * v;	double	dx	= v.Get_Length();
-		v[0]	= 0;	v[1] = 1;	v = B * v;	double	dy	= v.Get_Length();
+		v[0] = 1; v[1] = 0; v = B * v; double dx = v.Get_Length();
+		v[0] = 0; v[1] = 1; v = B * v; double dy = v.Get_Length();
 
 		if( dx != dy )
 		{
@@ -1053,7 +1053,7 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid_System &System, bool bVerbose
 }
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling	Interpolation, bool bVerbose)	const
+bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling Interpolation, bool bVerbose)	const
 {
 	CSG_Grid_System	System;
 
@@ -1114,12 +1114,12 @@ bool CSG_GDAL_DataSet::Get_Transformation(CSG_Grid **ppGrid, TSG_Grid_Resampling
 			double		z;
 			CSG_Vector	vWorld(2), vImage;
 
-			vWorld[0]	= pWorld->Get_XMin() + (x - 0.5) * pWorld->Get_Cellsize();
-			vWorld[1]	= pWorld->Get_YMin() + (y + 0.5) * pWorld->Get_Cellsize();
+			vWorld[0]	= pWorld->Get_XMin() + x * pWorld->Get_Cellsize();
+			vWorld[1]	= pWorld->Get_YMin() + y * pWorld->Get_Cellsize();
 
 			vImage	= BInv * (vWorld - A);
 
-			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation) )
+			if( pImage->Get_Value(vImage[0], vImage[1], z, Interpolation, true) )
 			{
 				pWorld->Set_Value(x, y, z);
 			}

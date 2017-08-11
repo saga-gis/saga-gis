@@ -311,7 +311,7 @@ bool CXYZ_Import::On_Execute(void)
 	CSG_String	sLine;
 
 	{
-		for(int Skip=Parameters("SKIP")->asInt(); Skip>=0; Skip--)
+		for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
 		{
 			Stream.Read_Line(sLine);
 		}
@@ -371,7 +371,7 @@ bool CXYZ_Import::On_Execute(void)
 	Stream.Seek_Start();
 
 	{
-		for(int Skip=Parameters("SKIP")->asInt(); Skip>=0; Skip--)
+		for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
 		{
 			Stream.Read_Line(sLine);
 		}
