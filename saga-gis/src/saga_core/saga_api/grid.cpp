@@ -940,20 +940,24 @@ bool CSG_Grid::On_Update(void)
 {
 	if( is_Valid() )
 	{
+		SG_FREE_SAFE(m_Index);
+
 		m_Statistics.Invalidate();
 
-		for(int y=0; y<Get_NY(); y++)
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 		{
 			for(int x=0; x<Get_NX(); x++)
 			{
-				if( !is_NoData(x, y) )
+				double	Value	= asDouble(x, y);
+
+				if( !is_NoData_Value(Value) )
 				{
-					m_Statistics.Add_Value(asDouble(x, y));
+					m_Statistics.Add_Value(Value);
 				}
 			}
 		}
 
-		SG_FREE_SAFE(m_Index);
+		SG_UI_Process_Set_Ready();
 	}
 
 	return( true );

@@ -358,7 +358,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 	//-----------------------------------------------------
 	else	// Binary...
 	{
-		if(	_Cache_Check() )
+		if(	bCached || _Cache_Check() )
 		{
 			if( _Cache_Create(Info.m_Data_File                       , m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)
 			||	_Cache_Create(SG_File_Make_Path("", FileName,  "dat"), m_Type, Info.m_Offset, Info.m_bSwapBytes, Info.m_bFlip)

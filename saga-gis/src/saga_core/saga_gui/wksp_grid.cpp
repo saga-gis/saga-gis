@@ -507,12 +507,9 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Memory...
 
-	m_Parameters.Add_Choice("NODE_GENERAL", "MEMORY_MODE"		, _TL("Memory Handling"),
+	m_Parameters.Add_Bool("NODE_GENERAL", "FILE_CACHE", _TL("File Cache"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("Memory"),
-			_TL("File Cache")
-		), 0
+		Get_Grid()->is_Cached()
 	);
 }
 
@@ -540,8 +537,8 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters("MEMORY_MODE"       )->Set_Value(
-		Get_Grid()->is_Cached() ? 1 : 0
+	m_Parameters("FILE_CACHE"        )->Set_Value(
+		Get_Grid()->is_Cached()
 	);
 }
 
@@ -558,20 +555,7 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	//-----------------------------------------------------
-	if( m_Parameters("MEMORY_MODE")->asInt() == 0 )
-	{
-		if( Get_Grid()->is_Cached() )
-		{
-			Get_Grid()->Set_Cache(false);
-		}
-	}
-	else
-	{
-		if( !Get_Grid()->is_Cached() )
-		{
-			Get_Grid()->Set_Cache(true);
-		}
-	}
+	Get_Grid()->Set_Cache(m_Parameters("FILE_CACHE")->asBool());
 }
 
 //---------------------------------------------------------

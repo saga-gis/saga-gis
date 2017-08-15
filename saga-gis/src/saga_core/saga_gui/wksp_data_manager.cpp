@@ -682,6 +682,35 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
+{
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_CACHE_MODE") )
+		{
+			pParameters->Set_Enabled("GRID_CACHE_THRSHLD", pParameter->asInt() != 0);
+			pParameters->Set_Enabled("GRID_CACHE_TMPDIR" , pParameter->asInt() != 0);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( CWKSP_Base_Manager::On_Parameter_Changed(pParameters, pParameter, Flags) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Data_Manager::Open(const wxString &File, int DataType)
 {
 	CSG_Data_Object	*pObject	= NULL;

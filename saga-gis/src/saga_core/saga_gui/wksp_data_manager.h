@@ -104,6 +104,7 @@ public:
 
 	virtual CSG_Parameters *		Get_Parameters		(void);
 	virtual void					Parameters_Changed	(void);
+	virtual int						On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	CWKSP_Base_Manager *			Get_Manager			(TSG_Data_Object_Type Type, bool bAdd = false);
 	CWKSP_Base_Manager *			Get_Manager			(int i)		{	return( (CWKSP_Base_Manager *)Get_Item(i) );	}

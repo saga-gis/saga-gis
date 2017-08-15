@@ -104,7 +104,7 @@ int					SG_Grid_Cache_Get_Mode(void)
 }
 
 //---------------------------------------------------------
-static sLong		gSG_Grid_Cache_Threshold	= 250 * N_MEGABYTE_BYTES;
+static sLong		gSG_Grid_Cache_Threshold	= 0;
 
 void				SG_Grid_Cache_Set_Threshold(int nBytes)
 {
@@ -240,14 +240,15 @@ bool CSG_Grid::Set_Cache(bool bOn)
 {
 	if( bOn )
 	{
-		return( _Cache_Create(m_Cache_File                                  , m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
-			||  _Cache_Create(SG_File_Make_Path("", Get_File_Name(),  "dat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
-			||  _Cache_Create(SG_File_Make_Path("", Get_File_Name(), "sdat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
-			||  _Cache_Create()
+		return( is_Cached()
+			|| _Cache_Create(m_Cache_File                                  , m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			|| _Cache_Create(SG_File_Make_Path("", Get_File_Name(),  "dat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			|| _Cache_Create(SG_File_Make_Path("", Get_File_Name(), "sdat"), m_Type, m_Cache_Offset, m_Cache_bSwap, m_Cache_bFlip)
+			|| _Cache_Create()
 		);
 	}
 
-	return( _Cache_Destroy(true) );
+	return( !is_Cached() || _Cache_Destroy(true) );
 }
 
 
@@ -352,11 +353,11 @@ bool CSG_Grid::_Cache_Destroy(bool bMemory_Restore)
 {
 	if( is_Cached() )
 	{
-		if( bMemory_Restore && _Array_Create() && !CACHE_FILE_SEEK(m_Cache_Stream, 0, SEEK_SET) )
+		if( bMemory_Restore && _Array_Create() && !CACHE_FILE_SEEK(m_Cache_Stream, m_Cache_Offset, SEEK_SET) )
 		{
 			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				fread(m_Values[y], 1, Get_nLineBytes(), m_Cache_Stream);
+				fread(m_Values[m_Cache_bFlip ? Get_NY() - 1 - y : y], 1, Get_nLineBytes(), m_Cache_Stream);
 
 				if( m_Cache_bSwap )
 				{
