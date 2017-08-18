@@ -507,7 +507,17 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Memory...
 
-	m_Parameters.Add_Bool("NODE_GENERAL", "FILE_CACHE", _TL("File Cache"),
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"MAX_SAMPLES"	, _TL("Maximum Samples"),
+		_TL("Maximum number of samples used to build statistics expressed as percent of the total number of cells."),
+		100.0 * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 1., true, 100., true
+	);
+
+	//-----------------------------------------------------
+	// Memory...
+
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"FILE_CACHE"	, _TL("File Cache"),
 		_TL(""),
 		Get_Grid()->is_Cached()
 	);
@@ -537,6 +547,10 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	);
 
 	//-----------------------------------------------------
+	m_Parameters("MAX_SAMPLES"       )->Set_Value(
+		100.0 * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells()
+	);
+
 	m_Parameters("FILE_CACHE"        )->Set_Value(
 		Get_Grid()->is_Cached()
 	);
@@ -555,6 +569,8 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 	m_pClassify->Set_Shade_Mode(m_Parameters("SHADE_MODE")->asInt());
 
 	//-----------------------------------------------------
+	Get_Grid()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
+
 	Get_Grid()->Set_Cache(m_Parameters("FILE_CACHE")->asBool());
 }
 

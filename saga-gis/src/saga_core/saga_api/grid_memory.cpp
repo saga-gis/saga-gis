@@ -77,11 +77,13 @@
 //---------------------------------------------------------
 static CSG_String	gSG_Grid_Cache_Directory;
 
+//---------------------------------------------------------
 const SG_Char *		SG_Grid_Cache_Get_Directory(void)
 {
 	return( gSG_Grid_Cache_Directory );
 }
 
+//---------------------------------------------------------
 void				SG_Grid_Cache_Set_Directory(const SG_Char *Directory)
 {
 	if( SG_Dir_Exists(Directory) )
@@ -90,22 +92,35 @@ void				SG_Grid_Cache_Set_Directory(const SG_Char *Directory)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 static int			gSG_Grid_Cache_Mode	= 0;
 
+//---------------------------------------------------------
 void				SG_Grid_Cache_Set_Mode(int Mode)
 {
 	gSG_Grid_Cache_Mode	= Mode;
 }
 
+//---------------------------------------------------------
 int					SG_Grid_Cache_Get_Mode(void)
 {
 	return( gSG_Grid_Cache_Mode );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 static sLong		gSG_Grid_Cache_Threshold	= 0;
 
+//---------------------------------------------------------
 void				SG_Grid_Cache_Set_Threshold(int nBytes)
 {
 	if( nBytes >= 0 )
@@ -114,16 +129,19 @@ void				SG_Grid_Cache_Set_Threshold(int nBytes)
 	}
 }
 
+//---------------------------------------------------------
 void				SG_Grid_Cache_Set_Threshold_MB(double nMegabytes)
 {
 	SG_Grid_Cache_Set_Threshold((int)(nMegabytes * N_MEGABYTE_BYTES));
 }
 
+//---------------------------------------------------------
 sLong				SG_Grid_Cache_Get_Threshold(void)
 {
 	return( gSG_Grid_Cache_Threshold );
 }
 
+//---------------------------------------------------------
 double				SG_Grid_Cache_Get_Threshold_MB(void)
 {
 	return( (double)gSG_Grid_Cache_Threshold / (double)N_MEGABYTE_BYTES );

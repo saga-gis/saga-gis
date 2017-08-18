@@ -128,6 +128,35 @@ CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, d
 
 ///////////////////////////////////////////////////////////
 //														 //
+//				Grid Statistics Options					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+static sLong		gSG_Grid_Max_Samples	= 0;
+
+//---------------------------------------------------------
+bool				SG_Grid_Set_Max_Samples			(sLong Max_Samples)
+{
+	if( Max_Samples > 0 )
+	{
+		gSG_Grid_Max_Samples	= Max_Samples;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+sLong				SG_Grid_Get_Max_Samples			(void)
+{
+	return( gSG_Grid_Max_Samples );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -213,8 +242,6 @@ CSG_Grid::CSG_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double x
 //---------------------------------------------------------
 void CSG_Grid::_On_Construction(void)
 {
-	m_bCreated		= false;
-
 	m_Type			= SG_DATATYPE_Undefined;
 
 	m_Values		= NULL;
@@ -226,6 +253,8 @@ void CSG_Grid::_On_Construction(void)
 
 	m_zScale		= 1.0;
 	m_zOffset		= 0.0;
+
+	m_Max_Samples	= gSG_Grid_Max_Samples;
 
 	m_Index			= NULL;
 
@@ -309,7 +338,7 @@ bool CSG_Grid::Create(const CSG_String &FileName, TSG_Data_Type Type, bool bCach
 	||  _Load_Surfer    (FileName, bCached, bLoadData)
 	||  _Load_External  (FileName, bCached, bLoadData) )
 	{
-		m_bCreated	= true;
+		m_Max_Samples	= gSG_Grid_Max_Samples > 0 ? gSG_Grid_Max_Samples : Get_NCells();
 
 		Set_Modified(false);
 		Set_Update_Flag();
@@ -335,12 +364,7 @@ bool CSG_Grid::Create(TSG_Data_Type Type, int NX, int NY, double Cellsize, doubl
 
 	_Set_Properties(Type, NX, NY, Cellsize, xMin, yMin);
 
-	if( _Memory_Create(bCached) )
-	{
-		m_bCreated	= true;
-	}
-
-	return( m_bCreated );
+	return( _Memory_Create(bCached) );
 }
 
 
@@ -365,8 +389,6 @@ CSG_Grid::~CSG_Grid(void)
 bool CSG_Grid::Destroy(void)
 {
 	_Memory_Destroy();
-
-	m_bCreated	= false;
 
 	m_Type		= SG_DATATYPE_Undefined;
 
@@ -417,6 +439,8 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 
 	m_nBytes_Value	= SG_Data_Type_Get_Size(m_Type);
 	m_nBytes_Line	= m_Type == SG_DATATYPE_Bit ? 1 + Get_NX() / 8 : Get_NX() * m_nBytes_Value;
+
+	m_Max_Samples	= gSG_Grid_Max_Samples > 0 ? gSG_Grid_Max_Samples : Get_NCells();
 }
 
 //---------------------------------------------------------
@@ -944,11 +968,13 @@ bool CSG_Grid::On_Update(void)
 
 		m_Statistics.Invalidate();
 
-		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		if( m_Max_Samples > 0 && m_Max_Samples < Get_NCells() )
 		{
-			for(int x=0; x<Get_NX(); x++)
+			double	d	= (double)Get_NCells() / (double)m_Max_Samples;
+
+			for(double i=0; i<(double)Get_NCells() && SG_UI_Process_Set_Progress(i, (double)Get_NCells()); i+=d)
 			{
-				double	Value	= asDouble(x, y);
+				double	Value	= asDouble((sLong)i);
 
 				if( !is_NoData_Value(Value) )
 				{
@@ -956,8 +982,41 @@ bool CSG_Grid::On_Update(void)
 				}
 			}
 		}
+		else
+		{
+			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					double	Value	= asDouble(x, y);
+
+					if( !is_NoData_Value(Value) )
+					{
+						m_Statistics.Add_Value(Value);
+					}
+				}
+			}
+		}
 
 		SG_UI_Process_Set_Ready();
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::Set_Max_Samples(sLong Max_Samples)
+{
+	if( Max_Samples <= 0 )
+	{
+		Max_Samples	= Get_NCells();
+	}
+
+	if( m_Max_Samples != Max_Samples )
+	{
+		m_Max_Samples	= Max_Samples;
+
+		Set_Update_Flag();
 	}
 
 	return( true );

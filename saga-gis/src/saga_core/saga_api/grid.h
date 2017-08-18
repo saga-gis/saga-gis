@@ -512,6 +512,9 @@ public:		///////////////////////////////////////////////
 	double							Get_Offset			(void)	const;
 	bool							is_Scaled			(void)	const	{	return( m_zScale != 1.0 || m_zOffset != 0.0 );	}
 
+	bool							Set_Max_Samples		(sLong Max_Samples);
+	sLong							Get_Max_Samples		(void)	const	{	return( m_Max_Samples );	}
+
 	double							Get_Mean			(void);
 	double							Get_Min				(void);
 	double							Get_Max				(void);
@@ -816,13 +819,13 @@ private:	///////////////////////////////////////////////
 
 	void						**m_Values;
 
-	bool						m_bCreated, m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
+	bool						m_Cache_bTemp, m_Cache_bSwap, m_Cache_bFlip;
 
 	size_t						m_nBytes_Value, m_nBytes_Line;
 
-	sLong						*m_Index, m_Cache_Offset, m_Cache_Pos;
+	sLong						*m_Index, m_Cache_Offset, m_Max_Samples;
 
-	double						m_zOffset, m_zScale, m_Cache_Val;
+	double						m_zOffset, m_zScale;
 
 	TSG_Data_Type				m_Type;
 
@@ -942,6 +945,13 @@ SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(const CSG_Grid_System &System, 
 
 /** Safe grid construction */
 SAGA_API_DLL_EXPORT CSG_Grid *		SG_Create_Grid		(TSG_Data_Type Type, int NX, int NY, double Cellsize = 0.0, double xMin = 0.0, double yMin = 0.0, bool bCached = false);
+
+//---------------------------------------------------------
+/** Set the default value for the number of maximum samples used for building grid statistics */
+SAGA_API_DLL_EXPORT bool			SG_Grid_Set_Max_Samples			(sLong Max_Samples);
+
+/** Get the default value for the number of maximum samples used for building grid statistics */
+SAGA_API_DLL_EXPORT sLong			SG_Grid_Get_Max_Samples			(void);
 
 //---------------------------------------------------------
 /** Get default directory for grid caching */

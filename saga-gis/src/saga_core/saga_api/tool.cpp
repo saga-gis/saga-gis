@@ -296,6 +296,8 @@ bool CSG_Tool::Execute(void)
 
 		if( !Process_Get_Okay(false) )
 		{
+			SG_UI_Process_Set_Okay();
+
 			SG_UI_Msg_Add(_TL("Execution has been stopped by user!"), true);
 
 			bResult	= false;
@@ -307,8 +309,8 @@ bool CSG_Tool::Execute(void)
 	//-----------------------------------------------------
 	Destroy();
 
-	SG_UI_Process_Set_Ready();
 	SG_UI_Process_Set_Okay();
+	SG_UI_Process_Set_Ready();
 
 	m_bExecutes	= false;
 

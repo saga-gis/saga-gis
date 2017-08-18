@@ -256,15 +256,16 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("NODE_GRID",
-		"NODE_GRID_SELECTION"	, _TL("Selection"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Int("NODE_GRID_SELECTION",
+	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_SELECT_MAX"		, _TL("Maximum Selection"),
 		_TL("Maximum number of rows/columns in selection of grid cells."),
 		100, 1, true
+	);
+
+	m_Parameters.Add_Int("NODE_GRID",
+		"GRID_SAMPLE_MAX"		, _TL("Maximum Samples"),
+		_TL("Default maximum number of samples used to build statistics. Set to zero to use all cells."),
+		(int)SG_Grid_Get_Max_Samples(), 0, true
 	);
 
 	//-----------------------------------------------------
@@ -314,6 +315,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	//-----------------------------------------------------
 	CONFIG_Read("/DATA", &m_Parameters);
+
+	SG_Grid_Set_Max_Samples       (m_Parameters("GRID_SAMPLE_MAX"     )->asInt   ());
 
 	SG_Grid_Cache_Set_Mode        (m_Parameters("GRID_CACHE_MODE"     )->asInt   ());
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
@@ -657,6 +660,8 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	{
 		return;
 	}
+
+	SG_Grid_Set_Max_Samples       (m_Parameters("GRID_SAMPLE_MAX"     )->asInt   ());
 
 	SG_Grid_Cache_Set_Mode        (m_Parameters("GRID_CACHE_MODE"     )->asInt   ());
 	SG_Grid_Cache_Set_Threshold_MB(m_Parameters("GRID_CACHE_THRSHLD"  )->asDouble());
