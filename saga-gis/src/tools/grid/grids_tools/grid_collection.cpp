@@ -111,6 +111,16 @@ CGrids_Create::CGrids_Create(void)
 	);
 
 	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"ATTRIBUTES", _TL("Attribute Definition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("index and name"),
+			_TL("user defined structure"),
+			_TL("table with values")
+		), 0
+	);
+
 	Parameters.Add_Table("",
 		"TABLE"		, _TL("Attributes"),
 		_TL(""),
@@ -174,10 +184,10 @@ int CGrids_Create::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ATTRIBUTES") )
 	{
-		pParameters->Set_Enabled("TABLE_Z", pParameter->asTable() != NULL);
-		pParameters->Set_Enabled("NFIELDS", pParameter->asTable() == NULL);
+		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
+		pParameters->Set_Enabled("TABLE"  , pParameter->asInt() == 2);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )
@@ -214,7 +224,7 @@ void CGrids_Create::Set_Field_Count(CSG_Parameters *pFields, int nFields)
 		SG_Data_Type_Get_Name(SG_DATATYPE_Binary) + "|"   // 13
 	);
 
-	if( pFields && nFields > 0 )
+	if( pFields && nFields >= 0 )
 	{
 		int		nCurrent	= pFields->Get_Count() / 2;
 
@@ -282,30 +292,53 @@ bool CGrids_Create::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("TABLE")->asTable(), Table;
+	CSG_Table	*pTable, Table;
 
 	int	zField;
 
-	if( pTable )
+	switch( Parameters("ATTRIBUTES")->asInt() )
 	{
-		zField	= Parameters("TABLE_Z")->asInt();
-	}
-	else if( Parameters("NFIELDS")->asInt() > 0 )
-	{
-		zField	= Parameters("ZFIELD")->asInt();
-
-		for(int i=0; i<Parameters("NFIELDS")->asInt(); i++)
+	default:	// index and name
 		{
-			Table.Add_Field(Get_Field_Name(i), Get_Field_Type(i));
-		}
+			pTable	= &Table;
+			zField	= 0;
 
-		pTable	= &Table;
+			Table.Add_Field("ID"  , SG_DATATYPE_Int   );
+			Table.Add_Field("NAME", SG_DATATYPE_String);
+
+			for(int i=0; i<pList->Get_Grid_Count(); i++)
+			{
+				CSG_Table_Record	*pRecord	= Table.Add_Record();
+
+				pRecord->Set_Value(0, i + 1);
+				pRecord->Set_Value(1, pList->Get_Grid(i)->Get_Name());
+			}
+		}
+		break;
+
+	case  1:	// user defined structure
+		{
+			pTable	= &Table;
+			zField	= Parameters("ZFIELD")->asInt();
+
+			for(int i=0; i<Parameters("NFIELDS")->asInt(); i++)
+			{
+				Table.Add_Field(Get_Field_Name(i), Get_Field_Type(i));
+			}
+		}
+		break;
+
+	case  2:	// table with values
+		{
+			pTable	= Parameters("TABLE")->asTable();
+		}
+		break;
 	}
 
 	//-----------------------------------------------------
 	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
 
-	if( pTable )
+	if( pTable->Get_Count() == pList->Get_Grid_Count() )
 	{
 		pGrids->Create(pList->Get_Grid(0)->Get_System(), *pTable, zField, pList->Get_Grid(0)->Get_Type());
 	}
