@@ -591,17 +591,41 @@ bool CWKSP_Layer_Classify::Histogram_Update(void)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 {
-	for(int y=0; y<pGrid->Get_NY() && PROGRESSBAR_Set_Position(y, pGrid->Get_NY()); y++)
+	if( pGrid->Get_Max_Samples() > 0 && pGrid->Get_Max_Samples() < pGrid->Get_NCells() )
 	{
-		for(int x=0; x<pGrid->Get_NX(); x++)
+		double	d	= (double)pGrid->Get_NCells() / (double)pGrid->Get_Max_Samples();
+
+		for(double i=0; i<(double)pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, (double)pGrid->Get_NCells()); i+=d)
 		{
-			if( !pGrid->is_NoData(x, y) )
+			double	Value	= pGrid->asDouble((sLong)i);
+
+			if( !pGrid->is_NoData_Value(Value) )
 			{
-				int		Class	= Get_Class(pGrid->asDouble(x, y));
-				
+				int		Class	= Get_Class(Value);
+
 				if( Class >= 0 && Class < Get_Class_Count() )
 				{
 					m_HST_Count[Class]++;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int y=0; y<pGrid->Get_NY() && PROGRESSBAR_Set_Position(y, pGrid->Get_NY()); y++)
+		{
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				double	Value	= pGrid->asDouble(x, y);
+
+				if( !pGrid->is_NoData_Value(Value) )
+				{
+					int		Class	= Get_Class(Value);
+
+					if( Class >= 0 && Class < Get_Class_Count() )
+					{
+						m_HST_Count[Class]++;
+					}
 				}
 			}
 		}

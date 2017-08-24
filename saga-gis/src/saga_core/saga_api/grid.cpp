@@ -1117,13 +1117,55 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 
 	Statistics.Create(bHoldValues);
 
-	for(int y=yMin; y<=yMax; y++)
+	int		nx		= 1 + (xMax - xMin);
+	int		ny		= 1 + (yMax - yMin);
+	sLong	nCells	= nx * ny;
+
+	if( m_Max_Samples > 0 && m_Max_Samples < nCells )
 	{
-		for(int x=xMin; x<=xMax; x++)
+		double	d = (double)nCells / (double)m_Max_Samples;
+
+		for(double i=0; i<(double)nCells; i+=d)
 		{
-			if( !is_NoData(x, y) )
+			int	y	= yMin + (int)i / nx;
+			int	x	= xMin + (int)i % nx;
+
+			double	Value	= asDouble(x, y);
+
+			if( !is_NoData_Value(Value) )
 			{
-				Statistics	+= asDouble(x, y);
+				Statistics.Add_Value(Value);
+			}
+		}
+
+		//for(int y=yMin; y<=yMax; y++)
+		//{
+		//	for(int x=xMin; x<=xMax; x++, i++)
+		//	{
+		//		if( fmod(i, d) < d )
+		//		{
+		//			double	Value	= asDouble(x, y);
+
+		//			if( !is_NoData_Value(Value) )
+		//			{
+		//				Statistics.Add_Value(Value);
+		//			}
+		//		}
+		//	}
+		//}
+	}
+	else
+	{
+		for(int y=yMin; y<=yMax; y++)
+		{
+			for(int x=xMin; x<=xMax; x++)
+			{
+				double	Value	= asDouble(x, y);
+
+				if( !is_NoData_Value(Value) )
+				{
+					Statistics	+= asDouble(x, y);
+				}
 			}
 		}
 	}

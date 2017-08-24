@@ -264,7 +264,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_SAMPLE_MAX"		, _TL("Maximum Samples"),
-		_TL("Default maximum number of samples used to build statistics. Set to zero to use all cells."),
+		_TL("Default maximum number of samples used to build statistics and histograms. Set to zero to use all cells."),
 		(int)SG_Grid_Get_Max_Samples(), 0, true
 	);
 

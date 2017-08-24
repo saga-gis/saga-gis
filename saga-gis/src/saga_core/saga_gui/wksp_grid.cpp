@@ -509,8 +509,8 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"MAX_SAMPLES"	, _TL("Maximum Samples"),
-		_TL("Maximum number of samples used to build statistics expressed as percent of the total number of cells."),
-		100.0 * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 1., true, 100., true
+		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
+		100.0 * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
 	);
 
 	//-----------------------------------------------------
