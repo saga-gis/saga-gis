@@ -71,52 +71,53 @@ CMelton_Ruggedness::CMelton_Ruggedness(void)
 {
 	Set_Name		(_TL("Melton Ruggedness Number"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Melton ruggedness number (MNR) is a simple flow accumulation related index, "
-		"calculated as difference between maximum and minimum elevation "
-		"in catchment area divided by square root of catchment area size. "
-		"The calculation is performed for each grid cell, therefore minimum elevation "
-		"is same as elevation at cell's position. "
-		"Due to the discrete character of a single maximum elevation, flow calculation "
-		"is simply done with Deterministic 8. "
-		"\n\n"
-		"References:\n"
-		"Marchi, L. &  Fontana, G.D. (2005): "
-		"GIS morphometric indicators for the analysis of sediment dynamics in mountain basins. "
-		"Environ. Geol. 48:218-228, DOI 10.1007/s00254-005-1292-4.\n"
-		"\n"
-		"Melton M.A. (1965): "
-		"The geomorphic and paleoclimatic significance of alluvial deposits in Southern Arizona. "
-		"J. Geol. 73:1-38.\n"
-		"\n"
-		"O'Callaghan, J.F. / Mark, D.M. (1984): "
-		"The extraction of drainage networks from digital elevation data. "
-		"Computer Vision, Graphics and Image Processing 28:323-344.\n"
+		"calculated as difference between maximum and minimum elevation in catchment "
+		"area divided by square root of catchment area size. The calculation is "
+		"performed for each grid cell, therefore minimum elevation is same as elevation "
+		"at cell's position. Due to the discrete character of a single maximum elevation, "
+		"flow calculation is simply done with Deterministic 8."
 	));
 
+	Add_Reference("Marchi, L. & Fontana, G.D.", "2005",
+		"GIS morphometric indicators for the analysis of sediment dynamics in mountain basins",
+		"Environ. Geol. 48:218-228, DOI 10.1007/s00254-005-1292-4."
+	);
+
+	Add_Reference("Melton M.A.", "1965",
+		"The geomorphic and paleoclimatic significance of alluvial deposits in Southern Arizona",
+		"J. Geol. 73:1-38."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"		, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"	, _TL("Catchment Area"),
+	Parameters.Add_Grid("",
+		"AREA"	, _TL("Catchment Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "ZMAX"	, _TL("Maximum Height"),
+	Parameters.Add_Grid("",
+		"ZMAX"	, _TL("Maximum Height"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "MRN"		, _TL("Melton Ruggedness Number"),
+	Parameters.Add_Grid("",
+		"MRN"	, _TL("Melton Ruggedness Number"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -124,8 +125,6 @@ CMelton_Ruggedness::CMelton_Ruggedness(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

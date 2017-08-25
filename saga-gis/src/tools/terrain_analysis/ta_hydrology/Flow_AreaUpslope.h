@@ -106,7 +106,7 @@ private:
 
 	double					m_MFD_Converge;
 
-	CSG_Grid					*m_pDTM, *m_pRoute, *m_pFlow;
+	CSG_Grid				*m_pDTM, *m_pRoute, *m_pFlow;
 
 
 	void					Set_Value			(int x, int y);
@@ -128,7 +128,6 @@ class CFlow_AreaUpslope_Interactive : public CSG_Tool_Grid_Interactive
 {
 public:
 	CFlow_AreaUpslope_Interactive(void);
-	virtual ~CFlow_AreaUpslope_Interactive(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Flow Accumulation" ));	}
 
@@ -151,7 +150,6 @@ class CFlow_AreaUpslope_Area : public CSG_Tool_Grid
 {
 public:
 	CFlow_AreaUpslope_Area(void);
-	virtual ~CFlow_AreaUpslope_Area(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Flow Accumulation" ));	}
 

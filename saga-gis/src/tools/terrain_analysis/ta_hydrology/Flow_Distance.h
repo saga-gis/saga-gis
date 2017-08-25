@@ -85,7 +85,6 @@ class CFlow_Distance : public CSG_Tool_Grid
 {
 public:
 	CFlow_Distance(void);
-	virtual ~CFlow_Distance(void);
 
 	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation") );	}
 
@@ -99,7 +98,7 @@ private:
 
 	double					m_Converge;
 
-	CSG_Grid					*m_pDTM, *m_pLength, *m_pWeight;
+	CSG_Grid				*m_pDTM, *m_pLength, *m_pWeight;
 
 
 	void					Set_Length_D8	(int x, int y);

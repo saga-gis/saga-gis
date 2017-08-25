@@ -89,33 +89,35 @@ public:
 
 protected:
 
-	virtual void			On_Initialize	(void);
-	virtual void			On_Finalize		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			Calculate		(void);
-	virtual bool			Calculate		(int x, int y);
+	virtual void			On_Initialize			(void);
+	virtual void			On_Finalize				(void);
+
+	virtual bool			Calculate				(void);
+	virtual bool			Calculate				(int x, int y);
 
 
 private:
 
-	bool					bFlowPathWeight;
+	bool					m_bWeighting;
 
-	int						Method;
+	int						m_Method;
 
-	double					Src_Value, DEMON_minDQV;
+	double					m_Val_Input, DEMON_minDQV;
 
-	CSG_Grid				*pLinear, *pDir, *pDif;
+	CSG_Grid				m_Dir, m_Dif, m_Linear;
 
 
-	void					Add_Flow		(int x, int y, double qFlow);
+	void					Add_Flow		(int x, int y, double Flow);
 
-	void					Rho8_Start		(int x, int y, double qFlow);
+	void					Rho8_Start		(int x, int y, double Flow);
 
-	void					KRA_Start		(int x, int y, double qFlow);
-	void					KRA_Trace		(int x, int y, double qFlow, int Direction, double from);
+	void					KRA_Start		(int x, int y, double Flow);
+	void					KRA_Trace		(int x, int y, double Flow, int Direction, double from);
 
-	void					DEMON_Start		(int x, int y, double qFlow);
-	void					DEMON_Trace		(int x, int y, double qFlow, int Direction, double from_A, double from_B);
+	void					DEMON_Start		(int x, int y, double Flow);
+	void					DEMON_Trace		(int x, int y, double Flow, int Direction, double from_A, double from_B);
 };
 
 

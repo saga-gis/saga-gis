@@ -77,36 +77,36 @@ CFlow_Length::CFlow_Length(void)
 
 	Set_Description	(_TW(
 		"This tool calculates the maximum upstream or downstream distance "
-		"or weighted distance along the flow path for each cell "
-		"based on \'Deterministic 8 (D8)\' (O'Callaghan and Mark 1984) flow directions.\n"
-		"\n"
-		"Reference:\n"
-		"O'Callaghan, J.F., Mark, D.M. (1984): "
-		"'The extraction of drainage networks from digital elevation data'. "
-		" Computer Vision, Graphics and Image Processing, 28:323-344\n"
+		"or weighted distance along the flow path for each cell based on "
+		"\'Deterministic 8 (D8)\' (O'Callaghan and Mark 1984) flow directions."
 	));
 
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "WEIGHTS"		, _TL("Weights"),
+	Parameters.Add_Grid("",
+		"WEIGHTS"	, _TL("Weights"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("Flow Path Length"),
+	Parameters.Add_Grid("",
+		"DISTANCE"	, _TL("Flow Path Length"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DIRECTION"	, _TL("Direction of Measurement"),
+	Parameters.Add_Choice("",
+		"DIRECTION"	, _TL("Direction of Measurement"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("downstream"),

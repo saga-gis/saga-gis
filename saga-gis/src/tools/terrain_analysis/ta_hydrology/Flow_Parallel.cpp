@@ -74,81 +74,100 @@ CFlow_Parallel::CFlow_Parallel(void)
 {
 	Set_Name		(_TL("Flow Accumulation (Top-Down)"));
 
-	Set_Author		("O.Conrad (c) 2001-2016, T.Grabs portions (c) 2010");
+	Set_Author		("O.Conrad (c) 2001-2016, Portions by T.Grabs (c) 2010");
 
 	Set_Description	(_TW(
 		"Top-down processing of cells for calculation of flow accumulation and related parameters. "
 		"This set of algorithms processes a DEM downwards from the highest to the lowest cell.\n"
 		"\n"
-		"References:\n"
-		"\n"
-		"Deterministic 8\n"
-		"- O'Callaghan, J.F. / Mark, D.M. (1984):\n"
-		"    'The extraction of drainage networks from digital elevation data',\n"
-		"    Computer Vision, Graphics and Image Processing, 28:323-344\n"
-		"\n"
-		"Rho 8:\n"
-		"- Fairfield, J. / Leymarie, P. (1991):\n"
-		"    'Drainage networks from grid digital elevation models',\n"
-		"    Water Resources Research, 27:709-717\n"
-		"\n"
-		"Braunschweiger Reliefmodell:\n"
-		"- Bauer, J. / Rohdenburg, H. / Bork, H.-R. (1985):\n"
-		"    'Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse',\n"
-		"    Landschaftsgenese und Landschaftsoekologie, H.10, Parameteraufbereitung fuer deterministische Gebiets-Wassermodelle,\n"
-		"    Grundlagenarbeiten zu Analyse von Agrar-Oekosystemen, (Eds.: Bork, H.-R. / Rohdenburg, H.), p.1-15\n"
-		"\n"
-		"Deterministic Infinity:\n"
-		"- Tarboton, D.G. (1997):\n"
-		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Resources Research, Vol.33, No.2, p.309-319\n"
-		"\n"
-		"Multiple Flow Direction:\n"
-		"- Freeman, G.T. (1991):\n"
-		"    'Calculating catchment area with divergent flow based on a regular grid',\n"
-		"    Computers and Geosciences, 17:413-22\n"
-		"\n"
-		"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
-		"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-		"    Hydrological Processes, 5:59-79\n"
-		"\n"
-		"Triangular Multiple Flow Direction\n"
-		"- Seibert, J. / McGlynn, B. (2007):\n"
-		"    'A new triangular multiple flow direction algorithm for computing upslope areas from gridded digital elevation models',\n"
-		"    Water Resources Research, Vol. 43, W04501\n"
-		"    C++ Implementation into SAGA by Thomas Grabs, Copyrights (c) 2007\n"
-		"    Contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se \n"
-		"\n"
-		"Multiple Flow Direction based on Maximum Downslope Gradient:\n"
-		"- Qin, C. Z. / Zhu, A. X. / Pei, T. / Li, B. L. / Scholten, T. / Behrens, T. / & Zhou, C. H. (2011):\n"
-		"    'An approach to computing topographic wetness index based on maximum downslope gradient',\n"
-		"    Precision Agriculture, 12(1), 32-43.\n"
+		"Flow routing methods provided by this tool:<ul>"
+		"<li>Deterministic 8 (aka D8, O'Callaghan & Mark 1984)</li>"
+		"<li>Braunschweiger Reliefmodell (Bauer et al. 1985)</li>"
+		"<li>Rho 8 (Fairfield & Leymarie 1991)</li>"
+		"<li>Multiple Flow Direction (Freeman 1991, Quinn et al. 1991)</li>"
+		"<li>Deterministic Infinity (Tarboton 1997)</li>"
+		"<li>Triangular Multiple Flow Direction (Seibert & McGlynn 2007</li>"
+		"<li>Multiple Flow Direction based on Maximum Downslope Gradient (Qin et al. 2011)</li>"
+		"</ul>"
 	));
 
+	Add_Reference("Bauer, J., Rohdenburg, H. & Bork, H.-R.", "1985",
+		"Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse",
+		"Landschaftsgenese und Landschaftsoekologie, H.10, p.1-15."
+	);
+
+	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
+		"Drainage networks from grid digital elevation models",
+		"Water Resources Research, 27:709-717."
+	);
+
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Qin, C. Z., Zhu, A. X., Pei, T., Li, B. L., Scholten, T., Behrens, T. & Zhou, C. H.", "2011",
+		"An approach to computing topographic wetness index based on maximum downslope gradient",
+		"Precision Agriculture, 12(1), 32-43.",
+		SG_T("https://www.researchgate.net/profile/Cheng-Zhi_Qin/publication/225309245_An_approach_to_computing_topographic_wetness_index_based_on_maximum_downslope_gradient/links/0912f5019cb8cd1521000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Seibert, J. & McGlynn, B.", "2007",
+		"A new triangular multiple flow direction algorithm for computing upslope areas from gridded digital elevation models",
+		"Water Resources Research, Vol. 43, W04501,<br>"
+		"C++ implementation in SAGA by Thomas Grabs (c) 2007, contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/2006WR005128/full"),
+		SG_T("Wiley")
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
+		SG_T("Wiley")
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "FLOW_LENGTH"	, _TL("Flow Path Length"),
+	Parameters.Add_Grid("",
+		"FLOW_LENGTH"	, _TL("Flow Path Length"),
 		_TL("average distance that a cell's accumulated flow travelled"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LINEAR_VAL"	, _TL("Linear Flow Threshold Grid"),
+	Parameters.Add_Grid("",
+		"LINEAR_VAL"	, _TL("Linear Flow Threshold Grid"),
 		_TL("optional grid providing values to be compared with linear flow threshold instead of flow accumulation"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LINEAR_DIR"	, _TL("Channel Direction"),
+	Parameters.Add_Grid("",
+		"LINEAR_DIR"	, _TL("Channel Direction"),
 		_TL("use this for (linear) flow routing, if the value is a valid direction (0-7 = N, NE, E, SE, S, SW, W, NW)"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
+	Parameters.Add_Grid("",
+		"WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
+		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occurred"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
@@ -161,38 +180,29 @@ CFlow_Parallel::CFlow_Parallel(void)
 		), 4
 	);
 
-
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	pNode	= Parameters.Add_Value(
-		NULL	, "LINEAR_DO"	, _TL("Thresholded Linear Flow"),
+	Parameters.Add_Bool("",
+		"LINEAR_DO"		, _TL("Thresholded Linear Flow"),
 		_TL("apply linear flow routing (D8) to all cells, having a flow accumulation greater than the specified threshold"),
-		PARAMETER_TYPE_Bool
+		true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LINEAR_MIN"	, _TL("Linear Flow Threshold"),
+	Parameters.Add_Int("LINEAR_DO",
+		"LINEAR_MIN"	, _TL("Linear Flow Threshold"),
 		_TL("flow accumulation threshold (cells) for linear flow routing"),
-		PARAMETER_TYPE_Int,	500
+		500, 0, true
 	);
 	
-	Parameters.Add_Value(
-		NULL	, "CONVERGENCE"	, _TL("Convergence"),
+	Parameters.Add_Double("",
+		"CONVERGENCE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991).\nApplies also to the Multiple Triangular Flow Directon Algorithm."),
-		PARAMETER_TYPE_Double, 1.1, 0.0, true
+		1.1, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NO_NEGATIVES", _TL("Prevent Negative Flow Accumulation"),
+	Parameters.Add_Bool("",
+		"NO_NEGATIVES"	, _TL("Prevent Negative Flow Accumulation"),
 		_TL("when using weights: do not transport negative flow, set it to zero instead; useful e.g. when accumulating measures of water balance."),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Grid(
-		NULL	, "WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
-		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occurred"),
-		PARAMETER_OUTPUT_OPTIONAL
+		true
 	);
 }
 

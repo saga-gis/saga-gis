@@ -20,136 +20,137 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
+//-----------------------------------------------------
 #include "IsochronesVar.h"
 #include "Helper.h"
 
+//-----------------------------------------------------
 #ifndef max
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 
-
 //-----------------------------------------------------
 CIsochronesVar::CIsochronesVar(void){
 
-	Parameters.Set_Name(_TL("Isochrones Variable Speed"));
-	Set_Author(_TL("V.Olaya (c) 2004, V.Wichmann (c) 2015"));
-	Parameters.Set_Description(_TW(
+	Set_Name		(_TL("Isochrones Variable Speed"));
+
+	Set_Author		("V.Olaya (c) 2004, V.Wichmann (c) 2015");
+
+	Set_Description	(_TW(
 		"Calculation of isochrones with variable speed.\n"
 		"In case a cell in an optional input grid is NoData, the corresponding parameter value will "
 		"be used instead of skipping this cell.\n\n"
-		"References:\n"
-		"1. Al-Smadi, Mohammad: Incorporating spatial and temporal variation of "
-		"watershed response in a gis-based hydrologic model. Faculty of the Virginia Polythecnic"
-		"Insitute and State University. MsC Thesis. 1998\n"
-		"Available at scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"
-		"2. Martínez Álvarez, V.; Dal-Ré Tenreiro, R.; García García, A. I.; Ayuga Téllez, F. "
-		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG. Evaluación experimental.\n"
-		"3. Olaya, V. Hidrologia computacional y modelos digitales del terreno. Alqua. 536 pp. 2004\n\n"));
+	));
 
-	Parameters.Add_Grid(NULL,
-						"DEM",
-						_TL("Elevation"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Add_Reference("Al-Smadi, Mohammad", "1998",
+		"Incorporating spatial and temporal variation of watershed response in a gis-based hydrologic model",
+		"Faculty of the Virginia Polythecnic Insitute and State University. MsC Thesis.",
+		SG_T("scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"),
+		SG_T("online")
+	);
 
-	Parameters.Add_Grid(NULL,
-						"SLOPE",
-						_TL("Slope"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Add_Reference("Martínez Álvarez, V.; Dal-Ré Tenreiro, R.; García García, A. I.; Ayuga Téllez, F.", "",
+		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG",
+		"Evaluación experimental."
+	);
 
-	Parameters.Add_Grid(NULL,
-						"FLOWACC",
-						_TL("Catchment Area"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Add_Reference("Olaya, V.", "2004",
+		"Hidrologia computacional y modelos digitales del terreno",
+		"Alqua. 536 pp."
+	);
 
-	Parameters.Add_Grid(NULL,
-						"CN",
-						_TL("Curve Number"),
-						_TL(""),
-						PARAMETER_INPUT_OPTIONAL);
+	//-------------------------------------------------
+	Parameters.Add_Grid("",
+		"DEM", _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Grid(NULL,
-						"MANNING",
-						_TL("Manning's N"),
-						_TL(""),
-						PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("",
+		"SLOPE", _TL("Slope"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Value(NULL,
-						"AVGMANNING",
-						_TL("Avg. Manning's N"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						0.15);
+	Parameters.Add_Grid("",
+		"FLOWACC", _TL("Catchment Area"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Value(NULL,
-						"AVGCN",
-						_TL("Avg. Curve Number"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						75);
+	Parameters.Add_Grid("",
+		"CN", _TL("Curve Number"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
 
-	Parameters.Add_Value(NULL,
-						"THRSMIXED",
-						_TL("Mixed Flow Threshold (ha)"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						18);
+	Parameters.Add_Grid("",
+		"MANNING", _TL("Manning's N"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
 
-	Parameters.Add_Value(NULL,
-						"THRSCHANNEL",
-						_TL("Channel Definition Threshold (ha)"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						360);
+	Parameters.Add_Grid("",
+		"TIME", _TL("Time Out(h)"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Double
+	);
 
-	Parameters.Add_Value(NULL,
-						"AVGRAINFALL",
-						_TL("Avg. Rainfall Intensity (mm/h)"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						1);
+	Parameters.Add_Grid("",
+		"SPEED", _TL("Speed (m/s)"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Double
+	);
 
+	//-------------------------------------------------
+	Parameters.Add_Double("",
+		"AVGMANNING", _TL("Avg. Manning's N"),
+		_TL(""),
+		0.15
+	);
 
-	Parameters.Add_Value(NULL,
-						"CHANSLOPE",
-						_TL("Channel side slope(m/m)"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						0.5);
+	Parameters.Add_Double("",
+		"AVGCN", _TL("Avg. Curve Number"),
+		_TL(""),
+		75
+	);
 
-	Parameters.Add_Value(NULL,
-						"MINSPEED",
-						_TL("Min. Flow Speed (m/s)"),
-						_TL(""),
-						PARAMETER_TYPE_Double,
-						0.05);
+	Parameters.Add_Double("",
+		"THRSMIXED", _TL("Mixed Flow Threshold (ha)"),
+		_TL(""),
+		18
+	);
 
-	Parameters.Add_Grid(NULL,
-						"TIME",
-						_TL("Time Out(h)"),
-						_TL(""),
-						PARAMETER_OUTPUT,
-						true,
-						SG_DATATYPE_Double);
+	Parameters.Add_Double("",
+		"THRSCHANNEL", _TL("Channel Definition Threshold (ha)"),
+		_TL(""),
+		360
+	);
 
-	Parameters.Add_Grid(NULL,
-						"SPEED",
-						_TL("Speed (m/s)"),
-						_TL(""),
-						PARAMETER_OUTPUT,
-						true,
-						SG_DATATYPE_Double);
+	Parameters.Add_Double("",
+		"AVGRAINFALL", _TL("Avg. Rainfall Intensity (mm/h)"),
+		_TL(""),
+		1
+	);
 
-}//constructor
+	Parameters.Add_Double("",
+		"CHANSLOPE", _TL("Channel side slope(m/m)"),
+		_TL(""),
+		0.5
+	);
 
-
-//-----------------------------------------------------
-CIsochronesVar::~CIsochronesVar(void){
-	Execute_Finish();
+	Parameters.Add_Double("",
+		"MINSPEED", _TL("Min. Flow Speed (m/s)"),
+		_TL(""),
+		0.05
+	);
 }
 
+//-----------------------------------------------------
+CIsochronesVar::~CIsochronesVar(void)
+{
+	Execute_Finish();
+}
 
 //-----------------------------------------------------
 void CIsochronesVar::_CalculateTime(int x, int y)

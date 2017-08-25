@@ -88,84 +88,60 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 		"The Mass-Flux Method (MFM) for the DEM based calculation of flow accumulation "
 		"as proposed by Gruber and Peckham (2008).\n"
 		"\n"
-		"!!!UNDER DEVELOPMENT!!! To be done: solving the streamline resolution problem\n"
-		"\n"
-		"References:\n"
-		"Gruber, S., Peckham, S. (2008): Land-Surface Parameters and Objects in Hydrology. "
-		"In: Hengl, T. and Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. "
-		"Developments in Soil Science, Elsevier, Bd.33, S.293-308.\n"
+		"!!!UNDER DEVELOPMENT!!! To be done: solving the streamline resolution problem"
 	));
 
+	Add_Reference("Gruber, S. & Peckham, S.", "2008",
+		"Land-Surface Parameters and Objects in Hydrology",
+		"In: Hengl, T. & Reuter, H.I. [Eds.]: Geomorphometry: Concepts, Software, Applications. "
+		"Developments in Soil Science, Elsevier, Bd.33, S.293-308.",
+		SG_T("https://www.researchgate.net/profile/Scott_Peckham2/publication/256829608_Chapter_7_Land-Surface_Parameters_and_Objects_in_Hydrology/links/0c960523c979588e91000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"		, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"	, _TL("Flow Accumulation"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Flow Accumulation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Flow Split Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Flow Split Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("flow width (original)"),
 			_TL("cell area")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Node(NULL, "NODE_QUARTERS", _TL("Create Output of Quarter Cell Grids"), _TL(""));
-
-	Parameters.Add_Value(
-		pNode	, "B_SLOPE"	, _TL("Slope"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Node("",
+		"QUARTERS"	, _TL("Create Output of Quarter Cell Information"),
+		_TL("")
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "G_SLOPE"	, _TL("Slope")	, _TL("")
-	);
+	Parameters.Add_Bool("QUARTERS" , "B_SLOPE" , _TL("Slope"            ), _TL(""));
+	Parameters.Add_Grid_Output  ("", "G_SLOPE" , _TL("Slope"            ), _TL(""));
 
-	Parameters.Add_Value(
-		pNode	, "B_ASPECT", _TL("Aspect"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
+	Parameters.Add_Bool("QUARTERS" , "B_ASPECT", _TL("Aspect"           ), _TL(""));
+	Parameters.Add_Grid_Output  ("", "G_ASPECT", _TL("Aspect"           ), _TL(""));
 
-	Parameters.Add_Grid_Output(
-		NULL	, "G_ASPECT", _TL("Aspect")	, _TL("")
-	);
+	Parameters.Add_Bool("QUARTERS" , "B_AREA"  , _TL("Flow Accumulation"), _TL(""));
+	Parameters.Add_Grid_Output  ("", "G_AREA"  , _TL("Flow Accumulation"), _TL(""));
 
-	Parameters.Add_Value(
-		pNode	, "B_AREA"	, _TL("Flow Accumulation"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "G_AREA"	, _TL("Flow Accumulation")	, _TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "B_FLOW"	, _TL("Flow Lines"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Shapes_Output(
-		NULL	, "G_FLOW"	, _TL("Flow Lines")	, _TL("")
-	);
+	Parameters.Add_Bool("QUARTERS" , "B_FLOW"  , _TL("Flow Lines"       ), _TL(""));
+	Parameters.Add_Shapes_Output("", "G_FLOW"  , _TL("Flow Lines"       ), _TL(""));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -176,9 +152,9 @@ bool CFlow_MassFlux::On_Execute(void)
 	CSG_Grid	*pArea;
 
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")		->asGrid();
-	pArea		= Parameters("AREA")	->asGrid();
-	m_Method	= Parameters("METHOD")	->asInt();
+	m_pDEM		= Parameters("DEM"   )->asGrid();
+	pArea		= Parameters("AREA"  )->asGrid();
+	m_Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
 	if( 1 )

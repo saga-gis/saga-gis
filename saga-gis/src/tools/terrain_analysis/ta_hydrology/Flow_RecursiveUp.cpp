@@ -77,82 +77,90 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"Recursive upward processing of cells for calculation of flow accumulation and related parameters. "
-		"This set of algorithms processes recursively all upwards connected cells until each cell of the DEM has been processed.\n\n"
+		"Recursive upward processing of cells for calculation of flow accumulation "
+		"and related parameters. This set of algorithms processes recursively all "
+		"upwards connected cells until each cell of the DEM has been processed.\n"
+		"\n"
+		"Flow routing methods provided by this tool:<ul>"
+		"<li>Deterministic 8 (aka D8, O'Callaghan & Mark 1984)</li>"
+		"<li>Rho 8 (Fairfield & Leymarie 1991)</li>"
+		"<li>Multiple Flow Direction (Freeman 1991, Quinn et al. 1991)</li>"
+		"<li>Deterministic Infinity (Tarboton 1997)</li>"
+		"</ul>"
+	));
 
-		"References:\n\n"
-
-		"Deterministic 8\n"
-		"- O'Callaghan, J.F. / Mark, D.M. (1984):\n"
-		"    'The extraction of drainage networks from digital elevation data',\n"
-		"    Computer Vision, Graphics and Image Processing, 28:323-344\n\n"
-
-		"Rho 8:\n"
-		"- Fairfield, J. / Leymarie, P. (1991):\n"
-		"    'Drainage networks from grid digital elevation models',\n"
-		"    Water Resources Research, 27:709-717\n\n"
-
-		"Deterministic Infinity:\n"
-		"- Tarboton, D.G. (1997):\n"
-		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
-
-		"Multiple m_Flow Direction:\n"
-		"- Freeman, G.T. (1991):\n"
-		"    'Calculating catchment area with divergent flow based on a regular grid',\n"
-		"    Computers and Geosciences, 17:413-22\n\n"
-
-		"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
-		"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-		"    Hydrological Processes, 5:59-79\n\n")
+	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
+		"Drainage networks from grid digital elevation models",
+		"Water Resources Research, 27:709-717."
 	);
 
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
+		SG_T("Wiley")
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "TARGETS"		, _TL("Target Areas"),
+	Parameters.Add_Grid("",
+		"TARGETS"		, _TL("Target Areas"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "FLOW_LENGTH"	, _TL("Flow Path Length"),
+	Parameters.Add_Grid("",
+		"FLOW_LENGTH"	, _TL("Flow Path Length"),
 		_TL("average distance that a cell's accumulated flow travelled"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
+	Parameters.Add_Grid("",
+		"WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
+		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occurred"),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Deterministic Infinity"),
-			_TL("Multiple m_Flow Direction")
+			_TL("Multiple Flow Direction")
 		), 3
 	);
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "CONVERGENCE"	, _TL("Convergence"),
-		_TL("Convergence factor for Multiple m_Flow Direction Algorithm (Freeman 1991)"),
-		PARAMETER_TYPE_Double	, 1.1
+	Parameters.Add_Double("",
+		"CONVERGENCE"	, _TL("Convergence"),
+		_TL("Convergence factor for Multiple Flow Direction Algorithm (Freeman 1991)"),
+		1.1, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NO_NEGATIVES", _TL("Prevent Negative Flow Accumulation"),
+	Parameters.Add_Bool("",
+		"NO_NEGATIVES"	, _TL("Prevent Negative Flow Accumulation"),
 		_TL("when using weights: do not transport negative flow, set it to zero instead; useful e.g. when accumulating measures of water balance."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
-
-	Parameters.Add_Grid(
-		NULL	, "WEIGHT_LOSS"	, _TL("Loss through Negative Weights"),
-		_TL("when using weights without support for negative flow: output of the absolute amount of negative flow that occurred"),
-		PARAMETER_OUTPUT_OPTIONAL
-	);
-
 	
 	//-----------------------------------------------------
 	m_Flow	= NULL;

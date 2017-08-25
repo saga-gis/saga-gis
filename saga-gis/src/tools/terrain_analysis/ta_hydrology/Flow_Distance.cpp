@@ -79,89 +79,75 @@ CFlow_Distance::CFlow_Distance(void)
 
 	Set_Description	(_TW(
 		"This tool calculates the average flow path length starting from the seeds, "
-		"that are given by the optional \'Seeds\' grid and optionally from cells without upslope contributing areas "
-		"(i.e. summits, ridges). Seeds will be all grid cells, that "
-		"are not \'no data\' values. If seeds are not given, only summits and ridges as given by the flow routing will be taken into account. "
-		"Available flow routing methods are based on the "
-		"\'Deterministic 8 (D8)\' (Callaghan and Mark 1984) and the \'Multiple Flow Direction (FD8)\' "
-		"(Freeman 1991, Quinn et al. 1991) algorithms.\n\n"
+		"that are given by the optional \'Seeds\' grid and optionally from cells "
+		"without upslope contributing areas (i.e. summits, ridges). Seeds will be "
+		"all grid cells, that are not \'no data\' values. If seeds are not given, "
+		"only summits and ridges as given by the flow routing will be taken into "
+		"account. Available flow routing methods are based on the \'Deterministic 8 "
+		"(D8)\' (Callaghan and Mark 1984) and the \'Multiple Flow Direction (FD8)\' "
+		"(Freeman 1991, Quinn et al. 1991) algorithms."
+	));
 
-		"References:\n\n"
-
-		"Deterministic 8\n"
-		"- O'Callaghan, J.F. / Mark, D.M. (1984):\n"
-		"    'The extraction of drainage networks from digital elevation data',\n"
-		"    Computer Vision, Graphics and Image Processing, 28:323-344\n\n"
-
-		"- Freeman, G.T. (1991):\n"
-		"    'Calculating catchment area with divergent flow based on a regular grid',\n"
-		"    Computers and Geosciences, 17:413-22\n\n"
-
-		"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
-		"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-		"    Hydrological Processes, 5:59-79\n\n")
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
 	);
 
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
 
 	//-----------------------------------------------------
-	// Input...
-
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SEED"		, _TL("Seeds"),
+	Parameters.Add_Grid("",
+		"SEED"		, _TL("Seeds"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-
-	//-----------------------------------------------------
-	// Output...
-
-	Parameters.Add_Grid(
-		NULL	, "LENGTH"		, _TL("Flow Path Length"),
+	Parameters.Add_Grid("",
+		"LENGTH"	, _TL("Flow Path Length"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-
 	//-----------------------------------------------------
-	// Options...
-
-	Parameters.Add_Value(
-		NULL	, "SEEDS_ONLY"	, _TL("Seeds Only"),
-		_TL("Use only seed cells as starting points."),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool("",
+		"SEEDS_ONLY", _TL("Seeds Only"),
+		_TL("Use only seed cells as starting points.")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Flow Routing Algorithm"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Flow Routing Algorithm"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Deterministic 8 (D8)"),
 			_TL("Multiple Flow Direction (FD8)")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONVERGENCE"	, _TL("Convergence (FD8)"),
+	Parameters.Add_Double("",
+		"CONVERGENCE"	, _TL("Convergence (FD8)"),
 		_TL("Convergence factor for the \'Multiple Flow Direction\' algorithm (after Freeman 1991)"),
-		PARAMETER_TYPE_Double	, 1.1, 0.0, true
+		1.1, 0.001, true
 	);
 }
 
-//---------------------------------------------------------
-CFlow_Distance::~CFlow_Distance(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -230,8 +216,6 @@ bool CFlow_Distance::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

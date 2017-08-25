@@ -79,117 +79,124 @@ CErosion_LS_Fields::CErosion_LS_Fields(void)
 
 	Set_Description	(_TW(
 		"Calculation of slope length (LS) factor as used for the Universal Soil Loss Equation (USLE), "
-		"based on slope and (specific) catchment area, latter as substitute for slope length. "
-		"This tool takes only a Digital Elevation Model (DEM) as input and derives catchment areas "
-		"according to Freeman (1991). "
-		"Optionally field polygons can be supplied. Is this the case, calculations will be performed "
-		"field by field, i.e. catchment area calculation is restricted to each field's area. "
-		"\n"
-		"References:\n"
-		"\n"
-		"Boehner, J., Selige, T. (2006): "
-		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation. "
-		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
-		"Goettinger Geographische Abhandlungen, 115, 13-27.\n"
-		"\n"
-		"Desmet, P.J.J., Govers, G. (1996): "
-		"A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units. "
-		"Journal of Soil and Water Conservation, 51(5), 427-433.\n"
-		"\n"
-		"Freeman, G.T. (1991): "
-		"Calculating catchment area with divergent flow based on a regular grid. "
-		"Computers and Geosciences, 17:413-22\n"
-		"\n"
-		"Kinnell, P.I.A. (2005): "
-		"Alternative Approaches for Determining the USLE-M Slope Length Factor for Grid Cells. "
-		"<a href=\"online\">https://www.soils.org/publications/sssaj/abstracts/69/3/0674</a>\n"
-		"\n"
-		"Moore, I.D., Grayson, R.B., Ladson, A.R. (1991): "
-		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications. "
-		"Hydrological Processes, 5(1).\n"
-		"\n"
-		"Moore, I.D., Nieber, J.L. (1991): "
-		"Landscape assessment of soil erosion and nonpoint source pollution. "
-		"J. Minnesota Acad. Sci., 55, 18-25.\n"
-		"\n"
-		"Wischmeier, W.H., Smith, D.D. (1978): "
-		"Predicting rainfall erosion losses - A guide to conservation planning. "
-		"Agriculture Handbook No. 537: US Department of Agriculture, Washington DC.\n"
+		"based on slope and (specific) catchment area, latter as substitute for slope length. This tool "
+		"takes only a Digital Elevation Model (DEM) as input and derives catchment areas according to "
+		"Freeman (1991). Optionally field polygons can be supplied. Is this the case, calculations will "
+		"be performed field by field, i.e. catchment area calculation is restricted to each field's area."
 	));
 
+	Add_Reference("Boehner, J. & Selige, T.", "2006",
+		"Spatial Prediction of Soil Attributes Using Terrain Analysis and Climate Regionalisation",
+		"In: Boehner, J., McCloy, K.R., Strobl, J.: 'SAGA - Analysis and Modelling Applications', "
+		"Goettinger Geographische Abhandlungen, 115, 13-27."
+	);
+
+	Add_Reference("Desmet, P.J.J. & Govers, G.", "1996",
+		"A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units",
+		"Journal of Soil and Water Conservation, 51(5), 427-433."
+	);
+
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference(
+		"Kinnell, P.I.A.", "2005",
+		"'Alternative Approaches for Determining the USLE-M Slope Length Factor for Grid Cells",
+		"soil.scijournals.org, 69/3/674", SG_T("http://soil.scijournals.org/cgi/content/full/69/3/674")
+	);
+
+	Add_Reference(
+		"Moore, I.D., Grayson, R.B., Ladson, A.R.", "1991",
+		"Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications",
+		"Hydrological Processes, Vol.5, No.1."
+	);
+
+	Add_Reference("Moore, I.D., Nieber, J.L.", "1991",
+		"Landscape assessment of soil erosion and nonpoint source pollution",
+		"J. Minnesota Acad. Sci., 55, 18-25."
+	);
+
+	Add_Reference(
+		"Wischmeier, W.H., Smith, D.D.", "1978",
+		"Predicting rainfall erosion losses - A guide to conservation planning",
+		"Agriculture Handbook No. 537: US Department of Agriculture, Washington DC."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"				, "Elevation",
+	Parameters.Add_Grid("",
+		"DEM"			, "Elevation",
 		"",
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "FIELDS"			, "Fields",
+	Parameters.Add_Shapes("",
+		"FIELDS"		, "Fields",
 		"",
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "STATISTICS"		, "Field Statistics",
+	Parameters.Add_Shapes("",
+		"STATISTICS"	, "Field Statistics",
 		"",
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "UPSLOPE_AREA"	, _TL("Upslope Length Factor"),
+	Parameters.Add_Grid("",
+		"UPSLOPE_AREA"	, _TL("Upslope Length Factor"),
 		"",
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "UPSLOPE_LENGTH"	, _TL("Effective Flow Length"),
+	Parameters.Add_Grid("",
+		"UPSLOPE_LENGTH", _TL("Effective Flow Length"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "UPSLOPE_SLOPE"	, _TL("Upslope Slope"),
+	Parameters.Add_Grid("",
+		"UPSLOPE_SLOPE"	, _TL("Upslope Slope"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LS_FACTOR"		, _TL("LS Factor"),
+	Parameters.Add_Grid("",
+		"LS_FACTOR"		, _TL("LS Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "BALANCE"			, _TL("Sediment Balance"),
+	Parameters.Add_Grid("",
+		"BALANCE"		, _TL("Sediment Balance"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("LS Calculation"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("LS Calculation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("Moore & Nieber 1989"),
 			_TL("Desmet & Govers 1996"),
 			_TL("Wischmeier & Smith 1978")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD_SLOPE"	, _TL("Type of Slope"),
+	Parameters.Add_Choice("",
+		"METHOD_SLOPE"	, _TL("Type of Slope"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("local slope"),
 			_TL("distance weighted average catchment slope")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD_AREA"		, _TL("Specific Catchment Area"),
+	Parameters.Add_Choice("",
+		"METHOD_AREA"	, _TL("Specific Catchment Area"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("specific catchment area (contour length simply as cell size)"),
 			_TL("specific catchment area (contour length dependent on aspect)"),
 			_TL("catchment length (square root of catchment area)"),
@@ -198,28 +205,28 @@ CErosion_LS_Fields::CErosion_LS_Fields(void)
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STOP_AT_EDGE"	, _TL("Stop at Edge"),
+	Parameters.Add_Bool("",
+		"STOP_AT_EDGE"	, _TL("Stop at Edge"),
 		"",
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "DESMET_GOVERS"	, _TL("Desmet & Govers"),
+	Parameters.Add_Node("",
+		"DESMET_GOVERS"	, _TL("Desmet & Govers"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
+	Parameters.Add_Double("DESMET_GOVERS",
+		"EROSIVITY"		, _TL("Rill/Interrill Erosivity"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "STABILITY"	, _TL("Stability"),
+	Parameters.Add_Choice("DESMET_GOVERS",
+		"STABILITY"		, _TL("Stability"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("stable"),
 			_TL("instable (thawing)")
 		), 0
@@ -229,8 +236,6 @@ CErosion_LS_Fields::CErosion_LS_Fields(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -238,21 +243,19 @@ int CErosion_LS_Fields::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		pParameters->Get_Parameter("DESMET_GOVERS")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("DESMET_GOVERS", pParameter->asInt() == 1);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
 	{
-		pParameters->Get_Parameter("STATISTICS")->Set_Enabled(pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("STATISTICS"   , pParameter->asShapes() != NULL);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -306,8 +309,6 @@ bool CErosion_LS_Fields::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -424,8 +425,6 @@ double CErosion_LS_Fields::Get_Flow(int x, int y, double dz[8])
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -555,8 +554,6 @@ double CErosion_LS_Fields::Get_LS(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -664,8 +661,6 @@ bool CErosion_LS_Fields::Get_Balance(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -732,8 +727,6 @@ bool CErosion_LS_Fields::Get_Statistics(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

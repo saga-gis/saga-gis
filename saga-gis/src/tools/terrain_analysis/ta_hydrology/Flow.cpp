@@ -88,30 +88,30 @@ CFlow::CFlow(void)
 	m_bPoint	= false;
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "ELEVATION"    , _TL("Elevation"                        ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "SINKROUTE"    , _TL("Sink Routes"                      ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "WEIGHTS"      , _TL("Weights"                          ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("", "ELEVATION"    , _TL("Elevation"                        ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "SINKROUTE"    , _TL("Sink Routes"                      ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("", "WEIGHTS"      , _TL("Weights"                          ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
-	Parameters.Add_Grid(NULL, "FLOW"         , _TL("Flow Accumulation"                ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "FLOW"         , _TL("Flow Accumulation"                ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(NULL, "VAL_INPUT"    , _TL("Input for Mean over Catchment"    ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "VAL_MEAN"     , _TL("Mean over Catchment"              ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "VAL_INPUT"    , _TL("Input for Mean over Catchment"    ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("", "VAL_MEAN"     , _TL("Mean over Catchment"              ), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(NULL, "ACCU_MATERIAL", _TL("Material for Accumulation"        ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid(NULL, "ACCU_TARGET"  , _TL("Accumulation Target"              ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "ACCU_TOTAL"   , _TL("Accumulated Material"             ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);	
-	Parameters.Add_Grid(NULL, "ACCU_LEFT"    , _TL("Accumulated Material (Left Side)" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
-	Parameters.Add_Grid(NULL, "ACCU_RIGHT"   , _TL("Accumulated Material (Right Side)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
+	Parameters.Add_Grid("", "ACCU_MATERIAL", _TL("Material for Accumulation"        ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("", "ACCU_TARGET"  , _TL("Accumulation Target"              ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "ACCU_TOTAL"   , _TL("Accumulated Material"             ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);	
+	Parameters.Add_Grid("", "ACCU_LEFT"    , _TL("Accumulated Material (Left Side)" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
+	Parameters.Add_Grid("", "ACCU_RIGHT"   , _TL("Accumulated Material (Right Side)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
 	
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "STEP"		, _TL("Step"),
+	Parameters.Add_Int("",
+		"STEP"		, _TL("Step"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FLOW_UNIT"	, _TL("Flow Accumulation Unit"),
+	Parameters.Add_Choice("",
+		"FLOW_UNIT"	, _TL("Flow Accumulation Unit"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("number of cells"),

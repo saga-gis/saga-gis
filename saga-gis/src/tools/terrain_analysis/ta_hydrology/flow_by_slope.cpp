@@ -83,52 +83,51 @@ CFlow_by_Slope::CFlow_by_Slope(void)
 		"through it at all. With increasing slopes the portion of flow routed through "
 		"a cell becomes higher. Cells with slopes greater than a specified slope threshold "
 		"route their entire accumulated flow downhill. "		 
-
-		"\nReferences:\n"
-		"- Freeman, G.T. (1991):"
-		" Calculating catchment area with divergent flow based on a regular grid."
-		" Computers and Geosciences, 17:413-22\n"
 	));
 
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "WEIGHT"		, _TL("Weight"),
+	Parameters.Add_Grid("",
+		"WEIGHT"	, _TL("Weight"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "FLOW"		, _TL("Flow Accumulation"),
+	Parameters.Add_Grid("",
+		"FLOW"		, _TL("Flow Accumulation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SLOPE_MIN"	, _TL("Slope Minimum"),
+	Parameters.Add_Double("",
+		"SLOPE_MIN"	, _TL("Slope Minimum"),
 		_TL("Assume a given minimum slope for each cell."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SLOPE_MAX"	, _TL("Slope Threshold"),
+	Parameters.Add_Double("",
+		"SLOPE_MAX"	, _TL("Slope Threshold"),
 		_TL("Slope threshold, given as degree, above which flow transport is unlimited."),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 90.0, true
+		5.0, 0.0, true, 90.0, true
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Value(
-		NULL	, "B_FLOW"		, _TL("Use Flow Threshold"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool("",
+		"B_FLOW"	, _TL("Use Flow Threshold"),
+		_TL("")
 	);
 
-	Parameters.Add_Range(
-		pNode	, "T_FLOW"		, _TL("Flow Threshold"),
+	Parameters.Add_Range("B_FLOW",
+		"T_FLOW"	, _TL("Flow Threshold"),
 		_TL("Flow threshold, given as amount of cells, above which flow transport is unlimited. Ignored if range equals zero."),
 		1.0, 100.0, 1.0, true
 	);

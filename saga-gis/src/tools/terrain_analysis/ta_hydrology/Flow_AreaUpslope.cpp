@@ -86,48 +86,23 @@ CFlow_AreaUpslope::~CFlow_AreaUpslope(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CFlow_AreaUpslope::Get_Description(void)
 {
-	return(
-		_TW(
-			"This tool allows you to specify target cells, "
-			"for which the upslope contributing area shall be identified. "
-			"The result will give "
-			"for each cell the percentage of its flow that reaches the target cell(s).\n\n"
-
-			"References:\n\n"
-
-			"Deterministic 8\n"
-			"- O'Callaghan, J.F. / Mark, D.M. (1984):\n"
-			"    'The extraction of drainage networks from digital elevation data',\n"
-			"    Computer Vision, Graphics and Image Processing, 28:323-344\n\n"
-
-			"Deterministic Infinity:\n"
-			"- Tarboton, D.G. (1997):\n"
-			"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-			"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
-
-			"Multiple Flow Direction:\n"
-			"- Freeman, G.T. (1991):\n"
-			"    'Calculating catchment area with divergent flow based on a regular grid',\n"
-			"    Computers and Geosciences, 17:413-22\n\n"
-
-			"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
-			"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-			"    Hydrological Processes, 5:59-79\n\n"
-		)
-	);
+	return( _TW(
+		"This tool allows you to specify target cells, for which the "
+		"upslope contributing area shall be identified. The result will "
+		"give for each cell the percentage of its flow that reaches the "
+		"target cell(s)."
+	));
 }
 
 //---------------------------------------------------------
 CSG_String CFlow_AreaUpslope::Get_Methods(void)
 {
-	return( CSG_String::Format(SG_T("%s|%s|%s|"),
+	return( CSG_String::Format("%s|%s|%s|",
 		_TL("Deterministic 8"),
 		_TL("Deterministic Infinity"),
 		_TL("Multiple Flow Direction")
@@ -136,8 +111,6 @@ CSG_String CFlow_AreaUpslope::Get_Methods(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -238,8 +211,6 @@ bool CFlow_AreaUpslope::Get_Area(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -379,57 +350,78 @@ void CFlow_AreaUpslope::Set_MFD(int x, int y)
 CFlow_AreaUpslope_Interactive::CFlow_AreaUpslope_Interactive(void)
 {
 	Set_Name		(_TL("Upslope Area"));
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
-	Set_Description	(CSG_String::Format(SG_T("%s_______\n%s"), m_Calculator.Get_Description().c_str(),
+	Set_Author		("O.Conrad (c) 2001");
+
+	Set_Description	(CSG_String::Format("%s\n_______\n\n%s", m_Calculator.Get_Description().c_str(),
 		_TL("Interactive version (left mouse clicks will trigger the calculation for the selected cell).")
 	));
 
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
+		SG_T("Wiley")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
+	Parameters.Add_Grid("",
+		"SINKROUTE"	, _TL("Sink Routes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"		, _TL("Upslope Area"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Upslope Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		m_Calculator.Get_Methods(), 2
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONVERGE"	, _TL("Convergence"),
+	Parameters.Add_Double("",
+		"CONVERGE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction algorithm"),
-		PARAMETER_TYPE_Double	, 1.1, 0.001, true
+		1.1, 0.001, true
 	);
 }
-
-//---------------------------------------------------------
-CFlow_AreaUpslope_Interactive::~CFlow_AreaUpslope_Interactive(void)
-{}
 
 //---------------------------------------------------------
 bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 {
 	if( m_Calculator.Initialise(
-		Parameters("METHOD")	->asInt(),
-		Parameters("ELEVATION")	->asGrid(),
-		Parameters("SINKROUTE")	->asGrid(),
-		Parameters("AREA")		->asGrid(),
-		Parameters("CONVERGE")	->asDouble()	) )
+		Parameters("METHOD"   )->asInt   (),
+		Parameters("ELEVATION")->asGrid  (),
+		Parameters("SINKROUTE")->asGrid  (),
+		Parameters("AREA"     )->asGrid  (),
+		Parameters("CONVERGE" )->asDouble()	) )
 	{
 		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 100, SG_COLORS_WHITE_BLUE);
 
@@ -469,66 +461,87 @@ bool CFlow_AreaUpslope_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_T
 CFlow_AreaUpslope_Area::CFlow_AreaUpslope_Area(void)
 {
 	Set_Name		(_TL("Upslope Area"));
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
 
-	Set_Description	(CSG_String::Format(SG_T("%s_______\n\n%s"), m_Calculator.Get_Description().c_str(),
+	Set_Author		("O.Conrad (c) 2001");
+
+	Set_Description	(CSG_String::Format("%s\n_______\n\n%s", m_Calculator.Get_Description().c_str(),
 		_TW("This version uses all valid cells (not \'no data\' values) of a given target grid to determine the contributing area. "
 			"In case no target grid is provided as input, the specified x/y coordinates are used as target point.")
 	));
 
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
+		SG_T("Wiley")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "TARGET"		, _TL("Target Area"),
+	Parameters.Add_Grid("",
+		"TARGET"	, _TL("Target Area"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TARGET_PT_X"	, _TL("Target X coordinate"),
+	Parameters.Add_Value("",
+		"TARGET_PT_X", _TL("Target X coordinate"),
 		_TL("The x-coordinate of the target point in world coordinates [map units]"),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TARGET_PT_Y"	, _TL("Target Y coordinate"),
+	Parameters.Add_Value("",
+		"TARGET_PT_Y", _TL("Target Y coordinate"),
 		_TL("The y-coordinate of the target point in world coordinates [map units]"),
 		PARAMETER_TYPE_Double, 0.0
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
+	Parameters.Add_Grid("",
+		"SINKROUTE"	, _TL("Sink Routes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AREA"		, _TL("Upslope Area"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Upslope Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		m_Calculator.Get_Methods(), 2
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONVERGE"	, _TL("Convergence"),
+	Parameters.Add_Double("",
+		"CONVERGE"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction algorithm"),
-		PARAMETER_TYPE_Double	, 1.1, 0.001, true
+		1.1, 0.001, true
 	);
 }
-
-//---------------------------------------------------------
-CFlow_AreaUpslope_Area::~CFlow_AreaUpslope_Area(void)
-{}
 
 //---------------------------------------------------------
 bool CFlow_AreaUpslope_Area::On_Execute(void)
@@ -537,22 +550,21 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 
 	//-----------------------------------------------------
 	if( m_Calculator.Initialise(
-		Parameters("METHOD")	->asInt(),
-		Parameters("ELEVATION")	->asGrid(),
-		Parameters("SINKROUTE")	->asGrid(),
-		Parameters("AREA")		->asGrid(),
-		Parameters("CONVERGE")	->asDouble()	) )
+		Parameters("METHOD"   )->asInt   (),
+		Parameters("ELEVATION")->asGrid  (),
+		Parameters("SINKROUTE")->asGrid  (),
+		Parameters("AREA"     )->asGrid  (),
+		Parameters("CONVERGE" )->asDouble()	) )
 	{
 		if( m_Calculator.Clr_Target() )
 		{
-			int		x, y;
 			CSG_Grid	*pTarget	= Parameters("TARGET")->asGrid();
 
 			if( pTarget != NULL )
 			{
-				for(y=0; y<Get_NY() && Set_Progress(y); y++)
+				for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 				{
-					for(x=0; x<Get_NX(); x++)
+					for(int x=0; x<Get_NX(); x++)
 					{
 						if( !pTarget->is_NoData(x, y) && m_Calculator.Add_Target(x, y) )
 						{
@@ -563,7 +575,12 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 			}
 			else
 			{
-				Parameters("ELEVATION")->asGrid()->Get_System().Get_World_to_Grid(x, y, Parameters("TARGET_PT_X")->asDouble(), Parameters("TARGET_PT_Y")->asDouble());
+				int	x, y;
+
+				Parameters("ELEVATION")->asGrid()->Get_System().Get_World_to_Grid(x, y,
+					Parameters("TARGET_PT_X")->asDouble(),
+					Parameters("TARGET_PT_Y")->asDouble()
+				);
 
 				if( m_Calculator.Add_Target(x, y) )
 				{

@@ -74,94 +74,87 @@
 //---------------------------------------------------------
 CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 {
-	Set_Name(_TL("Downslope Area"));
+	Set_Name		(_TL("Downslope Area"));
 
-	Set_Author		(SG_T("(c) 2001 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"This interactive tool allows you to specify source cells (with a left mouse click), "
 		"for which the downslope area shall be identified. "
 		"For the 'Deterministic Infinity' and 'Multiple Flow Direction' algorithms, "
 		"which are able to simulate flow divergence, the result will give "
-		"the percentage of the source cell's flow that drains through each cell.\n\n"
+		"the percentage of the source cell's flow that drains through each cell."
+	));
 
-		"References:\n\n"
-
-		"Deterministic 8\n"
-		"- O'Callaghan, J.F. / Mark, D.M. (1984):\n"
-		"    'The extraction of drainage networks from digital elevation data',\n"
-		"    Computer Vision, Graphics and Image Processing, 28:323-344\n\n"
-
-		"Rho 8:\n"
-		"- Fairfield, J. / Leymarie, P. (1991):\n"
-		"    'Drainage networks from grid digital elevation models',\n"
-		"    Water Resources Research, 27:709-717\n\n"
-
-		"Braunschweiger Reliefmodell:\n"
-		"- Bauer, J. / Rohdenburg, H. / Bork, H.-R. (1985):\n"
-		"    'Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse',\n"
-		"    Landschaftsgenese und Landschaftsoekologie, H.10, Parameteraufbereitung fuer deterministische Gebiets-Wassermodelle,\n"
-		"    Grundlagenarbeiten zu Analyse von Agrar-Oekosystemen, (Eds.: Bork, H.-R. / Rohdenburg, H.), p.1-15\n\n"
-
-		"Deterministic Infinity:\n"
-		"- Tarboton, D.G. (1997):\n"
-		"    'A new method for the determination of flow directions and upslope areas in grid digital elevation models',\n"
-		"    Water Resources Research, Vol.33, No.2, p.309-319\n\n"
-
-		"Multiple Flow Direction:\n"
-		"- Freeman, G.T. (1991):\n"
-		"    'Calculating catchment area with divergent flow based on a regular grid',\n"
-		"    Computers and Geosciences, 17:413-22\n\n"
-
-		"- Quinn, P.F. / Beven, K.J. / Chevallier, P. / Planchon, O. (1991):\n"
-		"    'The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models',\n"
-		"    Hydrological Processes, 5:59-79\n\n"
-
-		"Kinematic Routing Algorithm:\n"
-		"- Lea, N.L. (1992):\n"
-		"    'An aspect driven kinematic routing algorithm',\n"
-		"    in: Parsons, A.J., Abrahams, A.D. (Eds.), 'Overland Flow: hydraulics and erosion mechanics', London, 147-175\n\n"
-
-		"DEMON:\n"
-		"- Costa-Cabral, M. / Burges, S.J. (1994):\n"
-		"    'Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas',\n"
-		"    Water Resources Research, 30:1681-1692\n\n")
+	Add_Reference("Bauer, J., Rohdenburg, H. & Bork, H.-R.", "1985",
+		"Ein Digitales Reliefmodell als Vorraussetzung fuer ein deterministisches Modell der Wasser- und Stoff-Fluesse",
+		"Landschaftsgenese und Landschaftsoekologie, H.10, p.1-15."
 	);
 
+	Add_Reference("Costa-Cabral, M. & Burges, S.J.", "1994",
+		"Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas",
+		"Water Resources Research, 30:1681-1692.",
+		SG_T("https://www.researchgate.net/profile/Mariza_Costa-Cabral/publication/233756725_Digital_Elevation_Model_Networks_DEMON_A_model_of_flow_over_hillslopes_for_computation_of_contributing_and_dispersal_areas/links/0912f50b3c13976e7d000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
+		"Drainage networks from grid digital elevation models",
+		"Water Resources Research, 27:709-717."
+	);
+
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference("Lea, N.L.", "1992",
+		"An aspect driven kinematic routing algorithm",
+		"In: Parsons, A.J. & Abrahams, A.D. [Eds.], 'Overland Flow: hydraulics and erosion mechanics', London, 147-175."
+	);
+
+	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference("Quinn, P.F., Beven, K.J., Chevallier, P. & Planchon, O.", "1991",
+		"The prediction of hillslope flow paths for distributed hydrological modelling using digital terrain models",
+		"Hydrological Processes, 5:59-79.",
+		SG_T("https://www.researchgate.net/profile/Olivier_Planchon/publication/32978462_The_Prediction_of_Hillslope_Flow_Paths_for_Distributed_Hydrological_Modeling_Using_Digital_Terrain_Model/links/0912f5130c356c86e6000000.pdf"),
+		SG_T("ResearchGate")
+	);
+
+	Add_Reference("Tarboton, D.G.", "1997",
+		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
+		"Water Resources Research, Vol.33, No.2, p.309-319.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
+		SG_T("Wiley")
+	);
 
 	//-----------------------------------------------------
-	// Input...
-
-	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SINKROUTE"	, _TL("Sink Routes"),
+	Parameters.Add_Grid("",
+		"SINKROUTE"	, _TL("Sink Routes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-
-	//-----------------------------------------------------
-	// Output...
-
-	Parameters.Add_Grid(
-		NULL	, "AREA"		, _TL("Downslope Area"),
+	Parameters.Add_Grid("",
+		"AREA"		, _TL("Downslope Area"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-
-	//-----------------------------------------------------
-	// Method...
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
@@ -174,20 +167,13 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 		), 4
 	);
 
-
-	//-----------------------------------------------------
-	// Options...
-
-	Parameters.Add_Value(
-		NULL	, "CONVERG"		, _TL("Convergence"),
+	Parameters.Add_Double("",
+		"CONVERG"	, _TL("Convergence"),
 		_TL("Convergence factor for Multiple Flow Direction algorithm"),
-		PARAMETER_TYPE_Double, 1.1, 0.001, true
+		1.1, 0.001, true
 	);
 
-
 	//-----------------------------------------------------
-	// Initialisations...
-
 	pFlow	= NULL;
 }
 
@@ -199,8 +185,6 @@ CFlow_AreaDownslope::~CFlow_AreaDownslope(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -278,6 +262,11 @@ bool CFlow_AreaDownslope::On_Execute(void)
 	return( pFlow != NULL );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CFlow_AreaDownslope::On_Execute_Finish(void)
 {
@@ -307,3 +296,12 @@ bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

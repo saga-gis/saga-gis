@@ -52,7 +52,6 @@
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -87,32 +86,32 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 
 	Set_Description	(_TW(
 		"Flow tracing algorithms for calculations of flow accumulation and related parameters. "
-		"These algorithms trace the flow of each cell in a DEM separately until it finally leaves the DEM or ends in a sink.\n\n"
+		"These algorithms trace the flow of each cell in a DEM separately until it finally "
+		"leaves the DEM or ends in a sink.\n"
+		"The Rho 8 implementation (Fairfield & Leymarie 1991) adopts the original algorithm only "
+		"for the flow routing and will give quite different results."
+	));
 
-		"References:\n\n"
-
-		"Rho 8 (this implementation adopted the original algorithm only for the flow routing and will give quite different results):\n"
-		"- Fairfield, J. / Leymarie, P. (1991):\n"
-		"    'Drainage networks from grid digital elevation models',\n"
-		"    Water Resources Research, 27:709-717\n\n"
-
-		"Kinematic Routing Algorithm:\n"
-		"- Lea, N.L. (1992):\n"
-		"    'An aspect driven kinematic routing algorithm',\n"
-		"    in: Parsons, A.J., Abrahams, A.D. (Eds.), 'Overland Flow: hydraulics and erosion mechanics', London, 147-175\n\n"
-
-		"DEMON:\n"
-		"- Costa-Cabral, M. / Burges, S.J. (1994):\n"
-		"    'Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas',\n"
-		"    Water Resources Research, 30:1681-1692\n\n")
+	Add_Reference("Costa-Cabral, M. & Burges, S.J.", "1994",
+		"Digital Elevation Model Networks (DEMON): a model of flow over hillslopes for computation of contributing and dispersal areas",
+		"Water Resources Research, 30:1681-1692.",
+		SG_T("https://www.researchgate.net/profile/Mariza_Costa-Cabral/publication/233756725_Digital_Elevation_Model_Networks_DEMON_A_model_of_flow_over_hillslopes_for_computation_of_contributing_and_dispersal_areas/links/0912f50b3c13976e7d000000.pdf"),
+		SG_T("ResearchGate")
 	);
 
+	Add_Reference("Fairfield, J. & Leymarie, P.", "1991",
+		"Drainage networks from grid digital elevation models",
+		"Water Resources Research, 27:709-717."
+	);
+
+	Add_Reference("Lea, N.L.", "1992",
+		"An aspect driven kinematic routing algorithm",
+		"In: Parsons, A.J. & Abrahams, A.D. [Eds.], 'Overland Flow: hydraulics and erosion mechanics', London, 147-175."
+	);
 
 	//-----------------------------------------------------
-	// Method...
-
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("m_Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("Rho 8"),
@@ -121,21 +120,34 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 		), 1
 	);
 
-
-	//-----------------------------------------------------
-	// Options...
-
-	Parameters.Add_Value(
-		NULL	, "MINDQV"		, _TL("DEMON - Min. DQV"),
-		_TL("DEMON - Minimum Drainage Quota Volume (DQV) for traced flow tubes"),
-		PARAMETER_TYPE_Double	,	0.0, 0.0, true, 1.0, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "CORRECT"		, _TL("Flow Correction"),
+	Parameters.Add_Bool("",
+		"CORRECT"	, _TL("Flow Correction"),
 		_TL(""),
-		PARAMETER_TYPE_Bool
+		true
 	);
+
+	Parameters.Add_Double("",
+		"MINDQV"	, _TL("DEMON - Min. DQV"),
+		_TL("DEMON - Minimum Drainage Quota Volume (DQV) for traced flow tubes"),
+		0.0, 0.0, true, 1.0, true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CFlow_RecursiveDown::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("CORRECT", pParameter->asInt() >= 1);
+		pParameters->Set_Enabled("MINDQV" , pParameter->asInt() == 2);
+	}
+
+	return( CFlow::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -146,103 +158,76 @@ CFlow_RecursiveDown::CFlow_RecursiveDown(void)
 //---------------------------------------------------------
 void CFlow_RecursiveDown::On_Initialize(void)
 {
-	int		x, y;
-	double	Slope, Aspect;
-
-	//-----------------------------------------------------
-	Method			= Parameters("METHOD" )->asInt();
+	m_Method		= Parameters("METHOD" )->asInt   ();
+	m_bWeighting	= Parameters("CORRECT")->asBool  ();
 	DEMON_minDQV	= Parameters("MINDQV" )->asDouble();
-	bFlowPathWeight	= Parameters("CORRECT")->asBool();
 
-	pLinear			= 1 ? SG_Create_Grid(m_pDTM, SG_DATATYPE_Float) : NULL;
-
-	//-----------------------------------------------------
 	Lock_Create();
 
+	m_Linear.Create(*Get_System(), SG_DATATYPE_Float);
+
 	//-----------------------------------------------------
-	switch( Method )
+	m_Dir.Create(*Get_System(), SG_DATATYPE_Char );
+	m_Dif.Create(*Get_System(), SG_DATATYPE_Float);
+
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-	case 0: default:	// Rho 8...
-
-		pDir		= NULL;
-		pDif		= NULL;
-
-		break;
-
-	//-----------------------------------------------------
-	case 1:	case 2:		// KRA, DEMON...
-
-		pDir		= SG_Create_Grid(m_pDTM, SG_DATATYPE_Char);
-		pDif		= SG_Create_Grid(m_pDTM, SG_DATATYPE_Float);
-
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			for(x=0; x<Get_NX(); x++)
-			{
-				if( !m_pDTM->is_NoData(x, y) )
-				{
-					Get_Gradient(x, y, Slope, Aspect);
+			double	Slope, Aspect;
 
-					if( Aspect >= 0.0 )
-					{
-						pDir->Set_Value(x, y, 2 * (((int)(Aspect / M_PI_090)) % 4));
-						pDif->Set_Value(x, y, fmod(Aspect, M_PI_090));
-					}
-				}
+			if( !m_pDTM->Get_Gradient(x, y, Slope, Aspect) || Aspect < 0.0 )
+			{
+				m_Dir.Set_NoData(x, y);
+				m_Dif.Set_NoData(x, y);
+			}
+			else if( m_Method == 0 )	// Rho 8
+			{
+				m_Dir.Set_Value(x, y, ((int)(Aspect / M_PI_045) % 8));
+				m_Dif.Set_Value(x, y,   fmod(Aspect,  M_PI_045) / M_PI_045);
+			}
+			else						// KRA, DEMON
+			{
+				m_Dir.Set_Value(x, y, ((int)(Aspect / M_PI_090) % 4) * 2);
+				m_Dif.Set_Value(x, y,   fmod(Aspect,  M_PI_090));
 			}
 		}
-
-		break;
 	}
 }
 
 //---------------------------------------------------------
 void CFlow_RecursiveDown::On_Finalize(void)
 {
-	//-----------------------------------------------------
-	if( pDir )
-	{
-		delete(pDir);
-	}
-
-	if( pDif )
-	{
-		delete(pDif);
-	}
-
 	Lock_Destroy();
 
+	m_Dir.Destroy();
+	m_Dif.Destroy();
+
 	//-----------------------------------------------------
-	if( pLinear )
+	if( m_Linear.is_Valid() && m_pDTM->Set_Index() )
 	{
-		if( m_pDTM->Set_Index() )
+		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
-			for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
+			int	x, y, i;	double	Flow;
+
+			if( m_pDTM->Get_Sorted(n, x, y) && (Flow = m_Linear.asDouble(x, y)) > 0.0 )
 			{
-				int		x, y, dir;
-				double	qFlow;
+				Add_Flow(x, y, Flow);
 
-				if( m_pDTM->Get_Sorted(n, x, y) && (qFlow = pLinear->asDouble(x, y)) > 0.0 )
+				if( (i = m_pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 				{
-					Add_Flow(x, y, qFlow);
+					x	= Get_xTo(i, x);
+					y	= Get_yTo(i, y);
 
-					if( (dir = m_pDTM->Get_Gradient_NeighborDir(x, y)) >= 0 )
+					if( m_pDTM->is_InGrid(x, y) )
 					{
-						x	= Get_xTo(dir, x);
-						y	= Get_yTo(dir, y);
-
-						if( m_pDTM->is_InGrid(x, y) )
-						{
-							pLinear->Add_Value(x, y, qFlow);
-						}
+						m_Linear.Add_Value(x, y, Flow);
 					}
 				}
 			}
 		}
 
-		delete(pLinear);
-
-		pLinear	= NULL;
+		m_Linear.Destroy();
 	}
 }
 
@@ -255,7 +240,7 @@ void CFlow_RecursiveDown::On_Finalize(void)
 bool CFlow_RecursiveDown::Calculate(void)
 {
 	for(int y=0; y<Get_NY() && Set_Progress(y); y+=m_Step)
-	{	//if( !(y%2) )DataObject_Update(pFlow);
+	{
 		for(int x=0; x<Get_NX(); x+=m_Step)
 		{
 			Calculate(x, y);
@@ -268,85 +253,73 @@ bool CFlow_RecursiveDown::Calculate(void)
 //---------------------------------------------------------
 bool CFlow_RecursiveDown::Calculate(int x, int y)
 {
-	double	qFlow;
+	double	Flow	= m_pDTM->is_NoData(x, y) ? 0.0 : m_pWeights ? m_pWeights->asDouble(x, y) : 1.0;
 
-	if( !m_pDTM->is_NoData(x, y) && (qFlow = m_pWeights ? m_pWeights->asDouble(x, y) : 1.0) > 0.0 )
+	if( Flow > 0.0 )
 	{
-		Src_Value	= m_pVal_Mean && !m_pVal_Input->is_NoData(x, y) ? m_pVal_Input->asDouble(x, y) : 0.0;
+		Add_Flow(x, y, Flow);
 
-		Add_Flow(x, y, qFlow);
+		m_Val_Input	= m_pVal_Mean && !m_pVal_Input->is_NoData(x, y) ? m_pVal_Input->asDouble(x, y) : 0.0;
 
 		Lock_Set(x, y, 1);
 
-		switch( Method )
+		switch( m_Method )
 		{
-		case 0:	Rho8_Start (x, y, qFlow);	break;
-		case 1:	KRA_Start  (x, y, qFlow);	break;
-		case 2:	DEMON_Start(x, y, qFlow);	break;
+		case  0: Rho8_Start (x, y, Flow); break;
+		case  1: KRA_Start  (x, y, Flow); break;
+		default: DEMON_Start(x, y, Flow); break;
 		}
 
 		Lock_Set(x, y, 0);
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
+}
+
+//---------------------------------------------------------
+inline void CFlow_RecursiveDown::Add_Flow(int x, int y, double Flow)
+{
+	if( m_pFlow     ) m_pFlow    ->Add_Value(x, y, Flow               );
+	if( m_pVal_Mean ) m_pVal_Mean->Add_Value(x, y, Flow * m_Val_Input );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CFlow_RecursiveDown::Add_Flow(int x, int y, double Fraction)
-{
-	if( m_pFlow     )	{	m_pFlow    ->Add_Value(x, y, Fraction);	}
-	if( m_pVal_Mean )	{	m_pVal_Mean->Add_Value(x, y, Fraction * Src_Value );	}
-}
-
-
-///////////////////////////////////////////////////////////
+//						Rho 8							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::Rho8_Start(int x, int y, double qFlow)
+void CFlow_RecursiveDown::Rho8_Start(int x, int y, double Flow)
 {
-	int		dir, ix, iy;
-	double 	Slope, Aspect;
-
-	//-----------------------------------------------------
-	Get_Gradient(x, y, Slope, Aspect);
-
-	if( Aspect >= 0.0 )
+	if( !m_Dir.is_NoData(x, y) )
 	{
-		dir		= (int)(Aspect / M_PI_045);
+		int	Dir	= m_Dir.asInt(x, y);
 
-		if( fmod(Aspect, M_PI_045) / M_PI_045 > rand() / (double)RAND_MAX )
+		if( m_Dif.asDouble(x, y) > CSG_Random::Get_Uniform(0, 1) )
 		{
-			dir++;
+			Dir	= (Dir + 1) % 8;
 		}
 
-		dir	%= 8;
+		int	ix	= Get_xTo(Dir, x);
+		int	iy	= Get_yTo(Dir, y);
 
-		ix		= Get_xTo(dir, x);
-		iy		= Get_yTo(dir, y);
-
-		//-------------------------------------------------
-		if( is_InGrid(ix, iy) )
+		if( m_pDTM->is_InGrid(ix, iy) )
 		{
-			if( is_Locked(ix, iy) )
+			if( is_Locked(ix, iy) || m_pDTM->asDouble(x, y) <= m_pDTM->asDouble(ix, iy) )
 			{
-				if( pLinear )
-				{
-					pLinear->Add_Value(x, y, qFlow);
-				}
+				m_Linear.Add_Value(ix, iy, Flow);
 			}
 			else
 			{
-				Lock_Set( x,  y, 1);
-				Add_Flow(ix, iy, qFlow);
-				Rho8_Start(ix, iy, qFlow);
-				Lock_Set( x,  y, 0);
+				Add_Flow  (ix, iy, Flow);
+
+				Lock_Set  (ix, iy, 1);
+				Rho8_Start(ix, iy, Flow);
+				Lock_Set  (ix, iy, 0);
 			}
 		}
 	}
@@ -355,32 +328,32 @@ void CFlow_RecursiveDown::Rho8_Start(int x, int y, double qFlow)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//				Kinematic Routing Algorithm				 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::KRA_Start(int x, int y, double qFlow)
+void CFlow_RecursiveDown::KRA_Start(int x, int y, double Flow)
 {
 	int		dir;
-	double	dif;
+	double	dif	= m_Dif.asDouble(x, y);
 
-	if( (dif = pDif->asDouble(x, y)) > M_PI_045 )	// to the right...
+	if( dif <= M_PI_045 )	// to the top...
 	{
-		dir		= pDir->asInt(x, y) + 2;
+		dir		= m_Dir.asInt(x, y);
+		dif		= 0.5 + tan(           dif) / 2.0;
+	}
+	else					// to the right...
+	{
+		dir		= m_Dir.asInt(x, y) + 2;
 		dif		= 0.5 - tan(M_PI_090 - dif) / 2.0;
 	}
-	else											// to the top...
-	{
-		dir		= pDir->asInt(x, y) + 0;
-		dif		= 0.5 + tan(dif) / 2.0;
-	}
 
-	KRA_Trace(x, y, qFlow, dir, dif);
+	KRA_Trace(x, y, Flow, dir, dif);
 }
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, double from)
+void CFlow_RecursiveDown::KRA_Trace(int x, int y, double Flow, int Direction, double from)
 {
 	bool	bLinear;
 	int		dir;
@@ -399,8 +372,8 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 		bLinear	= false;
 		weight	= 1.0;
 
-		dir		= pDir->asInt(x, y);
-		dif		= pDif->asDouble(x, y);
+		dir		= m_Dir.asInt(x, y);
+		dif		= m_Dif.asDouble(x, y);
 
 		//-------------------------------------------------
 		if( Direction == dir )						// entering from the bottom...
@@ -409,9 +382,9 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 			{
 				to		= GET_OUTLET_DIAG__1(from, dif);
 
-				KRA_Trace(x, y, qFlow, dir + 2, to);
+				KRA_Trace(x, y, Flow, dir + 2, to);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					weight	= GET_LENGTH(1.0 - from, 1.0 - to);
 				}
@@ -420,9 +393,9 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 			{
 				to		= GET_OUTLET_CROSS_1(from, dif);
 
-				KRA_Trace(x, y, qFlow, dir + 0, to);
+				KRA_Trace(x, y, Flow, dir + 0, to);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					weight	= GET_LENGTH(1.0, to - from);
 				}
@@ -434,9 +407,9 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 			{
 				to		= GET_OUTLET_DIAG__2(from, dif);
 
-				KRA_Trace(x, y, qFlow, dir + 0, to);
+				KRA_Trace(x, y, Flow, dir + 0, to);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					weight	= GET_LENGTH(from, to);
 				}
@@ -445,9 +418,9 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 			{
 				to		= GET_OUTLET_CROSS_2(from, dif);
 
-				KRA_Trace(x, y, qFlow, dir + 2, to);
+				KRA_Trace(x, y, Flow, dir + 2, to);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					weight	= GET_LENGTH(1.0, from - to);
 				}
@@ -459,13 +432,13 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 		}
 
 		//-------------------------------------------------
-		if( bLinear && pLinear )
+		if( bLinear )
 		{
-			pLinear->Add_Value(x, y, qFlow);
+			m_Linear.Add_Value(x, y, Flow);
 		}
 		else
 		{
-			Add_Flow(x, y, weight * qFlow);
+			Add_Flow(x, y, weight * Flow);
 		}
 
 		Lock_Set(x, y, 0);
@@ -480,11 +453,11 @@ void CFlow_RecursiveDown::KRA_Trace(int x, int y, double qFlow, int Direction, d
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::DEMON_Start(int x, int y, double qFlow)
+void CFlow_RecursiveDown::DEMON_Start(int x, int y, double Flow)
 {
 	double	dif, flow_A, flow_B;
 
-	if( (dif = pDif->asDouble(x, y)) < M_PI_045 )	// mostly to the top...
+	if( (dif = m_Dif.asDouble(x, y)) < M_PI_045 )	// mostly to the top...
 	{
 		flow_B	= tan(dif) / 2.0;
 		flow_A	= 1.0 - flow_B;
@@ -495,26 +468,26 @@ void CFlow_RecursiveDown::DEMON_Start(int x, int y, double qFlow)
 		flow_B	= 1.0 - flow_A;
 	}
 
-	flow_A	*= qFlow;
-	flow_B	*= qFlow;
+	flow_A	*= Flow;
+	flow_B	*= Flow;
 
 	if( flow_A <= DEMON_minDQV )
 	{
-		DEMON_Trace(x, y, qFlow , pDir->asInt(x, y) + 2, 0.0, 1.0);	// all to the right...
+		DEMON_Trace(x, y, Flow , m_Dir.asInt(x, y) + 2, 0.0, 1.0);	// all to the right...
 	}
 	else if( flow_B <= DEMON_minDQV )
 	{
-		DEMON_Trace(x, y, qFlow , pDir->asInt(x, y) + 0, 0.0, 1.0);	// all to the top...
+		DEMON_Trace(x, y, Flow , m_Dir.asInt(x, y) + 0, 0.0, 1.0);	// all to the top...
 	}
 	else
 	{
-		DEMON_Trace(x, y, flow_A, pDir->asInt(x, y) + 0, 0.0, 1.0);	// to the top...
-		DEMON_Trace(x, y, flow_B, pDir->asInt(x, y) + 2, 0.0, 1.0);	// to the right...
+		DEMON_Trace(x, y, flow_A, m_Dir.asInt(x, y) + 0, 0.0, 1.0);	// to the top...
+		DEMON_Trace(x, y, flow_B, m_Dir.asInt(x, y) + 2, 0.0, 1.0);	// to the right...
 	}
 }
 
 //---------------------------------------------------------
-void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction, double from_A, double from_B)
+void CFlow_RecursiveDown::DEMON_Trace(int _x, int _y, double Flow, int Direction, double from_A, double from_B)
 {
 	bool	bLinear;
 	int		dir;
@@ -522,19 +495,27 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 
 	Direction	%= 8;
 
-	x	= Get_xTo(Direction, x);
-	y	= Get_yTo(Direction, y);
+	int	x	= Get_xTo(Direction, _x);
+	int	y	= Get_yTo(Direction, _y);
 
 	//-----------------------------------------------------
-	if( m_pDTM->is_InGrid(x, y) && !is_Locked(x, y) )
+	if( !m_pDTM->is_InGrid(x, y) )
+	{
+		return;
+	}
+	else if( is_Locked(x, y) || m_pDTM->asDouble(_x, _y) <= m_pDTM->asDouble(x, y) )
+	{
+		m_Linear.Add_Value(x, y, Flow);
+	}
+	else
 	{
 		Lock_Set(x, y, 1);
 
 		bLinear	= false;
 		weight	= 1.0;
 
-		dir		= pDir->asInt(x, y);
-		dif		= pDif->asDouble(x, y);
+		dir		= m_Dir.asInt(x, y);
+		dif		= m_Dif.asDouble(x, y);
 
 		//-------------------------------------------------
 		if( Direction == dir )						// entering from the bottom...
@@ -544,9 +525,9 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 				to_A	= GET_OUTLET_DIAG__1(from_A, dif);
 				to_B	= GET_OUTLET_DIAG__1(from_B, dif);
 
-				DEMON_Trace(x, y, qFlow, dir + 2, to_A, to_B);
+				DEMON_Trace(x, y, Flow, dir + 2, to_A, to_B);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= ((1.0 - from_A) * (1.0 - to_A) - (1.0 - from_B) * (1.0 - to_B)) / 2.0;	// area...
 					weight	= GET_LENGTH(1.0 - (from_B + from_A) / 2.0, 1.0 - (to_B + to_A) / 2.0);
@@ -557,9 +538,9 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 				to_A	= GET_OUTLET_CROSS_1(from_A, dif);
 				to_B	= GET_OUTLET_CROSS_1(from_B, dif);
 
-				DEMON_Trace(x, y, qFlow, dir + 0, to_A, to_B);
+				DEMON_Trace(x, y, Flow, dir + 0, to_A, to_B);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= from_B - from_A;	// area...
 					weight	= GET_LENGTH(1.0, to_A - from_A);
@@ -574,10 +555,10 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 
 				flow_A	= dif - from_A;
 				flow_B	= from_B - dif;
-				flow_A	= qFlow * flow_A / (flow_A + flow_B);
-				flow_B	= qFlow - flow_A;
+				flow_A	= Flow * flow_A / (flow_A + flow_B);
+				flow_B	= Flow - flow_A;
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= (dif - from_A) + ((1.0 - dif) - (1.0 - from_B) * (1.0 - to_B)) / 2.0;	// area...
 					if( (weight = (from_A + from_B) / 2.0) < dif )	// to the top...
@@ -592,11 +573,11 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 
 				if( flow_A <= DEMON_minDQV )
 				{
-					DEMON_Trace(x, y, qFlow, dir + 2, 0.0, to_B);
+					DEMON_Trace(x, y, Flow, dir + 2, 0.0, to_B);
 				}
 				else if( flow_B <= DEMON_minDQV )
 				{
-					DEMON_Trace(x, y, qFlow, dir + 0, to_A, 1.0);
+					DEMON_Trace(x, y, Flow, dir + 0, to_A, 1.0);
 				}
 				else
 				{
@@ -612,9 +593,9 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 				to_A	= GET_OUTLET_DIAG__2(from_A, dif);
 				to_B	= GET_OUTLET_DIAG__2(from_B, dif);
 
-				DEMON_Trace(x, y, qFlow, dir + 0, to_A, to_B);
+				DEMON_Trace(x, y, Flow, dir + 0, to_A, to_B);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= (from_B * to_B - from_A * to_A) / 2.0;	// area...
 					weight	= GET_LENGTH((from_A + from_B) / 2.0, (to_A + to_B) / 2.0);
@@ -625,9 +606,9 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 				to_A	= GET_OUTLET_CROSS_2(from_A, dif);
 				to_B	= GET_OUTLET_CROSS_2(from_B, dif);
 
-				DEMON_Trace(x, y, qFlow, dir + 2, to_A, to_B);
+				DEMON_Trace(x, y, Flow, dir + 2, to_A, to_B);
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= from_B - from_A;	// area...
 					weight	= GET_LENGTH(1.0, from_A - to_A);
@@ -642,10 +623,10 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 
 				flow_A	= dif - from_A;
 				flow_B	= from_B - dif;
-				flow_A	= qFlow * flow_A / (flow_A + flow_B);
-				flow_B	= qFlow - flow_A;
+				flow_A	= Flow * flow_A / (flow_A + flow_B);
+				flow_B	= Flow - flow_A;
 
-				if( bFlowPathWeight )
+				if( m_bWeighting )
 				{
 					//weight	= (from_B - dif) + (dif - (from_A * to_A)) / 2.0;	// area...
 					if( (weight = (from_A + from_B) / 2.0) > dif )
@@ -660,11 +641,11 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 
 				if( flow_A <= DEMON_minDQV )
 				{
-					DEMON_Trace(x, y, qFlow, dir + 2, 0.0, to_B);
+					DEMON_Trace(x, y, Flow, dir + 2, 0.0, to_B);
 				}
 				else if( flow_B <= DEMON_minDQV )
 				{
-					DEMON_Trace(x, y, qFlow, dir + 0, to_A, 1.0);
+					DEMON_Trace(x, y, Flow, dir + 0, to_A, 1.0);
 				}
 				else
 				{
@@ -679,20 +660,20 @@ void CFlow_RecursiveDown::DEMON_Trace(int x, int y, double qFlow, int Direction,
 		}
 
 		//-------------------------------------------------
-		if( bLinear && pLinear )
+		if( bLinear )
 		{
-			pLinear->Add_Value(x, y, qFlow);
+			m_Linear.Add_Value(x, y, Flow);
 		}
 		else
 		{
-			if( bFlowPathWeight )
+			if( m_bWeighting )
 			{
-				Add_Flow(x, y, weight * qFlow);
-				//Add_Flow(x, y, weight >= qFlow ? qFlow : weight * qFlow);
+				Add_Flow(x, y, weight * Flow);
+				//Add_Flow(x, y, weight >= Flow ? Flow : weight * Flow);
 			}
 			else
 			{
-				Add_Flow(x, y, qFlow);
+				Add_Flow(x, y, Flow);
 			}
 		}
 
