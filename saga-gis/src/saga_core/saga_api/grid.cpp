@@ -138,7 +138,7 @@ static sLong		gSG_Grid_Max_Samples	= 0;
 //---------------------------------------------------------
 bool				SG_Grid_Set_Max_Samples			(sLong Max_Samples)
 {
-	if( Max_Samples > 0 )
+	if( Max_Samples >= 0 )
 	{
 		gSG_Grid_Max_Samples	= Max_Samples;
 
@@ -981,6 +981,13 @@ bool CSG_Grid::On_Update(void)
 					m_Statistics.Add_Value(Value);
 				}
 			}
+
+			m_Statistics.Create(
+				m_Statistics.Get_Mean(),
+				m_Statistics.Get_StdDev(),
+				m_Statistics.Get_Count() >= m_Max_Samples ? Get_NCells() :
+				(sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)m_Max_Samples)
+			);
 		}
 		else
 		{
