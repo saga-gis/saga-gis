@@ -354,6 +354,8 @@ bool CGrids_Create::On_Execute(void)
 		return( false );
 	}
 
+	pGrids->Set_Name(Parameters("NAME")->asString());
+
 	//-----------------------------------------------------
 	bool	bDelete	= Parameters("DELETE")->asBool();
 

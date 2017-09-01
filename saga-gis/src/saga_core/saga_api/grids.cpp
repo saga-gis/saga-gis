@@ -715,8 +715,6 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes, CSG_Grid *pGrid, bool bAt
 	//-----------------------------------------------------
 	m_Attributes.Add_Record(&Attributes);
 
-	m_pGrids[n]->Set_Name(CSG_String::Format("%s [%s]", Get_Name(), pGrid->Get_Name()));
-
 	if( !Get_Projection().is_Okay() && pGrid->Get_Projection().is_Okay() )
 	{
 		Get_Projection()	= pGrid->Get_Projection();
