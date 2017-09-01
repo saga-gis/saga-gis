@@ -98,7 +98,7 @@ public:
 
 protected:
 
-	void						Add_Button		(int Button_ID);
+	class wxButton *			Add_Button		(int Button_ID);
 
 	void						Set_Positions	(void);
 	virtual void				Set_Position	(wxRect r)	{}

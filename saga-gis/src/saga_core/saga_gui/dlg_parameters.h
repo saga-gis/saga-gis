@@ -86,25 +86,36 @@ class CDLG_Parameters : public CDLG_Base
 	DECLARE_CLASS(CDLG_Parameters)
 
 public:
-	CDLG_Parameters(class CSG_Parameters *pParameters);
+	CDLG_Parameters(class CSG_Parameters *pParameters, const wxString &Caption = "", const wxString &Info = "");
 	virtual ~CDLG_Parameters(void);
 
-	void						On_Ok			(wxCommandEvent &event);
-	void						On_Load			(wxCommandEvent &event);
-	void						On_Save			(wxCommandEvent &event);
-	void						On_Defaults		(wxCommandEvent &event);
+
+	void						Show_Info		(bool bShow = true);
 
 
 protected:
+
+	virtual void				Save_Changes	(void);
+
+	virtual void				Set_Position	(wxRect r);
+
+
+private:
 
 	class CSG_Parameters		*m_pParameters;
 
 	class CParameters_Control	*m_pControl;
 
+	class CDLG_Info				*m_pInfo;
 
-	virtual void				Save_Changes	(void);
+	class wxButton				*m_pInfo_Button;
 
-	virtual void				Set_Position	(wxRect r);
+
+	void						On_Ok			(wxCommandEvent &event);
+	void						On_Load			(wxCommandEvent &event);
+	void						On_Save			(wxCommandEvent &event);
+	void						On_Defaults		(wxCommandEvent &event);
+	void						On_Info			(wxCommandEvent &event);
 
 
 //---------------------------------------------------------

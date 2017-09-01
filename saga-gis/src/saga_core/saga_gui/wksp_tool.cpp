@@ -129,8 +129,8 @@ CWKSP_Tool::~CWKSP_Tool(void)
 wxString CWKSP_Tool::Get_Name(void)
 {
 	return( m_pTool->is_Interactive()
-		? wxString::Format(wxT("%s [%s]"), m_pTool->Get_Name().c_str(), _TL("interactive"))
-		: wxString::Format(wxT("%s")     , m_pTool->Get_Name().c_str())
+		? wxString::Format("%s [%s]", m_pTool->Get_Name().c_str(), _TL("interactive"))
+		: wxString::Format("%s"     , m_pTool->Get_Name().c_str())
 	);
 }
 
@@ -348,13 +348,13 @@ bool CWKSP_Tool::Execute(bool bDialog)
 	{
 		g_pTool	= this;
 
-		if( m_pTool->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pTool->Get_Parameters())) )
+		if( m_pTool->On_Before_Execution() && (!bDialog || DLG_Parameters(m_pTool->Get_Parameters(), "", m_pTool->Get_Summary(false).c_str())) )
 		{
 			g_pTools->Set_Recently_Used(this);
 
 			MSG_General_Add_Line();
 			MSG_Execution_Add_Line();
-			MSG_ADD(wxString::Format(wxT("%s: %s"), _TL("Executing tool"), m_pTool->Get_Name().c_str()));
+			MSG_ADD(wxString::Format("%s: %s", _TL("Executing tool"), m_pTool->Get_Name().c_str()));
 
 			STATUSBAR_Set_Text(m_pTool->Get_Name().w_str());
 

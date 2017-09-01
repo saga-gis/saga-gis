@@ -89,6 +89,8 @@ const wxString CTRL_Get_Name(int ID_CTRL)
 	case ID_BTN_LOAD           :	return( _TL("Load") );
 	case ID_BTN_SAVE           :	return( _TL("Save") );
 
+	case ID_BTN_DESCRIPTION    :	return( _TL("Info") );
+
 	case ID_BTN_DEFAULTS       :	return( _TL("Defaults") );
 
 	case ID_BTN_ADD            :	return( _TL("Add") );

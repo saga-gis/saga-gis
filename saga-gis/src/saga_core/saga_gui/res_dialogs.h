@@ -137,14 +137,14 @@ class wxPoint		DLG_Get_Def_Position	(void);
 class wxSize		DLG_Get_Def_Size		(void);
 
 //---------------------------------------------------------
-bool				DLG_Parameters			(class CSG_Parameters *pParameters, const wxString &Caption = wxT(""));
+bool				DLG_Parameters			(class CSG_Parameters *pParameters, const wxString &Caption = "", const wxString &Description = "");
 
 bool				DLG_Text				(const wxString &Caption, wxString &Text);
 bool				DLG_Table				(const wxString &Caption, class CSG_Table *pTable);
 bool				DLG_Table_Fields		(const wxString &Caption, class CSG_Parameter_Table_Fields *pFields);
 bool				DLG_Choices				(const wxString &Caption, class CSG_Parameter_Choices *pChoices);
 
-bool				DLG_Login				(wxString &Username, wxString &Password, const wxString &Caption = wxT(""));
+bool				DLG_Login				(wxString &Username, wxString &Password, const wxString &Caption = "");
 
 bool				DLG_List				(const wxString &Caption, class CSG_Parameter_List *pList);
 
@@ -169,7 +169,7 @@ bool				DLG_Open				(wxString &File_Path, const wxString &Caption, const wxStrin
 bool				DLG_Open				(wxArrayString &File_Paths, int ID_DLG);
 bool				DLG_Open				(wxArrayString &File_Paths, const wxString &Caption, const wxString &Filter);
 
-bool				DLG_Image_Save			(wxString &File_Path, int &Type, const wxString &def_Dir = wxT(""), const wxString &def_File = wxT(""));
+bool				DLG_Image_Save			(wxString &File_Path, int &Type, const wxString &def_Dir = "", const wxString &def_File = "");
 
 void				DLG_Message_Show		(int ID_DLG);
 void				DLG_Message_Show		(const wxString &Message);
