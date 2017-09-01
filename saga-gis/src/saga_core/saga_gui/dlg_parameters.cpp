@@ -106,7 +106,11 @@ public:
 
 	void			On_Close	(wxCloseEvent &event)
 	{
+#ifdef _SAGA_MSW
 		((CDLG_Parameters *)GetParent())->Show_Info(false);
+#else		
+		event.Skip();
+#endif
 	}
 
 	DECLARE_EVENT_TABLE()
