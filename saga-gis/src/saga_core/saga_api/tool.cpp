@@ -1256,13 +1256,14 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 		CSG_MetaData	m;
 
 		m.Set_Name    (SG_XML_TOOL);
-		m.Add_Property(SG_XML_TOOL_ATT_NAME  , Get_Name       ());
-		m.Add_Property(SG_XML_TOOL_ATT_ID    , Get_ID         ());
-		m.Add_Property(SG_XML_TOOL_ATT_AUTHOR, Get_Author     ());
-		m.Add_Child   (SG_XML_DESCRIPTION    , Get_Description());
-		m.Add_Child   (SG_XML_MENU           , Get_MenuPath   ());
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");
-		m.Add_Child   (SG_XML_SPEC_ATT_GRID  , is_Interactive () ? "true" : "false");
+		m.Add_Property(SG_XML_TOOL_ATT_NAME   , Get_Name       ());
+		m.Add_Property(SG_XML_TOOL_ATT_ID     , Get_ID         ());
+		m.Add_Property(SG_XML_TOOL_ATT_AUTHOR , Get_Author     ());
+		m.Add_Property(SG_XML_TOOL_ATT_VERSION, Get_Version    ());
+		m.Add_Child   (SG_XML_DESCRIPTION     , Get_Description());
+		m.Add_Child   (SG_XML_MENU            , Get_MenuPath   ());
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Grid        () ? "true" : "false");
+		m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Interactive () ? "true" : "false");
 
 	//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
 	//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");
@@ -1305,9 +1306,10 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 	{
 		s	+= CSG_String::Format("<h4>%s</h4><table border=\"0\">", _TL("Tool"));
 
-		s	+= SUMMARY_ADD_STR(_TL("Name"  ), Get_Name  ().c_str());
-		s	+= SUMMARY_ADD_STR(_TL("ID"    ), Get_ID    ().c_str());
-		s	+= SUMMARY_ADD_STR(_TL("Author"), Get_Author().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
 
 		if( is_Interactive() && is_Grid() )
 		{

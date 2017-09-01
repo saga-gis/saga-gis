@@ -91,6 +91,7 @@
 #define SG_XML_TOOL					SG_T("module")
 #define SG_XML_TOOL_ATT_NAME		SG_T("name")
 #define SG_XML_TOOL_ATT_ID			SG_T("id")
+#define SG_XML_TOOL_ATT_VERSION		SG_T("version")
 #define SG_XML_TOOL_ATT_AUTHOR		SG_T("author")
 #define SG_XML_SPECIFICATION		SG_T("specification")
 #define SG_XML_SPEC_ATT_GRID		SG_T("grid")
