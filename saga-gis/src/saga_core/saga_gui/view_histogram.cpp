@@ -243,14 +243,21 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 {
-	const int	dyFont		= 12,
-				Precision	= 3;
+	const int	FontSize	= 12;
+	const int	Precision	= 3;
 
-	//-----------------------------------------------------
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
+	int	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
+
+	if( nClasses < 1 )
+	{
+		return;
+	}
+
+	//-----------------------------------------------------
 	int	Maximum	= m_bCumulative
-		? m_pLayer->Get_Classifier()->Histogram_Get_Total()
+		? m_pLayer->Get_Classifier()->Histogram_Get_Total  ()
 		: m_pLayer->Get_Classifier()->Histogram_Get_Maximum();
 
 	if( Maximum > 0 )
@@ -259,45 +266,48 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 	}
 
 	//-----------------------------------------------------
-	int		iPixel, iStep, nSteps, nClasses;
-	double	dPixel, dPixelFont, dz;
-	wxFont	Font;
-
-	Font	= dc.GetFont();
-	Font.SetPointSize((int)(0.7 * dyFont));
+	wxFont	Font	= dc.GetFont();
+	Font.SetPointSize((int)(0.7 * FontSize));
 	dc.SetFont(Font);
 
-	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
-	dPixelFont	= dyFont + 5;
-
-	if( (dPixel = r.GetWidth() / (double)nClasses) < dPixelFont )
-	{
-		dPixel	= dPixel * (1 + (int)(dPixelFont / dPixel));
-	}
-
-	nSteps	= (int)(r.GetWidth() / dPixel);
-	dz		= dPixel / (double)r.GetWidth();
-
+	//-----------------------------------------------------
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
-		for(iStep=0; iStep<nSteps; iStep++)
+		double	dx	= r.GetWidth() / (double)nClasses, n;
+
+		for(int iClass=0; iClass<nClasses; iClass++, n+=dx)
 		{
-			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
-			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
-			Draw_Text(dc, TEXTALIGN_TOPRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-				m_pLayer->Get_Classifier()->Get_Class_Name((int)(nClasses * iStep * dz))
-			);
+			if( iClass == 0 || n > (FontSize + 5) )
+			{
+				n	= 0.0;
+
+				int	ix	= r.GetLeft() + (int)(dx * (0.5 + iClass));
+				dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
+				Draw_Text(dc, TEXTALIGN_TOPRIGHT, ix, r.GetBottom() + 7, 45.0,
+					m_pLayer->Get_Classifier()->Get_Class_Name(iClass)
+				);
+			}
 		}
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		for(iStep=0; iStep<=nSteps; iStep++)
+		double	dx	= r.GetWidth() / (double)nClasses;
+
+		if( dx < (FontSize + 5) )
 		{
-			iPixel	= r.GetLeft() + (int)(dPixel * iStep);
-			dc.DrawLine(iPixel, r.GetBottom(), iPixel, r.GetBottom() + 5);
-			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, iPixel, r.GetBottom() + 7, 45.0,
-			//	wxString::Format(wxT("%.*f"), Precision, zFactor * m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz))
-				SG_Get_String(m_pLayer->Get_Classifier()->Get_RelativeToMetric(iStep * dz), -2).c_str()
+			dx	*= 1 + (int)((FontSize + 5) / dx);
+		}
+
+		double	dz	= dx / (double)r.GetWidth();
+
+		for(int i=0, n=(int)(r.GetWidth()/dx); i<=n; i++)
+		{
+			int	ix	= r.GetLeft() + (int)(dx * i);
+			dc.DrawLine(ix, r.GetBottom(), ix, r.GetBottom() + 5);
+			Draw_Text(dc, TEXTALIGN_CENTERRIGHT, ix, r.GetBottom() + 7, 45.0,
+				SG_Get_String(m_pLayer->Get_Classifier()->Get_RelativeToMetric(dz * i), -2).c_str()
 			);
 		}
 	}

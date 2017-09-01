@@ -77,6 +77,7 @@
 CSG_Tool::CSG_Tool(void)
 {
 	m_ID			= "-1";
+	m_Version		= "1.0";
 
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
@@ -88,8 +89,6 @@ CSG_Tool::CSG_Tool(void)
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
 	Set_Show_Progress(true);
-
-	m_Version		= "1.0";
 }
 
 //---------------------------------------------------------
