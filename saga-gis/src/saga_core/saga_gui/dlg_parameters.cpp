@@ -247,7 +247,7 @@ void CDLG_Parameters::Show_Info(bool bShow)
 #else
 		if( bShow )
 		{
-			m_pDescription->ShowModal();
+			m_pInfo->ShowModal();
 		}
 #endif
 	}
