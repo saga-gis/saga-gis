@@ -88,6 +88,8 @@ CSG_Tool::CSG_Tool(void)
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
 
 	Set_Show_Progress(true);
+
+	m_Version		= "1.0";
 }
 
 //---------------------------------------------------------
@@ -168,6 +170,17 @@ void CSG_Tool::Set_Author(const CSG_String &String)
 const CSG_String & CSG_Tool::Get_Author(void) const
 {
 	return( m_Author );
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Set_Version(const CSG_String &String)
+{
+	m_Version	= String;
+}
+
+const CSG_String & CSG_Tool::Get_Version(void) const
+{
+	return( m_Version );
 }
 
 //---------------------------------------------------------
