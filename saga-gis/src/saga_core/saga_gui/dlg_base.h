@@ -110,7 +110,7 @@ private:
 
 	int							m_btn_height, m_nButtons;
 
-	class wxPanel				*m_Panel_Buttons;
+	class wxPanel				*m_pPanel_Buttons;
 
 
 	void						_Exit			(bool bOk);

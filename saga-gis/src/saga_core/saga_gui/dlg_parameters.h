@@ -102,11 +102,13 @@ protected:
 
 private:
 
+	static bool					m_bInfo;
+
 	class CSG_Parameters		*m_pParameters;
 
 	class CParameters_Control	*m_pControl;
 
-	class CDLG_Info				*m_pInfo;
+	class CACTIVE_Description	*m_pInfo;
 
 	class wxButton				*m_pInfo_Button;
 

@@ -81,56 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CDLG_Info : public wxDialog
-{
-public:
-	CDLG_Info(wxWindow *pParent, const wxString &Info)
-		: wxDialog(pParent, wxID_ANY, _TL("Info"), m_Position.GetTopLeft(), m_Position.GetSize(), wxCAPTION|wxCLOSE_BOX|wxRESIZE_BORDER) // |wxSTAY_ON_TOP
-	{
-		CACTIVE_Description	*pDescription	= new CACTIVE_Description(this);
-
-		pDescription->SetPage(Info);
-	}
-
-	virtual ~CDLG_Info(void)
-	{
-		m_bShow		= IsShown();
-		m_Position	= GetRect();
-	}
-
-
-	static bool		m_bShow;
-
-	static wxRect	m_Position;
-
-
-	void			On_Close	(wxCloseEvent &event)
-	{
-#ifdef _SAGA_MSW
-		((CDLG_Parameters *)GetParent())->Show_Info(false);
-#else		
-		event.Skip();
-#endif
-	}
-
-	DECLARE_EVENT_TABLE()
-};
-
-//---------------------------------------------------------
-BEGIN_EVENT_TABLE(CDLG_Info, wxDialog)
-	EVT_CLOSE(CDLG_Info::On_Close)
-END_EVENT_TABLE()
-
-//---------------------------------------------------------
-bool	CDLG_Info::m_bShow	= false;
-wxRect	CDLG_Info::m_Position(wxRect(wxDefaultPosition, wxDefaultSize));
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+bool	CDLG_Parameters::m_bInfo	= false;
 
 //---------------------------------------------------------
 IMPLEMENT_CLASS(CDLG_Parameters, CDLG_Base)
@@ -187,17 +138,23 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 		Add_Button(0);
 
 		m_pInfo_Button	= Add_Button(ID_BTN_DESCRIPTION);
-		m_pInfo			= new CDLG_Info(this, Info);
+		m_pInfo			= new CACTIVE_Description(this);
+		m_pInfo->SetPage(Info);
+
+		Show_Info(m_bInfo);
 	}
 
 	Set_Positions();
-
-//	Show_Info(CDLG_Info::m_bShow);
 }
 
 //---------------------------------------------------------
 CDLG_Parameters::~CDLG_Parameters(void)
-{}
+{
+	if( m_pInfo )
+	{
+		m_bInfo	= m_pInfo->IsShown();
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -243,17 +200,16 @@ void CDLG_Parameters::On_Info(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Parameters::Show_Info(bool bShow)
 {
-	if( m_pInfo && bShow != m_pInfo->IsShown() )
+	if( m_pInfo )
 	{
-#ifdef _SAGA_MSW
-		m_pInfo->Show(bShow);	// unluckily this does not work with linux (broken event handler chain, non-modal dialog as subprocess of a modal one!!)
 		m_pInfo_Button->SetLabel(wxString::Format("%s %s", _TL("Info"), bShow ? wxT("<<") : wxT(">>")));
-#else
-		if( bShow )
+
+		if( bShow != m_pInfo->IsShown() )
 		{
-			m_pInfo->ShowModal();
+			m_pInfo->Show(bShow);
+
+			Set_Positions();
 		}
-#endif
 	}
 }
 
@@ -276,7 +232,18 @@ void CDLG_Parameters::Save_Changes(void)
 //---------------------------------------------------------
 void CDLG_Parameters::Set_Position(wxRect r)
 {
-	m_pControl->SetSize(r);
+	if( m_pInfo && m_pInfo->IsShown() )
+	{
+		r.SetWidth(r.GetWidth() / 2 - 4);
+		m_pInfo->SetSize(r);
+
+		r.SetLeft(r.GetRight() + 9);
+		m_pControl->SetSize(r);
+	}
+	else
+	{
+		m_pControl->SetSize(r);
+	}
 }
 
 
