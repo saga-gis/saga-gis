@@ -70,6 +70,8 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "dlg_parameters.h"
+
 #include "helper.h"
 
 #include "wksp_tool_control.h"
@@ -103,50 +105,47 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_pMenu_Tools	= new CWKSP_Tool_Menu;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
+	m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"), _TL(""));
 
-	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL", _TL("General"), _TL(""));
-
-	m_Parameters.Add_Bool(
-		pNode	, "START_LOGO"		, _TL("Show Logo at Start Up"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"START_LOGO"	, _TL("Show Logo at Start Up"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "PROCESS_UPDATE"	, _TL("Process Update Frequency [milliseconds]"),
+	m_Parameters.Add_Int("NODE_GENERAL",
+		"PROCESS_UPDATE", _TL("Process Update Frequency [milliseconds]"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 0, 0, true
+		0, 0, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "SAVE_CONFIG"		, _TL("Save Configuration"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"SAVE_CONFIG"	, _TL("Save Configuration"),
 		_TL("disabling might help to shut down faster, particularly if started from slow devices"),
-		PARAMETER_TYPE_Bool	, true
+		true
 	);
 
 #ifdef _OPENMP
-	m_Parameters.Add_Value(
-		pNode	, "OMP_THREADS_MAX"	, _TL("Number of CPU Cores [# physical processors]"),
+	m_Parameters.Add_Int("NODE_GENERAL",
+		"OMP_THREADS_MAX", _TL("Number of CPU Cores [# physical processors]"),
 		_TW("Number of processors to use for parallelization. Should be set to the number "
 		    "of physical processors, and not to the total number of physical and logical processors "
 			"on systems supporting hyper-threading."),
-		PARAMETER_TYPE_Int	, SG_OMP_Get_Max_Num_Threads(), 1, true, SG_OMP_Get_Max_Num_Procs(), true
+		SG_OMP_Get_Max_Num_Threads(), 1, true, SG_OMP_Get_Max_Num_Procs(), true
 	);
 #endif
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_TOOLS", _TL("Tools"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_TOOLS", _TL("Tools"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode	, "BEEP"			, _TL("Beep when finished"),
+	m_Parameters.Add_Bool("NODE_TOOLS",
+		"BEEP"			, _TL("Beep when finished"),
 		_TL(""),
-		PARAMETER_TYPE_Bool	, false
+		false
 	);
 
-	m_Parameters.Add_Choice(
-		pNode	, "HELP_SOURCE"		, _TL("Tool Description Source"),
+	m_Parameters.Add_Choice("NODE_TOOLS",
+		"HELP_SOURCE"	, _TL("Tool Description Source"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("built-in"),
@@ -155,16 +154,16 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_FILES", _TL("Files"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_FILES", _TL("Files"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode	, "LNG_OLDSTYLE"	, _TL("Old Style Namings"),
+	m_Parameters.Add_Bool("NODE_FILES",
+		"LNG_OLDSTYLE"	, _TL("Old Style Namings"),
 		_TL("Use old style namings (e.g. 'modules' instead of 'tools'). Ignored if translation file is used. You need to restart SAGA to apply the changes."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode	, "LNG_FILE_DIC"	, _TL("Language Translations"),
+	m_Parameters.Add_FilePath("NODE_FILES",
+		"LNG_FILE_DIC"	, _TL("Language Translations"),
 		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply the changes."),
 		CSG_String::Format("%s|*.lng|%s|*.txt|%s|*.*",
 			_TL("Dictionary Files (*.lng)"),
@@ -173,8 +172,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		)
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode	, "CRS_FILE_SRS"		, _TL("CRS Database"),
+	m_Parameters.Add_FilePath("NODE_FILES",
+		"CRS_FILE_SRS"	, _TL("CRS Database"),
 		_TL("Database with Coordinate Reference System (CRS) definitions. You need to restart SAGA to apply the changes."),
 		CSG_String::Format("%s|*.srs|%s|*.*",
 			_TL("Spatial Reference System Files (*.srs)"),
@@ -182,8 +181,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		)
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode	, "CRS_FILE_DIC"		, _TL("CRS Dictionary"),
+	m_Parameters.Add_FilePath("NODE_FILES",
+		"CRS_FILE_DIC"	, _TL("CRS Dictionary"),
 		_TL("Dictionary for Proj.4/OGC WKT translations. You need to restart SAGA to apply the changes."),
 		CSG_String::Format("%s|*.dic|%s|*.*",
 			_TL("Dictionary Files (*.dic)"),
@@ -191,8 +190,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		)
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode	, "TOOL_MENUS"			, _TL("User defined tool menus"),
+	m_Parameters.Add_FilePath("NODE_FILES",
+		"TOOL_MENUS"	, _TL("User defined tool menus"),
 		_TL("User defined tool menus."),
 		CSG_String::Format("%s|*.xml|%s|*.*",
 			_TL("XML Files (*.xml)"),
@@ -201,10 +200,10 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_LOOK", _TL("Appearance"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_LOOK", _TL("Appearance"), _TL(""));
 
-	m_Parameters.Add_Int(
-		pNode	, "LOOK_TB_SIZE"		, _TL("Tool Bar Button Size"),
+	m_Parameters.Add_Int("NODE_LOOK",
+		"LOOK_TB_SIZE"	, _TL("Tool Bar Button Size"),
 		_TL("Tool bar button sizes. You need to restart SAGA to apply the changes."),
 		16, 16, true
 	);
@@ -224,12 +223,14 @@ CWKSP_Tool_Manager::~CWKSP_Tool_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define CFG_LIBS	wxT("/LIBS")
-#define CFG_LIBF	wxT("LIB_%03d")
+#define CFG_LIBS	"/LIBS"
+#define CFG_LIBF	"LIB_%03d"
 
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::Initialise(void)
 {
+	CONFIG_Read("/TOOLS", "DLG_INFO", CDLG_Parameters::m_bInfo);
+
 	CONFIG_Read("/TOOLS", &m_Parameters);
 
 	CONFIG_Do_Save(m_Parameters("SAVE_CONFIG")->asBool());
@@ -279,6 +280,8 @@ bool CWKSP_Tool_Manager::Initialise(void)
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::Finalise(void)
 {
+	CONFIG_Write("/TOOLS", "DLG_INFO", CDLG_Parameters::m_bInfo);
+
 	CONFIG_Write("/TOOLS", &m_Parameters);
 
 	CONFIG_Delete(CFG_LIBS);

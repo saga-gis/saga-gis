@@ -89,6 +89,8 @@ public:
 	CDLG_Parameters(class CSG_Parameters *pParameters, const wxString &Caption = "", const wxString &Info = "");
 	virtual ~CDLG_Parameters(void);
 
+	static bool					m_bInfo;
+
 
 	void						Show_Info		(bool bShow = true);
 
@@ -101,8 +103,6 @@ protected:
 
 
 private:
-
-	static bool					m_bInfo;
 
 	class CSG_Parameters		*m_pParameters;
 
