@@ -359,6 +359,7 @@ AC_OUTPUT(Makefile \
 	src/tools/simulation/sim_geomorphology/Makefile \
 	src/tools/simulation/sim_hydrology/Makefile \
 	src/tools/simulation/sim_ihacres/Makefile \
+	src/tools/simulation/sim_landscape_evolution/Makefile \
 	src/tools/simulation/sim_qm_of_esp/Makefile \
 	src/tools/simulation/sim_rivflow/Makefile \
 	src/tools/statistics/Makefile \

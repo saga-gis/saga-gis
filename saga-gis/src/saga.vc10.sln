@@ -384,6 +384,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "riegl_io_rdb2_import", "too
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grids_tools", "tools\grid\grids_tools\grids_tools.vcxproj", "{3300798D-E3ED-484C-BD9D-D54CC6C65817}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_landscape_evolution", "tools\simulation\sim_landscape_evolution\sim_landscape_evolution.vcxproj", "{E7B5BF01-B779-4039-930B-FD1772931EAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1027,6 +1029,14 @@ Global
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Release|Win32.Build.0 = Release|Win32
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Release|x64.ActiveCfg = Release|x64
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Release|x64.Build.0 = Release|x64
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Debug|Win32.Build.0 = Debug|Win32
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Debug|x64.ActiveCfg = Debug|x64
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Debug|x64.Build.0 = Debug|x64
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|Win32.ActiveCfg = Release|Win32
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|Win32.Build.0 = Release|Win32
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|x64.ActiveCfg = Release|x64
+		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
