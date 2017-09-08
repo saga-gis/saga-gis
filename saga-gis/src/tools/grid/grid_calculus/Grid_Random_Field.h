@@ -91,6 +91,33 @@ public:
 
 protected:
 
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
+
+
+private:
+
+	CSG_Parameters_Grid_Target		m_Grid_Target;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Fractal_Brownian_Noise : public CSG_Tool
+{
+public:
+	CGrid_Fractal_Brownian_Noise(void);
+
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Grid Generation") );	}
+
+
+protected:
+
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
@@ -101,6 +128,8 @@ private:
 
 	CSG_Parameters_Grid_Target		m_Grid_Target;
 
+
+	bool							Add_Noise				(CSG_Grid *pGrid, double Scale);
 
 };
 
