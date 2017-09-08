@@ -204,7 +204,7 @@ public:
 	CVariogram_Diagram(wxWindow *pParent);
 
 
-	bool						m_bPairs;
+	bool						m_bPairs, m_bErrors;
 
 
 	void						Initialize				(CSG_Trend *pModel, CSG_Table *pVariogram);
@@ -234,6 +234,7 @@ CVariogram_Diagram::CVariogram_Diagram(wxWindow *pParent)
 	m_pVariogram	= NULL;
 
 	m_bPairs		= false;
+	m_bErrors		= false;
 }
 
 //---------------------------------------------------------
@@ -254,6 +255,8 @@ void CVariogram_Diagram::Set_Variogram(void)
 //---------------------------------------------------------
 void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 {
+	m_bErrors	= false;
+
 	if( m_pVariogram->Get_Count() > 0 )
 	{
 		int		i, ix, iy, jx, jy;
@@ -307,19 +310,41 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 		//-------------------------------------------------
 		if( m_pModel->is_Okay() )
 		{
-			dc.SetPen(wxPen(*wxRED, 2));
-
 			dx	= (m_xMax - m_xMin) / (double)rDraw.GetWidth();
 
 			ix	= Get_xToScreen(m_xMin);
 			iy	= Get_yToScreen(m_pModel->Get_Value(m_xMin));
 
+			int	yMin	= Get_yToScreen(m_yMin);
+			int	yMax	= yMin;
+
+			if( iy > yMin )
+			{
+				iy	= yMin;
+			}
+
 			for(x=m_xMin+dx; x<=m_xMax; x+=dx)
 			{
-				jx	= ix;
-				jy	= iy;
-				ix	= Get_xToScreen(x);
-				iy	= Get_yToScreen(m_pModel->Get_Value(x));
+				jx	= ix;	ix	= Get_xToScreen(x);
+				jy	= iy;	iy	= Get_yToScreen(m_pModel->Get_Value(x));
+
+				if( yMax >= iy )
+				{
+					yMax	= iy;
+
+					dc.SetPen(wxPen(*wxBLUE, 2));
+				}
+				else
+				{
+					dc.SetPen(wxPen(*wxRED , 2));
+
+					if( iy > yMin )
+					{
+						iy	= yMin;
+					}
+
+					m_bErrors	= true;
+				}
 
 				dc.DrawLine(jx, jy, ix, iy);
 			}
@@ -519,6 +544,11 @@ void CVariogram_Dialog::Set_Model(void)
 	{
 		wxString	s;
 
+		if( m_pDiagram->m_bErrors )
+		{
+			s	+= wxString::Format("\n%s: %s", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
+		}
+
 		s	+= m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str();
 		s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
 		s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
@@ -535,6 +565,8 @@ void CVariogram_Dialog::Set_Model(void)
 	m_pDiagram->m_bPairs	= m_pPairs->GetValue();
 
 	m_pDiagram->Refresh(true);
+
+	SG_UI_Process_Set_Okay();
 }
 
 //---------------------------------------------------------
