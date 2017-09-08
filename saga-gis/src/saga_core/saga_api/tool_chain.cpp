@@ -501,6 +501,35 @@ bool CSG_Tool_Chain::Data_Add(const CSG_String &ID, CSG_Parameter *pData)
 }
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::Data_Add_TempList(const CSG_String &ID, const CSG_String &Type)
+{
+	if( !m_Data(ID) )
+	{
+		switch( SG_Parameter_Type_Get_Type(Type) )
+		{
+		case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List("", ID, "", "", 0       );	break;
+		case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      ("", ID, "", "", 0, false);	break;
+		case PARAMETER_TYPE_Grids_List     : m_Data.Add_Grids_List     ("", ID, "", "", 0, false);	break;
+		case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     ("", ID, "", "", 0       );	break;
+		case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    ("", ID, "", "", 0       );	break;
+		case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       ("", ID, "", "", 0       );	break;
+
+		default:
+			Error_Fmt("%s: %s [%s|%s]", SG_T("datalist"), _TL("unsupported data list type"), ID.c_str(), Type.c_str());
+
+			return( false );
+		}
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Tool_Chain::Data_Exists(CSG_Data_Object *pData)
 {
 	for(int i=0; i<m_Data.Get_Count(); i++)
@@ -781,22 +810,9 @@ bool CSG_Tool_Chain::ForEach(const CSG_MetaData &Commands)
 	//-----------------------------------------------------
 	for(int i=0; i<Commands.Get_Children_Count(); i++)	// add internal target lists, if any..
 	{
-		const CSG_MetaData	&Item	= Commands[i];
-
-		CSG_String	VarName;
-
-		if( Item.Cmp_Name("output") && !m_Data(Item.Get_Content()) )
+		if( Commands[i].Cmp_Name("output") || Commands[i].Cmp_Name("datalist") )
 		{
-			switch( SG_Parameter_Type_Get_Type(Item.Get_Property("type")) )
-			{
-			case PARAMETER_TYPE_PointCloud_List: m_Data.Add_PointCloud_List("", Item.Get_Content(), "", "", 0       );	break;
-			case PARAMETER_TYPE_Grid_List      : m_Data.Add_Grid_List      ("", Item.Get_Content(), "", "", 0, false);	break;
-			case PARAMETER_TYPE_Grids_List     : m_Data.Add_Grids_List     ("", Item.Get_Content(), "", "", 0, false);	break;
-			case PARAMETER_TYPE_Table_List     : m_Data.Add_Table_List     ("", Item.Get_Content(), "", "", 0       );	break;
-			case PARAMETER_TYPE_Shapes_List    : m_Data.Add_Shapes_List    ("", Item.Get_Content(), "", "", 0       );	break;
-			case PARAMETER_TYPE_TIN_List       : m_Data.Add_TIN_List       ("", Item.Get_Content(), "", "", 0       );	break;
-			default:	break;
-			}
+			Data_Add_TempList(Commands[i].Get_Content(), Commands[i].Get_Property("type"));
 		}
 	}
 
@@ -934,6 +950,12 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 	if( Tool.Cmp_Name("comment") )
 	{
 		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( Tool.Cmp_Name("datalist") )
+	{
+		return( Data_Add_TempList(Tool.Get_Content(), Tool.Get_Property("type")) );
 	}
 
 	//-----------------------------------------------------

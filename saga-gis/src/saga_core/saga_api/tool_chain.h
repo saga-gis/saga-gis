@@ -126,6 +126,7 @@ private:
 	void						Add_References			(void);
 
 	bool						Data_Add				(const CSG_String &ID, CSG_Parameter *pData);
+	bool						Data_Add_TempList		(const CSG_String &ID, const CSG_String &Type);
 	bool						Data_Exists				(CSG_Data_Object *pData);
 	bool						Data_Initialize			(void);
 	bool						Data_Finalize			(void);
