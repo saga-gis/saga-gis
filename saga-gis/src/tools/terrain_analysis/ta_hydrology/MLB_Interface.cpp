@@ -124,6 +124,7 @@ CSG_String Get_Info(int i)
 
 #include "flow_by_slope.h"
 
+#include "Flow_Fields.h"
 
 //---------------------------------------------------------
 CSG_Tool *		Create_Tool(int i)
@@ -157,8 +158,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 25:	return( new CErosion_LS_Fields );
 	case 26:	return( new CFlow_by_Slope );
 	case 27:	return( new CFlow_Length );
-
-	case 28:	return( NULL );
+	case 28:	return( new CFlow_Fields );
+	case 29: return(NULL);
+	
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
