@@ -78,22 +78,24 @@ CGPP_Model::CGPP_Model(void)
 	Set_Author		(SG_T("V. Wichmann (c) 2016"));
 
 	Set_Description	(_TW("The Gravitational Process Path (GPP) model can be used to simulate the process path and "
-						 "run-out area of gravitational processes based on a digital terrain model (DTM). The tool "
-						 "combines several sub-models (process path, run-out length and material deposition) to "
-						 "simulate the movement of a mass point from an initiation site to the deposition area. "
-						 "For each sub-model several modeling approaches are provided, which makes the tool configurable "
-						 "for different processes like rockfall, debris flows or snow avalanches. <br/><br/>"
-						 "The tool can be applied to large-coverage studies like natural hazard susceptibility mapping "
-						 "on a regional scale but also contains components for scenario based modeling of single events. "
-						 "The modeling approaches have proven their practicability in numerous studies, including also geomorphological "
-						 "research questions like the delineation of sediment cascades or the study of process connectivity.<br/><br/>"
+                         "run-out area of gravitational processes based on a digital terrain model (DTM). The "
+                         "conceptual model combines several components (process path, run-out length, sink filling "
+                         "and material deposition) to simulate the movement of a mass point from an initiation site "
+                         "to the deposition area. For each component several modeling approaches are provided, "
+                         "which makes the tool configurable for different processes such as rockfall, debris flows "
+                         "or snow avalanches.<br/><br/>"
+                         "The tool can be applied to regional-scale studies such as natural hazard susceptibility "
+                         "mapping but also contains components for scenario-based modeling of single events. Both "
+                         "the modeling approaches and precursor implementations of the tool have proven their "
+                         "applicability in numerous studies, also including geomorphological research questions "
+                         "such as the delineation of sediment cascades or the study of process connectivity.<br/><br/>"
 						 "Please provide the following reference in your work if you are using the GPP model:"
 	));
 
 	Add_Reference("Wichmann, V.", "2017",
 		"The Gravitational Process Path (GPP) model (v1.0) - a GIS-based simulation framework for gravitational processes",
-		"Geosci. Model Dev. Discuss., doi:10.5194/gmd-2017-5, in review",
-		SG_T("http://www.geosci-model-dev-discuss.net/gmd-2017-5/gmd-2017-5.pdf")
+		"Geosci. Model Dev., 10, 3309-3327, doi:10.5194/gmd-10-3309-2017",
+		SG_T("https://doi.org/10.5194/gmd-10-3309-2017")
 	);
 
 	Add_Dataset_Parameters(Get_Parameters());
@@ -221,7 +223,7 @@ bool CGPP_Model::On_Execute(void)
 		}
 
 		Run_GPP_Model(&vProcessingList);
-		
+
 		break;
 	}
 
@@ -231,7 +233,7 @@ bool CGPP_Model::On_Execute(void)
 
 	return( true );
 }
-	
+
 
 //---------------------------------------------------------
 int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -242,7 +244,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("SINK_MIN_SLOPE"				)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("DEPOSITION"					)->Set_Enabled( pParameter->asGrid() != NULL );
 	}
-	
+
 	//-----------------------------------------------------
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROCESS_PATH_MODEL")) )
 	{
@@ -301,14 +303,14 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 																				&& (pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_SHADOW_ANGLE
 																				|| pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_ROCKFALL_VELOCITY) );
 	}
-	
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_MU_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_MU"				)->Set_Enabled( pParameter->asGrid() == NULL
 																				&& (pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_ROCKFALL_VELOCITY
 																				|| pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_PCM_MODEL) );
 	}
-	
+
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_MASS_TO_DRAG_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_MASS_TO_DRAG"		)->Set_Enabled( pParameter->asGrid() == NULL
@@ -328,7 +330,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("DEPOSITION_MIN_PATH"		)->Set_Enabled( pParameter->asInt() > GPP_DEPOSITION_ON_STOP );
 	}
 
-	
+
 	//-----------------------------------------------------
 	return (1);
 }
