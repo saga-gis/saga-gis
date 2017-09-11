@@ -84,7 +84,7 @@ bool		Execute_Script	(const CSG_String &Script);
 
 bool		Load_Libraries	(void);
 
-bool		Check_First		(const CSG_String &Argument);
+bool		Check_First		(const CSG_String &Argument, int argc, char *argv[]);
 bool		Check_Flags		(const CSG_String &Argument);
 
 void		Print_Libraries	(void);
@@ -94,6 +94,8 @@ void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
 void		Print_Logo		(void);
 void		Print_Get_Help	(void);
 void		Print_Help		(void);
+void		Print_Help		(const CSG_String &Library);
+void		Print_Help		(const CSG_String &Library, const CSG_String &Tool);
 void		Print_Version	(void);
 
 void		Create_Batch	(const CSG_String &File);
@@ -173,7 +175,7 @@ bool		Run(int argc, char *argv[])
 	Config_Load();	// first load default configuration (if available). can be modified subsequently by flags
 
 	//-----------------------------------------------------
-	if( Check_First(argv[1]) )
+	if( Check_First(argv[1], argc - 2, argv + 2) )
 	{
 		return( true );
 	}
@@ -445,11 +447,16 @@ bool		Load_Libraries(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool		Check_First		(const CSG_String &Argument)
+bool		Check_First		(const CSG_String &Argument, int argc, char *argv[])
 {
 	if( !Argument.Cmp("-h") || !Argument.Cmp("--help") )
 	{
-		Print_Help();
+		switch( argc )
+		{
+		default:	Print_Help(                );	break;
+		case  1:	Print_Help(argv[0]         );	break;
+		case  2:	Print_Help(argv[0], argv[1]);	break;
+		}
 
 		return( true );
 	}
@@ -584,11 +591,11 @@ void		Print_Libraries	(void)
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
+			SG_PRINTF(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML).c_str());
 		}
 		else
 		{
-			CMD_Print(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
+			CMD_Print(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_FLAT));
 
 			CMD_Print_Error(_TL("select a library"));
 
@@ -604,11 +611,11 @@ void		Print_Tools		(CSG_Tool_Library *pLibrary)
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML_NO_INTERACTIVE).c_str());
+			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
 		}
 		else
 		{
-			CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE));
+			CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
 
 			CMD_Print_Error(_TL("select a tool"));
 
@@ -637,6 +644,7 @@ void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 			SG_PRINTF(SG_T("%s: %s\n"), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
 			SG_PRINTF(SG_T("%s: %s\n"), _TL("library     "), pLibrary->Get_Name  ().c_str());
 			SG_PRINTF(SG_T("%s: %s\n"), _TL("tool        "), pTool   ->Get_Name  ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("identifier  "), pTool   ->Get_ID    ().c_str());
 			SG_PRINTF(SG_T("%s: %s\n"), _TL("author      "), pTool   ->Get_Author().c_str());
 		#ifdef _OPENMP
 			SG_PRINTF(SG_T("%s: %d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
@@ -791,6 +799,48 @@ void		Print_Help		(void)
 		"\n"
 		"_____________________________________________________________________________\n"
 	);
+}
+
+//---------------------------------------------------------
+void		Print_Help		(const CSG_String &Library)
+{
+	Print_Logo();
+
+	CSG_Tool_Library	*pLibrary;
+
+	if( !Load_Libraries() || !(pLibrary = SG_Get_Tool_Library_Manager().Get_Library(Library, true)) )
+	{
+		Print_Libraries();
+	}
+	else
+	{
+		CMD_Print(pLibrary->Get_Description());
+		CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+	}
+}
+
+//---------------------------------------------------------
+void		Print_Help		(const CSG_String &Library, const CSG_String &Tool)
+{
+	Print_Logo();
+
+	CSG_Tool_Library	*pLibrary;
+	CSG_Tool			*pTool;
+
+	if( !Load_Libraries() || !(pLibrary = SG_Get_Tool_Library_Manager().Get_Library(Library, true)) )
+	{
+		Print_Libraries();
+	}
+	else if( !(pTool = pLibrary->Get_Tool(Tool)) )
+	{
+		Print_Tools(pLibrary);
+	}
+	else
+	{
+		Print_Execution(pLibrary, pTool);
+
+		CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_FLAT));
+	}
 }
 
 

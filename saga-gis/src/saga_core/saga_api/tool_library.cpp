@@ -79,17 +79,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
-#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CSG_Tool_Library::CSG_Tool_Library(void)
 {
 	m_pInterface	= NULL;
@@ -166,7 +155,11 @@ CSG_String CSG_Tool_Library::Get_Info(int Type) const
 }
 
 //---------------------------------------------------------
-CSG_String CSG_Tool_Library::Get_Summary(int Format) const
+#define SUMMARY_ADD_STR(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>", label, value)
+#define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
+
+//---------------------------------------------------------
+CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 {
 	int			i;
 	CSG_String	s;
@@ -174,21 +167,23 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format) const
 	switch( Format )
 	{
 	//-----------------------------------------------------
-	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
+	case SG_SUMMARY_FMT_FLAT:
 
 		s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(TLB_INFO_Name    );
 		s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(TLB_INFO_Category);
 
 		if( !Get_File_Name().is_Empty() )
 		{
-			s	+= CSG_String::Format("\n%s:\t", _TL("File"    )) + Get_File_Name();
+			s	+= CSG_String::Format("\n%s:\t", _TL("File")) + Get_File_Name();
 		}
+
+		s	+= CSG_String::Format("\n%s:\n", _TL("Description")) + Get_Info(TLB_INFO_Description);
 
 		s	+= CSG_String::Format("\n\n%s:\n", _TL("Tools"));
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) && (Format == SG_SUMMARY_FMT_FLAT || !Get_Tool(i)->is_Interactive()) )
+			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
 			{
 				s	+= " " + Get_Tool(i)->Get_ID() + "\t" + Get_Tool(i)->Get_Name() + "\n";
 			}
@@ -224,7 +219,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) )
+			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
 			{
 				s	+= SUMMARY_ADD_STR(Get_Tool(i)->Get_ID().c_str(), Get_Tool(i)->Get_Name().c_str());
 			}
@@ -237,7 +232,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format) const
 		break;
 
 	//-----------------------------------------------------
-	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
+	case SG_SUMMARY_FMT_XML:
 
 		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
 		s	+= CSG_String::Format("<%s>\n"         , SG_XML_LIBRARY);
@@ -246,7 +241,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) && (Format == SG_SUMMARY_FMT_XML || !Get_Tool(i)->is_Interactive()) )
+			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
 			{
 				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_TOOL,
 					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
@@ -744,7 +739,7 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	switch( Format )
 	{
 	//-----------------------------------------------------
-	case SG_SUMMARY_FMT_FLAT: case SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE:
+	case SG_SUMMARY_FMT_FLAT:
 
 		s	+= CSG_String::Format("\n%d %s (%d %s):\n", Libraries.Get_Count(), _TL("loaded tool libraries"), nTools, _TL("tools"));
 
@@ -791,7 +786,7 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 		break;
 
 	//-----------------------------------------------------
-	case SG_SUMMARY_FMT_XML: case SG_SUMMARY_FMT_XML_NO_INTERACTIVE:
+	case SG_SUMMARY_FMT_XML:
 
 		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
 		s	+= CSG_String::Format("\n<%s>", SG_XML_SYSTEM);

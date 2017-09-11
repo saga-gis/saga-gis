@@ -90,16 +90,6 @@ typedef enum ESG_Tool_Library_Type
 }
 TSG_Tool_Library_Type;
 
-//---------------------------------------------------------
-enum
-{
-	SG_SUMMARY_FMT_FLAT	= 0,
-	SG_SUMMARY_FMT_FLAT_NO_INTERACTIVE,
-	SG_SUMMARY_FMT_HTML,
-	SG_SUMMARY_FMT_XML,
-	SG_SUMMARY_FMT_XML_NO_INTERACTIVE
-};
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -128,7 +118,7 @@ public:
 	CSG_String						Get_Version			(void)	const	{	return( Get_Info(TLB_INFO_Version    ) );	}
 	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(TLB_INFO_Menu_Path  ) );	}
 	CSG_String						Get_Category		(void)	const	{	return( Get_Info(TLB_INFO_Category   ) );	}
-	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
+	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML, bool bInteractive = true)	const;
 	bool							Get_Summary			(const CSG_String &Path)			const;
 
 	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
