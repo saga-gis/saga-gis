@@ -495,6 +495,9 @@ private:	///////////////////////////////////////////////
 	bool							_Load_Header			(CSG_File &Stream);
 	bool							_Save_Header			(CSG_File &Stream);
 
+	bool							_Load_Attributes		(CSG_File &Stream);
+	bool							_Save_Attributes		(CSG_File &Stream);
+
 	bool							_Load_Data				(CSG_File &Stream, CSG_Grid *pGrid);
 	bool							_Save_Data				(CSG_File &Stream, CSG_Grid *pGrid);
 

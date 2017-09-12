@@ -92,6 +92,12 @@ public:
 	void						On_Autosize_Cols	(wxCommandEvent  &event);
 	void						On_Autosize_Rows	(wxCommandEvent  &event);
 
+	void						On_Field_Add		(wxCommandEvent  &event);
+	void						On_Field_Del		(wxCommandEvent  &event);
+	void						On_Field_Sort		(wxCommandEvent  &event);
+	void						On_Field_Rename		(wxCommandEvent  &event);
+	void						On_Field_Type		(wxCommandEvent  &event);
+
 	void						On_ToClipboard		(wxCommandEvent  &event);
 
 	void						On_Size				(wxSizeEvent     &event);

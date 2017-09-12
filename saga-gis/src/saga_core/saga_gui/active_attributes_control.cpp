@@ -76,6 +76,8 @@
 #include "wksp_data_manager.h"
 #include "wksp_data_item.h"
 
+#include "wksp_grids.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -98,6 +100,11 @@ BEGIN_EVENT_TABLE(CActive_Attributes_Control, wxGrid)
 	EVT_GRID_CELL_RIGHT_CLICK	(CActive_Attributes_Control::On_RClick)
 	EVT_GRID_LABEL_LEFT_CLICK	(CActive_Attributes_Control::On_LClick_Label)
 	EVT_GRID_LABEL_RIGHT_CLICK	(CActive_Attributes_Control::On_RClick_Label)
+
+	EVT_MENU					(ID_CMD_TABLE_FIELD_ADD			, CActive_Attributes_Control::On_Field_Add)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_DEL			, CActive_Attributes_Control::On_Field_Del)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_RENAME		, CActive_Attributes_Control::On_Field_Rename)
+	EVT_MENU					(ID_CMD_TABLE_FIELD_TYPE		, CActive_Attributes_Control::On_Field_Type)
 
 	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_APP	, CActive_Attributes_Control::On_Field_Open)
 	EVT_MENU					(ID_CMD_TABLE_FIELD_OPEN_DATA	, CActive_Attributes_Control::On_Field_Open)
@@ -389,6 +396,275 @@ void CActive_Attributes_Control::On_Autosize_Rows(wxCommandEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
+{
+	if( !g_pACTIVE->Get_Active_Data_Item() || !g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+
+	//-----------------------------------------------------
+	CSG_String	Fields;
+
+	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		Fields	+= m_pTable->Get_Field_Name(i) + CSG_String('|');
+	}
+
+	//-----------------------------------------------------
+	CSG_Parameters	P(NULL, _TL("Add Field"), SG_T(""));
+
+	P.Add_String(
+		NULL	, "NAME"	, _TL("Name"),
+		_TL(""),
+		_TL("Field")
+	);
+
+	P.Add_Choice(
+		NULL	, "TYPE"	, _TL("Field Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
+		), 0
+	);
+
+	P.Add_Choice(
+		NULL	, "FIELD"	, _TL("Insert Position"),
+		_TL(""),
+		Fields, m_pTable->Get_Field_Count() - 1
+	);
+
+	P.Add_Choice(
+		NULL	, "INSERT"	, _TL("Insert Method"),
+		_TL(""),
+		CSG_String::Format(SG_T("%s|%s|"),
+			_TL("before"),
+			_TL("after")
+		), 1
+	);
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		int				Position;
+		TSG_Data_Type	Type;
+
+		switch( P("TYPE")->asInt() )
+		{
+		default:
+		case  0:	Type	= SG_DATATYPE_String;	break;
+		case  1:	Type	= SG_DATATYPE_Date  ;	break;
+		case  2:	Type	= SG_DATATYPE_Color ;	break;
+		case  3:	Type	= SG_DATATYPE_Byte  ;	break;
+		case  4:	Type	= SG_DATATYPE_Char  ;	break;
+		case  5:	Type	= SG_DATATYPE_Word  ;	break;
+		case  6:	Type	= SG_DATATYPE_Short ;	break;
+		case  7:	Type	= SG_DATATYPE_DWord ;	break;
+		case  8:	Type	= SG_DATATYPE_Int   ;	break;
+		case  9:	Type	= SG_DATATYPE_ULong ;	break;
+		case 10:	Type	= SG_DATATYPE_Long  ;	break;
+		case 11:	Type	= SG_DATATYPE_Float ;	break;
+		case 12:	Type	= SG_DATATYPE_Double;	break;
+		case 13:	Type	= SG_DATATYPE_Binary;	break;
+		}
+
+		Position	= P("FIELD")->asInt() + P("INSERT")->asInt();
+
+		pGrids->Add_Attribute(P("NAME")->asString(), Type, Position);
+
+		g_pData->Update(pGrids, NULL);
+	}
+}
+
+//---------------------------------------------------------
+void CActive_Attributes_Control::On_Field_Del(wxCommandEvent &event)
+{
+	if( !g_pACTIVE->Get_Active_Data_Item() || !g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+
+	//-----------------------------------------------------
+	int				i;
+	CSG_Parameters	P;
+
+	//-----------------------------------------------------
+	P.Set_Name(_TL("Delete Fields"));
+
+	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		P.Add_Value(NULL, SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		for(i=m_pTable->Get_Field_Count()-1; i>=0; i--)
+		{
+			if( P(SG_Get_String(i))->asBool() )
+			{
+				pGrids->Get_Attributes_Ptr()->Del_Field(i);
+
+				DeleteCols(i);
+			}
+		}
+
+		g_pData->Update(pGrids, NULL);
+	}
+}
+
+//---------------------------------------------------------
+void CActive_Attributes_Control::On_Field_Rename(wxCommandEvent &event)
+{
+	if( !g_pACTIVE->Get_Active_Data_Item() || !g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+
+	//-----------------------------------------------------
+	int				i;
+	CSG_Parameters	P;
+
+	P.Set_Name(_TL("Rename Fields"));
+
+	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		P.Add_String(NULL, SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""), m_pTable->Get_Field_Name(i));
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		for(i=0; i<m_pTable->Get_Field_Count(); i++)
+		{
+			CSG_String	s(P(i)->asString());
+
+			if( s.Length() > 0 && s.Cmp(m_pTable->Get_Field_Name(i)) )
+			{
+				pGrids->Get_Attributes_Ptr()->Set_Field_Name(i, s);
+
+				SetColLabelValue(i, s.c_str());
+			}
+		}
+
+		g_pData->Update(pGrids, NULL);
+	}
+}
+
+//---------------------------------------------------------
+void CActive_Attributes_Control::On_Field_Type(wxCommandEvent &event)
+{
+	if( !g_pACTIVE->Get_Active_Data_Item() || !g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+
+	//-----------------------------------------------------
+	int				i, *Types	= new int[m_pTable->Get_Field_Count()];
+	CSG_Parameters	P;
+
+	P.Set_Name(_TL("Change Field Type"));
+
+	for(i=0; i<m_pTable->Get_Field_Count(); i++)
+	{
+		switch( m_pTable->Get_Field_Type(i) )
+		{
+		default:
+		case SG_DATATYPE_String:	Types[i]	=  0;	break;
+		case SG_DATATYPE_Date  :	Types[i]	=  1;	break;
+		case SG_DATATYPE_Color :	Types[i]	=  2;	break;
+		case SG_DATATYPE_Byte  :	Types[i]	=  3;	break;
+		case SG_DATATYPE_Char  :	Types[i]	=  4;	break;
+		case SG_DATATYPE_Word  :	Types[i]	=  5;	break;
+		case SG_DATATYPE_Short :	Types[i]	=  6;	break;
+		case SG_DATATYPE_DWord :	Types[i]	=  7;	break;
+		case SG_DATATYPE_Int   :	Types[i]	=  8;	break;
+		case SG_DATATYPE_ULong :	Types[i]	=  9;	break;
+		case SG_DATATYPE_Long  :	Types[i]	= 10;	break;
+		case SG_DATATYPE_Float :	Types[i]	= 11;	break;
+		case SG_DATATYPE_Double:	Types[i]	= 12;	break;
+		case SG_DATATYPE_Binary:	Types[i]	= 13;	break;
+		}
+
+		P.Add_Choice("", SG_Get_String(i), m_pTable->Get_Field_Name(i), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Byte  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Char  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Word  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Short ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_DWord ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Int   ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_ULong ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Long  ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Float ).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Double).c_str(),
+			SG_Data_Type_Get_Name(SG_DATATYPE_Binary).c_str()
+			), Types[i]
+		);
+	}
+
+	//-----------------------------------------------------
+	if( DLG_Parameters(&P) )
+	{
+		bool	bChanged	= false;
+
+		for(i=0; i<m_pTable->Get_Field_Count(); i++)
+		{
+			TSG_Data_Type	Type;
+
+			switch( P(i)->asInt() )
+			{
+			default:	Type	= SG_DATATYPE_String;	break;
+			case  1:	Type	= SG_DATATYPE_Date  ;	break;
+			case  2:	Type	= SG_DATATYPE_Color ;	break;
+			case  3:	Type	= SG_DATATYPE_Byte  ;	break;
+			case  4:	Type	= SG_DATATYPE_Char  ;	break;
+			case  5:	Type	= SG_DATATYPE_Word  ;	break;
+			case  6:	Type	= SG_DATATYPE_Short ;	break;
+			case  7:	Type	= SG_DATATYPE_DWord ;	break;
+			case  8:	Type	= SG_DATATYPE_Int   ;	break;
+			case  9:	Type	= SG_DATATYPE_ULong ;	break;
+			case 10:	Type	= SG_DATATYPE_Long  ;	break;
+			case 11:	Type	= SG_DATATYPE_Float ;	break;
+			case 12:	Type	= SG_DATATYPE_Double;	break;
+			case 13:	Type	= SG_DATATYPE_Binary;	break;
+			}
+
+			if( Type != m_pTable->Get_Field_Type(i) )
+			{
+				pGrids->Get_Attributes_Ptr()->Set_Field_Type(i, Type);
+
+				bChanged	= true;
+			}
+		}
+
+		if( bChanged )
+		{
+			Update_Table();
+
+			g_pData->Update(pGrids, NULL);
+		}
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 void CActive_Attributes_Control::On_ToClipboard(wxCommandEvent &event)
 {
 	_ToClipboard();
@@ -583,6 +859,16 @@ void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
+
+		if( g_pACTIVE->Get_Active_Data_Item() && g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )
+		{
+			Menu.AppendSeparator();
+
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_ADD);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_DEL);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_RENAME);
+			CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_FIELD_TYPE);
+		}
 	}
 	else if( event.GetRow() != -1 )
 	{
