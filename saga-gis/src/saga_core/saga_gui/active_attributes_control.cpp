@@ -398,7 +398,7 @@ void CActive_Attributes_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
 	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
 
@@ -491,7 +491,7 @@ void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Del(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
 	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
 
@@ -527,7 +527,7 @@ void CActive_Attributes_Control::On_Field_Del(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Rename(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
 	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
 
@@ -564,7 +564,7 @@ void CActive_Attributes_Control::On_Field_Rename(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Type(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
 	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
 
