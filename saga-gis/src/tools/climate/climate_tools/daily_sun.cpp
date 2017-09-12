@@ -76,24 +76,26 @@ CDaily_Sun::CDaily_Sun(void)
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		""
+		"This tool calculates the time of sunrise and sunset and the resulting day length "
+		"for each cell of the target grid. The target grid needs to provide information "
+		"about its coordinate system. "
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "TARGET" , _TL("Target System"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "SUNRISE", _TL("Sunrise"      ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "SUNSET" , _TL("Sunset"       ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "LENGTH" , _TL("Day Length"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "TARGET" , _TL("Target System"), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "SUNRISE", _TL("Sunrise"      ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "SUNSET" , _TL("Sunset"       ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "LENGTH" , _TL("Day Length"   ), _TL(""), PARAMETER_OUTPUT);
 
 	//-----------------------------------------------------
 	Parameters.Add_Date(
-		NULL	, "DAY"		, _TL("Day of Month"),
+		"", "DAY"	, _TL("Day of Month"),
 		_TL(""),
 		CSG_DateTime::Now().Get_JDN()
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TIME"	, _TL("Time"),
+		"", "TIME"	, _TL("Time"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("local"),

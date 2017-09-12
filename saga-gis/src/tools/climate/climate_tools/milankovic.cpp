@@ -671,14 +671,19 @@ bool CSG_Solar_Position::Get_CosZenith(double RLAT, double SIND, double COSD, do
 //														 //
 ///////////////////////////////////////////////////////////
 
-#define DESC_SOURCE 		"Orbital parameters used here are based on the work of Andre L. Berger "\
+//---------------------------------------------------------
+#define GET_DESCRIPTION	"Orbital parameters used here are based on the work of Andre L. Berger "\
 	"and its implementation from the NASA Goddard Institute for Space Studies (GISS). "\
-	"Berger's orbital parameters are considered to be valid for approximately 1 million years.\n"\
-	"References:\n"\
-	"- Berger, A.L. (1978): Long Term Variations of Daily Insolation and Quaternary Climatic Changes. Journal of the Atmospheric Sciences, volume 35(12), 2362-2367.\n"\
-	"- Berger, A.L. (1978): A Simple Algorithm to Compute Long Term Variations of Daily or Monthly Insolation. Institut d'Astronomie et de Geophysique, Universite Catholique de Louvain, Louvain-la-Neuve, No. 18.\n"\
-	"- NASA/GISS' implementation can be found as part of an Atmosphere-Ocean Model at "\
-	"<a target=\"_blank\" href=\"http://aom.giss.nasa.gov/srorbpar.html\">Determination of the Earth's Orbital Parameters</a>"
+	"Berger's orbital parameters are considered to be valid for approximately 1 million years. "
+
+//---------------------------------------------------------
+#define GET_REFERENCES	Add_Reference(\
+	"Berger, A.L.", "1978", "Long Term Variations of Daily Insolation and Quaternary Climatic Changes", \
+	"Journal of the Atmospheric Sciences, volume 35(12), 2362-2367."\
+); Add_Reference(\
+	"Berger, A.L.", "1978", "A Simple Algorithm to Compute Long Term Variations of Daily or Monthly Insolation", \
+	"Institut d'Astronomie et de Geophysique, Universite Catholique de Louvain, Louvain-la-Neuve, No. 18."\
+);
 
 
 ///////////////////////////////////////////////////////////
@@ -693,35 +698,37 @@ CMilankovic::CMilankovic(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Earth's Orbital Parameters"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		DESC_SOURCE
+		GET_DESCRIPTION
 	));
 
+	GET_REFERENCES;
+
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL, "ORBPAR"		, _TL("Earth's Orbital Parameters"),
+	Parameters.Add_Table("",
+		"ORBPAR", _TL("Earth's Orbital Parameters"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "START"		, _TL("Start [ka]"),
+	Parameters.Add_Double("",
+		"START"	, _TL("Start [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, -200
+		-200.
 	);
 
-	Parameters.Add_Value(
-		NULL, "STOP"		, _TL("Stop [ka]"),
+	Parameters.Add_Double("",
+		"STOP"	, _TL("Stop [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2
+		2.
 	);
 
-	Parameters.Add_Value(
-		NULL, "STEP"		, _TL("Step [ka]"),
+	Parameters.Add_Double("",
+		"STEP"	, _TL("Step [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.001, true
+		1., 0.001, true
 	);
 }
 
@@ -743,10 +750,10 @@ bool CMilankovic::On_Execute(void)
 	pOrbit->Destroy();
 	pOrbit->Set_Name(_TL("Earth's Orbital Parameters"));
 	pOrbit->Set_NoData_Value(-9999999);
-	pOrbit->Add_Field(_TL("Year")	            , SG_DATATYPE_Int);
-	pOrbit->Add_Field(_TL("Eccentricity")       , SG_DATATYPE_Double);
-	pOrbit->Add_Field(_TL("Obliquity")          , SG_DATATYPE_Double);
-	pOrbit->Add_Field(_TL("Perihelion")         , SG_DATATYPE_Double);
+	pOrbit->Add_Field(_TL("Year" 	           ), SG_DATATYPE_Int   );
+	pOrbit->Add_Field(_TL("Eccentricity"       ), SG_DATATYPE_Double);
+	pOrbit->Add_Field(_TL("Obliquity"          ), SG_DATATYPE_Double);
+	pOrbit->Add_Field(_TL("Perihelion"         ), SG_DATATYPE_Double);
 	pOrbit->Add_Field(_TL("Climatic Precession"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
@@ -783,41 +790,43 @@ CMilankovic_SR_Location::CMilankovic_SR_Location(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Annual Course of Daily Insolation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		DESC_SOURCE
+		GET_DESCRIPTION
 	));
 
+	GET_REFERENCES;
+
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "SOLARRAD"	, _TL("Solar Radiation"),
+	Parameters.Add_Table("",
+		"SOLARRAD"	, _TL("Solar Radiation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "START"		, _TL("Start [ka]"),
+	Parameters.Add_Double("",
+		"START"		, _TL("Start [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, -200
+		-200.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STOP"		, _TL("Stop [ka]"),
+	Parameters.Add_Double("",
+		"STOP"		, _TL("Stop [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2
+		2.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STEP"		, _TL("Step [ka]"),
+	Parameters.Add_Double("",
+		"STEP"		, _TL("Step [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.001, true
+		1, 0.001, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LAT"			, _TL("Latitude [Degree]"),
+	Parameters.Add_Double("",
+		"LAT"		, _TL("Latitude [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 53.0, -90.0, true, 90.0, true
+		53.0, -90.0, true, 90.0, true
 	);
 }
 
@@ -888,47 +897,49 @@ CMilankovic_SR_Day_Location::CMilankovic_SR_Day_Location(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Daily Insolation over Latitude"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		DESC_SOURCE
+		GET_DESCRIPTION
 	));
 
+	GET_REFERENCES;
+
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "SOLARRAD"	, _TL("Solar Radiation"),
+	Parameters.Add_Table("",
+		"SOLARRAD"	, _TL("Solar Radiation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "START"		, _TL("Start [ka]"),
+	Parameters.Add_Double("",
+		"START"		, _TL("Start [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, -200
+		-200.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STOP"		, _TL("Stop [ka]"),
+	Parameters.Add_Double("",
+		"STOP"		, _TL("Stop [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2
+		2.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STEP"		, _TL("Step [ka]"),
+	Parameters.Add_Double("",
+		"STEP"		, _TL("Step [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1, 0.001, true
+		1., 0.001, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DLAT"		, _TL("Latitude Increment [Degree]"),
+	Parameters.Add_Int("",
+		"DLAT"		, _TL("Latitude Increment [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 1, true, 90, true
+		5, 1, true, 90, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DAY"			, _TL("Day of Year"),
+	Parameters.Add_Int("",
+		"DAY"		, _TL("Day of Year"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 181, 0, true, 366, true
+		181, 0, true, 366, true
 	);
 }
 
@@ -1005,40 +1016,42 @@ CMilankovic_SR_Monthly_Global::CMilankovic_SR_Monthly_Global(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Monthly Global by Latitude"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		DESC_SOURCE
+		GET_DESCRIPTION
 	));
 
+	GET_REFERENCES;
+
 	//-----------------------------------------------------
-	Parameters.Add_Table(
-		NULL	, "SOLARRAD"	, _TL("Solar Radiation"),
+	Parameters.Add_Table("",
+		"SOLARRAD"	, _TL("Solar Radiation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "ALBEDO"		, _TL("Albedo"),
+	Parameters.Add_Table("",
+		"ALBEDO"	, _TL("Albedo"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Field"),
+	Parameters.Add_Table_Field("ALBEDO",
+		"FIELD"		, _TL("Field"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL	, "YEAR"		, _TL("Year [ka]"),
+	Parameters.Add_Double("",
+		"YEAR"		, _TL("Year [ka]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2
+		2.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DLAT"		, _TL("Latitude Increment [Degree]"),
+	Parameters.Add_Int("",
+		"DLAT"		, _TL("Latitude Increment [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 1, true, 90, true
+		5, 1, true, 90, true
 	);
 }
 
@@ -1050,7 +1063,7 @@ CMilankovic_SR_Monthly_Global::CMilankovic_SR_Monthly_Global(void)
 //---------------------------------------------------------
 bool CMilankovic_SR_Monthly_Global::On_Execute(void)
 {
-	const int	nDays[12]	= {	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31	};
+	const int	nDays [12]	= {	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31	};
 	const char	*Month[12]	= {	"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"	};
 
 	int		iMonth, iDay, aDay, bDay, iLat, Lat;

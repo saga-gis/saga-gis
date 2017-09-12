@@ -102,21 +102,19 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
+	Parameters.Add_Grid("", "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "PET"  , _TL("Potential Evapotranspiration"), _TL(""), PARAMETER_OUTPUT);
 
-	Parameters.Add_Grid(NULL, "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "PET"  , _TL("Potential Evapotranspiration"), _TL(""), PARAMETER_OUTPUT);
-
-	Parameters.Add_Value(
-		NULL	, "LAT"		, _TL("Latitude [Degree]"),
+	Parameters.Add_Double("",
+		"LAT"	, _TL("Latitude [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 53.0, -90.0, true, 90.0, true
+		53.0, -90.0, true, 90.0, true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "TIME"	, _TL("Time"),
+	Parameters.Add_Choice("",
+		"TIME"	, _TL("Time"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("day"),
@@ -124,16 +122,16 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "MONTH"	, _TL("Month"),
+	Parameters.Add_Choice("TIME",
+		"MONTH"	, _TL("Month"),
 		_TL(""),
 		CSG_DateTime::Get_Month_Choices(), CSG_DateTime::Get_Current_Month()
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DAY"		, _TL("Day of Month"),
+	Parameters.Add_Int("TIME",
+		"DAY"	, _TL("Day of Month"),
 		_TL(""),
-		PARAMETER_TYPE_Int, CSG_DateTime::Get_Current_Day(), 1, true, 31, true
+		CSG_DateTime::Get_Current_Day(), 1, true, 31, true
 	);
 }
 
@@ -277,38 +275,36 @@ CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"			, _TL("Data"),
+	Parameters.Add_Table("",
+		"TABLE"	, _TL("Data"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "JD"				, _TL("Julian Day"),
+	Parameters.Add_Table_Field("TABLE",
+		"JD"	, _TL("Julian Day"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "T"				, _TL("Mean Temperature"),
+	Parameters.Add_Table_Field("TABLE",
+		"T"		, _TL("Mean Temperature"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "T_MIN"			, _TL("Minimum Temperature"),
+	Parameters.Add_Table_Field("TABLE",
+		"T_MIN"	, _TL("Minimum Temperature"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "T_MAX"			, _TL("Maximum Temperature"),
+	Parameters.Add_Table_Field("TABLE",
+		"T_MAX"	, _TL("Maximum Temperature"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LAT"				, _TL("Latitude"),
+	Parameters.Add_Double("TABLE",
+		"LAT"	, _TL("Latitude"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 53.0, -90.0, true, 90.0, true
+		53.0, -90.0, true, 90.0, true
 	);
 }
 
@@ -387,40 +383,38 @@ CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	pNode	= Parameters.Add_Table(
-		NULL	, "DAYS"			, _TL("Daily Data"),
+	Parameters.Add_Table("",
+		"DAYS"	, _TL("Daily Data"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "JD"				, _TL("Julian Day"),
+	Parameters.Add_Table_Field("DAYS",
+		"JD"	, _TL("Julian Day"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ET"				, _TL("Evapotranspiration"),
+	Parameters.Add_Table_Field("DAYS",
+		"ET"	, _TL("Evapotranspiration"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "P"				, _TL("Precipitation"),
+	Parameters.Add_Table_Field("DAYS",
+		"P"		, _TL("Precipitation"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "HOURS"			, _TL("Hourly Data"),
+	Parameters.Add_Table("",
+		"HOURS"	, _TL("Hourly Data"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LAT"				, _TL("Latitude"),
+	Parameters.Add_Double("DAYS",
+		"LAT"	, _TL("Latitude"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 53.0, -90.0, true, 90.0, true
+		53.0, -90.0, true, 90.0, true
 	);
 }
 
