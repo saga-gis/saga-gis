@@ -1740,7 +1740,7 @@ bool		SG_Matrix_Eigen_Reduction(const CSG_Matrix &Matrix, CSG_Matrix &Eigen_Vect
 	Eigen_Vectors	= Matrix;
 
 	return(	SG_Matrix_Triangular_Decomposition	(Eigen_Vectors, Eigen_Values, Intermediate)	// Triangular decomposition (Householder's method)
-		&&	SG_Matrix_Tridiagonal_QL			(Eigen_Vectors, Eigen_Values, Intermediate)	// Reduction of symetric tridiagonal matrix
+		&&	SG_Matrix_Tridiagonal_QL			(Eigen_Vectors, Eigen_Values, Intermediate)	// Reduction of symmetric tridiagonal matrix
 	);
 }
 

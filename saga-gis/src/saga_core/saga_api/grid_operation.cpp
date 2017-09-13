@@ -1003,7 +1003,7 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bDown, bool bNoEdges)	
 /**
   * Calculates the gradient of a cell interpreting all grid cell values
   * as elevation surface. Calculation uses the formulas proposed
-  * by Zevenbergen & Thorne (1986). Slope and aspect values are calulated
+  * by Zevenbergen & Thorne (1986). Slope and aspect values are calculated
   * in radians. Aspect is zero for the North direction and increases
   * clockwise.
 */
@@ -1102,7 +1102,7 @@ bool CSG_Grid::Get_Gradient(double x, double y, double &Slope, double &Aspect, T
 /**
   * Calculates the gradient for the given world coordinate.
   * Calculation uses the formulas proposed by Zevenbergen & Thorne (1986).
-  * Slope and aspect values are calulated in radians.
+  * Slope and aspect values are calculated in radians.
   * Aspect is zero for the North direction and increases clockwise.
 */
 //---------------------------------------------------------

@@ -1042,7 +1042,7 @@ TSG_Shape_Type CSG_Shapes_OGIS_Converter::to_ShapeType(DWORD Type)
 // +---------------+-------------+------------------------------+
 // | - name -      |  - type -   | - meaning -                  |
 // +---------------+-------------+------------------------------+
-// | endiannes     | byte        | 1:ndr/little endian          |
+// | endianness    | byte        | 1:ndr/little endian          |
 // |               |             | 0:xdr/big endian             |
 // +---------------+-------------+------------------------------+
 // | version       | uint16      | format version (0 for this   |

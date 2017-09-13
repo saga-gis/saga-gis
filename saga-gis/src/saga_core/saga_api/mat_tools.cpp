@@ -2935,7 +2935,7 @@ double CSG_Test_Distribution::Get_F_Inverse(double alpha, int dfn, int dfd, TSG_
 //---------------------------------------------------------
 double CSG_Test_Distribution::Get_Gamma(double F, double dfn, double dfd)
 {
-	// calculates for F, dfn(ominator) and dfd(enominator) the uncomplete Gamma-function
+	// calculates for F, dfn(ominator) and dfd(enominator) the incomplete Gamma-function
 
 	const double	EXPMIN	= -30.0;
 	const double	SMALL	= 0.00000000001;

@@ -753,7 +753,7 @@ bool CSG_String::asDouble(double &Value) const
 /**
   * This function creates a single char array and fills it
   * with the ASCII representation of this string object.
-  * If successful pString will point to the adress of the
+  * If successful pString will point to the address of the
   * allocated memory. Freeing memory is in response of the
   * calling function.
 */

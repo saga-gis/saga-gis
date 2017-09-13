@@ -1387,7 +1387,7 @@ const CSG_Simple_Statistics & CSG_Grids::Get_Statistics(void)
 
 //---------------------------------------------------------
 /**
-  * Calulate statistics for the region specified with rWorld.
+  * Calculate statistics for the region specified with rWorld.
   * Returns false, if there is no overlapping. Set bHoldValues
   * to true, if you need to obtain quantiles.
 */
