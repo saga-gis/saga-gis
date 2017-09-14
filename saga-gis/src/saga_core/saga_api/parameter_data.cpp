@@ -1817,11 +1817,15 @@ bool CSG_Parameter_Grid_System::Set_Value(void *Value)
 			{
 				CSG_Parameter_List	*pList	= pParameter->asList();
 
-				for(int j=pList->Get_Item_Count()-1; j>=0; j--)
+				if( !m_System.is_Valid() )
+				{
+					pList->Del_Items();
+				}
+				else for(int j=pList->Get_Item_Count()-1; j>=0; j--)
 				{
 					CSG_Data_Object	*pObject	= pList->Get_Item(j);
 
-					bool	bInvalid	= !m_System.is_Valid() || !(pManager && pManager->Exists(pObject));
+					bool	bInvalid	= !(pManager && pManager->Exists(pObject));
 
 					if( !bInvalid && pObject != DATAOBJECT_NOTSET && pObject != DATAOBJECT_CREATE )
 					{
