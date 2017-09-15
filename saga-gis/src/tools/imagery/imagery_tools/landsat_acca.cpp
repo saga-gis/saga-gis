@@ -90,93 +90,93 @@ void	filter_holes	(CSG_Grid *pGrid);
 //---------------------------------------------------------
 CLandsat_ACCA::CLandsat_ACCA(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Automated Cloud Cover Assessment"));
 
-	Set_Author		(_TL("B.Bechtel, O.Conrad (c) 2013"));
+	Set_Author		("B.Bechtel, O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Automated Cloud-Cover Assessment (ACCA) for Landsat TM/ETM+ imagery as proposed by Irish (2000). "
-		"This tool incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.acca).\n"
-		"\n"
-		"References:\n"
-		"- Irish, R.R. (2000): Landsat 7 Automatic Cloud Cover Assessment."
-		" In Shen, S.S., Descour, M.R. (Eds.): Algorithms for Multispectral, Hyperspectral, and Ultraspectral Imagery VI. "
-		" Proceedings of SPIE, 4049: 348-355. "
-		"<a target=\"_blank\" href=\"http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_SPIE_paper.pdf\">online</a>.\n"
-		"- Irish, R.R., Barker J.L., Goward S.N., Arvidson T. (2006): "
-		" Characterization of the Landsat-7 ETM+ Automated Cloud-Cover Assessment (ACCA) Algorithm."
-		" Photogrammetric Engineering and Remote Sensing vol. 72(10): 1179-1188. "
-		"<a target=\"_blank\" href=\"http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_Special_Issue_Final.pdf\">online</a>.\n"
+		"This tool incorporates E.J. Tizado's GRASS GIS implementation (i.landsat.acca)."
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL, "BAND2", _TL("Landsat Band 2"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "BAND3", _TL("Landsat Band 3"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "BAND4", _TL("Landsat Band 4"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "BAND5", _TL("Landsat Band 5"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid(NULL, "BAND6", _TL("Landsat Band 6"), _TL(""), PARAMETER_INPUT, false);
+	Add_Reference("Irish, R.R.", "2000",
+		"Landsat 7 Automatic Cloud Cover Assessment",
+		"In: Shen, S.S., Descour, M.R. [Eds.]: Algorithms for Multispectral, Hyperspectral, and Ultraspectral Imagery VI. Proceedings of SPIE, 4049: 348-355.",
+		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_SPIE_paper.pdf")
+	);
 
-	Parameters.Add_Grid(
-		NULL	, "CLOUD"		, _TL("Cloud Cover"),
+	Add_Reference("Irish, R.R., Barker, J.L., Goward, S.N., Arvidson, T.", "2006",
+		"Characterization of the Landsat-7 ETM+ Automated Cloud-Cover Assessment (ACCA) Algorithm.",
+		"Photogrammetric Engineering and Remote Sensing vol. 72(10): 1179-1188.",
+		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_Special_Issue_Final.pdf")
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("", "BAND2", _TL("Landsat Band 2"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND3", _TL("Landsat Band 3"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND4", _TL("Landsat Band 4"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND5", _TL("Landsat Band 5"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND6", _TL("Landsat Band 6"), _TL(""), PARAMETER_INPUT, false);
+
+	Parameters.Add_Grid("",
+		"CLOUD"		, _TL("Cloud Cover"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FILTER"		, _TL("Apply post-processing filter to remove small holes"),
+	Parameters.Add_Bool("",
+		"FILTER"	, _TL("Apply post-processing filter to remove small holes"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_THRS"	, _TL("Thresholds"),
+	Parameters.Add_Node("",
+		"NODE_THRS"	, _TL("Thresholds"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "B56C"		, _TL("B56 Composite (step 6)"),
+	Parameters.Add_Double("NODE_THRS",
+		"B56C"		, _TL("B56 Composite (step 6)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 225.0
+		225.0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "B45R"		, _TL("B45 Ratio: Desert detection (step 10)"),
+	Parameters.Add_Double("NODE_THRS",
+		"B45R"		, _TL("B45 Ratio: Desert detection (step 10)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_CLOUD"	, _TL("Cloud Settings"),
+	Parameters.Add_Node("",
+		"NODE_CLOUD", _TL("Cloud Settings"),
 		_TL("")
 	);
 
-//	Parameters.Add_Value(
-//		pNode	, "HIST_N"		, _TL("Number of classes in the cloud temperature histogram"),
+//	Parameters.Add_Int("NODE_CLOUD",
+//		"HIST_N"	, _TL("Number of classes in the cloud temperature histogram"),
 //		_TL(""),
-//		PARAMETER_TYPE_Int, 100, 10, true
+//		100, 10, true
 //	);
 
-	Parameters.Add_Value(
-		pNode	, "CSIG"		, _TL("Always use cloud signature (step 14)"),
+	Parameters.Add_Bool("NODE_CLOUD",
+		"CSIG"		, _TL("Always use cloud signature (step 14)"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "PASS2"		, _TL("Bypass second-pass processing, and merge warm (not ambiguous) and cold clouds"),
+	Parameters.Add_Bool("NODE_CLOUD",
+		"PASS2"		, _TL("Bypass second-pass processing, and merge warm (not ambiguous) and cold clouds"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "SHADOW"		, _TL("Include a category for cloud shadows"),
+	Parameters.Add_Bool("NODE_CLOUD",
+		"SHADOW"	, _TL("Include a category for cloud shadows"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 

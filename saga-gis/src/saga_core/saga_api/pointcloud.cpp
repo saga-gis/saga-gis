@@ -320,36 +320,40 @@ bool CSG_PointCloud::_Load(const CSG_String &FileName)
 }
 
 //---------------------------------------------------------
-bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
+bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
-
 	if( Format == POINTCLOUD_FILE_FORMAT_Undefined )
 	{
-		Format	= SG_File_Cmp_Extension(FileName, "sg-pts-z")
+		Format	= SG_File_Cmp_Extension(_FileName, "sg-pts-z")
 			? POINTCLOUD_FILE_FORMAT_Compressed
 			: POINTCLOUD_FILE_FORMAT_Normal;
 	}
 
 	bool	bResult	= false;
 
+	CSG_String	FileName(_FileName);
+
 	switch( Format )
 	{
 	//-----------------------------------------------------
-	case POINTCLOUD_FILE_FORMAT_Compressed:
+	case POINTCLOUD_FILE_FORMAT_Compressed: default:
 		{
+			SG_File_Set_Extension(FileName, "sg-pts-z");
+
+			SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
+
 			CSG_File_Zip	Stream(FileName, SG_FILE_W);
 
-			CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
+			CSG_String	Name	= SG_File_Get_Name(FileName, false) + ".";
 
-			if( Stream.Add_File(_FileName + "sg-pts") && _Save(Stream) )
+			if( Stream.Add_File(Name + "sg-pts") && _Save(Stream) )
 			{
-				if( Stream.Add_File(_FileName + "sg-info") )
+				if( Stream.Add_File(Name + "sg-info") )
 				{
 					Save_MetaData(Stream);
 				}
 
-				if( Get_Projection().is_Okay() && Stream.Add_File(_FileName + "sg-prj") )
+				if( Get_Projection().is_Okay() && Stream.Add_File(Name + "sg-prj") )
 				{
 					Get_Projection().Save(Stream);
 				}
@@ -360,8 +364,12 @@ bool CSG_PointCloud::Save(const CSG_String &FileName, int Format)
 		break;
 
 	//-----------------------------------------------------
-	case POINTCLOUD_FILE_FORMAT_Normal: default:
+	case POINTCLOUD_FILE_FORMAT_Normal:
 		{
+			SG_File_Set_Extension(FileName, "sg-pts");
+
+			SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving point cloud"), FileName.c_str()), true);
+
 			CSG_File	Stream(FileName, SG_FILE_W, true);
 
 			if( _Save(Stream) )
