@@ -268,8 +268,6 @@ bool CSG_Grids::Destroy(void)
 	m_Attributes.Destroy();
 	m_Attributes.Add_Field("Z", SG_DATATYPE_Double);
 
-	m_Z_Attribute	= 0;
-
 	return( CSG_Data_Object::Destroy() );
 }
 
@@ -290,7 +288,8 @@ bool CSG_Grids::Create(const CSG_Grids *pGrids, bool bCopyData)
 	if( pGrids && pGrids->is_Valid() && Create(pGrids->Get_System(), 0, 0.0, pGrids->Get_Type()) )
 	{
 		m_Attributes.Create(&pGrids->m_Attributes);
-		Set_Z_Attribute(pGrids->Get_Z_Attribute());
+		Set_Z_Attribute (pGrids->Get_Z_Attribute ());
+		Set_Z_Name_Field(pGrids->Get_Z_Name_Field());
 
 		if( bCopyData )
 		{
@@ -386,7 +385,9 @@ void CSG_Grids::Set_Unit(const CSG_String &Unit)
 //---------------------------------------------------------
 void CSG_Grids::Set_Scaling(double Scale, double Offset)
 {
-	for(int i=0; i<Get_Grid_Count(); i++)
+	m_pGrids[0]->Set_Scaling(Scale, Offset);
+
+	for(int i=1; i<Get_Grid_Count(); i++)
 	{
 		m_pGrids[i]->Set_Scaling(Scale, Offset);
 	}
@@ -489,6 +490,15 @@ bool CSG_Grids::Del_Attribute(int i)
 			m_Z_Attribute--;
 		}
 
+		if( m_Z_Name > i )
+		{
+			m_Z_Name--;
+		}
+		else if( m_Z_Name == i )
+		{
+			m_Z_Name	= -1;	// same as m_Z_Attribute
+		}
+
 		return( true );
 	}
 
@@ -506,6 +516,24 @@ bool CSG_Grids::Set_Z_Attribute(int i)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Grids::Set_Z_Name_Field(int i)
+{
+	if( i >= 0 && i < m_Attributes.Get_Field_Count() )
+	{
+		m_Z_Name	= i;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+int CSG_Grids::Get_Z_Name_Field(void)	const
+{
+	return( m_Z_Name >= 0 && m_Z_Name < m_Attributes.Get_Field_Count() ? m_Z_Name : m_Z_Attribute );
 }
 
 //---------------------------------------------------------
@@ -808,31 +836,40 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 //---------------------------------------------------------
 CSG_String CSG_Grids::Get_Grid_Name(int i, int Style) const
 {
-	if( Style == 0 )
-	{
-		Style	= SG_GRIDS_NAME_OWNER|SG_GRIDS_NAME_INDEX;
-	}
-
 	CSG_String	s;
 
-	if( (Style & SG_GRIDS_NAME_INDEX) != 0 )
+	if( i >= 0 && i < Get_Grid_Count() )
 	{
-		s.Printf("%s %d", _TL("Band"), i + 1);
-	}
+		if( Style == 0 )
+		{
+			Style	= SG_GRIDS_NAME_OWNER|SG_GRIDS_NAME_GRID;
+		}
 
-	if( (Style & SG_GRIDS_NAME_VALUE) != 0 )
-	{
-		s	+= (s.is_Empty() ? "[" : " [") + SG_Get_String(Get_Z(i), -10) + "]";
-	}
+		if( (Style & SG_GRIDS_NAME_OWNER) != 0 )
+		{
+			s	= CSG_String(Get_Name());
+		}
 
-	if( (Style & SG_GRIDS_NAME_GRID ) != 0 && *m_pGrids[i]->Get_Name() != '\0' )
-	{
-		s	+= (s.is_Empty() ? "(" : " (") + CSG_String(m_pGrids[i]->Get_Name()) + ")";
-	}
+		if( (Style & SG_GRIDS_NAME_INDEX) != 0 )
+		{
+			if( !s.is_Empty() )	s	+= ".";
 
-	if( (Style & SG_GRIDS_NAME_OWNER) != 0 )
-	{
-		s	= CSG_String(Get_Name()) + "." + s;
+			s.Printf("%s %d", _TL("Band"), i + 1);
+		}
+
+		if( (Style & SG_GRIDS_NAME_VALUE) != 0 )
+		{
+			if( !s.is_Empty() )	s	+= ".";
+
+			s	+= SG_Get_String(Get_Z(i), -10);
+		}
+
+		if( (Style & SG_GRIDS_NAME_GRID ) != 0 )
+		{
+			if( !s.is_Empty() )	s	+= ".";
+
+			s	+= m_Attributes[i].asString(Get_Z_Name_Field());
+		}
 	}
 
 	return( s );
@@ -1928,17 +1965,22 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 	{
 		const CSG_MetaData	&Fields	= Header["ATTRIBUTES"];
 
-		if( !Fields.Get_Property("Z_FIELD", m_Z_Attribute) )
-		{
-			m_Z_Attribute	= 0;
-		}
-
 		for(int iField=0; iField<Fields.Get_Children_Count(); iField++)
 		{
 			if( Fields[iField].Cmp_Name("FIELD") && Fields[iField].Get_Property("TYPE") )
 			{
 				m_Attributes.Add_Field(Fields[iField].Get_Content(), SG_Data_Type_Get_Type(Fields[iField].Get_Property("TYPE")));
 			}
+		}
+
+		if( !Fields.Get_Property("Z_FIELD", m_Z_Attribute) || m_Z_Attribute >= m_Attributes.Get_Field_Count() )
+		{
+			m_Z_Attribute	= 0;
+		}
+
+		if( !Fields.Get_Property("Z_NAME", m_Z_Name      ) || m_Z_Name      >= m_Attributes.Get_Field_Count() )
+		{
+			m_Z_Name	= -1;	// same as m_Z_Attribute
 		}
 	}
 
@@ -1965,6 +2007,8 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 
 		if( m_Attributes.Get_Field_Count() > 0 && Header["ATTRIBUTES"]("RECORDS") )
 		{
+			CSG_Table	Attributes(m_Attributes);
+
 			const CSG_MetaData	&Records	= Header["ATTRIBUTES"]["RECORDS"];
 
 			for(int iRecord=0; iRecord<Records.Get_Children_Count(); iRecord++)
@@ -1973,16 +2017,22 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 				{
 					CSG_String_Tokenizer	Values(Records[iRecord].Get_Content(), ";");
 
-					CSG_Table_Record	*pRecord	= m_Attributes.Add_Record();
-
-					for(iField=0; Values.Has_More_Tokens() && iField<m_Attributes.Get_Field_Count(); iField++)
+					if( Values.Get_Tokens_Count() == Attributes.Get_Field_Count() )
 					{
-						pRecord->Set_Value(iField, Values.Get_Next_Token());
+						CSG_Table_Record	*pRecord	= Attributes.Add_Record();
+
+						for(int iField=0; iField<m_Attributes.Get_Field_Count(); iField++)
+						{
+							pRecord->Set_Value(iField, Values.Get_Next_Token());
+						}
+
+						if( !Add_Grid(*pRecord) )
+						{
+							return( false );
+						}
 					}
 				}
 			}
-
-			return( Create(CSG_Grid_System(Get_System()), CSG_Table(m_Attributes), m_Z_Attribute, Get_Type(), true) );
 		}
 	}
 	// <<< DEPRECATED <<< //
@@ -2030,6 +2080,7 @@ bool CSG_Grids::_Save_Header(CSG_File &Stream)
 	CSG_MetaData	&Attributes	= *Header.Add_Child("ATTRIBUTES");
 
 	Attributes.Add_Property("Z_FIELD", m_Z_Attribute);
+	Attributes.Add_Property("Z_NAME" , m_Z_Name     );
 
 	for(int iField=0; iField<m_Attributes.Get_Field_Count(); iField++)
 	{
@@ -2050,21 +2101,31 @@ bool CSG_Grids::_Save_Header(CSG_File &Stream)
 //---------------------------------------------------------
 bool CSG_Grids::_Load_Attributes(CSG_File &Stream)
 {
+	CSG_Table	Attributes(m_Attributes);
+
 	CSG_String	sLine;
 
 	while( Stream.Read_Line(sLine) && !sLine.is_Empty() )
 	{
 		CSG_String_Tokenizer	Values(sLine, "\t");
 
-		CSG_Table_Record	*pRecord	= m_Attributes.Add_Record();
-
-		for(int iField=0; iField<m_Attributes.Get_Field_Count(); iField++)
+		if( Values.Get_Tokens_Count() == Attributes.Get_Field_Count() )
 		{
-			pRecord->Set_Value(iField, Values.Get_Next_Token());
+			CSG_Table_Record	*pRecord	= Attributes.Add_Record();
+
+			for(int iField=0; iField<m_Attributes.Get_Field_Count(); iField++)
+			{
+				pRecord->Set_Value(iField, Values.Get_Next_Token());
+			}
+
+			if( !Add_Grid(*pRecord) )
+			{
+				return( false );
+			}
 		}
 	}
 
-	return( Create(CSG_Grid_System(Get_System()), CSG_Table(m_Attributes), m_Z_Attribute, Get_Type(), true) );
+	return( true );
 }
 
 //---------------------------------------------------------

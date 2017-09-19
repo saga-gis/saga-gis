@@ -206,6 +206,9 @@ public:		///////////////////////////////////////////////
 	bool							Set_Z_Attribute		(int i);
 	int								Get_Z_Attribute		(void)	const	{	return( m_Z_Attribute );	}
 
+	bool							Set_Z_Name_Field	(int i);
+	int								Get_Z_Name_Field	(void)	const;
+
 	bool							Set_Z				(int i, double Value);
 	double							Get_Z				(int i)	const	{	return( m_Attributes[i].asDouble(m_Z_Attribute) );	}
 
@@ -458,7 +461,7 @@ protected:	///////////////////////////////////////////////
 //---------------------------------------------------------
 private:	///////////////////////////////////////////////
 
-	int								m_Z_Attribute;
+	int								m_Z_Attribute, m_Z_Name;
 
 	sLong							*m_Index;
 

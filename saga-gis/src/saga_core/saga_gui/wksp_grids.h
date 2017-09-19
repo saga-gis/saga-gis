@@ -136,7 +136,8 @@ private:
 	CWKSP_Layer_Classify		m_Classify[3];
 
 
-	CSG_String					_Get_Bands_List			(void);
+	CSG_String					_Get_List_Attributes	(void);
+	CSG_String					_Get_List_Bands			(int Attribute = -1);
 
 	bool						_Fit_Colors				(bool bRefresh = false);
 	bool						_Fit_Colors				(CSG_Parameters &Parameters, double &Minimum, double &Maximum);
