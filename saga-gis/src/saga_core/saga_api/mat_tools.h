@@ -815,27 +815,35 @@ public:
 
 	bool			Destroy			(void);
 
-	CSG_Histogram					(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values);
-	bool			Create			(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values);
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum);
+	bool			Create			(int nClasses, double Minimum, double Maximum);
 
-	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field);
-	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field);
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , unsigned int maxSamples = 0);
+	bool			Create			(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , unsigned int maxSamples = 0);
 
-	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid);
-	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid);
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, unsigned int maxSamples = 0);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, unsigned int maxSamples = 0);
 
-	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids);
-	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids);
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , unsigned int maxSamples = 0);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , unsigned int maxSamples = 0);
 
-	unsigned int	Get_Count		(void)		const	{	return( m_Count );	}
+	CSG_Histogram					(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , unsigned int maxSamples = 0);
+	bool			Create			(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , unsigned int maxSamples = 0);
+
+	//-----------------------------------------------------
+	void			Add_Value		(double Value);
+
+	bool			Update			(void);
+
+	unsigned int	Get_Count		(void)		const	{	return( m_nClasses );	}
 
 	unsigned int	Get_Elements	(int    i)	const	{	return( Get_Elements((size_t)i) );	}
-	unsigned int	Get_Elements	(size_t i)	const	{	return( i < m_Count ? m_Elements[i] : 0 );	}
+	unsigned int	Get_Elements	(size_t i)	const	{	return( i < m_nClasses ? m_Elements[i] : 0 );	}
 
 	unsigned int	Get_Cumulative	(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
-	unsigned int	Get_Cumulative	(size_t i)	const	{	return( i < m_Count ? m_Cumulative[i] : 0 );	}
+	unsigned int	Get_Cumulative	(size_t i)	const	{	return( i < m_nClasses ? m_Cumulative[i] : 0 );	}
 
-	double			Get_Value		(double i)	const	{	return( m_Count > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_Count : m_Minimum );	}
+	double			Get_Value		(double i)	const	{	return( m_nClasses > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_nClasses : m_Minimum );	}
 
 	double			Get_Break		(int    i)	const	{	return( Get_Value((double)(i)) );	}
 	double			Get_Break		(size_t i)	const	{	return( Get_Value((double)(i)) );	}
@@ -843,24 +851,33 @@ public:
 	double			Get_Center		(int    i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
 	double			Get_Center		(size_t i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
 
+	//-----------------------------------------------------
+	void			operator +=		(double Value)		{	Add_Value(Value);	}
+
 	unsigned int	operator []		(int    i)	const	{	return( Get_Elements(i) );	}
 	unsigned int	operator []		(size_t i)	const	{	return( Get_Elements(i) );	}
+
+	double			Get_Percentile	(double Percentile)	const;
+
+	const CSG_Simple_Statistics &	Get_Statistics	(void)	const	{	return( m_Statistics );	}
 
 
 private:
 
-	unsigned int	m_Count, *m_Elements, *m_Cumulative;
+	unsigned int			m_nClasses, *m_Elements, *m_Cumulative;
 
-	double			m_Minimum, m_Maximum;
+	double					m_Minimum, m_Maximum;
+
+	CSG_Simple_Statistics	m_Statistics;
 
 
-	void			_On_Construction	(void);
+	void					_On_Construction	(void);
 
-	bool			_Create				(int nClasses, double Minimum, double Maximum);
+	bool					_Create				(int nClasses, double Minimum, double Maximum);
 
-	bool			_Cumulative			(void);
+	bool					_Cumulative			(void);
 
-	void			_Add_Value			(double Value);
+	bool					_Update				(sLong nElements);
 
 };
 
