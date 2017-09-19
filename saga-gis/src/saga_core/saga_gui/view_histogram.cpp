@@ -203,24 +203,24 @@ void CVIEW_Histogram::Draw(wxDC &dc, wxRect r)
 //---------------------------------------------------------
 void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 {
-	int		nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
+	const CSG_Histogram	&Histogram	= m_pLayer->Get_Classifier()->Histogram_Get();
 
-	if( nClasses > 1 )
+	if( Histogram.Get_Class_Count() > 0 && Histogram.Get_Element_Count() > 0 )
 	{
 		int		ax, ay, bx, by;
 		double	dx, Value;
 
 		wxColor	Color	= SYS_Get_Color(wxSYS_COLOUR_ACTIVECAPTION); // wxSYS_COLOUR_BTNSHADOW);
 
-		dx	= (double)r.GetWidth() / (double)nClasses;
+		dx	= (double)r.GetWidth() / (double)Histogram.Get_Class_Count();
 		ay	= r.GetBottom();
 		bx	= r.GetLeft();
 
-		for(int iClass=0; iClass<nClasses; iClass++)
+		for(size_t iClass=0; iClass<Histogram.Get_Class_Count(); iClass++)
 		{
 			Value	= m_bCumulative
-					? m_pLayer->Get_Classifier()->Histogram_Get_Cumulative(iClass)
-					: m_pLayer->Get_Classifier()->Histogram_Get_Count     (iClass);
+				? Histogram.Get_Cumulative(iClass) / (double)Histogram.Get_Element_Count  ()
+				: Histogram.Get_Elements  (iClass) / (double)Histogram.Get_Element_Maximum();
 
 			ax	= bx;
 			bx	= r.GetLeft() + (int)(dx * (iClass + 1.0));
@@ -236,7 +236,7 @@ void CVIEW_Histogram::Draw_Histogram(wxDC &dc, wxRect r)
 	}
 	else
 	{
-		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() - r.GetHeight() / 2, _TL("no histogram for unclassified data"));
+		Draw_Text(dc, TEXTALIGN_CENTER, r.GetLeft() + r.GetWidth() / 2, r.GetBottom() - r.GetHeight() / 2, _TL("invalid histogram"));
 	}
 }
 
@@ -248,17 +248,17 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 
-	int	nClasses	= m_pLayer->Get_Classifier()->Get_Class_Count();
+	const CSG_Histogram	&Histogram	= m_pLayer->Get_Classifier()->Histogram_Get();
 
-	if( nClasses < 1 )
+	if( Histogram.Get_Class_Count() < 1 || Histogram.Get_Element_Count() < 1 )
 	{
 		return;
 	}
 
 	//-----------------------------------------------------
 	int	Maximum	= m_bCumulative
-		? m_pLayer->Get_Classifier()->Histogram_Get_Total  ()
-		: m_pLayer->Get_Classifier()->Histogram_Get_Maximum();
+		? Histogram.Get_Element_Count  ()
+		: Histogram.Get_Element_Maximum();
 
 	if( Maximum > 0 )
 	{
@@ -273,9 +273,9 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 	//-----------------------------------------------------
 	if( m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_LUT )
 	{
-		double	dx	= r.GetWidth() / (double)nClasses, n;
+		double	dx	= r.GetWidth() / (double)Histogram.Get_Class_Count(), n;
 
-		for(int iClass=0; iClass<nClasses; iClass++, n+=dx)
+		for(size_t iClass=0; iClass<Histogram.Get_Class_Count(); iClass++, n+=dx)
 		{
 			if( iClass == 0 || n > (FontSize + 5) )
 			{
@@ -293,7 +293,7 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 	//-----------------------------------------------------
 	else
 	{
-		double	dx	= r.GetWidth() / (double)nClasses;
+		double	dx	= r.GetWidth() / (double)Histogram.Get_Class_Count();
 
 		if( dx < (FontSize + 5) )
 		{
@@ -502,7 +502,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		CSG_Table	*pTable	= new CSG_Table;
 
-		pTable->Set_Name(CSG_String::Format(SG_T("%s: %s"), _TL("Histogram"), pObject->Get_Name()));
+		pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Histogram"), pObject->Get_Name()));
 
 		pTable->Add_Field(_TL("CLASS" ), SG_DATATYPE_Int   );
 		pTable->Add_Field(_TL("AREA"  ), SG_DATATYPE_Double);
@@ -520,13 +520,13 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 			CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
 			pRecord->Set_Value(0, i + 1);
-			pRecord->Set_Value(1, pClassifier->Histogram_Get_Count     (i, false) * dArea);
-			pRecord->Set_Value(2, pClassifier->Histogram_Get_Count     (i, false));
-			pRecord->Set_Value(3, pClassifier->Histogram_Get_Cumulative(i, false));
-			pRecord->Set_Value(4, pClassifier->Get_Class_Name          (i).wx_str());
-			pRecord->Set_Value(5, pClassifier->Get_Class_Value_Minimum (i));
-			pRecord->Set_Value(6, pClassifier->Get_Class_Value_Center  (i));
-			pRecord->Set_Value(7, pClassifier->Get_Class_Value_Maximum (i));
+			pRecord->Set_Value(1, pClassifier->Histogram_Get().Get_Elements  (i) * dArea);
+			pRecord->Set_Value(2, pClassifier->Histogram_Get().Get_Elements  (i));
+			pRecord->Set_Value(3, pClassifier->Histogram_Get().Get_Cumulative(i));
+			pRecord->Set_Value(4, pClassifier->Get_Class_Name                (i).wx_str());
+			pRecord->Set_Value(5, pClassifier->Get_Class_Value_Minimum       (i));
+			pRecord->Set_Value(6, pClassifier->Get_Class_Value_Center        (i));
+			pRecord->Set_Value(7, pClassifier->Get_Class_Value_Maximum       (i));
 		}
 
 		g_pData->Add(pTable);

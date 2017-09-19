@@ -87,17 +87,11 @@ CWKSP_Layer_Classify::CWKSP_Layer_Classify(void)
 	m_pLayer		= NULL;
 	m_pColors		= NULL;
 	m_pLUT			= NULL;
-
-	m_HST_Count		= NULL;
-	m_HST_Cumul		= NULL;
 }
 
 //---------------------------------------------------------
 CWKSP_Layer_Classify::~CWKSP_Layer_Classify(void)
-{
-	SG_FREE_SAFE(m_HST_Count);
-	SG_FREE_SAFE(m_HST_Cumul);
-}
+{}
 
 
 ///////////////////////////////////////////////////////////
@@ -309,8 +303,8 @@ bool CWKSP_Layer_Classify::Set_Class_Count(int Count)
 void CWKSP_Layer_Classify::Set_Metric(int Mode, double LogFactor, double zMin, double zMax)
 {
 	m_zMode		= Mode;
-	m_zMin		= zMin;
-	m_zRange	= zMax - zMin;
+	m_zMin		= zMin < zMax ? zMin : zMax;
+	m_zRange	= zMin < zMax ? (zMax - zMin) : (zMin - zMax);
 	m_zLogRange	= LogFactor;
 	m_zLogMax	= log(1.0 + m_zLogRange);
 
@@ -523,66 +517,54 @@ void CWKSP_Layer_Classify::Metric2EqualElements(void)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::Histogram_Update(void)
 {
-	//-----------------------------------------------------
-	SG_FREE_SAFE(m_HST_Count);
-	SG_FREE_SAFE(m_HST_Cumul);
-
-	//-----------------------------------------------------
-	if( Get_Class_Count() > 0 )
+	if( Get_Class_Count() < 1 )
 	{
-		STATUSBAR_Set_Text(_TL("Build Histogram..."));
+		m_Histogram.Destroy();
 
-		m_HST_Count	= (sLong *)SG_Calloc(Get_Class_Count(), sizeof(sLong));
-		m_HST_Cumul	= (sLong *)SG_Calloc(Get_Class_Count(), sizeof(sLong));
-
-		switch( m_pLayer->Get_Type() )
-		{
-		case WKSP_ITEM_Grid:
-			_Histogram_Update(((CWKSP_Grid  *)m_pLayer)->Get_Grid ());
-			break;
-
-		case WKSP_ITEM_Grids:
-			if( m_Mode == CLASSIFY_OVERLAY )
-			{
-				_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grids());
-			}
-			else
-			{
-				_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grid ());
-			}
-			break;
-
-		case WKSP_ITEM_Shapes:
-			_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(),
-				((CWKSP_Shapes *)m_pLayer)->Get_Field_Value (),
-				((CWKSP_Shapes *)m_pLayer)->Get_Field_Normal()
-			);
-			break;
-
-		case WKSP_ITEM_PointCloud:
-			_Histogram_Update(((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud(),
-				((CWKSP_PointCloud *)m_pLayer)->Get_Field_Value()
-			);
-			break;
-
-		default: break;
-		}
-
-		PROCESS_Set_Okay();
-
-		//-------------------------------------------------
-		int		i;
-
-		for(i=0, m_HST_Maximum=0, m_HST_Total=0; i<Get_Class_Count(); i++)
-		{
-			m_HST_Cumul[i]	= (m_HST_Total += m_HST_Count[i]);
-
-			if( m_HST_Count[i] > m_HST_Maximum )
-			{
-				m_HST_Maximum	= m_HST_Count[i];
-			}
-		}
+		return( false );
 	}
+
+	//-----------------------------------------------------
+	STATUSBAR_Set_Text(_TL("Build Histogram..."));
+
+	m_Histogram.Create(Get_Class_Count(), 0, Get_Class_Count() - 1);
+
+	switch( m_pLayer->Get_Type() )
+	{
+	case WKSP_ITEM_Grid:
+		_Histogram_Update(((CWKSP_Grid  *)m_pLayer)->Get_Grid ());
+		break;
+
+	case WKSP_ITEM_Grids:
+		if( m_Mode == CLASSIFY_OVERLAY )
+		{
+			_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grids());
+		}
+		else
+		{
+			_Histogram_Update(((CWKSP_Grids *)m_pLayer)->Get_Grid ());
+		}
+		break;
+
+	case WKSP_ITEM_Shapes:
+		_Histogram_Update(((CWKSP_Shapes *)m_pLayer)->Get_Shapes(),
+			((CWKSP_Shapes *)m_pLayer)->Get_Field_Value (),
+			((CWKSP_Shapes *)m_pLayer)->Get_Field_Normal()
+		);
+		break;
+
+	case WKSP_ITEM_PointCloud:
+		_Histogram_Update(((CWKSP_PointCloud *)m_pLayer)->Get_PointCloud(),
+			((CWKSP_PointCloud *)m_pLayer)->Get_Field_Value()
+		);
+		break;
+
+	default: break;
+	}
+
+	m_Histogram.Update();
+
+	PROCESS_Set_Okay();
 
 	//-----------------------------------------------------
 	return( true );
@@ -601,33 +583,20 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 
 			if( !pGrid->is_NoData_Value(Value) )
 			{
-				int		Class	= Get_Class(Value);
-
-				if( Class >= 0 && Class < Get_Class_Count() )
-				{
-					m_HST_Count[Class]++;
-				}
+				m_Histogram.Add_Value(Get_Class(Value));
 			}
 		}
+
+		return( true );
 	}
-	else
+
+	for(sLong i=0; i<pGrid->Get_NCells() && PROGRESSBAR_Set_Position((double)i, (double)pGrid->Get_NCells()); i++)
 	{
-		for(int y=0; y<pGrid->Get_NY() && PROGRESSBAR_Set_Position(y, pGrid->Get_NY()); y++)
+		double	Value	= pGrid->asDouble(i);
+
+		if( !pGrid->is_NoData_Value(Value) )
 		{
-			for(int x=0; x<pGrid->Get_NX(); x++)
-			{
-				double	Value	= pGrid->asDouble(x, y);
-
-				if( !pGrid->is_NoData_Value(Value) )
-				{
-					int		Class	= Get_Class(Value);
-
-					if( Class >= 0 && Class < Get_Class_Count() )
-					{
-						m_HST_Count[Class]++;
-					}
-				}
-			}
+			m_Histogram.Add_Value(Get_Class(Value));
 		}
 	}
 
@@ -637,24 +606,13 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 {
-	sLong	i	= 0;
-
-	for(int z=0; z<pGrids->Get_NZ() && PROCESS_Get_Okay(false); z++)
+	for(sLong i=0; i<pGrids->Get_NCells() && PROGRESSBAR_Set_Position((double)i, (double)pGrids->Get_NCells()); i++)
 	{
-		for(int y=0; y<pGrids->Get_NY() && PROGRESSBAR_Set_Position(i, pGrids->Get_NCells()); y++)
+		double	Value	= pGrids->asDouble(i);
+
+		if( !pGrids->is_NoData_Value(Value) )
 		{
-			for(int x=0; x<pGrids->Get_NX(); x++, i++)
-			{
-				if( !pGrids->is_NoData(x, y, z) )
-				{
-					int		Class	= Get_Class(pGrids->asDouble(x, y, z));
-				
-					if( Class >= 0 && Class < Get_Class_Count() )
-					{
-						m_HST_Count[Class]++;
-					}
-				}
-			}
+			m_Histogram.Add_Value(Get_Class(Value));
 		}
 	}
 
@@ -698,10 +656,7 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 			Class	= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
 		}
 
-		if( Class >= 0 && Class < Get_Class_Count() )
-		{
-			m_HST_Count[Class]++;
-		}
+		m_Histogram.Add_Value(Class);
 	}
 
 	return( true );

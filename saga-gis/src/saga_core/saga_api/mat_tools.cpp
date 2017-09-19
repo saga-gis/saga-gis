@@ -1118,24 +1118,6 @@ bool CSG_Histogram::_Create(int nClasses, double Minimum, double Maximum)
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::_Cumulative(void)
-{
-	if( m_nClasses > 0 )
-	{
-		m_Cumulative[0]	= m_Elements[0];
-
-		for(size_t i=1; i<m_nClasses; i++)
-		{
-			m_Cumulative[i]	= m_Cumulative[i - 1] + m_Elements[i];
-		}
-
-		return( m_Cumulative[m_nClasses - 1] > 0 );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 void CSG_Histogram::Add_Value(double Value)
 {
 	m_Statistics	+= Value;
@@ -1164,7 +1146,19 @@ bool CSG_Histogram::Update(void)
 	{
 		m_Statistics.Get_Mean();	// _Evaluate()
 
-		return( _Cumulative() );
+		m_nMaximum	= m_Cumulative[0]	= m_Elements[0];
+
+		for(size_t i=1; i<m_nClasses; i++)
+		{
+			m_Cumulative[i]	= m_Cumulative[i - 1] + m_Elements[i];
+
+			if( m_nMaximum < m_Elements[i] )
+			{
+				m_nMaximum	= m_Elements[i];
+			}
+		}
+
+		return( m_Cumulative[m_nClasses - 1] > 0 );
 	}
 
 	return( false );
@@ -1547,7 +1541,7 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 {
 	if( _Calculate(nClasses) )
 	{
-		double	d	= (double)m_Histogram.Get_Count() / m_Histogram.Get_Cumulative((int)(m_Histogram.Get_Count() - 1));
+		double	d	= (double)m_Histogram.Get_Class_Count() / m_Histogram.Get_Cumulative((int)(m_Histogram.Get_Class_Count() - 1));
 
 		m_Breaks[0]	= m_Histogram.Get_Break(0);
 
@@ -1556,7 +1550,7 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 			m_Breaks[i]	= m_Histogram.Get_Value(m_Breaks[i] * d);
 		}
 
-		m_Breaks[nClasses]	= m_Histogram.Get_Break((int)m_Histogram.Get_Count());
+		m_Breaks[nClasses]	= m_Histogram.Get_Break((int)m_Histogram.Get_Class_Count());
 
 		m_Histogram.Destroy();
 
@@ -1571,7 +1565,7 @@ bool CSG_Natural_Breaks::_Histogram(int nClasses)
 //---------------------------------------------------------
 inline double CSG_Natural_Breaks::_Get_Value(int i)
 {
-	if( m_Histogram.Get_Count() > 0 )
+	if( m_Histogram.Get_Class_Count() > 0 )
 	{
 		return( m_Histogram.Get_Cumulative(i) );
 	}
@@ -1582,12 +1576,12 @@ inline double CSG_Natural_Breaks::_Get_Value(int i)
 //---------------------------------------------------------
 bool CSG_Natural_Breaks::_Calculate(int nClasses)
 {
-	if( m_Histogram.Get_Count() == 0 && m_Values.Get_Size() == 0 )
+	if( m_Histogram.Get_Class_Count() == 0 && m_Values.Get_Size() == 0 )
 	{
 		return( false );
 	}
 
-	int		nValues	= m_Histogram.Get_Count() > 0 ? m_Histogram.Get_Count() : m_Values.Get_N();
+	int		nValues	= m_Histogram.Get_Class_Count() > 0 ? m_Histogram.Get_Class_Count() : m_Values.Get_N();
 
 	CSG_Matrix	mv(nClasses, nValues); mv.Assign(FLT_MAX);
 

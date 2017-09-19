@@ -434,33 +434,16 @@ public: ///////////////////////////////////////////////////
 	//-----------------------------------------------------
 	bool						Histogram_Update		(void);
 
-	int							Histogram_Get_Maximum	(void)	{	return( m_HST_Maximum );	}
-	int							Histogram_Get_Total		(void)	{	return( m_HST_Total );		}
-
-	double						Histogram_Get_Count		(int iClass, bool bRelative = true)
-	{
-		return( bRelative && m_HST_Maximum > 0
-			? (double)m_HST_Count[iClass] / m_HST_Maximum
-			: m_HST_Count[iClass]
-		);
-	}
-
-	double						Histogram_Get_Cumulative(int iClass, bool bRelative = true)
-	{
-		return( bRelative && m_HST_Total   > 0
-			? (double)m_HST_Cumul[iClass] / m_HST_Total
-			: m_HST_Cumul[iClass]
-		);
-	}
+	const CSG_Histogram &		Histogram_Get			(void)	const	{	return( m_Histogram );	}
 
 
 protected: ////////////////////////////////////////////////
 
 	int							m_Mode, m_zMode, m_Shade_Mode, m_Count, m_UNI_Color;
 
-	sLong						*m_HST_Count, *m_HST_Cumul, m_HST_Maximum, m_HST_Total;
-
 	double						m_zMin, m_zRange, m_zLogRange, m_zLogMax;
+
+	CSG_Histogram				m_Histogram;
 
 	CSG_Colors					*m_pColors;
 
