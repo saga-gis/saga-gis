@@ -631,32 +631,23 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);
 
-		int		Class;
-		
 		if( m_Mode == CLASSIFY_LUT )
 		{
-			Class	= SG_Data_Type_is_Numeric(m_pLUT->Get_Field_Type(LUT_MIN))
-					? Get_Class(pShape->asDouble(Attribute))
-					: Get_Class(pShape->asString(Attribute));
+			m_Histogram	+= SG_Data_Type_is_Numeric(m_pLUT->Get_Field_Type(LUT_MIN))
+				? Get_Class(pShape->asDouble(Attribute))
+				: Get_Class(pShape->asString(Attribute));
 		}
-		else if( pShape->is_NoData(Attribute) )
+		else if( !pShape->is_NoData(Attribute) )
 		{
-			Class	= -1;
+			if( Normalize < 0 )
+			{
+				m_Histogram	+= Get_Class(pShape->asDouble(Attribute));
+			}
+			else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
+			{
+				m_Histogram	+= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+			}
 		}
-		else if( Normalize < 0 )
-		{
-			Class	= Get_Class(pShape->asDouble(Attribute));
-		}
-		else if( pShape->is_NoData(Normalize) )
-		{
-			Class	= -1;
-		}
-		else
-		{
-			Class	= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
-		}
-
-		m_Histogram.Add_Value(Class);
 	}
 
 	return( true );

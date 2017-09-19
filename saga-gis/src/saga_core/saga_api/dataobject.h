@@ -143,6 +143,18 @@ SAGA_API_DLL_EXPORT CSG_String	SG_Get_DataObject_Name			(TSG_Data_Object_Type Ty
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/** Set the default value for the number of maximum samples used for building data object statistics */
+SAGA_API_DLL_EXPORT bool		SG_DataObject_Set_Max_Samples	(sLong Max_Samples);
+
+/** Get the default value for the number of maximum samples used for building data object statistics */
+SAGA_API_DLL_EXPORT sLong		SG_DataObject_Get_Max_Samples	(void);
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 SAGA_API_DLL_EXPORT void		SG_Set_History_Depth			(int Depth);
 SAGA_API_DLL_EXPORT int			SG_Get_History_Depth			(void);
 SAGA_API_DLL_EXPORT void		SG_Set_History_Ignore_Lists		(int Ignore);
@@ -234,6 +246,9 @@ public:
 
 	bool							Save_History_to_Model	(const CSG_String &File)	const;
 
+	bool							Set_Max_Samples		(sLong Max_Samples);
+	sLong							Get_Max_Samples		(void)	const	{	return( m_Max_Samples );	}
+
 
 protected:
 
@@ -262,6 +277,8 @@ private:
 	bool							m_bModified, m_bUpdate, m_File_bNative;
 
 	int								m_File_Type;
+
+	sLong							m_Max_Samples;
 
 	double							m_NoData_Value, m_NoData_hiValue;
 

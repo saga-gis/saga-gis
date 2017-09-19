@@ -73,7 +73,7 @@ CSG_String	SG_Get_DataObject_Identifier(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default                        : return( "UNDEFINED");
+	default                           : return( "UNDEFINED");
 	case SG_DATAOBJECT_TYPE_Grid      : return( "GRID"     );
 	case SG_DATAOBJECT_TYPE_Grids     : return( "GRIDS"    );
 	case SG_DATAOBJECT_TYPE_Table     : return( "TABLE"    );
@@ -88,7 +88,7 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default                        : return( _TL("Undefined"  ) );
+	default                           : return( _TL("Undefined"  ) );
 	case SG_DATAOBJECT_TYPE_Grid      : return( _TL("Grid"       ) );
 	case SG_DATAOBJECT_TYPE_Grids     : return( _TL("Grids"      ) );
 	case SG_DATAOBJECT_TYPE_Table     : return( _TL("Table"      ) );
@@ -96,6 +96,35 @@ CSG_String	SG_Get_DataObject_Name(TSG_Data_Object_Type Type)
 	case SG_DATAOBJECT_TYPE_TIN       : return( _TL("TIN"        ) );
 	case SG_DATAOBJECT_TYPE_PointCloud: return( _TL("Point Cloud") );
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//				Data Object Statistics					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+static sLong		gSG_DataObject_Max_Samples	= 0;
+
+//---------------------------------------------------------
+bool				SG_DataObject_Set_Max_Samples	(sLong Max_Samples)
+{
+	if( Max_Samples >= 0 )
+	{
+		gSG_DataObject_Max_Samples	= Max_Samples;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+sLong				SG_DataObject_Get_Max_Samples	(void)
+{
+	return( gSG_DataObject_Max_Samples );
 }
 
 
@@ -157,6 +186,8 @@ CSG_Data_Object::CSG_Data_Object(void)
 
 	m_NoData_Value		= -99999.0;
 	m_NoData_hiValue	= -99999.0;
+
+	m_Max_Samples		= gSG_DataObject_Max_Samples;
 
 	m_Name				.Clear();
 	m_Description		.Clear();
@@ -328,6 +359,24 @@ bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Data_Object::Set_Max_Samples(sLong Max_Samples)
+{
+	if( m_Max_Samples != Max_Samples )
+	{
+		m_Max_Samples	= Max_Samples;
+
+		Set_Update_Flag();
+	}
+
+	return( true );
 }
 
 
