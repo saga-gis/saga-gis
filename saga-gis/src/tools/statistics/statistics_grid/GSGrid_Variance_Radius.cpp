@@ -74,7 +74,7 @@ CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 {
 	Set_Name		(_TL("Radius of Variance (Grid)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Find the radius within which the cell values exceed the given variance criterium. "
@@ -85,251 +85,126 @@ CGSGrid_Variance_Radius::CGSGrid_Variance_Radius(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+		""	, "INPUT"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Variance Radius"),
+		""	, "RESULT"	, _TL("Radius"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "VARIANCE"	, _TL("Standard Deviation"),
+	Parameters.Add_Double(
+		""	, "STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Maximum Search Radius (cells)"),
+	Parameters.Add_Int(
+		""	, "RADIUS"	, _TL("Maximum Search Radius (cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 20
+		20, 1, true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Type of Output"),
+		""	, "OUTPUT"	, _TL("Type of Output"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Cells"),
 			_TL("Map Units")
 		), 0
 	);
-
-	//-----------------------------------------------------
-	pInput		= NULL;
-	pInputQ		= NULL;
-	Check		= NULL;
-	maxRadius	= 0;
 }
-
-//---------------------------------------------------------
-CGSGrid_Variance_Radius::~CGSGrid_Variance_Radius(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGSGrid_Variance_Radius::On_Execute(void)
 {
-	int		x, y;
-
-	//-----------------------------------------------------
-	stopVariance	= M_SQR(Parameters("VARIANCE")->asDouble());
-	maxRadius		= Parameters("RADIUS")	->asInt();
-	bWriteGridsize	= Parameters("OUTPUT")	->asInt() == 0;
-
-	pGrid			= Parameters("INPUT")	->asGrid();
-	pResult			= Parameters("RESULT")	->asGrid();
-	pResult->Set_Name(CSG_String::Format(SG_T("%s >= %f"), _TL("Radius with Variance"), stopVariance));
-
-	//-----------------------------------------------------
-	Initialize();
-
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	if( !m_Kernel.Set_Radius(Parameters("RADIUS")->asInt()) )
 	{
-		for(x=0; x<Get_NX(); x++)
+		return( false );
+	}
+
+	m_pGrid		= Parameters("INPUT")->asGrid();
+
+	m_StdDev	= Parameters("STDDEV")->asDouble();
+
+	double	Scale	= Parameters("OUTPUT")->asInt() == 0 ? 1.0 : Get_Cellsize();
+
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+
+	pResult->Set_Name(CSG_String::Format("%s >= %f", _TL("Radius with Standard Deviation"), m_StdDev));
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			pResult->Set_Value(x, y, Get_Radius(x, y));
+			double	Radius;
+
+			if( Get_Radius(x, y, Radius) )
+			{
+				pResult->Set_Value(x, y, Scale * Radius);
+			}
+			else
+			{
+				pResult->Set_NoData(x, y);
+			}
 		}
 	}
 
-	Finalize();
-
 	//-----------------------------------------------------
+	m_Kernel.Destroy();
+
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CGSGrid_Variance_Radius::Initialize(void)
+bool CGSGrid_Variance_Radius::Get_Radius(int x, int y, double &Radius)
 {
-	int		x, y;
-	double	d;
-
-	//-----------------------------------------------------
-	pInput	= SG_Create_Grid(pGrid);
-	pInputQ	= SG_Create_Grid(pGrid);
-
-	for(y=0; y<Get_NY(); y++)
+	if( !m_pGrid->is_NoData(x, y) )
 	{
-		for(x=0; x<Get_NX(); x++)
+		CSG_Simple_Statistics	s;
+
+		for(int i=0; i<m_Kernel.Get_Count(); i++)
 		{
-			d	= pGrid->asDouble(x,y);
-			pInput	->Set_Value(x, y, d  );
-			pInputQ	->Set_Value(x, y, d*d);
-		}
-	}
+			int	ix	= m_Kernel.Get_X(i, x);
+			int	iy	= m_Kernel.Get_Y(i, y);
 
-	//-----------------------------------------------------
-	// Radius Check-Matrix erstellen...
-	Check	= (int **)malloc((maxRadius + 1) * sizeof(int *));
-
-	for(y=0; y<=maxRadius; y++)
-	{
-		Check[y]	= (int *)malloc((maxRadius + 1) * sizeof(int));
-
-		for(x=0; x<=maxRadius; x++)
-		{
-		//	Check[y][x]	= (int)sqrt(x*x + y*y);
-			Check[y][x]	= (int)sqrt((x + 0.5) * (x + 0.5) + (y + 0.5) * (y + 0.5));
-		}
-	}
-}
-
-//---------------------------------------------------------
-void CGSGrid_Variance_Radius::Finalize(void)
-{
-	if( pInput )
-	{
-		delete(pInput);
-		pInput		= NULL;
-	}
-
-	if( pInputQ )
-	{
-		delete(pInputQ);
-		pInputQ		= NULL;
-	}
-
-	if( Check )
-	{
-		for(int y=0; y<=maxRadius; y++)
-		{
-			free(Check[y]);
-		}
-		free(Check);
-		Check		= NULL;
-		maxRadius	= 0;
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double CGSGrid_Variance_Radius::Get_Radius(int xPoint, int yPoint)
-{
-	const double	sqrt2	= 1.0 / sqrt(2.0);
-
-	int		x, y, dx, dy, sRadius,
-			Radius		= 0,
-			nValues		= 0;
-
-	double	ArithMean, Variance,
-			Sum			= 0.0,
-			SumQ		= 0.0;
-
-	do
-	{
-		sRadius	= (int)(sqrt2 * (double)Radius - 4.0);
-		if( sRadius < 0 ) sRadius	= 0;
-
-		//-------------------------------------------------
-		for(dy=sRadius; dy<=Radius; dy++)
-		{
-			for(dx=sRadius; dx<=Radius; dx++)
+			if( m_pGrid->is_InGrid(ix, iy) )
 			{
-				if(Check[dy][dx] == Radius)
+				s	+= m_pGrid->asDouble(ix, iy);
+
+				if( s.Get_StdDev() >= m_StdDev )
 				{
-					y	= yPoint - dy;
+					Radius	= m_Kernel.Get_Distance(i);
 
-					if(y>=0)
-					{
-						x	= xPoint - dx;
-						if(x>=0)
-						{
-							Sum			+= pInput->asDouble(x,y);
-							SumQ		+= pInputQ->asDouble(x,y);
-							nValues++;
-						}
-
-						x	= xPoint + dx;
-						if(x<Get_NX())
-						{
-							Sum			+= pInput->asDouble(x,y);
-							SumQ		+= pInputQ->asDouble(x,y);
-							nValues++;
-						}
-					}
-
-					y	= yPoint + dy;
-					if(y<Get_NY())
-					{
-						x	= xPoint - dx;
-						if(x>=0)
-						{
-							Sum			+= pInput->asDouble(x,y);
-							SumQ		+= pInputQ->asDouble(x,y);
-							nValues++;
-						}
-
-						x	= xPoint + dx;
-						if(x<Get_NX())
-						{
-							Sum			+= pInput->asDouble(x,y);
-							SumQ		+= pInputQ->asDouble(x,y);
-							nValues++;
-						}
-					}
+					return( true );
 				}
 			}
 		}
 
-		//-------------------------------------------------
-		if(nValues)
+		if( s.Get_Count() > 0 )
 		{
-			ArithMean	= Sum  / nValues;
-			Variance	= SumQ / nValues - ArithMean * ArithMean;
+			Radius	= m_Kernel.Get_Radius();
 
-			// Andre, das ist die Formel aus deinem Buch...
-			// Variance	= (SumQ - nValues * ArithMean * ArithMean) / nValues;
+			return( true );
 		}
-		else
-			Variance	= 0;
-
-		Radius++;
 	}
-	while(Variance < stopVariance && Radius <= maxRadius);
 
-	return( bWriteGridsize ? Radius : Radius * Get_Cellsize() );
+	return( false );
 }
 
 

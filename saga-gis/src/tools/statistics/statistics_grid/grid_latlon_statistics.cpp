@@ -73,7 +73,7 @@ CGrid_Statistics_Latitudinal::CGrid_Statistics_Latitudinal(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Longitudinal Grid Statistics"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		""
@@ -81,13 +81,13 @@ CGrid_Statistics_Latitudinal::CGrid_Statistics_Latitudinal(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+		""	, "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "STATS"	, _TL("Latitudinal Statistics"),
+		""	, "STATS"	, _TL("Latitudinal Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -105,7 +105,7 @@ bool CGrid_Statistics_Latitudinal::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Latitudinal Statistics"), pGrid->Get_Name()));
+	pTable->Set_Name(CSG_String::Format("%s [%s]", _TL("Latitudinal Statistics"), pGrid->Get_Name()));
 	pTable->Add_Field(SG_T("Y"     ), SG_DATATYPE_Double);
 	pTable->Add_Field(SG_T("MEAN"  ), SG_DATATYPE_Double);
 	pTable->Add_Field(SG_T("MIN"   ), SG_DATATYPE_Double);
@@ -146,7 +146,7 @@ CGrid_Statistics_Meridional::CGrid_Statistics_Meridional(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Meridional Grid Statistics"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		""
@@ -154,13 +154,13 @@ CGrid_Statistics_Meridional::CGrid_Statistics_Meridional(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+		""	, "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "STATS"	, _TL("Meridional Statistics"),
+		""	, "STATS"	, _TL("Meridional Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -178,7 +178,7 @@ bool CGrid_Statistics_Meridional::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Meridional Statistics"), pGrid->Get_Name()));
+	pTable->Set_Name(CSG_String::Format("%s [%s]", _TL("Meridional Statistics"), pGrid->Get_Name()));
 	pTable->Add_Field(SG_T("X"     ), SG_DATATYPE_Double);
 	pTable->Add_Field(SG_T("MEAN"  ), SG_DATATYPE_Double);
 	pTable->Add_Field(SG_T("MIN"   ), SG_DATATYPE_Double);

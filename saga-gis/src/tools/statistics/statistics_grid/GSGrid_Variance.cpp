@@ -74,58 +74,51 @@ CGSGrid_Variance::CGSGrid_Variance(void)
 {
 	Set_Name		(_TL("Representativeness (Grid)"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Representativeness - calculation of the variance within a given search radius.\n"
-		"\n"
-		"Reference:\n"
-		"- Boehner, J., Koethe, R., Trachinow, C. (1997): "
-		"'Weiterentwicklung der automatischen Reliefanalyse auf der Basis von Digitalen Gelaendemodellen', "
-		"Goettinger Geographische Abhandlungen, Vol.100, p.3-21\n"
+		"Representativeness - calculation of the variance within a given search radius."
 	));
 
+	Add_Reference(
+		"Boehner, J., Koethe, R., Trachinow, C.", "1997",
+		"Weiterentwicklung der automatischen Reliefanalyse auf der Basis von Digitalen Gelaendemodellen",
+		"Goettinger Geographische Abhandlungen, Vol.100, p.3-21."
+	);
+
 	Parameters.Add_Grid(
-		NULL	, "INPUT"	, _TL("Grid"),
+		""	, "INPUT"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RESULT"	, _TL("Representativeness"),
+		""	, "RESULT"	, _TL("Representativeness"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"	, _TL("Radius (Cells)"),
+	Parameters.Add_Int(
+		""	, "RADIUS"	, _TL("Radius (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 10
+		10, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EXPONENT", _TL("Exponent"),
+	Parameters.Add_Double(
+		""	, "EXPONENT", _TL("Exponent"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1
+		1., 0., true
 	);
 }
 
-//---------------------------------------------------------
-CGSGrid_Variance::~CGSGrid_Variance(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGSGrid_Variance::On_Execute(void)
 {
-	int		x, y;
-
 	//-----------------------------------------------------
 	pInput		= Parameters("INPUT"	)->asGrid();
 	pOutput		= Parameters("RESULT"	)->asGrid();
@@ -133,29 +126,25 @@ bool CGSGrid_Variance::On_Execute(void)
 	maxRadius	= Parameters("RADIUS"	)->asInt();
 	Exponent	= Parameters("EXPONENT"	)->asDouble();
 
-	//-----------------------------------------------------
 	Initialize();
 
 	//-----------------------------------------------------
-	for(y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		for(int x=0; x<Get_NX(); x++)
 		{
-			pOutput->Set_Value(x,y, Get_Laenge(x,y) );
+			pOutput->Set_Value(x, y, Get_Length(x,y) );
 		}
 	}
 
 	//-----------------------------------------------------
 	Finalize();
 
-	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -237,24 +226,22 @@ void CGSGrid_Variance::Finalize(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CGSGrid_Variance::Get_Laenge(int x, int y)
+double CGSGrid_Variance::Get_Length(int x, int y)
 {
 	int		iRadius, Count;
 
 	double	d;
 
 	//-----------------------------------------------------
-	V[0]	= Get_GSGrid_Variance(x,y,1,Count);
+	V[0]	= Get_Variance(x, y, 1, Count);
 	Z[0]	= Count;
 
 	for(iRadius=1; iRadius<maxRadius; iRadius++)
 	{
-		V[iRadius]	= V[iRadius-1] + Get_GSGrid_Variance(x, y, iRadius + 1, Count);
+		V[iRadius]	= V[iRadius-1] + Get_Variance(x, y, iRadius + 1, Count);
 		Z[iRadius]	= Z[iRadius-1] + Count;
 	}
 
@@ -264,7 +251,7 @@ double CGSGrid_Variance::Get_Laenge(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	d		= Get_Steigung();
+	d		= Get_Inclination();
 
 	if( d == 0.0 )
 		return( Get_Cellsize() * maxRadius );
@@ -273,7 +260,7 @@ double CGSGrid_Variance::Get_Laenge(int x, int y)
 }
  
 //---------------------------------------------------------
-double CGSGrid_Variance::Get_GSGrid_Variance(int x, int y, int iRadius, int &Count)
+double CGSGrid_Variance::Get_Variance(int x, int y, int iRadius, int &Count)
 {
 	int		i, ix, iy;
 
@@ -304,7 +291,7 @@ double CGSGrid_Variance::Get_GSGrid_Variance(int x, int y, int iRadius, int &Cou
 }
 
 //---------------------------------------------------------
-double CGSGrid_Variance::Get_Steigung(void)
+double CGSGrid_Variance::Get_Inclination(void)
 {
 	int		i;
 

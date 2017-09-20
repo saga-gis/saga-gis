@@ -86,25 +86,25 @@ CGrid_PCA::CGrid_PCA(void)
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"PCA"		, _TL("Principle Components"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"EIGEN"		, _TL("Eigen Vectors"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -114,13 +114,13 @@ CGrid_PCA::CGrid_PCA(void)
 		), 1
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"COMPONENTS", _TL("Number of Components"),
 		_TL("number of first components in the output; set to zero to get all"),
 		3, 0, true
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"OVERWRITE"	, _TL("Overwrite Previous Results"),
 		_TL(""),
 		true
@@ -197,14 +197,13 @@ inline double CGrid_PCA::Get_Value(sLong iCell, int iFeature)
 
 	switch( m_Method )
 	{
-	default:
-	case 0:	// Correlation matrix: Center and reduce the column vectors.
+	default:	// Correlation matrix: Center and reduce the column vectors.
 		return( (pGrid->asDouble(iCell) - pGrid->Get_Mean()) / (sqrt(Get_NCells() * pGrid->Get_Variance())) );
 
-	case 1:	// Variance-covariance matrix: Center the column vectors.
+	case  1:	// Variance-covariance matrix: Center the column vectors.
 		return( (pGrid->asDouble(iCell) - pGrid->Get_Mean()) );
 
-	case 2:	// Sums-of-squares-and-cross-products matrix
+	case  2:	// Sums-of-squares-and-cross-products matrix
 		return( (pGrid->asDouble(iCell)) );
 	}
 }
@@ -212,11 +211,15 @@ inline double CGrid_PCA::Get_Value(sLong iCell, int iFeature)
 //---------------------------------------------------------
 bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 {
+	if( !Matrix.Create(m_nFeatures, m_nFeatures) )
+	{
+		return( false );
+	}
+
+	Matrix.Set_Zero();
+
 	int		j1, j2;
 	sLong	iCell;
-
-	Matrix.Create(m_nFeatures, m_nFeatures);
-	Matrix.Set_Zero();
 
 	switch( m_Method )
 	{
@@ -392,7 +395,16 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 	{
 		if( !pPCA->Get_Grid(i) )
 		{
-			pPCA->Add_Item(SG_Create_Grid(*Get_System()));
+			CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+
+			if( !pGrid )
+			{
+				Error_Set(_TL("failed to allocate memory"));
+
+				return( false );
+			}
+
+			pPCA->Add_Item(pGrid);
 		}
 
 		pPCA->Get_Grid(i)->Set_Name(CSG_String::Format("PC%0*d", nComponents < 10 ? 1 : 2, i + 1));
@@ -466,19 +478,19 @@ CGrid_PCA_Inverse::CGrid_PCA_Inverse(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"PCA"		, _TL("Principle Components"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"EIGEN"		, _TL("Eigen Vectors"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -558,8 +570,18 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 
 	for(i=0; i<nFeatures; i++)
 	{
-		pGrids->Add_Item(SG_Create_Grid(*Get_System()));
-		pGrids->Get_Grid(i)->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
+		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+
+		if( !pGrid )
+		{
+			Error_Set(_TL("failed to allocate memory"));
+
+			return( false );
+		}
+
+		pGrid->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
+
+		pGrids->Add_Item(pGrid);
 	}
 
 	//-----------------------------------------------------

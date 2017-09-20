@@ -103,41 +103,40 @@ CGSGrid_Zonal_Statistics::CGSGrid_Zonal_Statistics(void)
 		"</table>"
 	));
 
-
 	Parameters.Add_Grid(
-		NULL, "ZONES"		, _TL("Zone Grid"),
+		"", "ZONES"		, _TL("Zone Grid"),
 		_TL("Grid defining the zones to analyse. This grid also acts as a mask. Coding: NoData / categorial values."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid_List(
-		NULL, "CATLIST"		, _TL("Categorical Grids"),
+		"", "CATLIST"		, _TL("Categorical Grids"),
 		_TL("Grids used to delineate the UCUs. Coding: NoData / categorical values."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_List(
-		NULL, "STATLIST"	, _TL("Grids to analyse"),
+		"", "STATLIST"	, _TL("Grids to analyse"),
 		_TL("Grids with continuous data, statistics are calculated for each grid. Coding: NoData / continuous values."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "ASPECT"		, _TL("Aspect"),
+		"", "ASPECT"		, _TL("Aspect"),
 		_TL("Aspect grid, in radians."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Table(
-		NULL, "OUTTAB"		, _TL("Zonal Statistics"),
+		"", "OUTTAB"		, _TL("Zonal Statistics"),
 		_TL("Summary table."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "SHORTNAMES"	, _TL("Short Field Names"),
+	Parameters.Add_Bool(
+		"", "SHORTNAMES"	, _TL("Short Field Names"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 

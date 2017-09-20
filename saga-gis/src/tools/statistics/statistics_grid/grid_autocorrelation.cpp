@@ -65,48 +65,47 @@ CGrid_Autocorrelation::CGrid_Autocorrelation(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Global Moran's I for Grids"));
 
-	Set_Author		(SG_T("Jan Papmeier (c) 2010"));
+	Set_Author		("Jan Papmeier (c) 2010");
 
 	Set_Description	(_TW(
-		"Global spatial autocorrelation for grids calculated as Moran's I.\n"
-		"\n"
-		"References:\n"
-		"- Lloyd, C.D. (2010): Spatial data analysis - An introduction for GIS users. Oxford. 206p.\n"
+		"Global spatial autocorrelation for grids calculated as Moran's I."
 	));
+
+	Add_Reference(
+		"Lloyd, C.D.", "2010", "Spatial data analysis - An introduction for GIS users", "Oxford. 206p."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "GRID"		, _TL("Grid"),
+		"", "GRID"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL, "RESULT"		, _TL("Result"),
+		"", "RESULT"		, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL, "CONTIGUITY"	, _TL("Case of contiguity"),
+		"", "CONTIGUITY"	, _TL("Case of contiguity"),
 		_TL("Choose case: Rook's case contiguity compares only cell wich share an edge. Queen's case contiguity compares also cells which share just corners."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("Rook"),
 			_TL("Queen")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL, "DIALOG"		, _TL("Show Result in Dialog"),
+	Parameters.Add_Bool(
+		"", "DIALOG"		, _TL("Show Result in Dialog"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -119,13 +118,13 @@ bool CGrid_Autocorrelation::On_Execute(void)
 	CSG_Table	*pResult;
 	
 	//-----------------------------------------------------
-	pGrid	= Parameters("GRID")	->asGrid();
-	pResult	= Parameters("RESULT")	->asTable();
+	pGrid	= Parameters("GRID"  )->asGrid();
+	pResult	= Parameters("RESULT")->asTable();
 
 	switch( Parameters("CONTIGUITY")->asInt() )
 	{
-	case 0:				nContiguity	= 2;	break;	// Rook's case
-	case 1: default:	nContiguity	= 1;	break;	// Queen's case
+	case  0:	nContiguity	= 2;	break;	// Rook's case
+	default:	nContiguity	= 1;	break;	// Queen's case
 	}
 
 	//-----------------------------------------------------
@@ -171,14 +170,14 @@ bool CGrid_Autocorrelation::On_Execute(void)
 		pResult->Destroy();
 		pResult->Set_Name(_TL("Moran's I"));
 
-		pResult->Add_Field(_TL("GRID")		, SG_DATATYPE_String);
+		pResult->Add_Field(_TL("GRID"      ), SG_DATATYPE_String);
 		pResult->Add_Field(_TL("CONTIGUITY"), SG_DATATYPE_String);
-		pResult->Add_Field(_TL("MORAN_I")	, SG_DATATYPE_Double);
-		pResult->Add_Field(_TL("NEIGHBORS")	, SG_DATATYPE_Int);
-		pResult->Add_Field(_TL("NCELLS")	, SG_DATATYPE_Int);
-		pResult->Add_Field(_TL("MEAN")		, SG_DATATYPE_Double);
-		pResult->Add_Field(_TL("VARIATION")	, SG_DATATYPE_Double);
-		pResult->Add_Field(_TL("SUM")		, SG_DATATYPE_Double);
+		pResult->Add_Field(_TL("MORAN_I"   ), SG_DATATYPE_Double);
+		pResult->Add_Field(_TL("NEIGHBORS" ), SG_DATATYPE_Int   );
+		pResult->Add_Field(_TL("NCELLS"    ), SG_DATATYPE_Int   );
+		pResult->Add_Field(_TL("MEAN"      ), SG_DATATYPE_Double);
+		pResult->Add_Field(_TL("VARIATION" ), SG_DATATYPE_Double);
+		pResult->Add_Field(_TL("SUM"       ), SG_DATATYPE_Double);
 	}
 
 	CSG_Table_Record	*pRecord	= pResult->Add_Record();
@@ -187,16 +186,16 @@ bool CGrid_Autocorrelation::On_Execute(void)
 	pRecord->Set_Value(1, nContiguity == 2 ? _TL("Rook's case") : _TL("Queen's case"));
 	pRecord->Set_Value(2, Moran_I);
 	pRecord->Set_Value(3, nNeighbours);
-	pRecord->Set_Value(4, pGrid->Get_NCells());
+	pRecord->Set_Value(4, (int)pGrid->Get_NCells());
 	pRecord->Set_Value(5, pGrid->Get_Mean());
 	pRecord->Set_Value(6, pGrid->Get_Variance() * pGrid->Get_NCells());
 	pRecord->Set_Value(7, Sum);
 
-	Message_Add(CSG_String::Format(SG_T("\n%s (%s): %f\n"), _TL("Moran's I"), pGrid->Get_Name(), Moran_I), false);
+	Message_Add(CSG_String::Format("\n%s (%s): %f\n", _TL("Moran's I"), pGrid->Get_Name(), Moran_I), false);
 
 	if( Parameters("DIALOG")->asBool() )
 	{
-		Message_Dlg(CSG_String::Format(SG_T("%s: %f"), _TL("Moran's I"), Moran_I), pGrid->Get_Name());
+		Message_Dlg(CSG_String::Format("%s: %f", _TL("Moran's I"), Moran_I), pGrid->Get_Name());
 	}
 
 	return( true );

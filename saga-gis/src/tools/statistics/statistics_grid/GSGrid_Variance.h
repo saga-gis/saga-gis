@@ -85,7 +85,6 @@ class CGSGrid_Variance : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Variance(void);
-	virtual ~CGSGrid_Variance(void);
 
 
 protected:
@@ -95,11 +94,9 @@ protected:
 
 private:
 
-	int						maxRadius,
-							*Z, *x_diff, *y_diff, *rLength;
+	int						maxRadius, *Z, *x_diff, *y_diff, *rLength;
 
-	double					Exponent,	// Exponent fuer "inverse distance" Gewichte (calc_Steigung).
-							*V, *m, *g;
+	double					Exponent, *V, *m, *g;
 
 	CSG_Grid				*pInput, *pOutput, *pRadius;
 
@@ -109,9 +106,9 @@ private:
 
 	void					Init_Radius			(void);
 
-	double					Get_Laenge			(int x, int y);
-	double					Get_GSGrid_Variance	(int x, int y, int iRadius, int &Count);
-	double					Get_Steigung		(void);
+	double					Get_Length			(int x, int y);
+	double					Get_Variance		(int x, int y, int iRadius, int &Count);
+	double					Get_Inclination		(void);
 
 };
 

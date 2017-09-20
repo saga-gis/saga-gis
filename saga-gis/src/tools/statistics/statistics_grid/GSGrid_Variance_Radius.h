@@ -85,7 +85,6 @@ class CGSGrid_Variance_Radius : public CSG_Tool_Grid
 {
 public:
 	CGSGrid_Variance_Radius(void);
-	virtual ~CGSGrid_Variance_Radius(void);
 
 
 protected:
@@ -95,19 +94,14 @@ protected:
 
 private:
 
-	bool					bWriteGridsize;
+	double					m_StdDev;
 
-	int						**Check, maxRadius;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
-	double					stopVariance;
-
-	CSG_Grid				*pGrid, *pResult, *pInput, *pInputQ;
+	CSG_Grid				*m_pGrid;
 
 
-	void					Initialize		(void);
-	void					Finalize		(void);
-
-	double					Get_Radius		(int xPoint, int yPoint);
+	bool					Get_Radius		(int x, int y, double &Radius);
 
 };
 

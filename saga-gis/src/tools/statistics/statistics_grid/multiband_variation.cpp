@@ -77,40 +77,43 @@ CMultiBand_Variation::CMultiBand_Variation(void)
 	Set_Description	(_TW(
 		"Calculates for each cell the spectral variation based on feature space distances "
 		"to the centroid for all cells in specified neighbourhood. "
-		"The average distance has been used for Spectral Variation Hypothesis (SVH).\n"
-		"\nReferences:\n"
-		"- Palmer, M.W., Earls, P., Hoagland, B.W., White, P.S., Wohlgemuth, T. (2002): "
-		"Quantitative tools for perfecting species lists. Environmetrics 13, 121–137.\n"
+		"The average distance has been used for Spectral Variation Hypothesis (SVH)."
 	));
 
+	Add_Reference(
+		"Palmer, M.W., Earls, P., Hoagland, B.W., White, P.S., Wohlgemuth, T.", "2002",
+		"Quantitative tools for perfecting species lists",
+		"Environmetrics 13, 121–137."
+	);
+
 	Parameters.Add_Grid_List(
-		NULL	, "BANDS"		, _TL("Grids"),
+		"", "BANDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MEAN"		, _TL("Mean Distance"),
+		"", "MEAN"		, _TL("Mean Distance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "STDDEV"		, _TL("Standard Deviation"),
+		"", "STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DIFF"		, _TL("Distance"),
+		"", "DIFF"		, _TL("Distance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius [Cells]"),
+	Parameters.Add_Int(
+		"", "RADIUS"	, _TL("Radius [Cells]"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1.0, 1.0, true
+		1, 1, true
 	);
 
 	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
@@ -262,9 +265,9 @@ bool CMultiBand_Variation::Get_Variation(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	if( m_pMean     )	m_pMean		->Set_NoData(x, y);
-	if( m_pStdDev   )	m_pStdDev	->Set_NoData(x, y);
-	if( m_pDiff     )	m_pDiff		->Set_NoData(x, y);
+	if( m_pMean   )	m_pMean  ->Set_NoData(x, y);
+	if( m_pStdDev )	m_pStdDev->Set_NoData(x, y);
+	if( m_pDiff   )	m_pDiff  ->Set_NoData(x, y);
 
 	return( false );
 }
