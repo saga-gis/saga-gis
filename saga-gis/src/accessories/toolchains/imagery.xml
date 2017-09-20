@@ -3,8 +3,6 @@
   <group>imagery</group>
   <identifier>imagery</identifier>
   <name>Imagery</name>
-	<menu>Imagery|Tools</menu>
-	<description>
-		Tools for image processing and analysis.
-	</description>
+  <description>Tools for image processing and analysis.</description>
+  <menu>Imagery|Tools</menu>
 </toolchains>

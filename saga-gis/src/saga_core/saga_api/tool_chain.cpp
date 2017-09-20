@@ -103,7 +103,7 @@ CSG_Tool_Chain::~CSG_Tool_Chain(void)
 //---------------------------------------------------------
 void CSG_Tool_Chain::Reset(void)
 {
-	Parameters.Del_Parameters();
+	Parameters.Create(this, SG_T(""), SG_T(""));
 
 	m_Chain.Destroy();
 

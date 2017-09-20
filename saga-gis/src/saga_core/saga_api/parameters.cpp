@@ -188,6 +188,8 @@ void CSG_Parameters::Destroy(void)
 	m_pGrid_System	= NULL;
 
 	Del_Parameters();
+
+	m_References.Clear();
 }
 
 

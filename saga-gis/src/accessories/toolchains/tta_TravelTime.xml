@@ -8,13 +8,19 @@
 		Perform travel time calculation.
 
 		Find further information at Rohan Fisher's web page on &lt;a href="http://rohanfisher.wordpress.com/travel-time-modelling-saga/"&gt;Travel Time Modelling with SAGA&lt;/a&gt;.
-
-		References:
-		&lt;ul&gt;
-		&lt;li&gt;Myers, Bronwyn A., Rohan P. Fisher, Nelson Nelson, and Suzanne Belton. "Defining Remoteness from Health Care: Integrated Research on Accessing Emergency Maternal Care in Indonesia." (2015).&lt;/li&gt;
-		&lt;li&gt;Ray, Nicolas, and Steeve Ebener. "AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients." International Journal of Health Geographics 7.1 (2008): 63.&lt;/li&gt;
-		&lt;/ul&gt;
 	</description>
+	<reference>
+		<authors>Myers, Bronwyn A., Rohan P. Fisher, Nelson Nelson, and Suzanne Belton</authors>
+		<year>2015</year>
+		<title>Defining Remoteness from Health Care: Integrated Research on Accessing Emergency Maternal Care in Indonesia</title>
+		<where></where>
+	</reference>
+	<reference>
+		<authors>Ray, Nicolas, and Steeve Ebener</authors>
+		<year>2008</year>
+		<title>AccessMod 3.0: computing geographic coverage and accessibility to health care services using anisotropic movement of patients</title>
+		<where>International Journal of Health Geographics 7.1.</where>
+	</reference>
 
 	<parameters>
 		<input varname="DESTINATIONS" type="shapes">
