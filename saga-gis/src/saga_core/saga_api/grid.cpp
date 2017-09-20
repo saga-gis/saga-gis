@@ -89,7 +89,16 @@ CSG_Grid * SG_Create_Grid(void)
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 {
-	return( new CSG_Grid(Grid) );
+	CSG_Grid	*pGrid	= new CSG_Grid(Grid);
+
+	if( pGrid->is_Valid() )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid);
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
@@ -110,19 +119,46 @@ CSG_Grid * SG_Create_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool b
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 {
-	return( new CSG_Grid(pGrid, Type, bCached) );
+	pGrid	= new CSG_Grid(pGrid, Type, bCached);
+
+	if( pGrid->is_Valid() )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid);
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCached)
 {
-	return( new CSG_Grid(System, Type, bCached) );
+	CSG_Grid	*pGrid	= new CSG_Grid(System, Type, bCached);
+
+	if( pGrid->is_Valid() )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid);
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
 CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin, bool bCached)
 {
-	return( new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, bCached) );
+	CSG_Grid	*pGrid	= new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, bCached);
+
+	if( pGrid->is_Valid() )
+	{
+		return( pGrid );
+	}
+
+	delete(pGrid);
+
+	return( NULL );
 }
 
 
