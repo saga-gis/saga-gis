@@ -92,37 +92,49 @@ CGrid_PCA_Focal::CGrid_PCA_Focal(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"GRID"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
+		"BASE"			, _TL("Base Topographies"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid_List("",
 		"PCA"			, _TL("Principal Components"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"EIGEN"			, _TL("Eigen Vectors"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"COMPONENTS"	, _TL("Number of Components"),
 		_TL("number of first components in the output; set to zero to get all"),
 		7, 1, true
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
+		"BASE_OUT"		, _TL("Output of Base Topographies"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Bool("",
 		"OVERWRITE"		, _TL("Overwrite Previous Results"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"KERNEL_TYPE"	, _TL("Kernel Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -131,13 +143,13 @@ CGrid_PCA_Focal::CGrid_PCA_Focal(void)
 		), 1
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"KERNEL_RADIUS"	, _TL("Kernel Radius"),
 		_TL("Kernel radius in cells."),
 		2, 1, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -167,9 +179,9 @@ int CGrid_PCA_Focal::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CGrid_PCA_Focal::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	int		i;
 
+	//-----------------------------------------------------
 	CSG_Grid_Cell_Addressor	Kernel;
 
 	Kernel.Set_Radius(
@@ -177,32 +189,36 @@ bool CGrid_PCA_Focal::On_Execute(void)
 		Parameters("KERNEL_TYPE"  )->asInt() == 0
 	);
 
-	//-----------------------------------------------------
-	CSG_Parameters	PCA_Parms;
+	CSG_Parameter_Grid_List	*pPCA, *pGrids	= Parameters("BASE")->asGridList();
 
-	int	i, nGrids	= Kernel.Get_Count() - 1;
+	pGrids->Del_Items();
 
-	CSG_Grid	*Grids	= new CSG_Grid[nGrids];
-
-	CSG_Parameter_Grid_List	*pPCA, *pGrids	= PCA_Parms.Add_Grid_List(NULL, "GRIDS", "", "", PARAMETER_INPUT)->asGridList();
-
-	for(i=0; i<nGrids; i++)
+	for(i=0; i<Kernel.Get_Count()-1; i++)
 	{
-		if( !Grids[i].Create(*Get_System()) )
-		{
-			delete[](Grids);
+		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
 
+		if( !pGrid )
+		{
 			Error_Set(_TL("failed to allocate memory"));
+
+			for(i=0; i<pGrids->Get_Grid_Count(); i++)
+			{
+				delete(pGrids->Get_Grid(i));
+			}
+
+			pGrids->Del_Items();
 
 			return( false );
 		}
 
-		Grids[i].Set_Name(CSG_String::Format("x(%d)-y(%d)", Kernel.Get_X(i + 1), Kernel.Get_Y(i + 1)));
+		pGrid->Set_Name(CSG_String::Format("x(%d)-y(%d)", Kernel.Get_X(i + 1), Kernel.Get_Y(i + 1)));
 
-		pGrids->Add_Item(&Grids[i]);
+		pGrids->Add_Item(pGrid);
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for private(i)
@@ -210,21 +226,21 @@ bool CGrid_PCA_Focal::On_Execute(void)
 		{
 			if( pGrid->is_NoData(x, y) )
 			{
-				for(i=0; i<nGrids; i++)
+				for(i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
-					Grids[i].Set_NoData(x, y);
+					pGrids->Get_Grid(i)->Set_NoData(x, y);
 				}
 			}
 			else
 			{
 				double	z	= pGrid->asDouble(x, y);
 
-				for(i=0; i<nGrids; i++)
+				for(i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
 					int	ix	= Kernel.Get_X(i + 1, x);
 					int	iy	= Kernel.Get_Y(i + 1, y);
 
-					Grids[i].Set_Value(x, y, pGrid->is_InGrid(ix, iy) ? z - pGrid->asDouble(ix, iy) : 0.0);
+					pGrids->Get_Grid(i)->Set_Value(x, y, pGrid->is_InGrid(ix, iy) ? z - pGrid->asDouble(ix, iy) : 0.0);
 				}
 			}
 		}
@@ -233,20 +249,30 @@ bool CGrid_PCA_Focal::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bResult;
 
+	CSG_Parameters	PCA_Parms;
+
 	SG_RUN_TOOL_KEEP_PARMS(bResult, "statistics_grid", 8, PCA_Parms,	// pca analysis for grids
-			SG_TOOL_PARAMETER_SET("GRIDS"     , PCA_Parms ("GRIDS"     ))
+			SG_TOOL_PARAMETER_SET("GRIDS"     , Parameters("BASE"      ))
 		&&	SG_TOOL_PARAMETER_SET("METHOD"    , Parameters("METHOD"    ))
 		&&	SG_TOOL_PARAMETER_SET("EIGEN"     , Parameters("EIGEN"     ))
 		&&	SG_TOOL_PARAMETER_SET("COMPONENTS", Parameters("COMPONENTS")->asInt())
 	);
 
-	delete[](Grids);
+	if( !Parameters("BASE_OUT")->asBool() )
+	{
+		for(i=0; i<pGrids->Get_Grid_Count(); i++)
+		{
+			delete(pGrids->Get_Grid(i));
+		}
+
+		pGrids->Del_Items();
+	}
 
 	//-----------------------------------------------------
 	pGrids	= Parameters("PCA")->asGridList();
 	pPCA	= PCA_Parms ("PCA")->asGridList();
 
-	if( !Parameters("OVERWRITE")->asBool() )
+	if( !Parameters("OVERWRITE")->asBool() || (pGrids->Get_Grid_Count() > 0 && !Get_System()->is_Equal(pGrids->Get_Grid(0)->Get_System())) )
 	{
 		pGrids->Del_Items();
 	}
