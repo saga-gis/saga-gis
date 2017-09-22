@@ -91,14 +91,7 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid &Grid)
 {
 	CSG_Grid	*pGrid	= new CSG_Grid(Grid);
 
-	if( pGrid->is_Valid() )
-	{
-		return( pGrid );
-	}
-
-	delete(pGrid);
-
-	return( NULL );
+	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 //---------------------------------------------------------
@@ -106,14 +99,7 @@ CSG_Grid * SG_Create_Grid(const CSG_String &FileName, TSG_Data_Type Type, bool b
 {
 	CSG_Grid	*pGrid	= new CSG_Grid(FileName, Type, bCached, bLoadData);
 
-	if( pGrid->is_Valid() )
-	{
-		return( pGrid );
-	}
-
-	delete(pGrid);
-
-	return( NULL );
+	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 //---------------------------------------------------------
@@ -121,14 +107,7 @@ CSG_Grid * SG_Create_Grid(CSG_Grid *pGrid, TSG_Data_Type Type, bool bCached)
 {
 	pGrid	= new CSG_Grid(pGrid, Type, bCached);
 
-	if( pGrid->is_Valid() )
-	{
-		return( pGrid );
-	}
-
-	delete(pGrid);
-
-	return( NULL );
+	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 //---------------------------------------------------------
@@ -136,14 +115,7 @@ CSG_Grid * SG_Create_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, boo
 {
 	CSG_Grid	*pGrid	= new CSG_Grid(System, Type, bCached);
 
-	if( pGrid->is_Valid() )
-	{
-		return( pGrid );
-	}
-
-	delete(pGrid);
-
-	return( NULL );
+	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 //---------------------------------------------------------
@@ -151,14 +123,7 @@ CSG_Grid * SG_Create_Grid(TSG_Data_Type Type, int NX, int NY, double Cellsize, d
 {
 	CSG_Grid	*pGrid	= new CSG_Grid(Type, NX, NY, Cellsize, xMin, yMin, bCached);
 
-	if( pGrid->is_Valid() )
-	{
-		return( pGrid );
-	}
-
-	delete(pGrid);
-
-	return( NULL );
+	if( !pGrid->is_Valid() ) { delete(pGrid); return( NULL ); } return( pGrid );
 }
 
 
@@ -977,7 +942,7 @@ bool CSG_Grid::On_Update(void)
 		{
 			double	d	= (double)Get_NCells() / (double)Get_Max_Samples();
 
-			for(double i=0; i<(double)Get_NCells() && SG_UI_Process_Set_Progress(i, (double)Get_NCells()); i+=d)
+			for(double i=0; i<(double)Get_NCells(); i+=d)
 			{
 				double	Value	= asDouble((sLong)i);
 
@@ -1008,9 +973,9 @@ bool CSG_Grid::On_Update(void)
 					}
 				}
 			}
-		}
 
-		SG_UI_Process_Set_Ready();
+			SG_UI_Process_Set_Ready();
+		}
 	}
 
 	return( true );
@@ -1131,22 +1096,6 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 				Statistics.Add_Value(Value);
 			}
 		}
-
-		//for(int y=yMin; y<=yMax; y++)
-		//{
-		//	for(int x=xMin; x<=xMax; x++, i++)
-		//	{
-		//		if( fmod(i, d) < d )
-		//		{
-		//			double	Value	= asDouble(x, y);
-
-		//			if( !is_NoData_Value(Value) )
-		//			{
-		//				Statistics.Add_Value(Value);
-		//			}
-		//		}
-		//	}
-		//}
 	}
 	else
 	{
@@ -1158,7 +1107,7 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 
 				if( !is_NoData_Value(Value) )
 				{
-					Statistics	+= asDouble(x, y);
+					Statistics	+= Value;
 				}
 			}
 		}

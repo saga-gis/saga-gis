@@ -82,13 +82,17 @@ CSG_Grids * SG_Create_Grids(void)
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grids &Grids)
 {
-	return( new CSG_Grids(Grids) );
+	CSG_Grids	*pGrids	= new CSG_Grids(Grids);
+
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
-CSG_Grids * SG_Create_Grids(const CSG_Grids *pGrids, bool bCopyData)
+CSG_Grids * SG_Create_Grids(const CSG_Grids *_pGrids, bool bCopyData)
 {
-	return( new CSG_Grids(pGrids, bCopyData) );
+	CSG_Grids	*pGrids	= new CSG_Grids(_pGrids, bCopyData);
+
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
@@ -96,32 +100,31 @@ CSG_Grids * SG_Create_Grids(const CSG_String &FileName, bool bLoadData)
 {
 	CSG_Grids	*pGrids	= new CSG_Grids(FileName, bLoadData);
 
-	if( pGrids->is_Valid() )
-	{
-		return( pGrids );
-	}
-
-	delete(pGrids);
-
-	return( NULL );
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, int NZ, double zMin, TSG_Data_Type Type)
 {
-	return( new CSG_Grids(System, NZ, zMin, Type) );
+	CSG_Grids	*pGrids	= new CSG_Grids(System, NZ, zMin, Type);
+
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, const CSG_Table &Attributes, int zAttribute, TSG_Data_Type Type, bool bCreateGrids)
 {
-	return( new CSG_Grids(System, Attributes, zAttribute, Type) );
+	CSG_Grids	*pGrids	= new CSG_Grids(System, Attributes, zAttribute, Type);
+
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
 CSG_Grids * SG_Create_Grids(int NX, int NY, int NZ, double Cellsize, double xMin, double yMin, double zMin, TSG_Data_Type Type)
 {
-	return( new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type) );
+	CSG_Grids	*pGrids	= new CSG_Grids(NX, NY, NZ, Cellsize, xMin, yMin, zMin, Type);
+
+	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 
@@ -1330,16 +1333,36 @@ bool CSG_Grids::On_Update(void)
 	{
 		m_Statistics.Invalidate();
 
-		for(int z=0; z<Get_NZ(); z++)
+		if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
 		{
-			for(int y=0; y<Get_NY(); y++)
+			double	d	= (double)Get_NCells() / (double)Get_Max_Samples();
+
+			for(double i=0; i<(double)Get_NCells(); i+=d)
 			{
-				for(int x=0; x<Get_NX(); x++)
+				double	Value	= asDouble((sLong)i);
+
+				if( !is_NoData_Value(Value) )
 				{
-					if( !is_NoData(x, y, z) )
-					{
-						m_Statistics.Add_Value(asDouble(x, y, z));
-					}
+					m_Statistics.Add_Value(Value);
+				}
+			}
+
+			m_Statistics.Create(
+				m_Statistics.Get_Mean(),
+				m_Statistics.Get_StdDev(),
+				m_Statistics.Get_Count() >= Get_Max_Samples() ? Get_NCells() :
+				(sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)Get_Max_Samples())
+			);
+		}
+		else
+		{
+			for(sLong i=0; i<Get_NCells(); i++)
+			{
+				double	Value	= asDouble(i);
+
+				if( !is_NoData_Value(Value) )
+				{
+					m_Statistics.Add_Value(Value);
 				}
 			}
 		}
@@ -1443,15 +1466,44 @@ bool CSG_Grids::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &St
 
 	Statistics.Create(bHoldValues);
 
-	for(int z=0; z<Get_NZ(); z++)
+	int		nx		= 1 + (xMax - xMin);
+	int		ny		= 1 + (yMax - yMin);
+	sLong	nCells	= nx * ny;
+
+	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{
-		for(int y=yMin; y<=yMax; y++)
+		double	d = (double)nCells / (double)Get_Max_Samples();
+
+		for(double i=0; i<(double)nCells; i+=d)
 		{
-			for(int x=xMin; x<=xMax; x++)
+			int	y	= yMin + (int)i / nx;
+			int	x	= xMin + (int)i % nx;
+
+			for(int z=0; z<Get_NZ(); z++)
 			{
-				if( !is_NoData(x, y, z) )
+				double	Value	= asDouble(x, y, z);
+
+				if( !is_NoData_Value(Value) )
 				{
-					Statistics	+= asDouble(x, y, z);
+					Statistics	+= Value;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int x=xMin; x<=xMax; x++)
+		{
+			for(int y=yMin; y<=yMax; y++)
+			{
+				for(int z=0; z<Get_NZ(); z++)
+				{
+					double	Value	= asDouble(x, y, z);
+
+					if( !is_NoData_Value(Value) )
+					{
+						Statistics	+= Value;
+					}
 				}
 			}
 		}

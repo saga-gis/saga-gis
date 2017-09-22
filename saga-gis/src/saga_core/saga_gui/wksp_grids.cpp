@@ -298,6 +298,12 @@ void CWKSP_Grids::On_Create_Parameters(void)
 		Get_Grids()->Get_Offset()
 	);
 
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"MAX_SAMPLES"	, _TL("Maximum Samples"),
+		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
+		100.0 * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells(), 0., true, 100., true
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Choice("NODE_GENERAL", "DIM_ATTRIBUTE"	    , _TL("Attribute"),
 		_TL(""),
