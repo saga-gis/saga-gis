@@ -96,9 +96,9 @@ protected:
 
 private:
 
-	bool		Generate_Point_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY);
-	bool		Generate_Line_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY);
-	bool		Generate_Polygon_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY);
+	bool		Generate_Point_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY, int iFieldZ);
+	bool		Generate_Line_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY, int iFieldZ);
+	bool		Generate_Polygon_Shapes	(CSG_Table *pInput, CSG_Shapes *pOutput, int iFieldId, int iFieldX, int iFieldY, int iFieldZ);
 
 };
 
