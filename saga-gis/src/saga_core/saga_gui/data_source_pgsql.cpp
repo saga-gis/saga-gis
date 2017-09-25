@@ -326,6 +326,31 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool	PGSQL_Save_Grids		(CSG_Grids *pGrids)
+{
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Raster_Save);
+
+	SG_UI_Msg_Lock(true);
+
+	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("NAME", pGrids->Get_Name()) )
+	{
+		pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Del_Items();
+
+		if( pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Add_Item(pGrids)
+		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
+		{
+			SG_UI_Msg_Lock(false);
+
+			return( true );
+		}
+	}
+
+	SG_UI_Msg_Lock(false);
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

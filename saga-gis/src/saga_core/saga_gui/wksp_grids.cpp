@@ -184,6 +184,9 @@ wxMenu * CWKSP_Grids::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVEAS);
 
+	if( PGSQL_has_Connections() )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_SAVETODB);
+
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SAVEAS_IMAGE);
 
 	if( m_pObject->is_File_Native() && m_pObject->is_Modified() )

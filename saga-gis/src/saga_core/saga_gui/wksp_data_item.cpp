@@ -150,6 +150,7 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 		case WKSP_ITEM_Table :	PGSQL_Save_Table ((CSG_Table  *)m_pObject);	break;
 		case WKSP_ITEM_Shapes:	PGSQL_Save_Shapes((CSG_Shapes *)m_pObject);	break;
 		case WKSP_ITEM_Grid  :	PGSQL_Save_Grid  ((CSG_Grid   *)m_pObject);	break;
+		case WKSP_ITEM_Grids :	PGSQL_Save_Grids ((CSG_Grids  *)m_pObject);	break;
 
 		default:	break;
 		}

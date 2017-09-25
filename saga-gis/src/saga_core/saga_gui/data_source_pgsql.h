@@ -89,6 +89,7 @@ bool	PGSQL_Get_Connections	(CSG_Strings &Servers, double vPostGIS = 0.0);
 bool	PGSQL_Save_Table		(CSG_Table  *pTable);
 bool	PGSQL_Save_Shapes		(CSG_Shapes *pShapes);
 bool	PGSQL_Save_Grid			(CSG_Grid   *pGrid);
+bool	PGSQL_Save_Grids		(CSG_Grids  *pGrids);
 
 
 ///////////////////////////////////////////////////////////
