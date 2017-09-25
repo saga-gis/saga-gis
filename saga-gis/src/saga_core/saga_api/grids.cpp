@@ -270,6 +270,7 @@ bool CSG_Grids::Destroy(void)
 
 	m_Attributes.Destroy();
 	m_Attributes.Add_Field("Z", SG_DATATYPE_Double);
+	m_Z_Attribute	= m_Z_Name	= 0;
 
 	return( CSG_Data_Object::Destroy() );
 }

@@ -172,12 +172,9 @@ CSG_Data_Object::CSG_Data_Object(void)
 {
 	m_MetaData.Set_Name("SAGA_METADATA");
 
-	m_pHistory			= m_MetaData  .Add_Child(SG_META_HST);
-
-	m_pMetaData			= m_MetaData  .Add_Child(SG_META_SRC);
-	m_pFile				= m_pMetaData->Add_Child(SG_META_SRC_FILE);
-	m_pMetaData_DB		= m_pMetaData->Add_Child(SG_META_SRC_DB);
-	m_pProjection		= m_pMetaData->Add_Child(SG_META_SRC_PROJ);
+	m_pMD_Database		= m_MetaData.Add_Child(SG_META_DATABASE);
+	m_pMD_Source		= m_MetaData.Add_Child(SG_META_SOURCE  );
+	m_pMD_History		= m_MetaData.Add_Child(SG_META_HISTORY );
 
 	//-----------------------------------------------------
 	m_File_bNative		= false;
@@ -206,10 +203,11 @@ CSG_Data_Object::~CSG_Data_Object(void)
 //---------------------------------------------------------
 bool CSG_Data_Object::Destroy(void)
 {
-	m_pHistory->Destroy();
+	m_Name.Clear(); m_Description.Clear();
 
-	m_Name       .Clear();
-	m_Description.Clear();
+	m_pMD_Database->Destroy();
+	m_pMD_Source  ->Destroy();
+	m_pMD_History ->Destroy();
 
 	return( true );
 }
@@ -222,7 +220,7 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
-	m_Name			= Name.Length() > 0 ? Name.c_str() : _TL("new");
+	m_Name	= Name.Length() > 0 ? Name.c_str() : _TL("new");
 }
 
 const SG_Char * CSG_Data_Object::Get_Name(void) const
@@ -256,8 +254,6 @@ void CSG_Data_Object::Set_File_Name(const CSG_String &FileName, bool bNative)
 	m_Name			= SG_File_Get_Name(FileName, false);
 
 	m_bModified		= false;
-
-	m_pFile->Set_Content(m_FileName);
 }
 
 //---------------------------------------------------------
@@ -298,7 +294,7 @@ bool CSG_Data_Object::Delete(void)
 		case SG_DATAOBJECT_TYPE_Shapes    : SG_File_Set_Extension(FileName, "mshp"   ); break;
 		case SG_DATAOBJECT_TYPE_TIN       : SG_File_Set_Extension(FileName, "sg-info"); break;
 		case SG_DATAOBJECT_TYPE_PointCloud: SG_File_Set_Extension(FileName, "sg-info"); break;
-		default                        : SG_File_Set_Extension(FileName, "sg-info"); break;
+		default                           : SG_File_Set_Extension(FileName, "sg-info"); break;
 		}
 
 		SG_File_Delete(FileName);
@@ -313,8 +309,7 @@ bool CSG_Data_Object::Delete(void)
 
 		m_bModified		= true;
 
-		m_pFile       ->Set_Content("");
-		m_pMetaData_DB->Del_Children();
+		m_pMD_Database->Destroy();
 
 		return( true );
 	}
@@ -456,63 +451,67 @@ bool CSG_Data_Object::Load_MetaData(CSG_File &Stream)
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	if( m("DESCRIPTION") && !m["DESCRIPTION"].Get_Content().is_Empty() )
 	{
 		Set_Description(m["DESCRIPTION"].Get_Content());
 	}
 
-	if( m(SG_META_SRC) )
-	{
-		m_pMetaData_DB->Destroy();
+	//-----------------------------------------------------
+	m_pMD_Source->Destroy();
 
-		if( m[SG_META_SRC](SG_META_SRC_DB) )
-		{
-			m_pMetaData_DB->Assign(m[SG_META_SRC][SG_META_SRC_DB]);
-		}
+	if( m(SG_META_SOURCE) )
+		m_pMD_Source->Assign(m[SG_META_SOURCE]);
 
-		m_pProjection->Destroy();
+	//-----------------------------------------------------
+	m_pMD_Database->Destroy();
 
-		if( m[SG_META_SRC](SG_META_SRC_PROJ) && m_pProjection->Assign(m[SG_META_SRC][SG_META_SRC_PROJ]) )
-		{
-			m_Projection.Load(*m_pProjection);
-		}
-	}
+	if( m(SG_META_DATABASE) )
+		m_pMD_Database->Assign(m[SG_META_DATABASE]);
 
-	m_pHistory->Destroy();
+	//-----------------------------------------------------
+	m_MetaData.Del_Child(SG_META_PROJECTION);
 
-	if( m(SG_META_HST) )
-	{
-		m_pHistory->Assign(m[SG_META_HST]);
-	}
+	if( m(SG_META_PROJECTION) && m_Projection.Load(m[SG_META_PROJECTION]) )
+		m_MetaData.Add_Child(m[SG_META_PROJECTION]);
+	else if( m[SG_META_SOURCE](SG_META_PROJECTION) && m_Projection.Load(m[SG_META_SOURCE][SG_META_PROJECTION]) )
+		m_MetaData.Add_Child(m[SG_META_SOURCE][SG_META_PROJECTION]);
+
+	//-----------------------------------------------------
+	m_pMD_History->Destroy();
+
+	if( m(SG_META_HISTORY) )
+		m_pMD_History->Assign(m[SG_META_HISTORY]);
 	else
-	{
-		m_pHistory->Add_Child(SG_META_SRC_FILE, Get_File_Name());
-	}
+		m_pMD_History->Add_Child(SG_META_FILEPATH, Get_File_Name());
 
 	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Data_Object::Save_MetaData(CSG_File &Stream)
-{	// update meta data before saving
+{
+	//-----------------------------------------------------
+	if( m_MetaData(SG_META_FILEPATH) )
+		m_MetaData(SG_META_FILEPATH)->Set_Content(m_FileName);
+	else
+		m_MetaData.Add_Child(SG_META_FILEPATH, m_FileName);
+
+	//-----------------------------------------------------
 	if( m_MetaData("DESCRIPTION") )
-	{
 		m_MetaData("DESCRIPTION")->Set_Content(Get_Description());
-	}
 	else
-	{
 		m_MetaData.Add_Child("DESCRIPTION", Get_Description());
-	}
 
+	//-----------------------------------------------------
 	if( m_Projection.Get_Type() == SG_PROJ_TYPE_CS_Undefined )
-	{
-		m_pProjection->Destroy();
-	}
+		m_MetaData.Del_Child(SG_META_PROJECTION);
+	else if( m_MetaData(SG_META_PROJECTION) )
+		m_Projection.Save(*m_MetaData(SG_META_PROJECTION));
 	else
-	{
-		m_Projection.Save(*m_pProjection);
-	}
+		m_Projection.Save(*m_MetaData.Add_Child(SG_META_PROJECTION));
 
+	//-----------------------------------------------------
 	return( m_MetaData.Save(Stream) );
 }
 

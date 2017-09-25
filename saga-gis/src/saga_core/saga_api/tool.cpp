@@ -1042,7 +1042,7 @@ CSG_MetaData CSG_Tool::_Get_Output_History(void)
 {
 	CSG_MetaData	History;
 
-	History.Set_Name(SG_META_HST);
+	History.Set_Name(SG_META_HISTORY);
 	History.Add_Property("saga-version", SAGA_VERSION);
 
 	if( SG_Get_History_Depth() )

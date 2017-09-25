@@ -1545,6 +1545,11 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 		{
 			CSG_Grids	*pCollection	= SG_Create_Grids();
 
+			pCollection->Add_Attribute( "ID", SG_DATATYPE_Int   );
+			pCollection->Add_Attribute("RID", SG_DATATYPE_String);
+			pCollection->Set_Z_Attribute(1);
+			pCollection->Del_Attribute(0);
+
 			CSG_String	rids;
 
 			for(int iGrid=0; iGrid<pSystem->Count(); iGrid++)
@@ -1555,6 +1560,8 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 
 				if( !rid.is_Empty() )
 				{
+					pCollection->Get_Attributes(iGrid).Set_Value(1, rid);
+
 					if( !rids.is_Empty() )
 					{
 						rids	+= ",";
@@ -1565,6 +1572,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 			}
 
 			pCollection->Set_Name(Table);
+			pCollection->Set_Modified(false);
 
 			Add_MetaData(*pCollection, Table + ":rid=" + rids);
 
