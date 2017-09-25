@@ -438,7 +438,7 @@ void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 	}
 
 	//--------------------------------------------------------
-	if( m_Values.Get_Size() == m_nValues && Statistics.m_Values.Get_Size() == Statistics.m_nValues && m_Values.Set_Array((size_t)(m_nValues + Statistics.m_nValues)) )
+	if( (sLong)m_Values.Get_Size() == m_nValues && (sLong)Statistics.m_Values.Get_Size() == Statistics.m_nValues && m_Values.Set_Array((size_t)(m_nValues + Statistics.m_nValues)) )
 	{
 		for(sLong i=0, j=m_nValues; i<Statistics.m_nValues; i++, j++)
 		{
@@ -1966,7 +1966,7 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 				//-----------------------------------------
 				// Bestimme Gruppe iCluster mit evtl. groesster Verbesserung...
 
-				for(jCluster=0; jCluster<m_nClusters; jCluster++)
+				for(jCluster=0, kCluster=0; jCluster<m_nClusters; jCluster++)
 				{
 					if( jCluster != iCluster )
 					{

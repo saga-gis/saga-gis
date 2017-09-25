@@ -2065,7 +2065,7 @@ bool CSG_Grids::_Load_Header(CSG_File &Stream)
 				{
 					CSG_String_Tokenizer	Values(Records[iRecord].Get_Content(), ";");
 
-					if( Values.Get_Tokens_Count() == Attributes.Get_Field_Count() )
+					if( Values.Get_Tokens_Count() == (size_t)Attributes.Get_Field_Count() )
 					{
 						CSG_Table_Record	*pRecord	= Attributes.Add_Record();
 
@@ -2157,7 +2157,7 @@ bool CSG_Grids::_Load_Attributes(CSG_File &Stream)
 	{
 		CSG_String_Tokenizer	Values(sLine, "\t");
 
-		if( Values.Get_Tokens_Count() == Attributes.Get_Field_Count() )
+		if( Values.Get_Tokens_Count() == (size_t)Attributes.Get_Field_Count() )
 		{
 			CSG_Table_Record	*pRecord	= Attributes.Add_Record();
 

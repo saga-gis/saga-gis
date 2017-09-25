@@ -334,7 +334,7 @@ bool CSG_Grid::_Cache_Create(const CSG_String &File, TSG_Data_Type Data_Type, sL
 //---------------------------------------------------------
 bool CSG_Grid::_Cache_Create(void)	// create temporary cache file
 {
-	if( !m_System.is_Valid() || m_Type == SG_DATATYPE_Undefined && is_Cached() )
+	if( !m_System.is_Valid() || (m_Type == SG_DATATYPE_Undefined && is_Cached()) )
 	{
 		return( false );
 	}

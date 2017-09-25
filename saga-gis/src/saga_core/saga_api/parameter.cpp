@@ -94,8 +94,6 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, con
 	}
 
 	//-----------------------------------------------------
-	m_pData;
-
 	switch( Type )
 	{
 	default                              : m_pData	= NULL                                                  ;	break;
