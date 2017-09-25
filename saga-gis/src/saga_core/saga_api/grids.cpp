@@ -1167,11 +1167,6 @@ bool CSG_Grids::_Get_Z(double z, int &iz, double &dz) const
 
 bool CSG_Grids::_Set_Index(void)
 {
-	if( Get_Data_Count() <= 0 )
-	{
-		return( false );	// nothing to do
-	}
-
 	//-----------------------------------------------------
 	if( m_Index == NULL && (m_Index = (sLong *)SG_Malloc((size_t)Get_NCells() * sizeof(sLong))) == NULL )
 	{
@@ -1183,17 +1178,17 @@ bool CSG_Grids::_Set_Index(void)
 	//-----------------------------------------------------
 	const sLong	M	= 7;
 
-	sLong	i, j, k, l, ir, n, *istack, jstack, nstack, indxt, itemp;
+	sLong	i, j, k, l, ir, n, *istack, jstack, nstack, indxt, itemp, nData;
 	double	a;
 
 	//-----------------------------------------------------
 	SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", _TL("Create index"), Get_Name()));
 
-	for(i=0, j=0, k=Get_Data_Count(); i<Get_NCells(); i++)
+	for(i=0, j=0, nData=Get_NCells(); i<Get_NCells(); i++)
 	{
 		if( is_NoData(i) )
 		{
-			m_Index[k++]	= i;
+			m_Index[--nData]	= i;
 		}
 		else // if( !is_NoData(i) )
 		{
@@ -1204,7 +1199,7 @@ bool CSG_Grids::_Set_Index(void)
 	//-----------------------------------------------------
 	l		= 0;
 	n		= 0;
-	ir		= Get_Data_Count() - 1;
+	ir		= nData - 1;
 
 	nstack	= 64;
 	istack	= (sLong *)SG_Malloc((size_t)nstack * sizeof(sLong));
@@ -1214,7 +1209,7 @@ bool CSG_Grids::_Set_Index(void)
 	{
 		if( ir - l < M )
 		{
-			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)Get_Data_Count()) )
+			if( !SG_UI_Process_Set_Progress((double)(n += M - 1), (double)nData) )
 			{
 				SG_FREE_SAFE(istack);
 				SG_FREE_SAFE(m_Index);
