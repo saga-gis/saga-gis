@@ -124,20 +124,16 @@ typedef enum ESG_Parameter_Type
 	PARAMETER_TYPE_Double,
 	PARAMETER_TYPE_Degree,
 	PARAMETER_TYPE_Date,
-
 	PARAMETER_TYPE_Range,
 	PARAMETER_TYPE_Choice,
 	PARAMETER_TYPE_Choices,
-
 	PARAMETER_TYPE_String,
 	PARAMETER_TYPE_Text,
 	PARAMETER_TYPE_FilePath,
 
 	PARAMETER_TYPE_Font,
-
 	PARAMETER_TYPE_Color,
 	PARAMETER_TYPE_Colors,
-
 	PARAMETER_TYPE_FixedTable,
 
 	PARAMETER_TYPE_Grid_System,
@@ -1457,44 +1453,40 @@ public:
 
 	bool							has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
-	bool							asBool					(void)	const	{	return( (bool             )!!m_pData->asInt  () );	}
-	int								asInt					(void)	const	{	return( (int              )m_pData->asInt    () );	}
-	long							asColor					(void)	const	{	return( (long             )m_pData->asInt    () );	}
-	double							asDouble				(void)	const	{	return( (double           )m_pData->asDouble () );	}
+	bool							asBool					(void)	const	{	return( (bool         )!!m_pData->asInt    () );	}
+	int								asInt					(void)	const	{	return( (int            )m_pData->asInt    () );	}
+	long							asColor					(void)	const	{	return( (long           )m_pData->asInt    () );	}
+	double							asDouble				(void)	const	{	return( (double         )m_pData->asDouble () );	}
+	const SG_Char *					asString				(void)	const	{	return( (const SG_Char *)m_pData->asString () );	}
+	void *							asPointer				(void)	const	{	return( (void          *)m_pData->asPointer() );	}
 
-	void *							asPointer				(void)	const	{	return( (void            *)m_pData->asPointer() );	}
+	CSG_Colors                    *	asColors				(void)	const;
+	const SG_Char                 *	asFont					(void)	const;
+	CSG_Grid_System               *	asGrid_System			(void)	const;
 
-	const SG_Char *					asString				(void)	const	{	return( (const SG_Char   *)m_pData->asString () );	}
-	CSG_Colors *					asColors				(void)	const	{	return( (CSG_Colors      *)m_pData->asPointer() );	}
-	const SG_Char *					asFont					(void)	const	{	return( (const SG_Char   *)m_pData->asPointer() );	}
+	CSG_Parameter_Date            *	asDate					(void)	const;
+	CSG_Parameter_Choice          *	asChoice				(void)	const;
+	CSG_Parameter_Choices         *	asChoices				(void)	const;
+	CSG_Parameter_Range           *	asRange					(void)	const;
+	CSG_Parameter_File_Name       *	asFilePath				(void)	const;
+	CSG_Parameter_Table_Fields    *	asTableFields			(void)	const;
+	CSG_Parameters                *	asParameters			(void)	const;
 
-	CSG_Grid_System *				asGrid_System			(void)	const	{	return( (CSG_Grid_System *)m_pData->asPointer() );	}
+	CSG_Data_Object               *	asDataObject			(void)	const;
+	CSG_Grid                      *	asGrid					(void)	const;
+	CSG_Grids                     *	asGrids					(void)	const;
+	CSG_Table                     *	asTable					(void)	const;
+	CSG_Shapes                    *	asShapes				(void)	const;
+	CSG_TIN                       *	asTIN					(void)	const;
+	CSG_PointCloud                *	asPointCloud			(void)	const;
 
-	CSG_Data_Object *				asDataObject			(void)	const	{	return( (CSG_Data_Object *)m_pData->asPointer() );	}
-	CSG_Grid *						asGrid					(void)	const	{	return( (CSG_Grid        *)m_pData->asPointer() );	}
-	CSG_Grids *						asGrids					(void)	const	{	return( (CSG_Grids       *)m_pData->asPointer() );	}
-	CSG_Table *						asTable					(void)	const	{	return( (CSG_Table       *)m_pData->asPointer() );	}
-	CSG_Shapes *					asShapes				(void)	const	{	return( (CSG_Shapes      *)m_pData->asPointer() );	}
-	CSG_TIN *						asTIN					(void)	const	{	return( (CSG_TIN         *)m_pData->asPointer() );	}
-	CSG_PointCloud *				asPointCloud			(void)	const	{	return( (CSG_PointCloud  *)m_pData->asPointer() );	}
-
-	CSG_Parameters *				asParameters			(void)	const	{	return( (CSG_Parameters  *)m_pData->asPointer() );	}
-
-	CSG_Parameter_Value *			asValue					(void)	const	{	return( (CSG_Parameter_Value           *)m_pData );	}
-	CSG_Parameter_Date *			asDate					(void)	const	{	return( (CSG_Parameter_Date            *)m_pData );	}
-	CSG_Parameter_Choice *			asChoice				(void)	const	{	return( (CSG_Parameter_Choice          *)m_pData );	}
-	CSG_Parameter_Choices *			asChoices				(void)	const	{	return( (CSG_Parameter_Choices         *)m_pData );	}
-	CSG_Parameter_Range *			asRange					(void)	const	{	return( (CSG_Parameter_Range           *)m_pData );	}
-	CSG_Parameter_File_Name *		asFilePath				(void)	const	{	return( (CSG_Parameter_File_Name       *)m_pData );	}
-	CSG_Parameter_Table_Fields *	asTableFields			(void)	const	{	return( (CSG_Parameter_Table_Fields    *)m_pData );	}
-
-	CSG_Parameter_List *			asList					(void)	const	{	return( (CSG_Parameter_List            *)m_pData );	}
-	CSG_Parameter_Grid_List *		asGridList				(void)	const	{	return( (CSG_Parameter_Grid_List       *)m_pData );	}
-	CSG_Parameter_Grids_List *		asGridsList				(void)	const	{	return( (CSG_Parameter_Grids_List      *)m_pData );	}
-	CSG_Parameter_Table_List *		asTableList				(void)	const	{	return( (CSG_Parameter_Table_List      *)m_pData );	}
-	CSG_Parameter_Shapes_List *		asShapesList			(void)	const	{	return( (CSG_Parameter_Shapes_List     *)m_pData );	}
-	CSG_Parameter_TIN_List *		asTINList				(void)	const	{	return( (CSG_Parameter_TIN_List        *)m_pData );	}
-	CSG_Parameter_PointCloud_List *	asPointCloudList		(void)	const	{	return( (CSG_Parameter_PointCloud_List *)m_pData );	}
+	CSG_Parameter_List            *	asList					(void)	const;
+	CSG_Parameter_Grid_List       *	asGridList				(void)	const;
+	CSG_Parameter_Grids_List      *	asGridsList				(void)	const;
+	CSG_Parameter_Table_List      *	asTableList				(void)	const;
+	CSG_Parameter_Shapes_List     *	asShapesList			(void)	const;
+	CSG_Parameter_TIN_List        *	asTINList				(void)	const;
+	CSG_Parameter_PointCloud_List *	asPointCloudList		(void)	const;
 
 	//-----------------------------------------------------
 	bool							Assign					(CSG_Parameter *pSource);

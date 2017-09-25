@@ -1221,8 +1221,8 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 	case PARAMETER_TYPE_Int:
 	case PARAMETER_TYPE_Double:
 	case PARAMETER_TYPE_Degree:
-		if( pParameter->asValue()->has_Minimum() )	pItem->Add_Child(SG_XML_PARAM_MIN, pParameter->asValue()->Get_Minimum());
-		if( pParameter->asValue()->has_Maximum() )	pItem->Add_Child(SG_XML_PARAM_MAX, pParameter->asValue()->Get_Maximum());
+		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Minimum() ) pItem->Add_Child(SG_XML_PARAM_MIN, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Minimum());
+		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Maximum() ) pItem->Add_Child(SG_XML_PARAM_MAX, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Maximum());
 		break;
 
 	//-----------------------------------------------------
