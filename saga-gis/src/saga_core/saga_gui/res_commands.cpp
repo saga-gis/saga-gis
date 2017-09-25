@@ -173,6 +173,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_RELOAD:			return( _TL("Reload") );
 	case ID_CMD_DATA_DEL_FILES:			return( _TL("Delete Associated Files") );
 	case ID_CMD_DATA_PROJECTION:		return( _TL("Spatial Reference") );
+	case ID_CMD_DATA_METADATA:			return( _TL("View Metadata") );
 
 	case ID_CMD_GRID_OPEN:
 	case ID_CMD_GRIDS_OPEN:

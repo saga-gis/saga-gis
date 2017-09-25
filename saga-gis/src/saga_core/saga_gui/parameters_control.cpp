@@ -577,7 +577,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Degree          : pProperty	= new CParameters_PG_Degree	(Name, ID, pParameter            ); break;
 	case PARAMETER_TYPE_Date            : pProperty	= new wxDateProperty		(Name, ID, pParameter->asDouble()); break;	// from JDN
 	case PARAMETER_TYPE_String          :
-		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
+		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() || pParameter->is_Information() )
 		{
 			pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
 		}

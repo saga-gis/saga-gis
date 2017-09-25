@@ -174,6 +174,9 @@ wxMenu * CWKSP_Table::Get_Menu(void)
 
 		if( m_pObject->is_File_Native() )
 			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_DEL_FILES);
+
+		if( m_pObject->Get_MetaData().Get_Children_Count() > 0 )
+			CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
 	}
 
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_TABLE_SHOW);

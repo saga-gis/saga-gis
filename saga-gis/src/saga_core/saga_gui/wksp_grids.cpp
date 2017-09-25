@@ -198,6 +198,9 @@ wxMenu * CWKSP_Grids::Get_Menu(void)
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
 
+	if( m_pObject->Get_MetaData().Get_Children_Count() > 0 )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_GRID_HISTOGRAM);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_GRID_SCATTERPLOT);

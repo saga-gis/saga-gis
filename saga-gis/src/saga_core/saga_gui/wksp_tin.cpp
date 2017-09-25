@@ -152,13 +152,17 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TIN_SHOW);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_PROJECTION);
+
+	if( m_pObject->Get_MetaData().Get_Children_Count() > 0 )
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_METADATA);
+
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pMenu->AppendSeparator();
-
 	wxMenu	*pTable	= new wxMenu(_TL("Table"));
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_SHOW);
 	CMD_Menu_Add_Item(pTable,  true, ID_CMD_TABLE_DIAGRAM);
