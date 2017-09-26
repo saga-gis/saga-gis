@@ -116,7 +116,7 @@ CSG_Grids * SG_Create_Grids(const CSG_Grid_System &System, const CSG_Table &Attr
 {
 	CSG_Grids	*pGrids	= new CSG_Grids(System, Attributes, zAttribute, Type);
 
-	if( !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
+	if( bCreateGrids && !pGrids->is_Valid() ) { delete(pGrids); pGrids = NULL; } return( pGrids );
 }
 
 //---------------------------------------------------------
