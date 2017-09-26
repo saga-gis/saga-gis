@@ -191,6 +191,8 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		true
 	);
 
+	SG_DataObject_Set_Max_Samples(1000000);	// default to one million
+
 	m_Parameters.Add_Int("NODE_GENERAL",
 		"DATA_SAMPLE_MAX"		, _TL("Maximum Samples"),
 		_TL("Default maximum number of samples used to build statistics and histograms. Set to zero to use all data records."),

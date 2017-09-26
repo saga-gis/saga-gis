@@ -1508,6 +1508,22 @@ bool CSG_Grids::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &St
 	return( Statistics.Get_Count() > 0 );
 }
 
+//---------------------------------------------------------
+bool CSG_Grids::Set_Max_Samples(sLong Max_Samples)
+{
+	if( CSG_Data_Object::Set_Max_Samples(Max_Samples) )
+	{
+		for(int i=0; i<Get_Grid_Count(); i++)
+		{
+			Get_Grid_Ptr(i)->Set_Max_Samples(Max_Samples);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -255,6 +255,8 @@ public:		///////////////////////////////////////////////
 	const CSG_Simple_Statistics &	Get_Statistics		(void);
 	bool							Get_Statistics		(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues = false)	const;
 
+	virtual bool					Set_Max_Samples		(sLong Max_Samples);
+
 
 	//-----------------------------------------------------
 	// Checks...

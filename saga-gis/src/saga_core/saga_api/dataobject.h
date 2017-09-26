@@ -244,7 +244,7 @@ public:
 
 	bool							Save_History_to_Model	(const CSG_String &File)	const;
 
-	bool							Set_Max_Samples		(sLong Max_Samples);
+	virtual bool					Set_Max_Samples		(sLong Max_Samples);
 	sLong							Get_Max_Samples		(void)	const	{	return( m_Max_Samples );	}
 
 
