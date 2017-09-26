@@ -299,6 +299,7 @@
     <ClCompile Include="Image_VI_Slope.cpp" />
     <ClCompile Include="landsat_acca.cpp" />
     <ClCompile Include="landsat_import.cpp" />
+    <ClCompile Include="landsat_scene_import.cpp" />
     <ClCompile Include="landsat_toar.cpp" />
     <ClCompile Include="landsat_toar_core.cpp" />
     <ClCompile Include="local_statistical_measures.cpp" />
@@ -329,6 +330,7 @@
     <ClInclude Include="Image_VI_Slope.h" />
     <ClInclude Include="landsat_acca.h" />
     <ClInclude Include="landsat_import.h" />
+    <ClInclude Include="landsat_scene_import.h" />
     <ClInclude Include="landsat_toar.h" />
     <ClInclude Include="landsat_toar_core.h" />
     <ClInclude Include="local_statistical_measures.h" />

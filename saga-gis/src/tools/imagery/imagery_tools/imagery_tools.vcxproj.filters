@@ -53,6 +53,9 @@
     <ClCompile Include="image_quality_index.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="landsat_scene_import.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="image_quality_index.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="landsat_scene_import.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,6 +14,7 @@ Image_VI_Distance.cpp\
 Image_VI_Slope.cpp\
 landsat_acca.cpp\
 landsat_import.cpp\
+landsat_scene_import.cpp\
 landsat_toar.cpp\
 landsat_toar_core.cpp\
 local_statistical_measures.cpp\
@@ -27,6 +28,7 @@ Image_VI_Distance.h\
 Image_VI_Slope.h\
 landsat_acca.h\
 landsat_import.h\
+landsat_scene_import.h\
 landsat_toar.h\
 landsat_toar_core.h\
 local_statistical_measures.h\
