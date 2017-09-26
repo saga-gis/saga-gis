@@ -129,7 +129,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  8:	return( new CLandsat_TOAR );
 	case  9:	return( new CLandsat_ACCA );
 	case 10:	return( new CLandsat_Import );
-	case 15:	return( new CLandsat_Scene_Import );
+	case 14:	return( new CLandsat_Scene_Import );
 
 	case 11:	return( new CTextural_Features );
 	case 12:	return( new CLocal_Statistical_Measures );
