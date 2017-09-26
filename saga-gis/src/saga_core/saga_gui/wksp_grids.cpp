@@ -404,6 +404,10 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_R", _TL("Red"  ), _TL(""), _Get_List_Bands(), 0);
 	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_G", _TL("Green"), _TL(""), _Get_List_Bands(), 1);
 	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_B", _TL("Blue" ), _TL(""), _Get_List_Bands(), 2);
+
+//	m_Parameters.Add_Range("BAND_R", "BAND_R_RANGE", _TL("Value Range"), _TL(""));
+//	m_Parameters.Add_Range("BAND_G", "BAND_G_RANGE", _TL("Value Range"), _TL(""));
+//	m_Parameters.Add_Range("BAND_B", "BAND_B_RANGE", _TL("Value Range"), _TL(""));
 }
 
 
@@ -483,6 +487,11 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	m_Parameters("GENERAL_Z_OFFSET")->Set_Value(Get_Grids()->Get_Offset ());
 
 	//-----------------------------------------------------
+	m_Parameters("MAX_SAMPLES")->Set_Value(
+		100.0 * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells()
+	);
+
+	//-----------------------------------------------------
 	CSG_String	List;
 
 	List	= _Get_List_Attributes();
@@ -510,6 +519,8 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	Get_Grids()->Set_Unit   (m_Parameters("GENERAL_Z_UNIT"  )->asString());
 	Get_Grids()->Set_Scaling(m_Parameters("GENERAL_Z_FACTOR")->asDouble(), m_Parameters("GENERAL_Z_OFFSET")->asDouble());
+
+	Get_Grids()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
 
 	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
 	{
