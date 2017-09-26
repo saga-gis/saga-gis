@@ -555,7 +555,16 @@ void CParameters_Control::_Add_Property(wxPGProperty *pParent, CSG_Parameter *pP
 //---------------------------------------------------------
 wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Parameter *pParameter)
 {
-	wxString		Name(pParameter->Get_Name()), ID(pParameter->Get_Identifier());
+	#define ADD_PROPERTY(p, limit)	if( pParent ) { m_pPG->Insert(pParent, -1, pProperty = p); } else { m_pPG->Append(pProperty = p); }\
+		if( pParameter->is_Information() ) { m_pPG->LimitPropertyEditing(pProperty); m_pPG->EnableProperty(pProperty, false); } else\
+		if( limit ) { m_pPG->LimitPropertyEditing(pProperty); } { CSG_String	s, sDesc;\
+		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);\
+		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT      ); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES); if( !s.is_Empty() ) { sDesc.Append("\n___\n"); sDesc.Append(s); }\
+		m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str()); }
+
+	wxString	Name(pParameter->Get_Name()), ID(pParameter->Get_Identifier());
+
 	wxPGProperty	*pProperty	= NULL;
 
 	switch( pParameter->Get_Type() )
@@ -564,48 +573,87 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		if( pParameter->Get_Children_Count() > 0 )
 		{
 			if( !pParameter->Get_Parent() || pParameter->Get_Parent()->Get_Type() == PARAMETER_TYPE_Node )
-				pProperty	= new wxPropertyCategory(Name, ID);
+			{
+				ADD_PROPERTY(new wxPropertyCategory(Name, ID    ), true);
+			//	m_pPG->SetPropertyCell(pProperty, 0, "", wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
+			}
 			else
-				pProperty	= new wxStringProperty	(Name, ID, wxT(""));
+			{
+				ADD_PROPERTY(new wxStringProperty  (Name, ID, ""), false);
+			}
 		}
 		break;
 
-	case PARAMETER_TYPE_Bool            : pProperty	= new wxBoolProperty		(Name, ID, pParameter->asBool  ()); break;
-	case PARAMETER_TYPE_Int             : pProperty	= new wxIntProperty			(Name, ID, pParameter->asInt   ()); break;
-	case PARAMETER_TYPE_Double          : pProperty	= new wxFloatProperty		(Name, ID, pParameter->asDouble()); break;
-	case PARAMETER_TYPE_Range           : pProperty	= new CParameters_PG_Range	(Name, ID, pParameter            ); break;
-	case PARAMETER_TYPE_Degree          : pProperty	= new CParameters_PG_Degree	(Name, ID, pParameter            ); break;
-	case PARAMETER_TYPE_Date            : pProperty	= new wxDateProperty		(Name, ID, pParameter->asDouble()); break;	// from JDN
+	case PARAMETER_TYPE_Bool            :
+		ADD_PROPERTY(new wxBoolProperty       (Name, ID, pParameter->asBool()  ), false);
+		pProperty->SetAttribute(wxPG_BOOL_USE_CHECKBOX, true);
+		break;
+
+	case PARAMETER_TYPE_Int             :
+		ADD_PROPERTY(new wxIntProperty        (Name, ID, pParameter->asInt()   ), false);
+		break;
+
+	case PARAMETER_TYPE_Double          :
+		ADD_PROPERTY(new wxFloatProperty      (Name, ID, pParameter->asDouble()), false);
+		pProperty->SetAttribute(wxPG_FLOAT_PRECISION, -1);
+		break;
+
+	case PARAMETER_TYPE_Range           :
+		ADD_PROPERTY(new CParameters_PG_Range (Name, ID, pParameter            ), false);
+		break;
+
+	case PARAMETER_TYPE_Degree          :
+		ADD_PROPERTY(new CParameters_PG_Degree(Name, ID, pParameter            ), false);
+		break;
+
+	case PARAMETER_TYPE_Date            :
+		ADD_PROPERTY(new wxDateProperty       (Name, ID, pParameter->asDouble()), false);	// from JDN
+		pProperty->SetAttribute(wxPG_DATE_PICKER_STYLE, wxDP_DROPDOWN|wxDP_SHOWCENTURY);
+		break;
+
 	case PARAMETER_TYPE_String          :
-		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() || pParameter->is_Information() )
+		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
 		{
-			pProperty	= new wxStringProperty		(Name, ID, pParameter->asString());
+			ADD_PROPERTY(new wxStringProperty    (Name, ID, pParameter->asString()), false);
+			pProperty->SetAttribute(wxPG_STRING_PASSWORD, true);
 		}
 		else
 		{
-			pProperty	= new wxLongStringProperty	(Name, ID, pParameter->asString());
+			ADD_PROPERTY(new wxLongStringProperty(Name, ID, pParameter->asString()), false);
 		}
 		break;
 
-	case PARAMETER_TYPE_Color          : pProperty	= new wxColourProperty		(Name, ID, Get_Color_asWX(pParameter->asColor())); break;
-	case PARAMETER_TYPE_Colors         : pProperty	= new CParameters_PG_Colors	(Name, ID, pParameter                           ); break;
+	case PARAMETER_TYPE_Color          :
+		ADD_PROPERTY(new wxColourProperty     (Name, ID, Get_Color_asWX(pParameter->asColor())), false);
+		pProperty->SetEditor(wxPGEditor_Choice);
+		break;
+
+	case PARAMETER_TYPE_Colors         :
+		ADD_PROPERTY(new CParameters_PG_Colors(Name, ID, pParameter), true);
+		break;
+
+	case PARAMETER_TYPE_FilePath       :
+	case PARAMETER_TYPE_Choices        :
+	case PARAMETER_TYPE_Table_Fields   :
+		ADD_PROPERTY(new CParameters_PG_Dialog(Name, ID, pParameter), false);
+		break;
 
 	case PARAMETER_TYPE_Text           :
-	case PARAMETER_TYPE_FilePath       :
 	case PARAMETER_TYPE_Font           :
-	case PARAMETER_TYPE_Table_Fields   :
-	case PARAMETER_TYPE_Choices        :
 	case PARAMETER_TYPE_FixedTable     :
-	case PARAMETER_TYPE_Parameters     : pProperty	= new CParameters_PG_Dialog	(Name, ID, pParameter); break;
+	case PARAMETER_TYPE_Parameters     :
+		ADD_PROPERTY(new CParameters_PG_Dialog(Name, ID, pParameter), true);
+		break;
 
 	case PARAMETER_TYPE_Grid_List      :
+	case PARAMETER_TYPE_Grids_List     :
 	case PARAMETER_TYPE_Table_List     :
 	case PARAMETER_TYPE_Shapes_List    :
 	case PARAMETER_TYPE_TIN_List       :
 	case PARAMETER_TYPE_PointCloud_List:
 		if( !pParameter->is_Output() )
 		{
-			pProperty	= new CParameters_PG_Dialog(Name, ID, pParameter);
+			ADD_PROPERTY(new CParameters_PG_Dialog(Name, ID, pParameter), true);
 		}
 		break;
 
@@ -617,99 +665,12 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 	case PARAMETER_TYPE_Table          :
 	case PARAMETER_TYPE_Shapes         :
 	case PARAMETER_TYPE_TIN            :
-	case PARAMETER_TYPE_PointCloud     : pProperty	= new CParameters_PG_Choice	(pParameter); break;
+	case PARAMETER_TYPE_PointCloud     :
+		ADD_PROPERTY(new CParameters_PG_Choice(pParameter), false);
+		break;
 	}
 
 	//-----------------------------------------------------
-	if( pProperty )
-	{
-		if( pParent )
-		{
-			m_pPG->Insert(pParent, -1, pProperty);
-		}
-		else
-		{
-			m_pPG->Append(pProperty);
-		}
-
-		//-------------------------------------------------
-		CSG_String	s, sDesc;
-
-		sDesc	= pParameter->Get_Description(PARAMETER_DESCRIPTION_TYPE);
-
-		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_TEXT);
-		if( s.Length() > 0 )	{	sDesc.Append( wxT("\n___\n") );	sDesc.Append( s );	}
-
-		s		= pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES);
-		if( s.Length() > 0 )	{	sDesc.Append(wxT("\n___\n"));	sDesc.Append(s);	}
-
-		m_pPG->SetPropertyHelpString(pProperty, sDesc.c_str());
-
-		//-------------------------------------------------
-		switch( pParameter->Get_Type() )
-		{
-		case PARAMETER_TYPE_Node:	default:
-			if( pParameter->Get_Parent() && pParameter->Get_Parent()->Get_Type() != PARAMETER_TYPE_Node )
-			{
-				m_pPG->LimitPropertyEditing(pProperty);
-			//	m_pPG->SetPropertyCell(pProperty, 0, Name   , wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
-			//	m_pPG->SetPropertyCell(pProperty, 1, wxT(""), wxNullBitmap, SYS_Get_Color(wxSYS_COLOUR_BTNTEXT), SYS_Get_Color(wxSYS_COLOUR_BTNFACE));
-			}
-			break;
-
-		case PARAMETER_TYPE_Bool:
-			pProperty->SetAttribute(wxPG_BOOL_USE_CHECKBOX	, (long)true);
-			break;
-
-		case PARAMETER_TYPE_Int:
-			break;
-
-		case PARAMETER_TYPE_Double:
-			pProperty->SetAttribute(wxPG_FLOAT_PRECISION	, (long)16);
-			break;
-
-		case PARAMETER_TYPE_Date:
-			pProperty->SetAttribute(wxPG_DATE_PICKER_STYLE, (long)(wxDP_DROPDOWN|wxDP_SHOWCENTURY));
-			break;
-
-		case PARAMETER_TYPE_String:
-			if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
-			{
-				pProperty->SetAttribute(wxPG_STRING_PASSWORD, (long)pParameter->asString());
-			}
-			else if( pParameter->is_Information() )
-			{
-				m_pPG->LimitPropertyEditing(pProperty);
-			}
-			break;
-
-		case PARAMETER_TYPE_Color:
-			pProperty->SetEditor(wxPGEditor_Choice);
-			break;
-
-		case PARAMETER_TYPE_FilePath:
-			break;
-
-		case PARAMETER_TYPE_Colors:
-		case PARAMETER_TYPE_Text:
-		case PARAMETER_TYPE_Font:
-		case PARAMETER_TYPE_FixedTable:
-		case PARAMETER_TYPE_Grid_List:
-		case PARAMETER_TYPE_Table_List:
-		case PARAMETER_TYPE_Shapes_List:
-		case PARAMETER_TYPE_TIN_List:
-		case PARAMETER_TYPE_PointCloud_List:
-		case PARAMETER_TYPE_Parameters:
-			m_pPG->LimitPropertyEditing(pProperty);
-			break;
-		}
-
-		if( pParameter->is_Information() )
-		{
-			m_pPG->EnableProperty(pProperty, false);
-		}
-	}
-
 	return( pProperty );
 }
 
