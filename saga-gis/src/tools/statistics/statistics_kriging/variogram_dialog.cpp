@@ -412,10 +412,10 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	m_Settings.Set_Name(_TL("Variogram Settings"));
 
-	m_Settings.Add_Value (NULL, "SKIP"   , _TL("Skip"            ), _TL(""), PARAMETER_TYPE_Int   , 1,   1, true);
-	m_Settings.Add_Value (NULL, "LAGDIST", _TL("Lag Distance"    ), _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
-	m_Settings.Add_Value (NULL, "MAXDIST", _TL("Maximum Distance"), _TL(""), PARAMETER_TYPE_Double, 1, 0.0, true);
-	m_Settings.Add_String(NULL, "MODEL"  , _TL("Model"           ), _TL(""), &Formulas[0]);
+	m_Settings.Add_Int   ("", "SKIP"   , _TL("Skip"            ), _TL(""), 1,   1, true);
+	m_Settings.Add_Double("", "LAGDIST", _TL("Lag Distance"    ), _TL(""), 1, 0.0, true);
+	m_Settings.Add_Double("", "MAXDIST", _TL("Maximum Distance"), _TL(""), 1, 0.0, true);
+	m_Settings.Add_String("", "MODEL"  , _TL("Model"           ), _TL(""), &Formulas[0]);
 }
 
 //---------------------------------------------------------
@@ -542,14 +542,13 @@ void CVariogram_Dialog::Set_Model(void)
 	}
 	else
 	{
-		wxString	s;
+		wxString	s(m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str());
 
 		if( m_pDiagram->m_bErrors )
 		{
-			s	+= wxString::Format("\n%s: %s", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
+			s	+= wxString::Format("\n%s: %s\n", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
 		}
 
-		s	+= m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str();
 		s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
 		s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
 		s	+= wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
