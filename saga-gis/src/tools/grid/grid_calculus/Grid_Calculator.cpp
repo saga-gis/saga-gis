@@ -87,12 +87,10 @@ bool _finite(double val)
 //---------------------------------------------------------
 CGrid_Calculator::CGrid_Calculator(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name	(_TL("Grid Calculator"));
 
-	Set_Author	("A.Ringeler (c) 2003");
+	Set_Author	("O.Conrad (c) 2017, A.Ringeler (c) 2003");
 
 	CSG_String	s(_TW(
 		"The Grid Calculator calculates a new grid based on existing grids and a mathematical formula. "
@@ -107,11 +105,12 @@ CGrid_Calculator::CGrid_Calculator(void)
 		"The following operators are available for the formula definition:\n"
 	));
 
-	const CSG_String	Operators[4][2]	=
+	const CSG_String	Operators[5][2]	=
 	{
-		{	"xpos(), ypos()", _TL("Get the x/y coordinates for the current cell")	},
-		{	"row(), col()"  , _TL("Get the current cell's column/row index"     )	},
-		{	"nodata()"      , _TL("Returns resulting grid's no-data value"      )	},
+		{	"xpos(), ypos()"  , _TL("Get the x/y coordinates for the current cell")	},
+		{	"col(), row()"    , _TL("Get the current cell's column/row index"     )	},
+		{	"ncols(), nrows()", _TL("Get the number of columns/rows"              )	},
+		{	"nodata()"        , _TL("Returns resulting grid's no-data value"      )	},
 		{	"", ""	}
 	};
 
@@ -120,20 +119,20 @@ CGrid_Calculator::CGrid_Calculator(void)
 	Set_Description(s);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"			, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL("in the formula these grids are addressed in order of the list as 'g1, g2, g3, ...'"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Grid_List(
-		NULL	, "XGRIDS"			, _TL("Grids from different Systems"),
+	Parameters.Add_Grid_List("",
+		"XGRIDS"	, _TL("Grids from different Systems"),
 		_TL("in the formula these grids are addressed in order of the list as 'h1, h2, h3, ...'"),
 		PARAMETER_INPUT_OPTIONAL, false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"		, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -143,38 +142,38 @@ CGrid_Calculator::CGrid_Calculator(void)
 		), 3
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"			, _TL("Result"),
+	Parameters.Add_Grid("",
+		"RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	
-	Parameters.Add_String(
-		NULL	, "FORMULA"			, _TL("Formula"),
+	Parameters.Add_String("",
+		"FORMULA"	, _TL("Formula"),
 		_TL(""),
-		SG_T("(g1 - g2) / (g1 + g2)")
+		"(g1 - g2) / (g1 + g2)"
 	);
 
-	pNode	= Parameters.Add_String(
-		NULL	, "NAME"			, _TL("Name"),
+	Parameters.Add_String("",
+		"NAME"		, _TL("Name"),
 		_TL(""),
 		_TL("Calculation")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "FNAME"			, _TL("Take Formula"),
+	Parameters.Add_Bool("NAME",
+		"FNAME"		, _TL("Take Formula"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "USE_NODATA"		, _TL("Use NoData"),
-		_TL("Check this in order to include NoData cells in the calculation."),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool("",
+		"USE_NODATA", _TL("Use NoData"),
+		_TL("Check this in order to include no-data cells in the calculation."),
+		false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"			, _TL("Data Type"),
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Data Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			SG_Data_Type_Get_Name(SG_DATATYPE_Bit   ).c_str(),
@@ -199,11 +198,11 @@ CGrid_Calculator::CGrid_Calculator(void)
 int CGrid_Calculator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FORMULA")
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "FNAME") )
+	||	!SG_STR_CMP(pParameter->Get_Identifier(), "FNAME"  ) )
 	{
-		if( pParameters->Get_Parameter("FNAME")->asBool() )
+		if( pParameters->Get("FNAME")->asBool() )
 		{
-			pParameters->Get_Parameter("NAME")->Set_Value(CSG_String::Format(SG_T("%s [%s]"), _TL("Calculation"), pParameters->Get_Parameter("FORMULA")->asString()));
+			pParameters->Get("NAME")->Set_Value(CSG_String::Format("%s [%s]", _TL("Calculation"), pParameters->Get("FORMULA")->asString()));
 		}
 	}
 
@@ -237,7 +236,7 @@ double	Get_NoData_Value(void)
 //---------------------------------------------------------
 bool CGrid_Calculator::On_Execute(void)
 {
-	bool					bUseNoData, bPosition[4];
+	bool					bUseNoData, bPosition[6];
 	CSG_Formula				Formula;
 	CSG_Parameter_Grid_List	*pGrids, *pXGrids;
 	CSG_Grid				*pResult;
@@ -262,9 +261,9 @@ bool CGrid_Calculator::On_Execute(void)
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
 	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 	}
 
 	//-----------------------------------------------------
@@ -297,7 +296,9 @@ bool CGrid_Calculator::On_Execute(void)
 		+ (bPosition[0] ? 1 : 0)
 		+ (bPosition[1] ? 1 : 0)
 		+ (bPosition[2] ? 1 : 0)
-		+ (bPosition[3] ? 1 : 0);
+		+ (bPosition[3] ? 1 : 0)
+		+ (bPosition[4] ? 1 : 0)
+		+ (bPosition[5] ? 1 : 0);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -327,10 +328,12 @@ bool CGrid_Calculator::On_Execute(void)
 
 			if( bOkay )
 			{
-				if( bPosition[0] )	Values[n++]	=  x;	// col()
-				if( bPosition[1] )	Values[n++]	=  y;	// row()
-				if( bPosition[2] )	Values[n++]	= px;	// xpos()
-				if( bPosition[3] )	Values[n++]	= py;	// ypos()
+				if( bPosition[0] )	Values[n++]	=      x  ;	// col()
+				if( bPosition[1] )	Values[n++]	=      y  ;	// row()
+				if( bPosition[2] )	Values[n++]	=     px  ;	// xpos()
+				if( bPosition[3] )	Values[n++]	=     py  ;	// ypos()
+				if( bPosition[4] )	Values[n++]	= Get_NX();	// ncols()
+				if( bPosition[5] )	Values[n++]	= Get_NY();	// nrows()
 
 				bOkay	= _finite(Result = Formula.Get_Value(Values)) != 0;
 			}
@@ -356,7 +359,7 @@ bool CGrid_Calculator::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids, bool bPosition[4])
+bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids, bool bPosition[6])
 {
 	//-----------------------------------------------------
 	const int		nVars		= 27;
@@ -365,10 +368,12 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 
 	int		nValues	= nGrids + nXGrids;
 
-	bPosition[0]	= sFormula.Find("col()" ) >= 0;	if( bPosition[0] )	nValues++;
-	bPosition[1]	= sFormula.Find("row()" ) >= 0;	if( bPosition[1] )	nValues++;
-	bPosition[2]	= sFormula.Find("xpos()") >= 0;	if( bPosition[2] )	nValues++;
-	bPosition[3]	= sFormula.Find("ypos()") >= 0;	if( bPosition[3] )	nValues++;
+	bPosition[0]	= sFormula.Find("col()"  ) >= 0;	if( bPosition[0] )	nValues++;
+	bPosition[1]	= sFormula.Find("row()"  ) >= 0;	if( bPosition[1] )	nValues++;
+	bPosition[2]	= sFormula.Find("xpos()" ) >= 0;	if( bPosition[2] )	nValues++;
+	bPosition[3]	= sFormula.Find("ypos()" ) >= 0;	if( bPosition[3] )	nValues++;
+	bPosition[4]	= sFormula.Find("ncols()") >= 0;	if( bPosition[4] )	nValues++;
+	bPosition[5]	= sFormula.Find("nrows()") >= 0;	if( bPosition[5] )	nValues++;
 
 	//-----------------------------------------------------
 	if( nValues > nVars )
@@ -381,19 +386,21 @@ bool CGrid_Calculator::Get_Formula(CSG_Formula &Formula, CSG_String sFormula, in
 	//-----------------------------------------------------
 	int		i, n	= nValues;
 
-	if( bPosition[3] )	sFormula.Replace("ypos()", Vars[--n]);
-	if( bPosition[2] )	sFormula.Replace("xpos()", Vars[--n]);
-	if( bPosition[1] )	sFormula.Replace("row()" , Vars[--n]);
-	if( bPosition[0] )	sFormula.Replace("col()" , Vars[--n]);
+	if( bPosition[5] )	sFormula.Replace("nrows()", Vars[--n]);
+	if( bPosition[4] )	sFormula.Replace("ncols()", Vars[--n]);
+	if( bPosition[3] )	sFormula.Replace("ypos()" , Vars[--n]);
+	if( bPosition[2] )	sFormula.Replace("xpos()" , Vars[--n]);
+	if( bPosition[1] )	sFormula.Replace("row()"  , Vars[--n]);
+	if( bPosition[0] )	sFormula.Replace("col()"  , Vars[--n]);
 
 	for(i=nXGrids; i>0 && n>0; i--)
 	{
-		sFormula.Replace(CSG_String::Format(SG_T("h%d"), i), Vars[--n]);
+		sFormula.Replace(CSG_String::Format("h%d", i), Vars[--n]);
 	}
 
 	for(i=nGrids ; i>0 && n>0; i--)
 	{
-		sFormula.Replace(CSG_String::Format(SG_T("g%d"), i), Vars[--n]);
+		sFormula.Replace(CSG_String::Format("g%d", i), Vars[--n]);
 	}
 
 	//-----------------------------------------------------

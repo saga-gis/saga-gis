@@ -90,7 +90,7 @@ protected:
 
 private:
 
-	bool			Get_Formula				(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids, bool bPosition[4]);
+	bool			Get_Formula				(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids, bool bPosition[6]);
 
 };
 
