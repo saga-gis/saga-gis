@@ -512,21 +512,21 @@ bool CLandsat_Scene_Import::Get_Info(const CSG_MetaData &Metadata, CSG_Strings &
 		Error_Fmt("%s: %s", _TL("missing metadata entry"), CSG_String(key).c_str()); return( false ); }
 
 	GET_INFO_SCENE( true, "SPACECRAFT_ID"           );
-    GET_INFO_SCENE( true, "SENSOR_ID"               );
-    GET_INFO_SCENE(false, "WRS_PATH"                );
-    GET_INFO_SCENE(false, "WRS_ROW"                 );
-    GET_INFO_SCENE(false, "ACQUISITION_DATE"        );	// MET
-    GET_INFO_SCENE(false, "DATE_ACQUIRED"           );	// MTL
-    GET_INFO_SCENE(false, "SCENE_CENTER_TIME"       );	// MTL
-    GET_INFO_SCENE(false, "SUN_AZIMUTH"             );
-    GET_INFO_SCENE(false, "SUN_ELEVATION"           );
-    GET_INFO_SCENE(false, "EARTH_SUN_DISTANCE"      );	// MTL
+	GET_INFO_SCENE( true, "SENSOR_ID"               );
+	GET_INFO_SCENE(false, "WRS_PATH"                );
+	GET_INFO_SCENE(false, "WRS_ROW"                 );
+	GET_INFO_SCENE(false, "ACQUISITION_DATE"        );	// MET
+	GET_INFO_SCENE(false, "DATE_ACQUIRED"           );	// MTL
+	GET_INFO_SCENE(false, "SCENE_CENTER_TIME"       );	// MTL
+	GET_INFO_SCENE(false, "SUN_AZIMUTH"             );
+	GET_INFO_SCENE(false, "SUN_ELEVATION"           );
+	GET_INFO_SCENE(false, "EARTH_SUN_DISTANCE"      );	// MTL
 	GET_INFO_SCENE(false, "CLOUD_COVER"             );
 	GET_INFO_SCENE(false, "CLOUD_COVER_LAND"        );	// MTL
-    GET_INFO_SCENE(false, "IMAGE_QUALITY_OLI"       );	// MTL
-    GET_INFO_SCENE(false, "IMAGE_QUALITY_TIRS"      );	// MTL
-    GET_INFO_SCENE(false, "TIRS_SSM_POSITION_STATUS");	// MTL
-    GET_INFO_SCENE(false, "ROLL_ANGLE"              );	// MTL
+	GET_INFO_SCENE(false, "IMAGE_QUALITY_OLI"       );	// MTL
+	GET_INFO_SCENE(false, "IMAGE_QUALITY_TIRS"      );	// MTL
+	GET_INFO_SCENE(false, "TIRS_SSM_POSITION_STATUS");	// MTL
+	GET_INFO_SCENE(false, "ROLL_ANGLE"              );	// MTL
 
 	//-----------------------------------------------------
 	int	iField;
@@ -787,7 +787,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 			pTool->Settings_Push(NULL);
 
-			if( pTool->Set_Parameter("CRS_PROJ4" , "+proj=longlat +ellps=WGS84 +datum=WGS84")
+			if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 			&&  pTool->Set_Parameter("SOURCE"    , pBand)
 			&&  pTool->Set_Parameter("RESAMPLING", Parameters("RESAMPLING"))
 			&&  pTool->Set_Parameter("KEEP_TYPE" , true)
