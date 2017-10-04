@@ -70,12 +70,10 @@
 //---------------------------------------------------------
 CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Close Gaps with Stepwise Resampling"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Close gaps of a grid data set (i.e. eliminate no data values). "
@@ -83,26 +81,26 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL, "INPUT"				, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL, "MASK"				, _TL("Mask"),
+	Parameters.Add_Grid("",
+		"MASK"			, _TL("Mask"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL, "RESULT"				, _TL("Result"),
+	Parameters.Add_Grid("",
+		"RESULT"		, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"		, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -112,61 +110,46 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "GROW"			, _TL("Grow Factor"),
+	Parameters.Add_Double("",
+		"GROW"			, _TL("Grow Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 1.0, true
+		2.0, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"		, _TL("Use Pyramids"),
+	Parameters.Add_Choice("",
+		"START"			, _TL("Start Size"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	pNode	= Parameters.Add_Choice(
-		NULL	, "START"			, _TL("Start Size"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("grid cell size"),
 			_TL("user defined size")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "START_SIZE"		, _TL("User Defined Size"),
+	Parameters.Add_Double("START",
+		"START_SIZE"	, _TL("User Defined Size"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGrid_Gaps_Resampling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PYRAMIDS")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "START") )
 	{
-		pParameters->Get_Parameter("START")->Set_Enabled(!pParameter->asBool());
+		pParameters->Set_Enabled("START_SIZE", pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("START")) )
-	{
-		pParameters->Get_Parameter("START_SIZE")->Set_Enabled(pParameter->asInt() == 1);
-	}
-
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -184,101 +167,51 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 	else
 	{
 		pGrid->Assign(Parameters("INPUT")->asGrid());
-		pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
+		pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
 	}
 
+	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
-	}
-
-	double	Grow	= Parameters("GROW")->asDouble();
-
-	//-----------------------------------------------------
-	if( !Parameters("PYRAMIDS")->asBool() )
-	{
-		int		nCells, nCells_0;
-		double	Size, maxSize;
-
-		nCells_0	= pGrid->Get_NoData_Count();
-		Size		= Parameters("START")->asInt() == 1 ? Parameters("START_SIZE")->asDouble() : Grow * Get_Cellsize();
-		maxSize		= Get_System()->Get_XRange() > Get_System()->Get_YRange() ? Get_System()->Get_XRange() : Get_System()->Get_YRange();
-
-		//-------------------------------------------------
-		for(nCells=nCells_0; nCells>0 && Size<=maxSize && Set_Progress(nCells_0-nCells, nCells_0); Size*=Grow)
-		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s: %d; %s: %f"), _TL("no-data cells"), nCells, _TL("patch size"), Size));
-
-			CSG_Grid	Patch(CSG_Grid_System(Size, Get_System()->Get_Extent()));
-
-			SG_UI_Progress_Lock(true);
-			Patch.Assign(pGrid, GRID_RESAMPLING_BSpline);
-			SG_UI_Progress_Lock(false);
-
-			nCells	= 0;
-
-			#pragma omp parallel for
-			for(int y=0; y<Get_NY(); y++)
-			{
-				double	py	= Get_YMin() + y * Get_Cellsize();
-
-				for(int x=0; x<Get_NX(); x++)
-				{
-					if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
-					{
-						double	px	= Get_XMin() + x * Get_Cellsize();
-
-						if( Patch.is_InGrid_byPos(px, py) )
-						{
-							pGrid->Set_Value(x, y, Patch.Get_Value(px, py, Resampling));
-						}
-						else
-						{
-							nCells++;
-						}
-					}
-				}
-			}
-		}
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	else // if( Parameters("PYRAMIDS")->asBool() == true )
+	CSG_Grid_Pyramid	Pyramid;
+
+	if( !Pyramid.Create(pGrid, Parameters("GROW")->asDouble()) )
 	{
-		CSG_Grid_Pyramid	Pyramid;
+		Error_Set(_TL("failed to create pyramid"));
 
-		if( !Pyramid.Create(pGrid, Grow) )
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		double	py	= Get_YMin() + y * Get_Cellsize();
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			return( false );
-		}
-
-		//-------------------------------------------------
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			double	py	= Get_YMin() + y * Get_Cellsize();
-
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
+			if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
 			{
-				if( pGrid->is_NoData(x, y) && (!pMask || !pMask->is_NoData(x, y)) )
+				double	px	= Get_XMin() + x * Get_Cellsize();
+
+				for(int i=0; i<Pyramid.Get_Count(); i++)
 				{
-					double	px	= Get_XMin() + x * Get_Cellsize();
+					CSG_Grid	*pPatch	= Pyramid.Get_Grid(i);
 
-					for(int i=0; i<Pyramid.Get_Count(); i++)
+					if( pPatch->is_InGrid_byPos(px, py) )
 					{
-						CSG_Grid	*pPatch	= Pyramid.Get_Grid(i);
+						pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Resampling));
 
-						if( pPatch->is_InGrid_byPos(px, py) )
-						{
-							pGrid->Set_Value(x, y, pPatch->Get_Value(px, py, Resampling));
-
-							break;
-						}
+						break;
 					}
 				}
 			}
