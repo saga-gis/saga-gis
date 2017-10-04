@@ -115,37 +115,6 @@ CGrid_Gaps_Resampling::CGrid_Gaps_Resampling(void)
 		_TL(""),
 		2.0, 1.0, true
 	);
-
-	Parameters.Add_Choice("",
-		"START"			, _TL("Start Size"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("grid cell size"),
-			_TL("user defined size")
-		), 0
-	);
-
-	Parameters.Add_Double("START",
-		"START_SIZE"	, _TL("User Defined Size"),
-		_TL(""),
-		1.0, 0.0, true
-	);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-int CGrid_Gaps_Resampling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "START") )
-	{
-		pParameters->Set_Enabled("START_SIZE", pParameter->asInt() == 1);
-	}
-
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
