@@ -141,6 +141,18 @@ static double f_eq(double x, double val)
 }
 
 //---------------------------------------------------------
+static double f_min(double a, double b)
+{
+	return( a < b ? a : b );
+}
+
+//---------------------------------------------------------
+static double f_max(double a, double b)
+{
+	return( a > b ? a : b );
+}
+
+//---------------------------------------------------------
 static double f_pi(void)
 {
 	return( M_PI );
@@ -230,6 +242,8 @@ static CSG_Formula::TSG_Formula_Item gSG_Functions[MAX_CTABLE]	=
 	{SG_T("rand_g"), (TSG_PFNC_Formula_1) f_rand_g, 2, 1},	// 23
 	{SG_T("and"   ), (TSG_PFNC_Formula_1) f_and   , 2, 0},	// 24
 	{SG_T("or"    ), (TSG_PFNC_Formula_1) f_or    , 2, 0},	// 25
+	{SG_T("min"   ), (TSG_PFNC_Formula_1) f_min   , 2, 0},	// 26
+	{SG_T("max"   ), (TSG_PFNC_Formula_1) f_max   , 2, 0},	// 27
 	{          NULL,                          NULL, 0, 0}
 };
 
@@ -279,7 +293,7 @@ bool CSG_Formula::Destroy(void)
 //---------------------------------------------------------
 CSG_String CSG_Formula::Get_Help_Operators(bool bHTML, const CSG_String Additional[][2])
 {
-	const int	nOperators	= 33;
+	const int	nOperators	= 35;
 
 	CSG_String	Operators[nOperators][2]	=
 	{
@@ -305,6 +319,8 @@ CSG_String CSG_Formula::Get_Help_Operators(bool bHTML, const CSG_String Addition
 		{	"acos(x)"        , _TL("Arccosine")	},
 		{	"atan(x)"        , _TL("Arctangent")	},
 		{	"atan2(x, y)"    , _TL("Arctangent of x/y")	},
+		{	"min(x, y)"      , _TL("Returns the minimum of values x and y")	},
+		{	"max(x, y)"      , _TL("Returns the maximum of values x and y")	},
 		{	"gt(x, y)"       , _TL("Returns true (1), if x is greater than y, else false (0)")	},
 		{	"x > y"          , _TL("Returns true (1), if x is greater than y, else false (0)")	},
 		{	"lt(x, y)"       , _TL("Returns true (1), if x is less than y, else false (0)")	},
