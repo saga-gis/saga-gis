@@ -211,7 +211,7 @@ enum
 class SGDI_API_DLL_EXPORT CSG_3DView_Dialog : public CSGDI_Dialog
 {
 public:
-	CSG_3DView_Dialog(const CSG_String &Caption);
+	CSG_3DView_Dialog(const CSG_String &Caption, int Style = SGDI_DLG_STYLE_START_MAXIMISED);
 
 	virtual void				Update_Controls			(void);
 

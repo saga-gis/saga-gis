@@ -113,8 +113,8 @@ BEGIN_EVENT_TABLE(CSG_3DView_Dialog, CSGDI_Dialog)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-CSG_3DView_Dialog::CSG_3DView_Dialog(const CSG_String &Caption)
-	: CSGDI_Dialog(Caption.c_str(), SGDI_DLG_STYLE_START_MAXIMISED)
+CSG_3DView_Dialog::CSG_3DView_Dialog(const CSG_String &Caption, int Style)
+	: CSGDI_Dialog(Caption.c_str(), Style)
 {
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
 }

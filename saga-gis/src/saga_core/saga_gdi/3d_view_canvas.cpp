@@ -123,6 +123,15 @@ bool CSG_3DView_Canvas::Draw(void)
 		return( false );
 	}
 
+	static bool	bDrawing	= false;
+
+	if( bDrawing )
+	{
+		return( false );
+	}
+
+	bDrawing	= true;
+
 	_Draw_Background();
 
 	//-------------------------------------------------
@@ -130,12 +139,16 @@ bool CSG_3DView_Canvas::Draw(void)
 	||  m_Data_Min.y >= m_Data_Max.y
 	||  m_Data_Min.z >  m_Data_Max.z )
 	{
+		bDrawing	= false;
+
 		return( false );
 	}
 
 	//-------------------------------------------------
 	if( !On_Before_Draw() )
 	{
+		bDrawing	= false;
+
 		return( false );
 	}
 
@@ -196,6 +209,8 @@ bool CSG_3DView_Canvas::Draw(void)
 		m_Projector.Set_xShift   (xShift );
 		m_Projector.Set_yRotation(yRotate);
 	}
+
+	bDrawing	= false;
 
 	return( true );
 }
