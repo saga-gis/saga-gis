@@ -59,15 +59,10 @@
 //---------------------------------------------------------
 #include "Grid_Aggregate.h"
 
-//---------------------------------------------------------
-#define SUM 0
-#define MIN 1
-#define MAX 2
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -77,107 +72,109 @@ CGrid_Aggregate::CGrid_Aggregate(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Aggregate"));
 
-	Set_Author		("Victor Olaya (c) 2005");
+	Set_Author		("V.Olaya (c) 2005");
 
 	Set_Description	(_TW(
 		"Resamples a raster layer to a lower resolution, aggregating" 
-	    "the values of a group of cells. This should be used in any case in which and a normal"
+	    "the values of a group of cells. This should be used in any case in which a normal"
 		"resampling will result in wrong values in the resulting layer, such as, for instance,"
 		"the number of elements of a given class in each cell."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SIZE"		, _TL("Aggregation Size"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 2, 2, true
+	Parameters.Add_Grid_Output("",
+		"OUTPUT"	, _TL("Aggregated Grid"),
+		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Int("",
+		"SIZE"		, _TL("Aggregation Size"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
-			_TL("sum"),
-			_TL("minimum"),
-			_TL("maximum")
+		2, 2, true
+	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|",
+			_TL("Sum"),
+			_TL("Minimum"),
+			_TL("Maximum"),
+			_TL("Median"),
+			_TL("Mean")
 		), 0
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CGrid_Aggregate::~CGrid_Aggregate(void)
-{}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-
 bool CGrid_Aggregate::On_Execute(void)
 {
-	int x,y;
-	int x2,y2;
-	int i,j;
-	int iNX, iNY;
-	int iSize = Parameters("SIZE")->asInt();
-	int iMethod = Parameters("METHOD")->asInt();
-	double dMin,dMax;
-	double dSum;
-	double dValue;
+	int	Size	= Parameters("SIZE")->asInt();
 
-	iNX = (int) (Get_NX() / iSize);
-	iNY = (int) (Get_NY() / iSize);
+	CSG_Grid_System	System(Get_Cellsize() * Size, Get_XMin(), Get_YMin(), Get_NX() / Size, Get_NY() / Size);
 
-	CSG_Grid *pGrid = Parameters("INPUT")->asGrid();
+	CSG_Grid	*pOutput, *pGrid	= Parameters("INPUT")->asGrid();
 
-	CSG_Grid *pOutput = SG_Create_Grid(pGrid->Get_Type(), iNX, iNY, pGrid->Get_Cellsize() * iSize, 
-					pGrid->Get_XMin(), pGrid->Get_YMin());
+	Parameters("OUTPUT")->Set_Value(pOutput = SG_Create_Grid(System, pGrid->Get_Type()));
 
 	pOutput->Set_Name(pGrid->Get_Name());
 
-	for (y = 0, y2 = 0; y2 < iNY; y+=iSize, y2++){
-		for (x = 0, x2 = 0; x2 < iNX; x+=iSize, x2++){
-			dMax = dMin = pGrid->asDouble(x,y);
-			dSum = 0;
-			for (i = 0; i < iSize; i++){
-				for (j = 0; j < iSize; j++){
-					dValue = pGrid->asDouble(x+i,y+j);
-					if (dValue > dMax){
-						dMax = dValue;
-					}//if
-					if (dValue < dMin){
-						dMin = dValue;
-					}//if
-					dSum += dValue;
-				}//for
-			}//for
-			switch (iMethod){
-			case SUM:
-				pOutput->Set_Value(x2,y2,dSum);
-				break;
-			case MIN:
-				pOutput->Set_Value(x2,y2,dMin);
-				break;
-			case MAX:
-				pOutput->Set_Value(x2,y2,dMax);
-				break;
-			default:
-				break;
+	int	Method	= Parameters("METHOD")->asInt();
+
+	//-----------------------------------------------------
+	for(int y=0, yy=-Size/2; y<System.Get_NY(); yy+=Size, y++)
+	{
+		for(int x=0, xx=-Size/2; x<System.Get_NX(); xx+=Size, x++)
+		{
+			CSG_Simple_Statistics	s(Method == 3);
+
+			for(int iy=yy; iy<yy+Size; iy++)
+			{
+				for(int ix=xx; ix<xx+Size; ix++)
+				{
+					if( pGrid->is_InGrid(ix, iy) )
+					{
+						s	+= pGrid->asDouble(ix, iy);
+					}
+				}
 			}
-		}//for
-	}//for
 
-	DataObject_Add(pOutput);
+			//---------------------------------------------
+			if( s.Get_Count() == 0 )
+			{
+				pOutput->Set_NoData(x, y);
+			}
+			else switch( Method )
+			{
+			default: pOutput->Set_Value(x, y, s.Get_Sum    ()); break;
+			case  1: pOutput->Set_Value(x, y, s.Get_Minimum()); break;
+			case  2: pOutput->Set_Value(x, y, s.Get_Maximum()); break;
+			case  3: pOutput->Set_Value(x, y, s.Get_Median ()); break;
+			case  4: pOutput->Set_Value(x, y, s.Get_Mean   ()); break;
+			}
+		}
+	}
 
-	return true;
-
+	//-----------------------------------------------------
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
