@@ -1048,27 +1048,27 @@ CSG_Grids & CSG_Grids::Divide(double Value)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CSG_Grids::Get_Value(const TSG_Point_Z &p, TSG_Grid_Resampling Resampling) const
+double CSG_Grids::Get_Value(const TSG_Point_Z &p, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
 	double	Value;
 
-	return( Get_Value(p.x, p.y, p.z, Value, Resampling) ? Value : Get_NoData_Value() );
+	return( Get_Value(p.x, p.y, p.z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
 }
 
-double CSG_Grids::Get_Value(double x, double y, double z, TSG_Grid_Resampling Resampling) const
+double CSG_Grids::Get_Value(double x, double y, double z, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
 	double	Value;
 
-	return( Get_Value(x, y, z, Value, Resampling) ? Value : Get_NoData_Value() );
+	return( Get_Value(x, y, z, Value, Resampling, ZResampling) ? Value : Get_NoData_Value() );
 }
 
-bool CSG_Grids::Get_Value(const TSG_Point_Z &p, double &Value, TSG_Grid_Resampling Resampling) const
+bool CSG_Grids::Get_Value(const TSG_Point_Z &p, double &Value, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
-	return( Get_Value(p.x, p.y, p.z, Value, Resampling) );
+	return( Get_Value(p.x, p.y, p.z, Value, Resampling, ZResampling) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_Resampling Resampling) const
+bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_Resampling Resampling, TSG_Grid_Resampling ZResampling) const
 {
 	if(	!Get_System().Get_Extent(true).Contains(x, y) )
 	{
@@ -1084,13 +1084,24 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 
 	if( dz == 0.0 )
 	{
-		m_pGrids[iz]->Get_Value(x, y, Value, Resampling);
+		return( m_pGrids[iz]->Get_Value(x, y, Value, Resampling) );
 	}
-	else if( iz + 1 >= Get_NZ() )	{	return( false );	}
-	else switch( Resampling )
+
+	if( ZResampling == GRID_RESAMPLING_Undefined )
+	{
+		ZResampling	= Resampling;
+	}
+
+	if( (ZResampling == GRID_RESAMPLING_BicubicSpline || ZResampling == GRID_RESAMPLING_BSpline)
+	&&  (iz < 1 || iz >= m_Attributes.Get_Count() - 2) )
+	{
+		ZResampling	= GRID_RESAMPLING_Bilinear;
+	}
+
+	switch( ZResampling )
 	{
 	case GRID_RESAMPLING_NearestNeighbour: default:
-		return( m_pGrids[Get_Z(iz + 1) - z < dz ? iz + 1 : iz]->Get_Value(x, y, Value, Resampling) );
+		return( m_pGrids[dz < 0.5 ? iz : iz + 1]->Get_Value(x, y, Value, Resampling) );
 
 	case GRID_RESAMPLING_Bilinear:
 		{
@@ -1099,7 +1110,7 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 			if( m_pGrids[iz    ]->Get_Value(x, y, v[0], Resampling)
 			&&  m_pGrids[iz + 1]->Get_Value(x, y, v[1], Resampling) )
 			{
-				Value	= v[0] + dz * (v[1] - v[0]) / (Get_Z(iz + 1) - z);
+				Value	= v[0] + dz * (v[1] - v[0]);
 
 				return( true );
 			}
@@ -1130,29 +1141,27 @@ bool CSG_Grids::Get_Value(double x, double y, double z, double &Value, TSG_Grid_
 //---------------------------------------------------------
 bool CSG_Grids::_Get_Z(double z, int &iz, double &dz) const
 {
-	for(iz=0; iz<m_Attributes.Get_Count(); iz++)
+	if( z < m_Attributes[0                           ].asDouble(m_Z_Attribute)
+	||  z > m_Attributes[m_Attributes.Get_Count() - 1].asDouble(m_Z_Attribute) )
 	{
-		dz	= z - m_Attributes[iz].asDouble(m_Z_Attribute);
+		return( false );
+	}
 
-		if( dz > 0.0 )
+	double	z0, z1	= m_Attributes[0].asDouble(m_Z_Attribute);
+
+	for(iz=0; iz<m_Attributes.Get_Count()-1; iz++)
+	{
+		z0 = z1; z1	= m_Attributes[iz + 1].asDouble(m_Z_Attribute);
+
+		if( z < z1 )
 		{
-			if( iz == 0 )
-			{
-				return( false );
-			}
+			dz	= z0 < z1 ? (z - z0) / (z1 - z0) : 0.0;
 
-			iz--;
-
-			return( true );
-		}
-
-		if( dz == 0.0 )
-		{
 			return( true );
 		}
 	}
 
-	return( false );
+	return( (dz = z - z1) == 0.0 );
 }
 
 

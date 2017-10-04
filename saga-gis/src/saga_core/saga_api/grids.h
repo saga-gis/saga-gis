@@ -344,10 +344,10 @@ public:		///////////////////////////////////////////////
 	//-----------------------------------------------------
 	// Get Value...
 
-	double							Get_Value	(double x, double y, double z,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline) const;
-	double							Get_Value	(const TSG_Point_Z         &p,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline) const;
-	bool							Get_Value	(double x, double y, double z, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline) const;
-	bool							Get_Value	(const TSG_Point_Z         &p, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline) const;
+	double							Get_Value	(double x, double y, double z,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, TSG_Grid_Resampling ZResampling = GRID_RESAMPLING_Undefined) const;
+	double							Get_Value	(const TSG_Point_Z         &p,                TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, TSG_Grid_Resampling ZResampling = GRID_RESAMPLING_Undefined) const;
+	bool							Get_Value	(double x, double y, double z, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, TSG_Grid_Resampling ZResampling = GRID_RESAMPLING_Undefined) const;
+	bool							Get_Value	(const TSG_Point_Z         &p, double &Value, TSG_Grid_Resampling Resampling = GRID_RESAMPLING_BSpline, TSG_Grid_Resampling ZResampling = GRID_RESAMPLING_Undefined) const;
 
 	virtual BYTE					asByte		(int x, int y, int z, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(x, y, z, bScaled)) );	}
 	virtual BYTE					asByte		(sLong             i, bool bScaled = true) const	{	return( SG_ROUND_TO_BYTE (asDouble(      i, bScaled)) );	}
