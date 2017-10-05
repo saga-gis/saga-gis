@@ -161,17 +161,17 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Double("NODE_GENERAL",
-		"RESOLUTION"	, _TL("Resolution"),
-		_TL("Horizontal resolution in map units. Use [F7]/[F8] keys to de-/increase."),
-		m_pGrids->Get_Extent().Get_Diameter() * 0.01,
+		"RESOLUTION_XY"	, _TL("Horizontal Resolution"),
+		_TL("Horizontal resolution (x/y) in map units. Use [F7]/[F8] keys to de-/increase."),
+		m_pGrids->Get_Extent().Get_Diameter() / 200,
 		m_pGrids->Get_Cellsize(), true,
-		m_pGrids->Get_Extent().Get_Diameter() * 0.1, true
+		m_pGrids->Get_Extent().Get_Diameter() / 10, true
 	);
 
 	m_Parameters.Add_Int("NODE_GENERAL",
-		"Z_RESOLUTION"	, _TL("Resolution"),
-		_TL("Vertical resolution in number of levels. Use [F9]/[F10] keys to de-/increase."),
-		m_pGrids->Get_NZ() * 10, 10, true
+		"RESOLUTION_Z"	, _TL("Vertical Resolution"),
+		_TL("Vertical resolution (z) in number of levels. Use [F9]/[F10] keys to de-/increase."),
+		M_GET_MIN(m_pGrids->Get_NZ() * 4, 200), 10, true
 	);
 
 	//-----------------------------------------------------
@@ -202,13 +202,13 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 		CSG_String::Format("%s|%s|",
 			_TL("none"),
 			_TL("shading")
-		), 0
+		), 1
 	);
 
 	m_Parameters.Add_Double("SHADING",
 		"SHADE_DEC"		, _TL("Light Source Height"),
 		_TL(""),
-		0.0, -90.0, true, 90.0, true
+		45.0, -90.0, true, 90.0, true
 	);
 
 	m_Parameters.Add_Double("SHADING",
@@ -220,13 +220,15 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	//-----------------------------------------------------
 	m_Parameters("Z_SCALE")->Set_Value(0.25 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange());
 
-	m_Resampling	= GRID_RESAMPLING_Bilinear;	// bilinear
-	m_Resolution	= m_Parameters(  "RESOLUTION")->asDouble();
-	m_zResolution	= m_Parameters("Z_RESOLUTION")->asInt();
+	m_Resampling	= GRID_RESAMPLING_Bilinear;
+	m_Resolution	= m_Parameters("RESOLUTION_XY")->asDouble();
+	m_zResolution	= m_Parameters("RESOLUTION_Z" )->asInt();
 
 	m_Position[PLANE_SIDE_X]	= 0.5;
 	m_Position[PLANE_SIDE_Y]	= 0.5;
 	m_Position[PLANE_SIDE_Z]	= 0.5;
+
+	m_BoxBuffer	= 0.0;
 
 	Update_Statistics();
 }
@@ -303,23 +305,23 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 
 	//-----------------------------------------------------
 	case WXK_F7:
-		m_Parameters("RESOLUTION")->Set_Value(m_Parameters("RESOLUTION")->asDouble() + m_pGrids->Get_Cellsize());
+		m_Parameters("RESOLUTION_XY")->Set_Value(m_Parameters("RESOLUTION_XY")->asDouble() + m_pGrids->Get_Cellsize());
 		Set_Planes();
 		break;
 
 	case WXK_F8:
-		m_Parameters("RESOLUTION")->Set_Value(m_Parameters("RESOLUTION")->asDouble() - m_pGrids->Get_Cellsize());
+		m_Parameters("RESOLUTION_XY")->Set_Value(m_Parameters("RESOLUTION_XY")->asDouble() - m_pGrids->Get_Cellsize());
 		Set_Planes();
 		break;
 
 	//-----------------------------------------------------
 	case WXK_F9:
-		m_Parameters("Z_RESOLUTION")->Set_Value(m_Parameters("Z_RESOLUTION")->asInt() - 5);
+		m_Parameters("RESOLUTION_Z")->Set_Value(m_Parameters("RESOLUTION_Z")->asInt() - 5);
 		Set_Planes();
 		break;
 
 	case WXK_F10:
-		m_Parameters("Z_RESOLUTION")->Set_Value(m_Parameters("Z_RESOLUTION")->asInt() + 5);
+		m_Parameters("RESOLUTION_Z")->Set_Value(m_Parameters("RESOLUTION_Z")->asInt() + 5);
 		Set_Planes();
 		break;
 	}
@@ -391,8 +393,8 @@ bool C3D_Viewer_Grids_Panel::On_Draw(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::Set_Planes(void)
 {
-	m_Resolution	= m_Parameters(  "RESOLUTION")->asDouble();
-	m_zResolution	= m_Parameters("Z_RESOLUTION")->asInt();
+	m_Resolution	= m_Parameters("RESOLUTION_XY")->asDouble();
+	m_zResolution	= m_Parameters("RESOLUTION_Z" )->asInt();
 
 	Set_Plane(m_Plane[PLANE_SIDE_X], m_Position[PLANE_SIDE_X], PLANE_SIDE_X);
 	Set_Plane(m_Plane[PLANE_SIDE_Y], m_Position[PLANE_SIDE_Y], PLANE_SIDE_Y);
@@ -556,13 +558,13 @@ inline bool C3D_Viewer_Grids_Panel::Get_Node(CSG_Grid &Plane, double Position, i
 		case PLANE_SIDE_X:
 			p.x	= Position;
 			p.y	= Plane.Get_System().Get_yGrid_to_World(y);
-			p.z	= m_pGrids->Get_ZMin() + x * m_pGrids->Get_ZRange() / Plane.Get_NX();
+			p.z	= m_pGrids->Get_ZMin() + x * m_pGrids->Get_ZRange() / (Plane.Get_NX() - 1);
 			break;
 
 		case PLANE_SIDE_Y:
 			p.x	= Plane.Get_System().Get_xGrid_to_World(x);
 			p.y	= Position;
-			p.z	= m_pGrids->Get_ZMin() + y * m_pGrids->Get_ZRange() / Plane.Get_NY();
+			p.z	= m_pGrids->Get_ZMin() + y * m_pGrids->Get_ZRange() / (Plane.Get_NY() - 1);
 			break;
 
 		case PLANE_SIDE_Z:
@@ -660,8 +662,9 @@ public:
 		m_pSlide[PLANE_SIDE_Y]	= Add_Slider(_TL("Y"), pPanel->m_Position[PLANE_SIDE_Y], 0, 1);
 		m_pSlide[PLANE_SIDE_Z]	= Add_Slider(_TL("Z"), pPanel->m_Position[PLANE_SIDE_Z], 0, 1);
 
-		pPanel->m_Projector.Set_xRotation(M_DEG_TO_RAD * 45);
-		pPanel->m_Projector.Set_zRotation(M_DEG_TO_RAD * 35);
+		pPanel->m_Projector.Set_zShift(2000);
+		pPanel->m_Projector.Set_xRotation(M_DEG_TO_RAD * 60);
+		pPanel->m_Projector.Set_zRotation(M_DEG_TO_RAD * 45);
 		Update_Controls();
 	}
 

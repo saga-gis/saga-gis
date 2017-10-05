@@ -163,7 +163,7 @@ protected:
 
 	int							m_bgColor;
 	
-	double						m_dStereo;
+	double						m_dStereo, m_BoxBuffer;
 
 	TSG_Grid_Resampling			m_Drape_Mode;
 
