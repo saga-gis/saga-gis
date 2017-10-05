@@ -938,17 +938,19 @@ bool CSG_Grid::On_Update(void)
 
 		m_Statistics.Invalidate();
 
+		double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+
 		if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
 		{
 			double	d	= (double)Get_NCells() / (double)Get_Max_Samples();
 
 			for(double i=0; i<(double)Get_NCells(); i+=d)
 			{
-				double	Value	= asDouble((sLong)i);
+				double	Value	= asDouble((sLong)i, false);
 
 				if( !is_NoData_Value(Value) )
 				{
-					m_Statistics.Add_Value(Value);
+					m_Statistics	+= Scaling ? Offset + Scaling * Value : Value;
 				}
 			}
 
@@ -965,11 +967,11 @@ bool CSG_Grid::On_Update(void)
 			{
 				for(int x=0; x<Get_NX(); x++)
 				{
-					double	Value	= asDouble(x, y);
+					double	Value	= asDouble(x, y, false);
 
 					if( !is_NoData_Value(Value) )
 					{
-						m_Statistics.Add_Value(Value);
+						m_Statistics	+= Scaling ? Offset + Scaling * Value : Value;
 					}
 				}
 			}
@@ -1080,6 +1082,8 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 	int		ny		= 1 + (yMax - yMin);
 	sLong	nCells	= nx * ny;
 
+	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+
 	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{
 		double	d = (double)nCells / (double)Get_Max_Samples();
@@ -1089,11 +1093,11 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 			int	y	= yMin + (int)i / nx;
 			int	x	= xMin + (int)i % nx;
 
-			double	Value	= asDouble(x, y);
+			double	Value	= asDouble(x, y, false);
 
 			if( !is_NoData_Value(Value) )
 			{
-				Statistics.Add_Value(Value);
+				Statistics	+= Scaling ? Offset + Scaling * Value : Value;
 			}
 		}
 	}
@@ -1103,11 +1107,11 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 		{
 			for(int x=xMin; x<=xMax; x++)
 			{
-				double	Value	= asDouble(x, y);
+				double	Value	= asDouble(x, y, false);
 
 				if( !is_NoData_Value(Value) )
 				{
-					Statistics	+= Value;
+					Statistics	+= Scaling ? Offset + Scaling * Value : Value;
 				}
 			}
 		}
