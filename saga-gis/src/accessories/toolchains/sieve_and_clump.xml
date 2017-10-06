@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="2.1.3">
-  <group></group>
+  <group>grid_filter</group>
   <identifier>SieveAndClump</identifier>
   <name>Sieve and Clump</name>
   <author>O.Conrad (c) 2014</author>
-  <description>created from history</description>
+  <description>Combines the tools 'Sieve Classes' to remove small patches and 'Shrink and Expand' to close the gaps created by sieving classes.</description>
   <menu absolute="true">Grid|Filter</menu>
+
   <parameters>
     <option varname="GRID_SYSTEM" type="grid_system">
       <name>Grid System</name>
@@ -16,6 +17,10 @@
     <output varname="FILTERED" type="grid" parent="GRID_SYSTEM">
       <name>Sieve and Clump</name>
     </output>
+	<option varname="MODE" type="choice">
+	  <name>Filter</name>
+	  <choices>Neumann|Moore</choices>
+	</option>
     <option varname="SIEVE" type="integer">
       <name>Sieving Threshold</name>
 	  <value>2</value>
@@ -25,14 +30,16 @@
 	  <value>4</value>
 	</option>
   </parameters>
+
   <tools>
     <tool library="grid_filter" tool="15" name="Sieving Classes">
-      <option id="MODE">1</option>
+      <option id="MODE" varname="true">MODE</option>
       <option id="ALL">1</option>
       <option id="THRESHOLD" varname="1">SIEVE</option>
       <output id="OUTPUT">SIEVED</output>
       <input id="INPUT">CLASSES</input>
     </tool>
+	
     <tool library="grid_tools" tool="28" name="Shrink and Expand">
       <option id="OPERATION">3</option>
       <option id="CIRCLE">1</option>
