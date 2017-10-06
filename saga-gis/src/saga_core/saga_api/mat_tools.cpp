@@ -397,6 +397,29 @@ bool CSG_Simple_Statistics::Create(const CSG_Vector &Values, bool bHoldValues)
 }
 
 //---------------------------------------------------------
+bool CSG_Simple_Statistics::Set_Count(sLong nValues)
+{
+	if( m_nValues < 1 || nValues < 1 || m_nValues == nValues )
+	{
+		return( false );
+	}
+
+	double	Scale	= nValues / (double)m_nValues;
+
+	m_Weights	*= Scale;
+	m_Sum		*= Scale;
+	m_Sum2		*= Scale;
+
+	m_nValues	 = nValues;
+
+	m_bEvaluated	= 0;
+
+	m_Values.Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
 void CSG_Simple_Statistics::Invalidate(void)
 {
 	m_bEvaluated	= 0;
@@ -1137,6 +1160,24 @@ void CSG_Histogram::Add_Value(double Value)
 
 		m_Elements[Class]++;
 	}
+}
+
+//---------------------------------------------------------
+bool CSG_Histogram::Scale_Element_Count(double Scale)
+{
+	if( m_nClasses > 0 && Scale > 0.0 )
+	{
+		m_Statistics.Set_Count((sLong)(Scale * Get_Element_Count()));
+
+		for(size_t i=0; i<m_nClasses; i++)
+		{
+			m_Elements[i]	= (unsigned int)(Scale * m_Elements[i]);
+		}
+
+		return( Update() );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

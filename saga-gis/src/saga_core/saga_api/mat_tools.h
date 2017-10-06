@@ -560,6 +560,8 @@ public:
 
 	int							is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
 
+	bool						Set_Count			(sLong Count);
+
 	sLong						Get_Count			(void)	const	{	return( m_nValues );	}
 	double						Get_Weights			(void)	const	{	return( m_Weights );	}
 
@@ -832,6 +834,8 @@ public:
 
 	//-----------------------------------------------------
 	void			Add_Value			(double Value);
+
+	bool			Scale_Element_Count	(double Scale);
 
 	bool			Update				(void);
 

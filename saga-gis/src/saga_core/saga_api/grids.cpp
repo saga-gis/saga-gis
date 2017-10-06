@@ -1356,11 +1356,8 @@ bool CSG_Grids::On_Update(void)
 				}
 			}
 
-			m_Statistics.Create(
-				m_Statistics.Get_Mean(),
-				m_Statistics.Get_StdDev(),
-				m_Statistics.Get_Count() >= Get_Max_Samples() ? Get_NCells() :
-				(sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)Get_Max_Samples())
+			m_Statistics.Set_Count(m_Statistics.Get_Count() >= Get_Max_Samples() ? Get_NCells()	// any no-data cells ?
+				: (sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)Get_Max_Samples())
 			);
 		}
 		else

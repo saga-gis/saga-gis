@@ -579,24 +579,27 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 
 		for(double i=0; i<(double)pGrid->Get_NCells() && PROGRESSBAR_Set_Position(i, (double)pGrid->Get_NCells()); i+=d)
 		{
-			double	Value	= pGrid->asDouble((sLong)i);
-
-			if( !pGrid->is_NoData_Value(Value) )
+			if( !pGrid->is_NoData((sLong)i) )
 			{
-				m_Histogram.Add_Value(Get_Class(Value));
+				m_Histogram	+= Get_Class(pGrid->asDouble((sLong)i));
 			}
 		}
+
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pGrid->Get_Max_Samples() )	// any no-data cells ?
+		{
+			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrid->Get_Max_Samples();
+		}
+
+		m_Histogram.Scale_Element_Count(d);
 
 		return( true );
 	}
 
 	for(sLong i=0; i<pGrid->Get_NCells() && PROGRESSBAR_Set_Position((double)i, (double)pGrid->Get_NCells()); i++)
 	{
-		double	Value	= pGrid->asDouble(i);
-
-		if( !pGrid->is_NoData_Value(Value) )
+		if( !pGrid->is_NoData(i) )
 		{
-			m_Histogram.Add_Value(Get_Class(Value));
+			m_Histogram	+= Get_Class(pGrid->asDouble(i));
 		}
 	}
 
@@ -606,13 +609,33 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Grids *pGrids)
 {
+	if( pGrids->Get_Max_Samples() > 0 && pGrids->Get_Max_Samples() < pGrids->Get_NCells() )
+	{
+		double	d	= (double)pGrids->Get_NCells() / (double)pGrids->Get_Max_Samples();
+
+		for(double i=0; i<(double)pGrids->Get_NCells() && PROGRESSBAR_Set_Position(i, (double)pGrids->Get_NCells()); i+=d)
+		{
+			if( !pGrids->is_NoData((sLong)i) )
+			{
+				m_Histogram	+= Get_Class(pGrids->asDouble((sLong)i));
+			}
+		}
+
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pGrids->Get_Max_Samples() )	// any no-data cells ?
+		{
+			d	*= (double)m_Histogram.Get_Element_Count() / (double)pGrids->Get_Max_Samples();
+		}
+
+		m_Histogram.Scale_Element_Count(d);
+
+		return( true );
+	}
+
 	for(sLong i=0; i<pGrids->Get_NCells() && PROGRESSBAR_Set_Position((double)i, (double)pGrids->Get_NCells()); i++)
 	{
-		double	Value	= pGrids->asDouble(i);
-
-		if( !pGrids->is_NoData_Value(Value) )
+		if( !pGrids->is_NoData(i) )
 		{
-			m_Histogram.Add_Value(Get_Class(Value));
+			m_Histogram	+= Get_Class(pGrids->asDouble(i));
 		}
 	}
 
