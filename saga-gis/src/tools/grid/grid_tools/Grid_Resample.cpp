@@ -82,27 +82,27 @@ CGrid_Resample::CGrid_Resample(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "INPUT"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"INPUT"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Grid_List("",
+		"OUTPUT"	, _TL("Resampled Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "KEEP_TYPE"	, _TL("Preserve Data Type"),
+	Parameters.Add_Bool("",
+		"KEEP_TYPE"	, _TL("Preserve Data Type"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		false
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "SCALE_UP"	, _TL("Upscaling Method"),
+	Parameters.Add_Choice("",
+		"SCALE_UP"	, _TL("Upscaling Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -118,8 +118,8 @@ CGrid_Resample::CGrid_Resample(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "SCALE_DOWN"	, _TL("Downscaling Method"),
+	Parameters.Add_Choice("",
+		"SCALE_DOWN", _TL("Downscaling Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("Nearest Neighbour"),
@@ -135,8 +135,6 @@ CGrid_Resample::CGrid_Resample(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -186,28 +184,23 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Resample::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pInputs	= Parameters("INPUT" )->asGridList();
-	CSG_Parameter_Grid_List	*pOutputs	= Parameters("OUTPUT")->asGridList();
+	CSG_Parameter_Grid_List	*pInput	= Parameters("INPUT")->asGridList();
 
-	if( pInputs->Get_Grid_Count() <= 0 )
+	if( pInput->Get_Grid_Count() <= 0 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid_System	Input	= pInputs->Get_Grid(0)->Get_System();
+	CSG_Grid_System	System	= m_Grid_Target.Get_System();
 
-	CSG_Grid_System	Output	= m_Grid_Target.Get_System();
-
-	if( Input.Get_Extent().Intersects(Output.Get_Extent()) == INTERSECTION_None )
+	if( Get_System()->Get_Extent().Intersects(System.Get_Extent()) == INTERSECTION_None )
 	{
 		Error_Set(_TL("clip extent does not match extent of input grids"));
 
@@ -217,19 +210,19 @@ bool CGrid_Resample::On_Execute(void)
 	//-------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
-	if( Input.Get_Cellsize() < Output.Get_Cellsize() )	// Up-Scaling...
+	if( Get_Cellsize() < System.Get_Cellsize() )	// Up-Scaling...
 	{
 		switch( Parameters("SCALE_UP")->asInt() )
 		{
 		default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-		case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-		case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
-		case  4:	Resampling	= GRID_RESAMPLING_Mean_Nodes;		break;
-		case  5:	Resampling	= GRID_RESAMPLING_Mean_Cells;		break;
-		case  6:	Resampling	= GRID_RESAMPLING_Minimum;			break;
-		case  7:	Resampling	= GRID_RESAMPLING_Maximum;			break;
-		case  8:	Resampling	= GRID_RESAMPLING_Majority;			break;
+		case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+		case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
+		case  4:	Resampling	= GRID_RESAMPLING_Mean_Nodes      ;	break;
+		case  5:	Resampling	= GRID_RESAMPLING_Mean_Cells      ;	break;
+		case  6:	Resampling	= GRID_RESAMPLING_Minimum         ;	break;
+		case  7:	Resampling	= GRID_RESAMPLING_Maximum         ;	break;
+		case  8:	Resampling	= GRID_RESAMPLING_Majority        ;	break;
 		}
 	}
 	else	// Down-Scaling...
@@ -237,27 +230,56 @@ bool CGrid_Resample::On_Execute(void)
 		switch( Parameters("SCALE_DOWN")->asInt() )
 		{
 		default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-		case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-		case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+		case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
+		case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
+		case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
 		}
 	}
 
 	//-------------------------------------------------
-	pOutputs->Del_Items();
+	bool	bKeepType	= Parameters("KEEP_TYPE")->asBool();
 
-	for(int i=0; i<pInputs->Get_Grid_Count() && Process_Get_Okay(); i++)
+	Parameters("OUTPUT")->asGridList()->Del_Items();
+
+	for(int i=0; i<pInput->Get_Item_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Grid	*pInput		= pInputs->Get_Grid(i);
+		CSG_Data_Object	*pResampled, *pObject = pInput->Get_Item(i);
 
-		CSG_Grid	*pOutput	= SG_Create_Grid(Output,
-			Parameters("KEEP_TYPE")->asBool() ? pInput->Get_Type() : SG_DATATYPE_Undefined
-		);
+		switch( pObject->Get_ObjectType() )
+		{
+		default:
+			{
+				CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
 
-		pOutput->Assign(pInput, Resampling);
-		pOutput->Set_Name(pInput->Get_Name());
+				pResampled	= SG_Create_Grid (System,
+					bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
+				);
 
-		pOutputs->Add_Item(pOutput);
+				((CSG_Grid  *)pResampled)->Assign(pGrid, Resampling);
+			}
+			break;
+
+		case SG_DATAOBJECT_TYPE_Grids:
+			{
+				CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+
+				pResampled	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
+					bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
+				);
+
+				((CSG_Grids *)pResampled)->Assign(pGrids, Resampling);
+			}
+			break;
+		}
+
+		pResampled->Set_Name(pObject->Get_Name());
+		pResampled->Set_Description(pObject->Get_Description());
+		pResampled->Get_MetaData().Assign(pObject->Get_MetaData());
+
+		Parameters("OUTPUT")->asGridList()->Add_Item(pResampled);
+
+		DataObject_Add(pResampled);
+		DataObject_Set_Parameters(pResampled, pObject);
 	}
 
 	//-------------------------------------------------

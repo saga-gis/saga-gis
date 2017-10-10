@@ -135,10 +135,10 @@ CGrid_Merge::CGrid_Merge(void)
 		), 1
 	);
 
-	Parameters.Add_Value("",
+	Parameters.Add_Double("",
 		"BLEND_DIST", _TL("Blending Distance"),
 		_TL("blending distance given in map units"),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+		10.0, 0.0, true
 	);
 
 	Parameters.Add_Choice("",

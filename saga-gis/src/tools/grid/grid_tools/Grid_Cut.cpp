@@ -142,33 +142,33 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "CLIPPED"		, _TL("Clipped Grids"),
+	Parameters.Add_Grid_List("",
+		"CLIPPED"	, _TL("Clipped Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RUN_ONCE"	, _TL("Run Once"),
+	Parameters.Add_Bool("",
+		"RUN_ONCE"	, _TL("Run Once"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= Add_Parameters("EXTENT", _TL("Extent"), _TL(""));
 
-	pParameters->Add_Value(NULL, "XMIN", _TL("Left"   ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "XMAX", _TL("Right"  ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "YMIN", _TL("Bottom" ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "YMAX", _TL("Top"    ), _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "NX"  , _TL("Columns"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
-	pParameters->Add_Value(NULL, "NY"  , _TL("Rows"   ), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
+	pParameters->Add_Double("", "XMIN", _TL("Left"   ), _TL(""));
+	pParameters->Add_Double("", "XMAX", _TL("Right"  ), _TL(""));
+	pParameters->Add_Double("", "YMIN", _TL("Bottom" ), _TL(""));
+	pParameters->Add_Double("", "YMAX", _TL("Top"    ), _TL(""));
+	pParameters->Add_Int   ("", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
+	pParameters->Add_Int   ("", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
 }
 
 
@@ -196,6 +196,8 @@ int CGrid_Clip_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CS
 bool CGrid_Clip_Interactive::On_Execute(void)
 {
 	m_bDown	= false;
+
+	Parameters("CLIPPED")->asGridList()->Del_Items();
 
 	return( true );
 }
@@ -234,12 +236,12 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			CSG_Parameters	*pParameters	= Get_Parameters("EXTENT");
 
 			pParameters->Set_Callback(false);
-			pParameters->Get_Parameter("XMIN")->Set_Value(System.Get_XMin());
-			pParameters->Get_Parameter("XMAX")->Set_Value(System.Get_XMax());
-			pParameters->Get_Parameter("YMIN")->Set_Value(System.Get_YMin());
-			pParameters->Get_Parameter("YMAX")->Set_Value(System.Get_YMax());
-			pParameters->Get_Parameter("NX"  )->Set_Value(System.Get_NX  ());
-			pParameters->Get_Parameter("NY"  )->Set_Value(System.Get_NY  ());
+			pParameters->Get("XMIN")->Set_Value(System.Get_XMin());
+			pParameters->Get("XMAX")->Set_Value(System.Get_XMax());
+			pParameters->Get("YMIN")->Set_Value(System.Get_YMin());
+			pParameters->Get("YMAX")->Set_Value(System.Get_YMax());
+			pParameters->Get("NX"  )->Set_Value(System.Get_NX  ());
+			pParameters->Get("NY"  )->Set_Value(System.Get_NY  ());
 			pParameters->Set_Callback(true);
 
 			if( !Dlg_Parameters(pParameters, _TL("Clip to Extent")) )
@@ -248,10 +250,10 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			}
 
 			System	= Fit_Extent(*Get_System(), CSG_Rect(
-				pParameters->Get_Parameter("XMIN")->asDouble(),
-				pParameters->Get_Parameter("YMIN")->asDouble(),
-				pParameters->Get_Parameter("XMAX")->asDouble(),
-				pParameters->Get_Parameter("YMAX")->asDouble()
+				pParameters->Get("XMIN")->asDouble(),
+				pParameters->Get("YMIN")->asDouble(),
+				pParameters->Get("XMAX")->asDouble(),
+				pParameters->Get("YMAX")->asDouble()
 			));
 
 			if( !System.is_Valid() )
@@ -260,22 +262,54 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			}
 
 			//---------------------------------------------
-			CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
-			CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
+			CSG_Parameter_Grid_List	*pInput	= Parameters("GRIDS")->asGridList();
 
-			for(int i=0; i<pInput->Get_Grid_Count(); i++)
+			for(int i=0; i<pInput->Get_Item_Count(); i++)
 			{
-				CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->Get_Grid(i)->Get_Type());
+				CSG_Data_Object	*pClip, *pObject	= pInput->Get_Item(i);
 
-				pClip->Set_Name              (pInput->Get_Grid(i)->Get_Name());
-				pClip->Set_Description       (pInput->Get_Grid(i)->Get_Description());
-				pClip->Set_Unit              (pInput->Get_Grid(i)->Get_Unit());
-				pClip->Set_NoData_Value_Range(pInput->Get_Grid(i)->Get_NoData_Value(), pInput->Get_Grid(i)->Get_NoData_hiValue());
-				pClip->Set_Scaling           (pInput->Get_Grid(i)->Get_Scaling(), pInput->Get_Grid(i)->Get_Offset());
-				pClip->Assign                (pInput->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
+				switch( pObject->Get_ObjectType() )
+				{
+				default:
+					{
+						CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
 
-				pOutput->Add_Item(pClip);
-				DataObject_Add   (pClip);
+						pClip	= SG_Create_Grid(System, pGrid->Get_Type());
+
+						((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
+						((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
+
+						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+
+						((CSG_Grid  *)pClip)->Assign(pGrid, GRID_RESAMPLING_NearestNeighbour);
+					}
+					break;
+
+				case SG_DATAOBJECT_TYPE_Grids:
+					{
+						CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+
+						pClip	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true);
+
+						((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
+						((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+
+						pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+
+						((CSG_Grids *)pClip)->Assign(pGrids, GRID_RESAMPLING_NearestNeighbour);
+					}
+					break;
+				}
+
+				pClip->Set_Name       (pObject->Get_Name());
+				pClip->Set_Description(pObject->Get_Description());
+
+				pClip->Get_MetaData().Assign(pObject->Get_MetaData());
+
+				Parameters("CLIPPED")->asGridList()->Add_Item(pClip);
+
+				DataObject_Add(pClip);
+				DataObject_Set_Parameters(pClip, pObject);
 			}
 
 			if( Parameters("RUN_ONCE")->asBool() )
@@ -302,8 +336,6 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 //---------------------------------------------------------
 CGrid_Clip::CGrid_Clip(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Clip Grids"));
 
@@ -314,21 +346,21 @@ CGrid_Clip::CGrid_Clip(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "CLIPPED"		, _TL("Clipped Grids"),
+	Parameters.Add_Grid_List("",
+		"CLIPPED"	, _TL("Clipped Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "EXTENT"		, _TL("Extent"),
+	Parameters.Add_Choice("",
+		"EXTENT"	, _TL("Extent"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("user defined"),
@@ -338,34 +370,34 @@ CGrid_Clip::CGrid_Clip(void)
 		), 0
 	);
 
-	Parameters.Add_Grid_System(
-		pNode	, "GRIDSYSTEM"	, _TL("Grid System"),
+	Parameters.Add_Grid_System("EXTENT",
+		"GRIDSYSTEM", _TL("Grid System"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		pNode	, "SHAPES"		, _TL("Shapes Extent"),
+	Parameters.Add_Shapes("EXTENT",
+		"SHAPES"	, _TL("Shapes Extent"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		pNode	, "POLYGONS"	, _TL("Polygon"),
+	Parameters.Add_Shapes("EXTENT",
+		"POLYGONS"	, _TL("Polygon"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(pNode, "XMIN", _TL("Left"   ), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode, "XMAX", _TL("Right"  ), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode, "YMIN", _TL("Bottom" ), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode, "YMAX", _TL("Top"    ), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode, "NX"  , _TL("Columns"), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
-	Parameters.Add_Value(pNode, "NY"  , _TL("Rows"   ), _TL(""), PARAMETER_TYPE_Int, 1, 1, true);
+	Parameters.Add_Double("EXTENT", "XMIN", _TL("Left"   ), _TL(""));
+	Parameters.Add_Double("EXTENT", "XMAX", _TL("Right"  ), _TL(""));
+	Parameters.Add_Double("EXTENT", "YMIN", _TL("Bottom" ), _TL(""));
+	Parameters.Add_Double("EXTENT", "YMAX", _TL("Top"    ), _TL(""));
+	Parameters.Add_Int   ("EXTENT", "NX"  , _TL("Columns"), _TL(""), 1, 1, true);
+	Parameters.Add_Int   ("EXTENT", "NY"  , _TL("Rows"   ), _TL(""), 1, 1, true);
 
-	Parameters.Add_Value(
-		NULL	, "BUFFER"		, _TL("Buffer"),
+	Parameters.Add_Double("",
+		"BUFFER"	, _TL("Buffer"),
 		_TL("add buffer (map units) to extent"),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 }
 
@@ -381,10 +413,10 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
 	{
-		pParameters->Get_Parameter("XMIN")->Set_Value(pSystem->Get_XMin());
-		pParameters->Get_Parameter("XMAX")->Set_Value(pSystem->Get_XMax());
-		pParameters->Get_Parameter("YMIN")->Set_Value(pSystem->Get_YMin());
-		pParameters->Get_Parameter("YMAX")->Set_Value(pSystem->Get_YMax());
+		pParameters->Get("XMIN")->Set_Value(pSystem->Get_XMin());
+		pParameters->Get("XMAX")->Set_Value(pSystem->Get_XMax());
+		pParameters->Get("YMIN")->Set_Value(pSystem->Get_YMin());
+		pParameters->Get("YMAX")->Set_Value(pSystem->Get_YMax());
 	}
 
 	Fit_Extent(pParameters, pParameter, pSystem);
@@ -471,19 +503,49 @@ bool CGrid_Clip::On_Execute(void)
 	}
 
 	//--------------------------------------------------------
-	CSG_Parameter_Grid_List	*pInput		= Parameters("GRIDS"  )->asGridList();
-	CSG_Parameter_Grid_List	*pOutput	= Parameters("CLIPPED")->asGridList();
+	CSG_Parameter_Grid_List	*pInput	= Parameters("GRIDS")->asGridList();
 
-	for(int i=0; i<pInput->Get_Grid_Count(); i++)
+	for(int i=0; i<pInput->Get_Item_Count(); i++)
 	{
-		CSG_Grid	*pClip	= SG_Create_Grid(System, pInput->Get_Grid(i)->Get_Type());
+		CSG_Data_Object	*pClip, *pObject	= pInput->Get_Item(i);
 
-		pClip->Set_Name              (pInput->Get_Grid(i)->Get_Name());
-		pClip->Set_Description       (pInput->Get_Grid(i)->Get_Description());
-		pClip->Set_Unit              (pInput->Get_Grid(i)->Get_Unit());
-		pClip->Set_NoData_Value_Range(pInput->Get_Grid(i)->Get_NoData_Value(), pInput->Get_Grid(i)->Get_NoData_hiValue());
-		pClip->Set_Scaling           (pInput->Get_Grid(i)->Get_Scaling(), pInput->Get_Grid(i)->Get_Offset());
-		pClip->Assign                (pInput->Get_Grid(i), GRID_RESAMPLING_NearestNeighbour);
+		switch( pObject->Get_ObjectType() )
+		{
+		default:
+			{
+				CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
+
+				pClip	= SG_Create_Grid(System, pGrid->Get_Type());
+
+				((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
+				((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
+
+				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+
+				((CSG_Grid  *)pClip)->Assign(pGrid, GRID_RESAMPLING_NearestNeighbour);
+			}
+			break;
+
+		case SG_DATAOBJECT_TYPE_Grids:
+			{
+				CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+
+				pClip	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true);
+
+				((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
+				((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+
+				pClip->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+
+				((CSG_Grids *)pClip)->Assign(pGrids, GRID_RESAMPLING_NearestNeighbour);
+			}
+			break;
+		}
+
+		pClip->Set_Name       (pObject->Get_Name());
+		pClip->Set_Description(pObject->Get_Description());
+
+		pClip->Get_MetaData().Assign(pObject->Get_MetaData());
 
 		if( Mask.is_Valid() ) // && Parameters("EXTENT")->asInt() == 3 )	// polygon clip
 		{
@@ -494,13 +556,30 @@ bool CGrid_Clip::On_Execute(void)
 				{
 					if( Mask.is_NoData(x, y) )
 					{
-						pClip->Set_NoData(x, y);
+						switch( pObject->Get_ObjectType() )
+						{
+						default:
+							((CSG_Grid *)pClip)->Set_NoData(x, y);
+							break;
+
+						case SG_DATAOBJECT_TYPE_Grids:
+							{
+								for(int z=0; z<((CSG_Grids *)pClip)->Get_NZ(); z++)
+								{
+									((CSG_Grids *)pClip)->Set_NoData(x, y, z);
+								}
+							}
+							break;
+						}
 					}
 				}
 			}
 		}
 
-		pOutput->Add_Item(pClip);
+		Parameters("CLIPPED")->asGridList()->Add_Item(pClip);
+
+		DataObject_Add(pClip);
+		DataObject_Set_Parameters(pClip, pObject);
 	}
 
 	//--------------------------------------------------------
