@@ -75,54 +75,50 @@ CShape_Index::CShape_Index(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Shape Indices"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Various indices describing the shape of polygons. "
-		"Based on area, perimeter, maximum distance between the vertices of a polygon.\n"
-		"\n"
-		" - Interior Edge Ratio (Perimeter / Area)\n"
-		" - Shape Index (Perimeter / (2 * SquareRoot(PI * Area))\n"
-		"\n"
-		"References:\n"
-		"Lang, S., Blaschke, T. (2007): Landschaftsanalyse mit GIS.\n"
-		"\n"
-		"Forman, R.T.T., Godron, M. (1986): Landscape Ecology. Cambridge.\n"
+		"Various indices describing the shape of polygons, mostly based on "
+		"area, perimeter, maximum distance between the vertices of a polygon. "
+		"E.g. the 'interior edge ratio' (= perimeter / area) or the "
+		"'shape index' (= perimeter / (2 * square root(pi * area))). "
 	));
+
+	Add_Reference("Lang, S. & Blaschke, T.",
+		"2007", "Landschaftsanalyse mit GIS",
+		"Stuttgart."
+	);
+
+	Add_Reference("Forman, R.T.T. & Godron, M.",
+		"1986", "Landscape Ecology",
+		"Cambridge."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+		"", "SHAPES", _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "INDEX"		, _TL("Shape Index"),
+		"", "INDEX"	, _TL("Shape Index"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 }
 
-//---------------------------------------------------------
-CShape_Index::~CShape_Index(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CShape_Index::On_Execute(void)
 {
-	CSG_Shapes	*pShapes, *pIndex;
-
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	pIndex	= Parameters("INDEX")	->asShapes();
+	CSG_Shapes	*pShapes = Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pIndex  = Parameters("INDEX" )->asShapes();
 
 	//-----------------------------------------------------
 	if( pShapes->is_Valid() )
@@ -139,14 +135,14 @@ bool CShape_Index::On_Execute(void)
 			pIndex->Create(SHAPE_TYPE_Polygon, _TL("Shape Index"), pShapes);
 		}
 
-		pIndex->Add_Field(_TL("Area")			, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("Perimeter")		, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("P/A")			, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("P/sqrt(A)")		, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("Max.Distance")	, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("D/A")			, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("D/sqrt(A)")		, SG_DATATYPE_Double);
-		pIndex->Add_Field(_TL("Shape Index")	, SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Area"        ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Perimeter"   ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("P/A"         ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("P/sqrt(A)"   ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Max.Distance"), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("D/A"         ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("D/sqrt(A)"   ), SG_DATATYPE_Double);
+		pIndex->Add_Field(_TL("Shape Index" ), SG_DATATYPE_Double);
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{

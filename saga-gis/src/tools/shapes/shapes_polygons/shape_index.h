@@ -78,7 +78,6 @@ class CShape_Index : public CSG_Tool
 {
 public:
 	CShape_Index(void);
-	virtual ~CShape_Index(void);
 
 
 protected:
@@ -87,7 +86,6 @@ protected:
 
 
 private:
-
 
 	double					Get_Distance		(CSG_Shape *pShape);
 
