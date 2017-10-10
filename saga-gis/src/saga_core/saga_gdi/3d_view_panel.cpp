@@ -114,70 +114,66 @@ END_EVENT_TABLE()
 CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
-	CSG_Parameter	*pNode, *pNode_1;
-
 	m_Parameters.Create(this, _TL("Properties"), _TL(""));
 
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(
-		NULL	, "NODE_GENERAL"	, _TL("General"),
+	m_Parameters.Add_Node("",
+		"NODE_GENERAL"	, _TL("General"),
 		_TL("")
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "CENTRAL"			, _TL("Projection"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"CENTRAL"		, _TL("Projection"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("parallel"),
 			_TL("central")
 		), 1
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "CENTRAL_DIST"	, _TL("Central Projection Distance"),
+	m_Parameters.Add_Double("CENTRAL",
+		"CENTRAL_DIST"	, _TL("Central Projection Distance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, m_Projector.Get_Central_Distance(), 1.0, true
+		m_Projector.Get_Central_Distance(), 1.0, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "BGCOLOR"			, _TL("Background Color"),
+	m_Parameters.Add_Color("NODE_GENERAL",
+		"BGCOLOR"		, _TL("Background Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_COLOR_WHITE
+		SG_COLOR_WHITE
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "DRAW_BOX"		, _TL("Draw Box"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"DRAW_BOX"		, _TL("Draw Box"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "STEREO"			, _TL("Stereo Anaglyph"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"STEREO"		, _TL("Stereo Anaglyph"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "STEREO_DIST"		, _TL("Stereo Eye Distance [Degree]"),
+	m_Parameters.Add_Double("STEREO",
+		"STEREO_DIST"	, _TL("Stereo Eye Distance [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	m_pDrape	= pDrape;
-
-	if( m_pDrape )
+	if( (m_pDrape = pDrape) != NULL )
 	{
-		pNode_1	= m_Parameters.Add_Value(
-			pNode	, "DO_DRAPE"	, _TL("Map Draping"),
+		m_Parameters.Add_Bool("NODE_GENERAL",
+			"DO_DRAPE"	, _TL("Map Draping"),
 			_TL(""),
-			PARAMETER_TYPE_Bool, true
+			true
 		);
 
-		m_Parameters.Add_Choice(
-			pNode_1	, "DRAPE_MODE"	, _TL("Map Drape Resampling"),
+		m_Parameters.Add_Choice("DO_DRAPE",
+			"DRAPE_MODE", _TL("Map Drape Resampling"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|",
 				_TL("Nearest Neighbour"),
@@ -189,27 +185,27 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	}
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(
-		NULL	, "NODE_PLAYER"		, _TL("Sequencer"),
+	m_Parameters.Add_Node("",
+		"NODE_PLAYER"	, _TL("Sequencer"),
 		_TL("")
 	);
 
-	m_Parameters.Add_FilePath(
-		pNode	, "PLAY_FILE"		, _TL("Image File"),
+	m_Parameters.Add_FilePath("NODE_PLAYER",
+		"PLAY_FILE"		, _TL("Image File"),
 		_TL("file path, name and type used to save frames to image files"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)")				, SG_T("*.bmp"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)")	, SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Zsoft Paintbrush (*.pcx)")						, SG_T("*.pcx"),
-			_TL("Portable Network Graphics (*.png)")			, SG_T("*.png"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)")		, SG_T("*.tif;*.tiff")
+		CSG_String::Format("%s|*.bmp|%s|*.jpg;*.jif;*.jpeg|%s|*.pcx|%s|*.png|%s|*.tif;*.tiff",
+			_TL("Windows or OS/2 Bitmap (*.bmp)"),
+			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"),
+			_TL("Zsoft Paintbrush (*.pcx)"),
+			_TL("Portable Network Graphics (*.png)"),
+			_TL("Tagged Image File Format (*.tif, *.tiff)")
 		), NULL, true
 	);
 
-	m_pPlay	= m_Parameters.Add_FixedTable(
-		pNode	, "PLAY"			, _TL("Sequencer Positions"),
+	m_pPlay	= m_Parameters.Add_FixedTable("NODE_PLAYER",
+		"PLAY"			, _TL("Sequencer Positions"),
 		_TL("")
-		)->asTable();
+	)->asTable();
 
 	m_pPlay->Add_Field(_TL("Rotate X"        ), SG_DATATYPE_Double);
 	m_pPlay->Add_Field(_TL("Rotate Y"        ), SG_DATATYPE_Double);

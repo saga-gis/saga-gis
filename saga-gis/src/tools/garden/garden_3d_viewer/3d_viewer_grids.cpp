@@ -103,11 +103,7 @@ private:
 
 	bool						m_Color_bGrad;
 
-	int							m_zResolution;
-
-	double						m_Color_Min, m_Color_Scale, m_Position[3], m_Resolution;
-
-	TSG_Grid_Resampling			m_Resampling;
+	double						m_Color_Min, m_Color_Scale, m_Position[3];
 
 	CSG_Colors					m_Colors;
 
@@ -118,6 +114,7 @@ private:
 
 	bool						Set_ZScale				(bool bIncrease);
 	bool						Set_ZLevel				(bool bIncrease);
+	bool						Set_Resolution			(bool bIncrease, bool bVertical);
 
 	bool						Set_Planes				(void);
 	bool						Set_Plane				(                 double Position, int Side);
@@ -132,6 +129,7 @@ private:
 	DECLARE_EVENT_TABLE()
 
 	friend class C3D_Viewer_Grids_Dialog;
+
 };
 
 
@@ -171,10 +169,33 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 		m_pGrids->Get_Extent().Get_Diameter() / 10, true
 	);
 
+	m_Parameters.Add_Choice("RESOLUTION_XY",
+		"RESAMPLING_XY"	, _TL("Resampling"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+			_TL("Nearest Neigbhour"),
+			_TL("Bilinear Interpolation"),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation"),
+			_TL("Mean Value"),
+			_TL("Mean Value (cell area weighted)")
+		), 0
+	);
+
 	m_Parameters.Add_Int("NODE_GENERAL",
 		"RESOLUTION_Z"	, _TL("Vertical Resolution"),
 		_TL("Vertical resolution (z) in number of levels. Use [F9]/[F10] keys to de-/increase."),
 		M_GET_MIN(m_pGrids->Get_NZ() * 4, 200), 10, true
+	);
+
+	m_Parameters.Add_Choice("RESOLUTION_Z",
+		"RESAMPLING_Z"	, _TL("Resampling"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Nearest Neigbhour"),
+			_TL("Linear Interpolation"),
+			_TL("Spline Interpolation")
+		), 1
 	);
 
 	//-----------------------------------------------------
@@ -231,15 +252,16 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 	//-----------------------------------------------------
 	m_Parameters("Z_SCALE")->Set_Value(0.2 * (m_pGrids->Get_XRange() + m_pGrids->Get_YRange()) / m_pGrids->Get_ZRange());
 
-	m_Resampling	= GRID_RESAMPLING_Bilinear;
-	m_Resolution	= m_Parameters("RESOLUTION_XY")->asDouble();
-	m_zResolution	= m_Parameters("RESOLUTION_Z" )->asInt();
-
 	m_Position[PLANE_SIDE_X]	= 0.5;
 	m_Position[PLANE_SIDE_Y]	= 0.5;
 	m_Position[PLANE_SIDE_Z]	= 0.5;
 
 	m_BoxBuffer	= 0.0;
+
+	m_Projector.Set_zShift(2000);
+	m_Projector.Set_yShift(-100);
+	m_Projector.Set_xRotation(M_DEG_TO_RAD * 60);
+	m_Projector.Set_zRotation(M_DEG_TO_RAD * 45);
 
 	Update_Statistics();
 }
@@ -325,6 +347,33 @@ bool C3D_Viewer_Grids_Panel::Set_ZLevel(bool bIncrease)
 }
 
 //---------------------------------------------------------
+bool C3D_Viewer_Grids_Panel::Set_Resolution(bool bIncrease, bool bVertical)
+{
+	if( bVertical )
+	{
+		double	d	= m_Parameters("RESOLUTION_Z")->asDouble();
+
+		m_Parameters("RESOLUTION_Z")->Set_Value(bIncrease
+			? d + 5
+			: d - 5
+		);
+	}
+	else
+	{
+		double	d	= m_Parameters("RESOLUTION_XY")->asDouble();
+
+		m_Parameters("RESOLUTION_XY")->Set_Value(bIncrease
+			? d - m_pGrids->Get_Cellsize()
+			: d + m_pGrids->Get_Cellsize()
+		);
+	}
+
+	Set_Planes();
+
+	return( true );
+}
+
+//---------------------------------------------------------
 void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
@@ -334,44 +383,17 @@ void C3D_Viewer_Grids_Panel::On_Key_Down(wxKeyEvent &event)
 		return;
 
 	//-----------------------------------------------------
-	case WXK_F1:
-		Set_ZScale(false);
-		break;
+	case WXK_F1 : Set_ZScale(false); break;
+	case WXK_F2 : Set_ZScale( true); break;
 
-	case WXK_F2:
-		Set_ZScale(true);
-		break;
+	case WXK_F7 : Set_Resolution(false, false);	break;
+	case WXK_F8 : Set_Resolution( true, false);	break;
 
-	//-----------------------------------------------------
-	case WXK_F7:
-		m_Parameters("RESOLUTION_XY")->Set_Value(m_Parameters("RESOLUTION_XY")->asDouble() + m_pGrids->Get_Cellsize());
-		Set_Planes();
-		break;
+	case WXK_F9 : Set_Resolution(false,  true);	break;
+	case WXK_F10: Set_Resolution( true,  true);	break;
 
-	case WXK_F8:
-		m_Parameters("RESOLUTION_XY")->Set_Value(m_Parameters("RESOLUTION_XY")->asDouble() - m_pGrids->Get_Cellsize());
-		Set_Planes();
-		break;
-
-	//-----------------------------------------------------
-	case WXK_F9:
-		m_Parameters("RESOLUTION_Z")->Set_Value(m_Parameters("RESOLUTION_Z")->asInt() - 5);
-		Set_Planes();
-		break;
-
-	case WXK_F10:
-		m_Parameters("RESOLUTION_Z")->Set_Value(m_Parameters("RESOLUTION_Z")->asInt() + 5);
-		Set_Planes();
-		break;
-
-	//-----------------------------------------------------
-	case WXK_F11:
-		Set_ZLevel(false);
-		break;
-
-	case WXK_F12:
-		Set_ZLevel(true);
-		break;
+	case WXK_F11: Set_ZLevel(false);	break;
+	case WXK_F12: Set_ZLevel( true);	break;
 	}
 
 	Update_Parent();
@@ -444,9 +466,6 @@ bool C3D_Viewer_Grids_Panel::On_Draw(void)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::Set_Planes(void)
 {
-	m_Resolution	= m_Parameters("RESOLUTION_XY")->asDouble();
-	m_zResolution	= m_Parameters("RESOLUTION_Z" )->asInt();
-
 	Set_Plane(m_Plane[PLANE_SIDE_X], m_Position[PLANE_SIDE_X], PLANE_SIDE_X);
 	Set_Plane(m_Plane[PLANE_SIDE_Y], m_Position[PLANE_SIDE_Y], PLANE_SIDE_Y);
 	Set_Plane(m_Plane[PLANE_SIDE_Z], m_Position[PLANE_SIDE_Z], PLANE_SIDE_Z);
@@ -469,9 +488,33 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(double Position, int Side)
 //---------------------------------------------------------
 bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Side)
 {
-	if( m_Resolution < m_pGrids->Get_Cellsize() )
+	double	Cellsize	= m_Parameters("RESOLUTION_XY")->asDouble();
+
+	if( Cellsize < m_pGrids->Get_Cellsize() )
 	{
-		m_Resolution = m_pGrids->Get_Cellsize();
+		Cellsize = m_pGrids->Get_Cellsize();
+	}
+
+	int	zLevels	= m_Parameters("RESOLUTION_Z")->asInt();
+
+	//-----------------------------------------------------
+	TSG_Grid_Resampling	zResampling, Resampling;
+
+	switch( m_Parameters("RESAMPLING_Z")->asInt() )
+	{
+	default: zResampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: zResampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: zResampling = GRID_RESAMPLING_BSpline         ; break;
+	}
+
+	switch( m_Parameters("RESAMPLING_XY")->asInt() )
+	{
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+	case  4: Resampling = GRID_RESAMPLING_Mean_Nodes      ; break;
+	case  5: Resampling = GRID_RESAMPLING_Mean_Cells      ; break;
 	}
 
 	switch( Side )
@@ -479,9 +522,9 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 	//-----------------------------------------------------
 	case PLANE_SIDE_X:
 		{
-			if( Plane.Get_Cellsize() != m_Resolution )
+			if( Plane.Get_Cellsize() != Cellsize || Plane.Get_NX() != zLevels )
 			{
-				Plane.Create(CSG_Grid_System(m_Resolution, 0.0, m_pGrids->Get_YMin(), m_Resolution * m_zResolution, m_pGrids->Get_YMax()));
+				Plane.Create(CSG_Grid_System(Cellsize, 0.0, m_pGrids->Get_YMin(), Cellsize * zLevels, m_pGrids->Get_YMax()));
 			}
 
 			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NX();
@@ -501,7 +544,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				{
 					double	Value;
 
-					if( m_pGrids->Get_Value(p, Value, m_Resampling) )
+					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
 						Plane.Set_Value(x, y, Value);
 					}
@@ -517,9 +560,9 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 	//-----------------------------------------------------
 	case PLANE_SIDE_Y:
 		{
-			if( Plane.Get_Cellsize() != m_Resolution )
+			if( Plane.Get_Cellsize() != Cellsize || Plane.Get_NY() != zLevels )
 			{
-				Plane.Create(CSG_Grid_System(m_Resolution, m_pGrids->Get_XMin(), 0.0, m_pGrids->Get_XMax(), m_Resolution * m_zResolution));
+				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_XMin(), 0.0, m_pGrids->Get_XMax(), Cellsize * zLevels));
 			}
 
 			double	dz	= m_pGrids->Get_ZRange() / Plane.Get_NY();
@@ -539,7 +582,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				{
 					double	Value;
 
-					if( m_pGrids->Get_Value(p, Value, m_Resampling) )
+					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
 						Plane.Set_Value(x, y, Value);
 					}
@@ -555,9 +598,9 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 	//-----------------------------------------------------
 	case PLANE_SIDE_Z:
 		{
-			if( Plane.Get_Cellsize() != m_Resolution )
+			if( Plane.Get_Cellsize() != Cellsize )
 			{
-				Plane.Create(CSG_Grid_System(m_Resolution, m_pGrids->Get_System().Get_Extent()));
+				Plane.Create(CSG_Grid_System(Cellsize, m_pGrids->Get_System().Get_Extent()));
 			}
 
 			#ifndef _DEBUG
@@ -575,7 +618,7 @@ bool C3D_Viewer_Grids_Panel::Set_Plane(CSG_Grid &Plane, double Position, int Sid
 				{
 					double	Value;
 
-					if( m_pGrids->Get_Value(p, Value, m_Resampling) )
+					if( m_pGrids->Get_Value(p, Value, Resampling, zResampling) )
 					{
 						Plane.Set_Value(x, y, Value);
 					}
@@ -608,19 +651,19 @@ inline bool C3D_Viewer_Grids_Panel::Get_Node(CSG_Grid &Plane, double Position, i
 		{
 		case PLANE_SIDE_X:
 			p.x	= Position;
-			p.y	= Plane.Get_System().Get_yGrid_to_World(y);
+			p.y	= m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
 			p.z	= m_pGrids->Get_ZMin() + x * m_pGrids->Get_ZRange() / (Plane.Get_NX() - 1);
 			break;
 
 		case PLANE_SIDE_Y:
-			p.x	= Plane.Get_System().Get_xGrid_to_World(x);
+			p.x	= m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
 			p.y	= Position;
 			p.z	= m_pGrids->Get_ZMin() + y * m_pGrids->Get_ZRange() / (Plane.Get_NY() - 1);
 			break;
 
 		case PLANE_SIDE_Z:
-			p.x	= Plane.Get_System().Get_xGrid_to_World(x);
-			p.y	= Plane.Get_System().Get_yGrid_to_World(y);
+			p.x	= m_pGrids->Get_XMin() + x * m_pGrids->Get_XRange() / (Plane.Get_NX() - 1);
+			p.y	= m_pGrids->Get_YMin() + y * m_pGrids->Get_YRange() / (Plane.Get_NY() - 1);
 			p.z	= Position;
 			break;
 		}
@@ -933,31 +976,30 @@ public:
 
 		Create(pPanel);
 
+		//-------------------------------------------------
 		Add_Spacer();
 
 		wxArrayString	Choices;
 
-		Choices.Add(_TL("Nearest Neigbhour"           ));
-		Choices.Add(_TL("Bilinear Interpolation"      ));
-		Choices.Add(_TL("Bicubic Spline Interpolation"));
-		Choices.Add(_TL("B-Spline Interpolation"      ));
+		Choices.Add(_TL("Nearest Neigbhour"   ));
+		Choices.Add(_TL("Linear Interpolation"));
+		Choices.Add(_TL("Spline Interpolation"));
 
-		m_pResampling	= Add_Choice(_TL("Resampling"), Choices, 1); // GRID_RESAMPLING_Bilinear
+		m_pResampling	= Add_Choice(_TL("Resampling"), Choices, 1); // Linear
 
+		//-------------------------------------------------
 		Add_Spacer();
+
 		m_pSlide[PLANE_SIDE_X]	= Add_Slider(_TL("X"), pPanel->m_Position[PLANE_SIDE_X], 0, 1);
 		m_pSlide[PLANE_SIDE_Y]	= Add_Slider(_TL("Y"), pPanel->m_Position[PLANE_SIDE_Y], 0, 1);
 		m_pSlide[PLANE_SIDE_Z]	= Add_Slider(_TL("Z"), pPanel->m_Position[PLANE_SIDE_Z], 0, 1);
 
+		//-------------------------------------------------
 		Add_Spacer();
+
 		m_pHistogram	= Add_CheckBox(_TL("Histogram"), false);
 
 		m_Histogram.Create(this, pGrids, pPanel);
-
-		pPanel->m_Projector.Set_zShift(2000);
-		pPanel->m_Projector.Set_xRotation(M_DEG_TO_RAD * 60);
-		pPanel->m_Projector.Set_zRotation(M_DEG_TO_RAD * 45);
-		Update_Controls();
 	}
 
 
@@ -977,8 +1019,12 @@ protected:
 	{
 		MENU_SCALE_Z_DEC	= MENU_USER_FIRST,
 		MENU_SCALE_Z_INC,
-		MENU_NEXT_Z_LEVEL,
-		MENU_PREV_Z_LEVEL
+		MENU_LEVEL_Z_DEC,
+		MENU_LEVEL_Z_INC,
+		MENU_RESLT_Z_DEC,
+		MENU_RESLT_Z_INC,
+		MENU_RESLT_XY_DEC,
+		MENU_RESLT_XY_INC
 	};
 
 	//-----------------------------------------------------
@@ -991,8 +1037,15 @@ protected:
 		pMenu->Append(MENU_SCALE_Z_INC , _TL("Increase Exaggeration [F2]"));
 
 		pMenu->AppendSeparator();
-		pMenu->Append(MENU_NEXT_Z_LEVEL, _TL("Next Level [F11]"));
-		pMenu->Append(MENU_PREV_Z_LEVEL, _TL("Previous Level [F12]"));
+		pMenu->Append(MENU_LEVEL_Z_DEC , _TL("Previous Level [F11]"));
+		pMenu->Append(MENU_LEVEL_Z_INC , _TL("Next Level [F12]"));
+
+		pMenu->AppendSeparator();
+		pMenu->Append(MENU_RESLT_XY_DEC, _TL("Decrease Horizontal Resolution [F7]"));
+		pMenu->Append(MENU_RESLT_XY_INC, _TL("Increase Horizontal Resolution [F8]"));
+
+		pMenu->Append(MENU_RESLT_Z_DEC , _TL("Decrease Vertical Resolution [F9]"));
+		pMenu->Append(MENU_RESLT_Z_INC , _TL("Increase Vertical Resolution [F10]"));
 	}
 
 	//-----------------------------------------------------
@@ -1000,37 +1053,33 @@ protected:
 	{
 		C3D_Viewer_Grids_Panel	*pPanel	= (C3D_Viewer_Grids_Panel *)m_pPanel;
 
-		CSG_Grids	*pGrids	= ((C3D_Viewer_Grids_Panel *)m_pPanel)->m_pGrids;
-
-		double	d	= 0.1 * 0.25 * (pGrids->Get_XRange() + pGrids->Get_YRange()) / pGrids->Get_ZRange();
-
 		switch( event.GetId() )
 		{
-		case MENU_SCALE_Z_DEC :	pPanel->Set_ZScale(false); m_pPanel->Update_View();	return;
-		case MENU_SCALE_Z_INC :	pPanel->Set_ZScale( true); m_pPanel->Update_View();	return;
-		case MENU_PREV_Z_LEVEL:	pPanel->Set_ZLevel(false); m_pPanel->Update_View();	return;
-		case MENU_NEXT_Z_LEVEL:	pPanel->Set_ZLevel( true); m_pPanel->Update_View();	return;
-		}
+		default:	CSG_3DView_Dialog::On_Menu(event);
+			return;
 
-		CSG_3DView_Dialog::On_Menu(event);
+		case MENU_SCALE_Z_DEC :	pPanel->Set_ZScale(false);	break;
+		case MENU_SCALE_Z_INC :	pPanel->Set_ZScale( true);	break;
+
+		case MENU_LEVEL_Z_DEC :	pPanel->Set_ZLevel(false);	break;
+		case MENU_LEVEL_Z_INC :	pPanel->Set_ZLevel( true);	break;
+
+		case MENU_RESLT_XY_DEC:	pPanel->Set_Resolution(false, false);	break;
+		case MENU_RESLT_XY_INC:	pPanel->Set_Resolution( true, false);	break;
+
+		case MENU_RESLT_Z_DEC :	pPanel->Set_Resolution(false,  true);	break;
+		case MENU_RESLT_Z_INC :	pPanel->Set_Resolution( true,  true);	break;
+		}
 	}
 
 	//-----------------------------------------------------
 	void						On_Update_Choices(wxCommandEvent &event)
 	{
-		C3D_Viewer_Grids_Panel	*pPanel	= (C3D_Viewer_Grids_Panel *)m_pPanel;
-
 		if( event.GetEventObject() == m_pResampling )
 		{
-			switch( m_pResampling->GetSelection() )
-			{
-			default: pPanel->m_Resampling = GRID_RESAMPLING_NearestNeighbour; break;
-			case  1: pPanel->m_Resampling = GRID_RESAMPLING_Bilinear        ; break;
-			case  2: pPanel->m_Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
-			case  3: pPanel->m_Resampling = GRID_RESAMPLING_BSpline         ; break;
-			}
+			m_pPanel->m_Parameters("RESAMPLING_Z")->Set_Value(m_pResampling->GetSelection());
 
-			pPanel->Set_Planes();
+			((C3D_Viewer_Grids_Panel *)m_pPanel)->Set_Planes();
 		}
 
 		CSG_3DView_Dialog::On_Update_Choices(event);

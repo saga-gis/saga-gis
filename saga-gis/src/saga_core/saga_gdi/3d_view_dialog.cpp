@@ -79,6 +79,7 @@ enum
 	MENU_BOX,
 	MENU_STEREO,
 	MENU_CENTRAL,
+	MENU_TO_CLIPBOARD,
 	MENU_ROTATE_X_INC,
 	MENU_ROTATE_X_DEC,
 	MENU_ROTATE_Y_INC,
@@ -194,6 +195,9 @@ void CSG_3DView_Dialog::On_Button(wxCommandEvent &event)
 		pMenu->AppendCheckItem(MENU_STEREO       , _TL("Anaglyph [S]"));
 		pMenu->AppendCheckItem(MENU_CENTRAL      , _TL("Central"));
 
+		pMenu->AppendSeparator();
+		pMenu->Append         (MENU_TO_CLIPBOARD , _TL("Copy to Clipboard [Ctrl+C]"));
+
 		//-------------------------------------------------
 		Menu.AppendSubMenu(pMenu = new wxMenu, _TL("Rotation"));
 
@@ -264,6 +268,8 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_BOX          :	MENU_TOGGLE("DRAW_BOX");	break;
 	case MENU_STEREO       :	MENU_TOGGLE("STEREO"  );	break;
 	case MENU_CENTRAL      :	MENU_TOGGLE("CENTRAL" );	break;
+
+	case MENU_TO_CLIPBOARD :	m_pPanel->Save_toClipboard();	break;
 
 	case MENU_ROTATE_X_DEC :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() - 4.0 * M_DEG_TO_RAD);	break;
 	case MENU_ROTATE_X_INC :	m_pPanel->Get_Projector().Set_xRotation(m_pPanel->Get_Projector().Get_xRotation() + 4.0 * M_DEG_TO_RAD);	break;
