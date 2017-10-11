@@ -155,6 +155,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 31: 	return( new CGrid_Clip );
 
 	case  3:	return( new CGrid_Merge );
+	case 38:	return( new CGrids_Merge );
 	case  4: 	return( new CConstantGrid );
 
 	case  5:	return( new CGrid_Completion );

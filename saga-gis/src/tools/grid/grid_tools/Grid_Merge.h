@@ -81,6 +81,10 @@ public:
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
 
+	static void					Add_Parameters			(CSG_Parameters &Parameters);
+	static void					Set_Target				(CSG_Parameters *pParameters, CSG_Parameter_List *pList, CSG_Parameters_Grid_Target &Target);
+	static TSG_Data_Type		Get_Type				(int Type, TSG_Data_Type Default);
+
 
 protected:
 
@@ -107,8 +111,6 @@ private:
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool						Set_Target				(CSG_Parameters *pParameters, CSG_Parameter_Grid_List *pGrids);
-
 	bool						Initialize				(void);
 
 	bool						is_Aligned				(CSG_Grid *pGrid);
@@ -120,6 +122,36 @@ private:
 	double						Get_Weight				(int x, int y);
 
 	void						Get_Match				(CSG_Grid *pGrid);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrids_Merge : public CSG_Tool
+{
+public:
+	CGrids_Merge(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid System") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+
+private:
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 };
 
