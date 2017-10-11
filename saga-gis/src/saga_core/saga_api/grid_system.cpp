@@ -226,8 +226,8 @@ bool CSG_Grid_System::Assign(double Cellsize, const CSG_Rect &Extent)
 		int		nx	= 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
 		int		ny	= 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
 
-		double	x	= !fmod(Extent.Get_XRange(), Cellsize) ? Extent.Get_XMin() : Extent.Get_Center().Get_X() - 0.5 * nx;
-		double	y	= !fmod(Extent.Get_YRange(), Cellsize) ? Extent.Get_YMin() : Extent.Get_Center().Get_Y() - 0.5 * ny;
+		double	x	= !fmod(Extent.Get_XRange(), Cellsize) ? Extent.Get_XMin() : Extent.Get_Center().Get_X() - Cellsize * nx / 2.;
+		double	y	= !fmod(Extent.Get_YRange(), Cellsize) ? Extent.Get_YMin() : Extent.Get_Center().Get_Y() - Cellsize * ny / 2.;
 
 		return( Assign(Cellsize, x, y, nx, ny) );
 	}
