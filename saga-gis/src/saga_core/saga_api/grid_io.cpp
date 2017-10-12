@@ -225,6 +225,9 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 		m_zScale			= pGrid->m_zScale;
 		m_Unit				= pGrid->m_Unit;
 
+		m_nBytes_Value		= pGrid->m_nBytes_Value;
+		m_nBytes_Line		= pGrid->m_nBytes_Line;
+
 		Get_MetaData  ()	= pGrid->Get_MetaData  ();
 		Get_Projection()	= pGrid->Get_Projection();
 
