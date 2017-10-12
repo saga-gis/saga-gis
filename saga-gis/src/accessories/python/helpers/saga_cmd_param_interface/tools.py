@@ -143,7 +143,7 @@ tools = [
 ['grid_filter', 3, 'Multi Direction Lee Filter'],
 ['grid_filter', 4, 'User Defined Filter'],
 ['grid_filter', 5, 'Filter Clumps'],
-['grid_filter', 6, 'Majority Filter'],
+['grid_filter', 6, 'Majority/Minority Filter'],
 ['grid_filter', 7, 'DTM Filter (slope-based)'],
 ['grid_filter', 8, 'Morphological Filter'],
 ['grid_filter', 9, 'Rank Filter'],
@@ -152,7 +152,7 @@ tools = [
 ['grid_filter', 12, 'Geodesic Morphological Reconstruction'],
 ['grid_filter', 13, 'Binary Erosion-Reconstruction'],
 ['grid_filter', 14, 'Connectivity Analysis'],
-['grid_filter', 15, 'Sieving Classes'],
+['grid_filter', 15, 'Sieve Classes'],
 ['grid_gridding', 0, 'Shapes to Grid'],
 ['grid_gridding', 1, 'Inverse Distance Weighted'],
 ['grid_gridding', 2, 'Nearest Neighbour'],
@@ -699,5 +699,12 @@ tools = [
 ['garden_3d_viewer', 5, 'Grid Collection Viewer'],
 ['grids_tools', 0, 'Create a Grid Collection'],
 ['grids_tools', 1, 'Extract Grids from a Grid Collection'],
-['grids_tools', 2, 'Delete Grids from a Grid Collection']
+['grids_tools', 2, 'Delete Grids from a Grid Collection'],
+['grid_calculus', 17, 'Fractal Brownian Noise'],
+['grid_tools', 38, 'Mosaicking (Grid Collections)'],
+['imagery_tools', 13, 'Universal Image Quality Index'],
+['imagery_tools', 14, 'Import Landsat Scene'],
+['pointcloud_tools', 14, 'Select Point Cloud from List'],
+['sim_landscape_evolution', 0, 'SaLEM'],
+['ta_hydrology', 28, 'Flow between fields']
 ]
