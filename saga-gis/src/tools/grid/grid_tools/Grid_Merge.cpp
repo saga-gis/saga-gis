@@ -83,7 +83,7 @@ CGrid_Merge::CGrid_Merge(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
-		"GRIDS"		, _TL("Input Grids"),
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -789,7 +789,7 @@ CGrids_Merge::CGrids_Merge(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grids_List("",
-		"GRIDS"		, _TL("Input Grid Collections"),
+		"GRIDS"		, _TL("Grid Collections"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -861,8 +861,8 @@ bool CGrids_Merge::On_Execute(void)
 		return( false );
 	}
 
-	pMosaic->Set_Name(Parameters("NAME")->asString());
-
+	pMosaic->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
+	pMosaic->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
 	pMosaic->Set_Z_Name_Field(pGrids->Get_Z_Name_Field());
 
 	//-----------------------------------------------------
@@ -884,7 +884,7 @@ bool CGrids_Merge::On_Execute(void)
 			{
 				pList_Grid->Add_Item(pList_Grids->Get_Grids(i)->Get_Grid_Ptr(z));
 			}
-			else
+			else if( z == pList_Grids->Get_Grids(i)->Get_NZ() )	// throw warning only once
 			{
 				Message_Add(CSG_String::Format("[%s] %s: [%d] %s", _TL("Warning"), _TL("incompatible input"), i + 1, pList_Grids->Get_Grids(i)->Get_Name()));
 			}
@@ -896,14 +896,17 @@ bool CGrids_Merge::On_Execute(void)
 
 		if( !Mosaic.Execute() )
 		{
-			Error_Set(_TL("mosaicking failed"));
+			Error_Fmt("%s (z = %d)", _TL("mosaicking failed"), z + 1);
 
 			return( false );
 		}
 	}
 
 	//-----------------------------------------------------
+	DataObject_Add(pMosaic);
 	DataObject_Set_Parameters(pMosaic, pGrids);
+
+	pMosaic->Set_Name(Parameters("NAME")->asString());
 
 	return( true );
 }

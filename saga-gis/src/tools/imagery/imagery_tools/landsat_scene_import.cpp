@@ -104,13 +104,13 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	Parameters.Add_Grid_List("",
 		"BANDS"		, _TL("Bands"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table("",
 		"BAND_INFO"	, _TL("Band Info"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Bool("",
@@ -210,7 +210,10 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	int	Sensor	= Get_Info_Sensor(Metadata);
 
 	//-----------------------------------------------------
-	Parameters("BAND_INFO")->asTable()->Create(Info_Bands);
+	if( Parameters("BAND_INFO")->asTable() )
+	{
+		Parameters("BAND_INFO")->asTable()->Create(Info_Bands);
+	}
 
 	Message_Add("\n___\n", false);
 
