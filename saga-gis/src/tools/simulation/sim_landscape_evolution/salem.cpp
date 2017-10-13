@@ -657,11 +657,11 @@ int CSaLEM_Tracers::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	{
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
 		{
-			pParameters->Set_Enabled("LINES"    , pParameter->asShapes() != NULL);
-			pParameters->Set_Enabled("TRIM"     , pParameter->asShapes() != NULL);
-			pParameters->Set_Enabled("DIR_RAND" , pParameter->asShapes() != NULL);
-			pParameters->Set_Enabled("H_DENSITY", pParameter->asShapes() != NULL);
-			pParameters->Set_Enabled("V_DENSITY", pParameter->asShapes() != NULL);
+			pParameters->Set_Enabled("LINES"    , pParameter->asDataObject() != NULL);
+			pParameters->Set_Enabled("TRIM"     , pParameter->asDataObject() != NULL);
+			pParameters->Set_Enabled("DIR_RAND" , pParameter->asDataObject() != NULL);
+			pParameters->Set_Enabled("H_DENSITY", pParameter->asDataObject() != NULL);
+			pParameters->Set_Enabled("V_DENSITY", pParameter->asDataObject() != NULL);
 		}
 	}
 
