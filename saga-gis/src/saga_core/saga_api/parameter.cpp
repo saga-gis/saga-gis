@@ -957,27 +957,21 @@ CSG_Parameter_PointCloud_List * CSG_Parameter::asPointCloudList(void) const {	re
 
 //---------------------------------------------------------
 CSG_Data_Object               * CSG_Parameter::asDataObject    (void) const {	return( !is_DataObject()                             ? NULL : (CSG_Data_Object *)m_pData->asPointer() );	}
-CSG_Grid                      * CSG_Parameter::asGrid          (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grid       ? NULL : (CSG_Grid        *)pObject );	}
-CSG_Grids                     * CSG_Parameter::asGrids         (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grids      ? NULL : (CSG_Grids       *)pObject );	}
-CSG_TIN                       * CSG_Parameter::asTIN           (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_TIN        ? NULL : (CSG_TIN         *)pObject );	}
-CSG_PointCloud                * CSG_Parameter::asPointCloud    (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud ? NULL : (CSG_PointCloud  *)pObject );	}
+CSG_Grid                      * CSG_Parameter::asGrid          (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject == DATAOBJECT_CREATE || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grid       ? NULL : (CSG_Grid        *)pObject );	}
+CSG_Grids                     * CSG_Parameter::asGrids         (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject == DATAOBJECT_CREATE || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_Grids      ? NULL : (CSG_Grids       *)pObject );	}
+CSG_TIN                       * CSG_Parameter::asTIN           (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject == DATAOBJECT_CREATE || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_TIN        ? NULL : (CSG_TIN         *)pObject );	}
+CSG_PointCloud                * CSG_Parameter::asPointCloud    (void) const {	CSG_Data_Object	*pObject = asDataObject(); return( !pObject || pObject == DATAOBJECT_CREATE || pObject->Get_ObjectType() != SG_DATAOBJECT_TYPE_PointCloud ? NULL : (CSG_PointCloud  *)pObject );	}
 
 //---------------------------------------------------------
 CSG_Shapes                    * CSG_Parameter::asShapes        (void) const
 {
 	CSG_Data_Object	*pObject	= asDataObject();
 
-	if( pObject )
+	if( pObject && pObject != DATAOBJECT_CREATE
+	&& (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+	 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 	{
-		switch( pObject->Get_ObjectType() )
-		{
-		case SG_DATAOBJECT_TYPE_PointCloud:
-		case SG_DATAOBJECT_TYPE_Shapes    :
-			return( (CSG_Shapes *)m_pData->asPointer() );
-
-		default:
-			break;
-		}
+		return( (CSG_Shapes *)pObject );
 	}
 
 	return( NULL );
@@ -988,26 +982,18 @@ CSG_Table                     * CSG_Parameter::asTable         (void) const
 {
 	switch( Get_Type() )
 	{
-	default:
+	default:	{
+		CSG_Data_Object	*pObject	= asDataObject();
+
+		if( pObject && pObject != DATAOBJECT_CREATE
+		&& (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
+		 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+		 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN
+		 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 		{
-			CSG_Data_Object	*pObject	= asDataObject();
-
-			if( pObject )
-			{
-				switch( pObject->Get_ObjectType() )
-				{
-					case SG_DATAOBJECT_TYPE_TIN       :
-					case SG_DATAOBJECT_TYPE_PointCloud:
-					case SG_DATAOBJECT_TYPE_Shapes    :
-					case SG_DATAOBJECT_TYPE_Table     :
-						return( (CSG_Table  *)m_pData->asPointer() );
-
-					default:
-						break;
-				}
-			}
+			return( (CSG_Shapes *)pObject );
 		}
-		break;
+	}	break;
 
 	case PARAMETER_TYPE_Grids     :
 		return( asGrids() ? asGrids()->Get_Attributes_Ptr() : NULL );
