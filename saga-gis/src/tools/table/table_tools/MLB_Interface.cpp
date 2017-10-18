@@ -118,7 +118,8 @@ CSG_Tool *		Create_Tool(int i)
 	{
 	case  0:	return( new CTable_Create_Empty );
 	case  1:	return( new CTable_Rotate );
-	case  2:	return( new CTable_Enumerate );
+	case  2:	return( new CTable_Enumerate(false) );
+	case 21:	return( new CTable_Enumerate(true) );
 	case  3:	return( new CJoin_Tables );
 	case  4:	return( new CJoin_Tables_Shapes );
 	case  5:	return( new CTable_Change_Date_Format );

@@ -72,8 +72,6 @@
 //---------------------------------------------------------
 void CJoin_Tables_Base::Initialise(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Author		("V.Olaya (c) 2005, O.Conrad (c) 2011");
 
@@ -82,39 +80,35 @@ void CJoin_Tables_Base::Initialise(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters("TABLE_A");
-
-	Parameters.Add_Table_Field(
-		pNode	, "ID_A"		, _TL("Identifier"),
+	Parameters.Add_Table_Field("TABLE_A",
+		"ID_A"		, _TL("Identifier"),
 		_TL("")
 	);
 
-	pNode	= Parameters("TABLE_B");
-
-	Parameters.Add_Table_Field(
-		pNode	, "ID_B"		, _TL("Identifier"),
+	Parameters.Add_Table_Field("TABLE_B",
+		"ID_B"		, _TL("Identifier"),
 		_TL("")
 	);
 
-	Parameters.Add_Bool(
-		pNode	, "FIELDS_ALL"	, _TL("Add All Fields"),
+	Parameters.Add_Bool("TABLE_B",
+		"FIELDS_ALL", _TL("Add All Fields"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Fields"),
+	Parameters.Add_Table_Fields("TABLE_B",
+		"FIELDS"	, _TL("Fields"),
 		_TL("")
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "KEEP_ALL"	, _TL("Keep All"),
+	Parameters.Add_Bool("",
+		"KEEP_ALL"	, _TL("Keep All"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "CMP_CASE"	, _TL("Case Sensitive String Comparison"),
+	Parameters.Add_Bool("",
+		"CMP_CASE"	, _TL("Case Sensitive String Comparison"),
 		_TL(""),
 		true
 	);
@@ -130,10 +124,10 @@ int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS_ALL") )
 	{
-		pParameters->Get_Parameter("FIELDS")->Set_Enabled(pParameter->asBool() == false);
+		pParameters->Set_Enabled("FIELDS", pParameter->asBool() == false);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -328,20 +322,20 @@ CJoin_Tables::CJoin_Tables(void)
 {
 	Set_Name		(_TL("Join Attributes from a Table"));
 
-	Parameters.Add_Table(
-		NULL	, "TABLE_A"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE_A"	, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE_B"		, _TL("Join Table"),
+	Parameters.Add_Table("",
+		"TABLE_B"	, _TL("Join Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_Table("",
+		"RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -361,20 +355,20 @@ CJoin_Tables_Shapes::CJoin_Tables_Shapes(void)
 {
 	Set_Name		(_TL("Join Attributes from a Table (Shapes)"));
 
-	Parameters.Add_Shapes(
-		NULL	, "TABLE_A"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"TABLE_A"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE_B"		, _TL("Join Table"),
+	Parameters.Add_Table("",
+		"TABLE_B"	, _TL("Join Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_Shapes("",
+		"RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -400,20 +394,20 @@ CTable_Append_Cols::CTable_Append_Cols(void)
 		""
 	));
 
-	Parameters.Add_Table(
-		NULL	, "INPUT"	, _TL("Table"),
+	Parameters.Add_Table("",
+		"INPUT"	, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "APPEND"	, _TL("Append Rows from ..."),
+	Parameters.Add_Table("",
+		"APPEND", _TL("Append Rows from ..."),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"	, _TL("Result"),
+	Parameters.Add_Table("",
+		"OUTPUT", _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
