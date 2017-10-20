@@ -98,17 +98,19 @@ private:
 
 	int					RT_Dir_Top, RT_Dir_Right;
 
-	double				m_zScale, RT_Tan, RT_Cot, RT_Dz;
+	double				RT_Tan, RT_Cot, RT_Dz;
 
-	CSG_Grid			*m_pDEM, *m_pShade, m_Shade;
+	CSG_Grid			*m_pDEM, *m_pShade;
 
 
-	void				Get_Shading				(double Azimuth, double Declination, bool bDelimit, bool bCombine);
+	bool				Get_Position			(double &Azimuth, double &Decline);
 
-	void				Shadow					(double Azimuth, double Declination);
-	void				Shadow_Trace			(double x, double y, double z, double dx, double dy, double dz);
+	bool				Get_Shading				(bool bDelimit, bool bCombine);
 
-	void				AmbientOcclusion		(int iDirs, double dRadius);
+	bool				Get_Shadows				(bool bMask);
+	bool				Set_Shadow_Trace		(double x, double y, double z, double dx, double dy, double dz, int Shadow);
+
+	bool				AmbientOcclusion		(void);
 	bool				AmbientOcclusion_Trace	(int x, int y, CSG_Point_Z Direction, double dRadius);
 
 };

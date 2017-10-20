@@ -157,7 +157,7 @@ CSolarRadiation::CSolarRadiation(void)
 			_TL("slim"),
 			_TL("fat"),
 			_TL("none")
-		), 1
+		), 0
 	);
 
 	//-----------------------------------------------------
@@ -382,7 +382,6 @@ bool CSolarRadiation::On_Execute(void)
 	m_pSunset		= NULL;
 
 	m_bLocalSVF		= Parameters("LOCALSVF"  )->asBool  ();
-	m_Shadowing		= Parameters("SHADOW"    )->asInt   ();
 
 	m_Method		= Parameters("METHOD"    )->asInt   ();
 	m_Atmosphere	= Parameters("ATMOSPHERE")->asDouble();
@@ -429,7 +428,7 @@ bool CSolarRadiation::On_Execute(void)
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("Slopes"));
 
-	m_Shade .Create(*Get_System());
+	m_Shade .Create(*Get_System(), SG_DATATYPE_Byte);
 	m_Slope .Create(*Get_System());
 	m_Aspect.Create(*Get_System());
 
@@ -891,7 +890,7 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 
 	double	Elevation	= m_pDEM->asDouble(x, y);
 	double	Slope		= m_Slope.asDouble(x, y);
-	double	Solar_Angle	= m_Shade.asDouble(x, y) > 0.0 ? 0.0 :	// solar incidence angle measured between the Sun and the inclined surface
+	double	Solar_Angle	= m_Shade.asByte  (x, y) ? 0.0 :	// solar incidence angle measured between the Sun and the inclined surface
 		cos(Slope) * cos(Sun_Height - M_PI_090) + sin(Slope) * sin(M_PI_090 - Sun_Height) * cos(Sun_Azimuth - m_Aspect.asDouble(x, y));
 
 	//-----------------------------------------------------
@@ -924,7 +923,7 @@ inline bool CSolarRadiation::Get_Irradiance(int x, int y, double Sun_Height, dou
 		double	K_b		= B_hc / (m_Solar_Const * sin_h_0);
 		double	F		= 0.5 * (1. + cos(Slope)) + (sin(Slope) - Slope * cos(Slope) - M_PI * SG_Get_Square(sin(Slope / 2.0)));
 
-		if( m_Shade.asDouble(x, y) > 0.0 )	// shadowed surface
+		if( m_Shade.asByte(x, y) )	// shadowed surface
 		{
 			Diffus	= D_hc * F * 0.25227;
 		}
@@ -1080,7 +1079,14 @@ C ====================================================================*/
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz)
+#define SHADOW_SLIM		0x0
+#define SHADOW_FAT_X	0x1
+#define SHADOW_FAT_Y	0x2
+
+#define EPSILON			0.0001
+
+//---------------------------------------------------------
+inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz, int &Shadowing)
 {
 	if( Sun_Height <= 0.0 )
 	{
@@ -1091,20 +1097,29 @@ inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azim
 	dx	= sin(dz);
 	dy	= cos(dz);
 
-	if( fabs(dx) > fabs(dy) )
+	if( fabs(dx) - fabs(dy) > EPSILON )
 	{
 		dy	/= fabs(dx);
 		dx	= dx < 0 ? -1 : 1;
+
+		if( Shadowing && fabs(dy) > EPSILON )
+			Shadowing	= SHADOW_FAT_X;
 	}
-	else if( fabs(dy) > fabs(dx) )
+	else if( fabs(dy) - fabs(dx) > EPSILON )
 	{
 		dx	/= fabs(dy);
 		dy	= dy < 0 ? -1 : 1;
+
+		if( Shadowing && fabs(dx) > EPSILON )
+			Shadowing	= SHADOW_FAT_Y;
 	}
 	else
 	{
 		dx	= dx < 0 ? -1 : 1;
 		dy	= dy < 0 ? -1 : 1;
+
+		if( Shadowing )
+			Shadowing	= SHADOW_FAT_X|SHADOW_FAT_Y;
 	}
 
 	dz	= tan(Sun_Height) * sqrt(dx*dx + dy*dy) * Get_Cellsize();
@@ -1115,79 +1130,42 @@ inline bool CSolarRadiation::Get_Shade_Params(double Sun_Height, double Sun_Azim
 //---------------------------------------------------------
 bool CSolarRadiation::Get_Shade(double Sun_Height, double Sun_Azimuth)
 {
-	const double	dShadow	= 0.49;
+	int	Shadowing	= Parameters("SHADOW")->asInt();
+
+	double	dx, dy, dz;
+
+	if( m_Location == 0 && !Get_Shade_Params(Sun_Height, Sun_Azimuth, dx, dy, dz, Shadowing) )
+	{
+		return( false );
+	}
 
 	m_Shade.Assign(0.0);
 
 	//-----------------------------------------------------
-	if( m_Location == 0 )
+	for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
 	{
-		double	dx, dy, dz;
-
-		if( !Get_Shade_Params(Sun_Height, Sun_Azimuth, dx, dy, dz) )
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			return( false );
-		}
-
-		for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
-		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
+			if( !m_pDEM->is_NoData(x, y) )
 			{
-				if( !m_pDEM->is_NoData(x, y) )
+				if( m_Location == 0 )
 				{
-					switch( m_Shadowing )
-					{
-					case 0:	// slim
-						Set_Shade(x, y, m_pDEM->asDouble(x, y), dx, dy, dz);
-						break;
-
-					case 1:	// fat
-						Set_Shade(x - dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
-						Set_Shade(x + dShadow, y - dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
-						Set_Shade(x - dShadow, y + dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
-						Set_Shade(x + dShadow, y + dShadow, m_pDEM->asDouble(x, y), dx, dy, dz);
-						break;
-					}
+					Set_Shade(x, y, m_pDEM->asDouble(x, y), dx, dy, dz, Shadowing);
+				}
+				else
+				{
+					Set_Shade_Bended(x, y, m_pDEM->asDouble(x, y), Shadowing);
 				}
 			}
 		}
 	}
 
-	//-----------------------------------------------------
-	else
-	{
-		for(int y=0; y<Get_NY() && Process_Get_Okay(); y++)
-		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
-			{
-				if( !m_pDEM->is_NoData(x, y) )
-				{
-					switch( m_Shadowing )
-					{
-					case 0:	// slim
-						Set_Shade_Bended(x, y, m_pDEM->asDouble(x, y));
-						break;
-
-					case 1:	// fat
-						Set_Shade_Bended(x - dShadow, y - dShadow, m_pDEM->asDouble(x, y));
-						Set_Shade_Bended(x + dShadow, y - dShadow, m_pDEM->asDouble(x, y));
-						Set_Shade_Bended(x - dShadow, y + dShadow, m_pDEM->asDouble(x, y));
-						Set_Shade_Bended(x + dShadow, y + dShadow, m_pDEM->asDouble(x, y));
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	//-----------------------------------------------------
 	return( true );
 }
 
 //---------------------------------------------------------
-void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double dy, double dz)
+void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double dy, double dz, int Shadowing)
 {
 	for(x+=dx+0.5, y+=dy+0.5, z-=dz; ; x+=dx, y+=dy, z-=dz)
 	{
@@ -1200,20 +1178,38 @@ void CSolarRadiation::Set_Shade(double x, double y, double z, double dx, double 
 
 		if( !m_pDEM->is_NoData(ix, iy) )
 		{
-			double	zDiff	= z - m_pDEM->asDouble(ix, iy);
-
-			if( zDiff <= 0.0 )
+			if( z < m_pDEM->asDouble(ix, iy) )
 			{
 				return;
 			}
 
-			m_Shade.Set_Value(ix, iy, zDiff);
+			m_Shade.Set_Value(ix, iy, 1);
+
+			if( Shadowing & SHADOW_FAT_X )
+			{
+				int	xx	= x - ix < 0.5 ? ix - 1 : ix + 1;
+
+				if( m_pDEM->is_InGrid(xx, iy) && z < m_pDEM->asDouble(xx, iy) )
+				{
+					m_Shade.Set_Value(xx, iy, 1);
+				}
+			}
+
+			if( Shadowing & SHADOW_FAT_Y )
+			{
+				int	yy	= y - iy < 0.5 ? iy - 1 : iy + 1;
+
+				if( m_pDEM->is_InGrid(ix, yy) && z < m_pDEM->asDouble(ix, yy) )
+				{
+					m_Shade.Set_Value(ix, yy, 1);
+				}
+			}
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CSolarRadiation::Set_Shade_Bended(double x, double y, double z)
+void CSolarRadiation::Set_Shade_Bended(double x, double y, double z, int Shadowing)
 {
 	x	+= 0.5;	y	+= 0.5;
 
@@ -1221,30 +1217,49 @@ void CSolarRadiation::Set_Shade_Bended(double x, double y, double z)
 	{
 		double	dx, dy, dz;
 
-		if( !Get_Shade_Params(m_Sun_Height.asDouble(ix, iy), m_Sun_Azimuth.asDouble(ix, iy), dx, dy, dz) )
+		if( !Get_Shade_Params(m_Sun_Height.asDouble(ix, iy), m_Sun_Azimuth.asDouble(ix, iy), dx, dy, dz, Shadowing) )
 		{
 			return;
 		}
 
-		x	+= dx;	ix	= (int)x;
-		y	+= dy;	iy	= (int)y;
-		z	-= dz;
+		x	+= dx;	y	+= dy;	z	-= dz;
 
-		if( !m_pDEM->is_InGrid(ix, iy) )
+		//-------------------------------------------------
+		ix	= (int)x;	iy	= (int)y;
+
+		if( !is_InGrid(ix, iy) )
 		{
 			return;
 		}
 
 		if( !m_pDEM->is_NoData(ix, iy) )
 		{
-			double	zDiff	= z - m_pDEM->asDouble(ix, iy);
-
-			if( zDiff <= 0.0 )
+			if( z < m_pDEM->asDouble(ix, iy) )
 			{
 				return;
 			}
 
-			m_Shade.Set_Value(ix, iy, zDiff);
+			m_Shade.Set_Value(ix, iy, 1);
+
+			if( Shadowing & SHADOW_FAT_X )
+			{
+				int	xx	= x - ix < 0.5 ? ix - 1 : ix + 1;
+
+				if( m_pDEM->is_InGrid(xx, iy) && z < m_pDEM->asDouble(xx, iy) )
+				{
+					m_Shade.Set_Value(xx, iy, 1);
+				}
+			}
+
+			if( Shadowing & SHADOW_FAT_Y )
+			{
+				int	yy	= y - iy < 0.5 ? iy - 1 : iy + 1;
+
+				if( m_pDEM->is_InGrid(ix, yy) && z < m_pDEM->asDouble(ix, yy) )
+				{
+					m_Shade.Set_Value(ix, yy, 1);
+				}
+			}
 		}
 	}
 }

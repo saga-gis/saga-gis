@@ -99,7 +99,7 @@ private:
 
 	bool					m_bLocalSVF;
 
-	int						m_Method, m_Location, m_Shadowing;
+	int						m_Method, m_Location;
 
 	double					m_Solar_Const, m_Latitude, m_Linke, m_Vapour, m_Atmosphere, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
@@ -117,11 +117,10 @@ private:
 	double					Get_Air_Mass			(double Sun_Height);
 	bool					Get_Irradiance			(int x, int y, double Sun_Height, double Sun_Azimuth, double &Direct, double &Diffus);
 
-	bool					is_Shadowed				(int x, int y);
-	bool					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz);
+	bool					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz, int &Shadowing);
 	bool					Get_Shade				(double Sun_Height, double Sun_Azimuth);
-	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz);
-	void					Set_Shade_Bended		(double x, double y, double z);
+	void					Set_Shade				(double x, double y, double z, double dx, double dy, double dz, int Shadowing);
+	void					Set_Shade_Bended		(double x, double y, double z                                 , int Shadowing);
 
 };
 
