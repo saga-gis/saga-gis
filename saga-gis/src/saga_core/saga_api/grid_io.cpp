@@ -844,11 +844,11 @@ bool CSG_Grid::_Load_Surfer(const CSG_String &FileName, bool bCached, bool bLoad
 		//-------------------------------------------------
 		if( bLoadData )
 		{
-			CSG_Array	Line(Get_NX() * sizeof(float));	float *Values = (float *)Line.Get_Array();
+			CSG_Array	Line(sizeof(float), Get_NX());	float *Values = (float *)Line.Get_Array();
 
 			for(int y=0; y<Get_NY() && !Stream.is_EOF() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 			{
-				Stream.Read(Line.Get_Array(), Line.Get_Size());
+				Stream.Read(Values, sizeof(float), Get_NX());
 
 				for(int x=0; x<Get_NX(); x++)
 				{
