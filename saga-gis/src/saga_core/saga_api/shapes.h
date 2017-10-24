@@ -753,20 +753,17 @@ public:
 	virtual bool			is_Node			(void)	const	{	return( false );	}
 	virtual bool			has_Statistics	(void)	const	{	return( false );	}
 
-	CSG_Rect				Get_Extent		(void)	const	{	return( CSG_Rect(m_xCenter - m_Size, m_yCenter - m_Size, m_xCenter + m_Size, m_yCenter + m_Size) );	}
-	double					Get_xMin		(void)	const	{	return( m_xCenter - m_Size );	}
-	double					Get_yMin		(void)	const	{	return( m_yCenter - m_Size );	}
-	double					Get_xCenter		(void)	const	{	return( m_xCenter          );	}
-	double					Get_yCenter		(void)	const	{	return( m_yCenter          );	}
-	double					Get_xMax		(void)	const	{	return( m_xCenter + m_Size );	}
-	double					Get_yMax		(void)	const	{	return( m_yCenter + m_Size );	}
-	double					Get_Size		(void)	const	{	return( m_Size * 2.0       );	}
+	const CSG_Rect &		Get_Extent		(void)	const	{	return( m_Extent );	}
+	double					Get_xMin		(void)	const	{	return( m_Extent.m_rect.xMin   );	}
+	double					Get_xCenter		(void)	const	{	return( m_Extent.Get_XCenter() );	}
+	double					Get_xMax		(void)	const	{	return( m_Extent.m_rect.xMax   );	}
+	double					Get_yMin		(void)	const	{	return( m_Extent.m_rect.yMin   );	}
+	double					Get_yCenter		(void)	const	{	return( m_Extent.Get_YCenter() );	}
+	double					Get_yMax		(void)	const	{	return( m_Extent.m_rect.yMax   );	}
+	double					Get_Size		(void)	const	{	return( m_Extent.Get_XRange()  );	}
 
-	bool					Contains		(double x, double y)	const
-	{
-		return(	m_xCenter - m_Size <= x && x < m_xCenter + m_Size
-			&&	m_yCenter - m_Size <= y && y < m_yCenter + m_Size );
-	}
+	bool					Contains		(const TSG_Point &p)	const	{	return(	m_Extent.Contains(p   ) );	}
+	bool					Contains		(double x, double y)	const	{	return(	m_Extent.Contains(x, y) );	}
 
 	class CSG_PRQuadTree_Leaf *	asLeaf		(void)	const	{	return( (class CSG_PRQuadTree_Leaf *)this );	}
 	class CSG_PRQuadTree_Node *	asNode		(void)	const	{	return( (class CSG_PRQuadTree_Node *)this );	}
@@ -774,17 +771,31 @@ public:
 
 protected:
 
-	CSG_PRQuadTree_Item(double xCenter, double yCenter, double Size)
-	{
-		m_xCenter	= xCenter;
-		m_yCenter	= yCenter;
-		m_Size		= Size;
-	}
+	CSG_PRQuadTree_Item(const CSG_Rect &Extent, int Quadrant = -1)	{	Set_Extent(Extent, Quadrant);	}
 
 	virtual ~CSG_PRQuadTree_Item(void)	{}
 
+	void					Set_Extent		(const CSG_Rect &Extent, int Quadrant = -1)
+	{
+		switch( Quadrant )
+		{
+		case  0: m_Extent.Assign(Extent.Get_XMin   (), Extent.Get_YMin   (), Extent.Get_XCenter(), Extent.Get_YCenter()); break; // bottom left
+		case  1: m_Extent.Assign(Extent.Get_XMin   (), Extent.Get_YCenter(), Extent.Get_XCenter(), Extent.Get_YMax   ()); break; // top left
+		case  2: m_Extent.Assign(Extent.Get_XCenter(), Extent.Get_YCenter(), Extent.Get_XMax   (), Extent.Get_YMax   ()); break; // top right
+		case  3: m_Extent.Assign(Extent.Get_XCenter(), Extent.Get_YMin   (), Extent.Get_XMax   (), Extent.Get_YCenter()); break; // bottom right
+		default: m_Extent.Assign(Extent); break;
+		}
+	}
 
-	double					m_xCenter, m_yCenter, m_Size;
+	int						Get_Quadrant	(const TSG_Point &p)	const	{	return( Get_Quadrant(p.x, p.y) );	}
+
+	int						Get_Quadrant	(double x, double y)	const
+	{
+		return( y < Get_yCenter() ? (x < Get_xCenter() ? 0 : 3) : (x < Get_xCenter() ? 1 : 2) );
+	}
+
+
+	CSG_Rect				m_Extent;
 
 };
 
@@ -805,8 +816,8 @@ public:
 
 protected:
 
-	CSG_PRQuadTree_Leaf(double xCenter, double yCenter, double Size, double x, double y, double z)
-		: CSG_PRQuadTree_Item(xCenter, yCenter, Size)
+	CSG_PRQuadTree_Leaf(const CSG_Rect &Extent, int Quadrant, double x, double y, double z)
+		: CSG_PRQuadTree_Item(Extent, Quadrant)
 	{
 		m_Point.x	= x;
 		m_Point.y	= y;
@@ -844,8 +855,8 @@ public:
 
 protected:
 
-	CSG_PRQuadTree_Leaf_List(double xCenter, double yCenter, double Size, double x, double y, double z)
-		: CSG_PRQuadTree_Leaf(xCenter, yCenter, Size, x, y, z)
+	CSG_PRQuadTree_Leaf_List(const CSG_Rect &Extent, int Quadrant, double x, double y, double z)
+		: CSG_PRQuadTree_Leaf(Extent, Quadrant, x, y, z)
 	{
 		s_z.Create(true);
 
@@ -886,7 +897,7 @@ public:
 
 protected:
 
-	CSG_PRQuadTree_Node(double xCenter, double yCenter, double Size);
+	CSG_PRQuadTree_Node(const CSG_Rect &Extent, int Quadrant = -1);
 	CSG_PRQuadTree_Node(CSG_PRQuadTree_Leaf *pLeaf);
 	virtual ~CSG_PRQuadTree_Node(void);
 
@@ -912,8 +923,8 @@ public:
 
 protected:
 
-	CSG_PRQuadTree_Node_Statistics(double xCenter, double yCenter, double Size)
-		: CSG_PRQuadTree_Node(xCenter, yCenter, Size)
+	CSG_PRQuadTree_Node_Statistics(const CSG_Rect &Extent, int Quadrant = -1)
+		: CSG_PRQuadTree_Node(Extent, Quadrant)
 	{}
 
 	CSG_PRQuadTree_Node_Statistics(CSG_PRQuadTree_Leaf *pLeaf)

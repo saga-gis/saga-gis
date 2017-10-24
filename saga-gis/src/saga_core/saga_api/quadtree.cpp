@@ -70,37 +70,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_PRQuadTree_Node::CSG_PRQuadTree_Node(double xCenter, double yCenter, double Size)
-	: CSG_PRQuadTree_Item(xCenter, yCenter, Size)
+CSG_PRQuadTree_Node::CSG_PRQuadTree_Node(const CSG_Rect &Extent, int Quadrant)
+	: CSG_PRQuadTree_Item(Extent, Quadrant)
 {
-	m_pChildren[0]	=
-	m_pChildren[1]	=
-	m_pChildren[2]	=
-	m_pChildren[3]	= NULL;
+	m_pChildren[0] = m_pChildren[1] = m_pChildren[2] = m_pChildren[3] = NULL;
 }
 
 //---------------------------------------------------------
 CSG_PRQuadTree_Node::CSG_PRQuadTree_Node(CSG_PRQuadTree_Leaf *pLeaf)
-	: CSG_PRQuadTree_Item(pLeaf->m_xCenter, pLeaf->m_yCenter, pLeaf->m_Size)
+	: CSG_PRQuadTree_Item(pLeaf->m_Extent)
 {
-	m_pChildren[0]	=
-	m_pChildren[1]	=
-	m_pChildren[2]	=
-	m_pChildren[3]	= NULL;
+	m_pChildren[0] = m_pChildren[1] = m_pChildren[2] = m_pChildren[3] = NULL;
 
-	int		i		=  pLeaf->Get_Y() < m_yCenter
-					? (pLeaf->Get_X() < m_xCenter ? 0 : 3)
-					: (pLeaf->Get_X() < m_xCenter ? 1 : 2);
+	int	Quadrant	=  Get_Quadrant(pLeaf->Get_Point());
 
-	pLeaf->m_Size	= 0.5 * m_Size;
+	pLeaf->Set_Extent(m_Extent, Quadrant);
 
-	switch( i )
-	{
-	case 0:	m_pChildren[i]	= pLeaf; pLeaf->m_xCenter -= pLeaf->m_Size; pLeaf->m_yCenter -= pLeaf->m_Size;	break;
-	case 1:	m_pChildren[i]	= pLeaf; pLeaf->m_xCenter -= pLeaf->m_Size; pLeaf->m_yCenter += pLeaf->m_Size;	break;
-	case 2:	m_pChildren[i]	= pLeaf; pLeaf->m_xCenter += pLeaf->m_Size; pLeaf->m_yCenter += pLeaf->m_Size;	break;
-	case 3:	m_pChildren[i]	= pLeaf; pLeaf->m_xCenter += pLeaf->m_Size; pLeaf->m_yCenter -= pLeaf->m_Size;	break;
-	}
+	m_pChildren[Quadrant] = pLeaf;
 }
 
 //---------------------------------------------------------
@@ -139,74 +125,63 @@ CSG_PRQuadTree_Item * CSG_PRQuadTree_Node::Get_Child(double x, double y)
 //---------------------------------------------------------
 bool CSG_PRQuadTree_Node::Add_Point(double x, double y, double z)
 {
-	if( Contains(x, y) )
+	if( !Contains(x, y) )
 	{
-		if( has_Statistics() )
+		return( false );
+	}
+
+	if( has_Statistics() )
+	{
+		Get_X()->Add_Value(x);
+		Get_Y()->Add_Value(y);
+		Get_Z()->Add_Value(z);
+	}
+
+	int	Quadrant	= Get_Quadrant(x, y);
+
+	//-----------------------------------------------------
+	if( m_pChildren[Quadrant] == NULL )
+	{
+		m_pChildren[Quadrant]	= new CSG_PRQuadTree_Leaf(m_Extent, Quadrant, x, y, z);
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( m_pChildren[Quadrant]->is_Leaf() )
+	{
+		CSG_PRQuadTree_Leaf	*pLeaf	= m_pChildren[Quadrant]->asLeaf();
+
+		if( x != pLeaf->Get_X() || y != pLeaf->Get_Y() )
 		{
-			Get_X()->Add_Value(x);
-			Get_Y()->Add_Value(y);
-			Get_Z()->Add_Value(z);
-		}
-
-		int		i	=  y < m_yCenter ? (x < m_xCenter ? 0 : 3) : (x < m_xCenter ? 1 : 2);
-
-		//-------------------------------------------------
-		if( m_pChildren[i] == NULL )
-		{
-			double	Size	= 0.5 * m_Size;
-
-			switch( i )
+			if( has_Statistics() )
 			{
-			case 0:	m_pChildren[i]	= new CSG_PRQuadTree_Leaf(m_xCenter - Size, m_yCenter - Size, Size, x, y, z);	break;
-			case 1:	m_pChildren[i]	= new CSG_PRQuadTree_Leaf(m_xCenter - Size, m_yCenter + Size, Size, x, y, z);	break;
-			case 2:	m_pChildren[i]	= new CSG_PRQuadTree_Leaf(m_xCenter + Size, m_yCenter + Size, Size, x, y, z);	break;
-			case 3:	m_pChildren[i]	= new CSG_PRQuadTree_Leaf(m_xCenter + Size, m_yCenter - Size, Size, x, y, z);	break;
-			}
-
-			return( true );
-		}
-
-		//-----------------------------------------------------
-		if( m_pChildren[i]->is_Leaf() )
-		{
-			CSG_PRQuadTree_Leaf	*pLeaf	= m_pChildren[i]->asLeaf();
-
-			if( x != pLeaf->Get_X() || y != pLeaf->Get_Y() )
-			{
-				if( has_Statistics() )
-				{
-					m_pChildren[i]	= new CSG_PRQuadTree_Node_Statistics	(pLeaf);
-				}
-				else
-				{
-					m_pChildren[i]	= new CSG_PRQuadTree_Node				(pLeaf);
-				}
-
-				((CSG_PRQuadTree_Node *)m_pChildren[i])->Add_Point(x, y, z);
+				m_pChildren[Quadrant]	= new CSG_PRQuadTree_Node_Statistics(pLeaf);
 			}
 			else
 			{
-				if( !pLeaf->has_Statistics() )
-				{
-					m_pChildren[i]	= new CSG_PRQuadTree_Leaf_List(pLeaf->m_xCenter, pLeaf->m_yCenter, pLeaf->m_Size, x, y, pLeaf->Get_Z());
-
-					delete(pLeaf);
-				}
-
-				((CSG_PRQuadTree_Leaf_List *)m_pChildren[i])->Add_Value(z);
+				m_pChildren[Quadrant]	= new CSG_PRQuadTree_Node(pLeaf);
 			}
 
-			return( true );
+			((CSG_PRQuadTree_Node *)m_pChildren[Quadrant])->Add_Point(x, y, z);
+		}
+		else
+		{
+			if( !pLeaf->has_Statistics() )
+			{
+				m_pChildren[Quadrant]	= new CSG_PRQuadTree_Leaf_List(pLeaf->m_Extent, Quadrant, x, y, pLeaf->Get_Z());
+
+				delete(pLeaf);
+			}
+
+			((CSG_PRQuadTree_Leaf_List *)m_pChildren[Quadrant])->Add_Value(z);
 		}
 
-		//-------------------------------------------------
-	//	if( m_pChildren[i]->is_Node() )
-		{
-			return( ((CSG_PRQuadTree_Node *)m_pChildren[i])->Add_Point(x, y, z) );
-		}
+		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	return( ((CSG_PRQuadTree_Node *)m_pChildren[Quadrant])->Add_Point(x, y, z) );	//	if( m_pChildren[i]->is_Node() )
 }
 
 
@@ -219,17 +194,17 @@ bool CSG_PRQuadTree_Node::Add_Point(double x, double y, double z)
 //---------------------------------------------------------
 CSG_PRQuadTree::CSG_PRQuadTree(void)
 {
-	m_pRoot			= NULL;
-	m_nPoints		= 0;
-	m_bPolar		= false;
+	m_pRoot		= NULL;
+	m_nPoints	= 0;
+	m_bPolar	= false;
 }
 
 //---------------------------------------------------------
 CSG_PRQuadTree::CSG_PRQuadTree(const TSG_Rect &Extent, bool bStatistics)
 {
-	m_pRoot			= NULL;
-	m_nPoints		= 0;
-	m_bPolar		= false;
+	m_pRoot		= NULL;
+	m_nPoints	= 0;
+	m_bPolar	= false;
 
 	Create(Extent, bStatistics);
 }
@@ -237,9 +212,9 @@ CSG_PRQuadTree::CSG_PRQuadTree(const TSG_Rect &Extent, bool bStatistics)
 //---------------------------------------------------------
 CSG_PRQuadTree::CSG_PRQuadTree(CSG_Shapes *pShapes, int Attribute, bool bStatistics)
 {
-	m_pRoot			= NULL;
-	m_nPoints		= 0;
-	m_bPolar		= false;
+	m_pRoot		= NULL;
+	m_nPoints	= 0;
+	m_bPolar	= false;
 
 	Create(pShapes, Attribute, bStatistics);
 }
@@ -257,21 +232,20 @@ bool CSG_PRQuadTree::Create(const CSG_Rect &Extent, bool bStatistics)
 
 	if( Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 )
 	{
+		double	Size	= (0.5 + 0.01) * (Extent.Get_XRange() > Extent.Get_YRange() ? Extent.Get_XRange() : Extent.Get_YRange());
+
+		CSG_Rect	r(
+			Extent.Get_XCenter() - Size, Extent.Get_YCenter() - Size,
+			Extent.Get_XCenter() + Size, Extent.Get_YCenter() + Size
+		);
+
 		if( bStatistics )
 		{
-			m_pRoot	= new CSG_PRQuadTree_Node_Statistics(
-				Extent.Get_XCenter(),
-				Extent.Get_YCenter(),
-				(0.5 + 0.01) * (Extent.Get_XRange() > Extent.Get_YRange() ? Extent.Get_XRange() : Extent.Get_YRange())
-			);
+			m_pRoot	= new CSG_PRQuadTree_Node_Statistics(r);
 		}
 		else
 		{
-			m_pRoot	= new CSG_PRQuadTree_Node(
-				Extent.Get_XCenter(),
-				Extent.Get_YCenter(),
-				(0.5 + 0.01) * (Extent.Get_XRange() > Extent.Get_YRange() ? Extent.Get_XRange() : Extent.Get_YRange())
-			);
+			m_pRoot	= new CSG_PRQuadTree_Node(r);
 		}
 
 		return( true );
@@ -373,15 +347,25 @@ bool CSG_PRQuadTree::_Check_Root(double x, double y)
 	}
 
 	//-----------------------------------------------------
+	int	Quadrant	= y < m_pRoot->Get_yMin()	// bottom / top ?
+		? (x < m_pRoot->Get_xMin() ? 0 : 3) 	// bottom: left / right ?
+		: (x < m_pRoot->Get_xMin() ? 1 : 2);	// top   : left / right ?
+		
+	TSG_Rect	Extent	= m_pRoot->Get_Extent();
+
+	switch( Quadrant )
+	{
+	case 0: Extent.xMin -= m_pRoot->Get_Size(); Extent.yMin -= m_pRoot->Get_Size(); break; // bottom left
+	case 1: Extent.xMin -= m_pRoot->Get_Size(); Extent.yMax += m_pRoot->Get_Size(); break; // top left
+	case 2: Extent.xMax += m_pRoot->Get_Size(); Extent.yMin -= m_pRoot->Get_Size(); break; // bottom right
+	case 3: Extent.xMax += m_pRoot->Get_Size(); Extent.yMax += m_pRoot->Get_Size(); break; // top right
+	}
+
 	CSG_PRQuadTree_Node	*pRoot;
 
 	if( m_pRoot->has_Statistics() )
 	{
-		CSG_PRQuadTree_Node_Statistics	*pNode	= new CSG_PRQuadTree_Node_Statistics(
-			x < m_pRoot->Get_xMin() ? m_pRoot->Get_xMin() : m_pRoot->Get_xMax(),
-			y < m_pRoot->Get_yMin() ? m_pRoot->Get_yMin() : m_pRoot->Get_yMax(),
-			2.0 * m_pRoot->Get_Size()
-		);
+		CSG_PRQuadTree_Node_Statistics	*pNode	= new CSG_PRQuadTree_Node_Statistics(Extent);
 
 		pNode->m_x	= ((CSG_PRQuadTree_Node_Statistics *)m_pRoot)->m_x;
 		pNode->m_y	= ((CSG_PRQuadTree_Node_Statistics *)m_pRoot)->m_y;
@@ -391,18 +375,10 @@ bool CSG_PRQuadTree::_Check_Root(double x, double y)
 	}
 	else
 	{
-		pRoot	= new CSG_PRQuadTree_Node(
-			x < m_pRoot->Get_xMin() ? m_pRoot->Get_xMin() : m_pRoot->Get_xMax(),
-			y < m_pRoot->Get_yMin() ? m_pRoot->Get_yMin() : m_pRoot->Get_yMax(),
-			2.0 * m_pRoot->Get_Size()
-		);
+		pRoot	= new CSG_PRQuadTree_Node(Extent);
 	}
 
-	int	i	=  m_pRoot->Get_yCenter() < pRoot->Get_yCenter()
-			? (m_pRoot->Get_xCenter() < pRoot->Get_xCenter() ? 0 : 3)
-			: (m_pRoot->Get_xCenter() < pRoot->Get_xCenter() ? 1 : 2);
-
-	pRoot->m_pChildren[i]	= m_pRoot;
+	pRoot->m_pChildren[Quadrant]	= m_pRoot;
 
 	m_pRoot	= pRoot;
 
