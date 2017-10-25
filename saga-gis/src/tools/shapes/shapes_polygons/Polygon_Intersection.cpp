@@ -135,6 +135,13 @@ bool CPolygon_Overlay::Initialize(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBoth
 
 	m_pAB	= Parameters("RESULT")->asShapes();
 
+	if( m_pAB == *ppA || m_pAB == *ppB )
+	{
+		Error_Set(_TL("Output layer must not be one of the input layers!"));
+
+		return( false );
+	}
+
 	m_pAB->Create(SHAPE_TYPE_Polygon, SG_T(""), *ppA);
 	m_pAB->Set_Name(CSG_String::Format("%s [%s]-[%s]", Get_Name().c_str(), (*ppA)->Get_Name(), (*ppB)->Get_Name()));
 
@@ -420,8 +427,8 @@ bool CPolygon_SymDifference::On_Execute(void)
 		return( false );
 	}
 
-	return( Get_Difference(pA, pB)
-		&&  Get_Difference(pB, pA, true) );
+	return( Get_Difference(pA, pB, false)
+		&&  Get_Difference(pB, pA,  true) );
 }
 
 
@@ -450,8 +457,8 @@ bool CPolygon_Union::On_Execute(void)
 	}
 
 	return( Get_Intersection(pA, pB)
-		&&  Get_Difference  (pA, pB)
-		&&  Get_Difference  (pB, pA, true) );
+		&&  Get_Difference  (pA, pB, false)
+		&&  Get_Difference  (pB, pA,  true) );
 }
 
 

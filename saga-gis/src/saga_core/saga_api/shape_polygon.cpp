@@ -166,7 +166,7 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 
 		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pB=pA++)
 		{
-			if( y < pA->y )	// pA above ray
+			if( y <= pA->y )	// pA on or above ray
 			{
 				if( pB->y <= y )	// pB on or below ray
 				{
@@ -176,7 +176,7 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 					}
 				}
 			}
-			else			// pA on or below ray
+			else				// pA below ray
 			{
 				if( pB->y >  y )	// pB above ray
 				{
@@ -279,7 +279,7 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 	bool	bIn		= false;
 	bool	bOut	= false;
 
-	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
 		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
@@ -317,14 +317,6 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(CSG_Shape *pShape)
 
 		for(int iPoint=0; iPoint<Get_Point_Count(iPart); iPoint++)
 		{
-			if( pShape->Get_Type() == SHAPE_TYPE_Polygon )
-			{
-				if( ((CSG_Shape_Polygon *)pShape)->Contains(Get_Point(iPoint, iPart)) )
-				{
-					return( INTERSECTION_Overlaps );
-				}
-			}
-
 			A[1]	= A[0];	A[0]	= Get_Point(iPoint, iPart);
 
 			for(int jPart=0; jPart<pShape->Get_Part_Count(); jPart++)

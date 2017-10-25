@@ -116,8 +116,8 @@ private:
 		m_ID	= ID;
 		m_Point	= Point;
 
-		m_Edges.Add_Field(SG_T("ID") , SG_DATATYPE_Int);
-		m_Edges.Add_Field(SG_T("DIR"), SG_DATATYPE_Double);
+		m_Edges.Add_Field("ID" , SG_DATATYPE_Int   );
+		m_Edges.Add_Field("DIR", SG_DATATYPE_Double);
 	}
 
 	bool					Add_Edge			(int ID, double Direction)
@@ -267,12 +267,12 @@ void CSG_Network::_On_Construction(void)
 {
 	m_Nodes.Create(sizeof(CSG_Network_Node **), 0, SG_ARRAY_GROWTH_1);
 
-	m_Edges.Create(SHAPE_TYPE_Line , SG_T("EDGES"));
-	m_Edges.Add_Field(SG_T("ID")		, SG_DATATYPE_Int);
-	m_Edges.Add_Field(SG_T("NODE_A")	, SG_DATATYPE_Int);
-	m_Edges.Add_Field(SG_T("NODE_B")	, SG_DATATYPE_Int);
-	m_Edges.Add_Field(SG_T("SHAPE_TYPE"), SG_DATATYPE_Int);
-	m_Edges.Add_Field(SG_T("PROCESSED")	, SG_DATATYPE_Int);
+	m_Edges.Create(SHAPE_TYPE_Line , "EDGES");
+	m_Edges.Add_Field("ID"        , SG_DATATYPE_Int);
+	m_Edges.Add_Field("NODE_A"    , SG_DATATYPE_Int);
+	m_Edges.Add_Field("NODE_B"    , SG_DATATYPE_Int);
+	m_Edges.Add_Field("SHAPE_TYPE", SG_DATATYPE_Int);
+	m_Edges.Add_Field("PROCESSED" , SG_DATATYPE_Int);
 }
 
 
@@ -335,10 +335,10 @@ bool CSG_Network::_Add_Line(CSG_Shape *pLine, int ID)
 	//-----------------------------------------------------
 	// 1. find crossings
 
-	Crossings.Add_Field(SG_T("LINE_POINT")	, SG_DATATYPE_Int);
-	Crossings.Add_Field(SG_T("EDGE_ID")		, SG_DATATYPE_Int);
-	Crossings.Add_Field(SG_T("EDGE_POINT")	, SG_DATATYPE_Int);
-	Crossings.Add_Field(SG_T("EDGE_DIST")	, SG_DATATYPE_Double);
+	Crossings.Add_Field("LINE_POINT", SG_DATATYPE_Int);
+	Crossings.Add_Field("EDGE_ID"   , SG_DATATYPE_Int);
+	Crossings.Add_Field("EDGE_POINT", SG_DATATYPE_Int);
+	Crossings.Add_Field("EDGE_DIST" , SG_DATATYPE_Double);
 
 	for(iEdge=0; iEdge<m_Edges.Get_Count(); iEdge++)
 	{
@@ -631,27 +631,27 @@ CPolygon_Line_Intersection::CPolygon_Line_Intersection(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon-Line Intersection"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2011"));
+	Set_Author		("O. Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Polygon-line intersection. Splits polygons with lines. "
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "INTERSECT"	, _TL("Intersection"),
+	Parameters.Add_Shapes("",
+		"INTERSECT"	, _TL("Intersection"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
@@ -668,9 +668,9 @@ bool CPolygon_Line_Intersection::On_Execute(void)
 	CSG_Shapes	*pPolygons;
 
 	//--------------------------------------------------------
-	pPolygons		= Parameters("POLYGONS")	->asShapes();
-	m_pLines		= Parameters("LINES")		->asShapes();
-	m_pIntersection	= Parameters("INTERSECT")	->asShapes();
+	pPolygons		= Parameters("POLYGONS" )->asShapes();
+	m_pLines		= Parameters("LINES"    )->asShapes();
+	m_pIntersection	= Parameters("INTERSECT")->asShapes();
 
 	//--------------------------------------------------------
 	if(	!m_pLines ->is_Valid() || m_pLines ->Get_Count() < 1
@@ -684,7 +684,7 @@ bool CPolygon_Line_Intersection::On_Execute(void)
 
 	//--------------------------------------------------------
 	m_pIntersection->Create(SHAPE_TYPE_Polygon,
-		CSG_String::Format(SG_T("%s [%s: %s]"), pPolygons->Get_Name(), _TL("Intersection"), m_pLines->Get_Name()),
+		CSG_String::Format("%s [%s: %s]", pPolygons->Get_Name(), _TL("Intersection"), m_pLines->Get_Name()),
 		pPolygons
 	);
 
@@ -794,7 +794,7 @@ bool CPolygon_Line_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon)
 	int			iEdge, iPolygon;
 	CSG_Shapes	Intersection(SHAPE_TYPE_Polygon);
 
-	Intersection.Add_Field(SG_T("ID"), SG_DATATYPE_Int);
+	Intersection.Add_Field("ID", SG_DATATYPE_Int);
 
 	for(iEdge=0; iEdge<Network.Get_Edges().Get_Count(); iEdge++)
 	{
