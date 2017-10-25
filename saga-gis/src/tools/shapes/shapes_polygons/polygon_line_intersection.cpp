@@ -267,7 +267,7 @@ void CSG_Network::_On_Construction(void)
 {
 	m_Nodes.Create(sizeof(CSG_Network_Node **), 0, SG_ARRAY_GROWTH_1);
 
-	m_Edges.Create(SHAPE_TYPE_Line , "EDGES");
+	m_Edges.Create(SHAPE_TYPE_Line , SG_T("EDGES"));
 	m_Edges.Add_Field("ID"        , SG_DATATYPE_Int);
 	m_Edges.Add_Field("NODE_A"    , SG_DATATYPE_Int);
 	m_Edges.Add_Field("NODE_B"    , SG_DATATYPE_Int);
