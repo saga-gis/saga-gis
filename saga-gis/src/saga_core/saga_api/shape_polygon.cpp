@@ -95,6 +95,11 @@ CSG_Shape_Polygon_Part::CSG_Shape_Polygon_Part(CSG_Shape_Points *pOwner)
 CSG_Shape_Polygon_Part::~CSG_Shape_Polygon_Part(void)
 {}
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 void CSG_Shape_Polygon_Part::_Invalidate(void)
 {
@@ -149,14 +154,161 @@ void CSG_Shape_Polygon_Part::_Update_Area(void)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool CSG_Shape_Polygon_Part::Contains(const TSG_Point &Point)
+TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(const TSG_Point &p)
 {
-	return( Contains(Point.x, Point.y) );
+	return( Get_Point_Relation(p.x, p.y) );
 }
 
+//---------------------------------------------------------
+TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, double y)
+{
+	if(	m_nPoints > 2 && Get_Extent().Contains(x, y) )
+	{
+		TSG_Point	*pA	= m_Points;
+		TSG_Point	*pB	= m_Points + m_nPoints - 1;
+
+		if( x == pB->x && y == pB->y )	// for performance reason check vertex first
+		{
+			return( SG_POLYGON_POINT_Vertex );
+		}
+
+		double	dy	= pB->y - pA->y;
+
+		if( dy == 0.0 )
+		{
+			for(int iPoint=m_nPoints-2; dy==0.0 && iPoint>=0; iPoint--)
+			{
+				dy	= pB->y - m_Points[iPoint].y;
+			}
+		}
+
+		int	nCrossings	= 0;
+
+		for(int iPoint=0; iPoint<m_nPoints; iPoint++, pB=pA++)
+		{
+			if( x == pA->x && y == pA->y )	// for performance reason check vertex first
+			{
+				return( SG_POLYGON_POINT_Vertex );
+			}
+
+			if( y < pA->y )			// pA above y
+			{
+				if( y > pB->y )		// pB below y
+				{
+					double	cx	= pB->x + (y - pB->y) * (pA->x - pB->x) / (pA->y - pB->y);
+
+					if( cx == x )
+					{
+						return( SG_POLYGON_POINT_Edge );
+					}
+
+					if( cx < x )
+					{
+						nCrossings++;
+					}
+				}
+				else if( y == pB->y && pB->x < x && dy < 0.0 )
+				{
+					nCrossings++;
+				}
+			}
+			else if( y > pA->y )	// pA below y
+			{
+				if( y < pB->y )		// pB above y
+				{
+					double	cx	= pB->x + (y - pB->y) * (pA->x - pB->x) / (pA->y - pB->y);
+
+					if( cx == x )
+					{
+						return( SG_POLYGON_POINT_Edge );
+					}
+
+					if( cx < x )
+					{
+						nCrossings++;
+					}
+				}
+				else if( y == pB->y && pB->x < x && dy > 0.0 )
+				{
+					nCrossings++;
+				}
+			}
+			else					// pA on line y
+			{
+				if( y == pB->y )	// pB on line y
+				{
+					if( (pA->x < x && x < pB->x)
+					||  (pA->x > x && x > pB->x) )
+					{
+						return( SG_POLYGON_POINT_Edge );
+					}
+				}
+			}
+
+			if( pA->y != pB->y )
+			{
+				dy	= pB->y - pA->y;
+			}
+		}
+
+		if( nCrossings % 2 != 0 )
+		{
+			return( SG_POLYGON_POINT_Interior );
+		}
+	}
+
+	return( SG_POLYGON_POINT_Outside );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon_Part::is_OnEdge(const TSG_Point &p)
+{
+	return( is_OnEdge(p.x, p.y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon_Part::is_OnEdge(double x, double y)
+{
+	TSG_Polygon_Point_Relation	r	= Get_Point_Relation(x, y);
+
+	return( r == SG_POLYGON_POINT_Vertex
+		||  r == SG_POLYGON_POINT_Edge
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon_Part::Contains(const TSG_Point &p)
+{
+	return( Contains(p.x, p.y) );
+}
+
+//---------------------------------------------------------
 bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 {
+	TSG_Polygon_Point_Relation	r	= Get_Point_Relation(x, y);
+
+	return( r == SG_POLYGON_POINT_Interior
+		||  r == SG_POLYGON_POINT_Vertex
+		||  r == SG_POLYGON_POINT_Edge
+	);
+
+	//-----------------------------------------------------
 	if(	m_nPoints > 2 && Get_Extent().Contains(x, y) )
 	{
 		int	nCrossings	= 0;
@@ -170,7 +322,7 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 			{
 				if( pB->y <= y )	// pB on or below ray
 				{
-					if( ((y - pB->y) * (pA->x - pB->x)) > ((x - pB->x) * (pA->y - pB->y)) )
+					if( ((y - pB->y) * (pA->x - pB->x)) >= ((x - pB->x) * (pA->y - pB->y)) )
 					{
 						nCrossings++;
 					}
@@ -178,9 +330,9 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 			}
 			else				// pA below ray
 			{
-				if( pB->y >  y )	// pB above ray
+				if( pB->y >= y )	// pB above ray
 				{
-					if( ((y - pB->y) * (pA->x - pB->x)) < ((x - pB->x) * (pA->y - pB->y)) )
+					if( ((y - pB->y) * (pA->x - pB->x)) <= ((x - pB->x) * (pA->y - pB->y)) )
 					{
 						nCrossings++;
 					}
@@ -194,18 +346,20 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 	return( false );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 double CSG_Shape_Polygon_Part::Get_Distance(TSG_Point Point, TSG_Point &Next)
 {
-	if( m_nPoints > 2 && !Contains(Point) )
+	if( m_nPoints > 0 )
 	{
-		double		Distance;
-		TSG_Point	*pA, *pB, C;
+		TSG_Point	*pB	= m_Points + m_nPoints - 1;
+		TSG_Point	*pA	= m_Points, C;
 
-		pB			= m_Points + m_nPoints - 1;
-		pA			= m_Points;
-
-		Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
+		double	Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
 
 		for(int iPoint=0; iPoint<m_nPoints && Distance>0.0; iPoint++, pB=pA++)
 		{
@@ -243,8 +397,6 @@ CSG_Shape_Polygon::~CSG_Shape_Polygon(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -265,8 +417,6 @@ void CSG_Shape_Polygon::_Invalidate(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -384,14 +534,12 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 		case INTERSECTION_Overlaps:		// region at least partly contained by polygon part's extent, now let's look at the polygon part itself!
 			if( pPart->Get_Count() > 2 )
 			{
-				TSG_Point	*pa, *pb, c;
+				TSG_Point	*pB	= pPart->m_Points + pPart->m_nPoints - 1;
+				TSG_Point	*pA	= pPart->m_Points, C;
 
-				pa	= pPart->m_Points;
-				pb	= pa + pPart->m_nPoints - 1;
-
-				for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++, pb=pa++)
+				for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++, pB=pA++)
 				{
-					if(	SG_Get_Crossing_InRegion(c, *pa, *pb, Region) )
+					if(	SG_Get_Crossing_InRegion(C, *pA, *pB, Region) )
 					{
 						return( INTERSECTION_Overlaps );
 					}
@@ -408,8 +556,6 @@ TSG_Intersection CSG_Shape_Polygon::On_Intersects(TSG_Rect Region)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -417,38 +563,58 @@ bool CSG_Shape_Polygon::is_Lake(int iPart)
 {
 	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
 
-	if( pPart && pPart->m_nPoints > 2 && m_nParts > 1 )
+	if( !pPart )
 	{
-		if( pPart->m_bLake == BOOL3_NOTSET )
-		{
-			int		nOuter	= 0;
-
-			for(iPart=0; iPart<m_nParts; iPart++)
-			{
-				if( pPart != m_pParts[iPart] && m_pParts[iPart]->m_nPoints > 2 )
-				{
-					if( Contains(pPart->Get_Point(0), iPart) )
-					{
-						nOuter++;
-					}
-				}
-			}
-
-			pPart->m_bLake	= nOuter % 2 ? 1 : 0;
-
-			m_bUpdate_Lakes	= true;
-		}
-
-		return( pPart->m_bLake == BOOL3_TRUE );
+		return( false );
 	}
 
-	return( false );
+	if( pPart->m_bLake == BOOL3_NOTSET )
+	{
+		if( pPart->m_nPoints < 1 || m_nParts <= 1 )
+		{
+			pPart->m_bLake	= BOOL3_FALSE;
+		}
+		else
+		{
+			m_bUpdate_Lakes	= true;
+
+			pPart->m_bLake	= BOOL3_FALSE;
+
+			for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++)	// find a point that is not on vertex/edge
+			{
+				TSG_Point	p	= pPart->Get_Point(iPoint);
+				bool	bEdge	= false;
+				int	nContained	= 0;
+
+				for(iPart=0; !bEdge && iPart<m_nParts; iPart++)
+				{
+					if( pPart != m_pParts[iPart] )
+					{
+						switch( Get_Polygon_Part(iPart)->Get_Point_Relation(p) )
+						{
+						case SG_POLYGON_POINT_Outside : break;
+						case SG_POLYGON_POINT_Interior: nContained++; break;
+						case SG_POLYGON_POINT_Vertex  :
+						case SG_POLYGON_POINT_Edge    : bEdge = true; break;
+						}
+					}
+				}
+
+				if( !bEdge )
+				{
+					pPart->m_bLake	= nContained % 2 ? BOOL3_TRUE : BOOL3_FALSE;
+
+					break;
+				}
+			}
+		}
+	}
+
+	return( pPart->m_bLake == BOOL3_TRUE );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -556,20 +722,106 @@ TSG_Point CSG_Shape_Polygon::Get_Centroid(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const TSG_Point &p, int iPart)
+{
+	return( Get_Point_Relation(p.x, p.y, iPart) );
+}
+
+//---------------------------------------------------------
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(double x, double y, int iPart)
+{
+	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
+
+	return(	pPart ? pPart->Get_Point_Relation(x, y) : SG_POLYGON_POINT_Outside );
+}
+
+//---------------------------------------------------------
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(const TSG_Point &p)
+{
+	return( Get_Point_Relation(p.x, p.y) );
+}
+
+//---------------------------------------------------------
+TSG_Polygon_Point_Relation CSG_Shape_Polygon::Get_Point_Relation(double x, double y)
+{
+	if( Get_Extent().Contains(x, y) )
+	{
+		int	nContained	= 0;
+
+		for(int iPart=0; iPart<m_nParts; iPart++)
+		{
+			switch( Get_Polygon_Part(iPart)->Get_Point_Relation(x, y) )
+			{
+			case SG_POLYGON_POINT_Outside :	break;
+			case SG_POLYGON_POINT_Interior: nContained++; break;
+			case SG_POLYGON_POINT_Vertex  : return( SG_POLYGON_POINT_Vertex );
+			case SG_POLYGON_POINT_Edge    : return( SG_POLYGON_POINT_Edge );
+			}
+		}
+
+		if( nContained % 2 != 0 )
+		{
+			return( SG_POLYGON_POINT_Interior );
+		}
+	}
+
+	return( SG_POLYGON_POINT_Outside );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::Contains(const TSG_Point &Point, int iPart)
+bool CSG_Shape_Polygon::is_OnEdge(const TSG_Point &p, int iPart)
 {
-	return( Contains(Point.x, Point.y, iPart) );
+	return( is_OnEdge(p.x, p.y, iPart) );
 }
 
 //---------------------------------------------------------
-bool CSG_Shape_Polygon::Contains(const TSG_Point &Point)
+bool CSG_Shape_Polygon::is_OnEdge(double x, double y, int iPart)
 {
-	return( Contains(Point.x, Point.y) );
+	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
+
+	return(	pPart && pPart->is_OnEdge(x, y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon::is_OnEdge(const TSG_Point &p)
+{
+	return( is_OnEdge(p.x, p.y) );
+}
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon::is_OnEdge(double x, double y)
+{
+	if( Get_Extent().Contains(x, y) )
+	{
+		for(int iPart=0; iPart<m_nParts; iPart++)
+		{
+			if( Get_Polygon_Part(iPart)->is_OnEdge(x, y) )
+			{
+				return( true );
+			}
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shape_Polygon::Contains(const TSG_Point &p, int iPart)
+{
+	return( Contains(p.x, p.y, iPart) );
 }
 
 //---------------------------------------------------------
@@ -581,48 +833,27 @@ bool CSG_Shape_Polygon::Contains(double x, double y, int iPart)
 }
 
 //---------------------------------------------------------
+bool CSG_Shape_Polygon::Contains(const TSG_Point &p)
+{
+	return( Contains(p.x, p.y) );
+}
+
+//---------------------------------------------------------
 bool CSG_Shape_Polygon::Contains(double x, double y)
 {
 	if( Get_Extent().Contains(x, y) )
 	{
-		int	nCrossings	= 0;
+		int	nContained	= 0;
 
 		for(int iPart=0; iPart<m_nParts; iPart++)
 		{
-			CSG_Shape_Part	*pPart	= m_pParts[iPart];
-
-			if( pPart->m_nPoints > 2 && pPart->Get_Extent().Contains(x, y) )
+			if( Get_Polygon_Part(iPart)->Contains(x, y) )
 			{
-				TSG_Point	*pA	= pPart->m_Points;
-				TSG_Point	*pB	= pPart->m_Points + pPart->m_nPoints - 1;
-
-				for(int iPoint=0; iPoint<pPart->m_nPoints; iPoint++, pB=pA++)
-				{
-					if( y < pA->y )	// pA above ray
-					{
-						if( pB->y <= y )	// pB on or below ray
-						{
-							if( ((y - pB->y) * (pA->x - pB->x)) > ((x - pB->x) * (pA->y - pB->y)) )
-							{
-								nCrossings++;
-							}
-						}
-					}
-					else			// pA on or below ray
-					{
-						if( pB->y >  y )	// pB above ray
-						{
-							if( ((y - pB->y) * (pA->x - pB->x)) < ((x - pB->x) * (pA->y - pB->y)) )
-							{
-								nCrossings++;
-							}
-						}
-					}
-				}
+				nContained++;
 			}
 		}
 
-		return( nCrossings % 2 != 0 );
+		return( nContained % 2 != 0 );
 	}
 
 	return( false );
@@ -630,8 +861,6 @@ bool CSG_Shape_Polygon::Contains(double x, double y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

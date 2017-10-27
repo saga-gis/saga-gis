@@ -516,6 +516,16 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+typedef enum
+{
+	SG_POLYGON_POINT_Outside,
+	SG_POLYGON_POINT_Vertex,
+	SG_POLYGON_POINT_Edge,
+	SG_POLYGON_POINT_Interior
+}
+TSG_Polygon_Point_Relation;
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Shape_Polygon_Part : public CSG_Shape_Part
 {
 	friend class CSG_Shape_Polygon;
@@ -530,7 +540,13 @@ public:
 
 	const TSG_Point &			Get_Centroid		(void)	{	_Update_Area();	return( m_Centroid );	}
 
-	bool						Contains			(const TSG_Point &Point);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(const TSG_Point &p);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(double x, double y);
+
+	bool						is_OnEdge			(const TSG_Point &p);
+	bool						is_OnEdge			(double x, double y);
+
+	bool						Contains			(const TSG_Point &p);
 	bool						Contains			(double x, double y);
 
 	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
@@ -580,9 +596,20 @@ public:
 	TSG_Point					Get_Centroid		(int iPart);
 	TSG_Point					Get_Centroid		(void);
 
-	bool						Contains			(const TSG_Point &Point, int iPart);
-	bool						Contains			(const TSG_Point &Point);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(const TSG_Point &p, int iPart);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(double x, double y, int iPart);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(const TSG_Point &p);
+	TSG_Polygon_Point_Relation	Get_Point_Relation	(double x, double y);
+
+
+	bool						is_OnEdge			(const TSG_Point &p, int iPart);
+	bool						is_OnEdge			(double x, double y, int iPart);
+	bool						is_OnEdge			(const TSG_Point &p);
+	bool						is_OnEdge			(double x, double y);
+
+	bool						Contains			(const TSG_Point &p, int iPart);
 	bool						Contains			(double x, double y, int iPart);
+	bool						Contains			(const TSG_Point &p);
 	bool						Contains			(double x, double y);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
