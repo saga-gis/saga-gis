@@ -99,7 +99,7 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 
 	m_Edit_Mode		= EDIT_SHAPE_MODE_Normal;
 
-	m_bVertices		= false;
+	m_bVertices		= 0;
 }
 
 //---------------------------------------------------------
@@ -1177,7 +1177,7 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 	{
 		Draw_Shape(dc_Map, pShape, Selection);
 
-		if( m_bVertices )
+		if( m_bVertices > 0 )
 		{
 			wxPen	oldPen  (dc_Map.dc.GetPen  ());	dc_Map.dc.SetPen  (*wxBLACK_PEN  );
 			wxBrush	oldBrush(dc_Map.dc.GetBrush());	dc_Map.dc.SetBrush(*wxWHITE_BRUSH);
@@ -1189,6 +1189,11 @@ void CWKSP_Shapes::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Sele
 					TSG_Point_Int	A	= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
 
 					dc_Map.dc.DrawCircle(A.x, A.y, 2);
+
+					if( m_bVertices == 2 )
+					{
+						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, A.x, A.y, wxString::Format("%d", iPoint + 1));
+					}
 				}
 			}
 

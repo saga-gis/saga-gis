@@ -98,10 +98,14 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Display...
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
 		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
-		false
+		CSG_String::Format("%s|%s|%s|",
+			_TL("no"),
+			_TL("yes"),
+			_TL("with label")
+		), 0
 	);
 
 	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
@@ -221,7 +225,7 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Pen			= wxPen(m_pClassify->Get_Unique_Color(), (int)m_Size, (wxPenStyle)m_Line_Style);
 
-	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asBool();
+	m_bVertices		= m_Parameters("DISPLAY_POINTS")->asInt();
 
 	//-----------------------------------------------------
 	m_Effect_Color	= m_Parameters("BOUNDARY_EFFECT_COLOR")->asColor();

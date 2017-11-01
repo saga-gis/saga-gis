@@ -121,10 +121,14 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 		1, 1, true
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
 		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
-		false
+		CSG_String::Format("%s|%s|%s|",
+			_TL("no"),
+			_TL("yes"),
+			_TL("with label")
+		), 0
 	);
 
 	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
@@ -169,7 +173,7 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
 	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
 
-	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asBool();
+	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asInt ();
 	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")->asBool();
 }
 
