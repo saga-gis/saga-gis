@@ -231,7 +231,7 @@ bool CSG_Converter_WorldToInt::Convert(CSG_Shape *pPolygon, ClipperLib::Paths &P
 				}
 			}
 
-			if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon && Polygons[iPolygon][0] == Polygons[iPolygon].back() )
+			if( pPolygon->Get_Type() == SHAPE_TYPE_Polygon && Polygons[iPolygon].size() > 1 && Polygons[iPolygon][0] == Polygons[iPolygon].back() )
 			{
 				Polygons[iPolygon].pop_back();
 			}
@@ -282,25 +282,34 @@ bool _SG_Polygon_Clip(ClipperLib::ClipType ClipType, CSG_Shape *pPolygon, CSG_Sh
 
 	CSG_Converter_WorldToInt	Converter(r);
 
-	ClipperLib::Paths			Polygon, Clip, Result;
+	ClipperLib::Paths	Polygon, Clip, Result;
 
 	if(	Converter.Convert(pPolygon, Polygon)
 	&&	Converter.Convert(pClip   , Clip   ) )
 	{
 		ClipperLib::Clipper	Clipper;
 
-		Clipper.AddPaths(Polygon, ClipperLib::ptSubject, pPolygon->Get_Type() != SHAPE_TYPE_Line);
-		Clipper.AddPaths(Clip   , ClipperLib::ptClip   , true);
+		Clipper.AddPaths(Clip, ClipperLib::ptClip, true);
 
 		if( pPolygon->Get_Type() != SHAPE_TYPE_Line )
 		{
-			Clipper.Execute(ClipType, Result);
+			Clipper.AddPaths(Polygon, ClipperLib::ptSubject, true);
+
+			if( !Clipper.Execute(ClipType, Result) )
+			{
+				return( false );
+			}
 		}
 		else
 		{
+			Clipper.AddPaths(Polygon, ClipperLib::ptSubject, false);
+
 			ClipperLib::PolyTree	PolyTree;
 
-			Clipper.Execute(ClipType, PolyTree);
+			if( !Clipper.Execute(ClipType, PolyTree) )
+			{
+				return( false );
+			}
 
 			ClipperLib::PolyTreeToPaths(PolyTree, Result);
 		}
