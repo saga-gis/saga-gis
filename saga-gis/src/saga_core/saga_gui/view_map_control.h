@@ -125,6 +125,9 @@ public:
 
 	void						On_Mouse_Lost		(wxMouseCaptureLostEvent &event);
 
+	void						Set_CrossHair		(const TSG_Point &Point);
+	void						Set_CrossHair_Off	(void);
+
 	bool						Set_Mode			(int Mode);
 	int							Get_Mode			(void)	{	return( m_Mode );	}
 
@@ -139,8 +142,8 @@ private:
 
 	CSG_Points					m_Distance_Pts;
 
-	wxPoint						m_Mouse_Down, m_Mouse_Move;
-
+	wxPoint						m_Mouse_Down, m_Mouse_Move, m_CrossHair;
+	
 	wxBitmap					m_Bitmap;
 
 	class CVIEW_Map				*m_pParent;
@@ -148,24 +151,25 @@ private:
 	class CWKSP_Map				*m_pMap;
 
 
-	void						_Set_StatusBar		(CSG_Point ptWorld);
+	void						_Set_StatusBar		(const TSG_Point &Point);
 
-	wxRect						_Get_Client			(void);
-	wxPoint						_Get_Client			(TSG_Point Point);
-	CSG_Point					_Get_World			(wxPoint ptClient);
-	double						_Get_World			(double xClient);
+	wxPoint						_Get_World2Client	(const TSG_Point &Point);
+	CSG_Point					_Get_Client2World	(const   wxPoint &Point);
+	double						_Get_Client2World	(double Length);
 
-	void						_Draw_Inverse		(wxPoint ptA, wxPoint ptB);
-	void						_Draw_Inverse		(wxPoint ptA, wxPoint ptB_Old, wxPoint ptB_New);
+	bool						_Draw_CrossHair		(const wxPoint &Point);
 
-	bool						_Zoom				(wxPoint  A, wxPoint B);
-	bool						_Zoom				(CSG_Point ptCenter, bool bZoomIn);
-	bool						_Pan				(wxPoint  A, wxPoint B);
-	bool						_Move				(wxPoint &A, wxPoint B);
-	bool						_Move				(wxPoint ptMove);
+	void						_Draw_Inverse		(const wxPoint &A, const wxPoint &B);
+	void						_Draw_Inverse		(const wxPoint &A, const wxPoint &B_Old, const wxPoint &B_New);
+
+	bool						_Zoom				(const wxPoint &A, const wxPoint &B);
+	bool						_Zoom				(const CSG_Point &Center, bool bZoomIn);
+	bool						_Pan				(const wxPoint &A, const wxPoint &B);
+	bool						_Move				(      wxPoint &A, const wxPoint &B);
+	bool						_Move				(const wxPoint &Move);
 
 	void						_Distance_Reset		(void);
-	void						_Distance_Add		(wxPoint Point);
+	void						_Distance_Add		(const wxPoint & Point);
 	void						_Distance_Draw		(wxDC &dc);
 
 

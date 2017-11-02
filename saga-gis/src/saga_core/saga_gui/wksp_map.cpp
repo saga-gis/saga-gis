@@ -217,8 +217,6 @@ CWKSP_Map::~CWKSP_Map(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -277,8 +275,6 @@ wxMenu * CWKSP_Map::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -385,8 +381,6 @@ bool CWKSP_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -730,8 +724,6 @@ void CWKSP_Map::Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -923,8 +915,6 @@ CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1140,7 +1130,49 @@ void CWKSP_Map::_Synchronise_Extents(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_Mouse_Position(const TSG_Point &Point)
+{
+	((CWKSP_Map_Manager *)Get_Manager())->Set_Mouse_Position(Point, m_Projection);
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_CrossHair(const TSG_Point &Point, const CSG_Projection &Projection)
+{
+	if( m_pView )
+	{
+		if( !Projection.is_Okay() )
+		{
+			m_pView->Get_Map_Control()->Set_CrossHair(Point);
+		}
+		else if( m_Projection.is_Okay() )
+		{
+			TSG_Point	p	= Point;
+
+			if( Get_Projected(Projection, m_Projection, p) )
+			{
+				if( m_pView )
+				{
+					m_pView->Get_Map_Control()->Set_CrossHair(p);
+				}
+			}
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Map::Set_CrossHair_Off(void)
+{
+	if( m_pView )
+	{
+		m_pView->Get_Map_Control()->Set_CrossHair_Off();
+	}
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1169,8 +1201,6 @@ void CWKSP_Map::Set_Projection(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1286,8 +1316,6 @@ void CWKSP_Map::View_Layout_Toggle(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1318,24 +1346,20 @@ CSG_Rect CWKSP_Map::Get_World(wxRect rClient)
 }
 
 //---------------------------------------------------------
-CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint ptClient)
+CSG_Point CWKSP_Map::Get_World(wxRect rClient, wxPoint Point)
 {
-	double		d;
 	CSG_Rect	rWorld(Get_World(rClient));
 
-	ptClient.y	= rClient.GetHeight() - ptClient.y;
-	d			= rWorld.Get_XRange() / (double)rClient.GetWidth();
+	double	d	= rWorld.Get_XRange() / (double)rClient.GetWidth();
 
 	return( CSG_Point(
-		rWorld.Get_XMin() + ptClient.x * d,
-		rWorld.Get_YMin() + ptClient.y * d)
-	);
+		rWorld.Get_XMin() + d *                        Point.x,
+		rWorld.Get_YMin() + d * (rClient.GetHeight() - Point.y)
+	));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1788,8 +1812,6 @@ void CWKSP_Map::_Img_Save(wxString file, int type)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1829,8 +1851,6 @@ bool CWKSP_Map::_Set_Thumbnail(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -2063,8 +2083,8 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 	double	dWidth	= 0.01 * m_Parameters("SCALE_WIDTH")->asDouble();
 
 	wxRect	r	= !m_Parameters("SCALE_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
-		(int)dc_Map.xWorld2DC(Get_Extent().Get_XMin()),
-		(int)dc_Map.yWorld2DC(Get_Extent().Get_YMax()),
+		(int) dc_Map .xWorld2DC  (Get_Extent().Get_XMin  ()),
+		(int) dc_Map .yWorld2DC  (Get_Extent().Get_YMax  ()),
 		(int)(dc_Map.m_World2DC * Get_Extent().Get_XRange()),
 		(int)(dc_Map.m_World2DC * Get_Extent().Get_YRange())
 	);

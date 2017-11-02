@@ -100,6 +100,41 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	g_pMaps		= this;
 
 	//-----------------------------------------------------
+	m_Parameters.Add_Int("",
+		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
+		_TL(""),
+		75, 10, true
+	);
+
+	m_Parameters.Add_Color("THUMBNAIL_SIZE",
+		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
+		_TL(""),
+		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
+	);
+
+	m_Parameters.Add_Bool("",
+		"CACHE"		, _TL("Base Map Caching"),
+		_TL("Enables local disk caching for base maps."),
+		false
+	);
+
+	m_Parameters.Add_FilePath("CACHE",
+		"CACHE_DIR"	, _TL("Cache Directory"),
+		_TL("If not specified the cache will be created in the current user's temporary directory."),
+		NULL, NULL, false, true
+	);
+
+	m_Parameters.Add_Choice("",
+		"CROSSHAIR"	, _TL("Cross Hair"),
+		_TL("Display a cross hair of a map's current mouse position in all maps."),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("no"),
+			_TL("yes"),
+			_TL("projected")
+		), 0
+	);
+
+	//-----------------------------------------------------
 	m_Parameters.Add_Node("", "NODE_DEFAULTS", _TL("Defaults for New Maps"), _TL(""));
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
@@ -109,16 +144,13 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
-		"SCALE_BAR"		, _TL("Show Scale Bar"),
+		"SCALE_BAR"		, _TL("Scale Bar"),
 		_TL(""),
 		true
 	);
 
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("NODE_DEFAULTS", "NODE_FRAME", _TL("Frame"), _TL(""));
-
-	m_Parameters.Add_Bool("NODE_FRAME",
-		"FRAME_SHOW"	, _TL("Show"),
+	m_Parameters.Add_Bool("NODE_DEFAULTS",
+		"FRAME_SHOW"	, _TL("Frame"),
 		_TL(""),
 		true
 	);
@@ -172,37 +204,9 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_THUMBNAILS", _TL("Thumbnails"), _TL(""));
-
-	m_Parameters.Add_Int("NODE_THUMBNAILS",
-		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
-		_TL(""),
-		75, 10, true
-	);
-
-	m_Parameters.Add_Color("NODE_THUMBNAILS",
-		"THUMBNAIL_SELCOLOR"	, _TL("Selection Color"),
-		_TL(""),
-		Get_Color_asInt(SYS_Get_Color(wxSYS_COLOUR_BTNSHADOW))
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_GLOBALS", _TL("Global Settings"), _TL(""));
-
-	m_Parameters.Add_Bool("NODE_GLOBALS",
-		"CACHE"		, _TL("Cache"),
-		_TL("Enable local disk cache. Allows for offline operation."),
-		false
-	);
-
-	m_Parameters.Add_FilePath("CACHE",
-		"CACHE_DIR"	, _TL("Cache Directory"),
-		_TL("If not specified the cache will be created in the current user's temporary directory."),
-		NULL, NULL, false, true
-	);
-
-	//-----------------------------------------------------
 	CONFIG_Read("/MAPS", &m_Parameters);
+
+	m_CrossHair	= m_Parameters("CROSSHAIR")->asInt();
 }
 
 //---------------------------------------------------------
@@ -215,8 +219,6 @@ CWKSP_Map_Manager::~CWKSP_Map_Manager(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -264,8 +266,6 @@ wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -286,8 +286,6 @@ bool CWKSP_Map_Manager::On_Command(int Cmd_ID)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -296,12 +294,23 @@ void CWKSP_Map_Manager::Parameters_Changed(void)
 	g_pMap_Buttons->Update_Buttons();
 
 	CWKSP_Base_Manager::Parameters_Changed();
+
+	if( m_CrossHair != m_Parameters("CROSSHAIR")->asInt() )
+	{
+		m_CrossHair	= m_Parameters("CROSSHAIR")->asInt();
+
+		if( !m_CrossHair )
+		{
+			for(int i=0; i<Get_Count(); i++)
+			{
+				Get_Map(i)->Set_CrossHair_Off();
+			}
+		}
+	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -409,6 +418,25 @@ bool CWKSP_Map_Manager::Update(CWKSP_Layer *pLayer, bool bMapsOnly)
 	}
 
 	return( n > 0 );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Projection &Projection)
+{
+	if( m_CrossHair )
+	{
+		CSG_Projection	Invalid;
+
+		for(int i=0; i<Get_Count(); i++)
+		{
+			Get_Map(i)->Set_CrossHair(Point, m_CrossHair == 2 ? Projection : Invalid);
+		}
+	}
 }
 
 

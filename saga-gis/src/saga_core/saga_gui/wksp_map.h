@@ -152,6 +152,10 @@ public:
 
 	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}
 
+	void						Set_Mouse_Position		(const TSG_Point &Point);
+	void						Set_CrossHair			(const TSG_Point &Point, const CSG_Projection &Projection);
+	void						Set_CrossHair_Off		(void);
+
 	bool						Update					(class CWKSP_Layer *pLayer, bool bMapOnly);
 	int							Get_Layer				(class CWKSP_Layer *pLayer);
 	class CWKSP_Map_Layer *		Find_Layer				(class CWKSP_Layer *pLayer);

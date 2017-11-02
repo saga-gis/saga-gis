@@ -95,10 +95,10 @@ double				Degree_To_Decimal				(double Deg, double Min, double Sec);
 void				Decimal_To_Degree				(double Value, double &Deg, double &Min, double &Sec);
 
 //---------------------------------------------------------
-wxString			Get_nBytes_asString				(double nBytes, int Precision = -1);
+bool				Get_Projected					(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point);
 
 //---------------------------------------------------------
-double				Get_Random						(double loValue, double hiValue);
+wxString			Get_nBytes_asString				(double nBytes, int Precision = -1);
 
 //---------------------------------------------------------
 wxString			Get_FilePath_Relative			(const wxString &Directory, const wxString &FileName);

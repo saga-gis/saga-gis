@@ -112,8 +112,12 @@ public:
 	bool						Del					(class CWKSP_Layer *pLayer);
 	bool						Update				(class CWKSP_Layer *pLayer, bool bMapsOnly);
 
+	void						Set_Mouse_Position	(const TSG_Point &Point, const CSG_Projection &Projection);
+
 
 private:
+
+	int							m_CrossHair;
 
 };
 

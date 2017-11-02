@@ -144,6 +144,60 @@ void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool		Get_Projected(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point)
+{
+	if( Source == Target )
+	{
+		return( true );
+	}
+
+	if( !Source.is_Okay() || !Target.is_Okay() )
+	{
+		return( false );
+	}
+
+	CSG_Tool	*pProjector	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
+
+	if( !pProjector || pProjector->is_Executing() )
+	{
+		return( false );
+	}
+
+	CSG_Shapes	Points[2];
+
+	Points[1].Create(SHAPE_TYPE_Point);
+	Points[0].Create(SHAPE_TYPE_Point);
+	Points[0].Get_Projection().Create(Source);
+	Points[0].Add_Shape()->Add_Point(Point);
+
+	SG_UI_ProgressAndMsg_Lock(true);
+	pProjector->Settings_Push(NULL);
+
+	bool	bResult	=
+	    pProjector->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
+	&&  pProjector->Set_Parameter("SOURCE"   , Points + 0)
+	&&  pProjector->Set_Parameter("TARGET"   , Points + 1)
+	&&  pProjector->Execute();
+
+	pProjector->Settings_Pop();
+	SG_UI_ProgressAndMsg_Lock(false);
+
+	if( bResult )
+	{
+		Point	= Points[1].Get_Shape(0)->Get_Point(0);
+	}
+
+	return( bResult );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 wxString	Get_nBytes_asString(double nBytes, int Precision)
 {
 	if( nBytes < 1024 )
@@ -168,19 +222,6 @@ wxString	Get_nBytes_asString(double nBytes, int Precision)
 	dSize	/= 1024.0;
 
 	return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("GB")) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double		Get_Random(double loValue, double hiValue)
-{
-	return( loValue + (hiValue - loValue) * (double)rand() / (double)RAND_MAX );
 }
 
 
@@ -340,9 +381,9 @@ int			Get_Color_asInt(wxColour Color)
 wxColour	Get_Color_Random(int rLo, int rHi, int gLo, int gHi, int bLo, int bHi)
 {
 	return( wxColour(
-		(int)(0.5 + Get_Random(rLo, rHi)),
-		(int)(0.5 + Get_Random(gLo, gHi)),
-		(int)(0.5 + Get_Random(bLo, bHi))
+		(int)(0.5 + CSG_Random::Get_Uniform(rLo, rHi)),
+		(int)(0.5 + CSG_Random::Get_Uniform(gLo, gHi)),
+		(int)(0.5 + CSG_Random::Get_Uniform(bLo, bHi))
 	));
 }
 
