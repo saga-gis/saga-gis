@@ -1939,3 +1939,111 @@ bool CSG_Projections::_Set_Dictionary(CSG_Translator &Dictionary, int Direction)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include "shapes.h"
+#include "tool_library.h"
+
+//---------------------------------------------------------
+bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Projection &Target)
+{
+	if( !pSource || !pSource->is_Valid() || !pTarget )
+	{
+		return( false );
+	}
+
+	if( pSource->Get_Projection() == Target )
+	{
+		return( pTarget->Create(*pSource) );
+	}
+
+	if( !pSource->Get_Projection().is_Okay() || !Target.is_Okay() )
+	{
+		return( false );
+	}
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
+
+	if( !pTool || pTool->is_Executing() )
+	{
+		return( false );
+	}
+
+	SG_UI_ProgressAndMsg_Lock(true);
+	pTool->Settings_Push(NULL);
+
+	bool	bResult	=
+	    pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
+	&&  pTool->Set_Parameter("SOURCE"   , pSource)
+	&&  pTool->Set_Parameter("TARGET"   , pTarget)
+	&&  pTool->Execute();
+
+	pTool->Settings_Pop();
+	SG_UI_ProgressAndMsg_Lock(false);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point)
+{
+	if( Source == Target )
+	{
+		return( true );
+	}
+
+	if( Source.is_Okay() && Target.is_Okay() )
+	{
+		CSG_Shapes	Points[2];
+
+		Points[0].Create(SHAPE_TYPE_Point);
+		Points[0].Get_Projection().Create(Source);
+		Points[0].Add_Shape()->Add_Point(Point);
+
+		if( SG_Get_Projected(&Points[0], &Points[1], Target) )
+		{
+			Point	= Points[1].Get_Shape(0)->Get_Point(0);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Rect &Rectangle)
+{
+	if( Source == Target )
+	{
+		return( true );
+	}
+
+	if( Source.is_Okay() && Target.is_Okay() )
+	{
+		CSG_Shapes	Points[2];
+
+		Points[0].Create(SHAPE_TYPE_Point);
+		Points[0].Get_Projection().Create(Source);
+		Points[0].Add_Shape()->Add_Point(Rectangle.xMin, Rectangle.yMin);
+		Points[0].Add_Shape()->Add_Point(Rectangle.xMin, Rectangle.yMax);
+		Points[0].Add_Shape()->Add_Point(Rectangle.xMax, Rectangle.yMax);
+		Points[0].Add_Shape()->Add_Point(Rectangle.xMax, Rectangle.yMin);
+
+		if( SG_Get_Projected(&Points[0], &Points[1], Target) )
+		{
+			Rectangle	= Points[1].Get_Extent();
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

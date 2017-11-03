@@ -840,6 +840,12 @@ private:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT CSG_Projections &	SG_Get_Projections	(void);
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(class CSG_Shapes *pSource, class CSG_Shapes *pTarget, const CSG_Projection &Target);
+
+SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point    );
+SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Rect  &Rectangle);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
