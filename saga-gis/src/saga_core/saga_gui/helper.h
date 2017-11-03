@@ -72,10 +72,6 @@
 
 //---------------------------------------------------------
 #include <wx/wx.h>
-#include <wx/gdicmn.h>
-#include <wx/string.h>
-#include <wx/colour.h>
-#include <wx/settings.h>
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -88,16 +84,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class wxString		Get_SignificantDecimals_String	(double Value, int maxDecimals = 6);
+wxString			Get_SignificantDecimals_String	(double Value, int maxDecimals = 6);
 
-//---------------------------------------------------------
-double				Degree_To_Decimal				(double Deg, double Min, double Sec);
-void				Decimal_To_Degree				(double Value, double &Deg, double &Min, double &Sec);
-
-//---------------------------------------------------------
-bool				Get_Projected					(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point);
-
-//---------------------------------------------------------
 wxString			Get_nBytes_asString				(double nBytes, int Precision = -1);
 
 //---------------------------------------------------------
@@ -116,14 +104,12 @@ wxFont				Get_Font						(CSG_Parameter *pFont);
 wxColour			Get_Color_asWX					(int Color);
 int					Get_Color_asInt					(wxColour Color);
 
-wxColour			Get_Color_Random				(int rLo = 0, int rHi = 255, int gLo = 0, int gHi = 255, int bLo = 0, int bHi = 255);
-
 wxColour			SYS_Get_Color					(wxSystemColour index);
 void				SYS_Set_Color_BG				(wxWindow *pWindow, wxSystemColour index);
 void				SYS_Set_Color_BG_Window			(wxWindow *pWindow);
 
 //---------------------------------------------------------
-class wxWindow *	MDI_Get_Frame					(void);
+wxWindow *			MDI_Get_Frame					(void);
 
 wxPoint				MDI_Get_Def_Position			(void);
 wxSize				MDI_Get_Def_Size				(void);
@@ -183,7 +169,7 @@ bool				PROGRESSBAR_Set_Position		(double Position, double Range);
 bool				Open_Application				(const wxString &Reference, const wxString &Mime_Extension = "");
 bool				Open_WebBrowser					(const wxString &Reference);
 
-wxString			Get_Online_Tool_Description	(const wxString &Library, const wxString &ID = "");
+wxString			Get_Online_Tool_Description		(const wxString &Library, const wxString &ID = "");
 
 //---------------------------------------------------------
 enum
@@ -200,11 +186,11 @@ enum
 void				STATUSBAR_Set_Text				(const wxString &Text, int iPane = 0);
 
 //---------------------------------------------------------
-#define DESC_ADD_STR(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"), label, value))
-#define DESC_ADD_INT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>"), label, value))
-#define DESC_ADD_LONG(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%lld</td></tr>"), label, value))
-#define DESC_ADD_FLT(label, value)	s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"), label, SG_Get_String(value, -20).c_str()))
-#define DESC_ADD_SIZET(label, value) s.Append(wxString::Format(wxT("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%zu</td></tr>"), label, value))
+#define DESC_ADD_STR(  label, value)	s.Append(wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"  , label, value))
+#define DESC_ADD_INT(  label, value)	s.Append(wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>"  , label, value))
+#define DESC_ADD_LONG( label, value)	s.Append(wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%lld</td></tr>", label, value))
+#define DESC_ADD_FLT(  label, value)	s.Append(wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%s</td></tr>"  , label, SG_Get_String(value, -20).c_str()))
+#define DESC_ADD_SIZET(label, value)	s.Append(wxString::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%zu</td></tr>" , label, value))
 
 
 ///////////////////////////////////////////////////////////

@@ -66,8 +66,9 @@
 #include <wx/mimetype.h>
 #include <wx/filename.h>
 #include <wx/protocol/http.h>
-
-#include <saga_api/saga_api.h>
+#include <wx/gdicmn.h>
+#include <wx/colour.h>
+#include <wx/settings.h>
 
 #include "helper.h"
 
@@ -89,139 +90,34 @@
 //---------------------------------------------------------
 wxString	Get_SignificantDecimals_String(double Value, int maxDecimals)
 {
-	wxString	s;
-
-	s.Printf(wxT("%.*f"), SG_Get_Significant_Decimals(Value, maxDecimals), Value);
-
-	return( s );
+	return( wxString::Format("%.*f", SG_Get_Significant_Decimals(Value, maxDecimals), Value) );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-double		Degree_To_Decimal(double Deg, double Min, double Sec)
-{
-	return( Deg > 0.0
-		? (Deg + Min / 60.0 + Sec / (60.0 * 60.0))
-		: (Deg - Min / 60.0 - Sec / (60.0 * 60.0))
-	);
-}
-
-//---------------------------------------------------------
-void		Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
-{
-	bool	bNegative = false;
-
-	if( Value < 0 )
-	{
-		Value		= fabs(Value);
-		bNegative	= true;
-	}
-
-	Value	= fmod(Value, 360.0);
-	Deg		= (int)Value;
-	Value	= 60.0 * (Value - Deg);
-	Min		= (int)Value;
-	Value	= 60.0 * (Value - Min);
-	Sec		= Value;
-
-	if( bNegative )
-	{
-		Deg	*= -1.0;
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool		Get_Projected(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point)
-{
-	if( Source == Target )
-	{
-		return( true );
-	}
-
-	if( !Source.is_Okay() || !Target.is_Okay() )
-	{
-		return( false );
-	}
-
-	CSG_Tool	*pProjector	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
-
-	if( !pProjector || pProjector->is_Executing() )
-	{
-		return( false );
-	}
-
-	CSG_Shapes	Points[2];
-
-	Points[1].Create(SHAPE_TYPE_Point);
-	Points[0].Create(SHAPE_TYPE_Point);
-	Points[0].Get_Projection().Create(Source);
-	Points[0].Add_Shape()->Add_Point(Point);
-
-	SG_UI_ProgressAndMsg_Lock(true);
-	pProjector->Settings_Push(NULL);
-
-	bool	bResult	=
-	    pProjector->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
-	&&  pProjector->Set_Parameter("SOURCE"   , Points + 0)
-	&&  pProjector->Set_Parameter("TARGET"   , Points + 1)
-	&&  pProjector->Execute();
-
-	pProjector->Settings_Pop();
-	SG_UI_ProgressAndMsg_Lock(false);
-
-	if( bResult )
-	{
-		Point	= Points[1].Get_Shape(0)->Get_Point(0);
-	}
-
-	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxString	Get_nBytes_asString(double nBytes, int Precision)
 {
 	if( nBytes < 1024 )
 	{
-		return( wxString::Format(wxT("%.0f %s"), nBytes, wxT("bytes")) );
+		return( wxString::Format("%.0f %s", nBytes, _TL("bytes")) );
 	}
 
 	double	dSize	= nBytes / 1024.0;
 
 	if( dSize < 1024 )
 	{
-		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("kB")) );
+		return( wxString::Format("%.*f %s", Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, _TL("kB")) );
 	}
 
 	dSize	/= 1024.0;
 
 	if( dSize < 1024 )
 	{
-		return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("MB")) );
+		return( wxString::Format("%.*f %s", Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, _TL("MB")) );
 	}
 
 	dSize	/= 1024.0;
 
-	return( wxString::Format(wxT("%.*f %s"), Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, wxT("GB")) );
+	return( wxString::Format("%.*f %s", Precision < 0 ? SG_Get_Significant_Decimals(dSize, 20) : Precision, dSize, _TL("GB")) );
 }
 
 
@@ -258,6 +154,13 @@ wxString	Get_FilePath_Absolute(const wxString &Directory, const wxString &FileNa
 
 	return( fn.GetFullPath() );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 wxString		Get_TableInfo_asHTML(const CSG_Table *pTable)
@@ -375,16 +278,6 @@ wxColour	Get_Color_asWX(int Color)
 int			Get_Color_asInt(wxColour Color)
 {
 	return( SG_GET_RGB(Color.Red(), Color.Green(), Color.Blue()) );
-}
-
-//---------------------------------------------------------
-wxColour	Get_Color_Random(int rLo, int rHi, int gLo, int gHi, int bLo, int bHi)
-{
-	return( wxColour(
-		(int)(0.5 + CSG_Random::Get_Uniform(rLo, rHi)),
-		(int)(0.5 + CSG_Random::Get_Uniform(gLo, gHi)),
-		(int)(0.5 + CSG_Random::Get_Uniform(bLo, bHi))
-	));
 }
 
 //---------------------------------------------------------
@@ -600,7 +493,7 @@ bool		CONFIG_Read(const wxString &Group, const wxString &Entry, wxString &Value)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+	pConfig->SetPath(wxString::Format("/%s", Group));
 
 	return( pConfig->Read(Entry, &Value) );
 }
@@ -610,7 +503,7 @@ bool		CONFIG_Read(const wxString &Group, const wxString &Entry, long &Value)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+	pConfig->SetPath(wxString::Format("/%s", Group));
 
 	return( pConfig->Read(Entry, &Value) );
 }
@@ -620,7 +513,7 @@ bool		CONFIG_Read(const wxString &Group, const wxString &Entry, double &Value)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+	pConfig->SetPath(wxString::Format("/%s", Group));
 
 	return( pConfig->Read(Entry, &Value) );
 }
@@ -630,7 +523,7 @@ bool		CONFIG_Read(const wxString &Group, const wxString &Entry, bool &Value)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+	pConfig->SetPath(wxString::Format("/%s", Group));
 
 	return( pConfig->Read(Entry, &Value) );
 }
@@ -642,7 +535,7 @@ bool		CONFIG_Write(const wxString &Group, const wxString &Entry, const wxString 
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 	}
@@ -667,7 +560,7 @@ bool		CONFIG_Write(const wxString &Group, const wxString &Entry, long Value)
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 	}
@@ -682,7 +575,7 @@ bool		CONFIG_Write(const wxString &Group, const wxString &Entry, double Value)
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 	}
@@ -697,7 +590,7 @@ bool		CONFIG_Write(const wxString &Group, const wxString &Entry, bool Value)
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		return( pConfig->Write(Entry, Value) ? pConfig->Flush() : false );
 	}
@@ -724,7 +617,7 @@ bool		CONFIG_Delete(const wxString &Group, const wxString &Entry)
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		return( pConfig->DeleteEntry(Entry) ? pConfig->Flush() : false );
 	}
@@ -786,7 +679,7 @@ bool		CONFIG_Read(const wxString &Group, CSG_Parameters *pParameters)
 {
 	wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-	pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+	pConfig->SetPath(wxString::Format("/%s", Group));
 
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
@@ -859,7 +752,7 @@ bool		CONFIG_Write(const wxString &Group, CSG_Parameters *pParameters)
 	{
 		wxConfigBase	*pConfig	= wxConfigBase::Get();
 
-		pConfig->SetPath(wxString::Format(wxT("/%s"), Group));
+		pConfig->SetPath(wxString::Format("/%s", Group));
 
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{

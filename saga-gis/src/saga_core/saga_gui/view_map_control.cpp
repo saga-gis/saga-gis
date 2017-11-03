@@ -207,7 +207,7 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 		{
 			CSG_Projection	GCS; GCS.Set_GCS_WGS84(); TSG_Point Position = Point;
 
-			if( Get_Projected(m_pMap->Get_Projection(), GCS, Position) )
+			if( SG_Get_Projected(m_pMap->Get_Projection(), GCS, Position) )
 			{
 				STATUSBAR_Set_Text(wxString::Format("X %s", SG_Double_To_Degree(Position.x).c_str()), STATUSBAR_VIEW_X);
 				STATUSBAR_Set_Text(wxString::Format("Y %s", SG_Double_To_Degree(Position.y).c_str()), STATUSBAR_VIEW_Y);

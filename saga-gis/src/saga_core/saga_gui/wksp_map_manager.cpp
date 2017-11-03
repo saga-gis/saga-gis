@@ -380,9 +380,7 @@ bool CWKSP_Map_Manager::Add(CWKSP_Layer *pLayer, CWKSP_Map *pMap)
 			Add_Item(pMap);
 		}
 
-		pMap->Add_Layer(pLayer);
-
-		return( true );
+		return( pMap->Add_Layer(pLayer) != NULL );
 	}
 
 	return( false );
@@ -424,6 +422,17 @@ bool CWKSP_Map_Manager::Update(CWKSP_Layer *pLayer, bool bMapsOnly)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Map_Manager::Set_Extents(const TSG_Rect &Extent, const CSG_Projection &Projection)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		Get_Map(i)->Lock_Synchronising(true);
+		Get_Map(i)->Set_Extent(Extent, Projection);
+		Get_Map(i)->Lock_Synchronising(false);
+	}
+}
 
 //---------------------------------------------------------
 void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Projection &Projection)

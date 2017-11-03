@@ -200,6 +200,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
 	m_Img_bSave		= false;
+	m_Sync_bLock	= false;
 
 	On_Create_Parameters();
 }
@@ -790,16 +791,9 @@ CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
-	CWKSP_Map_Layer	*pItem;
-
 	if( Get_Layer(pLayer) < 0 )
 	{
-		if( Get_Count() == 0 )
-		{
-			Set_Extent(pLayer->Get_Extent());
-		}
-
-		if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Extent().Get_XRange() > 0.0 && pLayer->Get_Extent().Get_YRange() > 0.0) )
+		if( Get_Count() == 0 || m_Parameters("GOTO_NEWLAYER")->asBool() )
 		{
 			Set_Extent(pLayer->Get_Extent());
 		}
@@ -811,8 +805,9 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 			Parameters_Changed();
 		}
 
-		Add_Item(pItem = new CWKSP_Map_Layer(pLayer));
+		CWKSP_Map_Layer	*pItem	= new CWKSP_Map_Layer(pLayer);
 
+		Add_Item(pItem);
 		Move_Top(pItem);
 
 		if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
@@ -829,14 +824,13 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 CWKSP_Map_Graticule * CWKSP_Map::Add_Graticule(CSG_MetaData *pEntry)
 {
-	CWKSP_Map_Graticule	*pItem;
-
 	if( (Get_Count() > 0 && m_Projection.is_Okay()) || pEntry )
 	{
 		g_pMaps->Add(this);
 
-		Add_Item(pItem = new CWKSP_Map_Graticule(pEntry));
+		CWKSP_Map_Graticule	*pItem	= new CWKSP_Map_Graticule(pEntry);
 
+		Add_Item(pItem);
 		Move_Top(pItem);
 
 		View_Refresh(true);
@@ -848,20 +842,20 @@ CWKSP_Map_Graticule * CWKSP_Map::Add_Graticule(CSG_MetaData *pEntry)
 }
 
 //---------------------------------------------------------
-class CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
+CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
 {
-	CWKSP_Map_BaseMap	*pItem;
-
 	if( (Get_Count() > 0 && m_Projection.is_Okay()) || pEntry )
 	{
 		g_pMaps->Add(this);
 
-		Add_Item(pItem = new CWKSP_Map_BaseMap(pEntry));
+		CWKSP_Map_BaseMap	*pItem	= new CWKSP_Map_BaseMap(pEntry);
 
 		if( !pEntry )
 		{
 			pItem->Dlg_Parameters();
 		}
+
+		Add_Item(pItem);
 
 		switch( pItem->Get_Parameter("POSITION")->asInt() )
 		{
@@ -919,7 +913,7 @@ CWKSP_Base_Item * CWKSP_Map::Add_Copy(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
+bool CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 {
 	if( Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 )
 	{
@@ -933,15 +927,19 @@ void CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 			}
 		}
 
-		if( m_Parameters("SYNC_MAPS")->asBool() )
+		if( !m_Sync_bLock && m_Parameters("SYNC_MAPS")->asBool() )
 		{
-			_Synchronise_Extents();
+			((CWKSP_Map_Manager *)Get_Manager())->Set_Extents(Get_Extent(), m_Projection);
 		}
+
+		return( true );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
+bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
 {
 	CSG_Rect	r(Extent);
 
@@ -960,30 +958,55 @@ void CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
 	if( m_Extents.Add_Extent(r, bReset) )
 	{
 		_Set_Extent(r);
+
+		return( true );
 	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent(void)
+bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Projection)
 {
-	CSG_Parameters	p(NULL, _TL("Map Extent"), _TL(""));
-
-	p.Add_Range(NULL, "X", _TL("West-East")		, _TL(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
-	p.Add_Range(NULL, "Y", _TL("South-North")	, _TL(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
-
-	if( DLG_Parameters(&p) )
+	if( Projection == m_Projection )
 	{
-		Set_Extent(CSG_Rect(
-			p("X")->asRange()->Get_LoVal(),
-			p("Y")->asRange()->Get_LoVal(),
-			p("X")->asRange()->Get_HiVal(),
-			p("Y")->asRange()->Get_HiVal())
-		);
+		return( Set_Extent(Extent) );
 	}
+
+	if( Projection.is_Okay() )
+	{
+		TSG_Rect	r	= Extent;
+
+		if( SG_Get_Projected(Projection, m_Projection, r) )
+		{
+			return( Set_Extent(r) );
+		}
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent_Full(void)
+bool CWKSP_Map::Set_Extent(void)
+{
+	CSG_Parameters	P(NULL, _TL("Map Extent"), _TL(""));
+
+	P.Add_Range("", "X", _TL("West-East"  ), _TL(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
+	P.Add_Range("", "Y", _TL("South-North"), _TL(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
+
+	if( DLG_Parameters(&P) )
+	{
+		return( Set_Extent(CSG_Rect(
+			P("X")->asRange()->Get_LoVal(), P("Y")->asRange()->Get_LoVal(),
+			P("X")->asRange()->Get_HiVal(), P("Y")->asRange()->Get_HiVal())
+		));
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map::Set_Extent_Full(void)
 {
 	CSG_Rect	Extent;
 
@@ -1004,25 +1027,19 @@ void CWKSP_Map::Set_Extent_Full(void)
 		}
 	}
 
-	Set_Extent(Extent);
+	return( Set_Extent(Extent) );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent_Active(void)
+bool CWKSP_Map::Set_Extent_Active(void)
 {
-	if( Get_Active_Layer() )
-	{
-		Set_Extent(Get_Active_Layer()->Get_Extent());
-	}
+	return( Get_Active_Layer() && Set_Extent(Get_Active_Layer()->Get_Extent()) );
 }
 
 //---------------------------------------------------------
-void CWKSP_Map::Set_Extent_Selection(void)
+bool CWKSP_Map::Set_Extent_Selection(void)
 {
-	if( Get_Active_Layer() )
-	{
-		Set_Extent(Get_Active_Layer()->Edit_Get_Extent());
-	}
+	return( Get_Active_Layer() && Set_Extent(Get_Active_Layer()->Edit_Get_Extent()) );
 }
 
 //---------------------------------------------------------
@@ -1055,6 +1072,35 @@ bool CWKSP_Map::Set_Extent_Forward(bool bCheck_Only)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map::is_Synchronising(void)
+{
+	return( m_Parameters("SYNC_MAPS")->asBool() );
+}
+
+void CWKSP_Map::Set_Synchronising(bool bOn)
+{
+	if( m_Parameters("SYNC_MAPS")->asBool() != bOn )
+	{
+		m_Parameters("SYNC_MAPS")->Set_Value(bOn ? 1 : 0);
+	}
+
+	if( bOn )
+	{
+		((CWKSP_Map_Manager *)Get_Manager())->Set_Extents(Get_Extent(), m_Projection);
+	}
+}
+
+void CWKSP_Map::Lock_Synchronising(bool bOn)
+{
+	m_Sync_bLock	= bOn;
 }
 
 //---------------------------------------------------------
@@ -1096,37 +1142,6 @@ void CWKSP_Map::Set_ScaleBar(bool bOn)
 	}
 }
 
-//---------------------------------------------------------
-bool CWKSP_Map::is_Synchronising(void)
-{
-	return( m_Parameters("SYNC_MAPS")->asBool() );
-}
-
-void CWKSP_Map::Set_Synchronising(bool bOn)
-{
-	if( m_Parameters("SYNC_MAPS")->asBool() != bOn )
-	{
-		m_Parameters("SYNC_MAPS")->Set_Value(bOn ? 1 : 0);
-	}
-
-	if( bOn )
-	{
-		_Synchronise_Extents();
-	}
-}
-
-//---------------------------------------------------------
-void CWKSP_Map::_Synchronise_Extents(void)
-{
-	for(int i=0; i<Get_Manager()->Get_Count(); i++)
-	{
-		if( Get_Manager()->Get_Item(i) != this )
-		{
-			((CWKSP_Map_Manager *)Get_Manager())->Get_Map(i)->Set_Extent(Get_Extent());
-		}
-	}
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1151,7 +1166,7 @@ void CWKSP_Map::Set_CrossHair(const TSG_Point &Point, const CSG_Projection &Proj
 		{
 			TSG_Point	p	= Point;
 
-			if( Get_Projected(Projection, m_Projection, p) )
+			if( SG_Get_Projected(Projection, m_Projection, p) )
 			{
 				if( m_pView )
 				{

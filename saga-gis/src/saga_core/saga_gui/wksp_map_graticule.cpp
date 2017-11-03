@@ -440,31 +440,25 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 
 	if(	pTool && Get_Map()->Get_Projection().is_Okay() )
 	{
-		SG_UI_Msg_Lock     (true);
-		SG_UI_Progress_Lock(true);
-
+		SG_UI_ProgressAndMsg_Lock(true);
 		pTool->Settings_Push();
 
-		if( pTool->Set_Parameter("XMIN"      , Extent.Get_XMin())
-		&&  pTool->Set_Parameter("XMAX"      , Extent.Get_XMax())
-		&&  pTool->Set_Parameter("YMIN"      , Extent.Get_YMin())
-		&&  pTool->Set_Parameter("YMAX"      , Extent.Get_YMax())
-		&&  pTool->Set_Parameter("INTERVAL"  , m_Parameters("INTERVAL"))
-		&&  pTool->Set_Parameter("FIXED"     , m_Parameters("FIXED"))
-		&&  pTool->Set_Parameter("FITTED"    , m_Parameters("FITTED"))
-		&&  pTool->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
-		&&  pTool->Set_Parameter("GRATICULE" , &m_Graticule)
-		&&  pTool->Set_Parameter("COORDS"    , &m_Coordinates)
-		&&  pTool->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
-		&&  pTool->On_Before_Execution() && pTool->Execute() )
-		{
-			bResult	= true;
-		}
+		bResult	=  pTool->Set_Parameter("XMIN"      , Extent.Get_XMin())
+				&& pTool->Set_Parameter("XMAX"      , Extent.Get_XMax())
+				&& pTool->Set_Parameter("YMIN"      , Extent.Get_YMin())
+				&& pTool->Set_Parameter("YMAX"      , Extent.Get_YMax())
+				&& pTool->Set_Parameter("INTERVAL"  , m_Parameters("INTERVAL"  ))
+				&& pTool->Set_Parameter("FIXED"     , m_Parameters("FIXED"     ))
+				&& pTool->Set_Parameter("FITTED"    , m_Parameters("FITTED"    ))
+				&& pTool->Set_Parameter("RESOLUTION", m_Parameters("RESOLUTION"))
+				&& pTool->Set_Parameter("GRATICULE" , &m_Graticule)
+				&& pTool->Set_Parameter("COORDS"    , &m_Coordinates)
+				&& pTool->Set_Parameter("CRS_PROJ4" , Get_Map()->Get_Projection().Get_Proj4())
+				&& pTool->On_Before_Execution()
+				&& pTool->Execute();
 
 		pTool->Settings_Pop();
-
-		SG_UI_Msg_Lock     (false);
-		SG_UI_Progress_Lock(false);
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
 	return( bResult );

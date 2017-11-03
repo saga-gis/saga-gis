@@ -849,7 +849,7 @@ CParameters_PG_Degree::CParameters_PG_Degree(const wxString &label, const wxStri
 
 		double	d, m, s;
 
-		Decimal_To_Degree(pParameter->asDouble(), d, m, s);
+		SG_Decimal_To_Degree(pParameter->asDouble(), d, m, s);
 
 		AddPrivateChild( new wxIntProperty  ("Degree", wxPG_LABEL, (int)d));
 		AddPrivateChild( new wxIntProperty  ("Minute", wxPG_LABEL, (int)m));
@@ -866,7 +866,7 @@ wxVariant CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childInd
 	{
 		double	d, m, s;
 
-		Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+		SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
 
 		switch( childIndex )
 		{
@@ -875,7 +875,7 @@ wxVariant CParameters_PG_Degree::ChildChanged(wxVariant &thisValue, int childInd
 		case 2:	s	= childValue.GetDouble ();	break;
 		}
 
-		value.m_pParameter->Set_Value(Degree_To_Decimal(d, m, s));
+		value.m_pParameter->Set_Value(SG_Degree_To_Decimal(d, m, s));
 	}
 
 	wxVariant	v;	v	<< value;	return( v );
@@ -890,7 +890,7 @@ void CParameters_PG_Degree::RefreshChildren(void)
 	{
 		double	d, m, s;
 
-		Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
+		SG_Decimal_To_Degree(value.m_pParameter->asDouble(), d, m, s);
 
 		Item(0)->SetValue((int)d);
 		Item(1)->SetValue((int)m);
