@@ -154,6 +154,10 @@ SAGA_API_DLL_EXPORT	int			SG_Compare_Int			(const void *a, const void *b);
 SAGA_API_DLL_EXPORT	int			SG_Compare_Double		(const void *a, const void *b);
 SAGA_API_DLL_EXPORT	int			SG_Compare_Char_Ptr		(const void *a, const void *b);
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT	double		SG_Degree_To_Decimal	(              double  Deg, double  Min, double  Sec);
+SAGA_API_DLL_EXPORT	void		SG_Decimal_To_Degree	(double Value, double &Deg, double &Min, double &Sec);
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -227,6 +227,36 @@ int SG_Compare_Char_Ptr(const void *a, const void *b)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double	SG_Degree_To_Decimal(double Deg, double Min, double Sec)
+{
+	return( Deg > 0.
+		? (Deg + Min / 60. + Sec / 3600.)
+		: (Deg - Min / 60. - Sec / 3600.)
+	);
+}
+
+//---------------------------------------------------------
+void	SG_Decimal_To_Degree(double Value, double &Deg, double &Min, double &Sec)
+{
+	Sec	= fmod(Value < 0. ? -Value : Value, 360.);
+
+	Deg	= (int)Sec; Sec = 60. * (Sec - Deg);
+	Min	= (int)Sec; Sec = 60. * (Sec - Min);
+
+	if( Value < 0. )
+	{
+		Deg	= -Deg;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CSG_Random::CSG_Random(void)
 {
 	Initialize();
