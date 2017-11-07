@@ -718,7 +718,8 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 		case SG_DATATYPE_Short : *((short  *)pPoint) = (short )Value ; break;
 		case SG_DATATYPE_DWord : *((DWORD  *)pPoint) = (DWORD )Value ; break;
 		case SG_DATATYPE_Int   : *((int    *)pPoint) = (int   )Value ; break;
-		case SG_DATATYPE_Long  : *((long   *)pPoint) = (long  )Value ; break;
+		case SG_DATATYPE_Long  : *((sLong  *)pPoint) = (sLong )Value ; break;
+		case SG_DATATYPE_ULong : *((uLong  *)pPoint) = (uLong )Value ; break;
 		case SG_DATATYPE_Float : *((float  *)pPoint) = (float )Value ; break;
 		case SG_DATATYPE_Double: *((double *)pPoint) = (double)Value ; break;
 		case SG_DATATYPE_String: sprintf(    pPoint, "%f"    , Value); break;
@@ -742,16 +743,17 @@ double CSG_PointCloud::_Get_Field_Value(char *pPoint, int iField) const
 
 		switch( m_Field_Type[iField] )
 		{
-		case SG_DATATYPE_Byte  : return( *((BYTE   *)pPoint) );
-		case SG_DATATYPE_Char  : return( *((char   *)pPoint) );
-		case SG_DATATYPE_Word  : return( *((WORD   *)pPoint) );
-		case SG_DATATYPE_Short : return( *((short  *)pPoint) );
-		case SG_DATATYPE_DWord : return( *((DWORD  *)pPoint) );
-		case SG_DATATYPE_Int   : return( *((int    *)pPoint) );
-		case SG_DATATYPE_Long  : return( *((long   *)pPoint) );
-		case SG_DATATYPE_Float : return( *((float  *)pPoint) );
-		case SG_DATATYPE_Double: return( *((double *)pPoint) );
-		case SG_DATATYPE_String: return( atof(       pPoint) );
+		case SG_DATATYPE_Byte  : return( (double)*((BYTE   *)pPoint) );
+		case SG_DATATYPE_Char  : return( (double)*((char   *)pPoint) );
+		case SG_DATATYPE_Word  : return( (double)*((WORD   *)pPoint) );
+		case SG_DATATYPE_Short : return( (double)*((short  *)pPoint) );
+		case SG_DATATYPE_DWord : return( (double)*((DWORD  *)pPoint) );
+		case SG_DATATYPE_Int   : return( (double)*((int    *)pPoint) );
+		case SG_DATATYPE_Long  : return( (double)*((sLong  *)pPoint) );
+		case SG_DATATYPE_ULong : return( (double)*((uLong  *)pPoint) );
+		case SG_DATATYPE_Float : return( (double)*((float  *)pPoint) );
+		case SG_DATATYPE_Double: return( (double)*((double *)pPoint) );
+		case SG_DATATYPE_String: return( (double)atof(       pPoint) );
 		default                : break;
 		}
 	}
@@ -1091,14 +1093,9 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 		{
 			switch( Get_Field_Type(i) )
 			{
-			default:
-				Set_Value(i, pShape->asDouble(i));
-				break;
-
-			case SG_DATATYPE_Date:
-			case SG_DATATYPE_String:
-				Set_Value(i, pShape->asString(i));
-				break;
+			default                : _Set_Field_Value(m_Cursor, i, pShape->asDouble(i)); break;
+			case SG_DATATYPE_Date  :
+			case SG_DATATYPE_String: _Set_Field_Value(m_Cursor, i, pShape->asString(i)); break;
 			}
 		}
 
@@ -1120,18 +1117,12 @@ CSG_Shape * CSG_PointCloud::_Set_Shape(int iPoint)
 			{
 				switch( Get_Field_Type(i) )
 				{
-				default:
-					pShape->Set_Value(i, Get_Value(i));
-					break;
+				default: pShape->Set_Value(i, _Get_Field_Value(m_Cursor, i)); break;
 
-				case SG_DATATYPE_Date:
+				case SG_DATATYPE_Date  :
 				case SG_DATATYPE_String:
 					{
-						CSG_String	s;
-
-						Get_Value(i, s);
-
-						pShape->Set_Value(i, s);
+						CSG_String	s; _Get_Field_Value(m_Cursor, i, s); pShape->Set_Value(i, s);
 					}
 					break;
 				}

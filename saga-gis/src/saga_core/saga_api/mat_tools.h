@@ -128,6 +128,7 @@
 #define SG_ROUND_TO_DWORD(x)	((DWORD)(x < 0.0 ? x - 0.5 : x + 0.5))
 #define SG_ROUND_TO_INT(x)		((int  )(x < 0.0 ? x - 0.5 : x + 0.5))
 #define SG_ROUND_TO_LONG(x)		((long )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_ULONG(x)	((uLong)(x < 0.0 ? x - 0.5 : x + 0.5))
 #define SG_ROUND_TO_SLONG(x)	((sLong)(x < 0.0 ? x - 0.5 : x + 0.5))
 
 

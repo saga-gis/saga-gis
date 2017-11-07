@@ -790,6 +790,7 @@ public:		///////////////////////////////////////////////
 			case SG_DATATYPE_DWord : ((DWORD  **)m_Values)[y][x] = SG_ROUND_TO_DWORD(Value); break;
 			case SG_DATATYPE_Int   : ((int    **)m_Values)[y][x] = SG_ROUND_TO_INT  (Value); break;
 			case SG_DATATYPE_Long  : ((sLong  **)m_Values)[y][x] = SG_ROUND_TO_SLONG(Value); break;
+			case SG_DATATYPE_ULong : ((uLong  **)m_Values)[y][x] = SG_ROUND_TO_ULONG(Value); break;
 			case SG_DATATYPE_Bit   : ((BYTE   **)m_Values)[y][x / 8] = Value != 0.0
 					? ((BYTE  **)m_Values)[y][x / 8] |   m_Bitmask[x % 8]
 					: ((BYTE  **)m_Values)[y][x / 8] & (~m_Bitmask[x % 8]);
