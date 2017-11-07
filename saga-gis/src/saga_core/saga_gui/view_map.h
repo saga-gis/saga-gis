@@ -137,6 +137,7 @@ private:
 	void							On_Map_North_Arrow			(wxCommandEvent  &event);
 	void							On_Map_Graticule			(wxCommandEvent  &event);
 	void							On_Map_BaseMap				(wxCommandEvent  &event);
+	void							On_Map_CrossHair			(wxCommandEvent  &event);
 
 	void							On_Map_Mode_Zoom			(wxCommandEvent  &event);
 	void							On_Map_Mode_Pan				(wxCommandEvent  &event);

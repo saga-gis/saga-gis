@@ -956,6 +956,9 @@
     <None Include="res\xpm\wksp_odbc_source_on.xpm">
       <Filter>Resource Files\XPM</Filter>
     </None>
+    <None Include="res\xpm\tb_map_crosshair.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\saga_gui.rc">

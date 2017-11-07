@@ -72,6 +72,7 @@
 
 #include "wksp_layer.h"
 #include "wksp_map.h"
+#include "wksp_map_manager.h"
 
 #include "view_ruler.h"
 #include "view_map.h"
@@ -113,6 +114,7 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
 	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
+	EVT_MENU			(ID_CMD_MAP_CROSSHAIR					, CVIEW_Map::On_Map_CrossHair)
 
 	EVT_MENU			(ID_CMD_MAP_MODE_ZOOM					, CVIEW_Map::On_Map_Mode_Zoom)
 	EVT_MENU			(ID_CMD_MAP_MODE_PAN					, CVIEW_Map::On_Map_Mode_Pan)
@@ -186,7 +188,9 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_EXTENT);
+	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_SYNCHRONIZE);
+	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_CROSSHAIR);
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_MODE_SELECT);
 	CMD_Menu_Add_Item(pMenu, true , ID_CMD_MAP_MODE_ZOOM);
@@ -207,7 +211,9 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_ACTIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_SELECTION);
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_EXTENT);
+	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SYNCHRONIZE);
+	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_CROSSHAIR);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_MODE_SELECT);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_MODE_ZOOM);
@@ -452,6 +458,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		event.Enable(m_pMap->Set_Extent_Forward(true));
 		break;
 
+	case ID_CMD_MAP_CROSSHAIR:
+		event.Check(g_pMaps->is_CrossHair());
+		break;
+
 	case ID_CMD_MAP_GRATICULE_ADD:
 	case ID_CMD_MAP_BASEMAP_ADD:
 		event.Enable(m_pMap->Get_Count() > 0 && m_pMap->Get_Projection().is_Okay());
@@ -585,6 +595,12 @@ void CVIEW_Map::On_Map_BaseMap(wxCommandEvent &event)
 void CVIEW_Map::On_Map_Zoom_Synchronize(wxCommandEvent &event)
 {
 	m_pMap->Set_Synchronising(!m_pMap->is_Synchronising());
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_CrossHair(wxCommandEvent &event)
+{
+	g_pMaps->Toggle_CrossHair();
 }
 
 //---------------------------------------------------------

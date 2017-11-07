@@ -448,6 +448,22 @@ void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Pro
 	}
 }
 
+//---------------------------------------------------------
+bool CWKSP_Map_Manager::Toggle_CrossHair(void)
+{
+	m_Parameters("CROSSHAIR")->Set_Value(m_CrossHair = m_CrossHair != 0 ? 0 : 2);
+
+	if( !m_CrossHair )
+	{
+		for(int i=0; i<Get_Count(); i++)
+		{
+			Get_Map(i)->Set_CrossHair_Off();
+		}
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

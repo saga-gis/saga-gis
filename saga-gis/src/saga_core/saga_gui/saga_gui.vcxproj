@@ -1291,6 +1291,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\TB_MAP3D_SHIFT_Z_MORE.xpm" />
     <None Include="RES\XPM\TB_MAP3D_STEREO.xpm" />
     <None Include="RES\XPM\TB_MAP_3D_SHOW.xpm" />
+    <None Include="res\xpm\tb_map_crosshair.xpm" />
     <None Include="RES\XPM\TB_MAP_LAYOUT_SHOW.xpm" />
     <None Include="RES\XPM\TB_MAP_LEGEND_HORIZONTAL.xpm" />
     <None Include="RES\XPM\TB_MAP_LEGEND_VERTICAL.xpm" />

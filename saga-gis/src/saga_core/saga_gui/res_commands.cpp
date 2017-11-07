@@ -278,6 +278,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP_ZOOM_ACTIVE:				return( _TL("Zoom To Active Layer") );
 	case ID_CMD_MAP_ZOOM_SELECTION:				return( _TL("Zoom To Selection") );
 	case ID_CMD_MAP_ZOOM_EXTENT:				return( _TL("Zoom To Extent") );
+	case ID_CMD_MAP_CROSSHAIR:					return( _TL("Cross Hair") );
 
 	case ID_CMD_MAP3D_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_MAP3D_ROTATE_X_LESS:	return( _TL("Up") );
@@ -398,6 +399,7 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_MAP_ZOOM_ACTIVE:		return( ID_IMG_TB_MAP_ZOOM_ACTIVE );
 	case ID_CMD_MAP_ZOOM_SELECTION:		return( ID_IMG_TB_MAP_ZOOM_SELECTION );
 	case ID_CMD_MAP_ZOOM_EXTENT:		return( ID_IMG_TB_MAP_ZOOM_SELECTION );
+	case ID_CMD_MAP_CROSSHAIR:			return( ID_IMG_TB_MAP_CROSSHAIR );
 	case ID_CMD_MAP_3D_SHOW:			return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_MAPS_3D_SHOW:			return( ID_IMG_TB_MAP_3D_SHOW );
 	case ID_CMD_MAP_LAYOUT_SHOW:		return( ID_IMG_TB_MAP_LAYOUT_SHOW );

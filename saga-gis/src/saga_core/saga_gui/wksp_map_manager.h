@@ -115,6 +115,9 @@ public:
 	void						Set_Extents			(const TSG_Rect &Extent, const CSG_Projection &Projection);
 	void						Set_Mouse_Position	(const TSG_Point &Point, const CSG_Projection &Projection);
 
+	bool						is_CrossHair		(void)	const	{	return( m_CrossHair != 0 );	}
+	bool						Toggle_CrossHair	(void);
+
 
 private:
 
