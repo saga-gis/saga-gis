@@ -56,7 +56,7 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 		"<li>Normalized Ratio Vegetation Index (Baret and Guyot, 1991)\n"
 		"    NRVI = (RVI - 1) / (RVI + 1)</li>\n"
 		"<li>Transformed Vegetation Index (Deering et al., 1975)\n"
-		"    TVI = [(NIR - R) / (NIR + R)]^0.5 + 0.5 </li>\n"
+		"    TVI = [(NIR - R) / (NIR + R) + 0.5]^0.5</li>\n"
 		"<li>Corrected Transformed Ratio Vegetation Index (Perry and Lautenschlager, 1984)\n"
 		"    CTVI = [(NDVI + 0.5) / abs(NDVI + 0.5)] * [abs(NDVI + 0.5)]^0.5</li>\n"
 		"<li>Thiam's Transformed Vegetation Index (Thiam, 1997)\n"
@@ -64,15 +64,26 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 		"<li>Soil Adjusted Vegetation Index (Huete, 1988)\n"
 		"    SAVI = [(NIR - R) / (NIR + R)] * (1 + S)</li>\n"
 		"</ul>(NIR = near infrared, R = red, S = soil adjustment factor)\n"
-		"\n"
-		"References:\n"
-		"K.R. McCloy (2006): Resource Management Information Systems: Remote Sensing, GIS and Modelling. 2nd Edition, CRC Taylor & Francis, 575pp.\n"
-		"\n"
-		"N.G. Silleos, T.K. Alexandridis, I.Z. Gitas & K. Perakis (2006): "
-		"Vegetation Indices: Advances Made in Biomass Estimation and Vegetation Monitoring in the Last 30 Years, "
-		"Geocarto International, 21:4, 21-28, "
-		"<a target=\"_blank\" href=\"http://dx.doi.org/10.1080/10106040608542399\">online</a>.\n"
+		"\n\n"
 	));
+
+	Add_Reference("McCloy, K.R.", "2006",
+		"Resource Management Information Systems: Remote Sensing, GIS and Modelling",
+		"2nd Edition, CRC Taylor & Francis, 575pp."
+	);
+
+	Add_Reference("Mroz, M., Sobieraj, A.", "2004",
+		"Comparison of Several Vegetation Indices Calculated on the Basis of a Seasonal Spot XS Time Series, and their Suitability for Land Cover and Agricultural Crop Identification",
+		"Technical Sciences, No. 7, 39-66.",
+		SG_T("http://www.uwm.edu.pl/wnt/technicalsc/ts7_2004/4_7_2004.pdf")
+	);
+
+	Add_Reference("Silleos, N.G., Alexandridis, T.K., Gitas, I.Z., Perakis, K.", "2006",
+		"Vegetation Indices: Advances Made in Biomass Estimation and Vegetation Monitoring in the Last 30 Years",
+		"Geocarto International, 21:4, 21-28.",
+		SG_T("http://dx.doi.org/10.1080/10106040608542399")
+	);
+	
 
 	Parameters.Add_Grid(
 		NULL, "RED"		, _TL("Red Reflectance"),
@@ -270,9 +281,9 @@ inline bool CImage_VI_Slope::Get_NRVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_TVI(double R, double NIR, double &Value)
 {
-	if( Get_NDVI(R, NIR, Value) && Value > 0.0 )
+	if( Get_NDVI(R, NIR, Value) && Value + 0.5 >= 0.0 )
 	{
-		Value	= sqrt(Value) + 0.5;
+		Value	= sqrt(Value + 0.5);
 
 		return( true );
 	}
