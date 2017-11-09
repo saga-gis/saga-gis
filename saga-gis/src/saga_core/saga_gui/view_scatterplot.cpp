@@ -304,7 +304,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 		for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 		{
-			sChoices.Append(CSG_String::Format("%s|", m_pGrids->Get_Grid(i).Get_Name()));
+			sChoices.Append(m_pGrids->Get_Grid_Name(i, SG_GRIDS_NAME_GRID) + "|");
 		}
 
 		m_Parameters.Add_Choice("", "BAND_X", "X", _TL(""), sChoices, 0);
