@@ -98,30 +98,30 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
 
-	BrushList_Add(m_Parameters("NODE_DISPLAY"),
+	BrushList_Add("NODE_DISPLAY",
 		"DISPLAY_BRUSH"		, _TL("Fill Style"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Bool("NODE_DISPLAY",
 		"OUTLINE"			, _TL("Outline"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Color(m_Parameters("OUTLINE"),
+	m_Parameters.Add_Color("OUTLINE",
 		"OUTLINE_COLOR"		, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Int(m_Parameters("OUTLINE"),
+	m_Parameters.Add_Int("OUTLINE",
 		"OUTLINE_SIZE"		, _TL("Size"),
 		_TL(""),
 		1, 1, true
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"DISPLAY_SYMBOL_TYPE"	, _TL("Symbol Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
@@ -142,7 +142,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_FilePath(m_Parameters("DISPLAY_SYMBOL_TYPE"),
+	m_Parameters.Add_FilePath("DISPLAY_SYMBOL_TYPE",
 		"DISPLAY_SYMBOL_IMAGE"	, _TL("Symbol Image"),
 		_TL(""),
 		CSG_String::Format(
@@ -171,18 +171,18 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Label...
 
-	AttributeList_Add(m_Parameters("LABEL_ATTRIB"),
+	AttributeList_Add("LABEL_ATTRIB",
 		"LABEL_ANGLE_ATTRIB", _TL("Rotation by Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Double(m_Parameters("LABEL_ANGLE_ATTRIB"),
+	m_Parameters.Add_Double("LABEL_ANGLE_ATTRIB",
 		"LABEL_ANGLE"		, _TL("Default Rotation"),
 		_TL("rotation clockwise in degree"),
 		0.0, -360.0, true, 360.0, true
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ALIGN_X"		, _TL("Horizontal Align"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -192,7 +192,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("LABEL_ATTRIB"),
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ALIGN_Y"		, _TL("Vertical Align"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -206,7 +206,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_SIZE"),
+	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -215,12 +215,12 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	AttributeList_Add(m_Parameters("NODE_SIZE"),
+	AttributeList_Add("NODE_SIZE",
 		"SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("SIZE_ATTRIB"),
+	m_Parameters.Add_Choice("SIZE_ATTRIB",
 		"SIZE_SCALE"		, _TL("Attribute Values"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -229,13 +229,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Range(m_Parameters("SIZE_ATTRIB"),
+	m_Parameters.Add_Range("SIZE_ATTRIB",
 		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		2, 10, 0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SIZE_ATTRIB"),
+	m_Parameters.Add_Double("SIZE_ATTRIB",
 		"SIZE_DEFAULT"		, _TL("Default Size"),
 		_TL(""),
 		5, 0, true
@@ -245,7 +245,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Edit...
 
-	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+	m_Parameters.Add_Color("NODE_SELECTION",
 		"SEL_COLOR_FILL"	, _TL("Fill Color"),
 		_TL(""),
 		SG_GET_RGB(255, 255, 0)
@@ -264,8 +264,8 @@ void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	CWKSP_Shapes::On_DataObject_Changed();
 
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB")			, true);
-	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB")	, true);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ), true);
+	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"), true);
 }
 
 //---------------------------------------------------------
@@ -325,7 +325,7 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
 	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
+	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
 }
 
 

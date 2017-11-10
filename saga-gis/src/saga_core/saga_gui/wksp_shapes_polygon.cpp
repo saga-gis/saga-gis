@@ -98,30 +98,30 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Display...
 
-	BrushList_Add(m_Parameters("NODE_DISPLAY"),
+	BrushList_Add("NODE_DISPLAY",
 		"DISPLAY_BRUSH"		, _TL("Fill Style"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Bool("NODE_DISPLAY",
 		"OUTLINE"			, _TL("Outline"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Color(m_Parameters("OUTLINE"),
+	m_Parameters.Add_Color("OUTLINE",
 		"OUTLINE_COLOR"		, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(0, 0, 0)
 	);
 
-	m_Parameters.Add_Int(m_Parameters("OUTLINE"),
+	m_Parameters.Add_Int("OUTLINE",
 		"OUTLINE_SIZE"		, _TL("Size"),
 		_TL(""),
 		1, 1, true
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -131,19 +131,19 @@ void CWKSP_Shapes_Polygon::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Bool("NODE_DISPLAY",
 		"DISPLAY_CENTROID"	, _TL("Show Centroid"),
 		_TL(""),
 		false
 	);
 
-	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+	m_Parameters.Add_Color("NODE_SELECTION",
 		"SEL_COLOR_FILL_0"	, _TL("Fill Color 1"),
 		_TL(""),
 		SG_GET_RGB(255, 225, 0)
 	);
 
-	m_Parameters.Add_Color(m_Parameters("NODE_SELECTION"),
+	m_Parameters.Add_Color("NODE_SELECTION",
 		"SEL_COLOR_FILL_1"	, _TL("Fill Color 2"),
 		_TL("if more than one feature is in selection, this colour is used for the non active features"),
 		SG_GET_RGB(255, 255, 127)
@@ -171,7 +171,7 @@ void CWKSP_Shapes_Polygon::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_bOutline	= m_Parameters("OUTLINE")->asBool();
 	m_Pen		= wxPen(!m_bOutline ? m_pClassify->Get_Unique_Color() : Get_Color_asWX(m_Parameters("OUTLINE_COLOR")->asColor()), m_Parameters("OUTLINE_SIZE")->asInt(), wxPENSTYLE_SOLID);
-	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style(m_Parameters("DISPLAY_BRUSH")->asInt()));
+	m_Brush		= wxBrush(m_pClassify->Get_Unique_Color(), BrushList_Get_Style("DISPLAY_BRUSH"));
 
 	m_bVertices	= m_Parameters("DISPLAY_POINTS"  )->asInt ();
 	m_bCentroid	= m_Parameters("DISPLAY_CENTROID")->asBool();

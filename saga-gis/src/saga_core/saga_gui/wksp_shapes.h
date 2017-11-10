@@ -170,14 +170,14 @@ protected:
 
 	bool						Get_Class_Color			(CSG_Shape *pShape, int &Color);
 
-	CSG_Parameter *				AttributeList_Add		(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
+	CSG_Parameter *				AttributeList_Add		(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	void						AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
-	CSG_Parameter *				BrushList_Add			(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
-	wxBrushStyle				BrushList_Get_Style		(int Index);
+	CSG_Parameter *				BrushList_Add			(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
+	wxBrushStyle				BrushList_Get_Style		(const CSG_String &Identifier);
 
-	CSG_Parameter *				PenList_Add				(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
-	int							PenList_Get_Style		(int Index);
+	CSG_Parameter *				PenList_Add				(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
+	int							PenList_Get_Style		(const CSG_String &Identifier);
 
 	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map)												= 0;
 	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;

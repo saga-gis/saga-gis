@@ -522,7 +522,7 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 
 	Get_Grids()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY && m_Parameters("OVERLAY_STATISTICS")->asInt() != 0 )
 	{
 		_Fit_Colors();
 	}
@@ -607,15 +607,20 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		}
 
 		if( pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
-		||  pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED )
+		||  pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED
+		||  pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
 		{
-			if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BAND"           )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE"    )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT")
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_LINEAR" )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_STDDEV" )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_INRANGE")
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_PCTL"   ) )
+			if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BAND"              )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_R"            )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_G"            )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_B"            )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_STATISTICS")
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE"       )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT"   )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_LINEAR"    )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_STDDEV"    )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_INRANGE"   )
+			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_PCTL"      ) )
 			{
 				double	Minimum, Maximum;
 
@@ -630,21 +635,22 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if( !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_STATISTICS") )
 		{
-			int		Value	= pParameter->asInt();
+			int		Type	= pParameters->Get("COLORS_TYPE")->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Value == GRIDS_CLASSIFY_UNIQUE);
-			pParameters->Set_Enabled("NODE_LUT"          , Value == GRIDS_CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"       , Value != GRIDS_CLASSIFY_UNIQUE && Value != GRIDS_CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_OVERLAY"      , Value == GRIDS_CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == GRIDS_CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_LUT"          , Type == GRIDS_CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC"       , Type != GRIDS_CLASSIFY_UNIQUE && Type != GRIDS_CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_OVERLAY"      , Type == GRIDS_CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("BAND"              , Value == GRIDS_CLASSIFY_METRIC || Value == GRIDS_CLASSIFY_GRADUATED || Value == GRIDS_CLASSIFY_LUT);
+			pParameters->Set_Enabled("BAND"              , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || Type == GRIDS_CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Value == GRIDS_CLASSIFY_METRIC || Value == GRIDS_CLASSIFY_GRADUATED);
-			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Value == GRIDS_CLASSIFY_METRIC || Value == GRIDS_CLASSIFY_GRADUATED);
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || (Type == GRIDS_CLASSIFY_OVERLAY && pParameters->Get("OVERLAY_STATISTICS")->asInt() == 0));
+			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED ||  Type == GRIDS_CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Value != GRIDS_CLASSIFY_LUT && Value != GRIDS_CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != GRIDS_CLASSIFY_LUT && Type != GRIDS_CLASSIFY_UNIQUE);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT") )
@@ -972,24 +978,49 @@ bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Grids::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double &Maximum)
 {
-	CSG_Grid	*pGrid	= Get_Grids()->Get_Grid_Ptr(Parameters("BAND")->asInt());
-
-	switch( Parameters("STRETCH_DEFAULT")->asInt() )
+	if( Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
 	{
-	default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * pGrid->Get_Range();
-		Minimum	= pGrid->Get_Min() + d;
-		Maximum	= pGrid->Get_Max() - d;
-		break;	}
+		CSG_Grids	*pGrids	= Get_Grids();
 
-	case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * pGrid->Get_StdDev();
-		Minimum	= pGrid->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
-		Maximum	= pGrid->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
-		break;	}
+		switch( Parameters("STRETCH_DEFAULT")->asInt() )
+		{
+		default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * pGrids->Get_Range();
+			Minimum	= pGrids->Get_Min() + d;
+			Maximum	= pGrids->Get_Max() - d;
+			break;	}
 
-	case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
-		Minimum	= pGrid->Get_Quantile(      d);
-		Maximum	= pGrid->Get_Quantile(100 - d);
-		break;	}
+		case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * pGrids->Get_StdDev();
+			Minimum	= pGrids->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < pGrids->Get_Min() ) Minimum = pGrids->Get_Min();
+			Maximum	= pGrids->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrids->Get_Max() ) Maximum = pGrids->Get_Max();
+			break;	}
+
+		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
+			Minimum	= pGrids->Get_Quantile(      d);
+			Maximum	= pGrids->Get_Quantile(100 - d);
+			break;	}
+		}
+	}
+	else
+	{
+		CSG_Grid	*pGrid	= Get_Grids()->Get_Grid_Ptr(Parameters("BAND")->asInt());
+
+		switch( Parameters("STRETCH_DEFAULT")->asInt() )
+		{
+		default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * pGrid->Get_Range();
+			Minimum	= pGrid->Get_Min() + d;
+			Maximum	= pGrid->Get_Max() - d;
+			break;	}
+
+		case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * pGrid->Get_StdDev();
+			Minimum	= pGrid->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
+			Maximum	= pGrid->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
+			break;	}
+
+		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
+			Minimum	= pGrid->Get_Quantile(      d);
+			Maximum	= pGrid->Get_Quantile(100 - d);
+			break;	}
+		}
 	}
 
 	return( true );

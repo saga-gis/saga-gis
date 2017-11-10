@@ -98,7 +98,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Display...
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
@@ -108,32 +108,16 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+	PenList_Add("NODE_DISPLAY",
 		"LINE_STYLE"		, _TL("Line Style"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
-			_TL("Solid style"),
-			_TL("Dotted style"),
-			_TL("Long dashed style"),
-			_TL("Short dashed style"), 
-			_TL("Dot and dash style"),
-			_TL("Backward diagonal hatch"),
-			_TL("Cross-diagonal hatch"),
-			_TL("Forward diagonal hatch"),
-			_TL("Cross hatch"),
-			_TL("Horizontal hatch"),
-			_TL("Vertical hatch")
-		//	_TL("Use the stipple bitmap")
-		//	_TL("Use the user dashes")
-		//	_TL("No pen is used")
-		), 0
+		_TL("")
 	);
 
 
 	//-----------------------------------------------------
 	// Size...
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_SIZE"),
+	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -142,18 +126,18 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	AttributeList_Add(m_Parameters("NODE_SIZE"),
+	AttributeList_Add("NODE_SIZE",
 		"SIZE_ATTRIB"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Range(m_Parameters("SIZE_ATTRIB"),
+	m_Parameters.Add_Range("SIZE_ATTRIB",
 		"SIZE_RANGE"		, _TL("Size Range"),
 		_TL(""),
 		0, 10, 0, true
 	);
 
-	m_Parameters.Add_Int(m_Parameters("SIZE_ATTRIB"),
+	m_Parameters.Add_Int("SIZE_ATTRIB",
 		"SIZE_DEFAULT"		, _TL("Default Size"),
 		_TL(""),
 		1, 1, true
@@ -163,7 +147,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Boundary Effect...
 
-	m_Parameters.Add_Choice(m_Parameters("NODE_DISPLAY"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
@@ -180,7 +164,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Color(m_Parameters("BOUNDARY_EFFECT"),
+	m_Parameters.Add_Color("BOUNDARY_EFFECT",
 		"BOUNDARY_EFFECT_COLOR"	, _TL("Color"),
 		_TL(""),
 		SG_GET_RGB(255, 255, 255)
@@ -313,25 +297,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map)
 {
-	switch( m_Parameters("LINE_STYLE")->asInt() )
-	{
-	case  0:	m_Line_Style	= wxPENSTYLE_SOLID;            break; // Solid style.
-	case  1:	m_Line_Style	= wxPENSTYLE_DOT;              break; // Dotted style.
-	case  2:	m_Line_Style	= wxPENSTYLE_LONG_DASH;        break; // Long dashed style.
-	case  3:	m_Line_Style	= wxPENSTYLE_SHORT_DASH;       break; // Short dashed style.
-	case  4:	m_Line_Style	= wxPENSTYLE_DOT_DASH;         break; // Dot and dash style.
-	case  5:	m_Line_Style	= wxPENSTYLE_BDIAGONAL_HATCH;  break; // Backward diagonal hatch.
-	case  6:	m_Line_Style	= wxPENSTYLE_CROSSDIAG_HATCH;  break; // Cross-diagonal hatch.
-	case  7:	m_Line_Style	= wxPENSTYLE_FDIAGONAL_HATCH;  break; // Forward diagonal hatch.
-	case  8:	m_Line_Style	= wxPENSTYLE_CROSS_HATCH;      break; // Cross hatch.
-	case  9:	m_Line_Style	= wxPENSTYLE_HORIZONTAL_HATCH; break; // Horizontal hatch.
-	case 10:	m_Line_Style	= wxPENSTYLE_VERTICAL_HATCH;   break; // Vertical hatch.
-//	case 11:	m_Line_Style	= wxPENSTYLE_STIPPLE;          break; // Use the stipple bitmap. 
-//	case 12:	m_Line_Style	= wxPENSTYLE_USER_DASH;        break; // Use the user dashes: see wxPen::SetDashes.
-//	case 13:	m_Line_Style	= wxPENSTYLE_TRANSPARENT;      break; // No pen is used.
-	}
-
-	m_Pen.SetStyle((wxPenStyle)m_Line_Style);
+	m_Pen.SetStyle((wxPenStyle)(m_Line_Style = PenList_Get_Style("LINE_STYLE")));
 
 	dc_Map.dc.SetPen(m_Pen);
 }
