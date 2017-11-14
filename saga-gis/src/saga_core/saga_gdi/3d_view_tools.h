@@ -101,6 +101,9 @@ public:
 	void				Set_xRotation			(double x);
 	void				Set_yRotation			(double y);
 	void				Set_zRotation			(double z);
+	void				Inc_xRotation			(double x)		{	Set_xRotation(m_Rotate.x + x);	}
+	void				Inc_yRotation			(double y)		{	Set_yRotation(m_Rotate.y + y);	}
+	void				Inc_zRotation			(double z)		{	Set_zRotation(m_Rotate.z + z);	}
 	const TSG_Point_Z &	Get_Rotation			(void)	const	{	return( m_Rotate   );	}
 	double				Get_xRotation			(void)	const	{	return( m_Rotate.x );	}
 	double				Get_yRotation			(void)	const	{	return( m_Rotate.y );	}
@@ -110,6 +113,9 @@ public:
 	void				Set_xShift				(double x);
 	void				Set_yShift				(double y);
 	void				Set_zShift				(double z);
+	void				Inc_xShift				(double x)		{	Set_xShift(m_Shift.x + x);	}
+	void				Inc_yShift				(double y)		{	Set_yShift(m_Shift.y + y);	}
+	void				Inc_zShift				(double z)		{	Set_zShift(m_Shift.z + z);	}
 	const TSG_Point_Z &	Get_Shift				(void)	const	{	return( m_Shift    );	}
 	double				Get_xShift				(void)	const	{	return( m_Shift.x  );	}
 	double				Get_yShift				(void)	const	{	return( m_Shift.y  );	}
@@ -120,6 +126,7 @@ public:
 	void				do_Central				(bool bOn = true);
 	bool				is_Central				(void)	const	{	return( m_bCentral );	}
 	void				Set_Central_Distance	(double Distance);
+	void				Inc_Central_Distance	(double Distance, bool bAdjustShift = true);
 	double				Get_Central_Distance	(void)	const	{	return( m_dCentral );	}
 
 	void				Get_Projection			(TSG_Point_Z &p);

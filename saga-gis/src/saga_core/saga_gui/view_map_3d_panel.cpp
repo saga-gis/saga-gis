@@ -201,16 +201,19 @@ void CVIEW_Map_3DPanel::On_Key_Down(wxKeyEvent &event)
 {
 	switch( event.GetKeyCode() )
 	{
-	default:	CSG_3DView_Panel::On_Key_Down(event);	return;
+	default     :	CSG_3DView_Panel::On_Key_Down(event);	return;
 
-	case WXK_F1:	m_zScale	-=  0.5;	break;
-	case WXK_F2:	m_zScale	+=  0.5;	break;
+	case WXK_F1 :	m_zScale -= 0.5;	break;
+	case WXK_F2 :	m_zScale += 0.5;	break;
 
-	case WXK_F5:	Inc_DEM_Res(-25);		break;
-	case WXK_F6:	Inc_DEM_Res( 25);		break;
+	case WXK_F5 :	Inc_DEM_Res(-25);	break;
+	case WXK_F6 :	Inc_DEM_Res( 25);	break;
 
-	case WXK_F7:	Inc_DEM_Res(-25);		break;
-	case WXK_F8:	Inc_DEM_Res( 25);		break;
+	case WXK_F7 :	Inc_Map_Res(-25);	break;
+	case WXK_F8 :	Inc_Map_Res( 25);	break;
+
+	case WXK_F9 :	m_Projector.Inc_Central_Distance( 50);	break;
+	case WXK_F10:	m_Projector.Inc_Central_Distance(-50);	break;
 	}
 
 	//-----------------------------------------------------

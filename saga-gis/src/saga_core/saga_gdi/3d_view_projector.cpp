@@ -173,6 +173,16 @@ void CSG_3DView_Projector::Set_Central_Distance(double Distance)
 	m_dCentral	= Distance;
 }
 
+void CSG_3DView_Projector::Inc_Central_Distance(double Distance, bool bAdjustShift)
+{
+	m_dCentral	+= Distance;
+
+	if( bAdjustShift )
+	{
+		m_Shift.z	+= Distance;
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -181,34 +191,33 @@ void CSG_3DView_Projector::Set_Central_Distance(double Distance)
 //---------------------------------------------------------
 void CSG_3DView_Projector::Get_Projection(double &x, double &y, double &z)
 {
-	double		a, b;
-	TSG_Point_Z	q;
+	TSG_Point_Z	p;
 
 	x	= m_Scale * (x - m_Center.x) * m_Scaling.x;
 	y	= m_Scale * (y - m_Center.y) * m_Scaling.y;
 	z	= m_Scale * (z - m_Center.z) * m_Scaling.z;
 
-	a	= (m_Cos.y * z + m_Sin.y * (m_Sin.z * y + m_Cos.z * x));
-	b	= (m_Cos.z * y - m_Sin.z * x);
+	double	a	= (m_Cos.y * z + m_Sin.y * (m_Sin.z * y + m_Cos.z * x));
+	double	b	= (m_Cos.z * y - m_Sin.z * x);
 
-	q.x	= m_Shift.x + (m_Cos.y * (m_Sin.z * y + m_Cos.z * x) - m_Sin.y * z);
-	q.y	= m_Shift.y + (m_Sin.x * a + m_Cos.x * b);
-	q.z	= m_Shift.z + (m_Cos.x * a - m_Sin.x * b);
+	p.x	= m_Shift.x + (m_Cos.y * (m_Sin.z * y + m_Cos.z * x) - m_Sin.y * z);
+	p.y	= m_Shift.y + (m_Sin.x * a + m_Cos.x * b);
+	p.z	= m_Shift.z + (m_Cos.x * a - m_Sin.x * b);
 
 	if( m_bCentral )
 	{
-		q.x	*= m_dCentral / q.z;
-		q.y	*= m_dCentral / q.z;
+		p.x	*= m_dCentral / p.z;
+		p.y	*= m_dCentral / p.z;
 	}
 	else
 	{
-		q.x	*= m_dCentral / m_Shift.z;
-		q.y	*= m_dCentral / m_Shift.z;
+		p.x	*= m_dCentral / m_Shift.z;
+		p.y	*= m_dCentral / m_Shift.z;
 	}
 
-	x	= q.x + m_Screen_NX / 2;
-	y	= q.y + m_Screen_NY / 2;
-	z	= q.z;
+	x	= p.x + m_Screen_NX / 2;
+	y	= p.y + m_Screen_NY / 2;
+	z	= p.z;
 }
 
 void CSG_3DView_Projector::Get_Projection(TSG_Point_Z &p)

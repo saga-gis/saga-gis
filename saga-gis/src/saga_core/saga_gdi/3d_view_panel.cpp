@@ -226,6 +226,23 @@ CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_3DView_Panel::Update_Parameters(bool bSave)
+{
+	if( bSave )
+	{
+		m_Parameters("CENTRAL"     )->Set_Value(m_Projector.is_Central());
+		m_Parameters("CENTRAL_DIST")->Set_Value(m_Projector.Get_Central_Distance());
+	}
+	else
+	{
+		m_Projector.do_Central          (m_Parameters("CENTRAL"     )->asBool());
+		m_Projector.Set_Central_Distance(m_Parameters("CENTRAL_DIST")->asDouble());
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 int CSG_3DView_Panel::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
@@ -334,52 +351,35 @@ void CSG_3DView_Panel::On_Key_Down(wxKeyEvent &event)
 			break;
 
 		case WXK_DOWN: case WXK_NUMPAD_DOWN: case WXK_ADD: case WXK_NUMPAD_ADD:
-			m_Projector.Set_xRotation(m_Projector.Get_xRotation() - 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_xRotation(-4.0 * M_DEG_TO_RAD);
 			break;
 
 		case WXK_UP: case WXK_NUMPAD_UP: case WXK_SUBTRACT: case WXK_NUMPAD_SUBTRACT:
-			m_Projector.Set_xRotation(m_Projector.Get_xRotation() + 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_xRotation( 4.0 * M_DEG_TO_RAD);
 			break;
 
 		case WXK_F3:
-			m_Projector.Set_yRotation(m_Projector.Get_yRotation() - 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_yRotation(-4.0 * M_DEG_TO_RAD);
 			break;
 
 		case WXK_F4:
-			m_Projector.Set_yRotation(m_Projector.Get_yRotation() + 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_yRotation( 4.0 * M_DEG_TO_RAD);
 			break;
 
 		case WXK_RIGHT: case WXK_NUMPAD_RIGHT: case WXK_MULTIPLY: case WXK_NUMPAD_MULTIPLY:
-			m_Projector.Set_zRotation(m_Projector.Get_zRotation() - 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_zRotation(-4.0 * M_DEG_TO_RAD);
 			break;
 
 		case WXK_LEFT: case WXK_NUMPAD_LEFT: case WXK_DIVIDE: case WXK_NUMPAD_DIVIDE:
-			m_Projector.Set_zRotation(m_Projector.Get_zRotation() + 4.0 * M_DEG_TO_RAD);
+			m_Projector.Inc_zRotation( 4.0 * M_DEG_TO_RAD);
 			break;
 
-		case WXK_INSERT:
-			m_Projector.Set_xShift   (m_Projector.Get_xShift   () - 10.0);
-			break;
-
-		case WXK_DELETE:
-			m_Projector.Set_xShift   (m_Projector.Get_xShift   () + 10.0);
-			break;
-
-		case WXK_HOME:
-			m_Projector.Set_yShift   (m_Projector.Get_yShift   () - 10.0);
-			break;
-
-		case WXK_END:
-			m_Projector.Set_yShift   (m_Projector.Get_yShift   () + 10.0);
-			break;
-
-		case WXK_PAGEUP:
-			m_Projector.Set_zShift   (m_Projector.Get_zShift   () - 10.0);
-			break;
-
-		case WXK_PAGEDOWN:
-			m_Projector.Set_zShift   (m_Projector.Get_zShift   () + 10.0);
-			break;
+		case WXK_INSERT  : m_Projector.Inc_xShift(-10.0); break;
+		case WXK_DELETE  : m_Projector.Inc_xShift( 10.0); break;
+		case WXK_HOME    : m_Projector.Inc_yShift(-10.0); break;
+		case WXK_END     : m_Projector.Inc_yShift( 10.0); break;
+		case WXK_PAGEUP  : m_Projector.Inc_zShift(-10.0); break;
+		case WXK_PAGEDOWN: m_Projector.Inc_zShift( 10.0); break;
 
 		case 'B':
 			m_Parameters("DRAW_BOX")->Set_Value(m_Parameters("DRAW_BOX")->asBool() == false);
@@ -579,9 +579,6 @@ bool CSG_3DView_Panel::Update_View(bool bStatistics)
 		case  2:	m_Drape_Mode	= GRID_RESAMPLING_BicubicSpline;	break;
 		case  3:	m_Drape_Mode	= GRID_RESAMPLING_BSpline;			break;
 		}
-
-		m_Projector.do_Central          (m_Parameters("CENTRAL")->asInt() == 1);
-		m_Projector.Set_Central_Distance(m_Parameters("CENTRAL_DIST")->asDouble());
 	}
 
 	//-----------------------------------------------------

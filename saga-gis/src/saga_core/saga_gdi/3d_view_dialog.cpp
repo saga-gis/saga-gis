@@ -161,7 +161,7 @@ void CSG_3DView_Dialog::On_Update_Control(wxCommandEvent &event)
 
 	if( event.GetEventObject() == m_pCentral )
 	{	
-		m_pPanel->m_Parameters("CENTRAL_DIST")->Set_Value(m_pCentral->Get_Value());
+		m_pPanel->Get_Projector().Set_Central_Distance(m_pCentral->Get_Value());
 		m_pPanel->Update_View();
 	}
 }
@@ -257,8 +257,12 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_CLOSE        :	Close();	return;
 
 	case MENU_PROPERTIES   :
+		m_pPanel->Update_Parameters(true);
+
 		if( SG_UI_Dlg_Parameters(&m_pPanel->m_Parameters, m_pPanel->m_Parameters.Get_Name()) )
 		{
+			m_pPanel->Update_Parameters(false);
+
 			Update_Controls();
 
 			m_pPanel->Update_View(true);
@@ -267,7 +271,6 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 
 	case MENU_BOX          :	MENU_TOGGLE("DRAW_BOX");	break;
 	case MENU_STEREO       :	MENU_TOGGLE("STEREO"  );	break;
-	case MENU_CENTRAL      :	MENU_TOGGLE("CENTRAL" );	break;
 
 	case MENU_TO_CLIPBOARD :	m_pPanel->Save_toClipboard();	break;
 
@@ -284,6 +287,8 @@ void CSG_3DView_Dialog::On_Menu(wxCommandEvent &event)
 	case MENU_SHIFT_Y_INC  :	m_pPanel->Get_Projector().Set_yShift(m_pPanel->Get_Projector().Get_yShift() + 10.0);	break;
 	case MENU_SHIFT_Z_DEC  :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() - 10.0);	break;
 	case MENU_SHIFT_Z_INC  :	m_pPanel->Get_Projector().Set_zShift(m_pPanel->Get_Projector().Get_zShift() + 10.0);	break;
+
+	case MENU_CENTRAL      :	m_pPanel->Get_Projector().do_Central(m_pPanel->Get_Projector().is_Central() == false);	break;
 
 	case MENU_PLAY_POS_ADD :	m_pPanel->Play_Pos_Add();	return;
 	case MENU_PLAY_POS_DEL :	m_pPanel->Play_Pos_Del();	return;
@@ -303,7 +308,8 @@ void CSG_3DView_Dialog::On_Menu_UI(wxUpdateUIEvent &event)
 	{
 	case MENU_BOX          :	event.Check(m_pPanel->m_Parameters("DRAW_BOX")->asBool());	break;
 	case MENU_STEREO       :	event.Check(m_pPanel->m_Parameters("STEREO"  )->asBool());	break;
-	case MENU_CENTRAL      :	event.Check(m_pPanel->m_Parameters("CENTRAL" )->asBool());	break;
+
+	case MENU_CENTRAL      :	event.Check(m_pPanel->Get_Projector().is_Central());	break;
 
 	case MENU_PLAY_RUN_LOOP:	event.Check(m_pPanel->Play_Get_State() == SG_3DVIEW_PLAY_RUN_LOOP);	break;
 	}

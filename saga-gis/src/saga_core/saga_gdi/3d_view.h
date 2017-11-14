@@ -107,7 +107,7 @@ public:
 
 	CSG_Parameters				m_Parameters;
 
-
+	virtual bool				Update_Parameters		(bool bSave);
 	virtual bool				Update_View				(bool bStatistics = false);
 
 	bool						Save_asImage			(const CSG_String &FileName);

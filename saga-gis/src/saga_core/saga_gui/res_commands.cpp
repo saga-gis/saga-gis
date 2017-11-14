@@ -295,8 +295,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAP3D_SHIFT_Z_MORE:		return( _TL("Backward") );
 	case ID_CMD_MAP3D_EXAGGERATE_LESS:	return( _TL("Decrease Exaggeration [F1]") );
 	case ID_CMD_MAP3D_EXAGGERATE_MORE:	return( _TL("Increase Exaggeration [F2]") );
-	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance [F5]") );
-	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance [F6]") );
+	case ID_CMD_MAP3D_CENTRAL_LESS:		return( _TL("Decrease Perspectivic Distance [F9]") );
+	case ID_CMD_MAP3D_CENTRAL_MORE:		return( _TL("Increase Perspectivic Distance [F10]") );
 	case ID_CMD_MAP3D_CENTRAL:			return( _TL("Central Projection") );
 	case ID_CMD_MAP3D_STEREO_LESS:		return( _TL("Decrease Eye Distance") );
 	case ID_CMD_MAP3D_STEREO_MORE:		return( _TL("Increase Eye Distance") );
