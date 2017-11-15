@@ -257,7 +257,7 @@ void CVariogram_Diagram::On_Draw(wxDC &dc, wxRect rDraw)
 {
 	m_bErrors	= false;
 
-	if( m_pVariogram->Get_Count() > 0 )
+	if( m_pVariogram->Get_Count() > 0 && rDraw.GetWidth() > 0 && rDraw.GetHeight() > 0 )
 	{
 		int		i, ix, iy, jx, jy;
 		double	x, dx;

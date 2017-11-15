@@ -114,7 +114,7 @@ protected:
 
 	virtual bool					Get_Value				(const TSG_Point &p, double &z, double &v)	= 0;
 
-	double							Get_Weight				(double d)											{	return( m_Model.Get_Value(d) );	}
+	double							Get_Weight				(double d)											{	d = m_Model.Get_Value(d); return( d > 0.0 ? d : 0.0 );	}
 	double							Get_Weight				(double dx, double dy)								{	return( Get_Weight(sqrt(dx*dx + dy*dy)) );	}
 	double							Get_Weight				(const TSG_Point_Z &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}
 	double							Get_Weight				(const TSG_Point   &a, const TSG_Point_Z &b)		{	return( Get_Weight(a.x - b.x, a.y - b.y) );	}

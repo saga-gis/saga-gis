@@ -99,6 +99,8 @@ public:
 	CSGDI_Dialog(const wxString &Name, int Style = 0);
 	virtual ~CSGDI_Dialog(void);
 
+	virtual int				ShowModal			(void);
+
 
 protected:
 

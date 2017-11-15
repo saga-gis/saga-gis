@@ -532,17 +532,15 @@ double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) cons
 
 	if( !function )
 	{
-	//	_Set_Error(_TL("empty coded function"));
-
-		return( 0 );
+		return( 0 );	// _Set_Error(_TL("empty coded function"));
 	}
 
 	for( ; ; )
 	{
 		switch( *function++ )
 		{
-		case SG_T('\0'):
-			goto finish;	// there is a reason for this "goto": this function must be as fast as possible
+		case '\0':
+			return( buffer[0] );
 
 		case 'D': 
 			*bufp++	= ctable[*function++];
@@ -643,23 +641,16 @@ double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) cons
 				break;
 
 			default:
-			//	_Set_Error(_TL("I2: too many parameters"));
-				return( 0 );
+				return( 0 );	// _Set_Error(_TL("I2: too many parameters"));
 			}
 			break;
 
 		default:
-		//	_Set_Error(_TL("I1: unrecognizable operator"));
-			return( 0 );
+			return( 0 );	// _Set_Error(_TL("I1: unrecognizable operator"));
 		}
 	}
 
-finish:
-
-	if( (bufp - buffer) != 1 )
-	{
-	//	_Set_Error(_TL("I3: corrupted buffer"));
-	}
+//	if( (bufp - buffer) != 1 )	// _Set_Error(_TL("I3: corrupted buffer"));
 
 	return( buffer[0] );
 } 

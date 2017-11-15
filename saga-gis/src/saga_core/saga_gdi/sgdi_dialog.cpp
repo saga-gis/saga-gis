@@ -99,10 +99,6 @@ END_EVENT_TABLE()
 CSGDI_Dialog::CSGDI_Dialog(const wxString &Name, int Style)
 	: wxDialog((wxWindow *)SG_UI_Get_Window_Main(), wxID_ANY, Name, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-	wxRect	r(((wxWindow *)SG_UI_Get_Window_Main())->GetScreenRect());
-	r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
-	SetSize(r);
-
 	if( Style & SGDI_DLG_STYLE_START_MAXIMISED )
 	{
 		Maximize();
@@ -138,7 +134,23 @@ CSGDI_Dialog::~CSGDI_Dialog(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSGDI_Dialog::ShowModal(void)
+{
+	if( GetParent()->IsShownOnScreen() )
+	{
+		wxRect	r(GetParent()->GetScreenRect());
+		r.Deflate((int)(0.1 * r.GetWidth()), (int)(0.1 * r.GetHeight()));
+		SetSize(r);
+	}
+
+	return( wxDialog::ShowModal() );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
