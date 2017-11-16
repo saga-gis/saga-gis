@@ -184,7 +184,7 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, 
 		{
 			for(int iPoint=m_nPoints-2; dy==0.0 && iPoint>=0; iPoint--)
 			{
-				dy	= pB->y - m_Points[iPoint].y;
+				dy	= pB->y - m_Points[iPoint].y; pB--;
 			}
 		}
 
