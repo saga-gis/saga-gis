@@ -178,13 +178,13 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, 
 			return( SG_POLYGON_POINT_Vertex );
 		}
 
-		double	dy	= pB->y - pA->y;
+		double	dy	= pB->y - pA->y;	// indicates the direction that we come from
 
 		if( dy == 0.0 )
 		{
-			for(int iPoint=m_nPoints-2; dy==0.0 && iPoint>=0; iPoint--)
+			for(int iPoint=m_nPoints-2; dy==0.0 && iPoint>0; iPoint--)
 			{
-				dy	= pB->y - m_Points[iPoint].y; pB--;
+				dy	= m_Points[iPoint].y - pA->y;
 			}
 		}
 
@@ -195,6 +195,11 @@ TSG_Polygon_Point_Relation CSG_Shape_Polygon_Part::Get_Point_Relation(double x, 
 			if( x == pA->x && y == pA->y )	// for performance reason check vertex first
 			{
 				return( SG_POLYGON_POINT_Vertex );
+			}
+
+			if( pA->x == pB->x && pA->y == pB->y )	// ignore doubles
+			{
+				continue;
 			}
 
 			if( y < pA->y )			// pA above y
