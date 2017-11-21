@@ -847,9 +847,19 @@ bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_
 
 	CSG_Parameters	Parms;
 	
-	return( DataObject_Get_Parameters(pSource    , Parms)
-		&&  DataObject_Set_Parameters(pDataObject, Parms)
-	);
+	if( DataObject_Get_Parameters(pSource, Parms) )
+	{
+		if( 1 )
+		{
+			Parms.Del_Parameter("OBJECT_NODATA"  );
+			Parms.Del_Parameter("OBJECT_Z_FACTOR");
+			Parms.Del_Parameter("OBJECT_Z_OFFSET");
+		}
+
+		return( DataObject_Set_Parameters(pDataObject, Parms) );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

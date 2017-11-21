@@ -289,20 +289,9 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// General...
 
-	m_Parameters.Add_String("NODE_GENERAL", "GENERAL_Z_UNIT"	, _TL("Unit"),
-		_TL(""),
-		Get_Grids()->Get_Unit()
-	);
-
-	m_Parameters.Add_Double("NODE_GENERAL", "GENERAL_Z_FACTOR"	, _TL("Z-Scale"),
-		_TL(""),
-		Get_Grids()->Get_Scaling()
-	);
-
-	m_Parameters.Add_Double("NODE_GENERAL", "GENERAL_Z_OFFSET"	, _TL("Z-Offset"),
-		_TL(""),
-		Get_Grids()->Get_Offset()
-	);
+	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_Z_UNIT"  , _TL("Unit"    ), _TL(""), Get_Grids()->Get_Unit   ());
+	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_FACTOR", _TL("Z-Scale" ), _TL(""), Get_Grids()->Get_Scaling());
+	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_OFFSET", _TL("Z-Offset"), _TL(""), Get_Grids()->Get_Offset ());
 
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"MAX_SAMPLES"	, _TL("Maximum Samples"),
@@ -482,9 +471,9 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	m_Edit_Attributes.Create(Get_Grids()->Get_Attributes());
 
 	//-----------------------------------------------------
-	m_Parameters("GENERAL_Z_UNIT"  )->Set_Value(Get_Grids()->Get_Unit   ());
-	m_Parameters("GENERAL_Z_FACTOR")->Set_Value(Get_Grids()->Get_Scaling());
-	m_Parameters("GENERAL_Z_OFFSET")->Set_Value(Get_Grids()->Get_Offset ());
+	m_Parameters("OBJECT_Z_UNIT"  )->Set_Value(Get_Grids()->Get_Unit   ());
+	m_Parameters("OBJECT_Z_FACTOR")->Set_Value(Get_Grids()->Get_Scaling());
+	m_Parameters("OBJECT_Z_OFFSET")->Set_Value(Get_Grids()->Get_Offset ());
 
 	//-----------------------------------------------------
 	m_Parameters("MAX_SAMPLES")->Set_Value(
@@ -517,8 +506,8 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	CWKSP_Layer::On_Parameters_Changed();
 
 	//-----------------------------------------------------
-	Get_Grids()->Set_Unit   (m_Parameters("GENERAL_Z_UNIT"  )->asString());
-	Get_Grids()->Set_Scaling(m_Parameters("GENERAL_Z_FACTOR")->asDouble(), m_Parameters("GENERAL_Z_OFFSET")->asDouble());
+	Get_Grids()->Set_Unit   (m_Parameters("OBJECT_Z_UNIT"  )->asString());
+	Get_Grids()->Set_Scaling(m_Parameters("OBJECT_Z_FACTOR")->asDouble(), m_Parameters("OBJECT_Z_OFFSET")->asDouble());
 
 	Get_Grids()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
 
@@ -580,11 +569,11 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_FACTOR")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "GENERAL_Z_OFFSET") )
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
+		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_OFFSET") )
 		{
-			double	newFactor	= pParameters->Get("GENERAL_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("GENERAL_Z_FACTOR")->asDouble();
-			double	newOffset	= pParameters->Get("GENERAL_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("GENERAL_Z_OFFSET")->asDouble();
+			double	newFactor	= pParameters->Get("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
+			double	newOffset	= pParameters->Get("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
 			if( newFactor != 0.0 && oldFactor != 0.0 )
 			{

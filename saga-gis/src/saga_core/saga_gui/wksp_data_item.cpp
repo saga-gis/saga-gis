@@ -113,7 +113,7 @@ CWKSP_Data_Item::~CWKSP_Data_Item(void)
 	{
 		CSG_Data_Object	*pObject	= m_pObject;	m_pObject	= NULL;
 
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Close"), pObject->Get_Name()), true, true);
+		MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), pObject->Get_Name()), true, true);
 
 		SG_Get_Data_Manager().Delete(pObject);
 
@@ -251,7 +251,7 @@ wxString CWKSP_Data_Item::Get_Name(void)
 		return( m_pObject ? m_pObject->Get_Name() : SG_T("-") );
 	}
 
-	return( wxString::Format(wxT("%0*d. %s"), g_pData->Get_Numbering(), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
+	return( wxString::Format("%0*d. %s", g_pData->Get_Numbering(), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
 }
 
 
@@ -269,25 +269,15 @@ void CWKSP_Data_Item::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Nodes...
 
-	m_Parameters.Add_Node(NULL, "NODE_GENERAL"  , _TL("General"  ), _TL(""));
+	m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"), _TL(""));
 
 
 	//-----------------------------------------------------
 	// General...
 
-	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL"), "OBJECT_NAME"   , _TL("Name")			, _TL(""),
-		m_pObject->Get_Name()
-	);
-
-	m_Parameters.Add_String(
-		m_Parameters("NODE_GENERAL"), "OBJECT_DESC"   , _TL("Description")	, _TL(""),
-		m_pObject->Get_Description(), true
-	);
-
-	m_Parameters.Add_Range(
-		m_Parameters("NODE_GENERAL"), "GENERAL_NODATA", _TL("No Data")		, _TL("")
-	);
+	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_NAME"  , _TL("Name"       ), _TL(""), m_pObject->Get_Name());
+	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_DESC"  , _TL("Description"), _TL(""), m_pObject->Get_Description(), true);
+	m_Parameters.Add_Range ("NODE_GENERAL", "OBJECT_NODATA", _TL("No Data"    ), _TL(""));
 }
 
 
@@ -374,10 +364,9 @@ void CWKSP_Data_Item::On_Parameters_Changed(void)
 {
 	m_pObject->Set_Name       (m_Parameters("OBJECT_NAME")->asString());
 	m_pObject->Set_Description(m_Parameters("OBJECT_DESC")->asString());
-
 	m_pObject->Set_NoData_Value_Range(
-		m_Parameters("GENERAL_NODATA")->asRange()->Get_LoVal(),
-		m_Parameters("GENERAL_NODATA")->asRange()->Get_HiVal()
+		m_Parameters("OBJECT_NODATA")->asRange()->Get_LoVal(),
+		m_Parameters("OBJECT_NODATA")->asRange()->Get_HiVal()
 	);
 }
 
@@ -411,11 +400,10 @@ void CWKSP_Data_Item::On_DataObject_Changed(void)
 {
 	m_Parameters.Set_Name(CSG_String::Format("%02d. %s", 1 + Get_ID(), m_pObject->Get_Name()));
 
-	m_Parameters("OBJECT_NAME")->Set_Value(m_pObject->Get_Name());
-	m_Parameters("OBJECT_DESC")->Set_Value(m_pObject->Get_Description());
-
-	m_Parameters("GENERAL_NODATA")->asRange()->Set_Range(
-		m_pObject->Get_NoData_Value(),
+	m_Parameters("OBJECT_NAME"  )->Set_Value(m_pObject->Get_Name());
+	m_Parameters("OBJECT_DESC"  )->Set_Value(m_pObject->Get_Description());
+	m_Parameters("OBJECT_NODATA")->asRange()->Set_Range(
+		m_pObject->Get_NoData_Value  (),
 		m_pObject->Get_NoData_hiValue()
 	);
 }
