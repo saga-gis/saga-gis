@@ -137,6 +137,7 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0:	return( new CShapes_Create_Empty );
+	case 28:	return( new CShapes_Create_Copy );
 	case  2:	return( new CShapes_Merge );
 	case 24:	return( new CTables_Merge );
 

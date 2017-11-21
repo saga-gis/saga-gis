@@ -117,6 +117,7 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0:	return( new CTable_Create_Empty );
+	case 22:	return( new CTable_Create_Copy );
 	case  1:	return( new CTable_Rotate );
 	case  2:	return( new CTable_Enumerate(false) );
 	case 21:	return( new CTable_Enumerate(true) );

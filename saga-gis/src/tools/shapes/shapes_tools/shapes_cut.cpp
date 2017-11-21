@@ -262,35 +262,35 @@ bool Cut_Set_Extent(CSG_Rect Extent, CSG_Shapes *pExtent, bool bClear)
 //---------------------------------------------------------
 CShapes_Cut::CShapes_Cut(void)
 {
-	Set_Name		(_TL("Copy Selected Shapes"));
+	Set_Name		(_TL("Copy Shapes from Region"));
 
 	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		""
+		"Copies all shapes that belong to the specified region."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+		""	, "SHAPES"		, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "CUT"			, _TL("Selection"),
+		""	, "CUT"			, _TL("Copy"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		""	, "METHOD"		, _TL("Method"),
 		_TL(""),
 		Cut_Methods_Str(), 1
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "EXTENT"		, _TL("Extent"),
+		""	, "EXTENT"		, _TL("Region"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("user defined"),
@@ -301,32 +301,32 @@ CShapes_Cut::CShapes_Cut(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL, "AX", _TL("Left"            ), _TL(""), 0.0);
-	Parameters.Add_Double(NULL, "BX", _TL("Right"           ), _TL(""), 1.0);
-	Parameters.Add_Double(NULL, "AY", _TL("Bottom"          ), _TL(""), 0.0);
-	Parameters.Add_Double(NULL, "BY", _TL("Top"             ), _TL(""), 1.0);
-	Parameters.Add_Double(NULL, "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
-	Parameters.Add_Double(NULL, "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("", "AX", _TL("Left"            ), _TL(""), 0.0);
+	Parameters.Add_Double("", "BX", _TL("Right"           ), _TL(""), 1.0);
+	Parameters.Add_Double("", "AY", _TL("Bottom"          ), _TL(""), 0.0);
+	Parameters.Add_Double("", "BY", _TL("Top"             ), _TL(""), 1.0);
+	Parameters.Add_Double("", "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("", "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
 
 	Parameters.Add_Grid_System(
-		NULL	, "GRID_SYS"	, _TL("Grid System"),
+		""	, "GRID_SYS"	, _TL("Grid System"),
 		_TL("")
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "SHAPES_EXT"	, _TL("Shapes"),
+		""	, "SHAPES_EXT"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+		""	, "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Double(
-		NULL	, "OVERLAP"		, _TL("Minimum Overlap"),
+		""	, "OVERLAP"		, _TL("Minimum Overlap"),
 		_TL("minimum overlapping area as percentage of the total size of the input shape. applies to polygon layers only."),
 		50.0, 0.0, true, 100.0, true
 	);

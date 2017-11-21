@@ -69,43 +69,43 @@
 //---------------------------------------------------------
 CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 {
-	Set_Name		(_TL("Copy Selected Shapes"));
+	Set_Name		(_TL("Copy Shapes from Region"));
 
 	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		""
+		"Copies all shapes that belong to the specified region."
 	));
 
 	Set_Drag_Mode	(TOOL_INTERACTIVE_DRAG_BOX);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+		""	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "CUT"		, _TL("Selection"),
+		""	, "CUT"		, _TL("Copy"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "EXTENT"	, _TL("Extent"),
+		""	, "EXTENT"	, _TL("Extent"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"	, _TL("Method"),
+		""	, "METHOD"	, _TL("Method"),
 		_TL(""),
 		Cut_Methods_Str(), 1
 	);
 
 	Parameters.Add_Bool(
-		NULL	, "CONFIRM"	, _TL("Confirm"),
+		""	, "CONFIRM"	, _TL("Confirm"),
 		_TL("Show a confirmation dialog before selection is performed"),
 		false
 	);
@@ -113,12 +113,12 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Extent"), _TL(""));
 
-	pParameters->Add_Double(NULL, "AX", _TL("Left"            ), _TL(""), 0.0);
-	pParameters->Add_Double(NULL, "BX", _TL("Right"           ), _TL(""), 1.0);
-	pParameters->Add_Double(NULL, "AY", _TL("Bottom"          ), _TL(""), 0.0);
-	pParameters->Add_Double(NULL, "BY", _TL("Top"             ), _TL(""), 1.0);
-	pParameters->Add_Double(NULL, "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
-	pParameters->Add_Double(NULL, "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
+	pParameters->Add_Double("", "AX", _TL("Left"            ), _TL(""), 0.0);
+	pParameters->Add_Double("", "BX", _TL("Right"           ), _TL(""), 1.0);
+	pParameters->Add_Double("", "AY", _TL("Bottom"          ), _TL(""), 0.0);
+	pParameters->Add_Double("", "BY", _TL("Top"             ), _TL(""), 1.0);
+	pParameters->Add_Double("", "DX", _TL("Horizontal Range"), _TL(""), 1.0, 0.0, true);
+	pParameters->Add_Double("", "DY", _TL("Vertical Range"  ), _TL(""), 1.0, 0.0, true);
 }
 
 
@@ -244,7 +244,7 @@ bool CShapes_Cut_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_In
 				}
 				else
 				{
-					Message_Add(_TL("No shapes in selection"));
+					Message_Add(_TL("No shapes in region"));
 				}
 			}
 		}

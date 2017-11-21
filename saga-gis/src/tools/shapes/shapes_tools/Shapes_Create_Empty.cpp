@@ -299,3 +299,49 @@ bool CShapes_Create_Empty::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CShapes_Create_Copy::CShapes_Create_Copy(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Copy Shapes"));
+
+	Set_Author		("O. Conrad (c) 2017");
+
+	Set_Description	(_TW(
+		"Creates a copy of a shapes layer."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Shapes("",
+		"COPY"		, _TL("Copy"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CShapes_Create_Copy::On_Execute(void)
+{
+	CSG_Shapes	*pCopy	= Parameters("COPY")->asShapes();
+
+	return( pCopy->Create(*Parameters("SHAPES")->asShapes()) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
