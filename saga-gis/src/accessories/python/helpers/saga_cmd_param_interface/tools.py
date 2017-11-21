@@ -428,7 +428,7 @@ tools = [
 ['shapes_tools', 10, 'Transform Shapes'],
 ['shapes_tools', 11, 'Create Chart Layer (bars/sectors)'],
 ['shapes_tools', 12, 'Create Graticule'],
-['shapes_tools', 13, 'Copy Selected Shapes'],
+['shapes_tools', 13, 'Copy Shapes from Region'],
 ['shapes_tools', 15, 'Split Shapes Layer'],
 ['shapes_tools', 16, 'Split Shapes Layer Randomly'],
 ['shapes_tools', 17, 'Split Table/Shapes by Attribute'],
@@ -589,7 +589,7 @@ tools = [
 ['table_calculus', 15, 'Field Statistics'],
 ['table_tools', 0, 'Create New Table'],
 ['table_tools', 1, 'Transpose Table'],
-['table_tools', 2, 'Enumerate Table Field'],
+['table_tools', 2, 'Table Field Enumeration'],
 ['table_tools', 3, 'Join Attributes from a Table'],
 ['table_tools', 4, 'Join Attributes from a Table (Shapes)'],
 ['table_tools', 5, 'Change Date Format'],
@@ -706,5 +706,8 @@ tools = [
 ['imagery_tools', 14, 'Import Landsat Scene'],
 ['pointcloud_tools', 14, 'Select Point Cloud from List'],
 ['sim_landscape_evolution', 0, 'SaLEM'],
-['ta_hydrology', 28, 'Flow between fields']
+['ta_hydrology', 28, 'Flow between fields'],
+['shapes_tools', 28, 'Copy Shapes'],
+['table_tools', 21, 'Table Field Enumeration (Shapes)'],
+['table_tools', 22, 'Copy Table']
 ]
