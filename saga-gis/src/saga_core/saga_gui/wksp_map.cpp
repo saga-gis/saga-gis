@@ -850,12 +850,12 @@ CWKSP_Map_BaseMap * CWKSP_Map::Add_BaseMap(CSG_MetaData *pEntry)
 
 		CWKSP_Map_BaseMap	*pItem	= new CWKSP_Map_BaseMap(pEntry);
 
+		Add_Item(pItem);
+
 		if( !pEntry )
 		{
 			pItem->Dlg_Parameters();
 		}
-
-		Add_Item(pItem);
 
 		switch( pItem->Get_Parameter("POSITION")->asInt() )
 		{
