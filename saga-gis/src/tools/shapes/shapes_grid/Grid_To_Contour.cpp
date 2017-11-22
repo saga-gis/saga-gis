@@ -84,25 +84,25 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+		""	, "GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "CONTOUR"		, _TL("Contour"),
+		""	, "CONTOUR"		, _TL("Contour"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+		""	, "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "VERTEX"		, _TL("Vertex Type"),
+		""	, "VERTEX"		, _TL("Vertex Type"),
 		_TL("choose vertex type for resulting contours"),
 		CSG_String::Format("%s|%s|",
 			SG_T("x, y"),
@@ -110,40 +110,40 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SCALE"		, _TL("Interpolation Scale"),
+	Parameters.Add_Double(
+		""	, "SCALE"		, _TL("Interpolation Scale"),
 		_TL("set greater one for line smoothing"),
-		PARAMETER_TYPE_Double, 1.0, 0, true
+		1.0, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LINE_PARTS"	, _TL("Split Parts"),
+	Parameters.Add_Bool(
+		""	, "LINE_PARTS"	, _TL("Split Parts"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "POLY_PARTS"	, _TL("Split Polygon Parts"),
+	Parameters.Add_Bool(
+		""	, "POLY_PARTS"	, _TL("Split Polygon Parts"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZMIN"		, _TL("Minimum Contour Value"),
+	Parameters.Add_Double(
+		""	, "ZMIN"		, _TL("Minimum Contour Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZMAX"		, _TL("Maximum Contour Value"),
+	Parameters.Add_Double(
+		""	, "ZMAX"		, _TL("Maximum Contour Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10000.0
+		10000.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZSTEP"		, _TL("Equidistance"),
+	Parameters.Add_Double(
+		""	, "ZSTEP"		, _TL("Equidistance"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0, true
+		10.0, 0, true
 	);
 }
 
@@ -175,7 +175,7 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 		}
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -188,11 +188,11 @@ int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
 	{
-		pParameters->Set_Enabled("LINE_PARTS", pParameter->asShapes() == NULL);
-		pParameters->Set_Enabled("POLY_PARTS", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("LINE_PARTS", pParameter->asPointer() == NULL);
+		pParameters->Set_Enabled("POLY_PARTS", pParameter->asPointer() != NULL);
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

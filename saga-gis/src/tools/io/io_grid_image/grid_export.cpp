@@ -247,8 +247,8 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") )
 	{
-		pParameters->Get_Parameter("SHADE_TRANS"	)->Set_Enabled(pParameter->asGrid() != NULL);
-		pParameters->Get_Parameter("SHADE_BRIGHT"	)->Set_Enabled(pParameter->asGrid() != NULL);
+		pParameters->Get_Parameter("SHADE_TRANS"	)->Set_Enabled(pParameter->asPointer() != NULL);
+		pParameters->Get_Parameter("SHADE_BRIGHT"	)->Set_Enabled(pParameter->asPointer() != NULL);
 	}
 
 	return( 1 );

@@ -202,7 +202,7 @@ int CHillslope_Evolution_ADI::On_Parameters_Enable(CSG_Parameters *pParameters, 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIFF") )
 	{
-		pParameters->Set_Enabled("UPDATE", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("UPDATE", pParameter->asPointer() != NULL);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );

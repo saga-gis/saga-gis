@@ -161,7 +161,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"PROJECT_DB_REOPEN"		, _TL("Reopen Database Connections"),
-		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted paswords for automatic connection will be stored."),
+		_TL("Reopen PostgreSQL database connections. Warning: if set to true account information including unencrypted passwords for automatic connection will be stored."),
 		CSG_String::Format("%s|%s|",
 			_TL("no"),
 			_TL("yes")

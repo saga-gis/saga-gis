@@ -20,269 +20,229 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include "TransformShapes.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CTransformShapes::CTransformShapes(void)
 {
 	Set_Name		(_TL("Transform Shapes"));
-	Set_Author		(SG_T("(c) 2004 by Victor Olaya"));
+
+	Set_Author		("Victor Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Use this tool to move, rotate and/or scale shapes."
+		"Use this tool to move, rotate and/or scale shapes."
 	));
 
-	CSG_Parameter *pNode_0;
-
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "IN"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUT"		, _TL("Output"), 
+	Parameters.Add_Shapes("",
+		"TRANSFORM"	, _TL("Transformed Shapes"), 
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "MOVE"	, _TL("Move"),
-		_TL("")
-	);
+	Parameters.Add_Node("", "MOVE", _TL("Translation"), _TL("Amount in map units that vertices will be moved."));
 
-	Parameters.Add_Value(
-		pNode_0	, "DX"		, _TL("dX"), 
-		_TL("dX (Map Units)"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0, "DY"		, _TL("dY"), 
-		_TL("dY (Map Units)"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0, "DZ"		, _TL("dZ"),
-		_TL("dZ (Map Units)"),
-		PARAMETER_TYPE_Double, 0.0
-	);
+	Parameters.Add_Double("MOVE"  , "MOVEX"  , _TL("X"), _TL(""), 0.0);
+	Parameters.Add_Double("MOVE"  , "MOVEY"  , _TL("Y"), _TL(""), 0.0);
+	Parameters.Add_Double("MOVE"  , "MOVEZ"  , _TL("Z"), _TL(""), 0.0);
 
 	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "ROTATE"	,
-		_TL("Rotate"),
-		_TL(""));
+	Parameters.Add_Node("", "ANCHOR", _TL("Anchor Point"), _TL("Anchor point for scaling and rotation."));
+
+	Parameters.Add_Double("ANCHOR", "ANCHORX", _TL("X"), _TL(""), 0.0);
+	Parameters.Add_Double("ANCHOR", "ANCHORY", _TL("Y"), _TL(""), 0.0);
+	Parameters.Add_Double("ANCHOR", "ANCHORZ", _TL("Z"), _TL(""), 0.0);
+
+	//-----------------------------------------------------
+	Parameters.Add_Node("", "SCALE", _TL("Scaling"), _TL(""));
+
+	Parameters.Add_Double("SCALE" , "SCALEX" , _TL("X"), _TL(""), 1.0);
+	Parameters.Add_Double("SCALE" , "SCALEY" , _TL("Y"), _TL(""), 1.0);
+	Parameters.Add_Double("SCALE" , "SCALEZ" , _TL("Z"), _TL(""), 1.0);
+
+	//-----------------------------------------------------
+	Parameters.Add_Node("", "ROTATE", _TL("Rotation"), _TL("Rotation angles around coordinate axes in degree counting clockwise."));
 	
-	Parameters.Add_Value(
-		pNode_0	, "ANGLE"	, _TL("Angle"),
-		_TL("Angle in degrees, counting clockwise from north"),
-		PARAMETER_TYPE_Double, 0.0
-	);
+	Parameters.Add_Double("ROTATE", "ROTATEX", _TL("X"), _TL(""), 0.0);
+	Parameters.Add_Double("ROTATE", "ROTATEY", _TL("Y"), _TL(""), 0.0);
+	Parameters.Add_Double("ROTATE", "ROTATEZ", _TL("Z"), _TL(""), 0.0);
+}
 
-	Parameters.Add_Value(
-		pNode_0	, "ROTATEX"	, _TL("Rotation X"),
-		_TL("Angle in degrees, clockwise around x axis"),
-		PARAMETER_TYPE_Double, 0.0
-	);
 
-	Parameters.Add_Value(
-		pNode_0	, "ROTATEY"	, _TL("Rotation Y"),
-		_TL("Angle in degrees, clockwise around y axis"),
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "SCALE"	, _TL("Scale"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "SCALEX"	, _TL("Scale Factor X"), 
-		_TL("Scale Factor X"), 
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "SCALEY"	, _TL("Scale Factor Y"), 
-		_TL("Scale Factor Y"), 
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "SCALEZ"	, _TL("Scale Factor Z"),
-		_TL("Scale Factor Z"),
-		PARAMETER_TYPE_Double, 1.0
-	);
-
-	//-----------------------------------------------------
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "ANCHOR"	, _TL("Anchor Point"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "ANCHORX"	, _TL("X"), 
-		_TL("X"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "ANCHORY"	, _TL("Y"), 
-		_TL("Y"), 
-		PARAMETER_TYPE_Double, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode_0	, "ANCHORZ"	, _TL("Z"),
-		_TL("Z"),
-		PARAMETER_TYPE_Double, 0.0
-	);
-}//constructor
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTransformShapes::~CTransformShapes(void)
-{}
+int CTransformShapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() != NULL )
+	{
+		pParameters->Get("ANCHORX")->Set_Value(pParameter->asShapes()->Get_Extent().Get_Center().Get_X());
+		pParameters->Get("ANCHORY")->Set_Value(pParameter->asShapes()->Get_Extent().Get_Center().Get_Y());
+		pParameters->Get("ANCHORZ")->Set_Value((pParameter->asShapes()->Get_ZMin() + pParameter->asShapes()->Get_ZMax()) / 2.0);
+	}
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CTransformShapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("IN")) && pParameter->asShapes() != NULL )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() != NULL )
 	{
-		pParameters->Set_Enabled("ROTATEX",	pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
-		pParameters->Set_Enabled("ROTATEY",	pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
-		pParameters->Set_Enabled("DZ",		pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
-		pParameters->Set_Enabled("SCALEZ",	pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
-		pParameters->Set_Enabled("ANCHORZ",	pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("MOVEZ"  , pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("SCALEZ" , pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("ANCHORZ", pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("ROTATEX", pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("ROTATEY", pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTransformShapes::On_Execute(void)
 {
-	bool		bCopy;
-	double		angleX, angleY, angleZ;
-	TSG_Point_Z	P, Q, Move, Scale, Anchor;
-	CSG_Shapes	*pIn, *pOut;
-	double		a11, a12, a13, a21, a22, a23, a31, a32, a33;
-
 	//-----------------------------------------------------
-	pIn			= Parameters("IN")		->asShapes();
-	pOut		= Parameters("OUT")		->asShapes();
-	Scale.x		= Parameters("SCALEX")	->asDouble();
-	Scale.y		= Parameters("SCALEY")	->asDouble();
-	Scale.z		= Parameters("SCALEZ")	->asDouble();
-	Move.x		= Parameters("DX")		->asDouble();
-	Move.y		= Parameters("DY")		->asDouble();
-	Move.z		= Parameters("DZ")		->asDouble();
-	Anchor.x	= Parameters("ANCHORX")	->asDouble();
-	Anchor.y	= Parameters("ANCHORY")	->asDouble();
-	Anchor.z	= Parameters("ANCHORZ")	->asDouble();
-	angleX		= Parameters("ROTATEX")	->asDouble() * -M_DEG_TO_RAD;
-	angleY		= Parameters("ROTATEY")	->asDouble() * -M_DEG_TO_RAD;
-	angleZ		= Parameters("ANGLE")	->asDouble() * -M_DEG_TO_RAD;
+	CSG_Shapes	*pShapes	= Parameters("TRANSFORM")->asShapes();
 
-
-	if( pIn == pOut )
+	if( pShapes && pShapes != Parameters("SHAPES")->asShapes() )
 	{
-		bCopy = true;
-		pOut	= SG_Create_Shapes();
-	}//if
+		pShapes->Create(*Parameters("SHAPES")->asShapes());
+
+		DataObject_Set_Parameters(pShapes, Parameters("SHAPES")->asShapes());
+
+		pShapes->Set_Name(CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Transformed")));
+	}
 	else
 	{
-		bCopy = false;
-	}//else
-
-	pOut->Create(pIn->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pIn->Get_Name(), _TL("Transformed")), pIn, pIn->Get_Vertex_Type());
+		pShapes	= Parameters("SHAPES")->asShapes();
+	}
 
 	//-----------------------------------------------------
-	for(int iShape=0; iShape<pIn->Get_Count(); iShape++)
+	TSG_Point_Z	Move, Scale, Anchor, Rotate;
+
+	Move.x		= Parameters("MOVEX"  )->asDouble();
+	Move.y		= Parameters("MOVEY"  )->asDouble();
+	Move.z		= Parameters("MOVEZ"  )->asDouble();
+
+	Anchor.x	= Parameters("ANCHORX")->asDouble();
+	Anchor.y	= Parameters("ANCHORY")->asDouble();
+	Anchor.z	= Parameters("ANCHORZ")->asDouble();
+
+	Scale.x		= Parameters("SCALEX" )->asDouble();
+	Scale.y		= Parameters("SCALEY" )->asDouble();
+	Scale.z		= Parameters("SCALEZ" )->asDouble();
+
+	Rotate.x	= Parameters("ROTATEX")->asDouble() * -M_DEG_TO_RAD;
+	Rotate.y	= Parameters("ROTATEY")->asDouble() * -M_DEG_TO_RAD;
+	Rotate.z	= Parameters("ROTATEZ")->asDouble() * -M_DEG_TO_RAD;
+
+	//-----------------------------------------------------
+	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
-		CSG_Shape	*pShape	= pOut->Add_Shape(pIn->Get_Shape(iShape));
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
 			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				P.x	= pShape->Get_Point(iPoint, iPart).x;
-				P.y	= pShape->Get_Point(iPoint, iPart).y;
-
-				if( pIn->Get_Vertex_Type() < SG_VERTEX_TYPE_XYZ )
+				if( pShapes->Get_Vertex_Type() < SG_VERTEX_TYPE_XYZ )
 				{
-					// move first, then rotate and scale...
+					TSG_Point	Q, P	= pShape->Get_Point(iPoint, iPart);
 
-					P.x	+= Move.x - Anchor.x;
+					P.x	+= Move.x - Anchor.x;	// move first, then rotate and scale...
 					P.y	+= Move.y - Anchor.y;
 
-					Q.x	= Anchor.x + Scale.x * (P.x * cos(angleZ) - P.y * sin(angleZ));
-					Q.y	= Anchor.y + Scale.y * (P.x * sin(angleZ) + P.y * cos(angleZ));
+					Q.x	= Anchor.x + Scale.x * (P.x * cos(Rotate.z) - P.y * sin(Rotate.z));
+					Q.y	= Anchor.y + Scale.y * (P.x * sin(Rotate.z) + P.y * cos(Rotate.z));
 
 					pShape->Set_Point(Q.x, Q.y, iPoint, iPart);
 				}
 				else
 				{
-					P.z	= pIn->Get_Shape(iShape)->Get_Z(iPoint, iPart);
+					TSG_Point_Z	P, Q;
 
-					//anchor shift
+					P.x	= pShape->Get_Point(iPoint, iPart).x;
+					P.y	= pShape->Get_Point(iPoint, iPart).y;
+					P.z	= pShape->Get_Z    (iPoint, iPart);
+
+					// anchor shift
 					P.x	-= Anchor.x;
 					P.y	-= Anchor.y;
 					P.z -= Anchor.z;
 
 					// create rotation matrix
-					a11 = cos(angleY) * cos(angleZ);
-					a12 = -cos(angleX) * sin(angleZ) + sin(angleX) * sin(angleY) * cos(angleZ);
-					a13 = sin(angleX) * sin(angleZ) + cos(angleX) * sin(angleY) * cos(angleZ);
+					double	a11 =  cos(Rotate.y) * cos(Rotate.z);
+					double	a12 = -cos(Rotate.x) * sin(Rotate.z) + sin(Rotate.x) * sin(Rotate.y) * cos(Rotate.z);
+					double	a13 =  sin(Rotate.x) * sin(Rotate.z) + cos(Rotate.x) * sin(Rotate.y) * cos(Rotate.z);
 
-					a21 = cos(angleY) * sin(angleZ);
-					a22 = cos(angleX) * cos(angleZ) + sin(angleX) * sin(angleY) * sin(angleZ);
-					a23 = -sin(angleX) * cos(angleZ) + cos(angleX) * sin(angleY) * sin(angleZ);
+					double	a21 =  cos(Rotate.y) * sin(Rotate.z);
+					double	a22 =  cos(Rotate.x) * cos(Rotate.z) + sin(Rotate.x) * sin(Rotate.y) * sin(Rotate.z);
+					double	a23 = -sin(Rotate.x) * cos(Rotate.z) + cos(Rotate.x) * sin(Rotate.y) * sin(Rotate.z);
 
-					a31 = -sin(angleY);
-					a32 = sin(angleX) * cos(angleY);
-					a33 = cos(angleX) * cos(angleY);
+					double	a31 = -sin(Rotate.y);
+					double	a32 =  sin(Rotate.x) * cos(Rotate.y);
+					double	a33 =  cos(Rotate.x) * cos(Rotate.y);
 
-					//transform
+					// transform
 					Q.x = (P.x * a11 + P.y * a12 + P.z * a13) * Scale.x;
 					Q.y = (P.x * a21 + P.y * a22 + P.z * a23) * Scale.y;
 					Q.z = (P.x * a31 + P.y * a32 + P.z * a33) * Scale.z;
 
-					//undo anchor shift and apply move
+					// undo anchor shift and apply move
 					Q.x	+= Anchor.x + Move.x;
 					Q.y	+= Anchor.y + Move.y;
 					Q.z += Anchor.z + Move.z;
 
 					pShape->Set_Point(Q.x, Q.y, iPoint, iPart);
-					pShape->Set_Z(Q.z, iPoint, iPart);
-
-					if( pIn->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
-					{
-						pShape->Set_M(pIn->Get_Shape(iShape)->Get_M(iPoint, iPart), iPoint, iPart);
-					}
+					pShape->Set_Z    (     Q.z, iPoint, iPart);
 				}
-			}//for iPoint
-		}//for iPart
-	}//for iShape
+			}
+		}
+	}
 
 	//-----------------------------------------------------
-	if( bCopy )
+	if( pShapes == Parameters("SHAPES")->asShapes() )
 	{
-		pIn->Assign(pOut);
-		delete(pOut);
-	}//if
+		DataObject_Update(pShapes);
+	}
 
-	return true;
+	return( true );
+}
 
-}//method
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

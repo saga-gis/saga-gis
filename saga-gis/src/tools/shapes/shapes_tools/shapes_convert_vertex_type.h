@@ -84,7 +84,6 @@ class CShapes_Convert_Vertex_Type : public CSG_Tool
 {
 public:
 	CShapes_Convert_Vertex_Type(void);
-	virtual ~CShapes_Convert_Vertex_Type(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Conversion") );	}
 

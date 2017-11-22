@@ -548,13 +548,14 @@ int CSoil_Texture::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
 	{
-		pParameters->Set_Enabled("XY_AXES" , pParameter->asShapes() != NULL);
-		pParameters->Set_Enabled("TRIANGLE", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("XY_AXES" , pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("TRIANGLE", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
 	{
-		pParameters->Set_Enabled("USER", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("COLORS"  , pParameter->asInt() != 0);
+		pParameters->Set_Enabled("USER"    , pParameter->asInt() == 3);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -781,13 +782,14 @@ int CSoil_Texture_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
 	{
-		pParameters->Set_Enabled("XY_AXES" , pParameter->asShapes() != NULL);
-		pParameters->Set_Enabled("TRIANGLE", pParameter->asShapes() != NULL);
+		pParameters->Set_Enabled("XY_AXES" , pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("TRIANGLE", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
 	{
-		pParameters->Set_Enabled("USER", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("COLORS"  , pParameter->asInt() != 0);
+		pParameters->Set_Enabled("USER"    , pParameter->asInt() == 3);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );

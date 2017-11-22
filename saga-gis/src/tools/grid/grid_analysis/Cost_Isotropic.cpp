@@ -39,8 +39,6 @@
 //---------------------------------------------------------
 CCost_Accumulated::CCost_Accumulated(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Accumulated Cost"));
 
@@ -51,8 +49,8 @@ CCost_Accumulated::CCost_Accumulated(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "DEST_TYPE"	, _TL("Input Type of Destinations"),
+	Parameters.Add_Choice("",
+		"DEST_TYPE"	, _TL("Input Type of Destinations"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Point"),
@@ -60,33 +58,33 @@ CCost_Accumulated::CCost_Accumulated(void)
 		), 0
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "DEST_POINTS"	, _TL("Destinations"),
+	Parameters.Add_Shapes("",
+		"DEST_POINTS"	, _TL("Destinations"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DEST_GRID"	, _TL("Destinations"),
+	Parameters.Add_Grid("",
+		"DEST_GRID"	, _TL("Destinations"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "COST"		, _TL("Local Cost"),
+	Parameters.Add_Grid("",
+		"COST"		, _TL("Local Cost"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DIR_MAXCOST"	, _TL("Direction of Maximum Cost"),
+	Parameters.Add_Grid("",
+		"DIR_MAXCOST"	, _TL("Direction of Maximum Cost"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "DIR_UNIT"	, _TL("Units of Direction"),
+		"DIR_MAXCOST"	, "DIR_UNIT"	, _TL("Units of Direction"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("radians"),
@@ -94,30 +92,30 @@ CCost_Accumulated::CCost_Accumulated(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DIR_K"		, _TL("K Factor"),
+	Parameters.Add_Double(
+		"DIR_MAXCOST"	, "DIR_K"		, _TL("K Factor"),
 		_TL("effective friction = stated friction ^f , where f = cos(DifAngle)^k."),
-		PARAMETER_TYPE_Double, 2
+		2.
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "ACCUMULATED"	, _TL("Accumulated Cost"), 
+	Parameters.Add_Grid("",
+		"ACCUMULATED"	, _TL("Accumulated Cost"), 
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "ALLOCATION"	, _TL("Allocation"), 
+	Parameters.Add_Grid("",
+		"ALLOCATION"	, _TL("Allocation"), 
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Threshold for different route"),
+	Parameters.Add_Double("",
+		"THRESHOLD"	, _TL("Threshold for different route"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 }
 
@@ -131,8 +129,8 @@ int CCost_Accumulated::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIR_MAXCOST") )
 	{
-		pParameters->Set_Enabled("DIR_UNIT", pParameter->asGrid() != NULL);
-		pParameters->Set_Enabled("DIR_K"   , pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("DIR_UNIT", pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("DIR_K"   , pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DEST_TYPE") )

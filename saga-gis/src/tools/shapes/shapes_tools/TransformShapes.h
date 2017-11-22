@@ -23,18 +23,47 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "MLB_Interface.h"
 
-class CTransformShapes : public CSG_Tool{
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTransformShapes : public CSG_Tool
+{
 public:
 	CTransformShapes(void);
-	virtual ~CTransformShapes(void);
+
 
 protected:
-	virtual bool On_Execute(void);
-	virtual int	 On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual int		On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool	On_Execute				(void);
+
 
 private:
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

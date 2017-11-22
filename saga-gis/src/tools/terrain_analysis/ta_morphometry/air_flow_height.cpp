@@ -72,111 +72,111 @@
 //---------------------------------------------------------
 CAir_Flow_Height::CAir_Flow_Height(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Effective Air Flow Heights"));
 
-	Set_Author		(SG_T("J.Boehner, O.Conrad (c) 2008"));
+	Set_Author		("J.Boehner, O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"\nReferences:\n"
-		"- Boehner, J., Antonic, O. (2009): 'Land-surface parameters specific to topo-climatology'."
-		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
-		" Developments in Soil Science, Volume 33, p.195-226, Elsevier.\n"
+		"Effective Air Flow Heights"
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Add_Reference(
+		"Boehner, J., Antonic, O.", "2009",
+		"Land-surface parameters specific to topo-climatology",
+		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+	);
+
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DIR"			, _TL("Wind Direction"),
+	Parameters.Add_Grid("",
+		"DIR"		, _TL("Wind Direction"),
 		_TL("Direction into which the wind blows, starting with 0 for North and increasing clockwise."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "DIR_UNITS"	, _TL("Wind Direction Units"),
+	Parameters.Add_Choice("DIR",
+		"DIR_UNITS"	, _TL("Wind Direction Units"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("radians"),
 			_TL("degree")
 		), 0
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "LEN"			, _TL("Wind Speed"),
+	Parameters.Add_Grid("",
+		"LEN"		, _TL("Wind Speed"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LEN_SCALE"	, _TL("Scaling"),
+	Parameters.Add_Double("LEN",
+		"LEN_SCALE"	, _TL("Scaling"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AFH"			, _TL("Effective Air Flow Heights"),
+	Parameters.Add_Grid("",
+		"AFH"		, _TL("Effective Air Flow Heights"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
+	Parameters.Add_Double("",
+		"MAXDIST"	, _TL("Search Distance [km]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 300.0, 0.0, true
+		300.0, 0.0, true
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction"),
+	Parameters.Add_Double("",
+		"DIR_CONST"	, _TL("Constant Wind Direction"),
 		_TL("constant direction into the wind blows, given as degree"),
-		PARAMETER_TYPE_Double, 135.0
+		135.0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "OLDVER"		, _TL("Old Version"),
+	Parameters.Add_Bool("DIR_CONST",
+		"OLDVER"	, _TL("Old Version"),
 		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ACCEL"		, _TL("Acceleration"),
+	Parameters.Add_Double("",
+		"ACCEL"		, _TL("Acceleration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.5, 1.0, true
+		1.5, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+	Parameters.Add_Bool("",
+		"PYRAMIDS"	, _TL("Elevation Averaging"),
 		_TL("use more averaged elevations when looking at increasing distances"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LEE"			, _TL("Windward Factor"),
+	Parameters.Add_Double("",
+		"LEE"		, _TL("Windward Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.5
+		0.5
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LUV"			, _TL("Luv Factor"),
+	Parameters.Add_Double("",
+		"LUV"		, _TL("Luv Factor"),
 		_TL(""),
 		PARAMETER_TYPE_Double	, 1.0
 	);
 
-/*	Parameters.Add_Value(
-		NULL	, "TRACE"		, _TL("Precise Tracing"),
+/*	Parameters.Add_Bool("",
+		"TRACE"		, _TL("Precise Tracing"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);/**/
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -203,24 +203,20 @@ int CAir_Flow_Height::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 		pParameters->Set_Enabled("PYRAMIDS" , pParameter->asBool() == false);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CAir_Flow_Height::On_Execute(void)
 {
-	CSG_Grid	*pAFH;
-
 	//-----------------------------------------------------
 	m_pDEM			= Parameters("DEM"    )->asGrid();
-	pAFH			= Parameters("AFH"    )->asGrid();
+	CSG_Grid *pAFH	= Parameters("AFH"    )->asGrid();
 	m_maxDistance	= Parameters("MAXDIST")->asDouble() * 1000.0;
 	m_Acceleration	= Parameters("ACCEL"  )->asDouble();
 	m_dLee			= Parameters("LEE"    )->asDouble();

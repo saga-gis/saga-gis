@@ -75,7 +75,7 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Overland Flow Distance to Channel Network"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001-14"));
+	Set_Author		("O.Conrad (c) 2001-14");
 
 	Set_Description	(_TW(
 		"This tool calculates overland flow distances to a channel network "
@@ -83,109 +83,124 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 		"The flow algorithm may be either Deterministic 8 (O'Callaghan & Mark 1984) "
 		"or Multiple Flow Direction (Freeman 1991). Sediment Delivery Rates (SDR) "
 		"according to Ali & De Boer (2010) can be computed optionally. "
-		"\n\nReferences:\n"
-		"- Ali, K. F., De Boer, D. H. (2010): Spatially distributed erosion and sediment yield modeling in the upper Indus River basin."
-		" Water Resources Research, 46(8), W08504. doi:10.1029/2009WR008762\n"
-		"- Freeman, G.T., 1991: Calculating catchment area with divergent flow based on a regular grid."
-		" Computers and Geosciences, 17:413-22.\n"
-		"- O'Callaghan, J.F., Mark, D.M., 1984: The extraction of drainage networks from digital elevation data."
-		" Computer Vision, Graphics and Image Processing, 28:323-344.\n"
-		"- Nobre, A.D., Cuartas, L.A., Hodnett, M., Renno, C.D., Rodrigues, G., Silveira, A., Waterloo, M., Saleska S. (2011): Height Above the Nearest Drainage - a hydrologically relevant new terrain model."
-		" Journal of Hydrology, Vol. 404, Issues 1-2, pp. 13-29, ISSN 0022-1694, 10.1016/j.jhydrol.2011.03.051."
-		" <a target=\"_blank\" href=\"http://www.sciencedirect.com/science/article/pii/S0022169411002599\">online</a>\n"
 	));
+
+	Add_Reference(
+		"Ali, K. F., De Boer, D. H.", "2010",
+		"Spatially distributed erosion and sediment yield modeling in the upper Indus River basin",
+		"Water Resources Research, 46(8), W08504. doi:10.1029/2009WR008762"
+	);
+
+	Add_Reference(
+		"Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22."
+	);
+
+	Add_Reference(
+		"O'Callaghan, J.F., Mark, D.M.", "1984",
+		"The extraction of drainage networks from digital elevation data",
+		"Computer Vision, Graphics and Image Processing, 28:323-344."
+	);
+
+	Add_Reference(
+		"Nobre, A.D., Cuartas, L.A., Hodnett, M., Renno, C.D., Rodrigues, G., Silveira, A., Waterloo, M., Saleska S.", "2011",
+		"Height Above the Nearest Drainage - a hydrologically relevant new terrain model",
+		"Journal of Hydrology, Vol. 404, Issues 1-2, pp. 13-29, ISSN 0022-1694, 10.1016/j.jhydrol.2011.03.051.",
+		SG_T("http://www.sciencedirect.com/science/article/pii/S0022169411002599")
+	);
 
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+		""	, "ELEVATION"	, _TL("Elevation"),
 		_TL("A grid that contains elevation data."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHANNELS"	, _TL("Channel Network"),
+		""	, "CHANNELS"	, _TL("Channel Network"),
 		_TW("A grid providing information about the channel network. It is assumed that no-data cells are not part "
 		"of the channel network. Vice versa all others cells are recognised as channel network members."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "ROUTE"		, _TL("Preferred Routing"),
+		""	, "ROUTE"		, _TL("Preferred Routing"),
 		_TL("Downhill flow is bound to preferred routing cells, where these are not no-data. Helps to model e.g. small ditches, that are not well represented in the elevation data."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("Overland Flow Distance"),
+		""	, "DISTANCE"	, _TL("Overland Flow Distance"),
 		_TW("The overland flow distance in map units. "
 		"It is assumed that the (vertical) elevation data use the same units as the (horizontal) grid coordinates."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DISTVERT"	, _TL("Vertical Overland Flow Distance"),
+		""	, "DISTVERT"	, _TL("Vertical Overland Flow Distance"),
 		_TL("This is the vertical component of the overland flow"),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DISTHORZ"	, _TL("Horizontal Overland Flow Distance"),
+		""	, "DISTHORZ"	, _TL("Horizontal Overland Flow Distance"),
 		_TL("This is the horizontal component of the overland flow"),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "TIME"		, _TL("Flow Travel Time"),
+		""	, "TIME"		, _TL("Flow Travel Time"),
 		_TL("flow travel time to channel expressed in hours based on Manning's Equation"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SDR"			, _TL("Sediment Yield Delivery Ratio"),
+		""	, "SDR"			, _TL("Sediment Yield Delivery Ratio"),
 		_TL("This is the horizontal component of the overland flow"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "FIELDS"		, _TL("Fields"),
+		""	, "FIELDS"		, _TL("Fields"),
 		_TL("If set, output is given about the number of fields a flow path visits downhill. For D8 only."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "PASSES"		, _TL("Fields Visited"),
+		""	, "PASSES"		, _TL("Fields Visited"),
 		_TL("Number of fields a flow path visits downhill starting at a cell. For D8 only."),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Flow Algorithm"),
+		""	, "METHOD"		, _TL("Flow Algorithm"),
 		_TL("Choose a flow routing algorithm that shall be used for the overland flow distance calculation:\n- D8\n- MFD"),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s|",
 			_TL("D8"),
 			_TL("MFD")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FLOW_B"		, _TL("Beta"),
+	Parameters.Add_Double(
+		""	, "FLOW_B"		, _TL("Beta"),
 		_TL("catchment specific parameter for sediment delivery ratio calculation"),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Grid_or_Const(
-		NULL	, "FLOW_K"		, _TL("Manning-Strickler Coefficient"),
+		""	, "FLOW_K"		, _TL("Manning-Strickler Coefficient"),
 		_TL("Manning-Strickler coefficient for flow travel time estimation (reciprocal of Manning's Roughness Coefficient)"),
 		20.0, 0.0, true
 	);
 
 	Parameters.Add_Grid_or_Const(
-		NULL	, "FLOW_R"		, _TL("Flow Depth"),
+		""	, "FLOW_R"		, _TL("Flow Depth"),
 		_TL("flow depth [m] for flow travel time estimation"),
 		0.05, 0.0, true
 	);
@@ -194,8 +209,6 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -203,13 +216,13 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
-		pParameters->Get_Parameter("FIELDS")->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->asInt() == 0 && pParameters->Get_Parameter("FIELDS")->asGrid() != NULL);
+		pParameters->Set_Enabled("FIELDS", pParameter->asInt() == 0);
+		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && pParameters->Get_Parameter("FIELDS")->asGrid() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
 	{
-		pParameters->Get_Parameter("PASSES")->Set_Enabled(pParameter->is_Enabled() && pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("PASSES", pParameter->is_Enabled() && pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") || !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
@@ -217,9 +230,9 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 		bool	bEnable	= pParameters->Get_Parameter("TIME")->asGrid() != NULL
 					||	  pParameters->Get_Parameter("SDR" )->asGrid() != NULL;
 
-		pParameters->Get_Parameter("FLOW_B")->Set_Enabled(bEnable);
-		pParameters->Get_Parameter("FLOW_K")->Set_Enabled(bEnable);
-		pParameters->Get_Parameter("FLOW_R")->Set_Enabled(bEnable);
+		pParameters->Set_Enabled("FLOW_B", bEnable);
+		pParameters->Set_Enabled("FLOW_K", bEnable);
+		pParameters->Set_Enabled("FLOW_R", bEnable);
 	}
 
 	return( 1 );
@@ -227,8 +240,6 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -317,8 +328,6 @@ bool CChannelNetwork_Distance::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -336,8 +345,6 @@ inline double CChannelNetwork_Distance::Get_Travel_Time(int x, int y, int i)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -433,8 +440,6 @@ void CChannelNetwork_Distance::Execute_D8(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

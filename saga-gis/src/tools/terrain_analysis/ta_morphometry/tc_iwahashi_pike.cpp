@@ -74,14 +74,14 @@ CTC_Parameter_Base::CTC_Parameter_Base(void)
 //---------------------------------------------------------
 void CTC_Parameter_Base::On_Construction(void)
 {
-	Parameters.Add_Value(
-		NULL	, "SCALE"		, _TL("Scale (Cells)"),
+	Parameters.Add_Value("",
+		"SCALE"		, _TL("Scale (Cells)"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 10, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("counting cells"),
@@ -220,31 +220,32 @@ CTC_Texture::CTC_Texture(void)
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Terrain surface texture as proposed by Iwahashi & Pike (2007) for subsequent terrain classification.\n"
-		"\n"
-		"Reference:\n"
-		"Iwahashi, J. & Pike, R.J. (2007): "
-		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature. "
-		"Geomorphology, Vol. 86, pp. 409–440\n"
+		"Terrain surface texture as proposed by Iwahashi & Pike (2007) for subsequent terrain classification."
 	));
 
+	Add_Reference(
+		"Iwahashi, J. & Pike, R.J.", "2007",
+		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
+		"Geomorphology, Vol. 86, pp. 409–440."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TEXTURE"		, _TL("Texture"),
+	Parameters.Add_Grid("",
+		"TEXTURE"	, _TL("Texture"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Flat Area Threshold"),
+	Parameters.Add_Double("",
+		"EPSILON"	, _TL("Flat Area Threshold"),
 		_TL("maximum difference between original and median filtered elevation (3x3 moving window) that still is recognized flat"),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
@@ -331,29 +332,30 @@ CTC_Convexity::CTC_Convexity(void)
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Terrain surface convexity as proposed by Iwahashi & Pike (2007) for subsequent terrain classification.\n"
-		"\n"
-		"Reference:\n"
-		"Iwahashi, J. & Pike, R.J. (2007): "
-		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature. "
-		"Geomorphology, Vol. 86, pp. 409–440\n"
+		"Terrain surface convexity as proposed by Iwahashi & Pike (2007) for subsequent terrain classification."
 	));
 
+	Add_Reference(
+		"Iwahashi, J. & Pike, R.J.", "2007",
+		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
+		"Geomorphology, Vol. 86, pp. 409–440."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CONVEXITY"	, _TL("Convexity"),
+	Parameters.Add_Grid("",
+		"CONVEXITY"	, _TL("Convexity"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "KERNEL"		, _TL("Laplacian Filter Kernel"),
+	Parameters.Add_Choice("",
+		"KERNEL"	, _TL("Laplacian Filter Kernel"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("conventional four-neighbourhood"),
@@ -362,8 +364,8 @@ CTC_Convexity::CTC_Convexity(void)
 		)
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Type"),
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("convexity"),
@@ -371,10 +373,10 @@ CTC_Convexity::CTC_Convexity(void)
 		)
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Flat Area Threshold"),
+	Parameters.Add_Double("",
+		"EPSILON"	, _TL("Flat Area Threshold"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
@@ -471,85 +473,84 @@ int CTC_Convexity::Get_Laplace(int x, int y, const double Kernel[2], int Type, d
 //---------------------------------------------------------
 CTC_Classification::CTC_Classification(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Terrain Surface Classification (Iwahashi and Pike)"));
 
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"Terrain surface classification as proposed by Iwahashi & Pike (2007).\n"
-		"\n"
-		"Reference:\n"
-		"Iwahashi, J. & Pike, R.J. (2007): "
-		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature. "
-		"Geomorphology, Vol. 86, pp. 409–440\n"
+		"Terrain surface classification as proposed by Iwahashi & Pike (2007)."
 	));
 
+	Add_Reference(
+		"Iwahashi, J. & Pike, R.J.", "2007",
+		"Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature",
+		"Geomorphology, Vol. 86, pp. 409–440."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"			, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "CONVEXITY"	, _TL("Convexity"),
+	Parameters.Add_Grid("",
+		"CONVEXITY"		, _TL("Convexity"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "CONV_RECALC"	, _TL("Recalculate"),
+	Parameters.Add_Bool("CONVEXITY",
+		"CONV_RECALC"	, _TL("Recalculate"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "TEXTURE"		, _TL("Texture"),
+	Parameters.Add_Grid("",
+		"TEXTURE"		, _TL("Texture"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "TEXT_RECALC"	, _TL("Recalculate"),
+	Parameters.Add_Bool("TEXTURE",
+		"TEXT_RECALC"	, _TL("Recalculate"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LANDFORMS"	, _TL("Landforms"),
+	Parameters.Add_Grid("",
+		"LANDFORMS"		, _TL("Landforms"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"		, _TL("Number of Classes"),
+	Parameters.Add_Choice("",
+		"TYPE"			, _TL("Number of Classes"),
 		_TL(""),
-		SG_T("8|12|16|"), 2
+		"8|12|16|", 2
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "CONV_NODE"	, _TL("Convexity"),
+	Parameters.Add_Node("",
+		"CONV_NODE"		, _TL("Convexity"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "CONV_SCALE"	, _TL("Scale (Cells)"),
+	Parameters.Add_Int("CONV_NODE",
+		"CONV_SCALE"	, _TL("Scale (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 10, 1, true
+		10, 1, true
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "CONV_KERNEL"	, _TL("Laplacian Filter Kernel"),
+	Parameters.Add_Choice("CONV_NODE",
+		"CONV_KERNEL"	, _TL("Laplacian Filter Kernel"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("four-neighbourhood"),
@@ -558,8 +559,8 @@ CTC_Classification::CTC_Classification(void)
 		)
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "CONV_TYPE"	, _TL("Type"),
+	Parameters.Add_Choice("CONV_NODE",
+		"CONV_TYPE"		, _TL("Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("convexity"),
@@ -567,28 +568,28 @@ CTC_Classification::CTC_Classification(void)
 		)
 	);
 
-	Parameters.Add_Value(
-		pNode	, "CONV_EPSILON", _TL("Flat Area Threshold"),
+	Parameters.Add_Double("CONV_NODE",
+		"CONV_EPSILON"	, _TL("Flat Area Threshold"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "TEXT_NODE"	, _TL("Texture"),
+	Parameters.Add_Node("",
+		"TEXT_NODE"		, _TL("Texture"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "TEXT_SCALE"	, _TL("Scale (Cells)"),
+	Parameters.Add_Int("TEXT_NODE",
+		"TEXT_SCALE"	, _TL("Scale (Cells)"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 10, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "TEXT_EPSILON", _TL("Flat Area Threshold"),
+	Parameters.Add_Double("TEXT_NODE",
+		"TEXT_EPSILON"	, _TL("Flat Area Threshold"),
 		_TL("maximum difference between original and median filtered elevation (3x3 moving window) that still is recognized flat"),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 }
 

@@ -150,7 +150,7 @@ int CSnow_Cover::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "QUANTILE") )
 	{
-		pParameters->Set_Enabled("QUANT_VAL", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("QUANT_VAL", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )

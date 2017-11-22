@@ -91,60 +91,60 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"PREDICTORS"	, _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT, true
 	);
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(Parameters("POINTS"),
+	Parameters.Add_Table_Field("POINTS",
 		"ATTRIBUTE"		, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"INFO_COEFF"	, _TL("Details: Coefficients"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"INFO_MODEL"	, _TL("Details: Model"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"INFO_STEPS"	, _TL("Details: Steps"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"RESIDUALS"		, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"REGRESSION"	, _TL("Regression"),
 		_TL("regression model applied to predictor grids"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"REGRESCORR"	, _TL("Regression with Residual Correction"),
 		_TL("regression model applied to predictor grids with interpolated residuals added"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -155,25 +155,25 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"COORD_X"		, _TL("Include X Coordinate"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"COORD_Y"		, _TL("Include Y Coordinate"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"INTERCEPT"		, _TL("Intercept"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -184,13 +184,13 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 3
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
 		5.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"CROSSVAL"		, _TL("Cross Validation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
@@ -201,13 +201,13 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 		), 0
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"CROSSVAL_K"	, _TL("Cross Validation Subsamples"),
 		_TL("number of subsamples for k-fold cross validation"),
 		10, 2, true
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"RESIDUAL_COR"	, _TL("Residual Interpolation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -219,8 +219,6 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -239,16 +237,14 @@ int CPoint_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParamete
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "REGRESCORR") )
 	{
-		pParameters->Set_Enabled("RESIDUAL_COR", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("RESIDUAL_COR", pParameter->asPointer() != NULL);
 	}
 
-	return( 0 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -354,8 +350,6 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -437,8 +431,6 @@ bool CPoint_Multi_Grid_Regression::Get_Samples(CSG_Parameter_Grid_List *pGrids, 
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -539,8 +531,6 @@ bool CPoint_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrid
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

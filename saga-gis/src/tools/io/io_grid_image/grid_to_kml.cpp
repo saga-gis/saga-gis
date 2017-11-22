@@ -231,7 +231,7 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") && pParameters->Get_Parameter("SHADE_BRIGHT") )
 	{
-		pParameters->Set_Enabled("SHADE_BRIGHT", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("SHADE_BRIGHT", pParameter->asPointer() != NULL);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") || !SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )

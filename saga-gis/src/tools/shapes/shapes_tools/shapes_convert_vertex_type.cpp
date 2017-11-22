@@ -71,56 +71,67 @@
 //---------------------------------------------------------
 CShapes_Convert_Vertex_Type::CShapes_Convert_Vertex_Type(void)
 {
+	Set_Name		(_TL("Convert Vertex Type (2D/3D)"));
 
-	Set_Name(_TL("Convert Vertex Type (2D/3D)"));
-
-	Set_Author(_TL("Volker Wichmann (c) 2013, LASERDATA GmbH"));
+	Set_Author		("Volker Wichmann (c) 2013, LASERDATA GmbH");
 
 	Set_Description	(_TW(
 		"The tool allows one to convert the vertex type of shapes from "
 		"'XY' (2D) to 'XYZ/M' (3D) and vice versa. The conversion from "
 		"3D to 2D is not lossless for lines and polygons, as only the "
 		"Z/M value of one vertex can be retained (currently that of the "
-		"last vertex).\n\n")
-	);
-
+		"last vertex)."
+	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	pNode = Parameters.Add_Shapes(
-		NULL	, "INPUT"		, _TL("Input"),
+	Parameters.Add_Shapes("",
+		"INPUT"		, _TL("Input"),
 		_TL("The shapefile to convert."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD_Z"	, _TL("Z"),
+	Parameters.Add_Table_Field("INPUT",
+		"FIELD_Z"	, _TL("Z"),
 		_TL("Field with z-coordinate information."),
 		true
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD_M"	, _TL("M"),
+	Parameters.Add_Table_Field("INPUT",
+		"FIELD_M"	, _TL("M"),
 		_TL("Field with measure information."),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Shapes("",
+		"OUTPUT"	, _TL("Output"),
 		_TL("The converted shapefile."),
 		PARAMETER_OUTPUT
 	);
 }
 
-//---------------------------------------------------------
-CShapes_Convert_Vertex_Type::~CShapes_Convert_Vertex_Type(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CShapes_Convert_Vertex_Type::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") && pParameter->asShapes() != NULL )
+	{
+		pParameters->Set_Enabled("FIELD_Z", pParameters->Get("INPUT")->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_Z") )
+	{
+		pParameters->Set_Enabled("FIELD_M", pParameter->asInt() >= 0);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -130,15 +141,15 @@ bool CShapes_Convert_Vertex_Type::On_Execute(void)
 	CSG_Shapes		*pInput, *pOutput;
 	int				iFieldZ, iFieldM;
 
-	pInput		= Parameters("INPUT")->asShapes();
+	pInput		= Parameters("INPUT"  )->asShapes();
 	iFieldZ		= Parameters("FIELD_Z")->asInt();
 	iFieldM		= Parameters("FIELD_M")->asInt();
-	pOutput		= Parameters("OUTPUT")->asShapes();
-	
+	pOutput		= Parameters("OUTPUT" )->asShapes();	
 	
 	if( pInput->Get_Count() < 1 )
 	{
 		SG_UI_Msg_Add_Error(_TL("Input shape is empty!"));
+
 		return (false);
 	}
 
@@ -148,27 +159,28 @@ bool CShapes_Convert_Vertex_Type::On_Execute(void)
 		if( iFieldZ < 0 )
 		{
 			SG_UI_Msg_Add_Error(_TL("Please provide an attribute field with z-information!"));
+
 			return( false );
 		}
 
 		if( iFieldM < 0 )
 		{
-			pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s_Z"), pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XYZ);
+			pOutput->Create(pInput->Get_Type(), CSG_String::Format("%s_Z", pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XYZ);
 		}
 		else
 		{
-			pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s_ZM"), pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XYZM);
+			pOutput->Create(pInput->Get_Type(), CSG_String::Format("%s_ZM", pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XYZM);
 		}
 	}
 	else
 	{
-		pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s_XY"), pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XY);
+		pOutput->Create(pInput->Get_Type(), CSG_String::Format("%s_XY", pInput->Get_Name()), pInput, SG_VERTEX_TYPE_XY);
 
-		pOutput->Add_Field(SG_T("Z"), SG_DATATYPE_Double);
+		pOutput->Add_Field("Z", SG_DATATYPE_Double);
 
 		if( pInput->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
 		{
-			pOutput->Add_Field(SG_T("M"), SG_DATATYPE_Double);
+			pOutput->Add_Field("M", SG_DATATYPE_Double);
 		}
 	}
 
@@ -212,22 +224,6 @@ bool CShapes_Convert_Vertex_Type::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
-}
-
-//---------------------------------------------------------
-int CShapes_Convert_Vertex_Type::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INPUT")) && pParameter->asShapes() != NULL )
-	{
-		pParameters->Get_Parameter("FIELD_Z")->Set_Enabled(pParameters->Get_Parameter("INPUT")->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
-	}
-
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD_Z")) )
-	{
-		pParameters->Get_Parameter("FIELD_M")->Set_Enabled(pParameter->asInt() >= 0);
-	}
-
-	return( 0 );
 }
 
 

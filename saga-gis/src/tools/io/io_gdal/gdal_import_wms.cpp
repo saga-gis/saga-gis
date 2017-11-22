@@ -227,8 +227,8 @@ int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET") )
 	{
-		pParameters->Set_Enabled("TARGET_MAP" , pParameter->asGrid() != NULL);
-		pParameters->Set_Enabled("TARGET_NODE", pParameter->asGrid() == NULL);
+		pParameters->Set_Enabled("TARGET_MAP" , pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("TARGET_NODE", pParameter->asPointer() == NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )

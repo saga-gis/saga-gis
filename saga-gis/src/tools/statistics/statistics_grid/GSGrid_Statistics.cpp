@@ -139,7 +139,7 @@ int CGSGrid_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PCTL") )
 	{
-		pParameters->Set_Enabled("PCTL_VAL", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("PCTL_VAL", pParameter->asPointer() != NULL);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )

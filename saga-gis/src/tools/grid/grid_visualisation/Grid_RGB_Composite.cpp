@@ -133,7 +133,7 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "R_GRID") )
 	{
-		pParameters->Set_Enabled("R_METHOD", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("R_METHOD", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "R_METHOD") )
@@ -145,7 +145,7 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "G_GRID") )
 	{
-		pParameters->Set_Enabled("G_METHOD", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("G_METHOD", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "G_METHOD") )
@@ -157,7 +157,7 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_GRID") )
 	{
-		pParameters->Set_Enabled("B_METHOD", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("B_METHOD", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_METHOD") )
@@ -169,7 +169,7 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "A_GRID") )
 	{
-		pParameters->Set_Enabled("A_METHOD", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("A_METHOD", pParameter->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "A_METHOD") )

@@ -72,8 +72,6 @@
 //---------------------------------------------------------
 CWind_Effect::CWind_Effect(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Wind Effect (Windward / Leeward Index)"));
 
 	Set_Author		("J.Boehner, A.Ringeler (c) 2008, O.Conrad (c) 2011");
@@ -82,34 +80,36 @@ CWind_Effect::CWind_Effect(void)
 		"The 'Wind Effect' is a dimensionless index. Values below 1 indicate wind shadowed areas "
 		"whereas values above 1 indicate areas exposed to wind, all with regard to the specified "
 		"wind direction. Wind direction, i.e. the direction into which the wind blows, might be "
-		"either constant or variying in space, if a wind direction grid is supplied.\n"
-		"\nReferences:\n<ul>"
-		"<ul><li>"
-		" Boehner, J., Antonic, O. (2009):"
-		" Land-surface parameters specific to topo-climatology."
-		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
-		" Developments in Soil Science, Volume 33, p.195-226, Elsevier."
-		"</li><li>"
-		" Gerlitz, L., Conrad, O., Böhner, J. (2015):"
-		" Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach."
-		" Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
-		"</li></ul>\n"
+		"either constant or variying in space, if a wind direction grid is supplied."
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Add_Reference(
+		"Boehner, J., Antonic, O.", "2009",
+		"Land-surface parameters specific to topo-climatology",
+		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+	);
+
+	Add_Reference(
+		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
+		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
+		"Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
+	);
+
+	Parameters.Add_Grid("",
+		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DIR"			, _TL("Wind Direction"),
+	Parameters.Add_Grid("",
+		"DIR"			, _TL("Wind Direction"),
 		_TL("Direction into which the wind blows, starting with 0 for North and increasing clockwise."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "DIR_UNITS"	, _TL("Wind Direction Units"),
+	Parameters.Add_Choice("DIR",
+		"DIR_UNITS"		, _TL("Wind Direction Units"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("radians"),
@@ -117,64 +117,64 @@ CWind_Effect::CWind_Effect(void)
 		), 0
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "LEN"			, _TL("Wind Speed"),
+	Parameters.Add_Grid("",
+		"LEN"			, _TL("Wind Speed"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LEN_SCALE"	, _TL("Scaling"),
+	Parameters.Add_Double("LEN",
+		"LEN_SCALE"	, _TL("Scaling"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "EFFECT"		, _TL("Wind Effect"),
+	Parameters.Add_Grid("",
+		"EFFECT"		, _TL("Wind Effect"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "AFH"			, _TL("Effective Air Flow Heights"),
+	Parameters.Add_Grid("",
+		"AFH"			, _TL("Effective Air Flow Heights"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
+	Parameters.Add_Double("",
+		"MAXDIST"		, _TL("Search Distance [km]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 300.0, 0.0, true
+		300.0, 0.0, true
 	);
 
-	pNode	= Parameters.Add_Value(
-		NULL	, "DIR_CONST"	, _TL("Constant Wind Direction"),
+	Parameters.Add_Double("",
+		"DIR_CONST"	, _TL("Constant Wind Direction"),
 		_TL("constant direction into the wind blows, given as degree"),
-		PARAMETER_TYPE_Double, 135.0
+		135.0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "OLDVER"		, _TL("Old Version"),
+	Parameters.Add_Bool("DIR_CONST",
+		"OLDVER"		, _TL("Old Version"),
 		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ACCEL"		, _TL("Acceleration"),
+	Parameters.Add_Double("",
+		"ACCEL"		, _TL("Acceleration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.5, 1.0, true
+		1.5, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+	Parameters.Add_Bool("",
+		"PYRAMIDS"	, _TL("Elevation Averaging"),
 		_TL("use more averaged elevations when looking at increasing distances"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-/*	Parameters.Add_Value(
-		NULL	, "TRACE"		, _TL("Precise Tracing"),
+/*	Parameters.Add_Bool("",
+		"TRACE"		, _TL("Precise Tracing"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);/**/
 }
 
@@ -584,60 +584,62 @@ CWind_Exposition::CWind_Exposition(void)
 	Set_Description	(_TW(
 		"This tool calculates the average 'Wind Effect Index' for all directions using an angular step. "
 		"Like the 'Wind Effect Index' it is a dimensionless index. Values below 1 indicate wind shadowed areas "
-		"whereas values above 1 indicate areas exposed to wind.\n"
-		"\nReferences:\n"
-		"<ul><li>"
-		" Boehner, J., Antonic, O. (2009):"
-		" Land-surface parameters specific to topo-climatology."
-		" in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'."
-		" Developments in Soil Science, Volume 33, p.195-226, Elsevier."
-		"</li><li>"
-		" Gerlitz, L., Conrad, O., Böhner, J. (2015):"
-		" Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach."
-		" Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
-		"</li></ul>\n"
+		"whereas values above 1 indicate areas exposed to wind."
 	));
 
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Add_Reference(
+		"Boehner, J., Antonic, O.", "2009",
+		"Land-surface parameters specific to topo-climatology",
+		"In: Hengl, T., Reuter, H. [Eds.]: Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+	);
+
+	Add_Reference(
+		"Gerlitz, L., Conrad, O., Böhner, J.", "2015",
+		"Large scale atmospheric forcing and topographic modification of precipitation rates over High Asia – a neural network based approach",
+		"Earth System Dynamics, 6, 1-21. doi:10.5194/esd-6-1-2015."
+	);
+
+	Parameters.Add_Grid("",
+		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "EXPOSITION"	, _TL("Wind Exposition"),
+	Parameters.Add_Grid("",
+		"EXPOSITION"	, _TL("Wind Exposition"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXDIST"		, _TL("Search Distance [km]"),
+	Parameters.Add_Double("",
+		"MAXDIST"		, _TL("Search Distance [km]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 300.0, 0.0, true
+		300.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STEP"		, _TL("Angular Step Size (Degree)"),
+	Parameters.Add_Double("",
+		"STEP"			, _TL("Angular Step Size (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 15.0, 1.0, true, 45.0, true
+		15.0, 1.0, true, 45.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "OLDVER"		, _TL("Old Version"),
+	Parameters.Add_Bool("",
+		"OLDVER"		, _TL("Old Version"),
 		_TL("use old version for constant wind direction (no acceleration and averaging option)"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ACCEL"		, _TL("Acceleration"),
+	Parameters.Add_Double("",
+		"ACCEL"			, _TL("Acceleration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.5, 1.0, true
+		1.5, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PYRAMIDS"	, _TL("Elevation Averaging"),
+	Parameters.Add_Bool("",
+		"PYRAMIDS"		, _TL("Elevation Averaging"),
 		_TL("use more averaged elevations when looking at increasing distances"),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 

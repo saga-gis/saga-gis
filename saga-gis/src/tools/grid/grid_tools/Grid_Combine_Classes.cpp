@@ -78,19 +78,19 @@ CGrid_Combine_Classes::CGrid_Combine_Classes(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Parameters(NULL,
+	Parameters.Add_Parameters("",
 		"CLASSES"	, _TL("Classes"),
 		_TL("")
 	);
@@ -118,8 +118,8 @@ int CGrid_Combine_Classes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") )
 	{
-		pParameters->Set_Enabled("OUTPUT" , pParameter->asGrid() != NULL);
-		pParameters->Set_Enabled("CLASSES", pParameter->asGrid() != NULL);
+		pParameters->Set_Enabled("OUTPUT" , pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("CLASSES", pParameter->asPointer() != NULL);
 	}
 
 	//-----------------------------------------------------
