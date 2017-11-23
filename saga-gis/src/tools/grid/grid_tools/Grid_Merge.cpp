@@ -329,9 +329,20 @@ bool CGrid_Merge::Initialize(void)
 		return( false );
 	}
 
-	if( m_pMosaic->Get_Type() != Type && !m_pMosaic->Create(m_pMosaic->Get_System(), Type) )
+	if( m_pMosaic->Get_Type() != Type )
 	{
-		return( false );
+		if( !m_pMosaic->Create(m_pMosaic->Get_System(), Type) )
+		{
+			return( false );
+		}
+	}
+
+	if( Parameters("TYPE")->asInt() == 9 )	// same as first grid in list
+	{
+		m_pMosaic->Set_Scaling(
+			m_pGrids->Get_Grid(0)->Get_Scaling(),
+			m_pGrids->Get_Grid(0)->Get_Offset ()
+		);
 	}
 
 	//-----------------------------------------------------
