@@ -164,6 +164,8 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 	
 	//-----------------------------------------------------
 	m_Flow	= NULL;
+
+	Parameters.Del_Parameter("STEP");	// is not in usage here
 }
 
 

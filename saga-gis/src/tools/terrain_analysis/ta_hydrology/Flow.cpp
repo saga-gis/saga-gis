@@ -106,7 +106,7 @@ CFlow::CFlow(void)
 	//-----------------------------------------------------
 	Parameters.Add_Int("",
 		"STEP"		, _TL("Step"),
-		_TL(""),
+		_TL("For testing purposes. Only generate flow at cells with step distance (each step row/column)."),
 		1, 1, true
 	);
 
@@ -193,7 +193,7 @@ bool CFlow::On_Execute(void)
 	m_pAccu_Left		= NULL;
 	m_pAccu_Right		= NULL;
 
-	m_Step				= Parameters("STEP")->asInt();
+	m_Step				= Parameters("STEP") ? Parameters("STEP")->asInt() : 1;
 
 	//-----------------------------------------------------
 	On_Initialize();
