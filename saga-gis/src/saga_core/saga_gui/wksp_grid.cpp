@@ -879,23 +879,14 @@ void CWKSP_Grid::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Grid::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	wxString	s;
-
-	double	Value;
+	wxString	s;	double	Value;
 
 	if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
 	{
 		switch( m_pClassify->Get_Mode() )
 		{
 		default:
-			if( SG_Get_Significant_Decimals(Value) > 0 )
-			{
-				s.Printf("%f"  , Value);
-			}
-			else
-			{
-				s.Printf("%.0f", Value);
-			}
+			s	= SG_Get_String(Value, -12).c_str();
 
 			if( !Get_Grid()->Get_Unit().is_Empty() )
 			{

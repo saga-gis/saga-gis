@@ -99,7 +99,7 @@ public:
 	virtual bool				On_Command				(int Cmd_ID);
 	virtual bool				On_Command_UI			(wxUpdateUIEvent &event);
 
-	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon)	{	return( "" );	}
+	virtual wxString			Get_Value				(CSG_Point ptWorld, double Epsilon);
 	virtual double				Get_Value_Minimum		(void);
 	virtual double				Get_Value_Maximum		(void);
 	virtual double				Get_Value_Range			(void);

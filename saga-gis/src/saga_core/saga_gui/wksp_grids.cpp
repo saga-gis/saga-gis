@@ -329,7 +329,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	m_Parameters("COLORS_TYPE")->asChoice()->Set_Items(
 		CSG_String::Format("%s|%s|%s|%s|%s|",
 			_TL("Single Symbol"   ), // GRIDS_CLASSIFY_UNIQUE
-			_TL("Lookup Table"    ), // GRIDS_CLASSIFY_LUT
+			_TL("Classified"      ), // GRIDS_CLASSIFY_LUT
 			_TL("Discrete Colors" ), // GRIDS_CLASSIFY_METRIC
 			_TL("Graduated Colors"), // GRIDS_CLASSIFY_GRADUATED
 			_TL("RGB Composite"   )  // GRIDS_CLASSIFY_OVERLAY
@@ -842,6 +842,55 @@ void CWKSP_Grids::_LUT_Create(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+wxString CWKSP_Grids::Get_Value(CSG_Point ptWorld, double Epsilon)
+{
+	wxString	s;	double	Value;
+
+	switch( m_pClassify->Get_Mode() )
+	{
+	default:
+		break;
+
+	case CLASSIFY_METRIC:
+	case CLASSIFY_GRADUATED:
+		if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		{
+			s	= SG_Get_String(Value, -12).c_str();
+
+			if( Get_Grids()->Get_Unit() && *Get_Grids()->Get_Unit() )
+			{
+				s += " "; s += Get_Grids()->Get_Unit();
+			}
+		}
+		break;
+
+	case CLASSIFY_OVERLAY:
+		if( Get_Grid(0)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		{
+			s	+= wxString::Format("R%s ", SG_Get_String(Value, -12).c_str());
+		}
+		if( Get_Grid(1)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		{
+			s	+= wxString::Format("G%s ", SG_Get_String(Value, -12).c_str());
+		}
+		if( Get_Grid(2)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		{
+			s	+= wxString::Format("B%s ", SG_Get_String(Value, -12).c_str());
+		}
+		break;
+
+	case CLASSIFY_LUT:
+		if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		{
+			s	= m_pClassify->Get_Class_Name_byValue(Value);
+		}
+		break;
+	}
+
+	return( s );
+}
 
 //---------------------------------------------------------
 double CWKSP_Grids::Get_Value_Minimum(void)	{	return( ((CSG_Grids *)m_pObject)->Get_Min   () );	}
