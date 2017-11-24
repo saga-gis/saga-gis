@@ -85,8 +85,8 @@ enum
 };
 
 //---------------------------------------------------------
-#define PRM_IN( sensor, id)	CSG_String::Format("DN_%s%02d", CSG_String(sensor).c_str(), id)
-#define PRM_OUT(sensor, id)	CSG_String::Format("RF_%s%02d", CSG_String(sensor).c_str(), id)
+#define BAND_ID(   sensor, id)	CSG_String::Format("%s%02d", CSG_String(sensor).c_str(), id)
+#define BAND_INPUT(sensor, id)	Parameters.Add_Grid(sensor, BAND_ID(sensor, id), CSG_String::Format("%s %d", _TL("Band"), id), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 
 ///////////////////////////////////////////////////////////
@@ -156,6 +156,70 @@ int		Get_Sensor_Index	(int LSat_Number, const CSG_String &LSat_Sensor)
 	return( -1 );
 }
 
+//---------------------------------------------------------
+CSG_String	Get_Band_Name	(int Band, int Sensor)
+{
+	switch( Sensor )
+	{
+	case mss1: case mss2: case mss3: case mss4: case mss5:
+		switch( Band )
+		{
+		case  0: return( _TL("Green") );
+		case  1: return( _TL("Red"  ) );
+		case  2: return( _TL("NIR 1") );
+		case  3: return( _TL("NIR 2") );
+		}
+		break;
+
+	case tm4: case tm5:
+		switch( Band )
+		{
+		case  0: return( _TL("Blue"   ) );
+		case  1: return( _TL("Green"  ) );
+		case  2: return( _TL("Red"    ) );
+		case  3: return( _TL("NIR"    ) );
+		case  4: return( _TL("SWIR 1" ) );
+		case  5: return( _TL("Thermal") );
+		case  6: return( _TL("SWIR 2" ) );
+		}
+		break;
+
+	case tm7:
+		switch( Band )
+		{
+		case  0: return( _TL("Blue"               ) );
+		case  1: return( _TL("Green"              ) );
+		case  2: return( _TL("Red"                ) );
+		case  3: return( _TL("NIR"                ) );
+		case  4: return( _TL("SWIR 1"             ) );
+		case  5: return( _TL("Thermal (low gain)" ) );
+		case  6: return( _TL("Thermal (high gain)") );
+		case  7: return( _TL("SWIR 2"             ) );
+		case  8: return( _TL("Panchromatic"       ) );
+		}
+		break;
+
+	case oli8:
+		switch( Band )
+		{
+		case  0: return( _TL("Coast & Aerosol") );
+		case  1: return( _TL("Blue"           ) );
+		case  2: return( _TL("Green"          ) );
+		case  3: return( _TL("Red"            ) );
+		case  4: return( _TL("NIR"            ) );
+		case  5: return( _TL("SWIR 1"         ) );
+		case  6: return( _TL("SWIR 2"         ) );
+		case  7: return( _TL("Panchromatic"   ) );
+		case  8: return( _TL("Cirrus"         ) );
+		case  9: return( _TL("Thermal 1"      ) );
+		case 10: return( _TL("Thermal 2"      ) );
+		}
+		break;
+	}
+
+	return( "" );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -193,28 +257,26 @@ CLandsat_TOAR::CLandsat_TOAR(void)
 	);
 
 	//-----------------------------------------------------
-	#define PRM_ADD_BAND__IN(sensor, id)	Parameters.Add_Grid(sensor, PRM_IN (sensor, id), CSG_String::Format("%s %s %d", _TL("DN"         ), _TL("Band"), id), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid_System("", "MSS"  , _TL("Spectral"    ), _TL(""));
+	BAND_INPUT("MSS", 1); BAND_INPUT("MSS", 2); BAND_INPUT("MSS", 3); BAND_INPUT("MSS", 4);
 
-	Parameters.Add_Grid_System("", "MSS"  , _TL("Spectral"), _TL(""));
-	PRM_ADD_BAND__IN("MSS", 1); PRM_ADD_BAND__IN("MSS", 2); PRM_ADD_BAND__IN("MSS", 3); PRM_ADD_BAND__IN("MSS", 4);
+	Parameters.Add_Grid_System("", "ETM"  , _TL("Spectral"    ), _TL(""));
+	BAND_INPUT("ETM", 1); BAND_INPUT("ETM", 2); BAND_INPUT("ETM", 3); BAND_INPUT("ETM", 4); BAND_INPUT("ETM", 5); BAND_INPUT("ETM", 7);
 
-	Parameters.Add_Grid_System("", "ETM"  , _TL("Spectral"), _TL(""));
-	PRM_ADD_BAND__IN("ETM", 1); PRM_ADD_BAND__IN("ETM", 2); PRM_ADD_BAND__IN("ETM", 3); PRM_ADD_BAND__IN("ETM", 4); PRM_ADD_BAND__IN("ETM", 5); PRM_ADD_BAND__IN("ETM", 7);
+	Parameters.Add_Grid_System("", "OLI"  , _TL("Spectral"    ), _TL(""));
+	BAND_INPUT("OLI", 1); BAND_INPUT("OLI", 2); BAND_INPUT("OLI", 3); BAND_INPUT("OLI", 4); BAND_INPUT("OLI", 5); BAND_INPUT("OLI", 6); BAND_INPUT("OLI", 7); BAND_INPUT("OLI", 9);
 
-	Parameters.Add_Grid_System("", "OLI"  , _TL("Spectral"), _TL(""));
-	PRM_ADD_BAND__IN("OLI", 1); PRM_ADD_BAND__IN("OLI", 2); PRM_ADD_BAND__IN("OLI", 3); PRM_ADD_BAND__IN("OLI", 4); PRM_ADD_BAND__IN("OLI", 5); PRM_ADD_BAND__IN("OLI", 6); PRM_ADD_BAND__IN("OLI", 7); PRM_ADD_BAND__IN("OLI", 9);
+	Parameters.Add_Grid_System("", "TM_T" , _TL("Thermal"     ), _TL(""));
+	BAND_INPUT("TM_T", 6);
 
-	Parameters.Add_Grid_System("", "TM_T" , _TL("Thermal"), _TL(""));
-	PRM_ADD_BAND__IN("TM_T", 6);
+	Parameters.Add_Grid_System("", "ETM_T", _TL("Thermal"     ), _TL(""));
+	BAND_INPUT("ETM_T", 61); BAND_INPUT("ETM_T", 62);
 
-	Parameters.Add_Grid_System("", "ETM_T", _TL("Thermal"), _TL(""));
-	PRM_ADD_BAND__IN("ETM_T", 61); PRM_ADD_BAND__IN("ETM_T", 62);
-
-	Parameters.Add_Grid_System("", "TIRS" , _TL("Thermal"), _TL(""));
-	PRM_ADD_BAND__IN("TIRS", 10); PRM_ADD_BAND__IN("TIRS", 11);
+	Parameters.Add_Grid_System("", "TIRS" , _TL("Thermal"     ), _TL(""));
+	BAND_INPUT("TIRS", 10); BAND_INPUT("TIRS", 11);
 
 	Parameters.Add_Grid_System("", "PAN"  , _TL("Panchromatic"), _TL(""));
-	PRM_ADD_BAND__IN("PAN", 8);
+	BAND_INPUT("PAN", 8);
 
 	Parameters.Add_Grid_List("", "SPECTRAL", _TL("Spectral"    ), _TL(""), PARAMETER_OUTPUT, false);
 	Parameters.Add_Grid_List("", "THERMAL" , _TL("Thermal"     ), _TL(""), PARAMETER_OUTPUT, false);
@@ -267,8 +329,15 @@ CLandsat_TOAR::CLandsat_TOAR(void)
 	);
 
 	Parameters.Add_Bool("",
-		"COLLECTION", _TL("Spectral Output as Grid Collection"),
-		_TL("")
+		"GRIDS_OUT"	, _TL("Spectral Output as Grid Collection"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_String("GRIDS_OUT",
+		"GRIDS_NAME", _TL("Name"),
+		_TL(""),
+		"Landsat Calibrated"
 	);
 
 	Parameters.Add_Bool("",
@@ -371,9 +440,9 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "AC_METHOD") )
 	{
-		pParameters->Get("AC_DO_CELLS")->Set_Enabled(pParameter->asInt() > 1);
-		pParameters->Get("AC_RAYLEIGH")->Set_Enabled(pParameter->asInt() > 1);
-		pParameters->Get("AC_SUN_RAD" )->Set_Enabled(pParameter->asInt() > 1);
+		pParameters->Set_Enabled("AC_DO_CELLS", pParameter->asInt() > 1);
+		pParameters->Set_Enabled("AC_RAYLEIGH", pParameter->asInt() > 1);
+		pParameters->Set_Enabled("AC_SUN_RAD" , pParameter->asInt() > 1);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METAFILE")
@@ -381,14 +450,19 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 	{
 		int	Sensor	= pParameters->Get("SENSOR")->asInt();
 
-		pParameters->Set_Enabled("MSS"     , Sensor <= mss5);
-		pParameters->Set_Enabled("TM_T"    , Sensor >= tm4 && Sensor <= tm5);
-		pParameters->Set_Enabled("ETM"     , Sensor >= tm4 && Sensor <= tm7);
-		pParameters->Set_Enabled("ETM_T"   , Sensor == tm7);
-		pParameters->Set_Enabled("ETM_GAIN", Sensor == tm7 && *pParameters->Get("METAFILE")->asString() == '\0');
-		pParameters->Set_Enabled("OLI"     , Sensor == oli8);
-		pParameters->Set_Enabled("TIRS"    , Sensor == oli8);
-		pParameters->Set_Enabled("PAN"     , Sensor >= tm7);
+		pParameters->Set_Enabled("MSS"        , Sensor <= mss5);
+		pParameters->Set_Enabled("TM_T"       , Sensor >= tm4 && Sensor <= tm5);
+		pParameters->Set_Enabled("ETM"        , Sensor >= tm4 && Sensor <= tm7);
+		pParameters->Set_Enabled("ETM_T"      , Sensor == tm7);
+		pParameters->Set_Enabled("ETM_GAIN"   , Sensor == tm7 && *pParameters->Get("METAFILE")->asString() == '\0');
+		pParameters->Set_Enabled("OLI"        , Sensor == oli8);
+		pParameters->Set_Enabled("TIRS"       , Sensor == oli8);
+		pParameters->Set_Enabled("PAN"        , Sensor >= tm7);
+	}
+
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS_OUT") )
+	{
+		pParameters->Set_Enabled("GRIDS_NAME" , pParameter->asBool());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -400,34 +474,34 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CLandsat_TOAR::Get_Band_Input(int iBand, int Sensor)
+CSG_Grid * CLandsat_TOAR::Get_Band_Input(int Band, int Sensor)
 {
-	CSG_String	id;	iBand++;
+	CSG_String	id;	Band++;
 
 	switch( Sensor )
 	{
 	case mss1: case mss2: case mss3: case mss4: case mss5:
-		id	=              PRM_IN("MSS"  , iBand);
+		id	=             BAND_ID("MSS"  , Band);
 		break;
 
 	case tm4: case tm5:
-		id	= iBand == 6 ? PRM_IN("TM_T" , iBand)
-			:              PRM_IN("ETM"  , iBand);
+		id	= Band == 6 ? BAND_ID("TM_T" , Band)
+			:             BAND_ID("ETM"  , Band);
 		break;
 
 	case tm7:
-		id	= iBand == 6 ? PRM_IN("ETM_T", 61)
-			: iBand == 7 ? PRM_IN("ETM_T", 62)
-			: iBand == 8 ? PRM_IN("ETM_T", 7 )
-			: iBand == 9 ? PRM_IN("PAN"  , 8 )
-			:              PRM_IN("ETM"  , iBand);
+		id	= Band == 6 ? BAND_ID("ETM_T", 61  )
+			: Band == 7 ? BAND_ID("ETM_T", 62  )
+			: Band == 8 ? BAND_ID("ETM_T", 7   )
+			: Band == 9 ? BAND_ID("PAN"  , 8   )
+			:             BAND_ID("ETM"  , Band);
 		break;
 
 	case oli8:
-		id	= iBand ==  8 ? PRM_IN("PAN" , iBand)
-			: iBand == 10 ? PRM_IN("TIRS", iBand)
-			: iBand == 11 ? PRM_IN("TIRS", iBand)
-			:               PRM_IN("OLI" , iBand);
+		id	= Band ==  8 ? BAND_ID("PAN" , Band)
+			: Band == 10 ? BAND_ID("TIRS", Band)
+			: Band == 11 ? BAND_ID("TIRS", Band)
+			:              BAND_ID("OLI" , Band);
 		break;
 	}
 
@@ -435,9 +509,9 @@ CSG_Grid * CLandsat_TOAR::Get_Band_Input(int iBand, int Sensor)
 }
 
 //---------------------------------------------------------
-CSG_Grid * CLandsat_TOAR::Get_Band_Output(int iBand, int Sensor)
+CSG_Grid * CLandsat_TOAR::Get_Band_Output(int Band, int Sensor)
 {
-	CSG_Grid	*pInput	= Get_Band_Input(iBand, Sensor);
+	CSG_Grid	*pInput	= Get_Band_Input(Band, Sensor);
 
 	if( pInput )
 	{
@@ -445,31 +519,31 @@ CSG_Grid * CLandsat_TOAR::Get_Band_Output(int iBand, int Sensor)
 
 		if( pGrid )
 		{
-			CSG_String	id; iBand++;
+			CSG_String	id; Band++;
 
 			switch( Sensor )
 			{
 			case mss1: case mss2: case mss3: case mss4: case mss5:
-				id	=              "SPECTRAL";
+				id	=             "SPECTRAL";
 				break;
 
 			case tm4: case tm5:
-				id	= iBand == 6 ? "THERMAL"
-					:              "SPECTRAL";
+				id	= Band == 6 ? "THERMAL"
+					:             "SPECTRAL";
 				break;
 
 			case tm7:
-				id	= iBand == 6 ? "THERMAL"
-					: iBand == 7 ? "THERMAL"
-					: iBand == 9 ? "PANBAND"
-					:              "SPECTRAL";
+				id	= Band == 6 ? "THERMAL"
+					: Band == 7 ? "THERMAL"
+					: Band == 9 ? "PANBAND"
+					:             "SPECTRAL";
 				break;
 
 			case oli8:
-				id	= iBand ==  9 ? "PANBAND"
-					: iBand == 10 ? "THERMAL"
-					: iBand == 11 ? "THERMAL"
-					:               "SPECTRAL";
+				id	= Band ==  9 ? "PANBAND"
+					: Band == 10 ? "THERMAL"
+					: Band == 11 ? "THERMAL"
+					:              "SPECTRAL";
 				break;
 			}
 
@@ -657,12 +731,6 @@ bool CLandsat_TOAR::On_Execute(void)
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	#define GET_DESC_STR(name, value   )	CSG_String(name) + ": " + CSG_String(value) + "\n"
-	#define GET_DESC_INT(name, value   )	CSG_String::Format("%s: %d\n", name, value)
-	#define GET_DESC_FLT(name, value   )	CSG_String::Format("%s: %f\n", name, value)
-	#define GET_DESC_RNG(name, min, max)	CSG_String::Format("%s: %f / %f\n", name, min, max)
-
-	//-----------------------------------------------------
 	Parameters("SPECTRAL")->asGridList()->Del_Items();
 	Parameters("THERMAL" )->asGridList()->Del_Items();
 	Parameters("PANBAND" )->asGridList()->Del_Items();
@@ -670,15 +738,15 @@ bool CLandsat_TOAR::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bRadiance	= Parameters("AS_RAD")->asBool();
 
-	CSG_String	sAll	= _TL("Top of Atmosphere Reflectance");	sAll	+= "\n";
+	CSG_MetaData	Info;
 
-	sAll	+= GET_DESC_STR(_TL("Platform"              ), CSG_String::Format("Landsat-%d", lsat.number));
-	sAll	+= GET_DESC_STR(_TL("Sensor"                ), lsat.sensor);
-	sAll	+= GET_DESC_STR(_TL("Acquisition"           ), lsat.date);
-	sAll	+= GET_DESC_STR(_TL("Production"            ), lsat.creation);
-	sAll	+= GET_DESC_FLT(_TL("Earth-Sun Distance"    ), lsat.dist_es);
-	sAll	+= GET_DESC_FLT(_TL("Solar Height"          ), lsat.sun_elev);
-	sAll	+= GET_DESC_STR(_TL("Atmospheric Correction"), Parameters("AC_METHOD")->asString());
+	Info.Add_Child("Platform"              , CSG_String::Format("Landsat-%d", lsat.number));
+	Info.Add_Child("Sensor"                , lsat.sensor);
+	Info.Add_Child("Acquisition"           , lsat.date);
+	Info.Add_Child("Production"            , lsat.creation);
+	Info.Add_Child("Earth-Sun Distance"    , lsat.dist_es);
+	Info.Add_Child("Solar Height"          , lsat.sun_elev);
+	Info.Add_Child("Atmospheric Correction", Parameters("AC_METHOD")->asString());
 
 	double	MaxVal	= Sensor != oli8 ? 255. : 65535.;
 
@@ -755,54 +823,46 @@ bool CLandsat_TOAR::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		CSG_MetaData &Info	= *pOutput->Get_MetaData().Add_Child("Info");
+		CSG_MetaData &Info_Band	= pOutput->Get_MetaData();
 
-		Info.Add_Child(_TL("BAND"    ), lsat.band[iBand].number);
-		Info.Add_Child(_TL("WAVE_MIN"), lsat.band[iBand].wavemin);
-		Info.Add_Child(_TL("WAVE_MID"), 0.5 * (lsat.band[iBand].wavemin + lsat.band[iBand].wavemax));
-		Info.Add_Child(_TL("WAVE_MAX"), lsat.band[iBand].wavemax);
-		Info.Add_Child(_TL("TYPE"    ), bRadiance ? _TL("Radiance") : lsat.band[iBand].thermal ? _TL("Temperature") : _TL("Reflectance"));
-		Info.Add_Child(_TL("QCalMin" ), lsat.band[iBand].qcalmin);
-		Info.Add_Child(_TL("QCalMax" ), lsat.band[iBand].qcalmax);
-		Info.Add_Child(_TL("LMin"    ), lsat.band[iBand].lmin   );
-		Info.Add_Child(_TL("LMax"    ), lsat.band[iBand].lmax   );
-		Info.Add_Child(AC_Method > DOS ? _TL("At-Surface Radiance") : _TL("At-Sensor Radiance"), CSG_String::Format("%.5lf * DN + %.5lf", lsat.band[iBand].gain, lsat.band[iBand].bias));
+		Info_Band.Add_Children(Info);
 
-		CSG_String	sBand;
-
-		sBand	+= GET_DESC_INT(_TL("Band"                     ), lsat.band[iBand].number);
-		sBand	+= GET_DESC_STR(_TL("Type"                     ), bRadiance ? _TL("Radiance") : lsat.band[iBand].thermal ? _TL("Temperature") : _TL("Reflectance"));
-		sBand	+= GET_DESC_RNG(_TL("Calibrated Digital Number"), lsat.band[iBand].qcalmin, lsat.band[iBand].qcalmax);
-		sBand	+= GET_DESC_RNG(_TL("Calibration Constants"    ), lsat.band[iBand].lmin   , lsat.band[iBand].lmax);
-		sBand	+= GET_DESC_STR(AC_Method > DOS ? _TL("At-Surface Radiance") : _TL("At-Sensor Radiance"), CSG_String::Format("%.5lf * DN + %.5lf", lsat.band[iBand].gain, lsat.band[iBand].bias));
+		Info_Band.Add_Child("BAND"     , lsat.band[iBand].number);
+		Info_Band.Add_Child("NAME"     , Get_Band_Name(iBand, Sensor));
+		Info_Band.Add_Child("WAVE_MIN" , lsat.band[iBand].wavemin);
+		Info_Band.Add_Child("WAVE_MID" , 0.5 * (lsat.band[iBand].wavemin + lsat.band[iBand].wavemax));
+		Info_Band.Add_Child("WAVE_MAX" , lsat.band[iBand].wavemax);
+		Info_Band.Add_Child("TYPE"     , bRadiance ? _TL("Radiance") : lsat.band[iBand].thermal ? _TL("Temperature") : _TL("Reflectance"));
+		Info_Band.Add_Child("ATCORR"   , AC_Method > DOS && !lsat.band[iBand].thermal ? _TL("At-Surface") : _TL("At-Sensor"));
+		Info_Band.Add_Child("QCalMin"  , lsat.band[iBand].qcalmin);
+		Info_Band.Add_Child("QCalMax"  , lsat.band[iBand].qcalmax);
+		Info_Band.Add_Child("LMin"     , lsat.band[iBand].lmin   );
+		Info_Band.Add_Child("LMax"     , lsat.band[iBand].lmax   );
+		Info_Band.Add_Child("Radiation", CSG_String::Format("%.5lf * DN + %.5lf", lsat.band[iBand].gain, lsat.band[iBand].bias));
 
 		if( lsat.band[iBand].thermal )
 		{
-			sBand	+= GET_DESC_STR(_TL("At-Sensor Temperature"), CSG_String::Format("%.3lf / ln[(%.3lf / %s) + 1.0]", lsat.band[iBand].K2, lsat.band[iBand].K1, _TL("Radiance")));
-			sBand	+= GET_DESC_FLT(_TL("Temperature K1"       ), lsat.band[iBand].K1);
-			sBand	+= GET_DESC_FLT(_TL("Temperature K2"       ), lsat.band[iBand].K2);
+			Info_Band.Add_Child("Temperature", CSG_String::Format("%.3lf / ln[(%.3lf / %s) + 1.0]", lsat.band[iBand].K2, lsat.band[iBand].K1, _TL("Radiance")));
 		}
 		else
 		{
-			sBand	+= GET_DESC_FLT(_TL("Mean Solar Irradiance"), lsat.band[iBand].esun);	// Mean Solar Exoatmospheric Irradiance
-			sBand	+= GET_DESC_STR(AC_Method > DOS ? _TL("At-Surface Reflectance") : _TL("At-Sensor Reflectance"), CSG_String::Format("%s / %.5lf", _TL("Radiance"), lsat.band[iBand].K2));
+			Info_Band.Add_Child("Mean_Solar_Irradiance", lsat.band[iBand].esun);	// Mean Solar Exoatmospheric Irradiance
+			Info_Band.Add_Child("Reflectance"          , CSG_String::Format("%s / %.5lf", _TL("Radiance"), lsat.band[iBand].K2));
 
 			if( AC_Method > DOS )
 			{
-				sBand	+= GET_DESC_INT(_TL("Minimum of Darkness DN Cells" ), Parameters("AC_DO_CELLS")->asInt());
-				sBand	+= GET_DESC_INT(_TL("Darkness Digital Number (DN)" ), dn_dark[iBand]);
-				sBand	+= GET_DESC_INT(_TL("Mode of DN"                   ), dn_mode[iBand]);
-				sBand	+= GET_DESC_FLT(_TL("Mode in Reflectance Histogram"), lsat_rad2ref(lsat_qcal2rad(dn_mode[iBand], &lsat.band[iBand]), &lsat.band[iBand]));
+				Info_Band.Add_Child("Minimum_of_Darkness_DN_Cells" , Parameters("AC_DO_CELLS")->asInt());
+				Info_Band.Add_Child("Darkness_Digital_Number"      , dn_dark[iBand]);
+				Info_Band.Add_Child("Mode_of_DN"                   , dn_mode[iBand]);
+				Info_Band.Add_Child("Mode_in_Reflectance_Histogram", lsat_rad2ref(lsat_qcal2rad(dn_mode[iBand], &lsat.band[iBand]), &lsat.band[iBand]));
 			}
 		}
 
-		Message_Add(sBand, true);
-
-		pOutput->Set_Description(sAll + sBand);
+		pOutput->Set_Description(Info_Band.asText());
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("COLLECTION")->asBool() )
+	if( Parameters("GRIDS_OUT")->asBool() )
 	{
 		CSG_Parameter_Grid_List	*pList	= Parameters("SPECTRAL")->asGridList();
 
@@ -810,15 +870,9 @@ bool CLandsat_TOAR::On_Execute(void)
 		{
 			CSG_Grids	*pGrids	= SG_Create_Grids();
 
-			CSG_MetaData &Info	= *pGrids->Get_MetaData().Add_Child("Info");
-
-			Info.Add_Child(_TL("Platform"              ), CSG_String::Format("Landsat-%d", lsat.number));
-			Info.Add_Child(_TL("Sensor"                ), lsat.sensor);
-			Info.Add_Child(_TL("Acquisition"           ), lsat.date);
-			Info.Add_Child(_TL("Production"            ), lsat.creation);
-			Info.Add_Child(_TL("Earth-Sun Distance"    ), lsat.dist_es);
-			Info.Add_Child(_TL("Solar Height"          ), lsat.sun_elev);
-			Info.Add_Child(_TL("Atmospheric Correction"), Parameters("AC_METHOD")->asString());
+			pGrids->Set_Name(Parameters("GRIDS_NAME")->asString());
+			pGrids->Set_Description(Info.asText());
+			pGrids->Get_MetaData().Add_Children(Info);
 
 			pGrids->Get_Attributes_Ptr()->Destroy();
 			pGrids->Add_Attribute("BAND"    , SG_DATATYPE_Int   );
@@ -833,16 +887,17 @@ bool CLandsat_TOAR::On_Execute(void)
 
 				pGrids->Add_Grid(i, pGrid, true);
 
-				const CSG_MetaData	&BandInfo	= pGrid->Get_MetaData()["Info"];
+				const CSG_MetaData	&Info_Band	= pGrid->Get_MetaData();
 
-				pGrids->Get_Attributes(i).Set_Value("BAND"    , BandInfo.Get_Content("BAND"    ));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MIN", BandInfo.Get_Content("WAVE_MIN"));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MID", BandInfo.Get_Content("WAVE_MID"));
-				pGrids->Get_Attributes(i).Set_Value("WAVE_MAX", BandInfo.Get_Content("WAVE_MAX"));
+				pGrids->Get_Attributes(i).Set_Value("BAND"    , Info_Band.Get_Content("BAND"    ));
+				pGrids->Get_Attributes(i).Set_Value("NAME"    , Info_Band.Get_Content("NAME"    ));
+				pGrids->Get_Attributes(i).Set_Value("WAVE_MIN", Info_Band.Get_Content("WAVE_MIN"));
+				pGrids->Get_Attributes(i).Set_Value("WAVE_MID", Info_Band.Get_Content("WAVE_MID"));
+				pGrids->Get_Attributes(i).Set_Value("WAVE_MAX", Info_Band.Get_Content("WAVE_MAX"));
 			}
 
 			pGrids->Set_Z_Attribute (3);
-			pGrids->Set_Z_Name_Field(0);
+			pGrids->Set_Z_Name_Field(1);
 
 			pList->Del_Items();
 			pList->Add_Item(pGrids);
