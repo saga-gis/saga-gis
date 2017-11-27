@@ -260,6 +260,9 @@ CLandsat_TOAR::CLandsat_TOAR(void)
 	Parameters.Add_Grid_System("", "MSS"  , _TL("Spectral"    ), _TL(""));
 	BAND_INPUT("MSS", 1); BAND_INPUT("MSS", 2); BAND_INPUT("MSS", 3); BAND_INPUT("MSS", 4);
 
+	Parameters.Add_Grid_System("", "TM"   , _TL("Spectral"    ), _TL(""));
+	BAND_INPUT("TM" , 1); BAND_INPUT("TM" , 2); BAND_INPUT("TM" , 3); BAND_INPUT("TM" , 4); BAND_INPUT("TM" , 5); BAND_INPUT("TM" , 7);
+
 	Parameters.Add_Grid_System("", "ETM"  , _TL("Spectral"    ), _TL(""));
 	BAND_INPUT("ETM", 1); BAND_INPUT("ETM", 2); BAND_INPUT("ETM", 3); BAND_INPUT("ETM", 4); BAND_INPUT("ETM", 5); BAND_INPUT("ETM", 7);
 
@@ -451,8 +454,9 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		int	Sensor	= pParameters->Get("SENSOR")->asInt();
 
 		pParameters->Set_Enabled("MSS"        , Sensor <= mss5);
+		pParameters->Set_Enabled("TM"         , Sensor >= tm4 && Sensor <= tm5);
 		pParameters->Set_Enabled("TM_T"       , Sensor >= tm4 && Sensor <= tm5);
-		pParameters->Set_Enabled("ETM"        , Sensor >= tm4 && Sensor <= tm7);
+		pParameters->Set_Enabled("ETM"        , Sensor == tm7);
 		pParameters->Set_Enabled("ETM_T"      , Sensor == tm7);
 		pParameters->Set_Enabled("ETM_GAIN"   , Sensor == tm7 && *pParameters->Get("METAFILE")->asString() == '\0');
 		pParameters->Set_Enabled("OLI"        , Sensor == oli8);
@@ -486,13 +490,13 @@ CSG_Grid * CLandsat_TOAR::Get_Band_Input(int Band, int Sensor)
 
 	case tm4: case tm5:
 		id	= Band == 6 ? BAND_ID("TM_T" , Band)
-			:             BAND_ID("ETM"  , Band);
+			:             BAND_ID("TM"   , Band);
 		break;
 
 	case tm7:
 		id	= Band == 6 ? BAND_ID("ETM_T", 61  )
 			: Band == 7 ? BAND_ID("ETM_T", 62  )
-			: Band == 8 ? BAND_ID("ETM_T", 7   )
+			: Band == 8 ? BAND_ID("ETM"  , 7   )
 			: Band == 9 ? BAND_ID("PAN"  , 8   )
 			:             BAND_ID("ETM"  , Band);
 		break;
@@ -806,17 +810,19 @@ bool CLandsat_TOAR::On_Execute(void)
 
 					if( bRadiance )
 					{
-						pOutput->Set_Value(x, y, r);
+						pOutput->Set_Value(x, y, r < 0.0 ? 0.0 : r);
 					}
 					else if( lsat.band[iBand].thermal )
 					{
-						pOutput->Set_Value(x, y, lsat_rad2temp(r, &lsat.band[iBand]));
+						r	= lsat_rad2temp(r, &lsat.band[iBand]);
+
+						pOutput->Set_Value(x, y, r);
 					}
-					else
+					else // reflectance
 					{
 						r	= lsat_rad2ref(r, &lsat.band[iBand]);
 
-						pOutput->Set_Value(x, y, r < 0.0 && AC_Method > DOS ? 0.0 : r);
+						pOutput->Set_Value(x, y, r < 0.0 ? 0.0 : r > 1.0 ? 1.0 : r);
 					}
 				}
 			}
