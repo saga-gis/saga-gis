@@ -654,7 +654,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const SG_Char *Name, bo
 	{
 		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
-		if( pLibrary && !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
+		if( pLibrary && !pLibrary->Get_File_Name().is_Empty() && !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
 		{
 			return( pLibrary );
 		}
@@ -695,7 +695,25 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const C
 {
 	CSG_Tool_Library	*pLibrary	= Get_Library(Library, true);
 
-	return( pLibrary ? pLibrary->Get_Tool(Tool) : NULL );
+	if( pLibrary )
+	{
+		return( pLibrary->Get_Tool(Tool) );
+	}
+
+	for(int i=0; i<Get_Count(); i++)
+	{
+		CSG_Tool_Library	*pLibrary	= Get_Library(i);
+
+		if( pLibrary->Get_File_Name().is_Empty() )	// tool chain
+		{
+			if( pLibrary->Get_Tool(Tool) )
+			{
+				return( pLibrary->Get_Tool(Tool) );
+			}
+		}
+	}
+	
+	return( NULL );
 }
 
 
