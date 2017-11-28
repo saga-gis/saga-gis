@@ -114,14 +114,15 @@ CGrids_Create::CGrids_Create(void)
 	Parameters.Add_Choice("",
 		"ATTRIBUTES", _TL("Attribute Definition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("index and name"),
 			_TL("user defined structure"),
-			_TL("table with values")
+			_TL("table with values"),
+			_TL("copy from other grid collection")
 		), 0
 	);
 
-	Parameters.Add_Table("",
+	Parameters.Add_Table("ATTRIBUTES",
 		"TABLE"		, _TL("Attributes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
@@ -132,7 +133,7 @@ CGrids_Create::CGrids_Create(void)
 		_TL("")
 	);
 
-	Parameters.Add_Int("",
+	Parameters.Add_Int("ATTRIBUTES",
 		"NFIELDS"	, _TL("Number of Attributes"),
 		_TL(""),
 		2, 0, true
@@ -153,6 +154,18 @@ CGrids_Create::CGrids_Create(void)
 
 	Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_NAME(0))->Set_Value("ID");
 	Parameters("FIELDS")->asParameters()->Get_Parameter(GET_ID_TYPE(0))->Set_Value( 8  );	// int
+
+	Parameters.Add_Grids("ATTRIBUTES",
+		"COPY"		, _TL("Copy from Grid Collection"),
+		_TL(""),
+		PARAMETER_INPUT, false
+	);
+
+	Parameters.Add_Bool("COPY",
+		"COPY_SET"	, _TL("Copy Settings"),
+		_TL(""),
+		true
+	)->Set_UseInCMD(false);
 }
 
 
@@ -188,6 +201,7 @@ int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 	{
 		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("TABLE"  , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("COPY"   , pParameter->asInt() == 3);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )
@@ -332,6 +346,12 @@ bool CGrids_Create::On_Execute(void)
 		{
 			pTable	= Parameters("TABLE")->asTable();
 		}
+
+	case  3:	// copy from other grid collection
+		{
+			pTable	= Parameters("COPY")->asGrids()->Get_Attributes_Ptr();
+			zField	= Parameters("COPY")->asGrids()->Get_Z_Attribute();
+		}
 		break;
 	}
 
@@ -396,9 +416,17 @@ bool CGrids_Create::On_Execute(void)
 		pList->Del_Items();
 	}
 
-	DataObject_Set_Parameter(pGrids, "BAND_R", 0);
-	DataObject_Set_Parameter(pGrids, "BAND_G", 1);
-	DataObject_Set_Parameter(pGrids, "BAND_B", 2);
+	//-----------------------------------------------------
+	if( Parameters("ATTRIBUTES")->asInt() == 3 && Parameters("COPY_SET")->asBool() )
+	{
+		DataObject_Set_Parameters(pGrids, Parameters("COPY")->asGrids());
+	}
+	else
+	{
+		DataObject_Set_Parameter(pGrids, "BAND_R", 0);
+		DataObject_Set_Parameter(pGrids, "BAND_G", 1);
+		DataObject_Set_Parameter(pGrids, "BAND_B", 2);
+	}
 
 	pGrids->Set_Name(Parameters("NAME")->asString());
 
