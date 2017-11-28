@@ -6,7 +6,7 @@
 	<author>O.Conrad (c) 2017</author>
 	<description>Simple standard filters for grid collections.</description>
 	<menu>Filter</menu>
-	
+
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">
 			<name>Grid System</name>
@@ -15,13 +15,14 @@
 			<name>Grid Collection</name>
 		</input>
 		<output varname="FILTERED" type="grids" parent="GRID_SYSTEM">
-			<name>Filtered Grid Collection</name>
+			<name>Filtered</name>
+			<output_name input="true" suffix="Filtered">GRIDS</output_name>
 		</output>
 		<option varname="METHOD" type="choice">
 			<name>Filter</name>
 			<choices>Smooth|Sharpen|Edge</choices>
 		</option>
-<!---->	<option varname="KERNEL_TYPE" type="choice">
+		<option varname="KERNEL_TYPE" type="choice">
 			<name>Kernel Type</name>
 			<choices>Square|Circle</choices>
 			<value>1</value>
@@ -33,19 +34,21 @@
 	</parameters>
 
 	<tools>
+		<datalist type="grid_list">LIST</datalist>
+
 		<foreach input="GRIDS">
-			<output type="grid_list">LIST</output>
-			
 			<tool library="grid_filter" tool="0" name="Simple Filter">
-				<option id="METHOD"        varname="TRUE">METHOD</option>
-				<option id="KERNEL_TYPE"   varname="TRUE">KERNEL_TYPE</option>
-				<option id="KERNEL_RADIUS" varname="TRUE">KERNEL_RADIUS</option>
+				<option id="METHOD"        varname="1">METHOD</option>
+				<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+				<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
 				<input  id="INPUT" >GRIDS</input>
 				<output id="RESULT">LIST</output>
 			</tool>
 		</foreach>
-		
+
 		<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+			<option id="ATTRIBUTES">3</option>
+			<input  id="COPY">GRIDS</input>
 			<input  id="LIST">LIST</input>
 			<output id="GRIDS">FILTERED</output>
 		</tool>		

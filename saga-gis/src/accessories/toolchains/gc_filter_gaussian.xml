@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="5.0.0">
+	<group>gc_tools</group>
+	<identifier>gc_filter_gaussian</identifier>
+	<name>Gaussian Filter</name>
+	<author>O.Conrad (c) 2017</author>
+	<description>Gaussian filter for grid collections.</description>
+	<menu>Filter</menu>
+
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="GRIDS" type="grids" parent="GRID_SYSTEM">
+			<name>Grid Collection</name>
+		</input>
+		<output varname="FILTERED" type="grids" parent="GRID_SYSTEM">
+			<name>Filtered</name>
+			<output_name input="true" suffix="Gaussian Filter">GRIDS</output_name>
+		</output>
+		<option varname="SIGMA" type="double">
+			<name>Standard Deviation</name>
+			<value>50</value>
+		</option>
+		<option varname="KERNEL_TYPE" type="choice">
+			<name>Kernel Type</name>
+			<choices>Square|Circle</choices>
+			<value>1</value>
+		</option>
+		<option varname="KERNEL_RADIUS" type="integer">
+			<name>Kernel Radius</name>
+			<value>2</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<datalist type="grid_list">LIST</datalist>
+
+		<foreach input="GRIDS">
+			<tool library="grid_filter" tool="1" name="Gaussian Filter">
+				<option id="SIGMA"         varname="1">SIGMA</option>
+				<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+				<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
+				<input  id="INPUT" >GRIDS</input>
+				<output id="RESULT">LIST</output>
+			</tool>
+		</foreach>
+
+		<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+			<option id="ATTRIBUTES">3</option>
+			<input  id="COPY">GRIDS</input>
+			<input  id="LIST">LIST</input>
+			<output id="GRIDS">FILTERED</output>
+		</tool>		
+	</tools>
+</toolchain>
