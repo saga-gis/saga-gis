@@ -110,7 +110,6 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 		SG_T("http://www.sciencedirect.com/science/article/pii/S0022169411002599")
 	);
 
-
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		""	, "ELEVATION"	, _TL("Elevation"),
@@ -217,7 +216,7 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asInt() == 0);
-		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && pParameters->Get_Parameter("FIELDS")->asGrid() != NULL);
+		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && pParameters->Get("FIELDS")->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
@@ -227,15 +226,15 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") || !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
 	{
-		bool	bEnable	= pParameters->Get_Parameter("TIME")->asGrid() != NULL
-					||	  pParameters->Get_Parameter("SDR" )->asGrid() != NULL;
+		bool	bEnable	= pParameters->Get("TIME")->asPointer() != NULL
+					||	  pParameters->Get("SDR" )->asPointer() != NULL;
 
 		pParameters->Set_Enabled("FLOW_B", bEnable);
 		pParameters->Set_Enabled("FLOW_K", bEnable);
 		pParameters->Set_Enabled("FLOW_R", bEnable);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -333,7 +332,9 @@ bool CChannelNetwork_Distance::On_Execute(void)
 //---------------------------------------------------------
 inline double CChannelNetwork_Distance::Get_Travel_Time(int x, int y, int i)
 {
-	double	dz	= m_pDEM->asDouble(Get_xTo(i, x), Get_yTo(i, y)) - m_pDEM->asDouble(x, y);
+	int	ix = Get_xTo(i, x), iy = Get_yTo(i, y);
+
+	double	dz	= m_pDEM->is_InGrid(ix, iy) ? m_pDEM->asDouble(ix, iy) - m_pDEM->asDouble(x, y) : 0.1;
 	double	dx	= Get_Length(i);
 	double	k	= m_pFlow_K && !m_pFlow_K->is_NoData(x, y) ? m_pFlow_K->asDouble(x, y) : m_Flow_K;
 	double	R	= m_pFlow_R && !m_pFlow_R->is_NoData(x, y) ? m_pFlow_R->asDouble(x, y) : m_Flow_R;
