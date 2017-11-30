@@ -157,7 +157,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_PROJECT_COPY:		return( _TL("Copy Project to...") );
 	case ID_CMD_DATA_PROJECT_COPY_DB:	return( _TL("Copy Project to Database") );
 
-	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard...") );
+	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard") );
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
 
@@ -238,8 +238,8 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_SAVE_IMAGE_ON_CHANGE:		return( _TL("Save as Image when changed") );
 	case ID_CMD_MAPS_SAVE_IMAGE_TO_KMZ:			return( _TL("Save as KMZ...") );
 	case ID_CMD_MAPS_SAVE_IMAGE_TO_MEMORY:		return( _TL("Save as Image to Workspace") );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy Map to Clipboard [Ctrl+C]") );
-	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard [Ctrl+L]") );
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD:			return( _TL("Copy to Clipboard") );
+	case ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND:	return( _TL("Copy Legend to Clipboard") );
 	case ID_CMD_MAPS_SYNCHRONIZE:				return( _TL("Synchronise Map Extents") );
 	case ID_CMD_MAPS_SCALEBAR:					return( _TL("Scale Bar") );
 	case ID_CMD_MAPS_PROJECTION:				return( _TL("Spatial Reference") );
@@ -339,6 +339,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DIAGRAM_SIZE_FIT:		return( _TL("Fit Diagram to Window") );
 	case ID_CMD_DIAGRAM_SIZE_INC:		return( _TL("Increase Diagram Size") );
 	case ID_CMD_DIAGRAM_SIZE_DEC:		return( _TL("Decrease Diagram Size") );
+	case ID_CMD_DIAGRAM_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 
 	case ID_CMD_SCATTERPLOT_PARAMETERS:		return( _TL("Properties") );
 	case ID_CMD_SCATTERPLOT_OPTIONS:		return( _TL("Options") );
@@ -353,7 +354,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	}
 
 	//-----------------------------------------------------
-	return( _TL("UNRECOGNISED COMMAND ID") );
+	return( wxString::Format("%s [%d]", _TL("unrecognized command identifier")) );
 }
 
 //---------------------------------------------------------
