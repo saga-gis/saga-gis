@@ -103,13 +103,17 @@ CLandsat_ACCA::CLandsat_ACCA(void)
 	Add_Reference("Irish, R.R.", "2000",
 		"Landsat 7 Automatic Cloud Cover Assessment",
 		"In: Shen, S.S., Descour, M.R. [Eds.]: Algorithms for Multispectral, Hyperspectral, and Ultraspectral Imagery VI. Proceedings of SPIE, 4049: 348-355.",
-		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_SPIE_paper.pdf")
+		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_Special_Issue_Final.pdf")
 	);
 
 	Add_Reference("Irish, R.R., Barker, J.L., Goward, S.N., Arvidson, T.", "2006",
 		"Characterization of the Landsat-7 ETM+ Automated Cloud-Cover Assessment (ACCA) Algorithm.",
 		"Photogrammetric Engineering and Remote Sensing vol. 72(10): 1179-1188.",
-		SG_T("http://landsathandbook.gsfc.nasa.gov/pdfs/ACCA_Special_Issue_Final.pdf")
+		SG_T("https://pdfs.semanticscholar.org/3d20/f685ce83a82b294f0773768624d4166d105d.pdf")
+	);
+
+	Add_Reference("https://grass.osgeo.org/grass72/manuals/i.landsat.acca.html",
+		SG_T("GRASS i.landsat.acca")
 	);
 
 	//-----------------------------------------------------
