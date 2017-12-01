@@ -94,8 +94,8 @@ bool CSG_Shape_Point::On_Assign(CSG_Shape *pShape)
 	{
 		CSG_Shape::Add_Point(pShape->Get_Point(0));
 
-		Set_Z(Get_Z(0), 0);
-		Set_M(Get_M(0), 0);
+		Set_Z(pShape->Get_Z(0), 0);
+		Set_M(pShape->Get_M(0), 0);
 
 		return( true );
 	}
