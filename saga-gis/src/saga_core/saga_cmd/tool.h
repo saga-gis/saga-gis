@@ -87,10 +87,10 @@ class CCMD_Tool
 {
 public:
 	CCMD_Tool(void);
-	CCMD_Tool(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+	CCMD_Tool(CSG_Tool *pTool);
 	virtual ~CCMD_Tool(void);
 
-	bool						Create					(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+	bool						Create					(CSG_Tool *pTool);
 	void						Destroy					(void);
 
 	void						Usage					(void);
@@ -101,8 +101,6 @@ public:
 
 
 private:
-
-	CSG_Tool_Library			*m_pLibrary;
 
 	CSG_Tool					*m_pTool;
 

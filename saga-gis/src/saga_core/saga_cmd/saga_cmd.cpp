@@ -88,8 +88,8 @@ bool		Check_First		(const CSG_String &Argument, int argc, char *argv[]);
 bool		Check_Flags		(const CSG_String &Argument);
 
 void		Print_Libraries	(void);
-void		Print_Tools		(CSG_Tool_Library *pLibrary);
-void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool);
+void		Print_Tools		(const CSG_String &Library);
+void		Print_Execution	(CSG_Tool *pTool);
 
 void		Print_Logo		(void);
 void		Print_Get_Help	(void);
@@ -225,19 +225,20 @@ bool		Run(int argc, char *argv[])
 //---------------------------------------------------------
 bool		Execute(int argc, char *argv[])
 {
-	CSG_Tool_Library	*pLibrary;
-	CSG_Tool			*pTool;
+	CSG_String	Library	= argv[1];
 
-	if( argc == 1 || (pLibrary = SG_Get_Tool_Library_Manager().Get_Library(CSG_String(argv[1]), true)) == NULL )
+	if( argc == 1 || SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
 	{
 		Print_Libraries();
 
 		return( false );
 	}
 
-	if( argc == 2 || (pTool = pLibrary->Get_Tool(argv[2])) == NULL )
+	CSG_Tool	*pTool;
+
+	if( argc == 2 || (pTool = SG_Get_Tool_Library_Manager().Get_Tool(Library, argv[2])) == NULL )
 	{
-		Print_Tools(pLibrary);
+		Print_Tools(Library);
 
 		return( false );
 	}
@@ -257,9 +258,9 @@ bool		Execute(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	Print_Execution(pLibrary, pTool);
+	Print_Execution(pTool);
 
-	CCMD_Tool	CMD_Tool(pLibrary, pTool);
+	CCMD_Tool	CMD_Tool(pTool);
 
 	return( CMD_Tool.Execute(argc - 2, argv + 2) );
 }
@@ -605,17 +606,33 @@ void		Print_Libraries	(void)
 }
 
 //---------------------------------------------------------
-void		Print_Tools		(CSG_Tool_Library *pLibrary)
+void		Print_Tools		(const CSG_String &Library)
 {
 	if( CMD_Get_Show_Messages() )
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
+			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
+			{
+				CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(i);
+
+				if( !pLibrary->Get_Library_Name().Cmp(Library) )
+				{
+					SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
+				}
+			}
 		}
 		else
 		{
-			CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+			for(int i=0; i<SG_Get_Tool_Library_Manager().Get_Count(); i++)
+			{
+				CSG_Tool_Library	*pLibrary	= SG_Get_Tool_Library_Manager().Get_Library(i);
+
+				if( !pLibrary->Get_Library_Name().Cmp(Library) )
+				{
+					CMD_Print(pLibrary->Get_Summary(SG_SUMMARY_FMT_FLAT, false));
+				}
+			}
 
 			CMD_Print_Error(_TL("select a tool"));
 
@@ -625,7 +642,7 @@ void		Print_Tools		(CSG_Tool_Library *pLibrary)
 }
 
 //---------------------------------------------------------
-void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
+void		Print_Execution	(CSG_Tool *pTool)
 {
 	if( CMD_Get_Show_Messages() )
 	{
@@ -633,19 +650,19 @@ void		Print_Execution	(CSG_Tool_Library *pLibrary, CSG_Tool *pTool)
 		{
 			SG_PRINTF(SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n"));
 			SG_PRINTF(SG_T("<%s>\n"), SG_XML_LIBRARY);
-			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, pLibrary->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, pLibrary->Get_Name()     .c_str(), SG_XML_LIBRARY_NAME);
+			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, pTool->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, pTool->Get_Library  ().c_str(), SG_XML_LIBRARY_NAME);
 			SG_PRINTF(SG_T("</%s>\n"), SG_XML_LIBRARY);
 		}
 		else
 		{
 			SG_PRINTF(SG_T("____________________________\n"));
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library path"), SG_File_Get_Path(pLibrary->Get_File_Name()       ).c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library name"), SG_File_Get_Name(pLibrary->Get_File_Name(), false).c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library     "), pLibrary->Get_Name  ().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("tool        "), pTool   ->Get_Name  ().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("identifier  "), pTool   ->Get_ID    ().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("author      "), pTool   ->Get_Author().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("library     "), pTool->Get_Library().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("tool        "), pTool->Get_Name   ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("identifier  "), pTool->Get_ID     ().c_str());
+			SG_PRINTF(SG_T("%s: %s\n"), _TL("author      "), pTool->Get_Author ().c_str());
 		#ifdef _OPENMP
 			SG_PRINTF(SG_T("%s: %d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
 		#endif // _OPENMP
@@ -824,22 +841,24 @@ void		Print_Help		(const CSG_String &Library, const CSG_String &Tool)
 {
 	Print_Logo();
 
-	CSG_Tool_Library	*pLibrary;
-	CSG_Tool			*pTool;
-
-	if( !Load_Libraries() || !(pLibrary = SG_Get_Tool_Library_Manager().Get_Library(Library, true)) )
+	if( !Load_Libraries() || !SG_Get_Tool_Library_Manager().Get_Library(Library, true) )
 	{
 		Print_Libraries();
 	}
-	else if( !(pTool = pLibrary->Get_Tool(Tool)) )
-	{
-		Print_Tools(pLibrary);
-	}
 	else
 	{
-		Print_Execution(pLibrary, pTool);
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(Library, Tool);
 
-		CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_FLAT));
+		if( !pTool )
+		{
+			Print_Tools(Library);
+		}
+		else
+		{
+			Print_Execution(pTool);
+
+			CMD_Print(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_FLAT));
+		}
 	}
 }
 

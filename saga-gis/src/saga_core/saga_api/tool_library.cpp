@@ -693,22 +693,17 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, int ID)
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const CSG_String &Tool)	const
 {
-	CSG_Tool_Library	*pLibrary	= Get_Library(Library, true);
-
-	if( pLibrary )
-	{
-		return( pLibrary->Get_Tool(Tool) );
-	}
-
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
-		if( pLibrary->Get_File_Name().is_Empty() )	// tool chain
+		if( pLibrary->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			if( pLibrary->Get_Tool(Tool) )
+			CSG_Tool	*pTool	= pLibrary->Get_Tool(Tool);
+
+			if( pTool )
 			{
-				return( pLibrary->Get_Tool(Tool) );
+				return( pTool );
 			}
 		}
 	}
@@ -733,6 +728,7 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	Libraries.Add_Field("TOOLS", SG_DATATYPE_Int   );
 	Libraries.Add_Field("NAME" , SG_DATATYPE_String);
 	Libraries.Add_Field("PATH" , SG_DATATYPE_String);
+	Libraries.Add_Field("CHAIN", SG_DATATYPE_Int   );
 
 	for(i=0, nTools=0; i<Get_Count(); i++)
 	{
@@ -746,10 +742,11 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 			Libraries[i].Set_Value(1, Get_Library(i)->Get_Count());
 			Libraries[i].Set_Value(2, Get_Library(i)->Get_Name());
 			Libraries[i].Set_Value(3, SG_File_Get_Path(Get_Library(i)->Get_File_Name()));
+			Libraries[i].Set_Value(4, Get_Library(i)->Get_File_Name().is_Empty() ? 1 : 0);
 		}
 	}
 
-	Libraries.Set_Index(0, TABLE_INDEX_Ascending);
+	Libraries.Set_Index(4, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
 
 	//-----------------------------------------------------
 	CSG_String	s;
@@ -763,8 +760,13 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 
 		for(i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= CSG_String::Format(" - %s\n", Libraries[i].asString(0));
+			if( Libraries[i].asInt(4) == 0 )
+				s	+= CSG_String::Format(" - %s\n"  , Libraries[i].asString(0));
+			else
+				s	+= CSG_String::Format(" - %s *\n", Libraries[i].asString(0));
 		}
+
+		s	+= CSG_String::Format("\n\n*) %s\n", _TL("tool chain libraries"));
 
 		break;
 
