@@ -197,22 +197,12 @@ bool		Run(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	if( argc <= 1 )
-	{
-		Print_Libraries();
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	if( argc == 2 && SG_File_Exists(CSG_String(argv[1])) )
 	{
 		return( Execute_Script(argv[1]) );
 	}
-	else
-	{
-		return( Execute(argc, argv) );
-	}
+
+	return( Execute(argc, argv) );
 }
 
 
@@ -225,24 +215,27 @@ bool		Run(int argc, char *argv[])
 //---------------------------------------------------------
 bool		Execute(int argc, char *argv[])
 {
-	CSG_String	Library	= argv[1];
+	//-----------------------------------------------------
+	CSG_String	Library	= argc <= 1 ? "" : argv[1];
 
-	if( argc == 1 || SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
+	if( SG_Get_Tool_Library_Manager().Get_Library(Library, true) == NULL )
 	{
 		Print_Libraries();
 
 		return( false );
 	}
 
-	CSG_Tool	*pTool;
+	//-----------------------------------------------------
+	CSG_Tool	*pTool	= argc <= 2 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, argv[2]);
 
-	if( argc == 2 || (pTool = SG_Get_Tool_Library_Manager().Get_Tool(Library, argv[2])) == NULL )
+	if( pTool == NULL )
 	{
 		Print_Tools(Library);
 
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output tool synopsis as XML-tagged text, then return.
 		SG_PRINTF(pTool->Get_Summary(true, "", "", true).c_str());
@@ -250,6 +243,7 @@ bool		Execute(int argc, char *argv[])
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	if( pTool->needs_GUI() )
 	{
 		CMD_Print_Error(_TL("tool needs graphical user interface"), pTool->Get_Name());

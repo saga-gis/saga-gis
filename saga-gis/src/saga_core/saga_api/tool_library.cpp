@@ -161,6 +161,8 @@ CSG_String CSG_Tool_Library::Get_Info(int Type) const
 //---------------------------------------------------------
 CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 {
+	bool	bToolChains	= Get_File_Name().is_Empty();
+
 	int			i;
 	CSG_String	s;
 
@@ -169,12 +171,15 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 	//-----------------------------------------------------
 	case SG_SUMMARY_FMT_FLAT:
 
-		s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(TLB_INFO_Name    );
-		s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(TLB_INFO_Category);
-
-		if( !Get_File_Name().is_Empty() )
+		if( !bToolChains )
 		{
-			s	+= CSG_String::Format("\n%s:\t", _TL("File")) + Get_File_Name();
+			s	+= CSG_String::Format("\n%s:\t", _TL("Library" )) + Get_Info(TLB_INFO_Name    );
+			s	+= CSG_String::Format("\n%s:\t", _TL("Category")) + Get_Info(TLB_INFO_Category);
+			s	+= CSG_String::Format("\n%s:\t", _TL("File"    )) + Get_File_Name();
+		}
+		else
+		{
+			s	+= CSG_String::Format("\n%s:\t", _TL("Tool Chains")) + Get_Info(TLB_INFO_Name);
 		}
 
 		s	+= CSG_String::Format("\n%s:\n", _TL("Description")) + Get_Info(TLB_INFO_Description);
@@ -185,7 +190,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 		{
 			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
 			{
-				s	+= " " + Get_Tool(i)->Get_ID() + "\t" + Get_Tool(i)->Get_Name() + "\n";
+				s	+= " [" + Get_Tool(i)->Get_ID() + "]\t" + Get_Tool(i)->Get_Name() + "\n";
 			}
 		}
 
@@ -654,7 +659,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const SG_Char *Name, bo
 	{
 		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
-		if( pLibrary && !pLibrary->Get_File_Name().is_Empty() && !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
+		if( !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
 		{
 			return( pLibrary );
 		}
