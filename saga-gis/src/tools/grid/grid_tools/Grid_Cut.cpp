@@ -505,6 +505,8 @@ bool CGrid_Clip::On_Execute(void)
 	//--------------------------------------------------------
 	CSG_Parameter_Grid_List	*pInput	= Parameters("GRIDS")->asGridList();
 
+	Parameters("CLIPPED")->asGridList()->Del_Items();
+
 	for(int i=0; i<pInput->Get_Item_Count(); i++)
 	{
 		CSG_Data_Object	*pClip, *pObject	= pInput->Get_Item(i);
