@@ -610,21 +610,28 @@ bool CLandsat_Scene_Import::Get_Info_Band(const CSG_MetaData &Metadata, int Vers
 {
 	CSG_String	Name;
 
-	if( Sensor != SENSOR_ETM )
+	if( Sensor == SENSOR_ETM )
+	{
+		switch( Band )
+		{
+		case 0:	Name	= Version != VERSION_MTL_2  ? "BAND1"  : "BAND_1"       ; break;
+		case 1:	Name	= Version != VERSION_MTL_2  ? "BAND2"  : "BAND_2"       ; break;
+		case 2:	Name	= Version != VERSION_MTL_2  ? "BAND3"  : "BAND_3"       ; break;
+		case 3:	Name	= Version != VERSION_MTL_2  ? "BAND4"  : "BAND_4"       ; break;
+		case 4:	Name	= Version != VERSION_MTL_2  ? "BAND5"  : "BAND_5"       ; break;
+		case 5:	Name	= Version != VERSION_MTL_2  ? "BAND61" : "BAND_6_VCID_1"; break;
+		case 6:	Name	= Version != VERSION_MTL_2  ? "BAND62" : "BAND_6_VCID_2"; break;
+		case 7:	Name	= Version != VERSION_MTL_2  ? "BAND7"  : "BAND_7"       ; break;
+		case 8:	Name	= Version != VERSION_MTL_2  ? "BAND8"  : "BAND_8"       ; break;
+		}
+	}
+	else if( Sensor == SENSOR_MSS && Version == VERSION_MTL_2 )
+	{
+		Name.Printf(Version != VERSION_MTL_2  ? "BAND%d" : "BAND_%d", 4 + Band);
+	}
+	else
 	{
 		Name.Printf(Version != VERSION_MTL_2  ? "BAND%d" : "BAND_%d", 1 + Band);
-	}
-	else switch( Band )
-	{
-	case 0:	Name	= Version != VERSION_MTL_2  ? "BAND1"  : "BAND_1"       ; break;
-	case 1:	Name	= Version != VERSION_MTL_2  ? "BAND2"  : "BAND_2"       ; break;
-	case 2:	Name	= Version != VERSION_MTL_2  ? "BAND3"  : "BAND_3"       ; break;
-	case 3:	Name	= Version != VERSION_MTL_2  ? "BAND4"  : "BAND_4"       ; break;
-	case 4:	Name	= Version != VERSION_MTL_2  ? "BAND5"  : "BAND_5"       ; break;
-	case 5:	Name	= Version != VERSION_MTL_2  ? "BAND61" : "BAND_6_VCID_1"; break;
-	case 6:	Name	= Version != VERSION_MTL_2  ? "BAND62" : "BAND_6_VCID_2"; break;
-	case 7:	Name	= Version != VERSION_MTL_2  ? "BAND7"  : "BAND_7"       ; break;
-	case 8:	Name	= Version != VERSION_MTL_2  ? "BAND8"  : "BAND_8"       ; break;
 	}
 
 	//-----------------------------------------------------
