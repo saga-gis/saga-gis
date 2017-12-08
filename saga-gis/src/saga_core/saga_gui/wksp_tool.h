@@ -103,8 +103,6 @@ public:
 	void							Set_Menu_ID			(int Menu_ID);
 	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
 
-	wxString						Get_File_Name		(void);
-
 	bool							is_Interactive		(void);
 	bool							is_Executing		(void);
 

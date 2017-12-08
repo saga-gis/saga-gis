@@ -135,34 +135,25 @@ wxString CWKSP_Tool::Get_Name(void)
 }
 
 //---------------------------------------------------------
-wxString CWKSP_Tool::Get_File_Name(void)
-{
-	return( m_pTool->Get_File_Name().c_str() );
-}
-
-//---------------------------------------------------------
 wxString CWKSP_Tool::Get_Description(void)
 {
 	//-----------------------------------------------------
-	if( !Get_File_Name().IsEmpty() )
+	if( !m_pTool->Get_File_Name().is_Empty() )
 	{
+		CSG_String	Lib_Name	= SG_File_Get_Name(m_pTool->Get_File_Name(), false);
+		CSG_String	File_Path	= SG_File_Make_Path(SG_File_Get_Path(m_pTool->Get_File_Name()), Lib_Name, "");
+
+		File_Path	= SG_File_Make_Path(File_Path, CSG_String::Format("%s_%02d", Lib_Name.c_str(), Get_Index()));
+
 		CSG_String	Description;
 		CSG_File	Stream;
 
-		wxFileName	FileName(Get_File_Name());
-		FileName.AppendDir	(FileName.GetName());
-		FileName.SetName	(wxString::Format("%s_%02d", FileName.GetName().c_str(), Get_Index()));
-
-		FileName.SetExt		("html");
-
-		if( Stream.Open(FileName.GetFullPath().wc_str(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		if( SG_File_Set_Extension(File_Path, "html") && Stream.Open(File_Path, SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
 		{
 			return( Description.c_str() );
 		}
 
-		FileName.SetExt		("htm");
-
-		if( Stream.Open(FileName.GetFullPath().wc_str(), SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
+		if( SG_File_Set_Extension(File_Path, "htm" ) && Stream.Open(File_Path, SG_FILE_R) && Stream.Read(Description, Stream.Length()) )
 		{
 			return( Description.c_str() );
 		}
