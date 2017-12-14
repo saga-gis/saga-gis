@@ -437,7 +437,7 @@ bool CACTIVE::Update_Description(void)
 	//-----------------------------------------------------
 	if( Description.Length() <= 8192 )
 	{
-		Description.Replace(wxT("\n"), wxT("<br>"));
+		Description.Replace("\n", "<br>");
 	}
 
 	m_pDescription->SetPage(Description);

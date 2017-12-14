@@ -991,7 +991,7 @@ CSG_Table                     * CSG_Parameter::asTable         (void) const
 		 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN
 		 || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 		{
-			return( (CSG_Shapes *)pObject );
+			return( (CSG_Table *)pObject );
 		}
 	}	break;
 
@@ -999,7 +999,7 @@ CSG_Table                     * CSG_Parameter::asTable         (void) const
 		return( asGrids() ? asGrids()->Get_Attributes_Ptr() : NULL );
 
 	case PARAMETER_TYPE_FixedTable:
-		return( (CSG_Table  *)m_pData->asPointer() );
+		return( (CSG_Table *)m_pData->asPointer() );
 	}
 
 	return( NULL );

@@ -52,7 +52,18 @@ protected:
 
 private:
 
-	CSG_String				Get_Formula				(CSG_String sFormula, CSG_Table *pTable, CSG_Array_Int &Fields);
+	bool					m_bNoData;
+
+	int						m_Result;
+
+	CSG_Array_Int			m_Values;
+
+	CSG_Formula				m_Formula;
+
+
+	bool					Get_Value				(CSG_Table_Record *pRecord);
+
+	CSG_String				Get_Formula				(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
 
 };
 

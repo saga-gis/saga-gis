@@ -167,7 +167,7 @@ CGrid_Calculator::CGrid_Calculator(void)
 	);
 
 	Parameters.Add_Bool("",
-		"USE_NODATA", _TL("Use NoData"),
+		"USE_NODATA", _TL("Use No-Data"),
 		_TL("Check this in order to include no-data cells in the calculation."),
 		false
 	);
