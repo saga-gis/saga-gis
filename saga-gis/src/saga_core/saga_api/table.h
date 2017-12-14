@@ -303,7 +303,9 @@ public:
 
 	//-----------------------------------------------------
 	virtual bool					Find_Record			(int &iRecord, int iField, const CSG_String &Value, bool bCreateIndex = false);
+	virtual CSG_Table_Record *		Find_Record			(              int iField, const CSG_String &Value, bool bCreateIndex = false);
 	virtual bool					Find_Record			(int &iRecord, int iField, double            Value, bool bCreateIndex = false);
+	virtual CSG_Table_Record *		Find_Record			(              int iField, double            Value, bool bCreateIndex = false);
 
 	//-----------------------------------------------------
 	virtual bool					Set_Value			(int iRecord, int iField, const SG_Char  *Value);

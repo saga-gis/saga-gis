@@ -988,6 +988,18 @@ bool CSG_Table::Find_Record(int &iRecord, int iField, const CSG_String &Value, b
 	return( false );
 }
 
+CSG_Table_Record * CSG_Table::Find_Record(int iField, const CSG_String &Value, bool bCreateIndex)
+{
+	int	iRecord;
+
+	if( Find_Record(iRecord, iField, Value, bCreateIndex) )
+	{
+		return( Get_Record(iRecord) );
+	}
+
+	return( NULL );
+}
+
 //---------------------------------------------------------
 bool CSG_Table::Find_Record(int &iRecord, int iField, double Value, bool bCreateIndex)
 {
@@ -1043,6 +1055,18 @@ bool CSG_Table::Find_Record(int &iRecord, int iField, double Value, bool bCreate
 	iRecord	= -2;
 
 	return( false );
+}
+
+CSG_Table_Record * CSG_Table::Find_Record(int iField, double Value, bool bCreateIndex)
+{
+	int	iRecord;
+
+	if( Find_Record(iRecord, iField, Value, bCreateIndex) )
+	{
+		return( Get_Record(iRecord) );
+	}
+
+	return( NULL );
 }
 
 
