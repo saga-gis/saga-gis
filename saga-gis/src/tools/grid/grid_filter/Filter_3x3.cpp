@@ -75,7 +75,7 @@ CFilter_3x3::CFilter_3x3(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("User Defined Filter"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
 		"User defined filter matrix. The filter can be chosen from loaded tables. "
@@ -84,27 +84,27 @@ CFilter_3x3::CFilter_3x3(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+		"", "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Filtered Grid"),
+		"", "RESULT"		, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table(
-		NULL, "FILTER"		, _TL("Filter Matrix"),
+		"", "FILTER"		, _TL("Filter Matrix"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "ABSOLUTE"	, _TL("Absolute Weighting"),
+	Parameters.Add_Bool(
+		"", "ABSOLUTE"	, _TL("Absolute Weighting"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	//-----------------------------------------------------
@@ -118,12 +118,12 @@ CFilter_3x3::CFilter_3x3(void)
 	Filter.Add_Record();
 	Filter.Add_Record();
 
-	Filter[0][0]	= 0.25;	Filter[0][1]	= 0.5;	Filter[0][2]	= 0.25;
-	Filter[1][0]	= 0.50;	Filter[1][1]	=-1.0;	Filter[1][2]	= 0.50;
-	Filter[2][0]	= 0.25;	Filter[2][1]	= 0.5;	Filter[2][2]	= 0.25;
+	Filter[0][0]	= 0.5;	Filter[0][1]	= 1.0;	Filter[0][2]	= 0.5;
+	Filter[1][0]	= 1.0;	Filter[1][1]	=-6.0;	Filter[1][2]	= 1.0;
+	Filter[2][0]	= 0.5;	Filter[2][1]	= 1.0;	Filter[2][2]	= 0.5;
 
 	Parameters.Add_FixedTable(
-		NULL, "FILTER_3X3"	, _TL("Default Filter Matrix (3x3)"),
+		"", "FILTER_3X3"	, _TL("Default Filter Matrix (3x3)"),
 		_TL(""),
 		&Filter
 	);
@@ -132,27 +132,15 @@ CFilter_3x3::CFilter_3x3(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CFilter_3x3::On_Execute(void)
 {
-	bool		bAbsolute;
-	CSG_Matrix	Filter;
-	CSG_Grid	*pInput, *pResult;
-	CSG_Table	*pFilter;
-
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT"     )->asGrid();
-	pResult		= Parameters("RESULT"    )->asGrid();
-
-	bAbsolute	= Parameters("ABSOLUTE"  )->asBool();
-
-	pFilter		= Parameters("FILTER"    )->asTable()
-				? Parameters("FILTER"    )->asTable()
-				: Parameters("FILTER_3X3")->asTable();
+	CSG_Table	*pFilter	= Parameters("FILTER")->asTable()
+		? Parameters("FILTER"    )->asTable()
+		: Parameters("FILTER_3X3")->asTable();
 
 	if( pFilter->Get_Count() < 1 || pFilter->Get_Field_Count() < 1 )
 	{
@@ -162,7 +150,7 @@ bool CFilter_3x3::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Filter.Create(pFilter->Get_Field_Count(), pFilter->Get_Count());
+	CSG_Matrix	Filter(pFilter->Get_Field_Count(), pFilter->Get_Count());
 
 	{
 		for(int iy=0; iy<Filter.Get_NY(); iy++)
@@ -176,22 +164,27 @@ bool CFilter_3x3::On_Execute(void)
 		}
 	}
 
-	int	dx	= (Filter.Get_NX() - 1) / 2;
-	int	dy	= (Filter.Get_NY() - 1) / 2;
+	int	nx	= (Filter.Get_NX() - 1) / 2;
+	int	ny	= (Filter.Get_NY() - 1) / 2;
 
 	//-----------------------------------------------------
+	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+
 	if( !pResult || pResult == pInput )
 	{
 		pResult	= SG_Create_Grid(pInput);
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Filter")));
+		pResult->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Filter")));
 
 		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 	}
 
 	//-----------------------------------------------------
+	bool	bAbsolute	= Parameters("ABSOLUTE")->asBool();
+
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for
@@ -202,13 +195,13 @@ bool CFilter_3x3::On_Execute(void)
 
 			if( pInput->is_InGrid(x, y) )
 			{
-				for(int iy=0, jy=y-dy; iy<Filter.Get_NY(); iy++, jy++)
+				for(int iy=0, jy=y-ny; iy<Filter.Get_NY(); iy++, jy++)
 				{
-					for(int ix=0, jx=x-dx; ix<Filter.Get_NX(); ix++, jx++)
+					for(int ix=0, jx=x-nx; ix<Filter.Get_NX(); ix++, jx++)
 					{
 						if( pInput->is_InGrid(jx, jy) )
 						{
-							s	+= Filter[iy][ix] * pInput->asDouble(jx, jy);
+							s	+=      Filter[iy][ix] * pInput->asDouble(jx, jy);
 							n	+= fabs(Filter[iy][ix]);
 						}
 					}
