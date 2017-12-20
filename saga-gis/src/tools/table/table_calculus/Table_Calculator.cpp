@@ -35,24 +35,65 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double	g_NoData_loValue	= -99999.;
+double	g_NoData_hiValue	= -99999.;
+
+//---------------------------------------------------------
+double	fnc_NoData_Value(void)
+{
+	return( g_NoData_loValue );
+}
+
+//---------------------------------------------------------
+double	fnc_is_NoData_Value(double Value)
+{
+	return( SG_IS_BETWEEN(g_NoData_loValue, Value, g_NoData_hiValue) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 {
 	Set_Author	("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	CSG_String	s(_TW(
-		"The table calculator calculates a new attribute from existing attributes based on a mathematical formula. "
-		"Attributes are addressed by the character 'f' (for 'field') followed by the field number (i.e.: f1, f2, ..., fn) "
-		"or by the field name in square brackets (e.g.: [Field Name]).\n"
+		"The table calculator calculates a new attribute from existing "
+		"attributes based on a mathematical formula. Attributes are addressed "
+		"by the character 'f' (for 'field') followed by the field number "
+		"(i.e.: f1, f2, ..., fn) or by the field name in square brackets "
+		"(e.g.: [Field Name]).\n"
 		"Examples:\n"
-		"sin(f1) * f2 + f3\n"
-		"[Population] / [Area]\n"
-		"\nThe following operators are available for the formula definition:\n"
+		"- sin(f1) * f2 + f3\n"
+		"- [Population] / [Area]\n"
+		"\n"
+		"If the use no-data flag is unchecked and a no-data value appears in "
+		"a record's input, no calculation is performed for it and the result "
+		"is set to no-data.\n"
+		"\n"
+		"Following operators are available for the formula definition:\n"
 	));
 
-	s	+= CSG_Formula::Get_Help_Operators();
+	const CSG_String	Operators[5][2]	=
+	{
+		{	"nodata()"   , _TL("Returns tables's no-data value"                            )	},
+		{	"isnodata(x)", _TL("Returns true (1), if x is a no-data value, else false (0)" )	},
+		{	"", ""	}
+	};
+
+	m_Formula.Add_Function(SG_T("nodata"  ), (TSG_PFNC_Formula_1)fnc_NoData_Value   , 0, 0);
+	m_Formula.Add_Function(SG_T("isnodata"), (TSG_PFNC_Formula_1)fnc_is_NoData_Value, 1, 0);
+
+	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
 
 	Set_Description(s);
 
+	//-----------------------------------------------------
 	if( bShapes )
 	{
 		Set_Name(CSG_String::Format("%s [%s]", _TL("Field Calculator"), _TL("Shapes")));
@@ -68,28 +109,35 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 		Parameters.Add_Table ("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
+	//-----------------------------------------------------
 	Parameters.Add_Table_Field("TABLE",
-		"FIELD"    , _TL("Field"),
+		"FIELD"		, _TL("Field"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_String("TABLE",
-		"NAME"     , _TL("Field Name"),
+		"NAME"		, _TL("Field Name"),
 		_TL(""),
 		_TL("Calculation")
 	);
 
 	Parameters.Add_String("",
-		"FORMULA"  , _TL("Formula"),
+		"FORMULA"	, _TL("Formula"),
 		_TL(""),
 		"f1 + f2"
 	);
 
 	Parameters.Add_Bool("",
-		"SELECTION", _TL("Selection"),
+		"SELECTION"	, _TL("Selection"),
 		_TL(""),
 		true
+	);
+
+	Parameters.Add_Bool("",
+		"USE_NODATA", _TL("Use No-Data"),
+		_TL(""),
+		false
 	);
 }
 
@@ -139,14 +187,11 @@ bool CTable_Calculator_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Array_Int	Fields;
-	CSG_Formula		Formula;
-
-	if( !Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, Fields)) )
+	if( !m_Formula.Set_Formula(Get_Formula(Parameters("FORMULA")->asString(), pTable, m_Values)) )
 	{
 		CSG_String	Message;
 
-		Formula.Get_Error(Message);
+		m_Formula.Get_Error(Message);
 
 		Error_Set(Message);
 
@@ -157,50 +202,47 @@ bool CTable_Calculator_Base::On_Execute(void)
 	if( Parameters("RESULT")->asTable() && Parameters("RESULT")->asTable() != pTable )
 	{
 		pTable	= Parameters("RESULT")->asTable();
-		pTable->Create(*Parameters("TABLE")->asTable());
+
+		if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+		{
+			pTable->Create(*Parameters("TABLE")->asShapes());
+		}
+		else
+		{
+			pTable->Create(*Parameters("TABLE")->asTable());
+		}
 	}
 
-	int	fResult	= Parameters("FIELD")->asInt();
-
-//	pTable->Set_Name(CSG_String::Format("%s [%s]", Parameters("TABLE")->asTable()->Get_Name(), Parameters("NAME")->asString()));
 	pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
 
-	if( fResult < 0 || fResult >= pTable->Get_Field_Count() )
+	//-----------------------------------------------------
+	m_Result	= Parameters("FIELD")->asInt();
+
+	if( m_Result < 0 || m_Result >= pTable->Get_Field_Count() )
 	{
-		fResult	= pTable->Get_Field_Count();
+		m_Result	= pTable->Get_Field_Count();
 
 		pTable->Add_Field(Parameters("NAME")->asString(), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
-	bool	bSelection	= pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool();
+	m_bNoData	= Parameters("USE_NODATA")->asBool();
 
-	CSG_Vector	Values(Fields.Get_Size());
+	g_NoData_loValue	= pTable->Get_NoData_Value  ();
+	g_NoData_hiValue	= pTable->Get_NoData_hiValue();
 
-	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+	if( pTable->Get_Selection_Count() > 0 && Parameters("SELECTION")->asBool() )
 	{
-		if( !bSelection || pTable->is_Selected(iRecord) )
+		for(size_t i=0; i<pTable->Get_Selection_Count() && Set_Progress(i, pTable->Get_Selection_Count()); i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
-
-			bool	bNoData	= false;
-
-			for(int iField=0; iField<Fields.Get_Size() && !bNoData; iField++)
-			{
-				if( !(bNoData       = pRecord->is_NoData(Fields[iField])) )
-				{
-					Values[iField]	= pRecord->asDouble (Fields[iField]);
-				}
-			}
-
-			if( !bNoData )
-			{
-				pRecord->Set_Value(fResult, Formula.Get_Value(Values));
-			}
-			else
-			{
-				pRecord->Set_NoData(fResult);
-			}
+			Get_Value(pTable->Get_Selection(i));
+		}
+	}
+	else
+	{
+		for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+		{
+			Get_Value(pTable->Get_Record(i));
 		}
 	}
 
@@ -219,43 +261,86 @@ bool CTable_Calculator_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String	CTable_Calculator_Base::Get_Formula(CSG_String sFormula, CSG_Table *pTable, CSG_Array_Int &Fields)
+bool CTable_Calculator_Base::Get_Value(CSG_Table_Record *pRecord)
+{
+	CSG_Vector	Values(m_Values.Get_Size());
+
+	bool	bNoData	= false;
+
+	for(int i=0; i<m_Values.Get_Size(); i++)
+	{
+		Values[i]	= pRecord->asDouble(m_Values[i]);
+
+		if( !m_bNoData && pRecord->is_NoData(m_Values[i]) )
+		{
+			bNoData	= true;
+		}
+	}
+
+	if( bNoData == false )
+	{
+		pRecord->Set_Value(m_Result, m_Formula.Get_Value(Values));
+
+		return( true );
+	}
+
+	pRecord->Set_NoData(m_Result);
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CTable_Calculator_Base::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values)
 {
 	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
 
-	Fields.Destroy();
+	Values.Destroy();
 
-	for(int iField=pTable->Get_Field_Count()-1; iField>=0 && Fields.Get_Size()<26; iField--)
+	for(int iField=pTable->Get_Field_Count()-1; iField>=0 && Values.Get_Size()<26; iField--)
 	{
 		bool	bUse	= false;
 
-		CSG_String	sField;
+		CSG_String	s;
 
-		sField.Printf("f%d", iField + 1);
+		s.Printf("f%d", iField + 1);
 
-		if( sFormula.Find(sField) >= 0 )
+		if( Formula.Find(s) >= 0 )
 		{
-			sFormula.Replace(sField, CSG_String(vars[Fields.Get_Size()]));
+			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
 
 			bUse	= true;
 		}
 
-		sField.Printf("[%s]", pTable->Get_Field_Name(iField));
+		s.Printf("F%d", iField + 1);
 
-		if( sFormula.Find(sField) >= 0 )
+		if( Formula.Find(s) >= 0 )
 		{
-			sFormula.Replace(sField, CSG_String(vars[Fields.Get_Size()]));
+			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
+
+			bUse	= true;
+		}
+
+		s.Printf("[%s]", pTable->Get_Field_Name(iField));
+
+		if( Formula.Find(s) >= 0 )
+		{
+			Formula.Replace(s, CSG_String(vars[Values.Get_Size()]));
 
 			bUse	= true;
 		}
 
 		if( bUse )
 		{
-			Fields	+= iField;
+			Values	+= iField;
 		}
 	}
 
-	return( sFormula );
+	return( Formula );
 }
 
 

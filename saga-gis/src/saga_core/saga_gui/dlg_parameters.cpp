@@ -137,9 +137,11 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 	{
 		Add_Button(0);
 
+		wxString	_Info(Info); _Info.Replace("\n", "<br>");
+
 		m_pInfo_Button	= Add_Button(ID_BTN_DESCRIPTION);
 		m_pInfo			= new CACTIVE_Description(this);
-		m_pInfo->SetPage(Info);
+		m_pInfo->SetPage(_Info);
 
 		Show_Info(m_bInfo);
 	}

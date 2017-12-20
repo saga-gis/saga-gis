@@ -148,7 +148,7 @@ public:
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
 
-	bool						Raster_Load				(CSG_Data_Manager         &Grids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "");
+	bool						Raster_Load				(CSG_Data_Manager         &Grids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", CSG_Table *pInfo = NULL);
 	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", int OutputType = 0);
 	bool						Raster_Load				(CSG_Grid *pGrid                , const CSG_String &Table, const CSG_String &Where = "");
 	bool						Raster_Save				(CSG_Grid *pGrid, int SRID      , const CSG_String &Table, const CSG_String &Field);
