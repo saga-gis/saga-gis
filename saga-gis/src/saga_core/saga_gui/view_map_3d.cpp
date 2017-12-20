@@ -265,9 +265,9 @@ void CVIEW_Map_3D::Update_StatusBar(void)
 {
 	if( m_pPanel )
 	{
-		SetStatusText(wxString::Format("X %+.1f\xb0", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X);
-		SetStatusText(wxString::Format("Y %+.1f\xb0", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y);
-		SetStatusText(wxString::Format("Z %+.1f\xb0", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z);
+		SetStatusText(wxString::Format("X %+.1f", m_pPanel->Get_Projector().Get_xRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_X);
+		SetStatusText(wxString::Format("Y %+.1f", m_pPanel->Get_Projector().Get_yRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Y);
+		SetStatusText(wxString::Format("Z %+.1f", m_pPanel->Get_Projector().Get_zRotation() * M_RAD_TO_DEG), MAP3D_STATUSBAR_ROTATE_Z);
 
 		SetStatusText(wxString::Format("X %+.1f"    , m_pPanel->Get_Projector().Get_xShift()), MAP3D_STATUSBAR_SHIFT_X);
 		SetStatusText(wxString::Format("Y %+.1f"    , m_pPanel->Get_Projector().Get_yShift()), MAP3D_STATUSBAR_SHIFT_Y);
