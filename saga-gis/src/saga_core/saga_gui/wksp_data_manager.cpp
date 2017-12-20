@@ -180,6 +180,12 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		m_Numbering = 2, -1, true
 	);
 
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"NAME_BY_FILE"			, _TL("Use File Name for Naming"),
+		_TL("Use file name to name a data set, when it has been loaded from file."),
+		false
+	);
+
 	m_Parameters.Add_Colors("NODE_GENERAL",
 		"COLORS_DEFAULT"		, _TL("Default Colors"),
 		_TL("")

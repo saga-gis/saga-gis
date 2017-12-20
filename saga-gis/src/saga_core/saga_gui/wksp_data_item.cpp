@@ -246,12 +246,19 @@ bool CWKSP_Data_Item::On_Command_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 wxString CWKSP_Data_Item::Get_Name(void)
 {
-	if( g_pData->Get_Numbering() < 0 )
+	wxString	Name("###");
+
+	if( m_pObject && *m_pObject->Get_Name() )
 	{
-		return( m_pObject ? m_pObject->Get_Name() : SG_T("-") );
+		Name	= m_pObject->Get_Name();
 	}
 
-	return( wxString::Format("%0*d. %s", g_pData->Get_Numbering(), 1 + Get_ID(), m_pObject ? m_pObject->Get_Name() : SG_T("-")) );
+	if( g_pData->Get_Numbering() < 0 )
+	{
+		return( Name );
+	}
+
+	return( wxString::Format("%0*d. %s", g_pData->Get_Numbering(), 1 + Get_ID(), Name.c_str()) );
 }
 
 
@@ -274,6 +281,16 @@ void CWKSP_Data_Item::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	// General...
+
+	if( g_pData->Get_Parameter("NAME_BY_FILE")->asBool() && *m_pObject->Get_File_Name() )
+	{
+		CSG_String	Name(SG_File_Get_Name(m_pObject->Get_File_Name(), false));
+
+		if( !Name.is_Empty() )
+		{
+			m_pObject->Set_Name(Name);
+		}
+	}
 
 	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_NAME"  , _TL("Name"       ), _TL(""), m_pObject->Get_Name());
 	m_Parameters.Add_String("NODE_GENERAL", "OBJECT_DESC"  , _TL("Description"), _TL(""), m_pObject->Get_Description(), true);
