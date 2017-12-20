@@ -69,7 +69,7 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 {
 	Set_Name		(_TL("Add Polygon Attributes to Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"Spatial join for points. Retrieves for each point the selected "
@@ -77,34 +77,32 @@ CAdd_Polygon_Attributes::CAdd_Polygon_Attributes(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "INPUT"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"INPUT"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUTPUT"		, _TL("Result"),
+	Parameters.Add_Shapes("",
+		"OUTPUT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("POLYGONS",
+		"FIELDS"	, _TL("Attributes"),
 		_TL("Attributes to add. Select none to add all")
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -140,7 +138,7 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 
 		for(int iField=0; iField<pPolygons->Get_Field_Count(); iField++)
 		{
-			sFields += CSG_String::Format(SG_T("%d,"), iField);
+			sFields += CSG_String::Format("%d,", iField);
 		}
 
 		pFields->Set_Value(sFields);
@@ -158,7 +156,7 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
 	}
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), pPolygons->Get_Name()));
+	pOutput->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), pPolygons->Get_Name()));
 
 	//-----------------------------------------------------
 	int	outField	= pOutput->Get_Field_Count();
@@ -175,26 +173,27 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iPoint=0; iPoint<pOutput->Get_Count() && Set_Progress(iPoint, pOutput->Get_Count()); iPoint++)
 	{
-		CSG_Shape	*pPoint		= pOutput	->Get_Shape(iPoint);
-		CSG_Shape	*pPolygon	= pPolygons	->Get_Shape(pPoint->Get_Point(0));
+		CSG_Shape	*pPoint		= pOutput  ->Get_Shape(iPoint);
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(pPoint->Get_Point(0));
 
-		if( pPolygon )
+		for(int iField=0; iField<pFields->Get_Count(); iField++)
 		{
-			for(int iField=0; iField<pFields->Get_Count(); iField++)
+			int	jField	= pFields->Get_Index(iField);
+
+			if( !pPolygon )
 			{
-				int	jField	= pFields->Get_Index(iField);
+				pPoint->Set_NoData(outField + iField);
+			}
+			else switch( pPolygons->Get_Field_Type(jField) )
+			{
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date:
+				pPoint->Set_Value(outField + iField, pPolygon->asString(jField));
+				break;
 
-				switch( pPolygons->Get_Field_Type(jField) )
-				{
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
-					pPoint->Set_Value(outField + iField, pPolygon->asString(jField));
-					break;
-
-				default:
-					pPoint->Set_Value(outField + iField, pPolygon->asDouble(jField));
-					break;
-				}
+			default:
+				pPoint->Set_Value(outField + iField, pPolygon->asDouble(jField));
+				break;
 			}
 		}
 	}

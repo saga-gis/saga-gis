@@ -359,28 +359,33 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 //---------------------------------------------------------
 double CSG_Shape_Polygon_Part::Get_Distance(TSG_Point Point, TSG_Point &Next)
 {
-	if( m_nPoints > 0 )
+	if( m_nPoints < 1 )
 	{
-		TSG_Point	*pB	= m_Points + m_nPoints - 1;
-		TSG_Point	*pA	= m_Points, C;
-
-		double	Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
-
-		for(int iPoint=0; iPoint<m_nPoints && Distance>0.0; iPoint++, pB=pA++)
-		{
-			double	d	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, C);
-
-			if(	d >= 0.0 && d < Distance )
-			{
-				Distance	= d;
-				Next		= C;
-			}
-		}
-
-		return( Distance );
+		return( -1.0 );
 	}
 
-	return( 0.0 );
+	if( Contains(Point) )
+	{
+		return( 0.0 );
+	}
+
+	TSG_Point	*pB	= m_Points + m_nPoints - 1;
+	TSG_Point	*pA	= m_Points, C;
+
+	double	Distance	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, Next);
+
+	for(int iPoint=0; iPoint<m_nPoints && Distance>0.0; iPoint++, pB=pA++)
+	{
+		double	d	= SG_Get_Nearest_Point_On_Line(Point, *pA, *pB, C);
+
+		if(	d >= 0.0 && d < Distance )
+		{
+			Distance	= d;
+			Next		= C;
+		}
+	}
+
+	return( Distance );
 }
 
 
@@ -874,7 +879,7 @@ double CSG_Shape_Polygon::Get_Distance(TSG_Point Point, TSG_Point &Next, int iPa
 {
 	CSG_Shape_Polygon_Part	*pPart	= Get_Polygon_Part(iPart);
 
-	return(	pPart && pPart->Get_Distance(Point, Next) );
+	return(	pPart ? pPart->Get_Distance(Point, Next) : -1.0 );
 }
 
 

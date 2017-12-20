@@ -553,18 +553,17 @@ bool CSG_Shapes::On_Update(void)
 //---------------------------------------------------------
 CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 {
-	int			iShape;
-	double		d, dNearest;
 	CSG_Rect	r(Point.x - Epsilon, Point.y - Epsilon, Point.x + Epsilon, Point.y + Epsilon);
-	CSG_Shape	*pShape, *pNearest;
 
-	pNearest	= NULL;
+	CSG_Shape	*pNearest	= NULL;
 
 	if( r.Intersects(Get_Extent()) != INTERSECTION_None )
 	{
-		for(iShape=0, dNearest=-1.0; iShape<Get_Count(); iShape++)
+		double	dNearest	= -1.0;
+
+		for(int iShape=0; iShape<Get_Count(); iShape++)
 		{
-			pShape	= Get_Shape(iShape);
+			CSG_Shape	*pShape	= Get_Shape(iShape);
 
 			if( pShape->Intersects(r) )
 			{
@@ -572,7 +571,7 @@ CSG_Shape * CSG_Shapes::Get_Shape(TSG_Point Point, double Epsilon)
 				{
 					if( r.Intersects(pShape->Get_Extent(iPart)) )
 					{
-						d	= pShape->Get_Distance(Point, iPart);
+						double	d	= pShape->Get_Distance(Point, iPart);
 
 						if( d == 0.0 )
 						{
