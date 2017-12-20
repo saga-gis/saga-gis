@@ -1697,6 +1697,105 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CSG_PG_Connection::Rasters_Save(CSG_Grids *pGrids, int SRID, const CSG_String &_Table)
+{
+	const CSG_String	Geometry	= "raster";
+
+	CSG_String	Table(_Table);	Table.Make_Lower();
+
+	if( !pGrids || Table_Exists(Table) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	{
+		CSG_String	SQL;
+
+		for(int iField=0; iField<pGrids->Get_Attributes().Get_Field_Count(); iField++)
+		{
+			SQL	+= CSG_String::Format(", %s ", pGrids->Get_Attributes().Get_Field_Name(iField));
+			SQL	+= Get_Type_To_SQL(pGrids->Get_Attributes().Get_Field_Type(iField), pGrids->Get_Attributes().Get_Field_Length(iField));
+		}
+
+		if( !Execute("CREATE TABLE \"" + Table + "\" (\"rid\" serial PRIMARY KEY, \"" + Geometry + "\" raster" + SQL + ")") )
+		{
+			return( false );
+		}
+	}
+
+	//-----------------------------------------------------
+	bool	bBinary	= false;	// binary raster export not (yet??!!) supported
+
+	CSG_String	Copy	= "COPY \"" + Table + "\" (\"" + Geometry + "\") FROM STDIN";	if( bBinary )	Copy	+= " WITH (FORMAT 'binary')";
+
+	//-----------------------------------------------------
+	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
+	{
+		SG_UI_Process_Set_Text(CSG_String::Format("%s: [%d/%d]", _TL("export grid"), i + 1, pGrids->Get_Grid_Count()));
+
+		PGresult	*pResult	= PQexec(m_pgConnection, Copy);
+
+		if( PQresultStatus(pResult) != PGRES_COPY_IN )
+		{
+			PQclear(pResult);
+
+			_Error_Message(_TL("Raster band export"), m_pgConnection);
+
+			return( false );
+		}
+
+		PQclear(pResult);
+
+		//-------------------------------------------------
+		CSG_Bytes	Grid;
+
+		if( CSG_Grid_OGIS_Converter::to_WKBinary(Grid, pGrids->Get_Grid_Ptr(i), SRID) )
+		{
+			if( bBinary )
+			{
+				PQputCopyData(m_pgConnection, (const char *)Grid.Get_Bytes(), Grid.Get_Count());
+			}
+			else
+			{
+				CSG_String	hex(Grid.toHexString());
+
+				PQputCopyData(m_pgConnection, hex, (int)hex.Length());
+			}
+
+			PQputCopyEnd (m_pgConnection, NULL);
+		}
+
+		//-------------------------------------------------
+		CSG_Table	Info;	Table_Load(Info, Table, "rid");	// CSG_String::Format("SELECT currval('%s_rid_seq')", Table.c_str()));
+
+		int	rid	= Info.Get_Count() > 0 ? Info[Info.Get_Count() - 1].asInt(0) : i + 1;
+
+		CSG_String	SQL;
+
+		for(int iField=0; iField<pGrids->Get_Attributes().Get_Field_Count(); iField++)
+		{
+			if( iField > 0 )
+			{
+				SQL	+= ", ";
+			}
+
+			SQL	+= CSG_String::Format("%s='%s'",
+				pGrids->Get_Attributes().Get_Field_Name(iField),
+				pGrids->Get_Attributes(i).asString(iField)
+			);
+		}
+
+		Execute(CSG_String::Format("UPDATE %s SET %s WHERE rid=%d", Table.c_str(), SQL.c_str(), rid));
+	}
+
+	//-----------------------------------------------------
+	Add_MetaData(*pGrids, Table);
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -1762,7 +1762,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 				pTool->Settings_Pop();
 
 				//-----------------------------------------
-				if( Grids.Grid_System_Count() > 0 && Grids.Get_Grid_System(0)->Get(0) )
+				if( Grids.Grid_System_Count() > 0 && Grids.Get_Grid_System(0)->Get(0) && Grids.Get_Grid_System(0)->Get(0)->is_Valid() )
 				{
 					CSG_Grids	*pGrids	= (CSG_Grids *)Grids.Get_Grid_System(0)->Get(0);
 

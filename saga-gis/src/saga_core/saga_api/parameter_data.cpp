@@ -2416,7 +2416,7 @@ bool CSG_Parameter_Grid::Set_Value(void *Value)
 				}
 			}
 
-			Get_System()->Assign(((CSG_Grid *)Value)->Get_System());
+			Get_System()->Assign(System);
 		}
 	}
 

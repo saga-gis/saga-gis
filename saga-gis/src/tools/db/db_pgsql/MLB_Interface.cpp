@@ -131,6 +131,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 30:	return( new CRaster_Load );
 	case 33:	return( new CRaster_Load_Band );
 	case 31:	return( new CRaster_Save );
+	case 34:	return( new CRaster_Collection_Save );
 	case 32:	return( new CRaster_SRID_Update );
 
 	case 35:	return( new CDatabase_Create );

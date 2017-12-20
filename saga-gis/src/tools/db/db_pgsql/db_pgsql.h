@@ -152,6 +152,8 @@ public:
 	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", int OutputType = 0);
 	bool						Raster_Load				(CSG_Grid *pGrid                , const CSG_String &Table, const CSG_String &Where = "");
 	bool						Raster_Save				(CSG_Grid *pGrid, int SRID      , const CSG_String &Table, const CSG_String &Field);
+
+	bool						Rasters_Save			(CSG_Grids *pGrids, int SRID, const CSG_String &Table);
 	
 
 private:

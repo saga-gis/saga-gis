@@ -461,6 +461,140 @@ bool CRaster_Save::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CRaster_Collection_Save::CRaster_Collection_Save(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Export Grid Collection to PostGIS"));
+
+	Set_Author		("O.Conrad (c) 2017");
+
+	Set_Description	(_TW(
+		"Exports a grid collection to a PostGIS database."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_System("",
+		"GRID_SYSTEM"	, _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Grids("GRID_SYSTEM",
+		"GRIDS"		, _TL("Grid Collection"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_String("",
+		"NAME"		, _TL("Name"),
+		_TL(""),
+		""
+	);
+
+	Parameters.Add_Choice("",
+		"EXISTS"	, _TL("If table exists..."),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("abort"),
+			_TL("replace")
+		), 0
+	);
+
+	Add_SRID_Picker();
+}
+
+//---------------------------------------------------------
+void CRaster_Collection_Save::On_Connection_Changed(CSG_Parameters *pParameters)
+{
+	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("GRIDS"));
+}
+
+//---------------------------------------------------------
+int CRaster_Collection_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	{
+		CSG_Grids	*pGrids	= pParameter->asGrids();
+			
+		if( SG_Get_Data_Manager().Exists(pGrids) )
+		{
+			pParameters->Get_Parameter("NAME")->Set_Value(pGrids->Get_Name());
+
+			if( pGrids->Get_Projection().is_Okay() && pGrids->Get_Projection().Get_EPSG() > 0 )
+			{
+				Set_SRID(pParameters, pGrids->Get_Projection().Get_EPSG());
+			}
+		}
+	}
+
+	return( CSG_PG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+bool CRaster_Collection_Save::On_Execute(void)
+{
+	if( !Get_Connection()->has_PostGIS(2.0) )
+	{
+		Error_Set(_TL("PostGIS extension missing or too old"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_String	SavePoint, Table;
+
+	Table	= Parameters("NAME")->asString();
+
+	if( Table.is_Empty() )
+	{
+		Error_Set(_TL("no name has been specified for new raster table"));
+
+		return( false );
+	}
+
+	if( Get_Connection()->Table_Exists(Table) && Parameters("EXISTS")->asInt() == 0 )
+	{
+		Error_Fmt("%s: %s", _TL("table already exists"), Table.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "RASTERS_SAVE" : "");
+
+	if( Get_Connection()->Table_Exists(Table) && !Get_Connection()->Table_Drop(Table, false) )
+	{
+		Get_Connection()->Rollback(SavePoint);
+
+		Error_Fmt("%s: %s", _TL("failed to replace existing table"), Table.c_str());
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !Get_Connection()->Rasters_Save(Parameters("GRIDS")->asGrids(), Get_SRID(), Table) )
+	{
+		Get_Connection()->Rollback(SavePoint);
+
+		Error_Fmt("%s: %s", _TL("failed to save grid collection"), Table.c_str());
+
+		return( false );
+	}
+
+	Get_Connection()->Commit(SavePoint);
+
+	Get_Connection()->GUI_Update();
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CRaster_SRID_Update::CRaster_SRID_Update(void)
 {
 	Set_Name		(_TL("Update Raster SRID"));

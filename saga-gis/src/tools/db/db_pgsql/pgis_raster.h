@@ -150,6 +150,30 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CRaster_Collection_Save : public CSG_PG_Tool
+{
+public:
+	CRaster_Collection_Save(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Raster") );	}
+
+
+protected:
+
+	virtual void				On_Connection_Changed	(CSG_Parameters *pParameters);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CRaster_SRID_Update : public CSG_PG_Tool
 {
 public:

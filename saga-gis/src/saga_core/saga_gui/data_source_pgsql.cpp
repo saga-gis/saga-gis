@@ -132,6 +132,7 @@ enum
 	DB_PGSQL_Raster_Load		= 30,
 	DB_PGSQL_Raster_Load_Band	= 33,
 	DB_PGSQL_Raster_Save		= 31,
+	DB_PGSQL_Rasters_Save		= 34,
 	DB_PGSQL_Raster_SRID_Update	= 32,
 
 	DB_PGSQL_DB_Create			= 35,
@@ -329,21 +330,16 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool	PGSQL_Save_Grids		(CSG_Grids *pGrids)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Raster_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Rasters_Save);
 
 	SG_UI_Msg_Lock(true);
 
-	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("NAME", pGrids->Get_Name()) )
+	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
+	&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
 	{
-		pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Del_Items();
+		SG_UI_Msg_Lock(false);
 
-		if( pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Add_Item(pGrids)
-		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
-		{
-			SG_UI_Msg_Lock(false);
-
-			return( true );
-		}
+		return( true );
 	}
 
 	SG_UI_Msg_Lock(false);

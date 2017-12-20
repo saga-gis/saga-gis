@@ -415,10 +415,17 @@ CSG_Grid * CWKSP_Grids::Get_Grid(int i)
 {
 	switch( i )
 	{
-	default: return( Get_Grids()->Get_Grid_Ptr(m_Parameters("BAND_R")->asInt()) );
-	case  1: return( Get_Grids()->Get_Grid_Ptr(m_Parameters("BAND_G")->asInt()) );
-	case  2: return( Get_Grids()->Get_Grid_Ptr(m_Parameters("BAND_B")->asInt()) );
+	default: i	= m_Parameters("BAND_R")->asInt(); break;
+	case  1: i	= m_Parameters("BAND_G")->asInt(); break;
+	case  2: i	= m_Parameters("BAND_B")->asInt(); break;
 	}
+
+	if( i >= Get_Grids()->Get_NZ() )
+	{
+		i	= Get_Grids()->Get_NZ() - 1;
+	}
+
+	return( i >= 0 ? Get_Grids()->Get_Grid_Ptr(i) : NULL );
 }
 
 
