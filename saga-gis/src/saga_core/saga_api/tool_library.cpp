@@ -206,7 +206,8 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 		s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Info(TLB_INFO_Name   ).c_str());
 		s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Info(TLB_INFO_Author ).c_str());
 		s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Info(TLB_INFO_Version).c_str());
-		s	+= SUMMARY_ADD_STR(_TL("File"   ), Get_File_Name()           .c_str());
+		s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_Library_Name        ().c_str());
+		s	+= SUMMARY_ADD_STR(_TL("File"   ), Get_File_Name           ().c_str());
 
 		s	+= "</table>";
 
@@ -690,9 +691,7 @@ bool CSG_Tool_Library_Manager::is_Loaded(CSG_Tool_Library *pLibrary) const
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, int ID)	const
 {
-	CSG_Tool_Library	*pLibrary	= Get_Library(Library, true);
-
-	return( pLibrary ? pLibrary->Get_Tool(CSG_String::Format("%d", ID)) : NULL );
+	return( Get_Tool(Library, CSG_String::Format("%d", ID)) );
 }
 
 //---------------------------------------------------------

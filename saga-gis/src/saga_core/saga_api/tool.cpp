@@ -1319,9 +1319,10 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			s	+= CSG_String::Format("<h4>%s</h4><table border=\"0\">", _TL("Tool"));
 
 			s	+= SUMMARY_ADD_STR(_TL("Name"   ), Get_Name   ().c_str());
-			s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
 			s	+= SUMMARY_ADD_STR(_TL("Author" ), Get_Author ().c_str());
 			s	+= SUMMARY_ADD_STR(_TL("Version"), Get_Version().c_str());
+			s	+= SUMMARY_ADD_STR(_TL("Library"), Get_Library().c_str());
+			s	+= SUMMARY_ADD_STR(_TL("ID"     ), Get_ID     ().c_str());
 
 			if( is_Interactive() && is_Grid() )
 			{
