@@ -709,5 +709,6 @@ tools = [
 ['ta_hydrology', 28, 'Flow between fields'],
 ['shapes_tools', 28, 'Copy Shapes'],
 ['table_tools', 21, 'Table Field Enumeration (Shapes)'],
-['table_tools', 22, 'Copy Table']
+['table_tools', 22, 'Copy Table'],
+['db_pgsql', 34, 'Export Grid Collection to PostGIS']
 ]
