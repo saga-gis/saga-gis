@@ -75,11 +75,11 @@ CTable_Enumerate::CTable_Enumerate(bool bShapes)
 	Set_Author("O.Conrad (c) 2017");
 
 	Set_Description(_TW(
-		"Enumeration of a table attribute, i.e. assign a unique "
-		"identifier to identical values of the chosen attribute field. "
-		"If no attribute is chosen a simple enumeration is done for "
+		"Enumeration of a table attribute, i.e. a unique identifier "
+		"is assigned to identical values of the chosen attribute field. "
+		"If no attribute is chosen, a simple enumeration is done for "
 		"all records, and this with respect to the sorting order "
-		"if the has been indexed. "
+		"if the dataset has been indexed.\n"
 	));
 
 	if( bShapes )
