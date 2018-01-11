@@ -364,17 +364,17 @@ bool CKriging_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pRegression->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Regression")));
-	pPrediction->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Prediction")));
+	pRegression->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), _TL("Regression")));
+	pPrediction->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), _TL("Prediction")));
 
 	if( Parameters("RESIDUALS")->asGrid() )
 	{
-		pResiduals->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Residuals")));
+		pResiduals->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), _TL("Residuals")));
 	}
 
 	if( pVariance )
 	{
-		pVariance ->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asGrid()->Get_Name(), Parameters("FIELD")->asString(), _TL("Quality")));
+		pVariance ->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), _TL("Quality")));
 	}
 
 	//-----------------------------------------------------
