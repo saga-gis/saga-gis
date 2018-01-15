@@ -206,6 +206,8 @@ bool CSG_Shape_Part::Assign(CSG_Shape_Part *pPart)
 {
 	if( _Alloc_Memory(pPart->Get_Count()) )
 	{
+		m_nPoints	= pPart->m_nPoints;
+
 		memcpy(m_Points, pPart->m_Points, m_nPoints * sizeof(TSG_Point));
  
 		if( m_Z && pPart->m_Z )

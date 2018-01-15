@@ -116,19 +116,23 @@ bool CSG_Shape_Points::On_Assign(CSG_Shape *pShape)
 
 	TSG_Vertex_Type	Vertex_Type	= Get_Vertex_Type();
 
+	if( pShape->Get_Type() == SHAPE_TYPE_Point )	// just in case...
+	{
+		Add_Point(pShape->Get_Point(0));
+
+		switch( Vertex_Type )
+		{
+		case SG_VERTEX_TYPE_XYZM:	Get_Part(0)->Set_M(pShape->Get_M(0), 0);
+		case SG_VERTEX_TYPE_XYZ :	Get_Part(0)->Set_Z(pShape->Get_Z(0), 0);
+		default:	break;
+		}
+
+		return( true );
+	}
+
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
-		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-		{
-			CSG_Shape::Add_Point(pShape->Get_Point(iPoint, iPart), iPart);
-
-			switch( Vertex_Type )
-			{
-			case SG_VERTEX_TYPE_XYZM:	CSG_Shape::Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
-			case SG_VERTEX_TYPE_XYZ :	CSG_Shape::Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
-			default:	break;
-			}
-		}
+		Add_Part(((CSG_Shape_Points *)pShape)->Get_Part(iPart));
 	}
  
 	return( true );
@@ -155,15 +159,11 @@ int CSG_Shape_Points::_Add_Part(void)
 //---------------------------------------------------------
 int CSG_Shape_Points::Add_Part(CSG_Shape_Part *pPart)
 {
-	if( pPart )
-	{
-		for(int iPoint=0, iPart=Get_Part_Count(); iPoint<pPart->Get_Count(); iPoint++)
-		{
-			Add_Point(pPart->Get_Point(iPoint), iPart);
+	int		iPart	= m_nParts;
 
-			if( Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
-				Set_Z(pPart->Get_Z(iPoint), Get_Point_Count(iPart) - 1, iPart);
-		}
+	if( pPart && _Add_Part() > iPart )
+	{
+		m_pParts[iPart]->Assign(pPart);
 	}
 
 	return( m_nParts );

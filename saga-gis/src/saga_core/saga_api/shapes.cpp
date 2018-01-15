@@ -364,21 +364,15 @@ bool CSG_Shapes::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 {
-	int			iShape;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes;
-
-	//-----------------------------------------------------
 	if(	pObject && pObject->is_Valid() && (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes || pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud) )
 	{
-		pShapes	= (CSG_Shapes *)pObject;
+		CSG_Shapes	*pShapes	= (CSG_Shapes *)pObject;
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes, pShapes->Get_Vertex_Type());
 
-		for(iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
-			pShape	= Add_Shape();
-			pShape->Assign(pShapes->Get_Shape(iShape));
+			Add_Shape(pShapes->Get_Shape(iShape));
 		}
 
 		SG_UI_Process_Set_Ready();
@@ -403,7 +397,7 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
-	SG_UI_Msg_Add(CSG_String::Format(SG_T("%s: %s..."), _TL("Save shapes"), File_Name.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save shapes"), File_Name.c_str()), true);
 
 	if( _Save_ESRI(File_Name) )
 	{
