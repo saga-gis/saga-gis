@@ -168,7 +168,7 @@ bool CInterpolation::On_Execute(void)
 	m_pPoints	= Parameters("POINTS")->asShapes();
 	m_zField	= Parameters("FIELD" )->asInt   ();
 
-	if( m_pPoints->Get_Count() < 3 )
+	if( m_pPoints->Get_Count() < 2 )
 	{
 		Error_Set(_TL("not enough points"));
 
