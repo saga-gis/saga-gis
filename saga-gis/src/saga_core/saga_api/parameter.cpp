@@ -1355,6 +1355,31 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, C
 
 	CSG_Rect	r	= pPoints->Get_Extent();
 
+	if( r.Get_Area() <= 0. )
+	{
+		if( r.Get_XRange() > 0. )
+		{
+			r.Assign(
+				r.Get_XMin(), r.Get_YCenter() - 0.5 * r.Get_XRange(),
+				r.Get_XMax(), r.Get_YCenter() + 0.5 * r.Get_XRange()
+			);
+		}
+		else if( r.Get_YRange() > 0. )
+		{
+			r.Assign(
+				r.Get_XCenter() - 0.5 * r.Get_YRange(), r.Get_YMin(),
+				r.Get_XCenter() + 0.5 * r.Get_YRange(), r.Get_YMax()
+			);
+		}
+		else
+		{
+			r.Assign(
+				r.Get_XCenter() - 1, r.Get_YCenter() - 1,
+				r.Get_XCenter() + 1, r.Get_YCenter() + 1
+			);
+		}
+	}
+
 	double	Size	= sqrt(r.Get_Area() / pPoints->Get_Count());	// edge length of a square given as average area per point (cell size)
 
 	int		Rows	= 1 + (int)(0.5 + r.Get_YRange() / Size);
