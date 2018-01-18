@@ -204,8 +204,8 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA GUI\n";
 	s	+= "SAGA Graphical User Interface\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2005-2017 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2017 by Volker Wichmann\n";
+	s	+= "Copyrights (c) 2005-2018 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2018 by Volker Wichmann\n";
 	s	+= "\n";
 	s	+= "GNU General Public License (GPL)\n";
 
@@ -214,8 +214,8 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "SAGA API\n";
 	s	+= "SAGA Application Programming Interface\n";
 	s	+= "\n";
-	s	+= "Copyrights (c) 2002-2017 by Olaf Conrad\n";
-	s	+= "Portions (c) 2008-2017 by Volker Wichmann\n";
+	s	+= "Copyrights (c) 2002-2018 by Olaf Conrad\n";
+	s	+= "Portions (c) 2008-2018 by Volker Wichmann\n";
 	s	+= "Portions (c) 2005-2006 by Victor Olaya\n";
 	s	+= "Portions (c) 2002 by Andre Ringeler\n";	// " (mat_formula.cpp)\n";
 	s	+= "\n";
