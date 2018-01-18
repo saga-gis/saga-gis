@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_gridding_EXPORT CShapes2Grid : public CSG_Tool  
+class CShapes2Grid : public CSG_Tool  
 {
 public:
 	CShapes2Grid(void);
@@ -97,30 +97,62 @@ protected:
 
 private:
 
-	int							m_Method_Multi, m_Method_Lines, m_Method_Polygon;
-
-	double						m_Value;
+	int							m_Multiple;
 
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Grid					*m_pGrid, *m_pCount, m_Count;
-
-	CSG_Shapes					*m_pShapes;
+	CSG_Grid					*m_pGrid, *m_pCount;
 
 
-	TSG_Data_Type				Get_Grid_Type			(int iType);
+	TSG_Data_Type				Get_Data_Type			(int Field);
 
-	void						Set_Value				(int x, int y);
+	void						Set_Value				(int x, int y, double Value);
 
-	void						Set_Points				(CSG_Shape *pShape);
+	void						Set_Points				(CSG_Shape *pShape, double Value);
 
-	void						Set_Line				(CSG_Shape *pShape);
-	void						Set_Line_A				(TSG_Point a, TSG_Point b);
-	void						Set_Line_B				(TSG_Point a, TSG_Point b);
+	void						Set_Line				(CSG_Shape *pShape, bool bFat, double Value);
+	void						Set_Line_Thin			(TSG_Point a, TSG_Point b, double Value);
+	void						Set_Line_Fat			(TSG_Point a, TSG_Point b, double Value);
 
-	void						Set_Polygon				(CSG_Shape *pShape);
-	void						Set_Polygon_Node		(CSG_Shape_Polygon *pPolygon);
-	void						Set_Polygon_Cell		(CSG_Shape_Polygon *pPolygon);
+	void						Set_Polygon				(CSG_Shape *pShape, bool bFat, double Value);
+	void						Set_Polygon				(CSG_Shape_Polygon *pPolygon, double Value);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPolygons2Grid : public CSG_Tool  
+{
+public:
+	CPolygons2Grid(void);
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+
+private:
+
+	int							m_Multiple;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+	CSG_Grid					*m_pGrid, *m_pCoverage;
+
+
+	TSG_Data_Type				Get_Data_Type			(int Field);
+
+	void						Set_Value				(int x, int y, double Value, double Coverage);
+
+	void						Set_Polygon				(CSG_Shape_Polygon *pPolygon, double Value);
 
 };
 

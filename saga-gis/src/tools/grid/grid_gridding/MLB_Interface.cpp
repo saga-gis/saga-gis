@@ -115,6 +115,7 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0:	return( new CShapes2Grid );
+	case  9:	return( new CPolygons2Grid );
 
 	case  1:	return( new CInterpolation_InverseDistance );
 	case  7:	return( new CInterpolation_AngularDistance );
