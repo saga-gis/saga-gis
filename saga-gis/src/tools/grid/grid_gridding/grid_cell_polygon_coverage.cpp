@@ -78,19 +78,13 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Grid(NULL,
-		"AREA"		, _TL("Area of Coverage"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL("Choose cell wise, if you have not many polygons. Polygon wise will show much better performance, if you have many (small) polygons."),
 		CSG_String::Format("%s|%s|",
@@ -99,7 +93,7 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 		), 1
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -108,17 +102,35 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 		), 1
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"SELECTION"	, _TL("Only Selected Polygons"),
 		_TL(""),
 		true
 	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+
+	m_Grid_Target.Add_Grid("AREA", _TL("Area of Coverage"), false);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Cell_Polygon_Coverage::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
+	}
+
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -128,7 +140,9 @@ int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameter
 		pParameters->Set_Enabled("SELECTION", pParameter->asShapes() && pParameter->asShapes()->Get_Selection_Count() > 0);
 	}
 
-	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -144,11 +158,11 @@ int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameter
 bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pArea	= Parameters("AREA")->asGrid();
-
 	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
-	if( pPolygons->Get_Count() <= 0 || !pPolygons->Get_Extent().Intersects(pArea->Get_Extent()) )
+	CSG_Grid	*pArea	= m_Grid_Target.Get_Grid("AREA");
+
+	if( pPolygons->Get_Count() <= 0 || pArea == NULL || !pPolygons->Get_Extent().Intersects(pArea->Get_Extent()) )
 	{
 		Error_Set(_TL("no spatial intersection between grid system and polygon layer"));
 
@@ -159,39 +173,48 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	bool	bSelection	= pPolygons->Get_Selection_Count() > 0 ? Parameters("SELECTION")->asBool() : false;
 
 	pArea->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Coverage")));
+	pArea->Set_NoData_Value(0.0);
 
+	DataObject_Add(pArea);
 	DataObject_Set_Colors(pArea, 11, SG_COLORS_RED_GREEN, true);
 
 	//-----------------------------------------------------
 	if( Parameters("METHOD")->asInt() == 0 )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			double	py	= Get_YMin() + Get_Cellsize() * (y - 0.5);
+		CSG_Grid_System	s(pArea->Get_System());
 
+		for(int y=0; y<s.Get_NY() && Set_Progress(y, s.Get_NY()); y++)
+		{
+			double	py	= s.Get_YMin() + s.Get_Cellsize() * (y - 0.5);
+
+			#ifndef _DEBUG
 			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
+			#endif
+			for(int x=0; x<s.Get_NX(); x++)
 			{
-				double	px	= Get_XMin() + Get_Cellsize() * (x - 0.5);
+				double	px	= s.Get_XMin() + s.Get_Cellsize() * (x - 0.5);
 
 				CSG_Shapes	Cell(SHAPE_TYPE_Polygon);
 				CSG_Shape_Polygon	*pCell	= (CSG_Shape_Polygon *)Cell.Add_Shape();
 
-				pCell->Add_Point(px                 , py                 );
-				pCell->Add_Point(px + Get_Cellsize(), py                 );
-				pCell->Add_Point(px + Get_Cellsize(), py + Get_Cellsize());
-				pCell->Add_Point(px                 , py + Get_Cellsize());
+				pCell->Add_Point(px                   , py                   );
+				pCell->Add_Point(px + s.Get_Cellsize(), py                   );
+				pCell->Add_Point(px + s.Get_Cellsize(), py + s.Get_Cellsize());
+				pCell->Add_Point(px                   , py + s.Get_Cellsize());
 
 				//---------------------------------------------
 				if( pPolygons->Get_Extent().Intersects(pCell->Get_Extent()) )
 				{
 					for(size_t i=0; pCell->Get_Area() > 0.0 && i<GET_NPOLYGONS; i++)
 					{
-						SG_Polygon_Difference(pCell, GET_POLYGON(i));
+						if( !SG_Polygon_Difference(pCell, GET_POLYGON(i)) )	// completely contained or identical > difference is empty !
+						{
+							pCell->Del_Parts();
+						}
 					}
 				}
 
-				pArea->Set_Value(x, y, Get_Cellarea() - pCell->Get_Area());
+				pArea->Set_Value(x, y, s.Get_Cellarea() > pCell->Get_Area() ? s.Get_Cellarea() - pCell->Get_Area() : 0.0);
 			}
 		}
 	}
@@ -210,7 +233,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asInt() == 1 )	// Percentage
 	{
-		pArea->Multiply(100.0 / Get_Cellarea());
+		pArea->Multiply(100.0 / pArea->Get_Cellarea());
 	}
 
 	//-----------------------------------------------------
@@ -225,48 +248,36 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, CSG_Grid *pArea)
 {
-	int	xMin = Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()); if( xMin <  0        ) xMin = 0;
-	int	xMax = Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMin = Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()); if( yMin <  0        ) yMin = 0;
-	int	yMax = Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	CSG_Grid_System	s(pArea->Get_System());
 
-	TSG_Point	p;	p.y	= Get_YMin() + Get_Cellsize() * yMin;
+	int	xMin = s.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()); if( xMin <  0          ) xMin = 0;
+	int	xMax = s.Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()); if( xMax >= s.Get_NX() ) xMax = s.Get_NX() - 1;
+	int	yMin = s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()); if( yMin <  0          ) yMin = 0;
+	int	yMax = s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()); if( yMax >= s.Get_NY() ) yMax = s.Get_NY() - 1;
 
-	for(int y=yMin; y<=yMax; y++, p.y+=Get_Cellsize())
+	CSG_Shapes Cell(SHAPE_TYPE_Polygon); CSG_Shape_Polygon *pCell = (CSG_Shape_Polygon *)Cell.Add_Shape();
+
+	TSG_Point	p;	p.y	= s.Get_YMin() + s.Get_Cellsize() * yMin;
+
+	for(int y=yMin; y<=yMax; y++, p.y+=s.Get_Cellsize())
 	{
-		p.x	= Get_XMin() + Get_Cellsize() * xMin;
+		p.x	= s.Get_XMin() + s.Get_Cellsize() * xMin;
 
-		for(int x=xMin; x<=xMax; x++, p.x+=Get_Cellsize())
+		for(int x=xMin; x<=xMax; x++, p.x+=s.Get_Cellsize())
 		{
-			double	Area	= Get_Area(pPolygon, p);
+			pCell->Add_Point(p.x - 0.5 * s.Get_Cellsize(), p.y - 0.5 * s.Get_Cellsize());
+			pCell->Add_Point(p.x - 0.5 * s.Get_Cellsize(), p.y + 0.5 * s.Get_Cellsize());
+			pCell->Add_Point(p.x + 0.5 * s.Get_Cellsize(), p.y + 0.5 * s.Get_Cellsize());
+			pCell->Add_Point(p.x + 0.5 * s.Get_Cellsize(), p.y - 0.5 * s.Get_Cellsize());
 
-			if( Area > 0.0 )
+			if( SG_Polygon_Intersection(pCell, pPolygon) && pCell->Get_Area() > 0.0 )
 			{
-				pArea->Add_Value(x, y, Area);
+				pArea->Add_Value(x, y, pCell->Get_Area());
 			}
 		}
 	}
 
 	return( true );
-}
-
-//---------------------------------------------------------
-double CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, TSG_Point p)
-{
-	CSG_Shapes	Cells(SHAPE_TYPE_Polygon);
-	CSG_Shape	*pCell	= Cells.Add_Shape();
-
-	pCell->Add_Point(p.x - 0.5 * Get_Cellsize(), p.y - 0.5 * Get_Cellsize());
-	pCell->Add_Point(p.x - 0.5 * Get_Cellsize(), p.y + 0.5 * Get_Cellsize());
-	pCell->Add_Point(p.x + 0.5 * Get_Cellsize(), p.y + 0.5 * Get_Cellsize());
-	pCell->Add_Point(p.x + 0.5 * Get_Cellsize(), p.y - 0.5 * Get_Cellsize());
-
-	if( SG_Polygon_Intersection(pCell, pPolygon) )
-	{
-		return( ((CSG_Shape_Polygon *)pCell)->Get_Area() );
-	}
-
-	return( 0.0 );
 }
 
 

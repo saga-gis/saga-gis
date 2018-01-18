@@ -76,25 +76,28 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Cell_Polygon_Coverage : public CSG_Tool_Grid  
+class CGrid_Cell_Polygon_Coverage : public CSG_Tool
 {
 public:
 	CGrid_Cell_Polygon_Coverage(void);
 
-//	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Grid Values") );	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid Values") );	}
 
 
 protected:
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool					Get_Area				(CSG_Shape_Polygon *pPolygon, CSG_Grid *pArea);
-	double					Get_Area				(CSG_Shape_Polygon *pPolygon, TSG_Point p);
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						Get_Area				(CSG_Shape_Polygon *pPolygon, CSG_Grid *pArea);
 
 };
 
