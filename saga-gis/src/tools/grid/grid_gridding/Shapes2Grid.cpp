@@ -922,11 +922,11 @@ bool CPolygons2Grid::On_Execute(void)
 	//-------------------------------------------------
 	CSG_Grid	Coverage;
 
-	m_pCoverage	= m_Grid_Target.Get_Grid("COVERAGE", SG_DATATYPE_Float);
+	m_pCoverage	= m_Grid_Target.Get_Grid("COVERAGE");
 
 	if( m_pCoverage == NULL )
 	{
-		Coverage.Create(m_pGrid->Get_System(), SG_DATATYPE_Word);
+		Coverage.Create(m_pGrid->Get_System());
 
 		m_pCoverage	= &Coverage;
 	}

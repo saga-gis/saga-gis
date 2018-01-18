@@ -130,6 +130,8 @@ class CPolygons2Grid : public CSG_Tool
 public:
 	CPolygons2Grid(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Polygons") );	}
+
 
 protected:
 

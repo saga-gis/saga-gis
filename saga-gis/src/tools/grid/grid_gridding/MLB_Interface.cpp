@@ -116,6 +116,7 @@ CSG_Tool *		Create_Tool(int i)
 	{
 	case  0:	return( new CShapes2Grid );
 	case  9:	return( new CPolygons2Grid );
+	case 10:	return( new CPolygonCategories2Grid );
 
 	case  1:	return( new CInterpolation_InverseDistance );
 	case  7:	return( new CInterpolation_AngularDistance );
@@ -129,7 +130,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  8:	return( new CGrid_Cell_Polygon_Coverage );
 
 	//-----------------------------------------------------
-	case 10:	return( NULL );
+	case 11:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

@@ -255,28 +255,290 @@ bool CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, CSG_Grid
 	int	yMin = s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()); if( yMin <  0          ) yMin = 0;
 	int	yMax = s.Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()); if( yMax >= s.Get_NY() ) yMax = s.Get_NY() - 1;
 
-	CSG_Shapes Cell(SHAPE_TYPE_Polygon); CSG_Shape_Polygon *pCell = (CSG_Shape_Polygon *)Cell.Add_Shape();
+	double	d	= 0.5 * s.Get_Cellsize();
 
-	TSG_Point	p;	p.y	= s.Get_YMin() + s.Get_Cellsize() * yMin;
-
-	for(int y=yMin; y<=yMax; y++, p.y+=s.Get_Cellsize())
+	#pragma omp parallel for
+	for(int y=yMin; y<=yMax; y++)
 	{
+		CSG_Shapes Cell(SHAPE_TYPE_Polygon); CSG_Shape_Polygon *pCell = (CSG_Shape_Polygon *)Cell.Add_Shape();
+
+		TSG_Point	p;	p.y	= s.Get_YMin() + s.Get_Cellsize() * y;
+
 		p.x	= s.Get_XMin() + s.Get_Cellsize() * xMin;
 
 		for(int x=xMin; x<=xMax; x++, p.x+=s.Get_Cellsize())
 		{
-			pCell->Add_Point(p.x - 0.5 * s.Get_Cellsize(), p.y - 0.5 * s.Get_Cellsize());
-			pCell->Add_Point(p.x - 0.5 * s.Get_Cellsize(), p.y + 0.5 * s.Get_Cellsize());
-			pCell->Add_Point(p.x + 0.5 * s.Get_Cellsize(), p.y + 0.5 * s.Get_Cellsize());
-			pCell->Add_Point(p.x + 0.5 * s.Get_Cellsize(), p.y - 0.5 * s.Get_Cellsize());
+			pCell->Add_Point(p.x - d, p.y - d);
+			pCell->Add_Point(p.x - d, p.y + d);
+			pCell->Add_Point(p.x + d, p.y + d);
+			pCell->Add_Point(p.x + d, p.y - d);
 
 			if( SG_Polygon_Intersection(pCell, pPolygon) && pCell->Get_Area() > 0.0 )
 			{
 				pArea->Add_Value(x, y, pCell->Get_Area());
 			}
+
+			pCell->Del_Parts();
 		}
 	}
 
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPolygonCategories2Grid::CPolygonCategories2Grid(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Polygon Categories to Grid"));
+
+	Set_Author		("O.Conrad (c) 2018");
+
+	Set_Description	(_TW(
+		"This tool has been designed to rasterize polygons representing "
+		"categories and selects that category, which has maximum coverage "
+		"of a cell. The advantage using this tool (instead the more simple "
+		"'Shapes to Grid' or 'Polygons to Grid' tools) is that it summarizes "
+		"all polygon coverages belonging to the same category. "
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Table_Field("POLYGONS",
+		"FIELD"		, _TL("Category"),
+		_TL("The attribute field that specifies the category a polygon belongs to.")
+	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
+		_TL("Choose cell wise, if you have not many polygons. Polygon wise will show much better performance, if you have many (small) polygons."),
+		CSG_String::Format("%s|%s|",
+			_TL("cell wise"),
+			_TL("polygon wise")
+		), 1
+	);
+
+	Parameters.Add_Choice("",
+		"MULTIPLE"	, _TL("Multiple Polygons"),
+		_TL("Output value for cells that intersect wiht more than one polygon."),
+		CSG_String::Format("%s|%s|",
+			_TL("minimum coverage"),
+			_TL("maximum coverage")
+		), 1
+	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+
+	m_Grid_Target.Add_Grid("CATEGORY", _TL("Category"), false);
+	m_Grid_Target.Add_Grid("COVERAGE", _TL("Coverage"),  true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPolygonCategories2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
+	}
+
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CPolygonCategories2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPolygonCategories2Grid::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+
+	CSG_Grid	*pCategory	= m_Grid_Target.Get_Grid("CATEGORY", SG_DATATYPE_Int);
+
+	if( pPolygons->Get_Count() <= 0 || pCategory == NULL || !pPolygons->Get_Extent().Intersects(pCategory->Get_Extent()) )
+	{
+		Error_Set(_TL("no spatial intersection between grid system and polygon layer"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int	Field	= Parameters("FIELD")->asInt();
+
+	pCategory->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), pPolygons->Get_Field_Name(Field)));
+	pCategory->Set_NoData_Value(0.);
+
+	//-----------------------------------------------------
+	if( !pPolygons->Set_Index(Field, TABLE_INDEX_Ascending) )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	Coverage, *pCoverage	= m_Grid_Target.Get_Grid("COVERAGE");
+
+	if( pCoverage == NULL )
+	{
+		Coverage.Create(pCategory->Get_System());
+
+		pCoverage	= &Coverage;
+	}
+
+	pCoverage->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Coverage")));
+	pCoverage->Set_NoData_Value(0.);
+	pCoverage->Assign(0.);
+
+	//-----------------------------------------------------
+	CSG_Table	Classes;
+
+	Classes.Add_Field("COLOR"      , SG_DATATYPE_Color );
+	Classes.Add_Field("NAME"       , SG_DATATYPE_String);
+	Classes.Add_Field("DESCRIPTION", SG_DATATYPE_String);
+	Classes.Add_Field("MINIMUM"    , SG_DATATYPE_Double);
+	Classes.Add_Field("MAXIMUM"    , SG_DATATYPE_Double);
+
+	//-----------------------------------------------------
+	CSG_String	Category;
+
+	pPolygons->Select();	// clear selection
+
+	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape_byIndex(i);
+
+		if( Category.Cmp(pPolygon->asString(Field)) )	// new category
+		{
+			Set_Category(pPolygons, pCategory, pCoverage, Classes, Category);	// also clears selection
+
+			Category	= pPolygon->asString(Field);
+		}
+
+		pPolygons->Select(pPolygon, true);
+	}
+
+	Set_Category(pPolygons, pCategory, pCoverage, Classes, Category);
+
+	//-----------------------------------------------------
+	DataObject_Add(pCategory);
+
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCategory, "LUT");
+
+	if( pLUT && pLUT->asTable() && pLUT->asTable()->Create(Classes) )
+	{
+		DataObject_Set_Parameter(pCategory, pLUT);
+		DataObject_Set_Parameter(pCategory, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCategory, CSG_Grid *pCoverage, CSG_Table &Classes, const CSG_String &Category)
+{
+	if( pPolygons->Get_Selection_Count() <= 0 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	Coverage(pCoverage->Get_System());
+
+	CGrid_Cell_Polygon_Coverage	Get_Coverage;
+
+	Get_Coverage.Set_Manager(NULL);
+
+	Get_Coverage.Set_Parameter("POLYGONS"         , pPolygons);
+	Get_Coverage.Set_Parameter("METHOD"           , Parameters("METHOD"));
+	Get_Coverage.Set_Parameter("OUTPUT"           , 0);	// area (not percentage)
+	Get_Coverage.Set_Parameter("TARGET_DEFINITION", 1);	// grid or grid system
+	Get_Coverage.Set_Parameter("AREA"             , &Coverage);
+
+	SG_UI_ProgressAndMsg_Lock(true);
+
+	if( !Get_Coverage.Execute() )
+	{
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		pPolygons->Select();	// clear selection
+
+		return( false );
+	}
+
+	SG_UI_ProgressAndMsg_Lock(false);
+
+	pPolygons->Select();	// clear selection
+
+	//-----------------------------------------------------
+	CSG_Table_Record	&Class	= *Classes.Add_Record();
+
+	Class.Set_Value(0, SG_Color_Get_Random());
+	Class.Set_Value(1, Category);
+	Class.Set_Value(3, Classes.Get_Count());
+	Class.Set_Value(4, Classes.Get_Count());
+
+	int	Multiple	= Parameters("MULTIPLE")->asInt();
+
+	#pragma omp parallel for
+	for(sLong i=0; i<pCategory->Get_NCells(); i++)
+	{
+		switch( Multiple )
+		{
+		case  0:	// minimum
+			if( pCoverage->asDouble(i) <= 0. || Coverage.asDouble(i) < pCoverage->asDouble(i) )
+			{
+				pCategory->Set_Value(i, Classes.Get_Count());
+				pCoverage->Set_Value(i, Coverage.asDouble(i));
+			}
+			break;
+
+		default:	// maximum
+			if( Coverage.asDouble(i) > pCoverage->asDouble(i) )
+			{
+				pCategory->Set_Value(i, Classes.Get_Count());
+				pCoverage->Set_Value(i, Coverage.asDouble(i));
+			}
+			break;
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
