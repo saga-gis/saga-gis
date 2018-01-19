@@ -297,6 +297,17 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 			"FIELD"		, _TL("Attribute"),
 			_TL("")
 		);
+
+		m_Parameters.Add_Choice("POINTS",
+			"RESAMPLING", _TL("Resampling"),
+			_TL(""),
+			CSG_String::Format("%s|%s|%s|%s|",
+				_TL("Nearest Neighbour"),
+				_TL("Bilinear Interpolation"),
+				_TL("Bicubic Spline Interpolation"),
+				_TL("B-Spline Interpolation")
+			), 3
+		);
 	}
 	else if( m_pGrids )
 	{
@@ -879,6 +890,16 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	CSG_Shapes	*pPoints	= m_Parameters("POINTS")->asShapes();
 	int			Field		= m_Parameters("FIELD" )->asInt();
 
+	TSG_Grid_Resampling	Resampling;
+
+	switch( m_Parameters("RESAMPLING")->asInt() )
+	{
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
+	}
+
 	CHECK_DATA(m_pGrid);
 	CHECK_DATA(pPoints);
 
@@ -899,7 +920,7 @@ bool CVIEW_ScatterPlot::_Initialize_Shapes(void)
 	{
 		CSG_Shape	*pShape	= pPoints->Get_Shape((int)i);
 
-		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z) )
+		if( !pShape->is_NoData(Field) && m_pGrid->Get_Value(pShape->Get_Point(0), z, Resampling) )
 		{
 			m_Regression.Add_Values(z, pShape->asDouble(Field));
 		}
