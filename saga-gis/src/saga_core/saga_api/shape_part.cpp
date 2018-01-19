@@ -209,18 +209,25 @@ bool CSG_Shape_Part::Assign(CSG_Shape_Part *pPart)
 		m_nPoints	= pPart->m_nPoints;
 
 		memcpy(m_Points, pPart->m_Points, m_nPoints * sizeof(TSG_Point));
+
+		m_Extent	= pPart->m_Extent;
  
 		if( m_Z && pPart->m_Z )
 		{
 			memcpy(m_Z, pPart->m_Z, m_nPoints * sizeof(double));
+
+			m_ZMin	= pPart->m_ZMin;
+			m_ZMax	= pPart->m_ZMax;
 		}
 
 		if( m_M && pPart->m_M )
 		{
 			memcpy(m_M, pPart->m_M, m_nPoints * sizeof(double));
+
+			m_MMin	= pPart->m_MMin;
+			m_MMax	= pPart->m_MMax;
 		}
 
-		m_Extent	= pPart->m_Extent;
 		m_bUpdate	= pPart->m_bUpdate;
 
 		if( m_pOwner )
