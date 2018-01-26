@@ -793,9 +793,22 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
 	if( Get_Layer(pLayer) < 0 )
 	{
-		if( Get_Count() == 0 || m_Parameters("GOTO_NEWLAYER")->asBool() )
+		if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
 		{
-			Set_Extent(pLayer->Get_Extent());
+			switch( pLayer->Get_Object()->Get_ObjectType() )
+			{
+			case SG_DATAOBJECT_TYPE_Shapes:
+			case SG_DATAOBJECT_TYPE_PointCloud:
+			case SG_DATAOBJECT_TYPE_TIN:
+				if( ((CSG_Table *)pLayer->Get_Object())->Get_Count() <= 0 )
+				{
+					break;
+				}
+
+			default:
+				Set_Extent(pLayer->Get_Extent());
+				break;
+			}
 		}
 
 		if( Get_Count() == 0 )
