@@ -159,7 +159,7 @@ CGrids_Create::CGrids_Create(void)
 		"COPY"		, _TL("Copy from Grid Collection"),
 		_TL(""),
 		PARAMETER_INPUT, false
-	);
+	)->ignore_Projection(true);
 
 	Parameters.Add_Bool("COPY",
 		"COPY_SET"	, _TL("Copy Settings"),
@@ -201,7 +201,8 @@ int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 	{
 		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("TABLE"  , pParameter->asInt() == 2);
-		pParameters->Set_Enabled("COPY"   , pParameter->asInt() == 3);
+
+		pParameters->Set_Enabled(pParameters->Get("COPY")->Get_Parent()->Get_Identifier(), pParameter->asInt() == 3);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )

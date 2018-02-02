@@ -929,6 +929,11 @@ bool CWKSP_Grids::Fit_Colors(void)
 //---------------------------------------------------------
 bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
 {
+	if( Get_Grids()->Get_NZ() <= 0 )
+	{
+		return( false );
+	}
+
 	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
 	||  m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED )
 	{
@@ -1303,6 +1308,22 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
+	if(	dc_Map.m_DC2World >= Get_Grids()->Get_Cellsize() || Resampling != GRID_RESAMPLING_NearestNeighbour )
+	{
+		_Draw_Grid_Nodes(dc_Map, Resampling);
+	}
+	else
+	{
+		_Draw_Grid_Cells(dc_Map);
+	}
+
+	//-----------------------------------------------------
+	dc_Map.IMG_Draw_End();
+}
+
+//---------------------------------------------------------
+void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
+{
 	CSG_Grid	*pBands[3];
 
 	if( m_pClassify->Get_Mode() == CLASSIFY_OVERLAY )
@@ -1313,27 +1334,10 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 	else
 	{
-		pBands[0]	= Get_Grid();
+		pBands[0] = pBands[1] = pBands[2] = Get_Grid();
 	}
 
 	//-----------------------------------------------------
-	if(	dc_Map.m_DC2World >= Get_Grids()->Get_Cellsize()
-	||	Resampling != GRID_RESAMPLING_NearestNeighbour )
-	{
-		_Draw_Grid_Points	(dc_Map, pBands, Resampling);
-	}
-	else
-	{
-		_Draw_Grid_Cells	(dc_Map, pBands);
-	}
-
-	//-----------------------------------------------------
-	dc_Map.IMG_Draw_End();
-}
-
-//---------------------------------------------------------
-void CWKSP_Grids::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], TSG_Grid_Resampling Resampling)
-{
 	CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Intersect(Get_Grids()->Get_Extent(true));
 
 	int	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
@@ -1342,18 +1346,20 @@ void CWKSP_Grids::_Draw_Grid_Points(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], T
 	int	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	int	nyDC	= abs(ayDC - byDC);
 
+	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
+
+	#ifndef _DEBUG
 	#pragma omp parallel for
+	#endif
 	for(int iyDC=0; iyDC<=nyDC; iyDC++)
 	{
-		_Draw_Grid_Line(dc_Map, pBands, Resampling, 0, ayDC - iyDC, axDC, bxDC);
+		_Draw_Grid_Nodes(dc_Map, Resampling, pBands, bBandWise, ayDC - iyDC, axDC, bxDC);
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Grids::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], TSG_Grid_Resampling Resampling, int Mode, int yDC, int axDC, int bxDC)
+void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, CSG_Grid *pBands[3], bool bBandWise, int yDC, int axDC, int bxDC)
 {
-	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
-
 	double	xMap	= dc_Map.xDC2World(axDC);
 	double	yMap	= dc_Map.yDC2World( yDC);
 
@@ -1407,10 +1413,24 @@ void CWKSP_Grids::_Draw_Grid_Line(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3], TSG
 }
 
 //---------------------------------------------------------
-void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map, CSG_Grid *pBands[3])
+void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 {
 	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
 
+	CSG_Grid	*pBands[3];
+
+	if( m_pClassify->Get_Mode() == CLASSIFY_OVERLAY )
+	{
+		pBands[0]	= Get_Grid(0);
+		pBands[1]	= Get_Grid(1);
+		pBands[2]	= Get_Grid(2);
+	}
+	else
+	{
+		pBands[0] = pBands[1] = pBands[2] = Get_Grid();
+	}
+
+	//-----------------------------------------------------
 	int		x, y, xa, ya, xb, yb, xaDC, yaDC, xbDC, ybDC;
 	double	xDC, yDC, axDC, ayDC, dDC;
 

@@ -141,10 +141,6 @@ private:
 
 	bool						_Fit_Colors				(CSG_Parameters &Parameters, double &Minimum, double &Maximum);
 
-	void						_Set_Shading			(double Shade, int &Color);
-	int							_Get_Shading			(double x, double y, int Color, TSG_Grid_Resampling Resampling);
-	int							_Get_Shading			(int    x, int    y, int Color);
-
 	void						_LUT_Create				(void);
 
 	bool						_Edit_Clr_Selection		(void);
@@ -153,9 +149,13 @@ private:
 	bool						_Save_Image				(void);
 	bool						_Save_Image_Clipboard	(void);
 
-	void						_Draw_Grid_Points		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
-	void						_Draw_Grid_Line			(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int Mode, CWKSP_Grid *pOverlay[2], int yDC, int axDC, int bxDC);
+	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
+	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC);
 	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
+
+	void						_Set_Shading			(double Shade, int &Color);
+	int							_Get_Shading			(double x, double y, int Color, TSG_Grid_Resampling Resampling);
+	int							_Get_Shading			(int    x, int    y, int Color);
 
 	void						_Draw_Values			(CWKSP_Map_DC &dc_Map);
 	void						_Draw_Edit				(CWKSP_Map_DC &dc_Map);
