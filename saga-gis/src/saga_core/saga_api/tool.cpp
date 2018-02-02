@@ -339,23 +339,22 @@ bool CSG_Tool::Execute(void)
 //---------------------------------------------------------
 bool CSG_Tool::_Synchronize_DataObjects(void)
 {
-	int				i;
-	CSG_Projection	Projection;
-
 	Parameters.DataObjects_Synchronize();
 
-	for(i=0; i<m_npParameters; i++)
+	for(int i=0; i<m_npParameters; i++)
 	{
 		m_pParameters[i]->DataObjects_Synchronize();
 	}
+
+	CSG_Projection	Projection;
 
 	if( do_Sync_Projections() && Get_Projection(Projection) )
 	{
 		Parameters.DataObjects_Set_Projection(Projection);
 
-		for(i=0; i<m_npParameters; i++)
+		for(int j=0; j<m_npParameters; j++)
 		{
-			m_pParameters[i]->DataObjects_Set_Projection(Projection);
+			m_pParameters[j]->DataObjects_Set_Projection(Projection);
 		}
 
 		return( true );
@@ -369,30 +368,11 @@ bool CSG_Tool::Get_Projection(CSG_Projection &Projection)	const
 {
 	Projection.Destroy();
 
-	if( !Parameters.DataObjects_Get_Projection(Projection) )
-	{
-		return( false );
-	}
+	Parameters.DataObjects_Get_Projection(Projection);
 
-	for(int i=0; i<m_npParameters; i++)
+	for(int i=0; i<m_npParameters && !Projection.is_Okay(); i++)
 	{
-		CSG_Projection	P;
-
-		if( !m_pParameters[i]->DataObjects_Get_Projection(P) )
-		{
-			return( false );
-		}
-		else if( P.is_Okay() )
-		{
-			if( !Projection.is_Okay() )
-			{
-				Projection	= P;
-			}
-			else if( Projection != P )
-			{
-				return( false );
-			}
-		}
+		m_pParameters[i]->DataObjects_Get_Projection(Projection);
 	}
 
 	return( Projection.is_Okay() );

@@ -1411,8 +1411,6 @@ public:
 	bool							Set_Enabled				(bool bEnabled = true);
 	bool							is_Enabled				(void)	const;
 
-	bool							ignore_Projection		(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
-
 	bool							is_Valid				(void)	const	{	return( m_pData->is_Valid() );		}
 	bool							is_Input				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	        );	}
 	bool							is_Output				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)        );	}
@@ -1431,6 +1429,9 @@ public:
 
 	bool							do_UseInGUI				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_GUI)   );	}
 	bool							do_UseInCMD				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_CMD)   );	}
+
+	void							ignore_Projection		(bool bIgnore);
+	bool							ignore_Projection		(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
 
 	TSG_Data_Object_Type			Get_DataObject_Type		(void)	const;
 

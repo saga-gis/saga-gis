@@ -1629,32 +1629,15 @@ bool CSG_Parameters::DataObjects_Synchronize(void)
 //---------------------------------------------------------
 bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	const
 {
-	for(int i=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count() && !Projection.is_Okay(); i++)
 	{
 		CSG_Parameter	*p	= m_Parameters[i];
 
-		if( !p->ignore_Projection() )
+		if( p->is_Enabled() && !p->ignore_Projection() )
 		{
-			CSG_Projection	P;
-
 			if( p->Get_Type() == PARAMETER_TYPE_Parameters )
 			{
-				if( !p->asParameters()->DataObjects_Get_Projection(P) )
-				{
-					return( false );
-				}
-
-				if( P.is_Okay() )
-				{
-					if( !Projection.is_Okay() )
-					{
-						Projection	= P;
-					}
-					else if( Projection != P )
-					{
-						return( false );
-					}
-				}
+				p->asParameters()->DataObjects_Get_Projection(Projection);
 			}
 			else if( p->is_Input() )
 			{
@@ -1662,37 +1645,13 @@ bool CSG_Parameters::DataObjects_Get_Projection(CSG_Projection &Projection)	cons
 				&&  p->asDataObject() != DATAOBJECT_NOTSET
 				&&  p->asDataObject() != DATAOBJECT_CREATE )
 				{
-					P	= p->asDataObject()->Get_Projection();
-
-					if( P.is_Okay() )
-					{
-						if( !Projection.is_Okay() )
-						{
-							Projection	= P;
-						}
-						else if( Projection != P )
-						{
-							return( false );
-						}
-					}
+					Projection	= p->asDataObject()->Get_Projection();
 				}
 				else if( p->is_DataObject_List() )
 				{
-					for(int j=0; j<p->asList()->Get_Item_Count(); j++)
+					for(int j=0; j<p->asList()->Get_Item_Count() && !Projection.is_Okay(); j++)
 					{
-						P	= p->asList()->Get_Item(j)->Get_Projection();
-
-						if( P.is_Okay() )
-						{
-							if( !Projection.is_Okay() )
-							{
-								Projection	= P;
-							}
-							else if( Projection != P )
-							{
-								return( false );
-							}
-						}
+						Projection	= p->asList()->Get_Item(j)->Get_Projection();
 					}
 				}
 			}

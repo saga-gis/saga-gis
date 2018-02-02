@@ -231,6 +231,19 @@ void CSG_Parameter::Set_UseInCMD(bool bDoUse)
 	}
 }
 
+//---------------------------------------------------------
+void CSG_Parameter::ignore_Projection(bool bIgnore)
+{
+	if( bIgnore )
+	{
+		m_pData->m_Constraint	&= ~PARAMETER_IGNORE_PROJECTION;
+	}
+	else
+	{
+		m_pData->m_Constraint	|=  PARAMETER_IGNORE_PROJECTION;
+	}
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
