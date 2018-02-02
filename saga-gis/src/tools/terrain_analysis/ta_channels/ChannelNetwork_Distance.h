@@ -98,20 +98,20 @@ private:
 
 	double					m_Flow_B, m_Flow_K, m_Flow_R;
 
-	CSG_Grid				*m_pDEM, *m_pRoute, m_Dir, m_Flow[9], *m_pFlow_K, *m_pFlow_R,
+	CSG_Grid				*m_pDEM, *m_pChannels, *m_pRoute, *m_pFlow_K, *m_pFlow_R,
 							*m_pDistance, *m_pDistVert, *m_pDistHorz,
 							*m_pFields, *m_pPasses, *m_pTime, *m_pSDR;
 
 
+	bool					is_Channel				(int x, int y, bool bBoundary);
+
 	double					Get_Travel_Time			(int x, int y, int Direction);
 
-	void					Initialize_D8			(void);
-	void					Initialize_D8			(int x, int y);
-	void					Execute_D8				(int x, int y);
+	bool					Get_D8					(int x, int y, int &Direction);
+	bool					Set_D8					(int x, int y);
 
-	void					Initialize_MFD			(void);
-	void					Initialize_MFD			(int x, int y);
-	void					Execute_MFD				(int x, int y);
+	bool					Get_MFD					(int x, int y, CSG_Vector &Flow);
+	bool					Set_MFD					(int x, int y);
 
 };
 
