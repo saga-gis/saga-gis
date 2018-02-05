@@ -835,7 +835,7 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 		CSG_String::Format("%s|%s|",
 			_TL("local"),
 			_TL("global")
-		)
+		), 1
 	);
 
 	m_pParameters->Add_Double(pNode->Get_Identifier(),
@@ -850,7 +850,7 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 		CSG_String::Format("%s|%s|",
 			_TL("maximum number of nearest points"),
 			_TL("all points within search distance")
-		)
+		), 1
 	);
 
 	if( m_nPoints_Min >= 0 )
