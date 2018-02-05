@@ -1752,62 +1752,65 @@ class SAGA_API_DLL_EXPORT CSG_Trend
 {
 public:
 	CSG_Trend(void);
-	virtual ~CSG_Trend(void);
 
-	bool						Set_Formula			(const SG_Char *Formula = NULL);
+	bool						Set_Formula			(const CSG_String &Formula);
 	CSG_String					Get_Formula			(int Type = SG_TREND_STRING_Complete);
 
-	int							Get_Parameter_Count	(void) const	{	return( m_Params.m_Count );		}
-	double *					Get_Parameters		(void) const	{	return( m_Params.m_A );			}
+	int							Get_Parameter_Count	(void) const	{	return( m_Params   .Get_Count() );	}
+	double *					Get_Parameters		(void) const	{	return( m_Params.m_A.Get_Data() );	}
+	bool						Init_Parameter		(const SG_Char &Variable, double Value);
 
 	void						Clr_Data			(void);
-	void						Set_Data			(double *xData, double *yData, int nData, bool bAdd = false);
-	void						Set_Data			(const CSG_Points &Data, bool bAdd = false);
-	void						Add_Data			(double x, double y);
-	int							Get_Data_Count		(void) const	{	return( m_Data.Get_Count() );	}
-	double						Get_Data_X			(int Index)		{	return( m_Data.Get_X(Index) );	}
-	double						Get_Data_Y			(int Index)		{	return( m_Data.Get_Y(Index) );	}
-	double						Get_Data_XMin		(void)			{	return( m_xMin );	}
-	double						Get_Data_XMax		(void)			{	return( m_xMax );	}
-	double						Get_Data_YMin		(void)			{	return( m_yMin );	}
-	double						Get_Data_YMax		(void)			{	return( m_yMax );	}
+	bool						Add_Data			(double  x, double  y);
+	void						Set_Data			(double *x, double *y, int n, bool bAdd = false);
+	void						Set_Data			(const CSG_Points &Data     , bool bAdd = false);
+	int							Get_Data_Count		(void)	const	{	return( m_Data.Get_NCols() );	}
+	double						Get_Data_X			(int i)	const	{	return( m_Data[0][i] );	}
+	double						Get_Data_Y			(int i)	const	{	return( m_Data[1][i] );	}
+	double						Get_Data_XMin		(void)	const	{	return( m_xMin );	}
+	double						Get_Data_XMax		(void)	const	{	return( m_xMax );	}
+	double						Get_Data_YMin		(void)	const	{	return( m_yMin );	}
+	double						Get_Data_YMax		(void)	const	{	return( m_yMax );	}
 
 	bool						Set_Max_Iterations	(int Iterations);
-	int							Get_Max_Iterations	(void)			{	return( m_Iter_Max);	}
+	int							Get_Max_Iterations	(void)	const	{	return( m_Iter_Max);	}
 	bool						Set_Max_Lambda		(double Lambda);
-	double						Get_Max_Lambda		(void)			{	return( m_Lambda_Max);	}
+	double						Get_Max_Lambda		(void)	const	{	return( m_Lambda_Max);	}
 
-	bool						Get_Trend			(double *xData, double *yData, int nData, const SG_Char *Formula = NULL);
-	bool						Get_Trend			(const CSG_Points &Data, const SG_Char *Formula = NULL);
+	bool						Get_Trend			(double *x, double *y, int n, const CSG_String &Formula);
+	bool						Get_Trend			(const CSG_Points &Data     , const CSG_String &Formula);
+	bool						Get_Trend			(const CSG_String &Formula);
 	bool						Get_Trend			(void);
 
-	bool						is_Okay				(void)			{	return( m_bOkay );		}
+	bool						is_Okay				(void)	const	{	return( m_bOkay );	}
 
 	CSG_String					Get_Error			(void);
 
-	double						Get_ChiSquare		(void);
-	double						Get_R2				(void);
+	double						Get_ChiSquare		(void)	const	{	return( m_bOkay ? m_ChiSqr   : 0.0 );	}
+	double						Get_R2				(void)	const	{	return( m_bOkay ? m_ChiSqr_o : 0.0 );	}
 
-	double						Get_Value			(double x);
+	double						Get_Value			(double x)	const	{	return( m_bOkay ? m_Formula.Get_Value(x) : 0.0 );	}
 
 
 private:
 
 	//-----------------------------------------------------
-	class SAGA_API_DLL_EXPORT CFncParams
+	class SAGA_API_DLL_EXPORT CParams
 	{
 	public:
-		CFncParams(void);
-		virtual ~CFncParams(void);
+		CParams(void)	{}
 
-		bool					Create				(const SG_Char *Variables, int nVariables);
+		bool					Create				(const CSG_String &Variables);
 		bool					Destroy				(void);
 
-		int						m_Count;
+		int						Get_Count			(void)	const	{	return( (int)m_Variables.Length() );	}
 
-		SG_Char					*m_Variables;
 
-		double					*m_A, *m_Atry, *m_dA, *m_dA2, *m_Beta, **m_Alpha, **m_Covar;
+		CSG_String				m_Variables;
+
+		CSG_Vector				m_A, m_Atry, m_dA, m_dA2, m_Beta;
+
+		CSG_Matrix				m_Alpha, m_Covar;
 
 	};
 
@@ -1819,18 +1822,18 @@ private:
 
 	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max, m_xMin, m_xMax, m_yMin, m_yMax;
 
-	CSG_Points					m_Data;
+	CParams						m_Params;
 
-	CFncParams					m_Params;
+	CSG_Matrix					m_Data;
 
 	CSG_Formula					m_Formula;
 
 
 	bool						_Fit_Function		(void);
 	bool						_Get_Gaussj			(void);
-	bool						_Get_mrqcof			(double *Parameters, double **Alpha, double *Beta);
+	bool						_Get_mrqcof			(CSG_Vector &Parameters, CSG_Matrix &Alpha, CSG_Vector &Beta);
 
-	void						_Get_Function		(double x, double *Parameters, double &y, double *dy_da);
+	void						_Get_Function		(double &y, double *dy_da, double x, const double *Parameters);
 
 };
 
