@@ -382,15 +382,13 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	wxArrayString	Formulas;
 
-	Formulas.Add("a + b * x"                                                                   );	// 1st order polynom (linear)
-	Formulas.Add("a + b * x + c * x^2"                                                         );	// 2nd order polynom (quadric)
-	Formulas.Add("a + b * x + c * x^2 + d * x^3"                                               );	// 3rd order polynom (cubic)
-	Formulas.Add("a + b * x + c * x^2 + d * x^3 + e * x^4"                                     );	// 4th order polynom (quartic)
-	Formulas.Add("a + b * sqrt(x)"                                                             );	// square root
-	Formulas.Add("a + b * ln(x)"                                                               );	// logarithmic
-	Formulas.Add("a + b * x^c"                                                                 );	// exponential
-	Formulas.Add("n + (s - n) * (1 - exp(-(x / r)^2)); n=n; s=s; r=r"                          );	// gaussian
-	Formulas.Add("n + (s - n) * ifelse(x > r, 1, 1.5 * x / r - 0.5 * x^3 / r^3); n=n; s=s; r=r");	// spherical
+	Formulas.Add("linear"            );
+	Formulas.Add("linear (no nugget)");
+	Formulas.Add("square root"       );
+	Formulas.Add("logarithmic"       );
+	Formulas.Add("exponential"       );
+	Formulas.Add("gaussian"          );
+	Formulas.Add("spherical"         );
 
 	//-----------------------------------------------------
 	Add_Button(_TL("Ok"    ), wxID_OK);
@@ -405,7 +403,7 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	Add_Output(
 		m_pDiagram = new CVariogram_Diagram(this),
-		m_pFormula = new wxTextCtrl(this, wxID_ANY, Formulas[0], wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
+		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(0), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0
 	);
 
@@ -457,7 +455,7 @@ void CVariogram_Dialog::On_Update_Control(wxCommandEvent &WXUNUSED(event))
 
 void CVariogram_Dialog::On_Update_Choices(wxCommandEvent &WXUNUSED(event))
 {
-	m_pFormula->SetValue(m_pFormulas->GetStringSelection().c_str());
+	m_pFormula->SetValue(Get_Formula(m_pFormulas->GetSelection()));
 
 	Set_Model();
 }
@@ -527,8 +525,6 @@ void CVariogram_Dialog::Set_Model(void)
 				m_pModel->Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 			}
 		}
-
-		m_pModel->Get_Trend();
 	}
 
 	//-----------------------------------------------------
@@ -536,29 +532,34 @@ void CVariogram_Dialog::Set_Model(void)
 	{
 		m_pSummary->SetValue(m_pModel->Get_Error().c_str());
 	}
-	else if( !m_pModel->Get_Trend() )
-	{
-		m_pSummary->SetValue(_TL("function fitting failed !"));
-	}
 	else
 	{
-		wxString	s(m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str());
+		m_pModel->Init_Parameter('r', 0.5 * m_Distance);
 
-		if( m_pDiagram->m_bErrors )
+		if( !m_pModel->Get_Trend() )
 		{
-			s	+= wxString::Format("\n%s: %s\n", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
+			m_pSummary->SetValue(_TL("function fitting failed !"));
 		}
+		else
+		{
+			wxString	s(m_pModel->Get_Formula(SG_TREND_STRING_Function).c_str());
 
-		s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
-		s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
-		s	+= wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
-		s	+= wxString::Format("\n%s:\t%d"    , _TL("Lag Classes"     ), m_pVariogram->Get_Count());
-		s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Lag Distance"    ), m_Settings("LAGDIST")->asDouble());
-		s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Maximum Distance"), m_Settings("MAXDIST")->asDouble());
+			if( m_pDiagram->m_bErrors )
+			{
+				s	+= wxString::Format("\n%s: %s\n", _TL("Warning"), _TL("Function returns negative and/or decreasing values."));
+			}
 
-		m_pSummary->SetValue(s);
+			s	+= wxString::Format("\n%s:\t%.2f%%", _TL("Determination"   ), m_pModel->Get_R2() * 100.0);
+			s	+= wxString::Format("\n%s:\t%.*f"  , _TL("Fitting range"   ), SG_Get_Significant_Decimals(m_pDistance->Get_Value()), m_pDistance->Get_Value());
+			s	+= wxString::Format("\n%s:\t%d"    , _TL("Samples in range"), m_pModel->Get_Data_Count());
+			s	+= wxString::Format("\n%s:\t%d"    , _TL("Lag Classes"     ), m_pVariogram->Get_Count());
+			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Lag Distance"    ), m_Settings("LAGDIST")->asDouble());
+			s	+= wxString::Format("\n%s:\t%.2f"  , _TL("Maximum Distance"), m_Settings("MAXDIST")->asDouble());
 
-		m_Settings("MODEL")->Set_Value(m_pFormula->GetValue().wx_str());
+			m_pSummary->SetValue(s);
+
+			m_Settings("MODEL")->Set_Value(m_pFormula->GetValue().wx_str());
+		}
 	}
 
 	m_pDiagram->m_bPairs	= m_pPairs->GetValue();
@@ -566,6 +567,21 @@ void CVariogram_Dialog::Set_Model(void)
 	m_pDiagram->Refresh(true);
 
 	SG_UI_Process_Set_Okay();
+}
+
+//---------------------------------------------------------
+const char * CVariogram_Dialog::Get_Formula(int Index)
+{
+	switch( Index )
+	{
+	default: return( "a + b * x"                                                                    );	// linear
+	case  1: return( "b * x"                                                                        );	// linear (no nugget)
+	case  2: return( "a + b * sqrt(x)"                                                              );	// square root
+	case  3: return( "a + b * ln(1 + x)"                                                            );	// logarithmic
+	case  4: return( "a + b * x^c"                                                                  );	// exponential
+	case  5: return( "n + (s - n) * (1 - exp(-(x / r)^2)); n=n; s=s; r=r"                           );	// gaussian
+	case  6: return( "n + (s - n) * ifelse(x > r, 1, 1.5 * x / r - 0.5 * x^3 / r^3); n=n; s=s; r=r" );	// spherical
+	}
 }
 
 //---------------------------------------------------------

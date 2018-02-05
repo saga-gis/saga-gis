@@ -157,6 +157,8 @@ private:
 
 	void						Set_Variogram			(void);
 	void						Set_Model				(void);
+
+	const char *				Get_Formula				(int Index);
 	CSG_String					Get_Formula				(void);
 
 
