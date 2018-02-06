@@ -1268,7 +1268,7 @@ bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 //---------------------------------------------------------
 void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if(	Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
+	if( Get_Grids()->Get_NZ() < 1 || Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
 	{
 		return;
 	}
@@ -1348,9 +1348,7 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 
 	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
 
-	#ifndef _DEBUG
 	#pragma omp parallel for
-	#endif
 	for(int iyDC=0; iyDC<=nyDC; iyDC++)
 	{
 		_Draw_Grid_Nodes(dc_Map, Resampling, pBands, bBandWise, ayDC - iyDC, axDC, bxDC);
