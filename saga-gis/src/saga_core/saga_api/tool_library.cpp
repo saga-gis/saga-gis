@@ -159,7 +159,7 @@ CSG_String CSG_Tool_Library::Get_Info(int Type) const
 #define SUMMARY_ADD_INT(label, value)	CSG_String::Format("<tr><td valign=\"top\"><b>%s</b></td><td valign=\"top\">%d</td></tr>", label, value)
 
 //---------------------------------------------------------
-CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
+CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 {
 	bool	bToolChains	= Get_File_Name().is_Empty();
 
@@ -188,7 +188,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
+			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
 				s	+= " [" + Get_Tool(i)->Get_ID() + "]\t" + Get_Tool(i)->Get_Name() + "\n";
 			}
@@ -225,7 +225,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
+			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
 				s	+= SUMMARY_ADD_STR(Get_Tool(i)->Get_ID().c_str(), Get_Tool(i)->Get_Name().c_str());
 			}
@@ -247,7 +247,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bInteractive) const
 
 		for(i=0; i<Get_Count(); i++)
 		{
-			if( Get_Tool(i) && (bInteractive || !Get_Tool(i)->is_Interactive()) )
+			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
 				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_TOOL,
 					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
