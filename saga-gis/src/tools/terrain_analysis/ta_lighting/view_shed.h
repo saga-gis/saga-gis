@@ -82,7 +82,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -91,20 +93,19 @@ private:
 
 	double					m_Radius;
 
-	CSG_Points_Z			m_Direction;
-
 	CSG_Grid				*m_pDEM;
+
+	CSG_Points_Z			m_Direction;
 
 	CSG_Grid_Pyramid		m_Pyramid;
 
 
-	bool					Initialise				(int nDirections);
+	bool					Get_View_Shed			(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain, double &Distance);
 
 	bool					Get_Angles_Multi_Scale	(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances);
+
 	bool					Get_Angles_Sectoral		(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances);
 	void					Get_Angle_Sectoral		(int x, int y, int i, double &Angle, double &Distance);
-
-	bool					Get_View_Shed			(int x, int y, double &Sky_Visible, double &Sky_Factor, double &Sky_Simple, double &Sky_Terrain, double &Distance);
 
 };
 

@@ -75,123 +75,140 @@ CView_Shed::CView_Shed(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Sky View Factor"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Calculation of visible sky, sky view factor (SVF) and related parameters.\n"
-		"\n"
-		"References:\n"
-		"Boehner, J., Antonic, O. (2009): "
-		"'Land-surface parameters specific to topo-climatology'. "
-		"in: Hengl, T., Reuter, H. (Eds.): 'Geomorphometry - Concepts, Software, Applications'. "
-		"Developments in Soil Science, Volume 33, p.195-226, Elsevier\n"
-		"\n"
-		"Hantzschel, J., Goldberg, V., Bernhofer, C. (2005): "
-		"'GIS-based regionalisation of radiation, temperature and coupling measures in complex terrain for low mountain ranges'. "
-		"Meteorological Applications, V.12:01, p.33-42, doi:10.1017/S1350482705001489\n"
-		"\n"
-		"Oke, T.R. (2000): "
-		"'Boundary Layer Climates'. "
-		"Taylor & Francis, New York. 435pp.\n"
+		"Calculation of visible sky, sky view factor (SVF) and related parameters."
 	));
 
+	Add_Reference("Boehner, J., Antonic, O.", "2009",
+		"Land-surface parameters specific to topo-climatology",
+		"In: Hengl, T., Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier."
+	);
+
+	Add_Reference("Hantzschel, J., Goldberg, V., Bernhofer, C.", "2005",
+		"GIS-based regionalisation of radiation, temperature and coupling measures in complex terrain for low mountain ranges",
+		"Meteorological Applications, V.12:01, p.33-42, doi:10.1017/S1350482705001489."
+	);
+
+	Add_Reference("Oke, T.R.", "2000",
+		"Boundary Layer Climates",
+		"Taylor & Francis, New York. 435pp."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "VISIBLE"		, _TL("Visible Sky"),
+	Parameters.Add_Grid("",
+		"VISIBLE"	, _TL("Visible Sky"),
 		_TL("The unobstructed hemisphere given as percentage."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SVF"			, _TL("Sky View Factor"),
+	Parameters.Add_Grid("",
+		"SVF"		, _TL("Sky View Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SIMPLE"		, _TL("Sky View Factor (Simplified)"),
+	Parameters.Add_Grid("",
+		"SIMPLE"	, _TL("Sky View Factor (Simplified)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "TERRAIN"		, _TL("Terrain View Factor"),
+	Parameters.Add_Grid("",
+		"TERRAIN"	, _TL("Terrain View Factor"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("View Distance"),
-		_TL(""),
+	Parameters.Add_Grid("",
+		"DISTANCE"	, _TL("Average View Distance"),
+		_TL("Average distance to horizon."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Maximum Search Radius"),
+	Parameters.Add_Double("",
+		"RADIUS"	, _TL("Maximum Search Radius"),
 		_TL("The maximum search radius [map units]. This value is ignored if set to zero."),
-		PARAMETER_TYPE_Double	, 10000.0, 0.0, true
+		10000.0, 0.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Int("",
+		"NDIRS"		, _TL("Number of Sectors"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("multi scale"),
-			_TL("sectors")
-		), 1
+		8, 3, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DLEVEL"		, _TL("Multi Scale Factor"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 3.0, 1.25, true
+		CSG_String::Format("%s|%s|",
+			_TL("cell size"),
+			_TL("multi scale")
+		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NDIRS"		, _TL("Number of Sectors"),
+	Parameters.Add_Double("",
+		"DLEVEL"	, _TL("Multi Scale Factor"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 8.0, 3, true
+		3.0, 1.25, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CView_Shed::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("DLEVEL", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CView_Shed::On_Execute(void)
 {
-	CSG_Grid	*pVisible, *pSVF, *pSimple, *pTerrain, *pDistance;
+	m_pDEM		= Parameters("DEM")->asGrid();
 
-	m_pDEM		= Parameters("DEM"     )->asGrid();
-
-	pVisible	= Parameters("VISIBLE" )->asGrid();
-	pSVF		= Parameters("SVF"     )->asGrid();
-	pSimple		= Parameters("SIMPLE"  )->asGrid();
-	pTerrain	= Parameters("TERRAIN" )->asGrid();
-	pDistance	= Parameters("DISTANCE")->asGrid();
-
-	m_Radius	= Parameters("RADIUS"  )->asDouble();
-	m_Method	= Parameters("METHOD"  )->asInt();
-
-	DataObject_Set_Colors(pVisible	, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pSVF		, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pSimple	, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Colors(pTerrain	, 100, SG_COLORS_BLACK_WHITE, true);
-	DataObject_Set_Colors(pDistance	, 100, SG_COLORS_RED_GREY_GREEN, true);
+	CSG_Grid *pVisible	= Parameters("VISIBLE" )->asGrid(); DataObject_Set_Colors(pVisible ,  2, SG_COLORS_BLACK_WHITE);
+	CSG_Grid *pSVF		= Parameters("SVF"     )->asGrid(); DataObject_Set_Colors(pSVF     ,  2, SG_COLORS_BLACK_WHITE);
+	CSG_Grid *pSimple	= Parameters("SIMPLE"  )->asGrid(); DataObject_Set_Colors(pSimple  ,  2, SG_COLORS_BLACK_WHITE);
+	CSG_Grid *pTerrain	= Parameters("TERRAIN" )->asGrid(); DataObject_Set_Colors(pTerrain ,  2, SG_COLORS_BLACK_WHITE, true);
+	CSG_Grid *pDistance	= Parameters("DISTANCE")->asGrid(); DataObject_Set_Colors(pDistance, 11, SG_COLORS_RED_GREEN, true);
 
 	//-----------------------------------------------------
-	if( m_Method == 0 )	// multi scale
+	m_Radius	= Parameters("RADIUS")->asDouble();
+
+	m_Method	= Parameters("METHOD")->asInt();
+
+	switch( m_Method )
 	{
+	default:	// cell size
+		if( m_Radius <= 0.0 )
+		{
+			m_Radius	= Get_Cellsize() * M_GET_LENGTH(Get_NX(), Get_NY());
+		}
+		break;
+
+	case  1:	// multi scale
 		if( !m_Pyramid.Create(m_pDEM, Parameters("DLEVEL")->asDouble(), GRID_PYRAMID_Mean) )
 		{
 			return( false );
@@ -206,78 +223,55 @@ bool CView_Shed::On_Execute(void)
 				m_nLevels--;
 			}
 		}
+		break;
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Initialise(Parameters("NDIRS")->asInt());
+	m_Direction.Set_Count(Parameters("NDIRS")->asInt());
 
-	if( bResult )
+	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		if( m_Method != 0 && m_Radius <= 0.0 )
-		{
-			m_Radius	= Get_Cellsize() * M_GET_LENGTH(Get_NX(), Get_NY());
-		}
+		m_Direction[i].z	= (M_PI_360 * i) / m_Direction.Get_Count();
+		m_Direction[i].x	= sin(m_Direction[i].z);
+		m_Direction[i].y	= cos(m_Direction[i].z);
+	}
 
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
+			double	Visible, SVF, Simple, Terrain, Distance;
+
+			if( Get_View_Shed(x, y, Visible, SVF, Simple, Terrain, Distance) )
 			{
-				double	Visible, SVF, Simple, Terrain, Distance;
-
-				if( Get_View_Shed(x, y, Visible, SVF, Simple, Terrain, Distance) )
-				{
-					if( pVisible  )	pVisible ->Set_Value (x, y, Visible);
-					if( pSVF      )	pSVF	 ->Set_Value (x, y, SVF);
-					if( pSimple   )	pSimple	 ->Set_Value (x, y, Simple);
-					if( pTerrain  )	pTerrain ->Set_Value (x, y, Terrain);
-					if( pDistance )	pDistance->Set_Value (x, y, Distance);
-				}
-				else
-				{
-					if( pVisible  )	pVisible ->Set_NoData(x, y);
-					if( pSVF      )	pSVF	 ->Set_NoData(x, y);
-					if( pSimple   )	pSimple	 ->Set_NoData(x, y);
-					if( pTerrain  )	pTerrain ->Set_NoData(x, y);
-					if( pDistance )	pDistance->Set_NoData(x, y);
-				}
+				if( pVisible  )	pVisible ->Set_Value(x, y, Visible );
+				if( pSVF      )	pSVF	 ->Set_Value(x, y, SVF     );
+				if( pSimple   )	pSimple	 ->Set_Value(x, y, Simple  );
+				if( pTerrain  )	pTerrain ->Set_Value(x, y, Terrain );
+				if( pDistance )	pDistance->Set_Value(x, y, Distance);
+			}
+			else
+			{
+				if( pVisible  )	pVisible ->Set_NoData(x, y);
+				if( pSVF      )	pSVF	 ->Set_NoData(x, y);
+				if( pSimple   )	pSimple	 ->Set_NoData(x, y);
+				if( pTerrain  )	pTerrain ->Set_NoData(x, y);
+				if( pDistance )	pDistance->Set_NoData(x, y);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Pyramid	.Destroy();
-	m_Direction	.Clear();
-
-	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CView_Shed::Initialise(int nDirections)
-{
-	m_Direction.Set_Count(nDirections);
-
-	for(int i=0; i<nDirections; i++)
-	{
-		m_Direction[i].z	= (M_PI_360 * i) / nDirections;
-		m_Direction[i].x	= sin(m_Direction[i].z);
-		m_Direction[i].y	= cos(m_Direction[i].z);
-	}
+	m_Pyramid  .Destroy();
+	m_Direction.Clear();
 
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -294,20 +288,20 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 
 	switch( m_Method )
 	{
-	case 0:	if( !Get_Angles_Multi_Scale(x, y, Angles, Distances) )	return( false );	break;
-	case 1:	if( !Get_Angles_Sectoral   (x, y, Angles, Distances) )	return( false );	break;
+	default: if( !Get_Angles_Sectoral   (x, y, Angles, Distances) )	return( false ); break;
+	case  1: if( !Get_Angles_Multi_Scale(x, y, Angles, Distances) )	return( false ); break;
 	}
 
 	//-----------------------------------------------------
-	double	Slope, Aspect, sinSlope, cosSlope, Phi, sinPhi, cosPhi;
+	double	Slope, Aspect;
 
 	if( !m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
 	{
 		Slope	= Aspect	= 0.0;
 	}
 
-	sinSlope	= sin(Slope);
-	cosSlope	= cos(Slope);
+	double	sinSlope	= sin(Slope);
+	double	cosSlope	= cos(Slope);
 
 	Sky_Visible	= 0.0;
 	Sky_Factor	= 0.0;
@@ -316,9 +310,9 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 	//-----------------------------------------------------
 	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		Phi			= atan(Angles[i]);
-		cosPhi		= cos(Phi);
-		sinPhi		= sin(Phi);
+		double	Phi		= atan(Angles[i]);
+		double	cosPhi	= cos(Phi);
+		double	sinPhi	= sin(Phi);
 
 		Sky_Visible	+= (M_PI_090 - Phi) * 100.0 / M_PI_090;
 		Sky_Factor	+= cosSlope * cosPhi*cosPhi + sinSlope * cos(m_Direction[i].z - Aspect) * ((M_PI_090 - Phi) - sinPhi * cosPhi);
@@ -338,60 +332,51 @@ bool CView_Shed::Get_View_Shed(int x, int y, double &Sky_Visible, double &Sky_Fa
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CView_Shed::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances)
 {
-	if( !m_pDEM->is_NoData(x, y) )
+	double	d, z	= m_pDEM->asDouble(x, y);
+
+	TSG_Point	q, p	= Get_System()->Get_Grid_to_World(x, y);
+
+	Distances	= 0.0;
+
+	for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
 	{
-		double		z, d;
-		TSG_Point	p, q;
+		CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
 
-		z	= m_pDEM->asDouble(x, y);
-		p	= Get_System()->Get_Grid_to_World(x, y);
-
-		//-------------------------------------------------
-		for(int iGrid=-1; iGrid<m_nLevels; iGrid++)
+		for(int i=0; i<m_Direction.Get_Count(); i++)
 		{
-			CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
+			q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
+			q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
 
-			for(int i=0; i<m_Direction.Get_Count(); i++)
+			if( pGrid->Get_Value(q, d) && (d = (d - z) / pGrid->Get_Cellsize()) > Angles[i] )
 			{
-				q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
-				q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
-
-				if( pGrid->Get_Value(q, d) && (d = (d - z) / pGrid->Get_Cellsize()) > Angles[i] )
-				{
-					Angles   [i]	= d;
-					Distances[i]	= pGrid->Get_Cellsize();
-				}
+				Angles   [i]	= d;
+				Distances[i]	= pGrid->Get_Cellsize();
 			}
 		}
-
-		return( true );
 	}
 
-	return( false );
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CView_Shed::Get_Angles_Sectoral(int x, int y, CSG_Vector &Angles, CSG_Vector &Distances)
 {
-	if( !m_pDEM->is_NoData(x, y) )
+	for(int i=0; i<m_Direction.Get_Count(); i++)
 	{
-		//-------------------------------------------------
-		for(int i=0; i<m_Direction.Get_Count(); i++)
-		{
-			Get_Angle_Sectoral(x, y, i, Angles[i], Distances[i]);
-		}
-
-		return( true );
+		Get_Angle_Sectoral(x, y, i, Angles[i], Distances[i]);
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -405,11 +390,11 @@ void CView_Shed::Get_Angle_Sectoral(int x, int y, int i, double &Angle, double &
 	ix			= x;
 	iy			= y;
 	Angle		= 0.0;
-	Distance	= 0.0;
+	Distance	= m_Radius;
 	iDistance	= 0.0;
 	dDistance	= Get_Cellsize() * M_GET_LENGTH(dx, dy);
 
-	while( is_InGrid(x, y) && Distance <= m_Radius )
+	while( is_InGrid(x, y) && iDistance < m_Radius )
 	{
 		ix	+= dx;	x	= (int)(0.5 + ix);
 		iy	+= dy;	y	= (int)(0.5 + iy);
