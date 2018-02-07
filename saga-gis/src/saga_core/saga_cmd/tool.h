@@ -117,6 +117,7 @@ private:
 
 	bool						_Load_Input				(CSG_Parameter  *pParameter);
 	bool						_Save_Output			(CSG_Parameters *pParameters);
+	bool						_Save_Output			(CSG_Data_Object *pObject, const CSG_String &FileName);
 
 };
 
