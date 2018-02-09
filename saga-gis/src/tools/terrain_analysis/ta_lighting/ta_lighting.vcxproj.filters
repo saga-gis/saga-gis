@@ -41,6 +41,9 @@
     <ClCompile Include="Visibility_Points.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SolarRadiationYear.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -119,6 +122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Visibility_Points.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SolarRadiationYear.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

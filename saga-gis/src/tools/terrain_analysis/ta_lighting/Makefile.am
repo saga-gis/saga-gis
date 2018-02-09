@@ -14,6 +14,7 @@ libta_lighting_la_SOURCES =\
 HillShade.cpp\
 MLB_Interface.cpp\
 SolarRadiation.cpp\
+SolarRadiationYear.cpp\
 topographic_correction.cpp\
 topographic_openness.cpp\
 view_shed.cpp\
@@ -23,6 +24,7 @@ Visibility_Points.cpp\
 HillShade.h\
 MLB_Interface.h\
 SolarRadiation.h\
+SolarRadiationYear.h\
 topographic_correction.h\
 topographic_openness.h\
 view_shed.h\

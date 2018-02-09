@@ -305,6 +305,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="SolarRadiation.cpp" />
+    <ClCompile Include="SolarRadiationYear.cpp" />
     <ClCompile Include="topographic_correction.cpp" />
     <ClCompile Include="topographic_openness.cpp" />
     <ClCompile Include="view_shed.cpp" />
@@ -333,6 +334,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="SolarRadiation.h" />
+    <ClInclude Include="SolarRadiationYear.h" />
     <ClInclude Include="topographic_correction.h" />
     <ClInclude Include="topographic_openness.h" />
     <ClInclude Include="view_shed.h" />
