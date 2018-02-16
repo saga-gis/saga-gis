@@ -197,7 +197,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 		if( Record_Header.asInt(0, true) != iShape + 1 )					// record number
 		{
-			SG_UI_Msg_Add_Error(_TL("corrupted shapefile."));
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s (%d != %d)", _TL("corrupted shapefile."), Record_Header.asInt(0, true), iShape + 1));
 
 			return( false );
 		}
@@ -220,9 +220,10 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 		if( fDBF.isDeleted() )
 		{
-			// nop
+			continue;	// nop
 		}
-		else if( Content.asInt(0) != Type )
+
+		if( Content.asInt(0) != Type )
 		{
 			if( Content.asInt(0) == 0 )
 			{
@@ -254,9 +255,9 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
-				case SG_VERTEX_TYPE_XYZM:	pShape->Set_M(Content.asDouble(28), 0);
-				case SG_VERTEX_TYPE_XYZ:	pShape->Set_Z(Content.asDouble(20), 0);
 				default:	break;
+				case SG_VERTEX_TYPE_XYZM: pShape->Set_M(Content.asDouble(28), 0);
+				case SG_VERTEX_TYPE_XYZ : pShape->Set_Z(Content.asDouble(20), 0);
 				}
 
 				break;
@@ -269,6 +270,9 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
+				default:
+					break;
+
 				case SG_VERTEX_TYPE_XYZ:
 					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					break;
@@ -276,8 +280,6 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= 56 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(56 + nPoints * 16) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					pM	= 72 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(72 + nPoints * 24) : NULL;	// [40 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] + [nPoints * 8]
-					break;
-				default:	
 					break;
 				}
 
@@ -293,7 +295,7 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				break;
 
 			//---------------------------------------------
-			case SHAPE_TYPE_Line:    //////////////////////
+			case SHAPE_TYPE_Line   : //////////////////////
 			case SHAPE_TYPE_Polygon: //////////////////////
 
 				nParts	= Content.asInt(36);
@@ -303,6 +305,9 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 				switch( m_Vertex_Type )	// read Z + M
 				{
+				default:
+					break;
+
 				case SG_VERTEX_TYPE_XYZ:
 					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					break;
@@ -310,8 +315,6 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 				case SG_VERTEX_TYPE_XYZM:
 					pZ	= 60 + nParts * 4 + nPoints * 24 <= (int)Length ? (double *)Content.Get_Data(60 + nParts * 4 + nPoints * 16) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8]
 					pM	= 76 + nParts * 4 + nPoints * 32 <= (int)Length ? (double *)Content.Get_Data(76 + nParts * 4 + nPoints * 24) : NULL;	// [44 + nParts * 4 + nPoints * 16 + 2 * 8] + [nPoints * 8 + 2 * 8] +  [nPoints * 8]
-					break;
-				default:
 					break;
 				}
 

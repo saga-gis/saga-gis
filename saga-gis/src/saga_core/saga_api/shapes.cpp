@@ -227,16 +227,10 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load shapes"), File_Name.c_str()), true);
 
-	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && _Load_ESRI(File_Name);
-
-	if( bResult )
-	{
-		Set_File_Name(File_Name, true);
-	}
+	bool	bResult	= false;
 
 	//-----------------------------------------------------
-	else if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
+	if( File_Name.BeforeFirst(':').Cmp("PGSQL") == 0 )	// database source
 	{
 		CSG_String	s(File_Name);
 
@@ -287,6 +281,12 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 
 			SG_UI_ProgressAndMsg_Lock(false);
 		}
+	}
+	else if( SG_File_Exists(File_Name) )
+	{
+		bResult	= _Load_ESRI(File_Name);
+
+		Set_File_Name(File_Name, true);
 	}
 
 	//-----------------------------------------------------
