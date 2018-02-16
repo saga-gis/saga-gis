@@ -238,7 +238,7 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output tool synopsis as XML-tagged text, then return.
-		SG_PRINTF(pTool->Get_Summary(true, "", "", true).c_str());
+		SG_PRINTF(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_XML).c_str());
 
 		return( true );
 	}
