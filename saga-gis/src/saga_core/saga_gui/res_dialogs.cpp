@@ -230,8 +230,8 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 	if( Type == 2 )	// all recognized
 	{
 		ADD_FILTER("sprj"    );
-		ADD_FILTER("sg-pts-z");
 		ADD_FILTER("sg-pts"  );
+		ADD_FILTER("sg-pts-z");
 		ADD_FILTER("spc"     );
 		ADD_FILTER("las"     );
 		ADD_FILTER("txt"     );
