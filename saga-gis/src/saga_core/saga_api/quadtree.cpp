@@ -164,20 +164,13 @@ bool CSG_PRQuadTree_Node::Add_Point(double x, double y, double z)
 			}
 
 			((CSG_PRQuadTree_Node *)m_pChildren[Quadrant])->Add_Point(x, y, z);
+
+			return( true );
 		}
 		else
 		{
-			if( !pLeaf->has_Statistics() )
-			{
-				m_pChildren[Quadrant]	= new CSG_PRQuadTree_Leaf_List(pLeaf->m_Extent, Quadrant, x, y, pLeaf->Get_Z());
-
-				delete(pLeaf);
-			}
-
-			((CSG_PRQuadTree_Leaf_List *)m_pChildren[Quadrant])->Add_Value(z);
+			return( false );	// ignore duplicates !!!
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
