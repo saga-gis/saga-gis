@@ -1177,6 +1177,11 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 			{
 				pChild->Add_Child(SG_XML_PARAM_ITEM, pParameter->asChoice()->Get_Item(i));
 			}
+
+			if( !pParameter->asChoice()->Get_Default().is_Empty() )
+			{
+				pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter->asChoice()->Get_Default());
+			}
 		}
 		break;
 
@@ -1188,6 +1193,11 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 			for(int i=0; i<pParameter->asChoices()->Get_Item_Count(); i++)
 			{
 				pChild->Add_Child(SG_XML_PARAM_ITEM, pParameter->asChoices()->Get_Item(i));
+			}
+
+			if( !pParameter->asChoices()->Get_Default().is_Empty() )
+			{
+				pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter->asChoices()->Get_Default());
 			}
 		}
 		break;
@@ -1213,6 +1223,12 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 	case PARAMETER_TYPE_Degree:
 		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Minimum() ) pItem->Add_Child(SG_XML_PARAM_MIN, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Minimum());
 		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Maximum() ) pItem->Add_Child(SG_XML_PARAM_MAX, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Maximum());
+		if( !pParameter->Get_Data()->Get_Default().is_Empty() )              pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter->Get_Data()->Get_Default());
+		break;
+
+	//-----------------------------------------------------
+	case PARAMETER_TYPE_Bool:
+		pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter->asBool());
 		break;
 
 	//-----------------------------------------------------
@@ -1251,7 +1267,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			m.Add_Child   (SG_XML_DESCRIPTION     , Get_Description());
 			m.Add_Child   (SG_XML_MENU            , Get_MenuPath   ());
 			m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Grid        () ? "true" : "false");
-			m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Interactive () ? "true" : "false");
+			m.Add_Child   (SG_XML_SPEC_ATT_INTERA , is_Interactive () ? "true" : "false");
 
 		//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
 		//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");

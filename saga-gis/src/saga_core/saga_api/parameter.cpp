@@ -666,7 +666,16 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 	//-----------------------------------------------------
 	if( (Flags & PARAMETER_DESCRIPTION_TYPE) != 0 )
 	{
-		SEPARATE;	s	+= CSG_String::Format("%s", Get_Type_Name().c_str());
+		SEPARATE;
+
+		if( is_DataObject() && Get_Type() == PARAMETER_TYPE_DataObject_Output )
+		{
+			s	+= CSG_String::Format("%s %s", Get_Type_Name().c_str(), SG_Get_DataObject_Name(Get_DataObject_Type()).c_str());
+		}
+		else
+		{
+			s	+= CSG_String::Format("%s", Get_Type_Name().c_str());
+		}
 
 		if( is_DataObject() || is_DataObject_List() )
 		{
