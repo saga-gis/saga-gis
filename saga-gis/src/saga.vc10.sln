@@ -377,14 +377,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_qm_of_esp", "tools\simu
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imagery_isocluster", "tools\imagery\imagery_isocluster\imagery_isocluster.vcxproj", "{2F325FF1-B392-4A3D-968C-1745BA3EC7B1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_geomorphology", "tools\simulation\sim_geomorphology\sim_geomorphology.vcxproj", "{BFA29823-586C-4639-8330-75FD41604B18}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "riegl_io_rdb2_import", "tools\riegl\riegl_io_rdb2_import\riegl_io_rdb2_import.vcxproj", "{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "grids_tools", "tools\grid\grids_tools\grids_tools.vcxproj", "{3300798D-E3ED-484C-BD9D-D54CC6C65817}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_landscape_evolution", "tools\simulation\sim_landscape_evolution\sim_landscape_evolution.vcxproj", "{E7B5BF01-B779-4039-930B-FD1772931EAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
