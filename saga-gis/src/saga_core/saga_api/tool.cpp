@@ -1251,7 +1251,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			m.Add_Child   (SG_XML_DESCRIPTION     , Get_Description());
 			m.Add_Child   (SG_XML_MENU            , Get_MenuPath   ());
 			m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Grid        () ? "true" : "false");
-			m.Add_Child   (SG_XML_SPEC_ATT_GRID   , is_Interactive () ? "true" : "false");
+			m.Add_Child   (SG_XML_SPEC_ATT_INTERA , is_Interactive () ? "true" : "false");
 
 		//	CSG_MetaData	*pChild	= m.Add_Child(SG_XML_SPECIFICATION);
 		//	pChild->Add_Property(SG_XML_SPEC_ATT_GRID  , is_Grid        () ? "true" : "false");
