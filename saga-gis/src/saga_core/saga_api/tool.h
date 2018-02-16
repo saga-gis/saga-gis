@@ -114,6 +114,7 @@
 #define SG_XML_PARAM_FIELD_ATT_TYPE	SG_T("type")
 #define SG_XML_PARAM_MIN			SG_T("min")
 #define SG_XML_PARAM_MAX			SG_T("max")
+#define SG_XML_PARAM_DEFAULT		SG_T("default")
 
 //---------------------------------------------------------
 #define SG_XML_ERROR				SG_T("error")
