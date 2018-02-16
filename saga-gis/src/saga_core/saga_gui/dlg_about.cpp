@@ -283,6 +283,10 @@ wxString CDLG_About::_Get_Version(void)
 				"Microsoft Visual C++ 2012"
 			#elif __VISUALC__ >= 1800 && __VISUALC__ < 1900
 				"Microsoft Visual C++ 2013"
+			#elif __VISUALC__ >= 1900 && __VISUALC__ < 1910
+				"Microsoft Visual C++ 2015"
+			#elif __VISUALC__ >= 1910 && __VISUALC__ < 2000
+				"Microsoft Visual C++ 2017"
 			#else
 				"Microsoft Visual C++"
 			#endif
