@@ -69,6 +69,7 @@
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
 #include <wx/log.h>
+#include <wx/version.h>
 
 #include "api_core.h"
 
@@ -586,6 +587,10 @@ bool CSG_File_Zip::Add_File(const CSG_String &Name, bool bBinary)
 		wxZipEntry	*pEntry	= new wxZipEntry(Name.c_str());
 
 		pEntry->SetIsText(bBinary == false);
+
+		#if wxCHECK_VERSION(3, 1, 1)
+		((wxZipOutputStream *)m_pStream)->SetFormat(wxZIP_FORMAT_ZIP64);
+		#endif
 
 		if( ((wxZipOutputStream *)m_pStream)->PutNextEntry(pEntry) )
 		{
