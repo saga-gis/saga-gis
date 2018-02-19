@@ -2124,7 +2124,7 @@ bool CWKSP_Map::Draw_ScaleBar(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, cons
 		(int)(0.5 + r.GetHeight() * 0.01 * m_Parameters("SCALE_HEIGHT"  )->asDouble())
 	);
 
-	dWidth	*= rWorld.Get_XRange();
+	dWidth	= dc_Map.m_DC2World * r.GetWidth();
 
 	CSG_String	Unit;
 
