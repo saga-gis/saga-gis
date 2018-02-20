@@ -92,6 +92,9 @@
     <ClCompile Include="Flow_Length.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Flow_Fields.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -221,6 +224,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Flow_Length.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Flow_Fields.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
