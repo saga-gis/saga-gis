@@ -710,5 +710,8 @@ tools = [
 ['shapes_tools', 28, 'Copy Shapes'],
 ['table_tools', 21, 'Table Field Enumeration (Shapes)'],
 ['table_tools', 22, 'Copy Table'],
-['db_pgsql', 34, 'Export Grid Collection to PostGIS']
+['db_pgsql', 34, 'Export Grid Collection to PostGIS'],
+['grid_gridding', 9, 'Polygons to Grid'],
+['grid_gridding', 10, 'Polygon Categories to Grid'],
+['ta_lighting', 7, 'Potential Annual Insolation']
 ]

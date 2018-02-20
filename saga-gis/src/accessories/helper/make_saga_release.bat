@@ -55,7 +55,7 @@ SET SAGA_CONFIG=win32
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg *.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
+DEL /F saga_gui.cfg *.ini *.exp *.pdb tools\*.exp tools\*.pdb tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
@@ -73,7 +73,7 @@ SET SAGA_CONFIG=x64
 MKDIR "%SAGA_VERSION%_%SAGA_CONFIG%"
 PUSHD "%SAGA_VERSION%_%SAGA_CONFIG%"
 XCOPY /C/S/Q/Y "%SAGA_ROOT%\bin\saga_vc_%SAGA_CONFIG%"
-DEL /F saga_gui.cfg *.ini *.exp tools\*.exp tools\*.lib tools\dev_tools.*
+DEL /F saga_gui.cfg *.ini *.exp *.pdb tools\*.exp tools\*.pdb tools\*.lib tools\dev_tools.*
 RMDIR /S/Q _private
 POPD
 %ZIPEXE% "%SAGA_VERSION%_%SAGA_CONFIG%.zip" "%SAGA_VERSION%_%SAGA_CONFIG%"
