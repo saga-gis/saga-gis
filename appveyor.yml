@@ -17,12 +17,12 @@ environment:
 before_build:
   - cmd: mkdir c:\deps
   #get wxwidgets libs + inludes
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_x64_Dev.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0-headers.7z
-  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxMSW-3.1.0_vc140_x64_ReleaseDLL.7z
-  - cmd: 7z x wxMSW-3.1.0_vc140_x64_Dev.7z -o%WXWIN% -bb2
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_x64_Dev.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1-headers.7z
+  - ps: Start-FileDownload https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxMSW-3.1.1_vc140_x64_ReleaseDLL.7z
+  - cmd: 7z x wxMSW-3.1.1_vc140_x64_Dev.7z -o%WXWIN% -bb2
   - cmd: 7z x wxWidgets-3.1.0-headers.7z -o%WXWIN% -bb2
-  - cmd: 7z x wxMSW-3.1.0_vc140_x64_ReleaseDLL.7z -o%WXWIN% -bb2
+  - cmd: 7z x wxMSW-3.1.1_vc140_x64_ReleaseDLL.7z -o%WXWIN% -bb2
     #small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
