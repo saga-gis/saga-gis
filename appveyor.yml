@@ -26,7 +26,7 @@ before_build:
     #small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
-  - ps: Start-FileDownload https://sourceforge.net/projects/saga-gis/files/For%20Developers/libs4saga/libs4saga_20180220_vc14_x64.zip/download
+  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_20180220_vc14_x64.zip
   - cmd: 7z x libs4saga_20180220_vc14_x64.zip -oc:\deps\
   # proj4 is not used from libs4saga as this version does not work nicely with vc140
   - ps: Start-FileDownload http://gisky.be/proj4.9.3-vs140.7z
