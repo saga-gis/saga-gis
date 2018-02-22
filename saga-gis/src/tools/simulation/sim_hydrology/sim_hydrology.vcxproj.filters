@@ -20,9 +20,6 @@
     <ClCompile Include="DVWK_SoilMoisture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="idw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="KinWav_D8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -98,9 +95,6 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="DVWK_SoilMoisture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="idw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KinWav_D8.h">

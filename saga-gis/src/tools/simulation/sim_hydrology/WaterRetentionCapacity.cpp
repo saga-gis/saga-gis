@@ -20,250 +20,307 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
-#include "idw.h"
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "WaterRetentionCapacity.h"
 
-CWaterRetentionCapacity::CWaterRetentionCapacity(void){
 
-	Parameters.Set_Name(_TL("Water Retention Capacity"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 Victor Olaya. Water Retention Capacity (Gandullo, 1994)"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Shapes(NULL,
-						"SHAPES",
-						_TL("Plot Holes"),
-						_TL(""),
-						PARAMETER_INPUT);
+//---------------------------------------------------------
+CWaterRetentionCapacity::CWaterRetentionCapacity(void)
+{
+	Set_Name		(_TL("Water Retention Capacity"));
 
-	Parameters.Add_Shapes(NULL,
-						"OUTPUT",
-						_TL("Final Parameters"),
-						_TL(""),
-						PARAMETER_OUTPUT);
+	Set_Author		("V. Olaya (c) 2004");
+
+	Set_Description	(_TW(
+		"Water Retention Capacity. "
+		"Plot hole input data must provide five attributes for each soil horizon in the following order and meaning:\n"
+		"horizon depth, TF, L, Ar, Mo."
+	));
+
+	Add_Reference(
+		"Gandullo, J. M.", "1994", "Climatología y ciencia del suelo", "No. 551.55 G3."
+	);
+
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Plot Holes"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Shapes("",
+		"OUTPUT"	, _TL("Final Parameters"),
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
 	
-	Parameters.Add_Grid(NULL,
-						"DEM",
-						_TL("DEM"),
-						_TL("DEM"),
-						PARAMETER_INPUT);
+	Parameters.Add_Grid("",
+		"DEM"		, _TL("Elevation"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Grid(NULL,
-						"RETENTION",
-						_TL("Water Retention Capacity"),
-						_TL(""),
-						PARAMETER_OUTPUT);
+	Parameters.Add_Grid("",
+		"RETENTION"	, _TL("Water Retention Capacity"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
 
-}//constructor
+	Parameters.Add_Choice("",
+		"INTERPOL"	, _TL("Interpolation"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("Multilevel B-Spline Interpolation"),
+			_TL("Inverse Distance Weighted")
+		), 0
+	);
 
-CWaterRetentionCapacity::~CWaterRetentionCapacity(void)
-{}
-
-bool CWaterRetentionCapacity::On_Execute(void){
-
-	int i,j;
-	int x,y;
-	int iField;
-	int iShape;
-	int iRows;
-	float fValue = 0;
-	float **pData;
-	int iX, iY;
-	float fC;
-	double dSlope,dAspect;	
-	CSG_Shape* pShape;
-	CSG_Shapes* pShapes = Parameters("SHAPES")->asShapes();
-	CSG_Grid* pDEM = Parameters("DEM")->asGrid();
-	
-	m_pRetention = Parameters("RETENTION")->asGrid();
-	m_pSlope = SG_Create_Grid(pDEM);
-	m_pOutput = Parameters("OUTPUT")->asShapes();
-
-	m_pOutput->Assign(pShapes);
-	m_pOutput->Add_Field("CCC", SG_DATATYPE_Double);
-	m_pOutput->Add_Field("CIL", SG_DATATYPE_Double);
-	m_pOutput->Add_Field(_TL("Permeability"), SG_DATATYPE_Double);
-	m_pOutput->Add_Field(_TL("Equivalent Moisture"), SG_DATATYPE_Double);
-	m_pOutput->Add_Field(_TL("Water Retention Capacity"), SG_DATATYPE_Double);
+	Parameters.Add_Bool("",
+		"SLOPECORR"	, _TL("Slope Correction"),
+		_TL(""),
+		true
+	);
+}
 
 
-	for(y=0; y<Get_NY() && Set_Progress(y); y++){		
-		for(x=0; x<Get_NX(); x++){
-			if( pDEM->Get_Gradient(x, y, dSlope, dAspect) ){
-				m_pSlope->Set_Value(x, y, dSlope);				
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWaterRetentionCapacity::On_Execute(void)
+{
+	CSG_Shapes	*pInput		= Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pOutput	= Parameters("OUTPUT")->asShapes();
+
+	if( pInput->Get_Field_Count() < 5 )
+	{
+		Error_Set(_TL("Plot hole data has to provide at the very least five attributes (horizon depth, TF, L, Ar, Mo)."));
+
+		return( false );
+	}
+
+	pOutput->Create(SHAPE_TYPE_Point, _TL("Water Retention Capacity"));
+
+	pOutput->Add_Field("CCC"                     , SG_DATATYPE_Double);
+	pOutput->Add_Field("CIL"                     , SG_DATATYPE_Double);
+	pOutput->Add_Field("Permeability"            , SG_DATATYPE_Double);
+	pOutput->Add_Field("Equivalent Moisture"     , SG_DATATYPE_Double);
+	pOutput->Add_Field("Water Retention Capacity", SG_DATATYPE_Double);
+
+	//-----------------------------------------------------
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+
+	CSG_Matrix	Data(5, pInput->Get_Field_Count() / 5);
+
+	for(int iPoint=0; iPoint<pInput->Get_Count(); iPoint++)
+	{
+		CSG_Shape	*pPoint	= pInput->Get_Shape(iPoint);
+
+		for(int iHorizon=0, n=0; iHorizon<Data.Get_NRows(); iHorizon++, n+=5)
+		{
+			for(int i=0; i<5; i++)
+			{
+				Data[iHorizon][i]	= pPoint->asDouble(n + i);
 			}
-			else{
-				m_pSlope->Set_NoData(x, y);				
+		}
+
+		double	Slope, Aspect;
+
+		if( !pDEM->Get_Gradient(pPoint->Get_Point(0), Slope, Aspect, GRID_RESAMPLING_BSpline) )
+		{
+			Slope	= 0.0;
+		}
+
+		Get_WaterRetention(Data, 1. - tan(Slope), pOutput->Add_Shape(pPoint, SHAPE_COPY_GEOM));
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pRetention	= Parameters("RETENTION")->asGrid();
+
+	if( pRetention )
+	{
+		switch( Parameters("INTERPOL")->asInt() )
+		{
+		default:	// Multlevel B-Spline Interpolation
+			SG_RUN_TOOL_ExitOnError("grid_spline", 4,
+					SG_TOOL_PARAMETER_SET("SHAPES"           , pOutput)
+				&&  SG_TOOL_PARAMETER_SET("FIELD"            , pOutput->Get_Field_Count() - 1)
+				&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
+				&&  SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pRetention)
+			);
+			break;
+
+		case  1:	// Inverse Distance Weighted
+			SG_RUN_TOOL_ExitOnError("grid_gridding", 1,
+					SG_TOOL_PARAMETER_SET("SHAPES"           , pOutput)
+				&&  SG_TOOL_PARAMETER_SET("FIELD"            , pOutput->Get_Field_Count() - 1)
+				&&  SG_TOOL_PARAMETER_SET("TARGET_DEFINITION", 1)	// grid or grid system
+				&&  SG_TOOL_PARAMETER_SET("TARGET_OUT_GRID"  , pRetention)
+				&&  SG_TOOL_PARAMETER_SET("SEARCH_RANGE"     , 1)	// global
+				&&  SG_TOOL_PARAMETER_SET("SEARCH_POINTS_ALL", 1)	// all points within search distance
+			);
+			break;
+		}
+
+		if( Parameters("SLOPECORR")->asBool() )
+		{
+			#pragma omp parallel for
+			for(int y=0; y<Get_NY(); y++)
+			{
+				for(int x=0; x<Get_NX(); x++)
+				{
+					if( !pRetention->is_NoData(x, y) )
+					{
+						double	Slope, Aspect;
+
+						if( !pDEM->Get_Gradient(x, y, Slope, Aspect) )
+						{
+							Slope	= 0.0;
+						}
+
+						pRetention->Mul_Value(x, y, 1. - tan(Slope));
+					}
+				}
 			}
 		}
 	}
 
-	iRows = pShapes->Get_Field_Count() / 5;
-	pData = new float*[iRows];
-
-	for (iShape = 0; iShape < pShapes->Get_Count(); iShape++){
-		pShape = pShapes->Get_Shape(iShape);
-		for (i = 0; i< iRows; i++){
-			pData[i] = new float[5];
-			for (j = 0; j < 5; j++){
-				pData[i][j] = 0;
-				try{
-					pData[i][j] = pShape->asFloat(j+i*5);
-				}//try
-				catch(...){}
-			}//for
-		}//for
-		iX = (int)((pShape->Get_Point(0).x - pDEM->Get_XMin())/pDEM->Get_Cellsize());
-		iY = (int)((pShape->Get_Point(0).y - pDEM->Get_YMin())/pDEM->Get_Cellsize());
-		fC = (float)(1. - tan(m_pSlope->asFloat(iX,iY)));
-		pShape = m_pOutput->Get_Shape(iShape);
-		CalculateWaterRetention(pData, iRows, fC, pShape);
-	}//for
-
-	iField = m_pOutput->Get_Field_Count()-1;
-
-	CIDW IDW;
-
-	IDW.setParameters(m_pRetention, m_pOutput, iField);
-	IDW.Interpolate();
-
-	CorrectWithSlope();
-
-	return true;
-
-}//method
-
-void CWaterRetentionCapacity::CalculateWaterRetention(float **pData, 
-													   int iNumHorizons, 
-													   float fC,
-													   CSG_Table_Record *pRecord){
-
-	int i;
-	int iField;
-	float *pCCC = new float[iNumHorizons];
-	float *pCIL = new float[iNumHorizons];
-	float *pK = new float[iNumHorizons];
-	int *pPerm = new int[iNumHorizons];
-	float *pHe = new float[iNumHorizons];
-	float *pCRA = new float[iNumHorizons];
-	float fTotalDepth = 0;
-	float fWaterRetention = 0;
-	float fPerm = 0;
-	float fHe = 0;
-	float fK = 0;
-	float fCCC = 0;
-	float fCIL = 0;
-
-	pK[0] = 0;
-	for (i = 0; i < iNumHorizons; i++){
-		pCCC[i] = CalculateCCC(pData[i]);
-		pCIL[i] = CalculateCIL(pData[i]);
-		pPerm[i] = CalculatePermeability(pCCC[i], pCIL[i]);
-		pHe[i] = CalculateHe(pData[i]);
-		if (i){
-			pK[i] = CalculateK(pPerm[i-1], pPerm[i], fC);
-		}//if
-		pCRA[i] = (float)((12.5 * pHe[i] + 12.5 * (50. - pHe[i]) * pK[i] / 2.) * pData[i][1] / 100.);
-		fTotalDepth += pData[i][0];
-	}//for
-	for (i = 0; i < iNumHorizons; i++){
-		fWaterRetention += pData[i][0] / fTotalDepth * pCRA[i];
-		fCCC += pData[i][0] / fTotalDepth * pCCC[i];
-		fCIL += pData[i][0] / fTotalDepth * pCIL[i];
-		fPerm += pData[i][0] / fTotalDepth * pPerm[i];
-		fHe += pData[i][0] / fTotalDepth * pHe[i];
-		fK += pData[i][0] / fTotalDepth * pK[i];
-	}//for
-
-	iField = pRecord->Get_Table()->Get_Field_Count() - 1;
-
-	pRecord->Set_Value(iField - 4, fCCC);
-	pRecord->Set_Value(iField - 3, fCIL);
-	pRecord->Set_Value(iField - 2, fPerm);
-	pRecord->Set_Value(iField - 1, fHe);
-	pRecord->Set_Value(iField, fWaterRetention);
-
-	delete[]pCRA;
-}//method
-
-void CWaterRetentionCapacity::CorrectWithSlope(){
-
-	int x,y;
-	float fC;
-
-	for (x = 0; x < m_pRetention->Get_NX(); x++) {
-		for (y = 0; y < m_pRetention->Get_NY(); y++) {
-			fC = (float)(1. - tan(m_pSlope->asFloat(x,y)));
-			if (fC < 0.){
-				fC = 0.;
-			}//if
-			m_pRetention->Set_Value(x,y,m_pRetention->asFloat(x,y) * fC);
-		}//for
-	}//for
-
-}//method
-
-float CWaterRetentionCapacity::CalculateHe(float* pHorizon){
-
-	float fL = pHorizon[2];
-	float fTF = pHorizon[1];
-	float fAr = pHorizon[3];
-	float fMO = pHorizon[4];
-
-	float fHe = (float)(4.6 + 0.43 * fAr + 0.25 * fL + 1.22 * fMO);
-	return fHe;
-
-}//method
+	//-----------------------------------------------------
+	return( true );
+}
 
 
-float CWaterRetentionCapacity::CalculateCIL(float* pHorizon){
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	float fL = pHorizon[2];
-	float fTF = pHorizon[1];
+//---------------------------------------------------------
+void CWaterRetentionCapacity::Get_WaterRetention(CSG_Matrix &Data, double fC, CSG_Shape *pPoint)
+{
+	int		i;
 
-	float fCIL = (float)((fL * fTF) /10000.);
-	return fCIL;
+	double	fWRC = 0, fPerm = 0, fHe = 0, fK = 0, fCCC = 0, fCIL = 0, fTotalDepth = 0;
 
-}//method
+	CSG_Vector	CCC (Data.Get_NRows());
+	CSG_Vector	CIL (Data.Get_NRows());
+	CSG_Vector	K   (Data.Get_NRows());
+	CSG_Vector	Perm(Data.Get_NRows());
+	CSG_Vector	He  (Data.Get_NRows());
+	CSG_Vector	CRA (Data.Get_NRows());
 
-float CWaterRetentionCapacity::CalculateCCC(float* pHorizon){
+	for(i=0; i<Data.Get_NRows(); i++)
+	{
+		CCC [i]	= Get_CCC(Data[i]);
+		CIL [i]	= Get_CIL(Data[i]);
+		He  [i]	= Get_He (Data[i]);
 
-	float fL = pHorizon[2];
-	float fTF = pHorizon[1];
-	float fAr = pHorizon[3];
-	float fMO = pHorizon[4];
+		Perm[i]	= Get_Permeability(CCC[i], CIL[i]);
 
-	float fCCC = (float)((fAr - 4.*fMO) / fTF);
-	return fCCC;
+		if( i > 0 )
+		{
+			K[i] = Get_K(Perm[i - 1], Perm[i], fC);
+		}
 
-}//method
+		CRA[i]	= (double)((12.5 * He[i] + 12.5 * (50. - He[i]) * K[i] / 2.) * Data[i][1] / 100.);
 
-float CWaterRetentionCapacity::CalculateK(int iPermI, int iPermS, float fC){
+		fTotalDepth	+= Data[i][0];
+	}
 
-	float fAi = (float)((iPermI - 1) * .2);
-	float fAs = (float)((iPermS - 1) * .2);
+	for(i=0; i<Data.Get_NRows(); i++)
+	{
+		fWRC	+= Data[i][0] / fTotalDepth * CRA [i];
+		fCCC	+= Data[i][0] / fTotalDepth * CCC [i];
+		fCIL	+= Data[i][0] / fTotalDepth * CIL [i];
+		fPerm	+= Data[i][0] / fTotalDepth * Perm[i];
+		fHe		+= Data[i][0] / fTotalDepth * He  [i];
+		fK		+= Data[i][0] / fTotalDepth * K   [i];
+	}
 
-	return (float)((1. - fAi - (1 + fAs) * (1. - fC)));
+	pPoint->Set_Value(0, fCCC );
+	pPoint->Set_Value(1, fCIL );
+	pPoint->Set_Value(2, fPerm);
+	pPoint->Set_Value(3, fHe  );
+	pPoint->Set_Value(4, fWRC );
+}
 
-}//method
+//---------------------------------------------------------
+double CWaterRetentionCapacity::Get_He(double *Horizon)
+{
+	double fL	= Horizon[2];
+	double fTF	= Horizon[1];
+	double fAr	= Horizon[3];
+	double fMO	= Horizon[4];
 
+	return( 4.6 + 0.43 * fAr + 0.25 * fL + 1.22 * fMO );
+}
 
-int CWaterRetentionCapacity::CalculatePermeability(float fCCC, float fCIL){
+//---------------------------------------------------------
+double CWaterRetentionCapacity::Get_CIL(double *Horizon)
+{
+	double fL	= Horizon[2];
+	double fTF	= Horizon[1];
 
-	int iPerm;
-	if (fCCC < 0.15){
+	return( (fL * fTF) /10000. );
+}
+
+//---------------------------------------------------------
+double CWaterRetentionCapacity::Get_CCC(double *Horizon)
+{
+	double fL	= Horizon[2];
+	double fTF	= Horizon[1];
+	double fAr	= Horizon[3];
+	double fMO	= Horizon[4];
+
+	return( (fAr - 4.*fMO) / fTF );
+}
+
+//---------------------------------------------------------
+double CWaterRetentionCapacity::Get_K(double PermI, double PermS, double fC)
+{
+	double fAi = (PermI - 1) * .2;
+	double fAs = (PermS - 1) * .2;
+
+	return( (1. - fAi - (1 + fAs) * (1. - fC)) );
+}
+
+//---------------------------------------------------------
+int CWaterRetentionCapacity::Get_Permeability(double fCCC, double fCIL)
+{
+	int	iPerm;
+
+	if( fCCC < 0.15 )
+	{
 		iPerm = 5 - (int)((fCIL-0.1) / 0.15);
-	}//if
-	else if (fCIL < 0.2){
+	}
+	else if( fCIL < 0.2 )
+	{
 		iPerm = 5 - (int)(fCCC / 0.15);
-	}//else if
-	else{
+	}
+	else
+	{
 		iPerm = (int)(5 - (fCCC + fCIL - 0.1) / 0.15);
-	}//else
+	}
 
-	if (iPerm < 1){
-		iPerm = 1;
-	}//if
+	return( iPerm < 1 ? 1 : iPerm );
+}
 
-	return iPerm;
 
-}//method
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

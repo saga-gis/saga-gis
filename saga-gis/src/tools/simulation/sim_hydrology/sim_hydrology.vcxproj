@@ -304,7 +304,6 @@
     <ClCompile Include="diffuse_pollution_risk.cpp" />
     <ClCompile Include="diffusion_gradient_concentration.cpp" />
     <ClCompile Include="DVWK_SoilMoisture.cpp" />
-    <ClCompile Include="idw.cpp" />
     <ClCompile Include="KinWav_D8.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -330,7 +329,6 @@
     <ClInclude Include="diffuse_pollution_risk.h" />
     <ClInclude Include="diffusion_gradient_concentration.h" />
     <ClInclude Include="DVWK_SoilMoisture.h" />
-    <ClInclude Include="idw.h" />
     <ClInclude Include="KinWav_D8.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />

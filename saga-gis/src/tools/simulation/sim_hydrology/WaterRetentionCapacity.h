@@ -20,33 +20,51 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-#include "MLB_Interface.h"
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-class CWaterRetentionCapacity : public CSG_Tool_Grid {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CWaterRetentionCapacity : public CSG_Tool_Grid
+{
 public:
 	CWaterRetentionCapacity(void);
-	virtual ~CWaterRetentionCapacity(void);
 
-private:
-	
-	CSG_Grid *m_pSlope;
-	CSG_Grid *m_pRetention;
-	CSG_Shapes *m_pOutput;
-	
-	void CalculateWaterRetention(float**,int, float, CSG_Table_Record*);
-	void CorrectWithSlope();
-	float CalculateCCC(float*);
-	float CalculateCIL(float*);
-	int CalculatePermeability(float, float);
-	float CalculateHe(float*);
-	float CalculateK(int,int,float);
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool		On_Execute				(void);
+
+
+private:
+
+	void				Get_WaterRetention		(CSG_Matrix &Data, double fC, CSG_Shape *pPoint);
+
+	double				Get_He					(double *Horizon);
+	double				Get_CIL					(double *Horizon);
+	double				Get_CCC					(double *Horizon);
+	double				Get_K					(double PermI, double PermS, double fC);
+	int					Get_Permeability		(double fCCC, double fCIL);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

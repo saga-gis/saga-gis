@@ -14,7 +14,6 @@ libsim_hydrology_la_SOURCES =\
 DVWK_SoilMoisture.cpp\
 diffuse_pollution_risk.cpp\
 diffusion_gradient_concentration.cpp\
-idw.cpp\
 KinWav_D8.cpp\
 MLB_Interface.cpp\
 topmodel.cpp\
@@ -23,7 +22,6 @@ WaterRetentionCapacity.cpp\
 diffuse_pollution_risk.h\
 diffusion_gradient_concentration.h\
 DVWK_SoilMoisture.h\
-idw.h\
 KinWav_D8.h\
 MLB_Interface.h\
 topmodel.h\
