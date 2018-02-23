@@ -813,15 +813,15 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 	case SG_SUMMARY_FMT_XML:
 
 		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
-		s	+= CSG_String::Format("\n<%s>", SG_XML_SYSTEM);
-		s	+= CSG_String::Format("\n<%s>%s</%s>", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
+		s	+= CSG_String::Format("<%s>\n", SG_XML_SYSTEM);
+		s	+= CSG_String::Format("<%s>%s</%s>\n", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
 
 		for(int i=0; i<Libraries.Get_Count(); i++)
 		{
-			s	+= CSG_String::Format("\n\t<%s %s=\"%s\"/>", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
+			s	+= CSG_String::Format("\t<%s %s=\"%s\"/>\n", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
 		}
 
-		s	+= CSG_String::Format("\n</%s>", SG_XML_SYSTEM);
+		s	+= CSG_String::Format("</%s>\n", SG_XML_SYSTEM);
 
 		break;
 	}
