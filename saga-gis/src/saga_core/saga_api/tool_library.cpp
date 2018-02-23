@@ -249,7 +249,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
-				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\">\n", SG_XML_TOOL,
+				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\"/>\n", SG_XML_TOOL,
 					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
 					SG_XML_TOOL_ATT_NAME, Get_Tool(i)->Get_Name().c_str()
 				);
