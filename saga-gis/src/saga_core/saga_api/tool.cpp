@@ -1162,7 +1162,17 @@ void _Add_XML(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_String ID = 
 	pItem->Add_Property(SG_XML_PARAM_ATT_CLASS,	pParameter->is_Input() ? "input" : pParameter->is_Output() ? "output" : "option");
 
 	pItem->Add_Child(SG_XML_PARAM_IDENT, ID);
-	pItem->Add_Child(SG_XML_PARAM_TYPE , pParameter->Get_Type_Name().Make_Lower());
+
+	if( pParameter->Get_Type() == PARAMETER_TYPE_DataObject_Output )
+	{
+		CSG_String typeName = CSG_String::Format("%s %s", pParameter->Get_Type_Name().Make_Lower().c_str(), SG_Get_DataObject_Name(pParameter->Get_DataObject_Type()).Make_Lower().c_str());
+	    pItem->Add_Child(SG_XML_PARAM_TYPE , typeName);
+    }
+    else
+    {
+	    pItem->Add_Child(SG_XML_PARAM_TYPE , pParameter->Get_Type_Name().Make_Lower());
+    }
+
 	pItem->Add_Child(SG_XML_PARAM_MAND , pParameter->is_Optional() ? SG_T("false") : SG_T("true"));
 	pItem->Add_Child(SG_XML_DESCRIPTION, pParameter->Get_Description());
 
