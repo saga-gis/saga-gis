@@ -83,33 +83,51 @@ enum
 CSVG_Export::CSVG_Export(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Export Scalable Vector Graphics (SVG) File"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Export shapes to Scalable Vector Graphics (SVG) File.\n"
-		"SVG specification at World Wide Web Consortium (W3C)\n"
-		"<a target=\"_blank\" href=\"http://www.w3.org/TR/SVG11/\">Scalable Vector Graphics (SVG) 1.1</a>"
+		"Export shapes to Scalable Vector Graphics (SVG) File."
 	));
 
+	Add_Reference(
+		"http://www.w3.org/TR/SVG11/", SG_T("SVG specification at World Wide Web Consortium (W3C)")
+	);
 
 	//-----------------------------------------------------
-	// 2. Parameters...
+	Parameters.Add_Choice("",
+		"OUTPUT"	, _TL("Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("single layer"),
+			_TL("multiple layers")
+		), 1
+	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes_List("",
+		"LAYERS"	, _TL("Layers"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_Shapes("",
+		"LAYER"		, _TL("Layer"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.svg|%s|*.*"),
-			_TL("Scalable Vector Graphics Files (*.svg)"),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field("LAYER",
+		"FIELD"		, _TL("Attribute"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
+		_TL(""),
+		CSG_String::Format("%s (*.svg)|*.svg|%s|*.*",
+			_TL("Scalable Vector Graphics Files"),
 			_TL("All Files")
 		), NULL, true
 	);
@@ -121,10 +139,39 @@ CSVG_Export::CSVG_Export(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CSVG_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	{
+		pParameters->Set_Enabled("LAYER" , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("LAYERS", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSVG_Export::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Parameter_Shapes_List	*pList	= Parameters("SHAPES")->asShapesList();
+	CSG_Parameter_Shapes_List	*pList	= Parameters("LAYERS")->asShapesList();
+
+	if( Parameters("OUTPUT")->asInt() == 0 )	// single layer
+	{
+		pList->Del_Items();
+		pList->Add_Item(Parameters("LAYER")->asShapes());
+
+		m_Field	= Parameters("FIELD")->asInt();
+	}
+	else	// multiple layers
+	{
+		m_Field	= -1;
+	}
 
 	if( pList->Get_Item_Count() <= 0 )
 	{
@@ -149,15 +196,15 @@ bool CSVG_Export::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	SVG.Set_Name(SG_T("svg"));
-	SVG.Add_Property(SG_T("xmlns")		, SG_T("http://www.w3.org/2000/svg"));
-	SVG.Add_Property(SG_T("xmlns:xlink"), SG_T("http://www.w3.org/1999/xlink"));
-	SVG.Add_Property(SG_T("xmlns:ev")	, SG_T("http://www.w3.org/2001/xml-events"));
-	SVG.Add_Property(SG_T("version")	, SG_T("1.1"));
-	SVG.Add_Property(SG_T("baseProfile"), SG_T("tiny"));
-	SVG.Add_Property(SG_T("width")		, CSG_String::Format(SG_T("%d"), Width));
-	SVG.Add_Property(SG_T("height")		, CSG_String::Format(SG_T("%d"), Height));
-	SVG.Add_Property(SG_T("viewBox")	, CSG_String::Format(SG_T("%f %f %f %f"), Extent.Get_XMin(), -Extent.Get_YMax(), Extent.Get_XRange(), Extent.Get_YRange()));
+	SVG.Set_Name("svg");
+	SVG.Add_Property("xmlns"      , "http://www.w3.org/2000/svg");
+	SVG.Add_Property("xmlns:xlink", "http://www.w3.org/1999/xlink");
+	SVG.Add_Property("xmlns:ev"   , "http://www.w3.org/2001/xml-events");
+	SVG.Add_Property("version"    , "1.1");
+	SVG.Add_Property("baseProfile", "tiny");
+	SVG.Add_Property("width"      , CSG_String::Format("%d", Width));
+	SVG.Add_Property("height"     , CSG_String::Format("%d", Height));
+	SVG.Add_Property("viewBox"    , CSG_String::Format("%f %f %f %f", Extent.Get_XMin(), -Extent.Get_YMax(), Extent.Get_XRange(), Extent.Get_YRange()));
 
 	Size_Point	= Extent.Get_XRange() /  200.0;
 	Size_Line	= Extent.Get_XRange() /  500.0;
@@ -168,9 +215,9 @@ bool CSVG_Export::On_Execute(void)
 	{
 		CSG_Shapes	*pShapes	= pList->Get_Shapes(i);
 
-		pGroup	= SVG.Add_Child(SG_T("g"));
-		pGroup->Add_Property(SG_T("id")			, pShapes->Get_Name());
-		pGroup->Add_Property(SG_T("transform")	, SG_T("scale(1,-1)"));
+		pGroup	= SVG.Add_Child("g");
+		pGroup->Add_Property("id"       , pShapes->Get_Name());
+		pGroup->Add_Property("transform", "scale(1,-1)");
 
 		for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
 		{
@@ -180,10 +227,10 @@ bool CSVG_Export::On_Execute(void)
 			{
 				switch( pShapes->Get_Type() )
 				{
-				case SHAPE_TYPE_Point:
-				case SHAPE_TYPE_Points:		Add_Points	(*pGroup, pShape, iPart, SG_COLOR_RED		, Size_Point, SYMBOL_POINT_SQUARE);	break;
-				case SHAPE_TYPE_Line:		Add_Line	(*pGroup, pShape, iPart, SG_COLOR_BLUE_DARK	, Size_Line);	break;
-				case SHAPE_TYPE_Polygon:	Add_Polygon	(*pGroup, pShape, iPart, SG_COLOR_GREEN		);	break;
+				case SHAPE_TYPE_Point  :
+				case SHAPE_TYPE_Points : Add_Points (*pGroup, pShape, iPart, SG_COLOR_RED, Size_Point, SYMBOL_POINT_SQUARE);	break;
+				case SHAPE_TYPE_Line   : Add_Line   (*pGroup, pShape, iPart, SG_COLOR_BLUE_DARK	, Size_Line);	break;
+				case SHAPE_TYPE_Polygon: Add_Polygon(*pGroup, pShape, iPart, SG_COLOR_GREEN);	break;
 				}
 			}
 		}
@@ -209,10 +256,10 @@ bool CSVG_Export::Get_Points(CSG_Shape *pShape, int iPart, CSG_String &Points)
 
 		if( iPoint > 0 )
 		{
-			Points	+= SG_T(" ");
+			Points	+= " ";
 		}
 
-		Points	+= CSG_String::Format(SG_T("%f,%f"), Point.x, Point.y);
+		Points	+= CSG_String::Format("%f,%f", Point.x, Point.y);
 	}
 
 	return( true );
@@ -235,24 +282,29 @@ void CSVG_Export::Add_Points(CSG_MetaData &SVG, CSG_Shape *pShape, int iPart, lo
 		switch( Symbol )
 		{
 		case SYMBOL_POINT_CIRCLE: default:
-			pSVG->Set_Name(SG_T("circle"));
-			pSVG->Add_Property(SG_T("cx")		, Point.x);
-			pSVG->Add_Property(SG_T("cy")		, Point.y);
-			pSVG->Add_Property(SG_T("length")	, Size);
+			pSVG->Set_Name("circle");
+			pSVG->Add_Property("cx"    , Point.x);
+			pSVG->Add_Property("cy"    , Point.y);
+			pSVG->Add_Property("length", Size);
 			break;
 
 		case SYMBOL_POINT_SQUARE:
-			pSVG->Set_Name(SG_T("rect"));
-			pSVG->Add_Property(SG_T("x")		, Point.x - Size / 2.0);
-			pSVG->Add_Property(SG_T("y")		, Point.y - Size / 2.0);
-			pSVG->Add_Property(SG_T("width")	, Size);
-			pSVG->Add_Property(SG_T("height")	, Size);
+			pSVG->Set_Name("rect");
+			pSVG->Add_Property("x"     , Point.x - Size / 2.0);
+			pSVG->Add_Property("y"     , Point.y - Size / 2.0);
+			pSVG->Add_Property("width" , Size);
+			pSVG->Add_Property("height", Size);
 			break;
 		}
 
-		pSVG->Add_Property(SG_T("fill")			, CSG_String::Format(SG_T("rgb(%d,%d,%d)"), SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
-		pSVG->Add_Property(SG_T("stroke")		, SG_T("black"));
-		pSVG->Add_Property(SG_T("stroke-width")	, m_dStroke);
+		pSVG->Add_Property("fill"        , CSG_String::Format("rgb(%d,%d,%d)", SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
+		pSVG->Add_Property("stroke"      , "black");
+		pSVG->Add_Property("stroke-width", m_dStroke);
+
+		if( m_Field >= 0 )
+		{
+			pSVG->Add_Property("attribute", pShape->asString(m_Field));
+		}
 	}
 }
 
@@ -263,12 +315,17 @@ void CSVG_Export::Add_Line(CSG_MetaData &SVG, CSG_Shape *pShape, int iPart, long
 
 	if( Get_Points(pShape, iPart, Points) )
 	{
-		CSG_MetaData	*pSVG	= SVG.Add_Child(SG_T("polyline"));
+		CSG_MetaData	*pSVG	= SVG.Add_Child("polyline");
 
-		pSVG->Add_Property(SG_T("points")		, Points);
-		pSVG->Add_Property(SG_T("fill")			, SG_T("none"));
-		pSVG->Add_Property(SG_T("stroke")		, CSG_String::Format(SG_T("rgb(%d,%d,%d)"), SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
-		pSVG->Add_Property(SG_T("stroke-width")	, Size);
+		pSVG->Add_Property("points"      , Points);
+		pSVG->Add_Property("fill"        , "none");
+		pSVG->Add_Property("stroke"      , CSG_String::Format("rgb(%d,%d,%d)", SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
+		pSVG->Add_Property("stroke-width", Size);
+
+		if( m_Field >= 0 )
+		{
+			pSVG->Add_Property("attribute", pShape->asString(m_Field));
+		}
 	}
 }
 
@@ -279,12 +336,17 @@ void CSVG_Export::Add_Polygon(CSG_MetaData &SVG, CSG_Shape *pShape, int iPart, l
 
 	if( Get_Points(pShape, iPart, Points) )
 	{
-		CSG_MetaData	*pSVG	= SVG.Add_Child(SG_T("polygon"));
+		CSG_MetaData	*pSVG	= SVG.Add_Child("polygon");
 
-		pSVG->Add_Property(SG_T("points")		, Points);
-		pSVG->Add_Property(SG_T("fill")			, CSG_String::Format(SG_T("rgb(%d,%d,%d)"), SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
-		pSVG->Add_Property(SG_T("stroke")		, SG_T("black"));
-		pSVG->Add_Property(SG_T("stroke-width")	, m_dStroke);
+		pSVG->Add_Property("points"      , Points);
+		pSVG->Add_Property("fill"        , CSG_String::Format("rgb(%d,%d,%d)", SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)));
+		pSVG->Add_Property("stroke"      , "black");
+		pSVG->Add_Property("stroke-width", m_dStroke);
+
+		if( m_Field >= 0 )
+		{
+			pSVG->Add_Property("attribute", pShape->asString(m_Field));
+		}
 	}
 }
 
@@ -299,35 +361,39 @@ void CSVG_Export::Add_Polygon(CSG_MetaData &SVG, CSG_Shape *pShape, int iPart, l
 CSVG_Import::CSVG_Import(void)
 {
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Import Scalable Vector Graphics (SVG) File"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		""
+		"Import shapes from Scalable Vector Graphics (SVG) File."
 	));
 
+	Add_Reference(
+		"http://www.w3.org/TR/SVG11/", SG_T("SVG specification at World Wide Web Consortium (W3C)")
+	);
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
 	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+		""	, "SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+		""	, "FILE"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.svg|%s|*.*"),
-			_TL("Scalable Vector Graphics Files (*.svg)"),
+		CSG_String::Format("%s (*.svg)|*.svg|%s|*.*",
+			_TL("Scalable Vector Graphics Files"),
 			_TL("All Files")
 		)
 	);
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSVG_Import::On_Execute(void)
