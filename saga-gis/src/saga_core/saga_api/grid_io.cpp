@@ -393,13 +393,20 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Native(const CSG_String &FileName, bool bBinary)
+bool CSG_Grid::_Save_Native(const CSG_String &_FileName, bool bBinary)
 {
 #ifdef WORDS_BIGENDIAN
 	bool	bBigEndian	= true;
 #else
 	bool	bBigEndian	= false;
 #endif
+
+	CSG_String	FileName(_FileName);
+
+	if( !SG_File_Cmp_Extension(FileName, "sg-grd") )
+	{
+		SG_File_Set_Extension(FileName, "sgrd");
+	}
 
 	CSG_Grid_File_Info	Info(*this);
 
