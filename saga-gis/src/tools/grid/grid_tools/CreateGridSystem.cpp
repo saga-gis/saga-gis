@@ -299,7 +299,7 @@ bool CCreateGridSystem::On_Execute(void)
 			Parameters("YOFFSET")->asDouble()
 		);
 
-		System.Assign(System.Get_Cellsize(), Extent);
+		System.Assign(System.Get_Cellsize(), Extent.Get_XMin(), Extent.Get_YMin(), System.Get_NX(), System.Get_NY());
 	}
 		
 	//-----------------------------------------------------
