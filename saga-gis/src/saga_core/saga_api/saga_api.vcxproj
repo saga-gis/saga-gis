@@ -865,6 +865,7 @@ copy tin.h $(OutDir)include\saga_api
     <ClCompile Include="tool_interactive_base.cpp" />
     <ClCompile Include="tool_library.cpp" />
     <ClCompile Include="tool_library_interface.cpp" />
+    <ClCompile Include="tool_summary.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api_core.h" />

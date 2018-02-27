@@ -642,6 +642,10 @@ void		Print_Execution	(CSG_Tool *pTool)
 	{
 		if( CMD_Get_XML() )
 		{
+			#define SG_XML_LIBRARY		SG_T("library")
+			#define SG_XML_LIBRARY_PATH	SG_T("path")
+			#define SG_XML_LIBRARY_NAME	SG_T("name")
+
 			SG_PRINTF(SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n"));
 			SG_PRINTF(SG_T("<%s>\n"), SG_XML_LIBRARY);
 			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, pTool->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);

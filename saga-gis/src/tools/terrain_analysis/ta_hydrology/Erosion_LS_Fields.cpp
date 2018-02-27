@@ -70,8 +70,6 @@
 //---------------------------------------------------------
 CErosion_LS_Fields::CErosion_LS_Fields(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		("LS-Factor, Field Based");
 

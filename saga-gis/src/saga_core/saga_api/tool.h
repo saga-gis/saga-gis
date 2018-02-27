@@ -77,63 +77,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//		XML tags for mark-up of tool synopsis	 		 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define SG_XML_SYSTEM				SG_T("system")
-#define SG_XML_SYSTEM_VER			SG_T("version")
-#define SG_XML_SYSTEM_MLP			SG_T("library-path")
-#define SG_XML_LIBRARY				SG_T("library")
-#define SG_XML_LIBRARY_PATH			SG_T("path")
-#define SG_XML_LIBRARY_NAME			SG_T("name")
-#define SG_XML_TOOL					SG_T("module")
-#define SG_XML_TOOL_ATT_NAME		SG_T("name")
-#define SG_XML_TOOL_ATT_ID			SG_T("id")
-#define SG_XML_TOOL_ATT_VERSION		SG_T("version")
-#define SG_XML_TOOL_ATT_AUTHOR		SG_T("author")
-#define SG_XML_SPECIFICATION		SG_T("specification")
-#define SG_XML_SPEC_ATT_GRID		SG_T("grid")
-#define SG_XML_SPEC_ATT_INTERA		SG_T("interactive")
-#define SG_XML_MENU					SG_T("menu")
-#define SG_XML_DESCRIPTION			SG_T("description")
-#define SG_XML_PARAM				SG_T("parameter")
-#define SG_XML_PARAM_ATT_NAME		SG_T("name")
-#define SG_XML_PARAM_ATT_CLASS		SG_T("class")
-#define SG_XML_PARAM_MAND			SG_T("mandatory")
-#define SG_XML_PARAM_TYPE			SG_T("type")
-#define SG_XML_PARAM_IDENT			SG_T("identifier")
-#define SG_XML_PARAM_DESC			SG_T("description")
-#define SG_XML_PARAM_PROP			SG_T("properties")
-#define SG_XML_PARAM_LIST			SG_T("list")
-#define SG_XML_PARAM_ITEM			SG_T("item")
-#define SG_XML_PARAM_TABLE			SG_T("table")
-#define SG_XML_PARAM_FIELD			SG_T("field")
-#define SG_XML_PARAM_FIELD_ATT_NAME	SG_T("name")
-#define SG_XML_PARAM_FIELD_ATT_TYPE	SG_T("type")
-#define SG_XML_PARAM_MIN			SG_T("min")
-#define SG_XML_PARAM_MAX			SG_T("max")
-#define SG_XML_PARAM_DEFAULT		SG_T("default")
-
-//---------------------------------------------------------
-#define SG_XML_ERROR				SG_T("error")
-#define SG_XML_ERROR_ATT_MSG		SG_T("message")
-#define SG_XML_ERROR_ATT_DESC		SG_T("description")
-#define SG_XML_WARNING				SG_T("warning")
-#define SG_XML_MESSAGE				SG_T("message")
-#define SG_XML_MESSAGE_PROC			SG_T("message-proc")
-#define SG_XML_MESSAGE_EXEC			SG_T("message-exec")
-#define SG_XML_PROGRESS				SG_T("progress")
-
-//---------------------------------------------------------
-#define SG_GET_XML_TAGGED_STR(value, tag)	CSG_String::Format(SG_T("<%s>%s</%s>"), tag, value, tag)
-#define SG_GET_XML_TAGGED_INT(value, tag)	CSG_String::Format(SG_T("<%s>%d</%s>"), tag, value, tag)
-#define SG_GET_XML_TAGGED_FLT(value, tag)	CSG_String::Format(SG_T("<%s>%f</%s>"), tag, value, tag)
-
-
-///////////////////////////////////////////////////////////
-//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

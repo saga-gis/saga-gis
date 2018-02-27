@@ -106,6 +106,7 @@ tool_interactive.cpp\
 tool_interactive_base.cpp\
 tool_library.cpp\
 tool_library_interface.cpp\
+tool_summary.cpp\
 api_core.h\
 clipper.hpp\
 data_manager.h\

@@ -78,6 +78,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SG_XML_ERROR		SG_T("error")
+#define SG_XML_WARNING		SG_T("warning")
+#define SG_XML_MESSAGE		SG_T("message")
+#define SG_XML_MESSAGE_PROC	SG_T("message-proc")
+#define SG_XML_MESSAGE_EXEC	SG_T("message-exec")
+#define SG_XML_PROGRESS		SG_T("progress")
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 static CCMD_Tool	*g_pCMD_Tool	= NULL;
 
 //---------------------------------------------------------
@@ -164,13 +179,13 @@ void			CMD_Print			(FILE *Stream, const CSG_String &Text, const SG_Char *XML_Tag
 //---------------------------------------------------------
 void			CMD_Print_Error		(const CSG_String &Error)
 {
-	CMD_Print(stderr, CSG_String::Format(SG_T("%s: %s"), _TL("Error"), Error.c_str()), SG_XML_ERROR);
+	CMD_Print(stderr, CSG_String::Format("%s: %s", _TL("Error"), Error.c_str()), SG_XML_ERROR);
 }
 
 //---------------------------------------------------------
 void			CMD_Print_Error		(const CSG_String &Error, const CSG_String &Info)
 {
-	CMD_Print_Error(CSG_String::Format(SG_T("%s [%s]"), Error.c_str(), Info.c_str()));
+	CMD_Print_Error(CSG_String::Format("%s [%s]", Error.c_str(), Info.c_str()));
 }
 
 
@@ -199,7 +214,7 @@ bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 	if( g_bInteractive )
 	{
 #ifdef _SAGA_MSW
-		CSG_String	sKey, sYes(SG_T("y")), sNo(SG_T("n"));
+		CSG_String	sKey, sYes("y"), sNo("n");
 
 		SG_PRINTF(SG_T("%s: %s\n"), Caption.c_str(), Message.c_str());
 
@@ -207,7 +222,7 @@ bool			CMD_Get_YesNo		(const CSG_String &Caption, const CSG_String &Message)
 
 		do
 		{
-			sKey.Printf(SG_T("%c"), _getch());
+			sKey.Printf("%c", _getch());
 		}
 		while( sYes.CmpNoCase(sKey) && sNo.CmpNoCase(sKey) );
 
