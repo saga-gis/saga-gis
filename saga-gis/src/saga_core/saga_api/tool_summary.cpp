@@ -640,6 +640,7 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 
 	int			i;
 	CSG_String	s;
+	CSG_String	tool_name;
 
 	switch( Format )
 	{
@@ -655,9 +656,11 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 		{
 			if( Get_Tool(i) && (bWithGUINeeded || !Get_Tool(i)->needs_GUI()) )
 			{
+				tool_name = Get_Tool(i)->Get_Name();
+				tool_name.Replace("&", "&amp;");
 				s	+= CSG_String::Format("\t<%s %s=\"%s\" %s=\"%s\"/>\n", SG_XML_TOOL,
 					SG_XML_TOOL_ATT_ID  , Get_Tool(i)->Get_ID  ().c_str(),
-					SG_XML_TOOL_ATT_NAME, Get_Tool(i)->Get_Name().c_str()
+					SG_XML_TOOL_ATT_NAME, tool_name.c_str()
 				);
 			}
 		}
