@@ -73,6 +73,7 @@
 #define SG_XML_LIBRARY				SG_T("library")
 #define SG_XML_LIBRARY_PATH			SG_T("path")
 #define SG_XML_LIBRARY_NAME			SG_T("name")
+#define SG_XML_LIBRARY_CATEGORY			SG_T("category")
 #define SG_XML_TOOL					SG_T("module")
 #define SG_XML_TOOL_ATT_NAME		SG_T("name")
 #define SG_XML_TOOL_ATT_ID			SG_T("id")
@@ -649,7 +650,8 @@ CSG_String CSG_Tool_Library::Get_Summary(int Format, bool bWithGUINeeded) const
 		s	+= "<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n";
 		s	+= CSG_String::Format("<%s>\n"         , SG_XML_LIBRARY);
 		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Name     ().c_str(), SG_XML_LIBRARY_NAME);
+		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, Get_Info(TLB_INFO_Name).c_str(), SG_XML_LIBRARY_NAME);
+		s	+= CSG_String::Format("\t<%s>%s</%s>\n", SG_XML_LIBRARY_CATEGORY, Get_Info(TLB_INFO_Category).c_str(), SG_XML_LIBRARY_CATEGORY);
 
 		for(i=0; i<Get_Count(); i++)
 		{
