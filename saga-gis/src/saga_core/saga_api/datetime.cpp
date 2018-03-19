@@ -196,13 +196,12 @@ CSG_DateTime & CSG_DateTime::Set_Hour(double Value)
 {
 	m_pDateTime->ResetTime();
 
-	if( Value >= 0.0 && Value <= 24.0 )
-	{
-		m_pDateTime->SetHour       ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
-		m_pDateTime->SetMinute     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
-		m_pDateTime->SetSecond     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) * 1000.0;
-		m_pDateTime->SetMillisecond((wxDateTime::wxDateTime_t)Value);
-	}
+	Value	= fmod(Value, 24.0); if( Value < 0.0 ) Value += 24.0;
+
+	m_pDateTime->SetHour       ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
+	m_pDateTime->SetMinute     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) *   60.0;
+	m_pDateTime->SetSecond     ((wxDateTime::wxDateTime_t)Value);	Value	= (Value - (wxDateTime::wxDateTime_t)Value) * 1000.0;
+	m_pDateTime->SetMillisecond((wxDateTime::wxDateTime_t)Value);
 
 	return( *this );
 }
