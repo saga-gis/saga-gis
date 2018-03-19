@@ -141,36 +141,40 @@ bool CSolarRadiationYear::On_Execute(void)
 	CSG_DateTime	Date(1, CSG_DateTime::Jan, Parameters("YEAR")->asInt());
 
 	int		nSteps	= Parameters("STEPS")->asInt();
-	double	dDays	= Date.Get_NumberOfDays(Date.Get_Year()) / (double)nSteps;
+	double	dDays	= (Date.Get_NumberOfDays(Date.Get_Year()) - 1) / (double)nSteps;
 	double	Day		= Date.Get_JDN();
+
+	CSG_Grid	Direct(*Get_System()), Diffus(*Get_System());
 
 	//-----------------------------------------------------
 	for(int iStep=0; iStep<=nSteps && Process_Get_Okay(); iStep++, Day+=dDays)
 	{
 		Date.Set(Day);
 
-		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System()); bool bResult;
+		CSG_Grid	*pTotal	= SG_Create_Grid(*Get_System()); bool bResult;
 
 		SG_RUN_TOOL(bResult, "ta_lighting", 2,
-			    SG_TOOL_PARAMETER_SET("GRD_DEM"  , pDEM )
-			&&  SG_TOOL_PARAMETER_SET("GRD_TOTAL", pGrid)
-			&&  SG_TOOL_PARAMETER_SET("UNITS"    , Parameters("UNITS"    ))
-			&&  SG_TOOL_PARAMETER_SET("HOUR_STEP", Parameters("HOUR_STEP"))
-			&&  SG_TOOL_PARAMETER_SET("DAY"      , Day  )
+			    SG_TOOL_PARAMETER_SET("GRD_DEM"   , pDEM   )
+			&&  SG_TOOL_PARAMETER_SET("GRD_DIRECT", &Direct)
+			&&  SG_TOOL_PARAMETER_SET("GRD_DIFFUS", &Diffus)
+			&&  SG_TOOL_PARAMETER_SET("GRD_TOTAL" , pTotal )
+			&&  SG_TOOL_PARAMETER_SET("DAY"       , Day    )
+			&&  SG_TOOL_PARAMETER_SET("HOUR_STEP" , Parameters("HOUR_STEP"))
+			&&  SG_TOOL_PARAMETER_SET("UNITS"     , Parameters("UNITS"    ))
 		)
 
 		if( !bResult )
 		{
-			delete(pGrid);
+			delete(pTotal);
 
 			return( false );
 		}
 
-		pGrids->Add_Grid(Day, pGrid, true);
+		pGrids->Add_Grid(Day, pTotal, true);
 
 		pGrids->Get_Attributes(iStep).Set_Value("ID"       , 1 + iStep);
 		pGrids->Get_Attributes(iStep).Set_Value("DayOfYear", Date.Get_DayOfYear());
-		pGrids->Get_Attributes(iStep).Set_Value("Date"     , Date.Format_Date());
+		pGrids->Get_Attributes(iStep).Set_Value("Date"     , Date.Format_ISODate());
 	}
 
 	//-----------------------------------------------------
