@@ -868,6 +868,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 
 		case PARAMETER_TYPE_DataObject_Output:
 		case PARAMETER_TYPE_Grid:
+		case PARAMETER_TYPE_Grids:
 		case PARAMETER_TYPE_Table:
 		case PARAMETER_TYPE_Shapes:
 		case PARAMETER_TYPE_TIN:
@@ -875,6 +876,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Grids_List:
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
@@ -923,45 +925,45 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Bool:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asBool() ? 1 : 0);
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asBool() ? 1 : 0);
 			break;
 
 		case PARAMETER_TYPE_Int:
 		case PARAMETER_TYPE_Choice:
 		case PARAMETER_TYPE_Table_Field:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asInt());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(%d)\n", p->Get_Identifier(), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Fields:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double:
 		case PARAMETER_TYPE_Degree:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%f)\n", p->Get_Identifier(), p->asDouble());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(%f)\n", p->Get_Identifier(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).asRange().Set_LoVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).asRange().Set_HiVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).asRange().Set_LoVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_LoVal());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).asRange().Set_HiVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_HiVal());
 			break;
 
 		case PARAMETER_TYPE_Date:
 		case PARAMETER_TYPE_String:
 		case PARAMETER_TYPE_Text:
 		case PARAMETER_TYPE_FilePath:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(%s)\n", p->Get_Identifier(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable:
-			Command	+= CSG_String::Format("#   Parms.Get(unicode('%s')).Set_Value(saga_api.SG_Create_Table('table.txt'))\n", p->Get_Identifier());
+			Command	+= CSG_String::Format("#   Parms(saga_api.CSG_String('%s')).Set_Value(saga_api.SG_Create_Table('table.txt'))\n", p->Get_Identifier());
 			break;
 
 		case PARAMETER_TYPE_Grid_System:
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", p->Get_Identifier(),
+				Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", p->Get_Identifier(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin()	, p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX()	, p->asGrid_System()->Get_NY());
@@ -969,30 +971,18 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Grid:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s grid\n", p->Get_Identifier(),
-				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
-			);
-			break;
-
+		case PARAMETER_TYPE_Grids:
 		case PARAMETER_TYPE_Table:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s table\n", p->Get_Identifier(),
-				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
-			);
-			break;
-
 		case PARAMETER_TYPE_Shapes:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s shapes\n", p->Get_Identifier(),
-				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
-			);
-			break;
-
 		case PARAMETER_TYPE_TIN:
-			Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # %s %s TIN\n", p->Get_Identifier(),
-				p->is_Input()    ? SG_T("input")    : SG_T("output"), p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")
+			Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(use_variable_of_dataset_here) # %s %s, %s\n", p->Get_Identifier(), SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(),
+				p->is_Input   () ? SG_T("input"   ) : SG_T("output"      ),
+				p->is_Optional() ? SG_T("optional") : SG_T("NOT optional")		
 			);
 			break;
 
 		case PARAMETER_TYPE_Grid_List:
+		case PARAMETER_TYPE_Grids_List:
 		case PARAMETER_TYPE_Table_List:
 		case PARAMETER_TYPE_Shapes_List:
 		case PARAMETER_TYPE_TIN_List:
@@ -1000,9 +990,9 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			if( p->is_Input() )
 			{
 				if( !p->is_Optional() )
-					Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # data object list\n", p->Get_Identifier());
+					Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(use_variable_of_dataset_here) # %s list\n"         , p->Get_Identifier(), SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str());
 				else
-					Command	+= CSG_String::Format("    Parms.Get(unicode('%s')).Set_Value(use_variable_of_dataset_here) # optional data object list\n", p->Get_Identifier());
+					Command	+= CSG_String::Format("    Parms(saga_api.CSG_String('%s')).Set_Value(use_variable_of_dataset_here) # optional %s list\n", p->Get_Identifier(), SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str());
 			}
 			break;
 		}
