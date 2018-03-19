@@ -2195,7 +2195,7 @@ bool CSG_Grids::_Load_Attributes(CSG_File &Stream)
 
 	while( Stream.Read_Line(sLine) && !sLine.is_Empty() )
 	{
-		CSG_String_Tokenizer	Values(sLine, "\t");
+		CSG_String_Tokenizer	Values(sLine, "\t", SG_TOKEN_RET_EMPTY_ALL);
 
 		if( Values.Get_Tokens_Count() == (size_t)Attributes.Get_Field_Count() )
 		{
