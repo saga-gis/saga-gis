@@ -73,7 +73,7 @@
 #define SG_XML_LIBRARY				SG_T("library")
 #define SG_XML_LIBRARY_PATH			SG_T("path")
 #define SG_XML_LIBRARY_NAME			SG_T("name")
-#define SG_XML_LIBRARY_CATEGORY			SG_T("category")
+#define SG_XML_LIBRARY_CATEGORY		SG_T("category")
 #define SG_XML_TOOL					SG_T("module")
 #define SG_XML_TOOL_ATT_NAME		SG_T("name")
 #define SG_XML_TOOL_ATT_ID			SG_T("id")
@@ -539,7 +539,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			//---------------------------------------------
 			if( bParameters )
 			{
-				bool	bFirst, bOptionals	= false;
+				bool	bFirst;
 
 				s	+= "\n";
 
@@ -612,10 +612,6 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 							pParameter->Get_Description(),
 							pParameter->Get_Description(PARAMETER_DESCRIPTION_PROPERTIES).c_str()
 						);
-					}
-					else if( pParameter->is_Optional() )
-					{
-						bOptionals	= true;
 					}
 				}
 			}
@@ -829,7 +825,7 @@ CSG_String CSG_Tool_Library_Manager::Get_Summary(int Format)	const
 		s	+= CSG_String::Format("<%s>\n", SG_XML_SYSTEM);
 		s	+= CSG_String::Format("<%s>%s</%s>\n", SG_XML_SYSTEM_VER, SAGA_VERSION, SG_XML_SYSTEM_VER);
 
-		for(int i=0; i<Libraries.Get_Count(); i++)
+		for(i=0; i<Libraries.Get_Count(); i++)
 		{
 			s	+= CSG_String::Format("\t<%s %s=\"%s\"/>\n", SG_XML_LIBRARY, SG_XML_LIBRARY_NAME, Libraries[i].asString(0));
 		}
