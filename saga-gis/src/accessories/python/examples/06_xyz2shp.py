@@ -46,7 +46,7 @@ def xyz2shp(fTable):
         return 0
 
     # ------------------------------------
-    points.Save(saga_api.CSG_String(fTable))
+    points.Save(saga_api.CSG_String(fTable + '.shp'))
 
     print 'success'
     return 1
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     if len( sys.argv ) != 2:
         print 'Usage: xyz2shp.py <in: x/y/z-data as text or dbase table>'
         print '... trying to run with test_data'
-        fTable = './test_pts_xyz.xyz'
+        fTable = './dem_contours.xyz'
     else:
         fTable = sys.argv[ 1 ]
         if os.path.split(fTable)[0] == '':

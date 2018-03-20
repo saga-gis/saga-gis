@@ -51,8 +51,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 2:
         print 'Usage: 00_grid_create_dummy.py <out: ascii grid file>'
-        print '... try to save as <test.asc> in current working directory'
-        fASC    = './test.asc'
+        print '... try to save as <dem.asc> in current working directory'
+        fASC    = './dem.asc'
     else:
         fASC    = sys.argv[1]
         if os.path.split(fASC)[0] == '':

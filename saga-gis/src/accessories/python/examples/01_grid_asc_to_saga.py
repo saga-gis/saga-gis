@@ -25,9 +25,9 @@ def grid_asc2sgrd(fASC):
         print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
         return 0
 
-    saga_api.SG_File_Set_Extension(sASC, saga_api.CSG_String('sgrd'))
-    if p(saga_api.CSG_String('GRIDS')).asGridList().Get_Grid(0).Save(sASC) == 0:
-        print 'ERROR: saving grid [' + sASC + ']'
+    saga_api.SG_File_Set_Extension(sASC, saga_api.CSG_String('sg-grd-z'))
+    if p(saga_api.CSG_String('GRIDS')).asGridList().Get_Grid(0).Save(sASC, 0) == 0:
+        print 'ERROR: saving grid'
         return 0
 
     print 'success'
@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) != 2:
         print 'Usage: grid_asc_to_saga.py <in: ascii grid file>'
-        print '... trying to run with test_data'
-        fASC    = './test.asc'
+        print '... trying to run with dummy data'
+        fASC    = './dem.asc'
     else:
         fASC    = sys.argv[1]
         if os.path.split(fASC)[0] == '':

@@ -27,13 +27,13 @@ def grid_difference(fA, fB, fC, bPixelWise):
                 else:
                     C.Set_Value(x, y, A.asDouble(x, y) - B.asDouble(x, y))
             print '.',
-        C.Save(saga_api.CSG_String(fC))
+        C.Save(saga_api.CSG_String(fC), 0)
         print
         
     else:               # using built-in CSG_Grid function 'Subtract()'
         C   = saga_api.SG_Create_Grid(A)
         C.Subtract(B)
-        C.Save(saga_api.CSG_String(fC))
+        C.Save(saga_api.CSG_String(fC), 0)
         
     print 'success'
     return 1
@@ -47,9 +47,9 @@ if __name__ == '__main__':
     if len( sys.argv ) != 4:
         print 'Usage: grid_difference.py <in: grid a> <in: grid b> <out: grid a-b)>'
         print '... trying to run with test_data'
-        fA  = './test.sgrd'
-        fB  = './test.sgrd'
-        fC  = './test_difference.sgrd'
+        fA  = './vcurv.sg-grd-z'
+        fB  = './hcurv.sg-grd-z'
+        fC  = './difference.sg-grd-z'
     else:
         fA  = sys.argv[1]
         if os.path.split(fA)[0] == '':
@@ -63,4 +63,4 @@ if __name__ == '__main__':
         if os.path.split(fC)[0] == '':
             fC  = './' + fC
 
-    grid_difference(fA, fB, fC, 1)
+    grid_difference(fA, fB, fC, 0)

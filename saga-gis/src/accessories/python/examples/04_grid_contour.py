@@ -15,10 +15,12 @@ def grid_contour(fGrid, fLines):
     else:                  # Linux
         saga_api.SG_Get_Tool_Library_Manager().Add_Library(os.environ['SAGA_MLB'] + '/libshapes_grid.so')
 
+    zStep  = Grid.Get_Range() / 10
+
     m      = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('shapes_grid'), 5) # 'Contour Lines from Grid'
     p      = m.Get_Parameters()
     p(saga_api.CSG_String('GRID'   )).Set_Value(Grid)
-    p(saga_api.CSG_String('ZSTEP'  )).Set_Value(25.0)
+    p(saga_api.CSG_String('ZSTEP'  )).Set_Value(zStep)
 
     if m.Execute() == 0:
         print 'ERROR: executing tool [' + m.Get_Name().c_str() + ']'
@@ -40,8 +42,8 @@ if __name__ == '__main__':
     if len( sys.argv ) != 4:
         print 'Usage: grid_contour.py <in: grid> <out: contour>'
         print '... trying to run with test_data'
-        fGrid   = './test.sgrd'
-        fLines  = './test_contours.shp'
+        fGrid   = './dem.sg-grd-z'
+        fLines  = './dem_contours.shp'
     else:
         fGrid   = sys.argv[1]
         if os.path.split(fGrid)[0] == '':

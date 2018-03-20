@@ -37,8 +37,8 @@ if __name__ == '__main__':
     if len( sys.argv ) != 3:
         print 'Usage: shp2xyz.py <in: shape file> <out: x/y/z-data as text table>'
         print '... trying to run with test_data'
-        fshp = './test_contours.shp'
-        fxyz = './test.xyz'
+        fshp = './dem_contours.shp'
+        fxyz = './dem_contours.xyz'
     else:
         fshp = sys.argv[1]
         if os.path.split(fshp)[0] == '':
