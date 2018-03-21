@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual Studio 14
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_api", "saga_core\saga_api\saga_api.vcxproj", "{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gdi", "saga_core\saga_gdi\saga_gdi.vcxproj", "{5F5137D6-9979-4829-9C23-45D9726D8554}"

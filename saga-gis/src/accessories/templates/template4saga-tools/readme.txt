@@ -5,8 +5,8 @@ This directory contains a SAGA tool library template including one initial tool.
 
 Files:
 ./readme.txt
-./my_tools_link2bin/.vc10.sln
-./my_tools_link2src/.vc10.sln
+./my_tools_link2bin/.vc14.sln
+./my_tools_link2src/.vc14.sln
 ./my_tool_library/Makefile
 ./my_tool_library/Makefile.am
 ./my_tool_library/TLB_Interface.cpp
@@ -55,7 +55,7 @@ or
 	SET SAGA_64=C:\saga_2.3.1_x64\
 
 The solution/project files are:	
-	./my_tools_link2bin/.vc10.sln
+	./my_tools_link2bin/.vc14.sln
 	./my_tool_library/my_tool_library_link2bin.vcxproj
 	./my_tool_library/my_tool_library_link2bin.vcxproj.filters
 
@@ -63,6 +63,6 @@ The solution/project files are:
 	SET SAGA=C:\saga_2.3.1_src\saga-gis\
 
 The solution/project files are:	
-	./my_tools_link2src/.vc10.sln
+	./my_tools_link2src/.vc14.sln
 	./my_tool_library/my_tool_library_link2src.vcxproj
 	./my_tool_library/my_tool_library_link2src.vcxproj.filters
