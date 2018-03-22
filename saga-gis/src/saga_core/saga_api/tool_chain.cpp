@@ -672,6 +672,34 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::Parameter_isCompatible(TSG_Parameter_Type A, TSG_Parameter_Type B)
+{
+	if( A == B )
+	{
+		return( true );
+	}
+
+	switch( A )
+	{
+	default:
+		return( false );
+
+	case PARAMETER_TYPE_Table:
+		return( B == PARAMETER_TYPE_Shapes
+			||  B == PARAMETER_TYPE_PointCloud
+			||  B == PARAMETER_TYPE_TIN );
+
+	case PARAMETER_TYPE_Shapes:
+		return( B == PARAMETER_TYPE_PointCloud );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Parameters *pData)
 {
 	//-----------------------------------------------------
@@ -1149,6 +1177,10 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 				if( pParameter->Get_Type() == pData->Get_Type() )
 				{
 					bResult	= pParameter->Assign(pData);
+				}
+				else if( Parameter_isCompatible(pParameter->Get_Type(), pData->Get_Type()) )
+				{
+					bResult = pParameter->Set_Value(pData->asDataObject());
 				}
 				else if( pParameter->is_DataObject_List() && pData->is_DataObject() )
 				{

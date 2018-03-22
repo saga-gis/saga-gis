@@ -131,6 +131,8 @@ private:
 	bool						Data_Initialize			(void);
 	bool						Data_Finalize			(void);
 
+	bool						Parameter_isCompatible	(TSG_Parameter_Type A, TSG_Parameter_Type B);
+
 	bool						Check_Condition			(const CSG_MetaData &Condition, CSG_Parameters *pData);
 
 	bool						ForEach					(const CSG_MetaData &Commands);
