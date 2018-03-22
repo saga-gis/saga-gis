@@ -81,37 +81,77 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Fill : public CSG_Tool_Grid_Interactive  
+class CGrid_Filler
 {
 public:
-	CGrid_Fill(void);
-	virtual ~CGrid_Fill(void);
+	CGrid_Filler(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Grid|Values") );	}
+	void					Parameters_Add			(CSG_Parameters &Parameters);
+	void					Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool					Parameters_Set			(CSG_Parameters &Parameters);
+
+	int						Fill					(const TSG_Point &Point);
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	CSG_Grid				*m_pGrid;
 
 
 private:
 
-	int						m_iStack, m_Method;
+	int						m_Replace;
 
-	double					m_zFill, m_zFixed, m_zTolerance_Min, m_zTolerance_Max;
+	double					m_zFill, m_zReplace, m_zTolerance;
 
 	bool					m_bNoData;
 
-	CSG_Grid				*m_pGrid;
+	CSG_Grid_Stack			m_Stack;
 
-	CSG_Points_Int			m_Stack;
+};
 
 
-	void					Push				(int  x, int  y);
-	void					Pop					(int &x, int &y);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Fill : public CSG_Tool_Grid, CGrid_Filler
+{
+public:
+	CGrid_Fill(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Fill_Interactive : public CSG_Tool_Grid_Interactive, CGrid_Filler
+{
+public:
+	CGrid_Fill_Interactive(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 };
 

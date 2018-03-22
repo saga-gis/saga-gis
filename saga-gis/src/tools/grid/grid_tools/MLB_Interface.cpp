@@ -175,7 +175,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 14:	return( new CGrid_Value_Request );
 	case 15:	return( new CGrid_Value_Reclassify );
 
-	case 16:	return( new CGrid_Fill );
+	case 39:	return( new CGrid_Fill );
+	case 16:	return( new CGrid_Fill_Interactive );
 
 	case 17: 	return( new CCropToData );
 
