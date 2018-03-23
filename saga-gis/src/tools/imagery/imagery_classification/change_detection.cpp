@@ -70,8 +70,6 @@
 //---------------------------------------------------------
 CChange_Detection::CChange_Detection(void)
 {
-	CSG_Parameter	*pNode, *pTable;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Confusion Matrix (Two Grids)"));
 
@@ -89,54 +87,54 @@ CChange_Detection::CChange_Detection(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
-		NULL	, "ONE"			, _TL("Classification 1"),
+	Parameters.Add_Grid("",
+		"ONE"		, _TL("Classification 1"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pTable	= Parameters.Add_Table(pNode, "ONE_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Table_Field(pTable, "ONE_LUT_MIN", _TL("Value")			, _TL(""), false);
-	Parameters.Add_Table_Field(pTable, "ONE_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
-	Parameters.Add_Table_Field(pTable, "ONE_LUT_NAM", _TL("Name")			, _TL(""), true);
+	Parameters.Add_Table("ONE", "ONE_LUT", _TL("Look-up Table"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field( "ONE_LUT", "ONE_LUT_MIN", _TL("Value"          ), _TL(""), false);
+	Parameters.Add_Table_Field( "ONE_LUT", "ONE_LUT_MAX", _TL("Value (Maximum)"), _TL(""),  true);
+	Parameters.Add_Table_Field( "ONE_LUT", "ONE_LUT_NAM", _TL("Name"           ), _TL(""),  true);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "TWO"			, _TL("Classification 2"),
+	Parameters.Add_Grid("",
+		"TWO"		, _TL("Classification 2"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pTable	= Parameters.Add_Table(pNode, "TWO_LUT" , _TL("Look-up Table")	, _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Table_Field(pTable, "TWO_LUT_MIN", _TL("Value")			, _TL(""), false);
-	Parameters.Add_Table_Field(pTable, "TWO_LUT_MAX", _TL("Value (Maximum)"), _TL(""), true	);
-	Parameters.Add_Table_Field(pTable, "TWO_LUT_NAM", _TL("Name")			, _TL(""), true);
+	Parameters.Add_Table("TWO", "TWO_LUT", _TL("Look-up Table"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Table_Field( "TWO_LUT", "TWO_LUT_MIN", _TL("Value"          ), _TL(""), false);
+	Parameters.Add_Table_Field( "TWO_LUT", "TWO_LUT_MAX", _TL("Value (Maximum)"), _TL(""),  true);
+	Parameters.Add_Table_Field( "TWO_LUT", "TWO_LUT_NAM", _TL("Name"           ), _TL(""),  true);
 
-	Parameters.Add_Grid(
-		NULL	, "COMBINED"	, _TL("Combined Classes"),
+	Parameters.Add_Grid("",
+		"COMBINED"	, _TL("Combined Classes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "NOCHANGE"	, _TL("Report Unchanged Classes"),
+	Parameters.Add_Bool("",
+		"NOCHANGE"	, _TL("Report Unchanged Classes"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "NODATA"		, _TL("Include Unclassified Cells"),
+	Parameters.Add_Bool("",
+		"NODATA"	, _TL("Include Unclassified Cells"),
 		_TL(""),
 		true
 	);
 
-	pNode	= Parameters.Add_Table(
-		NULL	, "CONFUSION"	, _TL("Confusion Matrix"),
+	Parameters.Add_Table("",
+		"CONFUSION"	, _TL("Confusion Matrix"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "OUTPUT"		, _TL("Output as..."),
+	Parameters.Add_Choice("CONFUSION",
+		"OUTPUT"	, _TL("Output as..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|",
 			_TL("cells"),
@@ -145,14 +143,14 @@ CChange_Detection::CChange_Detection(void)
 		), 0
 	);
 
-	Parameters.Add_Table(
-		NULL	, "CLASSES"		, _TL("Class Values"),
+	Parameters.Add_Table("",
+		"CLASSES"	, _TL("Class Values"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "SUMMARY"		, _TL("Summary"),
+	Parameters.Add_Table("",
+		"SUMMARY"	, _TL("Summary"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -186,7 +184,7 @@ int CChange_Detection::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("SUMMARY"    , pParameter->asBool());
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -471,29 +469,35 @@ bool CChange_Detection::Get_Classes(CSG_Table &Classes, CSG_Grid *pGrid, bool bI
 		if( fNam < 0 || fNam >= pClasses->Get_Field_Count() )	{	fNam	= fMin;	}
 		if( fMax < 0 || fMax >= pClasses->Get_Field_Count() )	{	fMax	= fMin;	}
 
+		pClasses->Set_Index(fMin, TABLE_INDEX_Ascending);
+
 		for(int iClass=0; iClass<pClasses->Get_Count(); iClass++)
 		{
 			CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-			pClass->Set_Value(CLASS_NAM, pClasses->Get_Record(iClass)->asString(fNam));
-			pClass->Set_Value(CLASS_MIN, pClasses->Get_Record(iClass)->asDouble(fMin));
-			pClass->Set_Value(CLASS_MAX, pClasses->Get_Record(iClass)->asDouble(fMax));
+			pClass->Set_Value(CLASS_NAM, (*pClasses)[iClass].asString(fNam));
+			pClass->Set_Value(CLASS_MIN, (*pClasses)[iClass].asDouble(fMin));
+			pClass->Set_Value(CLASS_MAX, (*pClasses)[iClass].asDouble(fMax));
 		}
+
+		pClasses->Del_Index();
 	}
 
 	//-----------------------------------------------------
-	else if( DataObject_Get_Parameter(pGrid, "LUT") )
+	else if( DataObject_Get_Parameter(pGrid, "LUT") && (pClasses = DataObject_Get_Parameter(pGrid, "LUT")->asTable()) != NULL )
 	{
-		pClasses	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
+		pClasses->Set_Index(3, TABLE_INDEX_Ascending);
 
 		for(int iClass=0; iClass<pClasses->Get_Count(); iClass++)
 		{
 			CSG_Table_Record	*pClass	= Classes.Add_Record();
 
-			pClass->Set_Value(CLASS_NAM, pClasses->Get_Record(iClass)->asString(1));
-			pClass->Set_Value(CLASS_MIN, pClasses->Get_Record(iClass)->asDouble(3));
-			pClass->Set_Value(CLASS_MAX, pClasses->Get_Record(iClass)->asDouble(4));
+			pClass->Set_Value(CLASS_NAM, (*pClasses)[iClass].asString(1));
+			pClass->Set_Value(CLASS_MIN, (*pClasses)[iClass].asDouble(3));
+			pClass->Set_Value(CLASS_MAX, (*pClasses)[iClass].asDouble(4));
 		}
+
+		pClasses->Del_Index();
 	}
 
 	//-----------------------------------------------------
