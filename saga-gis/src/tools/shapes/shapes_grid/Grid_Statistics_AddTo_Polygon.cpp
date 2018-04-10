@@ -168,7 +168,7 @@ int CGrid_Statistics_AddTo_Polygon::On_Parameters_Enable(CSG_Parameters *pParame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format("G%02d_%s", iGrid + 1, VAR) : CSG_String::Format("%s [%s]", pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
+#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format("G%02d_%s", iGrid + 1, VAR) : CSG_String::Format("%s (%s)", pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
 
 //---------------------------------------------------------
 bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)

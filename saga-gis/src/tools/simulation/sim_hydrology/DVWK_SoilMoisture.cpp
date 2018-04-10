@@ -150,9 +150,9 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 
 	pClimate	= pNode->asTable();
 	pClimate->Set_Name(_TL("Climate Data"));
-	pClimate->Add_Field(_TL("Precipitation [mm]")	, SG_DATATYPE_Double);
-	pClimate->Add_Field(_TL("Temperature (2pm) [DegreeC]"), SG_DATATYPE_Double);
-	pClimate->Add_Field(_TL("Air Humidity (2pm) [%%]"), SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Precipitation (mm)")	, SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Temperature (2pm) (DegreeC)"), SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Air Humidity (2pm) (%%)"), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	pNode	= Parameters.Add_FixedTable(
