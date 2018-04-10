@@ -153,6 +153,7 @@ copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
+copy grids.h $(OutDir)include\saga_api
 copy mat_tools.h $(OutDir)include\saga_api
 copy metadata.h $(OutDir)include\saga_api
 copy tool.h $(OutDir)include\saga_api
@@ -229,6 +230,7 @@ copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
+copy grids.h $(OutDir)include\saga_api
 copy mat_tools.h $(OutDir)include\saga_api
 copy metadata.h $(OutDir)include\saga_api
 copy tool.h $(OutDir)include\saga_api
@@ -302,6 +304,7 @@ copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
+copy grids.h $(OutDir)include\saga_api
 copy mat_tools.h $(OutDir)include\saga_api
 copy metadata.h $(OutDir)include\saga_api
 copy tool.h $(OutDir)include\saga_api
@@ -378,6 +381,7 @@ copy datetime.h $(OutDir)include\saga_api
 copy geo_tools.h $(OutDir)include\saga_api
 copy grid.h $(OutDir)include\saga_api
 copy grid_pyramid.h $(OutDir)include\saga_api
+copy grids.h $(OutDir)include\saga_api
 copy mat_tools.h $(OutDir)include\saga_api
 copy metadata.h $(OutDir)include\saga_api
 copy tool.h $(OutDir)include\saga_api
