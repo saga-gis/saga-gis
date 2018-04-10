@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension, os
 
-module1 = Extension(
+saga_module = Extension(
 	'_saga_api',
 
 	sources = [
@@ -19,8 +19,9 @@ module1 = Extension(
 	],
 
 	libraries = [
-		'wxbase31u_xml',
 		'wxbase31u',
+		'wxbase31u_xml',
+		'wxbase31u_net',
 		'saga_api'
 	],
 
@@ -42,5 +43,5 @@ setup(
 	name 		= 'SAGA Python API',
 	version 	= '0.1',
 	description = '',
-	ext_modules = [module1]
+	ext_modules = [saga_module]
 )
