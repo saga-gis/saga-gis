@@ -211,7 +211,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 
 	//-----------------------------------------------------
 	{
-		#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format(SG_T("G%02d_%s"), iGrid + 1, VAR) : CSG_String::Format(SG_T("%s [%s]"), pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
+		#define GET_FIELD_NAME(VAR)	Naming == 0 ? CSG_String::Format(SG_T("G%02d_%s"), iGrid + 1, VAR) : CSG_String::Format(SG_T("%s (%s)"), pGrids->Get_Grid(iGrid)->Get_Name(), VAR)
 
 		int	Naming	= Parameters("NAMING")->asInt();
 

@@ -166,7 +166,7 @@ bool CTable_Running_Average::On_Execute(void)
 	int	Range	= Parameters("RANGE")->asInt();
 
 	//-----------------------------------------------------
-	#define GET_FIELD(id, name)	(!Parameters(id)->asBool() ? -1 : Parameters(CSG_String("FIELD_") + id)->asInt() < 0 && pTable->Add_Field(CSG_String::Format("%s [%s]", pTable->Get_Field_Name(fValue), name), SG_DATATYPE_Double) ? pTable->Get_Field_Count() - 1 : Parameters(CSG_String("FIELD_") + id)->asInt())
+	#define GET_FIELD(id, name)	(!Parameters(id)->asBool() ? -1 : Parameters(CSG_String("FIELD_") + id)->asInt() < 0 && pTable->Add_Field(CSG_String::Format("%s (%s)", pTable->Get_Field_Name(fValue), name), SG_DATATYPE_Double) ? pTable->Get_Field_Count() - 1 : Parameters(CSG_String("FIELD_") + id)->asInt())
 
 	int	fMean	= GET_FIELD("MEAN"   , SG_T("MEAN"     )); if( fMean   >= 0 ) Parameters("FIELD_MEAN"   )->Set_Value(fMean  );
 	int	fMedian	= GET_FIELD("MEDIAN" , SG_T("MEDIAN"   )); if( fMedian >= 0 ) Parameters("FIELD_MEDIAN" )->Set_Value(fMedian);

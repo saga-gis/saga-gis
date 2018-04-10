@@ -218,20 +218,20 @@ bool CGrid_Swath_Profile::Set_Profile(void)
 	m_pPoints->Add_Field("X"         , SG_DATATYPE_Double);
 	m_pPoints->Add_Field("Y"         , SG_DATATYPE_Double);
 	m_pPoints->Add_Field("Z"         , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z [mean]"  , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z [min]"   , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z [max]"   , SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z [min_sd]", SG_DATATYPE_Double);
-	m_pPoints->Add_Field("Z [max_sd]", SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z (mean)"  , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z (min)"   , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z (max)"   , SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z (min_sd)", SG_DATATYPE_Double);
+	m_pPoints->Add_Field("Z (max_sd)", SG_DATATYPE_Double);
 
 	for(i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
 		m_pPoints->Add_Field(m_pValues->Get_Grid(i)->Get_Name(), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("mean"  ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("min_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
-		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s [%s]"), _TL("max_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s (%s)"), _TL("mean"  ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s (%s)"), _TL("min"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s (%s)"), _TL("max"   ), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s (%s)"), _TL("min_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
+		m_pPoints->Add_Field(CSG_String::Format(SG_T("%s (%s)"), _TL("max_sd"), m_pValues->Get_Grid(i)->Get_Name()), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
