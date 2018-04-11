@@ -63,8 +63,9 @@
 
 //---------------------------------------------------------
 #include "shapes.h"
-
 #include "table_dbase.h"
+#include "tool_library.h"
+#include "data_manager.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -84,11 +85,85 @@ bool CSG_Shapes::On_Delete(void)
 {
 	CSG_String	File_Name	= Get_File_Name(true);
 
-	SG_File_Set_Extension(File_Name, "shp"); SG_File_Delete(File_Name);
-	SG_File_Set_Extension(File_Name, "shx"); SG_File_Delete(File_Name);
-	SG_File_Set_Extension(File_Name, "dbf"); SG_File_Delete(File_Name);
+	SG_File_Delete(File_Name);
+
+	SG_File_Set_Extension(File_Name, "shp"); SG_File_Delete(File_Name);	// shapes
+	SG_File_Set_Extension(File_Name, "shx"); SG_File_Delete(File_Name);	// shape index
+	SG_File_Set_Extension(File_Name, "dbf"); SG_File_Delete(File_Name);	// attributes
+	SG_File_Set_Extension(File_Name, "prj"); SG_File_Delete(File_Name);	// projection
+	SG_File_Set_Extension(File_Name, "sbn"); SG_File_Delete(File_Name);	// spatial index
+	SG_File_Set_Extension(File_Name, "sbx"); SG_File_Delete(File_Name);	// spatial index
+	SG_File_Set_Extension(File_Name, "atx"); SG_File_Delete(File_Name);	// attribute index
+	SG_File_Set_Extension(File_Name, "xml"); SG_File_Delete(File_Name);	// metadata
+	SG_File_Set_Extension(File_Name, "cpg"); SG_File_Delete(File_Name);	// code page
+	SG_File_Set_Extension(File_Name, "qix"); SG_File_Delete(File_Name);	// quadtree spatial index
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Shapes::_Load_GDAL(const CSG_String &File_Name)
+{
+	CSG_Data_Manager	Data;
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 3);	// Import Shapes
+
+	if( pTool && pTool->Settings_Push(&Data) )
+	{
+		if( pTool->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
+		{
+			SG_UI_Msg_Lock(true);
+			pTool->Execute();
+			SG_UI_Msg_Lock(false);
+		}
+
+		pTool->Settings_Pop();
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pShapes	= Data.Get_Shapes()->Count() ? Data.Get_Shapes()->Get(0)->asShapes() : NULL;
+
+	if( !pShapes || !Create(*pShapes) )
+	{
+		return( false );
+	}
+
+	Get_MetaData  ()	= pShapes->Get_MetaData  ();
+	Get_Projection()	= pShapes->Get_Projection();
+
+	//-----------------------------------------------------
+	if( SG_File_Cmp_Extension(File_Name, "gpkg"   )
+	||  SG_File_Cmp_Extension(File_Name, "GeoJSON")	)
+	{
+		Set_File_Name(File_Name, true);
+	}
+	else
+	{
+		Set_File_Name(File_Name, false);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_Shapes::_Save_GDAL(const CSG_String &File_Name, const CSG_String &Driver)
+{
+	bool	bResult;
+
+	SG_RUN_TOOL(bResult, "io_gdal", 4,	// Export Shapes
+		    SG_TOOL_PARAMETER_SET("SHAPES", this)
+		&&	SG_TOOL_PARAMETER_SET("FILE"  , File_Name)
+		&&	SG_TOOL_PARAMETER_SET("FORMAT", Driver)
+	);
+
+	return( bResult );
 }
 
 
@@ -383,6 +458,8 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 			Set_Field_Name(iField, pFields->Get_Content(iField));
 		}
 	}
+
+	Set_File_Name(File_Name, true);
 
 	//-----------------------------------------------------
 	return( true );

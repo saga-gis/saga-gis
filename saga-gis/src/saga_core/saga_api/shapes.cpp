@@ -282,11 +282,9 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			SG_UI_ProgressAndMsg_Lock(false);
 		}
 	}
-	else if( SG_File_Exists(File_Name) )
+	else
 	{
-		bResult	= _Load_ESRI(File_Name);
-
-		Set_File_Name(File_Name, true);
+		bResult	= _Load_ESRI(File_Name) || _Load_GDAL(File_Name);
 	}
 
 	//-----------------------------------------------------
@@ -301,6 +299,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 		return( true );
 	}
 
+	//-----------------------------------------------------
 	for(int iShape=Get_Count()-1; iShape>=0; iShape--)	// be kind, keep at least those shapes that have been loaded successfully
 	{
 		if( !Get_Shape(iShape)->is_Valid() )
@@ -314,6 +313,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 		Destroy();
 	}
 
+	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
 	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
 
@@ -399,7 +399,25 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save shapes"), File_Name.c_str()), true);
 
-	if( _Save_ESRI(File_Name) )
+	//-----------------------------------------------------
+	if( Format == GRID_FILE_FORMAT_Undefined )
+	{
+		if( SG_File_Cmp_Extension(File_Name, "gpkg"   ) )	Format	= SHAPE_FILE_FORMAT_GeoPackage;
+		if( SG_File_Cmp_Extension(File_Name, "GeoJSON") )	Format	= SHAPE_FILE_FORMAT_GeoJSON   ;
+	}
+
+	//-----------------------------------------------------
+	bool	bResult	= false;
+
+	switch( Format )
+	{
+	default                          : bResult = _Save_ESRI(File_Name           ); break;
+	case SHAPE_FILE_FORMAT_GeoPackage: bResult = _Save_GDAL(File_Name, "GPKG"   ); break;
+	case SHAPE_FILE_FORMAT_GeoJSON   : bResult = _Save_GDAL(File_Name, "GeoJSON"); break;
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
 	{
 		Set_Modified(false);
 

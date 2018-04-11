@@ -105,6 +105,16 @@ TSG_Shape_Type;
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT CSG_String	SG_Get_ShapeType_Name	(TSG_Shape_Type Type);
 
+//---------------------------------------------------------
+typedef enum ESG_Shape_File_Format
+{
+	SHAPE_FILE_FORMAT_Undefined	= 0,
+	SHAPE_FILE_FORMAT_ESRI,
+	SHAPE_FILE_FORMAT_GeoPackage,
+	SHAPE_FILE_FORMAT_GeoJSON
+}
+TSG_Shape_File_Format;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -516,7 +526,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef enum
+typedef enum ESG_Polygon_Point_Relation
 {
 	SG_POLYGON_POINT_Outside,
 	SG_POLYGON_POINT_Vertex,
@@ -735,6 +745,9 @@ protected:
 
 
 private:
+
+	bool							_Load_GDAL				(const CSG_String &File_Name);
+	bool							_Save_GDAL				(const CSG_String &File_Name, const CSG_String &Driver);
 
 	bool							_Load_ESRI				(const CSG_String &File_Name);
 	bool							_Save_ESRI				(const CSG_String &File_Name);
