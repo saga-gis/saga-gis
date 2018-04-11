@@ -949,7 +949,7 @@ bool CSG_Parameter_Choice::Set_Value(const CSG_String &Value)
 
 	for(i=0; i<m_Items.Get_Count(); i++)
 	{
-		if( m_Items[i].Cmp(Value) == 0 )
+		if( Value.Cmp(Get_Item_Data(i)) == 0 || Value.Cmp(Get_Item(i)) == 0 )
 		{
 			m_Value	= i;
 
