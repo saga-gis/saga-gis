@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 14
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 14 for Windows Desktop
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_api", "saga_core\saga_api\saga_api.vcxproj", "{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "saga_gdi", "saga_core\saga_gdi\saga_gdi.vcxproj", "{5F5137D6-9979-4829-9C23-45D9726D8554}"
@@ -1033,7 +1035,6 @@ Global
 		{BFA29823-586C-4639-8330-75FD41604B18}.Release|x64.Build.0 = Release|x64
 		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Debug|x64.ActiveCfg = Debug|x64
-		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Debug|x64.Build.0 = Debug|x64
 		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Release|Win32.ActiveCfg = Release|Win32
 		{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.Release|x64.ActiveCfg = Release|x64
 		{3300798D-E3ED-484C-BD9D-D54CC6C65817}.Debug|Win32.ActiveCfg = Debug|Win32
