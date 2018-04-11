@@ -253,6 +253,16 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		_TL("")
 	);
 
+	m_Parameters.Add_Choice("NODE_GRID",
+		"GRID_FMT_DEFAULT"		, _TL("Default Output Format"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("SAGA Compressed Grid File (*.sg-grd-z)"),
+			_TL("SAGA Grid File (*.sg-grd)"),
+			_TL("SAGA Grid File (*.sgrd)")
+		), 2
+	);
+
 	m_Parameters.Add_Int("NODE_GRID",
 		"GRID_COORD_PRECISION"	, _TL("Coordinate Precision"),
 		_TL("Precision used to store coordinates and cell sizes (i.e. number of decimals)."),
@@ -319,6 +329,22 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 		"TABLE_FLT_DECIMALS"	, _TL("Decimals"),
 		_TL(""),
 		6, 0, true
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Node("",
+		"NODE_SHAPES"			, _TL("Shapes"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Choice("NODE_SHAPES",
+		"SHAPES_FMT_DEFAULT"	, _TL("Default Output Format"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("ESRI Shape File (*.shp)"),
+			_TL("GeoPackage (*.gpkg)"),
+			_TL("GeoJSON (*.geojson)")
+		), 0
 	);
 
 	//-----------------------------------------------------
