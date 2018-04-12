@@ -78,13 +78,11 @@ CSG_String	SG_Get_ShapeType_Name(TSG_Shape_Type Type)
 {
 	switch( Type )
 	{
-	case SHAPE_TYPE_Point:		return( _TL("Point") );
-	case SHAPE_TYPE_Points:		return( _TL("Points") );
-	case SHAPE_TYPE_Line:		return( _TL("Line") );
-	case SHAPE_TYPE_Polygon:	return( _TL("Polygon") );
-
-	default:
-	case SHAPE_TYPE_Undefined:	return( _TL("Undefined") );
+	case SHAPE_TYPE_Point  : return( _TL("Point"    ) );
+	case SHAPE_TYPE_Points : return( _TL("Points"   ) );
+	case SHAPE_TYPE_Line   : return( _TL("Line"     ) );
+	case SHAPE_TYPE_Polygon: return( _TL("Polygon"  ) );
+	default                : return( _TL("Undefined") );
 	}
 }
 
@@ -395,15 +393,59 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+static TSG_Shape_File_Format	gSG_Shape_File_Format_Default	= SHAPE_FILE_FORMAT_ESRI;
+
+//---------------------------------------------------------
+bool					SG_Shapes_Set_File_Format_Default	(int Format)
+{
+	switch( Format )
+	{
+	case SHAPE_FILE_FORMAT_ESRI      :
+	case SHAPE_FILE_FORMAT_GeoPackage:
+	case SHAPE_FILE_FORMAT_GeoJSON   :
+		gSG_Shape_File_Format_Default	= (TSG_Shape_File_Format)Format;
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+TSG_Shape_File_Format	SG_Shapes_Get_File_Format_Default	(void)
+{
+	return( gSG_Shape_File_Format_Default );
+}
+
+//---------------------------------------------------------
+CSG_String				SG_Shapes_Get_File_Extension_Default	(void)
+{
+	switch( gSG_Shape_File_Format_Default )
+	{
+	default:
+	case SHAPE_FILE_FORMAT_ESRI      :	return( "shp"     );
+	case SHAPE_FILE_FORMAT_GeoPackage:	return( "gpkg"    );
+	case SHAPE_FILE_FORMAT_GeoJSON   :	return( "geojson" );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 {
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Save shapes"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	if( Format == GRID_FILE_FORMAT_Undefined )
+	if( Format == SHAPE_FILE_FORMAT_Undefined )
 	{
+		Format	= gSG_Shape_File_Format_Default;
+
+		if( SG_File_Cmp_Extension(File_Name, "shp"    ) )	Format	= SHAPE_FILE_FORMAT_ESRI      ;
 		if( SG_File_Cmp_Extension(File_Name, "gpkg"   ) )	Format	= SHAPE_FILE_FORMAT_GeoPackage;
-		if( SG_File_Cmp_Extension(File_Name, "GeoJSON") )	Format	= SHAPE_FILE_FORMAT_GeoJSON   ;
+		if( SG_File_Cmp_Extension(File_Name, "geojson") )	Format	= SHAPE_FILE_FORMAT_GeoJSON   ;
 	}
 
 	//-----------------------------------------------------
@@ -411,7 +453,7 @@ bool CSG_Shapes::Save(const CSG_String &File_Name, int Format)
 
 	switch( Format )
 	{
-	default                          : bResult = _Save_ESRI(File_Name           ); break;
+	case SHAPE_FILE_FORMAT_ESRI      : bResult = _Save_ESRI(File_Name           ); break;
 	case SHAPE_FILE_FORMAT_GeoPackage: bResult = _Save_GDAL(File_Name, "GPKG"   ); break;
 	case SHAPE_FILE_FORMAT_GeoJSON   : bResult = _Save_GDAL(File_Name, "GeoJSON"); break;
 	}

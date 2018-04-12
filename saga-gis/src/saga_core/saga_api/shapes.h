@@ -778,6 +778,12 @@ SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(TSG_Shape_Type Type, const SG
 SAGA_API_DLL_EXPORT CSG_Shapes *	SG_Create_Shapes	(CSG_Shapes *pTemplate);
 
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool					SG_Shapes_Set_File_Format_Default		(int Format);
+SAGA_API_DLL_EXPORT TSG_Shape_File_Format	SG_Shapes_Get_File_Format_Default		(void);
+SAGA_API_DLL_EXPORT CSG_String				SG_Shapes_Get_File_Extension_Default	(void);
+
+
 ///////////////////////////////////////////////////////////
 //														 //
 //				Point Region QuadTree					 //

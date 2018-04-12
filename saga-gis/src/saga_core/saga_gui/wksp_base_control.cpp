@@ -637,8 +637,8 @@ void	DLG_Copy_Settings(CSG_Table &List, CWKSP_Base_Item *pItem)
 		{
 			CSG_Table_Record	*pEntry	= List.Add_Record();
 
-			pEntry->Set_Value(0, CSG_String(wxString::Format(SG_T("[%s] %s"), pItem->Get_Manager()->Get_Name(), pItem->Get_Name()).wc_str()));
-			pEntry->Set_Value(1, (long)pItem->Get_Parameters());
+			pEntry->Set_Value(0, CSG_String(wxString::Format("[%s] %s", pItem->Get_Manager()->Get_Name(), pItem->Get_Name()).wc_str()));
+			pEntry->Set_Value(1, CSG_String::Format("%p", pItem->Get_Parameters()));
 		}
 	}
 }
@@ -648,11 +648,11 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 	CSG_Table	List;
 
 	List.Add_Field(SG_T("NAME"), SG_DATATYPE_String);
-	List.Add_Field(SG_T("PRMS"), SG_DATATYPE_Int);
+	List.Add_Field(SG_T("PRMS"), SG_DATATYPE_String);
 
-	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Grids());
-	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Shapes());
-	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_TINs());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Grids      ());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_Shapes     ());
+	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_TINs       ());
 	DLG_Copy_Settings(List, (CWKSP_Base_Item *)g_pData->Get_PointClouds());
 
 	if( List.Get_Count() > 0 )
@@ -670,11 +670,11 @@ CSG_Parameters *	DLG_Copy_Settings(void)
 			Items
 		);
 
-		bool	bOk	= dlg.ShowModal() == wxID_OK;
+		void	*pParameters;
 
-		if( bOk )
+		if( dlg.ShowModal() == wxID_OK && SG_SSCANF(List.Get_Record(dlg.GetSelection())->asString(1), SG_T("%p"), &pParameters) == 1 )
 		{
-			return( (CSG_Parameters *)List.Get_Record(dlg.GetSelection())->asInt(1) );
+			return( (CSG_Parameters *)pParameters );
 		}
 	}
 
@@ -769,7 +769,7 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 
 			pRecord->Set_Value(0, pItem->Get_Name().wx_str());
 			pRecord->Set_Value(1, pItem->Get_Type_Name(pItem->Get_Type()).wx_str());
-			pRecord->Set_Value(2, (long)pItem);
+			pRecord->Set_Value(2, CSG_String::Format("%p", pItem));
 		}
 	}
 
@@ -791,10 +791,10 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 
 	if( Search.Get_Count() == 0 )
 	{
-		Search.Add_String	(NULL, "STRING"	, _TL("Search for...")	, _TL(""), SG_T(""));
-		Search.Add_Value	(NULL, "NAME"	, _TL("Name")			, _TL(""), PARAMETER_TYPE_Bool, true);
-		Search.Add_Value	(NULL, "DESC"	, _TL("Description")	, _TL(""), PARAMETER_TYPE_Bool, false);
-		Search.Add_Value	(NULL, "CASE"	, _TL("Case Sensitive")	, _TL(""), PARAMETER_TYPE_Bool, false);
+		Search.Add_String("", "STRING", _TL("Search for..." ), _TL(""), ""   );
+		Search.Add_Bool  ("", "NAME"  , _TL("Name"          ), _TL(""), true );
+		Search.Add_Bool  ("", "DESC"  , _TL("Description"   ), _TL(""), false);
+		Search.Add_Bool  ("", "CASE"  , _TL("Case Sensitive"), _TL(""), false);
 	}
 
 	if( !DLG_Parameters(&Search) )
@@ -805,9 +805,9 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 	//-----------------------------------------------------
 	CSG_Table	List;
 
-	List.Add_Field(_TL("NAME")	, SG_DATATYPE_String);
-	List.Add_Field(_TL("TYPE")	, SG_DATATYPE_String);
-	List.Add_Field(_TL("ADDR")	, SG_DATATYPE_Long);
+	List.Add_Field(_TL("NAME"), SG_DATATYPE_String);
+	List.Add_Field(_TL("TYPE"), SG_DATATYPE_String);
+	List.Add_Field(_TL("ADDR"), SG_DATATYPE_String);
 
 	_Search_Get_List(&List, m_pManager, Search("STRING")->asString(), Search("NAME")->asBool(), Search("DESC")->asBool(), Search("CASE")->asBool(), Type);
 
@@ -827,7 +827,7 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 	{
 		if( Type == WKSP_ITEM_Undefined )
 		{
-			Items.Add(wxString::Format(wxT("[%s] %s"), List[i].asString(1), List[i].asString(0)));
+			Items.Add(wxString::Format("[%s] %s", List[i].asString(1), List[i].asString(0)));
 		}
 		else
 		{
@@ -835,18 +835,20 @@ CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP
 		}
 	}
 
+	//-----------------------------------------------------
 	wxSingleChoiceDialog	dlg(MDI_Get_Top_Window(),
-		wxString::Format(wxT("%s: '%s'"), _TL("Search Result"), Search("STRING")->asString()),
+		wxString::Format("%s: '%s'", _TL("Search Result"), Search("STRING")->asString()),
 		Caption, Items
 	);
 
-	if( dlg.ShowModal() != wxID_OK )
+	void	*pItem;
+
+	if( dlg.ShowModal() != wxID_OK || SG_SSCANF(List[dlg.GetSelection()].asString(2), SG_T("%p"), &pItem) != 1 )
 	{
 		return( NULL );
 	}
 
-	//-----------------------------------------------------
-	return( (CWKSP_Base_Item *)List[dlg.GetSelection()].asInt(2) );
+	return( (CWKSP_Base_Item *)pItem );
 }
 
 //---------------------------------------------------------

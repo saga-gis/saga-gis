@@ -274,10 +274,10 @@ bool CWKSP_Project::_Copy_To_File(CWKSP_Data_Item *pItem, const wxString &Direct
 	switch( pItem->Get_Type() )	// default extensions
 	{
 	case WKSP_ITEM_Table     : Path.SetExt("txt"     ); break;
-	case WKSP_ITEM_Shapes    : Path.SetExt("shp"     ); break;
-	case WKSP_ITEM_TIN       : Path.SetExt("shp"     ); break;
+	case WKSP_ITEM_Shapes    : Path.SetExt(SG_Shapes_Get_File_Extension_Default().c_str()); break;
+	case WKSP_ITEM_TIN       : Path.SetExt(SG_Shapes_Get_File_Extension_Default().c_str()); break;
 	case WKSP_ITEM_PointCloud: Path.SetExt("sg-pts-z"); break;
-	case WKSP_ITEM_Grid      : Path.SetExt("sgrd"    ); break;
+	case WKSP_ITEM_Grid      : Path.SetExt(SG_Grid_Get_File_Extension_Default().c_str()); break;
 	case WKSP_ITEM_Grids     : Path.SetExt("sg-gds-z"); break;
 	default:	return( false );
 	}

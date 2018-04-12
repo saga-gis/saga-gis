@@ -112,6 +112,48 @@ bool CSG_Grid::On_Delete(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+static TSG_Grid_File_Format	gSG_Grid_File_Format_Default	= GRID_FILE_FORMAT_Binary_old;
+
+//---------------------------------------------------------
+bool					SG_Grid_Set_File_Format_Default	(int Format)
+{
+	switch( Format )
+	{
+	case GRID_FILE_FORMAT_Binary_old:
+	case GRID_FILE_FORMAT_Binary    :
+	case GRID_FILE_FORMAT_Compressed:
+	case GRID_FILE_FORMAT_ASCII     :
+		gSG_Grid_File_Format_Default	= (TSG_Grid_File_Format)Format;
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+TSG_Grid_File_Format	SG_Grid_Get_File_Format_Default	(void)
+{
+	return( gSG_Grid_File_Format_Default );
+}
+
+//---------------------------------------------------------
+CSG_String				SG_Grid_Get_File_Extension_Default	(void)
+{
+	switch( gSG_Grid_File_Format_Default )
+	{
+	default:
+	case GRID_FILE_FORMAT_Binary_old:	return( "sgrd"     );
+	case GRID_FILE_FORMAT_Binary    :	return( "sg-grd"   );
+	case GRID_FILE_FORMAT_Compressed:	return( "sg-grd-z" );
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 {
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Saving grid"), FileName.c_str()), true);
@@ -119,23 +161,30 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 	//-----------------------------------------------------
 	if( Format == GRID_FILE_FORMAT_Undefined )
 	{
-		Format	= SG_File_Cmp_Extension(FileName, "sg-grd-z")
-			? GRID_FILE_FORMAT_Compressed
-			: GRID_FILE_FORMAT_Binary;
+		Format	= gSG_Grid_File_Format_Default;
+
+		if( SG_File_Cmp_Extension(FileName, "sg-grd-z") )	Format	= GRID_FILE_FORMAT_Compressed;
+		if( SG_File_Cmp_Extension(FileName, "sg-grd"  ) )	Format	= GRID_FILE_FORMAT_Binary    ;
+		if( SG_File_Cmp_Extension(FileName, "sgrd"    ) )	Format	= GRID_FILE_FORMAT_Binary_old;
 	}
 
+	//-----------------------------------------------------
 	bool	bResult	= false;
 
 	switch( Format )
 	{
-	case GRID_FILE_FORMAT_Binary    : bResult = _Save_Native    (FileName,  true); break;
-	case GRID_FILE_FORMAT_ASCII     : bResult = _Save_Native    (FileName, false); break;
-	case GRID_FILE_FORMAT_Compressed: bResult = _Save_Compressed(FileName       ); break;
+	default:
+		bResult = _Save_Native(FileName, (TSG_Grid_File_Format)Format);
+		break;
+
+	case GRID_FILE_FORMAT_Compressed:
+		bResult = _Save_Compressed(FileName);
+		break;
 	}
 
-	//-----------------------------------------------------
 	SG_UI_Process_Set_Ready();
 
+	//-----------------------------------------------------
 	if( bResult )
 	{
 		Set_Modified(false);
@@ -393,7 +442,7 @@ bool CSG_Grid::_Load_Native(const CSG_String &FileName, bool bCached, bool bLoad
 }
 
 //---------------------------------------------------------
-bool CSG_Grid::_Save_Native(const CSG_String &_FileName, bool bBinary)
+bool CSG_Grid::_Save_Native(const CSG_String &_FileName, TSG_Grid_File_Format Format)
 {
 #ifdef WORDS_BIGENDIAN
 	bool	bBigEndian	= true;
@@ -403,9 +452,19 @@ bool CSG_Grid::_Save_Native(const CSG_String &_FileName, bool bBinary)
 
 	CSG_String	FileName(_FileName);
 
-	if( !SG_File_Cmp_Extension(FileName, "sg-grd") )
+	bool	bBinary;
+
+	if( Format == GRID_FILE_FORMAT_ASCII )
 	{
-		SG_File_Set_Extension(FileName, "sgrd");
+		bBinary	= false;
+	}
+	else if( Format == GRID_FILE_FORMAT_Binary_old )
+	{
+		bBinary	= true;	SG_File_Set_Extension(FileName, "sgrd");
+	}
+	else
+	{
+		bBinary	= true;	SG_File_Set_Extension(FileName, "sg-grd");
 	}
 
 	CSG_Grid_File_Info	Info(*this);

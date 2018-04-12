@@ -769,6 +769,8 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 		pFields->Add_Child("FIELD", Get_Field_Name(iField))->Add_Property("TYPE", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
 	}
 
+	Get_MetaData().Del_Child("GDAL_DRIVER");
+
 	Save_MetaData(File_Name);
 
 	//-----------------------------------------------------

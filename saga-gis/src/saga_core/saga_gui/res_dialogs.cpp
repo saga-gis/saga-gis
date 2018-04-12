@@ -313,7 +313,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		));
 
 	case ID_DLG_GRID_SAVE:
-		switch( g_pData->Get_Parameter("GRID_FMT_DEFAULT")->asInt() )
+		switch( SG_Grid_Get_File_Format_Default() )
 		{
 		default:	// SAGA Compressed Grid File (*.sg-grd-z)
 			return( wxString::Format(
@@ -327,7 +327,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				_TL("All Files")
 			));
 
-		case  1:	// SAGA Grid File (*.sg-grd)
+		case GRID_FILE_FORMAT_Binary:	// SAGA Grid File (*.sg-grd)
 			return( wxString::Format(
 				"%s (*.sg-grd)|*.sg-grd|"
 				"%s (*.sg-grd-z)|*.sg-grd-z|"
@@ -339,7 +339,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				_TL("All Files")
 			));
 
-		case  2:	// SAGA Grid File (*.sgrd)
+		case GRID_FILE_FORMAT_Binary_old:	// SAGA Grid File (*.sgrd)
 			return( wxString::Format(
 				"%s (*.sgrd)|*.sgrd|"
 				"%s (*.sg-grd-z)|*.sg-grd-z|"
@@ -389,7 +389,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 		));
 
 	case ID_DLG_SHAPES_SAVE:
-		switch( g_pData->Get_Parameter("SHAPES_FMT_DEFAULT")->asInt() )
+		switch( SG_Shapes_Get_File_Format_Default() )
 		{
 		default:	// ESRI Shape File (*.shp)
 			return( wxString::Format(
@@ -403,7 +403,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				_TL("All Files")
 			));
 
-		case  1:	// GeoPackage (*.gpkg)
+		case SHAPE_FILE_FORMAT_GeoPackage:	// GeoPackage (*.gpkg)
 			return( wxString::Format(
 				"%s (*.gpkg)|*.gpkg|"
 				"%s (*.shp)|*.shp|"
@@ -415,7 +415,7 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				_TL("All Files")
 			));
 
-		case  2:	// GeoJSON (*.geojson)
+		case SHAPE_FILE_FORMAT_GeoJSON   :	// GeoJSON (*.geojson)
 			return( wxString::Format(
 				"%s (*.geojson)|*.geojson|"
 				"%s (*.shp)|*.shp|"
