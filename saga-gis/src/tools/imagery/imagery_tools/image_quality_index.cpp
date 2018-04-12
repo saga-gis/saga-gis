@@ -93,37 +93,37 @@ CImage_Quality_Index::CImage_Quality_Index(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"A"		, _TL("First Grid"),
+		"GRID_A"		, _TL("First Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"B"		, _TL("Second Grid"),
+		"GRID_B"		, _TL("Second Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"Q"		, _TL("Universal Image Quality Index"),
+		"QUALITY"		, _TL("Universal Image Quality Index"),
 		_TL("The product of correlation, luminance and contrast similarity."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
-		"R"		, _TL("Correlation"),
+		"CORRELATION"	, _TL("Correlation"),
 		_TL("The correlation coefficient."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
-		"L"		, _TL("Luminance"),
+		"LUMINANCE"		, _TL("Luminance"),
 		_TL("The similarity of mean luminance."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
-		"C"		, _TL("Contrast"),
+		"CONTRAST"		, _TL("Contrast"),
 		_TL("The similarity of contrast."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -178,16 +178,16 @@ bool CImage_Quality_Index::On_Execute(void)
 		return( false );
 	}
 
-	m_pA	= Parameters("A")->asGrid();
-	m_pB	= Parameters("B")->asGrid();
+	m_pA	= Parameters("GRID_A")->asGrid();
+	m_pB	= Parameters("GRID_B")->asGrid();
 
 	m_c1	= M_SQR(Parameters("K1")->asDouble() * Parameters("L")->asInt());
 	m_c2	= M_SQR(Parameters("K2")->asDouble() * Parameters("L")->asInt());
 
-	CSG_Grid	*pQ	= Parameters("Q")->asGrid();
-	CSG_Grid	*pR	= Parameters("R")->asGrid();
-	CSG_Grid	*pL	= Parameters("L")->asGrid();
-	CSG_Grid	*pC	= Parameters("C")->asGrid();
+	CSG_Grid	*pQ	= Parameters("QUALITY"    )->asGrid();
+	CSG_Grid	*pR	= Parameters("CORRELATION")->asGrid();
+	CSG_Grid	*pL	= Parameters("LUMINANCE"  )->asGrid();
+	CSG_Grid	*pC	= Parameters("CONTRAST"   )->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
