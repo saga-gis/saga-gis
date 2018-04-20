@@ -80,6 +80,13 @@ CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 	Set_Description	(_TW(
 		"Gridding of a shapes layer using Delaunay Triangulation."
 	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Bool("",
+		"FRAME"				, _TL("Add Frame"),
+		_TL(""),
+		true
+	);
 }
 
 
@@ -90,17 +97,20 @@ CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 //---------------------------------------------------------
 bool CInterpolation_Triangulation::Interpolate(void)
 {
+	m_pGrid	= Get_Grid();
+
 	CSG_TIN	TIN;
 
-	if( !TIN.Create(Get_Points()) )
+	if( !Get_TIN(TIN) )
 	{
+		Error_Set("failed to create TIN");
+
 		return( false );
 	}
 
-	m_pGrid	= Get_Grid();
-
 	m_pGrid->Assign_NoData();
 
+	//-----------------------------------------------------
 	for(int iTriangle=0; iTriangle<TIN.Get_Triangle_Count() && Set_Progress(iTriangle, TIN.Get_Triangle_Count()); iTriangle++)
 	{
 		CSG_TIN_Triangle	*pTriangle	= TIN.Get_Triangle(iTriangle);
@@ -113,14 +123,87 @@ bool CInterpolation_Triangulation::Interpolate(void)
 			{
 				p[iPoint].x	= (pTriangle->Get_Node(iPoint)->Get_X() - m_pGrid->Get_XMin()) / m_pGrid->Get_Cellsize();
 				p[iPoint].y	= (pTriangle->Get_Node(iPoint)->Get_Y() - m_pGrid->Get_YMin()) / m_pGrid->Get_Cellsize();
-				p[iPoint].z	=  pTriangle->Get_Node(iPoint)->asDouble(Get_Field());
+				p[iPoint].z	=  pTriangle->Get_Node(iPoint)->asDouble(0);
 			}
 
 			Set_Triangle(p);
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CInterpolation_Triangulation::Get_TIN(CSG_TIN &TIN)
+{
+	TIN.Destroy();
+
+	bool	bFrame	= Parameters("FRAME")->asBool();
+
+	double	x[4], y[4], z[4], dMin[4];
+
+	x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.0;
+	x[1]	= m_pGrid->Get_Extent().Get_XMin();	y[1]	= m_pGrid->Get_Extent().Get_YMax();	dMin[1]	= -1.0;
+	x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.0;
+	x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.0;
+
+	TIN.Add_Field("Z", Get_Points()->Get_Field_Type(Get_Field()));
+
+	for(int iShape=0; iShape<Get_Points()->Get_Count(); iShape++)
+	{
+		CSG_Shape	*pShape	= Get_Points()->Get_Shape(iShape);
+
+		if( !pShape->is_NoData(Get_Field()) )
+		{
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point	p = pShape->Get_Point(iPoint, iPart);
+
+					TIN.Add_Node(p, NULL, false)->Set_Value(0, pShape->asDouble(Get_Field()));
+
+					if( bFrame )
+					{
+						for(int iCorner=0; iCorner<4; iCorner++)
+						{
+							double d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
+
+							if( dMin[iCorner] < 0.0 || d < dMin[iCorner] )
+							{
+								dMin[iCorner]	= d;
+								z   [iCorner]	= pShape->asDouble(Get_Field());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( bFrame )
+	{
+		for(int iCorner=0; iCorner<4; iCorner++)
+		{
+			if( dMin[iCorner] >= 0.0 )
+			{
+				CSG_Point	p(x[iCorner], y[iCorner]);
+
+				TIN.Add_Node(p, NULL, false)->Set_Value(0, z[iCorner]);
+			}
+		}
+	}
+
+	TIN.Update();
+
+	return( TIN.Get_Triangle_Count() > 0 );
 }
 
 

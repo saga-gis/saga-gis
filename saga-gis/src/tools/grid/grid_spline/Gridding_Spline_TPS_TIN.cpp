@@ -86,52 +86,48 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 		"immediate neighbourhood and 'level 2' adds the neighbours of 'level 1' "
 		"neighbours too. A higher neighbourhood degree reduces sharp breaks "
 		"but also increases the computation time. "
-		"\n\n"
-		"References:\n"
-		"- Donato G., Belongie S. (2002):"
-		" 'Approximation Methods for Thin Plate Spline Mappings and Principal Warps',"
-		" In Heyden, A., Sparr, G., Nielsen, M., Johansen, P. (Eds.):"
-		" 'Computer Vision - ECCV 2002: 7th European Conference on Computer Vision, Copenhagen, Denmark, May 28-31, 2002',"
-		" Proceedings, Part III, Lecture Notes in Computer Science."
-		" Springer-Verlag Heidelberg; pp.21-31."
-		"\n"
-		"\n"
-		"- Elonen, J. (2005):"
-		" 'Thin Plate Spline editor - an example program in C++',"
-		" <a target=\"_blank\" href=\"http://elonen.iki.fi/code/tpsdemo/index.html\">http://elonen.iki.fi/code/tpsdemo/index.html</a>."
-		"\n"
 	));
 
-	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL, "REGULARISATION"	, _TL("Regularisation"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 0.0001, 0.0, true
+	Add_Reference(
+		"Donato G., Belongie S.", "2002",
+		"Approximation Methods for Thin Plate Spline Mappings and Principal Warps",
+		"In: Heyden, A., Sparr, G., Nielsen, M., Johansen, P. [Eds.]: "
+		"Computer Vision - ECCV 2002: 7th European Conference on Computer Vision, Copenhagen, Denmark, May 28-31, 2002, "
+		"Proceedings, Part III, Lecture Notes in Computer Science. Springer-Verlag Heidelberg; pp.21-31."
+	);
+
+	Add_Reference(
+		"Elonen, J.", "2005",
+		"Thin Plate Spline editor - an example program in C++",
+		"", SG_T("http://elonen.iki.fi/code/tpsdemo/index.html")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "LEVEL"		, _TL("Neighbourhood"),
+	Parameters.Add_Double("",
+		"REGULARISATION"	, _TL("Regularisation"),
 		_TL(""),
+		0.0001, 0.0, true
+	);
 
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+	Parameters.Add_Choice("",
+		"LEVEL"				, _TL("Neighbourhood"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
 			_TL("immediate"),
 			_TL("level 1"),
 			_TL("level 2")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FRAME"		, _TL("Add Frame"),
+	Parameters.Add_Bool("",
+		"FRAME"				, _TL("Add Frame"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -164,14 +160,13 @@ bool CGridding_Spline_TPS_TIN::_Finalise(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_TIN::On_Execute(void)
 {
 	bool	bResult	= false;
+
 	CSG_TIN	TIN;
 
 	if( Initialise() && _Initialise() && _Get_TIN(TIN) )
@@ -191,8 +186,6 @@ bool CGridding_Spline_TPS_TIN::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -257,8 +250,6 @@ void CGridding_Spline_TPS_TIN::_Set_Grid(CSG_TIN_Triangle *pTriangle, CSG_Thin_P
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -305,8 +296,6 @@ bool CGridding_Spline_TPS_TIN::_Add_Point(CSG_TIN_Node *pPoint)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -325,30 +314,33 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 	x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.0;
 	x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.0;
 
-	TIN.Add_Field("Z", SG_DATATYPE_Double);
+	TIN.Add_Field("Z", pShapes->Get_Field_Type(zField));
 
-	for (int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
 
-		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		if( !pShape->is_NoData(zField) )
 		{
-			for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 			{
-				TSG_Point	p = pShape->Get_Point(iPoint, iPart);
-
-				TIN.Add_Node(p, NULL, false)->Set_Value(0, pShape->asDouble(zField));
-
-				if( bFrame )
+				for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					for(int iCorner=0; iCorner<4; iCorner++)
-					{
-						double d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
+					TSG_Point	p = pShape->Get_Point(iPoint, iPart);
 
-						if( dMin[iCorner] < 0.0 || d < dMin[iCorner] )
+					TIN.Add_Node(p, NULL, false)->Set_Value(0, pShape->asDouble(zField));
+
+					if( bFrame )
+					{
+						for(int iCorner=0; iCorner<4; iCorner++)
 						{
-							dMin[iCorner]	= d;
-							z   [iCorner]	= pShape->asDouble(zField);
+							double d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
+
+							if( dMin[iCorner] < 0.0 || d < dMin[iCorner] )
+							{
+								dMin[iCorner]	= d;
+								z   [iCorner]	= pShape->asDouble(zField);
+							}
 						}
 					}
 				}
@@ -356,6 +348,7 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 		}
 	}
 
+	//-----------------------------------------------------
 	if( bFrame )
 	{
 		for(int iCorner=0; iCorner<4; iCorner++)
