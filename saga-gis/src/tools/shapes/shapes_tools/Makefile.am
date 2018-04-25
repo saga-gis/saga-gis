@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libshapes_tools.la
 libshapes_tools_la_SOURCES =\
+beachball.cpp\
 CreateChartLayer.cpp\
 GraticuleBuilder.cpp\
 LandUse_Scenario.cpp\
@@ -36,6 +37,7 @@ shapes_polar_to_cartes.cpp\
 shapes_split.cpp\
 shapes_split_by_attribute.cpp\
 shapes_split_randomly.cpp\
+beachball.h\
 CreateChartLayer.h\
 GraticuleBuilder.h\
 LandUse_Scenario.h\

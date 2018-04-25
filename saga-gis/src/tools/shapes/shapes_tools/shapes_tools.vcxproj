@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="beachball.cpp" />
     <ClCompile Include="CreateChartLayer.cpp" />
     <ClCompile Include="GraticuleBuilder.cpp" />
     <ClCompile Include="LandUse_Scenario.cpp" />
@@ -343,6 +344,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="beachball.h" />
     <ClInclude Include="CreateChartLayer.h" />
     <ClInclude Include="GraticuleBuilder.h" />
     <ClInclude Include="LandUse_Scenario.h" />

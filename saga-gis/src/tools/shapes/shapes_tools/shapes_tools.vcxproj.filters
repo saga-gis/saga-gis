@@ -89,6 +89,9 @@
     <ClCompile Include="shapes_clean.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="beachball.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -215,6 +218,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shapes_clean.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="beachball.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
