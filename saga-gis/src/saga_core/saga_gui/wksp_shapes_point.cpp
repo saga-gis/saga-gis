@@ -78,6 +78,17 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SYMBOL_TYPE_Image		13
+#define SYMBOL_TYPE_Beachball	14
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CWKSP_Shapes_Point::CWKSP_Shapes_Point(CSG_Shapes *pShapes)
 	: CWKSP_Shapes(pShapes)
 {
@@ -88,8 +99,6 @@ CWKSP_Shapes_Point::CWKSP_Shapes_Point(CSG_Shapes *pShapes)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -124,7 +133,7 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"DISPLAY_SYMBOL_TYPE"	, _TL("Symbol Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
 			_TL("circle"),
 			_TL("square"),
 			_TL("rhombus"),
@@ -138,7 +147,8 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 			_TL("circle in rhombus"),
 			_TL("circle in triangle (up)"),
 			_TL("circle in triangle (down)"),
-			_TL("image")
+			_TL("image"),
+			_TL("beachball plot")
 		), 0
 	);
 
@@ -166,6 +176,10 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 			_TL("All Files")
 		)
 	);
+
+	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE", _TL("Strike"), _TL(""));
+	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"   , _TL("Dip"   ), _TL(""));
+	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"  , _TL("Rake"  ), _TL(""));
 
 
 	//-----------------------------------------------------
@@ -255,8 +269,6 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -264,8 +276,11 @@ void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
 	CWKSP_Shapes::On_DataObject_Changed();
 
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ), true);
-	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"), true);
+	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"  ), false);
+	AttributeList_Set(m_Parameters("BEACHBALL_DIP"     ), false);
+	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"    ), false);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
+	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
 }
 
 //---------------------------------------------------------
@@ -276,10 +291,20 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	m_Symbol_Type	= m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
 
-	if( !SG_File_Exists   (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
-	||	!m_Symbol.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
+	if( m_Symbol_Type == SYMBOL_TYPE_Image )
 	{
-		m_Symbol	= IMG_Get_Image(ID_IMG_DEFAULT);
+		if( !SG_File_Exists   (m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString())
+		||	!m_Symbol.LoadFile(m_Parameters("DISPLAY_SYMBOL_IMAGE")->asString()) )
+		{
+			m_Symbol	= IMG_Get_Image(ID_IMG_DEFAULT);
+		}
+	}
+
+	if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
+	{
+		m_Beachball[0]	= m_Parameters("BEACHBALL_STRIKE")->asInt();
+		m_Beachball[1]	= m_Parameters("BEACHBALL_DIP"   )->asInt();
+		m_Beachball[2]	= m_Parameters("BEACHBALL_RAKE"  )->asInt();
 	}
 
 	//-----------------------------------------------------
@@ -331,8 +356,6 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -344,11 +367,11 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_FONT") )
 		{
 			Set_Metrics(
-				pParameters->Get_Parameter("METRIC_ATTRIB")->asInt(),
-				pParameters->Get_Parameter("METRIC_NORMAL")->asInt()
+				pParameters->Get("METRIC_ATTRIB")->asInt(),
+				pParameters->Get("METRIC_NORMAL")->asInt()
 			);
 
-			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
+			pParameters->Get("METRIC_ZRANGE")->asRange()->Set_Range(
 				m_Metrics.Get_Minimum(),
 				m_Metrics.Get_Maximum()
 			);
@@ -360,31 +383,38 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DISPLAY_SYMBOL_TYPE") )
 		{
-			pParameters->Get_Parameter("DISPLAY_SYMBOL_IMAGE")->Set_Enabled(pParameter->asInt() == pParameter->asChoice()->Get_Count() - 1);
+			int		Value	= pParameter->asInt();
+
+			pParameters->Get("DISPLAY_SYMBOL_IMAGE")->Set_Enabled(Value == SYMBOL_TYPE_Image    );
+			pParameters->Get("BEACHBALL_STRIKE"    )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
+			pParameters->Get("BEACHBALL_DIP"       )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
+			pParameters->Get("BEACHBALL_RAKE"      )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get_Parameter("LABEL_ANGLE_ATTRIB")->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ANGLE"       )->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ALIGN_X"     )->Set_Enabled(Value);
-			pParameters->Get_Parameter("LABEL_ALIGN_Y"     )->Set_Enabled(Value);
+			pParameters->Get("LABEL_ANGLE_ATTRIB"  )->Set_Enabled(Value);
+			pParameters->Get("LABEL_ANGLE"         )->Set_Enabled(Value);
+			pParameters->Get("LABEL_ALIGN_X"       )->Set_Enabled(Value);
+			pParameters->Get("LABEL_ALIGN_Y"       )->Set_Enabled(Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get_Parameter("SIZE_SCALE"  )->Set_Enabled(Value == true);
-			pParameters->Get_Parameter("SIZE_RANGE"  )->Set_Enabled(Value == true);
-			pParameters->Get_Parameter("SIZE_DEFAULT")->Set_Enabled(Value == false);
+			pParameters->Get("SIZE_SCALE"          )->Set_Enabled(Value ==  true);
+			pParameters->Get("SIZE_RANGE"          )->Set_Enabled(Value ==  true);
+			pParameters->Get("SIZE_DEFAULT"        )->Set_Enabled(Value == false);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ANGLE_ATTRIB") )
 		{
-			pParameters->Get_Parameter("LABEL_ANGLE")->Set_Enabled(pParameter->asInt() >= Get_Shapes()->Get_Field_Count());
+			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
+
+			pParameters->Get("LABEL_ANGLE"         )->Set_Enabled(Value);
 		}
 	}
 
@@ -393,8 +423,6 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -421,8 +449,6 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -498,7 +524,18 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 		{
 			TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
 
-			Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
+			if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
+			{
+				_Beachball_Draw(dc_Map.dc, p.x, p.y, Size,
+					pShape->asDouble(m_Beachball[0]),
+					pShape->asDouble(m_Beachball[1]),
+					pShape->asDouble(m_Beachball[2])
+				);
+			}
+			else
+			{
+				Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
+			}
 
 			if( Selection )
 			{
@@ -522,8 +559,6 @@ void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, con
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -531,10 +566,12 @@ void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, con
 	dc.DrawCircle(x, y, s);\
 }
 
+//---------------------------------------------------------
 #define DRAW_SQUARE			{	int		s	= (int)(0.7071067812 * size);\
 	dc.DrawRectangle(x - s, y - s, 2 * s, 2 * s);\
 }
 
+//---------------------------------------------------------
 #define DRAW_RHOMBUS		{	wxPoint	p[4];\
 	p[0].y	= p[2].y	= y;\
 	p[1].x	= p[3].x	= x;\
@@ -545,6 +582,7 @@ void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, con
 	dc.DrawPolygon(4, p);\
 }
 
+//---------------------------------------------------------
 #define DRAW_TRIANGLE_UP	{	wxPoint	p[3];\
 	p[0].y	= p[1].y	= y + (size / 2);\
 	p[2].y				= y - (size - 1);\
@@ -554,6 +592,7 @@ void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, con
 	dc.DrawPolygon(3, p);\
 }
 
+//---------------------------------------------------------
 #define DRAW_TRIANGLE_DOWN	{	wxPoint	p[3];\
 	p[0].y	= p[1].y	= y - (size / 2);\
 	p[2].y				= y + (size - 1);\
@@ -568,82 +607,26 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int size)
 {
 	switch( m_Symbol_Type )
 	{
-	default:
-	case 0:		// circle
-		DRAW_CIRCLE(1.0);
-		break;
+	default: DRAW_CIRCLE(1.0)                      ; break;	// circle
+	case  1: DRAW_SQUARE                           ; break;	// square
+	case  2: DRAW_RHOMBUS                          ; break;	// rhombus
+	case  3: DRAW_TRIANGLE_UP                      ; break;	// triangle up
+	case  4: DRAW_TRIANGLE_DOWN                    ; break;	// triangle down
+	case  5: DRAW_CIRCLE(1.0)  ; DRAW_SQUARE       ; break;	// square in circle
+	case  6: DRAW_CIRCLE(1.1)  ; DRAW_RHOMBUS      ; break;	// rhombus in circle
+	case  7: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_UP  ; break;	// triangle up in circle
+	case  8: DRAW_CIRCLE(1.0)  ; DRAW_TRIANGLE_DOWN; break;	// triangle down in circle
+	case  9: DRAW_SQUARE       ; DRAW_CIRCLE(0.7)  ; break;	// circle in square
+	case 10: DRAW_RHOMBUS      ; DRAW_CIRCLE(0.7)  ; break;	// circle in rhombus
+	case 11: DRAW_TRIANGLE_UP  ; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle up
+	case 12: DRAW_TRIANGLE_DOWN; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle down
 
-	case 1:		// square
-		DRAW_SQUARE;
-		break;
-
-	case 2:		// rhombus
-		DRAW_RHOMBUS;
-		break;
-
-	case 3:		// triangle up
-		DRAW_TRIANGLE_UP;
-		break;
-
-	case 4:		// triangle down
-		DRAW_TRIANGLE_DOWN;
-		break;
-
-	case 5:		// square in circle
-		DRAW_CIRCLE(1.0);
-		DRAW_SQUARE;
-		break;
-
-	case 6:		// rhombus in circle
-		DRAW_CIRCLE(1.1);
-		DRAW_RHOMBUS;
-		break;
-
-	case 7:		// triangle up in circle
-		DRAW_CIRCLE(1.0);
-		DRAW_TRIANGLE_UP;
-		break;
-
-	case 8:		// triangle down in circle
-		DRAW_CIRCLE(1.0);
-		DRAW_TRIANGLE_DOWN;
-		break;
-
-	case 9:		// circle in square
-		DRAW_SQUARE;
-		DRAW_CIRCLE(0.7);
-		break;
-
-	case 10:	// circle in rhombus
-		DRAW_RHOMBUS;
-		DRAW_CIRCLE(0.5 * sqrt(2.0));
-		break;
-
-	case 11:	// circle in triangle up
-		DRAW_TRIANGLE_UP;
-		DRAW_CIRCLE(0.5);
-		break;
-
-	case 12:	// circle in triangle down
-		DRAW_TRIANGLE_DOWN;
-		DRAW_CIRCLE(0.5);
-		break;
-
-	case 13:	// image
+	case 13:	// SYMBOL_TYPE_Image
 		{
 			double	d	= (double)m_Symbol.GetWidth() / (double)m_Symbol.GetHeight();
-			int		sx, sy;
 
-			if( d > 1.0 )
-			{
-				sx	= size;
-				sy	= (int)(0.5 + size / d);
-			}
-			else
-			{
-				sx	= (int)(0.5 + size * d);
-				sy	= size;
-			}
+			int	sx	= d >  1.0 ? size : (int)(0.5 + size * d);
+			int	sy	= d <= 1.0 ? size : (int)(0.5 + size / d);
 
 			if( sx > 0 && sy > 0 )
 			{
@@ -651,7 +634,169 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int size)
 			}
 		}
 		break;
+
+	case 14:	// SYMBOL_TYPE_Beachball
+		_Beachball_Draw(dc, x, y, size, 0.0, 25.0, 40.0);
+		break;
 	}	
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, double strike, double dip, double rake)
+{
+	const double	dArc	= 5.0;
+
+	strike	*= M_DEG_TO_RAD;
+	dip		*= M_DEG_TO_RAD;
+	rake	*= M_DEG_TO_RAD;
+
+	CSG_Shapes	Plot(SHAPE_TYPE_Polygon);
+
+	Plot.Add_Shape();	// unit circle
+
+	for(double a=0.0; a<M_PI_360; a+=dArc*M_DEG_TO_RAD)
+	{
+		Plot.Get_Shape(0)->Add_Point(sin(a), cos(a));
+	}
+
+	CSG_Vector	N(3);
+
+	N[0] = 0; N[1] = 0; N[2] = 1;
+
+	SG_VectorR3_Rotate(N, 1, dip);
+	SG_VectorR3_Rotate(N, 2, strike);
+
+	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);
+
+	N[0] = 0; N[1] = -1; N[2] = 0;
+
+	rake = fmod(rake, M_PI_360); if( rake < -M_PI_180 ) rake += M_PI_360; else if( rake > M_PI_180 ) rake -= M_PI_360;
+
+	SG_VectorR3_Rotate(N, 2, -rake);
+	SG_VectorR3_Rotate(N, 1, dip);
+	SG_VectorR3_Rotate(N, 2, strike);
+
+	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);
+
+	//-----------------------------------------------------
+	SG_Polygon_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Polygon_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());
+
+	SG_Polygon_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(2), Plot.Add_Shape());
+	SG_Polygon_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2), Plot.Add_Shape());
+
+	SG_Polygon_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2), Plot.Add_Shape());
+	SG_Polygon_Difference  (Plot.Get_Shape(4), Plot.Get_Shape(2), Plot.Add_Shape());
+
+	//-----------------------------------------------------
+	int	p1	= rake < 0.0 ? 6 : 5;
+	int	p2	= rake < 0.0 ? 7 : 8;
+
+	CSG_Shape	*pPlot	= Plot.Add_Shape(Plot.Get_Shape(0));
+
+	SG_Polygon_Offset(Plot.Get_Shape(p1), -0.01, dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
+	SG_Polygon_Offset(Plot.Get_Shape(p2), -0.01, dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
+
+	_Beachball_Get_Scaled(pPlot, x,  y, size);
+
+	//-----------------------------------------------------
+	wxBrush	b = dc.GetBrush(); dc.SetBrush(*wxWHITE_BRUSH); dc.DrawCircle(x, y, size); dc.SetBrush(b);
+
+	int	iPart, iPoint, jPoint, *nPoints	= new int[pPlot->Get_Part_Count()];
+
+	for(iPart=0, jPoint=0; iPart<pPlot->Get_Part_Count(); iPart++)
+	{
+		jPoint	+= (nPoints[iPart] = pPlot->Get_Point_Count(iPart) > 2 ? pPlot->Get_Point_Count(iPart) + 1 : 0);
+	}
+
+	wxPoint	*Points	= new wxPoint[jPoint];
+
+	for(iPart=0, jPoint=0; iPart<pPlot->Get_Part_Count(); iPart++)
+	{
+		if( nPoints[iPart] > 0 )
+		{
+			for(iPoint=0; iPoint<pPlot->Get_Point_Count(iPart); iPoint++)
+			{
+				TSG_Point	p		= pPlot->Get_Point(iPoint, iPart);
+				Points[jPoint].x	= (int)(p.x + 0.5);
+				Points[jPoint].y	= (int)(p.y + 0.5);
+				jPoint++;
+			}
+
+			TSG_Point	p		= pPlot->Get_Point(0, iPart);
+			Points[jPoint].x	= (int)(p.x + 0.5);
+			Points[jPoint].y	= (int)(p.y + 0.5);
+			jPoint++;
+		}
+	}
+
+	dc.DrawPolyPolygon(pPlot->Get_Part_Count(), nPoints, Points, 0, 0, wxODDEVEN_RULE);
+
+	delete[](Points);
+	delete[](nPoints);
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::_Beachball_Get_Plane(CSG_Shape *pPlane, CSG_Shape *pCircle, const CSG_Vector &Normal)
+{
+	CSG_Vector	Ez(3);	Ez[2]	=  1.0;
+
+	double	Slope	= Normal.Get_Angle(Ez);
+	double	Azimuth	= M_PI_090 + atan2(Normal[1], Normal[0]);
+
+	if( Slope > M_PI_090 )
+	{
+		Azimuth	+= M_PI_180;
+		Slope	 = M_PI_090 - (Slope - M_PI_090);
+	}
+
+	TSG_Point	A, C;
+
+	A.x	= sin(Azimuth - M_PI_090);	// strike
+	A.y	= cos(Azimuth - M_PI_090);
+
+	if( Slope < M_PI_090 )
+	{
+		double	d	= -2. * tan(Slope / 2.);	// stereographic projection
+
+		C.x	= d * sin(Azimuth);
+		C.y	= d * cos(Azimuth);
+
+		pPlane->Add_Part(((CSG_Shape_Polygon *)pCircle)->Get_Part(0));
+
+		_Beachball_Get_Scaled(pPlane, C.x, C.y, SG_Get_Distance(A, C));
+	}
+	else
+	{
+		A.x	*= 1.1;	A.y	*= 1.1;
+
+		pPlane->Add_Point(-A.x, -A.y);
+		pPlane->Add_Point( A.x,  A.y);
+		pPlane->Add_Point( A.x - A.y,  A.y + A.x);
+		pPlane->Add_Point(-A.x - A.y, -A.y + A.x);
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::_Beachball_Get_Scaled(CSG_Shape *pShape, double x, double y, double size)
+{
+	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	{
+		for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+		{
+			TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+			Point.x	= x + size * Point.x;
+			Point.y	= y - size * Point.y;
+
+			pShape->Set_Point(Point, iPoint, iPart);
+		}
+	}
 }
 
 
