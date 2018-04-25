@@ -85,7 +85,7 @@ CInterpolation_Triangulation::CInterpolation_Triangulation(void)
 	Parameters.Add_Bool("",
 		"FRAME"				, _TL("Add Frame"),
 		_TL(""),
-		true
+		false
 	);
 }
 
