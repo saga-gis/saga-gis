@@ -306,6 +306,14 @@ private:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT CSG_Vector	operator *			(double Scalar, const CSG_Vector &Vector);
 
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool	SG_VectorR2_Rotate		(double &x, double &y, double Angle);
+SAGA_API_DLL_EXPORT bool	SG_VectorR2_Rotate		(double     Vector[2], double Angle);
+SAGA_API_DLL_EXPORT bool	SG_VectorR2_Rotate		(CSG_Vector &Vector  , double Angle);
+
+SAGA_API_DLL_EXPORT bool	SG_VectorR3_Rotate		(double     Vector[3], size_t Axis, double Angle);
+SAGA_API_DLL_EXPORT bool	SG_VectorR3_Rotate		(CSG_Vector &Vector  , size_t Axis, double Angle);
+
 
 ///////////////////////////////////////////////////////////
 //														 //
