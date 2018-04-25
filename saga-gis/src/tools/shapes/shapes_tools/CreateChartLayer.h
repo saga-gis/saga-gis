@@ -20,32 +20,55 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-#include "MLB_Interface.h"
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-class CCreateChartLayer : public CSG_Tool {
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCreateChartLayer : public CSG_Tool
+{
 public:
-	CCreateChartLayer();
-	virtual ~CCreateChartLayer();
-	virtual bool is_ProjectDependent(void) {return( false );}
+	CCreateChartLayer(void);
 
-private:
-	double m_fMaxValue, m_fMinValue;
-	double m_fMaxSize, m_fMinSize;
-	CSG_Parameters *m_pExtraParameters;
-	bool *m_bIncludeParam;
-	CSG_Shapes *m_pOutput;
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Visualization|Shapes") );	}
 
-	void AddPieChart(CSG_Shape*, int);
-	void AddBarChart(CSG_Shape*, int);
-	bool GetExtraParameters();
-	TSG_Point GetLineMidPoint(CSG_Shape_Line*);
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool				On_Execute(void);
+
+
+private:
+
+	bool						*m_bIncludeParam;
+
+	double						m_fMaxValue, m_fMinValue, m_fMaxSize, m_fMinSize;
+
+	CSG_Shapes					*m_pOutput;
+
+
+	bool						GetExtraParameters	(void);
+	void						AddPieChart			(CSG_Shape *, int);
+	void						AddBarChart			(CSG_Shape *, int);
+	TSG_Point					GetLineMidPoint		(CSG_Shape_Line *);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

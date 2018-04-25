@@ -73,44 +73,42 @@
 //---------------------------------------------------------
 CQuadTree_Structure::CQuadTree_Structure(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("QuadTree Structure to Shapes"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2009"));
+	Set_Author		("O. Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("SHAPES",
+		"ATTRIBUTE"	, _TL("Attribute"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Lines"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Duplicated Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Duplicated Points"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
@@ -122,8 +120,8 @@ bool CQuadTree_Structure::On_Execute(void)
 	CSG_PRQuadTree	QT(Parameters("SHAPES")->asShapes(), Parameters("ATTRIBUTE")->asInt());
 
 	Get_Shapes(Parameters("POLYGONS")->asShapes(), (CSG_PRQuadTree_Item *)&QT.Get_Root());
-	Get_Shapes(Parameters("LINES")   ->asShapes(), (CSG_PRQuadTree_Item *)&QT.Get_Root());
-	Get_Shapes(Parameters("POINTS")  ->asShapes(), (CSG_PRQuadTree_Item *)&QT.Get_Root());
+	Get_Shapes(Parameters("LINES"   )->asShapes(), (CSG_PRQuadTree_Item *)&QT.Get_Root());
+	Get_Shapes(Parameters("POINTS"  )->asShapes(), (CSG_PRQuadTree_Item *)&QT.Get_Root());
 
 	return( true );
 }

@@ -87,6 +87,8 @@ class CQuadTree_Structure : public CSG_Tool
 public:
 	CQuadTree_Structure(void);
 
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Visualization|Shapes") );	}
+
 
 protected:
 

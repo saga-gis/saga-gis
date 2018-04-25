@@ -79,7 +79,7 @@ class CSelect_Shapes_From_List : public CSG_Tool
 public:
 	CSelect_Shapes_From_List(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Tools") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Selection") );	}
 
 
 protected:

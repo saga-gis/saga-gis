@@ -20,79 +20,83 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "CreateChartLayer.h"
-#include <string>
-
-#define TYPE_PIE 0
-#define TYPE_BARS 0
-#define PI2 6.283185
 
 
-CCreateChartLayer::CCreateChartLayer(void){
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	CSG_Parameter *pNode;
-	
-	Parameters.Set_Name(_TL("Create Chart Layer (bars/sectors)"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. "));
+//---------------------------------------------------------
+CCreateChartLayer::CCreateChartLayer(void)
+{
+	Set_Name		(_TL("Create Chart Layer (bars/sectors)"));
+
+	Set_Author		("V.Olaya (c) 2004");
+
+	Set_Description	(_TW(
+		"(c) 2004 by Victor Olaya. "
+	));
 		
-	pNode = Parameters.Add_Shapes(NULL, 
-						"INPUT", 
-						_TL("Shapes"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+	Parameters.Add_Shapes("", 
+		"INPUT", _TL("Shapes"), 
+		_TL(""), 
+		PARAMETER_INPUT
+	);
 
-	Parameters.Add_Table_Field(pNode,
-								"SIZE",
-								_TL("Size field"),
-								_TL(""));
+	Parameters.Add_Table_Field("INPUT",
+		"SIZE", _TL("Size field"),
+		_TL("")
+	);
 
-	Parameters.Add_Value(NULL, 
-						"MAXSIZE", 
-						_TL("Maximum size"), 
-						_TL(""),
-						PARAMETER_TYPE_Double, 
-						100,
-						0,
-						true);
+	Parameters.Add_Double("", 
+		"MAXSIZE", _TL("Maximum size"), 
+		_TL(""),
+		100, 0, true
+	);
 
-	Parameters.Add_Value(NULL, 
-						"MINSIZE", 
-						_TL("Minimum size"), 
-						_TL(""),
-						PARAMETER_TYPE_Double, 
-						10,
-						0,
-						true);
+	Parameters.Add_Double("", 
+		"MINSIZE", _TL("Minimum size"), 
+		_TL(""),
+		10, 0, true
+	);
 	
-	Parameters.Add_Choice(NULL, 
-						"TYPE", 
-						_TL("Type"), 
-						_TL(""), 
-						_TW("Sectors|"
-						"Bars|"),									
-						0);
+	Parameters.Add_Choice("", 
+		"TYPE", _TL("Type"), 
+		_TL(""), 
+		CSG_String::Format("%s|%s|",
+			_TL("Sectors"),
+			_TL("Bars|")
+		), 0
+	);
 
-	m_pExtraParameters	= Add_Parameters("EXTRA",
-										_TL("Fields for diagram"),
-										_TL(""));
-
-}//constructor
+	Add_Parameters("EXTRA", _TL("Fields for diagram"), _TL(""));
+}
 
 
-CCreateChartLayer::~CCreateChartLayer(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-
-bool CCreateChartLayer::On_Execute(void){
-
-	
+//---------------------------------------------------------
+bool CCreateChartLayer::On_Execute(void)
+{	
 	CSG_Shapes *pInput;
 	int i=0;
 	int iType;	
 	int iSizeField;
 	
-	if (GetExtraParameters()){
+	if( GetExtraParameters() )
+	{
 
 		iSizeField = Parameters("SIZE")->asInt();
 		m_fMaxSize = (double) Parameters("MAXSIZE")->asDouble();
@@ -107,105 +111,105 @@ bool CCreateChartLayer::On_Execute(void){
 		m_fMaxValue = pInput->Get_Maximum(iSizeField);
 		m_fMinValue = pInput->Get_Minimum(iSizeField);
 
-		if (iType == TYPE_PIE){		
-			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (sectors):"));				
-		}//if
-		else{
+		switch( iType)
+		{
+		default:
+			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (sectors):"));
+			break;
+
+		case  1:
 			m_pOutput = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("Chart (bars):"));
-		}//else
+			break;
+		}
 
 		m_pOutput->Add_Field(_TL("Field (ID)"), SG_DATATYPE_Int);
 		m_pOutput->Add_Field(_TL("Field (Name)"), SG_DATATYPE_String);
 
 
-		for (i = 0; i < pInput->Get_Count(); i++){
-			if (iType == TYPE_PIE){
-		//		AddPieChart(pInput->Get_Shape(i),m_pOutput->Get_Type());
+		for (i = 0; i < pInput->Get_Count(); i++)
+		{
+			switch( iType)
+			{
+			default:
 				AddPieChart(pInput->Get_Shape(i),pInput->Get_Type());
-			}//if
-			else{
-		//		AddBarChart(pInput->Get_Shape(i),m_pOutput->Get_Type());
+				break;
+
+			case  1:
 				AddBarChart(pInput->Get_Shape(i),pInput->Get_Type());
-			}//else
-		}//for
+				break;
+			}
+		}
 		
 		DataObject_Add(m_pOutput, false);
 
 		delete [] m_bIncludeParam;
 		
 		return true;
-
 	}//if
 
 	delete [] m_bIncludeParam;
 
 	return false;
-
 }//method
 
-bool CCreateChartLayer::GetExtraParameters(){
 
-	int i;
-	CSG_Shapes *pInput;
-	CSG_Parameter *pParam;
-	CSG_String sName;
-	bool bIsValidSelection = false;
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	pInput = Parameters("INPUT")->asShapes();
+//---------------------------------------------------------
+bool CCreateChartLayer::GetExtraParameters(void)
+{
+	int		i;
+	CSG_Shapes *pInput = Parameters("INPUT")->asShapes();
 
-	m_pExtraParameters->Create(this, _TL("Fields for diagram"), _TL(""), SG_T("EXTRA"));
+	CSG_Parameters	*pParameters	= Get_Parameters("EXTRA");
+	
+	pParameters->Create(this, _TL("Fields for diagram"), _TL(""), SG_T("EXTRA"));
 
 	m_bIncludeParam = new bool [pInput->Get_Field_Count() ];
 
-	for (i = 0; i < pInput->Get_Field_Count(); i++)
+	for(i=0; i<pInput->Get_Field_Count(); i++)
 	{
-		switch( pInput->Get_Field_Type(i) )
+		if( SG_Data_Type_is_Numeric(pInput->Get_Field_Type(i)) )
 		{
-		default:
-			break;
-
-		case SG_DATATYPE_Byte:
-		case SG_DATATYPE_Char:
-		case SG_DATATYPE_Word:
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_DWord:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_ULong:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Float:
-		case SG_DATATYPE_Double:	// is numeric field
-			m_pExtraParameters->Add_Value(
-				NULL, SG_Get_String(i).c_str(), pInput->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false
-			);
-			break;
+			pParameters->Add_Bool("", SG_Get_String(i), pInput->Get_Field_Name(i), _TL(""), false);
 		}
-	}//for
+	}
 
-	if(Dlg_Parameters("EXTRA")){
-		for (i = 0; i < pInput->Get_Field_Count(); i++){
-			sName = SG_Get_String(i);
-			if (pParam = Get_Parameters("EXTRA")->Get_Parameter(sName.c_str())){
-				m_bIncludeParam[i] = pParam->asBool();
-				bIsValidSelection = true;
+	bool bIsValidSelection = false;
+
+	if( Dlg_Parameters("EXTRA") )
+	{
+		for(i=0; i<pInput->Get_Field_Count(); i++)
+		{
+			CSG_Parameter	*pParameter	= Get_Parameters("EXTRA")->Get_Parameter(SG_Get_String(i));
+
+			if( pParameter )
+			{
+				m_bIncludeParam[i]	= pParameter->asBool();
+				bIsValidSelection	= true;
 			}//try
-			else{
-				m_bIncludeParam[i] = false;
+			else
+			{
+				m_bIncludeParam[i]	= false;
 			}//else
 		}//for
-
-		m_pExtraParameters->Destroy();
-
-		return bIsValidSelection;
 	}//if
 
-	m_pExtraParameters->Destroy();
+	pParameters->Destroy();
 
-	return false;
-
+	return bIsValidSelection;
 }//method
 
-void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CCreateChartLayer::AddPieChart(CSG_Shape *pShape, int iType)
+{
 	int i,j;
 	int iSteps;
 	int iSizeField;
@@ -256,12 +260,12 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 			pSector->Add_Point(dX,dY);
 			iSteps = (int) (fSectorSize * 200.);
 			for (j = 0; j < iSteps; j++){
-				pSector->Add_Point(dX + fSize * sin((fPartialSum + (double)j / 200.) * PI2),
-									dY + fSize * cos((fPartialSum + (double)j / 200.) * PI2));
+				pSector->Add_Point(dX + fSize * sin((fPartialSum + (double)j / 200.) * M_PI_360),
+									dY + fSize * cos((fPartialSum + (double)j / 200.) * M_PI_360));
 			}//for
 			fPartialSum +=fSectorSize;
-			pSector->Add_Point(dX + fSize * sin(fPartialSum * PI2),
-								dY + fSize * cos(fPartialSum * PI2));		
+			pSector->Add_Point(dX + fSize * sin(fPartialSum * M_PI_360),
+								dY + fSize * cos(fPartialSum * M_PI_360));		
 			pSector->Set_Value(0,iField);
 			pSector->Set_Value(1,pRecord->Get_Table()->Get_Field_Name(i));
 			iField++;
@@ -270,8 +274,14 @@ void CCreateChartLayer::AddPieChart(CSG_Shape* pShape, int iType){
 
 }//method
 
-void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType)
+{
 	int i;
 	int iSizeField;
 	int iField;
@@ -352,11 +362,16 @@ void CCreateChartLayer::AddBarChart(CSG_Shape* pShape, int iType){
 			iField++;
 		}//if
 	}//for
+}
 
-}//method
 
-TSG_Point CCreateChartLayer::GetLineMidPoint(CSG_Shape_Line *pLine){
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+TSG_Point CCreateChartLayer::GetLineMidPoint(CSG_Shape_Line *pLine)
+{
 	int i;
 	double fDist, fAccDist = 0;
 	double fLength = pLine->Get_Length(0) / 2.;
@@ -375,5 +390,13 @@ TSG_Point CCreateChartLayer::GetLineMidPoint(CSG_Shape_Line *pLine){
 	}//for
 
 	return pLine->Get_Point(pLine->Get_Point_Count(0) / 2);
+}
 
-}//method
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
