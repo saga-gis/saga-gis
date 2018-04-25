@@ -226,10 +226,12 @@ bool DLG_Get_FILE_Filter_GDAL_Read(int Type, wxString &Filter)
 
 	if( Type == 2 || Type == 1 )	// vector
 	{
-		ADD_FILTER("shp");
+		ADD_FILTER("shp"     );
+		ADD_FILTER("json"    );
+		ADD_FILTER("geojson" );
 	}
 
-	if( Type == 2 )	// all recognized
+	if( Type == 2 )					// all recognized
 	{
 		ADD_FILTER("sprj"    );
 		ADD_FILTER("sg-pts"  );
