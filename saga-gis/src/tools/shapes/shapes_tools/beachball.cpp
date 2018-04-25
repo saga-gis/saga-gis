@@ -241,45 +241,6 @@ bool CBeachball::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool	SG_VectorR3_Rotate(CSG_Vector &Vector, int Axis, double Angle)
-{
-	if( Vector.Get_N() < 3 || Axis < 0 || Axis >= 3 )
-	{
-		return( false );
-	}
-
-	CSG_Vector	v(Vector);
-
-	double	sin_a	= sin(Angle);
-	double	cos_a	= cos(Angle);
-
-	switch( Axis )
-	{
-	case 0:
-		Vector[1] = v[1] * cos_a - v[2] * sin_a;
-		Vector[2] = v[1] * sin_a + v[2] * cos_a;
-		break;
-
-	case 1:
-		Vector[0] = v[0] * cos_a + v[2] * sin_a;
-		Vector[2] =-v[0] * sin_a + v[2] * cos_a;
-		break;
-
-	case 2:
-		Vector[0] = v[0] * cos_a - v[1] * sin_a;
-		Vector[1] = v[0] * sin_a + v[1] * cos_a;
-		break;
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CBeachball::Set_Plot(CSG_Shape *pPlot, const TSG_Point &Center, double Scale, double Strike, double Dip, double Rake)
 {
 	//-----------------------------------------------------
@@ -384,82 +345,6 @@ bool CBeachball::Get_Plane(CSG_Shape *pPlane, const CSG_Vector &Normal)
 
 	return( true );
 }
-
-/*/---------------------------------------------------------
-bool CBeachball::Get_Planes(CSG_Shapes &Planes, double Strike, double Dip, double Rake)
-{
-	Planes.Create(SHAPE_TYPE_Polygon);
-
-	TSG_Point	A, C1, C2;
-
-	//-----------------------------------------------------
-	CSG_Shape	*pPlane	= Planes.Add_Shape();
-
-	A.x	= sin(Strike);
-	A.y	= cos(Strike);
-
-	if( Dip < M_PI_090 )
-	{
-		double	d	= 2. * tan(Dip / 2.);
-
-		C1.x	= d * sin(Strike - M_PI_090);
-		C1.y	= d * cos(Strike - M_PI_090);
-
-		pPlane->Add_Part(m_pCircle->Get_Part(0));
-
-		Get_Scaled(pPlane, C1, SG_Get_Distance(A, C1));
-	}
-	else
-	{
-		C1.x	= 0.0;
-		C1.y	= 0.0;
-
-		A.x	*= 1.1;	A.y	*= 1.1;
-
-		pPlane->Add_Point(-A.x, -A.y);
-		pPlane->Add_Point( A.x,  A.y);
-		pPlane->Add_Point( A.x - A.y,  A.y + A.x);
-		pPlane->Add_Point(-A.x - A.y, -A.y + A.x);
-	}
-
-	//-----------------------------------------------------
-	pPlane	= Planes.Add_Shape();
-
-	TSG_Point	B[2], D[2], E;
-
-	B[0].x	= sin(Rake);	B[1].x	= 0.0;
-	B[0].y	= cos(Rake);	B[1].y	= 0.0;
-
-	A.x	= -B[0].y;
-	A.y	=  B[0].x;
-
-	E.x	= (A.x - C1.x);
-	E.y	= (A.y - C1.y);
-
-	D[0].x	= C1.x + 0.5 * E.x;
-	D[0].y	= C1.y + 0.5 * E.y;
-
-	D[1].x	= D[0].x - E.y;
-	D[1].y	= D[0].y + E.x;
-
-	if( SG_Get_Length(E.x, E.y) > 0.0 && SG_Get_Crossing(C2, B[0], B[1], D[0], D[1], false) && SG_Get_Distance(C1, C2) < 1.0e003 )
-	{
-		pPlane->Add_Part(m_pCircle->Get_Part(0));
-
-		Get_Scaled(pPlane, C2, SG_Get_Distance(C1, C2));
-	}
-	else
-	{
-		A.x	*= 1.1;	A.y	*= 1.1;
-
-		pPlane->Add_Point(-A.x, -A.y);
-		pPlane->Add_Point( A.x,  A.y);
-		pPlane->Add_Point( A.x - A.y,  A.y + A.x);
-		pPlane->Add_Point(-A.x - A.y, -A.y + A.x);
-	}
-
-	return( true );
-}/**/
 
 //---------------------------------------------------------
 bool CBeachball::Get_Scaled(CSG_Shape *pShape, const TSG_Point &Center, double Scale)
