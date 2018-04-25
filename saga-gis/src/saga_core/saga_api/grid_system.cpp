@@ -72,7 +72,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int		CSG_Grid_System::m_Precision	= 10;	// 10 decimal digits, default precision used for storing cellsize and extent
+int		CSG_Grid_System::m_Precision	= 16;	// 16 decimal digits, default precision used for storing cellsize and extent
 
 //---------------------------------------------------------
 int CSG_Grid_System::Set_Precision(int Decimals)
