@@ -1031,143 +1031,153 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
+	int		iShape;
+
 	//-----------------------------------------------------
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) != INTERSECTION_None )
+	if( Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
 	{
-		int		iShape;
-
-		double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;
-
-		CWKSP_Map_DC	*pDC	= Transparency > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(254, 255, 255)) : NULL;
-		CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
-
-		m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
-		m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
-
-		Draw_Initialize(dc);
-
-		//-------------------------------------------------
-		if( (Flags & LAYER_DRAW_FLAG_NOEDITS) == 0 && (m_Edit_pShape || Get_Shapes()->Get_Selection_Count() > 0) )
+		if( m_Edit_pShape )
 		{
-			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
-			{
-				if( !Get_Shapes()->Get_Shape(iShape)->is_Selected() )
-				{
-					_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
-				}
-			}
-
-			for(iShape=0; iShape<Get_Shapes()->Get_Selection_Count(); iShape++)
-			{
-				if( iShape != m_Edit_Index )
-				{
-					_Draw_Shape(dc, Get_Shapes()->Get_Selection(iShape), 2);
-				}
-			}
-
-			if( !m_Edit_pShape )
-			{
-				_Draw_Shape(dc, Get_Shapes()->Get_Selection(m_Edit_Index), 1);
-			}
-			else
-			{
-				Edit_Shape_Draw(dc);
-			}
-
-			if( m_Edit_Mode == EDIT_SHAPE_MODE_Split )
-			{
-				CSG_Shape	*pSplit	= m_Edit_Shapes.Get_Shape(1);
-
-				if( pSplit && pSplit->Get_Point_Count() > 1 )
-				{
-					for(int i=0; i<=1; i++)
-					{
-						dc_Map.dc.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
-
-						TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point(0));
-
-						for(int iPoint=1; iPoint<pSplit->Get_Point_Count(); iPoint++)
-						{
-							B	= A;	A	= dc_Map.World2DC(pSplit->Get_Point(iPoint));
-
-							dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
-						}
-					}
-				}
-			}
+			Edit_Shape_Draw(dc_Map);
 		}
 
-		//-------------------------------------------------
-		else
+		return;
+	}
+
+	//-----------------------------------------------------
+	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) != 0 )
+	{
+		Draw_Initialize(dc_Map, Flags);
+
+		for(int iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		{
+			_Draw_Shape(dc_Map, Get_Shapes()->Get_Shape(iShape));
+		}
+
+		return;
+	}
+
+	//-----------------------------------------------------
+	double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;
+
+	CWKSP_Map_DC	*pDC	= Transparency > 0.0 ? new CWKSP_Map_DC(dc_Map.m_rWorld, dc_Map.m_rDC, dc_Map.m_Scale, SG_GET_RGB(254, 255, 255)) : NULL;
+	CWKSP_Map_DC	&dc		= pDC ? *pDC : dc_Map;
+
+	m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
+	m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
+
+	Draw_Initialize(dc, Flags);
+
+	//-----------------------------------------------------
+	if( (Flags & LAYER_DRAW_FLAG_NOEDITS) != 0 || !(m_Edit_pShape || Get_Shapes()->Get_Selection_Count()) )
+	{
+		for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		{
+			_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
+		}
+
+		if( _Chart_is_Valid() )
 		{
 			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+			{
+				_Draw_Chart(dc, Get_Shapes()->Get_Shape(iShape));
+			}
+		}
+	}
+	else	// selection and/or editing
+	{
+		for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+		{
+			if( !Get_Shapes()->Get_Shape(iShape)->is_Selected() )
 			{
 				_Draw_Shape(dc, Get_Shapes()->Get_Shape(iShape));
 			}
+		}
 
-			if( _Chart_is_Valid() )
+		for(iShape=0; iShape<Get_Shapes()->Get_Selection_Count(); iShape++)
+		{
+			if( iShape != m_Edit_Index )
 			{
-				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
-				{
-					_Draw_Chart(dc, Get_Shapes()->Get_Shape(iShape));
-				}
+				_Draw_Shape(dc, Get_Shapes()->Get_Selection(iShape), 2);
 			}
 		}
 
 		//-------------------------------------------------
-		if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_fLabel >= 0 )
+		if( !m_Edit_pShape )
 		{
-			int		iSize	= m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
-			double	dSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?
-				dc.m_World2DC * m_Parameters("LABEL_ATTRIB_SIZE")->asDouble() : 1.0;
+			_Draw_Shape(dc, Get_Shapes()->Get_Selection(m_Edit_Index), 1);
+		}
+		else
+		{
+			Edit_Shape_Draw(dc);
+		}
 
-			dc.dc.SetFont(Get_Font (m_Parameters("LABEL_ATTRIB_FONT")));
-			dc.dc.SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
+		if( m_Edit_Mode == EDIT_SHAPE_MODE_Split )
+		{
+			CSG_Shape	*pSplit	= m_Edit_Shapes.Get_Shape(1);
 
-			if( iSize < 0 || iSize >= Get_Shapes()->Get_Field_Count() )
+			if( pSplit && pSplit->Get_Point_Count() > 1 )
 			{
-				int	Size	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc.dc.GetFont().GetPointSize();
+				for(int i=0; i<=1; i++)
+				{
+					dc_Map.dc.SetPen(wxPen(i == 0 ? *wxWHITE : *wxBLACK, i == 0 ? 3 : 1));
+
+					TSG_Point_Int	B, A	= dc_Map.World2DC(pSplit->Get_Point(0));
+
+					for(int iPoint=1; iPoint<pSplit->Get_Point_Count(); iPoint++)
+					{
+						B	= A;	A	= dc_Map.World2DC(pSplit->Get_Point(iPoint));
+
+						dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( (Flags & LAYER_DRAW_FLAG_NOLABELS) == 0 && m_fLabel >= 0 )	// Labels
+	{
+		int		iSize	= m_Parameters("LABEL_ATTRIB_SIZE_BY"  )->asInt();
+		double	dSize	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ?
+			dc.m_World2DC * m_Parameters("LABEL_ATTRIB_SIZE")->asDouble() : 1.0;
+
+		dc.dc.SetFont(Get_Font (m_Parameters("LABEL_ATTRIB_FONT")));
+		dc.dc.SetTextForeground(m_Parameters("LABEL_ATTRIB_FONT")->asColor());
+
+		if( iSize >= 0 && iSize < Get_Shapes()->Get_Field_Count() )	// size by attribute
+		{
+			for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
+			{
+				int	Size	= (int)(0.5 + dSize * Get_Shapes()->Get_Shape(iShape)->asDouble(iSize));
 
 				if( Size > 0 )
 				{
-					for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
-					{
-						_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
-					}
+					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
 				}
 			}
-			else if( iSize >= 0 )
+		}
+		else	// one size fits all
+		{
+			int	Size	= m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() == 1 ? (int)(0.5 + dSize) : dc.dc.GetFont().GetPointSize();
+
+			if( Size > 0 )
 			{
 				for(iShape=0; iShape<Get_Shapes()->Get_Count(); iShape++)
 				{
-					int	Size	= (int)(0.5 + dSize * Get_Shapes()->Get_Shape(iShape)->asDouble(iSize));
-
-					if( Size > 0 )
-					{
-						_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
-					}
+					_Draw_Label(dc, Get_Shapes()->Get_Shape(iShape), Size);
 				}
 			}
 		}
-
-		//-------------------------------------------------
-		if( pDC )
-		{
-			dc_Map.Draw_DC(dc, Transparency);
-
-			delete(pDC);
-		}
 	}
 
 	//-----------------------------------------------------
-	else if( m_Edit_pShape )
+	if( pDC )	// Transparency ?
 	{
-		Edit_Shape_Draw(dc_Map);
-	}
+		dc_Map.Draw_DC(dc, Transparency);
 
-	//-----------------------------------------------------
-	dc_Map.dc.SetBrush(wxNullBrush);
-	dc_Map.dc.SetPen  (wxNullPen);
+		delete(pDC);
+	}
 }
 
 //---------------------------------------------------------

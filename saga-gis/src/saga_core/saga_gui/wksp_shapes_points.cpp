@@ -107,7 +107,7 @@ void CWKSP_Shapes_Points::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, in
 		//-------------------------------------------------
 		if( Selection )
 		{
-			CWKSP_Shapes_Point::Draw_Initialize(dc_Map);
+			CWKSP_Shapes_Point::Draw_Initialize(dc_Map, 0);
 		}
 	}
 }

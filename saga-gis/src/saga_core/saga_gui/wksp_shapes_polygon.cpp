@@ -198,7 +198,7 @@ int CWKSP_Shapes_Polygon::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Polygon::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	dc_Map.dc.SetBrush(m_Brush);
 	dc_Map.dc.SetPen(m_Pen);

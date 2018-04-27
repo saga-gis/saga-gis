@@ -295,7 +295,7 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	m_Pen.SetStyle((wxPenStyle)(m_Line_Style = PenList_Get_Style("LINE_STYLE")));
 

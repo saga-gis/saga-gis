@@ -179,7 +179,7 @@ protected:
 	CSG_Parameter *				PenList_Add				(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	int							PenList_Get_Style		(const CSG_String &Identifier);
 
-	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map)												= 0;
+	virtual void				Draw_Initialize			(CWKSP_Map_DC &dc_Map, int Flags)												= 0;
 	virtual void				Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection)			= 0;
 	virtual void				Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)	= 0;
 

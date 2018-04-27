@@ -627,6 +627,9 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	On_Draw(dc_Map, Flags);
+
+	dc_Map.dc.SetBrush(wxNullBrush);
+	dc_Map.dc.SetPen  (wxNullPen  );
 }
 
 

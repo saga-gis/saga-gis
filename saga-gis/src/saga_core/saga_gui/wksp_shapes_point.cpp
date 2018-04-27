@@ -453,12 +453,23 @@ bool CWKSP_Shapes_Point::Get_Style_Size(int &min_Size, int &max_Size, double &mi
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map)
+inline void CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	dc_Map.dc.SetBrush(m_Brush);
 	dc_Map.dc.SetPen  (m_Pen  );
 
 	m_Sel_Color_Fill	= Get_Color_asWX(m_Parameters("SEL_COLOR_FILL")->asInt());
+
+	m_Symbol_Type	= m_Parameters("DISPLAY_SYMBOL_TYPE")->asInt();
+
+	if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) != 0 )
+	{
+		if( m_Symbol_Type == SYMBOL_TYPE_Image
+		||  m_Symbol_Type == SYMBOL_TYPE_Beachball )
+		{
+			m_Symbol_Type	= 0;
+		}
+	}
 }
 
 //---------------------------------------------------------
@@ -526,11 +537,16 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 
 			if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
 			{
-				_Beachball_Draw(dc_Map.dc, p.x, p.y, Size,
-					pShape->asDouble(m_Beachball[0]),
-					pShape->asDouble(m_Beachball[1]),
-					pShape->asDouble(m_Beachball[2])
-				);
+				if( !pShape->is_NoData(m_Beachball[0])
+				&&  !pShape->is_NoData(m_Beachball[1])
+				&&  !pShape->is_NoData(m_Beachball[2])	)
+				{
+					_Beachball_Draw(dc_Map.dc, p.x, p.y, Size,
+						pShape->asDouble(m_Beachball[0]),
+						pShape->asDouble(m_Beachball[1]),
+						pShape->asDouble(m_Beachball[2])
+					);
+				}
 			}
 			else
 			{
@@ -657,7 +673,7 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 
 	CSG_Shapes	Plot(SHAPE_TYPE_Polygon);
 
-	Plot.Add_Shape();	// unit circle
+	Plot.Add_Shape();	// 0, unit circle
 
 	for(double a=0.0; a<M_PI_360; a+=dArc*M_DEG_TO_RAD)
 	{
@@ -671,7 +687,7 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 	SG_VectorR3_Rotate(N, 1, dip);
 	SG_VectorR3_Rotate(N, 2, strike);
 
-	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);
+	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);	// 1, fault plane
 
 	N[0] = 0; N[1] = -1; N[2] = 0;
 
@@ -681,64 +697,53 @@ void CWKSP_Shapes_Point::_Beachball_Draw(wxDC &dc, int x, int y, int size, doubl
 	SG_VectorR3_Rotate(N, 1, dip);
 	SG_VectorR3_Rotate(N, 2, strike);
 
-	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);
+	_Beachball_Get_Plane(Plot.Add_Shape(), Plot.Get_Shape(0), N);	// 2, auxiliary plane
 
 	//-----------------------------------------------------
-	SG_Polygon_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());
-	SG_Polygon_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());
+	SG_Polygon_Intersection(Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 3
+	SG_Polygon_Difference  (Plot.Get_Shape(0), Plot.Get_Shape(1), Plot.Add_Shape());	// 4
 
-	SG_Polygon_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(2), Plot.Add_Shape());
-	SG_Polygon_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2), Plot.Add_Shape());
+	CSG_Shape_Polygon	*pPlot[2];
 
-	SG_Polygon_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2), Plot.Add_Shape());
-	SG_Polygon_Difference  (Plot.Get_Shape(4), Plot.Get_Shape(2), Plot.Add_Shape());
-
-	//-----------------------------------------------------
-	int	p1	= rake < 0.0 ? 6 : 5;
-	int	p2	= rake < 0.0 ? 7 : 8;
-
-	CSG_Shape	*pPlot	= Plot.Add_Shape(Plot.Get_Shape(0));
-
-	SG_Polygon_Offset(Plot.Get_Shape(p1), -0.01, dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p1))->Get_Part(0));
-	SG_Polygon_Offset(Plot.Get_Shape(p2), -0.01, dArc); pPlot->Add_Part(((CSG_Shape_Polygon *)Plot.Get_Shape(p2))->Get_Part(0));
-
-	_Beachball_Get_Scaled(pPlot, x,  y, size);
-
-	//-----------------------------------------------------
-	wxBrush	b = dc.GetBrush(); dc.SetBrush(*wxWHITE_BRUSH); dc.DrawCircle(x, y, size); dc.SetBrush(b);
-
-	int	iPart, iPoint, jPoint, *nPoints	= new int[pPlot->Get_Part_Count()];
-
-	for(iPart=0, jPoint=0; iPart<pPlot->Get_Part_Count(); iPart++)
+	if( rake < 0.0 )
 	{
-		jPoint	+= (nPoints[iPart] = pPlot->Get_Point_Count(iPart) > 2 ? pPlot->Get_Point_Count(iPart) + 1 : 0);
+		SG_Polygon_Difference  (Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Polygon_Intersection(Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+	}
+	else
+	{
+		SG_Polygon_Intersection(Plot.Get_Shape(3), Plot.Get_Shape(2), pPlot[0] = (CSG_Shape_Polygon *)Plot.Add_Shape());
+		SG_Polygon_Difference  (Plot.Get_Shape(4), Plot.Get_Shape(2), pPlot[1] = (CSG_Shape_Polygon *)Plot.Add_Shape());
 	}
 
-	wxPoint	*Points	= new wxPoint[jPoint];
+	//-----------------------------------------------------
+	dc.DrawCircle(x, y, size);
 
-	for(iPart=0, jPoint=0; iPart<pPlot->Get_Part_Count(); iPart++)
+	wxBrush	b = dc.GetBrush(); dc.SetBrush(*wxWHITE_BRUSH);
+
+	for(int i=0; i<2; i++)
 	{
-		if( nPoints[iPart] > 0 )
+		// SG_Polygon_Offset(pPlot[i], -0.01, dArc);
+		_Beachball_Get_Scaled(pPlot[i], x,  y, size);
+
+		if( pPlot[i]->Get_Area() > 1 )
 		{
-			for(iPoint=0; iPoint<pPlot->Get_Point_Count(iPart); iPoint++)
+			wxPoint	*Points	= new wxPoint[pPlot[i]->Get_Point_Count(0)];
+
+			for(int iPoint=0; iPoint<pPlot[i]->Get_Point_Count(0); iPoint++)
 			{
-				TSG_Point	p		= pPlot->Get_Point(iPoint, iPart);
-				Points[jPoint].x	= (int)(p.x + 0.5);
-				Points[jPoint].y	= (int)(p.y + 0.5);
-				jPoint++;
+				TSG_Point	p		= pPlot[i]->Get_Point(iPoint, 0);
+				Points[iPoint].x	= (int)(p.x + 0.5);
+				Points[iPoint].y	= (int)(p.y + 0.5);
 			}
 
-			TSG_Point	p		= pPlot->Get_Point(0, iPart);
-			Points[jPoint].x	= (int)(p.x + 0.5);
-			Points[jPoint].y	= (int)(p.y + 0.5);
-			jPoint++;
+			dc.DrawPolygon(pPlot[i]->Get_Point_Count(0), Points);
+
+			delete[](Points);
 		}
 	}
 
-	dc.DrawPolyPolygon(pPlot->Get_Part_Count(), nPoints, Points, 0, 0, wxODDEVEN_RULE);
-
-	delete[](Points);
-	delete[](nPoints);
+	dc.SetBrush(b);
 }
 
 //---------------------------------------------------------
