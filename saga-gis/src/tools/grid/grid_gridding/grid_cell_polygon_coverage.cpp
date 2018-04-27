@@ -338,6 +338,12 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 		), 1
 	);
 
+	Parameters.Add_Table("",
+		"CLASSES"	, _TL("Classification"),
+		_TL("Classification look-up table for interpretation of resulting grid cell values."),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
 	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
 
@@ -382,7 +388,11 @@ bool CPolygonCategories2Grid::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
-	CSG_Grid	*pCategory	= m_Grid_Target.Get_Grid("CATEGORY", SG_DATATYPE_Int);
+	int		Field	= Parameters("FIELD")->asInt();
+
+	bool	bNumber	= SG_Data_Type_is_Numeric(pPolygons->Get_Field_Type(Field));
+
+	CSG_Grid	*pCategory	= m_Grid_Target.Get_Grid("CATEGORY", bNumber ? pPolygons->Get_Field_Type(Field) : SG_DATATYPE_Int);
 
 	if( pPolygons->Get_Count() <= 0 || pCategory == NULL || !pPolygons->Get_Extent().Intersects(pCategory->Get_Extent()) )
 	{
@@ -392,10 +402,8 @@ bool CPolygonCategories2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Field	= Parameters("FIELD")->asInt();
-
 	pCategory->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), pPolygons->Get_Field_Name(Field)));
-	pCategory->Set_NoData_Value(0.);
+	pCategory->Assign_NoData();
 
 	//-----------------------------------------------------
 	if( !pPolygons->Set_Index(Field, TABLE_INDEX_Ascending) )
@@ -439,18 +447,19 @@ bool CPolygonCategories2Grid::On_Execute(void)
 
 		if( Category.Cmp(pPolygon->asString(Field)) )	// new category
 		{
-			Set_Category(pPolygons, pCategory, pCoverage, Classes, Category);	// also clears selection
+			Set_Category(pPolygons, pCategory, pCoverage, Classes, Category, bNumber);	// also clears selection
 
 			Category	= pPolygon->asString(Field);
 		}
 
-		pPolygons->Select(pPolygon, true);
+		pPolygons->Select(pPolygon, true);	// adds polygon to selection
 	}
 
-	Set_Category(pPolygons, pCategory, pCoverage, Classes, Category);
+	Set_Category(pPolygons, pCategory, pCoverage, Classes, Category, bNumber);
 
 	//-----------------------------------------------------
-	DataObject_Add(pCategory);
+	DataObject_Add   (pCategory);
+	DataObject_Update(pCategory);
 
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCategory, "LUT");
 
@@ -458,6 +467,18 @@ bool CPolygonCategories2Grid::On_Execute(void)
 	{
 		DataObject_Set_Parameter(pCategory, pLUT);
 		DataObject_Set_Parameter(pCategory, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	if( Parameters("CLASSES")->asTable() )
+	{
+		Classes.Del_Field(4);	// MAXIMUM
+		Classes.Del_Field(2);	// DESCRIPTION
+		Classes.Del_Field(0);	// COLOR
+
+		Classes.Set_Field_Name(0, _TL("Category"));
+		Classes.Set_Field_Name(1, _TL("Value"   ));
+
+		Parameters("CLASSES")->asTable()->Create(Classes);
 	}
 
 	//-----------------------------------------------------
@@ -470,7 +491,7 @@ bool CPolygonCategories2Grid::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCategory, CSG_Grid *pCoverage, CSG_Table &Classes, const CSG_String &Category)
+bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCategory, CSG_Grid *pCoverage, CSG_Table &Classes, const CSG_String &Category, bool bNumber)
 {
 	if( pPolygons->Get_Selection_Count() <= 0 )
 	{
@@ -508,10 +529,12 @@ bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCat
 	//-----------------------------------------------------
 	CSG_Table_Record	&Class	= *Classes.Add_Record();
 
+	double	ClassID	= bNumber ? Category.asDouble() : Classes.Get_Count();
+
 	Class.Set_Value(0, SG_Color_Get_Random());
 	Class.Set_Value(1, Category);
-	Class.Set_Value(3, Classes.Get_Count());
-	Class.Set_Value(4, Classes.Get_Count());
+	Class.Set_Value(3, ClassID);
+	Class.Set_Value(4, ClassID);
 
 	int	Multiple	= Parameters("MULTIPLE")->asInt();
 
@@ -523,7 +546,7 @@ bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCat
 		case  0:	// minimum
 			if( pCoverage->asDouble(i) <= 0. || Coverage.asDouble(i) < pCoverage->asDouble(i) )
 			{
-				pCategory->Set_Value(i, Classes.Get_Count());
+				pCategory->Set_Value(i, ClassID);
 				pCoverage->Set_Value(i, Coverage.asDouble(i));
 			}
 			break;
@@ -531,7 +554,7 @@ bool CPolygonCategories2Grid::Set_Category(CSG_Shapes *pPolygons, CSG_Grid *pCat
 		default:	// maximum
 			if( Coverage.asDouble(i) > pCoverage->asDouble(i) )
 			{
-				pCategory->Set_Value(i, Classes.Get_Count());
+				pCategory->Set_Value(i, ClassID);
 				pCoverage->Set_Value(i, Coverage.asDouble(i));
 			}
 			break;

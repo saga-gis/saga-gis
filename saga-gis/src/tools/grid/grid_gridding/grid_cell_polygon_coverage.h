@@ -128,7 +128,7 @@ private:
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool						Set_Category			(CSG_Shapes *pPolygons, CSG_Grid *pCategory, CSG_Grid *pCoverage, CSG_Table &Classes, const CSG_String &Category);
+	bool						Set_Category			(CSG_Shapes *pPolygons, CSG_Grid *pCategory, CSG_Grid *pCoverage, CSG_Table &Classes, const CSG_String &Category, bool bNumber);
 
 };
 

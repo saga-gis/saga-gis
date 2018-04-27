@@ -1566,6 +1566,10 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 		{
 			pGrid	= SG_Create_Grid(System, Type);
 		}
+		else if( pGrid && pGrid->Get_Type() != Type )
+		{
+			pGrid->Create(pGrid->Get_System(), Type);
+		}
 	}
 
 	if( pGrid && pGrid != pParameter->asGrid() )
