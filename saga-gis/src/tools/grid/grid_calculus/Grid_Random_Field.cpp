@@ -262,9 +262,12 @@ int CGrid_Fractal_Brownian_Noise::On_Parameter_Changed(CSG_Parameters *pParamete
 	{
 		CSG_Grid_System	System(*pParameter->asGrid_System());
 
-		double	d	= 0.5 * SG_Get_Length(System.Get_XRange(), System.Get_YRange());
+		if( System.is_Valid() )
+		{
+			double	d	= 0.5 * SG_Get_Length(System.Get_XRange(), System.Get_YRange());
 
-		pParameters->Get("MAX_SCALE")->Set_Value(System.Get_Cellsize() * (int)(d / System.Get_Cellsize()));
+			pParameters->Get("MAX_SCALE")->Set_Value(System.Get_Cellsize() * (int)(d / System.Get_Cellsize()));
+		}
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -295,6 +298,7 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 	}
 
 	pGrid->Assign(0.0);
+	pGrid->Set_Name(_TL("Fractal Brownian Noise"));
 
 	int		Scaling		= Parameters("SCALING"  )->asInt   ();
 	int		nSteps		= Parameters("STEPS"    )->asInt   ();
@@ -361,8 +365,11 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 bool CGrid_Fractal_Brownian_Noise::Add_Noise(CSG_Grid *pGrid, double Scale)
 {
 	CSG_Grid	Noise;
+	CSG_Rect	Extent(pGrid->Get_Extent(true));
 
-	if( !Noise.Create(CSG_Grid_System(Scale, pGrid->Get_Extent(true))) )
+	Extent.Inflate(Scale, false);	// guarantee that the noise grid is always large enough, otherwise we get edge effects with larger scale values
+
+	if( !Noise.Create(CSG_Grid_System(Scale, Extent)) )
 	{
 		return( false );
 	}
