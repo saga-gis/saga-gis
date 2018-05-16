@@ -18,6 +18,7 @@ gdal_export.cpp\
 gdal_export_geotiff.cpp\
 gdal_formats.cpp\
 gdal_import.cpp\
+gdal_import_aster.cpp\
 gdal_import_netcdf.cpp\
 gdal_import_wms.cpp\
 MLB_Interface.cpp\
@@ -31,6 +32,7 @@ gdal_export.h\
 gdal_export_geotiff.h\
 gdal_formats.h\
 gdal_import.h\
+gdal_import_aster.h\
 gdal_import_netcdf.h\
 gdal_import_wms.h\
 MLB_Interface.h\

@@ -173,6 +173,8 @@ public:
 	bool						Write				(int i, CSG_Grid *pGrid, double NoDataValue);
 	bool						Write				(int i, CSG_Grid *pGrid);
 
+	CSG_Strings					Get_SubDataSets		(bool bDescription = false)	const;
+
 
 private:
 
@@ -190,6 +192,8 @@ private:
 
 	GDALDatasetH				m_pDataSet, m_pVrtSource;
 
+
+	bool						_Get_SubDataSets	(void);
 
 	bool						_Set_Transformation	(void);
 

@@ -95,7 +95,7 @@ class CLandsat_Scene_Import : public CSG_Tool
 public:
 	CLandsat_Scene_Import(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Grid|Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
 
 
 protected:

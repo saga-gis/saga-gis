@@ -375,6 +375,28 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 }
 
 //---------------------------------------------------------
+CSG_Strings CSG_GDAL_DataSet::Get_SubDataSets(bool bDescription) const
+{
+	CSG_MetaData	MetaData;	Get_MetaData(MetaData, "SUBDATASETS");
+
+	CSG_Strings	SubDataSets;
+
+	SG_Char	*Type	= bDescription ? SG_T("DESC") : SG_T("NAME");
+
+	for(int i=0; i==SubDataSets.Get_Count(); i++)
+	{
+		CSG_MetaData	*pSubDataSet	= MetaData(CSG_String::Format("SUBDATASET_%d_%s", i + 1, Type));
+
+		if( pSubDataSet )
+		{
+			SubDataSets	+= pSubDataSet->Get_Content();
+		}
+	}
+
+	return( SubDataSets );
+}
+
+//---------------------------------------------------------
 bool CSG_GDAL_DataSet::_Set_Transformation(void)
 {
 	if( !m_pDataSet )
@@ -590,9 +612,9 @@ CSG_String CSG_GDAL_DataSet::Get_File_Name(void)	const
 //---------------------------------------------------------
 const char * CSG_GDAL_DataSet::Get_MetaData_Item(const char *pszName, const char *pszDomain)	const
 {
-	const char	*s	= GDALGetMetadataItem(m_pDataSet, pszName, pszDomain);
+	const char	*Item	= GDALGetMetadataItem(m_pDataSet, pszName, pszDomain);
 
-	return( s ? s : "" );
+	return( Item ? Item : "" );
 }
 
 //---------------------------------------------------------

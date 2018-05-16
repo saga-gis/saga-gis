@@ -256,42 +256,28 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_MetaData	MetaData;
+	CSG_Strings	SubDataSets	= DataSet.Get_SubDataSets(false);
 
-	if( DataSet.Get_Count() <= 0 && DataSet.Get_MetaData(MetaData, "SUBDATASETS") )
+	if( SubDataSets.Get_Count() > 0 )
 	{
-		Message_Add(CSG_String::Format("\n====\n%s\n%s\n", DataSet.Get_Name().c_str(), MetaData.asText().c_str()), false);
+		CSG_Strings	Descriptions	= DataSet.Get_SubDataSets(true);
 
-		int	i, n;
-
-		for(i=0, n=0; i==n; i++)
+		for(int i=0; i<SubDataSets.Get_Count() && Process_Get_Okay(); i++)
 		{
-			CSG_MetaData	*pEntry	= MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_NAME", i + 1));
-
-			if( pEntry && DataSet.Open_Read(pEntry->Get_Content()) )
+			if( DataSet.Open_Read(SubDataSets[i]) )
 			{
-				CSG_String	Name	= pEntry->Get_Content();
+				CSG_String	Name	= SubDataSets[i];
 
 				if( Name.Find("://") >= 0 )
 				{
 					Name	= Name.Right(Name.Length() - Name.Find("://") - 3);
 				}
 
-				CSG_String	Desc;
-
-				if( (pEntry = MetaData.Get_Child(CSG_String::Format("SUBDATASET_%d_DESC", i + 1))) != NULL )
-				{
-					Desc	= pEntry->Get_Content();
-				}
-
-				if( Load(DataSet, Name, Desc) )
-				{
-					n++;
-				}
+				Load(DataSet, Name, Descriptions[i]);
 			}
 		}
 
-		return( n > 0 );
+		return( true );
 	}
 
 	return( Load(DataSet, SG_File_Get_Name(Parameters("FILE")->asString(), false), "") );
