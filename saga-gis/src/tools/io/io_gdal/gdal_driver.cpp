@@ -381,7 +381,7 @@ CSG_Strings CSG_GDAL_DataSet::Get_SubDataSets(bool bDescription) const
 
 	CSG_Strings	SubDataSets;
 
-	SG_Char	*Type	= bDescription ? SG_T("DESC") : SG_T("NAME");
+	const SG_Char	*Type	= bDescription ? SG_T("DESC") : SG_T("NAME");
 
 	for(int i=0; i==SubDataSets.Get_Count(); i++)
 	{
