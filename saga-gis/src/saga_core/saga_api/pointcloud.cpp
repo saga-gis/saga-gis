@@ -1202,7 +1202,7 @@ CSG_Table_Record * CSG_PointCloud::Ins_Record(int iRecord, CSG_Table_Record *pCo
 //---------------------------------------------------------
 CSG_Table_Record * CSG_PointCloud::Add_Record(CSG_Table_Record *pCopy)
 {
-	return( NULL );
+	return( Add_Shape(pCopy, SHAPE_COPY) );
 }
 
 //---------------------------------------------------------
@@ -1216,7 +1216,14 @@ CSG_Shape * CSG_PointCloud::Add_Shape(CSG_Table_Record *pCopy, TSG_ADD_Shape_Cop
 		{
 			if( Get_Field_Type(iField) == pCopy->Get_Table()->Get_Field_Type(iField) )
 			{
-				Set_Value(iField, pCopy->asDouble(iField));
+				if( SG_Data_Type_is_Numeric(Get_Field_Type(iField)) )
+				{
+					Set_Value(iField, pCopy->asDouble(iField));
+				}
+				else
+				{
+					Set_Value(iField, pCopy->asString(iField));
+				}
 			}
 		}
 	}
