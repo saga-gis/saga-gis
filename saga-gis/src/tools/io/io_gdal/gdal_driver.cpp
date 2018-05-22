@@ -715,11 +715,11 @@ CSG_String CSG_GDAL_DataSet::Get_Name(int i)	const
 		{
 			if( (s = GDALGetMetadataItem(pBand, "GRIB_COMMENT", 0)) != NULL && *s )
 			{
-				Name	= s;
+				Name	= s;	CSG_DateTime	d;
 
 				if( (s = GDALGetMetadataItem(pBand, "GRIB_ELEMENT"   , 0)) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
 				if( (s = GDALGetMetadataItem(pBand, "GRIB_SHORT_NAME", 0)) != NULL && *s )	{	Name += "["; Name += s; Name += "]";	}
-				if( (s = GDALGetMetadataItem(pBand, "GRIB_VALID_TIME", 0)) != NULL && *s )	{	Name += CSG_String::Format("[%s]", CSG_Time_Converter::Get_String(atoi(s), SG_TIME_FMT_Seconds_Unix).c_str());	}
+				if( (s = GDALGetMetadataItem(pBand, "GRIB_VALID_TIME", 0)) != NULL && *s )	{	d.Set_Unix_Time(atoi(s)); Name += "[" + d.Format_ISOCombined() + "]";	}
 			}
 		}
 

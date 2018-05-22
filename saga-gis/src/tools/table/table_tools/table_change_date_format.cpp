@@ -70,11 +70,6 @@
 //---------------------------------------------------------
 CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Change Date Format"));
 
 	Set_Author		("O.Conrad (c) 2011");
@@ -83,49 +78,26 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 		""
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"			, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"			, _TL("Date Field"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Date Field"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"			, _TL("Output"),
+	Parameters.Add_Table("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "FMT_IN"			, _TL("Input Format"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
-			_TL("dd:mm:yyyy"),
-			_TL("yyyy:mm:dd"),
-			_TL("ddmmyyyy, fix size"),
-			_TL("yyyymmdd, fix size"),
-			_TL("ddmmyy, fix size"),
-			_TL("yymmdd, fix size"),
-			_TL("Julian Day")
-		)
-	);
-
-	Parameters.Add_String(
-		pNode	, "SEP_IN"			, _TL("Separator"),
-		_TL(""),
-		":"
-	);
-
-	pNode	= Parameters.Add_Choice(
-		NULL	, "FMT_OUT"			, _TL("Output Format"),
+	Parameters.Add_Choice("",
+		"FMT_IN"	, _TL("Input Format"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("dd:mm:yyyy"),
@@ -135,12 +107,32 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 			_TL("ddmmyy, fix size"),
 			_TL("yymmdd, fix size"),
 			_TL("Julian Day"),
-			_TL("Date")
+			_TL("Unix Time")
 		)
 	);
 
-	Parameters.Add_String(
-		pNode	, "SEP_OUT"			, _TL("Separator"),
+	Parameters.Add_String("FMT_IN",
+		"SEP_IN"	, _TL("Separator"),
+		_TL(""),
+		":"
+	);
+
+	Parameters.Add_Choice("",
+		"FMT_OUT"	, _TL("Output Format"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
+			_TL("dd:mm:yyyy"),
+			_TL("yyyy:mm:dd"),
+			_TL("dd:mm:yy"),
+			_TL("yy:mm:dd"),
+			_TL("Julian Day"),
+			_TL("Date"),
+			_TL("ISO Date and Time")
+		)
+	);
+
+	Parameters.Add_String("FMT_OUT",
+		"SEP_OUT"	, _TL("Separator"),
 		_TL(""),
 		":"
 	);
@@ -161,7 +153,7 @@ int CTable_Change_Date_Format::On_Parameters_Enable(CSG_Parameters *pParameters,
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FMT_OUT") )
 	{
-		pParameters->Set_Enabled("SEP_OUT", pParameter->asInt() == 0 || pParameter->asInt() == 1);
+		pParameters->Set_Enabled("SEP_OUT", pParameter->asInt() < 4);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE")
@@ -208,8 +200,9 @@ bool CTable_Change_Date_Format::On_Execute(void)
 	int	Field	= Parameters("FIELD")->asInt();
 
 	//-----------------------------------------------------
-	SG_Char	sep_In	= *Parameters("SEP_IN" )->asString(); if( !sep_In  ) sep_In  = SG_T(':');
-	SG_Char	sep_Out	= *Parameters("SEP_OUT")->asString(); if( !sep_Out ) sep_Out = SG_T(':');
+	SG_Char	sep_In	= *Parameters("SEP_IN")->asString(); if( !sep_In ) sep_In  = SG_T(':');
+
+	const SG_Char	*sep_Out	= Parameters("SEP_OUT")->asString();
 
 	//-----------------------------------------------------
 	int	fmt_In	= Parameters("FMT_IN" )->asInt();
@@ -221,99 +214,132 @@ bool CTable_Change_Date_Format::On_Execute(void)
 		sep_In	= SG_T('.');
 	}
 
-	if( fmt_Out == 7 )
-	{
-		fmt_Out	= 0;
-		sep_Out	= SG_T('.');
-	}
-
 	pTable->Set_Field_Type(Field, SG_DATATYPE_String);
 
 	//-----------------------------------------------------
 	for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
 	{
-		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
+		CSG_DateTime	Date;
 
-		CSG_String	s(pRecord->asString(Field));
-
-		int	y, m, d;
+		CSG_String	s(pTable->Get_Record(iRecord)->asString(Field));
 
 		switch( fmt_In )
 		{
 		case 0:	// dd:mm:yyyy
-			d	= s.BeforeFirst(sep_In).asInt();
-			m	= s.AfterFirst (sep_In).asInt();
-			y	= s.AfterLast  (sep_In).asInt();
+			{
+				int	d	= s.BeforeFirst(sep_In).asInt();
+				int	m	= s.AfterFirst (sep_In).asInt();
+				int	y	= s.AfterLast  (sep_In).asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 1:	// yyyy:mm:dd
-			d	= s.AfterLast  (sep_In).asInt();
-			m	= s.AfterFirst (sep_In).asInt();
-			y	= s.BeforeFirst(sep_In).asInt();
+			{
+				int	d	= s.AfterLast  (sep_In).asInt();
+				int	m	= s.AfterFirst (sep_In).asInt();
+				int	y	= s.BeforeFirst(sep_In).asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 2:	// ddmmyyyy
-			d	= s.Left (2)   .asInt();
-			m	= s.Mid  (2, 2).asInt();
-			y	= s.Right(4)   .asInt();
+			{
+				int	d	= s.Left (2)   .asInt();
+				int	m	= s.Mid  (2, 2).asInt();
+				int	y	= s.Right(4)   .asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 3:	// yyyymmdd
-			d	= s.Right(2)   .asInt();
-			m	= s.Mid  (4, 2).asInt();
-			y	= s.Left (4)   .asInt();
+			{
+				int	d	= s.Right(2)   .asInt();
+				int	m	= s.Mid  (4, 2).asInt();
+				int	y	= s.Left (4)   .asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 4:	// ddmmyy
-			d	= s.Left (2)   .asInt();
-			m	= s.Mid  (2, 2).asInt();
-			y	= s.Right(2)   .asInt();
+			{
+				int	d	= s.Left (2)   .asInt();
+				int	m	= s.Mid  (2, 2).asInt();
+				int	y	= s.Right(2)   .asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 5:	// yymmdd
-			d	= s.Right(2)   .asInt();
-			m	= s.Mid  (2, 2).asInt();
-			y	= s.Left (2)   .asInt();
+			{
+				int	d	= s.Right(2)   .asInt();
+				int	m	= s.Mid  (2, 2).asInt();
+				int	y	= s.Left (2)   .asInt();
+
+				Date.Set(d, (CSG_DateTime::Month)(m - 1), y);
+			}
 			break;
 
 		case 6:	// Julian Day
-			{
-				CSG_DateTime	Date(s.asDouble());
+			Date.Set(s.asDouble());
+			break;
 
-				d	= Date.Get_Day  ();
-				m	= Date.Get_Month();
-				y	= Date.Get_Year ();
-			}
+		case 7:	// Unix Time
+			Date.Set_Unix_Time(s.asInt());
 			break;
 		}
 
 		//-------------------------------------------------
+		int	d	= Date.Get_Day  ();
+		int	m	= Date.Get_Month() + 1;
+		int	y	= Date.Get_Year ();
+
 		switch( fmt_Out )
 		{
-		case 0:	s.Printf("%02d%c%02d%c%02d", d, sep_Out, m, sep_Out, y       );	break;	// dd:mm:yyyy
-		case 1:	s.Printf("%02d%c%02d%c%02d", y, sep_Out, m, sep_Out, d       );	break;	// yyyy:mm:dd
-		case 2:	s.Printf("%02d%02d%04d"    , d, m, y                         );	break;	// ddmmyyyy
-		case 3:	s.Printf("%04d%02d%02d"    , y, m, d                         );	break;	// yyyymmdd
-		case 4:	s.Printf("%02d%02d%02d"    , d, m, y - 100 * (int)(y / 100.0));	break;	// ddmmyy
-		case 5:	s.Printf("%02d%02d%02d"    , y - 100 * (int)(y / 100.0), m, d);	break;	// yymmdd
+		case 0:	// dd:mm:yyyy
+			s.Printf("%02d%s%02d%s%02d", d, sep_Out, m, sep_Out, y);
+			break;
 
-		case 6:	// Julian Day
-			{
-				CSG_DateTime	Date(d, (CSG_DateTime::Month)(m - 1), y);
+		case 1:	// yyyy:mm:dd
+			s.Printf("%04d%s%02d%s%02d", y, sep_Out, m, sep_Out, d);
+			break;
 
-				s.Printf("%d", (int)Date.Get_JDN());
-			}
+		case 2:	// dd:mm:yy
+			y	= y - 100 * (int)(y / 100.0);
+			s.Printf("%02d%s%02d%s%02d", d, sep_Out, m, sep_Out, y);
+			break;
+
+		case 3:	// yy:mm:dd
+			y	= y - 100 * (int)(y / 100.0);
+			s.Printf("%02d%s%02d%s%02d", y, sep_Out, m, sep_Out, d);
+			break;
+
+		case 4:	// Julian Day
+			s.Printf("%f", Date.Get_JDN());
+			break;
+
+		case 5:	// ISO Date
+			s	= Date.Format_Date();
+			break;
+
+		case 6:	// ISO Date and Time
+			s	= Date.Format_ISOCombined(' ');
 			break;
 		}
 
-		pRecord->Set_Value(Field, s);
+		pTable->Get_Record(iRecord)->Set_Value(Field, s);
 	}
 
 	//-----------------------------------------------------
 	switch( Parameters("FMT_OUT")->asInt() )
 	{
-	case 6:	pTable->Set_Field_Type(Field, SG_DATATYPE_Int );	break;	// Julian Day
-	case 7:	pTable->Set_Field_Type(Field, SG_DATATYPE_Date);	break;	// Date
+	case 4:	pTable->Set_Field_Type(Field, SG_DATATYPE_Double);	break;	// Julian Day
+	case 5:	pTable->Set_Field_Type(Field, SG_DATATYPE_Date  );	break;	// Date
 	}
 
 	if( pTable == Parameters("TABLE")->asTable() )
@@ -334,44 +360,36 @@ bool CTable_Change_Date_Format::On_Execute(void)
 //---------------------------------------------------------
 CTable_Change_Time_Format::CTable_Change_Time_Format(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Change Time Format"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		""
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"			, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"			, _TL("Time Field"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Time Field"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"			, _TL("Output"),
+	Parameters.Add_Table("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FMT_IN"			, _TL("Input Format"),
+	Parameters.Add_Choice("",
+		"FMT_IN"	, _TL("Input Format"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("hh.mm.ss"),
 			_TL("hh:mm:ss"),
 			_TL("hhmmss, fix size"),
@@ -381,10 +399,10 @@ CTable_Change_Time_Format::CTable_Change_Time_Format(void)
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FMT_OUT"			, _TL("Output Format"),
+	Parameters.Add_Choice("",
+		"FMT_OUT"	, _TL("Output Format"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
 			_TL("hh.mm.ss"),
 			_TL("hh:mm:ss"),
 			_TL("hhmmss, fix size"),
@@ -481,11 +499,11 @@ bool CTable_Change_Time_Format::On_Execute(void)
 
 				switch( fmt_Out )
 				{
-			//	case 0:	sTime.Printf(SG_T("%02d.%02d.%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
-			//	case 1:	sTime.Printf(SG_T("%02d:%02d:%02.*f"), h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
-				case 0:	sTime.Printf(SG_T("%02d.%02d.%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
-				case 1:	sTime.Printf(SG_T("%02d:%02d:%02d"  ), h, m, (int)(s + 0.5));	break;	// hh:mm:ss
-				case 2:	sTime.Printf(SG_T("%02d%02d%02d"    ), h, m, (int)(s + 0.5));	break;	// hhmmss
+			//	case 0:	sTime.Printf("%02d.%02d.%02.*f", h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
+			//	case 1:	sTime.Printf("%02d:%02d:%02.*f", h, m, SG_Get_Significant_Decimals(s), s);	break;	// hh:mm:ss.s
+				case 0:	sTime.Printf("%02d.%02d.%02d"  , h, m, (int)(s + 0.5));	break;	// hh:mm:ss
+				case 1:	sTime.Printf("%02d:%02d:%02d"  , h, m, (int)(s + 0.5));	break;	// hh:mm:ss
+				case 2:	sTime.Printf("%02d%02d%02d"    , h, m, (int)(s + 0.5));	break;	// hhmmss
 				}
 			}
 			break;
@@ -499,7 +517,7 @@ bool CTable_Change_Time_Format::On_Execute(void)
 			//	case 5:	s	= s       ;	break;	// seconds
 				}
 
-				sTime.Printf(SG_T("%.*f"), SG_Get_Significant_Decimals(s), s);
+				sTime.Printf("%.*f", SG_Get_Significant_Decimals(s), s);
 			}
 			break;
 		}

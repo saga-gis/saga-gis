@@ -210,11 +210,16 @@ const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand
 //---------------------------------------------------------
 CSG_String CGDAL_Import_NetCDF::Get_Time_String(const CSG_String &Time, int Format)
 {
+	CSG_DateTime	Date;
+
 	switch( Format )
 	{
-	case  0:	return( CSG_Time_Converter::Get_String(Time.asInt(), SG_TIME_FMT_Hours_AD) );
+	case  0:
+		Date.Set_Hours_AD(Time.asInt());
+		return( Date.Format_ISOCombined() );
 
-	default:	return( Time );
+	default:
+		return( Time );
 	}
 }
 

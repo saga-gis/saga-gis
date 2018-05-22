@@ -242,10 +242,13 @@ public:
 	CSG_DateTime &				Set_Hour				(unsigned short Value);
 	CSG_DateTime &				Set_Hour				(double         Value);
 	CSG_DateTime &				Set_Day					(unsigned short Value);
-	CSG_DateTime &				Set_Month				(Month          Value);
+	CSG_DateTime &				Set_Month				(unsigned short Value);
 	CSG_DateTime &				Set_Year				(int            Value);
 
 	CSG_DateTime &				Set_To_Current			(void);
+
+	CSG_DateTime &				Set_Unix_Time			(sLong Seconds);
+	CSG_DateTime &				Set_Hours_AD			(int Hours);
 
 	CSG_DateTime &				Reset_Time				(void);
 
@@ -392,51 +395,6 @@ SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef enum ESG_Time_Format
-{
-	SG_TIME_FMT_Seconds_Unix	= 0,
-	SG_TIME_FMT_Hours_AD
-}
-TSG_Time_Format;
-
-//---------------------------------------------------------
-typedef enum ESG_Time_String_Format
-{
-	SG_TIME_STRFMT_YMD_hms		= 0,
-	SG_TIME_STRFMT_DMY_hms
-}
-TSG_Time_String_Format;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Time_Converter
-{
-public:
-	CSG_Time_Converter(void);
-	CSG_Time_Converter(int Time, TSG_Time_Format Format);
-
-	bool						Set_Time		(int Time, TSG_Time_Format Format);
-
-	CSG_String					Get_String		(void)	const;
-
-	static CSG_String			Get_String		(int Time, TSG_Time_Format Format);
-
-
-public:
-
-	TSG_Time_String_Format		m_StrFmt;
-
-	int							m_sec, m_min, m_hour, m_day, m_mon, m_year;
-
-};
 
 
 ///////////////////////////////////////////////////////////
