@@ -1684,7 +1684,7 @@ public:
 	typedef struct SSG_Formula_Item
 	{
 		const SG_Char		*name;
-		TSG_PFNC_Formula_1	f;			
+		TSG_PFNC_Formula_1	f;
 		int					n_pars;		
 		int					varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
 	}
@@ -1708,6 +1708,9 @@ private:
 	int							m_Error_Position, m_Length;
 
 	TMAT_Formula				m_Formula;
+
+	TSG_Formula_Item			*m_Functions;
+
 
 	CSG_String					m_sFormula, m_sError;
 

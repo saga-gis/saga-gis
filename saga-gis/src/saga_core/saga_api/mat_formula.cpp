@@ -264,12 +264,25 @@ CSG_Formula::CSG_Formula(void)
 
 	i_ctable			= NULL;
 	i_error				= NULL;
+
+	//-----------------------------------------------------
+	m_Functions	= (TSG_Formula_Item *)SG_Calloc(MAX_CTABLE, sizeof(TSG_Formula_Item));
+
+	for(int i=0; i<MAX_CTABLE; i++)
+	{
+		m_Functions[i].name		= gSG_Functions[i].name;
+		m_Functions[i].f		= gSG_Functions[i].f;
+		m_Functions[i].n_pars	= gSG_Functions[i].n_pars;
+		m_Functions[i].varying	= gSG_Functions[i].varying;
+	}
 }
 
 //---------------------------------------------------------
 CSG_Formula::~CSG_Formula(void)
 {
 	Destroy();
+
+	SG_Free(m_Functions);
 }
 
 //---------------------------------------------------------
@@ -616,28 +629,28 @@ double CSG_Formula::_Get_Value(const double *Parameters, TMAT_Formula func) cons
 			break;
 
 		case 'F':
-			switch (gSG_Functions[*function].n_pars)
+			switch (m_Functions[*function].n_pars)
 			{
 			case 0:
-				*bufp++	= ((TSG_PFNC_Formula_0)gSG_Functions[*function++].f)();
+				*bufp++	= ((TSG_PFNC_Formula_0)m_Functions[*function++].f)();
 				break;
 
 			case 1:
 				x		= *--bufp;
-				*bufp++	= ((TSG_PFNC_Formula_1)gSG_Functions[*function++].f)(x);
+				*bufp++	= ((TSG_PFNC_Formula_1)m_Functions[*function++].f)(x);
 				break;
 
 			case 2:
 				y		= *--bufp;
 				x		= *--bufp;
-				*bufp++	= ((TSG_PFNC_Formula_2)gSG_Functions[*function++].f)(x, y);
+				*bufp++	= ((TSG_PFNC_Formula_2)m_Functions[*function++].f)(x, y);
 				break;
 
 			case 3:
 				z		= *--bufp;
 				y		= *--bufp;
 				x		= *--bufp;
-				*bufp++	= ((TSG_PFNC_Formula_3)gSG_Functions[*function++].f)(x, y, z);
+				*bufp++	= ((TSG_PFNC_Formula_3)m_Functions[*function++].f)(x, y, z);
 				break;
 
 			default:
@@ -705,7 +718,7 @@ int CSG_Formula::Add_Function(const SG_Char *name, TSG_PFNC_Formula_1 f, int n_p
 		return( 0 );
 	}
 
-	for(where=gSG_Functions; where->f != NULL && SG_STR_CMP(name, where->name); where++)
+	for(where=m_Functions; where->f != NULL && SG_STR_CMP(name, where->name); where++)
 	{
 		;
 	}
@@ -720,7 +733,7 @@ int CSG_Formula::Add_Function(const SG_Char *name, TSG_PFNC_Formula_1 f, int n_p
 
 		return( 1 );
 	}
-	else if( (where - gSG_Functions) >= MAX_CTABLE - 1 )
+	else if( (where - m_Functions) >= MAX_CTABLE - 1 )
 	{
 		_Set_Error(_TL("function table full"));
 
@@ -749,17 +762,17 @@ int CSG_Formula::Add_Function(const SG_Char *name, TSG_PFNC_Formula_1 f, int n_p
 //---------------------------------------------------------
 int CSG_Formula::_Get_Function(int i, SG_Char *name, int *n_pars, int *varying)
 {
-	if( !gSG_Functions[i].f )
+	if( !m_Functions[i].f )
 	{
 		_Set_Error(_TL("index out of bounds"));
 
 		return( 0 );
 	}
 
-	SG_STR_CPY(name, gSG_Functions[i].name);
+	SG_STR_CPY(name, m_Functions[i].name);
 
-	*n_pars		= gSG_Functions[i].n_pars;
-	*varying	= gSG_Functions[i].varying;
+	*n_pars		= m_Functions[i].n_pars;
+	*varying	= m_Functions[i].varying;
 
 	_Set_Error();
 
@@ -774,7 +787,7 @@ int CSG_Formula::_Get_Function(SG_Char *name)
 {
 	TSG_Formula_Item	*pFunction;
 
-	for(pFunction=gSG_Functions; pFunction->f && SG_STR_CMP(name, pFunction->name); pFunction++)
+	for(pFunction=m_Functions; pFunction->f && SG_STR_CMP(name, pFunction->name); pFunction++)
 	{}
 
 	if( pFunction->f == NULL )
@@ -786,7 +799,7 @@ int CSG_Formula::_Get_Function(SG_Char *name)
 
 	_Set_Error();
 
-	return( (int)(pFunction - gSG_Functions) );
+	return( (int)(pFunction - m_Functions) );
 }
 
 
@@ -1213,7 +1226,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 		i_error = endf;
 		return NULL;
 	}
-	if (gSG_Functions[n_function].n_pars == 0)
+	if (m_Functions[n_function].n_pars == 0)
 	{
 		/*function without parameters(e.g. pi()) */
 		space = 1;
@@ -1253,7 +1266,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 		SG_STR_CPY(par_buf, endf + 1);
 		*(end - 1) = tempch;
 		
-		for (i = 0; i < gSG_Functions[n_function].n_pars; i++)
+		for (i = 0; i < m_Functions[n_function].n_pars; i++)
 		{
 			if ((temps = my_strtok((i == 0) ? par_buf : NULL)) == NULL)
 				break; 
@@ -1277,7 +1290,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 		}
 		
 		tempu = function;
-		for (i = 0; i < gSG_Functions[n_function].n_pars; i++)
+		for (i = 0; i < m_Functions[n_function].n_pars; i++)
 			if( !(tempu = i_trans(tempu, paramstr[i], paramstr[i] + SG_STR_LEN(paramstr[i]))) )
 			{
 				i_error =(i_error - par_buf) +(endf + 1); 
@@ -1290,7 +1303,7 @@ SG_Char *CSG_Formula::i_trans(SG_Char *function, SG_Char *begin, SG_Char *end)
 		SG_Free(par_buf);
 		*tempu++ = SG_T('F');
 		*tempu++ = n_function;
-		tempu = comp_time(function, tempu, gSG_Functions[n_function].n_pars);
+		tempu = comp_time(function, tempu, m_Functions[n_function].n_pars);
 		if (m_bError)
 			return NULL; /* internal error in comp_time */
 		else 
@@ -1316,7 +1329,7 @@ SG_Char *CSG_Formula::comp_time(SG_Char *function, SG_Char *fend, int npars)
 	}
 	
 	if (!((scan == fend -(sizeof((SG_Char) SG_T('F')) + sizeof(SG_Char))
-		&& *(fend - 2) == SG_T('F') && gSG_Functions[*(fend - 1)].varying == 0) ||
+		&& *(fend - 2) == SG_T('F') && m_Functions[*(fend - 1)].varying == 0) ||
 		(scan == fend - sizeof(SG_Char)
 		&& _is_Operand_Code(*(fend - 1))))
 		)
