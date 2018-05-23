@@ -145,12 +145,52 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 
 	//-----------------------------------------------------
+	// Labeling...
+
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
+		"LABEL_STYLE"		, _TL("Style"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("one label at the polyline centroid"),
+			_TL("one label at the central vertex of each part"),
+			_TL("one aligned label at the central vertex of each part"),
+			_TL("along line labeling")
+		), 3
+	);
+
+	m_Parameters.Add_Choice("LABEL_STYLE",
+		"LABEL_ALIGN"		, _TL("Align"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("top"),
+			_TL("center"),
+			_TL("bottom")
+		), 1
+	);
+
+	m_Parameters.Add_Choice("LABEL_STYLE",
+		"LABEL_ORIENT"		, _TL("Orientation"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("left"),
+			_TL("right")
+		), 1
+	);
+
+	m_Parameters.Add_Double("LABEL_STYLE",
+		"LABEL_FREQUENCY"	, _TL("Along Line Frequency"),
+		_TL("The distance between labels specified as multiples of the label's text width."),
+		10., 0., true
+	);
+
+
+	//-----------------------------------------------------
 	// Boundary Effect...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"BOUNDARY_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("none"),
 			_TL("all sides"),
 			_TL("top"),
@@ -216,16 +256,16 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 
 	switch( m_Parameters("BOUNDARY_EFFECT")->asInt() )
 	{
-	default:	m_Effect	= TEXTEFFECT_NONE;			break;
-	case 1:		m_Effect	= TEXTEFFECT_FRAME;			break;
-	case 2:		m_Effect	= TEXTEFFECT_TOP;			break;
-	case 3:		m_Effect	= TEXTEFFECT_TOPLEFT;		break;
-	case 4:		m_Effect	= TEXTEFFECT_LEFT;			break;
-	case 5:		m_Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
-	case 6:		m_Effect	= TEXTEFFECT_BOTTOM;		break;
-	case 7:		m_Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-	case 8:		m_Effect	= TEXTEFFECT_RIGHT;			break;
-	case 9:		m_Effect	= TEXTEFFECT_TOPRIGHT;		break;
+	default:	m_Effect	= TEXTEFFECT_NONE       ;	break;
+	case  1:	m_Effect	= TEXTEFFECT_FRAME      ;	break;
+	case  2:	m_Effect	= TEXTEFFECT_TOP        ;	break;
+	case  3:	m_Effect	= TEXTEFFECT_TOPLEFT    ;	break;
+	case  4:	m_Effect	= TEXTEFFECT_LEFT       ;	break;
+	case  5:	m_Effect	= TEXTEFFECT_BOTTOMLEFT ;	break;
+	case  6:	m_Effect	= TEXTEFFECT_BOTTOM     ;	break;
+	case  7:	m_Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
+	case  8:	m_Effect	= TEXTEFFECT_RIGHT      ;	break;
+	case  9:	m_Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
 	}
 }
 
@@ -248,6 +288,13 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 			pParameters->Set_Enabled("SIZE_RANGE"  , Value == true);
 			pParameters->Set_Enabled("SIZE_DEFAULT", Value == false);
+		}
+
+		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_STYLE") )
+		{
+			pParameters->Set_Enabled("LABEL_ALIGN"    , pParameter->asInt() == 2 || pParameter->asInt() == 3);
+			pParameters->Set_Enabled("LABEL_ORIENT"   , pParameter->asInt() == 2 || pParameter->asInt() == 3);
+			pParameters->Set_Enabled("LABEL_FREQUENCY", pParameter->asInt() == 3);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BOUNDARY_EFFECT") )
@@ -297,6 +344,17 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Initialize(CWKSP_Map_DC &dc_Map, int Flags)
 {
+	m_Label_Style	= m_Parameters("LABEL_STYLE"    )->asInt();
+	m_Label_Freq	= m_Parameters("LABEL_FREQUENCY")->asInt();
+	m_Label_Orient	= m_Parameters("LABEL_ORIENT"   )->asInt();
+
+	switch( m_Parameters("LABEL_ALIGN")->asInt() )
+	{
+	default: m_Label_Align	= TEXTALIGN_TOPLEFT   ;	break;
+	case  1: m_Label_Align	= TEXTALIGN_CENTERLEFT;	break;
+	case  2: m_Label_Align	= TEXTALIGN_BOTTOMLEFT;	break;
+	}
+
 	m_Pen.SetStyle((wxPenStyle)(m_Line_Style = PenList_Get_Style("LINE_STYLE")));
 
 	dc_Map.dc.SetPen(m_Pen);
@@ -403,54 +461,116 @@ void CWKSP_Shapes_Line::_Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
-	wxCoord			Width, Height;
+	CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pShape;
 
-	dc_Map.dc.GetTextExtent(Label, &Width, &Height);
+	switch( m_Label_Style )
+	{
+	//-----------------------------------------------------
+	case  0:	// one label at the polyline centroid
+	{
+		TSG_Point_Int	C	= dc_Map.World2DC(pLine->Get_Centroid());
 
-	m_Label_Freq	= 10;
+		Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+	} break;
 
 	//-----------------------------------------------------
-	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+	case  1:	// one label at the central vertex of each part
+	case  2:	// one aligned label at the central vertex of each part
 	{
-		if( dc_Map.m_World2DC * ((CSG_Shape_Line *)pShape)->Get_Length(iPart) > (2 * m_Label_Freq) * Width )
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 		{
+			double	d = 0.0, c = 0.5 * pLine->Get_Length(iPart);
+
+			TSG_Point	A = pLine->Get_Point(0, iPart);
+
+			for(int i=1, j=0; d<c && i<pLine->Get_Point_Count(iPart); i++, j++)
+			{
+				d	+= SG_Get_Distance(pLine->Get_Point(i, iPart), pLine->Get_Point(j, iPart));
+
+				if( d >= c )
+				{
+					if( m_Label_Style == 1 )
+					{
+						TSG_Point	A	= pLine->Get_Point(i, iPart);
+						TSG_Point	B	= pLine->Get_Point(j, iPart);
+
+						A.x	+= 0.5 * (B.x - A.x);
+						A.y	+= 0.5 * (B.y - A.y);
+
+						TSG_Point_Int	C	= dc_Map.World2DC(A);
+
+						Draw_Text(dc_Map.dc, TEXTALIGN_CENTER, C.x, C.y, Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+					}
+					else
+					{
+						TSG_Point_Int	A	= dc_Map.World2DC(pLine->Get_Point(i, iPart));
+						TSG_Point_Int	B	= dc_Map.World2DC(pLine->Get_Point(j, iPart));
+
+						if( m_Label_Orient == 0 )
+						{
+							Draw_Text(dc_Map.dc, m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+						}
+						else
+						{
+							Draw_Text(dc_Map.dc, m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+						}
+					}
+				}
+			}
+		}
+	} break;
+
+	//-----------------------------------------------------
+	case  3:	// along line labeling
+	{
+		wxCoord	Width, Height;	dc_Map.dc.GetTextExtent(Label, &Width, &Height);
+
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		{
+			if( pLine->Get_Point_Count(iPart) < 2 || Width > dc_Map.m_World2DC * pLine->Get_Length(iPart) )
+			{
+				continue;
+			}
+
 			bool			bLabel	= false;
 			double			d		= 0.0;
-			TSG_Point_Int	B, A	= dc_Map.World2DC(pShape->Get_Point(0, iPart));
+			TSG_Point_Int	B, A	= dc_Map.World2DC(pLine->Get_Point(0, iPart));
 
-			for(int iPoint=1; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 			{
 				//-----------------------------------------
 				if( !bLabel )
 				{
-					B		= A;
-					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+					B	= A; A	= dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
 					if( (d += SG_Get_Distance(A.x, A.y, B.x, B.y)) > m_Label_Freq * Width )
 					{
-						bLabel	= true;
-						B		= A;
+						B	= A; bLabel	= true;
 					}
 				}
 
 				//-----------------------------------------
 				else
 				{
-					A		= dc_Map.World2DC(pShape->Get_Point(iPoint, iPart));
+					A	= dc_Map.World2DC(pLine->Get_Point(iPoint, iPart));
 
 					if( SG_Get_Distance(A.x, A.y, B.x, B.y) > Width )
 					{
-						bLabel	= false;
-						d		= 0.0;
+						d	= 0.0;	bLabel	= false;
 
-						Draw_Text(dc_Map.dc, TEXTALIGN_TOPLEFT, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
-
-					//	dc_Map.dc.DrawRotatedText(s, B.x, B.y, GET_ANGLE(A, B));
-					//	dc_Map.dc.DrawCircle(A.x, A.y, 3);	dc_Map.dc.DrawCircle(B.x, B.y, 3);
+						if( m_Label_Orient == 0 )
+						{
+							Draw_Text(dc_Map.dc, m_Label_Align, A.x, A.y, GET_ANGLE(B, A), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+						}
+						else
+						{
+							Draw_Text(dc_Map.dc, m_Label_Align, B.x, B.y, GET_ANGLE(A, B), Label, m_Label_Eff, m_Label_Eff_Color, m_Label_Eff_Size);
+						}
 					}
 				}
 			}
 		}
+	} break;
 	}
 }
 
