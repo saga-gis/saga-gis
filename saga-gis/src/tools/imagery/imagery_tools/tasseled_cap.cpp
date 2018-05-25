@@ -125,9 +125,9 @@ bool CTasseled_Cap::On_Execute(void)
 	pGreen		= Parameters("GREENNESS" )->asGrid();
 	pWet		= Parameters("WETNESS"   )->asGrid();
 
-	DataObject_Set_Colors(pBright, 100, SG_COLORS_BLACK_WHITE  , false);
-	DataObject_Set_Colors(pGreen , 100, SG_COLORS_WHITE_GREEN  , false);
-	DataObject_Set_Colors(pWet   , 100, SG_COLORS_RED_GREY_BLUE, false);
+	DataObject_Set_Colors(pBright, 11, SG_COLORS_BLACK_WHITE   , false);
+	DataObject_Set_Colors(pGreen , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pWet   , 11, SG_COLORS_RED_GREY_BLUE , false);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

@@ -72,71 +72,70 @@ CEnhanced_VI::CEnhanced_VI(void)
 {
 	Set_Name		(_TL("Enhanced Vegetation Index"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Enhanced Vegetation Index (EVI).\n"
-		"\n"
-		"References:\n"
-		"A Huete, K Didan, T Miura, E.P Rodriguez, X Gao, L.G Ferreira, "
-		"Overview of the radiometric and biophysical performance of the MODIS vegetation indices, "
-		"Remote Sensing of Environment, Volume 83, Issues 1-2, November 2002, Pages 195-213, ISSN 0034-4257, 10.1016/S0034-4257(02)00096-2. "
-		"<a target=\"_blank\" href=\"http://www.sciencedirect.com/science/article/pii/S0034425702000962\">online</a>\n"
+		"Enhanced Vegetation Index (EVI)."
 	));
 
+	Add_Reference(
+		"Huete, A., Didan, K., Miura, T., Rodriguez, E. P., Gao, X., & Ferreira, L. G.", "2002",
+		"Overview of the radiometric and biophysical performance of the MODIS vegetation indices",
+		"Remote sensing of environment, 83(1-2), 195-213, 10.1016/S0034-4257(02)00096-2.",
+		SG_T("http://www.sciencedirect.com/science/article/pii/S0034425702000962")
+	);
+
 	Parameters.Add_Grid(
-		NULL, "BLUE"	, _TL("Blue Reflectance"),
+		"", "BLUE"	, _TL("Blue Reflectance"),
 		_TL(""), 
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RED"		, _TL("Red Reflectance"),
+		"", "RED"	, _TL("Red Reflectance"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "NIR"		, _TL("Near Infrared Reflectance"), 
+		"", "NIR"	, _TL("Near Infrared Reflectance"), 
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "EVI"		, _TL("Enhanced Vegetation Index"),
+		"", "EVI"	, _TL("Enhanced Vegetation Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "GAIN"	, _TL("Gain"), 
+	Parameters.Add_Double(
+		"", "GAIN"	, _TL("Gain"), 
 		_TL(""),
-		PARAMETER_TYPE_Double, 2.5, 0.0, true
+		2.5, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "L"		, _TL("Canopy Background Adjustment"), 
+	Parameters.Add_Double(
+		"", "L"		, _TL("Canopy Background Adjustment"), 
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "CBLUE"	, _TL("Aerosol Resistance Coefficient (Blue)"), 
+	Parameters.Add_Double(
+		"", "CBLUE"	, _TL("Aerosol Resistance Coefficient (Blue)"), 
 		_TL(""),
-		PARAMETER_TYPE_Double, 7.5, 0.0, true
+		7.5, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "CRED"	, _TL("Aerosol Resistance Coefficient (Red)"), 
+	Parameters.Add_Double(
+		"", "CRED"	, _TL("Aerosol Resistance Coefficient (Red)"), 
 		_TL(""),
-		PARAMETER_TYPE_Double, 6.0, 0.0, true
+		6.0, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -154,10 +153,11 @@ bool CEnhanced_VI::On_Execute(void)
 	double		CBlue	= Parameters("CBLUE")->asDouble();
 	double		CRed	= Parameters("CRED" )->asDouble();
 
-	DataObject_Set_Colors(pEVI, 100, SG_COLORS_WHITE_GREEN, false);
+	DataObject_Set_Colors(pEVI, 11, SG_COLORS_RED_GREY_GREEN, false);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	d;

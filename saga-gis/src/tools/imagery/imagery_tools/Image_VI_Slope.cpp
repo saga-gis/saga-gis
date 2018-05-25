@@ -42,7 +42,7 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 {
 	Set_Name		(_TL("Vegetation Index (Slope Based)"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Slope based vegetation indices.\n"
@@ -82,82 +82,93 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 		"Vegetation Indices: Advances Made in Biomass Estimation and Vegetation Monitoring in the Last 30 Years",
 		"Geocarto International, 21:4, 21-28.",
 		SG_T("http://dx.doi.org/10.1080/10106040608542399")
-	);
-	
+	);	
 
 	Parameters.Add_Grid(
-		NULL, "RED"		, _TL("Red Reflectance"),
+		"", "RED"	, _TL("Red Reflectance"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "NIR"		, _TL("Near Infrared Reflectance"), 
+		"", "NIR"	, _TL("Near Infrared Reflectance"), 
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "DVI"		, _TL("Difference Vegetation Index"),
+		"", "DVI"	, _TL("Difference Vegetation Index"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "NDVI"	, _TL("Normalized Difference Vegetation Index"),
+		"", "NDVI"	, _TL("Normalized Difference Vegetation Index"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 	
 	Parameters.Add_Grid(
-		NULL, "RVI"		, _TL("Ratio Vegetation Index"), 
+		"", "RVI"	, _TL("Ratio Vegetation Index"), 
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "NRVI"	, _TL("Normalized Ratio Vegetation Index"),
+		"", "NRVI"	, _TL("Normalized Ratio Vegetation Index"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "TVI"		, _TL("Transformed Vegetation Index"),
+		"", "TVI"	, _TL("Transformed Vegetation Index"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "CTVI"	, _TL("Corrected Transformed Vegetation Index"), 
+		"", "CTVI"	, _TL("Corrected Transformed Vegetation Index"), 
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "TTVI"	, _TL("Thiam's Transformed Vegetation Index"), 
+		"", "TTVI"	, _TL("Thiam's Transformed Vegetation Index"), 
 		_TL(""), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "SAVI"		, _TL("Soil Adjusted Vegetation Index"), 
+		"", "SAVI"	, _TL("Soil Adjusted Vegetation Index"), 
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "SOIL"	, _TL("Soil Adjustment Factor"), 
-		_TW("Soil adjustment factor for SAVI calculation. "
-			"Suggested values are 1.0 in case of very low vegetation, "
-			"0.5 for intermediate 0.5, and 0.25 for high densities (Silleos et al. 2006)."),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true, 1.0, true
+	Parameters.Add_Double(
+		"SAVI", "SOIL"	, _TL("Soil Adjustment Factor"), 
+		_TL("For SAVI, suggested values (after Silleos et al. 2006): 1.0 = very low, 0.5 = intermediate, 0.25 = high densitity vegetation."),
+		0.5, 0.0, true, 1.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CImage_VI_Slope::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SAVI") )
+	{
+		pParameters->Set_Enabled("SOIL", pParameter->asDataObject() != NULL);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -176,19 +187,20 @@ bool CImage_VI_Slope::On_Execute(void)
 	CSG_Grid	*pTTVI		= Parameters("TTVI" )->asGrid();
 	CSG_Grid	*pSAVI		= Parameters("SAVI" )->asGrid();
 
-	DataObject_Set_Colors(pDVI  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pNDVI , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pRVI  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pNRVI , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pTVI  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pCTVI , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pTTVI , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pSAVI , 100, SG_COLORS_WHITE_GREEN, false);
+	DataObject_Set_Colors(pDVI  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pNDVI , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pRVI  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pNRVI , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pTVI  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pCTVI , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pTTVI , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pSAVI , 11, SG_COLORS_RED_GREY_GREEN, false);
 
 	m_Soil	= Parameters("SOIL")->asDouble();
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( pRed->is_NoData(x, y) || pNIR->is_NoData(x, y) )
@@ -226,8 +238,6 @@ bool CImage_VI_Slope::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 

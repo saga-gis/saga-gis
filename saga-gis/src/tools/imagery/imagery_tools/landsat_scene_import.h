@@ -109,6 +109,7 @@ private:
 
 	bool					is_Panchromatic			(int Sensor, int Band);
 	bool					is_Multispectral		(int Sensor, int Band);
+	bool					is_Thermal				(int Sensor, int Band);
 
 	bool					Load_Metadata			(CSG_MetaData &Metadata, const CSG_String &File);
 	bool					Load_Metadata			(const CSG_String &Line, CSG_String &Key, CSG_String &Value);
@@ -121,6 +122,11 @@ private:
 	bool					Set_Info_Band			(int Sensor, int Band, CSG_Table_Record &Info);
 
 	CSG_Grid *				Load_Band				(const CSG_String &File);
+
+	bool					Get_Float				(CSG_Grid *pBand, CSG_Grid &DN);
+	bool					Get_Radiance			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
+	bool					Get_Reflectance			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band, double SunHeight);
+	bool					Get_Thermal				(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
 
 };
 

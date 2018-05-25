@@ -91,7 +91,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("",
-		"METAFILE"	, _TL("Metadata File"),
+		"METAFILE"		, _TL("Metadata File"),
 		_TL(""),
 		CSG_String::Format("%s|*.met;*.txt|%s (*.met)|*.met|%s (*.txt)|*.txt|%s|*.*",
 			_TL("Recognized Files"),
@@ -102,43 +102,62 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 	);
 
 	Parameters.Add_Grid_List("",
-		"BANDS"		, _TL("Bands"),
+		"BANDS"			, _TL("Bands"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table("",
-		"BAND_INFO"	, _TL("Band Info"),
+		"BAND_INFO"		, _TL("Band Info"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Bool("",
-		"MULTI2GRIDS", _TL("Multispectral Bands as Grid Collection"),
+		"MULTI2GRIDS"	, _TL("Multispectral Bands as Grid Collection"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"SKIP_PAN"	, _TL("Skip Panchromatic Band"),
+		"SKIP_PAN"		, _TL("Skip Panchromatic Band"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Choice(NULL,
-		"PROJECTION", _TL("Coordinate System"),
+	Parameters.Add_Choice("",
+		"CALIBRATION"	, _TL("Radiometric Calibration"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
+			_TL("none"),
+			_TL("radiance"),
+			_TL("reflectance")
+		), 0
+	);
+
+	Parameters.Add_Choice("CALIBRATION",
+		"DATA_TYPE"		, _TL("Output Data Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("integers with scaling"),
+			_TL("floating point numbers")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
+		"PROJECTION"	, _TL("Coordinate System"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
 			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Geographic Coordinates")
 		), 0
 	);
 
-	Parameters.Add_Choice(Parameters("PROJECTION"),
-		"RESAMPLING", _TL("Resampling"),
+	Parameters.Add_Choice("PROJECTION",
+		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -169,6 +188,11 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		{
 			pParameters->Set_Enabled("SKIP_PAN", false);
 		}
+	}
+
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CALIBRATION") )
+	{
+		pParameters->Set_Enabled("DATA_TYPE", pParameter->asInt() != 0);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
@@ -223,12 +247,21 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Parameters("BANDS")->asGridList()->Del_Items();
-
 	CSG_String	Path	= SG_File_Get_Path(Parameters("METAFILE")->asString());
 
 	bool	bSkipPan	= Parameters("SKIP_PAN"   )->asBool();
 	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
+	int		Calibration	= Parameters("CALIBRATION")->asInt ();
+
+	double	SunHeight	= -1;
+
+	if( Info_Scene("SUN_ELEVATION") )
+	{
+		SunHeight	= Info_Scene["SUN_ELEVATION"].Get_Content().asDouble();
+	}
+
+	//-----------------------------------------------------
+	Parameters("BANDS")->asGridList()->Del_Items();
 
 	CSG_Grids	*pBands	= NULL;
 
@@ -245,6 +278,25 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 		if( pBand )
 		{
+			switch( Calibration )
+			{
+			case  1:
+				{
+					Get_Radiance   (pBand, Info_Bands[i]);
+				}
+				break;
+
+			case  2: if( is_Thermal(Sensor, i) )
+				{
+					Get_Thermal    (pBand, Info_Bands[i]);
+				}
+				else
+				{
+					Get_Reflectance(pBand, Info_Bands[i], SunHeight);
+				}
+				break;
+			}
+
 			pBand->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
 			pBand->Set_Description(Info_Scene.asText());
 
@@ -316,6 +368,12 @@ bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::is_Thermal(int Sensor, int Band)
+{
+	return( !is_Panchromatic(Sensor, Band) && !is_Multispectral(Sensor, Band) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -377,7 +435,7 @@ bool CLandsat_Scene_Import::Load_Metadata(const CSG_String &Line, CSG_String &Ke
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
+enum EMetadata_Version
 {
 	VERSION_MET	= 0,
 	VERSION_MTL_1,
@@ -432,7 +490,7 @@ struct SBand_Keys
 };
 
 //---------------------------------------------------------
-enum
+enum EBand_Head
 {
 	BAND_HEAD_ID	= 0,
 	BAND_HEAD_NR,
@@ -814,6 +872,150 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 
 	//-----------------------------------------------------
 	return( pBand );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::Get_Float(CSG_Grid *pBand, CSG_Grid &DN)
+{
+	pBand->Create(DN.Get_System(), SG_DATATYPE_Float);
+	pBand->Get_Projection().Create(DN.Get_Projection());
+	pBand->Set_Name        (DN.Get_Name());
+	pBand->Set_Description (DN.Get_Description());
+	pBand->Set_NoData_Value(-1.0);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record &Info_Band)
+{
+	CSG_Grid	DN(*pBand);
+
+	if( Parameters("DATA_TYPE")->asInt() == 1 )
+	{
+		Get_Float(pBand, DN);
+	}
+	else
+	{
+		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		pBand->Set_NoData_Value(MaxVal--);
+		pBand->Set_Scaling(1000.0 / MaxVal, 0.0);
+	}
+
+	pBand->Set_Unit("W/(m2*sr*um");
+
+	//-----------------------------------------------------
+	double	Offset	= Info_Band.asDouble("RADIANCE_ADD");
+	double	Scale	= Info_Band.asDouble("RADIANCE_MUL");
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(sLong i=0; i<pBand->Get_NCells(); i++)
+	{
+		if( DN.is_NoData(i) )
+		{
+			pBand->Set_NoData(i);
+		}
+		else
+		{
+			pBand->Set_Value(i, Offset + Scale * DN.asDouble(i));
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Record &Info_Band, double SunHeight)
+{
+	CSG_Grid	DN(*pBand);
+
+	if( Parameters("DATA_TYPE")->asInt() == 1 )
+	{
+		Get_Float(pBand, DN);
+	}
+	else
+	{
+		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		pBand->Set_NoData_Value(MaxVal--);
+		pBand->Set_Scaling(100.0 / MaxVal, 0.0);	// 0 to 100 percent
+	}
+
+	pBand->Set_Unit("Percent");
+
+	//-----------------------------------------------------
+	double	Offset	= Info_Band.asDouble("REFLECTANCE_ADD");
+	double	Scale	= Info_Band.asDouble("REFLECTANCE_MUL");
+
+	SunHeight	= sin(SunHeight * M_DEG_TO_RAD);
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(sLong i=0; i<pBand->Get_NCells(); i++)
+	{
+		if( DN.is_NoData(i) )
+		{
+			pBand->Set_NoData(i);
+		}
+		else
+		{
+			pBand->Set_Value(i, 100.0 * (Offset + Scale * DN.asDouble(i)) / SunHeight);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::Get_Thermal(CSG_Grid *pBand, const CSG_Table_Record &Info_Band)
+{
+	CSG_Grid	DN(*pBand);
+
+	if( Parameters("DATA_TYPE")->asInt() == 1 )
+	{
+		Get_Float(pBand, DN);
+	}
+	else
+	{
+		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		pBand->Set_NoData_Value(MaxVal--);
+		pBand->Set_Scaling(100.0 / MaxVal, -50.0);	// -50°C to 50°C
+	}
+
+	pBand->Set_Unit("Kelvin");
+
+	//-----------------------------------------------------
+	double	Offset	= Info_Band.asDouble("RADIANCE_ADD");
+	double	Scale	= Info_Band.asDouble("RADIANCE_MUL");
+
+	double	k1		= Info_Band.asDouble("THERMAL_K1");
+	double	k2		= Info_Band.asDouble("THERMAL_K2");
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(sLong i=0; i<pBand->Get_NCells(); i++)
+	{
+		if( DN.is_NoData(i) )
+		{
+			pBand->Set_NoData(i);
+		}
+		else
+		{
+			double	r	= Offset + Scale * DN.asDouble(i);
+
+			pBand->Set_Value(i, k2 / log(1.0 + (k1 / r)) - 273.15);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

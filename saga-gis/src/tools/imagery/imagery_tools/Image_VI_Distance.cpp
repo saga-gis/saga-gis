@@ -42,91 +42,92 @@ CImage_VI_Distance::CImage_VI_Distance(void)
 {
 	Set_Name		(_TL("Vegetation Index (Distance Based)"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Distance based vegetation indices.\n"
+		"Distance based vegetation indices."
 	//	"\n<ul>"
 	//	"<li>Transformed Soil Adjusted Vegetation Index (s. McCloy, 2006)\n"
 	//	"    TSAVI = (NIR - Gain * R - Offset) * Gain / (Gain * NIR + R - Gain * Offset)</li>\n"
 	//	"<li>Transformed Soil Adjusted Vegetation Index (s. McCloy, 2006)\n"
 	//	"    ATSAVI = (NIR - Gain * R - Offset) / (Gain * NIR + R - gain * Offset + 0.8 * (1 + Gain^2))</li>\n"
 	//	"</ul>(NIR = near infrared, R = red, S = soil adjustment factor)\n"
-		"\n"
-		"References:\n"
-		"K.R. McCloy (2006): Resource Management Information Systems: Remote Sensing, GIS and Modelling. 2nd Edition, CRC Taylor & Francis, 575pp.\n"
-		"\n"
-		"N.G. Silleos, T.K. Alexandridis, I.Z. Gitas & K. Perakis (2006): "
-		"Vegetation Indices: Advances Made in Biomass Estimation and Vegetation Monitoring in the Last 30 Years, "
-		"Geocarto International, 21:4, 21-28, "
-		"<a target=\"_blank\" href=\"http://dx.doi.org/10.1080/10106040608542399\">online</a>.\n"
 	));
 
+	Add_Reference("McCloy, K.R.", "2006",
+		"Resource Management Information Systems: Remote Sensing, GIS and Modelling",
+		"2nd Edition, CRC Taylor & Francis, 575pp."
+	);
+
+	Add_Reference("Silleos, N.G., Alexandridis, T.K., Gitas, I.Z., Perakis, K.", "2006",
+		"Vegetation Indices: Advances Made in Biomass Estimation and Vegetation Monitoring in the Last 30 Years",
+		"Geocarto International, 21:4, 21-28.",
+		SG_T("http://dx.doi.org/10.1080/10106040608542399")
+	);	
+
 	Parameters.Add_Grid(
-		NULL, "RED"			, _TL("Red Reflectance"),
+		"", "RED"		, _TL("Red Reflectance"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "NIR"			, _TL("Near Infrared Reflectance"), 
+		"", "NIR"		, _TL("Near Infrared Reflectance"), 
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "PVI0"		, _TL("Perpendicular Vegetation Index (Richardson and Wiegand, 1977)"),
+		"", "PVI0"		, _TL("Perpendicular Vegetation Index (Richardson and Wiegand, 1977)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "PVI1"		, _TL("Perpendicular Vegetation Index (Perry and Lautenschlager, 1984)"),
+		"", "PVI1"		, _TL("Perpendicular Vegetation Index (Perry and Lautenschlager, 1984)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "PVI2"		, _TL("Perpendicular Vegetation Index (Walther and Shabaani)"),
+		"", "PVI2"		, _TL("Perpendicular Vegetation Index (Walther and Shabaani)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "PVI3"		, _TL("Perpendicular Vegetation Index (Qi, et al., 1994)"),
+		"", "PVI3"		, _TL("Perpendicular Vegetation Index (Qi, et al., 1994)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "TSAVI"		, _TL("Transformed Soil Adjusted Vegetation Index (Baret et al. 1989)"), 
+		"", "TSAVI"		, _TL("Transformed Soil Adjusted Vegetation Index (Baret et al. 1989)"), 
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "ATSAVI"		, _TL("Transformed Soil Adjusted Vegetation Index (Baret and Guyot, 1991)"), 
+		"", "ATSAVI"	, _TL("Transformed Soil Adjusted Vegetation Index (Baret and Guyot, 1991)"), 
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "INTERCEPT"	, _TL("Intercept of Soil Line"), 
+	Parameters.Add_Double(
+		"", "INTERCEPT"	, _TL("Intercept of Soil Line"), 
 		_TL(""), 
-		PARAMETER_TYPE_Double, 0
+		0.0
 	);
 
-	Parameters.Add_Value(
-		NULL, "SLOPE"		, _TL("Slope of Soil Line"), 
+	Parameters.Add_Double(
+		"", "SLOPE"		, _TL("Slope of Soil Line"), 
 		_TL(""), 
-		PARAMETER_TYPE_Double, 0.5
+		0.5
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -143,12 +144,12 @@ bool CImage_VI_Distance::On_Execute(void)
 	CSG_Grid	*pTSAVI		= Parameters("TSAVI" )->asGrid();
 	CSG_Grid	*pATSAVI	= Parameters("ATSAVI")->asGrid();
 
-	DataObject_Set_Colors(pPVI0  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pPVI1  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pPVI2  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pPVI3  , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pTSAVI , 100, SG_COLORS_WHITE_GREEN, false);
-	DataObject_Set_Colors(pATSAVI, 100, SG_COLORS_WHITE_GREEN, false);
+	DataObject_Set_Colors(pPVI0  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pPVI1  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pPVI2  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pPVI3  , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pTSAVI , 11, SG_COLORS_RED_GREY_GREEN, false);
+	DataObject_Set_Colors(pATSAVI, 11, SG_COLORS_RED_GREY_GREEN, false);
 
 	m_Slope		= Parameters("SLOPE"    )->asDouble();
 	m_Intercept	= Parameters("INTERCEPT")->asDouble();
@@ -195,8 +196,6 @@ bool CImage_VI_Distance::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
