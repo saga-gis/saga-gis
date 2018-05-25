@@ -214,10 +214,25 @@ CGrid_Export::CGrid_Export(void)
 		40.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Range("",
+	Parameters.Add_Choice("",
+		"SHADE_COLOURING"	, _TL("Shade Colouring"),
+		_TL(""),
+		CSG_String::Format("%s|%s|",
+			_TL("scale to brightness range"),
+			_TL("stretch to grid's standard deviation")
+		), 0
+	);
+
+	Parameters.Add_Range(Parameters("SHADE_COLOURING"),
 		"SHADE_BRIGHT"	, _TL("Shade Brightness [%]"),
 		_TL("Allows one to scale shade brightness [%]"),
 		0.0, 100.0, 0.0, true, 100.0, true
+	);
+
+	Parameters.Add_Value(Parameters("SHADE_COLOURING"),
+		"SHADE_STDDEV"	, _TL("Standard Deviation"),
+		_TL(""),
+		PARAMETER_TYPE_Double, 2.0, 0.0, true
 	);
 }
 
@@ -248,7 +263,9 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") )
 	{
 		pParameters->Get_Parameter("SHADE_TRANS"	)->Set_Enabled(pParameter->asPointer() != NULL);
+		pParameters->Get_Parameter("SHADE_COLOURING")->Set_Enabled(pParameter->asPointer() != NULL);
 		pParameters->Get_Parameter("SHADE_BRIGHT"	)->Set_Enabled(pParameter->asPointer() != NULL);
+		pParameters->Get_Parameter("SHADE_STDDEV"	)->Set_Enabled(pParameter->asPointer() != NULL);
 	}
 
 	return( 1 );
@@ -470,6 +487,19 @@ bool CGrid_Export::On_Execute(void)
 	    //-------------------------------------------------
 		Shade.Create(*Get_System(), SG_DATATYPE_Int);
 
+		double	minShade = 0.0, maxShade = 0.0, scaleShade = 0.0;
+
+		if( Parameters("SHADE_COLOURING")->asInt() == 1 )
+		{
+			minShade	= pShade->Get_Mean() - Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
+			maxShade	= pShade->Get_Mean() + Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
+			if( minShade < pShade->Get_Min() )
+				minShade = pShade->Get_Min();
+			if( maxShade > pShade->Get_Max() )
+				maxShade = pShade->Get_Max();
+			scaleShade	= Colors.Get_Count() / (maxShade - minShade);
+		}
+
 		for(y=0, iy=Get_NY()-1; y<Get_NY() && Set_Progress(y); y++, iy--)
 		{
 			#pragma omp parallel for
@@ -481,7 +511,15 @@ bool CGrid_Export::On_Execute(void)
 				}
 				else
 				{
-					Shade.Set_Value (x, iy, Colors[(int)(nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_Min()) / pShade->Get_Range() + dMinBright)]);
+					if( Parameters("SHADE_COLOURING")->asInt() == 0 )
+					{
+						Shade.Set_Value (x, iy, Colors[(int)(nColors * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_Min()) / pShade->Get_Range() + dMinBright)]);
+					}
+					else
+					{
+						int i	= (int)(scaleShade * (pShade->asDouble(x, y) - minShade));
+						Shade.Set_Value(x, iy, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
+					}
 				}
 			}
 		}
