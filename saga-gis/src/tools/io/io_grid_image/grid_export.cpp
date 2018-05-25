@@ -491,8 +491,8 @@ bool CGrid_Export::On_Execute(void)
 
 		if( Parameters("SHADE_COLOURING")->asInt() == 1 )
 		{
-			minShade	= pShade->Get_Mean() - Parameters("STDDEV")->asDouble() * pShade->Get_StdDev();
-			maxShade	= pShade->Get_Mean() + Parameters("STDDEV")->asDouble() * pShade->Get_StdDev();
+			minShade	= pShade->Get_Mean() - Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
+			maxShade	= pShade->Get_Mean() + Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
 			if( minShade < pShade->Get_Min() )
 				minShade = pShade->Get_Min();
 			if( maxShade > pShade->Get_Max() )
