@@ -50,7 +50,6 @@
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -61,10 +60,15 @@
 #ifndef HEADER_INCLUDED__PC_Merge_H
 #define HEADER_INCLUDED__PC_Merge_H
 
-//---------------------------------------------------------
-#include "MLB_Interface.h"
 
-#include <vector>
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,18 +82,15 @@ class CPC_Merge : public CSG_Tool
 {
 public:
 	CPC_Merge(void);
-	virtual ~CPC_Merge(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool				On_Execute				(void);
-
-	virtual int					On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-private:
 
 };
 
