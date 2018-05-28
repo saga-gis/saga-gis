@@ -103,21 +103,15 @@ CPC_Merge::CPC_Merge(void)
 	);
 
 	Parameters.Add_Bool("",
-		"ADD_SOURCE"	, _TL("Add List Number"),
-		_TL("Adds a field with the list number of the input point cloud."),
-		false
-	);
-
-	Parameters.Add_Bool("",
-		"ADD_IDENTIFIER", _TL("Add Identifier"),
-		_TL("Add unique identifier attribute field to output, ID resembles processing order."),
+		"ADD_IDENTIFIER", _TL("Add Input Identifier"),
+		_TL("Adds a field with an identifier for the input point cloud a point originates from."),
 		false
 	);
 
 	Parameters.Add_Int("ADD_IDENTIFIER",
 		"START_VALUE"	, _TL("Start Value"),
 		_TL("The start value to be used for the identifier."),
-		0
+		1
 	);
 }
 
@@ -163,13 +157,6 @@ bool CPC_Merge::On_Execute(void)
 	pResult->Set_Name(_TL("Merged"));
 	pResult->Set_NoData_Value_Range(pPoints->Get_NoData_Value(), pPoints->Get_NoData_hiValue());
 
-	int	fSource	= Parameters("ADD_SOURCE")->asBool() ? pResult->Get_Field_Count() : -1;
-
-	if( fSource >= 0 )
-	{
-		pResult->Add_Field("SOURCE", SG_DATATYPE_Int);
-	}
-
 	int	ID = 0, fID = Parameters("ADD_IDENTIFIER")->asBool() ? pResult->Get_Field_Count() : -1;
 
 	if( fID >= 0 )
@@ -182,7 +169,7 @@ bool CPC_Merge::On_Execute(void)
 	bool	bDelete	= Parameters("DEL_LAYERS")->asBool();
 
 	//-----------------------------------------------------
-	for(int i=0; i<pList->Get_Data_Count() && Process_Get_Okay(); i++)
+	for(int i=0; i<pList->Get_Data_Count() && Process_Get_Okay(); i++, ID++)
 	{
 		pPoints	= pList->Get_PointCloud(i);
 
@@ -206,14 +193,9 @@ bool CPC_Merge::On_Execute(void)
 				pPoints->Del_Point(iPoint);
 			}
 
-			if( fSource >= 0 )
-			{
-				pResult->Set_Value(pResult->Get_Point_Count() - 1, fSource, 1 + i);
-			}
-
 			if( fID >= 0 )
 			{
-				pResult->Set_Value(pResult->Get_Point_Count() - 1, fID, ID++);
+				pResult->Set_Value(pResult->Get_Point_Count() - 1, fID, ID);
 			}
 		}
 
