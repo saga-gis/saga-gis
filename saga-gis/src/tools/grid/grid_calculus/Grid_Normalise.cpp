@@ -72,7 +72,7 @@
 //---------------------------------------------------------
 CGrid_Normalise::CGrid_Normalise(void)
 {
-	Set_Name		(_TL("Grid Normalisation"));
+	Set_Name		(_TL("Grid Normalization"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
@@ -89,7 +89,7 @@ CGrid_Normalise::CGrid_Normalise(void)
 	);
 
 	Parameters.Add_Grid("",
-		"OUTPUT"	, _TL("Normalised Grid"),
+		"OUTPUT"	, _TL("Normalized Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -122,7 +122,7 @@ bool CGrid_Normalise::On_Execute(void)
 		pGrid	->Assign(Parameters("INPUT")->asGrid());
 	}
 
-	pGrid->Set_Name(CSG_String::Format(SG_T("%s (%s)"), pGrid->Get_Name(), _TL("Normalised")));
+	pGrid->Set_Name(CSG_String::Format("%s (%s)", pGrid->Get_Name(), _TL("Normalized")));
 
 	//-----------------------------------------------------
 	double		Minimum, Maximum, Offset, Scale;
@@ -162,15 +162,16 @@ bool CGrid_Normalise::On_Execute(void)
 //---------------------------------------------------------
 CGrid_Standardise::CGrid_Standardise(void)
 {
-	Set_Name		(_TL("Grid Standardisation"));
+	Set_Name		(_TL("Grid Standardization"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Standardise the values of a grid. "
+		"Standardize the values of a grid. "
 		"The standard score (z) is calculated as raw score (x) less "
-		"arithmetic mean (m) divided by standard deviation (s).\n"
-		"z = (x - m) * s"
+		"arithmetic mean (m) divided by standard deviation (s) and "
+		"multiplied with the stretch factor (d):\n"
+		"z = d * (x - m) / s"
 	));
 
 	Parameters.Add_Grid("",
@@ -180,7 +181,7 @@ CGrid_Standardise::CGrid_Standardise(void)
 	);
 
 	Parameters.Add_Grid("",
-		"OUTPUT"	, _TL("Standardised Grid"),
+		"OUTPUT"	, _TL("Standardized Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -221,6 +222,7 @@ bool CGrid_Standardise::On_Execute(void)
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !pGrid->is_NoData(x, y) )
