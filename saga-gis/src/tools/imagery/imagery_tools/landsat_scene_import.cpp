@@ -144,6 +144,15 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 		), 0
 	);
 
+	Parameters.Add_Choice("CALIBRATION",
+		"TEMP_UNIT"		, _TL("Temperature Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Kelvin"),
+			_TL("Celsius")
+		), 0
+	);
+
 	Parameters.Add_Choice("",
 		"PROJECTION"	, _TL("Coordinate System"),
 		_TL(""),
@@ -193,6 +202,7 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CALIBRATION") )
 	{
 		pParameters->Set_Enabled("DATA_TYPE", pParameter->asInt() != 0);
+		pParameters->Set_Enabled("TEMP_UNIT", pParameter->asInt() == 2);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
@@ -902,7 +912,7 @@ bool CLandsat_Scene_Import::Get_Radiance(CSG_Grid *pBand, const CSG_Table_Record
 	}
 	else
 	{
-		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
 		pBand->Set_Scaling(1000.0 / MaxVal, 0.0);
 	}
@@ -942,7 +952,7 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 	}
 	else
 	{
-		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
 		pBand->Set_Scaling(100.0 / MaxVal, 0.0);	// 0 to 100 percent
 	}
@@ -978,18 +988,20 @@ bool CLandsat_Scene_Import::Get_Thermal(CSG_Grid *pBand, const CSG_Table_Record 
 {
 	CSG_Grid	DN(*pBand);
 
+	int	Unit	= Parameters("TEMP_UNIT")->asInt();
+
 	if( Parameters("DATA_TYPE")->asInt() == 1 )
 	{
 		Get_Float(pBand, DN);
 	}
 	else
 	{
-		double	MaxVal	= pBand->Get_Type() == SG_DATATYPE_Byte ? 255 : 256*256;
+		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(100.0 / MaxVal, -50.0);	// -50°C to 50°C
+		pBand->Set_Scaling(100.0 / MaxVal, (Unit == 0 ? 273.15 : 0.0) - 40.0);	// -40°C to 60°C
 	}
 
-	pBand->Set_Unit("Kelvin");
+	pBand->Set_Unit(Unit == 0 ? "Kelvin" : "Celsius");
 
 	//-----------------------------------------------------
 	double	Offset	= Info_Band.asDouble("RADIANCE_ADD");
@@ -1010,7 +1022,7 @@ bool CLandsat_Scene_Import::Get_Thermal(CSG_Grid *pBand, const CSG_Table_Record 
 		{
 			double	r	= Offset + Scale * DN.asDouble(i);
 
-			pBand->Set_Value(i, k2 / log(1.0 + (k1 / r)) - 273.15);
+			pBand->Set_Value(i, k2 / log(1.0 + (k1 / r)) - (Unit == 0 ? 0.0 : 273.15));
 		}
 	}
 

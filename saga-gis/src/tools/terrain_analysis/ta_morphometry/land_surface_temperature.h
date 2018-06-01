@@ -84,11 +84,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-private:
-
+	virtual bool			On_Execute				(void);
 
 };
 
