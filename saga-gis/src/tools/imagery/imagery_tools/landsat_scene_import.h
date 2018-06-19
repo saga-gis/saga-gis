@@ -109,6 +109,7 @@ private:
 
 	bool					is_Panchromatic			(int Sensor, int Band);
 	bool					is_Multispectral		(int Sensor, int Band);
+	bool					is_Cirrus				(int Sensor, int Band);
 	bool					is_Thermal				(int Sensor, int Band);
 
 	bool					Load_Metadata			(CSG_MetaData &Metadata, const CSG_String &File);

@@ -310,7 +310,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 			pBand->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
 			pBand->Set_Description(Info_Scene.asText());
 
-			if( bMultiGrids && is_Multispectral(Sensor, i) )
+			if( bMultiGrids && is_Multispectral(Sensor, i) && !is_Cirrus(Sensor, i) )
 			{
 				if( pBands == NULL )
 				{
@@ -376,6 +376,12 @@ bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::is_Cirrus(int Sensor, int Band)
+{
+	return( (Sensor == SENSOR_OLI_TIRS && Band == 8) );
 }
 
 //---------------------------------------------------------
