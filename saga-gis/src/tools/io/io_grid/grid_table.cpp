@@ -83,12 +83,12 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output(
-		NULL	, "GRID"		, _TL("Grid"),
+		"", "GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("Table"),
+		"", "FILE"		, _TL("Table"),
 		_TL(""),
 		CSG_String::Format("%s|*.txt;*.dbf;*.csv|%s|*.*",
 			_TL("Table Formats (*.txt, *.dbf, *.csv"),
@@ -97,18 +97,18 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL, "CELLSIZE" , _TL("Cell Size"    ), _TL(""), 1.0);
-	Parameters.Add_Double(NULL, "XMIN"     , _TL("Left Border"  ), _TL(""), 0.0);
-	Parameters.Add_Double(NULL, "YMIN"     , _TL("Lower Border" ), _TL(""), 0.0);
-	Parameters.Add_String(NULL, "UNIT"     , _TL("Unit Name"    ), _TL(""), "");
-	Parameters.Add_Double(NULL, "ZFACTOR"  , _TL("Z Multiplier" ), _TL(""), 1.0);
-	Parameters.Add_Double(NULL, "NODATA"   , _TL("No Data Value"), _TL(""), -99999.0);
-	Parameters.Add_Int   (NULL, "HEADLINES", _TL("Header Lines" ), _TL(""), 0, 0, true);
+	Parameters.Add_Double("", "CELLSIZE" , _TL("Cell Size"    ), _TL(""), 1.0);
+	Parameters.Add_Double("", "XMIN"     , _TL("Left Border"  ), _TL(""), 0.0);
+	Parameters.Add_Double("", "YMIN"     , _TL("Lower Border" ), _TL(""), 0.0);
+	Parameters.Add_String("", "UNIT"     , _TL("Unit Name"    ), _TL(""), "");
+	Parameters.Add_Double("", "ZFACTOR"  , _TL("Z Multiplier" ), _TL(""), 1.0);
+	Parameters.Add_Double("", "NODATA"   , _TL("No Data Value"), _TL(""), -99999.0);
+	Parameters.Add_Int   ("", "HEADLINES", _TL("Header Lines" ), _TL(""), 0, 0, true);
 
 	Parameters.Add_Choice(
-		NULL	, "DATA_TYPE"	, _TL("Data Type"),
+		"", "DATA_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("1 Byte Integer (unsigned)"),
 			_TL("1 Byte Integer (signed)"  ),
 			_TL("2 Byte Integer (unsigned)"),
@@ -121,9 +121,9 @@ CGrid_Table_Import::CGrid_Table_Import(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TOPDOWN"		, _TL("Line Order"),
+		"", "TOPDOWN"	, _TL("Line Order"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Bottom to Top"),
 			_TL("Top to Bottom")
 		), 0
@@ -233,13 +233,13 @@ CCRU_Table_Import::CCRU_Table_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+		"", "GRIDS"	, _TL("Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+		"", "FILE"	, _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s|*.dat|%s|*.*",
 			_TL("CRU Data File (*.dat"),
@@ -249,7 +249,7 @@ CCRU_Table_Import::CCRU_Table_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Bool(
-		NULL	, "SHIFT"		, _TL("Shift"),
+		"", "SHIFT"	, _TL("Shift"),
 		_TL(""),
 		true
 	);
@@ -291,7 +291,7 @@ bool CCRU_Table_Import::On_Execute(void)
 	||  !File.Scan(xMin    ) || !File.Scan(yMin    )
 	||  !File.Scan(xMax    ) || !File.Scan(yMax    )
 	||  !File.Scan(nx      ) || !File.Scan(ny      )
-	||  !File.Scan(nMonths ) || !File.Read_Line(sLine) )
+	||  !File.Scan(nMonths ) )
 	{
 		Error_Fmt("%s [%s]", _TL("failed to read header"), Parameters("FILE")->asString());
 
@@ -336,7 +336,7 @@ bool CCRU_Table_Import::On_Execute(void)
 		//-------------------------------------------------
 		for(int y=0; y<ny && !File.is_EOF() && Set_Progress(y, ny); y++)
 		{
-			if( File.Read_Line(sLine) && sLine.Length() >= 5 * nx )
+			if( File.Read_Line(sLine) && sLine.Length() >= 5. * nx )
 			{
 				for(int x=0, xx=bShift?nx/2:x, yy=ny-1-y; x<nx; x++, xx++)
 				{
