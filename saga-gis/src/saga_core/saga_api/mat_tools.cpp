@@ -661,6 +661,98 @@ double CSG_Simple_Statistics::Get_Gini(void)
 	return( m_Gini );
 }
 
+//---------------------------------------------------------
+/**
+  * Returns the index of the minimum value in the order values have been added to the statistics.
+  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+*/
+sLong CSG_Simple_Statistics::Get_IndexOfMinimum(void)
+{
+	if( m_Values.Get_Size() == 0 )	{	return( -1 );	}
+
+	size_t	Index	= 0;
+	double	Value	= Get_Values()[Index];
+
+	for(size_t i=1; i<m_Values.Get_Size(); i++)
+	{
+		if( Value > Get_Values()[i] )
+		{
+			Index	= i;
+			Value	= Get_Values()[i];
+		}
+	}
+
+	return( (sLong)Index );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the index of the maximum value in the order values have been added to the statistics.
+  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+*/
+sLong CSG_Simple_Statistics::Get_IndexOfMaximum(void)
+{
+	if( m_Values.Get_Size() == 0 )	{	return( -1 );	}
+
+	size_t	Index	= 0;
+	double	Value	= Get_Values()[Index];
+
+	for(size_t i=1; i<m_Values.Get_Size(); i++)
+	{
+		if( Value < Get_Values()[i] )
+		{
+			Index	= i;
+			Value	= Get_Values()[i];
+		}
+	}
+
+	return( (sLong)Index );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the number of values greater than the threshold value.
+  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+*/
+sLong CSG_Simple_Statistics::Get_nValues_Above(double Threshold, bool bEquals)
+{
+	if( m_Values.Get_Size() == 0 )	{	return( -1 );	}
+
+	sLong	n	= 0;
+
+	for(sLong i=0; i<Get_Count(); i++)
+	{
+		if( (bEquals && Get_Value(i) >= Threshold) || Get_Value(i) > Threshold )
+		{
+			n++;
+		}
+	}
+
+	return( n );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the index of the minimum value in the order values have been added to the statistics.
+  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+*/
+sLong CSG_Simple_Statistics::Get_nValues_Below(double Threshold, bool bEquals)
+{
+	if( m_Values.Get_Size() == 0 )	{	return( -1 );	}
+
+	sLong	n	= 0;
+
+	for(sLong i=0; i<Get_Count(); i++)
+	{
+		if( (bEquals && Get_Value(i) <= Threshold) || Get_Value(i) < Threshold )
+		{
+			n++;
+		}
+	}
+
+	return( n );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

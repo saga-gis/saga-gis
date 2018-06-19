@@ -595,12 +595,19 @@ public:
 	double						Get_Quantile		(double Quantile);
 	double						Get_Gini			(void);
 
+	sLong						Get_IndexOfMinimum	(void);
+	sLong						Get_IndexOfMaximum	(void);
+
+	sLong						Get_nValues_Above	(double Threshold, bool bEquals = false);
+	sLong						Get_nValues_Below	(double Threshold, bool bEquals = false);
+
 	void						Add					(const CSG_Simple_Statistics &Statistics);
 
 	void						Add_Value			(double Value, double Weight = 1.0);
 
-	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? Get_Values()[i] : m_Mean );	}
 	double *					Get_Values			(void)		const	{	return( (double *)m_Values.Get_Array() );	}
+	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? Get_Values()[i] : m_Mean );	}
+	double						operator []			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? Get_Values()[i] : m_Mean );	}
 
 
 	CSG_Simple_Statistics &		operator  =			(const CSG_Simple_Statistics &Statistics)	{	Create(Statistics);	return( *this );	}
