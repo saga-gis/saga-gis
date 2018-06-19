@@ -177,44 +177,29 @@ double CSG_TIN_Node::Get_Gradient(int iNeighbor, int iField)
 //---------------------------------------------------------
 int SG_TIN_Compare_Triangle_Center(const void *pz1, const void *pz2)
 {
-	double	z1	= ((TSG_Point_Z *)pz1)->z,
-			z2	= ((TSG_Point_Z *)pz2)->z;
+	double	z1	= ((TSG_Point_Z *)pz1)->z;
+	double	z2	= ((TSG_Point_Z *)pz2)->z;
 
-	if( z1 < z2 )
-	{
-		return( -1 );
-	}
-
-	if( z1 > z2 )
-	{
-		return(  1 );
-	}
-
-	return( 0 );
+	return( z1 < z2 ? -1 : z1 > z2 ? 1 : 0 );
 }
-
-//---------------------------------------------------------
-#define M_GET_DIRECTION(a, b)	(b.x != a.x ? M_PI_180 - atan2(b.y - a.y, b.x - a.x) : (b.y > a.y ? M_PI_270 : (b.y < a.y ? M_PI_090 : 0.0)))
 
 //---------------------------------------------------------
 bool CSG_TIN_Node::Get_Polygon(CSG_Points &Points)
 {
+	Points.Clear();
+
 	if( m_nTriangles >= 3 )
 	{
-		int				i;
-		TSG_Point		c;
-		CSG_Points_Z	p;
+		int	i;	CSG_Points_Z	p;
 
 		for(i=0; i<m_nTriangles; i++)
 		{
-			c	= m_Triangles[i]->Get_CircumCircle_Point();
+			TSG_Point	c	= m_Triangles[i]->Get_CircumCircle_Point();
 
-			p.Add(c.x, c.y, M_GET_DIRECTION(m_Point, c));
+			p.Add(c.x, c.y, atan2(m_Point.y - c.y, m_Point.x - c.x));
 		}
 
 		qsort(&(p[0]), p.Get_Count(), sizeof(TSG_Point_Z), SG_TIN_Compare_Triangle_Center);
-
-		Points.Clear();
 
 		for(i=0; i<m_nTriangles; i++)
 		{

@@ -63,8 +63,15 @@
 #ifndef HEADER_INCLUDED__TIN_To_Shapes_H
 #define HEADER_INCLUDED__TIN_To_Shapes_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -78,7 +85,6 @@ class CTIN_To_Shapes : public CSG_Tool
 {
 public:
 	CTIN_To_Shapes(void);
-	virtual ~CTIN_To_Shapes(void);
 
 	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Conversion") );	}
 
@@ -89,4 +95,12 @@ protected:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__TIN_To_Shapes_H
