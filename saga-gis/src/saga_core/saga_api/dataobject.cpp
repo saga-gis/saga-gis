@@ -516,9 +516,9 @@ bool CSG_Data_Object::Save_MetaData(CSG_File &Stream)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Object::Update(void)
+bool CSG_Data_Object::Update(bool bForce)
 {
-	if( m_bUpdate )
+	if( m_bUpdate || bForce )
 	{
 		m_bUpdate	= false;
 

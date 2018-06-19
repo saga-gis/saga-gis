@@ -212,7 +212,7 @@ public:
 
 	virtual void					Set_Modified	(bool bOn = true)		{	m_bModified	= bOn; if( bOn && m_pOwner ) m_pOwner->Set_Modified(bOn);	}
 	virtual bool					is_Modified		(void)	const			{	return( m_bModified );		}
-	bool							Update			(void);
+	bool							Update			(bool bForce = false);
 
 	CSG_Data_Object *				Get_Owner		(void)	const				{	return( m_pOwner );		}
 	void							Set_Owner		(CSG_Data_Object *pOwner)	{	m_pOwner = pOwner;		}
