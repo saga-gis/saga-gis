@@ -146,11 +146,11 @@ bool CTable_Enumerate::On_Execute(void)
 
 		if( pCopy->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
-			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pTable));
+			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pTable));	// copy constructor
 		}
 		else
 		{
-			pTable->Create(pCopy);
+			pTable->Create(*pCopy);	// copy constructor
 		}
 
 		pTable->Set_Name(CSG_String::Format("%s [%s]", pTable->Get_Name(), _TL("Enumerated")));
