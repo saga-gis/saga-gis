@@ -818,16 +818,16 @@ bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Param
 	return( SG_UI_DataObject_Params_Set(pDataObject, &Parameters) );
 }
 
-bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_Object *pSource)
+bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy)
 {
-	if( pDataObject == pSource )
+	if( pDataObject == pCopy )
 	{
 		return( true );
 	}
 
 	CSG_Parameters	Parms;
 	
-	if( DataObject_Get_Parameters(pSource, Parms) )
+	if( DataObject_Get_Parameters(pCopy, Parms) )
 	{
 		if( 1 )
 		{
@@ -854,9 +854,14 @@ bool CSG_Tool::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Parame
 {
 	CSG_Parameters	P;
 
-	P._Add(pParameter);
+	return( P._Add(pParameter) != NULL && DataObject_Set_Parameters(pDataObject, P) );
+}
 
-	return( DataObject_Set_Parameters(pDataObject, P) );
+bool CSG_Tool::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID)
+{
+	CSG_Parameter	*pParameter	= DataObject_Get_Parameter(pCopy, ID);
+
+	return( DataObject_Set_Parameter(pDataObject, pParameter) );
 }
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value)

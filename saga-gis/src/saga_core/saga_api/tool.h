@@ -253,10 +253,11 @@ protected:
 
 	bool						DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
 	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Data_Object *pSource);
+	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy);
 
 	CSG_Parameter *				DataObject_Get_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter);
+	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
 	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
