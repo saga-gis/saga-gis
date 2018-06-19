@@ -106,11 +106,7 @@ CSolarRadiation::CSolarRadiation(void)
 	);
 
 	Add_Reference(
-		"http://re.jrc.ec.europa.eu/pvgis/", SG_T("Joint Research Centre: GIS solar radiation database for Europe")
-	);
-
-	Add_Reference(
-		"http://re.jrc.ec.europa.eu/pvgis/solres/solmod3.htm", SG_T("Joint Research Centre: Solar radiation and GIS")
+		"http://re.jrc.ec.europa.eu/pvg_static/methods.html", SG_T("Joint Research Centre: Photovoltaic GIS")
 	);
 
 
