@@ -336,12 +336,12 @@ bool CLAS_Export::On_Execute(void)
 		y	= pPoints->Get_Y(i);
 		z	= pPoints->Get_Z(i);
 
-		x < xmin ? xmin = x : NULL;
-		x > xmax ? xmax = x : NULL;
-		y < ymin ? ymin = y : NULL;
-		y > ymax ? ymax = y : NULL;
-		z < zmin ? zmin = z : NULL;
-		z > zmax ? zmax = z : NULL;
+		if( x < xmin ) xmin = x;
+		if( x > xmax ) xmax = x;
+		if( y < ymin ) ymin = y;
+		if( y > ymax ) ymax = y;
+		if( z < zmin ) zmin = z;
+		if( z > zmax ) zmax = z;
 
 		point.SetCoordinates(x, y, z);
 
