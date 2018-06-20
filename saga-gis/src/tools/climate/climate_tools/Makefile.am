@@ -12,6 +12,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libclimate_tools.la
 libclimate_tools_la_SOURCES =\
 bioclimatic_vars.cpp\
+climate_classification.cpp\
 climate_tools.cpp\
 daily_sun.cpp\
 etp_hargreave.cpp\
@@ -25,6 +26,7 @@ thermal_belts.cpp\
 treeline.cpp\
 windeffect_correction.cpp\
 bioclimatic_vars.h\
+climate_classification.h\
 climate_tools.h\
 daily_sun.h\
 etp_hargreave.h\

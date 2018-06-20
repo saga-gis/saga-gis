@@ -302,6 +302,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bioclimatic_vars.cpp" />
+    <ClCompile Include="climate_classification.cpp" />
     <ClCompile Include="climate_tools.cpp" />
     <ClCompile Include="daily_sun.cpp" />
     <ClCompile Include="etp_hargreave.cpp" />
@@ -332,6 +333,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="bioclimatic_vars.h" />
+    <ClInclude Include="climate_classification.h" />
     <ClInclude Include="climate_tools.h" />
     <ClInclude Include="daily_sun.h" />
     <ClInclude Include="etp_hargreave.h" />
