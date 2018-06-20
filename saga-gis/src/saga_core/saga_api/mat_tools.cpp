@@ -733,7 +733,7 @@ sLong CSG_Simple_Statistics::Get_nValues_Above(double Threshold, bool bEquals)
 
 //---------------------------------------------------------
 /**
-  * Returns the index of the minimum value in the order values have been added to the statistics.
+  * Returns the number of values lower than the threshold value.
   * This is only supported for statistics that have been created with the bHoldValues option set to true.
 */
 sLong CSG_Simple_Statistics::Get_nValues_Below(double Threshold, bool bEquals)
