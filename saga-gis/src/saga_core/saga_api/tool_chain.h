@@ -139,7 +139,7 @@ private:
 	bool						ForEach_Object			(const CSG_MetaData &Commands, const CSG_String &ListVarName);
 	bool						ForEach_File			(const CSG_MetaData &Commands, const CSG_String &ListVarName);
 
-	bool						Tool_Run				(const CSG_MetaData &Tool);
+	bool						Tool_Run				(const CSG_MetaData &Tool, bool bShowError = true);
 	bool						Tool_Check_Condition	(const CSG_MetaData &Tool);
 	bool						Tool_Get_Parameter		(const CSG_MetaData &Parameter, CSG_Tool *pTool, CSG_Parameter **ppParameter, CSG_Parameter **ppParameters);
 	bool						Tool_Initialize			(const CSG_MetaData &Tool, CSG_Tool *pTool);

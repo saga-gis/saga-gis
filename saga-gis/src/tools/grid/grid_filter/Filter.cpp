@@ -148,10 +148,10 @@ bool CFilter::On_Execute(void)
 	{
 		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Filter")));
 
-		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
-
 		if( Method != 2 )	// Edge...
 		{
+			pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
+
 			DataObject_Set_Parameters(pResult, m_pInput);
 		}
 	}

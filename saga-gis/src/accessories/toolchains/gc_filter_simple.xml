@@ -11,13 +11,24 @@
 		<option varname="GRID_SYSTEM" type="grid_system">
 			<name>Grid System</name>
 		</option>
-		<input varname="GRIDS" type="grids" parent="GRID_SYSTEM">
+		<input varname="INPUT" type="grids" parent="GRID_SYSTEM">
 			<name>Grid Collection</name>
 		</input>
-		<output varname="FILTERED" type="grids" parent="GRID_SYSTEM">
+		<output varname="OUTPUT" type="grids" parent="GRID_SYSTEM" optional="true">
 			<name>Filtered</name>
-			<output_name input="true" suffix="Filtered">GRIDS</output_name>
+			<output_name input="true" suffix="Filtered">INPUT</output_name>
+			<description>If not set input will be replaced by output.</description>
+			<condition value="true" type="=">KEEP_DEPTH</condition>
 		</output>
+		<output varname="OUTPUT_FLOAT" type="grids" parent="GRID_SYSTEM">
+			<name>Filtered</name>
+			<output_name input="true" suffix="Filtered">INPUT</output_name>
+			<condition value="false" type="=">KEEP_DEPTH</condition>
+		</output>
+		<option varname="KEEP_DEPTH" type="boolean">
+			<name>Keep Input Data Depth</name>
+			<description>Output will have same data depth as input.</description>
+		</option>
 		<option varname="METHOD" type="choice">
 			<name>Filter</name>
 			<choices>Smooth|Sharpen|Edge</choices>
@@ -34,23 +45,63 @@
 	</parameters>
 
 	<tools>
-		<datalist type="grid_list">LIST</datalist>
+		<!-- output as new data set with floating point precision -->
+		<condition value="false" type="=" variable="KEEP_DEPTH">
+			<datalist type="grid_list">LIST</datalist>
 
-		<foreach input="GRIDS">
-			<tool library="grid_filter" tool="0" name="Simple Filter">
-				<option id="METHOD"        varname="1">METHOD</option>
-				<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
-				<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
-				<input  id="INPUT" >GRIDS</input>
-				<output id="RESULT">LIST</output>
-			</tool>
-		</foreach>
+			<foreach input="INPUT">
+				<tool library="grid_filter" tool="0" name="Simple Filter">
+					<option id="METHOD"        varname="1">METHOD</option>
+					<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+					<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
+					<input  id="INPUT" >INPUT</input>
+					<output id="RESULT">LIST</output>
+				</tool>
+			</foreach>
 
-		<tool library="grids_tools" tool="0" name="Create a Grid Collection">
-			<option id="ATTRIBUTES">3</option>
-			<input  id="COPY">GRIDS</input>
-			<input  id="LIST">LIST</input>
-			<output id="GRIDS">FILTERED</output>
-		</tool>		
+			<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+				<option id="ATTRIBUTES">3</option>
+				<input  id="COPY">INPUT</input>
+				<input  id="LIST">LIST</input>
+				<output id="GRIDS">OUTPUT_FLOAT</output>
+			</tool>		
+		</condition>
+
+		<!-- output with same data depth as input -->
+		<condition value="true" type="=" variable="KEEP_DEPTH">
+		
+			<!-- output as new data set -->
+			<condition type="exists" varname="OUTPUT">
+				<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+					<option id="ATTRIBUTES">3</option>
+					<option id="COPY_SET"  >1</option>
+					<input  id="COPY" >INPUT</input>
+					<input  id="LIST" >INPUT</input>
+					<output id="GRIDS">OUTPUT</output>
+					<option id="DELETE">false</option>
+				</tool>
+
+				<foreach input="OUTPUT">
+					<tool library="grid_filter" tool="0" name="Simple Filter">
+						<option id="METHOD"        varname="1">METHOD</option>
+						<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+						<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
+						<input  id="INPUT">OUTPUT</input>
+					</tool>
+				</foreach>
+			</condition>
+
+			<!-- output replaces input -->
+			<condition type="not_exists" varname="OUTPUT">
+				<foreach input="INPUT">
+					<tool library="grid_filter" tool="0" name="Simple Filter">
+						<option id="METHOD"        varname="1">METHOD</option>
+						<option id="KERNEL_TYPE"   varname="1">KERNEL_TYPE</option>
+						<option id="KERNEL_RADIUS" varname="1">KERNEL_RADIUS</option>
+						<input  id="INPUT">INPUT</input>
+					</tool>
+				</foreach>
+			</condition>
+		</condition>
 	</tools>
 </toolchain>

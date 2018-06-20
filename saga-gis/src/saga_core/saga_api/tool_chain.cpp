@@ -860,6 +860,8 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 	{
 		bResult	= true;
 
+		bool	bIgnoreErrors	= IS_TRUE_PROPERTY(Commands, "ignore_errors");
+
 		//-------------------------------------------------
 		if( pList->is_DataObject_List() )
 		{
@@ -879,8 +881,13 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 							}
 						}
 
-						bResult	= Tool_Run(Tool);
+						bResult	= Tool_Run(Tool, bIgnoreErrors);
 					}
+				}
+
+				if( !bResult && bIgnoreErrors )
+				{
+					bResult	= true;
 				}
 			}
 		}
@@ -904,8 +911,13 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 							}
 						}
 
-						bResult	= Tool_Run(Tool);
+						bResult	= Tool_Run(Tool, bIgnoreErrors);
 					}
+				}
+
+				if( !bResult && bIgnoreErrors )
+				{
+					bResult	= true;
 				}
 			}
 		}
@@ -931,6 +943,8 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 	//-----------------------------------------------------
 	bool	bResult	= true;
 
+	bool	bIgnoreErrors	= IS_TRUE_PROPERTY(Commands, "ignore_errors");
+
 	for(int iFile=0; bResult && iFile<Files.Get_Count(); iFile++)
 	{
 		for(int iTool=0; bResult && iTool<Commands.Get_Children_Count(); iTool++)
@@ -952,12 +966,17 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 					}
 				}
 
-				bResult	= Tool_Run(Tool);
+				bResult	= Tool_Run(Tool, bIgnoreErrors);
 
 				for(size_t i=0; i<Input.Get_Size(); i++)
 				{
 					Tool(Input[i])->Set_Content(ListVarName);
 					Tool(Input[i])->Set_Property("varname", "true");
+				}
+
+				if( !bResult && bIgnoreErrors )
+				{
+					bResult	= true;
 				}
 			}
 		}
@@ -972,7 +991,7 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
+bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 {
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("comment") )
@@ -1013,7 +1032,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 	//-----------------------------------------------------
 	if( !Tool.Cmp_Name("tool") || !Tool.Get_Property("library") || !(Tool.Get_Property("tool") || Tool.Get_Property("module")) )
 	{
-		Error_Set(_TL("invalid tool definition"));
+		if( bShowError ) Error_Set(_TL("invalid tool definition"));
 
 		return( false );
 	}
@@ -1025,13 +1044,14 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(Tool.Get_Property("library"), Name)) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
+		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	Process_Set_Text(pTool->Get_Name());
+
 	Message_Add(CSG_String::Format("\n%s: %s", _TL("Run Tool"), pTool->Get_Name().c_str()), false);
 
 	pTool->Settings_Push(&m_Data_Manager);
@@ -1040,15 +1060,15 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool)
 
 	if( !pTool->On_Before_Execution() )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("before tool execution check failed"), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
+		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("before tool execution check failed"), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 	else if( !Tool_Initialize(Tool, pTool) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
+		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool initialization failed"        ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 	else if( !(bResult = pTool->Execute()) )
 	{
-		Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
+	//	if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("tool execution failed"             ), pTool->Get_Library().c_str(), pTool->Get_Name().c_str());
 	}
 
 	if( bResult )
