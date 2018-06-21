@@ -510,23 +510,31 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 	//-----------------------------------------------------
 	CSG_String	FileName(SG_File_Get_Name(_FileName, false) + ".");
 
-	if( !Stream.Get_File(FileName + "sgrd") )
+	if( !Stream.Get_File(FileName + "sgrd"  )
+	&&  !Stream.Get_File(FileName + "sg-grd") )
 	{
 		for(size_t i=0; i<Stream.Get_File_Count(); i++)
 		{
-			if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sgrd") )
+			if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sgrd"  )
+			||  SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sg-grd") )
 			{
 				FileName	= SG_File_Get_Name(Stream.Get_File_Name(i), false) + ".";
 
 				break;
 			}
 		}
+
+		if( !Stream.Get_File(FileName + "sgrd"  )
+		&&  !Stream.Get_File(FileName + "sg-grd") )
+		{
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
 	CSG_Grid_File_Info	Info;
 
-	if( !Stream.Get_File(FileName + "sgrd") || !Info.Create(Stream) )
+	if( !Info.Create(Stream) )
 	{
 		return( false );
 	}

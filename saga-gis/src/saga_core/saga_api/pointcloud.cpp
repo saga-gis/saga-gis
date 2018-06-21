@@ -275,7 +275,22 @@ bool CSG_PointCloud::_Load(const CSG_String &FileName)
 
 		CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
 
-		if( (bResult = Stream.Get_File(_FileName + "sg-pts")) == true && _Load(Stream) )
+		if( (bResult = Stream.Get_File(_FileName + "sg-pts")) == false )
+		{
+			for(size_t i=0; i<Stream.Get_File_Count(); i++)
+			{
+				if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sg-pts") )
+				{
+					_FileName	= SG_File_Get_Name(Stream.Get_File_Name(i), false) + ".";
+
+					break;
+				}
+			}
+
+			bResult	= Stream.Get_File(_FileName + "sg-pts");
+		}
+
+		if( bResult && _Load(Stream) )
 		{
 			if( Stream.Get_File(_FileName + "sg-info") )
 			{
