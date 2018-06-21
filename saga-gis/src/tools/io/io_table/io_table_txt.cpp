@@ -602,12 +602,12 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 
 	CSG_Table	*pList	= Parameters.Add_FixedTable("",
 		"LIST"		, _TL("List"),
-		_TL("")
+		_TL("Specify name, size, and type of the attribute fields (type as follows: 0=text, 1=short, 2=long, 3=float, 4=double).")
 	)->asTable();
 
-	pList->Add_Field(_TL("Name"   ), SG_DATATYPE_String);
-	pList->Add_Field(_TL("Size"   ), SG_DATATYPE_Int   );
-	pList->Add_Field(_TL("Numeric"), SG_DATATYPE_Byte  );
+	pList->Add_Field(_TL("Name"), SG_DATATYPE_String);
+	pList->Add_Field(_TL("Size"), SG_DATATYPE_Int   );
+	pList->Add_Field(_TL("Type"), SG_DATATYPE_Byte  );
 
 	Parameters.Add_FilePath("",
 		"FILENAME"	, _TL("File"),
@@ -654,7 +654,7 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, true) )
 	{
-		Message_Add(_TL("file could not be opened"));
+		Error_Set(_TL("file could not be opened"));
 
 		return( false );
 	}
@@ -676,7 +676,7 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 	if( !Stream.Read_Line(sLine) || (nChars = (int)sLine.Length()) <= 0 )
 	{
-		Message_Add(_TL("empty or corrupted file"));
+		Error_Set(_TL("empty or corrupted file"));
 
 		return( false );
 	}
@@ -816,6 +816,13 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 			nFields	= pList->Get_Count();
 
+			if( nFields < 1 )
+			{
+				Error_Set(_TL("no entries in list"));
+
+				return( false );
+			}
+
 			//-------------------------------------------------
 			First .Set_Array(nFields);
 			Length.Set_Array(nFields);
@@ -833,11 +840,11 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 
 				switch( pList->Get_Record(iField)->asInt(2) )
 				{
-				case  0:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
+				default:	pTable->Add_Field(Name, SG_DATATYPE_String);	break;
 				case  1:	pTable->Add_Field(Name, SG_DATATYPE_Short );	break;
 				case  2:	pTable->Add_Field(Name, SG_DATATYPE_Int   );	break;
 				case  3:	pTable->Add_Field(Name, SG_DATATYPE_Float );	break;
-				default:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
+				case  4:	pTable->Add_Field(Name, SG_DATATYPE_Double);	break;
 				}
 			}
 		}
