@@ -118,6 +118,8 @@ bool CSG_Table::Load(const CSG_String &FileName, int Format, SG_Char Separator)
 	}
 
 	//-----------------------------------------------------
+	Destroy();
+
 	switch( Format )
 	{
 	case TABLE_FILETYPE_Text:   default: if( !_Load_Text (FileName, true , Separator) ) return( false ); break;
