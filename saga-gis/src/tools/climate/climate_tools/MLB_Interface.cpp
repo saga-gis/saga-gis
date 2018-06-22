@@ -127,6 +127,7 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 10:	return( new CBioclimatic_Vars );
 	case 11:	return( new CTree_Growth );
+	case 20:	return( new CWater_Balance );
 	case 12:	return( new CWater_Balance_Interactive );
 
 	case 13:	return( new CWindeffect_Correction );
@@ -141,7 +142,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 19:	return( new CClimate_Classification );
 
 	//-----------------------------------------------------
-	case 20:	return( NULL );
+	case 21:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

@@ -150,6 +150,33 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CWater_Balance : public CSG_Tool_Grid
+{
+public:
+	CWater_Balance(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
+
+
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CCT_Growing_Season			m_Model;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWater_Balance_Interactive : public CSG_Tool_Grid_Interactive
 {
 public:

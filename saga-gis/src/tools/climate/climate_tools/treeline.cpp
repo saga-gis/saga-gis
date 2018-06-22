@@ -543,12 +543,191 @@ bool CTree_Growth::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWater_Balance_Interactive::CWater_Balance_Interactive(void)
+CWater_Balance::CWater_Balance(void)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Soil Water Balance"));
 
 	Set_Author		("O.Conrad, L.Landschreiber (c) 2016");
+
+	Set_Description	(_TW(
+		"This tool calculates the water balance for the selected position on a daily basis. "
+		"Needed input is monthly data of mean, minimum, and maximum temperature as well as precipitation."
+	));
+
+	Add_Reference("Paulsen, J. / Körner, C.", "2014",
+		"A climate-based model to predict potential treeline position around the globe",
+		"Alpine Botany, 124:1, 1–12. doi:10.1007/s00035-014-0124-0.",
+		SG_T("http://link.springer.com/article/10.1007%2Fs00035-014-0124-0"), _TL("online")
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List("", "T"   , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "P"   , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid_or_Const("",
+		"SWC"			, _TL("Soil Water Capacity of Profile"),
+		_TL("Total soil water capacity (mm H2O)."),
+		220.0, 0.0, true
+	);
+
+	Parameters.Add_Double("SWC",
+		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
+		_TL(""),
+		10.0, 0.0, true
+	);
+
+	Parameters.Add_Double("SWC",
+		"SW1_RESIST"	, _TL("Transpiration Resistance"),
+		_TL(""),
+		1.0, 0.1, true
+	);
+
+	Parameters.Add_Double("",
+		"LAT_DEF"		, _TL("Default Latitude"),
+		_TL(""),
+		50.0, -90.0, true, 90.0, true
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Grids("", "SNOW" , _TL("Snow Depth"              ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grids("", "ETP"  , _TL("Evapotranspiration"      ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grids("", "SW_0" , _TL("Soil Water (Upper Layer)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grids("", "SW_1" , _TL("Soil Water (Lower Layer)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWater_Balance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWater_Balance::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pT   	= Parameters("T"   )->asGridList();
+	CSG_Parameter_Grid_List	*pTmin	= Parameters("TMIN")->asGridList();
+	CSG_Parameter_Grid_List	*pTmax	= Parameters("TMAX")->asGridList();
+	CSG_Parameter_Grid_List	*pP   	= Parameters("P"   )->asGridList();
+
+	if( pT   ->Get_Grid_Count() != 12
+	||  pTmin->Get_Grid_Count() != 12
+	||  pTmax->Get_Grid_Count() != 12
+	||  pP   ->Get_Grid_Count() != 12 )
+	{
+		SG_UI_Msg_Add_Error(_TL("there has to be one input grid for each month"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grids	*pSnow	= Parameters("SNOW")->asGrids();
+	CSG_Grids	*pETP	= Parameters("ETP" )->asGrids();
+	CSG_Grids	*pSW_0	= Parameters("SW_0")->asGrids();
+	CSG_Grids	*pSW_1	= Parameters("SW_1")->asGrids();
+
+	if( !pSnow && !pETP && !pSW_0 && !pSW_1 )
+	{
+		SG_UI_Msg_Add_Error(_TL("no output has been specified"));
+
+		return( false );
+	}
+
+	#define CREATE_DAILY_GRIDS(pGrids, Name)	if( pGrids ) { if( !pGrids->Create(*Get_System(), 365) )\
+		{	SG_UI_Msg_Add_Error(_TL("failed to create grid collection")); return( false ); } else\
+		{	pGrids->Set_Name(Name); }\
+	};
+
+	CREATE_DAILY_GRIDS(pSnow, _TL("Snow Depth"              ));
+	CREATE_DAILY_GRIDS(pETP , _TL("Evapotranspiration"      ));
+	CREATE_DAILY_GRIDS(pSW_0, _TL("Soil Water (Upper Layer)"));
+	CREATE_DAILY_GRIDS(pSW_1, _TL("Soil Water (Lower Layer)"));
+
+	//-----------------------------------------------------
+	double	Lat_Def	= Parameters("LAT_DEF")->asDouble();
+
+	CSG_Grid Lat; CSG_Grid *pLat = SG_Grid_Get_Geographic_Coordinates(pT->Get_Grid(0), NULL, &Lat) ? &Lat : NULL;
+
+	//-----------------------------------------------------
+	double		SWC_Def	= Parameters("SWC")->asDouble();
+	CSG_Grid	*pSWC	= Parameters("SWC")->asGrid();
+
+	m_Model.Get_Soil().Set_Capacity     (0, Parameters("SWC_SURFACE")->asDouble());
+	m_Model.Get_Soil().Set_ET_Resistance(1, Parameters("SW1_RESIST" )->asDouble());
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+#ifndef _DEBUG
+		#pragma omp parallel for
+#endif
+		for(int x=0; x<Get_NX(); x++)
+		{
+			CCT_Water_Balance	Model(m_Model);	// copy model setup
+
+			if( Model.Set_Monthly(CCT_Water_Balance::MONTHLY_T   , x, y, pT   )
+			&&  Model.Set_Monthly(CCT_Water_Balance::MONTHLY_Tmin, x, y, pTmin)
+			&&  Model.Set_Monthly(CCT_Water_Balance::MONTHLY_Tmax, x, y, pTmax)
+			&&  Model.Set_Monthly(CCT_Water_Balance::MONTHLY_P   , x, y, pP   ) )
+			{
+				double	Lat	= pLat && !pLat->is_NoData(x, y) ? pLat->asDouble(x, y) : Lat_Def;
+				double	SWC	= pSWC && !pSWC->is_NoData(x, y) ? pSWC->asDouble(x, y) : SWC_Def;
+
+				Model.Calculate(SWC, Lat);
+
+				for(int iDay=0; iDay<365; iDay++)
+				{
+					SG_GRIDS_PTR_SAFE_SET_VALUE(pSnow, x, y, iDay, Model.Get_Snow (iDay));
+					SG_GRIDS_PTR_SAFE_SET_VALUE(pETP , x, y, iDay, Model.Get_ETpot(iDay));
+					SG_GRIDS_PTR_SAFE_SET_VALUE(pSW_0, x, y, iDay, Model.Get_SW_0 (iDay));
+					SG_GRIDS_PTR_SAFE_SET_VALUE(pSW_1, x, y, iDay, Model.Get_SW_1 (iDay));
+				}
+			}
+			else
+			{
+				for(int iDay=0; iDay<365; iDay++)
+				{
+					SG_GRIDS_PTR_SAFE_SET_NODATA(pSnow, x, y, iDay);
+					SG_GRIDS_PTR_SAFE_SET_NODATA(pETP , x, y, iDay);
+					SG_GRIDS_PTR_SAFE_SET_NODATA(pSW_0, x, y, iDay);
+					SG_GRIDS_PTR_SAFE_SET_NODATA(pSW_1, x, y, iDay);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CWater_Balance_Interactive::CWater_Balance_Interactive(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Soil Water Balance"));
+
+	Set_Author		("O.Conrad, L.Landschreiber (c) 2018");
 
 	Set_Description	(_TW(
 		"This tool calculates the water balance for the selected position on a daily basis. "
