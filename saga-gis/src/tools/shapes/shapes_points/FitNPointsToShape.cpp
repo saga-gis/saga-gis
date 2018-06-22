@@ -20,128 +20,177 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "FitNPointsToShape.h"
 
-#define MAX_REP 30
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #ifndef min
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
-CFitNPointsToShape::CFitNPointsToShape(void){
 
-	Parameters.Set_Name(_TL("Fit N Points to shape"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Fit N Points to shape"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Shapes(NULL, 
-						"POINTS", 
-						_TL("Points"), 
-						_TL(""), 
-						PARAMETER_OUTPUT);
+//---------------------------------------------------------
+CFitNPointsToShape::CFitNPointsToShape(void)
+{
+	Set_Name		(_TL("Populate Polygons with Points"));
 
-	Parameters.Add_Shapes(NULL, 
-						"SHAPES", 
-						_TL("Shapes"),
-						_TL(""),
-						PARAMETER_INPUT);
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2018");
 
-	Parameters.Add_Value(NULL, 
-						"NUMPOINTS", 
-						_TL("Number of points"), 
-						_TL("Number of points"), 
-						PARAMETER_TYPE_Int, 
-						100,
-						1,
-						true);
+	Set_Description	(_TW(
+		"For each selected polygon of the input layer or for all "
+		"polygons, if none is selected, a multi-point record is "
+		"created with evenly distributed points trying to meet "
+		"the specified number of points per polygon. "
+	));
 
-}//constructor
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
+		_TL(""),
+		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"), 
+		_TL(""),
+		PARAMETER_OUTPUT, SHAPE_TYPE_Points
+	);
+
+	Parameters.Add_Table_Field("POLYGONS",
+		"NUMFIELD"	, _TL("Number of Points"), 
+		_TL("Desired number of points per polygon."),
+		true
+	);
+
+	Parameters.Add_Int("NUMFIELD",
+		"NUMPOINTS"	, _TL("Number of Points"), 
+		_TL("Desired number of points per polygon."),
+		100, 1, true
+	);
+
+	Parameters.Add_Int("",
+		"MAXITER"	, _TL("Maximum Iterations"), 
+		_TL(""),
+		30, 1, true
+	);
+}
 
 
-CFitNPointsToShape::~CFitNPointsToShape(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CFitNPointsToShape::On_Execute(void){
+//---------------------------------------------------------
+int CFitNPointsToShape::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NUMFIELD") )
+	{
+		pParameters->Set_Enabled("NUMPOINTS", pParameter->asInt() < 0);
+	}
 
-	CSG_Shapes *pShapes, *pPoints;
-	CSG_Shape *pShape, *pShape2;		
-	bool bCopy;
-	int iPoints;
-	int iPointsIn = 0;
-	int iRep = 0;
-	int i,j;
-	double x,y;	
-	double dArea;
-	double dDist;
-	double dDistInf, dDistSup;
-	bool bFirstTime;
-	TSG_Rect Extent;
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
 
-	pShapes = Parameters("SHAPES")->asShapes();
-	pPoints = Parameters("POINTS")->asShapes();
-	iPoints = Parameters("NUMPOINTS")->asInt();
 
-	if(pShapes == pPoints){
-		bCopy = true;
-		pPoints	= SG_Create_Shapes();
-	}//if
-	else{
-		bCopy = false;
-	}//else
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	pPoints->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
-	pPoints->Add_Field("X", SG_DATATYPE_Double);
-	pPoints->Add_Field("Y", SG_DATATYPE_Double);
+//---------------------------------------------------------
+#define nPolygons		(pPolygons->Get_Selection() ? (int)pPolygons->Get_Selection_Count() : pPolygons->Get_Count())
+#define Get_Polygon(i)	((CSG_Shape_Polygon *)(pPolygons->Get_Selection() ? pPolygons->Get_Selection(i) : pPolygons->Get_Shape(i)))
 
-	for (i = 0; i < pShapes->Get_Selection_Count(); i++){
-		iRep = 0;
+//---------------------------------------------------------
+bool CFitNPointsToShape::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes	*pPoints	= Parameters("POINTS"  )->asShapes();
 
-		pShape = pShapes->Get_Selection(i);	
-		dArea = ((CSG_Shape_Polygon*)pShape)->Get_Area();
-		dDist = sqrt(dArea / (double) iPoints);
-		dDistInf = sqrt(dArea / (double) (iPoints + 2));
-		dDistSup = sqrt(dArea / (double) (iPoints - min(2, iPoints-1)));
+	pPoints->Create(SHAPE_TYPE_Points, CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Points")), pPolygons);
+
+	int	nField	= Parameters("NUMFIELD" )->asInt();
+	int	nPoints	= Parameters("NUMPOINTS")->asInt();
+	int	maxIter	= Parameters("MAXITER"  )->asInt();
+
+	//-----------------------------------------------------
+	for(int iPolygon=0; iPolygon<nPolygons && Set_Progress(iPolygon, nPolygons); iPolygon++)
+	{
+		CSG_Shape_Polygon	*pPolygon	= Get_Polygon(iPolygon);
+
+		//-------------------------------------------------
+		if( nField >= 0 )
+		{
+			nPoints	= pPolygon->asInt(nField);
+
+			if( nPoints < 1 )
+			{
+				continue;
+			}
+		}
+
+		double	dDist	= sqrt(pPolygon->Get_Area() / (nPoints));
+		double	dInf	= sqrt(pPolygon->Get_Area() / (nPoints + 2));
+		double	dSup	= sqrt(pPolygon->Get_Area() / (nPoints - min(2, nPoints - 1)));
 		
-		Extent = ((CSG_Shape_Polygon*)pShape)->Get_Extent();
+		//-------------------------------------------------
+		CSG_Shape	*pPoint	= pPoints->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
 
-		bFirstTime = true;
-		do{
-			if (!bFirstTime){
-				for (j = 0; j < iPointsIn; j++){
-					pPoints->Del_Shape(pPoints->Get_Count()-1);
-				}//for
-			}//if		
-			iPointsIn = 0;
-			iRep++;	
-			for (x=Extent.xMin; x<Extent.xMax; x=x+dDist){
-				for (y=Extent.yMin; y<Extent.yMax; y=y+dDist){ 
-					if (((CSG_Shape_Polygon*)pShape)->Contains(x,y)){
-						pShape2 = pPoints->Add_Shape();
-						pShape2->Add_Point(x,y);
-						pShape2->Set_Value(0, x);
-						pShape2->Set_Value(1, y);
-						iPointsIn++;
-					}//if
-				}//for
-			}//for
-			if (iPointsIn > iPoints){
-				dDistInf = dDist;
-				dDist = (dDistInf + dDistSup) / 2.;
-			}//if
-			else if (iPointsIn < iPoints){
-				dDistSup = dDist;
-				dDist = (dDistInf + dDistSup) / 2.;
-			}//if
-			bFirstTime = false;
-		}while(iPointsIn != iPoints && iRep < MAX_REP);
-	
-	}//for
+		for(int i=0; pPoint->Get_Point_Count()!=nPoints && i<maxIter; i++)
+		{
+			pPoint->Del_Parts();
 
-	if(bCopy){
-		pShapes->Assign(pPoints);
-		delete(pPoints);
-	}//if
+			for(double x=pPolygon->Get_Extent().Get_XMin(); x<=pPolygon->Get_Extent().Get_XMax(); x+=dDist)
+			{
+				for(double y=pPolygon->Get_Extent().Get_YMin(); y<=pPolygon->Get_Extent().Get_YMax(); y+=dDist)
+				{
+					if( pPolygon->Contains(x, y) )
+					{
+						pPoint->Add_Point(x, y);
+					}
+				}
+			}
 
-	return true;
+			if( pPoint->Get_Point_Count() > nPoints )
+			{
+				dInf	= dDist;
+				dDist	= (dInf + dSup) / 2.;
+			}
+			else if( pPoint->Get_Point_Count() < nPoints )
+			{
+				dSup	= dDist;
+				dDist	= (dInf + dSup) / 2.;
+			}
+		}
+	}
 
-}//method
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

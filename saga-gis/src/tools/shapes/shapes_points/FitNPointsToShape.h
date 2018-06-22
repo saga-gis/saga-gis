@@ -20,20 +20,42 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-#include "MLB_Interface.h"
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-class CFitNPointsToShape : public CSG_Tool {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CFitNPointsToShape : public CSG_Tool
+{
 public:
 	CFitNPointsToShape(void);
-	virtual ~CFitNPointsToShape(void);
-	virtual bool is_ProjectDependent(void) {return( false );}
+
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
