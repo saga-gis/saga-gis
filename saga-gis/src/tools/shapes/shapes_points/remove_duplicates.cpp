@@ -183,7 +183,7 @@ bool CRemove_Duplicates::On_Execute(void)
 		return( false );
 	}
 
-	if( !Search.Create(m_pPoints, -1) )
+	if( !Search.Create(m_pPoints, -1, true) )
 	{
 		Error_Set(_TL("failed to initialise search engine"));
 

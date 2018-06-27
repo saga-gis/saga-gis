@@ -14,7 +14,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86_
 
 REM ___________________________________
 SET SAGA_ROOT=%SAGA%
-SET SAGA_VERSION=saga_6.4.0
+SET SAGA_VERSION=saga-6.5.0
 
 SET ZIPEXE="C:\Program Files\7-Zip\7z.exe" a -r -y -mx5
 
