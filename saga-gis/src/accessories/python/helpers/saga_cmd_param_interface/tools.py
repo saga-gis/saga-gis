@@ -718,18 +718,5 @@ tools = [
 ['climate_tools', 20, 'Soil Water Balance'],
 ['grid_tools', 39, 'Change Grid Values - Flood Fill'],
 ['io_gdal', 11, 'Import ASTER Scene'],
-['shapes_tools', 29, 'Focal Mechanism (Beachball Plots)'],
-['climate_data', 0, 'Import GSOD Stations to Data Base'],
-['climate_data', 1, 'Import GSOD to Data Base'],
-['salem', 0, 'SALEM'],
-['salem', 1, 'LEM 2013-02-21'],
-['salem', 2, 'SaLEM'],
-['sim_runoff', 0, 'Runoff to Water Body (kin.Wave)'],
-['sim_runoff', 1, 'ETpot'],
-['sim_runoff', 2, 'Annual Insolation as Grid Collection'],
-['sim_runoff', 3, 'BBCH stage'],
-['sim_runoff', 4, 'Snowcover and melt'],
-['urban_modelling', 0, 'Urban Traffic Simulation'],
-['urban_modelling', 1, 'Urban Agents'],
-['urban_modelling', 2, 'Simple Agents']
+['shapes_tools', 29, 'Focal Mechanism (Beachball Plots)']
 ]
