@@ -69,81 +69,80 @@
 //---------------------------------------------------------
 CRemove_Duplicates::CRemove_Duplicates(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Remove Duplicate Points"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		""
+		"Removes duplicate points."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Result"),
+	Parameters.Add_Shapes("",
+		"RESULT"	, _TL("Result"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Point to Keep"),
+	Parameters.Add_Choice("",
+		"NUMERIC"	, _TL("Value Aggregation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("take values from the point to be kept"),
+			_TL("minimum values of all duplicates"),
+			_TL("maximum values of all duplicates"),
+			_TL("mean values of all duplicates")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Point to Keep"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("first point"),
 			_TL("last point"),
 			_TL("point with minimum attribute value"),
 			_TL("point with maximum attribute value")
 		), 0
 	);
-
-	Parameters.Add_Choice(
-		NULL	, "NUMERIC"		, _TL("Numeric Attribute Values"),
-		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("take value from the point to be kept"),
-			_TL("minimum value of all duplicates"),
-			_TL("maximum value of all duplicates"),
-			_TL("mean value of all duplicates")
-		), 0
-	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CRemove_Duplicates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NUMERIC") )
 	{
-		pParameters->Get_Parameter("FIELD")->Set_Enabled(pParameter->asInt() >= 2);
+		pParameters->Set_Enabled("METHOD", pParameter->asInt() == 0);
 	}
 
-	return( 0 );
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	{
+		pParameters->Set_Enabled("FIELD" , pParameter->asInt() >= 2);
+	}
+
+	//-----------------------------------------------------
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -153,10 +152,10 @@ bool CRemove_Duplicates::On_Execute(void)
 	CSG_PRQuadTree	Search;
 
 	//-----------------------------------------------------
-	m_pPoints	= Parameters("RESULT")	->asShapes();
-	m_Field		= Parameters("FIELD")	->asInt();
-	m_Method	= Parameters("METHOD")	->asInt();
-	m_Numeric	= Parameters("NUMERIC")	->asInt();
+	m_pPoints	= Parameters("RESULT" )->asShapes();
+	m_Field		= Parameters("FIELD"  )->asInt();
+	m_Method	= Parameters("METHOD" )->asInt();
+	m_Numeric	= Parameters("NUMERIC")->asInt();
 
 	//-----------------------------------------------------
 	if( m_pPoints == NULL )
@@ -165,7 +164,9 @@ bool CRemove_Duplicates::On_Execute(void)
 	}
 	else if( m_pPoints != Parameters("POINTS")->asShapes() )
 	{
-		m_pPoints	->Assign(Parameters("POINTS")->asShapes());
+		m_pPoints->Create(*Parameters("POINTS")->asShapes());
+
+		m_pPoints->Set_Name(CSG_String::Format("%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), _TL("")));
 	}
 
 	//-----------------------------------------------------
@@ -183,7 +184,7 @@ bool CRemove_Duplicates::On_Execute(void)
 		return( false );
 	}
 
-	if( !Search.Create(m_pPoints, -1, true) )
+	if( !Search.Create(m_pPoints, -1) )
 	{
 		Error_Set(_TL("failed to initialise search engine"));
 
@@ -219,7 +220,7 @@ bool CRemove_Duplicates::On_Execute(void)
 	}
 	else
 	{
-		Message_Add(CSG_String::Format(SG_T("%d %s"), m_pPoints->Get_Selection_Count(), _TL("duplicates have been identified.")));
+		Message_Add(CSG_String::Format("%d %s", m_pPoints->Get_Selection_Count(), _TL("duplicates have been removed.")));
 
 		m_pPoints->Del_Selection();
 	}
@@ -230,8 +231,6 @@ bool CRemove_Duplicates::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -239,10 +238,10 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 {
 	int			iDuplicate;
 	double		dKeep;
-	CSG_Shape	*pKeep;
+	CSG_Shape	*pKeep	= NULL;
 
 	//-----------------------------------------------------
-	for(iDuplicate=0, pKeep=NULL; iDuplicate<pList->Get_Count(); iDuplicate++)
+	for(iDuplicate=0; iDuplicate<pList->Get_Count(); iDuplicate++)
 	{
 		CSG_Shape	*pDuplicate	= m_pPoints->Get_Shape((int)pList->Get_Value(iDuplicate));
 
@@ -307,7 +306,7 @@ void CRemove_Duplicates::Set_Attributes(CSG_Shape *pPoint, CSG_PRQuadTree_Leaf_L
 				{
 				case 1:	pPoint->Set_Value(iField, s.Get_Minimum());	break;	// minimun value
 				case 2:	pPoint->Set_Value(iField, s.Get_Maximum());	break;	// maximum value
-				case 3:	pPoint->Set_Value(iField, s.Get_Mean());	break;	// mean value
+				case 3:	pPoint->Set_Value(iField, s.Get_Mean   ());	break;	// mean value
 				}
 			}
 		}
