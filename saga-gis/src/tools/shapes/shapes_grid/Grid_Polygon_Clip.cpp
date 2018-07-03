@@ -80,28 +80,28 @@ CGrid_Polygon_Clip::CGrid_Polygon_Clip(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"INPUT"		, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"EXTENT"	, _TL("Target Extent"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("original"),
 			_TL("polygons"),
 			_TL("crop to data")
@@ -144,8 +144,8 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	ax	= (int)((System.Get_XMin() - Get_XMin()) / Get_Cellsize());
-	int	ay	= (int)((System.Get_YMin() - Get_YMin()) / Get_Cellsize());
+	int	ax	= Get_System()->Get_xWorld_to_Grid(System.Get_XMin());
+	int	ay	= Get_System()->Get_yWorld_to_Grid(System.Get_YMin());
 
 	//-----------------------------------------------------
 	for(int y=0, iy=ay; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, iy++)

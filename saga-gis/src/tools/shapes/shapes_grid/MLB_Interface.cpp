@@ -73,7 +73,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Grid Tools") );
+		return( _TL("Shapes-Grid Tools") );
 
 	case TLB_INFO_Category:
 		return( _TL("Shapes") );
@@ -88,7 +88,7 @@ CSG_String Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Shapes|Grid") );
+		return( _TL("Shapes|Shapes-Grid Tools") );
 	}
 }
 
