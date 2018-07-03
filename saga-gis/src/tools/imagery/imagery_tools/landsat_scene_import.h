@@ -127,7 +127,7 @@ private:
 	bool					Get_Float				(CSG_Grid *pBand, CSG_Grid &DN);
 	bool					Get_Radiance			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
 	bool					Get_Reflectance			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band, double SunHeight);
-	bool					Get_Thermal				(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
+	bool					Get_Temperature			(CSG_Grid *pBand, const CSG_Table_Record &Info_Band);
 
 };
 
