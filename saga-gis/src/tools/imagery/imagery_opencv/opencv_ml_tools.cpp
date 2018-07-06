@@ -79,14 +79,23 @@ COpenCV_ML_NBayes::COpenCV_ML_NBayes(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Normal Bayes classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Normal Bayes classification of gridded features."
 	));
+
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 }
 
 //---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(void)
+Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(const CSG_String &File)
 {
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		CSG_String	File(Parameters("MODEL_LOAD")->asString());
+
+		return( StatModel::load<NormalBayesClassifier>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
 	return(	NormalBayesClassifier::create() );
 }
 
@@ -117,37 +126,38 @@ COpenCV_ML_KNN::COpenCV_ML_KNN(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"K-Nearest Neighbours classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"K-Nearest Neighbours classification of gridded features."
 	));
 
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
+
 	//-----------------------------------------------------
-	Parameters.Add_Int(
-		NULL	, "NEIGHBOURS"	, _TL("Default Number of Neighbours"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"NEIGHBOURS", _TL("Default Number of Neighbours"),
 		_TL(""),
 		3, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TRAINING"	, _TL("Training Method"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"TRAINING"	, _TL("Training Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("classification"),
 			_TL("regression model")
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "ALGORITHM"	, _TL("Algorithm Type"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"ALGORITHM"	, _TL("Algorithm Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("brute force"),
 			_TL("KD Tree")
 		), 0
 	);
 
-	Parameters.Add_Int(
-		NULL	, "EMAX"		, _TL("Parameter for KD Tree implementation"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"EMAX"		, _TL("Parameter for KD Tree implementation"),
 		_TL(""),
 		1000, 1, true
 	);
@@ -166,8 +176,16 @@ int COpenCV_ML_KNN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 }
 
 //---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_KNN::Get_Model(void)
+Ptr<StatModel> COpenCV_ML_KNN::Get_Model(const CSG_String &File)
 {
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		CSG_String	File(Parameters("MODEL_LOAD")->asString());
+
+		return( StatModel::load<KNearest>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
 	Ptr<KNearest>	Model	= KNearest::create();
 
 	switch( Parameters("ALGORITHM")->asInt() )
@@ -200,17 +218,16 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Support Vector Machine classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Support Vector Machine classification of gridded features."
 	));
 
-	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "SVM_TYPE"	, _TL("SVM Type"),
+	//-----------------------------------------------------
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"SVM_TYPE"	, _TL("SVM Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("c-support vector classification"),
 			_TL("nu support vector classification"),
 			_TL("distribution estimation (one class)"),
@@ -219,14 +236,14 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 0
 	);
 
-	Parameters.Add_Double(pNode, "C" , _TL("C" ), _TL(""), 1.0, 0.0, true);
-	Parameters.Add_Double(pNode, "NU", _TL("Nu"), _TL(""), 0.5, 0.0, true);
-	Parameters.Add_Double(pNode, "P" , _TL("P" ), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double("SVM_TYPE", "C" , _TL("C" ), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("SVM_TYPE", "NU", _TL("Nu"), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double("SVM_TYPE", "P" , _TL("P" ), _TL(""), 0.5, 0.0, true);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "KERNEL"		, _TL("Kernel Type"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"KERNEL"	, _TL("Kernel Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("linear"),
 			_TL("polynomial"),
 			_TL("radial basis function"),
@@ -237,9 +254,9 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 		), 1
 	);
 
-	Parameters.Add_Double(pNode, "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0.0, true);
-	Parameters.Add_Double(pNode, "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0.0, true);
-	Parameters.Add_Double(pNode, "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("KERNEL", "COEF0" , _TL("Coefficient 0"), _TL(""), 1.0, 0.0, true);
+	Parameters.Add_Double("KERNEL", "DEGREE", _TL("Degree"       ), _TL(""), 0.5, 0.0, true);
+	Parameters.Add_Double("KERNEL", "GAMMA" , _TL("Gamma"        ), _TL(""), 1.0, 0.0, true);
 }
 
 //---------------------------------------------------------
@@ -264,8 +281,16 @@ int COpenCV_ML_SVM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 }
 
 //---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_SVM::Get_Model(void)
+Ptr<StatModel> COpenCV_ML_SVM::Get_Model(const CSG_String &File)
 {
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		CSG_String	File(Parameters("MODEL_LOAD")->asString());
+
+		return( StatModel::load<SVM>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
 	Ptr<SVM>	Model	= SVM::create();
 
 	switch( Parameters("SVM_TYPE")->asInt() )
@@ -317,54 +342,56 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Decision Tree classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Decision Tree classification of gridded features."
 	));
 
-	Parameters.Add_Int(
-		NULL	, "MAX_DEPTH"		, _TL("Maximum Tree Depth"),
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
+
+	//-----------------------------------------------------
+	Parameters.Add_Int("MODEL_TRAIN",
+		"MAX_DEPTH"		, _TL("Maximum Tree Depth"),
 		_TL("The maximum possible depth of the tree. That is the training algorithms attempts to split a node while its depth is less than maxDepth. The root node has zero depth."),
 		10, 1, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "MIN_SAMPLES"		, _TL("Minimum Sample Count"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"MIN_SAMPLES"	, _TL("Minimum Sample Count"),
 		_TL("If the number of samples in a node is less than this parameter then the node will not be split."),
 		2, 2, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "MAX_CATEGRS"		, _TL("Maximum Categories"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"MAX_CATEGRS"	, _TL("Maximum Categories"),
 		_TL("Cluster possible values of a categorical variable into K<=maxCategories clusters to find a suboptimal split."),
 		10, 1, true
 	);
 
-	//Parameters.Add_Int(
-	//	NULL	, "CV_FOLDS"		, _TL("CV Folds"),
+	//Parameters.Add_Int("MODEL_TRAIN",
+	//	"CV_FOLDS"		, _TL("CV Folds"),
 	//	_TL("If CVFolds > 1 then algorithms prunes the built decision tree using K-fold cross-validation procedure where K is equal to CVFolds. Default value is 10."),
 	//	10, 0, true
 	//);
 
-	Parameters.Add_Bool(
-		NULL	, "1SE_RULE"		, _TL("Use 1SE Rule"),
+	Parameters.Add_Bool("MODEL_TRAIN",
+		"1SE_RULE"		, _TL("Use 1SE Rule"),
 		_TL("If true then a pruning will be harsher. This will make a tree more compact and more resistant to the training data noise but a bit less accurate."),
 		true
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "TRUNC_PRUNED"	, _TL("Truncate Pruned Trees"),
+	Parameters.Add_Bool("MODEL_TRAIN",
+		"TRUNC_PRUNED"	, _TL("Truncate Pruned Trees"),
 		_TL("If true then pruned branches are physically removed from the tree. Otherwise they are retained and it is possible to get results from the original unpruned (or pruned less aggressively) tree."),
 		true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "REG_ACCURACY"	, _TL("Regression Accuracy"),
+	Parameters.Add_Double("MODEL_TRAIN",
+		"REG_ACCURACY"	, _TL("Regression Accuracy"),
 		_TL("Termination criteria for regression trees. If all absolute differences between an estimated value in a node and values of train samples in this node are less than this parameter then the node will not be split further."),
 		 0.01, 0.0, true
 	);
 
-//	Parameters.Add_Bool(
-//		NULL	, "SURROGATES"		, _TL("Use Surrogates"),
+//	Parameters.Add_Bool("MODEL_TRAIN",
+//		"SURROGATES"	, _TL("Use Surrogates"),
 //		_TL("If true then surrogate splits will be built. These splits allow to work with missing data and compute variable importance correctly."),
 //		 false
 //	);
@@ -377,19 +404,27 @@ Ptr<DTrees> COpenCV_ML_DTrees::Get_Trees(void)
 }
 
 //---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
+Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(const CSG_String &File)
 {
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		CSG_String	File(Parameters("MODEL_LOAD")->asString());
+
+		return( StatModel::load<DTrees>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
 	Ptr<DTrees>	Model	= Get_Trees();
 
-	Model->setMaxDepth          (Parameters("MAX_DEPTH"   )->asInt   ());
-	Model->setMinSampleCount    (Parameters("MIN_SAMPLES" )->asInt   ());
-	Model->setMaxCategories     (Parameters("MAX_CATEGRS" )->asInt   ());
-//	Model->setCVFolds           (Parameters("CV_FOLDS"    )->asInt   ());
-	Model->setCVFolds           (0);
-	Model->setUse1SERule        (Parameters("1SE_RULE"    )->asBool  ());
-	Model->setTruncatePrunedTree(Parameters("TRUNC_PRUNED")->asBool  ());
-	Model->setRegressionAccuracy(Parameters("REG_ACCURACY")->asDouble());
-//	Model->setUseSurrogates     (Parameters("SURROGATES"  )->asBool  ());
+	Model->setMaxDepth                 (Parameters("MAX_DEPTH"   )->asInt   ());
+	Model->setMinSampleCount           (Parameters("MIN_SAMPLES" )->asInt   ());
+	Model->setMaxCategories            (Parameters("MAX_CATEGRS" )->asInt   ());
+//	Model->setCVFolds                  (Parameters("CV_FOLDS"    )->asInt   ());
+	Model->setCVFolds                  (0);
+	Model->setUse1SERule               (Parameters("1SE_RULE"    )->asBool  ());
+	Model->setTruncatePrunedTree       (Parameters("TRUNC_PRUNED")->asBool  ());
+	Model->setRegressionAccuracy((float)Parameters("REG_ACCURACY")->asDouble());
+//	Model->setUseSurrogates            (Parameters("SURROGATES"  )->asBool  ());
 
 	return(	Model );
 }
@@ -408,26 +443,28 @@ COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Boosted Trees classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Boosted Trees classification of gridded features."
 	));
 
-	Parameters.Add_Int(
-		NULL	, "WEAK_COUNT"		, _TL("Weak Count"),
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
+
+	//-----------------------------------------------------
+	Parameters.Add_Int("MODEL_TRAIN",
+		"WEAK_COUNT"	, _TL("Weak Count"),
 		_TL("The number of weak classifiers."),
 		100, 0, true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "WGT_TRIM_RATE"	, _TL("Weight Trim Rate"),
+	Parameters.Add_Double("MODEL_TRAIN",
+		"WGT_TRIM_RATE"	, _TL("Weight Trim Rate"),
 		_TL("A threshold between 0 and 1 used to save computational time. Set this parameter to 0 to turn off this functionality."),
 		0.95, 0.0, true, 1.0, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "BOOST_TYPE"	, _TL("Boost Type"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"BOOST_TYPE"	, _TL("Boost Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Discrete AdaBoost"),
 			_TL("Real AdaBoost"),
 			_TL("LogitBoost"),
@@ -471,12 +508,14 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Random Forest classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Random Forest classification of gridded features."
 	));
 
-	Parameters.Add_Int(
-		NULL	, "ACTIVE_VARS"	, _TL("Active Variable Count"),
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
+
+	//-----------------------------------------------------
+	Parameters.Add_Int("MODEL_TRAIN",
+		"ACTIVE_VARS"	, _TL("Active Variable Count"),
 		_TL("The size of the randomly selected subset of features at each tree node and that are used to find the best split(s). If you set it to 0 then the size will be set to the square root of the total number of features."),
 		0, 0, true
 	);
@@ -535,67 +574,66 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 
 	Set_Description	(_TW(
 		"Integration of the OpenCV Machine Learning library for "
-		"Artificial Neural Network classification of gridded features.\n"
-		"<a href=\"http://docs.opencv.org\">Open Source Computer Vision</a>"
+		"Artificial Neural Network classification of gridded features."
 	));
 
-	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
 
-	Parameters.Add_Int(
-		NULL	, "ANN_LAYERS"		, _TL("Number of Layers"),
+	//-----------------------------------------------------
+	Parameters.Add_Int("MODEL_TRAIN",
+		"ANN_LAYERS"		, _TL("Number of Layers"),
 		_TL("You can specify the number of layers in the network (not including input and output layer)."),
 		3, 1, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "ANN_NEURONS"		, _TL("Number of Neurons"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"ANN_NEURONS"		, _TL("Number of Neurons"),
 		_TL("You can specify the number of neurons in each layer of the network."),
 		3, 1, true
 	);
 
-	Parameters.Add_Int(
-		NULL	, "ANN_MAXITER"		, _TL("Maximum Number of Iterations"),
+	Parameters.Add_Int("MODEL_TRAIN",
+		"ANN_MAXITER"		, _TL("Maximum Number of Iterations"),
 		_TL(""),
 		300, 1, true
 	);
 
-	Parameters.Add_Double(
-		NULL	, "ANN_EPSILON"		, _TL("Error Change (Epsilon)"),
+	Parameters.Add_Double("MODEL_TRAIN",
+		"ANN_EPSILON"		, _TL("Error Change (Epsilon)"),
 		_TL("Termination criteria of the training algorithm. You can specify how much the error could change between the iterations to make the algorithm continue (epsilon)."),
 		FLT_EPSILON, 0.0, true
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "ANN_ACTIVATION"	, _TL("Activation Function"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"ANN_ACTIVATION"	, _TL("Activation Function"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Identity"),	
 			_TL("Sigmoid"),
 			_TL("Gaussian")
 		), 1
 	);
  
-	Parameters.Add_Double(pNode, "ANN_ACT_ALPHA", _TL("Function's Alpha"), _TL(""), 1.0);
-	Parameters.Add_Double(pNode, "ANN_ACT_BETA" , _TL("Function's Beta" ), _TL(""), 1.0);
+	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_ALPHA", _TL("Function's Alpha"), _TL(""), 1.0);
+	Parameters.Add_Double("ANN_ACTIVATION", "ANN_ACT_BETA" , _TL("Function's Beta" ), _TL(""), 1.0);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "ANN_PROPAGATION"		, _TL("Training Method"),
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"ANN_PROPAGATION"	, _TL("Training Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("resilient propagation"),
 			_TL("back propagation")
 		), 1
 	);
 
-	Parameters.Add_Double(pNode, "ANN_RP_DW0"     , _TL("Initial Update Value"    ), _TL(""), 0.0);							// _TL("Initial value delta_0 of update-values delta_ij.")
-	Parameters.Add_Double(pNode, "ANN_RP_DW_PLUS" , _TL("Increase Factor"         ), _TL(""), 1.2, 1.01, true);				// _TL("Increase factor n_plus. Must be > 1.")
-	Parameters.Add_Double(pNode, "ANN_RP_DW_MINUS", _TL("Decrease Factor"         ), _TL(""), 0.5, 0.01, true, 0.99, true);	// _TL("Decrease factor n_minus. Must be < 1.")
-	Parameters.Add_Double(pNode, "ANN_RP_DW_MIN"  , _TL("Lower Value Update Limit"), _TL(""), 0.1, 0.01, true);				// _TL("Corresponds to delta_min. Must be > 0")
-	Parameters.Add_Double(pNode, "ANN_RP_DW_MAX"  , _TL("Upper Value Update Limit"), _TL(""), 1.1, 1.01, true);				// _TL("Corresponds to delta_max. Must be > 1")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_RP_DW0"     , _TL("Initial Update Value"    ), _TL(""), 0.0);							// _TL("Initial value delta_0 of update-values delta_ij.")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_RP_DW_PLUS" , _TL("Increase Factor"         ), _TL(""), 1.2, 1.01, true);				// _TL("Increase factor n_plus. Must be > 1.")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_RP_DW_MINUS", _TL("Decrease Factor"         ), _TL(""), 0.5, 0.01, true, 0.99, true);	// _TL("Decrease factor n_minus. Must be < 1.")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_RP_DW_MIN"  , _TL("Lower Value Update Limit"), _TL(""), 0.1, 0.01, true);				// _TL("Corresponds to delta_min. Must be > 0")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_RP_DW_MAX"  , _TL("Upper Value Update Limit"), _TL(""), 1.1, 1.01, true);				// _TL("Corresponds to delta_max. Must be > 1")
 
-	Parameters.Add_Double(pNode, "ANN_BP_DW"      , _TL("Weight Gradient Term"    ), _TL(""), 0.1);							// _TL("Strength of the weight gradient term. The recommended value is about 0.1.")
-	Parameters.Add_Double(pNode, "ANN_BP_MOMENT"  , _TL("Moment Term"             ), _TL(""), 0.1);							// _TL("Strength of the momentum term (the difference between weights on the 2 previous iterations). This parameter provides some inertia to smooth the random fluctuations of the weights. It can vary from 0 (the feature is disabled) to 1 and beyond. The value 0.1 or so is good enough.")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_BP_DW"      , _TL("Weight Gradient Term"    ), _TL(""), 0.1);							// _TL("Strength of the weight gradient term. The recommended value is about 0.1.")
+	Parameters.Add_Double("ANN_PROPAGATION", "ANN_BP_MOMENT"  , _TL("Moment Term"             ), _TL(""), 0.1);							// _TL("Strength of the momentum term (the difference between weights on the 2 previous iterations). This parameter provides some inertia to smooth the random fluctuations of the weights. It can vary from 0 (the feature is disabled) to 1 and beyond. The value 0.1 or so is good enough.")
 }
 
 //---------------------------------------------------------
@@ -624,8 +662,16 @@ int COpenCV_ML_ANN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 }
 
 //---------------------------------------------------------
-Ptr<StatModel> COpenCV_ML_ANN::Get_Model(void)
+Ptr<StatModel> COpenCV_ML_ANN::Get_Model(const CSG_String &File)
 {
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		CSG_String	File(Parameters("MODEL_LOAD")->asString());
+
+		return( StatModel::load<ANN_MLP>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
 	Ptr<ANN_MLP>	Model	= ANN_MLP::create();
 
 	//-----------------------------------------------------
