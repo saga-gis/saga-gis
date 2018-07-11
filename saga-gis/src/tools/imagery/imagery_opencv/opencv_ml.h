@@ -105,6 +105,10 @@ protected:
 	int							Get_Feature_Count		(void)	{	return( m_pFeatures->Get_Grid_Count() );	}
 	int							Get_Class_Count			(void)	{	return( m_Classes   .Get_Count     () );	}
 
+	bool						Check_Model_File		(const CSG_String &File);
+
+	virtual const char *		Get_Model_ID			(void)	const	= 0;
+
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File)	= 0;
 	virtual Ptr<TrainData>		Get_Training			(const CSG_Matrix &Data);
 
@@ -148,6 +152,8 @@ public:
 
 protected:
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "nbayes" );	}
+
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 
 	virtual double				Get_Probability			(const Ptr<StatModel> &Model, const Mat &Sample);
@@ -170,6 +176,8 @@ protected:
 
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "knn" );	}
+
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 
 };
@@ -190,6 +198,8 @@ protected:
 
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "svm" );	}
+
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 
 };
@@ -208,8 +218,11 @@ public:
 
 protected:
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "dtree" );	}
+
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 
+	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
@@ -223,6 +236,9 @@ public:
 
 protected:
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "boost" );	}
+
+	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
@@ -236,6 +252,9 @@ public:
 
 protected:
 
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "rtrees" );	}
+
+	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
 
 };
@@ -255,6 +274,8 @@ public:
 protected:
 
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "ann" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
 

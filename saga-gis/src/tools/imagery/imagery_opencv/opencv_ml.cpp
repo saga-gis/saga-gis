@@ -181,8 +181,15 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "MODEL_LOAD") )
 	{
-		pParameters->Set_Enabled("MODEL_TRAIN", !SG_File_Exists(pParameter->asString()));
-		pParameters->Set_Enabled("RGB_COLORS" , !SG_File_Exists(pParameter->asString()));
+		bool	bOkay	= Check_Model_File(pParameter->asString());
+
+		if( !bOkay )
+		{
+			pParameter->Set_Value("");
+		}
+
+		pParameters->Set_Enabled("MODEL_TRAIN", !bOkay);
+		pParameters->Set_Enabled("RGB_COLORS" , !bOkay);
 	}
 
 	//-----------------------------------------------------
@@ -276,6 +283,31 @@ bool COpenCV_ML::_Finalize(void)
 	if( m_pProbability )
 	{
 		m_pProbability->Set_Name(Get_Name() + " [" + _TL("Probability") + "]");
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool COpenCV_ML::Check_Model_File(const CSG_String &File)
+{
+	if( !SG_File_Exists(File) )
+	{
+		return( false );
+	}
+	
+	CSG_MetaData	Model(File);
+
+	if( !Model.Load(File) || !Model.Cmp_Name("opencv_storage") || !Model("opencv_ml_" + CSG_String(Get_Model_ID())) )
+	{
+		Error_Fmt("%s: %s", _TL("failed to load model"), File.c_str());
+
+		return( false);
 	}
 
 	return( true );

@@ -88,10 +88,8 @@ COpenCV_ML_NBayes::COpenCV_ML_NBayes(void)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(const CSG_String &File)
 {
-	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( Check_Model_File(File) )
 	{
-		CSG_String	File(Parameters("MODEL_LOAD")->asString());
-
 		return( StatModel::load<NormalBayesClassifier>(File.b_str()) );
 	}
 
@@ -178,10 +176,8 @@ int COpenCV_ML_KNN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_KNN::Get_Model(const CSG_String &File)
 {
-	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( Check_Model_File(File) )
 	{
-		CSG_String	File(Parameters("MODEL_LOAD")->asString());
-
 		return( StatModel::load<KNearest>(File.b_str()) );
 	}
 
@@ -283,10 +279,8 @@ int COpenCV_ML_SVM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_SVM::Get_Model(const CSG_String &File)
 {
-	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( Check_Model_File(File) )
 	{
-		CSG_String	File(Parameters("MODEL_LOAD")->asString());
-
 		return( StatModel::load<SVM>(File.b_str()) );
 	}
 
@@ -398,6 +392,11 @@ COpenCV_ML_DTrees::COpenCV_ML_DTrees(void)
 }
 
 //---------------------------------------------------------
+Ptr<DTrees> COpenCV_ML_DTrees::Get_Trees(const CSG_String &File)
+{
+	return( StatModel::load<DTrees>(File.b_str()) );
+}
+
 Ptr<DTrees> COpenCV_ML_DTrees::Get_Trees(void)
 {
 	return( DTrees::create() );
@@ -406,11 +405,9 @@ Ptr<DTrees> COpenCV_ML_DTrees::Get_Trees(void)
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(const CSG_String &File)
 {
-	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( Check_Model_File(File) )
 	{
-		CSG_String	File(Parameters("MODEL_LOAD")->asString());
-
-		return( StatModel::load<DTrees>(File.b_str()) );
+		return( Get_Trees(File) );
 	}
 
 	//-----------------------------------------------------
@@ -474,6 +471,11 @@ COpenCV_ML_Boost::COpenCV_ML_Boost(void)
 }
 
 //---------------------------------------------------------
+Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(const CSG_String &File)
+{
+	return( StatModel::load<Boost>(File.b_str()) );
+}
+
 Ptr<DTrees> COpenCV_ML_Boost::Get_Trees(void)
 {
 	Ptr<Boost>	Model	= Boost::create();
@@ -522,6 +524,11 @@ COpenCV_ML_RTrees::COpenCV_ML_RTrees(void)
 }
 
 //---------------------------------------------------------
+Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(const CSG_String &File)
+{
+	return( StatModel::load<RTrees>(File.b_str()) );
+}
+
 Ptr<DTrees> COpenCV_ML_RTrees::Get_Trees(void)
 {
 	Ptr<RTrees>	Model	= RTrees::create();
@@ -664,10 +671,8 @@ int COpenCV_ML_ANN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 Ptr<StatModel> COpenCV_ML_ANN::Get_Model(const CSG_String &File)
 {
-	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( Check_Model_File(File) )
 	{
-		CSG_String	File(Parameters("MODEL_LOAD")->asString());
-
 		return( StatModel::load<ANN_MLP>(File.b_str()) );
 	}
 
