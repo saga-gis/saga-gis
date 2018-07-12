@@ -385,36 +385,36 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get("DISPLAY_SYMBOL_IMAGE")->Set_Enabled(Value == SYMBOL_TYPE_Image    );
-			pParameters->Get("BEACHBALL_STRIKE"    )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
-			pParameters->Get("BEACHBALL_DIP"       )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
-			pParameters->Get("BEACHBALL_RAKE"      )->Set_Enabled(Value == SYMBOL_TYPE_Beachball);
+			pParameters->Set_Enabled("DISPLAY_SYMBOL_IMAGE", Value == SYMBOL_TYPE_Image    );
+			pParameters->Set_Enabled("BEACHBALL_STRIKE"    , Value == SYMBOL_TYPE_Beachball);
+			pParameters->Set_Enabled("BEACHBALL_DIP"       , Value == SYMBOL_TYPE_Beachball);
+			pParameters->Set_Enabled("BEACHBALL_RAKE"      , Value == SYMBOL_TYPE_Beachball);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get("LABEL_ANGLE_ATTRIB"  )->Set_Enabled(Value);
-			pParameters->Get("LABEL_ANGLE"         )->Set_Enabled(Value);
-			pParameters->Get("LABEL_ALIGN_X"       )->Set_Enabled(Value);
-			pParameters->Get("LABEL_ALIGN_Y"       )->Set_Enabled(Value);
+			pParameters->Set_Enabled("LABEL_ANGLE_ATTRIB"  , Value);
+			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
+			pParameters->Set_Enabled("LABEL_ALIGN_X"       , Value);
+			pParameters->Set_Enabled("LABEL_ALIGN_Y"       , Value);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get("SIZE_SCALE"          )->Set_Enabled(Value ==  true);
-			pParameters->Get("SIZE_RANGE"          )->Set_Enabled(Value ==  true);
-			pParameters->Get("SIZE_DEFAULT"        )->Set_Enabled(Value == false);
+			pParameters->Set_Enabled("SIZE_SCALE"          , Value ==  true);
+			pParameters->Set_Enabled("SIZE_RANGE"          , Value ==  true);
+			pParameters->Set_Enabled("SIZE_DEFAULT"        , Value == false);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ANGLE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
 
-			pParameters->Get("LABEL_ANGLE"         )->Set_Enabled(Value);
+			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
 		}
 	}
 
