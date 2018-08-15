@@ -38,7 +38,7 @@
   <developer_name>SAGA Development Team</developer_name>
   <screenshots>
     <screenshot type="default">
-      <caption>The FooBar main window.</caption>
+      <caption>The SAGA GUI main window.</caption>
       <image type="source" width="1280" height="720">http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/Other/AppData/screenshot_SAGA_GUI.png</image>
     </screenshot>
   </screenshots>
