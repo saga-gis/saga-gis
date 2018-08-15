@@ -228,7 +228,7 @@ install-icons:
 	$(INSTALL_DATA) res/saga.png $(DESTDIR)$(datadir)/icons/hicolor/256x256/apps/saga.png
 
 appdatadir = $(datadir)/metainfo
-dist_appdata_DATA = res/org.saga-gis.saga-gui.metainfo.xml
+dist_appdata_DATA = res/org.saga-gis.saga-gui.appdata.xml
 
 dist_pkgdata_DATA = res/saga_tip.txt res/saga_dic.txt res/saga_srs.txt
 

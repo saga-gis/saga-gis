@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component>
+<!-- Copyright 2018 SAGA Development Team -->
+<component type="desktop">
   <id type="desktop.application">org.saga_gis.saga.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
   <name>SAGA</name>
@@ -27,9 +28,6 @@
   <url type="bugtracker">https://sourceforge.net/p/saga-gis/bugs/</url>
   <url type="help">http://www.saga-gis.org/saga_tool_doc/index.html</url>
   <launchable type="desktop-id">org.saga_gis.saga.desktop</launchable>
-  <releases>
-    <release version="6.5.0">
-  </releases>
   <provides>
     <binary>saga_gui</binary>
     <binary>saga_cmd</binary>
@@ -38,10 +36,10 @@
   <developer_name>SAGA Development Team</developer_name>
   <screenshots>
     <screenshot type="default">
-      <caption>The SAGA GUI main window.</caption>
+      <caption>The SAGA GUI main window</caption>
       <image type="source" width="1280" height="720">http://sourceforge.net/projects/saga-gis/files/SAGA%20-%20Documentation/Other/AppData/screenshot_SAGA_GUI.png</image>
     </screenshot>
   </screenshots>
-  <updatecontact>https://sourceforge.net/p/saga-gis/feature-requests/</updatecontact>
+  <update_contact>https://sourceforge.net/p/saga-gis/feature-requests/</update_contact>
 </component>
 
