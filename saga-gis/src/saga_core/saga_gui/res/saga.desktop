@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=SAGA GIS
-GenericName=A System for Automated Geoscientific Analyses 
+GenericName=System for Automated Geoscientific Analyses 
 Comment=Geodata Processing and Analysis
 Type=Application
 Exec=saga_gui

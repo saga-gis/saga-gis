@@ -190,6 +190,7 @@ ECHO.    ./saga-gis/configure.ac
 ECHO.    ./saga-gis/version.cmake
 ECHO.    ./saga-gis/README
 ECHO.    ./saga-gis/src/saga_core/saga_api/saga_api.h
+ECHO.    ./saga-gis/src/saga_core/saga_gui/res/org.saga-gis.saga-gui.metainfo.xml
 ECHO.    ./saga-gis/src/accessories/helper/make_saga_release.bat (this file!)
 ECHO.
 ECHO - Commit a comment like: SAGA version updated to %SAGA_VER_TEXT%
