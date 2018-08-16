@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="6.5.0">
+	<group>polygon_tools</group>
+	<identifier>polygons_remove_from_boundary</identifier>
+	<name>Remove Boundary Polygons</name>
+	<menu absolute="true">Shapes|Polygons</menu>
+	<description>Removes all non-interior polygons from an input polygons layer, i.e. those polygons that are not completely surrounded by other polygons. Useful to exclude boundary effects. The simpler and faster method simply uses the rectangular layer's extent to distinguish between interior and boundary polygons.</description>
+
+	<parameters>
+		<input varname="POLYGONS" type="shapes" feature_type="polygon">
+			<name>Polygons</name>
+		</input>
+		<output varname="RESULT" type="shapes" feature_type="polygon" optional="true">
+			<name>Result</name>
+			<output_name input="true" suffix="Removed Boundary Polygons">POLYGONS</output_name>
+		</output>
+		<option varname="METHOD" type="choice">
+			<name>Method</name>
+			<choices>Extent|Polygon Boundary</choices>
+			<value>0</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<condition variable="METHOD" type="equal" value="0">
+			<tool library="shapes_tools" tool="19" name="Get Shapes Extents">
+				<option id="OUTPUT">0</option>
+				<input  id="SHAPES">POLYGONS</input>
+				<output id="EXTENTS">OUTPOLY</output>
+			</tool>
+		</condition>
+		<condition variable="METHOD" type="not_equal" value="0">
+			<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
+				<input  id="POLYGONS">POLYGONS</input>
+				<output id="DISSOLVED">OUTPOLY</output>
+			</tool>
+		</condition>
+
+		<tool library="shapes_lines" tool="0" name="Convert Polygons to Lines">
+			<input  id="POLYGONS">OUTPOLY</input>
+			<output id="LINES">OUTLINE</output>
+		</tool>
+
+		<tool library="shapes_tools" tool="5" name="Select by Location...">
+			<option id="CONDITION">0</option>
+			<option id="METHOD">0</option>
+			<input  id="SHAPES">POLYGONS</input>
+			<input  id="LOCATIONS">OUTLINE</input>
+		</tool>
+
+		<condition varname="RESULT" type="not_exists">
+			<tool library="shapes_tools" tool="7" name="Delete Selection from Shapes Layer">
+				<input  id="INPUT">POLYGONS</input>
+			</tool>
+		</condition>
+
+		<condition varname="RESULT" type="exists">
+			<tool library="shapes_tools" tool="8" name="Invert Selection of Shapes Layer">
+				<input  id="INPUT">POLYGONS</input>
+			</tool>
+			<tool library="shapes_tools" tool="6" name="Copy Selection to New Shapes Layer">
+				<input  id="INPUT">POLYGONS</input>
+				<output id="OUTPUT">RESULT</output>
+			</tool>
+			<tool library="shapes_tools" tool="4" name="Select by Attributes... (String Expression)">
+				<input id="SHAPES">POLYGONS</input>
+				<option id="EXPRESSION"></option>
+				<option id="COMPARE">1</option>
+				<option id="METHOD">3</option>
+			</tool>
+		</condition>
+	</tools>
+</toolchain>
