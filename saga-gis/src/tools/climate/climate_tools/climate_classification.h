@@ -102,6 +102,7 @@ protected:
 
 private:
 
+	bool						Set_Classified			(CSG_Grid *pClasses, int Method);
 	bool						Set_Classified			(CSG_Grid *pClasses, const TClassInfo Info[], int nClasses);
 
 	bool						Get_Values				(int x, int y, CSG_Parameter_Grid_List *pValues, CSG_Simple_Statistics &Values);
@@ -110,7 +111,14 @@ private:
 
 	bool						Get_PSeasonal			(bool bNorth, double P[], CSG_Simple_Statistics &PWinter, CSG_Simple_Statistics &PSummer);
 
+	int							Get_GrowingDegreeDays	(double T[], double Tmin);
+	double						Get_HumidMonths			(double T[], double P[]);
+
 	int 						Get_KoppenGeiger		(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P);
+
+	int 						Get_TrollPaffen			(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P);
+
+	int 						Get_Thornthwaite		(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P);
 
 };
 

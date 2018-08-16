@@ -60,6 +60,8 @@
 //---------------------------------------------------------
 #include "climate_classification.h"
 
+#include "climate_tools.h"
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -72,53 +74,9 @@ enum EMethod
 {
 	Koeppen1936 = 0,
 	Koeppen1936_No_As,
-	Peel2007
-};
-
-//---------------------------------------------------------
-enum EKG
-{
-	KG_Af = 1, KG_Am, KG_As, KG_Aw,
-	KG_BWk, KG_BWh, KG_BSk, KG_BSh,
-	KG_Cfa, KG_Cfb, KG_Cfc, KG_Csa, KG_Csb, KG_Csc, KG_Cwa, KG_Cwb, KG_Cwc,
-	KG_Dfa, KG_Dfb, KG_Dfc, KG_Dfd, KG_Dsa, KG_Dsb, KG_Dsc, KG_Dsd, KG_Dwa, KG_Dwb, KG_Dwc, KG_Dwd,
-	KG_ET, KG_EF, KG_Count = KG_EF
-};
-
-//---------------------------------------------------------
-const CClimate_Classification::TClassInfo KG_Info[KG_Count]	=
-{
-	{ KG_Af , SG_GET_RGB(148,   1,   1), "Af" , "equatorial, fully humid" },
-	{ KG_Am , SG_GET_RGB(254,   0,   0), "Am" , "equatorial, monsoonal" },
-	{ KG_As , SG_GET_RGB(255, 154, 154), "As" , "equatorial, summer dry" },
-	{ KG_Aw , SG_GET_RGB(255, 207, 207), "Aw" , "equatorial, winter dry" },
-	{ KG_BWk, SG_GET_RGB(255, 255, 101), "BWk", "cold desert" },
-	{ KG_BWh, SG_GET_RGB(255, 207,   0), "BWh", "hot desert" },
-	{ KG_BSk, SG_GET_RGB(207, 170,  85), "BSk", "cold steppe" },
-	{ KG_BSh, SG_GET_RGB(207, 142,  20), "BSh", "hot steppe" },
-	{ KG_Cfa, SG_GET_RGB(  0,  48,   0), "Cfa", "warm temperate, fully humid, hot summer" },
-	{ KG_Cfb, SG_GET_RGB(  1,  79,   1), "Cfb", "warm temperate, fully humid, warm summer" },
-	{ KG_Cfc, SG_GET_RGB(  0, 120,   0), "Cfc", "warm temperate, fully humid, cool summer" },
-	{ KG_Csa, SG_GET_RGB(  0, 254,   0), "Csa", "warm temperate, summer dry, hot summer" },
-	{ KG_Csb, SG_GET_RGB(149, 255,   0), "Csb", "warm temperate, summer dry, warm summer" },
-	{ KG_Csc, SG_GET_RGB(203, 255,   0), "Csc", "warm temperate, summer dry, cool summer" },
-	{ KG_Cwa, SG_GET_RGB(181, 101,   0), "Cwa", "warm temperate, winter dry, hot summer" },
-	{ KG_Cwb, SG_GET_RGB(149, 102,   3), "Cwb", "warm temperate, winter dry, warm summer" },
-	{ KG_Cwc, SG_GET_RGB( 93,  64,   2), "Cwc", "warm temperate, winter dry, cool summer" },
-	{ KG_Dfa, SG_GET_RGB( 48,   0,  48), "Dfa", "snow, fully humid, hot summer" },
-	{ KG_Dfb, SG_GET_RGB(101,   0, 101), "Dfb", "snow, fully humid, warm summer" },
-	{ KG_Dfc, SG_GET_RGB(203,   0, 203), "Dfc", "snow, fully humid, cool summer" },
-	{ KG_Dfd, SG_GET_RGB(199,  20, 135), "Dfd", "snow, fully humid, extremely continental" },
-	{ KG_Dsa, SG_GET_RGB(253, 108, 253), "Dsa", "snow, summer dry, hot summer" },
-	{ KG_Dsb, SG_GET_RGB(254, 182, 255), "Dsb", "snow, summer dry, warm summer" },
-	{ KG_Dsc, SG_GET_RGB(231, 202, 253), "Dsc", "snow, summer dry, cool summer" },
-	{ KG_Dsd, SG_GET_RGB(202, 203, 203), "Dsd", "snow, summer dry, extremely continental" },
-	{ KG_Dwa, SG_GET_RGB(203, 182, 255), "Dwa", "snow, winter dry, hot summer" },
-	{ KG_Dwb, SG_GET_RGB(153, 125, 178), "Dwb", "snow, winter dry, warm summer" },
-	{ KG_Dwc, SG_GET_RGB(138,  89, 178), "Dwc", "snow, winter dry, cool summer" },
-	{ KG_Dwd, SG_GET_RGB(109,  36, 178), "Dwd", "snow, winter dry, extremely continental" },
-	{ KG_ET , SG_GET_RGB(101, 255, 255), "ET" , "polar tundra" },
-	{ KG_EF , SG_GET_RGB(100, 150, 255), "EF" , "polar frost" }
+	Peel2007,
+	Thornthwaite1931,
+	TrollPaffen
 };
 
 
@@ -135,8 +93,10 @@ CClimate_Classification::CClimate_Classification(void)
 	Set_Author		("O.Conrad (c) 2018");
 
 	Set_Description	(_TW(
-		"This tool applies the Koeppen-Geiger climate classification "
-		"scheme to monthly mean temperature and precipitation data. "
+		"This tool applies a climate classification scheme using monthly mean temperature and precipitation data. "
+		"Currently implemented classification schemes are Koeppen-Geiger (1936), Thornthwaite (1931), "
+		"and Troll-Paffen (1964). Because of some less precise definitions the Troll-Paffen scheme "
+		"still needs some revisions. "
 	));
 
 	Add_Reference("Bluethgen, J.", "1964",
@@ -160,6 +120,18 @@ CClimate_Classification::CClimate_Classification(void)
 		"Updated world map of the Koeppen-Geiger climate classification",
 		"Hydrology and earth system sciences discussions, 4(2), 439-473.",
 		SG_T("https://hal.archives-ouvertes.fr/hal-00305098/document"), SG_T("Free Access")
+	);
+
+	Add_Reference("Thornthwaite, C. W.", "1931",
+		"The climates of North America: according to a new classification",
+		"Geographical review, 21(4), 633-655.",
+		SG_T("https://www.jstor.org/stable/pdf/209372.pdf"), SG_T("JSTOR")
+	);
+
+	Add_Reference("Troll, C. & Paffen, K.H.", "1964",
+		"Karte der Jahreszeitenklimate der Erde",
+		"Erdkunde 18, p5-28",
+		SG_T("https://www.erdkunde.uni-bonn.de/archive/1964/karte-der-jahreszeiten-klimate-der-erde/at_download/attachment"), SG_T("Free Access")
 	);
 
 	Add_Reference("Willmes, C., Becker, D., Brocks, S., Huett, C., Bareth, G.", "2016",
@@ -194,10 +166,12 @@ CClimate_Classification::CClimate_Classification(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Classification"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			SG_T("Koeppen-Geiger"),
 			SG_T("Koeppen-Geiger without As/Aw differentiation"),
-			SG_T("Koeppen-Geiger (after Peel et al. 2007)")
+			SG_T("Koeppen-Geiger after Peel et al. (2007)"),
+			SG_T("Thornthwaite (1931)"),
+			SG_T("Troll-Paffen")
 		), 1
 	);
 }
@@ -246,11 +220,11 @@ bool CClimate_Classification::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	int	Method	= Parameters("METHOD")->asInt();
+
 	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
 
-	Set_Classified(pClasses, KG_Info, KG_Count);
-
-	int	Method	= Parameters("METHOD")->asInt();
+	Set_Classified(pClasses, Method);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -264,7 +238,20 @@ bool CClimate_Classification::On_Execute(void)
 
 			if( Get_Values(x, y, pT, T) && Get_Values(x, y, pP, P) )
 			{
-				Class	= Get_KoppenGeiger(Method, T, P);
+				switch( Method )
+				{
+				default:
+					Class	= Get_KoppenGeiger(Method, T, P);
+					break;
+
+				case Thornthwaite1931:
+					Class	= Get_Thornthwaite(Method, T, P);
+					break;
+
+				case TrollPaffen:
+					Class	= Get_TrollPaffen (Method, T, P);
+					break;
+				}
 			}
 
 			pClasses->Set_Value(x, y, Class);
@@ -279,6 +266,161 @@ bool CClimate_Classification::On_Execute(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum EKG
+{
+	KG_Af = 1, KG_Am, KG_As, KG_Aw,
+	KG_BWk, KG_BWh, KG_BSk, KG_BSh,
+	KG_Cfa, KG_Cfb, KG_Cfc, KG_Csa, KG_Csb, KG_Csc, KG_Cwa, KG_Cwb, KG_Cwc,
+	KG_Dfa, KG_Dfb, KG_Dfc, KG_Dfd, KG_Dsa, KG_Dsb, KG_Dsc, KG_Dsd, KG_Dwa, KG_Dwb, KG_Dwc, KG_Dwd,
+	KG_ET, KG_EF,
+	KG_Count
+};
+
+//---------------------------------------------------------
+const CClimate_Classification::TClassInfo KG_Info[KG_Count]	=
+{
+	{ KG_Af   , SG_GET_RGB(148,   1,   1), "Af" , "equatorial, fully humid" },
+	{ KG_Am   , SG_GET_RGB(254,   0,   0), "Am" , "equatorial, monsoonal" },
+	{ KG_As   , SG_GET_RGB(255, 154, 154), "As" , "equatorial, summer dry" },
+	{ KG_Aw   , SG_GET_RGB(255, 207, 207), "Aw" , "equatorial, winter dry" },
+	{ KG_BWk  , SG_GET_RGB(255, 255, 101), "BWk", "cold desert" },
+	{ KG_BWh  , SG_GET_RGB(255, 207,   0), "BWh", "hot desert" },
+	{ KG_BSk  , SG_GET_RGB(207, 170,  85), "BSk", "cold steppe" },
+	{ KG_BSh  , SG_GET_RGB(207, 142,  20), "BSh", "hot steppe" },
+	{ KG_Cfa  , SG_GET_RGB(  0,  48,   0), "Cfa", "warm temperate, fully humid, hot summer" },
+	{ KG_Cfb  , SG_GET_RGB(  1,  79,   1), "Cfb", "warm temperate, fully humid, warm summer" },
+	{ KG_Cfc  , SG_GET_RGB(  0, 120,   0), "Cfc", "warm temperate, fully humid, cool summer" },
+	{ KG_Csa  , SG_GET_RGB(  0, 254,   0), "Csa", "warm temperate, summer dry, hot summer" },
+	{ KG_Csb  , SG_GET_RGB(149, 255,   0), "Csb", "warm temperate, summer dry, warm summer" },
+	{ KG_Csc  , SG_GET_RGB(203, 255,   0), "Csc", "warm temperate, summer dry, cool summer" },
+	{ KG_Cwa  , SG_GET_RGB(181, 101,   0), "Cwa", "warm temperate, winter dry, hot summer" },
+	{ KG_Cwb  , SG_GET_RGB(149, 102,   3), "Cwb", "warm temperate, winter dry, warm summer" },
+	{ KG_Cwc  , SG_GET_RGB( 93,  64,   2), "Cwc", "warm temperate, winter dry, cool summer" },
+	{ KG_Dfa  , SG_GET_RGB( 48,   0,  48), "Dfa", "snow, fully humid, hot summer" },
+	{ KG_Dfb  , SG_GET_RGB(101,   0, 101), "Dfb", "snow, fully humid, warm summer" },
+	{ KG_Dfc  , SG_GET_RGB(203,   0, 203), "Dfc", "snow, fully humid, cool summer" },
+	{ KG_Dfd  , SG_GET_RGB(199,  20, 135), "Dfd", "snow, fully humid, extremely continental" },
+	{ KG_Dsa  , SG_GET_RGB(253, 108, 253), "Dsa", "snow, summer dry, hot summer" },
+	{ KG_Dsb  , SG_GET_RGB(254, 182, 255), "Dsb", "snow, summer dry, warm summer" },
+	{ KG_Dsc  , SG_GET_RGB(231, 202, 253), "Dsc", "snow, summer dry, cool summer" },
+	{ KG_Dsd  , SG_GET_RGB(202, 203, 203), "Dsd", "snow, summer dry, extremely continental" },
+	{ KG_Dwa  , SG_GET_RGB(203, 182, 255), "Dwa", "snow, winter dry, hot summer" },
+	{ KG_Dwb  , SG_GET_RGB(153, 125, 178), "Dwb", "snow, winter dry, warm summer" },
+	{ KG_Dwc  , SG_GET_RGB(138,  89, 178), "Dwc", "snow, winter dry, cool summer" },
+	{ KG_Dwd  , SG_GET_RGB(109,  36, 178), "Dwd", "snow, winter dry, extremely continental" },
+	{ KG_ET   , SG_GET_RGB(101, 255, 255), "ET" , "polar tundra" },
+	{ KG_EF   , SG_GET_RGB(100, 150, 255), "EF" , "polar frost" },
+	{ KG_Count, SG_GET_RGB(245, 245, 245), "NA" , "NA" }
+};
+
+//---------------------------------------------------------
+enum ETP
+{
+	TP_I_1 = 1, TP_I_2, TP_I_3, TP_I_4,
+	TP_II_1, TP_II_2, TP_II_3,
+	TP_III_1, TP_III_2, TP_III_3, TP_III_4, TP_III_5, TP_III_6, TP_III_7, TP_III_7a, TP_III_8,
+	TP_III_9, TP_III_9a, TP_III_10, TP_III_10a, TP_III_11, TP_III_12, TP_III_12a,
+	TP_IV_1, TP_IV_2, TP_IV_3, TP_IV_4, TP_IV_5, TP_IV_6, TP_IV_7,
+	TP_V_1, TP_V_2, TP_V_2a, TP_V_3, TP_V_4, TP_V_4a, TP_V_5,
+	TP_Count
+};
+
+//---------------------------------------------------------
+const CClimate_Classification::TClassInfo TP_Info[TP_Count]	=
+{
+	{ TP_I_1    , SG_GET_RGB(230, 250, 250), "I.1"    , "Polar ice-deserts" },
+	{ TP_I_2    , SG_GET_RGB(216, 245, 250), "I.2"    , "Polar frost-debris belt" },
+	{ TP_I_3    , SG_GET_RGB(185, 224, 250), "I.3"    , "Tundra" },
+	{ TP_I_4    , SG_GET_RGB(156, 205, 240), "I.4"    , "Sub-polar tussock grassland and moors" },
+	{ TP_II_1   , SG_GET_RGB(190, 170, 214), "II.1"   , "Oceanic humid coniferous woods" },
+	{ TP_II_2   , SG_GET_RGB(215, 201, 229), "II.2"   , "Continental coniferous woods" },
+	{ TP_II_3   , SG_GET_RGB(234, 225, 238), "II.3"   , "Highly continental dry coniferous woods" },
+	{ TP_III_1  , SG_GET_RGB(145, 116,  90), "III.1"  , "Evergreen broad-leaved and mixed woods" },
+	{ TP_III_2  , SG_GET_RGB(170, 152, 106), "III.2"  , "Oceanic deciduous broad-leaved and mixed woods" },
+	{ TP_III_3  , SG_GET_RGB(193, 164, 123), "III.3"  , "Sub-oceanic deciduous broad-leaved and mixed woods" },
+	{ TP_III_4  , SG_GET_RGB(210, 180, 140), "III.4"  , "Sub-continental deciduous broad-leaved and mixed woods" },
+	{ TP_III_5  , SG_GET_RGB(226, 220, 177), "III.5"  , "Continental deciduous broad-leaved and mixed woods as well as wooded steppe" },
+	{ TP_III_6  , SG_GET_RGB(242, 235, 220), "III.6"  , "Highly continental deciduous broad-leaved and mixed woods as well as wooded steppe" },
+	{ TP_III_7  , SG_GET_RGB(233, 226, 150), "III.7"  , "Deciduous broad-leaved and mixed wood and wooded steppe favoured by warmth, but withstanding cold and aridity in winter" },
+	{ TP_III_7a , SG_GET_RGB(223, 216, 140), "III.7a" , "Thermophile dry wood and wooded stepe which withstands moderate to hard winters" },
+	{ TP_III_8  , SG_GET_RGB(218, 200, 100), "III.8"  , "Humid deciduous broad-leaved and mixed wood which favours warmth" },
+	{ TP_III_9  , SG_GET_RGB(234, 207,  80), "III.9"  , "High grass-steppe with perennial herbs" },
+	{ TP_III_9a , SG_GET_RGB(224, 197,  70), "III.9a" , "Humid steppe with mild winters" },
+	{ TP_III_10 , SG_GET_RGB(244, 236,  88), "III.10" , "Short grass-, or dwarf shrub-, or thorn-steppe" },
+	{ TP_III_10a, SG_GET_RGB(234, 226,  78), "III.10a", "Steppe with short grass, dwarf shrups and thorns" },
+	{ TP_III_11 , SG_GET_RGB(241, 239, 112), "III.11" , "Central and East-Asian grass and dwarf shrub steppe" },
+	{ TP_III_12 , SG_GET_RGB(245, 245, 200), "III.12" , "Semi-desert and desert with cold winters" },
+	{ TP_III_12a, SG_GET_RGB(235, 235, 190), "III.12a", "Semi-desert and desert with mild winters" },
+	{ TP_IV_1   , SG_GET_RGB(201, 138, 110), "IV.1"   , "Sub-tropical hard-leaved and coniferous wood" },
+	{ TP_IV_2   , SG_GET_RGB(227, 158, 110), "IV.2"   , "Sub-tropical grass and shrub-steppe" },
+	{ TP_IV_3   , SG_GET_RGB(241, 195, 143), "IV.3"   , "Sub-tropical thorn- and succulants-steppe" },
+	{ TP_IV_4   , SG_GET_RGB(235, 175,  80), "IV.4"   , "Sub-tropical steppe with short grass, hard-leaved monsoon wood and wooded-steppe" },
+	{ TP_IV_5   , SG_GET_RGB(255, 219, 109), "IV.5"   , "Sub-tropical semi-deserts and deserts" },
+	{ TP_IV_6   , SG_GET_RGB(251, 172, 100), "IV.6"   , "Sub-tropical high-grassland" },
+	{ TP_IV_7   , SG_GET_RGB(229, 157,  90), "IV.7"   , "Sub-tropical humid forests (laurel and coniferous forests)" },
+	{ TP_V_1    , SG_GET_RGB( 77, 117,  77), "V.1"    , "Evergreen tropical rain forest and half deciduous transition wood" },
+	{ TP_V_2    , SG_GET_RGB(117, 152,  77), "V.2"    , "Rain-green humid forest and humid grass-savannah" },
+	{ TP_V_2a   , SG_GET_RGB(107, 142,  67), "V.2a"   , "Half deciduous transition wood" },
+	{ TP_V_3    , SG_GET_RGB(150, 180,  80), "V.3"    , "Rain-green dry wood and dry savannah" },
+	{ TP_V_4    , SG_GET_RGB(192, 211, 106), "V.4"    , "Tropical thorn-succulent wood and savannah" },
+	{ TP_V_4a   , SG_GET_RGB(182, 201,  96), "V.4a"   , "Tropical dry climates with humid months in winter" },
+	{ TP_V_5    , SG_GET_RGB(212, 228, 181), "V.5"    , "Tropical semi-deserts and deserts" },
+	{ TP_Count  , SG_GET_RGB(245, 245, 245), "NA"     , "NA" }
+};
+
+//---------------------------------------------------------
+bool CClimate_Classification::Set_Classified(CSG_Grid *pClasses, int Method)
+{
+	switch( Method )
+	{
+	default:
+		return( Set_Classified(pClasses, KG_Info, KG_Count) );
+
+	case TrollPaffen:
+		return( Set_Classified(pClasses, TP_Info, TP_Count) );
+
+	case Thornthwaite1931:
+		{
+			const int	Color[6]	= {
+				SG_GET_RGB(255,   0,   0),
+				SG_GET_RGB(255, 127,   0),
+				SG_GET_RGB(255, 255,   0),
+				SG_GET_RGB(  0, 255,   0),
+				SG_GET_RGB(  0, 255, 255),
+				SG_GET_RGB(  0,   0, 255)
+			};
+
+			const CSG_String	pName[5]	= { "Wet", "Humid", "Subhumid", "Semiarid", "Arid" };
+			const CSG_String	tName[6]	= { "Tropical", "Mesothermal", "Microthermal", "Taiga", "Tundra", "Frost" };
+
+			const int	nClasses	= 1 + 5 * 6;
+
+			CClimate_Classification::TClassInfo Info[nClasses];
+
+			for(int t=0; t<6; t++)
+			{
+				CSG_Colors	Colors(5); Colors.Set_Ramp(Color[t], Color[t]); Colors.Set_Ramp_Brighness(64, 200);
+
+				for(int p=0; p<5; p++)
+				{
+					int	i	= p + 5 * t;
+
+					Info[i].ID		= 1 + i;
+					Info[i].Color	= Colors[p];
+					Info[i].Name	= pName[p] + " / " + tName[t];
+				}
+			}
+
+			Info[nClasses - 1].ID		= nClasses;
+			Info[nClasses - 1].Color	= SG_GET_RGB(245, 245, 245);
+			Info[nClasses - 1].Name		= "NA";
+
+			return( Set_Classified(pClasses, Info, nClasses) );
+		}
+	}
+}
 
 //---------------------------------------------------------
 bool CClimate_Classification::Set_Classified(CSG_Grid *pClasses, const TClassInfo Info[], int nClasses)
@@ -365,6 +507,48 @@ bool CClimate_Classification::Get_PSeasonal(bool bNorth, double P[], CSG_Simple_
 	}
 
 	return( true );
+}
+
+//---------------------------------------------------------
+int CClimate_Classification::Get_GrowingDegreeDays(double T[], double Tmin)
+{
+	int	nDays	= 0;
+
+	CSG_Vector	TDaily;
+
+	if( CT_Get_Daily_Splined(TDaily, T) )
+	{
+		for(int i=0; i<TDaily.Get_N(); i++)
+		{
+			if( TDaily[i] > Tmin )
+			{
+				nDays++;
+			}
+		}
+	}
+
+	return( nDays );
+}
+
+//---------------------------------------------------------
+double CClimate_Classification::Get_HumidMonths(double T[], double P[])
+{
+	int	nDays	= 0;
+
+	CSG_Vector	TDaily, PDaily;
+
+	if( CT_Get_Daily_Splined(TDaily, T) && CT_Get_Daily_Splined(PDaily, P) )
+	{
+		for(int i=0; i<TDaily.Get_N(); i++)
+		{
+			if( PDaily[i] > 2 * TDaily[i] )
+			{
+				nDays++;
+			}
+		}
+	}
+
+	return( nDays * 12. / 365. );
 }
 
 
@@ -525,7 +709,284 @@ int CClimate_Classification::Get_KoppenGeiger(int Method, CSG_Simple_Statistics 
 	}
 
 	//-----------------------------------------------------
-	return( 0 );
+	return( KG_Count );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define is_Between(x, min, max)	((min) <= (x) && (x) <= (max))
+
+//---------------------------------------------------------
+int CClimate_Classification::Get_TrollPaffen(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P)
+{
+	//-----------------------------------------------------
+	// I. Polar and Subpolar Zones
+
+	if( T.Get_Maximum() < 0 )
+	{
+		return( TP_I_1 );
+	}
+
+	if( T.Get_Maximum() < 6 )
+	{
+		return( TP_I_2 );
+	}
+
+	if( T.Get_Maximum() < 12 && T.Get_Minimum() <  -8 )
+	{
+		return( TP_I_3 );
+	}
+
+	if( T.Get_Maximum() < 12 && T.Get_Minimum() >= -8 && T.Get_Range() < 13 )	// annual fluctuation often < 10°C
+	{
+		return( TP_I_4 );
+	}
+
+	//-----------------------------------------------------
+	int	nVegDays	= Get_GrowingDegreeDays(T.Get_Values(), 5.0);
+
+	//-----------------------------------------------------
+	// II. Cold-temperate Boreal Zone
+
+	if( T.Get_Maximum() < 15 && T.Get_Minimum() >= -3 && T.Get_Minimum() < 2 && is_Between(nVegDays, 120, 180) )
+	{
+		return( TP_II_1 );
+	}
+
+	if( T.Get_Maximum() < 20 && T.Get_Range() < 40 && is_Between(nVegDays, 100, 150) )
+	{
+		return( TP_II_2 );
+	}
+
+	if( T.Get_Maximum() < 20 && T.Get_Minimum() < 25 && T.Get_Range() >= 40 )
+	{
+		return( TP_II_3 );
+	}
+
+	//-----------------------------------------------------
+	// III. Cool-temperate Zones
+
+	if( T.Get_Minimum() >= -3 && T.Get_Minimum() < 2 && nVegDays >= 200 )
+	{
+		return( TP_III_3 );
+	}
+
+	if( T.Get_Maximum() < 15 )
+	{
+		if( is_Between(T.Get_Minimum(), 2, 10) && T.Get_Range() < 10 )
+		{
+			return( TP_III_1 );
+		}
+	}
+	else if( T.Get_Maximum() < 20 )
+	{
+		if( T.Get_Minimum() >= 2 && T.Get_Range() < 16 )
+		{
+			return( TP_III_2 );
+		}
+
+		if( is_Between(T.Get_Range(), 20, 30) && is_Between(nVegDays, 160, 210) )
+		{
+			return( TP_III_4 );
+		}
+
+		if( is_Between(T.Get_Minimum(), -20, -10) && is_Between(T.Get_Range(), 30, 40) && is_Between(nVegDays, 150, 180) )
+		{
+			return( TP_III_5 );
+		}
+	}
+	else // if( T.Get_Maximum() >= 20 )
+	{
+		if( is_Between(T.Get_Minimum(), -30, -10) && T.Get_Range() > 40 )
+		{
+			return( TP_III_6 );
+		}
+
+		if( T.Get_Maximum() < 26 )
+		{
+			if( is_Between(T.Get_Minimum(), 0, 8) && SG_Is_Between(T.Get_Range(), 25, 35) )
+			{
+				return( TP_III_7 );
+			}
+
+			if( is_Between(T.Get_Minimum(), -6, 2) )
+			{
+				return( TP_III_7a );
+			}
+
+			if( is_Between(T.Get_Minimum(), -6, 2) && SG_Is_Between(T.Get_Range(), 20, 30) )
+			{
+				return( TP_III_8 );
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	double	nHumid	= Get_HumidMonths(T.Get_Values(), P.Get_Values());
+
+	bool	bNorth	= is_North(T.Get_Values());
+
+	CSG_Simple_Statistics	PWinter, PSummer;	Get_PSeasonal(bNorth, P.Get_Values(), PWinter, PSummer);
+
+	//-----------------------------------------------------
+	// III. Steppe Climates
+
+	if( T.Get_Minimum() < 0 )
+	{
+		if( nHumid >= 6 )
+		{
+			return( TP_III_9 );
+		}
+		else if( PWinter.Get_Sum() < PSummer.Get_Sum() )
+		{
+			return( TP_III_3 );
+		}
+		else
+		{
+			return( TP_III_10 );
+		}
+	}
+	else if( T.Get_Minimum() < 6 )
+	{
+		return( TP_III_12a );
+	}
+
+	//-----------------------------------------------------
+	// IV. Warm-temperate Sub-tropical Zones
+
+	if( is_Between(T.Get_Minimum(), bNorth ? 2 : 6, 13) )
+	{
+		if( nHumid <= 2 )
+		{
+			return( TP_IV_5 );
+		}
+
+		if( nHumid >= 10 )
+		{
+			if( !bNorth )
+			{
+				return( TP_IV_6 );
+			}
+
+			return( TP_IV_7 );
+		}
+
+		if( nHumid >= 6 )
+		{
+			return( TP_IV_4 );
+		}
+
+		if( nHumid >= 5 )
+		{
+			return( TP_IV_1 );
+		}
+
+	//	if( nHumid < 5 )
+		{
+			if( PWinter.Get_Sum() < PSummer.Get_Sum() )
+			{
+				return( TP_IV_2 );
+			}
+
+			return( TP_IV_3 );
+		}
+	}
+
+	//-----------------------------------------------------
+	// V. Tropical Zone
+
+	if( T.Get_Minimum() > 0 && T.Get_Mean() > 18.3 )
+	{
+		if( nHumid > 9.5 )
+		{
+			return( TP_V_1 );
+		}
+
+		if( nHumid > 7 )
+		{
+			if( PWinter.Get_Sum() < PSummer.Get_Sum() )
+			{
+				return( TP_V_2a );
+			}
+
+			return( TP_V_2 );
+		}
+
+		if( nHumid > 4.5 )
+		{
+			return( TP_V_3 );
+		}
+
+		if( nHumid > 2 )
+		{
+			if( PWinter.Get_Sum() < PSummer.Get_Sum() )
+			{
+				return( TP_V_4a );
+			}
+
+			return( TP_V_4 );
+		}
+
+	//	if( nHumid <= 2 )
+		{
+			return( TP_V_5 );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( TP_Count );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CClimate_Classification::Get_Thornthwaite(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P)
+{
+	double	PE	= 0.0, TE	= 0.0;
+
+	for(int i=0; i<12; i++)
+	{
+		double	t	= T[i];
+		double	p	= P[i];
+
+		PE	+= 1.65 * pow(p / ((t > 0 ? t : 0) + 12.2), 10./9.);
+
+		if( t > 0.0 )
+		{
+			TE	+= t * 1.8 / 4;
+		}
+
+		//double	t	= T[i] * 1.8 + 32;	// convert to Fahrenheit
+		//double	p	= P[i] / 2.54;		// convert to inch
+
+		//PE	+= 11.5 * pow(p / (t > 11 ? t - 10 : 1), 10./9.);
+
+		//if( t - 32 > 0.0 )
+		//{
+		//	TE	+= (t - 32) / 4;
+		//}
+	}
+
+	//-----------------------------------------------------
+	int	p	= PE >= 128 ? 0
+			: PE >=  64 ? 1
+			: PE >=  32 ? 2
+			: PE >=  16 ? 3 : 4;
+
+	int	t	= TE >= 128 ? 0
+			: TE >=  64 ? 1
+			: TE >=  32 ? 2
+			: TE >=  16 ? 3
+			: TE >    0 ? 4 : 5;
+
+	return( 1 + p + 5 * t );
 }
 
 

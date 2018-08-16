@@ -67,7 +67,7 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Tools") );
+		return( _TL("Climate Tools") );
 
 	case TLB_INFO_Category:
 		return( _TL("Climate") );
