@@ -266,7 +266,7 @@ bool CRaw_Import::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bRecIsRow	= Parameters("ORDER"    )->asInt() == 0;
 	bool	bRecInvert	= Parameters("TOPDOWN"  )->asBool() == false;
-	bool	bValInvert	= Parameters("LEFTRIGHT")->asBool() == false;
+	bool	bColInvert	= Parameters("LEFTRIGHT")->asBool() == false;
 
 	int	nRecords	= bRecIsRow ? pGrid->Get_NY() : pGrid->Get_NX();
 	int	nValues		= bRecIsRow ? pGrid->Get_NX() : pGrid->Get_NY();
@@ -293,7 +293,7 @@ bool CRaw_Import::On_Execute(void)
 			}
 
 			int	y	= bRecIsRow ? iRecord : iValue; if( bRecInvert ) y = pGrid->Get_NY() - 1 - y;
-			int	x	= bRecIsRow ? iValue : iRecord; if( bRecInvert ) x = pGrid->Get_NX() - 1 - x;
+			int	x	= bRecIsRow ? iValue : iRecord; if( bColInvert ) x = pGrid->Get_NX() - 1 - x;
 
 			switch( pGrid->Get_Type() )
 			{
