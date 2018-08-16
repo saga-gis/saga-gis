@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2018 SAGA Development Team -->
 <component type="desktop">
-  <id type="desktop.application">org.saga_gis.saga.desktop</id>
+  <id>org.saga_gis.saga.desktop</id>
   <metadata_license>CC0-1.0</metadata_license>
   <name>SAGA</name>
   <summary>System for Automated Geoscientific Analyses</summary>
