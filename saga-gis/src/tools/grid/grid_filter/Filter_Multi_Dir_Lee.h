@@ -90,7 +90,7 @@ private:
 	CSG_Grid			*m_pInput, *m_pFiltered, *m_pStdDev, *m_pDirection;
 
 
-	bool				Get_Filter			(bool bWeighted, bool bAbsolute);
+	bool				Get_Filter			(bool bAbsolute);
 
 	bool				Get_Filter_Ringeler	(void);
 
