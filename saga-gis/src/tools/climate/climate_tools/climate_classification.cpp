@@ -75,6 +75,7 @@ enum EMethod
 	Koeppen1936 = 0,
 	Koeppen1936_No_As,
 	Peel2007,
+	Wissmann,
 	Thornthwaite1931,
 	TrollPaffen
 };
@@ -140,6 +141,11 @@ CClimate_Classification::CClimate_Classification(void)
 		SG_T("https://onlinelibrary.wiley.com/doi/abs/10.1111/tgis.12187"), SG_T("Wiley Online")
 	);
 
+	Add_Reference("Wissmann, H.", "1939",
+		"Die Klima-und Vegetationsgebiete Eurasiens: Begleitworte zu einer Karte der Klimagebiete Eurasiens",
+		"Z. Ges. Erdk. Berlin, p.81-92."
+	);
+
 	Add_Reference("http://koeppen-geiger.vu-wien.ac.at/",
 		SG_T("World Maps of Koeppen-Geiger Climate Classification")
 	);
@@ -166,10 +172,11 @@ CClimate_Classification::CClimate_Classification(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Classification"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			SG_T("Koeppen-Geiger"),
 			SG_T("Koeppen-Geiger without As/Aw differentiation"),
 			SG_T("Koeppen-Geiger after Peel et al. (2007)"),
+			SG_T("Wissmann (1939)"),
 			SG_T("Thornthwaite (1931)"),
 			SG_T("Troll-Paffen")
 		), 1
@@ -244,6 +251,10 @@ bool CClimate_Classification::On_Execute(void)
 					Class	= Get_KoppenGeiger(Method, T, P);
 					break;
 
+				case Wissmann:
+					Class	= Get_Wissmann    (Method, T, P);
+					break;
+
 				case Thornthwaite1931:
 					Class	= Get_Thornthwaite(Method, T, P);
 					break;
@@ -316,6 +327,45 @@ const CClimate_Classification::TClassInfo KG_Info[KG_Count]	=
 };
 
 //---------------------------------------------------------
+enum EWi
+{
+	Wi_I_A = 1, Wi_I_F, Wi_I_T, Wi_I_S, Wi_I_D,
+	Wi_II_Fa, Wi_II_Fb, Wi_II_Tw, Wi_II_Ts, Wi_II_S, Wi_II_D,
+	Wi_III_F, Wi_III_Tw, Wi_III_Ts, Wi_III_S, Wi_III_D,
+	Wi_IV_F, Wi_IV_T, Wi_IV_S, Wi_IV_D,
+	Wi_V, Wi_VI,
+	Wi_Count
+};
+
+//---------------------------------------------------------
+const CClimate_Classification::TClassInfo Wi_Info[KG_Count]	=
+{
+	{ Wi_I_A   , SG_GET_RGB(172,   0,   0), "I A"   , "Rainforest, equatorial" },
+	{ Wi_I_F   , SG_GET_RGB(225,   0,   0), "I F"   , "Rainforest, weak dry period" },
+	{ Wi_I_T   , SG_GET_RGB(255,  70,  70), "I T"   , "Savannah and monsoonal Rainforest" },
+	{ Wi_I_S   , SG_GET_RGB(255, 200, 179), "I S"   , "Steppe, tropical" },
+	{ Wi_I_D   , SG_GET_RGB(255, 225, 179), "I D"   , "Desert, tropical" },
+	{ Wi_II_Fa , SG_GET_RGB(128,  64,   0), "II Fa" , "" },
+	{ Wi_II_Fb , SG_GET_RGB(196,  92,   0), "II Fb" , "" },
+	{ Wi_II_Tw , SG_GET_RGB(255, 127,   0), "II Tw" , "" },
+	{ Wi_II_Ts , SG_GET_RGB(255, 156,   0), "II Ts" , "" },
+	{ Wi_II_S  , SG_GET_RGB(255, 225,   0), "II S"  , "" },
+	{ Wi_II_D  , SG_GET_RGB(255, 255,  64), "II D"  , "" },
+	{ Wi_III_F , SG_GET_RGB(  0, 192,   0), "III F" , "" },
+	{ Wi_III_Tw, SG_GET_RGB(  0, 255,   0), "III Tw", "Summer green and coniferous forest, winter dry" },
+	{ Wi_III_Ts, SG_GET_RGB(127, 255,   0), "III Ts", "Summer green and coniferous forest, cool etesien" },
+	{ Wi_III_S , SG_GET_RGB(156, 255,   0), "III S" , "" },
+	{ Wi_III_D , SG_GET_RGB(225, 255,   0), "III D" , "" },
+	{ Wi_IV_F  , SG_GET_RGB(  0, 147, 147), "IV F"  , "Humid boreal forest" },
+	{ Wi_IV_T  , SG_GET_RGB(  0, 200, 200), "IV T"  , "Winter dry boreal forest" },
+	{ Wi_IV_S  , SG_GET_RGB(  0, 255, 255), "IV S"  , "Boreal steppe" },
+	{ Wi_IV_D  , SG_GET_RGB(127, 255, 255), "IV D"  , "Boreal desert" },
+	{ Wi_V     , SG_GET_RGB(172, 172, 255), "V"     , "Polar tundra" },
+	{ Wi_VI    , SG_GET_RGB(  0,   0, 255), "VI"    , "Polar frost" },
+	{ Wi_Count , SG_GET_RGB(245, 245, 245), "NA"    , "NA" }
+};
+
+//---------------------------------------------------------
 enum ETP
 {
 	TP_I_1 = 1, TP_I_2, TP_I_3, TP_I_4,
@@ -377,6 +427,9 @@ bool CClimate_Classification::Set_Classified(CSG_Grid *pClasses, int Method)
 	{
 	default:
 		return( Set_Classified(pClasses, KG_Info, KG_Count) );
+
+	case Wissmann:
+		return( Set_Classified(pClasses, Wi_Info, Wi_Count) );
 
 	case TrollPaffen:
 		return( Set_Classified(pClasses, TP_Info, TP_Count) );
@@ -710,6 +763,138 @@ int CClimate_Classification::Get_KoppenGeiger(int Method, CSG_Simple_Statistics 
 
 	//-----------------------------------------------------
 	return( KG_Count );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CClimate_Classification::Get_Wissmann(int Method, CSG_Simple_Statistics &T, CSG_Simple_Statistics &P)
+{
+	//-----------------------------------------------------
+	if( T.Get_Maximum() < 0 )	// VI - polar frost
+	{
+		return( Wi_VI );
+	}
+
+	//-----------------------------------------------------
+	if( T.Get_Maximum() < 10 )	// V - polar tundra
+	{
+		return( Wi_V );
+	}
+
+	//-----------------------------------------------------
+	CSG_Simple_Statistics	PWinter, PSummer;
+
+	Get_PSeasonal(is_North(T.Get_Values()), P.Get_Values(), PWinter, PSummer);
+
+	double	t	= 10 * (PWinter.Get_Sum() > PSummer.Get_Sum() ? T.Get_Mean() : T.Get_Mean() + 14.0);
+
+	//-----------------------------------------------------
+	if( T.Get_Mean() < 4 )		// IV - boreal
+	{
+		if( P.Get_Sum() > 2.5 * t )
+		{
+			return( Wi_IV_F );
+		}
+
+		if( P.Get_Sum() > 2.0 * t )
+		{
+			return( Wi_IV_T );
+		}
+
+		if( P.Get_Sum() > 1.0 * t )
+		{
+			return( Wi_IV_S );
+		}
+
+	//	if( P.Get_Sum() <= 1.0 * t )
+		{
+			return( Wi_IV_D );
+		}
+	}
+
+	//-----------------------------------------------------
+	if( T.Get_Minimum() < 2 )	// III - cool temperate
+	{
+		if( P.Get_Sum() > 2.5 * t )
+		{
+			return( Wi_III_F );
+		}
+
+		if( P.Get_Sum() > 2.0 * t )
+		{
+			return( PWinter.Get_Sum() < PSummer.Get_Sum() ? Wi_III_Tw : Wi_III_Ts );
+		}
+
+		if( P.Get_Sum() > 1.0 * t )
+		{
+			return( Wi_III_S );
+		}
+
+	//	if( P.Get_Sum() <= 1.0 * t )
+		{
+			return( Wi_III_D );
+		}
+	}
+
+	//-----------------------------------------------------
+	if( T.Get_Minimum() < 13 )	// II - warm temperate
+	{
+		if( P.Get_Sum() > 2.5 * t )
+		{
+			return( T.Get_Maximum() > 23 ? Wi_II_Fa : Wi_II_Fb );
+		}
+
+		if( P.Get_Sum() > 2.0 * t )
+		{
+			return( PWinter.Get_Sum() < PSummer.Get_Sum() ? Wi_II_Tw : Wi_II_Ts );
+		}
+
+		if( P.Get_Sum() > 1.0 * t )
+		{
+			return( Wi_I_S );
+		}
+
+	//	if( P.Get_Sum() <= 1.0 * t )
+		{
+			return( Wi_I_D );
+		}
+	}
+
+	//-----------------------------------------------------
+	if( T.Get_Minimum() >= 13 )	// I - tropical
+	{
+		if( P.Get_Minimum() >= 60 )	// perhumid, no dry season
+		{
+			return( Wi_I_A );
+		}
+
+		if( P.Get_Sum() > 2.5 * t )
+		{
+			return( Wi_I_F );
+		}
+
+		if( P.Get_Sum() > 2.0 * t )
+		{
+			return( Wi_I_T );
+		}
+
+		if( P.Get_Sum() > 1.0 * t )
+		{
+			return( Wi_I_S );
+		}
+
+	//	if( P.Get_Sum() <= 1.0 * t )
+		{
+			return( Wi_I_D );
+		}
+	}
+
+	//-----------------------------------------------------
+	return( Wi_Count );
 }
 
 
