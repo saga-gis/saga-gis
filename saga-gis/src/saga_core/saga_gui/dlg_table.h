@@ -87,7 +87,6 @@ class CDLG_Table : public CDLG_Base
 
 public:
 	CDLG_Table(class CSG_Table *pTable, wxString Caption);
-	virtual ~CDLG_Table(void);
 
 
 protected:

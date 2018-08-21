@@ -193,6 +193,7 @@ protected:
 private:
 
 	void						_LUT_Create				(void);
+	void						_LUT_Import				(void);
 
 	void						_Draw_Shape				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Selection = 0);
 	void						_Draw_Label				(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int PointSize = 0);

@@ -201,6 +201,7 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 	pMenu->AppendSeparator();
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_SHAPES_SET_LUT);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_DATA_CLASSIFY_IMPORT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SETTINGS_COPY);
 
 	pMenu->AppendSeparator();
@@ -233,6 +234,7 @@ bool CWKSP_Shapes::On_Command(int Cmd_ID)
 
 	//-----------------------------------------------------
 	case ID_CMD_SHAPES_SET_LUT       :	_LUT_Create     ();	break;
+	case ID_CMD_DATA_CLASSIFY_IMPORT :  _LUT_Import     ();	break;
 	case ID_CMD_SHAPES_HISTOGRAM     :	Histogram_Toggle();	break;
 
 	//-----------------------------------------------------
@@ -936,6 +938,31 @@ void CWKSP_Shapes::_LUT_Create(void)
 		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
 
 		Parameters_Changed();
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes::_LUT_Import(void)
+{
+	wxString	File, Filter;
+
+	Filter.Printf("%s (*.qml)|*.qml|%s|*.*", _TL("QGIS Layer Style File"), _TL("All Files"));
+
+	if( DLG_Open(File, _TL("Import Classification"), SG_T("QGIS Layer Style File (*.qml)|*.qml|All Files|*.*|")) )
+	{
+		CSG_Table	Classes;
+		CSG_String	Attribute;
+
+		if( QGIS_Styles_Import(&File, Classes, Attribute) )
+		{
+			m_Parameters.Set_Parameter("LUT_ATTRIB", Attribute);
+
+			m_Parameters("LUT")->asTable()->Assign(&Classes);
+
+			m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
+
+			Parameters_Changed();
+		}
 	}
 }
 

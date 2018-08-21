@@ -993,3 +993,100 @@ wxString Get_Online_Tool_Description(const wxString &Library, const wxString &ID
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes)
+{
+	CSG_String	Attribute;
+
+	return( QGIS_Styles_Import(File, Classes, Attribute) );
+}
+
+bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &Attribute)
+{
+	//-----------------------------------------------------
+	CSG_MetaData	QML;
+
+	if( !QML.Load(File)
+	||  !QML("renderer-v2")
+	||  !QML["renderer-v2"]("categories")
+	||  !QML["renderer-v2"]("symbols"   ) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	QML["renderer-v2"].Get_Property("attr", Attribute);
+
+	//-----------------------------------------------------
+	Classes.Destroy();
+
+	Classes.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
+	Classes.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
+	Classes.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
+	Classes.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_String);
+	Classes.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_String);
+
+	//-----------------------------------------------------
+	const CSG_MetaData	&Categories	= QML["renderer-v2"]["categories"];
+	const CSG_MetaData	&Symbols	= QML["renderer-v2"]["symbols"   ];
+
+	for(int i=0; i<Categories.Get_Children_Count(); i++)
+	{
+		CSG_String	Value, Label, Symbol;
+		
+		if( Categories[i].Get_Property("value" , Value )
+		&&  Categories[i].Get_Property("label" , Label )
+		&&  Categories[i].Get_Property("symbol", Symbol) )
+		{
+			CSG_Table_Record	&Class	= *Classes.Add_Record();
+
+			int	Color	= SG_Color_Get_Random();
+
+			for(int j=0; j<Symbols.Get_Children_Count(); j++)
+			{
+				if( Symbols[j].Cmp_Property("name", Symbol) && Symbols[j]("layer") )
+				{
+					const CSG_MetaData	&Props	= Symbols[j]["layer"];
+
+					for(int k=0; k<Props.Get_Children_Count(); k++)
+					{
+						if( Props[k].Cmp_Property("k", "color") )
+						{
+							CSG_String	Value	= Props[k].Get_Property("v");
+
+							int	r	= Value.asInt(); Value = Value.AfterFirst(',');
+							int	g	= Value.asInt(); Value = Value.AfterFirst(',');
+							int	b	= Value.asInt(); Value = Value.AfterFirst(',');
+
+							Color	= SG_GET_RGB(r, g, b);
+						}
+					}
+
+					break;
+				}
+			}
+
+			Class.Set_Value(0, Color);	// Color
+			Class.Set_Value(1, Label);	// Name
+			Class.Set_Value(2, Label);	// Description
+			Class.Set_Value(3, Value);	// Minimum
+			Class.Set_Value(4, Value);	// Maximum
+		}
+	}
+
+	return( Classes.Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool QGIS_Styles_Export(const CSG_String &File, const CSG_Table &Classes, const CSG_String &Attribute)
+{
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

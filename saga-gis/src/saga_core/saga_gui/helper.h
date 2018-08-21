@@ -172,6 +172,11 @@ bool				Open_WebBrowser					(const wxString &Reference);
 wxString			Get_Online_Tool_Description		(const wxString &Library, const wxString &ID = "");
 
 //---------------------------------------------------------
+bool				QGIS_Styles_Import				(const CSG_String &File, CSG_Table       &Classes);
+bool				QGIS_Styles_Import				(const CSG_String &File, CSG_Table       &Classes,       CSG_String &Attribute);
+bool				QGIS_Styles_Export				(const CSG_String &File, const CSG_Table &Classes, const CSG_String &Attribute = "");
+
+//---------------------------------------------------------
 enum
 {
 	STATUSBAR_DEFAULT	= 0,

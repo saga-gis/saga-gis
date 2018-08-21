@@ -188,10 +188,12 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TIN_SHOW:
 	case ID_CMD_POINTCLOUD_SHOW:		return( _TL("Add to Map") );
 
-	case ID_CMD_TABLE_SHOW:			return( _TL("Show") );
+	case ID_CMD_TABLE_SHOW:				return( _TL("Show") );
 
 	case ID_CMD_GRID_SET_LUT:
 	case ID_CMD_SHAPES_SET_LUT:			return( _TL("Classify") );
+
+	case ID_CMD_DATA_CLASSIFY_IMPORT:	return( _TL("Import Classification") );
 
 	case ID_CMD_GRID_HISTOGRAM:
 	case ID_CMD_SHAPES_HISTOGRAM:		return( _TL("Histogram") );

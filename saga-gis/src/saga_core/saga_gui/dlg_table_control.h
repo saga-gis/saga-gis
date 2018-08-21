@@ -125,15 +125,15 @@ public:
 	bool						Del_Record			(void);
 	bool						Del_Records			(void);
 
-	bool						Load				(const wxString &File_Name);
-	bool						Save				(const wxString &File_Name, int Format = 0);
+	bool						Load				(void);
+	bool						Save				(void);
 
 	class CSG_Table *			Get_Table			(void)	{	return( m_pTable );	}
 
 
 private:
 
-	bool						m_bEditing;
+	bool						m_bEditing, m_bLUT;
 
 	class CSG_Table				*m_pTable;
 

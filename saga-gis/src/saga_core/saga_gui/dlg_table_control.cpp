@@ -117,8 +117,6 @@ END_EVENT_TABLE()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -127,6 +125,11 @@ CDLG_Table_Control::CDLG_Table_Control(wxWindow *pParent, CSG_Table *pTable)
 {
 	m_pTable	= new CSG_Table(*pTable);
 	m_bEditing	= false;
+
+	m_bLUT		= pTable->Get_Field_Count() == 5
+		&& pTable->Get_Field_Type(0) == SG_DATATYPE_Color
+		&& pTable->Get_Field_Type(1) == SG_DATATYPE_String
+		&& pTable->Get_Field_Type(2) == SG_DATATYPE_String;
 
 	CreateGrid(0, m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
 
@@ -278,9 +281,9 @@ bool CDLG_Table_Control::Update_Sorting(int iField, int Direction)
 		switch( Direction )
 		{
 		default:	m_pTable->Toggle_Index(iField);	break;
-		case 0:		m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
-		case 1:		m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
-		case 2:		m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
+		case  0:	m_pTable->Set_Index(iField, TABLE_INDEX_None      );	break;
+		case  1:	m_pTable->Set_Index(iField, TABLE_INDEX_Ascending );	break;
+		case  2:	m_pTable->Set_Index(iField, TABLE_INDEX_Descending);	break;
 		}
 
 		return( _Set_Records() );
@@ -344,26 +347,76 @@ bool CDLG_Table_Control::Del_Records(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CDLG_Table_Control::Load(const wxString &File_Name)
+bool CDLG_Table_Control::Load(void)
 {
-	CSG_Table	Table(&File_Name);
+	bool	bResult	= false;
 
-	bool	bResult	= Table.Get_Count() > 0
-		&& Table.Get_Field_Count() == m_pTable->Get_Field_Count()
-		&& m_pTable->Assign_Values(&Table)
-		&& Update_Table();
+	//-----------------------------------------------------
+	wxString	File, Filter;
 
-	PROCESS_Set_Okay();
+	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
+
+	if( m_bLUT )
+	{
+		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
+	}
+
+	Filter	+= wxString::Format("%s|*.*|", _TL("All Files"));
+
+	//-----------------------------------------------------
+	if( DLG_Open(File, _TL("Load Table"), Filter) )
+	{
+		CSG_Table	Table;
+
+		if( m_bLUT && SG_File_Cmp_Extension(&File, "qml") )
+		{
+			QGIS_Styles_Import(&File, Table);
+		}
+		else
+		{
+			Table.Create(&File);
+		}
+
+		bResult	= Table.Get_Count() > 0 && Table.Get_Field_Count() == m_pTable->Get_Field_Count()
+			&& m_pTable->Assign_Values(&Table) && Update_Table();
+
+		PROCESS_Set_Okay();
+	}
 
 	return( bResult );
 }
 
 //---------------------------------------------------------
-bool CDLG_Table_Control::Save(const wxString &File_Name, int Format)
+bool CDLG_Table_Control::Save(void)
 {
-	bool	bResult	= m_pTable->Save(&File_Name);
+	bool	bResult	= false;
 
-	PROCESS_Set_Okay();
+	//-----------------------------------------------------
+	wxString	File, Filter;
+
+	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
+
+	if(0&& m_bLUT )
+	{
+		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
+	}
+
+	Filter	+= wxString::Format("%s|*.*|", _TL("All Files"));
+
+	//-----------------------------------------------------
+	if( DLG_Save(File, _TL("Save Table"), Filter) )
+	{
+		if( m_bLUT && SG_File_Cmp_Extension(&File, "qml") )
+		{
+			bResult	= QGIS_Styles_Export(&File, *m_pTable);
+		}
+		else
+		{
+			bResult	= m_pTable->Save(&File);
+		}
+
+		PROCESS_Set_Okay();
+	}
 
 	return( bResult );
 }
@@ -432,33 +485,25 @@ void CDLG_Table_Control::On_Changed(wxGridEvent &event)
 //---------------------------------------------------------
 void CDLG_Table_Control::On_Field_Sort(wxCommandEvent &event)
 {
-	CSG_String		sFields, sOrder;
-	CSG_Parameter	*pNode;
-	CSG_Parameters	P;
-
 	//-----------------------------------------------------
+	CSG_String	sFields, sOrder;
+
 	for(int i=0; i<m_pTable->Get_Field_Count(); i++)
 	{
-		sFields.Append(m_pTable->Get_Field_Name(i));	sFields.Append('|');
+		sFields	+= m_pTable->Get_Field_Name(i);	sFields	+= '|';
 	}
 
-	sOrder.Printf(SG_T("%s|%s|%s|"),
-		_TL("unsorted"),
-		_TL("ascending"),
-		_TL("descending")
-	);
+	sOrder.Printf("%s|%s|%s", _TL("unsorted"), _TL("ascending"), _TL("descending") );
 
 	//-----------------------------------------------------
-	P.Set_Name(_TL("Sort Table"));
+	CSG_Parameters	P(NULL, _TL("Sort Table"), _TL(""));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_1"	, _TL("Sort first by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	pNode	= P.Add_Choice(pNode, "ORDER_1"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_2"	, _TL("Sort second by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	pNode	= P.Add_Choice(pNode, "ORDER_2"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_3"	, _TL("Sort third by")	,	_TL(""),	sFields	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	pNode	= P.Add_Choice(pNode, "ORDER_3"	, _TL("Direction")		,	_TL(""),	sOrder	, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+	P.Add_Choice(""       , "FIELD_1", _TL("Sort first by" ), _TL(""), sFields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
+	P.Add_Choice("FIELD_1", "ORDER_1", _TL("Direction"     ), _TL(""), sOrder , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+	P.Add_Choice(""       , "FIELD_2", _TL("Sort second by"), _TL(""), sFields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+	P.Add_Choice("FIELD_2", "ORDER_2", _TL("Direction"     ), _TL(""), sOrder , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
+	P.Add_Choice(""       , "FIELD_3", _TL("Sort third by" ), _TL(""), sFields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
+	P.Add_Choice("FIELD_3", "ORDER_3", _TL("Direction"     ), _TL(""), sOrder , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
 
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
