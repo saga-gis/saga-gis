@@ -249,6 +249,20 @@ int CSG_Shape_Points::Del_Point(int del_Point, int iPart)
 	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Del_Point(del_Point) : 0 );
 }
 
+//---------------------------------------------------------
+TSG_Point CSG_Shape_Points::Get_Point(int iPoint)
+{
+	for(int iPart=0; iPart<m_nParts; iPoint-=m_pParts[iPart++]->Get_Count())
+	{
+		if( iPoint < m_pParts[iPart]->Get_Count() )
+		{
+			return( m_pParts[iPart]->Get_Point(iPoint) );
+		}
+	}
+
+	return( CSG_Point(0.0, 0.0) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -264,12 +278,14 @@ void CSG_Shape_Points::_Update_Extent(void)
 		bool	bFirst;
 		int		iPart;
 
-		for(iPart=0, bFirst=true; iPart<m_nParts; iPart++)
+		for(iPart=0, bFirst=true, m_nPoints=0; iPart<m_nParts; iPart++)
 		{
 			CSG_Shape_Part	*pPart	= m_pParts[iPart];
 
 			if( pPart->Get_Count() > 0 )
 			{
+				m_nPoints	+= pPart->Get_Count();
+
 				if( bFirst )
 				{
 					bFirst		= false;
@@ -410,7 +426,7 @@ TSG_Intersection CSG_Shape_Points::On_Intersects(CSG_Shape *pShape)
 {
 	CSG_Shape	*piPoints, *pjPoints;
 
-	if( CSG_Shape::Get_Point_Count() < pShape->Get_Point_Count() )
+	if( Get_Point_Count() < pShape->Get_Point_Count() )
 	{
 		piPoints	= this;
 		pjPoints	= pShape;

@@ -155,9 +155,10 @@ public:
 	virtual int					Del_Parts			(void)											= 0;
 
 	virtual int					Get_Part_Count		(void)											= 0;
-	virtual int					Get_Point_Count		(void);
+	virtual int					Get_Point_Count		(void)											= 0;
 	virtual int					Get_Point_Count		(int iPart)										= 0;
-	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0, bool bAscending = true)	= 0;
+	virtual TSG_Point			Get_Point			(int iPoint)									= 0;
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart, bool bAscending = true)	= 0;
 
 	virtual void				Set_Z				(double z, int iPoint, int iPart = 0)				{		}
 	virtual double				Get_Z				(int iPoint, int iPart = 0, bool bAscending = true)	{	return( 0.0 );	}
@@ -225,8 +226,11 @@ public:
 	virtual int					Del_Parts			(void)												{	return( -1 );				}
 
 	virtual int					Get_Part_Count		(void)												{	return( 1 );				}
+	virtual int					Get_Point_Count		(void)												{	return( 1 );				}
 	virtual int					Get_Point_Count		(int iPart)											{	return( 1 );				}
-	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0, bool bAscending = true)	{	return( m_Point );			}
+	virtual TSG_Point			Get_Point			(void)												{	return( m_Point );			}
+	virtual TSG_Point			Get_Point			(int iPoint)										{	return( m_Point );			}
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart, bool bAscending = true)		{	return( m_Point );			}
 
 	virtual const CSG_Rect &	Get_Extent			(void);
 
@@ -411,9 +415,12 @@ public:
 
 	virtual int					Get_Part_Count		(void)		{	return( m_nParts );		}
 	virtual CSG_Shape_Part *	Get_Part			(int iPart)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart] : NULL );	}
+
+	virtual int					Get_Point_Count		(void)		{	_Update_Extent();	return( m_nPoints );	}
 	virtual int					Get_Point_Count		(int iPart)	{	return( iPart >= 0 && iPart < m_nParts ? m_pParts[iPart]->Get_Count() : 0 );	}
 
-	virtual TSG_Point			Get_Point			(int iPoint, int iPart = 0, bool bAscending = true)
+	virtual TSG_Point			Get_Point			(int iPoint);
+	virtual TSG_Point			Get_Point			(int iPoint, int iPart, bool bAscending = true)
 	{
 		if( iPart >= 0 && iPart < m_nParts )
 		{
@@ -453,7 +460,7 @@ protected:
 
 	bool						m_bUpdate;
 
-	int							m_nParts;
+	int							m_nParts, m_nPoints;
 
 	double						m_ZMin, m_ZMax, m_MMin, m_MMax;
 

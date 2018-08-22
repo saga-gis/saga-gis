@@ -113,19 +113,6 @@ TSG_Vertex_Type CSG_Shape::Get_Vertex_Type(void) const
 	return( ((CSG_Shapes *)m_pTable)->Get_Vertex_Type() );
 }
 
-//---------------------------------------------------------
-int CSG_Shape::Get_Point_Count(void)
-{
-	int		i, n;
-
-	for(i=0, n=0; i<Get_Part_Count(); i++)
-	{
-		n	+= Get_Point_Count(i);
-	}
-
-	return( n );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
