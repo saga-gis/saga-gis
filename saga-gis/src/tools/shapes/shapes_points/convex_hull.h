@@ -79,6 +79,8 @@ public:
 
 protected:
 
+	virtual int				On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute			(void);
 
 
@@ -90,7 +92,7 @@ private:
 
 	double					is_Left				(const TSG_Point &Line_A, const TSG_Point &Line_B, const TSG_Point &Point);
 
-	bool					Get_Chain_Hull		(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes = NULL);
+	bool					Get_Chain_Hull		(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes = NULL, bool bConvexity = false);
 	int						Get_Chain_Hull		(CSG_Points &P, CSG_Points &H);
 
 	bool					Get_Bounding_Box	(CSG_Shape *pHull, CSG_Shape *pBox);

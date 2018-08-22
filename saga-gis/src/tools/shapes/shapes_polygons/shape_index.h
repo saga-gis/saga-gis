@@ -82,12 +82,18 @@ public:
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	double					Get_Distance		(CSG_Shape *pShape);
+	bool					Get_Diameter_Max		(CSG_Shape_Polygon *pPolygon, double &Dmax, TSG_Point Pmax[2]);
+
+	bool					Get_Diameter_Gyros		(CSG_Shape_Polygon *pPolygon, int Field);
+
+	bool					Get_Diameters_Feret		(CSG_Shape_Polygon *pPolygon, int Field, double dAngle);
 
 };
 

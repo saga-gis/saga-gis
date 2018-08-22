@@ -67,73 +67,101 @@
 //---------------------------------------------------------
 CConvex_Hull::CConvex_Hull(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Convex Hull"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Implementation of 'Andrew's Monotone Chain Algorithm' for convex hull construction. "
-		"\nReferences:\n"
-		"Algorithmist (2011): <a target=\"_blank\" href=\"http://www.algorithmist.com/index.php/Monotone_Chain_Convex_Hull.cpp\">Monotone Chain Convex Hull</a>. algorithmist.com.\n"
-		"Andrew, A.M. (1979): Another Efficient Algorithm for Convex Hulls in Two Dimensions. Info. Proc. Letters 9, pp.216-219.\n"
-		"Sunday, D. (2001-2006): <a target=\"_blank\" href=\"http://www.softsurfer.com/Archive/algorithm_0109\">The Convex Hull of a 2D Point Set or Polygon</a>. Softsurfer.com.\n"
 	));
 
+	Add_Reference("Andrew, A.M.", "1979",
+		"Another Efficient Algorithm for Convex Hulls in Two Dimensions",
+		"Info. Proc. Letters 9, pp.216-219."
+	);
+
+	Add_Reference("Sunday, D.", "2001-2006",
+		"The Convex Hull of a 2D Point Set or Polygon", "Geometry Algorithms Home",
+		SG_T("http://geomalgorithms.com/a10-_hull-1.html"), SG_T("(Web site with source code)")
+	);
+
+	Add_Reference("The Algorithmist", "9 November 2011",
+		"Monotone Chain Convex Hull", "",
+		SG_T("http://www.algorithmist.com/index.php/Monotone_Chain_Convex_Hull.cpp"), SG_T("(source code)")
+	);
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "HULLS"		, _TL("Convex Hull"),
+	Parameters.Add_Shapes("",
+		"HULLS"		, _TL("Convex Hull"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "BOXES"		, _TL("Minimum Bounding Box"),
+	Parameters.Add_Shapes("",
+		"BOXES"		, _TL("Minimum Bounding Box"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "POLYPOINTS"	, _TL("Hull Construction"),
+	Parameters.Add_Choice("",
+		"POLYPOINTS", _TL("Hull Construction"),
 		_TL("This option does not apply to simple point layers."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("one hull for all shapes"),
 			_TL("one hull per shape"),
 			_TL("one hull per shape part")
 		), 1
+	);
+
+	Parameters.Add_Bool("",
+		"POLYGONCVX", _TL("Polygon Convexity"),
+		_TL("Describes a polygon's compactness as ratio of its area to its hull's area."),
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CConvex_Hull::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	CSG_Shapes	*pShapes	= pParameters->Get("SHAPES")->asShapes();
+
+	pParameters->Set_Enabled("POLYPOINTS", pShapes && pShapes->Get_Type() != SHAPE_TYPE_Point);
+
+	pParameters->Set_Enabled("POLYGONCVX", pShapes && pShapes->Get_Type() == SHAPE_TYPE_Polygon && pParameters->Get("POLYPOINTS")->asInt() == 1);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CConvex_Hull::On_Execute(void)
 {
-	CSG_Shapes	*pShapes, *pHulls, *pBoxes;
+	//-----------------------------------------------------
+	CSG_Shapes	*pShapes = Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pHulls  = Parameters("HULLS" )->asShapes();
+	CSG_Shapes	*pBoxes  = Parameters("BOXES" )->asShapes();
 
 	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES")->asShapes();
-	pHulls	= Parameters("HULLS" )->asShapes();
-	pBoxes	= Parameters("BOXES" )->asShapes();
-
-	//-----------------------------------------------------
-	pHulls->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Convex Hull")));
-	pHulls->Add_Field(_TL("ID"       ), SG_DATATYPE_Int);
-	pHulls->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);
-	pHulls->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);
+	pHulls->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Convex Hull")));
+	pHulls->Add_Field(_TL("ID"       ), SG_DATATYPE_Int   );	// 0
+	pHulls->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);	// 1
+	pHulls->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);	// 2
 
 	//-----------------------------------------------------
 	int	nOkay	= 0;
@@ -150,6 +178,13 @@ bool CConvex_Hull::On_Execute(void)
 		CSG_Shapes	Points(SHAPE_TYPE_Point);
 
 		int	Construction	= Parameters("POLYPOINTS")->asInt();
+
+		bool	bConvexity	= pShapes->Get_Type() == SHAPE_TYPE_Polygon && Construction == 1 && Parameters("POLYGONCVX")->asBool();
+
+		if( bConvexity )
+		{
+			pHulls->Add_Field(_TL("CONVEXITY"), SG_DATATYPE_Double);	// 3
+		}
 
 		if( Construction != 0 )
 		{
@@ -178,7 +213,7 @@ bool CConvex_Hull::On_Execute(void)
 
 			if( Construction == 1 )	// one hull per shape
 			{
-				if( Get_Chain_Hull(&Points, pHulls, pShape) )	nOkay++;	Points.Del_Records();
+				if( Get_Chain_Hull(&Points, pHulls, pShape, bConvexity) )	nOkay++;	Points.Del_Records();
 			}
 		}
 
@@ -196,10 +231,10 @@ bool CConvex_Hull::On_Execute(void)
 	//-----------------------------------------------------
 	if( pBoxes )
 	{
-		pBoxes->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Bounding Box")));
-		pBoxes->Add_Field(_TL("ID")			, SG_DATATYPE_Int);
-		pBoxes->Add_Field(_TL("AREA")		, SG_DATATYPE_Double);
-		pBoxes->Add_Field(_TL("PERIMETER")	, SG_DATATYPE_Double);
+		pBoxes->Create(SHAPE_TYPE_Polygon, CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Bounding Box")));
+		pBoxes->Add_Field(_TL("ID"       ), SG_DATATYPE_Int   );
+		pBoxes->Add_Field(_TL("AREA"     ), SG_DATATYPE_Double);
+		pBoxes->Add_Field(_TL("PERIMETER"), SG_DATATYPE_Double);
 
 		for(int iHull=0; iHull<pHulls->Get_Count() && Set_Progress(iHull, pHulls->Get_Count()); iHull++)
 		{
@@ -213,8 +248,6 @@ bool CConvex_Hull::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -286,12 +319,10 @@ bool CConvex_Hull::Get_Bounding_Box(CSG_Shape *pHull, CSG_Shape *pBox)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes)
+bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes, bool bConvexity)
 {
 	int			i, n;
 	CSG_Points	Points, Hull;
@@ -326,20 +357,25 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 	}
 
 	//-----------------------------------------------------
-	CSG_Shape	*pHull	= pHulls->Add_Shape();
+	CSG_Shape_Polygon	*pHull	= (CSG_Shape_Polygon *)pHulls->Add_Shape();
 
 	for(i=0; i<n && Process_Get_Okay(); i++)
 	{
 		pHull->Add_Point(Hull[i]);
 	}
 
-	pHull->Set_Value(0, pHull->Get_Index());
-	pHull->Set_Value(1, ((CSG_Shape_Polygon *)pHull)->Get_Area());
-	pHull->Set_Value(2, ((CSG_Shape_Polygon *)pHull)->Get_Perimeter());
+	pHull->Set_Value(0, pHull->Get_Index    ());
+	pHull->Set_Value(1, pHull->Get_Area     ());
+	pHull->Set_Value(2, pHull->Get_Perimeter());
 
 	if( pAttributes )
 	{
-		for(i=3, n=0; i<pHulls->Get_Field_Count(); i++, n++)
+		if( bConvexity )
+		{
+			pHull->Set_Value(3, ((CSG_Shape_Polygon *)pAttributes)->Get_Area() / pHull->Get_Area());
+		}
+
+		for(i=bConvexity?4:3, n=0; i<pHulls->Get_Field_Count(); i++, n++)
 		{
 			*pHull->Get_Value(i)	= *pAttributes->Get_Value(n);
 		}
@@ -351,8 +387,6 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
