@@ -125,7 +125,7 @@ public:
 		return( CSG_Bytes((BYTE *)s, (int)(s && *s ? SG_STR_LEN(s) : 0) * sizeof(SG_Char)) );
 	}
 
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	= 0;
+	virtual const SG_Char *			asString		(int Decimals =-99)	const	= 0;
 	virtual int						asInt			(void)				const	= 0;
 	virtual sLong					asLong			(void)				const	= 0;
 	virtual double					asDouble		(void)				const	= 0;
@@ -191,7 +191,7 @@ public:
 
 	//-----------------------------------------------------
 	virtual CSG_Bytes				asBinary		(void)				const	{	return( m_Value );					}
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
+	virtual const SG_Char *			asString		(int Decimals =-99)	const	{	return( (const SG_Char *)m_Value.Get_Bytes() );	}
 	virtual int						asInt			(void)				const	{	return( m_Value.Get_Count() );		}
 	virtual sLong					asLong			(void)				const	{	return( m_Value.Get_Count() );		}
 	virtual double					asDouble		(void)				const	{	return( 0.0 );	}
@@ -263,7 +263,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return( m_Value            );	}
+	virtual const SG_Char *			asString		(int Decimals =-99)	const	{	return( m_Value            );	}
 	virtual int						asInt			(void)				const	{	return( m_Value.asInt   () );	}
 	virtual sLong					asLong			(void)				const	{	return( m_Value.asInt   () );	}
 	virtual double					asDouble		(void)				const	{	return( m_Value.asDouble() );	}
@@ -333,7 +333,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const	{	return(        m_Date  );	}
+	virtual const SG_Char *			asString		(int Decimals =-99)	const	{	return(        m_Date  );	}
 	virtual int						asInt			(void)				const	{	return(   (int)m_Value );	}
 	virtual sLong					asLong			(void)				const	{	return( (sLong)m_Value );	}
 	virtual double					asDouble		(void)				const	{	return(        m_Value );	}
@@ -420,7 +420,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const
+	virtual const SG_Char *			asString		(int Decimals =-99)	const
 	{
 		static CSG_String	s;
 
@@ -500,7 +500,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const
+	virtual const SG_Char *			asString		(int Decimals =-99)	const
 	{
 		static CSG_String	s;
 
@@ -580,11 +580,11 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual const SG_Char *			asString		(int Decimals = 0)	const
+	virtual const SG_Char *			asString		(int Decimals =-99)	const
 	{
 		static CSG_String	s;
 
-		s	= SG_Get_String(m_Value, Decimals, false);
+		s	= SG_Get_String(m_Value, Decimals);
 
 		return( s.c_str() );
 	}

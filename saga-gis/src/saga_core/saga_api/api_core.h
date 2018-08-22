@@ -449,7 +449,7 @@ SAGA_API_DLL_EXPORT int				SG_Get_Significant_Decimals		(double Value, int maxDe
 
 SAGA_API_DLL_EXPORT void			SG_Flip_Decimal_Separators		(CSG_String &String);
 
-SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = 0, bool bScientific = false);
+SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = -99);
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(int    Value, int Precision = 0);
 
 

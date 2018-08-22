@@ -228,13 +228,13 @@ bool CResection::On_Execute(void)
 	pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
-	msg = SG_T("Omega:\t") + SG_Get_String(rotns[0],6,false);
+	msg = SG_T("Omega:\t") + SG_Get_String(rotns[0],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Kappa:\t") + SG_Get_String(rotns[1],6,false);
+	msg = SG_T("Kappa:\t") + SG_Get_String(rotns[1],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Alpha:\t") + SG_Get_String(rotns[2],6,false);
+	msg = SG_T("Alpha:\t") + SG_Get_String(rotns[2],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
@@ -242,13 +242,13 @@ bool CResection::On_Execute(void)
 	pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
-	msg = SG_T("Xc:\t") + SG_Get_String(center[0],4,false);
+	msg = SG_T("Xc:\t") + SG_Get_String(center[0],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Yc:\t") + SG_Get_String(center[1],4,false);
+	msg = SG_T("Yc:\t") + SG_Get_String(center[1],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Zc:\t") + SG_Get_String(center[2],4,false);
+	msg = SG_T("Zc:\t") + SG_Get_String(center[2],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 	
@@ -258,10 +258,10 @@ bool CResection::On_Execute(void)
 		pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 
-		msg = SG_T("ppX:\t") + SG_Get_String(ppOffsetX,5,false);
+		msg = SG_T("ppX:\t") + SG_Get_String(ppOffsetX,5);
 		pTabStream->Write(msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
-		msg = SG_T("ppY:\t") + SG_Get_String(ppOffsetY,5,false);
+		msg = SG_T("ppY:\t") + SG_Get_String(ppOffsetY,5);
 		pTabStream->Write(msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 
@@ -467,15 +467,15 @@ bool CResection::On_Execute(void)
 		sigma_naught = sqrt(SS / (2 * pointCount - n));
 
 		// Writing To Output File & SAGA Console
-		msg = "********* Iteration: " + SG_Get_String(itrNo,0,false) + " *********";
+		msg = "********* Iteration: " + SG_Get_String(itrNo,0) + " *********";
 		pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 
-		msg = "Sum of Squared Residuals:\t" + SG_Get_String(SS,5,false);
+		msg = "Sum of Squared Residuals:\t" + SG_Get_String(SS,5);
 		pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 		
-		msg = "Sigma Naught:\t" + SG_Get_String(sigma_naught,5,false);
+		msg = "Sigma Naught:\t" + SG_Get_String(sigma_naught,5);
 		pTabStream->Write(msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 		
@@ -502,13 +502,13 @@ bool CResection::On_Execute(void)
 	pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
-	msg = SG_T("Omega:\t") + SG_Get_String(rotns[0],6,false);
+	msg = SG_T("Omega:\t") + SG_Get_String(rotns[0],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Kappa:\t") + SG_Get_String(rotns[1],6,false);
+	msg = SG_T("Kappa:\t") + SG_Get_String(rotns[1],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Alpha:\t") + SG_Get_String(rotns[2],6,false);
+	msg = SG_T("Alpha:\t") + SG_Get_String(rotns[2],6);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
@@ -516,13 +516,13 @@ bool CResection::On_Execute(void)
 	pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
-	msg = SG_T("Xc:\t") + SG_Get_String(center[0],4,false);
+	msg = SG_T("Xc:\t") + SG_Get_String(center[0],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Yc:\t") + SG_Get_String(center[1],4,false);
+	msg = SG_T("Yc:\t") + SG_Get_String(center[1],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
-	msg = SG_T("Zc:\t") + SG_Get_String(center[2],4,false);
+	msg = SG_T("Zc:\t") + SG_Get_String(center[2],4);
 	pTabStream->Write(msg + SG_T("\n"));
 	SG_UI_Msg_Add(msg, true);
 
@@ -532,10 +532,10 @@ bool CResection::On_Execute(void)
 		pTabStream->Write(SG_T("\n") + msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 
-		msg = SG_T("ppX:\t") + SG_Get_String(ppOffsetX,5,false);
+		msg = SG_T("ppX:\t") + SG_Get_String(ppOffsetX,5);
 		pTabStream->Write(msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
-		msg = SG_T("ppY:\t") + SG_Get_String(ppOffsetY,5,false);
+		msg = SG_T("ppY:\t") + SG_Get_String(ppOffsetY,5);
 		pTabStream->Write(msg + SG_T("\n"));
 		SG_UI_Msg_Add(msg, true);
 

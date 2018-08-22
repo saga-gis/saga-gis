@@ -398,7 +398,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ATTRIB_PREC"	, _TL("Numerical Precision"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("fit to value"),
 			_TL("standard"),
 			SG_T("0|0.1|0.12|0.123|0.1234|0.12345|0.1234567|0.12345678|0.123456789|0.1234567890|0.12345678901|0.123456789012|0.1234567890123|0.12345678901234|0.123456789012345|0.1234567890123456|0.12345678901234567|0.123456789012345678|0.1234567890123456789|0.12345678901234567890")
@@ -561,23 +561,29 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 		m_fLabel	= -1;
 	}
 
-	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC"        )->asInt  () - 2;
-
 	m_Label_Eff_Color	= m_Parameters("LABEL_ATTRIB_EFFECT_COLOR")->asColor();
 	m_Label_Eff_Size	= m_Parameters("LABEL_ATTRIB_EFFECT_SIZE" )->asInt  ();
+	m_Label_Prec		= m_Parameters("LABEL_ATTRIB_PREC"        )->asInt  ();
+
+	switch( m_Label_Prec )
+	{
+	case  0:	m_Label_Prec  = -m_Parameters("TABLE_FLT_DECIMALS")->asInt(); break;
+	case  1:	m_Label_Prec  = -99; break;
+	default:	m_Label_Prec -=   2; break;
+	}
 
 	switch( m_Parameters("LABEL_ATTRIB_EFFECT")->asInt() )
 	{
-	default:	m_Label_Eff	= TEXTEFFECT_NONE;			break;
-	case 1:		m_Label_Eff	= TEXTEFFECT_FRAME;			break;
-	case 2:		m_Label_Eff	= TEXTEFFECT_TOP;			break;
-	case 3:		m_Label_Eff	= TEXTEFFECT_TOPLEFT;		break;
-	case 4:		m_Label_Eff	= TEXTEFFECT_LEFT;			break;
-	case 5:		m_Label_Eff	= TEXTEFFECT_BOTTOMLEFT;	break;
-	case 6:		m_Label_Eff	= TEXTEFFECT_BOTTOM;		break;
-	case 7:		m_Label_Eff	= TEXTEFFECT_BOTTOMRIGHT;	break;
-	case 8:		m_Label_Eff	= TEXTEFFECT_RIGHT;			break;
-	case 9:		m_Label_Eff	= TEXTEFFECT_TOPRIGHT;		break;
+	default:	m_Label_Eff = TEXTEFFECT_NONE       ;	break;
+	case  1:	m_Label_Eff = TEXTEFFECT_FRAME      ;	break;
+	case  2:	m_Label_Eff = TEXTEFFECT_TOP        ;	break;
+	case  3:	m_Label_Eff = TEXTEFFECT_TOPLEFT    ;	break;
+	case  4:	m_Label_Eff = TEXTEFFECT_LEFT       ;	break;
+	case  5:	m_Label_Eff = TEXTEFFECT_BOTTOMLEFT ;	break;
+	case  6:	m_Label_Eff = TEXTEFFECT_BOTTOM     ;	break;
+	case  7:	m_Label_Eff = TEXTEFFECT_BOTTOMRIGHT;	break;
+	case  8:	m_Label_Eff = TEXTEFFECT_RIGHT      ;	break;
+	case  9:	m_Label_Eff = TEXTEFFECT_TOPRIGHT   ;	break;
 	}
 
 	//-----------------------------------------------------

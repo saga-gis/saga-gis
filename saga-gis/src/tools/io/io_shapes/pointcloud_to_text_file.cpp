@@ -334,7 +334,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 				break;
 			case SG_DATATYPE_Double:
 			case SG_DATATYPE_Float:
-				sLine += SG_Get_String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i), false);
+				sLine += SG_Get_String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i));
 				break;
 			default:
 				sLine += CSG_String::Format(SG_T("%d"), (int)pPoints->Get_Value(iPoint, vCol.at(i)));

@@ -86,6 +86,13 @@
 //---------------------------------------------------------
 #define EDIT_TICKMARK_SIZE	4
 
+//---------------------------------------------------------
+#define GET_TABLE_NUM_PREC(Precision)	switch( Get_Parameter("TABLE_FLT_STYLE")->asInt() ) {\
+	default: Precision = -99; break;\
+	case  1: Precision = -Get_Parameter("TABLE_FLT_DECIMALS")->asInt(); break;\
+	case  2: Precision =  Get_Parameter("TABLE_FLT_DECIMALS")->asInt(); break;\
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -457,6 +464,8 @@ bool CWKSP_Shapes::Edit_Set_Index(int Index)
 
 	if( pSelection )
 	{
+		int	Decimals;	GET_TABLE_NUM_PREC(Decimals);
+
 		m_Edit_Index	= Index;
 
 		for(int i=0; i<Get_Shapes()->Get_Field_Count(); i++)
@@ -464,7 +473,7 @@ bool CWKSP_Shapes::Edit_Set_Index(int Index)
 			CSG_Table_Record	*pRecord	= m_Edit_Attributes.Add_Record();
 
 			pRecord->Set_Value(0, pSelection->Get_Table()->Get_Field_Name(i));
-			pRecord->Set_Value(1, pSelection->asString(i));
+			pRecord->Set_Value(1, pSelection->asString(i, Decimals));
 		}
 	}
 	else
@@ -482,11 +491,13 @@ bool CWKSP_Shapes::Edit_Set_Attributes(void)
 
 	if( pSelection )
 	{
+		int	Decimals;	GET_TABLE_NUM_PREC(Decimals);
+
 		for(int i=0; i<m_Edit_Attributes.Get_Record_Count(); i++)
 		{
 			if( !pSelection->Set_Value(i, m_Edit_Attributes.Get_Record(i)->asString(1)) )
 			{
-				m_Edit_Attributes.Get_Record(i)->Set_Value(1, pSelection->asString(i));
+				m_Edit_Attributes.Get_Record(i)->Set_Value(1, pSelection->asString(i, Decimals));
 			}
 		}
 

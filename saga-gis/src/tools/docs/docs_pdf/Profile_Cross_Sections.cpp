@@ -307,7 +307,7 @@ void CProfile_Cross_Sections_PDF::AddCrossSection(TSG_Point * pCrossSection,
 				sValue = SG_Get_String(fStep * (double)i+fMinLine);
 			}// if 
 			else {
-				sValue = SG_Get_String(fStep * (double)i+fMinLine, 2, true);
+				sValue = SG_Get_String(fStep * (double)i+fMinLine, -98);
 			}// else
 			Draw_Line (fX, fHeight - m_iOffsetY - CROSS_SECTION_HEIGHT,
 						fX, fHeight - m_iOffsetY - CROSS_SECTION_HEIGHT - 10);
@@ -951,7 +951,7 @@ void CProfile_Cross_Sections_PDF::AddLongitudinalProfile(TSG_Point * pProfile,
 				sValue = SG_Get_String(fStep * (double)i+fMinLine);
 			}// if 
 			else {
-				sValue = SG_Get_String(fStep * (double)i+fMinLine, 2, true);
+				sValue = SG_Get_String(fStep * (double)i+fMinLine, -98);
 			}// else
 			Draw_Text(fX, fHeight - m_iOffsetY - PROFILE_HEIGHT - 15,
 				SG_Get_String(fMinLine + fStep * (double) i).c_str(), 9,

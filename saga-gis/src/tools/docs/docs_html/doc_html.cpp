@@ -470,7 +470,7 @@ void CSG_Doc_HTML::AddCurve(const SG_Char *Filename,
 				}
 				else
 				{
-					sValue = SG_Get_String(fStep * i + fMinLine, 2, true);
+					sValue = SG_Get_String(fStep * i + fMinLine, -98);
 				}
 				SVG.Draw_Text(fX, GRAPH_HEIGHT + 10, sValue, 0, SG_T("Verdana"), 8, SVG_ALIGNMENT_Center);
 				SVG.Draw_Line(fX, GRAPH_HEIGHT, fX, GRAPH_HEIGHT - 5);

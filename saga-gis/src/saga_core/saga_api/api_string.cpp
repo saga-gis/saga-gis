@@ -1129,28 +1129,34 @@ void			SG_Flip_Decimal_Separators(CSG_String &String)
 //---------------------------------------------------------
 /**
   * Returns floating point number 'Value' as formatted string.
-  * If 'bScientific' is true the string will always be formatted
-  * with the %e format specification (i.e.: d.dddd e dd). Else the
-  * format depends on the 'Precision' value. If Precision is 0
-  * it will simply use %f format. If Precision is positive (> 0)
-  * it specifies the fix number of decimals ("%.*f", Precision, Value),
+  * The format depends on the 'Precision' value. 
+  * If Precision is -99 (the default) it will simply use %f format.
+  * If 'Precision' is -98 the string will always be formatted
+  * with the %e format specification (i.e. scientific: d.dddd e dd).
+  * If Precision is zero (= 0) no decimals will be printed
+  * If Precision is positive (> 0) it specifies the fix number
+  * of decimals ("%.*f", Precision, Value),
   * if negative only significant decimals will be plotted up to a
   * maximum of the absolute value of 'Precision' digits.
 */
 //---------------------------------------------------------
-CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
+CSG_String		SG_Get_String(double Value, int Precision)
 {
 	CSG_String	s;
 
-	if( bScientific )
-	{
-		s.Printf("%e", Value);
-	}
-	else if( Precision == 0 )
+	if     ( Precision == -99 )
 	{
 		s.Printf("%f", Value);
 	}
-	else if( Precision > 0 )
+	else if( Precision == -98 )
+	{
+		s.Printf("%e", Value);
+	}
+	else if( Precision ==   0 )
+	{
+		s.Printf("%d", (int)Value);
+	}
+	else if( Precision  >   0 )
 	{
 		s.Printf("%.*f", Precision, Value);
 	}
@@ -1186,6 +1192,16 @@ CSG_String		SG_Get_String(double Value, int Precision, bool bScientific)
 //---------------------------------------------------------
 CSG_String		SG_Get_String(int Value, int Precision)
 {
+	if( Precision > 0 )
+	{
+		return( SG_Get_String((double)Value, Precision) );
+	}
+
+	if( Precision < 0 )
+	{
+		return( CSG_String::Format("%0*d", Precision, Value) );
+	}
+
 	return( CSG_String::Format("%d", Value) );
 }
 
