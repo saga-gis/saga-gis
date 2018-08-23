@@ -105,7 +105,8 @@ bool CRDB2_Info::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-
+	std::array<double, 3>	min_xyz{ { std::numeric_limits<double>::max(),  std::numeric_limits<double>::max(),  std::numeric_limits<double>::max()} };
+	std::array<double, 3>	max_xyz{ {-std::numeric_limits<double>::max(), -std::numeric_limits<double>::max(), -std::numeric_limits<double>::max()} };
 
 	try {
 		for(int i=0; i<Files.Get_Count(); i++)
@@ -128,6 +129,24 @@ bool CRDB2_Info::On_Execute(void)
 			// print point count
 			SG_UI_Msg_Add(CSG_String::Format(_TL("number of points: %d"), root.pointCountTotal), true);
 
+			// get bounding box
+			std::array<double, 3>	minimum, maximum;
+			stat.minimum(root.id, "riegl.xyz", riegl::rdb::pointcloud::DOUBLE, &minimum);
+			stat.maximum(root.id, "riegl.xyz", riegl::rdb::pointcloud::DOUBLE, &maximum);
+
+			SG_UI_Msg_Add(CSG_String::Format(_TL("minimum x y z: %.6f   %.6f   %.6f"), minimum[0], minimum[1], minimum[2]), true);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("maximum x y z: %.6f   %.6f   %.6f"), maximum[0], maximum[1], maximum[2]), true);
+
+			if (Files.Get_Count() > 1)
+			{
+				if (min_xyz[0] > minimum[0]) {min_xyz[0] = minimum[0];}
+				if (min_xyz[1] > minimum[1]) {min_xyz[1] = minimum[1];}
+				if (min_xyz[2] > minimum[2]) {min_xyz[2] = minimum[2];}
+				if (max_xyz[0] < maximum[0]) {max_xyz[0] = maximum[0];}
+				if (max_xyz[1] < maximum[1]) {max_xyz[1] = maximum[1];}
+				if (max_xyz[2] < maximum[2]) {max_xyz[2] = maximum[2];}
+			}
+			
 			// Get list of point attributes
 			std::vector<std::string> attributes = rdb.pointAttribute().list();
 
@@ -174,6 +193,14 @@ bool CRDB2_Info::On_Execute(void)
 			}
 
 		}
+
+		if (Files.Get_Count() > 1)
+		{
+			SG_UI_Msg_Add(_TL("Bounding box of all input files:"), true, SG_UI_MSG_STYLE_BOLD);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("minimum x y z: %.6f   %.6f   %.6f"), min_xyz[0], min_xyz[1], min_xyz[2]), true);
+			SG_UI_Msg_Add(CSG_String::Format(_TL("maximum x y z: %.6f   %.6f   %.6f"), max_xyz[0], max_xyz[1], max_xyz[2]), true);
+		}
+
 	} catch (std::exception &e)
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to open RDB2 file! Exception: %s"), e.what()));
