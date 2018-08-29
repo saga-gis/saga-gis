@@ -65,7 +65,7 @@ class CGrid_Statistics_from_Files : public CSG_Tool
 public:
 	CGrid_Statistics_from_Files(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Files") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Massive Data Analysis") );	}
 
 
 protected:

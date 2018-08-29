@@ -18,6 +18,7 @@ grid_latlon_statistics.cpp\
 grid_pca.cpp\
 grid_pca_focal.cpp\
 grid_statistics_from_files.cpp\
+grid_statistics_successive.cpp\
 multiband_variation.cpp\
 GSGrid_Directional_Statistics.cpp\
 GSGrid_Residuals.cpp\
@@ -33,6 +34,7 @@ grid_latlon_statistics.h\
 grid_pca.h\
 grid_pca_focal.h\
 grid_statistics_from_files.h\
+grid_statistics_successive.h\
 multiband_variation.h\
 GSGrid_Directional_Statistics.h\
 GSGrid_Residuals.h\

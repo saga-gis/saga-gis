@@ -105,6 +105,7 @@ CSG_String Get_Info(int i)
 #include "categorical_variation.h"
 #include "grid_pca_focal.h"
 #include "grid_statistics_from_files.h"
+#include "grid_statistics_successive.h"
 
 
 //---------------------------------------------------------
@@ -131,8 +132,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 14:	return( new CCategorical_Variation );
 	case 15:	return( new CGrid_PCA_Focal );
 	case 16:	return( new CGrid_Statistics_from_Files );
+	case 17:	return( new CGrid_Statistics_Build );
+	case 18:	return( new CGrid_Statistics_Evaluate );
 
-	case 17:	return( NULL );
+	case 19:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

@@ -234,6 +234,8 @@ bool CGrid_Statistics_from_Files::On_Execute(void)
 			Parameters("MEAN"  )->Set_Value(pMean   = SG_Create_Grid(System)); pMean  ->Set_Name(_TL("Arithmetic Mean"   ));
 			Parameters("VAR"   )->Set_Value(pVar    = SG_Create_Grid(System)); pVar   ->Set_Name(_TL("Variance"          ));
 			Parameters("STDDEV")->Set_Value(pStdDev = SG_Create_Grid(System)); pStdDev->Set_Name(_TL("Standard Deviation"));
+
+			pCount->Get_Projection().Create(Grid.Get_Projection());
 		}
 
 		//-------------------------------------------------
@@ -370,27 +372,27 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 		#ifndef _DEBUG
 		#pragma omp parallel for
 		#endif
-		for(sLong i=0; i<System.Get_NCells(); i++)
+		for(int y=0; y<System.Get_NY(); y++) for(int x=0; x<System.Get_NX(); x++)
 		{
-			if( !Grid.is_NoData(i) )
+			if( !Grid.is_NoData(x, y) )
 			{
-				int	iClass;
+				int	z;
 				
 				if( bAbsolute )
 				{
-					iClass	= (int)(0.5 + (Grid.asDouble(i) - abs_Min) * n / (abs_Max - abs_Min));
+					z	= (int)(0.5 + (Grid.asDouble(x, y) - abs_Min) * n / (abs_Max - abs_Min));
 				}
 				else
 				{
-					double	Min	= pMin->asDouble(i);
-					double	Max	= pMax->asDouble(i);
+					double	Min	= pMin->asDouble(x, y);
+					double	Max	= pMax->asDouble(x, y);
 
-					iClass	= Min < Max ? (int)(0.5 + (Grid.asDouble(i) - Min) * n / (Max - Min)) : -1;
+					z	= Min < Max ? (int)(0.5 + (Grid.asDouble(x, y) - Min) * n / (Max - Min)) : -1;
 				}
 
-				if( iClass >= 0 && iClass < pHistogram->Get_Grid_Count() )
+				if( z >= 0 && z < pHistogram->Get_NZ() )
 				{
-					pHistogram->Get_Grid_Ptr(iClass)->Add_Value(i, 1.);
+					pHistogram->Add_Value(x, y, z, 1.);
 				}
 			}
 		}
@@ -427,54 +429,52 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 	#ifndef _DEBUG
 	#pragma omp parallel for
 	#endif
-	for(sLong i=0; i<System.Get_NCells(); i++)
+	for(int y=0; y<System.Get_NY(); y++) for(int x=0; x<System.Get_NX(); x++)
 	{
-		if( pMin->is_NoData(i) || pMax->is_NoData(i) )
+		if( pMin->is_NoData(x, y) || pMax->is_NoData(x, y) )
 		{
-			for(int iQuantile=0; iQuantile<pQuantiles->Get_Grid_Count(); iQuantile++)
+			for(int i=0; i<Quantiles.Get_N(); i++)
 			{
-				pQuantiles->Get_Grid(iQuantile)->Set_NoData(i);
+				pQuantiles->Get_Grid(i)->Set_NoData(x, y);
 			}
 
-			for(int iClass=0; iClass<pHistogram->Get_Grid_Count(); iClass++)
+			for(int z=0; z<pHistogram->Get_NZ(); z++)
 			{
-				pHistogram->Get_Grid_Ptr(iClass)->Set_NoData(i);
+				pHistogram->Set_NoData(x, y, z);
 			}
 		}
 		else
 		{
 			if( Quantiles.Get_N() > 0 )
 			{
-				double	Min	= bAbsolute ? pMin->Get_Min() : pMin->asDouble(i);
-				double	Max	= bAbsolute ? pMax->Get_Max() : pMax->asDouble(i);
+				double	Min	= bAbsolute ? pMin->Get_Min() : pMin->asDouble(x, y);
+				double	Max	= bAbsolute ? pMax->Get_Max() : pMax->asDouble(x, y);
 
 				if( Min < Max )
 				{
-					CSG_Vector	Cumulative(pHistogram->Get_Grid_Count());
+					CSG_Vector	Cumulative(pHistogram->Get_NZ());
 
-					for(int iClass=0, Sum=0; iClass<pHistogram->Get_Grid_Count(); iClass++)
+					for(int z=0, Sum=0; z<pHistogram->Get_NZ(); z++)
 					{
-						Cumulative[iClass]	= (Sum += pHistogram->Get_Grid_Ptr(iClass)->asInt(i));
+						Cumulative[z]	= (Sum += pHistogram->asInt(x, y, z));
 					}
 
-					for(int iQuantile=0; iQuantile<Quantiles.Get_N(); iQuantile++)
+					for(int i=0; i<Quantiles.Get_N(); i++)
 					{
-						pQuantiles->Get_Grid(iQuantile)->Set_Value(i,
-							Get_Quantile(Quantiles[iQuantile], Cumulative, Min, Max)
-						);
+						pQuantiles->Get_Grid(i)->Set_Value(x, y, Get_Quantile(Quantiles[i], Cumulative, Min, Max));
 					}
 				}
-				else for(int iQuantile=0; iQuantile<Quantiles.Get_N(); iQuantile++)
+				else for(int i=0; i<Quantiles.Get_N(); i++)
 				{
-					pQuantiles->Get_Grid(iQuantile)->Set_Value(i, Min);
+					pQuantiles->Get_Grid(i)->Set_Value(x, y, Min);
 				}
 			}
 
 			if( bCumulative )
 			{
-				for(int iClass=0, Sum=0; iClass<pHistogram->Get_Grid_Count(); iClass++)
+				for(int z=0, Sum=0; z<pHistogram->Get_NZ(); z++)
 				{
-					pHistogram->Get_Grid_Ptr(iClass)->Set_Value(i, Sum += pHistogram->Get_Grid_Ptr(iClass)->asInt(i));
+					pHistogram->Set_Value(x, y, Sum += pHistogram->asInt(x, y, z));
 				}
 			}
 		}

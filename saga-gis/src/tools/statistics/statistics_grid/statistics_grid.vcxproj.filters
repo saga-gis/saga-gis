@@ -59,6 +59,9 @@
     <ClCompile Include="grid_statistics_from_files.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid_statistics_successive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -155,6 +158,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grid_statistics_from_files.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_statistics_successive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

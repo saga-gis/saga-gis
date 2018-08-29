@@ -308,6 +308,7 @@
     <ClCompile Include="grid_pca.cpp" />
     <ClCompile Include="grid_pca_focal.cpp" />
     <ClCompile Include="grid_statistics_from_files.cpp" />
+    <ClCompile Include="grid_statistics_successive.cpp" />
     <ClCompile Include="GSGrid_Directional_Statistics.cpp" />
     <ClCompile Include="GSGrid_Residuals.cpp" />
     <ClCompile Include="GSGrid_Statistics.cpp" />
@@ -340,6 +341,7 @@
     <ClInclude Include="grid_pca.h" />
     <ClInclude Include="grid_pca_focal.h" />
     <ClInclude Include="grid_statistics_from_files.h" />
+    <ClInclude Include="grid_statistics_successive.h" />
     <ClInclude Include="GSGrid_Directional_Statistics.h" />
     <ClInclude Include="GSGrid_Residuals.h" />
     <ClInclude Include="GSGrid_Statistics.h" />
