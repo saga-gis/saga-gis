@@ -578,7 +578,7 @@ const char * CVariogram_Dialog::Get_Formula(int Index)
 	case  1: return( "b * x"                                                                        );	// linear (no nugget)
 	case  2: return( "a + b * sqrt(x)"                                                              );	// square root
 	case  3: return( "a + b * ln(1 + x)"                                                            );	// logarithmic
-	case  4: return( "a + b * x^c"                                                                  );	// exponential
+	case  4: return( "n + (s - n) * (1 - exp(-(x / r)); n=n; s=s; r=r"                              );	// exponential
 	case  5: return( "n + (s - n) * (1 - exp(-(x / r)^2)); n=n; s=s; r=r"                           );	// gaussian
 	case  6: return( "n + (s - n) * ifelse(x > r, 1, 1.5 * x / r - 0.5 * x^3 / r^3); n=n; s=s; r=r" );	// spherical
 	}

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: categorical_variation.h 1922 2014-01-09 10:28:46Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -61,15 +58,8 @@
 #ifndef HEADER_INCLUDED__categorical_variation_H
 #define HEADER_INCLUDED__categorical_variation_H
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -102,7 +92,6 @@ private:
 
 
 	bool					Get_Variation			(int x, int y);
-	bool					Get_Variation			(int x, int y, int &nValues, int &nIdent, int &nIdent_Max);
 
 };
 

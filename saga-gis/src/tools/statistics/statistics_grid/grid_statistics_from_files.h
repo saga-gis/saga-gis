@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//              grid_statistics_from_files.h             //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                Copyrights (C) 2018 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,25 +40,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__statistics_grid_H
-#define HEADER_INCLUDED__statistics_grid_H
+#ifndef HEADER_INCLUDED__grid_statistics_from_files_H
+#define HEADER_INCLUDED__grid_statistics_from_files_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -74,4 +60,35 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__statistics_grid_H
+class CGrid_Statistics_from_Files : public CSG_Tool
+{
+public:
+	CGrid_Statistics_from_Files(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Files") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	double					Get_Quantile			(double Quantile, const CSG_Vector &Cumulative, double Min, double Max);
+
+	CSG_Grids *				Get_Histogram			(const CSG_Strings &Files, const CSG_Grid_System &System);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__grid_statistics_from_files_H

@@ -327,6 +327,8 @@ bool CSG_Grids::Create(const CSG_Grid_System &System, int NZ, double zMin, TSG_D
 
 	if( m_pGrids[0]->Create(System, Type) )
 	{
+		Set_NoData_Value_Range(m_pGrids[0]->Get_NoData_Value(), m_pGrids[0]->Get_NoData_hiValue());
+
 		for(int i=0; i<NZ; i++, zMin+=System.Get_Cellsize())
 		{
 			if( !Add_Grid(zMin) )

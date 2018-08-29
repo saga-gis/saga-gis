@@ -17,6 +17,7 @@ grid_autocorrelation.cpp\
 grid_latlon_statistics.cpp\
 grid_pca.cpp\
 grid_pca_focal.cpp\
+grid_statistics_from_files.cpp\
 multiband_variation.cpp\
 GSGrid_Directional_Statistics.cpp\
 GSGrid_Residuals.cpp\
@@ -31,14 +32,14 @@ grid_autocorrelation.h\
 grid_latlon_statistics.h\
 grid_pca.h\
 grid_pca_focal.h\
+grid_statistics_from_files.h\
 multiband_variation.h\
 GSGrid_Directional_Statistics.h\
 GSGrid_Residuals.h\
 GSGrid_Statistics.h\
 GSGrid_Variance.h\
 GSGrid_Variance_Radius.h\
-GSGrid_Zonal_Statistics.h\
-MLB_Interface.h
+GSGrid_Zonal_Statistics.h
 
 libstatistics_grid_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
