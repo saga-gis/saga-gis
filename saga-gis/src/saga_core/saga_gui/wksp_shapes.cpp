@@ -634,9 +634,25 @@ bool CWKSP_Shapes::Set_Metrics(int zField, int nField)
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
+	//-----------------------------------------------------
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), "CLASSIFY") )
+	{
+		if( Flags & PARAMETER_CHECK_ENABLE )
+		{
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+			{
+				pParameters->Set_Enabled("COUNT"   , pParameter->asInt() != 0);
+				pParameters->Set_Enabled("COUNTMAX", pParameter->asInt() == 0);
+			}
+		}
+
+		return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
+	}
+
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
@@ -764,15 +780,17 @@ void CWKSP_Shapes::_LUT_Create(void)
 	}
 
 	//-----------------------------------------------------
-	static CSG_Parameters	Parameters;
+	static CSG_Parameters	PStatic;
 
-	if( Parameters.Get_Count() == 0 )
+	if( PStatic.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, _TL("Classify"), _TL(""));
-		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"     ), _TL(""), "");
-		Parameters.Add_Colors("", "COLORS", _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
-		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+		PStatic.Create(NULL, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+		PStatic.Add_Choice("", "FIELD"   , _TL("Attribute"                ), _TL(""), "");
+		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
+		PStatic.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
+		PStatic.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
+		PStatic.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("unique values"),
 				_TL("equal intervals"),
 				_TL("quantiles"),
@@ -781,12 +799,20 @@ void CWKSP_Shapes::_LUT_Create(void)
 		);
 	}
 
-	AttributeList_Set(Parameters("FIELD"), false);
+	AttributeList_Set(PStatic("FIELD"), false);
+
+	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+
+	Parameters.Assign_Parameters(&PStatic);
+
+	Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
 
 	if( !DLG_Parameters(&Parameters) )
 	{
 		return;
 	}
+
+	PStatic.Assign_Values(&Parameters);
 
 	//-----------------------------------------------------
 	DataObject_Changed();
@@ -810,9 +836,9 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			CSG_Unique_String_Statistics	s;
 
-			#define MAX_CLASSES	1024
+			int	maxClasses	= Parameters("COUNTMAX")->asInt();
 
-			for(int iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<MAX_CLASSES; iShape++)
+			for(int iShape=0; iShape<Get_Shapes()->Get_Count() && s.Get_Count()<maxClasses; iShape++)
 			{
 				s	+= Get_Shapes()->Get_Shape(iShape)->asString(Field);
 			}
@@ -845,6 +871,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
+			Colors.Set_Count(Parameters("COUNT")->asInt());
+
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
 				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Shapes()->Get_Maximum(Field) + 1.0;
@@ -873,6 +901,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+
+			Colors.Set_Count(Parameters("COUNT")->asInt());
 
 			if( Get_Shapes()->Get_Count() < Colors.Get_Count() )
 			{
@@ -914,6 +944,8 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
+
+			Colors.Set_Count(Parameters("COUNT")->asInt());
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
