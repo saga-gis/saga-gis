@@ -80,86 +80,101 @@ CGrid_Cluster_ISODATA::CGrid_Cluster_ISODATA(void)
 		"which allows the number of clusters to be "
 		"automatically adjusted during the iteration by "
 		"merging similar clusters and splitting clusters "
-		"with large standard deviations.\n"
-		"The tool is based on Christos Iosifidis' Isodata implementation:\n"
-		"<a target=\"_blank\" href=\"http://users.ntua.gr/chiossif/Free_As_Freedom_Software/isodata.c\">isodata.c</a>\n"
-		"\n"
-		"Further references:\n"
-		"Memarsadeghi, N., Mount, D. M., Netanyahu, N. S., Le Moigne, J. (2007): "
-		"A Fast Implementation of the ISODATA Clustering Algorithm. "
-		"International Journal of Computational Geometry and Applications, 17, 71-103. "
-		"<a target=\"_blank\" href=\"https://www.cs.umd.edu/~mount/Projects/ISODATA/ijcga07-isodata.pdf\">online</a>\n"
-		"\n"
-		"<a target=\"_blank\" href=\"https://www.cs.umd.edu/~mount/Projects/ISODATA/\">A Fast Implementation of the ISODATA Clustering Algorithm</a>"
+		"with large standard deviations. "
+		"The tool is based on Christos Iosifidis' Isodata implementation. "
 	));
+	
+	Add_Reference("http://users.ntua.gr/chiossif/Free_As_Freedom_Software/isodata.c",
+		SG_T("isodata.c (Christos Iosifidis)")
+	);
+
+	Add_Reference("https://www.cs.umd.edu/~mount/Projects/ISODATA",
+		SG_T("A Fast Implementation of the ISODATA Clustering Algorithm")
+	);
+
+	Add_Reference("Memarsadeghi, N., Mount, D. M., Netanyahu, N. S., Le Moigne, J.", "2007",
+		"A Fast Implementation of the ISODATA Clustering Algorithm",
+		"International Journal of Computational Geometry and Applications, 17, 71-103.",
+		SG_T("https://www.cs.umd.edu/~mount/Projects/ISODATA/ijcga07-isodata.pdf"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"	, _TL("Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES"		, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CLUSTER"		, _TL("Clusters"),
+	Parameters.Add_Grid("",
+		"CLUSTER"		, _TL("Clusters"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"	, _TL("Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS"	, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NORMALIZE"	, _TL("Normalize"),
+	Parameters.Add_Bool("",
+		"NORMALIZE"		, _TL("Normalize"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ITERATIONS"	, _TL("Maximum Number of Iterations"),
+	Parameters.Add_Int("",
+		"ITERATIONS"	, _TL("Maximum Number of Iterations"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 20, 3, true
+		20, 3, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CLUSTER_INI"	, _TL("Initial Number of Clusters"),
+	Parameters.Add_Int("",
+		"CLUSTER_INI"	, _TL("Initial Number of Clusters"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 0, true
+		5, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CLUSTER_MAX"	, _TL("Maximum Number of Clusters"),
+	Parameters.Add_Int("",
+		"CLUSTER_MAX"	, _TL("Maximum Number of Clusters"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 16, 3, true
+		16, 3, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SAMPLES_MIN"	, _TL("Minimum Number of Samples in a Cluster"),
+	Parameters.Add_Int("",
+		"SAMPLES_MIN"	, _TL("Minimum Number of Samples in a Cluster"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 2, true
+		5, 2, true
 	);
 
-	//Parameters.Add_Value(
-	//	NULL	, "DIST_MAX"	, _TL("Distance Threshold"),
+	//Parameters.Add_Double("",
+	//	"DIST_MAX"	, _TL("Distance Threshold"),
 	//	_TL("Clusters, which are closer than this distance to each other, are merged."),
-	//	PARAMETER_TYPE_Double, 0.001, 0.0, true
+	//	0.001, 0.0, true
 	//);
 
-	//Parameters.Add_Value(
-	//	NULL	, "STDV_MAX"	, _TL("Maximum Standard Deviation within a Cluster"),
+	//Parameters.Add_Double("",
+	//	"STDV_MAX"	, _TL("Maximum Standard Deviation within a Cluster"),
 	//	_TL(""),
-	//	PARAMETER_TYPE_Double, 10.0, 0.0, true
+	//	10.0, 0.0, true
 	//);
 
-	Parameters.Add_Value(
-		NULL	, "RGB_COLORS"	, _TL("Update Colors from Features"),
+	Parameters.Add_Bool("",
+		"RGB_COLORS"	, _TL("Update Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
-		PARAMETER_TYPE_Bool, true
+		false
 	)->Set_UseInCMD(false);
+
+	Parameters.Add_Choice("",
+		"INITIALIZE"	, _TL("Start Partition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("random"),
+			_TL("periodical"),
+			_TL("keep values") 
+		), 0
+	);
 }
 
 
@@ -272,7 +287,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Cluster.Run() )
+	if( !Cluster.Run(Parameters("INITIALIZE")->asInt()) )
 	{
 		return( false );
 	}

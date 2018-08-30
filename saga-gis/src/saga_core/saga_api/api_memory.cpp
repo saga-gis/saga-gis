@@ -572,6 +572,17 @@ bool CSG_Array_Int::Add(const CSG_Array_Int &Array)
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CSG_Array_Int::Assign(int Value)
+{
+	for(size_t i=0; i<Get_Size(); i++)
+	{
+		Get_Array()[i]	= Value;
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

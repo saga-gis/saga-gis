@@ -75,79 +75,90 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("K-Means Clustering for Grids"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(		
-		"Cluster Analysis for grids.\n\nReferences:\n\n"
-		                                                                                                                                                                                                                  
-		"Iterative Minimum Distance:\n"
-		"- Forgy, E. (1965):\n"
-		"  'Cluster Analysis of multivariate data: efficiency vs. interpretability of classifications',\n"
-		"  Biometrics 21:768\n\n"
-
-		"Hill-Climbing:"
-		"- Rubin, J. (1967):\n"
-		"  'Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem',\n"
-		"  J. Theoretical Biology, 15:103-144\n\n"
+		"This tool implements the K-Means cluster analysis for grids "
+		"in two variants, iterative minimum distance (Forgy 1965) "
+		"and hill climbing (Rubin 1967). "
 	));
+	
+	Add_Reference("Forgy, E.", "1965",
+		"Cluster analysis of multivariate data: efficiency vs. interpretability of classifications",
+		"Biometrics 21:768."
+	);
+
+	Add_Reference("Rubin, J.", "1967",
+		"Optimal classification into groups: an approach for solving the taxonomy problem",
+		"J. Theoretical Biology, 15:103-144."
+	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CLUSTER"		, _TL("Clusters"),
+	Parameters.Add_Grid("",
+		"CLUSTER"		, _TL("Clusters"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"	, _TL("Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS"	, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NCLUSTER"	, _TL("Clusters"),
+	Parameters.Add_Int("",
+		"NCLUSTER"		, _TL("Clusters"),
 		_TL("Number of clusters"),
-		PARAMETER_TYPE_Int, 10, 2, true
+		10, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAXITER"		, _TL("Maximum Iterations"),
+	Parameters.Add_Int("",
+		"MAXITER"		, _TL("Maximum Iterations"),
 		_TL("maximum number of iterations, ignored if set to zero (default)"),
-		PARAMETER_TYPE_Int, 0, 0, true
+		10, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NORMALISE"	, _TL("Normalise"),
+	Parameters.Add_Bool("",
+		"NORMALISE"		, _TL("Normalise"),
 		_TL("Automatically normalise grids by standard deviation before clustering."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RGB_COLORS"	, _TL("Update Colors from Features"),
+	Parameters.Add_Bool("",
+		"RGB_COLORS"	, _TL("Update Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
-		PARAMETER_TYPE_Bool, true
+		false
 	)->Set_UseInCMD(false);
 
+	Parameters.Add_Choice("",
+		"INITIALIZE"	, _TL("Start Partition"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("random"),
+			_TL("periodical"),
+			_TL("keep values") 
+		), 0
+	);
+
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	=
-	Parameters.Add_Value(NULL	, "OLDVERSION", _TL("Old Version"), _TL("slower but memory saving"), PARAMETER_TYPE_Bool, false);
-	Parameters.Add_Value(pNode	, "UPDATEVIEW", _TL("Update View"), _TL(""), PARAMETER_TYPE_Bool, true);
+	Parameters.Add_Bool(""          , "OLDVERSION", _TL("Old Version"), _TL("slower but memory saving"), false);
+	Parameters.Add_Bool("OLDVERSION", "UPDATEVIEW", _TL("Update View"), _TL(""), true);
 }
 
 
@@ -183,17 +194,14 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	if( Parameters("OLDVERSION")->asBool() )	{	return( _On_Execute() );	}
 
 	//-----------------------------------------------------
-	bool					bNormalize;
-	int						iFeature;
-	sLong					iElement, nElements;
-	CSG_Cluster_Analysis	Analysis;
-	CSG_Grid				*pCluster;
-	CSG_Parameter_Grid_List	*pGrids;
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+	CSG_Grid	*pCluster	= Parameters("CLUSTER")->asGrid();
+
+	bool	bNormalize	= Parameters("NORMALISE")->asBool();
 
 	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS"    )->asGridList();
-	pCluster	= Parameters("CLUSTER"  )->asGrid();
-	bNormalize	= Parameters("NORMALISE")->asBool();
+	CSG_Cluster_Analysis	Analysis;
 
 	if( !Analysis.Create(pGrids->Get_Grid_Count()) )
 	{
@@ -201,11 +209,15 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pCluster->Set_NoData_Value(0.0);
+	int		iFeature;
+	sLong	iElement, nElements;
 
+	pCluster->Set_NoData_Value(0);
+
+	//-----------------------------------------------------
 	for(iElement=0, nElements=0; iElement<Get_NCells() && Set_Progress_NCells(iElement); iElement++)
 	{
-		bool	bNoData		= false;
+		bool	bNoData	= false;
 
 		for(iFeature=0; iFeature<pGrids->Get_Grid_Count() && !bNoData; iFeature++)
 		{
@@ -239,16 +251,17 @@ bool CGrid_Cluster_Analysis::On_Execute(void)
 		}
 	}
 
-	if( nElements <= 1 )
+	if( Analysis.Get_nElements() < 2 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	bool	bResult	= Analysis.Execute(
-		Parameters("METHOD"  )->asInt(),
-		Parameters("NCLUSTER")->asInt(),
-		Parameters("MAXITER" )->asInt()
+		Parameters("METHOD"    )->asInt(),
+		Parameters("NCLUSTER"  )->asInt(),
+		Parameters("MAXITER"   )->asInt(),
+		Parameters("INITIALIZE")->asInt()
 	);
 
 	for(iElement=0, nElements=0; iElement<Get_NCells(); iElement++)
@@ -283,22 +296,22 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Cluster Analysis"));
 
-	pTable->Add_Field(_TL("ClusterID")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("ClusterID"), SG_DATATYPE_Int   );
+	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int   );
+	pTable->Add_Field(_TL("Std.Dev." ), SG_DATATYPE_Double);
 
-	s.Printf(SG_T("\n%s:\t%d \n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s"),
-		_TL("Number of Iterations")	, Analysis.Get_Iteration(),
-		_TL("Number of Elements")	, Analysis.Get_nElements(),
-		_TL("Number of Variables")	, Analysis.Get_nFeatures(),
-		_TL("Number of Clusters")	, Analysis.Get_nClusters(),
-		_TL("Standard Deviation")	, sqrt(Analysis.Get_SP()),
+	s.Printf("\n%s:\t%d \n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+		_TL("Number of Iterations"), Analysis.Get_Iteration(),
+		_TL("Number of Elements"  ), Analysis.Get_nElements(),
+		_TL("Number of Variables" ), Analysis.Get_nFeatures(),
+		_TL("Number of Clusters"  ), Analysis.Get_nClusters(),
+		_TL("Standard Deviation"  ), sqrt(Analysis.Get_SP()),
 		_TL("Cluster"), _TL("Elements"), _TL("Std.Dev.")
 	);
 
 	for(iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
 	{
-		s	+= CSG_String::Format(SG_T("\t%s"), pGrids->Get_Grid(iFeature)->Get_Name());
+		s	+= CSG_String::Format("\t%s", pGrids->Get_Grid(iFeature)->Get_Name());
 
 		pTable->Add_Field(pGrids->Get_Grid(iFeature)->Get_Name(), SG_DATATYPE_Double);
 	}
@@ -307,7 +320,7 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 
 	for(iCluster=0; iCluster<Analysis.Get_nClusters(); iCluster++)
 	{
-		s.Printf(SG_T("\n%d\t%d\t%f"), iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
+		s.Printf("\n%d\t%d\t%f", iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
 
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
@@ -324,7 +337,7 @@ void CGrid_Cluster_Analysis::Save_Statistics(CSG_Parameter_Grid_List *pGrids, bo
 				Centroid	= pGrids->Get_Grid(iFeature)->Get_Mean() + Centroid * pGrids->Get_Grid(iFeature)->Get_StdDev();
 			}
 
-			s	+= CSG_String::Format(SG_T("\t%f"), Centroid);
+			s	+= CSG_String::Format("\t%f", Centroid);
 
 			pRecord->Set_Value(iFeature + 3, Centroid);
 		}
@@ -487,21 +500,21 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	pTable->Destroy();
 	pTable->Set_Name(_TL("Cluster Analysis"));
 
-	pTable->Add_Field(_TL("ClusterID")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("ClusterID"), SG_DATATYPE_Int   );
+	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int   );
+	pTable->Add_Field(_TL("Std.Dev." ), SG_DATATYPE_Double);
 
-	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s"),
-		_TL("Number of Elements")	, nElements,
-		_TL("Number of Variables")	, pGrids->Get_Grid_Count(),
-		_TL("Number of Clusters")	, nCluster,
-		_TL("Standard Deviation")	, sqrt(SP),
+	s.Printf("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
+		_TL("Number of Elements" ), nElements,
+		_TL("Number of Variables"), pGrids->Get_Grid_Count(),
+		_TL("Number of Clusters" ), nCluster,
+		_TL("Standard Deviation" ), sqrt(SP),
 		_TL("Cluster"), _TL("Elements"), _TL("Std.Dev.")
 	);
 
 	for(iFeature=0; iFeature<pGrids->Get_Grid_Count(); iFeature++)
 	{
-		s	+= CSG_String::Format(SG_T("\t%s"), pGrids->Get_Grid(iFeature)->Get_Name());
+		s	+= CSG_String::Format("\t%s", pGrids->Get_Grid(iFeature)->Get_Name());
 
 		pTable->Add_Field(pGrids->Get_Grid(iFeature)->Get_Name(), SG_DATATYPE_Double);
 	}
@@ -512,7 +525,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	{
 		Variances[iCluster]	= nMembers[iCluster] ? Variances[iCluster] / nMembers[iCluster] : 0.0;
 
-		s.Printf(SG_T("\n%d\t%d\t%f"), iCluster, nMembers[iCluster], sqrt(Variances[iCluster]));
+		s.Printf("\n%d\t%d\t%f", iCluster, nMembers[iCluster], sqrt(Variances[iCluster]));
 
 		pRecord	= pTable->Add_Record();
 		pRecord->Set_Value(0, iCluster);
@@ -528,7 +541,7 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 				Centroid	= pGrids->Get_Grid(iFeature)->Get_Mean() + Centroid * pGrids->Get_Grid(iFeature)->Get_StdDev();
 			}
 
-			s	+= CSG_String::Format(SG_T("\t%f"), Centroid);
+			s	+= CSG_String::Format("\t%f", Centroid);
 
 			pRecord->Set_Value(iFeature + 3, Centroid);
 		}
@@ -674,9 +687,9 @@ double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CS
 
 		SP	/= nElements;
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, nPasses,
-			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
+		Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
+			_TL("pass"  ), nPasses,
+			_TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 
 		SP_Last		= SP;
@@ -865,9 +878,9 @@ double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_G
 
 		SP	/= nElements;
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, nPasses,
-			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
+		Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
+			_TL("pass"  ), nPasses,
+			_TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP
 		));
 
 		SP_Last		= SP;

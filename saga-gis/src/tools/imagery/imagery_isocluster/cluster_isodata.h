@@ -104,7 +104,7 @@ public:
 	bool					Set_Max_Distance		(double Value);
 	bool					Set_Max_StdDev			(double Value);
 
-	bool					Run						(void);
+	bool					Run						(int Initialization);
 
 
 private:

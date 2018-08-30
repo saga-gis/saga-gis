@@ -1829,12 +1829,7 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 //---------------------------------------------------------
 CSG_Cluster_Analysis::CSG_Cluster_Analysis(void)
 {
-	m_Centroid	= NULL;
-	m_Variance	= NULL;
-	m_nMembers	= NULL;
-	m_Cluster	= NULL;
 	m_nFeatures	= 0;
-	m_nClusters	= 0;
 	m_Iteration	= 0;
 }
 
@@ -1847,21 +1842,12 @@ CSG_Cluster_Analysis::~CSG_Cluster_Analysis(void)
 //---------------------------------------------------------
 bool CSG_Cluster_Analysis::Destroy(void)
 {
-	for(int i=0; i<m_nClusters; i++)
-	{
-		SG_Free(m_Centroid[i]);
-	}
-
-	SG_FREE_SAFE(m_Centroid);
-	SG_FREE_SAFE(m_Variance);
-	SG_FREE_SAFE(m_nMembers);
-	SG_FREE_SAFE(m_Cluster);
-
+	m_Centroid.Destroy();
+	m_Variance.Destroy();
+	m_nMembers.Destroy();
+	m_Clusters.Destroy();
 	m_Features.Destroy();
-
 	m_nFeatures	= 0;
-	m_nClusters	= 0;
-
 	m_Iteration	= 0;
 
 	return( true );
@@ -1904,46 +1890,76 @@ bool CSG_Cluster_Analysis::Set_Feature(int iElement, int iFeature, double Value)
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations)
+/**
+  * Performs the cluster analysis using the features added prior
+  * to this step. Method is minimum distance (= default), hill
+  * climbing (= 1), or both methods in combination. If nMaxIterations
+  * is set to zero, the analysis is iterated until it converges.
+  * Initilization is done randomely (= default), periodically (= 1),
+  * or skipped (= 2). The latter case allows to start the clustering
+  * with user supplied start partitions.
+*/
+//---------------------------------------------------------
+bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations, int Initialization)
 {
-	if( Get_nElements() <= 1 || nClusters <= 1 )
+	if( Get_nElements() < 2 || nClusters < 2 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	bool	bResult;
-	int		iCluster;
+	m_nMembers.Create(nClusters);
+	m_Variance.Create(nClusters);
+	m_Centroid.Create(m_nFeatures, nClusters);
 
-	m_Iteration	= 0;
+	//-----------------------------------------------------
+	m_Clusters.Create(Get_nElements());
 
-	m_nClusters	= nClusters;
-
-	m_Cluster	= (int     *)SG_Calloc(Get_nElements()	, sizeof(int));
-
-	m_nMembers	= (int     *)SG_Calloc(m_nClusters		, sizeof(int));
-	m_Variance	= (double  *)SG_Calloc(m_nClusters		, sizeof(double));
-	m_Centroid	= (double **)SG_Calloc(m_nClusters		, sizeof(double *));
-
-	for(iCluster=0; iCluster<m_nClusters; iCluster++)
+	for(int iElement=0; iElement<Get_nElements(); iElement++)
 	{
-		m_Centroid[iCluster]	= (double *)SG_Calloc(m_nFeatures, sizeof(double));
+		switch( Initialization )
+		{
+		default:	// random
+			if( (m_Clusters[iElement] = (int)CSG_Random::Get_Uniform(0, nClusters)) >= nClusters )
+			{
+				m_Clusters[iElement]	= nClusters - 1;
+			}
+			break;
+
+		case  1:	// periodic
+			{
+				m_Clusters[iElement]	= iElement % nClusters;
+			}
+			break;
+
+		case  2:	// keep as is, but check for valid cluster ids
+			if( 0 > m_Clusters[iElement] || m_Clusters[iElement] >= nClusters )
+			{
+				m_Clusters[iElement]	= iElement % nClusters;
+			}
+			break;
+		}
 	}
 
 	//-----------------------------------------------------
+	bool	bResult;
+
+	m_Iteration	= 0;
+
 	switch( Method )
 	{
-	default:	bResult	= Minimum_Distance(true , nMaxIterations);	break;
-	case  1:	bResult	= Hill_Climbing   (true , nMaxIterations);	break;
-	case  2:	bResult	= Minimum_Distance(true , nMaxIterations)
-					   && Hill_Climbing   (false, nMaxIterations);	break;
+	default: bResult = _Minimum_Distance(true , nMaxIterations);	break;
+	case  1: bResult = _Hill_Climbing   (true , nMaxIterations);	break;
+	case  2: bResult = _Minimum_Distance(true , nMaxIterations)
+				&&     _Hill_Climbing   (false, nMaxIterations);	break;
 	}
 
+	//-----------------------------------------------------
 	if( bResult )
 	{
-		for(iCluster=0; iCluster<m_nClusters; iCluster++)
+		for(int iCluster=0; iCluster<nClusters; iCluster++)
 		{
-			m_Variance[iCluster]	= m_nMembers[iCluster] ? m_Variance[iCluster] / m_nMembers[iCluster] : 0.0;
+			m_Variance[iCluster]	= m_nMembers[iCluster] <= 0 ? 0.0 : m_Variance[iCluster] / m_nMembers[iCluster];
 		}
 	}
 
@@ -1951,86 +1967,75 @@ bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize, int nMaxIterations)
+bool CSG_Cluster_Analysis::_Minimum_Distance(bool bInitialize, int nMaxIterations)
 {
-	int		iElement, iFeature, iCluster, nShifts;
-	double	*Feature, SP_Last	= -1.0;
+	int		iElement, iCluster, nClusters	= m_Variance.Get_N();
 
-	//-----------------------------------------------------
-	for(iElement=0; iElement<Get_nElements(); iElement++)
-	{
-		iCluster	= m_Cluster[iElement];
-
-		if( bInitialize || iCluster < 0 || iCluster >= m_nClusters )
-		{
-			m_Cluster[iElement]	= iCluster = iElement % m_nClusters;
-		}
-	}
+	double	SP_Last	= -1.0;
 
 	//-----------------------------------------------------
 	for(m_Iteration=1; SG_UI_Process_Get_Okay(); m_Iteration++)
 	{
-		for(iCluster=0; iCluster<m_nClusters; iCluster++)
-		{
-			m_Variance[iCluster]	= 0.0;
-			m_nMembers[iCluster]	= 0;
+		m_Variance	= 0.0;
+		m_Centroid	= 0.0;
+		m_nMembers	= 0;
 
-			for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+		//-------------------------------------------------
+		for(iElement=0; iElement<Get_nElements(); iElement++)
+		{
+			m_nMembers[iCluster = m_Clusters[iElement]]++;
+
+			double	*Feature	= (double *)m_Features.Get_Entry(iElement);
+
+			for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
-				m_Centroid[iCluster][iFeature]	= 0.0;
+				m_Centroid[iCluster][iFeature]	+= Feature[iFeature];
 			}
 		}
 
 		//-------------------------------------------------
-		for(iElement=0, Feature=(double *)m_Features.Get_Array(); iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
-		{
-			if( (iCluster = m_Cluster[iElement]) >= 0 )
-			{
-				m_nMembers[iCluster]++;
-
-				for(iFeature=0; iFeature<m_nFeatures; iFeature++)
-				{
-					m_Centroid[iCluster][iFeature]	+= Feature[iFeature];
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		for(iCluster=0; iCluster<m_nClusters; iCluster++)
+		for(iCluster=0; iCluster<nClusters; iCluster++)
 		{
 			double	d	= m_nMembers[iCluster] > 0 ? 1.0 / m_nMembers[iCluster] : 0.0;
 
-			for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+			for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 			{
 				m_Centroid[iCluster][iFeature]	*= d;
 			}
 		}
 
 		//-------------------------------------------------
-		for(iElement=0, Feature=(double *)m_Features.Get_Array(), m_SP=0.0, nShifts=0; iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
+		int	nShifts	= 0;
+
+		m_SP	= 0.0;
+
+		for(iElement=0; iElement<Get_nElements(); iElement++)
 		{
+			double	*Feature	= (double *)m_Features.Get_Entry(iElement);
+
 			double	minVariance	= -1.0;
 			int		minCluster	= -1;
 
-			for(iCluster=0; iCluster<m_nClusters; iCluster++)
+			for(iCluster=0; iCluster<nClusters; iCluster++)
 			{
-				double	iVariance	= 0.0;
+				double	Variance	= 0.0;
 
-				for(iFeature=0; iFeature<m_nFeatures; iFeature++)
+				for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
-					iVariance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
+					Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
 				}
 
-				if( minVariance < 0.0 || iVariance < minVariance )
+				if( minVariance < 0.0 || Variance < minVariance )
 				{
-					minVariance	= iVariance;
+					minVariance	= Variance;
 					minCluster	= iCluster;
 				}
 			}
 
-			if( m_Cluster[iElement] != minCluster )
+			if( m_Clusters[iElement] != minCluster )
 			{
-				m_Cluster[iElement]	= minCluster;
+				m_Clusters[iElement]	= minCluster;
+
 				nShifts++;
 			}
 
@@ -2041,16 +2046,16 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize, int nMaxIterations
 		//-------------------------------------------------
 		m_SP	/= Get_nElements();
 
-		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, m_Iteration,
-			_TL("change")	, m_Iteration <= 1 ? m_SP : SP_Last - m_SP
+		SG_UI_Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
+			_TL("pass"  ), m_Iteration,
+			_TL("change"), m_Iteration < 2 ? m_SP : SP_Last - m_SP
 		));
 
 		SP_Last	 = m_SP;
 
 		if( nShifts == 0 || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
 		{
-			break;
+			return( true );
 		}
 	}
 
@@ -2058,87 +2063,82 @@ bool CSG_Cluster_Analysis::Minimum_Distance(bool bInitialize, int nMaxIterations
 }
 
 //---------------------------------------------------------
-bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
+bool CSG_Cluster_Analysis::_Hill_Climbing(bool bInitialize, int nMaxIterations)
 {
-	int		iElement, iFeature, iCluster, noShift;
-	double	*Feature, Variance, SP_Last	= -1.0;
+	int		iElement, iCluster, nClusters	= m_Variance.Get_N();
 
 	//-----------------------------------------------------
-	memset(m_Variance, 0, m_nClusters * sizeof(double));
-	memset(m_nMembers, 0, m_nClusters * sizeof(int));
+	m_Variance	= 0.0;
+	m_Centroid	= 0.0;
+	m_nMembers	= 0;
 
-	for(iCluster=0; iCluster<m_nClusters; iCluster++)
+	for(iElement=0; iElement<Get_nElements(); iElement++)
 	{
-		memset(m_Centroid[iCluster], 0, m_nFeatures * sizeof(double));
-	}
+		m_nMembers[iCluster = m_Clusters[iElement]]++;
 
-	//-----------------------------------------------------
-	for(iElement=0, Feature=(double *)m_Features.Get_Array(); iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
-	{
-		iCluster	= m_Cluster[iElement];
+		double	*Feature	= (double *)m_Features.Get_Entry(iElement);
 
-		if( bInitialize || iCluster < 0 || iCluster >= m_nClusters )
-		{
-			m_Cluster[iElement]	= iCluster = iElement % m_nClusters;
-		}
-
-		m_nMembers[iCluster]++;
-
-		for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
+		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
 			double	d	 = Feature[iFeature];
-			m_Centroid[iCluster][iFeature]	+= d;
-			Variance						+= d*d;
-		}
 
-		m_Variance[iCluster]	+= Variance;
+			m_Centroid[iCluster][iFeature]	+= d;
+			m_Variance[iCluster]          	+= d*d;
+		}
 	}
 
 	//-----------------------------------------------------
-	for(iCluster=0; iCluster<m_nClusters; iCluster++)
+	for(iCluster=0; iCluster<nClusters; iCluster++)
 	{
-		double	d	= m_nMembers[iCluster] != 0 ? 1.0 / (double)m_nMembers[iCluster] : 0;
+		double	v	= 0.0, d	= m_nMembers[iCluster] <= 0 ? 0.0 : 1. / (double)m_nMembers[iCluster];
 
-		for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
+		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{
 			m_Centroid[iCluster][iFeature]	*= d;
-			Variance						+= SG_Get_Square(m_Centroid[iCluster][iFeature]);
+			v	+= SG_Get_Square(m_Centroid[iCluster][iFeature]);
 		}
 
-		m_Variance[iCluster]	-= m_nMembers[iCluster] * Variance;
+		m_Variance[iCluster]	-= v * m_nMembers[iCluster];
 	}
 
 	//-----------------------------------------------------
-	for(m_Iteration=1, noShift=0; SG_UI_Process_Get_Okay(false); m_Iteration++)
-	{
-		for(iElement=0, Feature=(double *)m_Features.Get_Array(); iElement<Get_nElements(); iElement++, Feature+=m_nFeatures)
-		{
-			if( (iCluster = m_Cluster[iElement]) >= 0 && noShift++ < Get_nElements() && m_nMembers[iCluster] > 1 )
-			{
-				int		jCluster, kCluster;
-				double	VMin, V1, V2;
+	double	SP_Last	= -1.0;	int		noShift	= 0;
 
-				for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
+	for(m_Iteration=1; SG_UI_Process_Get_Okay(false); m_Iteration++)
+	{
+		for(iElement=0; iElement<Get_nElements(); iElement++)
+		{
+			iCluster	= m_Clusters[iElement];
+
+			if( noShift++ < Get_nElements() && m_nMembers[iCluster] > 1 )
+			{
+				int	iFeature; double *Feature	= (double *)m_Features.Get_Entry(iElement);
+
+				double	V1, V2, Variance	= 0.0;
+
+				for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 				{
 					Variance	+= SG_Get_Square(m_Centroid[iCluster][iFeature] - Feature[iFeature]);
 				}
 
 				V1		= Variance * m_nMembers[iCluster] / (m_nMembers[iCluster] - 1.0);
-				VMin	= -1.0;
 
 				//-----------------------------------------
-				// Bestimme Gruppe iCluster mit evtl. groesster Verbesserung...
+				int		kCluster	= 0;
+				double	VMin		= -1.0;
 
-				for(jCluster=0, kCluster=0; jCluster<m_nClusters; jCluster++)
+				for(int jCluster=0; jCluster<nClusters; jCluster++)
 				{
 					if( jCluster != iCluster )
 					{
-						for(iFeature=0, Variance=0.0; iFeature<m_nFeatures; iFeature++)
+						Variance	= 0.0; 
+
+						for(iFeature=0; iFeature<m_nFeatures; iFeature++)
 						{
 							Variance	+= SG_Get_Square(m_Centroid[jCluster][iFeature] - Feature[iFeature]);
 						}
 
-						V2		= Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.0);
+						V2	= Variance * m_nMembers[jCluster] / (m_nMembers[jCluster] + 1.0);
 
 						if( VMin < 0.0 || V2 < VMin )
 						{
@@ -2149,8 +2149,6 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 				}
 
 				//-----------------------------------------
-				// Gruppenwechsel und Neuberechnung der Gruppencentroide...
-
 				if( VMin >= 0 && VMin < V1 )
 				{
 					noShift					 = 0;
@@ -2167,7 +2165,7 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 						m_Centroid[kCluster][iFeature]	= (m_nMembers[kCluster] * m_Centroid[kCluster][iFeature] + d) * V2;
 					}
 
-					m_Cluster[iElement]	= kCluster;
+					m_Clusters[iElement]	= kCluster;
 
 					m_nMembers[iCluster]--;
 					m_nMembers[kCluster]++;
@@ -2176,14 +2174,14 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 		}
 
 		//-------------------------------------------------
-		for(iCluster=0, m_SP=0.0; iCluster<m_nClusters; iCluster++)
+		for(iCluster=0, m_SP=0.0; iCluster<nClusters; iCluster++)
 		{
 			m_SP	+= m_Variance[iCluster];
 		}
 
 		m_SP	/= Get_nElements();
 
-		SG_UI_Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
+		SG_UI_Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
 			_TL("pass"  ), m_Iteration,
 			_TL("change"), m_Iteration <= 1 ? m_SP : SP_Last - m_SP
 		));
@@ -2192,7 +2190,7 @@ bool CSG_Cluster_Analysis::Hill_Climbing(bool bInitialize, int nMaxIterations)
 
 		if( noShift >= Get_nElements() || (nMaxIterations > 0 && nMaxIterations <= m_Iteration) )
 		{
-			break;
+			return( true );
 		}
 	}
 

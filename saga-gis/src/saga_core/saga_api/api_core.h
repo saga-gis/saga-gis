@@ -622,7 +622,10 @@ public:
 	int &				Get				(int    Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
 	int	 				Get				(int    Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
 
+	bool				Assign			(int Value);
+
 	CSG_Array_Int &		operator =		(const CSG_Array_Int &Array)			{	Create(Array);	return( *this );	}
+	CSG_Array_Int &		operator =		(int Value)								{	Assign(Value);	return( *this );	}
 
 	int &				operator []		(size_t Index)							{	return( Get(Index) );	}
 	int  				operator []		(size_t Index)	const					{	return( Get(Index) );	}

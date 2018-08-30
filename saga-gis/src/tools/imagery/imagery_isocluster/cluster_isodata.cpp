@@ -367,7 +367,7 @@ bool CCluster_ISODATA::_Initialize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCluster_ISODATA::Run(void)
+bool CCluster_ISODATA::Run(int Initialization)
 {
 	//-----------------------------------------------------
 	if( !_Initialize() )
@@ -396,6 +396,29 @@ bool CCluster_ISODATA::Run(void)
 
 		for(iSample=0; iSample<Get_Sample_Count(); iSample++)
 		{
+			switch( Initialization )
+			{
+			default:	// random
+				if( (iCluster = (int)CSG_Random::Get_Uniform(0, m_nCluster)) >= m_nCluster )
+				{
+					iCluster	= m_nCluster - 1;
+				}
+				break;
+
+			case  1:	// periodic
+				{
+					iCluster	= iSample % m_nCluster;
+				}
+				break;
+
+			case  2:	// keep as is, but check for valid cluster ids
+				if( 0 > iCluster || iCluster >= m_nCluster )
+				{
+					iCluster	= iSample % m_nCluster;
+				}
+				break;
+			}
+
 			cl_m[iCluster = iSample % m_nCluster]	++;
 
 			for(iFeature=0; iFeature<m_nFeatures; iFeature++)

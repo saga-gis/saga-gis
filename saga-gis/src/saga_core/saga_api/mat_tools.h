@@ -981,13 +981,13 @@ public:
 	bool					Add_Element			(void);
 	bool					Set_Feature			(int iElement, int iFeature, double Value);
 
-	int						Get_Cluster			(int iElement)	const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Cluster[iElement] : -1 );	}
+	int						Get_Cluster			(int iElement)	const	{	return( iElement >= 0 && iElement < Get_nElements() ? m_Clusters[iElement] : -1 );	}
 
-	bool					Execute				(int Method, int nClusters, int nMaxIterations = 0);
+	bool					Execute				(int Method, int nClusters, int nMaxIterations = 0, int Initialization = 0);
 
 	int						Get_nElements		(void)	const	{	return( (int)m_Features.Get_Size() );	}
-	int						Get_nFeatures		(void)	const	{	return( m_nFeatures );	}
-	int						Get_nClusters		(void)	const	{	return( m_nClusters );	}
+	int						Get_nFeatures		(void)	const	{	return(      m_nFeatures           );	}
+	int						Get_nClusters		(void)	const	{	return( (int)m_nMembers.Get_Size() );	}
 
 	int						Get_Iteration		(void)	const	{	return( m_Iteration );	}
 
@@ -1000,15 +1000,22 @@ public:
 
 private:
 
-	int						*m_Cluster, m_Iteration, m_nFeatures, m_nClusters, *m_nMembers;
+	int						m_Iteration, m_nFeatures;
 
-	double					*m_Variance, **m_Centroid, m_SP;
+	double					m_SP;
+
+	CSG_Array_Int			m_Clusters, m_nMembers;
 
 	CSG_Array				m_Features;
 
+	CSG_Vector				m_Variance;
 
-	bool					Minimum_Distance	(bool bInitialize, int nMaxIterations);
-	bool					Hill_Climbing		(bool bInitialize, int nMaxIterations);
+	CSG_Matrix				m_Centroid;
+
+
+	bool					_Minimum_Distance	(bool bInitialize, int nMaxIterations);
+
+	bool					_Hill_Climbing		(bool bInitialize, int nMaxIterations);
 
 };
 
