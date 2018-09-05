@@ -951,6 +951,13 @@ CSaLEM::CSaLEM(void)
 	));
 
 	Add_Reference(
+		"Bock, M., Conrad, O., Guenther, A., Gehrt, E., Baritz, R., and Boehner, J.", "2018",
+		"SaLEM (v1.0) - the Soil and Landscape Evolution Model (SaLEM) for simulation of regolith depth in periglacial environments",
+		"Geosci. Model Dev., 11, 1641-1652.",
+		SG_T("https://doi.org/10.5194/gmd-11-1641-2018")
+	);
+
+	Add_Reference(
 		"Alley, R.", "2000",
 		"The Younger Dryas cold interval as viewed from central Greenland",
 		"Quaternary Science Reviews 19: 213-226."

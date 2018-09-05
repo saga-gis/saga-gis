@@ -72,31 +72,31 @@ CForecasting::CForecasting(void){
 	Parameters.Add_Grid(NULL, 
 						"M1H", 
 						_TL("Dead Fuel Moisture 1H"), 
-						_TL(""), 
+						_TL("Fraction (lb water/lb fuel) [0-1]"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M10H", 
 						_TL("Dead Fuel Moisture 10H"),
-						_TL(""), 
+						_TL("Fraction (lb water/lb fuel) [0-1]"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"M100H", 
 						_TL("Dead Fuel Moisture 100H"),
-						_TL(""), 
+						_TL("Fraction (lb water/lb fuel) [0-1]"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MHERB", 
 						_TL("Herbaceous Fuel Moisture"),
-						_TL(""), 
+						_TL("Fraction (lb water/lb fuel) [0-1]"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
 						"MWOOD", 
 						_TL("Wood Fuel Moisture"), 
-						_TL(""), 
+						_TL("Fraction (lb water/lb fuel) [0-1]"), 
 						PARAMETER_INPUT);
 
 	Parameters.Add_Grid(NULL, 
@@ -132,7 +132,7 @@ CForecasting::CForecasting(void){
 	Parameters.Add_Value(NULL,
 						"MONTECARLO",
 						_TL("Number of Events"),
-						_TL("N\xc3\xbamero of Monte-Carlo events"),
+						_TL("Number of Monte-Carlo events"),
 						PARAMETER_TYPE_Int,
 						1000,
 						1.,
