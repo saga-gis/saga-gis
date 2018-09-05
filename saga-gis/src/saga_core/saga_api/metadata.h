@@ -83,6 +83,8 @@
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_MetaData
 {
+	friend class CSG_HTTP;
+
 public:
 								CSG_MetaData		(void);
 	bool						Create				(void);
@@ -109,6 +111,9 @@ public:
 
 	bool						Load_WKT			(const CSG_String &WKT);
 	bool						Save_WKT			(      CSG_String &WKT)		const;
+
+	bool						Load_JSON			(const CSG_String &JSON);
+	bool						Save_JSON			(      CSG_String &JSON)	const;
 
 	bool						Assign				(const CSG_MetaData &MetaData, bool bAddChildren = true);
 
@@ -174,7 +179,7 @@ public:
 	bool						Del_Property		(int i);
 
 	CSG_String					asText				(int Flags = 0) const;
-	class CSG_Table				Get_Table				(int Flags = 0) const;
+	class CSG_Table				Get_Table			(int Flags = 0) const;
 
 
 private:
@@ -203,6 +208,48 @@ private:
 	bool						_Save_WKT			(      CSG_String &WKT)		const;
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_HTTP
+{
+public:
+								CSG_HTTP		(void);
+	bool						Create			(void);
+
+								CSG_HTTP		(const CSG_String &Server, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
+	bool						Create			(const CSG_String &Server, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
+
+	virtual						~CSG_HTTP		(void);
+	bool						Destroy			(void);
+
+	bool						is_Connected	(void)	const;
+
+	bool						Request			(const CSG_String &Request, CSG_Bytes    &Answer);
+	bool						Request			(const CSG_String &Request, CSG_MetaData &Answer);
+	bool						Request			(const CSG_String &Request, CSG_String   &Answer);
+	bool						Request			(const CSG_String &Request, const SG_Char *File);
+
+
+protected:
+
+	class wxHTTP				*m_pHTTP;
+
+
+private:
+
+	class wxInputStream *		_Request		(const CSG_String &Request);
+
+};
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool	SG_FTP_Download		(const CSG_String &Target_Directory, const CSG_String &Source, const SG_Char *Username = NULL, const SG_Char *Password = NULL, unsigned short Port = 21, bool bBinary = true, bool bVerbose = false);
 
 
 ///////////////////////////////////////////////////////////

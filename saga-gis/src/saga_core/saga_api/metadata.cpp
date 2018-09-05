@@ -953,6 +953,418 @@ bool CSG_MetaData::_Save_WKT(CSG_String &WKT) const
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_MetaData::Load_JSON(const CSG_String &JSON)
+{
+	Destroy();
+
+	Set_Name("root");
+
+	CSG_MetaData	*pNode	= this;
+
+	const SG_Char	*pc	= JSON.c_str();
+
+	while( *pc )
+	{
+		CSG_String	Element;
+
+		for(bool bQuota=false;;)
+		{
+			SG_Char c = *pc++;
+			
+			if( !c || c == '\n' ) { break; } else
+			{
+				if( c == '\"' )
+				{
+					Element += c; bQuota = !bQuota;
+				}
+				else if( bQuota || (c != ' ' && c != '\t' && c != ',') )
+				{
+					Element += c;
+				}
+			}
+		}
+
+		//-------------------------------------------------
+		if( Element.is_Empty() )
+		{
+			// nop
+		}
+		else if( Element.Find('[') >= 0 )	// array begins
+		{
+			pNode	= pNode->Add_Child(Element.AfterFirst('\"').BeforeFirst('\"'));
+
+			pNode->Add_Property("array", 1);
+		}
+		else if( Element.Find(']') >= 0 )	// array ends
+		{
+			if( pNode != this )
+			{
+				pNode	= pNode->Get_Parent();
+			}
+		}
+		else if( Element.Find('{') >= 0 )	// object begins
+		{
+			Element	= Element.AfterFirst('\"').BeforeFirst('\"');
+
+			if( !Element.is_Empty() )
+			{
+				pNode	= pNode->Add_Child(Element);
+			}
+			else if( pNode->Get_Property("array") )
+			{
+				pNode	= pNode->Add_Child(CSG_String::Format("%d", pNode->Get_Children_Count()));
+			}
+		}
+		else if( Element.Find('}') >= 0 )	// object ends
+		{
+			if( pNode != this )
+			{
+				pNode	= pNode->Get_Parent();
+			}
+		}
+		else
+		{
+			CSG_String	Key  (Element.AfterFirst('\"').BeforeFirst('\"'));
+			CSG_String	Value(Element.AfterFirst(':'));
+
+			if( Value.Find('\"') > -1 )
+			{
+				Value	= Value.AfterFirst('\"').BeforeFirst('\"');
+			}
+
+			pNode->Add_Child(Key, Value);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Save_JSON(CSG_String &JSON)	const
+{
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_HTTP::CSG_HTTP(void)
+{
+	m_pHTTP	= NULL;
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Create(void)
+{
+	return( Destroy() );
+}
+
+//---------------------------------------------------------
+CSG_HTTP::CSG_HTTP(const CSG_String &Server, const SG_Char *Username, const SG_Char *Password)
+{
+	Create(Server, Username, Password);
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Create(const CSG_String &Server, const SG_Char *Username, const SG_Char *Password)
+{
+	Destroy();
+
+	m_pHTTP	= new wxHTTP;
+
+	if( Username && *Username )	{	m_pHTTP->SetUser    (Username);	}
+	if( Password && *Password )	{	m_pHTTP->SetPassword(Password);	}
+
+	wxString	Host	= Server.c_str();
+
+	unsigned short	Port	= 80;
+
+	#define SERVER_TRIM(s, p)	{ wxString sp(p); sp += "://"; if( s.Find(p) == 0 ) { s = s.Right(s.Length() - sp.Length()); } }
+
+//	SERVER_TRIM(Host, "https");
+	SERVER_TRIM(Host, "http");
+
+	if( Host.Find(":") >= 0 )
+	{
+		long	_Port;
+
+		if( Host.AfterLast(':').ToLong(&_Port) )
+		{
+			Port	= (unsigned short)_Port;
+		}
+
+		Host	= Host.BeforeLast(':');
+	}
+
+	if( !m_pHTTP->Connect(Host, Port) )
+	{
+		Destroy();
+
+		return( false );
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_HTTP::~CSG_HTTP(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Destroy(void)
+{
+	if( m_pHTTP )
+	{
+		delete(m_pHTTP);
+
+		m_pHTTP	= NULL;
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::is_Connected(void)	const
+{
+	return( m_pHTTP != NULL );
+}
+
+//---------------------------------------------------------
+wxInputStream * CSG_HTTP::_Request(const CSG_String &Request)
+{
+	if( !is_Connected() )
+	{
+		return( NULL );
+	}
+
+	wxString	s(Request.c_str());
+
+	if( s[0] != '/' )
+	{
+		s.Prepend("/");
+	}
+
+	wxInputStream	*pStream	= m_pHTTP->GetInputStream(s);
+
+	if( pStream && !pStream->CanRead() )
+	{
+		delete(pStream);
+
+		return( NULL );
+	}
+
+	return( pStream );
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Request(const CSG_String &Request, CSG_MetaData &Answer)
+{
+	wxInputStream *pStream = _Request(Request); if( !pStream ) { return( false ); }
+
+	wxXmlDocument	XML;
+
+	if( !XML.Load(*pStream) )
+	{
+		delete(pStream);
+
+		return( false );
+	}
+
+	Answer.Destroy();	Answer._Load(XML.GetRoot());
+
+	delete(pStream);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Request(const CSG_String &Request, CSG_Bytes &Answer)
+{
+	wxInputStream *pStream = _Request(Request); if( !pStream ) { return( false ); }
+
+	if( pStream->GetSize() == ((size_t)-1) )
+	{
+		delete(pStream);
+
+		return( false );
+	}
+
+	Answer.Clear();
+
+	while( pStream->CanRead() )
+	{
+		char	Byte;
+
+		pStream->Read(&Byte, sizeof(Byte));
+
+		Answer	+= Byte;
+	}
+
+	delete(pStream);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Request(const CSG_String &Request, CSG_String &Answer)
+{
+	wxInputStream *pStream = _Request(Request); if( !pStream ) { return( false ); }
+
+	//if( pStream->GetSize() == ((size_t)-1) )
+	//{
+	//	delete(pStream);
+
+	//	return( false );
+	//}
+
+	Answer.Clear();
+
+	while( pStream->CanRead() )
+	{
+		char	Byte;
+
+		pStream->Read(&Byte, sizeof(Byte));
+
+		Answer	+= Byte;
+	}
+
+	delete(pStream);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CSG_HTTP::Request(const CSG_String &Request, const SG_Char *File)
+{
+	wxInputStream *pStream = _Request(Request); if( !pStream ) { return( false ); }
+
+	wxFileOutputStream	*pFile	= new wxFileOutputStream(File);
+
+	if( !pFile )
+	{
+		delete(pStream);
+
+		return( false );
+	}
+
+	pFile->Write(*pStream);
+
+	delete(pFile);
+
+	delete(pStream);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#include <wx/protocol/ftp.h>
+
+//---------------------------------------------------------
+bool	SG_FTP_Download(const CSG_String &Target_Directory, const CSG_String &Source, const SG_Char *Username, const SG_Char *Password, unsigned short Port, bool bBinary, bool bVerbose)
+{
+	CSG_String	_Source(Source); _Source.Trim();
+
+	if( _Source.Find("ftp://") == 0 )
+	{
+		_Source	= _Source.Right(_Source.Length() - CSG_String("ftp://").Length());
+	}
+
+	CSG_String	ftpHost	= _Source.BeforeFirst('/');
+	CSG_String	ftpDir	= _Source.AfterFirst ('/').BeforeLast('/'); // ftpDir.Prepend("/");
+	CSG_String	ftpFile	= _Source.AfterLast  ('/');
+
+	//-----------------------------------------------------
+	wxFTP ftp;
+
+	if( Username && *Username )	{	ftp.SetUser    (Username);	}
+	if( Password && *Password )	{	ftp.SetPassword(Password);	}
+
+	if( !ftp.Connect(ftpHost.c_str(), Port) )
+	{
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Error(_TL("Couldn't connect"));
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !ftpDir.is_Empty() && !ftp.ChDir(ftpDir.c_str()) )
+	{
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("Couldn't change to directory"), ftpDir.c_str()));
+		}
+
+		return( false );
+	}
+
+	if( ftp.GetFileSize(ftpFile.c_str()) == -1 )
+	{
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("Couldn't get the file size"), ftpFile.c_str()));
+		}
+	}
+
+	//-----------------------------------------------------
+	wxInputStream	*pStream	= ftp.GetInputStream(ftpFile.c_str());
+
+	if( !pStream )
+	{
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("Couldn't get the file"), ftpFile.c_str()));
+		}
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxFileOutputStream	*pFile	= new wxFileOutputStream(SG_File_Make_Path(Target_Directory, ftpFile).c_str());
+
+	if( !pFile )
+	{
+		if( bVerbose )
+		{
+			SG_UI_Msg_Add_Error(CSG_String::Format("%s [%s]", _TL("Couldn't create target file"), SG_File_Make_Path(Target_Directory, ftpFile).c_str()));
+		}
+
+		delete(pStream);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	pFile->Write(*pStream);
+
+	delete(pFile);
+	delete(pStream);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////

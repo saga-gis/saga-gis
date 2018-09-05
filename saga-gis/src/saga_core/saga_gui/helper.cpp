@@ -72,6 +72,8 @@
 
 #include "helper.h"
 
+#include "res_dialogs.h"
+
 #include "saga.h"
 #include "saga_frame.h"
 
@@ -855,6 +857,27 @@ bool		Open_Application(const wxString &Reference, const wxString &Mime_Extension
 	if( Reference.IsEmpty() )
 	{
 		return( false );
+	}
+
+	if(0&& Reference.Find("ftp:"   ) == 0 )
+	{
+		wxString	Directory;
+
+		if( DLG_Directory(Directory, _TL("Save to Directory...")) )
+		{
+			wxBusyCursor	BusyCursor;
+
+			if( SG_FTP_Download(&Directory, &Reference) )
+			{
+				DLG_Message_Show_Error(Reference, _TL("FTP download finished..."));
+
+				return( true );
+			}
+
+			DLG_Message_Show_Error(Reference, _TL("FTP download failed..."));
+
+			return( false );
+		}
 	}
 
 	if( Reference.Find("ftp:"   ) == 0
