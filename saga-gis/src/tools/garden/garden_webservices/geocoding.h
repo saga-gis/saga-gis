@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   garden_webservices                  //
+//                  garden_webservices                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.h                     //
+//                     geocoding.h                       //
 //                                                       //
-//                 Copyright (C) 2011 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (C) 2018                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -53,17 +50,69 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__TLB_INTERFACE_H
-#define HEADER_INCLUDED__TLB_INTERFACE_H
+#ifndef HEADER_INCLUDED__geocoding_H
+#define HEADER_INCLUDED__geocoding_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__TLB_INTERFACE_H
+class CGeoCoding : public CSG_Tool
+{
+public:
+	CGeoCoding(void);
+
+//	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_String				m_API_Key;
+
+	CSG_Shapes				*m_pLocations;
+
+
+	bool					Request_DSTK			(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Google			(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Bing			(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+	bool					Request_MapQuest		(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Yahoo			(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Nominatim		(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__geocoding_H

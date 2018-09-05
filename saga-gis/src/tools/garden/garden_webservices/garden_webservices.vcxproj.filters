@@ -23,11 +23,11 @@
     <ClCompile Include="wms_import.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="geocoding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -83,6 +83,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wms_import.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="geocoding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

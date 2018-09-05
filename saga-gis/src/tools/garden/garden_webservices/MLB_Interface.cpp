@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -60,7 +57,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -71,22 +68,22 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( _TL("Web Service Data Access" ));
+		return( _TL("Web Services" ) );
 
 	case TLB_INFO_Category:
 		return( _TL("Garden") );
 
 	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton (c) 2011" ));
+		return( "SAGA User Group Associaton (c) 2011" );
 
 	case TLB_INFO_Description:
-		return( _TW("Web Service Data Access" ));
+		return( _TW("Web Services") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0" ));
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Garden|Web Service Data Access" ));
+		return( _TL("Garden|Web Services") );
 	}
 }
 
@@ -96,6 +93,7 @@ CSG_String Get_Info(int i)
 
 #include "wms_import.h"
 #include "osm_import.h"
+#include "geocoding.h"
 
 
 //---------------------------------------------------------
@@ -105,11 +103,13 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CWMS_Import );
-	case 1:		return( new COSM_Import );
-	}
+	case  0:	return( new CWMS_Import );
+	case  1:	return( new COSM_Import );
+	case  2:	return( new CGeoCoding );
 
-	return( NULL );
+	case  3:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

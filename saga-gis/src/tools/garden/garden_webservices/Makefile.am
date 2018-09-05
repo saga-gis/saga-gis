@@ -11,10 +11,11 @@ AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) $(GOMPFLAGS
 AM_LDFLAGS         = $(DEP_LFLG) -avoid-version
 pkglib_LTLIBRARIES = libgarden_webservices.la
 libgarden_webservices_la_SOURCES =\
+geocoding.cpp\
 MLB_Interface.cpp\
 osm_import.cpp\
 wms_import.cpp\
-MLB_Interface.h\
+geocoding.h\
 osm_import.h\
 wms_import.h
 
