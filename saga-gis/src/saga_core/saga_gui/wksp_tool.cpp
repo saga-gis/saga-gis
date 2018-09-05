@@ -608,28 +608,28 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	}
 
 	//-----------------------------------------------------
-	s	+= "def Call_SAGA_Tool(fDEM):            # pass your input file(s) here\n";
+	s	+= "def Call_SAGA_Tool(fgrid):            # pass your input file(s) here\n";
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
 	s	+= "    # initialize input dataset(s)\n";
-	s	+= "    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fDEM))\n";
-	s	+= "    if dem == None or dem.is_Valid() == 0:\n";
+	s	+= "    grid    = saga_api.SG_Get_Data_Manager().Add_Grid(unicode(fgrid))\n";
+	s	+= "    if grid == None or grid.is_Valid() == 0:\n";
 	s	+= "        print 'ERROR: loading grid [' + fDEM + ']'\n";
 	s	+= "        return 0\n";
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
 	s	+= "    # initialize output dataset(s)\n";
-	s	+= "    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(dem.Get_System())\n";
+	s	+= "    outgrid = saga_api.SG_Get_Data_Manager().Add_Grid(grid.Get_System())\n";
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
 	s	+= "    # call tool: ";
 	s	+= m_pTool->Get_Name() + "\n";
-	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('";
-	s	+= m_pTool->Get_Library() + "','" + m_pTool->Get_ID() + "')\n";
+	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('";
+	s	+= m_pTool->Get_Library() + "'), saga_api.CSG_String('" + m_pTool->Get_ID() + "'))\n";
 
 	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
 	{
-		s	+= "    Tool.Get_Parameters().Get_Grid_System().Assign(dem.Get_System())\n";
+		s	+= "    Tool.Get_Parameters().Get_Grid_System().Assign(grid.Get_System())\n";
 	}
 
 	s	+= "\n";
@@ -659,7 +659,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	s	+= "\n";
 	s	+= "    # ------------------------------------\n";
 	s	+= "    # save results\n";
-	s	+= "    path   = os.path.split(fDEM)[0]\n";
+	s	+= "    path   = os.path.split(fgrid)[0]\n";
 	s	+= "    if path == '':\n";
 	s	+= "        path = './'\n";
 	s	+= "    outgrid.Save(saga_api.CSG_String(path + '/outgrid'))\n";
