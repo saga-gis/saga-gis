@@ -1070,6 +1070,8 @@ bool CSG_HTTP::Create(void)
 //---------------------------------------------------------
 CSG_HTTP::CSG_HTTP(const CSG_String &Server, const SG_Char *Username, const SG_Char *Password)
 {
+	m_pHTTP	= NULL;
+
 	Create(Server, Username, Password);
 }
 
@@ -1192,12 +1194,12 @@ bool CSG_HTTP::Request(const CSG_String &Request, CSG_Bytes &Answer)
 {
 	wxInputStream *pStream = _Request(Request); if( !pStream ) { return( false ); }
 
-	if( pStream->GetSize() == ((size_t)-1) )
-	{
-		delete(pStream);
-
-		return( false );
-	}
+//	if( pStream->GetSize() == ((size_t)-1) )
+//	{
+//		delete(pStream);
+//
+//		return( false );
+//	}
 
 	Answer.Clear();
 
