@@ -596,6 +596,21 @@ bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	//-----------------------------------------------------
+	if( !SG_STR_CMP(pParameters->Get_Identifier(), "CLASSIFY") )
+	{
+		if( Flags & PARAMETER_CHECK_ENABLE )
+		{
+			if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+			{
+				pParameters->Set_Enabled("COUNT"   , pParameter->asInt() != 0);
+				pParameters->Set_Enabled("COUNTMAX", pParameter->asInt() == 0);
+			}
+		}
+
+		return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
+	}
+
+	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
@@ -695,14 +710,16 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 void CWKSP_Grid::_LUT_Create(void)
 {
 	//-----------------------------------------------------
-	static CSG_Parameters	Parameters;
+	static CSG_Parameters	PStatic;
 
-	if( Parameters.Get_Count() == 0 )
+	if( PStatic.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, _TL("Classify"), _TL(""));
-		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
-		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+		PStatic.Create(NULL, _TL("Classify"), _TL(""));
+		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""))->asColors()->Set_Count(11);
+		PStatic.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
+		PStatic.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
+		PStatic.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("unique values"),
 				_TL("equal intervals"),
 				_TL("quantiles"),
@@ -711,13 +728,26 @@ void CWKSP_Grid::_LUT_Create(void)
 		);
 	}
 
+	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+
+	Parameters.Assign_Parameters(&PStatic);
+
+	Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
+
 	if( !DLG_Parameters(&Parameters) )
 	{
 		return;
 	}
 
+	PStatic.Assign_Values(&Parameters);
+
 	//-----------------------------------------------------
-	CSG_Colors	Colors(*Parameters("COLOR")->asColors());
+	CSG_Colors	Colors(*Parameters("COLORS")->asColors());
+
+	if( Parameters("METHOD")->asInt() != 0 )
+	{
+		Colors.Set_Count(Parameters("COUNT")->asInt());
+	}
 
 	CSG_Table	Classes(m_Parameters("LUT")->asTable());
 
@@ -728,9 +758,9 @@ void CWKSP_Grid::_LUT_Create(void)
 	{
 		CSG_Unique_Number_Statistics	s;
 
-		#define MAX_CLASSES	1024
+		int	maxClasses	= Parameters("COUNTMAX")->asInt();
 
-		for(sLong iCell = 0; iCell<Get_Grid()->Get_NCells() && s.Get_Count()<MAX_CLASSES && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
+		for(sLong iCell = 0; iCell<Get_Grid()->Get_NCells() && s.Get_Count()<maxClasses && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
 		{
 			if( !Get_Grid()->is_NoData(iCell) )
 			{

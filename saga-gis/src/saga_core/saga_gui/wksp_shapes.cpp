@@ -819,17 +819,24 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 	int	Field	= Parameters("FIELD")->asInt();
 
+	int	Method	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0;
+
 	CSG_Colors	Colors(*Parameters("COLORS")->asColors());
+
+	if( Method != 0 )
+	{
+		Colors.Set_Count(Parameters("COUNT")->asInt());
+	}
 
 	CSG_Table	Classes(m_Parameters("LUT")->asTable());
 
-	switch( SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field)) ? Parameters("METHOD")->asInt() : 0 )
+	switch( Method )
 	{
 	//-----------------------------------------------------
 	case 0:	// unique values
 		{
 			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(Field))
-									? SG_DATATYPE_Double : SG_DATATYPE_String;
+				? SG_DATATYPE_Double : SG_DATATYPE_String;
 
 			Classes.Set_Field_Type(LUT_MIN, Type);
 			Classes.Set_Field_Type(LUT_MAX, Type);
@@ -871,8 +878,6 @@ void CWKSP_Shapes::_LUT_Create(void)
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
 
-			Colors.Set_Count(Parameters("COUNT")->asInt());
-
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
 				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Shapes()->Get_Maximum(Field) + 1.0;
@@ -901,8 +906,6 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			Colors.Set_Count(Parameters("COUNT")->asInt());
 
 			if( Get_Shapes()->Get_Count() < Colors.Get_Count() )
 			{
@@ -944,8 +947,6 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 			Classes.Set_Field_Type(LUT_MIN, SG_DATATYPE_Double);
 			Classes.Set_Field_Type(LUT_MAX, SG_DATATYPE_Double);
-
-			Colors.Set_Count(Parameters("COUNT")->asInt());
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
