@@ -62,7 +62,7 @@
 #include "wms_import.h"
 
 #include <wx/image.h>
-#include <wx/protocol/http.h>
+#include <wx/mstream.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -191,8 +191,19 @@ bool CWMS_Capabilities::Create(const CSG_String &Path, const CSG_String &Version
 
 		else if( Layer[i].Cmp_Name("Layer") )
 		{
-			m_Layers_Name	+= Layer[i].Get_Content("Name" );
-			m_Layers_Title	+= Layer[i].Get_Content("Title");
+			CSG_String	Name (Layer[i].Get_Content("Name" ));
+			CSG_String	Title(Layer[i].Get_Content("Title"));
+
+			if( Name.is_Empty() == true )
+			{
+				Name	= Title;
+			}
+
+			if( Name.is_Empty() == false )
+			{
+				m_Layers_Name	+= Name ;
+				m_Layers_Title	+= Title;
+			}
 		}
 	}
 
@@ -247,17 +258,20 @@ CWMS_Import::CWMS_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Info_String("", "ABSTRACT", _TL("Abstract"), _TL(""), "", true);
-	Parameters.Add_Double     ("", "GCS_XMIN", _TL("Left"    ), _TL(""));
-	Parameters.Add_Double     ("", "GCS_XMAX", _TL("Right"   ), _TL(""));
-	Parameters.Add_Double     ("", "GCS_YMIN", _TL("Bottom"  ), _TL(""));
-	Parameters.Add_Double     ("", "GCS_YMAX", _TL("Top"     ), _TL(""));
-	Parameters.Add_Choice     ("", "LAYER"   , _TL("Layer"   ), _TL(""), "");
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWMS_Import::On_Before_Execution(void)
+{
+	On_Parameter_Changed(&Parameters, Parameters("SERVER"));
+
+	return( CSG_Tool::On_Before_Execution() );
+}
 
 //---------------------------------------------------------
 int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -268,20 +282,25 @@ int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 		if( Capabilities.Create(pParameter->asString(), "1.1.1") )
 		{
-			pParameters->Set_Parameter("ABSTRACT", Capabilities.m_Abstract   );
-			pParameters->Set_Parameter("GCS_XMIN", Capabilities.m_Extent.xMin);
-			pParameters->Set_Parameter("GCS_XMAX", Capabilities.m_Extent.xMax);
-			pParameters->Set_Parameter("GCS_YMIN", Capabilities.m_Extent.yMin);
-			pParameters->Set_Parameter("GCS_YMAX", Capabilities.m_Extent.yMax);
+			CSG_String	Abstract(Capabilities.m_Abstract);
 
-			CSG_String	Items;
+			Abstract	+= CSG_String::Format("\n\n%s:", _TL("Extent"));
+
+			Abstract	+= CSG_String::Format("\nW-E: [%f] - [%f]", Capabilities.m_Extent.xMin, Capabilities.m_Extent.xMax);
+			Abstract	+= CSG_String::Format("\nS-N: [%f] - [%f]", Capabilities.m_Extent.yMin, Capabilities.m_Extent.yMax);
+
+			Abstract	+= CSG_String::Format("\n\n%s:", _TL("Layers"));
 
 			for(int i=0; i<Capabilities.m_Layers_Title.Get_Count(); i++)
 			{
-				Items	+= Capabilities.m_Layers_Title[i] + "|";
+				Abstract	+= "\n" + Capabilities.m_Layers_Title[i];
 			}
 
-			pParameters->Get_Parameter("LAYER")->asChoice()->Set_Items(Items);
+			pParameters->Set_Parameter("ABSTRACT", Abstract);
+		}
+		else
+		{
+			pParameters->Set_Parameter("ABSTRACT", SG_T("---"));
 		}
 	}
 
@@ -318,22 +337,22 @@ bool CWMS_Import::On_Execute(void)
 	CSG_String	Domain(      Address.BeforeFirst('/'));
 	CSG_String	Path  ("/" + Address.AfterFirst ('/'));
 
-	wxHTTP	Server;
+	CSG_HTTP	Server(Domain,
+		Parameters("USERNAME")->asString(),
+		Parameters("PASSWORD")->asString()
+	);
 
-	Server.SetUser    (Parameters("USERNAME")->asString());
-	Server.SetPassword(Parameters("PASSWORD")->asString());
-
-	if( Server.Connect(Domain.c_str()) == false )
+	if( Server.is_Connected() == false )
 	{
-		Message_Add(_TL("Unable to connect to server."));
+		Message_Add(_TL("Failed to connect to server."));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if( Get_Map(&Server, Path, Capabilities) == false )
+	if( Get_Map(Server, Path, Capabilities) == false )
 	{
-		Message_Add(_TL("Unable to get map."));
+		Message_Add(_TL("Failed to retrieve map."));
 
 		return( false );
 	}
@@ -348,154 +367,138 @@ bool CWMS_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWMS_Import::Do_Dialog(CWMS_Capabilities &Cap)
+bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabilities &Capabilities)
 {
-	return( false );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, CWMS_Capabilities &Cap)
-{
-	int				i, n;
-	CSG_Rect		r(Cap.m_Extent);
-	CSG_Parameters	p;
+	int				i;
+	CSG_Rect		r(Capabilities.m_Extent);
+	CSG_Parameters	P;
 
 	//-----------------------------------------------------
-//	if( Cap.m_MaxWidth  > 2 && NX > Cap.m_MaxWidth  )	NX	= Cap.m_MaxWidth;
-//	if( Cap.m_MaxHeight > 2 && NY > Cap.m_MaxHeight )	NY	= Cap.m_MaxHeight;
+//	if( Capabilities.m_MaxWidth  > 2 && NX > Capabilities.m_MaxWidth  )	NX	= Capabilities.m_MaxWidth;
+//	if( Capabilities.m_MaxHeight > 2 && NY > Capabilities.m_MaxHeight )	NY	= Capabilities.m_MaxHeight;
 
-	p.Add_Range ("", "X_RANGE" , _TL("X Range"    ), _TL(""), r.Get_XMin(), r.Get_XMax(), r.Get_XMin(), r.Get_XRange() > 0.0, r.Get_XMax(), r.Get_XRange() > 0.0);
-	p.Add_Range ("", "Y_RANGE" , _TL("Y Range"    ), _TL(""), r.Get_YMin(), r.Get_YMax(), r.Get_YMin(), r.Get_YRange() > 0.0, r.Get_YMax(), r.Get_YRange() > 0.0);
-	p.Add_Double("", "CELLSIZE", _TL("Cellsize"   ), _TL(""), r.Get_XRange() / 2001.0, 0.0, true);
-	p.Add_Choice("", "FORMAT"  , _TL("Format"     ), _TL(""), Cap.m_Formats);
-	p.Add_Choice("", "PROJ"    , _TL("Projections"), _TL(""), Cap.m_Projections);
+	P.Add_Range ("", "X_RANGE" , _TL("X Range"    ), _TL(""), r.Get_XMin(), r.Get_XMax(), r.Get_XMin(), r.Get_XRange() > 0.0, r.Get_XMax(), r.Get_XRange() > 0.0);
+	P.Add_Range ("", "Y_RANGE" , _TL("Y Range"    ), _TL(""), r.Get_YMin(), r.Get_YMax(), r.Get_YMin(), r.Get_YRange() > 0.0, r.Get_YMax(), r.Get_YRange() > 0.0);
+	P.Add_Double("", "CELLSIZE", _TL("Cellsize"   ), _TL(""), r.Get_XRange() / 1001., 0., true);
+	P.Add_Choice("", "FORMAT"  , _TL("Format"     ), _TL(""), Capabilities.m_Formats);
+	P.Add_Choice("", "PROJ"    , _TL("Projections"), _TL(""), Capabilities.m_Projections);
 
-	CSG_Parameter	*pFormat	= p("FORMAT");
+	P("FORMAT")->Set_Value("image/png");
+	P("PROJ"  )->Set_Value("EPSG:4326");
 
-	for(i=0; i<pFormat->asChoice()->Get_Count(); i++)
+	for(i=0; i<Capabilities.m_Layers_Name.Get_Count(); i++)
 	{
-		if( !SG_STR_CMP(pFormat->asChoice()->Get_Item(i), "image/png") )
+		if( !Capabilities.m_Layers_Name[i].is_Empty() )
 		{
-			pFormat->Set_Value(i);
+			P.Add_Bool("", Capabilities.m_Layers_Name[i], Capabilities.m_Layers_Title[i], "", false);
 		}
 	}
 
-	for(i=0; i<Cap.m_Layers_Name.Get_Count(); i++)
-	{
-		p.Add_Bool("", Cap.m_Layers_Name[i], Cap.m_Layers_Title[i], "", false);
-	}
-
 	//-----------------------------------------------------
-	if( !Dlg_Parameters(&p, _TL("WMS Import")) )
+	if( !Dlg_Parameters(&P, _TL("WMS Import")) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int			NX, NY;
-	double		Cellsize;
-	CSG_String	Layers, Format;
-
-	r.Assign(
-		p("X_RANGE")->asRange()->Get_LoVal(),
-		p("Y_RANGE")->asRange()->Get_LoVal(),
-		p("X_RANGE")->asRange()->Get_HiVal(),
-		p("Y_RANGE")->asRange()->Get_HiVal()
+	CSG_Grid_System	System(P("CELLSIZE")->asDouble(),
+		P("X_RANGE")->asRange()->Get_LoVal(), P("Y_RANGE")->asRange()->Get_LoVal(),
+		P("X_RANGE")->asRange()->Get_HiVal(), P("Y_RANGE")->asRange()->Get_HiVal()
 	);
 
-	Cellsize	= p("CELLSIZE")	->asDouble();
-
-	NX			= 1 + (int)(r.Get_XRange() / Cellsize);
-	NY			= 1 + (int)(r.Get_YRange() / Cellsize);
-
 	//-----------------------------------------------------
-	Layers.Clear();
+	CSG_String	Layers;
 
-	for(i=0, n=0; i<Cap.m_Layers_Name.Get_Count(); i++)
+	for(i=0; i<Capabilities.m_Layers_Name.Get_Count(); i++)
 	{
-		if( p(Cap.m_Layers_Name[i])->asBool() )
+		if( P(Capabilities.m_Layers_Name[i])->asBool() )
 		{
-			if( n++ > 0 )	Layers	+= ",";
+			if( !Layers.is_Empty() )	Layers	+= ",";
 
-			Layers	+= Cap.m_Layers_Name[i];
+			Layers	+= Capabilities.m_Layers_Name[i];
 		}
 	}
 
-	if( n == 0 )
+	if( Layers.is_Empty() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	wxBitmapType	tFormat;
+	wxBitmapType	Format;
 
-	Format	= p("FORMAT")->asString();
-
-	if(      Format.Contains("image/gif" ) )	tFormat	= wxBITMAP_TYPE_GIF ;
-	else if( Format.Contains("image/jpeg") )	tFormat	= wxBITMAP_TYPE_JPEG;
-	else if( Format.Contains("image/png" ) )	tFormat	= wxBITMAP_TYPE_PNG ;
-	else if( Format.Contains("image/wbmp") )	tFormat	= wxBITMAP_TYPE_BMP ;
-	else if( Format.Contains("image/bmp" ) )	tFormat	= wxBITMAP_TYPE_BMP ;
-	else if( Format.Contains("image/tiff") )	tFormat	= wxBITMAP_TYPE_TIF ;
-	else if( Format.Contains("GIF"       ) )	tFormat	= wxBITMAP_TYPE_GIF ;
-	else if( Format.Contains("JPEG"      ) )	tFormat	= wxBITMAP_TYPE_JPEG;
-	else if( Format.Contains("PNG"       ) )	tFormat	= wxBITMAP_TYPE_PNG ;
+	if(      !SG_STR_CMP(P("FORMAT")->asString(), "image/gif" ) )	Format	= wxBITMAP_TYPE_GIF ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/jpeg") )	Format	= wxBITMAP_TYPE_JPEG;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/png" ) )	Format	= wxBITMAP_TYPE_PNG ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/wbmp") )	Format	= wxBITMAP_TYPE_BMP ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/bmp" ) )	Format	= wxBITMAP_TYPE_BMP ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/tiff") )	Format	= wxBITMAP_TYPE_TIF ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "GIF"       ) )	Format	= wxBITMAP_TYPE_GIF ;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "JPEG"      ) )	Format	= wxBITMAP_TYPE_JPEG;
+	else if( !SG_STR_CMP(P("FORMAT")->asString(), "PNG"       ) )	Format	= wxBITMAP_TYPE_PNG ;
 	else
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_String	sRequest(Directory);
+	CSG_String	Request(Path);
 
-	sRequest	+= "?SERVICE=WMS";
-	sRequest	+= "&VERSION="	+ Cap.m_Version;
-	sRequest	+= "&REQUEST=GetMap";
+	Request	+= "?SERVICE=WMS";
+	Request	+= "&VERSION=" + Capabilities.m_Version;
+	Request	+= "&REQUEST=GetMap";
+	Request	+= "&LAYERS=" + Layers;
 
-	sRequest	+= "&LAYERS="	+ Layers;
+	if( Capabilities.m_Projections.Length() > 0 )
+	{
+		Request	+= CSG_String(S_SRS(Capabilities.m_Version)) + P("PROJ")->asString();
+	}
 
-	if( Cap.m_Projections.Length() > 0 )
-		sRequest	+= CSG_String(S_SRS(Cap.m_Version)) + p("PROJ")->asString();
+	Request	+= CSG_String::Format("&FORMAT=%s", P("FORMAT")->asString());
+	Request	+= CSG_String::Format("&WIDTH=%d&HEIGHT=%d", System.Get_NX(), System.Get_NY());
+	Request	+= CSG_String::Format("&BBOX=%f,%f,%f,%f", System.Get_XMin(), System.Get_YMin(), System.Get_XMax(), System.Get_YMax());
 
-	sRequest	+= "&FORMAT="	+ Format;
-
-	sRequest	+= CSG_String::Format("&WIDTH=%d&HEIGHT=%d", NX, NY);
-	sRequest	+= CSG_String::Format("&BBOX=%f,%f,%f,%f", r.m_rect.xMin, r.m_rect.yMin, r.m_rect.xMax, r.m_rect.yMax);
-
-	Message_Add(sRequest, true);
+	Message_Add("\n" + Request + "\n", false);
 
 	//-----------------------------------------------------
-	wxInputStream	*pStream;
+	CSG_Bytes	Answer;
 
-	if( (pStream = pServer->GetInputStream(sRequest.c_str())) == NULL )
+	if( !Server.Request(Request, Answer) )
 	{
-		Message_Add(_TL("could not open GetMap stream"));
+		Message_Add("\n", false);
+
+		Message_Add(_TL("Failed to retrieve stream"), false);
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	wxMemoryInputStream	Stream((const void *)Answer.Get_Bytes(), (size_t)Answer.Get_Count());
+
 	wxImage	Image;
 
-	if( Image.LoadFile(*pStream, tFormat) == false )
+	if( Image.LoadFile(Stream, Format) == false )
 	{
-		delete(pStream);
+		Message_Add(_TL("Failed to read image"));
 
-		Message_Add(_TL("could not read image"));
+		if( Answer[Answer.Get_Count() - 1] == '\0' )
+		{
+			Message_Add("\n", false);
+
+			Message_Add((const char *)Answer.Get_Bytes(), false);
+		}
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Cellsize, r.m_rect.xMin, r.m_rect.yMin);
+	CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin());
 
-	for(int y=0, yy=pGrid->Get_NY()-1; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++, yy--)
+	#pragma omp parallel for
+	for(int y=0; y<pGrid->Get_NY(); y++)
 	{
+		int	yy	= pGrid->Get_NY() - 1 - y;
+
 		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
 			pGrid->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
@@ -503,20 +506,22 @@ bool CWMS_Import::Get_Map(wxHTTP *pServer, const CSG_String &Directory, CWMS_Cap
 	}
 
 	//-----------------------------------------
-	pGrid->Set_Name(Cap.m_Title);
+	pGrid->Set_Name(Capabilities.m_Title);
+
 	Parameters("MAP")->Set_Value(pGrid);
-	DataObject_Set_Colors(pGrid, 100, SG_COLORS_BLACK_WHITE);
 
-	CSG_Parameters	Parms;
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB Coded Values
 
-	if( DataObject_Get_Parameters(pGrid, Parms) && Parms("COLORS_TYPE") )
+	CSG_String	Projection	= P("PROJ")->asString();
+
+	int	EPSG;
+
+	if( Projection.Find("EPSG:") < 0 || !Projection.AfterFirst(':').asInt(EPSG) )
 	{
-		Parms("COLORS_TYPE")->Set_Value(3);	// Color Classification Type: RGB
-
-		DataObject_Set_Parameters(pGrid, Parms);
+		EPSG	= 4326;
 	}
 
-	delete(pStream);
+	pGrid->Get_Projection().Create(EPSG);
 
 	return( true );
 }

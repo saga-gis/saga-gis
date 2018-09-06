@@ -103,6 +103,7 @@ public:
 
 protected:
 
+	virtual bool		On_Before_Execution		(void);
 	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
@@ -111,9 +112,7 @@ protected:
 
 private:
 
-	bool				Do_Dialog				(CWMS_Capabilities &Cap);
-
-	bool				Get_Map					(class wxHTTP *pServer, const CSG_String &Version, CWMS_Capabilities &Cap);
+	bool				Get_Map					(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabilities &Capabilities);
 
 };
 
