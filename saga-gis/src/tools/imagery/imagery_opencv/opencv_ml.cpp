@@ -518,10 +518,14 @@ bool COpenCV_ML::On_Execute(void)
 		return( false );
 	}
 
-	Ptr<StatModel>	Model	= Get_Model(Parameters("MODEL_LOAD")->asString());
+	Ptr<StatModel>	Model;
 
 	//-----------------------------------------------------
-	if( !SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	if( SG_File_Exists(Parameters("MODEL_LOAD")->asString()) )
+	{
+		Model	= Get_Model(Parameters("MODEL_LOAD")->asString());
+	}
+	else
 	{
 		Process_Set_Text(_TL("preparing training"));
 
@@ -535,6 +539,8 @@ bool COpenCV_ML::On_Execute(void)
 		Ptr<TrainData>	tData	= Get_Training(Data);	Data.Destroy();
 
 		Process_Set_Text(_TL("training"));
+
+		Model	= Get_Model();
 
 		Model->train(tData);
 

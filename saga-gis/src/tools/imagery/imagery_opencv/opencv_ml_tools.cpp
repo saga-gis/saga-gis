@@ -98,6 +98,12 @@ Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(const CSG_String &File)
 }
 
 //---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_NBayes::Get_Model(void)
+{
+	return(	NormalBayesClassifier::create() );
+}
+
+//---------------------------------------------------------
 double COpenCV_ML_NBayes::Get_Probability(const Ptr<StatModel> &Model, const Mat &Sample)
 {
 	const Ptr<NormalBayesClassifier>	&m	= *((Ptr<NormalBayesClassifier>*)&Model);
@@ -182,6 +188,12 @@ Ptr<StatModel> COpenCV_ML_KNN::Get_Model(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	return( KNearest::create() );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_KNN::Get_Model(void)
+{
 	Ptr<KNearest>	Model	= KNearest::create();
 
 	switch( Parameters("ALGORITHM")->asInt() )
@@ -285,6 +297,12 @@ Ptr<StatModel> COpenCV_ML_SVM::Get_Model(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	return( SVM::create() );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_SVM::Get_Model(void)
+{
 	Ptr<SVM>	Model	= SVM::create();
 
 	switch( Parameters("SVM_TYPE")->asInt() )
@@ -411,6 +429,12 @@ Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	return( Get_Trees() );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_DTrees::Get_Model(void)
+{
 	Ptr<DTrees>	Model	= Get_Trees();
 
 	Model->setMaxDepth                 (Parameters("MAX_DEPTH"   )->asInt   ());
@@ -677,19 +701,25 @@ Ptr<StatModel> COpenCV_ML_ANN::Get_Model(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
+	return( ANN_MLP::create() );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_ANN::Get_Model(void)
+{
 	Ptr<ANN_MLP>	Model	= ANN_MLP::create();
 
 	//-----------------------------------------------------
-	Mat	layer_sizes(1, 2 + Parameters("ANN_LAYERS")->asInt(), CV_32SC1);
+	Mat_<int> layer_sizes(1, 2 + Parameters("ANN_LAYERS")->asInt());
 
-	layer_sizes.at<int>(0)	= Get_Feature_Count();	// The first layer needs the same size (number of neurons) as the number of columns in the training data
+	layer_sizes(0, 0)	= Get_Feature_Count();	// The first layer needs the same size (number of neurons) as the number of columns in the training data
 
 	for(int i=1; i<layer_sizes.cols-1; i++)
 	{
-		layer_sizes.at<int>(i)	= Parameters("ANN_NEURONS")->asInt();
+		layer_sizes(0, i)	= Parameters("ANN_NEURONS")->asInt();
 	}
 
-	layer_sizes.at<int>(layer_sizes.cols-1)	= Get_Class_Count();	// The last layer needs the same size (number of neurons) as the number of output columns
+	layer_sizes(0, layer_sizes.cols-1)	= Get_Class_Count();	// The last layer needs the same size (number of neurons) as the number of output columns
 
 	Model->setLayerSizes(layer_sizes);
 

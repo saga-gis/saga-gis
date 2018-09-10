@@ -110,6 +110,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	= 0;
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File)	= 0;
+	virtual Ptr<StatModel>		Get_Model				(void)						= 0;
 	virtual Ptr<TrainData>		Get_Training			(const CSG_Matrix &Data);
 
 	virtual double				Get_Probability			(const Ptr<StatModel> &Model, const Mat &Sample)	{	return( 0.0 );	}
@@ -155,6 +156,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "nbayes" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
 
 	virtual double				Get_Probability			(const Ptr<StatModel> &Model, const Mat &Sample);
 
@@ -179,6 +181,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "knn" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
 
 };
 
@@ -201,6 +204,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "svm" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
 
 };
 
@@ -221,6 +225,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "dtree" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
 
 	virtual Ptr<DTrees>			Get_Trees				(const CSG_String &File);
 	virtual Ptr<DTrees>			Get_Trees				(void);
@@ -278,6 +283,7 @@ protected:
 	virtual const char *		Get_Model_ID			(void)	const	{	return( "ann" );	}
 
 	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
 
 	virtual Ptr<TrainData>		Get_Training			(const CSG_Matrix &Data);
 
