@@ -63,9 +63,7 @@
 #define HEADER_INCLUDED__kff_synth_H
 
 //---------------------------------------------------------
-
-
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////

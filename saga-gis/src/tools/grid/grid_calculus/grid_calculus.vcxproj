@@ -354,7 +354,6 @@
     <ClInclude Include="Grid_Random_Terrain.h" />
     <ClInclude Include="Grid_Volume.h" />
     <ClInclude Include="kff_synth.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />

@@ -46,8 +46,7 @@ Grid_Plotter.h\
 Grid_Random_Field.h\
 Grid_Random_Terrain.h\
 Grid_Volume.h\
-kff_synth.h\
-MLB_Interface.h
+kff_synth.h
 
 libgrid_calculus_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 
