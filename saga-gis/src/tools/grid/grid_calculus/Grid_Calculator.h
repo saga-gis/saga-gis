@@ -64,7 +64,7 @@
 #define HEADER_INCLUDED__Grid_Calculator_H
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -74,7 +74,48 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Calculator : public CSG_Tool_Grid
+class CGrid_Calculator_Base : public CSG_Tool_Grid
+{
+public:
+	CGrid_Calculator_Base(void);
+
+
+protected:
+
+	bool						m_bUseNoData, m_bPosition[6];
+
+	int							m_nValues;
+
+	static double				m_NoData_Value;
+
+	CSG_Formula					m_Formula;
+
+	TSG_Grid_Resampling			m_Resampling;
+
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool						Initialize				(int nGrids, int nXGrids);
+
+	TSG_Data_Type				Get_Result_Type			(void);
+
+	bool						Get_Result				(const CSG_Vector &Values, double &Result);
+
+	static double				Get_NoData_Value		(void)	{	return( m_NoData_Value );	}
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Calculator : public CGrid_Calculator_Base
 {
 public:
 	CGrid_Calculator(void);
@@ -82,15 +123,43 @@ public:
 
 protected:
 
-	virtual int		On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int		On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool	On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	bool			Get_Formula				(CSG_Formula &Formula, CSG_String sFormula, int nGrids, int nXGrids, bool bPosition[6]);
+	CSG_Parameter_Grid_List		*m_pGrids, *m_pXGrids;
+
+
+	bool						Get_Values				(int x, int y, CSG_Vector &Values);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrids_Calculator : public CGrid_Calculator_Base
+{
+public:
+	CGrids_Calculator(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid Collection|Calculus") );	}
+
+
+protected:
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Parameter_Grids_List	*m_pGrids, *m_pXGrids;
+
+
+	bool						Get_Values				(int x, int y, int z, CSG_Vector &Values);
 
 };
 
