@@ -76,7 +76,7 @@
       <input id="GRIDS">OPEN_NEG</input>
       <output id="PCA">FEATURES</output>
       <option id="METHOD">1</option>
-      <option id="NFIRST">4</option>
+      <option id="COMPONENTS">4</option>
     </tool>
 	
     <tool library="imagery_segmentation" tool="2" name="Seed Generation">
@@ -134,9 +134,9 @@
     </tool>
     <tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
       <output id="DISSOLVED">DISSOLVED</output>
-      <option id="FIELD_1">CLUSTER</option>
+      <option id="FIELDS">CLUSTER</option>
       <option id="BND_KEEP">FALSE</option>
-      <option id="STAT_FIELDS">&lt;no attributes&gt;</option>
+      <option id="STATISTICS">&lt;no attributes&gt;</option>
       <input id="POLYGONS">CLUSTERS</input>
     </tool>
     <tool library="shapes_polygons" tool="10" name="Polygon Parts to Separate Polygons">
