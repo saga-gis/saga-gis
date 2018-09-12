@@ -137,12 +137,18 @@ void Add_Metadata2Parameters(const CSG_MetaData &M, CSG_Parameters &P, CSG_Param
 
 		for(int j=0; j<M[i].Get_Property_Count(); j++)
 		{
-			Properties	+= "\n" + M[i].Get_Property_Name(j) + ": " + M[i].Get_Property(i);
+			if( j > 0 )	Properties	+= "\n";
+
+			Properties	+= M[i].Get_Property_Name(j) + ": " + M[i].Get_Property(j);
 		}
 
 		if( M[i].Get_Children_Count() > 0 )
 		{
 			Add_Metadata2Parameters(M[i], P, P.Add_Node(pParent, SG_Get_String(P.Get_Count()), M[i].Get_Name(), Properties));
+		}
+		else if( M[i].Get_Content().is_Empty() )
+		{
+			P.Add_Info_String(pParent, SG_Get_String(P.Get_Count()), M[i].Get_Name(), Properties, Properties);
 		}
 		else
 		{
