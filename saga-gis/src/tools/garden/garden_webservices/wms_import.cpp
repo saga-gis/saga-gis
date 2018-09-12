@@ -75,9 +75,9 @@
 CWMS_Capabilities::CWMS_Capabilities(void)
 {}
 
-CWMS_Capabilities::CWMS_Capabilities(const CSG_String &Server, const CSG_String &Version)
+CWMS_Capabilities::CWMS_Capabilities(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version)
 {
-	Create(Server, Version);
+	Create(Server, Path, Version);
 }
 
 //---------------------------------------------------------
@@ -96,6 +96,7 @@ void CWMS_Capabilities::Destroy(void)
 	m_Projections .Clear();
 	m_Layers_Name .Clear();
 	m_Layers_Title.Clear();
+	Capabilities.Destroy();
 }
 
 //---------------------------------------------------------
@@ -109,16 +110,16 @@ void CWMS_Capabilities::Destroy(void)
 #define CAP_GET____INT(GROUP, ID, VALUE, MUSTEXIST)	if( GROUP(ID) ) VALUE = GROUP[ID].Get_Content().asInt   (); else if( !MUSTEXIST ) VALUE = 0  ; else return( false );
 
 //---------------------------------------------------------
-bool CWMS_Capabilities::Create(const CSG_String &Path, const CSG_String &Version)
+bool CWMS_Capabilities::Create(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version)
 {
 	Destroy();
 
-	CSG_String	Request	= "http://" + Path + "?SERVICE=WMS&VERSION=" + Version + "&REQUEST=GetCapabilities";
+	if( !Server.Request(Path + "?SERVICE=WMS&VERSION=" + Version + "&REQUEST=GetCapabilities", Capabilities) )
+	{
+		return( false );
+	}
 
-	CSG_MetaData	Capabilities;
-
-	if( !Capabilities.Load(Request)
-	||  !Capabilities.Get_Property("version", m_Version)
+	if( !Capabilities.Get_Property("version", m_Version)
 	||  !Capabilities("Service")
 	||  !Capabilities("Capability")
 	||  !Capabilities["Capability"]("Request")
@@ -241,17 +242,33 @@ CWMS_Import::CWMS_Import(void)
 		_TL("")
 	);
 
+	Parameters.Add_Grid_List(
+		"", "LEGENDS"	, _TL("Legends"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL, false
+	);
+
 	//-----------------------------------------------------
 	Parameters.Add_String(
 		"", "SERVER"	, _TL("Server"),
 		_TL(""),
-	//	"www.gaia-mv.de/dienste/DTK10f"	// 260000.0x, 5950000.0y Cellsize 1.0
-	//	"www.gis2.nrw.de/wmsconnector/wms/stobo"
-	//	"www2.demis.nl/mapserver/request.asp"
-	//	"www.geoserver.nrw.de/GeoOgcWms1.3/servlet/TK25"
-	//	"www.geographynetwork.com/servlet/com.esri.wms.Esrimap"
 		"ogc.bgs.ac.uk/cgi-bin/BGS_Bedrock_and_Superficial_Geology/wms"	// WGS84: Center -3.5x 55.0y Cellsize 0.005
  	);
+
+	Parameters.Add_Choice(
+		"", "VERSION"	, _TL("Version"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			SG_T("1.1.1"),
+			SG_T("1.3.0")
+		)
+ 	);
+
+	Parameters.Add_Bool(
+		"", "LEGEND"	, _TL("Legend"),
+		_TL(""),
+		false
+	);
 
 	Parameters.Add_String("", "USERNAME", _TL("User Name"), _TL(""), "");
 	Parameters.Add_String("", "PASSWORD", _TL("Password" ), _TL(""), "", false, true);
@@ -276,32 +293,38 @@ bool CWMS_Import::On_Before_Execution(void)
 //---------------------------------------------------------
 int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
+	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER"  )
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "USERNAME")
+	||  !SG_STR_CMP(pParameter->Get_Identifier(), "PASSWORD") )
 	{
-		CWMS_Capabilities	Capabilities;
+		CSG_HTTP	Server;	CSG_String	Path, Abstract("---");
 
-		if( Capabilities.Create(pParameter->asString(), "1.1.1") )
+		if( Get_Server(Server, Path,
+			(*pParameters)("SERVER"  )->asString(),
+			(*pParameters)("USERNAME")->asString(),
+			(*pParameters)("PASSWORD")->asString()) )
 		{
-			CSG_String	Abstract(Capabilities.m_Abstract);
+			CWMS_Capabilities	Capabilities;
 
-			Abstract	+= CSG_String::Format("\n\n%s:", _TL("Extent"));
-
-			Abstract	+= CSG_String::Format("\nW-E: [%f] - [%f]", Capabilities.m_Extent.xMin, Capabilities.m_Extent.xMax);
-			Abstract	+= CSG_String::Format("\nS-N: [%f] - [%f]", Capabilities.m_Extent.yMin, Capabilities.m_Extent.yMax);
-
-			Abstract	+= CSG_String::Format("\n\n%s:", _TL("Layers"));
-
-			for(int i=0; i<Capabilities.m_Layers_Title.Get_Count(); i++)
+			if( Capabilities.Create(Server, Path, (*pParameters)("VERSION")->asString()) )
 			{
-				Abstract	+= "\n" + Capabilities.m_Layers_Title[i];
-			}
+				Abstract	 = Capabilities.m_Abstract;
 
-			pParameters->Set_Parameter("ABSTRACT", Abstract);
+				Abstract	+= CSG_String::Format("\n\n%s:", _TL("Extent"));
+
+				Abstract	+= CSG_String::Format("\nW-E: [%f] - [%f]", Capabilities.m_Extent.xMin, Capabilities.m_Extent.xMax);
+				Abstract	+= CSG_String::Format("\nS-N: [%f] - [%f]", Capabilities.m_Extent.yMin, Capabilities.m_Extent.yMax);
+
+				Abstract	+= CSG_String::Format("\n\n%s:", _TL("Layers"));
+
+				for(int i=0; i<Capabilities.m_Layers_Title.Get_Count(); i++)
+				{
+					Abstract	+= "\n" + Capabilities.m_Layers_Title[i];
+				}
+			}
 		}
-		else
-		{
-			pParameters->Set_Parameter("ABSTRACT", SG_T("---"));
-		}
+
+		pParameters->Set_Parameter("ABSTRACT", Abstract);
 	}
 
 	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
@@ -321,28 +344,11 @@ int CWMS_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CWMS_Import::On_Execute(void)
 {
-	CSG_String	Address(Parameters("SERVER")->asString());
+	CSG_HTTP	Server;	CSG_String	Path;
 
-	//-----------------------------------------------------
-	CWMS_Capabilities	Capabilities;
-
-	if( Capabilities.Create(Address, "1.1.1") == false )
-	{
-		Message_Add(_TL("Unable to get capabilities."));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	CSG_String	Domain(      Address.BeforeFirst('/'));
-	CSG_String	Path  ("/" + Address.AfterFirst ('/'));
-
-	CSG_HTTP	Server(Domain,
+	if( !Get_Server(Server, Path, Parameters("SERVER")->asString(),
 		Parameters("USERNAME")->asString(),
-		Parameters("PASSWORD")->asString()
-	);
-
-	if( Server.is_Connected() == false )
+		Parameters("PASSWORD")->asString()) )
 	{
 		Message_Add(_TL("Failed to connect to server."));
 
@@ -350,15 +356,46 @@ bool CWMS_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CWMS_Capabilities	Capabilities;
+
+	if( !Capabilities.Create(Server, Path, Parameters("VERSION")->asString()) )
+	{
+		Message_Add(_TL("Failed to get capabilities."));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	if( Get_Map(Server, Path, Capabilities) == false )
 	{
-		Message_Add(_TL("Failed to retrieve map."));
+		Message_Add(_TL("Failed to get map."));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWMS_Import::Get_Server(CSG_HTTP &Server, CSG_String &Path, const CSG_String &Address, const CSG_String &Username, const CSG_String &Password)
+{
+	CSG_String	Host, _Address(Address);
+
+	#define SERVER_TRIM(s, p)	{ wxString sp(p); sp += "://"; if( s.Find(p) == 0 ) { s = s.Right(s.Length() - sp.Length()); } }
+
+//	SERVER_TRIM(_Address, "https");
+	SERVER_TRIM(_Address, "http");
+
+	Host	= _Address.BeforeFirst('/');
+	Path	= _Address.AfterFirst ('/');
+
+	return( Server.Create(Host, Username, Password) );
 }
 
 
@@ -407,13 +444,13 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 	);
 
 	//-----------------------------------------------------
-	CSG_String	Layers;
+	CSG_String	Layers, Styles;
 
 	for(i=0; i<Capabilities.m_Layers_Name.Get_Count(); i++)
 	{
 		if( P(Capabilities.m_Layers_Name[i])->asBool() )
 		{
-			if( !Layers.is_Empty() )	Layers	+= ",";
+			if( !Layers.is_Empty() )	{	Layers	+= ","; Styles	+= ",";	}
 
 			Layers	+= Capabilities.m_Layers_Name[i];
 		}
@@ -425,29 +462,13 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 	}
 
 	//-----------------------------------------------------
-	wxBitmapType	Format;
-
-	if(      !SG_STR_CMP(P("FORMAT")->asString(), "image/gif" ) )	Format	= wxBITMAP_TYPE_GIF ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/jpeg") )	Format	= wxBITMAP_TYPE_JPEG;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/png" ) )	Format	= wxBITMAP_TYPE_PNG ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/wbmp") )	Format	= wxBITMAP_TYPE_BMP ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/bmp" ) )	Format	= wxBITMAP_TYPE_BMP ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "image/tiff") )	Format	= wxBITMAP_TYPE_TIF ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "GIF"       ) )	Format	= wxBITMAP_TYPE_GIF ;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "JPEG"      ) )	Format	= wxBITMAP_TYPE_JPEG;
-	else if( !SG_STR_CMP(P("FORMAT")->asString(), "PNG"       ) )	Format	= wxBITMAP_TYPE_PNG ;
-	else
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	CSG_String	Request(Path);
 
 	Request	+= "?SERVICE=WMS";
 	Request	+= "&VERSION=" + Capabilities.m_Version;
 	Request	+= "&REQUEST=GetMap";
 	Request	+= "&LAYERS=" + Layers;
+	Request	+= "&STYLES=" + Styles;
 
 	if( Capabilities.m_Projections.Length() > 0 )
 	{
@@ -458,7 +479,7 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 	Request	+= CSG_String::Format("&WIDTH=%d&HEIGHT=%d", System.Get_NX(), System.Get_NY());
 	Request	+= CSG_String::Format("&BBOX=%f,%f,%f,%f", System.Get_XMin(), System.Get_YMin(), System.Get_XMax(), System.Get_YMax());
 
-	Message_Add("\n" + Request + "\n", false);
+//	Message_Add("\n" + Request + "\n", false);
 
 	//-----------------------------------------------------
 	CSG_Bytes	Answer;
@@ -477,7 +498,7 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 
 	wxImage	Image;
 
-	if( Image.LoadFile(Stream, Format) == false )
+	if( Image.LoadFile(Stream) == false )
 	{
 		Message_Add(_TL("Failed to read image"));
 
@@ -523,17 +544,96 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 
 	pGrid->Get_Projection().Create(EPSG);
 
+	pGrid->Get_MetaData().Add_Child(Capabilities.Capabilities);
+
+	//-----------------------------------------------------
+	if( Parameters("LEGEND")->asBool() )
+	{
+		for(i=0; i<Capabilities.m_Layers_Name.Get_Count(); i++)
+		{
+			if( P(Capabilities.m_Layers_Name[i])->asBool() )
+			{
+				Get_Legend(Server, Path, Capabilities.m_Version, Capabilities.m_Layers_Name[i], "image/png");
+			}
+		}
+	}
+
+	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CWMS_Import::Get_Legend(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version, const CSG_String &Layer, const CSG_String &Format)
+{
+	CSG_String	Request(Path);
+
+	Request	+= "?SERVICE=WMS";
+	Request	+= "&VERSION=" + Version;
+	Request	+= "&REQUEST=GetLegendGraphic";
+	Request	+= "&FORMAT=" + Format;
+	Request	+= "&LAYER=" + Layer;
+
+	//-----------------------------------------------------
+	CSG_Bytes	Answer;
+
+	if( !Server.Request(Request, Answer) )
+	{
+		Message_Add("\n", false);
+
+		Message_Add(_TL("Failed to retrieve stream"), false);
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	wxMemoryInputStream	Stream((const void *)Answer.Get_Bytes(), (size_t)Answer.Get_Count());
+
+	wxImage	Image;
+
+	if( Image.LoadFile(Stream) == false )
+	{
+		Message_Add(_TL("Failed to read image"));
+
+		if( Answer[Answer.Get_Count() - 1] == '\0' )
+		{
+			Message_Add("\n", false);
+
+			Message_Add((const char *)Answer.Get_Bytes(), false);
+		}
+
+		return( false );
+	}
+
+
+	//-----------------------------------------------------
+	CSG_Grid	*pGrid	= SG_Create_Grid(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), 1, 0, 0);
+
+	#pragma omp parallel for
+	for(int y=0; y<pGrid->Get_NY(); y++)
+	{
+		int	yy	= pGrid->Get_NY() - 1 - y;
+
+		for(int x=0; x<pGrid->Get_NX(); x++)
+		{
+			pGrid->Set_Value(x, y, SG_GET_RGB(Image.GetRed(x, yy), Image.GetGreen(x, yy), Image.GetBlue(x, yy)));
+		}
+	}
+
+	//-----------------------------------------
+	pGrid->Set_Name(Layer + " - " + _TL("Legend"));
+
+	Parameters("LEGENDS")->asGridList()->Add_Item(pGrid);
+
+	DataObject_Add(pGrid);
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB Coded Values
+
+	return( true );
+}
 
 
 ///////////////////////////////////////////////////////////

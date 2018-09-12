@@ -71,11 +71,11 @@ class CWMS_Capabilities
 {
 public:
 	CWMS_Capabilities(void);
-	CWMS_Capabilities(const CSG_String &Server, const CSG_String &Version);
+	CWMS_Capabilities(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version);
 
 	virtual ~CWMS_Capabilities(void);
 
-	bool				Create				(const CSG_String &Server, const CSG_String &Version);
+	bool				Create				(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version);
 	void				Destroy				(void);
 
 
@@ -86,6 +86,8 @@ public:
 	CSG_String			m_Name, m_Version, m_Title, m_Abstract, m_Formats, m_Projections;
 
 	CSG_Strings			m_Layers_Name, m_Layers_Title;
+
+	CSG_MetaData		Capabilities;
 
 };
 
@@ -112,7 +114,11 @@ protected:
 
 private:
 
+	bool				Get_Server				(CSG_HTTP &Server, CSG_String &Path, const CSG_String &Address, const CSG_String &Username, const CSG_String &Password);
+
 	bool				Get_Map					(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabilities &Capabilities);
+
+	bool				Get_Legend				(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version, const CSG_String &Layer, const CSG_String &Format);
 
 };
 
