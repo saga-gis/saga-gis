@@ -128,12 +128,12 @@ CGeoCoding::CGeoCoding(void)
 		"PROVIDER"	, _TL("Service Provider"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s",
+			SG_T("Nominatim (OpenStreetMap)"),
 			SG_T("The Data Science Toolkit"),
 			SG_T("Google"),
 			SG_T("Bing"),
 			SG_T("MapQuest"),
-			SG_T("Yahoo"),
-			SG_T("OpenStreetMap (Nominatim)")	// not supported now, because it works only through https
+			SG_T("Yahoo")
 		), 0
 	);
 
@@ -160,7 +160,7 @@ int CGeoCoding::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROVIDER") )
 	{
-		pParameters->Set_Enabled("API_KEY", pParameter->asInt() != 0 );
+		pParameters->Set_Enabled("API_KEY", pParameter->asInt() >= 2 );
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -201,19 +201,19 @@ bool CGeoCoding::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_HTTP	HTTP;
+	CWebClient	Connection;
 
 	switch( Provider )
 	{
-	default: HTTP.Create("www.datasciencetoolkit.org" ); break;	// The Data Science Toolkit
-	case  1: HTTP.Create("maps.googleapis.com"        ); break;	// Google
-	case  2: HTTP.Create("dev.virtualearth.net"       ); break;	// Bing
-	case  3: HTTP.Create("www.mapquestapi.com"        ); break;	// MapQuest
-	case  4: HTTP.Create("local.yahooapis.com"        ); break;	// Yahoo
-	case  5: HTTP.Create("nominatim.openstreetmap.org"); break;	// Nominatim
+	default: Connection.Create("https://nominatim.openstreetmap.org"); break;	// Nominatim
+	case  1: Connection.Create("http://www.datasciencetoolkit.org"  ); break;	// The Data Science Toolkit
+	case  2: Connection.Create("http://maps.googleapis.com"         ); break;	// Google
+	case  3: Connection.Create("http://dev.virtualearth.net"        ); break;	// Bing
+	case  4: Connection.Create("http://www.mapquestapi.com"         ); break;	// MapQuest
+	case  5: Connection.Create("http://local.yahooapis.com"         ); break;	// Yahoo
 	}
 
-	if( !HTTP.is_Connected() )
+	if( !Connection.is_Connected() )
 	{
 		Error_Set(_TL("failed to connect to server."));
 
@@ -230,12 +230,12 @@ bool CGeoCoding::On_Execute(void)
 
 		switch( Provider )
 		{
-		default: bOkay = Request_DSTK     (HTTP, Location, Address); break;	// The Data Science Toolkit
-		case  1: bOkay = Request_Google   (HTTP, Location, Address); break;	// Google
-		case  2: bOkay = Request_Bing     (HTTP, Location, Address); break;	// Bing
-		case  3: bOkay = Request_MapQuest (HTTP, Location, Address); break;	// MapQuest
-		case  4: bOkay = Request_Yahoo    (HTTP, Location, Address); break;	// Yahoo
-		case  5: bOkay = Request_Nominatim(HTTP, Location, Address); break;	// Nominatim
+		default: bOkay = Request_Nominatim(Connection, Location, Address); break;	// Nominatim
+		case  1: bOkay = Request_DSTK     (Connection, Location, Address); break;	// The Data Science Toolkit
+		case  2: bOkay = Request_Google   (Connection, Location, Address); break;	// Google
+		case  3: bOkay = Request_Bing     (Connection, Location, Address); break;	// Bing
+		case  4: bOkay = Request_MapQuest (Connection, Location, Address); break;	// MapQuest
+		case  5: bOkay = Request_Yahoo    (Connection, Location, Address); break;	// Yahoo
 		}
 
 		if( bOkay )
@@ -275,7 +275,7 @@ void	Replace_Special_Chars(CSG_String &String)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_DSTK(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -287,7 +287,7 @@ bool CGeoCoding::Request_DSTK(CSG_HTTP &Server, TSG_Point &Location, CSG_String 
 	//-----------------------------------------------------
 	CSG_String	_Answer;
 
-	if( !Server.Request(Request, _Answer) )
+	if( !Connection.Request(Request, _Answer) )
 	{
 		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Request failed."), Request.c_str()), false);
 
@@ -355,7 +355,7 @@ bool CGeoCoding::Request_DSTK(CSG_HTTP &Server, TSG_Point &Location, CSG_String 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_Google(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -372,7 +372,7 @@ bool CGeoCoding::Request_Google(CSG_HTTP &Server, TSG_Point &Location, CSG_Strin
 	//-----------------------------------------------------
 	CSG_MetaData	Answer;
 
-	if( !Server.Request(Request, Answer) )
+	if( !Connection.Request(Request, Answer) )
 	{
 		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Request failed."), Request.c_str()), false);
 
@@ -435,7 +435,7 @@ bool CGeoCoding::Request_Google(CSG_HTTP &Server, TSG_Point &Location, CSG_Strin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_Bing(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -464,7 +464,7 @@ bool CGeoCoding::Request_Bing(CSG_HTTP &Server, TSG_Point &Location, CSG_String 
 
 	CSG_MetaData	Answer;
 
-	if( !Server.Request(Request, Answer) )
+	if( !Connection.Request(Request, Answer) )
 	{
 		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
 
@@ -521,7 +521,7 @@ bool CGeoCoding::Request_Bing(CSG_HTTP &Server, TSG_Point &Location, CSG_String 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_MapQuest(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_MapQuest(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -535,7 +535,7 @@ bool CGeoCoding::Request_MapQuest(CSG_HTTP &Server, TSG_Point &Location, CSG_Str
 
 	CSG_MetaData	Answer;
 
-	if( !Server.Request(Request, Answer) )
+	if( !Connection.Request(Request, Answer) )
 	{
 		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
 
@@ -566,7 +566,7 @@ bool CGeoCoding::Request_MapQuest(CSG_HTTP &Server, TSG_Point &Location, CSG_Str
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_Yahoo(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_Yahoo(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -581,7 +581,7 @@ bool CGeoCoding::Request_Yahoo(CSG_HTTP &Server, TSG_Point &Location, CSG_String
 
 	CSG_MetaData	Answer;
 
-	if( !Server.Request(Request, Answer) )
+	if( !Connection.Request(Request, Answer) )
 	{
 		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
 
@@ -612,7 +612,7 @@ bool CGeoCoding::Request_Yahoo(CSG_HTTP &Server, TSG_Point &Location, CSG_String
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGeoCoding::Request_Nominatim(CSG_HTTP &Server, TSG_Point &Location, CSG_String &Address)
+bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
@@ -623,7 +623,7 @@ bool CGeoCoding::Request_Nominatim(CSG_HTTP &Server, TSG_Point &Location, CSG_St
 
 	CSG_MetaData	Answer;
 
-	if( !Server.Request(Request, Answer) )
+	if( !Connection.Request(Request, Answer) )
 	{
 		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
 

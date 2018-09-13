@@ -26,6 +26,9 @@
     <ClCompile Include="geocoding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sg_curl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -86,6 +89,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="geocoding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sg_curl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
