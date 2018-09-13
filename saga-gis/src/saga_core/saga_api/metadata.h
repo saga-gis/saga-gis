@@ -181,6 +181,8 @@ public:
 	CSG_String					asText				(int Flags = 0) const;
 	class CSG_Table				Get_Table			(int Flags = 0) const;
 
+	bool						from_XML			(const CSG_String &XML);
+
 
 private:
 

@@ -62,6 +62,7 @@
 #include <wx/xml/xml.h>
 #include <wx/wfstream.h>
 #include <wx/sstream.h>
+#include <wx/mstream.h>
 #include <wx/protocol/http.h>
 
 #include "metadata.h"
@@ -870,6 +871,30 @@ void CSG_MetaData::_Save(wxXmlNode *pNode) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_MetaData::from_XML(const CSG_String &_XML)
+{
+	Destroy();
+
+	wxXmlDocument	XML;
+
+	wxMemoryInputStream	Stream((const void *)_XML.b_str(), (size_t)_XML.Length());
+
+	if( XML.Load(Stream) )
+	{
+		_Load(XML.GetRoot());
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, const SG_Char *Username, const SG_Char *Password)
 {
 	Destroy();
@@ -1091,7 +1116,7 @@ bool CSG_HTTP::Create(const CSG_String &Server, const SG_Char *Username, const S
 
 	#define SERVER_TRIM(s, p)	{ wxString sp(p); sp += "://"; if( s.Find(p) == 0 ) { s = s.Right(s.Length() - sp.Length()); } }
 
-//	SERVER_TRIM(Host, "https");
+	SERVER_TRIM(Host, "https");
 	SERVER_TRIM(Host, "http");
 
 	if( Host.Find(":") >= 0 )
