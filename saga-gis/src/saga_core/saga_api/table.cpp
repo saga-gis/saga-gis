@@ -934,60 +934,73 @@ bool CSG_Table::Set_Record_Count(int nRecords)
 //---------------------------------------------------------
 bool CSG_Table::Find_Record(int &iRecord, int iField, const CSG_String &Value, bool bCreateIndex)
 {
-	if( iField >= 0 && iField < m_nFields )
+	if( iField < 0 || iField >= m_nFields || m_nRecords < 1 )
 	{
-		if( bCreateIndex && iField != Get_Index_Field(0) )
-		{
-			Set_Index(iField, TABLE_INDEX_Ascending);
-		}
+		return( false );
+	}
 
-		if( iField == Get_Index_Field(0) )
-		{
-			bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+	if( m_nRecords == 1 )
+	{
+		return( Value.Cmp(m_Records[iRecord = 0]->asString(iField)) == 0 );
+	}
 
-			for(iRecord=0; iRecord<m_nRecords; iRecord++)
+	if( bCreateIndex && iField != Get_Index_Field(0) )
+	{
+		Set_Index(iField, TABLE_INDEX_Ascending);
+	}
+
+	//-----------------------------------------------------
+	if( iField != Get_Index_Field(0) )
+	{
+		for(iRecord=0; iRecord<m_nRecords; iRecord++)
+		{
+			if( Value.Cmp(m_Records[iRecord]->asString(iField)) == 0 )
 			{
-				CSG_Table_Record	*pRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord);
-
-				if( !pRecord->is_NoData(iField) )
-				{
-					int	Dif	= Value.Cmp(pRecord->asString(iField));
-
-					if( Dif == 0 )
-					{
-						return( true );
-					}
-
-					if( Dif > 0 )
-					{
-						iRecord--;
-
-						return( false );
-					}
-				}
-			}
-
-			return( false );
-		}
-		else
-		{
-			for(int i=0; i<m_nRecords; i++)
-			{
-				if( !Value.Cmp(m_Records[i]->asString(iField)) )
-				{
-					iRecord	= i;
-
-					return( true );
-				}
+				return( true );
 			}
 		}
 	}
 
-	iRecord	= -2;
+	//-----------------------------------------------------
+	else	// indexed search
+	{
+		#define GET_RECORD(i)	Get_Record_byIndex(bAscending ? (iRecord = i) : m_nRecords - 1 - (iRecord = i))
 
+		bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+
+		double	d;
+
+		if( (d = Value.Cmp(GET_RECORD(0             )->asString(iField))) < 0 ) { return( false ); } else if( d == 0 ) { return( true ); }
+		if( (d = Value.Cmp(GET_RECORD(m_nRecords - 1)->asString(iField))) > 0 ) { return( false ); } else if( d == 0 ) { return( true ); }
+
+		for(int a=0, b=m_nRecords-1; b-a > 1; )
+		{
+			d	= Value.Cmp(GET_RECORD(a + (b - a) / 2)->asString(iField));
+
+			if( d > 0.0 )
+			{
+				a	= iRecord;
+			}
+			else if( d < 0.0 )
+			{
+				b	= iRecord;
+			}
+			else
+			{
+				iRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord)->Get_Index();
+
+				return( true );
+			}
+		}
+
+		iRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord)->Get_Index();
+	}
+
+	//-----------------------------------------------------
 	return( false );
 }
 
+//---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Find_Record(int iField, const CSG_String &Value, bool bCreateIndex)
 {
 	int	iRecord;
@@ -1003,60 +1016,73 @@ CSG_Table_Record * CSG_Table::Find_Record(int iField, const CSG_String &Value, b
 //---------------------------------------------------------
 bool CSG_Table::Find_Record(int &iRecord, int iField, double Value, bool bCreateIndex)
 {
-	if( iField >= 0 && iField < m_nFields )
+	if( iField < 0 || iField >= m_nFields || m_nRecords < 1 )
 	{
-		if( bCreateIndex && iField != Get_Index_Field(0) )
-		{
-			Set_Index(iField, TABLE_INDEX_Ascending);
-		}
+		return( false );
+	}
 
-		if( iField == Get_Index_Field(0) )
-		{
-			bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+	if( m_nRecords == 1 )
+	{
+		return( Value == m_Records[iRecord = 0]->asDouble(iField) );
+	}
 
-			for(iRecord=0; iRecord<m_nRecords; iRecord++)
+	if( bCreateIndex && iField != Get_Index_Field(0) )
+	{
+		Set_Index(iField, TABLE_INDEX_Ascending);
+	}
+
+	//-----------------------------------------------------
+	if( iField != Get_Index_Field(0) )
+	{
+		for(iRecord=0; iRecord<m_nRecords; iRecord++)
+		{
+			if( Value == m_Records[iRecord]->asDouble(iField) )
 			{
-				CSG_Table_Record	*pRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord);
-
-				if( !pRecord->is_NoData(iField) )
-				{
-					double	Dif	= Value - pRecord->asDouble(iField);
-
-					if( Dif == 0.0 )
-					{
-						return( true );
-					}
-
-					if( Dif > 0.0 )
-					{
-						iRecord--;
-
-						return( false );
-					}
-				}
-			}
-
-			return( false );
-		}
-		else
-		{
-			for(int i=0; i<m_nRecords; i++)
-			{
-				if( Value == m_Records[i]->asDouble(iField) )
-				{
-					iRecord	= i;
-
-					return( true );
-				}
+				return( true );
 			}
 		}
 	}
 
-	iRecord	= -2;
+	//-----------------------------------------------------
+	else	// indexed search
+	{
+		#define GET_RECORD(i)	Get_Record_byIndex(bAscending ? (iRecord = i) : m_nRecords - 1 - (iRecord = i))
 
+		bool	bAscending	= Get_Index_Order(0) == TABLE_INDEX_Ascending;
+
+		double	d;
+
+		if( (d = Value - GET_RECORD(0             )->asDouble(iField)) < 0.0 ) { return( false ); } else if( d == 0.0 ) { return( true ); }
+		if( (d = Value - GET_RECORD(m_nRecords - 1)->asDouble(iField)) > 0.0 ) { return( false ); } else if( d == 0.0 ) { return( true ); }
+
+		for(int a=0, b=m_nRecords-1; b-a > 1; )
+		{
+			d	= Value - GET_RECORD(a + (b - a) / 2)->asDouble(iField);
+
+			if( d > 0.0 )
+			{
+				a	= iRecord;
+			}
+			else if( d < 0.0 )
+			{
+				b	= iRecord;
+			}
+			else
+			{
+				iRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord)->Get_Index();
+
+				return( true );
+			}
+		}
+
+		iRecord	= Get_Record_byIndex(bAscending ? iRecord : m_nRecords - 1 - iRecord)->Get_Index();
+	}
+
+	//-----------------------------------------------------
 	return( false );
 }
 
+//---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Find_Record(int iField, double Value, bool bCreateIndex)
 {
 	int	iRecord;
