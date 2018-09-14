@@ -57,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include <saga_api/saga_api.h>
+#include "sg_curl.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -84,6 +84,8 @@ private:
 
 	bool				m_bDown;
 
+	CWebClient			m_Connection;
+
 	CSG_Point			m_ptDown;
 
 	CSG_Table			m_Nodes;
@@ -92,8 +94,6 @@ private:
 
 
 	bool				Load_Nodes			(const CSG_MetaData &Root);
-	bool				Find_Node			(long id, double &lon, double &lat);
-	CSG_Table_Record *	Find_Node			(long id);
 	bool				Load_Ways			(const CSG_MetaData &Root);
 
 };

@@ -88,6 +88,8 @@ COSM_Import::COSM_Import(void)
 		SG_T("OpenStreetMap")
 	);
 
+//	https://api.openstreetmap.org/api/0.6/map?bbox=10.0,53.0,10.1,53.1
+
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
 		"", "POINTS"	, _TL("OSM Locations"),
@@ -102,20 +104,10 @@ COSM_Import::COSM_Import(void)
 	);
 
 	Parameters.Add_Shapes(
-		"", "RELATIONS"	, _TL("OSM Relations"),
-		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
-	);
-
-	Parameters.Add_Shapes(
 		"", "AREAS"		, _TL("OSM Areas"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
-
-	//-----------------------------------------------------
-//	Parameters.Add_String("", "USERNAME", _TL("User Name"), _TL(""), "");
-//	Parameters.Add_String("", "PASSWORD", _TL("Password" ), _TL(""), "", false, true);
 }
 
 
@@ -127,16 +119,7 @@ COSM_Import::COSM_Import(void)
 bool COSM_Import::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pPoints	= Parameters("POINTS")->asShapes();
-	m_pWays		= Parameters("WAYS"  )->asShapes();
-	m_pAreas	= Parameters("AREAS" )->asShapes();
-
-	m_bDown		= false;
-
-	//-----------------------------------------------------
-	CSG_HTTP	Server;
-
-	if( Server.Create("api.openstreetmap.org") == false )
+	if( !m_Connection.Create("https://api.openstreetmap.org") )
 	{
 		Message_Add(_TL("Unable to connect to server."));
 
@@ -144,13 +127,27 @@ bool COSM_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	m_Nodes.Create(NULL);
+
+	m_Nodes.Add_Field("ID" , SG_DATATYPE_DWord );
+	m_Nodes.Add_Field("LON", SG_DATATYPE_Double);
+	m_Nodes.Add_Field("LAT", SG_DATATYPE_Double);
+
 	//-----------------------------------------------------
-// <osm version="0.6" generator="OpenStreetMap server"></osm>
-//	Request.Set_Name("osm");
-//	Request.Add_Property("version"	, "0.6");
-//	Request.Add_Property("generator", "OpenStreetMap server");
-//	"api/capabilities";
-//	http://api.openstreetmap.org/api/0.6/map?bbox=10.0,53.0,10.1,53.1
+	m_pPoints	= Parameters("POINTS")->asShapes();
+	m_pWays		= Parameters("WAYS"  )->asShapes();
+	m_pAreas	= Parameters("AREAS" )->asShapes();
+
+	m_pPoints->Create(SHAPE_TYPE_Point  , _TL("Locations"));
+	m_pWays  ->Create(SHAPE_TYPE_Line   , _TL("Ways"     ));
+	m_pAreas ->Create(SHAPE_TYPE_Polygon, _TL("Areas"    ));
+
+	m_pPoints->Add_Field("ID", SG_DATATYPE_DWord);
+	m_pWays  ->Add_Field("ID", SG_DATATYPE_DWord);
+	m_pAreas ->Add_Field("ID", SG_DATATYPE_DWord);
+
+	//-----------------------------------------------------
+	m_bDown		= false;
 
 	return( true );
 }
@@ -158,7 +155,7 @@ bool COSM_Import::On_Execute(void)
 //---------------------------------------------------------
 bool COSM_Import::On_Execute_Finish(void)
 {
-	return( true );
+	return( CSG_Tool_Interactive::On_Execute_Finish() );
 }
 
 //---------------------------------------------------------
@@ -173,7 +170,6 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 			m_bDown		= true;
 			m_ptDown	= ptWorld;
 		}
-
 		break;
 
 	//-----------------------------------------------------
@@ -181,15 +177,6 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 		if( m_bDown == true )
 		{
 			m_bDown		= false;
-
-			CSG_HTTP	Server;
-
-			if( Server.Create("api.openstreetmap.org") == false )
-			{
-				Message_Add(_TL("Unable to connect to server."));
-
-				return( false );
-			}
 
 			CSG_Rect	r(m_ptDown, ptWorld);
 
@@ -200,27 +187,37 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 
 			CSG_MetaData	Answer;
 
-			if( Server.Request(Request, Answer) == false )
+			if( m_Connection.Request(Request, Answer) == false )
 			{
 				Message_Add(_TL("received empty stream."));
 
 				return( false );
 			}
 
-			if( !Load_Nodes(Request) )
+			if( !Load_Nodes(Answer) )
 			{
+				Message_Add("\n___\n" + Request, false);
+				Message_Add("\n___\n" + Answer.asText(1), false);
+
 				return( false );
 			}
 
-			Load_Ways(Request);
+			#ifdef _DEBUG
+				Message_Add("\n___\n" + Answer.asText(1), false);
+
+				m_pPoints->Get_MetaData().Del_Children();
+				m_pPoints->Get_MetaData().Add_Child(Answer);
+			#endif
+
+			m_pWays ->Del_Shapes();
+			m_pAreas->Del_Shapes();
+
+			Load_Ways(Answer);
 
 			DataObject_Update(m_pPoints);
-			DataObject_Update(m_pWays);
-			DataObject_Update(m_pAreas);
-
-			m_Nodes.Destroy();
+			DataObject_Update(m_pWays  );
+			DataObject_Update(m_pAreas );
 		}
-
 		break;
 	}
 
@@ -236,14 +233,9 @@ bool COSM_Import::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mo
 bool COSM_Import::Load_Nodes(const CSG_MetaData &Root)
 {
 	//-----------------------------------------------------
-	m_Nodes.Destroy();
+	m_Nodes.Del_Records();
 
-	m_Nodes.Add_Field("ID" , SG_DATATYPE_DWord );
-	m_Nodes.Add_Field("LON", SG_DATATYPE_Double);
-	m_Nodes.Add_Field("LAT", SG_DATATYPE_Double);
-
-	m_pPoints->Create(SHAPE_TYPE_Point, _TL("Locations"));
-	m_pPoints->Add_Field("ID", SG_DATATYPE_DWord);
+	m_pPoints->Del_Shapes();
 
 	//-----------------------------------------------------
 	for(int i=0; i<Root.Get_Children_Count(); i++)
@@ -268,79 +260,19 @@ bool COSM_Import::Load_Nodes(const CSG_MetaData &Root)
 				}
 				else
 				{
-					CSG_Shape	*pShape	= m_pPoints->Add_Shape();
+					CSG_Shape	*pPoint	= m_pPoints->Add_Shape();
 
-					pShape->Add_Point(lon, lat);
-					pShape->Set_Value(0, id);
+					pPoint->Add_Point(lon, lat);
+					pPoint->Set_Value(0, id);
 				}
 			}
 		}
 	}
 
+	//-----------------------------------------------------
 	m_Nodes.Set_Index(0, TABLE_INDEX_Ascending);
 
-	//-----------------------------------------------------
 	return( m_Nodes.Get_Count() > 0 );
-}
-
-//---------------------------------------------------------
-bool COSM_Import::Find_Node(long id, double &lon, double &lat)
-{
-	CSG_Table_Record	*pRecord	= Find_Node(id);
-
-	if( pRecord )
-	{
-		lon	= pRecord->asDouble(1);
-		lat	= pRecord->asDouble(2);
-
-		return( true );
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
-CSG_Table_Record * COSM_Import::Find_Node(long id)
-{
-	int		a, b, d, i;
-
-	if( m_Nodes.Get_Count() == 1 )
-	{
-		if( m_Nodes.Get_Record_byIndex(0)->asInt(0) == id )
-		{
-			return( m_Nodes.Get_Record_byIndex(0) );
-		}
-	}
-
-	else if( m_Nodes.Get_Count() > 1 )
-	{
-		a	= 0;
-		if( id < (d = m_Nodes.Get_Record_byIndex(a)->asInt(0)) )	return( NULL );		if( id == d )	return( m_Nodes.Get_Record_byIndex(a) );
-
-		b	= m_Nodes.Get_Count() - 1;
-		if( id > (d = m_Nodes.Get_Record_byIndex(b)->asInt(0)) )	return( NULL );		if( id == d )	return( m_Nodes.Get_Record_byIndex(b) );
-
-		for( ; b - a > 1; )
-		{
-			i	= a + (b - a) / 2;
-			d	= m_Nodes.Get_Record_byIndex(i)->asInt(0);
-
-			if( id > d )
-			{
-				a	= i;
-			}
-			else if( id < d )
-			{
-				b	= i;
-			}
-			else
-			{
-				return( m_Nodes.Get_Record_byIndex(i) );
-			}
-		}
-	}
-
-	return( NULL );
 }
 
 
@@ -352,47 +284,39 @@ CSG_Table_Record * COSM_Import::Find_Node(long id)
 bool COSM_Import::Load_Ways(const CSG_MetaData &Root)
 {
 	//-----------------------------------------------------
-	m_pWays ->Create(SHAPE_TYPE_Line   , _TL("Ways" ));
-	m_pWays ->Add_Field("ID", SG_DATATYPE_DWord);
-
-	m_pAreas->Create(SHAPE_TYPE_Polygon, _TL("Areas"));
-	m_pAreas->Add_Field("ID", SG_DATATYPE_DWord);
-
-	//-----------------------------------------------------
-	for(int i=0; i<Root.Get_Children_Count(); i++)
+	for(int i=0, WayID; i<Root.Get_Children_Count(); i++)
 	{
 		const CSG_MetaData	&Node	= Root[i];
 
-		if( Node.Cmp_Name("way") )
+		if( Node.Cmp_Name("way") &&	Node.Get_Property("id", WayID) )
 		{
-			int	id;
+			CSG_Array_Int	NodeIDs;
 
-			if(	Node.Get_Property("id" , id) )
+			for(int iChild=0, NodeID; iChild<Node.Get_Children_Count(); iChild++)
 			{
-				int	j;	CSG_Array_Int	Nodes;
+				const CSG_MetaData	&Child	= Node[iChild];
 
-				for(j=0; j<Node.Get_Children_Count(); j++)
+				if( Child.Cmp_Name("nd") && Child.Get_Property("ref", NodeID) )
 				{
-					const CSG_MetaData	&Child	= Node[j];
-
-					if( Child.Cmp_Name("nd") && Child.Get_Property("ref", id) )
-					{
-						Nodes	+= id;
-					}
+					NodeIDs	+= NodeID;
 				}
+			}
 
-				if( Nodes.Get_Size() > 1 )
+			if( NodeIDs.Get_Size() > 1 )
+			{
+				CSG_Shape	*pWay	= NodeIDs[0] == NodeIDs[NodeIDs.Get_Size() - 1]
+					? m_pAreas->Add_Shape()
+					: m_pWays ->Add_Shape();
+
+				pWay->Set_Value(0, WayID);
+
+				for(size_t iNode=0; iNode<NodeIDs.Get_Size(); iNode++)
 				{
-					CSG_Shape	*pShape	= Nodes[0] == Nodes[Nodes.Get_Size() - 1] ? m_pAreas->Add_Shape() : m_pWays->Add_Shape();
+					CSG_Table_Record	*pNode	= m_Nodes.Find_Record(0, NodeIDs[iNode], true);
 
-					for(j=0; j<Nodes.Get_Size(); j++)
+					if( pNode )
 					{
-						double	lon, lat;
-
-						if( Find_Node(Nodes[i], lon, lat) )
-						{
-							pShape->Add_Point(lon, lat);
-						}
+						pWay->Add_Point(pNode->asDouble(1), pNode->asDouble(2));
 					}
 				}
 			}
@@ -400,6 +324,8 @@ bool COSM_Import::Load_Ways(const CSG_MetaData &Root)
 	}
 
 	//-----------------------------------------------------
+	m_Nodes.Del_Records();
+
 	return( true );
 }
 

@@ -129,7 +129,7 @@ bool CSG_CURL::Create(const CSG_String &Server, const SG_Char *Username, const S
 {
 	Destroy();
 
-	if( (m_pCURL = curl_easy_init()) == NULL )
+	if( Server.is_Empty() || (m_pCURL = curl_easy_init()) == NULL )
 	{
 		return( false );
 	}
@@ -145,21 +145,9 @@ bool CSG_CURL::Create(const CSG_String &Server, const SG_Char *Username, const S
 	if( Password && *Password )	{ CSG_String s(Password); curl_easy_setopt(m_pCURL, CURLOPT_PASSWORD, s.b_str()); }
 
 	CURL_SET_OPT(2, CURLOPT_URL           , m_Server.b_str());
-	CURL_SET_OPT(2, CURLOPT_WRITEFUNCTION , _Callback_Write_String);
-	CURL_SET_OPT(2, CURLOPT_WRITEDATA     , &m_Error);
-
 	CURL_SET_OPT(0, CURLOPT_SSL_VERIFYPEER, 0L);
 	CURL_SET_OPT(0, CURLOPT_SSL_VERIFYHOST, 0L);
 	CURL_SET_OPT(0, CURLOPT_USERAGENT     , "libcurl-agent/1.0");
-
-	m_Error.Clear();
-
-	if( !_Perform() )
-	{
-		Destroy();
-
-		return( false );
-	}
 
 	return( true );
 }

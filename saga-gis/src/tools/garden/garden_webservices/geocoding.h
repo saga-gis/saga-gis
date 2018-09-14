@@ -95,15 +95,16 @@ private:
 
 	CSG_String				m_API_Key;
 
+	CSG_MetaData			m_Answer;
+
 	CSG_Shapes				*m_pLocations;
 
 
+	bool					Request_Nominatim		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 	bool					Request_DSTK			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 	bool					Request_Google			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 	bool					Request_Bing			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 	bool					Request_MapQuest		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_Yahoo			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_Nominatim		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 
 };
 
