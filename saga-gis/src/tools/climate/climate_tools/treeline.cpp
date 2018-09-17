@@ -257,7 +257,7 @@ bool CCT_Growing_Season::Get_T_Season(const double *T, const double *Snow, const
 
 	for(i=0; i<365; i++)	// 1. identify growing days
 	{
-		bGrowing[i]	= T[i] >= m_DT_min && (!Snow || Snow[i] <= 0.0) && (!(S0 && S1) || (S0[i] > 0.0 || S1[i] >= m_SW_min * m_Soil.Get_Capacity(1)));
+		bGrowing[i]	= T[i] >= m_DT_min && (!Snow || Snow[i] <= 0.0) && (!(S0 && S1) || (S0[i] > 0.0 || (S1[i] > 0.0 && S1[i] >= m_SW_min * m_Soil.Get_Capacity(1))));
 	}
 
 	for(i=0; i<365; i++)	// 2. evaluate growing days
@@ -328,19 +328,19 @@ CTree_Growth::CTree_Growth(void)
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		10.0, 0.0, true
+		30.0, 0.0, true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		1.0, 0.1, true
+		0.5, 0.01, true
 	);
 
 	Parameters.Add_Double("",
 		"LAT_DEF"		, _TL("Default Latitude"),
 		_TL(""),
-		50.0, -90.0, true, 90.0, true
+		0, -90, true, 90, true
 	);
 
 	//-----------------------------------------------------
@@ -402,7 +402,7 @@ CTree_Growth::CTree_Growth(void)
 	Parameters.Add_Double("",
 		"TLH_MAX_DIFF"	, _TL("Maximum Tree Line Height Difference"),
 		_TL(""),
-		1000.0, 0.0, true
+		3000.0, 0.0, true
 	);
 }
 
@@ -577,19 +577,19 @@ CWater_Balance::CWater_Balance(void)
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		10.0, 0.0, true
+		30.0, 0.0, true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		1.0, 0.1, true
+		0.5, 0.01, true
 	);
 
 	Parameters.Add_Double("",
 		"LAT_DEF"		, _TL("Default Latitude"),
 		_TL(""),
-		50.0, -90.0, true, 90.0, true
+		0, -90, true, 90, true
 	);
 
 	//-----------------------------------------------------
@@ -756,19 +756,19 @@ CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 	Parameters.Add_Double("SWC",
 		"SWC_SURFACE"	, _TL("Top Soil Water Capacity"),
 		_TL(""),
-		10.0, 0.0, true
+		30.0, 0.0, true
 	);
 
 	Parameters.Add_Double("SWC",
 		"SW1_RESIST"	, _TL("Transpiration Resistance"),
 		_TL(""),
-		1.0, 0.1, true
+		0.5, 0.01, true
 	);
 
 	Parameters.Add_Double("",
 		"LAT_DEF"		, _TL("Default Latitude"),
 		_TL(""),
-		50.0, -90.0, true, 90.0, true
+		50, -90, true, 90, true
 	);
 
 	//-----------------------------------------------------

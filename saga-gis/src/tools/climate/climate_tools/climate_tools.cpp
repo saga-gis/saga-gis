@@ -91,6 +91,11 @@ bool	SG_Grid_Get_Geographic_Coordinates	(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Gr
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+// Crop evapotranspiration: guidelines for computing crop water requirements.
+// FAO Irrigation and Drainage Paper 56. FAO, Rome
+// http://www.fao.org/docrep/X0490E/x0490e07.htm#radiation
+//---------------------------------------------------------
 double	CT_Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude)
 {
 	double	sinLat	= sin(Latitude * M_DEG_TO_RAD);
@@ -106,6 +111,8 @@ double	CT_Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude)
 	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
 	double	SunSet	= acos(d < -1 ? -1 : d < 1 ? d : 1);
 
+//	const double	Gsc	= 0.0820;	// solar constant [MJ m-2 min-1]
+//	double	R0		= 0.408 * (24 * 60 / M_PI) * Gsc * dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet));
 	double	R0		= 15.392 * dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet));
 
 	return( R0 );	// water equivalent of extraterrestrial radiation (mm/day)
@@ -116,6 +123,11 @@ double	CT_Get_Radiation_TopOfAtmosphere	(int DayOfYear, double Latitude)
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+// Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+// Crop evapotranspiration: guidelines for computing crop water requirements.
+// FAO Irrigation and Drainage Paper 56. FAO, Rome
+// http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double R0, double T, double Tmin, double Tmax)
 {
@@ -461,6 +473,14 @@ bool CCT_Soil_Water::Calculate(const double T[365], const double P[365], const d
 	m_SW[0].Create(365);
 	m_SW[1].Create(365);
 
+	if( m_SW_Capacity[0] + m_SW_Capacity[1] <= 0.0 )
+	{
+		m_SW[0]	= 0.0;
+		m_SW[1]	= 0.0;
+
+		return( true );
+	}
+
 	SW[0]	= 0.5 * m_SW_Capacity[0];
 	SW[1]	= 0.5 * m_SW_Capacity[1];
 
@@ -683,12 +703,15 @@ bool CCT_Water_Balance::Set_Soil_Capacity(double SWC)
 //---------------------------------------------------------
 const double * CCT_Water_Balance::Set_ETpot(double Latitude, const double Tmin[12], const double Tmax[12])
 {
-	CSG_Vector	dTmin, dTmax;
+	CSG_Vector	dTmin;	CT_Get_Daily_Splined(dTmin, Tmin);
+	CSG_Vector	dTmax;	CT_Get_Daily_Splined(dTmax, Tmax);
 
-	CT_Get_Daily_Splined(dTmin, Tmin);
-	CT_Get_Daily_Splined(dTmax, Tmax);
+	m_Daily[DAILY_ETpot].Create(365);
 
-	CT_Get_ETpot_Hargreave_DailyFromMonthly(m_Daily[DAILY_ETpot], Latitude, m_Daily[DAILY_T], dTmin, dTmax);
+	for(int i=0; i<365; i++)
+	{
+		m_Daily[DAILY_ETpot][i]	= CT_Get_ETpot_Hargreave(i + 1, Latitude, m_Daily[DAILY_T][i], dTmin[i], dTmax[i]);
+	}
 
 	return( m_Daily[DAILY_ETpot] );
 }
