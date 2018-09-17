@@ -2,6 +2,7 @@ if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
+if HAVE_LIBCURL
 DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags` `curl-config --cflags`
 DEP_LFLG = -fPIC -shared `wx-config --unicode=yes --static=no --libs` `curl-config --libs`
 
@@ -22,3 +23,4 @@ sg_curl.h\
 wms_import.h
 
 libgarden_webservices_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
+endif

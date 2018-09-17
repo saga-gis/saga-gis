@@ -29,6 +29,7 @@ AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
 AC_CHECK_HEADER([libsvm/svm.h],[AC_CHECK_LIB([svm], [svm_get_svm_type], SVMFOUND=1,,)])
 PKG_CHECK_MODULES([DXFLIB], [dxflib], [LIBDXFFOUND=1],[LIBDXFFOUND=0])
 PKG_CHECK_MODULES([HDF5],[hdf5],LIBHDF5FOUND=1,LIBHDF5FOUND=0)
+LIBCURL_CHECK_CONFIG([yes], [7.7.2],,)
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -232,34 +233,36 @@ fi
 AM_CONDITIONAL([SYSTEM_SVM], [test x$SYSTEM_SVM = xyes])
 
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
-    AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
-    AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
-    AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
-    AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
-    AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
+AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
+AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
+AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
+AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
+AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
 
 
-  if test -n "$CVFOUND" ; then 
-    AC_MSG_RESULT([        Building with OpenCV])
-  fi
+if test -n "$CVFOUND" ; then 
+  AC_MSG_RESULT([        Building with OpenCV])
+fi
 
-  if test -n "$LASFOUND" ; then 
-    AC_MSG_RESULT([        Building with libLAS])
-  fi
+if test -n "$LASFOUND" ; then 
+  AC_MSG_RESULT([        Building with libLAS])
+fi
 
-  if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then 
-    AC_MSG_RESULT([        Building with VIGRA])
-  fi
+if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then 
+  AC_MSG_RESULT([        Building with VIGRA])
+fi
 
-  if test -n "$HARUFOUND" ; then 
-    AC_MSG_RESULT([        using lhpdf (libharu) from system libs.])
-    DISABLELIBHARU=""
-    HARU_LIB="-lhpdf"
-  else 
-    AC_MSG_RESULT([        libharu was not found, pdf creation will be disabled]) 
-    DISABLELIBHARU="-D_SAGA_DONOTUSE_HARU"
-    HARU_LIB=""
-  fi
+if test -n "$HARUFOUND" ; then 
+  AC_MSG_RESULT([        using lhpdf (libharu) from system libs.])
+  DISABLELIBHARU=""
+  HARU_LIB="-lhpdf"
+else 
+  AC_MSG_RESULT([        libharu was not found, pdf creation will be disabled]) 
+  DISABLELIBHARU="-D_SAGA_DONOTUSE_HARU"
+  HARU_LIB=""
+fi
+
+AC_CHECK_DEFINE(HAVE_LIBCURL, AM_CONDITIONAL(HAVE_LIBCURL, true) AC_MSG_RESULT([        Building with libcurl]), AM_CONDITIONAL(HAVE_LIBCURL, false) AC_MSG_RESULT([        libcurl was not found: garden webservices will be disabled]))
 
 
 AC_SUBST(HARU_LIB)
