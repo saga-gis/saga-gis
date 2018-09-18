@@ -19,6 +19,7 @@ def grid_difference(fA, fB, fC, bPixelWise):
         return 0
 
     if bPixelWise == 1: # pixelwise calculation, slower than second solution
+        print 'calculating difference pixelwise'
         C   = saga_api.SG_Create_Grid(A.Get_System())
         for y in range(0, C.Get_NY()):
             for x in range(0, C.Get_NX()):
@@ -27,16 +28,18 @@ def grid_difference(fA, fB, fC, bPixelWise):
                 else:
                     C.Set_Value(x, y, A.asDouble(x, y) - B.asDouble(x, y))
             print '.',
-        C.Save(saga_api.CSG_String(fC), 0)
+        C.Save(fC)
         print
         
     else:               # using built-in CSG_Grid function 'Subtract()'
+        print 'calculating difference using CSG_Grid''s subtract function'
         C   = saga_api.SG_Create_Grid(A)
         C.Subtract(B)
-        C.Save(saga_api.CSG_String(fC), 0)
+        C.Save(fC)
         
     print 'success'
     return 1
+
 
 ##########################################
 if __name__ == '__main__':
@@ -64,3 +67,4 @@ if __name__ == '__main__':
             fC  = './' + fC
 
     grid_difference(fA, fB, fC, 0)
+    grid_difference(fA, fB, fC, 1)
