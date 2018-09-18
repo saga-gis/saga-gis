@@ -76,7 +76,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#if defined(_SAGA_MSW) || defined(HAVE_LIBCURL)
 #define SG_USE_CURL
+#endif
 
 #ifndef SG_USE_CURL
 	#define CWebClient	CSG_HTTP
