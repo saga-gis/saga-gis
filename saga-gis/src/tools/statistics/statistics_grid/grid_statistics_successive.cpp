@@ -306,10 +306,7 @@ CGrid_Statistics_Evaluate::CGrid_Statistics_Evaluate(void)
 //---------------------------------------------------------
 int CGrid_Statistics_Evaluate::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	pParameters->Set_Enabled("RANGE",
-		pParameters->Get("MIN")->asGrid() && 
-		pParameters->Get("MAX")->asGrid()
-	);
+	pParameters->Set_Enabled("RANGE", (*pParameters)("MIN")->asGrid() && (*pParameters)("MAX")->asGrid());
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }

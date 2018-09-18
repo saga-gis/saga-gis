@@ -579,13 +579,13 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
 		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_OFFSET") )
 		{
-			double	newFactor	= pParameters->Get("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
-			double	newOffset	= pParameters->Get("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
+			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
+			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
 			if( newFactor != 0.0 && oldFactor != 0.0 )
 			{
-				CSG_Parameter_Range	*newRange	= pParameters->Get("METRIC_ZRANGE")->asRange();
-				CSG_Parameter_Range	*oldRange	= m_Parameters.Get("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*newRange	= (*pParameters)("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*oldRange	=  m_Parameters ("METRIC_ZRANGE")->asRange();
 
 				newRange->Set_LoVal(((oldRange->Get_LoVal() - oldOffset) / oldFactor) * newFactor + newOffset);
 				newRange->Set_HiVal(((oldRange->Get_HiVal() - oldOffset) / oldFactor) * newFactor + newOffset);
@@ -596,15 +596,15 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			CSG_String	List	= _Get_List_Bands(pParameter->asInt());
 
-			pParameters->Get("BAND"  )->asChoice()->Set_Items(List);
-			pParameters->Get("BAND_R")->asChoice()->Set_Items(List);
-			pParameters->Get("BAND_G")->asChoice()->Set_Items(List);
-			pParameters->Get("BAND_B")->asChoice()->Set_Items(List);
+			(*pParameters)("BAND"  )->asChoice()->Set_Items(List);
+			(*pParameters)("BAND_R")->asChoice()->Set_Items(List);
+			(*pParameters)("BAND_G")->asChoice()->Set_Items(List);
+			(*pParameters)("BAND_B")->asChoice()->Set_Items(List);
 		}
 
-		if( pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
-		||  pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED
-		||  pParameters->Get("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+		if( (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
+		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED
+		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
 		{
 			if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BAND"              )
 			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_R"            )
@@ -622,7 +622,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 				if( _Fit_Colors(*pParameters, Minimum, Maximum) )
 				{
-					pParameters->Get("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
+					(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
 				}
 			}
 		}
@@ -634,7 +634,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE")
 		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_STATISTICS") )
 		{
-			int		Type	= pParameters->Get("COLORS_TYPE")->asInt();
+			int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
 
 			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == GRIDS_CLASSIFY_UNIQUE);
 			pParameters->Set_Enabled("NODE_LUT"          , Type == GRIDS_CLASSIFY_LUT);
@@ -643,7 +643,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 			pParameters->Set_Enabled("BAND"              , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || Type == GRIDS_CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || (Type == GRIDS_CLASSIFY_OVERLAY && pParameters->Get("OVERLAY_STATISTICS")->asInt() == 0));
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || (Type == GRIDS_CLASSIFY_OVERLAY && (*pParameters)("OVERLAY_STATISTICS")->asInt() == 0));
 			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED ||  Type == GRIDS_CLASSIFY_OVERLAY);
 
 			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != GRIDS_CLASSIFY_LUT && Type != GRIDS_CLASSIFY_UNIQUE);

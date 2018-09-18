@@ -135,11 +135,10 @@ CConvex_Hull::CConvex_Hull(void)
 //---------------------------------------------------------
 int CConvex_Hull::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Shapes	*pShapes	= pParameters->Get("SHAPES")->asShapes();
+	CSG_Shapes	*pShapes	= (*pParameters)("SHAPES")->asShapes();
 
 	pParameters->Set_Enabled("POLYPOINTS", pShapes && pShapes->Get_Type() != SHAPE_TYPE_Point);
-
-	pParameters->Set_Enabled("POLYGONCVX", pShapes && pShapes->Get_Type() == SHAPE_TYPE_Polygon && pParameters->Get("POLYPOINTS")->asInt() == 1);
+	pParameters->Set_Enabled("POLYGONCVX", pShapes && pShapes->Get_Type() == SHAPE_TYPE_Polygon && (*pParameters)("POLYPOINTS")->asInt() == 1);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }

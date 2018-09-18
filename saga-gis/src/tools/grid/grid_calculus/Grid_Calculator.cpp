@@ -182,9 +182,9 @@ int CGrid_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FORMULA")
 	||	!SG_STR_CMP(pParameter->Get_Identifier(), "FNAME"  ) )
 	{
-		if( pParameters->Get("FNAME")->asBool() )
+		if( (*pParameters)("FNAME")->asBool() )
 		{
-			pParameters->Get("NAME")->Set_Value(CSG_String::Format("%s [%s]", _TL("Calculation"), pParameters->Get("FORMULA")->asString()));
+			pParameters->Set_Parameter("NAME", CSG_String::Format("%s [%s]", _TL("Calculation"), (*pParameters)("FORMULA")->asString()));
 		}
 	}
 

@@ -526,7 +526,7 @@ void CWKSP_Layer::_Set_Projection(void)
 		{
 			pTool->Execute();
 
-			CSG_Projection	Projection(pTool->Get_Parameters()->Get("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			CSG_Projection	Projection((*pTool->Get_Parameters())("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 			if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )
 			{

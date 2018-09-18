@@ -117,9 +117,9 @@ CGCS_Grid_Longitude_Range::CGCS_Grid_Longitude_Range(void)
 //---------------------------------------------------------
 int CGCS_Grid_Longitude_Range::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Grid_System	*pSystem	= pParameters->Get("INPUT")->asGridList()->Get_System();
+	CSG_Grid_System	*pSystem	= (*pParameters)("INPUT")->asGridList()->Get_System();
 
-	pParameters->Set_Enabled("PATCH", pParameters->Get("DIRECTION")->asInt() == 0 && pSystem && pSystem->is_Valid()
+	pParameters->Set_Enabled("PATCH", (*pParameters)("DIRECTION")->asInt() == 0 && pSystem && pSystem->is_Valid()
 		&& pSystem->Get_NX() * pSystem->Get_Cellsize() == 360.0 && pSystem->Get_XMin() == 0.0
 	);
 

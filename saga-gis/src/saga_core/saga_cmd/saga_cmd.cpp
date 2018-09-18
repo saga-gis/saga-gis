@@ -226,7 +226,7 @@ bool		Execute(int argc, char *argv[])
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool	*pTool	= argc <= 2 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, argv[2]);
+	CSG_Tool	*pTool	= argc <= 2 ? NULL : SG_Get_Tool_Library_Manager().Get_Tool(Library, CSG_String(argv[2]));
 
 	if( pTool == NULL )
 	{

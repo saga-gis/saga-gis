@@ -222,9 +222,9 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		Projection.Create(pParameter->asString(), SG_PROJ_FMT_Proj4);
 	}
-	else if( pParameters->Get("CRS_PROJ4") )
+	else if( (*pParameters)("CRS_PROJ4") )
 	{
-		Projection.Create(pParameters->Get("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		Projection.Create((*pParameters)("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 	}
 
 	//-----------------------------------------------------

@@ -179,7 +179,7 @@ int CGrid_Color_Blend::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 0 )
 	{
-		pParameters->Get("RANGE_USER")->asRange()->Set_Range(
+		(*pParameters)("RANGE_USER")->asRange()->Set_Range(
 			pParameter->asGridList()->Get_Grid(0)->Get_Min(),
 			pParameter->asGridList()->Get_Grid(0)->Get_Max()
 		);

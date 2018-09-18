@@ -236,12 +236,12 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			CSG_Parameters	*pParameters	= Get_Parameters("EXTENT");
 
 			pParameters->Set_Callback(false);
-			pParameters->Get("XMIN")->Set_Value(System.Get_XMin());
-			pParameters->Get("XMAX")->Set_Value(System.Get_XMax());
-			pParameters->Get("YMIN")->Set_Value(System.Get_YMin());
-			pParameters->Get("YMAX")->Set_Value(System.Get_YMax());
-			pParameters->Get("NX"  )->Set_Value(System.Get_NX  ());
-			pParameters->Get("NY"  )->Set_Value(System.Get_NY  ());
+			(*pParameters)("XMIN")->Set_Value(System.Get_XMin());
+			(*pParameters)("XMAX")->Set_Value(System.Get_XMax());
+			(*pParameters)("YMIN")->Set_Value(System.Get_YMin());
+			(*pParameters)("YMAX")->Set_Value(System.Get_YMax());
+			(*pParameters)("NX"  )->Set_Value(System.Get_NX  ());
+			(*pParameters)("NY"  )->Set_Value(System.Get_NY  ());
 			pParameters->Set_Callback(true);
 
 			if( !Dlg_Parameters(pParameters, _TL("Clip to Extent")) )
@@ -250,10 +250,10 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			}
 
 			System	= Fit_Extent(*Get_System(), CSG_Rect(
-				pParameters->Get("XMIN")->asDouble(),
-				pParameters->Get("YMIN")->asDouble(),
-				pParameters->Get("XMAX")->asDouble(),
-				pParameters->Get("YMAX")->asDouble()
+				(*pParameters)("XMIN")->asDouble(),
+				(*pParameters)("YMIN")->asDouble(),
+				(*pParameters)("XMAX")->asDouble(),
+				(*pParameters)("YMAX")->asDouble()
 			));
 
 			if( !System.is_Valid() )
@@ -413,10 +413,10 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
 	{
-		pParameters->Get("XMIN")->Set_Value(pSystem->Get_XMin());
-		pParameters->Get("XMAX")->Set_Value(pSystem->Get_XMax());
-		pParameters->Get("YMIN")->Set_Value(pSystem->Get_YMin());
-		pParameters->Get("YMAX")->Set_Value(pSystem->Get_YMax());
+		pParameters->Set_Parameter("XMIN", pSystem->Get_XMin());
+		pParameters->Set_Parameter("XMAX", pSystem->Get_XMax());
+		pParameters->Set_Parameter("YMIN", pSystem->Get_YMin());
+		pParameters->Set_Parameter("YMAX", pSystem->Get_YMax());
 	}
 
 	Fit_Extent(pParameters, pParameter, pSystem);

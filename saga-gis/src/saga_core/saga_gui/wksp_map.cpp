@@ -1218,7 +1218,7 @@ void CWKSP_Map::Set_Projection(void)
 		{
 			pTool->Execute();
 
-			m_Projection.Assign(pTool->Get_Parameters()->Get("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			m_Projection.Assign((*pTool->Get_Parameters())("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 			View_Refresh(false);
 		}

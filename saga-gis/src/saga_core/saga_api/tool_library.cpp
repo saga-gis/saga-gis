@@ -84,15 +84,15 @@ CSG_Tool_Library::CSG_Tool_Library(void)
 }
 
 //---------------------------------------------------------
-CSG_Tool_Library::CSG_Tool_Library(const CSG_String &FileName)
+CSG_Tool_Library::CSG_Tool_Library(const CSG_String &File)
 {
-	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(FileName).c_str(), wxDL_DEFAULT|wxDL_QUIET);
+	m_pLibrary	= new wxDynamicLibrary(SG_File_Get_Path_Absolute(File).c_str(), wxDL_DEFAULT|wxDL_QUIET);
 
 	if(	m_pLibrary->IsLoaded()
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Get_Interface)
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Initialize)
 	&&	m_pLibrary->HasSymbol(SYMBOL_TLB_Finalize)
-	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(FileName) )
+	&&	((TSG_PFNC_TLB_Initialize)m_pLibrary->GetSymbol(SYMBOL_TLB_Initialize))(File) )
 	{
 		m_pInterface	= ((TSG_PFNC_TLB_Get_Interface)m_pLibrary->GetSymbol(SYMBOL_TLB_Get_Interface))();
 
@@ -181,26 +181,15 @@ CSG_Tool * CSG_Tool_Library::Get_Tool(const CSG_String &Tool, TSG_Tool_Type Type
 	return( NULL );
 }
 
-//---------------------------------------------------------
-CSG_Tool_Grid * CSG_Tool_Library::Get_Tool_Grid(int Index) const
-{	return( (CSG_Tool_Grid *)Get_Tool(Index , TOOL_TYPE_Grid) );	}
+CSG_Tool * CSG_Tool_Library::Get_Tool(const char       *Name, TSG_Tool_Type Type)	const
+{
+	return( Get_Tool(CSG_String(Name), Type) );
+}
 
-CSG_Tool_Grid * CSG_Tool_Library::Get_Tool_Grid(const CSG_String &Tool) const
-{	return( (CSG_Tool_Grid *)Get_Tool(Tool, TOOL_TYPE_Grid) );	}
-
-//---------------------------------------------------------
-CSG_Tool_Interactive * CSG_Tool_Library::Get_Tool_Interactive(int Index) const
-{	return( (CSG_Tool_Interactive *)Get_Tool(Index , TOOL_TYPE_Interactive) );	}
-
-CSG_Tool_Interactive * CSG_Tool_Library::Get_Tool_Interactive(const CSG_String &Tool) const
-{	return( (CSG_Tool_Interactive *)Get_Tool(Tool, TOOL_TYPE_Interactive) );	}
-
-//---------------------------------------------------------
-CSG_Tool_Grid_Interactive * CSG_Tool_Library::Get_Tool_Grid_Interactive(int Index) const
-{	return( (CSG_Tool_Grid_Interactive *)Get_Tool(Index , TOOL_TYPE_Grid_Interactive) );	}
-
-CSG_Tool_Grid_Interactive * CSG_Tool_Library::Get_Tool_Grid_Interactive(const CSG_String &Tool) const
-{	return( (CSG_Tool_Grid_Interactive *)Get_Tool(Tool, TOOL_TYPE_Grid_Interactive) );	}
+CSG_Tool * CSG_Tool_Library::Get_Tool(const wchar_t    *Name, TSG_Tool_Type Type)	const
+{
+	return( Get_Tool(CSG_String(Name), Type) );
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -263,21 +252,21 @@ CSG_Tool_Library_Manager::~CSG_Tool_Library_Manager(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *FileName)
+CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 {
 	//-----------------------------------------------------
-	if( !SG_File_Cmp_Extension(FileName, SG_T("mlb"  ))
-	&&	!SG_File_Cmp_Extension(FileName, SG_T("dll"  ))
-	&&	!SG_File_Cmp_Extension(FileName, SG_T("so"   ))
-	&&	!SG_File_Cmp_Extension(FileName, SG_T("dylib")) )
+	if( !File.Cmp("mlb"  )
+	&&	!File.Cmp("dll"  )
+	&&	!File.Cmp("so"   )
+	&&	!File.Cmp("dylib") )
 	{
-		return( _Add_Tool_Chain(FileName) );
+		return( _Add_Tool_Chain(File) );
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), FileName), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), File.c_str()), true);
 
-	wxFileName	fn(FileName);
+	wxFileName	fn(File.c_str());
 
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -290,7 +279,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *FileName
 	}
 
 	//-----------------------------------------------------
-	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(FileName);
+	CSG_Tool_Library	*pLibrary	= new CSG_Tool_Library(File);
 
 	if( pLibrary->is_Valid() )
 	{
@@ -309,13 +298,23 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const SG_Char *FileName
 	return( NULL );
 }
 
+CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const char       *File)
+{
+	return( Add_Library(CSG_String(File)) );
+}
+
+CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const wchar_t    *File)
+{
+	return( Add_Library(CSG_String(File)) );
+}
+
 //---------------------------------------------------------
-int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnlySubDirectories)
+int CSG_Tool_Library_Manager::Add_Directory(const CSG_String &Directory, bool bOnlySubDirectories)
 {
 	int		nOpened	= 0;
 	wxDir	Dir;
 
-	if( Dir.Open(Directory) )
+	if( Dir.Open(Directory.c_str()) )
 	{
 		wxString	FileName, DirName(Dir.GetName());
 
@@ -347,16 +346,26 @@ int CSG_Tool_Library_Manager::Add_Directory(const SG_Char *Directory, bool bOnly
 	return( nOpened );
 }
 
+int CSG_Tool_Library_Manager::Add_Directory(const char       *Directory, bool bOnlySubDirectories)
+{
+	return( Add_Directory(CSG_String(Directory), bOnlySubDirectories) );
+}
+
+int CSG_Tool_Library_Manager::Add_Directory(const wchar_t    *Directory, bool bOnlySubDirectories)
+{
+	return( Add_Directory(CSG_String(Directory), bOnlySubDirectories) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *FileName)
+CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &File)
 {
 	//-----------------------------------------------------
-	if( !SG_File_Cmp_Extension(FileName, SG_T("xml" )) )
+	if( File.CmpNoCase("xml") )
 	{
 		return( NULL );
 	}
@@ -367,7 +376,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	//-----------------------------------------------------
 	{	// is tool chain already loaded ?
-		wxFileName	fn(FileName);
+		wxFileName	fn(File.c_str());
 
 		for(int iLibrary=0; !pTool && iLibrary<Get_Count(); iLibrary++)
 		{
@@ -387,12 +396,12 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 		if( pTool )	// ...then try to reload !
 		{
 			SG_UI_ProgressAndMsg_Lock(true);
-			CSG_Tool_Chain	Tool(FileName);	// don't reset loaded tool in case reloading fails!!!
+			CSG_Tool_Chain	Tool(File);	// don't reset loaded tool in case reloading fails!!!
 			SG_UI_ProgressAndMsg_Lock(false);
 
 			if( Tool.is_Okay() )
 			{
-				pTool->Create(FileName);
+				pTool->Create(File);
 			}
 
 			return( pLibrary );
@@ -400,7 +409,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 	}
 
 	//-----------------------------------------------------
-	pTool	= new CSG_Tool_Chain(FileName);
+	pTool	= new CSG_Tool_Chain(File);
 
 	if( !pTool || !pTool->is_Okay() )
 	{
@@ -424,7 +433,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 		}
 	}
 
-	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(FileName))) != NULL )
+	if( !pLibrary && (pLibrary = new CSG_Tool_Chains(pTool->Get_Library(), SG_File_Get_Path(File))) != NULL )
 	{
 		m_pLibraries	= (CSG_Tool_Library **)SG_Realloc(m_pLibraries, (m_nLibraries + 1) * sizeof(CSG_Tool_Library *));
 		m_pLibraries[m_nLibraries++]	= pLibrary;
@@ -432,7 +441,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const SG_Char *File
 
 	if( !pLibrary )	// this should never happen, but who knows...
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("ERROR"), _TL("tool chain library"), FileName));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("ERROR"), _TL("tool chain library"), File.c_str()));
 
 		delete(pTool);
 
@@ -521,19 +530,29 @@ bool CSG_Tool_Library_Manager::Del_Library(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const SG_Char *Name, bool bLibrary) const
+CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const CSG_String &Name, bool bLibrary)	const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
 		CSG_Tool_Library	*pLibrary	= Get_Library(i);
 
-		if( !SG_STR_CMP(Name, bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
+		if( !Name.Cmp(bLibrary ? pLibrary->Get_Library_Name() : pLibrary->Get_Name()) )
 		{
 			return( pLibrary );
 		}
 	}
 
 	return( NULL );
+}
+
+CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const char *Name, bool bLibrary)	const
+{
+	return( Get_Library(CSG_String(Name), bLibrary) );
+}
+
+CSG_Tool_Library * CSG_Tool_Library_Manager::Get_Library(const wchar_t *Name, bool bLibrary)	const
+{
+	return( Get_Library(CSG_String(Name), bLibrary) );
 }
 
 //---------------------------------------------------------
@@ -561,8 +580,18 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, int ID)
 	return( Get_Tool(Library, CSG_String::Format("%d", ID)) );
 }
 
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const char       *Library, int ID)	const
+{
+	return( Get_Tool(CSG_String(Library), ID) );
+}
+
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const wchar_t    *Library, int ID)	const
+{
+	return( Get_Tool(CSG_String(Library), ID) );
+}
+
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const CSG_String &Tool)	const
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const CSG_String &Name)	const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -570,7 +599,7 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const C
 
 		if( pLibrary->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			CSG_Tool	*pTool	= pLibrary->Get_Tool(Tool);
+			CSG_Tool	*pTool	= pLibrary->Get_Tool(Name);
 
 			if( pTool )
 			{
@@ -580,6 +609,16 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const C
 	}
 	
 	return( NULL );
+}
+
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const char       *Library, const char       *Name)	const
+{
+	return( Get_Tool(CSG_String(Library), CSG_String(Name)) );
+}
+
+CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const wchar_t    *Library, const wchar_t    *Name)	const
+{
+	return( Get_Tool(CSG_String(Library), CSG_String(Name)) );
 }
 
 

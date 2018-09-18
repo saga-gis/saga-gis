@@ -108,7 +108,7 @@ public:
 
 	bool							is_Valid			(void)	const	{	return( Get_Count() > 0 );	}
 
-	const CSG_String &				Get_File_Name		(void)	const	{	return( m_File_Name );		}
+	const CSG_String &				Get_File_Name		(void)	const	{	return( m_File_Name    );	}
 	const CSG_String &				Get_Library_Name	(void)	const	{	return( m_Library_Name );	}
 
 	virtual CSG_String				Get_Info			(int Type)	const;
@@ -118,20 +118,16 @@ public:
 	CSG_String						Get_Version			(void)	const	{	return( Get_Info(TLB_INFO_Version    ) );	}
 	CSG_String						Get_Menu			(void)	const	{	return( Get_Info(TLB_INFO_Menu_Path  ) );	}
 	CSG_String						Get_Category		(void)	const	{	return( Get_Info(TLB_INFO_Category   ) );	}
+
 	CSG_String						Get_Summary			(int Format = SG_SUMMARY_FMT_HTML, bool bInteractive = true)	const;
-	bool							Get_Summary			(const CSG_String &Path)			const;
+	bool							Get_Summary			(const CSG_String &Path)	const;
 
 	virtual int						Get_Count			(void)	const	{	return( m_pInterface ? m_pInterface->Get_Count() : 0 );	}
 
 	virtual CSG_Tool *				Get_Tool			(int              Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 	virtual CSG_Tool *				Get_Tool			(const CSG_String &Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
-
-	CSG_Tool_Grid *					Get_Tool_Grid				(int              Index)	const;
-	CSG_Tool_Grid *					Get_Tool_Grid				(const CSG_String &Name)	const;
-	CSG_Tool_Interactive *			Get_Tool_Interactive		(int              Index)	const;
-	CSG_Tool_Interactive *			Get_Tool_Interactive		(const CSG_String &Name)	const;
-	CSG_Tool_Grid_Interactive *		Get_Tool_Grid_Interactive	(int              Index)	const;
-	CSG_Tool_Grid_Interactive *		Get_Tool_Grid_Interactive	(const CSG_String &Name)	const;
+	virtual CSG_Tool *				Get_Tool			(const char       *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
+	virtual CSG_Tool *				Get_Tool			(const wchar_t    *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;
@@ -140,7 +136,7 @@ public:
 protected:
 
 	CSG_Tool_Library(void);
-	CSG_Tool_Library(const CSG_String &File_Name);
+	CSG_Tool_Library(const CSG_String &File);
 	virtual ~CSG_Tool_Library(void);
 
 
@@ -176,19 +172,31 @@ public:
 
 	int							Get_Count			(void)	const	{	return( m_nLibraries );	}
 
-	CSG_Tool_Library *			Add_Library			(const SG_Char *File_Name);
-	int							Add_Directory		(const SG_Char *Directory, bool bOnlySubDirectories);
+	CSG_Tool_Library *			Add_Library			(const CSG_String &File);
+	CSG_Tool_Library *			Add_Library			(const char       *File);
+	CSG_Tool_Library *			Add_Library			(const wchar_t    *File);
+
+	int							Add_Directory		(const CSG_String &Directory, bool bOnlySubDirectories = false);
+	int							Add_Directory		(const char       *Directory, bool bOnlySubDirectories = false);
+	int							Add_Directory		(const wchar_t    *Directory, bool bOnlySubDirectories = false);
 
 	bool						Del_Library			(int i);
 	bool						Del_Library			(CSG_Tool_Library *pLibrary);
 
 	CSG_Tool_Library *			Get_Library			(int i)	const	{	return( i >= 0 && i < Get_Count() ? m_pLibraries[i] : NULL );	}
-	CSG_Tool_Library *			Get_Library			(const SG_Char *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library			(const CSG_String &Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library			(const char       *Name, bool bLibrary)	const;
+	CSG_Tool_Library *			Get_Library			(const wchar_t    *Name, bool bLibrary)	const;
 
 	bool						is_Loaded			(CSG_Tool_Library *pLibrary)	const;
 
-	CSG_Tool *					Get_Tool			(const CSG_String &Library, int               ID    )	const;
-	CSG_Tool *					Get_Tool			(const CSG_String &Library, const CSG_String &Tool)	const;
+	CSG_Tool *					Get_Tool			(const CSG_String &Library, int ID)	const;
+	CSG_Tool *					Get_Tool			(const char       *Library, int ID)	const;
+	CSG_Tool *					Get_Tool			(const wchar_t    *Library, int ID)	const;
+
+	CSG_Tool *					Get_Tool			(const CSG_String &Library, const CSG_String &Name)	const;
+	CSG_Tool *					Get_Tool			(const char       *Library, const char       *Name)	const;
+	CSG_Tool *					Get_Tool			(const wchar_t    *Library, const wchar_t    *Name)	const;
 
 	CSG_String					Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;
 	bool						Get_Summary			(const CSG_String &Path)			const;
@@ -201,7 +209,7 @@ private:
 	CSG_Tool_Library			**m_pLibraries;
 
 
-	CSG_Tool_Library *			_Add_Tool_Chain	(const SG_Char *File_Name);
+	CSG_Tool_Library *			_Add_Tool_Chain		(const CSG_String &File);
 
 };
 
@@ -310,7 +318,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 }
 
 //---------------------------------------------------------
-#define SG_TOOL_PARAMETER_SET(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
+#define SG_TOOL_PARAMETER_SET(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(IDENTIFIER, VALUE)
 
 #define SG_TOOL_PARAMLIST_ADD(IDENTIFIER, VALUE)	(\
 		pTool->Get_Parameters()->Get_Parameter(IDENTIFIER)\

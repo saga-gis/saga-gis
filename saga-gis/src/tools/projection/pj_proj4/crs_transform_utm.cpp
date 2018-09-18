@@ -166,7 +166,7 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 			}
 		}
 
-		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------
@@ -174,11 +174,11 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
-			pParameters->Get("UTM_ZONE" )->asInt (),
-			pParameters->Get("UTM_SOUTH")->asBool()
+			(*pParameters)("UTM_ZONE" )->asInt (),
+			(*pParameters)("UTM_SOUTH")->asBool()
 		));
 
-		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_Grid::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------
@@ -243,7 +243,7 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 			pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(Zone, bSouth));
 		}
 
-		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------
@@ -251,11 +251,11 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
-			pParameters->Get("UTM_ZONE" )->asInt (),
-			pParameters->Get("UTM_SOUTH")->asBool()
+			(*pParameters)("UTM_ZONE" )->asInt (),
+			(*pParameters)("UTM_SOUTH")->asBool()
 		));
 
-		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_Shapes::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------
@@ -320,7 +320,7 @@ int CCRS_Transform_UTM_PointCloud::On_Parameter_Changed(CSG_Parameters *pParamet
 			pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(Zone, bSouth));
 		}
 
-		return( CCRS_Transform_PointCloud::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_PointCloud::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------
@@ -328,11 +328,11 @@ int CCRS_Transform_UTM_PointCloud::On_Parameter_Changed(CSG_Parameters *pParamet
 	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
-			pParameters->Get("UTM_ZONE" )->asInt (),
-			pParameters->Get("UTM_SOUTH")->asBool()
+			(*pParameters)("UTM_ZONE" )->asInt (),
+			(*pParameters)("UTM_SOUTH")->asBool()
 		));
 
-		return( CCRS_Transform_PointCloud::On_Parameter_Changed(pParameters, pParameters->Get("CRS_PROJ4")) );
+		return( CCRS_Transform_PointCloud::On_Parameter_Changed(pParameters, (*pParameters)("CRS_PROJ4")) );
 	}
 
 	//-----------------------------------------------------

@@ -119,7 +119,7 @@ int CShapes_Convert_Vertex_Type::On_Parameters_Enable(CSG_Parameters *pParameter
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") && pParameter->asShapes() != NULL )
 	{
-		pParameters->Set_Enabled("FIELD_Z", pParameters->Get("INPUT")->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
+		pParameters->Set_Enabled("FIELD_Z", pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_Z") )

@@ -426,10 +426,10 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
 	{
-		pParameters->Get("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
+		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
 	}
 
-	if( pParameters->Get("DO_MRMR")->asBool() )
+	if( (*pParameters)("DO_MRMR")->asBool() )
 	{
 		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 	}
@@ -933,10 +933,10 @@ int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
 	{
-		pParameters->Get("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
+		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
 	}
 
-	if( pParameters->Get("DO_MRMR")->asBool() )
+	if( (*pParameters)("DO_MRMR")->asBool() )
 	{
 		CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 	}

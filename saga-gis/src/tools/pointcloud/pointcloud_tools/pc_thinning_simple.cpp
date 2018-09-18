@@ -115,7 +115,7 @@ CPC_Thinning_Simple::CPC_Thinning_Simple(void)
 //---------------------------------------------------------
 int CPC_Thinning_Simple::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_PointCloud	*pPoints	= pParameters->Get("INPUT")->asPointCloud();
+	CSG_PointCloud	*pPoints	= (*pParameters)("INPUT")->asPointCloud();
 
 	pParameters->Set_Enabled("NUMBER", pPoints != NULL);
 
@@ -123,7 +123,7 @@ int CPC_Thinning_Simple::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 	{
 		if( SG_STR_CMP(pParameter->Get_Identifier(), "NUMBER" ) )
 		{
-			pParameters->Set_Parameter("NUMBER", (int)(pPoints->Get_Point_Count() * pParameters->Get("PERCENT")->asDouble() / 100.0));
+			pParameters->Set_Parameter("NUMBER", (int)(pPoints->Get_Point_Count() * (*pParameters)("PERCENT")->asDouble() / 100.0));
 		}
 		else if( pParameter->asInt() < pPoints->Get_Point_Count() )
 		{

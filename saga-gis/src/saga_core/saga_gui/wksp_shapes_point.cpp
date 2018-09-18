@@ -367,11 +367,11 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_FONT") )
 		{
 			Set_Metrics(
-				pParameters->Get("METRIC_ATTRIB")->asInt(),
-				pParameters->Get("METRIC_NORMAL")->asInt()
+				(*pParameters)("METRIC_ATTRIB")->asInt(),
+				(*pParameters)("METRIC_NORMAL")->asInt()
 			);
 
-			pParameters->Get("METRIC_ZRANGE")->asRange()->Set_Range(
+			(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(
 				m_Metrics.Get_Minimum(),
 				m_Metrics.Get_Maximum()
 			);

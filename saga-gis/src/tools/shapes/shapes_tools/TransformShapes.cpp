@@ -99,9 +99,9 @@ int CTransformShapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() != NULL )
 	{
-		pParameters->Get("ANCHORX")->Set_Value(pParameter->asShapes()->Get_Extent().Get_Center().Get_X());
-		pParameters->Get("ANCHORY")->Set_Value(pParameter->asShapes()->Get_Extent().Get_Center().Get_Y());
-		pParameters->Get("ANCHORZ")->Set_Value((pParameter->asShapes()->Get_ZMin() + pParameter->asShapes()->Get_ZMax()) / 2.0);
+		pParameters->Set_Parameter("ANCHORX",  pParameter->asShapes()->Get_Extent().Get_Center().Get_X());
+		pParameters->Set_Parameter("ANCHORY",  pParameter->asShapes()->Get_Extent().Get_Center().Get_Y());
+		pParameters->Set_Parameter("ANCHORZ", (pParameter->asShapes()->Get_ZMin() + pParameter->asShapes()->Get_ZMax()) / 2.0);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );

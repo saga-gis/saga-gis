@@ -1401,6 +1401,7 @@ public:
 	class CSG_Data_Manager *		Get_Manager				(void)	const;
 
 	const SG_Char *					Get_Identifier			(void)	const;
+	bool							Cmp_Identifier			(const CSG_String &Identifier)	const;
 	bool							Set_Name				(const CSG_String &Name);
 	const SG_Char *					Get_Name				(void)	const;
 	const SG_Char *					Get_Description			(void)	const;
@@ -1583,14 +1584,15 @@ public:
 	CSG_Parameter *				Get_Parameter			(int i)					{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
 	CSG_Parameter *				Get_Parameter			(const CSG_String &ID);
 
-	CSG_Parameter *				Get						(const char       *ID)	{	return(  Get_Parameter(CSG_String(ID)) );	}
-	CSG_Parameter *				Get						(const wchar_t    *ID)	{	return(  Get_Parameter(CSG_String(ID)) );	}
-
 	CSG_Parameter *				operator()				(int i)					{	return(  Get_Parameter(i ) );	}
 	CSG_Parameter *				operator()				(const CSG_String &ID)	{	return(  Get_Parameter(ID) );	}
+	CSG_Parameter *				operator()				(const char       *ID)	{	return(  Get_Parameter(ID) );	}
+	CSG_Parameter *				operator()				(const wchar_t    *ID)	{	return(  Get_Parameter(ID) );	}
 
 	CSG_Parameter &				operator[]				(int i)					{	return( *Get_Parameter(i ) );	}
 	CSG_Parameter &				operator[]				(const CSG_String &ID)	{	return( *Get_Parameter(ID) );	}
+	CSG_Parameter &				operator[]				(const char       *ID)	{	return( *Get_Parameter(ID) );	}
+	CSG_Parameter &				operator[]				(const wchar_t    *ID)	{	return( *Get_Parameter(ID) );	}
 
 	//-----------------------------------------------------
 	bool						Del_Parameter			(int i);
@@ -1660,11 +1662,30 @@ public:
 	CSG_Parameter *				Add_Parameters			(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description);
 
 	//-----------------------------------------------------
-	bool						Set_Parameter			(const CSG_String &ID, CSG_Parameter *pSource);
-	bool						Set_Parameter			(const CSG_String &ID, int            Value, int Type = PARAMETER_TYPE_Undefined);
-	bool						Set_Parameter			(const CSG_String &ID, double         Value, int Type = PARAMETER_TYPE_Undefined);
-	bool						Set_Parameter			(const CSG_String &ID, void          *Value, int Type = PARAMETER_TYPE_Undefined);
-	bool						Set_Parameter			(const CSG_String &ID, const SG_Char *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, CSG_Parameter   *pValue);
+	bool						Set_Parameter			(const char       *ID, CSG_Parameter   *pValue);
+	bool						Set_Parameter			(const wchar_t    *ID, CSG_Parameter   *pValue);
+	bool						Set_Parameter			(const CSG_String &ID, void             *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, void             *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, void             *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, CSG_Data_Object  *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, CSG_Data_Object  *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, CSG_Data_Object  *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, int               Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, int               Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, int               Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, double            Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, double            Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, double            Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, const CSG_String &Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, const CSG_String &Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, const CSG_String &Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, const char       *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, const char       *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, const char       *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const CSG_String &ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const char       *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
+	bool						Set_Parameter			(const wchar_t    *ID, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 
 	bool						Restore_Defaults		(bool bClearData = false);
 

@@ -180,13 +180,13 @@ int CGrids_Create::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 	{
 		if( pParameter->asList()->Get_Item_Count() > 0 )
 		{
-			pParameters->Get("NAME")->Set_Value(pParameter->asList()->Get_Item(0)->Get_Name());
+			pParameters->Set_Parameter("NAME", pParameter->asList()->Get_Item(0)->Get_Name());
 		}
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") && pParameter->asInt() > 0 )
 	{
-		Set_Field_Count(pParameters->Get("FIELDS")->asParameters(), pParameter->asInt());
+		Set_Field_Count((*pParameters)("FIELDS")->asParameters(), pParameter->asInt());
 
 		return( true );
 	}
@@ -202,7 +202,7 @@ int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("TABLE"  , pParameter->asInt() == 2);
 
-		pParameters->Set_Enabled(pParameters->Get("COPY")->Get_Parent()->Get_Identifier(), pParameter->asInt() == 3);
+		pParameters->Set_Enabled((*pParameters)("COPY")->Get_Parent()->Get_Identifier(), pParameter->asInt() == 3);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )
@@ -484,7 +484,7 @@ int CGrids_Extract::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
 	{
-		CSG_Parameter_Choices	*pChoices	= pParameters->Get("SELECTION")->asChoices();
+		CSG_Parameter_Choices	*pChoices	= (*pParameters)("SELECTION")->asChoices();
 
 		pChoices->Del_Items();
 
@@ -590,7 +590,7 @@ int CGrids_Delete::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
 	{
-		CSG_Parameter_Choices	*pChoices	= pParameters->Get("SELECTION")->asChoices();
+		CSG_Parameter_Choices	*pChoices	= (*pParameters)("SELECTION")->asChoices();
 
 		pChoices->Del_Items();
 

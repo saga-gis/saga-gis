@@ -1042,7 +1042,7 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 
 	CSG_Tool	*pTool;
 
-	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(Tool.Get_Property("library"), Name)) )
+	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(Tool.Get_Property("library"), Name.c_str())) )
 	{
 		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
 

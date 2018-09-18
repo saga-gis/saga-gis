@@ -401,7 +401,7 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 			bool	bNone	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
 
 			pParameters->Set_Enabled("Y_SCALE_TO_X", bNone == false);
-			pParameters->Set_Enabled("Y_MAX_FIX"   , bNone || pParameters->Get("Y_SCALE_TO_X")->asBool() == false);
+			pParameters->Set_Enabled("Y_MAX_FIX"   , bNone || (*pParameters)("Y_SCALE_TO_X")->asBool() == false);
 		}
 
 		if( !s.Cmp("Y_SCALE_TO_X") )

@@ -171,7 +171,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		Set_Target(pParameters, pParameter->asList(), m_Grid_Target);
 	}
@@ -182,7 +182,7 @@ int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAP") )
+	if(	pParameter->Cmp_Identifier("OVERLAP") )
 	{
 		pParameters->Set_Enabled("BLEND_DIST", pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
@@ -821,7 +821,7 @@ CGrids_Merge::CGrids_Merge(void)
 //---------------------------------------------------------
 int CGrids_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		CGrid_Merge::Set_Target(pParameters, pParameter->asList(), m_Grid_Target);
 	}
@@ -832,7 +832,7 @@ int CGrids_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 int CGrids_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAP") )
+	if(	pParameter->Cmp_Identifier("OVERLAP") )
 	{
 		pParameters->Set_Enabled("BLEND_DIST", pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
@@ -881,9 +881,9 @@ bool CGrids_Merge::On_Execute(void)
 
 	Mosaic.Set_Manager(NULL);
 	Mosaic.Get_Parameters()->Assign_Values(&Parameters);
-	Mosaic.Get_Parameters()->Get("TARGET_DEFINITION")->Set_Value(1);	// grid or grid system
+	Mosaic.Set_Parameter("TARGET_DEFINITION", 1);	// grid or grid system
 
-	CSG_Parameter_Grid_List	*pList_Grid	= Mosaic.Get_Parameters()->Get("GRIDS")->asGridList();
+	CSG_Parameter_Grid_List	*pList_Grid	= (*Mosaic.Get_Parameters())("GRIDS")->asGridList();
 
 	for(int z=0; z<pGrids->Get_NZ(); z++)
 	{
@@ -903,7 +903,7 @@ bool CGrids_Merge::On_Execute(void)
 
 		pMosaic->Get_Attributes(z).Assign(&pGrids->Get_Attributes(z));
 
-		Mosaic.Get_Parameters()->Get("TARGET_OUT_GRID")->Set_Value(pMosaic->Get_Grid_Ptr(z));
+		Mosaic.Get_Parameters()->Set_Parameter("TARGET_OUT_GRID", (void *)pMosaic->Get_Grid_Ptr(z));
 
 		if( !Mosaic.Execute() )
 		{

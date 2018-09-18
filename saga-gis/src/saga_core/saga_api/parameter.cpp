@@ -611,6 +611,12 @@ const SG_Char * CSG_Parameter::Get_Identifier(void)	const
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::Cmp_Identifier(const CSG_String &Identifier)	const
+{
+	return( m_Identifier.Cmp(Identifier) == 0 );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter::Set_Name(const CSG_String &Name)
 {
 	m_Name	= Name;

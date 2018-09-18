@@ -1562,8 +1562,8 @@ bool CWKSP_Shapes::_Chart_Set_Options(void)
 
 			Fields	+= CSG_String::Format("%s|", _TL("<none>"));
 
-			pChart->Get("SIZE_FIELD")->asChoice()->Set_Items(Fields);
-			pChart->Get("SIZE_FIELD")->Set_Value(n);
+			(*pChart)("SIZE_FIELD")->asChoice()->Set_Items(Fields);
+			(*pChart)("SIZE_FIELD")->Set_Value(n);
 
 			return( true );
 		}
@@ -1580,28 +1580,28 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 
 	CSG_Parameters	*pChart	= m_Parameters("DISPLAY_CHART")->asParameters();
 
-	if( pChart->Get_Parameter("FIELDS") )
+	if( (*pChart)("FIELDS") )
 	{
 		for(int i=0, n=0; i<Get_Shapes()->Get_Field_Count(); i++)
 		{
-			CSG_Parameter	*p	= pChart->Get_Parameter(CSG_String::Format("FIELD_%d", i));
+			CSG_Parameter	*p	= (*pChart)(CSG_String::Format("FIELD_%d", i));
 
 			if(	p )
 			{
-				if( pChart->Get_Parameter("SIZE_FIELD")->asInt() == n++ )
+				if( (*pChart)("SIZE_FIELD")->asInt() == n++ )
 					m_Chart_sField	= i;
 
-				if( p->asBool() && (p = pChart->Get_Parameter(CSG_String::Format("COLOR_%d", i))) != NULL )
+				if( p->asBool() && (p = (*pChart)(CSG_String::Format("COLOR_%d", i))) != NULL )
 					m_Chart.Add(i, p->asColor());
 			}
 		}
 
-		m_Chart_Type	= pChart->Get_Parameter("TYPE"        )->asInt();
-		m_Chart_sType	= pChart->Get_Parameter("SIZE_TYPE"   )->asInt();
+		m_Chart_Type	= (*pChart)("TYPE"        )->asInt();
+		m_Chart_sType	= (*pChart)("SIZE_TYPE"   )->asInt();
 		m_Chart_sSize	= m_Chart_sField < 0
-						? pChart->Get_Parameter("SIZE_DEFAULT")->asDouble()
-						: pChart->Get_Parameter("SIZE_RANGE"  )->asRange()->Get_LoVal();
-		m_Chart_sRange	= pChart->Get_Parameter("SIZE_RANGE"  )->asRange()->Get_HiVal() - m_Chart_sSize;
+						? (*pChart)("SIZE_DEFAULT")->asDouble()
+						: (*pChart)("SIZE_RANGE"  )->asRange()->Get_LoVal();
+		m_Chart_sRange	= (*pChart)("SIZE_RANGE"  )->asRange()->Get_HiVal() - m_Chart_sSize;
 
 		return( true );
 	}

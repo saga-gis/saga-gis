@@ -222,7 +222,7 @@ int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asInt() == 0);
-		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && pParameters->Get("FIELDS")->asPointer() != NULL);
+		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && (*pParameters)("FIELDS")->asPointer() != NULL);
 	}
 
 	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )

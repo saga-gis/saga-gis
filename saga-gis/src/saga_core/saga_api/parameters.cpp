@@ -1228,27 +1228,26 @@ bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *pSource)
+bool CSG_Parameters::Set_Parameter(const char       *ID, CSG_Parameter *pValue)	{	return( Set_Parameter(CSG_String(ID), pValue) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, CSG_Parameter *pValue)	{	return( Set_Parameter(CSG_String(ID), pValue) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, CSG_Parameter *pValue)
 {
-	CSG_Parameter	*pTarget;
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
-	if( pSource != NULL && (pTarget = Get_Parameter(Identifier)) != NULL && pSource->Get_Type() == pTarget->Get_Type() )
-	{
-		return( pTarget->Assign(pSource) );
-	}
-
-	return( false );
+	return( pTarget && pValue && pTarget->Get_Type() == pValue->Get_Type() && pTarget->Assign(pValue) );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, int Value, int Type)
+bool CSG_Parameters::Set_Parameter(const char       *ID, void *Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, void *Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, void *Value, int Type)
 {
-	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
 	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
-
+		
 		return( true );
 	}
 
@@ -1256,14 +1255,16 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, int Value, int 
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, double Value, int Type)
+bool CSG_Parameters::Set_Parameter(const char       *ID, CSG_Data_Object *Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, CSG_Data_Object *Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, CSG_Data_Object *Value, int Type)
 {
-	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
 	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
-
+		
 		return( true );
 	}
 
@@ -1271,14 +1272,44 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, double Value, i
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, void *Value, int Type)
+bool CSG_Parameters::Set_Parameter(const char       *ID, int Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, int Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, int Value, int Type)
 {
-	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
 	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
 	{
 		pTarget->Set_Value(Value);
+		
+		return( true );
+	}
 
+	return( false );
+}
+
+
+//---------------------------------------------------------
+bool CSG_Parameters::Set_Parameter(const char       *ID, double Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, double Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, double Value, int Type)
+{
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
+
+	return( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) && pTarget->Set_Value(Value) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters::Set_Parameter(const char       *ID, const CSG_String &Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, const CSG_String &Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, const CSG_String &Value, int Type)
+{
+	CSG_Parameter	*pTarget	= Get_Parameter(ID);
+
+	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
+	{
+		pTarget->Set_Value(Value);
+		
 		return( true );
 	}
 
@@ -1286,19 +1317,14 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, void *Value, in
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Set_Parameter(const CSG_String &Identifier, const SG_Char *Value, int Type)
-{
-	CSG_Parameter	*pTarget	= Get_Parameter(Identifier);
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, const char    *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
+bool CSG_Parameters::Set_Parameter(const char       *ID, const char    *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, const char    *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
 
-	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
-	{
-		pTarget->Set_Value(Value);
-
-		return( true );
-	}
-
-	return( false );
-}
+//---------------------------------------------------------
+bool CSG_Parameters::Set_Parameter(const CSG_String &ID, const wchar_t *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
+bool CSG_Parameters::Set_Parameter(const char       *ID, const wchar_t *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
+bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, const wchar_t *Value, int Type)	{	return( Set_Parameter(ID, CSG_String(Value)) );	}
 
 
 ///////////////////////////////////////////////////////////

@@ -266,7 +266,7 @@ int CGrid_Fractal_Brownian_Noise::On_Parameter_Changed(CSG_Parameters *pParamete
 		{
 			double	d	= 0.5 * SG_Get_Length(System.Get_XRange(), System.Get_YRange());
 
-			pParameters->Get("MAX_SCALE")->Set_Value(System.Get_Cellsize() * (int)(d / System.Get_Cellsize()));
+			pParameters->Set_Parameter("MAX_SCALE", System.Get_Cellsize() * (int)(d / System.Get_Cellsize()));
 		}
 	}
 

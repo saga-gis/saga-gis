@@ -253,7 +253,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 			Library	= fn.GetFullPath();
 		}
 
-		SG_Get_Tool_Library_Manager().Add_Library(Library);
+		SG_Get_Tool_Library_Manager().Add_Library(&Library);
 	}
 
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
@@ -262,7 +262,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	if( (SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false)
 	   + SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false)) == 0 )
 #endif
-		SG_Get_Tool_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path(), true);
+		SG_Get_Tool_Library_Manager().Add_Directory(&g_pSAGA->Get_App_Path(), true);
 	}
 
 	_Update(false);
@@ -272,7 +272,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 
 //---------------------------------------------------------
 #ifdef _SAGA_MSW
-	#define GET_LIBPATH(path)	Get_FilePath_Relative(g_pSAGA->Get_App_Path(), path.c_str())
+	#define GET_LIBPATH(path)	Get_FilePath_Relative(g_pSAGA->Get_App_Path().c_str(), path.c_str())
 #else
 	#define GET_LIBPATH(path)	path.c_str()
 #endif
@@ -432,7 +432,7 @@ bool CWKSP_Tool_Manager::On_Command(int Cmd_ID)
 			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false);
 			SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false);
 		#else
-			SG_Get_Tool_Library_Manager().Add_Directory(g_pSAGA->Get_App_Path() + "/tools", false);
+			SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(&g_pSAGA->Get_App_Path()) + "/tools", false);
 		#endif
 			_Update(false);
 		break;
@@ -635,7 +635,7 @@ void CWKSP_Tool_Manager::Open(void)
 
 		for(size_t i=0; i<File_Paths.GetCount(); i++)
 		{
-			if( SG_Get_Tool_Library_Manager().Add_Library(File_Paths[i]) )
+			if( SG_Get_Tool_Library_Manager().Add_Library(&File_Paths[i]) )
 			{
 				bUpdate	= true;
 			}
@@ -651,7 +651,7 @@ void CWKSP_Tool_Manager::Open(void)
 //---------------------------------------------------------
 bool CWKSP_Tool_Manager::Open(const wxString &File_Name)
 {
-	if( SG_Get_Tool_Library_Manager().Add_Library(File_Name) )
+	if( SG_Get_Tool_Library_Manager().Add_Library(&File_Name) )
 	{
 		_Update(false);
 

@@ -616,13 +616,13 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
 		||	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_OFFSET") )
 		{
-			double	newFactor	= pParameters->Get("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
-			double	newOffset	= pParameters->Get("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
+			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
+			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
 			if( newFactor != 0.0 && oldFactor != 0.0 )
 			{
-				CSG_Parameter_Range	*newRange	= pParameters->Get("METRIC_ZRANGE")->asRange();
-				CSG_Parameter_Range	*oldRange	= m_Parameters.Get("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*newRange	= (*pParameters)("METRIC_ZRANGE")->asRange();
+				CSG_Parameter_Range	*oldRange	=  m_Parameters ("METRIC_ZRANGE")->asRange();
 
 				newRange->Set_LoVal(((oldRange->Get_LoVal() - oldOffset) / oldFactor) * newFactor + newOffset);
 				newRange->Set_HiVal(((oldRange->Get_HiVal() - oldOffset) / oldFactor) * newFactor + newOffset);
@@ -639,7 +639,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 			if( _Fit_Colors(*pParameters, Minimum, Maximum) )
 			{
-				pParameters->Get("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
+				(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
 			}
 		}
 	}
@@ -672,9 +672,9 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 		if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_MODE") )
 		{
-			pParameters->Get("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
-			pParameters->Get("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
-			pParameters->Get("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
+			(*pParameters)("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
+			(*pParameters)("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
+			(*pParameters)("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
 		}
 
 		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_SHOW") )

@@ -144,27 +144,27 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 {
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SAVE_FILE") )
 	{
-		pParameters->Set_Enabled("SAVE_PATH" ,  pParameter->asBool());
+		pParameters->Set_Enabled("SAVE_PATH" , pParameter->asBool() == true);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VARS_ALL" ) && pParameters->Get("VARS") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VARS_ALL" ) )
 	{
-		pParameters->Set_Enabled("VARS"      , !pParameter->asBool());
+		pParameters->Set_Enabled("VARS"      , pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TIME_ALL" ) && pParameters->Get("TIME") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TIME_ALL" ) )
 	{
-		pParameters->Set_Enabled("TIME"      , !pParameter->asBool());
+		pParameters->Set_Enabled("TIME"      , pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEVEL_ALL") && pParameters->Get("LEVEL") )
+	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEVEL_ALL") )
 	{
-		pParameters->Set_Enabled("LEVEL"     , !pParameter->asBool());
+		pParameters->Set_Enabled("LEVEL"     , pParameter->asBool() == false);
 	}
 
 	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
 	{
-		pParameters->Set_Enabled("RESAMPLING",  pParameter->asBool());
+		pParameters->Set_Enabled("RESAMPLING", pParameter->asBool() == true);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -340,9 +340,9 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name
 		{
 			const char	*s;
 
-			if( !!(s = Get_Variable(DataSet, i)) && !pVars ->Get(s) ) pVars ->Add_Bool("", s, s, _TL(""), false);
-			if( !!(s = Get_Time    (DataSet, i)) && !pTime ->Get(s) ) pTime ->Add_Bool("", s, Get_Time_String(s, tFmt), _TL(""), false);
-			if( !!(s = Get_Level   (DataSet, i)) && !pLevel->Get(s) ) pLevel->Add_Bool("", s, s, _TL(""), false);
+			if( !!(s = Get_Variable(DataSet, i)) && !(*pVars )(s) ) pVars ->Add_Bool("", s, s, _TL(""), false);
+			if( !!(s = Get_Time    (DataSet, i)) && !(*pTime )(s) ) pTime ->Add_Bool("", s, Get_Time_String(s, tFmt), _TL(""), false);
+			if( !!(s = Get_Level   (DataSet, i)) && !(*pLevel)(s) ) pLevel->Add_Bool("", s, s, _TL(""), false);
 		}
 
 		P("VARS_ALL" )->Set_Enabled(pVars ->Get_Count() > 1);
