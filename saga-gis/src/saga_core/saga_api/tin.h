@@ -233,9 +233,11 @@ public:
 
 	virtual TSG_Data_Object_Type	Get_ObjectType			(void)	const			{	return( SG_DATAOBJECT_TYPE_TIN );	}
 
-	virtual bool					Assign					(CSG_Data_Object *pObject);
+	virtual bool					Save					(const CSG_String &File, int Format = 0);
+	virtual bool					Save					(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save					(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 
-	virtual bool					Save					(const CSG_String &File_Name, int Format = 0);
+	virtual bool					Assign					(CSG_Data_Object *pObject);
 
 	virtual bool					is_Valid				(void)	const			{	return( Get_Count() >= 3 );	}
 
@@ -282,13 +284,13 @@ protected:
 	CSG_TIN_Triangle				**m_Triangles;
 
 
-	void							_On_Construction		(void);
-
-	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
-
 	virtual bool					On_Update				(void);
 	virtual bool					On_Reload				(void);
 	virtual bool					On_Delete				(void);
+
+	void							_On_Construction		(void);
+
+	virtual CSG_Table_Record *		_Get_New_Record			(int Index);
 
 	bool							_Destroy_Nodes			(void);
 	bool							_Destroy_Edges			(void);

@@ -360,7 +360,7 @@ bool CSG_TIN::Assign(CSG_Data_Object *pObject)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_TIN::Save(const CSG_String &File_Name, int Format)
+bool CSG_TIN::Save(const CSG_String &File, int Format)
 {
 	bool	bResult	= false;
 
@@ -381,7 +381,7 @@ bool CSG_TIN::Save(const CSG_String &File_Name, int Format)
 					Points.Add_Shape(pNode)->Add_Point(pNode->Get_Point());
 				}
 
-				bResult	= Points.Save(File_Name);
+				bResult	= Points.Save(File);
 			}
 			break;
 		}
@@ -391,7 +391,7 @@ bool CSG_TIN::Save(const CSG_String &File_Name, int Format)
 	{
 		Set_Modified(false);
 
-		Set_File_Name(File_Name, true);
+		Set_File_Name(File, true);
 	}
 
 	return( bResult );

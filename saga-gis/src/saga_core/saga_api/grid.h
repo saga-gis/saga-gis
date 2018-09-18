@@ -463,7 +463,9 @@ public:		///////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	virtual bool					Save			(const CSG_String &FileName, int Format = GRID_FILE_FORMAT_Binary);
+	virtual bool					Save			(const CSG_String &File, int Format = 0);
+	virtual bool					Save			(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save			(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 
 	//-----------------------------------------------------
 	/** Data object type information.

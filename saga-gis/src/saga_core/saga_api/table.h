@@ -239,9 +239,16 @@ public:
 	virtual bool					Assign				(CSG_Data_Object *pSource);
 	bool							Assign_Values		(CSG_Table *pTable);
 
-	bool							Load				(const CSG_String &FileName, int Format, SG_Char Separator);
-	virtual bool					Save				(const CSG_String &FileName, int Format = 0);
-	virtual bool					Save				(const CSG_String &FileName, int Format, SG_Char Separator);
+	bool							Load				(const CSG_String &File, int Format, SG_Char Separator);
+
+	virtual bool					Save				(const CSG_String &File, int Format, SG_Char Separator);
+	virtual bool					Save				(const char       *File, int Format, SG_Char Separator)	{ return( Save(CSG_String(File), Format, Separator) ); }
+	virtual bool					Save				(const wchar_t    *File, int Format, SG_Char Separator)	{ return( Save(CSG_String(File), Format, Separator) ); }
+
+	virtual bool					Save				(const CSG_String &File, int Format = 0);
+	virtual bool					Save				(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save				(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+
 	bool							Serialize			(CSG_File &Stream, bool bSave);
 
 	//-----------------------------------------------------

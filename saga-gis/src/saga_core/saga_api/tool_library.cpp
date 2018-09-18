@@ -255,10 +255,10 @@ CSG_Tool_Library_Manager::~CSG_Tool_Library_Manager(void)
 CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 {
 	//-----------------------------------------------------
-	if( !File.Cmp("mlb"  )
-	&&	!File.Cmp("dll"  )
-	&&	!File.Cmp("so"   )
-	&&	!File.Cmp("dylib") )
+	if( !SG_File_Cmp_Extension(File, "mlb"  )
+	&&	!SG_File_Cmp_Extension(File, "dll"  )
+	&&	!SG_File_Cmp_Extension(File, "so"   )
+	&&	!SG_File_Cmp_Extension(File, "dylib") )
 	{
 		return( _Add_Tool_Chain(File) );
 	}

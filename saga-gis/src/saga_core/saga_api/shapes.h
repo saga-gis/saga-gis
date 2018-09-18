@@ -693,7 +693,9 @@ public:
 
 	virtual bool					Assign					(CSG_Data_Object *pObject);
 
-	virtual bool					Save					(const CSG_String &File_Name, int Format = 0);
+	virtual bool					Save					(const CSG_String &File, int Format = 0);
+	virtual bool					Save					(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save					(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 
 	virtual bool					is_Valid				(void)	const			{	return( m_Type != SHAPE_TYPE_Undefined && Get_Count() >= 0 );		}
 

@@ -69,17 +69,23 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void *		SG_Get_Create_Pointer(void)
+{
+	return( DATAOBJECT_CREATE );
+}
+
+//---------------------------------------------------------
 CSG_String	SG_Get_DataObject_Identifier(TSG_Data_Object_Type Type)
 {
 	switch( Type )
 	{
-	default                           : return( "UNDEFINED");
-	case SG_DATAOBJECT_TYPE_Grid      : return( "GRID"     );
-	case SG_DATAOBJECT_TYPE_Grids     : return( "GRIDS"    );
-	case SG_DATAOBJECT_TYPE_Table     : return( "TABLE"    );
-	case SG_DATAOBJECT_TYPE_Shapes    : return( "SHAPES"   );
-	case SG_DATAOBJECT_TYPE_TIN       : return( "TIN"      );
-	case SG_DATAOBJECT_TYPE_PointCloud: return( "POINTS"   );
+	default                           : return( "UNDEFINED" );
+	case SG_DATAOBJECT_TYPE_Grid      : return( "GRID"      );
+	case SG_DATAOBJECT_TYPE_Grids     : return( "GRIDS"     );
+	case SG_DATAOBJECT_TYPE_Table     : return( "TABLE"     );
+	case SG_DATAOBJECT_TYPE_Shapes    : return( "SHAPES"    );
+	case SG_DATAOBJECT_TYPE_TIN       : return( "TIN"       );
+	case SG_DATAOBJECT_TYPE_PointCloud: return( "POINTS"    );
 	}
 }
 

@@ -690,11 +690,11 @@ bool CSG_Projections::Load_Dictionary(const CSG_String &FileName)
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Save_Dictionary(const CSG_String &FileName)
+bool CSG_Projections::Save_Dictionary(const CSG_String &File)
 {
 	CSG_Table	Table;
 
-	return( _Set_Dictionary(Table, 0) && Table.Save(FileName) );
+	return( _Set_Dictionary(Table, 0) && Table.Save(File) );
 }
 
 
@@ -728,9 +728,9 @@ bool CSG_Projections::Load_DB(const CSG_String &FileName, bool bAppend)
 }
 
 //---------------------------------------------------------
-bool CSG_Projections::Save_DB(const CSG_String &FileName)
+bool CSG_Projections::Save_DB(const CSG_String &File)
 {
-	return( m_pProjections->Save(FileName) );
+	return( m_pProjections->Save(File) );
 }
 
 

@@ -140,8 +140,11 @@ public:		///////////////////////////////////////////////
 
 
 	//-----------------------------------------------------
-	virtual bool					Load				(const CSG_String &FileName, bool bLoadData = true);
-	virtual bool					Save				(const CSG_String &FileName, int Format = GRIDS_FILE_FORMAT_Undefined);
+	virtual bool					Load				(const CSG_String &File, bool bLoadData = true);
+
+	virtual bool					Save				(const CSG_String &File, int Format = 0);
+	virtual bool					Save				(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+	virtual bool					Save				(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 
 
 	//-----------------------------------------------------
