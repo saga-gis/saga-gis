@@ -196,13 +196,28 @@ class SAGA_API_DLL_EXPORT CSG_Grid_System
 {
 public:
 	CSG_Grid_System(void);
-	CSG_Grid_System(const CSG_Grid_System &System);
-	CSG_Grid_System(double Cellsize, const CSG_Rect &Extent);
-	CSG_Grid_System(double Cellsize, double xMin, double yMin, double xMax, double yMax);
-	CSG_Grid_System(double Cellsize, double xMin, double yMin, int NX, int NY);
+
+								CSG_Grid_System		(const CSG_Grid_System &System);
+	bool						Create				(const CSG_Grid_System &System);
+
+								CSG_Grid_System		(double Cellsize, const CSG_Rect &Extent);
+	bool						Create				(double Cellsize, const CSG_Rect &Extent);
+
+								CSG_Grid_System		(double Cellsize, double xMin, double yMin, double xMax, double yMax);
+	bool						Create				(double Cellsize, double xMin, double yMin, double xMax, double yMax);
+
+								CSG_Grid_System		(double Cellsize, double xMin, double yMin, int NX, int NY);
+	bool						Create				(double Cellsize, double xMin, double yMin, int NX, int NY);
 
 	~CSG_Grid_System(void);
 
+	bool						Destroy				(void);
+
+	//-----------------------------------------------------
+	bool						Assign				(const CSG_Grid_System &System);
+	bool						Assign				(double Cellsize, const CSG_Rect &Extent);
+	bool						Assign				(double Cellsize, double xMin, double yMin, double xMax, double yMax);
+	bool						Assign				(double Cellsize, double xMin, double yMin, int NX, int NY);
 
 	//-----------------------------------------------------
 	bool						is_Valid			(void)	const;
@@ -230,11 +245,6 @@ public:
 	//-----------------------------------------------------
 	bool						operator ==			(const CSG_Grid_System &System) const;
 	void						operator =			(const CSG_Grid_System &System);
-
-	bool						Assign				(const CSG_Grid_System &System);
-	bool						Assign				(double Cellsize, const CSG_Rect &Extent);
-	bool						Assign				(double Cellsize, double xMin, double yMin, double xMax, double yMax);
-	bool						Assign				(double Cellsize, double xMin, double yMin, int NX, int NY);
 
 	bool						is_Equal			(const CSG_Grid_System &System) const;
 	bool						is_Equal			(double Cellsize, const TSG_Rect &Extent) const;
