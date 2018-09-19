@@ -99,7 +99,7 @@ CCityGML_Import::CCityGML_Import(void)
 	Parameters.Add_Bool(
 		"", "PARTS"		, _TL("Check for Building Parts"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
