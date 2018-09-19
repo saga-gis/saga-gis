@@ -1,71 +1,71 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="3.1.0">
-  <group></group>
-  <identifier>polygons_max_interior_circles</identifier>
-  <name>Largest Circles in Polygons</name>
-  <description>created from history</description>
-  <menu absolute="true">Shapes|Polygons</menu>
-  
-  <parameters>
-    <input varname="POLYGONS" type="shapes" feature_type="polygon">
-      <name>Polygons</name>
-    </input>
-    <output varname="CIRCLES" type="shapes" feature_type="polygon">
-      <name>Circles</name>
-      <output_name>Circles</output_name>
-    </output>
-	<option varname="RESOLUTION" type="double">
-	  <name>Resolution</name>
-      <value min="0.0">10.0</value>
-	</option>
-  </parameters>
-  
-  <tools>
-    <tool library="shapes_lines" tool="0" name="Convert Polygons to Lines">
-      <input  id="POLYGONS">POLYGONS</input>
-      <output id="LINES">LINES</output>
-    </tool>
-	
-    <tool library="grid_gridding" tool="0" name="Shapes to Grid">
-      <option id="OUTPUT">0</option>
-      <option id="LINE_TYPE">0</option>
-      <option id="GRID_TYPE">0</option>
-      <option id="TARGET_DEFINITION">0</option>
-      <option id="TARGET_USER_SIZE" varname="true">RESOLUTION</option>
-      <option id="COUNT_CREATE">FALSE</option>
-      <input  id="INPUT">LINES</input>
-      <output id="GRID">GRID_0</output>
-    </tool>
-	
-    <tool library="grid_tools" tool="26" name="Proximity Grid">
-      <input  id="FEATURES">GRID_0</input>
-      <output id="DISTANCE">GRID_1</output>
-    </tool>
-	
-    <tool library="grid_tools" tool="31" name="Clip Grids">
-      <option id="EXTENT">3</option>
-      <input  id="POLYGONS">POLYGONS</input>
-      <input  id="GRIDS">GRID_1</input>
-      <output id="CLIPPED">GRIDS</output>
-    </tool>
-	
-    <tool library="grid_calculus" tool="1" name="Grid Calculator">
-      <option id="FORMULA">ifelse(gt(g1,0),g1,nodata())</option>
-      <input  id="GRIDS">GRIDS</input>
-      <output id="RESULT">GRID_1</output>
-    </tool>
-	
-    <tool library="shapes_grid" tool="9" name="Local Minima and Maxima">
-      <input  id="GRID">GRID_1</input>
-      <output id="MAXIMA">MAXIMA</output>
-    </tool>
-	
-    <tool library="shapes_tools" tool="18" name="Shapes Buffer">
-      <option id="DIST_FIELD">Z</option>
-      <option id="DIST_SCALE">1.000000</option>
-      <option id="DISSOLVE">FALSE</option>
-      <input  id="SHAPES">MAXIMA</input>
-      <output id="BUFFER">CIRCLES</output>
-    </tool>
-  </tools>
+	<group>Polygon Tools</group>
+	<identifier>polygons_max_interior_circles</identifier>
+	<name>Largest Circles in Polygons</name>
+	<description>created from history</description>
+	<menu absolute="true">Shapes|Polygons</menu>
+
+	<parameters>
+		<input varname="POLYGONS" type="shapes" feature_type="polygon">
+			<name>Polygons</name>
+		</input>
+		<output varname="CIRCLES" type="shapes" feature_type="polygon">
+			<name>Circles</name>
+			<output_name>Circles</output_name>
+		</output>
+		<option varname="RESOLUTION" type="double">
+			<name>Resolution</name>
+			<value min="0.0">10.0</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<tool library="shapes_lines" tool="0" name="Convert Polygons to Lines">
+			<input  id="POLYGONS">POLYGONS</input>
+			<output id="LINES">LINES</output>
+		</tool>
+
+		<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+			<option id="OUTPUT">0</option>
+			<option id="LINE_TYPE">0</option>
+			<option id="GRID_TYPE">0</option>
+			<option id="TARGET_DEFINITION">0</option>
+			<option id="TARGET_USER_SIZE" varname="true">RESOLUTION</option>
+			<option id="COUNT_CREATE">FALSE</option>
+			<input  id="INPUT">LINES</input>
+			<output id="GRID">GRID_0</output>
+		</tool>
+
+		<tool library="grid_tools" tool="26" name="Proximity Grid">
+			<input  id="FEATURES">GRID_0</input>
+			<output id="DISTANCE">GRID_1</output>
+		</tool>
+
+		<tool library="grid_tools" tool="31" name="Clip Grids">
+			<option id="EXTENT">3</option>
+			<input  id="POLYGONS">POLYGONS</input>
+			<input  id="GRIDS">GRID_1</input>
+			<output id="CLIPPED">GRIDS</output>
+		</tool>
+
+		<tool library="grid_calculus" tool="1" name="Grid Calculator">
+			<option id="FORMULA">ifelse(gt(g1,0),g1,nodata())</option>
+			<input  id="GRIDS">GRIDS</input>
+			<output id="RESULT">GRID_1</output>
+		</tool>
+
+		<tool library="shapes_grid" tool="9" name="Local Minima and Maxima">
+			<input  id="GRID">GRID_1</input>
+			<output id="MAXIMA">MAXIMA</output>
+		</tool>
+
+		<tool library="shapes_tools" tool="18" name="Shapes Buffer">
+			<option id="DIST_FIELD">Z</option>
+			<option id="DIST_SCALE">1.000000</option>
+			<option id="DISSOLVE">FALSE</option>
+			<input  id="SHAPES">MAXIMA</input>
+			<output id="BUFFER">CIRCLES</output>
+		</tool>
+	</tools>
 </toolchain>

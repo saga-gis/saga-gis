@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="6.5.0">
-	<group>polygon_tools</group>
+	<group>Polygon Tools</group>
 	<identifier>polygons_remove_from_boundary</identifier>
 	<name>Remove Boundary Polygons</name>
 	<menu absolute="true">Shapes|Polygons</menu>
