@@ -365,7 +365,7 @@ int CSG_Tool_Library_Manager::Add_Directory(const wchar_t    *Directory, bool bO
 CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &File)
 {
 	//-----------------------------------------------------
-	if( File.CmpNoCase("xml") )
+	if( !SG_File_Cmp_Extension(File, "xml") )
 	{
 		return( NULL );
 	}
