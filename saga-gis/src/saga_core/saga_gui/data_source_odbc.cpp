@@ -493,8 +493,8 @@ void CData_Source_ODBC::Source_Open(const wxTreeItemId &Item)
 
 		RUN_TOOL(0, bResult,
 				SET_PARAMETER("SERVER"  , pData->Get_Value())
-			&&	SET_PARAMETER("USERNAME", Username)
-			&&	SET_PARAMETER("PASSWORD", Password)
+			&&	SET_PARAMETER("USERNAME", &Username)
+			&&	SET_PARAMETER("PASSWORD", &Password)
 		);
 
 		if( bResult )

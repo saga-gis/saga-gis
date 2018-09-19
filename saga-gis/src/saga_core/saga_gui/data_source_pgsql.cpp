@@ -193,8 +193,8 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 			SET_PARAMETER("PG_HOST",   Host    )
 		&&	SET_PARAMETER("PG_PORT",   Port    )
 		&&	SET_PARAMETER("PG_NAME",   DBName  )
-		&&	SET_PARAMETER("PG_USER", g_Username)
-		&&	SET_PARAMETER("PG_PWD" , g_Password)
+		&&	SET_PARAMETER("PG_USER", &g_Username)
+		&&	SET_PARAMETER("PG_PWD" , &g_Password)
 	);
 
 	return( bResult );
