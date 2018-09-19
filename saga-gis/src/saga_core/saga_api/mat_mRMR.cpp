@@ -877,7 +877,7 @@ template <class T> double * CSG_mRMR::Get_JointProb(T * img1, T * img2, long len
 		return( NULL );
 	}
 
-	int	b_findstatenum	= 1;	//  int nstate1 = 0, nstate2 = 0;
+//	int	b_findstatenum	= 1;	//  int nstate1 = 0, nstate2 = 0;
 	int	b_returnprob	= 1;
 
 	//-----------------------------------------------------
