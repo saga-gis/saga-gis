@@ -99,19 +99,19 @@ CGrid_to_KML::CGrid_to_KML(void)
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("Portable Network Graphics (*.png)"           ), SG_T("*.png"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"), SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)"    ), SG_T("*.tif;*.tiff"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)"              ), SG_T("*.bmp"),
-			_TL("Zsoft Paintbrush (*.pcx)"                    ), SG_T("*.pcx")
+		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.pcx)|*.pcx",
+			_TL("Portable Network Graphics"),
+			_TL("JPEG - JFIF Compliant"    ),
+			_TL("Tagged Image File Format" ),
+			_TL("Windows or OS/2 Bitmap"   ),
+			_TL("Zsoft Paintbrush"         )
 		), NULL, true
 	);
 
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("kml and image files"),
 			_TL("kmz, kml and image files"),
 			_TL("kmz file")
@@ -297,7 +297,7 @@ bool CGrid_to_KML::On_Execute(void)
 
 		pTool->Settings_Push();
 
-		if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
+		if( pTool->Set_Parameter("CRS_PROJ4" , "+proj=longlat +ellps=WGS84 +datum=WGS84")
 		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
 		&&  pTool->Set_Parameter("SOURCE"    , pGrid)
 		&&  pTool->Execute() )

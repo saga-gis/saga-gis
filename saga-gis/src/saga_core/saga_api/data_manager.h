@@ -170,9 +170,9 @@ public:
 	CSG_Grid_Collection *				Get_Grid_System		(const CSG_Grid_System &System)	const;
 
 	bool								Add					(CSG_Data_Object *pObject);
-	bool								Add					(const CSG_String &File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined);
-	bool								Add					(const char       *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
-	bool								Add					(const wchar_t    *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
+	CSG_Data_Object *					Add					(const CSG_String &File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined);
+	CSG_Data_Object *					Add					(const char       *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
+	CSG_Data_Object *					Add					(const wchar_t    *File, TSG_Data_Object_Type Type = SG_DATAOBJECT_TYPE_Undefined)	{	return( Add(CSG_String(File), Type) );	}
 
 	CSG_Table *							Add_Table			(const CSG_String &File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Table     ) ? (CSG_Table      *)Find(File) : NULL );	}
 	CSG_Table *							Add_Table			(const char       *File)	{	return( Add(File, SG_DATAOBJECT_TYPE_Table     ) ? (CSG_Table      *)Find(File) : NULL );	}
@@ -223,7 +223,7 @@ private:
 
 	CSG_Data_Collection *				_Get_Collection		(CSG_Data_Object *pObject)		const;
 
-	bool								_Add_External		(const CSG_String &File);
+	CSG_Data_Object *					_Add_External		(const CSG_String &File);
 
 };
 

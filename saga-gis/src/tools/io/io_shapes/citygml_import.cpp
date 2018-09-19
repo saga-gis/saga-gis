@@ -82,22 +82,22 @@ CCityGML_Import::CCityGML_Import(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "BUILDINGS"	, _TL("Buildings"),
+		"", "BUILDINGS"	, _TL("Buildings"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILES"		, _TL("Files"),
+		"", "FILES"		, _TL("Files"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.xml|%s|*.*"),
-			_TL("XML Files (*.xml)"),
+		CSG_String::Format("%s (*.xml)|*.xml|%s|*.*",
+			_TL("XML Files"),
 			_TL("All Files")
 		), NULL, false, false, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PARTS"		, _TL("Check for Building Parts"),
+	Parameters.Add_Bool(
+		"", "PARTS"		, _TL("Check for Building Parts"),
 		_TL(""),
 		PARAMETER_TYPE_Bool, true
 	);
@@ -166,7 +166,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 	//-----------------------------------------------------
 	// 1. check for building parts
 
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("loading building parts"), SG_File_Get_Name(File, true).c_str()));
+	Process_Set_Text(CSG_String::Format("%s: %s", _TL("loading building parts"), SG_File_Get_Name(File, true).c_str()));
 
 	CSG_MetaData	GML, GML_Parts;
 
@@ -199,7 +199,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("saving building parts"), SG_File_Get_Name(File, true).c_str()));
+	Process_Set_Text(CSG_String::Format("%s: %s", _TL("saving building parts"), SG_File_Get_Name(File, true).c_str()));
 
 	CSG_String	tmpFile	= SG_File_Make_Path(SG_Dir_Get_Temp(), SG_File_Get_Name(File, true));
 
@@ -243,7 +243,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	if( !tmpMgr.Add(File) || !tmpMgr.Get_Shapes() || !tmpMgr.Get_Shapes()->Get(0) )
 	{
-		Error_Set(CSG_String::Format(SG_T("%s: %s"), _TL("CityGML import failed"), File.c_str()));
+		Error_Set(CSG_String::Format("%s: %s", _TL("CityGML import failed"), File.c_str()));
 
 		return( false );
 	}
@@ -256,7 +256,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	CSG_Tool	*pTool;
 
-	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(SG_T("shapes_polygons"), 3)) )	// Convert Lines to Polygons
+	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_polygons", 3)) )	// Convert Lines to Polygons
 	{
 		Error_Set(_TL("could not locate line string to polygon conversion tool"));
 

@@ -433,7 +433,7 @@ bool CSG_Data_Manager::Add(CSG_Data_Object *pObject)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
+CSG_Data_Object * CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 {
 	//-----------------------------------------------------
 	if( Type == SG_DATAOBJECT_TYPE_Undefined )
@@ -489,9 +489,9 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 
 	if( pObject )
 	{
-		if( pObject->is_Valid() )
+		if( pObject->is_Valid() && Add(pObject) )
 		{
-			return( Add(pObject) );
+			return( pObject );
 		}
 
 		delete(pObject);
@@ -502,7 +502,7 @@ bool CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_Type Type)
 }
 
 //---------------------------------------------------------
-bool CSG_Data_Manager::_Add_External(const CSG_String &File)
+CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 {
 	if( !SG_File_Exists(File) )
 	{
@@ -510,7 +510,7 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	bool		bResult	= false;
+	CSG_Data_Object *pData	= NULL;
 
 	CSG_Tool	*pImport;
 
@@ -528,50 +528,70 @@ bool CSG_Data_Manager::_Add_External(const CSG_String &File)
 	&&   pImport->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
-		bResult	= pImport->Execute();
+
+		if( pImport->Execute() )
+		{
+			pData	= (*pImport->Get_Parameters())("OUT_GRID")->asDataObject();
+		}
+
 		pImport->Set_Manager(&g_Data_Manager);
 	}
 
 	//-----------------------------------------------------
 	// GDAL Import
 
-	if( !bResult
+	if( !pData
 	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
-		bResult	= pImport->Execute();
+
+		if( pImport->Execute() )
+		{
+			pData	= (*pImport->Get_Parameters())("GRIDS")->asList()->Get_Item(0);
+		}
+
 		pImport->Set_Manager(&g_Data_Manager);
 	}
 
 	//-----------------------------------------------------
 	// OGR Import
 
-	if( !bResult
+	if( !pData
 	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 3)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
-		bResult	= pImport->Execute();
+
+		if( pImport->Execute() )
+		{
+			pData	= (*pImport->Get_Parameters())("SHAPES")->asList()->Get_Item(0);
+		}
+
 		pImport->Set_Manager(&g_Data_Manager);
 	}
 
 	//-----------------------------------------------------
 	// LAS Import
 
-	if( !bResult && SG_File_Cmp_Extension(File, "las")
+	if( !pData && SG_File_Cmp_Extension(File, "las")
 	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_shapes_las", 1)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
-		bResult	= pImport->Execute();
+
+		if( pImport->Execute() )
+		{
+			pData	= (*pImport->Get_Parameters())("POINTS")->asDataObject();
+		}
+
 		pImport->Set_Manager(&g_Data_Manager);
 	}
 
 	//-----------------------------------------------------
 	SG_UI_Msg_Lock(false);
 
-	return( bResult );
+	return( pData );
 }
 
 

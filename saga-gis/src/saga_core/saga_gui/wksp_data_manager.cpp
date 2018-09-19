@@ -857,7 +857,7 @@ bool CWKSP_Data_Manager::Open(const wxString &File)
 		return( Open(File, SG_DATAOBJECT_TYPE_Grids     ) != NULL );
 	}
 
-	return( SG_Get_Data_Manager().Add(&File) );
+	return( SG_Get_Data_Manager().Add(&File) != NULL );
 }
 
 //---------------------------------------------------------
@@ -1030,7 +1030,7 @@ int CWKSP_Data_Manager::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 
 	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
 
-	if( pParameter->Cmp_Identifier(SG_T("SAVE_ALL")) )
+	if( pParameter->Cmp_Identifier("SAVE_ALL") )
 	{
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{
