@@ -80,7 +80,6 @@ CGStat_Export::CGStat_Export(void)
 		"GStat shapes format export."
 	));
 
-	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
@@ -90,11 +89,10 @@ CGStat_Export::CGStat_Export(void)
 	Parameters.Add_FilePath("",
 		"FILENAME"	, _TL("File"),
 		_TL(""),
-
-		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
-			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
-			_TL("All Files")				, SG_T("*.*")
+		CSG_String::Format("%s (*.gstat)|*.gstat|%s (*.txt)|*.txt|%s|*.*",
+			_TL("GStat Files"),
+			_TL("Text Files"),
+			_TL("All Files")
 		), NULL, true
 	);
 }
@@ -102,124 +100,122 @@ CGStat_Export::CGStat_Export(void)
 //---------------------------------------------------------
 bool CGStat_Export::On_Execute(void)
 {
-	int			iShape, iPart, iPoint, iField;
-	FILE		*Stream;
-	TSG_Point	Point;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes;
-	CSG_String	fName;
+	CSG_File	Stream;
 
-	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES"  )->asShapes();
-	fName		= Parameters("FILENAME")->asString();
-
-	//-----------------------------------------------------
-	if( (Stream = fopen(fName.b_str(), "w")) != NULL )
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_W, false) )
 	{
-		switch( pShapes->Get_Type() )
+		return( false );
+	}
+
+	int	iShape, iPart, iPoint, iField;
+
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	switch( pShapes->Get_Type() )
+	{
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Point:
+		Stream.Printf("%s (created by DiGeM 2.0)\n%d\nX-Coordinate\nY-Coordinate",
+			Parameters("FILENAME")->asString(),
+			pShapes->Get_Field_Count() + 2
+		);
+
+		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 		{
-		//-------------------------------------------------
-		case SHAPE_TYPE_Point:
-			fprintf(Stream, "%s (created by DiGeM 2.0)\n%d\nX-Coordinate\nY-Coordinate",
-				Parameters("FILENAME")->asString(),
-				pShapes->Get_Field_Count() + 2
-			);
-
-			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+			if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 			{
-				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
-				{
-					fprintf(Stream, "\n%%%s",	pShapes->Get_Field_Name(iField) );
-				}
-				else
-				{
-					fprintf(Stream, "\n%s",	pShapes->Get_Field_Name(iField) );
-				}
+				Stream.Printf("\n%%%s", pShapes->Get_Field_Name(iField));
 			}
-
-			for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+			else
 			{
-				pShape	= pShapes->Get_Shape(iShape);
+				Stream.Printf("\n%s"  , pShapes->Get_Field_Name(iField));
+			}
+		}
 
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-					{
-						Point	= pShape->Get_Point(iPoint, iPart);
-						fprintf(Stream, "\n%f\t%f", Point.x, Point.y);
+					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
 
-						for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+					Stream.Printf("\n%f\t%f", Point.x, Point.y);
+
+					for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+					{
+						if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
 						{
-							if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
-							{
-								fprintf(Stream, "\t\"%s\"",	pShape->asString(iField) );
-							}
-							else
-							{
-								fprintf(Stream, "\t%f",		pShape->asDouble(iField) );
-							}
+							Stream.Printf("\t\"%s\"", pShape->asString(iField));
+						}
+						else
+						{
+							Stream.Printf("\t%f"    , pShape->asDouble(iField));
 						}
 					}
 				}
 			}
-			break;
-
-		//-------------------------------------------------
-		case SHAPE_TYPE_Line:
-			fprintf(Stream, "EXP %s\nARC ", pShapes->Get_Name());
-
-			for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape,pShapes->Get_Count()); iShape++)
-			{
-				pShape	= pShapes->Get_Shape(iShape);
-
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-				{
-					//I_ok...
-					fprintf(Stream, "%d ", iShape + 1);
-					// dummy_I dummy_I dummy_I dummy_I dummy_I...
-					fprintf(Stream, "1 2 3 4 5 ");
-					// I_np...
-					fprintf(Stream, "%d ", pShape->Get_Point_Count(iPart));
-
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-					{
-						Point	= pShape->Get_Point(iPoint, iPart);
-						fprintf(Stream, "%f %f ", Point.x, Point.y);
-					}
-				}
-			}
-			break;
-
-		//-------------------------------------------------
-		case SHAPE_TYPE_Polygon:
-			fprintf(Stream, "EXP %s\nARC ", pShapes->Get_Name());
-
-			for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-			{
-				pShape	= pShapes->Get_Shape(iShape);
-
-				for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-				{
-					//I_ok...
-					fprintf(Stream, "%d ", iShape + 1);
-					// dummy_I dummy_I dummy_I dummy_I dummy_I...
-					fprintf(Stream, "1 2 3 4 5 ");
-					// I_np...
-					fprintf(Stream, "%d ", pShape->Get_Point_Count(iPart));
-
-					for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-					{
-						Point	= pShape->Get_Point(iPoint, iPart);
-						fprintf(Stream, "%f %f ", Point.x, Point.y);
-					}
-				}
-			}
-			break;
 		}
+		break;
 
-		fclose(Stream);
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Line:
+		Stream.Printf("EXP %s\nARC ", pShapes->Get_Name());
+
+		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape,pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				//I_ok...
+				Stream.Printf("%d ", iShape + 1);
+				// dummy_I dummy_I dummy_I dummy_I dummy_I...
+				Stream.Printf("1 2 3 4 5 ");
+				// I_np...
+				Stream.Printf("%d ", pShape->Get_Point_Count(iPart));
+
+				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+					Stream.Printf("%f %f ", Point.x, Point.y);
+				}
+			}
+		}
+		break;
+
+	//-----------------------------------------------------
+	case SHAPE_TYPE_Polygon:
+		Stream.Printf("EXP %s\nARC ", pShapes->Get_Name());
+
+		for(iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+			for(iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				//I_ok...
+				Stream.Printf("%d ", iShape + 1);
+				// dummy_I dummy_I dummy_I dummy_I dummy_I...
+				Stream.Printf("1 2 3 4 5 ");
+				// I_np...
+				Stream.Printf("%d ", pShape->Get_Point_Count(iPart));
+
+				for(iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
+				{
+					TSG_Point	Point	= pShape->Get_Point(iPoint, iPart);
+
+					Stream.Printf("%f %f ", Point.x, Point.y);
+				}
+			}
+		}
+		break;
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -250,10 +246,10 @@ CGStat_Import::CGStat_Import(void)
 	Parameters.Add_FilePath("",
 		"FILENAME"	, _TL("File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s",
-			_TL("GStat Files (*.gstat)")	, SG_T("*.gstat"),
-			_TL("Text Files (*.txt)")		, SG_T("*.txt"),
-			_TL("All Files")				, SG_T("*.*")
+		CSG_String::Format("%s (*.gstat)|*.gstat|%s (*.txt)|*.txt|%s|*.*",
+			_TL("GStat Files"),
+			_TL("Text Files"),
+			_TL("All Files")
 		), NULL, false
 	);
 }
@@ -261,143 +257,140 @@ CGStat_Import::CGStat_Import(void)
 //---------------------------------------------------------
 bool CGStat_Import::On_Execute(void)
 {
-	char		c[3];
-	int			i, nFields, fLength;
-	double		x, y, Value;
 	CSG_File	Stream;
-	CSG_String	s, fName;
-	CSG_Shape	*pShape;
-	CSG_Shapes	*pShapes;
 
-	//-----------------------------------------------------
-	pShapes	= Parameters("SHAPES"  )->asShapes();
-	fName	= Parameters("FILENAME")->asString();
-
-	//-----------------------------------------------------
-	if( Stream.Open(fName, SG_FILE_R) )
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, false) )
 	{
-		fLength	= Stream.Length();
+		return( false );
+	}
 
-		if( fLength > 0 && Stream.Read_Line(s) )
+	CSG_String	s;
+
+	sLong	fLength	= Stream.Length();
+
+	if( fLength < 1 || !Stream.Read_Line(s) )
+	{
+		return( false );
+	}
+
+	char		c[3];
+
+	//-----------------------------------------------------
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	//-----------------------------------------------------
+	if( s.CmpNoCase("EXP") )	// Point...
+	{
+		pShapes->Create(SHAPE_TYPE_Point, SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
+
+		int	i, nFields	= Stream.Scan_Int();	Stream.Read_Line(s);	// next line...
+
+		for(i=0; i<nFields; i++)
 		{
-			//---------------------------------------------
-			// Point...
-			if( s.CmpNoCase(SG_T("EXP")) )
+			if( Stream.Read_Line(s) )
 			{
-				pShapes->Create(SHAPE_TYPE_Point, Parameters("FILENAME")->asString());
-
-				//-----------------------------------------
-				// Load Header...
-
-				// Field Count...
-				nFields	= Stream.Scan_Int();
-				Stream.Read_Line(s);	// zur naexten Zeile...
-
-				// Fields...
-				for(i=0; i<nFields; i++)
+				if( !s.CmpNoCase("[ignore]") || s[0] == '%' )
 				{
-					if( Stream.Read_Line(s) )
-					{
-						if( !s.CmpNoCase(SG_T("[ignore]")) || s[0] == '%' )
-						{
-							pShapes->Add_Field(s, SG_DATATYPE_String);
-						}
-						else
-						{
-							pShapes->Add_Field(s, SG_DATATYPE_Double);
-						}
-					}
-				}
-
-				//-----------------------------------------
-				if( nFields < 2 )
-				{
-					Message_Dlg(_TL("Invalid File Format."), _TL("Loading GSTAT-File"));
+					pShapes->Add_Field(s, SG_DATATYPE_String);
 				}
 				else
 				{
-					while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
+					pShapes->Add_Field(s, SG_DATATYPE_Double);
+				}
+			}
+		}
+
+		if( nFields < 2 )
+		{
+			Error_Set(_TL("Invalid file format."));
+
+			return( false );
+		}
+
+		//-------------------------------------------------
+		while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
+		{
+			double	x	= Stream.Scan_Double();
+			double	y	= Stream.Scan_Double();
+
+			if( !Stream.is_EOF() )
+			{
+				CSG_Shape	*pShape	= pShapes->Add_Shape();
+
+				pShape->Add_Point(x, y);
+				pShape->Set_Value(0, x);
+				pShape->Set_Value(1, y);
+
+				for(i=2; i<nFields && !Stream.is_EOF(); i++)
+				{
+					if( SG_STR_CMP(pShapes->Get_Field_Name(i), "[ignore]") )
 					{
-						x	= Stream.Scan_Double();
-						y	= Stream.Scan_Double();
+						Stream_Find_NextWhiteChar(Stream);
+
+						pShape->Set_Value(i, "NA");
+					}
+					else if( pShapes->Get_Field_Name(i)[0] == '%' )
+					{
+						Stream_Get_StringInQuota(Stream, s);
+
+						pShape->Set_Value(i, s);
+					}
+					else
+					{
+						pShape->Set_Value(i, Stream.Scan_Double());
+					}
+				}
+
+				Stream.Read_Line(s);
+			}
+		}
+	}
+
+	//-------------------------------------------------
+	// Line, Polygon...
+	else
+	{
+		Stream.Read(c, 3, sizeof(char));
+
+		if( !strncmp(c, "ARC", 3) )
+		{
+			pShapes->Create(SHAPE_TYPE_Line, Parameters("FILENAME")->asString());
+			pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
+
+			//-----------------------------------------
+			while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
+			{
+				double	Value	= Stream.Scan_Double();	// i_ok...
+				Stream.Scan_Int();	// dummy 1..5
+				Stream.Scan_Int();	// dummy 2..5
+				Stream.Scan_Int();	// dummy 3..5
+				Stream.Scan_Int();	// dummy 4..5
+				Stream.Scan_Int();	// dummy 5..5
+				int	nFields	= Stream.Scan_Int();
+
+				if( nFields > 0 )
+				{
+					CSG_Shape	*pShape	= NULL;
+
+					for(int i=0; i<nFields; i++)
+					{
+						double	x	= Stream.Scan_Double();
+						double	y	= Stream.Scan_Double();
 
 						if( !Stream.is_EOF() )
 						{
-							pShape	= pShapes->Add_Shape();
+							if( !pShape )
+							{
+								pShape	= pShapes->Add_Shape();
+
+								pShape->Set_Value(0, Value);
+							}
+
 							pShape->Add_Point(x, y);
-							pShape->Set_Value(0, x);
-							pShape->Set_Value(1, y);
-
-							for(i=2; i<nFields && !Stream.is_EOF(); i++)
-							{
-								if( SG_STR_CMP(pShapes->Get_Field_Name(i), SG_T("[ignore]")) )
-								{
-									Stream_Find_NextWhiteChar(Stream);
-									pShape->Set_Value(i, SG_T("NA"));
-								}
-								else if( pShapes->Get_Field_Name(i)[0] == '%' )
-								{
-									Stream_Get_StringInQuota(Stream, s);
-									pShape->Set_Value(i, s);
-								}
-								else
-								{
-									pShape->Set_Value(i, Stream.Scan_Double());
-								}
-							}
-
-							Stream.Read_Line(s);
 						}
-					}
-				}
-			}
-
-			//---------------------------------------------
-			// Line, Polygon...
-			else
-			{
-				Stream.Read(c, 3, sizeof(char));
-
-				if( !strncmp(c, "ARC", 3) )
-				{
-					pShapes->Create(SHAPE_TYPE_Line, Parameters("FILENAME")->asString());
-					pShapes->Add_Field("VALUE", SG_DATATYPE_Double);
-
-					//---------------------------------------------
-					while( !Stream.is_EOF() && Set_Progress((int)Stream.Tell(), fLength) )
-					{
-						Value	= Stream.Scan_Double();	// i_ok...
-						Stream.Scan_Int();	// dummy 1..5
-						Stream.Scan_Int();	// dummy 2..5
-						Stream.Scan_Int();	// dummy 3..5
-						Stream.Scan_Int();	// dummy 4..5
-						Stream.Scan_Int();	// dummy 5..5
-						nFields	= Stream.Scan_Int();
-
-						if( nFields > 0 )
+						else
 						{
-							pShape	= NULL;
-
-							for(i=0; i<nFields; i++)
-							{
-								x	= Stream.Scan_Double();
-								y	= Stream.Scan_Double();
-
-								if( !Stream.is_EOF() )
-								{
-									if( !pShape )
-									{
-										pShape	= pShapes->Add_Shape();
-										pShape->Set_Value(0, Value);
-									}
-
-									pShape->Add_Point(x, y);
-								}
-								else
-								{
-									break;
-								}
-							}
+							break;
 						}
 					}
 				}
@@ -405,6 +398,7 @@ bool CGStat_Import::On_Execute(void)
 		}
 	}
 
+	//-----------------------------------------------------
 	return( pShapes->Get_Count() > 0 );
 }
 
