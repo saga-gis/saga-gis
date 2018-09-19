@@ -75,7 +75,7 @@
 CWMS_Capabilities::CWMS_Capabilities(void)
 {}
 
-CWMS_Capabilities::CWMS_Capabilities(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version)
+CWMS_Capabilities::CWMS_Capabilities(CWebClient &Server, const CSG_String &Path, const CSG_String &Version)
 {
 	Create(Server, Path, Version);
 }
@@ -110,7 +110,7 @@ void CWMS_Capabilities::Destroy(void)
 #define CAP_GET____INT(GROUP, ID, VALUE, MUSTEXIST)	if( GROUP(ID) ) VALUE = GROUP[ID].Get_Content().asInt   (); else if( !MUSTEXIST ) VALUE = 0  ; else return( false );
 
 //---------------------------------------------------------
-bool CWMS_Capabilities::Create(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version)
+bool CWMS_Capabilities::Create(CWebClient &Server, const CSG_String &Path, const CSG_String &Version)
 {
 	Destroy();
 
@@ -297,7 +297,7 @@ int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	||  pParameter->Cmp_Identifier("USERNAME")
 	||  pParameter->Cmp_Identifier("PASSWORD") )
 	{
-		CSG_HTTP	Server;	CSG_String	Path, Abstract("---");
+		CWebClient	Server;	CSG_String	Path, Abstract("---");
 
 		if( Get_Server(Server, Path,
 			(*pParameters)("SERVER"  )->asString(),
@@ -344,7 +344,7 @@ int CWMS_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CWMS_Import::On_Execute(void)
 {
-	CSG_HTTP	Server;	CSG_String	Path;
+	CWebClient	Server;	CSG_String	Path;
 
 	if( !Get_Server(Server, Path, Parameters("SERVER")->asString(),
 		Parameters("USERNAME")->asString(),
@@ -383,7 +383,7 @@ bool CWMS_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWMS_Import::Get_Server(CSG_HTTP &Server, CSG_String &Path, const CSG_String &Address, const CSG_String &Username, const CSG_String &Password)
+bool CWMS_Import::Get_Server(CWebClient &Server, CSG_String &Path, const CSG_String &Address, const CSG_String &Username, const CSG_String &Password)
 {
 	CSG_String	Host, _Address(Address);
 
@@ -404,7 +404,7 @@ bool CWMS_Import::Get_Server(CSG_HTTP &Server, CSG_String &Path, const CSG_Strin
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabilities &Capabilities)
+bool CWMS_Import::Get_Map(CWebClient &Server, const CSG_String &Path, CWMS_Capabilities &Capabilities)
 {
 	int				i;
 	CSG_Rect		r(Capabilities.m_Extent);
@@ -568,7 +568,7 @@ bool CWMS_Import::Get_Map(CSG_HTTP &Server, const CSG_String &Path, CWMS_Capabil
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWMS_Import::Get_Legend(CSG_HTTP &Server, const CSG_String &Path, const CSG_String &Version, const CSG_String &Layer, const CSG_String &Format)
+bool CWMS_Import::Get_Legend(CWebClient &Server, const CSG_String &Path, const CSG_String &Version, const CSG_String &Layer, const CSG_String &Format)
 {
 	CSG_String	Request(Path);
 
