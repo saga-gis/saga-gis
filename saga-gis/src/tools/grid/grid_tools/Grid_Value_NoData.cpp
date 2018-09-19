@@ -119,7 +119,7 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 //---------------------------------------------------------
 int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() )
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
 	{
 		CSG_Grid	*pGrid	= pParameter->asGrid();
 
@@ -144,7 +144,7 @@ int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 int CGrid_Value_NoData::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TYPE") )
+	if( pParameter->Cmp_Identifier("TYPE") )
 	{
 		pParameters->Set_Enabled("VALUE", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("RANGE", pParameter->asInt() == 1);

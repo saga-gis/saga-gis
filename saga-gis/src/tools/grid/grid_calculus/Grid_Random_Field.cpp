@@ -131,7 +131,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 //---------------------------------------------------------
 int CGrid_Random_Field::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("UNIFORM" , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("GAUSSIAN", pParameter->asInt() == 1);
@@ -258,7 +258,7 @@ CGrid_Fractal_Brownian_Noise::CGrid_Fractal_Brownian_Noise(void)
 //---------------------------------------------------------
 int CGrid_Fractal_Brownian_Noise::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SYSTEM") )
+	if( pParameter->Cmp_Identifier("SYSTEM") )
 	{
 		CSG_Grid_System	System(*pParameter->asGrid_System());
 

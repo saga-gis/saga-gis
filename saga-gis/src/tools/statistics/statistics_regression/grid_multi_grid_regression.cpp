@@ -200,12 +200,12 @@ CGrid_Multi_Grid_Regression::CGrid_Multi_Grid_Regression(void)
 //---------------------------------------------------------
 int CGrid_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CROSSVAL") )
+	if(	pParameter->Cmp_Identifier("CROSSVAL") )
 	{
 		pParameters->Set_Enabled("CROSSVAL_K", pParameter->asInt() == 3);	// k-fold
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}

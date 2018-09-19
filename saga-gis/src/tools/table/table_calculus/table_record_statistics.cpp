@@ -128,7 +128,7 @@ CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
 //---------------------------------------------------------
 int CTable_Record_Statistics_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PCTL") )
+	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
 		pParameters->Get_Parameter("PCTL_VAL")->Set_Enabled(pParameter->asBool());
 	}

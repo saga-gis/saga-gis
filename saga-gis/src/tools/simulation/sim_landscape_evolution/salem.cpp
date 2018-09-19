@@ -653,9 +653,9 @@ bool CSaLEM_Tracers::Add_Parameters(CSG_Parameters &Parameters, const CSG_String
 //---------------------------------------------------------
 int CSaLEM_Tracers::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "TRACERS") )
+	if( pParameters->Cmp_Identifier("TRACERS") )
 	{
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+		if( pParameter->Cmp_Identifier("POINTS") )
 		{
 			pParameters->Set_Enabled("LINES"    , pParameter->asDataObject() != NULL);
 			pParameters->Set_Enabled("TRIM"     , pParameter->asDataObject() != NULL);
@@ -1062,13 +1062,13 @@ int CSaLEM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPa
 {
 	m_Tracers.On_Parameters_Enable(pParameters, pParameter);
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "UPDATE") )
+	if( pParameter->Cmp_Identifier("UPDATE") )
 	{
 		pParameters->Set_Enabled("UPDATE_ADJ", pParameter->asInt() > 0);
 		pParameters->Set_Enabled("UPDATE_VEC", pParameter->asInt() > 0);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "UPDATE_ADJ") )
+	if( pParameter->Cmp_Identifier("UPDATE_ADJ") )
 	{
 		pParameters->Set_Enabled("UPDATE_MIN", pParameter->asBool());
 		pParameters->Set_Enabled("UPDATE_MAX", pParameter->asBool());

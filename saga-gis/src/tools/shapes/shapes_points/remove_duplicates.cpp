@@ -127,12 +127,12 @@ CRemove_Duplicates::CRemove_Duplicates(void)
 //---------------------------------------------------------
 int CRemove_Duplicates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NUMERIC") )
+	if(	pParameter->Cmp_Identifier("NUMERIC") )
 	{
 		pParameters->Set_Enabled("METHOD", pParameter->asInt() == 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("FIELD" , pParameter->asInt() >= 2);
 	}

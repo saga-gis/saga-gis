@@ -596,11 +596,11 @@ bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "CLASSIFY") )
+	if( pParameters->Cmp_Identifier("CLASSIFY") )
 	{
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+			if( pParameter->Cmp_Identifier("METHOD") )
 			{
 				pParameters->Set_Enabled("COUNT"   , pParameter->asInt() != 0);
 				pParameters->Set_Enabled("COUNTMAX", pParameter->asInt() == 0);
@@ -613,8 +613,8 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_OFFSET") )
+		if(	pParameter->Cmp_Identifier("OBJECT_Z_FACTOR")
+		||	pParameter->Cmp_Identifier("OBJECT_Z_OFFSET") )
 		{
 			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
 			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
@@ -629,11 +629,11 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			}
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_LINEAR" )
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_STDDEV" )
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_INRANGE")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_PCTL"   ) )
+		if( pParameter->Cmp_Identifier("STRETCH_DEFAULT")
+		||  pParameter->Cmp_Identifier("STRETCH_LINEAR" )
+		||  pParameter->Cmp_Identifier("STRETCH_STDDEV" )
+		||  pParameter->Cmp_Identifier("STRETCH_INRANGE")
+		||  pParameter->Cmp_Identifier("STRETCH_PCTL"   ) )
 		{
 			double	Minimum, Maximum;
 
@@ -647,7 +647,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DISPLAY_SHADING") )
+		if(	pParameter->Cmp_Identifier("DISPLAY_SHADING") )
 		{
 			pParameters->Set_Enabled("SHADING_AZIMUTH", pParameter->asInt() != 0);
 			pParameters->Set_Enabled("SHADING_HEIGHT" , pParameter->asInt() != 0);
@@ -656,7 +656,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			pParameters->Set_Enabled("SHADING_MAX"    , pParameter->asInt() != 0);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -670,14 +670,14 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			pParameters->Set_Enabled("DISPLAY_SHADING"   , Value != CLASSIFY_SHADE);
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_MODE") )
+		if( pParameter->Cmp_Identifier("OVERLAY_MODE") )
 		{
 			(*pParameters)("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
 			(*pParameters)("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
 			(*pParameters)("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_SHOW") )
+		if(	pParameter->Cmp_Identifier("VALUES_SHOW") )
 		{
 			pParameters->Set_Enabled("VALUES_FONT"    , pParameter->asBool());
 			pParameters->Set_Enabled("VALUES_SIZE"    , pParameter->asBool());
@@ -685,12 +685,12 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			pParameters->Set_Enabled("VALUES_EFFECT"  , pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VALUES_EFFECT") )
+		if(	pParameter->Cmp_Identifier("VALUES_EFFECT") )
 		{
 			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT") )
+		if(	pParameter->Cmp_Identifier("STRETCH_DEFAULT") )
 		{
 			pParameters->Set_Enabled("STRETCH_LINEAR", pParameter->asInt() == 0);
 			pParameters->Set_Enabled("STRETCH_STDDEV", pParameter->asInt() == 1);

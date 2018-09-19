@@ -191,7 +191,7 @@ int CGrid_Cluster_ISODATA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 int CGrid_Cluster_ISODATA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FEATURES") )
+	if( pParameter->Cmp_Identifier("FEATURES") )
 	{
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}

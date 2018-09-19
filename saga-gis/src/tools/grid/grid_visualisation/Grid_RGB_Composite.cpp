@@ -131,48 +131,48 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 //---------------------------------------------------------
 int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "R_GRID") )
+	if( pParameter->Cmp_Identifier("R_GRID") )
 	{
 		pParameters->Set_Enabled("R_METHOD", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "R_METHOD") )
+	if( pParameter->Cmp_Identifier("R_METHOD") )
 	{
 		pParameters->Set_Enabled("R_RANGE" , pParameter->asInt() == 2);	// User defined rescale
 		pParameters->Set_Enabled("R_PERCTL", pParameter->asInt() == 3);	// Percentiles
 		pParameters->Set_Enabled("R_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "G_GRID") )
+	if( pParameter->Cmp_Identifier("G_GRID") )
 	{
 		pParameters->Set_Enabled("G_METHOD", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "G_METHOD") )
+	if( pParameter->Cmp_Identifier("G_METHOD") )
 	{
 		pParameters->Set_Enabled("G_RANGE" , pParameter->asInt() == 2);	// User defined rescale
 		pParameters->Set_Enabled("G_PERCTL", pParameter->asInt() == 3);	// Percentiles
 		pParameters->Set_Enabled("G_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_GRID") )
+	if( pParameter->Cmp_Identifier("B_GRID") )
 	{
 		pParameters->Set_Enabled("B_METHOD", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_METHOD") )
+	if( pParameter->Cmp_Identifier("B_METHOD") )
 	{
 		pParameters->Set_Enabled("B_RANGE" , pParameter->asInt() == 2);	// User defined rescale
 		pParameters->Set_Enabled("B_PERCTL", pParameter->asInt() == 3);	// Percentiles
 		pParameters->Set_Enabled("B_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "A_GRID") )
+	if( pParameter->Cmp_Identifier("A_GRID") )
 	{
 		pParameters->Set_Enabled("A_METHOD", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "A_METHOD") )
+	if( pParameter->Cmp_Identifier("A_METHOD") )
 	{
 		pParameters->Set_Enabled("A_RANGE" , pParameter->asInt() == 2);	// User defined rescale
 		pParameters->Set_Enabled("A_PERCTL", pParameter->asInt() == 3);	// Percentiles

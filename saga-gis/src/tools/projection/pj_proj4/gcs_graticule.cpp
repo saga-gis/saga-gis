@@ -168,10 +168,10 @@ CGCS_Graticule::CGCS_Graticule(void)
 //---------------------------------------------------------
 int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"  ))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_SHAPES")) )
+	if(	pParameter->Cmp_Identifier(SG_T("CRS_GRID"  ))
+	||	pParameter->Cmp_Identifier(SG_T("CRS_SHAPES")) )
 	{
-		CSG_Rect	r(!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CRS_GRID"))
+		CSG_Rect	r(pParameter->Cmp_Identifier(SG_T("CRS_GRID"))
 			? pParameter->asParameters()->Get_Parameter("PICK")->asGrid  ()->Get_Extent()
 			: pParameter->asParameters()->Get_Parameter("PICK")->asShapes()->Get_Extent()
 		);
@@ -191,7 +191,7 @@ int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CGCS_Graticule::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("INTERVAL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("INTERVAL")) )
 	{
 		pParameters->Get_Parameter("FIXED" )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("FITTED")->Set_Enabled(pParameter->asInt() == 1);

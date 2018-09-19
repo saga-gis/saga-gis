@@ -176,7 +176,7 @@ CGrids_Create::CGrids_Create(void)
 //---------------------------------------------------------
 int CGrids_Create::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "LIST") )
+	if( pParameter->Cmp_Identifier("LIST") )
 	{
 		if( pParameter->asList()->Get_Item_Count() > 0 )
 		{
@@ -184,7 +184,7 @@ int CGrids_Create::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 		}
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") && pParameter->asInt() > 0 )
+	if( pParameter->Cmp_Identifier("NFIELDS") && pParameter->asInt() > 0 )
 	{
 		Set_Field_Count((*pParameters)("FIELDS")->asParameters(), pParameter->asInt());
 
@@ -197,7 +197,7 @@ int CGrids_Create::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ATTRIBUTES") )
+	if( pParameter->Cmp_Identifier("ATTRIBUTES") )
 	{
 		pParameters->Set_Enabled("NFIELDS", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("TABLE"  , pParameter->asInt() == 2);
@@ -205,7 +205,7 @@ int CGrids_Create::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Set_Enabled((*pParameters)("COPY")->Get_Parent()->Get_Identifier(), pParameter->asInt() == 3);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )
+	if( pParameter->Cmp_Identifier("NFIELDS") )
 	{
 		pParameters->Set_Enabled("ZFIELD" , pParameter->asInt() > 0);
 		pParameters->Set_Enabled( "FIELDS", pParameter->asInt() > 0);
@@ -482,7 +482,7 @@ CGrids_Extract::CGrids_Extract(void)
 //---------------------------------------------------------
 int CGrids_Extract::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		CSG_Parameter_Choices	*pChoices	= (*pParameters)("SELECTION")->asChoices();
 
@@ -588,7 +588,7 @@ CGrids_Delete::CGrids_Delete(void)
 //---------------------------------------------------------
 int CGrids_Delete::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		CSG_Parameter_Choices	*pChoices	= (*pParameters)("SELECTION")->asChoices();
 

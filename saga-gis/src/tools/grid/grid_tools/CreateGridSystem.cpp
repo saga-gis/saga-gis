@@ -184,7 +184,7 @@ int CCreateGridSystem::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 int CCreateGridSystem::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "M_EXTENT") )
+	if( pParameter->Cmp_Identifier("M_EXTENT") )
 	{
 		pParameters->Set_Enabled("NX"        , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("NY"        , pParameter->asInt() == 0);
@@ -199,7 +199,7 @@ int CCreateGridSystem::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("GRIDLIST"  , pParameter->asInt() == 3);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "USEOFF") )
+	if( pParameter->Cmp_Identifier("USEOFF") )
 	{
 		pParameters->Set_Enabled("XOFFSET", pParameter->asBool());
 		pParameters->Set_Enabled("YOFFSET", pParameter->asBool());

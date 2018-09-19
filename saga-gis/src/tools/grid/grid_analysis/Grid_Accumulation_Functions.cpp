@@ -398,14 +398,14 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 //---------------------------------------------------------
 int CGrid_Accumulation_Functions::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OPERATION")) )
+	if(	pParameter->Cmp_Identifier(SG_T("OPERATION")) )
 	{
 		int		iValue	= pParameter->asInt();
 
 		pParameters->Get_Parameter("CONTROL")->Set_Enabled(iValue > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LINEAR")) )
+	if(	pParameter->Cmp_Identifier(SG_T("LINEAR")) )
 	{
 		bool	bValue	= pParameter->asBool();
 

@@ -178,10 +178,10 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 {
 	if( SG_UI_Get_Window_Main() )
 	{
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "PG_HOST")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_PORT")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_USER")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "PG_PWD" ) )
+		if( pParameter->Cmp_Identifier("PG_HOST")
+		||  pParameter->Cmp_Identifier("PG_PORT")
+		||  pParameter->Cmp_Identifier("PG_USER")
+		||  pParameter->Cmp_Identifier("PG_PWD" ) )
 		{
 			CSG_Table	DBs;
 
@@ -215,7 +215,7 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 			}
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "PG_LIST") )
+		if( pParameter->Cmp_Identifier("PG_LIST") )
 		{
 			pParameters->Get_Parameter("PG_NAME")->Set_Value(pParameter->asString());
 		}

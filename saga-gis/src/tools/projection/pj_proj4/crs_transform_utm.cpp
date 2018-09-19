@@ -149,7 +149,7 @@ CCRS_Transform_UTM_Grids::CCRS_Transform_UTM_Grids(bool bList)
 int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
+	if( pParameter->Cmp_Identifier("SOURCE") )
 	{
 		int Zone; bool bSouth; CSG_Data_Object *pObject = pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asList()->Get_Item(0);
 
@@ -170,8 +170,8 @@ int CCRS_Transform_UTM_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, 
 	}
 
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_ZONE" )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
+	if( pParameter->Cmp_Identifier("UTM_ZONE" )
+	||  pParameter->Cmp_Identifier("UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
 			(*pParameters)("UTM_ZONE" )->asInt (),
@@ -231,7 +231,7 @@ CCRS_Transform_UTM_Shapes::CCRS_Transform_UTM_Shapes(bool bList)
 int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
+	if( pParameter->Cmp_Identifier("SOURCE") )
 	{
 		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
 
@@ -247,8 +247,8 @@ int CCRS_Transform_UTM_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters,
 	}
 
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_ZONE" )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
+	if( pParameter->Cmp_Identifier("UTM_ZONE" )
+	||  pParameter->Cmp_Identifier("UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
 			(*pParameters)("UTM_ZONE" )->asInt (),
@@ -308,7 +308,7 @@ CCRS_Transform_UTM_PointCloud::CCRS_Transform_UTM_PointCloud(bool bList)
 int CCRS_Transform_UTM_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE") )
+	if( pParameter->Cmp_Identifier("SOURCE") )
 	{
 		int Zone; bool bSouth; CSG_Shapes *pObject = (CSG_Shapes *)(pParameter->is_DataObject() ? pParameter->asDataObject() : pParameter->asShapesList()->Get_Item(0));
 
@@ -324,8 +324,8 @@ int CCRS_Transform_UTM_PointCloud::On_Parameter_Changed(CSG_Parameters *pParamet
 	}
 
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_ZONE" )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "UTM_SOUTH") )
+	if( pParameter->Cmp_Identifier("UTM_ZONE" )
+	||  pParameter->Cmp_Identifier("UTM_SOUTH") )
 	{
 		pParameters->Set_Parameter("CRS_PROJ4", CRS_Get_UTM_Proj4(
 			(*pParameters)("UTM_ZONE" )->asInt (),

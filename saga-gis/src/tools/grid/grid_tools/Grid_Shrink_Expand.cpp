@@ -158,7 +158,7 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 //---------------------------------------------------------
 int CGrid_Shrink_Expand::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OPERATION")) )
+	if(	pParameter->Cmp_Identifier(SG_T("OPERATION")) )
 	{
 		pParameters->Get_Parameter("EXPAND")->Set_Enabled(pParameter->asInt() > 0);
 	}

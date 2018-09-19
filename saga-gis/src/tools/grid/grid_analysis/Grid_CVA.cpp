@@ -105,8 +105,8 @@ CGrid_CVA::CGrid_CVA(void)
 //---------------------------------------------------------
 int CGrid_CVA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("A"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("B")) )
+	if(	pParameter->Cmp_Identifier(SG_T("A"))
+	||	pParameter->Cmp_Identifier(SG_T("B")) )
 	{
 		pParameters->Get_Parameter("ANGLE")->Set_Enabled(
 				pParameters->Get_Parameter("A")->asInt() == 2

@@ -293,9 +293,9 @@ bool CWMS_Import::On_Before_Execution(void)
 //---------------------------------------------------------
 int CWMS_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER"  )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "USERNAME")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "PASSWORD") )
+	if( pParameter->Cmp_Identifier("SERVER"  )
+	||  pParameter->Cmp_Identifier("USERNAME")
+	||  pParameter->Cmp_Identifier("PASSWORD") )
 	{
 		CSG_HTTP	Server;	CSG_String	Path, Abstract("---");
 

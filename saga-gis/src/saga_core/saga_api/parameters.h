@@ -1413,10 +1413,10 @@ public:
 	bool							is_Enabled				(void)	const;
 
 	bool							is_Valid				(void)	const	{	return( m_pData->is_Valid() );		}
-	bool							is_Input				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT)	        );	}
-	bool							is_Output				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT)        );	}
-	bool							is_Optional				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL)      );	}
-	bool							is_Information			(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION)   );	}
+	bool							is_Input				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT      ) );	}
+	bool							is_Output				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT     ) );	}
+	bool							is_Optional				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL   ) );	}
+	bool							is_Information			(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION) );	}
 	bool							is_Option				(void)	const;
 	bool							is_DataObject			(void)	const;
 	bool							is_DataObject_List		(void)	const;
@@ -1558,13 +1558,14 @@ public:
 
 	int							Get_Count				(void)	const	{	return( m_nParameters );	}
 
-	void						Set_Identifier			(const CSG_String &String);
+	void						Set_Identifier			(const CSG_String &Identifier);
+	bool						Cmp_Identifier			(const CSG_String &Identifier)	const;
 	const CSG_String &			Get_Identifier			(void)	const	{	return( m_Identifier );		}
 
-	void						Set_Name				(const CSG_String &String);
+	void						Set_Name				(const CSG_String &Name);
 	const CSG_String &			Get_Name				(void)	const	{	return( m_Name );			}
 
-	void						Set_Description			(const CSG_String &String);
+	void						Set_Description			(const CSG_String &Description);
 	const CSG_String &			Get_Description			(void)	const	{	return( m_Description );	}
 
 	void						Add_Reference			(const CSG_String &Authors, const CSG_String &Year, const CSG_String &Title, const CSG_String &Where, const SG_Char *Link = NULL, const SG_Char *Link_Text = NULL);

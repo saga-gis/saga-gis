@@ -116,7 +116,7 @@ CTable_Categories_to_Indicators::CTable_Categories_to_Indicators(void)
 //---------------------------------------------------------
 int CTable_Categories_to_Indicators::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 

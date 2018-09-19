@@ -711,7 +711,7 @@ void CPC_Reclass_Extract::Set_Display_Attributes(CSG_PointCloud *pPC, int iField
 //---------------------------------------------------------
 int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) || !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MODE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) || pParameter->Cmp_Identifier(SG_T("MODE")) )
 	{
 		int		iMode	= pParameters->Get_Parameter("MODE")->asInt();		// 0 == reclassify, 1 == extract
 		int		Value	= pParameters->Get_Parameter("METHOD")->asInt();
@@ -744,12 +744,12 @@ int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 		pParameters->Get_Parameter("OTHEROPT"	)->Set_Enabled(iMode == 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NODATAOPT")) )
+	if(	pParameter->Cmp_Identifier(SG_T("NODATAOPT")) )
 	{
 		pParameters->Get_Parameter("NODATA"		)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OTHEROPT")) )
+	if(	pParameter->Cmp_Identifier(SG_T("OTHEROPT")) )
 	{
 		pParameters->Get_Parameter("OTHERS"		)->Set_Enabled(pParameter->asInt() > 0);
 	}

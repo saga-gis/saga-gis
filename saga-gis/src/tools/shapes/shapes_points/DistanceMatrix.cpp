@@ -101,12 +101,12 @@ CDistanceMatrix::CDistanceMatrix(void)
 //---------------------------------------------------------
 int CDistanceMatrix::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FORMAT") )
+	if( pParameter->Cmp_Identifier("FORMAT") )
 	{
 		pParameters->Set_Enabled("MAX_DIST", pParameter->asInt() == 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NEAR") )
+	if( pParameter->Cmp_Identifier("NEAR") )
 	{
 		pParameters->Set_Enabled("ID_NEAR" , pParameter->asShapes() != NULL);
 	}

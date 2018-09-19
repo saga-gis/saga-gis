@@ -142,27 +142,27 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 //---------------------------------------------------------
 int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SAVE_FILE") )
+	if(	pParameter->Cmp_Identifier("SAVE_FILE") )
 	{
 		pParameters->Set_Enabled("SAVE_PATH" , pParameter->asBool() == true);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "VARS_ALL" ) )
+	if(	pParameter->Cmp_Identifier("VARS_ALL" ) )
 	{
 		pParameters->Set_Enabled("VARS"      , pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TIME_ALL" ) )
+	if(	pParameter->Cmp_Identifier("TIME_ALL" ) )
 	{
 		pParameters->Set_Enabled("TIME"      , pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEVEL_ALL") )
+	if(	pParameter->Cmp_Identifier("LEVEL_ALL") )
 	{
 		pParameters->Set_Enabled("LEVEL"     , pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
+	if(	pParameter->Cmp_Identifier("TRANSFORM") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asBool() == true);
 	}

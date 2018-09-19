@@ -1193,51 +1193,51 @@ bool CSG_Parameters_Grid_Target::On_Parameter_Changed(CSG_Parameters *pParameter
 	}
 
 	//-----------------------------------------------------
-	if(      !SG_STR_CMP(pParameter->Get_Identifier(), pFits->Get_Identifier()) )
+	if(      pParameter->Cmp_Identifier(pFits->Get_Identifier()) )
 	{
 		if( m_bFitToCells != (pFits->asInt() == 1) )
 		{
 			m_bFitToCells	= pFits->asInt() == 1;
 		}
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pSize->Get_Identifier()) )
+	else if( pParameter->Cmp_Identifier(pSize->Get_Identifier()) )
 	{
 		r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
 		r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pXMin->Get_Identifier()) )
+	else if( pParameter->Cmp_Identifier(pXMin->Get_Identifier()) )
 	{
 		if( r.Get_XRange() <= 0.0 )
 			r.m_rect.xMin	= r.Get_XMax() - Size * pCols->asInt();
 		else
 			r.m_rect.xMax	= r.Get_XMin() + Size * (int)(r.Get_XRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pXMax->Get_Identifier()) )
+	else if( pParameter->Cmp_Identifier(pXMax->Get_Identifier()) )
 	{
 		if( r.Get_XRange() <= 0.0 )
 			r.m_rect.xMax	= r.Get_XMin() + Size * pCols->asInt();
 		else
 			r.m_rect.xMin	= r.Get_XMax() - Size * (int)(r.Get_XRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pYMin->Get_Identifier()) )
+	else if( pParameter->Cmp_Identifier(pYMin->Get_Identifier()) )
 	{
 		if( r.Get_YRange() <= 0.0 )
 			r.m_rect.yMin	= r.Get_YMax() - Size * pRows->asInt();
 		else
 			r.m_rect.yMax	= r.Get_YMin() + Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pYMax->Get_Identifier()) )
+	else if( pParameter->Cmp_Identifier(pYMax->Get_Identifier()) )
 	{
 		if( r.Get_YRange() <= 0.0 )
 			r.m_rect.yMax	= r.Get_YMin() + Size * pRows->asInt();
 		else
 			r.m_rect.yMin	= r.Get_YMax() - Size * (int)(r.Get_YRange() / Size);
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pCols->Get_Identifier()) && pCols->asInt() > 0 )
+	else if( pParameter->Cmp_Identifier(pCols->Get_Identifier()) && pCols->asInt() > 0 )
 	{
 		pSize->Set_Value(Size	= r.Get_XRange() / pCols->asDouble());
 	}
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), pRows->Get_Identifier()) && pRows->asInt() > 0 )
+	else if( pParameter->Cmp_Identifier(pRows->Get_Identifier()) && pRows->asInt() > 0 )
 	{
 		pSize->Set_Value(Size	= r.Get_YRange() / pRows->asDouble());
 	}

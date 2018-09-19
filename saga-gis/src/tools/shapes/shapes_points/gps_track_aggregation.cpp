@@ -221,7 +221,7 @@ CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 //---------------------------------------------------------
 int CGPS_Track_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TIME_SPAN")) )
+	if(	pParameter->Cmp_Identifier(SG_T("TIME_SPAN")) )
 	{
 		pParameters->Get_Parameter("FIX_TIME")->Set_Enabled(pParameter->asInt() == 2);
 		pParameters->Get_Parameter("OFF_TIME")->Set_Enabled(pParameter->asInt() == 2);

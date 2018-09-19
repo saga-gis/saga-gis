@@ -253,19 +253,19 @@ C3D_Viewer_Globe_Grid_Panel::~C3D_Viewer_Globe_Grid_Panel(void)
 //---------------------------------------------------------
 int C3D_Viewer_Globe_Grid_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "COLOR_ASRGB") )
+	if( pParameter->Cmp_Identifier("COLOR_ASRGB") )
 	{
 		pParameters->Get_Parameter("COLORS"      )->Set_Enabled(pParameter->asBool() == false);
 		pParameters->Get_Parameter("COLORS_RANGE")->Set_Enabled(pParameter->asBool() == false);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHADING") )
+	if( pParameter->Cmp_Identifier("SHADING") )
 	{
 		pParameters->Get_Parameter("SHADE_DEC")->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("SHADE_AZI")->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DRAW_EDGES") )
+	if( pParameter->Cmp_Identifier("DRAW_EDGES") )
 	{
 		pParameters->Get_Parameter("EDGE_COLOR")->Set_Enabled(pParameter->asBool());
 	}

@@ -319,7 +319,7 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), wxT("METRIC_ATTRIB")) )
+		if(	pParameter->Cmp_Identifier(wxT("METRIC_ATTRIB")) )
 		{
 			int		zField	= pParameter->asInt();
 

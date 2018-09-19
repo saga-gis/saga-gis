@@ -214,24 +214,24 @@ CFlow_Parallel::CFlow_Parallel(void)
 //---------------------------------------------------------
 int CFlow_Parallel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 4 || pParameter->asInt() == 5);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "LINEAR_DO") )
+	if( pParameter->Cmp_Identifier("LINEAR_DO") )
 	{
 		pParameters->Set_Enabled("LINEAR_MIN", pParameter->asBool());
 		pParameters->Set_Enabled("LINEAR_VAL", pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
+	if( pParameter->Cmp_Identifier("WEIGHTS") )
 	{
 		pParameters->Set_Enabled("NO_NEGATIVES", pParameter->asGrid() != NULL);
 		pParameters->Set_Enabled("WEIGHT_LOSS" , pParameter->asGrid() != NULL && Parameters("NO_NEGATIVES")->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NO_NEGATIVES") )
+	if( pParameter->Cmp_Identifier("NO_NEGATIVES") )
 	{
 		pParameters->Set_Enabled("WEIGHT_LOSS" , pParameter->asBool());
 	}

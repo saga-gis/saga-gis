@@ -136,7 +136,7 @@ CPolygon_Clip::CPolygon_Clip(void)
 //---------------------------------------------------------
 int CPolygon_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MULTIPLE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("MULTIPLE")) )
 	{
 		pParameters->Get_Parameter("S_INPUT" )->Set_Enabled(pParameter->asBool() == false);
 		pParameters->Get_Parameter("S_OUTPUT")->Set_Enabled(pParameter->asBool() == false);

@@ -168,7 +168,7 @@ CShapes_Create_Empty::CShapes_Create_Empty(void)
 //---------------------------------------------------------
 int CShapes_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NFIELDS") )
+	if( pParameter->Cmp_Identifier("NFIELDS") )
 	{
 		Set_Field_Count(pParameters->Get_Parameter("FIELDS")->asParameters(), pParameter->asInt());
 	}

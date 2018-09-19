@@ -218,7 +218,7 @@ CKriging_Base::~CKriging_Base(void)
 //---------------------------------------------------------
 int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+	if( pParameter->Cmp_Identifier("POINTS") )
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
@@ -233,12 +233,12 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BLOCK") )
+	if(	pParameter->Cmp_Identifier("BLOCK") )
 	{
 		pParameters->Set_Enabled("DBLOCK"      , pParameter->asBool());	// block size
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CV_METHOD") )
+	if(	pParameter->Cmp_Identifier("CV_METHOD") )
 	{
 		pParameters->Set_Enabled("CV_SUMMARY"  , pParameter->asInt() != 0);	// !none
 		pParameters->Set_Enabled("CV_RESIDUALS", pParameter->asInt() == 1);	// leave one out

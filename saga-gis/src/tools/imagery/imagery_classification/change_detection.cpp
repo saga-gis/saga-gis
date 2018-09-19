@@ -164,21 +164,21 @@ CChange_Detection::CChange_Detection(void)
 //---------------------------------------------------------
 int CChange_Detection::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ONE_LUT") )
+	if(	pParameter->Cmp_Identifier("ONE_LUT") )
 	{
 		pParameters->Set_Enabled("ONE_LUT_MIN", pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("ONE_LUT_MAX", pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("ONE_LUT_NAM", pParameter->asTable() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TWO_LUT") )
+	if(	pParameter->Cmp_Identifier("TWO_LUT") )
 	{
 		pParameters->Set_Enabled("TWO_LUT_MIN", pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("TWO_LUT_MAX", pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("TWO_LUT_NAM", pParameter->asTable() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NOCHANGE") )
+	if(	pParameter->Cmp_Identifier("NOCHANGE") )
 	{
 		pParameters->Set_Enabled("CLASSES"    , pParameter->asBool());
 		pParameters->Set_Enabled("SUMMARY"    , pParameter->asBool());

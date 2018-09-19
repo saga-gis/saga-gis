@@ -305,7 +305,7 @@ CGDAL_Catalogues::CGDAL_Catalogues(void)
 //---------------------------------------------------------
 int CGDAL_Catalogues::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	if( pParameter->Cmp_Identifier("OUTPUT") )
 	{
 		pParameters->Set_Enabled("CATALOGUES"   , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("CATALOGUE_GCS", pParameter->asInt() == 1);

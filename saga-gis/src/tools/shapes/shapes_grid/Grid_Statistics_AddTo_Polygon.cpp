@@ -154,7 +154,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 //---------------------------------------------------------
 int CGrid_Statistics_AddTo_Polygon::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("PARALLELIZED", pParameter->asInt() != 0 && SG_OMP_Get_Max_Num_Threads() > 1);
 	}

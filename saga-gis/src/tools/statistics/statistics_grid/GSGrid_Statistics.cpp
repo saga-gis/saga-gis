@@ -137,12 +137,12 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 //---------------------------------------------------------
 int CGSGrid_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PCTL") )
+	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
 		pParameters->Set_Enabled("PCTL_VAL", pParameter->asPointer() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
+	if(	pParameter->Cmp_Identifier("WEIGHTS") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asGridList()->Get_Grid_Count() > 0);
 	}
@@ -337,7 +337,7 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 //---------------------------------------------------------
 int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PCTL") )
+	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
 		pParameters->Set_Enabled("PCTL_VAL", pParameter->asBool());
 	}

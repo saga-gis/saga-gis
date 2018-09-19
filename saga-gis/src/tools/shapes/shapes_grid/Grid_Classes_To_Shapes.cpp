@@ -133,7 +133,7 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 //---------------------------------------------------------
 int CGrid_Classes_To_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CLASS_ALL") )
+	if( pParameter->Cmp_Identifier("CLASS_ALL") )
 	{
 		pParameters->Set_Enabled("CLASS_ID", pParameter->asInt() == 0);
 	}

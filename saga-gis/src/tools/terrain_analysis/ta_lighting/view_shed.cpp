@@ -170,7 +170,7 @@ CView_Shed::CView_Shed(void)
 //---------------------------------------------------------
 int CView_Shed::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("DLEVEL", pParameter->asInt() == 1);
 	}

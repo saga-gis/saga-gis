@@ -390,18 +390,18 @@ int CWKSP_Map_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INTERVAL") )
+		if(	pParameter->Cmp_Identifier("INTERVAL") )
 		{
 			pParameters->Set_Enabled("FIXED"       , pParameter->asInt() == 0);
 			pParameters->Set_Enabled("FITTED"      , pParameter->asInt() == 1);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
+		if(	pParameter->Cmp_Identifier("SHOW_ALWAYS") )
 		{
 			pParameters->Set_Enabled("SHOW_RANGE"  , pParameter->asBool() == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL") )
+		if(	pParameter->Cmp_Identifier("LABEL") )
 		{
 			pParameters->Set_Enabled("LABEL_FONT"  , pParameter->asBool());
 			pParameters->Set_Enabled("LABEL_SIZE"  , pParameter->asBool());

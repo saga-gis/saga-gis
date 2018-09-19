@@ -100,7 +100,7 @@ CSelection_Copy::CSelection_Copy(void)
 //---------------------------------------------------------
 int CSelection_Copy::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 

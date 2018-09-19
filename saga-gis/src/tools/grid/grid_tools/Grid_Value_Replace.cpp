@@ -143,7 +143,7 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 //---------------------------------------------------------
 int CGrid_Value_Replace::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("IDENTITY", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("RANGE"   , pParameter->asInt() == 1);

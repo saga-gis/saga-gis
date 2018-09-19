@@ -122,7 +122,7 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 //---------------------------------------------------------
 int CGrid_Cell_Polygon_Coverage::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if(	pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -135,7 +135,7 @@ int CGrid_Cell_Polygon_Coverage::On_Parameter_Changed(CSG_Parameters *pParameter
 //---------------------------------------------------------
 int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if(	pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		pParameters->Set_Enabled("SELECTION", pParameter->asShapes() && pParameter->asShapes()->Get_Selection_Count() > 0);
 	}
@@ -359,7 +359,7 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 //---------------------------------------------------------
 int CPolygonCategories2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if(	pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}

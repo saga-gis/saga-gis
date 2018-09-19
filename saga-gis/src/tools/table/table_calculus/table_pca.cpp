@@ -133,7 +133,7 @@ CTable_PCA::CTable_PCA(void)
 //---------------------------------------------------------
 int CTable_PCA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("TABLE")) )
 	{
 		CSG_Table		*pTable		= pParameter->asTable();
 		CSG_Parameters	*pFields	= pParameters->Get_Parameter("FIELDS")->asParameters();

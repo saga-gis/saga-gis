@@ -97,7 +97,7 @@ CTransformShapes::CTransformShapes(void)
 //---------------------------------------------------------
 int CTransformShapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() != NULL )
+	if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() != NULL )
 	{
 		pParameters->Set_Parameter("ANCHORX",  pParameter->asShapes()->Get_Extent().Get_Center().Get_X());
 		pParameters->Set_Parameter("ANCHORY",  pParameter->asShapes()->Get_Extent().Get_Center().Get_Y());
@@ -110,7 +110,7 @@ int CTransformShapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CTransformShapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() != NULL )
+	if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() != NULL )
 	{
 		pParameters->Set_Enabled("MOVEZ"  , pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);
 		pParameters->Set_Enabled("SCALEZ" , pParameter->asShapes()->Get_Vertex_Type() != SG_VERTEX_TYPE_XY);

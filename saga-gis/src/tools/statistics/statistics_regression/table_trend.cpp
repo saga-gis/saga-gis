@@ -124,7 +124,7 @@ void CTable_Trend_Base::Initialise(void)
 //---------------------------------------------------------
 int CTable_Trend_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMULAS")) )
+	if( pParameter->Cmp_Identifier(SG_T("FORMULAS")) )
 	{
 		const SG_Char	*Formula;
 
@@ -144,7 +144,7 @@ int CTable_Trend_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Get_Parameter("FORMULA")->Set_Value(Formula);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMULA")) )
+	if( pParameter->Cmp_Identifier(SG_T("FORMULA")) )
 	{
 		if( !m_Trend.Set_Formula(pParameter->asString()) )
 		{

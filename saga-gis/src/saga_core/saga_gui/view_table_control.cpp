@@ -1425,11 +1425,11 @@ int CVIEW_Table_Control::_Parameter_Callback(CSG_Parameter *pParameter, int Flag
 
 	if( pParameters )
 	{
-		if( !SG_STR_CMP(pParameters->Get_Identifier(), "FIELD_CALCULATOR") )
+		if( pParameters->Cmp_Identifier("FIELD_CALCULATOR") )
 		{
 			if( Flags & PARAMETER_CHECK_ENABLE )
 			{
-				if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELD") )
+				if( pParameter->Cmp_Identifier("FIELD") )
 				{
 					pParameters->Set_Enabled("NAME", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
 				}

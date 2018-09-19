@@ -150,12 +150,12 @@ int CImport_Clip_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 int CImport_Clip_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NODATA") )
+	if( pParameter->Cmp_Identifier("NODATA") )
 	{
 		pParameters->Set_Enabled("NODATA_VAL", pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLE") )
+	if( pParameter->Cmp_Identifier("RESAMPLE") )
 	{
 		pParameters->Set_Enabled("CELLSIZE"  , pParameter->asBool());
 	}

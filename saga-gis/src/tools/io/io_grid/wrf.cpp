@@ -825,7 +825,7 @@ CWRF_Export::CWRF_Export(void)
 //---------------------------------------------------------
 int CWRF_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MMINLU")) )
+	if(	pParameter->Cmp_Identifier(SG_T("MMINLU")) )
 	{
 		if( !SG_STR_CMP(pParameter->asString(), SG_T("USGS")) )
 		{
@@ -840,7 +840,7 @@ int CWRF_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 int CWRF_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROJECTION")) )
+	if(	pParameter->Cmp_Identifier(SG_T("PROJECTION")) )
 	{
 		pParameters->Get_Parameter("SDTLON"  )->Set_Enabled(pParameter->asInt() != 3);
 		pParameters->Get_Parameter("TRUELAT1")->Set_Enabled(pParameter->asInt() != 3);

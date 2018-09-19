@@ -136,13 +136,13 @@ void CGrid_Filler::Parameters_Add(CSG_Parameters &Parameters)
 //---------------------------------------------------------
 void CGrid_Filler::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REPLACE") )
+	if( pParameter->Cmp_Identifier("REPLACE") )
 	{
 		pParameters->Set_Enabled("REPLACE_VALUE", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("IGNORE_NODATA", pParameter->asInt() != 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FILL_NODATA") )
+	if( pParameter->Cmp_Identifier("FILL_NODATA") )
 	{
 		pParameters->Set_Enabled("FILL_VALUE", pParameter->asBool() == false);
 	}

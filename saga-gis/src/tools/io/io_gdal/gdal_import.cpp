@@ -187,12 +187,12 @@ CGDAL_Import::CGDAL_Import(void)
 //---------------------------------------------------------
 int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRANSFORM") )
+	if(	pParameter->Cmp_Identifier("TRANSFORM") )
 	{
 		pParameters->Set_Enabled("RESAMPLING" , pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SELECT") )
+	if(	pParameter->Cmp_Identifier("SELECT") )
 	{
 		pParameters->Set_Enabled("SELECT_SORT", pParameter->asBool());
 	}
@@ -207,7 +207,7 @@ int CGDAL_Import::On_Selection_Changed(CSG_Parameter *pParameter, int Flags)
 	{
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), "ALL") )
+			if( pParameter->Cmp_Identifier("ALL") )
 			{
 				pParameter->Get_Owner()->Set_Enabled("BANDS", pParameter->asBool() == false);
 			}

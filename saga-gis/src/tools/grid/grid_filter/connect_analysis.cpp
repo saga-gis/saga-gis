@@ -378,7 +378,7 @@ bool Cconnectivity_analysis::On_Execute(void)
 
 int Cconnectivity_analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if ( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FILTER")) )
+	if ( pParameter->Cmp_Identifier(SG_T("FILTER")) )
 	{
 		pParameters->Get_Parameter("SIZE")->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("FILTERED_MASK")->Set_Enabled(pParameter->asBool());

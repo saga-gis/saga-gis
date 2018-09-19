@@ -239,14 +239,14 @@ bool CGPP_Model::On_Execute(void)
 int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MATERIAL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("MATERIAL")) )
 	{
 		pParameters->Get_Parameter("SINK_MIN_SLOPE"				)->Set_Enabled( pParameter->asGrid() != NULL );
 		pParameters->Get_Parameter("DEPOSITION"					)->Set_Enabled( pParameter->asGrid() != NULL );
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("PROCESS_PATH_MODEL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("PROCESS_PATH_MODEL")) )
 	{
 		pParameters->Get_Parameter("RW_SLOPE_THRES"				)->Set_Enabled( pParameter->asInt() == GPP_PATH_RANDOM_WALK );
 		pParameters->Get_Parameter("RW_EXPONENT"				)->Set_Enabled( pParameter->asInt() == GPP_PATH_RANDOM_WALK );
@@ -254,7 +254,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_MODEL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("FRICTION_MODEL")) )
 	{
 		pParameters->Get_Parameter("MAX_VELOCITY"				)->Set_Enabled( pParameter->asInt() > 0 );
 		pParameters->Get_Parameter("FRICTION_THRES_FREE_FALL"	)->Set_Enabled((pParameter->asInt() == GPP_FRICTION_SHADOW_ANGLE
@@ -283,7 +283,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Get_Parameter("FRICTION_INIT_VELOCITY"		)->Set_Enabled( pParameter->asInt() == GPP_FRICTION_PCM_MODEL );
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_ANGLE_GRID")) )
+	if(	pParameter->Cmp_Identifier(SG_T("FRICTION_ANGLE_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_ANGLE"				)->Set_Enabled( pParameter->asGrid() == NULL
 																				&& (pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_GEOMETRIC_GRADIENT
@@ -291,27 +291,27 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 																				|| pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_SHADOW_ANGLE) );
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_METHOD_IMPACT")) )
+	if(	pParameter->Cmp_Identifier(SG_T("FRICTION_METHOD_IMPACT")) )
 	{
 		pParameters->Get_Parameter("FRICTION_IMPACT_REDUCTION"	)->Set_Enabled( pParameter->asInt() == GPP_IMPACT_REDUCTION_ENERGY
 																				&& pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_ROCKFALL_VELOCITY );
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SLOPE_IMPACT_GRID")) )
+	if(	pParameter->Cmp_Identifier(SG_T("SLOPE_IMPACT_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_THRES_FREE_FALL"	)->Set_Enabled( pParameter->asGrid() == NULL
 																				&& (pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_SHADOW_ANGLE
 																				|| pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_ROCKFALL_VELOCITY) );
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_MU_GRID")) )
+	if(	pParameter->Cmp_Identifier(SG_T("FRICTION_MU_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_MU"				)->Set_Enabled( pParameter->asGrid() == NULL
 																				&& (pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_ROCKFALL_VELOCITY
 																				|| pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_PCM_MODEL) );
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FRICTION_MASS_TO_DRAG_GRID")) )
+	if(	pParameter->Cmp_Identifier(SG_T("FRICTION_MASS_TO_DRAG_GRID")) )
 	{
 		pParameters->Get_Parameter("FRICTION_MASS_TO_DRAG"		)->Set_Enabled( pParameter->asGrid() == NULL
 																				&& pParameters->Get_Parameter("FRICTION_MODEL")->asInt() == GPP_FRICTION_PCM_MODEL );
@@ -319,7 +319,7 @@ int CGPP_Model::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DEPOSITION_MODEL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("DEPOSITION_MODEL")) )
 	{
 		pParameters->Get_Parameter("DEPOSITION_INITIAL"			)->Set_Enabled( pParameter->asInt() >= GPP_DEPOSITION_ON_STOP );
 		pParameters->Get_Parameter("DEPOSITION_SLOPE_THRES"		)->Set_Enabled( pParameter->asInt() == GPP_DEPOSITION_SLOPE_ON_STOP

@@ -125,7 +125,7 @@ CGrid_Values_AddTo_Shapes::CGrid_Values_AddTo_Shapes(void)
 //---------------------------------------------------------
 int CGrid_Values_AddTo_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if(	pParameter->Cmp_Identifier("SHAPES") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asShapes() && 
 			(  pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Point

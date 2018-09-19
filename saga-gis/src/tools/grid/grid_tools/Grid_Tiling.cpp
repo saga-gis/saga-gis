@@ -191,7 +191,7 @@ CGrid_Tiling::CGrid_Tiling(void)
 //---------------------------------------------------------
 int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") )
+	if(	pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") )
 	{
 		CSG_Grid_System	System(1.0, 0.0, 0.0, 101, 101);
 
@@ -217,18 +217,18 @@ int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 int CGrid_Tiling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TILES_SAVE") )
+	if( pParameter->Cmp_Identifier("TILES_SAVE") )
 	{
 		pParameters->Set_Enabled("TILES_PATH", pParameter->asBool());
 		pParameters->Set_Enabled("TILES_NAME", pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAP") )
+	if( pParameter->Cmp_Identifier("OVERLAP") )
 	{
 		pParameters->Set_Enabled("OVERLAP_SYM", pParameter->asInt() > 0);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("NX"    , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("NY"    , pParameter->asInt() == 0);

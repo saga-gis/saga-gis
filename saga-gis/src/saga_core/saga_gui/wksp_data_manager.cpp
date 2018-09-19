@@ -759,7 +759,7 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_CACHE_MODE") )
+		if(	pParameter->Cmp_Identifier("GRID_CACHE_MODE") )
 		{
 			pParameters->Set_Enabled("GRID_CACHE_THRSHLD", pParameter->asInt() != 0);
 			pParameters->Set_Enabled("GRID_CACHE_TMPDIR" , pParameter->asInt() != 0);
@@ -1030,7 +1030,7 @@ int CWKSP_Data_Manager::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 
 	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SAVE_ALL")) )
+	if( pParameter->Cmp_Identifier(SG_T("SAVE_ALL")) )
 	{
 		for(int i=0; i<pParameters->Get_Count(); i++)
 		{

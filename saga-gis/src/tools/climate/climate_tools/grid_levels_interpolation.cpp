@@ -165,14 +165,14 @@ CGrid_Levels_Interpolation::CGrid_Levels_Interpolation(void)
 //---------------------------------------------------------
 int CGrid_Levels_Interpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("V_METHOD")) )
+	if( pParameter->Cmp_Identifier(SG_T("V_METHOD")) )
 	{
 		pParameters->Get_Parameter("LINEAR_SORTED")->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("SPLINE_ALL"   )->Set_Enabled(pParameter->asInt() == 1);
 		pParameters->Get_Parameter("TREND_ORDER"  )->Set_Enabled(pParameter->asInt() >= 2);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("X_SOURCE")) )
+	if( pParameter->Cmp_Identifier(SG_T("X_SOURCE")) )
 	{
 		pParameters->Get_Parameter("X_TABLE"      )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("X_GRIDS"      )->Set_Enabled(pParameter->asInt() == 1);

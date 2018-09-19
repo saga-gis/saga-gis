@@ -160,7 +160,7 @@ CShape_Index::CShape_Index(void)
 //---------------------------------------------------------
 int CShape_Index::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FERET") )
+	if( pParameter->Cmp_Identifier("FERET") )
 	{
 		pParameters->Set_Enabled("FERET_DIRS", pParameter->asBool());
 	}

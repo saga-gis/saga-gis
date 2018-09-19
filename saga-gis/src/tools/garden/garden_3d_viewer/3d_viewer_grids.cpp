@@ -274,7 +274,7 @@ C3D_Viewer_Grids_Panel::C3D_Viewer_Grids_Panel(wxWindow *pParent, CSG_Grids *pGr
 //---------------------------------------------------------
 int C3D_Viewer_Grids_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHADING") )
+	if( pParameter->Cmp_Identifier("SHADING") )
 	{
 		pParameters->Set_Enabled("SHADE_DEC", pParameter->asBool());
 		pParameters->Set_Enabled("SHADE_AZI", pParameter->asBool());

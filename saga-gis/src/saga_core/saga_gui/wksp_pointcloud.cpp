@@ -435,7 +435,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
 		{
 			int		zField	= pParameter->asInt();
 
@@ -451,7 +451,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			int	Value	= pParameter->asInt();
 

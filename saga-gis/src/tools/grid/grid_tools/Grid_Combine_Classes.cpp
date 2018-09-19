@@ -104,7 +104,7 @@ CGrid_Combine_Classes::CGrid_Combine_Classes(void)
 //---------------------------------------------------------
 int CGrid_Combine_Classes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") )
+	if(	pParameter->Cmp_Identifier("GRID") )
 	{
 		Set_Classes(pParameters);
 	}
@@ -116,7 +116,7 @@ int CGrid_Combine_Classes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 int CGrid_Combine_Classes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") )
+	if(	pParameter->Cmp_Identifier("GRID") )
 	{
 		pParameters->Set_Enabled("OUTPUT" , pParameter->asPointer() != NULL);
 		pParameters->Set_Enabled("CLASSES", pParameter->asPointer() != NULL);

@@ -148,12 +148,12 @@ CSnow_Cover::CSnow_Cover(void)
 //---------------------------------------------------------
 int CSnow_Cover::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "QUANTILE") )
+	if( pParameter->Cmp_Identifier("QUANTILE") )
 	{
 		pParameters->Set_Enabled("QUANT_VAL", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )
+	if( pParameter->Cmp_Identifier("TIME") )
 	{
 		pParameters->Set_Enabled("MONTH", pParameter->asInt() == 5);
 	}

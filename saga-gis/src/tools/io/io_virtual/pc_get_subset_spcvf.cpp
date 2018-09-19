@@ -859,24 +859,24 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 //---------------------------------------------------------
 int CPointCloud_Get_Subset_SPCVF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COPY_ATTR")) )
+	if(	pParameter->Cmp_Identifier(SG_T("COPY_ATTR")) )
 	{
 		pParameters->Get_Parameter("ATTRIBUTE_LIST"		)->Set_Enabled(pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CONSTRAIN_QUERY")) )
+	if(	pParameter->Cmp_Identifier(SG_T("CONSTRAIN_QUERY")) )
 	{
 		pParameters->Get_Parameter("ATTR_FIELD"			)->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("VALUE_RANGE"		)->Set_Enabled(pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AOI_ADD_OVERLAP")) )
+	if(	pParameter->Cmp_Identifier(SG_T("AOI_ADD_OVERLAP")) )
 	{
 		pParameters->Get_Parameter("OVERLAP"			)->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("FILENAME_TILE_INFO"	)->Set_Enabled(pParameter->asBool());
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("AOI_SHP")) )
+	if(	pParameter->Cmp_Identifier(SG_T("AOI_SHP")) )
 	{
 		pParameters->Get_Parameter("FIELD_TILENAME"		)->Set_Enabled(pParameter->asShapes() != NULL);
 		pParameters->Get_Parameter("ONE_PC_PER_POLYGON"	)->Set_Enabled(pParameter->asShapes() != NULL);
@@ -1035,12 +1035,12 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 //---------------------------------------------------------
 int CPointCloud_Get_Subset_SPCVF_Interactive::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("COPY_ATTR")) )
+	if(	pParameter->Cmp_Identifier(SG_T("COPY_ATTR")) )
 	{
 		pParameters->Get_Parameter("ATTRIBUTE_LIST"		)->Set_Enabled(pParameter->asBool() == false);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CONSTRAIN_QUERY")) )
+	if(	pParameter->Cmp_Identifier(SG_T("CONSTRAIN_QUERY")) )
 	{
 		pParameters->Get_Parameter("ATTR_FIELD"			)->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("VALUE_RANGE"		)->Set_Enabled(pParameter->asBool());

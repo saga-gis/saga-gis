@@ -143,13 +143,13 @@ CGeoref_Shapes::CGeoref_Shapes(void)
 //---------------------------------------------------------
 int CGeoref_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_TARGET") )
+	if( pParameter->Cmp_Identifier("REF_TARGET") )
 	{
 		pParameters->Get_Parameter("XFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
 		pParameters->Get_Parameter("YFIELD")->Set_Enabled(pParameter->asShapes() == NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Get_Parameter("ORDER")->Set_Enabled(pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
 	}

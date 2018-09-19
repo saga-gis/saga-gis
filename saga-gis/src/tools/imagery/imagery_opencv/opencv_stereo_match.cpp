@@ -237,7 +237,7 @@ COpenCV_Stereo_Match::COpenCV_Stereo_Match(void)
 //---------------------------------------------------------
 int COpenCV_Stereo_Match::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ALGORITHM") )
+	if( pParameter->Cmp_Identifier("ALGORITHM") )
 	{
 		pParameters->Set_Enabled(  "BM_NODE", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("SGBM_NODE", pParameter->asInt() == 1);

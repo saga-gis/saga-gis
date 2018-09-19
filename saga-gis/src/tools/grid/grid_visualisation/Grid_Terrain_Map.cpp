@@ -171,7 +171,7 @@ CGrid_Terrain_Map::~CGrid_Terrain_Map(void)
 int CGrid_Terrain_Map::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
 	{
 		pParameters->Get_Parameter("SHADE")			->Set_Enabled(pParameter->asInt() == 0);
 
@@ -181,7 +181,7 @@ int CGrid_Terrain_Map::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CONTOUR_LINES")) )
+	if(	pParameter->Cmp_Identifier(SG_T("CONTOUR_LINES")) )
 	{
 		pParameters->Get_Parameter("CONTOURS")		->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("EQUIDISTANCE")	->Set_Enabled(pParameter->asBool());

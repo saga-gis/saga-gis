@@ -122,7 +122,7 @@ void CJoin_Tables_Base::Initialise(void)
 //---------------------------------------------------------
 int CJoin_Tables_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS_ALL") )
+	if(	pParameter->Cmp_Identifier("FIELDS_ALL") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asBool() == false);
 	}

@@ -280,7 +280,7 @@ CTable_Save::CTable_Save(void)
 //---------------------------------------------------------
 int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
 	}
@@ -507,7 +507,7 @@ void CTable_Query_GUI::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CTable_Query_GUI::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLES") )
+	if( pParameter->Cmp_Identifier("TABLES") )
 	{
 		CSG_Parameters	&Tables	= *pParameters->Get_Parameter("TABLES")->asParameters();
 		CSG_Parameters	&Fields	= *pParameters->Get_Parameter("FIELDS")->asParameters();

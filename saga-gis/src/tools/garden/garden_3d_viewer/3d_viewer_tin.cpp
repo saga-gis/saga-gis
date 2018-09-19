@@ -267,7 +267,7 @@ C3D_Viewer_TIN_Panel::C3D_Viewer_TIN_Panel(wxWindow *pParent, CSG_TIN *pTIN, int
 //---------------------------------------------------------
 int C3D_Viewer_TIN_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DRAW_FACES") )
+	if( pParameter->Cmp_Identifier("DRAW_FACES") )
 	{
 		CSG_Parameter	*pDrape	= pParameters->Get_Parameter("DO_DRAPE");
 
@@ -275,30 +275,30 @@ int C3D_Viewer_TIN_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		pParameters->Get_Parameter("SHADING"    )->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_DRAPE") )
+	if( pParameter->Cmp_Identifier("DO_DRAPE") )
 	{
 		CSG_Parameter	*pFaces	= pParameters->Get_Parameter("DRAW_FACES");
 
 		pParameters->Get_Parameter("COLORS_ATTR")->Set_Enabled(pParameter->asBool() == false && pFaces->asBool() == true);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHADING") )
+	if( pParameter->Cmp_Identifier("SHADING") )
 	{
 		pParameters->Get_Parameter("SHADE_DEC"  )->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("SHADE_AZI"  )->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DRAW_EDGES") )
+	if( pParameter->Cmp_Identifier("DRAW_EDGES") )
 	{
 		pParameters->Get_Parameter("EDGE_COLOR_UNI" )->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "EDGE_COLOR_UNI") )
+	if( pParameter->Cmp_Identifier("EDGE_COLOR_UNI") )
 	{
 		pParameters->Get_Parameter("EDGE_COLOR" )->Set_Enabled(pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DRAW_NODES") )
+	if( pParameter->Cmp_Identifier("DRAW_NODES") )
 	{
 		pParameters->Get_Parameter("NODE_COLOR" )->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("NODE_SIZE"  )->Set_Enabled(pParameter->asBool());

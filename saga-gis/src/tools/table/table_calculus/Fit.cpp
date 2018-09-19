@@ -159,7 +159,7 @@ CFit::CFit(void)
 
 int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if (!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FORMEL")) )
+	if (pParameter->Cmp_Identifier(SG_T("FORMEL")) )
 	{
 		CSG_String Msg;
 

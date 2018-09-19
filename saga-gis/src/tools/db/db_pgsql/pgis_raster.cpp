@@ -205,7 +205,7 @@ void CRaster_Load_Band::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CRaster_Load_Band::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLES") )
+	if( pParameter->Cmp_Identifier("TABLES") )
 	{
 		CSG_String	s;
 		CSG_Table	t;
@@ -344,7 +344,7 @@ void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		bool	bCreate	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;
 
@@ -352,7 +352,7 @@ int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("GRID_NAME", bCreate);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		for(int i=0; i<pParameter->asGridList()->Get_Grid_Count(); i++)
 		{
@@ -511,7 +511,7 @@ void CRaster_Collection_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CRaster_Collection_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		CSG_Grids	*pGrids	= pParameter->asGrids();
 			

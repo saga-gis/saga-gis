@@ -117,12 +117,12 @@ CShapes_Convert_Vertex_Type::CShapes_Convert_Vertex_Type(void)
 //---------------------------------------------------------
 int CShapes_Convert_Vertex_Type::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") && pParameter->asShapes() != NULL )
+	if(	pParameter->Cmp_Identifier("INPUT") && pParameter->asShapes() != NULL )
 	{
 		pParameters->Set_Enabled("FIELD_Z", pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELD_Z") )
+	if(	pParameter->Cmp_Identifier("FIELD_Z") )
 	{
 		pParameters->Set_Enabled("FIELD_M", pParameter->asInt() >= 0);
 	}

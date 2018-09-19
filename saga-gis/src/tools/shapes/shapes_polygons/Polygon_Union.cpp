@@ -158,7 +158,7 @@ int CPolygon_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STATISTICS") )
+	if(	pParameter->Cmp_Identifier("STATISTICS") )
 	{
 		pParameters->Set_Enabled("STAT_SUM", pParameter->asInt() > 0);
 		pParameters->Set_Enabled("STAT_AVG", pParameter->asInt() > 0);
@@ -173,7 +173,7 @@ int CPolygon_Dissolve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Par
 		pParameters->Set_Enabled("STAT_NAMING", pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BND_KEEP") )
+	if(	pParameter->Cmp_Identifier("BND_KEEP") )
 	{
 		pParameters->Set_Enabled("MIN_AREA", pParameter->asBool() == false);
 	}

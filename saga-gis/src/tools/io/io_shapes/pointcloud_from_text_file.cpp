@@ -186,7 +186,7 @@ CPointCloud_From_Text_File::CPointCloud_From_Text_File(void)
 //---------------------------------------------------------
 int CPointCloud_From_Text_File::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
+	if( pParameter->Cmp_Identifier("FIELDS") )
 	{
 		CSG_String_Tokenizer	tokFields(pParameter->asString(), ";");
 

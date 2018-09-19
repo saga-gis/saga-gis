@@ -346,17 +346,17 @@ int CWKSP_Map_BaseMap::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
+		if(	pParameter->Cmp_Identifier("SHOW_ALWAYS") )
 		{
 			pParameters->Set_Enabled("SHOW_RANGE" , pParameter->asBool() == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
+		if(	pParameter->Cmp_Identifier("SERVER") )
 		{
 			pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);	// user defined
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "CACHE") )
+		if( pParameter->Cmp_Identifier("CACHE") )
 		{
 			pParameters->Set_Enabled("CACHE_DIR"  , pParameter->asBool());
 		}

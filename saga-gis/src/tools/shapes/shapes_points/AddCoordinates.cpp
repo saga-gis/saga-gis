@@ -65,7 +65,7 @@ CAddCoordinates::CAddCoordinates(void)
 //---------------------------------------------------------
 int CAddCoordinates::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") )
+	if( pParameter->Cmp_Identifier("INPUT") )
 	{
 		if( pParameter->asShapes() )
 		{

@@ -117,7 +117,7 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 //---------------------------------------------------------
 int CGridding_Spline_TPS_Local::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( pParameter->Cmp_Identifier("SHAPES") )
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 	}

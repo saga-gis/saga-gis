@@ -157,7 +157,7 @@ CGrids_Trend::CGrids_Trend(void)
 //---------------------------------------------------------
 int CGrids_Trend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("XSOURCE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("XSOURCE")) )
 	{
 		pParameters->Get_Parameter("X_TABLE")->Set_Enabled(pParameter->asInt() == 1);	// table
 		pParameters->Get_Parameter("X_GRIDS")->Set_Enabled(pParameter->asInt() == 2);	// grid list

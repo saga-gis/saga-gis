@@ -225,9 +225,19 @@ void CSG_Parameters::Set_Manager(CSG_Data_Manager *pManager)
   * Change the identifier of this parameter list after construction.
 */
 //---------------------------------------------------------
-void CSG_Parameters::Set_Identifier(const CSG_String &String)
+void CSG_Parameters::Set_Identifier(const CSG_String &Identifier)
 {
-	m_Identifier	= String;
+	m_Identifier	= Identifier;
+}
+
+//---------------------------------------------------------
+/**
+  * Change the identifier of this parameter list after construction.
+*/
+//---------------------------------------------------------
+bool CSG_Parameters::Cmp_Identifier(const CSG_String &Identifier)	const
+{
+	return( m_Identifier.Cmp(Identifier) == 0 );
 }
 
 //---------------------------------------------------------
@@ -235,9 +245,9 @@ void CSG_Parameters::Set_Identifier(const CSG_String &String)
   * Change the name of this parameter list after construction.
 */
 //---------------------------------------------------------
-void CSG_Parameters::Set_Name(const CSG_String &String)
+void CSG_Parameters::Set_Name(const CSG_String &Name)
 {
-	m_Name			= String;
+	m_Name			= Name;
 }
 
 //---------------------------------------------------------
@@ -245,9 +255,9 @@ void CSG_Parameters::Set_Name(const CSG_String &String)
   * Change the description for this parameter list after construction.
 */
 //---------------------------------------------------------
-void CSG_Parameters::Set_Description(const CSG_String &String)
+void CSG_Parameters::Set_Description(const CSG_String &Description)
 {
-	m_Description	= String;
+	m_Description	= Description;
 }
 
 //---------------------------------------------------------

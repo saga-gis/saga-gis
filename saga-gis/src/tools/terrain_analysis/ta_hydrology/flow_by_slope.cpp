@@ -141,7 +141,7 @@ CFlow_by_Slope::CFlow_by_Slope(void)
 //---------------------------------------------------------
 int CFlow_by_Slope::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_FLOW") )
+	if( pParameter->Cmp_Identifier("B_FLOW") )
 	{
 		pParameters->Get_Parameter("T_FLOW")->Set_Enabled(pParameter->asBool());
 	}

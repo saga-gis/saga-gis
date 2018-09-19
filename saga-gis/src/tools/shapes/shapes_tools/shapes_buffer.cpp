@@ -147,17 +147,17 @@ CShapes_Buffer::CShapes_Buffer(void)
 //---------------------------------------------------------
 int CShapes_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SHAPES")) )
+	if(	pParameter->Cmp_Identifier(SG_T("SHAPES")) )
 	{
 		pParameters->Get_Parameter("POLY_INNER")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NZONES")) )
+	if(	pParameter->Cmp_Identifier(SG_T("NZONES")) )
 	{
 		pParameters->Get_Parameter("DISSOLVE"  )->Set_Enabled(pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DIST_FIELD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("DIST_FIELD")) )
 	{
 		pParameters->Get_Parameter("DIST_SCALE")->Set_Enabled(pParameter->asInt() >= 0);
 	}

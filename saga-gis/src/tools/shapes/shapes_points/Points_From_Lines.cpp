@@ -98,7 +98,7 @@ CPoints_From_Lines::CPoints_From_Lines(void)
 //---------------------------------------------------------
 int CPoints_From_Lines::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ADD") )
+	if( pParameter->Cmp_Identifier("ADD") )
 	{
 		pParameters->Get_Parameter("METHOD_INSERT")		->Set_Enabled(pParameter->asBool());
 		pParameters->Get_Parameter("DIST")				->Set_Enabled(pParameter->asBool());

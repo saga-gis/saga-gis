@@ -142,12 +142,12 @@ void CFlow::Set_Point(int x, int y)
 //---------------------------------------------------------
 int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "VAL_INPUT") )
+	if( pParameter->Cmp_Identifier("VAL_INPUT") )
 	{
 		pParameters->Set_Enabled("VAL_MEAN"   , pParameter->asGrid() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ACCU_MATERIAL") )
+	if( pParameter->Cmp_Identifier("ACCU_MATERIAL") )
 	{
 		pParameters->Set_Enabled("ACCU_TARGET", pParameter->asGrid() != NULL);
 		pParameters->Set_Enabled("ACCU_TOTAL" , pParameter->asGrid() != NULL);

@@ -123,7 +123,7 @@ CPC_Merge::CPC_Merge(void)
 //---------------------------------------------------------
 int CPC_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ADD_IDENTIFIER") )
+	if(	pParameter->Cmp_Identifier("ADD_IDENTIFIER") )
 	{
 		pParameters->Set_Enabled("START_VALUE", pParameter->asBool());
 	}

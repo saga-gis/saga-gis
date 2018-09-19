@@ -101,7 +101,7 @@ CFitNPointsToShape::CFitNPointsToShape(void)
 //---------------------------------------------------------
 int CFitNPointsToShape::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NUMFIELD") )
+	if( pParameter->Cmp_Identifier("NUMFIELD") )
 	{
 		pParameters->Set_Enabled("NUMPOINTS", pParameter->asInt() < 0);
 	}

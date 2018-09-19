@@ -147,12 +147,12 @@ bool CCollect_Points::is_Compatible(CSG_Shapes *pPoints)
 //---------------------------------------------------------
 int CCollect_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") )
+	if( pParameter->Cmp_Identifier("REF_SOURCE") )
 	{
 		pParameters->Get_Parameter("REFRESH")->Set_Enabled(is_Compatible(pParameter->asShapes()));
 	}

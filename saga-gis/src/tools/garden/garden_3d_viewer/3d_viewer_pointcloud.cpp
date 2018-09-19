@@ -247,13 +247,13 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 //---------------------------------------------------------
 int C3D_Viewer_PointCloud_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "VAL_AS_RGB") )
+	if( pParameter->Cmp_Identifier("VAL_AS_RGB") )
 	{
 		pParameters->Get_Parameter("COLORS"      )->Set_Enabled(pParameter->asBool() == false);
 		pParameters->Get_Parameter("COLORS_RANGE")->Set_Enabled(pParameter->asBool() == false);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIM") )
+	if( pParameter->Cmp_Identifier("DIM") )
 	{
 		pParameters->Get_Parameter("DIM_RANGE")->Set_Enabled(pParameter->asBool());
 	}

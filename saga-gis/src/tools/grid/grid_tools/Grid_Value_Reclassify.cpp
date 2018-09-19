@@ -616,7 +616,7 @@ bool CGrid_Value_Reclassify::ReclassTable(bool bUser)
 //---------------------------------------------------------
 int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
 	{
 		int		Value	= pParameter->asInt();
 
@@ -640,17 +640,17 @@ int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2 || Value == 3);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NODATAOPT")) )
+	if(	pParameter->Cmp_Identifier(SG_T("NODATAOPT")) )
 	{
 		pParameters->Get_Parameter("NODATA"		)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("OTHEROPT")) )
+	if(	pParameter->Cmp_Identifier(SG_T("OTHEROPT")) )
 	{
 		pParameters->Get_Parameter("OTHERS"		)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("RESULT_NODATA_CHOICE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("RESULT_NODATA_CHOICE")) )
 	{
 		pParameters->Get_Parameter("RESULT_NODATA_VALUE")->Set_Enabled(pParameter->asInt() > 0);
 	}

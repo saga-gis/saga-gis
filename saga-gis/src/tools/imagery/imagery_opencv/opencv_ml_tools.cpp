@@ -170,7 +170,7 @@ COpenCV_ML_KNN::COpenCV_ML_KNN(void)
 //---------------------------------------------------------
 int COpenCV_ML_KNN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ALGORITHM") )
+	if(	pParameter->Cmp_Identifier("ALGORITHM") )
 	{
 		pParameters->Set_Enabled("EMAX", pParameter->asInt() == 1);
 	}
@@ -270,14 +270,14 @@ COpenCV_ML_SVM::COpenCV_ML_SVM(void)
 //---------------------------------------------------------
 int COpenCV_ML_SVM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SVM_TYPE") )
+	if(	pParameter->Cmp_Identifier("SVM_TYPE") )
 	{
 		pParameters->Set_Enabled("C"     , pParameter->asInt() == 0 || pParameter->asInt() == 3 || pParameter->asInt() == 4);
 		pParameters->Set_Enabled("NU"    , pParameter->asInt() == 1 || pParameter->asInt() == 2 || pParameter->asInt() == 4);
 		pParameters->Set_Enabled("P"     , pParameter->asInt() == 3);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "KERNEL") )
+	if(	pParameter->Cmp_Identifier("KERNEL") )
 	{
 		pParameters->Set_Enabled("COEF0" , pParameter->asInt() == 1 || pParameter->asInt() == 3);
 		pParameters->Set_Enabled("DEGREE", pParameter->asInt() == 1);
@@ -670,13 +670,13 @@ COpenCV_ML_ANN::COpenCV_ML_ANN(void)
 //---------------------------------------------------------
 int COpenCV_ML_ANN::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ANN_ACTIVATION") )
+	if(	pParameter->Cmp_Identifier("ANN_ACTIVATION") )
 	{
 		pParameters->Set_Enabled("ANN_ACT_ALPHA"  , pParameter->asInt() != ANN_ACTIVATION_IDENTITY);
 		pParameters->Set_Enabled("ANN_ACT_BETA"   , pParameter->asInt() != ANN_ACTIVATION_IDENTITY);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ANN_PROPAGATION") )
+	if(	pParameter->Cmp_Identifier("ANN_PROPAGATION") )
 	{
 		pParameters->Set_Enabled("ANN_RP_DW0"     , pParameter->asInt() == ANN_PROPAGATION_RESILIENT);
 		pParameters->Set_Enabled("ANN_RP_DW_PLUS" , pParameter->asInt() == ANN_PROPAGATION_RESILIENT);

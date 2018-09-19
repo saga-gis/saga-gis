@@ -130,7 +130,7 @@ CSurfer_Import::CSurfer_Import(void)
 //---------------------------------------------------------
 int CSurfer_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NODATA") )
+	if( pParameter->Cmp_Identifier("NODATA") )
 	{
 		pParameters->Set_Enabled("NODATA_VAL", pParameter->asInt() == 1);
 	}

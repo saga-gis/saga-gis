@@ -96,7 +96,7 @@ CGrid_Buffer::CGrid_Buffer(void)
 //---------------------------------------------------------
 int CGrid_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TYPE") )
+	if( pParameter->Cmp_Identifier("TYPE") )
 	{
 		pParameters->Set_Enabled("DISTANCE", pParameter->asInt() == 0);
 	}

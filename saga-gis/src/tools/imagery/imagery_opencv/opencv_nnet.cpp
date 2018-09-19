@@ -586,7 +586,7 @@ bool COpenCV_NNet::On_Execute(void)
 //---------------------------------------------------------
 int COpenCV_NNet::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("ACTIVATION_FUNCTION")) )
+	if(	pParameter->Cmp_Identifier(SG_T("ACTIVATION_FUNCTION")) )
 	{
 		ACTIVATION_FUNCTION e_actFunc = (ACTIVATION_FUNCTION)pParameter->asInt();
 
@@ -594,7 +594,7 @@ int COpenCV_NNet::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("BETA" )->Set_Enabled(e_actFunc == SIGMOID);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TRAINING_METHOD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("TRAINING_METHOD")) )
 	{
 		TRAINING_METHOD e_trainMet = (TRAINING_METHOD)pParameter->asInt();
 
@@ -603,7 +603,7 @@ int COpenCV_NNet::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("BPROP_PARAMS"	)->Set_Enabled(e_trainMet == BPROP);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("DATA_TYPE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("DATA_TYPE")) )
 	{ 
 		DATA_TYPE e_dataType = (DATA_TYPE)pParameter->asInt();
 

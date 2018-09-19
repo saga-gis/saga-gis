@@ -261,7 +261,7 @@ CXYZ_Import::CXYZ_Import(void)
 //---------------------------------------------------------
 int CXYZ_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SEPARATOR") )
+	if( pParameter->Cmp_Identifier("SEPARATOR") )
 	{
 		pParameters->Set_Enabled("USER", pParameter->asInt() == 5);
 	}

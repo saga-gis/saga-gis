@@ -211,13 +211,13 @@ CPolygon_Classify_Supervised::CPolygon_Classify_Supervised(bool bShapes)
 //---------------------------------------------------------
 int CPolygon_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRAINING") )
+	if(	pParameter->Cmp_Identifier("TRAINING") )
 	{
 		pParameters->Set_Enabled("FILE_LOAD", pParameter->asInt() <  0);
 		pParameters->Set_Enabled("FILE_SAVE", pParameter->asInt() >= 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("THRESHOLD_DIST" , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MinimumDistance
 			||                                      pParameter->asInt() == SG_CLASSIFY_SUPERVISED_Mahalonobis      );

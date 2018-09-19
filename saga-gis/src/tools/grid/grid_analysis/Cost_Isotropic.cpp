@@ -127,13 +127,13 @@ CCost_Accumulated::CCost_Accumulated(void)
 //---------------------------------------------------------
 int CCost_Accumulated::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIR_MAXCOST") )
+	if( pParameter->Cmp_Identifier("DIR_MAXCOST") )
 	{
 		pParameters->Set_Enabled("DIR_UNIT", pParameter->asPointer() != NULL);
 		pParameters->Set_Enabled("DIR_K"   , pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DEST_TYPE") )
+	if( pParameter->Cmp_Identifier("DEST_TYPE") )
 	{
 		pParameters->Set_Enabled("DEST_POINTS", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("DEST_GRID"  , pParameter->asInt() == 1);

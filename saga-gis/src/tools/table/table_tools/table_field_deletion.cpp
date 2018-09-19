@@ -112,7 +112,7 @@ CTable_Field_Deletion::CTable_Field_Deletion(void)
 //---------------------------------------------------------
 int CTable_Field_Deletion::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE") )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 

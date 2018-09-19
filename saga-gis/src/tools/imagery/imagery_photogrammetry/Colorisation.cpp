@@ -281,14 +281,14 @@ bool CColorisation::On_Execute(void)
 int CColorisation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GIVE_DISTORTIONS")) )
+	if( pParameter->Cmp_Identifier(SG_T("GIVE_DISTORTIONS")) )
 	{
 		pParameters->Get_Parameter("K1")->Set_Enabled( pParameter->asBool() );
 		pParameters->Get_Parameter("K2")->Set_Enabled( pParameter->asBool() );
 		pParameters->Get_Parameter("K3")->Set_Enabled( pParameter->asBool() );
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GIVE_TIME")) )
+	if( pParameter->Cmp_Identifier(SG_T("GIVE_TIME")) )
 	{
 		pParameters->Get_Parameter("IMG_TIME")->Set_Enabled( pParameter->asBool() );
 		pParameters->Get_Parameter("TIME_DIFF")->Set_Enabled( pParameter->asBool() );

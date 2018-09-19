@@ -149,7 +149,7 @@ CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 //---------------------------------------------------------
 int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+	if( pParameter->Cmp_Identifier("POINTS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -162,7 +162,7 @@ int CPoint_Trend_Surface::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 int CPoint_Trend_Surface::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYNOM") )
+	if( pParameter->Cmp_Identifier("POLYNOM") )
 	{
 		pParameters->Set_Enabled("NODE_USER", pParameter->asInt() == 4);
 	}

@@ -102,7 +102,7 @@ void CTC_Parameter_Base::On_Construction(void)
 //---------------------------------------------------------
 int CTC_Parameter_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("DISTANCE_WEIGHTING", pParameter->asInt() == 0);
 	}
@@ -607,7 +607,7 @@ int CTC_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	||	pParameters->Get_Parameter("TEXTURE"    )->asGrid() == NULL
 	);
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONVEXITY") )
+	if( pParameter->Cmp_Identifier("CONVEXITY") )
 	{
 		pParameters->Set_Enabled("CONV_RECALC", pParameter->asGrid() != NULL);
 	}
@@ -617,7 +617,7 @@ int CTC_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 	||	pParameters->Get_Parameter("CONV_RECALC")->asBool()
 	);
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TEXTURE") )
+	if( pParameter->Cmp_Identifier("TEXTURE") )
 	{
 		pParameters->Set_Enabled("TEXT_RECALC" , pParameter->asGrid() != NULL);
 	}

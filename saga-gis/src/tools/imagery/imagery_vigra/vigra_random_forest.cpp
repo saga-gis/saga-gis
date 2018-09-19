@@ -415,7 +415,7 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 //---------------------------------------------------------
 int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
+	if( pParameter->Cmp_Identifier("RF_IMPORT") )
 	{
 		bool	bTraining	= !SG_File_Exists(pParameter->asString());
 
@@ -424,7 +424,7 @@ int CViGrA_Random_Forest::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 		pParameters->Set_Enabled("IMPORTANCES", bTraining);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
+	if( pParameter->Cmp_Identifier("DO_MRMR") )
 	{
 		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
 	}
@@ -923,7 +923,7 @@ CViGrA_RF_Presence::CViGrA_RF_Presence(void)
 //---------------------------------------------------------
 int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
+	if( pParameter->Cmp_Identifier("RF_IMPORT") )
 	{
 		bool	bTraining	= !SG_File_Exists(pParameter->asString());
 
@@ -931,7 +931,7 @@ int CViGrA_RF_Presence::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Set_Enabled("PRESENCE"  , bTraining);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_MRMR") )
+	if( pParameter->Cmp_Identifier("DO_MRMR") )
 	{
 		(*pParameters)("DO_MRMR")->Set_Children_Enabled(pParameter->asBool());
 	}
@@ -1233,7 +1233,7 @@ CViGrA_RF_Table::CViGrA_RF_Table(void)
 //---------------------------------------------------------
 int CViGrA_RF_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RF_IMPORT") )
+	if( pParameter->Cmp_Identifier("RF_IMPORT") )
 	{
 		bool	bTraining	= !SG_File_Exists(pParameter->asString());
 

@@ -131,7 +131,7 @@ CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 //---------------------------------------------------------
 int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+	if( pParameter->Cmp_Identifier("POINTS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -144,7 +144,7 @@ int CInterpolation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CInterpolation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CV_METHOD") )
+	if(	pParameter->Cmp_Identifier("CV_METHOD") )
 	{
 		pParameters->Set_Enabled("CV_SUMMARY"  , pParameter->asInt() != 0);	// !none
 		pParameters->Set_Enabled("CV_RESIDUALS", pParameter->asInt() == 1);	// leave one out

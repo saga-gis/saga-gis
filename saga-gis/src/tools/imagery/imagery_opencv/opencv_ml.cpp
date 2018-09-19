@@ -174,12 +174,12 @@ int COpenCV_ML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FEATURES") )
+	if( pParameter->Cmp_Identifier("FEATURES") )
 	{
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "MODEL_LOAD") )
+	if( pParameter->Cmp_Identifier("MODEL_LOAD") )
 	{
 		bool	bOkay	= Check_Model_File(pParameter->asString());
 

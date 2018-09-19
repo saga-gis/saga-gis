@@ -227,7 +227,7 @@ bool CTable_Change_Color_Format::On_Execute(void)
 //---------------------------------------------------------
 int CTable_Change_Color_Format::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MODE")) )
+	if(	pParameter->Cmp_Identifier(SG_T("MODE")) )
 	{
 		int		iMode	= pParameters->Get_Parameter("MODE")->asInt();
 

@@ -153,14 +153,14 @@ CGeoCoding::CGeoCoding(void)
 //---------------------------------------------------------
 int CGeoCoding::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ADDRESSES") )
+	if( pParameter->Cmp_Identifier("ADDRESSES") )
 	{
 		pParameters->Set_Enabled("FIELD"   , pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("ADDRESS" , pParameter->asTable() == NULL);
 		pParameters->Set_Enabled("METADATA", pParameter->asTable() == NULL || pParameter->asTable()->Get_Count() == 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROVIDER") )
+	if( pParameter->Cmp_Identifier("PROVIDER") )
 	{
 		pParameters->Set_Enabled("API_KEY", pParameter->asInt() >= 2 );
 	}

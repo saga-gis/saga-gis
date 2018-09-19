@@ -105,12 +105,12 @@ CGridding_Spline_Base::CGridding_Spline_Base(bool bGridPoints)
 //---------------------------------------------------------
 int CGridding_Spline_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( pParameter->Cmp_Identifier("SHAPES") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() )
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asGrid()->Get_System());
 	}

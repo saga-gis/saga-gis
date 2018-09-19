@@ -179,8 +179,8 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 //---------------------------------------------------------
 int CGrid_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FORMULA")
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "FNAME"  ) )
+	if(	pParameter->Cmp_Identifier("FORMULA")
+	||	pParameter->Cmp_Identifier("FNAME"  ) )
 	{
 		if( (*pParameters)("FNAME")->asBool() )
 		{
@@ -194,7 +194,7 @@ int CGrid_Calculator_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 int CGrid_Calculator_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XGRIDS") )
+	if( pParameter->Cmp_Identifier("XGRIDS") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asList()->Get_Data_Count() > 0);
 	}

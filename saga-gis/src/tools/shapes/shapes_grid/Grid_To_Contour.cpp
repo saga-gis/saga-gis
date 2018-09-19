@@ -155,7 +155,7 @@ CGrid_To_Contour::CGrid_To_Contour(void)
 //---------------------------------------------------------
 int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID") && pParameter->asGrid() != NULL )
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() != NULL )
 	{
 		double	zStep	= SG_Get_Rounded_To_SignificantFigures(pParameter->asGrid()->Get_Range() / 10.0, 1);
 
@@ -181,12 +181,12 @@ int CGrid_To_Contour::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CGrid_To_Contour::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ZSTEP") )
+	if( pParameter->Cmp_Identifier("ZSTEP") )
 	{
 		pParameters->Set_Enabled("ZMAX", pParameter->asDouble() > 0.0);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if( pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		pParameters->Set_Enabled("LINE_PARTS", pParameter->asPointer() == NULL);
 		pParameters->Set_Enabled("POLY_PARTS", pParameter->asPointer() != NULL);

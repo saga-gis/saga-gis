@@ -129,7 +129,7 @@ CShapes_Cut_Interactive::CShapes_Cut_Interactive(void)
 //---------------------------------------------------------
 int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "CUT") )
+	if( pParameters->Cmp_Identifier("CUT") )
 	{
 		double	ax	= pParameters->Get_Parameter("AX")->asDouble();
 		double	ay	= pParameters->Get_Parameter("AY")->asDouble();
@@ -141,22 +141,22 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 		if( ax > bx )	{	double	d	= ax;	ax	= bx;	bx	= d;	}
 		if( ay > by )	{	double	d	= ay;	ay	= by;	by	= d;	}
 
-		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), "DX") )
+		if     ( pParameter->Cmp_Identifier("DX") )
 		{
 			bx	= ax + dx;
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AX")
-			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BX") )
+		else if( pParameter->Cmp_Identifier("AX")
+			||   pParameter->Cmp_Identifier("BX") )
 		{
 			dx	= bx - ax;
 		}
 
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "DY") )
+		else if( pParameter->Cmp_Identifier("DY") )
 		{
 			by	= ay + dy;
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AY")
-			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BY") )
+		else if( pParameter->Cmp_Identifier("AY")
+			||   pParameter->Cmp_Identifier("BY") )
 		{
 			dy	= by - ay;
 		}
@@ -170,7 +170,7 @@ int CShapes_Cut_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, C
 	}
 
 	//-----------------------------------------------------
-	else if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") && pParameter->asShapes() )
+	else if( pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
 	{
 		CSG_Shapes	*pCut	= pParameters->Get_Parameter("CUT")->asShapes();
 

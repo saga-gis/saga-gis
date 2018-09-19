@@ -225,17 +225,17 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 //---------------------------------------------------------
 int CPoint_Multi_Grid_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CROSSVAL") )
+	if(	pParameter->Cmp_Identifier("CROSSVAL") )
 	{
 		pParameters->Set_Enabled("CROSSVAL_K", pParameter->asInt() == 3);	// k-fold
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "REGRESCORR") )
+	if(	pParameter->Cmp_Identifier("REGRESCORR") )
 	{
 		pParameters->Set_Enabled("RESIDUAL_COR", pParameter->asPointer() != NULL);
 	}

@@ -461,7 +461,7 @@ CRGA_Basic::CRGA_Basic(void)
 //---------------------------------------------------------
 int CRGA_Basic::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("SIG_2", pParameter->asInt() == 0);
 	}

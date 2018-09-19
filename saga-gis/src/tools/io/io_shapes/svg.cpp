@@ -141,7 +141,7 @@ CSVG_Export::CSVG_Export(void)
 //---------------------------------------------------------
 int CSVG_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	if( pParameter->Cmp_Identifier("OUTPUT") )
 	{
 		pParameters->Set_Enabled("LAYER" , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("LAYERS", pParameter->asInt() == 1);

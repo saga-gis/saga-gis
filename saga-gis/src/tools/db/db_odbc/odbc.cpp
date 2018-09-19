@@ -1537,7 +1537,7 @@ bool CSG_ODBC_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() && !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("CONNECTION") )
 	{
 		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
 

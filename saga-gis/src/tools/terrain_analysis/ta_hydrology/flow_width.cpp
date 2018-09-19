@@ -137,7 +137,7 @@ CFlow_Width::CFlow_Width(void)
 //---------------------------------------------------------
 int CFlow_Width::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TCA") )
+	if( pParameter->Cmp_Identifier("TCA") )
 	{
 		pParameters->Set_Enabled("SCA", pParameter->asGrid() != NULL);
 	}

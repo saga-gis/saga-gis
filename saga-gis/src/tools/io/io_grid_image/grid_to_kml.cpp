@@ -221,7 +221,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 //---------------------------------------------------------
 int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
+	if(	pParameter->Cmp_Identifier("COLOURING") )
 	{
 		pParameters->Set_Enabled("COL_PALETTE", pParameter->asInt() <= 2);
 		pParameters->Set_Enabled("STDDEV"     , pParameter->asInt() == 0);
@@ -229,12 +229,12 @@ int CGrid_to_KML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("LUT"        , pParameter->asInt() == 3);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") && pParameters->Get_Parameter("SHADE_BRIGHT") )
+	if(	pParameter->Cmp_Identifier("SHADE") && pParameters->Get_Parameter("SHADE_BRIGHT") )
 	{
 		pParameters->Set_Enabled("SHADE_BRIGHT", pParameter->asPointer() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID") || !SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
+	if(	pParameter->Cmp_Identifier("GRID") || pParameter->Cmp_Identifier("COLOURING") )
 	{
 		CSG_Grid	*pGrid	= pParameters->Get_Parameter("GRID")->asGrid();
 

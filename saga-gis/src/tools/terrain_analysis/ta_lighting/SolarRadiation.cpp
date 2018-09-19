@@ -287,7 +287,7 @@ CSolarRadiation::CSolarRadiation(void)
 //---------------------------------------------------------
 int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRD_DEM") && pParameter->asGrid() && pParameter->asGrid()->Get_Projection().is_Okay() )
+	if(	pParameter->Cmp_Identifier("GRD_DEM") && pParameter->asGrid() && pParameter->asGrid()->Get_Projection().is_Okay() )
 	{
 		CSG_Shapes	srcCenter(SHAPE_TYPE_Point), dstCenter(SHAPE_TYPE_Point);
 
@@ -314,17 +314,17 @@ int CSolarRadiation::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "UPDATE") )
+	if(	pParameter->Cmp_Identifier("UPDATE") )
 	{
 		pParameters->Set_Enabled("UPDATE_STRETCH", pParameter->asInt() == 2);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LOCATION") )
+	if(	pParameter->Cmp_Identifier("LOCATION") )
 	{
 		pParameters->Set_Enabled("LATITUDE"      , pParameter->asInt() == 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PERIOD") )
+	if(	pParameter->Cmp_Identifier("PERIOD") )
 	{
 		pParameters->Set_Enabled("MOMENT"        , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("GRD_DURATION"  , pParameter->asInt() == 1);
@@ -337,7 +337,7 @@ int CSolarRadiation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("DAYS_STEP"     , pParameter->asInt() == 2);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("GRD_VAPOUR"    , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("ATMOSPHERE"    , pParameter->asInt() == 0);

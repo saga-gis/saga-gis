@@ -222,7 +222,7 @@ void CTable_Create_Empty::_Set_Field_Count(CSG_Parameters *pAttributes, int nAtt
 //---------------------------------------------------------
 int CTable_Create_Empty::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("NFIELDS")) )
+	if( pParameter->Cmp_Identifier(SG_T("NFIELDS")) )
 	{
 		_Set_Field_Count(pParameters->Get_Parameter("FIELDS")->asParameters(), pParameter->asInt());
 

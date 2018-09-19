@@ -167,17 +167,17 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	int	Result	= CCRS_Transform::On_Parameter_Changed(pParameters, pParameter);
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_METHOD"     )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_PROJ4"      )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_DIALOG"     )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_GRID"       )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_SHAPES"     )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE"       )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG"       )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_AUTH"  )
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "SOURCE"         ) )
+	if( pParameter->Cmp_Identifier("CRS_METHOD"     )
+	||  pParameter->Cmp_Identifier("CRS_PROJ4"      )
+	||  pParameter->Cmp_Identifier("CRS_DIALOG"     )
+	||  pParameter->Cmp_Identifier("CRS_GRID"       )
+	||  pParameter->Cmp_Identifier("CRS_SHAPES"     )
+	||  pParameter->Cmp_Identifier("CRS_FILE"       )
+	||  pParameter->Cmp_Identifier("CRS_EPSG"       )
+	||  pParameter->Cmp_Identifier("CRS_EPSG_AUTH"  )
+	||  pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
+	||  pParameter->Cmp_Identifier("CRS_EPSG_PROJCS")
+	||  pParameter->Cmp_Identifier("SOURCE"         ) )
 	{
 		Set_Target_System(pParameters);
 	}
@@ -192,7 +192,7 @@ int CCRS_Transform_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 int CCRS_Transform_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLING") )
+	if( pParameter->Cmp_Identifier("RESAMPLING") )
 	{
 		pParameters->Set_Enabled("KEEP_TYPE", pParameter->asInt() != 0);	// nearest neighbour
 	}

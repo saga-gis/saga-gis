@@ -134,7 +134,7 @@ CFilter_Sieve::CFilter_Sieve(void)
 //---------------------------------------------------------
 int CFilter_Sieve::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "ALL") )
+	if( pParameter->Cmp_Identifier("ALL") )
 	{
 		pParameters->Set_Enabled("CLASS", pParameter->asInt() == 0);
 	}

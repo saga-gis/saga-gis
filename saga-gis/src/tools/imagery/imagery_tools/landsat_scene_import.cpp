@@ -183,7 +183,7 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 //---------------------------------------------------------
 int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METAFILE") )
+	if( pParameter->Cmp_Identifier("METAFILE") )
 	{
 		CSG_MetaData	Metadata;
 
@@ -199,13 +199,13 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		}
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CALIBRATION") )
+	if( pParameter->Cmp_Identifier("CALIBRATION") )
 	{
 		pParameters->Set_Enabled("DATA_TYPE", pParameter->asInt() != 0);
 		pParameters->Set_Enabled("TEMP_UNIT", pParameter->asInt() == 2);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
+	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
 	}

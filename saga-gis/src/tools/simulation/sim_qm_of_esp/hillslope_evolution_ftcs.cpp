@@ -154,12 +154,12 @@ CHillslope_Evolution_FTCS::CHillslope_Evolution_FTCS(void)
 //---------------------------------------------------------
 int CHillslope_Evolution_FTCS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIMESTEP") )
+	if( pParameter->Cmp_Identifier("TIMESTEP") )
 	{
 		pParameters->Set_Enabled("DTIME", pParameter->asInt() == 0);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DIFF") )
+	if( pParameter->Cmp_Identifier("DIFF") )
 	{
 		pParameters->Set_Enabled("UPDATE", pParameter->asPointer() != NULL);
 	}

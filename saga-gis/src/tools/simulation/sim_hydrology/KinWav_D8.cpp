@@ -199,12 +199,12 @@ CKinWav_D8::CKinWav_D8(void)
 //---------------------------------------------------------
 int CKinWav_D8::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GAUGES_FLOW") )
+	if( pParameter->Cmp_Identifier("GAUGES_FLOW") )
 	{
 		pParameters->Set_Enabled("GAUGES", pParameter->asTable() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "P_DISTRIB") )
+	if( pParameter->Cmp_Identifier("P_DISTRIB") )
 	{
 		pParameters->Set_Enabled("P_THRESHOLD", pParameter->asInt() == 1);
 	}

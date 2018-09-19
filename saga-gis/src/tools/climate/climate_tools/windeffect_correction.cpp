@@ -158,7 +158,7 @@ CWindeffect_Correction::CWindeffect_Correction(void)
 //---------------------------------------------------------
 int CWindeffect_Correction::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "B_SOURCE") )
+	if( pParameter->Cmp_Identifier("B_SOURCE") )
 	{
 		pParameters->Set_Enabled("B_CONST"    , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("OBSERVED"   , pParameter->asInt() == 1);

@@ -139,7 +139,7 @@ CLandsat_Import::CLandsat_Import(void)
 //---------------------------------------------------------
 int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FILES") )
+	if( pParameter->Cmp_Identifier("FILES") )
 	{
 		CSG_Strings	Files;	pParameter->asFilePath()->Get_FilePaths(Files);
 
@@ -168,12 +168,12 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		}
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PROJECTION") )
+	if( pParameter->Cmp_Identifier("PROJECTION") )
 	{
 		pParameters->Set_Enabled("RESAMPLING", pParameter->asInt() == 2);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_RGB") )
+	if( pParameter->Cmp_Identifier("SHOW_RGB") )
 	{
 		pParameters->Set_Enabled("SHOW_R", pParameter->asBool());
 		pParameters->Set_Enabled("SHOW_G", pParameter->asBool());

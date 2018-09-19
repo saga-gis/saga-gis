@@ -154,7 +154,7 @@ CBeachball::CBeachball(void)
 //---------------------------------------------------------
 int CBeachball::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SIZE") )
+	if( pParameter->Cmp_Identifier("SIZE") )
 	{
 		if( (*pParameters)("POINTS")->asShapes() )
 		{

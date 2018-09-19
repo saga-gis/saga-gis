@@ -167,7 +167,7 @@ CLand_Surface_Temperature::CLand_Surface_Temperature(void)
 //---------------------------------------------------------
 int CLand_Surface_Temperature::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "LAI") )
+	if( pParameter->Cmp_Identifier("LAI") )
 	{
 		pParameters->Set_Enabled("LAI_MAX", pParameter->asDataObject() != NULL);
 	}

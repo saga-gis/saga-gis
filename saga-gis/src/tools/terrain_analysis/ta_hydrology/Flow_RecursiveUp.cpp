@@ -176,12 +176,12 @@ CFlow_RecursiveUp::CFlow_RecursiveUp(void)
 //---------------------------------------------------------
 int CFlow_RecursiveUp::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("CONVERGENCE", pParameter->asInt() == 4 || pParameter->asInt() == 5);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "WEIGHTS") )
+	if( pParameter->Cmp_Identifier("WEIGHTS") )
 	{
 		pParameters->Set_Enabled("NO_NEGATIVES", pParameter->asGrid() != NULL);
 	}

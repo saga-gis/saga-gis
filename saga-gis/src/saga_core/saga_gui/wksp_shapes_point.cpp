@@ -364,7 +364,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_FONT") )
+		if(	pParameter->Cmp_Identifier("COLORS_FONT") )
 		{
 			Set_Metrics(
 				(*pParameters)("METRIC_ATTRIB")->asInt(),
@@ -381,7 +381,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DISPLAY_SYMBOL_TYPE") )
+		if(	pParameter->Cmp_Identifier("DISPLAY_SYMBOL_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -391,7 +391,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("BEACHBALL_RAKE"      , Value == SYMBOL_TYPE_Beachball);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -401,7 +401,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("LABEL_ALIGN_Y"       , Value);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -410,7 +410,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("SIZE_DEFAULT"        , Value == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ANGLE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
 

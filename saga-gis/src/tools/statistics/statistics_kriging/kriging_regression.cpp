@@ -248,7 +248,7 @@ CKriging_Regression::CKriging_Regression(void)
 //---------------------------------------------------------
 int CKriging_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") )
+	if( pParameter->Cmp_Identifier("POINTS") )
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 	}

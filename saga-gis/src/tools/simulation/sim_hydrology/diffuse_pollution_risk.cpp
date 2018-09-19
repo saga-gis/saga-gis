@@ -159,7 +159,7 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 //---------------------------------------------------------
 int CDiffuse_Pollution_Risk::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CHANNEL") )
+	if( pParameter->Cmp_Identifier("CHANNEL") )
 	{
 		pParameters->Set_Enabled("CHANNEL_START", pParameter->asGrid() == NULL);
 	}

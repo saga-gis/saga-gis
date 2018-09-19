@@ -151,7 +151,7 @@ void CTable_Regression_Multiple_Base::Initialise(void)
 //---------------------------------------------------------
 int CTable_Regression_Multiple_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE")) )
+	if( pParameter->Cmp_Identifier(SG_T("TABLE")) )
 	{
 		CSG_Table		*pTable			= pParameter->asTable();
 		CSG_Parameters	*pPredictors	= pParameters->Get_Parameter("PREDICTORS")->asParameters();
@@ -176,12 +176,12 @@ int CTable_Regression_Multiple_Base::On_Parameter_Changed(CSG_Parameters *pParam
 //---------------------------------------------------------
 int CTable_Regression_Multiple_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
 	{
 		pParameters->Set_Enabled("P_VALUE", pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("CROSSVAL")) )
+	if(	pParameter->Cmp_Identifier(SG_T("CROSSVAL")) )
 	{
 		pParameters->Get_Parameter("CROSSVAL_K")->Set_Enabled(pParameter->asInt() == 3);	// k-fold
 	}

@@ -668,18 +668,18 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEL_EXTENT") )
+		if(	pParameter->Cmp_Identifier("SEL_EXTENT") )
 		{
 			pParameters->Get_Parameter("SEL_COLOUR"    )->Set_Enabled(pParameter->asBool());
 			pParameters->Get_Parameter("SEL_TRANSP"    )->Set_Enabled(pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FRAME_SHOW") )
+		if(	pParameter->Cmp_Identifier("FRAME_SHOW") )
 		{
 			pParameters->Get_Parameter("FRAME_WIDTH"   )->Set_Enabled(pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NORTH_SHOW") )
+		if(	pParameter->Cmp_Identifier("NORTH_SHOW") )
 		{
 			pParameters->Get_Parameter("NORTH_ANGLE"   )->Set_Enabled(pParameter->asBool());
 			pParameters->Get_Parameter("NORTH_SIZE"    )->Set_Enabled(pParameter->asBool());
@@ -688,7 +688,7 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 			pParameters->Get_Parameter("NORTH_EXTENT"  )->Set_Enabled(pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_SHOW") )
+		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
 			pParameters->Get_Parameter("SCALE_STYLE"   )->Set_Enabled(pParameter->asBool());
 			pParameters->Get_Parameter("SCALE_UNIT"    )->Set_Enabled(pParameter->asBool());

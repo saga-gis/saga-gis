@@ -576,8 +576,8 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_FACTOR")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OBJECT_Z_OFFSET") )
+		if(	pParameter->Cmp_Identifier("OBJECT_Z_FACTOR")
+		||  pParameter->Cmp_Identifier("OBJECT_Z_OFFSET") )
 		{
 			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
 			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
@@ -592,7 +592,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			}
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DIM_NAME") )
+		if(	pParameter->Cmp_Identifier("DIM_NAME") )
 		{
 			CSG_String	List	= _Get_List_Bands(pParameter->asInt());
 
@@ -606,17 +606,17 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED
 		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
 		{
-			if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BAND"              )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_R"            )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_G"            )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "BAND_B"            )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_STATISTICS")
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE"       )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT"   )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_LINEAR"    )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_STDDEV"    )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_INRANGE"   )
-			||  !SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_PCTL"      ) )
+			if(	pParameter->Cmp_Identifier("BAND"              )
+			||  pParameter->Cmp_Identifier("BAND_R"            )
+			||  pParameter->Cmp_Identifier("BAND_G"            )
+			||  pParameter->Cmp_Identifier("BAND_B"            )
+			||  pParameter->Cmp_Identifier("OVERLAY_STATISTICS")
+			||  pParameter->Cmp_Identifier("COLORS_TYPE"       )
+			||  pParameter->Cmp_Identifier("STRETCH_DEFAULT"   )
+			||  pParameter->Cmp_Identifier("STRETCH_LINEAR"    )
+			||  pParameter->Cmp_Identifier("STRETCH_STDDEV"    )
+			||  pParameter->Cmp_Identifier("STRETCH_INRANGE"   )
+			||  pParameter->Cmp_Identifier("STRETCH_PCTL"      ) )
 			{
 				double	Minimum, Maximum;
 
@@ -631,8 +631,8 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "OVERLAY_STATISTICS") )
+		if( pParameter->Cmp_Identifier("COLORS_TYPE")
+		||  pParameter->Cmp_Identifier("OVERLAY_STATISTICS") )
 		{
 			int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
 
@@ -649,7 +649,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != GRIDS_CLASSIFY_LUT && Type != GRIDS_CLASSIFY_UNIQUE);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "STRETCH_DEFAULT") )
+		if(	pParameter->Cmp_Identifier("STRETCH_DEFAULT") )
 		{
 			pParameters->Set_Enabled("STRETCH_LINEAR", pParameter->asInt() == 0);
 			pParameters->Set_Enabled("STRETCH_STDDEV", pParameter->asInt() == 1);

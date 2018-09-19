@@ -125,7 +125,7 @@ CTable_Running_Average::CTable_Running_Average(void)
 //---------------------------------------------------------
 int CTable_Running_Average::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	#define SET_ENABLED(id)	if( !SG_STR_CMP(pParameter->Get_Identifier(), id) ) { pParameters->Set_Enabled(CSG_String("FIELD_") + id, pParameter->asBool()); }
+	#define SET_ENABLED(id)	if( pParameter->Cmp_Identifier(id) ) { pParameters->Set_Enabled(CSG_String("FIELD_") + id, pParameter->asBool()); }
 
 	SET_ENABLED("MEAN"   );
 	SET_ENABLED("MEDIAN" );

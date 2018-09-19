@@ -282,7 +282,7 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SIZE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -290,14 +290,14 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 			pParameters->Set_Enabled("SIZE_DEFAULT", Value == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_STYLE") )
+		if(	pParameter->Cmp_Identifier("LABEL_STYLE") )
 		{
 			pParameters->Set_Enabled("LABEL_ALIGN"    , pParameter->asInt() == 2 || pParameter->asInt() == 3);
 			pParameters->Set_Enabled("LABEL_ORIENT"   , pParameter->asInt() == 2 || pParameter->asInt() == 3);
 			pParameters->Set_Enabled("LABEL_FREQUENCY", pParameter->asInt() == 3);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BOUNDARY_EFFECT") )
+		if(	pParameter->Cmp_Identifier("BOUNDARY_EFFECT") )
 		{
 			pParameters->Set_Enabled("BOUNDARY_EFFECT_COLOR", pParameter->asInt() != 0);
 		}

@@ -183,7 +183,7 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 //---------------------------------------------------------
 int CGWR_Grid_Downscaling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SEARCH_RANGE") )
+	if(	pParameter->Cmp_Identifier("SEARCH_RANGE") )
 	{
 		pParameters->Set_Enabled("SEARCH_RADIUS", pParameter->asInt() == 0);	// local
 	}

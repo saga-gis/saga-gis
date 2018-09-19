@@ -535,7 +535,7 @@ CSoil_Texture::CSoil_Texture(void)
 //---------------------------------------------------------
 int CSoil_Texture::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	if( pParameter->Cmp_Identifier("SCHEME") )
 	{
 		CSoil_Texture_Classifier::Get_Table(*pParameters->Get_Parameter("USER")->asTable(), pParameter->asInt());
 	}
@@ -546,13 +546,13 @@ int CSoil_Texture::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CSoil_Texture::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if( pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		pParameters->Set_Enabled("XY_AXES" , pParameter->asPointer() != NULL);
 		pParameters->Set_Enabled("TRIANGLE", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	if( pParameter->Cmp_Identifier("SCHEME") )
 	{
 		pParameters->Set_Enabled("COLORS"  , pParameter->asInt() != 0);
 		pParameters->Set_Enabled("USER"    , pParameter->asInt() == 3);
@@ -769,7 +769,7 @@ CSoil_Texture_Table::CSoil_Texture_Table(void)
 //---------------------------------------------------------
 int CSoil_Texture_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	if( pParameter->Cmp_Identifier("SCHEME") )
 	{
 		CSoil_Texture_Classifier::Get_Table(*pParameters->Get_Parameter("USER")->asTable(), pParameter->asInt());
 	}
@@ -780,13 +780,13 @@ int CSoil_Texture_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 int CSoil_Texture_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if( pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		pParameters->Set_Enabled("XY_AXES" , pParameter->asPointer() != NULL);
 		pParameters->Set_Enabled("TRIANGLE", pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCHEME") )
+	if( pParameter->Cmp_Identifier("SCHEME") )
 	{
 		pParameters->Set_Enabled("COLORS"  , pParameter->asInt() != 0);
 		pParameters->Set_Enabled("USER"    , pParameter->asInt() == 3);

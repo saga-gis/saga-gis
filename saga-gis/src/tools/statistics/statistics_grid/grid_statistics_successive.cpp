@@ -98,7 +98,7 @@ CGrid_Statistics_Build::CGrid_Statistics_Build(void)
 //---------------------------------------------------------
 int CGrid_Statistics_Build::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESET") )
+	if( pParameter->Cmp_Identifier("RESET") )
 	{
 		pParameters->Set_Enabled("HCLASSES", pParameter->asBool());
 		pParameters->Set_Enabled("HMIN"    , pParameter->asBool());

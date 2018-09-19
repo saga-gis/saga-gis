@@ -263,7 +263,7 @@ CMorphometry::CMorphometry(void)
 //---------------------------------------------------------
 int CMorphometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
 	{
 		bool	bOn;
 		

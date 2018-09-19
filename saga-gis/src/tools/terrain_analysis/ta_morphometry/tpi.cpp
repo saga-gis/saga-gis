@@ -596,7 +596,7 @@ CTPI_MultiScale::CTPI_MultiScale(void)
 //---------------------------------------------------------
 int CTPI_MultiScale::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_MIN") )
+	if( pParameter->Cmp_Identifier("SCALE_MIN") )
 	{
 		if( pParameter->asInt() > pParameters->Get_Parameter("SCALE_MAX")->asInt() )
 		{
@@ -604,7 +604,7 @@ int CTPI_MultiScale::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 		}
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_MAX") )
+	if( pParameter->Cmp_Identifier("SCALE_MAX") )
 	{
 		if( pParameter->asInt() < pParameters->Get_Parameter("SCALE_MIN")->asInt() )
 		{

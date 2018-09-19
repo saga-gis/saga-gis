@@ -2125,8 +2125,8 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	if( SG_UI_Get_Window_Main() )
 	{
 		//-------------------------------------------------
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS") )
+		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
+		||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 		{
 			int		EPSG;
 
@@ -2137,7 +2137,7 @@ int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		}
 
 		//-------------------------------------------------
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "CONNECTION") )
+		if( pParameter->Cmp_Identifier("CONNECTION") )
 		{
 			CSG_PG_Connection	*pConnection	= SG_PG_Get_Connection_Manager().Get_Connection(pParameter->asString());
 

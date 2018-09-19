@@ -474,7 +474,7 @@ CViGrA_FFT_Filter::CViGrA_FFT_Filter(void)
 //---------------------------------------------------------
 int CViGrA_FFT_Filter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FILTER") )
+	if( pParameter->Cmp_Identifier("FILTER") )
 	{
 		pParameters->Get_Parameter("SCALE")->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("POWER")->Set_Enabled(pParameter->asInt() == 1);

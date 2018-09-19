@@ -134,8 +134,8 @@ CTable_Change_Field_Type::CTable_Change_Field_Type(void)
 //---------------------------------------------------------
 int CTable_Change_Field_Type::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE"))
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("FIELD")) )
+	if(	pParameter->Cmp_Identifier(SG_T("TABLE"))
+	||	pParameter->Cmp_Identifier(SG_T("FIELD")) )
 	{
 		CSG_Table	*pTable	= pParameters->Get_Parameter("TABLE")->asTable();
 

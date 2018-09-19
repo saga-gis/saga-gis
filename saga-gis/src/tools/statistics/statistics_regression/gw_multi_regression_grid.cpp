@@ -165,7 +165,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 //---------------------------------------------------------
 int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") && pParameter->asShapes() )
+	if( pParameter->Cmp_Identifier("POINTS") && pParameter->asShapes() )
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
@@ -179,7 +179,7 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("RESOLUTION")) )
+	if(	pParameter->Cmp_Identifier(SG_T("RESOLUTION")) )
 	{
 		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Enabled(pParameter->asInt() == 1);
 	}

@@ -281,7 +281,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 //---------------------------------------------------------
 int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SEPARATOR") )
+	if( pParameter->Cmp_Identifier("SEPARATOR") )
 	{
 		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
 	}
@@ -396,7 +396,7 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 //---------------------------------------------------------
 int CTable_Text_Import_Numbers::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SEPARATOR") )
+	if( pParameter->Cmp_Identifier("SEPARATOR") )
 	{
 		pParameters->Set_Enabled("SEP_OTHER", pParameter->asInt() >= 4);
 	}
@@ -630,7 +630,7 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 //---------------------------------------------------------
 int CTable_Text_Import_Fixed_Cols::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "FIELDDEF") )
+	if(	pParameter->Cmp_Identifier("FIELDDEF") )
 	{
 	//	pParameters->Set_Enabled("BREAKS" , pParameter->asInt() == 0);
 	//	pParameters->Set_Enabled("FIELDS" , pParameter->asInt() == 1);

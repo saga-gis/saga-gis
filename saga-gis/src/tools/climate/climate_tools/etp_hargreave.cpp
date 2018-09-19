@@ -143,12 +143,12 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 //---------------------------------------------------------
 int CPET_Hargreave_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "T") )
+	if( pParameter->Cmp_Identifier("T") )
 	{
 		pParameters->Set_Enabled("LAT", pParameter->asGrid() && pParameter->asGrid()->Get_Projection().is_Okay() == false);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )
+	if( pParameter->Cmp_Identifier("TIME") )
 	{
 		pParameters->Set_Enabled("DAY", pParameter->asInt() == 0);
 	}

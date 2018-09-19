@@ -169,13 +169,13 @@ CGrid_Cluster_Analysis::CGrid_Cluster_Analysis(void)
 //---------------------------------------------------------
 int CGrid_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "OLDVERSION") )
+	if( pParameter->Cmp_Identifier("OLDVERSION") )
 	{
 		pParameters->Set_Enabled("MAXITER"   , pParameter->asBool() == false);
 		pParameters->Set_Enabled("UPDATEVIEW", pParameter->asBool() == true );
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}

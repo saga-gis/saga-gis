@@ -175,7 +175,7 @@ CGDAL_Export::CGDAL_Export(void)
 //---------------------------------------------------------
 int CGDAL_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SET_NODATA") )
+	if( pParameter->Cmp_Identifier("SET_NODATA") )
 	{
 		pParameters->Set_Enabled("NODATA", pParameter->asBool());
 	}

@@ -146,18 +146,18 @@ CTable_Change_Date_Format::CTable_Change_Date_Format(void)
 //---------------------------------------------------------
 int CTable_Change_Date_Format::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FMT_IN" ) )
+	if( pParameter->Cmp_Identifier("FMT_IN" ) )
 	{
 		pParameters->Set_Enabled("SEP_IN" , pParameter->asInt() == 0 || pParameter->asInt() == 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FMT_OUT") )
+	if( pParameter->Cmp_Identifier("FMT_OUT") )
 	{
 		pParameters->Set_Enabled("SEP_OUT", pParameter->asInt() < 4);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TABLE")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "FIELD") )
+	if( pParameter->Cmp_Identifier("TABLE")
+	||  pParameter->Cmp_Identifier("FIELD") )
 	{
 		CSG_Table	*pTable	= pParameters->Get_Parameter("TABLE")->asTable();
 

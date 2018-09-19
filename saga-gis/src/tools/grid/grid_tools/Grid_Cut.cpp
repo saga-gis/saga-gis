@@ -96,14 +96,14 @@ void Fit_Extent(CSG_Parameters *pParameters, CSG_Parameter *pParameter, CSG_Grid
 			pParameters->Get_Parameter("YMAX")->asDouble()
 		)));
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "NX") )
+		if( pParameter->Cmp_Identifier("NX") )
 		{
 			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
 				pParameters->Get_Parameter("NX")->asInt(), System.Get_NY()
 			);
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "NY") )
+		if( pParameter->Cmp_Identifier("NY") )
 		{
 			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
 				System.Get_NX(), pParameters->Get_Parameter("NY")->asInt()
@@ -179,7 +179,7 @@ CGrid_Clip_Interactive::CGrid_Clip_Interactive(void)
 //---------------------------------------------------------
 int CGrid_Clip_Interactive::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( is_Executing() && !SG_STR_CMP(pParameters->Get_Identifier(), "EXTENT") )
+	if( is_Executing() && pParameters->Cmp_Identifier("EXTENT") )
 	{
 		Fit_Extent(pParameters, pParameter, Get_System());
 	}
@@ -411,7 +411,7 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 {
 	CSG_Grid_System	*pSystem	= pParameters->Get_Parameter("PARAMETERS_GRID_SYSTEM")->asGrid_System();
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
+	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
 	{
 		pParameters->Set_Parameter("XMIN", pSystem->Get_XMin());
 		pParameters->Set_Parameter("XMAX", pSystem->Get_XMax());
@@ -427,7 +427,7 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 int CGrid_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "EXTENT") )
+	if( pParameter->Cmp_Identifier("EXTENT") )
 	{
 		pParameters->Set_Enabled("XMIN"      , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("XMAX"      , pParameter->asInt() == 0);

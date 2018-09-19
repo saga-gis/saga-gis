@@ -221,7 +221,7 @@ bool CSG_mRMR::Parameters_Add(CSG_Parameters *pParameters, CSG_Parameter *pNode)
 //---------------------------------------------------------
 int CSG_mRMR::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "mRMR_DISCRETIZE") )
+	if( pParameter->Cmp_Identifier("mRMR_DISCRETIZE") )
 	{
 		pParameters->Set_Enabled("mRMR_THRESHOLD", pParameter->asBool());
 	}

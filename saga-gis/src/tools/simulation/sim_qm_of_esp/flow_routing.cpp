@@ -128,7 +128,7 @@ CFlow_Routing::CFlow_Routing(void)
 //---------------------------------------------------------
 int CFlow_Routing::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "PREPROC") )
+	if( pParameter->Cmp_Identifier("PREPROC") )
 	{
 		pParameters->Set_Enabled("DZFILL", pParameter->asInt() != 0);
 	}

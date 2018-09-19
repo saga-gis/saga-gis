@@ -424,7 +424,7 @@ bool CLAS_Export::On_Execute(void)
 //---------------------------------------------------------
 int CLAS_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if (!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("POINTS")))		// set attribute field choices to - NOT SET -
+	if (pParameter->Cmp_Identifier(SG_T("POINTS")))		// set attribute field choices to - NOT SET -
 	{
 		if (pParameters->Get_Parameter("POINTS")->asPointCloud() != NULL)
 		{

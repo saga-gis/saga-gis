@@ -244,7 +244,7 @@ CGrid_Export::CGrid_Export(void)
 //---------------------------------------------------------
 int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLOURING") )
+	if(	pParameter->Cmp_Identifier("COLOURING") )
 	{
 		pParameters->Get_Parameter("COL_PALETTE")->Set_Enabled(pParameter->asInt() <= 2);
 		pParameters->Get_Parameter("STDDEV"		)->Set_Enabled(pParameter->asInt() == 0);
@@ -255,12 +255,12 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Get_Parameter("LUT"        )->Set_Enabled(pParameter->asInt() == 3);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SCALE_MODE") )
+	if(	pParameter->Cmp_Identifier("SCALE_MODE") )
 	{
 		pParameters->Get_Parameter("SCALE_LOG"	)->Set_Enabled(pParameter->asInt() > 0);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHADE") )
+	if(	pParameter->Cmp_Identifier("SHADE") )
 	{
 		pParameters->Get_Parameter("SHADE_TRANS"	)->Set_Enabled(pParameter->asPointer() != NULL);
 		pParameters->Get_Parameter("SHADE_COLOURING")->Set_Enabled(pParameter->asPointer() != NULL);

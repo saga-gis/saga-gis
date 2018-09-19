@@ -132,7 +132,7 @@ CLine_Dissolve::CLine_Dissolve(void)
 //---------------------------------------------------------
 int CLine_Dissolve::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("LINES")) && pParameters->Get_Parameter("LINES")->asShapes() != NULL )
+	if(	pParameter->Cmp_Identifier(SG_T("LINES")) && pParameters->Get_Parameter("LINES")->asShapes() != NULL )
 	{
 		int	nFields	= pParameters->Get_Parameter("LINES")->asShapes()->Get_Field_Count();
 

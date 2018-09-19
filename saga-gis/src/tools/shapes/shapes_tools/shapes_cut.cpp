@@ -340,7 +340,7 @@ CShapes_Cut::CShapes_Cut(void)
 //---------------------------------------------------------
 int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( pParameter->Cmp_Identifier("SHAPES") )
 	{
 		if( pParameter->asShapesList()->Get_Item_Count() > 0 )
 		{
@@ -372,21 +372,21 @@ int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		if( ax > bx )	{	double	d	= ax;	ax	= bx;	bx	= d;	}
 		if( ay > by )	{	double	d	= ay;	ay	= by;	by	= d;	}
 
-		if     ( !SG_STR_CMP(pParameter->Get_Identifier(), "DX") )
+		if     ( pParameter->Cmp_Identifier("DX") )
 		{
 			bx	= ax + dx;
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AX")
-			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BX") )
+		else if( pParameter->Cmp_Identifier("AX")
+			||   pParameter->Cmp_Identifier("BX") )
 		{
 			dx	= bx - ax;
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "DY") )
+		else if( pParameter->Cmp_Identifier("DY") )
 		{
 			by	= ay + dy;
 		}
-		else if( !SG_STR_CMP(pParameter->Get_Identifier(), "AY")
-			||   !SG_STR_CMP(pParameter->Get_Identifier(), "BY") )
+		else if( pParameter->Cmp_Identifier("AY")
+			||   pParameter->Cmp_Identifier("BY") )
 		{
 			dy	= by - ay;
 		}
@@ -405,7 +405,7 @@ int CShapes_Cut::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 int CShapes_Cut::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "EXTENT") )
+	if( pParameter->Cmp_Identifier("EXTENT") )
 	{
 		pParameters->Set_Enabled("AX"        , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("AY"        , pParameter->asInt() == 0);
@@ -418,8 +418,8 @@ int CShapes_Cut::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Set_Enabled("POLYGONS"  , pParameter->asInt() == 3);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("SHAPES")
+	||  pParameter->Cmp_Identifier("METHOD") )
 	{
 		bool	bEnable	= pParameters->Get_Parameter("METHOD")->asInt() == 1;	// intersects
 

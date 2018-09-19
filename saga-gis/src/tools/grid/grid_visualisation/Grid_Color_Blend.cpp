@@ -177,7 +177,7 @@ CGrid_Color_Blend::CGrid_Color_Blend(void)
 //---------------------------------------------------------
 int CGrid_Color_Blend::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 0 )
+	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 0 )
 	{
 		(*pParameters)("RANGE_USER")->asRange()->Set_Range(
 			pParameter->asGridList()->Get_Grid(0)->Get_Min(),
@@ -191,7 +191,7 @@ int CGrid_Color_Blend::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 //---------------------------------------------------------
 int CGrid_Color_Blend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RANGE") )
+	if( pParameter->Cmp_Identifier("RANGE") )
 	{
 		pParameters->Set_Enabled("RANGE_PERCENT", pParameter->asInt() == 0 || pParameter->asInt() == 2);
 		pParameters->Set_Enabled("RANGE_STDDEV" , pParameter->asInt() == 1 || pParameter->asInt() == 3);

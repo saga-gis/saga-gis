@@ -138,7 +138,7 @@ CGrid_Statistics_from_Files::CGrid_Statistics_from_Files(void)
 //---------------------------------------------------------
 int CGrid_Statistics_from_Files::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRID_SYSTEM") )
+	if( pParameter->Cmp_Identifier("GRID_SYSTEM") )
 	{
 		pParameters->Set_Enabled("COUNT"    , pParameter->asGrid_System()->is_Valid());
 		pParameters->Set_Enabled("MIN"      , pParameter->asGrid_System()->is_Valid());

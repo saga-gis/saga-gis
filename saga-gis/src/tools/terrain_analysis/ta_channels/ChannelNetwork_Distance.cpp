@@ -219,25 +219,25 @@ CChannelNetwork_Distance::CChannelNetwork_Distance(void)
 //---------------------------------------------------------
 int CChannelNetwork_Distance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("FIELDS", pParameter->asInt() == 0);
 		pParameters->Set_Enabled("PASSES", pParameter->asInt() == 0 && (*pParameters)("FIELDS")->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "FIELDS") )
+	if( pParameter->Cmp_Identifier("FIELDS") )
 	{
 		pParameters->Set_Enabled("PASSES", pParameter->is_Enabled() && pParameter->asPointer() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TIME") )
+	if( pParameter->Cmp_Identifier("TIME") )
 	{
 		pParameters->Set_Enabled("FLOW_K", pParameter->asDataObject() != NULL);
 		pParameters->Set_Enabled("FLOW_R", pParameter->asDataObject() != NULL);
 		pParameters->Set_Enabled("SDR"   , pParameter->asDataObject() != NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SDR") )
+	if( pParameter->Cmp_Identifier("SDR") )
 	{
 		pParameters->Set_Enabled("FLOW_B", pParameter->asDataObject() != NULL);
 	}

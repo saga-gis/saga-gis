@@ -197,13 +197,13 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 //---------------------------------------------------------
 int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "TRAINING") )
+	if(	pParameter->Cmp_Identifier("TRAINING") )
 	{
 		pParameters->Set_Enabled("FILE_LOAD", pParameter->asShapes() == NULL);
 		pParameters->Set_Enabled("FILE_SAVE", pParameter->asShapes() != NULL);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("THRESHOLD_DIST" , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_MinimumDistance
 			||                                      pParameter->asInt() == SG_CLASSIFY_SUPERVISED_Mahalonobis      );
@@ -213,7 +213,7 @@ int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters,
 		pParameters->Set_Enabled("WTA"            , pParameter->asInt() == SG_CLASSIFY_SUPERVISED_WTA              );
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS") )
+	if( pParameter->Cmp_Identifier("GRIDS") )
 	{
 		pParameters->Set_Enabled("RGB_COLORS", pParameter->asGridList()->Get_Grid_Count() >= 3);
 	}

@@ -159,7 +159,7 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 //---------------------------------------------------------
 int CImage_VI_Slope::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SAVI") )
+	if( pParameter->Cmp_Identifier("SAVI") )
 	{
 		pParameters->Set_Enabled("SOIL", pParameter->asDataObject() != NULL);
 	}

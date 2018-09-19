@@ -177,42 +177,42 @@ int CGDAL_Import_WMS::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 	CSG_Parameter	*pNX	= pParameters->Get_Parameter("NX"  );
 	CSG_Parameter	*pNY	= pParameters->Get_Parameter("NY"  );
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NX") )
+	if( pParameter->Cmp_Identifier("NX") )
 	{
 		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
 		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
 		pYMax->Set_Value(pYMin->asDouble() + d * pNY->asDouble());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NY") )
+	if( pParameter->Cmp_Identifier("NY") )
 	{
 		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
 		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
 		pXMax->Set_Value(pXMin->asDouble() + d * pNX->asDouble());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XMIN") )
+	if( pParameter->Cmp_Identifier("XMIN") )
 	{
 		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
 		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
 		pXMax->Set_Value(pXMin->asDouble() + d * pNX->asDouble());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "YMIN") )
+	if( pParameter->Cmp_Identifier("YMIN") )
 	{
 		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
 		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
 		pYMax->Set_Value(pYMin->asDouble() + d * pNY->asDouble());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "XMAX") )
+	if( pParameter->Cmp_Identifier("XMAX") )
 	{
 		double	d	= fabs(pYMax->asDouble() - pYMin->asDouble()) / pNY->asDouble();
 		pNX  ->Set_Value(fabs(pXMax->asDouble() - pXMin->asDouble()) / d);
 		pYMax->Set_Value(pYMax->asDouble() - d * pNY->asDouble());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "YMAX") )
+	if( pParameter->Cmp_Identifier("YMAX") )
 	{
 		double	d	= fabs(pXMax->asDouble() - pXMin->asDouble()) / pNX->asDouble();
 		pNY  ->Set_Value(fabs(pYMax->asDouble() - pYMin->asDouble()) / d);
@@ -225,18 +225,18 @@ int CGDAL_Import_WMS::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CGDAL_Import_WMS::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "TARGET") )
+	if( pParameter->Cmp_Identifier("TARGET") )
 	{
 		pParameters->Set_Enabled("TARGET_MAP" , pParameter->asPointer() != NULL);
 		pParameters->Set_Enabled("TARGET_NODE", pParameter->asPointer() == NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SERVER") )
+	if( pParameter->Cmp_Identifier("SERVER") )
 	{
 		pParameters->Set_Enabled("SERVER_USER", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CACHE") )
+	if( pParameter->Cmp_Identifier("CACHE") )
 	{
 		pParameters->Set_Enabled("CACHE_DIR", pParameter->asBool());
 	}

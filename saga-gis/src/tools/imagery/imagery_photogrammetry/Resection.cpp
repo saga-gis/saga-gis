@@ -556,7 +556,7 @@ bool CResection::On_Execute(void)
 int CResection::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("GIVE_DISTORTIONS")) )
+	if( pParameter->Cmp_Identifier(SG_T("GIVE_DISTORTIONS")) )
 	{
 		pParameters->Get_Parameter("K1")->Set_Enabled( pParameter->asBool() );
 		pParameters->Get_Parameter("K2")->Set_Enabled( pParameter->asBool() );

@@ -139,7 +139,7 @@ CKernel_Density::CKernel_Density(void)
 //---------------------------------------------------------
 int CKernel_Density::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( (!SG_STR_CMP(pParameter->Get_Identifier(), "POINTS") || !SG_STR_CMP(pParameter->Get_Identifier(), "RADIUS"))
+	if( (pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("RADIUS"))
 	&&  pParameters->Get_Parameter("POINTS")->asShapes() )
 	{
 		CSG_Rect	Extent(pParameters->Get_Parameter("POINTS")->asShapes()->Get_Extent());

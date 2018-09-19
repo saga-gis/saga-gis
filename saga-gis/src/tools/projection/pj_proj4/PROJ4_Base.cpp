@@ -173,7 +173,7 @@ CPROJ4_Base::CPROJ4_Base(int Interface, bool bInputList)
 int CPROJ4_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( !m_bInputList && m_Interface == PROJ4_INTERFACE_SIMPLE
-	&&	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("SOURCE"))
+	&&	pParameter->Cmp_Identifier(SG_T("SOURCE"))
 	&&	pParameter->asDataObject() && pParameter->asDataObject()->Get_Projection().Get_Proj4().Length() > 0 )
 	{
 		pParameters->Get_Parameter("SOURCE_PROJ")->Set_Value(pParameter->asDataObject()->Get_Projection().Get_Proj4());

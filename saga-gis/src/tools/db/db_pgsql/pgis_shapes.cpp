@@ -174,7 +174,7 @@ CShapes_Save::CShapes_Save(void)
 //---------------------------------------------------------
 int CShapes_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "SHAPES") )
+	if( pParameter->Cmp_Identifier("SHAPES") )
 	{
 		CSG_Shapes	*pShapes	= pParameter->asShapes() ? pParameter->asShapes() : NULL;
 
@@ -519,14 +519,14 @@ void CShapes_Join::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CShapes_Join::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(),  "GEO_TABLE")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "JOIN_TABLE") )
+	if( pParameter->Cmp_Identifier( "GEO_TABLE")
+	||  pParameter->Cmp_Identifier("JOIN_TABLE") )
 	{
 		Update_Fields(pParameters,  true);
 		Update_Fields(pParameters, false);
 	}
 
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "FIELDS") && !pParameter->Get_Parent() )
+	if( pParameters->Cmp_Identifier("FIELDS") && !pParameter->Get_Parent() )
 	{
 		for(int i=0; i<pParameter->Get_Children_Count(); i++)
 		{

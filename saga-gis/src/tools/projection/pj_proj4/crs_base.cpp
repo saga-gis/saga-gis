@@ -204,21 +204,21 @@ bool CCRS_Base::On_Before_Execution(void)
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameters->Get_Identifier(), "CRS_DIALOG") )
+	if(	pParameters->Cmp_Identifier("CRS_DIALOG") )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PROJ_TYPE") )
+		if(	pParameter->Cmp_Identifier("PROJ_TYPE") )
 		{
-			pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[pParameter->asInt()].id)));
+			(*pParameters)("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[pParameter->asInt()].id)));
 		}
 
-		return( 1 );
+		return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 	}
 
 	//-----------------------------------------------------
 	CSG_Projection	Projection;
 
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CRS_PROJ4") )
+	if( pParameter->Cmp_Identifier("CRS_PROJ4") )
 	{
 		Projection.Create(pParameter->asString(), SG_PROJ_FMT_Proj4);
 	}
@@ -228,13 +228,13 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_DIALOG") )
+	if(	pParameter->Cmp_Identifier("CRS_DIALOG") )
 	{
 		Projection.Create(Get_User_Definition(*pParameter->asParameters()), SG_PROJ_FMT_Proj4);
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_FILE") )
+	if(	pParameter->Cmp_Identifier("CRS_FILE") )
 	{
 		Projection.Load(pParameter->asString());
 
@@ -242,7 +242,7 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG") )
+	if(	pParameter->Cmp_Identifier("CRS_EPSG") )
 	{
 		if( !Projection.Create(pParameters->Get_Parameter("CRS_EPSG")->asInt()) )
 		{
@@ -251,8 +251,8 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_GEOGCS")
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_EPSG_PROJCS") )
+	if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
+	||	pParameter->Cmp_Identifier("CRS_EPSG_PROJCS") )
 	{
 		int		EPSG;
 
@@ -263,10 +263,10 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_GRID")
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "CRS_SHAPES") )
+	if(	pParameter->Cmp_Identifier("CRS_GRID"  )
+	||	pParameter->Cmp_Identifier("CRS_SHAPES") )
 	{
-		CSG_Data_Object	*pPick	= pParameter->asParameters()->Get_Parameter("PICK")->asDataObject();
+		CSG_Data_Object	*pPick	= (*pParameter->asParameters())("PICK")->asDataObject();
 
 		if( pPick && pPick->Get_Projection().is_Okay() )
 		{
@@ -279,73 +279,73 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		m_Projection	= Projection;
 
-		pParameters->Get_Parameter("CRS_PROJ4")->Set_Value(m_Projection.Get_Proj4());
+		(*pParameters)("CRS_PROJ4")->Set_Value(m_Projection.Get_Proj4());
 
 		if( !m_Projection.Get_Authority().CmpNoCase("EPSG") )
 		{
-			pParameters->Get_Parameter("CRS_EPSG")->Set_Value(m_Projection.Get_EPSG());
+			(*pParameters)("CRS_EPSG")->Set_Value(m_Projection.Get_EPSG());
 		}
 
 		if( pParameters->Get_Parameter("CRS_DIALOG") )
 		{
-			Set_User_Definition(*pParameters->Get_Parameter("CRS_DIALOG")->asParameters(), m_Projection.Get_Proj4());
+			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), m_Projection.Get_Proj4());
 		}
 	}
 
 	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameters->Get_Identifier(), "CRS_DIALOG") )
+	if(	pParameters->Cmp_Identifier("CRS_DIALOG") )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "PROJ_TYPE") )
+		if(	pParameter->Cmp_Identifier("PROJ_TYPE") )
 		{
-		//	pParameters->Get_Parameter("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[pParameter->asInt()].id)));
+		//	(*pParameters)("OPTIONS")->asParameters()->Assign(Get_Parameters(SG_STR_MBTOSG(PJ_GET_PROJS[pParameter->asInt()].id)));
 
-			pParameters->Get_Parameter("OPTIONS")->Set_Enabled(pParameters->Get_Parameter("OPTIONS")->asParameters()->Get_Count() > 0);
+			pParameters->Set_Enabled("OPTIONS", (*pParameters)("OPTIONS")->asParameters()->Get_Count() > 0);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DATUM_DEF") )
+		if(	pParameter->Cmp_Identifier("DATUM_DEF") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("DATUM"    )->Set_Enabled(Value == 0);
-			pParameters->Get_Parameter("ELLIPSOID")->Set_Enabled(Value == 1);
+			pParameters->Set_Enabled("DATUM"    , Value == 0);
+			pParameters->Set_Enabled("ELLIPSOID", Value == 1);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "ELLIPSOID") )
+		if(	pParameter->Cmp_Identifier("ELLIPSOID") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("ELLPS_DEF")->Set_Enabled(Value == 0);
-			pParameters->Get_Parameter("ELLPS_A"  )->Set_Enabled(Value != 0);
-			pParameters->Get_Parameter("ELLPS_B"  )->Set_Enabled(Value == 1);
-			pParameters->Get_Parameter("ELLPS_F"  )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("ELLPS_RF" )->Set_Enabled(Value == 3);
-			pParameters->Get_Parameter("ELLPS_E"  )->Set_Enabled(Value == 4);
-			pParameters->Get_Parameter("ELLPS_ES" )->Set_Enabled(Value == 5);
+			pParameters->Set_Enabled("ELLPS_DEF", Value == 0);
+			pParameters->Set_Enabled("ELLPS_A"  , Value != 0);
+			pParameters->Set_Enabled("ELLPS_B"  , Value == 1);
+			pParameters->Set_Enabled("ELLPS_F"  , Value == 2);
+			pParameters->Set_Enabled("ELLPS_RF" , Value == 3);
+			pParameters->Set_Enabled("ELLPS_E"  , Value == 4);
+			pParameters->Set_Enabled("ELLPS_ES" , Value == 5);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "DATUM_SHIFT") )
+		if(	pParameter->Cmp_Identifier("DATUM_SHIFT") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Get_Parameter("DS_DX"     )->Set_Enabled(Value == 1 || Value == 2);
-			pParameters->Get_Parameter("DS_DY"     )->Set_Enabled(Value == 1 || Value == 2);
-			pParameters->Get_Parameter("DS_DZ"     )->Set_Enabled(Value == 1 || Value == 2);
-			pParameters->Get_Parameter("DS_RX"     )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("DS_RY"     )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("DS_RZ"     )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("DS_SC"     )->Set_Enabled(Value == 2);
-			pParameters->Get_Parameter("DATUM_GRID")->Set_Enabled(Value == 3);
+			pParameters->Set_Enabled("DS_DX"     , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_DY"     , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_DZ"     , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_RX"     , Value == 2);
+			pParameters->Set_Enabled("DS_RY"     , Value == 2);
+			pParameters->Set_Enabled("DS_RZ"     , Value == 2);
+			pParameters->Set_Enabled("DS_SC"     , Value == 2);
+			pParameters->Set_Enabled("DATUM_GRID", Value == 3);
 		}
 	}
 
 	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

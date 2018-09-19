@@ -137,7 +137,7 @@ CBurnIn_Streams::CBurnIn_Streams(void)
 //---------------------------------------------------------
 int CBurnIn_Streams::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Get_Parameter("FLOWDIR")->Set_Enabled(pParameter->asInt() == 2);
 	}

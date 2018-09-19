@@ -274,17 +274,17 @@ int CSG_3DView_Panel::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CSG_3DView_Panel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "CENTRAL") )
+	if( pParameter->Cmp_Identifier("CENTRAL") )
 	{
 		pParameters->Set_Enabled("CENTRAL_DIST", pParameter->asInt() == 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "DO_DRAPE") )
+	if( pParameter->Cmp_Identifier("DO_DRAPE") )
 	{
 		pParameters->Set_Enabled("DRAPE_MODE"  , pParameter->asBool());
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "STEREO") )
+	if( pParameter->Cmp_Identifier("STEREO") )
 	{
 		pParameters->Set_Enabled("STEREO_DIST" , pParameter->asBool());
 	}

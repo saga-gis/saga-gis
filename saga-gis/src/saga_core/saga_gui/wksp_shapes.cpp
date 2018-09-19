@@ -639,11 +639,11 @@ bool CWKSP_Shapes::Set_Metrics(int zField, int nField)
 int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
 	//-----------------------------------------------------
-	if( !SG_STR_CMP(pParameters->Get_Identifier(), "CLASSIFY") )
+	if( pParameters->Cmp_Identifier("CLASSIFY") )
 	{
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+			if( pParameter->Cmp_Identifier("METHOD") )
 			{
 				pParameters->Set_Enabled("COUNT"   , pParameter->asInt() != 0);
 				pParameters->Set_Enabled("COUNTMAX", pParameter->asInt() == 0);
@@ -656,9 +656,9 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE"  )
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB")
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_NORMAL") )
+		if(	pParameter->Cmp_Identifier("COLORS_TYPE"  )
+		||	pParameter->Cmp_Identifier("METRIC_ATTRIB")
+		||	pParameter->Cmp_Identifier("METRIC_NORMAL") )
 		{
 			Set_Metrics(
 				pParameters->Get_Parameter("METRIC_ATTRIB")->asInt(),
@@ -671,7 +671,7 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LUT_ATTRIB")
+		if(	pParameter->Cmp_Identifier("LUT_ATTRIB")
 		&&  pParameter->asInt() >= 0 && pParameter->asInt() < Get_Shapes()->Get_Field_Count() )
 		{
 			TSG_Data_Type	Type	= SG_Data_Type_is_Numeric(Get_Shapes()->Get_Field_Type(pParameter->asInt()))
@@ -685,28 +685,28 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			pParameters->Set_Enabled("NODATA_SHOW"  , pParameter->asInt() > 0);	// not 'single symbol'
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "NODATA_SHOW") )
+		if(	pParameter->Cmp_Identifier("NODATA_SHOW") )
 		{
 			pParameters->Set_Enabled("NODATA_COLOR" , pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
 		{
 			pParameters->Set_Enabled("METRIC_NORMAL", pParameter->asInt() >= 0);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTLINE") )
+		if(	pParameter->Cmp_Identifier("OUTLINE") )
 		{
 			pParameters->Set_Enabled("OUTLINE_COLOR", pParameter->asBool());
 			pParameters->Set_Enabled("OUTLINE_SIZE" , pParameter->asBool());
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
 
@@ -717,8 +717,8 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Set_Enabled("LABEL_ATTRIB_EFFECT"   , Value);
 		}
 
-		if( !SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB_SIZE_TYPE")
-		||  !SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB_SIZE_BY"  ) )
+		if( pParameter->Cmp_Identifier("LABEL_ATTRIB_SIZE_TYPE")
+		||  pParameter->Cmp_Identifier("LABEL_ATTRIB_SIZE_BY"  ) )
 		{
 			bool	Value	= pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_TYPE")->asInt() != 0
 						||    pParameters->Get_Parameter("LABEL_ATTRIB_SIZE_BY"  )->asInt() < Get_Shapes()->Get_Field_Count();
@@ -726,19 +726,19 @@ int CWKSP_Shapes::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 			pParameters->Set_Enabled("LABEL_ATTRIB_SIZE", Value);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LABEL_ATTRIB_EFFECT") )
+		if(	pParameter->Cmp_Identifier("LABEL_ATTRIB_EFFECT") )
 		{
 			bool	Value	= pParameter->asInt() > 0;
 
 			pParameters->Set_Enabled("LABEL_ATTRIB_EFFECT_COLOR", Value);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "EDIT_SNAP_LIST") )
+		if(	pParameter->Cmp_Identifier("EDIT_SNAP_LIST") )
 		{
 			pParameters->Set_Enabled("EDIT_SNAP_DIST", pParameter->asList()->Get_Item_Count() > 0);
 		}
 
-		if(	!SG_STR_CMP(pParameters->Get_Identifier(), "DISPLAY_CHART") )
+		if(	pParameters->Cmp_Identifier("DISPLAY_CHART") )
 		{
 			CSG_String	s(pParameter->Get_Identifier());
 

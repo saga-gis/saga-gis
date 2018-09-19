@@ -156,7 +156,7 @@ CGeoref_Grid::CGeoref_Grid(void)
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_SOURCE") && pParameter->asShapes() )
+	if( pParameter->Cmp_Identifier("REF_SOURCE") && pParameter->asShapes() )
 	{
 		if( pParameter->asShapes()->Get_Field("X_MAP") >= 0 )
 		{
@@ -177,18 +177,18 @@ int CGeoref_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "REF_TARGET") )
+	if( pParameter->Cmp_Identifier("REF_TARGET") )
 	{
 		pParameters->Set_Enabled("XFIELD", pParameter->asShapes() == NULL);
 		pParameters->Set_Enabled("YFIELD", pParameter->asShapes() == NULL);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("ORDER", pParameter->asInt() == GEOREF_Polynomial);	// only show for polynomial, user defined order
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "RESAMPLING") )
+	if( pParameter->Cmp_Identifier("RESAMPLING") )
 	{
 		pParameters->Set_Enabled("BYTEWISE", pParameter->asInt() > 0);
 	}

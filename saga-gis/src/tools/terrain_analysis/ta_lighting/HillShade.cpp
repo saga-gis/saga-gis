@@ -202,7 +202,7 @@ CHillShade::CHillShade(void)
 //---------------------------------------------------------
 int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("POSITION"    , pParameter->asInt() != 4);
 		pParameters->Set_Enabled("EXAGGERATION", pParameter->asInt() != 4 && pParameter->asInt() != 3);
@@ -212,7 +212,7 @@ int CHillShade::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Enabled("RADIUS"      , pParameter->asInt() == 4);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POSITION") )
+	if(	pParameter->Cmp_Identifier("POSITION") )
 	{
 		pParameters->Set_Enabled("AZIMUTH"     , pParameter->asInt() == 0);
 		pParameters->Set_Enabled("DECLINATION" , pParameter->asInt() == 0);

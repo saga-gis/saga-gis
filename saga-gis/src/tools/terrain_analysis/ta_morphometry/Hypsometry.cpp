@@ -168,13 +168,13 @@ CHypsometry::CHypsometry(void)
 //---------------------------------------------------------
 int CHypsometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("BZRANGE", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("ZRANGE" , pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "BZRANGE") )
+	if(	pParameter->Cmp_Identifier("BZRANGE") )
 	{
 		pParameters->Set_Enabled("ZRANGE" , pParameter->asBool());
 	}

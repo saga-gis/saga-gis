@@ -354,8 +354,8 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "LEGEND_SHOW")
-		||	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if(	pParameter->Cmp_Identifier("LEGEND_SHOW")
+		||	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			pParameters->Set_Enabled("LEGEND_STYLE",
 				pParameters->Get_Parameter("LEGEND_SHOW")->asBool()
@@ -363,12 +363,12 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SHOW_ALWAYS") )
+		if(	pParameter->Cmp_Identifier("SHOW_ALWAYS") )
 		{
 			pParameters->Set_Enabled("SHOW_RANGE", pParameter->asBool() == false);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "COLORS_TYPE") )
+		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
@@ -379,7 +379,7 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
 		}
 
-		if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METRIC_SCALE_MODE") )
+		if(	pParameter->Cmp_Identifier("METRIC_SCALE_MODE") )
 		{
 			pParameters->Set_Enabled("METRIC_SCALE_LOG", pParameter->asInt() != 0);
 		}

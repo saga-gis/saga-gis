@@ -270,7 +270,7 @@ CTable_Save::CTable_Save(void)
 //---------------------------------------------------------
 int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), SG_T("TABLE")) )
+	if( pParameter->Cmp_Identifier(SG_T("TABLE")) )
 	{
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
 

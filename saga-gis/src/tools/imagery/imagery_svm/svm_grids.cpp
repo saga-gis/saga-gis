@@ -268,7 +268,7 @@ CSVM_Grids::CSVM_Grids(void)
 //---------------------------------------------------------
 int CSVM_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), SG_T("MODEL_SRC")) )
+	if(	pParameter->Cmp_Identifier(SG_T("MODEL_SRC")) )
 	{
 		pParameters->Get_Parameter("MODEL_TRAIN")->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("MODEL_LOAD" )->Set_Enabled(pParameter->asInt() == 1);

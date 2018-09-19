@@ -180,7 +180,7 @@ CShapes2Grid::CShapes2Grid(void)
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") )
+	if(	pParameter->Cmp_Identifier("INPUT") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -193,13 +193,13 @@ int CShapes2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 int CShapes2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT") )
+	if(	pParameter->Cmp_Identifier("INPUT") )
 	{
 		pParameters->Set_Enabled("LINE_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Line);
 		pParameters->Set_Enabled("POLY_TYPE", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	if(	pParameter->Cmp_Identifier("OUTPUT") )
 	{
 		pParameters->Set_Enabled("FIELD"    , pParameter->asInt() == 2);
 		pParameters->Set_Enabled("MULTIPLE" , pParameter->asInt() != 0);
@@ -808,7 +808,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 //---------------------------------------------------------
 int CPolygons2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "POLYGONS") )
+	if(	pParameter->Cmp_Identifier("POLYGONS") )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -821,7 +821,7 @@ int CPolygons2Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CPolygons2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "OUTPUT") )
+	if(	pParameter->Cmp_Identifier("OUTPUT") )
 	{
 		pParameters->Set_Enabled("FIELD"    , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("GRID_TYPE", pParameter->asInt() == 1);

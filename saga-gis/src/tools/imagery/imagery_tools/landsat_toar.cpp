@@ -409,7 +409,7 @@ CLandsat_TOAR::CLandsat_TOAR(void)
 //---------------------------------------------------------
 int CLandsat_TOAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METAFILE") && *pParameter->asString() )
+	if(	pParameter->Cmp_Identifier("METAFILE") && *pParameter->asString() )
 	{
 		lsat_data	lsat;
 
@@ -430,7 +430,7 @@ int CLandsat_TOAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 		}
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "SENSOR") )
+	if(	pParameter->Cmp_Identifier("SENSOR") )
 	{
 		(*pParameters)("METAFILE")->Set_Value((const char *)"");
 	}
@@ -441,15 +441,15 @@ int CLandsat_TOAR::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "AC_METHOD") )
+	if(	pParameter->Cmp_Identifier("AC_METHOD") )
 	{
 		pParameters->Set_Enabled("AC_DO_CELLS", pParameter->asInt() > 1);
 		pParameters->Set_Enabled("AC_RAYLEIGH", pParameter->asInt() > 1);
 		pParameters->Set_Enabled("AC_SUN_RAD" , pParameter->asInt() > 1);
 	}
 
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "METAFILE")
-	||  !SG_STR_CMP(pParameter->Get_Identifier(), "SENSOR"  ) )
+	if( pParameter->Cmp_Identifier("METAFILE")
+	||  pParameter->Cmp_Identifier("SENSOR"  ) )
 	{
 		int	Sensor	= (*pParameters)("SENSOR")->asInt();
 
@@ -464,7 +464,7 @@ int CLandsat_TOAR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Set_Enabled("PAN"        , Sensor >= tm7);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRIDS_OUT") )
+	if(	pParameter->Cmp_Identifier("GRIDS_OUT") )
 	{
 		pParameters->Set_Enabled("GRIDS_NAME" , pParameter->asBool());
 	}

@@ -131,7 +131,7 @@ CLocal_Statistical_Measures::CLocal_Statistical_Measures(void)
 //---------------------------------------------------------
 int CLocal_Statistical_Measures::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !SG_STR_CMP(pParameter->Get_Identifier(), "NORMALIZE") )
+	if( pParameter->Cmp_Identifier("NORMALIZE") )
 	{
 		pParameters->Set_Enabled("NORM_MIN", pParameter->asInt() == 1);
 		pParameters->Set_Enabled("NORM_MAX", pParameter->asInt() == 1);

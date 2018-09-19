@@ -127,12 +127,12 @@ CGrid_Class_Statistics_For_Polygons::CGrid_Class_Statistics_For_Polygons(void)
 //---------------------------------------------------------
 int CGrid_Class_Statistics_For_Polygons::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_VALUES") )
+	if(	pParameter->Cmp_Identifier("GRID_VALUES") )
 	{
 		pParameters->Set_Enabled("GRID_LUT", pParameter->asInt() == 1);
 	}
 
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "GRID_LUT") )
+	if(	pParameter->Cmp_Identifier("GRID_LUT") )
 	{
 		pParameters->Set_Enabled("GRID_LUT_MIN", pParameter->asTable() != NULL);
 		pParameters->Set_Enabled("GRID_LUT_MAX", pParameter->asTable() != NULL);

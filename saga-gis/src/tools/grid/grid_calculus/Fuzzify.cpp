@@ -109,9 +109,9 @@ CFuzzify::CFuzzify(void)
 //---------------------------------------------------------
 int CFuzzify::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "INPUT"  )
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "AUTOFIT")
-	||	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD" ) )
+	if(	pParameter->Cmp_Identifier("INPUT"  )
+	||	pParameter->Cmp_Identifier("AUTOFIT")
+	||	pParameter->Cmp_Identifier("METHOD" ) )
 	{
 		if( pParameters->Get_Parameter("AUTOFIT")->asBool() && pParameters->Get_Parameter("INPUT")->asGrid() )
 		{
@@ -145,7 +145,7 @@ int CFuzzify::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *p
 //---------------------------------------------------------
 int CFuzzify::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	!SG_STR_CMP(pParameter->Get_Identifier(), "METHOD") )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		pParameters->Set_Enabled("INCREASE", pParameter->asInt() != 1);
 		pParameters->Set_Enabled("DECREASE", pParameter->asInt() != 0);
