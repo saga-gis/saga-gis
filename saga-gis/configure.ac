@@ -262,7 +262,7 @@ else
   HARU_LIB=""
 fi
 
-AC_CHECK_DEFINE(HAVE_LIBCURL, AM_CONDITIONAL(HAVE_LIBCURL, true) AC_MSG_RESULT([        Building with libcurl]), AM_CONDITIONAL(HAVE_LIBCURL, false) AC_MSG_RESULT([        libcurl was not found: garden webservices will be disabled]))
+AC_CHECK_DEFINE(HAVE_LIBCURL, AC_MSG_RESULT([        Building with libcurl]), AC_MSG_RESULT([        libcurl was not found: garden webservices will be build without https support]))
 
 
 AC_SUBST(HARU_LIB)
