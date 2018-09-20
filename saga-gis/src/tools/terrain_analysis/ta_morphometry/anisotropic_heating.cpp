@@ -72,60 +72,66 @@
 //---------------------------------------------------------
 CAnisotropic_Heating::CAnisotropic_Heating(void)
 {
-	//-----------------------------------------------------
-	Set_Name	(_TL("Diurnal Anisotropic Heating"));
+	Set_Name		(_TL("Diurnal Anisotropic Heat"));
 
-	Set_Author	(SG_T("J.Boehner, O.Conrad (c) 2008"));
+	Set_Author		("J.Boehner, O.Conrad (c) 2008");
 
-	Set_Description(_TW(
-		""
+	Set_Description	(_TW(
+		"This tool calculates a rather simple approximation of the "
+		"anisotropic diurnal heat (Ha) distribution using the formula:\n"
+		"<b>Ha = cos(amax - a) * arctan(b)</b>\n"
+		"where amax defines the aspect with the maximum total heat surplus, "
+		"a is the slope aspect and b is the slope angle. For more details "
+		"see Boehner & Antonic (2009)."
 	));
 
+	Add_Reference("Boehner, J., & Antonic, O.", "2009",
+		"Land-surface parameters specific to topo-climatology",
+		"Developments in soil science, 33, 195-226.",
+		SG_T("https://www.sciencedirect.com/bookseries/developments-in-soil-science/vol/33/suppl/C"), SG_T("ScienceDirect")
+	);
 
-	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DAH"			, _TL("Diurnal Anisotropic Heating"),
+		"", "DAH"		, _TL("Diurnal Anisotropic Heating"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ALPHA_MAX"	, _TL("Alpha Max (Degree)"),
+	Parameters.Add_Double(
+		"", "ALPHA_MAX"	, _TL("Alpha Max (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 202.5, 0.0, true, 360.0, true
+		202.5, 0.0, true, 360.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CAnisotropic_Heating::On_Execute(void)
 {
-	double		alpha_max, alpha, slope;
-	CSG_Grid	*pDEM, *pDAH;
-
 	//-----------------------------------------------------
-	pDEM		= Parameters("DEM")			->asGrid();
-	pDAH		= Parameters("DAH")			->asGrid();
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+	CSG_Grid	*pDAH	= Parameters("DAH")->asGrid();
 
-	alpha_max	= Parameters("ALPHA_MAX")	->asDouble() * M_DEG_TO_RAD;
+	double	alpha_max	= Parameters("ALPHA_MAX")->asDouble() * M_DEG_TO_RAD;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
+			double	alpha, slope;
+
 			if( pDEM->is_NoData(x, y) || !pDEM->Get_Gradient(x, y, slope, alpha) )
 			{
 				pDAH->Set_NoData(x, y);
