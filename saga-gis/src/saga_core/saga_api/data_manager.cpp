@@ -504,13 +504,12 @@ CSG_Data_Object * CSG_Data_Manager::Add(const CSG_String &File, TSG_Data_Object_
 //---------------------------------------------------------
 CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 {
+	CSG_Data_Object *pData	= NULL;
+
 	if( !SG_File_Exists(File) )
 	{
-		return( false );
+		return( pData );
 	}
-
-	//-----------------------------------------------------
-	CSG_Data_Object *pData	= NULL;
 
 	CSG_Tool	*pImport;
 
