@@ -95,11 +95,11 @@ private:
 	CSG_Projection			m_Projection;
 
 
-	bool					Set_User_Parameters		(CSG_Parameters *pParameters);
-	bool					Add_User_Projection		(const CSG_String &sID, const CSG_String &sName, const CSG_String &sArgs);
+	bool					Set_User_Parameters		(CSG_Parameters &Parameters);
+	bool					Add_User_Projection		(CSG_Parameters &Parameters, const CSG_String &ID, const CSG_String &Args);
 
-	CSG_String				Get_User_Definition		(CSG_Parameters &pParameters);
-	bool					Set_User_Definition		(CSG_Parameters &pParameters, const CSG_String &Proj4);
+	CSG_String				Get_User_Definition		(CSG_Parameters &Parameters);
+	bool					Set_User_Definition		(CSG_Parameters &Parameters, const CSG_String &Proj4);
 
 };
 
