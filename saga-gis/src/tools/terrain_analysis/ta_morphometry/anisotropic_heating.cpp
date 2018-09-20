@@ -80,14 +80,15 @@ CAnisotropic_Heating::CAnisotropic_Heating(void)
 		"This tool calculates a rather simple approximation of the "
 		"anisotropic diurnal heat (Ha) distribution using the formula:\n"
 		"<b>Ha = cos(amax - a) * arctan(b)</b>\n"
-		"where amax defines the aspect with the maximum total heat surplus, "
-		"a is the slope aspect and b is the slope angle. For more details "
-		"see Boehner & Antonic (2009)."
+		"where <i>amax</i> defines the aspect with the maximum total heat surplus, "
+		"<i>a</i> is the slope aspect and <i>b</i> is the slope angle. "
+		"For more details see Boehner & Antonic (2009)."
 	));
 
 	Add_Reference("Boehner, J., & Antonic, O.", "2009",
 		"Land-surface parameters specific to topo-climatology",
-		"Developments in soil science, 33, 195-226.",
+		"In: Hengl, T., & Reuter, H. (Eds.): Geomorphometry - Concepts, Software, Applications. "
+		"Developments in Soil Science, Volume 33, p.195-226, Elsevier.",
 		SG_T("https://www.sciencedirect.com/bookseries/developments-in-soil-science/vol/33/suppl/C"), SG_T("ScienceDirect")
 	);
 
