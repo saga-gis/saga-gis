@@ -104,8 +104,8 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 	));
 
 
+	//-----------------------------------------------------
 	Parameters.Add_Grid("", "GRID"    , _TL("Grid"                           ), _TL(""), PARAMETER_INPUT);
-
 	Parameters.Add_Grid("", "MEAN"    , _TL("Arithmetic Mean"                ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "DIFMEAN" , _TL("Difference from Arithmetic Mean"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "MIN"     , _TL("Minimum"                        ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
@@ -147,10 +147,26 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 		0, 0, true
 	);
 
-	Parameters.Add_Parameters(
-		"", "WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
+	//-----------------------------------------------------
+	m_Cells.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
+	m_Cells.Get_Weighting().Set_BandWidth(25);
+
+	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+
+	Parameters("DW_BANDWIDTH")->Set_Description("Bandwidth specified as number of cells.");
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Directional_Statistics::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Cells.Enable_Parameters(*pParameters);
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -161,13 +177,8 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 //---------------------------------------------------------
 bool CGSGrid_Directional_Statistics::On_Execute(void)
 {
-	int			Radius;
-	double		Direction, Tolerance, s[id_Count];
-	CSG_Shapes	*pPoints;
-
 	//-----------------------------------------------------
 	m_pGrid		= Parameters("GRID"    )->asGrid();
-
 	m_pMean		= Parameters("MEAN"    )->asGrid();
 	m_pDifMean	= Parameters("DIFMEAN" )->asGrid();
 	m_pMin		= Parameters("MIN"     )->asGrid();
@@ -180,7 +191,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 	m_pDevMean	= Parameters("DEVMEAN" )->asGrid();
 	m_pPercent	= Parameters("PERCENT" )->asGrid();
 
-	pPoints		= Parameters("POINTS")		->asShapes();
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
 	//-----------------------------------------------------
 	if( !(m_pMean || m_pDifMean || m_pMin || m_pMax || m_pRange || m_pVar || m_pStdDev || m_pStdDevLo || m_pStdDevHi || m_pPercent || pPoints) )
@@ -191,17 +202,17 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Direction	= Parameters("DIRECTION")	->asDouble() * M_DEG_TO_RAD;
-	Tolerance	= Parameters("TOLERANCE")	->asDouble() * M_DEG_TO_RAD;
+	double	Direction	= Parameters("DIRECTION")->asDouble() * M_DEG_TO_RAD;
+	double	Tolerance	= Parameters("TOLERANCE")->asDouble() * M_DEG_TO_RAD;
 
-	Radius		= Parameters("MAXDISTANCE")	->asInt();
+	int	Radius	= Parameters("MAXDISTANCE")->asInt();
 
 	if( Radius <= 0 )
 	{
 		Radius	= 1 + (int)SG_Get_Length(Get_NX(), Get_NY());
 	}
 
-	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
+	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
 
 	if( !m_Cells.Set_Sector(Radius, Direction, Tolerance) )
 	{
@@ -213,8 +224,11 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 	{
 		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
+			#pragma omp parallel for
 			for(int x=0; x<Get_NX(); x++)
 			{
+				double	s[id_Count];
+
 				if( Get_Statistics(x, y, s) )
 				{
 					if( m_pMean     )	m_pMean    ->Set_Value(x, y, s[id_Mean    ]);
@@ -274,6 +288,8 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 		for(int iPoint=0; iPoint<pPoints->Get_Count() && Set_Progress(iPoint, pPoints->Get_Count()); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
+
+			double	s[id_Count];
 
 			if( Get_System()->Get_World_to_Grid(x, y, pPoint->Get_Point(0)) && Get_Statistics(x, y, s) )
 			{
