@@ -204,7 +204,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	int		Day		= Date.Get_DayOfYear();
 	int		nDays	= Date.Get_NumberOfDays((CSG_DateTime::Month)Parameters("MONTH")->asInt());
 
-	double	R0_const	= CT_Get_Radiation_TopOfAtmosphere(Day, Parameters("LAT")->asDouble());
+	double	R0_const	= CT_Get_Radiation_Daily_TopOfAtmosphere(Day, Parameters("LAT")->asDouble());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -220,7 +220,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 			}
 			else
 			{
-				double	PET	= CT_Get_ETpot_Hargreave(pLat ? CT_Get_Radiation_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
+				double	PET	= CT_Get_ETpot_Hargreave(pLat ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
 					pTavg->asDouble(x, y),
 					pTmin->asDouble(x, y),
 					pTmax->asDouble(x, y)
@@ -342,7 +342,7 @@ bool CPET_Hargreave_Table::On_Execute(void)
 		}
 		else
 		{
-			pRecord->Set_Value(fET, CT_Get_ETpot_Hargreave(CT_Get_Radiation_TopOfAtmosphere(
+			pRecord->Set_Value(fET, CT_Get_ETpot_Hargreave(CT_Get_Radiation_Daily_TopOfAtmosphere(
 				pRecord->asInt   (fDay ), Lat),
 				pRecord->asDouble(fT   ),
 				pRecord->asDouble(fTmin),

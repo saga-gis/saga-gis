@@ -83,7 +83,7 @@ bool	SG_Grid_Get_Geographic_Coordinates		(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_G
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double	CT_Get_Radiation_TopOfAtmosphere		(int DayOfYear, double Latitude);
+double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, bool bWaterEquivalent = true);
 
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave					(double R0                     , double T, double Tmin, double Tmax);
