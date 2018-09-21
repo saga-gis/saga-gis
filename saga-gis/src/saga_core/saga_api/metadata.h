@@ -109,11 +109,17 @@ public:
 
 	bool						Load_HTTP			(const CSG_String &Server, const CSG_String &Path, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
 
-	bool						Load_WKT			(const CSG_String &WKT);
-	bool						Save_WKT			(      CSG_String &WKT)		const;
+	bool						from_XML			(const CSG_String &XML);
+	bool						to_XML				(      CSG_String &XML)		const;
 
-	bool						Load_JSON			(const CSG_String &JSON);
-	bool						Save_JSON			(      CSG_String &JSON)	const;
+	bool						from_WKT			(const CSG_String &WKT);
+	bool						to_WKT				(      CSG_String &WKT)		const;
+
+	bool						Load_JSON			(const CSG_String &File);
+	bool						Save_JSON			(const CSG_String &File)	const;
+
+	bool						from_JSON			(const CSG_String &JSON);
+	bool						to_JSON				(      CSG_String &JSON)	const;
 
 	bool						Assign				(const CSG_MetaData &MetaData, bool bAddChildren = true);
 
@@ -180,8 +186,6 @@ public:
 
 	CSG_String					asText				(int Flags = 0) const;
 	class CSG_Table				Get_Table			(int Flags = 0) const;
-
-	bool						from_XML			(const CSG_String &XML);
 
 
 private:

@@ -733,9 +733,23 @@ bool CSG_MetaData::Load(const CSG_String &File, const SG_Char *Extension)
 	}
 
 	//-----------------------------------------------------
+	CSG_String	_File(SG_File_Make_Path("", File, Extension));
+
+	if( !SG_File_Exists(_File) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( SG_File_Cmp_Extension(_File, "json") )
+	{
+		return( Load_JSON(_File) );
+	}
+
+	//-----------------------------------------------------
 	wxXmlDocument	XML;
 
-	if( SG_File_Exists(SG_File_Make_Path("", File, Extension)) && XML.Load(SG_File_Make_Path("", File, Extension).c_str()) )
+	if( XML.Load(_File.c_str()) )
 	{
 		_Load(XML.GetRoot());
 
@@ -889,6 +903,33 @@ bool CSG_MetaData::from_XML(const CSG_String &_XML)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_MetaData::to_XML(CSG_String &_XML) const
+{
+	wxXmlDocument	XML;
+
+	wxXmlNode	*pRoot	= new wxXmlNode(NULL, wxXML_ELEMENT_NODE, Get_Name().c_str());
+
+	XML.SetRoot(pRoot);
+
+	_Save(pRoot);
+
+	wxMemoryOutputStream	Stream;
+
+	if( XML.Save(Stream) )
+	{
+		CSG_Array	s(sizeof(char), Stream.GetSize());
+
+		Stream.CopyTo(s.Get_Array(), s.Get_Size());
+
+		_XML	= (const char *)s.Get_Array();
+
+		return( true );
+	}
+
+	return( false );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -954,23 +995,13 @@ bool CSG_MetaData::Load_HTTP(const CSG_String &Server, const CSG_String &Path, c
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_MetaData::Load_WKT(const CSG_String &WKT)
-{
-	return( false );
-}
-
-bool CSG_MetaData::_Load_WKT(const CSG_String &WKT)
+bool CSG_MetaData::from_WKT(const CSG_String &WKT)
 {
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_MetaData::Save_WKT(CSG_String &WKT) const
-{
-	return( false );
-}
-
-bool CSG_MetaData::_Save_WKT(CSG_String &WKT) const
+bool CSG_MetaData::to_WKT(CSG_String &WKT) const
 {
 	return( false );
 }
@@ -981,7 +1012,26 @@ bool CSG_MetaData::_Save_WKT(CSG_String &WKT) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_MetaData::Load_JSON(const CSG_String &JSON)
+bool CSG_MetaData::Load_JSON(const CSG_String &File)
+{
+	CSG_File	Stream;	CSG_String	JSON;
+
+	if( Stream.Open(File, SG_FILE_R, false) && Stream.Read(JSON, (size_t)Stream.Length()) > 0 )
+	{
+		return( from_JSON(JSON) );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::Save_JSON(const CSG_String &File)	const
+{
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_MetaData::from_JSON(const CSG_String &JSON)
 {
 	Destroy();
 
@@ -1068,7 +1118,7 @@ bool CSG_MetaData::Load_JSON(const CSG_String &JSON)
 }
 
 //---------------------------------------------------------
-bool CSG_MetaData::Save_JSON(CSG_String &JSON)	const
+bool CSG_MetaData::to_JSON(CSG_String &JSON)	const
 {
 	return( false );
 }

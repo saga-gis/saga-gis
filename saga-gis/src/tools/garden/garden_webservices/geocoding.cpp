@@ -353,7 +353,7 @@ bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_S
 		return( false );
 	}
 
-	m_Answer.Load_JSON(_Answer);
+	m_Answer.from_JSON(_Answer);
 
 	Message_Add("\n\n" + _Answer + "\n", false);
 
