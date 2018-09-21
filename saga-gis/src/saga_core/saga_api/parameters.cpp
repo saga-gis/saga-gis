@@ -1254,14 +1254,7 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &ID, void *Value, int Type)
 {
 	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
-	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
-	{
-		pTarget->Set_Value(Value);
-		
-		return( true );
-	}
-
-	return( false );
+	return( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) && pTarget->Set_Value(Value) );
 }
 
 //---------------------------------------------------------
@@ -1271,14 +1264,7 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &ID, CSG_Data_Object *Value,
 {
 	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
-	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
-	{
-		pTarget->Set_Value(Value);
-		
-		return( true );
-	}
-
-	return( false );
+	return( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) && pTarget->Set_Value(Value) );
 }
 
 //---------------------------------------------------------
@@ -1288,16 +1274,8 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &ID, int Value, int Type)
 {
 	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
-	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
-	{
-		pTarget->Set_Value(Value);
-		
-		return( true );
-	}
-
-	return( false );
+	return( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) && pTarget->Set_Value(Value) );
 }
-
 
 //---------------------------------------------------------
 bool CSG_Parameters::Set_Parameter(const char       *ID, double Value, int Type)	{	return( Set_Parameter(CSG_String(ID), Value, Type) );	}
@@ -1316,14 +1294,7 @@ bool CSG_Parameters::Set_Parameter(const CSG_String &ID, const CSG_String &Value
 {
 	CSG_Parameter	*pTarget	= Get_Parameter(ID);
 
-	if( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) )
-	{
-		pTarget->Set_Value(Value);
-		
-		return( true );
-	}
-
-	return( false );
+	return( pTarget && (Type == PARAMETER_TYPE_Undefined || Type == pTarget->Get_Type()) && pTarget->Set_Value(Value) );
 }
 
 //---------------------------------------------------------

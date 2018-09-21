@@ -807,63 +807,63 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Value(int Value)
 {
-	if( m_pData->Set_Value(Value) )
+	switch( m_pData->Set_Value(Value) )
 	{
-		has_Changed();
+	case SG_PARAMETER_DATA_SET_FALSE:
+		return( false );
 
-		return( true );
+	case SG_PARAMETER_DATA_SET_CHANGED:
+		has_Changed();
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Value(double Value)
 {
-	if( m_pData->Set_Value(Value) )
+	switch( m_pData->Set_Value(Value) )
 	{
-		has_Changed();
+	case SG_PARAMETER_DATA_SET_FALSE:
+		return( false );
 
-		return( true );
+	case SG_PARAMETER_DATA_SET_CHANGED:
+		has_Changed();
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::Set_Value(const char       *Value)	{	return( Set_Value(CSG_String(Value)) );	}
+bool CSG_Parameter::Set_Value(const wchar_t    *Value)	{	return( Set_Value(CSG_String(Value)) );	}
 bool CSG_Parameter::Set_Value(const CSG_String &Value)
 {
-	if( m_pData->Set_Value(Value) )
+	switch( m_pData->Set_Value(Value) )
 	{
-		has_Changed();
+	case SG_PARAMETER_DATA_SET_FALSE:
+		return( false );
 
-		return( true );
+	case SG_PARAMETER_DATA_SET_CHANGED:
+		has_Changed();
 	}
 
-	return( false );
-}
-
-bool CSG_Parameter::Set_Value(const char *Value)
-{
-	return( Set_Value(CSG_String(Value)) );
-}
-
-bool CSG_Parameter::Set_Value(const wchar_t *Value)
-{
-	return( Set_Value(CSG_String(Value)) );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter::Set_Value(void *Value)
 {
-	if( m_pData->Set_Value(Value) )
+	switch( m_pData->Set_Value(Value) )
 	{
-		has_Changed();
+	case SG_PARAMETER_DATA_SET_FALSE:
+		return( false );
 
-		return( true );
+	case SG_PARAMETER_DATA_SET_CHANGED:
+		has_Changed();
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -873,23 +873,21 @@ bool CSG_Parameter::Set_Value(CSG_Parameter *Value)
 	{
 		switch( Value->Get_Type() )
 		{
-		default                   : return( Assign(Value) );
-		case PARAMETER_TYPE_Choice: return( Set_Value(Value->asInt()) );
+		default:
+			break;
+
+		case PARAMETER_TYPE_Choice:
+			return( Set_Value(Value->asInt()) );
 		}
 	}
 
-	return( false );
+	return( Assign(Value) );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter::has_Changed(int Check_Flags)
 {
-	if( m_pOwner )
-	{
-		return( m_pOwner->_On_Parameter_Changed(this, Check_Flags) );
-	}
-
-	return( false );
+	return( m_pOwner && m_pOwner->_On_Parameter_Changed(this, Check_Flags) );
 }
 
 //---------------------------------------------------------

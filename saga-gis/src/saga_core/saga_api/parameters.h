@@ -198,6 +198,11 @@ class CSG_Parameter;
 #define PARAMETER_CHECK_ALL					(PARAMETER_CHECK_VALUES | PARAMETER_CHECK_ENABLE)
 
 //---------------------------------------------------------
+#define SG_PARAMETER_DATA_SET_FALSE			0
+#define SG_PARAMETER_DATA_SET_TRUE			1
+#define SG_PARAMETER_DATA_SET_CHANGED		2
+
+//---------------------------------------------------------
 typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pParameter, int Flags);
 
 
@@ -227,10 +232,10 @@ public:
 	bool						Assign					(CSG_Parameter_Data *pSource);
 	bool						Serialize				(CSG_MetaData &Entry, bool bSave);
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(double            Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
-	virtual bool				Set_Value				(void             *Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(double            Value);
+	virtual int					Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(void             *Value);
 
 	virtual int					asInt					(void)	const;
 	virtual double				asDouble				(void)	const;
@@ -290,15 +295,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(double            Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(double            Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual int					asInt					(void)	const	{	return( m_Value );		}
 
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) != 0 );	}
 
 
 protected:
@@ -359,15 +364,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Int );		}
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(double            Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(double            Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual int					asInt					(void)	const	{	return( m_Value );		}
 	virtual double				asDouble				(void)	const	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) != 0 );	}
 
 
 protected:
@@ -393,15 +398,15 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Double );	}
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(double            Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(double            Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual int					asInt					(void)	const	{	return( (int)m_Value );	}
 	virtual double				asDouble				(void)	const	{	return( m_Value );		}
 	virtual const SG_Char *		asString				(void);
 
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asDouble()) );	}
+	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asDouble()) != 0 );	}
 
 
 protected:
@@ -427,7 +432,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Degree );	}
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual const SG_Char *		asString				(void);
 
@@ -447,9 +452,9 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Date );	}
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(double            Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(double            Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual int					asInt					(void)	const;
 	virtual double				asDouble				(void)	const;
@@ -486,7 +491,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Range );		}
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual const SG_Char *		asString				(void);
 
@@ -530,7 +535,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual const SG_Char *		asString				(void);
 
@@ -570,7 +575,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choices );	}
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual const SG_Char *		asString				(void);
 
@@ -623,12 +628,12 @@ public:
 
 	virtual bool				is_Valid				(void)	const;
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	void						Set_Password			(bool bOn)	{	m_bPassword	= bOn;		}
 	bool						is_Password				(void)		{	return( m_bPassword );	}
 
-	virtual bool				Restore_Default			(void)		{	return( Set_Value(m_Default) );	}
+	virtual bool				Restore_Default			(void)		{	return( Set_Value(m_Default) != 0 );	}
 
 
 protected:
@@ -715,8 +720,8 @@ public:
 	virtual void *				asPointer				(void)	const	{	return( (void *)m_Font.c_str() );	}
 	virtual const SG_Char *		asString				(void)			{	return( m_String );					}
 
-	virtual bool				Set_Value				(int   Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int   Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual bool				Restore_Default			(void);
 
@@ -825,7 +830,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid_System );	}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 	virtual void *				asPointer				(void)	const	{	return( (void *)&m_System );}
 
@@ -861,8 +866,8 @@ public:
 	virtual const SG_Char *		asString				(void);
 	virtual double				asDouble				(void)	const;
 
-	virtual bool				Set_Value				(int               Value);
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(int               Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	CSG_Table *					Get_Table				(void)	const;
 
@@ -895,7 +900,7 @@ public:
 	virtual int					asInt					(void)	const	{	return( m_nFields );	}
 	virtual void *				asPointer				(void)	const	{	return( m_Fields  );	}
 
-	virtual bool				Set_Value				(const CSG_String &Value);
+	virtual int					Set_Value				(const CSG_String &Value);
 
 	int							Get_Count				(void)	const	{	return( m_nFields );	}
 	int							Get_Index				(int i)	const	{	return( i >= 0 && i < m_nFields ? m_Fields[i] : -1 );	}
@@ -927,7 +932,7 @@ public:
 
 	virtual bool				is_Valid				(void)	const;
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 	virtual void *				asPointer				(void)	const	{	return( m_pDataObject );	}
 
@@ -958,7 +963,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_DataObject_Output );	}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 	bool						Set_DataObject_Type		(TSG_Data_Object_Type Type);
 	TSG_Data_Object_Type		Get_DataObject_Type		(void)	const	{	return( m_Type );	}
@@ -991,7 +996,7 @@ public:
 
 	bool						Add_Default				(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
 
-	virtual bool				Set_Value				(void  *Value);
+	virtual int					Set_Value				(void  *Value);
 
 	virtual int					asInt					(void)	const;
 	virtual double				asDouble				(void)	const;
@@ -1042,7 +1047,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table );		}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 };
 
@@ -1060,7 +1065,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Shapes );	}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 	void						Set_Shape_Type			(TSG_Shape_Type Type);
 	TSG_Shape_Type				Get_Shape_Type			(void)	const	{	return( m_Type );	}
@@ -1089,7 +1094,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_TIN );		}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 };
 
@@ -1107,7 +1112,7 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_PointCloud );	}
 
-	virtual bool				Set_Value				(void *Value);
+	virtual int					Set_Value				(void *Value);
 
 
 protected:
