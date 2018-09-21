@@ -1054,7 +1054,7 @@ public:
 	bool						Set_Circle			(class CSG_Parameters &Parameters);
 	bool						Set_Annulus			(class CSG_Parameters &Parameters);
 	bool						Set_Sector			(class CSG_Parameters &Parameters);
-	static bool					On_Parameters_Enable(class CSG_Parameters &pParameters);
+	static bool					Enable_Parameters	(class CSG_Parameters &Parameters);
 
 	CSG_Distance_Weighting &	Get_Weighting		(void)			{	return( m_Weighting );		}
 

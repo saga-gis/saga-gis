@@ -1153,23 +1153,18 @@ bool CSG_Distance_Weighting::Create_Parameters(class CSG_Parameters *pParameters
 }
 
 //---------------------------------------------------------
-int CSG_Distance_Weighting::Enable_Parameters(CSG_Parameters *pParameters)
+bool CSG_Distance_Weighting::Enable_Parameters(CSG_Parameters *pParameters)
 {
-	if( pParameters )
+	if( pParameters && (*pParameters)("DW_WEIGHTING") )
 	{
-		CSG_Parameter	*pParameter	= pParameters->Get_Parameter("DW_WEIGHTING");
+		int	Method	= (*pParameters)("DW_WEIGHTING")->asInt();
 
-		if( pParameter )
-		{
-			int	Method	= pParameter->asInt();
-
-			if( (pParameter = pParameters->Get_Parameter("DW_IDW_OFFSET")) != NULL )	pParameter->Set_Enabled(Method == 1);
-			if( (pParameter = pParameters->Get_Parameter("DW_IDW_POWER" )) != NULL )	pParameter->Set_Enabled(Method == 1);
-			if( (pParameter = pParameters->Get_Parameter("DW_BANDWIDTH" )) != NULL )	pParameter->Set_Enabled(Method >= 2);
-		}
+		pParameters->Set_Enabled("DW_IDW_OFFSET", Method == 1);
+		pParameters->Set_Enabled("DW_IDW_POWER" , Method == 1);
+		pParameters->Set_Enabled("DW_BANDWIDTH" , Method >= 2);
 	}
 
-	return( 1 );
+	return( true );
 }
 
 

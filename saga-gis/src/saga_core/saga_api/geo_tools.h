@@ -556,7 +556,7 @@ public:
 	virtual ~CSG_Distance_Weighting(void);
 
 	bool					Create_Parameters	(class CSG_Parameters *pParameters, bool bDialog = true);
-	int						Enable_Parameters	(class CSG_Parameters *pParameters);
+	static bool				Enable_Parameters	(class CSG_Parameters *pParameters);
 	bool					Set_Parameters		(class CSG_Parameters *pParameters);
 	class CSG_Parameters *	Get_Parameters		(void)	const		{	return( m_pParameters );	}
 
