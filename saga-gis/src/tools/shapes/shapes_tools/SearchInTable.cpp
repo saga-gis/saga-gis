@@ -39,56 +39,54 @@
 //---------------------------------------------------------
 CSelect_String::CSelect_String(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Select by Attributes... (String Expression)"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Searches for an character string expression in the attributes table and selects records where the expression is found."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("SHAPES",
+		"FIELD"		, _TL("Attribute"),
 		_TL("attribute to be searched; if not set all attributes will be searched"),
 		true
 	);
 
-	Parameters.Add_String(
-		NULL	, "EXPRESSION"	, _TL("Expression"),
+	Parameters.Add_String("",
+		"EXPRESSION", _TL("Expression"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CASE"		, _TL("Case Sensitive"),
+	Parameters.Add_Bool("",
+		"CASE"		, _TL("Case Sensitive"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "COMPARE"		, _TL("Select if..."),
+	Parameters.Add_Choice("",
+		"COMPARE"	, _TL("Select if..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("attribute is identical with search expression"),
 			_TL("attribute contains search expression"),
 			_TL("attribute is contained in search expression")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("new selection"),
 			_TL("add to current selection"),
 			_TL("select from current selection"),
@@ -100,23 +98,19 @@ CSelect_String::CSelect_String(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSelect_String::On_Execute(void)
 {
-	int			Method;
-	CSG_Shapes	*pShapes;
-
 	//-----------------------------------------------------
-	pShapes			= Parameters("SHAPES")		->asShapes();
-	m_Field			= Parameters("FIELD")		->asInt();
-	m_Expression	= Parameters("EXPRESSION")	->asString();
-	m_Case			= Parameters("CASE")		->asBool();
-	m_Compare		= Parameters("COMPARE")		->asInt();
-	Method			= Parameters("METHOD")		->asInt();
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	m_Field			= Parameters("FIELD"     )->asInt();
+	m_Expression	= Parameters("EXPRESSION")->asString();
+	m_Case			= Parameters("CASE"      )->asBool();
+	m_Compare		= Parameters("COMPARE"   )->asInt();
+	int	Method		= Parameters("METHOD"    )->asInt();
 
 	//-----------------------------------------------------
 	if( m_Case == false )
@@ -131,7 +125,7 @@ bool CSelect_String::On_Execute(void)
 
 		switch( Method )
 		{
-		case 0:	// New selection
+		default:	// New selection
 			if( ( pShape->is_Selected() && !Do_Select(pShape))
 			||	(!pShape->is_Selected() &&  Do_Select(pShape)) )
 			{
@@ -139,21 +133,21 @@ bool CSelect_String::On_Execute(void)
 			}
 			break;
 
-		case 1:	// Add to current selection
+		case  1:	// Add to current selection
 			if(  !pShape->is_Selected() &&  Do_Select(pShape) )
 			{
 				pShapes->Select(i, true);
 			}
 			break;
 
-		case 2:	// Select from current selection
+		case  2:	// Select from current selection
 			if(   pShape->is_Selected() && !Do_Select(pShape) )
 			{
 				pShapes->Select(i, true);
 			}
 			break;
 
-		case 3:	// Remove from current selection
+		case  3:	// Remove from current selection
 			if(   pShape->is_Selected() &&  Do_Select(pShape) )
 			{
 				pShapes->Select(i, true);
@@ -163,7 +157,7 @@ bool CSelect_String::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), pShapes->Get_Selection_Count()));
+	Message_Fmt("\n%s: %d", _TL("selected shapes"), pShapes->Get_Selection_Count());
 
 	DataObject_Update(pShapes);
 
@@ -172,8 +166,6 @@ bool CSelect_String::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

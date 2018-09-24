@@ -50,27 +50,27 @@ CShapes_Merge::CShapes_Merge(void) : CTables_Merge()
 	));
 
 	Parameters.Add_Shapes_List(
-		NULL	, "INPUT"	, _TL("Layers"),
+		"", "INPUT"		, _TL("Layers"),
 		_TL("Output will inherit shape type and table structure from the first layer in this list."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "MERGED"	, _TL("Merged Layer"),
+		"", "MERGED"	, _TL("Merged Layer"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SRCINFO"	, _TL("Add Source Information"),
+	Parameters.Add_Bool(
+		"", "SRCINFO"	, _TL("Add Source Information"),
 		_TL("Adds a field with the name of the original input data set."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MATCH"	, _TL("Match Fields by Name"),
+	Parameters.Add_Bool(
+		"", "MATCH"		, _TL("Match Fields by Name"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
@@ -91,34 +91,32 @@ CTables_Merge::CTables_Merge(void)
 	));
 
 	Parameters.Add_Table_List(
-		NULL	, "INPUT"	, _TL("Tables"),
+		"", "INPUT"		, _TL("Tables"),
 		_TL("The resulting table inherits its field structure from the first table in this list."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "MERGED"	, _TL("Merged Table"),
+		"", "MERGED"	, _TL("Merged Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SRCINFO"	, _TL("Add Source Information"),
+	Parameters.Add_Bool(
+		"", "SRCINFO"	, _TL("Add Source Information"),
 		_TL("Adds a field with the name of the original input data set."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MATCH"	, _TL("Match Fields by Name"),
+	Parameters.Add_Bool(
+		"", "MATCH"		, _TL("Match Fields by Name"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -142,7 +140,7 @@ bool CTables_Merge::On_Execute(void)
 
 		if( n > pList->Get_Item_Count() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s [%d]"), _TL("incompatible items have been removed from input list"), n - pList->Get_Item_Count()));
+			Message_Fmt("\n%s [%d]", _TL("incompatible items have been removed from input list"), n - pList->Get_Item_Count());
 		}
 	}
 

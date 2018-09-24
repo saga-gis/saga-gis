@@ -321,11 +321,10 @@ bool CHillShade::Get_Position(double &Azimuth, double &Decline)
 
 		SG_Get_Sun_Position(Date, 0.0, Center.y * M_DEG_TO_RAD, Decline, Azimuth);
 
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Longitude"), Center.x), false);
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Latitude" ), Center.y), false);
-
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Azimuth"  ), Azimuth * M_RAD_TO_DEG), false);
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Height"   ), Decline * M_RAD_TO_DEG), false);
+		Message_Fmt("\n%s: %f", _TL("Longitude"), Center.x);
+		Message_Fmt("\n%s: %f", _TL("Latitude" ), Center.y);
+		Message_Fmt("\n%s: %f", _TL("Azimuth"  ), Azimuth * M_RAD_TO_DEG);
+		Message_Fmt("\n%s: %f", _TL("Height"   ), Decline * M_RAD_TO_DEG);
 	}
 
 	return( Decline >= 0.0 );

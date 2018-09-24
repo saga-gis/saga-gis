@@ -209,8 +209,8 @@ bool CPROJ4_Base::On_Execute(void)
 			Error_Set(CSG_String::Format(SG_T("%s:\n%s"), _TL("projection initialization failure"), SG_STR_MBTOSG(pj_strerrno(pj_errno))));
 		}
 
-		Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("Source"), sSrc.c_str()), false);
-		Message_Add(CSG_String::Format(SG_T("\n%s: %s\n"), _TL("Target"), sDst.c_str()), false);
+		Message_Fmt("\n%s: %s", _TL("Source"), sSrc.c_str());
+		Message_Fmt("\n%s: %s", _TL("Target"), sDst.c_str());
 
 		//-------------------------------------------------
 		if(	m_pPrjSrc && m_pPrjDst )

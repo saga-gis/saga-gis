@@ -207,7 +207,7 @@ bool CSTL_Import::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("Number of Facettes"), nFacettes));
+	Message_Fmt("\n%s: %d", _TL("Number of Facettes"), nFacettes);
 
 	//-----------------------------------------------------
 	switch( Method )

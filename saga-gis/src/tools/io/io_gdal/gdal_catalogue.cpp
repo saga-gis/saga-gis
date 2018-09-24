@@ -365,12 +365,12 @@ bool CGDAL_Catalogues::On_Execute(void)
 
 	if( n <= 0 )
 	{
-		Message_Add(CSG_String::Format("\n%s\n", _TL("No raster files have been found in directory.")));
+		Message_Fmt("\n%s", _TL("No raster files have been found in directory."));
 
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d\n", _TL("Number of raster files found in directory"), n), false);
+	Message_Fmt("\n%s: %d", _TL("Number of raster files found in directory"), n);
 
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asInt() == 1 )	// one catalogue using geographic coordinates

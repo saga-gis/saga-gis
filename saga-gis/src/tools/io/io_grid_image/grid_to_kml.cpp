@@ -288,7 +288,7 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 	else if( pGrid->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
 	{
-		Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
+		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
 		if(	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
 		{
@@ -320,7 +320,7 @@ bool CGrid_to_KML::On_Execute(void)
 
 		if( !bDelete )
 		{
-			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed")), false);
+			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed"));
 
 			return( false );
 		}

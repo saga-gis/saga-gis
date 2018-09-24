@@ -226,7 +226,7 @@ bool CSim_Diffusion_Gradient::Surface_Interpolate(CSG_Grid *pSurface)
 		if( n % 25 == 0 )	DataObject_Update(pSurface, 0.0, 100.0);
 	}
 
-	Message_Add(CSG_String::Format("%d iterations", n));
+	Message_Fmt("\n%d iterations", n);
 
 	return( true );
 }
@@ -547,7 +547,7 @@ bool CSim_Diffusion_Concentration::_Concentration_Interpolate(CSG_Grid *pConcent
 	}
 	while( fabs(d - m_Conc_Out) > d_Max && f_hi > f_lo && Process_Get_Okay(false) );
 
-	Message_Add(CSG_String::Format(SG_T("f: %f"), f));
+	Message_Fmt("\nf: %f", f);
 
 	//-----------------------------------------------------
 	_Concentration_Initialise(pConcentration);

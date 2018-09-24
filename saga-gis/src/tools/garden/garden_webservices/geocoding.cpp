@@ -296,7 +296,7 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 
 	if( !Connection.Request(Request, m_Answer) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
+		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
 
 		return( false );
 	}
@@ -304,12 +304,12 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 	//-----------------------------------------------------
 	if( m_Answer.Get_Name().CmpNoCase("searchresults") )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str()));
+		Message_Fmt("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str());
 	}
 
 	if( !m_Answer("place") )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("place")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("place"));
 
 		return( false );
 	}
@@ -319,7 +319,7 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 	if( !Place.Get_Property("lon", Location.x)
 	||  !Place.Get_Property("lat", Location.y) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("location")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("location"));
 
 		return( false );
 	}
@@ -348,7 +348,7 @@ bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_S
 
 	if( !Connection.Request(Request, _Answer) )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Request failed."), Request.c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
 
 		return( false );
 	}
@@ -360,16 +360,16 @@ bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_S
 	//-----------------------------------------------------
 	if( !m_Answer.Cmp_Name("root") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str());
 	}
 
 	if( !m_Answer("status") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Warning"), SG_T("status")));
+		Message_Fmt("\n%s [%s]", _TL("Warning"), SG_T("status"));
 	}
 	else if( !m_Answer["status"].Cmp_Content("OK") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str());
 
 		if( m_Answer("error_message") )
 		{
@@ -381,7 +381,7 @@ bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_S
 
 	if( !m_Answer("results") || !m_Answer["results"](0) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("results")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("results"));
 
 		return( false );
 	}
@@ -430,7 +430,7 @@ bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG
 	//-----------------------------------------------------
 	if( !Connection.Request(Request, m_Answer) )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Request failed."), Request.c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
 
 		return( false );
 	}
@@ -438,16 +438,16 @@ bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG
 	//-----------------------------------------------------
 	if( m_Answer.Get_Name().CmpNoCase("GeocodeResponse") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str());
 	}
 
 	if( !m_Answer("status") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Warning"), SG_T("status")));
+		Message_Fmt("\n%s [%s]", _TL("Warning"), SG_T("status"));
 	}
 	else if( !m_Answer["status"].Cmp_Content("OK") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str());
 
 		if( m_Answer("error_message") )
 		{
@@ -459,7 +459,7 @@ bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG
 
 	if( !m_Answer("result") )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("result")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("result"));
 
 		return( false );
 	}
@@ -509,7 +509,7 @@ bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_S
 
 	if( !Connection.Request(Request, m_Answer) )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Request failed."), Request.c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
 
 		return( false );
 	}
@@ -517,12 +517,12 @@ bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_S
 	//-----------------------------------------------------
 	if( m_Answer.Get_Name().CmpNoCase("Response") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str());
 	}
 
 	if( !m_Answer("StatusDescription") || !m_Answer["StatusDescription"].Cmp_Content("OK") )
 	{
-		Message_Add(CSG_String::Format("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str()), false);
+		Message_Fmt("\n%s [%s]", _TL("Error"), m_Answer.Get_Name().c_str());
 
 		if( m_Answer("ErrorDetails") )
 		{
@@ -544,7 +544,7 @@ bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_S
 	if( !Point("Longitude") || !Point["Longitude"].Get_Content().asDouble(Location.x)
 	||  !Point("Latitude" ) || !Point["Latitude" ].Get_Content().asDouble(Location.y) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("location")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("location"));
 
 		return( false );
 	}
@@ -578,7 +578,7 @@ bool CGeoCoding::Request_MapQuest(CWebClient &Connection, TSG_Point &Location, C
 
 	if( !Connection.Request(Request, m_Answer) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Request failed."), Request.c_str()));
+		Message_Fmt("\n%s [%s]", _TL("Request failed."), Request.c_str());
 
 		return( false );
 	}
@@ -586,13 +586,13 @@ bool CGeoCoding::Request_MapQuest(CWebClient &Connection, TSG_Point &Location, C
 	//-----------------------------------------------------
 	if( m_Answer.Get_Name().CmpNoCase("ResultSet") )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str()));
+		Message_Fmt("\n%s [%s]", _TL("Warning"), m_Answer.Get_Name().c_str());
 	}
 
 	if( !m_Answer("Longitude") || !m_Answer["Longitude"].Get_Content().asDouble(Location.x)
 	||  !m_Answer("Latitude" ) || !m_Answer["Latitude" ].Get_Content().asDouble(Location.y) )
 	{
-		Message_Add(CSG_String::Format("%s [%s]", _TL("Error"), SG_T("location")));
+		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("location"));
 
 		return( false );
 	}

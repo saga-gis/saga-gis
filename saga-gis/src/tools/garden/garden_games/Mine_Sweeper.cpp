@@ -325,12 +325,11 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_
 			
 			time= Time->Time();
 			
-			Message_Add(CSG_String::Format(SG_T(":-) Time:%ds Mines:%d\n"),time,N_Mines-MarkedMines));
+			Message_Fmt("\nyou are a winner :-)\nTime:%ds\nMines:%d\n",time,N_Mines-MarkedMines);
 			
 			if (OpenFields == Mine_NX*Mine_NY-N_Mines  )
 			{
-				Message_Add(CSG_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
-				Message_Dlg(CSG_String::Format(_TL(":-) :-) you are a winner :-) :-) Time:%ds\n"),time));
+				Message_Dlg(CSG_String::Format("you are a winner :-)\nTime:%ds\nMines:%d\n",time,N_Mines-MarkedMines));
 			
 				Show_GameBoard(true);
 
@@ -341,8 +340,7 @@ bool CMine_Sweeper::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_
 		{
 			Show_GameBoard(true);
 
-			Message_Dlg(CSG_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
-			Message_Add(CSG_String::Format(_TL(":-( :-( you are a loser :-( :-(")));
+			Message_Dlg(CSG_String::Format("you are a loser :-(\nTime:%ds\nMines:%d\n",time,N_Mines-MarkedMines));
 
 			First_Click=true;
 		}

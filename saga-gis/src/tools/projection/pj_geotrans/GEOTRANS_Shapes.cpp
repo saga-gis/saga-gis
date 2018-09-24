@@ -177,7 +177,7 @@ bool CGEOTRANS_Shapes::On_Execute_Conversion(void)
 		//-------------------------------------------------
 		if( nDropped > 0 )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of dropped shapes"), nDropped));
+			Message_Fmt("\n%s: %d", _TL("number of dropped shapes"), nDropped);
 		}
 
 		if( bCopy )

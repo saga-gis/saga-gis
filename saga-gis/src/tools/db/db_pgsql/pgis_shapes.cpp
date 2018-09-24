@@ -349,7 +349,7 @@ bool CShapes_Save::On_Execute(void)
 			}
 			else
 			{
-				Message_Add(CSG_String::Format("%s [%d/%d]", _TL("could not save shape"), 1 + iShape, pShapes->Get_Count()));
+				Message_Fmt("\n%s [%d/%d]", _TL("could not save shape"), 1 + iShape, pShapes->Get_Count());
 			}
 		}
 	}

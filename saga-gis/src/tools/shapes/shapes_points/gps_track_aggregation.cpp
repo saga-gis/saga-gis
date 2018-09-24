@@ -407,7 +407,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	//-----------------------------------------------------
 	if( nDropped > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of dropped observations"), nDropped));
+		Message_Fmt("\n%s: %d", _TL("number of dropped observations"), nDropped);
 	}
 
 	//-----------------------------------------------------

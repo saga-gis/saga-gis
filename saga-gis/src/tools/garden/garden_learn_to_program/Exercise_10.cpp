@@ -169,7 +169,7 @@ bool CExercise_10::On_Execute(void)
 
 		if( (bAlive = Next_Step()) == false )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s %d %s\n"), _TL("Dead after"), i, _TL("Life Cycles")));
+			Message_Fmt("\n%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles"));
 		}
 	}
 

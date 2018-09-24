@@ -220,7 +220,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of replacements"), nChanges));
+	Message_Fmt("\n%s: %d", _TL("number of replacements"), nChanges);
 
 	if( pTable == Parameters("TABLE")->asTable() )
 	{

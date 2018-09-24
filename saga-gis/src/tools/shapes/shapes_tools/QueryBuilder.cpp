@@ -39,40 +39,38 @@
 //---------------------------------------------------------
 CSelect_Numeric::CSelect_Numeric(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Select by Attributes... (Numerical Expression)"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Selects records for which the expression is true."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("SHAPES",
+		"FIELD"		, _TL("Attribute"),
 		_TL("attribute to be searched; if not set all attributes will be searched"),
 		true
 	);
 
-	Parameters.Add_String(
-		NULL	, "EXPRESSION"	, _TL("Expression"),
+	Parameters.Add_String("",
+		"EXPRESSION", _TL("Expression"),
 		_TL(""),
-		SG_T("a > 0")
+		"a > 0"
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("new selection"),
 			_TL("add to current selection"),
 			_TL("select from current selection"),
@@ -84,26 +82,20 @@ CSelect_Numeric::CSelect_Numeric(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSelect_Numeric::On_Execute(void)
 {
-	int				Method, Field;
-	CSG_String		Expression;
-	CSG_Shapes		*pShapes;
-	CSG_Formula		Formula;
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	int	Field	= Parameters("FIELD" )->asInt();
+	int	Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
-	pShapes		= Parameters("SHAPES")		->asShapes();
-	Field		= Parameters("FIELD")		->asInt();
-	Expression	= Parameters("EXPRESSION")	->asString();
-	Method		= Parameters("METHOD")		->asInt();
+	CSG_Formula	Formula;
 
-	//-----------------------------------------------------
-	if( !Formula.Set_Formula(Expression) )
+	if( !Formula.Set_Formula(Parameters("EXPRESSION")->asString()) )
 	{
 		CSG_String	Message;
 
@@ -170,7 +162,7 @@ bool CSelect_Numeric::On_Execute(void)
 	delete[](Values);
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), pShapes->Get_Selection_Count()));
+	Message_Fmt("\n%s: %d", _TL("selected shapes"), pShapes->Get_Selection_Count());
 
 	DataObject_Update(pShapes);
 

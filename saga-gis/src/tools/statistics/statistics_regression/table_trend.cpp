@@ -73,49 +73,46 @@
 void CTable_Trend_Base::Initialise(void)
 {
 	//-----------------------------------------------------
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters("TABLE");
-
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD_X"		, _TL("X Values"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD_X"	, _TL("X Values"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD_Y"		, _TL("Y Values"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD_Y"	, _TL("Y Values"),
 		_TL("")
 	);
 
-	Parameters.Add_String(
-		NULL	, "FORMULA"		, _TL("Formula"),
+	Parameters.Add_String("",
+		"FORMULA"	, _TL("Formula"),
 		_TL(""),
-		SG_T("m * x + b")
+		"m * x + b"
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FORMULAS"	, _TL("Pre-defined Formulas"),
+	Parameters.Add_Choice("",
+		"FORMULAS"	, _TL("Pre-defined Formulas"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Linear: a + b * x"),
-			_TL("Quadric: a + b * x + c * x^2"),
-			_TL("Cubic: a + b * x + c * x^2 + d * x^3"),
-			_TL("Logarithmic: a + b * ln(x)"),
-			_TL("Power: a + b * x^c"),
-			_TL("a + b / x"),
-			_TL("a + b * (1 - exp(-x / c))"),
-			_TL("a + b * (1 - exp(-(x / c)^2))")
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
+			SG_T("a + b * x (linear)"),
+			SG_T("a + b * x + c * x^2 (quadric)"),
+			SG_T("a + b * x + c * x^2 + d * x^3 (cubic)"),
+			SG_T("a + b * ln(x) (logarithmic)"),
+			SG_T("a + b * x^c (power)"),
+			SG_T("a + b / x"),
+			SG_T("a + b * (1 - exp(-x / c))"),
+			SG_T("a + b * (1 - exp(-(x / c)^2))")
 		), 0
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TREND"		, _TL("Table (with Trend)"),
+	Parameters.Add_Table("",
+		"TREND"		, _TL("Table (with Trend)"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -124,27 +121,26 @@ void CTable_Trend_Base::Initialise(void)
 //---------------------------------------------------------
 int CTable_Trend_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier(SG_T("FORMULAS")) )
+	if( pParameter->Cmp_Identifier("FORMULAS") )
 	{
-		const SG_Char	*Formula;
+		CSG_String	Formula;
 
 		switch( pParameter->asInt() )
 		{
-		default:	return( false );
-		case 0:	Formula	= SG_T("a + b * x");						break;
-		case 1:	Formula	= SG_T("a + b * x + c * x^2");				break;
-		case 2:	Formula	= SG_T("a + b * x + c * x^2 + d * x^3");	break;
-		case 3:	Formula	= SG_T("a + b * ln(x)");					break;
-		case 4:	Formula	= SG_T("a + b * x^c");						break;
-		case 5:	Formula	= SG_T("a + b / x");						break;
-		case 6:	Formula	= SG_T("a + b * (1 - exp(-x / c))");		break;
-		case 7:	Formula	= SG_T("a + b * (1 - exp(-(x / c)^2))");	break;
+		default: Formula = "a + b * x"                    ; break;
+		case  1: Formula = "a + b * x + c * x^2"          ; break;
+		case  2: Formula = "a + b * x + c * x^2 + d * x^3"; break;
+		case  3: Formula = "a + b * ln(x)"                ; break;
+		case  4: Formula = "a + b * x^c"                  ; break;
+		case  5: Formula = "a + b / x"                    ; break;
+		case  6: Formula = "a + b * (1 - exp(-x / c))"    ; break;
+		case  7: Formula = "a + b * (1 - exp(-(x / c)^2))"; break;
 		}
 
-		pParameters->Get_Parameter("FORMULA")->Set_Value(Formula);
+		pParameters->Set_Parameter("FORMULA", Formula);
 	}
 
-	if( pParameter->Cmp_Identifier(SG_T("FORMULA")) )
+	if( pParameter->Cmp_Identifier("FORMULA") )
 	{
 		if( !m_Trend.Set_Formula(pParameter->asString()) )
 		{
@@ -184,10 +180,7 @@ bool CTable_Trend_Base::On_Execute(void)
 		//-------------------------------------------------
 		if( m_Trend.Get_Trend() )
 		{
-			Message_Add(SG_T("\n"), false);
-			Message_Add(m_Trend.Get_Formula(), false);
-			Message_Add(SG_T("\n"), false);
-			Message_Add(CSG_String::Format(SG_T("R2 : %f"), 100.0 * m_Trend.Get_R2()), false);
+			Message_Fmt("\n%s\n%s: %f", m_Trend.Get_Formula().c_str(), SG_T("r\xb2"), 100.0 * m_Trend.Get_R2());
 
 			if( Parameters("TREND")->asTable() == NULL )
 			{
@@ -201,13 +194,13 @@ bool CTable_Trend_Base::On_Execute(void)
 			}
 			else
 			{
-				Name.Printf(SG_T("%s [%s]"), pTable->Get_Name(), _TL("Trend"));
+				Name.Printf("%s [%s]", pTable->Get_Name(), _TL("Trend"));
 				pTable	= Parameters("TREND")->asTable();
 				pTable->Destroy();
 				pTable->Set_Name(Name);
-				pTable->Add_Field("X"		, SG_DATATYPE_Double);
-				pTable->Add_Field("Y"		, SG_DATATYPE_Double);
-				pTable->Add_Field("Y_TREND"	, SG_DATATYPE_Double);
+				pTable->Add_Field("X"      , SG_DATATYPE_Double);
+				pTable->Add_Field("Y"      , SG_DATATYPE_Double);
+				pTable->Add_Field("Y_TREND", SG_DATATYPE_Double);
 
 				for(i=0; i<m_Trend.Get_Data_Count(); i++)
 				{

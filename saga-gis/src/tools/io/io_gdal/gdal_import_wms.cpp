@@ -471,10 +471,10 @@ bool CGDAL_Import_WMS::Get_Bands(CSG_Grid *pBands[3], const CSG_Grid_System &Sys
 	}
 
 	Message_Add("\n", false);
-	Message_Add(CSG_String::Format("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str()), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count()           ), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX()              ), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Columns"), DataSet.Get_NY()              ), false);
+	Message_Fmt("\n%s: %s", _TL("Driver" ), DataSet.Get_DriverID().c_str());
+	Message_Fmt("\n%s: %d", _TL("Bands"  ), DataSet.Get_Count()           );
+	Message_Fmt("\n%s: %d", _TL("Rows"   ), DataSet.Get_NX()              );
+	Message_Fmt("\n%s: %d", _TL("Columns"), DataSet.Get_NY()              );
 	Message_Add("\n", false);
 
 	//-----------------------------------------------------

@@ -721,11 +721,11 @@ bool CLandsat_TOAR::On_Execute(void)
 					}
 				}
 
-				Message_Add(CSG_String::Format("DN = %.2d [%lu] : mode %.2d [%lu] %s",
+				Message_Fmt("\nDN = %.2d [%lu] : mode %.2d [%lu] %s",
 					dn_dark[iBand], hist[dn_dark[iBand]],
 					dn_mode[iBand], hist[dn_mode[iBand]],
 					hist[255] > hist[dn_mode[iBand]] ? ", excluding DN > 241" : ""
-				));
+				);
 			}
 
 			//---------------------------------------------

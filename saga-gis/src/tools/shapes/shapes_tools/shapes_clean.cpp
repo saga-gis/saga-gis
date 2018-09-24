@@ -134,7 +134,7 @@ bool CShapes_Clean::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format("%s: %d", _TL("Number of removed shapes"), n - pShapes->Get_Count()));
+	Message_Fmt("\n%s: %d", _TL("Number of removed shapes"), n - pShapes->Get_Count());
 
 	if( n - pShapes->Get_Count() > 0 )
 	{

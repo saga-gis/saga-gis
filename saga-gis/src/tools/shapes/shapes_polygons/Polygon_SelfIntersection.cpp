@@ -133,7 +133,7 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 	//-----------------------------------------------------
 	if( m_pIntersect->Get_Count() != pPolygons->Get_Count() )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of added polygons"), m_pIntersect->Get_Count() - pPolygons->Get_Count()));
+		Message_Fmt("\n%s: %d", _TL("number of added polygons"), m_pIntersect->Get_Count() - pPolygons->Get_Count());
 
 		if( m_pIntersect == &Intersect )
 		{
@@ -142,7 +142,7 @@ bool CPolygon_SelfIntersection::On_Execute(void)
 		}
 		else
 		{
-			m_pIntersect->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPolygons->Get_Name(), _TL("self-intersection")));
+			Message_Fmt("\n%s [%s]", pPolygons->Get_Name(), _TL("self-intersection"));
 		}
 	}
 	else

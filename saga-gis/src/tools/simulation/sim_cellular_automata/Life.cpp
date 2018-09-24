@@ -166,7 +166,7 @@ bool CLife::On_Execute(void)
 	//-----------------------------------------------------
 	if( is_Progress() )
 	{
-		Message_Add(CSG_String::Format("\n%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles")), false);
+		Message_Fmt("\n%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles"));
 	}
 
 	return( true );

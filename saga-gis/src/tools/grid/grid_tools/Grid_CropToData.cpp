@@ -137,11 +137,11 @@ bool CCropToData::On_Execute(void)
 	//-----------------------------------------------------
 	if( bCrop == false )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("nothing to crop"), _TL("no valid data found in grid(s)")));
+		Message_Fmt("\n%s: %s", _TL("nothing to crop"), _TL("no valid data found in grid(s)"));
 	}
 	else if( (1 + xMax - xMin) == Get_NX() && (1 + yMax - yMin) == Get_NY() )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("nothing to crop"), _TL("valid data cells match original grid extent")));
+		Message_Fmt("\n%s: %s", _TL("nothing to crop"), _TL("valid data cells match original grid extent"));
 	}
 	else
 	{

@@ -219,7 +219,7 @@ bool CTable_Categories_to_Indicators::On_Execute(void)
 
 	pTable->Set_Index(old_Field, old_Order);
 
-	Message_Add(CSG_String::Format("\n%s: %d\n", _TL("number of categories"), nCategories), false);
+	Message_Fmt("\n%s: %d", _TL("number of categories"), nCategories);
 
 	//-----------------------------------------------------
 	return( true );

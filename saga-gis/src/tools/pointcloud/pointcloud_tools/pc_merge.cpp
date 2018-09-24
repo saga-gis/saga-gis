@@ -175,7 +175,7 @@ bool CPC_Merge::On_Execute(void)
 
 		if( pPoints == pResult )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("Warning"), _TL("Input is identical with target.")));
+			Message_Fmt("\n%s: %s", _TL("Warning"), _TL("Input is identical with target."));
 
 			continue;
 		}

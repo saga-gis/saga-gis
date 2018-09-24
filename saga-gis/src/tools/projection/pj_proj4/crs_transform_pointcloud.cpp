@@ -236,7 +236,7 @@ bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointClou
 
 	if( nDropped > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d %s"), pTarget->Get_Name(), nDropped, _TL("points have been dropped")));
+		Message_Fmt("\n%s: %d %s", pTarget->Get_Name(), nDropped, _TL("points have been dropped"));
 	}
 
 	pTarget->Get_Projection() = m_Projector.Get_Target();

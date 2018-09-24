@@ -67,46 +67,40 @@
 //---------------------------------------------------------
 CPoints_Thinning::CPoints_Thinning(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Points Thinning"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		""
+		"Points Thinning."
 	));
 
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "THINNED"		, _TL("Thinned Points"),
+	Parameters.Add_Shapes("",
+		"THINNED"		, _TL("Thinned Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RESOLUTION"	, _TL("Resolution"),
+	Parameters.Add_Double("",
+		"RESOLUTION"	, _TL("Resolution"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1., 0., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -117,10 +111,10 @@ bool CPoints_Thinning::On_Execute(void)
 	CSG_Shapes	*pPoints;
 
 	//-----------------------------------------------------
-	pPoints			= Parameters("POINTS")		->asShapes();
-	Field			= Parameters("FIELD")		->asInt();
-	m_pPoints		= Parameters("THINNED")		->asShapes();
-	m_Resolution	= Parameters("RESOLUTION")	->asDouble();
+	pPoints			= Parameters("POINTS"    )->asShapes();
+	Field			= Parameters("FIELD"     )->asInt();
+	m_pPoints		= Parameters("THINNED"   )->asShapes();
+	m_Resolution	= Parameters("RESOLUTION")->asDouble();
 
 	//-----------------------------------------------------
 	if( m_Resolution <= 0.0 )
@@ -152,12 +146,12 @@ bool CPoints_Thinning::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPoints->Get_Field_Name(Field)));
-	m_pPoints->Add_Field(_TL("Count")	, SG_DATATYPE_Int);
-	m_pPoints->Add_Field(_TL("Mean")	, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("Minimun")	, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("Maximun")	, SG_DATATYPE_Double);
-	m_pPoints->Add_Field(_TL("StdDev")	, SG_DATATYPE_Double);
+	m_pPoints->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pPoints->Get_Name(), pPoints->Get_Field_Name(Field)));
+	m_pPoints->Add_Field(_TL("Count"  ), SG_DATATYPE_Int   );
+	m_pPoints->Add_Field(_TL("Mean"   ), SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Minimun"), SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("Maximun"), SG_DATATYPE_Double);
+	m_pPoints->Add_Field(_TL("StdDev" ), SG_DATATYPE_Double);
 
 	pPoints->Select();
 
@@ -171,7 +165,7 @@ bool CPoints_Thinning::On_Execute(void)
 	}
 	else
 	{
-		Message_Add(CSG_String::Format(SG_T("%d %s"), pPoints->Get_Count() - m_pPoints->Get_Count(), _TL("no points removed")));
+		Message_Fmt("\n%d %s", pPoints->Get_Count() - m_pPoints->Get_Count(), _TL("no points removed"));
 	}
 
 	return( true );
@@ -179,8 +173,6 @@ bool CPoints_Thinning::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -223,8 +215,6 @@ bool CPoints_Thinning::Set_Search_Engine(CSG_Shapes *pPoints, int Field)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -253,8 +243,6 @@ void CPoints_Thinning::Get_Points(CSG_PRQuadTree_Item *pItem)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -268,11 +256,11 @@ void CPoints_Thinning::Add_Point(CSG_PRQuadTree_Leaf *pLeaf)
 	{
 		CSG_PRQuadTree_Leaf_List	*pList	= (CSG_PRQuadTree_Leaf_List *)pLeaf;
 
-		pPoint->Set_Value(0, pList->Get_Count());	// Count
-		pPoint->Set_Value(1, pList->Get_Mean());	// Mean
+		pPoint->Set_Value(0, pList->Get_Count  ());	// Count
+		pPoint->Set_Value(1, pList->Get_Mean   ());	// Mean
 		pPoint->Set_Value(2, pList->Get_Minimum());	// Minimun
 		pPoint->Set_Value(3, pList->Get_Maximum());	// Maximun
-		pPoint->Set_Value(4, pList->Get_StdDev());	// StdDev
+		pPoint->Set_Value(4, pList->Get_StdDev ());	// StdDev
 	}
 	else
 	{
@@ -291,11 +279,11 @@ void CPoints_Thinning::Add_Point(CSG_PRQuadTree_Node_Statistics *pNode)
 
 	pPoint->Add_Point(pNode->Get_X()->Get_Mean(), pNode->Get_Y()->Get_Mean());
 
-	pPoint->Set_Value(0, pNode->Get_Z()->Get_Count());		// Count
-	pPoint->Set_Value(1, pNode->Get_Z()->Get_Mean());		// Mean
+	pPoint->Set_Value(0, pNode->Get_Z()->Get_Count  ());	// Count
+	pPoint->Set_Value(1, pNode->Get_Z()->Get_Mean   ());	// Mean
 	pPoint->Set_Value(2, pNode->Get_Z()->Get_Minimum());	// Minimun
 	pPoint->Set_Value(3, pNode->Get_Z()->Get_Maximum());	// Maximun
-	pPoint->Set_Value(4, pNode->Get_Z()->Get_StdDev());		// StdDev
+	pPoint->Set_Value(4, pNode->Get_Z()->Get_StdDev ());	// StdDev
 }
 
 

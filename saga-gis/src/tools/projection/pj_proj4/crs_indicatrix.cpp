@@ -182,7 +182,7 @@ bool CCRS_Indicatrix::On_Execute_Transformation(void)
 	//-----------------------------------------------------
 	if( nDropped > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d %s"), pTarget->Get_Name(), nDropped, _TL("shapes have been dropped")));
+		Message_Fmt("\n%s: %d %s", pTarget->Get_Name(), nDropped, _TL("shapes have been dropped"));
 	}
 
 	m_Circle.Clear();

@@ -298,7 +298,7 @@ bool CGrid_Classify_Supervised::Get_Features(void)
 	{
 		if( m_pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("feature has been dropped"), m_pFeatures->Get_Grid(i)->Get_Name()));
+			Message_Fmt("\n%s: %s", _TL("feature has been dropped"), m_pFeatures->Get_Grid(i)->Get_Name());
 
 			m_pFeatures->Del_Item(i);
 		}

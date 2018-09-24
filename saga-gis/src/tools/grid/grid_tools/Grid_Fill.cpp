@@ -301,7 +301,7 @@ bool CGrid_Fill::On_Execute(void)
 		nReplaced	+= Fill(GET_POINT(i));
 	}
 
-	Message_Add(CSG_String::Format("\n%d %s\n", nReplaced, _TL("replacements")), false);
+	Message_Fmt("\n%d %s\n", nReplaced, _TL("replacements"));
 
 	return( true );	
 }
@@ -354,7 +354,7 @@ bool CGrid_Fill_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 		int	nReplaced	= Fill(ptWorld);
 
 		Message_Add(_TL("ready"), false);
-		Message_Add(CSG_String::Format("%d %s", nReplaced, _TL("replacements")));
+		Message_Fmt("\n%d %s", nReplaced, _TL("replacements"));
 
 		DataObject_Update(m_pGrid, m_pGrid->Get_Min(), m_pGrid->Get_Max());
 

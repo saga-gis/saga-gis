@@ -78,7 +78,6 @@ class CFragmentation_Resampling : public CFragmentation_Base
 {
 public:
 	CFragmentation_Resampling(void);
-	virtual ~CFragmentation_Resampling(void);
 
 
 protected:

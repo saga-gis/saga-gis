@@ -49,22 +49,22 @@ CSelect_Location::CSelect_Location(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes to Select From"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes to Select From"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "LOCATIONS"	, _TL("Locations"),
+	Parameters.Add_Shapes("",
+		"LOCATIONS"	, _TL("Locations"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "CONDITION"	, _TL("Condition"), 
+	Parameters.Add_Choice("",
+		"CONDITION"	, _TL("Condition"), 
 		_TL("Select shapes that fulfil this condition"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("intersect"),
 			_TL("are completely within"),
 			_TL("completely contain"),
@@ -73,10 +73,10 @@ CSelect_Location::CSelect_Location(void)
 		), 0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("new selection"),
 			_TL("add to current selection"),
 			_TL("select from current selection"),
@@ -88,19 +88,16 @@ CSelect_Location::CSelect_Location(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSelect_Location::On_Execute(void)
 {
-	int		Method, Condition;
+	m_pShapes		= Parameters("SHAPES"   )->asShapes();
+	m_pLocations	= Parameters("LOCATIONS")->asShapes();
 
-	m_pShapes		= Parameters("SHAPES")		->asShapes();
-	m_pLocations	= Parameters("LOCATIONS")	->asShapes();
-	Condition		= Parameters("CONDITION")	->asInt();
-	Method			= Parameters("METHOD")		->asInt();
+	int	Condition	= Parameters("CONDITION")->asInt();
+	int	Method		= Parameters("METHOD"   )->asInt();
 
 	//-----------------------------------------------------
 	switch( Condition )
@@ -175,7 +172,7 @@ bool CSelect_Location::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected shapes"), m_pShapes->Get_Selection_Count()));
+	Message_Fmt("\n%s: %d", _TL("selected shapes"), m_pShapes->Get_Selection_Count());
 
 	DataObject_Update(m_pShapes);
 
@@ -184,8 +181,6 @@ bool CSelect_Location::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

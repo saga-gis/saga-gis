@@ -282,7 +282,7 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
 
 	if( m_nValues > (int)Used.Length() )
 	{
-		Message_Add(CSG_String::Format("%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), m_nValues, Used.Length()));
+		Message_Fmt("\n%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), m_nValues, Used.Length());
 	}
 
 	//-----------------------------------------------------

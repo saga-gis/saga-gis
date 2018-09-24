@@ -62,8 +62,6 @@
 #include "Grid_Accumulation_Functions.h"
 
 
-
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -73,9 +71,9 @@
 //-----------------------------------------------------------
 CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 {
-	Parameters.Set_Name(_TL("Accumulation Functions"));
+	Set_Name		(_TL("Accumulation Functions"));
 
-	Set_Author(SG_T("Copyrights (c) 2009 by Volker Wichmann"));
+	Set_Author		("Copyrights (c) 2009 by Volker Wichmann");
 
 	Parameters.Set_Description(_TW(
 		"Provides \"accumulation functions\" that can be used to e.g. move material over a \"local "
@@ -106,87 +104,108 @@ CGrid_Accumulation_Functions::CGrid_Accumulation_Functions(void)
 		"per cell. No flow occurs if the threshold is not exceeded.\n\n"
 		"\t* ACCUTRIGGERFLUX / STATE: The operation only allows transport (flux) to occur if "
 		"a trigger value is exceeded, otherwise no transport occurs and storage accumulates.\n\n"
-		"References:\n"
-		"BURROUGH, P.A. (1998): Dynamic Modelling and Geocomputation.- In: LONGLEY, P.A., BROOKS, S.M., "
-		"MCDONNELL, R. & B. MACMILLAN [Eds.]: Geocomputation: A Primer. John Wiley & Sons, pp. 165-191.\r\n"
 	));
 
+	Add_Reference("Burrough, P.A.", "1998",
+		"Dynamic Modelling and Geocomputation",
+		"In: Longley, P.A., Brooks, S.M., McDonnell, R. & B. MacMillan [Eds.]: Geocomputation: A Primer. John Wiley & Sons, pp. 165-191."
+	);
 	
-	Parameters.Add_Grid(
-		NULL, "SURFACE", _TL("Surface"), 
+	Parameters.Add_Grid("",
+		"SURFACE"	, _TL("Surface"), 
 		_TL("Surface used to derive the LDD network, e.g. a DTM."), 
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(
-		NULL, "INPUT", _TL("Input"), 
+
+	Parameters.Add_Grid("",
+		"INPUT"		, _TL("Input"), 
 		_TL("Grid with the input values to accumulate."), 
 		PARAMETER_INPUT
 	);
-	Parameters.Add_Grid(
-		NULL, "STATE_IN", _TL("State t"), 
+
+	Parameters.Add_Grid("",
+		"STATE_IN"	, _TL("State t"), 
 		_TL("Grid describing the state of each cell at timestep t."), 
 		PARAMETER_INPUT_OPTIONAL
 	);
-	Parameters.Add_Grid(
-		NULL, "CONTROL", _TL("Operation Control"), 
+
+	Parameters.Add_Grid("",
+		"CONTROL"	, _TL("Operation Control"), 
 		_TL("Depending on mode of operation either transport capacity, transport fraction, threshold value or trigger value."), 
 		PARAMETER_INPUT_OPTIONAL
 	);
-	Parameters.Add_Grid(
-		Parameters("LINEAR"), "CTRL_LINEAR", _TL("Linear Flow Control Grid"), 
+
+	Parameters.Add_Grid("LINEAR",
+		"CTRL_LINEAR", _TL("Linear Flow Control Grid"), 
 		_TL("The values of this grid are checked against the linear flow threshold to decide on the flow-routing algorithm."), 
 		PARAMETER_INPUT_OPTIONAL
 	);
-	Parameters.Add_Grid(
-		NULL, "FLUX", _TL("Flux"), 
+
+	Parameters.Add_Grid("",
+		"FLUX"		, _TL("Flux"), 
 		_TL("Flux out of each cell, i.e. everything accumulated so far."), 
 		PARAMETER_OUTPUT
 	);
-	Parameters.Add_Grid(
-		NULL, "STATE_OUT", _TL("State t + 1"), 
+
+	Parameters.Add_Grid("",
+		"STATE_OUT"	, _TL("State t + 1"), 
 		_TL("Grid describing the state of each cell at timestep t + 1."), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL, "OPERATION", _TL("Operation"),
+	Parameters.Add_Choice("",
+		"OPERATION"	, _TL("Operation"),
 		_TL("Select a mode of operation"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-		_TL("accuflux"),
-		_TL("accucapacityflux / state"),
-		_TL("accufractionflux / state"),
-		_TL("accuthresholdflux / state"),
-		_TL("accutriggerflux / state")
+		CSG_String::Format("%s|%s|%s|%s|%s",
+			_TL("accuflux"),
+			_TL("accucapacityflux / state"),
+			_TL("accufractionflux / state"),
+			_TL("accuthresholdflux / state"),
+			_TL("accutriggerflux / state")
 		),	0
 	);
 
-	Parameters.Add_Value(
-		NULL, "LINEAR", _TL("Switch to Linear Flow"), 
+	Parameters.Add_Bool("",
+		"LINEAR"	, _TL("Switch to Linear Flow"), 
 		_TL("Switch from MFD8 to D8 if linear flow threshold is crossed."), 
-		PARAMETER_TYPE_Bool,
 		true
 	);
-	Parameters.Add_Value(
-		Parameters("LINEAR"), "THRES_LINEAR", _TL("Threshold Linear Flow"), 
+
+	Parameters.Add_Double("LINEAR",
+		"THRES_LINEAR", _TL("Threshold Linear Flow"), 
 		_TL("Threshold for linear flow, if exceeded D8 is used."), 
-		PARAMETER_TYPE_Double,
 		0.0
 	);
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-CGrid_Accumulation_Functions::~CGrid_Accumulation_Functions(void)
+int CGrid_Accumulation_Functions::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("OPERATION") )
+	{
+		pParameters->Set_Enabled("CONTROL", pParameter->asInt() > 0);
+	}
+
+	if(	pParameter->Cmp_Identifier(SG_T("LINEAR")) )
+	{
+		pParameters->Set_Enabled("THRES_LINEAR", pParameter->asBool());
+		pParameters->Set_Enabled("CTRL_LINEAR" , pParameter->asBool());
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
-
+//---------------------------------------------------------
 bool CGrid_Accumulation_Functions::On_Execute(void)
 {
 	CSG_Grid		*pSurface, *pInput, *pFlux, *pControl, *pStateIn, *pStateOut, *pLinearCtrl;
@@ -392,29 +411,6 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
-}
-
-
-//---------------------------------------------------------
-int CGrid_Accumulation_Functions::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
-{
-	if(	pParameter->Cmp_Identifier(SG_T("OPERATION")) )
-	{
-		int		iValue	= pParameter->asInt();
-
-		pParameters->Get_Parameter("CONTROL")->Set_Enabled(iValue > 0);
-	}
-
-	if(	pParameter->Cmp_Identifier(SG_T("LINEAR")) )
-	{
-		bool	bValue	= pParameter->asBool();
-
-		pParameters->Get_Parameter("THRES_LINEAR"	)->Set_Enabled(bValue);
-		pParameters->Get_Parameter("CTRL_LINEAR"	)->Set_Enabled(bValue);
-	}
-
-	//-----------------------------------------------------
-	return (1);
 }
 
 

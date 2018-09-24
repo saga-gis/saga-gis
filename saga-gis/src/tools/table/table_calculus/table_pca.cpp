@@ -368,25 +368,25 @@ bool CTable_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Val
 
 	Sum	= Sum > 0.0 ? 100.0 / Sum : 0.0;
 
-	Message_Add(CSG_String::Format(SG_T("\n%s, %s, %s\n"), _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue")), false);
+	Message_Fmt("\n\n%s, %s, %s", _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue"));
 
 	for(j=m_nFeatures-1, Cum=0.0; j>=0; j--)
 	{
 		Cum	+= Eigen_Values[j] * Sum;
 
-		Message_Add(CSG_String::Format(SG_T("%6.2f\t%6.2f\t%18.5f\n"), Eigen_Values[j] * Sum, Cum, Eigen_Values[j]), false);
+		Message_Fmt("\n%6.2f\t%6.2f\t%18.5f", Eigen_Values[j] * Sum, Cum, Eigen_Values[j]);
 	}
 
-	Message_Add(CSG_String::Format(SG_T("\n%s:\n"), _TL("Eigenvectors")), false);
+	Message_Fmt("\n\n%s:", _TL("Eigenvectors"));
 
 	for(j=0; j<m_nFeatures; j++)
 	{
 		for(i=0; i<m_nFeatures; i++)
 		{
-			Message_Add(CSG_String::Format(SG_T("%12.4f"), Eigen_Vectors[j][m_nFeatures - 1 - i]), false);
+			Message_Fmt("\n%12.4f", Eigen_Vectors[j][m_nFeatures - 1 - i]);
 		}
 
-		Message_Add(SG_T("\n"), false);
+		Message_Add("\n", false);
 	}
 
 	///////////////////////////////////////////////////////
@@ -409,7 +409,7 @@ bool CTable_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Val
 	if( pPCA != m_pTable )
 	{
 		pPCA->Destroy();
-		pPCA->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pTable->Get_Name(), _TL("Principal Components")));
+		pPCA->Set_Name(CSG_String::Format("%s [%s]", m_pTable->Get_Name(), _TL("Principal Components")));
 	}
 
 	//-----------------------------------------------------
@@ -417,7 +417,7 @@ bool CTable_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Val
 
 	for(i=0; i<n; i++)
 	{
-		pPCA->Add_Field(CSG_String::Format(SG_T("%s %d"), _TL("Component"), i + 1), SG_DATATYPE_Double);
+		pPCA->Add_Field(CSG_String::Format("%s %d", _TL("Component"), i + 1), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------

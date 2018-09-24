@@ -156,7 +156,7 @@ bool CPolygon_Flatten::On_Execute(void)
 		}
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("number of inner rings"), n));
+	Message_Fmt("\n%s: %d", _TL("number of inner rings"), n);
 
 	if( n == 0 )
 	{

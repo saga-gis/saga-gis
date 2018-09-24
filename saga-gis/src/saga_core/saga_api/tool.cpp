@@ -66,6 +66,8 @@
 
 #include "data_manager.h"
 
+#include <wx/string.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -636,6 +638,56 @@ void CSG_Tool::Message_Add(const CSG_String &Text, bool bNewLine)
 }
 
 //---------------------------------------------------------
+void CSG_Tool::Message_Fmt(const char *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Msg_Add_Execution(s, false);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Message_Fmt(const wchar_t *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Msg_Add_Execution(s, false);
+}
+
+//---------------------------------------------------------
 bool CSG_Tool::Error_Set(TSG_Tool_Error Error_ID)
 {
 	switch( Error_ID )
@@ -671,11 +723,9 @@ bool CSG_Tool::Error_Set(const CSG_String &Error_Text)
 }
 
 //---------------------------------------------------------
-#include <wx/string.h>
-
 bool CSG_Tool::Error_Fmt(const char *Format, ...)
 {
-	wxString	Error;
+	wxString	_s;
 
 	va_list	argptr;
 	
@@ -684,15 +734,15 @@ bool CSG_Tool::Error_Fmt(const char *Format, ...)
 	// since wx 2.9.4 so interpret strings as multibyte
 	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
 	va_start(argptr, _Format);
-	Error.PrintfV(_Format, argptr);
+	_s.PrintfV(_Format, argptr);
 #else
 	va_start(argptr, Format);
-	Error.PrintfV(Format, argptr);
+	_s.PrintfV(Format, argptr);
 #endif
 
 	va_end(argptr);
 
-	CSG_String	s(&Error);
+	CSG_String	s(&_s);
 
 	return( Error_Set(s) );
 }
@@ -700,7 +750,7 @@ bool CSG_Tool::Error_Fmt(const char *Format, ...)
 //---------------------------------------------------------
 bool CSG_Tool::Error_Fmt(const wchar_t *Format, ...)
 {
-	wxString	Error;
+	wxString	_s;
 
 	va_list	argptr;
 	
@@ -709,15 +759,15 @@ bool CSG_Tool::Error_Fmt(const wchar_t *Format, ...)
 	// since wx 2.9.4 so interpret strings as multibyte
 	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
 	va_start(argptr, _Format);
-	Error.PrintfV(_Format, argptr);
+	_s.PrintfV(_Format, argptr);
 #else
 	va_start(argptr, Format);
-	Error.PrintfV(Format, argptr);
+	_s.PrintfV(Format, argptr);
 #endif
 
 	va_end(argptr);
 
-	CSG_String	s(&Error);
+	CSG_String	s(&_s);
 
 	return( Error_Set(s) );
 }

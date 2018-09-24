@@ -257,7 +257,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 
 	if( nDropped > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %d %s"), pTarget->Get_Name(), nDropped, _TL("shapes have been dropped")));
+		Message_Fmt("\n%s: %d %s", pTarget->Get_Name(), nDropped, _TL("shapes have been dropped"));
 	}
 
 	pTarget->Get_Projection() = m_Projector.Get_Target();

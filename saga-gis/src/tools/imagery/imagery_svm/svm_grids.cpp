@@ -322,7 +322,7 @@ bool CSVM_Grids::On_Execute(void)
 	{
 		if( m_pGrids->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("grid has been dropped"), m_pGrids->Get_Grid(i)->Get_Name()));
+			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), m_pGrids->Get_Grid(i)->Get_Name());
 
 			m_pGrids->Del_Item(i);
 		}

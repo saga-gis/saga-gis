@@ -158,7 +158,7 @@ bool COGR_Import::On_Execute(void)
 
 	for(int iFile=0; iFile<Files.Get_Count(); iFile++)
 	{
-		Message_Add(CSG_String::Format("%s: %s", _TL("loading"), Files[iFile].c_str()));
+		Message_Fmt("\n%s: %s", _TL("loading"), Files[iFile].c_str());
 
 		CSG_OGR_DataSet	DataSource;
 

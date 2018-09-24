@@ -119,7 +119,7 @@ bool COGR_Export_KML::On_Execute(void)
 	}
 	else if( pShapes->Get_Projection().Get_Type() != SG_PROJ_TYPE_CS_Geographic )
 	{
-		Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str()), false);
+		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pShapes->Get_Projection().Get_Name().c_str());
 
 		bool	bResult;
 
@@ -133,11 +133,11 @@ bool COGR_Export_KML::On_Execute(void)
 		{
 			pShapes	= &Shapes;
 
-			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("success")), false);
+			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("success"));
 		}
 		else
 		{
-			Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed" )), false);
+			Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed" ));
 		}
 	}
 

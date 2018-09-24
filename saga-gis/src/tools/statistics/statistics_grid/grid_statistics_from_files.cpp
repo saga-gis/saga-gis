@@ -205,7 +205,7 @@ bool CGrid_Statistics_from_Files::On_Execute(void)
 		
 		if( !Grid.is_Valid() )
 		{
-			Message_Add(CSG_String::Format("%s: %s\n", _TL("failed to load"), Files[iFile].c_str()), false);
+			Message_Fmt("\n%s: %s", _TL("failed to load"), Files[iFile].c_str());
 
 			Files[iFile].Clear();
 
@@ -214,7 +214,7 @@ bool CGrid_Statistics_from_Files::On_Execute(void)
 
 		if( System.is_Valid() && !System.is_Equal(Grid.Get_System()) )
 		{
-			Message_Add(CSG_String::Format("%s: %s\n", _TL("incompatible grid system"), Files[iFile].c_str()), false);
+			Message_Fmt("\n%s: %s", _TL("incompatible grid system"), Files[iFile].c_str());
 
 			Files[iFile].Clear();
 
@@ -474,7 +474,7 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 			{
 				for(int z=0, Sum=0; z<pHistogram->Get_NZ(); z++)
 				{
-					pHistogram->Set_Value(x, y, Sum += pHistogram->asInt(x, y, z));
+					pHistogram->Set_Value(x, y, z, Sum += pHistogram->asInt(x, y, z));
 				}
 			}
 		}

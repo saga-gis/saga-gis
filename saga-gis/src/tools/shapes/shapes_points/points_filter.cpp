@@ -244,7 +244,7 @@ bool CPoints_Filter::On_Execute(void)
 		DataObject_Update(pPoints);
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%d %s"), nFiltered, _TL("points have been filtered")));
+	Message_Fmt("\n%d %s", nFiltered, _TL("points have been filtered"));
 
 	return( true );
 }

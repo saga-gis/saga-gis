@@ -278,7 +278,7 @@ bool CWator::On_Execute(void)
 
 	if( is_Progress() )
 	{
-		Message_Add(CSG_String::Format("%s %d %s", _TL("Dead after"), i, _TL("Life Cycles")));
+		Message_Fmt("\n%s %d %s", _TL("Dead after"), i, _TL("Life Cycles"));
 	}
 
 	return( true );

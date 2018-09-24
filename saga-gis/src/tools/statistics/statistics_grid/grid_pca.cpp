@@ -294,18 +294,17 @@ void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 
 	Sum	= Sum > 0.0 ? 100.0 / Sum : 0.0;
 
-	Message_Add(CSG_String::Format("\n%s, %s, %s\n", _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue")), false);
+	Message_Fmt("\n%s, %s, %s", _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue"));
 
 	for(i=m_nFeatures-1; i>=0; i--)
 	{
 		Cum	+= Eigen_Values[i];
 
-		Message_Add(CSG_String::Format("%d.\t%.2f\t%.2f\t%f\n",
-				m_nFeatures - i,
-				Sum * Eigen_Values[i],
-				Sum * Cum,
-				Eigen_Values[i]
-			), false
+		Message_Fmt("\n%d.\t%.2f\t%.2f\t%f",
+			m_nFeatures - i,
+			Sum * Eigen_Values[i],
+			Sum * Cum,
+			Eigen_Values[i]
 		);
 	}
 }
@@ -313,17 +312,18 @@ void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 //---------------------------------------------------------
 void CGrid_PCA::Print_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 {
-	Message_Add(CSG_String::Format("\n%s:\n", _TL("Eigenvectors")), false);
+	Message_Fmt("\n%s:", _TL("Eigenvectors"));
 
 	for(int i=0; i<m_nFeatures; i++)
 	{
+		Message_Add("\n", false);
+
 		for(int j=m_nFeatures-1; j>=0; j--)
 		{
-			Message_Add(CSG_String::Format("%.4f\t", Eigen_Vectors[i][j]), false);
+			Message_Fmt("%.4f\t", Eigen_Vectors[i][j]);
 		}
 
 		Message_Add(m_pGrids->Get_Grid(i)->Get_Name(), false);
-		Message_Add("\n", false);
 	}
 }
 

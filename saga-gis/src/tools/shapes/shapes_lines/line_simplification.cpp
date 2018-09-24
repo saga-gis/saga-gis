@@ -213,7 +213,7 @@ bool CLine_Simplification::On_Execute(void)
 		}
 	}
 
-	Message_Add(CSG_String::Format(SG_T("\n%s: %0.2f%% (%d / %d)"), _TL("Reduction"), 100.0 * nRemoved / (double)nTotal, nRemoved, nTotal), false);
+	Message_Fmt("\n%s: %0.2f%% (%d / %d)", _TL("Reduction"), 100.0 * nRemoved / (double)nTotal, nRemoved, nTotal);
 
 	return( true );
 }

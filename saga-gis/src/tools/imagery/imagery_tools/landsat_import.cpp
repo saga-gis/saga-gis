@@ -205,7 +205,7 @@ bool CLandsat_Import::On_Execute(void)
 
 	for(int i=0; i<Files.Get_Count(); i++)
 	{
-		Message_Add(CSG_String::Format("%s: %s", _TL("loading"), SG_File_Get_Name(Files[i], false).c_str()));
+		Message_Fmt("\n%s: %s", _TL("loading"), SG_File_Get_Name(Files[i], false).c_str());
 
 		CSG_Grid	*pBand	= Get_Band(Files[i]);
 
@@ -341,7 +341,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( NULL );
 	}
 
-	Message_Add(CSG_String::Format("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str()), false);
+	Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
 	pTool->Settings_Push(NULL);
 
@@ -360,7 +360,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	pTool->Settings_Pop();
 
-	Message_Add(CSG_String::Format("\n%s: %s\n", _TL("re-projection"), _TL("failed")), false);
+	Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed"));
 
 	return( NULL );
 }

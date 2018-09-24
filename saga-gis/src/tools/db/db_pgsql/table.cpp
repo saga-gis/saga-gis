@@ -303,7 +303,7 @@ bool CTable_Save::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
 	{
-		Message_Add(CSG_String::Format("%s: %s", _TL("table already exists"), Name.c_str()));
+		Message_Fmt("\n%s: %s", _TL("table already exists"), Name.c_str());
 
 		switch( Parameters("EXISTS")->asInt() )
 		{
@@ -311,11 +311,11 @@ bool CTable_Save::On_Execute(void)
 			break;
 
 		case 1:	// replace existing table
-			Message_Add(CSG_String::Format("%s: %s", _TL("dropping table"), Name.c_str()));
+			Message_Fmt("\n%s: %s", _TL("dropping table"), Name.c_str());
 
 			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
-				Message_Add(CSG_String::Format(" ...%s!", _TL("failed")));
+				Message_Fmt("...%s!", _TL("failed"));
 			}
 			else
 			{
@@ -324,11 +324,11 @@ bool CTable_Save::On_Execute(void)
 			break;
 
 		case 2:	// append records, if table structure allows
-			Message_Add(CSG_String::Format("%s: %s", _TL("appending to existing table"), Name.c_str()));
+			Message_Fmt("\n%s: %s", _TL("appending to existing table"), Name.c_str());
 
 			if( !(bResult = Get_Connection()->Table_Insert(Name, *pTable)) )
 			{
-				Message_Add(CSG_String::Format(" ...%s!", _TL("failed")));
+				Message_Fmt("...%s!", _TL("failed"));
 			}
 			break;
 		}

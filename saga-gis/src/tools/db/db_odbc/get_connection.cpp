@@ -74,22 +74,22 @@ CGet_Servers::CGet_Servers(void)
 {
 	Set_Name		(_TL("List ODBC Servers"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Lists all ODBC sources."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "SERVERS"		, _TL("Server"),
+		"", "SERVERS"	, _TL("Server"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CONNECTED"	, _TL("Only List Connected Servers"),
+	Parameters.Add_Bool(
+		"", "CONNECTED"	, _TL("Only List Connected Servers"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -102,8 +102,8 @@ bool CGet_Servers::On_Execute(void)
 	pServers->Destroy();
 	pServers->Set_Name(_TL("ODBC Servers"));
 
-	pServers->Add_Field(_TL("Server")   , SG_DATATYPE_String);
-	pServers->Add_Field(_TL("Connected"), SG_DATATYPE_Int);
+	pServers->Add_Field(_TL("Server"   ), SG_DATATYPE_String);
+	pServers->Add_Field(_TL("Connected"), SG_DATATYPE_Int   );
 
 	CSG_Strings	Servers;
 
@@ -138,28 +138,28 @@ CGet_Connection::CGet_Connection(void)
 {
 	Set_Name		(_TL("Connect to ODBC Source"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Connects to an ODBC source."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "SERVER"		, _TL("Server"),
+		"", "SERVER"	, _TL("Server"),
 		_TL(""),
-		_TL("")
+		""
 	);
 
 	Parameters.Add_String(
-		NULL	, "USERNAME"	, _TL("User"),
+		"", "USERNAME"	, _TL("User"),
 		_TL(""),
-		_TL("")
+		""
 	);
 
 	Parameters.Add_String(
-		NULL	, "PASSWORD"	, _TL("Password"),
+		"", "PASSWORD"	, _TL("Password"),
 		_TL(""),
-		SG_T(""), false, true
+		"", false, true
 	);
 }
 
@@ -195,14 +195,14 @@ bool CGet_Connection::On_Execute(void)
 
 	if( SG_ODBC_Get_Connection_Manager().Add_Connection(Server, User, Password) )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("ODBC source connected")));
+		Message_Fmt("\n%s: %s", Server.c_str(), _TL("ODBC source connected"));
 
 		SG_UI_ODBC_Update(Server);
 
 		return( true );
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not connect ODBC source")));
+	Message_Fmt("\n%s: %s", Server.c_str(), _TL("could not connect ODBC source"));
 
 	return( false );
 }
@@ -219,16 +219,16 @@ CDel_Connection::CDel_Connection(void)
 {
 	Set_Name		(_TL("Disconnect from ODBC Source"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Disconnects an ODBC source connection."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+		"", "TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -266,16 +266,16 @@ CDel_Connections::CDel_Connections(void)
 {
 	Set_Name		(_TL("Disconnect All"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Disconnects all connected ODBC sources."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+		"", "TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -327,22 +327,22 @@ CTransaction::CTransaction(void)
 {
 	Set_Name		(_TL("Commit/Rollback Transaction"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Execute a commit or rollback on open transactions with ODBC source."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "SERVERS"		, _TL("Server"),
+		"", "SERVERS"		, _TL("Server"),
 		_TL(""),
-		_TL("")
+		""
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TRANSACT"	, _TL("Transactions"),
+		"", "TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -387,7 +387,7 @@ bool CTransaction::On_Execute(void)
 	{
 		if( pConnection->Commit() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions committed")));
+			Message_Fmt("\n%s: %s", Server.c_str(), _TL("open transactions committed"));
 
 			SG_UI_ODBC_Update(Server);
 
@@ -398,7 +398,7 @@ bool CTransaction::On_Execute(void)
 	{
 		if( pConnection->Rollback() )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("open transactions rollbacked")));
+			Message_Fmt("\n%s: %s", Server.c_str(), _TL("open transactions rollbacked"));
 
 			SG_UI_ODBC_Update(Server);
 
@@ -406,7 +406,7 @@ bool CTransaction::On_Execute(void)
 		}
 	}
 
-	Message_Add(CSG_String::Format(SG_T("%s: %s"), Server.c_str(), _TL("could not commit/rollback transactions.")));
+	Message_Fmt("\n%s: %s", Server.c_str(), _TL("could not commit/rollback transactions."));
 
 	return( false );
 }
@@ -423,7 +423,7 @@ CExecute_SQL::CExecute_SQL(void)
 {
 	Set_Name		(_TL("Execute SQL"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Execute SQL commands on a connected ODBC source. "
@@ -431,24 +431,24 @@ CExecute_SQL::CExecute_SQL(void)
 	));
 
 	Parameters.Add_String(
-		NULL	, "SQL"			, _TL("SQL Statment"),
+		"", "SQL"	, _TL("SQL Statment"),
 		_TL(""),
-		SG_T("CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n")
-		SG_T("INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n")
-		SG_T("DROP TABLE myTable1;\n"),
+		"CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n"
+		"INSERT INTO myTable1 (Col1, Col2) VALUES(\'First Value\', 1);\n"
+		"DROP TABLE myTable1;\n",
 		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "COMMIT"		, _TL("Commit"),
+	Parameters.Add_Bool(
+		"", "COMMIT", _TL("Commit"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "STOP"		, _TL("Stop on Error"),
+	Parameters.Add_Bool(
+		"", "STOP"	, _TL("Stop on Error"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -461,12 +461,12 @@ bool CExecute_SQL::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool		bCommit	= Parameters("COMMIT")	->asBool  ();
-	bool		bStop	= Parameters("STOP")	->asBool  ();
-	CSG_String	SQL		= Parameters("SQL")		->asString();
+	bool		bCommit	= Parameters("COMMIT")->asBool  ();
+	bool		bStop	= Parameters("STOP"  )->asBool  ();
+	CSG_String	SQL		= Parameters("SQL"   )->asString();
 
 	//-----------------------------------------------------
-	if( SQL.Find(SG_T(';')) < 0 )
+	if( SQL.Find(';') < 0 )
 	{
 		return( Get_Connection()->Execute(SQL, bCommit) );
 	}
@@ -474,11 +474,11 @@ bool CExecute_SQL::On_Execute(void)
 	//-----------------------------------------------------
 	int		nSuccess = 0, nErrors = 0;
 
-	SQL	+= SG_T(';');
+	SQL	+= ';';
 
 	do
 	{
-		CSG_String	s	= SQL.BeforeFirst(SG_T(';'));
+		CSG_String	s	= SQL.BeforeFirst(';');
 
 		s.Trim();
 
@@ -490,13 +490,13 @@ bool CExecute_SQL::On_Execute(void)
 			{
 				nSuccess++;
 
-				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("okay")), false);
+				Message_Fmt("...%s!", _TL("okay"));
 			}
 			else
 			{
 				nErrors++;
 
-				Message_Add(CSG_String::Format(SG_T("...%s!"), _TL("failed")));
+				Message_Fmt("...%s!", _TL("failed"));
 
 				if( bStop )
 				{
@@ -505,7 +505,7 @@ bool CExecute_SQL::On_Execute(void)
 			}
 		}
 
-		SQL	= SQL.AfterFirst(SG_T(';'));
+		SQL	= SQL.AfterFirst(';');
 	}
 	while( SQL.Length() > 0 );
 

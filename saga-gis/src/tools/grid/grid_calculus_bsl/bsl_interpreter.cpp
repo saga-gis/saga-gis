@@ -205,14 +205,14 @@ bool CBSL_Interpreter::On_Execute(void)
 			if( x.Text == "" )
 				Message_Add(_TL("unknown error: execution"));
 			else
-				Message_Add(CSG_String::Format(SG_T("error: %s\n"), CSG_String(x.Text.c_str()).c_str()));
+				Message_Fmt("\nerror: %s\n", CSG_String(x.Text.c_str()).c_str());
 		}
 		catch(BBFehlerUserbreak x)
 		{
 			if( x.Text == "" )
 				Message_Add(_TL("unknown error: user break"));
 			else
-				Message_Add(CSG_String::Format(SG_T("error: %s\n"), CSG_String(x.Text.c_str()).c_str()));
+				Message_Fmt("\nerror: %s\n", CSG_String(x.Text.c_str()).c_str());
 		}
 	}
 
@@ -262,7 +262,7 @@ bool CBSL_Interpreter::Parse_Vars(bool bFlag)
 	}
 	catch (BBFehlerException)
 	{
-		Message_Add(CSG_String::Format(SG_T("error in line %d: %s\n"), FehlerZeile, CSG_String(FehlerString.c_str()).c_str()));
+		Message_Fmt("\nerror in line %d: %s\n", FehlerZeile, CSG_String(FehlerString.c_str()).c_str());
 
 		DeleteVarList();
 		DeleteAnweisungList(AnweisungList);

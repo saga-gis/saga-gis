@@ -61,7 +61,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -69,27 +69,19 @@
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
-
-
-//---------------------------------------------------------
-
 
 //---------------------------------------------------------
 class CGrid_Accumulation_Functions : public CSG_Tool_Grid
 {
 public:
 	CGrid_Accumulation_Functions(void);
-	virtual ~CGrid_Accumulation_Functions(void);
 
 
 protected:
 
-	virtual bool		On_Execute(void);
-
 	virtual int			On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-private:
-
+	virtual bool		On_Execute(void);
 
 };
 
@@ -102,4 +94,3 @@ private:
 
 //---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Accumulation_Functions_H
-

@@ -71,94 +71,89 @@ CMRVBF::CMRVBF(void)
 {
 	Set_Name		(_TL("Multiresolution Index of Valley Bottom Flatness (MRVBF)"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Calculation of the 'multiresolution index of valley bottom flatness' (MRVBF) and "
 		"the complementary 'multiresolution index of the ridge top flatness' (MRRTF). "
-		"\n\n"
-		"References:\n"
-		"- Gallant, J.C., Dowling, T.I. (2003): "
-		"  'A multiresolution index of valley bottom flatness for mapping depositional areas', "
-		"  Water Resources Research, 39/12:1347-1359\n"
 	));
+
+	Add_Reference("Gallant, J.C., Dowling, T.I.", "2003",
+		"A multiresolution index of valley bottom flatness for mapping depositional areas",
+		"Water Resources Research, 39/12:1347-1359.",
+		SG_T("https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2002WR001426"), SG_T("Wiley")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MRVBF"		, _TL("MRVBF"),
+		"", "MRVBF"		, _TL("MRVBF"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MRRTF"		, _TL("MRRTF"),
+		"", "MRRTF"		, _TL("MRRTF"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "T_SLOPE"		, _TL("Initial Threshold for Slope"),
+	Parameters.Add_Double(
+		"", "T_SLOPE"	, _TL("Initial Threshold for Slope"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 16.0, 0.0, true, 100.0, true
+		16.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "T_PCTL_V"	, _TL("Threshold for Elevation Percentile (Lowness)"),
+	Parameters.Add_Double(
+		"", "T_PCTL_V"	, _TL("Threshold for Elevation Percentile (Lowness)"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.40, 0.0, true, 1.0, true
+		0.40, 0.0, true, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "T_PCTL_R"	, _TL("Threshold for Elevation Percentile (Upness)"),
+	Parameters.Add_Double(
+		"", "T_PCTL_R"	, _TL("Threshold for Elevation Percentile (Upness)"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.35, 0.0, true, 1.0, true
+		0.35, 0.0, true, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_SLOPE"		, _TL("Shape Parameter for Slope"),
+	Parameters.Add_Double(
+		"", "P_SLOPE"	, _TL("Shape Parameter for Slope"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 4.0
+		4.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "P_PCTL"		, _TL("Shape Parameter for Elevation Percentile"),
+	Parameters.Add_Double(
+		"", "P_PCTL"	, _TL("Shape Parameter for Elevation Percentile"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 3.0
+		3.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "UPDATE"		, _TL("Update Views"),
+	Parameters.Add_Bool(
+		"", "UPDATE"	, _TL("Update Views"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CLASSIFY"	, _TL("Classify"),
+	Parameters.Add_Bool(
+		"", "CLASSIFY"	, _TL("Classify"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAX_RES"		, _TL("Maximum Resolution (Percentage)"),
+	Parameters.Add_Double(
+		"", "MAX_RES"	, _TL("Maximum Resolution (Percentage)"),
 		_TL("Maximum resolution as percentage of the diameter of the DEM."),
-		PARAMETER_TYPE_Double	, 100.0, 0.0, true, 100.0, true
+		100.0, 0.0, true, 100.0, true
 	);
 }
 
-//---------------------------------------------------------
-CMRVBF::~CMRVBF(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -168,104 +163,91 @@ CMRVBF::~CMRVBF(void)
 //---------------------------------------------------------
 bool CMRVBF::On_Execute(void)
 {
-	bool		bUpdate;
-	int			Level;
-	double		T_Slope, Resolution, max_Resolution;
-	CSG_Grid	*pDEM, *pMRVBF, *pMRRTF, CF, VF, RF, DEM, Slope, Pctl;
+	//-----------------------------------------------------
+	CSG_Grid	*pDEM	= Parameters("DEM"  )->asGrid();
+	CSG_Grid	*pMRVBF	= Parameters("MRVBF")->asGrid();
+	CSG_Grid	*pMRRTF	= Parameters("MRRTF")->asGrid();
+
+	DataObject_Set_Colors(pMRVBF, 11, SG_COLORS_RED_GREY_BLUE, false);
+	DataObject_Set_Colors(pMRRTF, 11, SG_COLORS_WHITE_RED    , false);
+
+	CSG_Grid	CF, VF, RF, DEM, Slopes, Percentiles;
+
+	VF.Create(*Get_System(), SG_DATATYPE_Float);
+	RF.Create(*Get_System(), SG_DATATYPE_Float);
+	CF.Create(*Get_System(), SG_DATATYPE_Float);
+	CF.Assign(1.0);
+
+	DEM.Create(*pDEM);
 
 	//-----------------------------------------------------
-	pDEM			= Parameters("DEM")			->asGrid();
-	pMRVBF			= Parameters("MRVBF")		->asGrid();
-	pMRRTF			= Parameters("MRRTF")		->asGrid();
+	double	Resolution, max_Resolution, T_Slope;
 
-	T_Slope			= Parameters("T_SLOPE")		->asDouble();
-
-	m_T_Pctl_V		= Parameters("T_PCTL_V")	->asDouble();
-	m_T_Pctl_R		= Parameters("T_PCTL_R")	->asDouble();
-
-	m_P_Slope		= Parameters("P_SLOPE")		->asDouble();
-	m_P_Pctl		= Parameters("P_PCTL")		->asDouble();
-
-	bUpdate			= Parameters("UPDATE")		->asBool();
-
-	max_Resolution	= Parameters("MAX_RES")		->asDouble() / 100.0;
+	max_Resolution	= Parameters("MAX_RES")->asDouble() / 100.0;
 	Resolution		= SG_Get_Length(Get_System()->Get_XRange(), Get_System()->Get_YRange());
 	max_Resolution	= max_Resolution * Resolution;
 
+	T_Slope		= Parameters("T_SLOPE" )->asDouble();
+
+	m_T_Pctl_V	= Parameters("T_PCTL_V")->asDouble();
+	m_T_Pctl_R	= Parameters("T_PCTL_R")->asDouble();
+	m_P_Slope	= Parameters("P_SLOPE" )->asDouble();
+	m_P_Pctl	= Parameters("P_PCTL"  )->asDouble();
+
+	bool	bUpdate	= Parameters("UPDATE")->asBool();
+
 	//-----------------------------------------------------
-	if( 1 )
+	int	Level	= 1;
+	Resolution	= Get_Cellsize();
+
+	Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+	Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
+
+	Get_Slopes		(&DEM, &Slopes);
+	Get_Percentiles	(&DEM, &Percentiles, 3);
+	Get_Flatness	(&Slopes, &Percentiles, &CF, pMRVBF, pMRRTF, T_Slope);
+	UPDATE_VIEWS	(true);
+
+	//-----------------------------------------------------
+	T_Slope	/= 2.0;
+	Level++;
+
+	Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+	Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
+
+	Get_Percentiles	(&DEM, &Percentiles, 6);
+	Get_Flatness	(&Slopes, &Percentiles, &CF, &VF, &RF, T_Slope);
+	Get_MRVBF		(Level, pMRVBF, &VF, pMRRTF, &RF);
+	UPDATE_VIEWS	(false);
+
+	//-----------------------------------------------------
+	while( Process_Get_Okay(false) && Resolution < max_Resolution )
 	{
-	//	DataObject_Set_Colors(pMRVBF, 100, SG_COLORS_WHITE_BLUE		, false);
-		DataObject_Set_Colors(pMRVBF, 100, SG_COLORS_RED_GREY_BLUE	, false);
-
-	//	DataObject_Set_Colors(pMRRTF, 100, SG_COLORS_RED_GREY_BLUE	, true);
-		DataObject_Set_Colors(pMRRTF, 100, SG_COLORS_WHITE_RED		, false);
-
-		CSG_Grid	CF, VF, RF, DEM, Slopes, Percentiles;
-
-		VF.Create(*Get_System(), SG_DATATYPE_Float);
-		RF.Create(*Get_System(), SG_DATATYPE_Float);
-		CF.Create(*Get_System(), SG_DATATYPE_Float);
-		CF.Assign(1.0);
-
-		DEM.Create(*pDEM);
-
-		//-------------------------------------------------
-		Level		= 1;
-		Resolution	= Get_Cellsize();
-
-		Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
-		Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
-
-		Get_Slopes		(&DEM, &Slopes);
-		Get_Percentiles	(&DEM, &Percentiles, 3);
-		Get_Flatness	(&Slopes, &Percentiles, &CF, pMRVBF, pMRRTF, T_Slope);
-		UPDATE_VIEWS	(true);
-
-		//-------------------------------------------------
+		Resolution	*= 3.0;
 		T_Slope		/= 2.0;
 		Level++;
 
-		Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
-		Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
+		Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+		Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
 
-		Get_Percentiles	(&DEM, &Percentiles, 6);
+		Get_Values		(&DEM, &Slopes, &Percentiles, Resolution);
 		Get_Flatness	(&Slopes, &Percentiles, &CF, &VF, &RF, T_Slope);
 		Get_MRVBF		(Level, pMRVBF, &VF, pMRRTF, &RF);
 		UPDATE_VIEWS	(false);
-
-		//-------------------------------------------------
-		while( Process_Get_Okay(false) && Resolution < max_Resolution )
-		{
-			Resolution	*= 3.0;
-			T_Slope		/= 2.0;
-			Level++;
-
-			Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), Level, _TL("step")));
-			Message_Add(CSG_String::Format(SG_T("%s: %d, %s: %.2f, %s %.2f"), _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope));
-
-			Get_Values		(&DEM, &Slopes, &Percentiles, Resolution);
-			Get_Flatness	(&Slopes, &Percentiles, &CF, &VF, &RF, T_Slope);
-			Get_MRVBF		(Level, pMRVBF, &VF, pMRRTF, &RF);
-			UPDATE_VIEWS	(false);
-		}
-
-		if( Parameters("CLASSIFY")->asBool() )
-		{
-			Get_Classified(pMRVBF);
-			Get_Classified(pMRRTF);
-		}
-
-		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	if( Parameters("CLASSIFY")->asBool() )
+	{
+		Get_Classified(pMRVBF);
+		Get_Classified(pMRRTF);
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -278,62 +260,63 @@ inline double CMRVBF::Get_Transformation(double x, double t, double p)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CMRVBF::Get_Smoothed(CSG_Grid *pDEM, CSG_Grid *pSmoothed, int Radius, double Smoothing)
 {
-	if( pDEM && pSmoothed )
+	if( !pDEM || !pSmoothed )
 	{
-		int		x, y, ix, iy, jx, jy, kx, ky;
-		double	d, s;
-
-		CSG_Grid	Kernel(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
-
-		for(iy=-Radius, ky=0; iy<=Radius; iy++, ky++)
-		{
-			for(ix=-Radius, kx=0; ix<=Radius; ix++, kx++)
-			{
-				Kernel.Set_Value(kx, ky, 4.3565 * exp(-SG_Get_Square(sqrt((double)ix*ix + iy*iy) / 3.0)) );
-			//	Kernel.Set_Value(kx, ky, exp(-(ix*ix + iy*iy) / (2.0 * s)) / (2.0 * M_PI * s));
-			}
-		}
-
-		pSmoothed->Create(pDEM, SG_DATATYPE_Float);
-
-		for(y=0; y<pDEM->Get_NY() && Set_Progress(y, pDEM->Get_NY()); y++)
-		{
-			for(x=0; x<pDEM->Get_NX(); x++)
-			{
-				for(iy=-Radius, jy=y-Radius, ky=0, s=d=0.0; iy<=Radius; iy++, jy++, ky++)
-				{
-					for(ix=-Radius, jx=x-Radius, kx=0; ix<=Radius; ix++, jx++, kx++)
-					{
-						if( pDEM->is_InGrid(jx, jy) )
-						{
-							s	+= Kernel.asDouble(kx, ky) * pDEM->asDouble(jx, jy);
-							d	+= Kernel.asDouble(kx, ky);
-						}
-					}
-				}
-
-				if( d > 0.0 )
-				{
-					pSmoothed->Set_Value(x, y, s / d);
-				}
-				else
-				{
-					pSmoothed->Set_NoData(x, y);
-				}
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	CSG_Grid	Kernel(SG_DATATYPE_Double, 1 + 2 * Radius, 1 + 2 * Radius);
+	{
+		for(int iy=-Radius, jy=0; iy<=Radius; iy++, jy++)
+		{
+			for(int ix=-Radius, jx=0; ix<=Radius; ix++, jx++)
+			{
+				Kernel.Set_Value(jx, jy, 4.3565 * exp(-SG_Get_Square(sqrt((double)ix*ix + iy*iy) / 3.0)) );
+			//	Kernel.Set_Value(jx, jy, exp(-(ix*ix + iy*iy) / (2.0 * s)) / (2.0 * M_PI * s));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	pSmoothed->Create(pDEM, SG_DATATYPE_Float);
+
+	for(int y=0; y<pDEM->Get_NY() && Set_Progress(y, pDEM->Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<pDEM->Get_NX(); x++)
+		{
+			CSG_Simple_Statistics	s;
+
+			for(int iy=-Radius, jy=0; iy<=Radius; iy++, jy++)
+			{
+				for(int ix=-Radius, jx=0; ix<=Radius; ix++, jx++)
+				{
+					if( pDEM->is_InGrid(x + ix, y + iy) )
+					{
+						s.Add_Value(pDEM->asDouble(x + ix, y + iy), Kernel.asDouble(jx, jy));
+					}
+				}
+			}
+
+			if( s.Get_Weights() > 0.0 )
+			{
+				pSmoothed->Set_Value(x, y, s.Get_Mean());
+			}
+			else
+			{
+				pSmoothed->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -341,14 +324,13 @@ bool CMRVBF::Get_Values(CSG_Grid *pDEM, CSG_Grid *pSlopes, CSG_Grid *pPercentile
 {
 	if( pDEM && pDEM->is_Valid() && pSlopes && pPercentiles )
 	{
-		int			nx, ny;
 		CSG_Grid	Smoothed;
 
 		Get_Smoothed(pDEM, &Smoothed, 5, 3.0);
 		Get_Slopes(&Smoothed, pSlopes);
 
-		nx	= 2 + (int)(pDEM->Get_XRange() / Resolution);
-		ny	= 2 + (int)(pDEM->Get_YRange() / Resolution);
+		int	nx	= 2 + (int)(pDEM->Get_XRange() / Resolution);
+		int	ny	= 2 + (int)(pDEM->Get_YRange() / Resolution);
 
 		pDEM->Create(SG_DATATYPE_Float, nx, ny, Resolution, pDEM->Get_XMin(), pDEM->Get_YMin());
 		pDEM->Assign(&Smoothed, GRID_RESAMPLING_NearestNeighbour);

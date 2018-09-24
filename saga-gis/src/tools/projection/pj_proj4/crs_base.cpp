@@ -1085,7 +1085,7 @@ bool CCRS_Picker::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %s", _TL("target"), Target.Get_Proj4().c_str()), false);
+	Message_Fmt("\n%s: %s", _TL("target"), Target.Get_Proj4().c_str());
 
 	return( true );
 }
@@ -1108,7 +1108,7 @@ bool CCRS_Transform::On_Execute(void)
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %s", _TL("target"), Target.Get_Proj4().c_str()), false);
+	Message_Fmt("\n%s: %s", _TL("target"), Target.Get_Proj4().c_str());
 
 	//-----------------------------------------------------
 	m_Projector.Set_Precise_Mode(Parameters("PRECISE") && Parameters("PRECISE")->asBool());

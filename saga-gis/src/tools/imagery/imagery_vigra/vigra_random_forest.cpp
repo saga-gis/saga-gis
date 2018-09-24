@@ -459,7 +459,7 @@ bool CViGrA_Random_Forest::On_Execute(void)
 	{
 		if( pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format("%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name()));
+			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name());
 		}
 		else
 		{
@@ -675,9 +675,9 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 			{
 				bSelected[j = Selector.Get_Index(i) - 1]	= 1;
 
-				Message_Add(CSG_String::Format(SG_T("\n%02d. %s (%s: %f)"),
+				Message_Fmt("\n%02d. %s (%s: %f)",
 					i + 1, m_pFeatures[j]->Get_Name(), _TL("Score"), Selector.Get_Score(i)
-				), false);
+				);
 			}
 
 			Message_Add("\n", false);
@@ -964,7 +964,7 @@ bool CViGrA_RF_Presence::On_Execute(void)
 	{
 		if( pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
 		{
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name()));
+			Message_Fmt("\n%s: %s", _TL("grid has been dropped"), pFeatures->Get_Grid(i)->Get_Name());
 		}
 		else
 		{
@@ -1113,9 +1113,9 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 			{
 				bSelected[j = Selector.Get_Index(i) - 1]	= 1;
 
-				Message_Add(CSG_String::Format(SG_T("\n%02d. %s (%s: %f)"),
+				Message_Fmt("\n%02d. %s (%s: %f)",
 					i + 1, m_pFeatures[j]->Get_Name(), _TL("Score"), Selector.Get_Score(i)
-				), false);
+				);
 			}
 
 			Message_Add("\n", false);

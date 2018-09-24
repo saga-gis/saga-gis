@@ -72,26 +72,26 @@ CSelection_Copy::CSelection_Copy(void)
 {	
 	Set_Name		(_TL("Copy Selection"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Copies selected records to a new table."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"), 
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"), 
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUT_TABLE"	, _TL("Copied Selection"),
+	Parameters.Add_Table("",
+		"OUT_TABLE"	, _TL("Copied Selection"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUT_SHAPES"	, _TL("Copied Selection"),
+	Parameters.Add_Shapes("",
+		"OUT_SHAPES", _TL("Copied Selection"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -104,16 +104,11 @@ int CSelection_Copy::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
-		);
-
-		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
-		);
+		pParameters->Set_Enabled("OUT_TABLE" , pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table );
+		pParameters->Set_Enabled("OUT_SHAPES", pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -183,14 +178,14 @@ CSelection_Delete::CSelection_Delete(void)
 {	
 	Set_Name		(_TL("Delete Selection"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Deletes selected records from table."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "INPUT"	, _TL("Input"), 
+	Parameters.Add_Table("",
+		"INPUT"	, _TL("Input"), 
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -227,14 +222,14 @@ CSelection_Invert::CSelection_Invert(void)
 {	
 	Set_Name		(_TL("Invert Selection"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Deselects selected and selects unselected records of given table."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "INPUT"	, _TL("Input"), 
+	Parameters.Add_Table("",
+		"INPUT"	, _TL("Input"), 
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -262,40 +257,38 @@ bool CSelection_Invert::On_Execute(void)
 //---------------------------------------------------------
 CSelect_Numeric::CSelect_Numeric(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Select by Numerical Expression"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Selects records for which the expression is true."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Attribute"),
 		_TL("attribute to be searched; if not set all attributes will be searched"),
 		true
 	);
 
-	Parameters.Add_String(
-		NULL	, "EXPRESSION"	, _TL("Expression"),
+	Parameters.Add_String("",
+		"EXPRESSION", _TL("Expression"),
 		_TL(""),
-		SG_T("a > 0")
+		"a > 0"
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("new selection"),
 			_TL("add to current selection"),
 			_TL("select from current selection"),
@@ -307,19 +300,16 @@ CSelect_Numeric::CSelect_Numeric(void)
 //---------------------------------------------------------
 bool CSelect_Numeric::On_Execute(void)
 {
-	int				Method, Field;
-	CSG_String		Expression;
-	CSG_Table		*pTable;
+	//-----------------------------------------------------
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	int	Field	= Parameters("FIELD" )->asInt();
+	int	Method	= Parameters("METHOD")->asInt();
+
+	//-----------------------------------------------------
 	CSG_Formula		Formula;
 
-	//-----------------------------------------------------
-	pTable		= Parameters("TABLE"     )->asTable();
-	Field		= Parameters("FIELD"     )->asInt();
-	Expression	= Parameters("EXPRESSION")->asString();
-	Method		= Parameters("METHOD"    )->asInt();
-
-	//-----------------------------------------------------
-	if( !Formula.Set_Formula(Expression) )
+	if( !Formula.Set_Formula(Parameters("EXPRESSION")->asString()) )
 	{
 		CSG_String	Message;
 
@@ -386,7 +376,7 @@ bool CSelect_Numeric::On_Execute(void)
 	delete[](Values);
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected records"), pTable->Get_Selection_Count()));
+	Message_Fmt("\n%s: %d", _TL("selected records"), pTable->Get_Selection_Count());
 
 	DataObject_Update(pTable);
 
@@ -403,56 +393,54 @@ bool CSelect_Numeric::On_Execute(void)
 //---------------------------------------------------------
 CSelect_String::CSelect_String(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Select by String Expression"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Searches for an character string expression in the attributes table and selects records where the expression is found."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Attribute"),
 		_TL("attribute to be searched; if not set all attributes will be searched"),
 		true
 	);
 
-	Parameters.Add_String(
-		NULL	, "EXPRESSION"	, _TL("Expression"),
+	Parameters.Add_String("",
+		"EXPRESSION", _TL("Expression"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CASE"		, _TL("Case Sensitive"),
+	Parameters.Add_Bool("",
+		"CASE"		, _TL("Case Sensitive"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "COMPARE"		, _TL("Select if..."),
+	Parameters.Add_Choice("",
+		"COMPARE"	, _TL("Select if..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("attribute is identical with search expression"),
 			_TL("attribute contains search expression"),
 			_TL("attribute is contained in search expression")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("new selection"),
 			_TL("add to current selection"),
 			_TL("select from current selection"),
@@ -464,16 +452,14 @@ CSelect_String::CSelect_String(void)
 //---------------------------------------------------------
 bool CSelect_String::On_Execute(void)
 {
-	int			Method;
-	CSG_Table	*pTable;
-
 	//-----------------------------------------------------
-	pTable			= Parameters("TABLE"     )->asTable();
-	m_Field			= Parameters("FIELD"     )->asInt();
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	m_Field			= Parameters("FIELD"     )->asInt   ();
 	m_Expression	= Parameters("EXPRESSION")->asString();
-	m_Case			= Parameters("CASE"      )->asBool();
-	m_Compare		= Parameters("COMPARE"   )->asInt();
-	Method			= Parameters("METHOD"    )->asInt();
+	m_Case			= Parameters("CASE"      )->asBool  ();
+	m_Compare		= Parameters("COMPARE"   )->asInt   ();
+	int	Method		= Parameters("METHOD"    )->asInt   ();
 
 	//-----------------------------------------------------
 	if( m_Case == false )
@@ -488,7 +474,7 @@ bool CSelect_String::On_Execute(void)
 
 		switch( Method )
 		{
-		case 0:	// New selection
+		default:	// New selection
 			if( ( pRecord->is_Selected() && !Do_Select(pRecord))
 			||	(!pRecord->is_Selected() &&  Do_Select(pRecord)) )
 			{
@@ -496,21 +482,21 @@ bool CSelect_String::On_Execute(void)
 			}
 			break;
 
-		case 1:	// Add to current selection
+		case  1:	// Add to current selection
 			if(  !pRecord->is_Selected() &&  Do_Select(pRecord) )
 			{
 				pTable->Select(i, true);
 			}
 			break;
 
-		case 2:	// Select from current selection
+		case  2:	// Select from current selection
 			if(   pRecord->is_Selected() && !Do_Select(pRecord) )
 			{
 				pTable->Select(i, true);
 			}
 			break;
 
-		case 3:	// Remove from current selection
+		case  3:	// Remove from current selection
 			if(   pRecord->is_Selected() &&  Do_Select(pRecord) )
 			{
 				pTable->Select(i, true);
@@ -520,7 +506,7 @@ bool CSelect_String::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format(SG_T("%s: %d"), _TL("selected records"), pTable->Get_Selection_Count()));
+	Message_Fmt("\n%s: %d", _TL("selected records"), pTable->Get_Selection_Count());
 
 	DataObject_Update(pTable);
 

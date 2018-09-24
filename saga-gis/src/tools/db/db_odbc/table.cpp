@@ -76,14 +76,14 @@ CTable_List::CTable_List(void)
 {
 	Set_Name		(_TL("List Tables"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Lists all tables of an ODBC data source."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "TABLES"		, _TL("Tables"),
+		"", "TABLES"		, _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -132,20 +132,20 @@ CTable_Info::CTable_Info(void)
 {
 	Set_Name		(_TL("List Table Fields"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Loads table information from ODBC data source."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Field Description"),
+		"", "TABLE"		, _TL("Field Description"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+		"", "TABLES"		, _TL("Tables"),
 		_TL(""),
 		""
 	);
@@ -185,20 +185,20 @@ CTable_Load::CTable_Load(void)
 {
 	Set_Name		(_TL("Import Table"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Imports a table from a database via ODBC."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+		"", "TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+		"", "TABLES"		, _TL("Tables"),
 		_TL(""),
 		""
 	);
@@ -233,33 +233,33 @@ CTable_Save::CTable_Save(void)
 {
 	Set_Name		(_TL("Export Table"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Exports a table to a database via ODBC."
 	));
 
 	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+		"", "TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_String(
-		NULL	, "NAME"		, _TL("Table Name"),
+		"", "NAME"		, _TL("Table Name"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
 	Parameters.Add_Parameters(
-		NULL	, "FLAGS"		, _TL("Constraints"),
+		"", "FLAGS"		, _TL("Constraints"),
 		_TL("")
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "EXISTS"		, _TL("If table exists..."),
+		"", "EXISTS"	, _TL("If table exists..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("abort export"),
 			_TL("replace existing table"),
 			_TL("append records, if table structure allows")
@@ -270,7 +270,7 @@ CTable_Save::CTable_Save(void)
 //---------------------------------------------------------
 int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier(SG_T("TABLE")) )
+	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
 
@@ -290,7 +290,7 @@ bool CTable_Save::On_Execute(void)
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
 	{
-		Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("table already exists"), Name.c_str()));
+		Message_Fmt("\n%s: %s", _TL("table already exists"), Name.c_str());
 
 		switch( Parameters("EXISTS")->asInt() )
 		{
@@ -298,11 +298,11 @@ bool CTable_Save::On_Execute(void)
 			break;
 
 		case 1:	// replace existing table
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("dropping table"), Name.c_str()));
+			Message_Fmt("\n%s: %s", _TL("dropping table"), Name.c_str());
 
 			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
-				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
+				Message_Fmt("...%s!", _TL("failed"));
 			}
 			else
 			{
@@ -311,11 +311,11 @@ bool CTable_Save::On_Execute(void)
 			break;
 
 		case 2:	// append records, if table structure allows
-			Message_Add(CSG_String::Format(SG_T("%s: %s"), _TL("appending to existing table"), Name.c_str()));
+			Message_Fmt("\n%s: %s", _TL("appending to existing table"), Name.c_str());
 
 			if( !(bResult = Get_Connection()->Table_Insert(Name, *pTable)) )
 			{
-				Message_Add(CSG_String::Format(SG_T(" ...%s!"), _TL("failed")));
+				Message_Fmt("...%s!", _TL("failed"));
 			}
 			break;
 		}
@@ -346,14 +346,14 @@ CTable_Drop::CTable_Drop(void)
 {
 	Set_Name		(_TL("Drop Table"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Deletes a table from a database via ODBC."
 	));
 
 	Parameters.Add_Choice(
-		NULL	, "TABLES"		, _TL("Tables"),
+		"", "TABLES"		, _TL("Tables"),
 		_TL(""),
 		""
 	);
@@ -391,62 +391,60 @@ bool CTable_Drop::On_Execute(void)
 //---------------------------------------------------------
 CTable_Query::CTable_Query(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Import Table from SQL Query"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Import a SQL table from a database via ODBC."
 	));
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table from SQL Query"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table from SQL Query"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_String(
-		NULL	, "TABLES"		, _TL("Tables"),
+	Parameters.Add_String("",
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_String(
-		NULL	, "FIELDS"		, _TL("Fields"),
+	Parameters.Add_String("",
+		"FIELDS"	, _TL("Fields"),
 		_TL(""),
-		SG_T("*")
+		"*"
 	);
 
-	Parameters.Add_String(
-		NULL	, "WHERE"		, _TL("Where"),
+	Parameters.Add_String("",
+		"WHERE"		, _TL("Where"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	pNode	= Parameters.Add_String(
-		NULL	, "GROUP"		, _TL("Group by"),
+	Parameters.Add_String("",
+		"GROUP"		, _TL("Group by"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_String(
-		pNode	, "HAVING"		, _TL("Having"),
+	Parameters.Add_String("GROUP",
+		"HAVING"	, _TL("Having"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_String(
-		NULL	, "ORDER"		, _TL("Order by"),
+	Parameters.Add_String("",
+		"ORDER"		, _TL("Order by"),
 		_TL(""),
-		SG_T("")
+		""
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISTINCT"	, _TL("Distinct"),
+	Parameters.Add_Bool("",
+		"DISTINCT"	, _TL("Distinct"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 

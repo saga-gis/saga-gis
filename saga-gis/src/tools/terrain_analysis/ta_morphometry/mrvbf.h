@@ -60,8 +60,15 @@
 #ifndef HEADER_INCLUDED__MRVBF_H
 #define HEADER_INCLUDED__MRVBF_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -75,7 +82,6 @@ class CMRVBF : public CSG_Tool_Grid
 {
 public:
 	CMRVBF(void);
-	virtual ~CMRVBF(void);
 
 
 protected:

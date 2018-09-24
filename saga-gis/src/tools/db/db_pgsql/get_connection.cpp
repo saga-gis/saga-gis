@@ -593,7 +593,7 @@ bool CExecute_SQL::On_Execute(void)
 			}
 			else
 			{
-				Message_Add(CSG_String::Format("\n%s: %s", _TL("Success"), Command.c_str()), false);
+				Message_Fmt("\n%s: %s", _TL("Success"), Command.c_str());
 
 				if( pTable && pTable->Get_Count() > 0 )
 				{
@@ -708,7 +708,7 @@ bool CDatabase_Create::On_Execute(void)
 
 	if( SG_PG_Get_Connection_Manager().Get_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port)) )
 	{
-		Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("PostgreSQL database is already connected")));
+		Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("PostgreSQL database is already connected"));
 
 		return( false );
 	}
@@ -723,7 +723,7 @@ bool CDatabase_Create::On_Execute(void)
 		{
 			if( pConnection->Execute("CREATE EXTENSION postgis") )
 			{
-				Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS extension added")));
+				Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("PostGIS extension added"));
 			}
 
 			pConnection->GUI_Update();
@@ -732,7 +732,7 @@ bool CDatabase_Create::On_Execute(void)
 		}
 	}
 
-	Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not create new PostgreSQL database")));
+	Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("could not create new PostgreSQL database"));
 
 	return( false );
 }
@@ -801,7 +801,7 @@ bool CDatabase_Destroy::On_Execute(void)
 	{
 		if( !SG_PG_Get_Connection_Manager().Del_Connection(CSG_String::Format("%s [%s:%d]", Name, Host, Port), false) )
 		{
-			Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not disconnect and drop PostgreSQL database")));
+			Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("could not disconnect and drop PostgreSQL database"));
 
 			return( false );
 		}
@@ -816,7 +816,7 @@ bool CDatabase_Destroy::On_Execute(void)
 		return( true );
 	}
 
-	Message_Add(CSG_String::Format("%s [%s:%d]: %s", Name, Host, Port, _TL("could not drop PostgreSQL database")));
+	Message_Fmt("\n%s [%s:%d]: %s", Name, Host, Port, _TL("could not drop PostgreSQL database"));
 
 	return( false );
 }

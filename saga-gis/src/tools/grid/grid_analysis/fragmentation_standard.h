@@ -85,7 +85,6 @@ class CFragmentation_Standard : public CFragmentation_Base
 {
 public:
 	CFragmentation_Standard(void);
-	virtual ~CFragmentation_Standard(void);
 
 
 protected:

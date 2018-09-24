@@ -312,7 +312,7 @@ bool CKriging_Base::On_Execute(void)
 	//-----------------------------------------------------
 	if( bResult && (bResult = _Initialise_Grids() && On_Initialize()) )
 	{
-		Message_Add(CSG_String::Format("%s: %s", _TL("Variogram Model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str()), false);
+		Message_Fmt("\n%s: %s", _TL("Variogram Model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str());
 
 		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 		{

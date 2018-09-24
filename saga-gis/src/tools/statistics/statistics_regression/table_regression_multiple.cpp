@@ -309,12 +309,12 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 
 	if( CrossVal > 0 && Regression.Get_CrossValidation(CrossVal) )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n%s:\n"      ), _TL("Cross Validation")), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%s\n"  ), _TL("Type"   ), Parameters("CROSSVAL")->asString()), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%d\n"  ), _TL("Samples"), Regression.Get_CV_nSamples()      ), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%f\n"  ), _TL("RMSE"   ), Regression.Get_CV_RMSE()          ), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("NRMSE"  ), Regression.Get_CV_NRMSE()  * 100.0), false);
-		Message_Add(CSG_String::Format(SG_T("\t%s:\t%.2f\n"), _TL("R2"     ), Regression.Get_CV_R2()     * 100.0), false);
+		Message_Fmt("\n%s:", _TL("Cross Validation"));
+		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString());
+		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), Regression.Get_CV_nSamples()      );
+		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), Regression.Get_CV_RMSE()          );
+		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), Regression.Get_CV_NRMSE()  * 100.0);
+		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), Regression.Get_CV_R2()     * 100.0);
 	}
 
 	//-----------------------------------------------------

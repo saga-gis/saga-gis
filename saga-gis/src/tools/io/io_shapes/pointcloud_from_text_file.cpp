@@ -426,7 +426,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 		||  yField >= Values.Get_Count() || !Values[yField].asDouble(y)
 		||  zField >= Values.Get_Count() || !Values[zField].asDouble(z) )
 		{
-			Message_Add(CSG_String::Format("%s: %s [%d]", _TL("Warning"), _TL("Skipping misformatted line"), nLines));
+			Message_Fmt("\n%s: %s [%d]", _TL("Warning"), _TL("Skipping misformatted line"), nLines);
 
 			continue;
 		}
@@ -475,10 +475,12 @@ bool CPointCloud_From_Text_File::On_Execute(void)
     //-----------------------------------------------------
 	if( nLines > pPoints->Get_Count() )
 	{
-		Message_Add(CSG_String::Format("%s: %d %s", _TL("Warning"), nLines - pPoints->Get_Count(), _TL("invalid points have been skipped")), true);
+		Message_Add(" ", true);
+		Message_Fmt("%s: %d %s", _TL("Warning"), nLines - pPoints->Get_Count(), _TL("invalid points have been skipped"));
 	}
 
-	Message_Add(CSG_String::Format("%d %s", pPoints->Get_Count(), _TL("points have been imported with success")), true);
+	Message_Add(" ", true);
+	Message_Fmt("%d %s", pPoints->Get_Count(), _TL("points have been imported with success"));
 
 	return( true );
 }

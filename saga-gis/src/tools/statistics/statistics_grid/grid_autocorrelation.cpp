@@ -191,7 +191,7 @@ bool CGrid_Autocorrelation::On_Execute(void)
 	pRecord->Set_Value(6, pGrid->Get_Variance() * pGrid->Get_NCells());
 	pRecord->Set_Value(7, Sum);
 
-	Message_Add(CSG_String::Format("\n%s (%s): %f\n", _TL("Moran's I"), pGrid->Get_Name(), Moran_I), false);
+	Message_Fmt("\n%s (%s): %f", _TL("Moran's I"), pGrid->Get_Name(), Moran_I);
 
 	if( Parameters("DIALOG")->asBool() )
 	{

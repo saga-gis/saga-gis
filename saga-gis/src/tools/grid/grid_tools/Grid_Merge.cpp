@@ -897,7 +897,7 @@ bool CGrids_Merge::On_Execute(void)
 			}
 			else if( z == pList_Grids->Get_Grids(i)->Get_NZ() )	// throw warning only once
 			{
-				Message_Add(CSG_String::Format("[%s] %s: [%d] %s", _TL("Warning"), _TL("incompatible input"), i + 1, pList_Grids->Get_Grids(i)->Get_Name()));
+				Message_Fmt("\n[%s] %s: [%d] %s", _TL("Warning"), _TL("incompatible input"), i + 1, pList_Grids->Get_Grids(i)->Get_Name());
 			}
 		}
 

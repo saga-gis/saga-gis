@@ -324,7 +324,7 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<=nSteps && Set_Progress(i, nSteps); i++)
 	{
-		Message_Add(CSG_String::Format("\n%s: [%d] %f", _TL("Scale"), i, Scale), false);
+		Message_Fmt("\n%s: [%d] %f", _TL("Scale"), i, Scale);
 
 		Add_Noise(pGrid, Scale);
 

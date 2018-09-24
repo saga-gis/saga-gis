@@ -560,10 +560,9 @@ bool CGSGrid_Zonal_Statistics::On_Execute(void)
 
 	}
 
-
 	if( NDcountStat > 0 )
 	{
-		Message_Add(CSG_String::Format(SG_T("\n\n\n%s: %d %s\n\n\n"), _TL("WARNING"), NDcountStat, _TL("NoData value(s) in statistic grid(s)!")));
+		Message_Fmt("\n%s: %d %s", _TL("Warning"), NDcountStat, _TL("NoData value(s) in statistic grid(s)!"));
 	}
 
 	return (true);

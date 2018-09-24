@@ -324,8 +324,8 @@ bool CClassification_Quality::On_Execute(void)
 		Summary[0].Set_Value(0, "Kappa"           ); Summary[0].Set_Value(1, k  = (nTotal * nTrue - nProd) / k);
 		Summary[1].Set_Value(0, "Overall Accuracy"); Summary[1].Set_Value(1, OA = nTrue / (double)nTotal);
 
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Kappa"           ), k ), false);
-		Message_Add(CSG_String::Format("\n%s: %f", _TL("Overall Accuracy"), OA), false);
+		Message_Fmt("\n%s: %f", _TL("Kappa"           ), k );
+		Message_Fmt("\n%s: %f", _TL("Overall Accuracy"), OA);
 	}
 
 	//-----------------------------------------------------

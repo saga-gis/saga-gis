@@ -220,7 +220,7 @@ bool CRemove_Duplicates::On_Execute(void)
 	}
 	else
 	{
-		Message_Add(CSG_String::Format("%d %s", m_pPoints->Get_Selection_Count(), _TL("duplicates have been removed.")));
+		Message_Fmt("\n%d %s", m_pPoints->Get_Selection_Count(), _TL("duplicates have been removed."));
 
 		m_pPoints->Del_Selection();
 	}

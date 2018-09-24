@@ -490,9 +490,7 @@ bool CPresence_Prediction::Get_Training(void)
 
 			for(list< pair< pair<string, string>, double> >::const_iterator i=Features.begin(); i!=Features.end(); i++)
 			{
-				Message_Add(CSG_String::Format("\n%10.3f  %-10s %s",
-					i->second, i->first.first.c_str(), i->first.second.c_str()
-				), false);
+				Message_Fmt("\n%10.3f  %-10s %s", i->second, i->first.first.c_str(), i->first.second.c_str());
 			}/**/
 
 			CSG_String	File(Parameters("YT_FILE_SAVE")->asString());

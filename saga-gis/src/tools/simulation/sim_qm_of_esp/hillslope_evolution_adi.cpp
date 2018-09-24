@@ -245,13 +245,13 @@ bool CHillslope_Evolution_ADI::On_Execute(void)
 
 	if( dTime > nTime )
 	{
-		Message_Add(CSG_String::Format("\n%s: %s [%f]", _TL("Warning"), _TL("Time step exceeds duration"), dTime), false);
+		Message_Fmt("\n%s: %s [%f]", _TL("Warning"), _TL("Time step exceeds duration"), dTime);
 
 		dTime	= nTime;
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %f", _TL("Time Step"), dTime), false);
-	Message_Add(CSG_String::Format("\n%s: %d", _TL("Steps"), (int)(nTime / dTime)), false);
+	Message_Fmt("\n%s: %f", _TL("Time Step"), dTime);
+	Message_Fmt("\n%s: %d", _TL("Steps"), (int)(nTime / dTime));
 
 	//-----------------------------------------------------
 	for(double iTime=dTime; iTime<=nTime && Set_Progress(iTime, nTime); iTime+=dTime)

@@ -149,7 +149,7 @@ bool CGDAL_Import_ASTER::On_Execute(void)
 
 	if( DataSet.Get_DriverID().Cmp("HDF4") )
 	{
-		Message_Add(CSG_String::Format("\n%s: %s [%s]\n", _TL("Warning"), _TL("Driver"), DataSet.Get_DriverID().c_str()), false);
+		Message_Fmt("\n%s: %s [%s]\n", _TL("Warning"), _TL("Driver"), DataSet.Get_DriverID().c_str());
 	}
 
 	//-----------------------------------------------------

@@ -257,7 +257,7 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 
 	if( DataSet.Get_DriverID().Cmp("netCDF") )
 	{
-		Message_Add(CSG_String::Format("\n%s: %s [%s]\n", _TL("Warning"), _TL("Driver"), DataSet.Get_DriverID().c_str()), false);
+		Message_Fmt("\n%s: %s [%s]\n", _TL("Warning"), _TL("Driver"), DataSet.Get_DriverID().c_str());
 	}
 
 	//-----------------------------------------------------
@@ -301,10 +301,10 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name
 
 	DataSet.Get_MetaData(MetaData);
 
-	Message_Add(CSG_String::Format("\n____\n%s\n%s\n%s\n",
+	Message_Fmt("\n____\n%s\n%s\n%s\n",
 		Name.c_str(),
 		Description.c_str(),
-		MetaData.asText().c_str()), false
+		MetaData.asText().c_str()
 	);
 
 	//-----------------------------------------------------

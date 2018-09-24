@@ -422,7 +422,7 @@ bool CTable_Text_Import_Numbers::On_Execute(void)
 	{
 		if( !Import(Files[i]) )
 		{
-			Message_Add(CSG_String::Format("\n%s: %s", _TL("failed to import table"), Files[i].c_str()), false);
+			Message_Fmt("\n%s: %s", _TL("failed to import table"), Files[i].c_str());
 		}
 	}
 

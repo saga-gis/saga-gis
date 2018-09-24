@@ -242,7 +242,7 @@ bool CPROJ4_Shapes::_Get_Conversion(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 
 		if( nDropped > 0 )
 		{
-			Message_Add(CSG_String::Format(SG_T("%d %s"), nDropped, _TL("shapes have been dropped")));
+			Message_Fmt("\n%d %s", nDropped, _TL("shapes have been dropped"));
 		}
 
 		return( pTarget->Get_Count() > 0 );

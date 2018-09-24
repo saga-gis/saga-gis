@@ -239,7 +239,7 @@ bool CGrid_Cluster_ISODATA::On_Execute(void)
 			}
 		}
 
-		Message_Add(CSG_String::Format("\n%s: %s", _TL("internal data type"), SG_Data_Type_Get_Name(Data_Type).c_str()), false);
+		Message_Fmt("\n%s: %s", _TL("internal data type"), SG_Data_Type_Get_Name(Data_Type).c_str());
 	}
 
 	//-----------------------------------------------------

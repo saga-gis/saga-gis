@@ -274,7 +274,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 			pT_A->Del_Record(Delete[i].asInt(0));
 		}
 
-		Message_Add(CSG_String::Format("%d %s", pT_A->Get_Selection_Count(), _TL("unjoined records have been removed")));
+		Message_Fmt("\n%d %s", pT_A->Get_Selection_Count(), _TL("unjoined records have been removed"));
 	}
 
 	if( pT_A == Parameters("TABLE_A")->asTable() )

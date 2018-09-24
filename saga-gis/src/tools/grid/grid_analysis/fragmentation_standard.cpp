@@ -70,9 +70,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define VAL_NODATA		-1
-#define VAL_NO			 0
-#define VAL_YES			 1
+#define VAL_NODATA	-1
+#define VAL_NO		 0
+#define VAL_YES		 1
 
 
 ///////////////////////////////////////////////////////////
@@ -85,10 +85,9 @@
 CFragmentation_Standard::CFragmentation_Standard(void)
 	: CFragmentation_Base()
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Fragmentation (Standard)"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Grid based fragmentation analysis after Riitters et al. (2000).\n"
@@ -99,39 +98,32 @@ CFragmentation_Standard::CFragmentation_Standard(void)
 		"(4) edge, if Density > 0.6 and Density - Connectivity < 0\n"
 		"(5) transitional, if 0.4 < Density < 0.6\n"
 		"(6) patch, if Density < 0.4\n"
-		"\n"
-		"\n"
-		"References:\n"
-		"Riitters, K., Wickham, J., O'Neill, R., Jones, B., Smith, E. (2000): \n"
-		"Global-scale patterns of forest fragmentation. Conservation Ecology 4(2): 3\n"
-		"<a href=\"http://www.ecologyandsociety.org/vol4/iss2/art3/\">http://www.ecologyandsociety.org/vol4/iss2/art3/</a>\n"
 	));
 
-	//-----------------------------------------------------
+	Add_Reference("Riitters, K., Wickham, J., O'Neill, R., Jones, B., Smith, E.", "2000",
+		"Global-scale patterns of forest fragmentation",
+		"Conservation Ecology 4(2):3."
+		SG_T("https://www.srs.fs.usda.gov/pubs/ja/ja_riitters006.pdf")
+	);
+
 	Parameters.Add_Choice(
-		NULL	, "CIRCULAR"		, _TL("Neighborhood Type"),
+		"", "CIRCULAR"	, _TL("Neighbourhood"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("square"),
 			_TL("circle")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DIAGONAL"		, _TL("Include diagonal neighbour relations"),
+	Parameters.Add_Bool(
+		"", "DIAGONAL"	, _TL("Include diagonal neighbour relations"),
 		_TL(""),
-		PARAMETER_TYPE_Bool			, true
+		true
 	);
 }
 
-//---------------------------------------------------------
-CFragmentation_Standard::~CFragmentation_Standard(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -169,7 +161,7 @@ bool CFragmentation_Standard::Initialise(CSG_Grid *pClasses, int Class)
 	//-----------------------------------------------------
 	for(y=m_Radius_iMin; y<=m_Radius_iMax; y++)
 	{
-		Message_Add(CSG_String::Format(SG_T("%s %d: %f (%f)"), _TL("Scale"), 1 + y - m_Radius_iMin, (1.0 + 2.0 * y) * Get_Cellsize(), 1.0 + 2.0 * y));
+		Message_Fmt("\n%s %d: %f (%f)", _TL("Scale"), 1 + y - m_Radius_iMin, (1.0 + 2.0 * y) * Get_Cellsize(), 1.0 + 2.0 * y);
 	}
 
 	//-----------------------------------------------------
@@ -187,8 +179,6 @@ bool CFragmentation_Standard::Finalise(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -216,12 +206,12 @@ bool CFragmentation_Standard::Get_Fragmentation(int x, int y, double &Density, d
 				{
 					switch( m_Aggregation )
 					{
-					case 0:	default:
+					default:
 						Density			= 0.5 * (d + Density);
 						Connectivity	= 0.5 * (c + Connectivity);
 						break;
 
-					case 1:
+					case  1:
 						Density			*= d;
 						Connectivity	*= c;
 						break;
@@ -240,8 +230,6 @@ bool CFragmentation_Standard::Get_Fragmentation(int x, int y, double &Density, d
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -345,8 +333,6 @@ bool CFragmentation_Standard::Get_Fragmentation(int x, int y, double &Density, d
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
