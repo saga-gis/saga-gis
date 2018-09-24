@@ -133,6 +133,32 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CGrids_Extract_ZLevel : public CSG_Tool_Grid
+{
+public:
+	CGrids_Extract_ZLevel(void);
+
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CGrids_Delete : public CSG_Tool_Grid
 {
 public:

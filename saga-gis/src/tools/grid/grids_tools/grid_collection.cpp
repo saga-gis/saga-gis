@@ -555,6 +555,126 @@ bool CGrids_Extract::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CGrids_Extract_ZLevel::CGrids_Extract_ZLevel(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Extract a Grid from a Grid Collection"));
+
+	Set_Author		("O.Conrad (c) 2017");
+
+	Set_Description	(_TW(
+		"Extracts a grid at the specified z-level from the input "
+		"grid collection using the chosen interpolation."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grids("",
+		"GRIDS"		, _TL("Grid Collection"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Double("",
+		"Z_LEVEL"	, _TL("Z"),
+		_TL(""),
+		0.0
+	);
+
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("Nearest Neigbhour"   ),
+			_TL("Linear Interpolation"),
+			_TL("Spline Interpolation")
+		), 2
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrids_Extract_ZLevel::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGrids_Extract_ZLevel::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Extract_ZLevel::On_Execute(void)
+{
+	//-----------------------------------------------------
+	double	z	= Parameters("Z_LEVEL")->asDouble();
+
+	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
+
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	pGrid->Create(pGrids->Get_System(), pGrids->Get_Type());
+
+	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
+
+	pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString()));
+
+	TSG_Grid_Resampling	Resampling;
+
+	switch( Parameters("RESAMPLING")->asInt() )
+	{
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BSpline         ; break;
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	Value;
+
+			if( pGrids->Get_Value(x, y, z, Value, GRID_RESAMPLING_NearestNeighbour, Resampling) )
+			{
+				pGrid->Set_Value(x, y, Value);
+			}
+			else
+			{
+				pGrid->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrids_Delete::CGrids_Delete(void)
 {
 	//-----------------------------------------------------
