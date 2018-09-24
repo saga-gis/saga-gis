@@ -73,7 +73,7 @@ CPolygon_Clip::CPolygon_Clip(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Clipping"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Clipping of vector layers with a polygon layer.\n"
@@ -84,74 +84,70 @@ CPolygon_Clip::CPolygon_Clip(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "CLIP"		, _TL("Clip Features"),
+		"", "CLIP"		, _TL("Clip Features"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "S_INPUT"		, _TL("Input Features"),
+		"", "S_INPUT"	, _TL("Input Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "S_OUTPUT"	, _TL("Output Features"),
+		"", "S_OUTPUT"	, _TL("Output Features"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "M_INPUT"		, _TL("Input Features"),
+		"", "M_INPUT"	, _TL("Input Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "M_OUTPUT"	, _TL("Output Features"),
+		"", "M_OUTPUT"	, _TL("Output Features"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISSOLVE"	, _TL("Dissolve Clip Features"),
+	Parameters.Add_Bool(
+		"", "DISSOLVE"	, _TL("Dissolve Clip Features"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MULTIPLE"	, _TL("Multiple Input Features"),
+	Parameters.Add_Bool(
+		"", "MULTIPLE"	, _TL("Multiple Input Features"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CPolygon_Clip::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("MULTIPLE")) )
+	if(	pParameter->Cmp_Identifier("MULTIPLE") )
 	{
-		pParameters->Get_Parameter("S_INPUT" )->Set_Enabled(pParameter->asBool() == false);
-		pParameters->Get_Parameter("S_OUTPUT")->Set_Enabled(pParameter->asBool() == false);
+		pParameters->Set_Enabled("S_INPUT" , pParameter->asBool() == false);
+		pParameters->Set_Enabled("S_OUTPUT", pParameter->asBool() == false);
 
-		pParameters->Get_Parameter("M_INPUT" )->Set_Enabled(pParameter->asBool() == true);
-		pParameters->Get_Parameter("M_OUTPUT")->Set_Enabled(pParameter->asBool() == true);
+		pParameters->Set_Enabled("M_INPUT" , pParameter->asBool() == true);
+		pParameters->Set_Enabled("M_OUTPUT", pParameter->asBool() == true);
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -203,13 +199,13 @@ bool CPolygon_Clip::On_Execute(void)
 //---------------------------------------------------------
 bool CPolygon_Clip::Clip_Shapes(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shapes *pOutput)
 {
-	pOutput->Create(pInput->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("clipped")), pInput);
+	pOutput->Create(pInput->Get_Type(), CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("clipped")), pInput);
 
 	switch( pInput->Get_Type() )
 	{
-	case SHAPE_TYPE_Point:		Clip_Points  (pClip, pInput, pOutput);	break;
-	case SHAPE_TYPE_Points:		Clip_Points  (pClip, pInput, pOutput);	break;
-	case SHAPE_TYPE_Line:		Clip_Lines   (pClip, pInput, pOutput);	break;
+	case SHAPE_TYPE_Point  :	Clip_Points  (pClip, pInput, pOutput);	break;
+	case SHAPE_TYPE_Points :	Clip_Points  (pClip, pInput, pOutput);	break;
+	case SHAPE_TYPE_Line   :	Clip_Lines   (pClip, pInput, pOutput);	break;
 	case SHAPE_TYPE_Polygon:	Clip_Polygons(pClip, pInput, pOutput);	break;
 	}
 
@@ -218,8 +214,6 @@ bool CPolygon_Clip::Clip_Shapes(CSG_Shapes *pClip, CSG_Shapes *pInput, CSG_Shape
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -253,8 +247,6 @@ void CPolygon_Clip::Clip_Points(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_Sha
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -349,8 +341,6 @@ TSG_Point CPolygon_Clip::Get_Crossing(CSG_Shape_Polygon *pPolygon, const TSG_Poi
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -358,7 +348,7 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 {
 	for(int iClip=0; iClip<pClips->Get_Count() && Process_Get_Okay(); iClip++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d/%d"), _TL("clip features"), iClip + 1, pClips->Get_Count()));
+		Process_Set_Text(CSG_String::Format("%s: %d/%d", _TL("clip features"), iClip + 1, pClips->Get_Count()));
 
 		CSG_Shape	*pClip	= pClips->Get_Shape(iClip);
 
@@ -376,8 +366,6 @@ void CPolygon_Clip::Clip_Polygons(CSG_Shapes *pClips, CSG_Shapes *pInputs, CSG_S
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

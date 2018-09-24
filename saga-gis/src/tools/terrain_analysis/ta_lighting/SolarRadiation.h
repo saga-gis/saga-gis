@@ -103,7 +103,7 @@ private:
 
 	double					m_Solar_Const, m_Latitude, m_Linke, m_Vapour, m_Atmosphere, m_Transmittance, m_Pressure, m_Water, m_Dust;
 
-	CSG_Grid				*m_pDEM, *m_pSVF, *m_pLinke, *m_pVapour, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pRatio, *m_pDuration, *m_pSunrise, *m_pSunset,
+	CSG_Grid				*m_pDEM, *m_pSVF, *m_pLinke, *m_pVapour, *m_pDirect, *m_pDiffus, *m_pTotal, *m_pDuration, *m_pSunrise, *m_pSunset,
 							m_Slope, m_Aspect, m_Shade, m_Lat, m_Lon, m_Sun_Height, m_Sun_Azimuth;
 
 
@@ -116,6 +116,12 @@ private:
 
 	double					Get_Air_Mass			(double Sun_Height);
 	bool					Get_Irradiance			(int x, int y, double Sun_Height, double Sun_Azimuth, double &Direct, double &Diffus);
+
+	bool					is_Shaded				(int x, int y);
+	double					Get_Slope				(int x, int y);
+	double					Get_Aspect				(int x, int y);
+
+	bool					Get_Slope_Gradient		(void);
 
 	bool					Get_Shade_Params		(double Sun_Height, double Sun_Azimuth, double &dx, double &dy, double &dz, int &Shadowing);
 	bool					Get_Shade				(double Sun_Height, double Sun_Azimuth);

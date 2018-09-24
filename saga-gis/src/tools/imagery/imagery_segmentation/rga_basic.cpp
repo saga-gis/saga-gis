@@ -332,8 +332,8 @@ bool CCandidates::Get(int &x, int &y, int &Segment)
 #define SEEDFIELD_Y		(SEEDFIELD_X + 1)
 #define SEEDFIELD_Z		(SEEDFIELD_X + 2)
 
-#define NO_SEGMENT			-1
-#define NO_SIMILARITY		-1.0
+#define NO_SEGMENT		-1
+#define NO_SIMILARITY	-1.
 
 
 ///////////////////////////////////////////////////////////
@@ -345,116 +345,116 @@ bool CCandidates::Get(int &x, int &y, int &Segment)
 //---------------------------------------------------------
 CRGA_Basic::CRGA_Basic(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Seeded Region Growing"));
 
 	Set_Author		("B. Bechtel, O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"\nReferences:\n"
-		"Adams, R. & Bischof, L. (1994): Seeded Region Growing. "
-		"IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.\n"
-		"\n"
-		"Bechtel, B., Ringeler, A. & Boehner, J. (2008): "
-		"Segmentation for Object Extraction of Trees using MATLAB and SAGA. "
-		"In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. "
-		"Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70. "
-		"<a href=\"http://downloads.sourceforge.net/saga-gis/hbpl19_01.pdf\">download</a>\n"
-		"\n"
+		"Seeded Region Growing"
 	));
 
+	Add_Reference("Adams, R. & Bischof, L.", "1994",
+		"Seeded Region Growing",
+		"IEEE Transactions on Pattern Analysis and Machine Intelligence, Vol.16, No.6, p.641-647.",
+		SG_T("https://pdfs.semanticscholar.org/db44/31b2a552d0f3d250df38b2c60959f404536f.pdf"), SG_T("online")
+	);
+
+	Add_Reference("Bechtel, B., Ringeler, A. & Boehner, J.", "2008",
+		"Segmentation for Object Extraction of Trees using MATLAB and SAGA",
+		"In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. "
+		"Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, 19:59-70.",
+		SG_T("http://downloads.sourceforge.net/saga-gis/hbpl19_01.pdf"), SG_T("online")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "SEEDS"		, _TL("Seeds"),
+	Parameters.Add_Grid("",
+		"SEEDS"		, _TL("Seeds"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"	, _TL("Features"),
+	Parameters.Add_Grid_List("",
+		"FEATURES"	, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SEGMENTS"	, _TL("Segments"),
+	Parameters.Add_Grid("",
+		"SEGMENTS"	, _TL("Segments"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SIMILARITY"	, _TL("Similarity"),
+	Parameters.Add_Grid("",
+		"SIMILARITY", _TL("Similarity"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Seeds"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Seeds"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NORMALIZE"	, _TL("Normalize"),
+	Parameters.Add_Bool("",
+		"NORMALIZE"	, _TL("Normalize"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, false
+		false
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "NEIGHBOUR"	, _TL("Neighbourhood"),
+	Parameters.Add_Choice("",
+		"NEIGHBOUR"	, _TL("Neighbourhood"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("4 (von Neumann)"),
 			_TL("8 (Moore)")
 		), 0
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("feature space and position"),
 			_TL("feature space")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "SIG_1"			, _TL("Variance in Feature Space"),
+	Parameters.Add_Double("METHOD",
+		"SIG_1"		, _TL("Variance in Feature Space"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0, 0.0, true	// 0.36
+		1.0, 0.0, true	// 0.36
 	);
 
-	Parameters.Add_Value(
-		pNode	, "SIG_2"			, _TL("Variance in Position Space"),
+	Parameters.Add_Double("METHOD",
+		"SIG_2"		, _TL("Variance in Position Space"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 1.0, 0.0, true	// 8.2141
+		1.0, 0.0, true	// 8.2141
 	);
 
-	Parameters.Add_Value(
-		pNode	, "THRESHOLD"		, _TL("Similarity Threshold"),
+	Parameters.Add_Double("METHOD",
+		"THRESHOLD"	, _TL("Similarity Threshold"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 0.0, 0.0, true	// 0.15
+		0.0, 0.0, true	// 0.15
 	);
 
-	Parameters.Add_Value(
-		NULL	, "REFRESH"			, _TL("Refresh"),
+	Parameters.Add_Bool("",
+		"REFRESH"	, _TL("Refresh"),
 		_TL(""),
-		PARAMETER_TYPE_Bool			, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LEAFSIZE"		, _TL("Leaf Size (for Speed Optimisation)"),
+	Parameters.Add_Int("",
+		"LEAFSIZE"	, _TL("Leaf Size (for Speed Optimisation)"),
 		_TL(""),
-		PARAMETER_TYPE_Int			, 256, 2, true
+		256, 2, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -466,13 +466,11 @@ int CRGA_Basic::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Enabled("SIG_2", pParameter->asInt() == 0);
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -481,15 +479,11 @@ bool CRGA_Basic::On_Execute(void)
 {
 	bool		bRefresh;
 	int			x, y, i, Segment;
-	CSG_Grid	*pSeeds;
 
 	//-----------------------------------------------------
 	m_pSegments		= Parameters("SEGMENTS"  )->asGrid();
 	m_pFeatures		= Parameters("FEATURES"  )->asGridList();
 	m_nFeatures		= m_pFeatures->Get_Grid_Count();
-
-	pSeeds			= Parameters("SEEDS"     )->asGrid();
-	m_pSeeds		= Parameters("TABLE"     )->asTable();
 
 	m_pSimilarity	= Parameters("SIMILARITY")->asGrid();
 
@@ -512,8 +506,10 @@ bool CRGA_Basic::On_Execute(void)
 	m_pSimilarity	->Set_NoData_Value(-1);
 
 	//-----------------------------------------------------
-	m_pSeeds->Destroy();
+	CSG_Grid	*pSeeds	= Parameters("SEEDS")->asGrid();
 
+	m_pSeeds	= Parameters("TABLE")->asTable();
+	m_pSeeds->Destroy();
 	m_pSeeds->Add_Field(_TL("ID"  ), SG_DATATYPE_Int);
 	m_pSeeds->Add_Field(_TL("AREA"), SG_DATATYPE_Double);
 	m_pSeeds->Add_Field(_TL("X"   ), SG_DATATYPE_Double);
@@ -564,7 +560,7 @@ bool CRGA_Basic::On_Execute(void)
 			{
 				DataObject_Update(m_pSegments, 0, m_pSeeds->Get_Count());
 
-				Process_Set_Text(CSG_String::Format(SG_T("%.2f"), 100.0 * m_Candidates.Get_Count() / Get_NCells()));
+				Process_Set_Text(CSG_String::Format("%.2f", 100. * m_Candidates.Get_Count() / Get_NCells()));
 			}
 		}
 
@@ -581,8 +577,6 @@ bool CRGA_Basic::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -601,8 +595,6 @@ inline double CRGA_Basic::Get_Feature(int x, int y, int iFeature)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
