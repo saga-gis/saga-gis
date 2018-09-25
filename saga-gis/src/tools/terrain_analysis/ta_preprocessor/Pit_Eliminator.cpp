@@ -155,7 +155,7 @@ bool CPit_Eliminator::On_Execute(void)
 	{
 		pDTM->Assign(Parameters("DEM")->asGrid());
 
-		pDTM->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Parameters("DEM")->asGrid()->Get_Name(), _TL("no sinks")));
+		pDTM->Fmt_Name("%s [%s]", Parameters("DEM")->asGrid()->Get_Name(), _TL("no sinks"));
 	}
 
 	//-----------------------------------------------------

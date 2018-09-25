@@ -164,13 +164,13 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Variogram Cloud")));
-	pTable->Add_Field(_TL("Distance")		, SG_DATATYPE_Double);	// DIF_FIELD_DISTANCE
-	pTable->Add_Field(_TL("Direction")		, SG_DATATYPE_Double);	// DIF_FIELD_DIRECTION
-	pTable->Add_Field(_TL("Difference")		, SG_DATATYPE_Double);	// DIF_FIELD_DIFFERENCE
-	pTable->Add_Field(_TL("Variance")		, SG_DATATYPE_Double);	// DIF_FIELD_VARIANCE
-	pTable->Add_Field(_TL("Semivariance")	, SG_DATATYPE_Double);	// DIF_FIELD_SEMIVARIANCE
-	pTable->Add_Field(_TL("Covariance")		, SG_DATATYPE_Double);	// DIF_FIELD_COVARIANCE
+	pTable->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Variogram Cloud"));
+	pTable->Add_Field(_TL("Distance"    ), SG_DATATYPE_Double);	// DIF_FIELD_DISTANCE
+	pTable->Add_Field(_TL("Direction"   ), SG_DATATYPE_Double);	// DIF_FIELD_DIRECTION
+	pTable->Add_Field(_TL("Difference"  ), SG_DATATYPE_Double);	// DIF_FIELD_DIFFERENCE
+	pTable->Add_Field(_TL("Variance"    ), SG_DATATYPE_Double);	// DIF_FIELD_VARIANCE
+	pTable->Add_Field(_TL("Semivariance"), SG_DATATYPE_Double);	// DIF_FIELD_SEMIVARIANCE
+	pTable->Add_Field(_TL("Covariance"  ), SG_DATATYPE_Double);	// DIF_FIELD_COVARIANCE
 
 	//-----------------------------------------------------
 	for(int i=0; i<pPoints->Get_Count()-nSkip && Set_Progress(i, pPoints->Get_Count()-nSkip); i+=nSkip)

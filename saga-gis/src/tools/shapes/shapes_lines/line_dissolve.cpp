@@ -175,7 +175,7 @@ bool CLine_Dissolve::On_Execute(void)
 		//-------------------------------------------------
 		if( bAll || Field_1 >= pLines->Get_Field_Count() )
 		{
-			pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pLines->Get_Name(), _TL("Dissolved")));
+			pUnions->Fmt_Name("%s [%s]", pLines->Get_Name(), _TL("Dissolved"));
 			pUnions->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 
 			pUnion	= pUnions->Add_Shape();
@@ -206,7 +206,7 @@ bool CLine_Dissolve::On_Execute(void)
 
 			pLines->Set_Index(Field_1, TABLE_INDEX_Ascending, Field_2, TABLE_INDEX_Ascending, Field_3, TABLE_INDEX_Ascending);
 
-			pUnions->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Dissolved"), Value.c_str()));
+			pUnions->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Dissolved"), Value.c_str());
 
 			for(iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 			{

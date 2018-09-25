@@ -437,7 +437,7 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids
 
 	if( pDependent && pResiduals )
 	{
-		pResiduals->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Name.c_str(), _TL("Residuals")));
+		pResiduals->Fmt_Name("%s [%s]", Name.c_str(), _TL("Residuals"));
 	}
 	else
 	{

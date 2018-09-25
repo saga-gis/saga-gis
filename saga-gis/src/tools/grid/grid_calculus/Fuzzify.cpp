@@ -166,7 +166,7 @@ bool CFuzzify::On_Execute(void)
 	CSG_Grid	*pInput	= Parameters("INPUT" )->asGrid();
 	CSG_Grid	*pFuzzy	= Parameters("OUTPUT")->asGrid();
 
-	pFuzzy->Set_Name(CSG_String::Format("%s [%s]", pInput->Get_Name(), _TL("Fuzzified")));
+	pFuzzy->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Fuzzified"));
 
 	//-----------------------------------------------------
 	bool	bInvert	= Parameters("INVERT")->asBool();

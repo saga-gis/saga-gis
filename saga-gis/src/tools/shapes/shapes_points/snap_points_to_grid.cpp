@@ -181,11 +181,11 @@ bool CSnap_Points_to_Grid::On_Execute(void)
 		Parameters("RESULT")->Set_Value(pPoints	= pInput);
 	}
 
-	pPoints->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pInput->Get_Name(), _TL("snapped"), pGrid->Get_Name()));
+	pPoints->Fmt_Name("%s [%s: %s]", pInput->Get_Name(), _TL("snapped"), pGrid->Get_Name());
 
 	if( pMoves )
 	{
-		pMoves->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s: %s]"), pInput->Get_Name(), _TL("snap move"), pGrid->Get_Name()), pPoints);
+		pMoves->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s: %s]", pInput->Get_Name(), _TL("snap move"), pGrid->Get_Name()), pPoints);
 	}
 
 	//-----------------------------------------------------

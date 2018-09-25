@@ -185,8 +185,8 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pGrid->Set_Name(CSG_String::Format("%s"     , Points.Get_Field_Name(0)));
-	pProp->Set_Name(CSG_String::Format("%s [%s]", Points.Get_Field_Name(0), _TL("Propability")));
+	pGrid->Fmt_Name("%s"     , Points.Get_Field_Name(0));
+	pProp->Fmt_Name("%s [%s]", Points.Get_Field_Name(0), _TL("Propability"));
 
 	pProp->Assign(0.0);
 	pProp->Set_NoData_Value(0.0);

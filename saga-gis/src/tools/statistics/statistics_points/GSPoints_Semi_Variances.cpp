@@ -217,14 +217,14 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format(SG_T("%s [%s: %s]"), pPoints->Get_Name(), _TL("Variogram"), pPoints->Get_Field_Name(Attribute)));
-	pTable->Add_Field(_TL("Class")		, SG_DATATYPE_Int);		// FIELD_CLASSNR
-	pTable->Add_Field(_TL("Distance")	, SG_DATATYPE_Double);	// FIELD_DISTANCE
-	pTable->Add_Field(_TL("Count")		, SG_DATATYPE_Int);		// FIELD_COUNT
-	pTable->Add_Field(_TL("Variance")	, SG_DATATYPE_Double);	// FIELD_VARIANCE
-	pTable->Add_Field(_TL("Cum.Var.")	, SG_DATATYPE_Double);	// FIELD_VARCUMUL
-	pTable->Add_Field(_TL("Covariance")	, SG_DATATYPE_Double);	// FIELD_COVARIANCE
-	pTable->Add_Field(_TL("Cum.Covar.")	, SG_DATATYPE_Double);	// FIELD_COVARCUMUL
+	pTable->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram"), pPoints->Get_Field_Name(Attribute));
+	pTable->Add_Field(_TL("Class"     ), SG_DATATYPE_Int   );	// FIELD_CLASSNR
+	pTable->Add_Field(_TL("Distance"  ), SG_DATATYPE_Double);	// FIELD_DISTANCE
+	pTable->Add_Field(_TL("Count"     ), SG_DATATYPE_Int   );	// FIELD_COUNT
+	pTable->Add_Field(_TL("Variance"  ), SG_DATATYPE_Double);	// FIELD_VARIANCE
+	pTable->Add_Field(_TL("Cum.Var."  ), SG_DATATYPE_Double);	// FIELD_VARCUMUL
+	pTable->Add_Field(_TL("Covariance"), SG_DATATYPE_Double);	// FIELD_COVARIANCE
+	pTable->Add_Field(_TL("Cum.Covar."), SG_DATATYPE_Double);	// FIELD_COVARCUMUL
 
 	for(i=0, v=0.0, c=0.0, n=0; i<nDistances; i++)
 	{

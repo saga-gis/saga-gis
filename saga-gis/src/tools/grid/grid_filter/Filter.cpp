@@ -146,7 +146,7 @@ bool CFilter::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name(CSG_String::Format("%s [%s]", m_pInput->Get_Name(), _TL("Filter")));
+		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Filter"));
 
 		if( Method != 2 )	// Edge...
 		{

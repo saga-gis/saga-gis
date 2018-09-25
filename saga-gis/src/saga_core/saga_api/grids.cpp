@@ -696,7 +696,7 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 	//-----------------------------------------------------
 	m_Attributes.Add_Record(&Attributes);
 
-	m_pGrids[n]->Set_Name(CSG_String::Format("%s [%s]", Get_Name(), SG_Get_String(Get_Z(n), -10).c_str()));
+	m_pGrids[n]->Fmt_Name("%s [%s]", Get_Name(), SG_Get_String(Get_Z(n), -10).c_str());
 
 	SG_FREE_SAFE(m_Index);	// invalidate index
 

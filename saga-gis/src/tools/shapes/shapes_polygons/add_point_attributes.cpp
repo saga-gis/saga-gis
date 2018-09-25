@@ -170,7 +170,7 @@ bool CAdd_Point_Attributes::On_Execute(void)
 		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
 	}
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s_%s"), pInput->Get_Name(), pPoints->Get_Name()));
+	pOutput->Fmt_Name("%s_%s", pInput->Get_Name(), pPoints->Get_Name());
 
 	//-----------------------------------------------------
 	int	outField	= pOutput->Get_Field_Count();

@@ -141,7 +141,7 @@ bool CTable_Fill_Record_Gaps::On_Execute(void)
 	CSG_Table_Record	*pA, *pB;
 
 	m_pNoGaps->Create(pTable);
-	m_pNoGaps->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pTable->Get_Name(), _TL("no gaps")));
+	m_pNoGaps->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("no gaps"));
 	m_pNoGaps->Add_Record(pB = pTable->Get_Record(0));
 
 	//-----------------------------------------------------

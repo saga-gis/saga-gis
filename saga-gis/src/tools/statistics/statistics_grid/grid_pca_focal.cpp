@@ -211,7 +211,7 @@ bool CGrid_PCA_Focal::On_Execute(void)
 			return( false );
 		}
 
-		pGrid->Set_Name(CSG_String::Format("x(%d)-y(%d)", Kernel.Get_X(i + 1), Kernel.Get_Y(i + 1)));
+		pGrid->Fmt_Name("x(%d)-y(%d)", Kernel.Get_X(i + 1), Kernel.Get_Y(i + 1));
 
 		pGrids->Add_Item(pGrid);
 	}
@@ -290,7 +290,7 @@ bool CGrid_PCA_Focal::On_Execute(void)
 			pGrids->Add_Item(pPCA->Get_Grid(i));
 		}
 
-		pGrids->Get_Grid(i)->Set_Name(CSG_String::Format("%s [PC%0*d]", pGrid->Get_Name(), pPCA->Get_Grid_Count() < 10 ? 1 : 2, i + 1));
+		pGrids->Get_Grid(i)->Fmt_Name("%s [PC%0*d]", pGrid->Get_Name(), pPCA->Get_Grid_Count() < 10 ? 1 : 2, i + 1);
 	}
 
 	//-----------------------------------------------------

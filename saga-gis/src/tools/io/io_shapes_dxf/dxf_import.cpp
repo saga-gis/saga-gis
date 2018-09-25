@@ -230,12 +230,12 @@ bool CDXF_Import::On_Execute(void)
 	if( SG_File_Exists(fName) )
 	{
 		m_pLayers		= SG_Create_Table();
-		m_pLayers		->Set_Name(CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Layers")));
+		m_pLayers		->Fmt_Name("%s [%s]", SG_File_Get_Name(fName, false).c_str(), _TL("Layers"));
 		m_pLayers		->Add_Field("LAYER"	, SG_DATATYPE_String);
 		m_pLayers		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 
 		m_pBlocks		= SG_Create_Table();
-		m_pBlocks		->Set_Name(CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Blocks")));
+		m_pBlocks		->Fmt_Name("%s [%s]", SG_File_Get_Name(fName, false).c_str(), _TL("Blocks"));
 		m_pBlocks		->Add_Field("BLOCK"	, SG_DATATYPE_String);
 		m_pBlocks		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
 		m_pBlocks		->Add_Field("X"		, SG_DATATYPE_Double);

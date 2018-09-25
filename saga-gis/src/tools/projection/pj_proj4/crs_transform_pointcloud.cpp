@@ -142,7 +142,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 			CSG_PointCloud	*pSource	= pSources->Get_PointCloud(i);
 			CSG_PointCloud	*pTarget	= SG_Create_PointCloud(pSource);
 
-			pTarget->Set_Name(CSG_String::Format(SG_T("%s_transformed"), pSource->Get_Name()));
+			pTarget->Fmt_Name("%s [%s]", pSource->Get_Name(), _TL("projected"));
 
 			if( Transform(pSource, pTarget) )
 			{
@@ -171,7 +171,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 			{
 				pSource->Assign(pTarget);
 
-				pSource->Set_Name(CSG_String::Format(SG_T("%s_transformed"), sName.c_str()));
+				pSource->Fmt_Name("%s [%s]", sName.c_str(), _TL("projected"));
 
 				return( true );
 			}
@@ -186,7 +186,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 		{
 			pTarget->Create(pSource);
 
-			pTarget->Set_Name(CSG_String::Format(SG_T("%s_transformed"), pSource->Get_Name()));
+			pTarget->Fmt_Name("%s [%s]", pSource->Get_Name(), _TL("projected"));
 		}
 
 		return( Transform(pSource, pTarget) );

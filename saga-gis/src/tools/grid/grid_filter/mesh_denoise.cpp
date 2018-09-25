@@ -256,7 +256,7 @@ bool CMesh_Denoise::Denoise(CSG_Grid *pInput, CSG_Grid *pOutput)
 	//-----------------------------------------------------
     //Saving Model...
 	pOutput->Create(pInput);
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Denoised")));
+	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Denoised"));
 
 	Get_Data(pOutput, index);
 

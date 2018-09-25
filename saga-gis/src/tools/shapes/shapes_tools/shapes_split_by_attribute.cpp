@@ -135,11 +135,11 @@ bool CShapes_Split_by_Attribute::On_Execute(void)
 						? SG_Create_Shapes(((CSG_Shapes *)pTable)->Get_Type(), SG_T(""), pTable)
 						: SG_Create_Table(pTable);
 
-				pCut->Set_Name(CSG_String::Format(SG_T("%s [%s = %s]"),
+				pCut->Fmt_Name("%s [%s = %s]",
 					pTable->Get_Name(),
 					pTable->Get_Field_Name(iField),
 					pRecord->asString(iField)
-				));
+				);
 
 				Parameters("CUTS")->asTableList()->Add_Item(pCut);
 

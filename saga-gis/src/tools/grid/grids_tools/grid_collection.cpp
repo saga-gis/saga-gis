@@ -627,13 +627,23 @@ bool CGrids_Extract_ZLevel::On_Execute(void)
 
 	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
 
+	if( z < pGrids->Get_ZMin() )
+	{
+		Message_Fmt("%s: %s (%f < %f)", _TL("Warning"), _TL("z-level is out of grid collection's range"), z, pGrids->Get_ZMin());
+	}
+
+	if( z > pGrids->Get_ZMax() )
+	{
+		Message_Fmt("%s: %s (%f > %f)", _TL("Warning"), _TL("z-level is out of grid collection's range"), z, pGrids->Get_ZMax());
+	}
+
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
 	pGrid->Create(pGrids->Get_System(), pGrids->Get_Type());
 
 	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
 
-	pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString()));
+	pGrid->Fmt_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
 
 	TSG_Grid_Resampling	Resampling;
 

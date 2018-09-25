@@ -313,26 +313,26 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 
 	//-----------------------------------------------------
 	pAggregated->Destroy();
-	pAggregated->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pObservations->Get_Name(), _TL("aggregated")));
+	pAggregated->Fmt_Name("%s [%s]", pObservations->Get_Name(), _TL("aggregated"));
 
-	pAggregated->Add_Field(SG_T("REFID")		, SG_DATATYPE_String);	// AGG_ID
-	pAggregated->Add_Field(SG_T("TRACK")		, SG_DATATYPE_String);	// AGG_TRACK
-	pAggregated->Add_Field(SG_T("DATE")			, SG_DATATYPE_String);	// AGG_DATE
-	pAggregated->Add_Field(SG_T("TIME")			, SG_DATATYPE_String);	// AGG_TIME
+	pAggregated->Add_Field("REFID", SG_DATATYPE_String);	// AGG_ID
+	pAggregated->Add_Field("TRACK", SG_DATATYPE_String);	// AGG_TRACK
+	pAggregated->Add_Field("DATE" , SG_DATATYPE_String);	// AGG_DATE
+	pAggregated->Add_Field("TIME" , SG_DATATYPE_String);	// AGG_TIME
 
 	pAggregated->Add_Field(pObservations->Get_Field_Name(fParameter), SG_DATATYPE_Double);	// AGG_PARM
 
 	if( bVerbose )
 	{
-		pAggregated->Add_Field(SG_T("MIN")			, SG_DATATYPE_Double);	// AGG_MIN,
-		pAggregated->Add_Field(SG_T("MAX")			, SG_DATATYPE_Double);	// AGG_MAX
-		pAggregated->Add_Field(SG_T("RANGE")		, SG_DATATYPE_Double);	// AGG_RANGE
-		pAggregated->Add_Field(SG_T("STDDEV")		, SG_DATATYPE_Double);	// AGG_STDDEV,
-		pAggregated->Add_Field(SG_T("COUNT")		, SG_DATATYPE_Int   );	// AGG_COUNT,
-		pAggregated->Add_Field(SG_T("DROPPED")		, SG_DATATYPE_Int   );	// AGG_DROPPED,
-		pAggregated->Add_Field(SG_T("DTIME")		, SG_DATATYPE_Double);	// AGG_DTIME,
-		pAggregated->Add_Field(SG_T("X")			, SG_DATATYPE_Double);	// AGG_X
-		pAggregated->Add_Field(SG_T("Y")			, SG_DATATYPE_Double);	// AGG_Y
+		pAggregated->Add_Field("MIN"    , SG_DATATYPE_Double);	// AGG_MIN,
+		pAggregated->Add_Field("MAX"    , SG_DATATYPE_Double);	// AGG_MAX
+		pAggregated->Add_Field("RANGE"  , SG_DATATYPE_Double);	// AGG_RANGE
+		pAggregated->Add_Field("STDDEV" , SG_DATATYPE_Double);	// AGG_STDDEV,
+		pAggregated->Add_Field("COUNT"  , SG_DATATYPE_Int   );	// AGG_COUNT,
+		pAggregated->Add_Field("DROPPED", SG_DATATYPE_Int   );	// AGG_DROPPED,
+		pAggregated->Add_Field("DTIME"  , SG_DATATYPE_Double);	// AGG_DTIME,
+		pAggregated->Add_Field("X"      , SG_DATATYPE_Double);	// AGG_X
+		pAggregated->Add_Field("Y"      , SG_DATATYPE_Double);	// AGG_Y
 	}
 
 	//-----------------------------------------------------

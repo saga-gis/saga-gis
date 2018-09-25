@@ -141,8 +141,8 @@ bool CFilter_Resample::On_Execute(void)
 	Grid.Assign(pGrid, GRID_RESAMPLING_Mean_Cells);
 
 	//-----------------------------------------------------
-	pLoPass->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Low Pass")));
-	pHiPass->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("High Pass")));
+	pLoPass->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Low Pass" ));
+	pHiPass->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("High Pass"));
 
 	CSG_Colors	Colors;
 

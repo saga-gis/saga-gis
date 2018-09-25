@@ -173,7 +173,7 @@ bool CFilter_Sieve::On_Execute(void)
 
 		m_pGrid->Create(*pGrid);
 
-		m_pGrid->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), Get_Name().c_str()));
+		m_pGrid->Fmt_Name("%s [%s]", pGrid->Get_Name(), Get_Name().c_str());
 		m_pGrid->Set_NoData_Value(pGrid->Get_NoData_Value());
 
 		DataObject_Set_Parameters(m_pGrid, pGrid);

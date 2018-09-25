@@ -218,7 +218,7 @@ bool CErdas_LAN_Import::On_Execute(void)
 			for(i=0; i<nBands; i++)
 			{
 				Grids->Add_Item(SG_Create_Grid(gType, nx, ny, Cellsize, xMin, yMin));
-				Grids->Get_Grid(i)->Set_Name(CSG_String::Format(SG_T("%s [%d]"), SG_File_Get_Name(FileName, false).c_str(), i + 1));
+				Grids->Get_Grid(i)->Fmt_Name("%s [%d]", SG_File_Get_Name(FileName, false).c_str(), i + 1);
 			}
 
 			//---------------------------------------------

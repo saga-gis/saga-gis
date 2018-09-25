@@ -299,12 +299,12 @@ bool CPC_Reclass_Extract::On_Execute(void)
 	m_pResult->Create(m_pInput);
 
 	if (m_bExtract)
-		m_pResult->Set_Name(CSG_String::Format(SG_T("%s_subset_%s"), m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField)));
+		m_pResult->Fmt_Name("%s_subset_%s", m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField));
 	else
 	{
-		m_pResult->Set_Name(CSG_String::Format(SG_T("%s_reclass_%s"), m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField)));
+		m_pResult->Fmt_Name("%s_reclass_%s", m_pInput->Get_Name(), m_pInput->Get_Field_Name(m_AttrField));
 		if( m_bCreateAttrib )
-			m_pResult->Add_Field(CSG_String::Format(SG_T("%s_reclass"), m_pInput->Get_Field_Name(m_AttrField)), m_pInput->Get_Field_Type(m_AttrField));
+			m_pResult->Add_Field(CSG_String::Format("%s_reclass", m_pInput->Get_Field_Name(m_AttrField)), m_pInput->Get_Field_Type(m_AttrField));
 	}
 
 	m_iOrig = 0;	// counter of unchanged points

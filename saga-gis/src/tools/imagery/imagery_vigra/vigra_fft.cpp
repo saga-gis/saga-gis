@@ -233,8 +233,8 @@ bool CViGrA_FFT::On_Execute(void)
 	//-----------------------------------------------------
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, *pImag, Output, false);
 
-	pReal->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), pInput->Get_Name(), _TL("Real")));
-	pImag->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), pInput->Get_Name(), _TL("Imaginary")));
+	pReal->Fmt_Name("%s [FFT - %s]", pInput->Get_Name(), _TL("Real"     ));
+	pImag->Fmt_Name("%s [FFT - %s]", pInput->Get_Name(), _TL("Imaginary"));
 
 	return( true );
 }
@@ -319,7 +319,7 @@ bool CViGrA_FFT_Inverse::On_Execute(void)
 
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pReal, Output, false);
 
-	pReal->Set_Name(CSG_String::Format(SG_T("%s [FFT - %s]"), Get_Name().c_str(), _TL("Real")));
+	pReal->Fmt_Name("%s [FFT - %s]", Get_Name().c_str(), _TL("Real"));
 
 	return( true );
 }
@@ -381,7 +381,7 @@ bool CViGrA_FFT_Real::On_Execute(void)
 	//-----------------------------------------------------
 	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s - %s]"), Get_Name().c_str(), pInput->Get_Name()));
+	pOutput->Fmt_Name("%s [%s - %s]", Get_Name().c_str(), pInput->Get_Name());
 
 	return( true );
 
@@ -549,7 +549,7 @@ bool CViGrA_FFT_Filter::On_Execute(void)
 	//-----------------------------------------------------
 	Copy_ComplexGrid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [FFT %s]"), pInput->Get_Name(), _TL("Filter")));
+	pOutput->Fmt_Name("%s [FFT %s]", pInput->Get_Name(), _TL("Filter"));
 
 	return( true );
 }

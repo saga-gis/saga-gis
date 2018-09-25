@@ -174,7 +174,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 
 		DataObject_Set_Parameters(pGrid, Parameters("INPUT")->asGrid());
 
-		pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed")));
+		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed"));
 	}
 
 	//-----------------------------------------------------

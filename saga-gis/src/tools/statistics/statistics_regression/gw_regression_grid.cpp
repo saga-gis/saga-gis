@@ -68,7 +68,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GRID_INIT(g, s)		if( g ) { g->Set_Name(CSG_String::Format(SG_T("%s (%s - %s)"), Parameters("DEPENDENT")->asString(), s, m_pPredictor->Get_Name())); }
+#define GRID_INIT(g, s)		if( g ) { g->Fmt_Name("%s (%s - %s)", Parameters("DEPENDENT")->asString(), s, m_pPredictor->Get_Name()); }
 
 
 ///////////////////////////////////////////////////////////

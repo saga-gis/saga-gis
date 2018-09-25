@@ -134,16 +134,16 @@ bool CGSPoints_Distances::On_Execute(void)
 		CSG_Table_Record	*pRecord;
 
 		pTable->Destroy();
-		pTable->Set_Name(CSG_String::Format(SG_T("%s [%s]"), _TL("Minimum Distance Analysis"), pPoints->Get_Name()));
+		pTable->Fmt_Name("%s [%s]", _TL("Minimum Distance Analysis"), pPoints->Get_Name());
 
-		pTable->Add_Field(SG_T("NAME")	, SG_DATATYPE_String);
-		pTable->Add_Field(SG_T("VALUE")	, SG_DATATYPE_Double);
+		pTable->Add_Field("NAME" , SG_DATATYPE_String);
+		pTable->Add_Field("VALUE", SG_DATATYPE_Double);
 
-		SET_VALUE(_TL("Mean Average")		, s.Get_Mean());
-		SET_VALUE(_TL("Minimum")			, s.Get_Minimum());
-		SET_VALUE(_TL("Maximum")			, s.Get_Maximum());
-		SET_VALUE(_TL("Standard Deviation")	, s.Get_StdDev());
-		SET_VALUE(_TL("Duplicates")			, pPoints->Get_Count() - s.Get_Count());
+		SET_VALUE(_TL("Mean Average"      ), s.Get_Mean());
+		SET_VALUE(_TL("Minimum"           ), s.Get_Minimum());
+		SET_VALUE(_TL("Maximum"           ), s.Get_Maximum());
+		SET_VALUE(_TL("Standard Deviation"), s.Get_StdDev());
+		SET_VALUE(_TL("Duplicates"        ), pPoints->Get_Count() - s.Get_Count());
 
 		DataObject_Update(pTable, SG_UI_DATAOBJECT_SHOW);
 

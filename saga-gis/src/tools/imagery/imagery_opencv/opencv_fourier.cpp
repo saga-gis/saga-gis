@@ -141,8 +141,8 @@ bool COpenCV_FFT::On_Execute(void)
     cvReleaseImage(&cv_pReal);
     cvReleaseImage(&cv_pImag);
 
-	pReal->Set_Name(CSG_String::Format(SG_T("%s [DFT, %s]"), pInput->Get_Name(), _TL("Real")));
-	pImag->Set_Name(CSG_String::Format(SG_T("%s [DFT, %s]"), pInput->Get_Name(), _TL("Imaginary")));
+	pReal->Fmt_Name("%s [DFT, %s]", pInput->Get_Name(), _TL("Real"     ));
+	pImag->Fmt_Name("%s [DFT, %s]", pInput->Get_Name(), _TL("Imaginary"));
 
 	return( true );
 }

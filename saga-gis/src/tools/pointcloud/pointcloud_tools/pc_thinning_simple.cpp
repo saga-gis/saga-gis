@@ -175,7 +175,7 @@ bool CPC_Thinning_Simple::On_Execute(void)
 
 		pResult->Create(pPoints);
 
-		pResult->Set_Name(CSG_String::Format("%s [%.1f%%]", pPoints->Get_Name(), Parameters("PERCENT")->asDouble()));
+		pResult->Fmt_Name("%s [%.1f%%]", pPoints->Get_Name(), Parameters("PERCENT")->asDouble());
 
 		for(int i=0; i<n && Set_Progress(i, n); i++)
 		{

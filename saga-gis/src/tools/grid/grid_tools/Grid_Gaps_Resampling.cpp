@@ -136,7 +136,7 @@ bool CGrid_Gaps_Resampling::On_Execute(void)
 	else
 	{
 		pGrid->Assign(Parameters("INPUT")->asGrid());
-		pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps")));
+		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("no gaps"));
 	}
 
 	//-----------------------------------------------------

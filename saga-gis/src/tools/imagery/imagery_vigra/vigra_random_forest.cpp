@@ -843,7 +843,7 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 				DataObject_Set_Colors(pGrid, 11, SG_COLORS_WHITE_GREEN);
 			}
 
-			pGrid->Set_Name(CSG_String::Format(SG_T("%s [%s]"), Classes[i].asString(CLASS_NAME), _TL("Probability")));
+			pGrid->Fmt_Name("%s [%s]", Classes[i].asString(CLASS_NAME), _TL("Probability"));
 		}
 
 		return( pGrids );

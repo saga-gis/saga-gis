@@ -133,17 +133,17 @@ bool CTable_Field_Statistics::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTab_out->Destroy();
-	pTab_out->Set_Name(CSG_String::Format(_TL("%s_stats"), pTab_in->Get_Name()));
+	pTab_out->Fmt_Name(_TL("%s_stats"), pTab_in->Get_Name());
 	
-	pTab_out->Add_Field(_TL("Field")	, SG_DATATYPE_String);
-	pTab_out->Add_Field(_TL("n")		, SG_DATATYPE_Long);
-	pTab_out->Add_Field(_TL("min")		, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("max")		, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("range")	, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("sum")		, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("mean")		, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("variance")	, SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("stddev")	, SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("Field"   ), SG_DATATYPE_String);
+	pTab_out->Add_Field(_TL("n"       ), SG_DATATYPE_Long  );
+	pTab_out->Add_Field(_TL("min"     ), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("max"     ), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("range"   ), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("sum"     ), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("mean"    ), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("variance"), SG_DATATYPE_Double);
+	pTab_out->Add_Field(_TL("stddev"  ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(int iFeature=0; iFeature<nFeatures; iFeature++)

@@ -117,7 +117,7 @@ bool CGrid_Buffer::On_Execute(void)
 
 	pBuffer->Set_NoData_Value(EMPTY);
 	pBuffer->Assign_NoData();
-	pBuffer->Set_Name(CSG_String::Format("%s [%s]", pFeatures->Get_Name(), _TL("Buffer")));
+	pBuffer->Fmt_Name("%s [%s]", pFeatures->Get_Name(), _TL("Buffer"));
 
 	bool	bFixed	= Parameters("TYPE")->asInt() == 0;
 

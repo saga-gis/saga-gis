@@ -182,7 +182,7 @@ bool CGrid_Rectangle_Clip::On_Execute(void)
 
 	pGrid_out = SG_Create_Grid(GridSystem, pGrid_in->Get_Type());
 	pGrid_out->Set_NoData_Value(pGrid_in->Get_NoData_Value());
-	pGrid_out->Set_Name(CSG_String::Format(SG_T("%s_clip"), pGrid_in->Get_Name()));
+	pGrid_out->Fmt_Name("%s (%s)", _TL("Clip"), pGrid_in->Get_Name());
 	pGrid_out->Assign_NoData();
 
 	//-----------------------------------------------------

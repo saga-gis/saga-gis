@@ -502,7 +502,7 @@ void CVIEW_Histogram::On_AsTable(wxCommandEvent &event)
 
 		CSG_Table	*pTable	= new CSG_Table;
 
-		pTable->Set_Name(CSG_String::Format("%s: %s", _TL("Histogram"), pObject->Get_Name()));
+		pTable->Fmt_Name("%s: %s", _TL("Histogram"), pObject->Get_Name());
 
 		pTable->Add_Field(_TL("CLASS" ), SG_DATATYPE_Int   );
 		pTable->Add_Field(_TL("AREA"  ), SG_DATATYPE_Double);

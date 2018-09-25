@@ -309,7 +309,7 @@ bool CShapes2Grid::On_Execute(void)
 		m_pGrid->Set_NoData_Value(0.);
 	}
 
-	m_pGrid->Set_Name(CSG_String::Format("%s [%s]", pShapes->Get_Name(), Field < 0 ? _TL("ID") : pShapes->Get_Field_Name(Field)));
+	m_pGrid->Fmt_Name("%s [%s]", pShapes->Get_Name(), Field < 0 ? _TL("ID") : pShapes->Get_Field_Name(Field));
 	m_pGrid->Assign_NoData();
 
 	//-------------------------------------------------
@@ -324,7 +324,7 @@ bool CShapes2Grid::On_Execute(void)
 		m_pCount	= &Count;
 	}
 
-	m_pCount->Set_Name(CSG_String::Format("%s [%s]", pShapes->Get_Name(), _TL("Count")));
+	m_pCount->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("Count"));
 	m_pCount->Set_NoData_Value(0.);
 	m_pCount->Assign(0.);
 
@@ -916,7 +916,7 @@ bool CPolygons2Grid::On_Execute(void)
 		m_pGrid->Set_NoData_Value(0.);
 	}
 
-	m_pGrid->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), Field < 0 ? _TL("ID") : pPolygons->Get_Field_Name(Field)));
+	m_pGrid->Fmt_Name("%s [%s]", pPolygons->Get_Name(), Field < 0 ? _TL("ID") : pPolygons->Get_Field_Name(Field));
 	m_pGrid->Assign_NoData();
 
 	//-------------------------------------------------
@@ -931,7 +931,7 @@ bool CPolygons2Grid::On_Execute(void)
 		m_pCoverage	= &Coverage;
 	}
 
-	m_pCoverage->Set_Name(CSG_String::Format("%s [%s]", pPolygons->Get_Name(), _TL("Coverage")));
+	m_pCoverage->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
 	m_pCoverage->Set_NoData_Value(0.);
 	m_pCoverage->Assign(0.);
 

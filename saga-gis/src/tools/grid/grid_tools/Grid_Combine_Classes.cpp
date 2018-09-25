@@ -275,7 +275,7 @@ bool CGrid_Combine_Classes::On_Execute(void)
 	//-----------------------------------------------------
 	if( pGrid != Parameters("GRID")->asGrid() )
 	{
-		pGrid->Set_Name(CSG_String::Format("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Combine Classes")));
+		pGrid->Fmt_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Combine Classes"));
 	}
 	else
 	{

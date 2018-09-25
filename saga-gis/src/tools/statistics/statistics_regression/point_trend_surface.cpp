@@ -219,7 +219,7 @@ bool CPoint_Trend_Surface::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pRegression->Set_Name(CSG_String::Format("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Trend Surface")));
+	pRegression->Fmt_Name("%s [%s]", Parameters("ATTRIBUTE")->asString(), _TL("Trend Surface"));
 
 	Set_Regression(pRegression);
 

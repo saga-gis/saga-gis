@@ -331,7 +331,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	}
 	else
 	{
-		pPC_out->Set_Name(CSG_String::Format(SG_T("%s_cluster"), pPC_in->Get_Name()));
+		pPC_out->Fmt_Name("%s (%s)", _TL("Cluster"), pPC_in->Get_Name());
 	}
 	
 

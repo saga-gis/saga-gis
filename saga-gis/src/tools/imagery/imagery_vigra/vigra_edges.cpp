@@ -162,7 +162,7 @@ bool CViGrA_Edges::On_Execute(void)
 
 	pOutput->Set_NoData_Value(0);
 
-	pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), Get_Name().c_str()));
+	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
 
 	return( true );
 }

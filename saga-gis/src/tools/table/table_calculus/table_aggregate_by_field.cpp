@@ -222,7 +222,7 @@ bool CTable_Aggregate_by_Field::On_Execute(void)
 		);
 	}
 
-	pAggregated->Set_Name(CSG_String::Format("%s [%s: %s]", pTable->Get_Name(), _TL("Aggregated"), Name.c_str()));
+	pAggregated->Fmt_Name("%s [%s: %s]", pTable->Get_Name(), _TL("Aggregated"), Name.c_str());
 
 	//-----------------------------------------------------
 	Statistics_Initialize(pAggregated, pTable);

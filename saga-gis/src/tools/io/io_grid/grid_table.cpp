@@ -327,7 +327,7 @@ bool CCRU_Table_Import::On_Execute(void)
 
 		CSG_Grid	*pGrid	= SG_Create_Grid(System, SG_DATATYPE_Short);
 
-		pGrid->Set_Name(CSG_String::Format("%s_%02d", Name.c_str(), 1 + iMonth));
+		pGrid->Fmt_Name("%s_%02d", Name.c_str(), 1 + iMonth);
 		pGrid->Set_NoData_Value(-9999);
 		pGrid->Get_Projection().Set_GCS_WGS84();
 

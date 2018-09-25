@@ -192,14 +192,14 @@ bool CWatershed_Segmentation::On_Execute(void)
 	//-----------------------------------------------------
 	m_pSeeds->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pGrid->Get_Name(), _TL("Seeds")));
 
-	m_pSeeds->Add_Field(SG_T("XCELL")	, SG_DATATYPE_Int);		// SEED_X
-	m_pSeeds->Add_Field(SG_T("YCELL")	, SG_DATATYPE_Int);		// SEED_Y
-	m_pSeeds->Add_Field(SG_T("VALUE")	, SG_DATATYPE_Double);	// SEED_Z
-	m_pSeeds->Add_Field(SG_T("ID")		, SG_DATATYPE_Int);		// SEED_ID
-	m_pSeeds->Add_Field(SG_T("ID_JOIN")	, SG_DATATYPE_Int);		// SEED_JOIN
+	m_pSeeds->Add_Field("XCELL"  , SG_DATATYPE_Int   );	// SEED_X
+	m_pSeeds->Add_Field("YCELL"  , SG_DATATYPE_Int   );	// SEED_Y
+	m_pSeeds->Add_Field("VALUE"  , SG_DATATYPE_Double);	// SEED_Z
+	m_pSeeds->Add_Field("ID"     , SG_DATATYPE_Int   );	// SEED_ID
+	m_pSeeds->Add_Field("ID_JOIN", SG_DATATYPE_Int   );	// SEED_JOIN
 
 	//-----------------------------------------------------
-	m_pSegments->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pGrid->Get_Name(), _TL("Segments")));
+	m_pSegments->Fmt_Name("%s [%s]", m_pGrid->Get_Name(), _TL("Segments"));
 	m_pSegments->Set_NoData_Value(-999999.0);
 
 	m_Dir.Create(*Get_System(), SG_DATATYPE_Char);

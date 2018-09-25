@@ -61,6 +61,8 @@
 //---------------------------------------------------------
 #include "dataobject.h"
 
+#include <wx/string.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -229,6 +231,63 @@ void CSG_Data_Object::Set_Name(const CSG_String &Name)
 	m_Name	= Name.Length() > 0 ? Name.c_str() : _TL("new");
 }
 
+//---------------------------------------------------------
+void CSG_Data_Object::Fmt_Name(const char *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	if( ! s.is_Empty() )
+	{
+		Set_Name(s);
+	}
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	if( ! s.is_Empty() )
+	{
+		Set_Name(s);
+	}
+}
+
+//---------------------------------------------------------
 const SG_Char * CSG_Data_Object::Get_Name(void) const
 {
 	return( m_Name );

@@ -522,16 +522,16 @@ void CPointCloud_Get_Subset_SPCVF_Base::Write_Subset(CSG_PointCloud *pPC_out, in
 	{
 		if( m_iFieldName > -1 )
 		{
-			pPC_out->Set_Name(CSG_String::Format(SG_T("%s%s"), sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName)));
+			pPC_out->Fmt_Name("%s%s", sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName));
 		}
 		else
 		{
-			pPC_out->Set_Name(CSG_String::Format(SG_T("%s%d_%d"), sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap)));
+			pPC_out->Fmt_Name("%s%d_%d", sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap));
 		}
 	}
 	else
 	{
-		pPC_out->Set_Name(CSG_String::Format(SG_T("%spc_subset_%s"), sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str()));
+		pPC_out->Fmt_Name("%spc_subset_%s", sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str());
 	}
 
 	//-----------------------------------------------------

@@ -146,7 +146,7 @@ bool CPC_From_Table::On_Execute(void)
 	//-----------------------------------------------------
 
 	pPoints->Create();
-	pPoints->Set_Name(CSG_String::Format(SG_T("%s_pc"), pTable->Get_Name()));
+	pPoints->Fmt_Name("%s_pc", pTable->Get_Name());
 
 	for( int j=0; j<nFeatures; j++ )
 	{

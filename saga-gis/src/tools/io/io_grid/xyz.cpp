@@ -365,7 +365,7 @@ bool CXYZ_Import::On_Execute(void)
 
 	Parameters("COUNT")->Set_Value(pCount);
 
-	pCount->Set_Name(CSG_String::Format("%s [%s]", pGrid->Get_Name(), _TL("Count")));
+	pCount->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Count"));
 
 	//-----------------------------------------------------
 	Stream.Seek_Start();

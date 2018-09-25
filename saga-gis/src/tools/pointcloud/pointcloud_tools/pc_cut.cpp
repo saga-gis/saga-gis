@@ -245,7 +245,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 		{
 			CSG_PointCloud *pCut = new CSG_PointCloud(pPoints);
 
-			pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Cut")));
+			pCut->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Cut"));
 
 			if( Extent.Intersects(pPoints->Get_Extent()) )
 			{
@@ -301,7 +301,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 		{
 			CSG_PointCloud *pCut = new CSG_PointCloud(pPoints);
 
-			pCut->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), pPolygons->Get_Name()));
+			pCut->Fmt_Name("%s [%s]", pPoints->Get_Name(), pPolygons->Get_Name());
 
 			if( pPolygons && pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Extent().Intersects(pPoints->Get_Extent()) )
 			{

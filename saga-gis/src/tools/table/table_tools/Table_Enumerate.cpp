@@ -153,7 +153,7 @@ bool CTable_Enumerate::On_Execute(void)
 			pTable->Create(*pCopy);	// copy constructor
 		}
 
-		pTable->Set_Name(CSG_String::Format("%s [%s]", pTable->Get_Name(), _TL("Enumerated")));
+		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Enumerated"));
 	}
 
 	//-----------------------------------------------------

@@ -175,7 +175,7 @@ bool CFill_Sinks::On_Execute(void)
 	m_dzFill	= Parameters("DZFILL")->asDouble();
 
 	m_pDEM->Assign(pDEM);
-	m_pDEM->Set_Name(CSG_String::Format("%s [%s]", pDEM->Get_Name(), _TL("No Sinks")));
+	m_pDEM->Fmt_Name("%s [%s]", pDEM->Get_Name(), _TL("No Sinks"));
 
 	if( !Fill_Sinks() )
 	{

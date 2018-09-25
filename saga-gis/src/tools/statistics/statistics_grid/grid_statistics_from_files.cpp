@@ -419,7 +419,7 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 
 			CSG_Grid	*pQuantile	= SG_Create_Grid(System);
 
-			pQuantile->Set_Name(CSG_String::Format("%s [%s]", _TL("Percentile"), s.c_str()));
+			pQuantile->Fmt_Name("%s [%s]", _TL("Percentile"), s.c_str());
 
 			pQuantiles->Add_Item(pQuantile);
 		}

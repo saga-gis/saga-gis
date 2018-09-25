@@ -139,7 +139,7 @@ bool CGSGrid_Variance_Radius::On_Execute(void)
 
 	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
 
-	pResult->Set_Name(CSG_String::Format("%s >= %f", _TL("Radius with Standard Deviation"), m_StdDev));
+	pResult->Fmt_Name("%s >= %f", _TL("Radius with Standard Deviation"), m_StdDev);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)

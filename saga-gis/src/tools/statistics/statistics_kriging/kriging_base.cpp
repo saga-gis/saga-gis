@@ -354,11 +354,11 @@ bool CKriging_Base::_Initialise_Grids(void)
 {
 	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{
-		m_pGrid->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str()));
+		m_pGrid->Fmt_Name("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
 
 		if( (m_pVariance = m_Grid_Target.Get_Grid("VARIANCE")) != NULL )
 		{
-			m_pVariance->Set_Name(CSG_String::Format("%s.%s [%s %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance")));
+			m_pVariance->Fmt_Name("%s.%s [%s %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance"));
 		}
 
 		return( true );

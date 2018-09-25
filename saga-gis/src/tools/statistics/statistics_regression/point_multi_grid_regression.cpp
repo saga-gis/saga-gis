@@ -660,7 +660,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 		}
 	}
 
-	pCorrection->Set_Name(CSG_String::Format("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("ATTRIBUTE")->asString(), _TL("Residual Corrected Regression")));
+	pCorrection->Fmt_Name("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("ATTRIBUTE")->asString(), _TL("Residual Corrected Regression"));
 
 	//-----------------------------------------------------
 	return( true );

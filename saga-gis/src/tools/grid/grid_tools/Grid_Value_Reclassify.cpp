@@ -318,7 +318,7 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 			pResult->Set_NoData_Value(Parameters("RESULT_NODATA_VALUE")->asDouble());
 		}
 
-	    pResult->Set_Name(CSG_String::Format(SG_T("%s_reclassified"), pInput->Get_Name()));
+	    pResult->Fmt_Name("%s (%s)", pInput->Get_Name(), _TL("Reclassified"));
 
 	    return( true );
 	}

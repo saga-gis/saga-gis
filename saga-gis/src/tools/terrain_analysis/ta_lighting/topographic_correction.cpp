@@ -298,7 +298,7 @@ bool CTopographic_Correction::Get_Model(void)
 	m_pOriginal		= Parameters("ORIGINAL")	->asGrid();
 	m_pCorrected	= Parameters("CORRECTED")	->asGrid();
 
-	m_pCorrected	->Set_Name(CSG_String::Format(SG_T("%s [%s]"), m_pOriginal->Get_Name(), _TL("Topographic Correction")));
+	m_pCorrected	->Fmt_Name("%s [%s]", m_pOriginal->Get_Name(), _TL("Topographic Correction"));
 
 	m_Method		= Parameters("METHOD")		->asInt();
 

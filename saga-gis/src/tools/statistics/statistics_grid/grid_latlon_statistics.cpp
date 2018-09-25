@@ -105,12 +105,12 @@ bool CGrid_Statistics_Latitudinal::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format("%s [%s]", _TL("Latitudinal Statistics"), pGrid->Get_Name()));
-	pTable->Add_Field(SG_T("Y"     ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MEAN"  ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MIN"   ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MAX"   ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("STDDEV"), SG_DATATYPE_Double);
+	pTable->Fmt_Name("%s [%s]", _TL("Latitudinal Statistics"), pGrid->Get_Name());
+	pTable->Add_Field("Y"     , SG_DATATYPE_Double);
+	pTable->Add_Field("MEAN"  , SG_DATATYPE_Double);
+	pTable->Add_Field("MIN"   , SG_DATATYPE_Double);
+	pTable->Add_Field("MAX"   , SG_DATATYPE_Double);
+	pTable->Add_Field("STDDEV", SG_DATATYPE_Double);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -178,12 +178,12 @@ bool CGrid_Statistics_Meridional::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Set_Name(CSG_String::Format("%s [%s]", _TL("Meridional Statistics"), pGrid->Get_Name()));
-	pTable->Add_Field(SG_T("X"     ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MEAN"  ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MIN"   ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("MAX"   ), SG_DATATYPE_Double);
-	pTable->Add_Field(SG_T("STDDEV"), SG_DATATYPE_Double);
+	pTable->Fmt_Name("%s [%s]", _TL("Meridional Statistics"), pGrid->Get_Name());
+	pTable->Add_Field("X"     , SG_DATATYPE_Double);
+	pTable->Add_Field("MEAN"  , SG_DATATYPE_Double);
+	pTable->Add_Field("MIN"   , SG_DATATYPE_Double);
+	pTable->Add_Field("MAX"   , SG_DATATYPE_Double);
+	pTable->Add_Field("STDDEV", SG_DATATYPE_Double);
 
 	for(int x=0; x<Get_NX() && Set_Progress(x, Get_NX()); x++)
 	{

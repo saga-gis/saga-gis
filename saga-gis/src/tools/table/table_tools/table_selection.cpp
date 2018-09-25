@@ -135,7 +135,7 @@ bool CSelection_Copy::On_Execute(void)
 		}
 
 		pOutput->Create(((CSG_Shapes *)pInput)->Get_Type(), SG_T(""), pInput);
-		pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")));
+		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
 		for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{
@@ -154,7 +154,7 @@ bool CSelection_Copy::On_Execute(void)
 		}
 			
 		pOutput->Create(pInput);
-		pOutput->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pInput->Get_Name(), _TL("Selection")));
+		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
 		for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{

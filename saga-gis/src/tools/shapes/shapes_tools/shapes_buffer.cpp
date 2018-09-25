@@ -236,7 +236,7 @@ bool CShapes_Buffer::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pBuffers->Set_Name(CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")));
+	pBuffers->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("Buffer"));
 
 	return( pBuffers->is_Valid() );
 }

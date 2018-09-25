@@ -182,16 +182,16 @@ bool CColorisation::On_Execute(void)
 	bool applyTimeStamp		= Parameters("GIVE_TIME")	->asBool();
 	if (applyTimeStamp) {
 
-		imgTimeStamp = Parameters("IMG_TIME")	->asDouble();
-		timeThresh	= Parameters("TIME_DIFF")	->asDouble();
+		imgTimeStamp = Parameters("IMG_TIME")->asDouble();
+		timeThresh	= Parameters("TIME_DIFF")->asDouble();
 	}
 
 	pResult->Create(pPoints);
-	pResult->Set_Name(CSG_String::Format(_TL("%s_colorised"), pPoints->Get_Name()));
-//	pResult->Add_Field(SG_T("Red"), SG_DATATYPE_Int);
+	pResult->Fmt_Name("%s (%s)", pPoints->Get_Name(), _TL("colorised"));
+//	pResult->Add_Field(SG_T("Red"  ), SG_DATATYPE_Int);
 //	pResult->Add_Field(SG_T("Green"), SG_DATATYPE_Int);
-//	pResult->Add_Field(SG_T("Blue"), SG_DATATYPE_Int);
-	pResult->Add_Field(SG_T("RGB"), SG_DATATYPE_Int);
+//	pResult->Add_Field(SG_T("Blue" ), SG_DATATYPE_Int);
+	pResult->Add_Field(SG_T("RGB"  ), SG_DATATYPE_Int);
 	DataObject_Update(pResult);
 		
 	CSG_Matrix R = methods::calcRotnMatrix(angles);

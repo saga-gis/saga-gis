@@ -407,7 +407,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 			pPCA->Add_Item(pGrid);
 		}
 
-		pPCA->Get_Grid(i)->Set_Name(CSG_String::Format("PC%0*d", nComponents < 10 ? 1 : 2, i + 1));
+		pPCA->Get_Grid(i)->Fmt_Name("PC%0*d", nComponents < 10 ? 1 : 2, i + 1);
 	}
 
 	//-----------------------------------------------------
@@ -579,7 +579,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 			return( false );
 		}
 
-		pGrid->Set_Name(CSG_String::Format("%s %d", _TL("Feature"), i + 1));
+		pGrid->Fmt_Name("%s %d", _TL("Feature"), i + 1);
 
 		pGrids->Add_Item(pGrid);
 	}
