@@ -134,8 +134,6 @@ bool CGrid_Statistics_Build::On_Execute(void)
 	CSG_Grid	*pSum2		= Parameters("SUM2"     )->asGrid ();
 	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
 
-	double	hLag, hMin, hMax;
-
 	if( Parameters("RESET")->asBool() )
 	{
 		pCount->Assign(0.0); pCount->Set_NoData_Value(65535);
@@ -148,45 +146,51 @@ bool CGrid_Statistics_Build::On_Execute(void)
 
 		if( nz < 2 )
 		{
-			Error_Set(_TL("histogram needs at least tow classes"));
+			Error_Set(_TL("histogram needs at least two classes"));
 
 			return( false );
 		}
 
-		hMin	= Parameters("HMIN")->asDouble();
-		hMax	= Parameters("HMAX")->asDouble();
+		double	zMin	= Parameters("HMIN")->asDouble();
+		double	zMax	= Parameters("HMAX")->asDouble();
+		double	zLag	= (zMax - zMin) / nz;
 
-		if( hMin >= hMax )
+		if( zMin >= zMax )
 		{
 			Error_Set(_TL("histogram's minimum class value needs to be less than its maximum."));
 
 			return( false );
 		}
 
-		hLag	= (hMax - hMin) / nz;
-
 		pHistogram->Create(*Get_System(), nz, SG_DATATYPE_Word);
 		pHistogram->Set_Name(_TL("Histogram"));
+		pHistogram->Add_Attribute("ZMIN", SG_DATATYPE_Double);
+		pHistogram->Add_Attribute("ZMAX", SG_DATATYPE_Double);
 
 		for(int z=0; z<pHistogram->Get_NZ(); z++)
 		{
-			pHistogram->Set_Z(z, hMin + (0.5 + z) * hLag);
+			pHistogram->Get_Attributes(z).Set_Value("ZMIN", zMin + zLag * (z      ));
+			pHistogram->Set_Z         (z                  , zMin + zLag * (z + 0.5));
+			pHistogram->Get_Attributes(z).Set_Value("ZMAX", zMin + zLag * (z + 1.0));
 		}
 	}
 	else if( pHistogram->Get_NZ() < 2 )
 	{
-		Error_Set(_TL("histogram needs at least tow classes"));
+		Error_Set(_TL("histogram needs at least two classes"));
 
 		return( false );
 	}
-	else
-	{
-		hLag	= pHistogram->Get_ZRange() / (pHistogram->Get_NZ() - 1);
-		hMin	= pHistogram->Get_ZMin() - 0.5 * hLag;
-		hMax	= pHistogram->Get_ZMax() + 0.5 * hLag;
-	}
 
-	hLag	= pHistogram->Get_NZ() / (hMax - hMin);
+	//-----------------------------------------------------
+	int	zMin	= pHistogram->Get_Attributes().Get_Field("ZMIN");
+	int	zMax	= pHistogram->Get_Attributes().Get_Field("ZMAX");
+
+	if( zMin < 0 || zMax < 0 )
+	{
+		Error_Set(_TL("histogram misses attribute fields for class boundaries"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	for(int	iGrid=0; iGrid<pGrids->Get_Grid_Count() && Set_Progress(iGrid, pGrids->Get_Grid_Count()); iGrid++)
@@ -235,7 +239,8 @@ bool CGrid_Statistics_Build::On_Execute(void)
 					if( Value < pMin->asDouble(x, y) ) { pMin->Set_Value(x, y, Value); } else
 					if( Value > pMax->asDouble(x, y) ) { pMax->Set_Value(x, y, Value); }
 
-					int	z	= (int)(0.5 + (Value - hMin) * hLag);
+					//-------------------------------------
+					int	z	= Get_Histogram_Class(pHistogram, zMin, zMax, Value);
 
 					if( z >= 0 && z < pHistogram->Get_NZ() )
 					{
@@ -248,6 +253,41 @@ bool CGrid_Statistics_Build::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Statistics_Build::Get_Histogram_Class(CSG_Grids *pHistogram, int zMin, int zMax, double Value)
+{
+	int	z;
+
+	if( Value < pHistogram->Get_Attributes(z = 0).asDouble(zMin) )
+	{
+		pHistogram->Get_Attributes(z).Set_Value(zMin, Value);
+
+		return( z );
+	}
+
+	if( Value > pHistogram->Get_Attributes(z = pHistogram->Get_NZ() - 1).asDouble(zMax) )
+	{
+		pHistogram->Get_Attributes(z).Set_Value(zMax, Value);
+
+		return( z );
+	}
+
+	for(z=0; z<pHistogram->Get_NZ(); z++)
+	{
+		if( Value <= pHistogram->Get_Attributes(z).asDouble(zMax) )
+		{
+			return( z );
+		}
+	}
+
+	return( -1 );
 }
 
 
@@ -273,12 +313,12 @@ CGrid_Statistics_Evaluate::CGrid_Statistics_Evaluate(void)
 		"that could not be loaded into memory simultaneously. "
 	));
 
-	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"  ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"               ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"    ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"           ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"           ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"               ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"    ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"         ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_Grid ("", "RANGE"    , _TL("Range"             ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid ("", "MEAN"     , _TL("Arithmetic Mean"   ), _TL(""), PARAMETER_OUTPUT);
@@ -306,8 +346,30 @@ CGrid_Statistics_Evaluate::CGrid_Statistics_Evaluate(void)
 //---------------------------------------------------------
 int CGrid_Statistics_Evaluate::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	pParameters->Set_Enabled("RANGE", (*pParameters)("MIN")->asGrid() && (*pParameters)("MAX")->asGrid());
+	bool	bEnable;
 
+	//-----------------------------------------------------
+	bEnable	= (*pParameters)("MIN"      )->asGrid()
+		&&    (*pParameters)("MAX"      )->asGrid();
+
+	pParameters->Set_Enabled("RANGE"    , bEnable);
+
+	//-----------------------------------------------------
+	bEnable	= (*pParameters)("COUNT"    )->asGrid()
+		&&    (*pParameters)("SUM"      )->asGrid()
+		&&    (*pParameters)("SUM2"     )->asGrid();
+
+	pParameters->Set_Enabled("MEAN"     , bEnable);
+	pParameters->Set_Enabled("VAR"      , bEnable);
+	pParameters->Set_Enabled("STDDEV"   , bEnable);
+
+	//-----------------------------------------------------
+	bEnable	= (*pParameters)("HISTOGRAM")->asGrids();
+
+	pParameters->Set_Enabled("QUANTILES", bEnable);
+	pParameters->Set_Enabled("QUANTVALS", bEnable);
+
+	//-----------------------------------------------------
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -320,39 +382,45 @@ int CGrid_Statistics_Evaluate::On_Parameters_Enable(CSG_Parameters *pParameters,
 bool CGrid_Statistics_Evaluate::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pCount		= Parameters("COUNT" )->asGrid();
-	CSG_Grid	*pMin		= Parameters("MIN"   )->asGrid();
-	CSG_Grid	*pMax		= Parameters("MAX"   )->asGrid();
-	CSG_Grid	*pSum		= Parameters("SUM"   )->asGrid();
-	CSG_Grid	*pSum2		= Parameters("SUM2"  )->asGrid();
-
-	CSG_Grid	*pRange		= pMin && pMax ? Parameters("RANGE" )->asGrid() : NULL;
-	CSG_Grid	*pMean		= Parameters("MEAN"  )->asGrid();
-	CSG_Grid	*pVar		= Parameters("VAR"   )->asGrid();
-	CSG_Grid	*pStdDev	= Parameters("STDDEV")->asGrid();
+	CSG_Grid	*pCount		= Parameters("COUNT"    )->asGrid();
+	CSG_Grid	*pMin		= Parameters("MIN"      )->asGrid();
+	CSG_Grid	*pMax		= Parameters("MAX"      )->asGrid();
+	CSG_Grid	*pSum		= Parameters("SUM"      )->asGrid();
+	CSG_Grid	*pSum2		= Parameters("SUM2"     )->asGrid();
+	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
 
 	//-----------------------------------------------------
-	double	hLag, hMin, hMax;
-
-	CSG_Vector	Quantiles;
+	CSG_Vector	Quantiles, ClassBreaks;
 
 	CSG_Parameter_Grid_List	*pQuantiles	= Parameters("QUANTILES")->asGridList();
-
-	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
 
 	if( pHistogram )
 	{
 		if( pHistogram->Get_NZ() < 2 )
 		{
-			Error_Set(_TL("histogram needs at least tow classes"));
+			Error_Set(_TL("histogram needs at least two classes"));
 
 			return( false );
 		}
 
-		hLag	= pHistogram->Get_ZRange() / (pHistogram->Get_NZ() - 1);
-		hMin	= pHistogram->Get_ZMin() - 0.5 * hLag;
-		hMax	= pHistogram->Get_ZMax() - 0.5 * hLag;
-		hLag	= pHistogram->Get_NZ() / (hMax - hMin);
+		int	zMin	= pHistogram->Get_Attributes().Get_Field("ZMIN");
+		int	zMax	= pHistogram->Get_Attributes().Get_Field("ZMAX");
+
+		if( zMin < 0 || zMax < 0 )
+		{
+			Error_Set(_TL("histogram misses attribute fields for class boundaries"));
+
+			return( false );
+		}
+
+		ClassBreaks.Create(pHistogram->Get_NZ() + 1);
+
+		ClassBreaks[0]	= pHistogram->Get_Attributes(0).asDouble(zMin);
+
+		for(int z=0; z<pHistogram->Get_NZ(); z++)
+		{
+			ClassBreaks[z + 1]	= pHistogram->Get_Attributes(z).asDouble(zMax);
+		}
 
 		//-------------------------------------------------
 		pQuantiles->Del_Items();
@@ -376,7 +444,25 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 				pQuantiles->Add_Item(pQuantile);
 			}
 		}
+
+		if( Quantiles.Get_N() < 1 )
+		{
+			pHistogram	= NULL;
+		}
 	}
+
+	//-----------------------------------------------------
+	if( !(!pCount || !pSum || !pSum2) && !(!pMin || !pMax) && !pHistogram )
+	{
+		Error_Set(_TL("unsufficient input"));
+
+		return( false );
+	}
+
+	CSG_Grid	*pRange		= Parameters("RANGE" )->asGrid();
+	CSG_Grid	*pMean		= Parameters("MEAN"  )->asGrid();
+	CSG_Grid	*pVar		= Parameters("VAR"   )->asGrid();
+	CSG_Grid	*pStdDev	= Parameters("STDDEV")->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -386,38 +472,42 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pCount->is_NoData(x, y) )
+			if( pCount && pSum && pSum2 )
 			{
-				if( pRange )
+				if( pCount->is_NoData(x, y) )
+				{
+					pMean  ->Set_NoData(x, y);
+					pVar   ->Set_NoData(x, y);
+					pStdDev->Set_NoData(x, y);
+				}
+				else
+				{
+					double	Count	= pCount->asDouble(x, y);
+					double	Mean	= pSum  ->asDouble(x, y) / Count;
+					double	Var		= pSum2 ->asDouble(x, y) / Count - Mean*Mean;
+
+					pMean  ->Set_Value(x, y, Mean     );
+					pVar   ->Set_Value(x, y, Var      );
+					pStdDev->Set_Value(x, y, sqrt(Var));
+				}
+			}
+
+			//---------------------------------------------
+			if( pMin && pMax )
+			{
+				if( pMin->is_NoData(x, y) || pMax->is_NoData(x, y) )
 				{
 					pRange->Set_NoData(x, y);
 				}
-
-				pMean  ->Set_NoData(x, y);
-				pVar   ->Set_NoData(x, y);
-				pStdDev->Set_NoData(x, y);
-
-				for(int i=0; i<Quantiles.Get_N(); i++)
-				{
-					pQuantiles->Get_Grid(i)->Set_NoData(x, y);
-				}
-			}
-			else
-			{
-				double	Count	= pCount->asDouble(x, y);
-				double	Mean	= pSum ->asDouble(x, y) / Count;
-				double	Var		= pSum2->asDouble(x, y) / Count - Mean*Mean;
-
-				if( pRange )
+				else
 				{
 					pRange->Set_Value(x, y, pMax->asDouble(x, y) - pMin->asDouble(x, y));
 				}
+			}
 
-				pMean  ->Set_Value(x, y, Mean     );
-				pVar   ->Set_Value(x, y, Var      );
-				pStdDev->Set_Value(x, y, sqrt(Var));
-
-				//-----------------------------------------
+			//---------------------------------------------
+			if( pHistogram )
+			{
 				CSG_Vector	Cumulative(pHistogram->Get_NZ());
 
 				for(int z=0, Sum=0; z<pHistogram->Get_NZ(); z++)
@@ -427,7 +517,14 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 
 				for(int i=0; i<Quantiles.Get_N(); i++)
 				{
-					pQuantiles->Get_Grid(i)->Set_Value(x, y, Get_Quantile(Quantiles[i], Cumulative, hMin, hMax));
+					if( Cumulative[Cumulative.Get_N() - 1] > 0 )
+					{
+						pQuantiles->Get_Grid(i)->Set_Value(x, y, Get_Quantile(Quantiles[i], Cumulative, ClassBreaks));
+					}
+					else
+					{
+						pQuantiles->Get_Grid(i)->Set_NoData(x, y);
+					}
 				}
 			}
 		}
@@ -438,33 +535,40 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 }
 
 //---------------------------------------------------------
-double CGrid_Statistics_Evaluate::Get_Quantile(double Quantile, const CSG_Vector &Cumulative, double Min, double Max)
+double CGrid_Statistics_Evaluate::Get_Quantile(double Quantile, const CSG_Vector &Cumulative, const CSG_Vector &ClassBreaks)
 {
+	if( Quantile <= 0.0 )	{	return( ClassBreaks[0                      ] );	}
+	if( Quantile >= 1.0 )	{	return( ClassBreaks[ClassBreaks.Get_N() - 1] );	}
+
 	Quantile	*= Cumulative[Cumulative.Get_N() - 1];
 
-	double	y = 0.0, dx	= (Max - Min) / Cumulative.Get_N();
+	double	y0 = 0.0;
 
 	for(int i=0; i<Cumulative.Get_N(); i++)
 	{
 		if( Quantile < Cumulative[i] )
 		{
-			double	d	= Cumulative[i] > y ? (Quantile - y) / (Cumulative[i] - y) : 0.5;
+			double	dy	= Cumulative[i] - y0;
+			double	dx	= ClassBreaks[i + 1] - ClassBreaks[i];
 
-			return( Min + dx * (i + d) );
+			return( dy <= 0.0 ? -99999 : ClassBreaks[i] + dx * (Quantile - y0) / dy );
 		}
-		else if( Quantile > Cumulative[i] )
+		else if( Quantile == Cumulative[i] )
 		{
-			y	= Cumulative[i];
-		}
-		else // if( Quantile == Cumulative[i] )
-		{
-			int	j	= i + 1; while( j < Cumulative.Get_N() && Quantile == Cumulative[j++] );
+			double	x1, x0	= ClassBreaks[i];
+
+			for( ; i < Cumulative.Get_N() && Quantile == Cumulative[i]; i++)
+			{
+				x1	= ClassBreaks[i + 1];
+			}
 			
-			return( Min + dx * (i + j - 1) / 2.0 );
+			return( x0 + (x1 - x0) / 2.0 );
 		}
+
+		y0	= Cumulative[i];
 	}
 
-	return( Max );
+	return( ClassBreaks[ClassBreaks.Get_N() - 1] );
 }
 
 

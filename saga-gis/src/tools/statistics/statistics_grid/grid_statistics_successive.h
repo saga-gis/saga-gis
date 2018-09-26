@@ -74,6 +74,11 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
+
+private:
+
+	int						Get_Histogram_Class		(CSG_Grids *pHistogram, int zMin, int zMax, double Value);
+
 };
 
 
@@ -99,7 +104,7 @@ protected:
 
 private:
 
-	double					Get_Quantile			(double Quantile, const CSG_Vector &Cumulative, double Min, double Max);
+	double					Get_Quantile			(double Quantile, const CSG_Vector &Cumulative, const CSG_Vector &ClassBreaks);
 
 };
 
