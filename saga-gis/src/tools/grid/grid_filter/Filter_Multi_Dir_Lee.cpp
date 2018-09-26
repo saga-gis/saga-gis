@@ -281,9 +281,9 @@ bool CFilter_Multi_Dir_Lee::On_Execute(void)
 	m_pStdDev		= Parameters("STDDEV")->asGrid();
 	m_pDirection	= Parameters("DIR"   )->asGrid();
 
-	if( m_pFiltered  ) m_pFiltered ->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter"));
-	if( m_pStdDev    ) m_pStdDev   ->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter - Standard Deviation"));
-	if( m_pDirection ) m_pDirection->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter - Direction"));
+	if( m_pFiltered  ) m_pFiltered ->Set_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter"));
+	if( m_pStdDev    ) m_pStdDev   ->Set_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter - Standard Deviation"));
+	if( m_pDirection ) m_pDirection->Set_Name("%s [%s]", m_pInput->Get_Name(), _TL("Lee Filter - Direction"));
 
 	switch( Parameters("METHOD")->asInt() )
 	{

@@ -120,7 +120,7 @@ bool CFillSinks::On_Execute(void)
 	pDEM		= Parameters("DEM")->asGrid();
 	pResult		= Parameters("RESULT")->asGrid();
 
-	pResult->Fmt_Name("%s [%s]", pDEM->Get_Name(), _TL("no sinks"));
+	pResult->Set_Name("%s [%s]", pDEM->Get_Name(), _TL("no sinks"));
 
 	minslope	= tan(Parameters("MINSLOPE")->asDouble() * M_DEG_TO_RAD);
 

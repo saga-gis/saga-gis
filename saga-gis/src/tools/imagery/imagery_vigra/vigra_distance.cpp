@@ -135,7 +135,7 @@ bool CViGrA_Distance::On_Execute(void)
 	//-----------------------------------------------------
 	pOutput->Multiply(pOutput->Get_Cellsize());
 
-	pOutput->Fmt_Name("%s [%s - %s]", pInput->Get_Name(), Get_Name().c_str(), Parameters("NORM")->asString());
+	pOutput->Set_Name("%s [%s - %s]", pInput->Get_Name(), Get_Name().c_str(), Parameters("NORM")->asString());
 
 	return( true );
 }

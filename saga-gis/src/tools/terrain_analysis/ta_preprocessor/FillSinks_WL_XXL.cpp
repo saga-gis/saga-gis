@@ -129,7 +129,7 @@ bool CFillSinks_WL_XXL::On_Execute(void)
 	pFilled		= Parameters("FILLED")->asGrid();
 	minslope	= Parameters("MINSLOPE")->asDouble();		
 
-	pFilled->Fmt_Name("%s [%s]", pElev->Get_Name(), _TL("no sinks"));
+	pFilled->Set_Name("%s [%s]", pElev->Get_Name(), _TL("no sinks"));
 
 
 	if( minslope > 0.0 )

@@ -154,7 +154,7 @@ bool CSnap_Points_to_Features::On_Execute(void)
 		Parameters("RESULT")->Set_Value(pPoints	= pInput);
 	}
 
-	pPoints->Fmt_Name("%s [%s: %s]", pInput->Get_Name(), _TL("snapped"), pSnap->Get_Name());
+	pPoints->Set_Name("%s [%s: %s]", pInput->Get_Name(), _TL("snapped"), pSnap->Get_Name());
 
 	if( pMoves )
 	{

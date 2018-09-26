@@ -351,7 +351,7 @@ bool CTable_Regression_Multiple_Base::On_Execute(void)
 			pResults->Create(*pTable);
 		}
 
-		pResults->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Regression"));
+		pResults->Set_Name("%s [%s]", pTable->Get_Name(), _TL("Regression"));
 
 		pTable	= pResults;
 	}

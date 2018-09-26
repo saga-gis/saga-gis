@@ -126,13 +126,13 @@ bool CFlat_Detection::On_Execute(void)
 	if( m_pNoFlats )
 	{
 		m_pNoFlats	->Assign(m_pDEM);
-		m_pNoFlats	->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("No Flats"));
+		m_pNoFlats	->Set_Name("%s [%s]", m_pDEM->Get_Name(), _TL("No Flats"));
 	}
 
 	if( m_pFlats )
 	{
 		m_pFlats	->Assign_NoData();
-		m_pFlats	->Fmt_Name("%s [%s]", m_pDEM->Get_Name(), _TL("Flats"));
+		m_pFlats	->Set_Name("%s [%s]", m_pDEM->Get_Name(), _TL("Flats"));
 	}
 
 	m_Flats.Create(*Get_System(), SG_DATATYPE_Int);

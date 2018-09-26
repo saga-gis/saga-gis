@@ -105,7 +105,7 @@ bool CGrid_Statistics_Latitudinal::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Fmt_Name("%s [%s]", _TL("Latitudinal Statistics"), pGrid->Get_Name());
+	pTable->Set_Name("%s [%s]", _TL("Latitudinal Statistics"), pGrid->Get_Name());
 	pTable->Add_Field("Y"     , SG_DATATYPE_Double);
 	pTable->Add_Field("MEAN"  , SG_DATATYPE_Double);
 	pTable->Add_Field("MIN"   , SG_DATATYPE_Double);
@@ -178,7 +178,7 @@ bool CGrid_Statistics_Meridional::On_Execute(void)
 	CSG_Table	*pTable	= Parameters("STATS")->asTable();
 
 	pTable->Destroy();
-	pTable->Fmt_Name("%s [%s]", _TL("Meridional Statistics"), pGrid->Get_Name());
+	pTable->Set_Name("%s [%s]", _TL("Meridional Statistics"), pGrid->Get_Name());
 	pTable->Add_Field("X"     , SG_DATATYPE_Double);
 	pTable->Add_Field("MEAN"  , SG_DATATYPE_Double);
 	pTable->Add_Field("MIN"   , SG_DATATYPE_Double);

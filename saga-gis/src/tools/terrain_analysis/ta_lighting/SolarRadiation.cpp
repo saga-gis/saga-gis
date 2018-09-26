@@ -422,7 +422,11 @@ bool CSolarRadiation::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("GRD_FLAT")->asGrid() )
 	{
+		m_pSVF	= NULL;	// without sky view factor...
+
 		Get_Insolation();	// without slope, aspect, shade...
+
+		m_pSVF	= Parameters("GRD_SVF")->asGrid();
 
 		CSG_Grid	*pFlat	= Parameters("GRD_FLAT")->asGrid();
 

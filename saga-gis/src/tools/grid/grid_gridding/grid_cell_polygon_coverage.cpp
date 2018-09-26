@@ -172,7 +172,7 @@ bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 	//-----------------------------------------------------
 	bool	bSelection	= pPolygons->Get_Selection_Count() > 0 ? Parameters("SELECTION")->asBool() : false;
 
-	pArea->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
+	pArea->Set_Name("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
 	pArea->Set_NoData_Value(0.0);
 
 	DataObject_Add(pArea);
@@ -402,7 +402,7 @@ bool CPolygonCategories2Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pCategory->Fmt_Name("%s [%s]", pPolygons->Get_Name(), pPolygons->Get_Field_Name(Field));
+	pCategory->Set_Name("%s [%s]", pPolygons->Get_Name(), pPolygons->Get_Field_Name(Field));
 	pCategory->Assign_NoData();
 
 	//-----------------------------------------------------
@@ -423,7 +423,7 @@ bool CPolygonCategories2Grid::On_Execute(void)
 		pCoverage	= &Coverage;
 	}
 
-	pCoverage->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
+	pCoverage->Set_Name("%s [%s]", pPolygons->Get_Name(), _TL("Coverage"));
 	pCoverage->Set_NoData_Value(0.);
 	pCoverage->Assign(0.);
 

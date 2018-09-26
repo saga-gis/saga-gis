@@ -133,7 +133,7 @@ bool CTable_Field_Statistics::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTab_out->Destroy();
-	pTab_out->Fmt_Name(_TL("%s_stats"), pTab_in->Get_Name());
+	pTab_out->Set_Name(_TL("%s_stats"), pTab_in->Get_Name());
 	
 	pTab_out->Add_Field(_TL("Field"   ), SG_DATATYPE_String);
 	pTab_out->Add_Field(_TL("n"       ), SG_DATATYPE_Long  );

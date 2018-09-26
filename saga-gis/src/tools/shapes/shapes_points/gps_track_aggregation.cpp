@@ -313,7 +313,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 
 	//-----------------------------------------------------
 	pAggregated->Destroy();
-	pAggregated->Fmt_Name("%s [%s]", pObservations->Get_Name(), _TL("aggregated"));
+	pAggregated->Set_Name("%s [%s]", pObservations->Get_Name(), _TL("aggregated"));
 
 	pAggregated->Add_Field("REFID", SG_DATATYPE_String);	// AGG_ID
 	pAggregated->Add_Field("TRACK", SG_DATATYPE_String);	// AGG_TRACK

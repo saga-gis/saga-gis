@@ -217,7 +217,7 @@ bool CGSPoints_Semi_Variances::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTable->Destroy();
-	pTable->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram"), pPoints->Get_Field_Name(Attribute));
+	pTable->Set_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram"), pPoints->Get_Field_Name(Attribute));
 	pTable->Add_Field(_TL("Class"     ), SG_DATATYPE_Int   );	// FIELD_CLASSNR
 	pTable->Add_Field(_TL("Distance"  ), SG_DATATYPE_Double);	// FIELD_DISTANCE
 	pTable->Add_Field(_TL("Count"     ), SG_DATATYPE_Int   );	// FIELD_COUNT

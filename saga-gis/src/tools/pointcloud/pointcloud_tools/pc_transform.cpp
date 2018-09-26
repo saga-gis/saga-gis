@@ -243,7 +243,7 @@ bool CPC_Transform::On_Execute(void)
 
 	pOut->Create(pIn);
 
-	pOut->Fmt_Name("%s [%s]", pIn->Get_Name(), _TL("Transformed"));
+	pOut->Set_Name("%s [%s]", pIn->Get_Name(), _TL("Transformed"));
 
 
 	//-----------------------------------------------------

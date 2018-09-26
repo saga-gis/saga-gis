@@ -182,9 +182,9 @@ bool CGW_Regression::On_Execute(void)
 		return( false );
 	}
 
-	m_pIntercept->Fmt_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Intercept"));
-	m_pSlope    ->Fmt_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Slope"    ));
-	m_pQuality  ->Fmt_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Quality"  ));
+	m_pIntercept->Set_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Intercept"));
+	m_pSlope    ->Set_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Slope"    ));
+	m_pQuality  ->Set_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Quality"  ));
 
 	//-----------------------------------------------------
 	for(int y=0; y<m_pIntercept->Get_NY() && Set_Progress(y, m_pIntercept->Get_NY()); y++)

@@ -389,7 +389,7 @@ bool CGrid_Terrain_Map::Generate_Contours()
 		DataObject_Set_Parameters(pContours, Parms);
 	}
 
-	pContours->Fmt_Name("%s (%s)", _TL("Contours"), Parameters("DEM")->asGrid()->Get_Name());
+	pContours->Set_Name("%s (%s)", _TL("Contours"), Parameters("DEM")->asGrid()->Get_Name());
 	DataObject_Update(pContours, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
 

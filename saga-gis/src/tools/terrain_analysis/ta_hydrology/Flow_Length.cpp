@@ -145,7 +145,7 @@ bool CFlow_Length::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("DIRECTION")->asInt() == 0 )	// downstream
 	{
-		pDistance->Fmt_Name("%s [%s]", _TL("Flow Path Length"), _TL("downstream"));
+		pDistance->Set_Name("%s [%s]", _TL("Flow Path Length"), _TL("downstream"));
 
 		DataObject_Set_Colors(pDistance, 11, SG_COLORS_RAINBOW);
 
@@ -174,7 +174,7 @@ bool CFlow_Length::On_Execute(void)
 	//-----------------------------------------------------
 	else	// upstream
 	{
-		pDistance->Fmt_Name("%s [%s]", _TL("Flow Path Length"), _TL("upstream"));
+		pDistance->Set_Name("%s [%s]", _TL("Flow Path Length"), _TL("upstream"));
 
 		DataObject_Set_Colors(pDistance, 11, SG_COLORS_WHITE_BLUE);
 

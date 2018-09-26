@@ -158,9 +158,9 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 	pVariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
 	pCovariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
 
-	pCount		->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"));
-	pVariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface") , pPoints->Get_Field_Name(Attribute));
-	pCovariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Attribute));
+	pCount		->Set_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"));
+	pVariance	->Set_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface") , pPoints->Get_Field_Name(Attribute));
+	pCovariance	->Set_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Attribute));
 
 	//-----------------------------------------------------
 	for(i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, SG_Get_Square(pPoints->Get_Count()/nSkip)/2); i+=nSkip)

@@ -778,7 +778,7 @@ bool CSVM_Grids::Finalize(void)
 	}
 
 	//-----------------------------------------------------
-	m_pClasses->Fmt_Name("%s [%s]", _TL("Classification"), _TL("SVM"));
+	m_pClasses->Set_Name("%s [%s]", _TL("Classification"), _TL("SVM"));
 
 	//-----------------------------------------------------
 	return( true );

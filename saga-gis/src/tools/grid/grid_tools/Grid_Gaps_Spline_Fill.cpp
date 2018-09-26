@@ -173,7 +173,7 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 	{
 		m_pGrid->Assign(Parameters("GRID")->asGrid());
 
-		m_pGrid->Fmt_Name(SG_T("%s [%s]"), Parameters("GRID")->asGrid()->Get_Name(), _TL("no gaps"));
+		m_pGrid->Set_Name(SG_T("%s [%s]"), Parameters("GRID")->asGrid()->Get_Name(), _TL("no gaps"));
 	}
 
 	if( m_nGapCells_Max == 0 )

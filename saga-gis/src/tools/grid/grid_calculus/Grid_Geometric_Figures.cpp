@@ -207,7 +207,7 @@ void CGrid_Geometric_Figures::Create_Plane(CSG_Grid *pGrid, double Direction)
 	double	xPos, yPos, z, dSin, dCos, Max;
 
 	//-----------------------------------------------------
-	pGrid->Fmt_Name("%s (%.2f %s)", _TL("Plane"), Direction, _TL("Degree"));
+	pGrid->Set_Name("%s (%.2f %s)", _TL("Plane"), Direction, _TL("Degree"));
 
 	Max		= sqrt(2.0) * pGrid->Get_Cellsize() * pGrid->Get_Cellsize() / 4.0;
 

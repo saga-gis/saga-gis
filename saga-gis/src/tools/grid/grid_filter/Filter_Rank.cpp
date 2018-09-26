@@ -148,7 +148,7 @@ bool CFilter_Rank::On_Execute(void)
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s: %.1f]", m_pInput->Get_Name(), _TL("Rank"), 100.0 * Rank);
+		pResult->Set_Name("%s [%s: %.1f]", m_pInput->Get_Name(), _TL("Rank"), 100.0 * Rank);
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 

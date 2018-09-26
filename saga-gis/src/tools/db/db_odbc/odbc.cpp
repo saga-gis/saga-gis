@@ -439,7 +439,7 @@ CSG_Table CSG_ODBC_Connection::Get_Field_Desc(const CSG_String &Table_Name) cons
 {
 	CSG_Table	Fields;
 
-	Fields.Fmt_Name("%s [%s]", Table_Name.c_str(), _TL("Field Description"));
+	Fields.Set_Name("%s [%s]", Table_Name.c_str(), _TL("Field Description"));
 
 	if( is_Connected() )
 	{

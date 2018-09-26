@@ -197,7 +197,7 @@ bool CFilter_LoG::On_Execute(void)
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Laplace Filter"));
+		pResult->Set_Name("%s [%s]", m_pInput->Get_Name(), _TL("Laplace Filter"));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 	}

@@ -226,7 +226,7 @@ bool CClassification_Quality::On_Execute(void)
 	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 1);
 	Confusion[Confusion.Get_Count() - 2].Set_NoData(Confusion.Get_Field_Count() - 2);
 
-	Confusion.Fmt_Name("%s [%s - %s]", _TL("Confusion Matrix"), pPolygons->Get_Name(), pGrid->Get_Name());
+	Confusion.Set_Name("%s [%s - %s]", _TL("Confusion Matrix"), pPolygons->Get_Name(), pGrid->Get_Name());
 
 	//-----------------------------------------------------
 	TSG_Point	p;	p.y	= Get_YMin();
@@ -263,7 +263,7 @@ bool CClassification_Quality::On_Execute(void)
 	CSG_Table	&Classes	= *Parameters("CLASSES")->asTable();
 
 	Classes.Destroy();
-	Classes.Fmt_Name("%s [%s - %s]", _TL("Class Values"), pPolygons->Get_Name(), pGrid->Get_Name());
+	Classes.Set_Name("%s [%s - %s]", _TL("Class Values"), pPolygons->Get_Name(), pGrid->Get_Name());
 	Classes.Add_Field("Class"        , SG_DATATYPE_String);
 	Classes.Add_Field("SumRef"       , SG_DATATYPE_Int);
 	Classes.Add_Field("AccProd"      , SG_DATATYPE_Double);
@@ -312,7 +312,7 @@ bool CClassification_Quality::On_Execute(void)
 	CSG_Table	&Summary	= *Parameters("SUMMARY")->asTable();
 
 	Summary.Destroy();
-	Summary.Fmt_Name("%s [%s - %s]", _TL("Summary"), pPolygons->Get_Name(), pGrid->Get_Name());
+	Summary.Set_Name("%s [%s - %s]", _TL("Summary"), pPolygons->Get_Name(), pGrid->Get_Name());
 	Summary.Add_Field("NAME" , SG_DATATYPE_String);
 	Summary.Add_Field("VALUE", SG_DATATYPE_Double);
 	Summary.Set_Record_Count(2);

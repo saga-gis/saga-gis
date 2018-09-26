@@ -568,16 +568,16 @@ CGrids_Extract_ZLevel::CGrids_Extract_ZLevel(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("",
-		"GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
 	Parameters.Add_Grids("",
 		"GRIDS"		, _TL("Grid Collection"),
 		_TL(""),
 		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Double("",
@@ -643,7 +643,7 @@ bool CGrids_Extract_ZLevel::On_Execute(void)
 
 	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
 
-	pGrid->Fmt_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
+	pGrid->Set_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
 
 	TSG_Grid_Resampling	Resampling;
 

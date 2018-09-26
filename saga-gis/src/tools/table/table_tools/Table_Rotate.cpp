@@ -129,7 +129,7 @@ bool CTable_Rotate::On_Execute(void)
 		}
 
 		pOutput->Destroy();
-		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("rotated"));
+		pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("rotated"));
 
 		FieldType	= SG_DATATYPE_String;
 

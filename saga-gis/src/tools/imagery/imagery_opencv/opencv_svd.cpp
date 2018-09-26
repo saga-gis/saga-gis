@@ -166,7 +166,7 @@ bool COpenCV_SVD::On_Execute(void)
     cvReleaseImage(&cv_pInput);
     cvReleaseImage(&cv_pOutput);
 
-	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
+	pOutput->Set_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
 
 	return( true );
 }

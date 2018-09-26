@@ -409,7 +409,7 @@ bool CTable_PCA::Get_Components(CSG_Matrix &Eigen_Vectors, CSG_Vector &Eigen_Val
 	if( pPCA != m_pTable )
 	{
 		pPCA->Destroy();
-		pPCA->Fmt_Name("%s [%s]", m_pTable->Get_Name(), _TL("Principal Components"));
+		pPCA->Set_Name("%s [%s]", m_pTable->Get_Name(), _TL("Principal Components"));
 	}
 
 	//-----------------------------------------------------

@@ -442,7 +442,7 @@ bool CPET_Day_To_Hour::On_Execute(void)
 	sinHgt	= 0.0;	// -0.0145;	// >> -50'' desired height of horizon
 
 	pHours->Destroy();
-	pHours->Fmt_Name("%s [%s]", pDays->Get_Name(), _TL("h"));
+	pHours->Set_Name("%s [%s]", pDays->Get_Name(), _TL("h"));
 	pHours->Add_Field("JULIAN_DAY", SG_DATATYPE_Int);
 	pHours->Add_Field("HOUR"      , SG_DATATYPE_Int);
 	pHours->Add_Field("ET"        , SG_DATATYPE_Double);

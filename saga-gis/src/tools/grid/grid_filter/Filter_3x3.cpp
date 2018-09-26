@@ -177,7 +177,7 @@ bool CFilter_3x3::On_Execute(void)
 	}
 	else
 	{
-		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Filter"));
+		pResult->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Filter"));
 
 		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 	}

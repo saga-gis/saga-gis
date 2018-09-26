@@ -199,7 +199,7 @@ bool CWatershed_Segmentation::On_Execute(void)
 	m_pSeeds->Add_Field("ID_JOIN", SG_DATATYPE_Int   );	// SEED_JOIN
 
 	//-----------------------------------------------------
-	m_pSegments->Fmt_Name("%s [%s]", m_pGrid->Get_Name(), _TL("Segments"));
+	m_pSegments->Set_Name("%s [%s]", m_pGrid->Get_Name(), _TL("Segments"));
 	m_pSegments->Set_NoData_Value(-999999.0);
 
 	m_Dir.Create(*Get_System(), SG_DATATYPE_Char);

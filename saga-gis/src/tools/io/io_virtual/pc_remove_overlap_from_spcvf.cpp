@@ -220,7 +220,7 @@ bool CPointCloud_Remove_Overlap_From_SPCVF::On_Execute(void)
 			sPath = pFilePath->asString();
 			sPath += "/";
 
-			pPC_out->Fmt_Name("%s%s", sPath.c_str(), SG_File_Get_Name(pPC->Get_Name(), false).c_str());
+			pPC_out->Set_Name("%s%s", sPath.c_str(), SG_File_Get_Name(pPC->Get_Name(), false).c_str());
 	
 			pPC_out->Save(pPC_out->Get_Name());
 		}

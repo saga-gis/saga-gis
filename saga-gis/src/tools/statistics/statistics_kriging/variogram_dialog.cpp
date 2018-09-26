@@ -127,7 +127,7 @@ bool CSG_Variogram::Calculate(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG
 	//-----------------------------------------------------
 	pVariogram->Destroy();
 
-	pVariogram->Fmt_Name("%s [%s]", _TL("Variogram"), pPoints->Get_Name());
+	pVariogram->Set_Name("%s [%s]", _TL("Variogram"), pPoints->Get_Name());
 
 	pVariogram->Add_Field(_TL("Class"   ), SG_DATATYPE_Int   );	// FIELD_CLASS
 	pVariogram->Add_Field(_TL("Distance"), SG_DATATYPE_Double);	// FIELD_DISTANCE

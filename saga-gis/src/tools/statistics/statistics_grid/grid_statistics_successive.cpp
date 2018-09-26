@@ -77,10 +77,10 @@ CGrid_Statistics_Build::CGrid_Statistics_Build(void)
 	);
 
 	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Word);
-	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"             ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"         ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"         ), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Word);
 
 	Parameters.Add_Bool("", "RESET", _TL("Reset"), _TL(""), true);
@@ -364,7 +364,7 @@ int CGrid_Statistics_Evaluate::On_Parameters_Enable(CSG_Parameters *pParameters,
 	pParameters->Set_Enabled("STDDEV"   , bEnable);
 
 	//-----------------------------------------------------
-	bEnable	= (*pParameters)("HISTOGRAM")->asGrids();
+	bEnable	= (*pParameters)("HISTOGRAM")->asGrids() != NULL;
 
 	pParameters->Set_Enabled("QUANTILES", bEnable);
 	pParameters->Set_Enabled("QUANTVALS", bEnable);
@@ -382,17 +382,11 @@ int CGrid_Statistics_Evaluate::On_Parameters_Enable(CSG_Parameters *pParameters,
 bool CGrid_Statistics_Evaluate::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	*pCount		= Parameters("COUNT"    )->asGrid();
-	CSG_Grid	*pMin		= Parameters("MIN"      )->asGrid();
-	CSG_Grid	*pMax		= Parameters("MAX"      )->asGrid();
-	CSG_Grid	*pSum		= Parameters("SUM"      )->asGrid();
-	CSG_Grid	*pSum2		= Parameters("SUM2"     )->asGrid();
-	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
-
-	//-----------------------------------------------------
 	CSG_Vector	Quantiles, ClassBreaks;
 
 	CSG_Parameter_Grid_List	*pQuantiles	= Parameters("QUANTILES")->asGridList();
+
+	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
 
 	if( pHistogram )
 	{
@@ -439,7 +433,7 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 
 				CSG_Grid	*pQuantile	= SG_Create_Grid(*Get_System());
 
-				pQuantile->Fmt_Name("%s [%s]", _TL("Percentile"), s.c_str());
+				pQuantile->Set_Name("%s [%s]", _TL("Percentile"), s.c_str());
 
 				pQuantiles->Add_Item(pQuantile);
 			}
@@ -452,6 +446,12 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Grid	*pCount	= Parameters("COUNT")->asGrid();
+	CSG_Grid	*pMin	= Parameters("MIN"  )->asGrid();
+	CSG_Grid	*pMax	= Parameters("MAX"  )->asGrid();
+	CSG_Grid	*pSum	= Parameters("SUM"  )->asGrid();
+	CSG_Grid	*pSum2	= Parameters("SUM2" )->asGrid();
+
 	if( !(!pCount || !pSum || !pSum2) && !(!pMin || !pMax) && !pHistogram )
 	{
 		Error_Set(_TL("unsufficient input"));

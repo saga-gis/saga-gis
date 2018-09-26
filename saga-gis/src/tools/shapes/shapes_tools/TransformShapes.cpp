@@ -139,7 +139,7 @@ bool CTransformShapes::On_Execute(void)
 
 		DataObject_Set_Parameters(pShapes, Parameters("SHAPES")->asShapes());
 
-		pShapes->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("Transformed"));
+		pShapes->Set_Name("%s [%s]", pShapes->Get_Name(), _TL("Transformed"));
 	}
 	else
 	{

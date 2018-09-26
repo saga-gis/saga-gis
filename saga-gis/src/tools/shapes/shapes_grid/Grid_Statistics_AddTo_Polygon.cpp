@@ -244,7 +244,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		pPolygons	= Parameters("RESULT")->asShapes();
 		pPolygons	->Assign(Parameters("POLYGONS")->asShapes());
-		pPolygons	->Fmt_Name("%s [%s]", Parameters("POLYGONS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
+		pPolygons	->Set_Name("%s [%s]", Parameters("POLYGONS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
 	}
 
 	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pPolygons->Get_Count()];

@@ -232,7 +232,7 @@ void CSG_Data_Object::Set_Name(const CSG_String &Name)
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Fmt_Name(const char *Format, ...)
+void CSG_Data_Object::Set_Name(const char *Format, ...)
 {
 	wxString	_s;
 
@@ -253,14 +253,14 @@ void CSG_Data_Object::Fmt_Name(const char *Format, ...)
 
 	CSG_String	s(&_s);
 
-	if( ! s.is_Empty() )
+	if( !s.is_Empty() )
 	{
 		Set_Name(s);
 	}
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
+void CSG_Data_Object::Set_Name(const wchar_t *Format, ...)
 {
 	wxString	_s;
 
@@ -281,7 +281,7 @@ void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
 
 	CSG_String	s(&_s);
 
-	if( ! s.is_Empty() )
+	if( !s.is_Empty() )
 	{
 		Set_Name(s);
 	}

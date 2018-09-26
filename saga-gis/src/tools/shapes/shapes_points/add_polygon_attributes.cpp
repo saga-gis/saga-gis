@@ -156,7 +156,7 @@ bool CAdd_Polygon_Attributes::On_Execute(void)
 		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
 	}
 
-	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), pPolygons->Get_Name());
+	pOutput->Set_Name("%s [%s]", pInput->Get_Name(), pPolygons->Get_Name());
 
 	//-----------------------------------------------------
 	int	outField	= pOutput->Get_Field_Count();

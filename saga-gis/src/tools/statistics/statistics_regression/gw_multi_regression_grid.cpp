@@ -249,7 +249,7 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 		}
 
 		m_pModel     [i]	= SG_Create_Grid(m_dimModel);
-		m_pModel     [i]	->Fmt_Name("%s [%s]", pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor"));
+		m_pModel     [i]	->Set_Name("%s [%s]", pPredictors->Get_Grid(i)->Get_Name(), _TL("Factor"));
 	}
 
 	m_pModel[m_nPredictors]	= SG_Create_Grid(m_dimModel);
@@ -473,8 +473,8 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 	CSG_Grid	*pRegression	= Parameters("REGRESSION")->asGrid();
 	CSG_Grid	*pQuality		= Parameters("QUALITY"   )->asGrid();
 
-	pRegression->Fmt_Name("%s [%s]"    , m_Points.Get_Name(), _TL("GWR"));
-	pQuality   ->Fmt_Name("%s [%s, %s]", m_Points.Get_Name(), _TL("GWR"), _TL("Quality"));
+	pRegression->Set_Name("%s [%s]"    , m_Points.Get_Name(), _TL("GWR"));
+	pQuality   ->Set_Name("%s [%s, %s]", m_Points.Get_Name(), _TL("GWR"), _TL("Quality"));
 
 	if( m_pQuality == Parameters("QUALITY")->asGrid() )
 	{

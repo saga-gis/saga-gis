@@ -170,7 +170,7 @@ bool CAdd_Point_Attributes::On_Execute(void)
 		Parameters("OUTPUT")->Set_Value(pOutput	= pInput);
 	}
 
-	pOutput->Fmt_Name("%s_%s", pInput->Get_Name(), pPoints->Get_Name());
+	pOutput->Set_Name("%s_%s", pInput->Get_Name(), pPoints->Get_Name());
 
 	//-----------------------------------------------------
 	int	outField	= pOutput->Get_Field_Count();

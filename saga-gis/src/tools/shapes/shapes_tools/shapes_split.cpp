@@ -166,7 +166,7 @@ bool CShapes_Split::On_Execute(void)
 
 				if( (pCut = Cut_Shapes(r, Method, pShapes)) != NULL )
 				{
-					pCut->Fmt_Name("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y);
+					pCut->Set_Name("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y);
 
 					Parameters("CUTS")->asShapesList()->Add_Item(pCut);
 				}

@@ -383,7 +383,7 @@ bool CGrid_Tiling::On_Execute(void)
 				}
 				else
 				{
-					pTile->Fmt_Name("%s [%d, %d]", pGrid->Get_Name(), iy, ix);
+					pTile->Set_Name("%s [%d, %d]", pGrid->Get_Name(), iy, ix);
 
 					pTiles->Add_Item(pTile);
 				}

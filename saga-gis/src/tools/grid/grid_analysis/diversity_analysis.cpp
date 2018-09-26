@@ -180,10 +180,10 @@ bool CDiversity_Analysis::On_Execute(void)
 	m_pConnectivity	= Parameters("CONNECTIVITY")->asGrid();
 	m_pConnectedAvg	= Parameters("CONNECTEDAVG")->asGrid();
 
-	m_pCount		->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Count"                ));
-	m_pDiversity	->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Diversity"            ));
-	m_pConnectivity	->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Connectivity"         ));
-	m_pConnectedAvg	->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Averaged Connectivity"));
+	m_pCount		->Set_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Count"                ));
+	m_pDiversity	->Set_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Diversity"            ));
+	m_pConnectivity	->Set_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Connectivity"         ));
+	m_pConnectedAvg	->Set_Name("%s [%s]", m_pClasses->Get_Name(), _TL("Averaged Connectivity"));
 
 	DataObject_Set_Colors(m_pCount       , 11, SG_COLORS_RAINBOW, false);
 	DataObject_Set_Colors(m_pDiversity   , 11, SG_COLORS_RAINBOW, false);

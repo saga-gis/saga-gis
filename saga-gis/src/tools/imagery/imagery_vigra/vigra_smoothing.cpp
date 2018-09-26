@@ -178,7 +178,7 @@ bool CViGrA_Smoothing::On_Execute(void)
 	//-----------------------------------------------------
 	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	pOutput->Fmt_Name("%s [%s - %s]", pInput->Get_Name(), Get_Name().c_str(), Parameters("TYPE")->asString());
+	pOutput->Set_Name("%s [%s - %s]", pInput->Get_Name(), Get_Name().c_str(), Parameters("TYPE")->asString());
 
 	return( true );
 }

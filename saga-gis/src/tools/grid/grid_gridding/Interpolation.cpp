@@ -183,7 +183,7 @@ bool CInterpolation::On_Execute(void)
 		return( false );
 	}
 
-	m_pGrid->Fmt_Name("%s [%s]", Parameters("FIELD")->asString(), Get_Name().c_str());
+	m_pGrid->Set_Name("%s [%s]", Parameters("FIELD")->asString(), Get_Name().c_str());
 
 	//-----------------------------------------------------
 	if( !Interpolate() )

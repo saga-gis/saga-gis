@@ -229,7 +229,7 @@ bool CPointCloud_Create_Tileshape_From_SPCVF::On_Execute(void)
 		pShapes->Add_Field(_TL("ZMax"),		SG_DATATYPE_Double);
 	}
 
-	pShapes->Fmt_Name("%s (%s)", _TL("Tileshape"), SG_File_Get_Name(sFileName, false).c_str());
+	pShapes->Set_Name("%s (%s)", _TL("Tileshape"), SG_File_Get_Name(sFileName, false).c_str());
 
 
 	//-----------------------------------------------------

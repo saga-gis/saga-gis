@@ -1132,7 +1132,7 @@ bool CMilankovic_SR_Monthly_Global::On_Execute(void)
 	CSG_Table_Record	*pRecord;
 
 	pRadiation->Destroy();
-	pRadiation->Fmt_Name("%s [%d]", _TL("Global Irradiation"), Year);
+	pRadiation->Set_Name("%s [%d]", _TL("Global Irradiation"), Year);
 	pRadiation->Set_NoData_Value(-9999999);
 	pRadiation->Add_Field(_TL("Lat"), SG_DATATYPE_String);
 
