@@ -52,28 +52,28 @@ CCellBalance::CCellBalance(void)
 		"Olaya, V.", "2004", "Hidrologia computacional y modelos digitales del terreno", "Alqua. 536 pp."
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"DEM"		, _TL("Elevation"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_or_Const(NULL,
+	Parameters.Add_Grid_or_Const("",
 		"WEIGHTS"	, _TL("Weights"),
 		_TL(""),
 		1.0, 0.0, true
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"BALANCE"	, _TL("Cell Balance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction")
 		), 1
