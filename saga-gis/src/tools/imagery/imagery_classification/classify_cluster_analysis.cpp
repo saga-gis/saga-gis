@@ -687,10 +687,7 @@ double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CS
 
 		SP	/= nElements;
 
-		Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
-			_TL("pass"  ), nPasses,
-			_TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP
-		));
+		Process_Set_Text("%s: %d >> %s %f", _TL("pass"), nPasses, _TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP);
 
 		SP_Last		= SP;
 
@@ -878,10 +875,7 @@ double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_G
 
 		SP	/= nElements;
 
-		Process_Set_Text(CSG_String::Format("%s: %d >> %s %f",
-			_TL("pass"  ), nPasses,
-			_TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP
-		));
+		Process_Set_Text("%s: %d >> %s %f", _TL("pass"), nPasses, _TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP);
 
 		SP_Last		= SP;
 

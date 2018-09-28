@@ -84,37 +84,38 @@ CSVG_Interactive_Map::CSVG_Interactive_Map(void)
 {
 	Set_Name		(_TL("SVG Interactive Map"));
 
-	Set_Author		(SG_T("V.Olaya"));
+	Set_Author		("V.Olaya");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	Parameters.Add_FilePath(
-		NULL	, "FILENAME"	, _TL("[FLD] SVG File"),
+		"", "FILENAME"	, _TL("[FLD] SVG File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.svg|%s|*.*"),
-			_TL("SVG - Scalable Vector Graphics Files (*.svg)"),
+		CSG_String::Format("%s (*.svg)|*.svg|%s|*.*",
+			_TL("Scalable Vector Graphics Files"),
 			_TL("All Files")
 		), NULL, true, false
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "LIST"		, _TL("Shapes Layers"),
+		"", "LIST"		, _TL("Shapes Layers"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("[FLD] Index Layer"),
+		"", "SHAPES"	, _TL("[FLD] Index Layer"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 }
 
-//---------------------------------------------------------
-CSVG_Interactive_Map::~CSVG_Interactive_Map(void)
-{}
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSVG_Interactive_Map::On_Execute(void)
@@ -123,18 +124,16 @@ bool CSVG_Interactive_Map::On_Execute(void)
 	CSG_Shapes				*pIndexLayer;
 	CSVG_Interactive_Map	SVG;
 
-	Process_Set_Text(CSG_String::Format(SG_T("%s..."), _TL("[MSG] Save as Interactive SVG")));
+	Process_Set_Text("%s...", _TL("[MSG] Save as Interactive SVG"));
 
-	pIndexLayer		= Parameters("SHAPES")		->asShapes();
-	FileName		= Parameters("FILENAME")	->asString();
+	pIndexLayer		= Parameters("SHAPES"  )->asShapes();
+	FileName		= Parameters("FILENAME")->asString();
 
 	return( SVG.Create_From_Map(Parameters("LIST")->asShapesList(), pIndexLayer, FileName) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

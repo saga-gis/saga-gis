@@ -72,130 +72,119 @@
 //---------------------------------------------------------
 CGrid_3D_Image::CGrid_3D_Image(void)
 {
-	Set_Name(_TL("Create 3D Image"));
+	Set_Name		(_TL("Create 3D Image"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2005");
 
-	Set_Description(
-		_TL("")
-	);
+	Set_Description(_TW(
+		""
+	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"				, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "IMAGE"			, _TL("Overlay Image"),
+		"", "IMAGE"			, _TL("Overlay Image"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"			, _TL("Shapes to project"),
+		"", "SHAPES"		, _TL("Shapes to project"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "ZEXAGG"			, _TL("Exaggeration"),
+	Parameters.Add_Double(
+		"", "ZEXAGG"		, _TL("Exaggeration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ZEXAGG_MIN"		, _TL("Minimum Exaggeration [%]"),
+	Parameters.Add_Double(
+		"", "ZEXAGG_MIN"	, _TL("Minimum Exaggeration [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true, 100.0, true
+		10.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "Z_ROTATE"		, _TL("Image Rotation [Degree]"),
+	Parameters.Add_Double(
+		"", "Z_ROTATE"		, _TL("Image Rotation [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0
+		0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "X_ROTATE"		, _TL("Local Rotation [Degree]"),
+	Parameters.Add_Double(
+		"", "X_ROTATE"		, _TL("Local Rotation [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "X_ROTATE_LEVEL"	, _TL("Local Rotation Base Level"),
+		"", "X_ROTATE_LEVEL", _TL("Local Rotation Base Level"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Zero"),
 			_TL("Mean Elevation")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PANBREAK"		, _TL("Panorama Break [%]"),
+	Parameters.Add_Double(
+		"", "PANBREAK"		, _TL("Panorama Break [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 70.0, 0.0, true, 100.0, true
+		70.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BKCOLOR"			, _TL("Background Color"),
+	Parameters.Add_Color(
+		"", "BKCOLOR"		, _TL("Background Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_COLOR_BLACK
+		SG_COLOR_BLACK
 	);
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "PROJECTION"		, _TL("Projection"),
+		"", "PROJECTION"	, _TL("Projection"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Panorama"),
 			_TL("Circular")
 		), 0
 	);
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NX"				, _TL("3D Image Width"),
+	Parameters.Add_Int(
+		"", "NX"			, _TL("3D Image Width"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NY"				, _TL("3D Image Height"),
+	Parameters.Add_Int(
+		"", "NY"			, _TL("3D Image Height"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RGB"				, _TL("3D Image"),
+		"", "RGB"			, _TL("3D Image"),
 		_TL(""),
 //		PARAMETER_OUTPUT_OPTIONAL, false, SG_DATATYPE_Int
 		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Int
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RGB_Z"			, _TL("Projected Height"),
+		"", "RGB_Z"			, _TL("Projected Height"),
 		_TL(""),
 //		PARAMETER_OUTPUT_OPTIONAL, false, SG_DATATYPE_Float
 		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Float
 	);
 }
 
-//---------------------------------------------------------
-CGrid_3D_Image::~CGrid_3D_Image(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -203,22 +192,22 @@ CGrid_3D_Image::~CGrid_3D_Image(void)
 bool CGrid_3D_Image::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pDEM			= Parameters("DEM")				->asGrid();
-	m_pImage		= Parameters("IMAGE")			->asGrid();
+	m_pDEM			= Parameters("DEM"           )->asGrid();
+	m_pImage		= Parameters("IMAGE"         )->asGrid();
 
-	m_Projection	= Parameters("PROJECTION")		->asInt();
+	m_Projection	= Parameters("PROJECTION"    )->asInt();
 
-	m_ZExagg		= Parameters("ZEXAGG")			->asDouble();
-	m_ZExagg_Min	= Parameters("ZEXAGG_MIN")		->asDouble() / 100.0;
-	m_ZMean			= Parameters("X_ROTATE_LEVEL")	->asInt() == 0 ? 0.0 : m_pDEM->Get_Min() + m_pDEM->Get_Range() / 2.0;
-	m_XRotate		= Parameters("X_ROTATE")		->asDouble() * M_DEG_TO_RAD;
-	m_ZRotate		= Parameters("Z_ROTATE")		->asDouble() * M_DEG_TO_RAD;
+	m_ZExagg		= Parameters("ZEXAGG"        )->asDouble();
+	m_ZExagg_Min	= Parameters("ZEXAGG_MIN"    )->asDouble() / 100.0;
+	m_ZMean			= Parameters("X_ROTATE_LEVEL")->asInt() == 0 ? 0.0 : m_pDEM->Get_Min() + m_pDEM->Get_Range() / 2.0;
+	m_XRotate		= Parameters("X_ROTATE"      )->asDouble() * M_DEG_TO_RAD;
+	m_ZRotate		= Parameters("Z_ROTATE"      )->asDouble() * M_DEG_TO_RAD;
 
-	m_PanoramaBreak	= Parameters("PANBREAK")		->asDouble() / 100.0;
+	m_PanoramaBreak	= Parameters("PANBREAK"      )->asDouble() / 100.0;
 
 	//-----------------------------------------------------
-	m_pRGB			= Parameters("RGB")				->asGrid();
-	m_pRGB_Z		= Parameters("RGB_Z")			->asGrid();
+	m_pRGB			= Parameters("RGB"  )->asGrid();
+	m_pRGB_Z		= Parameters("RGB_Z")->asGrid();
 
 	if( !m_pRGB )
 	{
@@ -262,8 +251,6 @@ bool CGrid_3D_Image::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -324,7 +311,7 @@ void CGrid_3D_Image::_Set_Shapes(CSG_Shapes *pInput)
 
 	if( pInput && pInput->is_Valid() )
 	{
-		Process_Set_Text(CSG_String::Format(_TL("Project \'%s\'"), pInput->Get_Name()));
+		Process_Set_Text("%s \"%s\"", _TL("Project"), pInput->Get_Name());
 
 		pOutput	= SG_Create_Shapes(*pInput);
 		dx		= (double)Get_NX() / Get_System()->Get_XRange();
@@ -357,8 +344,6 @@ void CGrid_3D_Image::_Set_Shapes(CSG_Shapes *pInput)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -402,8 +387,6 @@ void CGrid_3D_Image::_Get_Line(T3DPoint *a, T3DPoint *b, T3DPoint *c)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -550,8 +533,6 @@ inline bool CGrid_3D_Image::_Get_Hyperbel(double &y, double &z)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

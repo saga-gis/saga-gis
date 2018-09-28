@@ -417,7 +417,7 @@ bool CSAGA_Wetness_Index::Get_Modified(void)
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("pass %d (%d > 0)"), Iteration, nChanges));
+		Process_Set_Text("pass %d (%d > 0)", Iteration, nChanges);
 	}
 
 	//-----------------------------------------------------

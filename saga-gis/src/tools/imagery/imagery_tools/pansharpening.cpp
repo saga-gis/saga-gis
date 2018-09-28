@@ -162,17 +162,17 @@ bool CPanSharp_IHS::On_Execute(void)
 	CSG_Grid	*pPan	= Parameters("PAN")->asGrid();
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("R")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("R")->asGrid()->Get_Name());
 	CSG_Grid	*pR	= Parameters("R_SHARP")->asGrid();
 	pR->Assign  (Parameters("R")->asGrid(), Resampling);
 	pR->Set_Name(Parameters("R")->asGrid()->Get_Name());
 
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("G")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("G")->asGrid()->Get_Name());
 	CSG_Grid	*pG	= Parameters("G_SHARP")->asGrid();
 	pG->Assign  (Parameters("G")->asGrid(), Resampling);
 	pG->Set_Name(Parameters("G")->asGrid()->Get_Name());
 
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("B")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("B")->asGrid()->Get_Name());
 	CSG_Grid	*pB	= Parameters("B_SHARP")->asGrid();
 	pB->Assign  (Parameters("B")->asGrid(), Resampling);
 	pB->Set_Name(Parameters("B")->asGrid()->Get_Name());
@@ -367,17 +367,17 @@ bool CPanSharp_Brovey::On_Execute(void)
 	CSG_Grid	*pPan	= Parameters("PAN")->asGrid();
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("R")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("R")->asGrid()->Get_Name());
 	CSG_Grid	*pR	= Parameters("R_SHARP")->asGrid();
 	pR->Assign  (Parameters("R")->asGrid(), Resampling);
 	pR->Set_Name(Parameters("R")->asGrid()->Get_Name());
 
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("G")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("G")->asGrid()->Get_Name());
 	CSG_Grid	*pG	= Parameters("G_SHARP")->asGrid();
 	pG->Assign  (Parameters("G")->asGrid(), Resampling);
 	pG->Set_Name(Parameters("G")->asGrid()->Get_Name());
 
-	Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), Parameters("B")->asGrid()->Get_Name()));
+	Process_Set_Text("%s: %s ...", _TL("Resampling"), Parameters("B")->asGrid()->Get_Name());
 	CSG_Grid	*pB	= Parameters("B_SHARP")->asGrid();
 	pB->Assign  (Parameters("B")->asGrid(), Resampling);
 	pB->Set_Name(Parameters("B")->asGrid()->Get_Name());
@@ -504,7 +504,7 @@ bool CPanSharp_CN::On_Execute(void)
 
 	for(i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), pGrids->Get_Grid(i)->Get_Name()));
+		Process_Set_Text("%s: %s ...", _TL("Resampling"), pGrids->Get_Grid(i)->Get_Name());
 
 		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
 
@@ -722,7 +722,7 @@ bool CPanSharp_PCA::On_Execute(void)
 
 	for(i=1; i<n; i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s ...", _TL("Resampling"), pPCA->Get_Grid(i)->Get_Name()));
+		Process_Set_Text("%s: %s ...", _TL("Resampling"), pPCA->Get_Grid(i)->Get_Name());
 
 		PCA[i].Create(*Get_System());
 		PCA[i].Assign(pPCA->Get_Grid(i), Resampling);

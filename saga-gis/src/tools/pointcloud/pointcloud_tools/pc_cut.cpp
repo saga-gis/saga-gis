@@ -76,7 +76,7 @@ CPC_Cut::CPC_Cut(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-16"));
+	Set_Author		("O. Conrad, V. Wichmann (c) 2009-16");
 
 	Set_Description	(_TW(
 		"This tool allows one to extract subsets from one or several "
@@ -86,27 +86,26 @@ CPC_Cut::CPC_Cut(void)
 		"does not support the inverse selection in case the shapes layer contains more "
 		"than one polygon.\n"
 		"In case a polygon shapes layer is used and one or more polygons are selected, "
-		"only the selected polygons are processed.\n\n"
+		"only the selected polygons are processed."
 	));
-
 
 	//-----------------------------------------------------
 	Parameters.Add_PointCloud_List(
-		NULL	, "POINTS"		, _TL("Points"),
+		"", "POINTS"	, _TL("Points"),
 		_TL("One or several input point cloud datasets to cut."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_PointCloud_List(
-		NULL	, "CUT"			, _TL("Cut"),
+		"", "CUT"		, _TL("Cut"),
 		_TL("The cutted output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "AREA"		, _TL("Choose Cut from ..."),
+		"", "AREA"		, _TL("Choose Cut from ..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("User Defined Extent"),
 			_TL("Grid System Extent"),
 			_TL("Shapes Extent"),
@@ -114,39 +113,38 @@ CPC_Cut::CPC_Cut(void)
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "INVERSE"		, _TL("Inverse"),
+	Parameters.Add_Bool(
+		"", "INVERSE"	, _TL("Inverse"),
 		_TL("Invert selection."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
-
 
 	//-----------------------------------------------------
 	// User Defined Extent
 
-	pParameters	= Add_Parameters	(	   "USER"		, _TL("User Defined Extent"), _TL(""));
-	pParameters	->Add_Value			(NULL, "XMIN"		, _TL("Left")				, _TL(""), PARAMETER_TYPE_Double);
-	pParameters	->Add_Value			(NULL, "XMAX"		, _TL("Right")				, _TL(""), PARAMETER_TYPE_Double);
-	pParameters	->Add_Value			(NULL, "YMIN"		, _TL("Bottom")				, _TL(""), PARAMETER_TYPE_Double);
-	pParameters	->Add_Value			(NULL, "YMAX"		, _TL("Top")				, _TL(""), PARAMETER_TYPE_Double);
+	pParameters	= Add_Parameters("USER", _TL("User Defined Extent"), _TL(""));
+	pParameters	->Add_Double("", "XMIN", _TL("Left"  ), _TL(""));
+	pParameters	->Add_Double("", "XMAX", _TL("Right" ), _TL(""));
+	pParameters	->Add_Double("", "YMIN", _TL("Bottom"), _TL(""));
+	pParameters	->Add_Double("", "YMAX", _TL("Top"   ), _TL(""));
 
 	//-----------------------------------------------------
 	// Grid System Extent
 
-	pParameters	= Add_Parameters	(	   "GRID"		, _TL("Grid System Extent")	, _TL(""));
-	pParameters	->Add_Grid_System	(NULL, "GRID"		, _TL("Grid System")		, _TL(""));
+	pParameters	= Add_Parameters("GRID", _TL("Grid System Extent"), _TL(""));
+	pParameters	->Add_Grid_System("", "GRID", _TL("Grid System"), _TL(""));
 
 	//-----------------------------------------------------
 	// Shapes Extent
 
-	pParameters	= Add_Parameters	(	   "EXTENT"		, _TL("Shapes Extent")		, _TL(""));
-	pParameters	->Add_Shapes		(NULL, "EXTENT"		, _TL("Shapes Extent")		, _TL(""), PARAMETER_INPUT_OPTIONAL);
+	pParameters	= Add_Parameters("EXTENT", _TL("Shapes Extent"), _TL(""));
+	pParameters	->Add_Shapes("", "EXTENT", _TL("Shapes Extent"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	//-----------------------------------------------------
 	// Polygons
 
-	pParameters	= Add_Parameters	(	   "POLYGONS"	, _TL("Polygons")			, _TL(""));
-	pParameters	->Add_Shapes		(NULL, "POLYGONS"	, _TL("Polygons")			, _TL(""), PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon);
+	pParameters	= Add_Parameters("POLYGONS", _TL("Polygons"), _TL(""));
+	pParameters	->Add_Shapes("", "POLYGONS", _TL("Polygons"), _TL(""), PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Polygon);
 }
 
 
@@ -157,8 +155,8 @@ CPC_Cut::CPC_Cut(void)
 //---------------------------------------------------------
 bool CPC_Cut::On_Execute(void)
 {
-	CSG_Parameter_PointCloud_List	*pPointsList	= Parameters("POINTS")	->asPointCloudList();
-	CSG_Parameter_PointCloud_List	*pCutList		= Parameters("CUT")		->asPointCloudList();
+	CSG_Parameter_PointCloud_List	*pPointsList	= Parameters("POINTS")->asPointCloudList();
+	CSG_Parameter_PointCloud_List	*pCutList		= Parameters("CUT"   )->asPointCloudList();
 
 	switch( Parameters("AREA")->asInt() )
 	{
@@ -237,7 +235,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 {
 	for(int iItem=0; iItem<pPointsList->Get_Item_Count(); iItem++)
 	{
-		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
+		Process_Set_Text("%s, %d", _TL("processing dataset"), iItem + 1);
 
 		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
@@ -293,7 +291,7 @@ bool CPC_Cut::Get_Cut(CSG_Parameter_PointCloud_List *pPointsList, CSG_Parameter_
 {
 	for(int iItem=0; iItem<pPointsList->Get_Item_Count(); iItem++)
 	{
-		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing dataset %d"), iItem+1));
+		Process_Set_Text("%s %d", _TL("processing dataset"), iItem + 1);
 
 		CSG_PointCloud	*pPoints = pPointsList->Get_PointCloud(iItem);
 
@@ -381,7 +379,7 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Point Cloud Cutter"));
 
-	Set_Author		(SG_T("O. Conrad, V. Wichmann (c) 2009-15"));
+	Set_Author		("O. Conrad, V. Wichmann (c) 2009-15");
 
 	Set_Description	(_TW(
 		"This tool allows one to extract subsets from one or several "
@@ -391,49 +389,47 @@ CPC_Cut_Interactive::CPC_Cut_Interactive(void)
 		"execute the tool. Use the Action tool to define the AOI.\n\n"
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_PointCloud_List(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_PointCloud_List("",
+		"POINTS"	, _TL("Points"),
 		_TL("One or several input point cloud datasets to cut."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_PointCloud_List(
-		NULL	, "CUT"			, _TL("Cut"),
+	Parameters.Add_PointCloud_List("",
+		"CUT"		, _TL("Cut"),
 		_TL("The cutted output point cloud dataset(s)."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "AOI"			, _TL("Define AOI by ..."),
+	Parameters.Add_Choice("",
+		"AOI"		, _TL("Define AOI by ..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-                _TL("dragging a box"),
-                _TL("digitzing a polygon")
-            ), 0
+		CSG_String::Format("%s|%s",
+            _TL("dragging a box"),
+            _TL("digitzing a polygon")
+        ), 0
 	);
 
-	Parameters.Add_Shapes(
-		Parameters("AOI"), "AOISHAPE"	, _TL("AOI Shape"),
+	Parameters.Add_Shapes("AOI",
+		"AOISHAPE"	, _TL("AOI Shape"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(
-		NULL	, "INVERSE"		, _TL("Inverse"),
+	Parameters.Add_Bool("",
+		"INVERSE"	, _TL("Inverse"),
 		_TL("Invert selection."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
-
 
 	//-----------------------------------------------------
 	CSG_Parameters	*pParameters	= Add_Parameters("CUT", _TL("Cut"), _TL(""));
 
-	pParameters->Add_Value(NULL, "XMIN", _TL("Left")	, _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "XMAX", _TL("Right")	, _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "YMIN", _TL("Bottom")	, _TL(""), PARAMETER_TYPE_Double);
-	pParameters->Add_Value(NULL, "YMAX", _TL("Top")		, _TL(""), PARAMETER_TYPE_Double);
+	pParameters->Add_Value("", "XMIN", _TL("Left"  ), _TL(""), PARAMETER_TYPE_Double);
+	pParameters->Add_Value("", "XMAX", _TL("Right" ), _TL(""), PARAMETER_TYPE_Double);
+	pParameters->Add_Value("", "YMIN", _TL("Bottom"), _TL(""), PARAMETER_TYPE_Double);
+	pParameters->Add_Value("", "YMAX", _TL("Top"   ), _TL(""), PARAMETER_TYPE_Double);
 }
 
 //---------------------------------------------------------
@@ -453,7 +449,7 @@ bool CPC_Cut_Interactive::On_Execute(void)
 
 		if( m_pAOI == NULL )
 		{
-			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, SG_T("AOI_Cutter"));
+			m_pAOI = SG_Create_Shapes(SHAPE_TYPE_Polygon, _TL("AOI Cutter"));
 			m_pAOI->Add_Field("ID", SG_DATATYPE_Int);
 			Parameters("AOISHAPE")->Set_Value(m_pAOI);
 			DataObject_Add(m_pAOI, true);

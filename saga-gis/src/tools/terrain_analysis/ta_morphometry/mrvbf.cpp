@@ -200,7 +200,7 @@ bool CMRVBF::On_Execute(void)
 	int	Level	= 1;
 	Resolution	= Get_Cellsize();
 
-	Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+	Process_Set_Text("%d. %s", Level, _TL("step"));
 	Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
 
 	Get_Slopes		(&DEM, &Slopes);
@@ -212,7 +212,7 @@ bool CMRVBF::On_Execute(void)
 	T_Slope	/= 2.0;
 	Level++;
 
-	Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+	Process_Set_Text("%d. %s", Level, _TL("step"));
 	Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
 
 	Get_Percentiles	(&DEM, &Percentiles, 6);
@@ -227,7 +227,7 @@ bool CMRVBF::On_Execute(void)
 		T_Slope		/= 2.0;
 		Level++;
 
-		Process_Set_Text(CSG_String::Format("%d. %s", Level, _TL("step")));
+		Process_Set_Text("%d. %s", Level, _TL("step"));
 		Message_Fmt("\n%s: %d, %s: %.2f, %s %.2f", _TL("step"), Level, _TL("resolution"), Resolution, _TL("threshold slope"), T_Slope);
 
 		Get_Values		(&DEM, &Slopes, &Percentiles, Resolution);

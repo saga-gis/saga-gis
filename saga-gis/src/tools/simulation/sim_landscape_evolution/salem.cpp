@@ -1114,7 +1114,7 @@ bool CSaLEM::On_Execute(void)
 	//-----------------------------------------------------
 	for(m_Time=time_start; m_Time<=time_stop && Set_Progress(m_Time-time_start, time_stop-time_start); m_Time+=m_dTime)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %d", _TL("Years BP"), -m_Time));
+		Process_Set_Text("%s: %d", _TL("Years BP"), -m_Time);
 
 		SG_UI_Progress_Lock(true);
 

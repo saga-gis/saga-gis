@@ -81,57 +81,57 @@ CGrid_Seeds::CGrid_Seeds(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "FEATURES"		, _TL("Features"),
+		"", "FEATURES"		, _TL("Features"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "VARIANCE"		, _TL("Variance"),
+		"", "VARIANCE"		, _TL("Variance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SEED_GRID"		, _TL("Seeds Grid"),
+		"", "SEED_GRID"		, _TL("Seeds Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "SEED_POINTS"		, _TL("Seed Points"),
+		"", "SEED_POINTS"	, _TL("Seed Points"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "SEED_TYPE"		, _TL("Seed Type"),
+		"", "SEED_TYPE"		, _TL("Seed Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("minima of variance"),
 			_TL("maxima of variance")
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Method"),
+		"", "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("band width smoothing"),
 			_TL("band width search")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BAND_WIDTH"		, _TL("Bandwidth (Cells)"),
+	Parameters.Add_Double(
+		"", "BAND_WIDTH"	, _TL("Bandwidth (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 1.0, true
+		10.0, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NORMALIZE"		, _TL("Normalize Features"),
+	Parameters.Add_Bool(
+		"", "NORMALIZE"		, _TL("Normalize Features"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
 	m_Cells.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
@@ -192,7 +192,7 @@ bool CGrid_Seeds::On_Execute(void)
 
 		for(int i=0; i<m_nFeatures; i++)
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("resampling"), pFeatures->Get_Grid(i)->Get_Name()));
+			Process_Set_Text("%s: %s", _TL("resampling"), pFeatures->Get_Grid(i)->Get_Name());
 
 			SG_UI_Progress_Lock(true);
 
@@ -447,10 +447,10 @@ bool CGrid_Seeds::Get_Seeds(void)
 	{
 		pPoints->Create(SHAPE_TYPE_Point, _TL("Seeds"));
 
-		pPoints->Add_Field(SG_T("ID" ), SG_DATATYPE_Int);
-		pPoints->Add_Field(SG_T("X"  ), SG_DATATYPE_Int);
-		pPoints->Add_Field(SG_T("Y"  ), SG_DATATYPE_Int);
-		pPoints->Add_Field(SG_T("VAR"), SG_DATATYPE_Double);
+		pPoints->Add_Field("ID" , SG_DATATYPE_Int   );
+		pPoints->Add_Field("X"  , SG_DATATYPE_Int   );
+		pPoints->Add_Field("Y"  , SG_DATATYPE_Int   );
+		pPoints->Add_Field("VAR", SG_DATATYPE_Double);
 
 		for(int iFeature=0; iFeature<m_nFeatures; iFeature++)
 		{

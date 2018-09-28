@@ -323,7 +323,7 @@ bool CCRU_Table_Import::On_Execute(void)
 
 	for(int iMonth=0; iMonth<nMonths && !File.is_EOF() && Process_Get_Okay(); iMonth++)
 	{
-		Process_Set_Text(CSG_String::Format("%s %d", _TL("Band"), 1 + iMonth));
+		Process_Set_Text("%s %d", _TL("Band"), 1 + iMonth);
 
 		CSG_Grid	*pGrid	= SG_Create_Grid(System, SG_DATATYPE_Short);
 

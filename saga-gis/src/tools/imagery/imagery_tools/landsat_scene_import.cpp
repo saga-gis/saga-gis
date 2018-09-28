@@ -282,7 +282,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 			continue;
 		}
 
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("loading"), File_Bands[i].c_str()));
+		Process_Set_Text("%s: %s", _TL("loading"), File_Bands[i].c_str());
 
 		CSG_Grid	*pBand	= Load_Band(SG_File_Make_Path(Path, File_Bands[i], ""));
 

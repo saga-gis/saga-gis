@@ -79,7 +79,7 @@ class CSVG_Interactive_Map : public CSG_Doc_SVG, public CSG_Tool
 {
 public:
 	CSVG_Interactive_Map(void);
-	virtual ~CSVG_Interactive_Map(void);
+
 
 protected:
 
@@ -89,6 +89,7 @@ protected:
 private:
 
 	CSG_String			m_Directory;
+
 	double				m_dWidth;
 
 

@@ -256,7 +256,7 @@ bool CHillslope_Evolution_ADI::On_Execute(void)
 	//-----------------------------------------------------
 	for(double iTime=dTime; iTime<=nTime && Set_Progress(iTime, nTime); iTime+=dTime)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %.2f [%.2f]", _TL("Simulation Time"), iTime, nTime));
+		Process_Set_Text("%s: %.2f [%.2f]", _TL("Simulation Time"), iTime, nTime);
 
 		SG_UI_Progress_Lock(true);
 

@@ -257,7 +257,7 @@ bool CWator::On_Execute(void)
 
 	for(i=1; Process_Get_Okay(true) && Next_Cycle(); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %d", _TL("Life Cycle"), i));
+		Process_Set_Text("%s: %d", _TL("Life Cycle"), i);
 
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 

@@ -391,7 +391,7 @@ bool CGDAL_Import_NetCDF::Load(CSG_GDAL_DataSet &DataSet, const CSG_String &Name
 			{
 				if( bTransform )
 				{
-					Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count()));
+					Process_Set_Text("%s [%d/%d]", _TL("band transformation"), i + 1, DataSet.Get_Count());
 
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}

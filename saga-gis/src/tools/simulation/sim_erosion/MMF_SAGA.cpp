@@ -639,7 +639,7 @@ bool CMMF_SAGA::On_Execute(void)
 
 	for (int iRun=0; iRun<iRuns; iRun++)
 	{
-		SG_UI_Process_Set_Text(CSG_String::Format(_TL("Model step %d/%d ..."), iRun + 1, iRuns));
+		Process_Set_Text("%s %d/%d...", _TL("model step"), iRun + 1, iRuns);
 
 		if (pMeteoTab != NULL)
 		{
@@ -653,7 +653,8 @@ bool CMMF_SAGA::On_Execute(void)
 
 		if (bInterflow && Rn > timespan)
 		{
-			Error_Set(CSG_String::Format(_TL("Number of raindays is greater than model timespan!")));
+			Error_Fmt(_TL("Number of raindays is greater than model timespan!"));
+
 			return (false);
 		}
 

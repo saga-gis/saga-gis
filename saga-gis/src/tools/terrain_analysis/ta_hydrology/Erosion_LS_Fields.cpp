@@ -572,7 +572,7 @@ bool CErosion_LS_Fields::Get_Balance(void)
 	CSG_Grid	dzSum(*Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s 1"), _TL("Sediment Balance"), _TL("Pass")));
+	Process_Set_Text("%s: %s 1", _TL("Sediment Balance"), _TL("Pass"));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -603,7 +603,7 @@ bool CErosion_LS_Fields::Get_Balance(void)
 
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s 2"), _TL("Sediment Balance"), _TL("Pass")));
+	Process_Set_Text("%s: %s 2", _TL("Sediment Balance"), _TL("Pass"));
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

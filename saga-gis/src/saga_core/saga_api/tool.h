@@ -224,8 +224,10 @@ protected:
 
 
 	//-----------------------------------------------------
-	virtual bool				Process_Get_Okay			(bool bBlink = false);
-	virtual void				Process_Set_Text			(const CSG_String &Text);
+	static bool					Process_Get_Okay			(bool bBlink = false);
+	static void					Process_Set_Text			(const CSG_String &Text);
+	static void					Process_Set_Text			(const char    *Format, ...);
+	static void					Process_Set_Text			(const wchar_t *Format, ...);
 
 	virtual bool				Set_Progress				(double Percent);
 	virtual bool				Set_Progress				(double Position, double Range);
@@ -234,9 +236,9 @@ protected:
 
 	void						Message_Dlg					(const CSG_String &Text, const SG_Char *Caption = NULL);
 	bool						Message_Dlg_Confirm			(const CSG_String &Text, const SG_Char *Caption = NULL);
-	void						Message_Add					(const CSG_String &Text, bool bNewLine = true);
-	void						Message_Fmt					(const char    *Format, ...);
-	void						Message_Fmt					(const wchar_t *Format, ...);
+	static void					Message_Add					(const CSG_String &Text, bool bNewLine = true);
+	static void					Message_Fmt					(const char    *Format, ...);
+	static void					Message_Fmt					(const wchar_t *Format, ...);
 
 	bool						Error_Set					(TSG_Tool_Error Error_ID = TOOL_ERROR_Unknown);
 	bool						Error_Set					(const CSG_String &Error_Text);

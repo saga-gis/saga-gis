@@ -166,7 +166,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 	//-----------------------------------------------------
 	for(int Iteration=1; Iteration<=nIterations && Process_Get_Okay(); Iteration++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %d [%d]", _TL("Iteration"), Iteration, nIterations));
+		Process_Set_Text("%s: %d [%d]", _TL("Iteration"), Iteration, nIterations);
 
 		SG_UI_Progress_Lock(true);
 

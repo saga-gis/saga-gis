@@ -166,7 +166,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 	//-----------------------------------------------------
 	// 1. check for building parts
 
-	Process_Set_Text(CSG_String::Format("%s: %s", _TL("loading building parts"), SG_File_Get_Name(File, true).c_str()));
+	Process_Set_Text("%s: %s", _TL("loading building parts"), SG_File_Get_Name(File, true).c_str());
 
 	CSG_MetaData	GML, GML_Parts;
 
@@ -199,7 +199,7 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pBuildin
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(CSG_String::Format("%s: %s", _TL("saving building parts"), SG_File_Get_Name(File, true).c_str()));
+	Process_Set_Text("%s: %s", _TL("saving building parts"), SG_File_Get_Name(File, true).c_str());
 
 	CSG_String	tmpFile	= SG_File_Make_Path(SG_Dir_Get_Temp(), SG_File_Get_Name(File, true));
 

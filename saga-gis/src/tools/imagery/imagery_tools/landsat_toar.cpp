@@ -678,7 +678,7 @@ bool CLandsat_TOAR::On_Execute(void)
 			//---------------------------------------------
 			if( AC_Method > DOS && !lsat.band[iBand].thermal )	// calculate dark pixel
 			{
-				Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("Dark Object Subtraction"), lsat.band[iBand].number, lsat.bands));
+				Process_Set_Text("%s [%d/%d]", _TL("Dark Object Subtraction"), lsat.band[iBand].number, lsat.bands);
 
 				int				j;
 				unsigned long	hist[256], h_max;
@@ -765,7 +765,7 @@ bool CLandsat_TOAR::On_Execute(void)
 			continue;
 		}
 
-		Process_Set_Text(CSG_String::Format("%s [%d/%d]", _TL("Processing"), lsat.band[iBand].number, lsat.bands));
+		Process_Set_Text("%s [%d/%d]", _TL("Processing"), lsat.band[iBand].number, lsat.bands);
 
 		//-------------------------------------------------
 		if( bRadiance )

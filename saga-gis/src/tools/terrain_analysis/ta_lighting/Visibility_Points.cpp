@@ -145,19 +145,15 @@ bool CVisibility_Points::On_Execute(void)
 
 	for(int iShape=0; iShape<pShapes->Get_Count(); iShape++)
 	{
-		Process_Set_Text(CSG_String::Format(_TL("Processing observer %d ..."), iShape + 1));
+		Process_Set_Text("%s %d...", _TL("processing observer"), iShape + 1);
 
-		int		x, y;
-
-		x	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).x);
-		y	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).y);
+		int	x	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).x);
+		int	y	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).y);
 
 		if( pDTM->is_InGrid(x, y, true) )
 		{
-			double	dHeight, z;
-
-			dHeight = pShapes->Get_Record(iShape)->asDouble(iField);
-			z		= pDTM->asDouble(x, y) + dHeight;
+			double	dHeight = pShapes->Get_Record(iShape)->asDouble(iField);
+			double	z		= pDTM->asDouble(x, y) + dHeight;
 
 			Set_Visibility(pDTM, pVisibility, x, y, z, dHeight, iMethod);
 		}

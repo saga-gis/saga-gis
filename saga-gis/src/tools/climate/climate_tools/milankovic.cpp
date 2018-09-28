@@ -850,15 +850,15 @@ bool CMilankovic_SR_Location::On_Execute(void)
 	pRadiation->Destroy();
 	pRadiation->Set_Name(_TL("Annual Course of Daily Insolation"));
 	pRadiation->Set_NoData_Value(-9999999);
-	pRadiation->Add_Field(_TL("Day")        , SG_DATATYPE_Int);
-	pRadiation->Add_Field(_TL("Zenith")     , SG_DATATYPE_Double);
+	pRadiation->Add_Field(_TL("Day"        ), SG_DATATYPE_Int   );
+	pRadiation->Add_Field(_TL("Zenith"     ), SG_DATATYPE_Double);
 	pRadiation->Add_Field(_TL("Culmination"), SG_DATATYPE_Double);
-	pRadiation->Add_Field(_TL("Radiation")  , SG_DATATYPE_Double);
+	pRadiation->Add_Field(_TL("Radiation"  ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(int year=Start; year<=Stop && Set_Progress(year - Start, Stop - Start); year+=Step)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Year"), year));
+		Process_Set_Text("%s: %d", _TL("Year"), year);
 
 		CSG_Solar_Position	Position(year);
 
@@ -966,19 +966,19 @@ bool CMilankovic_SR_Day_Location::On_Execute(void)
 
 	pRadiation->Destroy();
 	pRadiation->Set_NoData_Value(-9999999);
-	pRadiation->Add_Field(_TL("Year")     , SG_DATATYPE_Int);
+	pRadiation->Add_Field(_TL("Year"), SG_DATATYPE_Int);
 
 	nLat	= (int)(M_PI_180 / dLat);
 
 	for(iLat=0; iLat<=nLat; iLat++)
 	{
-		pRadiation->Add_Field(CSG_String::Format(SG_T("LAT_%.1f"), -90.0 + iLat * M_RAD_TO_DEG * dLat), SG_DATATYPE_Double);
+		pRadiation->Add_Field(CSG_String::Format("LAT_%.1f", -90.0 + iLat * M_RAD_TO_DEG * dLat), SG_DATATYPE_Double);
 	}
 
 	//-----------------------------------------------------
 	for(int year=Start; year<=Stop && Set_Progress(year - Start, Stop - Start); year+=Step)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d"), _TL("Year"), year));
+		Process_Set_Text("%s: %d", _TL("Year"), year);
 
 		CSG_Solar_Position	Position(year);
 

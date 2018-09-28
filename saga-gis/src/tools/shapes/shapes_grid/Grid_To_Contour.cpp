@@ -283,7 +283,7 @@ bool CGrid_To_Contour::On_Execute(void)
 	{
 		if( z >= m_pGrid->Get_Min() && z <= m_pGrid->Get_Max() )
 		{
-			Process_Set_Text(CSG_String::Format("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str()));
+			Process_Set_Text("%s: %s", _TL("Contour"), SG_Get_String(z, -2).c_str());
 
 			Get_Contour(z);
 		}

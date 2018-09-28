@@ -180,7 +180,7 @@ bool CPC_Merge::On_Execute(void)
 			continue;
 		}
 
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("processing"), pPoints->Get_Name()));
+		Process_Set_Text("%s: %s", _TL("processing"), pPoints->Get_Name());
 
 		int	nPoints	= pPoints->Get_Point_Count();
 

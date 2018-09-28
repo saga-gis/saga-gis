@@ -1378,7 +1378,7 @@ bool CLandFlow::On_Execute(void)
 		DataObject_Update(m_pCCacheOut);
 		DataObject_Update(m_pChannelFlow);
 
-		Process_Set_Text(CSG_String::Format(SG_T("dt = %d  Dt = %g  Vmax = %g || Tag: %d"), m_pTStep, dT+m_pTStep, vMax, dC));
+		Process_Set_Text("dt = %d  Dt = %g  Vmax = %g || Tag: %d", m_pTStep, dT+m_pTStep, vMax, dC);
 		//######################################################
 		
 		
@@ -2563,7 +2563,7 @@ bool CLandFlow::SaveNcCache(int nMax)
 
 			myfile << "\n";
 			i++;
-			Process_Set_Text(CSG_String::Format(SG_T("NcCache || Schreibe Datensatz %d von %d"),i ,d));
+			Process_Set_Text(SG_T("NcCache || Schreibe Datensatz %d von %d"),i ,d);
 		}
 	}
 
@@ -2700,7 +2700,7 @@ bool CLandFlow::SaveParameters()
 			
 			myfile << "\n";
 			i++;
-			Process_Set_Text(CSG_String::Format("Parameters || Schreibe Datensatz %d von %d",i ,d));
+			Process_Set_Text("Parameters || Schreibe Datensatz %d von %d",i ,d);
 		}
 	}*/
 
@@ -2777,7 +2777,7 @@ bool CLandFlow::TestLog1(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 
@@ -2798,7 +2798,7 @@ bool CLandFlow::TestLog2(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 
@@ -2819,7 +2819,7 @@ bool CLandFlow::TestLog3(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 
@@ -2840,7 +2840,7 @@ bool CLandFlow::TestLog4(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 
@@ -2862,7 +2862,7 @@ bool CLandFlow::WriteLog(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 
@@ -2940,7 +2940,7 @@ double CLandFlow::ReadNCacheFile(bool p0, string s1, int p1, int p2, int p3, int
 							}
 						}
 						r++;
-						Process_Set_Text(CSG_String::Format(SG_T("NC Datensatz %d wurde eingelesen"),r));
+						Process_Set_Text(SG_T("NC Datensatz %d wurde eingelesen"),r);
 					}
 					else
 					{

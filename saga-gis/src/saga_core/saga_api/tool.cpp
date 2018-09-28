@@ -593,6 +593,56 @@ void CSG_Tool::Process_Set_Text(const CSG_String &Text)
 }
 
 //---------------------------------------------------------
+void CSG_Tool::Process_Set_Text(const char    *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Process_Set_Text(s);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Process_Set_Text(const wchar_t *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Process_Set_Text(s);
+}
+
+//---------------------------------------------------------
 bool CSG_Tool::Set_Progress(double Percent)
 {
 	return( Set_Progress(Percent, 100.0) );

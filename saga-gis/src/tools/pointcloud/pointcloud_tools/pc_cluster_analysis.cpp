@@ -81,51 +81,47 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 
 	Set_Name		(_TL("Cluster Analysis for Point Clouds"));
 
-	Set_Author		(SG_T("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
 
 	Set_Description	(_TW(		
-		"Cluster analysis for point clouds.\n\n"
-		
-		"References:\n\n"
-
+		"Cluster analysis for point clouds.\n"
 		"This tool is a port of the 'Cluster Analysis for Grids' "
-		"tool from the 'Imagery - Classification' tool library, "
-		"Copyright (C) 2003 by Olaf Conrad.\n\n"
-
-		"Iterative Minimum Distance:\n"
-		"- Forgy, E. (1965):\n"
-		"  'Cluster Analysis of multivariate data: efficiency vs. interpretability of classifications',\n"
-		"  Biometrics 21:768\n\n"
-
-		"Hill-Climbing:"
-		"- Rubin, J. (1967):\n"
-		"  'Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem',\n"
-		"  J. Theoretical Biology, 15:103-144\n\n"
+		"tool from the 'Imagery - Classification' tool library. "
 	));
+
+	Add_Reference("Forgy, E.", "1965",
+		"Cluster Analysis of multivariate data: efficiency vs. interpretability of classifications",
+		"Biometrics 21:768."
+	);
+
+	Add_Reference("Rubin, J.", "1967",
+		"Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem",
+		"J. Theoretical Biology, 15:103-144."
+	);
 
 
 	//-----------------------------------------------------
 	// 2. Datasets...
 
-	CSG_Parameter *pNode = Parameters.Add_PointCloud(
-		NULL	, "PC_IN"		,_TL("Point Cloud"),
+	Parameters.Add_PointCloud("",
+		"PC_IN"			,_TL("Point Cloud"),
 		_TL("Input"),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("PC_IN",
+		"FIELDS"		, _TL("Attributes"),
 		_TL("The attribute fields to cluster")
 	);
 
-	Parameters.Add_PointCloud(
-		NULL	, "PC_OUT"		,_TL("Result"),
+	Parameters.Add_PointCloud("",
+		"PC_OUT"		,_TL("Result"),
 		_TL("Output"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"	, _TL("Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS"	, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -134,33 +130,31 @@ CPC_Cluster_Analysis::CPC_Cluster_Analysis(void)
 	//-----------------------------------------------------
 	// 3. General Parameters...
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
 		),1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NCLUSTER"	, _TL("Clusters"),
+	Parameters.Add_Int("",
+		"NCLUSTER"		, _TL("Clusters"),
 		_TL("Number of clusters"),
-		PARAMETER_TYPE_Int, 10, 2, true
+		10, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NORMALISE"	, _TL("Normalise"),
+	Parameters.Add_Bool("",
+		"NORMALISE"		, _TL("Normalise"),
 		_TL("Automatically normalise attributes by standard deviation before clustering."),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -173,8 +167,8 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 	//-----------------------------------------------------
 	nCluster	= Parameters("NCLUSTER")->asInt();
-	pPC_in		= Parameters("PC_IN")	->asPointCloud();
-	pPC_out		= Parameters("PC_OUT")	->asPointCloud();
+	pPC_in		= Parameters("PC_IN"   )->asPointCloud();
+	pPC_out		= Parameters("PC_OUT"  )->asPointCloud();
 
 	//-------------------------------------------------
 	m_Features	= (int *)Parameters("FIELDS")->asPointer();
@@ -196,7 +190,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 	pPC_out->Create(pPC_in);
 
-	pPC_out->Add_Field(SG_T("CLUSTER"), SG_DATATYPE_Int);
+	pPC_out->Add_Field("CLUSTER", SG_DATATYPE_Int);
 	clustField	= pPC_out->Get_Field_Count() - 1;
 
 	pPC_out->Set_NoData_Value(-1.0);
@@ -341,8 +335,6 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -352,48 +344,45 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 	CSG_Table_Record	*pRecord;
 
 	pTable->Destroy();
-	s	= CSG_String::Format(_TL("Cluster Analysis PC"));
-	s	+= CSG_String::Format(SG_T("_%s"), pPC_in->Get_Name());
-	pTable->Set_Name(s);
+	pTable->Set_Name("%s_%s", _TL("Cluster Analysis PC"), pPC_in->Get_Name());
 
-	pTable->Add_Field(_TL("ClusterID")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
-	pTable->Add_Field(_TL("Variance")	, SG_DATATYPE_Double);
+	pTable->Add_Field(_TL("ClusterID"), SG_DATATYPE_Int);
+	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int);
+	pTable->Add_Field(_TL("Variance" ), SG_DATATYPE_Double);
 
-	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f"),
-		_TL("Number of Elements")			, nElements,
-		_TL("\nNumber of Variables")		, m_nFeatures,
-		_TL("\nNumber of Clusters")			, nCluster,
-		_TL("\nValue of Target Function")	, SP
+	Message_Fmt("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f",
+		_TL("Number of Elements"      ), nElements,
+		_TL("Number of Variables"     ), m_nFeatures,
+		_TL("Number of Clusters"      ), nCluster,
+		_TL("Value of Target Function"), SP
 	);
 
-	s.Append(CSG_String::Format(SG_T("%s\t%s\t%s"), _TL("Cluster"), _TL("Elements"), _TL("Variance")));
+	Message_Fmt("\n%s\t%s\t%s", _TL("Cluster"), _TL("Elements"), _TL("Variance"));
 
-	for( int j=0; j<m_nFeatures; j++ )
+	for(int j=0; j<m_nFeatures; j++)
 	{
-		s.Append(CSG_String::Format(SG_T("\t%02d_%s"), j + 1, pPC_in->Get_Field_Name(m_Features[j])));
+		Message_Fmt("\t%02d_%s", j + 1, pPC_in->Get_Field_Name(m_Features[j]));
+
 		pTable->Add_Field(pPC_in->Get_Field_Name(m_Features[j]), SG_DATATYPE_Double);
 	}
 
-	Message_Add(s);
-
-	for( int i=0; i<nCluster; i++ )
+	for(int i=0; i<nCluster; i++)
 	{
-		s.Printf(SG_T("%d\t%d\t%f"), i, nMembers[i], Variances[i]);
+		s.Printf("\n%d\t%d\t%f", i, nMembers[i], Variances[i]);
 
 		pRecord	= pTable->Add_Record();
 		pRecord->Set_Value(0, i);
 		pRecord->Set_Value(1, nMembers[i]);
 		pRecord->Set_Value(2, Variances[i]);
 
-		for( int j=0; j<m_nFeatures; j++ )
+		for(int j=0; j<m_nFeatures; j++)
 		{
-			s.Append(CSG_String::Format(SG_T("\t%f"), Centroids[i][j]));
+			s.Append(CSG_String::Format("\t%f", Centroids[i][j]));
 
 			pRecord->Set_Value(j + 3, Centroids[i][j]);
 		}
 
-		Message_Add(s);
+		Message_Add(s, false);
 	}
 }
 
@@ -529,10 +518,7 @@ double CPC_Cluster_Analysis::MinimumDistance(long &nElements, int nCluster)
 			bContinue	= false;
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, nPasses,
-			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
-		));
+		Process_Set_Text("%s: %d >> %s %f", _TL("pass"), nPasses, _TL("change"), SP_Last < 0.0 ? SP : SP_Last - SP);
 
 		SP_Last		= SP;
 	}
@@ -722,10 +708,7 @@ double CPC_Cluster_Analysis::HillClimbing(long &nElements, int nCluster)
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %d >> %s %f"),
-			_TL("pass")		, nPasses,
-			_TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP
-		));
+		Process_Set_Text("%s: %d >> %s %f", _TL("pass"), nPasses, _TL("change")	, SP_Last < 0.0 ? SP : SP_Last - SP);
 
 		SP_Last		= SP;
 	}
@@ -760,8 +743,8 @@ bool CPC_Cluster_Analysis::On_After_Execution(void)
 				pClass->Set_Value(0, SG_GET_RGB(rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX, rand() * 255.0 / RAND_MAX));
 			}
 
-			pClass->Set_Value(1, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
-			pClass->Set_Value(2, CSG_String::Format(SG_T("%s %d"), _TL("Class"), i));
+			pClass->Set_Value(1, CSG_String::Format("%s %d", _TL("Class"), i));
+			pClass->Set_Value(2, CSG_String::Format("%s %d", _TL("Class"), i));
 			pClass->Set_Value(3, i);
 			pClass->Set_Value(4, i);
 		}

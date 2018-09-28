@@ -134,7 +134,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s %d", _TL("Band"), i + 1));
+		Process_Set_Text("%s %d", _TL("Band"), i + 1);
 
 		DataSet.Write(i, pGrids->Get_Grid(i));
 	}

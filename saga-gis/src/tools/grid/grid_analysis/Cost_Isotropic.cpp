@@ -234,7 +234,7 @@ bool CCost_Accumulated::Get_Cost(CPoints &Points)
 
 	while( Points.Get_Count() > 0 && Set_Progress_NCells(nProcessed) )
 	{
-		Process_Set_Text(CSG_String::Format("%s: %d", _TL("cells in process"), Points.Get_Count()));
+		Process_Set_Text("%s: %d", _TL("cells in process"), Points.Get_Count());
 
 		int		iPoint;
 

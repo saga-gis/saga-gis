@@ -587,7 +587,7 @@ bool CRivBasin::WriteLog(string s)
 	myfile.open(path.c_str(), ios_base::app);
 
 			myfile << s << "\n";
-			Process_Set_Text(CSG_String::Format(SG_T("Schreibe in Logdatei")));
+			Process_Set_Text(SG_T("Schreibe in Logdatei"));
 
 	myfile.close();
 

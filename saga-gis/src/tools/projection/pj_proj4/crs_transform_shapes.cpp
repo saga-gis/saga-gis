@@ -203,7 +203,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 
 	int		nDropped	= 0;
 
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
+	Process_Set_Text("%s: %s", _TL("Processing"), pSource->Get_Name());
 
 	for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
 	{

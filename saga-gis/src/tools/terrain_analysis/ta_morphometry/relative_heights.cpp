@@ -394,7 +394,7 @@ bool CRelative_Heights::Get_Heights_Modified(CSG_Grid *pDEM, CSG_Grid *pH, doubl
 			}
 		}
 
-		Process_Set_Text(CSG_String::Format(SG_T("pass %d (%d > 0)"), Iteration, nChanges));
+		Process_Set_Text("%s %d (%d > 0)", _TL("pass"), Iteration, nChanges);
 	}
 
 	//-----------------------------------------------------

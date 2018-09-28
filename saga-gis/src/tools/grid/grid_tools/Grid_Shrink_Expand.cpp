@@ -96,26 +96,26 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 		"Regions with valid data in the input grid can be shrunk or expanded by a certain amount (radius). "
 		"Shrinking just sets the border of regions with valid data to NoData, expanding sets NoData "
 		"cells along the border of regions with valid data to a new valid value, computed by the method "
-		"selected (min, max, mean, majority).\n\n"
+		"selected (min, max, mean, majority)."
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"		, _TL("Grid"),
+		"", "INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"		, _TL("Result Grid"),
+		"", "RESULT"	, _TL("Result Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
-		NULL, "OPERATION"		, _TL("Operation"),
+		"", "OPERATION"	, _TL("Operation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("shrink"),
 			_TL("expand"),
 			_TL("shrink and expand"),
@@ -124,24 +124,24 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL, "CIRCLE"		, _TL("Search Mode"),
+		"", "CIRCLE"	, _TL("Search Mode"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius"),
+	Parameters.Add_Int(
+		"", "RADIUS"	, _TL("Radius"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 
 	Parameters.Add_Choice(
-		NULL, "EXPAND"		, _TL("Method"),
+		"", "EXPAND"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("minimum"),
 			_TL("maximum"),
 			_TL("mean"),
@@ -158,12 +158,12 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 //---------------------------------------------------------
 int CGrid_Shrink_Expand::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("OPERATION")) )
+	if(	pParameter->Cmp_Identifier("OPERATION") )
 	{
-		pParameters->Get_Parameter("EXPAND")->Set_Enabled(pParameter->asInt() > 0);
+		pParameters->Set_Enabled("EXPAND", pParameter->asInt() > 0);
 	}
 
-	return (1);
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -266,7 +266,7 @@ bool CGrid_Shrink_Expand::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pResult)
 {
-	Process_Set_Text(CSG_String::Format(SG_T("%s..."), _TL("Shrink")));
+	Process_Set_Text("%s...", _TL("Shrink"));
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -308,7 +308,7 @@ bool CGrid_Shrink_Expand::Do_Shrink(CSG_Grid *pResult)
 //---------------------------------------------------------
 bool CGrid_Shrink_Expand::Do_Expand(CSG_Grid *pResult)
 {
-	Process_Set_Text(CSG_String::Format(SG_T("%s..."), _TL("Expand")));
+	Process_Set_Text("%s...", _TL("Expand"));
 
 	int		Method	= Parameters("EXPAND")->asInt();
 

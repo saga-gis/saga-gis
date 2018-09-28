@@ -194,7 +194,7 @@ CSG_Grid * CUSGS_SRTM_Import::Load(CSG_String File, int N, double D)
 	{
 		fName	.Make_Upper();
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Importing"), fName.c_str()));
+		Process_Set_Text(SG_T("%s: %s"), _TL("Importing"), fName.c_str());
 
 		yMin	= (fName[0] == 'N' ?  1.0 : -1.0) * fName.Right(6).asInt();
 		xMin	= (fName[3] == 'W' ? -1.0 :  1.0) * fName.Right(3).asInt();

@@ -378,7 +378,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		{
 			CSG_String	Message	= "%s: " + SG_File_Get_Name(File, false);	if( DataSet.Get_Count() > 1 )	Message	+= CSG_String::Format(" [%d/%d]", i + 1, DataSet.Get_Count());
 
-			Process_Set_Text(CSG_String::Format(Message.c_str(), _TL("loading")));
+			Process_Set_Text(Message.c_str(), _TL("loading"));
 
 			CSG_Grid	*pGrid	= DataSet.Read(Bands[i].Get_Index());
 
@@ -386,7 +386,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 			{
 				if( bTransform )
 				{
-					Process_Set_Text(CSG_String::Format(Message.c_str(), _TL("translation")));
+					Process_Set_Text(Message.c_str(), _TL("translation"));
 
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}

@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -85,53 +85,49 @@ class CGrid_3D_Image : public CSG_Tool_Grid
 {
 public:
 	CGrid_3D_Image(void);
-	virtual ~CGrid_3D_Image(void);
 
 
 protected:
 
-	virtual bool					On_Execute			(void);
+	virtual bool			On_Execute			(void);
 
 
 private:
 
 	typedef struct
 	{
-		bool						bOk;
-
-		BYTE						r, g, b;
-
-		int							x, y;
-
-		double						z;
+		bool	bOk;
+		BYTE	r, g, b;
+		int		x, y;
+		double	z;
 	}
 	T3DPoint;
 
 
-	int								m_Projection;
+	int						m_Projection;
 
-	double							m_ZMean, m_ZExagg, m_ZExagg_Min, m_ZRotate, m_XRotate, m_XScale, m_YScale, m_PanoramaBreak;
+	double					m_ZMean, m_ZExagg, m_ZExagg_Min, m_ZRotate, m_XRotate, m_XScale, m_YScale, m_PanoramaBreak;
 
-	CSG_Grid							*m_pDEM, *m_pImage, *m_pRGB, *m_pRGB_Z;
+	CSG_Grid				*m_pDEM, *m_pImage, *m_pRGB, *m_pRGB_Z;
 
 
-	void							_Set_Grid			(void);
-	void							_Set_Shapes			(CSG_Shapes *pInput);
+	void					_Set_Grid			(void);
+	void					_Set_Shapes			(CSG_Shapes *pInput);
 
-	void							_Get_Line			(int y, T3DPoint *p);
-	void							_Get_Line			(T3DPoint *a, T3DPoint *b, T3DPoint *c);
+	void					_Get_Line			(int y, T3DPoint *p);
+	void					_Get_Line			(T3DPoint *a, T3DPoint *b, T3DPoint *c);
 
-	void							_Get_Position		(double x, double y, double z, T3DPoint &p);
-	void							_Get_Rotated		(double xAxis, double &x, double yAxis, double &y, double angle);
+	void					_Get_Position		(double x, double y, double z, T3DPoint &p);
+	void					_Get_Rotated		(double xAxis, double &x, double yAxis, double &y, double angle);
 
-	bool							_Get_Panorama		(double &y, double &z);
-	bool							_Get_Sinus			(double &y, double &z);
-	bool							_Get_Circle			(double &y, double &z);
-	bool							_Get_Hyperbel		(double &y, double &z);
+	bool					_Get_Panorama		(double &y, double &z);
+	bool					_Get_Sinus			(double &y, double &z);
+	bool					_Get_Circle			(double &y, double &z);
+	bool					_Get_Hyperbel		(double &y, double &z);
 
-	void							_Draw_Triangle		(T3DPoint p[3]);
-	void							_Draw_Line			(int xa, int xb, int y, double za, double zb, double ra, double rb, double ga, double gb, double ba, double bb);
-	void							_Draw_Pixel			(int x, int y, double z, BYTE r, BYTE g, BYTE b);
+	void					_Draw_Triangle		(T3DPoint p[3]);
+	void					_Draw_Line			(int xa, int xb, int y, double za, double zb, double ra, double rb, double ga, double gb, double ba, double bb);
+	void					_Draw_Pixel			(int x, int y, double z, BYTE r, BYTE g, BYTE b);
 
 };
 

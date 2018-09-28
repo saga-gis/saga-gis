@@ -103,7 +103,7 @@ CSurfer_BLN_Import::CSurfer_BLN_Import(void)
 	Parameters.Add_Choice("",
 		"TYPE"	, _TL("Shape Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("points"),
 			_TL("lines"),
 			_TL("polygons")
@@ -187,7 +187,7 @@ bool CSurfer_BLN_Import::On_Execute(void)
 		//-------------------------------------------------
 		while( bOk && Stream.Read_Line(sLine) && sLine.BeforeFirst(',').asInt(nPoints) && nPoints > 0 && Process_Get_Okay(true) )
 		{
-			Process_Set_Text(CSG_String::Format(SG_T("%d. %s"), ++ID, _TL("shape in process")));
+			Process_Set_Text("%d. %s", ++ID, _TL("shape in process"));
 
 			sTemp	= sLine.AfterFirst (',');	sLine	= sTemp;
 			Flag	= sLine.BeforeFirst(',').asInt();
@@ -325,7 +325,7 @@ bool CSurfer_BLN_Export::On_Execute(void)
 
 		for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 		{
-			Stream.Printf(SG_T("%d,%d"), pShape->Get_Point_Count(iPart), Flag);
+			Stream.Printf("%d,%d", pShape->Get_Point_Count(iPart), Flag);
 
 			if( iName >= 0 )	{	Stream.Printf(",\"%s\"", pShape->asString(iName));	}
 			if( iDesc >= 0 )	{	Stream.Printf(",\"%s\"", pShape->asString(iDesc));	}

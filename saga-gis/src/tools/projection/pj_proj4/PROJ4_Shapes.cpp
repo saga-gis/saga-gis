@@ -205,9 +205,9 @@ bool CPROJ4_Shapes::_Get_Conversion(CSG_Shapes *pSource, CSG_Shapes *pTarget)
 	{
 		int		nDropped	= 0;
 
-		Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
+		Process_Set_Text("%s: %s", _TL("Processing"), pSource->Get_Name());
 
-		pTarget->Create(pSource->Get_Type(), CSG_String::Format(SG_T("%s [%s]"), pSource->Get_Name(), Get_Proj_Name().c_str()), pSource);
+		pTarget->Create(pSource->Get_Type(), CSG_String::Format("%s [%s]", pSource->Get_Name(), Get_Proj_Name().c_str()), pSource);
 
 		for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
 		{

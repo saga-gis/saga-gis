@@ -699,7 +699,7 @@ bool CWind_Exposition::On_Execute(void)
 
 	for(double Direction=0.0; Direction<360.0 && Process_Get_Okay(); Direction+=dDirection)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %.1f", _TL("Direction"), Direction));
+		Process_Set_Text("%s: %.1f", _TL("Direction"), Direction);
 
 		Tool.Set_Parameter("DIR_CONST", Direction);
 

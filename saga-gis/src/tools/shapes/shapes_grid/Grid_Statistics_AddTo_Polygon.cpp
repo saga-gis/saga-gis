@@ -252,7 +252,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	//-----------------------------------------------------
 	for(int iGrid=0; iGrid<pGrids->Get_Grid_Count() && Process_Get_Okay(); iGrid++)
 	{
-		Process_Set_Text(CSG_String::Format("[%d/%d] %s", 1 + iGrid, pGrids->Get_Grid_Count(), pGrids->Get_Grid(iGrid)->Get_Name()));
+		Process_Set_Text("[%d/%d] %s", 1 + iGrid, pGrids->Get_Grid_Count(), pGrids->Get_Grid(iGrid)->Get_Name());
 
 		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, Index))
 		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, bParallelized)) )

@@ -196,7 +196,7 @@ bool CMBASpline_for_Categories::On_Execute(void)
 	//-----------------------------------------------------
 	for(int i=0; i<nCategories; i++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("processing"), Points.Get_Field_Name(1 + i)));
+		Process_Set_Text("%s: %s", _TL("processing"), Points.Get_Field_Name(1 + i));
 
 		SG_UI_Progress_Lock(true);
 

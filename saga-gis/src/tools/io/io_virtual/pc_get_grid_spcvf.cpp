@@ -217,7 +217,7 @@ bool CPointCloud_Get_Grid_SPCVF_Base::Get_Subset(int iFieldToGrid)
 	{
 		if( m_iOutputs > 1 )
 		{
-			SG_UI_Process_Set_Text(CSG_String::Format(_TL("Processing AOI %d ..."), iAOI + 1));
+			SG_UI_Process_Set_Text(CSG_String::Format("%s %d...", _TL("processing AOI"), iAOI + 1));
 		}
 		else
 		{

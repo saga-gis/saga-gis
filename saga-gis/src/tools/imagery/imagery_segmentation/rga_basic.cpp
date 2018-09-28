@@ -560,7 +560,7 @@ bool CRGA_Basic::On_Execute(void)
 			{
 				DataObject_Update(m_pSegments, 0, m_pSeeds->Get_Count());
 
-				Process_Set_Text(CSG_String::Format("%.2f", 100. * m_Candidates.Get_Count() / Get_NCells()));
+				Process_Set_Text("%.2f", 100. * m_Candidates.Get_Count() / Get_NCells());
 			}
 		}
 

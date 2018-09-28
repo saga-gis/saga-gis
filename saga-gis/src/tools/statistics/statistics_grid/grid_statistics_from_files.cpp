@@ -197,7 +197,7 @@ bool CGrid_Statistics_from_Files::On_Execute(void)
 	//-----------------------------------------------------
 	for(int	iFile=0; iFile<Files.Get_Count() && Set_Progress(iFile, Files.Get_Count()); iFile++)
 	{
-		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", _TL("building basic statistics"), SG_File_Get_Name(Files[iFile], false).c_str()));
+		Process_Set_Text("%s: %s", _TL("building basic statistics"), SG_File_Get_Name(Files[iFile], false).c_str());
 
 		SG_UI_ProgressAndMsg_Lock(true);
 		CSG_Grid	Grid(Files[iFile]);
@@ -357,7 +357,7 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 	//-----------------------------------------------------
 	for(int iFile=0; iFile<Files.Get_Count() && Set_Progress(iFile, Files.Get_Count()); iFile++)
 	{
-		SG_UI_Process_Set_Text(CSG_String::Format("%s: %s", _TL("building histogram"), SG_File_Get_Name(Files[iFile], false).c_str()));
+		Process_Set_Text("%s: %s", _TL("building histogram"), SG_File_Get_Name(Files[iFile], false).c_str());
 
 		SG_UI_ProgressAndMsg_Lock(true);
 		CSG_Grid	Grid(Files[iFile]);

@@ -166,7 +166,7 @@ bool CGDAL_Catalogue::On_Execute(void)
 	{
 		CSG_String	Name	= SG_File_Get_Name(Files[i], true);
 
-		Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("analyzing"), Name.c_str()));
+		Process_Set_Text("%s: %s", _TL("analyzing"), Name.c_str());
 
 		CSG_GDAL_DataSet	DataSet;
 
@@ -482,7 +482,7 @@ int CGDAL_Catalogues::Add_File(const CSG_String &File)
 {
 	CSG_String	Name	= SG_File_Get_Name(File, true);
 
-	Process_Set_Text(CSG_String::Format("\n%s: %s", _TL("analyzing"), Name.c_str()));
+	Process_Set_Text("%s: %s", _TL("analyzing"), Name.c_str());
 
 	//-----------------------------------------------------
 	CSG_GDAL_DataSet	DataSet;

@@ -677,8 +677,8 @@ bool CTPI_MultiScale::On_Execute(void)
 	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_LoVal(  0.0);
 	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_HiVal(Scale);
 
-	Process_Set_Text(CSG_String::Format(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales));
-	Message_Add     (CSG_String::Format("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales), false);
+	Process_Set_Text(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales);
+	Message_Fmt     ("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales);
 
 	SG_UI_Msg_Lock(true);
 	Calculator.Execute();
@@ -696,8 +696,8 @@ bool CTPI_MultiScale::On_Execute(void)
 
 		Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_HiVal(Scale = Scale - dScale);
 
-		Process_Set_Text(CSG_String::Format(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales));
-		Message_Add     (CSG_String::Format("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales), false);
+		Process_Set_Text(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales);
+		Message_Fmt     ("\n%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1 + iScale, nScales);
 
 		SG_UI_Msg_Lock(true);
 		Calculator.Execute();

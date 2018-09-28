@@ -75,7 +75,6 @@ class CShapes_Split : public CSG_Tool
 {
 public:
 	CShapes_Split(void);
-	virtual ~CShapes_Split(void);
 
 	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Shapes|Construction") );	}
 

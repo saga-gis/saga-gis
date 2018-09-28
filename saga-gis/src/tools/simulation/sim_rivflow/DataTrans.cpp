@@ -173,7 +173,7 @@ bool CDataTrans::Set_TFile(CSG_Grid *pSource1, CSG_Grid *pSource2)
 			}
 		}
 		myfile.close();
-		Process_Set_Text(CSG_String::Format(SG_T("GridSave || Datensatz %d geschrieben"),i+1));
+		Process_Set_Text("GridSave || Datensatz %d geschrieben",i+1);
 	}
 
 	return(true);

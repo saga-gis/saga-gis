@@ -219,7 +219,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		if(	is_Aligned(pGrid) )
 		{
-			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("copying"), pGrid->Get_Name()));
+			Process_Set_Text("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("copying"), pGrid->Get_Name());
 
 			int	nx	= pGrid->Get_NX(); if( nx > m_pMosaic->Get_NX() - ax )	nx	= m_pMosaic->Get_NX() - ax;
 			int	ny	= pGrid->Get_NY(); if( ny > m_pMosaic->Get_NY() - ay )	ny	= m_pMosaic->Get_NY() - ay;
@@ -243,7 +243,7 @@ bool CGrid_Merge::On_Execute(void)
 		//-------------------------------------------------
 		else
 		{
-			Process_Set_Text(CSG_String::Format("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("resampling"), pGrid->Get_Name()));
+			Process_Set_Text("[%d/%d] %s: %s", i + 1, m_pGrids->Get_Grid_Count(), _TL("resampling"), pGrid->Get_Name());
 
 			if( ax < 0 )	ax	= 0;
 			if( ay < 0 )	ay	= 0;
@@ -708,7 +708,7 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 		//-------------------------------------------------
 		else	// investigate overlapping areas
 		{
-			Process_Set_Text(CSG_String::Format("%s: %s", _TL("analyzing overlap"), pGrid->Get_Name()));
+			Process_Set_Text("%s: %s", _TL("analyzing overlap"), pGrid->Get_Name());
 
 			int	ax	= (int)((pGrid->Get_XMin() - m_pMosaic->Get_XMin()) / m_pMosaic->Get_Cellsize());	if( ax < 0 )	ax	= 0;
 			int	ay	= (int)((pGrid->Get_YMin() - m_pMosaic->Get_YMin()) / m_pMosaic->Get_Cellsize());	if( ay < 0 )	ay	= 0;

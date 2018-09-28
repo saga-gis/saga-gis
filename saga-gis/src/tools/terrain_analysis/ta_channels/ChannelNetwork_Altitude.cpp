@@ -86,39 +86,39 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+		"", "ELEVATION"	, _TL("Elevation"),
 		_TL("A grid that contains elevation data."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHANNELS"	, _TL("Channel Network"),
+		"", "CHANNELS"	, _TL("Channel Network"),
 		_TL("A grid providing information about the channel network. It is assumed that no-data cells are not part of the channel network. Vice versa all others cells are recognised as channel network members."),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DISTANCE"	, _TL("Vertical Distance to Channel Network"),
+		"", "DISTANCE"	, _TL("Vertical Distance to Channel Network"),
 		_TL("The resulting grid gives the altitude above the channel network in the same units as the elevation data."),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "BASELEVEL"	, _TL("Channel Network Base Level"),
+		"", "BASELEVEL"	, _TL("Channel Network Base Level"),
 		_TL("This optional grid output contains the interpolated channel network base level elevations."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double(
-		NULL	, "THRESHOLD"	, _TL("Tension Threshold [Percentage of Cell Size]"),
+		"", "THRESHOLD"	, _TL("Tension Threshold [Percentage of Cell Size]"),
 		_TL(""),
 		1.0, 0.0, true
 	);
 
 	Parameters.Add_Bool(
-		NULL	, "NOUNDERGROUND", _TL("Keep Base Level below Surface"),
+		"", "NOUNDERGROUND", _TL("Keep Base Level below Surface"),
 		_TL(""),
 		true
 	);
@@ -158,7 +158,7 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 
 	for(nCells=nCells_Start, iStep=1; nCells>0 && Process_Get_Okay(); nCells/=2, iStep++)
 	{
-		Process_Set_Text(CSG_String::Format(SG_T("%d [%d]"), iStep, nSteps + 1));
+		Process_Set_Text("%d [%d]", iStep, nSteps + 1);
 
 		Set_Surface(nCells);
 

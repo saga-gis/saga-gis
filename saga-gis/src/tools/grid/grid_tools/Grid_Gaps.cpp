@@ -190,7 +190,7 @@ void CGrid_Gaps::Tension_Main(void)
 		{
 			max		= Tension_Step(iStep);
 
-			Process_Set_Text(CSG_String::Format("[%d] %s: %f", iStep, _TL("max. change"), max));
+			Process_Set_Text("[%d] %s: %f", iStep, _TL("max. change"), max);
 		}
 		while( max > Threshold && Process_Get_Okay(true) );
 

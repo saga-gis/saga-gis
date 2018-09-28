@@ -739,7 +739,7 @@ bool CTC_Classification::Get_Classes(void)
 	//-----------------------------------------------------
 	for(Level=1; Level<=nLevels && Process_Get_Okay(); Level++)
 	{
-		Process_Set_Text(CSG_String::Format("%s: %d", _TL("Level"), Level));
+		Process_Set_Text("%s: %d", _TL("Level"), Level);
 
 		m_Mean_Slope		= Level == 1 ? m_pSlope    ->Get_Mean() : m_Stat_Slope    .Get_Mean();
 		m_Mean_Convexity	= Level == 1 ? m_pConvexity->Get_Mean() : m_Stat_Convexity.Get_Mean();

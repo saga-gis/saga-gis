@@ -233,7 +233,7 @@ bool CKinWav_D8::On_Execute(void)
 
 	for(double Time=0.0; Time<=Time_Span && Set_Progress(Time, Time_Span); Time+=m_dTime)
 	{
-		Process_Set_Text(CSG_String::Format("%s [h]: %0.2f (%0.2f)", _TL("Simulation Time"), Time, Time_Span));
+		Process_Set_Text("%s [h]: %0.2f (%0.2f)", _TL("Simulation Time"), Time, Time_Span);
 
 		Set_Flow(Time);
 

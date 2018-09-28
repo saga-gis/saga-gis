@@ -171,7 +171,7 @@ bool CExercise_11::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		Process_Set_Text(CSG_String::Format("Time [a]: %f (%f)", dTime * iStep, sTime));
+		Process_Set_Text("Time [a]: %f (%f)", dTime * iStep, sTime);
 
 		if( bUpdate )
 		{

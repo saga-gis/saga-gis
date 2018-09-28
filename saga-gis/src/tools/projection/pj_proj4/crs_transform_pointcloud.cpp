@@ -213,7 +213,7 @@ bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointClou
 
 	int		nDropped	= 0;
 
-	Process_Set_Text(CSG_String::Format(SG_T("%s: %s"), _TL("Processing"), pSource->Get_Name()));
+	Process_Set_Text("%s: %s", _TL("Processing"), pSource->Get_Name());
 
 	for(int iPoint=0; iPoint<pSource->Get_Point_Count() && Set_Progress(iPoint, pSource->Get_Point_Count()); iPoint++)
 	{
