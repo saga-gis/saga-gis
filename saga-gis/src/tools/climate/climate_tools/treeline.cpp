@@ -647,7 +647,7 @@ bool CWater_Balance::On_Execute(void)
 		return( false );
 	}
 
-	#define CREATE_DAILY_GRIDS(pGrids, Name)	if( pGrids ) { if( !pGrids->Create(*Get_System(), 365) )\
+	#define CREATE_DAILY_GRIDS(pGrids, Name)	if( pGrids ) { if( !pGrids->Create(Get_System(), 365) )\
 		{	SG_UI_Msg_Add_Error(_TL("failed to create grid collection")); return( false ); } else\
 		{	pGrids->Set_Name(Name); }\
 	};
@@ -882,7 +882,7 @@ bool CWater_Balance_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool
 	//-----------------------------------------------------
 	int	x, y;
 
-	if( !Get_System()->Get_World_to_Grid(x, y, ptWorld) || !Get_System()->is_InGrid(x, y) )
+	if( !Get_System().Get_World_to_Grid(x, y, ptWorld) || !Get_System().is_InGrid(x, y) )
 	{
 		return( false );
 	}

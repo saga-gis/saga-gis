@@ -371,7 +371,7 @@ bool CGrid_Export::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		Grid.Create(*Get_System(), SG_DATATYPE_Int);
+		Grid.Create(Get_System(), SG_DATATYPE_Int);
 
 		for(y=0, iy=Get_NY()-1; y<Get_NY() && Set_Progress(y); y++, iy--)
 		{
@@ -485,7 +485,7 @@ bool CGrid_Export::On_Execute(void)
 		CSG_Colors	Colors(nColors, SG_COLORS_BLACK_WHITE, true);
 
 	    //-------------------------------------------------
-		Shade.Create(*Get_System(), SG_DATATYPE_Int);
+		Shade.Create(Get_System(), SG_DATATYPE_Int);
 
 		double	minShade = 0.0, maxShade = 0.0, scaleShade = 0.0;
 

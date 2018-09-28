@@ -195,7 +195,7 @@ bool CGrid_PCA_Focal::On_Execute(void)
 
 	for(i=0; i<Kernel.Get_Count()-1; i++)
 	{
-		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+		CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 
 		if( !pGrid )
 		{
@@ -272,7 +272,7 @@ bool CGrid_PCA_Focal::On_Execute(void)
 	pGrids	= Parameters("PCA")->asGridList();
 	pPCA	= PCA_Parms ("PCA")->asGridList();
 
-	if( !Parameters("OVERWRITE")->asBool() || (pGrids->Get_Grid_Count() > 0 && !Get_System()->is_Equal(pGrids->Get_Grid(0)->Get_System())) )
+	if( !Parameters("OVERWRITE")->asBool() || (pGrids->Get_Grid_Count() > 0 && !Get_System().is_Equal(pGrids->Get_Grid(0)->Get_System())) )
 	{
 		pGrids->Del_Items();
 	}

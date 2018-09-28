@@ -401,10 +401,10 @@ bool CSolarRadiation::On_Execute(void)
 
 	if( (m_Location = Parameters("LOCATION")->asInt()) != 0 )
 	{
-		m_Sun_Height .Create(*Get_System());
-		m_Sun_Azimuth.Create(*Get_System());
-		m_Lat		 .Create(*Get_System());
-		m_Lon		 .Create(*Get_System());
+		m_Sun_Height .Create(Get_System());
+		m_Sun_Azimuth.Create(Get_System());
+		m_Lat		 .Create(Get_System());
+		m_Lon		 .Create(Get_System());
 
 		SG_RUN_TOOL_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
 				SG_TOOL_PARAMETER_SET("GRID", m_pDEM)
@@ -603,8 +603,8 @@ bool CSolarRadiation::Get_Insolation(void)
 			{
 				CSG_Grid	Direct, Diffus;
 
-				Direct.Create(*Get_System(), SG_DATATYPE_Float);
-				Diffus.Create(*Get_System(), SG_DATATYPE_Float);
+				Direct.Create(Get_System(), SG_DATATYPE_Float);
+				Diffus.Create(Get_System(), SG_DATATYPE_Float);
 
 				Direct.Assign(0.0);
 				Diffus.Assign(0.0);
@@ -1079,9 +1079,9 @@ bool CSolarRadiation::Get_Slope_Gradient(void)
 {
 	Process_Set_Text(_TL("Slope Gradient"));
 
-	m_Shade .Create(*Get_System(), SG_DATATYPE_Byte);
-	m_Slope .Create(*Get_System());
-	m_Aspect.Create(*Get_System());
+	m_Shade .Create(Get_System(), SG_DATATYPE_Byte);
+	m_Slope .Create(Get_System());
+	m_Aspect.Create(Get_System());
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

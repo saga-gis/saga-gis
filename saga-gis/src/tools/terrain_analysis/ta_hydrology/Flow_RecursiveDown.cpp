@@ -164,11 +164,11 @@ void CFlow_RecursiveDown::On_Initialize(void)
 
 	Lock_Create();
 
-	m_Linear.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Linear.Create(Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
-	m_Dir.Create(*Get_System(), SG_DATATYPE_Char );
-	m_Dif.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Dir.Create(Get_System(), SG_DATATYPE_Char );
+	m_Dif.Create(Get_System(), SG_DATATYPE_Float);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

@@ -1712,9 +1712,9 @@ public:
 
 	bool						Set_History				(CSG_MetaData &History, bool bOptions = true, bool bDataObjects = true);
 
-	CSG_Grid_System *			Get_Grid_System			(void)	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
+	CSG_Grid_System *			Get_Grid_System			(void)	const	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
 
-	bool						is_Managed				(void)	{	return( m_pManager != NULL );	}
+	bool						is_Managed				(void)	const	{	return( m_pManager != NULL );	}
 
 
 private:

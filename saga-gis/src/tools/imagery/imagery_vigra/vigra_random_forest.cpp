@@ -709,16 +709,16 @@ int CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, int ID, CSG_Shape_Polyg
 {
 	int	Count	= 0;
 
-	int	xMin	= Get_System()->Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
-	int	xMax	= Get_System()->Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMin	= Get_System()->Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
-	int	yMax	= Get_System()->Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
+	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMin	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
+	int	yMax	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 	for(int y=yMin; y<=yMax; y++)
 	{
 		for(int x=xMin; x<=xMax; x++)
 		{
-			if( pArea->Contains(Get_System()->Get_Grid_to_World(x, y)) )
+			if( pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
 			{
 				CSG_Vector	z(1 + m_nFeatures);
 
@@ -838,7 +838,7 @@ CSG_Parameter_Grid_List * CViGrA_Random_Forest::Get_Propability_Grids(CSG_Table 
 			}
 			else
 			{
-				pGrids->Add_Item(pGrid = SG_Get_Data_Manager().Add_Grid(*Get_System()));
+				pGrids->Add_Item(pGrid = SG_Get_Data_Manager().Add_Grid(Get_System()));
 
 				DataObject_Set_Colors(pGrid, 11, SG_COLORS_WHITE_GREEN);
 			}
@@ -1077,8 +1077,8 @@ bool CViGrA_RF_Presence::Get_Training(CSG_Matrix &Data)
 	{
 		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
 
-		int	x	= Get_System()->Get_xWorld_to_Grid(p.x);
-		int	y	= Get_System()->Get_yWorld_to_Grid(p.y);
+		int	x	= Get_System().Get_xWorld_to_Grid(p.x);
+		int	y	= Get_System().Get_yWorld_to_Grid(p.y);
 
 		Get_Training(Data, x, y, 1);
 	}

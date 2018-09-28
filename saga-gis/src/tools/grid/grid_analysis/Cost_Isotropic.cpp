@@ -196,7 +196,7 @@ bool CCost_Accumulated::Get_Destinations(CPoints &Points)
 
 		for(int i=0, x, y; i<pDestinations->Get_Count(); i++)
 		{
-			if( Get_System()->Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point(0)) && !m_pCost->is_NoData(x, y) )
+			if( Get_System().Get_World_to_Grid(x, y, pDestinations->Get_Shape(i)->Get_Point(0)) && !m_pCost->is_NoData(x, y) )
 			{
 				Points.Add(x, y); m_pAllocation->Set_Value(x, y, Points.Get_Count()); m_pAccumulated->Set_Value(x, y, 0.0);
 			}
@@ -226,7 +226,7 @@ bool CCost_Accumulated::Get_Destinations(CPoints &Points)
 //---------------------------------------------------------
 bool CCost_Accumulated::Get_Cost(CPoints &Points)
 {
-	CPoints	Next;	CSG_Grid	Next_Index(*Get_System(), SG_DATATYPE_Int);
+	CPoints	Next;	CSG_Grid	Next_Index(Get_System(), SG_DATATYPE_Int);
 
 	double	Threshold	= Parameters("THRESHOLD")->asDouble();
 

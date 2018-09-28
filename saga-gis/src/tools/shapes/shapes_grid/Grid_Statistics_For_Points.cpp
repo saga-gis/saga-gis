@@ -165,7 +165,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 		return( false );
 	}
 
-	if( !Get_System()->Get_Extent().Intersects(pPoints->Get_Extent()) )
+	if( !Get_System().Get_Extent().Intersects(pPoints->Get_Extent()) )
 	{
 		Error_Set(_TL("no spatial intersection between grid(s) and points layer"));
 
@@ -310,8 +310,8 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Statistics_For_Points::Get_Statistics(const TSG_Point &Point, CSG_Grid *pGrid, CSG_Simple_Statistics &Statistics)
 {
-	int	x	= Get_System()->Get_xWorld_to_Grid(Point.x);
-	int	y	= Get_System()->Get_yWorld_to_Grid(Point.y);
+	int	x	= Get_System().Get_xWorld_to_Grid(Point.x);
+	int	y	= Get_System().Get_yWorld_to_Grid(Point.y);
 
 	for(int i=0; i<m_Kernel.Get_Count(); i++)
 	{

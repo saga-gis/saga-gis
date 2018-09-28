@@ -151,7 +151,7 @@ bool CLeastCostPathProfile_Points::On_Execute(void)
 	{
 		CSG_Shape	*pShape		= pSources->Get_Shape(i);
 
-		if( Get_System()->Get_World_to_Grid(x, y, pShape->Get_Point(0)) && m_pDEM->is_InGrid(x, y) )
+		if( Get_System().Get_World_to_Grid(x, y, pShape->Get_Point(0)) && m_pDEM->is_InGrid(x, y) )
 		{
 			//-----------------------------------------------------
 			m_pPoints	= SG_Create_Shapes(SHAPE_TYPE_Point, CSG_String::Format("%s [%s] %d", _TL("Profile Points"), m_pDEM->Get_Name(), i + 1));
@@ -213,7 +213,7 @@ bool CLeastCostPathProfile_Points::Add_Point(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
 
 	double	Distance	= 0.0;
 

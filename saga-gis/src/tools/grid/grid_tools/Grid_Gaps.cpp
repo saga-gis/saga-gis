@@ -279,8 +279,8 @@ void CGrid_Gaps::Tension_Init(int iStep)
 
 					for(i=0; i<8; i++)
 					{
-						ix	= x + iStep * Get_System()->Get_xTo(i);
-						iy	= y + iStep * Get_System()->Get_yTo(i);
+						ix	= x + iStep * Get_xTo(i);
+						iy	= y + iStep * Get_yTo(i);
 
 						if( pResult->is_InGrid(ix, iy) )
 						{
@@ -360,12 +360,12 @@ double CGrid_Gaps::Tension_Change(int x, int y, int iStep)
 
 	for(i=0, d=0.0, n=0.0; i<8; i++)
 	{
-		ix	= x + iStep * Get_System()->Get_xTo(i);
-		iy	= y + iStep * Get_System()->Get_yTo(i);
+		ix	= x + iStep * Get_xTo(i);
+		iy	= y + iStep * Get_yTo(i);
 
 		if( pResult->is_InGrid(ix, iy) )
 		{
-			dz	= 1.0 / Get_System()->Get_UnitLength(i);
+			dz	= 1.0 / Get_UnitLength(i);
 			d	+= dz * pResult->asDouble(ix, iy);
 			n	+= dz;
 		}

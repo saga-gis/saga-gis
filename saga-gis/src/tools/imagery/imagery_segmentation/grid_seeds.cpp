@@ -183,8 +183,8 @@ bool CGrid_Seeds::On_Execute(void)
 		double	Cellsize	= Parameters("BAND_WIDTH")->asDouble() * Get_Cellsize();
 
 		CSG_Grid	Smoothed(SG_DATATYPE_Float,
-			4 + (int)(Get_System()->Get_XRange() / Cellsize),
-			4 + (int)(Get_System()->Get_YRange() / Cellsize),
+			4 + (int)(Get_System().Get_XRange() / Cellsize),
+			4 + (int)(Get_System().Get_YRange() / Cellsize),
 			Cellsize,
 			Get_XMin() - Cellsize,
 			Get_YMin() - Cellsize
@@ -198,7 +198,7 @@ bool CGrid_Seeds::On_Execute(void)
 
 			Smoothed.Assign(pFeatures->Get_Grid(i), GRID_RESAMPLING_Mean_Cells);
 
-			m_pFeatures[i]	= new CSG_Grid(*Get_System(), SG_DATATYPE_Float);
+			m_pFeatures[i]	= new CSG_Grid(Get_System(), SG_DATATYPE_Float);
 			m_pFeatures[i]	->Assign(&Smoothed, GRID_RESAMPLING_BSpline);
 			m_pFeatures[i]	->Set_Name(pFeatures->Get_Grid(i)->Get_Name());
 
@@ -499,7 +499,7 @@ bool CGrid_Seeds::Get_Seeds(void)
 					{
 						CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-						pPoint->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+						pPoint->Add_Point(Get_System().Get_Grid_to_World(x, y));
 
 						pPoint->Set_Value(0, n);
 						pPoint->Set_Value(1, x);

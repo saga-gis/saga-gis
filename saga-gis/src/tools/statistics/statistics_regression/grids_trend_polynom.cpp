@@ -225,7 +225,7 @@ bool CGrids_Trend::On_Execute(void)
 
 	for(int i=0; i<=Order; i++)
 	{
-		pCoeff->Add_Item(SG_Create_Grid(*Get_System()));
+		pCoeff->Add_Item(SG_Create_Grid(Get_System()));
 		pCoeff->Get_Grid(i)->Set_Name("%s [%d]", _TL("Polynomial Coefficient"), i + 1);
 	}
 

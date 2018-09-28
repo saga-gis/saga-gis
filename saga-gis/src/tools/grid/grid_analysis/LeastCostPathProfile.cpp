@@ -165,7 +165,7 @@ bool CLeastCostPathProfile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Inte
 	{
 	case TOOL_INTERACTIVE_LDOWN:
 	case TOOL_INTERACTIVE_MOVE_LDOWN:
-		return( Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld)) );
+		return( Set_Profile(Get_System().Fit_to_Grid_System(ptWorld)) );
 
 	default:
 		return( false );
@@ -211,7 +211,7 @@ bool CLeastCostPathProfile::Add_Point(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
 
 	double	Distance	= 0.0;
 

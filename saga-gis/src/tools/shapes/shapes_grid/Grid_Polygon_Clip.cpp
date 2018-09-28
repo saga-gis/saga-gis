@@ -144,8 +144,8 @@ bool CGrid_Polygon_Clip::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	ax	= Get_System()->Get_xWorld_to_Grid(System.Get_XMin());
-	int	ay	= Get_System()->Get_yWorld_to_Grid(System.Get_YMin());
+	int	ax	= Get_System().Get_xWorld_to_Grid(System.Get_XMin());
+	int	ay	= Get_System().Get_yWorld_to_Grid(System.Get_YMin());
 
 	//-----------------------------------------------------
 	for(int y=0, iy=ay; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++, iy++)
@@ -188,7 +188,7 @@ bool CGrid_Polygon_Clip::Get_Output(const CSG_Grid &Mask, CSG_Parameter_Grid_Lis
 
 	if( Crop == 0 )
 	{
-		System	= *Get_System();
+		System	= Get_System();
 	}
 	else
 	{
@@ -279,12 +279,12 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Grid &Mask)
 		return( false );
 	}
 
-	if( !Get_System()->Get_Extent().Intersects(pPolygons->Get_Extent()) )
+	if( !Get_System().Get_Extent().Intersects(pPolygons->Get_Extent()) )
 	{
 		return( false );
 	}
 
-	Mask.Create(*Get_System(), SG_DATATYPE_Byte); // Mask.Assign(0.0);
+	Mask.Create(Get_System(), SG_DATATYPE_Byte); // Mask.Assign(0.0);
 
 	//-----------------------------------------------------
 	bool	*bCrossing	= new bool[Get_NX()];
@@ -306,8 +306,8 @@ bool CGrid_Polygon_Clip::Get_Mask(CSG_Grid &Mask)
 			continue;
 		}
 
-		int	xStart	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1; if( xStart < 0        ) xStart	= 0;
-		int	xStop	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1; if( xStop >= Get_NX() ) xStop	= Get_NX() - 1;
+		int	xStart	= Get_System().Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1; if( xStart < 0        ) xStart	= 0;
+		int	xStop	= Get_System().Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1; if( xStop >= Get_NX() ) xStop	= Get_NX() - 1;
 
 		//-------------------------------------------------
 		for(int y=0; y<Get_NY(); y++)

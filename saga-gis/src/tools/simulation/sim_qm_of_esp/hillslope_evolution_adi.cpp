@@ -217,7 +217,7 @@ int CHillslope_Evolution_ADI::On_Parameters_Enable(CSG_Parameters *pParameters, 
 bool CHillslope_Evolution_ADI::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	DEM(*Get_System()), Channels(*Get_System(), SG_DATATYPE_Byte);
+	CSG_Grid	DEM(Get_System()), Channels(Get_System(), SG_DATATYPE_Byte);
 
 	m_pDEM_Old	= &DEM;
 

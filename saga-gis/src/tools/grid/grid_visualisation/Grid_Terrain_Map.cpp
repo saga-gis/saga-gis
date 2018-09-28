@@ -239,7 +239,7 @@ bool CGrid_Terrain_Map::Generate_Topography()
 	//-----------------------------------------------------
 	if( pShade == NULL )
 	{
-		pShade = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float);
+		pShade = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
 		Parameters("SHADE")->Set_Value(pShade);
 		DataObject_Add(pShade);
 	}
@@ -292,19 +292,19 @@ bool CGrid_Terrain_Map::Generate_Morphology()
 	//-----------------------------------------------------
 	if( pOpenness == NULL )
 	{
-		pOpenness = new CSG_Grid(*Get_System(), SG_DATATYPE_Float);
+		pOpenness = new CSG_Grid(Get_System(), SG_DATATYPE_Float);
 		Parameters("OPENNESS")->Set_Value(pOpenness);
 		DataObject_Add(pOpenness);
 	}
 
 	if( pSlope == NULL )
 	{
-		pSlope = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float);
+		pSlope = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
 		Parameters("SLOPE")->Set_Value(pSlope);
 		DataObject_Add(pSlope);
 	}
 
-	CSG_Grid	TMP1(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	TMP1(Get_System(), SG_DATATYPE_Float);
 
 
 	//-----------------------------------------------------

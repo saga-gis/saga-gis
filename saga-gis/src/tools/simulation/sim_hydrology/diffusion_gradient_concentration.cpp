@@ -144,7 +144,7 @@ bool CSim_Diffusion_Gradient::On_Execute(void)
 	CSG_Grid	*pSurface	= Parameters("SURF")->asGrid();
 	CSG_Grid	*pGradient	= Parameters("GRAD")->asGrid();
 
-	m_Tmp.Create(*Get_System());
+	m_Tmp.Create(Get_System());
 
 	//-----------------------------------------------------
 	bool	bResult	= Surface_Initialise(pSurface);
@@ -440,7 +440,7 @@ bool CSim_Diffusion_Concentration::On_Execute(void)
 	m_MinGradient	= Parameters("GRAD_MIN")->asDouble();
 
 	//-----------------------------------------------------
-	m_Tmp.Create(*Get_System());
+	m_Tmp.Create(Get_System());
 
 	Concentration_Interpolate(pConcentration, pGradient);
 
@@ -776,7 +776,7 @@ bool CSim_Diffusion_Gradient_And_Concentration::On_Execute(void)
 	m_Conc_Out		= Parameters("CONC_OUT")->asDouble();
 	m_MinGradient	= Parameters("GRAD_MIN")->asDouble();
 
-	m_Tmp.Create(*Get_System());
+	m_Tmp.Create(Get_System());
 
 	//-----------------------------------------------------
 	bool	bResult	= Surface_Initialise(pSurface);

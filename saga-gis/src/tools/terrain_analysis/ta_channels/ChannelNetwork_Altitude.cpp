@@ -152,8 +152,8 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	//-----------------------------------------------------
 	m_pDistance->Assign_NoData();
 
-	m_Mask.Create(*Get_System(), SG_DATATYPE_Byte);
-	m_Dist.Create(*Get_System());
+	m_Mask.Create(Get_System(), SG_DATATYPE_Byte);
+	m_Dist.Create(Get_System());
 	m_Dist.Set_NoData_Value_Range(m_pDTM->Get_NoData_Value(), m_pDTM->Get_NoData_hiValue());
 
 	for(nCells=nCells_Start, iStep=1; nCells>0 && Process_Get_Okay(); nCells/=2, iStep++)
@@ -422,7 +422,7 @@ bool CValley_Depth::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Grid	Inverse(*Parameters("ELEVATION")->asGrid());
-	CSG_Grid	Ridges (*Get_System(), SG_DATATYPE_Int);
+	CSG_Grid	Ridges (Get_System(), SG_DATATYPE_Int);
 
 	Inverse.Invert();
 

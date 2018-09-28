@@ -432,8 +432,8 @@ bool CPresence_Prediction::Get_Training(void)
 	{
 		TSG_Point	p	= pPresence->Get_Shape(iPoint)->Get_Point(0);
 
-		int	x	= Get_System()->Get_xWorld_to_Grid(p.x);
-		int	y	= Get_System()->Get_yWorld_to_Grid(p.y);
+		int	x	= Get_System().Get_xWorld_to_Grid(p.x);
+		int	y	= Get_System().Get_yWorld_to_Grid(p.y);
 
 		Get_Training(x, y, "0");
 	}

@@ -199,8 +199,8 @@ bool CSnap_Points_to_Grid::On_Execute(void)
 		CSG_Shape	*pPoint		= pPoints->Get_Shape(iPoint);
 		TSG_Point	Point		= pPoint->Get_Point(0);
 
-		int		x		= Get_System()->Get_xWorld_to_Grid(Point.x);
-		int		y		= Get_System()->Get_yWorld_to_Grid(Point.y);
+		int		x		= Get_System().Get_xWorld_to_Grid(Point.x);
+		int		y		= Get_System().Get_yWorld_to_Grid(Point.y);
 		int		iMax	= -1;
 		double	dMax;
 

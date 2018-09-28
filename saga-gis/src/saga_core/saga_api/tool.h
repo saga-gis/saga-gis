@@ -138,7 +138,7 @@ public:
 
 	virtual void				Destroy						(void);
 
-	virtual TSG_Tool_Type		Get_Type					(void)	{	return( TOOL_TYPE_Base );	}
+	virtual TSG_Tool_Type		Get_Type					(void)	const	{	return( TOOL_TYPE_Base );	}
 
 	const CSG_String &			Get_ID						(void)	const	{	return( m_ID );	}
 
@@ -178,12 +178,12 @@ public:
 
 	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
 
-	virtual bool				needs_GUI					(void)	{	return( false );	}
+	virtual bool				needs_GUI					(void)	const	{	return( false );	}
 
-	virtual bool				is_Grid						(void)	{	return( false );	}
-	virtual bool				is_Interactive				(void)	{	return( false );	}
-	bool						is_Progress					(void)	{	return( SG_UI_Process_Get_Okay(false) );	}
-	bool						is_Executing				(void)	{	return( m_bExecutes );	}
+	virtual bool				is_Grid						(void)	const	{	return( false );	}
+	virtual bool				is_Interactive				(void)	const	{	return( false );	}
+	bool						is_Progress					(void)	const	{	return( SG_UI_Process_Get_Okay(false) );	}
+	bool						is_Executing				(void)	const	{	return( m_bExecutes );	}
 
 	void						Set_Show_Progress			(bool bOn = true);
 
@@ -229,8 +229,8 @@ protected:
 	static void					Process_Set_Text			(const char    *Format, ...);
 	static void					Process_Set_Text			(const wchar_t *Format, ...);
 
-	virtual bool				Set_Progress				(double Percent);
-	virtual bool				Set_Progress				(double Position, double Range);
+	virtual bool				Set_Progress				(double Percent)				const;
+	virtual bool				Set_Progress				(double Position, double Range)	const;
 
 	bool						Stop_Execution				(bool bDialog = true);
 
@@ -317,48 +317,51 @@ public:
 	CSG_Tool_Grid(void);
 	virtual ~CSG_Tool_Grid(void);
 
-	virtual TSG_Tool_Type		Get_Type				(void)			{	return( TOOL_TYPE_Grid );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Grid );	}
 
-	CSG_Grid_System *			Get_System				(void)			{	return( Parameters.Get_Grid_System() );	}
+	const CSG_Grid_System &		Get_System				(void)	const	{	return( *Parameters.Get_Grid_System() );	}
+	bool						Set_System				(const CSG_Grid_System &System);
 
-	virtual bool				is_Grid					(void)			{	return( true );	}
+	virtual bool				is_Grid					(void)	const	{	return( true );	}
 
 
 protected:
 
-	virtual bool				Set_Progress_NCells		(sLong iCell);
-	virtual bool				Set_Progress			(int  iRow);
-	virtual bool				Set_Progress			(double Position, double Range);
+	virtual bool				Set_Progress_NCells		(sLong iCell)					const;
+	virtual bool				Set_Progress			(int    iRow)					const;
+	virtual bool				Set_Progress			(double Position, double Range)	const;
 
 	//-----------------------------------------------------
-	int							Get_NX					(void)						{	return( Get_System()->Get_NX() );				}
-	int							Get_NY					(void)						{	return( Get_System()->Get_NY() );				}
-	sLong						Get_NCells				(void)						{	return( Get_System()->Get_NCells() );			}
-	double						Get_Cellsize			(void)						{	return( Get_System()->Get_Cellsize() );			}
-	double						Get_Cellarea			(void)						{	return( Get_System()->Get_Cellarea() );			}
-	double						Get_XMin				(void)						{	return( Get_System()->Get_XMin() );				}
-	double						Get_YMin				(void)						{	return( Get_System()->Get_YMin() );				}
-	double						Get_XMax				(void)						{	return( Get_System()->Get_XMax() );				}
-	double						Get_YMax				(void)						{	return( Get_System()->Get_YMax() );				}
-	int							Get_xTo					(int Dir, int x = 0)		{	return( Get_System()->Get_xTo(Dir, x) );		}
-	int							Get_yTo					(int Dir, int y = 0)		{	return( Get_System()->Get_yTo(Dir, y) );		}
-	int							Get_xFrom				(int Dir, int x = 0)		{	return( Get_System()->Get_xFrom(Dir, x) );		}
-	int							Get_yFrom				(int Dir, int y = 0)		{	return( Get_System()->Get_yFrom(Dir, y) );		}
-	double						Get_Length				(int Dir)					{	return( Get_System()->Get_Length(Dir) );		}
-	double						Get_UnitLength			(int Dir)					{	return( Get_System()->Get_UnitLength(Dir) );	}
-	bool						is_InGrid				(int x, int y)				{	return(	Get_System()->is_InGrid(x, y) );		}
-	bool						is_InGrid				(int x, int y, int Rand)	{	return(	Get_System()->is_InGrid(x, y, Rand) );	}
+	int							Get_NX					(void)						const	{	return( Get_System().Get_NX      () );	}
+	int							Get_NY					(void)						const	{	return( Get_System().Get_NY      () );	}
+	sLong						Get_NCells				(void)						const	{	return( Get_System().Get_NCells  () );	}
+	double						Get_XMin				(void)						const	{	return( Get_System().Get_XMin    () );	}
+	double						Get_YMin				(void)						const	{	return( Get_System().Get_YMin    () );	}
+	double						Get_XMax				(void)						const	{	return( Get_System().Get_XMax    () );	}
+	double						Get_YMax				(void)						const	{	return( Get_System().Get_YMax    () );	}
+	double						Get_Cellsize			(void)						const	{	return( Get_System().Get_Cellsize() );	}
+	double						Get_Cellarea			(void)						const	{	return( Get_System().Get_Cellarea() );	}
+
+	double						Get_Length				(int i)						const	{	return( Get_System().Get_Length    (i)     );	}
+	double						Get_UnitLength			(int i)						const	{	return( Get_System().Get_UnitLength(i)     );	}
+	bool						is_InGrid				(int x, int y)				const	{	return(	Get_System().is_InGrid(x, y)       );	}
+	bool						is_InGrid				(int x, int y, int Rand)	const	{	return(	Get_System().is_InGrid(x, y, Rand) );	}
+
+	static int					Get_xTo					(int i, int x = 0)	{	return( CSG_Grid_System::Get_xTo  (i, x) );	}
+	static int					Get_yTo					(int i, int y = 0)	{	return( CSG_Grid_System::Get_yTo  (i, y) );	}
+	static int					Get_xFrom				(int i, int x = 0)	{	return( CSG_Grid_System::Get_xFrom(i, x) );	}
+	static int					Get_yFrom				(int i, int y = 0)	{	return( CSG_Grid_System::Get_yFrom(i, y) );	}
 
 	//-----------------------------------------------------
 	void						Lock_Create				(void);
 	void						Lock_Destroy			(void);
 
 	bool						is_Locked				(int x, int y)	{	return( Lock_Get(x, y) != 0 );	}
-	char						Lock_Get				(int x, int y)	{	return( m_pLock && x >= 0 && x < Get_System()->Get_NX() && y >= 0 && y < Get_System()->Get_NY() ? m_pLock->asChar(x, y) : 0 );	}
+	char						Lock_Get				(int x, int y)	{	return( m_pLock && x >= 0 && x < Get_NX() && y >= 0 && y < Get_NY() ? m_pLock->asChar(x, y) : 0 );	}
 
 	void						Lock_Set				(int x, int y, char Value = 1)
 	{
-		if( m_pLock && x >= 0 && x < Get_System()->Get_NX() && y >= 0 && y < Get_System()->Get_NY() )
+		if( m_pLock && x >= 0 && x < Get_NX() && y >= 0 && y < Get_NY() )
 		{
 			m_pLock->Set_Value(x, y, Value);
 		}
@@ -486,11 +489,11 @@ public:
 	CSG_Tool_Interactive(void);
 	virtual ~CSG_Tool_Interactive(void);
 
-	virtual TSG_Tool_Type		Get_Type				(void)	{	return( TOOL_TYPE_Interactive );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Interactive );	}
 
-	virtual bool				needs_GUI				(void)	{	return( true );	}
+	virtual bool				needs_GUI				(void)	const	{	return( true );	}
 
-	virtual bool				is_Interactive			(void)	{	return( true );	}
+	virtual bool				is_Interactive			(void)	const	{	return( true );	}
 
 };
 
@@ -512,11 +515,11 @@ public:
 	CSG_Tool_Grid_Interactive(void);
 	virtual ~CSG_Tool_Grid_Interactive(void);
 
-	virtual TSG_Tool_Type		Get_Type				(void)	{	return( TOOL_TYPE_Grid_Interactive );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Grid_Interactive );	}
 
-	virtual bool				needs_GUI				(void)	{	return( true );	}
+	virtual bool				needs_GUI				(void)	const	{	return( true );	}
 
-	virtual bool				is_Interactive			(void)	{	return( true );	}
+	virtual bool				is_Interactive			(void)	const	{	return( true );	}
 
 
 protected:

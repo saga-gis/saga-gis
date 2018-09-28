@@ -208,7 +208,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 
 	pRegression->Assign_NoData();
 
-	CSG_Grid	Regression(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	Regression(Get_System(), SG_DATATYPE_Float);
 
 	SG_UI_Progress_Lock(true);	// suppress dialogs from popping up
 
@@ -276,7 +276,7 @@ bool CPoint_Zonal_Multi_Grid_Regression::On_Execute(void)
 				{
 					for(int x=0; x<Get_NX(); x++)
 					{
-						if( !Regression.is_NoData(x, y) && pZone->Contains(Get_System()->Get_Grid_to_World(x, y)) )
+						if( !Regression.is_NoData(x, y) && pZone->Contains(Get_System().Get_Grid_to_World(x, y)) )
 						{
 							pRegression->Set_Value(x, y, Regression.asDouble(x, y));
 						}

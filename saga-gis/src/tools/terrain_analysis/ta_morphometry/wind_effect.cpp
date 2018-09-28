@@ -262,7 +262,7 @@ bool CWind_Effect::On_Execute(void)
 	}
 	else
 	{
-		if( !m_DX.Create(*Get_System()) || !m_DY.Create(*Get_System()) )
+		if( !m_DX.Create(Get_System()) || !m_DY.Create(Get_System()) )
 		{
 			Error_Set(_TL("could not allocate sufficient memory"));
 
@@ -423,7 +423,7 @@ inline bool CWind_Effect::Get_Next(TSG_Point &Position, double Distance, bool bR
 	Position.x	+= Distance * dx;
 	Position.y	+= Distance * dy;
 
-	return( Get_System()->Get_Extent(true).Contains(Position) );
+	return( Get_System().Get_Extent(true).Contains(Position) );
 }
 
 //---------------------------------------------------------
@@ -462,7 +462,7 @@ void CWind_Effect::Get_Luv(int x, int y, double &Sum_A)
 
 		z	= m_pDEM->asDouble(x, y);
 		d	= id = Get_Cellsize();
-		p	= Get_System()->Get_Grid_to_World(x, y);
+		p	= Get_System().Get_Grid_to_World(x, y);
 
 		while( id <= m_maxDistance && Get_Next(p, d, true) )
 		{
@@ -493,7 +493,7 @@ void CWind_Effect::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 
 		z	= m_pDEM->asDouble(x, y);
 		d	= id = Get_Cellsize();
-		p	= Get_System()->Get_Grid_to_World(x, y);
+		p	= Get_System().Get_Grid_to_World(x, y);
 
 		while( id <= m_maxDistance && Get_Next(p, d, true) )
 		{
@@ -669,7 +669,7 @@ int CWind_Exposition::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Para
 bool CWind_Exposition::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	Exposition(*Get_System()), *pExposition	= Parameters("EXPOSITION")->asGrid();
+	CSG_Grid	Exposition(Get_System()), *pExposition	= Parameters("EXPOSITION")->asGrid();
 
 	CSG_Colors	Colors(5);
 

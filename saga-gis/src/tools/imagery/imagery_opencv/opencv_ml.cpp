@@ -432,16 +432,16 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data, CSG_Table_Record *pClass, CSG_S
 	int		ID	= pClass->asInt(CLASS_ID), n	= 0;
 	double	r	= 0.0, g	= 0.0, b	= 0.0;
 
-	int	xMin	= Get_System()->Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
-	int	xMax	= Get_System()->Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-	int	yMin	= Get_System()->Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
-	int	yMax	= Get_System()->Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+	int	xMin	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMin());	if( xMin <  0        ) xMin = 0;
+	int	xMax	= Get_System().Get_xWorld_to_Grid(pArea->Get_Extent().Get_XMax());	if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMin	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMin());	if( yMin <  0        ) yMin = 0;
+	int	yMax	= Get_System().Get_yWorld_to_Grid(pArea->Get_Extent().Get_YMax());	if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 	for(int y=yMin; y<=yMax; y++)
 	{
 		for(int x=xMin; x<=xMax; x++)
 		{
-			if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System()->Get_Grid_to_World(x, y)) )
+			if( !m_pClasses->is_NoData(x, y) && pArea->Contains(Get_System().Get_Grid_to_World(x, y)) )
 			{
 				CSG_Vector	z(1 + m_pFeatures->Get_Grid_Count());
 

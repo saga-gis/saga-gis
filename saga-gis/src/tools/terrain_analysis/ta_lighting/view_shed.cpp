@@ -339,7 +339,7 @@ bool CView_Shed::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Angles, CSG_Ve
 {
 	double	d, z	= m_pDEM->asDouble(x, y);
 
-	TSG_Point	q, p	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	q, p	= Get_System().Get_Grid_to_World(x, y);
 
 	Distances	= 0.0;
 

@@ -103,7 +103,7 @@ bool CIsochronesConst::On_Execute(void)
 
 	m_dConcTime = Parameters("TIME_OF_CONCENTRATION")->asDouble();
 
-	m_Direction.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Direction.Create(Get_System(), SG_DATATYPE_Char);
 	m_Direction.Set_NoData_Value(-1);
 
 	Init_FlowDirectionsD8(m_pDEM, &m_Direction);

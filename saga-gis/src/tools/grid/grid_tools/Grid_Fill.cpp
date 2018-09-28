@@ -283,7 +283,7 @@ bool CGrid_Fill::On_Execute(void)
 {
 	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-	if( !pPoints->is_Valid() || !pPoints->Get_Extent().Intersects(Get_System()->Get_Extent()) || !Parameters_Set(Parameters) )
+	if( !pPoints->is_Valid() || !pPoints->Get_Extent().Intersects(Get_System().Get_Extent()) || !Parameters_Set(Parameters) )
 	{
 		return( false );
 	}

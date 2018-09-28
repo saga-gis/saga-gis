@@ -84,7 +84,7 @@ bool CSlopeLength::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Slope.Create(*Get_System());
+	m_Slope.Create(Get_System());
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

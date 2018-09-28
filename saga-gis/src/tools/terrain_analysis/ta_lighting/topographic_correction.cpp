@@ -365,9 +365,9 @@ bool CTopographic_Correction::Get_Illumination(void)
 	//-----------------------------------------------------
 	CSG_Grid	DEM, *pDEM	= Parameters("DEM")->asGrid();
 
-	if( !pDEM->Get_System().is_Equal(*Get_System()) )
+	if( !pDEM->Get_System().is_Equal(Get_System()) )
 	{
-		DEM.Create(*Get_System());
+		DEM.Create(Get_System());
 		DEM.Assign(pDEM, pDEM->Get_Cellsize() > Get_Cellsize() ? GRID_RESAMPLING_BSpline : GRID_RESAMPLING_Mean_Cells);
 		pDEM	= &DEM;
 	}
@@ -379,8 +379,8 @@ bool CTopographic_Correction::Get_Illumination(void)
 	m_cosTz	= cos(M_PI_090 - Hgt);
 	m_sinTz	= sin(M_PI_090 - Hgt);
 
-	m_Slope			.Create(*Get_System());
-	m_Illumination	.Create(*Get_System());
+	m_Slope			.Create(Get_System());
+	m_Illumination	.Create(Get_System());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)

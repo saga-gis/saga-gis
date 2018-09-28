@@ -145,7 +145,7 @@ bool CSuccessive_Flow_Routing::On_Execute(void)
 	m_pSlope	= &Slope;
 
 	DEM			.Create(*pDEM);
-	Slope		.Create(*Get_System());
+	Slope		.Create(Get_System());
 
 	CSG_Colors	Colors(11, SG_COLORS_WHITE_BLUE);
 	Colors[0]	= SG_GET_RGB(255, 255, 200);

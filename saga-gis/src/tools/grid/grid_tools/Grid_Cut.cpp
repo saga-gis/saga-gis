@@ -85,11 +85,11 @@ CSG_Grid_System Fit_Extent(const CSG_Grid_System &System, const CSG_Rect &Extent
 }
 
 //---------------------------------------------------------
-void Fit_Extent(CSG_Parameters *pParameters, CSG_Parameter *pParameter, CSG_Grid_System *pSystem)
+void Fit_Extent(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CSG_Grid_System &_System)
 {
-	if( pSystem && pSystem->is_Valid() )
+	if( _System.is_Valid() )
 	{
-		CSG_Grid_System	System(Fit_Extent(*pSystem, CSG_Rect(
+		CSG_Grid_System	System(Fit_Extent(_System, CSG_Rect(
 			pParameters->Get_Parameter("XMIN")->asDouble(),
 			pParameters->Get_Parameter("YMIN")->asDouble(),
 			pParameters->Get_Parameter("XMAX")->asDouble(),
@@ -229,7 +229,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 			m_bDown		= false;
 			ptWorld		= ptWorld;
 
-			CSG_Grid_System	System	= Fit_Extent(*Get_System(), CSG_Rect(
+			CSG_Grid_System	System	= Fit_Extent(Get_System(), CSG_Rect(
 				m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y()
 			));
 
@@ -249,7 +249,7 @@ bool CGrid_Clip_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Int
 				return( false );
 			}
 
-			System	= Fit_Extent(*Get_System(), CSG_Rect(
+			System	= Fit_Extent(Get_System(), CSG_Rect(
 				(*pParameters)("XMIN")->asDouble(),
 				(*pParameters)("YMIN")->asDouble(),
 				(*pParameters)("XMAX")->asDouble(),
@@ -362,7 +362,7 @@ CGrid_Clip::CGrid_Clip(void)
 	Parameters.Add_Choice("",
 		"EXTENT"	, _TL("Extent"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("shapes extent"),
@@ -409,9 +409,12 @@ CGrid_Clip::CGrid_Clip(void)
 //---------------------------------------------------------
 int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Grid_System	*pSystem	= pParameters->Get_Parameter("PARAMETERS_GRID_SYSTEM")->asGrid_System();
+//	CSG_Grid_System	*pSystem	= pParameters->Get_Parameter("PARAMETERS_GRID_SYSTEM")->asGrid_System();
+//	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
 
-	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
+	CSG_Grid_System	*pSystem	= pParameters->Get_Grid_System();
+
+	if( pParameter->asGrid_System() == pSystem && pSystem && pSystem->is_Valid() )
 	{
 		pParameters->Set_Parameter("XMIN", pSystem->Get_XMin());
 		pParameters->Set_Parameter("XMAX", pSystem->Get_XMax());
@@ -419,7 +422,7 @@ int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Parameter("YMAX", pSystem->Get_YMax());
 	}
 
-	Fit_Extent(pParameters, pParameter, pSystem);
+	Fit_Extent(pParameters, pParameter, *pSystem);
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
@@ -483,7 +486,7 @@ bool CGrid_Clip::On_Execute(void)
 	}
 
 	//--------------------------------------------------------
-	CSG_Grid_System	System	= Fit_Extent(*Get_System(), Extent);
+	CSG_Grid_System	System	= Fit_Extent(Get_System(), Extent);
 
 	if( !System.is_Valid() )
 	{

@@ -172,7 +172,7 @@ bool CTop_Hat::On_Execute(void)
 	DataObject_Set_Colors(pSlope_Idx , 11, SG_COLORS_WHITE_GREEN);
 
 	//-----------------------------------------------------
-	CSG_Grid	zMax(*Get_System()), zMin(*Get_System());
+	CSG_Grid	zMax(Get_System()), zMin(Get_System());
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

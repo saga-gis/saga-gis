@@ -265,7 +265,7 @@ bool CGrid_Class_Statistics_For_Polygons::Get_Classes(CSG_Grid *pGrid, CSG_Shape
 				pPolygons->Add_Field(Classes.asString(iClass), SG_DATATYPE_Double);
 			}
 
-			m_Classes.Create(*Get_System(), SG_DATATYPE_Short);
+			m_Classes.Create(Get_System(), SG_DATATYPE_Short);
 
 			for(iCell=0; iCell<pGrid->Get_NCells(); iCell++)
 			{
@@ -305,7 +305,7 @@ bool CGrid_Class_Statistics_For_Polygons::Get_Classes(CSG_Grid *pGrid, CSG_Shape
 				pPolygons->Add_Field((*pLUT)[iClass].asString(fNam), SG_DATATYPE_Double);
 			}
 
-			m_Classes.Create(*Get_System(), SG_DATATYPE_Short);
+			m_Classes.Create(Get_System(), SG_DATATYPE_Short);
 
 			for(sLong iCell=0; iCell<pGrid->Get_NCells(); iCell++)
 			{

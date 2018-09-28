@@ -623,7 +623,7 @@ bool CRGA_Basic::Add_To_Segment(int x, int y, int Segment)
 	
 		for(i=0; i<8; i+=m_dNeighbour)								// update of candidate-grid - all 8-Neigbours of the added pixel are checked
 		{
-			if( Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) && m_pSegments->is_NoData(ix, iy) )
+			if( Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) && m_pSegments->is_NoData(ix, iy) )
 			{
 				double	Similarity	= Get_Similarity(ix, iy, Segment);
 

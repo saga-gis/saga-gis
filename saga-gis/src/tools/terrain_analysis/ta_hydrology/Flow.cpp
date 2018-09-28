@@ -301,7 +301,7 @@ void CFlow::_Finalize(void)
 
 			if( m_pFlow && bCellsToArea )
 			{
-				m_pFlow->Set_Value(n, Flow * Get_System()->Get_Cellarea());
+				m_pFlow->Set_Value(n, Flow * Get_Cellarea());
 			}
 
 			if( Flow > 0.0 )

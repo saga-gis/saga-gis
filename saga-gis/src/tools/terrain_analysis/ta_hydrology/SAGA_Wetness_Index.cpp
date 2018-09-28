@@ -277,7 +277,7 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 	m_pArea ->Assign(0.0);
 	m_pSlope->Assign(0.0);
 
-	m_Suction.Create(*Get_System());
+	m_Suction.Create(Get_System());
 	m_Suction.Assign(0.0);
 
 	double	Suction			= Parameters("SUCTION"     )->asDouble();
@@ -309,7 +309,7 @@ bool CSAGA_Wetness_Index::Get_Area(void)
 
 			for(i=0, dzSum=0.0, z=m_pDEM->asDouble(x, y); i<8; i++)
 			{
-				if( Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) && !m_pDEM->is_NoData(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
+				if( Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) && !m_pDEM->is_NoData(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
 				{
 					dzSum	+= (dz[i] = pow(atan(d / Get_Length(i)), MFD_Converge));
 				}

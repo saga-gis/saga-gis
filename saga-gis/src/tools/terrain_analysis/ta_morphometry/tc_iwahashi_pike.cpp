@@ -168,7 +168,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 	{
 		double		Cellsize	= Parameters("SCALE")->asInt() * Get_Cellsize();
 
-		if( Cellsize > 0.5 * SG_Get_Length(Get_System()->Get_XRange(), Get_System()->Get_YRange()) )
+		if( Cellsize > 0.5 * SG_Get_Length(Get_System().Get_XRange(), Get_System().Get_YRange()) )
 		{
 			Error_Set(_TL("resampling cell size is too large"));
 
@@ -261,7 +261,7 @@ CTC_Texture::CTC_Texture(void)
 bool CTC_Texture::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	Noise(*Get_System(), SG_DATATYPE_Char);
+	CSG_Grid	Noise(Get_System(), SG_DATATYPE_Char);
 
 	double	Epsilon	= Parameters("EPSILON")->asDouble();
 
@@ -397,7 +397,7 @@ bool CTC_Convexity::On_Execute(void)
 	int	Kernel	= Parameters("KERNEL")->asInt();
 
 	//-----------------------------------------------------
-	CSG_Grid	Laplace(*Get_System(), SG_DATATYPE_Char);
+	CSG_Grid	Laplace(Get_System(), SG_DATATYPE_Char);
 
 	double	Epsilon	= Parameters("EPSILON")->asDouble();
 	int		Type	= Parameters("TYPE"   )->asInt   ();
@@ -653,7 +653,7 @@ bool CTC_Classification::On_Execute(void)
 
 	if( !m_pSlope )
 	{
-		Slope.Create(*Get_System());	m_pSlope	= &Slope;
+		Slope.Create(Get_System());	m_pSlope	= &Slope;
 
 		CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
 

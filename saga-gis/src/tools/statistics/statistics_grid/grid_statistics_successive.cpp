@@ -162,7 +162,7 @@ bool CGrid_Statistics_Build::On_Execute(void)
 			return( false );
 		}
 
-		pHistogram->Create(*Get_System(), nz, SG_DATATYPE_Word);
+		pHistogram->Create(Get_System(), nz, SG_DATATYPE_Word);
 		pHistogram->Set_Name(_TL("Histogram"));
 		pHistogram->Add_Attribute("ZMIN", SG_DATATYPE_Double);
 		pHistogram->Add_Attribute("ZMAX", SG_DATATYPE_Double);
@@ -431,7 +431,7 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 			{
 				Quantiles.Add_Row(v / 100.0);
 
-				CSG_Grid	*pQuantile	= SG_Create_Grid(*Get_System());
+				CSG_Grid	*pQuantile	= SG_Create_Grid(Get_System());
 
 				pQuantile->Set_Name("%s [%s]", _TL("Percentile"), s.c_str());
 

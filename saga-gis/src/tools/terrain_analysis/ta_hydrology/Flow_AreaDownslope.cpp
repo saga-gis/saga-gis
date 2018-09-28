@@ -251,7 +251,7 @@ bool CFlow_AreaDownslope::On_Execute(void)
 		{
 			pParameters	= pFlow->Get_Parameters();
 
-			pFlow->Get_System()->Assign(Parameters("ELEVATION")->asGrid()->Get_System());
+			pFlow->Set_System(Parameters("ELEVATION")->asGrid()->Get_System());
 
 			pParameters->Get_Parameter("ELEVATION")->Set_Value(Parameters("ELEVATION")->asGrid());
 			pParameters->Get_Parameter("SINKROUTE")->Set_Value(Parameters("SINKROUTE")->asGrid());

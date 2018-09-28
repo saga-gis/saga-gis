@@ -291,7 +291,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 
 			double	s[id_Count];
 
-			if( Get_System()->Get_World_to_Grid(x, y, pPoint->Get_Point(0)) && Get_Statistics(x, y, s) )
+			if( Get_System().Get_World_to_Grid(x, y, pPoint->Get_Point(0)) && Get_Statistics(x, y, s) )
 			{
 				for(int i=0; i<id_Count; i++)
 				{

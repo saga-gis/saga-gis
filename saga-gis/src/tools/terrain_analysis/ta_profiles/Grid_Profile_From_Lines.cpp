@@ -318,7 +318,7 @@ bool CGrid_Profile_From_Lines::Add_Point(int Line_ID, bool bStart, const TSG_Poi
 	double		z, Distance, Distance_2;
 	CSG_Shape	*pPoint, *pLast;
 
-	if( Get_System()->Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
+	if( Get_System().Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
 	{
 		z	= m_pDEM->asDouble(x, y);
 

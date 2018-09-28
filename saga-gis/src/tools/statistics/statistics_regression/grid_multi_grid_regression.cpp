@@ -471,12 +471,12 @@ bool CGrid_Multi_Grid_Regression::Set_Regression(CSG_Parameter_Grid_List *pGrids
 			{
 				if( bCoord_X )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System()->Get_xGrid_to_World(x);
+					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System().Get_xGrid_to_World(x);
 				}
 
 				if( bCoord_Y )
 				{
-					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System()->Get_yGrid_to_World(y);
+					z	+= m_Regression.Get_RCoeff(iGrid++) * Get_System().Get_yGrid_to_World(y);
 				}
 
 				pRegression->Set_Value (x, y, z);

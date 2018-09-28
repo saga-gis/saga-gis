@@ -506,7 +506,7 @@ bool CPanSharp_CN::On_Execute(void)
 	{
 		Process_Set_Text("%s: %s ...", _TL("Resampling"), pGrids->Get_Grid(i)->Get_Name());
 
-		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+		CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 
 		pGrid->Set_Name (pGrids->Get_Grid(i)->Get_Name());
 		pGrid->Assign   (pGrids->Get_Grid(i), Resampling);
@@ -697,7 +697,7 @@ bool CPanSharp_PCA::On_Execute(void)
 		Scale		= pPCA->Get_Grid(0)->Get_StdDev() / pPan->Get_StdDev();
 	}
 
-	PCA[0].Create(*Get_System());
+	PCA[0].Create(Get_System());
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -724,7 +724,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	{
 		Process_Set_Text("%s: %s ...", _TL("Resampling"), pPCA->Get_Grid(i)->Get_Name());
 
-		PCA[i].Create(*Get_System());
+		PCA[i].Create(Get_System());
 		PCA[i].Assign(pPCA->Get_Grid(i), Resampling);
 
 		delete(pPCA->Get_Grid(i));	// PCA tool was unmanaged, so we have to delete the output

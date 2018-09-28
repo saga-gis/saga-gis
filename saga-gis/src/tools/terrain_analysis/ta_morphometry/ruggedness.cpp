@@ -293,9 +293,9 @@ bool CRuggedness_VRM::On_Execute(void)
 	//-----------------------------------------------------
 	int		x, y;
 
-	m_X.Create(*Get_System(), SG_DATATYPE_Float);
-	m_Y.Create(*Get_System(), SG_DATATYPE_Float);
-	m_Z.Create(*Get_System(), SG_DATATYPE_Float);
+	m_X.Create(Get_System(), SG_DATATYPE_Float);
+	m_Y.Create(Get_System(), SG_DATATYPE_Float);
+	m_Z.Create(Get_System(), SG_DATATYPE_Float);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

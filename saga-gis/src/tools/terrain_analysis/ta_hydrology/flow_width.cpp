@@ -250,7 +250,7 @@ inline double CFlow_Width::Get_MFD(int x, int y)
 
 			if( m_pDEM->is_InGrid(ix, iy, true) && z > m_pDEM->asDouble(ix, iy) )
 			{
-				Width	+= 0.5 * Get_Cellsize() / Get_System()->Get_UnitLength(i);
+				Width	+= 0.5 * Get_Cellsize() / Get_UnitLength(i);
 			}
 		}
 

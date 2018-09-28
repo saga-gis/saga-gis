@@ -89,29 +89,43 @@ CSG_Tool_Grid::~CSG_Tool_Grid(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Tool_Grid::Set_System(const CSG_Grid_System &System)
+{
+	if( Parameters.Get_Grid_System() )
+	{
+		return( Parameters.Get_Grid_System()->Create(System) );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress_NCells(sLong iCell)
+bool CSG_Tool_Grid::Set_Progress_NCells(sLong iCell)	const
 {
-	if( Get_System()->is_Valid() )
+	if( Get_System().is_Valid() )
 	{
-		return( CSG_Tool::Set_Progress((double)iCell, (double)Get_System()->Get_NCells()) );
+		return( CSG_Tool::Set_Progress((double)iCell, (double)Get_NCells()) );
 	}
 
 	return( is_Progress() );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress(int iRow)
+bool CSG_Tool_Grid::Set_Progress(int iRow)	const
 {
-	return( CSG_Tool::Set_Progress(iRow, Get_System()->Get_NY() - 1) );
+	return( CSG_Tool::Set_Progress(iRow, Get_NY() - 1) );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool_Grid::Set_Progress(double Position, double Range)
+bool CSG_Tool_Grid::Set_Progress(double Position, double Range)	const
 {
 	return( CSG_Tool::Set_Progress(Position, Range) );
 }
@@ -119,16 +133,14 @@ bool CSG_Tool_Grid::Set_Progress(double Position, double Range)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_Tool_Grid::Lock_Create(void)
 {
-	if( Get_System()->is_Valid() )
+	if( Get_System().is_Valid() )
 	{
-		if( m_pLock && Get_System()->is_Equal(m_pLock->Get_System()) )
+		if( m_pLock && Get_System().is_Equal(m_pLock->Get_System()) )
 		{
 			m_pLock->Assign(0.0);
 		}
@@ -137,12 +149,7 @@ void CSG_Tool_Grid::Lock_Create(void)
 			Lock_Destroy();
 
 			m_pLock	= new CSG_Grid(
-				SG_DATATYPE_Char,
-				Get_System()->Get_NX(),
-				Get_System()->Get_NY(),
-				Get_System()->Get_Cellsize(),
-				Get_System()->Get_XMin(),
-				Get_System()->Get_YMin()
+				SG_DATATYPE_Char, Get_NX(), Get_NY(), Get_Cellsize(), Get_XMin(), Get_YMin()
 			);
 		}
 	}

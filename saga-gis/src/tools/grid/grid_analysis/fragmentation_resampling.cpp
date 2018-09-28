@@ -192,7 +192,7 @@ bool CFragmentation_Resampling::Get_Fragmentation(int x, int y, double &Density,
 {
 	if( m_Density.Get_Grid(-1)->is_InGrid(x, y) )
 	{
-		TSG_Point	p	= Get_System()->Get_Grid_to_World(x, y);
+		TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
 
 	//	Density			= 0.0;	m_Density		.Get_Grid(m_Radius_iMin)->Get_Value(p, Density);
 	//	Connectivity	= 0.0;	m_Connectivity	.Get_Grid(m_Radius_iMin)->Get_Value(p, Connectivity);
@@ -252,7 +252,7 @@ bool CFragmentation_Resampling::Get_Connectivity(int x, int y, CSG_Grid *pClasse
 
 		for(i=0, j=7, nDensity=1, nConnectivity=0; i<8; j=i++)
 		{
-			if( Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) )
+			if( Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) )
 			{
 				nDensity++;
 
@@ -266,7 +266,7 @@ bool CFragmentation_Resampling::Get_Connectivity(int x, int y, CSG_Grid *pClasse
 					if( bClass )
 						Connectivity++;
 
-					if( Get_System()->Get_Neighbor_Pos(j, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) )
+					if( Get_System().Get_Neighbor_Pos(j, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) )
 					{
 						nConnectivity++;
 
@@ -279,7 +279,7 @@ bool CFragmentation_Resampling::Get_Connectivity(int x, int y, CSG_Grid *pClasse
 					if( bClass )
 						nConnectivity++;
 
-					if( Get_System()->Get_Neighbor_Pos(j, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) && pClasses->asInt(ix, iy) == Class )
+					if( Get_System().Get_Neighbor_Pos(j, x, y, ix, iy) && !pClasses->is_NoData(ix, iy) && pClasses->asInt(ix, iy) == Class )
 						nConnectivity++;
 				}
 			}

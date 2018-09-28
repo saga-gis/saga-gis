@@ -153,7 +153,7 @@ bool CFlow_Routing::On_Execute(void)
 //---------------------------------------------------------
 bool CFlow_Routing::Set_Flow(CSG_Grid *pDEM, CSG_Grid *pFlow, int Preprocess, double dzFill)
 {
-	if( is_Executing() || !pDEM || !pFlow || !pDEM->is_Compatible(pFlow) || !Get_System()->Assign(pDEM->Get_System()) )
+	if( is_Executing() || !pDEM || !pFlow || !pDEM->is_Compatible(pFlow) || !Set_System(pDEM->Get_System()) )
 	{
 		return( false );
 	}

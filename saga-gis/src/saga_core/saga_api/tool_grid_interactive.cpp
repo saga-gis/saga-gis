@@ -85,53 +85,45 @@ CSG_Tool_Grid_Interactive::~CSG_Tool_Grid_Interactive(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Tool_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
 {
-	bool	bResult;
-
-	if( Get_System()->is_Valid() )
+	if( Get_System().is_Valid() )
 	{
-		bResult	= true;
+		bool	bResult	= true;
 
 		//-------------------------------------------------
-		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
+		x	= (int)(0.5 + (Get_xPosition() - Get_XMin()) / Get_Cellsize());
 
 		if( x < 0 )
 		{
-			bResult	= false;
-			x		= 0;
+			bResult	= false;	x	= 0;
 		}
-		else if( x >= Get_System()->Get_NX() )
+		else if( x >= Get_NX() )
 		{
-			bResult	= false;
-			x		= Get_System()->Get_NX() - 1;
+			bResult	= false;	x	= Get_NX() - 1;
 		}
 
 		//-------------------------------------------------
-		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
+		y	= (int)(0.5 + (Get_yPosition() - Get_YMin()) / Get_Cellsize());
 
 		if( y < 0 )
 		{
-			bResult	= false;
-			y		= 0;
+			bResult	= false;	y	= 0;
 		}
-		else if( y >= Get_System()->Get_NY() )
+		else if( y >= Get_NY() )
 		{
-			bResult	= false;
-			y		= Get_System()->Get_NY() - 1;
+			bResult	= false;	y	= Get_NY() - 1;
 		}
 
 		return( bResult );
 	}
 
 	//-----------------------------------------------------
-	x		= 0;
-	y		= 0;
+	x	= 0;
+	y	= 0;
 
 	return( false );
 }
@@ -139,19 +131,17 @@ bool CSG_Tool_Grid_Interactive::Get_Grid_Pos(int &x, int &y)
 //---------------------------------------------------------
 int CSG_Tool_Grid_Interactive::Get_xGrid(void)
 {
-	int		x;
-
-	if( Get_System()->is_Valid() )
+	if( Get_System().is_Valid() )
 	{
-		x		= (int)(0.5 + (Get_xPosition() - Get_System()->Get_XMin()) / Get_System()->Get_Cellsize());
+		int	x	= (int)(0.5 + (Get_xPosition() - Get_XMin()) / Get_Cellsize());
 
 		if( x < 0 )
 		{
-			x		= 0;
+			x	= 0;
 		}
-		else if( x >= Get_System()->Get_NX() )
+		else if( x >= Get_NX() )
 		{
-			x		= Get_System()->Get_NX() - 1;
+			x	= Get_NX() - 1;
 		}
 
 		return( x );
@@ -163,19 +153,17 @@ int CSG_Tool_Grid_Interactive::Get_xGrid(void)
 //---------------------------------------------------------
 int CSG_Tool_Grid_Interactive::Get_yGrid(void)
 {
-	int		y;
-
-	if( Get_System()->is_Valid() )
+	if( Get_System().is_Valid() )
 	{
-		y		= (int)(0.5 + (Get_yPosition() - Get_System()->Get_YMin()) / Get_System()->Get_Cellsize());
+		int	y	= (int)(0.5 + (Get_yPosition() - Get_YMin()) / Get_Cellsize());
 
 		if( y < 0 )
 		{
-			y		= 0;
+			y	= 0;
 		}
-		else if( y >= Get_System()->Get_NY() )
+		else if( y >= Get_NY() )
 		{
-			y		= Get_System()->Get_NY() - 1;
+			y	= Get_NY() - 1;
 		}
 
 		return( y );

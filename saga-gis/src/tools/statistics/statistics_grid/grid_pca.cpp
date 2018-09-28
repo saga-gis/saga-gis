@@ -395,7 +395,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 	{
 		if( !pPCA->Get_Grid(i) )
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+			CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 
 			if( !pGrid )
 			{
@@ -570,7 +570,7 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 
 	for(i=0; i<nFeatures; i++)
 	{
-		CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+		CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 
 		if( !pGrid )
 		{

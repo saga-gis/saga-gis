@@ -176,7 +176,7 @@ int CHillslope_Evolution_FTCS::On_Parameters_Enable(CSG_Parameters *pParameters,
 bool CHillslope_Evolution_FTCS::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Grid	DEM(*Get_System());
+	CSG_Grid	DEM(Get_System());
 
 	m_pDEM_Old	= &DEM;
 

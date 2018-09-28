@@ -348,7 +348,7 @@ bool CTPI_Classification::On_Execute(void)
 	Calculator.Set_Parameter("STANDARD", true);
 
 	//-----------------------------------------------------
-	CSG_Grid	gA(*Get_System());
+	CSG_Grid	gA(Get_System());
 
 	Calculator.Set_Parameter("TPI"   , &gA);
 	Calculator.Set_Parameter("RADIUS", Parameters("RADIUS_A"));
@@ -359,7 +359,7 @@ bool CTPI_Classification::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	gB(*Get_System());
+	CSG_Grid	gB(Get_System());
 
 	Calculator.Set_Parameter("TPI"   , &gB);
 	Calculator.Set_Parameter("RADIUS", Parameters("RADIUS_B"));
@@ -666,7 +666,7 @@ bool CTPI_MultiScale::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	TPI(*Get_System()), *pTPI	= Parameters("TPI")->asGrid();
+	CSG_Grid	TPI(Get_System()), *pTPI	= Parameters("TPI")->asGrid();
 
 	CTPI	Calculator;	Calculator.Set_Manager(NULL);
 

@@ -178,7 +178,7 @@ bool CFilter_in_Polygon::On_Execute(void)
 
 	int m_nFields	= pPolygons->Get_Count();
 
-	m_Fields.Create(*Get_System(), m_nFields < pow(2.0, 16.0) - 1.0 ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
+	m_Fields.Create(Get_System(), m_nFields < pow(2.0, 16.0) - 1.0 ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
 	m_Fields.Set_NoData_Value(m_nFields);
 	m_Fields.Assign_NoData();
 
@@ -186,16 +186,16 @@ bool CFilter_in_Polygon::On_Execute(void)
 	{
 		CSG_Shape_Polygon	*pField	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iField);
 
-		int	xMin	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMin()) - 1; if( xMin <  0        ) xMin = 0;
-		int	xMax	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMax()) + 1; if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-		int	yMin	= Get_System()->Get_yWorld_to_Grid(pField->Get_Extent().Get_YMin()) - 1; if( yMin <  0        ) yMin = 0;
-		int	yMax	= Get_System()->Get_yWorld_to_Grid(pField->Get_Extent().Get_YMax()) + 1; if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+		int	xMin	= Get_System().Get_xWorld_to_Grid(pField->Get_Extent().Get_XMin()) - 1; if( xMin <  0        ) xMin = 0;
+		int	xMax	= Get_System().Get_xWorld_to_Grid(pField->Get_Extent().Get_XMax()) + 1; if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+		int	yMin	= Get_System().Get_yWorld_to_Grid(pField->Get_Extent().Get_YMin()) - 1; if( yMin <  0        ) yMin = 0;
+		int	yMax	= Get_System().Get_yWorld_to_Grid(pField->Get_Extent().Get_YMax()) + 1; if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 		for(int y=yMin; y<=yMax; y++)
 		{
 			for(int x=xMin; x<=xMax; x++)
 			{
-				if( m_pInput->is_InGrid(x, y) && pField->Contains(Get_System()->Get_Grid_to_World(x, y)) )
+				if( m_pInput->is_InGrid(x, y) && pField->Contains(Get_System().Get_Grid_to_World(x, y)) )
 				{
 					m_Fields.Set_Value(x, y, iField);
 				}

@@ -117,9 +117,9 @@ CTA_Standard::CTA_Standard(void)
 //---------------------------------------------------------
 bool CTA_Standard::On_Execute(void)
 {
-	CSG_Grid	DEMP(*Get_System(), SG_DATATYPE_Float);
-	CSG_Grid	TMP1(*Get_System(), SG_DATATYPE_Float);
-	CSG_Grid	TMP2(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	DEMP(Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	TMP1(Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	TMP2(Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
 	SG_RUN_TOOL_ExitOnError("ta_preprocessor"    , 2,

@@ -226,7 +226,7 @@ bool CGDAL_Export::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_GDAL_DataSet	DataSet;
 
-	if( !DataSet.Open_Write(Parameters("FILE")->asString(), Driver, Parameters("OPTIONS")->asString(), Type, pGrids->Get_Grid_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(Parameters("FILE")->asString(), Driver, Parameters("OPTIONS")->asString(), Type, pGrids->Get_Grid_Count(), Get_System(), Projection) )
 	{
 		return( false );
 	}

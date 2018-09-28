@@ -171,7 +171,7 @@ bool CGrid_Local_Extremes_to_Points::On_Execute(void)
 
 				if( pPoint )
 				{
-					TSG_Point	p	= Get_System()->Get_Grid_to_World(x, y);
+					TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
 
 					pPoint->Set_Point(p, 0);
 					pPoint->Set_Value(0, x);

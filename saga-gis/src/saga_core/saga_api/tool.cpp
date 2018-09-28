@@ -643,13 +643,13 @@ void CSG_Tool::Process_Set_Text(const wchar_t *Format, ...)
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Progress(double Percent)
+bool CSG_Tool::Set_Progress(double Percent)	const
 {
 	return( Set_Progress(Percent, 100.0) );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Set_Progress(double Position, double Range)
+bool CSG_Tool::Set_Progress(double Position, double Range)	const
 {
 	return( m_bShow_Progress ? SG_UI_Process_Set_Progress(Position, Range) : Process_Get_Okay(false) );
 }

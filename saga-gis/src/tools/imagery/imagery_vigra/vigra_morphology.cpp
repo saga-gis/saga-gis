@@ -148,7 +148,7 @@ bool CViGrA_Morphology::On_Execute(void)
 	//-----------------------------------------------------
 	if( bRescale )
 	{
-		Rescaled.Create(*Get_System(), SG_DATATYPE_Byte);
+		Rescaled.Create(Get_System(), SG_DATATYPE_Byte);
 
 		for(sLong i=0; i<Get_NCells() && Set_Progress_NCells(i); i++)
 		{

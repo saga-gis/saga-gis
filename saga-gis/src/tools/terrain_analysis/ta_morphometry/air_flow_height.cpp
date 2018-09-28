@@ -257,7 +257,7 @@ bool CAir_Flow_Height::On_Execute(void)
 	}
 	else
 	{
-		if( !m_DX.Create(*Get_System()) || !m_DY.Create(*Get_System()) )
+		if( !m_DX.Create(Get_System()) || !m_DY.Create(Get_System()) )
 		{
 			Error_Set(_TL("could not allocate sufficient memory"));
 
@@ -396,7 +396,7 @@ inline bool CAir_Flow_Height::Get_Next(TSG_Point &Position, double Distance, boo
 	Position.x	+= Distance * dx;
 	Position.y	+= Distance * dy;
 
-	return( Get_System()->Get_Extent(true).Contains(Position) );
+	return( Get_System().Get_Extent(true).Contains(Position) );
 }
 
 //---------------------------------------------------------
@@ -436,7 +436,7 @@ void CAir_Flow_Height::Get_Luv(int x, int y, double &Sum_A)
 		TSG_Point	p;
 
 		d	= id	= Get_Cellsize();
-		p	= Get_System()->Get_Grid_to_World(x, y);
+		p	= Get_System().Get_Grid_to_World(x, y);
 
 		while( id <= m_maxDistance && Get_Next(p, d, false) )
 		{
@@ -466,7 +466,7 @@ void CAir_Flow_Height::Get_Lee(int x, int y, double &Sum_A, double &Sum_B)
 		TSG_Point	p;
 
 		d	= id	= Get_Cellsize();
-		p	= Get_System()->Get_Grid_to_World(x, y);
+		p	= Get_System().Get_Grid_to_World(x, y);
 
 		while( id <= m_maxDistance && Get_Next(p, d, true) )
 		{

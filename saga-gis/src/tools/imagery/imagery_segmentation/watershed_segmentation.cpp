@@ -202,7 +202,7 @@ bool CWatershed_Segmentation::On_Execute(void)
 	m_pSegments->Set_Name("%s [%s]", m_pGrid->Get_Name(), _TL("Segments"));
 	m_pSegments->Set_NoData_Value(-999999.0);
 
-	m_Dir.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Dir.Create(Get_System(), SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
 	if( !Get_Seeds() )
@@ -297,7 +297,7 @@ bool CWatershed_Segmentation::Get_Seeds(void)
 
 					CSG_Shape	*pSeed	= m_pSeeds->Add_Shape();
 
-					pSeed->Set_Point(Get_System()->Get_Grid_to_World(x, y), 0);
+					pSeed->Set_Point(Get_System().Get_Grid_to_World(x, y), 0);
 
 					pSeed->Set_Value(SEED_X		, x);
 					pSeed->Set_Value(SEED_Y		, y);

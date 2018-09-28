@@ -165,7 +165,7 @@ bool CMelton_Ruggedness::On_Execute(void)
 				pZMax->Set_Value(x, y, pDEM->asDouble(x, y));
 			}
 
-			if( (i = pDEM->Get_Gradient_NeighborDir(x, y, true)) >= 0 && Get_System()->Get_Neighbor_Pos(i, x, y, ix, iy) )
+			if( (i = pDEM->Get_Gradient_NeighborDir(x, y, true)) >= 0 && Get_System().Get_Neighbor_Pos(i, x, y, ix, iy) )
 			{
 				pArea->Add_Value(ix, iy, pArea->asDouble(x, y));
 

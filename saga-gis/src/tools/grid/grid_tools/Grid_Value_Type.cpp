@@ -165,15 +165,15 @@ bool CGrid_Value_Type::On_Execute(void)
 
 		return( false );
 
-	case 0:	pOutput->Create(*Get_System(), SG_DATATYPE_Bit   );	break;
-	case 1:	pOutput->Create(*Get_System(), SG_DATATYPE_Byte  );	break;
-	case 2:	pOutput->Create(*Get_System(), SG_DATATYPE_Char  );	break;
-	case 3:	pOutput->Create(*Get_System(), SG_DATATYPE_Word  );	break;
-	case 4:	pOutput->Create(*Get_System(), SG_DATATYPE_Short );	break;
-	case 5:	pOutput->Create(*Get_System(), SG_DATATYPE_DWord );	break;
-	case 6:	pOutput->Create(*Get_System(), SG_DATATYPE_Int   );	break;
-	case 7:	pOutput->Create(*Get_System(), SG_DATATYPE_Float );	break;
-	case 8:	pOutput->Create(*Get_System(), SG_DATATYPE_Double);	break;
+	case 0:	pOutput->Create(Get_System(), SG_DATATYPE_Bit   );	break;
+	case 1:	pOutput->Create(Get_System(), SG_DATATYPE_Byte  );	break;
+	case 2:	pOutput->Create(Get_System(), SG_DATATYPE_Char  );	break;
+	case 3:	pOutput->Create(Get_System(), SG_DATATYPE_Word  );	break;
+	case 4:	pOutput->Create(Get_System(), SG_DATATYPE_Short );	break;
+	case 5:	pOutput->Create(Get_System(), SG_DATATYPE_DWord );	break;
+	case 6:	pOutput->Create(Get_System(), SG_DATATYPE_Int   );	break;
+	case 7:	pOutput->Create(Get_System(), SG_DATATYPE_Float );	break;
+	case 8:	pOutput->Create(Get_System(), SG_DATATYPE_Double);	break;
 	}
 
 	pOutput->Set_Name       (pInput->Get_Name       ());

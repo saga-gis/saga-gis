@@ -240,13 +240,13 @@ bool CWETNESS::On_Execute(void)
 
 	//-----------------------------------------------------
 	// get catchment area sizes
-	CSG_Grid	B(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	B(Get_System(), SG_DATATYPE_Float);
 
 	pB	= &B;
 
 	if( Parameters("PREPROC")->asBool() )
 	{
-		CSG_Grid	DEM(*Get_System(), SG_DATATYPE_Float);
+		CSG_Grid	DEM(Get_System(), SG_DATATYPE_Float);
 
 		RUN_TOOL("ta_preprocessor"		, 2,
 				SET_PARAMETER("DEM"			, pDEM)

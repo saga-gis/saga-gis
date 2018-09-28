@@ -194,12 +194,12 @@ bool CGrid_To_Gradient::On_Execute(void)
 	CSG_Shapes				*pVectors;
 
 	//-----------------------------------------------------
-	pVectors		= Parameters("VECTORS")	->asShapes();
-	Step			= Parameters("STEP")	->asInt();
-	m_Style			= Parameters("STYLE")	->asInt();
-	sMin			= Parameters("SIZE")	->asRange()->Get_LoVal() * Step * Get_Cellsize() / 100.0;
-	sRange			= Parameters("SIZE")	->asRange()->Get_HiVal() * Step * Get_Cellsize() / 100.0 - sMin;
-	Interpolation	= Parameters("AGGR")	->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
+	pVectors		= Parameters("VECTORS")->asShapes();
+	Step			= Parameters("STEP"   )->asInt();
+	m_Style			= Parameters("STYLE"  )->asInt();
+	sMin			= Parameters("SIZE"   )->asRange()->Get_LoVal() * Step * Get_Cellsize() / 100.0;
+	sRange			= Parameters("SIZE"   )->asRange()->Get_HiVal() * Step * Get_Cellsize() / 100.0 - sMin;
+	Interpolation	= Parameters("AGGR"   )->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
 
 	//-----------------------------------------------------
 	if( Step > Get_NX() || Step > Get_NY() )
@@ -211,7 +211,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 
 	//-----------------------------------------------------
 //	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_NX() / Step, Get_NY() / Step);
-	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_System()->Get_XMax(), Get_System()->Get_YMax());
+	System.Assign(Step * Get_Cellsize(), Get_XMin(), Get_YMin(), Get_XMax(), Get_YMax());
 
 	EX.Create(System);
 	EY.Create(System);
@@ -245,8 +245,8 @@ bool CGrid_To_Gradient::On_Execute(void)
 	//-----------------------------------------------------
 	case 1:	// direction and length
 		{
-			CSG_Grid	*pDir	= Parameters("DIR")->asGrid(), _X(*Get_System());
-			CSG_Grid	*pLen	= Parameters("LEN")->asGrid(), _Y(*Get_System());
+			CSG_Grid	*pDir	= Parameters("DIR")->asGrid(), _X(Get_System());
+			CSG_Grid	*pLen	= Parameters("LEN")->asGrid(), _Y(Get_System());
 
 			for(y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
 			{
@@ -268,7 +268,7 @@ bool CGrid_To_Gradient::On_Execute(void)
 			CSG_Grid	X(System);	X.Assign(&_X, Interpolation);
 			CSG_Grid	Y(System);	Y.Assign(&_Y, Interpolation);
 
-			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format(SG_T("%s [%s|%s]"), _TL("Gradient"), pDir->Get_Name(), pLen->Get_Name()));
+			pVectors->Create(SHAPE_TYPE_Line, CSG_String::Format("%s [%s|%s]", _TL("Gradient"), pDir->Get_Name(), pLen->Get_Name()));
 
 			for(y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
 			{

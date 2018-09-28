@@ -142,7 +142,7 @@ bool CNewton::On_Execute(void)
 	pShade->Set_Name(_TL("Newton [B]"));
 	Parameters("SHADE")	->Set_Value(pShade);
 
-	Get_System()->Assign(pShade->Get_System());
+	Set_System(pShade->Get_System());
 
 	//-----------------------------------------------------
 	iMax		= Parameters("MAXITER")->asInt();

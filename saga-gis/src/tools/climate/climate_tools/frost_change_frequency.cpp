@@ -431,7 +431,7 @@ bool CFrost_Change_Frequency_Interactive::On_Execute_Position(CSG_Point ptWorld,
 	//-----------------------------------------------------
 	int	x, y;
 
-	if( !Get_System()->Get_World_to_Grid(x, y, ptWorld) || !Get_System()->is_InGrid(x, y) )
+	if( !Get_System().Get_World_to_Grid(x, y, ptWorld) || !Get_System().is_InGrid(x, y) )
 	{
 		return( false );
 	}

@@ -351,7 +351,7 @@ bool CIsochronesVar::On_Execute(void){
 
 	m_pTime->Assign(0.0);
 
-	m_Direction.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Direction.Create(Get_System(), SG_DATATYPE_Char);
 	m_Direction.Set_NoData_Value(-1);
 
 	Init_FlowDirectionsD8(m_pDEM, &m_Direction);

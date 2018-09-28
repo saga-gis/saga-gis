@@ -175,7 +175,7 @@ bool CGrid_Flow_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interac
 	{
 	case TOOL_INTERACTIVE_LDOWN:
 	case TOOL_INTERACTIVE_MOVE_LDOWN:
-		return( Set_Profile(Get_System()->Fit_to_Grid_System(ptWorld)) );
+		return( Set_Profile(Get_System().Fit_to_Grid_System(ptWorld)) );
 
 	default:
 		return( false );
@@ -194,7 +194,7 @@ bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 {
 	int		x, y;
 
-	if( !Get_System()->Get_World_to_Grid(x, y, ptWorld) || !m_pDEM->is_InGrid(x, y) )
+	if( !Get_System().Get_World_to_Grid(x, y, ptWorld) || !m_pDEM->is_InGrid(x, y) )
 	{
 		return( false );
 	}
@@ -207,8 +207,8 @@ bool CGrid_Flow_Profile::Set_Profile(TSG_Point ptWorld)
 
 	while( Add_Point(x, y) && (Direction = m_pDEM->Get_Gradient_NeighborDir(x, y)) >= 0 )
 	{
-		x	+= Get_System()->Get_xTo(Direction);
-		y	+= Get_System()->Get_yTo(Direction);
+		x	+= Get_xTo(Direction);
+		y	+= Get_yTo(Direction);
 	}
 
 	//-----------------------------------------------------
@@ -223,7 +223,7 @@ bool CGrid_Flow_Profile::Add_Point(int x, int y)
 		return( false );
 	}
 
-	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
 
 	double	d, dSurface;
 

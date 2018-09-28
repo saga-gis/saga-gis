@@ -861,7 +861,7 @@ bool CMMF_SAGA::On_Execute(void)
 								if( pDTM->is_InGrid(ix, iy) )
 								{
 									pQ->Add_Value(ix, iy, d_Q * dz[i]);		// distribute
-									f_w = 0.5 * Get_Cellsize() / Get_System()->Get_UnitLength(i);
+									f_w = 0.5 * Get_Cellsize() / Get_UnitLength(i);
 									pW_up->Add_Value(ix, iy, f_w);			// upslope CL of ix,iy
 									W_down += f_w;							// downslope CL of x,y
 									if (bInterflow)

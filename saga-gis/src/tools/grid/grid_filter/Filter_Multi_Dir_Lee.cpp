@@ -310,7 +310,7 @@ bool CFilter_Multi_Dir_Lee::Get_Filter(bool bAbsolute)
 
 	if( !bAbsolute && m_pStdDev == NULL )
 	{
-		m_pStdDev	= &Temp; Temp.Create(*Get_System());
+		m_pStdDev	= &Temp; Temp.Create(Get_System());
 	}
 
 	//-----------------------------------------------------

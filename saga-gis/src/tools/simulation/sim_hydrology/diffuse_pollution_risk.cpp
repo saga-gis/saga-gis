@@ -274,9 +274,9 @@ bool CDiffuse_Pollution_Risk::Set_Flow(void)
 	CSG_Grid	*pRain		= Parameters("RAIN"  )->asGrid  ();
 	double		  Rain		= Parameters("RAIN"  )->asDouble();
 
-	m_FlowDir.Create(*Get_System(), SG_DATATYPE_Char);
-	m_RainAcc.Create(*Get_System());
-	m_TWI    .Create(*Get_System());
+	m_FlowDir.Create(Get_System(), SG_DATATYPE_Char);
+	m_RainAcc.Create(Get_System());
+	m_TWI    .Create(Get_System());
 
 	for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 	{
@@ -333,7 +333,7 @@ bool CDiffuse_Pollution_Risk::Set_Flow(int x, int y, double Rain)
 	//-----------------------------------------------------
 	if( m_bSingle )
 	{
-		if( Get_System()->Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, x, y) && m_pDEM->is_InGrid(x, y) )
+		if( Get_System().Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, x, y) && m_pDEM->is_InGrid(x, y) )
 		{
 			m_RainAcc.Add_Value(x, y, Rain);
 		}
@@ -372,7 +372,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 
 		int	Threshold	= Parameters("CHANNEL_START")->asInt();
 
-		pChannel	= &Channel;	Channel.Create(*Get_System(), SG_DATATYPE_Word);	Channel.Assign(0.0);	Channel.Set_NoData_Value(0.0);
+		pChannel	= &Channel;	Channel.Create(Get_System(), SG_DATATYPE_Word);	Channel.Assign(0.0);	Channel.Set_NoData_Value(0.0);
 
 		for(sLong n=0; n<Get_NCells() && Set_Progress_NCells(n); n++)
 		{
@@ -380,7 +380,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 
 			if( m_pDEM->Get_Sorted(n, x, y, true) )
 			{
-				if( Get_System()->Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, ix, iy) && m_FlowDir.is_InGrid(ix, iy) )
+				if( Get_System().Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, ix, iy) && m_FlowDir.is_InGrid(ix, iy) )
 				{
 					Channel.Add_Value(ix, iy, 1.0 + Channel.asDouble(x, y));
 				}
@@ -406,7 +406,7 @@ bool CDiffuse_Pollution_Risk::Set_Delivery_Index(void)
 				TWI_min	= m_TWI.asDouble(x, y);
 			}
 
-			if( m_FlowDir.is_InGrid(x, y) && Get_System()->Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, ix, iy) && m_TWI.is_InGrid(ix, iy) )
+			if( m_FlowDir.is_InGrid(x, y) && Get_System().Get_Neighbor_Pos(m_FlowDir.asInt(x, y), x, y, ix, iy) && m_TWI.is_InGrid(ix, iy) )
 			{
 				if( TWI_min < 0.0 || TWI_min > m_TWI.asDouble(ix, iy) )
 				{

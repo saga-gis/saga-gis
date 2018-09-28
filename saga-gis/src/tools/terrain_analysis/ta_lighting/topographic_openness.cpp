@@ -306,7 +306,7 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max
 	TSG_Point	p, q;
 
 	z	= m_pDEM->asDouble(x, y);
-	p	= Get_System()->Get_Grid_to_World(x, y);
+	p	= Get_System().Get_Grid_to_World(x, y);
 
 	//-----------------------------------------------------
 	for(int iGrid=-1; iGrid<m_nLevels; iGrid++)

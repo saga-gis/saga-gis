@@ -184,7 +184,7 @@ bool CGrid_Swath_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Intera
 			m_pLine->Add_Shape()->Set_Value(0, 1);
 		}
 
-		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
+		m_pLine->Get_Shape(0)->Add_Point(Get_System().Fit_to_Grid_System(ptWorld));
 
 		DataObject_Update(m_pLine);
 		break;

@@ -47,7 +47,7 @@ bool CRealArea::On_Execute(void)
 
 			if( pDEM->Get_Gradient(x, y, s, a) )
 			{
-				pArea->Set_Value(x, y, Get_System()->Get_Cellarea() / cos(s));
+				pArea->Set_Value(x, y, Get_Cellarea() / cos(s));
 			}
 			else
 			{

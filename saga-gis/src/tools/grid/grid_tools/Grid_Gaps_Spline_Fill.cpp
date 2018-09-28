@@ -187,7 +187,7 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Gaps.Create(*Get_System(), SG_DATATYPE_Int);
+	m_Gaps.Create(Get_System(), SG_DATATYPE_Int);
 	m_Gaps.Assign(0.0);
 	m_nGaps	= 0;
 

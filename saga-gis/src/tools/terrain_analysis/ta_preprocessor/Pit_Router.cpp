@@ -164,7 +164,7 @@ int CPit_Router::Get_Routes(CSG_Grid *pDEM, CSG_Grid *pRoute, double Threshold)
 	m_Outlets	= NULL;
 
 	//-----------------------------------------------------
-	Get_System()->Assign(m_pDEM->Get_System());
+	Set_System(m_pDEM->Get_System());
 
 	//-----------------------------------------------------
 	if( Initialize() )
@@ -1023,7 +1023,7 @@ int CPit_Router::Process_Threshold(void)
 {
 	int		x, y, n, i;
 
-	m_Route.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Route.Create(Get_System(), SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

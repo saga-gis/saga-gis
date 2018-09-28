@@ -165,7 +165,7 @@ bool CMultiBand_Variation::On_Execute(void)
 	//-----------------------------------------------------
 	int		x, y;
 
-	m_Mask.Create(*Get_System(), SG_DATATYPE_Byte);
+	m_Mask.Create(Get_System(), SG_DATATYPE_Byte);
 	m_Mask.Set_NoData_Value(0);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

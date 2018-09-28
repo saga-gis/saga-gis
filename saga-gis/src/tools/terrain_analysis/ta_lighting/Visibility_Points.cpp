@@ -147,8 +147,8 @@ bool CVisibility_Points::On_Execute(void)
 	{
 		Process_Set_Text("%s %d...", _TL("processing observer"), iShape + 1);
 
-		int	x	= Get_System()->Get_xWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).x);
-		int	y	= Get_System()->Get_yWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).y);
+		int	x	= Get_System().Get_xWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).x);
+		int	y	= Get_System().Get_yWorld_to_Grid(pShapes->Get_Shape(iShape)->Get_Point(0).y);
 
 		if( pDTM->is_InGrid(x, y, true) )
 		{

@@ -1235,11 +1235,11 @@ bool CSaLEM::Finalize(void)
 //---------------------------------------------------------
 bool CSaLEM::Set_Gradient(void)
 {
-	if( !Get_System()->is_Equal(m_Gradient[0].Get_System()) )
+	if( !Get_System().is_Equal(m_Gradient[0].Get_System()) )
 	{
-		m_Gradient[0].Create(*Get_System());	// slope gradient [radians]
-		m_Gradient[1].Create(*Get_System());	// sine of aspect
-		m_Gradient[2].Create(*Get_System());	// cosine of aspect
+		m_Gradient[0].Create(Get_System());	// slope gradient [radians]
+		m_Gradient[1].Create(Get_System());	// sine of aspect
+		m_Gradient[2].Create(Get_System());	// cosine of aspect
 	}
 
 	#pragma omp parallel for
@@ -1351,11 +1351,11 @@ bool CSaLEM::Set_Weathering(void)
 //---------------------------------------------------------
 bool CSaLEM::Set_Diffusive(void)
 {
-	double	k		= Parameters("DIFFUSIVE_KD")->asDouble() * m_dTime / Get_System()->Get_Cellarea();	// Diffusivity coefficient Kd [m^2/a]
+	double	k		= Parameters("DIFFUSIVE_KD")->asDouble() * m_dTime / Get_Cellarea();	// Diffusivity coefficient Kd [m^2/a]
 	int	y, iStep	= Parameters("DIFFUSIVE_NEIGHBOURS")->asInt() == 1 ? 1 : 2;
 
-	CSG_Grid	dHin (*Get_System());	// dHin.Assign(0.0);
-	CSG_Grid	dHout(*Get_System());
+	CSG_Grid	dHin (Get_System());	// dHin.Assign(0.0);
+	CSG_Grid	dHout(Get_System());
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY(); y++)
@@ -1381,7 +1381,7 @@ bool CSaLEM::Set_Diffusive(void)
 
 						if( dz > 0.0 )
 						{
-							dHout_Sum	+= (qs[i] = dz * k / Get_System()->Get_UnitLength(i));
+							dHout_Sum	+= (qs[i] = dz * k / Get_UnitLength(i));
 						}
 					}
 					else if( m_pSurface->is_InGrid(ix = Get_xFrom(i, x), iy = Get_yFrom(i, y)) )
@@ -1390,7 +1390,7 @@ bool CSaLEM::Set_Diffusive(void)
 
 						if( dz > 0.0 )
 						{
-							dHout_Sum	+= dz * k / Get_System()->Get_UnitLength(i);
+							dHout_Sum	+= dz * k / Get_UnitLength(i);
 						}
 					}
 				}

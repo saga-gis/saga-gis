@@ -211,7 +211,7 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 
 	m_pDependent	= Parameters("DEPENDENT")->asGrid();
 
-	if( !m_pDependent->Get_Extent().Intersects(Get_System()->Get_Extent()) )
+	if( !m_pDependent->Get_Extent().Intersects(Get_System().Get_Extent()) )
 	{
 		return( false );
 	}

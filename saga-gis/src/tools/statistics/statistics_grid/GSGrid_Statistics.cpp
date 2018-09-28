@@ -230,7 +230,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 					{
 						double	w = 0.0;
 
-						if( pWeights->Get_Grid(i)->Get_Value(Get_System()->Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
+						if( pWeights->Get_Grid(i)->Get_Value(Get_System().Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
 						{
 							s.Add_Value(pGrids->Get_Grid(i)->asDouble(x, y), w);
 						}

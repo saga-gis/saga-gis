@@ -146,7 +146,7 @@ bool CDaily_Sun::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid	Lon(*Get_System()), Lat(*Get_System());
+	CSG_Grid	Lon(Get_System()), Lat(Get_System());
 
 	SG_RUN_TOOL_ExitOnError("pj_proj4", 17,	// geographic coordinate grids
 			SG_TOOL_PARAMETER_SET("GRID", pTarget)

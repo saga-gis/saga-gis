@@ -128,7 +128,7 @@ bool CCurvature_UpDownSlope::On_Execute(void)
 	DataObject_Set_Colors(m_pC_Down      , 11, SG_COLORS_RED_GREY_BLUE, true);
 	DataObject_Set_Colors(m_pC_Down_Local, 11, SG_COLORS_RED_GREY_BLUE, true);
 
-	if( !m_Weights.Create(*Get_System()) )
+	if( !m_Weights.Create(Get_System()) )
 	{
 		Error_Set(_TL("could not allocate memory for temporary grid."));
 

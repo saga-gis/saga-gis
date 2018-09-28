@@ -97,64 +97,64 @@ CWatersheds_ext::CWatersheds_ext(void)
 {
 	Set_Name		(_TL("Watershed Basins (Extended)"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2011"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Extended watershed basin analysis. "
 	));
 
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("DEM"),
+		"", "DEM"		, _TL("DEM"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHANNELS"	, _TL("Drainage Network"),
+		"", "CHANNELS"	, _TL("Drainage Network"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "BASINS"		, _TL("Basins"), 
+		"", "BASINS"	, _TL("Basins"), 
 		_TL(""), 
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SUBBASINS"	, _TL("Subbasins"), 
+		"", "SUBBASINS"	, _TL("Subbasins"), 
 		_TL(""), 
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "V_BASINS"	, _TL("Basins"),
+		"", "V_BASINS"	, _TL("Basins"),
 		_TL(""), 
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "V_SUBBASINS"	, _TL("Subbasins"),
+		"", "V_SUBBASINS", _TL("Subbasins"),
 		_TL(""), 
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "HEADS"		, _TL("River Heads"),
+		"", "HEADS"		, _TL("River Heads"),
 		_TL(""), 
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "MOUTHS"		, _TL("River Mouths"),
+		"", "MOUTHS"	, _TL("River Mouths"),
 		_TL(""), 
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISTANCE"	, _TL("Flow Distances"),
+	Parameters.Add_Bool(
+		"", "DISTANCE"	, _TL("Flow Distances"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -172,22 +172,22 @@ bool CWatersheds_ext::On_Execute(void)
 	CSG_Grid	*pBasins, *pSubBasins, Inflows;
 	CSG_Shapes	*pHeads, *pMouths, *pVBasins, *pVSubBasins;
 
-	m_pDEM		= Parameters("DEM")			->asGrid(); 
-	m_pChannels	= Parameters("CHANNELS")	->asGrid();
-	pBasins		= Parameters("BASINS")		->asGrid();
-	pSubBasins	= Parameters("SUBBASINS")	->asGrid();
-	pVBasins	= Parameters("V_BASINS")	->asShapes();
-	pVSubBasins	= Parameters("V_SUBBASINS")	->asShapes();
-	pHeads		= Parameters("HEADS")		->asShapes();
-	pMouths		= Parameters("MOUTHS")		->asShapes();
+	m_pDEM		= Parameters("DEM"        )->asGrid(); 
+	m_pChannels	= Parameters("CHANNELS"   )->asGrid();
+	pBasins		= Parameters("BASINS"     )->asGrid();
+	pSubBasins	= Parameters("SUBBASINS"  )->asGrid();
+	pVBasins	= Parameters("V_BASINS"   )->asShapes();
+	pVSubBasins	= Parameters("V_SUBBASINS")->asShapes();
+	pHeads		= Parameters("HEADS"      )->asShapes();
+	pMouths		= Parameters("MOUTHS"     )->asShapes();
 
 	//-----------------------------------------------------
-	Inflows		.Create(*Get_System(), SG_DATATYPE_Char);
+	Inflows		.Create(Get_System(), SG_DATATYPE_Char);
 
-	m_Direction	.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Direction	.Create(Get_System(), SG_DATATYPE_Char);
 	m_Direction	.Set_NoData_Value(-1);
 
-	m_Distance	.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Distance	.Create(Get_System(), SG_DATATYPE_Float);
 	m_Distance	.Set_NoData_Value(-1);
 	m_Distance	.Assign_NoData();
 
@@ -280,7 +280,7 @@ bool CWatersheds_ext::On_Execute(void)
 
 				CSG_Shape	*pMouth	= pMouths->Add_Shape();
 
-				pMouth->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+				pMouth->Add_Point(Get_System().Get_Grid_to_World(x, y));
 
 				pMouth->Set_Value(0, pVBasins->Get_Count());	// ID
 				pMouth->Set_Value(1, pVBasins->Get_Count());	// MAIN_ID
@@ -310,7 +310,7 @@ bool CWatersheds_ext::On_Execute(void)
 				{
 					CSG_Shape	*pMouth	= pMouths->Add_Shape();
 
-					pMouth->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+					pMouth->Add_Point(Get_System().Get_Grid_to_World(x, y));
 
 					pMouth->Set_Value(0, pMouths->Get_Count());		// ID
 					pMouth->Set_Value(1, pBasins->asDouble(x, y));	// MAIN_ID
@@ -322,7 +322,7 @@ bool CWatersheds_ext::On_Execute(void)
 				{
 					CSG_Shape	*pHead	= pHeads->Add_Shape();
 
-					pHead->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+					pHead->Add_Point(Get_System().Get_Grid_to_World(x, y));
 
 					pHead->Set_Value(0, pHeads->Get_Count() + 1);
 					pHead->Set_Value(1, m_Distance.asDouble(x, y));
@@ -340,7 +340,7 @@ bool CWatersheds_ext::On_Execute(void)
 	{
 		CSG_Shape	*pMouth	= pMouths->Get_Shape_byIndex(iMouth);
 
-		if( Get_System()->Get_World_to_Grid(x, y, pMouth->Get_Point(0)) )
+		if( Get_System().Get_World_to_Grid(x, y, pMouth->Get_Point(0)) )
 		{
 			if( pMouth->asInt(0) == pMouth->asInt(1) )
 			{
@@ -370,8 +370,8 @@ bool CWatersheds_ext::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Distance	.Destroy();
-	m_Direction	.Destroy();
+	m_Distance .Destroy();
+	m_Direction.Destroy();
 
 	return( true );
 }
@@ -458,7 +458,7 @@ bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xM
 		double		d, Area, Perimeter, Side_A, Side_B;
 		CSG_String	Gravelius;
 
-	//	Area		= s_Height.Get_Count() * Get_System()->Get_Cellarea();
+	//	Area		= s_Height.Get_Count() * Get_Cellarea();
 		Area		= ((CSG_Shape_Polygon*)pPolygon)->Get_Area();
 		Perimeter	= ((CSG_Shape_Polygon*)pPolygon)->Get_Perimeter();
 
@@ -475,8 +475,8 @@ bool CWatersheds_ext::Get_Basin(CSG_Grid *pBasins, CSG_Shapes *pPolygons, int xM
 		pPolygon->Set_Value(FIELD_ID			, Basin_ID);
 		pPolygon->Set_Value(FIELD_ID_MAIN		, Main_ID);
 
-		pPolygon->Set_Value(FIELD_MOUTH_X		, Get_System()->Get_xGrid_to_World(xMouth));
-		pPolygon->Set_Value(FIELD_MOUTH_Y		, Get_System()->Get_yGrid_to_World(yMouth));
+		pPolygon->Set_Value(FIELD_MOUTH_X		, Get_System().Get_xGrid_to_World(xMouth));
+		pPolygon->Set_Value(FIELD_MOUTH_Y		, Get_System().Get_yGrid_to_World(yMouth));
 
 		pPolygon->Set_Value(FIELD_PERIMETER		, Perimeter);
 		pPolygon->Set_Value(FIELD_AREA			, Area);

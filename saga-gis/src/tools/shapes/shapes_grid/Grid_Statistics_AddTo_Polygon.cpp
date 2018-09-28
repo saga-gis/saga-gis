@@ -193,7 +193,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 		return( false );
 	}
 
-	if( !Get_System()->Get_Extent().Intersects(pPolygons->Get_Extent()) )
+	if( !Get_System().Get_Extent().Intersects(pPolygons->Get_Extent()) )
 	{
 		Error_Set(_TL("no spatial intersection between grid(s) and polygon layer"));
 
@@ -377,22 +377,22 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Precise(CSG_Grid *pGrid, CSG_Shape_Poly
 	//-----------------------------------------------------
 	Statistics.Create(bHoldValues);
 
-	int	ax	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
-	int	bx	= Get_System()->Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
-	int	ay	= Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()) - 1;	if( ay < 0         )	ay	= 0;
-	int	by	= Get_System()->Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
+	int	ax	= Get_System().Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMin()) - 1;	if( ax < 0         )	ax	= 0;
+	int	bx	= Get_System().Get_xWorld_to_Grid(pPolygon->Get_Extent().Get_XMax()) + 1;	if( bx >= Get_NX() )	bx	= Get_NX() - 1;
+	int	ay	= Get_System().Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMin()) - 1;	if( ay < 0         )	ay	= 0;
+	int	by	= Get_System().Get_yWorld_to_Grid(pPolygon->Get_Extent().Get_YMax()) + 1;	if( by >= Get_NY() )	by	= Get_NY() - 1;
 
 	TSG_Point	Center;
 	TSG_Rect	Cell;
 
 	//-----------------------------------------------------
-	Center.y	= Get_System()->Get_yGrid_to_World(ay);
+	Center.y	= Get_System().Get_yGrid_to_World(ay);
 	Cell.yMin	= Center.y - 0.5 * Get_Cellsize();
 	Cell.yMax	= Cell.yMin + Get_Cellsize();
 		
 	for(int y=ay; y<=by; y++, Center.y+=Get_Cellsize(), Cell.yMin+=Get_Cellsize(), Cell.yMax+=Get_Cellsize())
 	{
-		Center.x	= Get_System()->Get_xGrid_to_World(ax);
+		Center.x	= Get_System().Get_xGrid_to_World(ax);
 		Cell.xMin	= Center.x - 0.5 * Get_Cellsize();
 		Cell.xMax	= Cell.xMin + Get_Cellsize();
 
@@ -487,7 +487,7 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG
 	CSG_Shape	*pPolygon;
 
 	//-----------------------------------------------------
-	Index.Create(*Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
+	Index.Create(Get_System(), pPolygons->Get_Count() < 32767 ? SG_DATATYPE_Short : SG_DATATYPE_Int);
 	Index.Assign(-1.0);
 
 	bCrossing	= (bool *)SG_Malloc(Get_NX() * sizeof(bool));
@@ -498,8 +498,8 @@ bool CGrid_Statistics_AddTo_Polygon::Get_Simple_Index(CSG_Shapes *pPolygons, CSG
 		pPolygon	= pPolygons->Get_Shape(iShape);
 		Extent		= pPolygon->Get_Extent().m_rect;
 
-		xStart		= Get_System()->Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
-		xStop		= Get_System()->Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
+		xStart		= Get_System().Get_xWorld_to_Grid(Extent.xMin) - 1;	if( xStart < 0 )		xStart	= 0;
+		xStop		= Get_System().Get_xWorld_to_Grid(Extent.xMax) + 1;	if( xStop >= Get_NX() )	xStop	= Get_NX() - 1;
 
 		pLeft.x		= Get_XMin() - 1.0;
 		pRight.x	= Get_XMax() + 1.0;

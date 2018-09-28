@@ -406,7 +406,7 @@ bool CGrid_Calculator::On_Execute(void)
 
 	if( pResult->Get_Type() != Get_Result_Type() )
 	{
-		pResult->Create(*Get_System(), Get_Result_Type());
+		pResult->Create(Get_System(), Get_Result_Type());
 	}
 
 	pResult->Set_Name(Parameters("NAME")->asString());
@@ -444,7 +444,7 @@ bool CGrid_Calculator::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Calculator::Get_Values(int x, int y, CSG_Vector &Values)
 {
-	TSG_Point	p	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
 
 	if( m_pXGrids->Get_Grid_Count() > 0 )
 	{
@@ -578,7 +578,7 @@ bool CGrids_Calculator::On_Execute(void)
 	{
 		CSG_Grids	*pGrids	= m_pGrids->Get_Grids(0);
 
-		pResult->Create(*Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Get_Result_Type(), true);
+		pResult->Create(Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Get_Result_Type(), true);
 	}
 
 	pResult->Set_Name(Parameters("NAME")->asString());
@@ -619,7 +619,7 @@ bool CGrids_Calculator::On_Execute(void)
 //---------------------------------------------------------
 bool CGrids_Calculator::Get_Values(int x, int y, int z, CSG_Vector &Values)
 {
-	TSG_Point	p	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	p	= Get_System().Get_Grid_to_World(x, y);
 
 	if( m_pXGrids->Get_Item_Count() > 0 )
 	{

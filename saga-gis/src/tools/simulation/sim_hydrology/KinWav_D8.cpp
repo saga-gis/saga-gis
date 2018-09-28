@@ -436,14 +436,14 @@ bool CKinWav_D8::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	m_Flow_t0.Create(*Get_System(), SG_DATATYPE_Float);
-	m_Length .Create(*Get_System(), SG_DATATYPE_Float);
-	m_Alpha  .Create(*Get_System(), SG_DATATYPE_Float);
+	m_Flow_t0.Create(Get_System(), SG_DATATYPE_Float);
+	m_Length .Create(Get_System(), SG_DATATYPE_Float);
+	m_Alpha  .Create(Get_System(), SG_DATATYPE_Float);
 
 	switch( m_Routing )
 	{
 	default:
-		m_dFlow	= new CSG_Grid(*Get_System(), SG_DATATYPE_Char);
+		m_dFlow	= new CSG_Grid(Get_System(), SG_DATATYPE_Char);
 		break;
 
 	case  1:
@@ -451,7 +451,7 @@ bool CKinWav_D8::Initialize(void)
 
 		for(int i=0; i<8; i++)
 		{
-			m_dFlow[i].Create(*Get_System(), SG_DATATYPE_Float);
+			m_dFlow[i].Create(Get_System(), SG_DATATYPE_Float);
 		}
 		break;
 	}
@@ -637,7 +637,7 @@ bool CKinWav_D8::Gauges_Initialise(void)
 					{
 						CSG_Shape	*pGauge	= m_pGauges->Add_Shape();
 
-						pGauge->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+						pGauge->Add_Point(Get_System().Get_Grid_to_World(x, y));
 						pGauge->Set_Value(0, m_pGauges->Get_Count() + 1);
 					}
 				}

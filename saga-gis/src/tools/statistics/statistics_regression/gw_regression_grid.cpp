@@ -257,7 +257,7 @@ bool CGW_Regression_Grid::On_Execute(void)
 bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
 {
 	//-----------------------------------------------------
-	TSG_Point	Point	= Get_System()->Get_Grid_to_World(x, y);
+	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
 	int			nPoints = m_Search.Set_Location(Point);
 
 	Model.Destroy();

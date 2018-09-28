@@ -181,7 +181,7 @@ bool CGrid_Profile::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_
 			m_pLine->Add_Shape()->Set_Value(0, 1);
 		}
 
-		m_pLine->Get_Shape(0)->Add_Point(Get_System()->Fit_to_Grid_System(ptWorld));
+		m_pLine->Get_Shape(0)->Add_Point(Get_System().Fit_to_Grid_System(ptWorld));
 
 		DataObject_Update(m_pLine);
 		break;
@@ -300,7 +300,7 @@ bool CGrid_Profile::Add_Point(CSG_Point Point)
 	double		z, Distance, Distance_2;
 	CSG_Shape	*pPoint, *pLast;
 
-	if( Get_System()->Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
+	if( Get_System().Get_World_to_Grid(x, y, Point) && m_pDEM->is_InGrid(x, y) )
 	{
 		z	= m_pDEM->asDouble(x, y);
 

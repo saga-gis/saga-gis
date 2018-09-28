@@ -135,7 +135,7 @@ bool CFlat_Detection::On_Execute(void)
 		m_pFlats	->Set_Name("%s [%s]", m_pDEM->Get_Name(), _TL("Flats"));
 	}
 
-	m_Flats.Create(*Get_System(), SG_DATATYPE_Int);
+	m_Flats.Create(Get_System(), SG_DATATYPE_Int);
 
 	m_Flats.Assign(0.0);
 	m_nFlats	= 0;

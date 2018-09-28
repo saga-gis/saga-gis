@@ -126,7 +126,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	Get_Projection(Projection);
 
 	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), *Get_System(), Projection) )
+	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), Get_System(), Projection) )
 	{
 		return( false );
 	}

@@ -225,7 +225,7 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 		return( false );
 	}
 
-	if( !Extent.Intersects(Get_System()->Get_Extent(true)) )
+	if( !Extent.Intersects(Get_System().Get_Extent(true)) )
 	{
 		Error_Set(_TL("target area is distinct from levels area "));
 
@@ -275,7 +275,7 @@ bool CGrid_Levels_Interpolation::Initialize(const CSG_Rect &Extent)
 
 		for(i=0; i<=m_Trend_Order; i++)
 		{
-			m_Coeff[i].Create(*Get_System());
+			m_Coeff[i].Create(Get_System());
 		}
 
 		#pragma omp parallel for private(i)

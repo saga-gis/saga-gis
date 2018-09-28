@@ -214,11 +214,11 @@ bool CGW_Multi_Regression_Grid::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	Quality;
 
-	m_dimModel	= *Get_System();
+	m_dimModel	= Get_System();
 
 	if( Parameters("RESOLUTION")->asInt() == 1 && Parameters("RESOLUTION_VAL")->asDouble() > Get_Cellsize() )
 	{
-		CSG_Rect	r(Get_System()->Get_Extent()); r.Inflate(0.5 * Parameters("RESOLUTION_VAL")->asDouble(), false);
+		CSG_Rect	r(Get_System().Get_Extent()); r.Inflate(0.5 * Parameters("RESOLUTION_VAL")->asDouble(), false);
 
 		m_dimModel.Assign(Parameters("RESOLUTION_VAL")->asDouble(), r);
 
@@ -322,7 +322,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 		return( false );
 	}
 
-	if( !pPoints->Get_Extent().Intersects(Get_System()->Get_Extent()) )
+	if( !pPoints->Get_Extent().Intersects(Get_System().Get_Extent()) )
 	{
 		return( false );
 	}

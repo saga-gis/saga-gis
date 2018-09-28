@@ -136,7 +136,7 @@ bool CFragmentation_Standard::Initialise(CSG_Grid *pClasses, int Class)
 	m_bDiagonal		= Parameters("DIAGONAL")->asBool();
 
 	//-----------------------------------------------------
-	m_Grid.Create(*Get_System(), SG_DATATYPE_Char);
+	m_Grid.Create(Get_System(), SG_DATATYPE_Char);
 	m_Grid.Set_NoData_Value(VAL_NODATA);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)

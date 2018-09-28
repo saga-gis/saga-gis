@@ -281,9 +281,9 @@ bool CErosion_LS_Fields::On_Execute(void)
 	DataObject_Set_Colors(m_pUp_Slope , 11, SG_COLORS_YELLOW_RED    , false);
 	DataObject_Set_Colors(m_pLS       , 11, SG_COLORS_RED_GREY_GREEN, true );
 
-	if( m_pUp_Area   == NULL )	m_pUp_Area   = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float);
-	if( m_pUp_Length == NULL )	m_pUp_Length = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float);
-	if( m_pUp_Slope  == NULL )	m_pUp_Slope  = SG_Create_Grid(*Get_System(), SG_DATATYPE_Float);
+	if( m_pUp_Area   == NULL )	m_pUp_Area   = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
+	if( m_pUp_Length == NULL )	m_pUp_Length = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
+	if( m_pUp_Slope  == NULL )	m_pUp_Slope  = SG_Create_Grid(Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
 	bool	bResult	= Set_Fields() && Get_Flow() && Get_LS();
@@ -569,7 +569,7 @@ bool CErosion_LS_Fields::Get_Balance(void)
 	//-----------------------------------------------------
 	int		y;
 
-	CSG_Grid	dzSum(*Get_System(), SG_DATATYPE_Float);
+	CSG_Grid	dzSum(Get_System(), SG_DATATYPE_Float);
 
 	//-----------------------------------------------------
 	Process_Set_Text("%s: %s 1", _TL("Sediment Balance"), _TL("Pass"));
@@ -736,7 +736,7 @@ bool CErosion_LS_Fields::Set_Fields(void)
 	//-----------------------------------------------------
 	if( !pFields || pFields->Get_Count() <= 0 )
 	{
-		m_Fields.Create(*Get_System(), SG_DATATYPE_Char);
+		m_Fields.Create(Get_System(), SG_DATATYPE_Char);
 	//	m_Fields.Set_NoData_Value(1.0);
 	//	m_Fields.Assign(0.0);
 
@@ -760,7 +760,7 @@ bool CErosion_LS_Fields::Set_Fields(void)
 
 	m_nFields	= pFields->Get_Count();
 
-	m_Fields.Create(*Get_System(), m_nFields < pow(2.0, 16.0) - 1.0 ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
+	m_Fields.Create(Get_System(), m_nFields < pow(2.0, 16.0) - 1.0 ? SG_DATATYPE_Word : SG_DATATYPE_DWord);
 	m_Fields.Set_NoData_Value(m_nFields);
 	m_Fields.Assign_NoData();
 
@@ -769,16 +769,16 @@ bool CErosion_LS_Fields::Set_Fields(void)
 	{
 		CSG_Shape_Polygon	*pField	= (CSG_Shape_Polygon *)pFields->Get_Shape(iField);
 
-		int	xMin	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMin()) - 1; if( xMin <  0        ) xMin = 0;
-		int	xMax	= Get_System()->Get_xWorld_to_Grid(pField->Get_Extent().Get_XMax()) + 1; if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
-		int	yMin	= Get_System()->Get_yWorld_to_Grid(pField->Get_Extent().Get_YMin()) - 1; if( yMin <  0        ) yMin = 0;
-		int	yMax	= Get_System()->Get_yWorld_to_Grid(pField->Get_Extent().Get_YMax()) + 1; if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+		int	xMin	= Get_System().Get_xWorld_to_Grid(pField->Get_Extent().Get_XMin()) - 1; if( xMin <  0        ) xMin = 0;
+		int	xMax	= Get_System().Get_xWorld_to_Grid(pField->Get_Extent().Get_XMax()) + 1; if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+		int	yMin	= Get_System().Get_yWorld_to_Grid(pField->Get_Extent().Get_YMin()) - 1; if( yMin <  0        ) yMin = 0;
+		int	yMax	= Get_System().Get_yWorld_to_Grid(pField->Get_Extent().Get_YMax()) + 1; if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
 
 		for(int y=yMin; y<=yMax; y++)
 		{
 			for(int x=xMin; x<=xMax; x++)
 			{
-				if( m_pDEM->is_InGrid(x, y) && pField->Contains(Get_System()->Get_Grid_to_World(x, y)) )
+				if( m_pDEM->is_InGrid(x, y) && pField->Contains(Get_System().Get_Grid_to_World(x, y)) )
 				{
 					m_Fields.Set_Value(x, y, iField);
 				}

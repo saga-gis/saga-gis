@@ -163,7 +163,7 @@ bool CGrid_CVA::On_Execute(void)
 	{
 		for(int i=0; i<n; i++)
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(*Get_System());
+			CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
 			pGrid->Set_Name("%s %01d", _TL("Change Vector"), i + 1);
 			pC->Add_Item(pGrid);
 		}

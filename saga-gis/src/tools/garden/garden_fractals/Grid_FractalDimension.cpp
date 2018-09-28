@@ -152,9 +152,9 @@ void CGrid_FractalDimension::Get_Area(CSG_Grid *pGrid, CSG_Table *pTable)
 	double		scale	= pGrid->Get_Cellsize();
 	CSG_Grid	g;
 
-	if( !Get_System()->is_Equal(pGrid->Get_System()) )
+	if( !Get_System().is_Equal(pGrid->Get_System()) )
 	{
-		g.Create(*Get_System());
+		g.Create(Get_System());
 		g.Assign(pGrid, GRID_RESAMPLING_BSpline);
 		pGrid	= &g;
 	}

@@ -314,8 +314,8 @@ void CGrid_3D_Image::_Set_Shapes(CSG_Shapes *pInput)
 		Process_Set_Text("%s \"%s\"", _TL("Project"), pInput->Get_Name());
 
 		pOutput	= SG_Create_Shapes(*pInput);
-		dx		= (double)Get_NX() / Get_System()->Get_XRange();
-		dy		= (double)Get_NY() / Get_System()->Get_YRange();
+		dx		= (double)Get_NX() / Get_System().Get_XRange();
+		dy		= (double)Get_NY() / Get_System().Get_YRange();
 
 		for(iShape=0; iShape<pOutput->Get_Count() && Set_Progress(iShape, pOutput->Get_Count()); iShape++)
 		{

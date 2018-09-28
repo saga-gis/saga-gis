@@ -251,7 +251,7 @@ bool CDecision_Tree::On_Execute(void)
 	{
 		for(int x=0; x<Get_NX(); x++)
 		{
-			pClasses->Set_Value(x, y, Get_Class(Parameters("ROOT")->asParameters(), Get_System()->Get_Grid_to_World(x, y)));
+			pClasses->Set_Value(x, y, Get_Class(Parameters("ROOT")->asParameters(), Get_System().Get_Grid_to_World(x, y)));
 		}
 	}
 

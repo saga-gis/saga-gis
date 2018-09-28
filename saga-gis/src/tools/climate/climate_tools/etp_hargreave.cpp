@@ -177,9 +177,9 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	{
 		bool	bResult;
 
-		CSG_Grid	Lon(*Get_System());
+		CSG_Grid	Lon(Get_System());
 
-		Lat.Create(*Get_System());
+		Lat.Create(Get_System());
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
 				SG_TOOL_PARAMETER_SET("GRID", pTavg)

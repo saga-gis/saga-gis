@@ -173,9 +173,9 @@ bool CMRVBF::On_Execute(void)
 
 	CSG_Grid	CF, VF, RF, DEM, Slopes, Percentiles;
 
-	VF.Create(*Get_System(), SG_DATATYPE_Float);
-	RF.Create(*Get_System(), SG_DATATYPE_Float);
-	CF.Create(*Get_System(), SG_DATATYPE_Float);
+	VF.Create(Get_System(), SG_DATATYPE_Float);
+	RF.Create(Get_System(), SG_DATATYPE_Float);
+	CF.Create(Get_System(), SG_DATATYPE_Float);
 	CF.Assign(1.0);
 
 	DEM.Create(*pDEM);
@@ -184,7 +184,7 @@ bool CMRVBF::On_Execute(void)
 	double	Resolution, max_Resolution, T_Slope;
 
 	max_Resolution	= Parameters("MAX_RES")->asDouble() / 100.0;
-	Resolution		= SG_Get_Length(Get_System()->Get_XRange(), Get_System()->Get_YRange());
+	Resolution		= SG_Get_Length(Get_System().Get_XRange(), Get_System().Get_YRange());
 	max_Resolution	= max_Resolution * Resolution;
 
 	T_Slope		= Parameters("T_SLOPE" )->asDouble();

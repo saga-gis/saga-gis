@@ -129,7 +129,7 @@ bool CSolarRadiationYear::On_Execute(void)
 
 	CSG_Grids	*pGrids	= Parameters("INSOLATION")->asGrids();
 
-	pGrids->Create(*Get_System());
+	pGrids->Create(Get_System());
 
 	pGrids->Set_Name(_TL("Annual Insolation"));
 
@@ -144,14 +144,14 @@ bool CSolarRadiationYear::On_Execute(void)
 	double	dDays	= (Date.Get_NumberOfDays(Date.Get_Year()) - 1) / (double)nSteps;
 	double	Day		= Date.Get_JDN();
 
-	CSG_Grid	Direct(*Get_System()), Diffus(*Get_System());
+	CSG_Grid	Direct(Get_System()), Diffus(Get_System());
 
 	//-----------------------------------------------------
 	for(int iStep=0; iStep<=nSteps && Process_Get_Okay(); iStep++, Day+=dDays)
 	{
 		Date.Set(Day);
 
-		CSG_Grid	*pTotal	= SG_Create_Grid(*Get_System()); bool bResult;
+		CSG_Grid	*pTotal	= SG_Create_Grid(Get_System()); bool bResult;
 
 		SG_RUN_TOOL(bResult, "ta_lighting", 2,
 			    SG_TOOL_PARAMETER_SET("GRD_DEM"   , pDEM   )

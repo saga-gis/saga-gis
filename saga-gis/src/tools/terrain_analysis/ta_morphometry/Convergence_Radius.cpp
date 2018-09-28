@@ -169,8 +169,8 @@ bool CConvergence_Radius::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Slope	.Create(*Get_System(), SG_DATATYPE_Float);
-	m_Aspect.Create(*Get_System(), SG_DATATYPE_Float);
+	m_Slope	.Create(Get_System(), SG_DATATYPE_Float);
+	m_Aspect.Create(Get_System(), SG_DATATYPE_Float);
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{

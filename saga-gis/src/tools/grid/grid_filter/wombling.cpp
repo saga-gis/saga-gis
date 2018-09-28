@@ -136,7 +136,7 @@ bool CWombling_Base::Initialize(CSG_Grid Gradient[2], CSG_Grid *pEdges)
 
 	if( Parameters("ALIGNMENT")->asInt() == 1 )
 	{
-		System	= *Get_System();
+		System	= Get_System();
 	}
 	else
 	{

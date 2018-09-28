@@ -73,7 +73,7 @@ CGrid_Extent::CGrid_Extent(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Grid System Extent"));
 
-	Set_Author		(_TL("O. Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Creates a polygon (rectangle) from a grid system's extent."
@@ -81,15 +81,15 @@ CGrid_Extent::CGrid_Extent(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Extent"),
+		"", "SHAPES", _TL("Extent"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "CELLS"		, _TL("Border"),
+		"", "CELLS"	, _TL("Border"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("grid cells"),
 			_TL("grid nodes")
 		), 0
@@ -99,24 +99,15 @@ CGrid_Extent::CGrid_Extent(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Extent::On_Execute(void)
 {
-	bool			bCells;
-	CSG_Grid_System	*pSystem;
-	CSG_Shapes		*pShapes;
-
 	//-----------------------------------------------------
-	pSystem		= Get_System();
-	pShapes		= Parameters("SHAPES")	->asShapes();
-	bCells		= Parameters("CELLS")	->asInt() == 0;
+	const CSG_Grid_System	&System	= Get_System();
 
-	//-----------------------------------------------------
-	if(	pSystem == NULL || !pSystem->is_Valid() )
+	if(	!System.is_Valid() )
 	{
 		Error_Set(_TL("invalid grid system"));
 
@@ -124,23 +115,27 @@ bool CGrid_Extent::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
 	pShapes->Create(SHAPE_TYPE_Polygon, _TL("Grid System Extent"));
 
-	pShapes->Add_Field(_TL("NX")		, SG_DATATYPE_Int);
-	pShapes->Add_Field(_TL("NY")		, SG_DATATYPE_Int);
-	pShapes->Add_Field(_TL("CELLSIZE")	, SG_DATATYPE_Double);
+	pShapes->Add_Field("NX"      , SG_DATATYPE_Int   );
+	pShapes->Add_Field("NY"      , SG_DATATYPE_Int   );
+	pShapes->Add_Field("CELLSIZE", SG_DATATYPE_Double);
 
 	CSG_Shape	*pExtent	= pShapes->Add_Shape();
 
-	pExtent->Set_Value(0, pSystem->Get_NX());
-	pExtent->Set_Value(1, pSystem->Get_NY());
-	pExtent->Set_Value(2, pSystem->Get_Cellsize());
+	pExtent->Set_Value(0, System.Get_NX());
+	pExtent->Set_Value(1, System.Get_NY());
+	pExtent->Set_Value(2, System.Get_Cellsize());
 
-	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMin(bCells));
-	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMax(bCells));
-	pExtent->Add_Point(pSystem->Get_XMax(bCells), pSystem->Get_YMax(bCells));
-	pExtent->Add_Point(pSystem->Get_XMax(bCells), pSystem->Get_YMin(bCells));
-	pExtent->Add_Point(pSystem->Get_XMin(bCells), pSystem->Get_YMin(bCells));
+	bool	bCells	= Parameters("CELLS")->asInt() == 0;
+
+	pExtent->Add_Point(System.Get_XMin(bCells), System.Get_YMin(bCells));
+	pExtent->Add_Point(System.Get_XMin(bCells), System.Get_YMax(bCells));
+	pExtent->Add_Point(System.Get_XMax(bCells), System.Get_YMax(bCells));
+	pExtent->Add_Point(System.Get_XMax(bCells), System.Get_YMin(bCells));
+	pExtent->Add_Point(System.Get_XMin(bCells), System.Get_YMin(bCells));
 
 	return( true );
 }

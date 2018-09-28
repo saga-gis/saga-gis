@@ -236,14 +236,12 @@ bool CSkeletonization::On_Execute(void)
 //---------------------------------------------------------
 int CSkeletonization::Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbours[8])
 {
-	int		i, ix, iy, nNeighbours;
+	int	nNeighbours	= 0;
 
-	nNeighbours	= 0;
-
-	for(i=0; i<8; i++)
+	for(int i=0; i<8; i++)
 	{
-		ix	= Get_System()->Get_xTo(i, x);
-		iy	= Get_System()->Get_yTo(i, y);
+		int	ix	= Get_xTo(i, x);
+		int	iy	= Get_yTo(i, y);
 
 		if( pGrid->is_InGrid(ix, iy) && pGrid->asByte(ix, iy) )
 		{
@@ -338,8 +336,8 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 
 				for(i=0; i<8; i++)
 				{
-					ix	= Get_System()->Get_xTo(i, x);
-					iy	= Get_System()->Get_yTo(i, y);
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
 
 					if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && !Lock_Get(ix, iy) )
 					{
@@ -395,8 +393,8 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 
 			for(i=0; i<8; i+=2)
 			{
-				ix	= Get_System()->Get_xTo(i, x);
-				iy	= Get_System()->Get_yTo(i, y);
+				ix	= Get_xTo(i, x);
+				iy	= Get_yTo(i, y);
 
 				if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 				{
@@ -413,8 +411,8 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 			{
 				for(i=1; i<8; i+=2)
 				{
-					ix	= Get_System()->Get_xTo(i, x);
-					iy	= Get_System()->Get_yTo(i, y);
+					ix	= Get_xTo(i, x);
+					iy	= Get_yTo(i, y);
 
 					if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 					{
@@ -434,8 +432,8 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 			}
 			else
 			{
-				x	+= Get_System()->Get_xTo(iNext);
-				y	+= Get_System()->Get_yTo(iNext);
+				x	+= Get_xTo(iNext);
+				y	+= Get_yTo(iNext);
 			}
 		}
 	}
@@ -719,8 +717,8 @@ inline bool CSkeletonization::Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, i
 
 	if( z[i0] || z[i2] || z[i6] )
 	{
-		ix		= Get_System()->Get_xTo(i0, x);
-		iy		= Get_System()->Get_yTo(i0, y);
+		ix		= Get_xTo(i0, x);
+		iy		= Get_yTo(i0, y);
 
 		if( pNC_Gaps->is_InGrid(ix, iy) && pNC_Gaps->asByte(ix, iy) == 1 )
 		{
@@ -730,8 +728,8 @@ inline bool CSkeletonization::Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, i
 
 	if( z[i0] || z[i2] || z[i4] )
 	{
-		ix		= Get_System()->Get_xTo(i2, x);
-		iy		= Get_System()->Get_yTo(i2, y);
+		ix		= Get_xTo(i2, x);
+		iy		= Get_yTo(i2, y);
 
 		if( pNC_Gaps->is_InGrid(ix, iy) && pNC_Gaps->asByte(ix, iy) == 1 )
 		{
@@ -780,8 +778,8 @@ void CSkeletonization::SK_Execute(void)
 
 			for(i=0; i<8; i++)
 			{
-				ix	= Get_System()->Get_xTo(i, x);
-				iy	= Get_System()->Get_yTo(i, y);
+				ix	= Get_xTo(i, x);
+				iy	= Get_yTo(i, y);
 
 				if( pInput->is_InGrid(ix, iy) && z < pInput->asDouble(ix, iy) )
 				{
@@ -808,8 +806,8 @@ void CSkeletonization::SK_Execute(void)
 
 			for(i=0; i<8; i++)
 			{
-				ix	= Get_System()->Get_xTo(i,x);
-				iy	= Get_System()->Get_yTo(i,y);
+				ix	= Get_xTo(i,x);
+				iy	= Get_yTo(i,y);
 
 				if( !pInput->is_InGrid(ix, iy) )
 				{
@@ -930,10 +928,10 @@ bool CSkeletonization::SK_Filter(int x, int y)
 	{
 		if( z[0] && z[2] && z[4] && z[6] )
 		{
-			Lock_Set(Get_System()->Get_xTo(0, x), Get_System()->Get_yTo(0, y));
-			Lock_Set(Get_System()->Get_xTo(2, x), Get_System()->Get_yTo(2, y));
-			Lock_Set(Get_System()->Get_xTo(4, x), Get_System()->Get_yTo(4, y));
-			Lock_Set(Get_System()->Get_xTo(6, x), Get_System()->Get_yTo(6, y));
+			Lock_Set(Get_xTo(0, x), Get_yTo(0, y));
+			Lock_Set(Get_xTo(2, x), Get_yTo(2, y));
+			Lock_Set(Get_xTo(4, x), Get_yTo(4, y));
+			Lock_Set(Get_xTo(6, x), Get_yTo(6, y));
 
 			return( true );
 		}
@@ -941,3 +939,12 @@ bool CSkeletonization::SK_Filter(int x, int y)
 
 	return( false );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

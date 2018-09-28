@@ -163,9 +163,9 @@ bool CD8_Flow_Analysis::On_Execute(void)
 
 	m_pDEM		= Parameters("DEM")			->asGrid();
 
-	m_pDir		= Parameters("DIRECTION")	->asGrid();		if( !m_pDir    ) { m_pDir    = &Dir   ; Dir   .Create(*Get_System(), SG_DATATYPE_Char ); Dir   .Set_Name(_TL("Flow Direction" )); }
-	m_pOrder	= Parameters("ORDER")		->asGrid();		if( !m_pOrder  ) { m_pOrder  = &Order ; Order .Create(*Get_System(), SG_DATATYPE_Short); Order .Set_Name(_TL("Strahler Order" )); }
-	m_pBasins	= Parameters("BASIN")		->asGrid();		if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(*Get_System(), SG_DATATYPE_Short); Basins.Set_Name(_TL("Drainage Basins")); }
+	m_pDir		= Parameters("DIRECTION")	->asGrid();		if( !m_pDir    ) { m_pDir    = &Dir   ; Dir   .Create(Get_System(), SG_DATATYPE_Char ); Dir   .Set_Name(_TL("Flow Direction" )); }
+	m_pOrder	= Parameters("ORDER")		->asGrid();		if( !m_pOrder  ) { m_pOrder  = &Order ; Order .Create(Get_System(), SG_DATATYPE_Short); Order .Set_Name(_TL("Strahler Order" )); }
+	m_pBasins	= Parameters("BASIN")		->asGrid();		if( !m_pBasins ) { m_pBasins = &Basins; Basins.Create(Get_System(), SG_DATATYPE_Short); Basins.Set_Name(_TL("Drainage Basins")); }
 
 	m_Threshold	= Parameters("THRESHOLD")	->asInt();
 
@@ -268,7 +268,7 @@ int CD8_Flow_Analysis::Get_Order(int x, int y)
 
 		for(i=0, n=0, Order=1; i<8; i++)
 		{
-			if( Get_System()->Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
+			if( Get_System().Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
 			{
 				int		iOrder	= Get_Order(ix, iy);
 
@@ -316,7 +316,7 @@ void CD8_Flow_Analysis::Get_Nodes(void)
 		pNodes	->Add_Field(_TL("TYPE")			, SG_DATATYPE_String);
 	}
 
-	m_Nodes.Create(*Get_System(), SG_DATATYPE_Int);
+	m_Nodes.Create(Get_System(), SG_DATATYPE_Int);
 
 	m_pBasins->Set_NoData_Value(0);
 	m_pBasins->Assign_NoData();
@@ -345,7 +345,7 @@ void CD8_Flow_Analysis::Get_Nodes(void)
 
 						for(i=0; i<8 && bSpring; i++)
 						{
-							if( Get_System()->Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
+							if( Get_System().Get_Neighbor_Pos(i + 4, x, y, ix, iy) && m_pDir->asInt(ix, iy) == i )
 							{
 								bSpring	= m_pOrder->asInt(ix, iy) < m_Threshold;
 							}
@@ -378,7 +378,7 @@ void CD8_Flow_Analysis::Set_Node(int x, int y, int id, int type, CSG_Shape *pNod
 		pNode->Set_Value(0, id);
 		pNode->Set_Value(1, type == NODE_SPRING ? _TL("Spring") : type == NODE_OUTLET ? _TL("Outlet") : _TL("Junction"));
 
-		pNode->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+		pNode->Add_Point(Get_System().Get_Grid_to_World(x, y));
 		pNode->Set_Z(m_pDEM->asDouble(x, y), 0);
 	}
 }
@@ -482,7 +482,7 @@ void CD8_Flow_Analysis::Get_Segment(int x, int y)
 		pSegment->Set_Value(4, m_pOrder->asInt(x, y) + 1 - m_Threshold);	// ORDER
 		pSegment->Set_Value(5, m_pOrder->asInt(x, y));						// ORDER_CELL
 
-		pSegment->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+		pSegment->Add_Point(Get_System().Get_Grid_to_World(x, y));
 		pSegment->Set_Z(m_pDEM->asDouble(x, y), pSegment->Get_Point_Count() - 1);
 
 		do
@@ -490,7 +490,7 @@ void CD8_Flow_Analysis::Get_Segment(int x, int y)
 			x	+= Get_xTo(i);
 			y	+= Get_yTo(i);
 
-			pSegment->Add_Point(Get_System()->Get_Grid_to_World(x, y));
+			pSegment->Add_Point(Get_System().Get_Grid_to_World(x, y));
 			pSegment->Set_Z(m_pDEM->asDouble(x, y), pSegment->Get_Point_Count() - 1);
 
 			if( m_Nodes.asInt(x, y) )
