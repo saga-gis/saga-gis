@@ -94,7 +94,7 @@ public:
 								CSG_Tool_Chain			(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
 
-	virtual TSG_Tool_Type		Get_Type				(void)			{	return( TOOL_TYPE_Chain );	}
+	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Chain );	}
 
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
