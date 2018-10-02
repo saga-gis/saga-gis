@@ -874,7 +874,15 @@ bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Lati
 //---------------------------------------------------------
 double SG_Get_Day_Length(const CSG_DateTime &Date, double Latitude)
 {
-	return( 0.0 );
+	double	tanLat	= tan(Latitude * M_DEG_TO_RAD);
+
+	double	JD		= Date.Get_DayOfYear() * M_PI * 2. / 365.;
+
+	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
+
+	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
+
+	return( acos(d < -1 ? -1 : d < 1 ? d : 1) * 24. / M_PI );
 }
 
 
