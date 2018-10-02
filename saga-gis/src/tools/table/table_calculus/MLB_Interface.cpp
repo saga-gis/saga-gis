@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -62,7 +59,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,7 +76,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Table") );
 
 	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2002-2014") );
+		return( _TL("SAGA User Group Associaton (c) 2002-2018") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for table based analyses and calculations.") );
@@ -126,7 +123,8 @@ CSG_Tool *		Create_Tool(int i)
 	case 14:	return( new CTable_Cluster_Analysis(true) );
 	case  7:	return( new CTable_PCA );
 
-	case  8:	return( new CTable_Fill_Record_Gaps );
+	case  8:	return( new CTable_Insert_Records );
+	case  9:	return( new CTable_Fill_Record_Gaps );
 
 	case 11:	return( new CTable_Field_Extreme );
 

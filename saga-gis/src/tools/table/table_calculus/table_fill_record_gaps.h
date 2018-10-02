@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_fill_record_gaps.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -69,7 +66,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -96,12 +93,47 @@ private:
 
 	int						m_fOrder;
 
+	CSG_Table				*m_pTable;
+
+	bool					Get_Neighbours	(int iRecord, int Order, int Field, CSG_Vector &Y, CSG_Vector &X, int Number);
+
+	double					Get_Nearest		(const double Y[2], const double X[2], double y);
+	double					Get_Linear		(const double Y[2], const double X[2], double y);
+	double					Get_Spline		(const double Y[4], const double X[4], double y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Insert_Records : public CSG_Tool
+{
+public:
+	CTable_Insert_Records(void);
+
+//	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
+
+
+protected:
+
+	virtual bool			On_Execute		(void);
+
+
+private:
+
+	int						m_fOrder;
+
 	CSG_Table				*m_pNoGaps;
 
 
 	bool					Set_Nearest		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
 	bool					Set_Linear		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB);
-	bool					Set_Spline		(int iOffset, int iField, CSG_Table_Record *pAA, CSG_Table_Record *pA, CSG_Table_Record *pB, CSG_Table_Record *pBB);
+	bool					Set_Spline		(int iOffset, int iField, CSG_Table_Record *pA, CSG_Table_Record *pB, CSG_Table_Record *pC, CSG_Table_Record *pD);
 
 };
 
