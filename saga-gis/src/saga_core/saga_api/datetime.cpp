@@ -736,6 +736,49 @@ double			SG_Date_To_JulianDayNumber(const CSG_String &Date)
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+  * Returns the day number (starting with zero for the first
+  * of January) for the mid of the requested month (January = 0).
+*/
+//---------------------------------------------------------
+int SG_Get_Day_MidOfMonth(int Month, bool bLeapYear)
+{
+	static const int	MidOfMonth[12]	=
+		// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
+		//	 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334
+	{	15,  45,  74, 105, 135, 166, 196, 227, 258, 288, 319, 349	};
+
+	int	Day;
+
+	if( Month < 0 )
+	{
+		Month	= (Month % 12) + 12;
+		Day		= MidOfMonth[Month] - 365;
+	}
+	else if( Month >= 12 )
+	{
+		Month	= (Month % 12);
+		Day		= MidOfMonth[Month] + 365;
+	}
+	else
+	{
+		Day		= MidOfMonth[Month];
+	}
+
+	if( bLeapYear && Month > 1 )
+	{
+		Day++;
+	}
+
+	return( Day );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -821,6 +864,17 @@ bool SG_Get_Sun_Position(double JulianDayNumber, double Longitude, double Latitu
 bool SG_Get_Sun_Position(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth)
 {
 	return( SG_Get_Sun_Position(Time.Get_JDN(), Longitude, Latitude, Height, Azimuth) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double SG_Get_Day_Length(const CSG_DateTime &Date, double Latitude)
+{
+	return( 0.0 );
 }
 
 
