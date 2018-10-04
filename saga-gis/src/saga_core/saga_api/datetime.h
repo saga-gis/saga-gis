@@ -398,6 +398,7 @@ SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(double   JulianDayNumber, double Longitude, double Latitude, double &Height, double &Azimuth);
 SAGA_API_DLL_EXPORT bool		SG_Get_Sun_Position		(const CSG_DateTime &Time, double Longitude, double Latitude, double &Height, double &Azimuth);
 
+SAGA_API_DLL_EXPORT double		SG_Get_Day_Length		(int            DayOfYear, double Latitude);
 SAGA_API_DLL_EXPORT double		SG_Get_Day_Length		(const CSG_DateTime &Date, double Latitude);
 
 
