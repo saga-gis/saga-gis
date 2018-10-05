@@ -146,7 +146,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
 		"SCALE_BAR"		, _TL("Scale Bar"),
 		_TL(""),
-		true
+		false
 	);
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",

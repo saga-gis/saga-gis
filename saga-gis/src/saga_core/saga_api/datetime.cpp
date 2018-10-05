@@ -747,8 +747,9 @@ double			SG_Date_To_JulianDayNumber(const CSG_String &Date)
 int SG_Get_Day_MidOfMonth(int Month, bool bLeapYear)
 {
 	static const int	MidOfMonth[12]	=
-		// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
-		//	 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334
+	// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC
+	//	31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
+	//	 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334
 	{	15,  45,  74, 105, 135, 166, 196, 227, 258, 288, 319, 349	};
 
 	int	Day;

@@ -390,113 +390,113 @@ void CWKSP_Map::On_Create_Parameters(void)
 {
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	m_Parameters.Add_Node(NULL,
+	m_Parameters.Add_Node("",
 		"NODE_GENERAL"	, _TL("General"),
 		_TL("")
 	);
 
-	m_Parameters.Add_String(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_String("NODE_GENERAL",
 		"NAME"			, _TL("Name"),
 		_TL(""),
 		&m_Name
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"GOTO_NEWLAYER"	, _TL("Zoom to Added Layer"),
 		_TL(""),
 		g_pMaps->Get_Parameter("GOTO_NEWLAYER")->asBool()
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"SYNC_MAPS"		, _TL("Synchronize Map Extents"),
 		_TL(""),
 		false
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"GCS_POSITION"	, _TL("Position as Geographic Coordinates"),
 		_TL("Display mouse position in status bar as geographic coordinates."),
 		false
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"SEL_EXTENT"	, _TL("Show Extent"),
 		_TL("Display selected extent in map."),
 		false
 	);
 
-	m_Parameters.Add_Color(m_Parameters("SEL_EXTENT"),
+	m_Parameters.Add_Color("SEL_EXTENT",
 		"SEL_COLOUR"	, _TL("Colour"),
 		_TL(""),
 		SG_GET_RGB(222, 222, 222)
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SEL_EXTENT"),
+	m_Parameters.Add_Double("SEL_EXTENT",
 		"SEL_TRANSP"	, _TL("Transparency [%]"),
 		_TL(""),
 		50.0, 0.0, true, 100.0, true
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"FRAME_SHOW"	, _TL("Frame"),
 		_TL(""),
 		g_pMaps->Get_Parameter("FRAME_SHOW")->asBool()
 	);
 
-	m_Parameters.Add_Int(m_Parameters("FRAME_SHOW"),
+	m_Parameters.Add_Int("FRAME_SHOW",
 		"FRAME_WIDTH"	, _TL("Size"),
 		_TL(""),
 		g_pMaps->Get_Parameter("FRAME_WIDTH")->asInt(), 5, true
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"NORTH_SHOW"	, _TL("North Arrow"),
 		_TL(""),
 		false
 	);
 
-	m_Parameters.Add_Double(m_Parameters("NORTH_SHOW"),
+	m_Parameters.Add_Double("NORTH_SHOW",
 		"NORTH_ANGLE"	, _TL("Direction"),
 		_TL(""),
 		0.0, -180.0, true, 360.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("NORTH_SHOW"),
+	m_Parameters.Add_Double("NORTH_SHOW",
 		"NORTH_SIZE"	, _TL("Size"),
 		_TL("Size given as percentage of map size"),
 		 5.0, 1.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("NORTH_SHOW"),
+	m_Parameters.Add_Double("NORTH_SHOW",
 		"NORTH_OFFSET_X", _TL("Horizontal Offset"),
 		_TL("Offset given as percentage of map size"),
 		 5.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("NORTH_SHOW"),
+	m_Parameters.Add_Double("NORTH_SHOW",
 		"NORTH_OFFSET_Y", _TL("Vertical Offset"),
 		_TL("Offset given as percentage of map size"),
 		90.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NORTH_SHOW"),
+	m_Parameters.Add_Bool("NORTH_SHOW",
 		"NORTH_EXTENT"	, _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
 		false
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Bool(m_Parameters("NODE_GENERAL"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
 		"SCALE_SHOW"	, _TL("Scale Bar"),
 		_TL(""),
 		g_pMaps->Get_Parameter("SCALE_BAR")->asBool()
 	);
 
-	m_Parameters.Add_Choice(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Choice("SCALE_SHOW",
 		"SCALE_STYLE"	, _TL("Style"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -505,78 +505,78 @@ void CWKSP_Map::On_Create_Parameters(void)
 		), 1
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Bool("SCALE_SHOW",
 		"SCALE_UNIT"	, _TL("Unit"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Double("SCALE_SHOW",
 		"SCALE_WIDTH"	, _TL("Width"),
 		_TL("Width given as percentage of map size"),
 		40.0, 1.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Double("SCALE_SHOW",
 		"SCALE_HEIGHT"	, _TL("Height"),
 		_TL("Height given as percentage of map size"),
 		 4.0, 0.1, true, 100.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Double("SCALE_SHOW",
 		"SCALE_OFFSET_X", _TL("Horizontal Offset"),
 		_TL("Offset given as percentage of map size"),
 		 5.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Double(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Double("SCALE_SHOW",
 		"SCALE_OFFSET_Y", _TL("Vertical Offset"),
 		_TL("Offset given as percentage of map size"),
 		7.5, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("SCALE_SHOW"),
+	m_Parameters.Add_Bool("SCALE_SHOW",
 		"SCALE_EXTENT"	, _TL("Relate to Extent"),
 		_TL("Relate position and size to selected map extent."),
 		false
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node(NULL,
+	m_Parameters.Add_Node("",
 		"NODE_PRINT"		, _TL("Print Layout"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_PRINT"),
+	m_Parameters.Add_Bool("NODE_PRINT",
 		"PRINT_LEGEND"		, _TL("Legend"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_PRINT"),
+	m_Parameters.Add_Bool("NODE_PRINT",
 		"PRINT_SCALE_SHOW"	, _TL("Scale"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Int(m_Parameters("NODE_PRINT"),
+	m_Parameters.Add_Int("NODE_PRINT",
 		"PRINT_RESOLUTION"	, _TL("Display Resolution"),
 		_TL(""),
 		2, 1, true
 	);
 
-	m_Parameters.Add_Node(m_Parameters("NODE_PRINT"),
+	m_Parameters.Add_Node("NODE_PRINT",
 		"NODE_PRINT_FRAME"	, _TL("Frame"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Bool(m_Parameters("NODE_PRINT_FRAME"),
+	m_Parameters.Add_Bool("NODE_PRINT_FRAME",
 		"PRINT_FRAME_SHOW"	, _TL("Show"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Int(m_Parameters("NODE_PRINT_FRAME"),
+	m_Parameters.Add_Int("NODE_PRINT_FRAME",
 		"PRINT_FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
 		7, 5, true
@@ -586,53 +586,53 @@ void CWKSP_Map::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	m_Img_Parms.Set_Name(_TL("Save Map as Image..."));
 
-	m_Img_Parms.Add_Node(NULL,
+	m_Img_Parms.Add_Node("",
 		"NODE_MAP"	, _TL("Map"),
 		_TL("")
 	);
 
-	m_Img_Parms.Add_Int(m_Img_Parms("NODE_MAP"),
+	m_Img_Parms.Add_Int("NODE_MAP",
 		"NX"		, _TL("Map Width [Pixels]"),
 		_TL(""),
 		800, 1, true
 	);
 
-	m_Img_Parms.Add_Int(m_Img_Parms("NODE_MAP"),
+	m_Img_Parms.Add_Int("NODE_MAP",
 		"NY"		, _TL("Map Height [Pixels]"),
 		_TL(""),
 		600, 1, true
 	);
 
-	m_Img_Parms.Add_Int(m_Img_Parms("NODE_MAP"),
+	m_Img_Parms.Add_Int("NODE_MAP",
 		"FR"		, _TL("Frame Width [Pixels]"),
 		_TL(""),
 		  20, 0, true
 	);
 
-	m_Img_Parms.Add_Bool(m_Img_Parms("NODE_MAP"),
+	m_Img_Parms.Add_Bool("NODE_MAP",
 		"REF"		, _TL("Save Georeference (world file)"),
 		_TL(""),
 		true
 	);
 
-	m_Img_Parms.Add_Bool(m_Img_Parms("NODE_MAP"),
+	m_Img_Parms.Add_Bool("NODE_MAP",
 		"KML"		, _TL("Save KML file"),
 		_TL(""),
 		true
 	);
 
-	m_Img_Parms.Add_Node(NULL,
+	m_Img_Parms.Add_Node("",
 		"NODE_LEGEND", _TL("Legend"),
 		_TL("")
 	);
 
-	m_Img_Parms.Add_Bool(m_Img_Parms("NODE_LEGEND"),
+	m_Img_Parms.Add_Bool("NODE_LEGEND",
 		"LG"		, _TL("Save"),
 		_TL(""),
 		true
 	);
 
-	m_Img_Parms.Add_Double(m_Img_Parms("NODE_LEGEND"),
+	m_Img_Parms.Add_Double("NODE_LEGEND",
 		"LZ"		, _TL("Zoom"),
 		_TL(""),
 		1.0, 0.0, true
