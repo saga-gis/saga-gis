@@ -1,67 +1,54 @@
 #! /usr/bin/env python
 
-import saga_api, sys, os
+import saga_api, saga_helper, sys, os
+
 
 ##########################################
-def grid_tpi(fDEM):
-    # ------------------------------------
-    # initializations
-    
-    dem    = saga_api.SG_Get_Data_Manager().Add_Grid(fDEM)
-    if dem == None or dem.is_Valid() == 0:
-        print 'ERROR: loading grid [' + fDEM + ']'
-        return 0
-    print 'grid file [' + fDEM + '] has been loaded'
-    
-    path   = os.path.split(fDEM)[0]
+def grid_tpi(File):
 
-    d      = dem.Get_Cellsize()
+    # ------------------------------------
+    Grid = saga_api.SG_Get_Data_Manager().Add_Grid(File)
+    if Grid == None or Grid.is_Valid() == False:
+        print 'Error: loading grid [' + File + ']'
+        return False
 
     # ------------------------------------
     # 'TPI Based Landform Classification'
-    
-    Tool   = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('ta_morphometry'), 19)
-    p      = Tool.Get_Parameters()
-    p.Get_Grid_System().Assign(dem.Get_System())   # grid tool needs to use conformant grid system!
-    p('DEM'         ).Set_Value(dem)
-    p('DW_WEIGHTING').Set_Value(0)
-    p('RADIUS_A'    ).asRange().Set_Range(0, d *  2)
-    p('RADIUS_B'    ).asRange().Set_Range(0, d * 10)
 
-    if Tool.Execute() == 0:
-        print 'ERROR: executing tool [' + Tool.Get_Name().c_str() + ']'
-        return 0
+    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('ta_morphometry'), 19)
+    Parm = Tool.Get_Parameters()
+    Parm.Get_Grid_System().Destroy() # grid tool needs to use conformant grid system!
+    Parm('DEM'         ).Set_Value(Grid)
+    Parm('DW_WEIGHTING').Set_Value(0)
+    Parm('RADIUS_A'    ).asRange().Set_Range(0,  2 * Grid.Get_Cellsize())
+    Parm('RADIUS_B'    ).asRange().Set_Range(0, 10 * Grid.Get_Cellsize())
 
-    p('LANDFORMS').asGrid().Save(path + '/landforms.sg-grd-z')
-    print 'Saved as: ' + p('LANDFORMS').asGrid().Get_File_Name()
-    
+    if Tool.Execute() == False:
+        print 'Error: executing tool [' + Tool.Get_Name().c_str() + ']'
+        return False
+
+    Grid = Parm('LANDFORMS').asGrid()
+    File = os.path.split(File)[0] + '/landforms.sg-grd-z'
+    if Grid.Save(File) == False:
+        print 'Error: saving grid [' + File + ']'
+        return False
+
     # ------------------------------------
-    print 'success'    
-    return 1
+    print 'Success'    
+    return True
 
 
 ##########################################
 if __name__ == '__main__':
-    print 'Python - Version ' + sys.version
-    print saga_api.SAGA_API_Get_Version()
 
-    saga_api.SG_UI_Msg_Lock(True)
-    if os.name == 'nt':    # Windows
-        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA_32'] + '/dll'
-        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/tools', False)
-    else:                  # Linux
-        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)
-    saga_api.SG_UI_Msg_Lock(False)
+    saga_helper.Load_Tool_Libraries(True)
 
-    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count())
-    print
-
-    # ===================================
-    if len( sys.argv ) != 2:
+    # -----------------------------------
+    if len( sys.argv ) == 2:
+        File = sys.argv[1]
+    else:
+        File = './dem.sg-grd-z'
         print 'Usage: 07_grid_tpi.py <in: elevation>'
         print '... trying to run with dummy data'
-        fDEM    = './dem.sg-grd-z'
-    else:
-        fDEM    = sys.argv[1]
 
-    grid_tpi(fDEM)
+    grid_tpi(File)
