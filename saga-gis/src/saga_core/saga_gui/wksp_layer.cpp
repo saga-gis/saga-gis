@@ -186,6 +186,10 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_PROJECTION:
 		_Set_Projection();
 		break;
+
+	case ID_CMD_DATA_FORCE_UPDATE:
+		m_pObject->Update(true);
+		break;
 	}
 
 	return( true );
