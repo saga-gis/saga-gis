@@ -357,6 +357,61 @@ bool CSG_Shape_Polygon_Part::Contains(double x, double y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/**
+* Returns true if this polygon part touches that defined by pPart, i.e. the
+* polygons share vertices or have vertices placed on the edge
+* of the other. If bSimpleCheck is true the check is only 
+* performed until one shared vertex is found, which is
+* sufficient if it can be expected that the polygons do not
+* overlap.
+*/
+//---------------------------------------------------------
+bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bSimpleCheck)
+{
+	if( !Get_Extent().Intersects(pPart->Get_Extent()) )
+	{
+		return( false );
+	}
+
+	int iPoint;	bool	bNeighbour	= false;
+
+	//---------------------------------------------------------
+	for(iPoint=0; iPoint<pPart->Get_Count(); iPoint++)
+	{
+		switch( Get_Point_Relation(pPart->Get_Point(iPoint)) )
+		{
+		case SG_POLYGON_POINT_Outside :	break;
+		case SG_POLYGON_POINT_Interior:	return( false );
+		case SG_POLYGON_POINT_Vertex  :
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+			bNeighbour	= true;
+			break;
+		}
+	}
+
+	//---------------------------------------------------------
+	for(iPoint=0; iPoint<Get_Count(); iPoint++)
+	{
+		switch( pPart->Get_Point_Relation(Get_Point(iPoint)) )
+		{
+		case SG_POLYGON_POINT_Outside :	break;
+		case SG_POLYGON_POINT_Interior:	return( false );
+		case SG_POLYGON_POINT_Vertex  :
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+			bNeighbour	= true;
+			break;
+		}
+	}
+
+	return( bNeighbour );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 double CSG_Shape_Polygon_Part::Get_Distance(TSG_Point Point, TSG_Point &Next)
 {
 	if( m_nPoints < 1 )
@@ -867,6 +922,61 @@ bool CSG_Shape_Polygon::Contains(double x, double y)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+  * Returns true if this polygon touches pPolyogon, i.e. the
+  * polygons share vertices or have vertices placed on the edge
+  * of the other. If bSimpleCheck is true the check is only 
+  * performed until one shared vertex is found, which is
+  * sufficient if it can be expected that the polygons do not
+  * overlap.
+*/
+//---------------------------------------------------------
+bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCheck)
+{
+	if( !Get_Extent().Intersects(pPolygon->Get_Extent()) )
+	{
+		return( false );
+	}
+
+	int iPoint;	bool	bNeighbour	= false;
+
+	//---------------------------------------------------------
+	for(iPoint=0; iPoint<pPolygon->Get_Point_Count(); iPoint++)
+	{
+		switch( Get_Point_Relation(pPolygon->Get_Point(iPoint)) )
+		{
+		case SG_POLYGON_POINT_Outside :	break;
+		case SG_POLYGON_POINT_Interior:	return( false );
+		case SG_POLYGON_POINT_Vertex  :
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+			bNeighbour	= true;
+			break;
+		}
+	}
+
+	//---------------------------------------------------------
+	for(iPoint=0; iPoint<Get_Point_Count(); iPoint++)
+	{
+		switch( pPolygon->Get_Point_Relation(Get_Point(iPoint)) )
+		{
+		case SG_POLYGON_POINT_Outside :	break;
+		case SG_POLYGON_POINT_Interior:	return( false );
+		case SG_POLYGON_POINT_Vertex  :
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+			bNeighbour	= true;
+			break;
+		}
+	}
+
+	return( bNeighbour );
 }
 
 

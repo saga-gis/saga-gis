@@ -566,6 +566,8 @@ public:
 	bool						Contains			(const TSG_Point &p);
 	bool						Contains			(double x, double y);
 
+	bool						is_Neighbour		(CSG_Shape_Polygon_Part *pPart, bool bSimpleCheck = true);
+
 	double						Get_Distance		(TSG_Point Point, TSG_Point &Next);
 
 
@@ -628,6 +630,8 @@ public:
 	bool						Contains			(double x, double y, int iPart);
 	bool						Contains			(const TSG_Point &p);
 	bool						Contains			(double x, double y);
+
+	bool						is_Neighbour		(CSG_Shape_Polygon *pPolygon, bool bSimpleCheck = true);
 
 	virtual double				Get_Distance		(TSG_Point Point, TSG_Point &Next, int iPart);
 
