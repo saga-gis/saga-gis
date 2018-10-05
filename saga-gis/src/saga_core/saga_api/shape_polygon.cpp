@@ -383,7 +383,7 @@ bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bS
 		case SG_POLYGON_POINT_Outside :	break;
 		case SG_POLYGON_POINT_Interior:	return( false );
 		case SG_POLYGON_POINT_Vertex  :
-		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( true );	}
 			bNeighbour	= true;
 			break;
 		}
@@ -397,7 +397,7 @@ bool CSG_Shape_Polygon_Part::is_Neighbour(CSG_Shape_Polygon_Part *pPart, bool bS
 		case SG_POLYGON_POINT_Outside :	break;
 		case SG_POLYGON_POINT_Interior:	return( false );
 		case SG_POLYGON_POINT_Vertex  :
-		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( true );	}
 			bNeighbour	= true;
 			break;
 		}
@@ -956,7 +956,7 @@ bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCh
 		case SG_POLYGON_POINT_Outside :	break;
 		case SG_POLYGON_POINT_Interior:	return( false );
 		case SG_POLYGON_POINT_Vertex  :
-		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( true );	}
 			bNeighbour	= true;
 			break;
 		}
@@ -970,7 +970,7 @@ bool CSG_Shape_Polygon::is_Neighbour(CSG_Shape_Polygon *pPolygon, bool bSimpleCh
 		case SG_POLYGON_POINT_Outside :	break;
 		case SG_POLYGON_POINT_Interior:	return( false );
 		case SG_POLYGON_POINT_Vertex  :
-		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( bNeighbour );	}
+		case SG_POLYGON_POINT_Edge    :	if( bSimpleCheck )	{	return( true );	}
 			bNeighbour	= true;
 			break;
 		}
