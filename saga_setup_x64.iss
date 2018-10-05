@@ -7,7 +7,7 @@
 
 [Setup]
 AppName=SAGA - System for Automated Geoscientific Analyses
-AppVerName=SAGA 6.5.0
+AppVerName=SAGA 7.0.0
 
 DefaultDirName={pf}\SAGA-GIS
 DefaultGroupName=SAGA GIS
@@ -19,11 +19,11 @@ Compression=lzma
 SolidCompression=yes
 
 OutputDir=.
-OutputBaseFilename=saga-6.5.0_x64_setup
+OutputBaseFilename=saga-7.0.0_x64_setup
 
-VersionInfoVersion=6.5.0.0
+VersionInfoVersion=7.0.0.0
 VersionInfoCompany=SAGA User Group Association
-VersionInfoCopyright=(c) 2005-2017 by O. Conrad
+VersionInfoCopyright=(c) 2005-2018 by O. Conrad
 VersionInfoDescription=SAGA GIS single-file installer
 
 PrivilegesRequired=admin
@@ -46,5 +46,5 @@ Name: "{commondesktop}\SAGA GIS"; Filename: "{app}\saga_gui.exe"; WorkingDir: "{
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: ""; ValueData: "{app}\saga_gui.exe"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\6.5.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\6.5.0"; ValueType: string; ValueName: "Version"; ValueData: "6.5.0.0"
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.0.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.0.0"; ValueType: string; ValueName: "Version"; ValueData: "6.5.0.0"
