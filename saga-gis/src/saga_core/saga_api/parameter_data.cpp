@@ -839,7 +839,7 @@ bool CSG_Parameter_Range::Set_Min(double Value)
 
 double CSG_Parameter_Range::Get_Min(void)	const
 {
-	return( m_pMax->asDouble() );
+	return( m_pMin->asDouble() );
 }
 
 //---------------------------------------------------------
@@ -877,12 +877,12 @@ bool CSG_Parameter_Range::On_Serialize(CSG_MetaData &Entry, bool bSave)
 	}
 	else
 	{
-		double		loVal, hiVal;
+		double		Min, Max;
 		CSG_String	s(Entry.Get_Content());
 
-		if( s.BeforeFirst(';').asDouble(loVal) && s.AfterFirst(';').asDouble(hiVal) )
+		if( s.BeforeFirst(';').asDouble(Min) && s.AfterFirst(';').asDouble(Max) )
 		{
-			return( Set_Range(loVal, hiVal) );
+			return( Set_Range(Min, Max) );
 		}
 	}
 
