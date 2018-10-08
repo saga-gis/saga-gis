@@ -412,8 +412,8 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 	m_pClassify->Set_Metric(
 		m_Parameters("METRIC_SCALE_MODE")->asInt(),
 		m_Parameters("METRIC_SCALE_LOG")->asDouble(),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_LoVal(),
-		m_Parameters("METRIC_ZRANGE")->asRange()->Get_HiVal()
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_Min(),
+		m_Parameters("METRIC_ZRANGE")->asRange()->Get_Max()
 	);
 
 	m_pLegend->Set_Orientation(m_Parameters("LEGEND_STYLE")->asInt() == LEGEND_VERTICAL ? LEGEND_VERTICAL : LEGEND_HORIZONTAL);
@@ -614,7 +614,7 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 		pRange	= m_Parameters("SHOW_RANGE")->asRange();
 		d		= rMap.Get_XRange() > rMap.Get_YRange() ? rMap.Get_XRange() : rMap.Get_YRange();
 
-		return( pRange->Get_LoVal() <= d && d <= pRange->Get_HiVal() );
+		return( pRange->Get_Min() <= d && d <= pRange->Get_Max() );
 	}
 
 	return( true );

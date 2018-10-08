@@ -439,8 +439,8 @@ bool CWMS_Import::Get_Map(CWebClient &Server, const CSG_String &Path, CWMS_Capab
 
 	//-----------------------------------------------------
 	CSG_Grid_System	System(P("CELLSIZE")->asDouble(),
-		P("X_RANGE")->asRange()->Get_LoVal(), P("Y_RANGE")->asRange()->Get_LoVal(),
-		P("X_RANGE")->asRange()->Get_HiVal(), P("Y_RANGE")->asRange()->Get_HiVal()
+		P("X_RANGE")->asRange()->Get_Min(), P("Y_RANGE")->asRange()->Get_Min(),
+		P("X_RANGE")->asRange()->Get_Max(), P("Y_RANGE")->asRange()->Get_Max()
 	);
 
 	//-----------------------------------------------------

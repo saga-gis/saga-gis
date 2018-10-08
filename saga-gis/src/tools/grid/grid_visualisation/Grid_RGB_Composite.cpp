@@ -277,13 +277,13 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 			break;
 
 		case 2:	// User defined rescale
-			Min		= pRange->Get_LoVal();
-			Range	= pRange->Get_HiVal() - Min;
+			Min		= pRange->Get_Min  ();
+			Range	= pRange->Get_Range();
 			break;
 
 		case 3:	// Percentile
-			Min		= pGrid->Get_Quantile(pPerctl->Get_LoVal());
-			Range	= pGrid->Get_Quantile(pPerctl->Get_HiVal()) - Min;
+			Min		= pGrid->Get_Quantile(pPerctl->Get_Min());
+			Range	= pGrid->Get_Quantile(pPerctl->Get_Max()) - Min;
 			break;
 
 		case 4:	// Standard deviation

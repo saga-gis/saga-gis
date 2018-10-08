@@ -506,7 +506,7 @@ bool CTIN_View_Control::_Draw_Image(void)
 	}
 
 	//-------------------------------------------------
-	if( m_Settings("C_RANGE")->asRange()->Get_LoVal() >= m_Settings("C_RANGE")->asRange()->Get_HiVal() )
+	if( m_Settings("C_RANGE")->asRange()->Get_Min() >= m_Settings("C_RANGE")->asRange()->Get_Max() )
 	{
 		m_Settings("C_RANGE")->asRange()->Set_Range(
 			m_cStats.Get_Mean() - 1.5 * m_pTIN->Get_StdDev(m_cField),
@@ -515,8 +515,8 @@ bool CTIN_View_Control::_Draw_Image(void)
 	}
 
 	m_pColors	= m_Settings("COLORS")->asColors();
-	m_cMin		= m_Settings("C_RANGE")->asRange()->Get_LoVal();
-	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_HiVal() - m_cMin);
+	m_cMin		= m_Settings("C_RANGE")->asRange()->Get_Min();
+	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_Max() - m_cMin);
 	m_cWire		= m_Settings("COLOR_WIRE")->asColor();
 
 	if( m_bRGB )

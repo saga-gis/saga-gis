@@ -262,8 +262,8 @@ bool CGrid_Color_Blend::On_Execute(void)
 
 	case 4:	// user defined
 		{
-			m_Range_Min	= Parameters("RANGE_USER")->asRange()->Get_LoVal();
-			m_Range_Max	= Parameters("RANGE_USER")->asRange()->Get_HiVal();
+			m_Range_Min	= Parameters("RANGE_USER")->asRange()->Get_Min();
+			m_Range_Max	= Parameters("RANGE_USER")->asRange()->Get_Max();
 		}
 		break;
 	}

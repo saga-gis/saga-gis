@@ -1600,8 +1600,8 @@ bool CWKSP_Shapes::_Chart_Get_Options(void)
 		m_Chart_sType	= (*pChart)("SIZE_TYPE"   )->asInt();
 		m_Chart_sSize	= m_Chart_sField < 0
 						? (*pChart)("SIZE_DEFAULT")->asDouble()
-						: (*pChart)("SIZE_RANGE"  )->asRange()->Get_LoVal();
-		m_Chart_sRange	= (*pChart)("SIZE_RANGE"  )->asRange()->Get_HiVal() - m_Chart_sSize;
+						: (*pChart)("SIZE_RANGE"  )->asRange()->Get_Min();
+		m_Chart_sRange	= (*pChart)("SIZE_RANGE"  )->asRange()->Get_Max() - m_Chart_sSize;
 
 		return( true );
 	}

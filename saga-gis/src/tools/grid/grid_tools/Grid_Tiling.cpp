@@ -281,10 +281,10 @@ bool CGrid_Tiling::On_Execute(void)
 		break;
 
 	case  1:	// coordinates (offset, range, cell size, tile size)
-		Extent.xMin	= Parameters("XRANGE")->asRange()->Get_LoVal();
-		Extent.xMax	= Parameters("XRANGE")->asRange()->Get_HiVal();
-		Extent.yMin	= Parameters("YRANGE")->asRange()->Get_LoVal();
-		Extent.yMax	= Parameters("YRANGE")->asRange()->Get_HiVal();
+		Extent.xMin	= Parameters("XRANGE")->asRange()->Get_Min();
+		Extent.xMax	= Parameters("XRANGE")->asRange()->Get_Max();
+		Extent.yMin	= Parameters("YRANGE")->asRange()->Get_Min();
+		Extent.yMax	= Parameters("YRANGE")->asRange()->Get_Max();
 		dCell		= Parameters("DCELL" )->asDouble();
 		dx			= Parameters("DX"    )->asDouble();
 		dy			= Parameters("DY"    )->asDouble();

@@ -227,10 +227,10 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	pEntropy		= Parameters("ENTROPY")->asGrid();
 	pCI				= Parameters("CI"     )->asGrid();
 
-	m_loSlope		= Parameters("T_SLOPE")->asRange()->Get_LoVal();// * M_DEG_TO_RAD;
-	m_hiSlope		= Parameters("T_SLOPE")->asRange()->Get_HiVal();// * M_DEG_TO_RAD;
-	m_loCurve		= Parameters("T_CURVE")->asRange()->Get_LoVal();
-	m_hiCurve		= Parameters("T_CURVE")->asRange()->Get_HiVal();
+	m_loSlope		= Parameters("T_SLOPE")->asRange()->Get_Min();// * M_DEG_TO_RAD;
+	m_hiSlope		= Parameters("T_SLOPE")->asRange()->Get_Max();// * M_DEG_TO_RAD;
+	m_loCurve		= Parameters("T_CURVE")->asRange()->Get_Min();
+	m_hiCurve		= Parameters("T_CURVE")->asRange()->Get_Max();
 
 	m_bSlopeToDeg	= Parameters("BSLOPE" )->asInt() == 1;
 

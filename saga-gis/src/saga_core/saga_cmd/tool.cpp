@@ -518,12 +518,12 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 			case PARAMETER_TYPE_Range:
 				if( m_CMD.Found(_Get_ID(pParameter, "MIN"), &d) )
 				{
-					pParameter->asRange()->Set_LoVal(d);
+					pParameter->asRange()->Set_Min(d);
 				}
 
 				if( m_CMD.Found(_Get_ID(pParameter, "MAX"), &d) )
 				{
-					pParameter->asRange()->Set_HiVal(d);
+					pParameter->asRange()->Set_Max(d);
 				}
 				break;
 

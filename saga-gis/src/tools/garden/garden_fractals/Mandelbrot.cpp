@@ -159,10 +159,10 @@ bool CMandelbrot::On_Execute(void)
 {
 	//-----------------------------------------------------
 	m_Extent.Assign(
-		Parameters("XRANGE")->asRange()->Get_LoVal(),
-		Parameters("YRANGE")->asRange()->Get_LoVal(),
-		Parameters("XRANGE")->asRange()->Get_HiVal(),
-		Parameters("YRANGE")->asRange()->Get_HiVal()
+		Parameters("XRANGE")->asRange()->Get_Min(),
+		Parameters("YRANGE")->asRange()->Get_Min(),
+		Parameters("XRANGE")->asRange()->Get_Max(),
+		Parameters("YRANGE")->asRange()->Get_Max()
 	);
 
 	m_maxIterations	= Parameters("MAXITER")	->asInt();

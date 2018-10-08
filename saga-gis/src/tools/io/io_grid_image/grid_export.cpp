@@ -345,8 +345,8 @@ bool CGrid_Export::On_Execute(void)
 			break;
 
 		case 2:	// stretch to specified value range
-			zMin	= Parameters("STRETCH")->asRange()->Get_LoVal();
-			if( zMin >= (zMax = Parameters("STRETCH")->asRange()->Get_HiVal()) )
+			zMin	= Parameters("STRETCH")->asRange()->Get_Min();
+			if( zMin >= (zMax = Parameters("STRETCH")->asRange()->Get_Max()) )
 			{
 				Error_Set(_TL("invalid user specified value range."));
 
@@ -471,8 +471,8 @@ bool CGrid_Export::On_Execute(void)
 	{
 		double	dMinBright, dMaxBright;
 
-		dMinBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_LoVal() / 100.0;
-		dMaxBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_HiVal() / 100.0;
+		dMinBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_Min() / 100.0;
+		dMaxBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_Max() / 100.0;
 
 		if( dMinBright >= dMaxBright )
 		{

@@ -200,8 +200,8 @@ bool CHypsometry::On_Execute(void)
 	pTable		= Parameters("TABLE"    )->asTable();
 	bDown		= Parameters("SORTING"  )->asInt() == 1;
 	nClasses	= Parameters("COUNT"    )->asInt();
-	zMin		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_LoVal() : 0.0;
-	zMax		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_HiVal() : 0.0;
+	zMin		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_Min() : 0.0;
+	zMax		= Parameters("BZRANGE"  )->asBool() ? Parameters("ZRANGE")->asRange()->Get_Max() : 0.0;
 	
 	if( !bDown && Parameters("BZRANGE")->asBool() && Parameters("METHOD")->asInt() == 1 )
 	{

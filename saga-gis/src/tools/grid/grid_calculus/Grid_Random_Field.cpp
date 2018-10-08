@@ -162,11 +162,11 @@ bool CGrid_Random_Field::On_Execute(void)
 	int		Method	= Parameters("METHOD")->asInt();
 
 	double	a	= Method == 0
-		? Parameters("RANGE" )->asRange()->Get_LoVal()
+		? Parameters("RANGE" )->asRange()->Get_Min()
 		: Parameters("MEAN"  )->asDouble();
 
 	double	b	= Method == 0
-		? Parameters("RANGE" )->asRange()->Get_HiVal()
+		? Parameters("RANGE" )->asRange()->Get_Max()
 		: Parameters("STDDEV")->asDouble();
 
 	//-----------------------------------------------------
@@ -336,8 +336,8 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Offset	= Parameters("RANGE")->asRange()->Get_LoVal();	
-	Scale	= Parameters("RANGE")->asRange()->Get_HiVal() - Offset;
+	Offset	= Parameters("RANGE")->asRange()->Get_Min();	
+	Scale	= Parameters("RANGE")->asRange()->Get_Max() - Offset;
 
 	if( Scale <= 0.0 || pGrid->Get_Range() <= 0.0 )
 	{

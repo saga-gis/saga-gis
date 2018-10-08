@@ -388,8 +388,8 @@ void CWKSP_Data_Item::On_Parameters_Changed(void)
 	m_pObject->Set_Name       (m_Parameters("OBJECT_NAME")->asString());
 	m_pObject->Set_Description(m_Parameters("OBJECT_DESC")->asString());
 	m_pObject->Set_NoData_Value_Range(
-		m_Parameters("OBJECT_NODATA")->asRange()->Get_LoVal(),
-		m_Parameters("OBJECT_NODATA")->asRange()->Get_HiVal()
+		m_Parameters("OBJECT_NODATA")->asRange()->Get_Min(),
+		m_Parameters("OBJECT_NODATA")->asRange()->Get_Max()
 	);
 }
 

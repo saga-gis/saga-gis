@@ -166,8 +166,8 @@ bool CPythagoras_Tree::On_Execute(void)
 		break;
 
 	case 1:	// Variation Range...
-		var_Min		= Parameters("VARRANGE")->asRange()->Get_LoVal() * M_DEG_TO_RAD;
-		var_Range	= Parameters("VARRANGE")->asRange()->Get_HiVal() * M_DEG_TO_RAD;
+		var_Min		= Parameters("VARRANGE")->asRange()->Get_Min() * M_DEG_TO_RAD;
+		var_Range	= Parameters("VARRANGE")->asRange()->Get_Max() * M_DEG_TO_RAD;
 		var_Range	= (var_Range - var_Min) / (double)RAND_MAX;
 		break;
 	}

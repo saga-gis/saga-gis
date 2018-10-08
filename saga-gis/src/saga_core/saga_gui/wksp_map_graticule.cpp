@@ -484,7 +484,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
 		double	dRange	= dc_Map.m_rWorld.Get_XRange() > dc_Map.m_rWorld.Get_YRange() ? dc_Map.m_rWorld.Get_XRange() : dc_Map.m_rWorld.Get_YRange();
 
-		if( dRange < pRange->Get_LoVal() || pRange->Get_HiVal() < dRange )
+		if( dRange < pRange->Get_Min() || pRange->Get_Max() < dRange )
 		{
 			return( false );
 		}

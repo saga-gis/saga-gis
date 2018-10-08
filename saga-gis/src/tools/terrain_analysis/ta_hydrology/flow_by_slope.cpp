@@ -169,8 +169,8 @@ bool CFlow_by_Slope::On_Execute(void)
 
 	if( Parameters("B_FLOW")->asBool() )
 	{
-		m_Flow_Min	= Parameters("T_FLOW")->asRange()->Get_LoVal() * Get_Cellarea();
-		m_Flow_Max	= Parameters("T_FLOW")->asRange()->Get_HiVal() * Get_Cellarea();
+		m_Flow_Min	= Parameters("T_FLOW")->asRange()->Get_Min() * Get_Cellarea();
+		m_Flow_Max	= Parameters("T_FLOW")->asRange()->Get_Max() * Get_Cellarea();
 	}
 	else
 	{

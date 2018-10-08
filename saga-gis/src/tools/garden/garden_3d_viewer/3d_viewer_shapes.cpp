@@ -318,8 +318,8 @@ bool C3D_Viewer_Shapes_Panel::On_Draw(void)
 
 	m_Colors		= *m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal();
-	double	Range	= m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() - m_Color_Min;
+	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
+	double	Range	= m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min;
 	m_Color_Scale	= Range > 0.0 ? m_Colors.Get_Count() / Range : 1.0;
 
 	//-----------------------------------------------------

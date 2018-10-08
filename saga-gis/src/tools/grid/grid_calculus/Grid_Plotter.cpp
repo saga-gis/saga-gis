@@ -157,11 +157,11 @@ bool CGrid_Plotter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double xMin		= Parameters("X_RANGE")->asRange()->Get_LoVal();
-	double xRange	= Parameters("X_RANGE")->asRange()->Get_HiVal() - xMin;
+	double xMin		= Parameters("X_RANGE")->asRange()->Get_Min();
+	double xRange	= Parameters("X_RANGE")->asRange()->Get_Max() - xMin;
 
-	double yMin		= Parameters("Y_RANGE")->asRange()->Get_LoVal();
-	double yRange	= Parameters("Y_RANGE")->asRange()->Get_HiVal() - yMin;
+	double yMin		= Parameters("Y_RANGE")->asRange()->Get_Min();
+	double yRange	= Parameters("Y_RANGE")->asRange()->Get_Max() - yMin;
 
 	//-----------------------------------------------------
 	for(int y=0; y<pFunction->Get_NY() && Set_Progress(y); y++)

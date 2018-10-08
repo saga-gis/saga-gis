@@ -1220,11 +1220,11 @@ bool CSG_Tool_Chain::Tool_Get_Parameter(CSG_String ID, CSG_Parameters *pParamete
 
 			if( ID.CmpNoCase("minimum") )
 			{
-				*ppParameter	= pParameter->asRange()->Get_LoParm();
+				*ppParameter	= pParameter->asRange()->Get_Min_Parameter();
 			}
 			else if( ID.CmpNoCase("maximum") )
 			{
-				*ppParameter	= pParameter->asRange()->Get_HiParm();
+				*ppParameter	= pParameter->asRange()->Get_Max_Parameter();
 			}
 
 			return( true );

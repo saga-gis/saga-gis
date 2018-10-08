@@ -127,8 +127,8 @@ bool CGrid_Normalise::On_Execute(void)
 	//-----------------------------------------------------
 	double		Minimum, Maximum, Offset, Scale;
 
-	Minimum	= Parameters("RANGE")->asRange()->Get_LoVal();
-	Maximum	= Parameters("RANGE")->asRange()->Get_HiVal();
+	Minimum	= Parameters("RANGE")->asRange()->Get_Min();
+	Maximum	= Parameters("RANGE")->asRange()->Get_Max();
 	Offset	= pGrid->Get_Min();
 	Scale	= (Maximum - Minimum) / pGrid->Get_Range();
 

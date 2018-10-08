@@ -110,8 +110,8 @@ bool CBifurcation::On_Execute(void)
 	nPreIterations	= Parameters("ITERATIONS")->asInt();
 	nValues			= Parameters("NVALUES")->asInt();
 	seed			= Parameters("SEED")->asDouble();
-	min				= Parameters("RANGE")->asRange()->Get_LoVal();
-	max				= Parameters("RANGE")->asRange()->Get_HiVal();
+	min				= Parameters("RANGE")->asRange()->Get_Min();
+	max				= Parameters("RANGE")->asRange()->Get_Max();
 	dr				= (max - min) / 1000.0;
 
 	pTable			= Parameters("TABLE")->asTable();

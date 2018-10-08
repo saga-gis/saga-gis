@@ -658,8 +658,8 @@ bool CSolarRadiation::Get_Insolation(CSG_DateTime Date)
 	//-----------------------------------------------------
 	bool	bWasDay	= false;
 
-	double	Hour_A	= Parameters("HOUR_RANGE")->asRange()->Get_LoVal();
-	double	Hour_B	= Parameters("HOUR_RANGE")->asRange()->Get_HiVal();
+	double	Hour_A	= Parameters("HOUR_RANGE")->asRange()->Get_Min();
+	double	Hour_B	= Parameters("HOUR_RANGE")->asRange()->Get_Max();
 	double	dHour	= Parameters("HOUR_STEP" )->asDouble();
 
 	m_pDirect->Assign(0.0);

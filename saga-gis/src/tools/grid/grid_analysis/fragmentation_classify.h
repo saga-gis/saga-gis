@@ -85,7 +85,6 @@ class CFragmentation_Classify : public CFragmentation_Base
 {
 public:
 	CFragmentation_Classify(void);
-	virtual ~CFragmentation_Classify(void);
 
 
 protected:

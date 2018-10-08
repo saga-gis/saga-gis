@@ -65,10 +65,10 @@ bool CCreatePointGrid::On_Execute(void){
 
 	CSG_Shape *pShape;
 	
-	double dXMin	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_LoVal();
-	double dYMin	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_LoVal();
-	double dXMax	= ((CSG_Parameter_Range *) Parameters("X_EXTENT")->Get_Data())->Get_HiVal();
-	double dYMax	= ((CSG_Parameter_Range *) Parameters("Y_EXTENT")->Get_Data())->Get_HiVal();
+	double dXMin	= Parameters("X_EXTENT")->asRange()->Get_Min();
+	double dYMin	= Parameters("Y_EXTENT")->asRange()->Get_Min();
+	double dXMax	= Parameters("X_EXTENT")->asRange()->Get_Max();
+	double dYMax	= Parameters("Y_EXTENT")->asRange()->Get_Max();
 
 	double dDistance = Parameters("DIST")->asDouble();
 	if (dDistance<=0){

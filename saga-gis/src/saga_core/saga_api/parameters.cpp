@@ -986,16 +986,16 @@ CSG_Parameter * CSG_Parameters::_Add_Range(const CSG_String &ParentID, const CSG
 
 	pData		= pParameter->asRange();
 
-	((CSG_Parameter_Value *)pData->Get_LoParm()->Get_Data())->Set_Minimum(Minimum, bMinimum);
-	((CSG_Parameter_Value *)pData->Get_LoParm()->Get_Data())->Set_Maximum(Maximum, bMaximum);
-	((CSG_Parameter_Value *)pData->Get_HiParm()->Get_Data())->Set_Minimum(Minimum, bMinimum);
-	((CSG_Parameter_Value *)pData->Get_HiParm()->Get_Data())->Set_Maximum(Maximum, bMaximum);
+	((CSG_Parameter_Value *)pData->Get_Min_Parameter()->Get_Data())->Set_Minimum(Minimum, bMinimum);
+	((CSG_Parameter_Value *)pData->Get_Min_Parameter()->Get_Data())->Set_Maximum(Maximum, bMaximum);
+	((CSG_Parameter_Value *)pData->Get_Max_Parameter()->Get_Data())->Set_Minimum(Minimum, bMinimum);
+	((CSG_Parameter_Value *)pData->Get_Max_Parameter()->Get_Data())->Set_Maximum(Maximum, bMaximum);
 
-	pData->Set_LoVal(Default_Min);
-	pData->Set_HiVal(Default_Max);
+	pData->Set_Min(Default_Min);
+	pData->Set_Max(Default_Max);
 
-	((CSG_Parameter_Value *)pData->Get_LoParm()->Get_Data())->Set_Default(Default_Min);
-	((CSG_Parameter_Value *)pData->Get_HiParm()->Get_Data())->Set_Default(Default_Max);
+	((CSG_Parameter_Value *)pData->Get_Min_Parameter()->Get_Data())->Set_Default(Default_Min);
+	((CSG_Parameter_Value *)pData->Get_Max_Parameter()->Get_Data())->Set_Default(Default_Max);
 
 	return( pParameter );
 }

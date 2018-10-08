@@ -200,8 +200,8 @@ bool CBeachball::On_Execute(void)
 	}
 	else
 	{
-		Scale_Min	=  Parameters("SIZE_RANGE")->asRange()->Get_LoVal();
-		Scale_Range	= (Parameters("SIZE_RANGE")->asRange()->Get_HiVal() - Scale_Min) / pPoints->Get_Range(fSize);
+		Scale_Min	=  Parameters("SIZE_RANGE")->asRange()->Get_Min();
+		Scale_Range	= (Parameters("SIZE_RANGE")->asRange()->Get_Max() - Scale_Min) / pPoints->Get_Range(fSize);
 	}
 
 	m_dArc	= Parameters("DARC" )->asDouble();

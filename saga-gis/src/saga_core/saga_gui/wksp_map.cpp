@@ -1010,8 +1010,8 @@ bool CWKSP_Map::Set_Extent(void)
 	if( DLG_Parameters(&P) )
 	{
 		return( Set_Extent(CSG_Rect(
-			P("X")->asRange()->Get_LoVal(), P("Y")->asRange()->Get_LoVal(),
-			P("X")->asRange()->Get_HiVal(), P("Y")->asRange()->Get_HiVal())
+			P("X")->asRange()->Get_Min(), P("Y")->asRange()->Get_Min(),
+			P("X")->asRange()->Get_Max(), P("Y")->asRange()->Get_Max())
 		));
 	}
 

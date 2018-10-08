@@ -655,8 +655,8 @@ bool		CONFIG_Read(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 	case PARAMETER_TYPE_Range   :
 		return(
-			pConfig->Read(Entry + "_LO", &d) && pParameter->asRange()->Set_LoVal(d)
-		&&	pConfig->Read(Entry + "_HI", &d) && pParameter->asRange()->Set_HiVal(d)
+			pConfig->Read(Entry + "_LO", &d) && pParameter->asRange()->Set_Min(d)
+		&&	pConfig->Read(Entry + "_HI", &d) && pParameter->asRange()->Set_Max(d)
 		);
 
 	case PARAMETER_TYPE_Font    :
@@ -719,8 +719,8 @@ bool		CONFIG_Write(wxConfigBase *pConfig, CSG_Parameter *pParameter)
 
 		case PARAMETER_TYPE_Range   :
 			return(
-				pConfig->Write(Entry + "_LO", pParameter->asRange()->Get_LoVal())
-			&&	pConfig->Write(Entry + "_HI", pParameter->asRange()->Get_HiVal())
+				pConfig->Write(Entry + "_LO", pParameter->asRange()->Get_Min())
+			&&	pConfig->Write(Entry + "_HI", pParameter->asRange()->Get_Max())
 			);
 
 		case PARAMETER_TYPE_Font    :

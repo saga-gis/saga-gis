@@ -197,8 +197,8 @@ bool CGrid_To_Gradient::On_Execute(void)
 	pVectors		= Parameters("VECTORS")->asShapes();
 	Step			= Parameters("STEP"   )->asInt();
 	m_Style			= Parameters("STYLE"  )->asInt();
-	sMin			= Parameters("SIZE"   )->asRange()->Get_LoVal() * Step * Get_Cellsize() / 100.0;
-	sRange			= Parameters("SIZE"   )->asRange()->Get_HiVal() * Step * Get_Cellsize() / 100.0 - sMin;
+	sMin			= Parameters("SIZE"   )->asRange()->Get_Min() * Step * Get_Cellsize() / 100.0;
+	sRange			= Parameters("SIZE"   )->asRange()->Get_Max() * Step * Get_Cellsize() / 100.0 - sMin;
 	Interpolation	= Parameters("AGGR"   )->asInt() == 0 ? GRID_RESAMPLING_NearestNeighbour : GRID_RESAMPLING_Mean_Cells;
 
 	//-----------------------------------------------------

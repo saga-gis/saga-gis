@@ -409,8 +409,8 @@ inline bool C3D_Viewer_Globe_Grid_Panel::Get_Node(int x, int y, TSG_Triangle_Nod
 bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 {
 	//-----------------------------------------------------
-	if( m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal()
-	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() )
+	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
+	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_Max() )
 	{
 		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 			m_pGrid->Get_Mean() - 1.5 * m_pGrid->Get_StdDev(),
@@ -422,8 +422,8 @@ bool C3D_Viewer_Globe_Grid_Panel::On_Draw(void)
 
 	m_Colors		= *m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal();
-	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() - m_Color_Min);
+	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
+	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
 
 	//-----------------------------------------------------
 	if( m_Parameters("DRAW_FACES")->asBool() )	// Faces

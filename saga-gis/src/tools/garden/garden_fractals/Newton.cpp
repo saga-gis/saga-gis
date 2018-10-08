@@ -123,13 +123,13 @@ bool CNewton::On_Execute(void)
 	int		x, y;
 		
 	x				= Parameters("NX")->asInt();
-	xMin			= Parameters("XRANGE")->asRange()->Get_LoVal();
-	dx	 =	xMax	= Parameters("XRANGE")->asRange()->Get_HiVal();
+	xMin			= Parameters("XRANGE")->asRange()->Get_Min();
+	dx	 =	xMax	= Parameters("XRANGE")->asRange()->Get_Max();
 	dx				= (dx - xMin) / (x - 1.0);
 
 	y				= Parameters("NY")->asInt();
-	yMin			= Parameters("YRANGE")->asRange()->Get_LoVal();
-	dy	=	yMax	= Parameters("YRANGE")->asRange()->Get_HiVal();
+	yMin			= Parameters("YRANGE")->asRange()->Get_Min();
+	dy	=	yMax	= Parameters("YRANGE")->asRange()->Get_Max();
 	dy				= (dy - yMin) / (y - 1.0);
 
 	method			= Parameters("METHOD")->asInt();

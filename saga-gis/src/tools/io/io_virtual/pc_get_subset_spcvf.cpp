@@ -770,15 +770,15 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	pFilePath			= Parameters("FILEPATH")->asFilePath();
 	bConstrain			= Parameters("CONSTRAIN_QUERY")->asBool();
 	iField				= Parameters("ATTR_FIELD")->asInt() - 1;
-	dMinAttrRange		= Parameters("VALUE_RANGE")->asRange()->Get_LoVal();
-	dMaxAttrRange		= Parameters("VALUE_RANGE")->asRange()->Get_HiVal();
+	dMinAttrRange		= Parameters("VALUE_RANGE")->asRange()->Get_Min();
+	dMaxAttrRange		= Parameters("VALUE_RANGE")->asRange()->Get_Max();
 	pShapes				= Parameters("AOI_SHP")->asShapes();
 	iFieldName			= Parameters("FIELD_TILENAME")->asInt();
 	pGrid				= Parameters("AOI_GRID")->asGrid();
-	dAoiXMin			= Parameters("AOI_XRANGE")->asRange()->Get_LoVal();
-	dAoiXMax			= Parameters("AOI_XRANGE")->asRange()->Get_HiVal();
-	dAoiYMin			= Parameters("AOI_YRANGE")->asRange()->Get_LoVal();
-	dAoiYMax			= Parameters("AOI_YRANGE")->asRange()->Get_HiVal();
+	dAoiXMin			= Parameters("AOI_XRANGE")->asRange()->Get_Min();
+	dAoiXMax			= Parameters("AOI_XRANGE")->asRange()->Get_Max();
+	dAoiYMin			= Parameters("AOI_YRANGE")->asRange()->Get_Min();
+	dAoiYMax			= Parameters("AOI_YRANGE")->asRange()->Get_Max();
 
 	bAddOverlap			= Parameters("AOI_ADD_OVERLAP")->asBool();
 	dOverlap			= Parameters("OVERLAP")->asDouble();
@@ -997,7 +997,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():
 		if( !m_Get_Subset_SPCVF.Initialise(1, AOI, NULL, -1, false, true, 0.0, SG_T(""), Parameters("FILENAME")->asString(), NULL, &PointCloudList,
 									  Parameters("CONSTRAIN_QUERY")->asBool(), Parameters("ATTR_FIELD")->asInt()-1,
-									  Parameters("VALUE_RANGE")->asRange()->Get_LoVal(), Parameters("VALUE_RANGE")->asRange()->Get_HiVal(),
+									  Parameters("VALUE_RANGE")->asRange()->Get_Min(), Parameters("VALUE_RANGE")->asRange()->Get_Max(),
 									  Parameters("COPY_ATTR")->asBool(), Parameters("ATTRIBUTE_LIST")->asString()) )
 		{
 			return( false );

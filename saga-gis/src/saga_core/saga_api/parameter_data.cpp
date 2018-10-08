@@ -784,13 +784,13 @@ CSG_Parameter_Range::CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint)
 
 	if( (m_Constraint & PARAMETER_INFORMATION) != 0 )
 	{
-		m_pLo	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pMin	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pMax	= m_pRange->Add_Info_Value(m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 	else
 	{
-		m_pLo	= m_pRange->Add_Value     (m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
-		m_pHi	= m_pRange->Add_Value     (m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pMin	= m_pRange->Add_Double    (m_pOwner->Get_Identifier(), "MIN", "Minimum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
+		m_pMax	= m_pRange->Add_Double    (m_pOwner->Get_Identifier(), "MAX", "Maximum", m_pOwner->Get_Description(), PARAMETER_TYPE_Double);
 	}
 }
 
@@ -802,7 +802,7 @@ CSG_Parameter_Range::~CSG_Parameter_Range(void)
 //---------------------------------------------------------
 const SG_Char * CSG_Parameter_Range::asString(void)
 {
-	m_String.Printf("%f; %f", Get_LoVal(), Get_HiVal());
+	m_String.Printf("%f; %f", Get_Min(), Get_Max());
 
 	return( m_String );
 }
@@ -813,57 +813,57 @@ int CSG_Parameter_Range::Set_Value(const CSG_String &Value)
 	return( Set_Range(Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble()) );
 }
 
-bool CSG_Parameter_Range::Set_Range(double loVal, double hiVal)
+bool CSG_Parameter_Range::Set_Range(double Min, double Max)
 {
 	bool	bResult;
 
-	if( loVal > hiVal )
+	if( Min > Max )
 	{
-		bResult	 = m_pLo->Set_Value(hiVal) != 0;
-		bResult	|= m_pHi->Set_Value(loVal) != 0;
+		bResult	 = m_pMin->Set_Value(Max);
+		bResult	|= m_pMax->Set_Value(Min);
 	}
 	else
 	{
-		bResult	 = m_pLo->Set_Value(loVal) != 0;
-		bResult	|= m_pHi->Set_Value(hiVal) != 0;
+		bResult	 = m_pMin->Set_Value(Min);
+		bResult	|= m_pMax->Set_Value(Max);
 	}
 
 	return( bResult );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Range::Set_LoVal(double Value)
+bool CSG_Parameter_Range::Set_Min(double Value)
 {
-	return( m_pLo->Set_Value(Value) != 0 );
+	return( m_pMin->Set_Value(Value) );
 }
 
-double CSG_Parameter_Range::Get_LoVal(void)
+double CSG_Parameter_Range::Get_Min(void)	const
 {
-	return( m_pLo->asDouble() );
+	return( m_pMax->asDouble() );
 }
 
 //---------------------------------------------------------
-bool CSG_Parameter_Range::Set_HiVal(double Value)
+bool CSG_Parameter_Range::Set_Max(double Value)
 {
-	return( m_pHi->Set_Value(Value) != 0 );
+	return( m_pMax->Set_Value(Value) );
 }
 
-double CSG_Parameter_Range::Get_HiVal(void)
+double CSG_Parameter_Range::Get_Max(void)	const
 {
-	return( m_pHi->asDouble() );
+	return( m_pMax->asDouble() );
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Restore_Default(void)
 {
-	return( m_pLo->Restore_Default() && m_pHi->Restore_Default() );
+	return( m_pMin->Restore_Default() && m_pMax->Restore_Default() );
 }
 
 //---------------------------------------------------------
 void CSG_Parameter_Range::On_Assign(CSG_Parameter_Data *pSource)
 {
-	m_pLo->Assign(((CSG_Parameter_Range *)pSource)->m_pLo);
-	m_pHi->Assign(((CSG_Parameter_Range *)pSource)->m_pHi);
+	m_pMin->Assign(((CSG_Parameter_Range *)pSource)->m_pMin);
+	m_pMax->Assign(((CSG_Parameter_Range *)pSource)->m_pMax);
 }
 
 //---------------------------------------------------------
@@ -871,7 +871,7 @@ bool CSG_Parameter_Range::On_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )
 	{
-		Entry.Fmt_Content("%f; %f", Get_LoVal(), Get_HiVal());
+		Entry.Fmt_Content("%f; %f", Get_Min(), Get_Max());
 
 		return( true );
 	}

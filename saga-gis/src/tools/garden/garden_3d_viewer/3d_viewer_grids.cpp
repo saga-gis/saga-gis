@@ -445,8 +445,8 @@ bool C3D_Viewer_Grids_Panel::On_Draw(void)
 	m_Colors		=*m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
 
-	m_Color_Min		= m_Parameters("COLOR_STRETCH")->asRange()->Get_LoVal();
-	double	Range	= m_Parameters("COLOR_STRETCH")->asRange()->Get_HiVal() - m_Color_Min;
+	m_Color_Min		= m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+	double	Range	= m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - m_Color_Min;
 	m_Color_Scale	= Range > 0.0 ? (m_Colors.Get_Count() - 1) / Range : 0.0;
 
 	//-----------------------------------------------------
@@ -803,8 +803,8 @@ private:
 
 		wxRect	r(wxPoint(0, 0), GetClientSize());
 
-		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_LoVal();
-		double	Range	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_HiVal() - Minimum;
+		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+		double	Range	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max() - Minimum;
 
 		m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Set_Range(
 			Minimum + (Range * (m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
@@ -892,8 +892,8 @@ private:
 	//---------------------------------------------------------
 	void					Set_Histogram	(bool bRefresh = true)
 	{
-		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_LoVal();
-		double	Maximum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_HiVal();
+		double	Minimum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Min();
+		double	Maximum	= m_pPanel->m_Parameters("COLOR_STRETCH")->asRange()->Get_Max();
 
 		m_Histogram.Create(m_nClasses, Minimum, Maximum, m_pGrids, m_pGrids->Get_Max_Samples());
 

@@ -471,8 +471,8 @@ bool CSG_Parameter::is_Value_Equal(CSG_Parameter *pParameter)	const
 		case PARAMETER_TYPE_FilePath         :
 		case PARAMETER_TYPE_String           :	return( SG_STR_CMP(pParameter->asString(), asString()) == 0 );
 
-		case PARAMETER_TYPE_Range            :	return( pParameter->asRange()->Get_LoVal() == asRange()->Get_LoVal()
-													&&  pParameter->asRange()->Get_HiVal() == asRange()->Get_HiVal() );
+		case PARAMETER_TYPE_Range            :	return( pParameter->asRange()->Get_Min() == asRange()->Get_Min()
+													&&  pParameter->asRange()->Get_Max() == asRange()->Get_Max() );
 
 		case PARAMETER_TYPE_Grid_System      :	return( pParameter->asGrid_System()->is_Equal(*asGrid_System()) );
 

@@ -121,7 +121,6 @@ class CFragmentation_Base : public CSG_Tool_Grid
 {
 public:
 	CFragmentation_Base(void);
-	virtual ~CFragmentation_Base(void);
 
 	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Fragmentation Analysis") );	}
 
@@ -133,14 +132,13 @@ protected:
 	virtual bool			Initialise			(CSG_Grid *pClasses, int Class)	{	return( true );	}
 	virtual bool			Finalise			(void)							{	return( true );	}
 
+	bool					Set_Classification	(CSG_Grid *pClasses);
 	virtual bool			Get_Fragmentation	(int x, int y, double &Density, double &Connectivity)	= 0;
 
 
 	int						m_Aggregation, m_Radius_iMin, m_Radius_iMax;
 
 	double					m_Density_Min, m_Density_Interior, m_Weight, m_Radius_Min, m_Radius_Max;
-
-	CSG_Table				m_LUT;
 
 
 	int						Get_Classification	(double Density, double Connectivity);

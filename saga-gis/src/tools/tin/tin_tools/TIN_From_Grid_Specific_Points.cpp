@@ -180,14 +180,14 @@ bool CTIN_From_Grid_Specific_Points::On_Execute(void)
 
 	case 2:
 		bResult	= Get_FlowDirection	(&Grid, pGrid,
-			(int)Parameters("FLOW")->asRange()->Get_LoVal(),
-			(int)Parameters("FLOW")->asRange()->Get_HiVal()
+			(int)Parameters("FLOW")->asRange()->Get_Min(),
+			(int)Parameters("FLOW")->asRange()->Get_Max()
 		);
 		break;
 
 	case 3:
 		bResult	= Get_FlowDirection2(&Grid, pGrid,
-			(int)Parameters("FLOW")->asRange()->Get_HiVal()
+			(int)Parameters("FLOW")->asRange()->Get_Max()
 		);
 		break;
 

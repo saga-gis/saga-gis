@@ -501,8 +501,8 @@ bool CViGrA_FFT_Filter::On_Execute(void)
 	Scale		= Parameters("SCALE" )->asDouble();
 	Power		= Parameters("POWER" )->asDouble();
 	Filter		= Parameters("FILTER")->asInt();
-	Range_Min	= Parameters("RANGE" )->asRange()->Get_LoVal();
-	Range_Max	= Parameters("RANGE" )->asRange()->Get_HiVal();
+	Range_Min	= Parameters("RANGE" )->asRange()->Get_Min();
+	Range_Max	= Parameters("RANGE" )->asRange()->Get_Max();
 
 	//-----------------------------------------------------
 	vigra::FImage			Input, Filter_Raw(Get_NX(), Get_NY()), Filter_(Get_NX(), Get_NY());

@@ -159,10 +159,10 @@ bool CGraticuleBuilder::On_Execute(void)
 	}
 	else
 	{
-		Extent.xMin	= Parameters("EXTENT_X")->asRange()->Get_LoVal();
-		Extent.yMin	= Parameters("EXTENT_Y")->asRange()->Get_LoVal();
-		Extent.xMax	= Parameters("EXTENT_X")->asRange()->Get_HiVal();
-		Extent.yMax	= Parameters("EXTENT_Y")->asRange()->Get_HiVal();
+		Extent.xMin	= Parameters("EXTENT_X")->asRange()->Get_Min();
+		Extent.yMin	= Parameters("EXTENT_Y")->asRange()->Get_Min();
+		Extent.xMax	= Parameters("EXTENT_X")->asRange()->Get_Max();
+		Extent.yMax	= Parameters("EXTENT_Y")->asRange()->Get_Max();
 	}
 
 	if( Extent.xMin >= Extent.xMax || Extent.yMin >= Extent.yMax )

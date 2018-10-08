@@ -175,8 +175,8 @@ bool CGrid_Value_NoData::On_Execute(void)
 	else
 	{
 		bUpdate	= pGrid->Set_NoData_Value_Range(
-			Parameters("RANGE")->asRange()->Get_LoVal(),
-			Parameters("RANGE")->asRange()->Get_HiVal()
+			Parameters("RANGE")->asRange()->Get_Min(),
+			Parameters("RANGE")->asRange()->Get_Max()
 		);
 	}
 

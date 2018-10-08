@@ -416,8 +416,8 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 	//-----------------------------------------------------
 	int		cField	= m_Parameters("COLORS_ATTR")->asInt();
 
-	if( m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal()
-	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() )
+	if( m_Parameters("COLORS_RANGE")->asRange()->Get_Min()
+	>=  m_Parameters("COLORS_RANGE")->asRange()->Get_Max() )
 	{
 		m_Parameters("COLORS_RANGE")->asRange()->Set_Range(
 			m_pTIN->Get_Mean(cField) - 1.5 * m_pTIN->Get_StdDev(cField),
@@ -427,8 +427,8 @@ bool C3D_Viewer_TIN_Panel::On_Draw(void)
 
 	m_Colors		= *m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_LoVal();
-	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_HiVal() - m_Color_Min);
+	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
+	m_Color_Scale	= m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
 
 	//-----------------------------------------------------
 	if( m_Parameters("DRAW_FACES")->asBool() )	// Face

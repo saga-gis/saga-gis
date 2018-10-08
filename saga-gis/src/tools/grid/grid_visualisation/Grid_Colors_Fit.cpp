@@ -129,8 +129,8 @@ bool CGrid_Colors_Fit::On_Execute(void)
 		break;
 
 	case  1:
-		zMin	= Parameters("RANGE")->asRange()->Get_LoVal();
-		zRange	= Parameters("RANGE")->asRange()->Get_HiVal() - zMin;
+		zMin	= Parameters("RANGE")->asRange()->Get_Min();
+		zRange	= Parameters("RANGE")->asRange()->Get_Max() - zMin;
 		break;
 	}
 

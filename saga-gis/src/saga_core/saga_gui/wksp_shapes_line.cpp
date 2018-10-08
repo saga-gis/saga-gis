@@ -242,8 +242,8 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 	}
 	else
 	{
-		m_Size		= (int)m_Parameters("SIZE_RANGE")->asRange()->Get_LoVal();
-		m_dSize		=     (m_Parameters("SIZE_RANGE")->asRange()->Get_HiVal() - m_Size) / m_dSize;
+		m_Size		= (int)m_Parameters("SIZE_RANGE")->asRange()->Get_Min();
+		m_dSize		=     (m_Parameters("SIZE_RANGE")->asRange()->Get_Max() - m_Size) / m_dSize;
 	}
 
 	//-----------------------------------------------------

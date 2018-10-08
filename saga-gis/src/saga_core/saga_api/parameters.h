@@ -495,23 +495,23 @@ public:
 
 	virtual const SG_Char *		asString				(void);
 
-	bool						Set_Range				(double loVal, double hiVal);
+	bool						Set_Range				(double Min, double Max);
+	double						Get_Range				(void)	const	{	return( Get_Max() - Get_Min() );	}
 
-	bool						Set_LoVal				(double newValue);
-	double						Get_LoVal				(void);
+	bool						Set_Min					(double Min);
+	double						Get_Min					(void)	const;
+	CSG_Parameter *				Get_Min_Parameter		(void)	const	{	return( m_pMin );	}
 
-	bool						Set_HiVal				(double newValue);
-	double						Get_HiVal				(void);
-
-	CSG_Parameter *				Get_LoParm				(void)	const	{	return( m_pLo );	}
-	CSG_Parameter *				Get_HiParm				(void)	const	{	return( m_pHi );	}
+	bool						Set_Max					(double Max);
+	double						Get_Max					(void)	const;
+	CSG_Parameter *				Get_Max_Parameter		(void)	const	{	return( m_pMax );	}
 
 	virtual bool				Restore_Default			(void);
 
 
 protected:
 
-	CSG_Parameter				*m_pLo, *m_pHi;
+	CSG_Parameter				*m_pMin, *m_pMax;
 
 	CSG_Parameters				*m_pRange;
 

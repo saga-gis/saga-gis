@@ -526,7 +526,7 @@ bool CPoints_View_Control::_Draw_Image(void)
 	}
 
 	//-------------------------------------------------
-	if( m_Settings("C_RANGE")->asRange()->Get_LoVal() >= m_Settings("C_RANGE")->asRange()->Get_HiVal() )
+	if( m_Settings("C_RANGE")->asRange()->Get_Min() >= m_Settings("C_RANGE")->asRange()->Get_Max() )
 	{
 		m_Settings("C_RANGE")->asRange()->Set_Range(
 			m_cStats.Get_Mean() - 1.5 * m_pPoints->Get_StdDev(m_cField),
@@ -535,8 +535,8 @@ bool CPoints_View_Control::_Draw_Image(void)
 	}
 
 	m_pColors	= m_Settings("COLORS")->asColors();
-	m_cMin		= m_Settings("C_RANGE")->asRange()->Get_LoVal();
-	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_HiVal() - m_cMin);
+	m_cMin		= m_Settings("C_RANGE")->asRange()->Get_Min();
+	m_cScale	= m_pColors->Get_Count() / (m_Settings("C_RANGE")->asRange()->Get_Max() - m_cMin);
 
 	m_BGColor	= m_Settings("BGCOLOR")->asColor();
 
@@ -587,8 +587,8 @@ bool CPoints_View_Control::_Draw_Image(void)
 	m_bColorAsRGB	= m_Settings("C_AS_RGB")->asBool();
 
 	m_bDim			= m_Settings("DIM")->asBool();
-	m_Dim_A			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_LoVal() * (m_zMax - m_zMin);
-	m_Dim_B			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_HiVal() * (m_zMax - m_zMin);
+	m_Dim_A			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_Min() * (m_zMax - m_zMin);
+	m_Dim_B			= m_zMin + m_Settings("DIM_RANGE")->asRange()->Get_Max() * (m_zMax - m_zMin);
 
 	int		iSelection;
 	int		nSkip	= 1 + (int)(0.001 * m_pPoints->Get_Count() * SG_Get_Square(1.0 - m_Detail));

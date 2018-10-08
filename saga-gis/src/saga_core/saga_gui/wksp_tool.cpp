@@ -858,8 +858,8 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Range:
-			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MIN")), p->asRange()->Get_Min());
+			Command	+= CSG_String::Format(" -%s=%f", GET_ID2(p, SG_T("MAX")), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date:
@@ -963,8 +963,8 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			break;
 
 		case PARAMETER_TYPE_Range          :
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_LoVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_LoVal());
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_HiVal(%f)\n", p->Get_Identifier(), p->asRange()->Get_HiVal());
+			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Min(%f)\n", p->Get_Identifier(), p->asRange()->Get_Min());
+			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Max(%f)\n", p->Get_Identifier(), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date           :

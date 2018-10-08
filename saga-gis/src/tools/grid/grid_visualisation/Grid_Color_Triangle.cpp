@@ -340,16 +340,16 @@ CSG_Grid * CGrid_Color_Triangle::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Para
 			break;
 
 		case 2:	// User defined rescale
-			Min		= pRange->Get_LoVal();
-			Range	= pRange->Get_HiVal() - pRange->Get_LoVal();
+			Min		= pRange->Get_Min();
+			Range	= pRange->Get_Range();
 			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
 			break;
 
 		case 3:	// Normalise
-			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_LoVal() / 100.0);
+			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Min() / 100.0);
 			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
 			Min		= pGrid->asDouble(x, y);
-			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_HiVal() / 100.0);
+			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Max() / 100.0);
 			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
 			Range	= pGrid->asDouble(x, y) - Min;
 			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
