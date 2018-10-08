@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.0.0">
+	<group></group>
+	<identifier>grid_statistics_for_directions</identifier>
+	<name>Directional Grid Statitistics</name>
+	<author>O.Conrad (c) 2018</author>
+	<description></description>
+	<menu absolute="true">Spatial and Geostatistics|Grids</menu>
+	
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="GRID" type="grid" parent="GRID_SYSTEM">
+			<name>Grid</name>
+		</input>
+		<output varname="MEAN" type="grid_list" parent="GRID_SYSTEM">
+			<name>Arithmetic Mean</name>
+		</output>
+	<!--<option varname="STEPS" type="integer">
+			<name>Number of Directions</name><value min="1">4</value>
+		</option>-->
+		<option varname="BEGIN" type="double">
+			<name>Start Direction</name><value>0</value><description>[degree]</description>
+		</option>
+		<option varname="END" type="double">
+			<name>Stop Direction</name><value>359</value><description>[degree]</description>
+		</option>
+		<option varname="STEP" type="double">
+			<name>Directional Step</name><value min="1">45.0</value><description>[degree]</description>
+		</option>
+		<option varname="TOLERANCE" type="double">
+			<name>Tolerance</name><value>0.0</value><description>[degree]</description>
+		</option>
+		<option varname="MAXDISTANCE" type="integer">
+			<name>Maximum Distance</name><value>0</value><description>Maximum distance [cells], ignored if set to zero.</description>
+		</option>
+		<option varname="DW_WEIGHTING" type="choice">
+			<choices>no distance weighting|inverse distance to a power|exponential|gaussian weighting</choices>
+			<name>Weighting</name><value>3</value>
+		</option>
+		<option varname="DW_IDW_POWER" type="double">
+			<condition value="1" type="=">DW_WEIGHTING</condition>
+			<name>Inverse Distance Weighting Power</name><value>2.0</value>
+		</option>
+		<option varname="DW_IDW_OFFSET" type="double">
+			<condition value="1" type="=">DW_WEIGHTING</condition>
+			<name>Inverse Distance Offset</name><value>1.0</value>
+		</option>
+		<option varname="DW_BANDWIDTH" type="double">
+			<condition value="1" type="less">DW_WEIGHTING</condition>
+			<name>Gaussian and Exponential Weighting Bandwidth</name><value min="0">25</value><description>[cells]</description>
+		</option>
+	</parameters>
+	
+	<tools>
+	<!--<foreach varname="DIRECTION" begin="0" end="360" steps="STEPS">-->
+		<foreach varname="DIRECTION" begin="BEGIN" end="END" step="STEP">
+			<tool library="statistics_grid" tool="6" name="Directional Statistics for Single Grid">
+				<option id="DIRECTION"     varname="true">DIRECTION</option>
+				<option id="TOLERANCE"     varname="true">TOLERANCE</option>
+				<option id="MAXDISTANCE"   varname="true">MAXDISTANCE</option>
+				<option id="DW_WEIGHTING"  varname="true">DW_WEIGHTING</option>
+				<option id="DW_IDW_POWER"  varname="true">DW_IDW_POWER</option>
+				<option id="DW_IDW_OFFSET" varname="true">DW_IDW_OFFSET</option>
+				<option id="DW_BANDWIDTH"  varname="true">DW_BANDWIDTH</option>
+				<input  id="GRID">GRID</input>
+				<output id="MEAN">MEAN</output>
+			</tool>
+		</foreach>
+	</tools>
+</toolchain>

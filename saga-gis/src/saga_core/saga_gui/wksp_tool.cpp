@@ -497,7 +497,7 @@ CSG_String CWKSP_Tool::_Get_XML(bool bHeader)
 
 	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		_Get_XML(Tool, m_pTool->Get_Parameters());
+		_Get_XML(Tool, m_pTool->Get_Parameters(i), m_pTool->Get_Parameters(i)->Get_Identifier() + '.');
 	}
 
 	if( !bHeader )
@@ -734,7 +734,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
+void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -750,7 +750,7 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 		switch( p->Get_Type() )
 		{
 		case PARAMETER_TYPE_Parameters  :
-			_Get_XML(Tool, p->asParameters());
+			_Get_XML(Tool, p->asParameters(), Prefix + p->Get_Identifier() + '.');
 			break;
 
 		case PARAMETER_TYPE_Bool        :
@@ -803,8 +803,9 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters)
 
 		if( pChild )
 		{
-			pChild->Add_Property("parms", pParameters->Get_Identifier());
-			pChild->Add_Property("id"   , p          ->Get_Identifier());
+		//	pChild->Add_Property("parms", pParameters->Get_Identifier());
+		//	pChild->Add_Property("id"   , p          ->Get_Identifier());
+			pChild->Add_Property("id", Prefix + p->Get_Identifier());
 		}
 	}
 }

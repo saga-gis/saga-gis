@@ -446,11 +446,9 @@ CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CS
 //---------------------------------------------------------
 CSG_Parameters * CSG_Tool::Get_Parameters(const CSG_String &Identifier)
 {
-	CSG_String	sIdentifier(Identifier);
-
 	for(int i=0; i<m_npParameters; i++)
 	{
-		if( !sIdentifier.Cmp(m_pParameters[i]->Get_Identifier()) )
+		if( m_pParameters[i]->Cmp_Identifier(Identifier) )
 		{
 			return( m_pParameters[i] );
 		}
