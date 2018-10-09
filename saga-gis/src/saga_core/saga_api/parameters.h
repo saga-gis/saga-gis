@@ -309,7 +309,7 @@ public:	///////////////////////////////////////////////////
 
 	//-----------------------------------------------------
 	bool							Assign					(CSG_Parameter *pSource);
-	CSG_MetaData *					Serialize				(CSG_MetaData &MetaData, bool bSave);
+	bool							Serialize				(CSG_MetaData &MetaData, bool bSave);
 
 
 protected: ////////////////////////////////////////////////
@@ -335,7 +335,7 @@ protected: ////////////////////////////////////////////////
 	virtual const SG_Char *			_asString				(void)	const;
 
 	virtual bool					_Assign					(CSG_Parameter *pSource);
-	virtual bool					_Serialize				(CSG_MetaData &Entry, bool bSave);
+	virtual bool					_Serialize				(CSG_MetaData &MetaData, bool bSave);
 
 
 private: //////////////////////////////////////////////////

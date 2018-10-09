@@ -78,7 +78,7 @@ CGet_Connections::CGet_Connections(void)
 		"Lists all PostgreSQL sources."
 	));
 
-	Parameters.Add_Table(NULL,
+	Parameters.Add_Table("",
 		"CONNECTIONS"	, _TL("Connections"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -106,11 +106,11 @@ bool CGet_Connections::On_Execute(void)
 		CSG_Table_Record	*pRecord     = pConnections->Add_Record();
 
 		pRecord->Set_Value(0, pConnection->Get_Connection());
-		pRecord->Set_Value(1, pConnection->Get_Host());
-		pRecord->Set_Value(2, pConnection->Get_Port());
-		pRecord->Set_Value(3, pConnection->Get_DBName());
-		pRecord->Set_Value(4, pConnection->Get_Version());
-		pRecord->Set_Value(5, pConnection->Get_PostGIS());
+		pRecord->Set_Value(1, pConnection->Get_Host      ());
+		pRecord->Set_Value(2, pConnection->Get_Port      ());
+		pRecord->Set_Value(3, pConnection->Get_DBName    ());
+		pRecord->Set_Value(4, pConnection->Get_Version   ());
+		pRecord->Set_Value(5, pConnection->Get_PostGIS   ());
 	}
 
 	return( true );
@@ -280,10 +280,10 @@ CDel_Connection::CDel_Connection(void)
 		"Disconnect PostgreSQL data source."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -327,10 +327,10 @@ CDel_Connections::CDel_Connections(void)
 		"Disconnects all PostgreSQL connections."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("rollback"),
 			_TL("commit")
 		), 1
@@ -389,7 +389,7 @@ CTransaction_Start::CTransaction_Start(void)
 		"Tries to add a save point, if already in transaction mode. "
 	));
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"SAVEPOINT"	, _TL("Save Point"),
 		_TL(""),
 		"SAVEPOINT_01"
@@ -449,7 +449,7 @@ CTransaction_Stop::CTransaction_Stop(void)
 		"Execute a commit or rollback on open transactions with PostgreSQL source."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TRANSACT"	, _TL("Transactions"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
@@ -458,7 +458,7 @@ CTransaction_Stop::CTransaction_Stop(void)
 		), 1
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"SAVEPOINT"	, _TL("Save Point"),
 		_TL(""),
 		""
@@ -522,7 +522,7 @@ CExecute_SQL::CExecute_SQL(void)
 		"Separate different commands with a semicolon (\';\'). "
 	));
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"SQL"	, _TL("SQL Statement"),
 		_TL(""),
 		"CREATE TABLE myTable1 (Col1 VARCHAR(255) PRIMARY KEY, Col2 INTEGER);\n"
@@ -531,13 +531,13 @@ CExecute_SQL::CExecute_SQL(void)
 		true
 	);
 
-	Parameters.Add_Table_List(NULL,
+	Parameters.Add_Table_List("",
 		"TABLES", _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"OUTPUT", _TL("Output"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
@@ -547,7 +547,7 @@ CExecute_SQL::CExecute_SQL(void)
 		), 2
 	);
 
-	Parameters.Add_Bool(NULL,
+	Parameters.Add_Bool("",
 		"STOP"	, _TL("Stop on Error"),
 		_TL(""),
 		false
@@ -664,31 +664,31 @@ CDatabase_Create::CDatabase_Create(void)
 		"Creates a new PostgreSQL Database."
 	));
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_HOST"	, _TL("Host"),
 		_TL(""),
 		"localhost"
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"PG_PORT"	, _TL("Port"),
 		_TL(""),
 		5432, 0, true
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_NAME"	, _TL("Database"),
 		_TL(""),
 		"geo_test"
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_USER"	, _TL("User"),
 		_TL(""),
 		"postgres"
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_PWD"	, _TL("Password"),
 		_TL(""),
 		"postgres", false, true
@@ -755,31 +755,31 @@ CDatabase_Destroy::CDatabase_Destroy(void)
 		"Deletes a PostgreSQL Database."
 	));
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_HOST"	, _TL("Host"),
 		_TL(""),
 		"localhost"
 	);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"PG_PORT"	, _TL("Port"),
 		_TL(""),
 		5432, 0, true
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_NAME"	, _TL("Database"),
 		_TL(""),
 		"geo_test"
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_USER"	, _TL("User"),
 		_TL(""),
 		"postgres"
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"PG_PWD"	, _TL("Password"),
 		_TL(""),
 		"postgres", false, true

@@ -139,19 +139,9 @@ bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
 	Set_Description	(Parameters.Get_Description());
 
 	//-----------------------------------------------------
-	int		i;
-
-	for(i=0; i<Parameters.m_nParameters; i++)
+	for(int i=0; i<Parameters.m_nParameters; i++)
 	{
 		_Add(Parameters.m_Parameters[i]);
-	}
-
-	for(i=0; i<Parameters.m_nParameters; i++)
-	{
-		if( Get_Parameter(i) && Parameters.m_Parameters[i]->m_pParent )
-		{
-			Get_Parameter(i)->m_pParent	= Get_Parameter(Parameters.m_Parameters[i]->m_pParent->Get_Identifier());
-		}
 	}
 
 	if( Parameters.m_pGrid_System )
@@ -507,8 +497,6 @@ CSG_Parameter * CSG_Parameters::Add_FixedTable(const CSG_String &ParentID, const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -600,8 +588,6 @@ CSG_Parameter * CSG_Parameters::Add_Grid_List(const CSG_String &ParentID, const 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -667,8 +653,6 @@ CSG_Parameter * CSG_Parameters::Add_Grids_List(const CSG_String &ParentID, const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -754,8 +738,6 @@ CSG_Parameter * CSG_Parameters::Add_Table_List(const CSG_String &ParentID, const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -797,8 +779,6 @@ CSG_Parameter * CSG_Parameters::Add_Shapes_List(const CSG_String &ParentID, cons
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -835,8 +815,6 @@ CSG_Parameter * CSG_Parameters::Add_TIN_List(const CSG_String &ParentID, const C
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -875,8 +853,6 @@ CSG_Parameter * CSG_Parameters::Add_PointCloud_List(const CSG_String &ParentID, 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -893,8 +869,6 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(const CSG_String &ParentID, const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1061,6 +1035,8 @@ CSG_Parameter * CSG_Parameters::_Add(const CSG_String &ParentID, const CSG_Strin
 
 	m_Parameters	= (CSG_Parameter **)SG_Realloc(m_Parameters, (m_nParameters + 1) * sizeof(CSG_Parameter *));
 	m_Parameters[m_nParameters++]	= pParameter;
+
+	pParameter->_Set_String();
 
 	return( pParameter );
 }

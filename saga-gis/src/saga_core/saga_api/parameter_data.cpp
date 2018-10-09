@@ -226,6 +226,7 @@ TSG_Parameter_Type SG_Parameter_Type_Get_Type(const CSG_String &Identifier)
 CSG_Parameter_Node::CSG_Parameter_Node(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
+	// nop
 }
 
 
@@ -239,7 +240,7 @@ CSG_Parameter_Node::CSG_Parameter_Node(CSG_Parameters *pOwner, CSG_Parameter *pP
 CSG_Parameter_Bool::CSG_Parameter_Bool(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
 	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	m_Value		= false;
+	m_Value	= false;
 }
 
 //---------------------------------------------------------

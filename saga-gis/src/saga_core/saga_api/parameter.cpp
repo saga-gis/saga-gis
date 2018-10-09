@@ -1083,7 +1083,12 @@ bool CSG_Parameter::Assign(CSG_Parameter *pSource)
 		m_bEnabled	= pSource->m_bEnabled;
 		m_Default	= pSource->m_Default;
 
-		return( _Assign(pSource) );
+		if( _Assign(pSource) )
+		{
+			_Set_String();
+
+			return( true );
+		}
 	}
 
 	return( false );
@@ -1095,38 +1100,40 @@ bool CSG_Parameter::_Assign(CSG_Parameter *pSource)
 }
 
 //---------------------------------------------------------
-CSG_MetaData * CSG_Parameter::Serialize(CSG_MetaData &Entry, bool bSave)
+bool CSG_Parameter::Serialize(CSG_MetaData &MetaData, bool bSave)
 {
 	if( bSave )
 	{
-		if( !is_Information() && Get_Type() != PARAMETER_TYPE_Node && Get_Type() != PARAMETER_TYPE_Undefined )
+		if( is_Information() || Get_Type() == PARAMETER_TYPE_Node || Get_Type() != PARAMETER_TYPE_Undefined )
 		{
-			CSG_MetaData	&Child	= *Entry.Add_Child(
-				is_Option         () ? "OPTION"    :
-				is_DataObject     () ? "DATA"      :
-				is_DataObject_List() ? "DATA_LIST" : "PARAMETER"
-			);
-
-			Child.Add_Property("type" , Get_Type_Identifier        ());
-			Child.Add_Property("id"   , Get_Identifier             ());
-			Child.Add_Property("name" , Get_Name                   ());
-			Child.Add_Property("parms", Get_Owner()->Get_Identifier());
-
-			_Serialize(Child, bSave);
-
-			return( &Child );
+			return( true );
 		}
+
+		CSG_MetaData	&Child	= *MetaData.Add_Child(
+			is_Option         () ? "OPTION"    :
+			is_DataObject     () ? "DATA"      :
+			is_DataObject_List() ? "DATA_LIST" : "PARAMETER"
+		);
+
+		Child.Add_Property("type" , Get_Type_Identifier        ());
+		Child.Add_Property("id"   , Get_Identifier             ());
+		Child.Add_Property("name" , Get_Name                   ());
+		Child.Add_Property("parms", Get_Owner()->Get_Identifier());
+
+		_Serialize(Child, bSave);
+
+		return( true );
 	}
-	else
+	else if( MetaData.Cmp_Property("type", Get_Type_Identifier())
+		&&	 MetaData.Cmp_Property("id"  , Get_Identifier     ()) 
+		&&	_Serialize(MetaData, bSave) )
 	{
-		if(	Entry.Cmp_Property("type", Get_Type_Identifier())
-		&&	Entry.Cmp_Property("id"  , Get_Identifier     ()) )
-		{
-			return( _Serialize(Entry, bSave) ? &Entry : NULL );
-		}
+		_Set_String();
+
+		return( true );
 	}
 
-	return( NULL );
+	return( false );
 }
 
 bool CSG_Parameter::_Serialize(CSG_MetaData &Entry, bool bSave)
