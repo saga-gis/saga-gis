@@ -612,7 +612,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 		break;
 
 	case PARAMETER_TYPE_String          :
-		if( ((CSG_Parameter_String *)pParameter->Get_Data())->is_Password() )
+		if( ((CSG_Parameter_String *)pParameter)->is_Password() )
 		{
 			ADD_PROPERTY(new wxStringProperty    (Name, ID, pParameter->asString()), false);
 			pProperty->SetAttribute(wxPG_STRING_PASSWORD, true);

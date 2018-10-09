@@ -203,8 +203,8 @@ bool CGEOTRANS_Base::Initialize(void)
 
 			if( sList.Length() > 0 )
 			{
-				((CSG_Parameter_Choice *)pProjection->Get_Parameter("SOURCE_PROJECTION")->Get_Data())->Set_Items(sList);
-				((CSG_Parameter_Choice *)pProjection->Get_Parameter("TARGET_PROJECTION")->Get_Data())->Set_Items(sList);
+				(*pProjection)("SOURCE_PROJECTION")->asChoice()->Set_Items(sList);
+				(*pProjection)("TARGET_PROJECTION")->asChoice()->Set_Items(sList);
 			}
 		}
 		else
@@ -226,8 +226,8 @@ bool CGEOTRANS_Base::Initialize(void)
 
 			if( sList.Length() > 0 )
 			{
-				((CSG_Parameter_Choice *)pProjection->Get_Parameter("SOURCE_DATUM")->Get_Data())->Set_Items(sList);
-				((CSG_Parameter_Choice *)pProjection->Get_Parameter("TARGET_DATUM")->Get_Data())->Set_Items(sList);
+				(*pProjection)("SOURCE_DATUM")->asChoice()->Set_Items(sList);
+				(*pProjection)("TARGET_DATUM")->asChoice()->Set_Items(sList);
 			}
 		}
 		else

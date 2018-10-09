@@ -991,7 +991,7 @@ bool CPointCloud_Get_Subset_SPCVF_Interactive::On_Execute_Position(CSG_Point ptW
 
 		CSG_Rect	AOI(m_ptDown.Get_X(), m_ptDown.Get_Y(), ptWorld.Get_X(), ptWorld.Get_Y());
 
-		CSG_Parameter_PointCloud_List	PointCloudList(NULL, PARAMETER_INFORMATION);
+		CSG_Parameters P; CSG_Parameter_PointCloud_List	&PointCloudList	= *P.Add_PointCloud_List("", "PCL", "", "", PARAMETER_INPUT_OPTIONAL)->asPointCloudList();
 
 		// as long as this tool only supports to drag a box, we initialize it with a fake overlap in order
 		// to use CSG_Rect instead of CSG_Shape for point in polygon check in Get_Subset():

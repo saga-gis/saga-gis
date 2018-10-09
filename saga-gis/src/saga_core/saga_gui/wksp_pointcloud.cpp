@@ -350,8 +350,8 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	((CSG_Parameter_Choice *)m_Parameters("COLORS_TYPE")->Get_Data())->Set_Items(
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+	m_Parameters("COLORS_TYPE")->asChoice()->Set_Items(
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
 			_TL("Classified"      ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_METRIC

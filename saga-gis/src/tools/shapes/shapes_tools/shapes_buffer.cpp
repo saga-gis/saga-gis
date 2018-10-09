@@ -69,121 +69,112 @@
 //---------------------------------------------------------
 CShapes_Buffer::CShapes_Buffer(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes Buffer"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2008"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"A vector based buffer construction partly based on the method supposed by Dong et al. 2003. "
-		"\n\n"
-		"References:\n"
-		"Dong, P, Yang, C., Rui, X., Zhang, L., Cheng, Q. (2003): "
-		"'An effective buffer generation method in GIS'. "
-		"Geoscience and Remote Sensing Symposium, 2003. "
-		"IGARSS '03. Proceedings. 2003 IEEE International, Vol.6, p.3706-3708.\n"
-		"<a href=\"http://ieeexplore.ieee.org/iel5/9010/28606/01295244.pdf\">online version</a>\n"
+		"A vector based buffer construction partly based on the method supposed by Dong et al. (2003)."
 	));
 
+	Add_Reference("Dong, P, Yang, C., Rui, X., Zhang, L., Cheng, Q.", "2003",
+		"An effective buffer generation method in GIS",
+		"Geoscience and Remote Sensing Symposium, IGARSS '03. Proceedings. 2003 IEEE International, Vol.6, p.3706-3708.",
+		SG_T("http://ieeexplore.ieee.org/iel5/9010/28606/01295244.pdf"), SG_T("online")
+	);
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "BUFFER"		, _TL("Buffer"),
+	Parameters.Add_Shapes("",
+		"BUFFER"	, _TL("Buffer"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	pNode	= Parameters.Add_Table_Field_or_Const(
-		pNode	, "DIST_FIELD"	, _TL("Buffer Distance"),
+	Parameters.Add_Table_Field_or_Const("SHAPES",
+		"DIST_FIELD", _TL("Buffer Distance"),
 		_TL(""),
 		100.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "DIST_SCALE"	, _TL("Scaling Factor for Attribute Value"),
+	Parameters.Add_Double("DIST_FIELD",
+		"DIST_SCALE", _TL("Scaling Factor for Attribute Value"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISSOLVE"	, _TL("Dissolve Buffers"),
+	Parameters.Add_Bool("",
+		"DISSOLVE"	, _TL("Dissolve Buffers"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NZONES"		, _TL("Number of Buffer Zones"),
+	Parameters.Add_Int("",
+		"NZONES"	, _TL("Number of Buffer Zones"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "POLY_INNER"	, _TL("Inner Buffer"),
+	Parameters.Add_Bool("",
+		"POLY_INNER", _TL("Inner Buffer"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DARC"		, _TL("Arc Vertex Distance [Degree]"),
+	Parameters.Add_Double("",
+		"DARC"		, _TL("Arc Vertex Distance [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 5.0, 0.01, true, 45.0, true
+		5.0, 0.01, true, 45.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CShapes_Buffer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("SHAPES")) )
+	if(	pParameter->Cmp_Identifier("SHAPES") )
 	{
-		pParameters->Get_Parameter("POLY_INNER")->Set_Enabled(pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
+		pParameters->Set_Enabled("POLY_INNER", pParameter->asShapes() && pParameter->asShapes()->Get_Type() == SHAPE_TYPE_Polygon);
 	}
 
-	if(	pParameter->Cmp_Identifier(SG_T("NZONES")) )
+	if(	pParameter->Cmp_Identifier("NZONES") )
 	{
-		pParameters->Get_Parameter("DISSOLVE"  )->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("DISSOLVE"  , pParameter->asInt() == 1);
 	}
 
-	if(	pParameter->Cmp_Identifier(SG_T("DIST_FIELD")) )
+	if(	pParameter->Cmp_Identifier("DIST_FIELD") )
 	{
-		pParameters->Get_Parameter("DIST_SCALE")->Set_Enabled(pParameter->asInt() >= 0);
+		pParameters->Set_Enabled("DIST_SCALE", pParameter->asInt() >= 0);
 	}
 
-	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CShapes_Buffer::On_Execute(void)
 {
-	int			Field, nZones;
-	CSG_Shapes	*pShapes, *pBuffers;
-
 	//-----------------------------------------------------
-	pShapes			= Parameters("SHAPES"    )->asShapes();
-	pBuffers		= Parameters("BUFFER"    )->asShapes();
-	nZones			= Parameters("NZONES"    )->asInt();
-	Field			= Parameters("DIST_FIELD")->asInt();
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pBuffers	= Parameters("BUFFER")->asShapes();
+
+	int	nZones		= Parameters("NZONES"    )->asInt();
+	int	Field		= Parameters("DIST_FIELD")->asInt();
+
 	m_dArc			= Parameters("DARC"      )->asDouble() * M_DEG_TO_RAD;
 	m_bPolyInner	= Parameters("POLY_INNER")->asBool() && pShapes->Get_Type() == SHAPE_TYPE_Polygon;
 
@@ -215,8 +206,8 @@ bool CShapes_Buffer::On_Execute(void)
 		CSG_Shapes	Buffers;
 
 		pBuffers->Create(SHAPE_TYPE_Polygon);
-		pBuffers->Add_Field(_TL("ID")	, SG_DATATYPE_Int);
-		pBuffers->Add_Field(_TL("ZONE")	, SG_DATATYPE_Double);
+		pBuffers->Add_Field("ID"  , SG_DATATYPE_Int   );
+		pBuffers->Add_Field("ZONE", SG_DATATYPE_Double);
 
 		double	dZone	= 1.0 / nZones;
 
@@ -244,8 +235,6 @@ bool CShapes_Buffer::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -261,11 +250,11 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 
 	if( !bDissolve )
 	{
-		pBuffers->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")), pShapes);
+		pBuffers->Create(SHAPE_TYPE_Polygon, NULL, pShapes);
 	}
 	else
 	{
-		pBuffers->Create(SHAPE_TYPE_Polygon, CSG_String::Format(SG_T("%s [%s]"), pShapes->Get_Name(), _TL("Buffer")));
+		pBuffers->Create(SHAPE_TYPE_Polygon);
 		pBuffers->Add_Field(_TL("ID"), SG_DATATYPE_Int);
 		pBuffer	= pBuffers->Add_Shape();
 	}
@@ -304,8 +293,6 @@ bool CShapes_Buffer::Get_Buffers(CSG_Shapes *pShapes, int Field, CSG_Shapes *pBu
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -313,11 +300,13 @@ bool CShapes_Buffer::Get_Buffer(CSG_Shape *pShape, CSG_Shape *pBuffer, double Di
 {
 	switch( pShape->Get_Type() )
 	{
-	case SHAPE_TYPE_Point:		return( Get_Buffer_Point	(pShape, pBuffer, Distance) );
-	case SHAPE_TYPE_Points:		return( Get_Buffer_Points	(pShape, pBuffer, Distance) );
-	case SHAPE_TYPE_Line:		return( Get_Buffer_Line		(pShape, pBuffer, Distance) );
-	case SHAPE_TYPE_Polygon:	return( Get_Buffer_Polygon	(pShape, pBuffer, Distance) );
-	default:					return( false );
+	case SHAPE_TYPE_Point  : return( Get_Buffer_Point  (pShape, pBuffer, Distance) );
+	case SHAPE_TYPE_Points : return( Get_Buffer_Points (pShape, pBuffer, Distance) );
+	case SHAPE_TYPE_Line   : return( Get_Buffer_Line   (pShape, pBuffer, Distance) );
+	case SHAPE_TYPE_Polygon: return( Get_Buffer_Polygon(pShape, pBuffer, Distance) );
+
+	default:
+		return( false );
 	}
 }
 
@@ -382,8 +371,6 @@ bool CShapes_Buffer::Get_Buffer_Polygon(CSG_Shape *pPolygon, CSG_Shape *pBuffer,
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -392,10 +379,9 @@ inline double CShapes_Buffer::Get_Direction(const TSG_Point &From, const TSG_Poi
 	double	dx	= To.x - From.x;
 	double	dy	= To.y - From.y;
 
-	return(	dx != 0.0 ?	M_PI_180 + atan2(dy, dx)	: (
-			dy  > 0.0 ?	M_PI_270					: (
-			dy  < 0.0 ?	M_PI_090					:
-						0.0							) )
+	return(	dx != 0.0 ?	M_PI_180 + atan2(dy, dx)
+		: ( dy  > 0.0 ?	M_PI_270
+		: ( dy  < 0.0 ?	M_PI_090 : 0.0) )
 	);
 }
 
@@ -426,8 +412,6 @@ inline bool CShapes_Buffer::Get_Parallel(const TSG_Point &A, const TSG_Point &B,
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -78,7 +78,7 @@ bool COWA::On_Execute(void){
 	pTable = Parameters("WEIGHTS")->asTable();
 	pOutputGrid = Parameters("OUTPUT")->asGrid();
 
-	if( (pGridsList = (CSG_Parameter_Grid_List *)Parameters("GRIDS")->Get_Data()) != 
+	if( (pGridsList = Parameters("GRIDS")->asGridList()) != 
 			NULL && pGridsList->Get_Grid_Count() > 0 ){
 
 		if (pTable->Get_Record_Count() < pGridsList->Get_Grid_Count()){

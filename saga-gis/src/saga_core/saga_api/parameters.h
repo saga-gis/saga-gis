@@ -182,86 +182,178 @@ SAGA_API_DLL_EXPORT TSG_Parameter_Type	SG_Parameter_Type_Get_Type			(const CSG_S
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSG_Parameters;
-class CSG_Parameter;
+#define PARAMETER_CHECK_VALUES			0x01
+#define PARAMETER_CHECK_ENABLE			0x02
+#define PARAMETER_CHECK_ALL				(PARAMETER_CHECK_VALUES | PARAMETER_CHECK_ENABLE)
+
+//---------------------------------------------------------
+#define SG_PARAMETER_DATA_SET_FALSE		0
+#define SG_PARAMETER_DATA_SET_TRUE		1
+#define SG_PARAMETER_DATA_SET_CHANGED	2
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define PARAMETER_CHECK_VALUES				0x01
-#define PARAMETER_CHECK_ENABLE				0x02
-#define PARAMETER_CHECK_ALL					(PARAMETER_CHECK_VALUES | PARAMETER_CHECK_ENABLE)
-
-//---------------------------------------------------------
-#define SG_PARAMETER_DATA_SET_FALSE			0
-#define SG_PARAMETER_DATA_SET_TRUE			1
-#define SG_PARAMETER_DATA_SET_CHANGED		2
-
-//---------------------------------------------------------
-typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pParameter, int Flags);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					CSG_Parameter_Data					 //
+//					CSG_Parameter						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter
 {
-	friend class CSG_Parameter;
+public:	///////////////////////////////////////////////////
 
-public:
-	CSG_Parameter_Data(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data(void)	{}
+	CSG_Parameters *				Get_Owner				(void)	const;
+	CSG_Parameter *					Get_Parent				(void)	const;
+	class CSG_Data_Manager *		Get_Manager				(void)	const;
 
-	virtual TSG_Parameter_Type	Get_Type				(void)	const			= 0;
-	virtual CSG_String			Get_Type_Identifier		(void)	const;
-	virtual CSG_String			Get_Type_Name			(void)	const;
+	virtual TSG_Parameter_Type		Get_Type				(void)	const	= 0;
+	CSG_String						Get_Type_Identifier		(void)	const;
+	CSG_String						Get_Type_Name			(void)	const;
 
-	long						Get_Constraint			(void)	const	{	return( m_Constraint );	}
+	const SG_Char *					Get_Identifier			(void)	const;
+	bool							Cmp_Identifier			(const CSG_String &Identifier)	const;
+	bool							Set_Name				(const CSG_String &Name);
+	const SG_Char *					Get_Name				(void)	const;
+	const SG_Char *					Get_Description			(void)	const;
+	bool							Set_Description			(const CSG_String &Description);
+	CSG_String						Get_Description			(int Flags)								const;
+	CSG_String						Get_Description			(int Flags, const SG_Char *Separator)	const;
 
-	virtual bool				is_Valid				(void)	const	{	return( true );			}
+	bool							Set_Enabled				(bool bEnabled = true);
+	bool							is_Enabled				(void)	const;
 
-	bool						Assign					(CSG_Parameter_Data *pSource);
-	bool						Serialize				(CSG_MetaData &Entry, bool bSave);
+	virtual bool					is_Valid				(void)	const	{	return( true );	}
+	bool							is_Input				(void)	const	{	return( !!(m_Constraint & PARAMETER_INPUT      ) );	}
+	bool							is_Output				(void)	const	{	return( !!(m_Constraint & PARAMETER_OUTPUT     ) );	}
+	bool							is_Optional				(void)	const	{	return( !!(m_Constraint & PARAMETER_OPTIONAL   ) );	}
+	bool							is_Information			(void)	const	{	return( !!(m_Constraint & PARAMETER_INFORMATION) );	}
+	bool							is_Option				(void)	const;
+	bool							is_DataObject			(void)	const;
+	bool							is_DataObject_List		(void)	const;
+	bool							is_Parameters			(void)	const;
+	bool							is_Serializable			(void)	const;
+	bool							is_Compatible			(CSG_Parameter *pParameter)	const;
+	bool							is_Value_Equal			(CSG_Parameter *pParameter)	const;
 
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(double            Value);
-	virtual int					Set_Value				(const CSG_String &Value);
-	virtual int					Set_Value				(void             *Value);
+	void							Set_UseInGUI			(bool bDoUse = false);
+	void							Set_UseInCMD			(bool bDoUse = false);
 
-	virtual int					asInt					(void)	const;
-	virtual double				asDouble				(void)	const;
-	virtual void *				asPointer				(void)	const;
+	bool							do_UseInGUI				(void)	const	{	return( !(m_Constraint & PARAMETER_NOT_FOR_GUI)   );	}
+	bool							do_UseInCMD				(void)	const	{	return( !(m_Constraint & PARAMETER_NOT_FOR_CMD)   );	}
 
-	virtual const SG_Char *		asString				(void);
+	void							ignore_Projection		(bool bIgnore);
+	bool							ignore_Projection		(void)	const	{	return( !!(m_Constraint & PARAMETER_IGNORE_PROJECTION) );	}
 
-	CSG_String					Get_Default				(void)	const	{	return( m_Default );	}
-	void						Set_Default				(int               Value);
-	void						Set_Default				(double            Value);
-	void						Set_Default				(const CSG_String &Value);
+	TSG_Data_Object_Type			Get_DataObject_Type		(void)	const;
 
-	virtual bool				Restore_Default			(void)			{	return( false );		}
+	int								Get_Children_Count		(void)			const	{	return( m_nChildren );		}
+	CSG_Parameter *					Get_Child				(int iChild)	const	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
+	bool							Set_Children_Enabled	(bool bEnabled = true);
+
+	//-----------------------------------------------------
+	virtual bool					Set_Value				(int               Value);
+	virtual bool					Set_Value				(double            Value);
+	virtual bool					Set_Value				(const CSG_String &Value);
+	virtual bool					Set_Value				(const char       *Value);
+	virtual bool					Set_Value				(const wchar_t    *Value);
+	virtual bool					Set_Value				(void             *Value);
+	virtual bool					Set_Value				(CSG_Parameter    *Value);
+
+	bool							Set_Default				(int               Value);
+	bool							Set_Default				(double            Value);
+	bool							Set_Default				(const CSG_String &Value);
+	const CSG_String &				Get_Default				(void)	const;
+	virtual bool					Restore_Default			(void);
+
+	bool							Check					(bool bSilent = true);
+
+	bool							has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
+
+	virtual bool					asBool					(void)	const	{	return( (bool         )!!_asInt    () );	}
+	virtual int						asInt					(void)	const	{	return( (int            )_asInt    () );	}
+	virtual long					asColor					(void)	const	{	return( (long           )_asInt    () );	}
+	virtual double					asDouble				(void)	const	{	return( (double         )_asDouble () );	}
+	virtual const SG_Char *			asString				(void)	const	{	return( (const SG_Char *)_asString () );	}
+	virtual void *					asPointer				(void)	const	{	return( (void          *)_asPointer() );	}
+
+	CSG_Colors                    *	asColors				(void)	const;
+	const SG_Char                 *	asFont					(void)	const;
+	CSG_Grid_System               *	asGrid_System			(void)	const;
+
+	CSG_Data_Object               *	asDataObject			(void)	const;
+	CSG_Grid                      *	asGrid					(void)	const;
+	CSG_Grids                     *	asGrids					(void)	const;
+	CSG_Table                     *	asTable					(void)	const;
+	CSG_Shapes                    *	asShapes				(void)	const;
+	CSG_TIN                       *	asTIN					(void)	const;
+	CSG_PointCloud                *	asPointCloud			(void)	const;
+
+	//-----------------------------------------------------
+	class CSG_Parameter_Value           *	asValue			(void)	const;
+	class CSG_Parameter_Date            *	asDate			(void)	const;
+	class CSG_Parameter_Choice          *	asChoice		(void)	const;
+	class CSG_Parameter_Choices         *	asChoices		(void)	const;
+	class CSG_Parameter_Range           *	asRange			(void)	const;
+	class CSG_Parameter_File_Name       *	asFilePath		(void)	const;
+	class CSG_Parameter_Table_Fields    *	asTableFields	(void)	const;
+	class CSG_Parameters                *	asParameters	(void)	const;
+
+	class CSG_Parameter_List            *	asList			(void)	const;
+	class CSG_Parameter_Grid_List       *	asGridList		(void)	const;
+	class CSG_Parameter_Grids_List      *	asGridsList		(void)	const;
+	class CSG_Parameter_Table_List      *	asTableList		(void)	const;
+	class CSG_Parameter_Shapes_List     *	asShapesList	(void)	const;
+	class CSG_Parameter_TIN_List        *	asTINList		(void)	const;
+	class CSG_Parameter_PointCloud_List *	asPointCloudList(void)	const;
+
+	//-----------------------------------------------------
+	bool							Assign					(CSG_Parameter *pSource);
+	CSG_MetaData *					Serialize				(CSG_MetaData &MetaData, bool bSave);
 
 
-protected:
+protected: ////////////////////////////////////////////////
 
-	int							m_Constraint;
+	friend class CSG_Parameters;
 
-	CSG_String					m_String, m_Default;
+	CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+	virtual ~CSG_Parameter(void);
 
-	CSG_Parameter				*m_pOwner;
+	CSG_String						m_String;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int						_Set_Value				(int               Value);
+	virtual int						_Set_Value				(double            Value);
+	virtual int						_Set_Value				(const CSG_String &Value);
+	virtual int						_Set_Value				(void             *Value);
+
+	virtual void					_Set_String				(void);
+
+	virtual int						_asInt					(void)	const;
+	virtual double					_asDouble				(void)	const;
+	virtual void *					_asPointer				(void)	const;
+	virtual const SG_Char *			_asString				(void)	const;
+
+	virtual bool					_Assign					(CSG_Parameter *pSource);
+	virtual bool					_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+private: //////////////////////////////////////////////////
+
+	void							_Add_Child				(CSG_Parameter *pChild);
+
+
+	bool							m_bEnabled;
+
+	int								m_Constraint, m_nChildren;
+
+	CSG_Parameter					**m_Children;
+
+	CSG_String						m_Identifier, m_Name, m_Description, m_Default;
+
+	CSG_Parameter					*m_pParent;
+
+	CSG_Parameters					*m_pOwner;
 
 };
 
@@ -271,14 +363,18 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Node : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Node : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Node(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Node(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Node );	}
 
+
+protected:
+
+	CSG_Parameter_Node(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+	friend class CSG_Parameters;
 };
 
 
@@ -287,33 +383,33 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Bool : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Bool(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Bool(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Bool );	}
 
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(double            Value);
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual int					asInt					(void)	const	{	return( m_Value );		}
-
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) != 0 );	}
-
 
 protected:
+
+	CSG_Parameter_Bool(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
 	bool						m_Value;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(double            Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const	{	return( m_Value );		}
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -322,13 +418,11 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Value : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Value : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Value(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Value(void)	{}
 
-	bool						Set_Range				(double Minimum, double Maximum);
+	bool						Set_Valid_Range			(double Minimum, double Maximum);
 
 	void						Set_Minimum				(double Minimum, bool bOn = true);
 	double						Get_Minimum				(void)	const	{	return( m_Minimum );	}
@@ -341,13 +435,17 @@ public:
 
 protected:
 
+	CSG_Parameter_Value(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	bool						m_bMinimum, m_bMaximum;
 
 	double						m_Minimum, m_Maximum;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				_Assign					(CSG_Parameter *pSource);
 
+
+	friend class CSG_Parameters;
 };
 
 
@@ -359,29 +457,31 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Int : public CSG_Parameter_Value
 {
 public:
-	CSG_Parameter_Int(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Int(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Int );		}
-
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(double            Value);
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual int					asInt					(void)	const	{	return( m_Value );		}
-	virtual double				asDouble				(void)	const	{	return( m_Value );		}
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asInt()) != 0 );	}
 
 
 protected:
 
+	CSG_Parameter_Int(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	int							m_Value;
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(double            Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
+
+	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const	{	return( m_Value );		}
+	virtual double				_asDouble				(void)	const	{	return( m_Value );		}
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -393,29 +493,31 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Double : public CSG_Parameter_Value
 {
 public:
-	CSG_Parameter_Double(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Double(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Double );	}
-
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(double            Value);
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual int					asInt					(void)	const	{	return( (int)m_Value );	}
-	virtual double				asDouble				(void)	const	{	return( m_Value );		}
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Restore_Default			(void)			{	return( Set_Value(m_Default.asDouble()) != 0 );	}
 
 
 protected:
 
+	CSG_Parameter_Double(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	double						m_Value;
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(double            Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
+
+	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const	{	return( (int)m_Value );	}
+	virtual double				_asDouble				(void)	const	{	return( m_Value );		}
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -427,15 +529,20 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Degree : public CSG_Parameter_Double
 {
 public:
-	CSG_Parameter_Degree(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Degree(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Degree );	}
 
-	virtual int					Set_Value				(const CSG_String &Value);
 
-	virtual const SG_Char *		asString				(void);
+protected:
 
+	CSG_Parameter_Degree(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+	virtual int					_Set_Value				(const CSG_String &Value);
+
+	virtual void				_Set_String				(void);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -444,24 +551,11 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Date : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Date : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Date(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Date(void);
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Date );	}
-
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(double            Value);
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual int					asInt					(void)	const;
-	virtual double				asDouble				(void)	const;
-
-	virtual const SG_Char *		asString				(void);
-
-	virtual bool				Restore_Default			(void);
 
 	void						Set_Date				(const CSG_DateTime &Date);
 	const CSG_DateTime &		Get_Date				(void)	const	{	return( m_Date );	}
@@ -469,12 +563,25 @@ public:
 
 protected:
 
+	CSG_Parameter_Date(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_DateTime				m_Date;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(double            Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const;
+	virtual double				_asDouble				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -483,42 +590,45 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Range : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Range : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Range(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Range(void);
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Range );		}
-
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual const SG_Char *		asString				(void);
 
 	bool						Set_Range				(double Min, double Max);
 	double						Get_Range				(void)	const	{	return( Get_Max() - Get_Min() );	}
 
 	bool						Set_Min					(double Min);
 	double						Get_Min					(void)	const;
-	CSG_Parameter *				Get_Min_Parameter		(void)	const	{	return( m_pMin );	}
+	CSG_Parameter_Double *		Get_Min_Parameter		(void)	const	{	return( m_pMin );	}
 
 	bool						Set_Max					(double Max);
 	double						Get_Max					(void)	const;
-	CSG_Parameter *				Get_Max_Parameter		(void)	const	{	return( m_pMax );	}
+	CSG_Parameter_Double *		Get_Max_Parameter		(void)	const	{	return( m_pMax );	}
 
 	virtual bool				Restore_Default			(void);
 
 
 protected:
 
-	CSG_Parameter				*m_pMin, *m_pMax;
+	CSG_Parameter_Range(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+	virtual ~CSG_Parameter_Range(void);
 
 	CSG_Parameters				*m_pRange;
 
+	CSG_Parameter_Double		*m_pMin, *m_pMax;
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
+	virtual int					_Set_Value				(const CSG_String &Value);
+
+	virtual void				_Set_String				(void);
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -530,14 +640,8 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter_Int
 {
 public:
-	CSG_Parameter_Choice(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Choice(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choice );	}
-
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual const SG_Char *		asString				(void);
 
 	void						Set_Items				(const SG_Char *String);
 
@@ -553,12 +657,20 @@ public:
 
 protected:
 
+	CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_Strings					m_Items;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -567,17 +679,11 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Choices : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Choices : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Choices(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Choices(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Choices );	}
-
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	virtual const SG_Char *		asString				(void);
 
 	void						Set_Items				(const CSG_String  &Items);
 	void						Set_Items				(const CSG_Strings &Items);
@@ -600,14 +706,22 @@ public:
 
 protected:
 
+	CSG_Parameter_Choices(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_Strings					m_Items[2];
 	
 	CSG_Array_Int				m_Selection;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -616,34 +730,32 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_String : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_String : public CSG_Parameter
 {
 public:
-	CSG_Parameter_String(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_String(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const		{	return( PARAMETER_TYPE_String );	}
 
-	virtual const SG_Char *		asString				(void)				{	return( m_String );	}
-
 	virtual bool				is_Valid				(void)	const;
 
-	virtual int					Set_Value				(const CSG_String &Value);
-
-	void						Set_Password			(bool bOn)	{	m_bPassword	= bOn;		}
-	bool						is_Password				(void)		{	return( m_bPassword );	}
-
-	virtual bool				Restore_Default			(void)		{	return( Set_Value(m_Default) != 0 );	}
+	void						Set_Password			(bool bOn);
+	bool						is_Password				(void)	const;
 
 
 protected:
 
+	CSG_Parameter_String(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	bool						m_bPassword;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -655,11 +767,15 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Text : public CSG_Parameter_String
 {
 public:
-	CSG_Parameter_Text(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Text(void)	{}
-
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Text );		}
 
+
+protected:
+
+	CSG_Parameter_Text(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -671,8 +787,6 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_File_Name : public CSG_Parameter_String
 {
 public:
-	CSG_Parameter_File_Name(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_File_Name(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_FilePath );	}
 
@@ -693,13 +807,17 @@ public:
 
 protected:
 
+	CSG_Parameter_File_Name(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	bool						m_bSave, m_bMultiple, m_bDirectory;
 
 	CSG_String					m_Filter;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				_Assign					(CSG_Parameter *pSource);
 
+
+	friend class CSG_Parameters;
 };
 
 
@@ -708,34 +826,35 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Font : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Font : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Font(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Font(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Font );		}
-
-	virtual int					asInt					(void)	const	{	return( m_Color );					}
-	virtual void *				asPointer				(void)	const	{	return( (void *)m_Font.c_str() );	}
-	virtual const SG_Char *		asString				(void)			{	return( m_String );					}
-
-	virtual int					Set_Value				(int   Value);
-	virtual int					Set_Value				(const CSG_String &Value);
 
 	virtual bool				Restore_Default			(void);
 
 
 protected:
 
+	CSG_Parameter_Font(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	int							m_Color;
 
 	CSG_String					m_Font;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(int   Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual int					_asInt					(void)	const;
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -747,16 +866,19 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Color : public CSG_Parameter_Int
 {
 public:
-	CSG_Parameter_Color(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Color(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Color );		}
 
 
 protected:
 
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	CSG_Parameter_Color(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
+
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -765,27 +887,30 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Colors : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Colors : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Colors(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Colors(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Colors );	}
 
-	virtual int					asInt					(void)	const	{	return( m_Colors.Get_Count() );	}
-	virtual void *				asPointer				(void)	const	{	return( (void *)&m_Colors );	}
-	virtual const SG_Char *		asString				(void);
-
 
 protected:
+
+	CSG_Parameter_Colors(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
 	CSG_Colors					m_Colors;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual void				_Set_String				(void);
 
+	virtual int					_asInt					(void)	const;
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -794,26 +919,29 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Fixed_Table : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Fixed_Table : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Fixed_Table(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Fixed_Table(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_FixedTable );	}
 
-	virtual void *				asPointer				(void)	const	{	return( (void *)&m_Table );	}
-
-	virtual const SG_Char *		asString				(void);
-
 
 protected:
 
+	CSG_Parameter_Fixed_Table(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_Table					m_Table;
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
 
+	virtual void				_Set_String				(void);
+
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -822,29 +950,31 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_System : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_System : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Grid_System(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid_System(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid_System );	}
 
-	virtual int					Set_Value				(void *Value);
-
-	virtual void *				asPointer				(void)	const	{	return( (void *)&m_System );}
-
-	virtual const SG_Char *		asString				(void);
-
 
 protected:
+
+	CSG_Parameter_Grid_System(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
 	CSG_Grid_System				m_System;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(void *Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -856,30 +986,33 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Field : public CSG_Parameter_Int
 {
 public:
-	CSG_Parameter_Table_Field(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table_Field(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table_Field );	}
 
 	bool						Add_Default				(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-
-	virtual const SG_Char *		asString				(void);
-	virtual double				asDouble				(void)	const;
-
-	virtual int					Set_Value				(int               Value);
-	virtual int					Set_Value				(const CSG_String &Value);
 
 	CSG_Table *					Get_Table				(void)	const;
 
 
 protected:
 
+	CSG_Parameter_Table_Field(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	int							m_Default;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual double				_asDouble				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -888,19 +1021,11 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Fields : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Table_Fields : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Table_Fields(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table_Fields(void);
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table_Fields );	}
-
-	virtual const SG_Char *		asString				(void)			{	return( m_String  );	}
-	virtual int					asInt					(void)	const	{	return( m_nFields );	}
-	virtual void *				asPointer				(void)	const	{	return( m_Fields  );	}
-
-	virtual int					Set_Value				(const CSG_String &Value);
 
 	int							Get_Count				(void)	const	{	return( m_nFields );	}
 	int							Get_Index				(int i)	const	{	return( i >= 0 && i < m_nFields ? m_Fields[i] : -1 );	}
@@ -910,12 +1035,22 @@ public:
 
 protected:
 
+	CSG_Parameter_Table_Fields(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+	virtual ~CSG_Parameter_Table_Fields(void);
+
 	int							m_nFields, *m_Fields;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(const CSG_String &Value);
 
+	virtual int					_asInt					(void)	const;
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -924,29 +1059,31 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Data_Object(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data_Object(void)	{}
 
 	virtual bool				is_Valid				(void)	const;
-
-	virtual int					Set_Value				(void *Value);
-
-	virtual void *				asPointer				(void)	const	{	return( m_pDataObject );	}
-
-	virtual const SG_Char *		asString				(void);
 
 
 protected:
 
+	CSG_Parameter_Data_Object(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_Data_Object				*m_pDataObject;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	virtual int					_Set_Value				(void *Value);
 
+	virtual void				_Set_String				(void);
+
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -958,12 +1095,8 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Data_Object_Output : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_Data_Object_Output(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Data_Object_Output(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_DataObject_Output );	}
-
-	virtual int					Set_Value				(void *Value);
 
 	bool						Set_DataObject_Type		(TSG_Data_Object_Type Type);
 	TSG_Data_Object_Type		Get_DataObject_Type		(void)	const	{	return( m_Type );	}
@@ -971,8 +1104,15 @@ public:
 
 protected:
 
+	CSG_Parameter_Data_Object_Output(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	TSG_Data_Object_Type		m_Type;
 
+
+	virtual int					_Set_Value				(void *Value);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -984,8 +1124,6 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_Grid(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grid );	}
 
@@ -996,22 +1134,25 @@ public:
 
 	bool						Add_Default				(double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
 
-	virtual int					Set_Value				(void  *Value);
-
-	virtual int					asInt					(void)	const;
-	virtual double				asDouble				(void)	const;
-
-
 
 protected:
+
+	CSG_Parameter_Grid(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
 	int							m_Default;
 
 	TSG_Data_Type				m_Type;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual int					_Set_Value				(void  *Value);
 
+	virtual int					_asInt					(void)	const;
+	virtual double				_asDouble				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1023,14 +1164,16 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grids : public CSG_Parameter_Grid
 {
 public:
-	CSG_Parameter_Grids(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grids(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Grids );	}
 
 
 protected:
 
+	CSG_Parameter_Grids(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1042,13 +1185,18 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_Table(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Table );		}
 
-	virtual int					Set_Value				(void *Value);
+	CSG_Parameter_Table(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
+
+protected:
+
+	virtual int					_Set_Value				(void *Value);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1060,12 +1208,8 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_Shapes(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Shapes(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Shapes );	}
-
-	virtual int					Set_Value				(void *Value);
 
 	void						Set_Shape_Type			(TSG_Shape_Type Type);
 	TSG_Shape_Type				Get_Shape_Type			(void)	const	{	return( m_Type );	}
@@ -1073,11 +1217,17 @@ public:
 
 protected:
 
+	CSG_Parameter_Shapes(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	TSG_Shape_Type				m_Type;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual int					_Set_Value				(void *Value);
 
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1089,13 +1239,19 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_TIN : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_TIN(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_TIN(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_TIN );		}
 
-	virtual int					Set_Value				(void *Value);
 
+protected:
+
+	CSG_Parameter_TIN(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	virtual int					_Set_Value				(void *Value);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1107,18 +1263,21 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud : public CSG_Parameter_Data_Object
 {
 public:
-	CSG_Parameter_PointCloud(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_PointCloud(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_PointCloud );	}
-
-	virtual int					Set_Value				(void *Value);
 
 
 protected:
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	CSG_Parameter_PointCloud(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
+
+	virtual int					_Set_Value				(void *Value);
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1127,15 +1286,9 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_List : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_List : public CSG_Parameter
 {
 public:
-	CSG_Parameter_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_List(void);
-
-	virtual const SG_Char *		asString				(void);
-	virtual int					asInt					(void)	const	{	return( Get_Item_Count() );	}
-	virtual void *				asPointer				(void)	const	{	return( m_Objects.Get_Array() );	}
 
 	virtual bool				Add_Item				(CSG_Data_Object *pItem);
 	virtual bool				Del_Item				(CSG_Data_Object *pItem, bool bUpdateData = true);
@@ -1153,14 +1306,24 @@ public:
 
 protected:
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
+	CSG_Parameter_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const;
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
 
 
 private:
 
 	CSG_Array_Pointer			m_Objects;
 
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1172,8 +1335,6 @@ private:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grid_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_Grid_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grid_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Grid_List );		}
 
@@ -1195,8 +1356,12 @@ public:
 
 protected:
 
+	CSG_Parameter_Grid_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	CSG_Array_Pointer			m_Grids;
 
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1208,9 +1373,6 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Grids_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_Grids_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Grids_List(void)	{}
-
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Grids_List );		}
 
 	CSG_Grid_System *			Get_System				(void)		const;
@@ -1219,6 +1381,13 @@ public:
 
 	CSG_Grids *					Get_Grids				(int Index)	const	{	return( (CSG_Grids *)Get_Item(Index) );	}
 
+
+protected:
+
+	CSG_Parameter_Grids_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1230,13 +1399,18 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Table_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_Table_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Table_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Table_List );		}
 
 	CSG_Table *					Get_Table				(int Index)	const	{	return( (CSG_Table *)Get_Item(Index) );	}
 
+
+protected:
+
+	CSG_Parameter_Table_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1248,8 +1422,6 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_Shapes_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_Shapes_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Shapes_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Shapes_List );		}
 
@@ -1261,11 +1433,15 @@ public:
 
 protected:
 
+	CSG_Parameter_Shapes_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
 	TSG_Shape_Type				m_Type;
 
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
+	virtual bool				_Assign					(CSG_Parameter *pSource);
 
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1277,13 +1453,18 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Parameter_TIN_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_TIN_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_TIN_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_TIN_List );		}
 
 	CSG_TIN *					asTIN					(int Index)	const	{	return( (CSG_TIN *)Get_Item(Index) );	}
 
+
+protected:
+
+	CSG_Parameter_TIN_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1295,13 +1476,18 @@ public:
 class SAGA_API_DLL_EXPORT CSG_Parameter_PointCloud_List : public CSG_Parameter_List
 {
 public:
-	CSG_Parameter_PointCloud_List(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_PointCloud_List(void)	{}
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_PointCloud_List );		}
 
 	CSG_PointCloud *			Get_PointCloud			(int Index)	const	{	return( (CSG_PointCloud *)Get_Item(Index) );	}
 
+
+protected:
+
+	CSG_Parameter_PointCloud_List(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1310,30 +1496,32 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Parameters : public CSG_Parameter_Data
+class SAGA_API_DLL_EXPORT CSG_Parameter_Parameters : public CSG_Parameter
 {
 public:
-	CSG_Parameter_Parameters(CSG_Parameter *pOwner, long Constraint);
-	virtual ~CSG_Parameter_Parameters(void);
 
 	virtual TSG_Parameter_Type	Get_Type				(void)		const	{	return( PARAMETER_TYPE_Parameters );	}
-
-	virtual const SG_Char *		asString				(void);
-	virtual void *				asPointer				(void)		const	{	return( m_pParameters );	}
 
 	virtual bool				Restore_Default			(void);
 
 
 protected:
 
-	virtual void				On_Assign				(CSG_Parameter_Data *pSource);
-	virtual bool				On_Serialize			(CSG_MetaData &Entry, bool bSave);
-
-
-private:
+	CSG_Parameter_Parameters(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
+	virtual ~CSG_Parameter_Parameters(void);
 
 	CSG_Parameters				*m_pParameters;
 
+
+	virtual void				_Set_String				(void);
+
+	virtual void *				_asPointer				(void)	const;
+
+	virtual bool				_Assign					(CSG_Parameter *pSource);
+	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
+
+
+	friend class CSG_Parameters;
 };
 
 
@@ -1384,158 +1572,12 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					CSG_Parameter						 //
+//					CSG_Parameters						 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter
-{
-	friend class CSG_Parameters;
-
-public:
-
-	//-----------------------------------------------------
-	CSG_Parameters *				Get_Owner				(void)	const	{	return( m_pOwner );							}
-	CSG_Parameter *					Get_Parent				(void)	const	{	return( m_pParent );						}
-	TSG_Parameter_Type				Get_Type				(void)	const	{	return( m_pData->Get_Type() );				}
-	CSG_String						Get_Type_Identifier		(void)	const	{	return( m_pData->Get_Type_Identifier() );	}
-	CSG_String						Get_Type_Name			(void)	const	{	return( m_pData->Get_Type_Name() );			}
-	CSG_Parameter_Data *			Get_Data				(void)	const	{	return( m_pData );							}
-
-	class CSG_Data_Manager *		Get_Manager				(void)	const;
-
-	const SG_Char *					Get_Identifier			(void)	const;
-	bool							Cmp_Identifier			(const CSG_String &Identifier)	const;
-	bool							Set_Name				(const CSG_String &Name);
-	const SG_Char *					Get_Name				(void)	const;
-	const SG_Char *					Get_Description			(void)	const;
-	bool							Set_Description			(const CSG_String &Description);
-	CSG_String						Get_Description			(int Flags)								const;
-	CSG_String						Get_Description			(int Flags, const SG_Char *Separator)	const;
-
-	bool							Set_Enabled				(bool bEnabled = true);
-	bool							is_Enabled				(void)	const;
-
-	bool							is_Valid				(void)	const	{	return( m_pData->is_Valid() );		}
-	bool							is_Input				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INPUT      ) );	}
-	bool							is_Output				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OUTPUT     ) );	}
-	bool							is_Optional				(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_OPTIONAL   ) );	}
-	bool							is_Information			(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_INFORMATION) );	}
-	bool							is_Option				(void)	const;
-	bool							is_DataObject			(void)	const;
-	bool							is_DataObject_List		(void)	const;
-	bool							is_Parameters			(void)	const;
-	bool							is_Serializable			(void)	const;
-	bool							is_Compatible			(CSG_Parameter *pParameter)	const;
-	bool							is_Value_Equal			(CSG_Parameter *pParameter)	const;
-
-	void							Set_UseInGUI			(bool bDoUse = false);
-	void							Set_UseInCMD			(bool bDoUse = false);
-
-	bool							do_UseInGUI				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_GUI)   );	}
-	bool							do_UseInCMD				(void)	const	{	return( !(m_pData->Get_Constraint() & PARAMETER_NOT_FOR_CMD)   );	}
-
-	void							ignore_Projection		(bool bIgnore);
-	bool							ignore_Projection		(void)	const	{	return( !!(m_pData->Get_Constraint() & PARAMETER_IGNORE_PROJECTION) );	}
-
-	TSG_Data_Object_Type			Get_DataObject_Type		(void)	const;
-
-	int								Get_Children_Count		(void)	const	{	return( m_nChildren );		}
-	CSG_Parameter *					Get_Child				(int iChild)	{	return( iChild >= 0 && iChild < m_nChildren ? m_Children[iChild] : NULL );	}
-	bool							Set_Children_Enabled	(bool bEnabled = true);
-
-	//-----------------------------------------------------
-	bool							Set_Value				(int               Value);
-	bool							Set_Value				(double            Value);
-	bool							Set_Value				(const CSG_String &Value);
-	bool							Set_Value				(const char       *Value);
-	bool							Set_Value				(const wchar_t    *Value);
-	bool							Set_Value				(void             *Value);
-	bool							Set_Value				(CSG_Parameter    *Value);
-
-	void							Set_Default				(int               Value)	{	m_pData->Set_Default(Value);	}
-	void							Set_Default				(double            Value)	{	m_pData->Set_Default(Value);	}
-	void							Set_Default				(const CSG_String &Value)	{	m_pData->Set_Default(Value);	}
-
-	bool							Restore_Default			(void)	{	return( m_pData->Restore_Default() );	}
-
-	bool							Check					(bool bSilent = true);
-
-	bool							has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
-
-	bool							asBool					(void)	const	{	return( (bool         )!!m_pData->asInt    () );	}
-	int								asInt					(void)	const	{	return( (int            )m_pData->asInt    () );	}
-	long							asColor					(void)	const	{	return( (long           )m_pData->asInt    () );	}
-	double							asDouble				(void)	const	{	return( (double         )m_pData->asDouble () );	}
-	const SG_Char *					asString				(void)	const	{	return( (const SG_Char *)m_pData->asString () );	}
-	void *							asPointer				(void)	const	{	return( (void          *)m_pData->asPointer() );	}
-
-	CSG_Colors                    *	asColors				(void)	const;
-	const SG_Char                 *	asFont					(void)	const;
-	CSG_Grid_System               *	asGrid_System			(void)	const;
-
-	CSG_Parameter_Date            *	asDate					(void)	const;
-	CSG_Parameter_Choice          *	asChoice				(void)	const;
-	CSG_Parameter_Choices         *	asChoices				(void)	const;
-	CSG_Parameter_Range           *	asRange					(void)	const;
-	CSG_Parameter_File_Name       *	asFilePath				(void)	const;
-	CSG_Parameter_Table_Fields    *	asTableFields			(void)	const;
-	CSG_Parameters                *	asParameters			(void)	const;
-
-	CSG_Data_Object               *	asDataObject			(void)	const;
-	CSG_Grid                      *	asGrid					(void)	const;
-	CSG_Grids                     *	asGrids					(void)	const;
-	CSG_Table                     *	asTable					(void)	const;
-	CSG_Shapes                    *	asShapes				(void)	const;
-	CSG_TIN                       *	asTIN					(void)	const;
-	CSG_PointCloud                *	asPointCloud			(void)	const;
-
-	CSG_Parameter_List            *	asList					(void)	const;
-	CSG_Parameter_Grid_List       *	asGridList				(void)	const;
-	CSG_Parameter_Grids_List      *	asGridsList				(void)	const;
-	CSG_Parameter_Table_List      *	asTableList				(void)	const;
-	CSG_Parameter_Shapes_List     *	asShapesList			(void)	const;
-	CSG_Parameter_TIN_List        *	asTINList				(void)	const;
-	CSG_Parameter_PointCloud_List *	asPointCloudList		(void)	const;
-
-	//-----------------------------------------------------
-	bool							Assign					(CSG_Parameter *pSource);
-
-	CSG_MetaData *					Serialize				(CSG_MetaData &MetaData, bool bSave);
-
-
-private:
-
-	CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint);
-
-	virtual ~CSG_Parameter(void);
-
-	void							_Add_Child				(CSG_Parameter *pChild);
-
-
-	bool							m_bEnabled;
-
-	int								m_nChildren;
-
-	CSG_Parameter					**m_Children;
-
-	CSG_String						m_Identifier, m_Name, m_Description;
-
-	CSG_Parameter_Data				*m_pData;
-
-	CSG_Parameter					*m_pParent;
-
-	CSG_Parameters					*m_pOwner;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					CSG_Parameters						 //
-//														 //
-///////////////////////////////////////////////////////////
+typedef int		(* TSG_PFNC_Parameter_Changed)	(CSG_Parameter *pParameter, int Flags);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Parameters

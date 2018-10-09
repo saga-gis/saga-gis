@@ -151,9 +151,9 @@ void SG_XML_Add_Parameter(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_
 	case PARAMETER_TYPE_Int:
 	case PARAMETER_TYPE_Double:
 	case PARAMETER_TYPE_Degree:
-		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Minimum() ) pItem->Add_Child(SG_XML_PARAM_MIN, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Minimum());
-		if( ((CSG_Parameter_Value *)pParameter->Get_Data())->has_Maximum() ) pItem->Add_Child(SG_XML_PARAM_MAX, ((CSG_Parameter_Value *)pParameter->Get_Data())->Get_Maximum());
-		if( !pParameter->Get_Data()->Get_Default().is_Empty() )              pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter->Get_Data()->Get_Default());
+		if(  pParameter->asValue()->has_Minimum() ) pItem->Add_Child(SG_XML_PARAM_MIN    , pParameter->asValue()->Get_Minimum());
+		if(  pParameter->asValue()->has_Maximum() ) pItem->Add_Child(SG_XML_PARAM_MAX    , pParameter->asValue()->Get_Maximum());
+		if( !pParameter->Get_Default().is_Empty() ) pItem->Add_Child(SG_XML_PARAM_DEFAULT, pParameter           ->Get_Default());
 		break;
 
 	//-----------------------------------------------------

@@ -275,7 +275,7 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 
 	if( (pManager = g_pData->Get_Shapes()) != NULL )
 	{
-		int		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type();
+		int		Shape_Type	= ((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type();
 
 		for(int i=0; i<pManager->Get_Count(); i++)
 		{
@@ -292,8 +292,8 @@ int CParameters_PG_Choice::_Set_Shapes(void)
 	}
 
 	if(	m_pParameter->is_Input()
-	&&	(	((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type() == SHAPE_TYPE_Point
-		||	((CSG_Parameter_Shapes *)m_pParameter->Get_Data())->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
+	&&	(	((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Point
+		||	((CSG_Parameter_Shapes *)m_pParameter)->Get_Shape_Type() == SHAPE_TYPE_Undefined ) )
 	{
 		return( _Set_PointCloud() );
 	}
