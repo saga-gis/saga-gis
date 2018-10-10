@@ -804,36 +804,9 @@ bool CSG_Parameter_Range::_Serialize(CSG_MetaData &Entry, bool bSave)
 
 //---------------------------------------------------------
 CSG_Parameter_Choice::CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
-	: CSG_Parameter_Int(pOwner, pParent, ID, Name, Description, Constraint)
+	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
 {
-	// nop
-}
-
-//---------------------------------------------------------
-int CSG_Parameter_Choice::_Set_Value(const CSG_String &Value)
-{
-	int		i;
-
-	for(i=0; i<m_Items.Get_Count(); i++)
-	{
-		if( Value.Cmp(Get_Item_Data(i)) == 0 || Value.Cmp(Get_Item(i)) == 0 )
-		{
-			return( CSG_Parameter_Int::_Set_Value(i) );
-		}
-	}
-
-	if( Value.asInt(i) )
-	{
-		return( CSG_Parameter_Int::_Set_Value(i) );
-	}
-
-	return( SG_PARAMETER_DATA_SET_FALSE );
-}
-
-//---------------------------------------------------------
-void CSG_Parameter_Choice::_Set_String(void)
-{
-	m_String	= Get_Item(m_Value) ? Get_Item(m_Value) : _TL("<no choice available>");
+	m_Value	= -1;
 }
 
 //---------------------------------------------------------
@@ -843,37 +816,30 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 
 	if( String && *String != '\0' )
 	{
-		CSG_String	Items(String);
+		CSG_String_Tokenizer	Items(String, "|");
 
-		while( Items.Length() > 0 )
+		while( Items.Has_More_Tokens() )
 		{
-			CSG_String	Item(Items.BeforeFirst('|'));
+			CSG_String	Item(Items.Get_Next_Token());
 
-			if( Item.Length() )
+			if( !Item.is_Empty() )
 			{
 				m_Items	+= Item;
 			}
-
-			Items	= Items.AfterFirst('|');
 		}
 	}
 
-	if( m_Items.Get_Count() <= 0 )
+	if( m_Value < 0 && m_Items.Get_Count() > 0 )
 	{
-		m_Items	+= _TL("<not set>");
-
-		Set_Minimum(              0, true);
-		Set_Maximum(Get_Count() - 1, true);
-
-		CSG_Parameter_Int::_Set_Value(0);
+		m_Value	= 0;
 	}
-	else
+
+	if( m_Value >= m_Items.Get_Count() )
 	{
-		Set_Minimum(              0, true);
-		Set_Maximum(Get_Count() - 1, true);
-
-		CSG_Parameter_Int::_Set_Value(m_Value);
+		m_Value	= m_Items.Get_Count() - 1;
 	}
+
+	_Set_String();	// m_Items have changed
 }
 
 //---------------------------------------------------------
@@ -883,11 +849,11 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 	{
 		const SG_Char	*Item	= m_Items[Index].c_str();
 
-		if( *Item == SG_T('{') )
+		if( *Item == '{' )
 		{
-			do	{	Item++;	}	while( *Item != SG_T('\0') && *Item != SG_T('}') );
+			do	{	Item++;	}	while( *Item != '\0' && *Item != '}' );
 
-			if( *Item == SG_T('\0') )
+			if( *Item == '\0' )
 			{
 				return( m_Items[Index].c_str() );
 			}
@@ -904,83 +870,102 @@ const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 //---------------------------------------------------------
 CSG_String CSG_Parameter_Choice::Get_Item_Data(int Index)	const
 {
-	CSG_String	Value;
+	CSG_String	Data;
 
 	if( Index >= 0 && Index < m_Items.Get_Count() )
 	{
-		const SG_Char	*Item	= m_Items[Index].c_str();
+		Data	= m_Items[Index];	Data.Trim();
 
-		if( *Item == SG_T('{') )
+		if( Data.Find('{') == 0 )	// data entry within leading curly brackets: '{data} item text'
 		{
-			Item++;
-
-			do
-			{
-				Value	+= *(Item++);
-			}
-			while( *Item && *Item != SG_T('}') );
+			Data	= Data.AfterFirst('{').BeforeFirst('}');
 		}
 	}
 
-	return( Value );
+	return( Data );
 }
 
-//---------------------------------------------------------
 bool CSG_Parameter_Choice::Get_Data(int        &Value)	const
 {
-	CSG_String	sValue;
+	CSG_String	String;
 
-	if( Get_Data(sValue) )
-	{
-		return( sValue.asInt(Value) );
-	}
-
-	return( false );
+	return( Get_Data(String) && String.asInt   (Value) );
 }
 
 bool CSG_Parameter_Choice::Get_Data(double     &Value)	const
 {
-	CSG_String	sValue;
+	CSG_String	String;
 
-	if( Get_Data(sValue) )
-	{
-		return( sValue.asDouble(Value) );
-	}
-
-	return( false );
+	return( Get_Data(String) && String.asDouble(Value) );
 }
 
 bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)	const
 {
-	if( m_Value >= 0 && m_Value < m_Items.Get_Count() )
+	Value	= Get_Item_Data(m_Value);
+
+	return( !Value.is_Empty() );
+}
+
+//---------------------------------------------------------
+int CSG_Parameter_Choice::_Set_Value(int               Value)
+{
+	if( Value >= 0 && Value < m_Items.Get_Count() )
 	{
-		const SG_Char	*Item	= m_Items[m_Value].c_str();
-
-		if( *Item == SG_T('{') )
+		if( m_Value != Value )
 		{
-			Item++;
+			m_Value	= Value;
 
-			Value.Clear();
+			return( SG_PARAMETER_DATA_SET_CHANGED );
+		}
 
-			do
-			{
-				Value	+= *(Item++);
-			}
-			while( *Item && *Item != SG_T('}') );
+		return( SG_PARAMETER_DATA_SET_TRUE );
+	}
 
-			return( Value.Length() > 0 );
+	return( SG_PARAMETER_DATA_SET_FALSE );
+}
+
+//---------------------------------------------------------
+int CSG_Parameter_Choice::_Set_Value(double            Value)
+{
+	return( _Set_Value((int)Value) );
+}
+
+//---------------------------------------------------------
+int CSG_Parameter_Choice::_Set_Value(const CSG_String &Value)
+{
+	for(int i=0; i<m_Items.Get_Count(); i++)
+	{
+		if( !Value.Cmp(Get_Item_Data(i)) || !Value.Cmp(Get_Item(i)) )
+		{
+			return( _Set_Value(i) );
 		}
 	}
 
-	return( false );
+	int	Index;
+
+	if( Value.asInt(Index) )
+	{
+		return( _Set_Value(Index) );
+	}
+
+	return( SG_PARAMETER_DATA_SET_FALSE );
+}
+
+//---------------------------------------------------------
+void CSG_Parameter_Choice::_Set_String(void)
+{
+	m_String	= m_Value >= 0 && m_Value < m_Items.Get_Count() ? Get_Item(m_Value) : _TL("<no choice available>");
 }
 
 //---------------------------------------------------------
 bool CSG_Parameter_Choice::_Assign(CSG_Parameter *pSource)
 {
-	m_Items	= ((CSG_Parameter_Choice *)pSource)->m_Items;
+	m_Items	= pSource->asChoice()->m_Items;
+	m_Value	= pSource->asChoice()->m_Value;
 
-	return( CSG_Parameter_Int::_Set_Value(pSource->asInt()) != 0 );
+	_Set_String();	// m_Items have changed
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -998,7 +983,7 @@ bool CSG_Parameter_Choice::_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		int	Index;
 
-		return( (Entry.Get_Property("index", Index) || Entry.Get_Content().asInt(Index)) && CSG_Parameter_Int::_Set_Value(Index) );
+		return( (Entry.Get_Property("index", Index) || Entry.Get_Content().asInt(Index)) && _Set_Value(Index) );
 	}
 }
 
@@ -1936,9 +1921,10 @@ double CSG_Parameter_Table_Field::_asDouble(void) const
 //---------------------------------------------------------
 bool CSG_Parameter_Table_Field::_Assign(CSG_Parameter *pSource)
 {
-	CSG_Parameter_Int::_Assign(pSource);
-
+	m_Value		= ((CSG_Parameter_Table_Field *)pSource)->m_Value;
 	m_Default	= ((CSG_Parameter_Table_Field *)pSource)->m_Default;
+
+	_Set_String();
 
 	return( true );
 }
@@ -1950,6 +1936,8 @@ bool CSG_Parameter_Table_Field::_Serialize(CSG_MetaData &Entry, bool bSave)
 	{
 		Entry.Set_Property("index", asInt());
 		Entry.Set_Content(asString());
+
+		return( true );
 	}
 	else
 	{
@@ -1959,13 +1947,9 @@ bool CSG_Parameter_Table_Field::_Serialize(CSG_MetaData &Entry, bool bSave)
 		{
 			return( _Set_Value(Index) != 0 );
 		}
-		else
-		{
-			return( _Set_Value(Entry.Get_Content()) != 0 );
-		}
-	}
 
-	return( true );
+		return( _Set_Value(Entry.Get_Content()) != 0 );
+	}
 }
 
 

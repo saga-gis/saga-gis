@@ -1066,7 +1066,6 @@ bool CData_Source_PgSQL::Source_Open(CData_Source_PgSQL_Data *pData, bool bDialo
 		&&	SET_PARAMETER("PG_PORT", pData->Get_Port    ())
 		&&	SET_PARAMETER("PG_USER", pData->Get_Username())
 		&&	SET_PARAMETER("PG_PWD" , pData->Get_Password())
-		&&	SET_PARAMETER("PG_LIST", pData->Get_DBName  ())
 		&&	SET_PARAMETER("PG_NAME", pData->Get_DBName  ())
 	);
 

@@ -363,7 +363,32 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	AttributeList_Add("NODE_METRIC", "METRIC_ATTRIB", _TL("Attribute"), _TL(""));
 	AttributeList_Add("NODE_METRIC", "METRIC_NORMAL", _TL("Normalize"), _TL(""));
 
-	m_Parameters.Add_Bool("NODE_COLORS",
+	m_Parameters.Del_Parameter("METRIC_ZRANGE"    );
+	m_Parameters.Del_Parameter("METRIC_SCALE_MODE");
+	m_Parameters.Del_Parameter("METRIC_SCALE_LOG" );
+
+	m_Parameters.Add_Range("NODE_METRIC",
+		"METRIC_ZRANGE"		, _TL("Value Range"),
+		_TL("")
+	);
+
+	m_Parameters.Add_Choice("NODE_METRIC",
+		"METRIC_SCALE_MODE"	, _TL("Mode"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Linear"),
+			_TL("Logarithmic (up)"),
+			_TL("Logarithmic (down)")
+		), 0
+	);
+
+	m_Parameters.Add_Double("NODE_METRIC",
+		"METRIC_SCALE_LOG"	, _TL("Logarithmic Stretch Factor"),
+		_TL(""),
+		1.0
+	);
+
+	m_Parameters.Add_Bool("NODE_METRIC",
 		"NODATA_SHOW"	, _TL("Show No-Data"), _TL(""), true
 	);
 

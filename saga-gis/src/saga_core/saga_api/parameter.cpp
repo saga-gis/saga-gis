@@ -1032,7 +1032,6 @@ CSG_Parameter_Value           * CSG_Parameter::asValue         (void) const
 	if( Get_Type() == PARAMETER_TYPE_Double
 	||  Get_Type() == PARAMETER_TYPE_Degree
 	||  Get_Type() == PARAMETER_TYPE_Int
-	||  Get_Type() == PARAMETER_TYPE_Choice
 	||  Get_Type() == PARAMETER_TYPE_Color
 	||  Get_Type() == PARAMETER_TYPE_Table_Field )
 	{
@@ -1104,7 +1103,7 @@ bool CSG_Parameter::Serialize(CSG_MetaData &MetaData, bool bSave)
 {
 	if( bSave )
 	{
-		if( is_Information() || Get_Type() == PARAMETER_TYPE_Node || Get_Type() != PARAMETER_TYPE_Undefined )
+		if( is_Information() || Get_Type() == PARAMETER_TYPE_Node || Get_Type() == PARAMETER_TYPE_Undefined )
 		{
 			return( true );
 		}

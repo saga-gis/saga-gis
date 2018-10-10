@@ -270,12 +270,12 @@ public:	///////////////////////////////////////////////////
 
 	bool							has_Changed				(int Check_Flags = PARAMETER_CHECK_ALL);
 
-	virtual bool					asBool					(void)	const	{	return( (bool         )!!_asInt    () );	}
-	virtual int						asInt					(void)	const	{	return( (int            )_asInt    () );	}
-	virtual long					asColor					(void)	const	{	return( (long           )_asInt    () );	}
-	virtual double					asDouble				(void)	const	{	return( (double         )_asDouble () );	}
-	virtual const SG_Char *			asString				(void)	const	{	return( (const SG_Char *)_asString () );	}
-	virtual void *					asPointer				(void)	const	{	return( (void          *)_asPointer() );	}
+	bool							asBool					(void)	const	{	return( (bool         )!!_asInt    () );	}
+	int								asInt					(void)	const	{	return( (int            )_asInt    () );	}
+	long							asColor					(void)	const	{	return( (long           )_asInt    () );	}
+	double							asDouble				(void)	const	{	return( (double         )_asDouble () );	}
+	const SG_Char *					asString				(void)	const	{	return( (const SG_Char *)_asString () );	}
+	void *							asPointer				(void)	const	{	return( (void          *)_asPointer() );	}
 
 	CSG_Colors                    *	asColors				(void)	const;
 	const SG_Char                 *	asFont					(void)	const;
@@ -511,7 +511,7 @@ protected:
 	virtual void				_Set_String				(void);
 
 	virtual int					_asInt					(void)	const	{	return( (int)m_Value );	}
-	virtual double				_asDouble				(void)	const	{	return( m_Value );		}
+	virtual double				_asDouble				(void)	const	{	return(      m_Value );	}
 
 	virtual bool				_Assign					(CSG_Parameter *pSource);
 	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);
@@ -637,7 +637,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter_Int
+class SAGA_API_DLL_EXPORT CSG_Parameter_Choice : public CSG_Parameter
 {
 public:
 
@@ -659,12 +659,19 @@ protected:
 
 	CSG_Parameter_Choice(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint);
 
+	int							m_Value;
+
 	CSG_Strings					m_Items;
 
 
+	virtual int					_Set_Value				(int               Value);
+	virtual int					_Set_Value				(double            Value);
 	virtual int					_Set_Value				(const CSG_String &Value);
 
 	virtual void				_Set_String				(void);
+
+	virtual int					_asInt					(void)	const	{	return( m_Value );		}
+	virtual double				_asDouble				(void)	const	{	return( m_Value );		}
 
 	virtual bool				_Assign					(CSG_Parameter *pSource);
 	virtual bool				_Serialize				(CSG_MetaData &Entry, bool bSave);

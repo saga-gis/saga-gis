@@ -1899,40 +1899,34 @@ bool CSG_Parameters::Serialize(CSG_MetaData &MetaData, bool bSave)
 	{
 		MetaData.Destroy();
 
-		MetaData.Set_Name    (SG_T("PARAMETERS"));
-		MetaData.Set_Property(SG_T("name"), Get_Name());
+		MetaData.Set_Name("parameters");
+		MetaData.Set_Property("name", m_Name);
 
 		for(int i=0; i<Get_Count(); i++)
 		{
 			m_Parameters[i]->Serialize(MetaData, true);
 		}
-	}
-	else
-	{
-		if( MetaData.Get_Name().Cmp(SG_T("PARAMETERS")) )
-		{
-			return( false );
-		}
 
-		MetaData.Get_Property(SG_T("name"), m_Name);
+		return( true );
+	}
+	else if( MetaData.Cmp_Name("parameters") )
+	{
+		MetaData.Get_Property("name", m_Name);
 
 		for(int i=0; i<MetaData.Get_Children_Count(); i++)
 		{
-			CSG_String		Identifier;
-			CSG_Parameter	*pParameter = NULL;
+			CSG_Parameter	*pParameter = Get_Parameter(MetaData.Get_Child(i)->Get_Property("id"));
 
-			if(	MetaData.Get_Child(i)->Get_Property(SG_T("id"), Identifier)
-			&&	(pParameter	= Get_Parameter(Identifier)) != NULL )
+			if(	pParameter && pParameter->Serialize(*MetaData.Get_Child(i), false) )
 			{
-				if( pParameter->Serialize(*MetaData.Get_Child(i), false) )
-				{
-					pParameter->has_Changed();
-				}
+				pParameter->has_Changed();
 			}
 		}
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1948,17 +1942,17 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 	}
 
 	//-----------------------------------------------------
-	while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[PARAMETER_ENTRIES_BEGIN]")) );
+	while( Stream.Read_Line(sLine) && sLine.Cmp("[PARAMETER_ENTRIES_BEGIN]") );
 
-	if( sLine.Cmp(SG_T("[PARAMETER_ENTRIES_BEGIN]")) )
+	if( sLine.Cmp("[PARAMETER_ENTRIES_BEGIN]") )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[PARAMETER_ENTRIES_END]")) )
+	while( Stream.Read_Line(sLine) && sLine.Cmp("[PARAMETER_ENTRIES_END]") )
 	{
-		if( !sLine.Cmp(SG_T("[PARAMETER_ENTRY_BEGIN]"))
+		if( !sLine.Cmp("[PARAMETER_ENTRY_BEGIN]")
 		&&	Stream.Read_Line(sLine) && (pParameter = Get_Parameter(sLine)) != NULL
 		&&	Stream.Read_Line(sLine) )
 		{
@@ -2046,7 +2040,7 @@ bool CSG_Parameters::Serialize_Compatibility(CSG_File &Stream)
 			case 21: // PARAMETER_TYPE_Table_List:
 			case 22: // PARAMETER_TYPE_Shapes_List:
 			case 23: // PARAMETER_TYPE_TIN_List:
-				while( Stream.Read_Line(sLine) && sLine.Cmp(SG_T("[ENTRY_DATAOBJECTLIST_END]")) )
+				while( Stream.Read_Line(sLine) && sLine.Cmp("[ENTRY_DATAOBJECTLIST_END]") )
 				{
 					CSG_Data_Object	*pObject	= m_pManager ? m_pManager->Find(sLine) : NULL;
 

@@ -129,12 +129,21 @@ bool CRaster_Load::On_Execute(void)
 {
 	Parameters("GRIDS")->asGridList()->Del_Items();
 
-	return( Get_Connection()->Raster_Load(
+	if( !Get_Connection()->Raster_Load(
 		Parameters("GRIDS"   )->asGridList(),
 		Parameters("TABLES"  )->asString  (),
 		Parameters("WHERE"   )->asString  (), "",
-		Parameters("MULTIPLE")->asInt     ()
-	));
+		Parameters("MULTIPLE")->asInt     ()) )
+	{
+		Error_Fmt("%s:\n%s\n%s", _TL("unable to load raster data from PostGIS database"),
+			Get_Connection()->Get_Connection().c_str(),
+			Parameters("TABLES")->asString()
+		);
+
+		return( false );
+	}
+
+	return( true );
 }
 
 
