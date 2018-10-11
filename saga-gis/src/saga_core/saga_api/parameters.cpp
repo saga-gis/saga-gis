@@ -1067,15 +1067,45 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &Identifier)
+CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)
 {
-	if( m_Parameters && !Identifier.is_Empty() )
+	if( m_Parameters && !ID.is_Empty() )
 	{
 		for(int i=0; i<m_nParameters; i++)
 		{
-			if( m_Parameters[i]->Cmp_Identifier(Identifier) )
+			if( m_Parameters[i]->Cmp_Identifier(ID) )
 			{
 				return( m_Parameters[i] );
+			}
+		}
+
+		//-------------------------------------------------
+		if( ID.Find('.') > 0 )	// id not found? check for sub-parameter ('id.id')!
+		{
+			CSG_Parameter	*pParameter	= Get_Parameter(ID.BeforeFirst('.'));
+
+			if( pParameter )
+			{
+				switch( pParameter->Get_Type()  )
+				{
+				case PARAMETER_TYPE_Parameters:
+					return( pParameter->asParameters()->Get_Parameter(ID.AfterFirst('.')) );
+
+				case PARAMETER_TYPE_Range     :
+					if( !ID.AfterFirst('.').CmpNoCase("min") || !ID.AfterFirst('.').CmpNoCase("minimum") )
+					{
+						return( pParameter->asRange()->Get_Min_Parameter() );
+					}
+
+					if( !ID.AfterFirst('.').CmpNoCase("max") || !ID.AfterFirst('.').CmpNoCase("maximum") )
+					{
+						return( pParameter->asRange()->Get_Max_Parameter() );
+					}
+					break;
+
+				default:
+					break;
+				}
 			}
 		}
 	}
