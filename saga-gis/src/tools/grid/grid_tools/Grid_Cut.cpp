@@ -382,9 +382,15 @@ CGrid_Clip::CGrid_Clip(void)
 	);
 
 	Parameters.Add_Shapes("EXTENT",
-		"POLYGONS"	, _TL("Polygon"),
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+	);
+
+	Parameters.Add_Bool("POLYGONS",
+		"INTERIOR"	, _TL("Interior"),
+		_TL("Clip those cells that are covered by the polygons instead of those that are not."),
+		false
 	);
 
 	Parameters.Add_Double("EXTENT", "XMIN", _TL("Left"   ), _TL(""));
@@ -472,11 +478,14 @@ bool CGrid_Clip::On_Execute(void)
 		break;
 
 	case 2:	// shapes extent
-		Extent.Assign(Parameters("SHAPES"  )->asShapes()->Get_Extent());
+		Extent.Assign(Parameters("SHAPES")->asShapes()->Get_Extent());
 		break;
 
 	case 3:	// polygon
-		Extent.Assign(Parameters("POLYGONS")->asShapes()->Get_Extent());
+		Extent.Assign(Parameters("INTERIOR")->asBool()
+			? Get_System().Get_Extent()
+			: Parameters("POLYGONS")->asShapes()->Get_Extent()
+		);
 		break;
 	}
 
@@ -607,6 +616,13 @@ bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *p
 
 	Mask.Set_NoData_Value(0);
 
+	bool	bInterior	= Parameters("INTERIOR")->asBool();
+
+	if( bInterior )
+	{
+		Mask.Assign(1.);
+	}
+
 	//-----------------------------------------------------
 	for(int i=0; i<pPolygons->Get_Count() && Set_Progress(i, pPolygons->Get_Count()); i++)
 	{
@@ -671,7 +687,7 @@ bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *p
 
 					if( Fill )
 					{
-						Mask.Set_Value(x, y, 1);
+						Mask.Set_Value(x, y, bInterior ? 0 : 1);
 					}
 				}
 
