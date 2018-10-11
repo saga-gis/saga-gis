@@ -1,100 +1,11 @@
-Major changes in the SAGA API interface from Version 1.2 to 2.0
+Backwards incompatible changes in the SAGA API
 
 _______________________________________________________
-Functions, Makros, ...:
-
-RGB								-> COLOR_GET_RGB
-GetRValue						-> COLOR_GET_R
-GetGValue						-> COLOR_GET_G
-GetBValue						-> COLOR_GET_B
-
-SYS_Malloc()					-> API_Malloc()
-SYS_Calloc()					-> API_Calloc()
-SYS_Realloc()					-> API_Realloc()
-SYS_Free()						-> API_Free()
-
-TGEO_dPoint						-> TGEO_Point
-
-PI2GRAD							-> M_RAD_TO_DEG
-GRAD2PI							-> M_DEG_TO_RAD
-ALMOST_ZERO						-> M_ALMOST_ZERO
+Version 7
+- class CSG_Parameter_Data has been merged into class CSG_Parameter
+- CSG_Parameter_Range: Get/Set-Lo/Hi functions renamed to Get/Set-Min/Max
+- CSG_Tool_Grid::Get_System() now returns reference instead of pointer
+- CSG_Data_Manager::Add(file): returns csg_data_object pointer instead of boolean
+- SG_Get_String(), precision parameter defaults to -99 (= standard)
 
 _______________________________________________________
-CGrid:
-
-   CGrid(TGrid_Type Type, int NX, int NY, double DX, double DY, double xMin...);
--> CGrid(TGrid_Type Type, int NX, int NY, double Cellsize, double xMin...);
-
-Get_DX(), Get_DY()				-> Get_Cellsize()
-Get_NXY()						-> Get_NCells()
-
-Get_Value_AtPosition()			-> Get_Value()
-
-is_InGrid						-> is_InGrid()
-
-
-_______________________________________________________
-CShapes:
-
-CTable * Get_Table()			-> CTable & Get_Table()
-
-
-_______________________________________________________
-Callback-Function:
-
-LPCBFUNC_Progress				-> TAPI_Callback
-
-
-_______________________________________________________
-Parameters:
-
-Add_Select()					-> Add_Choice()
-Add_Choice:	choices list separator is now '|' instead of '\n'.
-			(alternatively '\0' should still work too)
-
-
-_______________________________________________________
-CModule:
-
-CModule::Get_SafeNew_...		-> API_Create_...
-
-CModule::Set_Callback()			-> is gone...
-CModule::Get_Callback()			-> is gone...
-
-
-_______________________________________________________
-CModule_Interactive:
-
-On_Set_Position()				-> On_Execute_Position()
-Execute_Finish()				-> On_Execute_Finish()
-
-
-_______________________________________________________
-CModule_Grid:
-
-Process_Continue()				-> Process_Get_Okay(false)
-Progress_Blink()				-> Process_Get_Okay(true);
-Progress_Check()				-> Set_Progress()
-ProgressBar_Set_NXY()			-> Set_Progress_NCells()
-Get_Gradient()					-> use CGrid-memberfunction Get_Gradient()
-Get_Direction_Lowest()			-> use CGrid-memberfunction Get_Gradient_NeighborDir()
-
-
-_______________________________________________________
-CModule_Grid_Interactive:
-
-MODULE_INTERACTIVE_MOUSE_LBDOWN	-> MODULE_INTERACTIVE_LDOWN
-MODULE_INTERACTIVE_MOUSE_RBDOWN	-> MODULE_INTERACTIVE_RDOWN
-...
-
-
-_______________________________________________________
-Module Library Interface:
-
-MODULE_INTERFACE_DLL_MAIN		-> MLB_INTERFACE
-
-MODULE_INTERFACE_INFO_Name		-> MLB_INFO_Name
-MODULE_INTERFACE_INFO_...		-> MLB_INFO_...
-
-	extern "C" __declspec( dllexport ) char * Get_Module_Info(int i)
-->	const char * Get_Info(int i)
