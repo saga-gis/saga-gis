@@ -170,7 +170,6 @@ protected:
 
 	bool						Get_Class_Color			(CSG_Shape *pShape, int &Color);
 
-	CSG_Parameter *				AttributeList_Add		(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);
 	void						AttributeList_Set		(CSG_Parameter *pFields, bool bAddNoField);
 
 	CSG_Parameter *				BrushList_Add			(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description);

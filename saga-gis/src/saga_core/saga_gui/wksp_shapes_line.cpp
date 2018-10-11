@@ -126,9 +126,10 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 		), 0
 	);
 
-	AttributeList_Add("NODE_SIZE",
+	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_ATTRIB"		, _TL("Attribute"),
-		_TL("")
+		_TL(""),
+		_TL("<default>")
 	);
 
 	m_Parameters.Add_Range("SIZE_ATTRIB",

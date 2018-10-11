@@ -325,54 +325,35 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		"NODE_DISPLAY"	, "DISPLAY_SIZE"			, _TL("Point Size"),
+	m_Parameters.Add_Int("NODE_DISPLAY",
+		"DISPLAY_SIZE"			, _TL("Point Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		0, 0, true
 	);
 
-	m_Parameters.Add_Choice(
-		"NODE_DISPLAY"	, "DISPLAY_VALUE_AGGREGATE"		, _TL("Value Aggregation"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
+		"DISPLAY_VALUE_AGGREGATE", _TL("Value Aggregation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("first value"),
-			_TL("last value"),
-			_TL("lowest z"),
-			_TL("highest z")
+			_TL("last value" ),
+			_TL("lowest z"   ),
+			_TL("highest z"  )
 		), 3
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node("", "NODE_TABLE", _TL("Attributes Table"), _TL(""));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
-
-	//-----------------------------------------------------
-	// Classification...
-
-	m_Parameters("COLORS_TYPE")->asChoice()->Set_Items(
-		CSG_String::Format("%s|%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
-			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
-			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
-		//	_TL("Shade"           ),	// CLASSIFY_SHADE
-		//	_TL("RGB Overlay"     ),	// CLASSIFY_OVERLAY
-			_TL("RGB"             )		// CLASSIFY_RGB
-		)
-	);
-
 	m_Parameters.Add_Node("NODE_COLORS", "NODE_RGB", _TL("RGB"), _TL(""));
 
-	_AttributeList_Add(m_Parameters("NODE_LUT"   ), "LUT_ATTRIB"   , _TL("Attribute"), _TL(""));
-	_AttributeList_Add(m_Parameters("NODE_METRIC"), "METRIC_ATTRIB", _TL("Attribute"), _TL(""));
-	_AttributeList_Add(m_Parameters("NODE_RGB"   ), "RGB_ATTRIB"   , _TL("Attribute"), _TL(""));
+	m_Parameters.Add_Choice("NODE_RGB",
+		"RGB_ATTRIB"	, _TL("Attribute"),
+		_TL(""),
+		_TL("<default>")
+	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -396,12 +377,11 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:
-	case 0:	m_fValue	= -1;										break;	// CLASSIFY_UNIQUE
-	case 1:	m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
-	case 2:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
-	case 3:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
-	case 4:	m_fValue	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
+	default:	m_fValue	= -1;										break;	// CLASSIFY_UNIQUE
+	case  1:	m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
+	case  2:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
+	case  3:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
+	case  4:	m_fValue	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
 	}
 
 	if( m_fValue < 0 || m_fValue >= Get_PointCloud()->Get_Field_Count() )
@@ -424,8 +404,6 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -493,8 +471,6 @@ bool CWKSP_PointCloud::Fit_Colors(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -544,8 +520,6 @@ void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoFie
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -756,8 +730,6 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -794,8 +766,6 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -808,8 +778,6 @@ double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -820,8 +788,6 @@ bool CWKSP_PointCloud::asImage(CSG_Grid *pImage)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -953,8 +919,6 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -977,8 +941,6 @@ void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

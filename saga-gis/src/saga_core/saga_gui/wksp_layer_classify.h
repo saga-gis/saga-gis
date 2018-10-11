@@ -89,9 +89,9 @@ enum
 	CLASSIFY_LUT,
 	CLASSIFY_METRIC,
 	CLASSIFY_GRADUATED,
-	CLASSIFY_SHADE,
 	CLASSIFY_OVERLAY,
-	CLASSIFY_RGB
+	CLASSIFY_RGB,
+	CLASSIFY_SHADE
 };
 
 //---------------------------------------------------------

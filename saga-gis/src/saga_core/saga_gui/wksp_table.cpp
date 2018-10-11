@@ -136,11 +136,11 @@ wxString CWKSP_Table::Get_Description(void)
 		DESC_ADD_STR(_TL("File"         ), _TL("memory"));
 	}
 
-	DESC_ADD_STR(_TL("Modified"           ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_INT(_TL("Number of Records"  ), Get_Table()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"         ), Get_Table()->Get_Selection_Count());
+	DESC_ADD_STR(_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_INT(_TL("Number of Records"), Get_Table()->Get_Count());
+	DESC_ADD_SIZET(_TL("Selected"       ), Get_Table()->Get_Selection_Count());
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	s	+= Get_TableInfo_asHTML(Get_Table());
 
@@ -254,7 +254,8 @@ void CWKSP_Table::On_Create_Parameters(void)
 	CWKSP_Data_Item::On_Create_Parameters();
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Display"), _TL(""));
+	m_Parameters.Add_Node("", "NODE_TABLE", _TL("Display"), _TL(""));
+
 	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
 	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
 }

@@ -168,6 +168,8 @@ protected:
 
 	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, int Flags)	= 0;
 
+	void							ColorsParms_Add			(const CSG_String &Parent, const CSG_String &Prefix = "");
+
 
 private:
 

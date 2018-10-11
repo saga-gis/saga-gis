@@ -1654,7 +1654,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 		if( P("COLORS_TYPE") )
 		{
-			P("COLORS_TYPE")->Set_Value(6);	// RGB
+			P("COLORS_TYPE")->Set_Value(4);	// Color Classification Type: RGB Coded Values
 
 			g_pData->Set_Parameters(pGrid, &P);
 		}

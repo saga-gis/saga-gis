@@ -531,7 +531,7 @@ bool CWMS_Import::Get_Map(CWebClient &Server, const CSG_String &Path, CWMS_Capab
 
 	Parameters("MAP")->Set_Value(pGrid);
 
-	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB Coded Values
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	CSG_String	Projection	= P("PROJ")->asString();
 
@@ -630,7 +630,7 @@ bool CWMS_Import::Get_Legend(CWebClient &Server, const CSG_String &Path, const C
 	Parameters("LEGENDS")->asGridList()->Add_Item(pGrid);
 
 	DataObject_Add(pGrid);
-	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB Coded Values
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	return( true );
 }

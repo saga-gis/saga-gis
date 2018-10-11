@@ -227,7 +227,7 @@ bool CLandsat_Import::On_Execute(void)
 
 		if( pR && pG && pB )
 		{
-			DataObject_Set_Parameter(pR, "COLORS_TYPE" , 5);	// _TL("RGB Overlay")	// CLASSIFY_OVERLAY
+			DataObject_Set_Parameter(pR, "COLORS_TYPE" , 4);	// _TL("RGB Overlay")	// CLASSIFY_OVERLAY
 			DataObject_Set_Parameter(pR, "OVERLAY_MODE", 0);	// _TL("red=this, green=1, blue=2")
 			DataObject_Set_Parameter(pR, "OVERLAY_G"   , pG);
 			DataObject_Set_Parameter(pR, "OVERLAY_B"   , pB);

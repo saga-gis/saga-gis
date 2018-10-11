@@ -122,8 +122,6 @@ static int	s_Def_Layer_Colours[DEF_LAYER_COLOUR_COUNT]	=
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -162,8 +160,6 @@ CWKSP_Layer::~CWKSP_Layer(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -204,8 +200,6 @@ bool CWKSP_Layer::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -235,7 +229,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("LEGEND_SHOW",
 		"LEGEND_STYLE"	, _TL("Style"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("vertical"),
 			_TL("horizontal")
 		), 0
@@ -263,94 +257,212 @@ void CWKSP_Layer::On_Create_Parameters(void)
 	);
 
 	//-----------------------------------------------------
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	{
+		m_Parameters.Add_Choice("NODE_DISPLAY",
+			"TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
+			_TL("Specify floating point decimal precision in table and similar views."),
+			CSG_String::Format("%s|%s|%s",
+				_TL("system default"),
+				_TL("maximum number of significant decimals"),
+				_TL("fix number of decimals")
+			), g_pData->Get_Parameter("TABLE_FLT_STYLE")->asInt()
+		);
+
+		m_Parameters.Add_Int("TABLE_FLT_STYLE",
+			"TABLE_FLT_DECIMALS"	, _TL("Decimals"),
+			_TL(""),
+			g_pData->Get_Parameter("TABLE_FLT_DECIMALS")->asInt(), 0, true
+		);
+	}
+
+	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters.Add_Choice("NODE_COLORS",
-		"COLORS_TYPE"	, _TL("Type"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	{
+		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s",
 			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
 			_TL("Classified"      ),	// CLASSIFY_LUT
 			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
 			_TL("Graduated Colors") 	// CLASSIFY_GRADUATED
-		), 0
-	);
+		), 0);
+	}
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
+	{
+		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
+			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
+			_TL("RGB Coded Values")		// CLASSIFY_OVERLAY !!!
+		), 0);
+	}
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+	{
+		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
+			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
+			_TL("RGB Composite"   )		// CLASSIFY_OVERLAY
+		), 4);
+	}
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
+	{
+		m_Parameters.Add_Choice("NODE_COLORS", "COLORS_TYPE", _TL("Type"), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
+			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
+			_TL("Classified"      ),	// CLASSIFY_LUT
+			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
+			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
+			_TL("RGB Composite"   ),	// CLASSIFY_OVERLAY
+			_TL("RGB Coded Values"),	// CLASSIFY_RGB
+			_TL("Shade"           )		// CLASSIFY_SHADE
+			), 3);
+	}
 
 	//-----------------------------------------------------
-	// Classification: Unique Value...
+	// Classification: Single Symbol...
+
+	static	BYTE	s_Def_Layer_Colour	= 0;
 
 	m_Parameters.Add_Node("NODE_COLORS",
 		"NODE_UNISYMBOL"	, _TL("Single Symbol"),
 		_TL("")
 	);
 
-	static	BYTE	s_Def_Layer_Colour	= 0;
-
 	m_Parameters.Add_Color("NODE_UNISYMBOL",
 		"UNISYMBOL_COLOR"	, _TL("Color"),
 		_TL(""),
 		s_Def_Layer_Colours[s_Def_Layer_Colour++ % DEF_LAYER_COLOUR_COUNT]
-	//	SG_GET_RGB(Get_Random(128, 250), Get_Random(128, 200), Get_Random(128, 200))
 	);
 
 	//-----------------------------------------------------
-	// Classification: Lookup Table...
+	// Classification: Classified...
 
 	m_Parameters.Add_Node("NODE_COLORS",
 		"NODE_LUT"			, _TL("Classified"),
 		_TL("")
 	);
 
-	CSG_Table	LUT;
-	LUT.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
-	LUT.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
-	LUT.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
-	LUT.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_Double);
-	LUT.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_Double);
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	{
+		m_Parameters.Add_Choice("NODE_LUT", "LUT_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
+	}
 
-	m_Parameters.Add_FixedTable("NODE_LUT",
+	CSG_Table	*pLUT	= m_Parameters.Add_FixedTable("NODE_LUT",
 		"LUT"				, _TL("Table"),
-		_TL(""),
-		&LUT
-	);
+		_TL("")
+	)->asTable();
+
+	pLUT->Add_Field(_TL("Color"      ), SG_DATATYPE_Color );
+	pLUT->Add_Field(_TL("Name"       ), SG_DATATYPE_String);
+	pLUT->Add_Field(_TL("Description"), SG_DATATYPE_String);
+	pLUT->Add_Field(_TL("Minimum"    ), SG_DATATYPE_Double);
+	pLUT->Add_Field(_TL("Maximum"    ), SG_DATATYPE_Double);
+
+	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), g_pData->Get_Parameter("COLORS_DEFAULT")->asColors());
 
 	//-----------------------------------------------------
-	// Classification: Metric...
+	// Classification: Colors...
 
 	m_Parameters.Add_Node("NODE_COLORS",
-		"NODE_METRIC"		, _TL("Scaling"),
+		"NODE_METRIC"		, _TL("Colors"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Colors("NODE_METRIC",
+	ColorsParms_Add("NODE_METRIC");
+}
+
+//---------------------------------------------------------
+void CWKSP_Layer::ColorsParms_Add(const CSG_String &Parent, const CSG_String &Prefix)
+{
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+	{
+		m_Parameters.Add_Choice(Parent, Prefix + "METRIC_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
+		m_Parameters.Add_Choice(Parent, Prefix + "METRIC_NORMAL", _TL("Normalize"), _TL(""), _TL("<default>"));
+	}
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud
+		||   m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_TIN )
+	{
+		m_Parameters.Add_Choice(Parent, Prefix + "METRIC_ATTRIB", _TL("Attribute"), _TL(""), _TL("<default>"));
+	}
+	else if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+	{
+		m_Parameters.Add_Choice(Parent, Prefix + "BAND"         , _TL("Band"     ), _TL(""), _TL("<default>"));
+	}
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Colors(Parent, Prefix +
 		"METRIC_COLORS"		, _TL("Colors"),
 		_TL(""),
 		g_pData->Get_Parameter("COLORS_DEFAULT")->asColors()
 	);
 
-	m_Parameters.Add_Range("NODE_METRIC",
+	m_Parameters.Add_Range(Parent, Prefix +
 		"METRIC_ZRANGE"		, _TL("Value Range"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice("NODE_METRIC",
-		"METRIC_SCALE_MODE"	, _TL("Mode"),
+	m_Parameters.Add_Choice(Parent, Prefix +
+		"METRIC_SCALE_MODE"	, _TL("Scaling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("Linear"),
-			_TL("Logarithmic (up)"),
-			_TL("Logarithmic (down)")
+		CSG_String::Format("%s|%s|%s",
+			_TL("linear intervals"),
+			_TL("increasing geometrical intervals"),
+			_TL("decreasing geometrical intervals")
 		), 0
 	);
 
-	m_Parameters.Add_Double("NODE_METRIC",
-		"METRIC_SCALE_LOG"	, _TL("Logarithmic Stretch Factor"),
+	m_Parameters.Add_Double("METRIC_SCALE_MODE", Prefix +
+		"METRIC_SCALE_LOG"	, _TL("Geometrical Interval Factor"),
 		_TL(""),
-		1.0
+		10.0
 	);
 
 	//-----------------------------------------------------
-	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), m_Parameters("METRIC_COLORS")->asColors());
+	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
+	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+	{
+		m_Parameters.Add_Choice(Parent, Prefix +
+			"STRETCH_DEFAULT"	, _TL("Histogram Stretch"),
+			_TL("Histogram stretch used when fitting to zoomed extent in a map window."),
+			CSG_String::Format("%s|%s|%s",
+				_TL("Linear"),
+				_TL("Standard Deviation"),
+				_TL("Percentile")
+			), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
+		);
+
+		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+			"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
+			_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
+			5.0, 0.0, true, 50.0, true
+		);
+
+		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+			"STRETCH_STDDEV"	, _TL("Standard Deviation"),
+			_TL(""),
+			2.0, 0.0, true
+		);
+
+		m_Parameters.Add_Bool("STRETCH_STDDEV", Prefix +
+			"STRETCH_INRANGE"	, _TL("Keep in Range"),
+			_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
+			true
+		);
+
+		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+			"STRETCH_PCTL"		, _TL("Percentile"),
+			_TL(""),
+			2.0, 0.0, true, 50.0, true
+		);
+	}
 }
 
 //---------------------------------------------------------
@@ -387,6 +499,11 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			pParameters->Set_Enabled("METRIC_SCALE_LOG", pParameter->asInt() != 0);
 		}
+
+		if( pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
+		{
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() > 0);
+		}
 	}
 
 	return( CWKSP_Data_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
@@ -394,8 +511,6 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -424,8 +539,6 @@ void CWKSP_Layer::On_Parameters_Changed(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -475,8 +588,6 @@ bool CWKSP_Layer::_Set_Thumbnail(bool bRefresh)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -512,8 +623,6 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -547,8 +656,6 @@ void CWKSP_Layer::_Set_Projection(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -593,8 +700,6 @@ bool CWKSP_Layer::Set_Color_Range(double zMin, double zMax)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -623,8 +728,6 @@ bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -638,8 +741,6 @@ void CWKSP_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -729,8 +830,6 @@ bool CWKSP_Layer::View_Closes(MDI_ChildFrame *pView)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -755,8 +854,6 @@ void CWKSP_Layer::Histogram_Toggle(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

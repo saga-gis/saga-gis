@@ -177,17 +177,18 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		)
 	);
 
-	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE", _TL("Strike"), _TL(""));
-	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"   , _TL("Dip"   ), _TL(""));
-	AttributeList_Add("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"  , _TL("Rake"  ), _TL(""));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE", _TL("Strike"), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"   , _TL("Dip"   ), _TL(""), _TL("<default>"));
+	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"  , _TL("Rake"  ), _TL(""), _TL("<default>"));
 
 
 	//-----------------------------------------------------
 	// Label...
 
-	AttributeList_Add("LABEL_ATTRIB",
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ANGLE_ATTRIB", _TL("Rotation by Attribute"),
-		_TL("")
+		_TL(""),
+		_TL("<default>")
 	);
 
 	m_Parameters.Add_Double("LABEL_ANGLE_ATTRIB",
@@ -229,9 +230,10 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	AttributeList_Add("NODE_SIZE",
+	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_ATTRIB"		, _TL("Attribute"),
-		_TL("")
+		_TL(""),
+		_TL("<default>")
 	);
 
 	m_Parameters.Add_Choice("SIZE_ATTRIB",

@@ -111,8 +111,6 @@ CWKSP_Shapes::~CWKSP_Shapes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -157,7 +155,7 @@ wxString CWKSP_Shapes::Get_Description(void)
 	DESC_ADD_INT(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
 	DESC_ADD_SIZET(_TL("Selected"      ), Get_Shapes()->Get_Selection_Count());
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	s	+= Get_TableInfo_asHTML(Get_Shapes());
 
@@ -219,8 +217,6 @@ wxMenu * CWKSP_Shapes::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -347,8 +343,6 @@ bool CWKSP_Shapes::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -357,38 +351,16 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
+	// Display...
+
+	m_Parameters.Add_Parameters("NODE_DISPLAY",
+		"DISPLAY_CHART"	, _TL("Chart"), _TL("")
+	);
+
+	//-----------------------------------------------------
 	// Classification...
 
-	AttributeList_Add("NODE_LUT"   , "LUT_ATTRIB"   , _TL("Attribute"), _TL(""));
-	AttributeList_Add("NODE_METRIC", "METRIC_ATTRIB", _TL("Attribute"), _TL(""));
-	AttributeList_Add("NODE_METRIC", "METRIC_NORMAL", _TL("Normalize"), _TL(""));
-
-	m_Parameters.Del_Parameter("METRIC_ZRANGE"    );
-	m_Parameters.Del_Parameter("METRIC_SCALE_MODE");
-	m_Parameters.Del_Parameter("METRIC_SCALE_LOG" );
-
-	m_Parameters.Add_Range("NODE_METRIC",
-		"METRIC_ZRANGE"		, _TL("Value Range"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Choice("NODE_METRIC",
-		"METRIC_SCALE_MODE"	, _TL("Mode"),
-		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("Linear"),
-			_TL("Logarithmic (up)"),
-			_TL("Logarithmic (down)")
-		), 0
-	);
-
-	m_Parameters.Add_Double("NODE_METRIC",
-		"METRIC_SCALE_LOG"	, _TL("Logarithmic Stretch Factor"),
-		_TL(""),
-		1.0
-	);
-
-	m_Parameters.Add_Bool("NODE_METRIC",
+	m_Parameters.Add_Bool("NODE_COLORS",
 		"NODATA_SHOW"	, _TL("Show No-Data"), _TL(""), true
 	);
 
@@ -397,22 +369,12 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	);
 
 	//-----------------------------------------------------
-	// Display...
-
-	m_Parameters.Add_Parameters("NODE_DISPLAY",
-		"DISPLAY_CHART"	, _TL("Chart"), _TL("")
-	);
-
-	m_Parameters.Add_Node("", "NODE_TABLE", _TL("Attributes Table"), _TL(""));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
-
-	//-----------------------------------------------------
 	// Label...
 
-	AttributeList_Add("NODE_LABEL",
+	m_Parameters.Add_Choice("NODE_LABEL",
 		"LABEL_ATTRIB"	, _TL("Attribute"),
-		_TL("")
+		_TL(""),
+		_TL("<default>")
 	);
 
 	m_Parameters.Add_Font("LABEL_ATTRIB",
@@ -442,7 +404,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ATTRIB_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("none"),
 			_TL("full frame"),
 			_TL("top"),
@@ -468,9 +430,10 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 		1, 1, true
 	);
 
-	AttributeList_Add("LABEL_ATTRIB",
+	m_Parameters.Add_Choice("LABEL_ATTRIB",
 		"LABEL_ATTRIB_SIZE_BY"		, _TL("Size by Attribute"),
-		_TL("")
+		_TL(""),
+		_TL("<default>")
 	);
 
 	m_Parameters.Add_Double("LABEL_ATTRIB_SIZE_BY",
@@ -515,8 +478,6 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -618,8 +579,6 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -655,8 +614,6 @@ bool CWKSP_Shapes::Set_Metrics(int zField, int nField)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -788,8 +745,6 @@ void CWKSP_Shapes::On_Update_Views(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1033,8 +988,6 @@ void CWKSP_Shapes::_LUT_Import(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1088,8 +1041,6 @@ double CWKSP_Shapes::Get_Value_StdDev (void)	{	return( m_Metrics.Get_StdDev () )
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1114,8 +1065,6 @@ wxString CWKSP_Shapes::Get_Name_Attribute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1330,15 +1279,7 @@ void CWKSP_Shapes::_Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int Poin
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_Parameter * CWKSP_Shapes::AttributeList_Add(const CSG_String &ParentID, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
-{
-	return( m_Parameters.Add_Choice(ParentID, Identifier, Name, Description, CSG_String(_TL("<default>")) + "|") );
-}
 
 //---------------------------------------------------------
 void CWKSP_Shapes::AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
@@ -1371,8 +1312,6 @@ void CWKSP_Shapes::AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1457,8 +1396,6 @@ int CWKSP_Shapes::PenList_Get_Style(const CSG_String &Identifier)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1502,8 +1439,6 @@ bool CWKSP_Shapes::Get_Class_Color(CSG_Shape *pShape, int &Color)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

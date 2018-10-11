@@ -87,7 +87,7 @@ CWKSP_TIN::CWKSP_TIN(CSG_TIN *pTIN)
 	m_pTable	= new CWKSP_Table(pTIN);
 
 	m_Edit_Attributes.Destroy();
-	m_Edit_Attributes.Add_Field(_TL("Name") , SG_DATATYPE_String);
+	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 
 	//-----------------------------------------------------
@@ -105,8 +105,6 @@ CWKSP_TIN::~CWKSP_TIN(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -115,24 +113,24 @@ wxString CWKSP_TIN::Get_Description(void)
 	wxString	s;
 
 	//-----------------------------------------------------
-	s	+= wxString::Format(wxT("<b>%s</b><table border=\"0\">"), _TL("TIN"));
+	s	+= wxString::Format("<b>%s</b><table border=\"0\">", _TL("TIN"));
 
-	s	+= wxT("<table border=\"0\">");
+	s	+= "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name")			, m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description")		, m_pObject->Get_Description());
-	DESC_ADD_STR(_TL("File")			, SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
-	DESC_ADD_STR(_TL("Modified")		, m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR(_TL("Projection")		, m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(_TL("West")			, asTIN()->Get_Extent().Get_XMin());
-	DESC_ADD_FLT(_TL("East")			, asTIN()->Get_Extent().Get_XMax());
-	DESC_ADD_FLT(_TL("West-East")		, asTIN()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT(_TL("South")			, asTIN()->Get_Extent().Get_YMin());
-	DESC_ADD_FLT(_TL("North")			, asTIN()->Get_Extent().Get_YMax());
-	DESC_ADD_FLT(_TL("South-North")		, asTIN()->Get_Extent().Get_YRange());
+	DESC_ADD_STR(_TL("Name"            ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"     ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("File"            ), SG_File_Exists(m_pObject->Get_File_Name()) ? m_pObject->Get_File_Name() : _TL("memory"));
+	DESC_ADD_STR(_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR(_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT(_TL("West"            ), asTIN()->Get_Extent().Get_XMin());
+	DESC_ADD_FLT(_TL("East"            ), asTIN()->Get_Extent().Get_XMax());
+	DESC_ADD_FLT(_TL("West-East"       ), asTIN()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT(_TL("South"           ), asTIN()->Get_Extent().Get_YMin());
+	DESC_ADD_FLT(_TL("North"           ), asTIN()->Get_Extent().Get_YMax());
+	DESC_ADD_FLT(_TL("South-North"     ), asTIN()->Get_Extent().Get_YRange());
 	DESC_ADD_INT(_TL("Number of Points"), asTIN()->Get_Node_Count());
 
-	s	+= wxT("</table>");
+	s	+= "</table>";
 
 	s	+= Get_TableInfo_asHTML(asTIN());
 
@@ -174,8 +172,6 @@ wxMenu * CWKSP_TIN::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -226,8 +222,6 @@ bool CWKSP_TIN::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -236,45 +230,13 @@ void CWKSP_TIN::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
-	// General...
-
-	m_Parameters.Add_Choice(
-		m_Parameters("NODE_METRIC")		, "METRIC_ATTRIB"			, _TL("Attribute"),
-		_TL(""),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_POINTS"			, _TL("Show Nodes"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Node(NULL, "NODE_TABLE", _TL("Attributes Table"), _TL(""));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_STYLE"   ));
-	m_Parameters.Add_Parameter(g_pData->Get_Parameter("TABLE_FLT_DECIMALS"));
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_EDGES"			, _TL("Show Edges"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		m_Parameters("NODE_DISPLAY")	, "DISPLAY_TRIANGES"		, _TL("Show Filled"),
-		_TL(""),
-		PARAMETER_TYPE_Bool, true
-	);
+	m_Parameters.Add_Bool("NODE_DISPLAY", "DISPLAY_POINTS"  , _TL("Show Nodes"), _TL(""), false);
+	m_Parameters.Add_Bool("NODE_DISPLAY", "DISPLAY_EDGES"   , _TL("Show Edges"), _TL(""),  true);
+	m_Parameters.Add_Bool("NODE_DISPLAY", "DISPLAY_TRIANGES", _TL("Show Faces"), _TL(""),  true);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -283,14 +245,14 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 {
 	CWKSP_Layer::On_DataObject_Changed();
 
-	wxString	sChoices;
+	CSG_String	Choices;
 
 	for(int i=0; i<asTIN()->Get_Field_Count(); i++)
 	{
-		sChoices.Append(wxString::Format(wxT("%s|"), asTIN()->Get_Field_Name(i)));
+		Choices	+= asTIN()->Get_Field_Name(i) + '|';
 	}
 
-	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(sChoices);
+	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(Choices);
 }
 
 //---------------------------------------------------------
@@ -310,8 +272,6 @@ void CWKSP_TIN::On_Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -319,13 +279,11 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 {
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier(wxT("METRIC_ATTRIB")) )
+		if(	pParameter->Cmp_Identifier("METRIC_ATTRIB") )
 		{
-			int		zField	= pParameter->asInt();
-
 			pParameters->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(
-				asTIN()->Get_Minimum(zField),
-				asTIN()->Get_Maximum(zField)
+				asTIN()->Get_Minimum(pParameter->asInt()),
+				asTIN()->Get_Maximum(pParameter->asInt())
 			);
 		}
 	}
@@ -335,8 +293,6 @@ int CWKSP_TIN::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -355,8 +311,6 @@ wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -369,8 +323,6 @@ double CWKSP_TIN::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : asTIN()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -381,8 +333,6 @@ bool CWKSP_TIN::asImage(CSG_Grid *pImage)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -414,8 +364,6 @@ bool CWKSP_TIN::Edit_Set_Attributes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -425,25 +373,23 @@ void CWKSP_TIN::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	{
 		if( m_fValue >= 0 )
 		{
-			_Draw_Triangles	(dc_Map);
+			_Draw_Triangles(dc_Map);
 		}
 
 		if( m_Parameters("DISPLAY_EDGES" )->asBool() )
 		{
-			_Draw_Edges		(dc_Map);
+			_Draw_Edges    (dc_Map);
 		}
 
 		if( m_Parameters("DISPLAY_POINTS")->asBool() )
 		{
-			_Draw_Points	(dc_Map);
+			_Draw_Points   (dc_Map);
 		}
 	}
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -476,8 +422,7 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
-	if(	m_Parameters("DISPLAY_TRIANGES")->asBool()
-	&&	dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
+	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
 	{
 		for(int iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
 		{
@@ -507,8 +452,6 @@ void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

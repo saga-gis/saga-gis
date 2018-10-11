@@ -1015,8 +1015,8 @@ bool CWKSP_Project::_Compatibility_Data(TSG_Data_Type Type, CSG_Parameters *pPar
 			if( (pParameter = pParameters->Get_Parameter("COLORS_TYPE")) != NULL )
 			{
 				if( pParameter->asInt() == 3 )
-				{	// 0:Single >> 1:LUT >> 2:Discrete >> 3:Graduated >> 4:Shade >> 5:Overlay >> 6:RGB
-					pParameter->Set_Value(6);	// RGB moved to position 6
+				{	// 0:Single >> 1:LUT >> 2:Discrete >> 3:Graduated >> 4:RGB Overlay >> 5:RGB Composite >> 6:Shade
+					pParameter->Set_Value(5);	// RGB moved to position 5
 				}
 			}
 		}

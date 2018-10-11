@@ -359,56 +359,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters("COLORS_TYPE")->asChoice()->Set_Items(
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
-			_TL("Single Symbol"   ),	// CLASSIFY_UNIQUE
-			_TL("Classified"      ),	// CLASSIFY_LUT
-			_TL("Discrete Colors" ),	// CLASSIFY_METRIC
-			_TL("Graduated Colors"),	// CLASSIFY_GRADUATED
-			_TL("Shade"           ),	// CLASSIFY_SHADE
-			_TL("RGB Composite"   ),	// CLASSIFY_OVERLAY
-			_TL("RGB Coded Values")		// CLASSIFY_RGB
-		)
-	);
-
-	m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_GRADUATED);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Choice("NODE_COLORS",
-		"STRETCH_DEFAULT"	, _TL("Histogram Stretch"),
-		_TL("Histogram stretch used when fitting to zoomed extent in a map window."),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("Linear"),
-			_TL("Standard Deviation"),
-			_TL("Percentile")
-		), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
-		_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
-		5.0, 0.0, true, 50.0, true
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_STDDEV"	, _TL("Standard Deviation"),
-		_TL(""),
-		2.0, 0.0, true
-	);
-
-	m_Parameters.Add_Bool("STRETCH_STDDEV",
-		"STRETCH_INRANGE"	, _TL("Keep in Range"),
-		_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
-		true
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_PCTL"		, _TL("Percentile"),
-		_TL(""),
-		2.0, 0.0, true, 50.0, true
-	);
-
-	//-----------------------------------------------------
 	m_Parameters.Add_Node("NODE_COLORS", "NODE_SHADE"	, _TL("Shade"),
 		_TL("")
 	);

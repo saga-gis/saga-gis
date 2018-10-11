@@ -218,7 +218,7 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	pRGB->Set_Description(s);
 
 	DataObject_Set_Colors   (pRGB, 100, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 6);	// Color Classification Type: RGB
+	DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)

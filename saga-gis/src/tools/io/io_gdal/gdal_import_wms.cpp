@@ -449,7 +449,7 @@ bool CGDAL_Import_WMS::Set_Image(CSG_Grid *pBands[3])
 	Parameters("MAP")->Set_Value(pMap);
 
 	DataObject_Add(pMap);
-	DataObject_Set_Parameter(pMap, "COLORS_TYPE", 6);	// RGB Coded Values
+	DataObject_Set_Parameter(pMap, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	return( true );
 }

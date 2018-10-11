@@ -614,7 +614,7 @@ bool CGrid_from_KML::Load_Overlay(const SG_Char *Dir, const CSG_MetaData &KML)
 	m_pGrids->Add_Item(pGrid);
 
 	DataObject_Add(pGrid);
-	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 6);	// Color Classification Type: RGB
+	DataObject_Set_Parameter(pGrid, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	//-----------------------------------------------------
 	return( true );

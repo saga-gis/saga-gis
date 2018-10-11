@@ -268,21 +268,6 @@ bool CWKSP_Grids::On_Command_UI(wxUpdateUIEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-enum
-{
-	GRIDS_CLASSIFY_UNIQUE	= 0,
-	GRIDS_CLASSIFY_LUT,
-	GRIDS_CLASSIFY_METRIC,
-	GRIDS_CLASSIFY_GRADUATED,
-	GRIDS_CLASSIFY_OVERLAY
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CWKSP_Grids::On_Create_Parameters(void)
 {
 	CWKSP_Layer::On_Create_Parameters();
@@ -327,57 +312,6 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters("COLORS_TYPE")->asChoice()->Set_Items(
-		CSG_String::Format("%s|%s|%s|%s|%s|",
-			_TL("Single Symbol"   ), // GRIDS_CLASSIFY_UNIQUE
-			_TL("Classified"      ), // GRIDS_CLASSIFY_LUT
-			_TL("Discrete Colors" ), // GRIDS_CLASSIFY_METRIC
-			_TL("Graduated Colors"), // GRIDS_CLASSIFY_GRADUATED
-			_TL("RGB Composite"   )  // GRIDS_CLASSIFY_OVERLAY
-		)
-	);
-
-	m_Parameters("COLORS_TYPE")->Set_Value(GRIDS_CLASSIFY_OVERLAY);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Choice("NODE_COLORS",
-		"STRETCH_DEFAULT"	, _TL("Histogram Stretch"),
-		_TL("Histogram stretch used for RGB composite and when fitting to zoomed extent in a map window."),
-		CSG_String::Format("%s|%s|%s|",
-			_TL("Linear"),
-			_TL("Standard Deviation"),
-			_TL("Percentile")
-		), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
-		_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
-		2.0, 0.0, true, 50.0, true
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_STDDEV"	, _TL("Standard Deviation"),
-		_TL(""),
-		2.0, 0.0, true
-	);
-
-	m_Parameters.Add_Bool("STRETCH_STDDEV",
-		"STRETCH_INRANGE"	, _TL("Keep in Range"),
-		_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
-		true
-	);
-
-	m_Parameters.Add_Double("STRETCH_DEFAULT",
-		"STRETCH_PCTL"		, _TL("Percentile"),
-		_TL(""),
-		2.0, 0.0, true, 50.0, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Choice("NODE_METRIC", "BAND", _TL("Band" ), _TL(""), _Get_List_Bands(), 0);
-
-	//-----------------------------------------------------
 	m_Parameters.Add_Node("NODE_COLORS", "NODE_OVERLAY", _TL("RGB Composite"),
 		_TL("")
 	);
@@ -519,7 +453,7 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 
 	Get_Grids()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY && m_Parameters("OVERLAY_STATISTICS")->asInt() != 0 )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY && m_Parameters("OVERLAY_STATISTICS")->asInt() != 0 )
 	{
 		_Fit_Colors();
 	}
@@ -603,9 +537,9 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			(*pParameters)("BAND_B")->asChoice()->Set_Items(List);
 		}
 
-		if( (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
-		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED
-		||  (*pParameters)("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+		if( (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
+		||  (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
+		||  (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 		{
 			if(	pParameter->Cmp_Identifier("BAND"              )
 			||  pParameter->Cmp_Identifier("BAND_R"            )
@@ -637,17 +571,17 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == GRIDS_CLASSIFY_UNIQUE);
-			pParameters->Set_Enabled("NODE_LUT"          , Type == GRIDS_CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_METRIC"       , Type != GRIDS_CLASSIFY_UNIQUE && Type != GRIDS_CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_OVERLAY"      , Type == GRIDS_CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("NODE_LUT"          , Type == CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_METRIC"       , Type != CLASSIFY_UNIQUE && Type != CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_OVERLAY"      , Type == CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("BAND"              , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || Type == GRIDS_CLASSIFY_LUT);
+			pParameters->Set_Enabled("BAND"              , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || Type == CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED || (Type == GRIDS_CLASSIFY_OVERLAY && (*pParameters)("OVERLAY_STATISTICS")->asInt() == 0));
-			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == GRIDS_CLASSIFY_METRIC || Type == GRIDS_CLASSIFY_GRADUATED ||  Type == GRIDS_CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)("OVERLAY_STATISTICS")->asInt() == 0));
+			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED ||  Type == CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != GRIDS_CLASSIFY_LUT && Type != GRIDS_CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_UNIQUE);
 		}
 
 		if(	pParameter->Cmp_Identifier("STRETCH_DEFAULT") )
@@ -935,15 +869,15 @@ bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
 		return( false );
 	}
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
-	||  m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
+	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
 		double	Minimum, Maximum;
 
 		return( _Fit_Colors(m_Parameters, Minimum, Maximum) && Set_Color_Range(Minimum, Maximum) );
 	}
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
 		if( m_Parameters("STRETCH_DEFAULT")->asInt() != 2 )	// no quantiles
 		{
@@ -997,13 +931,13 @@ bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 
 	int	Method	= m_Parameters("STRETCH_DEFAULT")->asInt();	// == 2 >> fit to quantiles
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_METRIC
-	||  m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_GRADUATED )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
+	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
 		return( Get_Grid()->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, m_pClassify, true) );
 	}
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
 		if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
 		{
@@ -1029,7 +963,7 @@ bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Grids::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double &Maximum)
 {
-	if( Parameters("COLORS_TYPE")->asInt() == GRIDS_CLASSIFY_OVERLAY )
+	if( Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
 		CSG_Grids	*pGrids	= Get_Grids();
 
@@ -1285,18 +1219,18 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	case GRIDS_CLASSIFY_UNIQUE   :	m_pClassify->Set_Mode(CLASSIFY_UNIQUE   );	break;
-	case GRIDS_CLASSIFY_LUT      :	m_pClassify->Set_Mode(CLASSIFY_LUT      );	break;
-	case GRIDS_CLASSIFY_METRIC   :	m_pClassify->Set_Mode(CLASSIFY_METRIC   );	break;
-	case GRIDS_CLASSIFY_GRADUATED:	m_pClassify->Set_Mode(CLASSIFY_GRADUATED);	break;
-	case GRIDS_CLASSIFY_OVERLAY  :	m_pClassify->Set_Mode(CLASSIFY_OVERLAY  );	break;
+	case CLASSIFY_UNIQUE   :	m_pClassify->Set_Mode(CLASSIFY_UNIQUE   );	break;
+	case CLASSIFY_LUT      :	m_pClassify->Set_Mode(CLASSIFY_LUT      );	break;
+	case CLASSIFY_METRIC   :	m_pClassify->Set_Mode(CLASSIFY_METRIC   );	break;
+	case CLASSIFY_GRADUATED:	m_pClassify->Set_Mode(CLASSIFY_GRADUATED);	break;
+	case CLASSIFY_OVERLAY  :	m_pClassify->Set_Mode(CLASSIFY_OVERLAY  );	break;
 	}
 
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
-	if( m_pClassify->Get_Mode() == GRIDS_CLASSIFY_UNIQUE
-	||  m_pClassify->Get_Mode() == GRIDS_CLASSIFY_LUT )
+	if( m_pClassify->Get_Mode() == CLASSIFY_UNIQUE
+	||  m_pClassify->Get_Mode() == CLASSIFY_LUT )
 	{
 		Resampling	= GRID_RESAMPLING_NearestNeighbour;
 	}
