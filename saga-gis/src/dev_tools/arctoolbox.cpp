@@ -345,7 +345,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	case PARAMETER_TYPE_Shapes         :
 		Info	+= ArcDataType(ARC_Feature  , false);
-		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() : SHAPE_TYPE_Undefined )
+		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type() : SHAPE_TYPE_Undefined )
 		{
 		case SHAPE_TYPE_Point  :	Info	+= "\t\tparam.filter.list = [\"Point\"]\n"     ;	break;
 		case SHAPE_TYPE_Points :	Info	+= "\t\tparam.filter.list = [\"Multipoint\"]\n";	break;
@@ -356,7 +356,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	case PARAMETER_TYPE_Shapes_List    :
 		Info	+= ArcDataType(ARC_Feature  ,  true);
-		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter->Get_Data())->Get_Shape_Type() : SHAPE_TYPE_Undefined )
+		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type() : SHAPE_TYPE_Undefined )
 		{
 		case SHAPE_TYPE_Point  :	Info	+= "\t\tparam.filter.list = [\"Point\"]\n"     ;	break;
 		case SHAPE_TYPE_Points :	Info	+= "\t\tparam.filter.list = [\"Multipoint\"]\n";	break;
@@ -525,8 +525,8 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 		return( Get_Parameter(pParameter, Infos, Init, Descs, Name, Get_ID(pParameter, "")) );
 
 	case PARAMETER_TYPE_Range:
-		return( Get_Parameter(pParameter->asRange()->Get_LoParm(), Infos, Init, Descs, Name + " (Minimum)", Get_ID(pParameter, "MIN"))
-			&&  Get_Parameter(pParameter->asRange()->Get_HiParm(), Infos, Init, Descs, Name + " (Maximum)", Get_ID(pParameter, "MAX")) );
+		return( Get_Parameter(pParameter->asRange()->Get_Min_Parameter(), Infos, Init, Descs, Name + " (Minimum)", Get_ID(pParameter, "MIN"))
+			&&  Get_Parameter(pParameter->asRange()->Get_Max_Parameter(), Infos, Init, Descs, Name + " (Maximum)", Get_ID(pParameter, "MAX")) );
 
 	case PARAMETER_TYPE_Parameters:
 		return( false );

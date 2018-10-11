@@ -293,7 +293,7 @@ bool CTool_Py_Updater::On_Execute(void)
 		return( false );
 	}
 
-	return( Stream.Write(sTools) );
+	return( Stream.Write(sTools) > 0 );
 }
 
 
