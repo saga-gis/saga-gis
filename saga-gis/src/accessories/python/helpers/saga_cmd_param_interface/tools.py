@@ -545,7 +545,7 @@ tools = [
 ['ta_morphometry', 9, 'Downslope Distance Gradient'],
 ['ta_morphometry', 10, 'Mass Balance Index'],
 ['ta_morphometry', 11, 'Effective Air Flow Heights'],
-['ta_morphometry', 12, 'Diurnal Anisotropic Heating'],
+['ta_morphometry', 12, 'Diurnal Anisotropic Heat'],
 ['ta_morphometry', 13, 'Land Surface Temperature'],
 ['ta_morphometry', 14, 'Relative Heights and Slope Positions'],
 ['ta_morphometry', 15, 'Wind Effect (Windward / Leeward Index)'],
@@ -582,7 +582,7 @@ tools = [
 ['table_calculus', 5, 'Running Average'],
 ['table_calculus', 6, 'Cluster Analysis'],
 ['table_calculus', 7, 'Principle Components Analysis'],
-['table_calculus', 8, 'Fill Gaps in Records'],
+['table_calculus', 8, 'Fill Gaps in Ordered Records'],
 ['table_calculus', 11, 'Find Field of Extreme Value'],
 ['table_calculus', 12, 'Minimum Redundancy Feature Selection'],
 ['table_calculus', 14, 'Cluster Analysis (Shapes)'],
@@ -718,5 +718,12 @@ tools = [
 ['climate_tools', 20, 'Soil Water Balance'],
 ['grid_tools', 39, 'Change Grid Values - Flood Fill'],
 ['io_gdal', 11, 'Import ASTER Scene'],
-['shapes_tools', 29, 'Focal Mechanism (Beachball Plots)']
+['shapes_tools', 29, 'Focal Mechanism (Beachball Plots)'],
+['grids_tools', 3, 'Extract a Grid from a Grid Collection'],
+['grids_tools', 4, 'Add a Grid to a Grid Collection'],
+['grid_calculus', 20, 'Grid Collection Calculator'],
+['statistics_grid', 16, 'Statistics for Grids from Files'],
+['statistics_grid', 17, 'Build Statistics for Grids'],
+['statistics_grid', 18, 'Evaluate Statistics for Grids'],
+['table_calculus', 9, 'Fill Gaps in Records']
 ]
