@@ -47,4 +47,4 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gu
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\saga_gui.exe"; ValueType: string; ValueName: "Path"; ValueData: "{app}"
 
 Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.1.0"; ValueType: string; ValueName: "InstallDir"; ValueData: "{app}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.1.0"; ValueType: string; ValueName: "Version"; ValueData: "6.5.0.0"
+Root: HKLM; Subkey: "SOFTWARE\SAGA User Group Association\SAGA GIS\7.1.0"; ValueType: string; ValueName: "Version"; ValueData: "7.1.0.0"
