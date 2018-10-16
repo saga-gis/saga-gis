@@ -70,35 +70,30 @@
 //---------------------------------------------------------
 CGrid_Mask::CGrid_Mask(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Grid Masking"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		""
+		"Cells of the input grid will be set to no-data, if their cell "
+		"center lies outside or within a no-data cell of the mask grid."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Standard in- and output...
-
 	Parameters.Add_Grid(
-		NULL	, "GRID"			, _TL("Grid"),
+		"", "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MASK"			, _TL("Mask"),
+		"", "MASK"	, _TL("Mask"),
 		_TL(""),
 		PARAMETER_INPUT, false
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MASKED"			, _TL("Masked Grid"),
+		"", "MASKED", _TL("Masked Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -107,21 +102,13 @@ CGrid_Mask::CGrid_Mask(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Mask::On_Execute(void)
 {
-	int			x, y;
-	double		z;
-	TSG_Point	p;
-	CSG_Grid	*pGrid, *pMask, *pMasked;
-
-	pGrid	= Parameters("GRID")	->asGrid();
-	pMask	= Parameters("MASK")	->asGrid();
-	pMasked	= Parameters("MASKED")	->asGrid();
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+	CSG_Grid	*pMask	= Parameters("MASK")->asGrid();
 
 	if( !pGrid->is_Intersecting(pMask->Get_Extent()) )
 	{
@@ -130,30 +117,40 @@ bool CGrid_Mask::On_Execute(void)
 		return( false );
 	}
 
-	if( pMasked == NULL )
-	{
-		pMasked	= pGrid;
+	//-----------------------------------------------------
+	CSG_Grid	*pMasked	= Parameters("MASKED")->asGrid();
 
-		Parameters("MASKED")->Set_Value(pMasked);
-	}
-	else if( pMasked != pGrid )
+	if( pMasked && pMasked != pGrid )
 	{
-		pMasked->Assign(pGrid);
+		pMasked->Create(*pGrid);
+		pMasked->Set_Name("%s [%s]", pGrid->Get_Name(), _TL("masked"));
+
+		pGrid	= pMasked;
 	}
 
+	//-----------------------------------------------------
 	Process_Set_Text(_TL("masking..."));
 
-	for(y=0, p.y=Get_YMin(); y<Get_NY() && Set_Progress(y); y++, p.y+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0, p.x=Get_XMin(); x<Get_NX(); x++, p.x+=Get_Cellsize())
+		double	py	= Get_YMin() + y * Get_Cellsize();
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pMasked->is_NoData(x, y) && !pMask->Get_Value(p, z, GRID_RESAMPLING_NearestNeighbour) )
+			if( !pGrid->is_NoData(x, y) )
 			{
-				pMasked->Set_NoData(x, y);
+				double	px	= Get_XMin() + x * Get_Cellsize();
+
+				if( !pMask->is_InGrid_byPos(px, py) )
+				{
+					pGrid->Set_NoData(x, y);
+				}
 			}
 		}
 	}
 
+	//-----------------------------------------------------
 	return( true );
 }
 
