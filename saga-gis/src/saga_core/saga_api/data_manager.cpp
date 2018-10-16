@@ -812,12 +812,15 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 		{
 			CSG_Table	*pObject	= (CSG_Table *)Get_Table()->Get(i);
 
-			s	+= CSG_String::Format("- %s [%d %s]\n", pObject->Get_Name(), pObject->Get_Count(), _TL("records"));
+			s	+= CSG_String::Format("- [%d %s] %s\n",
+				pObject->Get_Count(), _TL("records"),
+				pObject->Get_Name()
+			);
 		}
 	}
 
 	//-----------------------------------------------------
-	if( Get_Table()->Count() > 0 )
+	if( Get_Shapes()->Count() > 0 )
 	{
 		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Shapes"), Get_Shapes()->Count(), _TL("objects"));
 
@@ -825,12 +828,14 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 		{
 			CSG_Shapes	*pObject	= (CSG_Shapes *)Get_Shapes()->Get(i);
 
-			s	+= CSG_String::Format("- %s [%s; %d %s]\n", pObject->Get_Name(),
+			s	+= CSG_String::Format("- [%s; %d %s] %s\n",
 				pObject->Get_Type() == SHAPE_TYPE_Point   ? _TL("point"  ) :
 				pObject->Get_Type() == SHAPE_TYPE_Points  ? _TL("points" ) :
 				pObject->Get_Type() == SHAPE_TYPE_Line    ? _TL("line"   ) :
 				pObject->Get_Type() == SHAPE_TYPE_Polygon ? _TL("polygon") : _TL("unknown"),
-				pObject->Get_Count(), _TL("records"));
+				pObject->Get_Count(), _TL("records"),
+				pObject->Get_Name()
+			);
 		}
 	}
 
@@ -839,11 +844,14 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 	{
 		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Point Cloud"), Get_Point_Cloud()->Count(), _TL("objects"));
 
-		for(size_t i=0; i<Get_Table()->Count(); i++)
+		for(size_t i=0; i<Get_Point_Cloud()->Count(); i++)
 		{
 			CSG_PointCloud	*pObject	= (CSG_PointCloud *)Get_Point_Cloud()->Get(i);
 
-			s	+= CSG_String::Format("- %s [%d %s]\n", pObject->Get_Name(), pObject->Get_Count(), _TL("records"));
+			s	+= CSG_String::Format("- [%d %s] %s\n",
+				pObject->Get_Count(), _TL("records"),
+				pObject->Get_Name()
+			);
 		}
 	}
 
@@ -856,20 +864,23 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 //		{
 //			CSG_TIN	*pObject	= (CSG_TIN *)Get_TIN()->Get(i);
 //
-//			s	+= CSG_String::Format("- %s [%d %s]\n", pObject->Get_Name(), pObject->Get_Count(), _TL("nodes"));
+//			s	+= CSG_String::Format("- [%d %s] %s\n",
+//				pObject->Get_Count(), _TL("nodes"),
+//				pObject->Get_Name()
+//			);
 //		}
 //	}
 
 	//-----------------------------------------------------
 	if( Grid_System_Count() > 0 )
 	{
-		s	+= CSG_String::Format("___\n%s [%d %s]\n", _TL("Grid System"), Grid_System_Count(), _TL("systems"));
+		sLong	memory	= 0;
 
 		for(size_t i=0; i<Grid_System_Count(); i++)
 		{
 			CSG_Grid_Collection	*pSystem	= Get_Grid_System(i);
 
-			s	+= CSG_String::Format("- %s [%s; %d %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
+			s	+= CSG_String::Format("___\n%s [%s; %d %s]\n", _TL("Grid System"), pSystem->m_System.Get_Name(), pSystem->Count(), _TL("objects"));
 
 			for(size_t j=0; j<pSystem->Count(); j++)
 			{
@@ -877,23 +888,38 @@ CSG_String CSG_Data_Manager::Get_Summary(void)	const
 				{
 					CSG_Grid	*pObject	= (CSG_Grid *)pSystem->Get(j);
 
-					s	+= CSG_String::Format("- %s [%s]\n", pObject->Get_Name(), SG_Data_Type_Get_Name(pObject->Get_Type()));
+					s	+= CSG_String::Format("- [%s; %.1fmb] %s\n",
+						SG_Data_Type_Get_Name(pObject->Get_Type()).c_str(),
+						pObject->Get_Memory_Size() / (double)N_MEGABYTE_BYTES,
+						pObject->Get_Name()
+					);
+
+					memory	+= pObject->Get_Memory_Size();
 				}
 
 				if( pSystem->Get(j)->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 				{
 					CSG_Grids	*pObject	= (CSG_Grids *)pSystem->Get(j);
 
-					s	+= CSG_String::Format("- %s [%s; %d %s]\n", pObject->Get_Name(), SG_Data_Type_Get_Name(pObject->Get_Type()), pObject->Get_NZ(), _TL("grids"));
+					s	+= CSG_String::Format("- [%s; %d %s; %.1fmb] %s\n",
+						SG_Data_Type_Get_Name(pObject->Get_Type()).c_str(),
+						pObject->Get_NZ(), _TL("grids"),
+						pObject->Get_Memory_Size() / (double)N_MEGABYTE_BYTES,
+						pObject->Get_Name()
+					);
+
+					memory	+= pObject->Get_Memory_Size();
 				}
 			}
 		}
+
+		s	+= CSG_String::Format("_\n%s: %.1fmb\n", _TL("Total memory in use by grids"), memory / (double)N_MEGABYTE_BYTES);
 	}
 
 	//-----------------------------------------------------
 	if( s.is_Empty() )
 	{
-		s	= CSG_String::Format("%s - %s\n--- %s ---", _TL("Data Manager"), _TL("Summary"), _TL("no data"));
+		s	+= CSG_String::Format("%s - %s\n--- %s ---\n", _TL("Data Manager"), _TL("Summary"), _TL("no data"));
 	}
 	else
 	{
