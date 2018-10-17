@@ -524,216 +524,6 @@ CSG_String CWKSP_Tool::_Get_XML(bool bHeader)
 }
 
 //---------------------------------------------------------
-CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
-{
-	CSG_String	s;
-
-	if( Type != 0 && Type != 1 )	// default type ??
-	{
-#ifdef _SAGA_MSW
-		Type	= 0;
-#else
-		Type	= 1;
-#endif
-	}
-
-	//-----------------------------------------------------
-	if( Type == 0 )	// DOS/Windows Batch Script
-	{
-		if( bHeader )
-		{
-			s	+= "@ECHO OFF\n\n";
-			s	+= "REM SET SAGA_MLB=C:\\SAGA\\Tools\n";
-			s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
-			s	+= "REM Tool: ";
-			s	+= m_pTool->Get_Name() + "\n\n";
-		}
-
-		s	+= "saga_cmd ";
-		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
-
-		_Get_CMD(s, m_pTool->Get_Parameters());
-
-		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
-		{
-			_Get_CMD(s, m_pTool->Get_Parameters(i));
-		}
-
-		if( bHeader )
-		{
-			s	+= "\n\nPAUSE\n";
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Type == 1 )	// Bash Shell Script
-	{
-		if( bHeader )
-		{
-			s	+= "#!/bin/bash\n\n";
-			s	+= "# export SAGA_MLB=/usr/lib/saga\n\n";
-			s	+= "# tool: ";
-			s	+= m_pTool->Get_Name() + "\n\n";
-		}
-
-		s	+= "saga_cmd ";
-		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
-
-		_Get_CMD(s, m_pTool->Get_Parameters());
-
-		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
-		{
-			_Get_CMD(s, m_pTool->Get_Parameters(i));
-		}
-	}
-
-	return( s );
-}
-
-//---------------------------------------------------------
-CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
-{
-	CSG_String	s;
-
-	//-----------------------------------------------------
-	if( bHeader )
-	{
-		#ifndef _SAGA_MSW
-		s	+= "#! /usr/bin/env python\n";
-		#endif
-		s	+= "# Python script template for SAGA tool execution (automatically created, experimental)\n\n";
-		s	+= "import saga_api, sys, os\n";
-		s	+= "\n";
-		s	+= "##########################################\n";
-	}
-
-	//-----------------------------------------------------
-	s	+= "def Run_SAGA_Tool(File):\n";
-	s	+= "\n";
-	s	+= "    #_____________________________________\n";
-	s	+= "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
-	s	+= "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
-	s	+= "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
-	s	+= "    if Data == None or Data.is_Valid() == 0:\n";
-	s	+= "        print 'Failed to load dataset [' + File + ']'\n";
-	s	+= "        return 0\n";
-	s	+= "\n";
-	s	+= "    #_____________________________________\n";
-	s	+= "    # request tool '" + m_pTool->Get_Name() + "'\n";
-	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + m_pTool->Get_Library() + "', '" + m_pTool->Get_ID() + "')\n";
-	s	+= "\n";
-	s	+= "    Parm = Tool.Get_Parameters()\n";
-
-	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
-	{
-		s	+= "    Parm.Get_Grid_System().Destroy()\n";
-	}
-
-	//-------------------------------------------------
-	_Get_Python(s, m_pTool->Get_Parameters());
-
-	for(int iParameters=0; iParameters<m_pTool->Get_Parameters_Count(); iParameters++)
-	{
-		s	+= "\n";
-		s	+= CSG_String::Format("    Parm = Tool.Get_Parameters(%d) # additional parameter list\n", iParameters);
-
-		_Get_Python(s, m_pTool->Get_Parameters(iParameters));
-	}
-
-	//-------------------------------------------------
-	s	+= "\n";
-	s	+= "    if Tool.Execute() == 0:\n";
-	s	+= "        print 'Tool execution failed!'\n";
-	s	+= "        return 0\n";
-	s	+= "\n";
-	s	+= "    #_____________________________________\n";
-	s	+= "    # Save results to file:\n";
-	s	+= "    Path = os.path.split(File)[0] + os.sep\n";
-	s	+= "    Parm = Tool.Get_Parameters()\n";
-
-	for(int iParameter=0; iParameter<m_pTool->Get_Parameters()->Get_Count(); iParameter++)
-	{
-		CSG_Parameter	*p	= m_pTool->Get_Parameters()->Get_Parameter(iParameter);
-
-		if( p->is_Output() )
-		{
-			CSG_String	id(p->Get_Identifier()), ext;
-
-			switch( p->Get_DataObject_Type() )
-			{
-			case SG_DATAOBJECT_TYPE_Grid      : ext = " + '.sg-grd-z'"; break;
-			case SG_DATAOBJECT_TYPE_Grids     : ext = " + '.sg-gds-z'"; break;
-			case SG_DATAOBJECT_TYPE_Table     : ext = " + '.txt'"     ; break;
-			case SG_DATAOBJECT_TYPE_Shapes    : ext = " + '.geojson'" ; break;
-			case SG_DATAOBJECT_TYPE_PointCloud: ext = " + '.sg-pts-z'"; break;
-			case SG_DATAOBJECT_TYPE_TIN       : ext = " + '.geojson'" ; break;
-			default                           : ext = ""              ; break;
-			}
-
-			if( p->is_DataObject() )
-			{
-				s	+= "    Parm('" +  id + "').asDataObject().Save(Path + Parm('" +  id + "').asDataObject().Get_Name()" + ext + ")\n";
-			}
-			else if( p->is_DataObject_List() )
-			{
-				s	+= "    List = Parm('" +  id + "').asList()\n";
-				s	+= "    Name = Path + Parm('" +  id + "').Get_Name()\n";
-				s	+= "    for i in range(0, List.Get_Data_Count()):\n";
-				s	+= "        List.Get_Data(i).Save(Name + str(i)" + ext + ")\n";
-			}
-		}
-	}
-
-	s	+= "\n";
-	s	+= "    #_____________________________________\n";
-	s	+= "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
-	s	+= "\n";
-	s	+= "    print 'Tool successfully executed!'\n";
-	s	+= "    return 1\n";
-	s	+= "\n";
-
-	//-----------------------------------------------------
-	if( bHeader )
-	{
-		s	+= "\n";
-		s	+= "##########################################\n";
-		s	+= "if __name__ == '__main__':\n";
-		s	+= "    print 'Python - Version ' + sys.version\n";
-		s	+= "    print saga_api.SAGA_API_Get_Version()\n";
-		s	+= "\n";
-		s	+= "    # The following will load all available tools from the standard\n";
-		s	+= "    # directories as defined by the environment variables SAGA_32/SAGA_MLB\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
-		s	+= "    if os.name == 'nt':    # Windows\n";
-		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + os.environ['SAGA_32'] + '/dll' # library dependencies\n";
-		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_32' ] + '/tools', False)\n";
-		s	+= "    else:                  # Linux\n";
-		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_MLB'], False)\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
-		s	+= "\n";
-		s	+= "    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count())\n";
-		s	+= "    print\n";
-		s	+= "\n";
-		s	+= "    #____________________________________\n";
-		s	+= "    print 'Usage: %s <in: filename>'\n";
-		s	+= "    print 'This is a simple template for using a SAGA tool through Python.'\n";
-		s	+= "    print 'Please edit the script to make it work properly before using it!'\n";
-		s	+= "    sys.exit()\n";
-		s	+= "    # For a single file based input it might look like following:\n";
-		s	+= "    File = sys.argv[1]\n";
-		s	+= "\n";
-		s	+= "    Run_SAGA_Tool(File)\n";
-	}
-
-	return( s );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
@@ -808,6 +598,78 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters, const
 			pChild->Add_Property("id", Prefix + p->Get_Identifier());
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
+{
+	CSG_String	s;
+
+	if( Type != 0 && Type != 1 )	// default type ??
+	{
+#ifdef _SAGA_MSW
+		Type	= 0;
+#else
+		Type	= 1;
+#endif
+	}
+
+	//-----------------------------------------------------
+	if( Type == 0 )	// DOS/Windows Batch Script
+	{
+		if( bHeader )
+		{
+			s	+= "@ECHO OFF\n\n";
+			s	+= "REM SET SAGA_TLB=C:\\SAGA\\Tools\n";
+			s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
+			s	+= "REM Tool: ";
+			s	+= m_pTool->Get_Name() + "\n\n";
+		}
+
+		s	+= "saga_cmd ";
+		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
+
+		_Get_CMD(s, m_pTool->Get_Parameters());
+
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
+		{
+			_Get_CMD(s, m_pTool->Get_Parameters(i));
+		}
+
+		if( bHeader )
+		{
+			s	+= "\n\nPAUSE\n";
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Type == 1 )	// Bash Shell Script
+	{
+		if( bHeader )
+		{
+			s	+= "#!/bin/bash\n\n";
+			s	+= "# export SAGA_TLB=/usr/lib/saga\n\n";
+			s	+= "# tool: ";
+			s	+= m_pTool->Get_Name() + "\n\n";
+		}
+
+		s	+= "saga_cmd ";
+		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
+
+		_Get_CMD(s, m_pTool->Get_Parameters());
+
+		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
+		{
+			_Get_CMD(s, m_pTool->Get_Parameters(i));
+		}
+	}
+
+	return( s );
 }
 
 //---------------------------------------------------------
@@ -925,8 +787,153 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
+CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
+{
+	CSG_String	s;
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		s	+= "#! /usr/bin/env python\n";
+		s	+= "\n";
+		s	+= "import saga_api, sys, os\n";
+		s	+= "\n";
+		s	+= "##########################################\n";
+	}
+
+	//-----------------------------------------------------
+	s	+= "def Run_SAGA_Tool(File):\n";
+	s	+= "    #_____________________________________\n";
+	s	+= "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
+	s	+= "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
+	s	+= "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
+	s	+= "    if Data == None or Data.is_Valid() == False:\n";
+	s	+= "        print 'Failed to load dataset [' + File + ']'\n";
+	s	+= "        return False\n";
+	s	+= "\n";
+	s	+= "    #_____________________________________\n";
+	s	+= "    # request tool '" + m_pTool->Get_Name() + "'\n";
+	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + m_pTool->Get_Library() + "', '" + m_pTool->Get_ID() + "')\n";
+	s	+= "\n";
+	s	+= "    Parm = Tool.Get_Parameters()\n";
+
+	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
+	{
+		s	+= "    Parm.Get_Grid_System().Destroy()\n";
+	}
+
+	//-------------------------------------------------
+	_Get_Python(s, m_pTool->Get_Parameters());
+
+	for(int iParameters=0; iParameters<m_pTool->Get_Parameters_Count(); iParameters++)
+	{
+		//	s	+= CSG_String::Format("\n    Parm = Tool.Get_Parameters(%d) # additional parameter list\n", iParameters);
+		//	_Get_Python(s, m_pTool->Get_Parameters(iParameters));
+
+		_Get_Python(s, m_pTool->Get_Parameters(iParameters), m_pTool->Get_Parameters(iParameters)->Get_Identifier());
+	}
+
+	//-------------------------------------------------
+	s	+= "\n";
+	s	+= "    if Tool.Execute() == False:\n";
+	s	+= "        print 'Tool execution failed!'\n";
+	s	+= "        return False\n";
+	s	+= "\n";
+	s	+= "    #_____________________________________\n";
+	s	+= "    # Save results to file:\n";
+	s	+= "    Path = os.path.split(File)[0] + os.sep\n";
+	s	+= "    Parm = Tool.Get_Parameters()\n";
+
+	for(int iParameter=0; iParameter<m_pTool->Get_Parameters()->Get_Count(); iParameter++)
+	{
+		CSG_Parameter	*p	= m_pTool->Get_Parameters()->Get_Parameter(iParameter);
+
+		if( p->is_Output() )
+		{
+			CSG_String	id(p->Get_Identifier()), ext;
+
+			switch( p->Get_DataObject_Type() )
+			{
+			case SG_DATAOBJECT_TYPE_Grid      : ext = " + '.sg-grd-z'"; break;
+			case SG_DATAOBJECT_TYPE_Grids     : ext = " + '.sg-gds-z'"; break;
+			case SG_DATAOBJECT_TYPE_Table     : ext = " + '.txt'"     ; break;
+			case SG_DATAOBJECT_TYPE_Shapes    : ext = " + '.geojson'" ; break;
+			case SG_DATAOBJECT_TYPE_PointCloud: ext = " + '.sg-pts-z'"; break;
+			case SG_DATAOBJECT_TYPE_TIN       : ext = " + '.geojson'" ; break;
+			default                           : ext = ""              ; break;
+			}
+
+			if( p->is_DataObject() )
+			{
+				s	+= "    Parm('" +  id + "').asDataObject().Save(Path + Parm('" +  id + "').asDataObject().Get_Name()" + ext + ")\n";
+			}
+			else if( p->is_DataObject_List() )
+			{
+				s	+= "    List = Parm('" +  id + "').asList()\n";
+				s	+= "    Name = Path + Parm('" +  id + "').Get_Name()\n";
+				s	+= "    for i in range(0, List.Get_Data_Count()):\n";
+				s	+= "        List.Get_Data(i).Save(Name + str(i)" + ext + ")\n";
+			}
+		}
+	}
+
+	s	+= "\n";
+	s	+= "    #_____________________________________\n";
+	s	+= "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
+	s	+= "\n";
+	s	+= "    print 'Tool successfully executed!'\n";
+	s	+= "    return True\n";
+	s	+= "\n";
+
+	//-----------------------------------------------------
+	if( bHeader )
+	{
+		s	+= "\n";
+		s	+= "##########################################\n";
+		s	+= "if __name__ == '__main__':\n";
+		s	+= "    #____________________________________\n";
+		s	+= "    # The following will load all tools from the SAGA installation directory (adjust the path to your system)\n";
+		s	+= "    # and if available the directory defined by the environment variable SAGA_TLB\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
+		s	+= "\n";
+		s	+= "    if os.name == 'nt':    # Windows\n";
+		s	+= "        saga_path = os.environ['SAGA_32'] # e.g. import SAGA installation directory from an environment variable\n";
+		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + saga_path + '/dll' # library dependencies\n";
+		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(saga_path + '/tools', False)\n";
+		s	+= "    else:                  # Linux\n";
+		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory('/usr/local/lib/saga' , False)\n";
+		s	+= "\n";
+		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
+		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
+		s	+= "\n";
+		s	+= "    print 'Python - Version ' + sys.version\n";
+		s	+= "    print saga_api.SAGA_API_Get_Version()\n";
+		s	+= "    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count())\n";
+		s	+= "    print\n";
+		s	+= "\n";
+		s	+= "    #____________________________________\n";
+		s	+= "    print 'Usage: %s <in: filename>'\n";
+		s	+= "    print 'This is a simple template for using a SAGA tool through Python.'\n";
+		s	+= "    print 'Please edit the script to make it work properly before using it!'\n";
+		s	+= "    sys.exit()\n";
+		s	+= "    # For a single file based input it might look like following:\n";
+		s	+= "    File = sys.argv[1]\n";
+		s	+= "\n";
+		s	+= "    #____________________________________\n";
+		s	+= "    Run_SAGA_Tool(File)\n";
+	}
+
+	return( s );
+}
+
+//---------------------------------------------------------
+void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, const CSG_String &Prefix)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
@@ -937,51 +944,58 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 			continue;
 		}
 
+		CSG_String	ID(p->Get_Identifier());
+
+		if( !Prefix.is_Empty() )
+		{
+			ID.Prepend(Prefix + ".");
+		}
+
 		switch( p->Get_Type() )
 		{
 		default:
 			break;
 
 		case PARAMETER_TYPE_Bool           :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%d)\n", p->Get_Identifier(), p->asBool() ? 1 : 0);
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asBool() ? SG_T("true") : SG_T("false"));
 			break;
 
 		case PARAMETER_TYPE_Int            :
-		case PARAMETER_TYPE_Choice         :
-		case PARAMETER_TYPE_Table_Field    :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%d)\n", p->Get_Identifier(), p->asInt());
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%d)\n", ID.c_str(), p->asInt());
 			break;
 
+		case PARAMETER_TYPE_Choice         :
 		case PARAMETER_TYPE_Choices        :
+		case PARAMETER_TYPE_Table_Field    :
 		case PARAMETER_TYPE_Table_Fields   :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%s)\n", p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double         :
 		case PARAMETER_TYPE_Degree         :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%f)\n", p->Get_Identifier(), p->asDouble());
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%f)\n", ID.c_str(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range          :
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Min(%f)\n", p->Get_Identifier(), p->asRange()->Get_Min());
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Max(%f)\n", p->Get_Identifier(), p->asRange()->Get_Max());
+			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Min(%f)\n", ID.c_str(), p->asRange()->Get_Min());
+			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Max(%f)\n", ID.c_str(), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date           :
 		case PARAMETER_TYPE_String         :
 		case PARAMETER_TYPE_Text           :
 		case PARAMETER_TYPE_FilePath       :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", p->Get_Identifier(), p->asString());
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable     :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Create_Table('table.txt'))\n", p->Get_Identifier());
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Create_Table('table.txt'))\n", ID.c_str());
 			break;
 
 		case PARAMETER_TYPE_Grid_System    :
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", p->Get_Identifier(),
+				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", ID.c_str(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin(), p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX  (), p->asGrid_System()->Get_NY  ()
@@ -997,13 +1011,13 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 
 			if( p->is_Input() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s input%s')\n", p->Get_Identifier(),
+				Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s input%s')\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}
 			else if( p->is_Output() && p->is_Optional() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", p->Get_Identifier());
+				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
 			}
 			break;
 
@@ -1015,10 +1029,14 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters)
 		case PARAMETER_TYPE_PointCloud_List:
 			if( p->is_Input() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').asList().Add_Item('%s input list%s')\n", p->Get_Identifier(),
+				Command	+= CSG_String::Format("    Parm('%s').asList().Add_Item('%s input list%s')\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}
+			break;
+
+		case PARAMETER_TYPE_Parameters     :
+			_Get_Python(Command, p->asParameters(), ID);
 			break;
 		}
 	}

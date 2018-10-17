@@ -127,7 +127,7 @@ private:
 	void							_Get_CMD				(CSG_String &Command, CSG_Parameters *pParameters);
 
 	CSG_String						_Get_Python				(bool bHeader);
-	void							_Get_Python				(CSG_String &Command, CSG_Parameters *pParameters);
+	void							_Get_Python				(CSG_String &Command, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
 
 };
 
