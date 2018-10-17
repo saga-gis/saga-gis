@@ -399,7 +399,7 @@ bool		Load_Libraries(void)
 	#else
 		wxString	DLL_Path	= SG_File_Make_Path(&CMD_Path, "dll").c_str();
 
-		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
+		if( wxGetEnv("PATH", &Path) && !Path.IsEmpty() )
 		{
 			wxSetEnv("PATH", DLL_Path + wxT(";") + Path);
 		}
@@ -414,9 +414,9 @@ bool		Load_Libraries(void)
 		Load_Libraries(SG_File_Make_Path(&CMD_Path, "tools"));
     #endif
 
-	if( wxGetEnv("SAGA_MLB", &Path) )
+	if( (wxGetEnv("SAGA_TLB", &Path) || wxGetEnv("SAGA_MLB", &Path)) && !Path.IsEmpty() )
 	{
-		CSG_String_Tokenizer	Paths(&Path, ";");
+		CSG_String_Tokenizer	Paths(&Path, ";:");
 
 		while( Paths.Has_More_Tokens() )
 		{
@@ -786,7 +786,7 @@ void		Print_Help		(void)
 		"\n"
 		"Tool libraries in the \'tools\' subdirectory of the SAGA installation\n"
 		"will be loaded automatically. Additional directories can be specified\n"
-		"by adding the environment variable \'SAGA_MLB\' and let it point to one\n"
+		"by adding the environment variable \'SAGA_TLB\' and let it point to one\n"
 		"or more directories, just the way it is done with the DOS \'PATH\' variable.\n"
 		"\n"
 		"A more convenient way to set various saga_cmd options is to edit a\n"
@@ -891,7 +891,7 @@ void		Create_Batch	(const CSG_String &File)
 		"\n"
 		"SET FLAGS=-f=s\n"
 		"REM SET SAGA=.\n"
-		"REM SET SAGA_MLB=%%SAGA%%\\_private\n"
+		"REM SET SAGA_TLB=%%SAGA%%\\_private\n"
 		"REM PATH=PATH;%%SAGA%%\n"
 		"\n"
 		"IF EXIST dem.sgrd GOTO :GO\n"

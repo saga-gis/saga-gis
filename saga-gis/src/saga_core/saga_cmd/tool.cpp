@@ -131,15 +131,13 @@ void CCMD_Tool::Usage(void)
 {
 	if( m_pTool )
 	{
-		CMD_Print("");
-
-		wxString	sUsage = wxString::Format("Usage: saga_cmd %s %s %s",
+		CSG_String	Usage	= CSG_String::Format("\nUsage: saga_cmd %s %s %s",
 			m_pTool->Get_Library().c_str(),
 			m_pTool->Get_ID     ().c_str(),
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 
-		SG_PRINTF(sUsage);
+		SG_PRINTF(Usage);
 	}
 }
 

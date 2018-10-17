@@ -97,8 +97,8 @@ void					CMD_Set_XML				(bool bOn);
 bool					CMD_Get_XML				(void);
 
 //---------------------------------------------------------
-void					CMD_Print				(              const CSG_String &Text, const SG_Char *XML_Tag = NULL);
-void					CMD_Print				(FILE *Stream, const CSG_String &Text, const SG_Char *XML_Tag = NULL);
+void					CMD_Print				(              const CSG_String &Text, const CSG_String &XML_Tag = "");
+void					CMD_Print				(FILE *Stream, const CSG_String &Text, const CSG_String &XML_Tag = "");
 
 void					CMD_Print_Error			(const CSG_String &Error);
 void					CMD_Print_Error			(const CSG_String &Error, const CSG_String &Info);

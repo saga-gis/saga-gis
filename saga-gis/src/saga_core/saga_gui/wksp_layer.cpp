@@ -185,6 +185,7 @@ bool CWKSP_Layer::On_Command(int Cmd_ID)
 
 	case ID_CMD_DATA_FORCE_UPDATE:
 		m_pObject->Update(true);
+		DataObject_Changed();
 		break;
 	}
 
@@ -419,7 +420,7 @@ void CWKSP_Layer::ColorsParms_Add(const CSG_String &Parent, const CSG_String &Pr
 		), 0
 	);
 
-	m_Parameters.Add_Double("METRIC_SCALE_MODE", Prefix +
+	m_Parameters.Add_Double(Prefix + "METRIC_SCALE_MODE", Prefix +
 		"METRIC_SCALE_LOG"	, _TL("Geometrical Interval Factor"),
 		_TL(""),
 		10.0
@@ -439,25 +440,25 @@ void CWKSP_Layer::ColorsParms_Add(const CSG_String &Parent, const CSG_String &Pr
 			), g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt()
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+		m_Parameters.Add_Double(Prefix + "STRETCH_DEFAULT", Prefix +
 			"STRETCH_LINEAR"	, _TL("Linear Percent Stretch"),
 			_TL("Linear percent stretch allows you to trim extreme values from both ends of the histogram using the percentage specified here."),
 			5.0, 0.0, true, 50.0, true
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+		m_Parameters.Add_Double(Prefix + "STRETCH_DEFAULT", Prefix +
 			"STRETCH_STDDEV"	, _TL("Standard Deviation"),
 			_TL(""),
 			2.0, 0.0, true
 		);
 
-		m_Parameters.Add_Bool("STRETCH_STDDEV", Prefix +
+		m_Parameters.Add_Bool(Prefix + "STRETCH_STDDEV", Prefix +
 			"STRETCH_INRANGE"	, _TL("Keep in Range"),
 			_TL("Prevents that minimum or maximum stretch value fall outside the data value range."),
 			true
 		);
 
-		m_Parameters.Add_Double("STRETCH_DEFAULT", Prefix +
+		m_Parameters.Add_Double(Prefix + "STRETCH_DEFAULT", Prefix +
 			"STRETCH_PCTL"		, _TL("Percentile"),
 			_TL(""),
 			2.0, 0.0, true, 50.0, true

@@ -140,7 +140,7 @@ bool	Config_Create	(wxConfigBase *pConfig)
 	Config_Write(pConfig, "TOOLS", "LNG_FILE_DIC"        , SG_T(""));	// translation dictionary
 	Config_Write(pConfig, "TOOLS", "PROJECTIONS"         , false   );	// load projections dictionary
 	Config_Write(pConfig, "TOOLS", "OMP_THREADS_MAX"     , SG_OMP_Get_Max_Num_Procs());
-	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(";"));	// additional tool library paths (aka SAGA_MLB)
+	Config_Write(pConfig, "TOOLS", "ADD_LIB_PATHS"       , SG_T(""));	// additional tool library paths (aka SAGA_TLB)
 
 	Config_Write(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , SG_Grid_Cache_Get_Directory   ());
 	Config_Write(pConfig,  "DATA", "GRID_CACHE_MODE"     , SG_Grid_Cache_Get_Mode        ());
@@ -177,12 +177,12 @@ bool	Config_Load		(wxConfigBase *pConfig)
 
 	if( Config_Read(pConfig, "TOOLS", "LNG_FILE_DIC", sValue) && wxFileExists(sValue) )	// load translation dictionary
 	{
-		SG_Printf(CSG_String::Format("\n%s:", _TL("loading translation dictionary")));
-		SG_Printf(CSG_String::Format("\n%s.\n",
+		SG_Printf("\n%s:", _TL("loading translation dictionary"));
+		SG_Printf("\n%s.\n",
 		//	SG_Get_Translator().Create(SG_File_Make_Path(Path_Shared, SG_T("saga"), SG_T("lng")), false)
 			SG_Get_Translator().Create(&sValue, false)
 			? _TL("success") : _TL("failed")
-		));
+		);
 	}
 
 	if( Config_Read(pConfig, "TOOLS", "PROJECTIONS", bValue) && bValue == true )	// load projections dictionary
@@ -196,7 +196,7 @@ bool	Config_Load		(wxConfigBase *pConfig)
 
 	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
 
-	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) )	{	wxSetEnv("SAGA_MLB", sValue);	}
+	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) && !sValue.IsEmpty() )	{	wxSetEnv("SAGA_TLB", sValue);	}
 
 	//-----------------------------------------------------
 	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , sValue) )	{	SG_Grid_Cache_Set_Directory   (sValue);	}
