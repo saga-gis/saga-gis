@@ -437,8 +437,13 @@ private:
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT bool			SG_is_Character_Numeric			(int Character);
 
-SAGA_API_DLL_EXPORT int				SG_Printf						(const SG_Char *Format, ...);
-SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE* stream, const SG_Char *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_Printf						(const CSG_String &String);
+SAGA_API_DLL_EXPORT int				SG_Printf						(const  char   *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_Printf						(const wchar_t *Format, ...);
+
+SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const CSG_String &String);
+SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const  char   *Format, ...);
+SAGA_API_DLL_EXPORT int				SG_FPrintf						(FILE *Stream, const wchar_t *Format, ...);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_CurrentTimeStr			(bool bWithDate = true);
 

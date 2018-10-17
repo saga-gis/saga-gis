@@ -952,31 +952,55 @@ bool SG_is_Character_Numeric(int Character)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int				SG_Printf(const SG_Char *Format, ...)
+int				SG_Printf(const CSG_String &Format)
 {
-	va_list	argptr;
+	return( SG_Printf(Format.c_str()) );
+}
 
-	va_start(argptr, Format);
+int				SG_Printf(const char *Format, ...)
+{
+#ifdef _SAGA_LINUX
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format); int ret = wxVprintf(_Format, argptr); va_end(argptr); return( ret );
+#else
+	va_list	argptr; va_start(argptr,  Format); int ret = wxVprintf( Format, argptr); va_end(argptr); return( ret );
+#endif
+}
 
-	int		ret	= wxVprintf(Format, argptr);
-
-	va_end(argptr);
-
-	return( ret );
+int				SG_Printf(const wchar_t *Format, ...)
+{
+#ifdef _SAGA_LINUX
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format); int ret = wxVprintf(_Format, argptr); va_end(argptr); return( ret );
+#else
+	va_list	argptr; va_start(argptr,  Format); int ret = wxVprintf( Format, argptr); va_end(argptr); return( ret );
+#endif
 }
 
 //---------------------------------------------------------
-int				SG_FPrintf(FILE* stream, const SG_Char *Format, ...)
+int				SG_FPrintf(FILE *Stream, const CSG_String &String)
 {
-	va_list	argptr;
+	return( SG_FPrintf(Stream, String.c_str()) );
+}
 
-	va_start(argptr, Format);
+int				SG_FPrintf(FILE *Stream, const char *Format, ...)
+{
+#ifdef _SAGA_LINUX
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format); int ret = wxVfprintf(Stream, _Format, argptr); va_end(argptr); return( ret );
+#else
+	va_list	argptr; va_start(argptr,  Format); int ret = wxVfprintf(Stream,  Format, argptr); va_end(argptr); return( ret );
+#endif
+}
 
-	int		ret	= wxVfprintf(stream, Format, argptr);
-
-	va_end(argptr);
-
-	return( ret );
+int				SG_FPrintf(FILE *Stream, const wchar_t *Format, ...)
+{
+#ifdef _SAGA_LINUX
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_list	argptr; va_start(argptr, _Format); int ret = wxVfprintf(Stream, _Format, argptr); va_end(argptr); return( ret );
+#else
+	va_list	argptr; va_start(argptr,  Format); int ret = wxVfprintf(Stream,  Format, argptr); va_end(argptr); return( ret );
+#endif
 }
 
 
