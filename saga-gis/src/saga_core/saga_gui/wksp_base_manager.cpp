@@ -61,6 +61,7 @@
 
 //---------------------------------------------------------
 #include <wx/window.h>
+#include <wx/debug.h>
 
 #include "active.h"
 #include "active_parameters.h"
@@ -89,7 +90,6 @@ CWKSP_Base_Manager::CWKSP_Base_Manager(void)
 }
 
 //---------------------------------------------------------
-#include <wx/debug.h>
 CWKSP_Base_Manager::~CWKSP_Base_Manager(void)
 {
 	wxASSERT_MSG(m_nItems == 0, wxT("CWKSP_Base_Manager: Could not kill all items on destruction!"));
@@ -97,8 +97,6 @@ CWKSP_Base_Manager::~CWKSP_Base_Manager(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -158,9 +156,9 @@ bool CWKSP_Base_Manager::Del_Item(int iItem)
 
 bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 {
-	int		iItem;
+	int	iItem	= pItem ? pItem->Get_Index() : -1;
 
-	if( pItem && (iItem = pItem->Get_Index()) >= 0 && iItem < m_nItems )
+	if( iItem >= 0 && iItem < m_nItems )
 	{
 		m_nItems--;
 
@@ -203,7 +201,23 @@ bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Base_Manager::On_Data_Deletion(CSG_Data_Object *pObject)
+{
+	CWKSP_Base_Item::On_Data_Deletion(pObject);
+
+	for(int iItem=0; iItem<m_nItems; iItem++)
+	{
+		m_Items[iItem]->On_Data_Deletion(pObject);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -325,16 +339,14 @@ bool CWKSP_Base_Manager::Move_To(CWKSP_Base_Item *pItem, CWKSP_Base_Item *pItem_
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CWKSP_Base_Manager::Get_Items_Count(void)
 {
-	int		iItem, nCount;
+	int	nCount	= 0;
 
-	for(iItem=0, nCount=0; iItem<m_nItems; iItem++)
+	for(int iItem=0; iItem<m_nItems; iItem++)
 	{
 		if( m_Items[iItem]->m_bManager )
 		{

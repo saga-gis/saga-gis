@@ -164,18 +164,18 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
 
 	//-----------------------------------------------------
-	m_pParameters	= new CACTIVE_Parameters	(this);	m_pParameters	->SetName(_TL("Settings"));
-	m_pDescription	= new CACTIVE_Description	(this);	m_pDescription	->SetName(_TL("Description"));
-	m_pHistory		= new CACTIVE_History		(this);	m_pHistory		->SetName(_TL("History"));
-	m_pLegend		= new CACTIVE_Legend		(this);	m_pLegend		->SetName(_TL("Legend"));
-	m_pAttributes	= new CACTIVE_Attributes	(this);	m_pAttributes	->SetName(_TL("Attributes"));
+	m_pParameters	= new CACTIVE_Parameters (this); m_pParameters ->SetName(_TL("Settings"   ));
+	m_pDescription	= new CACTIVE_Description(this); m_pDescription->SetName(_TL("Description"));
+	m_pHistory		= new CACTIVE_History    (this); m_pHistory    ->SetName(_TL("History"    ));
+	m_pLegend		= new CACTIVE_Legend     (this); m_pLegend     ->SetName(_TL("Legend"     ));
+	m_pAttributes	= new CACTIVE_Attributes (this); m_pAttributes ->SetName(_TL("Attributes" ));
 
 #if defined(_SAGA_MSW)
-	m_pParameters	->Hide();
-	m_pDescription	->Hide();
-	m_pHistory		->Hide();
-	m_pLegend		->Hide();
-	m_pAttributes	->Hide();
+	m_pParameters ->Hide();
+	m_pDescription->Hide();
+	m_pHistory    ->Hide();
+	m_pLegend     ->Hide();
+	m_pAttributes ->Hide();
 #endif
 }
 
@@ -199,8 +199,6 @@ CACTIVE::~CACTIVE(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -256,8 +254,6 @@ CWKSP_Map * CACTIVE::Get_Active_Map(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -336,8 +332,6 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -410,8 +404,6 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -447,8 +439,6 @@ bool CACTIVE::Update_Description(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

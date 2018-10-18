@@ -89,13 +89,15 @@ public:
 	CWKSP_Base_Manager(void);
 	virtual ~CWKSP_Base_Manager(void);
 
-	int							Get_Count		(void)		{	return( m_nItems );	}
+	int							Get_Count			(void)		{	return( m_nItems );	}
 
-	CWKSP_Base_Item *			Get_Item		(int iItem)	{	return( iItem >= 0 && iItem < m_nItems ? m_Items[iItem] : NULL );	}
+	CWKSP_Base_Item *			Get_Item			(int iItem)	{	return( iItem >= 0 && iItem < m_nItems ? m_Items[iItem] : NULL );	}
 
-	int							Get_Items_Count	(void);
+	int							Get_Items_Count		(void);
 
-	bool						Move_Top		(CWKSP_Base_Item *pItem);
+	virtual bool				On_Data_Deletion	(CSG_Data_Object *pObject);
+
+	bool						Move_Top			(CWKSP_Base_Item *pItem);
 	bool						Move_Bottom		(CWKSP_Base_Item *pItem);
 	bool						Move_Up			(CWKSP_Base_Item *pItem);
 	bool						Move_Down		(CWKSP_Base_Item *pItem);

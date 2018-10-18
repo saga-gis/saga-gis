@@ -120,8 +120,6 @@ wxString CWKSP_Base_Item::Get_Type_Name(TWKSP_Item Type)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -151,8 +149,6 @@ CWKSP_Base_Item::~CWKSP_Base_Item(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -225,8 +221,6 @@ bool CWKSP_Base_Item::is_Selected(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -244,7 +238,56 @@ bool CWKSP_Base_Item::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Base_Item::_On_Data_Deletion(CSG_Parameters &Parameters, CSG_Data_Object *pObject)
+{
+	bool	bFound	= false;
+
+	for(int i=0; i<Parameters.Get_Count(); i++)
+	{
+		if( Parameters[i].asParameters() )
+		{
+			if( _On_Data_Deletion(*Parameters[i].asParameters(), pObject) )
+			{
+				bFound	= true;
+			}
+		}
+		else if( Parameters[i].is_DataObject_List() )
+		{
+			if( Parameters[i].asList()->Del_Item(pObject) )
+			{
+				bFound	= true;
+			}
+		}
+		else if( Parameters[i].is_DataObject() )
+		{
+			if( Parameters[i].asDataObject() == pObject )
+			{
+				Parameters[i].Set_Value(DATAOBJECT_NOTSET);
+
+				bFound	= true;
+			}
+		}
+	}
+
+	if( bFound )
+	{
+		Parameters_Changed();
+	}
+
+	return( bFound );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Base_Item::On_Data_Deletion(CSG_Data_Object *pObject)
+{
+	return( _On_Data_Deletion(m_Parameters, pObject) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -281,19 +324,23 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	if( pParameter )
 	{
-		CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)pParameter->Get_Owner()->Get_Owner();
+		CSG_Parameters	*pParameters	= pParameter->Get_Owner();
 
-		if( pItem->GetId().IsOk() )
+		if( pParameters->Get_Owner() )
 		{
-			return( pItem->On_Parameter_Changed(pParameter->Get_Owner(), pParameter, Flags) );
-		}
-	}
+			CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)pParameters->Get_Owner();
 
-	if( g_pACTIVE )
-	{
-		return( g_pACTIVE->Get_Parameters()->Update_Parameters(pParameter->Get_Owner(), false) );
+			if( pItem->GetId().IsOk() )
+			{
+				return( pItem->On_Parameter_Changed(pParameters, pParameter, Flags) );
+			}
+		}
+		else if( g_pACTIVE )
+		{
+			return( g_pACTIVE->Get_Parameters()->Update_Parameters(pParameters, false) );
+		}
 	}
 
 	return( 0 );

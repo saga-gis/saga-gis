@@ -161,6 +161,8 @@ public:
 	virtual bool					On_Command				(int Cmd_ID);
 	virtual bool					On_Command_UI			(wxUpdateUIEvent &event);
 
+	virtual bool					On_Data_Deletion		(CSG_Data_Object *pObject);
+
 	virtual CSG_Parameters *		Get_Parameters			(void);
 	virtual CSG_Parameter *			Get_Parameter			(const CSG_String &Identifier);
 	virtual void					Parameters_Changed		(void);
@@ -197,6 +199,9 @@ private:
 	int								m_ID;
 
 	CWKSP_Base_Manager				*m_pManager;
+
+
+	bool							_On_Data_Deletion		(CSG_Parameters &Parameters, CSG_Data_Object *pObject);
 
 };
 
