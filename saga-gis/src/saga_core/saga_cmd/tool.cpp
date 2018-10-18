@@ -131,13 +131,13 @@ void CCMD_Tool::Usage(void)
 {
 	if( m_pTool )
 	{
-		CSG_String	Usage	= CSG_String::Format("\nUsage: saga_cmd %s %s %s",
+		wxString	Usage	= wxString::Format("\nUsage: saga_cmd %s %s %s",
 			m_pTool->Get_Library().c_str(),
 			m_pTool->Get_ID     ().c_str(),
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 
-		SG_PRINTF(Usage);
+		SG_PRINTF(&Usage);
 	}
 }
 
@@ -628,6 +628,9 @@ bool CCMD_Tool::_Get_Input(CSG_Parameters *pParameters)
 
 			switch( pParameter->Get_Type() )
 			{
+			default:
+				break;
+
 			case PARAMETER_TYPE_Table_Field:
 				if( m_CMD.Found(_Get_ID(pParameter), &s) )
 				{
