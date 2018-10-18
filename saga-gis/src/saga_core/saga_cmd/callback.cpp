@@ -148,7 +148,7 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 	{
 		if( !XML_Tag.is_Empty() )
 		{
-			SG_Printf("<%s>%s</%s>\n", XML_Tag, Text.c_str(), XML_Tag);
+			SG_Printf("<%s>%s</%s>\n", XML_Tag.c_str(), Text.c_str(), XML_Tag.c_str());
 		}
 	}
 	else
@@ -166,7 +166,7 @@ void			CMD_Print			(FILE *Stream, const CSG_String &Text, const CSG_String &XML_
 		{
 			if( !XML_Tag.is_Empty() )
 			{
-				SG_FPrintf(Stream, "<%s>%s</%s>\n", XML_Tag, Text.c_str(), XML_Tag);
+				SG_FPrintf(Stream, "<%s>%s</%s>\n", XML_Tag.c_str(), Text.c_str(), XML_Tag.c_str());
 			}
 		}
 		else
