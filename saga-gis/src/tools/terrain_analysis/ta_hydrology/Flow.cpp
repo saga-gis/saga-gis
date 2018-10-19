@@ -205,8 +205,10 @@ bool CFlow::On_Execute(void)
 	SET_GRID_TO(m_pAccu_Left  , 1.0);
 	SET_GRID_TO(m_pAccu_Right , 1.0);
 
-	DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-	
+	DataObject_Set_Colors   (m_pFlow, 11, SG_COLORS_WHITE_BLUE);
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1);	// increasing geometrical intervals
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_LOG" , 100);	// Geometrical Interval Factor
+
 	//-----------------------------------------------------
 	if( m_bPoint )
 	{

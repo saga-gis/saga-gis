@@ -103,12 +103,14 @@ CFlow_Parallel::CFlow_Parallel(void)
 
 	Add_Reference("Freeman, G.T.", "1991",
 		"Calculating catchment area with divergent flow based on a regular grid",
-		"Computers and Geosciences, 17:413-22."
+		"Computers and Geosciences, 17:413-22.",
+		SG_T("https://www.sciencedirect.com/science/article/pii/009830049190048I"), SG_T("ScienceDirect")
 	);
 
 	Add_Reference("O'Callaghan, J.F. & Mark, D.M.", "1984",
 		"The extraction of drainage networks from digital elevation data",
-		"Computer Vision, Graphics and Image Processing, 28:323-344."
+		"Computer Vision, Graphics and Image Processing, 28:323-344.",
+		SG_T("https://www.sciencedirect.com/science/article/pii/S0734189X84800110"), SG_T("ScienceDirect")
 	);
 
 	Add_Reference("Qin, C. Z., Zhu, A. X., Pei, T., Li, B. L., Scholten, T., Behrens, T. & Zhou, C. H.", "2011",
@@ -129,15 +131,13 @@ CFlow_Parallel::CFlow_Parallel(void)
 		"A new triangular multiple flow direction algorithm for computing upslope areas from gridded digital elevation models",
 		"Water Resources Research, Vol. 43, W04501,<br>"
 		"C++ implementation in SAGA by Thomas Grabs (c) 2007, contact: thomas.grabs@natgeo.su.se, jan.seibert@natgeo.su.se.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/2006WR005128/full"),
-		SG_T("Wiley")
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/2006WR005128/full"), SG_T("Wiley")
 	);
 
 	Add_Reference("Tarboton, D.G.", "1997",
 		"A new method for the determination of flow directions and upslope areas in grid digital elevation models",
 		"Water Resources Research, Vol.33, No.2, p.309-319.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"),
-		SG_T("Wiley")
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1029/96WR03137/pdf"), SG_T("Wiley")
 	);
 
 	//-----------------------------------------------------
@@ -169,7 +169,7 @@ CFlow_Parallel::CFlow_Parallel(void)
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),

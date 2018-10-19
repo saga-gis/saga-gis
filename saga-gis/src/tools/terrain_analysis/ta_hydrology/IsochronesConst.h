@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: IsochronesConst.h 1246 2011-11-25 13:42:38Z oconrad $
- *********************************************************/
 /*******************************************************************************
     IsochronesConst.h
     Copyright (C) Victor Olaya
@@ -23,7 +20,7 @@
 #ifndef HEADER_INCLUDED__IsochronesConst_H
 #define HEADER_INCLUDED__IsochronesConst_H
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 class CIsochronesConst : public CSG_Tool_Grid_Interactive
 {

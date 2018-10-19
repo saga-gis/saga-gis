@@ -306,6 +306,7 @@
     <ClCompile Include="Erosion_LS_Fields.cpp" />
     <ClCompile Include="Flow.cpp" />
     <ClCompile Include="FlowDepth.cpp" />
+    <ClCompile Include="flow_accumulation_mp.cpp" />
     <ClCompile Include="Flow_AreaDownslope.cpp" />
     <ClCompile Include="Flow_AreaUpslope.cpp" />
     <ClCompile Include="flow_by_slope.cpp" />
@@ -350,6 +351,7 @@
     <ClInclude Include="Erosion_LS_Fields.h" />
     <ClInclude Include="Flow.h" />
     <ClInclude Include="FlowDepth.h" />
+    <ClInclude Include="flow_accumulation_mp.h" />
     <ClInclude Include="Flow_AreaDownslope.h" />
     <ClInclude Include="Flow_AreaUpslope.h" />
     <ClInclude Include="Flow_BRM.h" />
@@ -367,7 +369,6 @@
     <ClInclude Include="IsochronesVar.h" />
     <ClInclude Include="LakeFlood.h" />
     <ClInclude Include="melton_ruggedness.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Sinuosity.h 1246 2011-11-25 13:42:38Z oconrad $
- *********************************************************/
 /*******************************************************************************
     Sinuosity.h
     Copyright (C) Victor Olaya
@@ -20,11 +17,7 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
-
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 class CSinuosity : public CSG_Tool_Grid_Interactive
 {
@@ -48,4 +41,3 @@ private:
 	int m_iX, m_iY;	
 
 };
-

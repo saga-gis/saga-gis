@@ -84,7 +84,8 @@ public:
 
 	CFlow_Routing(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Hydrology|Flow Accumulation" ));	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Hydrology|Flow Accumulation|Alternatives" ));	}
+
 
 	bool				Set_Flow				(CSG_Grid *pDEM, CSG_Grid *pFlow, int Preprocess = 0, double dzFill = 0.01);
 

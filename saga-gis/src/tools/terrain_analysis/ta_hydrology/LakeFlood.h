@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: LakeFlood.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -69,7 +66,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
+
 #include <list>
 
 
@@ -123,11 +121,8 @@ protected:
 		int		x;			// grid x
 		int		y;			// grid y
 		double	z;			// absolute water level
-	}SEED;
-
-private:
-
-
+	}
+	SEED;
 
 };
 
@@ -151,7 +146,6 @@ private:
 	CTraceOrder				*newCell, *firstCell, *iterCell, *lastCell;
 	bool					m_bLevel;
 	double					m_water;
-
 
 };
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: flow_massflux.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -70,7 +67,7 @@ public: ////// public members and functions: //////////////
 
 	CFlow_MassFlux(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation" ));	}
+	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation|Alternatives") );	}
 
 
 protected: /// protected members and functions: ///////////

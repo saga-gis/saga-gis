@@ -95,11 +95,11 @@
     <ClCompile Include="Flow_Fields.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="flow_accumulation_mp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -227,6 +227,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Flow_Fields.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flow_accumulation_mp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

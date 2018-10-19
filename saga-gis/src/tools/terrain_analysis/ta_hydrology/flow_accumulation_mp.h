@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
+//                    Module Library:                    //
 //                     ta_hydrology                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                flow_accumulation_mp.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2018                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -43,9 +39,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -55,13 +49,20 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__ta_hydrology_H
-#define HEADER_INCLUDED__ta_hydrology_H
+#ifndef HEADER_INCLUDED__flow_accumulation_mp_H
+#define HEADER_INCLUDED__flow_accumulation_mp_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -74,4 +75,44 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__ta_hydrology_H
+class CFlow_Accumulation_MP : public CSG_Tool_Grid
+{
+public:
+	CFlow_Accumulation_MP(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation|Alternatives") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_Grid				*m_pDEM, *m_pFlow, m_Flow[8];
+
+
+	bool					Initialize				(void);
+	bool					Finalize				(void);
+
+	bool					Set_D8					(int x, int y);
+	bool					Set_Dinf				(int x, int y);
+	bool					Set_MFD					(int x, int y, double Convergence);
+
+	bool					Get_Flow				(int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__flow_accumulation_mp_H
+

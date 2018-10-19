@@ -147,6 +147,10 @@ bool CFlow_Routing::On_Execute(void)
 	m_pDEM	= Parameters("DEM" )->asGrid();
 	m_pFlow	= Parameters("FLOW")->asGrid();
 
+	DataObject_Set_Colors   (m_pFlow, 11, SG_COLORS_WHITE_BLUE);
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1);	// increasing geometrical intervals
+	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_LOG" , 100);	// Geometrical Interval Factor
+
 	return( Set_Flow(Parameters("PREPROC")->asInt(), Parameters("DZFILL")->asDouble()) );
 }
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Helper.h 1016 2011-04-27 18:40:36Z oconrad $
- *********************************************************/
 /*******************************************************************************
     Helper.h
     Copyright (C) Victor Olaya
@@ -19,9 +16,6 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
 #include <saga_api/saga_api.h>
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -60,8 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
 CSG_String Get_Info(int i)
@@ -75,19 +71,18 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya (c) 2001-4") );
+		return( "O. Conrad, V. Olaya (c) 2001-4" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for digital terrain analysis.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis|Hydrology") );
 	}
 }
-
 
 //---------------------------------------------------------
 #include "Flow_Parallel.h"
@@ -95,36 +90,25 @@ CSG_String Get_Info(int i)
 #include "Flow_RecursiveDown.h"
 #include "Flow_AreaUpslope.h"
 #include "Flow_AreaDownslope.h"
-
 #include "Flow_Distance.h"
 #include "Flow_Length.h"
 #include "SlopeLength.h"
-
 #include "EdgeContamination.h"
-
 #include "IsochronesConst.h"
 #include "IsochronesVar.h"
-
 #include "CellBalance.h"
 #include "Sinuosity.h"
-
 #include "FlowDepth.h"
-
 #include "TopographicIndices.h"
 #include "SAGA_Wetness_Index.h"
-
 #include "LakeFlood.h"
-
 #include "flow_massflux.h"
 #include "flow_width.h"
-
 #include "melton_ruggedness.h"
-
 #include "Erosion_LS_Fields.h"
-
 #include "flow_by_slope.h"
-
 #include "Flow_Fields.h"
+#include "flow_accumulation_mp.h"
 
 //---------------------------------------------------------
 CSG_Tool *		Create_Tool(int i)
@@ -159,8 +143,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 26:	return( new CFlow_by_Slope );
 	case 27:	return( new CFlow_Length );
 	case 28:	return( new CFlow_Fields );
-	case 29: return(NULL);
-	
+	case 29:	return( new CFlow_Accumulation_MP );
+
+	//-----------------------------------------------------
+	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

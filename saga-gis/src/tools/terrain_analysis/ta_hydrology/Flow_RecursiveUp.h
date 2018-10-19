@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_RecursiveUp.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -85,6 +82,8 @@ class CFlow_RecursiveUp : public CFlow
 {
 public:
 	CFlow_RecursiveUp(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation|Alternatives") );	}
 
 
 protected:

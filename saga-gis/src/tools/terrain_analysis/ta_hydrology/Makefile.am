@@ -17,6 +17,7 @@ Erosion_LS_Fields.cpp\
 Flow.cpp\
 Flow_AreaDownslope.cpp\
 Flow_AreaUpslope.cpp\
+flow_accumulation_mp.cpp\
 flow_by_slope.cpp\
 Flow_Distance.cpp\
 Flow_Fields.cpp\
@@ -44,6 +45,7 @@ Erosion_LS_Fields.h\
 Flow.h\
 Flow_AreaDownslope.h\
 Flow_AreaUpslope.h\
+flow_accumulation_mp.h\
 flow_by_slope.h\
 Flow_BRM.h\
 Flow_Distance.h\
