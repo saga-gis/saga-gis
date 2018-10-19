@@ -79,7 +79,7 @@ CSG_Grid_System Fit_Extent(const CSG_Grid_System &System, const CSG_Rect &Extent
 		System.Fit_yto_Grid_System(Extent.Get_YMax())
 	);
 
-	r.Intersect(System.Get_Extent(true));
+	r.Intersect(System.Get_Extent(false));
 
 	return( CSG_Grid_System(System.Get_Cellsize(), r) );
 }
@@ -529,7 +529,12 @@ bool CGrid_Clip::On_Execute(void)
 			{
 				CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
 
-				pClip	= SG_Create_Grid(System, pGrid->Get_Type());
+				if( !(pClip = SG_Create_Grid(System, pGrid->Get_Type())) )
+				{
+					Error_Set(_TL("failed to allocate memory"));
+
+					return( false );
+				}
 
 				((CSG_Grid  *)pClip)->Set_Unit   (pGrid ->Get_Unit());
 				((CSG_Grid  *)pClip)->Set_Scaling(pGrid ->Get_Scaling(), pGrid ->Get_Offset());
@@ -544,7 +549,12 @@ bool CGrid_Clip::On_Execute(void)
 			{
 				CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
 
-				pClip	= SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true);
+				if( !(pClip = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), pGrids->Get_Type(), true)) )
+				{
+					Error_Set(_TL("failed to allocate memory"));
+
+					return( false );
+				}
 
 				((CSG_Grids *)pClip)->Set_Unit   (pGrids->Get_Unit());
 				((CSG_Grids *)pClip)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
