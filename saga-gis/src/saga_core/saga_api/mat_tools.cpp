@@ -104,9 +104,15 @@ double			SG_Get_Rounded(double Value, int Decimals)
 		return( floor(0.5 + Value) );
 	}
 
-	double	Precision	= pow(10.0, Decimals);
+	double	d	= pow(10., Decimals);
+	double	v	= Value * d;
 
-	return( floor(0.5 + Value * Precision) / Precision );
+	if( fabs(v - floor(v)) > 0.0 )
+	{
+		return( floor(0.5 + v) / d );
+	}
+
+	return( Value );
 }
 
 //---------------------------------------------------------
@@ -121,7 +127,7 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 
 	if( Decimals > 0 )
 	{
-		double	d	= pow(10.0, Decimals);
+		double	d	= pow(10., Decimals);
 
 		return( Value < 0.0
 			? -((int)(0.5 - Value * d)) / d
@@ -130,7 +136,7 @@ double			SG_Get_Rounded_To_SignificantFigures(double Value, int Decimals)
 	}
 	else
 	{
-		double	d	= pow(10.0, -Decimals);
+		double	d	= pow(10., -Decimals);
 
 		return( Value < 0.0
 			? -((int)(0.5 - Value / d)) * d
