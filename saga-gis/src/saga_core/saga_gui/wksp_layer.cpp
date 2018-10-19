@@ -322,7 +322,7 @@ void CWKSP_Layer::On_Create_Parameters(void)
 			_TL("RGB Composite"   ),	// CLASSIFY_OVERLAY
 			_TL("RGB Coded Values"),	// CLASSIFY_RGB
 			_TL("Shade"           )		// CLASSIFY_SHADE
-			), 3);
+		), 3);
 	}
 
 	//-----------------------------------------------------
@@ -475,8 +475,8 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		||	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			pParameters->Set_Enabled("LEGEND_STYLE",
-				pParameters->Get_Parameter("LEGEND_SHOW")->asBool()
-			&&	pParameters->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
+					(*pParameters)("LEGEND_SHOW")->asBool()
+				&&	(*pParameters)->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
 			);
 		}
 

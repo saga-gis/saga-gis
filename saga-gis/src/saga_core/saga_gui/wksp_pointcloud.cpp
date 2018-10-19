@@ -116,8 +116,6 @@ CWKSP_PointCloud::~CWKSP_PointCloud(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -213,8 +211,6 @@ wxMenu * CWKSP_PointCloud::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -315,8 +311,6 @@ bool CWKSP_PointCloud::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -326,7 +320,7 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 
 	//-----------------------------------------------------
 	m_Parameters.Add_Int("NODE_DISPLAY",
-		"DISPLAY_SIZE"			, _TL("Point Size"),
+		"DISPLAY_SIZE"	, _TL("Point Size"),
 		_TL(""),
 		0, 0, true
 	);
@@ -377,11 +371,11 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
-	default:	m_fValue	= -1;										break;	// CLASSIFY_UNIQUE
-	case  1:	m_fValue	= m_Parameters("LUT_ATTRIB"   )->asInt();	break;	// CLASSIFY_LUT
-	case  2:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_METRIC
-	case  3:	m_fValue	= m_Parameters("METRIC_ATTRIB")->asInt();	break;	// CLASSIFY_GRADUATED
-	case  4:	m_fValue	= m_Parameters("RGB_ATTRIB"   )->asInt();	break;	// CLASSIFY_RGB
+	default: m_fValue = -1                                    ; break;	// CLASSIFY_UNIQUE
+	case  1: m_fValue = m_Parameters("LUT_ATTRIB"   )->asInt(); break;	// CLASSIFY_LUT
+	case  2: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_METRIC
+	case  3: m_fValue = m_Parameters("METRIC_ATTRIB")->asInt(); break;	// CLASSIFY_GRADUATED
+	case  4: m_fValue = m_Parameters("RGB_ATTRIB"   )->asInt(); break;	// CLASSIFY_RGB
 	}
 
 	if( m_fValue < 0 || m_fValue >= Get_PointCloud()->Get_Field_Count() )
@@ -390,7 +384,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 
 		m_pClassify->Set_Mode(CLASSIFY_UNIQUE);
 	}
-	else if( m_Parameters("COLORS_TYPE")->asInt() == 4 )
+	else if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
 		m_pClassify->Set_Mode(CLASSIFY_RGB);
 	}
@@ -399,7 +393,7 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();
 	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
-	m_PointSize			= m_Parameters("DISPLAY_SIZE")	->asInt();
+	m_PointSize			= m_Parameters("DISPLAY_SIZE")->asInt();
 }
 
 

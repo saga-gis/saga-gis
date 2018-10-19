@@ -492,16 +492,13 @@ bool CSG_PointCloud::_Load(CSG_File &Stream)
 		}
 	}
 
-	if( m_nPointBytes != nPointBytes + 1 )
-	{
-		return( false );
-	}
-
 	//-----------------------------------------------------
 	sLong	fLength	= Stream.Length();
 
 	while( _Inc_Array() && Stream.Read(m_Cursor + 1, nPointBytes) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
-	{}
+	{
+		// nop
+	}
 
 	_Dec_Array();
 
