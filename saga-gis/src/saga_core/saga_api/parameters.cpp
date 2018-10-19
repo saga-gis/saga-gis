@@ -1067,7 +1067,7 @@ CSG_Parameter * CSG_Parameters::_Add(CSG_Parameter *pSource)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)
+CSG_Parameter * CSG_Parameters::Get_Parameter(const CSG_String &ID)	const
 {
 	if( m_Parameters && !ID.is_Empty() )
 	{

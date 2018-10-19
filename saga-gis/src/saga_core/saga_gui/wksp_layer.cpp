@@ -476,7 +476,7 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		{
 			pParameters->Set_Enabled("LEGEND_STYLE",
 					(*pParameters)("LEGEND_SHOW")->asBool()
-				&&	(*pParameters)->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
+				&&	(*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
 			);
 		}
 
@@ -644,7 +644,7 @@ void CWKSP_Layer::_Set_Projection(void)
 
 			if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )
 			{
-				Get_Object()->Get_Projection().Create(pTool->Get_Parameters()->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+				Get_Object()->Get_Projection().Create(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 				Get_Object()->Set_Modified();
 
 				DataObject_Changed();

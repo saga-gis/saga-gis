@@ -1636,18 +1636,18 @@ public:
 	//-----------------------------------------------------
 	CSG_Parameters &			operator =				(const CSG_Parameters &Parameters)	{	Create(Parameters);	return( *this );	}
 
-	CSG_Parameter *				Get_Parameter			(int i)					{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
-	CSG_Parameter *				Get_Parameter			(const CSG_String &ID);
+	CSG_Parameter *				Get_Parameter			(int i               )	const	{	return( i >= 0 && i < m_nParameters ? m_Parameters[i] : NULL );	}
+	CSG_Parameter *				Get_Parameter			(const CSG_String &ID)	const;
 
-	CSG_Parameter *				operator()				(int i)					{	return(  Get_Parameter(i ) );	}
-	CSG_Parameter *				operator()				(const CSG_String &ID)	{	return(  Get_Parameter(ID) );	}
-	CSG_Parameter *				operator()				(const char       *ID)	{	return(  Get_Parameter(ID) );	}
-	CSG_Parameter *				operator()				(const wchar_t    *ID)	{	return(  Get_Parameter(ID) );	}
+	CSG_Parameter *				operator()				(int i               )	const	{	return(  Get_Parameter(i ) );	}
+	CSG_Parameter *				operator()				(const CSG_String &ID)	const	{	return(  Get_Parameter(ID) );	}
+	CSG_Parameter *				operator()				(const char       *ID)	const	{	return(  Get_Parameter(ID) );	}
+	CSG_Parameter *				operator()				(const wchar_t    *ID)	const	{	return(  Get_Parameter(ID) );	}
 
-	CSG_Parameter &				operator[]				(int i)					{	return( *Get_Parameter(i ) );	}
-	CSG_Parameter &				operator[]				(const CSG_String &ID)	{	return( *Get_Parameter(ID) );	}
-	CSG_Parameter &				operator[]				(const char       *ID)	{	return( *Get_Parameter(ID) );	}
-	CSG_Parameter &				operator[]				(const wchar_t    *ID)	{	return( *Get_Parameter(ID) );	}
+	CSG_Parameter &				operator[]				(int i               )	const	{	return( *Get_Parameter(i ) );	}
+	CSG_Parameter &				operator[]				(const CSG_String &ID)	const	{	return( *Get_Parameter(ID) );	}
+	CSG_Parameter &				operator[]				(const char       *ID)	const	{	return( *Get_Parameter(ID) );	}
+	CSG_Parameter &				operator[]				(const wchar_t    *ID)	const	{	return( *Get_Parameter(ID) );	}
 
 	//-----------------------------------------------------
 	bool						Del_Parameter			(int i);

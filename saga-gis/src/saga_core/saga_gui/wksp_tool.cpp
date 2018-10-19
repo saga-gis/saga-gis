@@ -833,10 +833,9 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	for(int iParameters=0; iParameters<m_pTool->Get_Parameters_Count(); iParameters++)
 	{
-		//	s	+= CSG_String::Format("\n    Parm = Tool.Get_Parameters(%d) # additional parameter list\n", iParameters);
-		//	_Get_Python(s, m_pTool->Get_Parameters(iParameters));
+		s	+= CSG_String::Format("\n    Parm = Tool.Get_Parameters(%d) # additional parameter list\n", iParameters);
 
-		_Get_Python(s, m_pTool->Get_Parameters(iParameters), m_pTool->Get_Parameters(iParameters)->Get_Identifier());
+		_Get_Python(s, m_pTool->Get_Parameters(iParameters));
 	}
 
 	//-------------------------------------------------

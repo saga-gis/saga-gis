@@ -474,40 +474,28 @@ wxString CWKSP_PointCloud::Get_Name_Attribute(void)
 }
 
 //---------------------------------------------------------
-CSG_Parameter * CWKSP_PointCloud::_AttributeList_Add(CSG_Parameter *pNode, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description)
-{
-	CSG_Parameter *pParameter;
-
-	pParameter	= m_Parameters.Add_Choice(
-		pNode, Identifier, Name, Description,
-		CSG_String::Format(SG_T("%s|"), _TL("<default>")), 0
-	);
-
-	return( pParameter );
-}
-
-//---------------------------------------------------------
 void CWKSP_PointCloud::_AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 {
 	if( pFields && pFields->Get_Type() == PARAMETER_TYPE_Choice )
 	{
-		wxString	s;
+		CSG_String	s;
 
 		for(int i=0; i<Get_PointCloud()->Get_Field_Count(); i++)
 		{
-			s.Append(wxString::Format("%s|", Get_PointCloud()->Get_Field_Name(i)));
+			s	+= Get_PointCloud()->Get_Field_Name(i); s += "|";
 		}
 
 		if( bAddNoField )
 		{
-			s.Append(wxString::Format("%s|", _TL("<none>")));
-		}
+			s	+= _TL("<none>");
 
-		pFields->asChoice()->Set_Items(s);
+			pFields->asChoice()->Set_Items(s);
 
-		if( bAddNoField )
-		{
 			pFields->Set_Value(Get_PointCloud()->Get_Field_Count());
+		}
+		else
+		{
+			pFields->asChoice()->Set_Items(s);
 		}
 	}
 }
@@ -537,7 +525,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"     ), _TL(""), "");
 		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
 		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("unique values"),
 				_TL("equal intervals"),
 				_TL("quantiles"),
