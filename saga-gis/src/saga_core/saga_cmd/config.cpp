@@ -196,7 +196,17 @@ bool	Config_Load		(wxConfigBase *pConfig)
 
 	if( Config_Read(pConfig, "TOOLS", "OMP_THREADS_MAX"     , iValue) )	{	SG_OMP_Set_Max_Num_Threads(iValue);	}
 
-	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) && !sValue.IsEmpty() )	{	wxSetEnv("SAGA_TLB", sValue);	}
+	if( Config_Read(pConfig, "TOOLS", "ADD_LIB_PATHS"       , sValue) && !sValue.IsEmpty() )
+	{
+		wxString	Path;
+
+		if( (wxGetEnv("SAGA_TLB", &Path) || wxGetEnv("SAGA_MLB", &Path)) && !Path.IsEmpty() )
+		{
+			sValue	+= ";" + Path;
+		}
+
+		wxSetEnv("SAGA_TLB", sValue);
+	}
 
 	//-----------------------------------------------------
 	if( Config_Read(pConfig,  "DATA", "GRID_CACHE_TMPDIR"   , sValue) )	{	SG_Grid_Cache_Set_Directory   (sValue);	}
