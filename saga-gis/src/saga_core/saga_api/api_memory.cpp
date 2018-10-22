@@ -513,7 +513,7 @@ size_t CSG_Array_Pointer::Del(void *Value)
 
 	for(size_t i=Get_Size(); i>0; i--)
 	{
-		if( Value == (*this)[i] && Del(i) )
+		if( Value == (*this)[i - 1] && Del(i - 1) )
 		{
 			n++;
 		}
