@@ -252,10 +252,10 @@ public:
 
 	//-----------------------------------------------------
 	/// Aligns the world coordinate x to the rows of the grid system and returns it.
-	double						Fit_xto_Grid_System	(double x)	const	{	return( Get_XMin() + m_Cellsize * (int)(0.5 + (x - Get_XMin()) / m_Cellsize) );	}
+	double						Fit_xto_Grid_System	(double x)	const	{	return( Get_XMin() + m_Cellsize * Get_xWorld_to_Grid(x) );	}
 
 	/// Aligns the world coordinate y to the columns of the grid system and returns it.
-	double						Fit_yto_Grid_System	(double y)	const	{	return( Get_YMin() + m_Cellsize * (int)(0.5 + (y - Get_YMin()) / m_Cellsize) );	}
+	double						Fit_yto_Grid_System	(double y)	const	{	return( Get_YMin() + m_Cellsize * Get_yWorld_to_Grid(y) );	}
 
 	/// Aligns the world coordinate ptWorld to the rows and columns of the grid system and returns it.
 	TSG_Point					Fit_to_Grid_System	(TSG_Point ptWorld)	const
@@ -283,8 +283,8 @@ public:
 
 
 	//-----------------------------------------------------
-	int							Get_xWorld_to_Grid	(double xWorld)	const	{	return( (int)(0.5 + (xWorld - Get_XMin()) / m_Cellsize) );	}
-	int							Get_yWorld_to_Grid	(double yWorld)	const	{	return( (int)(0.5 + (yWorld - Get_YMin()) / m_Cellsize) );	}
+	int							Get_xWorld_to_Grid	(double xWorld)	const	{	return( (int)floor(0.5 + (xWorld - Get_XMin()) / m_Cellsize) );	}
+	int							Get_yWorld_to_Grid	(double yWorld)	const	{	return( (int)floor(0.5 + (yWorld - Get_YMin()) / m_Cellsize) );	}
 
 	bool						Get_World_to_Grid	(int &xGrid, int &yGrid, double xWorld, double yWorld)	const
 	{
