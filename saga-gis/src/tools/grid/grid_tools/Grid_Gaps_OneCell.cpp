@@ -77,29 +77,41 @@ CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"Closes one cell gaps using the mean value of the surrounding cell values. "
+		"Closes one cell gaps using the arithmetic mean, median, majority or minority "
+		"value of the surrounding cell values. "
 		"If the target is not set, the changes will be stored to the original grid. "
 	));
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"MODE"		, _TL("Neighbourhood"),
 		_TL("Neumann: the four horizontally and vertically neighboured cells; Moore: all eight adjacent cells"),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Neumann"),
 			_TL("Moore")
 		), 1
+	);
+
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Value"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("arithmetic mean"),
+			_TL("median"),
+			_TL("majority"),
+			_TL("minority")
+		), 0
 	);
 }
 
@@ -120,6 +132,8 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 
 	int	iStep	= Parameters("MODE")->asInt() == 0 ? 2 : 1;
 
+	int	Method	= Parameters("METHOD")->asInt();
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -132,24 +146,53 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 			}
 			else
 			{
-				bool	bClose	= true;
+				bool	bClose	= true;	double	Value;
 
-				CSG_Simple_Statistics	s;
-
-				for(int i=0; i<8 && bClose; i+=iStep)
+				switch( Method )
 				{
-					int	ix	= Get_xTo(i, x);
-					int	iy	= Get_yTo(i, y);
+				//-----------------------------------------
+				default:	// mean
+				case  1: {	// median
+					CSG_Simple_Statistics	s(Method == 1);
 
-					if( (bClose = pInput->is_InGrid(ix, iy)) == true )
+					for(int i=0; i<8 && bClose; i+=iStep)
 					{
-						s	+= pInput->asDouble(ix, iy);
+						int	ix	= Get_xTo(i, x);
+						int	iy	= Get_yTo(i, y);
+
+						if( (bClose = pInput->is_InGrid(ix, iy)) == true )
+						{
+							s	+= pInput->asDouble(ix, iy);
+						}
 					}
+
+					Value	= Method == 1 ? s.Get_Median() : s.Get_Mean();
+				}	break;
+
+				//-----------------------------------------
+				case  2:	// majority
+				case  3: {	// minority
+					CSG_Unique_Number_Statistics	s;
+
+					for(int i=0; i<8 && bClose; i+=iStep)
+					{
+						int	ix	= Get_xTo(i, x);
+						int	iy	= Get_yTo(i, y);
+
+						if( (bClose = pInput->is_InGrid(ix, iy)) == true )
+						{
+							s	+= pInput->asDouble(ix, iy);
+						}
+					}
+
+					bClose	= Method == 3 ? s.Get_Minority(Value) : s.Get_Majority(Value);
+				}	break;
 				}
 
+				//-----------------------------------------
 				if( bClose )
 				{
-					pResult->Set_Value(x, y, s.Get_Mean());
+					pResult->Set_Value(x, y, Value);
 				}
 				else
 				{
