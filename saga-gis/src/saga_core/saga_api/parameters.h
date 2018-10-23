@@ -1756,14 +1756,17 @@ public:
 	bool						DataObjects_Check		(bool bSilent = false);
 
 	//-----------------------------------------------------
-	bool						Get_String				(CSG_String &String, bool bOptionsOnly);
-	bool						Msg_String				(bool bOptionsOnly);
+	bool						Get_String					(CSG_String &String, bool bOptionsOnly);
+	bool						Msg_String					(bool bOptionsOnly);
 
-	bool						Set_History				(CSG_MetaData &History, bool bOptions = true, bool bDataObjects = true);
+	bool						Set_History					(CSG_MetaData &History, bool bOptions = true, bool bDataObjects = true);
 
-	CSG_Grid_System *			Get_Grid_System			(void)	const	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
+	bool						is_Managed					(void)	const	{	return( m_pManager != NULL );	}
 
-	bool						is_Managed				(void)	const	{	return( m_pManager != NULL );	}
+	CSG_Parameter *				Get_Grid_System_Parameter	(void)	const	{	return( m_pGrid_System );	}
+	CSG_Grid_System *			Get_Grid_System				(void)	const	{	return( m_pGrid_System ? m_pGrid_System->asGrid_System() : NULL );	}
+	bool						Set_Grid_System				(const CSG_Grid_System &System);
+	bool						Reset_Grid_System			(void);
 
 
 private:
@@ -1785,16 +1788,16 @@ private:
 	TSG_PFNC_Parameter_Changed	m_Callback;
 
 
-	void						_On_Construction		(void);
+	void						_On_Construction			(void);
 
-	bool						_On_Parameter_Changed	(CSG_Parameter *pParameter, int Flags);
+	bool						_On_Parameter_Changed		(CSG_Parameter *pParameter, int Flags);
 
-	CSG_Parameter *				_Add_Value				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CSG_Parameter *				_Add_Range				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
-	CSG_Parameter *				_Add_String				(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, const SG_Char *String, bool bLongText, bool bPassword);
+	CSG_Parameter *				_Add_Value					(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, TSG_Parameter_Type Type, double Value, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_Range					(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, double Range_Min, double Range_Max, double Minimum, bool bMinimum, double Maximum, bool bMaximum);
+	CSG_Parameter *				_Add_String					(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, bool bInformation, const SG_Char *String, bool bLongText, bool bPassword);
 
-	CSG_Parameter *				_Add					(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint);
-	CSG_Parameter *				_Add					(CSG_Parameter *pSource);
+	CSG_Parameter *				_Add						(const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, TSG_Parameter_Type Type, int Constraint);
+	CSG_Parameter *				_Add						(CSG_Parameter *pSource);
 
 	bool						DataObjects_Create			(void);
 	bool						DataObjects_Synchronize		(void);

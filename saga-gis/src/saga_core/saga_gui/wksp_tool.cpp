@@ -825,7 +825,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
 	{
-		s	+= "    Parm.Get_Grid_System().Destroy()\n";
+		s	+= "    Parm.Reset_Grid_System()\n";
 	}
 
 	//-------------------------------------------------

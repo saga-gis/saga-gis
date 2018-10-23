@@ -1107,6 +1107,32 @@ bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, const wchar_t *Value,
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool::Set_Grid_System(const CSG_Grid_System &System)
+{
+//	for(int i=0; i<m_npParameters; i++)
+//	{
+//		m_pParameters[i]->Set_Grid_System(System);
+//	}
+
+	return( Parameters.Set_Grid_System(System) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::Reset_Grid_System(void)
+{
+	CSG_Grid_System	System;
+
+	return( Set_Grid_System(System) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CSG_Tool::Update_Parameter_States(void)
 {
 	_Update_Parameter_States(&Parameters);

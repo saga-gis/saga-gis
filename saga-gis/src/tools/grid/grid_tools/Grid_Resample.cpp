@@ -141,7 +141,7 @@ CGrid_Resample::CGrid_Resample(void)
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pParameter->asGrid_System() )
+	if( pParameter == pParameters->Get_Grid_System_Parameter() && pParameter->asGrid_System() )
 	{
 		m_Grid_Target.Set_User_Defined(pParameters, *pParameter->asGrid_System());
 	}

@@ -169,6 +169,9 @@ public:
 	bool						Set_Parameter				(const CSG_String &Identifier, const char       *Value, int Type = PARAMETER_TYPE_Undefined);
 	bool						Set_Parameter				(const CSG_String &Identifier, const wchar_t    *Value, int Type = PARAMETER_TYPE_Undefined);
 
+	bool						Set_Grid_System				(const CSG_Grid_System &System);
+	bool						Reset_Grid_System			(void);
+
 	bool						Update_Parameter_States		(void);
 
 	void						Set_Callback				(bool bActive = true);

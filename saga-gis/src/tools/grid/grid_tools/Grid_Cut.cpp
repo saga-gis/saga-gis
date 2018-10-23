@@ -79,7 +79,7 @@ CSG_Grid_System Fit_Extent(const CSG_Grid_System &System, const CSG_Rect &Extent
 		System.Fit_yto_Grid_System(Extent.Get_YMax())
 	);
 
-	r.Intersect(System.Get_Extent(false));
+	r.Intersect(System.Get_Extent());
 
 	return( CSG_Grid_System(System.Get_Cellsize(), r) );
 }
@@ -90,34 +90,34 @@ void Fit_Extent(CSG_Parameters *pParameters, CSG_Parameter *pParameter, const CS
 	if( _System.is_Valid() )
 	{
 		CSG_Grid_System	System(Fit_Extent(_System, CSG_Rect(
-			pParameters->Get_Parameter("XMIN")->asDouble(),
-			pParameters->Get_Parameter("YMIN")->asDouble(),
-			pParameters->Get_Parameter("XMAX")->asDouble(),
-			pParameters->Get_Parameter("YMAX")->asDouble()
+			(*pParameters)("XMIN")->asDouble(),
+			(*pParameters)("YMIN")->asDouble(),
+			(*pParameters)("XMAX")->asDouble(),
+			(*pParameters)("YMAX")->asDouble()
 		)));
 
 		if( pParameter->Cmp_Identifier("NX") )
 		{
 			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
-				pParameters->Get_Parameter("NX")->asInt(), System.Get_NY()
+				(*pParameters)("NX")->asInt(), System.Get_NY()
 			);
 		}
 
 		if( pParameter->Cmp_Identifier("NY") )
 		{
 			System.Assign(System.Get_Cellsize(), System.Get_XMin(), System.Get_YMin(),
-				System.Get_NX(), pParameters->Get_Parameter("NY")->asInt()
+				System.Get_NX(), (*pParameters)("NY")->asInt()
 			);
 		}
 
 		if( System.is_Valid() )
 		{
-			pParameters->Get_Parameter("XMIN")->Set_Value(System.Get_XMin());
-			pParameters->Get_Parameter("XMAX")->Set_Value(System.Get_XMax());
-			pParameters->Get_Parameter("YMIN")->Set_Value(System.Get_YMin());
-			pParameters->Get_Parameter("YMAX")->Set_Value(System.Get_YMax());
-			pParameters->Get_Parameter("NX"  )->Set_Value(System.Get_NX  ());
-			pParameters->Get_Parameter("NY"  )->Set_Value(System.Get_NY  ());
+			(*pParameters)("XMIN")->Set_Value(System.Get_XMin());
+			(*pParameters)("XMAX")->Set_Value(System.Get_XMax());
+			(*pParameters)("YMIN")->Set_Value(System.Get_YMin());
+			(*pParameters)("YMAX")->Set_Value(System.Get_YMax());
+			(*pParameters)("NX"  )->Set_Value(System.Get_NX  ());
+			(*pParameters)("NY"  )->Set_Value(System.Get_NY  ());
 		}
 	}
 }
@@ -415,9 +415,6 @@ CGrid_Clip::CGrid_Clip(void)
 //---------------------------------------------------------
 int CGrid_Clip::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-//	CSG_Grid_System	*pSystem	= pParameters->Get_Parameter("PARAMETERS_GRID_SYSTEM")->asGrid_System();
-//	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") && pSystem && pSystem->is_Valid() )
-
 	CSG_Grid_System	*pSystem	= pParameters->Get_Grid_System();
 
 	if( pParameter->asGrid_System() == pSystem && pSystem && pSystem->is_Valid() )
@@ -677,7 +674,7 @@ bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *p
 						{
 							SG_Get_Crossing(C, A, B, Row[0], Row[1], false);
 
-							int x	= System.Get_xWorld_to_Grid(C.x);	if( x < 0 )	x	= 0;
+							int	x	= (int)floor(1. + (C.x - System.Get_XMin()) / System.Get_Cellsize());
 
 							if( x >= 0 && x < System.Get_NX() )
 							{

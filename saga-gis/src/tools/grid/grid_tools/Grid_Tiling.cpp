@@ -191,7 +191,7 @@ CGrid_Tiling::CGrid_Tiling(void)
 //---------------------------------------------------------
 int CGrid_Tiling::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") )
+	if(	pParameter == pParameters->Get_Grid_System_Parameter() )
 	{
 		CSG_Grid_System	System(1.0, 0.0, 0.0, 101, 101);
 
