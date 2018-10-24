@@ -125,7 +125,7 @@ int		main	(int argc, char *argv[])
 #if !defined(_DEBUG)
 	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
 
-	#if !defined(_OPENMP) defined(_SAGA_MSW) && defined(WXWIN_28)
+	#if !defined(_OPENMP) && defined(_SAGA_MSW)
 		#define _TOOL_EXCEPTION
 	#endif
 #endif
