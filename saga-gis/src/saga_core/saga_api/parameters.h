@@ -239,8 +239,8 @@ public:	///////////////////////////////////////////////////
 	void							Set_UseInGUI			(bool bDoUse = false);
 	void							Set_UseInCMD			(bool bDoUse = false);
 
-	bool							do_UseInGUI				(void)	const	{	return( !(m_Constraint & PARAMETER_NOT_FOR_GUI)   );	}
-	bool							do_UseInCMD				(void)	const	{	return( !(m_Constraint & PARAMETER_NOT_FOR_CMD)   );	}
+	bool							do_UseInGUI				(void)	const;
+	bool							do_UseInCMD				(void)	const;
 
 	void							ignore_Projection		(bool bIgnore);
 	bool							ignore_Projection		(void)	const	{	return( !!(m_Constraint & PARAMETER_IGNORE_PROJECTION) );	}

@@ -688,7 +688,7 @@ void CWKSP_Tool::_Get_CMD(CSG_String &Command, CSG_Parameters *pParameters)
 	{
 		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() || p->is_Information() )
+		if( !p->is_Enabled() || p->is_Information() || !p->do_UseInCMD() )
 		{
 			continue;
 		}
@@ -938,7 +938,7 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, c
 	{
 		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() || p->is_Information() )
+		if( !p->is_Enabled() || p->is_Information() || !p->do_UseInCMD() )
 		{
 			continue;
 		}

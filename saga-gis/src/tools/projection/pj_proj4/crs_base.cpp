@@ -80,21 +80,18 @@ extern "C" {
 //---------------------------------------------------------
 CCRS_Base::CCRS_Base(void)
 {
-	m_Projection.Create(4326);
+	m_Projection.Create(4326);	// EPSG: GCS WGS84
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() == NULL )
-	{
-		Parameters.Add_Choice("",
-			"CRS_METHOD"	, _TL("Get CRS Definition from..."),
-			_TL(""),
-			CSG_String::Format("%s|%s|%s|",
-				_TL("Proj4 Parameters"),
-				_TL("EPSG Code"),
-				_TL("Well Known Text File")
-			), 0
-		);
-	}
+	Parameters.Add_Choice("",
+		"CRS_METHOD"	, _TL("Get CRS Definition from..."),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|",
+			_TL("Proj4 Parameters"),
+			_TL("EPSG Code"),
+			_TL("Well Known Text File")
+		), 0
+	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
 	Parameters.Add_String("",
@@ -103,35 +100,29 @@ CCRS_Base::CCRS_Base(void)
 		m_Projection.Get_Proj4(), true
 	);
 
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Parameters("CRS_PROJ4",
-			"CRS_DIALOG"	, _TL("User Defined"),
-			_TL("")
-		);
-
-		Set_User_Parameters(*Parameters("CRS_DIALOG")->asParameters());
-	}
-
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Parameters("CRS_PROJ4",
-			"CRS_GRID"	, _TL("Loaded Grid")  , _TL("")
-		)->asParameters()->Add_Grid("",
-			"PICK"		, _TL("Grid"),
-			_TL(""),
-			PARAMETER_INPUT_OPTIONAL, false
-		);
+	Parameters.Add_Parameters("CRS_PROJ4",
+		"CRS_DIALOG"	, _TL("User Defined"),
+		_TL("")
+	)->Set_UseInCMD(false);
 
-		Parameters.Add_Parameters("CRS_PROJ4",
-			"CRS_SHAPES", _TL("Loaded Shapes"), _TL("")
-		)->asParameters()->Add_Shapes("",
-			"PICK"		, _TL("Shapes"),
-			_TL(""),
-			PARAMETER_INPUT_OPTIONAL
-		);
-	}
+	Set_User_Parameters(*Parameters("CRS_DIALOG")->asParameters());
+
+	Parameters.Add_Parameters("CRS_PROJ4",
+		"CRS_GRID"	, _TL("Loaded Grid")  , _TL("")
+	)->asParameters()->Add_Grid("",
+		"PICK"		, _TL("Grid"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL, false
+	)->Set_UseInCMD(false);
+
+	Parameters.Add_Parameters("CRS_PROJ4",
+		"CRS_SHAPES", _TL("Loaded Shapes"), _TL("")
+	)->asParameters()->Add_Shapes("",
+		"PICK"		, _TL("Shapes"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath("CRS_PROJ4",
@@ -159,20 +150,17 @@ CCRS_Base::CCRS_Base(void)
 		"EPSG"
 	);
 
-	if( SG_UI_Get_Window_Main() )
-	{
-		Parameters.Add_Choice("CRS_EPSG",
-			"CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
-			_TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
-		);
+	Parameters.Add_Choice("CRS_EPSG",
+		"CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+		_TL(""),
+		SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
+	)->Set_UseInCMD(false);
 
-		Parameters.Add_Choice("CRS_EPSG",
-			"CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
-			_TL(""),
-			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
-		);
-	}
+	Parameters.Add_Choice("CRS_EPSG",
+		"CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+		_TL(""),
+		SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
+	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
 	Parameters.Add_Bool("",
@@ -357,11 +345,11 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	if( !Parameters("CRS_METHOD") )
+	if( SG_UI_Get_Window_Main() )	// gui? projection is also updated on parameter changed event!
 	{
 		Projection	= m_Projection;
 	}
-	else switch( Parameters("CRS_METHOD")->asInt() )
+	else switch( Parameters("CRS_METHOD")->asInt() )	// no gui? check out, how projection shall be initialized!
 	{
 	default:	// Proj4 Parameters
 		if( !Projection.Create(Parameters("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4) )
