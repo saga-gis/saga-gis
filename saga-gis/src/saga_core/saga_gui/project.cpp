@@ -734,7 +734,7 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
 
 	//-----------------------------------------------------
-	if( Version.Cmp("7.0.0") < 0 )	// inter-version-compatibility
+	if( SG_Compare_Version(Version, "7.0.0") < 0 )	// inter-version-compatibility
 	{
 		CSG_Parameter	*pParameter	= pItem->Get_Parameter("COLORS_TYPE");
 

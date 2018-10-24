@@ -19,7 +19,7 @@
 		<title>Mapping local climate zones for a worldwide database of the form and function of cities</title>
 		<where>ISPRS International Journal of Geo-Information, 4(1), 199-219. doi:10.3390/ijgi4010199.</where>
 	</reference>
-	
+
 	<parameters>
 		<option varname="GRID_SYSTEM" type="grid_system">
 			<name>Grid System</name>
@@ -84,20 +84,18 @@
 		</tool>
 		<tool library="shapes_polygons" module="7" name="Polygon Shape Indices">
 			<input id="SHAPES">TRAINING_MERGED</input>
-			<output id="INDEX">TRAINING_MERGED_FILT</output>
 		</tool>
 		<tool library="grid_tools" module="32" name="Select Grid from List">
 			<input  id="GRIDS">FEATURES</input>
 			<output id="GRID">FEATURE</output>
 			<option id="INDEX">0</option>
 		</tool>
-		
-		
+
 		<!-- with GUI - pick definition from Grid -->
 		<condition type="has_gui" variable="true">
 			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
 				<input	id="PICK" parms="CRS_GRID">FEATURE</input>
-				<input	id="SOURCE">TRAINING_MERGED_FILT</input>
+				<input	id="SOURCE">TRAINING_MERGED</input>
 				<output id="TARGET">TRAINING_PROJ</output>
 			</tool>
 		</condition>
@@ -106,11 +104,11 @@
 			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
 				<option	id="CRS_METHOD">2</option>
 				<option	id="CRS_FILE" varname="true">GRIDDEFILE</option>
-				<input	id="SOURCE">TRAINING_MERGED_FILT</input>
+				<input	id="SOURCE">TRAINING_MERGED</input>
 				<output id="TARGET">TRAINING_PROJ</output>
 			</tool>
 		</condition>
-	
+
 		<tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
 			<input	id="FEATURES">FEATURES</input>
 			<input	id="TRAINING">TRAINING_PROJ</input>
@@ -133,7 +131,7 @@
 				</tool>
 			</condition>
 		</condition>
-		
+
 		<condition type="not_equal" value="" variable="FILE_LCZC">
 			<tool library="io_grid_image" module="2" name="Export Grid to KML">
 				<input	id="GRID">LCZC</input>
@@ -144,7 +142,7 @@
 				<option id="OUTPUT">2</option>
 			</tool>
 		</condition>
-		
+
 		<condition type="exists" variable="LCZC_FILTERED">
 			<tool library="grid_filter" module="6" name="Majority Filter">
 				<input	id="INPUT">LCZC</input>
