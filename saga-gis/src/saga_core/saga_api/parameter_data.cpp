@@ -2348,7 +2348,7 @@ int CSG_Parameter_Grid::_Set_Value(void *Value)
 				}
 			}
 
-			Get_System()->Assign(System);
+			Get_Parent()->Set_Value((void *)&System);
 		}
 	}
 
@@ -2777,7 +2777,7 @@ bool CSG_Parameter_Grid_List::Add_Item(CSG_Data_Object *pObject)
 				}
 			}
 
-			Get_System()->Assign(System);
+			Get_Parent()->Set_Value((void *)&System);
 		}
 	}
 
@@ -2899,7 +2899,7 @@ bool CSG_Parameter_Grids_List::Add_Item(CSG_Data_Object *pObject)
 				}
 			}
 
-			Get_System()->Assign(((CSG_Grids *)pObject)->Get_System());
+			Get_Parent()->Set_Value((void *)&System);
 		}
 	}
 
