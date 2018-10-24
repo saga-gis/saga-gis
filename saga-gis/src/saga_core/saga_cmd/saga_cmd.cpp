@@ -416,7 +416,11 @@ bool		Load_Libraries(void)
 
 	if( (wxGetEnv("SAGA_TLB", &Path) || wxGetEnv("SAGA_MLB", &Path)) && !Path.IsEmpty() )
 	{
-		CSG_String_Tokenizer	Paths(&Path, ";:");
+		#if defined(_SAGA_MSW)
+			CSG_String_Tokenizer	Paths(&Path, ";");	// colon (':') would split drive from paths!
+		#else
+			CSG_String_Tokenizer	Paths(&Path, ";:");	// colon (':') is more native to non-windows os than semi-colon (';'), we support both...
+		#endif
 
 		while( Paths.Has_More_Tokens() )
 		{
