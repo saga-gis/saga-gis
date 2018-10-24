@@ -200,10 +200,10 @@ SAGA_API_DLL_EXPORT void			SG_Free				(void *memblock);
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT void			SG_Swap_Bytes		(void *Buffer, int nBytes);
 
-SAGA_API_DLL_EXPORT int				SG_Mem_Get_Int		(const char *Buffer			, bool bSwapBytes);
-SAGA_API_DLL_EXPORT void			SG_Mem_Set_Int		(char *Buffer, int Value	, bool bSwapBytes);
-SAGA_API_DLL_EXPORT double			SG_Mem_Get_Double	(const char *Buffer			, bool bSwapBytes);
-SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool bSwapBytes);
+SAGA_API_DLL_EXPORT int				SG_Mem_Get_Int		(const char *Buffer        , bool bSwapBytes);
+SAGA_API_DLL_EXPORT void			SG_Mem_Set_Int		(char *Buffer, int Value   , bool bSwapBytes);
+SAGA_API_DLL_EXPORT double			SG_Mem_Get_Double	(const char *Buffer        , bool bSwapBytes);
+SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value, bool bSwapBytes);
 
 
 ///////////////////////////////////////////////////////////
@@ -213,29 +213,16 @@ SAGA_API_DLL_EXPORT void			SG_Mem_Set_Double	(char *Buffer, double Value	, bool 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_STR_CMP(s1, s2)		CSG_String(s1).Cmp(s2)
-
-#if !defined(_SAGA_UNICODE)
-	#define SG_Char				char
-	#define SG_T(s)				s
-	#define SG_PRINTF			printf
-	#define SG_FPRINTF			fprintf
-	#define SG_SSCANF			sscanf
-	#define SG_STR_CPY			strcpy
-	#define SG_STR_LEN			strlen
-	#define SG_STR_TOD			strtod
-	#define SG_STR_MBTOSG(s)	s
-#else
-	#define SG_Char				wchar_t
-	#define SG_T(s)				L ## s
-	#define SG_PRINTF			SG_Printf
-	#define SG_FPRINTF			SG_FPrintf
-	#define SG_SSCANF			swscanf
-	#define SG_STR_CPY			wcscpy
-	#define SG_STR_LEN			wcslen
-	#define SG_STR_TOD			wcstod
-	#define SG_STR_MBTOSG(s)	CSG_String(s).w_str()
-#endif
+#define SG_Char				wchar_t
+#define SG_T(s)				L ## s
+#define SG_PRINTF			SG_Printf
+#define SG_FPRINTF			SG_FPrintf
+#define SG_SSCANF			swscanf
+#define SG_STR_CPY			wcscpy
+#define SG_STR_LEN			wcslen
+#define SG_STR_TOD			wcstod
+#define SG_STR_CMP(s1, s2)	CSG_String(s1).Cmp(s2)
+#define SG_STR_MBTOSG(s)	CSG_String(s).w_str()
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_String

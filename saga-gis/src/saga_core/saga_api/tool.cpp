@@ -284,7 +284,7 @@ bool CSG_Tool::Execute(void)
 		Parameters.Msg_String(false);
 
 ///////////////////////////////////////////////////////////
-#if !defined(_DEBUG) && defined(_SAGA_VC) && defined(WXWIN_28)
+#if !defined(_DEBUG) && !defined(_OPENMP) && defined(_SAGA_MSW) && defined(WXWIN_28)
 #define _TOOL_EXCEPTION
 		__try
 		{

@@ -147,7 +147,7 @@ bool		SG_UI_Process_Get_Okay(bool bBlink)
 
 		static int	iBuisy	= 0;
 
-		SG_PRINTF(SG_T("\r%c   "), Buisy[iBuisy++]);
+		SG_Printf("\r%c   ", Buisy[iBuisy++]);
 
 		iBuisy	%= 4;
 	}
@@ -192,14 +192,14 @@ bool		SG_UI_Process_Set_Progress(double Position, double Range)
 	{
 		if( iPercent < 0 || i < iPercent )
 		{
-			SG_PRINTF(SG_T("\n"));
+			SG_Printf("\n");
 		}
 
 		iPercent	= i;
 
 		if( iPercent >= 0 )
 		{
-			SG_PRINTF(SG_T("\r%3d%%"), iPercent > 100 ? 100 : iPercent);
+			SG_Printf("\r%3d%%", iPercent > 100 ? 100 : iPercent);
 		}
 	}
 
@@ -237,7 +237,7 @@ void		SG_UI_Process_Set_Text(const CSG_String &Text)
 		}
 		else
 		{
-			SG_PRINTF(SG_T("%s\n"), Text.c_str());
+			SG_Printf("%s\n", Text.c_str());
 		}
 	}
 }
@@ -282,7 +282,7 @@ void		SG_UI_Dlg_Message(const CSG_String &Message, const CSG_String &Caption)
 		}
 		else
 		{
-			SG_PRINTF(SG_T("%s: %s\n"), Caption.c_str(), Message.c_str());
+			SG_Printf("%s: %s\n", Caption.c_str(), Message.c_str());
 		}
 	}
 }
@@ -388,7 +388,7 @@ void		SG_UI_Msg_Add(const CSG_String &Message, bool bNewLine, TSG_UI_MSG_STYLE S
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s\n"), Message.c_str());
+		SG_Printf("%s\n", Message.c_str());
 	}
 }
 
@@ -406,7 +406,7 @@ void		SG_UI_Msg_Add_Error(const CSG_String &Message)
 	}
 	else
 	{
-		SG_FPRINTF(stderr, SG_T("%s: %s\n"), _TL("Error"), Message.c_str());
+		SG_FPrintf(stderr, "%s: %s\n", _TL("Error"), Message.c_str());
 	}
 }
 
@@ -429,7 +429,7 @@ void		SG_UI_Msg_Add_Execution(const CSG_String &Message, bool bNewLine, TSG_UI_M
 	}
 	else
 	{
-		SG_PRINTF(SG_T("%s\n"), Message.c_str());
+		SG_Printf("%s\n", Message.c_str());
 	}
 }
 

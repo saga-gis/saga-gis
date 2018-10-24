@@ -175,7 +175,7 @@ bool CNewton::doNewton()
 // MinGW ERROR:
 // Newton.cpp:181: error: no matching function for call to `std::complex<double>::real(double&)'
 // error: candidates are: double std::complex<double>::real() const
-#ifdef _SAGA_VC
+#ifdef _SAGA_MSW
 			z.real(r);
 			z.imag(i);
 #endif

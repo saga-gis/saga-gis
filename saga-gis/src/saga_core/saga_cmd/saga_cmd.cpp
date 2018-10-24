@@ -121,32 +121,41 @@ int		main	(int argc, char *argv[])
 	wxTheApp->SetVendorName("www.saga-gis.org");
 	wxTheApp->SetAppName   ("saga_cmd");
 
+//---------------------------------------------------------
 #if !defined(_DEBUG)
 	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
-#endif
 
+	#if !defined(_OPENMP) defined(_SAGA_MSW) && defined(WXWIN_28)
+		#define _TOOL_EXCEPTION
+	#endif
+#endif
 //---------------------------------------------------------
-#if !defined(_DEBUG) && defined(_SAGA_VC)
-#define _TOOL_EXCEPTION
+
+	bool bResult	= false;
+
+///////////////////////////////////////////////////////////
+#ifdef _TOOL_EXCEPTION
 _try
 {
 #endif
-//---------------------------------------------------------
+///////////////////////////////////////////////////////////
 
-	bool bResult	= Run(argc, argv);
+	bResult	= Run(argc, argv);
+
+///////////////////////////////////////////////////////////
+#ifdef _TOOL_EXCEPTION
+}
+_except(1)
+{
+	CMD_Print_Error(_TL("access violation"));
+}
+#endif
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #ifdef _DEBUG
 	CMD_Set_Interactive(true);
 	CMD_Get_Pause();
-#endif
-
-#ifdef _TOOL_EXCEPTION
-}
-_except(1)
-{
-	Print_Error(_TL("access violation"));
-}
 #endif
 //---------------------------------------------------------
 
@@ -238,7 +247,7 @@ bool		Execute(int argc, char *argv[])
 	//-----------------------------------------------------
 	if( argc == 3 && CMD_Get_XML() )
 	{	// Just output tool synopsis as XML-tagged text, then return.
-		SG_PRINTF(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_XML).c_str());
+		SG_Printf(pTool->Get_Summary(true, "", "", SG_SUMMARY_FMT_XML).c_str());
 
 		return( true );
 	}
@@ -590,7 +599,7 @@ void		Print_Libraries	(void)
 	{
 		if( CMD_Get_XML() )
 		{
-			SG_PRINTF(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML).c_str());
+			SG_Printf(SG_Get_Tool_Library_Manager().Get_Summary(SG_SUMMARY_FMT_XML).c_str());
 		}
 		else
 		{
@@ -616,7 +625,7 @@ void		Print_Tools		(const CSG_String &Library)
 
 				if( !pLibrary->Get_Library_Name().Cmp(Library) )
 				{
-					SG_PRINTF(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
+					SG_Printf(pLibrary->Get_Summary(SG_SUMMARY_FMT_XML , false).c_str());
 				}
 			}
 		}
@@ -650,25 +659,25 @@ void		Print_Execution	(CSG_Tool *pTool)
 			#define SG_XML_LIBRARY_PATH	SG_T("path")
 			#define SG_XML_LIBRARY_NAME	SG_T("name")
 
-			SG_PRINTF(SG_T("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n"));
-			SG_PRINTF(SG_T("<%s>\n"), SG_XML_LIBRARY);
-			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_PATH, pTool->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
-			SG_PRINTF(SG_T("\t<%s>%s</%s>\n"), SG_XML_LIBRARY_NAME, pTool->Get_Library  ().c_str(), SG_XML_LIBRARY_NAME);
-			SG_PRINTF(SG_T("</%s>\n"), SG_XML_LIBRARY);
+			SG_Printf("<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>\n");
+			SG_Printf("<%s>\n", SG_XML_LIBRARY);
+			SG_Printf("\t<%s>%s</%s>\n", SG_XML_LIBRARY_PATH, pTool->Get_File_Name().c_str(), SG_XML_LIBRARY_PATH);
+			SG_Printf("\t<%s>%s</%s>\n", SG_XML_LIBRARY_NAME, pTool->Get_Library  ().c_str(), SG_XML_LIBRARY_NAME);
+			SG_Printf("</%s>\n", SG_XML_LIBRARY);
 		}
 		else
 		{
-			SG_PRINTF(SG_T("____________________________\n"));
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("library     "), pTool->Get_Library().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("tool        "), pTool->Get_Name   ().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("identifier  "), pTool->Get_ID     ().c_str());
-			SG_PRINTF(SG_T("%s: %s\n"), _TL("author      "), pTool->Get_Author ().c_str());
+			SG_Printf("____________________________\n");
+			SG_Printf("%s: %s\n", _TL("library path"), SG_File_Get_Path(pTool->Get_File_Name()       ).c_str());
+			SG_Printf("%s: %s\n", _TL("library name"), SG_File_Get_Name(pTool->Get_File_Name(), false).c_str());
+			SG_Printf("%s: %s\n", _TL("library     "), pTool->Get_Library().c_str());
+			SG_Printf("%s: %s\n", _TL("tool        "), pTool->Get_Name   ().c_str());
+			SG_Printf("%s: %s\n", _TL("identifier  "), pTool->Get_ID     ().c_str());
+			SG_Printf("%s: %s\n", _TL("author      "), pTool->Get_Author ().c_str());
 		#ifdef _OPENMP
-			SG_PRINTF(SG_T("%s: %d [%d]\n"), _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
+			SG_Printf("%s: %d [%d]\n", _TL("processors  "), SG_OMP_Get_Max_Num_Threads(), SG_OMP_Get_Max_Num_Procs());
 		#endif // _OPENMP
-			SG_PRINTF(SG_T("____________________________\n\n"));
+			SG_Printf("____________________________\n\n");
 		}
 	}
 }

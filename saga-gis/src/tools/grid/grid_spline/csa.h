@@ -62,7 +62,7 @@ void csa_setnppc(csa* a, double nppc);
 	static const long long lNaN = 0x7fffffffffffffff;
 	#define NaN (*(double*)&lNaN)
 
-#elif defined(_SAGA_VC)
+#elif defined(_SAGA_MSW)
 	static const __int64 lNaN = 0xfff8000000000000;
 	#define NaN (*(double*)&lNaN)
 

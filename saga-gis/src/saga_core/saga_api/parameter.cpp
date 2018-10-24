@@ -192,6 +192,18 @@ void CSG_Parameter::Set_UseInCMD(bool bDoUse)
 }
 
 //---------------------------------------------------------
+bool CSG_Parameter::do_UseInGUI(void)	const
+{
+	return( !(m_Constraint & PARAMETER_NOT_FOR_GUI) && (Get_Parent() == NULL || Get_Parent()->do_UseInGUI()) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameter::do_UseInCMD(void)	const
+{
+	return( !(m_Constraint & PARAMETER_NOT_FOR_CMD) && (Get_Parent() == NULL || Get_Parent()->do_UseInGUI()) );
+}
+
+//---------------------------------------------------------
 void CSG_Parameter::ignore_Projection(bool bIgnore)
 {
 	if( bIgnore )

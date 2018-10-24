@@ -137,7 +137,7 @@ void CCMD_Tool::Usage(void)
 			m_CMD.GetUsageString().AfterFirst(' ').AfterFirst(' ')
 		);
 
-		SG_PRINTF(&Usage);
+		SG_Printf(&Usage);
 	}
 }
 
