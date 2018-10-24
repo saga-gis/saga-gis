@@ -10,7 +10,7 @@ MSHAREPATH = "SHARE_PATH=\"$(prefix)/share/saga\""
 
 BASEFLAGS = -fPIC -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_DONOTUSE_HARU -D$(MLIBPATH) -D$(MSHAREPATH) $(DBGFLAGS) $(INCS)
 
-AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` -D_SAGA_UNICODE $(GOMPFLAGS)
+AM_CXXFLAGS = $(BASEFLAGS) `wx-config --unicode=yes --cxxflags` $(GOMPFLAGS)
 AM_LDFLAGS = -fPIC `wx-config --unicode=yes --libs adv,aui,base,core,html,net,propgrid,xml`
 
 

@@ -20,7 +20,7 @@ REM SWIG/Python (win32)
 SET WXWINLIB="%WXWIN%\lib\vc_dll"
 SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_Win32"
 PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
-%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
 "%PYTHONDIR%\python.exe" saga_api_to_python_win.py install
 MOVE saga_api.py "%PYTHONDIR%\Lib\site-packages\saga_api.py"
 DEL /F saga_api_wrap.cxx

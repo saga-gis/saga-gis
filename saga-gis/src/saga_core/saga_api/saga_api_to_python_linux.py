@@ -45,8 +45,7 @@ module1 = Extension(
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS',
 		'-D_SAGA_DONOTUSE_HARU',
-		'-D_SAGA_PYTHON',
-		'-D_SAGA_UNICODE'
+		'-D_SAGA_PYTHON'
 	],
 
 	extra_link_args = [
@@ -66,8 +65,7 @@ module1 = Extension(
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS'
 		'-D_SAGA_DONOTUSE_HARU',
-		'-D_SAGA_PYTHON',
-		'-D_SAGA_UNICODE'
+		'-D_SAGA_PYTHON'
 	]
 )
 

@@ -6,7 +6,7 @@ LIB_NAME  = libmy_tool_library.so
 SAGA_ROOT = /usr/local
 
 CXX_INCS  = -I"$(SAGA_ROOT)/include/saga/saga_core"
-CXX_DEFS  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD -D_SAGA_UNICODE
+CXX_DEFS  = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_FLGS  = -fPIC -DPIC -fopenmp -O2
 CXXFLAGS  = $(CXX_INCS) $(CXX_DEFS) $(CXX_FLGS)
 LNKFLAGS  = -fPIC -DPIC -shared

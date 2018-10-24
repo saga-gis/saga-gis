@@ -12,7 +12,7 @@ rem set SAGA_LIB=%SAGA%\bin\saga_vc_x64
 rem #########################################
 echo ________________________________________
 echo SWIG compilation...
-"%SWIG%\swig" -c++ -python -includeall -I%SAGA_LIB%/include/saga_api -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+"%SWIG%\swig" -c++ -python -includeall -I%SAGA_LIB%/include/saga_api -D_SAGA_PYTHON saga_api.h
 echo SWIG compilation finished.
 
 rem #########################################

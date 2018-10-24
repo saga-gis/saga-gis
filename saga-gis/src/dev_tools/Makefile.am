@@ -5,7 +5,7 @@ if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
-DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags` -D_SAGA_UNICODE $(DBGFLAGS)
+DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags` $(DBGFLAGS)
 DEP_LFLG = -fPIC -shared `wx-config --unicode=yes --static=no --libs`
 
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD

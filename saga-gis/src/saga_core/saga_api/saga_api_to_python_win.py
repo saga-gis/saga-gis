@@ -34,7 +34,6 @@ saga_module = Extension(
 		'-D_TYPEDEF_BYTE',
 		'-D_TYPEDEF_WORD',
 		'-D_SAGA_API_EXPORTS',
-		'-D_SAGA_UNICODE',
 		'-D_SAGA_PYTHON'
 	]
 )

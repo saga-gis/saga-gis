@@ -34,7 +34,7 @@ REM SWIG/Python
 PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
 ECHO __________________
 ECHO SWIG Compilation
-%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
 
 ECHO __________________
 ECHO Python Compilation

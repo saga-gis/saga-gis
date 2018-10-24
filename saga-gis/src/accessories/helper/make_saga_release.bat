@@ -136,7 +136,7 @@ SET WXWINLIB="%WXWIN%\lib\vc_dll"
 SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_Win32"
 
 PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
-%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
 "%PYTHONx32%\python.exe" saga_api_to_python_win.py install
 MOVE saga_api.py "%PYTHONx32%\Lib\site-packages\saga_api.py"
 DEL /F saga_api_wrap.cxx
@@ -158,7 +158,7 @@ SET WXWINLIB="%WXWIN%\lib\vc_x64_dll"
 SET SAGA_LIB="%SAGA_ROOT%\bin\saga_vc_x64"
 
 PUSHD "%SAGA_ROOT%\src\saga_core\saga_api"
-%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON -D_SAGA_UNICODE saga_api.h
+%SWIGEXE% -c++ -python -includeall -I. -D_SAGA_PYTHON saga_api.h
 "%PYTHONx64%\python.exe" saga_api_to_python_win.py install
 MOVE saga_api.py "%PYTHONx64%\Lib\site-packages\saga_api.py"
 DEL /F saga_api_wrap.cxx

@@ -10,7 +10,7 @@ SITEPACKDIR=/usr/local/lib/python2.6/site-packages
 echo "Compiling SAGA Python Interface ..."
 
 echo "SWIG compilation..."
-swig -c++ -python -includeall -D_SAGA_PYTHON -D_SAGA_UNICODE ./saga_api.h
+swig -c++ -python -includeall -D_SAGA_PYTHON ./saga_api.h
 echo "SWIG compilation finished."
 
 echo "Python compilation..."
