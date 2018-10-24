@@ -733,6 +733,20 @@ bool CWKSP_Project::_Load_Data(CSG_MetaData &Entry, const wxString &ProjectDir, 
 
 	pItem->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false);
 
+	//-----------------------------------------------------
+	if( Version.Cmp("7.0.0") < 0 )	// inter-version-compatibility
+	{
+		CSG_Parameter	*pParameter	= pItem->Get_Parameter("COLORS_TYPE");
+
+		if( pParameter && Type == SG_DATAOBJECT_TYPE_Grid )
+		{
+			if( pParameter->asInt() == 4 ) { pParameter->Set_Value(6); }	// Shade
+			if( pParameter->asInt() == 5 ) { pParameter->Set_Value(4); }	// RGB Overlay
+			if( pParameter->asInt() == 6 ) { pParameter->Set_Value(5); }	// RGB Composite
+		}
+	}
+
+	//-----------------------------------------------------
 	if( Type == SG_DATAOBJECT_TYPE_Grid )
 	{
 		pItem->Get_Parameter("FILE_CACHE")->Set_Value(((CWKSP_Grid *)pItem)->Get_Grid()->is_Cached());
