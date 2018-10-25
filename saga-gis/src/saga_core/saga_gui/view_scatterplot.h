@@ -115,7 +115,6 @@ private:
 	void							On_Paint					(wxPaintEvent   &event);
 
 	void							On_Parameters				(wxCommandEvent &event);
-	void							On_Options					(wxCommandEvent &event);
 	void							On_Update					(wxCommandEvent &event);
 	void							On_AsTable					(wxCommandEvent &event);
 	void							On_ToClipboard				(wxCommandEvent &event);

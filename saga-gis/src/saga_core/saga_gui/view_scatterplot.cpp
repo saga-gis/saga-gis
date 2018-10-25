@@ -62,6 +62,8 @@
 //---------------------------------------------------------
 #include <wx/window.h>
 
+#include <wx/clipbrd.h>
+
 #include <saga_api/saga_api.h>
 
 #include "res_commands.h"
@@ -136,8 +138,9 @@ int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 	{
 		if( pParameter->Cmp_Identifier("CMP_WITH") )
 		{
-			pParameters->Get_Parameter("OPTIONS")->asParameters()->
-				Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
+		//	pParameters->Get_Parameter("OPTIONS")->asParameters()->
+		//	             Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
+			pParameters->Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
 		}
 	}
 
@@ -160,7 +163,6 @@ BEGIN_EVENT_TABLE(CVIEW_ScatterPlot, CVIEW_Base)
 	EVT_SIZE			(CVIEW_ScatterPlot::On_Size)
 
 	EVT_MENU			(ID_CMD_SCATTERPLOT_PARAMETERS	, CVIEW_ScatterPlot::On_Parameters)
-	EVT_MENU			(ID_CMD_SCATTERPLOT_OPTIONS		, CVIEW_ScatterPlot::On_Options)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_UPDATE		, CVIEW_ScatterPlot::On_Update)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_AS_TABLE	, CVIEW_ScatterPlot::On_AsTable)
 	EVT_MENU			(ID_CMD_SCATTERPLOT_TO_CLIPBOARD, CVIEW_ScatterPlot::On_ToClipboard)
@@ -255,12 +257,11 @@ wxToolBarBase * CVIEW_ScatterPlot::_Create_ToolBar(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define m_Options	(*m_Parameters("OPTIONS")->asParameters())
+//#define m_Options	(*m_Parameters("OPTIONS")->asParameters())
+#define m_Options	m_Parameters
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::_On_Construction(void)
@@ -268,19 +269,8 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	SYS_Set_Color_BG_Window(this);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Parameters("", "OPTIONS", _TL("Options"), _TL(""));
-
 	if( m_pGrid )
 	{
-		m_Parameters.Add_Choice("",
-			"CMP_WITH"	, _TL("Compare with..."),
-			_TL(""),
-			CSG_String::Format("%s|%s|",
-				_TL("another grid"),
-				_TL("points")
-			), 0
-		);
-
 		m_Parameters.Add_Grid("",
 			"GRID"		, _TL("Grid"),
 			_TL(""),
@@ -298,10 +288,19 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 			_TL("")
 		);
 
+		m_Parameters.Add_Choice("",
+			"CMP_WITH"	, _TL("Compare with..."),
+			_TL(""),
+			CSG_String::Format("%s|%s|",
+				_TL("another grid"),
+				_TL("points")
+			), 0
+		);
+
 		m_Parameters.Add_Choice("POINTS",
 			"RESAMPLING", _TL("Resampling"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("Nearest Neighbour"),
 				_TL("Bilinear Interpolation"),
 				_TL("Bicubic Spline Interpolation"),
@@ -335,6 +334,8 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	}
 
 	//-----------------------------------------------------
+//	m_Parameters.Add_Parameters("", "OPTIONS", _TL("Options"), _TL(""));
+
 	m_Options.Add_Int("",
 		"SAMPLES_MAX", _TL("Maximimum Number of Samples"),
 		_TL(""),
@@ -344,7 +345,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	m_Options.Add_Bool("",
 		"REG_SHOW"	, _TL("Show Regression"),
 		_TL(""),
-		true
+		false
 	);
 
 	m_Options.Add_Choice("REG_SHOW",
@@ -378,7 +379,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	m_Options.Add_Choice("",
 		"DISPLAY"	, _TL("Display Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Points"),
 			_TL("Density")
 		), m_pGrid || m_pGrids ? 1 : 0
@@ -414,23 +415,12 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CVIEW_ScatterPlot::On_Parameters(wxCommandEvent &event)
 {
 	if( DLG_Parameters(&m_Parameters) )
-	{
-		_Update_Data();
-	}
-}
-
-//---------------------------------------------------------
-void CVIEW_ScatterPlot::On_Options(wxCommandEvent &event)
-{
-	if( DLG_Parameters(&m_Options) )
 	{
 		_Update_Data();
 	}
@@ -471,8 +461,6 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-#include <wx/clipbrd.h>
-
 void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 {
 	wxBitmap	BMP(GetSize());
@@ -498,8 +486,6 @@ void CVIEW_ScatterPlot::On_ToClipboard(wxCommandEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -512,8 +498,6 @@ void CVIEW_ScatterPlot::On_Size(wxSizeEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -748,8 +732,6 @@ void CVIEW_ScatterPlot::_Draw_Frame(wxDC &dc, wxRect r)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -758,6 +740,8 @@ bool CVIEW_ScatterPlot::_Update_Data(void)
 	bool	bResult;
 
 	m_Regression.Destroy();
+
+	m_Parameters.DataObjects_Check();
 
 	if( m_pGrid )
 	{
