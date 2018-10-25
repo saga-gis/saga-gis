@@ -63,6 +63,8 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "saga_frame.h"
+
 #include "helper.h"
 
 #include "active.h"
@@ -152,10 +154,14 @@ CWKSP_Layer::CWKSP_Layer(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Layer::~CWKSP_Layer(void)
 {
+	g_pSAGA_Frame->Freeze();
+
 	if( g_pMaps     )	{	g_pMaps->Del(this);	}
 
 	if( m_pClassify )	{	delete(m_pClassify);	}
 	if( m_pLegend   )	{	delete(m_pLegend  );	}
+
+	g_pSAGA_Frame->Thaw();
 }
 
 

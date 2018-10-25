@@ -61,6 +61,8 @@
 #include "res_commands.h"
 #include "res_dialogs.h"
 
+#include "saga_frame.h"
+
 #include "helper.h"
 
 #include "active.h"
@@ -103,22 +105,30 @@ CWKSP_Data_Item::CWKSP_Data_Item(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Data_Item::~CWKSP_Data_Item(void)
 {
+	MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), m_pObject->Get_Name()), true, true);
+
+	CSG_Data_Object	*pObject = m_pObject; m_pObject = NULL;
+
+	//-----------------------------------------------------
+	g_pSAGA_Frame->Freeze();
+
 	for(int i=m_Views.GetCount()-1; i>=0; i--)
 	{
 		((CVIEW_Base *)m_Views[i])->Do_Destroy();
 	}
 
+	g_pSAGA_Frame->Thaw();
+
 	//-----------------------------------------------------
-	if( m_pObject )
+	if( pObject )
 	{
-		MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), m_pObject->Get_Name()), true, true);
+		g_pData->On_Data_Deletion(pObject);
 
-		g_pData->On_Data_Deletion(m_pObject);
-
-		SG_Get_Data_Manager().Delete(m_pObject);
-
-		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+		SG_Get_Data_Manager().Delete(pObject);
 	}
+
+	//-----------------------------------------------------
+	MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
 }
 
 //---------------------------------------------------------

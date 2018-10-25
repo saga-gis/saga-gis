@@ -141,23 +141,23 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 {
 	if( m_pItem )
 	{
-		if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pItem->Get_Name()) )
-		{
-			SetToolTip(m_pItem->Get_Name());
-		}
-
-		//-------------------------------------------------
 		wxPaintDC	dc(this);
 
+		//-------------------------------------------------
 		if( is_Manager() )
 		{
 			dc.DrawText(m_pItem->Get_Name(), 2, 2);
 		}
 
 		//-------------------------------------------------
-		else
+		else if( ((CWKSP_Data_Item *)m_pItem)->Get_Object() )
 		{
-			wxRect		r(GetClientRect());
+			if( !GetToolTip() || GetToolTip()->GetTip().Cmp(m_pItem->Get_Name()) )
+			{
+				SetToolTip(m_pItem->Get_Name());
+			}
+
+			wxRect	r(GetClientRect());
 
 			if( m_pItem->Get_Type() == WKSP_ITEM_Table )
 			{
@@ -177,8 +177,8 @@ void CWKSP_Data_Button::On_Paint(wxPaintEvent &event)
 			{
 				dc.SetPen(wxPen(Get_Color_asWX(g_pData->Get_Parameter("THUMBNAIL_SELCOLOR")->asColor())));
 
-				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
-				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);	r.Deflate(1);
+				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
+				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r); r.Deflate(1);
 				Draw_Edge(dc, EDGE_STYLE_SIMPLE, r);
 			}
 		}
