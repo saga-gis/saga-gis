@@ -105,8 +105,6 @@ CWKSP_Data_Item::CWKSP_Data_Item(CSG_Data_Object *pObject)
 //---------------------------------------------------------
 CWKSP_Data_Item::~CWKSP_Data_Item(void)
 {
-	MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), m_pObject->Get_Name()), true, true);
-
 	CSG_Data_Object	*pObject = m_pObject; m_pObject = NULL;
 
 	//-----------------------------------------------------
@@ -122,13 +120,14 @@ CWKSP_Data_Item::~CWKSP_Data_Item(void)
 	//-----------------------------------------------------
 	if( pObject )
 	{
+		MSG_General_Add(wxString::Format("%s: %s...", _TL("Close"), pObject->Get_Name()), true, true);
+
 		g_pData->On_Data_Deletion(pObject);
 
 		SG_Get_Data_Manager().Delete(pObject);
-	}
 
-	//-----------------------------------------------------
-	MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+		MSG_General_Add(_TL("okay"), false, false, SG_UI_MSG_STYLE_SUCCESS);
+	}
 }
 
 //---------------------------------------------------------
