@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -539,8 +536,6 @@ bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -639,13 +634,6 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		if(	pParameter->Cmp_Identifier("VALUES_EFFECT") )
 		{
 			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
-		}
-
-		if(	pParameter->Cmp_Identifier("STRETCH_DEFAULT") )
-		{
-			pParameters->Set_Enabled("STRETCH_LINEAR", pParameter->asInt() == 0);
-			pParameters->Set_Enabled("STRETCH_STDDEV", pParameter->asInt() == 1);
-			pParameters->Set_Enabled("STRETCH_PCTL"  , pParameter->asInt() == 2);
 		}
 	}
 
@@ -1127,8 +1115,8 @@ bool CWKSP_Grid::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double
 		break;	}
 
 	case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
-		Minimum	= Get_Grid()->Get_Quantile(      d);
-		Maximum	= Get_Grid()->Get_Quantile(100 - d);
+		Minimum	= Get_Grid()->Get_Percentile(      d);
+		Maximum	= Get_Grid()->Get_Percentile(100 - d);
 		break;	}
 	}
 

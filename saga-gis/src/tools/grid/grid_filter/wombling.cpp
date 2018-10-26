@@ -266,7 +266,7 @@ bool CWombling_Base::Get_Edge_Cells(CSG_Grid *Gradient, CSG_Grid *pEdges)
 	//-----------------------------------------------------
 	// 1. magnitude
 
-	double	Threshold	= Gradient[0].Get_Quantile(Parameters("TMAGNITUDE")->asDouble());
+	double	Threshold	= Gradient[0].Get_Percentile(Parameters("TMAGNITUDE")->asDouble());
 
 	for(y=0; y<Gradient[0].Get_NY() && Set_Progress(y, Gradient[0].Get_NY()); y++)
 	{

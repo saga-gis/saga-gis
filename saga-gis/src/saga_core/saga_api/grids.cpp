@@ -1343,6 +1343,7 @@ bool CSG_Grids::On_Update(void)
 		double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
 
 		m_Statistics.Invalidate();
+		m_Histogram.Destroy();
 
 		if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
 		{
@@ -1422,18 +1423,32 @@ sLong CSG_Grids::Get_NoData_Count(void)
 }
 
 //---------------------------------------------------------
-double CSG_Grids::Get_Quantile(double Quantile)
+double CSG_Grids::Get_Quantile(double Quantile, bool bFromHistogram)
 {
-	Quantile	= Quantile <= 0.0 ? 0.0 : Quantile >= 100.0 ? 1.0 : Quantile / 100.0;
+	if( Quantile <= 0. ) { return( Get_Min() ); }
+	if( Quantile >= 1. ) { return( Get_Max() ); }
 
-	sLong	n	= (sLong)(Quantile * (Get_Data_Count() - 1));
-
-	if( Get_Sorted(n, n, false) )
+	if( bFromHistogram )
 	{
-		return( asDouble(n) );
+		return( Get_Histogram().Get_Quantile(Quantile) );
+	}
+	else
+	{
+		sLong	n	= (sLong)(Quantile * (Get_Data_Count() - 1));
+
+		if( Get_Sorted(n, n, false) )
+		{
+			return( asDouble(n) );
+		}
 	}
 
 	return( Get_NoData_Value() );
+}
+
+//---------------------------------------------------------
+double CSG_Grids::Get_Percentile(double Percentile, bool bFromHistogram)
+{
+	return( Get_Quantile(0.01 * Percentile, bFromHistogram) );
 }
 
 
@@ -1536,6 +1551,99 @@ bool CSG_Grids::Set_Max_Samples(sLong Max_Samples)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+#define SG_GRID_HISTOGRAM_CLASSES_DEFAULT	255
+
+//---------------------------------------------------------
+/**
+* Returns the histogram for the whole data set. It is
+* automatically updated if necessary.
+*/
+const CSG_Histogram & CSG_Grids::Get_Histogram(size_t nClasses)
+{
+	if( nClasses > 1 && nClasses != m_Histogram.Get_Class_Count() )
+	{
+		m_Histogram.Destroy();
+	}
+
+	if( m_Histogram.Get_Statistics().Get_Count() < 1 )
+	{
+		m_Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Get_Min(), Get_Max(), this, (size_t)Get_Max_Samples());
+	}
+
+	return( m_Histogram );
+}
+
+//---------------------------------------------------------
+bool CSG_Grids::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, size_t nClasses)	const
+{
+	CSG_Simple_Statistics	Statistics;
+
+	if( !Get_Statistics(rWorld, Statistics) )
+	{
+		return( false );
+	}
+
+	int	xMin	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMin()); if( xMin <  0        ) xMin = 0;
+	int	yMin	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMin()); if( yMin <  0        ) yMin = 0;
+	int	xMax	= Get_System().Get_xWorld_to_Grid(rWorld.Get_XMax()); if( xMax >= Get_NX() ) xMax = Get_NX() - 1;
+	int	yMax	= Get_System().Get_yWorld_to_Grid(rWorld.Get_YMax()); if( yMax >= Get_NY() ) yMax = Get_NY() - 1;
+
+	if( xMin > xMax || yMin > yMax )
+	{
+		return( false );	// no overlap
+	}
+
+	Histogram.Create(nClasses > 1 ? nClasses : SG_GRID_HISTOGRAM_CLASSES_DEFAULT, Statistics.Get_Minimum(), Statistics.Get_Maximum());
+
+	int		nx		= 1 + (xMax - xMin);
+	int		ny		= 1 + (yMax - yMin);
+	sLong	nCells	= nx * ny;
+
+	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+
+	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
+	{
+		double	d = (double)nCells / (double)Get_Max_Samples();
+
+		for(double i=0; i<(double)nCells; i+=d)
+		{
+			int	y	= yMin + (int)i / nx;
+			int	x	= xMin + (int)i % nx;
+
+			for(int z=0; z<Get_NZ(); z++)
+			{
+				double	Value	= asDouble(x, y, z, false);
+
+				if( !is_NoData_Value(Value) )
+				{
+					Histogram	+= Scaling ? Offset + Scaling * Value : Value;
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int x=xMin; x<=xMax; x++)
+		{
+			for(int y=yMin; y<=yMax; y++)
+			{
+				for(int z=0; z<Get_NZ(); z++)
+				{
+					double	Value	= asDouble(x, y, z, false);
+
+					if( !is_NoData_Value(Value) )
+					{
+						Histogram	+= Scaling ? Offset + Scaling * Value : Value;
+					}
+				}
+			}
+		}
+	}
+
+	return( Statistics.Get_Count() > 0 );
 }
 
 
@@ -2314,6 +2422,26 @@ bool CSG_Grids::_Save_Data(CSG_File &Stream, CSG_Grid *pGrid)
 
 	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//-----------------------------------------------------
+bool CSG_Grids::_Assign_Interpolated	(CSG_Grids *pSource, TSG_Grid_Resampling Interpolation)	{	return( false );	}
+bool CSG_Grids::_Assign_MeanValue		(CSG_Grids *pSource, bool bVolumeProportional         )	{	return( false );	}
+bool CSG_Grids::_Assign_ExtremeValue	(CSG_Grids *pSource, bool bMaximum                    )	{	return( false );	}
+bool CSG_Grids::_Assign_Majority		(CSG_Grids *pSource                                   )	{	return( false );	}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//-----------------------------------------------------
+CSG_Grids & CSG_Grids::_Operation_Arithmetic(const CSG_Grids &Grids, TSG_Grid_Operation Operation)	{	return( *this );	}
+CSG_Grids & CSG_Grids::_Operation_Arithmetic(double Value          , TSG_Grid_Operation Operation)	{	return( *this );	}
 
 
 ///////////////////////////////////////////////////////////

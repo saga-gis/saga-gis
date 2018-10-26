@@ -473,8 +473,39 @@ void CWKSP_Layer::ColorsParms_Add(const CSG_String &Parent, const CSG_String &Pr
 }
 
 //---------------------------------------------------------
+void CWKSP_Layer::ColorsParms_On_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags, const CSG_String &Prefix)
+{
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+	}
+
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_ENABLE )
+	{
+		if(	pParameter->Cmp_Identifier(Prefix + "METRIC_SCALE_MODE") )
+		{
+			pParameters->Set_Enabled(Prefix + "METRIC_SCALE_LOG", pParameter->asInt() != 0);
+		}
+
+		if(	pParameter->Cmp_Identifier(Prefix + "STRETCH_DEFAULT") )
+		{
+			pParameters->Set_Enabled(Prefix + "STRETCH_LINEAR", pParameter->asInt() == 0);
+			pParameters->Set_Enabled(Prefix + "STRETCH_STDDEV", pParameter->asInt() == 1);
+			pParameters->Set_Enabled(Prefix + "STRETCH_PCTL"  , pParameter->asInt() == 2);
+		}
+	}
+}
+
+//---------------------------------------------------------
 int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
+	//-----------------------------------------------------
+	if( Flags & PARAMETER_CHECK_VALUES )
+	{
+	}
+
+	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if(	pParameter->Cmp_Identifier("LEGEND_SHOW")
@@ -491,6 +522,11 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("SHOW_RANGE", pParameter->asBool() == false);
 		}
 
+		if( pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
+		{
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() > 0);
+		}
+
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
@@ -498,20 +534,12 @@ int CWKSP_Layer::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("NODE_UNISYMBOL", Value == CLASSIFY_UNIQUE);
 			pParameters->Set_Enabled("NODE_LUT"      , Value == CLASSIFY_LUT);
 			pParameters->Set_Enabled("NODE_METRIC"   , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT && Value != CLASSIFY_RGB);
-
 			pParameters->Set_Enabled("METRIC_COLORS" , Value == CLASSIFY_METRIC || Value == CLASSIFY_GRADUATED);
 		}
-
-		if(	pParameter->Cmp_Identifier("METRIC_SCALE_MODE") )
-		{
-			pParameters->Set_Enabled("METRIC_SCALE_LOG", pParameter->asInt() != 0);
-		}
-
-		if( pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
-		{
-			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() > 0);
-		}
 	}
+
+	//-----------------------------------------------------
+	ColorsParms_On_Changed(pParameters, pParameter, Flags);
 
 	return( CWKSP_Data_Item::On_Parameter_Changed(pParameters, pParameter, Flags) );
 }

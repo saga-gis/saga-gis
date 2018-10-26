@@ -583,13 +583,6 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_UNIQUE);
 		}
-
-		if(	pParameter->Cmp_Identifier("STRETCH_DEFAULT") )
-		{
-			pParameters->Set_Enabled("STRETCH_LINEAR", pParameter->asInt() == 0);
-			pParameters->Set_Enabled("STRETCH_STDDEV", pParameter->asInt() == 1);
-			pParameters->Set_Enabled("STRETCH_PCTL"  , pParameter->asInt() == 2);
-		}
 	}
 
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
@@ -904,17 +897,17 @@ bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
 		{
 			int		Mode	= m_Parameters("METRIC_SCALE_MODE")->asInt   ();
 			double	Log		= m_Parameters("METRIC_SCALE_LOG" )->asDouble();
-			double	d		= m_Parameters("STRETCH_PCTL"     )->asDouble();
+			double	d		= m_Parameters("STRETCH_PCTL"     )->asDouble() * 0.01;
 
 			if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
 			{
-				m_pClassify->Set_Metric(Mode, Log, Get_Grids()->Get_Quantile(d), Get_Grids()->Get_Quantile(100 - d));
+				m_pClassify->Set_Metric(Mode, Log, Get_Grids()->Get_Quantile(d), Get_Grids()->Get_Quantile(1 - d));
 			}
 			else	// band wise statistics
 			{
-				m_Classify[0].Set_Metric(Mode, Log, Get_Grid(0)->Get_Quantile(d), Get_Grid(0)->Get_Quantile(100 - d));
-				m_Classify[1].Set_Metric(Mode, Log, Get_Grid(1)->Get_Quantile(d), Get_Grid(1)->Get_Quantile(100 - d));
-				m_Classify[2].Set_Metric(Mode, Log, Get_Grid(2)->Get_Quantile(d), Get_Grid(2)->Get_Quantile(100 - d));
+				m_Classify[0].Set_Metric(Mode, Log, Get_Grid(0)->Get_Quantile(d), Get_Grid(0)->Get_Quantile(1 - d));
+				m_Classify[1].Set_Metric(Mode, Log, Get_Grid(1)->Get_Quantile(d), Get_Grid(1)->Get_Quantile(1 - d));
+				m_Classify[2].Set_Metric(Mode, Log, Get_Grid(2)->Get_Quantile(d), Get_Grid(2)->Get_Quantile(1 - d));
 			}
 
 			return( !bRefresh || Update_Views() );
@@ -979,9 +972,9 @@ bool CWKSP_Grids::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, doubl
 			Maximum	= pGrids->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrids->Get_Max() ) Maximum = pGrids->Get_Max();
 			break;	}
 
-		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
-			Minimum	= pGrids->Get_Quantile(      d);
-			Maximum	= pGrids->Get_Quantile(100 - d);
+		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+			Minimum	= pGrids->Get_Quantile(    d);
+			Maximum	= pGrids->Get_Quantile(1 - d);
 			break;	}
 		}
 	}
@@ -1001,9 +994,9 @@ bool CWKSP_Grids::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, doubl
 			Maximum	= pGrid->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
 			break;	}
 
-		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
-			Minimum	= pGrid->Get_Quantile(      d);
-			Maximum	= pGrid->Get_Quantile(100 - d);
+		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+			Minimum	= pGrid->Get_Quantile(    d);
+			Maximum	= pGrid->Get_Quantile(1 - d);
 			break;	}
 		}
 	}
@@ -1033,9 +1026,9 @@ bool CWKSP_Grids::_Fit_Colors(CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pC
 		Maximum	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Maximum > s.Get_Maximum() ) Maximum = s.Get_Maximum();
 		break;	}
 
-	case  2: {	double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
-		Minimum	= s.Get_Quantile(      d);
-		Maximum	= s.Get_Quantile(100 - d);
+	case  2: {	double	d	= m_Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+		Minimum	= s.Get_Quantile(    d);
+		Maximum	= s.Get_Quantile(1 - d);
 		break;	}
 	}
 

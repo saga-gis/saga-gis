@@ -1170,7 +1170,7 @@ CSG_Histogram::CSG_Histogram(void)
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum)
+CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum)
 {
 	_On_Construction();
 
@@ -1178,7 +1178,7 @@ CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum)
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values, unsigned int maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values, size_t maxSamples)
 {
 	_On_Construction();
 
@@ -1186,7 +1186,7 @@ CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, const
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, unsigned int maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, size_t maxSamples)
 {
 	_On_Construction();
 
@@ -1194,7 +1194,7 @@ CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, CSG_T
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, class CSG_Grid *pGrid, unsigned int maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, class CSG_Grid *pGrid, size_t maxSamples)
 {
 	_On_Construction();
 
@@ -1202,7 +1202,7 @@ CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, class
 }
 
 //---------------------------------------------------------
-CSG_Histogram::CSG_Histogram(int nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, unsigned int maxSamples)
+CSG_Histogram::CSG_Histogram(size_t nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, size_t maxSamples)
 {
 	_On_Construction();
 
@@ -1244,14 +1244,14 @@ void CSG_Histogram::_On_Construction(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::_Create(int nClasses, double Minimum, double Maximum)
+bool CSG_Histogram::_Create(size_t nClasses, double Minimum, double Maximum)
 {
 	if( nClasses > 0 && Minimum < Maximum )
 	{
 		Destroy();
 
-		m_Elements		= (unsigned int *)SG_Calloc(nClasses, sizeof(unsigned int));
-		m_Cumulative	= (unsigned int *)SG_Calloc(nClasses, sizeof(unsigned int));
+		m_Elements		= (size_t *)SG_Calloc(nClasses, sizeof(size_t));
+		m_Cumulative	= (size_t *)SG_Calloc(nClasses, sizeof(size_t));
 
 		if( m_Elements && m_Cumulative )
 		{
@@ -1275,13 +1275,9 @@ void CSG_Histogram::Add_Value(double Value)
 
 	if( m_Minimum <= Value && Value <= m_Maximum )
 	{
-		int	Class	= (int)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
+		size_t	Class	= (size_t)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
 
-		if( Class < 0 )
-		{
-			Class	= 0;
-		}
-		else if( Class >= (int)m_nClasses )
+		if( Class >= m_nClasses )
 		{
 			Class	= m_nClasses - 1;
 		}
@@ -1299,7 +1295,7 @@ bool CSG_Histogram::Scale_Element_Count(double Scale)
 
 		for(size_t i=0; i<m_nClasses; i++)
 		{
-			m_Elements[i]	= (unsigned int)(Scale * m_Elements[i]);
+			m_Elements[i]	= (size_t)(Scale * m_Elements[i]);
 		}
 
 		return( Update() );
@@ -1344,7 +1340,7 @@ bool CSG_Histogram::_Update(sLong nElements)
 
 		for(size_t i=1; i<m_nClasses; i++)
 		{
-			m_Elements[i]	= (unsigned int)(0.5 + Scale * m_Elements[i]);
+			m_Elements[i]	= (size_t)(0.5 + Scale * m_Elements[i]);
 		}
 	}
 
@@ -1352,14 +1348,14 @@ bool CSG_Histogram::_Update(sLong nElements)
 }
 
 //---------------------------------------------------------
-double CSG_Histogram::Get_Percentile(double Percentile)	const
+double CSG_Histogram::Get_Quantile(double Quantile)	const
 {
 	if( m_nClasses > 1 )
 	{
-		if( Percentile <=   0. ) { return( m_Minimum ); }
-		if( Percentile >= 100. ) { return( m_Maximum ); }
+		if( Quantile <= 0. ) { return( m_Minimum ); }
+		if( Quantile >= 1. ) { return( m_Maximum ); }
 
-		unsigned int	n	= (unsigned int)(0.5 + Percentile * m_Cumulative[m_nClasses - 1]);	// number of elements
+		size_t	n	= (size_t)(0.5 + Quantile * m_Cumulative[m_nClasses - 1]);	// number of elements
 
 		for(size_t i=0; i<m_nClasses-1; i++)
 		{
@@ -1375,19 +1371,25 @@ double CSG_Histogram::Get_Percentile(double Percentile)	const
 	return( 0.0 );
 }
 
+//---------------------------------------------------------
+double CSG_Histogram::Get_Percentile(double Percentile)	const
+{
+	return( Get_Quantile(0.01 * Percentile) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum)
+bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum)
 {
 	return( _Create(nClasses, Minimum, Maximum) );
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values, unsigned int maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values, size_t maxSamples)
 {
 	if( Minimum >= Maximum )
 	{
@@ -1403,7 +1405,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, const C
 	}
 
 	//-----------------------------------------------------
-	if( maxSamples > 0 && maxSamples < (unsigned int)Values.Get_N() )
+	if( maxSamples > 0 && maxSamples < (size_t)Values.Get_N() )
 	{
 		double	d	= (double)Values.Get_N() / (double)maxSamples;
 
@@ -1427,7 +1429,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, const C
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, unsigned int maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Table *pTable, int Field, size_t maxSamples)
 {
 	if( !pTable || Field < 0 || Field >= pTable->Get_Field_Count() || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pTable->Get_Minimum(Field),
@@ -1437,7 +1439,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Tab
 	}
 
 	//-----------------------------------------------------
-	if( maxSamples > 0 && maxSamples < (unsigned int)pTable->Get_Count() )
+	if( maxSamples > 0 && maxSamples < (size_t)pTable->Get_Count() )
 	{
 		double	d	= (double)pTable->Get_Count() / (double)maxSamples;
 
@@ -1471,7 +1473,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Tab
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Grid *pGrid, unsigned int maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Grid *pGrid, size_t maxSamples)
 {
 	if( !pGrid || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pGrid->Get_Min(),
@@ -1481,7 +1483,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Gri
 	}
 
 	//-----------------------------------------------------
-	if( maxSamples > 0 && maxSamples < pGrid->Get_NCells() )
+	if( maxSamples > 0 && (sLong)maxSamples < pGrid->Get_NCells() )
 	{
 		double	d	= (double)pGrid->Get_NCells() / (double)maxSamples;
 
@@ -1513,7 +1515,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Gri
 }
 
 //---------------------------------------------------------
-bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, unsigned int maxSamples)
+bool CSG_Histogram::Create(size_t nClasses, double Minimum, double Maximum, CSG_Grids *pGrids, size_t maxSamples)
 {
 	if( !pGrids || !_Create(nClasses,
 		Minimum < Maximum ? Minimum : pGrids->Get_Min(),
@@ -1523,7 +1525,7 @@ bool CSG_Histogram::Create(int nClasses, double Minimum, double Maximum, CSG_Gri
 	}
 
 	//-----------------------------------------------------
-	if( maxSamples > 0 && maxSamples < pGrids->Get_NCells() )
+	if( maxSamples > 0 && (sLong)maxSamples < pGrids->Get_NCells() )
 	{
 		double	d	= (double)pGrids->Get_NCells() / (double)maxSamples;
 
@@ -1736,7 +1738,7 @@ inline double CSG_Natural_Breaks::_Get_Value(int i)
 {
 	if( m_Histogram.Get_Class_Count() > 0 )
 	{
-		return( m_Histogram.Get_Cumulative(i) );
+		return( (double)m_Histogram.Get_Cumulative(i) );
 	}
 
 	return( m_Values[i] );

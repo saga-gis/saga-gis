@@ -531,10 +531,14 @@ public:		///////////////////////////////////////////////
 	double							Get_Range			(void);
 	double							Get_StdDev			(void);
 	double							Get_Variance		(void);
-	double							Get_Quantile		(double Quantile);
+	double							Get_Quantile		(double   Quantile, bool bFromHistogram = true);
+	double							Get_Percentile		(double Percentile, bool bFromHistogram = true);
 
 	const CSG_Simple_Statistics &	Get_Statistics		(void);
 	bool							Get_Statistics		(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues = false)	const;
+
+	const CSG_Histogram &			Get_Histogram		(size_t nClasses = 0);
+	bool							Get_Histogram		(const CSG_Rect &rWorld, CSG_Histogram &Histogram, size_t nClasses = 0)	const;
 
 	sLong							Get_Data_Count		(void);
 	sLong							Get_NoData_Count	(void);
@@ -838,13 +842,15 @@ private:	///////////////////////////////////////////////
 
 	double						m_zOffset, m_zScale;
 
+	FILE						*m_Cache_Stream;
+
 	TSG_Data_Type				m_Type;
 
 	CSG_String					m_Unit, m_Cache_File;
 
 	CSG_Simple_Statistics		m_Statistics;
 
-	FILE						*m_Cache_Stream;
+	CSG_Histogram				m_Histogram;
 
 	CSG_Grid_System				m_System;
 
@@ -915,7 +921,6 @@ private:	///////////////////////////////////////////////
 
 	bool						_Get_ValAtPos_NearestNeighbour	(double &Value, int x, int y, double dx, double dy                )	const;
 	bool						_Get_ValAtPos_BiLinear			(double &Value, int x, int y, double dx, double dy, bool bByteWise)	const;
-	bool						_Get_ValAtPos_InverseDistance	(double &Value, int x, int y, double dx, double dy, bool bByteWise)	const;
 	bool						_Get_ValAtPos_BiCubicSpline		(double &Value, int x, int y, double dx, double dy, bool bByteWise)	const;
 	bool						_Get_ValAtPos_BSpline			(double &Value, int x, int y, double dx, double dy, bool bByteWise)	const;
 

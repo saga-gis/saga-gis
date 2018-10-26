@@ -837,20 +837,20 @@ public:
 
 	bool			Destroy				(void);
 
-	CSG_Histogram						(int nClasses, double Minimum, double Maximum);
-	bool			Create				(int nClasses, double Minimum, double Maximum);
+	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum);
+	bool			Create				(size_t nClasses, double Minimum, double Maximum);
 
-	CSG_Histogram						(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , unsigned int maxSamples = 0);
-	bool			Create				(int nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , unsigned int maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, double Minimum, double Maximum, const CSG_Vector &Values          , size_t maxSamples = 0);
 
-	CSG_Histogram						(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, unsigned int maxSamples = 0);
-	bool			Create				(int nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, unsigned int maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Table *pTable, int Field, size_t maxSamples = 0);
 
-	CSG_Histogram						(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , unsigned int maxSamples = 0);
-	bool			Create				(int nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , unsigned int maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Grid  *pGrid            , size_t maxSamples = 0);
 
-	CSG_Histogram						(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , unsigned int maxSamples = 0);
-	bool			Create				(int nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , unsigned int maxSamples = 0);
+	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , size_t maxSamples = 0);
+	bool			Create				(size_t nClasses, double Minimum, double Maximum, class CSG_Grids *pGrids           , size_t maxSamples = 0);
 
 	//-----------------------------------------------------
 	void			Add_Value			(double Value);
@@ -859,16 +859,16 @@ public:
 
 	bool			Update				(void);
 
-	unsigned int	Get_Class_Count		(void)		const	{	return( m_nClasses );	}
+	size_t			Get_Class_Count		(void)		const	{	return( m_nClasses );	}
 
-	unsigned int	Get_Element_Count	(void)		const	{	return( m_nClasses > 0 ? m_Cumulative[m_nClasses - 1] : 0 );	}
-	unsigned int	Get_Element_Maximum	(void)		const	{	return( m_nMaximum );	}
+	size_t			Get_Element_Count	(void)		const	{	return( m_nClasses > 0 ? m_Cumulative[m_nClasses - 1] : 0 );	}
+	size_t			Get_Element_Maximum	(void)		const	{	return( m_nMaximum );	}
 
-	unsigned int	Get_Elements		(int    i)	const	{	return( Get_Elements((size_t)i) );	}
-	unsigned int	Get_Elements		(size_t i)	const	{	return( i < m_nClasses ? m_Elements[i] : 0 );	}
+	size_t			Get_Elements		(int    i)	const	{	return( Get_Elements((size_t)i) );	}
+	size_t			Get_Elements		(size_t i)	const	{	return( i < m_nClasses ? m_Elements[i] : 0 );	}
 
-	unsigned int	Get_Cumulative		(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
-	unsigned int	Get_Cumulative		(size_t i)	const	{	return( i < m_nClasses ? m_Cumulative[i] : 0 );	}
+	size_t			Get_Cumulative		(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
+	size_t			Get_Cumulative		(size_t i)	const	{	return( i < m_nClasses ? m_Cumulative[i] : 0 );	}
 
 	double			Get_Value			(double i)	const	{	return( m_nClasses > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_nClasses : m_Minimum );	}
 
@@ -881,9 +881,10 @@ public:
 	//-----------------------------------------------------
 	void			operator +=			(double Value)		{	Add_Value(Value);	}
 
-	unsigned int	operator []			(int    i)	const	{	return( Get_Elements(i) );	}
-	unsigned int	operator []			(size_t i)	const	{	return( Get_Elements(i) );	}
+	size_t			operator []			(int    i)	const	{	return( Get_Elements(i) );	}
+	size_t			operator []			(size_t i)	const	{	return( Get_Elements(i) );	}
 
+	double			Get_Quantile		(double   Quantile)	const;
 	double			Get_Percentile		(double Percentile)	const;
 
 	const CSG_Simple_Statistics &	Get_Statistics	(void)	const	{	return( m_Statistics );	}
@@ -891,7 +892,7 @@ public:
 
 private:
 
-	unsigned int			m_nClasses, m_nMaximum, *m_Elements, *m_Cumulative;
+	size_t					m_nClasses, m_nMaximum, *m_Elements, *m_Cumulative;
 
 	double					m_Minimum, m_Maximum;
 
@@ -900,7 +901,7 @@ private:
 
 	void					_On_Construction	(void);
 
-	bool					_Create				(int nClasses, double Minimum, double Maximum);
+	bool					_Create				(size_t nClasses, double Minimum, double Maximum);
 
 	bool					_Update				(sLong nElements);
 

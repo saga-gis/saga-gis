@@ -253,10 +253,14 @@ public:		///////////////////////////////////////////////
 	double							Get_Range			(void);
 	double							Get_StdDev			(void);
 	double							Get_Variance		(void);
-	double							Get_Quantile		(double Quantile);
+	double							Get_Quantile		(double   Quantile, bool bFromHistogram = true);
+	double							Get_Percentile		(double Percentile, bool bFromHistogram = true);
 
 	const CSG_Simple_Statistics &	Get_Statistics		(void);
 	bool							Get_Statistics		(const CSG_Rect &rWorld, CSG_Simple_Statistics &Statistics, bool bHoldValues = false)	const;
+
+	const CSG_Histogram &			Get_Histogram		(size_t nClasses = 0);
+	bool							Get_Histogram		(const CSG_Rect &rWorld, CSG_Histogram &Histogram, size_t nClasses = 0)	const;
 
 	virtual bool					Set_Max_Samples		(sLong Max_Samples);
 
@@ -478,6 +482,8 @@ private:	///////////////////////////////////////////////
 
 	CSG_Simple_Statistics			m_Statistics;
 
+	CSG_Histogram					m_Histogram;
+
 
 	//-----------------------------------------------------
 	void							_On_Construction		(void);
@@ -511,7 +517,7 @@ private:	///////////////////////////////////////////////
 
 	//-----------------------------------------------------
 	bool							_Assign_Interpolated	(CSG_Grids *pSource, TSG_Grid_Resampling Interpolation);
-	bool							_Assign_MeanValue		(CSG_Grids *pSource, bool bAreaProportional);
+	bool							_Assign_MeanValue		(CSG_Grids *pSource, bool bVolumeProportional);
 	bool							_Assign_ExtremeValue	(CSG_Grids *pSource, bool bMaximum);
 	bool							_Assign_Majority		(CSG_Grids *pSource);
 

@@ -322,11 +322,8 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 	Parameters.Add_Bool("", "STDDEVHI"    , _TL("Mean plus Standard Deviation"), _TL(""), false);
 	Parameters.Add_Bool("", "PCTL"        , _TL("Percentile"                  ), _TL(""), false);
 
-	Parameters.Add_Double("",
-		"PCTL_VAL", _TL("Percentile"),
-		_TL(""),
-		50.0, 0.0, true, 100.0, true
-	);
+	Parameters.Add_Double("PCTL", "PCTL_VAL", _TL("Percentile"    ), _TL(""), 50.0, 0.0, true, 100.0, true);
+	Parameters.Add_Bool  ("PCTL", "PCTL_HST", _TL("From Histogram"), _TL(""), true);
 }
 
 
@@ -340,6 +337,7 @@ int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameter
 	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
 		pParameters->Set_Enabled("PCTL_VAL", pParameter->asBool());
+		pParameters->Set_Enabled("PCTL_HST", pParameter->asBool());
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -390,7 +388,9 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		return( false );
 	}
 
-	double	dRank	= Parameters("PCTL")->asBool() ? Parameters("PCTL_VAL")->asDouble() : -1.0;
+	double	dRank	= Parameters("PCTL"    )->asBool()
+					? Parameters("PCTL_VAL")->asDouble() / 100. : -1.0;
+	bool	bHist	= Parameters("PCTL_HIS")->asBool();
 
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
@@ -413,7 +413,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 		if( dRank > 0.0 && dRank < 100.0 )
 		{
-			pRecord->Set_Value("PCTL", pGrid->Get_Quantile(dRank));	// this is a time consuming operation
+			pRecord->Set_Value("PCTL", pGrid->Get_Quantile(dRank, bHist));
 		}
 	}
 

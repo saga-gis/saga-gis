@@ -282,8 +282,8 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 			break;
 
 		case 3:	// Percentile
-			Min		= pGrid->Get_Quantile(pPerctl->Get_Min());
-			Range	= pGrid->Get_Quantile(pPerctl->Get_Max()) - Min;
+			Min		= pGrid->Get_Percentile(pPerctl->Get_Min());
+			Range	= pGrid->Get_Percentile(pPerctl->Get_Max()) - Min;
 			break;
 
 		case 4:	// Standard deviation
