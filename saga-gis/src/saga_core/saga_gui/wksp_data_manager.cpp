@@ -138,7 +138,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"PROJECT_START"			, _TL("Startup Project"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("empty"),
 			_TL("last state"),
 			_TL("always ask what to do")
@@ -148,7 +148,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"PROJECT_MAP_ARRANGE"	, _TL("Map Window Arrangement"),
 		_TL("initial map window arrangement after a project is loaded"),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Cascade"),
 			_TL("Tile Horizontally"),
 			_TL("Tile Vertically")
@@ -256,7 +256,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_FMT_DEFAULT"		, _TL("Default Output Format"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("SAGA Compressed Grid File (*.sg-grd-z)"),
 			_TL("SAGA Grid File (*.sg-grd)"),
 			_TL("SAGA Grid File (*.sgrd)")
@@ -272,7 +272,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_STRETCH_DEFAULT"	, _TL("Histogram Stretch"),
 		_TL("Histogram stretch appolied by default to new grids."),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Minimum/Maximum"),
 			_TL("Standard Deviation"),
 			_TL("Percentile")
@@ -290,7 +290,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_CACHE_MODE"		, _TL("File Cache"),
 		_TL("Activate file caching automatically, if memory size exceeds the threshold value."),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
 			_TL("yes"),
 			_TL("after confirmation")
@@ -318,7 +318,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_TABLE",
 		"TABLE_FLT_STYLE"		, _TL("Floating Point Numbers"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("system default"),
 			_TL("maximum number of significant decimals"),
 			_TL("fix number of decimals")
@@ -340,7 +340,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_SHAPES",
 		"SHAPES_FMT_DEFAULT"	, _TL("Default Output Format"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("ESRI Shape File (*.shp)"),
 			_TL("GeoPackage (*.gpkg)"),
 			_TL("GeoJSON (*.geojson)")
@@ -753,6 +753,11 @@ int CWKSP_Data_Manager::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 		{
 			pParameters->Set_Enabled("GRID_CACHE_THRSHLD", pParameter->asInt() != 0);
 			pParameters->Set_Enabled("GRID_CACHE_TMPDIR" , pParameter->asInt() != 0);
+		}
+
+		if(	pParameter->Cmp_Identifier("TABLE_FLT_STYLE") )
+		{
+			pParameters->Set_Enabled("TABLE_FLT_DECIMALS", pParameter->asInt() != 0);
 		}
 	}
 
