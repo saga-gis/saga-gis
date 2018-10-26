@@ -140,8 +140,9 @@ private:
 	CSG_String					_Get_List_Bands			(int Attribute = -1);
 
 	bool						_Fit_Colors				(bool bRefresh = false);
-	bool						_Fit_Colors				(CSG_Parameters &Parameters, double &Minimum, double &Maximum);
-	bool						_Fit_Colors				(CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
+	bool						_Fit_Colors_Get			(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject = NULL);
+	bool						_Fit_Colors_Get			(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject, const CSG_Rect &rWorld);
+	bool						_Fit_Colors_Set			(double Range[2], CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
 
 	void						_LUT_Create				(void);
 

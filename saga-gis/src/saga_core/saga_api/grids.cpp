@@ -1643,7 +1643,7 @@ bool CSG_Grids::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, 
 		}
 	}
 
-	return( Statistics.Get_Count() > 0 );
+	return( Histogram.Update() );
 }
 
 

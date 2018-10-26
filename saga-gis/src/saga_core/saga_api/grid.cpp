@@ -1216,7 +1216,7 @@ bool CSG_Grid::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, s
 		}
 	}
 
-	return( Statistics.Get_Count() > 0 );
+	return( Histogram.Update() );
 }
 
 

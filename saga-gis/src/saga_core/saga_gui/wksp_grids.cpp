@@ -553,11 +553,11 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			||  pParameter->Cmp_Identifier("STRETCH_INRANGE"   )
 			||  pParameter->Cmp_Identifier("STRETCH_PCTL"      ) )
 			{
-				double	Minimum, Maximum;
+				double	Range[2];
 
-				if( _Fit_Colors(*pParameters, Minimum, Maximum) )
+				if(  _Fit_Colors_Get(Range, *pParameters) )
 				{
-					(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
+					(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Range[0], Range[1]);
 				}
 			}
 		}
@@ -837,8 +837,6 @@ double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -857,60 +855,36 @@ bool CWKSP_Grids::Fit_Colors(void)
 //---------------------------------------------------------
 bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
 {
-	if( Get_Grids()->Get_NZ() <= 0 )
+	if( Get_Grids()->Get_NZ() < 1 )
 	{
 		return( false );
 	}
 
+	double	Range[2];
+
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
 	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
-		double	Minimum, Maximum;
-
-		return( _Fit_Colors(m_Parameters, Minimum, Maximum) && Set_Color_Range(Minimum, Maximum) );
+		return( _Fit_Colors_Get(Range, m_Parameters) && Set_Color_Range(Range[0], Range[1]) );
 	}
 
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
-		if( m_Parameters("STRETCH_DEFAULT")->asInt() != 2 )	// no quantiles
+		if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
 		{
-			CSG_Simple_Statistics	s;
-
-			if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
+			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grids()) && _Fit_Colors_Set(Range, m_pClassify) )
 			{
-				if( s.Create(Get_Grids()->Get_Statistics()) && _Fit_Colors(s, m_pClassify) )
-				{
-					return( !bRefresh || Update_Views() );
-				}
-			}
-			else	// band wise statistics
-			{
-				if( s.Create(Get_Grid(0)->Get_Statistics()) && _Fit_Colors(s, &m_Classify[0])
-				&&  s.Create(Get_Grid(1)->Get_Statistics()) && _Fit_Colors(s, &m_Classify[1])
-				&&  s.Create(Get_Grid(2)->Get_Statistics()) && _Fit_Colors(s, &m_Classify[2]) )
-				{
-					return( !bRefresh || Update_Views() );
-				}
+				return( !bRefresh || Update_Views() );
 			}
 		}
-		else // quantiles
+		else	// band wise statistics
 		{
-			int		Mode	= m_Parameters("METRIC_SCALE_MODE")->asInt   ();
-			double	Log		= m_Parameters("METRIC_SCALE_LOG" )->asDouble();
-			double	d		= m_Parameters("STRETCH_PCTL"     )->asDouble() * 0.01;
-
-			if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
+			if(  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(0)) && _Fit_Colors_Set(Range, &m_Classify[0])
+			&&   _Fit_Colors_Get(Range, m_Parameters, Get_Grid(1)) && _Fit_Colors_Set(Range, &m_Classify[1])
+			&&   _Fit_Colors_Get(Range, m_Parameters, Get_Grid(2)) && _Fit_Colors_Set(Range, &m_Classify[2]) )
 			{
-				m_pClassify->Set_Metric(Mode, Log, Get_Grids()->Get_Quantile(d), Get_Grids()->Get_Quantile(1 - d));
+				return( !bRefresh || Update_Views() );
 			}
-			else	// band wise statistics
-			{
-				m_Classify[0].Set_Metric(Mode, Log, Get_Grid(0)->Get_Quantile(d), Get_Grid(0)->Get_Quantile(1 - d));
-				m_Classify[1].Set_Metric(Mode, Log, Get_Grid(1)->Get_Quantile(d), Get_Grid(1)->Get_Quantile(1 - d));
-				m_Classify[2].Set_Metric(Mode, Log, Get_Grid(2)->Get_Quantile(d), Get_Grid(2)->Get_Quantile(1 - d));
-			}
-
-			return( !bRefresh || Update_Views() );
 		}
 	}
 
@@ -920,30 +894,30 @@ bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
 //---------------------------------------------------------
 bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 {
-	CSG_Simple_Statistics	s;
-
-	int	Method	= m_Parameters("STRETCH_DEFAULT")->asInt();	// == 2 >> fit to quantiles
+	double	Range[2];
 
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
 	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
-		return( Get_Grid()->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, m_pClassify, true) );
+		return( _Fit_Colors_Get(Range, m_Parameters, Get_Grid(), rWorld) && _Fit_Colors_Set(Range, m_pClassify, true) );
 	}
 
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 	{
 		if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
 		{
-			if( Get_Grids()->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, m_pClassify) )
+			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grids(), rWorld) && _Fit_Colors_Set(Range, m_pClassify) )
 			{
 				return( Update_Views() );
 			}
 		}
 		else	// band wise statistics
 		{
-			if( Get_Grid(0)->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, &m_Classify[0])
-			&&  Get_Grid(1)->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, &m_Classify[1])
-			&&  Get_Grid(2)->Get_Statistics(rWorld, s, Method == 2) && _Fit_Colors(s, &m_Classify[2]) )
+			double	Range[2];
+
+			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grid(0), rWorld) && _Fit_Colors_Set(Range, &m_Classify[0])
+			&&  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(1), rWorld) && _Fit_Colors_Set(Range, &m_Classify[1])
+			&&  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(2), rWorld) && _Fit_Colors_Set(Range, &m_Classify[2]) )
 			{
 				return( Update_Views() );
 			}
@@ -954,93 +928,88 @@ bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double &Maximum)
+bool CWKSP_Grids::_Fit_Colors_Get(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject)
 {
-	if( Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+	#define	GET_STAT (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Statistics() : ((CSG_Grids *)pObject)->Get_Statistics())
+	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram () : ((CSG_Grids *)pObject)->Get_Histogram ())
+
+	if( pObject == NULL )
 	{
-		CSG_Grids	*pGrids	= Get_Grids();
-
-		switch( Parameters("STRETCH_DEFAULT")->asInt() )
-		{
-		default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * pGrids->Get_Range();
-			Minimum	= pGrids->Get_Min() + d;
-			Maximum	= pGrids->Get_Max() - d;
-			break;	}
-
-		case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * pGrids->Get_StdDev();
-			Minimum	= pGrids->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < pGrids->Get_Min() ) Minimum = pGrids->Get_Min();
-			Maximum	= pGrids->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrids->Get_Max() ) Maximum = pGrids->Get_Max();
-			break;	}
-
-		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-			Minimum	= pGrids->Get_Quantile(    d);
-			Maximum	= pGrids->Get_Quantile(1 - d);
-			break;	}
-		}
+		pObject	= Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY
+			? (CSG_Data_Object *)Get_Grids()
+			: (CSG_Data_Object *)Get_Grids()->Get_Grid_Ptr(Parameters("BAND")->asInt());
 	}
-	else
+
+	switch( Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-		CSG_Grid	*pGrid	= Get_Grids()->Get_Grid_Ptr(Parameters("BAND")->asInt());
+	default: {	CSG_Simple_Statistics	s	= GET_STAT;
+		double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+		Range[0]	= s.Get_Minimum() + d;
+		Range[1]	= s.Get_Maximum() - d;
+		break;	}
 
-		switch( Parameters("STRETCH_DEFAULT")->asInt() )
-		{
-		default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * pGrid->Get_Range();
-			Minimum	= pGrid->Get_Min() + d;
-			Maximum	= pGrid->Get_Max() - d;
-			break;	}
+	case  1: {	CSG_Simple_Statistics	s	= GET_STAT;
+		double	d	= Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+		Range[0]	= s.Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[0] < s.Get_Minimum() ) Range[0] = s.Get_Minimum();
+		Range[1]	= s.Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[1] > s.Get_Maximum() ) Range[1] = s.Get_Maximum();
+		break;	}
 
-		case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * pGrid->Get_StdDev();
-			Minimum	= pGrid->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
-			Maximum	= pGrid->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
-			break;	}
-
-		case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-			Minimum	= pGrid->Get_Quantile(    d);
-			Maximum	= pGrid->Get_Quantile(1 - d);
-			break;	}
-		}
+	case  2: {
+		double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+		Range[0]	= GET_HIST.Get_Quantile(    d);
+		Range[1]	= GET_HIST.Get_Quantile(1 - d);
+		break;	}
 	}
 
 	return( true );
+
+	#undef GET_STAT
+	#undef GET_HIST
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors(CSG_Simple_Statistics &s, CWKSP_Layer_Classify *pClassify, bool bRefresh)
+bool CWKSP_Grids::_Fit_Colors_Get(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject, const CSG_Rect &rWorld)
 {
-	if( s.Get_Count() <= 0 )
+	#define	GET_STAT (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Statistics(rWorld, s) : ((CSG_Grids *)pObject)->Get_Statistics(rWorld, s))
+	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram (rWorld, s) : ((CSG_Grids *)pObject)->Get_Histogram (rWorld, s))
+
+	switch( Parameters("STRETCH_DEFAULT")->asInt() )
 	{
-		return( false );
+	default: {	CSG_Simple_Statistics	s;	if( !GET_STAT )	return( false );
+		double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+		Range[0]	= s.Get_Minimum() + d;
+		Range[1]	= s.Get_Maximum() - d;
+		break;	}
+
+	case  1: {	CSG_Simple_Statistics	s;	if( !GET_STAT )	return( false );
+		double	d	= Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+		Range[0]	= s.Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[0] < s.Get_Minimum() ) Range[0] = s.Get_Minimum();
+		Range[1]	= s.Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[1] > s.Get_Maximum() ) Range[1] = s.Get_Maximum();
+		break;	}
+
+	case  2: {	CSG_Histogram			s;	if( !GET_HIST ) return( false );
+		double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+		Range[0]	= s.Get_Quantile(    d);
+		Range[1]	= s.Get_Quantile(1 - d);
+		break;	}
 	}
 
-	double	Minimum, Maximum;
+	return( true );
 
-	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
-	{
-	default: {	double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
-		Minimum	= s.Get_Minimum() + d;
-		Maximum	= s.Get_Maximum() - d;
-		break;	}
+	#undef GET_STAT
+	#undef GET_HIST
+}
 
-	case  1: {	double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
-		Minimum	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Minimum < s.Get_Minimum() ) Minimum = s.Get_Minimum();
-		Maximum	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Maximum > s.Get_Maximum() ) Maximum = s.Get_Maximum();
-		break;	}
+//---------------------------------------------------------
+bool CWKSP_Grids::_Fit_Colors_Set(double Range[2], CWKSP_Layer_Classify *pClassify, bool bRefresh)
+{
+	pClassify->Set_Metric(m_Parameters("METRIC_SCALE_MODE")->asInt(), m_Parameters("METRIC_SCALE_LOG")->asDouble(), Range[0], Range[1]);
 
-	case  2: {	double	d	= m_Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-		Minimum	= s.Get_Quantile(    d);
-		Maximum	= s.Get_Quantile(1 - d);
-		break;	}
-	}
-
-	pClassify->Set_Metric(m_Parameters("METRIC_SCALE_MODE")->asInt(), m_Parameters("METRIC_SCALE_LOG")->asDouble(), Minimum, Maximum);
-
-	return( !bRefresh || Set_Color_Range(Minimum, Maximum) );
+	return( !bRefresh || Set_Color_Range(Range[0], Range[1]) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
