@@ -1216,15 +1216,19 @@ bool CSG_Tool_Chain::Tool_Get_Parameter(CSG_String ID, CSG_Parameters *pParamete
 			return( Tool_Get_Parameter(ID.AfterFirst('.'), pParameter->asParameters(), ppParameter, ppOwner) );
 
 		case PARAMETER_TYPE_Range:
-			ID	= ID.AfterFirst('.');
-
-			if( ID.CmpNoCase("minimum") )
+			if(      !ID.AfterFirst('.').CmpNoCase("min") || !ID.AfterFirst('.').CmpNoCase("minimum") )
 			{
 				*ppParameter	= pParameter->asRange()->Get_Min_Parameter();
+				*ppOwner		= pParameter;
 			}
-			else if( ID.CmpNoCase("maximum") )
+			else if( !ID.AfterFirst('.').CmpNoCase("max") || !ID.AfterFirst('.').CmpNoCase("maximum") )
 			{
 				*ppParameter	= pParameter->asRange()->Get_Max_Parameter();
+				*ppOwner		= pParameter;
+			}
+			else
+			{
+				*ppParameter	= pParameter;
 			}
 
 			return( true );
@@ -1296,6 +1300,11 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{
 			default:
 				pParameter->Set_Value(Parameter.Get_Content());
+
+				if( pOwner )
+				{
+					pOwner->has_Changed();
+				}
 				break;
 
 			case PARAMETER_TYPE_FixedTable:
