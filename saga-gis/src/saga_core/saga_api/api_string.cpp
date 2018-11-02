@@ -1317,6 +1317,26 @@ void CSG_String_Tokenizer::Set_String(const CSG_String &String, const CSG_String
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Strings SG_String_Tokenize(const CSG_String &String, const CSG_String &Delimiters, TSG_String_Tokenizer_Mode Mode)
+{
+	CSG_Strings	Strings;
+
+	CSG_String_Tokenizer	Tokenizer(String, Delimiters, Mode);
+
+	while( Tokenizer.Has_More_Tokens() )
+	{
+		Strings	+= Tokenizer.Get_Next_Token();
+	}
+
+	return( Strings );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
