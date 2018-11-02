@@ -411,7 +411,7 @@ public:		///////////////////////////////////////////////
 
 	sLong						m_Offset;
 
-	double						m_zScale, m_zOffset, m_NoData;
+	double						m_zScale, m_zOffset, m_NoData[2];
 
 	TSG_Data_Type				m_Type;
 
