@@ -84,28 +84,28 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+		"", "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Type"),
+		"", "TYPE"	, _TL("Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("single value"),
 			_TL("value range")
 		), 0
 	);
 
 	Parameters.Add_Double(
-		NULL	, "VALUE"	, _TL("No-Data Value"),
+		"", "VALUE"	, _TL("No-Data Value"),
 		_TL(""),
 		-99999.
 	);
 
 	Parameters.Add_Range(
-		NULL	, "RANGE"	, _TL("No-Data Value Range"),
+		"", "RANGE"	, _TL("No-Data Value Range"),
 		_TL(""),
 		-99999., -99999.
 	);
@@ -119,7 +119,7 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 //---------------------------------------------------------
 int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() && SG_UI_Get_Window_Main() )
 	{
 		CSG_Grid	*pGrid	= pParameter->asGrid();
 
@@ -182,6 +182,8 @@ bool CGrid_Value_NoData::On_Execute(void)
 
 	if( bUpdate )
 	{
+		pGrid->Set_Modified();
+
 		DataObject_Update(pGrid);
 	}
 
