@@ -554,9 +554,14 @@ typedef enum ESG_TLB_Info
 	TLB_INFO_User,
 	TLB_INFO_File,
 	TLB_INFO_Library,
+	TLB_INFO_SAGA_Version,
 	TLB_INFO_Count
 }
 TSG_TLB_Info;
+
+//---------------------------------------------------------
+typedef CSG_Tool *	(* TSG_PFNC_TLB_Create_Tool)	(int i);
+typedef CSG_String	(* TSG_PFNC_TLB_Get_Info   )	(int i);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Tool_Library_Interface
@@ -565,38 +570,41 @@ public:
 	CSG_Tool_Library_Interface(void);
 	virtual ~CSG_Tool_Library_Interface(void);
 
-	void						Set_Info				(int ID, const CSG_String &Info);
+	bool						Create					(const CSG_String &Version, const CSG_String &TLB_Path, TSG_PFNC_TLB_Get_Info Fnc_Info, TSG_PFNC_TLB_Create_Tool Fnc_Create_Tool);
+	bool						Destroy					(void);
+
 	const CSG_String &			Get_Info				(int ID);
 
 	int							Get_Count				(void);
-	bool						Add_Tool				(CSG_Tool *pTool, int ID);
-	CSG_Tool *					Get_Tool				(int iTool);
+	CSG_Tool *					Get_Tool				(int i);
 
-	void						Set_File_Name			(const CSG_String &File_Name);
+	CSG_Tool *					Create_Tool				(int i);
+	bool						Delete_Tool				(CSG_Tool *pTool);
+	bool						Delete_Tools			(void);
 
 
 private:
 
-	CSG_String					m_Info[TLB_INFO_Count];
+	CSG_Strings					m_Info;
 
-	int							m_nTools;
+	CSG_Array_Pointer			m_Tools, m_xTools;
 
-	CSG_Tool					**m_Tools;
+	TSG_PFNC_TLB_Create_Tool	m_Fnc_Create_Tool;
 
 };
 
 //---------------------------------------------------------
-#define SYMBOL_TLB_Initialize			SG_T("TLB_Initialize")
+#define SYMBOL_TLB_Initialize			"TLB_Initialize"
 typedef bool							(* TSG_PFNC_TLB_Initialize)		(const SG_Char *);
 
-#define SYMBOL_TLB_Finalize				SG_T("TLB_Finalize")
+#define SYMBOL_TLB_Finalize				"TLB_Finalize"
 typedef bool							(* TSG_PFNC_TLB_Finalize)		(void);
 
-#define SYMBOL_TLB_Get_Interface		SG_T("TLB_Get_Interface")
+#define SYMBOL_TLB_Get_Interface		"TLB_Get_Interface"
 typedef CSG_Tool_Library_Interface *	(* TSG_PFNC_TLB_Get_Interface)	(void);
 
 //---------------------------------------------------------
-#define TLB_INTERFACE_SKIP_TOOL		((CSG_Tool *)0x1)
+#define TLB_INTERFACE_SKIP_TOOL			((CSG_Tool *)0x1)
 
 //---------------------------------------------------------
 #define TLB_INTERFACE_CORE	CSG_Tool_Library_Interface	TLB_Interface;\
@@ -605,33 +613,18 @@ extern "C" _SAGA_DLL_EXPORT CSG_Tool_Library_Interface *	TLB_Get_Interface   (vo
 {\
 	return( &TLB_Interface );\
 }\
-\
-extern "C" _SAGA_DLL_EXPORT const SG_Char *					Get_Version			(void)\
-{\
-	return( SAGA_VERSION );\
-}\
 
 //---------------------------------------------------------
-#define TLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *File_Name)\
+#define TLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *TLB_Path)\
 {\
-	int		i;\
-\
-	TLB_Interface.Set_File_Name(File_Name);\
-\
-	for(i=0; i<TLB_INFO_User; i++)\
-	{\
-		TLB_Interface.Set_Info(i, Get_Info(i));\
-	}\
-\
-	for(i=0; TLB_Interface.Add_Tool(Create_Tool(i), i); i++)\
-	{}\
-\
-	return( TLB_Interface.Get_Count() > 0 );\
+	return( TLB_Interface.Create(SAGA_VERSION, TLB_Path, Get_Info, Create_Tool) );\
 }\
 
 //---------------------------------------------------------
 #define TLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)\
 {\
+	TLB_Interface.Destroy();\
+\
 	return( true );\
 }\
 

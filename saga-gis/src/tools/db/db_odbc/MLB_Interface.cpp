@@ -124,22 +124,10 @@ CSG_Tool *		Create_Tool(int i)
 	case  6:	return( new CTable_Save );
 	case  7:	return( new CTable_Drop );
 	case  8:	return( new CTable_Query );
+
+	case 12:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
-
-	return( NULL );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)
-{
-	return( SG_ODBC_Get_Connection_Manager().Destroy() );
 }
 
 
@@ -155,3 +143,20 @@ extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)
 	TLB_INTERFACE_CORE TLB_INTERFACE_INITIALIZE
 
 //}}AFX_SAGA
+
+//---------------------------------------------------------
+extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)
+{
+	TLB_Interface.Destroy();
+
+	return( SG_ODBC_Get_Connection_Manager().Destroy() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
