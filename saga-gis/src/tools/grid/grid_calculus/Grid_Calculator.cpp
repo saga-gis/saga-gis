@@ -273,16 +273,16 @@ bool CGrid_Calculator_Base::Initialize(int nGrids, int nXGrids)
 	//-----------------------------------------------------
 	CSG_String	Used(m_Formula.Get_Used_Variables());
 
-	if( m_nValues < (int)Used.Length() )
+	if( nGrids + nXGrids < (int)Used.Length() )
 	{
-		Error_Fmt("%s (%d < %d)", _TL("The number of supplied grids is less than the number of variables in formula."), m_nValues, Used.Length());
+		Error_Fmt("%s (%d < %d)", _TL("The number of supplied grids is less than the number of variables in formula."), nGrids + nXGrids, Used.Length());
 
 		return( false );
 	}
 
-	if( m_nValues > (int)Used.Length() )
+	if( nGrids + nXGrids > (int)Used.Length() )
 	{
-		Message_Fmt("\n%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), m_nValues, Used.Length());
+		Message_Fmt("\n%s: %s (%d > %d)", _TL("Warning"), _TL("The number of supplied grids exceeds the number of variables in formula."), nGrids + nXGrids, Used.Length());
 	}
 
 	//-----------------------------------------------------
