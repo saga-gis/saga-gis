@@ -444,6 +444,8 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 
 			case PARAMETER_TYPE_Parameters:
 				_Get_Parameters(pParameter->asParameters(), bInitialize);
+
+				pParameter->has_Changed();
 				break;
 
 			case PARAMETER_TYPE_Bool:
@@ -517,11 +519,15 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				if( m_CMD.Found(_Get_ID(pParameter, "MIN"), &d) )
 				{
 					pParameter->asRange()->Set_Min(d);
+
+					pParameter->has_Changed();
 				}
 
 				if( m_CMD.Found(_Get_ID(pParameter, "MAX"), &d) )
 				{
 					pParameter->asRange()->Set_Max(d);
+
+					pParameter->has_Changed();
 				}
 				break;
 
@@ -570,7 +576,10 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 				if( m_CMD.Found(_Get_ID(pParameter), &s) )
 				{
 					CSG_Table	Table(&s);
+
 					pParameter->asTable()->Assign_Values(&Table);
+
+					pParameter->has_Changed();
 				}
 				break;
 
@@ -789,21 +798,9 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 
 			else if( pParameter->is_DataObject_List() )
 			{
-				CSG_Strings	FileNames;
+				CSG_Strings	FileNames	= SG_String_Tokenize(&FileName, ";", SG_TOKEN_STRTOK);	// do not return empty tokens
 
-				while( !FileName.IsEmpty() && FileNames.Get_Count() < pParameter->asList()->Get_Item_Count() )
-				{
-					wxString	s = FileName.BeforeFirst(';'); s.Trim(true); s.Trim(false);
-
-					if( !s.IsEmpty() )
-					{
-						FileNames	+= &s;
-					}
-
-					FileName = FileName.AfterFirst(';');
-				}
-
-				if( FileNames.Get_Count() > 0 )	// e.g.: GRIDS=" ;;"
+				if( FileNames.Get_Count() > 0 )
 				{
 					int	nFileNames	= pParameter->asList()->Get_Item_Count() <= FileNames.Get_Count() ? FileNames.Get_Count() : FileNames.Get_Count() - 1;
 
@@ -815,11 +812,12 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 						}
 						else
 						{
-							_Save_Output(pParameter->asList()->Get_Item(i), CSG_String::Format("%s_%0*d",
-								FileNames[nFileNames].c_str(),
-								SG_Get_Digit_Count(pParameter->asList()->Get_Item_Count()),
-								1 + i - nFileNames
-							));
+							CSG_String	fPath	= SG_File_Get_Path     (FileNames[nFileNames]);
+							CSG_String	fName	= SG_File_Get_Name     (FileNames[nFileNames], false);
+							CSG_String	fExt	= SG_File_Get_Extension(FileNames[nFileNames]);
+							CSG_String	fNum	= CSG_String::Format("%0*d", SG_Get_Digit_Count(pParameter->asList()->Get_Item_Count()), 1 + i - nFileNames);
+
+							_Save_Output(pParameter->asList()->Get_Item(i), SG_File_Make_Path(fPath, fName + fNum, fExt));
 						}
 					}
 				}
