@@ -342,7 +342,9 @@ void CWKSP_Grids::On_Create_Parameters(void)
 //---------------------------------------------------------
 CSG_Grid * CWKSP_Grids::Get_Grid(void)
 {
-	return( Get_Grids()->Get_Grid_Ptr(m_Parameters("BAND")->asInt()) );
+	int	i	= m_Parameters("BAND")->asInt();
+
+	return( i >= 0 && i < Get_Grids()->Get_NZ() ? Get_Grids()->Get_Grid_Ptr(i) : NULL );
 }
 
 //---------------------------------------------------------
@@ -451,7 +453,7 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	Get_Grids()->Set_Unit   (m_Parameters("OBJECT_Z_UNIT"  )->asString());
 	Get_Grids()->Set_Scaling(m_Parameters("OBJECT_Z_FACTOR")->asDouble(), m_Parameters("OBJECT_Z_OFFSET")->asDouble());
 
-	Get_Grids()->Set_Max_Samples(Get_Grid()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) );
+	Get_Grids()->Set_Max_Samples(Get_Grids()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) * (Get_Grids()->Get_NZ() < 1 ? 1. : 1. / Get_Grids()->Get_NZ()) );
 
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY && m_Parameters("OVERLAY_STATISTICS")->asInt() != 0 )
 	{
@@ -1165,7 +1167,7 @@ bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 //---------------------------------------------------------
 void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( Get_Grids()->Get_NZ() < 1 || Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
+	if( Get_Grid() == NULL || Get_Grids()->Get_NZ() < 1 || Get_Extent().Intersects(dc_Map.m_rWorld) == INTERSECTION_None )
 	{
 		return;
 	}
