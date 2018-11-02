@@ -74,6 +74,28 @@ protected:
 
 	virtual bool			On_Execute				(void);
 
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Statistics_Add : public CSG_Tool_Grid
+{
+public:
+	CGrid_Statistics_Add(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Massive Data Analysis") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
 
 private:
 

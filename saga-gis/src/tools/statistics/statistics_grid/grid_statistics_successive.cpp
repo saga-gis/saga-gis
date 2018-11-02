@@ -63,11 +63,13 @@ CGrid_Statistics_Build::CGrid_Statistics_Build(void)
 	Set_Author		("O.Conrad (c) 2018");
 
 	Set_Description	(_TW(
-		"This tool allows to collect successively cell-wise statistical information "
-		"from grids by subsequent calls with the 'Reset' flag set to false. The collected "
-		"information can be used as input for the 'Evaluate Statistics for Grids' tool. "
-		"Together these tools have been designed to inspect a large number of grids "
-		"that could not be loaded into memory simultaneously. "
+		"This tool collects cell-wise basic statistical information from the given input grids. "
+		"The collected statistics can be used as input for the 'Evaluate Statistics for Grids' tool. "
+		"You can use this tool with the 'Reset' flag set to false (not available in command line mode) "
+		"or the 'Add Statistics for Grids' tool to successively add statistical information "
+		"from further grids by subsequent calls. "
+		"These three tools (build, add, evaluate) have been designed to inspect a large number of grids "
+		"that could otherwise not be evaluated simultaneously due to memory restrictions. "
 	));
 
 	Parameters.Add_Grid_List("",
@@ -76,18 +78,18 @@ CGrid_Statistics_Build::CGrid_Statistics_Build(void)
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Word);
-	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"             ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"  ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"         ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Word);
-
-	Parameters.Add_Bool("", "RESET", _TL("Reset"), _TL(""), true);
+	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Word);
+	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"             ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"  ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Word);
 
 	Parameters.Add_Int   ("HISTOGRAM", "HCLASSES", _TL("Number of Classes"), _TL(""), 20, 2, true);
 	Parameters.Add_Double("HISTOGRAM", "HMIN"    , _TL("Minimum"          ), _TL(""), 0.0);
 	Parameters.Add_Double("HISTOGRAM", "HMAX"    , _TL("Minimum"          ), _TL(""), 0.0);
+
+	Parameters.Add_Bool("", "RESET", _TL("Reset"), _TL(""), true)->Set_UseInCMD(false);
 }
 
 
@@ -100,9 +102,9 @@ int CGrid_Statistics_Build::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 {
 	if( pParameter->Cmp_Identifier("RESET") )
 	{
-		pParameters->Set_Enabled("HCLASSES", pParameter->asBool());
-		pParameters->Set_Enabled("HMIN"    , pParameter->asBool());
-		pParameters->Set_Enabled("HMAX"    , pParameter->asBool());
+		pParameters->Set_Enabled("HCLASSES" , pParameter->asBool());
+		pParameters->Set_Enabled("HMIN"     , pParameter->asBool());
+		pParameters->Set_Enabled("HMAX"     , pParameter->asBool());
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -128,68 +130,176 @@ bool CGrid_Statistics_Build::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Grid	*pCount		= Parameters("COUNT"    )->asGrid ();
-	CSG_Grid	*pMin		= Parameters("MIN"      )->asGrid ();
-	CSG_Grid	*pMax		= Parameters("MAX"      )->asGrid ();
 	CSG_Grid	*pSum		= Parameters("SUM"      )->asGrid ();
 	CSG_Grid	*pSum2		= Parameters("SUM2"     )->asGrid ();
+	CSG_Grid	*pMin		= Parameters("MIN"      )->asGrid ();
+	CSG_Grid	*pMax		= Parameters("MAX"      )->asGrid ();
 	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
 
 	if( Parameters("RESET")->asBool() )
 	{
-		pCount->Assign(0.0); pCount->Set_NoData_Value(65535);
-		pSum  ->Assign(0.0);
-		pSum2 ->Assign(0.0);
-		pMin  ->Assign_NoData();
-		pMax  ->Assign_NoData();
+		if( pCount ) { pCount->Assign(0.0); pCount->Set_NoData_Value(65535); }
+		if( pSum   ) { pSum  ->Assign(0.0); }
+		if( pSum2  ) { pSum2 ->Assign(0.0); }
 
-		int	nz	= Parameters("HCLASSES")->asInt();
+		if( pMin   ) { pMin  ->Assign_NoData(); }
+		if( pMin   ) { pMax  ->Assign_NoData(); }
 
-		if( nz < 2 )
+		//-------------------------------------------------
+		if( pHistogram )
+		{
+			int	nz	= Parameters("HCLASSES")->asInt();
+
+			if( nz < 2 )
+			{
+				Error_Set(_TL("histogram needs at least two classes"));
+
+				return( false );
+			}
+
+			double	zMin	= Parameters("HMIN")->asDouble();
+			double	zMax	= Parameters("HMAX")->asDouble();
+			double	zLag	= (zMax - zMin) / nz;
+
+			if( zMin >= zMax )
+			{
+				Error_Set(_TL("histogram's minimum class value needs to be less than its maximum"));
+
+				return( false );
+			}
+
+			if( !pHistogram->Create(Get_System(), nz, SG_DATATYPE_Word) )
+			{
+				Error_Set(_TL("failed to allocate histogram"));
+
+				return( false );
+			}
+
+			pHistogram->Set_Name(_TL("Histogram"));
+			pHistogram->Add_Attribute("ZMIN", SG_DATATYPE_Double);
+			pHistogram->Add_Attribute("ZMAX", SG_DATATYPE_Double);
+
+			for(int z=0; z<pHistogram->Get_NZ(); z++)
+			{
+				pHistogram->Get_Attributes(z).Set_Value("ZMIN", zMin + zLag * (z      ));
+				pHistogram->Set_Z         (z                  , zMin + zLag * (z + 0.5));
+				pHistogram->Get_Attributes(z).Set_Value("ZMAX", zMin + zLag * (z + 1.0));
+			}
+
+			DataObject_Add(pHistogram);
+		}
+	}
+
+	//-----------------------------------------------------
+	CGrid_Statistics_Add	Add;
+
+	Add.Set_Parameter("GRIDS"    , Parameters("GRIDS"));
+	Add.Set_Parameter("SUM"      , pSum      );
+	Add.Set_Parameter("SUM2"     , pSum2     );
+	Add.Set_Parameter("MIN"      , pMin      );
+	Add.Set_Parameter("MAX"      , pMax      );
+	Add.Set_Parameter("HISTOGRAM", pHistogram);
+
+	//-----------------------------------------------------
+	return( Add.Execute() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CGrid_Statistics_Add::CGrid_Statistics_Add(void)
+{
+	Set_Name		(_TL("Add Statistics for Grids"));
+
+	Set_Author		("O.Conrad (c) 2018");
+
+	Set_Description	(_TW(
+		"This tool allows to collect successively cell-wise statistical information "
+		"from grids by subsequent calls. "
+		"The targeted data sets, particularly the histogram, should have been created with "
+		"'Build Statistics for Grids' tool. The collected information can be used "
+		"consequently as input for the 'Evaluate Statistics for Grids' tool. "
+		"These three tools (build, add, evaluate) have been designed to inspect a large number of grids "
+		"that could otherwise not be evaluated simultaneously due to memory restrictions. "
+	));
+
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "SUM"      , _TL("Sum"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "SUM2"     , _TL("Sum of Squares"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "MIN"      , _TL("Minimum"         ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid ("", "MAX"      , _TL("Maximum"         ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grids("", "HISTOGRAM", _TL("Histogram"       ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Statistics_Add::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Statistics_Add::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
+
+	if( pGrids->Get_Grid_Count() < 1 )
+	{
+		Error_Set(_TL("no grids in selection"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pCount		= Parameters("COUNT"    )->asGrid ();
+	CSG_Grid	*pSum		= Parameters("SUM"      )->asGrid ();
+	CSG_Grid	*pSum2		= Parameters("SUM2"     )->asGrid ();
+	CSG_Grid	*pMin		= Parameters("MIN"      )->asGrid ();
+	CSG_Grid	*pMax		= Parameters("MAX"      )->asGrid ();
+	CSG_Grids	*pHistogram	= Parameters("HISTOGRAM")->asGrids();
+
+	//-----------------------------------------------------
+	int	zMin, zMax;
+
+	if( pHistogram )
+	{
+		if( pHistogram->Get_NZ() < 2 )
 		{
 			Error_Set(_TL("histogram needs at least two classes"));
 
 			return( false );
 		}
 
-		double	zMin	= Parameters("HMIN")->asDouble();
-		double	zMax	= Parameters("HMAX")->asDouble();
-		double	zLag	= (zMax - zMin) / nz;
+		zMin	= pHistogram->Get_Attributes().Get_Field("ZMIN");
+		zMax	= pHistogram->Get_Attributes().Get_Field("ZMAX");
 
-		if( zMin >= zMax )
+		if( zMin < 0 || zMax < 0 )
 		{
-			Error_Set(_TL("histogram's minimum class value needs to be less than its maximum."));
+			Error_Set(_TL("histogram misses attribute fields for class boundaries"));
 
 			return( false );
 		}
-
-		pHistogram->Create(Get_System(), nz, SG_DATATYPE_Word);
-		pHistogram->Set_Name(_TL("Histogram"));
-		pHistogram->Add_Attribute("ZMIN", SG_DATATYPE_Double);
-		pHistogram->Add_Attribute("ZMAX", SG_DATATYPE_Double);
-
-		for(int z=0; z<pHistogram->Get_NZ(); z++)
-		{
-			pHistogram->Get_Attributes(z).Set_Value("ZMIN", zMin + zLag * (z      ));
-			pHistogram->Set_Z         (z                  , zMin + zLag * (z + 0.5));
-			pHistogram->Get_Attributes(z).Set_Value("ZMAX", zMin + zLag * (z + 1.0));
-		}
-	}
-	else if( pHistogram->Get_NZ() < 2 )
-	{
-		Error_Set(_TL("histogram needs at least two classes"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	int	zMin	= pHistogram->Get_Attributes().Get_Field("ZMIN");
-	int	zMax	= pHistogram->Get_Attributes().Get_Field("ZMAX");
-
-	if( zMin < 0 || zMax < 0 )
-	{
-		Error_Set(_TL("histogram misses attribute fields for class boundaries"));
-
-		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -202,44 +312,20 @@ bool CGrid_Statistics_Build::On_Execute(void)
 		#endif
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 		{
-			if( pGrid->is_NoData(x, y) )
-			{
-				if( !pCount->is_NoData(x, y) )
-				{
-					pCount->Set_NoData(x, y);
-					pSum  ->Set_NoData(x, y);
-					pSum2 ->Set_NoData(x, y);
-					pMin  ->Set_NoData(x, y);
-					pMax  ->Set_NoData(x, y);
-
-					for(int z=0; z<pHistogram->Get_NZ(); z++)
-					{
-						pHistogram->Set_NoData(x, y, z);
-					}
-				}
-			}
-			else if( !pCount->is_NoData(x, y) )
+			if( !pGrid->is_NoData(x, y) )
 			{
 				double	Value	= pGrid->asDouble(x, y);
 
-				if( pCount->asInt(x, y) < 1 )
-				{
-					pCount->Set_Value(x, y, 1.);
-					pSum  ->Set_Value(x, y, Value);
-					pSum2 ->Set_Value(x, y, Value*Value);
-					pMin  ->Set_Value(x, y, Value);
-					pMax  ->Set_Value(x, y, Value);
-				}
-				else
-				{
-					pCount->Add_Value(x, y, 1.);
-					pSum  ->Add_Value(x, y, Value);
-					pSum2 ->Add_Value(x, y, Value*Value);
+				if( pCount ) pCount->Add_Value(x, y, 1.);
+				if( pSum   ) pSum  ->Add_Value(x, y, Value);
+				if( pSum2  ) pSum2 ->Add_Value(x, y, Value*Value);
 
-					if( Value < pMin->asDouble(x, y) ) { pMin->Set_Value(x, y, Value); } else
-					if( Value > pMax->asDouble(x, y) ) { pMax->Set_Value(x, y, Value); }
+				if( pMin && (pMin->is_NoData(x, y) || Value < pMin->asDouble(x, y)) ) { pMin->Set_Value(x, y, Value); }
+				if( pMax && (pMax->is_NoData(x, y) || Value > pMax->asDouble(x, y)) ) { pMax->Set_Value(x, y, Value); }
 
-					//-------------------------------------
+				//-----------------------------------------
+				if( pHistogram )
+				{
 					int	z	= Get_Histogram_Class(pHistogram, zMin, zMax, Value);
 
 					if( z >= 0 && z < pHistogram->Get_NZ() )
@@ -252,6 +338,13 @@ bool CGrid_Statistics_Build::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Update(pCount    );
+	DataObject_Update(pSum      );
+	DataObject_Update(pSum2     );
+	DataObject_Update(pMin      );
+	DataObject_Update(pMax      );
+	DataObject_Update(pHistogram);
+
 	return( true );
 }
 
@@ -261,7 +354,7 @@ bool CGrid_Statistics_Build::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrid_Statistics_Build::Get_Histogram_Class(CSG_Grids *pHistogram, int zMin, int zMax, double Value)
+int CGrid_Statistics_Add::Get_Histogram_Class(CSG_Grids *pHistogram, int zMin, int zMax, double Value)
 {
 	int	z;
 
@@ -308,9 +401,9 @@ CGrid_Statistics_Evaluate::CGrid_Statistics_Evaluate(void)
 		"Calculates statistical properties (arithmetic mean, range, variance, "
 		"standard deviation, percentiles) on a cell-wise base. "
 		"This tool takes input about basic statistical information as "
-		"it can be collected with the 'Build Statistics for Grids' tool. "
-		"Together these tools have been designed to inspect a large number of grids "
-		"that could not be loaded into memory simultaneously. "
+		"it can be collected with the 'Build/Add Statistics for Grids' tools. "
+		"These three tools (build, add, evaluate) have been designed to inspect a large number of grids "
+		"that could otherwise not be evaluated simultaneously due to memory restrictions. "
 	));
 
 	Parameters.Add_Grid ("", "COUNT"    , _TL("Number of Values"  ), _TL(""), PARAMETER_INPUT_OPTIONAL);

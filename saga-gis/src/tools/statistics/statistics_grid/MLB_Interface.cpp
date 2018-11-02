@@ -133,9 +133,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 15:	return( new CGrid_PCA_Focal );
 	case 16:	return( new CGrid_Statistics_from_Files );
 	case 17:	return( new CGrid_Statistics_Build );
+	case 19:	return( new CGrid_Statistics_Add );
 	case 18:	return( new CGrid_Statistics_Evaluate );
 
-	case 19:	return( NULL );
+	case 20:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
