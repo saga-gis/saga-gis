@@ -71,33 +71,31 @@
 //---------------------------------------------------------
 CTable_Field_Statistics::CTable_Field_Statistics(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Field Statistics"));
 
-	Set_Author		(SG_T("V. Wichmann (c) 2014"));
+	Set_Author		("V. Wichmann (c) 2014");
 
 	Set_Description	(_TW(
 		"The tools allows one to calculate statistics (n, min, max, range, sum, "
 		"mean, variance and standard deviation) for attribute fields of tables, "
-		"shapefiles or point clouds.\n\n"
+		"shapefiles or point clouds."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL("The input table."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("TABLE",
+		"FIELDS"	, _TL("Attributes"),
 		_TL("The (numeric) fields to calculate the statistics for.")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"	, _TL("Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS", _TL("Statistics"),
 		_TL("The calculated statistics."),
 		PARAMETER_OUTPUT
 	);
@@ -106,24 +104,17 @@ CTable_Field_Statistics::CTable_Field_Statistics(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CTable_Field_Statistics::On_Execute(void)
 {
-	CSG_Table	*pTab_in, *pTab_out;
-	int			nFeatures, *Features;
-
 	//-----------------------------------------------------
-	pTab_in		= Parameters("TABLE")->asTable();
-	pTab_out	= Parameters("STATISTICS")->asTable();
-	
-	Features	= (int *)Parameters("FIELDS")->asPointer();
-	nFeatures	=        Parameters("FIELDS")->asInt    ();
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	//-----------------------------------------------------
+	int	*Features	= (int *)Parameters("FIELDS")->asPointer();
+	int	nFeatures	=        Parameters("FIELDS")->asInt    ();
+
 	if( !Features || nFeatures <= 0 )
 	{
 		Error_Set(_TL("No attribute fields selected!"));
@@ -132,46 +123,46 @@ bool CTable_Field_Statistics::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	pTab_out->Destroy();
-	pTab_out->Set_Name(_TL("%s_stats"), pTab_in->Get_Name());
+	CSG_Table	*pStatistics	= Parameters("STATISTICS")->asTable();
+
+	pStatistics->Destroy();
+	pStatistics->Set_Name("%s [%s]", pTable->Get_Name(), _TL("Statistics"));
 	
-	pTab_out->Add_Field(_TL("Field"   ), SG_DATATYPE_String);
-	pTab_out->Add_Field(_TL("n"       ), SG_DATATYPE_Long  );
-	pTab_out->Add_Field(_TL("min"     ), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("max"     ), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("range"   ), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("sum"     ), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("mean"    ), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("variance"), SG_DATATYPE_Double);
-	pTab_out->Add_Field(_TL("stddev"  ), SG_DATATYPE_Double);
+	pStatistics->Add_Field("field"   , SG_DATATYPE_String);
+	pStatistics->Add_Field("n"       , SG_DATATYPE_Long  );
+	pStatistics->Add_Field("min"     , SG_DATATYPE_Double);
+	pStatistics->Add_Field("max"     , SG_DATATYPE_Double);
+	pStatistics->Add_Field("range"   , SG_DATATYPE_Double);
+	pStatistics->Add_Field("sum"     , SG_DATATYPE_Double);
+	pStatistics->Add_Field("mean"    , SG_DATATYPE_Double);
+	pStatistics->Add_Field("variance", SG_DATATYPE_Double);
+	pStatistics->Add_Field("stddev"  , SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
 	for(int iFeature=0; iFeature<nFeatures; iFeature++)
 	{
-		if( SG_Data_Type_is_Numeric(pTab_in->Get_Field_Type(Features[iFeature])) )
+		if( !SG_Data_Type_is_Numeric(pTable->Get_Field_Type(Features[iFeature])) )
 		{
-			CSG_Table_Record *pRecord = pTab_out->Add_Record();
-
-			pRecord->Set_Value(0, pTab_in->Get_Field_Name(Features[iFeature]));
-			pRecord->Set_Value(1, pTab_in->Get_N(Features[iFeature]));
-			pRecord->Set_Value(2, pTab_in->Get_Minimum(Features[iFeature]));
-			pRecord->Set_Value(3, pTab_in->Get_Maximum(Features[iFeature]));
-			pRecord->Set_Value(4, pTab_in->Get_Range(Features[iFeature]));
-			pRecord->Set_Value(5, pTab_in->Get_Sum(Features[iFeature]));
-			pRecord->Set_Value(6, pTab_in->Get_Mean(Features[iFeature]));
-			pRecord->Set_Value(7, pTab_in->Get_Variance(Features[iFeature]));
-			pRecord->Set_Value(8, pTab_in->Get_StdDev(Features[iFeature]));
+			Message_Fmt("\n%s: %s [%s]", _TL("Warning"), _TL("skipping non-numeric field"), pTable->Get_Field_Name(Features[iFeature]));
 		}
 		else
 		{
-			SG_UI_Msg_Add(CSG_String::Format(_TL("WARNING: skipping non-numeric field '%s'!"), pTab_in->Get_Field_Name(Features[iFeature])), true);
+			CSG_Table_Record *pRecord = pStatistics->Add_Record();
+
+			pRecord->Set_Value(0, pTable->Get_Field_Name(Features[iFeature]));
+			pRecord->Set_Value(1, pTable->Get_N         (Features[iFeature]));
+			pRecord->Set_Value(2, pTable->Get_Minimum   (Features[iFeature]));
+			pRecord->Set_Value(3, pTable->Get_Maximum   (Features[iFeature]));
+			pRecord->Set_Value(4, pTable->Get_Range     (Features[iFeature]));
+			pRecord->Set_Value(5, pTable->Get_Sum       (Features[iFeature]));
+			pRecord->Set_Value(6, pTable->Get_Mean      (Features[iFeature]));
+			pRecord->Set_Value(7, pTable->Get_Variance  (Features[iFeature]));
+			pRecord->Set_Value(8, pTable->Get_StdDev    (Features[iFeature]));
 		}
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(pTab_out);
-
-	return( true );
+	return( pStatistics->Get_Count() > 0 );
 }
 
 

@@ -1212,17 +1212,23 @@ bool CSG_Table::_Stats_Update(int iField) const
 {
 	if( iField >= 0 && iField < m_nFields && m_nRecords > 0 )
 	{
-		if( !m_Field_Stats[iField]->is_Evaluated() )
-		{
-			CSG_Table_Record	**ppRecord	= m_Records;
+		CSG_Simple_Statistics	*pStatistics	= m_Field_Stats[iField];
 
-			for(int iRecord=0; iRecord<m_nRecords; iRecord++, ppRecord++)
+		if( !pStatistics->is_Evaluated() )
+		{
+			pStatistics->Invalidate();
+
+			for(int iRecord=0; iRecord<m_nRecords; iRecord++)
 			{
-				if( !(*ppRecord)->is_NoData(iField) )
+				CSG_Table_Record	*pRecord	= m_Records[iRecord];
+
+				if( !pRecord->is_NoData(iField) )
 				{
-					m_Field_Stats[iField]->Add_Value((*ppRecord)->asDouble(iField));
+					pStatistics->Add_Value(pRecord->asDouble(iField));
 				}
 			}
+
+			pStatistics->Get_Mean();	// evaluate! prevent values to be added more than once!
 		}
 
 		return( true );
