@@ -607,15 +607,14 @@ typedef CSG_Tool_Library_Interface *	(* TSG_PFNC_TLB_Get_Interface)	(void);
 #define TLB_INTERFACE_SKIP_TOOL			((CSG_Tool *)0x1)
 
 //---------------------------------------------------------
-#define TLB_INTERFACE_CORE	CSG_Tool_Library_Interface	TLB_Interface;\
+#define TLB_INTERFACE_INITIALIZE	CSG_Tool_Library_Interface	TLB_Interface;\
 \
 extern "C" _SAGA_DLL_EXPORT CSG_Tool_Library_Interface *	TLB_Get_Interface   (void)\
 {\
 	return( &TLB_Interface );\
 }\
-
-//---------------------------------------------------------
-#define TLB_INTERFACE_INITIALIZE	extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *TLB_Path)\
+\
+extern "C" _SAGA_DLL_EXPORT bool TLB_Initialize	(const SG_Char *TLB_Path)\
 {\
 	return( TLB_Interface.Create(SAGA_VERSION, TLB_Path, Get_Info, Create_Tool) );\
 }\
@@ -623,13 +622,11 @@ extern "C" _SAGA_DLL_EXPORT CSG_Tool_Library_Interface *	TLB_Get_Interface   (vo
 //---------------------------------------------------------
 #define TLB_INTERFACE_FINALIZE		extern "C" _SAGA_DLL_EXPORT bool TLB_Finalize	(void)\
 {\
-	TLB_Interface.Destroy();\
-\
 	return( true );\
 }\
 
 //---------------------------------------------------------
-#define TLB_INTERFACE	TLB_INTERFACE_CORE TLB_INTERFACE_INITIALIZE TLB_INTERFACE_FINALIZE
+#define TLB_INTERFACE	TLB_INTERFACE_INITIALIZE TLB_INTERFACE_FINALIZE
 
 //---------------------------------------------------------
 #ifndef SWIG

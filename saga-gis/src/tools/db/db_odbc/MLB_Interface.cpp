@@ -140,7 +140,7 @@ CSG_Tool *		Create_Tool(int i)
 //---------------------------------------------------------
 //{{AFX_SAGA
 
-	TLB_INTERFACE_CORE TLB_INTERFACE_INITIALIZE
+	TLB_INTERFACE_INITIALIZE
 
 //}}AFX_SAGA
 
