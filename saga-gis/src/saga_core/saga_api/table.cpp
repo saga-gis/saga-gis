@@ -1216,8 +1216,6 @@ bool CSG_Table::_Stats_Update(int iField) const
 
 		if( !pStatistics->is_Evaluated() )
 		{
-			pStatistics->Invalidate();
-
 			for(int iRecord=0; iRecord<m_nRecords; iRecord++)
 			{
 				CSG_Table_Record	*pRecord	= m_Records[iRecord];
@@ -1235,6 +1233,21 @@ bool CSG_Table::_Stats_Update(int iField) const
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Table::On_NoData_Changed(void)
+{
+	_Stats_Invalidate();
+
+	return( CSG_Data_Object::On_NoData_Changed() );
 }
 
 

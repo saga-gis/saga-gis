@@ -273,7 +273,7 @@ protected:
 	void							Set_Update_Flag		(bool bOn = true)	{	m_bUpdate	= bOn;			}
 	bool							Get_Update_Flag		(void)				{	return( m_bUpdate );		}
 	virtual bool					On_Update			(void)				{	return( true );				}
-	virtual bool					On_NoData_Changed	(void)				{	return( true );				}
+	virtual bool					On_NoData_Changed	(void);
 
 
 private:

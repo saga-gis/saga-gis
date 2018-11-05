@@ -220,8 +220,6 @@ protected:
 	virtual bool					On_Reload			(void);
 	virtual bool					On_Delete			(void);
 
-	virtual bool					On_NoData_Changed	(void);
-
 	virtual void					_On_Construction	(void);
 
 	virtual bool					_Stats_Update		(int iField)	const;

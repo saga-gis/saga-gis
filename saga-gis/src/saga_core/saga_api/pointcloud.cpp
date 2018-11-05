@@ -882,17 +882,6 @@ TSG_Point_Z CSG_PointCloud::Get_Point(int iPoint)	const
 	return( p );
 }
 
-//---------------------------------------------------------
-bool CSG_PointCloud::On_NoData_Changed(void)
-{
-	for(int i=3; i<m_nFields; i++)
-	{
-		m_Field_Stats[i]->Invalidate();
-	}
-
-	return( true );
-}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1043,7 +1032,9 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 {
 	if( iField >= 0 && iField < m_nFields && Get_Count() > 0 )
 	{
-		if( !m_Field_Stats[iField]->is_Evaluated() )
+		CSG_Simple_Statistics	*pStatistics	= m_Field_Stats[iField];
+
+		if( !pStatistics->is_Evaluated() )
 		{
 			char	**pPoint	= m_Points;
 
@@ -1053,9 +1044,11 @@ bool CSG_PointCloud::_Stats_Update(int iField) const
 
 				if( iField < 3 || is_NoData_Value(Value) == false )
 				{
-					m_Field_Stats[iField]->Add_Value(Value);
+					pStatistics->Add_Value(Value);
 				}
 			}
+
+			pStatistics->Get_Mean();	// evaluate! prevent values to be added more than once!
 		}
 
 		return( true );

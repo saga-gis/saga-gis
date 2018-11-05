@@ -405,11 +405,6 @@ bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 
 	if( loValue != m_NoData_Value || hiValue != m_NoData_hiValue )
 	{
-		if( !Get_Update_Flag() )
-		{
-			Set_Update_Flag();
-		}
-
 		m_NoData_Value		= loValue;
 		m_NoData_hiValue	= hiValue;
 
@@ -419,6 +414,17 @@ bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Data_Object::On_NoData_Changed(void)
+{
+	if( !Get_Update_Flag() )
+	{
+		Set_Update_Flag();
+	}
+
+	return( true );
 }
 
 

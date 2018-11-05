@@ -372,6 +372,8 @@ protected:
 	bool							_Stats_Invalidate	(int iField)	const;
 	virtual bool					_Stats_Update		(int iField)	const;
 
+	virtual bool					On_NoData_Changed	(void);
+
 	virtual bool					On_Reload			(void);
 	virtual bool					On_Delete			(void);
 
