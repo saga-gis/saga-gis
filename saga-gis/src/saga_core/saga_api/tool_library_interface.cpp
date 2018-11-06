@@ -211,9 +211,9 @@ CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID)
 //---------------------------------------------------------
 bool CSG_Tool_Library_Interface::Delete_Tool(CSG_Tool *pTool)
 {
-	for(size_t i=0; i<m_Tools.Get_Size(); i++)
+	for(size_t i=0; i<m_xTools.Get_Size(); i++)
 	{
-		if( pTool == m_Tools.Get(i) && m_Tools.Del(i) )
+		if( pTool == m_xTools.Get(i) && m_xTools.Del(i) )
 		{
 			delete(pTool);
 

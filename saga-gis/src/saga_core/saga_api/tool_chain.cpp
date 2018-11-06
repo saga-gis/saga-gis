@@ -1126,9 +1126,9 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	//-----------------------------------------------------
 	CSG_String	Name(Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module"));
 
-	CSG_Tool	*pTool;
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(Tool.Get_Property("library"), Name.c_str());
 
-	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool(Tool.Get_Property("library"), Name.c_str())) )
+	if(	!pTool )
 	{
 		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
 
@@ -1165,6 +1165,8 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	Tool_Finalize(Tool, pTool);
 
 	pTool->Settings_Pop();
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( bResult );
 }
@@ -1273,14 +1275,9 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 	int		i;
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data variables first
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// check for invalid parameters...
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];
-
-		if( Parameter.Cmp_Name("comment") )
-		{
-			continue;
-		}
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
 		CSG_Parameter	*pParameter, *pOwner;
 
@@ -1290,34 +1287,16 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 
 			return( false );
 		}
-		else if( Parameter.Cmp_Name("option") )
-		{
-			if( IS_TRUE_PROPERTY(Parameter, "varname") )
-			{	// does option want a value from tool chain parameters and do these provide one ?
-				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
-			}
-			else switch( pParameter->Get_Type() )
-			{
-			default:
-				pParameter->Set_Value(Parameter.Get_Content());
+	}
 
-				if( pOwner )
-				{
-					pOwner->has_Changed();
-				}
-				break;
+	//-----------------------------------------------------
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// set data input first
+	{
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
-			case PARAMETER_TYPE_FixedTable:
-				if( Parameter("OPTION") )
-				{
-					pParameter->Serialize(*Parameter("OPTION"), false);
-				}
-				break;
-			}
-		}
-		else if( Parameter.Cmp_Name("input") )
+		if( Parameter.Cmp_Name("input") )
 		{
-			bool	bResult	= false;
+			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
 
 			int	Index;
 
@@ -1325,6 +1304,8 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{
 				Index	= -1;
 			}
+
+			bool	bResult	= false;
 
 			CSG_Parameter	*pData	= m_Data(Index < 0 ? Parameter.Get_Content() : Parameter.Get_Content().BeforeFirst('['));
 
@@ -1366,44 +1347,17 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 				pOwner->has_Changed();
 			}
 		}
-		else if( Parameter.Cmp_Name("output") )
-		{
-			if( !pParameter->Assign(m_Data(Parameter.Get_Content())) )
-			{
-				if( pParameter->is_DataObject() )
-				{
-					pParameter->Set_Value(DATAOBJECT_CREATE);
-				}
-				else if( pParameter->is_DataObject_List() )
-				{
-					pParameter->asList()->Del_Items();
-				}
-				else if( pParameter->asGrids() )
-				{
-					pParameter->asGrids()->Del_Grids();
-				}
-			}
-		}
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set options
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// now set all options
 	{
-		const CSG_MetaData	&Parameter	= Tool[i];
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
 
-		if( Parameter.Cmp_Name("comment") )
+		if( Parameter.Cmp_Name("option") )
 		{
-			continue;
-		}
+			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
 
-		CSG_Parameter	*pParameter;
-
-		if( !Tool_Get_Parameter(Parameter, pTool, &pParameter) )
-		{
-			return( false );
-		}
-		else if( Parameter.Cmp_Name("option") )
-		{
 			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
 				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
@@ -1412,6 +1366,11 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 			{
 			default:
 				pParameter->Set_Value(Parameter.Get_Content());
+
+				if( pOwner )
+				{
+					pOwner->has_Changed();
+				}
 				break;
 
 			case PARAMETER_TYPE_FixedTable:
@@ -1438,6 +1397,33 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 					pParameter->Set_Value(Value);
 				}
 				break;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	for(i=0; i<Tool.Get_Children_Count(); i++)	// finally set the data output
+	{
+		const CSG_MetaData	&Parameter	= Tool[i];	if( Parameter.Cmp_Name("comment") )	{	continue;	}
+
+		if( Parameter.Cmp_Name("output") )
+		{
+			CSG_Parameter	*pParameter, *pOwner;	Tool_Get_Parameter(Parameter, pTool, &pParameter, &pOwner);
+
+			if( !pParameter->Assign(m_Data(Parameter.Get_Content())) )
+			{
+				if( pParameter->is_DataObject() )
+				{
+					pParameter->Set_Value(DATAOBJECT_CREATE);
+				}
+				else if( pParameter->is_DataObject_List() )
+				{
+					pParameter->asList()->Del_Items();
+				}
+				else if( pParameter->asGrids() )
+				{
+					pParameter->asGrids()->Del_Grids();
+				}
 			}
 		}
 	}
