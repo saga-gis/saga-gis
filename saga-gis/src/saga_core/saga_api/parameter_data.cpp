@@ -1881,12 +1881,19 @@ int CSG_Parameter_Table_Field::_Set_Value(const CSG_String &Value)
 
 	if( pTable != NULL )
 	{
-		for(int i=0; i<pTable->Get_Field_Count(); i++)
+		int	Index;
+
+		for(Index=0; Index<pTable->Get_Field_Count(); Index++)
 		{
-			if( !Value.CmpNoCase(pTable->Get_Field_Name(i)) )
+			if( !Value.CmpNoCase(pTable->Get_Field_Name(Index)) )
 			{
-				return( _Set_Value(i) );
+				return( _Set_Value(Index) );
 			}
+		}
+
+		if( Value.asInt(Index) )
+		{
+			return( _Set_Value(Index) );
 		}
 	}
 
