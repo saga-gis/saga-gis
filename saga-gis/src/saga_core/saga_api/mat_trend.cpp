@@ -421,11 +421,11 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 		s	+= m_Formula.Get_Formula();
 		s	+= "\n";
 
-		if( m_Params.Get_Count() > 0 )
+		if( m_Params.Get_Count() > 0 && m_bOkay )
 		{
 			s	+= "\n";
 
-			for(int i=0; i<m_Params.Get_Count() && m_bOkay; i++)
+			for(int i=0; i<m_Params.Get_Count(); i++)
 			{
 				s	+= CSG_String::Format("%c = %g\n", m_Params.m_Variables[i], m_Params.m_A[i]);
 			}
@@ -436,11 +436,11 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 		s	+= m_Formula.Get_Formula();
 		s	+= "\n";
 
-		if( m_Params.Get_Count() > 0 )
+		if( m_Params.Get_Count() > 0 && m_bOkay )
 		{
 			s	+= "\n";
 
-			for(int i=0; i<m_Params.Get_Count() && m_bOkay; i++)
+			for(int i=0; i<m_Params.Get_Count(); i++)
 			{
 				s	+= CSG_String::Format("%c = %g\n", m_Params.m_Variables[i], m_Params.m_A[i]);
 			}
@@ -454,9 +454,9 @@ CSG_String CSG_Trend::Get_Formula(int Type)
 	case SG_TREND_STRING_Compact:
 		s	+= m_Formula.Get_Formula();
 
-		if( m_Params.Get_Count() > 0 )
+		if( m_Params.Get_Count() > 0 && m_bOkay )
 		{
-			for(int i=0; i<m_Params.Get_Count() && m_bOkay; i++)
+			for(int i=0; i<m_Params.Get_Count(); i++)
 			{
 				s	+= CSG_String::Format("%s%c=%g", !i ? SG_T("; (") : SG_T(", "), m_Params.m_Variables[i], m_Params.m_A[i]);
 			}
