@@ -1226,7 +1226,7 @@ bool CSG_Table::_Stats_Update(int iField) const
 				}
 			}
 
-			pStatistics->Get_Mean();	// evaluate! prevent values to be added more than once!
+			pStatistics->Evaluate();	// evaluate! prevent values to be added more than once!
 		}
 
 		return( true );

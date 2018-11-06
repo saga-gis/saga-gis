@@ -570,6 +570,7 @@ public:
 	bool						Create				(const CSG_Vector &Values, bool bHoldValues = false);
 
 	void						Invalidate			(void);
+	bool						Evaluate			(void);
 
 	int							is_Evaluated		(void)	const	{	return( m_bEvaluated );	}
 
@@ -1770,7 +1771,8 @@ enum ESG_Trend_String
 	SG_TREND_STRING_Formula	= 0,
 	SG_TREND_STRING_Function,
 	SG_TREND_STRING_Formula_Parameters,
-	SG_TREND_STRING_Complete
+	SG_TREND_STRING_Complete,
+	SG_TREND_STRING_Compact
 };
 
 //---------------------------------------------------------
@@ -1790,13 +1792,15 @@ public:
 	bool						Add_Data			(double  x, double  y);
 	void						Set_Data			(double *x, double *y, int n, bool bAdd = false);
 	void						Set_Data			(const CSG_Points &Data     , bool bAdd = false);
-	int							Get_Data_Count		(void)	const	{	return( m_Data.Get_NCols() );	}
+	int							Get_Data_Count		(void)	const	{	return( (int)m_Data[0].Get_Count() );	}
 	double						Get_Data_X			(int i)	const	{	return( m_Data[0][i] );	}
+	double						Get_Data_XMin		(void)			{	return( m_Data[0].Get_Minimum() );	}
+	double						Get_Data_XMax		(void)			{	return( m_Data[0].Get_Maximum() );	}
+	CSG_Simple_Statistics &		Get_Data_XStats		(void)			{	return( m_Data[0] );	}
 	double						Get_Data_Y			(int i)	const	{	return( m_Data[1][i] );	}
-	double						Get_Data_XMin		(void)	const	{	return( m_xMin );	}
-	double						Get_Data_XMax		(void)	const	{	return( m_xMax );	}
-	double						Get_Data_YMin		(void)	const	{	return( m_yMin );	}
-	double						Get_Data_YMax		(void)	const	{	return( m_yMax );	}
+	double						Get_Data_YMin		(void)			{	return( m_Data[1].Get_Minimum() );	}
+	double						Get_Data_YMax		(void)			{	return( m_Data[1].Get_Maximum() );	}
+	CSG_Simple_Statistics &		Get_Data_YStats		(void)			{	return( m_Data[1] );	}
 
 	bool						Set_Max_Iterations	(int Iterations);
 	int							Get_Max_Iterations	(void)	const	{	return( m_Iter_Max);	}
@@ -1846,11 +1850,11 @@ private:
 
 	int							m_Iter_Max;
 
-	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max, m_xMin, m_xMax, m_yMin, m_yMax;
+	double						m_ChiSqr, m_ChiSqr_o, m_Lambda, m_Lambda_Max;
 
 	CParams						m_Params;
 
-	CSG_Matrix					m_Data;
+	CSG_Simple_Statistics		m_Data[2];
 
 	CSG_Formula					m_Formula;
 

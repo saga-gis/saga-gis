@@ -104,7 +104,7 @@ private:
 
 	CSG_Table						*m_pTable;
 
-	CSG_Regression					m_Regression;
+	CSG_Trend						m_Trend;
 
 	CSG_Parameters					m_Parameters;
 

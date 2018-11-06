@@ -482,6 +482,14 @@ void CSG_Simple_Statistics::Invalidate(void)
 }
 
 //---------------------------------------------------------
+bool CSG_Simple_Statistics::Evaluate(void)
+{
+	_Evaluate();
+
+	return( is_Evaluated() > 0 );
+}
+
+//---------------------------------------------------------
 void CSG_Simple_Statistics::Add(const CSG_Simple_Statistics &Statistics)
 {
 	if( Statistics.m_nValues <= 0 )
