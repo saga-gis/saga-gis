@@ -1,5 +1,5 @@
 /**********************************************************
- * Version $Id: tool_chain.h 2111 2014-05-07 09:58:48Z oconrad $
+ * Version $Id$
  *********************************************************/
 
 ///////////////////////////////////////////////////////////
@@ -91,8 +91,14 @@ public:
 	CSG_Tool_Chain(void);
 	virtual ~CSG_Tool_Chain(void);
 
+								CSG_Tool_Chain			(const CSG_Tool_Chain &Tool);
+	bool						Create					(const CSG_Tool_Chain &Tool);
+
 								CSG_Tool_Chain			(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
+
+								CSG_Tool_Chain			(const CSG_MetaData &Chain);
+	bool						Create					(const CSG_MetaData &Chain);
 
 	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Chain );	}
 
@@ -176,11 +182,15 @@ public:
 
 	bool							Add_Tool			(CSG_Tool_Chain *pTool);
 
-	virtual int						Get_Count			(void)		const	{	return( m_nTools );	}
+	virtual int						Get_Count			(void)		const	{	return( (int)m_Tools.Get_Size() );	}
 
 	virtual CSG_Tool *				Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < m_nTools ? m_pTools[Index]->Get_File_Name() : "" );	}
+	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name);
+	virtual bool					Delete_Tool			(CSG_Tool *pTool);
+	virtual bool					Delete_Tools		(void);
+
+	virtual CSG_String				Get_File_Name		(int Index)	const	{	return( Index >= 0 && Index < Get_Count() ? ((CSG_Tool *)m_Tools[Index])->Get_File_Name() : "" );	}
 
 
 protected:
@@ -191,9 +201,7 @@ protected:
 
 private:
 
-	int								m_nTools;
-
-	CSG_Tool_Chain					**m_pTools;
+	CSG_Array_Pointer				m_Tools, m_xTools;
 
 	CSG_String						m_Name, m_Description, m_Menu;
 

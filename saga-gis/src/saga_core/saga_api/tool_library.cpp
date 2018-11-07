@@ -199,15 +199,15 @@ CSG_Tool * CSG_Tool_Library::Get_Tool(const CSG_String &Name, TSG_Tool_Type Type
   * a tool simultaneously with different settings.
 */
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(int Index)	const
+CSG_Tool * CSG_Tool_Library::Create_Tool(int Index)
 {
 	return( m_pInterface ? m_pInterface->Create_Tool(Index) : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name) const	{	return( Create_Tool(CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name) const	{	return( Create_Tool(CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name) const
+CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name)	{	return( Create_Tool(CSG_String(Name)) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name)	{	return( Create_Tool(CSG_String(Name)) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name)
 {
 	int	Index;	return( Name.asInt(Index) ? Create_Tool(Index) : NULL );
 }
@@ -218,13 +218,13 @@ CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name) const
   * to the 'Create_Tool()' function.
 */
 //---------------------------------------------------------
-bool CSG_Tool_Library::Delete_Tool(CSG_Tool *pTool) const
+bool CSG_Tool_Library::Delete_Tool(CSG_Tool *pTool)
 {
 	return( m_pInterface ? m_pInterface->Delete_Tool(pTool) : false );
 }
 
 //---------------------------------------------------------
-bool CSG_Tool_Library::Delete_Tools(void) const
+bool CSG_Tool_Library::Delete_Tools(void)
 {
 	return( m_pInterface ? m_pInterface->Delete_Tools() : false );
 }
@@ -302,7 +302,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::Add_Library(const CSG_String &File)
 	}
 
 	//-----------------------------------------------------
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load library"), File.c_str()), true);
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Loading library"), File.c_str()), true);
 
 	wxFileName	fn(File.c_str());
 
@@ -653,22 +653,7 @@ CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int 
 CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index)	const	{	return( Create_Tool(CSG_String(Library), Index) );	}
 CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index)	const
 {
-	for(int i=0; i<Get_Count(); i++)
-	{
-		CSG_Tool_Library	*pLibrary	= Get_Library(i);
-
-		if( pLibrary->Get_Library_Name().Cmp(Library) == 0 )
-		{
-			CSG_Tool	*pTool	= pLibrary->Create_Tool(Index);
-
-			if( pTool )
-			{
-				return( pTool );
-			}
-		}
-	}
-
-	return( NULL );
+	return( Get_Tool(Library, CSG_String::Format("%d", Index)) );
 }
 
 //---------------------------------------------------------

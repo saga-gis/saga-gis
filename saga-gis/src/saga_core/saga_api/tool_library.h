@@ -129,12 +129,13 @@ public:
 	virtual CSG_Tool *				Get_Tool			(const char       *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 	virtual CSG_Tool *				Get_Tool			(const wchar_t    *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_Tool *				Create_Tool			(int              Index)	const;
-	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name)	const;
-	virtual CSG_Tool *				Create_Tool			(const char       *Name)	const;
-	virtual CSG_Tool *				Create_Tool			(const wchar_t    *Name)	const;
-	bool							Delete_Tool			(CSG_Tool *pTool)	const;
-	bool							Delete_Tools		(void)	const;
+	virtual CSG_Tool *				Create_Tool			(int              Index);
+	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name);
+	virtual CSG_Tool *				Create_Tool			(const char       *Name);
+	virtual CSG_Tool *				Create_Tool			(const wchar_t    *Name);
+
+	virtual bool					Delete_Tool			(CSG_Tool *pTool);
+	virtual bool					Delete_Tools		(void);
 
 	virtual CSG_String				Get_File_Name		(int i)	const	{	return( "" );	}
 	virtual CSG_String				Get_Menu			(int i)	const;

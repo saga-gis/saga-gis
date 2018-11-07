@@ -86,12 +86,26 @@
 
 //---------------------------------------------------------
 CSG_Tool_Chain::CSG_Tool_Chain(void)
-{}
+{
+	// nop
+}
+
+//---------------------------------------------------------
+CSG_Tool_Chain::CSG_Tool_Chain(const CSG_Tool_Chain &Tool)
+{
+	Create(Tool);
+}
 
 //---------------------------------------------------------
 CSG_Tool_Chain::CSG_Tool_Chain(const CSG_String &File)
 {
 	Create(File);
+}
+
+//---------------------------------------------------------
+CSG_Tool_Chain::CSG_Tool_Chain(const CSG_MetaData &Chain)
+{
+	Create(Chain);
 }
 
 //---------------------------------------------------------
@@ -124,45 +138,65 @@ void CSG_Tool_Chain::Set_Library_Menu(const CSG_String &Menu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool)
+{
+	if( !Create(Tool.m_Chain) )
+	{
+		return( false );
+	}
+
+	m_File_Name	= Tool.m_File_Name;
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool CSG_Tool_Chain::Create(const CSG_String &File)
 {
-	bool	bReload	= is_Okay();
+	CSG_MetaData	Chain;
 
-	Reset();
-
-	//-----------------------------------------------------
 	if( File.Right(sizeof(".pyt.xml")).Make_Lower().Find(".pyt.xml") >= 0 )
 	{
 		return( false );
 	}
 
-	if( !m_Chain.Load(File) )
+	if( !Chain.Load(File) )
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to load or parse xml file"), File.c_str()));
 
-		Reset();	return( false );
+		return( false );
 	}
 
-	if( m_Chain.Cmp_Name("toolchains") )	// don't report any error, this xml-file provides info for a category of tool chains
+	m_File_Name	= File;
+
+	return( Create(Chain) );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
+{
+	//-----------------------------------------------------
+	if( Chain.Cmp_Name("toolchains") )	// don't report any error, this xml-file provides info for a category of tool chains
 	{
-		Reset();	return( false );
+		return( false );
 	}
 
-	if( !m_Chain.Cmp_Name("toolchain") || !m_Chain("identifier") || !m_Chain("parameters") )
+	if( !Chain.Cmp_Name("toolchain") || !Chain("identifier") || !Chain("parameters") )
 	{
-		Reset();	return( false );
+		return( false );
 	}
 
-	if( SG_Compare_Version(m_Chain.Get_Property("saga-version"), "2.1.3") < 0 )
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", is_Okay() ? _TL("Reloading tool chain") : _TL("Loading tool chain"), m_File_Name.c_str()), true);
+
+	if( SG_Compare_Version(Chain.Get_Property("saga-version"), "2.1.3") < 0 )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("WARNING"), _TL("unsupported tool chain version"), File.c_str()));
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("WARNING"), _TL("unsupported tool chain version"), Chain.Get_Property("saga-version")));
 	}
-
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", bReload ? _TL("Reload tool chain") : _TL("Load tool chain"), File.c_str()), true);
 
 	//-----------------------------------------------------
-	m_File_Name		= File;
+	Reset();
 
+	m_Chain			= Chain;
 	m_ID			= GET_XML_CONTENT(m_Chain, "identifier" ,     ""               , false) ;
 	m_Library		= GET_XML_CONTENT(m_Chain, "group"      ,     "toolchains"     , false) ;
 	m_Menu			= GET_XML_CONTENT(m_Chain, "menu"       ,     ""               ,  true) ;
@@ -1506,6 +1540,7 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 {
 	m_Library_Name	= Library_Name;
 
+	//-----------------------------------------------------
 	if( m_Library_Name.is_Empty() )
 	{
 		m_Library_Name	= "toolchains";
@@ -1513,9 +1548,11 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 		m_Description	= _TL("Unsorted tool chains");
 		m_Menu			= _TL("Tool Chains");
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		CSG_MetaData	XML(SG_File_Make_Path(Path, Library_Name, SG_T("xml")));
+		CSG_MetaData	XML(SG_File_Make_Path(Path, Library_Name, "xml"));
 
 		if( !XML.Cmp_Name("toolchains") )
 		{
@@ -1529,23 +1566,17 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 		m_Description.Replace("[[", "<");	// support for xml/html tags
 		m_Description.Replace("]]", ">");
 	}
-
-	//-----------------------------------------------------
-	m_nTools	= 0;
-	m_pTools	= NULL;
 }
 
 //---------------------------------------------------------
 CSG_Tool_Chains::~CSG_Tool_Chains(void)
 {
-	for(int i=0; i<m_nTools; i++)
+	Delete_Tools();
+
+	for(size_t i=0; i<m_Tools.Get_Size(); i++)
 	{
-		delete(m_pTools[i]);
+		delete((CSG_Tool_Chain *)m_Tools[i]);
 	}
-
-	SG_FREE_SAFE(m_pTools);
-
-	m_nTools	= 0;
 }
 
 
@@ -1558,9 +1589,9 @@ CSG_String CSG_Tool_Chains::Get_Info(int Type) const
 {
 	switch( Type )
 	{
-	case TLB_INFO_Name       :	return( m_Name );
-	case TLB_INFO_Description:	return( m_Description );
-	case TLB_INFO_Menu_Path  :	return( m_Menu );
+	case TLB_INFO_Name       :	return( m_Name             );
+	case TLB_INFO_Description:	return( m_Description      );
+	case TLB_INFO_Menu_Path  :	return( m_Menu             );
 	case TLB_INFO_Category   :	return( _TL("Tool Chains") );
 	}
 
@@ -1570,8 +1601,7 @@ CSG_String CSG_Tool_Chains::Get_Info(int Type) const
 //---------------------------------------------------------
 bool CSG_Tool_Chains::Add_Tool(CSG_Tool_Chain *pTool)
 {
-	m_pTools	= (CSG_Tool_Chain **)SG_Realloc(m_pTools, (m_nTools + 1) * sizeof(CSG_Tool_Chain *));
-	m_pTools[m_nTools++]	= pTool;
+	m_Tools.Add(pTool);
 
 	pTool->Set_Library_Menu(Get_Info(TLB_INFO_Menu_Path));
 
@@ -1581,9 +1611,58 @@ bool CSG_Tool_Chains::Add_Tool(CSG_Tool_Chain *pTool)
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Chains::Get_Tool(int Index, TSG_Tool_Type Type) const
 {
-	CSG_Tool	*pTool	= Index >= 0 && Index < m_nTools ? m_pTools[Index] : NULL;
+	CSG_Tool	*pTool	= Index >= 0 && Index < Get_Count() ? (CSG_Tool_Chain *)m_Tools[Index] : NULL;
 
 	return(	pTool && (Type == TOOL_TYPE_Base || Type == pTool->Get_Type()) ? pTool : NULL );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name)
+{
+	CSG_Tool	*pTool	= CSG_Tool_Library::Get_Tool(Name);
+
+	if( pTool && pTool->Get_Type() == TOOL_TYPE_Chain )
+	{
+		m_xTools.Add(pTool = new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool)));
+
+		return( pTool );
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chains::Delete_Tool(CSG_Tool *pTool)
+{
+	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	{
+		if( pTool == m_xTools.Get(i) && m_xTools.Del(i) )
+		{
+			delete(pTool);
+
+			return( true );
+		}
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chains::Delete_Tools(void)
+{
+	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	{
+		delete((CSG_Tool_Chain *)m_xTools[i]);
+	}
+
+	m_xTools.Destroy();
+
+	return( true );
 }
 
 
