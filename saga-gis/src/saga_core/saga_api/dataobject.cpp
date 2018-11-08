@@ -228,7 +228,14 @@ bool CSG_Data_Object::Destroy(void)
 //---------------------------------------------------------
 void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
-	m_Name	= Name.Length() > 0 ? Name.c_str() : _TL("new");
+	if( Name.is_Empty() )
+	{
+		m_Name	= _TL("new");
+	}
+	else
+	{
+		m_Name	= Name;	m_Name.Replace("%", "");
+	}
 }
 
 //---------------------------------------------------------
