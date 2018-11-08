@@ -829,7 +829,7 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 {
 	TSG_Rect	Extent;
 
-	if(  Entry.Get_Name().Cmp("MAP")
+	if( !Entry.Cmp_Name("MAP")
 	||	!Entry.Get_Child("XMIN") || !Entry.Get_Child("XMIN")->Get_Content().asDouble(Extent.xMin)
 	||	!Entry.Get_Child("XMAX") || !Entry.Get_Child("XMAX")->Get_Content().asDouble(Extent.xMax)
 	||	!Entry.Get_Child("YMIN") || !Entry.Get_Child("YMIN")->Get_Content().asDouble(Extent.yMin)
@@ -851,7 +851,7 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 
 	for(i=0, n=0; i<pNode->Get_Children_Count(); i++)
 	{
-		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
+		if( pNode->Get_Child(i)->Cmp_Name("FILE") )
 		{
 			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
 
@@ -884,7 +884,7 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 
 	for(int i=0; i<pNode->Get_Children_Count(); i++)
 	{
-		if( !pNode->Get_Child(i)->Get_Name().Cmp("FILE") )
+		if( pNode->Get_Child(i)->Cmp_Name("FILE") )
 		{
 			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
 
@@ -905,7 +905,7 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 				g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
 			}
 		}
-		else if( !pNode->Get_Child(i)->Get_Name().Cmp("PARAMETERS") )
+		else if( pNode->Get_Child(i)->Cmp_Name("PARAMETERS") )
 		{
 			if( pNode->Get_Child(i)->Cmp_Property("name", "GRATICULE") )
 			{
