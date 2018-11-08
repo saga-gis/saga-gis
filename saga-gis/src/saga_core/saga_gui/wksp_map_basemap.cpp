@@ -402,12 +402,11 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 {
 	m_BaseMap.Destroy();
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 9);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 9);
 
 	if(	pTool && Get_Map()->Get_Projection().is_Okay() )
 	{
-		SG_UI_Msg_Lock     (true);
-		SG_UI_Progress_Lock(true);
+		SG_UI_ProgressAndMsg_Lock(true);
 
 		m_BaseMap.Create(System, SG_DATATYPE_Int);
 
@@ -426,7 +425,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 
 		pBaseMap->Get_Projection()	= Get_Map()->Get_Projection();
 
-		pTool->Settings_Push();
+		pTool->Set_Manager(NULL);
 
 		if( pTool->Set_Parameter("TARGET"     , pBaseMap)
 		&&  pTool->Set_Parameter("TARGET_MAP" , pBaseMap)
@@ -447,11 +446,10 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 			m_BaseMap.Destroy();
 		}
 
-		pTool->Settings_Pop();
-
-		SG_UI_Msg_Lock     (false);
-		SG_UI_Progress_Lock(false);
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( m_BaseMap.is_Valid() );
 }

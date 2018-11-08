@@ -1764,38 +1764,36 @@ bool CSG_Grids::_Load_External(const CSG_String &FileName)
 
 	CSG_Data_Manager	Data;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0);	// import raster
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0);	// import raster
 
-	if(	pTool && pTool->On_Before_Execution() && pTool->Settings_Push(&Data) )
+	SG_UI_Msg_Lock(true);
+
+	if(	pTool && pTool->On_Before_Execution() && pTool->Settings_Push(&Data)
+	&&  pTool->Set_Parameter("FILES"   , FileName)
+	&&	pTool->Set_Parameter("MULTIPLE", 1       )	// output as grid collection
+	&&	pTool->Execute()
+	&&  Data.Grid_System_Count() > 0 && Data.Get_Grid_System(0)->Count() > 0 && Data.Get_Grid_System(0)->Get(0)->is_Valid() )
 	{
-		SG_UI_Msg_Lock(true);
+		CSG_Grids	*pGrids	= (CSG_Grids *)Data.Get_Grid_System(0)->Get(0);
 
-		if( pTool->Set_Parameter("FILES"   , FileName)
-		&&	pTool->Set_Parameter("MULTIPLE", 1       )	// output as grid collection
-		&&	pTool->Execute()
-		&&  Data.Grid_System_Count() > 0 && Data.Get_Grid_System(0)->Count() > 0 && Data.Get_Grid_System(0)->Get(0)->is_Valid() )
+		for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 		{
-			CSG_Grids	*pGrids	= (CSG_Grids *)Data.Get_Grid_System(0)->Get(0);
-
-			for(int i=0; i<pGrids->Get_Grid_Count(); i++)
-			{
-				Add_Grid(pGrids->Get_Z(i), pGrids->Get_Grid_Ptr(i), true);
-			}
-
-			pGrids->Del_Grids(true);
-
-			Set_File_Name(FileName, false);
-
-			Set_Name       (pGrids->Get_Name       ());
-			Set_Description(pGrids->Get_Description());
-		
-			bResult	= true;
+			Add_Grid(pGrids->Get_Z(i), pGrids->Get_Grid_Ptr(i), true);
 		}
 
-		SG_UI_Msg_Lock(false);
+		pGrids->Del_Grids(true);
 
-		pTool->Settings_Pop();
+		Set_File_Name(FileName, false);
+
+		Set_Name       (pGrids->Get_Name       ());
+		Set_Description(pGrids->Get_Description());
+		
+		bResult	= true;
 	}
+
+	SG_UI_Msg_Lock(false);
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( bResult );
 }
@@ -1829,7 +1827,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 		}
 
 		//-------------------------------------------------
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0);	// CGet_Connections
 
 		if(	pTool != NULL )
 		{
@@ -1839,8 +1837,8 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
+			pTool->Set_Manager(NULL);
 			pTool->On_Before_Execution();
-			pTool->Settings_Push();
 
 			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
@@ -1853,10 +1851,10 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 				}
 			}
 
-			pTool->Settings_Pop();
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 30)) != NULL) == true )	// CPGIS_Raster_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 30)) != NULL) == true )	// CPGIS_Raster_Load
 			{
 				CSG_Data_Manager	Grids;
 
@@ -1869,7 +1867,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 						&& SG_TOOL_PARAMETER_SET("WHERE"     , rid)
 						&& pTool->Execute();
 
-				pTool->Settings_Pop();
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 				//-----------------------------------------
 				if( Grids.Grid_System_Count() > 0 && Grids.Get_Grid_System(0)->Get(0) && Grids.Get_Grid_System(0)->Get(0)->is_Valid() )

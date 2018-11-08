@@ -290,15 +290,15 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 	\
 	bRetVal	= false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", TOOL);\
 	\
 	if(	pTool )\
 	{\
 		SG_UI_Msg_Lock(true);\
-		pTool->Settings_Push(NULL);\
+		pTool->Set_Manager(NULL);\
 		bRetVal	= pTool->On_Before_Execution() && (CONDITION) && pTool->Execute();\
-		pTool->Settings_Pop();\
 		SG_UI_Msg_Lock(false);\
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
 }
 
@@ -451,13 +451,14 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 //---------------------------------------------------------
 void CData_Source_ODBC::Source_Close_All(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), 11);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 11);
 
 	if( pTool )
 	{
 		SG_UI_Msg_Lock(true);
 		pTool->Execute();
 		SG_UI_Msg_Lock(false);
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 }
 
@@ -466,7 +467,7 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T("db_odbc"), 1);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 1);
 
 	if( pTool )
 	{
@@ -475,6 +476,7 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 		pTool->Get_Parameters()->Set_Parameter("SERVERS", pData->Get_Value());
 		pTool->Execute();
 		SG_UI_Msg_Lock(false);
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 }
 

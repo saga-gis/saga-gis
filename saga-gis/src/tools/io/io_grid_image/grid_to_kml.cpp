@@ -290,12 +290,12 @@ bool CGrid_to_KML::On_Execute(void)
 	{
 		Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
-		if(	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
+		if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4)) == NULL )	// Coordinate Transformation (Grid)
 		{
 			return( false );
 		}
 
-		pTool->Settings_Push();
+		pTool->Set_Manager(NULL);
 
 		if( pTool->Set_Parameter("CRS_PROJ4" , "+proj=longlat +ellps=WGS84 +datum=WGS84")
 		&&  pTool->Set_Parameter("RESAMPLING", Method < 4 && Parameters("RESAMPLING")->asBool() ? 4 : 0)
@@ -316,7 +316,7 @@ bool CGrid_to_KML::On_Execute(void)
 			}
 		}
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 		if( !bDelete )
 		{
@@ -327,14 +327,14 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if(	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 0)) == NULL )	// Export Image
+	if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 0)) == NULL )	// Export Image
 	{
 		return( false );
 	}
 
 	bool	bResult	= false;
 
-	pTool->Settings_Push();
+	pTool->Set_Manager(NULL);
 
 	if( pTool->Set_Parameter("GRID"        , pGrid)
 	&&  pTool->Set_Parameter("SHADE"       , pShade)
@@ -351,7 +351,7 @@ bool CGrid_to_KML::On_Execute(void)
 		bResult	= true;
 	}
 
-	pTool->Settings_Pop();
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	//-----------------------------------------------------
 	if( bDelete )

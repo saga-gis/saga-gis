@@ -81,40 +81,40 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Categories"),
+	Parameters.Add_Table_Field("SHAPES",
+		"FIELD"		, _TL("Categories"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "A"			, _TL("Group A"),
+	Parameters.Add_Shapes("",
+		"A"			, _TL("Group A"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "B"			, _TL("Group B"),
+	Parameters.Add_Shapes("",
+		"B"			, _TL("Group B"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "PERCENT"		, _TL("Relation B / A"),
+	Parameters.Add_Double("",
+		"PERCENT"	, _TL("Relation B / A"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 25.0, 0.0, true, 100.0, true
+		25.0, 0.0, true, 100.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EXACT"		, _TL("Exact"),
+	Parameters.Add_Bool("",
+		"EXACT"		, _TL("Exact"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 }
 

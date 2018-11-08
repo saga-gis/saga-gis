@@ -863,13 +863,13 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 	//-----------------------------------------------------
 	else if( Parameters("PROJECTION")->asInt() == 2 )	// Geographic Coordinates
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if(	pTool )
 		{
 			Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pBand->Get_Projection().Get_Name().c_str());
 
-			pTool->Settings_Push(NULL);
+			pTool->Set_Manager(NULL);
 
 			if( pTool->Set_Parameter("CRS_PROJ4" , SG_T("+proj=longlat +ellps=WGS84 +datum=WGS84"))
 			&&  pTool->Set_Parameter("SOURCE"    , pBand)
@@ -882,7 +882,7 @@ CSG_Grid * CLandsat_Scene_Import::Load_Band(const CSG_String &File)
 				pBand	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 			}
 
-			pTool->Settings_Pop();
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 		}
 	}
 

@@ -1207,24 +1207,23 @@ void CWKSP_Map::Set_CrossHair_Off(void)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Projection(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 15);	// CCRS_Picker
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
 
-	if(	pTool )
+	if(	pTool
+	&&  pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
+	&&	pTool->On_Before_Execution()
+	&&  DLG_Parameters(pTool->Get_Parameters()) )
 	{
-		pTool->Settings_Push();
+		pTool->Set_Manager(NULL);
 
-		if( pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
-		&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
-		{
-			pTool->Execute();
+		pTool->Execute();
 
-			m_Projection.Assign((*pTool->Get_Parameters())("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		m_Projection.Create((*pTool->Get_Parameters())("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
-			View_Refresh(false);
-		}
-
-		pTool->Settings_Pop();
+		View_Refresh(false);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 

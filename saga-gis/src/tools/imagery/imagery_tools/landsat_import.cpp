@@ -334,7 +334,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 		return( NULL );
 	}
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 	if(	pTool == NULL )
 	{
@@ -343,7 +343,7 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 
 	Message_Fmt("\n%s (%s: %s)\n", _TL("re-projection to geographic coordinates"), _TL("original"), pGrid->Get_Projection().Get_Name().c_str());
 
-	pTool->Settings_Push(NULL);
+	pTool->Set_Manager(NULL);
 
 	if( pTool->Set_Parameter("CRS_PROJ4" , Proj4)
 	&&  pTool->Set_Parameter("SOURCE"    , pGrid)
@@ -353,12 +353,12 @@ CSG_Grid * CLandsat_Import::Get_Projection(CSG_Grid *pGrid, const CSG_String &Pr
 	{
 		pGrid	= pTool->Get_Parameters()->Get_Parameter("GRID")->asGrid();
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 		return( pGrid );
 	}
 
-	pTool->Settings_Pop();
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	Message_Fmt("\n%s: %s\n", _TL("re-projection"), _TL("failed"));
 

@@ -254,23 +254,23 @@ bool CCityGML_Import::Get_Buildings(const CSG_String &File, CSG_Shapes *pPolygon
 
 	Process_Set_Text(_TL("polygon conversion"));
 
-	CSG_Tool	*pTool;
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 3);	// Convert Lines to Polygons
 
-	if(	!(pTool = SG_Get_Tool_Library_Manager().Get_Tool("shapes_polygons", 3)) )	// Convert Lines to Polygons
+	if(	!pTool )
 	{
 		Error_Set(_TL("could not locate line string to polygon conversion tool"));
 
 		return( false );
 	}
 
-	CSG_Parameters	P;	P.Assign(pTool->Get_Parameters());	pTool->Set_Manager(NULL);
+	pTool->Set_Manager(NULL);
 
 	bool	bResult	= pTool->Get_Parameters()->Set_Parameter("POLYGONS", pPolygons)
 				&&    pTool->Get_Parameters()->Set_Parameter("LINES"   , (CSG_Shapes *)tmpMgr.Get_Shapes()->Get(0))
 				&&    pTool->Get_Parameters()->Set_Parameter("MERGE"   , true)
 				&&    pTool->Execute();
 
-	pTool->Get_Parameters()->Assign_Values(&P);	pTool->Set_Manager(P.Get_Manager());
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	pPolygons->Set_Name(SG_File_Get_Name(File, false));
 

@@ -1960,7 +1960,7 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 		return( false );
 	}
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
 
 	if( !pTool || pTool->is_Executing() )
 	{
@@ -1968,7 +1968,8 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 	}
 
 	SG_UI_ProgressAndMsg_Lock(true);
-	pTool->Settings_Push(NULL);
+
+	pTool->Set_Manager(NULL);
 
 	bool	bResult	=
 	    pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
@@ -1976,7 +1977,8 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 	&&  pTool->Set_Parameter("TARGET"   , pTarget)
 	&&  pTool->Execute();
 
-	pTool->Settings_Pop();
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
 	SG_UI_ProgressAndMsg_Lock(false);
 
 	return( bResult );

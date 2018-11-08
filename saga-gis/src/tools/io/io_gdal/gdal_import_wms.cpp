@@ -323,14 +323,14 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	rTarget.Add_Shape()->Add_Point(Extent.Get_XCenter(), Extent.Get_YMin   ());
 
 	//-----------------------------------------------------
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes);
 
 	if(	!pTool )
 	{
 		return( false );
 	}
 
-	pTool->Settings_Push();
+	pTool->Set_Manager(NULL);
 
 	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
 	&&  SG_TOOL_PARAMETER_SET("SOURCE"   , &rTarget)
@@ -345,12 +345,12 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 
 		System.Assign(Cellsize, Extent);
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 		return( true );
 	}
 
-	pTool->Settings_Pop();
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( false );
 }
@@ -363,7 +363,7 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 //---------------------------------------------------------
 bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List);
 
 	if(	!pTool )
 	{
@@ -371,7 +371,7 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 	}
 
 	//-----------------------------------------------------
-	pTool->Settings_Push();
+	pTool->Set_Manager(NULL);
 
 	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4"        , pTarget->Get_Projection().Get_Proj4())
 	&&  SG_TOOL_PARAMETER_SET("RESAMPLING"       , 3)
@@ -389,12 +389,12 @@ bool CGDAL_Import_WMS::Get_Projected(CSG_Grid *pBands[3], CSG_Grid *pTarget)
 		delete(pBands[1]);	pBands[1]	= pGrids->Get_Grid(1);
 		delete(pBands[2]);	pBands[2]	= pGrids->Get_Grid(2);
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 		return( true );
 	}
 
-	pTool->Settings_Pop();
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( false );
 }

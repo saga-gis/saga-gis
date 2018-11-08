@@ -153,7 +153,7 @@ static	wxString	g_Password	= "postgres";
 //---------------------------------------------------------
 #define RUN_TOOL(TOOL, bManager, CONDITION)	bool bResult = false;\
 {\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", TOOL);\
 	\
 	if(	pTool )\
 	{\
@@ -163,6 +163,7 @@ static	wxString	g_Password	= "postgres";
 		bResult	= (CONDITION) && pTool->Execute();\
 		pTool->Settings_Pop();\
 		SG_UI_Msg_Lock(false);\
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
 }
 
@@ -265,64 +266,57 @@ bool	PGSQL_has_Connections	(double vPostGIS)
 //---------------------------------------------------------
 bool	PGSQL_Save_Table	(CSG_Table *pTable)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Table_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Save);
 
 	SG_UI_Msg_Lock(true);
 
-	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE", pTable)
-	&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
-	{
-		SG_UI_Msg_Lock(false);
-
-		return( true );
-	}
+	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE", pTable)
+		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_UI_Msg_Lock(false);
 
-	return( false );
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( bResult );
 }
 
 //---------------------------------------------------------
 bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Shapes_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Shapes_Save);
 
 	SG_UI_Msg_Lock(true);
 
-	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", pShapes)
-	&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
-	{
-		SG_UI_Msg_Lock(false);
-
-		return( true );
-	}
+	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", pShapes)
+		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_UI_Msg_Lock(false);
 
-	return( false );
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( bResult );
 }
 
 //---------------------------------------------------------
 bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Raster_Save);
+	bool	bResult	= false;
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Raster_Save);
 
 	SG_UI_Msg_Lock(true);
 
 	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("NAME", pGrid->Get_Name()) )
 	{
-		pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Del_Items();
+		pTool->Get_Parameter("GRIDS")->asList()->Del_Items();
+		pTool->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid);
 
-		if( pTool->Get_Parameters()->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid)
-		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
-		{
-			SG_UI_Msg_Lock(false);
-
-			return( true );
-		}
+		bResult	= DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 	}
 
 	SG_UI_Msg_Lock(false);
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( false );
 }
@@ -330,21 +324,18 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool	PGSQL_Save_Grids		(CSG_Grids *pGrids)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Rasters_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Rasters_Save);
 
 	SG_UI_Msg_Lock(true);
 
-	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
-	&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute() )
-	{
-		SG_UI_Msg_Lock(false);
-
-		return( true );
-	}
+	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
+		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 
 	SG_UI_Msg_Lock(false);
 
-	return( false );
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( bResult );
 }
 
 
@@ -986,7 +977,7 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 	if( pData->Get_Type() == TYPE_ROOT
 	||  pData->Get_Type() == TYPE_SERVER )
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_DB_Create);
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_DB_Create);
 
 		SG_UI_Msg_Lock(true);
 
@@ -1005,6 +996,8 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 		}
 
 		SG_UI_Msg_Lock(false);
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 
 	return( true );
@@ -1089,7 +1082,7 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 	if( pData->Get_Type() == TYPE_ROOT
 	||  pData->Get_Type() == TYPE_SERVER )
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
 
 		SG_UI_Msg_Lock(true);
 
@@ -1108,6 +1101,8 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 		}
 
 		SG_UI_Msg_Lock(false);
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 	else if( pData->is_Connected() )
 	{
@@ -1214,7 +1209,7 @@ void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", DB_PGSQL_Table_Query);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query);
 
 	SG_UI_Msg_Lock(true);
 
@@ -1233,6 +1228,8 @@ void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
 	}
 
 	SG_UI_Msg_Lock(false);
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 //---------------------------------------------------------

@@ -523,24 +523,24 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		||	SG_File_Cmp_Extension(File, "jpg")
 		||	SG_File_Cmp_Extension(File, "png")
 		||	SG_File_Cmp_Extension(File, "pcx") )
-	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 1)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL
 	&&   pImport->Set_Parameter("FILE", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
 
 		if( pImport->Execute() )
 		{
-			pData	= (*pImport->Get_Parameters())("OUT_GRID")->asDataObject();
+			pData	= pImport->Get_Parameter("OUT_GRID")->asDataObject();
 		}
-
-		pImport->Set_Manager(&g_Data_Manager);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
 
 	//-----------------------------------------------------
 	// GDAL Import
 
 	if( !pData
-	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -549,15 +549,15 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		{
 			pData	= (*pImport->Get_Parameters())("GRIDS")->asList()->Get_Item(0);
 		}
-
-		pImport->Set_Manager(&g_Data_Manager);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
 
 	//-----------------------------------------------------
 	// OGR Import
 
 	if( !pData
-	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 3)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 3)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -566,15 +566,15 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		{
 			pData	= (*pImport->Get_Parameters())("SHAPES")->asList()->Get_Item(0);
 		}
-
-		pImport->Set_Manager(&g_Data_Manager);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
 
 	//-----------------------------------------------------
 	// LAS Import
 
 	if( !pData && SG_File_Cmp_Extension(File, "las")
-	&&  (pImport = SG_Get_Tool_Library_Manager().Get_Tool("io_shapes_las", 1)) != NULL
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_shapes_las", 1)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
 		pImport->Set_Manager(this);
@@ -583,9 +583,9 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		{
 			pData	= (*pImport->Get_Parameters())("POINTS")->asDataObject();
 		}
-
-		pImport->Set_Manager(&g_Data_Manager);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
 
 	//-----------------------------------------------------
 	SG_UI_Msg_Lock(false);

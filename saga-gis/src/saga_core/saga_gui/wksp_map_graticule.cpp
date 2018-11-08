@@ -84,22 +84,20 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	m_bShow		= true;
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
-
 	m_Parameters.Set_Name      ("GRATICULE");
 	m_Parameters.Set_Identifier("GRATICULE");
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_GENERAL"	,_TL("General")	, _TL(""));
+	m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"), _TL(""));
 
-	m_Parameters.Add_String(
-		pNode	, "NAME"		, _TL("Name"),
+	m_Parameters.Add_String("NODE_GENERAL",
+		"NAME"		, _TL("Name"),
 		_TL(""),
 		_TL("Graticule")
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "INTERVAL"	, _TL("Interval"),
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"INTERVAL"		, _TL("Interval"),
 		_TL(""),
 		CSG_String::Format(SG_T("%s|%s|"),
 			_TL("fixed interval"),
@@ -107,118 +105,118 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 		), 1
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "FIXED"		, _TL("Fixed Interval (Degree)"),
+	m_Parameters.Add_Double("INTERVAL",
+		"FIXED"			, _TL("Fixed Interval (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 5.0, 0.0, true, 20.0
+		5.0, 0.0, true, 20.0
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "FITTED"		, _TL("Number of Intervals"),
+	m_Parameters.Add_Int("INTERVAL",
+		"FITTED"		, _TL("Number of Intervals"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 5, 1, true
+		5, 1, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "RESOLUTION"	, _TL("Minimum Resolution (Degree)"),
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"RESOLUTION"	, _TL("Minimum Resolution (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true
+		0.5, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "SHOW_ALWAYS"	, _TL("Show at all scales"),
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"SHOW_ALWAYS"	, _TL("Show at all scales"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Range(
-		pNode_1	, "SHOW_RANGE"	, _TL("Scale Range"),
+	m_Parameters.Add_Range("SHOW_ALWAYS",
+		"SHOW_RANGE"	, _TL("Scale Range"),
 		_TL("only show within scale range; values are given as extent measured in map units"),
 		100.0, 1000.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(NULL, "NODE_DISPLAY"	,_TL("Display")	, _TL(""));
+	m_Parameters.Add_Node("", "NODE_DISPLAY", _TL("Display"), _TL(""));
 
-	m_Parameters.Add_Value(
-		pNode	, "COLOR"		, _TL("Color"),
+	m_Parameters.Add_Color("NODE_DISPLAY",
+		"COLOR"			, _TL("Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_COLOR_GREY
+		SG_COLOR_GREY
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "SIZE"		, _TL("Size"),
+	m_Parameters.Add_Int("NODE_DISPLAY",
+		"SIZE"			, _TL("Size"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 0, 0, true
+		0, 0, true
 	);
 
-	m_Parameters.Add_Value(
-		pNode	, "TRANSPARENCY", _TL("Transparency [%]"),
+	m_Parameters.Add_Double("NODE_DISPLAY",
+		"TRANSPARENCY"	, _TL("Transparency [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true, 100.0, true
+		0.0, 0.0, true, 100.0, true
 	);
 
-	m_Parameters.Add_Choice(
-		pNode	, "LINE_STYLE"	, _TL("Line Style"),
+	m_Parameters.Add_Choice("NODE_DISPLAY",
+		"LINE_STYLE"	, _TL("Line Style"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("Solid style"),
-			_TL("Dotted style"),
-			_TL("Long dashed style"),
-			_TL("Short dashed style"), 
-			_TL("Dot and dash style"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			_TL("Solid style"            ),
+			_TL("Dotted style"           ),
+			_TL("Long dashed style"      ),
+			_TL("Short dashed style"     ), 
+			_TL("Dot and dash style"     ),
 			_TL("Backward diagonal hatch"),
-			_TL("Cross-diagonal hatch"),
-			_TL("Forward diagonal hatch"),
-			_TL("Cross hatch"),
-			_TL("Horizontal hatch"),
-			_TL("Vertical hatch")
-		//	_TL("Use the stipple bitmap")
-		//	_TL("Use the user dashes")
-		//	_TL("No pen is used")
+			_TL("Cross-diagonal hatch"   ),
+			_TL("Forward diagonal hatch" ),
+			_TL("Cross hatch"            ),
+			_TL("Horizontal hatch"       ),
+			_TL("Vertical hatch"         )
+		//	_TL("Use the stipple bitmap" )
+		//	_TL("Use the user dashes"    )
+		//	_TL("No pen is used"         )
 		), 4
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "LABEL"		, _TL("Label"),
+	m_Parameters.Add_Bool("NODE_DISPLAY",
+		"LABEL"		, _TL("Label"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Font(
-		pNode_1	, "LABEL_FONT"	, _TL("Font"),
+	m_Parameters.Add_Font("LABEL",
+		"LABEL_FONT"	, _TL("Font"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "LABEL_SIZE"	, _TL("Size"),
+	m_Parameters.Add_Double("LABEL",
+		"LABEL_SIZE"	, _TL("Size"),
 		_TL("Font size given as percentage of map size."),
-		PARAMETER_TYPE_Double, 2, 0.0, true, 10.0, true
+		2.0, 0.0, true, 10.0, true
 	);
 
-	m_Parameters.Add_Choice(
-		pNode_1	, "LABEL_EFFECT", _TL("Boundary Effect"),
+	m_Parameters.Add_Choice("LABEL",
+		"LABEL_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
-			_TL("none"),
-			_TL("full frame"),
-			_TL("top"),
-			_TL("top left"),
-			_TL("left"),
-			_TL("bottom left"),
-			_TL("bottom"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			_TL("none"        ),
+			_TL("full frame"  ),
+			_TL("top"         ),
+			_TL("top left"    ),
+			_TL("left"        ),
+			_TL("bottom left" ),
+			_TL("bottom"      ),
 			_TL("bottom right"),
-			_TL("right"),
-			_TL("top right")
+			_TL("right"       ),
+			_TL("top right"   )
 		), 1
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "LABEL_EFFCOL", _TL("Boundary Effect Color"),
+	m_Parameters.Add_Color("LABEL",
+		"LABEL_EFFCOL"	, _TL("Boundary Effect Color"),
 		_TL(""),
-		PARAMETER_TYPE_Color, SG_GET_RGB(255, 255, 255)
+		SG_GET_RGB(255, 255, 255)
 	);
 
 	//-----------------------------------------------------
@@ -234,8 +232,6 @@ CWKSP_Map_Graticule::~CWKSP_Map_Graticule(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -253,8 +249,6 @@ bool CWKSP_Map_Graticule::Save(CSG_MetaData &Entry)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -308,8 +302,6 @@ wxMenu * CWKSP_Map_Graticule::Get_Menu(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -381,8 +373,6 @@ bool CWKSP_Map_Graticule::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -424,8 +414,6 @@ void CWKSP_Map_Graticule::Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -436,12 +424,13 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	m_Graticule  .Create(SHAPE_TYPE_Line );
 	m_Coordinates.Create(SHAPE_TYPE_Point);
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("pj_proj4", 14);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 14);
 
 	if(	pTool && Get_Map()->Get_Projection().is_Okay() )
 	{
 		SG_UI_ProgressAndMsg_Lock(true);
-		pTool->Settings_Push();
+
+		pTool->Set_Manager(NULL);
 
 		bResult	=  pTool->Set_Parameter("XMIN"      , Extent.Get_XMin())
 				&& pTool->Set_Parameter("XMAX"      , Extent.Get_XMax())
@@ -457,17 +446,16 @@ bool CWKSP_Map_Graticule::Get_Graticule(const CSG_Rect &Extent)
 				&& pTool->On_Before_Execution()
 				&& pTool->Execute();
 
-		pTool->Settings_Pop();
 		SG_UI_ProgressAndMsg_Lock(false);
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 	return( bResult );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -561,16 +549,16 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 
 			switch( m_Parameters("LABEL_EFFECT")->asInt() )
 			{
-			default:	Effect	= TEXTEFFECT_NONE;			break;
-			case 1:		Effect	= TEXTEFFECT_FRAME;			break;
-			case 2:		Effect	= TEXTEFFECT_TOP;			break;
-			case 3:		Effect	= TEXTEFFECT_TOPLEFT;		break;
-			case 4:		Effect	= TEXTEFFECT_LEFT;			break;
-			case 5:		Effect	= TEXTEFFECT_BOTTOMLEFT;	break;
-			case 6:		Effect	= TEXTEFFECT_BOTTOM;		break;
-			case 7:		Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
-			case 8:		Effect	= TEXTEFFECT_RIGHT;			break;
-			case 9:		Effect	= TEXTEFFECT_TOPRIGHT;		break;
+			default:	Effect	= TEXTEFFECT_NONE       ;	break;
+			case  1:	Effect	= TEXTEFFECT_FRAME      ;	break;
+			case  2:	Effect	= TEXTEFFECT_TOP        ;	break;
+			case  3:	Effect	= TEXTEFFECT_TOPLEFT    ;	break;
+			case  4:	Effect	= TEXTEFFECT_LEFT       ;	break;
+			case  5:	Effect	= TEXTEFFECT_BOTTOMLEFT ;	break;
+			case  6:	Effect	= TEXTEFFECT_BOTTOM     ;	break;
+			case  7:	Effect	= TEXTEFFECT_BOTTOMRIGHT;	break;
+			case  8:	Effect	= TEXTEFFECT_RIGHT      ;	break;
+			case  9:	Effect	= TEXTEFFECT_TOPRIGHT   ;	break;
 			}
 
 			for(int iPoint=0; iPoint<m_Coordinates.Get_Count(); iPoint++)

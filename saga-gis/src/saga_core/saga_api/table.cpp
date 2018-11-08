@@ -191,7 +191,7 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0);	// CGet_Connections
 
 		if(	pTool != NULL )
 		{
@@ -201,8 +201,8 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
+			pTool->Set_Manager(NULL);
 			pTool->On_Before_Execution();
-			pTool->Settings_Push();
 
 			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
@@ -215,20 +215,20 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 				}
 			}
 
-			pTool->Settings_Pop();
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 12)) != NULL) == true )	// CPGIS_Table_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 12)) != NULL) == true )	// CPGIS_Table_Load
 			{
+				pTool->Set_Manager(NULL);
 				pTool->On_Before_Execution();
-				pTool->Settings_Push();
 
 				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
 						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
 						&& SG_TOOL_PARAMETER_SET("TABLE"     , this)
 						&& pTool->Execute();
 
-				pTool->Settings_Pop();
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);
@@ -505,7 +505,7 @@ bool CSG_Table::Add_Field(const CSG_String &Name, TSG_Data_Type Type, int add_Fi
 	}
 
 	//-----------------------------------------------------
-	m_Field_Name [add_Field]	= new CSG_String(!Name.is_Empty() ? Name : CSG_String::Format(SG_T("%s_%d"), SG_T("FIELD"), m_nFields));
+	m_Field_Name [add_Field]	= new CSG_String(!Name.is_Empty() ? Name : CSG_String::Format("FIELD_%d", m_nFields));
 	m_Field_Type [add_Field]	= Type;
 	m_Field_Stats[add_Field]	= new CSG_Simple_Statistics();
 

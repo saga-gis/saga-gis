@@ -653,7 +653,7 @@ CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int 
 CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index)	const	{	return( Create_Tool(CSG_String(Library), Index) );	}
 CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index)	const
 {
-	return( Get_Tool(Library, CSG_String::Format("%d", Index)) );
+	return( Create_Tool(Library, CSG_String::Format("%d", Index)) );
 }
 
 //---------------------------------------------------------

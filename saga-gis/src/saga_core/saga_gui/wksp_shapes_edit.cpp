@@ -590,11 +590,13 @@ bool CWKSP_Shapes::_Edit_Split(void)
 			m_Edit_Mode	= EDIT_SHAPE_MODE_Normal;
 
 			CSG_Tool	*pTool	= Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon
-			?	SG_Get_Tool_Library_Manager().Get_Tool("shapes_polygons", 8)	// Polygon-Line Intersection
-			:	SG_Get_Tool_Library_Manager().Get_Tool("shapes_lines"   , 6); // Split Lines with Lines
+			?	SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 8)  // Polygon-Line Intersection
+			:	SG_Get_Tool_Library_Manager().Create_Tool("shapes_lines"   , 6); // Split Lines with Lines
 
 			if(	pTool )
 			{
+				pTool->Set_Manager(NULL);
+
 				CSG_Shapes	Line(SHAPE_TYPE_Line), Split(Get_Shapes()->Get_Type());
 
 				Line.Add_Shape();
@@ -608,10 +610,6 @@ bool CWKSP_Shapes::_Edit_Split(void)
 
 				//-----------------------------------------
 				bool	bResult;
-
-				CSG_Parameters	P; P.Assign(pTool->Get_Parameters());
-
-				pTool->Set_Manager(NULL);
 
 				if( Get_Shapes()->Get_Type() == SHAPE_TYPE_Polygon )
 				{
@@ -667,8 +665,7 @@ bool CWKSP_Shapes::_Edit_Split(void)
 					}
 				}
 
-				pTool->Get_Parameters()->Assign_Values(&P);
-				pTool->Set_Manager(P.Get_Manager());
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 			}
 
 			Update_Views(false);

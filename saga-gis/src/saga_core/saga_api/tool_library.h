@@ -243,7 +243,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 	\
 	bRetVal	= false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T(LIBRARY), TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
 	\
 	if(	pTool == NULL )\
 	{\
@@ -268,7 +268,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 			bRetVal	= true;\
 		}\
 		\
-		pTool->Settings_Pop();\
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
 }
 
@@ -289,7 +289,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 	\
 	bRetVal	= false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool(SG_T(LIBRARY), TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(SG_T(LIBRARY), TOOL);\
 	\
 	if(	pTool == NULL )\
 	{\
@@ -316,7 +316,7 @@ SAGA_API_DLL_EXPORT CSG_Tool_Library_Manager &	SG_Get_Tool_Library_Manager	(void
 		\
 		PARMS.Assign(pTool->Get_Parameters());\
 		\
-		pTool->Settings_Pop();\
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
 }
 

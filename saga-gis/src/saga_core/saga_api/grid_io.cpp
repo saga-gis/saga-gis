@@ -227,26 +227,28 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 		||	SG_File_Cmp_Extension(FileName, "jpg")
 		||	SG_File_Cmp_Extension(FileName, "png")
 		||	SG_File_Cmp_Extension(FileName, "pcx") )
-	&&  !bResult
-	&&	(pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_grid_image", 1)) != NULL && pTool->Settings_Push(&Data) )
+	&&  !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 1)) != NULL )
 	{
+		pTool->Settings_Push(&Data);
+
 		bResult	=  pTool->Set_Parameter("FILE", FileName)
 				&& pTool->Execute();
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 
 	//-----------------------------------------------------
 	// GDAL Import
 
-	if( !bResult
-	&&  (pTool = SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 0)) != NULL && pTool->Settings_Push(&Data) )
+	if( !bResult && (pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 0)) != NULL )
 	{
+		pTool->Settings_Push(&Data);
+
 		bResult	=  pTool->Set_Parameter("FILES"   , FileName)
 				&& pTool->Set_Parameter("MULTIPLE", 0       )	// output as single grid(s)
 				&& pTool->Execute();
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 
 	SG_UI_Msg_Lock(false);
@@ -303,7 +305,7 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	rid   (s.BeforeFirst(':').AfterFirst('='));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0);	// CGet_Connections
 
 		if(	pTool != NULL )
 		{
@@ -313,8 +315,8 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 			CSG_Table	Connections;
 			CSG_String	Connection	= DBName + " [" + Host + ":" + Port + "]";
 
+			pTool->Set_Manager(NULL);
 			pTool->On_Before_Execution();
-			pTool->Settings_Push();
 
 			if( SG_TOOL_PARAMETER_SET("CONNECTIONS", &Connections) && pTool->Execute() )	// CGet_Connections
 			{
@@ -327,13 +329,13 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 				}
 			}
 
-			pTool->Settings_Pop();
+			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Get_Tool("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 33)) != NULL) == true )	// CPGIS_Raster_Load_Band
 			{
+				pTool->Set_Manager(NULL);
 				pTool->On_Before_Execution();
-				pTool->Settings_Push();
 
 				bResult	=  SG_TOOL_PARAMETER_SET("CONNECTION", Connection)
 						&& SG_TOOL_PARAMETER_SET("TABLES"    , Table)
@@ -341,7 +343,7 @@ bool CSG_Grid::_Load_PGSQL(const CSG_String &FileName, bool bCached, bool bLoadD
 						&& SG_TOOL_PARAMETER_SET("GRID"      , this)
 						&& pTool->Execute();
 
-				pTool->Settings_Pop();
+				SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 			}
 
 			SG_UI_ProgressAndMsg_Lock(false);

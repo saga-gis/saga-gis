@@ -113,18 +113,18 @@ bool CSG_Shapes::_Load_GDAL(const CSG_String &File_Name)
 {
 	CSG_Data_Manager	Data;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Get_Tool("io_gdal", 3);	// Import Shapes
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_gdal", 3);	// Import Shapes
 
-	if( pTool && pTool->Settings_Push(&Data) )
+	if( pTool )
 	{
-		if( pTool->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
+		if( pTool->Settings_Push(&Data) && pTool->Set_Parameter("FILES", File_Name, PARAMETER_TYPE_FilePath) )
 		{
 			SG_UI_Msg_Lock(true);
 			pTool->Execute();
 			SG_UI_Msg_Lock(false);
 		}
 
-		pTool->Settings_Pop();
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
 
 	//-----------------------------------------------------
