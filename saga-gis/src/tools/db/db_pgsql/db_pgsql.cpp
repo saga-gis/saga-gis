@@ -1553,7 +1553,7 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 	}
 
 	//-----------------------------------------------------
-	for(size_t iSystem=0; iSystem<Grids.Grid_System_Count(); iSystem++)
+	for(size_t jSystem=0, iSystem=Grids.Grid_System_Count()-1; jSystem<Grids.Grid_System_Count(); jSystem++, iSystem--)
 	{
 		CSG_Grid_Collection	*pSystem	= Grids.Get_Grid_System(iSystem);
 
@@ -1566,39 +1566,57 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 		}
 		else if( pSystem->Count() > 0 )
 		{
-			CSG_Grids	*pCollection	= SG_Create_Grids();
+			bool	*bAdded	= (bool *)SG_Calloc(pSystem->Count(), sizeof(bool));
 
-			pCollection->Get_Attributes_Ptr()->Create(&Info);
-
-			pCollection->Set_Z_Attribute(0);
-
-			CSG_String	rids;
-
-			for(int iGrid=0; iGrid<pSystem->Count(); iGrid++)
+			for(size_t nAdded=0; nAdded<pSystem->Count(); )
 			{
-				pCollection->Add_Grid(iGrid, (CSG_Grid *)pSystem->Get(iGrid), true);
+				CSG_Grids	*pCollection	= SG_Create_Grids();
 
-				CSG_String	rid(pSystem->Get(iGrid)->Get_MetaData_DB().Get_Content("ID"));
+				pCollection->Get_Attributes_Ptr()->Create(&Info);
+				pCollection->Set_Z_Attribute(0);
 
-				if( !rid.is_Empty() )
+				CSG_String	rids;
+
+				for(size_t iGrid=0; iGrid<pSystem->Count(); iGrid++)
 				{
-					pCollection->Get_Attributes(iGrid).Assign(Info.Find_Record(0, rid));
-
-					if( !rids.is_Empty() )
+					if( bAdded[iGrid] )
 					{
-						rids	+= ",";
+						continue;
 					}
 
-					rids	+= rid;
+					CSG_Grid	*pGrid	= (CSG_Grid *)pSystem->Get(iGrid);
+
+					CSG_String	rid(pGrid->Get_MetaData_DB().Get_Content("ID"));
+
+					CSG_Table_Record	*pInfo	= Info.Find_Record(0, rid);
+
+					if( pInfo ? pCollection->Add_Grid(*pInfo, pGrid, true)
+							  : pCollection->Add_Grid( iGrid, pGrid, true) )
+					{
+						bAdded[iGrid]	= true;
+						nAdded++;
+
+						if( !rid.is_Empty() )
+						{
+							if( !rids.is_Empty() )
+							{
+								rids	+= ",";
+							}
+
+							rids	+= rid;
+						}
+					}
 				}
+
+				pCollection->Set_Name(Table);
+				pCollection->Set_Modified(false);
+
+				Add_MetaData(*pCollection, Table + ":rid=" + rids);
+
+				pGrids->Add_Item(pCollection);
 			}
 
-			pCollection->Set_Name(Table);
-			pCollection->Set_Modified(false);
-
-			Add_MetaData(*pCollection, Table + ":rid=" + rids);
-
-			pGrids->Add_Item(pCollection);
+			delete[](bAdded);
 		}
 	}
 

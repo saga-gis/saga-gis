@@ -1209,16 +1209,14 @@ void CWKSP_Map::Set_Projection(void)
 {
 	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
 
-	if(	pTool
-	&&  pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
-	&&	pTool->On_Before_Execution()
-	&&  DLG_Parameters(pTool->Get_Parameters()) )
+	if(	pTool && pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
+	&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
 	{
 		pTool->Set_Manager(NULL);
 
 		pTool->Execute();
 
-		m_Projection.Create((*pTool->Get_Parameters())("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		m_Projection.Create(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
 
 		View_Refresh(false);
 	}
