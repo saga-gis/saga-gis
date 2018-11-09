@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.1.0">
+	<group>gc_tools</group>
+	<identifier>gc_longitudinal_range</identifier>
+	<name>Change Longitudinal Range for a Grid Collection</name>
+	<author>O.Conrad (c) 2018</author>
+	<description>Change the longitudinal range of grid collections using geographic coordinates, i.e. from 0 - 360 to -180 - 180 and vice versa.</description>
+	<menu absolute="true">Projection|Tools</menu>
+
+	<parameters>
+		<input varname="GRIDS" type="grids">
+			<name>Grid Collection</name>
+		</input>
+		<output varname="CHANGED" type="grids" target="none">
+			<name>Changed</name>
+			<output_name input="true">GRIDS</output_name>
+		</output>
+		<option varname="DIRECTION" type="choice">
+			<choices>0 - 360 >> -180 - 180|-180 - 180 >> 0 - 360</choices>
+			<name>Direction</name>
+			<value>0</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<tool library="pj_proj4" tool="13" name="Change Longitudinal Range for Grids">
+			<option id="DIRECTION" varname="true">DIRECTION</option>
+			<input  id="INPUT">GRIDS</input>
+			<output id="OUTPUT">LIST</output>
+		</tool>
+
+		<tool library="grids_tools" tool="0" name="Create a Grid Collection">
+			<option id="ATTRIBUTES">3</option>
+			<input  id="COPY">GRIDS</input>
+			<input  id="LIST">LIST</input>
+			<output id="GRIDS">CHANGED</output>
+		</tool>
+	</tools>
+</toolchain>
