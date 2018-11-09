@@ -1583,7 +1583,7 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	CSG_Grid	Map(SG_DATATYPE_Int, Image.GetWidth(), Image.GetHeight(), Extent.Get_XRange() / (double)Image.GetWidth(), Extent.Get_XMin(), Extent.Get_YMin());
 
 	Map.Set_Name(Get_Name().wx_str());
-	Map.Set_NoData_Value(16711935);
+	Map.Set_NoData_Value(SG_GET_RGB(MASK_R, MASK_G, MASK_B));
 	Map.Get_Projection().Create(m_Projection);
 
 	for(int y=0, yy=Map.Get_NY()-1; y<Map.Get_NY(); y++, yy--)

@@ -1164,7 +1164,6 @@ bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 //---------------------------------------------------------
 bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 {
-	int			x, y;
 	wxBitmap	BMP;
 
 	if( pImage && Get_Image_Grid(BMP) )
@@ -1173,9 +1172,10 @@ bool CWKSP_Grid::asImage(CSG_Grid *pImage)
 
 		pImage->Create(Get_Grid(), SG_DATATYPE_Int);
 
-		for(y=0; y<pImage->Get_NY() && PROGRESSBAR_Set_Position(y, pImage->Get_NY()); y++)
+		#pragma omp parallel for
+		for(int y=0; y<pImage->Get_NY(); y++)
 		{
-			for(x=0; x<pImage->Get_NX(); x++)
+			for(int x=0; x<pImage->Get_NX(); x++)
 			{
 				pImage->Set_Value(x, y, SG_GET_RGB(IMG.GetRed(x, y), IMG.GetGreen(x, y), IMG.GetBlue(x, y)));
 			}
