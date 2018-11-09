@@ -358,7 +358,7 @@ bool CKriging_Regression::On_Execute(void)
 			}
 			else
 			{
-				pPrediction->Add_Value(x, y, pRegression->asDouble(x, y) + pResiduals->asDouble(x, y));
+				pPrediction->Set_Value(x, y, pRegression->asDouble(x, y) + pResiduals->asDouble(x, y));
 			}
 		}
 	}
