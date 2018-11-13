@@ -959,6 +959,15 @@
     <None Include="res\xpm\tb_map_crosshair.xpm">
       <Filter>Resource Files\XPM</Filter>
     </None>
+    <None Include="res\xpm\nb_active_history.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\tb_update.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
+    <None Include="res\xpm\tb_clipboard.xpm">
+      <Filter>Resource Files\XPM</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="res\saga_gui.rc">

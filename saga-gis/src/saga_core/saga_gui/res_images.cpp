@@ -74,9 +74,15 @@
 
 //---------------------------------------------------------
 #include "./res/xpm/default.xpm"
+
+#include "./res/xpm/saga_icon_16.xpm"
+#include "./res/xpm/saga_icon_32.xpm"
+#include "./res/xpm/saga_splash.xpm"
+
 #include "./res/xpm/nb_active_attributes.xpm"
 #include "./res/xpm/nb_active_description.xpm"
 #include "./res/xpm/nb_active_legend.xpm"
+#include "./res/xpm/nb_active_history.xpm"
 #include "./res/xpm/nb_active_parameters.xpm"
 #include "./res/xpm/nb_active_htmlextrainfo.xpm"
 #include "./res/xpm/nb_info_error.xpm"
@@ -87,9 +93,7 @@
 #include "./res/xpm/nb_wksp_modules.xpm"
 #include "./res/xpm/nb_wksp_thumbnails.xpm"
 #include "./res/xpm/nb_wksp_treeview.xpm"
-#include "./res/xpm/saga_icon_16.xpm"
-#include "./res/xpm/saga_icon_32.xpm"
-#include "./res/xpm/saga_splash.xpm"
+
 #include "./res/xpm/wnd_diagram.xpm"
 #include "./res/xpm/wnd_histogram.xpm"
 #include "./res/xpm/wnd_layout.xpm"
@@ -120,6 +124,8 @@
 #include "./res/xpm/tb_histogram_as_table.xpm"
 #include "./res/xpm/tb_histogram_cumulative.xpm"
 #include "./res/xpm/tb_info.xpm"
+#include "./res/xpm/tb_update.xpm"
+#include "./res/xpm/tb_clipboard.xpm"
 #include "./res/xpm/tb_layout_page_setup.xpm"
 #include "./res/xpm/tb_layout_print.xpm"
 #include "./res/xpm/tb_layout_print_preview.xpm"
@@ -211,27 +217,33 @@ const char ** IMG_Get_XPM(int ID_IMG)
 {
 	switch( ID_IMG )
 	{
-	default:
-	case ID_IMG_DEFAULT:	return( default_xpm );
-	case ID_IMG_NB_ACTIVE_ATTRIBUTES:	return( nb_active_attributes_xpm );
-	case ID_IMG_NB_ACTIVE_DESCRIPTION:	return( nb_active_description_xpm );
-	case ID_IMG_NB_ACTIVE_LEGEND:	return( nb_active_legend_xpm );
-	case ID_IMG_NB_ACTIVE_PARAMETERS:	return( nb_active_parameters_xpm );
-	case ID_IMG_NB_ACTIVE_HTMLEXTRAINFO:	return( nb_active_htmlextrainfo_xpm );
-	case ID_IMG_NB_DATA_SOURCE_FILES:		return( tb_wksp_xpm );
-	case ID_IMG_NB_DATA_SOURCE_DATABASE:	return( wksp_odbc_sources_xpm );
-	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE:	return( tb_wksp_xpm );
-	case ID_IMG_NB_INFO_ERROR:	return( nb_info_error_xpm );
-	case ID_IMG_NB_INFO_EXECUTION:	return( nb_info_execution_xpm );
-	case ID_IMG_NB_INFO_MESSAGES:	return( nb_info_messages_xpm );
-	case ID_IMG_NB_WKSP_DATA:	return( nb_wksp_data_xpm );
-	case ID_IMG_NB_WKSP_MAPS:	return( nb_wksp_maps_xpm );
-	case ID_IMG_NB_WKSP_TOOLS:	return( nb_wksp_modules_xpm );
-	case ID_IMG_NB_WKSP_THUMBNAILS:	return( nb_wksp_thumbnails_xpm );
-	case ID_IMG_NB_WKSP_TREEVIEW:	return( nb_wksp_treeview_xpm );
+	case ID_IMG_DEFAULT: default:	return( default_xpm );
+
 	case ID_IMG_SAGA_ICON_16:	return( saga_icon_16_xpm );
 	case ID_IMG_SAGA_ICON_32:	return( saga_icon_32_xpm );
-	case ID_IMG_SAGA_SPLASH:	return( saga_splash_xpm );
+	case ID_IMG_SAGA_SPLASH :	return( saga_splash_xpm );
+
+	case ID_IMG_NB_ACTIVE_PARAMETERS     :	return( nb_active_parameters_xpm );
+	case ID_IMG_NB_ACTIVE_DESCRIPTION    :	return( nb_active_description_xpm );
+	case ID_IMG_NB_ACTIVE_HISTORY        :	return( nb_active_history_xpm );
+	case ID_IMG_NB_ACTIVE_ATTRIBUTES     :	return( nb_active_attributes_xpm );
+	case ID_IMG_NB_ACTIVE_LEGEND         :	return( nb_active_legend_xpm );
+	case ID_IMG_NB_ACTIVE_HTMLEXTRAINFO  :	return( nb_active_htmlextrainfo_xpm );
+
+	case ID_IMG_NB_DATA_SOURCE_FILES     :	return( tb_wksp_xpm );
+	case ID_IMG_NB_DATA_SOURCE_DATABASE  :	return( wksp_odbc_sources_xpm );
+	case ID_IMG_NB_DATA_SOURCE_WEBSERVICE:	return( tb_wksp_xpm );
+
+	case ID_IMG_NB_INFO_ERROR            :	return( nb_info_error_xpm );
+	case ID_IMG_NB_INFO_EXECUTION        :	return( nb_info_execution_xpm );
+	case ID_IMG_NB_INFO_MESSAGES         :	return( nb_info_messages_xpm );
+
+	case ID_IMG_NB_WKSP_DATA             :	return( nb_wksp_data_xpm );
+	case ID_IMG_NB_WKSP_MAPS             :	return( nb_wksp_maps_xpm );
+	case ID_IMG_NB_WKSP_TOOLS            :	return( nb_wksp_modules_xpm );
+	case ID_IMG_NB_WKSP_THUMBNAILS       :	return( nb_wksp_thumbnails_xpm );
+	case ID_IMG_NB_WKSP_TREEVIEW         :	return( nb_wksp_treeview_xpm );
+
 	case ID_IMG_WND_DIAGRAM:	return( wnd_diagram_xpm );
 	case ID_IMG_WND_HISTOGRAM:	return( wnd_histogram_xpm );
 	case ID_IMG_WND_LAYOUT:	return( wnd_layout_xpm );
@@ -262,6 +274,8 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_HISTOGRAM_AS_TABLE:	return( tb_histogram_as_table_xpm );
 	case ID_IMG_TB_HISTOGRAM_CUMULATIVE:	return( tb_histogram_cumulative_xpm );
 	case ID_IMG_TB_INFO:	return( tb_info_xpm );
+	case ID_IMG_TB_UPDATE:	return( tb_update_xpm );
+	case ID_IMG_TB_CLIPBOARD:	return( tb_clipboard_xpm );
 	case ID_IMG_TB_LAYOUT_PAGE_SETUP:	return( tb_layout_page_setup_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT:	return( tb_layout_print_xpm );
 	case ID_IMG_TB_LAYOUT_PRINT_PREVIEW:	return( tb_layout_print_preview_xpm );

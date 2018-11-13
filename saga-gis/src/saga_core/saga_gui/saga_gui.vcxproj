@@ -1250,6 +1250,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\DEFAULT.xpm" />
     <None Include="RES\XPM\NB_ACTIVE_ATTRIBUTES.xpm" />
     <None Include="RES\XPM\NB_ACTIVE_DESCRIPTION.xpm" />
+    <None Include="res\xpm\nb_active_history.xpm" />
     <None Include="res\xpm\nb_active_htmlextrainfo.xpm" />
     <None Include="res\xpm\NB_ACTIVE_LEGEND.xpm" />
     <None Include="RES\XPM\NB_ACTIVE_PARAMETERS.xpm" />
@@ -1263,6 +1264,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\SAGA_ICON_32.xpm" />
     <None Include="RES\XPM\SAGA_SPLASH.xpm" />
     <None Include="RES\XPM\TB_ACTIVE.xpm" />
+    <None Include="res\xpm\tb_clipboard.xpm" />
     <None Include="RES\XPM\TB_DELETE.xpm" />
     <None Include="RES\XPM\TB_DIAGRAM_PARAMETERS.xpm" />
     <None Include="RES\XPM\TB_EDIT_SHAPE_ADD.xpm" />
@@ -1325,6 +1327,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\TB_TABLE_ROW_DEL.xpm" />
     <None Include="res\xpm\tb_table_row_del_all.xpm" />
     <None Include="RES\XPM\TB_TABLE_ROW_INS.xpm" />
+    <None Include="res\xpm\tb_update.xpm" />
     <None Include="RES\XPM\TB_WKSP.xpm" />
     <None Include="RES\XPM\WKSP_DATA_MANAGER.xpm" />
     <None Include="RES\XPM\WKSP_GRID.xpm" />

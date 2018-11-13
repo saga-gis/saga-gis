@@ -349,7 +349,7 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 	m_Options.Add_Bool("",
 		"REG_SHOW"	, _TL("Show Regression"),
 		_TL(""),
-		false
+		true
 	);
 
 	m_Options.Add_String("REG_SHOW",
@@ -360,7 +360,8 @@ void CVIEW_ScatterPlot::_On_Construction(void)
 
 	m_Options.Add_Color("REG_SHOW",
 		"REG_COLOR"	, _TL("Line Colour"),
-		_TL("")
+		_TL(""),
+		SG_COLOR_RED
 	);
 
 	m_Options.Add_Int("REG_SHOW",
