@@ -10,27 +10,24 @@ SAGA - System for Automated Geoscientific Analyses - is a Free Open Source Softw
 
 * Internet
 
-- www.saga-gis.org
-- sourceforge.net/projects/saga-gis
+- Official SAGA Homepage: www.saga-gis.org
+- SAGA Project Page: https://sourceforge.net/projects/saga-gis
+- Wiki: https://sourceforge.net/p/saga-gis/wiki/Home/
 
 
 * Supported Platforms
 
-- Windows (Microsoft Visual C++ 10.0)
+- Windows (Microsoft Visual C++ 14.0)
 - Linux (gcc)
 - FreeBSD
 
 
-* Required Libraries
+* Installation Notes:
 
-- wxWidgets 3.0.0
-- GDAL 1.8.0
-- Proj4
-- Haru Free PDF Library (optional)
-- libLAS 1.2 (optional)
-- opencv (optional)
-- vigra (optional)
+- https://sourceforge.net/p/saga-gis/wiki/SAGA%20Installation/
+
+
 
 _______________________________________________________________________________
-Date: November, 3th 2013
+Date: November, 13th 2018
 
