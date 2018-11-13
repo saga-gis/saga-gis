@@ -1816,6 +1816,7 @@ CSG_Parameter_Table_Field::CSG_Parameter_Table_Field(CSG_Parameters *pOwner, CSG
 	: CSG_Parameter_Int(pOwner, pParent, ID, Name, Description, Constraint)
 {
 	m_Default	= -1;
+	m_Value		= -1;
 }
 
 //---------------------------------------------------------
