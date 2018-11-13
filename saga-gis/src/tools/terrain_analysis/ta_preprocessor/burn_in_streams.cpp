@@ -169,7 +169,7 @@ bool CBurnIn_Streams::On_Execute(void)
 	else
 	{
 		m_pDEM->Assign(Parameters("DEM")->asGrid());
-		m_pDEM->Set_Name("%s [%s]", Parameters("DEM")->asGrid()->Get_Name(), _TL("Burned Streams"));
+		m_pDEM->Fmt_Name("%s [%s]", Parameters("DEM")->asGrid()->Get_Name(), _TL("Burned Streams"));
 	}
 
 	//-----------------------------------------------------

@@ -268,7 +268,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 		{
 			pPoints	= Parameters("POINTS_OUT")->asShapes();
 			pPoints->Create(*Parameters("POINTS")->asShapes());
-			pPoints->Set_Name("%s [a: %.2f, d: %.2f]", _TL("Directional Statistics"), Direction * M_RAD_TO_DEG, Tolerance * M_RAD_TO_DEG);
+			pPoints->Fmt_Name("%s [a: %.2f, d: %.2f]", _TL("Directional Statistics"), Direction * M_RAD_TO_DEG, Tolerance * M_RAD_TO_DEG);
 		}
 
 		int		x, y, id_Offset	= pPoints->Get_Field_Count();

@@ -161,15 +161,15 @@ bool CPC_To_Grid::On_Execute(void)
 		for(iField=3; iField<pPoints->Get_Field_Count(); iField++)
 		{
 			pGrids->Add_Item(SG_Create_Grid(System, SG_DATATYPE_Float));
-			pGrids->Get_Grid(iField - 3)->Set_Name("%s - %s", pPoints->Get_Name(), pPoints->Get_Field_Name(iField));
+			pGrids->Get_Grid(iField - 3)->Fmt_Name("%s - %s", pPoints->Get_Name(), pPoints->Get_Field_Name(iField));
 		}
 	}
 
 	Parameters("GRID")	->Set_Value(m_pGrid  = SG_Create_Grid(System, SG_DATATYPE_Float));
 	Parameters("COUNT")	->Set_Value(m_pCount = SG_Create_Grid(System, SG_DATATYPE_Int));
 
-	m_pGrid		->Set_Name("%s [%s]", pPoints->Get_Name(), pPoints->Get_Field_Name(2));
-	m_pCount	->Set_Name("%s [%s]", pPoints->Get_Name(), _TL("Points per Cell"));
+	m_pGrid		->Fmt_Name("%s [%s]", pPoints->Get_Name(), pPoints->Get_Field_Name(2));
+	m_pCount	->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Points per Cell"));
 
 	m_pCount	->Set_NoData_Value(0.0);
 

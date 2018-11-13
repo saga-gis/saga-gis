@@ -156,7 +156,7 @@ bool CGrid_Filler::Parameters_Set(CSG_Parameters &Parameters)
 	if( m_pGrid && m_pGrid != Parameters("GRID")->asGrid() )
 	{
 		m_pGrid->Assign(Parameters("GRID")->asGrid());
-		m_pGrid->Set_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Flood Fill"));
+		m_pGrid->Fmt_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("Flood Fill"));
 	}
 	else
 	{

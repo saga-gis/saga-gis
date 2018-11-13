@@ -87,19 +87,19 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+		"", "GRIDS"			, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+		"", "POLYGONS"		, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "NAMING"		, _TL("Field Naming"),
+		"", "NAMING"		, _TL("Field Naming"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("grid number"),
@@ -108,7 +108,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		"", "METHOD"		, _TL("Method"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|",
 			_TL("simple and fast"),
@@ -119,31 +119,31 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	);
 
 	Parameters.Add_Bool(
-		NULL	, "PARALLELIZED"	, _TL("Use Multiple Cores"),
+		"", "PARALLELIZED"	, _TL("Use Multiple Cores"),
 		_TL(""),
 		false
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Statistics"),
+	Parameters.Add_Shapes(
+		"", "RESULT"		, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Value(pNode, "COUNT"   , _TL("Number of Cells"   ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MIN"     , _TL("Minimum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MAX"     , _TL("Maximum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "RANGE"   , _TL("Range"             ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "SUM"     , _TL("Sum"               ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MEAN"    , _TL("Mean"              ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "VAR"     , _TL("Variance"          ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "STDDEV"  , _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "QUANTILE", _TL("Quantile"          ), 
+	Parameters.Add_Bool("RESULT", "COUNT"   , _TL("Number of Cells"   ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MIN"     , _TL("Minimum"           ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MAX"     , _TL("Maximum"           ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "RANGE"   , _TL("Range"             ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "SUM"     , _TL("Sum"               ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MEAN"    , _TL("Mean"              ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "VAR"     , _TL("Variance"          ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "STDDEV"  , _TL("Standard Deviation"), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "GINI"    , _TL("Gini"              ), _TL(""), false);
+	Parameters.Add_Int ("RESULT", "QUANTILE", _TL("Quantile"          ), 
 		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
-		PARAMETER_TYPE_Int, 0, 0, true, 50, true
+		0, 0, true, 50, true
 	);
-	Parameters.Add_Value(pNode, "GINI", _TL("Gini"), _TL(""), PARAMETER_TYPE_Bool, false);
 }
 
 
@@ -244,7 +244,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		pPolygons	= Parameters("RESULT")->asShapes();
 		pPolygons	->Assign(Parameters("POLYGONS")->asShapes());
-		pPolygons	->Set_Name("%s [%s]", Parameters("POLYGONS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
+		pPolygons	->Fmt_Name("%s [%s]", Parameters("POLYGONS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
 	}
 
 	CSG_Simple_Statistics	*Statistics	= new CSG_Simple_Statistics[pPolygons->Get_Count()];
@@ -267,7 +267,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			if( fMEAN     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("MEAN"    )), SG_DATATYPE_Double);
 			if( fVAR      >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("VARIANCE")), SG_DATATYPE_Double);
 			if( fSTDDEV   >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("STDDEV"  )), SG_DATATYPE_Double);
-			if (fGINI   >= 0)		pPolygons->Add_Field(GET_FIELD_NAME(_TL("GINI")), SG_DATATYPE_Double);
+			if (fGINI     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("GINI"    )), SG_DATATYPE_Double);
 			if( fQUANTILE >= 0 )
 			{
 				for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
@@ -291,7 +291,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fMEAN     >= 0 )	pPolygon->Set_NoData(nFields + fMEAN  );
 					if( fVAR      >= 0 )	pPolygon->Set_NoData(nFields + fVAR   );
 					if( fSTDDEV   >= 0 )	pPolygon->Set_NoData(nFields + fSTDDEV);
-					if( fGINI     >= 0 )	pPolygon->Set_NoData(nFields + fGINI);
+					if( fGINI     >= 0 )	pPolygon->Set_NoData(nFields + fGINI  );
 					if( fQUANTILE >= 0 )
 					{
 						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)

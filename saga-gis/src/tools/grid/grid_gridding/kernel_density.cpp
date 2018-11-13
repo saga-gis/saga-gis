@@ -193,7 +193,7 @@ bool CKernel_Density::On_Execute(void)
 		return( false );
 	}
 
-	m_pGrid->Set_Name("%s [%s]", pPoints->Get_Name(), _TL("Kernel Density"));
+	m_pGrid->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Kernel Density"));
 	m_pGrid->Set_NoData_Value(0.0);
 	m_pGrid->Assign(0.0);
 

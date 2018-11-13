@@ -190,7 +190,7 @@ bool CFilter_Morphology::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), Parameters("METHOD")->asString());
+		pResult->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), Parameters("METHOD")->asString());
 	}
 
 	m_Kernel.Destroy();

@@ -157,7 +157,7 @@ bool CFilter_Gauss::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Gaussian Filter"));
+		pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Gaussian Filter"));
 
 		pResult->Set_NoData_Value(pInput->Get_NoData_Value());
 

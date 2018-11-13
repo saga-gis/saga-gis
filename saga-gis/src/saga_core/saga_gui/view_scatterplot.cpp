@@ -438,7 +438,7 @@ void CVIEW_ScatterPlot::On_AsTable(wxCommandEvent &event)
 	{
 		CSG_Table	*pTable	= new CSG_Table;
 
-		pTable->Set_Name("%s: [%s]-[%s]", _TL("Scatterplot"), m_sX.c_str(), m_sY.c_str());
+		pTable->Fmt_Name("%s: [%s]-[%s]", _TL("Scatterplot"), m_sX.c_str(), m_sY.c_str());
 
 		pTable->Add_Field("ID", SG_DATATYPE_Int   );
 		pTable->Add_Field(m_sX, SG_DATATYPE_Double);

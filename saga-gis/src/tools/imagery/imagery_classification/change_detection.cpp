@@ -326,13 +326,13 @@ bool CChange_Detection::On_Execute(void)
 
 		Get_Quality(*pConfusion, *pClasses, *pSummary);
 
-		pClasses->Set_Name("%s [%s - %s]", _TL("Class Values"), pOne->Get_Name(), pTwo->Get_Name());
-		pSummary->Set_Name("%s [%s - %s]", _TL("Summary"     ), pOne->Get_Name(), pTwo->Get_Name());
+		pClasses->Fmt_Name("%s [%s - %s]", _TL("Class Values"), pOne->Get_Name(), pTwo->Get_Name());
+		pSummary->Fmt_Name("%s [%s - %s]", _TL("Summary"     ), pOne->Get_Name(), pTwo->Get_Name());
 	}
 
 	//-----------------------------------------------------
-	pConfusion->Set_Name("%s [%s - %s]", _TL("Confusion"   ), pOne->Get_Name(), pTwo->Get_Name());
-	pCombined ->Set_Name("%s [%s - %s]", _TL("Combination" ), pOne->Get_Name(), pTwo->Get_Name());
+	pConfusion->Fmt_Name("%s [%s - %s]", _TL("Confusion"   ), pOne->Get_Name(), pTwo->Get_Name());
+	pCombined ->Fmt_Name("%s [%s - %s]", _TL("Combination" ), pOne->Get_Name(), pTwo->Get_Name());
 	pCombined ->Set_NoData_Value(-1);
 
 	return( true );

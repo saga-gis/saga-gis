@@ -163,7 +163,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 			return( false );
 		}
 
-		m_pGrid->Set_Name("%s [%s]", pPoints->Get_Name(), Get_Name().c_str());
+		m_pGrid->Fmt_Name("%s [%s]", pPoints->Get_Name(), Get_Name().c_str());
 	}
 
 	//-----------------------------------------------------
@@ -176,7 +176,7 @@ bool CGridding_Spline_Base::_Get_Grid(void)
 			return( false );
 		}
 
-		m_pGrid->Set_Name("%s.%s [%s]", pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
+		m_pGrid->Fmt_Name("%s.%s [%s]", pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
 	}
 
 	//-----------------------------------------------------

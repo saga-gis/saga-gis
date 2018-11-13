@@ -190,7 +190,7 @@ bool CPC_Drop_Attribute::On_Execute(void)
 	}
 	else
 	{
-		pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Dropped Attributes"));
+		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Dropped Attributes"));
 	}
 
 	//-----------------------------------------------------

@@ -460,7 +460,7 @@ bool CPolygon_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised 
 		DataObject_Set_Parameter(pClasses, "LUT_ATTRIB" , 0);	// Lookup Table Attribute
 	}
 
-	pClasses->Set_Name("%s [%s]", m_pTable->Get_Name(), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str());
+	pClasses->Fmt_Name("%s [%s]", m_pTable->Get_Name(), CSG_Classifier_Supervised::Get_Name_of_Method(Parameters("METHOD")->asInt()).c_str());
 
 	//-----------------------------------------------------
 	return( true );

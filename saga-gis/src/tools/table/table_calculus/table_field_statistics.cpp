@@ -126,7 +126,7 @@ bool CTable_Field_Statistics::On_Execute(void)
 	CSG_Table	*pStatistics	= Parameters("STATISTICS")->asTable();
 
 	pStatistics->Destroy();
-	pStatistics->Set_Name("%s [%s]", pTable->Get_Name(), _TL("Statistics"));
+	pStatistics->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Statistics"));
 	
 	pStatistics->Add_Field("field"   , SG_DATATYPE_String);
 	pStatistics->Add_Field("n"       , SG_DATATYPE_Long  );

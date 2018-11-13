@@ -206,7 +206,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 	{
 		pPoints	= Parameters("RESULT")->asShapes();
 		pPoints	->Assign(Parameters("POINTS")->asShapes());
-		pPoints	->Set_Name("%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
+		pPoints	->Fmt_Name("%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), _TL("Grid Statistics"));
 	}
 
 	//-----------------------------------------------------

@@ -123,7 +123,7 @@ bool CGrid_Mask::On_Execute(void)
 	if( pMasked && pMasked != pGrid )
 	{
 		pMasked->Create(*pGrid);
-		pMasked->Set_Name("%s [%s]", pGrid->Get_Name(), _TL("masked"));
+		pMasked->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("masked"));
 
 		pGrid	= pMasked;
 	}

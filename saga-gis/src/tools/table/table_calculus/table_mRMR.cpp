@@ -149,7 +149,7 @@ bool CTable_mRMR::On_Execute(void)
 	CSG_Table	*pSelection	= Parameters("SELECTION")->asTable();
 
 	pSelection->Destroy();
-	pSelection->Set_Name("%s (%s)", _TL("Feature Selection"), pData->Get_Name());
+	pSelection->Fmt_Name("%s (%s)", _TL("Feature Selection"), pData->Get_Name());
 
 	pSelection->Add_Field("RANK" , SG_DATATYPE_Int);
 	pSelection->Add_Field("INDEX", SG_DATATYPE_Int);

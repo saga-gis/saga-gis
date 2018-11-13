@@ -426,16 +426,16 @@ void CPointCloud_Get_Grid_SPCVF_Base::Write_Subset(CSG_Grid *pGrid, int iAOI, in
 	{
 		if( m_iFieldName > -1 )
 		{
-			pGrid->Set_Name("%s%s", sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName));
+			pGrid->Fmt_Name("%s%s", sPath.c_str(), m_pShapes->Get_Record(iAOI)->asString(m_iFieldName));
 		}
 		else
 		{
-			pGrid->Set_Name("%s%d_%d", sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap));
+			pGrid->Fmt_Name("%s%d_%d", sPath.c_str(), (int)(m_AOI.Get_XMin() + m_dOverlap), (int)(m_AOI.Get_YMin() + m_dOverlap));
 		}
 	}
 	else
 	{
-		pGrid->Set_Name("%spc_subset_%s", sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str());
+		pGrid->Fmt_Name("%spc_subset_%s", sPath.c_str(), SG_File_Get_Name(m_sFileName, false).c_str());
 	}
 
 	SG_UI_Msg_Add(CSG_String::Format(_TL("%.0f points from %d dataset(s) written to output grid %s."), dPoints, iDatasets, pGrid->Get_Name()), true);

@@ -125,7 +125,7 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 
 	DataObject_Set_Parameters(pResult, pInput);
 
-	pResult->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Close Gaps"));
+	pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Close Gaps"));
 
 	int	iStep	= Parameters("MODE")->asInt() == 0 ? 2 : 1;
 

@@ -322,9 +322,9 @@ bool CGrid_Import::On_Execute(void)
 			pG->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 			pB->Get_Projection().Load(fImage, SG_PROJ_FMT_WKT);
 
-			pR->Set_Name("%s [R]", Name.c_str());
-			pG->Set_Name("%s [G]", Name.c_str());
-			pB->Set_Name("%s [B]", Name.c_str());
+			pR->Fmt_Name("%s [R]", Name.c_str());
+			pG->Fmt_Name("%s [G]", Name.c_str());
+			pB->Fmt_Name("%s [B]", Name.c_str());
 
 			pR->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
 			pG->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));

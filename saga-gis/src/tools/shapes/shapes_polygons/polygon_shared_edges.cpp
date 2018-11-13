@@ -443,7 +443,7 @@ bool CPolygon_Vertex_Check::On_Execute(void)
 		CSG_Shapes	*pCopy	= Parameters("CHECKED")->asShapes();
 
 		pCopy->Create(*pPolygons);
-		pCopy->Set_Name("%s [%s]", pPolygons->Get_Name(), _TL("checked"));
+		pCopy->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("checked"));
 
 		pPolygons	= pCopy;
 	}

@@ -117,7 +117,7 @@ bool CPolygon_Flatten::On_Execute(void)
 	{
 		pShapes	= Parameters("OUTPUT")->asShapes();
 		pShapes->Create(*Parameters("INPUT")->asShapes());
-		pShapes->Set_Name("%s [%s]", pShapes->Get_Name(), _TL("dissolved inner rings"));
+		pShapes->Fmt_Name("%s [%s]", pShapes->Get_Name(), _TL("dissolved inner rings"));
 	}
 
 	//-----------------------------------------------------

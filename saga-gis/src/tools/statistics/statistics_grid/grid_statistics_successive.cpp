@@ -526,7 +526,7 @@ bool CGrid_Statistics_Evaluate::On_Execute(void)
 
 				CSG_Grid	*pQuantile	= SG_Create_Grid(Get_System());
 
-				pQuantile->Set_Name("%s [%s]", _TL("Percentile"), s.c_str());
+				pQuantile->Fmt_Name("%s [%s]", _TL("Percentile"), s.c_str());
 
 				pQuantiles->Add_Item(pQuantile);
 			}

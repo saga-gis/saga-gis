@@ -134,7 +134,7 @@ bool CGSPoints_Distances::On_Execute(void)
 		CSG_Table_Record	*pRecord;
 
 		pTable->Destroy();
-		pTable->Set_Name("%s [%s]", _TL("Minimum Distance Analysis"), pPoints->Get_Name());
+		pTable->Fmt_Name("%s [%s]", _TL("Minimum Distance Analysis"), pPoints->Get_Name());
 
 		pTable->Add_Field("NAME" , SG_DATATYPE_String);
 		pTable->Add_Field("VALUE", SG_DATATYPE_Double);

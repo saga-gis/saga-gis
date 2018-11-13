@@ -193,7 +193,7 @@ bool CTable_Text_Replacer::On_Execute(void)
 
 	if( pTable != Parameters("TABLE")->asTable() )
 	{
-		pTable->Set_Name("%s [%s]", pTable->Get_Name(), _TL("Replacements"));
+		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Replacements"));
 	}
 
 	//-----------------------------------------------------

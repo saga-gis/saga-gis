@@ -78,7 +78,7 @@ bool CInvertNoData::On_Execute(void)
 	{
 		pGrid->Create(*Parameters("INPUT")->asGrid());
 
-		pGrid->Set_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("inverse no-data"));
+		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("inverse no-data"));
 	}
 	else
 	{

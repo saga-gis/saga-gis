@@ -166,7 +166,7 @@ bool CGDAL_Import_ASTER::On_Execute(void)
 		CSG_Table	*pTable	= Parameters("METADATA")->asTable();
 
 		pTable->Destroy();
-		pTable->Set_Name("%s [%s]", FileName.c_str(), _TL("Metadata"));
+		pTable->Fmt_Name("%s [%s]", FileName.c_str(), _TL("Metadata"));
 		pTable->Add_Field("KEY"  , SG_DATATYPE_String);
 		pTable->Add_Field("VALUE", SG_DATATYPE_String);
 
@@ -219,21 +219,21 @@ bool CGDAL_Import_ASTER::On_Execute(void)
 
 		Parameters("VNIR")->Set_Value(pVNIR = SG_Create_Grids());
 		pVNIR->Get_Attributes_Ptr()->Create(&Attributes);
-		pVNIR->Set_Name("%s %s", FileName.c_str(), SG_T("VNIR"));
+		pVNIR->Fmt_Name("%s %s", FileName.c_str(), SG_T("VNIR"));
 		pVNIR->Get_MetaData().Add_Child(MetaData)->Set_Name("ASTER");
 		pVNIR->Set_Z_Attribute (3);
 		pVNIR->Set_Z_Name_Field(1);
 
 		Parameters("SWIR")->Set_Value(pSWIR = SG_Create_Grids());
 		pSWIR->Get_Attributes_Ptr()->Create(&Attributes);
-		pSWIR->Set_Name("%s %s", FileName.c_str(), SG_T("SWIR"));
+		pSWIR->Fmt_Name("%s %s", FileName.c_str(), SG_T("SWIR"));
 		pSWIR->Get_MetaData().Add_Child(MetaData)->Set_Name("ASTER");
 		pSWIR->Set_Z_Attribute (3);
 		pSWIR->Set_Z_Name_Field(1);
 
 		Parameters( "TIR")->Set_Value(pTIR  = SG_Create_Grids());
 		pTIR ->Get_Attributes_Ptr()->Create(&Attributes);
-		pTIR ->Set_Name("%s %s", FileName.c_str(), SG_T( "TIR"));
+		pTIR ->Fmt_Name("%s %s", FileName.c_str(), SG_T( "TIR"));
 		pTIR ->Get_MetaData().Add_Child(MetaData)->Set_Name("ASTER");
 		pTIR ->Set_Z_Attribute (3);
 		pTIR ->Set_Z_Name_Field(1);

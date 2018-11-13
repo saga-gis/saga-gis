@@ -187,7 +187,7 @@ bool CColorisation::On_Execute(void)
 	}
 
 	pResult->Create(pPoints);
-	pResult->Set_Name("%s (%s)", pPoints->Get_Name(), _TL("colorised"));
+	pResult->Fmt_Name("%s (%s)", pPoints->Get_Name(), _TL("colorised"));
 //	pResult->Add_Field(SG_T("Red"  ), SG_DATATYPE_Int);
 //	pResult->Add_Field(SG_T("Green"), SG_DATATYPE_Int);
 //	pResult->Add_Field(SG_T("Blue" ), SG_DATATYPE_Int);

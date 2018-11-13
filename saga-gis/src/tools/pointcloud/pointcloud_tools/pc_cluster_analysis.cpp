@@ -325,7 +325,7 @@ bool CPC_Cluster_Analysis::On_Execute(void)
 	}
 	else
 	{
-		pPC_out->Set_Name("%s (%s)", _TL("Cluster"), pPC_in->Get_Name());
+		pPC_out->Fmt_Name("%s (%s)", _TL("Cluster"), pPC_in->Get_Name());
 	}
 	
 
@@ -344,7 +344,7 @@ void CPC_Cluster_Analysis::Write_Result(CSG_Table *pTable, long nElements, int n
 	CSG_Table_Record	*pRecord;
 
 	pTable->Destroy();
-	pTable->Set_Name("%s_%s", _TL("Cluster Analysis PC"), pPC_in->Get_Name());
+	pTable->Fmt_Name("%s_%s", _TL("Cluster Analysis PC"), pPC_in->Get_Name());
 
 	pTable->Add_Field(_TL("ClusterID"), SG_DATATYPE_Int);
 	pTable->Add_Field(_TL("Elements" ), SG_DATATYPE_Int);

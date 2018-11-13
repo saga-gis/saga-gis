@@ -181,7 +181,7 @@ bool CFlow::On_Execute(void)
 	if( (m_pVal_Input	= Parameters("VAL_INPUT"    )->asGrid()) != NULL
 	&&  (m_pVal_Mean	= Parameters("VAL_MEAN"     )->asGrid()) != NULL )
 	{
-		m_pVal_Mean->Set_Name("%s [%s]", m_pVal_Input->Get_Name(), _TL("Mean over Catchment"));
+		m_pVal_Mean->Fmt_Name("%s [%s]", m_pVal_Input->Get_Name(), _TL("Mean over Catchment"));
 		m_pVal_Mean->Set_Unit(m_pVal_Input->Get_Unit());
 	}
 	else

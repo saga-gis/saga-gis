@@ -234,12 +234,31 @@ void CSG_Data_Object::Set_Name(const CSG_String &Name)
 	}
 	else
 	{
-		m_Name	= Name;	m_Name.Replace("%", "");
+		m_Name	= Name;
 	}
 }
 
 //---------------------------------------------------------
-void CSG_Data_Object::Set_Name(const char *Format, ...)
+void CSG_Data_Object::Fmt_Name(const char *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+	
+#ifdef _SAGA_LINUX
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_start(argptr, _Format); _s.PrintfV(_Format, argptr);
+#else
+	va_start(argptr,  Format); _s.PrintfV( Format, argptr);
+#endif
+
+	va_end(argptr);
+
+	Set_Name(CSG_String(&_s));
+}
+
+//---------------------------------------------------------
+void CSG_Data_Object::Fmt_Name(const wchar_t *Format, ...)
 {
 	wxString	_s;
 
@@ -248,50 +267,17 @@ void CSG_Data_Object::Set_Name(const char *Format, ...)
 #ifdef _SAGA_LINUX
 	// workaround as we only use wide characters
 	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
+	wxString _Format(Format); _Format.Replace("%s", "%ls");	// workaround as we only use wide characters since wx 2.9.4 so interpret strings as multibyte
+	va_start(argptr, _Format); _s.PrintfV(_Format, argptr);
 #else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
+	va_start(argptr,  Format); _s.PrintfV( Format, argptr);
 #endif
 
 	va_end(argptr);
 
 	CSG_String	s(&_s);
 
-	if( !s.is_Empty() )
-	{
-		Set_Name(s);
-	}
-}
-
-//---------------------------------------------------------
-void CSG_Data_Object::Set_Name(const wchar_t *Format, ...)
-{
-	wxString	_s;
-
-	va_list	argptr;
-	
-#ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
-#else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
-#endif
-
-	va_end(argptr);
-
-	CSG_String	s(&_s);
-
-	if( !s.is_Empty() )
-	{
-		Set_Name(s);
-	}
+	Set_Name(CSG_String(&_s));
 }
 
 //---------------------------------------------------------

@@ -213,7 +213,7 @@ bool CJoin_Tables_Base::On_Execute(void)
 		}
 	}
 
-	pT_A->Set_Name("%s [%s]", pT_A->Get_Name(), pT_B->Get_Name());
+	pT_A->Fmt_Name("%s [%s]", pT_A->Get_Name(), pT_B->Get_Name());
 
 	//-----------------------------------------------------
 	m_bCmpNoCase	= Parameters("CMP_CASE")->asBool() == false;

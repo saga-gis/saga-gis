@@ -164,7 +164,7 @@ bool CGSPoints_Variogram_Cloud::On_Execute(void)
 
 	//-----------------------------------------------------
 	pTable->Destroy();
-	pTable->Set_Name("%s [%s]", pPoints->Get_Name(), _TL("Variogram Cloud"));
+	pTable->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Variogram Cloud"));
 	pTable->Add_Field(_TL("Distance"    ), SG_DATATYPE_Double);	// DIF_FIELD_DISTANCE
 	pTable->Add_Field(_TL("Direction"   ), SG_DATATYPE_Double);	// DIF_FIELD_DIRECTION
 	pTable->Add_Field(_TL("Difference"  ), SG_DATATYPE_Double);	// DIF_FIELD_DIFFERENCE

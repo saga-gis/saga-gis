@@ -837,7 +837,7 @@ bool CWater_Balance_Interactive::On_Execute(void)
 	//-----------------------------------------------------
 	m_pSummary	= Parameters("SUMMARY")->asTable();
 	m_pSummary->Destroy();
-	m_pSummary->Set_Name("%s [%s]", _TL("Tree Growth"), _TL("Summary"));
+	m_pSummary->Fmt_Name("%s [%s]", _TL("Tree Growth"), _TL("Summary"));
 	m_pSummary->Add_Field("NAME" , SG_DATATYPE_String);
 	m_pSummary->Add_Field("VALUE", SG_DATATYPE_Double);
 	m_pSummary->Add_Record()->Set_Value(0, _TL("X"));
@@ -850,7 +850,7 @@ bool CWater_Balance_Interactive::On_Execute(void)
 	//-----------------------------------------------------
 	m_pDaily	= Parameters("DAILY")->asTable();
 	m_pDaily->Destroy();
-	m_pDaily->Set_Name("%s [%s]", _TL("Tree Line"), _TL("Climate"));
+	m_pDaily->Fmt_Name("%s [%s]", _TL("Tree Line"), _TL("Climate"));
 	m_pDaily->Add_Field("T"   , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("P"   , SG_DATATYPE_Double);
 	m_pDaily->Add_Field("SNOW", SG_DATATYPE_Double);

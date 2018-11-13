@@ -185,7 +185,7 @@ bool CViGrA_Morphology::On_Execute(void)
 	//-----------------------------------------------------
 	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 
-	pOutput->Set_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
+	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
 
 	return( true );
 }

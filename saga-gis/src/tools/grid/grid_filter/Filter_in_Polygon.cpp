@@ -153,7 +153,7 @@ bool CFilter_in_Polygon::On_Execute(void)
 	}
 	else
 	{
-		pResult->Set_Name("%s [%s]", m_pInput->Get_Name(), _TL("Filter"));
+		pResult->Fmt_Name("%s [%s]", m_pInput->Get_Name(), _TL("Filter"));
 
 		pResult->Set_NoData_Value(m_pInput->Get_NoData_Value());
 

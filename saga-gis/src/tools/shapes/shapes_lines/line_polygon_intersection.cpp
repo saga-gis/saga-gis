@@ -141,8 +141,8 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 	pIntersection->Create(SHAPE_TYPE_Line, NULL, Attributes == 0 ? pPolygons : pLines);
 	pDifference  ->Create(SHAPE_TYPE_Line, NULL,                               pLines);
 
-	pIntersection->Set_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Intersection"), pPolygons->Get_Name());
-	pDifference  ->Set_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Difference"  ), pPolygons->Get_Name());
+	pIntersection->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Intersection"), pPolygons->Get_Name());
+	pDifference  ->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Difference"  ), pPolygons->Get_Name());
 
 	if( Attributes == 2 )
 	{

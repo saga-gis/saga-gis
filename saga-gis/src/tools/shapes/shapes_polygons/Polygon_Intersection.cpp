@@ -143,7 +143,7 @@ bool CPolygon_Overlay::Initialize(CSG_Shapes **ppA, CSG_Shapes **ppB, bool bBoth
 	}
 
 	m_pAB->Create(SHAPE_TYPE_Polygon, SG_T(""), *ppA);
-	m_pAB->Set_Name("%s [%s]-[%s]", Get_Name().c_str(), (*ppA)->Get_Name(), (*ppB)->Get_Name());
+	m_pAB->Fmt_Name("%s [%s]-[%s]", Get_Name().c_str(), (*ppA)->Get_Name(), (*ppB)->Get_Name());
 
 	if( bBothAttributes )
 	{

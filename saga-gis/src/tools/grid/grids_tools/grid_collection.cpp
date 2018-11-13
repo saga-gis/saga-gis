@@ -765,7 +765,7 @@ bool CGrids_Extract_Grid::On_Execute(void)
 
 	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
 
-	pGrid->Set_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
+	pGrid->Fmt_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
 
 	TSG_Grid_Resampling	Resampling;
 

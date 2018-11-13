@@ -137,7 +137,7 @@ bool CTable_Fill_Record_Gaps::On_Execute(void)
 	{
 		m_pTable->Create(*Parameters("TABLE")->asTable());
 
-		m_pTable->Set_Name("%s [%s]", Parameters("TABLE")->asTable()->Get_Name(), _TL("no gaps"));
+		m_pTable->Fmt_Name("%s [%s]", Parameters("TABLE")->asTable()->Get_Name(), _TL("no gaps"));
 	}
 
 	//-----------------------------------------------------
@@ -384,7 +384,7 @@ bool CTable_Insert_Records::On_Execute(void)
 
 	m_pNoGaps	= Parameters("NOGAPS")->asTable();
 	m_pNoGaps->Create(pTable);
-	m_pNoGaps->Set_Name("%s [%s]", pTable->Get_Name(), _TL("no gaps"));
+	m_pNoGaps->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("no gaps"));
 	m_pNoGaps->Add_Record(pB = pTable->Get_Record(0));
 
 	int	Method	= Parameters("METHOD")->asInt();

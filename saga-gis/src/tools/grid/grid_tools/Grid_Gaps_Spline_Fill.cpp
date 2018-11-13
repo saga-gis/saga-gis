@@ -72,80 +72,78 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 {
 	Set_Name		(_TL("Close Gaps with Spline"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	Parameters.Add_Grid(
-		NULL, "GRID"		, _TL("Grid"),
+		"", "GRID"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "MASK"		, _TL("Mask"),
+		"", "MASK"			, _TL("Mask"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "MAXGAPCELLS"	, _TL("Only Process Gaps with Less Cells"),
+	Parameters.Add_Int(
+		"", "MAXGAPCELLS"	, _TL("Only Process Gaps with Less Cells"),
 		_TL("is ignored if set to zero"),
-		PARAMETER_TYPE_Int	, 0, 0, true
+		0, 0, true
 	);
 
 	Parameters.Add_Grid(
-		NULL, "CLOSED"		, _TL("Closed Gaps Grid"),
+		"", "CLOSED"		, _TL("Closed Gaps Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL, "MAXPOINTS"	, _TL("Maximum Points"),
+	Parameters.Add_Int(
+		"", "MAXPOINTS"		, _TL("Maximum Points"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 1000, 2, true
+		1000, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "LOCALPOINTS"	, _TL("Number of Points for Local Interpolation"),
+	Parameters.Add_Int(
+		"", "LOCALPOINTS"	, _TL("Number of Points for Local Interpolation"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 20, 2, true
+		20, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "EXTENDED"	, _TL("Extended Neighourhood"),
+	Parameters.Add_Bool(
+		"", "EXTENDED"		, _TL("Extended Neighourhood"),
 		_TL(""),
-		PARAMETER_TYPE_Bool	, false
+		false
 	);
 
 	Parameters.Add_Choice(
-		NULL, "NEIGHBOURS"	, _TL("Neighbourhood"),
+		"", "NEIGHBOURS"	, _TL("Neighbourhood"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Neumann"),
 			_TL("Moore")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL, "RADIUS"		, _TL("Radius (Cells)"),
+	Parameters.Add_Int(
+		"", "RADIUS"		, _TL("Radius (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL, "RELAXATION"	, _TL("Relaxation"),
+	Parameters.Add_Double(
+		"", "RELAXATION"	, _TL("Relaxation"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0.0, 0.0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -153,15 +151,15 @@ CGrid_Gaps_Spline_Fill::CGrid_Gaps_Spline_Fill(void)
 bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pGrid			= Parameters("CLOSED")		->asGrid();
-	m_pMask			= Parameters("MASK")		->asGrid();
-	m_nGapCells_Max	= Parameters("MAXGAPCELLS")	->asInt();
-	m_nPoints_Max	= Parameters("MAXPOINTS")	->asInt();
-	m_nPoints_Local	= Parameters("LOCALPOINTS")	->asInt();
-	m_bExtended		= Parameters("EXTENDED")	->asBool();
-	m_Neighbours	= Parameters("NEIGHBOURS")	->asInt() == 0 ? 2 : 1;
-	m_Radius		= Parameters("RADIUS")		->asDouble();
-	m_Relaxation	= Parameters("RELAXATION")	->asDouble();
+	m_pGrid			= Parameters("CLOSED"     )->asGrid();
+	m_pMask			= Parameters("MASK"       )->asGrid();
+	m_nGapCells_Max	= Parameters("MAXGAPCELLS")->asInt();
+	m_nPoints_Max	= Parameters("MAXPOINTS"  )->asInt();
+	m_nPoints_Local	= Parameters("LOCALPOINTS")->asInt();
+	m_bExtended		= Parameters("EXTENDED"   )->asBool();
+	m_Neighbours	= Parameters("NEIGHBOURS" )->asInt() == 0 ? 2 : 1;
+	m_Radius		= Parameters("RADIUS"     )->asDouble();
+	m_Relaxation	= Parameters("RELAXATION" )->asDouble();
 
 	if( m_pGrid == NULL )
 	{
@@ -173,7 +171,7 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 	{
 		m_pGrid->Assign(Parameters("GRID")->asGrid());
 
-		m_pGrid->Set_Name(SG_T("%s [%s]"), Parameters("GRID")->asGrid()->Get_Name(), _TL("no gaps"));
+		m_pGrid->Fmt_Name("%s [%s]", Parameters("GRID")->asGrid()->Get_Name(), _TL("no gaps"));
 	}
 
 	if( m_nGapCells_Max == 0 )
@@ -213,8 +211,6 @@ bool CGrid_Gaps_Spline_Fill::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -293,8 +289,6 @@ void CGrid_Gaps_Spline_Fill::Set_Gap_Cell(int x, int y)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -343,8 +337,6 @@ void CGrid_Gaps_Spline_Fill::Close_Gap(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

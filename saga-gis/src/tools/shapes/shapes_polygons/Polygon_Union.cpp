@@ -209,7 +209,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 
 	if( Fields.Get_Count() == 0 )
 	{
-		pDissolved->Set_Name("%s [%s]", pPolygons->Get_Name(), _TL("Dissolved"));
+		pDissolved->Fmt_Name("%s [%s]", pPolygons->Get_Name(), _TL("Dissolved"));
 	}
 	else
 	{
@@ -253,7 +253,7 @@ bool CPolygon_Dissolve::On_Execute(void)
 			);
 		}
 
-		pDissolved->Set_Name("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), Name.c_str());
+		pDissolved->Fmt_Name("%s [%s: %s]", pPolygons->Get_Name(), _TL("Dissolved"), Name.c_str());
 	}
 
 	Statistics_Initialize(pDissolved, pPolygons);

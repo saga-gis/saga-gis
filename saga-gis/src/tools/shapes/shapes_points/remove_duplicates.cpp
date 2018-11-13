@@ -166,7 +166,7 @@ bool CRemove_Duplicates::On_Execute(void)
 	{
 		m_pPoints->Create(*Parameters("POINTS")->asShapes());
 
-		m_pPoints->Set_Name("%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), _TL(""));
+		m_pPoints->Fmt_Name("%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), _TL(""));
 	}
 
 	//-----------------------------------------------------

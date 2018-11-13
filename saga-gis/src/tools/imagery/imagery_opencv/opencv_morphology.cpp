@@ -220,7 +220,7 @@ bool COpenCV_Morphology::On_Execute(void)
 		cvReleaseImage(&cv_pTmp);
 	}
 
-	pOutput->Set_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
+	pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), Get_Name().c_str());
 
 	return( true );
 }

@@ -189,7 +189,7 @@ bool CTable_Field_Deletion::On_Execute(void)
 			bDelete[Fields[i]]	= true;
 		}
 
-		pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Changed"));
+		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Changed"));
 
 		for(i=0; i<pInput->Get_Field_Count(); i++)
 		{

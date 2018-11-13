@@ -144,11 +144,11 @@ bool CDistanceMatrix::On_Execute(void)
 
 	if( pPoints != pNear )
 	{
-		pDistances->Set_Name("%s [%s / %s]", _TL("Distances"), pPoints->Get_Name(), pNear->Get_Name());
+		pDistances->Fmt_Name("%s [%s / %s]", _TL("Distances"), pPoints->Get_Name(), pNear->Get_Name());
 	}
 	else
 	{
-		pDistances->Set_Name("%s [%s]", _TL("Distances"), pPoints->Get_Name());
+		pDistances->Fmt_Name("%s [%s]", _TL("Distances"), pPoints->Get_Name());
 	}
 
 	//-----------------------------------------------------

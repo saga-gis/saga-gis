@@ -770,7 +770,7 @@ bool CLandsat_TOAR::On_Execute(void)
 		//-------------------------------------------------
 		if( bRadiance )
 		{
-			pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Radiance"));
+			pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Radiance"));
 			pOutput->asGrid()->Set_NoData_Value(MaxVal);
 
 			double	min	= lsat_qcal2rad(pInput->Get_Min(), &lsat.band[iBand]);
@@ -780,14 +780,14 @@ bool CLandsat_TOAR::On_Execute(void)
 		}
 		else if( lsat.band[iBand].thermal )
 		{
-			pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Temperature"));
+			pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Temperature"));
 			pOutput->Set_Unit(_TL("Kelvin"));
 			pOutput->asGrid()->Set_NoData_Value(MaxVal);
 			pOutput->asGrid()->Set_Scaling(150.0 / (MaxVal - 1.0), 183.16);	// -90°C to 60°C
 		}
 		else
 		{
-			pOutput->Set_Name("%s [%s]", pInput->Get_Name(), _TL("Reflectance"));
+			pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Reflectance"));
 			pOutput->asGrid()->Set_NoData_Value(MaxVal);
 			pOutput->asGrid()->Set_Scaling(1.0 / (MaxVal - 1.0));
 		}
