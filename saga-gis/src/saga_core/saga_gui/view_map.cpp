@@ -222,6 +222,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_3D_SHOW);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_LAYOUT_SHOW);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAPS_SAVE_TO_CLIPBOARD);
 	CMD_ToolBar_Add_Separator(pToolBar);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_SCALEBAR);
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_MAP_NORTH_ARROW);

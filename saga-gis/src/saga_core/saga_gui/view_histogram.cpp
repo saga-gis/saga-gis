@@ -156,7 +156,7 @@ wxToolBarBase * CVIEW_Histogram::_Create_ToolBar(void)
 
 	CMD_ToolBar_Add_Item(pToolBar, true , ID_CMD_HISTOGRAM_CUMULATIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_AS_TABLE);
-//	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_HISTOGRAM_TO_CLIPBOARD);
 
 	CMD_ToolBar_Add(pToolBar, _TL("Histogram"));
 
