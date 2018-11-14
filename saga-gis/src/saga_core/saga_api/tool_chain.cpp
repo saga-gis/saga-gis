@@ -162,20 +162,11 @@ bool CSG_Tool_Chain::Create(const CSG_String &File)
 
 	if( !Chain.Load(File) )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("failed to load or parse xml file"), File.c_str()));
+		Error_Fmt("%s: %s", _TL("failed to load or parse xml file"), File.c_str());
 
 		return( false );
 	}
 
-	m_File_Name	= File;
-
-	return( Create(Chain) );
-}
-
-//---------------------------------------------------------
-bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
-{
-	//-----------------------------------------------------
 	if( Chain.Cmp_Name("toolchains") )	// don't report any error, this xml-file provides info for a category of tool chains
 	{
 		return( false );
@@ -183,14 +174,42 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 
 	if( !Chain.Cmp_Name("toolchain") || !Chain("identifier") || !Chain("parameters") )
 	{
+		Error_Fmt("%s: %s", _TL("xml file is not a valid tool chain"), File.c_str());
+
 		return( false );
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", is_Okay() ? _TL("Reloading tool chain") : _TL("Loading tool chain"), m_File_Name.c_str()), true);
+	//-----------------------------------------------------
+	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", File.Cmp(m_File_Name) ? _TL("Loading tool chain") : _TL("Reloading tool chain"), File.c_str()), true);
+
+	if( Create(Chain) )
+	{
+		m_File_Name	= File;
+
+		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
+
+		return( true );
+	}
+
+	m_File_Name.Clear(); Reset();
+
+	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
+{
+	//-----------------------------------------------------
+	if( !Chain.Cmp_Name("toolchain") || !Chain("identifier") || !Chain("parameters") )
+	{
+		return( false );
+	}
 
 	if( SG_Compare_Version(Chain.Get_Property("saga-version"), "2.1.3") < 0 )
 	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s %s: %s", _TL("WARNING"), _TL("unsupported tool chain version"), Chain.Get_Property("saga-version")));
+		Error_Fmt("%s %s: %s", _TL("Warning"), _TL("unsupported tool chain version"), Chain.Get_Property("saga-version"));
 	}
 
 	//-----------------------------------------------------
@@ -352,16 +371,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 	}
 
 	//-----------------------------------------------------
-	if( is_Okay() )
-	{
-		SG_UI_Msg_Add(_TL("okay"), false, SG_UI_MSG_STYLE_SUCCESS);
-
-		return( true );
-	}
-
-	SG_UI_Msg_Add(_TL("failed"), false, SG_UI_MSG_STYLE_FAILURE);
-
-	return( false );
+	return( is_Okay() );
 }
 
 
@@ -1128,19 +1138,18 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	//-----------------------------------------------------
 	if( Tool.Cmp_Name("condition") )
 	{
-		if( !Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters) )
+		const CSG_MetaData	*pTools	= (!Check_Condition(Tool, &m_Data) || !Check_Condition(Tool, &Parameters))
+			? Tool("else") : (Tool("if") ? Tool("if") : &Tool);
+
+		for(int i=0; pTools && i<pTools->Get_Children_Count(); i++)
 		{
-			return( true );
+			if( !Tool_Run((*pTools)[i]) )
+			{
+				return( false );
+			}
 		}
 
-		bool	bResult	= true;
-
-		for(int i=0; bResult && i<Tool.Get_Children_Count(); i++)
-		{
-			bResult	= Tool_Run(Tool[i]);
-		}
-
-		return( bResult );
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -1150,7 +1159,12 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	}
 
 	//-----------------------------------------------------
-	if( !Tool.Cmp_Name("tool") || !Tool.Get_Property("library") || !(Tool.Get_Property("tool") || Tool.Get_Property("module")) )
+	if( !Tool.Cmp_Name("tool") )
+	{
+		return( true );	// only proceed, if it is tagged as tool...
+	}
+	
+	if( !Tool.Get_Property("library") || !(Tool.Get_Property("tool") || Tool.Get_Property("module")) )
 	{
 		if( bShowError ) Error_Set(_TL("invalid tool definition"));
 
