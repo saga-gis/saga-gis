@@ -568,6 +568,34 @@ bool CSG_Tool_Chain::Data_Add_TempList(const CSG_String &ID, const CSG_String &T
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CSG_Tool_Chain::Data_Del_Temp(const CSG_String &ID, bool bData)
+{
+	CSG_Parameter	*pData	= m_Data(ID);
+
+	if( pData )
+	{
+		if( bData )
+		{
+			if( pData->is_DataObject() )
+			{
+				m_Data_Manager.Delete(pData->asDataObject());
+			}
+			else if( pData->is_DataObject_List() )
+			{
+				for(int i=0; i<pData->asList()->Get_Data_Count(); i++)
+				{
+					m_Data_Manager.Delete(pData->asList()->Get_Data(i));
+				}
+			}
+		}
+
+		m_Data.Del_Parameter(ID);
+	}
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1013,9 +1041,9 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 							Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
 						}
 					}
-
-					bResult	= Tool_Run(Tool, bIgnoreErrors);
 				}
+
+				bResult	= Tool_Run(Tool, bIgnoreErrors);
 			}
 
 			if( !bResult && bIgnoreErrors )
@@ -1043,9 +1071,9 @@ bool CSG_Tool_Chain::ForEach_Object(const CSG_MetaData &Commands, const CSG_Stri
 							Tool(j)->Set_Content(ListVarName + CSG_String::Format("[%d]", iObject));
 						}
 					}
-
-					bResult	= Tool_Run(Tool, bIgnoreErrors);
 				}
+
+				bResult	= Tool_Run(Tool, bIgnoreErrors);
 			}
 
 			if( !bResult && bIgnoreErrors )
@@ -1103,11 +1131,15 @@ bool CSG_Tool_Chain::ForEach_File(const CSG_MetaData &Commands, const CSG_String
 					Tool(Input[i])->Set_Content(ListVarName);
 					Tool(Input[i])->Set_Property("varname", "true");
 				}
+			}
+			else
+			{
+				bResult	= Tool_Run(Tool, bIgnoreErrors);
+			}
 
-				if( !bResult && bIgnoreErrors )
-				{
-					bResult	= true;
-				}
+			if( !bResult && bIgnoreErrors )
+			{
+				bResult	= true;
 			}
 		}
 	}
@@ -1133,6 +1165,11 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	if( Tool.Cmp_Name("datalist") )
 	{
 		return( Data_Add_TempList(Tool.Get_Content(), Tool.Get_Property("type")) );
+	}
+
+	if( Tool.Cmp_Name("delete") )
+	{
+		return( Data_Del_Temp(Tool.Get_Content(), IS_TRUE_PROPERTY(Tool, "data")) );
 	}
 
 	//-----------------------------------------------------
