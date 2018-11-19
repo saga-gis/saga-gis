@@ -676,8 +676,13 @@ bool CGrid_Clip::Get_Mask(CSG_Grid &Mask, CSG_Grid_System &System, CSG_Shapes *p
 
 							int	x	= (int)floor(1. + (C.x - System.Get_XMin()) / System.Get_Cellsize());
 
-							if( x >= 0 && x < System.Get_NX() )
+							if( x < System.Get_NX() )
 							{
+								if( x < 0 )
+								{
+									x	= 0;
+								}
+
 								nCrossings[x]	= nCrossings[x] ? 0 : 1;
 							}
 						}
