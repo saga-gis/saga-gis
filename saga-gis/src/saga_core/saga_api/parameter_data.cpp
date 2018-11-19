@@ -1749,6 +1749,8 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 					pList->Del_Item(j);
 				}
 			}
+
+			pParameter->has_Changed();
 		}
 	}
 
