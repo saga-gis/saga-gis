@@ -230,7 +230,7 @@ void CSG_Data_Object::Set_Name(const CSG_String &Name)
 {
 	if( Name.is_Empty() )
 	{
-		m_Name	= _TL("new");
+		m_Name	= _TL("Data");
 	}
 	else
 	{

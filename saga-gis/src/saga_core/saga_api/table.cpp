@@ -149,14 +149,7 @@ CSG_Table::CSG_Table(const CSG_Table &Table)
 
 bool CSG_Table::Create(const CSG_Table &Table)
 {
-	if( Assign((CSG_Data_Object *)&Table) )
-	{
-		Set_Name(Table.Get_Name());
-
-		return( true );
-	}
-
-	return( false );
+	return( Assign((CSG_Data_Object *)&Table) );
 }
 
 //---------------------------------------------------------
@@ -278,25 +271,27 @@ CSG_Table::CSG_Table(const CSG_Table *pTemplate)
 
 bool CSG_Table::Create(const CSG_Table *pTemplate)
 {
-	Destroy();
-
-	if( pTemplate && pTemplate->Get_Field_Count() > 0 )
+	if( !pTemplate || pTemplate->Get_Field_Count() < 1 )
 	{
-		for(int i=0; i<pTemplate->Get_Field_Count(); i++)
-		{
-			Add_Field(pTemplate->Get_Field_Name(i), pTemplate->Get_Field_Type(i));
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	Destroy();
+
+	Set_Name              (pTemplate->Get_Name       ());
+	Set_Description       (pTemplate->Get_Description());
+	Set_NoData_Value_Range(pTemplate->Get_NoData_Value(), pTemplate->Get_NoData_hiValue());
+
+	for(int i=0; i<pTemplate->Get_Field_Count(); i++)
+	{
+		Add_Field(pTemplate->Get_Field_Name(i), pTemplate->Get_Field_Type(i));
+	}
+
+	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -321,8 +316,6 @@ void CSG_Table::_On_Construction(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -389,20 +382,16 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 		return( false );
 	}
 
-	Destroy();
-
 	CSG_Table	*pTable	= (CSG_Table *)pObject;
 
-	Set_NoData_Value_Range(pTable->Get_NoData_Value(), pTable->Get_NoData_hiValue());
-
-	for(int iField=0; iField<pTable->m_nFields; iField++)
+	if( !Create(pTable) )
 	{
-		Add_Field(pTable->m_Field_Name[iField]->c_str(), pTable->m_Field_Type[iField]);
+		return( false );
 	}
 
-	for(int iRecord=0; iRecord<pTable->m_nRecords; iRecord++)
+	for(int i=0; i<pTable->Get_Count(); i++)
 	{
-		Add_Record(pTable->m_Records[iRecord]);
+		Add_Record(pTable->Get_Record(i));
 	}
 
 	Get_History()	= pTable->Get_History();
@@ -436,7 +425,7 @@ bool CSG_Table::Assign_Values(CSG_Table *pTable)
 //---------------------------------------------------------
 bool CSG_Table::is_Compatible(CSG_Table *pTable, bool bExactMatch) const
 {
-	if( Get_Field_Count() == pTable->Get_Field_Count() )
+	if( pTable && Get_Field_Count() == pTable->Get_Field_Count() )
 	{
 		for(int i=0; i<Get_Field_Count(); i++)
 		{

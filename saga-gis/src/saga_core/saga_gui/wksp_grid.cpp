@@ -654,7 +654,7 @@ void CWKSP_Grid::_LUT_Create(void)
 	if( PStatic.Get_Count() == 0 )
 	{
 		PStatic.Create(NULL, _TL("Classify"), _TL(""));
-		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""))->asColors()->Set_Count(11);
+		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
 		PStatic.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
 		PStatic.Add_Int   ("", "COUNTMAX", _TL("Maximum Number of Classes"), _TL(""), 1000, 1, true);
 		PStatic.Add_Choice("", "METHOD"  , _TL("Classification"           ), _TL(""),
@@ -670,6 +670,8 @@ void CWKSP_Grid::_LUT_Create(void)
 	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
 	Parameters.Assign_Parameters(&PStatic);
+
+	Parameters("COLORS")->asColors()->Assign(Get_Colors());
 
 	Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
 

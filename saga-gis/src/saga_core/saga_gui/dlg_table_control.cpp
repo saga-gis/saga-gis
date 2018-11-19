@@ -361,7 +361,7 @@ bool CDLG_Table_Control::Load(void)
 		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
 
-	Filter	+= wxString::Format("%s|*.*|", _TL("All Files"));
+	Filter	+= wxString::Format("%s|*.*", _TL("All Files"));
 
 	//-----------------------------------------------------
 	if( DLG_Open(File, _TL("Load Table"), Filter) )
@@ -401,7 +401,7 @@ bool CDLG_Table_Control::Save(void)
 		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
 
-	Filter	+= wxString::Format("%s|*.*|", _TL("All Files"));
+	Filter	+= wxString::Format("%s|*.*", _TL("All Files"));
 
 	//-----------------------------------------------------
 	if( DLG_Save(File, _TL("Save Table"), Filter) )
