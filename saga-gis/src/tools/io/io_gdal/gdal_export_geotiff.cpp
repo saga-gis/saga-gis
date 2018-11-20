@@ -93,8 +93,8 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 		"FILE"	, _TL("File"),
 		_TL("The GeoTIFF File to be created."),
 		CSG_String::Format(
-			"%s|*.tif;*.tiff|%s|*.*",
-			_TL("TIFF files (*.tif)"),
+			"%s (*.tif)|*.tif;*.tiff|%s|*.*",
+			_TL("TIFF files"),
 			_TL("All Files")
 		), NULL, true
 	);
@@ -104,6 +104,24 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 		_TL("A space separated list of key-value pairs (K=V)."),
 		_TL("")
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGDAL_Export_GeoTIFF::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Item_Count() == 0 )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asGridList()->Get_Item(0)->Get_Name(), "tif"));
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 

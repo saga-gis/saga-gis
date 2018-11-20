@@ -75,12 +75,14 @@ class CGDAL_Export_GeoTIFF : public CSG_Tool_Grid
 public:
 	CGDAL_Export_GeoTIFF(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Grid|Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Export") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 };
 

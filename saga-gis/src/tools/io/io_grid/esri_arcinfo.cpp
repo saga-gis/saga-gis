@@ -126,7 +126,7 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 	Parameters.Add_Choice("NODE_ASCII",
 		"GRID_TYPE"	, _TL("Target Grid Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Integer (2 byte)"),
 			_TL("Integer (4 byte)"),
 			_TL("Floating Point (4 byte)"),
@@ -137,7 +137,7 @@ CESRI_ArcInfo_Import::CESRI_ArcInfo_Import(void)
 	Parameters.Add_Choice("NODE_ASCII",
 		"NODATA"	, _TL("No-Data Value"),
 		_TL("Choose whether the input file's NoData value or a user specified NoData value is written"),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Input File's NoData Value"),
 			_TL("User Defined NoData Value")
 		), 0
@@ -443,7 +443,7 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 	Parameters.Add_Choice("",
 		"FORMAT"	, _TL("Format"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("binary"),
 			_TL("ASCII")
 		), 1
@@ -452,7 +452,7 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 	Parameters.Add_Choice("",
 		"GEOREF"	, _TL("Geo-Reference"),
 		_TL("The grids geo-reference must be related either to the center or the corner of its lower left grid cell."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("corner"),
 			_TL("center")
 		), 0
@@ -467,7 +467,7 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 	Parameters.Add_Choice("",
 		"DECSEP"	, _TL("ASCII Decimal Separator"),
 		_TL("Applies also to the binary format header file."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("point (.)"),
 			_TL("comma (,)")
 		), 0
@@ -476,11 +476,31 @@ CESRI_ArcInfo_Export::CESRI_ArcInfo_Export(void)
 //	Parameters.Add_Choice("",
 //		"BYTEORD"	, _TL("Binary Byte Order"),
 //		_TL("Byte order when writing floating point values in binary format"),
-//		CSG_String::Format("%s|%s|",
+//		CSG_String::Format("%s|%s",
 //			_TL("most significant first"),
 //			_TL("least significant first")
 //		), 0
 //	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CESRI_ArcInfo_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asGrid()->Get_Name(),
+			(*pParameters)["FORMAT"].asInt() == 0 ? "flt" : "asc"
+		));
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 

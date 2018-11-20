@@ -85,14 +85,15 @@ class CBMP_Export : public CSG_Tool_Grid
 {
 public:
 	CBMP_Export(void);
-	virtual ~CBMP_Export(void);
 
 	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:

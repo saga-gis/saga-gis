@@ -75,7 +75,7 @@ CBMP_Export::CBMP_Export(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Export True Color Bitmap"));
 
-	Set_Author		(SG_T("(c) 2005 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
 		"Export red-green-blue coded image grids to MS-Windows true color bitmaps. "
@@ -85,27 +85,39 @@ CBMP_Export::CBMP_Export(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "IMAGE"	, _TL("Image Grid"),
+		"", "IMAGE"	, _TL("Image Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+		"", "FILE"	, _TL("File"),
 		_TL(""),
 		_TL("MS Windows Bitmap (*.bmp)|*.bmp|All Files|*.*"),
 		NULL, true, false
 	);
 }
 
-//---------------------------------------------------------
-CBMP_Export::~CBMP_Export(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CBMP_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("IMAGE") && pParameter->asGrid() )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asGrid()->Get_Name(), "bmp"));
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -125,8 +137,8 @@ bool CBMP_Export::On_Execute(void)
 	CSG_String	FileName;
 
 	//-----------------------------------------------------
-	pGrid		= Parameters("IMAGE")	->asGrid();
-	FileName	= Parameters("FILE")	->asString();
+	pGrid		= Parameters("IMAGE")->asGrid();
+	FileName	= Parameters("FILE" )->asString();
 
 	//-----------------------------------------------------
 	if( (Stream = fopen(FileName.b_str(), "wb")) != NULL )

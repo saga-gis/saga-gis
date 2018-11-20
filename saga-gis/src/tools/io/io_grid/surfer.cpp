@@ -90,15 +90,13 @@ CSurfer_Import::CSurfer_Import(void)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode;
-
-	Parameters.Add_Grid_Output(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid_Output("",
+		"GRID"		, _TL("Grid"),
 		_TL("")
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.grd)|*.grd|%s|*.*",
 			_TL("Surfer Grid"),
@@ -106,17 +104,17 @@ CSurfer_Import::CSurfer_Import(void)
 		)
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "NODATA"	, _TL("No Data Value"),
+	Parameters.Add_Choice("",
+		"NODATA"	, _TL("No Data Value"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Surfer's No Data Value"),
 			_TL("User Defined")
 		), 0
 	);
 
-	Parameters.Add_Double(
-		pNode	, "NODATA_VAL"	, _TL("User Defined No Data Value"),
+	Parameters.Add_Double("NODATA",
+		"NODATA_VAL", _TL("User Defined No Data Value"),
 		_TL(""),
 		-99999.
 	);
@@ -215,7 +213,7 @@ bool CSurfer_Import::On_Execute(void)
 	//-----------------------------------------------------
 	else if( !strncmp(Id, "DSBB", 4) )	// Surfer 6: Binary...
 	{
-		short	sValue, nx, ny;
+		short	nx, ny;
 		double	dValue, dx, dy, xmin, ymin;
 
 		fread(&nx    , 1, sizeof(short ), Stream);
@@ -309,14 +307,14 @@ CSurfer_Export::CSurfer_Export(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"	, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"	, _TL("File"),
 		_TL(""),
 		CSG_String::Format("%s (*.grd)|*.grd|%s|*.*",
 			_TL("Surfer Grid"),
@@ -324,20 +322,38 @@ CSurfer_Export::CSurfer_Export(void)
 		), NULL, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FORMAT"	, _TL("Format"),
+	Parameters.Add_Choice("",
+		"FORMAT", _TL("Format"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("binary"),
 			_TL("ASCII")
 		), 0
 	);
 
-	Parameters.Add_Bool(
-		NULL	, "NODATA"	, _TL("Use Surfer's No-Data Value"),
+	Parameters.Add_Bool("",
+		"NODATA", _TL("Use Surfer's No-Data Value"),
 		_TL(""),
 		false
 	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSurfer_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asGrid()->Get_Name(), "grd"));
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
