@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.1.0">
+	<group>Shapes Tools</group>
+	<identifier>shapes:select+delete</identifier>
+	<name>Select and Delete</name>
+	<author>M.Bock &amp; O.Conrad (c) 2018</author>
+	<description>This tool selects and deletes all features from a shapes layer which meet the select criterion.</description>
+	<menu absolute="true">Shapes|Selection</menu>
+
+	<parameters>
+		<input varname="POINTS" type="shapes">
+			<name>Shapes</name>
+		</input>
+		<option varname="ATTRIBUTE" type="table_field" parent="POINTS">
+			<name>Attribute</name>
+			<value>true</value>
+		</option>
+		<option varname="EXPRESSION" type="text">
+			<name>Expression</name>
+		</option>
+		<option varname="CASE" type="boolean">
+			<name>Case Sensitive</name>
+			<value>false</value>
+		</option>
+		<option varname="COMPARE" type="choice">
+			<choices>attribute is identical with search expression|attribute contains search expression|attribute is contained in search expression</choices>
+			<name>Select if...</name>
+			<value>1</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<tool library="shapes_tools" tool="4" name="Select by Attributes... (String Expression)">
+			<option id="FIELD"      varname="true">ATTRIBUTE</option>
+			<option id="EXPRESSION" varname="true">EXPRESSION</option>
+			<option id="CASE"       varname="true">CASE</option>
+			<option id="COMPARE"    varname="true">COMPARE</option>
+			<option id="METHOD">0</option>
+			<input  id="SHAPES">POINTS</input>
+		</tool>
+		<tool library="shapes_tools" tool="7" name="Delete Selection from Shapes Layer">
+			<input id="INPUT">POINTS</input>
+		</tool>
+	</tools>
+</toolchain>
