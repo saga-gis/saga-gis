@@ -739,7 +739,14 @@ bool CSG_Parameter_Range::Set_Range(double Min, double Max)
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Set_Min(double Value)
 {
-	return( m_pMin->Set_Value(Value) );
+	if( m_pMin->Set_Value(Value) )
+	{
+		has_Changed();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 double CSG_Parameter_Range::Get_Min(void)	const
@@ -750,7 +757,14 @@ double CSG_Parameter_Range::Get_Min(void)	const
 //---------------------------------------------------------
 bool CSG_Parameter_Range::Set_Max(double Value)
 {
-	return( m_pMax->Set_Value(Value) );
+	if( m_pMax->Set_Value(Value) )
+	{
+		has_Changed();
+
+		return( true );
+	}
+
+	return( false );
 }
 
 double CSG_Parameter_Range::Get_Max(void)	const
