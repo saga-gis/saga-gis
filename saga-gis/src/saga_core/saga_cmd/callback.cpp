@@ -266,7 +266,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		if( g_bShow_Progress && Param_1.True )
+		if( g_bShow_Progress && Param_1.Boolean )
 		{
 			SG_Printf("\r%c   ", Buisy[iBuisy++]);
 

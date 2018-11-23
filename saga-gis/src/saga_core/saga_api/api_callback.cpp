@@ -101,9 +101,10 @@ TSG_PFNC_UI_Callback	SG_Get_UI_Callback(void)
 
 CSG_UI_Parameter::CSG_UI_Parameter(const CSG_UI_Parameter &Copy)
 {
-	True	= Copy.True;
-	Number	= Copy.Number;
+	Boolean	= Copy.Boolean;
+	Number	= Copy.Number ;
 	Pointer	= Copy.Pointer;
+	String	= Copy.String ;
 }
 
 

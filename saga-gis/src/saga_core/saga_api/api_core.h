@@ -1443,15 +1443,15 @@ TSG_UI_Callback_ID;
 class SAGA_API_DLL_EXPORT CSG_UI_Parameter
 {
 public:
-	CSG_UI_Parameter(void)						: True(false), Number( 0.0 ), Pointer(NULL)		{}
-	CSG_UI_Parameter(bool              Value)	: True(Value), Number( 0.0 ), Pointer(NULL)		{}
-	CSG_UI_Parameter(int               Value)	: True(false), Number(Value), Pointer(NULL)		{}
-	CSG_UI_Parameter(double            Value)	: True(false), Number(Value), Pointer(NULL)		{}
-	CSG_UI_Parameter(const CSG_String &Value)	: True(false), Number( 0.0 ), Pointer(NULL), String(Value)	{}
-	CSG_UI_Parameter(void             *Value)	: True(false), Number( 0.0 ), Pointer(Value)	{}
+	CSG_UI_Parameter(void)						: Boolean(false), Number( 0.0 ), Pointer(NULL)		{}
+	CSG_UI_Parameter(bool              Value)	: Boolean(Value), Number( 0.0 ), Pointer(NULL)		{}
+	CSG_UI_Parameter(int               Value)	: Boolean(false), Number(Value), Pointer(NULL)		{}
+	CSG_UI_Parameter(double            Value)	: Boolean(false), Number(Value), Pointer(NULL)		{}
+	CSG_UI_Parameter(const CSG_String &Value)	: Boolean(false), Number( 0.0 ), Pointer(NULL), String(Value)	{}
+	CSG_UI_Parameter(void             *Value)	: Boolean(false), Number( 0.0 ), Pointer(Value)	{}
 	CSG_UI_Parameter(const CSG_UI_Parameter &Copy);
 
-	bool		True;
+	bool		Boolean;
 
 	double		Number;
 

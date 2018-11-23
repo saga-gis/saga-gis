@@ -102,7 +102,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_GET_OKAY:
 
-		Result	= PROCESS_Get_Okay(Param_1.True);
+		Result	= PROCESS_Get_Okay(Param_1.Boolean);
 
 		break;
 
@@ -110,7 +110,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 	//-----------------------------------------------------
 	case CALLBACK_PROCESS_SET_OKAY:
 
-		Result	= PROCESS_Set_Okay(Param_1.True);
+		Result	= PROCESS_Set_Okay(Param_1.Boolean);
 
 		break;
 
@@ -151,11 +151,11 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		if( g_pTool && g_pTool->is_Executing() )
 		{
-			Result	= g_pTool->Execute(Param_1.True) ? 1 : 0;
+			Result	= g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
 		}
 		else if( g_pTool && g_pTool->is_Interactive() )
 		{
-			Result	= g_pTool->Execute(Param_1.True) ? 1 : 0;
+			Result	= g_pTool->Execute(Param_1.Boolean) ? 1 : 0;
 		}
 
 		break;
@@ -250,7 +250,7 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 		Result	= g_pData->Add((CSG_Data_Object *)Param_1.Pointer) ? 1 : 0;
 
-		if( Result && Param_2.True )
+		if( Result && Param_2.Boolean )
 		{
 			g_pData->Show((CSG_Data_Object *)Param_1.Pointer, false);
 		}
