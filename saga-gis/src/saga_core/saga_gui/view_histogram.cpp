@@ -83,7 +83,7 @@
 #include "view_histogram.h"
 
 //---------------------------------------------------------
-#define IS_BAND_WISE_FIT(pLayer)	(m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_STATISTICS")->asInt() != 0)
+#define IS_BAND_WISE_FIT(pLayer)	(m_pLayer->Get_Type() == WKSP_ITEM_Grids && m_pLayer->Get_Classifier()->Get_Mode() == CLASSIFY_OVERLAY && m_pLayer->Get_Parameter("OVERLAY_FIT")->asInt() != 0)
 
 
 ///////////////////////////////////////////////////////////
@@ -407,17 +407,10 @@ void CVIEW_Histogram::On_Mouse_LUp(wxMouseEvent &event)
 
 		wxRect	r(Draw_Get_rDiagram(wxRect(wxPoint(0, 0), GetClientSize())));
 
-		CWKSP_Layer_Classify	*pClassify	= m_pLayer->Get_Classifier();
-
-		double	Minimum	= pClassify->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth());
-		double	Maximum	= pClassify->Get_RelativeToMetric((double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth());
-
-		m_pLayer->Get_Parameter("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
-		pClassify->Set_Metric(pClassify->Get_Metric_Mode(), pClassify->Get_Metric_Mode(), Minimum, Maximum);
-		g_pACTIVE->Update(m_pLayer, false);
-		m_pLayer->Update_Views();
-
-	//	m_pLayer->Set_Color_Range(Minimum, Maximum);
+		m_pLayer->Set_Color_Range(
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Down.x - r.GetLeft()) / (double)r.GetWidth()),
+			m_pLayer->Get_Classifier()->Get_RelativeToMetric((double)(m_Mouse_Move.x - r.GetLeft()) / (double)r.GetWidth())
+		);
 	}
 }
 

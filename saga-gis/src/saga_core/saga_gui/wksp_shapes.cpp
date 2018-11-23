@@ -484,8 +484,6 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Shapes::On_DataObject_Changed(void)
 {
-	CWKSP_Layer::On_DataObject_Changed();
-
 	AttributeList_Set(m_Parameters("LUT_ATTRIB"          ), false);
 	AttributeList_Set(m_Parameters("METRIC_ATTRIB"       ), false);
 	AttributeList_Set(m_Parameters("METRIC_NORMAL"       ), true );
@@ -493,6 +491,9 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 	AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY"), true );
 
 	_Chart_Set_Options();
+
+	//-----------------------------------------------------
+	CWKSP_Layer::On_DataObject_Changed();
 
 	m_pTable->DataObject_Changed();
 }

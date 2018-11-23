@@ -326,6 +326,7 @@ int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 {
 	if( pParameter )
 	{
+
 		CSG_Parameters	*pParameters	= pParameter->Get_Owner();
 
 		if( pParameters->Get_Owner() )

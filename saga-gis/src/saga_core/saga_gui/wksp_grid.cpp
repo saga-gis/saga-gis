@@ -98,7 +98,7 @@ CWKSP_Grid::CWKSP_Grid(CSG_Grid *pGrid)
 
 	DataObject_Changed();
 
-	Fit_Colors();
+	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
 }
 
 
@@ -313,7 +313,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -323,7 +323,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_SHADING"	, _TL("Shading"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"), _TL("normal"), _TL("inverse")
 		), 0
 	);
@@ -362,7 +362,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_SHADE", "SHADE_MODE"	, _TL("Coloring"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("bright - dark"  ),
 			_TL("dark - bright"  ),
 			_TL("white - cyan"   ),
@@ -381,7 +381,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_OVERLAY", "OVERLAY_MODE"	, _TL("This Color"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Red"), _TL("Green"), _TL("Blue")
 		), 0
 	);
@@ -425,7 +425,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("VALUES_SHOW", "VALUES_EFFECT"	, _TL("Boundary Effect"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("none"        ),
 			_TL("full frame"  ),
 			_TL("top"         ),
@@ -471,8 +471,6 @@ void CWKSP_Grid::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Grid::On_DataObject_Changed(void)
 {
-	CWKSP_Layer::On_DataObject_Changed();
-
 	//-----------------------------------------------------
 	m_Parameters("OBJECT_Z_UNIT"  )->Set_Value(
 		Get_Grid()->Get_Unit()
@@ -494,6 +492,9 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	m_Parameters("FILE_CACHE"     )->Set_Value(
 		Get_Grid()->is_Cached()
 	);
+
+	//-----------------------------------------------------
+	CWKSP_Layer::On_DataObject_Changed();
 }
 
 //---------------------------------------------------------
@@ -572,20 +573,6 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 
 				newRange->Set_Min(((oldRange->Get_Min() - oldOffset) / oldFactor) * newFactor + newOffset);
 				newRange->Set_Max(((oldRange->Get_Max() - oldOffset) / oldFactor) * newFactor + newOffset);
-			}
-		}
-
-		if( pParameter->Cmp_Identifier("STRETCH_DEFAULT")
-		||  pParameter->Cmp_Identifier("STRETCH_LINEAR" )
-		||  pParameter->Cmp_Identifier("STRETCH_STDDEV" )
-		||  pParameter->Cmp_Identifier("STRETCH_INRANGE")
-		||  pParameter->Cmp_Identifier("STRETCH_PCTL"   ) )
-		{
-			double	Minimum, Maximum;
-
-			if( _Fit_Colors(*pParameters, Minimum, Maximum) )
-			{
-				(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Minimum, Maximum);
 			}
 		}
 	}
@@ -1094,64 +1081,33 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grid::Fit_Colors(void)
-{
-	double	Minimum, Maximum;
-
-	return( _Fit_Colors(m_Parameters, Minimum, Maximum) && Set_Color_Range(Minimum, Maximum) );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Grid::_Fit_Colors(CSG_Parameters &Parameters, double &Minimum, double &Maximum)
-{
-	switch( Parameters("STRETCH_DEFAULT")->asInt() )
-	{
-	default: {	double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * Get_Grid()->Get_Range();
-		Minimum	= Get_Grid()->Get_Min() + d;
-		Maximum	= Get_Grid()->Get_Max() - d;
-		break;	}
-
-	case  1: {	double	d	= Parameters("STRETCH_STDDEV")->asDouble() * Get_Grid()->Get_StdDev();
-		Minimum	= Get_Grid()->Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Minimum < Get_Grid()->Get_Min() ) Minimum = Get_Grid()->Get_Min();
-		Maximum	= Get_Grid()->Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Maximum > Get_Grid()->Get_Max() ) Maximum = Get_Grid()->Get_Max();
-		break;	}
-
-	case  2: {	double	d	= Parameters("STRETCH_PCTL")->asDouble();
-		Minimum	= Get_Grid()->Get_Percentile(      d);
-		Maximum	= Get_Grid()->Get_Percentile(100 - d);
-		break;	}
-	}
-
-	return( true );
-}
-
-//---------------------------------------------------------
 bool CWKSP_Grid::Fit_Colors(const CSG_Rect &rWorld)
 {
-	CSG_Simple_Statistics	s;
-
-	if( !Get_Grid()->Get_Statistics(rWorld, s, m_Parameters("STRETCH_DEFAULT")->asInt() == 2) )
-	{
-		return( false );
-	}
-
 	double	Minimum, Maximum;
 
-	switch( m_Parameters("STRETCH_DEFAULT")->asInt() )
+	if( m_Parameters("STRETCH_DEFAULT")->asInt() < 3 )
 	{
-	default: {	double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+		m_Fit_Colors	= m_Parameters("STRETCH_DEFAULT")->asInt();
+	}
+
+	switch( m_Fit_Colors )
+	{
+	default: {	CSG_Simple_Statistics s; if( !Get_Grid()->Get_Statistics(rWorld, s) ) { return( false ); }
+		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
 		Minimum	= s.Get_Minimum() + d;
 		Maximum	= s.Get_Maximum() - d;
 		break;	}
 
-	case  1: {	double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+	case  1: {	CSG_Simple_Statistics s; if( !Get_Grid()->Get_Statistics(rWorld, s) ) { return( false ); }
+		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
 		Minimum	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Minimum < Get_Grid()->Get_Min() ) Minimum = Get_Grid()->Get_Min();
 		Maximum	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Maximum > Get_Grid()->Get_Max() ) Maximum = Get_Grid()->Get_Max();
 		break;	}
 
-	case  2: {	double	d	= m_Parameters("STRETCH_PCTL")->asDouble();
-		Minimum	= s.Get_Quantile(      d);
-		Maximum	= s.Get_Quantile(100 - d);
+	case  2: {	CSG_Histogram         h; if( !Get_Grid()->Get_Histogram (rWorld, h) ) { return( false ); }
+		double	d	= m_Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+		Minimum	= h.Get_Quantile(    d);
+		Maximum	= h.Get_Quantile(1 - d);
 		break;	}
 	}
 

@@ -122,10 +122,9 @@ protected:
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 	virtual void				On_Update_Views			(void);
 
-	virtual bool				Fit_Colors				(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 

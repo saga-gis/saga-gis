@@ -85,8 +85,6 @@ CWKSP_Shapes_Line::CWKSP_Shapes_Line(CSG_Shapes *pShapes)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -94,14 +92,13 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 {
 	CWKSP_Shapes::On_Create_Parameters();
 
-
 	//-----------------------------------------------------
 	// Display...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"DISPLAY_POINTS"	, _TL("Show Vertices"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
 			_TL("yes"),
 			_TL("with label")
@@ -120,7 +117,7 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("NODE_SIZE",
 		"SIZE_TYPE"			, _TL("Size relates to..."),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Screen"),
 			_TL("Map Units")
 		), 0
@@ -215,16 +212,14 @@ void CWKSP_Shapes_Line::On_Create_Parameters(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CWKSP_Shapes_Line::On_DataObject_Changed(void)
 {
-	CWKSP_Shapes::On_DataObject_Changed();
-
 	AttributeList_Set(m_Parameters("SIZE_ATTRIB"), true);
+
+	CWKSP_Shapes::On_DataObject_Changed();
 }
 
 //---------------------------------------------------------
@@ -273,8 +268,6 @@ void CWKSP_Shapes_Line::On_Parameters_Changed(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -310,8 +303,6 @@ int CWKSP_Shapes_Line::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Par
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -337,8 +328,6 @@ bool CWKSP_Shapes_Line::Get_Style_Size(int &min_Size, int &max_Size, double &min
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -577,8 +566,6 @@ void CWKSP_Shapes_Line::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, cons
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

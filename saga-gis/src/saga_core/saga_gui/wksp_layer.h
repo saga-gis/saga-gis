@@ -98,7 +98,7 @@ public:
 	CSG_Colors *					Get_Colors				(void);
 	bool							Get_Colors				(CSG_Colors *pColors);
 	bool							Set_Colors				(CSG_Colors *pColors);
-	bool							Set_Color_Range			(double zMin, double zMax);
+	bool							Set_Color_Range			(double Minimum, double Maximum);
 
 	virtual wxString				Get_Value				(CSG_Point ptWorld, double Epsilon)	= 0;
 	virtual double					Get_Value_Minimum		(void)								= 0;
@@ -159,6 +159,7 @@ protected:
 
 
 	virtual void					On_Create_Parameters	(void);
+	virtual void					On_DataObject_Changed	(void);
 	virtual void					On_Parameters_Changed	(void);
 
 	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
@@ -168,8 +169,9 @@ protected:
 
 	virtual void					On_Draw					(CWKSP_Map_DC &dc_Map, int Flags)	= 0;
 
-	void							ColorsParms_Add			(const CSG_String &Parent, const CSG_String &Prefix = "");
-	virtual void					ColorsParms_On_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags, const CSG_String &Prefix = "");
+	void							ColorsParms_Add			(void);
+	void							ColorsParms_On_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
+	bool							ColorsParms_Adjust		(CSG_Parameters  &Parameters, CSG_Data_Object *pObject = NULL, const CSG_String &Suffix = "");
 
 
 private:

@@ -354,11 +354,24 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_DataObject_Changed(void)
 {
-	CWKSP_Layer::On_DataObject_Changed();
+	{
+		if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
+		{
+			m_fValue	= Get_PointCloud()->Get_Field_Count() - 1;
+		}
+
+		double	m	= Get_PointCloud()->Get_Mean  (m_fValue);
+		double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.0;
+
+		m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
+	}
 
 	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
 	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
+
+	//-----------------------------------------------------
+	CWKSP_Layer::On_DataObject_Changed();
 
 	m_pTable->DataObject_Changed();
 }
@@ -394,6 +407,12 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	m_Color_Pen			= wxColour(SG_GET_R(DefColor), SG_GET_G(DefColor), SG_GET_B(DefColor));
 
 	m_PointSize			= m_Parameters("DISPLAY_SIZE")->asInt();
+}
+
+//---------------------------------------------------------
+void CWKSP_PointCloud::On_Update_Views(void)
+{
+	m_pTable->Update_Views();
 }
 
 
@@ -438,28 +457,6 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 
 	//-----------------------------------------------------
 	return( CWKSP_Layer::On_Parameter_Changed(pParameters, pParameter, Flags) );
-}
-
-//---------------------------------------------------------
-void CWKSP_PointCloud::On_Update_Views(void)
-{
-	m_pTable->Update_Views();
-}
-
-//---------------------------------------------------------
-bool CWKSP_PointCloud::Fit_Colors(void)
-{
-	if( m_fValue >= Get_PointCloud()->Get_Field_Count() )
-	{
-		m_fValue	= Get_PointCloud()->Get_Field_Count() - 1;
-	}
-
-	double	m	= Get_PointCloud()->Get_Mean  (m_fValue);
-	double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.0;
-
-	m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
-
-	return( true );
 }
 
 

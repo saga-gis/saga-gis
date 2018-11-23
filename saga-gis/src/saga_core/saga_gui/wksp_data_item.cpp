@@ -401,6 +401,14 @@ void CWKSP_Data_Item::On_Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Data_Item::DataObject_Changed(void)
 {
+	m_Parameters.Set_Name(CSG_String::Format("%02d. %s", 1 + Get_ID(), m_pObject->Get_Name()));
+
+	m_Parameters.Set_Parameter("OBJECT_NAME"      , m_pObject->Get_Name          ());
+	m_Parameters.Set_Parameter("OBJECT_DESC"      , m_pObject->Get_Description   ());
+	m_Parameters.Set_Parameter("OBJECT_NODATA.MIN", m_pObject->Get_NoData_Value  ());
+	m_Parameters.Set_Parameter("OBJECT_NODATA.MAX", m_pObject->Get_NoData_hiValue());
+
+	//-----------------------------------------------------
 	On_DataObject_Changed();
 
 	g_pACTIVE->Update(this, false);
@@ -411,29 +419,9 @@ bool CWKSP_Data_Item::DataObject_Changed(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Data_Item::DataObject_Changed(CSG_Parameters *pParameters)
-{
-	if( !pParameters )
-	{
-		Fit_Colors();
-	}
-
-	m_Parameters.Assign_Values(pParameters);
-
-	return( DataObject_Changed() );
-}
-
-//---------------------------------------------------------
 void CWKSP_Data_Item::On_DataObject_Changed(void)
 {
-	m_Parameters.Set_Name(CSG_String::Format("%02d. %s", 1 + Get_ID(), m_pObject->Get_Name()));
-
-	m_Parameters("OBJECT_NAME"  )->Set_Value(m_pObject->Get_Name());
-	m_Parameters("OBJECT_DESC"  )->Set_Value(m_pObject->Get_Description());
-	m_Parameters("OBJECT_NODATA")->asRange()->Set_Range(
-		m_pObject->Get_NoData_Value  (),
-		m_pObject->Get_NoData_hiValue()
-	);
+	// nop
 }
 
 

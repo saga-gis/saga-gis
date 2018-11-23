@@ -276,13 +276,13 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
-	CWKSP_Shapes::On_DataObject_Changed();
-
 	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"  ), false);
 	AttributeList_Set(m_Parameters("BEACHBALL_DIP"     ), false);
 	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"    ), false);
 	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
 	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
+
+	CWKSP_Shapes::On_DataObject_Changed();
 }
 
 //---------------------------------------------------------

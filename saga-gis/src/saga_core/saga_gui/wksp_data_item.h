@@ -100,7 +100,6 @@ public:
 
 	virtual void					Parameters_Changed		(void);
 	bool							DataObject_Changed		(void);
-	bool							DataObject_Changed		(CSG_Parameters *pParameters);
 
 	bool							Save					(void);
 	bool							Save					(const wxString &File_Name);
@@ -124,8 +123,6 @@ protected:
 	virtual void					On_DataObject_Changed	(void);
 	virtual bool					On_Data_Deletion		(CSG_Data_Object *pObject);
 	virtual void					On_Update_Views			(bool bAll)	{}
-
-	virtual bool					Fit_Colors				(void)	{	return( true );	}
 
 	bool							Add_ScatterPlot			(void);
 

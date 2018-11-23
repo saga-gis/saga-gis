@@ -243,8 +243,6 @@ void CWKSP_TIN::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_TIN::On_DataObject_Changed(void)
 {
-	CWKSP_Layer::On_DataObject_Changed();
-
 	CSG_String	Choices;
 
 	for(int i=0; i<asTIN()->Get_Field_Count(); i++)
@@ -253,6 +251,9 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 	}
 
 	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(Choices);
+
+	//-----------------------------------------------------
+	CWKSP_Layer::On_DataObject_Changed();
 }
 
 //---------------------------------------------------------

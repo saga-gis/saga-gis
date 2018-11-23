@@ -124,14 +124,15 @@ protected:
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
 	virtual void				On_Parameters_Changed	(void);
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
-	virtual bool				Fit_Colors				(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags);
 
 	virtual void				On_Draw					(CWKSP_Map_DC &dc_Map, int Flags);
 
 
 private:
+
+	int							m_Fit_Colors;
 
 	CWKSP_Layer_Classify		m_Classify[3];
 
@@ -139,10 +140,7 @@ private:
 	CSG_String					_Get_List_Attributes	(void);
 	CSG_String					_Get_List_Bands			(int Attribute = -1);
 
-	bool						_Fit_Colors				(bool bRefresh = false);
-	bool						_Fit_Colors_Get			(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject = NULL);
-	bool						_Fit_Colors_Get			(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject, const CSG_Rect &rWorld);
-	bool						_Fit_Colors_Set			(double Range[2], CWKSP_Layer_Classify *pClassify, bool bRefresh = false);
+	bool						_Fit_Colors				(const CSG_Rect &rWorld, CSG_Data_Object *pObject, CWKSP_Layer_Classify *pClassify, const CSG_String &Suffix = "");
 
 	void						_LUT_Create				(void);
 

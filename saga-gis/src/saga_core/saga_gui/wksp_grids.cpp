@@ -98,7 +98,7 @@ CWKSP_Grids::CWKSP_Grids(CSG_Grids *pGrids)
 
 	DataObject_Changed();
 
-	Fit_Colors();
+	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
 }
 
 
@@ -301,7 +301,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -312,26 +312,11 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters.Add_Node("NODE_COLORS", "NODE_OVERLAY", _TL("RGB Composite"),
-		_TL("")
-	);
+	CSG_String	List(_Get_List_Bands());
 
-	m_Parameters.Add_Choice("NODE_OVERLAY",
-		"OVERLAY_STATISTICS", _TL("Statistics"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("all bands"),
-			_TL("each band")
-		), 1
-	);
-
-	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_R", _TL("Red"  ), _TL(""), _Get_List_Bands(), 0);
-	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_G", _TL("Green"), _TL(""), _Get_List_Bands(), 1);
-	m_Parameters.Add_Choice("NODE_OVERLAY", "BAND_B", _TL("Blue" ), _TL(""), _Get_List_Bands(), 2);
-
-//	m_Parameters.Add_Range("BAND_R", "BAND_R_RANGE", _TL("Value Range"), _TL(""));
-//	m_Parameters.Add_Range("BAND_G", "BAND_G_RANGE", _TL("Value Range"), _TL(""));
-//	m_Parameters.Add_Range("BAND_B", "BAND_B_RANGE", _TL("Value Range"), _TL(""));
+	m_Parameters["BAND_R"].asChoice()->Set_Items(List); m_Parameters["BAND_R"].Set_Value(0);
+	m_Parameters["BAND_G"].asChoice()->Set_Items(List); m_Parameters["BAND_G"].Set_Value(1);
+	m_Parameters["BAND_B"].asChoice()->Set_Items(List); m_Parameters["BAND_B"].Set_Value(2);
 }
 
 
@@ -409,8 +394,6 @@ CSG_String CWKSP_Grids::_Get_List_Bands(int Attribute)
 //---------------------------------------------------------
 void CWKSP_Grids::On_DataObject_Changed(void)
 {
-	CWKSP_Layer::On_DataObject_Changed();
-
 	//-----------------------------------------------------
 	m_Edit_Attributes.Create(Get_Grids()->Get_Attributes());
 
@@ -442,6 +425,22 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	m_Parameters("BAND_R")->asChoice()->Set_Items(List);
 	m_Parameters("BAND_G")->asChoice()->Set_Items(List);
 	m_Parameters("BAND_B")->asChoice()->Set_Items(List);
+
+	if( m_Parameters("BAND_R")->asInt() == 0
+	&&  m_Parameters("BAND_G")->asInt() == 0
+	&&  m_Parameters("BAND_B")->asInt() == 0 )
+	{
+		m_Parameters.Set_Parameter("BAND_G", 1);
+		m_Parameters.Set_Parameter("BAND_B", 2);
+	}
+
+	ColorsParms_Adjust(m_Parameters);
+	ColorsParms_Adjust(m_Parameters, Get_Grid(0), "_R");
+	ColorsParms_Adjust(m_Parameters, Get_Grid(1), "_G");
+	ColorsParms_Adjust(m_Parameters, Get_Grid(2), "_B");
+
+	//-----------------------------------------------------
+	CWKSP_Layer::On_DataObject_Changed();
 }
 
 //---------------------------------------------------------
@@ -454,11 +453,6 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	Get_Grids()->Set_Scaling(m_Parameters("OBJECT_Z_FACTOR")->asDouble(), m_Parameters("OBJECT_Z_OFFSET")->asDouble());
 
 	Get_Grids()->Set_Max_Samples(Get_Grids()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) * (Get_Grids()->Get_NZ() < 1 ? 1. : 1. / Get_Grids()->Get_NZ()) );
-
-	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY && m_Parameters("OVERLAY_STATISTICS")->asInt() != 0 )
-	{
-		_Fit_Colors();
-	}
 
 	//-----------------------------------------------------
 	Get_Grids()->Set_Z_Attribute(m_Parameters("DIM_ATTRIBUTE")->asInt());
@@ -474,6 +468,28 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 		m_Parameters("BAND_G")->asChoice()->Set_Items(List);
 		m_Parameters("BAND_B")->asChoice()->Set_Items(List);
 	}
+
+	//-----------------------------------------------------
+	m_Classify[0].Set_Metric(
+		m_Parameters("METRIC_SCALE_MODE"  )->asInt   (),
+		m_Parameters("METRIC_SCALE_LOG"   )->asDouble(),
+		m_Parameters("METRIC_ZRANGE_R.MIN")->asDouble(),
+		m_Parameters("METRIC_ZRANGE_R.MAX")->asDouble()
+	);
+
+	m_Classify[1].Set_Metric(
+		m_Parameters("METRIC_SCALE_MODE"  )->asInt   (),
+		m_Parameters("METRIC_SCALE_LOG"   )->asDouble(),
+		m_Parameters("METRIC_ZRANGE_G.MIN")->asDouble(),
+		m_Parameters("METRIC_ZRANGE_G.MAX")->asDouble()
+	);
+
+	m_Classify[2].Set_Metric(
+		m_Parameters("METRIC_SCALE_MODE"  )->asInt   (),
+		m_Parameters("METRIC_SCALE_LOG"   )->asDouble(),
+		m_Parameters("METRIC_ZRANGE_B.MIN")->asDouble(),
+		m_Parameters("METRIC_ZRANGE_B.MAX")->asDouble()
+	);
 }
 
 //---------------------------------------------------------
@@ -494,8 +510,6 @@ bool CWKSP_Grids::Edit_Set_Attributes(void)
 	{
 		DataObject_Changed();
 
-	//	_Fit_Colors(true); Update_Views(true);
-
 		return( true );
 	}
 
@@ -510,10 +524,12 @@ bool CWKSP_Grids::Edit_Set_Attributes(void)
 //---------------------------------------------------------
 int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter, int Flags)
 {
+	int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
+
 	//-----------------------------------------------------
 	if( Flags & PARAMETER_CHECK_VALUES )
 	{
-		if(	pParameter->Cmp_Identifier("OBJECT_Z_FACTOR")
+		if( pParameter->Cmp_Identifier("OBJECT_Z_FACTOR")
 		||  pParameter->Cmp_Identifier("OBJECT_Z_OFFSET") )
 		{
 			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
@@ -529,7 +545,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			}
 		}
 
-		if(	pParameter->Cmp_Identifier("DIM_NAME") )
+		if( pParameter->Cmp_Identifier("DIM_NAME") )
 		{
 			CSG_String	List	= _Get_List_Bands(pParameter->asInt());
 
@@ -539,28 +555,32 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			(*pParameters)("BAND_B")->asChoice()->Set_Items(List);
 		}
 
-		if( (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
-		||  (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED
-		||  (*pParameters)("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+		if( Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1
+		&& (pParameter->Cmp_Identifier("STRETCH_DEFAULT")
+		||  pParameter->Cmp_Identifier("STRETCH_LINEAR" )
+		||  pParameter->Cmp_Identifier("STRETCH_STDDEV" )
+		||  pParameter->Cmp_Identifier("STRETCH_INRANGE")
+		||  pParameter->Cmp_Identifier("STRETCH_PCTL"   )
+		||  pParameter->Cmp_Identifier("OVERLAY_FIT")
+		||  pParameter->Cmp_Identifier("BAND_R")
+		||  pParameter->Cmp_Identifier("BAND_G")
+		||  pParameter->Cmp_Identifier("BAND_B") ) )
 		{
-			if(	pParameter->Cmp_Identifier("BAND"              )
-			||  pParameter->Cmp_Identifier("BAND_R"            )
-			||  pParameter->Cmp_Identifier("BAND_G"            )
-			||  pParameter->Cmp_Identifier("BAND_B"            )
-			||  pParameter->Cmp_Identifier("OVERLAY_STATISTICS")
-			||  pParameter->Cmp_Identifier("COLORS_TYPE"       )
-			||  pParameter->Cmp_Identifier("STRETCH_DEFAULT"   )
-			||  pParameter->Cmp_Identifier("STRETCH_LINEAR"    )
-			||  pParameter->Cmp_Identifier("STRETCH_STDDEV"    )
-			||  pParameter->Cmp_Identifier("STRETCH_INRANGE"   )
-			||  pParameter->Cmp_Identifier("STRETCH_PCTL"      ) )
+			int	i;
+			
+			if( (i = (*pParameters)("BAND_R")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
 			{
-				double	Range[2];
+				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_R");
+			}
 
-				if(  _Fit_Colors_Get(Range, *pParameters) )
-				{
-					(*pParameters)("METRIC_ZRANGE")->asRange()->Set_Range(Range[0], Range[1]);
-				}
+			if( (i = (*pParameters)("BAND_G")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
+			{
+				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_G");
+			}
+
+			if( (i = (*pParameters)("BAND_B")->asInt()) >= 0 && i < Get_Grids()->Get_NZ() )
+			{
+				ColorsParms_Adjust(*pParameters, Get_Grids()->Get_Grid_Ptr(i), "_B");
 			}
 		}
 	}
@@ -569,21 +589,26 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 	if( Flags & PARAMETER_CHECK_ENABLE )
 	{
 		if( pParameter->Cmp_Identifier("COLORS_TYPE")
-		||  pParameter->Cmp_Identifier("OVERLAY_STATISTICS") )
+		||  pParameter->Cmp_Identifier("OVERLAY_FIT") )
 		{
-			int		Type	= (*pParameters)("COLORS_TYPE")->asInt();
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_UNIQUE);
 
 			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Type == CLASSIFY_UNIQUE);
 			pParameters->Set_Enabled("NODE_LUT"          , Type == CLASSIFY_LUT);
 			pParameters->Set_Enabled("NODE_METRIC"       , Type != CLASSIFY_UNIQUE && Type != CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_OVERLAY"      , Type == CLASSIFY_OVERLAY);
 
 			pParameters->Set_Enabled("BAND"              , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || Type == CLASSIFY_LUT);
 
-			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)("OVERLAY_STATISTICS")->asInt() == 0));
+			pParameters->Set_Enabled("METRIC_ZRANGE"     , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED || (Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 0));
 			pParameters->Set_Enabled("METRIC_SCALE_MODE" , Type == CLASSIFY_METRIC || Type == CLASSIFY_GRADUATED ||  Type == CLASSIFY_OVERLAY);
 
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Type != CLASSIFY_LUT && Type != CLASSIFY_UNIQUE);
+			pParameters->Set_Enabled("BAND_R"            , Type == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("BAND_G"            , Type == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("BAND_B"            , Type == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("OVERLAY_FIT"       , Type == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("METRIC_ZRANGE_R"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+			pParameters->Set_Enabled("METRIC_ZRANGE_G"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+			pParameters->Set_Enabled("METRIC_ZRANGE_B"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
 		}
 	}
 
@@ -606,7 +631,7 @@ void CWKSP_Grids::_LUT_Create(void)
 		Parameters.Create(NULL, _TL("Classify"), _TL(""));
 		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
 		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("unique values"),
 				_TL("equal intervals"),
 				_TL("quantiles"),
@@ -634,11 +659,11 @@ void CWKSP_Grids::_LUT_Create(void)
 
 		#define MAX_CLASSES	1024
 
-		for(sLong iCell = 0; iCell<Get_Grid()->Get_NCells() && s.Get_Count()<MAX_CLASSES && PROGRESSBAR_Set_Position(iCell, Get_Grid()->Get_NCells()); iCell++)
+		for(sLong iCell = 0; iCell<Get_Grids()->Get_NCells() && s.Get_Count()<MAX_CLASSES && PROGRESSBAR_Set_Position(iCell, Get_Grids()->Get_NCells()); iCell++)
 		{
-			if( !Get_Grid()->is_NoData(iCell) )
+			if( !Get_Grids()->is_NoData(iCell) )
 			{
-				s	+= Get_Grid()->asDouble(iCell);
+				s	+= Get_Grids()->asDouble(iCell);
 			}
 		}
 
@@ -664,16 +689,16 @@ void CWKSP_Grids::_LUT_Create(void)
 
 	//-----------------------------------------------------
 	case 1:	// equal intervals
-		if( Get_Grid()->Get_Range() && Colors.Get_Count() > 0 )
+		if( Get_Grids()->Get_Range() && Colors.Get_Count() > 0 )
 		{
 			double	Minimum, Maximum, Interval;
 
-			Interval	= Get_Grid()->Get_Range() / (double)Colors.Get_Count();
-			Minimum		= Get_Grid()->Get_Min  ();
+			Interval	= Get_Grids()->Get_Range() / (double)Colors.Get_Count();
+			Minimum		= Get_Grids()->Get_Min  ();
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_Max() + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grids()->Get_Max() + 1.0;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -692,21 +717,21 @@ void CWKSP_Grids::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 2:	// quantiles
 		{
-			if( Get_Grid()->Get_NCells() < Colors.Get_Count() )
+			if( Get_Grids()->Get_NCells() < Colors.Get_Count() )
 			{
-				Colors.Set_Count(Get_Grid()->Get_NCells());
+				Colors.Set_Count(Get_Grids()->Get_NCells());
 			}
 
 			sLong	jCell, nCells;
 			double	Minimum, Maximum, iCell, Count;
 
-			Maximum	= Get_Grid()->Get_Min();
-			nCells	= Get_Grid()->Get_NCells() - Get_Grid()->Get_NoData_Count();
+			Maximum	= Get_Grids()->Get_Min();
+			nCells	= Get_Grids()->Get_NCells() - Get_Grids()->Get_NoData_Count();
 			iCell	= Count	= nCells / (double)Colors.Get_Count();
 
-			for(iCell=0.0; iCell<Get_Grid()->Get_NCells(); iCell++)
+			for(iCell=0.0; iCell<Get_Grids()->Get_NCells(); iCell++)
 			{
-				if( Get_Grid()->Get_Sorted(iCell, jCell, false) )
+				if( Get_Grids()->Get_Sorted(iCell, jCell, false) )
 				{
 					break;
 				}
@@ -716,10 +741,10 @@ void CWKSP_Grids::_LUT_Create(void)
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iCell+=Count)
 			{
-				Get_Grid()->Get_Sorted(iCell, jCell, false);
+				Get_Grids()->Get_Sorted(iCell, jCell, false);
 
 				Minimum	= Maximum;
-				Maximum	= iCell < Get_Grid()->Get_NCells() ? Get_Grid()->asDouble(jCell) : Get_Grid()->Get_Max() + 1.0;
+				Maximum	= iCell < Get_Grids()->Get_NCells() ? Get_Grids()->asDouble(jCell) : Get_Grids()->Get_Max() + 1.0;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -738,7 +763,7 @@ void CWKSP_Grids::_LUT_Create(void)
 	//-----------------------------------------------------
 	case 3:	// natural breaks
 		{
-			CSG_Natural_Breaks	Breaks(Get_Grid(), Colors.Get_Count(), 255);
+			CSG_Natural_Breaks	Breaks(Get_Grids(), Colors.Get_Count(), 255);
 
 			if( Breaks.Get_Count() <= Colors.Get_Count() ) return;
 
@@ -783,47 +808,52 @@ void CWKSP_Grids::_LUT_Create(void)
 //---------------------------------------------------------
 wxString CWKSP_Grids::Get_Value(CSG_Point ptWorld, double Epsilon)
 {
-	wxString	s;	double	Value;
+	wxString	s;
 
-	switch( m_pClassify->Get_Mode() )
+	if( Get_Grid() )
 	{
-	default:
-		break;
+		double	Value;
 
-	case CLASSIFY_METRIC:
-	case CLASSIFY_GRADUATED:
-		if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+		switch( m_pClassify->Get_Mode() )
 		{
-			s	= SG_Get_String(Value, -12).c_str();
-
-			if( Get_Grids()->Get_Unit() && *Get_Grids()->Get_Unit() )
+		case CLASSIFY_METRIC:
+		case CLASSIFY_GRADUATED:
+			if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
 			{
-				s += " "; s += Get_Grids()->Get_Unit();
+				s	= SG_Get_String(Value, -12).c_str();
+
+				if( Get_Grids()->Get_Unit() && *Get_Grids()->Get_Unit() )
+				{
+					s += " "; s += Get_Grids()->Get_Unit();
+				}
 			}
-		}
-		break;
+			break;
 
-	case CLASSIFY_OVERLAY:
-		if( Get_Grid(0)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
-		{
-			s	+= wxString::Format("R%s ", SG_Get_String(Value, -12).c_str());
-		}
-		if( Get_Grid(1)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
-		{
-			s	+= wxString::Format("G%s ", SG_Get_String(Value, -12).c_str());
-		}
-		if( Get_Grid(2)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
-		{
-			s	+= wxString::Format("B%s ", SG_Get_String(Value, -12).c_str());
-		}
-		break;
+		case CLASSIFY_OVERLAY:
+			if( Get_Grid(0)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+			{
+				s	+= wxString::Format("R%s ", SG_Get_String(Value, -6).c_str());
+			}
+			if( Get_Grid(1)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+			{
+				s	+= wxString::Format("G%s ", SG_Get_String(Value, -6).c_str());
+			}
+			if( Get_Grid(2)->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+			{
+				s	+= wxString::Format("B%s ", SG_Get_String(Value, -6).c_str());
+			}
+			break;
 
-	case CLASSIFY_LUT:
-		if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
-		{
-			s	= m_pClassify->Get_Class_Name_byValue(Value);
+		case CLASSIFY_LUT:
+			if( Get_Grid()->Get_Value(ptWorld, Value, GRID_RESAMPLING_NearestNeighbour) )
+			{
+				s	= m_pClassify->Get_Class_Name_byValue(Value);
+			}
+			break;
+
+		default:
+			break;
 		}
-		break;
 	}
 
 	return( s );
@@ -842,87 +872,34 @@ double CWKSP_Grids::Get_Value_StdDev (void)	{	return( ((CSG_Grids *)m_pObject)->
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grids::Fit_Colors(void)
-{
-	CSG_String	List	= _Get_List_Bands();
-
-	m_Parameters("BAND"  )->asChoice()->Set_Items(List);
-	m_Parameters("BAND_R")->asChoice()->Set_Items(List);
-	m_Parameters("BAND_G")->asChoice()->Set_Items(List);
-	m_Parameters("BAND_B")->asChoice()->Set_Items(List);
-
-	return( _Fit_Colors() );
-}
-
-//---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors(bool bRefresh)
-{
-	if( Get_Grids()->Get_NZ() < 1 )
-	{
-		return( false );
-	}
-
-	double	Range[2];
-
-	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
-	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
-	{
-		return( _Fit_Colors_Get(Range, m_Parameters) && Set_Color_Range(Range[0], Range[1]) );
-	}
-
-	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
-	{
-		if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
-		{
-			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grids()) && _Fit_Colors_Set(Range, m_pClassify) )
-			{
-				return( !bRefresh || Update_Views() );
-			}
-		}
-		else	// band wise statistics
-		{
-			if(  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(0)) && _Fit_Colors_Set(Range, &m_Classify[0])
-			&&   _Fit_Colors_Get(Range, m_Parameters, Get_Grid(1)) && _Fit_Colors_Set(Range, &m_Classify[1])
-			&&   _Fit_Colors_Get(Range, m_Parameters, Get_Grid(2)) && _Fit_Colors_Set(Range, &m_Classify[2]) )
-			{
-				return( !bRefresh || Update_Views() );
-			}
-		}
-	}
-
-	return( false );
-}
-
-//---------------------------------------------------------
 bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 {
-	double	Range[2];
-
 	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_METRIC
 	||  m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_GRADUATED )
 	{
-		return( _Fit_Colors_Get(Range, m_Parameters, Get_Grid(), rWorld) && _Fit_Colors_Set(Range, m_pClassify, true) );
+		if( _Fit_Colors(rWorld, Get_Grid(), m_pClassify) )
+		{
+			return( Update_Views() );
+		}
 	}
 
-	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY
+	&&  m_Parameters("OVERLAY_FIT")->asInt() == 0 )	// overall band statistics
 	{
-		if( m_Parameters("OVERLAY_STATISTICS")->asInt() == 0 )	// overall band statistics
+		if( _Fit_Colors(rWorld, Get_Grids(), m_pClassify) )
 		{
-			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grids(), rWorld) && _Fit_Colors_Set(Range, m_pClassify) )
-			{
-				return( Update_Views() );
-			}
+			return( Update_Views() );
 		}
-		else	// band wise statistics
-		{
-			double	Range[2];
+	}
 
-			if( _Fit_Colors_Get(Range, m_Parameters, Get_Grid(0), rWorld) && _Fit_Colors_Set(Range, &m_Classify[0])
-			&&  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(1), rWorld) && _Fit_Colors_Set(Range, &m_Classify[1])
-			&&  _Fit_Colors_Get(Range, m_Parameters, Get_Grid(2), rWorld) && _Fit_Colors_Set(Range, &m_Classify[2]) )
-			{
-				return( Update_Views() );
-			}
+	if( m_Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY
+	&&  m_Parameters("OVERLAY_FIT")->asInt() != 0 )	// band wise statistics
+	{
+		if( _Fit_Colors(rWorld, Get_Grid(0), &m_Classify[0], "_R")
+		&&  _Fit_Colors(rWorld, Get_Grid(1), &m_Classify[1], "_G")
+		&&  _Fit_Colors(rWorld, Get_Grid(2), &m_Classify[2], "_B") )
+		{
+			return( Update_Views() );
 		}
 	}
 
@@ -930,84 +907,51 @@ bool CWKSP_Grids::Fit_Colors(const CSG_Rect &rWorld)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors_Get(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject)
-{
-	#define	GET_STAT (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Statistics() : ((CSG_Grids *)pObject)->Get_Statistics())
-	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram () : ((CSG_Grids *)pObject)->Get_Histogram ())
-
-	if( pObject == NULL )
-	{
-		pObject	= Parameters("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY
-			? (CSG_Data_Object *)Get_Grids()
-			: (CSG_Data_Object *)Get_Grids()->Get_Grid_Ptr(Parameters("BAND")->asInt());
-	}
-
-	switch( Parameters("STRETCH_DEFAULT")->asInt() )
-	{
-	default: {	CSG_Simple_Statistics	s	= GET_STAT;
-		double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
-		Range[0]	= s.Get_Minimum() + d;
-		Range[1]	= s.Get_Maximum() - d;
-		break;	}
-
-	case  1: {	CSG_Simple_Statistics	s	= GET_STAT;
-		double	d	= Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
-		Range[0]	= s.Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[0] < s.Get_Minimum() ) Range[0] = s.Get_Minimum();
-		Range[1]	= s.Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[1] > s.Get_Maximum() ) Range[1] = s.Get_Maximum();
-		break;	}
-
-	case  2: {
-		double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-		Range[0]	= GET_HIST.Get_Quantile(    d);
-		Range[1]	= GET_HIST.Get_Quantile(1 - d);
-		break;	}
-	}
-
-	return( true );
-
-	#undef GET_STAT
-	#undef GET_HIST
-}
-
-//---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors_Get(double Range[2], CSG_Parameters &Parameters, CSG_Data_Object *pObject, const CSG_Rect &rWorld)
+bool CWKSP_Grids::_Fit_Colors(const CSG_Rect &rWorld, CSG_Data_Object *pObject, CWKSP_Layer_Classify *pClassify, const CSG_String &Suffix)
 {
 	#define	GET_STAT (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Statistics(rWorld, s) : ((CSG_Grids *)pObject)->Get_Statistics(rWorld, s))
-	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram (rWorld, s) : ((CSG_Grids *)pObject)->Get_Histogram (rWorld, s))
+	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram (rWorld, h) : ((CSG_Grids *)pObject)->Get_Histogram (rWorld, h))
 
-	switch( Parameters("STRETCH_DEFAULT")->asInt() )
+	double	Minimum, Maximum;
+
+	if( m_Parameters("STRETCH_DEFAULT")->asInt() < 3 )
+	{
+		m_Fit_Colors	= m_Parameters("STRETCH_DEFAULT")->asInt();
+	}
+
+	switch( m_Fit_Colors )
 	{
 	default: {	CSG_Simple_Statistics	s;	if( !GET_STAT )	return( false );
-		double	d	= Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
-		Range[0]	= s.Get_Minimum() + d;
-		Range[1]	= s.Get_Maximum() - d;
+		double	d	= m_Parameters("STRETCH_LINEAR")->asDouble() * 0.01 * s.Get_Range();
+		Minimum	= s.Get_Minimum() + d;
+		Maximum	= s.Get_Maximum() - d;
 		break;	}
 
 	case  1: {	CSG_Simple_Statistics	s;	if( !GET_STAT )	return( false );
-		double	d	= Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
-		Range[0]	= s.Get_Mean() - d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[0] < s.Get_Minimum() ) Range[0] = s.Get_Minimum();
-		Range[1]	= s.Get_Mean() + d; if( Parameters("STRETCH_INRANGE")->asBool() && Range[1] > s.Get_Maximum() ) Range[1] = s.Get_Maximum();
+		double	d	= m_Parameters("STRETCH_STDDEV")->asDouble() * s.Get_StdDev();
+		Minimum	= s.Get_Mean() - d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Minimum < s.Get_Minimum() ) Minimum = s.Get_Minimum();
+		Maximum	= s.Get_Mean() + d; if( m_Parameters("STRETCH_INRANGE")->asBool() && Maximum > s.Get_Maximum() ) Maximum = s.Get_Maximum();
 		break;	}
 
-	case  2: {	CSG_Histogram			s;	if( !GET_HIST ) return( false );
-		double	d	= Parameters("STRETCH_PCTL")->asDouble() * 0.01;
-		Range[0]	= s.Get_Quantile(    d);
-		Range[1]	= s.Get_Quantile(1 - d);
+	case  2: {	CSG_Histogram			h;	if( !GET_HIST ) return( false );
+		double	d	= m_Parameters("STRETCH_PCTL")->asDouble() * 0.01;
+		Minimum	= h.Get_Quantile(    d);
+		Maximum	= h.Get_Quantile(1 - d);
 		break;	}
 	}
 
+	m_Parameters.Set_Parameter("STRETCH_DEFAULT", 3);	// manual
+
+	m_Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MIN", Minimum);
+	m_Parameters.Set_Parameter("METRIC_ZRANGE" + Suffix + ".MAX", Maximum);
+
+	pClassify->Set_Metric(
+		m_Parameters("METRIC_SCALE_MODE")->asInt   (),
+		m_Parameters("METRIC_SCALE_LOG" )->asDouble(),
+		Minimum, Maximum
+	);
+
 	return( true );
-
-	#undef GET_STAT
-	#undef GET_HIST
-}
-
-//---------------------------------------------------------
-bool CWKSP_Grids::_Fit_Colors_Set(double Range[2], CWKSP_Layer_Classify *pClassify, bool bRefresh)
-{
-	pClassify->Set_Metric(m_Parameters("METRIC_SCALE_MODE")->asInt(), m_Parameters("METRIC_SCALE_LOG")->asDouble(), Range[0], Range[1]);
-
-	return( !bRefresh || Set_Color_Range(Range[0], Range[1]) );
 }
 
 
@@ -1245,7 +1189,7 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 	int	byDC	= (int)dc_Map.yWorld2DC(rMap.Get_YMax());	if( byDC < 0 )	byDC	= 0;
 	int	nyDC	= abs(ayDC - byDC);
 
-	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
+	bool	bBandWise	= m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
 
 	#pragma omp parallel for
 	for(int iyDC=0; iyDC<=nyDC; iyDC++)
@@ -1312,7 +1256,7 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 //---------------------------------------------------------
 void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 {
-	bool	bBandWise	= m_Parameters("OVERLAY_STATISTICS")->asInt() != 0;	// bandwise statistics
+	bool	bBandWise	= m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
 
 	CSG_Grid	*pBands[3];
 
