@@ -185,17 +185,40 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 {
 	if( pParameter->Cmp_Identifier("METAFILE") )
 	{
-		CSG_MetaData	Metadata;
+		CSG_MetaData	Info_Scene, Metadata;
+		CSG_Table		Info_Bands;
+		CSG_Strings		File_Bands;
 
-		if( Load_Metadata(Metadata, pParameter->asString()) )
+		if( Load_Metadata(Metadata, pParameter->asString()) && Get_Info(Metadata, File_Bands, Info_Bands, Info_Scene) )
 		{
 			int	Sensor	= Get_Info_Sensor(Metadata);
 
 			pParameters->Set_Enabled("SKIP_PAN", Sensor == SENSOR_ETM || Sensor == SENSOR_OLI_TIRS);
+
+			const CSG_Table_Record	&Info_Band	= Info_Bands[0];
+
+			bool	bRadiance	=  (Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL"))
+								|| (Info_Band.asString("L_MIN") && Info_Band.asString("QCAL_MIN")
+								&&  Info_Band.asString("L_MAX") && Info_Band.asString("QCAL_MAX"));
+
+			bool	bReflectance	= Info_Band.asString("REFLECTANCE_ADD") && Info_Band.asString("REFLECTANCE_MUL");
+
+			pParameters->Set_Enabled("CALIBRATION", bRadiance || bReflectance);
+
+			if( bRadiance || bReflectance )
+			{
+				CSG_String	Choices(_TL("none"));
+
+				if( bRadiance    )	Choices	+= CSG_String("|") + _TL("radiance"   );
+				if( bReflectance )	Choices	+= CSG_String("|") + _TL("reflectance");
+
+				(*pParameters)("CALIBRATION")->asChoice()->Set_Items(Choices);
+			}
 		}
 		else
 		{
-			pParameters->Set_Enabled("SKIP_PAN", false);
+			pParameters->Set_Enabled("SKIP_PAN"   , false);
+			pParameters->Set_Enabled("CALIBRATION", false);
 		}
 	}
 
@@ -997,10 +1020,10 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 	{
 		double	MaxVal	= (pBand->Get_Type() == SG_DATATYPE_Byte ? 256 : 256*256) - 1;
 		pBand->Set_NoData_Value(MaxVal--);
-		pBand->Set_Scaling(100.0 / MaxVal, 0.0);	// 0 to 100 percent
+		pBand->Set_Scaling(1. / MaxVal, 0.0);	// 0 to 1 (reflectance)
 	}
 
-	pBand->Set_Unit("Percent");
+	pBand->Set_Unit(_TL("Reflectance"));
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
@@ -1012,7 +1035,9 @@ bool CLandsat_Scene_Import::Get_Reflectance(CSG_Grid *pBand, const CSG_Table_Rec
 		}
 		else
 		{
-			pBand->Set_Value(i, 100.0 * (Offset + Scale * DN.asDouble(i)) / SunHeight);
+			double	r	= (Offset + Scale * DN.asDouble(i)) / SunHeight;
+
+			pBand->Set_Value(i, r < 0. ? 0. : r > 1. ? 1. : r);
 		}
 	}
 
