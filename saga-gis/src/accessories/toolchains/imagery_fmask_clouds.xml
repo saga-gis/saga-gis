@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="5.1.0">
+	<group>imagery</group>
+	<identifier>imagery_fmask_clouds</identifier>
+	<name>Cloud Detection</name>
+	<author>O. Conrad (c) 2017</author>
+	<menu absolute="true">Imagery|Analysis</menu>
+	<description>
+	This tool implements pass one of the Function of mask (Fmask) algorithm for cloud and cloud shadow detection in Landsat imagery. Landsat Top of Atmosphere (TOA) reflectance and Brightness Temperature (BT) are used as input.</description>
+	<reference>
+		<authors>Zhu, Z., Woodcock, C.E.</authors>
+		<year>2012</year>
+		<title>Object-based cloud and cloud shadow detection in Landsat imagery</title>
+		<where>Remote Sensing of Environment 118, 83-94.</where>
+		<link>https://www.sciencedirect.com/science/article/pii/S0034425711003853</link>
+		<link_text>ScienceDirect</link_text>
+	</reference>
+	<reference>
+		<authors>Zhu, Z., Wang, S., Woodcock, C.E.</authors>
+		<year>2015</year>
+		<title>Improvement and expansion of the Fmask algorithm: cloud, cloud shadow, and snow detection for Landsats 4-7, 8, and Sentinel 2 images</title>
+		<where>Remote Sensing of Environment 159, 269-277.</where>
+		<link>https://www.sciencedirect.com/science/article/abs/pii/S0034425714005069</link>
+		<link_text>ScienceDirect</link_text>
+	</reference>
+  
+	<parameters>
+		<option varname="GRID_SYSTEM_VNIR" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="BLUE" type="grid" parent="GRID_SYSTEM_VNIR">
+			<name>Blue</name>
+		</input>
+		<input varname="GREEN" type="grid" parent="GRID_SYSTEM_VNIR">
+			<name>Green</name>
+		</input>
+		<input varname="RED" type="grid" parent="GRID_SYSTEM_VNIR">
+			<name>Red</name>
+		</input>
+		<input varname="NIR" type="grid" parent="GRID_SYSTEM_VNIR">
+			<name>Near Infrared</name>
+		</input>
+		<output varname="CLOUDS" type="grid" parent="GRID_SYSTEM_VNIR">
+			<name>Clouds</name>
+			<output_name>Clouds</output_name>
+		</output>
+
+		<option varname="GRID_SYSTEM_SWIR" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="SWIR1" type="grid" parent="GRID_SYSTEM_SWIR">
+			<name>Shortwave Infrared 1</name>
+		</input>
+		<input varname="SWIR2" type="grid" parent="GRID_SYSTEM_SWIR">
+			<name>Shortwave Infrared 2</name>
+		</input>
+
+		<option varname="GRID_SYSTEM_THERMAL" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="THERMAL" type="grid" parent="GRID_SYSTEM_THERMAL" optional="true">
+			<name>Temperature [Kelvin]</name>
+		</input>
+
+		<option varname="GRID_SYSTEM_CIRRUS" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="CIRRUS" type="grid" parent="GRID_SYSTEM_CIRRUS" optional="true">
+			<name>Cirrus</name>
+		</input>
+	</parameters>
+  
+	<tools>
+		<tool library="grid_calculus" tool="1" name="Grid Calculator">
+			<option id="FORMULA">(g1+g2+g3)/3</option>
+			<option id=   "TYPE">7</option>
+			<input  id=  "GRIDS">BLUE</input>
+			<input  id=  "GRIDS">GREEN</input>
+			<input  id=  "GRIDS">RED</input>
+			<output id= "RESULT">MEANVIS</output>
+		</tool>
+	
+		<tool library="grid_calculus" tool="1" name="Grid Calculator">
+			<option id="FORMULA">ifelse(
+				lt((g4-g3)/(g4+g3),0.8)
+				*lt((g2-h1)/(g2+h1),0.8)
+				*gt(h2,0.03)
+				*gt(g1-0.5*g3-0.08,0)
+				*gt(g4/h1,0.75)
+				*lt((abs(g1-g5)+abs(g2-g5)+abs(g3-g5))/g5,0.7)
+				,1,nodata())
+			</option>
+			<option id= "NAME">Clouds</option>
+			<option id= "TYPE">2</option>
+			<input  id= "GRIDS">BLUE</input>
+			<input  id= "GRIDS">GREEN</input>
+			<input  id= "GRIDS">RED</input>
+			<input  id= "GRIDS">NIR</input>
+			<input  id= "GRIDS">MEANVIS</input>
+			<input  id="XGRIDS">SWIR1</input>
+			<input  id="XGRIDS">SWIR2</input>
+			<output id="RESULT">CLOUDS</output>
+		</tool>
+
+		<condition type="exists" variable="THERMAL">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
+				<option id="FORMULA">ifelse(lt(h1-273.15,27),g1,nodata())</option>
+				<option id=   "TYPE">2</option>
+				<input  id= "XGRIDS">THERMAL</input>
+				<input  id=  "GRIDS">CLOUDS</input>
+				<output id= "RESULT">CLOUDS</output>
+			</tool>	
+		</condition>
+
+		<condition type="exists" variable="CIRRUS">
+			<tool library="grid_calculus" tool="1" name="Grid Calculator">
+				<option id="FORMULA">ifelse(gt(h1,0.01),1,g1)</option>
+				<option id=   "TYPE">2</option>
+				<input  id= "XGRIDS">CIRRUS</input>
+				<input  id=  "GRIDS">CLOUDS</input>
+				<output id= "RESULT">CLOUDS</output>
+			</tool>	
+		</condition>
+	</tools>
+</toolchain>
