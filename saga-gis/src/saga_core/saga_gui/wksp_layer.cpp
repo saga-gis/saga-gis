@@ -909,9 +909,11 @@ bool CWKSP_Layer::Get_Colors(CSG_Colors *pColors)
 //---------------------------------------------------------
 bool CWKSP_Layer::Set_Colors(CSG_Colors *pColors)
 {
-	if( m_pClassify->Get_Metric_Colors() && pColors )
+	if( m_pClassify->Get_Metric_Colors() && pColors && m_pClassify->Get_Metric_Colors()->Assign(pColors) )
 	{
-		return( m_pClassify->Get_Metric_Colors()->Assign(pColors) && DataObject_Changed() );
+		Parameters_Changed();
+
+		return( true );
 	}
 
 	return( false );

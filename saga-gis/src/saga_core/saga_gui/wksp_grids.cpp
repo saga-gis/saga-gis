@@ -97,8 +97,6 @@ CWKSP_Grids::CWKSP_Grids(CSG_Grids *pGrids)
 	On_Create_Parameters();
 
 	DataObject_Changed();
-
-	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
 }
 
 
@@ -317,6 +315,9 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	m_Parameters["BAND_R"].asChoice()->Set_Items(List); m_Parameters["BAND_R"].Set_Value(0);
 	m_Parameters["BAND_G"].asChoice()->Set_Items(List); m_Parameters["BAND_G"].Set_Value(1);
 	m_Parameters["BAND_B"].asChoice()->Set_Items(List); m_Parameters["BAND_B"].Set_Value(2);
+
+	//-----------------------------------------------------
+	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
 }
 
 
@@ -398,14 +399,17 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	m_Edit_Attributes.Create(Get_Grids()->Get_Attributes());
 
 	//-----------------------------------------------------
-	m_Parameters("OBJECT_Z_UNIT"  )->Set_Value(Get_Grids()->Get_Unit   ());
-	m_Parameters("OBJECT_Z_FACTOR")->Set_Value(Get_Grids()->Get_Scaling());
-	m_Parameters("OBJECT_Z_OFFSET")->Set_Value(Get_Grids()->Get_Offset ());
+	m_Parameters.Set_Parameter("OBJECT_Z_UNIT"  , Get_Grids()->Get_Unit   ());
+	m_Parameters.Set_Parameter("OBJECT_Z_FACTOR", Get_Grids()->Get_Scaling());
+	m_Parameters.Set_Parameter("OBJECT_Z_OFFSET", Get_Grids()->Get_Offset ());
+
+	m_Parameters.Set_Parameter("MAX_SAMPLES"    , 100. * Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells());
 
 	//-----------------------------------------------------
-	m_Parameters("MAX_SAMPLES")->Set_Value(
-		100.0 * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells()
-	);
+	if( m_Parameters("STRETCH_DEFAULT")->asInt() >= 3 )	// manual
+	{
+		m_Parameters.Set_Parameter("STRETCH_DEFAULT", m_Fit_Colors);
+	}
 
 	//-----------------------------------------------------
 	CSG_String	List;
@@ -450,9 +454,10 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 
 	//-----------------------------------------------------
 	Get_Grids()->Set_Unit   (m_Parameters("OBJECT_Z_UNIT"  )->asString());
-	Get_Grids()->Set_Scaling(m_Parameters("OBJECT_Z_FACTOR")->asDouble(), m_Parameters("OBJECT_Z_OFFSET")->asDouble());
+	Get_Grids()->Set_Scaling(m_Parameters("OBJECT_Z_FACTOR")->asDouble(),
+	                         m_Parameters("OBJECT_Z_OFFSET")->asDouble());
 
-	Get_Grids()->Set_Max_Samples(Get_Grids()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.0) * (Get_Grids()->Get_NZ() < 1 ? 1. : 1. / Get_Grids()->Get_NZ()) );
+	Get_Grids()->Set_Max_Samples(Get_Grids()->Get_NCells() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) * (Get_Grids()->Get_NZ() < 1 ? 1. : 1. / Get_Grids()->Get_NZ()));
 
 	//-----------------------------------------------------
 	Get_Grids()->Set_Z_Attribute(m_Parameters("DIM_ATTRIBUTE")->asInt());
@@ -490,6 +495,12 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 		m_Parameters("METRIC_ZRANGE_B.MIN")->asDouble(),
 		m_Parameters("METRIC_ZRANGE_B.MAX")->asDouble()
 	);
+
+	//-----------------------------------------------------
+	if( m_Parameters("STRETCH_DEFAULT")->asInt() < 3 )	// not manual, remember last state...
+	{
+		m_Fit_Colors	= m_Parameters("STRETCH_DEFAULT")->asInt();
+	}
 }
 
 //---------------------------------------------------------
@@ -913,11 +924,6 @@ bool CWKSP_Grids::_Fit_Colors(const CSG_Rect &rWorld, CSG_Data_Object *pObject, 
 	#define	GET_HIST (pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid ? ((CSG_Grid *)pObject)->Get_Histogram (rWorld, h) : ((CSG_Grids *)pObject)->Get_Histogram (rWorld, h))
 
 	double	Minimum, Maximum;
-
-	if( m_Parameters("STRETCH_DEFAULT")->asInt() < 3 )
-	{
-		m_Fit_Colors	= m_Parameters("STRETCH_DEFAULT")->asInt();
-	}
 
 	switch( m_Fit_Colors )
 	{
