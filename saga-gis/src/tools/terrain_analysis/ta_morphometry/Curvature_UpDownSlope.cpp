@@ -78,25 +78,39 @@ CCurvature_UpDownSlope::CCurvature_UpDownSlope(void)
 	Set_Author		("P.Gandelli, O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"Calculates the local curvature of a cell as sum of the gradients to its neighbour cells. "
-		"Upslope curvature is the distance weighted average local curvature in a cell's upslope "
-		"contributing area based on multiple flow direction after Freeman 1994. "
-		"\nReferences:\n"
-		"- Freeman, G.T. (1991): Calculating catchment area with divergent flow based on a regular grid. "
-		"  Computers and Geosciences, 17:413-22\n"
+		"This tool first calculates the local curvature of a cell as sum of the gradients (i.e. tangens of slope) "
+		"to its neighbour cells. This is a simple estimation of the general curvature and is strongly correlated "
+		"with general curvatures calculated with other methods (e.g. Zevenbergen & Thorne 1987). "
+		"Then upslope curvature is calculated as the distance and flow proportional weighted average local curvature "
+		"over a cell's upslope contributing area following the multiple flow direction algorithm "
+		"after Freeman (1991). In a similar way the downslope curvature is calculated by summarizing "
+		"the curvatures of all hydrologically downslope connected cells. The local upslope/downslope curvatures "
+		"just take the immediately neighboured cells into account. "
 	));
 
-	Parameters.Add_Grid(NULL, "DEM"         , _TL("Elevation"                ), _TL(""), PARAMETER_INPUT );
-	Parameters.Add_Grid(NULL, "C_LOCAL"     , _TL("Local Curvature"          ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "C_UP"        , _TL("Upslope Curvature"        ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "C_UP_LOCAL"  , _TL("Local Upslope Curvature"  ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "C_DOWN"      , _TL("Downslope Curvature"      ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid(NULL, "C_DOWN_LOCAL", _TL("Local Downslope Curvature"), _TL(""), PARAMETER_OUTPUT);
+	Add_Reference("Freeman, G.T.", "1991",
+		"Calculating catchment area with divergent flow based on a regular grid",
+		"Computers and Geosciences, 17:413-22.",
+		SG_T("https://www.sciencedirect.com/science/article/pii/009830049190048I"), SG_T("ScienceDirect")
+	);
 
-	Parameters.Add_Value(
-		NULL	, "WEIGHTING"	, _TL("Upslope Weighting"),
+	Add_Reference("Zevenbergen, L.W., Thorne, C.R.", "1987",
+		"Quantitative analysis of land surface topography",
+		"Earth Surface Processes and Landforms, 12: 47-56.",
+		SG_T("https://onlinelibrary.wiley.com/doi/abs/10.1002/esp.3290120107"), SG_T("Wiley Online Library")
+	);
+
+	Parameters.Add_Grid("", "DEM"         , _TL("Elevation"                ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "C_LOCAL"     , _TL("Local Curvature"          ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "C_UP"        , _TL("Upslope Curvature"        ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "C_UP_LOCAL"  , _TL("Local Upslope Curvature"  ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "C_DOWN"      , _TL("Downslope Curvature"      ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "C_DOWN_LOCAL", _TL("Local Downslope Curvature"), _TL(""), PARAMETER_OUTPUT);
+
+	Parameters.Add_Double(
+		""	, "WEIGHTING"	, _TL("Upslope Weighting"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true, 1.0, true
+		0.5, 0.0, true, 1.0, true
 	);
 }
 
@@ -117,11 +131,6 @@ bool CCurvature_UpDownSlope::On_Execute(void)
 
 	m_Weighting		= Parameters("WEIGHTING")->asDouble();
 
-	m_pC_Up        ->Assign(0.0);
-	m_pC_Up_Local  ->Assign(0.0);
-	m_pC_Down      ->Assign(0.0);
-	m_pC_Down_Local->Assign(0.0);
-
 	DataObject_Set_Colors(m_pC_Local     , 11, SG_COLORS_RED_GREY_BLUE, true);
 	DataObject_Set_Colors(m_pC_Up        , 11, SG_COLORS_RED_GREY_BLUE, true);
 	DataObject_Set_Colors(m_pC_Up_Local  , 11, SG_COLORS_RED_GREY_BLUE, true);
@@ -140,7 +149,8 @@ bool CCurvature_UpDownSlope::On_Execute(void)
 
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		for(x=0; x<Get_NX(); x++)
+		#pragma omp parallel for private(x)
+		for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
@@ -153,6 +163,10 @@ bool CCurvature_UpDownSlope::On_Execute(void)
 			else
 			{
 				m_pC_Local     ->Set_Value(x, y, Get_Local(x, y));
+				m_pC_Up        ->Set_Value(x, y, 0.0);
+				m_pC_Up_Local  ->Set_Value(x, y, 0.0);
+				m_pC_Down      ->Set_Value(x, y, 0.0);
+				m_pC_Down_Local->Set_Value(x, y, 0.0);
 			}
 		}
 	}
