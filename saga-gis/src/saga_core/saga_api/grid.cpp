@@ -1142,6 +1142,8 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 */
 const CSG_Histogram & CSG_Grid::Get_Histogram(size_t nClasses)
 {
+	Update();
+
 	if( nClasses > 1 && nClasses != m_Histogram.Get_Class_Count() )
 	{
 		m_Histogram.Destroy();

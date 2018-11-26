@@ -1563,6 +1563,8 @@ bool CSG_Grids::Set_Max_Samples(sLong Max_Samples)
 */
 const CSG_Histogram & CSG_Grids::Get_Histogram(size_t nClasses)
 {
+	Update();
+
 	if( nClasses > 1 && nClasses != m_Histogram.Get_Class_Count() )
 	{
 		m_Histogram.Destroy();
