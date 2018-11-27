@@ -223,9 +223,14 @@ bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointClou
 		{
 			pTarget->Add_Point(Point.x, Point.y, Point.z);
 
-			for(int iField=0; iField<pSource->Get_Attribute_Count(); iField++)
+			for(int iAttr=0; iAttr<pSource->Get_Attribute_Count(); iAttr++)
 			{
-				pTarget->Set_Attribute(iField, pSource->Get_Attribute(iPoint, iField));
+				switch (pSource->Get_Attribute_Type(iAttr))
+				{
+				default:					pTarget->Set_Attribute(iAttr, pSource->Get_Attribute(iPoint, iAttr));		break;
+				case SG_DATATYPE_Date:
+				case SG_DATATYPE_String:	CSG_String sAttr; pSource->Get_Attribute(iPoint, iAttr, sAttr); pTarget->Set_Attribute(iAttr, sAttr);		break;
+				}
 			}
 		}
 		else
