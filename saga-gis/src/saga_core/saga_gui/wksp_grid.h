@@ -145,8 +145,10 @@ private:
 	bool						_Save_Image				(void);
 	bool						_Save_Image_Clipboard	(void);
 
+	void						_Get_Overlay			(CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2]);
+
 	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling);
-	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC);
+	void						_Draw_Grid_Nodes		(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2]);
 	void						_Draw_Grid_Cells		(CWKSP_Map_DC &dc_Map);
 
 	void						_Set_Shading			(double Shade, int &Color);

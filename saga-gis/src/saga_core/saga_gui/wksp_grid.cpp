@@ -80,6 +80,7 @@
 #include "wksp_data_manager.h"
 #include "wksp_grid_manager.h"
 #include "wksp_grid.h"
+#include "wksp_grids.h"
 
 #include "data_source_pgsql.h"
 
@@ -384,20 +385,17 @@ void CWKSP_Grid::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_R"		, _TL("Red"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
-	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
+	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_R", _TL("Red"  ), _TL(""), PARAMETER_INPUT_OPTIONAL, false)->Get_Parent()->Set_Value(
+		(void *)&Get_Grid()->Get_System()
+	);
 
-	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_G"		, _TL("Green"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
-	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
+	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_G", _TL("Green"), _TL(""), PARAMETER_INPUT_OPTIONAL, false)->Get_Parent()->Set_Value(
+		(void *)&Get_Grid()->Get_System()
+	);
 
-	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_B"		, _TL("Blue"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
-	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
+	m_Parameters.Add_Grid("NODE_OVERLAY", "OVERLAY_B", _TL("Blue" ), _TL(""), PARAMETER_INPUT_OPTIONAL, false)->Get_Parent()->Set_Value(
+		(void *)&Get_Grid()->Get_System()
+	);
 
 	//-----------------------------------------------------
 	// Cell Values...
@@ -514,17 +512,32 @@ void CWKSP_Grid::On_Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 {
-	if( pChanged == this )
+	if( pChanged )
 	{
-		return( true );
-	}
+		if( pChanged == this )
+		{
+			return( true );
+		}
 
-	if( pChanged && pChanged->Get_Type() == WKSP_ITEM_Grid )
-	{
-		return(	(((CWKSP_Grid *)pChanged)->Get_Grid() == m_Parameters("OVERLAY_R")->asGrid() && m_Parameters("OVERLAY_R")->is_Enabled())
-			||  (((CWKSP_Grid *)pChanged)->Get_Grid() == m_Parameters("OVERLAY_G")->asGrid() && m_Parameters("OVERLAY_G")->is_Enabled())
-			||  (((CWKSP_Grid *)pChanged)->Get_Grid() == m_Parameters("OVERLAY_B")->asGrid() && m_Parameters("OVERLAY_B")->is_Enabled())
-		);
+		if( pChanged->Get_Type() == WKSP_ITEM_Grid )
+		{
+			CSG_Grid	*pGrid	= ((CWKSP_Grid *)pChanged)->Get_Grid();
+
+			return(	(m_Parameters("OVERLAY_R")->is_Enabled() && pGrid == m_Parameters("OVERLAY_R")->asGrid())
+				||  (m_Parameters("OVERLAY_G")->is_Enabled() && pGrid == m_Parameters("OVERLAY_G")->asGrid())
+				||  (m_Parameters("OVERLAY_B")->is_Enabled() && pGrid == m_Parameters("OVERLAY_B")->asGrid())
+			);
+		}
+
+		if( pChanged->Get_Type() == WKSP_ITEM_Grids )
+		{
+			CSG_Grids	*pGrids	= ((CWKSP_Grids *)pChanged)->Get_Grids();
+
+			return(	(m_Parameters("OVERLAY_R")->is_Enabled() && pGrids == m_Parameters("OVERLAY_R")->asGrid()->Get_Owner())
+				||  (m_Parameters("OVERLAY_G")->is_Enabled() && pGrids == m_Parameters("OVERLAY_G")->asGrid()->Get_Owner())
+				||  (m_Parameters("OVERLAY_B")->is_Enabled() && pGrids == m_Parameters("OVERLAY_B")->asGrid()->Get_Owner())
+			);
+		}
 	}
 
 	return( false );
@@ -1365,6 +1378,10 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
 {
+	CSG_Grid *pOverlay[2]; CWKSP_Layer_Classify *pClassify[2];
+
+	_Get_Overlay(pOverlay, pClassify);
+
 	CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Intersect(Get_Grid()->Get_Extent(true));
 
 	int	axDC	= (int)dc_Map.xWorld2DC(rMap.Get_XMin());	if( axDC < 0 )	axDC	= 0;
@@ -1377,7 +1394,7 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 	{
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
-			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC);
+			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, pClassify);
 		}
 	}
 	else
@@ -1385,35 +1402,52 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 		#pragma omp parallel for
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
-			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC);
+			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, pClassify);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC)
+void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2])
 {
 	int	Overlay	= m_Parameters("OVERLAY_MODE")->asInt();
-
-	CWKSP_Grid	*pOverlay[2];
 
 	switch( Overlay )
 	{
 	default:
-		pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_G")->asGrid());
-		pOverlay[1]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_B")->asGrid());
+		pOverlay[0]	= m_Parameters("OVERLAY_G")->asGrid();
+		pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
 		break;
 
 	case  1:
-		pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_R")->asGrid());
-		pOverlay[1]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_B")->asGrid());
+		pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
+		pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
 		break;
 
 	case  2:
-		pOverlay[0]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_R")->asGrid());
-		pOverlay[1]	= (CWKSP_Grid *)g_pData->Get(m_Parameters("OVERLAY_G")->asGrid());
+		pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
+		pOverlay[1]	= m_Parameters("OVERLAY_G")->asGrid();
 		break;
 	}
+
+	for(int i=0; i<2; i++)
+	{
+		if( !SG_Get_Data_Manager().Exists(pOverlay[i]) )
+		{
+			pOverlay [i]	= NULL;
+			pClassify[i]	= NULL;
+		}
+		else
+		{
+			pClassify[i]	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]->Get_Owner() ? pOverlay[i]->Get_Owner() : pOverlay[i]))->Get_Classifier();
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2])
+{
+	int	Overlay	= m_Parameters("OVERLAY_MODE")->asInt();
 
 	double	xMap	= dc_Map.xDC2World(axDC);
 	double	yMap	= dc_Map.yDC2World( yDC);
@@ -1439,11 +1473,11 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 
 				c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
 
-				c[1]	= pOverlay[0] && pOverlay[0]->Get_Grid()->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255.0 * pOverlay[0]->m_pClassify->Get_MetricToRelative(Value)) : 255;
+				c[1]	= pOverlay[0] && pOverlay[0]->Get_Value(xMap, yMap, Value, Resampling)
+						? (int)(255.0 * pClassify[0]->Get_MetricToRelative(Value)) : 255;
 
-				c[2]	= pOverlay[1] && pOverlay[1]->Get_Grid()->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255.0 * pOverlay[1]->m_pClassify->Get_MetricToRelative(Value)) : 255;
+				c[2]	= pOverlay[1] && pOverlay[1]->Get_Value(xMap, yMap, Value, Resampling)
+						? (int)(255.0 * pClassify[1]->Get_MetricToRelative(Value)) : 255;
 
 				if( c[0] < 0 ) c[0] = 0; else if( c[0] > 255 ) c[0] = 255;
 				if( c[1] < 0 ) c[1] = 0; else if( c[1] > 255 ) c[1] = 255;
