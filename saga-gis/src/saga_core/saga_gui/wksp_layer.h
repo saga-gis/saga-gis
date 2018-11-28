@@ -73,6 +73,8 @@
 //---------------------------------------------------------
 #include "wksp_data_item.h"
 
+#include "wksp_layer_classify.h"
+
 #include "wksp_map_dc.h"
 
 

@@ -256,13 +256,9 @@ void CVIEW_Histogram::Draw_Frame(wxDC &dc, wxRect r)
 	}
 
 	//-----------------------------------------------------
-	int	Maximum	= m_bCumulative
-		? Histogram.Get_Element_Count  ()
-		: Histogram.Get_Element_Maximum();
-
-	if( Maximum > 0 )
+	if( Histogram.Get_Element_Maximum() > 0 )
 	{
-		Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()), 0, Maximum, false, false, false);
+		Draw_Scale(dc, wxRect(r.GetLeft() - 20, r.GetTop(), 20, r.GetHeight()), 0, m_bCumulative ? 100 : Histogram.Get_Element_Maximum(), false, false, false);
 	}
 
 	//-----------------------------------------------------

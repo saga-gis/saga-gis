@@ -133,6 +133,106 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CSG_Scaler
+{
+public:
+	typedef enum EInterval
+	{
+		LINEAR = 0, INCREASING, DECREASING
+	}
+	TInterval;
+
+	//-----------------------------------------------------
+	CSG_Scaler(void);
+
+								CSG_Scaler			(double Minimum, double Maximum, double Interval = 0.);
+	bool						Create				(double Minimum, double Maximum, double Interval = 0.);
+
+	//-----------------------------------------------------
+	bool						Set_Linear			(CSG_Table *pTable, int Field, double Interval, double Percent);
+	bool						Set_StdDev			(CSG_Table *pTable, int Field, double Interval, double StdDev, bool bKeepInRange);
+	bool						Set_Percentile		(CSG_Table *pTable, int Field, double Interval, double Percentile);
+
+	bool						Set_Linear			(CSG_Grid  *pGrid            , double Interval, double Percent);
+	bool						Set_StdDev			(CSG_Grid  *pGrid            , double Interval, double StdDev, bool bKeepInRange);
+	bool						Set_Percentile		(CSG_Grid  *pGrid            , double Interval, double Percentile);
+
+	bool						Set_Linear			(CSG_Grids *pGrids           , double Interval, double Percent);
+	bool						Set_StdDev			(CSG_Grids *pGrids           , double Interval, double StdDev, bool bKeepInRange);
+	bool						Set_Percentile		(CSG_Grids *pGrids           , double Interval, double Percentile);
+
+	//-----------------------------------------------------
+	double						Get_Minimum			(void)	const	{	return( m_Minimum           );	}
+	double						Get_Maximum			(void)	const	{	return( m_Minimum + m_Range );	}
+	double						Get_Range			(void)	const	{	return(             m_Range );	}
+	bool						Set_Range			(double Minimum, double Maximum);
+
+	TInterval					Get_Interval_Mode	(void)	const	{	return( m_Interval          );	}
+	double						Get_Interval		(void)	const	{	return( m_LogRange          );	}
+	bool						Set_Interval		(double Interval);
+
+	//-----------------------------------------------------
+	double						to_Relative			(double Value)	const
+	{
+		if( m_Range > 0. )
+		{
+			Value	= (Value - m_Minimum) / m_Range;
+
+			switch( m_Interval )
+			{
+			default:
+				return( Value );
+
+			case INCREASING:
+				return( Value <= 0. ? 0. :      (log(1. + m_LogRange * (     Value)) / log(1. + m_LogRange)) );
+
+			case DECREASING:
+				return( Value >= 1. ? 1. : 1. - (log(1. + m_LogRange * (1. - Value)) / log(1. + m_LogRange)) );
+			}
+		}
+
+		return( 0. );
+	}
+
+	//-----------------------------------------------------
+	double						from_Relative		(double Value)	const
+	{
+		if( m_Range > 0. )
+		{
+			switch( m_Interval )
+			{
+			case INCREASING:
+				Value	=      ((exp(log(1. + m_LogRange) * (     Value)) - 1.) / m_LogRange);
+				break;
+
+			case DECREASING:
+				Value	= 1. - ((exp(log(1. + m_LogRange) * (1. - Value)) - 1.) / m_LogRange);
+				break;
+			}
+
+			return( m_Minimum + (m_Range * Value) );
+		}
+
+		return( m_Minimum );
+	}
+
+
+protected:
+
+	TInterval		m_Interval;
+
+	double			m_Minimum, m_Range, m_LogRange;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CWKSP_Layer_Classify
 {
 public: ///////////////////////////////////////////////////

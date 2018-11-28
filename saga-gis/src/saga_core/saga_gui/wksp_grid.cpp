@@ -760,29 +760,14 @@ void CWKSP_Grid::_LUT_Create(void)
 				Colors.Set_Count(Get_Grid()->Get_NCells());
 			}
 
-			sLong	jCell, nCells;
-			double	Minimum, Maximum, iCell, Count;
+			double	Minimum, Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(0.0);
 
-			Maximum	= Get_Grid()->Get_Min();
-			nCells	= Get_Grid()->Get_NCells() - Get_Grid()->Get_NoData_Count();
-			iCell	= Count	= nCells / (double)Colors.Get_Count();
+			double	Step	= 1. / Colors.Get_Count();
 
-			for(iCell=0.0; iCell<Get_Grid()->Get_NCells(); iCell++)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
-				if( Get_Grid()->Get_Sorted(iCell, jCell, false) )
-				{
-					break;
-				}
-			}
-
-			iCell	+= Count;
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iCell+=Count)
-			{
-				Get_Grid()->Get_Sorted(iCell, jCell, false);
-
 				Minimum	= Maximum;
-				Maximum	= iCell < Get_Grid()->Get_NCells() ? Get_Grid()->asDouble(jCell) : Get_Grid()->Get_Max() + 1.0;
+				Maximum	= Get_Grid()->Get_Histogram().Get_Quantile((1. + iClass) / Colors.Get_Count());
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -1378,9 +1363,9 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling)
 {
-	CSG_Grid *pOverlay[2]; CWKSP_Layer_Classify *pClassify[2];
+	CSG_Grid *pOverlay[2]; CSG_Scaler	Scaler[2];
 
-	_Get_Overlay(pOverlay, pClassify);
+	_Get_Overlay(pOverlay, Scaler);
 
 	CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Intersect(Get_Grid()->Get_Extent(true));
 
@@ -1394,7 +1379,7 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 	{
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
-			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, pClassify);
+			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, Scaler);
 		}
 	}
 	else
@@ -1402,50 +1387,72 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 		#pragma omp parallel for
 		for(int iyDC=0; iyDC<=nyDC; iyDC++)
 		{
-			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, pClassify);
+			_Draw_Grid_Nodes(dc_Map, Resampling, ayDC - iyDC, axDC, bxDC, pOverlay, Scaler);
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2])
+void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 {
-	int	Overlay	= m_Parameters("OVERLAY_MODE")->asInt();
-
-	switch( Overlay )
+	if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 	{
-	default:
-		pOverlay[0]	= m_Parameters("OVERLAY_G")->asGrid();
-		pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
-		break;
-
-	case  1:
-		pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
-		pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
-		break;
-
-	case  2:
-		pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
-		pOverlay[1]	= m_Parameters("OVERLAY_G")->asGrid();
-		break;
+		pOverlay [0] = pOverlay [1] = NULL;
 	}
-
-	for(int i=0; i<2; i++)
+	else
 	{
-		if( !SG_Get_Data_Manager().Exists(pOverlay[i]) )
+		switch( m_Parameters("OVERLAY_MODE")->asInt() )
 		{
-			pOverlay [i]	= NULL;
-			pClassify[i]	= NULL;
+		default:
+			pOverlay[0]	= m_Parameters("OVERLAY_G")->asGrid();
+			pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
+			break;
+
+		case  1:
+			pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
+			pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
+			break;
+
+		case  2:
+			pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
+			pOverlay[1]	= m_Parameters("OVERLAY_G")->asGrid();
+			break;
 		}
-		else
+
+		for(int i=0; i<2; i++)
 		{
-			pClassify[i]	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]->Get_Owner() ? pOverlay[i]->Get_Owner() : pOverlay[i]))->Get_Classifier();
+			if( !SG_Get_Data_Manager().Exists(pOverlay[i]) )
+			{
+				pOverlay[i]	= NULL;
+			}
+			else if( !pOverlay[i]->Get_Owner() )
+			{
+				CWKSP_Layer_Classify	*pClassify	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]))->Get_Classifier();
+
+				Scaler[i].Create(pClassify->Get_Metric_Minimum(), pClassify->Get_Metric_Maximum(),
+					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  pClassify->Get_Metric_LogFactor() :
+					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGDOWN ? -pClassify->Get_Metric_LogFactor() : 0.
+				);
+			}
+			else
+			{
+				double	Interval	=
+					m_pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  m_pClassify->Get_Metric_LogFactor() :
+					m_pClassify->Get_Metric_Mode() == METRIC_MODE_LOGDOWN ? -m_pClassify->Get_Metric_LogFactor() : 0.;
+
+				switch( m_Fit_Colors )
+				{
+				default: Scaler[i].Set_Linear    (pOverlay[i], Interval, m_Parameters("STRETCH_LINEAR")->asDouble());	break;
+				case  1: Scaler[i].Set_StdDev    (pOverlay[i], Interval, m_Parameters("STRETCH_STDDEV")->asDouble(), m_Parameters("STRETCH_INRANGE")->asBool());	break;
+				case  2: Scaler[i].Set_Percentile(pOverlay[i], Interval, m_Parameters("STRETCH_PCTL"  )->asDouble());	break;
+				}
+			}
 		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CWKSP_Layer_Classify *pClassify[2])
+void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 {
 	int	Overlay	= m_Parameters("OVERLAY_MODE")->asInt();
 
@@ -1471,13 +1478,13 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 			{
 				int		c[3];
 
-				c[0]	= (int)(255.0 * m_pClassify->Get_MetricToRelative(Value));
+				c[0]	= (int)(255. * m_pClassify->Get_MetricToRelative(Value));
 
 				c[1]	= pOverlay[0] && pOverlay[0]->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255.0 * pClassify[0]->Get_MetricToRelative(Value)) : 255;
+						? (int)(255. * Scaler[0].to_Relative(Value)) : 255;
 
 				c[2]	= pOverlay[1] && pOverlay[1]->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255.0 * pClassify[1]->Get_MetricToRelative(Value)) : 255;
+						? (int)(255. * Scaler[1].to_Relative(Value)) : 255;
 
 				if( c[0] < 0 ) c[0] = 0; else if( c[0] > 255 ) c[0] = 255;
 				if( c[1] < 0 ) c[1] = 0; else if( c[1] > 255 ) c[1] = 255;

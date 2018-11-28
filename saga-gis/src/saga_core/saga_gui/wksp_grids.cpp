@@ -733,29 +733,14 @@ void CWKSP_Grids::_LUT_Create(void)
 				Colors.Set_Count(Get_Grids()->Get_NCells());
 			}
 
-			sLong	jCell, nCells;
-			double	Minimum, Maximum, iCell, Count;
+			double	Minimum, Maximum	= Get_Grids()->Get_Histogram().Get_Quantile(0.0);
 
-			Maximum	= Get_Grids()->Get_Min();
-			nCells	= Get_Grids()->Get_NCells() - Get_Grids()->Get_NoData_Count();
-			iCell	= Count	= nCells / (double)Colors.Get_Count();
+			double	Step	= 1. / Colors.Get_Count();
 
-			for(iCell=0.0; iCell<Get_Grids()->Get_NCells(); iCell++)
+			for(int iClass=0; iClass<Colors.Get_Count(); iClass++)
 			{
-				if( Get_Grids()->Get_Sorted(iCell, jCell, false) )
-				{
-					break;
-				}
-			}
-
-			iCell	+= Count;
-
-			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iCell+=Count)
-			{
-				Get_Grids()->Get_Sorted(iCell, jCell, false);
-
 				Minimum	= Maximum;
-				Maximum	= iCell < Get_Grids()->Get_NCells() ? Get_Grids()->asDouble(jCell) : Get_Grids()->Get_Max() + 1.0;
+				Maximum	= Get_Grids()->Get_Histogram().Get_Quantile((1. + iClass) / Colors.Get_Count());
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
