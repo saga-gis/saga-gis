@@ -1025,78 +1025,127 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes)
 
 bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &Attribute)
 {
-	//-----------------------------------------------------
 	CSG_MetaData	QML;
 
-	if( !QML.Load(File)
-	||  !QML("renderer-v2")
-	||  !QML["renderer-v2"]("categories")
-	||  !QML["renderer-v2"]("symbols"   ) )
+	if( !QML.Load(File) || !QML.Cmp_Name("QGIS") )
 	{
+		SG_UI_Dlg_Error(CSG_String::Format("[%s]: %s", SG_File_Get_Name(File, true).c_str(), _TL("failed to load file")), _TL("QGIS Styles Import"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	QML["renderer-v2"].Get_Property("attr", Attribute);
-
-	//-----------------------------------------------------
-	Classes.Destroy();
-
-	Classes.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
-	Classes.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
-	Classes.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
-	Classes.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_String);
-	Classes.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_String);
-
-	//-----------------------------------------------------
-	const CSG_MetaData	&Categories	= QML["renderer-v2"]["categories"];
-	const CSG_MetaData	&Symbols	= QML["renderer-v2"]["symbols"   ];
-
-	for(int i=0; i<Categories.Get_Children_Count(); i++)
+	if( QML("renderer-v2")
+	&&  QML["renderer-v2"]("categories")
+	&&  QML["renderer-v2"]("symbols"   ) )
 	{
-		CSG_String	Value, Label, Symbol;
-		
-		if( Categories[i].Get_Property("value" , Value )
-		&&  Categories[i].Get_Property("label" , Label )
-		&&  Categories[i].Get_Property("symbol", Symbol) )
+		QML["renderer-v2"].Get_Property("attr", Attribute);
+
+		//-----------------------------------------------------
+		Classes.Destroy();
+
+		Classes.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
+		Classes.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_String);
+
+		//-----------------------------------------------------
+		const CSG_MetaData	&Categories	= QML["renderer-v2"]["categories"];
+		const CSG_MetaData	&Symbols	= QML["renderer-v2"]["symbols"   ];
+
+		for(int i=0; i<Categories.Get_Children_Count(); i++)
 		{
-			CSG_Table_Record	&Class	= *Classes.Add_Record();
+			CSG_String	Value, Label, Symbol;
 
-			int	Color	= SG_Color_Get_Random();
-
-			for(int j=0; j<Symbols.Get_Children_Count(); j++)
+			if( Categories[i].Get_Property("value" , Value )
+			&&  Categories[i].Get_Property("label" , Label )
+			&&  Categories[i].Get_Property("symbol", Symbol) )
 			{
-				if( Symbols[j].Cmp_Property("name", Symbol) && Symbols[j]("layer") )
+				CSG_Table_Record	&Class	= *Classes.Add_Record();
+
+				int	Color	= SG_Color_Get_Random();
+
+				for(int j=0; j<Symbols.Get_Children_Count(); j++)
 				{
-					const CSG_MetaData	&Props	= Symbols[j]["layer"];
-
-					for(int k=0; k<Props.Get_Children_Count(); k++)
+					if( Symbols[j].Cmp_Property("name", Symbol) && Symbols[j]("layer") )
 					{
-						if( Props[k].Cmp_Property("k", "color") )
+						const CSG_MetaData	&Props	= Symbols[j]["layer"];
+
+						for(int k=0; k<Props.Get_Children_Count(); k++)
 						{
-							CSG_String	Value	= Props[k].Get_Property("v");
+							if( Props[k].Cmp_Property("k", "color") )
+							{
+								CSG_String	Value	= Props[k].Get_Property("v");
 
-							int	r	= Value.asInt(); Value = Value.AfterFirst(',');
-							int	g	= Value.asInt(); Value = Value.AfterFirst(',');
-							int	b	= Value.asInt(); Value = Value.AfterFirst(',');
+								int	r	= Value.asInt(); Value = Value.AfterFirst(',');
+								int	g	= Value.asInt(); Value = Value.AfterFirst(',');
+								int	b	= Value.asInt(); Value = Value.AfterFirst(',');
 
-							Color	= SG_GET_RGB(r, g, b);
+								Color	= SG_GET_RGB(r, g, b);
+							}
 						}
+
+						break;
 					}
-
-					break;
 				}
-			}
 
-			Class.Set_Value(0, Color);	// Color
-			Class.Set_Value(1, Label);	// Name
-			Class.Set_Value(2, Label);	// Description
-			Class.Set_Value(3, Value);	// Minimum
-			Class.Set_Value(4, Value);	// Maximum
+				Class.Set_Value(0, Color);	// Color
+				Class.Set_Value(1, Label);	// Name
+				Class.Set_Value(2, Label);	// Description
+				Class.Set_Value(3, Value);	// Minimum
+				Class.Set_Value(4, Value);	// Maximum
+			}
 		}
+
+		return( Classes.Get_Count() > 0 );
 	}
 
-	return( Classes.Get_Count() > 0 );
+	//-----------------------------------------------------
+	if( QML("pipe")
+	&&  QML["pipe"]("rasterrenderer")
+	&&  QML["pipe"]["rasterrenderer"]("rastershader")
+	&&  QML["pipe"]["rasterrenderer"]["rastershader"]("colorrampshader")
+	&&  QML["pipe"]["rasterrenderer"]["rastershader"]["colorrampshader"].Get_Children_Count() > 0 )
+	{
+		//-----------------------------------------------------
+		const CSG_MetaData	&ColorRamp	= QML["pipe"]["rasterrenderer"]["rastershader"]["colorrampshader"];
+
+		bool	bExact	= ColorRamp.Cmp_Property("colorRampType", "EXACT");	// "DISCRETE"
+
+		Classes.Destroy();
+
+		Classes.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
+		Classes.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_Double);
+		Classes.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_Double);
+
+		CSG_String	Value("-99999");
+
+		//-----------------------------------------------------
+		for(int i=0; i<ColorRamp.Get_Children_Count(); i++)
+		{
+			CSG_String	minVal(Value); Value = ColorRamp[i].Get_Property("value");
+
+			wxColour	Color; Color.Set(ColorRamp[i].Get_Property("color"));
+
+			CSG_Table_Record	&Class	= *Classes.Add_Record();
+
+			Class.Set_Value(0, Get_Color_asInt(Color));	// Color
+			Class.Set_Value(1, ColorRamp[i].Get_Property("label"));	// Name
+			Class.Set_Value(3, bExact ? Value : minVal);	// Minimum
+			Class.Set_Value(4, Value);	// Maximum
+		}
+
+		//-----------------------------------------------------
+		return( Classes.Get_Count() > 0 );
+	}
+
+	//-----------------------------------------------------
+	SG_UI_Dlg_Error(CSG_String::Format("[%s]: %s", SG_File_Get_Name(File, true).c_str(), _TL("unsupported format")), _TL("QGIS Styles Import"));
+
+	return( false );
 }
 
 //---------------------------------------------------------
