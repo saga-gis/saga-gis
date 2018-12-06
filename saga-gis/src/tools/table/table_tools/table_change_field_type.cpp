@@ -70,44 +70,37 @@
 //---------------------------------------------------------
 CTable_Change_Field_Type::CTable_Change_Field_Type(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Change Field Type"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		""
+		"With this tool you can change the data type of a table's attribute field."
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"			, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"	, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"			, _TL("Field"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD" , _TL("Field"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"			, _TL("Output"),
+	Parameters.Add_Table("",
+		"OUTPUT", _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"			, _TL("Data Type"),
+	Parameters.Add_Choice("",
+		"TYPE"  , _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
@@ -134,39 +127,39 @@ CTable_Change_Field_Type::CTable_Change_Field_Type(void)
 //---------------------------------------------------------
 int CTable_Change_Field_Type::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("TABLE"))
-	||	pParameter->Cmp_Identifier(SG_T("FIELD")) )
+	if(	pParameter->Cmp_Identifier("TABLE")
+	||	pParameter->Cmp_Identifier("FIELD") )
 	{
-		CSG_Table	*pTable	= pParameters->Get_Parameter("TABLE")->asTable();
+		CSG_Table	*pTable	= (*pParameters)("TABLE")->asTable();
 
 		if( pTable )
 		{
-			int	Type;
+			int	Type	=  pTable->Get_Field_Type((*pParameters)("FIELD")->asInt());
 
-			switch( pTable->Get_Field_Type(pParameters->Get_Parameter("FIELD")->asInt()) )
+			switch( Type )
 			{
 			default:
-			case SG_DATATYPE_String:	Type	=  0;	break;
-			case SG_DATATYPE_Date:		Type	=  1;	break;
-			case SG_DATATYPE_Color:		Type	=  2;	break;
-			case SG_DATATYPE_Byte:		Type	=  3;	break;
-			case SG_DATATYPE_Char:		Type	=  4;	break;
-			case SG_DATATYPE_Word:		Type	=  5;	break;
-			case SG_DATATYPE_Short:		Type	=  6;	break;
-			case SG_DATATYPE_DWord:		Type	=  7;	break;
-			case SG_DATATYPE_Int:		Type	=  8;	break;
-			case SG_DATATYPE_ULong:		Type	=  9;	break;
-			case SG_DATATYPE_Long:		Type	= 10;	break;
-			case SG_DATATYPE_Float:		Type	= 11;	break;
-			case SG_DATATYPE_Double:	Type	= 12;	break;
-			case SG_DATATYPE_Binary:	Type	= 13;	break;
+			case SG_DATATYPE_String: Type	=  0;	break;
+			case SG_DATATYPE_Date  : Type	=  1;	break;
+			case SG_DATATYPE_Color : Type	=  2;	break;
+			case SG_DATATYPE_Byte  : Type	=  3;	break;
+			case SG_DATATYPE_Char  : Type	=  4;	break;
+			case SG_DATATYPE_Word  : Type	=  5;	break;
+			case SG_DATATYPE_Short : Type	=  6;	break;
+			case SG_DATATYPE_DWord : Type	=  7;	break;
+			case SG_DATATYPE_Int   : Type	=  8;	break;
+			case SG_DATATYPE_ULong : Type	=  9;	break;
+			case SG_DATATYPE_Long  : Type	= 10;	break;
+			case SG_DATATYPE_Float : Type	= 11;	break;
+			case SG_DATATYPE_Double: Type	= 12;	break;
+			case SG_DATATYPE_Binary: Type	= 13;	break;
 			}
 
-			pParameters->Get_Parameter("TYPE")->Set_Value(Type);
+			pParameters->Set_Parameter("TYPE", Type);
 		}
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
@@ -177,28 +170,6 @@ int CTable_Change_Field_Type::On_Parameter_Changed(CSG_Parameters *pParameters, 
 //---------------------------------------------------------
 bool CTable_Change_Field_Type::On_Execute(void)
 {
-	//-----------------------------------------------------
-	TSG_Data_Type	Type;
-
-	switch( Parameters("TYPE")->asInt() )
-	{
-	default:
-	case  0:	Type	= SG_DATATYPE_String;	break;
-	case  1:	Type	= SG_DATATYPE_Date;		break;
-	case  2:	Type	= SG_DATATYPE_Color;	break;
-	case  3:	Type	= SG_DATATYPE_Byte;		break;
-	case  4:	Type	= SG_DATATYPE_Char;		break;
-	case  5:	Type	= SG_DATATYPE_Word;		break;
-	case  6:	Type	= SG_DATATYPE_Short;	break;
-	case  7:	Type	= SG_DATATYPE_DWord;	break;
-	case  8:	Type	= SG_DATATYPE_Int;		break;
-	case  9:	Type	= SG_DATATYPE_ULong;	break;
-	case 10:	Type	= SG_DATATYPE_Long;		break;
-	case 11:	Type	= SG_DATATYPE_Float;	break;
-	case 12:	Type	= SG_DATATYPE_Double;	break;
-	case 13:	Type	= SG_DATATYPE_Binary;	break;
-	}
-
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("OUTPUT")->asTable();
 
@@ -213,17 +184,150 @@ bool CTable_Change_Field_Type::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int			Field	= Parameters("FIELD" )->asInt();
+	TSG_Data_Type	Type;
+
+	switch( Parameters("TYPE")->asInt() )
+	{
+	default: Type	= SG_DATATYPE_String;	break;
+	case  1: Type	= SG_DATATYPE_Date  ;	break;
+	case  2: Type	= SG_DATATYPE_Color ;	break;
+	case  3: Type	= SG_DATATYPE_Byte  ;	break;
+	case  4: Type	= SG_DATATYPE_Char  ;	break;
+	case  5: Type	= SG_DATATYPE_Word  ;	break;
+	case  6: Type	= SG_DATATYPE_Short ;	break;
+	case  7: Type	= SG_DATATYPE_DWord ;	break;
+	case  8: Type	= SG_DATATYPE_Int   ;	break;
+	case  9: Type	= SG_DATATYPE_ULong ;	break;
+	case 10: Type	= SG_DATATYPE_Long  ;	break;
+	case 11: Type	= SG_DATATYPE_Float ;	break;
+	case 12: Type	= SG_DATATYPE_Double;	break;
+	case 13: Type	= SG_DATATYPE_Binary;	break;
+	}
+
+	//-----------------------------------------------------
+	int	Field	= Parameters("FIELD")->asInt();
 
 	if( Type == pTable->Get_Field_Type(Field) )
 	{
-		Error_Set(_TL("nothing to do: original and desired field types are identical"));
+		Message_Add(_TL("nothing to do: original and desired field types are identical"));
 
-		return( false );
+		return( true );
 	}
 
 	//-----------------------------------------------------
 	pTable->Set_Field_Type(Field, Type);
+
+	//-----------------------------------------------------
+	if( pTable == Parameters("TABLE")->asTable() )
+	{
+		DataObject_Update(pTable);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CTable_Change_Field_Name::CTable_Change_Field_Name(void)
+{
+	//-----------------------------------------------------
+	Set_Name		(_TL("Change Field Name"));
+
+	Set_Author		("O.Conrad (c) 2018");
+
+	Set_Description	(_TW(
+		"With this tool you can change the name of a table's attribute field."
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Table("",
+		"TABLE"	, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD" , _TL("Field"),
+		_TL("")
+	);
+
+	Parameters.Add_Table("",
+		"OUTPUT", _TL("Output"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_String("",
+		"NAME"  , _TL("Name"),
+		_TL(""),
+		""
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CTable_Change_Field_Name::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("TABLE")
+	||	pParameter->Cmp_Identifier("FIELD") )
+	{
+		CSG_Table	*pTable	= (*pParameters)("TABLE")->asTable();
+
+		if( pTable )
+		{
+			pParameters->Set_Parameter("NAME", pTable->Get_Field_Name((*pParameters)("FIELD")->asInt()));
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CTable_Change_Field_Name::On_Execute(void)
+{
+	//-----------------------------------------------------
+	CSG_Table	*pTable	= Parameters("OUTPUT")->asTable();
+
+	if( pTable && pTable != Parameters("TABLE")->asTable() )
+	{
+		pTable->Assign  (Parameters("TABLE")->asTable());
+		pTable->Set_Name(Parameters("TABLE")->asTable()->Get_Name());
+	}
+	else
+	{
+		pTable	= Parameters("TABLE")->asTable();
+	}
+
+	//-----------------------------------------------------
+	CSG_String	Name(Parameters("NAME")->asString());
+
+	//-----------------------------------------------------
+	int	Field	= Parameters("FIELD")->asInt();
+
+	if( !Name.Cmp(pTable->Get_Field_Name(Field)) )
+	{
+		Message_Add(_TL("nothing to do: original and new field name are identical"));
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	pTable->Set_Field_Name(Field, Name);
 
 	//-----------------------------------------------------
 	if( pTable == Parameters("TABLE")->asTable() )

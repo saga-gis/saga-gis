@@ -69,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -83,6 +83,27 @@ class CTable_Change_Field_Type : public CSG_Tool
 {
 public:
 	CTable_Change_Field_Type(void);
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
+
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CTable_Change_Field_Name : public CSG_Tool
+{
+public:
+	CTable_Change_Field_Name(void);
 
 
 protected:

@@ -105,16 +105,16 @@ CTable_Record_Statistics_Base::CTable_Record_Statistics_Base(void)
 	Set_Author		("O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
-		""
+		"This tool calculates record-wise the statistics over the selected attribute fields."
 	));
 
 	for(int i=0; i<STATS_COUNT; i++)
 	{
-		Parameters.Add_Bool(NULL, STATS[i][0], STATS[i][1], _TL(""));
+		Parameters.Add_Bool("", STATS[i][0], STATS[i][1], _TL(""));
 	}
 
 	Parameters.Add_Double(
-		Parameters("PCTL"), "PCTL_VAL", _TL("Value"),
+		"PCTL", "PCTL_VAL", _TL("Value"),
 		_TL(""),
 		50.0, 0.0, true, 100.0, true
 	);
@@ -130,7 +130,7 @@ int CTable_Record_Statistics_Base::On_Parameters_Enable(CSG_Parameters *pParamet
 {
 	if(	pParameter->Cmp_Identifier("PCTL") )
 	{
-		pParameters->Get_Parameter("PCTL_VAL")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("PCTL_VAL", pParameter->asBool());
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -221,7 +221,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 
 		for(int iField=0; iField<nFields; iField++)
 		{
-			if( !pRecord->is_NoData(iField) )
+			if( !pRecord->is_NoData(Fields[iField]) )
 			{
 				s	+= pRecord->asDouble(Fields[iField]);
 			}
@@ -274,21 +274,11 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 CTable_Record_Statistics::CTable_Record_Statistics(void)
 	: CTable_Record_Statistics_Base()
 {
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Table("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Table("", "TABLE" , _TL("Table" ), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("TABLE", "FIELDS", _TL("Attributes"),
 		_TL("If no field is selected statistics will be built from all numeric fields.")
-	);
-
-	Parameters.Add_Table(
-		NULL	, "RESULT"		, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
 
@@ -301,23 +291,13 @@ CTable_Record_Statistics::CTable_Record_Statistics(void)
 CTable_Record_Statistics_Shapes::CTable_Record_Statistics_Shapes(void)
 	: CTable_Record_Statistics_Base()
 {
-	Set_Name		(_TL("Record Statistics (Shapes)"));
+	Set_Name(_TL("Record Statistics (Shapes)"));
 
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "TABLE"		, _TL("Table"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Shapes("", "TABLE" , _TL("Table"), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("TABLE", "FIELDS", _TL("Attributes"),
 		_TL("If no field is selected statistics will be built from all numeric fields.")
-	);
-
-	Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Result"),
-		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
 	);
 }
 
