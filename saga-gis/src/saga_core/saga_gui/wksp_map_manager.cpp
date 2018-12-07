@@ -437,14 +437,18 @@ void CWKSP_Map_Manager::Set_Extents(const TSG_Rect &Extent, const CSG_Projection
 //---------------------------------------------------------
 void CWKSP_Map_Manager::Set_Mouse_Position(const TSG_Point &Point, const CSG_Projection &Projection)
 {
-	if( m_CrossHair )
+	if( m_CrossHair > 0 )
 	{
+		m_CrossHair	*= -1;
+
 		CSG_Projection	Invalid;
 
 		for(int i=0; i<Get_Count(); i++)
 		{
-			Get_Map(i)->Set_CrossHair(Point, m_CrossHair == 2 ? Projection : Invalid);
+			Get_Map(i)->Set_CrossHair(Point, m_CrossHair == -2 ? Projection : Invalid);
 		}
+
+		m_CrossHair	*= -1;
 	}
 }
 

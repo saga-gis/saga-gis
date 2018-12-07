@@ -862,19 +862,34 @@ void CWKSP_Layer::_Set_Projection(void)
 {
 	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
 
-	if(	pTool && Get_Object()
-	&&  pTool->Set_Parameter("CRS_PROJ4", Get_Object()->Get_Projection().Get_Proj4())
-	&&	pTool->On_Before_Execution()
-	&&  DLG_Parameters(pTool->Get_Parameters()) )
-	{
-		pTool->Set_Manager(NULL);
-		pTool->Execute();
+	CSG_Projection	Projection(Get_Object()->Get_Projection());
 
-		CSG_Projection	Projection(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+	if(	pTool
+	&&  pTool->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID())
+	&&  pTool->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority   ())
+	&&  pTool->Set_Parameter("CRS_PROJ4"    , Projection.Get_Proj4       ())
+	&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
+	{
+		Projection.Destroy();
+
+		if( pTool->Get_Parameter("CRS_EPSG")->asInt() > 0 )
+		{
+			Projection.Create(
+				pTool->Get_Parameter("CRS_EPSG"     )->asInt   (),
+				pTool->Get_Parameter("CRS_EPSG_AUTH")->asString()
+			);
+		}
+		
+		if( !Projection.is_Okay() )
+		{
+			Projection.Create(
+				pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4
+			);
+		}
 
 		if( Projection.is_Okay() && !Projection.is_Equal(Get_Object()->Get_Projection()) )
 		{
-			Get_Object()->Get_Projection().Create(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+			Get_Object()->Get_Projection().Create(Projection);
 			Get_Object()->Set_Modified();
 
 			DataObject_Changed();

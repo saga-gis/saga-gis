@@ -1994,18 +1994,35 @@ bool	SG_Get_Projected	(const CSG_Projection &Source, const CSG_Projection &Targe
 
 	if( Source.is_Okay() && Target.is_Okay() )
 	{
-		CSG_Shapes	Points[2];
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 29);	// Single Coordinate Transformation
 
-		Points[0].Create(SHAPE_TYPE_Point);
-		Points[0].Get_Projection().Create(Source);
-		Points[0].Add_Shape()->Add_Point(Point);
-
-		if( SG_Get_Projected(&Points[0], &Points[1], Target) )
+		if( !pTool )
 		{
-			Point	= Points[1].Get_Shape(0)->Get_Point(0);
-
-			return( true );
+			return( false );
 		}
+
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		pTool->Set_Manager(NULL);
+
+		bool	bResult	=
+		    pTool->Set_Parameter("TARGET_CRS", Target.Get_Proj4())
+		&&	pTool->Set_Parameter("SOURCE_CRS", Source.Get_Proj4())
+		&&  pTool->Set_Parameter("SOURCE_X"  , Point.x)
+		&&  pTool->Set_Parameter("SOURCE_Y"  , Point.y)
+		&&  pTool->Execute();
+
+		if( bResult )
+		{
+			Point.x	= pTool->Get_Parameter("TARGET_X")->asDouble();
+			Point.y	= pTool->Get_Parameter("TARGET_Y")->asDouble();
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		return( bResult );
 	}
 
 	return( false );

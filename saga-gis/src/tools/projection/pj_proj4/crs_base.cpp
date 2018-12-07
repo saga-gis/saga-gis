@@ -86,7 +86,7 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_Choice("",
 		"CRS_METHOD"	, _TL("Get CRS Definition from..."),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Proj4 Parameters"),
 			_TL("EPSG Code"),
 			_TL("Well Known Text File")
@@ -128,11 +128,11 @@ CCRS_Base::CCRS_Base(void)
 	Parameters.Add_FilePath("CRS_PROJ4",
 		"CRS_FILE"		, _TL("Well Known Text File"),
 		_TL(""),
-		CSG_String::Format("%s|*.prj;*.wkt;*.txt|%s|*.prj|%s|*.wkt|%s|*.txt|%s|*.*",
+		CSG_String::Format("%s|*.prj;*.wkt;*.txt|%s (*.prj)|*.prj|%s (*.wkt)|*.wkt|%s (*.txt)|*.txt|%s|*.*",
 			_TL("All Recognized Files"),
-			_TL("ESRI WKT Files (*.prj)"),
-			_TL("WKT Files (*.wkt)"),
-			_TL("Text Files (*.txt)"),
+			_TL("ESRI WKT Files"),
+			_TL("WKT Files"),
+			_TL("Text Files"),
 			_TL("All Files")
 		)
 	);
@@ -199,10 +199,6 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		Projection.Create(pParameter->asString(), SG_PROJ_FMT_Proj4);
 	}
-	else if( (*pParameters)("CRS_PROJ4") )
-	{
-		Projection.Create((*pParameters)("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
-	}
 
 	//-----------------------------------------------------
 	if(	pParameter->Cmp_Identifier("CRS_DIALOG") )
@@ -219,11 +215,13 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	}
 
 	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_EPSG") )
+	if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
 	{
-		if( !Projection.Create((*pParameters)("CRS_EPSG")->asInt()) )
+		if( !Projection.Create(
+			(*pParameters)("CRS_EPSG"     )->asInt   (),
+			(*pParameters)("CRS_EPSG_AUTH")->asString()) )
 		{
-			SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("WARNING"));
+			SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("Warning"));
 		}
 	}
 
@@ -233,9 +231,9 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		int		EPSG;
 
-		if( pParameter->asChoice()->Get_Data(EPSG) )
+		if( pParameter->asChoice()->Get_Data(EPSG) && Projection.Create(EPSG) )
 		{
-			Projection.Create(EPSG);
+			pParameters->Set_Parameter("CRS_EPSG_AUTH", "EPSG");
 		}
 	}
 
@@ -256,12 +254,9 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		m_Projection	= Projection;
 
-		(*pParameters)("CRS_PROJ4")->Set_Value(m_Projection.Get_Proj4());
-
-		if( !m_Projection.Get_Authority().CmpNoCase("EPSG") )
-		{
-			(*pParameters)("CRS_EPSG")->Set_Value(m_Projection.Get_EPSG());
-		}
+		pParameters->Set_Parameter("CRS_PROJ4"    , m_Projection.Get_Proj4       ());
+		pParameters->Set_Parameter("CRS_EPSG"     , m_Projection.Get_Authority_ID());
+		pParameters->Set_Parameter("CRS_EPSG_AUTH", m_Projection.Get_Authority   ());
 
 		if( (*pParameters)("CRS_DIALOG") )
 		{
@@ -397,7 +392,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	P.Add_Choice("",
 		"DATUM_DEF", _TL("Datum Definition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Predefined Datum"),
 			_TL("User Defined Datum")
 		)
@@ -474,7 +469,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	P.Add_Choice("DATUM_DEF",
 		"ELLIPSOID", _TL("Ellipsoid Definition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Predefined Ellipsoids"),
 			_TL("Semimajor Axis and Semiminor Axis"),
 			_TL("Semimajor Axis and Flattening"),
@@ -500,7 +495,7 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	P.Add_Choice("DATUM_DEF",
 		"DATUM_SHIFT", _TL("Datum Shift"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("3 parameters (translation only)"),
 			_TL("7 parameters"),
