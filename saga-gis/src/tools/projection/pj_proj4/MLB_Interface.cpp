@@ -101,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "crs_transform_shapes.h"
 #include "crs_transform_grid.h"
 #include "crs_transform_pointcloud.h"
+#include "crs_transform_point.h"
 #include "crs_transform_utm.h"
 
 #include "PROJ4_Shapes.h"
@@ -124,6 +125,8 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0:	return( new CCRS_Assign() );
+
+	case 29:	return( new CCRS_Transform_Point() );
 
 	case  1:	return( new CCRS_Transform_Shapes        (true ) );
 	case  2:	return( new CCRS_Transform_Shapes        (false) );
@@ -160,7 +163,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 11:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_SIMPLE, true ) );
 	case 12:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_DIALOG, true ) );
 
-	case 29:	return( NULL );
+	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

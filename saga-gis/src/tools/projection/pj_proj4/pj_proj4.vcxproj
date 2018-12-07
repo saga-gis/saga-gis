@@ -308,6 +308,7 @@
     <ClCompile Include="crs_indicatrix.cpp" />
     <ClCompile Include="crs_transform.cpp" />
     <ClCompile Include="crs_transform_grid.cpp" />
+    <ClCompile Include="crs_transform_point.cpp" />
     <ClCompile Include="crs_transform_pointcloud.cpp" />
     <ClCompile Include="crs_transform_shapes.cpp" />
     <ClCompile Include="crs_transform_utm.cpp" />
@@ -341,6 +342,7 @@
     <ClInclude Include="crs_indicatrix.h" />
     <ClInclude Include="crs_transform.h" />
     <ClInclude Include="crs_transform_grid.h" />
+    <ClInclude Include="crs_transform_point.h" />
     <ClInclude Include="crs_transform_pointcloud.h" />
     <ClInclude Include="crs_transform_shapes.h" />
     <ClInclude Include="crs_transform_utm.h" />

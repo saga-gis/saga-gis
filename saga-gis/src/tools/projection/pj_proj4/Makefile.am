@@ -20,6 +20,7 @@ crs_grid_geogcoords.cpp\
 crs_indicatrix.cpp\
 crs_transform.cpp\
 crs_transform_grid.cpp\
+crs_transform_point.cpp\
 crs_transform_pointcloud.cpp\
 crs_transform_shapes.cpp\
 crs_transform_utm.cpp\
@@ -36,6 +37,7 @@ crs_grid_geogcoords.h\
 crs_indicatrix.h\
 crs_transform.h\
 crs_transform_grid.h\
+crs_transform_point.h\
 crs_transform_pointcloud.h\
 crs_transform_shapes.h\
 crs_transform_utm.h\

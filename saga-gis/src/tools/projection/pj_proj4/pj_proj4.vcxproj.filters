@@ -62,6 +62,9 @@
     <ClCompile Include="crs_transform_utm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="crs_transform_point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -161,6 +164,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_transform_utm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crs_transform_point.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

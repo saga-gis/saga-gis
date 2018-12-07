@@ -511,7 +511,7 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 		return( pData );
 	}
 
-	CSG_Tool	*pImport;
+	CSG_Tool	*pImport	= NULL;
 
 	SG_UI_Msg_Lock(true);
 
@@ -547,7 +547,7 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 		if( pImport->Execute() )
 		{
-			pData	= (*pImport->Get_Parameters())("GRIDS")->asList()->Get_Item(0);
+			pData	= pImport->Get_Parameter("GRIDS")->asList()->Get_Item(0);
 		}
 	}
 
@@ -564,7 +564,7 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 		if( pImport->Execute() )
 		{
-			pData	= (*pImport->Get_Parameters())("SHAPES")->asList()->Get_Item(0);
+			pData	= pImport->Get_Parameter("SHAPES")->asList()->Get_Item(0);
 		}
 	}
 
@@ -581,7 +581,7 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 		if( pImport->Execute() )
 		{
-			pData	= (*pImport->Get_Parameters())("POINTS")->asDataObject();
+			pData	= pImport->Get_Parameter("POINTS")->asDataObject();
 		}
 	}
 
