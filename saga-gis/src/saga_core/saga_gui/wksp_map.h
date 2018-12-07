@@ -223,9 +223,9 @@ protected:
 
 private:
 
-	bool						m_Img_bSave, m_Sync_bLock;
+	bool						m_Img_bSave;
 
-	int							m_Img_Type, m_Img_Count;
+	int							m_Img_Type, m_Img_Count, m_Sync_bLock;
 
 	wxString					m_Name, m_Img_File;
 

@@ -200,7 +200,7 @@ CWKSP_Map::CWKSP_Map(void)
 	m_pLayout_Info	= new CVIEW_Layout_Info(this);
 
 	m_Img_bSave		= false;
-	m_Sync_bLock	= false;
+	m_Sync_bLock	= 0;
 
 	On_Create_Parameters();
 }
@@ -670,33 +670,33 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		if(	pParameter->Cmp_Identifier("SEL_EXTENT") )
 		{
-			pParameters->Get_Parameter("SEL_COLOUR"    )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SEL_TRANSP"    )->Set_Enabled(pParameter->asBool());
+			pParameters->Set_Enabled("SEL_COLOUR"    , pParameter->asBool());
+			pParameters->Set_Enabled("SEL_TRANSP"    , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("FRAME_SHOW") )
 		{
-			pParameters->Get_Parameter("FRAME_WIDTH"   )->Set_Enabled(pParameter->asBool());
+			pParameters->Set_Enabled("FRAME_WIDTH"   , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("NORTH_SHOW") )
 		{
-			pParameters->Get_Parameter("NORTH_ANGLE"   )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("NORTH_SIZE"    )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("NORTH_OFFSET_X")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("NORTH_OFFSET_Y")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("NORTH_EXTENT"  )->Set_Enabled(pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_ANGLE"   , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_SIZE"    , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_OFFSET_X", pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_OFFSET_Y", pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_EXTENT"  , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
-			pParameters->Get_Parameter("SCALE_STYLE"   )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_UNIT"    )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_WIDTH"   )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_HEIGHT"  )->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_OFFSET_X")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_OFFSET_Y")->Set_Enabled(pParameter->asBool());
-			pParameters->Get_Parameter("SCALE_EXTENT"  )->Set_Enabled(pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_STYLE"   , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_UNIT"    , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_WIDTH"   , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_HEIGHT"  , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_OFFSET_X", pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_OFFSET_Y", pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_EXTENT"  , pParameter->asBool());
 		}
 	}
 
@@ -1113,7 +1113,14 @@ void CWKSP_Map::Set_Synchronising(bool bOn)
 
 void CWKSP_Map::Lock_Synchronising(bool bOn)
 {
-	m_Sync_bLock	= bOn;
+	if( bOn )
+	{
+		m_Sync_bLock++;
+	}
+	else if( m_Sync_bLock > 0 )
+	{
+		m_Sync_bLock--;
+	}
 }
 
 //---------------------------------------------------------
@@ -1171,21 +1178,15 @@ void CWKSP_Map::Set_CrossHair(const TSG_Point &Point, const CSG_Projection &Proj
 {
 	if( m_pView )
 	{
-		if( !Projection.is_Okay() )
+		TSG_Point	p;
+
+		if( !Projection.is_Okay() || !m_Projection.is_Okay() || Projection == m_Projection )
 		{
 			m_pView->Get_Map_Control()->Set_CrossHair(Point);
 		}
-		else if( m_Projection.is_Okay() )
+		else if( SG_Get_Projected(Projection, m_Projection, p = Point) )
 		{
-			TSG_Point	p	= Point;
-
-			if( SG_Get_Projected(Projection, m_Projection, p) )
-			{
-				if( m_pView )
-				{
-					m_pView->Get_Map_Control()->Set_CrossHair(p);
-				}
-			}
+			m_pView->Get_Map_Control()->Set_CrossHair(p);
 		}
 	}
 }

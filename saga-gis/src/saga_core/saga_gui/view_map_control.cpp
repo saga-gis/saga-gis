@@ -301,7 +301,7 @@ bool CVIEW_Map_Control::_Draw_CrossHair(const wxPoint &Point)
 
 	//	dc.CrossHair(Point);
 
-		dc.DrawLine(Point.x, r.GetTop(),Point.x, r.GetBottom());
+		dc.DrawLine(Point.x, r.GetTop(), Point.x, r.GetBottom());
 		dc.DrawLine(r.GetLeft(), Point.y, r.GetRight(), Point.y);
 
 		return( true );
@@ -1011,15 +1011,6 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 {
 	wxPoint	Point	= event.GetPosition();
 
-	if( m_Mode != MAP_MODE_PAN_DOWN )
-	{
-		m_pMap->Set_Mouse_Position(_Get_Client2World(Point));
-
-		_Set_StatusBar(_Get_Client2World(Point));
-
-		m_pParent->Ruler_Set_Position(Point.x, Point.y);
-	}
-
 	switch( m_Mode )
 	{
 	//-----------------------------------------------------
@@ -1027,10 +1018,9 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 		if( g_pTool )
 		{
 			TSG_Tool_Interactive_Mode	iMode
-				= event.LeftIsDown()	? TOOL_INTERACTIVE_MOVE_LDOWN
-				: event.MiddleIsDown()	? TOOL_INTERACTIVE_MOVE_MDOWN
-				: event.RightIsDown()	? TOOL_INTERACTIVE_MOVE_RDOWN
-										: TOOL_INTERACTIVE_MOVE;
+				= event.LeftIsDown  () ? TOOL_INTERACTIVE_MOVE_LDOWN
+				: event.MiddleIsDown() ? TOOL_INTERACTIVE_MOVE_MDOWN
+				: event.RightIsDown () ? TOOL_INTERACTIVE_MOVE_RDOWN : TOOL_INTERACTIVE_MOVE;
 
 			g_pTool->Execute(_Get_Client2World(Point), iMode, GET_KEYS(event));
 		}
@@ -1074,9 +1064,18 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 	}
 
 	//-----------------------------------------------------
-	_Draw_Inverse(m_Mouse_Down, m_Mouse_Move, Point);
+	if( m_Mode != MAP_MODE_PAN_DOWN )
+	{
+		m_pParent->Ruler_Set_Position(Point.x, Point.y);
+
+		m_pMap->Set_Mouse_Position(_Get_Client2World(Point));
+
+		_Set_StatusBar(_Get_Client2World(Point));
+	}
 
 	//-----------------------------------------------------
+	_Draw_Inverse(m_Mouse_Down, m_Mouse_Move, Point);
+
 	m_Mouse_Move	= Point;
 }
 
