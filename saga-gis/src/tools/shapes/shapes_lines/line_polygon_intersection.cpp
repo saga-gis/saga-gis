@@ -73,7 +73,7 @@ CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Line-Polygon Intersection"));
 
-	Set_Author		("O. Conrad (c) 2010");
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"Line-polygon intersection."
@@ -81,33 +81,33 @@ CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+		"", "LINES"		, _TL("Lines"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+		"", "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "INTERSECT"	, _TL("Intersection"),
+		"", "INTERSECT"	, _TL("Intersection"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Shapes(
-		NULL	, "DIFFERENCE"	, _TL("Difference"),
+		"", "DIFFERENCE", _TL("Difference"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "ATTRIBUTES"	, _TL("Attributes"),
+		"", "ATTRIBUTES", _TL("Attributes"),
 		_TL("attributes inherited to intersection result"),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("polygon"),
 			_TL("line"),
 			_TL("line and polygon")
@@ -130,7 +130,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 
 	if(	pLines->Get_Count() < 1 || pPolygons->Get_Count() < 1 )
 	{
-		Error_Set(_TL("input layer is empty"));
+		Error_Set(_TL("empty input layer"));
 
 		return( false );
 	}
@@ -159,17 +159,15 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 		return( true );
 	}
 
-	CSG_Shapes	Intersection(SHAPE_TYPE_Line, NULL, pLines);
-	CSG_Shapes	Difference  (SHAPE_TYPE_Line, NULL, pLines);
-
 	//-----------------------------------------------------
 	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		Difference.Del_Records();
+		CSG_Shapes	Intersection(SHAPE_TYPE_Line, NULL, pLines);
+		CSG_Shapes	Difference  (SHAPE_TYPE_Line, NULL, pLines);
 
 		CSG_Shape	*pLine	= Difference.Add_Shape(pLines->Get_Shape(iLine));
 
-		for(int iPolygon=0; pLine->is_Valid() && iPolygon<pPolygons->Get_Count(); iPolygon++)
+		for(int iPolygon=0; pLine->Get_Part_Count() > 0 && iPolygon<pPolygons->Get_Count(); iPolygon++)
 		{
 			CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
 
@@ -189,7 +187,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 						}
 					}
 				}
-				else				// keep original line attributes
+				else					// keep original line attributes
 				{
 					for(int iSegment=0; iSegment<Intersection.Get_Count(); iSegment++)
 					{
@@ -231,9 +229,7 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 	}
 
 	//-----------------------------------------------------
-	Intersection.Del_Records();
-
-	CSG_Shapes	Difference(SHAPE_TYPE_Line);
+	CSG_Shapes	Segments(SHAPE_TYPE_Line);
 
 	CSG_Table	Crossings;
 
@@ -244,31 +240,37 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 	//-----------------------------------------------------
 	for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
 	{
-		TSG_Point	B, A	= pLine->Get_Point(0, iPart);
+		if( pLine->Get_Point_Count(iPart) < 2 )
+		{
+			continue;
+		}
 
-		bool	bIn	= pPolygon->Contains(A);
+		TSG_Point	A	= pLine->Get_Point(0, iPart);
 
-		CSG_Shape	*pSegment	= bIn
-			? Intersection.Add_Shape(pLine, SHAPE_COPY_ATTR)
-			: Difference  .Add_Shape(pLine, SHAPE_COPY_ATTR);
-
+		CSG_Shape	*pSegment	= Segments.Add_Shape();
+		
 		pSegment->Add_Point(A);
 
 		for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 		{
-			B	= A;	A	= pLine->Get_Point(iPoint, iPart);
+			TSG_Point	B = A; A = pLine->Get_Point(iPoint, iPart);
 
-			Get_Crossings(pPolygon, A, B, Crossings);
-
-			for(int iCrossing=0; iCrossing<Crossings.Get_Count(); iCrossing++)
+			if( A.x == B.x && A.y == B.y )
 			{
-				pSegment->Add_Point(Crossings[iCrossing].asDouble(0), Crossings[iCrossing].asDouble(1));
+				continue;
+			}
 
-				pSegment	= (bIn = !bIn)
-					? Intersection.Add_Shape(pLine, SHAPE_COPY_ATTR)
-					: Difference  .Add_Shape(pLine, SHAPE_COPY_ATTR);
+			if( Get_Crossings(pPolygon, A, B, Crossings) > 0 )
+			{
+				for(int iCrossing=0; iCrossing<Crossings.Get_Count(); iCrossing++)
+				{
+					B.x	= Crossings[iCrossing].asDouble(0);
+					B.y	= Crossings[iCrossing].asDouble(1);
 
-				pSegment->Add_Point(Crossings[iCrossing].asDouble(0), Crossings[iCrossing].asDouble(1));
+					pSegment->Add_Point(B);
+					pSegment = Segments.Add_Shape();
+					pSegment->Add_Point(B);
+				}
 			}
 
 			pSegment->Add_Point(A);
@@ -276,15 +278,34 @@ bool CLine_Polygon_Intersection::Get_Intersection(CSG_Shape_Polygon *pPolygon, C
 	}
 
 	//-----------------------------------------------------
+	Intersection.Del_Records();
+
 	pLine->Del_Parts();
 
-	for(int iDifference=0; iDifference<Difference.Get_Count(); iDifference++)
+	for(int iSegment=0; iSegment<Segments.Get_Count(); iSegment++)
 	{
-		CSG_Shape_Line	*pDifference	= (CSG_Shape_Line *)Difference.Get_Shape(iDifference);
+		CSG_Shape_Line	*pSegment	= (CSG_Shape_Line *)Segments.Get_Shape(iSegment);
 
-		if( pDifference->Get_Length(0) > 0 )
+		if( pSegment->Get_Length(0) > 0 )
 		{
-			pLine->Add_Part(pDifference->Get_Part(0));
+			TSG_Point	A	= pSegment->Get_Point(0);
+
+			if( pPolygon->is_OnEdge(A) )
+			{
+				TSG_Point	B	= pSegment->Get_Point(1);
+
+				A.x	+= B.x - A.x;
+				A.y	+= B.y - A.y;
+			}
+
+			if( pPolygon->Contains(A) )
+			{
+				Intersection.Add_Shape(pLine, SHAPE_COPY_ATTR)->Add_Part(pSegment->Get_Part(0));
+			}
+			else
+			{
+				pLine->Add_Part(pSegment->Get_Part(0));
+			}
 		}
 	}
 
@@ -304,14 +325,11 @@ int CLine_Polygon_Intersection::Get_Crossings(CSG_Shape_Polygon *pPolygon, const
 
 	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
 	{
-		TSG_Point	A, B, C;
-
-		B	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
+		TSG_Point	A	= pPolygon->Get_Point(pPolygon->Get_Point_Count(iPart) - 1, iPart);
 
 		for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
 		{
-			A	= B;
-			B	= pPolygon->Get_Point(iPoint, iPart);
+			TSG_Point	C, B = A; A = pPolygon->Get_Point(iPoint, iPart);
 
 			if( SG_Get_Crossing(C, A, B, a, b) )
 			{
