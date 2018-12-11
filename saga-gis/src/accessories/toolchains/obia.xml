@@ -43,6 +43,29 @@
 			<description>Increase band width to get less seed points.</description>
 			<value>2</value>
 		</option>
+		<option varname="RGA_NEIGHBOUR" type="choice">
+			<name>Neighbourhood</name>
+			<choices>4 (Neumann)|8 (Moore)</choices>
+			<value>0</value>
+		</option>
+		<option varname="RGA_METHOD" type="choice">
+			<name>Distance</name>
+			<choices>feature space and position|feature space</choices>
+			<value>0</value>
+		</option>
+		<option varname="RGA_SIG_1" type="double" parent="RGA_METHOD">
+			<name>Variance in Feature Space</name>
+			<value min="0">1</value>
+		</option>
+		<option varname="RGA_SIG_2" type="double" parent="RGA_METHOD">
+			<condition value="0" type="=">RGA_METHOD</condition>
+			<value min="0">1</value>
+			<name>Variance in Position Space</name>
+		</option>
+		<option varname="RGA_SIMILARITY" type="double" parent="RGA_METHOD">
+			<name>Similarity Threshold</name>
+			<value min="0">0</value>
+		</option>
 		<option varname="MAJORITY_RADIUS" type="integer">
 			<name>Generalization</name>
 			<description>Applies a majority filter with given search radius to the segments grid. Is skipped if set to zero.</description>
@@ -73,30 +96,30 @@
 			<option id="SEED_TYPE">0</option>
 			<option id="METHOD">0</option>
 			<option id="BAND_WIDTH" varname="TRUE">SEEDS_BAND_WIDTH</option>
-			<option id="NORMALIZE" varname="TRUE">NORMALIZE</option>
+			<option id="NORMALIZE"  varname="TRUE">NORMALIZE</option>
 			<input  id="FEATURES">FEATURES</input>
 			<output id="SEED_GRID">SEED_GRID</output>
 		</tool>
-	
+
 		<tool library="imagery_segmentation" tool="3" name="Simple Region Growing">
 			<option id="NORMALIZE" varname="TRUE">NORMALIZE</option>
-			<option id="NEIGHBOUR">1</option>
-			<option id="METHOD">0</option>
-			<option id="SIG_1">1.000000</option>
-			<option id="SIG_2">1.000000</option>
-			<option id="THRESHOLD">0.000000</option>
+			<option id="NEIGHBOUR" varname="TRUE">RGA_NEIGHBOUR</option>
+			<option id="METHOD"    varname="TRUE">RGA_METHOD</option>
+			<option id="SIG_1"     varname="TRUE">RGA_SIG_1</option>
+			<option id="SIG_2"     varname="TRUE">RGA_SIG_2</option>
+			<option id="THRESHOLD" varname="TRUE">RGA_SIMILARITY</option>
 			<option id="REFRESH">FALSE</option>
 			<option id="LEAFSIZE">256</option>
 			<input  id="SEEDS">SEED_GRID</input>
 			<input  id="FEATURES">FEATURES</input>
 			<output id="SEGMENTS">SEGMENTS_GRID</output>
 		</tool>
-	
+
 		<condition value="0" type="less" variable="MAJORITY_RADIUS">
 			<tool library="grid_filter" tool="6" name="Majority Filter">
 				<option id="KERNEL_TYPE">1</option>
 				<option id="KERNEL_RADIUS" varname="TRUE">MAJORITY_RADIUS</option>
-				<option id="THRESHOLD">0.000000</option>
+				<option id="THRESHOLD">0.0</option>
 				<input  id="INPUT">SEGMENTS_GRID</input>
 			</tool>
 		</condition>
@@ -108,7 +131,7 @@
 			<input  id="GRID">SEGMENTS_GRID</input>
 			<output id="POLYGONS">SEGMENTS</output>
 		</tool>
-		
+	
 		<tool library="shapes_grid" tool="2" name="Grid Statistics for Polygons">
 			<option id="METHOD"  >0</option>
 			<option id="NAMING"  >1</option>
@@ -135,26 +158,29 @@
 				<input  id="INPUT" >OBJECTS</input>
 				<output id="RESULT">CLUSTERS</output>
 			</tool>
+
 			<condition value="FALSE" type="=" variable="SPLIT_CLUSTERS">
-				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-					<option id="FIELDS"   >CLUSTER</option>
-					<option id="BND_KEEP" >FALSE</option>
-					<input  id="POLYGONS" >CLUSTERS</input>
-					<output id="DISSOLVED">OBJECTS</output>
-				</tool>
-			</condition>
-			<condition value="TRUE" type="=" variable="SPLIT_CLUSTERS">
-				<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
-					<option id="FIELDS"   >CLUSTER</option>
-					<option id="BND_KEEP" >FALSE</option>
-					<input  id="POLYGONS" >CLUSTERS</input>
-					<output id="DISSOLVED">DISSOLVED</output>
-				</tool>
-				<tool library="shapes_polygons" tool="10" name="Polygon Parts to Separate Polygons">
-					<option id="LAKES"   >FALSE</option>
-					<input  id="POLYGONS">DISSOLVED</input>
-					<output id="PARTS"   >OBJECTS</output>
-				</tool>
+				<if>
+					<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
+						<option id="FIELDS"   >CLUSTER</option>
+						<option id="BND_KEEP" >FALSE</option>
+						<input  id="POLYGONS" >CLUSTERS</input>
+						<output id="DISSOLVED">OBJECTS</output>
+					</tool>
+				</if>
+				<else>
+					<tool library="shapes_polygons" tool="5" name="Polygon Dissolve">
+						<option id="FIELDS"   >CLUSTER</option>
+						<option id="BND_KEEP" >FALSE</option>
+						<input  id="POLYGONS" >CLUSTERS</input>
+						<output id="DISSOLVED">DISSOLVED</output>
+					</tool>
+					<tool library="shapes_polygons" tool="10" name="Polygon Parts to Separate Polygons">
+						<option id="LAKES"   >FALSE</option>
+						<input  id="POLYGONS">DISSOLVED</input>
+						<output id="PARTS"   >OBJECTS</output>
+					</tool>
+				</else>
 			</condition>
 		</condition>
 	</tools>
