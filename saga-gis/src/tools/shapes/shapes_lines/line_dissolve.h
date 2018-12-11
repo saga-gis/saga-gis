@@ -87,14 +87,30 @@ public:
 
 protected:
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
 private:
 
-	bool					Add_Line				(CSG_Shape *pLine, CSG_Shape *pAdd);
+	bool						m_bSUM, m_bAVG, m_bMIN, m_bMAX, m_bRNG, m_bDEV, m_bVAR, m_bLST, m_bNUM;
+
+	int							m_Stat_Offset;
+
+	CSG_Strings					m_List;
+
+	CSG_Parameter_Table_Fields	*m_Stat_pFields;
+
+	CSG_Simple_Statistics		*m_Statistics;
+
+
+	bool						Add_Line				(CSG_Shape *pLine, CSG_Shape *pAdd);
+
+	bool						Statistics_Initialize	(CSG_Shapes *pDissolved, CSG_Shapes *pLines);
+	CSG_String					Statistics_Get_Name		(const CSG_String &Type, const CSG_String &Name);
+	bool						Statistics_Add			(CSG_Shape *pDissolve, CSG_Shape *pLine, bool bReset);
 
 };
 
