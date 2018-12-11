@@ -253,7 +253,9 @@ bool CWKSP_Tool_Manager::Initialise(void)
 			Library	= fn.GetFullPath();
 		}
 
+		SG_UI_Progress_Lock(true);
 		SG_Get_Tool_Library_Manager().Add_Library(&Library);
+		SG_UI_Progress_Lock(false);
 	}
 
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
