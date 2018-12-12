@@ -112,6 +112,7 @@ CSG_String Get_Info(int i)
 #include "gps_track_aggregation.h"
 #include "snap_points_to_features.h"
 #include "snap_points_to_grid.h"
+#include "random_points.h"
 
 
 //---------------------------------------------------------
@@ -142,9 +143,11 @@ CSG_Tool *		Create_Tool(int i)
 	case 18:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Point) );
 	case 19:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Line) );
 	case 20:	return( new CSnap_Points_to_Grid() );
-	}
+	case 21:	return( new CRandom_Points() );
 
-	return( NULL );
+	case 22:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

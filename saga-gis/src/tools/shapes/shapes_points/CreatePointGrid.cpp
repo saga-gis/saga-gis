@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     CreatePointGrid.cpp
     Copyright (C) Victor Olaya
@@ -20,76 +17,88 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "CreatePointGrid.h"
 
 
-CCreatePointGrid::CCreatePointGrid(void){
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Set_Name(_TL("Create Point Grid"));
-	Parameters.Set_Description(_TW(
-		"(c) 2004 by Victor Olaya. Creates a regular grid of points."));
+//---------------------------------------------------------
+CCreatePointGrid::CCreatePointGrid(void)
+{
+	Set_Name		(_TL("Create Point Grid"));
 
-	Parameters.Add_Shapes(NULL, 
-						"POINTS", 
-						_TL("Point Grid"), 
-						_TL(""), 
-						PARAMETER_OUTPUT);
-
-				
-	Parameters.Add_Range(NULL, 
-							"X_EXTENT", 
-							_TL("X-Extent"),
-							_TL(""));
-
-	Parameters.Add_Range(NULL, 
-							"Y_EXTENT", 
-							_TL("Y-Extent"),
-							_TL(""));
-
-	Parameters.Add_Value(NULL, 
-						"DIST",
-						_TL("Distance"), 
-						_TL("Distance between points (grid units)."), 
-						PARAMETER_TYPE_Double, 
-						100);
-
-
-}//constructor
-
-
-CCreatePointGrid::~CCreatePointGrid(void)
-{}
-
-
-bool CCreatePointGrid::On_Execute(void){
-
-	CSG_Shape *pShape;
+	Set_Author		("V.Olaya (c) 2004");
 	
-	double dXMin	= Parameters("X_EXTENT")->asRange()->Get_Min();
-	double dYMin	= Parameters("Y_EXTENT")->asRange()->Get_Min();
-	double dXMax	= Parameters("X_EXTENT")->asRange()->Get_Max();
-	double dYMax	= Parameters("Y_EXTENT")->asRange()->Get_Max();
+	Set_Description	(_TW(
+		"Creates a regular grid of points."
+	));
 
-	double dDistance = Parameters("DIST")->asDouble();
-	if (dDistance<=0){
+	Parameters.Add_Shapes("", "POINTS"  , _TL("Points"  ), _TL(""), PARAMETER_OUTPUT);				
+	Parameters.Add_Range ("", "X_EXTENT", _TL("X-Extent"), _TL(""), 0, 100);
+	Parameters.Add_Range ("", "Y_EXTENT", _TL("Y-Extent"), _TL(""), 0, 100);
+	Parameters.Add_Double("", "DIST"    , _TL("Distance"), _TL(""), 1, 0, true);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CCreatePointGrid::On_Execute(void)
+{
+	TSG_Rect	r;
+
+	r.xMin	= Parameters("X_EXTENT.MIN")->asDouble();
+	r.xMax	= Parameters("X_EXTENT.MAX")->asDouble();
+	r.yMin	= Parameters("Y_EXTENT.MIN")->asDouble();
+	r.yMax	= Parameters("Y_EXTENT.MAX")->asDouble();
+
+	double	Distance	= Parameters("DIST")->asDouble();
+
+	if( Distance <= 0. || r.xMin >= r.xMax || r.yMin >= r.yMax )
+	{
 		return false;
-	}//if
+	}
 
-	CSG_Shapes *pShapes = Parameters("POINTS")->asShapes();
-	pShapes->Create(SHAPE_TYPE_Point, _TL("Point Grid"));
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-	pShapes->Add_Field("X", SG_DATATYPE_Double);
-	pShapes->Add_Field("Y", SG_DATATYPE_Double);
+	pPoints->Create(SHAPE_TYPE_Point, _TL("Points"));
+
+	pPoints->Add_Field("X", SG_DATATYPE_Double);
+	pPoints->Add_Field("Y", SG_DATATYPE_Double);
 	
-	for (double x=dXMin; x<dXMax; x=x+dDistance){
-		for (double y=dYMin; y<dYMax; y=y+dDistance){ 
-			pShape = pShapes->Add_Shape();
-			pShape->Add_Point(x,y);
-			pShape->Set_Value(0, x);
-			pShape->Set_Value(1, y);
-		}//for
-	}//for
+	for(double y=r.yMin; y<r.yMax; y+=Distance)
+	{
+		for(double x=r.xMin; x<r.xMax; x+=Distance)
+		{
+			CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-	return true;
+			pPoint->Add_Point(x, y);
+			pPoint->Set_Value(0, x);
+			pPoint->Set_Value(1, y);
+		}
+	}
 
-}//method
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

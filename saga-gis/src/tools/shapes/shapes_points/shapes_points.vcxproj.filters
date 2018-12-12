@@ -74,6 +74,9 @@
     <ClCompile Include="snap_points_to_grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="random_points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -185,6 +188,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="snap_points_to_grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="random_points.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
