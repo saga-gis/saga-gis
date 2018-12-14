@@ -310,6 +310,7 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 	{
 		pTool->Get_Parameter("GRIDS")->asList()->Del_Items();
 		pTool->Get_Parameter("GRIDS")->asList()->Add_Item(pGrid);
+		pTool->Set_Parameter("CRS_EPSG", pGrid->Get_Projection().Get_EPSG());
 
 		bResult	= DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
 	}

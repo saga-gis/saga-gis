@@ -353,6 +353,11 @@ void CRaster_Save::On_Connection_Changed(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 int CRaster_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("NAME") )
+	{
+		pParameter->Set_Value(CSG_PG_Connection::Make_Table_Name(pParameter->asString()));
+	}
+
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
 		bool	bCreate	= pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1;

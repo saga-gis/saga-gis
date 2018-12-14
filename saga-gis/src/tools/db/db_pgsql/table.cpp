@@ -269,7 +269,7 @@ CTable_Save::CTable_Save(void)
 	Parameters.Add_Choice("",
 		"EXISTS"	, _TL("If table exists..."),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("abort export"),
 			_TL("replace existing table"),
 			_TL("append records, if table structure allows")
@@ -282,7 +282,14 @@ int CTable_Save::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 {
 	if( pParameter->Cmp_Identifier("TABLE") )
 	{
-		pParameters->Get_Parameter("NAME")->Set_Value(pParameter->asTable() ? pParameter->asTable()->Get_Name() : SG_T(""));
+		if( pParameter->asTable() )
+		{
+			pParameters->Set_Parameter("NAME", CSG_PG_Connection::Make_Table_Name(pParameter->asTable()->Get_Name()));
+		}
+		else
+		{
+			pParameters->Set_Parameter("NAME", "");
+		}
 	}
 
 	return( CSG_PG_Tool::On_Parameter_Changed(pParameters, pParameter) );

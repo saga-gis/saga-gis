@@ -124,6 +124,9 @@ public:
 	CSG_String					Get_Field_Names			(const CSG_String &Table_Name)	const;
 	CSG_Table					Get_Field_Desc			(const CSG_String &Table_Name, bool bVerbose = false)	const;
 
+	static CSG_String			Make_Table_Name			(const CSG_String &Table_Name);
+	static CSG_String			Make_Table_Field_Name	(const CSG_Table &Table, int Field);
+
 	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL);
 
 	bool						Begin					(const CSG_String &SavePoint = "");

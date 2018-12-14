@@ -64,6 +64,8 @@ extern "C" {
 #include <libpq-fe.h>
 }
 
+#include <ctype.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -742,7 +744,57 @@ bool CSG_PG_Connection::Commit(const CSG_String &SavePoint)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
+bool	SG_String_Replace_Characters(CSG_String &String, const CSG_String Characters, const CSG_String &Replacement)
+{
+	for(size_t i=0; i<Characters.Length(); i++)
+	{
+		String.Replace(Characters[i], Replacement);
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_PG_Connection::Make_Table_Name(const CSG_String &Table_Name)
+{
+	CSG_String	Name(Table_Name);
+
+	Name.Make_Lower();
+
+	Name.Replace("ä", "ae");
+	Name.Replace("ö", "oe");
+	Name.Replace("ü", "ue");
+	Name.Replace("ß", "sz");
+
+	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
+
+	if( !Name.is_Empty() && isdigit(Name[0]) )
+	{
+		Name.Prepend("_");
+	}
+
+	return( Name );
+}
+
+//---------------------------------------------------------
+CSG_String CSG_PG_Connection::Make_Table_Field_Name(const CSG_Table &Table, int Field)
+{
+	CSG_String	Name(Table.Get_Field_Name(Field));
+
+	Name.Make_Lower();
+
+	Name.Replace("ä", "ae"); //Name.Replace("Ä", "Ae");
+	Name.Replace("ö", "oe"); //Name.Replace("Ö", "Oe");
+	Name.Replace("ü", "ue"); //Name.Replace("Ü", "Ue");
+	Name.Replace("ß", "sz");
+
+	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
+
+	return( Name );
+}
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Table_Create(const CSG_String &_Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
 	if( Table.Get_Field_Count() <= 0 )
 	{
@@ -753,7 +805,7 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 
 	//-----------------------------------------------------
 	int			iField;
-	CSG_String	SQL;
+	CSG_String	SQL, Table_Name(Make_Table_Name(_Table_Name));
 
 	SQL.Printf("CREATE TABLE \"%s\"(", Table_Name.c_str());
 
@@ -782,7 +834,7 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 			SQL	+= ", ";
 		}
 
-		SQL	+= CSG_String::Format("%s %s", Table.Get_Field_Name(iField), s.c_str());
+		SQL	+= CSG_String::Format("\"%s\" %s", Make_Table_Field_Name(Table, iField).c_str(), s.c_str());
 	}
 
 	//-----------------------------------------------------
@@ -795,7 +847,7 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 			if( (Flags[iField] & SG_PG_PRIMARY_KEY) != 0 )
 			{
 				s	+= s.Length() == 0 ? ", PRIMARY KEY(" : ", ";
-				s	+= Table.Get_Field_Name(iField);
+				s	+= Make_Table_Field_Name(Table, iField);
 			}
 		}
 
@@ -812,8 +864,10 @@ bool CSG_PG_Connection::Table_Create(const CSG_String &Table_Name, const CSG_Tab
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
+bool CSG_PG_Connection::Table_Drop(const CSG_String &_Table_Name, bool bCommit)
 {
+	CSG_String	Table_Name(Make_Table_Name(_Table_Name));
+
 	if( !Table_Exists(Table_Name) )
 	{
 		_Error_Message(_TL("database table does not exist"));
@@ -830,11 +884,13 @@ bool CSG_PG_Connection::Table_Drop(const CSG_String &Table_Name, bool bCommit)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Table &Table, bool bCommit)
+bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Table &Table, bool bCommit)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
 
 	//-----------------------------------------------------
+	CSG_String	Table_Name(Make_Table_Name(_Table_Name));
+
 	if( !Table_Exists(Table_Name) )
 	{
 		return( false );
@@ -972,7 +1028,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &Table_Name, const CSG_Tab
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
+bool CSG_PG_Connection::Table_Save(const CSG_String &_Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags, bool bCommit)
 {
 	//-----------------------------------------------------
 	if( !is_Connected() )
@@ -981,6 +1037,8 @@ bool CSG_PG_Connection::Table_Save(const CSG_String &Table_Name, const CSG_Table
 
 		return( false );
 	}
+
+	CSG_String	Table_Name(Make_Table_Name(_Table_Name));
 
 	if( Table_Exists(Table_Name) && !Table_Drop(Table_Name, bCommit) )
 	{
