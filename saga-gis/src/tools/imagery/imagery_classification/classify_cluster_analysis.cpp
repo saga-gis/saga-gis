@@ -171,7 +171,7 @@ int CGrid_Cluster_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 {
 	if( pParameter->Cmp_Identifier("OLDVERSION") )
 	{
-		pParameters->Set_Enabled("MAXITER"   , pParameter->asBool() == false);
+		pParameters->Set_Enabled("INITIALIZE", pParameter->asBool() == false);
 		pParameters->Set_Enabled("UPDATEVIEW", pParameter->asBool() == true );
 	}
 
@@ -389,6 +389,8 @@ void CGrid_Cluster_Analysis::Save_LUT(CSG_Grid *pCluster)
 
 		DataObject_Set_Parameter(pCluster, pLUT);
 		DataObject_Set_Parameter(pCluster, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+
+		DataObject_Update(pCluster);
 	}
 }
 
@@ -487,9 +489,6 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	Save_LUT(pCluster);
-
-	//-------------------------------------------------
 	int					iCluster, iFeature;
 	CSG_String			s;
 	CSG_Table_Record	*pRecord;
@@ -550,6 +549,9 @@ bool CGrid_Cluster_Analysis::_On_Execute(void)
 	}
 
 	//-------------------------------------------------
+	Save_LUT(pCluster);
+
+	//-------------------------------------------------
 	for(i=0; i<nCluster; i++)
 	{
 		SG_Free(Centroids[i]);
@@ -598,11 +600,13 @@ double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CS
 
 	if( Parameters("UPDATEVIEW")->asBool() )
 	{
-		DataObject_Update(pCluster, 0, nCluster, true);
+		DataObject_Update(pCluster, 0, nCluster, 1);
 	}
 
 	//-----------------------------------------------------
-	for(nPasses=1, bContinue=true; bContinue && Process_Get_Okay(false); nPasses++)
+	int	maxIter	= Parameters("MAXITER")->asInt();
+
+	for(nPasses=1, bContinue=true; bContinue && (maxIter==0 || nPasses<=maxIter) && Process_Get_Okay(false); nPasses++)
 	{
 		for(iCluster=0; iCluster<nCluster; iCluster++)
 		{
@@ -693,7 +697,7 @@ double CGrid_Cluster_Analysis::_MinimumDistance(CSG_Grid **Grids, int nGrids, CS
 
 		if( Parameters("UPDATEVIEW")->asBool() )
 		{
-			DataObject_Update(pCluster, 0, nCluster);	// Update_Output();
+			DataObject_Update(pCluster);
 		}
 	}
 
@@ -780,13 +784,15 @@ double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_G
 
 	if( Parameters("UPDATEVIEW")->asBool() )
 	{
-		DataObject_Update(pCluster, 0, nCluster, true);
+		DataObject_Update(pCluster, 0, nCluster, 1);
 	}
 
 	//-----------------------------------------------------
 	noShift		= 0;
 
-	for(nPasses=1, bContinue=true; bContinue && Process_Get_Okay(false); nPasses++)
+	int	maxIter	= Parameters("MAXITER")->asInt();
+
+	for(nPasses=1, bContinue=true; bContinue && (maxIter==0 || nPasses<=maxIter) && Process_Get_Okay(false); nPasses++)
 	{
 		for(iElement=0; iElement<nElements && bContinue; iElement++)
 		{
@@ -881,7 +887,7 @@ double CGrid_Cluster_Analysis::_HillClimbing(CSG_Grid **Grids, int nGrids, CSG_G
 
 		if( Parameters("UPDATEVIEW")->asBool() )
 		{
-			DataObject_Update(pCluster, 0, nCluster);	// Update_Output();
+			DataObject_Update(pCluster);
 		}
 	}
 
