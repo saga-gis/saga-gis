@@ -65,7 +65,7 @@ class CGrid_PCA : public CSG_Tool_Grid
 public:
 	CGrid_PCA(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Principle Components") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Principal Components") );	}
 
 
 protected:
@@ -103,7 +103,7 @@ class CGrid_PCA_Inverse : public CSG_Tool_Grid
 public:
 	CGrid_PCA_Inverse(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Principle Components") );	}
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Principal Components") );	}
 
 
 protected:

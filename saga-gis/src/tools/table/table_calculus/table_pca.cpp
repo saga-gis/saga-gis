@@ -70,73 +70,69 @@
 //---------------------------------------------------------
 CTable_PCA::CTable_PCA(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name		(_TL("Principle Components Analysis"));
+	Set_Name		(_TL("Principal Component Analysis"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Principle Components Analysis (PCA) for tables. "
-		"Implementation based on F. Murtagh's "
-		"<a target=\"_blank\" href=\"http://lib.stat.cmu.edu/multi/pca.c\">code</a> "
-		"as provided by the "
-		"<a target=\"_blank\" href=\"http://lib.stat.cmu.edu\">StatLib</a> web site.\n"
-		"\n"
-		"References:\n"
-		"Bahrenberg, G., Giese, E., Nipper, J. (1992): Statistische Methoden in der Geographie 2 - Multivariate Statistik. pp.198-277.\n"
+		"Principal Component Analysis (PCA) for tables. "
 	));
 
+	Add_Reference("Bahrenberg, G., Giese, E., Nipper, J.", "1992",
+		"Statistische Methoden in der Geographie 2 - Multivariate Statistik", "pp.198-277."
+	);
+
+	Add_Reference("http://lib.stat.cmu.edu/multi/pca.c", SG_T("C-code by F.Murtagh"));
+	Add_Reference("http://lib.stat.cmu.edu"            , SG_T("StatLib Web Site"   ));
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Parameters(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Parameters("TABLE",
+		"FIELDS"	, _TL("Attributes"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "PCA"			, _TL("Principle Components"),
+	Parameters.Add_Table("",
+		"PCA"		, _TL("Principal Components"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("correlation matrix"),
 			_TL("variance-covariance matrix"),
 			_TL("sums-of-squares-and-cross-products matrix")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NFIRST"		, _TL("Number of Components"),
+	Parameters.Add_Int("",
+		"NFIRST"	, _TL("Number of Components"),
 		_TL("maximum number of calculated first components; set to zero to get all"),
-		PARAMETER_TYPE_Int, 3, 0, true
+		3, 0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CTable_PCA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("TABLE")) )
+	if(	pParameter->Cmp_Identifier("TABLE") )
 	{
 		CSG_Table		*pTable		= pParameter->asTable();
-		CSG_Parameters	*pFields	= pParameters->Get_Parameter("FIELDS")->asParameters();
+		CSG_Parameters	*pFields	= (*pParameters)("FIELDS")->asParameters();
 
 		pFields->Del_Parameters();
 
@@ -146,19 +142,17 @@ int CTable_PCA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			{
 				if( SG_Data_Type_is_Numeric(pTable->Get_Field_Type(i)) )
 				{
-					pFields->Add_Value(NULL, CSG_String::Format(SG_T("%d"), i), pTable->Get_Field_Name(i), _TL(""), PARAMETER_TYPE_Bool, false);
+					pFields->Add_Bool("", CSG_String::Format("%d", i), pTable->Get_Field_Name(i), _TL(""), false);
 				}
 			}
 		}
 	}
 
-	return( 0 );
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -169,8 +163,8 @@ bool CTable_PCA::On_Execute(void)
 	CSG_Matrix	Eigen_Vectors, Matrix;
 
 	//-----------------------------------------------------
-	m_pTable	= Parameters("TABLE")	->asTable();
-	m_Method	= Parameters("METHOD")	->asInt();
+	m_pTable	= Parameters("TABLE" )->asTable();
+	m_Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
 	if( !Get_Fields() )
@@ -212,8 +206,6 @@ bool CTable_PCA::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -239,8 +231,6 @@ bool CTable_PCA::Get_Fields(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -573,12 +573,12 @@ bool CPanSharp_CN::On_Execute(void)
 CPanSharp_PCA::CPanSharp_PCA(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Principle Components Based Image Sharpening"));
+	Set_Name		(_TL("Principal Component Based Image Sharpening"));
 
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Principle components based image sharpening."
+		"Principal component based image sharpening."
 	));
 
 	//-----------------------------------------------------
@@ -655,7 +655,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	CSG_Table		Eigen;
 
 	//-----------------------------------------------------
-	// get the principle components for the low resolution bands
+	// get the principal components for the low resolution bands
 
 	SG_RUN_TOOL_KEEP_PARMS(bResult, "statistics_grid", 8, Tool_Parms,
 			SG_TOOL_PARAMETER_SET("GRIDS"     , Parameters("GRIDS" ))
@@ -678,7 +678,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	CSG_Grid	*pPan	= Parameters("PAN")->asGrid();
 
 	//-----------------------------------------------------
-	// replace first principle component with the high resolution panchromatic band
+	// replace first principal component with the high resolution panchromatic band
 
 	Process_Set_Text(_TL("Replace first PC with PAN"));
 
@@ -740,7 +740,7 @@ bool CPanSharp_PCA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	// inverse principle component rotation for the high resolution bands
+	// inverse principal component rotation for the high resolution bands
 
 	SG_RUN_TOOL_KEEP_PARMS(bResult, "statistics_grid", 10, Tool_Parms,
 			SG_TOOL_PARAMETER_SET("PCA"  , Tool_Parms("PCA"))

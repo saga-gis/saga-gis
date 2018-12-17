@@ -68,12 +68,12 @@
 CGrid_PCA::CGrid_PCA(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Principle Components Analysis"));
+	Set_Name		(_TL("Principal Component Analysis"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Principle Components Analysis (PCA) for grids. "
+		"Principal Component Analysis (PCA) for grids. "
 		"PCA implementation is based on F.Murtagh's code as provided by the StatLib web site."
 	));
 
@@ -93,7 +93,7 @@ CGrid_PCA::CGrid_PCA(void)
 	);
 
 	Parameters.Add_Grid_List("",
-		"PCA"		, _TL("Principle Components"),
+		"PCA"		, _TL("Principal Components"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -107,7 +107,7 @@ CGrid_PCA::CGrid_PCA(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("correlation matrix"),
 			_TL("variance-covariance matrix"),
 			_TL("sums-of-squares-and-cross-products matrix")
@@ -465,12 +465,12 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 CGrid_PCA_Inverse::CGrid_PCA_Inverse(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Inverse Principle Components Rotation"));
+	Set_Name		(_TL("Inverse Principal Components Rotation"));
 
 	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Inverse principle components rotation for grids."
+		"Inverse principal components rotation for grids."
 	));
 
 	Add_Reference("Bahrenberg, G., Giese, E., Nipper, J.", "1992",
@@ -479,7 +479,7 @@ CGrid_PCA_Inverse::CGrid_PCA_Inverse(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
-		"PCA"		, _TL("Principle Components"),
+		"PCA"		, _TL("Principal Components"),
 		_TL(""),
 		PARAMETER_INPUT
 	);

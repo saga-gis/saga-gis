@@ -74,10 +74,10 @@ CGrid_PCA_Focal::CGrid_PCA_Focal(void)
 	Set_Description	(_TW(
 		"This tool uses the difference in cell values of a center cell "
 		"and its neighbours (as specified by the kernel) as features for "
-		"a Principle Components Analysis (PCA). "
+		"a Principal Component Analysis (PCA). "
 		"This method has been used by Thomas and Herzfeld (2004) to parameterize "
 		"the topography for a subsequent regionalization of climate variables "
-		"with the principle components as predictors in a regression model. "
+		"with the principal components as predictors in a regression model. "
 	));
 
 	Add_Reference("Benichou, P., Lebreton, O.", "1987",
