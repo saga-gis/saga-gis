@@ -62,7 +62,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "tool.h"
+#include "saga_api.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@
 //---------------------------------------------------------
 CSG_Tool_Library_Interface::CSG_Tool_Library_Interface(void)
 {
-	// nop
+	m_Fnc_Create_Tool	= NULL;
 }
 
 //---------------------------------------------------------
@@ -113,6 +113,15 @@ bool CSG_Tool_Library_Interface::Create(const CSG_String &Version, const CSG_Str
 	m_Info[TLB_INFO_Library     ]	= Library;
 	m_Info[TLB_INFO_SAGA_Version]	= Version;
 	m_Info[TLB_INFO_File        ]	= SG_File_Get_Path_Absolute(TLB_Path);
+
+	if( Version.Cmp(SAGA_VERSION) )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("SAGA API %s: %s=%s, %s=%s", _TL("version mismatch"), _TL("current version"), SAGA_VERSION,
+			Library.c_str(), Version.c_str()
+		));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
 	m_Fnc_Create_Tool	= Fnc_Create_Tool;
@@ -191,7 +200,7 @@ CSG_Tool * CSG_Tool_Library_Interface::Get_Tool(int i)
 //---------------------------------------------------------
 CSG_Tool * CSG_Tool_Library_Interface::Create_Tool(int ID)
 {
-	CSG_Tool	*pTool	= m_Fnc_Create_Tool(ID);
+	CSG_Tool	*pTool	= m_Fnc_Create_Tool ? m_Fnc_Create_Tool(ID) : NULL;
 
 	if( pTool && pTool != TLB_INTERFACE_SKIP_TOOL )
 	{
