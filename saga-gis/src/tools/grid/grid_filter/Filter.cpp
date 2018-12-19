@@ -97,7 +97,7 @@ CFilter::CFilter(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Filter"),
 		_TL("Choose the filter method."),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Smooth"),
 			_TL("Sharpen"),
 			_TL("Edge")
@@ -113,36 +113,29 @@ CFilter::CFilter(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFilter::On_After_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CFilter::On_Execute(void)
 {
 	//-----------------------------------------------------
 	int	Method	= Parameters("METHOD")->asInt();
 
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
 	m_pInput	= Parameters("INPUT")->asGrid();
 
-	CSG_Grid	Result, *pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid	Input, *pResult	= Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == m_pInput )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(m_pInput);
+		Input.Create(*m_pInput);
+
+		pResult		= m_pInput;
+		m_pInput	= &Input;
 	}
 	else
 	{
@@ -154,14 +147,6 @@ bool CFilter::On_Execute(void)
 
 			DataObject_Set_Parameters(pResult, m_pInput);
 		}
-	}
-
-	//-----------------------------------------------------
-	if( !m_Kernel.Set_Parameters(Parameters) )
-	{
-		Error_Set(_TL("could not initialize kernel"));
-
-		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -197,16 +182,9 @@ bool CFilter::On_Execute(void)
 	}
 
 	//-------------------------------------------------
-	if( pResult == &Result )
+	if( m_pInput == &Input )
 	{
-		CSG_MetaData	History	= m_pInput->Get_History();
-
-		m_pInput->Assign(pResult);
-		m_pInput->Get_History() = History;
-
 		DataObject_Update(m_pInput);
-
-		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
 	m_Kernel.Destroy();

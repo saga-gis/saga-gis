@@ -73,9 +73,9 @@
 CFilter_Gauss::CFilter_Gauss(void)
 {
 	//-----------------------------------------------------
-	Set_Name(_TL("Gaussian Filter"));
+	Set_Name		(_TL("Gaussian Filter"));
 
-	Set_Author(SG_T("A.Ringeler (c) 2003"));
+	Set_Author		("A.Ringeler (c) 2003");
 
 	Set_Description	(_TW(
 		"The Gaussian filter is a smoothing operator that is used to 'blur' or 'soften' data "
@@ -85,41 +85,25 @@ CFilter_Gauss::CFilter_Gauss(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"SIGMA"		, _TL("Standard Deviation"),
 		_TL("The standard deviation as percentage of the kernel radius, determines the degree of smoothing."),
 		50.0, 0.0001, true
 	);
 
 	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CFilter_Gauss::On_After_Execution(void)
-{
-	if( Parameters("RESULT")->asGrid() == Parameters("INPUT")->asGrid() )
-	{
-		Parameters("RESULT")->Set_Value(DATAOBJECT_NOTSET);
-	}
-
-	return( true );
 }
 
 
@@ -146,14 +130,15 @@ bool CFilter_Gauss::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid();
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid(), Result;
+	CSG_Grid	*pInput 	= Parameters("INPUT" )->asGrid(), Input;
+	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
 
 	if( !pResult || pResult == pInput )
 	{
-		pResult	= &Result;
-		
-		pResult->Create(*pInput);
+		Input.Create(*pInput);
+
+		pResult	= pInput;
+		pInput	= &Input;
 	}
 	else
 	{
@@ -198,16 +183,9 @@ bool CFilter_Gauss::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pResult == &Result )
+	if( pInput == &Input )
 	{
-		CSG_MetaData	History	= pInput->Get_History();
-
-		pInput->Assign(pResult);
-		pInput->Get_History() = History;
-
 		DataObject_Update(pInput);
-
-		Parameters("RESULT")->Set_Value(pInput);
 	}
 
 	return( true );

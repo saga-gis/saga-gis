@@ -607,8 +607,6 @@ public:		///////////////////////////////////////////////
 		if( bModified )
 		{
 			Set_Update_Flag();
-
-			Set_Index(false);
 		}
 	}
 
@@ -625,12 +623,12 @@ public:		///////////////////////////////////////////////
 			return( true );
 		}
 
-		return( m_Index || _Set_Index() );
+		return( _Get_Index() );
 	}
 
 	sLong							Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && (m_Index || _Set_Index()) )
+		if( Position >= 0 && Position < Get_NCells() && _Get_Index() )
 		{
 			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
 
@@ -645,17 +643,17 @@ public:		///////////////////////////////////////////////
 
 	bool							Get_Sorted		(sLong Position, sLong &i, bool bDown = true, bool bCheckNoData = true)
 	{
-		return( (i = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(i)) );
+		return( (i = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 );
 	}
 
 	bool							Get_Sorted		(sLong Position, int &x, int &y, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( (Position = Get_Sorted(Position, bDown, false)) >= 0 )
+		if( (Position = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 )
 		{
 			x	= (int)(Position % Get_NX());
 			y	= (int)(Position / Get_NX());
 
-			return( !bCheckNoData || !is_NoData(x, y) );
+			return( true );
 		}
 
 		return( false );
@@ -865,6 +863,15 @@ private:	///////////////////////////////////////////////
 	void						_Set_Properties			(TSG_Data_Type Type, int NX, int NY, double Cellsize, double xMin, double yMin);
 
 	bool						_Set_Index				(void);
+	bool						_Get_Index				(void)
+	{
+		if( Get_Update_Flag() )
+		{
+			Update();
+		}
+
+		return( m_Index || _Set_Index() );
+	}
 
 
 	//-----------------------------------------------------

@@ -1340,10 +1340,12 @@ bool CSG_Grids::On_Update(void)
 {
 	if( is_Valid() )
 	{
-		double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+		SG_FREE_SAFE(m_Index);
 
 		m_Statistics.Invalidate();
 		m_Histogram.Destroy();
+
+		double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
 
 		if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
 		{

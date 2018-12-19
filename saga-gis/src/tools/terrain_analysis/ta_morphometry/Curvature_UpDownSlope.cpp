@@ -150,7 +150,7 @@ bool CCurvature_UpDownSlope::On_Execute(void)
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		#pragma omp parallel for private(x)
-		for(int x=0; x<Get_NX(); x++)
+		for(x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{

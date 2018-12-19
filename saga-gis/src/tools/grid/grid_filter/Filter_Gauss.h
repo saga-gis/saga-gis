@@ -84,11 +84,6 @@ protected:
 
 	virtual bool			On_Execute			(void);
 
-	virtual bool			On_After_Execution	(void);
-
-
-private:
-
 };
 
 

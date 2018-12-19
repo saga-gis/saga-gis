@@ -418,12 +418,12 @@ public:		///////////////////////////////////////////////
 			return( true );
 		}
 
-		return( m_Index || _Set_Index() );
+		return( _Get_Index() );
 	}
 
 	sLong							Get_Sorted		(sLong Position, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( Position >= 0 && Position < Get_NCells() && (m_Index || _Set_Index()) )
+		if( Position >= 0 && Position < Get_NCells() && _Get_Index() )
 		{
 			Position	= m_Index[bDown ? Get_NCells() - Position - 1 : Position];
 
@@ -438,12 +438,12 @@ public:		///////////////////////////////////////////////
 
 	bool							Get_Sorted		(sLong Position, sLong &i, bool bDown = true, bool bCheckNoData = true)
 	{
-		return( (i = Get_Sorted(Position, bDown, false)) >= 0 && (!bCheckNoData || !is_NoData(i)) );
+		return( (i = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 );
 	}
 
 	bool							Get_Sorted		(sLong Position, int &x, int &y, int &z, bool bDown = true, bool bCheckNoData = true)
 	{
-		if( (Position = Get_Sorted(Position, bDown, false)) >= 0 )
+		if( (Position = Get_Sorted(Position, bDown, bCheckNoData)) >= 0 )
 		{
 			z	= (int)(Position / m_pGrids[0]->Get_NCells());
 
@@ -452,7 +452,7 @@ public:		///////////////////////////////////////////////
 			x	= (int)(Position % Get_NX());
 			y	= (int)(Position / Get_NX());
 
-			return( !bCheckNoData || !is_NoData(x, y, z) );
+			return( true );
 		}
 
 		return( false );
@@ -495,6 +495,15 @@ private:	///////////////////////////////////////////////
 
 	//-----------------------------------------------------
 	bool							_Set_Index				(void);
+	bool							_Get_Index				(void)
+	{
+		if( Get_Update_Flag() )
+		{
+			Update();
+		}
+
+		return( m_Index || _Set_Index() );
+	}
 
 	//-----------------------------------------------------
 	bool							_Load_External			(const CSG_String &FileName);

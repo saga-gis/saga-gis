@@ -109,7 +109,7 @@ CKinWav_D8::CKinWav_D8(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Bool(Parameters("FLOW"),
+	Parameters.Add_Bool("FLOW",
 		"FLOW_RESET"	, _TL("Reset"),
 		_TL(""),
 		true
@@ -161,7 +161,7 @@ CKinWav_D8::CKinWav_D8(void)
 	Parameters.Add_Choice("MODEL",
 		"ROUTING"		, _TL("Flow Routing"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Deterministic 8"),
 			_TL("Multiple Flow Direction")
 		), 1
@@ -171,7 +171,7 @@ CKinWav_D8::CKinWav_D8(void)
 	Parameters.Add_Choice("",
 		"P_DISTRIB"		, _TL("Precipitation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Homogenous"),
 			_TL("Above Elevation"),
 			_TL("Left Half")
@@ -235,9 +235,11 @@ bool CKinWav_D8::On_Execute(void)
 	{
 		Process_Set_Text("%s [h]: %0.2f (%0.2f)", _TL("Simulation Time"), Time, Time_Span);
 
+		SG_UI_ProgressAndMsg_Lock(true);
+
 		Set_Flow(Time);
 
-		for(sLong n=0; n<m_pDEM->Get_NCells(); n++)
+		for(sLong n=0; n<Get_NCells(); n++)
 		{
 			int	x, y;
 
@@ -250,6 +252,8 @@ bool CKinWav_D8::On_Execute(void)
 		DataObject_Update(m_pFlow, 0.0, 100.0);
 
 		Gauges_Set_Flow(Time);
+
+		SG_UI_ProgressAndMsg_Lock(false);
 	}
 
 	//-----------------------------------------------------
@@ -443,12 +447,10 @@ bool CKinWav_D8::Initialize(void)
 	switch( m_Routing )
 	{
 	default:
-		m_dFlow	= new CSG_Grid(Get_System(), SG_DATATYPE_Char);
+		m_dFlow->Create(Get_System(), SG_DATATYPE_Char);
 		break;
 
 	case  1:
-		m_dFlow	= new CSG_Grid[8];
-
 		for(int i=0; i<8; i++)
 		{
 			m_dFlow[i].Create(Get_System(), SG_DATATYPE_Float);
@@ -470,6 +472,7 @@ bool CKinWav_D8::Initialize(void)
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	Slope, Aspect;
@@ -502,10 +505,9 @@ bool CKinWav_D8::Initialize(void)
 //---------------------------------------------------------
 bool CKinWav_D8::Finalize(void)
 {
-	switch( m_Routing )
+	for(int i=0; i<8; i++)
 	{
-	default: delete  (m_dFlow); break;
-	case  1: delete[](m_dFlow); break;
+		m_dFlow[i].Destroy();
 	}
 
 	m_Flow_t0.Destroy();
@@ -583,8 +585,6 @@ void CKinWav_D8::Set_MFD(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
