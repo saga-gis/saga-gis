@@ -98,7 +98,7 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 			_TL("All Files")
 		), NULL, true
 	);
-	
+
 	Parameters.Add_String("",
 		"OPTIONS", _TL("Creation Options"),
 		_TL("A space separated list of key-value pairs (K=V)."),
@@ -114,7 +114,7 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 //---------------------------------------------------------
 int CGDAL_Export_GeoTIFF::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Item_Count() == 0 )
+	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Item_Count() > 0 )
 	{
 		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
 
@@ -161,7 +161,7 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 	{
 		return( false );
 	}
-	
+
 	return( true );
 }
 
