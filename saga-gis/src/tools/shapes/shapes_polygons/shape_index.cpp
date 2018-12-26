@@ -78,8 +78,11 @@ CShape_Index::CShape_Index(void)
 	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Various indices describing the shape of polygons, mostly based on "
-		"area, perimeter, maximum diameter. "
+		"The tool calculates various indices describing the shape of polygons, mostly based on "
+		"area, perimeter and maximum diameter. If the optional output 'Shape Indices' "
+		"is not created, the tool attaches the attributes to the input dataset. "
+		"Otherwise a new dataset is created and attributes existing in the input "
+		"dataset are dropped."
 		"<ul>"
 		"<li><b>A</b> area</li>"
 		"<li><b>P</b> perimeter</li>"
@@ -123,13 +126,13 @@ CShape_Index::CShape_Index(void)
 
 	Parameters.Add_Shapes("",
 		"INDEX"	, _TL("Shape Indices"),
-		_TL(""),
+		_TL("Polygon shapefile with the calculated indices."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	Parameters.Add_Shapes("",
 		"DMAX"	, _TL("Maximum Diameter"),
-		_TL(""),
+		_TL("Line shapefile showing the maximum diameter."),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
 	);
 
@@ -273,7 +276,7 @@ bool CShape_Index::On_Execute(void)
 			pPolygon->Set_Value(offIndices + 6, P / (2 * sqrt(A * M_PI)));
 
 			double	Dmax;	TSG_Point	Pmax[2];
-			
+
 			if( Get_Diameter_Max(pPolygon, Dmax, Pmax) )
 			{
 				double	DmaxDir	= SG_Get_Angle_Of_Direction(Pmax[0], Pmax[1]); if( DmaxDir > M_PI_180 ) DmaxDir -= M_PI_180;
@@ -322,10 +325,7 @@ bool CShape_Index::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( pPolygons == Parameters("INDEX")->asShapes() )
-	{
-		DataObject_Update(pPolygons);
-	}
+	DataObject_Update(pPolygons);
 
 	return( pPolygons->is_Valid() );
 }
@@ -347,7 +347,7 @@ bool CShape_Index::Get_Diameter_Max(CSG_Shape_Polygon *pPolygon, double &Dmax, T
 		for(int jPoint=iPoint+1; jPoint<pPolygon->Get_Point_Count(); jPoint++)
 		{
 			double	d	= SG_Get_Distance(P, pPolygon->Get_Point(jPoint));
-	
+
 			if( Dmax < d )
 			{
 				Dmax	= d;
