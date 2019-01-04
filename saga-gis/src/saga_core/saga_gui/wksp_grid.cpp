@@ -533,9 +533,9 @@ bool CWKSP_Grid::Update(CWKSP_Layer *pChanged)
 		{
 			CSG_Grids	*pGrids	= ((CWKSP_Grids *)pChanged)->Get_Grids();
 
-			return(	(m_Parameters("OVERLAY_R")->is_Enabled() && pGrids == m_Parameters("OVERLAY_R")->asGrid()->Get_Owner())
-				||  (m_Parameters("OVERLAY_G")->is_Enabled() && pGrids == m_Parameters("OVERLAY_G")->asGrid()->Get_Owner())
-				||  (m_Parameters("OVERLAY_B")->is_Enabled() && pGrids == m_Parameters("OVERLAY_B")->asGrid()->Get_Owner())
+			return(	(m_Parameters("OVERLAY_R")->is_Enabled() && m_Parameters("OVERLAY_R")->asGrid() && pGrids == m_Parameters("OVERLAY_R")->asGrid()->Get_Owner())
+				||  (m_Parameters("OVERLAY_G")->is_Enabled() && m_Parameters("OVERLAY_G")->asGrid() && pGrids == m_Parameters("OVERLAY_G")->asGrid()->Get_Owner())
+				||  (m_Parameters("OVERLAY_B")->is_Enabled() && m_Parameters("OVERLAY_B")->asGrid() && pGrids == m_Parameters("OVERLAY_B")->asGrid()->Get_Owner())
 			);
 		}
 	}
