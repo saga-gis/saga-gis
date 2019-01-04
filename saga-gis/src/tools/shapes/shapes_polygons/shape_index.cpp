@@ -325,7 +325,10 @@ bool CShape_Index::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Update(pPolygons);
+	if( pPolygons == Parameters("SHAPES")->asShapes() )
+	{	// output is always updated automatically - but if input has been modified, this needs a manual update!
+		DataObject_Update(pPolygons);
+	}
 
 	return( pPolygons->is_Valid() );
 }
