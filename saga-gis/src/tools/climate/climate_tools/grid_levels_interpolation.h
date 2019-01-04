@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_Levels_interpolation.h 1380 2012-04-26 12:02:19Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,17 +46,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__grid_Levels_interpolation_H
 #define HEADER_INCLUDED__grid_Levels_interpolation_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
@@ -113,8 +108,8 @@ private:
 
 	bool						Get_Values				(double x, double y, double z, int &iLevel, CSG_Table &Values);
 
-	bool						Get_Linear_Sorted		(double x, double y, double z, double &Value);
 	bool						Get_Linear				(double x, double y, double z, double &Value);
+	bool						Get_Linear_Coeff		(double x, double y, double z, double Value[2], double Height[2]);
 	bool						Get_Spline_All			(double x, double y, double z, double &Value);
 	bool						Get_Spline				(double x, double y, double z, double &Value);
 	bool						Get_Trend				(double x, double y, double z, double &Value);
