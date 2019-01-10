@@ -141,7 +141,7 @@ public:
 
 protected:
 
-	bool						m_bNoData;
+	bool						m_bNoData, m_Edit_bGleam;
 
 	int							m_fValue, m_fNormal, m_bVertices,
 								m_fLabel, m_Label_Prec, m_Label_Eff, m_Label_Eff_Size,

@@ -95,9 +95,11 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	m_Edit_Attributes.Add_Field(_TL("Name" ), SG_DATATYPE_String);
 	m_Edit_Attributes.Add_Field(_TL("Value"), SG_DATATYPE_String);
 
-	m_Edit_Color    = wxColor(0, 0, 0);
-
+	m_Edit_Color    = *wxBLACK;
+	m_Edit_bGleam	= true;
 	m_Edit_Mode		= EDIT_SHAPE_MODE_Normal;
+
+	m_Sel_Color		= *wxRED;
 
 	m_bVertices		= 0;
 }
@@ -448,7 +450,7 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Color("NODE_SELECTION",
 		"SEL_COLOR"		, _TL("Color"),
 		_TL(""),
-		SG_GET_RGB(255, 0, 0)
+		m_Sel_Color.GetRGB()
 	);
 
 	//-----------------------------------------------------
@@ -457,7 +459,13 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	m_Parameters.Add_Color("NODE_EDIT",
 		"EDIT_COLOR"	, _TL("Color"),
 		_TL(""),
-		SG_GET_RGB(0, 0, 0)
+		m_Edit_Color.GetRGB()
+	);
+
+	m_Parameters.Add_Bool("NODE_EDIT",
+		"EDIT_GLEAM"	, _TL("Gleam"),
+		_TL(""),
+		m_Edit_bGleam
 	);
 
 	m_Parameters.Add_Shapes_List("NODE_EDIT",
@@ -1106,6 +1114,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 	m_Sel_Color		= Get_Color_asWX(m_Parameters("SEL_COLOR" )->asInt());
 	m_Edit_Color	= Get_Color_asWX(m_Parameters("EDIT_COLOR")->asInt());
+	m_Edit_bGleam	=                m_Parameters("EDIT_GLEAM")->asBool();
 
 	Draw_Initialize(dc, Flags);
 

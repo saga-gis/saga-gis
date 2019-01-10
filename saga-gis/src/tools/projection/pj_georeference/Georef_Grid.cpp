@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Georef_Grid.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -70,8 +67,6 @@
 //---------------------------------------------------------
 CGeoref_Grid::CGeoref_Grid(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("Rectify Grid"));
 
@@ -84,51 +79,51 @@ CGeoref_Grid::CGeoref_Grid(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "REF_SOURCE"	, _TL("Reference Points (Origin)"),
+	Parameters.Add_Shapes("",
+		"REF_SOURCE", _TL("Reference Points (Origin)"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "REF_TARGET"	, _TL("Reference Points (Projection)"),
+	Parameters.Add_Shapes("",
+		"REF_TARGET", _TL("Reference Points (Projection)"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "XFIELD"		, _TL("x Position"),
+	Parameters.Add_Table_Field("REF_SOURCE",
+		"XFIELD"	, _TL("x Position"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "YFIELD"		, _TL("y Position"),
+	Parameters.Add_Table_Field("REF_SOURCE",
+		"YFIELD"	, _TL("y Position"),
 		_TL("")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
 		_TL(""),
 		GEOREF_METHODS_CHOICE, 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ORDER"		,_TL("Polynomial Order"),
+	Parameters.Add_Int("",
+		"ORDER"		, _TL("Polynomial Order"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 3, 1, true
+		3, 1, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"	, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -136,10 +131,10 @@ CGeoref_Grid::CGeoref_Grid(void)
 		), 3
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BYTEWISE"		, _TL("Bytewise Interpolation"),
+	Parameters.Add_Bool("",
+		"BYTEWISE"	, _TL("Bytewise Interpolation"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
 	//-----------------------------------------------------
@@ -148,8 +143,6 @@ CGeoref_Grid::CGeoref_Grid(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -201,14 +194,11 @@ int CGeoref_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGeoref_Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pShapes_A	= Parameters("REF_SOURCE")->asShapes();
 	CSG_Shapes	*pShapes_B	= Parameters("REF_TARGET")->asShapes();
 
@@ -243,8 +233,6 @@ bool CGeoref_Grid::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -313,8 +301,6 @@ bool CGeoref_Grid::Get_Conversion(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -386,8 +372,6 @@ inline void CGeoref_Grid::Add_Target_Extent(CSG_Rect &Extent, double x, double y
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

@@ -142,7 +142,7 @@ CVIEW_Base::~CVIEW_Base(void)
 
 	if( g_pSAGA_Frame )
 	{
-//		g_pSAGA_Frame->On_Child_Activates(-1);
+		g_pSAGA_Frame->On_Child_Activates(-1);
 	}
 }
 

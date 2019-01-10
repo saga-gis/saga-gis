@@ -118,6 +118,10 @@ protected:
 	virtual void				Edit_Snap_Point_ToLine	(CSG_Point Point, CSG_Point &snap_Point, double &snap_Dist, CSG_Shape *pShape);
 
 
+private:
+
+	void						_Edit_Shape_Draw		(CWKSP_Map_DC &dc_Map);
+
 };
 
 

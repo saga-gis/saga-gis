@@ -318,37 +318,49 @@ void CWKSP_Shapes_Polygon::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld
 }
 
 //---------------------------------------------------------
-void CWKSP_Shapes_Polygon::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+void CWKSP_Shapes_Polygon::_Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
-	int			iPart, iPoint;
-	TSG_Point_Int	ptA, ptB;
-
-	if( m_Edit_pShape )
+	for(int iPart=0; m_Edit_pShape && iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 	{
-		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
-
-		for(iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
+		if( m_Edit_pShape->Get_Point_Count(iPart) > 1 )
 		{
-			if( m_Edit_pShape->Get_Point_Count(iPart) > 2 )
+			TSG_Point_Int A = dc_Map.World2DC(m_Edit_pShape->Get_Point(m_Edit_pShape->Get_Point_Count(iPart) - 1, iPart));
+
+			for(int iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
 			{
-				ptA		= dc_Map.World2DC(m_Edit_pShape->Get_Point(m_Edit_pShape->Get_Point_Count(iPart) - 1, iPart));
+				TSG_Point_Int B = A; A = dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart));
 
-				for(iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
-				{
-					ptB		= ptA;
-					ptA		= dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart));
-
-					dc_Map.dc.DrawLine(ptA.x, ptA.y, ptB.x, ptB.y);
-				}
-			}
-			else if( m_Edit_pShape->Get_Point_Count(iPart) == 2 )
-			{
-				ptA		= dc_Map.World2DC(m_Edit_pShape->Get_Point(0, iPart));
-				ptB		= dc_Map.World2DC(m_Edit_pShape->Get_Point(1, iPart));
-
-				dc_Map.dc.DrawLine(ptA.x, ptA.y, ptB.x, ptB.y);
+				dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
 			}
 		}
+		else if( m_Edit_pShape->Get_Point_Count(iPart) == 2 )
+		{
+			TSG_Point_Int	A	= dc_Map.World2DC(m_Edit_pShape->Get_Point(0, iPart));
+			TSG_Point_Int	B	= dc_Map.World2DC(m_Edit_pShape->Get_Point(1, iPart));
+
+			dc_Map.dc.DrawLine(A.x, A.y, B.x, B.y);
+		}
+	}
+}
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Polygon::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
+{
+	if( m_Edit_pShape )
+	{
+		if( m_Edit_bGleam )
+		{
+			dc_Map.dc.SetPen(wxPen(m_Edit_Color, 3));
+			dc_Map.dc.SetLogicalFunction(wxINVERT);
+
+			_Edit_Shape_Draw(dc_Map);
+
+			dc_Map.dc.SetLogicalFunction(wxCOPY);
+		}
+
+		dc_Map.dc.SetPen(wxPen(m_Edit_Color));
+
+		_Edit_Shape_Draw(dc_Map);
 
 		CWKSP_Shapes::Edit_Shape_Draw(dc_Map);
 	}

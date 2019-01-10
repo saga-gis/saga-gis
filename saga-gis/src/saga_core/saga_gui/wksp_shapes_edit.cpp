@@ -959,27 +959,33 @@ void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, TSG_Point_Int Point, bool bS
 
 void CWKSP_Shapes::_Edit_Shape_Draw_Point(wxDC &dc, int x, int y, bool bSelected)
 {
-	dc.SetPen  (wxPen(m_Edit_Color));
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
+
+	dc.SetPen  (wxPen(m_Edit_Color));
 
 	dc.DrawCircle(x, y, 2);
 
 	Draw_Edge(dc, EDGE_STYLE_SIMPLE,
-		x - EDIT_TICKMARK_SIZE - 1,
-		y - EDIT_TICKMARK_SIZE - 1,
-		x + EDIT_TICKMARK_SIZE,
-		y + EDIT_TICKMARK_SIZE
+		x - EDIT_TICKMARK_SIZE, y - EDIT_TICKMARK_SIZE,
+		x + EDIT_TICKMARK_SIZE, y + EDIT_TICKMARK_SIZE
 	);
 
 	if( bSelected )
 	{
-		dc.SetPen(*wxRED_PEN);
+		dc.SetPen(m_Sel_Color);
 
 		Draw_Edge(dc, EDGE_STYLE_SIMPLE,
-			x - EDIT_TICKMARK_SIZE - 2,
-			y - EDIT_TICKMARK_SIZE - 2,
-			x + EDIT_TICKMARK_SIZE + 1,
-			y + EDIT_TICKMARK_SIZE + 1
+			x - EDIT_TICKMARK_SIZE - 1, y - EDIT_TICKMARK_SIZE - 1,
+			x + EDIT_TICKMARK_SIZE + 1, y + EDIT_TICKMARK_SIZE + 1
+		);
+	}
+	else if( m_Edit_bGleam )
+	{
+		dc.SetPen(wxColour(255 - m_Edit_Color.Red(), 255 - m_Edit_Color.Green(), 255 - m_Edit_Color.Blue()));
+
+		Draw_Edge(dc, EDGE_STYLE_SIMPLE,
+			x - EDIT_TICKMARK_SIZE + 1, y - EDIT_TICKMARK_SIZE + 1,
+			x + EDIT_TICKMARK_SIZE - 1, y + EDIT_TICKMARK_SIZE - 1
 		);
 	}
 }
@@ -1004,13 +1010,11 @@ void CWKSP_Shapes::Edit_Shape_Draw_Move(wxDC &dc, const CSG_Rect &rWorld, const 
 //---------------------------------------------------------
 void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 {
-	int		iPart, iPoint;
-
 	if( m_Edit_pShape )
 	{
-		for(iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
+		for(int iPart=0; iPart<m_Edit_pShape->Get_Part_Count(); iPart++)
 		{
-			for(iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
+			for(int iPoint=0; iPoint<m_Edit_pShape->Get_Point_Count(iPart); iPoint++)
 			{
 				_Edit_Shape_Draw_Point(dc_Map.dc, dc_Map.World2DC(m_Edit_pShape->Get_Point(iPoint, iPart)), false);
 			}
@@ -1023,7 +1027,7 @@ void CWKSP_Shapes::Edit_Shape_Draw(CWKSP_Map_DC &dc_Map)
 
 		if( m_Parameters("EDIT_SNAP_LIST")->asShapesList()->Get_Item_Count() > 0 )
 		{
-			iPoint	= m_Parameters("EDIT_SNAP_DIST")->asInt();
+			int	iPoint	= m_Parameters("EDIT_SNAP_DIST")->asInt();
 
 			dc_Map.dc.SetBrush(wxNullBrush);
 			dc_Map.dc.SetPen  (*wxWHITE);
