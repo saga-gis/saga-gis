@@ -809,17 +809,25 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	//-----------------------------------------------------
 	s	+= "def Run_SAGA_Tool(File):\n";
+
+	if( bHeader )
+	{
+		s	+= "    #_____________________________________\n";
+		s	+= "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
+		s	+= "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
+		s	+= "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
+		s	+= "    if Data == None or Data.is_Valid() == False:\n";
+		s	+= "        print 'Failed to load dataset [' + File + ']'\n";
+		s	+= "        return False\n";
+		s	+= "\n";
+	}
+
 	s	+= "    #_____________________________________\n";
-	s	+= "    # Provide your input dataset(s), here -as example- load a dataset from file.\n";
-	s	+= "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
-	s	+= "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
-	s	+= "    if Data == None or Data.is_Valid() == False:\n";
-	s	+= "        print 'Failed to load dataset [' + File + ']'\n";
+	s	+= "    # Create a new instance of tool '" + m_pTool->Get_Name() + "'\n";
+	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Create_Tool('" + m_pTool->Get_Library() + "', '" + m_pTool->Get_ID() + "')\n";
+	s	+= "    if Tool == None:\n";
+	s	+= "        print 'Failed to create tool: " + m_pTool->Get_Name() + "'\n";
 	s	+= "        return False\n";
-	s	+= "\n";
-	s	+= "    #_____________________________________\n";
-	s	+= "    # request tool '" + m_pTool->Get_Name() + "'\n";
-	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('" + m_pTool->Get_Library() + "', '" + m_pTool->Get_ID() + "')\n";
 	s	+= "\n";
 	s	+= "    Parm = Tool.Get_Parameters()\n";
 
@@ -840,9 +848,11 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	//-------------------------------------------------
 	s	+= "\n";
+	s	+= "    print 'Executing tool: ' + Tool.Get_Name().c_str()\n";
 	s	+= "    if Tool.Execute() == False:\n";
-	s	+= "        print 'Tool execution failed!'\n";
+	s	+= "        print 'failed'\n";
 	s	+= "        return False\n";
+	s	+= "    print 'okay'\n";
 	s	+= "\n";
 	s	+= "    #_____________________________________\n";
 	s	+= "    # Save results to file:\n";
@@ -884,9 +894,12 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	s	+= "\n";
 	s	+= "    #_____________________________________\n";
-	s	+= "    saga_api.SG_Get_Data_Manager().Delete_All() # job is done, free memory resources\n";
+	s	+= "    # remove this tool instance, if you don't need it anymore\n";
+	s	+= "    saga_api.SG_Get_Tool_Library_Manager().Delete_Tool(Tool)\n";
 	s	+= "\n";
-	s	+= "    print 'Tool successfully executed!'\n";
+	s	+= "    # job is done, free memory resources\n";
+	s	+= "    saga_api.SG_Get_Data_Manager().Delete_All()\n";
+	s	+= "\n";
 	s	+= "    return True\n";
 	s	+= "\n";
 
@@ -956,7 +969,7 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, c
 			break;
 
 		case PARAMETER_TYPE_Bool           :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asBool() ? SG_T("true") : SG_T("false"));
+			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%s)\n", ID.c_str(), p->asBool() ? SG_T("True") : SG_T("False"));
 			break;
 
 		case PARAMETER_TYPE_Int            :
