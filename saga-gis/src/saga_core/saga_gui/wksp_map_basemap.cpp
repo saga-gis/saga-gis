@@ -153,6 +153,12 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 		0.0, 0.0, true, 100.0, true
 	);
 
+	m_Parameters.Add_Double("NODE_DISPLAY",
+		"BRIGHTNESS"	, _TL("Maximum Brightness [%]"),
+		_TL("Brightness threshold below a pixel is displayed. Set to 100% to display all (default)."),
+		100.0, 0.0, true, 100.0, true
+	);
+
 	m_Parameters.Add_Bool("NODE_DISPLAY",
 		"GRAYSCALE"		, _TL("Gray Scale Image"),
 		_TL(""),
@@ -438,7 +444,27 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 		{
 			if( &m_BaseMap != pBaseMap )
 			{
-				m_BaseMap.Assign(pBaseMap, GRID_RESAMPLING_NearestNeighbour);
+				#pragma omp parallel for
+				for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0; x<m_BaseMap.Get_NX(); x++)
+				{
+					m_BaseMap.Set_Value(x, y, pBaseMap->Get_Value(System.Get_Grid_to_World(x, y), GRID_RESAMPLING_BSpline, true));
+				}
+			}
+
+			if( m_Parameters("BRIGHTNESS")->asDouble() < 100.0 )
+			{
+				int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.0);
+
+				#pragma omp parallel for
+				for(int i=0; i<m_BaseMap.Get_NCells(); i++)
+				{
+					int	c	= m_BaseMap.asInt(i);
+
+					if( Threshold < (SG_GET_R(c) + SG_GET_G(c) + SG_GET_B(c)) )
+					{
+						m_BaseMap.Set_NoData(i);
+					}
+				}
 			}
 		}
 		else
@@ -487,7 +513,10 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 		#pragma omp parallel for
 		for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0, yy=m_BaseMap.Get_NY()-y-1; x<m_BaseMap.Get_NX(); x++)
 		{
-			dc_Map.IMG_Set_Pixel(x, y, m_BaseMap.asInt(x, yy));
+			if( !m_BaseMap.is_NoData(x, yy) )
+			{
+				dc_Map.IMG_Set_Pixel(x, y, m_BaseMap.asInt(x, yy));
+			}
 		}
 
 		dc_Map.IMG_Draw_End();
