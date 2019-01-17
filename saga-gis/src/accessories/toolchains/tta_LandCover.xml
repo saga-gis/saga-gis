@@ -23,6 +23,10 @@
 		<where>International Journal of Health Geographics 7.1.</where>
 	</reference>
 	
+
+	<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	///////////////////////////////////////////////////////
+	<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
 	<parameters>
 		<input varname="ROAD_LINES" type="shapes">
 			<name>Roads</name>
@@ -46,72 +50,75 @@
 			<name>Elevation</name>
 		</input>
 
-		<option varname="VEG_SYSTEM" type="grid_system">
+		<option varname="LANDCOVER_SYSTEM" type="grid_system">
 			<name>Grid System</name>
 		</option>
-		<input varname="VEGETATION" type="grid" parent="VEG_SYSTEM">
+		<input varname="VEGETATION" type="grid" parent="LANDCOVER_SYSTEM">
 			<name>Vegetation</name>
 		</input>
-		<output varname="LANDCOVER" type="grid" parent="VEG_SYSTEM">
-			<output_name>Land Cover</output_name>
+		<output varname="LANDCOVER" type="grid" parent="LANDCOVER_SYSTEM">
 			<name>Land Cover</name>
+			<output_name>Land Cover</output_name>
 			<colours>14</colours>
 		</output>
 	</parameters>
-	
+
+
+	<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	///////////////////////////////////////////////////////
+	<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
 	<tools>
-		<comment> 1.) channel network</comment>
-		<tool library="grid_calculus" tool="1" name="Grid Calculator">
-			<comment>create target grid using vegetation layer's grid system with type=4 (signed short integer)</comment>
-			<option id="FORMULA">0</option>
-			<option id="TYPE">4</option>
-			<input  id="GRIDS">VEGETATION</input>
-			<output id="RESULT">CHANNEL_GRID</output>
-		</tool>
-		<condition type="exists" variable="CHANNEL_LINES">
-			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
-				<option id="MULTIPLE">3</option>
-				<option id="TARGET_DEFINITION">1</option>
-				<input  id="INPUT">CHANNEL_LINES</input>
-				<option id="FIELD" varname="true">CHANNEL_ORDER</option>
-				<output id="GRID">CHANNEL_GRID</output>
-			</tool>
-		</condition>
-		<condition type="not_exists" variable="CHANNEL_LINES">
-			<tool library="ta_preprocessor" tool="2" name="Sink Removal">
-				<input  id="DEM">DEM</input>
-				<output id="DEM_PREPROC">DEM_NOSINKS</output>
-			</tool>
-			<tool library="ta_channels" tool="5" name="Channel Network and Drainage Basins">
-				<option id="THRESHOLD">5</option>
-				<input  id="DEM">DEM_NOSINKS</input>
-				<output id="SEGMENTS">DEM_CHANNEL_LINES</output>
-			</tool>
-			<tool library="grid_gridding" tool="0" name="Shapes to Grid">
-				<option id="MULTIPLE">3</option>
-				<option id="TARGET_DEFINITION">1</option>
-				<input  id="INPUT">DEM_CHANNEL_LINES</input>
-				<option id="FIELD">ORDER</option>
-				<output id="GRID">CHANNEL_GRID</output>
-			</tool>
-		</condition>
-		<tool library="grid_calculus" tool="1" name="Grid Calculator">
-			<comment>change no-data values from '-32767' to '0' and also all cells with order less than 5</comment>
-			<option id="FORMULA">ifelse(lt(g1,0), 0, g1)</option>
-			<option id="USE_NODATA">TRUE</option>
-			<option id="TYPE">4</option>
-			<input  id="GRIDS">CHANNEL_GRID</input>
-			<output id="RESULT">CHANNEL_GRID</output>
-		</tool>
 		
-		<comment> 2.) road network</comment>
-		<tool library="grid_calculus" tool="1" name="Grid Calculator">
-			<comment>create target grid using vegetation layer's grid system with type=4 (signed short integer)</comment>
-			<option id="FORMULA">0</option>
-			<option id="TYPE">4</option>
-			<input  id="GRIDS">VEGETATION</input>
-			<output id="RESULT">ROADS_GRID</output>
+		<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			1.) channel network
+		<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+
+		<tool library="grid_tools" tool="33" name="Copy Grid">
+			<input  id="GRID">VEGETATION</input>
+			<output id="COPY">CHANNEL_GRID</output>
 		</tool>
+
+		<condition type="exists" variable="CHANNEL_LINES">
+			<if>
+				<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+					<option id="MULTIPLE">3</option>
+					<option id="TARGET_DEFINITION">1</option>
+					<input  id="INPUT">CHANNEL_LINES</input>
+					<option id="FIELD" varname="true">CHANNEL_ORDER</option>
+					<output id="GRID">CHANNEL_GRID</output>
+				</tool>
+			</if>
+			<else>
+				<tool library="ta_preprocessor" tool="2" name="Sink Removal">
+					<input  id="DEM">DEM</input>
+					<output id="DEM_PREPROC">DEM_NOSINKS</output>
+				</tool>
+				<tool library="ta_channels" tool="5" name="Channel Network and Drainage Basins">
+					<option id="THRESHOLD">5</option>
+					<input  id="DEM">DEM_NOSINKS</input>
+					<output id="SEGMENTS">CHANNEL_LINES</output>
+				</tool>
+				<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+					<option id="OUTPUT">2</option>
+					<option id="MULTIPLE">3</option>
+					<option id="TARGET_DEFINITION">1</option>
+					<input  id="INPUT">CHANNEL_LINES</input>
+					<option id="FIELD" varname="false">ORDER</option>
+					<output id="GRID">CHANNEL_GRID</output>
+				</tool>
+			</else>
+		</condition>
+
+		
+		<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			2.) road network
+		<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+
+		<tool library="grid_tools" tool="33" name="Copy Grid">
+			<input  id="GRID">VEGETATION</input>
+			<output id="COPY">ROADS_GRID</output>
+		</tool>
+
 		<tool library="grid_gridding" tool="0" name="Shapes to Grid">
 			<option id="MULTIPLE">2</option>
 			<option id="TARGET_DEFINITION">1</option>
@@ -119,18 +126,15 @@
 			<option id="FIELD" varname="1">ROAD_CLASS</option>
 			<output id="GRID">ROADS_GRID</output>
 		</tool>
-		<tool library="grid_calculus" tool="1" name="Grid Calculator">
-			<comment>change no-data values from '-32767' to '0'</comment>
-			<option id="FORMULA">ifelse(lt(g1,0), 0, g1)</option>
-			<option id="USE_NODATA">TRUE</option>
-			<option id="TYPE">4</option>
-			<input  id="GRIDS">ROADS_GRID</input>
-			<output id="RESULT">ROADS_GRID</output>
-		</tool>
 
-		<comment> 3.) combine roads, channels, vegetation</comment>
+
+		<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			3.) combine roads, channels, vegetation
+		<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+
 		<tool library="grid_calculus" tool="1" name="Grid Calculator">
-			<option id="FORMULA">ifelse(gt(g1,0), 200+g1, ifelse(gt(g2,0), 100+g2, g3))</option>
+			<option id="FORMULA">ifelse(gt(g1,0),200+g1,ifelse(gt(g2,0),100+g2,ifelse(gt(g3,0),g3,nodata())))</option>
+			<option id="USE_NODATA">TRUE</option>
 			<option id="TYPE">4</option>
 			<input  id="GRIDS">ROADS_GRID</input>
 			<input  id="GRIDS">CHANNEL_GRID</input>

@@ -700,6 +700,13 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 
 			if( pParameter && pParameter->is_DataObject() && pParameter->asDataObject() )
 			{
+				if( Parameter("colours") )
+				{
+					DataObject_Set_Colors(pParameter->asDataObject(), 11,
+						Parameter["colours"].Get_Content().asInt(), IS_TRUE_PROPERTY(Parameter["colours"], "revert")
+					);
+				}
+
 				if( Parameter("output_name") )
 				{
 					if( IS_TRUE_PROPERTY(Parameter["output_name"], "input") )
@@ -722,13 +729,6 @@ bool CSG_Tool_Chain::Data_Finalize(void)
 					{
 						pParameter->asDataObject()->Set_Name(Parameter["output_name"].Get_Content());
 					}
-				}
-
-				if( Parameter("colours") )
-				{
-					DataObject_Set_Colors(pParameter->asDataObject(), 11,
-						Parameter["colours"].Get_Content().asInt(), IS_TRUE_PROPERTY(Parameter["colours"], "revert")
-					);
 				}
 			}
 		}

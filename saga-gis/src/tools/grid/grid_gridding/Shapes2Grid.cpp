@@ -111,7 +111,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output Values"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("data / no-data"),
 			_TL("index number"),
 			_TL("attribute")
@@ -121,7 +121,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Method for Multiple Values"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("first"),
 			_TL("last"),
 			_TL("minimum"),
@@ -133,7 +133,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Parameters.Add_Choice("",
 		"LINE_TYPE"	, _TL("Lines"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("thin"),
 			_TL("thick")
 		), 1
@@ -142,7 +142,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Parameters.Add_Choice("",
 		"POLY_TYPE"	, _TL("Polygon"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("node"),
 			_TL("cell")
 		), 1
@@ -151,7 +151,7 @@ CShapes2Grid::CShapes2Grid(void)
 	Parameters.Add_Choice("",
 		"GRID_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("1 bit"),
 			_TL("1 byte unsigned integer"),
 			_TL("1 byte signed integer"),
@@ -265,6 +265,8 @@ bool CShapes2Grid::On_Execute(void)
 {
 	//-----------------------------------------------------
 	CSG_Shapes	*pShapes	= Parameters("INPUT")->asShapes();
+
+	m_Multiple	= Parameters("MULTIPLE")->asInt();
 
 	//-----------------------------------------------------
 	bool	bFat;
@@ -395,28 +397,28 @@ inline void CShapes2Grid::Set_Value(int x, int y, double Value)
 		}
 		else switch( m_Multiple )
 		{
-		case 0:	// first
+		default:	// first
 			break;
 
-		case 1:	// last
+		case  1:	// last
 			m_pGrid->Set_Value(x, y, Value);
 			break;
 
-		case 2:	// minimum
+		case  2:	// minimum
 			if( m_pGrid->asDouble(x, y) > Value )
 			{
 				m_pGrid->Set_Value(x, y, Value);
 			}
 			break;
 
-		case 3:	// maximum
+		case  3:	// maximum
 			if( m_pGrid->asDouble(x, y) < Value )
 			{
 				m_pGrid->Set_Value(x, y, Value);
 			}
 			break;
 
-		case 4:	// mean
+		case  4:	// mean
 			m_pGrid->Add_Value(x, y, Value);
 			break;
 		}
@@ -457,27 +459,32 @@ void CShapes2Grid::Set_Line(CSG_Shape *pShape, bool bFat, double Value)
 {
 	for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
 	{
+		if( !((CSG_Shape_Line *)pShape)->Get_Part(iPart)->Get_Extent().Intersects(m_pGrid->Get_Extent()) )
+		{
+			continue;
+		}
+
 		int	iPoint	= pShape->Get_Type() == SHAPE_TYPE_Polygon ? 0 : 1;
 
-		TSG_Point	a, b	= pShape->Get_Point(0, iPart, iPoint != 0);
+		TSG_Point	A	= pShape->Get_Point(0, iPart, iPoint != 0);
 
-		b.x	= X_WORLD_TO_GRID(b.x);
-		b.y	= Y_WORLD_TO_GRID(b.y);
+		A.x	= X_WORLD_TO_GRID(A.x);
+		A.y	= Y_WORLD_TO_GRID(A.y);
 
 		for( ; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 		{
-			a	= b;	b	= pShape->Get_Point(iPoint, iPart);
+			TSG_Point B = A; A = pShape->Get_Point(iPoint, iPart);
 
-			b.x	= X_WORLD_TO_GRID(b.x);
-			b.y	= Y_WORLD_TO_GRID(b.y);
+			A.x	= X_WORLD_TO_GRID(A.x);
+			A.y	= Y_WORLD_TO_GRID(A.y);
 
 			if( bFat )
 			{
-				Set_Line_Fat(a, b, Value);
+				Set_Line_Fat(A, B, Value);
 			}
 			else
 			{
-				Set_Line_Thin(a, b, Value);
+				Set_Line_Thin(A, B, Value);
 			}
 		}
 	}
@@ -760,7 +767,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output Values"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("index number"),
 			_TL("attribute")
 		), 2
@@ -769,7 +776,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Multiple Polygons"),
 		_TL("Output value for cells that intersect wiht more than one polygon."),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("minimum coverage"),
 			_TL("maximum coverage"),
 			_TL("average proportional to area coverage")
@@ -779,7 +786,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 	Parameters.Add_Choice("",
 		"GRID_TYPE"	, _TL("Data Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("1 bit"),
 			_TL("1 byte unsigned integer"),
 			_TL("1 byte signed integer"),
