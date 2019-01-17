@@ -765,7 +765,14 @@ bool CGrids_Extract_Grid::On_Execute(void)
 
 	pGrid->Set_NoData_Value_Range(pGrids->Get_NoData_Value(), pGrids->Get_NoData_hiValue());
 
-	pGrid->Fmt_Name("%s [%s]", pGrids->Get_Name(), Parameters("Z_LEVEL")->asString());
+	if( pZ )
+	{
+		pGrid->Fmt_Name("%s [%s]"  , pGrids->Get_Name(), pZ->Get_Name());
+	}
+	else
+	{
+		pGrid->Fmt_Name("%s [%.*f]", pGrids->Get_Name(), SG_Get_Significant_Decimals(Z), Z);
+	}
 
 	TSG_Grid_Resampling	Resampling;
 
