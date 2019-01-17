@@ -176,33 +176,31 @@ int CGeoCoding::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool CGeoCoding::On_Execute(void)
 {
-	m_pLocations	= Parameters("LOCATIONS")->asShapes();
+	//-----------------------------------------------------
+	int	Field	= Parameters("FIELD")->asInt();
 
-	m_pLocations->Create(SHAPE_TYPE_Point, _TL("Locations"));
-	m_pLocations->Get_Projection().Set_GCS_WGS84();
+	CSG_Table	Table, *pTable	= Parameters("ADDRESSES")->asTable();
 
-	m_pLocations->Add_Field("ID"     , SG_DATATYPE_String);
-	m_pLocations->Add_Field("ADDRESS", SG_DATATYPE_String);
+	if( !pTable )
+	{
+		Field	= 0;
+		pTable	= &Table;
+		pTable->Set_Name(_TL("Locations"));
+		pTable->Add_Field("ADDRESS", SG_DATATYPE_String);
+		pTable->Add_Record()->Set_Value(0, Parameters("ADDRESS")->asString());
+	}
 
+	//-----------------------------------------------------
+	CSG_Shapes	*pLocations	= Parameters("LOCATIONS")->asShapes();
+
+	pLocations->Create(SHAPE_TYPE_Point, pTable->Get_Name(), pTable);
+	pLocations->Get_Projection().Set_GCS_WGS84();
+
+	//-----------------------------------------------------
 	int	Provider	= Parameters("PROVIDER")->asInt();
 
 	m_API_Key	= Parameters("API_KEY")->asString();
 
-	//-----------------------------------------------------
-	CSG_Table	Table, *pTable	= Parameters("ADDRESSES")->asTable();
-
-	int	Field	= Parameters("FIELD")->asInt();
-
-	if( !pTable )
-	{
-		pTable	= &Table;
-		pTable->Add_Field("ADDRESS", SG_DATATYPE_String);
-		pTable->Add_Record()->Set_Value(0, Parameters("ADDRESS")->asString());
-
-		Field	= 0;
-	}
-
-	//-----------------------------------------------------
 	CWebClient	Connection;
 
 	switch( Provider )
@@ -241,23 +239,21 @@ bool CGeoCoding::On_Execute(void)
 
 		if( bOkay )
 		{
-			CSG_Shape	*pLocation	= m_pLocations->Add_Shape();
+			CSG_Shape	*pLocation	= pLocations->Add_Shape(pTable->Get_Record(i));
 
 			pLocation->Add_Point(Location);
-
-			pLocation->Set_Value(1, Address);
 		}
 	}
 
 	if( pTable->Get_Count() == 1 && Parameters("METADATA")->asBool() )
 	{
-		m_pLocations->Get_MetaData().Add_Child(m_Answer);
+		pLocations->Get_MetaData().Add_Child(m_Answer);
 	}
 
 	m_Answer.Destroy();
 
 	//-----------------------------------------------------
-	return( m_pLocations->Get_Count() > 0 );
+	return( pLocations->Get_Count() > 0 );
 }
 
 

@@ -97,8 +97,6 @@ private:
 
 	CSG_MetaData			m_Answer;
 
-	CSG_Shapes				*m_pLocations;
-
 
 	bool					Request_Nominatim		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
 	bool					Request_DSTK			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
