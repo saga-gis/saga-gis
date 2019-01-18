@@ -621,7 +621,7 @@ void CSAGA_Frame::On_Frame_Split_UI(wxUpdateUIEvent &event)
 void CSAGA_Frame::Tile(wxOrientation orient)
 {
 #ifndef MDI_TABBED
-	int		n	= Get_Children_Count();
+	int		n	= _Get_MDI_Children_Count();
 
 	if( n == 1 && GetActiveChild() )
 	{
@@ -1019,7 +1019,7 @@ void CSAGA_Frame::Close_Children(void)
 }
 
 //---------------------------------------------------------
-int CSAGA_Frame::Get_Children_Count(void)
+int CSAGA_Frame::_Get_MDI_Children_Count(void)
 {
 #ifdef MDI_TABBED
 	return( GetNotebook()->GetPageCount() );
@@ -1041,11 +1041,16 @@ int CSAGA_Frame::Get_Children_Count(void)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Child_Activates(int View_ID)
 {
-	if( View_ID < 0 && Get_Children_Count() > 1 )	// another child will be activated next!
+#ifdef MDI_TABBED
+	if( View_ID < 0 && GetNotebook()->GetPageCount() > 0 )	// child view closes, but it's not the last one
+#else
+	if( View_ID < 0 && _Get_MDI_Children_Count    () > 1 )	// child view closes, but it's not the last one
+#endif
 	{
-		return;
+		return;	// nothing to do, another child will be activated next!
 	}
 
+	//-----------------------------------------------------
 	wxString		Title;
 	wxMenu			*pMenu		= NULL;
 	wxToolBarBase	*pToolBar	= NULL;
