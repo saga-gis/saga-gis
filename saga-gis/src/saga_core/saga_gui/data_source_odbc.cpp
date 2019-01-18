@@ -387,7 +387,7 @@ void CData_Source_ODBC::Update_Source(const wxString &Server)
 			Update_Source(Item);
 		}
 
-		Item	= GetNextChild(Item, Cookie);
+		Item	= GetNextChild(GetRootItem(), Cookie);
 	}
 }
 

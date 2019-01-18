@@ -492,10 +492,10 @@ CData_Source_PgSQL::~CData_Source_PgSQL(void)
 				CONFIG_Write(CFG_PGSQL_DIR, wxString::Format(CFG_PGSQL_SRC, i++), Connection.c_str());
 			}
 
-			Item	= GetNextChild(Item, Cookie);
+			Item	= GetNextChild(srvItem, Cookie);
 		}
 
-		srvItem	= GetNextChild(srvItem, srvCookie);
+		srvItem	= GetNextChild(GetRootItem(), srvCookie);
 	}
 }
 
@@ -530,10 +530,10 @@ void CData_Source_PgSQL::Autoconnect(void)
 					Source_Open(pData, false);
 				}
 
-				Item	= GetNextChild(Item, Cookie);
+				Item	= GetNextChild(srvItem, Cookie);
 			}
 
-			srvItem	= GetNextChild(srvItem, srvCookie);
+			srvItem	= GetNextChild(GetRootItem(), srvCookie);
 		}
 	}
 }
@@ -743,7 +743,7 @@ wxTreeItemId CData_Source_PgSQL::Get_Server_Item(const wxString &Server, bool bC
 			return( Item );
 		}
 
-		Item	= GetNextChild(Item, Cookie);
+		Item	= GetNextChild(GetRootItem(), Cookie);
 	}
 
 	if( bCreate )
@@ -760,17 +760,17 @@ wxTreeItemId CData_Source_PgSQL::Get_Server_Item(const wxString &Server, bool bC
 //---------------------------------------------------------
 wxTreeItemId CData_Source_PgSQL::Find_Source(const wxString &Server)
 {
-	wxTreeItemId	Item	= Get_Server_Item(Server, false);
+	wxTreeItemId	Item, srvItem	= Get_Server_Item(Server, false);
 
-	if( Item.IsOk() )
+	if( srvItem.IsOk() )
 	{
-		wxTreeItemIdValue Cookie; Item = GetFirstChild(Item, Cookie);
+		wxTreeItemIdValue Cookie; Item = GetFirstChild(srvItem, Cookie);
 
 		wxString	Name	= Server.BeforeLast('['); Name.Trim(true);
 
 		while( Item.IsOk() && Name.Cmp(GetItemText(Item)) )
 		{
-			Item	= GetNextChild(Item, Cookie);
+			Item	= GetNextChild(srvItem, Cookie);
 		}
 	}
 
@@ -802,7 +802,7 @@ void CData_Source_PgSQL::Update_Sources(const wxTreeItemId &Root)
 	{
 		Update_Source(Item);
 
-		Item	= GetNextChild(Item, Cookie);
+		Item	= GetNextChild(Root, Cookie);
 	}
 
 	//-----------------------------------------------------
@@ -834,7 +834,7 @@ void CData_Source_PgSQL::Update_Sources(void)
 	{
 		Update_Sources(Item);
 
-		Item	= GetNextChild(Item, Cookie);
+		Item	= GetNextChild(GetRootItem(), Cookie);
 	}
 }
 
