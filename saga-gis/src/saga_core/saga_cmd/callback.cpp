@@ -70,6 +70,7 @@
 
 #include "tool.h"
 
+#include <iostream>
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -155,6 +156,8 @@ void			CMD_Print			(const CSG_String &Text, const CSG_String &XML_Tag)
 	{
 		SG_Printf("%s\n", Text.c_str());
 	}
+
+	std::cout << std::flush;
 }
 
 //---------------------------------------------------------
@@ -174,6 +177,8 @@ void			CMD_Print			(FILE *Stream, const CSG_String &Text, const CSG_String &XML_
 			SG_FPrintf(Stream, "%s\n", Text.c_str());
 		}
 	}
+
+	std::fflush(Stream);
 }
 
 //---------------------------------------------------------
@@ -304,6 +309,8 @@ int		Callback(TSG_UI_Callback_ID ID, CSG_UI_Parameter &Param_1, CSG_UI_Parameter
 
 					SG_Printf("\r%3d%%", iPercent = i);
 				}
+
+				std::cout << std::flush;
 			}
 		}
 
