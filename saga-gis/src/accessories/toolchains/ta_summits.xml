@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.2.0">
+	<group>terrain_analysis</group>
+	<identifier>ta_summits</identifier>
+	<author>O.Conrad (c) 2019</author>
+	<menu>Terrain Classification</menu>
+	<name>Summit Extraction</name>
+	<description>This is a simple summit detection tool, e.g. for the analysis of Digital Elevation Models. It calculates the distance above a trend surface (using either the grid resampling filter or the topographic position index) to decide, if a local maximum in the input surface grid represents a summit.</description>
+
+
+	<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	///////////////////////////////////////////////////////
+	<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+	<parameters>
+		<option id="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="SURFACE" type="grid" parent="GRID_SYSTEM">
+			<name>Surface</name>
+		</input>
+		<output varname="SUMMITS" type="shapes" feature_type="point">
+			<name>Summits</name>
+			<output_name input="true" suffix="Summits">SURFACE</output_name>
+		</output>
+		<option varname="METHOD" type="choice">
+			<name>Trend Surface</name>
+			<choices>Resampling Filter|Topographic Position Index (TPI)</choices>
+			<value>0</value>
+		</option>
+		<option varname="SCALE_FILTER" type="double" parent="METHOD">
+			<condition value="0" type="=">METHOD</condition>
+			<name>Scale</name>
+			<value min="1">10</value>
+			<description>The scale (expressed as number of input grid cells) at which the trend surface will be created.</description>
+		</option>
+		<option varname="SCALE_TPI" type="double" parent="METHOD">
+			<condition value="1" type="=">METHOD</condition>
+			<name>Scale</name>
+			<value min="1">300</value>
+			<description>The scale (expressed as map units) at which the trend surface will be created.</description>
+		</option>
+		<option varname="THRESHOLD" type="double">
+			<name>Threshold</name>
+			<value min="0">10</value>
+			<description>The minimum distance above the trend surface for summit cells.</description>
+		</option>
+	</parameters>
+
+
+	<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	///////////////////////////////////////////////////////
+	<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+	<tools>
+
+		<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			trend surface
+		<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+
+		<condition value="0" type="=" variable="METHOD"><if>
+			<tool library="grid_filter" tool="11" name="Resampling Filter">
+				<input id="GRID">SURFACE</input>
+				<output id="HIPASS">TREND</output>
+				<option id="SCALE" varname="true">SCALE_FILTER</option>
+			</tool>
+		</if><else>
+			<tool library="ta_morphometry" tool="18" name="Topographic Position Index (TPI)">
+				<option id="RADIUS.MAX" varname="true">SCALE_TPI</option>
+				<input  id="DEM">SURFACE</input>
+				<output id="TPI">TREND</output>
+			</tool>
+		</else></condition>
+
+
+		<!-->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+			summit selection
+		<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<-->
+
+		<tool library="shapes_grid" tool="9" name="Local Minima and Maxima">
+			<option id="IDENTITY">false</option>
+			<option id="ABSOLUTE">false</option>
+			<option id="BOUNDARY">false</option>
+			<input  id="GRID">SURFACE</input>
+			<output id="MAXIMA">MAXIMA</output>
+		</tool>
+
+		<tool library="shapes_grid" tool="0" name="Add Grid Values to Points">
+			<input  id="GRIDS" >TREND</input>
+			<input  id="SHAPES">MAXIMA</input>
+		</tool>
+
+		<tool library="shapes_tools" tool="3" name="Select by Attributes... (Numerical Expression)">
+			<option id="FIELD">5</option>
+			<option id="EXPRESSION">gt(a, $(THRESHOLD))</option>
+			<input  id="SHAPES">MAXIMA</input>
+		</tool>
+
+		<tool library="shapes_tools" tool="6" name="Copy Selection to New Shapes Layer">
+			<input  id="INPUT">MAXIMA</input>
+			<output id="OUTPUT">SUMMITS</output>
+		</tool>
+	</tools>
+</toolchain>
