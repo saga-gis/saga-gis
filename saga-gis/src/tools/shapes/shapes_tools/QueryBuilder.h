@@ -28,7 +28,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -52,6 +52,8 @@ protected:
 
 
 private:
+
+	CSG_String					Get_Formula		(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Values);
 
 };
 
