@@ -308,10 +308,10 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		{
 		case PARAMETER_TYPE_Node             : Parameters.Add_Node           (ParentID, ID, Name, Desc);	break;
 
-		case PARAMETER_TYPE_Bool             : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Bool  , IS_TRUE_STRING(Value));	break;
-		case PARAMETER_TYPE_Int              : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Int   , Value.asInt   (), Min, bMin, Max, bMax);	break;
-		case PARAMETER_TYPE_Double           : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Double, Value.asDouble(), Min, bMin, Max, bMax);	break;
-		case PARAMETER_TYPE_Degree           : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Degree, Value.asDouble(), Min, bMin, Max, bMax);	break;
+		case PARAMETER_TYPE_Bool             : Parameters.Add_Bool           (ParentID, ID, Name, Desc, IS_TRUE_STRING(Value));	break;
+		case PARAMETER_TYPE_Int              : Parameters.Add_Int            (ParentID, ID, Name, Desc, Value.asInt   (), (int)Min, bMin, (int)Max, bMax);	break;
+		case PARAMETER_TYPE_Double           : Parameters.Add_Double         (ParentID, ID, Name, Desc, Value.asDouble(),      Min, bMin,      Max, bMax);	break;
+		case PARAMETER_TYPE_Degree           : Parameters.Add_Degree         (ParentID, ID, Name, Desc, Value.asDouble(),      Min, bMin,      Max, bMax);	break;
 
 		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (ParentID, ID, Name, Desc, 0.0)->Set_Value(Value);	break;
 
@@ -323,9 +323,10 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_Text             : Parameters.Add_String         (ParentID, ID, Name, Desc, Value,  true);	break;
 
 		case PARAMETER_TYPE_FilePath         : Parameters.Add_FilePath       (ParentID, ID, Name, Desc, Parameter.Get_Content("filter"), Value,
-												IS_TRUE_PROPERTY(Parameter, "save"     ),
-												IS_TRUE_PROPERTY(Parameter, "directory"),
-												IS_TRUE_PROPERTY(Parameter, "multiple" ));	break;
+													IS_TRUE_PROPERTY(Parameter, "save"     ),
+													IS_TRUE_PROPERTY(Parameter, "directory"),
+													IS_TRUE_PROPERTY(Parameter, "multiple" )
+											); break;
 
 		case PARAMETER_TYPE_Font             : break;
 		case PARAMETER_TYPE_Color            : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Color, Value.asInt());	break;
@@ -348,10 +349,11 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_Table            : Parameters.Add_Table          (ParentID, ID, Name, Desc, Constraint);	break;
 
 		case PARAMETER_TYPE_Shapes           : Parameters.Add_Shapes         (ParentID, ID, Name, Desc, Constraint,
-												   Parameter.Cmp_Property("feature_type", "point"  ) ? SHAPE_TYPE_Point   :
-												   Parameter.Cmp_Property("feature_type", "points" ) ? SHAPE_TYPE_Points  :
-												   Parameter.Cmp_Property("feature_type", "line"   ) ? SHAPE_TYPE_Line    :
-												   Parameter.Cmp_Property("feature_type", "polygon") ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Undefined);	break;
+												Parameter.Cmp_Property("feature_type", "point"  ) ? SHAPE_TYPE_Point   :
+												Parameter.Cmp_Property("feature_type", "points" ) ? SHAPE_TYPE_Points  :
+												Parameter.Cmp_Property("feature_type", "line"   ) ? SHAPE_TYPE_Line    :
+												Parameter.Cmp_Property("feature_type", "polygon") ? SHAPE_TYPE_Polygon : SHAPE_TYPE_Undefined
+											); break;
 
 		case PARAMETER_TYPE_TIN              : Parameters.Add_TIN            (ParentID, ID, Name, Desc, Constraint);	break;
 		case PARAMETER_TYPE_PointCloud       : Parameters.Add_PointCloud     (ParentID, ID, Name, Desc, Constraint);	break;

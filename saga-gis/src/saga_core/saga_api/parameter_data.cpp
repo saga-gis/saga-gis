@@ -335,8 +335,8 @@ CSG_Parameter_Value::CSG_Parameter_Value(CSG_Parameters *pOwner, CSG_Parameter *
 //---------------------------------------------------------
 bool CSG_Parameter_Value::Set_Valid_Range(double Minimum, double Maximum)
 {
-	m_Minimum	= Minimum < Maximum ? Minimum : Maximum;
-	m_Maximum	= Minimum < Maximum ? Maximum : Minimum;
+	m_Minimum	= !m_bMaximum || Minimum < Maximum ? Minimum : Maximum;
+	m_Maximum	= !m_bMinimum || Minimum < Maximum ? Maximum : Minimum;
 
 	switch( Get_Type() )
 	{
