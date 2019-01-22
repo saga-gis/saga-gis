@@ -71,6 +71,8 @@
 #include "tool.h"
 
 #include <iostream>
+#include <stdio.h>
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -178,7 +180,7 @@ void			CMD_Print			(FILE *Stream, const CSG_String &Text, const CSG_String &XML_
 		}
 	}
 
-	std::fflush(Stream);
+	fflush(Stream);
 }
 
 //---------------------------------------------------------
