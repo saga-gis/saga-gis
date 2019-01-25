@@ -116,6 +116,8 @@ private:
 
 	CSG_Grid					m_BaseMap;
 
+	CSG_Tool					*m_pTool;
+
 
 	bool						Set_BaseMap				(const CSG_Grid_System &System);
 
