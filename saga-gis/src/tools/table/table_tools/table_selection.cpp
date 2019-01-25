@@ -137,7 +137,7 @@ bool CSelection_Copy::On_Execute(void)
 		pOutput->Create(((CSG_Shapes *)pInput)->Get_Type(), SG_T(""), pInput);
 		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
-		for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+		for(size_t i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{
 			pOutput->Add_Shape(pInput->Get_Selection(i));
 		}
@@ -156,7 +156,7 @@ bool CSelection_Copy::On_Execute(void)
 		pOutput->Create(pInput);
 		pOutput->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Selection"));
 
-		for(int i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
+		for(size_t i=0; i<pInput->Get_Selection_Count() && Set_Progress(i, pInput->Get_Selection_Count()); i++)
 		{
 			pOutput->Add_Record(pInput->Get_Selection(i));
 		}
@@ -263,7 +263,17 @@ CSelect_Numeric::CSelect_Numeric(void)
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Selects records for which the expression is true."
+		"Selects records for which the expression evaluates to non-zero. "
+		"The expression syntax is the same as the one for the table calculator. "
+		"If an attribute field is selected, the expression evaluates only "
+		"this attribute, which can be addressed with the letter 'a' in the "
+		"expression formula. If no attribute is selected, attributes are addressed "
+		"by the character 'f' (for 'field') followed by the field number "
+		"(i.e.: f1, f2, ..., fn) or by the field name in square brackets "
+		"(e.g.: [Field Name]).\n"
+		"Examples:\n"
+		"- f1 > f2\n"
+		"- eq([Population] * 2, [Area])\n"
 	));
 
 	//-----------------------------------------------------
@@ -285,6 +295,12 @@ CSelect_Numeric::CSelect_Numeric(void)
 		"a > 0"
 	);
 
+	Parameters.Add_Bool("",
+		"USE_NODATA", _TL("Use No-Data"),
+		_TL(""),
+		false
+	);
+
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
@@ -303,13 +319,19 @@ bool CSelect_Numeric::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
-	int	Field	= Parameters("FIELD" )->asInt();
-	int	Method	= Parameters("METHOD")->asInt();
+	if( pTable->Get_Count() < 1 || pTable->Get_Field_Count() < 1 )
+	{
+		Error_Set(_TL("empty or invalid shapes layer"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	CSG_Formula		Formula;
+	CSG_Array_Int	Fields;
 
-	if( !Formula.Set_Formula(Parameters("EXPRESSION")->asString()) )
+	CSG_Formula	Formula;
+
+	if( !Formula.Set_Formula(Get_Formula(Parameters("EXPRESSION")->asString(), pTable, Fields)) )
 	{
 		CSG_String	Message;
 
@@ -322,58 +344,63 @@ bool CSelect_Numeric::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	*Values	= new double[pTable->Get_Field_Count()];
+	int	Method	= Parameters("METHOD")->asInt();
 
+	bool	bUseNoData	= Parameters("USE_NODATA")->asBool();
+
+	CSG_Vector	Values((int)Fields.Get_Size());
+
+	//-----------------------------------------------------
 	for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(i);
 
-		if( Field >= pTable->Get_Field_Count() )
+		bool	bOkay	= true;
+
+		for(size_t Field=0; bOkay && Field<Fields.Get_Size(); Field++)
 		{
-			for(int j=0; j<pTable->Get_Field_Count(); j++)
+			if( (bOkay = bUseNoData || !pRecord->is_NoData(Fields[Field])) == true )
 			{
-				Values[j]	= pRecord->asDouble(j);
+				Values[Field]	= pRecord->asDouble(Fields[Field]);
 			}
 		}
-		else
+
+		//-------------------------------------------------
+		if( bOkay )
 		{
-			Values[0]	= pRecord->asDouble(Field);
-		}
-
-		switch( Method )
-		{
-		case 0:	// New selection
-			if( ( pRecord->is_Selected() && !Formula.Get_Value(Values, pTable->Get_Field_Count()))
-			||	(!pRecord->is_Selected() &&  Formula.Get_Value(Values, pTable->Get_Field_Count())) )
+			switch( Method )
 			{
-				pTable->Select(i, true);
-			}
-			break;
+			default:	// New selection
+				if( ( pRecord->is_Selected() && !Formula.Get_Value(Values))
+				||	(!pRecord->is_Selected() &&  Formula.Get_Value(Values)) )
+				{
+					pTable->Select(i, true);
+				}
+				break;
 
-		case 1:	// Add to current selection
-			if(  !pRecord->is_Selected() &&  Formula.Get_Value(Values, pTable->Get_Field_Count()) )
-			{
-				pTable->Select(i, true);
-			}
-			break;
+			case  1:	// Add to current selection
+				if(  !pRecord->is_Selected() &&  Formula.Get_Value(Values) )
+				{
+					pTable->Select(i, true);
+				}
+				break;
 
-		case 2:	// Select from current selection
-			if(   pRecord->is_Selected() && !Formula.Get_Value(Values, pTable->Get_Field_Count()) )
-			{
-				pTable->Select(i, true);
-			}
-			break;
+			case  2:	// Select from current selection
+				if(   pRecord->is_Selected() && !Formula.Get_Value(Values) )
+				{
+					pTable->Select(i, true);
+				}
+				break;
 
-		case 3:	// Remove from current selection
-			if(   pRecord->is_Selected() &&  Formula.Get_Value(Values, pTable->Get_Field_Count()) )
-			{
-				pTable->Select(i, true);
+			case  3:	// Remove from current selection
+				if(   pRecord->is_Selected() &&  Formula.Get_Value(Values) )
+				{
+					pTable->Select(i, true);
+				}
+				break;
 			}
-			break;
 		}
 	}
-
-	delete[](Values);
 
 	//-----------------------------------------------------
 	Message_Fmt("\n%s: %d", _TL("selected records"), pTable->Get_Selection_Count());
@@ -381,6 +408,67 @@ bool CSelect_Numeric::On_Execute(void)
 	DataObject_Update(pTable);
 
 	return( true );
+}
+
+//---------------------------------------------------------
+CSG_String CSelect_Numeric::Get_Formula(CSG_String Formula, CSG_Table *pTable, CSG_Array_Int &Fields)
+{
+	const SG_Char	vars[27]	= SG_T("abcdefghijklmnopqrstuvwxyz");
+
+	Fields.Destroy();
+
+	int	Field	= Parameters("FIELD")->asInt();
+
+	if(	Field >= 0 )
+	{
+		//	Formula.Replace("a", CSG_String(vars[Fields.Get_Size()]));
+
+		Fields	+= Field;
+
+		return( Formula );
+	}
+
+	//---------------------------------------------------------
+	for(Field=pTable->Get_Field_Count()-1; Field>=0 && Fields.Get_Size()<26; Field--)
+	{
+		bool	bUse	= false;
+
+		CSG_String	s;
+
+		s.Printf("f%d", Field + 1);
+
+		if( Formula.Find(s) >= 0 )
+		{
+			Formula.Replace(s, CSG_String(vars[Fields.Get_Size()]));
+
+			bUse	= true;
+		}
+
+		s.Printf("F%d", Field + 1);
+
+		if( Formula.Find(s) >= 0 )
+		{
+			Formula.Replace(s, CSG_String(vars[Fields.Get_Size()]));
+
+			bUse	= true;
+		}
+
+		s.Printf("[%s]", pTable->Get_Field_Name(Field));
+
+		if( Formula.Find(s) >= 0 )
+		{
+			Formula.Replace(s, CSG_String(vars[Fields.Get_Size()]));
+
+			bUse	= true;
+		}
+
+		if( bUse )
+		{
+			Fields	+= Field;
+		}
+	}
+
+	return( Formula );
 }
 
 

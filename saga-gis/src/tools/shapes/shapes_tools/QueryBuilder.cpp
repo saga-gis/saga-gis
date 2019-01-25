@@ -59,7 +59,7 @@ CSelect_Numeric::CSelect_Numeric(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Table("",
+	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
