@@ -79,39 +79,30 @@ CGrid_Export::CGrid_Export(void)
 	Set_Author		("O.Conrad (c) 2005");
 
 	Set_Description	(_TW(
-		"The tool allows one to save a grid as image.\n"
-		"Optionally, a shade grid can be overlayed and it's "
-		"transparency and brightness can be adjusted.\n\n")
-	);
+		"With this tool you can save a grid to an image file. "
+		"Optionally, a shade grid can be overlayed using the "
+		"specified transparency and brightness adjustment. "
+	));
 
-	Parameters.Add_Grid("",
-		"GRID"		, _TL("Grid"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Grid("",
-		"SHADE"		, _TL("Shade"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+	Parameters.Add_Grid("", "GRID" , _TL("Grid" ), _TL(""), PARAMETER_INPUT         );
+	Parameters.Add_Grid("", "SHADE", _TL("Shade"), _TL(""), PARAMETER_INPUT_OPTIONAL);
 
 	Parameters.Add_FilePath("",
 		"FILE"		, _TL("Image File"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
-			_TL("Portable Network Graphics (*.png)"           ), SG_T("*.png"),
-			_TL("JPEG - JFIF Compliant (*.jpg, *.jif, *.jpeg)"), SG_T("*.jpg;*.jif;*.jpeg"),
-			_TL("Tagged Image File Format (*.tif, *.tiff)"    ), SG_T("*.tif;*.tiff"),
-			_TL("Windows or OS/2 Bitmap (*.bmp)"              ), SG_T("*.bmp"),
-			_TL("Zsoft Paintbrush (*.pcx)"                    ), SG_T("*.pcx")
+		CSG_String::Format("%s (*.png)|*.png|%s (*.jpg, *.jif, *.jpeg)|*.jpg;*.jif;*.jpeg|%s (*.tif, *.tiff)|*.tif;*.tiff|%s (*.bmp)|*.bmp|%s (*.pcx)|*.pcx",
+			_TL("Portable Network Graphics"),
+			_TL("JPEG - JFIF Compliant"),
+			_TL("Tagged Image File Format"),
+			_TL("Windows or OS/2 Bitmap"),
+			_TL("Zsoft Paintbrush")
 		), NULL, true
 	);
 
 	Parameters.Add_Bool("",
 		"FILE_KML"	, _TL("Create KML File"),
-		_TL(""),
-		true
+		_TL("Expects that the input grid uses geographic coordinates."),
+		false
 	);
 
 	Parameters.Add_Bool("",
@@ -126,10 +117,10 @@ CGrid_Export::CGrid_Export(void)
 		Parameters.Add_Choice("",
 			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|",
-				_TL("stretch to grid's standard deviation"),
-				_TL("stretch to grid's value range"),
-				_TL("stretch to specified value range"),
+			CSG_String::Format("%s|%s|%s|%s|%s|%s",
+				_TL("histogram stretch to standard deviation"),
+				_TL("histogram stretch to percentage range"),
+				_TL("histogram stretch to value range"),
 				_TL("lookup table"),
 				_TL("rgb coded values"),
 				_TL("same as in graphical user interface")
@@ -147,9 +138,9 @@ CGrid_Export::CGrid_Export(void)
 			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
 			CSG_String::Format("%s|%s|%s|%s|%s",
-				_TL("stretch to grid's standard deviation"),
-				_TL("stretch to grid's value range"),
-				_TL("stretch to specified value range"),
+				_TL("histogram stretch to standard deviation"),
+				_TL("histogram stretch to percentage range"),
+				_TL("histogram stretch to value range"),
 				_TL("lookup table"),
 				_TL("rgb coded values")
 			), 0
@@ -182,67 +173,87 @@ CGrid_Export::CGrid_Export(void)
 		);
 	}
 
-	Parameters.Add_Double("",
+	Parameters.Add_Bool("COL_PALETTE",
+		"GRADUATED"		, _TL("Graduated Colors"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Double("COL_PALETTE",
 		"STDDEV"		, _TL("Standard Deviation"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 
-	Parameters.Add_Range("",
-		"STRETCH"		, _TL("Stretch to Value Range"),
-        _TL(""),
-        0.0, 100.0
-    );
+	Parameters.Add_Range("COL_PALETTE",
+		"LINEAR"		, _TL("Percentage Range"),
+		_TL(""),
+		0., 100.
+	);
 
-	Parameters.Add_Choice("",
-		"SCALE_MODE"	, _TL("Scaling Mode"),
-		_TL("Scaling mode applied to colouring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
+	Parameters.Add_Range("COL_PALETTE",
+		"STRETCH"		, _TL("Value Range"),
+		_TL(""),
+		0., 100.
+	);
+
+	Parameters.Add_Choice("COL_PALETTE",
+		"SCALE_MODE"	, _TL("Scaling"),
+		_TL("Scaling applied to colouring choices (i) grid's standard deviation, (ii) grid's value range, (iii) specified value range"),
 		CSG_String::Format("%s|%s|%s",
-			_TL("Linear"),
-			_TL("Logarithmic (up)"),
-			_TL("Logarithmic (down)")
+			_TL("linear intervals"),
+			_TL("increasing geometrical intervals"),
+			_TL("decreasing geometrical intervals")
 		), 0
 	);
 
-	Parameters.Add_Double("",
-		"SCALE_LOG"		, _TL("Logarithmic Scale Factor"),
+	Parameters.Add_Double("SCALE_MODE",
+		"SCALE_LOG"		, _TL("Geometrical Interval Factor"),
 		_TL(""),
-		1.0, 0.001, true
+		10.0, 0.001, true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Table("",
-		"LUT"			, _TL("Lookup Table"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+	CSG_Table	*pLUT	= Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
+
+	pLUT->Set_Name(_TL("Table"));
+
+	pLUT->Add_Field("Color"      , SG_DATATYPE_Color );
+	pLUT->Add_Field("Name"       , SG_DATATYPE_String);
+	pLUT->Add_Field("Description", SG_DATATYPE_String);
+	pLUT->Add_Field("Minimum"    , SG_DATATYPE_Double);
+	pLUT->Add_Field("Maximum"    , SG_DATATYPE_Double);
+
+	pLUT->Add_Record();
 
 	//-----------------------------------------------------
-	Parameters.Add_Double("",
-		"SHADE_TRANS"	, _TL("Shade Transparency [%]"),
+	Parameters.Add_Node("", "SHADE_NODE", _TL("Shading"), _TL(""));
+
+	Parameters.Add_Double("SHADE_NODE",
+		"SHADE_TRANS"	, _TL("Transparency"),
 		_TL("The transparency of the shade [%]"),
-		40.0, 0.0, true, 100.0, true
+		75., 0., true, 100., true
 	);
 
-	Parameters.Add_Choice("",
-		"SHADE_COLOURING", _TL("Shade Colouring"),
+	Parameters.Add_Choice("SHADE_NODE",
+		"SHADE_COLOURING", _TL("Histogram Stretch"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
-			_TL("scale to brightness range"),
-			_TL("stretch to grid's standard deviation")
+			_TL("Linear"),
+			_TL("Standard Deviation")
 		), 0
 	);
 
-	Parameters.Add_Range("SHADE_COLOURING",
-		"SHADE_BRIGHT"	, _TL("Shade Brightness [%]"),
-		_TL("Allows one to scale shade brightness [%]"),
-		0.0, 100.0, 0.0, true, 100.0, true
+	Parameters.Add_Range("SHADE_NODE",
+		"SHADE_BRIGHT"	, _TL("Linear"),
+		_TL("Minimum and maximum [%], the range for histogram stretch."),
+		0., 100.
 	);
 
-	Parameters.Add_Double("SHADE_COLOURING",
+	Parameters.Add_Double("SHADE_NODE",
 		"SHADE_STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 }
 
@@ -252,29 +263,50 @@ CGrid_Export::CGrid_Export(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CGrid_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() )
+	{
+		pParameters->Set_Parameter("STRETCH.MIN", pParameter->asGrid()->Get_Min());
+		pParameters->Set_Parameter("STRETCH.MAX", pParameter->asGrid()->Get_Max());
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier("COLOURING") )
+	if( pParameter->Cmp_Identifier("GRID") )
+	{
+		pParameters->Set_Enabled("FILE_KML"       , pParameter->asPointer() && pParameter->asGrid()->Get_Projection().Get_Type() == SG_PROJ_TYPE_CS_Geographic);
+	}
+
+	if( pParameter->Cmp_Identifier("COLOURING") )
 	{
 		pParameters->Set_Enabled("COL_PALETTE"    , pParameter->asInt() <= 2);
 		pParameters->Set_Enabled("STDDEV"         , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("LINEAR"         , pParameter->asInt() == 1);
 		pParameters->Set_Enabled("STRETCH"        , pParameter->asInt() == 2);
 		pParameters->Set_Enabled("SCALE_MODE"     , pParameter->asInt() <= 2);
-		pParameters->Set_Enabled("SCALE_LOG"      , pParameter->asInt() <= 2 && pParameters->Get_Parameter("SCALE_MODE")->asInt() > 0);
 		pParameters->Set_Enabled("LUT"            , pParameter->asInt() == 3);
+		pParameters->Set_Enabled("NO_DATA"        , pParameter->asInt() != 5);
 	}
 
-	if(	pParameter->Cmp_Identifier("SCALE_MODE") )
+	if( pParameter->Cmp_Identifier("SCALE_MODE") )
 	{
 		pParameters->Set_Enabled("SCALE_LOG"      , pParameter->asInt() > 0);
 	}
 
-	if(	pParameter->Cmp_Identifier("SHADE") )
+	if( pParameter->Cmp_Identifier("SHADE") )
 	{
-		pParameters->Set_Enabled("SHADE_TRANS"    , pParameter->asPointer() != NULL);
-		pParameters->Set_Enabled("SHADE_COLOURING", pParameter->asPointer() != NULL);
-		pParameters->Set_Enabled("SHADE_BRIGHT"   , pParameter->asPointer() != NULL);
-		pParameters->Set_Enabled("SHADE_STDDEV"   , pParameter->asPointer() != NULL);
+		pParameters->Set_Enabled("SHADE_NODE"     , pParameter->asPointer() != NULL);
+	}
+
+	if( pParameter->Cmp_Identifier("SHADE_COLOURING") )
+	{
+		pParameters->Set_Enabled("SHADE_BRIGHT"   , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("SHADE_STDDEV"   , pParameter->asInt() == 1);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -289,278 +321,80 @@ int CGrid_Export::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 bool CGrid_Export::On_Execute(void)
 {
 	//-----------------------------------------------------
-	int	y, Colouring	= Parameters("COLOURING")->asInt();
+	CSG_Grid	Grid(Get_System(), SG_DATATYPE_Int);
 
-	CSG_Grid	*pGrid	= Parameters("GRID" )->asGrid(),  Grid;
-	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid(), Shade;
-
-	//-----------------------------------------------------
-	if( Colouring == 5 )	// same as in graphical user interface
+	switch( Parameters("COLOURING")->asInt() )
 	{
-		if( !SG_UI_DataObject_asImage(pGrid, &Grid) )
+	default:	// stretch to grid's standard deviation
+		if( !Set_Metric(Grid) )
+		{
+			return( false );
+		}
+		break;
+
+	case  3:	// lookup table
+		if( !Set_LUT(Grid) )
+		{
+			return( false );
+		}
+		break;
+
+	case  4:	// rgb coded values
+		if( !Set_RGB(Grid) )
+		{
+			return( false );
+		}
+		break;
+
+	case  5:	// same as in graphical user interface
+		if( !SG_UI_DataObject_asImage(Parameters("GRID")->asGrid(), &Grid) )
 		{
 			Error_Set("could not retrieve colour coding from graphical user interface.");
 
 			return( false );
 		}
-	}
-	else
-	{
-		double		zMin, zMax, zScale;
-		CSG_Colors	Colors;
-		CSG_Table	LUT;
-
-		int		ScaleMode	= Parameters("SCALE_MODE")->asInt();
-		double	ScaleLog	= Parameters("SCALE_LOG" )->asDouble();
-
-		if( SG_UI_Get_Window_Main() )
-		{
-			Colors.Assign(Parameters("COL_PALETTE")->asColors());
-		}
-		else
-		{
-			Colors.Set_Palette(
-				Parameters("COL_PALETTE")->asInt (),
-				Parameters("COL_REVERT" )->asBool(),
-				Parameters("COL_COUNT"  )->asInt ()
-			);
-		}
-
-		switch( Colouring )
-		{
-		case 0:	// stretch to grid's standard deviation
-			zMin	= pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( zMin < pGrid->Get_Min() ) zMin = pGrid->Get_Min();
-			zMax	= pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( zMax > pGrid->Get_Max() ) zMax = pGrid->Get_Max();
-			zScale	= Colors.Get_Count() / (zMax - zMin);
-			break;
-
-		case 1:	// stretch to grid's value range
-			zMin	= pGrid->Get_Min();
-			zMax	= pGrid->Get_Max();
-			zScale	= Colors.Get_Count() / pGrid->Get_Range();
-			break;
-
-		case 2:	// stretch to specified value range
-			zMin	= Parameters("STRETCH")->asRange()->Get_Min();
-			zMax	= Parameters("STRETCH")->asRange()->Get_Max();
-			if( zMin >= zMax )
-			{
-				Error_Set(_TL("invalid user specified value range."));
-
-				return( false );
-			}
-			zScale	= Colors.Get_Count() / (zMax - zMin);
-			break;
-
-		case 3:	// lookup table
-			if( !Parameters("LUT")->asTable() || Parameters("LUT")->asTable()->Get_Field_Count() < 5 )
-			{
-				Error_Set(_TL("invalid lookup table."));
-
-				return( false );
-			}
-
-			LUT.Create(*Parameters("LUT")->asTable());
-			break;
-
-		case 4:	// rgb coded values
-			break;
-		}
-
-		//-------------------------------------------------
-		Grid.Create(Get_System(), SG_DATATYPE_Int);
-
-		#pragma omp parallel for private(y)
-		for(y=0; y<Get_NY(); y++)
-		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				double	z	= pGrid->asDouble(x, y);
-
-				if( Colouring == 3 )	// lookup table
-				{
-					int	i, iColor	= -1;
-
-					for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
-					{
-						if( z == LUT[i][3] )
-						{
-							Grid.Set_Value(x, y, LUT[iColor = i].asInt(0));
-						}
-					}
-
-					for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
-					{
-						if( z >= LUT[i][3] && z <= LUT[i][4] )
-						{
-							Grid.Set_Value(x, y, LUT[iColor = i].asInt(0));
-						}
-					}
-
-					if( iColor < 0 )
-					{
-						Grid.Set_NoData(x, y);
-					}
-				}
-				else if( pGrid->is_NoData(x, y) )
-				{
-					Grid.Set_NoData(x, y);
-				}
-				else if( Colouring == 4 )	// rgb coded values
-				{
-					Grid.Set_Value(x, y, z);
-				}
-				else
-				{
-					int i = 0;
-
-					if( ScaleMode != 0 )
-					{
-						if( pGrid->Get_Range() != 0 )
-						{
-							double Value = (z - zMin) / (zMax - zMin);
-
-							if( ScaleMode == 1 )	// logarithmic up
-							{
-								if( Value > 0.0 )
-								{
-									Value	= log(1.0 + ScaleLog * Value) / log(1.0 + ScaleLog);
-								}
-								else
-								{
-									Value	= 0.0;
-								}
-							}
-							else					// logarithmic down
-							{
-								if( Value < 1.0 )
-								{
-									Value	= 1.0 - Value;
-									Value	= log(1.0 + ScaleLog * Value) / log(1.0 + ScaleLog);
-									Value	= 1.0 - Value;
-								}
-								else
-								{
-									Value	= 1.0;
-								}
-							}
-
-							i	= (int)(Value * Colors.Get_Count());
-						}
-					}
-					else	// linear
-					{
-						i	= (int)(zScale * (z - zMin));
-					}
-
-					Grid.Set_Value(x, y, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
-				}
-			}
-		}
+		break;
 	}
 
-	//-----------------------------------------------------
-	double	dMinBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_Min() / 100.0;
-	double	dMaxBright	= Parameters("SHADE_BRIGHT")->asRange()->Get_Max() / 100.0;
-	double	dShadeTrans	= Parameters("SHADE_TRANS")->asDouble() / 100.0;
-
-	if( !pShade || pShade->Get_Range() <= 0.0 ||  dMinBright >= dMaxBright )
-	{
-		pShade	= NULL;
-	}
-	else
-	{
-		CSG_Colors	Colors(100, SG_COLORS_BLACK_WHITE, true);
-
-		Shade.Create(Get_System(), SG_DATATYPE_Int);
-
-		double	minShade = 0.0, maxShade = 0.0, scaleShade = 0.0;
-
-		if( Parameters("SHADE_COLOURING")->asInt() == 1 )
-		{
-			minShade	= pShade->Get_Mean() - Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
-			maxShade	= pShade->Get_Mean() + Parameters("SHADE_STDDEV")->asDouble() * pShade->Get_StdDev();
-			if( minShade < pShade->Get_Min() )
-				minShade = pShade->Get_Min();
-			if( maxShade > pShade->Get_Max() )
-				maxShade = pShade->Get_Max();
-			scaleShade	= Colors.Get_Count() / (maxShade - minShade);
-		}
-
-		#pragma omp parallel for private(y)
-		for(y=0; y<Get_NY(); y++)
-		{
-			for(int x=0; x<Get_NX(); x++)
-			{
-				if( pShade->is_NoData(x, y) )
-				{
-					Shade.Set_NoData(x, y);
-				}
-				else if( Parameters("SHADE_COLOURING")->asInt() == 0 )
-				{
-					Shade.Set_Value (x, y, Colors[(int)(Colors.Get_Count() * (dMaxBright - dMinBright) * (pShade->asDouble(x, y) - pShade->Get_Min()) / pShade->Get_Range() + dMinBright)]);
-				}
-				else
-				{
-					int i	= (int)(scaleShade * (pShade->asDouble(x, y) - minShade));
-					Shade.Set_Value(x, y, Colors[i < 0 ? 0 : i >= Colors.Get_Count() ? Colors.Get_Count() - 1 : i]);
-				}
-			}
-		}
-	}
+	Add_Shading(Grid);
 
 	//-----------------------------------------------------
 	wxImage	Image(Get_NX(), Get_NY());
 
-	if( Parameters("NO_DATA")->asBool() && pGrid->Get_NoData_Count() > 0 )
+	if( Parameters("NO_DATA")->asBool() && Grid.Get_NoData_Count() > 0 )
 	{
 		Image.SetAlpha();
 	}
 
-	#ifndef _DEBUG
-	#pragma omp parallel for private(y)
-	#endif
-	for(y=0; y<Get_NY(); y++)
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
 	{
-		int	iy	= Get_NY() - y - 1;
-
 		for(int x=0; x<Get_NX(); x++)
 		{
-			int	c	= Grid.asInt(x, y);
-
-			int	r	= SG_GET_R(c);
-			int	g	= SG_GET_G(c);
-			int	b	= SG_GET_B(c);
-
-			if( pGrid->is_NoData(x, y) || (pShade != NULL && Shade.is_NoData(x, y)) )
+			if( !Grid.is_NoData(x, y) )
 			{
+				int	c	= Grid.asInt(x, y);
+
+				Image.SetRGB(x, y, SG_GET_R(c), SG_GET_G(c), SG_GET_B(c));
+
 				if( Image.HasAlpha() )
 				{
-					Image.SetAlpha(x, iy, wxIMAGE_ALPHA_TRANSPARENT);
+					Image.SetAlpha(x, y, wxIMAGE_ALPHA_OPAQUE);
 				}
 			}
 			else
 			{
+				Image.SetRGB(x, y, 255, 255, 255);
+
 				if( Image.HasAlpha() )
 				{
-					Image.SetAlpha(x, iy, wxIMAGE_ALPHA_OPAQUE);
-				}
-
-				if( pShade )
-				{
-					c	= Shade.asInt(x, y);
-
-					r	= dShadeTrans * r + SG_GET_R(c) * (1.0 - dShadeTrans);
-					g	= dShadeTrans * g + SG_GET_G(c) * (1.0 - dShadeTrans);
-					b	= dShadeTrans * b + SG_GET_B(c) * (1.0 - dShadeTrans);
+					Image.SetAlpha(x, y, wxIMAGE_ALPHA_TRANSPARENT);
 				}
 			}
-
-			Image.SetRGB(x, iy, r, g, b);
 		}
 	}
 
-	if( Parameters("NO_DATA")->asBool() && pGrid->Get_NoData_Count() > 0 )
+	if( Parameters("NO_DATA")->asBool() && Grid.Get_NoData_Count() > 0 )
 	{
 		wxQuantize::Quantize(Image, Image);
 
@@ -597,19 +431,24 @@ bool CGrid_Export::On_Execute(void)
 		wxImage::AddHandler(pImgHandler);
 	}
 
-	if( !Image.SaveFile(fName.c_str()) )
+	bool	bOkay	= Image.SaveFile(fName.c_str());
+
+	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL )
+	{
+		wxImage::RemoveHandler(pImgHandler->GetName());
+	}
+
+	if( !bOkay )
 	{
 		Error_Fmt("%s [%s]", _TL("failed to save image file"), fName.c_str());
 
 		return( false );
 	}
 
-	pGrid->Get_Projection().Save(SG_File_Make_Path("", fName, "prj"), SG_PROJ_FMT_WKT);
-
 	//-----------------------------------------------------
 	CSG_File	Stream;
 
-	if(      SG_File_Cmp_Extension(fName, "bmp") ) Stream.Open(SG_File_Make_Path("", fName, "bpw"), SG_FILE_W, false);
+	if     ( SG_File_Cmp_Extension(fName, "bmp") ) Stream.Open(SG_File_Make_Path("", fName, "bpw"), SG_FILE_W, false);
 	else if( SG_File_Cmp_Extension(fName, "jpg") ) Stream.Open(SG_File_Make_Path("", fName, "jgw"), SG_FILE_W, false);
 	else if( SG_File_Cmp_Extension(fName, "pcx") ) Stream.Open(SG_File_Make_Path("", fName, "pxw"), SG_FILE_W, false);
 	else if( SG_File_Cmp_Extension(fName, "png") ) Stream.Open(SG_File_Make_Path("", fName, "pgw"), SG_FILE_W, false);
@@ -618,41 +457,281 @@ bool CGrid_Export::On_Execute(void)
 	if( Stream.is_Open() )
 	{
 		Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
-			 pGrid->Get_Cellsize(),
-			 0.0, 0.0,
-			-pGrid->Get_Cellsize(),
-			 pGrid->Get_XMin(),
-			 pGrid->Get_YMax()
+			 Get_Cellsize(), 0.0, 0.0, -Get_Cellsize(), Get_XMin(), Get_YMax()
 		);
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("FILE_KML")->asBool() )
+	CSG_Projection	Projection	= Parameters("GRID")->asGrid()->Get_Projection();
+
+	if( Projection.is_Okay() )
 	{
-		CSG_MetaData	KML;	KML.Set_Name("kml");	KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
+		Projection.Save(SG_File_Make_Path("", fName, "prj"), SG_PROJ_FMT_WKT);
+	}
 
-	//	CSG_MetaData	*pFolder	= KML.Add_Child("Folder");
-	//	pFolder->Add_Child("name"       , "Raster exported from SAGA");
-	//	pFolder->Add_Child("description", "System for Automated Geoscientific Analyses - www.saga-gis.org");
-	//	CSG_MetaData	*pOverlay	= pFolder->Add_Child("GroundOverlay");
+	//-----------------------------------------------------
+	if( Projection.Get_Type() == SG_PROJ_TYPE_CS_Geographic && Parameters("FILE_KML")->asBool() )
+	{
+		CSG_MetaData	KML; KML.Set_Name("kml"); KML.Add_Property("xmlns", "http://www.opengis.net/kml/2.2");
 
-		CSG_MetaData	*pOverlay	= KML.Add_Child("GroundOverlay");
-		pOverlay->Add_Child("name"       , pGrid->Get_Name());
-		pOverlay->Add_Child("description", pGrid->Get_Description());
-		pOverlay->Add_Child("Icon"       )->Add_Child("href", SG_File_Get_Name(fName, true));
-		pOverlay->Add_Child("LatLonBox"  );
-		pOverlay->Get_Child("LatLonBox"  )->Add_Child("north", pGrid->Get_YMax());
-		pOverlay->Get_Child("LatLonBox"  )->Add_Child("south", pGrid->Get_YMin());
-		pOverlay->Get_Child("LatLonBox"  )->Add_Child("east" , pGrid->Get_XMax());
-		pOverlay->Get_Child("LatLonBox"  )->Add_Child("west" , pGrid->Get_XMin());
+		CSG_MetaData	&Overlay	= *KML.Add_Child("GroundOverlay");
+
+		Overlay.Add_Child("name"       , Parameters("GRID")->asGrid()->Get_Name());
+		Overlay.Add_Child("description", Parameters("GRID")->asGrid()->Get_Description());
+		Overlay.Add_Child("Icon"       )->Add_Child("href" , SG_File_Get_Name(fName, true));
+		Overlay.Add_Child("LatLonBox"  );
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("north", Get_YMax());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("south", Get_YMin());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("east" , Get_XMax());
+		Overlay.Get_Child("LatLonBox"  )->Add_Child("west" , Get_XMin());
 
 		KML.Save(fName, SG_T("kml"));
 	}
 
 	//-----------------------------------------------------
-	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL)
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
+{
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	//-----------------------------------------------------
+	CSG_Colors	Colors;
+
+	if( SG_UI_Get_Window_Main() )
 	{
-		wxImage::RemoveHandler(pImgHandler->GetName());
+		Colors.Assign(Parameters("COL_PALETTE")->asColors());
+	}
+	else
+	{
+		Colors.Set_Palette(
+			Parameters("COL_PALETTE")->asInt (),
+			Parameters("COL_REVERT" )->asBool(),
+			Parameters("COL_COUNT"  )->asInt ()
+		);
+	}
+
+	bool	bGraduated	= Parameters("GRADUATED")->asBool();
+
+	//-----------------------------------------------------
+	double	Minimum, Maximum, Scale	= Parameters("SCALE_LOG")->asDouble();
+
+	int		Mode	= Parameters("SCALE_MODE")->asInt();
+
+	switch( Parameters("COLOURING")->asInt() )
+	{
+	default:	// histogram stretch to standard deviation
+		Minimum	= pGrid->Get_Mean() - Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Minimum < pGrid->Get_Min() ) Minimum = pGrid->Get_Min();
+		Maximum	= pGrid->Get_Mean() + Parameters("STDDEV")->asDouble() * pGrid->Get_StdDev(); if( Maximum > pGrid->Get_Max() ) Maximum = pGrid->Get_Max();
+		break;
+
+	case  1:	// histogram stretch to percentage range
+		Minimum	= pGrid->Get_Min() + pGrid->Get_Range() * Parameters("LINEAR.MIN")->asDouble() / 100.;
+		Maximum	= pGrid->Get_Max() + pGrid->Get_Range() * Parameters("LINEAR.MAX")->asDouble() / 100.;
+		break;
+
+	case  2:	// histogram stretch to value range
+		Minimum	= Parameters("STRETCH.MIN")->asDouble();
+		Maximum	= Parameters("STRETCH.MAX")->asDouble();
+		break;
+	}
+
+	if( Minimum >= Maximum || pGrid->Get_Range() <= 0.0 )
+	{
+		Error_Set(_TL("invalid user specified value range."));
+
+		return( false );
+	}
+
+	//-------------------------------------------------
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
+	{
+		int	yy	= Get_NY() - y - 1;
+
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( pGrid->is_NoData(x, yy) )
+			{
+				Grid.Set_NoData(x, y);
+			}
+			else
+			{
+				double	z	= (pGrid->asDouble(x, yy) - Minimum) / (Maximum - Minimum);
+
+				switch( Mode )
+				{
+				case  1:	// logarithmic up
+					z	= z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
+					break;
+
+				case  2:	// logarithmic down
+					z	= 1. - z;
+					z	= z <= 0. ? 0. : log(1. + Scale * z) / log(1. + Scale);
+					z	= 1. - z;
+					break;
+				}
+
+				z	*= Colors.Get_Count();
+
+				Grid.Set_Value(x, y, bGraduated ? Colors.Get_Interpolated(z) : Colors.Get_Color((int)z));
+			}
+		}
+	}
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Export::Set_LUT(CSG_Grid &Grid)
+{
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	//-----------------------------------------------------
+	CSG_Table	LUT;
+
+	if( !Parameters("LUT")->asTable() || Parameters("LUT")->asTable()->Get_Field_Count() < 5 )
+	{
+		Error_Set(_TL("invalid lookup table."));
+
+		return( false );
+	}
+
+	LUT.Create(*Parameters("LUT")->asTable());
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
+	{
+		int	yy	= Get_NY() - y - 1;
+
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	z	= pGrid->asDouble(x, yy);
+
+			int	i, iColor	= -1;
+
+			for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
+			{
+				if( z == LUT[i][3] )
+				{
+					Grid.Set_Value(x, y, LUT[iColor = i].asInt(0));
+				}
+			}
+
+			for(i=0; iColor<0 && i<LUT.Get_Count(); i++)
+			{
+				if( z >= LUT[i][3] && z <= LUT[i][4] )
+				{
+					Grid.Set_Value(x, y, LUT[iColor = i].asInt(0));
+				}
+			}
+
+			if( iColor < 0 )
+			{
+				Grid.Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_Export::Set_RGB(CSG_Grid &Grid)
+{
+	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++)
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int	yy	= Get_NY() - y - 1;
+
+			if( pGrid->is_NoData(x, yy) )
+			{
+				Grid.Set_NoData(x, y);
+			}
+			else
+			{
+				Grid.Set_Value(x, y, pGrid->asDouble(x, yy));
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_Export::Add_Shading(CSG_Grid &Grid)
+{
+	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
+
+	if( !pShade || pShade->Get_Range() <= 0.0 || Parameters("SHADE_BRIGHT.MIN")->asDouble() >= Parameters("SHADE_BRIGHT.MAX")->asDouble() )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double	Minimum, Maximum, Scale, Transparency	= Parameters("SHADE_TRANS")->asDouble() / 100.0;
+
+	switch( Parameters("SHADE_COLOURING")->asInt() )
+	{
+	default:
+		Minimum	= pShade->Get_Min() + pShade->Get_Range() * Parameters("SHADE_BRIGHT.MIN")->asDouble() / 100.;
+		Maximum	= pShade->Get_Min() + pShade->Get_Range() * Parameters("SHADE_BRIGHT.MAX")->asDouble() / 100.;
+		break;
+
+	case  1:
+		Minimum	= pShade->Get_Mean() - pShade->Get_StdDev() * Parameters("SHADE_STDDEV")->asDouble(); if( Minimum < pShade->Get_Min() ) Minimum = pShade->Get_Min();
+		Maximum	= pShade->Get_Mean() + pShade->Get_StdDev() * Parameters("SHADE_STDDEV")->asDouble(); if( Maximum > pShade->Get_Max() ) Maximum = pShade->Get_Max();
+		break;
+	}
+
+	if( Minimum >= Maximum )
+	{
+		return( false );
+	}
+
+	Scale	= 255 * (1 - Transparency) / (Maximum - Minimum);
+
+	//-----------------------------------------------------
+	#pragma omp parallel
+	for(int y=0; y<Get_NY(); y++)
+	{
+		int	yy	= Get_NY() - y - 1;
+
+		for(int x=0; x<Get_NX(); x++)
+		{
+			if( !Grid.is_NoData(x, y) && !pShade->is_NoData(x, yy) )
+			{
+				double	d	= Scale * (Maximum - pShade->asDouble(x, yy));
+
+				int	c	= Grid.asInt(x, y);
+
+				int	r	= (int)(Transparency * SG_GET_R(c) + d); if( r < 0 ) r = 0; else if( r > 255 ) r = 255;
+				int	g	= (int)(Transparency * SG_GET_G(c) + d); if( g < 0 ) g = 0; else if( g > 255 ) g = 255;
+				int	b	= (int)(Transparency * SG_GET_B(c) + d); if( b < 0 ) b = 0; else if( b > 255 ) b = 255;
+
+				Grid.Set_Value(x, y, SG_GET_RGB(r, g, b));
+			}
+		}
 	}
 
 	//-----------------------------------------------------

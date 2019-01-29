@@ -71,7 +71,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_grid_image_EXPORT CGrid_Export : public CSG_Tool_Grid
+class CGrid_Export : public CSG_Tool_Grid
 {
 public:
 	CGrid_Export(void);
@@ -91,6 +91,7 @@ public:
 
 protected:
 
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool			On_Execute				(void);
@@ -98,6 +99,11 @@ protected:
 
 private:
 
+	bool					Set_Metric				(CSG_Grid &Grid);
+	bool					Set_LUT					(CSG_Grid &Grid);
+	bool					Set_RGB					(CSG_Grid &Grid);
+
+	bool					Add_Shading				(CSG_Grid &Grid);
 
 };
 
