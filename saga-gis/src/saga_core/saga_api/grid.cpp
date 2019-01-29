@@ -500,6 +500,47 @@ bool CSG_Grid::is_Compatible(int NX, int NY, double Cellsize, double xMin, doubl
 
 ///////////////////////////////////////////////////////////
 //														 //
+//					value access by row					 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_Vector CSG_Grid::Get_Row(int y)	const
+{
+	CSG_Vector	Values;
+
+	if( y >= 0 && y < Get_NY() )
+	{
+		Values.Create(Get_NX());
+
+		for(int x=0; x<Get_NX(); x++)
+		{
+			Values[x]	= asDouble(x, y);
+		}
+	}
+
+	return( Values );
+}
+
+//---------------------------------------------------------
+bool CSG_Grid::Set_Row(int y, const CSG_Vector &Values)
+{
+	if( y >= 0 && y < Get_NY() && Values.Get_N() == Get_NX() )
+	{
+		for(int x=0; x<Get_NX(); x++)
+		{
+			Set_Value(x, y, Values[x]);
+		}
+
+		return( true );
+	}
+	
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //		Value access by Position (-> Interpolation)		 //
 //														 //
 ///////////////////////////////////////////////////////////
