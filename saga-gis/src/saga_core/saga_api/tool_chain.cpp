@@ -382,6 +382,12 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CSG_Tool_Chain::do_Sync_Projections(void)	const
+{
+	return( !m_Chain("CRS_SYNC") || !IS_TRUE_STRING(m_Chain["CRS_SYNC"].Get_Content()) );
+}
+
+//---------------------------------------------------------
 void CSG_Tool_Chain::Add_References(void)
 {
 	for(int i=0; i<m_Chain.Get_Children_Count(); i++)

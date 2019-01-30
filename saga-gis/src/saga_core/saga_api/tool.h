@@ -180,7 +180,7 @@ public:
 	bool						Settings_Push				(class CSG_Data_Manager *pManager = NULL);
 	bool						Settings_Pop				(void);
 
-	virtual bool				do_Sync_Projections			(void)	{	return( true  );	}
+	virtual bool				do_Sync_Projections			(void)	const	{	return( true  );	}
 
 	virtual bool				needs_GUI					(void)	const	{	return( false );	}
 

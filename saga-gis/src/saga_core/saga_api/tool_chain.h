@@ -102,6 +102,8 @@ public:
 
 	virtual TSG_Tool_Type		Get_Type				(void)	const	{	return( TOOL_TYPE_Chain );	}
 
+	virtual bool				do_Sync_Projections		(void)	const;
+
 	bool						is_Okay					(void)	const	{	return( m_Chain.Get_Children_Count() > 0 );	}
 
 	void						Set_Library_Menu		(const CSG_String &Menu);

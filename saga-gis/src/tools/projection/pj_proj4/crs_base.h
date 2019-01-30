@@ -77,7 +77,7 @@ class pj_proj4_EXPORT CCRS_Base : public CSG_Tool
 public:
 	CCRS_Base(void);
 
-	virtual bool			do_Sync_Projections		(void)	{	return( false  );	}
+	virtual bool			do_Sync_Projections		(void)	const	{	return( false );	}
 
 
 protected:
