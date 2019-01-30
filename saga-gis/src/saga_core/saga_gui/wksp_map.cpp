@@ -413,6 +413,12 @@ void CWKSP_Map::On_Create_Parameters(void)
 		false
 	);
 
+	m_Parameters.Add_Bool("NODE_GENERAL",
+		"CRS_CHECK"		, _TL("CRS Check"),
+		_TL("Perform a coordinate system check when a layer is added."),
+		true
+	);
+
 	//-----------------------------------------------------
 	m_Parameters.Add_Bool("NODE_GENERAL",
 		"GCS_POSITION"	, _TL("Position as Geographic Coordinates"),
@@ -791,47 +797,55 @@ CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
-	if( Get_Layer(pLayer) < 0 )
+	if( Get_Layer(pLayer) >= 0 )	// don't load a layer more than once
 	{
-		if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
-		{
-			switch( pLayer->Get_Object()->Get_ObjectType() )
-			{
-			case SG_DATAOBJECT_TYPE_Shapes:
-			case SG_DATAOBJECT_TYPE_PointCloud:
-			case SG_DATAOBJECT_TYPE_TIN:
-				if( ((CSG_Table *)pLayer->Get_Object())->Get_Count() <= 0 )
-				{
-					break;
-				}
-
-			default:
-				Set_Extent(pLayer->Get_Extent());
-				break;
-			}
-		}
-
-		if( Get_Count() == 0 )
-		{
-			m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
-
-			Parameters_Changed();
-		}
-
-		CWKSP_Map_Layer	*pItem	= new CWKSP_Map_Layer(pLayer);
-
-		Add_Item(pItem);
-		Move_Top(pItem);
-
-		if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
-		{
-			m_Projection	= pLayer->Get_Object()->Get_Projection();
-		}
-
-		return( pItem );
+		return( NULL );
 	}
 
-	return( NULL );
+	if( m_Parameters("CRS_CHECK")->asBool()
+	&&  m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay()
+	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false
+	&&  DLG_Message_Confirm(_TL("The coordinate system used by the layer is not identical with the one of the map!\nDo you really want to proceed?"), _TL("Add Layer to Map")) == false )
+	{
+		return( NULL );
+	}
+
+	if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
+	{
+		switch( pLayer->Get_Object()->Get_ObjectType() )
+		{
+		case SG_DATAOBJECT_TYPE_Shapes    :
+		case SG_DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_TIN       :
+			if( ((CSG_Table *)pLayer->Get_Object())->Get_Count() <= 0 )
+			{
+				break;
+			}
+
+		default:
+			Set_Extent(pLayer->Get_Extent());
+			break;
+		}
+	}
+
+	if( Get_Count() == 0 )
+	{
+		m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
+
+		Parameters_Changed();
+	}
+
+	CWKSP_Map_Layer	*pItem	= new CWKSP_Map_Layer(pLayer);
+
+	Add_Item(pItem);
+	Move_Top(pItem);
+
+	if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
+	{
+		m_Projection	= pLayer->Get_Object()->Get_Projection();
+	}
+
+	return( pItem );
 }
 
 //---------------------------------------------------------

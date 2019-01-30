@@ -868,6 +868,8 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	//-----------------------------------------------------
 	CWKSP_Map	*pMap	= new CWKSP_Map;
 
+	pMap->Get_Parameter("CRS_CHECK")->Set_Value(false);
+
 	for(int i=0; i<pNode->Get_Children_Count(); i++)
 	{
 		if( pNode->Get_Child(i)->Cmp_Name("FILE") )
@@ -904,6 +906,8 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 			}
 		}
 	}
+
+	pMap->Get_Parameter("CRS_CHECK")->Set_Value(true);
 
 	//-----------------------------------------------------
 	if( Entry.Get_Child("PARAMETERS") && pMap->Get_Parameters()->Serialize(*Entry.Get_Child("PARAMETERS"), false) )
