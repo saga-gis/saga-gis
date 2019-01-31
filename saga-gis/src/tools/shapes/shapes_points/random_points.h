@@ -89,6 +89,8 @@ private:
 
 	CSG_PRQuadTree				m_Search;
 
+	CSG_Shape_Polygon			*m_pPolygon;
+
 	CSG_Shapes					*m_pPolygons;
 
 

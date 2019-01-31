@@ -85,18 +85,18 @@ CRandom_Points::CRandom_Points(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice("",
-		"EXTENT"	, _TL("Extent"),
+		"EXTENT"	, _TL("Target Area"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("user defined"),
 			_TL("grid system"),
 			_TL("shapes extent"),
-			_TL("polygon")
+			_TL("polygons")
 		), 0
 	);
 
 	Parameters.Add_Grid_System("EXTENT",
-		"GRIDSYSTEM", _TL("Grid System"),
+		"GRIDSYSTEM", _TL("Grid System Extent"),
 		_TL("")
 	);
 
@@ -132,16 +132,25 @@ CRandom_Points::CRandom_Points(void)
 		100, 1, true
 	);
 
-	Parameters.Add_Double("",
-		"DISTANCE"	, _TL("Distance"),
-		_TL("Minimum distance a point should keep to each other."),
-		0, 0, true
+	Parameters.Add_Choice("COUNT",
+		"DISTRIBUTE", _TL("Number for..."),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("all polygons"),
+			_TL("each polygon")
+		), 0
 	);
 
 	Parameters.Add_Int("",
 		"ITERATIONS", _TL("Iterations"),
 		_TL("Maximum number of iterations to find a suitable place for a point."),
 		1000, 1, true
+	);
+
+	Parameters.Add_Double("",
+		"DISTANCE"	, _TL("Distance"),
+		_TL("Minimum distance a point should keep to each other."),
+		0, 0, true
 	);
 }
 
@@ -170,6 +179,7 @@ int CRandom_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 	pParameters->Set_Enabled("GRIDSYSTEM", Extent == 1);
 	pParameters->Set_Enabled("SHAPES"    , Extent == 2);
 	pParameters->Set_Enabled("POLYGONS"  , Extent == 3);
+	pParameters->Set_Enabled("DISTRIBUTE", Extent == 3);
 	pParameters->Set_Enabled("BUFFER"    , Extent != 3);	// no buffering for polygon clip
 	pParameters->Set_Enabled("ITERATIONS", Extent == 3 || (*pParameters)("DISTANCE")->asDouble() > 0.);
 
@@ -185,25 +195,29 @@ int CRandom_Points::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 bool CRandom_Points::On_Execute(void)
 {
 	//--------------------------------------------------------
+	m_pPolygons	= NULL;	m_pPolygon	= NULL;
+
 	switch( Parameters("EXTENT")->asInt() )
 	{
-	case 0:	// user defined
+	default:	// user defined
 		m_Extent.Assign(
 			Parameters("XMIN")->asDouble(), Parameters("YMIN")->asDouble(),
 			Parameters("XMAX")->asDouble(), Parameters("YMAX")->asDouble()
 		);
 		break;
 
-	case 1: // grid system
+	case  1:	// grid system
 		m_Extent.Assign(Parameters("GRIDSYSTEM")->asGrid_System()->Get_Extent());
 		break;
 
-	case 2:	// shapes extent
+	case  2:	// shapes extent
 		m_Extent.Assign(Parameters("SHAPES"  )->asShapes()->Get_Extent());
 		break;
 
-	case 3:	// polygon
-		m_Extent.Assign(Parameters("POLYGONS")->asShapes()->Get_Extent());
+	case  3:	// polygons
+		m_pPolygons	= Parameters("POLYGONS")->asShapes();
+
+		m_Extent.Assign(m_pPolygons->Get_Extent());
 		break;
 	}
 
@@ -212,18 +226,9 @@ bool CRandom_Points::On_Execute(void)
 		m_Extent.Inflate(Parameters("BUFFER")->asDouble(), false);
 	}
 
-	m_pPolygons	= Parameters("EXTENT")->asInt() == 3 ? Parameters("POLYGONS")->asShapes() : NULL;
-
-	m_Distance	= Parameters("DISTANCE")->asDouble();
-
-	if( m_Distance > 0. )
-	{
-		m_Search.Create(m_Extent);
-	}
-
-	int	nPoints		= Parameters("COUNT")->asInt();
-
-	int	Iterations	= Parameters("ITERATIONS")->asInt();
+	int	nPoints		= Parameters("COUNT"     )->asInt   ();
+	int	Iterations	= Parameters("ITERATIONS")->asInt   ();
+	m_Distance		= Parameters("DISTANCE"  )->asDouble();
 
 	//--------------------------------------------------------
 	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
@@ -233,20 +238,59 @@ bool CRandom_Points::On_Execute(void)
 	pPoints->Add_Field("ID", SG_DATATYPE_Int);
 
 	//--------------------------------------------------------
-	for(int i=0, bOkay=1; i<nPoints && bOkay; i++)
+	if( m_pPolygons == NULL || Parameters("DISTRIBUTE")->asInt() == 0 )
 	{
-		for(bOkay=Iterations; bOkay; bOkay--)
+		if( m_Distance > 0. )
 		{
-			TSG_Point	Point;
+			m_Search.Create(m_Extent);
+		}
 
-			if( Get_Point(Point) )
+		for(int i=0, bOkay=1; i<nPoints && bOkay; i++)
+		{
+			for(bOkay=Iterations; bOkay; bOkay--)
 			{
-				CSG_Shape	*pPoint	= pPoints->Add_Shape();
+				TSG_Point	Point;
 
-				pPoint->Set_Point(Point, 0);
-				pPoint->Set_Value(0, i + 1);
+				if( Get_Point(Point) )
+				{
+					CSG_Shape	*pPoint	= pPoints->Add_Shape();
 
-				break;
+					pPoint->Set_Point(Point, 0);
+					pPoint->Set_Value(0, i + 1);
+
+					break;
+				}
+			}
+		}
+	}
+
+	//--------------------------------------------------------
+	else for(int iPolygon=0; iPolygon<m_pPolygons->Get_Count() && Set_Progress(iPolygon, m_pPolygons->Get_Count()); iPolygon++)
+	{
+		m_pPolygon	= (CSG_Shape_Polygon *)m_pPolygons->Get_Shape(iPolygon);
+
+		m_Extent.Assign(m_pPolygon->Get_Extent());
+
+		if( m_Distance > 0. )
+		{
+			m_Search.Create(m_Extent);
+		}
+
+		for(int i=0, bOkay=1; i<nPoints && bOkay; i++)
+		{
+			for(bOkay=Iterations; bOkay; bOkay--)
+			{
+				TSG_Point	Point;
+
+				if( Get_Point(Point) )
+				{
+					CSG_Shape	*pPoint	= pPoints->Add_Shape();
+
+					pPoint->Set_Point(Point, 0);
+					pPoint->Set_Value(0, iPolygon + 1);
+
+					break;
+				}
 			}
 		}
 	}
@@ -279,6 +323,11 @@ inline bool CRandom_Points::Get_Point(TSG_Point &Point)
 //---------------------------------------------------------
 bool CRandom_Points::Check_Polygons(const TSG_Point &Point)
 {
+	if( m_pPolygon )
+	{
+		return( m_pPolygon->Contains(Point) );
+	}
+
 	if( m_pPolygons )
 	{
 		for(int i=0; i<m_pPolygons->Get_Count(); i++)
