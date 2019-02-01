@@ -804,10 +804,21 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 
 	if( m_Parameters("CRS_CHECK")->asBool()
 	&&  m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay()
-	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false
-	&&  DLG_Message_Confirm(_TL("The coordinate system used by the layer is not identical with the one of the map!\nDo you really want to proceed?"), _TL("Add Layer to Map")) == false )
+	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false )
 	{
-		return( NULL );
+		wxString	msg;
+
+		msg	+= _TL("The coordinate system used by the layer is not identical with the one of the map!");
+		msg	+= "\n";
+		msg	+= wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
+		msg	+= wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
+		msg	+= "\n\n";
+		msg	+= _TL("Do you really want to proceed?");
+
+		if( DLG_Message_Confirm(msg, _TL("Add Layer to Map")) == false )
+		{
+			return( NULL );
+		}
 	}
 
 	if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
