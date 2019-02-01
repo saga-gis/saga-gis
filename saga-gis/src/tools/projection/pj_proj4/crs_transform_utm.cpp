@@ -108,53 +108,11 @@ CSG_Projection	CRS_Get_UTM_Projection	(int Zone, bool bSouth)
 	//-----------------------------------------------------
 	CSG_String	Proj4;
 
-	Proj4.Printf("+proj=utm +datum=WGS84 +zone=%d", Zone);
-
-	if( bSouth )
-	{
-		Proj4	+= " +south";
-	}
+	Proj4.Printf("+proj=utm +zone=%d%s +datum=WGS84 +units=m +no_defs", Zone, bSouth ? SG_T(" +south") : SG_T(""));
 
 	UTM.Create(Proj4, SG_PROJ_FMT_Proj4);
 
 	return( UTM );
-
-//	//-----------------------------------------------------
-//	CSG_String	WKT;
-//
-//	WKT.Printf("PROJCS[\"WGS 84 / UTM zone %d%c\","	// Zone + N/S
-//		"GEOGCS[\"WGS 84\","
-//			"AUTHORITY[\"EPSG\",\"4326\"]],"
-//			"DATUM[\"WGS_1984\","
-//				"AUTHORITY[\"EPSG\",\"6326\"]],"
-//				"SPHEROID[\"WGS 84\",6378137,298.257223563,"
-//					"AUTHORITY[\"EPSG\",\"7030\"]],"
-//			"PRIMEM[\"Greenwich\",0,"
-//				"AUTHORITY[\"EPSG\",\"8901\"]],"
-//			"UNIT[\"degree\",0.0174532925199433,"
-//				"AUTHORITY[\"EPSG\",\"9122\"]],"
-//		"PROJECTION[\"Transverse_Mercator\"],"
-//			"AUTHORITY[\"EPSG\",\"%d\"]]"			// EPSG ID
-//			"PARAMETER[\"latitude_of_origin\",0],"
-//			"PARAMETER[\"central_meridian\",%d],"	// Central Meridian
-//			"PARAMETER[\"scale_factor\",0.9996],"
-//			"PARAMETER[\"false_easting\",500000],"
-//			"PARAMETER[\"false_northing\",%d],"		// False Northing
-//			"AXIS[\"Easting\",EAST],"
-//			"AXIS[\"Northing\",NORTH],"
-//			"UNIT[\"metre\",1,"
-//				"AUTHORITY[\"EPSG\",\"9001\"]],",
-//		Zone, bSouth ? 'S' : 'N', EPSG_ID, 6 * (Zone - 1) - 177, bSouth ? 10000000 : 0
-//	);
-//
-//	if( UTM.Create(WKT, Proj4) )
-//	{
-//		return( UTM );
-//	}
-//
-//	UTM.Create(Proj4, SG_PROJ_FMT_Proj4);
-//
-//	return( UTM );
 }
 
 

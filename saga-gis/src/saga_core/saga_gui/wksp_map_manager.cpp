@@ -144,6 +144,12 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	);
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
+		"CRS_CHECK"		, _TL("CRS Check"),
+		_TL("Perform a coordinate system compatibility check before a layer is added."),
+		true
+	);
+
+	m_Parameters.Add_Bool("NODE_DEFAULTS",
 		"SCALE_BAR"		, _TL("Scale Bar"),
 		_TL(""),
 		false
@@ -155,7 +161,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 		true
 	);
 
-	m_Parameters.Add_Int("NODE_FRAME",
+	m_Parameters.Add_Int("FRAME_SHOW",
 		"FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
 		17, 5, true
@@ -176,8 +182,14 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 		400, 10, true
 	);
 
-	m_Parameters.Add_Int("NODE_CLIPBOARD",
-		"CLIP_FRAME"		, _TL("Frame Width"),
+	m_Parameters.Add_Bool("NODE_CLIPBOARD",
+		"CLIP_FRAME_SHOW"	, _TL("Frame"),
+		_TL(""),
+		true
+	);
+
+	m_Parameters.Add_Int("CLIP_FRAME_SHOW",
+		"CLIP_FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
 		17, 0, true
 	);

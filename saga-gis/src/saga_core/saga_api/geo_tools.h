@@ -719,6 +719,7 @@ public:
 	bool							operator !=				(const CSG_Projection &Projection)	const	{	return( is_Equal(Projection) == false );	}
 
 	bool							Set_GCS_WGS84			(void);
+	bool							Set_UTM_WGS84			(int Zone, bool bSouth = false);
 
 	bool							Load					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT);
 	bool							Save					(const CSG_String &FileName, TSG_Projection_Format Format = SG_PROJ_FMT_WKT)	const;

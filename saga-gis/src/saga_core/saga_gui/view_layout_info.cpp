@@ -386,13 +386,6 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 		if( dc_rLegend.GetWidth() > 0 )
 		{
 			m_pMap->Draw_Legend(dc, dPaperToDC, zLegend, wxPoint(dc_rLegend.GetX(), dc_rLegend.GetY()));
-
-			Draw_Edge(dc, EDGE_STYLE_SIMPLE,
-				dc_rLegend.GetLeft  () - (int)(5 * dPaperToDC),
-				dc_rLegend.GetTop   (),
-				dc_rLegend.GetRight (),
-				dc_rLegend.GetBottom()
-			);
 		}
 
 		//-------------------------------------------------
@@ -410,7 +403,7 @@ bool CVIEW_Layout_Info::Draw(wxDC &dc)
 			{
 				double	Scale	= m_pMap->Get_World(dc_rMap).Get_XRange() / (dc_rMap.GetWidth() * 0.001 / dPaperToDC);
 
-				dc.DrawText(wxString::Format(wxT("%s 1:%s"), _TL("Map Scale"),
+				dc.DrawText(wxString::Format("%s 1:%s", _TL("Scale"),
 					Get_SignificantDecimals_String(Scale).c_str()),
 					dc_rMap.GetLeft(),
 					dc_rMap.GetBottom() + dc_MapFrame

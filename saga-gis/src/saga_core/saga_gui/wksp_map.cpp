@@ -415,8 +415,8 @@ void CWKSP_Map::On_Create_Parameters(void)
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
 		"CRS_CHECK"		, _TL("CRS Check"),
-		_TL("Perform a coordinate system check when a layer is added."),
-		true
+		_TL("Perform a coordinate system compatibility check before a layer is added."),
+		g_pMaps->Get_Parameter("CRS_CHECK")->asBool()
 	);
 
 	//-----------------------------------------------------
@@ -571,18 +571,13 @@ void CWKSP_Map::On_Create_Parameters(void)
 		2, 1, true
 	);
 
-	m_Parameters.Add_Node("NODE_PRINT",
-		"NODE_PRINT_FRAME"	, _TL("Frame"),
-		_TL("")
-	);
-
-	m_Parameters.Add_Bool("NODE_PRINT_FRAME",
-		"PRINT_FRAME_SHOW"	, _TL("Show"),
+	m_Parameters.Add_Bool("NODE_PRINT",
+		"PRINT_FRAME_SHOW"	, _TL("Frame"),
 		_TL(""),
 		true
 	);
 
-	m_Parameters.Add_Int("NODE_PRINT_FRAME",
+	m_Parameters.Add_Int("PRINT_FRAME_SHOW",
 		"PRINT_FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
 		7, 5, true
@@ -676,33 +671,38 @@ int CWKSP_Map::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		if(	pParameter->Cmp_Identifier("SEL_EXTENT") )
 		{
-			pParameters->Set_Enabled("SEL_COLOUR"    , pParameter->asBool());
-			pParameters->Set_Enabled("SEL_TRANSP"    , pParameter->asBool());
+			pParameters->Set_Enabled("SEL_COLOUR"       , pParameter->asBool());
+			pParameters->Set_Enabled("SEL_TRANSP"       , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("FRAME_SHOW") )
 		{
-			pParameters->Set_Enabled("FRAME_WIDTH"   , pParameter->asBool());
+			pParameters->Set_Enabled("FRAME_WIDTH"      , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("NORTH_SHOW") )
 		{
-			pParameters->Set_Enabled("NORTH_ANGLE"   , pParameter->asBool());
-			pParameters->Set_Enabled("NORTH_SIZE"    , pParameter->asBool());
-			pParameters->Set_Enabled("NORTH_OFFSET_X", pParameter->asBool());
-			pParameters->Set_Enabled("NORTH_OFFSET_Y", pParameter->asBool());
-			pParameters->Set_Enabled("NORTH_EXTENT"  , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_ANGLE"      , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_SIZE"       , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_OFFSET_X"   , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_OFFSET_Y"   , pParameter->asBool());
+			pParameters->Set_Enabled("NORTH_EXTENT"     , pParameter->asBool());
 		}
 
 		if(	pParameter->Cmp_Identifier("SCALE_SHOW") )
 		{
-			pParameters->Set_Enabled("SCALE_STYLE"   , pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_UNIT"    , pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_WIDTH"   , pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_HEIGHT"  , pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_OFFSET_X", pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_OFFSET_Y", pParameter->asBool());
-			pParameters->Set_Enabled("SCALE_EXTENT"  , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_STYLE"      , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_UNIT"       , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_WIDTH"      , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_HEIGHT"     , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_OFFSET_X"   , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_OFFSET_Y"   , pParameter->asBool());
+			pParameters->Set_Enabled("SCALE_EXTENT"     , pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("PRINT_FRAME_SHOW") )
+		{
+			pParameters->Set_Enabled("PRINT_FRAME_WIDTH", pParameter->asBool());
 		}
 	}
 
@@ -1454,9 +1454,10 @@ void CWKSP_Map::SaveAs_Image_Clipboard(bool bLegend)
 	if( bLegend == false )
 	{
 		SaveAs_Image_Clipboard(
-			Get_Manager()->Get_Parameter("CLIP_NX"   )->asInt(),
-			Get_Manager()->Get_Parameter("CLIP_NY"   )->asInt(),
-			Get_Manager()->Get_Parameter("CLIP_FRAME")->asInt()
+			Get_Manager()->Get_Parameter("CLIP_NX")->asInt(),
+			Get_Manager()->Get_Parameter("CLIP_NY")->asInt(),
+			Get_Manager()->Get_Parameter("CLIP_FRAME_SHOW")->asBool() ?
+			Get_Manager()->Get_Parameter("CLIP_FRAME_WIDTH")->asInt() : 0
 		);
 
 		return;
