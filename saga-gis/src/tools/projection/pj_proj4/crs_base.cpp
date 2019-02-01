@@ -217,12 +217,11 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	//-----------------------------------------------------
 	if(	pParameter->Cmp_Identifier("CRS_EPSG") || pParameter->Cmp_Identifier("CRS_EPSG_AUTH") )
 	{
-		int			Code		= (*pParameters)("CRS_EPSG"     )->asInt   ();
-		CSG_String	Authority	= (*pParameters)("CRS_EPSG_AUTH")->asString();
+		int	Code	= (*pParameters)("CRS_EPSG")->asInt();
 
-		if( Code >= 0 && !Authority.is_Empty() )
+		if( Code >= 0 )
 		{
-			if( !Projection.Create(Code, Authority) )
+			if( !Projection.Create(Code, (*pParameters)("CRS_EPSG_AUTH")->asString()) )
 			{
 				SG_UI_Dlg_Message(_TL("Unknown Authority Code"), _TL("Warning"));
 			}
