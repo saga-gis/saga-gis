@@ -118,6 +118,12 @@ CCRS_Transform_PointCloud::CCRS_Transform_PointCloud(bool bList)
 			PARAMETER_OUTPUT
 		);
 	}
+
+	Parameters.Add_Value("",
+		"TRANSFORM_Z"	, _TL("Transform Z"),
+		_TL("Transform elevation values (z)"),
+		PARAMETER_TYPE_Bool, true
+	);
 }
 
 
@@ -128,6 +134,8 @@ CCRS_Transform_PointCloud::CCRS_Transform_PointCloud(bool bList)
 //---------------------------------------------------------
 bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 {
+	bool	bTransformZ = Parameters("TRANSFORM_Z")->asBool();
+
 	if( m_bList )
 	{
 		CSG_Parameter_PointCloud_List	*pSources, *pTargets;
@@ -144,7 +152,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 
 			pTarget->Fmt_Name("%s [%s]", pSource->Get_Name(), _TL("projected"));
 
-			if( Transform(pSource, pTarget) )
+			if( Transform(pSource, pTarget, bTransformZ) )
 			{
 				pTargets->Add_Item(pTarget);
 			}
@@ -167,7 +175,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 
 			pTarget	= SG_Create_PointCloud(pSource);
 
-			if( Transform(pSource, pTarget) )
+			if( Transform(pSource, pTarget, bTransformZ) )
 			{
 				pSource->Assign(pTarget);
 
@@ -189,7 +197,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 			pTarget->Fmt_Name("%s [%s]", pSource->Get_Name(), _TL("projected"));
 		}
 
-		return( Transform(pSource, pTarget) );
+		return( Transform(pSource, pTarget, bTransformZ) );
 	}
 }
 
@@ -199,7 +207,7 @@ bool CCRS_Transform_PointCloud::On_Execute_Transformation(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointCloud *pTarget)
+bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointCloud *pTarget, bool bTransformZ)
 {
 	if( !pTarget || !pSource || !pSource->is_Valid() )
 	{
@@ -219,7 +227,18 @@ bool CCRS_Transform_PointCloud::Transform(CSG_PointCloud *pSource, CSG_PointClou
 	{
 		TSG_Point_Z		Point = pSource->Get_Point(iPoint);
 
-		if( m_Projector.Get_Projection(Point.x, Point.y, Point.z) )
+		bool bResult;
+
+		if( bTransformZ )
+		{
+			bResult = m_Projector.Get_Projection(Point.x, Point.y, Point.z);
+		}
+		else
+		{
+			bResult = m_Projector.Get_Projection(Point.x, Point.y);
+		}
+
+		if( bResult )
 		{
 			pTarget->Add_Point(Point.x, Point.y, Point.z);
 

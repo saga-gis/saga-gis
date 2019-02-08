@@ -84,7 +84,7 @@ protected:
 
 	virtual bool			On_Execute_Transformation	(void);
 
-	bool					Transform					(CSG_PointCloud *pSource, CSG_PointCloud *pTarget);
+	bool					Transform					(CSG_PointCloud *pSource, CSG_PointCloud *pTarget, bool bTransformZ);
 
 
 private:
