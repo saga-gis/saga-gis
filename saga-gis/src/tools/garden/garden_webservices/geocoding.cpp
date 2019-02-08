@@ -286,9 +286,35 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
-	Replace_Special_Chars(Request);
+	if( Request.Find('=') < 0 )
+	{
+		Replace_Special_Chars(Request);
 
-	Request	= "search?q=" + Request + "&format=xml&polygon=1&addressdetails=1";
+		Request	= "search?q=" + Request;
+	}
+	else
+	{
+		CSG_Strings	query	= SG_String_Tokenize(Request, ",;&");
+
+		Request	= "search?";
+
+		for(int i=0; i<query.Get_Count(); i++)
+		{
+			CSG_String	key	= query[i].BeforeFirst('='); key.Trim(true); key.Trim(false);
+			CSG_String	val	= query[i]. AfterFirst('='); val.Trim(true); val.Trim(false);
+
+			Replace_Special_Chars(val);
+
+			if( i > 0 )
+			{
+				Request	+= "&";
+			}
+
+			Request	+= key + "=" + val; 
+		}
+	}
+
+	Request	+= "&format=xml&polygon=1&addressdetails=1";
 
 	if( !Connection.Request(Request, m_Answer) )
 	{
