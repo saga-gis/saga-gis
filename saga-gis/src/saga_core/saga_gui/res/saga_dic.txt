@@ -115,6 +115,7 @@ PROJ4	DIR	WKT	DESC
 "stere"	"<"	"Polar_Stereographic"	"Stereographic"
 "stere"	" "	"Stereographic"	"[ESRI] Stereographic"
 "sterea"	" "	"Oblique_Stereographic"	"Oblique Stereographic Alternative"
+"sterea"	"<"	"Double_Stereographic"	"[ESRI]"
 "gstmerc"	" "	"Gauss_Schreiber_Transverse_Mercator"	"*) Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)"
 "tcc"	" "	"Transverse_Central_Cylindrical"	"*) Transverse Central Cylindrical"
 "tcea"	" "	"Transverse_Cylindrical_Equal_Area"	"*) Transverse Cylindrical Equal Area"
