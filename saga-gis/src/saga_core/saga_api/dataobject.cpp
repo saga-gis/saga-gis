@@ -317,7 +317,20 @@ void CSG_Data_Object::Set_File_Name(const CSG_String &FileName, bool bNative)
 //---------------------------------------------------------
 const SG_Char * CSG_Data_Object::Get_File_Name(bool bNative)	const
 {
-	return( !bNative || m_File_bNative ? m_FileName.c_str() : SG_T("") );
+	if( bNative && !m_File_bNative )
+	{
+		return( SG_T("") );
+	}
+
+	if( m_pOwner )
+	{
+		if( m_pOwner->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+		{
+			return( m_pOwner->m_FileName.c_str() );
+		}
+	}
+
+	return( m_FileName.c_str() );
 }
 
 //---------------------------------------------------------

@@ -2185,33 +2185,75 @@ bool CSG_Parameter_Data_Object::_Serialize(CSG_MetaData &Entry, bool bSave)
 		if(	m_pDataObject == DATAOBJECT_CREATE )
 		{
 			Entry.Set_Content("CREATE");
+
+			return( true );
 		}
-		else if( m_pDataObject == DATAOBJECT_NOTSET )//|| !SG_File_Exists(m_pDataObject->Get_File_Name(false)) )
+
+		if( m_pDataObject == DATAOBJECT_NOTSET )//|| !SG_File_Exists(m_pDataObject->Get_File_Name(false)) )
 		{
 			Entry.Set_Content("NOT SET");
+
+			return( true );
 		}
-		else
+
+		if( !m_pDataObject->Get_Owner() )
 		{
 			Entry.Set_Content(m_pDataObject->Get_File_Name(false));
+
+			return( true );
+		}
+
+		if( m_pDataObject->Get_Owner()->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+		{
+			CSG_Grids	*pGrids	= m_pDataObject->Get_Owner()->asGrids();
+
+			for(int i=0; i<pGrids->Get_NZ(); i++)
+			{
+				if( pGrids->Get_Grid_Ptr(i) == m_pDataObject )
+				{
+					Entry.Set_Content(m_pDataObject->Get_Owner()->Get_File_Name(false));
+
+					Entry.Add_Property("index", i);
+
+					return( true );
+				}
+			}
 		}
 	}
 	else
 	{
+		CSG_Data_Object	*pDataObject = NULL; int Index = -1;
+
 		if( Entry.Cmp_Content("CREATE") )
 		{
 			_Set_Value(DATAOBJECT_CREATE);
+
+			return( true );
 		}
-		else if( Entry.Cmp_Content("NOT SET") )
+
+		if( Entry.Cmp_Content("NOT SET") || !Get_Manager() || !(pDataObject = Get_Manager()->Find(Entry.Get_Content(), false)) )
 		{
 			_Set_Value(DATAOBJECT_NOTSET);
+
+			return( true );
 		}
-		else
+
+		if( !Entry.Get_Property("index", Index) )
 		{
-			_Set_Value(Get_Manager() ? Get_Manager()->Find(Entry.Get_Content(), false) : NULL);
+			_Set_Value(pDataObject);
+
+			return( true );
+		}
+
+		if( pDataObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+		{
+			_Set_Value(pDataObject->asGrids()->Get_Grid_Ptr(Index));
+
+			return( true );
 		}
 	}
 
-	return( true );
+	return( false );
 }
 
 
