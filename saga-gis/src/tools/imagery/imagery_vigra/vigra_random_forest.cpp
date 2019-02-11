@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: vigra_random_forest.cpp 1282 2011-12-29 17:13:26Z manfred-e $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -131,8 +128,6 @@ CRandom_Forest::CRandom_Forest(CSG_Parameters *pParameters)
 //---------------------------------------------------------
 bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 #if defined(WITH_HDF5)
 	Parameters.Add_FilePath("",
@@ -143,47 +138,47 @@ bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 #endif
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node("",
+	Parameters.Add_Node("",
 		"RF_OPTIONS"			, _TL("Random Forest Options"),
 		_TL("")
 	);
 
 #if defined(WITH_HDF5)
 	Parameters.Add_FilePath(
-		pNode	, "RF_EXPORT"			, _TL("Export to File"),
+		"RF_OPTIONS", "RF_EXPORT"			, _TL("Export to File"),
 		_TL(""),
 		NULL, NULL, true
 	);
 #endif
 
-	Parameters.Add_Value(
-		pNode	, "RF_TREE_COUNT"		, _TL("Tree Count"),
+	Parameters.Add_Int(
+		"RF_OPTIONS", "RF_TREE_COUNT"		, _TL("Tree Count"),
 		_TL("How many trees to create?"),
-		PARAMETER_TYPE_Int, 32, 1, true
+		32, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "RF_TREE_SAMPLES"		, _TL("Samples per Tree"),
+	Parameters.Add_Double(
+		"RF_OPTIONS", "RF_TREE_SAMPLES"		, _TL("Samples per Tree"),
 		_TL("Specifies the fraction of the total number of samples used per tree for learning."),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true, 1.0, true
+		1.0, 0.0, true, 1.0, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "RF_REPLACE"			, _TL("Sample with Replacement"),
+	Parameters.Add_Bool(
+		"RF_OPTIONS", "RF_REPLACE"			, _TL("Sample with Replacement"),
 		_TL("Sample from training population with or without replacement?"),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "RF_SPLIT_MIN_SIZE"	, _TL("Minimum Node Split Size"),
+	Parameters.Add_Int(
+		"RF_OPTIONS", "RF_SPLIT_MIN_SIZE"	, _TL("Minimum Node Split Size"),
 		_TL("Number of examples required for a node to be split. Choose 1 for complete growing."),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "RF_NODE_FEATURES"	, _TL("Features per Node"),
+		"RF_OPTIONS", "RF_NODE_FEATURES"	, _TL("Features per Node"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("logarithmic"),
 			_TL("square root"),
 			_TL("all")
@@ -191,9 +186,9 @@ bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 	);
 
 	Parameters.Add_Choice(
-		pNode	, "RF_STRATIFICATION"	, _TL("Stratification"),
+		"RF_OPTIONS", "RF_STRATIFICATION"	, _TL("Stratification"),
 		_TL("Specifies stratification strategy. Either none, equal amount of class samples, or proportional to fraction of class samples."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("none"),
 			_TL("equal"),
 			_TL("proportional")
@@ -337,10 +332,10 @@ CViGrA_Random_Forest::CViGrA_Random_Forest(void)
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Random Forest Classification."
 	));
+
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -868,10 +863,10 @@ CViGrA_RF_Presence::CViGrA_RF_Presence(void)
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Random Forest Presence Prediction"
 	));
+
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -1180,10 +1175,10 @@ CViGrA_RF_Table::CViGrA_RF_Table(void)
 	Set_Author		("B. Bechtel, O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Random Forest Table Classification."
 	));
+
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
 
 	//-----------------------------------------------------
 	Parameters.Add_Table("",

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -95,7 +92,7 @@ CSG_String Get_Info(int i)
 				"component to the needs of your application, without thereby "
 				"giving up execution speed.\n"
 				"Find out more at the ViGrA - Vision with Generic Algorithms - homepage:\n"
-				"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">"
+				"<a target=\"_blank\" href=\"http://ukoethe.github.io/vigra/\">"
 				"http://hci.iwr.uni-heidelberg.de</a>\n"
 			);
 
@@ -143,7 +140,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 10:	return( new_CViGrA_RF_Presence );
 	case 11:	return( new_CViGrA_RF_Table );
 
-	default:	return( NULL );
+	//-----------------------------------------------------
+	case 12:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
 

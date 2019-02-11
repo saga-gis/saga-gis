@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: vigra_morphology.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -78,10 +75,10 @@ CViGrA_Morphology::CViGrA_Morphology(void)
 	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Morphological filter."
 	));
+
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
 
 	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Input"),
@@ -98,7 +95,7 @@ CViGrA_Morphology::CViGrA_Morphology(void)
 	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Operation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Dilation"),
 			_TL("Erosion"),
 			_TL("Median"),
@@ -165,19 +162,19 @@ bool CViGrA_Morphology::On_Execute(void)
 
 	switch( Type )
 	{
-	case 0:	// Dilation
+	default:	// Dilation
 		discDilation		(srcImageRange(Input), destImage(Output), Radius);
 		break;
 
-	case 1:	// Erosion
+	case  1:	// Erosion
 		discErosion			(srcImageRange(Input), destImage(Output), Radius);
 		break;
 
-	case 2:	// Median
+	case  2:	// Median
 		discMedian			(srcImageRange(Input), destImage(Output), Radius);
 		break;
 
-	case 3:	// User defined rank
+	case  3:	// User defined rank
 		discRankOrderFilter	(srcImageRange(Input), destImage(Output), Radius, Rank);
 		break;
 	}

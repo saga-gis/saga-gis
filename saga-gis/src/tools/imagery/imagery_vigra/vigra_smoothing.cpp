@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: vigra_smoothing.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -76,47 +73,46 @@ CViGrA_Smoothing::CViGrA_Smoothing(void)
 {
 	Set_Name		(_TL("Smoothing (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"Based on the example code \"smooth.cxx\" by Ullrich Koethe.\n"
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Based on the code example \"smooth.cxx\" by Ullrich Koethe."
 	));
 
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
+
 	Parameters.Add_Grid(
-		NULL	, "INPUT"	, _TL("Input"),
+		"", "INPUT"	, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Output"),
+		"", "OUTPUT", _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "TYPE"	, _TL("Type of smoothing"),
+		"", "TYPE"	, _TL("Type of smoothing"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("exponential"),
 			_TL("nonlinear"),
 			_TL("gaussian")
 		)
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SCALE"	, _TL("Size of smoothing filter"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 2.0, 0.0, true
+	Parameters.Add_Double(
+		"", "SCALE"	, _TL("Size of smoothing filter"),
+		_TL("Smoothing kernel size specified as multiple of a cell."),
+		2.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EDGE"	, _TL("Edge threshold for nonlinear smoothing"),
+	Parameters.Add_Double(
+		"", "EDGE"	, _TL("Edge threshold for nonlinear smoothing"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 }
 
@@ -133,11 +129,11 @@ bool CViGrA_Smoothing::On_Execute(void)
 	CSG_Grid		*pInput, *pOutput;
 	vigra::FImage	Input, Output;
 
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-	Type	= Parameters("TYPE")	->asInt();
-	Scale	= Parameters("SCALE")	->asDouble();
-	Edge	= Parameters("EDGE")	->asDouble();
+	pInput	= Parameters("INPUT" )->asGrid();
+	pOutput	= Parameters("OUTPUT")->asGrid();
+	Type	= Parameters("TYPE"  )->asInt();
+	Scale	= Parameters("SCALE" )->asDouble();
+	Edge	= Parameters("EDGE"  )->asDouble();
 
 	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
 
@@ -146,7 +142,7 @@ bool CViGrA_Smoothing::On_Execute(void)
 	//-----------------------------------------------------
 	switch( Type )
 	{
-	case 0:	// apply recursive filter (exponential filter) to color image
+	default:	// apply recursive filter (exponential filter) to color image
 		{
 			recursiveSmoothX(srcImageRange(Input ), destImage(Output), Scale);
 			recursiveSmoothY(srcImageRange(Output), destImage(Output), Scale);
@@ -154,14 +150,14 @@ bool CViGrA_Smoothing::On_Execute(void)
 			break;
 		}
 
-	case 1:	// apply nonlinear diffusion to color image
+	case  1:	// apply nonlinear diffusion to color image
 		{
 			nonlinearDiffusion(srcImageRange(Input), destImage(Output), vigra::DiffusivityFunctor<float>(Edge), Scale);
 
 			break;
 		}
 
-	case 2:	// apply Gaussian filter to color image
+	case  2:	// apply Gaussian filter to color image
 		{
 			vigra::FImage			tmp(Get_NX(), Get_NY());
 			vigra::Kernel1D<double>	gauss;

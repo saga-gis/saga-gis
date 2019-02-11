@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: vigra_distance.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -75,30 +72,30 @@ CViGrA_Distance::CViGrA_Distance(void)
 {
 	Set_Name		(_TL("Distance (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Distance to feature cells on a raster. Feature cells are all cells not representing a no-data value."
 	));
 
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
+
 	Parameters.Add_Grid(
-		NULL	, "INPUT"	, _TL("Features"),
-		_TL("Features are all pixels different not representing no-data."),
+		"", "INPUT"	, _TL("Features"),
+		_TL("Features are all pixels not representing a no-data value."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Distance"),
+		"", "OUTPUT"	, _TL("Distance"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "NORM"	, _TL("Type of distance calculation"),
+		"", "NORM"	, _TL("Type of distance calculation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("Chessboard"),
 			_TL("Manhattan"),
 			_TL("Euclidean")
@@ -109,26 +106,20 @@ CViGrA_Distance::CViGrA_Distance(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CViGrA_Distance::On_Execute(void)
 {
-	int			Norm;
-	CSG_Grid	*pInput, *pOutput;
-
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-	Norm	= Parameters("NORM")	->asInt();
+	CSG_Grid	*pInput  = Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pOutput = Parameters("OUTPUT")->asGrid();
 
 	//-----------------------------------------------------
 	vigra::FImage	Input, Output(Get_NX(), Get_NY());
 
 	Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
 
-	distanceTransform(srcImageRange(Input), destImage(Output), pInput->Get_NoData_Value(), Norm);
+	distanceTransform(srcImageRange(Input), destImage(Output), pInput->Get_NoData_Value(), Parameters("NORM")->asInt());
 
 	Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 

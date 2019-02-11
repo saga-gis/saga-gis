@@ -80,77 +80,67 @@ CViGrA_Watershed::CViGrA_Watershed(void)
 {
 	Set_Name		(_TL("Watershed Segmentation (ViGrA)"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2009"));
+	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
 		"Note that the watershed algorithm usually results in an "
 		"oversegmentation (i.e., too many regions), but its boundary "
 		"localization is quite good.\n"
-		"Based on the example code \"watershed.cxx\" by Ullrich Koethe.\n"
-		"References:\n"
-		"ViGrA - Vision with Generic Algorithms\n"
-		"<a target=\"_blank\" href=\"http://hci.iwr.uni-heidelberg.de/vigra\">http://hci.iwr.uni-heidelberg.de</a>"
+		"Based on the code example \"watershed.cxx\" by Ullrich Koethe."
 	));
 
+	Add_Reference("http://ukoethe.github.io/vigra/", SG_T("ViGrA - Vision with Generic Algorithms"));
+
 	Parameters.Add_Grid(
-		NULL	, "INPUT"	, _TL("Input"),
+		"", "INPUT"	, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "OUTPUT"	, _TL("Segmentation"),
+		"", "OUTPUT", _TL("Segmentation"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SCALE"	, _TL("Width of gradient filter"),
+	Parameters.Add_Double(
+		"", "SCALE"	, _TL("Width of gradient filter"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1.0, 0.0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RGB"		, _TL("RGB coded data"),
+	Parameters.Add_Bool(
+		"", "RGB"	, _TL("RGB coded data"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EDGES"	, _TL("Edges"),
+	Parameters.Add_Bool(
+		"", "EDGES"	, _TL("Edges"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CViGrA_Watershed::On_Execute(void)
 {
-	bool		bEdges, bRGB;
-	double		Scale;
-	CSG_Grid	*pInput, *pOutput;
-
-	pInput	= Parameters("INPUT")	->asGrid();
-	pOutput	= Parameters("OUTPUT")	->asGrid();
-	Scale	= Parameters("SCALE")	->asDouble();
-	bEdges	= Parameters("EDGES")	->asBool();
-	bRGB	= Parameters("RGB")		->asBool();
+	CSG_Grid	*pInput  = Parameters("INPUT" )->asGrid();
+	CSG_Grid	*pOutput = Parameters("OUTPUT")->asGrid();
 
 	//-----------------------------------------------------
-	if( !bRGB )
+	if( !Parameters("RGB")->asBool() )
 	{
 		vigra::FImage	Input, Output(Get_NX(), Get_NY());
 
 		Copy_Grid_SAGA_to_VIGRA(*pInput, Input, true);
 
-		Segmentation(Input, Output, Scale, bEdges);
+		Segmentation(Input, Output, Parameters("SCALE")->asDouble(), Parameters("EDGES")->asBool());
 
 		Copy_Grid_VIGRA_to_SAGA(*pOutput, Output, false);
 	}
@@ -162,7 +152,7 @@ bool CViGrA_Watershed::On_Execute(void)
 
 		Copy_RGBGrid_SAGA_to_VIGRA(*pInput, Input, true);
 
-		Segmentation(Input, Output, Scale, bEdges);
+		Segmentation(Input, Output, Parameters("SCALE")->asDouble(), Parameters("EDGES")->asBool());
 
 		Copy_RGBGrid_VIGRA_to_SAGA(*pOutput, Output, false);
 	}
@@ -175,8 +165,6 @@ bool CViGrA_Watershed::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
