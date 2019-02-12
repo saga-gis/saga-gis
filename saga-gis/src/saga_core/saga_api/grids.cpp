@@ -815,7 +815,10 @@ bool CSG_Grids::Del_Grids(bool bDetach)
 	{
 		for(size_t i=0; i<m_Grids.Get_Size(); i++)
 		{
-			m_pGrids[i]->Set_Owner(NULL);
+			if( m_pGrids[i]->Get_Owner() == this )
+			{
+				m_pGrids[i]->Set_Owner(NULL);
+			}
 		}
 
 		m_pGrids[0]	= SG_Create_Grid(*m_pGrids[0]);	// needs a new dummy

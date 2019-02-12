@@ -1425,16 +1425,7 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 			{
 				pOverlay[i]	= NULL;
 			}
-			else if( !pOverlay[i]->Get_Owner() )
-			{
-				CWKSP_Layer_Classify	*pClassify	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]))->Get_Classifier();
-
-				Scaler[i].Create(pClassify->Get_Metric_Minimum(), pClassify->Get_Metric_Maximum(),
-					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  pClassify->Get_Metric_LogFactor() :
-					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGDOWN ? -pClassify->Get_Metric_LogFactor() : 0.
-				);
-			}
-			else
+			else if( pOverlay[i]->Get_Owner() )
 			{
 				double	Interval	=
 					m_pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  m_pClassify->Get_Metric_LogFactor() :
@@ -1446,6 +1437,15 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 				case  1: Scaler[i].Set_StdDev    (pOverlay[i], Interval, m_Parameters("STRETCH_STDDEV")->asDouble(), m_Parameters("STRETCH_INRANGE")->asBool());	break;
 				case  2: Scaler[i].Set_Percentile(pOverlay[i], Interval, m_Parameters("STRETCH_PCTL"  )->asDouble());	break;
 				}
+			}
+			else if( g_pData->Get(pOverlay[i]) )
+			{
+				CWKSP_Layer_Classify	*pClassify	= ((CWKSP_Layer *)g_pData->Get(pOverlay[i]))->Get_Classifier();
+
+				Scaler[i].Create(pClassify->Get_Metric_Minimum(), pClassify->Get_Metric_Maximum(),
+					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGUP   ?  pClassify->Get_Metric_LogFactor() :
+					pClassify->Get_Metric_Mode() == METRIC_MODE_LOGDOWN ? -pClassify->Get_Metric_LogFactor() : 0.
+				);
 			}
 		}
 	}
