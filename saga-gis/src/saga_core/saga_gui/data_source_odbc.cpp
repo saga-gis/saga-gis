@@ -489,14 +489,14 @@ void CData_Source_ODBC::Source_Open(const wxTreeItemId &Item)
 
 	if( DLG_Login(Username, Password) )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: %s..."), _TL("Open Database Connection"), pData->Get_Value().c_str()), true, true);
+		MSG_General_Add(wxString::Format("%s: %s...", _TL("Open Database Connection"), pData->Get_Value().c_str()), true, true);
 
 		bool	bResult;
 
 		RUN_TOOL(0, bResult,
 				SET_PARAMETER("SERVER"  , pData->Get_Value())
-			&&	SET_PARAMETER("USERNAME", &Username)
-			&&	SET_PARAMETER("PASSWORD", &Password)
+			&&	SET_PARAMETER("USERNAME", CSG_String(&Username))
+			&&	SET_PARAMETER("PASSWORD", CSG_String(&Password))
 		);
 
 		if( bResult )
@@ -519,7 +519,7 @@ void CData_Source_ODBC::Table_Open(const wxTreeItemId &Item)
 
 	CSG_Table	*pTable	= SG_Create_Table();
 
-	MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Load table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+	MSG_General_Add(wxString::Format("%s: [%s] %s...", _TL("Load table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
 
 	bool	bResult;
 
@@ -550,9 +550,9 @@ void CData_Source_ODBC::Table_Delete(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	if( DLG_Message_Confirm(wxString::Format(wxT("%s [%s]"), _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Table Deletion")) )
+	if( DLG_Message_Confirm(wxString::Format("%s [%s]", _TL("Do you really want to delete the table"), pData->Get_Value().c_str()), _TL("Table Deletion")) )
 	{
-		MSG_General_Add(wxString::Format(wxT("%s: [%s] %s..."), _TL("Deleting table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
+		MSG_General_Add(wxString::Format("%s: [%s] %s...", _TL("Deleting table"), pData->Get_Server().c_str(), pData->Get_Value().c_str()), true, true);
 
 		bool	bResult;
 

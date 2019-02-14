@@ -191,11 +191,11 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 	}
 
 	RUN_TOOL(DB_PGSQL_Get_Connection, false,	// CGet_Connection
-			SET_PARAMETER("PG_HOST",   Host    )
-		&&	SET_PARAMETER("PG_PORT",   Port    )
-		&&	SET_PARAMETER("PG_NAME",   DBName  )
-		&&	SET_PARAMETER("PG_USER", &g_Username)
-		&&	SET_PARAMETER("PG_PWD" , &g_Password)
+			SET_PARAMETER("PG_HOST", Host  )
+		&&	SET_PARAMETER("PG_PORT", Port  )
+		&&	SET_PARAMETER("PG_NAME", DBName)
+		&&	SET_PARAMETER("PG_USER", CSG_String(&g_Username))
+		&&	SET_PARAMETER("PG_PWD" , CSG_String(&g_Password))
 	);
 
 	return( bResult );
