@@ -730,5 +730,7 @@ tools = [
 ['shapes_points', 21, 'Create Random Points'],
 ['statistics_grid', 19, 'Add Statistics for Grids'],
 ['table_tools', 23, 'Change Field Name'],
-['ta_hydrology', 29, 'Flow Accumulation (Parallelizable)']
+['ta_hydrology', 29, 'Flow Accumulation (Parallelizable)'],
+['table_tools', 24, 'Formatted Text'],
+['table_tools', 25, 'Formatted Text [Shapes]']
 ]
