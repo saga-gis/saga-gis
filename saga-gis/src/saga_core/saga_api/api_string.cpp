@@ -593,6 +593,17 @@ int CSG_String::Trim(bool fromRight)
 	return( (int)(n - m_pString->Length()) );
 }
 
+//---------------------------------------------------------
+int CSG_String::Trim_Both(void)
+{
+	size_t	n	= m_pString->Length();
+
+	m_pString->Trim( true);
+	m_pString->Trim(false);
+
+	return( (int)(n - m_pString->Length()) );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

@@ -305,6 +305,7 @@ public:
 	CSG_String &					Remove				(size_t pos, size_t len);
 
 	int								Trim				(bool fromRight = false);
+	int								Trim_Both			(void);
 
 	int								Find				(char    Character, bool fromEnd = false)	const;
 	int								Find				(wchar_t Character, bool fromEnd = false)	const;
