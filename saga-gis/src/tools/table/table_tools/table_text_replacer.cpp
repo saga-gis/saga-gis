@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_text_replacer.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_text_replacer.h"
 
 
@@ -81,43 +69,44 @@
 CTable_Text_Replacer::CTable_Text_Replacer(void)
 {
 	//-----------------------------------------------------
-	Set_Name	(_TL("Replace Text"));
+	Set_Name		(_TL("Replace Text"));
 
-	Set_Author	(_TL("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Replaces in the selected attribute or, if not specified, in all text attributes "
-		"text strings with replacements as defined in table 'Text Replacements'."
+		"For the selected attribute or, if not specified, for all text attributes "
+		"this tool replaces text strings with replacements as defined in table "
+		"'Text Replacements'."
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table"),
+	Parameters.Add_Table("",
+		"TABLE"		, _TL("Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"		, _TL("Attribute"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUT_TABLE"	, _TL("Table with Text Replacements"),
+	Parameters.Add_Table("",
+		"OUT_TABLE"	, _TL("Table with Text Replacements"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "OUT_SHAPES"	, _TL("Shapes with Text Replacements"),
+	Parameters.Add_Shapes("",
+		"OUT_SHAPES", _TL("Shapes with Text Replacements"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters.Add_FixedTable(
-		NULL	, "REPLACE"		, _TL("Text Replacements"),
+	CSG_Table	*pTable	= Parameters.Add_FixedTable("",
+		"REPLACE"	, _TL("Text Replacements"),
 		_TL("")
 	)->asTable();
 
@@ -145,16 +134,11 @@ int CTable_Text_Replacer::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 	{
 		CSG_Data_Object	*pObject	= pParameter->asDataObject();
 
-		pParameters->Get_Parameter("OUT_TABLE" )->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table
-		);
-
-		pParameters->Get_Parameter("OUT_SHAPES")->Set_Enabled(pObject &&
-			pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
-		);
+		pParameters->Set_Enabled("OUT_TABLE" , pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table );
+		pParameters->Set_Enabled("OUT_SHAPES", pObject && pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 

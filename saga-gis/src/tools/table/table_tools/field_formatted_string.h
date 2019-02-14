@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 table_text_replacer.h                 //
+//                field_formatted_string.h               //
 //                                                       //
-//                 Copyright (C) 2013 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__table_text_replacer_H
-#define HEADER_INCLUDED__table_text_replacer_H
+#ifndef HEADER_INCLUDED__field_formatted_string_H
+#define HEADER_INCLUDED__field_formatted_string_H
 
 
 ///////////////////////////////////////////////////////////
@@ -61,40 +61,80 @@
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTable_Text_Replacer : public CSG_Tool
+class CField_Formatted_String_Base : public CSG_Tool  
 {
 public:
-	CTable_Text_Replacer(void);
+	CField_Formatted_String_Base(bool bShapes);
 
 
 protected:
 
-	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool		On_Execute				(void);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Table			*m_pReplacer;
+	typedef struct SFormat
+	{
+		CSG_String	format; int	type, field, option;
+	}
+	TFormat;
+
+	bool					m_bNoData;
+
+	int						m_Result, m_nFormats;
+
+	TFormat					*m_Formats;
 
 
-	size_t				Replace					(CSG_Table_Record *pRecord, int iField);
+	bool					Get_Formats				(CSG_Table *pTable);
+
+	bool					Set_String				(CSG_Table_Record *pRecord);
 
 };
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
+//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__table_text_replacer_H
+class CField_Formatted_String : public CField_Formatted_String_Base  
+{
+public:
+	CField_Formatted_String(void) : CField_Formatted_String_Base(false)	{}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CField_Formatted_String_Shapes : public CField_Formatted_String_Base  
+{
+public:
+	CField_Formatted_String_Shapes(void) : CField_Formatted_String_Base(true)	{}
+
+	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("A:Shapes|Table") );	}
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__field_formatted_string_H

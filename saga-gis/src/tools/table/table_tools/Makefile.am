@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libtable_tools.la
 libtable_tools_la_SOURCES =\
+field_formatted_string.cpp\
 Join_Tables.cpp\
 MLB_Interface.cpp\
 table_categories_to_indicators.cpp\
@@ -23,6 +24,7 @@ table_field_deletion.cpp\
 Table_Rotate.cpp\
 table_selection.cpp\
 table_text_replacer.cpp\
+field_formatted_string.h\
 Join_Tables.h\
 MLB_Interface.h\
 table_categories_to_indicators.h\
