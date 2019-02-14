@@ -390,7 +390,7 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 	double	dRank	= Parameters("PCTL"    )->asBool()
 					? Parameters("PCTL_VAL")->asDouble() / 100. : -1.0;
-	bool	bHist	= Parameters("PCTL_HIS")->asBool();
+	bool	bHist	= Parameters("PCTL_HST")->asBool();
 
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
