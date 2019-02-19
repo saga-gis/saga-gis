@@ -191,12 +191,20 @@ CGrid_to_KML::CGrid_to_KML(void)
         0.0, 100.0
     );
 
-	Parameters.Add_Table("",
-		"LUT"		, _TL("Lookup Table"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+	//-----------------------------------------------------
+	CSG_Table	*pLUT	= Parameters.Add_FixedTable("", "LUT", _TL("Lookup Table"), _TL(""))->asTable();
 
+	pLUT->Set_Name(_TL("Table"));
+
+	pLUT->Add_Field("Color"      , SG_DATATYPE_Color );
+	pLUT->Add_Field("Name"       , SG_DATATYPE_String);
+	pLUT->Add_Field("Description", SG_DATATYPE_String);
+	pLUT->Add_Field("Minimum"    , SG_DATATYPE_Double);
+	pLUT->Add_Field("Maximum"    , SG_DATATYPE_Double);
+
+	pLUT->Add_Record();
+
+	//-----------------------------------------------------
 	Parameters.Add_Bool("",
 		"RESAMPLING", _TL("Interpolation"),
 		_TL("Resampling method used when projection is needed"),
@@ -336,16 +344,17 @@ bool CGrid_to_KML::On_Execute(void)
 
 	pTool->Set_Manager(NULL);
 
-	if( pTool->Set_Parameter("GRID"        , pGrid)
+	if( pTool->Set_Parameter("GRID"        , pGrid )
 	&&  pTool->Set_Parameter("SHADE"       , pShade)
-	&&  pTool->Set_Parameter("FILE_KML"    , true)
-	&&  pTool->Set_Parameter("FILE"        , Parameters("FILE"))
 	&&  pTool->Set_Parameter("COLOURING"   , Method)
-	&&  pTool->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE"))
-	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"))
-	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"))
-	&&  pTool->Set_Parameter("LUT"         , Parameters("LUT"))
-	&&  (SG_UI_Get_Window_Main() || pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
+	&&  pTool->Set_Parameter("FILE_KML"    , true  )
+	&&  pTool->Set_Parameter("FILE"        , Parameters("FILE"        ))
+	&&  pTool->Set_Parameter("COL_PALETTE" , Parameters("COL_PALETTE" ))
+	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"      ))
+	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"     ))
+	&&  pTool->Set_Parameter("LUT"         , Parameters("LUT"         ))
+	&&  (SG_UI_Get_Window_Main()
+	||  pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pTool->Execute() )
 	{
 		bResult	= true;
