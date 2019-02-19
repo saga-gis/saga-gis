@@ -112,9 +112,15 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Double(
-		"", "THRESHOLD"	, _TL("Tension Threshold [Percentage of Cell Size]"),
-		_TL(""),
+		"", "THRESHOLD"	, _TL("Tension Threshold"),
+		_TL("Maximum change in elevation units (e.g. meter), iteration is stopped once maximum change reaches this threshold."),
 		1.0, 0.0, true
+	);
+
+	Parameters.Add_Int(
+		"", "MAXITER"	, _TL("Maximum Iterations"),
+		_TL("Maximum number of iterations, ignored if set to zero"),
+		0, 0, true
 	);
 
 	Parameters.Add_Bool(
@@ -132,37 +138,54 @@ CChannelNetwork_Altitude::CChannelNetwork_Altitude(void)
 //---------------------------------------------------------
 bool CChannelNetwork_Altitude::On_Execute(void)
 {
-	int			nCells, nCells_Start, iStep, nSteps;
-	double		Threshold;
-
 	//-----------------------------------------------------
 	m_pDTM				= Parameters("ELEVATION"    )->asGrid();
 	m_pChannels			= Parameters("CHANNELS"     )->asGrid();
 	m_pDistance			= Parameters("DISTANCE"     )->asGrid();
 	m_bNoUnderground	= Parameters("NOUNDERGROUND")->asBool();
-	Threshold			= Parameters("THRESHOLD"    )->asDouble() * Get_Cellsize();
-
-	DataObject_Set_Colors(m_pDistance, 11, SG_COLORS_YELLOW_BLUE, true);
-
-	//-----------------------------------------------------
-	nCells			= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
-	for(nSteps=0; pow(2.0, nSteps + 1) < nCells; nSteps++);
-	nCells_Start	= (int)pow(2.0, nSteps);
+	double	Threshold	= Parameters("THRESHOLD"    )->asDouble();
+	int		maxIter		= Parameters("MAXITER"      )->asInt();
 
 	//-----------------------------------------------------
+	CSG_Colors	Colors(3);
+
+	Colors.Set_Color(0, SG_GET_RGB(  0, 128,   0));
+	Colors.Set_Color(1, SG_GET_RGB(255, 255,   0));
+	Colors.Set_Color(2, SG_GET_RGB(128,  64,  64));
+
+	DataObject_Set_Colors(m_pDistance, Colors);
+
 	m_pDistance->Assign_NoData();
 
 	m_Mask.Create(Get_System(), SG_DATATYPE_Byte);
 	m_Dist.Create(Get_System());
-	m_Dist.Set_NoData_Value_Range(m_pDTM->Get_NoData_Value(), m_pDTM->Get_NoData_hiValue());
+//	m_Dist.Set_NoData_Value_Range(m_pDTM->Get_NoData_Value(), m_pDTM->Get_NoData_hiValue());
+	m_Dist.Assign_NoData();
 
-	for(nCells=nCells_Start, iStep=1; nCells>0 && Process_Get_Okay(); nCells/=2, iStep++)
+	//-----------------------------------------------------
+	int	nSteps, nCells	= Get_NX() > Get_NY() ? Get_NX() : Get_NY();
+	for(nSteps=0; pow(2.0, nSteps + 1)<nCells; nSteps++);
+	nCells	= (int)pow(2.0, nSteps);
+
+	//-----------------------------------------------------
+	for(int iStep=1; nCells>0 && Process_Get_Okay(); nCells/=2, iStep++)
 	{
 		Process_Set_Text("%d [%d]", iStep, nSteps + 1);
 
 		Set_Surface(nCells);
 
-		while( Threshold < Get_Change(nCells) && Process_Get_Okay() );
+		int	Iteration	= 0;	double dMax;
+
+		while( Threshold < (dMax = Get_Change(nCells)) && (maxIter < 1 || Iteration < maxIter) && Process_Get_Okay() )
+		{
+			Iteration++;
+		}
+
+		Message_Fmt("\n%s: %d; %s: %d; %s: %f",
+			_TL("Level"         ), 2 + nSteps - iStep,
+			_TL("Iterations"    ), 1 + Iteration,
+			_TL("Maximum change"), dMax
+		);
 	}
 
 	m_Mask.Destroy();
@@ -171,21 +194,24 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Grid	*pBase	= Parameters("BASELEVEL")->asGrid();
 
-	for(sLong n=0; n<Get_NCells(); n++)
-	{
-		if( m_pDistance->is_NoData(n) || m_pDTM->is_NoData(n) )
-		{
-			m_pDistance->Set_NoData(n);
+	DataObject_Set_Colors(pBase, Colors);
 
-			if( pBase )	{	pBase->Set_NoData(n);	}
+	#pragma omp parallel for
+	for(sLong i=0; i<Get_NCells(); i++)
+	{
+		if( m_pDistance->is_NoData(i) || m_pDTM->is_NoData(i) )
+		{
+			m_pDistance->Set_NoData(i);
+
+			if( pBase )	{	pBase->Set_NoData(i);	}
 		}
 		else
 		{
-			double	z	= m_pDistance->asDouble(n);
+			double	z	= m_pDistance->asDouble(i);
 
-			m_pDistance->Set_Value(n, m_pDTM->asDouble(n) - z);
+			m_pDistance->Set_Value(i, m_pDTM->asDouble(i) - z);
 
-			if( pBase )	{	pBase->Set_Value(n, z);	}
+			if( pBase )	{	pBase->Set_Value(i, z);	}
 		}
 	}
 
@@ -201,10 +227,8 @@ bool CChannelNetwork_Altitude::On_Execute(void)
 //---------------------------------------------------------
 void CChannelNetwork_Altitude::Set_Surface(int nCells)
 {
-	m_Dist.Assign_NoData();
-	m_Mask.Assign(0.0);
-
 	//-----------------------------------------------------
+	#pragma omp parallel for
 	for(int y=0; y<Get_NY(); y+=nCells)
 	{
 		int	ny	= y + nCells < Get_NY() ? y + nCells : Get_NY();
@@ -213,12 +237,10 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 		{
 			int		nx	= x + nCells < Get_NX() ? x + nCells : Get_NX();
 
-			int		i, ix, iy, nz;
-			double	z;
+			double	z	= 0.0;	int	nz	= 0;
 
-			for(iy=y, nz=0, z=0.0; iy<ny; iy++)
 			{
-				for(ix=x; ix<nx; ix++)
+				for(int iy=y; iy<ny; iy++) for(int ix=x; ix<nx; ix++)
 				{
 					if( m_pChannels->is_InGrid(ix, iy) && !m_pDTM->is_NoData(ix, iy) )
 					{
@@ -231,19 +253,20 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 			//---------------------------------------------
 			if( nz > 0 )
 			{
-				m_Mask.Set_Value(x, y, 1.0);
+				m_Mask.Set_Value(x, y, 1.);
+
 				m_Dist.Set_Value(x, y, z / nz);
 			}
 			else
 			{
-				m_Mask.Set_Value(x, y, 0.0);
+				m_Mask.Set_Value(x, y, 0.);
 
 				if( m_pDistance->is_NoData(x, y) )
 				{
-					for(i=0; i<8; i++)
+					for(int i=0; i<8; i++)
 					{
-						ix	= x + nCells * Get_xTo(i);
-						iy	= y + nCells * Get_yTo(i);
+						int	ix	= x + nCells * Get_xTo(i);
+						int	iy	= y + nCells * Get_yTo(i);
 
 						if( m_pDistance->is_InGrid(ix, iy) )
 						{
@@ -254,16 +277,19 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 
 					m_Dist.Set_Value(x, y, nz > 0 ? z / nz : m_pDTM->asDouble(x, y));
 				}
-				else
-				{
-					m_Dist.Set_Value(x, y, m_pDistance->asDouble(x, y));
-				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_pDistance->Assign(&m_Dist);
+	#pragma omp parallel for
+	for(sLong i=0; i<Get_NCells(); i++)
+	{
+		if( !m_Dist.is_NoData(i) && m_pDistance->is_NoData(i) )
+		{
+			m_pDistance->Set_Value(i, m_Dist.asDouble(i));
+		}
+	}
 }
 
 
@@ -274,13 +300,13 @@ void CChannelNetwork_Altitude::Set_Surface(int nCells)
 //---------------------------------------------------------
 double CChannelNetwork_Altitude::Get_Change(int nCells)
 {
-	int		x, y;
-	double	d, dMax;
+	int		y;
 
 	//-----------------------------------------------------
+	#pragma omp parallel for private(y)
 	for(y=0; y<Get_NY(); y+=nCells)
 	{
-		for(x=0; x<Get_NX(); x+=nCells)
+		for(int x=0; x<Get_NX(); x+=nCells)
 		{
 			if( !m_Mask.asByte(x, y) )
 			{
@@ -290,13 +316,17 @@ double CChannelNetwork_Altitude::Get_Change(int nCells)
 	}
 
 	//-----------------------------------------------------
-	for(y=0, dMax=0.0; y<Get_NY(); y+=nCells)
+	double	dMax	= 0.0;
+
+	for(y=0; y<Get_NY(); y+=nCells)
 	{
-		for(x=0; x<Get_NX(); x+=nCells)
+		for(int x=0; x<Get_NX(); x+=nCells)
 		{
 			if( !m_Mask.asByte(x, y) )
 			{
-				if( dMax < (d = fabs(m_Dist.asDouble(x, y) - m_pDistance->asDouble(x, y))) )
+				double	d	= fabs(m_Dist.asDouble(x, y) - m_pDistance->asDouble(x, y));
+
+				if( dMax < d )
 				{
 					dMax	= d;
 				}
@@ -313,17 +343,17 @@ double CChannelNetwork_Altitude::Get_Change(int nCells)
 //---------------------------------------------------------
 double CChannelNetwork_Altitude::Get_Change(int nCells, int x, int y)
 {
-	int		i, ix, iy;
-	double	n, d, dz;
+	double	d = 0.0, n = 0.0;
 
-	for(i=0, d=0.0, n=0.0; i<8; i++)
+	for(int i=0; i<8; i++)
 	{
-		ix	= x + nCells * Get_xTo(i);
-		iy	= y + nCells * Get_yTo(i);
+		int	ix	= x + nCells * Get_xTo(i);
+		int	iy	= y + nCells * Get_yTo(i);
 
 		if( m_pDistance->is_InGrid(ix, iy) )
 		{
-			dz	= 1.0 / Get_UnitLength(i);
+			double	dz	= 1.0 / Get_UnitLength(i);
+
 			d	+= dz * m_pDistance->asDouble(ix, iy);
 			n	+= dz;
 		}
@@ -365,37 +395,43 @@ CValley_Depth::CValley_Depth(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"		, _TL("Elevation"),
+		"", "ELEVATION"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "VALLEY_DEPTH"	, _TL("Valley Depth"),
+		"", "VALLEY_DEPTH"	, _TL("Valley Depth"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RIDGE_LEVEL"		, _TL("Ridge Level"),
+		"", "RIDGE_LEVEL"	, _TL("Ridge Level"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Double(
-		NULL	, "THRESHOLD"		, _TL("Tension Threshold [Percentage of Cell Size]"),
-		_TL(""),
+		"", "THRESHOLD"		, _TL("Tension Threshold"),
+		_TL("Maximum change in elevation units (e.g. meter), iteration is stopped once maximum change reaches this threshold."),
 		1.0, 0.0, true
 	);
 
+	Parameters.Add_Int(
+		"", "MAXITER"		, _TL("Maximum Iterations"),
+		_TL("Maximum number of iterations, ignored if set to zero"),
+		0, 0, true
+	);
+
 	Parameters.Add_Bool(
-		NULL	, "NOUNDERGROUND"	, _TL("Keep Ridge Level above Surface"),
+		"", "NOUNDERGROUND"	, _TL("Keep Ridge Level above Surface"),
 		_TL(""),
 		true
 	);
 
 	Parameters.Add_Int(
-		NULL	, "ORDER"			, _TL("Ridge Detection Threshold"),
+		"", "ORDER"			, _TL("Ridge Detection Threshold"),
 		_TL(""),
 		4, 1, true, 7, true
 	);
@@ -405,15 +441,6 @@ CValley_Depth::CValley_Depth(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define RUN_TOOL(LIBRARY, TOOL, CONDITION)	{\
-	bool	bResult;\
-	SG_RUN_TOOL(bResult, LIBRARY, TOOL, CONDITION)\
-	if( !bResult ) return( false );\
-}
-
-#define SET_PARAMETER(IDENTIFIER, VALUE)	pTool->Get_Parameters()->Set_Parameter(SG_T(IDENTIFIER), VALUE)
 
 //---------------------------------------------------------
 bool CValley_Depth::On_Execute(void)
@@ -426,19 +453,20 @@ bool CValley_Depth::On_Execute(void)
 
 	Inverse.Invert();
 
-	RUN_TOOL("ta_channels"				, 6,	// strahler order
-			SET_PARAMETER("DEM"				, &Inverse)
-		&&	SET_PARAMETER("STRAHLER"		, &Ridges)
+	SG_RUN_TOOL_ExitOnError("ta_channels"       , 6,	// strahler order
+		   SG_TOOL_PARAMETER_SET("DEM"          , &Inverse)
+		&& SG_TOOL_PARAMETER_SET("STRAHLER"     , &Ridges )
 	)
 
 	Ridges.Set_NoData_Value_Range(0, Parameters("ORDER")->asInt());
 
-	RUN_TOOL("ta_channels"				, 3,	// vertical channel network distance
-			SET_PARAMETER("ELEVATION"		, &Inverse)
-		&&	SET_PARAMETER("CHANNELS"		, &Ridges)
-		&&	SET_PARAMETER("DISTANCE"		, pDepth)
-		&&	SET_PARAMETER("THRESHOLD"		, Parameters("THRESHOLD"))
-		&&	SET_PARAMETER("NOUNDERGROUND"	, Parameters("NOUNDERGROUND"))
+	SG_RUN_TOOL_ExitOnError("ta_channels"       , 3,	// vertical channel network distance
+		   SG_TOOL_PARAMETER_SET("ELEVATION"    , &Inverse)
+		&& SG_TOOL_PARAMETER_SET("CHANNELS"     , &Ridges )
+		&& SG_TOOL_PARAMETER_SET("DISTANCE"     , pDepth  )
+		&& SG_TOOL_PARAMETER_SET("THRESHOLD"    , Parameters("THRESHOLD"    ))
+		&& SG_TOOL_PARAMETER_SET("MAXITER"      , Parameters("MAXITER"      ))
+		&& SG_TOOL_PARAMETER_SET("NOUNDERGROUND", Parameters("NOUNDERGROUND"))
 	)
 
 	//-----------------------------------------------------
