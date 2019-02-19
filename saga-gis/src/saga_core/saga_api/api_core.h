@@ -1274,6 +1274,7 @@ public:
 	bool							Random				(void);
 	bool							Invert				(void);
 	bool							Revert				(void);
+	bool							Greyscale			(void);
 
 	bool							Assign				(const CSG_Colors &Colors);
 	bool							Assign				(CSG_Colors *pSource);

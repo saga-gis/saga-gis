@@ -87,6 +87,7 @@ BEGIN_EVENT_TABLE(CDLG_Colors, CDLG_Base)
 	EVT_BUTTON			(ID_BTN_COLORS_COUNT	, CDLG_Colors::On_Count)
 	EVT_BUTTON			(ID_BTN_COLORS_MIRROR	, CDLG_Colors::On_Miror)
 	EVT_BUTTON			(ID_BTN_COLORS_INVERT	, CDLG_Colors::On_Invert)
+	EVT_BUTTON			(ID_BTN_COLORS_GREYSCALE, CDLG_Colors::On_Greyscale)
 	EVT_BUTTON			(ID_BTN_COLORS_RANDOM	, CDLG_Colors::On_Random)
 	EVT_BUTTON			(ID_BTN_COLORS_PRESET	, CDLG_Colors::On_Preset)
 END_EVENT_TABLE()
@@ -114,6 +115,7 @@ CDLG_Colors::CDLG_Colors(CSG_Colors *pColors)
 	Add_Button(ID_BTN_COLORS_COUNT);
 	Add_Button(ID_BTN_COLORS_MIRROR);
 	Add_Button(ID_BTN_COLORS_INVERT);
+	Add_Button(ID_BTN_COLORS_GREYSCALE);
 	Add_Button(ID_BTN_COLORS_RANDOM);
 	Add_Button(ID_BTN_COLORS_PRESET);
 
@@ -216,6 +218,14 @@ void CDLG_Colors::On_Miror(wxCommandEvent &event)
 void CDLG_Colors::On_Invert(wxCommandEvent &event)
 {
 	m_pColors->Invert();
+
+	m_pControl->Refresh(false);
+}
+
+//---------------------------------------------------------
+void CDLG_Colors::On_Greyscale(wxCommandEvent &event)
+{
+	m_pColors->Greyscale();
 
 	m_pControl->Refresh(false);
 }

@@ -733,9 +733,7 @@ bool CSG_Colors::Set_Ramp_Brighness(int Brightness_A, int Brightness_B, int iCol
 //---------------------------------------------------------
 bool CSG_Colors::Random(void)
 {
-	int		i;
-
-	for(i=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
 		Set_Color(i,
 			(int)(255.0 * (double)rand() / (double)RAND_MAX),
@@ -750,9 +748,7 @@ bool CSG_Colors::Random(void)
 //---------------------------------------------------------
 bool CSG_Colors::Invert(void)
 {
-	int		i;
-
-	for(i=0; i<Get_Count(); i++)
+	for(int i=0; i<Get_Count(); i++)
 	{
 		Set_Color(i, 255 - Get_Red(i), 255 - Get_Green(i), 255 - Get_Blue(i));
 	}
@@ -763,14 +759,24 @@ bool CSG_Colors::Invert(void)
 //---------------------------------------------------------
 bool CSG_Colors::Revert(void)
 {
-	int		i, j;
-	long	c;
-
-	for(i=0, j=Get_Count()-1; i<j; i++, j--)
+	for(int i=0, j=Get_Count()-1; i<j; i++, j--)
 	{
-		c		=    Get_Color(j);
+		long    c  = Get_Color(j);
 		Set_Color(j, Get_Color(i));
 		Set_Color(i, c);
+	}
+
+	return( Get_Count() > 0 );
+}
+
+//---------------------------------------------------------
+bool CSG_Colors::Greyscale(void)
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		long	c	= Get_Brightness(i);
+
+		Set_Color(i, c, c, c);
 	}
 
 	return( Get_Count() > 0 );

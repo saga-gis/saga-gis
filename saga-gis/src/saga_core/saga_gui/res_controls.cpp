@@ -89,28 +89,29 @@ const wxString CTRL_Get_Name(int ID_CTRL)
 	case ID_BTN_LOAD           :	return( _TL("Load") );
 	case ID_BTN_SAVE           :	return( _TL("Save") );
 
-	case ID_BTN_DESCRIPTION    :	return( _TL("Info") );
+	case ID_BTN_DESCRIPTION     :	return( _TL("Info") );
 
-	case ID_BTN_DEFAULTS       :	return( _TL("Defaults") );
+	case ID_BTN_DEFAULTS        :	return( _TL("Defaults") );
 
-	case ID_BTN_ADD            :	return( _TL("Add") );
-	case ID_BTN_ADD_ALL        :	return( _TL("Add All") );
-	case ID_BTN_INSERT         :	return( _TL("Insert") );
-	case ID_BTN_DELETE         :	return( _TL("Delete") );
-	case ID_BTN_DELETE_ALL     :	return( _TL("Clear") );
+	case ID_BTN_ADD             :	return( _TL("Add") );
+	case ID_BTN_ADD_ALL         :	return( _TL("Add All") );
+	case ID_BTN_INSERT          :	return( _TL("Insert") );
+	case ID_BTN_DELETE          :	return( _TL("Delete") );
+	case ID_BTN_DELETE_ALL      :	return( _TL("Clear") );
 
-	case ID_BTN_UP             :	return( _TL("Up") );
-	case ID_BTN_DOWN           :	return( _TL("Down") );
+	case ID_BTN_UP              :	return( _TL("Up") );
+	case ID_BTN_DOWN            :	return( _TL("Down") );
 
-	case ID_BTN_TABLE_TO_WKSP  :	return( _TL("Workspace") );
-	case ID_BTN_TABLE_FROM_WKSP:	return( _TL("Workspace") );
+	case ID_BTN_TABLE_TO_WKSP   :	return( _TL("Workspace") );
+	case ID_BTN_TABLE_FROM_WKSP :	return( _TL("Workspace") );
 
-	case ID_BTN_COLORS         :	return( _TL("Colors") );
-	case ID_BTN_COLORS_MIRROR  :	return( _TL("Mirror") );
-	case ID_BTN_COLORS_INVERT  :	return( _TL("Invert") );
-	case ID_BTN_COLORS_RANDOM  :	return( _TL("Random") );
-	case ID_BTN_COLORS_PRESET  :	return( _TL("Presets") );
-	case ID_BTN_COLORS_COUNT   :	return( _TL("Count") );
+	case ID_BTN_COLORS          :	return( _TL("Colors") );
+	case ID_BTN_COLORS_MIRROR   :	return( _TL("Mirror") );
+	case ID_BTN_COLORS_INVERT   :	return( _TL("Invert") );
+	case ID_BTN_COLORS_GREYSCALE:	return( _TL("Greyscale") );
+	case ID_BTN_COLORS_RANDOM   :	return( _TL("Random") );
+	case ID_BTN_COLORS_PRESET   :	return( _TL("Presets") );
+	case ID_BTN_COLORS_COUNT    :	return( _TL("Count") );
 	}
 
 	return( _TL("Button") );
