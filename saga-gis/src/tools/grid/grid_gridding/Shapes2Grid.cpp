@@ -775,7 +775,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Multiple Polygons"),
-		_TL("Output value for cells that intersect wiht more than one polygon."),
+		_TL("Output value for cells that intersect with more than one polygon."),
 		CSG_String::Format("%s|%s|%s",
 			_TL("minimum coverage"),
 			_TL("maximum coverage"),
@@ -998,7 +998,7 @@ inline void CPolygons2Grid::Set_Value(int x, int y, double Value, double Coverag
 		else switch( m_Multiple )
 		{
 		case  0:	// minimum
-			if( m_pCoverage->asDouble(x, y) > Value )
+			if( m_pCoverage->asDouble(x, y) > Coverage )
 			{
 				m_pGrid    ->Set_Value(x, y, Value   );
 				m_pCoverage->Set_Value(x, y, Coverage);
@@ -1006,7 +1006,7 @@ inline void CPolygons2Grid::Set_Value(int x, int y, double Value, double Coverag
 			break;
 
 		default:	// maximum
-			if( m_pCoverage->asDouble(x, y) < Value )
+			if( m_pCoverage->asDouble(x, y) < Coverage )
 			{
 				m_pGrid    ->Set_Value(x, y, Value   );
 				m_pCoverage->Set_Value(x, y, Coverage);
@@ -1014,8 +1014,10 @@ inline void CPolygons2Grid::Set_Value(int x, int y, double Value, double Coverag
 			break;
 
 		case  2:	// average
-			m_pGrid    ->Add_Value(x, y, Coverage * Value);
-			m_pCoverage->Add_Value(x, y, Coverage);
+			{
+				m_pGrid    ->Add_Value(x, y, Coverage * Value);
+				m_pCoverage->Add_Value(x, y, Coverage);
+			}
 			break;
 		}
 	}
