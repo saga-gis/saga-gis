@@ -199,7 +199,7 @@ bool CSG_File::Set_Encoding(int Encoding)
 		&&  m_pConvert != &wxConvUTF7
 		&&  m_pConvert != &wxConvUTF8 )
 		{
-			delete(m_pConvert);
+			delete((wxMBConv *)m_pConvert);
 		}
 
 		m_pConvert	= NULL;
@@ -394,13 +394,13 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 	{
 		wxTextInputStream	Stream(*m_pStream_In, " \t", *((wxMBConv *)m_pConvert));
 
-		sLine	= CSG_String(&Stream.ReadLine());
+		wxString	s(Stream.ReadLine());	sLine	= CSG_String(&s);
 	}
 	else
 	{
 		wxTextInputStream	Stream(*m_pStream_In, " \t");
 
-		sLine	= CSG_String(&Stream.ReadLine());
+		wxString	s(Stream.ReadLine());	sLine	= CSG_String(&s);
 	}
 
 	return( sLine.Length() > 0 || !is_EOF() );
