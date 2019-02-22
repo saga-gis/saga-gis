@@ -69,6 +69,7 @@
 #include <wx/tokenzr.h>
 #include <wx/wxcrt.h>
 #include <wx/wxcrtvararg.h>
+#include <wx/convauto.h>
 
 #include "api_core.h"
 
@@ -110,12 +111,23 @@ CSG_String::CSG_String(wchar_t Character, size_t nRepeat)
 	m_pString	= new wxString(Character, nRepeat);
 }
 
+//---------------------------------------------------------
 CSG_String::CSG_String(const class wxString *pString)
 {
 	if( pString )
 		m_pString	= new wxString(*pString);
 	else
 		m_pString	= new wxString;
+}
+
+bool CSG_String::Create(const class wxString *pString)
+{
+	if( pString )
+		*m_pString	= *pString;
+	else
+		m_pString->Clear();
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -262,6 +274,11 @@ void CSG_String::Clear(void)
 {
 	m_pString->Clear();
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_String CSG_String::Format(const char *Format, ...)
@@ -761,6 +778,129 @@ bool CSG_String::asDouble(double &Value) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CSG_String::from_UTF8(const char *String, size_t Length)
+{
+	CSG_String	s;
+
+	if( String )
+	{
+		if( !Length )
+		{
+			Length	= strlen(String);
+		}
+
+		*s.m_pString	= wxString::FromUTF8(String, Length);
+	}
+
+	return( s );
+}
+
+//---------------------------------------------------------
+/**
+* This function creates a single char array and fills it
+* with the UTF-8 representation of this string object.
+* If successful pString will point to the address of the
+* allocated memory. Freeing memory is in response of the
+* calling function.
+*/
+//---------------------------------------------------------
+size_t CSG_String::to_UTF8(char **pString) const
+{
+	if( !is_Empty() )
+	{
+		const wxScopedCharBuffer	Buffer	= m_pString->utf8_str();
+
+		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
+		{
+			memcpy(*pString, Buffer.data(), Buffer.length());
+
+			return( Buffer.length() );
+		}
+	}
+
+	*pString	= NULL;
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+CSG_Buffer CSG_String::to_UTF8(void) const
+{
+	CSG_Buffer	String;
+
+	if( !is_Empty() )
+	{
+		const wxScopedCharBuffer	Buffer	= m_pString->utf8_str();
+
+		String.Set_Data(Buffer.data(), Buffer.length());
+	}
+
+	return( String );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+* This function creates a single char array and fills it
+* with the multibyte representation of this string object.
+* If successful pString will point to the address of the
+* allocated memory. Freeing memory is in response of the
+* calling function.
+*/
+//---------------------------------------------------------
+size_t CSG_String::to_MBChar(char **pString, int Encoding) const
+{
+	CSG_Buffer	String(to_MBChar(Encoding));
+
+	if( String.Get_Size() && (*pString = (char *)SG_Malloc(String.Get_Size())) != NULL )
+	{
+		memcpy(*pString, String.Get_Data(), String.Get_Size());
+
+		return( String.Get_Size() );
+	}
+
+	*pString	= NULL;
+
+	return( 0 );
+}
+
+//---------------------------------------------------------
+CSG_Buffer CSG_String::to_MBChar(int Encoding) const
+{
+	CSG_Buffer	String;
+
+	if( !is_Empty() )
+	{
+		wxScopedCharBuffer	Buffer;
+
+		switch( Encoding )	// selecting the appropriate wxMBConv class
+		{
+		case SG_FILE_ENCODING_ANSI   : Buffer = m_pString->mb_str(wxConvLibc       ); break;
+		case SG_FILE_ENCODING_UTF7   : Buffer = m_pString->mb_str(wxConvUTF7       ); break;
+		case SG_FILE_ENCODING_UTF8   : Buffer = m_pString->mb_str(wxConvUTF8       ); break;
+		case SG_FILE_ENCODING_UTF16LE: Buffer = m_pString->mb_str(wxMBConvUTF16LE()); break;
+		case SG_FILE_ENCODING_UTF16BE: Buffer = m_pString->mb_str(wxMBConvUTF16BE()); break;
+		case SG_FILE_ENCODING_UTF32LE: Buffer = m_pString->mb_str(wxMBConvUTF32LE()); break;
+		case SG_FILE_ENCODING_UTF32BE: Buffer = m_pString->mb_str(wxMBConvUTF32BE()); break;
+		default                      : Buffer = m_pString->mb_str(wxConvAuto     ()); break;
+		}
+
+		String.Set_Data(Buffer.data(), Buffer.length());
+	}
+
+	return( String );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 /**
   * This function creates a single char array and fills it
   * with the ASCII representation of this string object.
@@ -769,25 +909,36 @@ bool CSG_String::asDouble(double &Value) const
   * calling function.
 */
 //---------------------------------------------------------
-bool CSG_String::to_ASCII(char **pString)	const
+bool CSG_String::to_ASCII(char **pString, char Replace)	const
 {
-	if( is_Empty() )
+	if( !is_Empty() )
 	{
-		return( false );
+		const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+
+		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
+		{
+			memcpy(*pString, Buffer.data(), Buffer.length());
+
+			return( true );
+		}
 	}
 
-	*pString	= (char *)SG_Malloc((1 + Length()) * sizeof(char));
+	return( false );
+}
 
-	if( *pString == NULL )
+//---------------------------------------------------------
+CSG_Buffer CSG_String::to_ASCII(char Replace) const
+{
+	CSG_Buffer	String;
+
+	if( !is_Empty() )
 	{
-		return( false );
+		const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+
+		String.Set_Data(Buffer.data(), Buffer.length());
 	}
 
-	memcpy(*pString, m_pString->ToAscii(), Length() * sizeof(char));
-
-	(*pString)[Length()]	= '\0';
-
-	return( true );
+	return( String );
 }
 
 

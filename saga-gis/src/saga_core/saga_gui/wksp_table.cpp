@@ -118,25 +118,26 @@ wxString CWKSP_Table::Get_Description(void)
 
 	s	+= "<table border=\"0\">";
 
-	DESC_ADD_STR(_TL("Name"             ), m_pObject->Get_Name());
-	DESC_ADD_STR(_TL("Description"      ), m_pObject->Get_Description());
+	DESC_ADD_STR(_TL("Name"               ), m_pObject->Get_Name());
+	DESC_ADD_STR(_TL("Description"        ), m_pObject->Get_Description());
 
 	if( SG_File_Exists(m_pObject->Get_File_Name(false)) )
 	{
-		DESC_ADD_STR(_TL("File"         ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("File"           ), m_pObject->Get_File_Name(false));
 	}
 	else if( m_pObject->Get_MetaData_DB().Get_Children_Count() )
 	{
-		DESC_ADD_STR(_TL("File"         ), m_pObject->Get_File_Name(false));
+		DESC_ADD_STR(_TL("File"           ), m_pObject->Get_File_Name(false));
 	}
 	else
 	{
-		DESC_ADD_STR(_TL("File"         ), _TL("memory"));
+		DESC_ADD_STR(_TL("File"           ), _TL("memory"));
 	}
 
-	DESC_ADD_STR(_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_INT(_TL("Number of Records"), Get_Table()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"       ), Get_Table()->Get_Selection_Count());
+	DESC_ADD_STR  (_TL("Modified"         ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_INT  (_TL("Number of Records"), Get_Table()->Get_Count());
+	DESC_ADD_SIZET(_TL("Selected"         ), Get_Table()->Get_Selection_Count());
+	DESC_ADD_STR  (_TL("File Encoding"    ), Get_Table()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
 	s	+= "</table>";
 

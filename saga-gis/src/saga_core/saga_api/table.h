@@ -220,11 +220,11 @@ public:
 									CSG_Table			(const CSG_Table &Table);
 	bool							Create				(const CSG_Table &Table);
 
-									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
-	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined);
+									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
-									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator);
-	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator);
+									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 									CSG_Table			(const CSG_Table *pTemplate);
 	bool							Create				(const CSG_Table *pTemplate);
@@ -239,15 +239,18 @@ public:
 	virtual bool					Assign				(CSG_Data_Object *pSource);
 	bool							Assign_Values		(CSG_Table *pTable);
 
-	bool							Load				(const CSG_String &File, int Format, SG_Char Separator);
+	bool							Load				(const CSG_String &File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
-	virtual bool					Save				(const CSG_String &File, int Format, SG_Char Separator);
-	virtual bool					Save				(const char       *File, int Format, SG_Char Separator)	{ return( Save(CSG_String(File), Format, Separator) ); }
-	virtual bool					Save				(const wchar_t    *File, int Format, SG_Char Separator)	{ return( Save(CSG_String(File), Format, Separator) ); }
+	virtual bool					Save				(const CSG_String &File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+	virtual bool					Save				(const char       *File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED)	{ return( Save(CSG_String(File), Format, Separator, Encoding) ); }
+	virtual bool					Save				(const wchar_t    *File, int Format, SG_Char Separator, int Encoding = SG_FILE_ENCODING_UNDEFINED)	{ return( Save(CSG_String(File), Format, Separator, Encoding) ); }
 
 	virtual bool					Save				(const CSG_String &File, int Format = 0);
 	virtual bool					Save				(const char       *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
 	virtual bool					Save				(const wchar_t    *File, int Format = 0)	{	return( Save(CSG_String(File), Format) );	}
+
+	bool							Set_File_Encoding	(int Encoding);
+	int								Get_File_Encoding	(void)	const	{	return( m_Encoding );	}
 
 	bool							Serialize			(CSG_File &Stream, bool bSave);
 
@@ -262,7 +265,7 @@ public:
 	int								Get_Field_Count		(void)			const	{	return( m_nFields );	}
 	const SG_Char *					Get_Field_Name		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Name[iField]->c_str() : NULL );			}
 	TSG_Data_Type					Get_Field_Type		(int iField)	const	{	return( iField >= 0 && iField < m_nFields ? m_Field_Type[iField] : SG_DATATYPE_Undefined );	}
-	int								Get_Field_Length	(int iField)	const;				// returns the maximum number of characters for data type string and zero for all other data types.
+	int								Get_Field_Length	(int iField, int Encoding = SG_FILE_ENCODING_UNDEFINED)	const;	// returns the maximum number of characters for data type string and zero for all other data types.
 	int								Get_Field			(const CSG_String &Name)	const;	// returns the zero based position of the field named 'Name' or '-1' if there is no field with such name.
 
 	bool							Set_Field_Name		(int iField, const SG_Char *Name);
@@ -349,7 +352,7 @@ public:
 
 protected:
 
-	int								m_nFields, m_nRecords, m_nBuffer;
+	int								m_nFields, m_nRecords, m_nBuffer, m_Encoding;
 
 	TSG_Data_Type					*m_Field_Type;
 

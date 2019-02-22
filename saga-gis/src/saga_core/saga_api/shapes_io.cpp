@@ -181,10 +181,25 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 	TSG_Point		*pPoint;
 	CSG_Buffer		File_Header(100), Record_Header(8), Content;
 	CSG_File		fSHP;
-	CSG_Table_DBase	fDBF;
 
 	//-----------------------------------------------------
 	// Open DBase File...
+
+	m_Encoding	= SG_FILE_ENCODING_ANSI;
+
+	if( fSHP.Open(SG_File_Make_Path("", File_Name, "cpg")) )
+	{
+		CSG_String	sLine;
+
+		if( fSHP.Read_Line(sLine) && sLine.Find("UTF-8") >= 0 )
+		{
+			m_Encoding	= SG_FILE_ENCODING_UTF8;
+		}
+
+		fSHP.Close();
+	}
+
+	CSG_Table_DBase	fDBF(m_Encoding);
 
 	if( !fDBF.Open_Read(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
 	{
@@ -393,7 +408,6 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 					break;
 				}
 
-
 				//-----------------------------------------
 				iOffset = 0;
 
@@ -431,9 +445,13 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 						double	Value;
 
 						if( fDBF.asDouble(iField, Value) )
+						{
 							pShape->Set_Value(iField, Value);
+						}
 						else
+						{
 							pShape->Set_NoData(iField);
+						}
 					}
 					break;
 				}
@@ -474,30 +492,29 @@ bool CSG_Shapes::_Load_ESRI(const CSG_String &File_Name)
 
 //---------------------------------------------------------
 #define Set_Content_Length(n)	Record_Header.Set_Value(4, (int)(n), true);\
-								fSHP.Write(Record_Header.Get_Data(), sizeof(int), 2);\
-								fSHX.Write_Int(fSHP_Size, true);\
-								fSHX.Write_Int((n)      , true);\
-								fSHP_Size	+= 4 + (n);\
-								fSHX_Size	+= 4;
+	fSHP.Write(Record_Header.Get_Data(), sizeof(int), 2);\
+	fSHX.Write_Int(fSHP_Size, true);\
+	fSHX.Write_Int((n)      , true);\
+	fSHP_Size	+= 4 + (n);\
+	fSHX_Size	+= 4;
 
 //---------------------------------------------------------
 bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 {
-	int				Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
-	TSG_Point		Point;
-	CSG_Buffer		File_Header(100), Record_Header(8), Content;
-	CSG_File		fSHP, fSHX;
-	CSG_Table_DBase	fDBF;
+	int			Type, fSHP_Size, fSHX_Size, iField, iPart, iPoint, nPoints;
+	TSG_Point	Point;
+	CSG_Buffer	File_Header(100), Record_Header(8), Content;
+	CSG_File	fSHP, fSHX;
 
 	//-----------------------------------------------------
 	// Determine Shape Type...
 
 	switch( m_Type )
 	{
-	case SHAPE_TYPE_Point:		Type	=  1;	break;
-	case SHAPE_TYPE_Points:		Type	=  8;	break;
-	case SHAPE_TYPE_Line:		Type	=  3;	break;
-	case SHAPE_TYPE_Polygon:	Type	=  5;	break;
+	case SHAPE_TYPE_Point   : Type  =  1; break;
+	case SHAPE_TYPE_Points  : Type  =  8; break;
+	case SHAPE_TYPE_Line    : Type  =  3; break;
+	case SHAPE_TYPE_Polygon : Type  =  5; break;
 	default:	return( false );
 	}
 
@@ -505,14 +522,28 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 
 	switch( Vertex_Type )
 	{
-	case SG_VERTEX_TYPE_XY:						break;
-	case SG_VERTEX_TYPE_XYZ:	Type	+= 20;	break;	// M
-	case SG_VERTEX_TYPE_XYZM:	Type	+= 10;	break;	// Z (+M)
+	case SG_VERTEX_TYPE_XY  :             break;
+	case SG_VERTEX_TYPE_XYZ : Type += 20; break;	// M
+	case SG_VERTEX_TYPE_XYZM: Type += 10; break;	// Z (+M)
 	default:	return( false );
 	}
 
 	//-----------------------------------------------------
 	// DBase File Access...
+
+	SG_File_Delete(SG_File_Make_Path("", File_Name, "cpg"));
+
+	if( m_Encoding == SG_FILE_ENCODING_UTF8 )
+	{
+		if( fSHP.Open(SG_File_Make_Path("", File_Name, "cpg"), SG_FILE_W, false) )
+		{
+			fSHP.Printf("UTF-8\n");
+
+			fSHP.Close();
+		}
+	}
+
+	CSG_Table_DBase	fDBF(m_Encoding);
 
 	if( !fDBF.Open_Write(SG_File_Make_Path("", File_Name, "dbf"), this, false) )
 	{
@@ -729,7 +760,7 @@ bool CSG_Shapes::_Save_ESRI(const CSG_String &File_Name)
 			else switch( fDBF.Get_Field_Type(iField) )
 			{
 			default:
-				fDBF.Set_Value(iField, CSG_String(pShape->asString(iField)));
+				fDBF.Set_Value(iField, pShape->asString(iField));
 				break;
 
 			case DBF_FT_FLOAT:

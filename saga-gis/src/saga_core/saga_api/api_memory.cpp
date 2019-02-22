@@ -593,7 +593,7 @@ bool CSG_Array_Int::Assign(int Value)
 //---------------------------------------------------------
 CSG_Buffer::CSG_Buffer(void)
 {
-	m_pData	= NULL;
+	m_Data	= NULL;
 	m_Size	= 0;
 }
 
@@ -607,7 +607,7 @@ bool CSG_Buffer::Create(void)
 //---------------------------------------------------------
 CSG_Buffer::CSG_Buffer(const CSG_Buffer &Buffer)
 {
-	m_pData	= NULL;
+	m_Data	= NULL;
 	m_Size	= 0;
 
 	Create(Buffer);
@@ -615,13 +615,13 @@ CSG_Buffer::CSG_Buffer(const CSG_Buffer &Buffer)
 
 bool CSG_Buffer::Create(const CSG_Buffer &Buffer)
 {
-	return( Set_Data(Buffer.m_pData, Buffer.m_Size) );
+	return( Set_Data(Buffer.m_Data, Buffer.m_Size) );
 }
 
 //---------------------------------------------------------
 CSG_Buffer::CSG_Buffer(size_t Size)
 {
-	m_pData	= NULL;
+	m_Data	= NULL;
 	m_Size	= 0;
 
 	Create(Size);
@@ -640,28 +640,32 @@ CSG_Buffer::~CSG_Buffer(void)
 
 void CSG_Buffer::Destroy(void)
 {
-	if( m_pData )
+	if( m_Data )
 	{
-		SG_Free(m_pData);
+		SG_Free(m_Data);
 	}
 
-	m_pData	= NULL;
+	m_Data	= NULL;
 	m_Size	= 0;
 }
 
 //---------------------------------------------------------
 bool CSG_Buffer::Set_Size(size_t Size, bool bShrink)
 {
-	if( Size > m_Size || (Size < m_Size && bShrink) )
+	if( Size < 1 )
 	{
-		char	*pData	= (char *)SG_Realloc(m_pData, Size * sizeof(char));
+		Destroy();
+	}
+	else if( Size > m_Size || (Size < m_Size && bShrink) )
+	{
+		char	*Data	= (char *)SG_Realloc(m_Data, Size * sizeof(char));
 
-		if( !pData )
+		if( !Data )
 		{
 			return( false );
 		}
 
-		m_pData	= pData;
+		m_Data	= Data;
 		m_Size	= Size;
 	}
 
@@ -669,14 +673,14 @@ bool CSG_Buffer::Set_Size(size_t Size, bool bShrink)
 }
 
 //---------------------------------------------------------
-bool CSG_Buffer::Set_Data(const char *Buffer, size_t Size, bool bShrink)
+bool CSG_Buffer::Set_Data(const char *Data, size_t Size, bool bShrink)
 {
-	if( !Buffer || !Size || !Set_Size(Size, bShrink) )
+	if( !Data || !Size || !Set_Size(Size, bShrink) )
 	{
 		return( false );
 	}
 
-	memcpy(m_pData, Buffer, m_Size);
+	memcpy(m_Data, Data, m_Size);
 
 	return( true );
 }

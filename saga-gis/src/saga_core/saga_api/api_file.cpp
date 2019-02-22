@@ -68,6 +68,7 @@
 #include <wx/wxcrtvararg.h>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
+#include <wx/txtstrm.h>
 #include <wx/log.h>
 #include <wx/version.h>
 
@@ -84,7 +85,6 @@
 #define m_pStream_Base	((wxStreamBase   *)m_pStream)
 #define m_pStream_In	((wxInputStream  *)m_pStream)
 #define m_pStream_Out	((wxOutputStream *)m_pStream)
-#define m_pStream_File	((wxFFileStream  *)m_pStream)
 
 
 ///////////////////////////////////////////////////////////
@@ -96,14 +96,13 @@
 //---------------------------------------------------------
 CSG_File::CSG_File(void)
 {
-	m_pStream	= NULL;
-	m_Encoding	= SG_FILE_ENCODING_CHAR;
+	On_Construction();
 }
 
 //---------------------------------------------------------
 CSG_File::CSG_File(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
 {
-	m_pStream	= NULL;
+	On_Construction();
 
 	Open(FileName, Mode, bBinary, Encoding);
 }
@@ -114,42 +113,42 @@ CSG_File::~CSG_File(void)
 	Close();
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 bool CSG_File::Open(const CSG_String &FileName, int Mode, bool bBinary, int Encoding)
 {
 	Close();
 
-	m_Mode		= Mode;
-	m_Encoding	= Encoding;
+	if( Mode == SG_FILE_R && !SG_File_Exists(FileName) )
+	{
+		return( false );
+	}
+
 	m_FileName	= FileName;
+	m_Mode		= Mode;
 
-	wxString	sEncoding;
+	Set_Encoding(Encoding);
 
-	switch( Encoding )
+	switch( m_Mode )
 	{
-	default                      :	sEncoding	= ""             ;	break;
-	case SG_FILE_ENCODING_UNICODE:	sEncoding	= ", ccs=UNICODE";	break;
-	case SG_FILE_ENCODING_UTF8   :	sEncoding	= ", ccs=UTF-8"  ;	break;
-	case SG_FILE_ENCODING_UTF16  :	sEncoding	= ", ccs=UTF-16" ;	break;
-	}
+	case SG_FILE_W:
+		m_pStream	= new wxFFileOutputStream(FileName.c_str(), bBinary ? "wb" : "w");
+		break;
 
-	if( Mode == SG_FILE_W )
-	{
-		wxString	sMode	= bBinary ? "wb" : "w";
+	case SG_FILE_R:
+		m_pStream	= new wxFFileInputStream (FileName.c_str(), bBinary ? "rb" : "r");
+		break;
 
-		m_pStream	= new wxFFileOutputStream(FileName.c_str(), sMode + sEncoding);
-	}
-	else if( Mode == SG_FILE_R && SG_File_Exists(FileName) )
-	{
-		wxString	sMode	= bBinary ? "rb" : "r";
-
-		m_pStream	= new wxFFileInputStream (FileName.c_str(), sMode + sEncoding);
-	}
-	else if( Mode == SG_FILE_RW )
-	{
-		wxString	sMode	= SG_File_Exists(FileName) ? (bBinary ? "r+b" : "r+") : (bBinary ? "w+b" : "w+");
-
-		m_pStream	= new wxFFileStream      (FileName.c_str(), sMode + sEncoding);
+	default: // SG_FILE_RW
+		m_pStream	= new wxFFileStream      (FileName.c_str(), SG_File_Exists(FileName)
+			? (bBinary ? "r+b" : "r+")
+			: (bBinary ? "w+b" : "w+")
+		);
+		break;
 	}
 
 	if( !m_pStream || !m_pStream_Base->IsOk() )
@@ -170,12 +169,63 @@ bool CSG_File::Close(void)
 		delete(m_pStream_Base);
 
 		m_pStream	= NULL;
-
-		return( true );
 	}
 
-	return( false );
+	Set_Encoding(SG_FILE_ENCODING_UNDEFINED);
+
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_File::On_Construction(void)
+{
+	m_pStream	= NULL;
+	m_pConvert	= NULL;
+	m_Encoding	= SG_FILE_ENCODING_UNDEFINED;
+}
+
+//---------------------------------------------------------
+bool CSG_File::Set_Encoding(int Encoding)
+{
+	if( m_pConvert )
+	{
+		if( m_pConvert != &wxConvLocal
+		&&  m_pConvert != &wxConvLibc
+		&&  m_pConvert != &wxConvUTF7
+		&&  m_pConvert != &wxConvUTF8 )
+		{
+			delete(m_pConvert);
+		}
+
+		m_pConvert	= NULL;
+	}
+
+	m_Encoding	= Encoding;
+
+	switch( Encoding )
+	{
+	case SG_FILE_ENCODING_ANSI   : break;
+	case SG_FILE_ENCODING_UTF7   : m_pConvert = &wxConvUTF7          ; break;
+	case SG_FILE_ENCODING_UTF8   : m_pConvert = &wxConvUTF8          ; break;
+	case SG_FILE_ENCODING_UTF16LE: m_pConvert = new wxMBConvUTF16LE(); break;
+	case SG_FILE_ENCODING_UTF16BE: m_pConvert = new wxMBConvUTF16BE(); break;
+	case SG_FILE_ENCODING_UTF32LE: m_pConvert = new wxMBConvUTF32LE(); break;
+	case SG_FILE_ENCODING_UTF32BE: m_pConvert = new wxMBConvUTF32BE(); break;
+	default                      : break;
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 sLong CSG_File::Length(void) const
@@ -198,10 +248,10 @@ bool CSG_File::Seek(sLong Offset, int Origin) const
 
 		switch( m_Mode )
 		{
-		case SG_FILE_R : return( m_pStream_In  ->SeekI(Offset, Seek) != wxInvalidOffset );
-		case SG_FILE_W : return( m_pStream_Out ->SeekO(Offset, Seek) != wxInvalidOffset );
-		case SG_FILE_RW: return( m_pStream_File->SeekI(Offset, Seek) != wxInvalidOffset
-							&&   m_pStream_File->SeekO(Offset, Seek) != wxInvalidOffset );
+		case SG_FILE_R : return( m_pStream_In ->SeekI(Offset, Seek) != wxInvalidOffset );
+		case SG_FILE_W : return( m_pStream_Out->SeekO(Offset, Seek) != wxInvalidOffset );
+		case SG_FILE_RW: return( m_pStream_In ->SeekI(Offset, Seek) != wxInvalidOffset
+							&&   m_pStream_Out->SeekO(Offset, Seek) != wxInvalidOffset );
 		}
 	}
 
@@ -219,9 +269,9 @@ sLong CSG_File::Tell(void) const
 	{
 		switch( m_Mode )
 		{
-		case SG_FILE_R : return( m_pStream_In  ->TellI() );
-		case SG_FILE_W : return( m_pStream_Out ->TellO() );
-		case SG_FILE_RW: return( m_pStream_File->TellI() );
+		case SG_FILE_R : return( m_pStream_In ->TellI() );
+		case SG_FILE_W : return( m_pStream_Out->TellO() );
+		case SG_FILE_RW: return( m_pStream_In ->TellI() );
 		}
 	}
 
@@ -282,9 +332,8 @@ int CSG_File::Printf(const wchar_t *Format, ...)
 //---------------------------------------------------------
 size_t CSG_File::Read(void *Buffer, size_t Size, size_t Count) const
 {
-	return( !is_Reading() || Size == 0 || Count == 0 ? 0 : m_Mode == SG_FILE_RW
-		? m_pStream_File->Read(Buffer, Size * Count).LastRead() / Size
-		: m_pStream_In  ->Read(Buffer, Size * Count).LastRead() / Size
+	return( !is_Reading() || Size == 0 || Count == 0 ? 0 :
+		m_pStream_In->Read(Buffer, Size * Count).LastRead() / Size
 	);
 }
 
@@ -292,15 +341,15 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 {
 	if( is_Reading() && Size > 0 )
 	{
-		CSG_Array	b(sizeof(char), Size + 1);
+		CSG_Buffer	s(Size + 1);
 
-		size_t	 i	= Read(b.Get_Array(), b.Get_Value_Size(), Size);
+		size_t	 i	= Read(s.Get_Data(), sizeof(char), Size);
 
 		if( i > 0 )
 		{
-			char	*s	= (char *)b.Get_Array(); s[Size] = '\0';
+			s[Size] = '\0';
 
-			Buffer	= s;
+			Buffer	= s.Get_Data();
 
 			return( i );
 		}
@@ -314,44 +363,53 @@ size_t CSG_File::Read(CSG_String &Buffer, size_t Size) const
 //---------------------------------------------------------
 size_t CSG_File::Write(void *Buffer, size_t Size, size_t Count) const
 {
-	return( !is_Writing() || Size == 0 || Count == 0 ? 0 : m_Mode == SG_FILE_RW
-		? m_pStream_File->Write(Buffer, Size * Count).LastWrite()
-		: m_pStream_Out ->Write(Buffer, Size * Count).LastWrite()
+	return( !is_Writing() || Size == 0 || Count == 0 ? 0 :
+		m_pStream_Out->Write(Buffer, Size * Count).LastWrite()
 	);
 }
 
 size_t CSG_File::Write(const CSG_String &Buffer) const
 {
-	return( Write((void *)Buffer.b_str(), sizeof(char), strlen(Buffer.b_str())) );
+	if( m_pConvert )
+	{
+		const wxScopedCharBuffer s(wxString(Buffer.c_str()).mb_str(*((wxMBConv *)m_pConvert)));
+
+		return( Write((void *)s.data(), sizeof(char), s.length()) );
+	}
+
+	CSG_Buffer	s(Buffer.to_ASCII());
+
+	return( Write((void *)s.Get_Data(), sizeof(char), s.Get_Size()) );
 }
 
 //---------------------------------------------------------
 bool CSG_File::Read_Line(CSG_String &sLine)	const
 {
-	if( is_Reading() && !is_EOF() )
+	if( !is_Reading() || is_EOF() )
 	{
-		sLine.Clear();
-
-		int		c;
-
-		while( !is_EOF() && (c = Read_Char()) != 0x0A && c != EOF )
-		{
-			if( c != 0x0D )
-			{
-				sLine.Append((char)c);
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	if( m_pConvert )
+	{
+		wxTextInputStream	Stream(*m_pStream_In, " \t", *((wxMBConv *)m_pConvert));
+
+		sLine	= CSG_String(&Stream.ReadLine());
+	}
+	else
+	{
+		wxTextInputStream	Stream(*m_pStream_In, " \t");
+
+		sLine	= CSG_String(&Stream.ReadLine());
+	}
+
+	return( sLine.Length() > 0 || !is_EOF() );
 }
 
 //---------------------------------------------------------
 int CSG_File::Read_Char(void) const
 {
-	return( !is_Reading() ? 0 : m_Mode == SG_FILE_RW ? m_pStream_File->GetC() : m_pStream_In->GetC() );
+	return( !is_Reading() ? 0 : m_pStream_In->GetC() );
 }
 
 //---------------------------------------------------------
@@ -508,6 +566,15 @@ CSG_String CSG_File::Scan_String(SG_Char Separator) const
 //---------------------------------------------------------
 CSG_File_Zip::CSG_File_Zip(void)
 {
+	On_Construction();
+}
+
+//---------------------------------------------------------
+CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode, int Encoding)
+{
+	On_Construction();
+
+	Open(FileName, Mode, Encoding);
 }
 
 //---------------------------------------------------------
@@ -517,19 +584,15 @@ CSG_File_Zip::~CSG_File_Zip(void)
 }
 
 //---------------------------------------------------------
-CSG_File_Zip::CSG_File_Zip(const CSG_String &FileName, int Mode)
-{
-	Open(FileName, Mode);
-}
-
-//---------------------------------------------------------
-bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode)
+bool CSG_File_Zip::Open(const CSG_String &FileName, int Mode, int Encoding)
 {
 	wxLogNull	logNo;	// suppress user notification dialog for invalid zip files
 
 	Close();
 
 	m_Mode	= Mode;
+
+	Set_Encoding(Encoding);
 
 	if( Mode == SG_FILE_W )
 	{

@@ -102,7 +102,7 @@
 class CSG_Table_DBase  
 {
 public:
-	CSG_Table_DBase(void);
+	CSG_Table_DBase(int Encoding = SG_FILE_ENCODING_ANSI);
 	virtual ~CSG_Table_DBase(void);
 
 	//-----------------------------------------------------
@@ -149,8 +149,8 @@ public:
 	CSG_String					asString			(int iField);
 
 	//-----------------------------------------------------
-	bool						Set_Value			(int iField, double      Value);
-	bool						Set_Value			(int iField, const char *Value);
+	bool						Set_Value			(int iField, double            Value);
+	bool						Set_Value			(int iField, const CSG_String &Value);
 	bool						Set_NoData			(int iField);
 
 
@@ -182,7 +182,7 @@ private:
 
 	short						m_nHeaderBytes, m_nRecordBytes;
 
-	int							m_nFields, m_nRecords;
+	int							m_nFields, m_nRecords, m_Encoding;
 
 	long						m_nFileBytes;
 

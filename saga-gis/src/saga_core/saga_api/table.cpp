@@ -153,21 +153,21 @@ bool CSG_Table::Create(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format)
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
 {
 	_On_Construction();
 
-	Create(File_Name, Format);
+	Create(File_Name, Format, Encoding);
 }
 
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
 {
 	Destroy();
 
 	SG_UI_Msg_Add(CSG_String::Format("%s: %s...", _TL("Load table"), File_Name.c_str()), true);
 
 	//-----------------------------------------------------
-	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, '\0');
+	bool	bResult	= File_Name.BeforeFirst(':').Cmp("PGSQL") && SG_File_Exists(File_Name) && Load(File_Name, (int)Format, '\0', Encoding);
 
 	if( bResult )
 	{
@@ -247,17 +247,17 @@ bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format)
 }
 
 //---------------------------------------------------------
-CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator)
+CSG_Table::CSG_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 	: CSG_Data_Object()
 {
 	_On_Construction();
 
-	Create(File_Name, Format, Separator);
+	Create(File_Name, Format, Separator, Encoding);
 }
 
-bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator)
+bool CSG_Table::Create(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
 {
-	return( Load(File_Name, (int)Format, Separator) );
+	return( Load(File_Name, (int)Format, Separator, Encoding) );
 }
 
 //---------------------------------------------------------
@@ -281,6 +281,8 @@ bool CSG_Table::Create(const CSG_Table *pTemplate)
 	Set_Name              (pTemplate->Get_Name       ());
 	Set_Description       (pTemplate->Get_Description());
 	Set_NoData_Value_Range(pTemplate->Get_NoData_Value(), pTemplate->Get_NoData_hiValue());
+
+	m_Encoding	= pTemplate->m_Encoding;
 
 	for(int i=0; i<pTemplate->Get_Field_Count(); i++)
 	{
@@ -306,6 +308,8 @@ void CSG_Table::_On_Construction(void)
 	m_Records		= NULL;
 	m_nRecords		= 0;
 	m_nBuffer		= 0;
+
+	m_Encoding		= SG_FILE_ENCODING_UTF8;
 
 	m_Index			= NULL;
 
@@ -598,29 +602,37 @@ bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
 }
 
 //---------------------------------------------------------
-int CSG_Table::Get_Field_Length(int iField)	const
+int CSG_Table::Get_Field_Length(int iField, int Encoding)	const
 {
-	int		Length	= 0;
+	size_t	Length	= 0;
 
 	if( iField >= 0 && iField < m_nFields && m_Field_Type[iField] == SG_DATATYPE_String )
 	{
 		for(int i=0; i<m_nRecords; i++)
 		{
-			const SG_Char	*s	= m_Records[i]->asString(iField);
+			CSG_String	s(m_Records[i]->asString(iField));
 
-			if( s && s[0] )
+			size_t	n;
+
+			switch( Encoding )
 			{
-				int		n	= (int)SG_STR_LEN(s);
+			default                      :
+			case SG_FILE_ENCODING_UTF7   : n = s.Length()            ; break;
+			case SG_FILE_ENCODING_UTF8   : n = s.to_UTF8().Get_Size(); break;
+			case SG_FILE_ENCODING_UTF16LE:
+			case SG_FILE_ENCODING_UTF16BE: n = s.Length() * 2        ; break;
+			case SG_FILE_ENCODING_UTF32LE:
+			case SG_FILE_ENCODING_UTF32BE: n = s.Length() * 4        ; break;
+			}
 
-				if( Length < n )
-				{
-					Length	= n;
-				}
+			if( Length < n )
+			{
+				Length	= n;
 			}
 		}
 	}
 
-	return( Length );
+	return( (int)Length );
 }
 
 //---------------------------------------------------------

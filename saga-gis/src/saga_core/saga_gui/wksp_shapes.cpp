@@ -144,18 +144,19 @@ wxString CWKSP_Shapes::Get_Description(void)
 		DESC_ADD_STR(_TL("File"        ), _TL("memory"));
 	}
 
-	DESC_ADD_STR(_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
-	DESC_ADD_STR(_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
-	DESC_ADD_FLT(_TL("West"            ), Get_Shapes()->Get_Extent().Get_XMin  ());
-	DESC_ADD_FLT(_TL("East"            ), Get_Shapes()->Get_Extent().Get_XMax  ());
-	DESC_ADD_FLT(_TL("West-East"       ), Get_Shapes()->Get_Extent().Get_XRange());
-	DESC_ADD_FLT(_TL("South"           ), Get_Shapes()->Get_Extent().Get_YMin  ());
-	DESC_ADD_FLT(_TL("North"           ), Get_Shapes()->Get_Extent().Get_YMax  ());
-	DESC_ADD_FLT(_TL("South-North"     ), Get_Shapes()->Get_Extent().Get_YRange());
-	DESC_ADD_STR(_TL("Type"            ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
-	DESC_ADD_STR(_TL("Vertex Type"     ), Get_Shapes()->Get_Vertex_Type() == 0 ? _TL("X, Y") : Get_Shapes()->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
-	DESC_ADD_INT(_TL("Number of Shapes"), Get_Shapes()->Get_Count());
-	DESC_ADD_SIZET(_TL("Selected"      ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_STR  (_TL("Modified"        ), m_pObject->is_Modified() ? _TL("yes") : _TL("no"));
+	DESC_ADD_STR  (_TL("Projection"      ), m_pObject->Get_Projection().Get_Description().c_str());
+	DESC_ADD_FLT  (_TL("West"            ), Get_Shapes()->Get_Extent().Get_XMin  ());
+	DESC_ADD_FLT  (_TL("East"            ), Get_Shapes()->Get_Extent().Get_XMax  ());
+	DESC_ADD_FLT  (_TL("West-East"       ), Get_Shapes()->Get_Extent().Get_XRange());
+	DESC_ADD_FLT  (_TL("South"           ), Get_Shapes()->Get_Extent().Get_YMin  ());
+	DESC_ADD_FLT  (_TL("North"           ), Get_Shapes()->Get_Extent().Get_YMax  ());
+	DESC_ADD_FLT  (_TL("South-North"     ), Get_Shapes()->Get_Extent().Get_YRange());
+	DESC_ADD_STR  (_TL("Type"            ), SG_Get_ShapeType_Name(Get_Shapes()->Get_Type()).c_str());
+	DESC_ADD_STR  (_TL("Vertex Type"     ), Get_Shapes()->Get_Vertex_Type() == 0 ? _TL("X, Y") : Get_Shapes()->Get_Vertex_Type() == 1 ? _TL("X, Y, Z") : _TL("X, Y, Z, M"));
+	DESC_ADD_INT  (_TL("Number of Shapes"), Get_Shapes()->Get_Count());
+	DESC_ADD_SIZET(_TL("Selected"        ), Get_Shapes()->Get_Selection_Count());
+	DESC_ADD_STR  (_TL("File Encoding"   ), Get_Shapes()->Get_File_Encoding() ? SG_T("UTF-8") : SG_T("ANSI"));
 
 	s	+= "</table>";
 

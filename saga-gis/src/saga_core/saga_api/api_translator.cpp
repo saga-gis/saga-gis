@@ -151,8 +151,6 @@ void CSG_Translator::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -165,7 +163,7 @@ bool CSG_Translator::Create(const CSG_String &File_Name, bool bSetExtension, int
 
 	Destroy();
 
-	if( SG_File_Exists(fName) && Translations.Create(fName) )
+	if( SG_File_Exists(fName) && Translations.Create(fName, TABLE_FILETYPE_Text, SG_FILE_ENCODING_UTF8) )
 	{
 		Create(&Translations, iText, iTranslation, bCmpNoCase);
 	}
@@ -231,8 +229,6 @@ bool CSG_Translator::Create(class CSG_Table *pTranslations, int iText, int iTran
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -292,8 +288,6 @@ int CSG_Translator::_Get_Index(const CSG_String &Text) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

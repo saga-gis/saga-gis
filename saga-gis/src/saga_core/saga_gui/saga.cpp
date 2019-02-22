@@ -202,7 +202,10 @@ bool CSAGA::OnInit(void)
 		File	= wxFileName(Get_App_Path(), "saga", "lng").GetFullPath();
 	}
 
-	SG_Get_Translator().Create(&File, false);
+	if( !SG_Get_Translator().Create(&File, false) )
+	{
+		CONFIG_Delete("/TOOLS", "LNG_FILE_DIC");
+	}
 
 	//-----------------------------------------------------
 	long oldstyle; if( CONFIG_Read("/TOOLS", "LNG_OLDSTYLE", oldstyle) && oldstyle ) SG_Set_OldStyle_Naming();
@@ -219,7 +222,10 @@ bool CSAGA::OnInit(void)
 #endif
 	}
 
-	SG_Get_Projections().Load_Dictionary(&File);
+	if( !SG_Get_Projections().Load_Dictionary(&File) )
+	{
+		CONFIG_Delete("/TOOLS", "CRS_FILE_DIC");
+	}
 
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/TOOLS", "CRS_FILE_SRS", File) || !wxFileExists(File) )
@@ -232,7 +238,10 @@ bool CSAGA::OnInit(void)
 #endif
 	}
 
-	SG_Get_Projections().Load_DB(&File);
+	if( !SG_Get_Projections().Load_DB(&File) )
+	{
+		CONFIG_Delete("/TOOLS", "CRS_FILE_SRS");
+	}
 
 	//-----------------------------------------------------
 	SetTopWindow(new CSAGA_Frame());

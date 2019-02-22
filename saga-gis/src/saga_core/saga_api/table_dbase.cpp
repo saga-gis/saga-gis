@@ -79,12 +79,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Table_DBase::CSG_Table_DBase(void)
+CSG_Table_DBase::CSG_Table_DBase(int Encoding)
 {
 	m_hFile		= NULL;
 	m_Record	= NULL;
 	m_Fields	= NULL;
 	m_nFields	= 0;
+	m_Encoding	= Encoding;
 }
 
 //---------------------------------------------------------
@@ -119,8 +120,6 @@ void CSG_Table_DBase::Close(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Read							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -302,8 +301,6 @@ bool CSG_Table_DBase::Header_Read(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Write							 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -346,7 +343,7 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 		{
 		case SG_DATATYPE_String: default:
 			m_Fields[iField].Type		= DBF_FT_CHARACTER;
-			m_Fields[iField].Width		= (BYTE)((nBytes = pTable->Get_Field_Length(iField)) > 255 ? 255 : nBytes < 1 ? 1 : nBytes);
+			m_Fields[iField].Width		= (BYTE)((nBytes = pTable->Get_Field_Length(iField, m_Encoding)) > 255 ? 255 : nBytes < 1 ? 1 : nBytes);
 			break;
 
 		case SG_DATATYPE_Date:
@@ -420,7 +417,7 @@ bool CSG_Table_DBase::Open_Write(const SG_Char *FileName, CSG_Table *pTable, boo
 				else switch( Get_Field_Type(iField) )
 				{
 				default:
-					Set_Value(iField, CSG_String(pRecord->asString(iField)));
+					Set_Value(iField, pRecord->asString(iField));
 					break;
 
 				case DBF_FT_FLOAT:
@@ -537,8 +534,6 @@ void CSG_Table_DBase::Header_Write(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -561,8 +556,6 @@ int CSG_Table_DBase::Get_File_Position(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -613,8 +606,6 @@ bool CSG_Table_DBase::Move_Next(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -649,8 +640,6 @@ void CSG_Table_DBase::Flush_Record(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -677,38 +666,47 @@ bool CSG_Table_DBase::asInt(int iField, int &Value)
 //---------------------------------------------------------
 bool CSG_Table_DBase::asDouble(int iField, double &Value)
 {
-	if( m_hFile && iField >= 0 && iField < m_nFields )
+	if( !m_hFile || iField < 0 || iField >= m_nFields )
 	{
-		char		*c;
-		int			i;
-		CSG_String	s;
-
-		for(i=0, c=m_Record+m_Fields[iField].Offset; i<m_Fields[iField].Width && *c; i++, c++)
-		{
-			s	+= *c;
-		}
-
-		if( m_Fields[iField].Type == DBF_FT_FLOAT
-		||  m_Fields[iField].Type == DBF_FT_NUMERIC )
-		{
-			s.Replace(",", ".");
-
-			return( s.asDouble(Value) );
-		}
-
-		if( m_Fields[iField].Type == DBF_FT_DATE && s.Length() >= 8 )
-		{
-			int	d	= s.Mid(6, 2).asInt();	if( d < 1 )	d	= 1;	else if( d > 31 )	d	= 31;
-			int	m	= s.Mid(4, 2).asInt();	if( m < 1 )	m	= 1;	else if( m > 12 )	m	= 12;
-			int	y	= s.Mid(0, 4).asInt();
-
-			Value	= 10000 * y + 100 * m + d;
-
-			return( true );
-		}
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	CSG_String	s;
+
+	char *c	= m_Record + m_Fields[iField].Offset;
+
+	for(int i=0; i<m_Fields[iField].Width && *c; i++, c++)
+	{
+		s	+= *c;
+	}
+
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_FLOAT
+	||  m_Fields[iField].Type == DBF_FT_NUMERIC )
+	{
+		s.Replace(",", ".");
+
+		return( s.asDouble(Value) );
+	}
+
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_DATE )
+	{
+		if( s.Length() < 8 )
+		{
+			return( false );
+		}
+
+		int	d	= s.Mid(6, 2).asInt(); if( d < 1 ) d = 1; else if( d > 31 ) d = 31;
+		int	m	= s.Mid(4, 2).asInt(); if( m < 1 ) m = 1; else if( m > 12 ) m = 12;
+		int	y	= s.Mid(0, 4).asInt();
+
+		Value	= 10000 * y + 100 * m + d;
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -716,137 +714,159 @@ CSG_String CSG_Table_DBase::asString(int iField)
 {
 	CSG_String	Value;
 
-	if( m_hFile && iField >= 0 && iField < m_nFields )
+	if( !m_hFile || iField < 0 || iField >= m_nFields )
 	{
-		if( m_Fields[iField].Type != DBF_FT_DATE )
-		{
-			char	*c;
-			int		i;
-
-			for(i=0, c=m_Record+m_Fields[iField].Offset; i<m_Fields[iField].Width && *c; i++, c++)
-			{
-				Value	+= *c;
-			}
-
-			Value.Trim(true);
-		}
-
-		else // if( m_Fields[iField].Type == DBF_FT_DATE )	// SAGA(DD.MM.YYYY) from DBASE(YYYYMMDD)
-		{
-			char	*s	= m_Record + m_Fields[iField].Offset;
-
-			Value	+= s[0];	// Y1
-			Value	+= s[1];	// Y2
-			Value	+= s[2];	// Y3
-			Value	+= s[3];	// Y4
-			Value	+= '-';
-			Value	+= s[4];	// M1
-			Value	+= s[5];	// M2
-			Value	+= '-';
-			Value	+= s[6];	// D1
-			Value	+= s[7];	// D2
-		}
+		return( Value );
 	}
 
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type != DBF_FT_DATE )
+	{
+		switch( m_Encoding )
+		{
+		case SG_FILE_ENCODING_ANSI: default:
+		{	char *s	= m_Record + m_Fields[iField].Offset;
+
+			for(int i=0; i<m_Fields[iField].Width && *s; i++, s++)
+			{
+				Value	+= *s;
+			}
+		}	break;
+
+		case SG_FILE_ENCODING_UTF8:
+			Value	= CSG_String::from_UTF8(m_Record + m_Fields[iField].Offset, m_Fields[iField].Width);
+			break;
+		}
+
+		Value.Trim(true);
+	}
+
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_DATE )	// SAGA(DD.MM.YYYY) from DBASE(YYYYMMDD)
+	{
+		char *s	= m_Record + m_Fields[iField].Offset;
+
+		Value	+= s[0];	// Y1
+		Value	+= s[1];	// Y2
+		Value	+= s[2];	// Y3
+		Value	+= s[3];	// Y4
+		Value	+= '-';
+		Value	+= s[4];	// M1
+		Value	+= s[5];	// M2
+		Value	+= '-';
+		Value	+= s[6];	// D1
+		Value	+= s[7];	// D2
+	}
+
+	//-----------------------------------------------------
 	return( Value );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSG_Table_DBase::Set_Value(int iField, double Value)
 {
-	static char	s[256];
-
-	if( m_hFile && iField >= 0 && iField < m_nFields && m_Fields[iField].Width > 0 )
+	if( !m_hFile || iField < 0 || iField >= m_nFields || m_Fields[iField].Width < 1 )
 	{
-		if( m_Fields[iField].Type == DBF_FT_FLOAT )
-		{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
-			sprintf(s, "%*.*e", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
-
-			int	n	= (int)strlen(s);	if( n > m_Fields[iField].Width )	{	n	= m_Fields[iField].Width;	}
-
-			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
-			memcpy(m_Record + m_Fields[iField].Offset, s  , n);
-
-			m_bModified	= true;
-
-			return( true );
-		}
-
-		if( m_Fields[iField].Type == DBF_FT_NUMERIC )
-		{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
-			if( m_Fields[iField].Decimals > 0 )
-			{
-				sprintf(s, "%*.*f", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
-			}
-			else
-			{
-				sprintf(s, "%*d"  , m_Fields[iField].Width, (int)Value);
-			}
-
-			int	n	= (int)strlen(s);	if( n > m_Fields[iField].Width )	{	n	= m_Fields[iField].Width;	}
-
-			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
-			memcpy(m_Record + m_Fields[iField].Offset, s  , n);
-
-			m_bModified	= true;
-
-			return( true );
-		}
-
-		if( m_Fields[iField].Type == DBF_FT_DATE )
-		{	// Value is expected to be Julian Day Number
-			CSG_DateTime	d(Value);
-
-			sprintf(s, "%04d-%02d-%02d", d.Get_Year(), 1 + (int)d.Get_Month(), 1 + d.Get_Day());
-
-			return( Set_Value(iField, s) );
-		}
+		return( false );
 	}
 
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_DATE )
+	{	// Value is expected to be Julian Day Number
+		CSG_DateTime	d(Value);
+
+		return( Set_Value(iField, CSG_String::Format("%04d-%02d-%02d",
+			         d.Get_Year (),
+			1 + (int)d.Get_Month(),
+			1 +      d.Get_Day  ()
+		)));
+	}
+
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_FLOAT )
+	{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
+		char	s[256];
+
+		sprintf(s, "%*.*e", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
+
+		size_t	n	= strlen(s); if( n > m_Fields[iField].Width ) { n = m_Fields[iField].Width; }
+
+		memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+		memcpy(m_Record + m_Fields[iField].Offset, s  , M_GET_MIN(strlen(s), m_Fields[iField].Width));
+
+		m_bModified	= true;
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_NUMERIC )
+	{	// Number stored as a string, right justified, and padded with blanks to the width of the field.
+		char	s[256];
+
+		if( m_Fields[iField].Decimals > 0 )
+		{
+			sprintf(s, "%*.*f", m_Fields[iField].Width, m_Fields[iField].Decimals, Value);
+		}
+		else
+		{
+			sprintf(s, "%*d"  , m_Fields[iField].Width, (int)Value);
+		}
+
+		memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+		memcpy(m_Record + m_Fields[iField].Offset, s  , M_GET_MIN(strlen(s), m_Fields[iField].Width));
+
+		m_bModified	= true;
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	return( false );
 }
 
 //---------------------------------------------------------
-bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
+bool CSG_Table_DBase::Set_Value(int iField, const CSG_String &Value)
 {
-	if( m_hFile && iField >= 0 && iField < m_nFields && m_Fields[iField].Width > 0 )
+	if( !m_hFile || iField < 0 || iField >= m_nFields || m_Fields[iField].Width < 1 )
 	{
-		int		n	= Value && Value[0] ? (int)strlen(Value) : 0;
+		return( false );
+	}
 
-		if( m_Fields[iField].Type == DBF_FT_CHARACTER )
-		{	// All OEM code page characters - padded with blanks to the width of the field.
-			if( n > m_Fields[iField].Width )
-			{
-				n	= m_Fields[iField].Width;
-			}
-
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_CHARACTER )
+	{	// All OEM code page characters - padded with blanks to the width of the field.
+		if( Value.Length() < 1 )
+		{
 			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
-			memcpy(m_Record + m_Fields[iField].Offset, Value, n);
 
 			m_bModified	= true;
 
 			return( true );
 		}
 
-		if( m_Fields[iField].Type == DBF_FT_DATE && n == 10 )	// SAGA(YYYY-MM-DD) to DBASE(YYYYMMDD)
-		{	// 8 bytes - date stored as a string in the format YYYYMMDD
-			char	*s	= m_Record + m_Fields[iField].Offset;
+		CSG_Buffer	s;
 
-			s[0]	= Value[0];	// Y1
-			s[1]	= Value[1];	// Y2
-			s[2]	= Value[2];	// Y3
-			s[3]	= Value[3];	// Y4
-			s[4]	= Value[5];	// M1
-			s[5]	= Value[6];	// M2
-			s[6]	= Value[8];	// D1
-			s[7]	= Value[9];	// D2
+		switch( m_Encoding )
+		{
+		case SG_FILE_ENCODING_ANSI: default:
+			s	= Value.to_ASCII();
+			break;
+
+		case SG_FILE_ENCODING_UTF8:
+			s	= Value.to_UTF8 ();
+			break;
+		}
+
+		if( s.Get_Size() >= Value.Length() )
+		{
+			memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+			memcpy(m_Record + m_Fields[iField].Offset, s.Get_Data(), M_GET_MIN(s.Get_Size(), m_Fields[iField].Width));
 
 			m_bModified	= true;
 
@@ -854,20 +874,44 @@ bool CSG_Table_DBase::Set_Value(int iField, const char *Value)
 		}
 	}
 
+	//-----------------------------------------------------
+	if( m_Fields[iField].Type == DBF_FT_DATE )	// SAGA(YYYY-MM-DD) to DBASE(YYYYMMDD)
+	{	// 8 bytes - date stored as a string in the format YYYYMMDD
+		if( Value.Length() >= 10 )
+		{
+			char *s	= m_Record + m_Fields[iField].Offset;
+
+			s[0]	= Value.b_str()[0];	// Y1
+			s[1]	= Value.b_str()[1];	// Y2
+			s[2]	= Value.b_str()[2];	// Y3
+			s[3]	= Value.b_str()[3];	// Y4
+			s[4]	= Value.b_str()[5];	// M1
+			s[5]	= Value.b_str()[6];	// M2
+			s[6]	= Value.b_str()[8];	// D1
+			s[7]	= Value.b_str()[9];	// D2
+
+			m_bModified	= true;
+
+			return( true );
+		}
+	}
+
+	//-----------------------------------------------------
 	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Table_DBase::Set_NoData(int iField)
 {
-	if( m_hFile && iField >= 0 && iField < m_nFields && m_Fields[iField].Width > 0 )
+	if( !m_hFile || iField < 0 || iField >= m_nFields || m_Fields[iField].Width < 1 )
 	{
-		memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
-
-		m_bModified	= true;
-
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	memset(m_Record + m_Fields[iField].Offset, ' ', m_Fields[iField].Width);
+
+	m_bModified	= true;
 
 	return( true );
 }

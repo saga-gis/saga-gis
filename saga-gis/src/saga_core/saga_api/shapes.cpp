@@ -203,6 +203,8 @@ void CSG_Shapes::_On_Construction(void)
 
 	m_Type			= SHAPE_TYPE_Undefined;
 	m_Vertex_Type	= SG_VERTEX_TYPE_XY;
+
+	m_Encoding		= SG_FILE_ENCODING_UTF8;
 }
 
 

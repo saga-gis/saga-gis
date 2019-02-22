@@ -164,10 +164,11 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 
 	m_Parameters.Add_FilePath("NODE_FILES",
 		"LNG_FILE_DIC"	, _TL("Language Translations"),
-		_TL("Dictionary for translations from built-in (English) to local language (editable text table). You need to restart SAGA to apply the changes."),
-		CSG_String::Format("%s|*.lng|%s|*.txt|%s|*.*",
-			_TL("Dictionary Files (*.lng)"),
-			_TL("Text Table (*.txt)"),
+		_TL("Dictionary for translations from built-in (English) to local language (editable text table, utf-8 encoded). You need to restart SAGA to apply the changes."),
+		CSG_String::Format("%s|*.lng;*.txt|%s (*.lng)|*.lng|%s (*.txt)|*.txt|%s|*.*",
+			_TL("Recognized Files"),
+			_TL("Dictionary Files"),
+			_TL("Text Table"),
 			_TL("All Files")
 		)
 	);
@@ -175,8 +176,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_FilePath("NODE_FILES",
 		"CRS_FILE_SRS"	, _TL("CRS Database"),
 		_TL("Database with Coordinate Reference System (CRS) definitions. You need to restart SAGA to apply the changes."),
-		CSG_String::Format("%s|*.srs|%s|*.*",
-			_TL("Spatial Reference System Files (*.srs)"),
+		CSG_String::Format("%s (*.srs)|*.srs|%s|*.*",
+			_TL("Spatial Reference System Files"),
 			_TL("All Files")
 		)
 	);
@@ -184,8 +185,8 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_FilePath("NODE_FILES",
 		"CRS_FILE_DIC"	, _TL("CRS Dictionary"),
 		_TL("Dictionary for Proj.4/OGC WKT translations. You need to restart SAGA to apply the changes."),
-		CSG_String::Format("%s|*.dic|%s|*.*",
-			_TL("Dictionary Files (*.dic)"),
+		CSG_String::Format("%s (*.dic)|*.dic|%s|*.*",
+			_TL("Dictionary Files"),
 			_TL("All Files")
 		)
 	);
