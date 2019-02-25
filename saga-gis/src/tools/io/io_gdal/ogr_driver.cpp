@@ -767,10 +767,10 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 				switch( pShapes->Get_Field_Type(iField) )
 				{
 				default                : pShape->Set_Value(iField, OGR_F_GetFieldAsString (pFeature, iField)); break;
-				case SG_DATATYPE_String: pShape->Set_Value(iField, OGR_F_GetFieldAsString (pFeature, iField)); break;
 				case SG_DATATYPE_Int   : pShape->Set_Value(iField, OGR_F_GetFieldAsInteger(pFeature, iField)); break;
 				case SG_DATATYPE_Float : pShape->Set_Value(iField, OGR_F_GetFieldAsDouble (pFeature, iField)); break;
 				case SG_DATATYPE_Double: pShape->Set_Value(iField, OGR_F_GetFieldAsDouble (pFeature, iField)); break;
+				case SG_DATATYPE_String: pShape->Set_Value(iField, CSG_String::from_UTF8(OGR_F_GetFieldAsString (pFeature, iField)));	break;
 				}
 			}
 
@@ -958,9 +958,14 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 				{
 				case SG_DATATYPE_Date  :
 				case SG_DATATYPE_Char  :
-				case SG_DATATYPE_String: default:
 					OGR_F_SetFieldString (pFeature, iField, CSG_String(pShape->asString(iField)));
 					break;
+
+				case SG_DATATYPE_String: default: {
+					CSG_Buffer	s(CSG_String(pShape->asString(iField)).to_UTF8());	s	+= '\0';
+
+					OGR_F_SetFieldString (pFeature, iField, s.Get_Data());
+				}	break;
 
 				case SG_DATATYPE_Short :
 				case SG_DATATYPE_Int   :
