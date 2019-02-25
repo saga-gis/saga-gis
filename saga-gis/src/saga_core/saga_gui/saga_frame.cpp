@@ -310,6 +310,8 @@ CSAGA_Frame::CSAGA_Frame(void)
 	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_TRANSPARENT_DRAG);
 //	m_pLayout->SetFlags(m_pLayout->GetFlags() ^ wxAUI_MGR_ALLOW_ACTIVE_PANE);
 
+	m_pLayout->GetPane(GetClientWindow()).Show().Center();
+
 	//-----------------------------------------------------
 	_Bar_Add(m_pINFO        = new CINFO       (this), 0, 0); m_pINFO       ->Add_Pages();
 	_Bar_Add(m_pWKSP        = new CWKSP       (this), 2, 1); m_pWKSP       ->Add_Pages();
@@ -320,14 +322,17 @@ CSAGA_Frame::CSAGA_Frame(void)
 	_Create_MenuBar();
 
 	//-----------------------------------------------------
-	m_pLayout->GetPane(GetClientWindow()).Show().Center();
-
 	wxString	s;
 
 	if( CONFIG_Read("/FL", "MANAGER", s) )
 	{
-		m_pLayout->LoadPerspective(s);
+		m_pLayout->LoadPerspective(s, false);
 	}
+
+	Set_Pane_Caption(m_pINFO       , m_pINFO       ->GetName());	// captions might have been modified by perspective, so update again...
+	Set_Pane_Caption(m_pWKSP       , m_pWKSP       ->GetName());
+	Set_Pane_Caption(m_pData_Source, m_pData_Source->GetName());
+	Set_Pane_Caption(m_pActive     , m_pActive     ->GetName());
 
 	//-----------------------------------------------------
 	m_pTB_Main			=                      _Create_ToolBar();
