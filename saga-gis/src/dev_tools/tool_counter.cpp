@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: tool_counter.cpp 2332 2014-11-07 14:12:16Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -89,15 +85,24 @@ CTool_Counter::CTool_Counter(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "TARGET"		, SG_T("Tools"),
+		"", "TARGET"	, "Tools",
 		"",
 		PARAMETER_OUTPUT
 	);
 
+	CSG_String	Directory;
+
+	#ifdef _SAGA_MSW
+	if( SG_Get_Environment("SAGA", &Directory) )
+	{
+		Directory	+= "\\src\\tools";
+	}
+	#endif
+
 	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"	, SG_T("Sources Directory"),
+		"", "DIRECTORY"	, "Sources Directory",
 		"",
-		NULL, SG_T("H:/saga/saga_2/trunk/saga-gis/src/modules"), false, true
+		NULL, Directory, false, true
 	);
 }
 
@@ -115,20 +120,20 @@ bool CTool_Counter::On_Execute(void)
 	Elements.Destroy();
 	Elements.Set_Name("Tools Instantiations");
 
-	Elements.Add_Field(SG_T("LIB" ), SG_DATATYPE_String);
-	Elements.Add_Field(SG_T("ID"  ), SG_DATATYPE_String);
-	Elements.Add_Field(SG_T("TOOL"), SG_DATATYPE_String);
+	Elements.Add_Field("LIB" , SG_DATATYPE_String);
+	Elements.Add_Field("ID"  , SG_DATATYPE_String);
+	Elements.Add_Field("TOOL", SG_DATATYPE_String);
 
 	int	nFiles	= Read_Directory(Parameters("DIRECTORY")->asString(), Elements);
 
 	if( nFiles <= 0 )
 	{
-		Error_Set(SG_T("no source code files found"));
+		Error_Set("no source code files found");
 
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of scanned files"), nFiles), false);
+	Message_Fmt("\nnumber of scanned files: %d", nFiles);
 
 	//-----------------------------------------------------
 	return( true );
@@ -189,7 +194,7 @@ int CTool_Counter::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 //---------------------------------------------------------
 int CTool_Counter::Read_File(const SG_Char *File, CSG_Table &Elements)
 {
-	Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
+	Process_Set_Text("file: " + SG_File_Get_Name(File, true));
 
 	//-----------------------------------------------------
 	CSG_String	Lib	= SG_File_Get_Path(File).BeforeLast('\\').AfterLast('\\');
@@ -266,7 +271,7 @@ int CTool_Counter::Read_File(const SG_Char *File, CSG_Table &Elements)
 //---------------------------------------------------------
 int CTool_Counter::Read_Text(const SG_Char *String, CSG_String &Text)
 {
-	int			n, Level;
+	int	n, Level;
 
 	Text.Clear();
 
@@ -333,21 +338,21 @@ CTool_Menus::CTool_Menus(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "TOOLS"		, SG_T("Tools"),
+		"", "TOOLS"		, "Tools",
 		"",
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "MENUS"		, SG_T("Menus"),
+		"", "MENUS"		, "Menus",
 		"",
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LEVEL"		, SG_T("Level"),
+	Parameters.Add_Int(
+		"", "LEVEL"		, "Level",
 		"",
-		PARAMETER_TYPE_Int, 0, 0, true
+		0, 0, true
 	);
 }
 
@@ -390,7 +395,7 @@ bool CTool_Menus::On_Execute(void)
 
 				CSG_String	s	= pLibrary->Get_Menu(iTool);
 
-				for(int i=0, n=0; i<s.Length() && n<Level; i++)
+				for(size_t i=0, n=0; i<s.Length() && n<(size_t)Level; i++)
 				{
 					if( s[i] == '|' )
 					{

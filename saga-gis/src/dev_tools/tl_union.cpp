@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -72,35 +68,35 @@
 CTL_Union::CTL_Union(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(SG_T("Import Translations"));
+	Set_Name		("Import Translations");
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
-	Set_Description	(SG_T(""));
+	Set_Description	("");
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "MASTER"		, SG_T("Translations"),
-		SG_T(""),
+		"", "MASTER"	, "Translations",
+		"",
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "IMPORT"		, SG_T("Import Translations"),
-		SG_T(""),
+		"", "IMPORT"	, "Import Translations",
+		"",
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "UNION"		, SG_T("Merged Translations"),
-		SG_T(""),
+		"", "UNION"		, "Merged Translations",
+		"",
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, SG_T("Import Options"),
-		SG_T(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		"", "METHOD"	, "Import Options",
+		"",
+		CSG_String::Format("%s|%s",
 			SG_T("replace all"),
 			SG_T("only add when empty")
 		), 1
@@ -109,8 +105,6 @@ CTL_Union::CTL_Union(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -122,7 +116,7 @@ bool CTL_Union::On_Execute(void)
 
 	if( !Translator.Create(Parameters("IMPORT")->asTable(), false) )
 	{
-		Error_Set(SG_T("failed to load import translations"));
+		Error_Set("failed to load import translations");
 
 		return( false );
 	}
@@ -134,7 +128,7 @@ bool CTL_Union::On_Execute(void)
 
 	if( pTable->Get_Count() < 1 || pTable->Get_Field_Count() < 2 )
 	{
-		Error_Set(SG_T("invalid master table"));
+		Error_Set("invalid master table");
 
 		return( false );
 	}

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -61,7 +57,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -72,22 +68,22 @@ CSG_String Get_Info(int i)
 	switch( i )
 	{
 	case TLB_INFO_Name:	default:
-		return( SG_T("Development Tools") );
+		return( "Development Tools" );
 
 	case TLB_INFO_Category:
-		return( SG_T("Garden") );
+		return( "Garden" );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2010") );
+		return( "O. Conrad (c) 2010" );
 
 	case TLB_INFO_Description:
-		return( SG_T("Tools and helpers for the SAGA development.") );
+		return( "Tools and helpers for the SAGA development." );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( SG_T("Garden|Development Tools") );
+		return( "Garden|Development Tools" );
 	}
 }
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: arctoolbox.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -82,24 +78,24 @@ CArcToolBox::CArcToolBox(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"	, "Output Directory",
+		"", "DIRECTORY"		, "Output Directory",
 		"",
 		NULL, NULL, true, true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "BOX_NAMING"	, "Toolbox Naming",
+		"", "BOX_NAMING"	, "Toolbox Naming",
 		"",
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			SG_T("library file name"),
 			SG_T("category and library name")
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "ARC_VERSION"	, "ArcGIS Version",
+		"", "ARC_VERSION"	, "ArcGIS Version",
 		"",
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			SG_T("10.1"),
 			SG_T("10.2, 10.3")
 		), 1
@@ -154,7 +150,7 @@ bool CArcToolBox::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Message_Add(CSG_String::Format("%s: %d", SG_T("Number of added tools"), nTools));
+	Message_Fmt("Number of added tools: %d", nTools);
 
 	return( true );
 }

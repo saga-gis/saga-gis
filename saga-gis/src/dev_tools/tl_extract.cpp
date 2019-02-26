@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -76,42 +72,49 @@
 CTL_Extract::CTL_Extract(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(SG_T("Extract Translatable Text Elements from Sources"));
+	Set_Name		("Extract Translatable Text Elements from Sources");
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
-	Set_Description	(SG_T(""));
+	Set_Description	("");
 
 	//-----------------------------------------------------
 	Parameters.Add_Table(
-		NULL	, "TARGET"		, SG_T("Translatable Elements"),
-		SG_T(""),
+		"", "TARGET"	, "Translatable Elements",
+		"",
 		PARAMETER_OUTPUT
 	);
 
+	CSG_String	Directory;
+
+#ifdef _SAGA_MSW
+	if( SG_Get_Environment("SAGA", &Directory) )
+	{
+		Directory	+= "\\src";
+	}
+#endif
+
 	Parameters.Add_FilePath(
-		NULL	, "DIRECTORY"	, SG_T("Sources Directory"),
-		SG_T(""),
-		NULL, SG_T("D:/saga/saga-code/trunk/saga-gis/src"), false, true
+		"", "DIRECTORY"	, "Sources Directory",
+		"",
+		NULL, Directory, false, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LOCATION"	, SG_T("Location"),
-		SG_T(""),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool(
+		"", "LOCATION"	, "Location",
+		"",
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "LONG"		, SG_T("Long Texts"),
-		SG_T(""),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool(
+		"", "LONG"		, "Long Texts",
+		"",
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -121,40 +124,40 @@ bool CTL_Extract::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	Elements;
 
-	Elements.Add_Field(SG_T("TEXT"), SG_DATATYPE_String);
-	Elements.Add_Field(SG_T("FILE"), SG_DATATYPE_String);
+	Elements.Add_Field("TEXT", SG_DATATYPE_String);
+	Elements.Add_Field("FILE", SG_DATATYPE_String);
 
 	int	nFiles	= Read_Directory(Parameters("DIRECTORY")->asString(), Elements);
 
 	if( nFiles <= 0 )
 	{
-		Error_Set(SG_T("no source code files found"));
+		Error_Set("no source code files found");
 
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of scanned files"), nFiles), false);
+	Message_Add(CSG_String::Format("\nnumber of scanned files: %d", nFiles), false);
 		
 	if( Elements.Get_Count() <= 0 )
 	{
-		Error_Set(SG_T("no translatable text elements found"));
+		Error_Set("no translatable text elements found");
 
 		return( false );
 	}
 
-	Message_Add(CSG_String::Format("\n%s: %d", SG_T("number of translatable elements"), Elements.Get_Count()), false);
+	Message_Add(CSG_String::Format("\nnumber of translatable elements: %d", Elements.Get_Count()), false);
 
 	//-----------------------------------------------------
-	Process_Set_Text(SG_T("collecting elements"));
+	Process_Set_Text("collecting elements");
 
 	CSG_String	Text;
 
-	bool		bLocation	= Parameters("LOCATION" )->asBool();
+	bool		bLocation	= Parameters("LOCATION")->asBool();
 
 	CSG_Table	*pTarget	= Parameters("TARGET")->asTable();
 
 	pTarget->Destroy();
-	pTarget->Set_Name(SG_T("Translatable Elements"));
+	pTarget->Set_Name("Translatable Elements");
 
 	pTarget->Add_Field("TEXT"       , SG_DATATYPE_String);
 	pTarget->Add_Field("TRANSLATION", SG_DATATYPE_String);
@@ -241,7 +244,7 @@ int CTL_Extract::Read_Directory(const SG_Char *Directory, CSG_Table &Elements)
 		while( Dir.GetNext(&Name) );
 	}
 
-	if(	Dir.GetFirst(&Name, "*"    , wxDIR_DIRS |wxDIR_HIDDEN) )
+	if(	Dir.GetFirst(&Name, "*"    , wxDIR_DIRS|wxDIR_HIDDEN) )
 	{
 		do
 		{
@@ -272,7 +275,7 @@ int CTL_Extract::Read_File(const SG_Char *File, CSG_Table &Elements)
 		return( 0 );
 	}
 
-	Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
+	Process_Set_Text("file: " + SG_File_Get_Name(File, true));
 
 	//-----------------------------------------------------
 	CSG_String	String, Text;
@@ -386,7 +389,7 @@ int CTL_Extract::Read_ToolChain(const SG_Char *File, CSG_Table &Elements)
 
 	if( Chain.Load(File) )
 	{
-		Process_Set_Text(CSG_String::Format("%s: %s", SG_T("scanning"), File));
+		Process_Set_Text("file: " + SG_File_Get_Name(File, true));
 
 		//-------------------------------------------------
 		if( Chain.Cmp_Name("toolchains") )

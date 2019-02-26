@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: tool_py_updater.cpp 2332 2014-11-07 14:12:16Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -86,19 +82,19 @@ CTool_Py_Updater::CTool_Py_Updater(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "INPUT"		, "Input",
+		"", "INPUT"		, "Input",
 		"",
 		SG_T("Python Scripts (*.py)|*.py|All Files|*.*")
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "OUTPUT"		, "Output",
+		"", "OUTPUT"	, "Output",
 		"",
 		SG_T("Python Scripts (*.py)|*.py|All Files|*.*"), NULL, true
 	);
 
 	Parameters.Add_Table(
-		NULL	, "TOOLS"		, "Tools",
+		"", "TOOLS"		, "Tools",
 		"",
 		PARAMETER_OUTPUT
 	);
@@ -214,7 +210,7 @@ bool CTool_Py_Updater::On_Execute(void)
 				{
 					bool	bAdd	= true;
 
-					for(int i=0; bAdd && i<Tools.Get_Selection_Count(); i++)
+					for(size_t i=0; bAdd && i<Tools.Get_Selection_Count(); i++)
 					{
 						CSG_Table_Record	*pRecord	= Tools.Get_Selection(i);
 

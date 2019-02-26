@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -24,7 +21,8 @@
 // Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
-// Free Software Foundation; version 2 of the License.   //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
 //                                                       //
 // SAGA is distributed in the hope that it will be       //
 // useful, but WITHOUT ANY WARRANTY; without even the    //
@@ -33,10 +31,8 @@
 // License for more details.                             //
 //                                                       //
 // You should have received a copy of the GNU General    //
-// Public License along with this program; if not,       //
-// write to the Free Software Foundation, Inc.,          //
-// 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, //
-// USA.                                                  //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -72,11 +68,11 @@
 CTL_Merge::CTL_Merge(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(SG_T("Merge Translation Files"));
+	Set_Name		("Merge Translation Files");
 
-	Set_Author		(SG_T("O. Conrad (c) 2010"));
+	Set_Author		("O. Conrad (c) 2010");
 
-	Set_Description	(SG_T(""));
+	Set_Description	("");
 
 	//-----------------------------------------------------
 	CSG_String	Filter;
@@ -90,22 +86,20 @@ CTL_Merge::CTL_Merge(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "TARGET"	, SG_T("Target"),
-		SG_T(""),
+		"", "TARGET", "Target",
+		"",
 		Filter, NULL, true
 	);
 
 	Parameters.Add_FilePath(
-		NULL	, "FILES"	, SG_T("Files"),
-		SG_T(""),
+		"", "FILES"	, "Files",
+		"",
 		Filter, NULL, false, false, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -117,7 +111,7 @@ bool CTL_Merge::On_Execute(void)
 
 	if( !Parameters("FILES")->asFilePath()->Get_FilePaths(Files) || Files.Get_Count() <= 1 )
 	{
-		Error_Set(SG_T("no files to merge"));
+		Error_Set("no files to merge");
 
 		return( false );
 	}
@@ -126,24 +120,24 @@ bool CTL_Merge::On_Execute(void)
 	int			i, j;
 	CSG_Table	Merge;
 
-	if( !Merge.Create(Files[0], TABLE_FILETYPE_Text) )
+	if( !Merge.Create(Files[0], TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8) )
 	{
 		Merge.Destroy();
 
-		Merge.Add_Field(SG_T("ORIGINAL")	, SG_DATATYPE_String);
-		Merge.Add_Field(SG_T("TRANSLATION")	, SG_DATATYPE_String);
+		Merge.Add_Field("ORIGINAL"   , SG_DATATYPE_String);
+		Merge.Add_Field("TRANSLATION", SG_DATATYPE_String);
 
 	}
 
-	Merge.Save(Target, TABLE_FILETYPE_Text);
+	Merge.Save(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
 
 	//-----------------------------------------------------
 	for(i=1; i<Files.Get_Count() && Process_Get_Okay(); i++)
 	{
 		CSG_Translator	Translator(Target, false);
-		CSG_Table		Add(Target, TABLE_FILETYPE_Text);
+		CSG_Table		Add(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
 
-		if( Merge.Create(Files[i], TABLE_FILETYPE_Text) )
+		if( Merge.Create(Files[i], TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8) )
 		{
 			for(j=0; j<Merge.Get_Count() && Set_Progress(j, Merge.Get_Count()); j++)
 			{
@@ -155,7 +149,7 @@ bool CTL_Merge::On_Execute(void)
 
 			if( Add.Get_Count() > Translator.Get_Count() )
 			{
-				Add.Save(Target, TABLE_FILETYPE_Text);
+				Add.Save(Target, TABLE_FILETYPE_Text, '\t', SG_FILE_ENCODING_UTF8);
 			}
 		}
 	}
