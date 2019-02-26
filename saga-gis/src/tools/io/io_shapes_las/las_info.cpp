@@ -1,7 +1,3 @@
-/**********************************************************
- * Version $Id: las_info.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
-
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -56,7 +52,6 @@
 
 //---------------------------------------------------------
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -76,10 +71,9 @@
 //---------------------------------------------------------
 CLAS_Info::CLAS_Info(void)
 {
-
 	Set_Name		(_TL("LAS Info"));
 
-	Set_Author		(SG_T("Volker Wichmann (c) 2010, LASERDATA GmbH"));
+	Set_Author		("Volker Wichmann (c) 2010, LASERDATA GmbH");
 
 	CSG_String		Description(_TW(
 		"Prints information on ASPRS LAS files (versions 1.0, 1.1 and 1.2) "
@@ -98,23 +92,23 @@ CLAS_Info::CLAS_Info(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("LAS File"),
+		"", "FILE"	, _TL("LAS File"),
 		_TL(""),
-		_TL("LAS Files (*.las)|*.las|All Files|*.*")
+		CSG_String::Format("%s (*.las)|*.las|%s|*.*",
+			_TL("LAS Files"),
+			_TL("All Files")
+		)
 	);
 
-	Parameters.Add_Value(
-		NULL	, "HEADER"		, _TL("Only Header Info"),
+	Parameters.Add_Bool(
+		"", "HEADER", _TL("Only Header Info"),
 		_TL("Print only information available in LAS header."),
-		PARAMETER_TYPE_Bool,
 		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -123,20 +117,22 @@ bool CLAS_Info::On_Execute(void)
 {
 	CSG_String		fName;
 	bool			bHeader;
-    std::ifstream   ifs;
 	LASPointSummary summary;
 
 	//-----------------------------------------------------
 	fName		= Parameters("FILE")->asString();
-	bHeader		= Parameters("HEADER")->asBool();
-	
+	bHeader		= Parameters("HEADER")->asBool();	
 
 	//-----------------------------------------------------
+    std::ifstream   ifs;
+
     ifs.open(fName.b_str(), std::ios::in | std::ios::binary);
-    if (!ifs)
+
+    if( !ifs )
     {
-        SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unable to open LAS file!")));
-        return (false);
+        Error_Fmt("%s: [%s]", _TL("Unable to open LAS file"), fName.c_str());
+
+        return( false );
     }
 
 	//-----------------------------------------------------
@@ -146,25 +142,23 @@ bool CLAS_Info::On_Execute(void)
 		pReader = new liblas::LASReader(ifs);
 	}
 	catch(std::exception &e) {
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("LAS header exception: %s"), e.what()));
+		Error_Fmt("%s: %s", _TL("LAS header exception"), e.what());
 		ifs.close();
         return (false);
 	}
 	catch(...) {
-		SG_UI_Msg_Add_Error(CSG_String::Format(_TL("Unknown LAS header exception!")));
+		Error_Fmt(_TL("Unknown LAS header exception!"));
 		ifs.close();
         return (false);
 	}
 	
 	delete (pReader);
 	ifs.clear();
+
 	//-----------------------------------------------------
-
-
     liblas::LASReader reader(ifs);
 
     liblas::LASHeader const& header = reader.GetHeader();
-
 
 	//-----------------------------------------------------
 	Print_Header(fName, header);
@@ -195,93 +189,112 @@ bool CLAS_Info::On_Execute(void)
 bool CLAS_Info::Print_Header(CSG_String fName, liblas::LASHeader header)
 {
 
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
-	SG_UI_Msg_Add(_TL("  Header Summary"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Add("\n");
+	Message_Add("\n---------------------------------------------------------");
+	SG_UI_Msg_Add(_TL("Header Summary"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  File Name:\t\t\t%s"), fName.c_str()), true);
+	Message_Fmt("\n  %s:\t\t\t%s", _TL("File Name"), fName.c_str());
 
-	if (SG_STR_CMP(header.GetFileSignature().c_str(), SG_T("LASF")))
+	if( SG_STR_CMP(header.GetFileSignature().c_str(), SG_T("LASF")) )
 	{
 		SG_UI_Msg_Add_Error(_TL("File signature is not 'LASF'!"));
+
 		return (false);
 	}
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Version:\t\t\t%d.%d"),
-									header.GetVersionMajor(),
-									header.GetVersionMinor()), true);
+	Message_Fmt("\n  %s:\t\t\t%d.%d", _TL("Version"),
+		header.GetVersionMajor(),
+		header.GetVersionMinor()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Source ID:\t\t\t%d"),
-									header.GetFileSourceId()), true);
+	Message_Fmt("\n  %s:\t\t\t%d", _TL("Source ID"),
+		header.GetFileSourceId()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Reserved:\t\t\t%d"),
-									header.GetReserved()), true);
+	Message_Fmt("\n  %s:\t\t\t%d", _TL("Reserved"),
+		header.GetReserved()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Project ID/GUID:\t\t'%s'"),
-									CSG_String(header.GetProjectId().to_string().c_str()).w_str()), true);
+	Message_Fmt("\n  %s:\t\t'%s'", _TL("Project ID/GUID"),
+		CSG_String(header.GetProjectId().to_string().c_str()).w_str()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  System Identifier:\t\t'%s'"),
-									CSG_String(header.GetSystemId().c_str()).w_str()), true);
+	Message_Fmt("\n  %s:\t\t'%s'", _TL("System Identifier"),
+		CSG_String(header.GetSystemId().c_str()).w_str()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Generating Software:\t\t'%s'"),
-									CSG_String(header.GetSoftwareId().c_str()).w_str()), true);
+	Message_Fmt("\n  %s:\t\t'%s'", _TL("Generating Software"),
+		CSG_String(header.GetSoftwareId().c_str()).w_str()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  File Creation Day/Year:\t\t%d/%d"),
-									header.GetCreationDOY(),
-									header.GetCreationYear()), true);
+	Message_Fmt("\n  %s:\t\t%d/%d", _TL("File Creation Day/Year"),
+		header.GetCreationDOY(),
+		header.GetCreationYear()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Header Size:\t\t\t%d"),
-									header.GetHeaderSize()), true);
+	Message_Fmt("\n  %s:\t\t\t%d", _TL("Header Size"),
+		header.GetHeaderSize()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset to Point Data:\t\t%d"),
-									header.GetDataOffset()), true);
+	Message_Fmt("\n  %s:\t\t%d", _TL("Offset to Point Data"),
+		header.GetDataOffset()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Number Var. Length Records:\t%d"),
-									header.GetRecordsCount()), true);
+	Message_Fmt("\n  %s:\t%d", _TL("Number Var. Length Records"),
+		header.GetRecordsCount()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Point Data Format:\t\t%d"),
-									header.GetDataFormatId()), true);
+	Message_Fmt("\n  %s:\t\t%d", _TL("Point Data Format"),
+		header.GetDataFormatId()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Point Data Record Length:\t%d"),
-									header.GetDataRecordLength()), true);
+	Message_Fmt("\n  %s:\t%d", _TL("Point Data Record Length"),
+		header.GetDataRecordLength()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Number of Point Records:\t%d"),
-									header.GetPointRecordsCount()), true);
+	Message_Fmt("\n  %s:\t%d", _TL("Number of Point Records"),
+		header.GetPointRecordsCount()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Number of Points by Return:\t%d  %d  %d  %d  %d"),
-									header.GetPointRecordsByReturnCount().at(0),
-									header.GetPointRecordsByReturnCount().at(1),
-									header.GetPointRecordsByReturnCount().at(2),
-									header.GetPointRecordsByReturnCount().at(3),
-									header.GetPointRecordsByReturnCount().at(4)), true);
+	Message_Fmt("\n  %s:\t%d  %d  %d  %d  %d", _TL("Number of Points by Return"),
+		header.GetPointRecordsByReturnCount().at(0),
+		header.GetPointRecordsByReturnCount().at(1),
+		header.GetPointRecordsByReturnCount().at(2),
+		header.GetPointRecordsByReturnCount().at(3),
+		header.GetPointRecordsByReturnCount().at(4)
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Scale Factor X Y Z:\t\t%.6g  %.6g  %.6g"),
-									header.GetScaleX(),
-									header.GetScaleY(),
-									header.GetScaleZ()), true);
+	Message_Fmt("\n  %s X Y Z:\t\t%.6g  %.6g  %.6g", _TL("Scale Factor"),
+		header.GetScaleX(),
+		header.GetScaleY(),
+		header.GetScaleZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Offset X Y Z:\t\t\t%.6f  %.6f  %.6f"),
-									header.GetOffsetX(),
-									header.GetOffsetY(),
-									header.GetOffsetZ()), true);
+	Message_Fmt("\n  %s X Y Z:\t\t\t%.6f  %.6f  %.6f", _TL("Offset"),
+		header.GetOffsetX(),
+		header.GetOffsetY(),
+		header.GetOffsetZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Min X Y Z:\t\t\t%.6f  %.6f  %.6f"),
-									header.GetMinX(),
-									header.GetMinY(),
-									header.GetMinZ()), true);
+	Message_Fmt("\n  %s X Y Z:\t\t\t%.6f  %.6f  %.6f", _TL("Min"),
+		header.GetMinX(),
+		header.GetMinY(),
+		header.GetMinZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Max X Y Z:\t\t\t%.6f  %.6f  %.6f"),
-									header.GetMaxX(),
-									header.GetMaxY(),
-									header.GetMaxZ()), true);
+	Message_Fmt("\n  %s X Y Z:\t\t\t%.6f  %.6f  %.6f", _TL("Max"),
+		header.GetMaxX(),
+		header.GetMaxY(),
+		header.GetMaxZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Spatial Reference:\t\t%s"),
-									CSG_String(header.GetSRS().GetProj4().c_str()).w_str()), true);
+	Message_Fmt("\n  %s:\t\t%s", _TL("Spatial Reference"),
+		CSG_String(header.GetSRS().GetProj4().c_str()).w_str()
+	);
 
-	return (true);
+	return( true );
 }
-
 
 //---------------------------------------------------------
 bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *pSummary)
@@ -292,164 +305,182 @@ bool CLAS_Info::Print_Point_Summary(liblas::LASHeader header, LASPointSummary *p
 
 	if( pSummary->number_of_point_records == 0 )
 	{
-		SG_UI_Msg_Add_Error(_TL("Point summary contains no points!"));
-		return (false);
+		Error_Fmt(_TL("Point summary contains no points!"));
+
+		return( false );
 	}
 
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
-	SG_UI_Msg_Add(_TL("  Point Inspection Summary"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Add("\n");
+	Message_Add("\n---------------------------------------------------------");
+	SG_UI_Msg_Add(_TL("Point Inspection Summary"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("   Header Point Count:\t\t%d"),
-									header.GetPointRecordsCount()), true);
+	Message_Fmt("\n %s:\t\t%d", _TL("Header Point Count"),
+		header.GetPointRecordsCount()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("   Actual Point Count:\t\t%d"),
-									pSummary->number_of_point_records), true);
+	Message_Fmt("\n %s:\t\t%d", _TL("Actual Point Count"),
+		pSummary->number_of_point_records
+	);
 
+	Message_Add("\n");
+	SG_UI_Msg_Add(_TL("Minimum and Maximum Attributes (min, max)"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(_TL("  Minimum and Maximum Attributes (min, max)"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Fmt("\n  %s X Y Z:\t\t\t%.6f  %.6f  %.6f", _TL("Min"),
+		pSummary->pmin.GetX(),
+		pSummary->pmin.GetY(),
+		pSummary->pmin.GetZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Min X Y Z:\t\t\t%.6f  %.6f  %.6f"),
-									pSummary->pmin.GetX(),
-									pSummary->pmin.GetY(),
-									pSummary->pmin.GetZ()), true);
+	Message_Fmt("\n  %s X Y Z:\t\t\t%.6f  %.6f  %.6f", _TL("Max"),
+		pSummary->pmax.GetX(),
+		pSummary->pmax.GetY(),
+		pSummary->pmax.GetZ()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Max X Y Z:\t\t\t%.6f  %.6f  %.6f"),
-									pSummary->pmax.GetX(),
-									pSummary->pmax.GetY(),
-									pSummary->pmax.GetZ()), true);
+	Message_Fmt("\n  %s:\t\t\t%.2f, %.2f, %.2f, %.2f", _TL("Bounding Box"),
+		pSummary->pmin.GetX(),
+		pSummary->pmin.GetY(),
+		pSummary->pmax.GetX(),
+		pSummary->pmax.GetY()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Bounding Box:\t\t\t%.2f, %.2f, %.2f, %.2f"),
-									pSummary->pmin.GetX(),
-									pSummary->pmin.GetY(),
-									pSummary->pmax.GetX(),
-									pSummary->pmax.GetY()), true);
+	Message_Fmt("\n  %s:\t\t\t\t%.6f, %.6f", _TL("Time"),
+		pSummary->pmin.GetTime(),
+		pSummary->pmax.GetTime()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Time:\t\t\t\t%.6f, %.6f"),
-									pSummary->pmin.GetTime(),
-									pSummary->pmax.GetTime()), true);
+	Message_Fmt("\n  %s:\t\t%d, %d", _TL("Return Number"),
+		pSummary->pmin.GetReturnNumber(),
+		pSummary->pmax.GetReturnNumber()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Return Number:\t\t%d, %d"),
-									pSummary->pmin.GetReturnNumber(),
-									pSummary->pmax.GetReturnNumber()), true);
+	Message_Fmt("\n  %s:\t\t\t%d, %d", _TL("Return Count"),
+		pSummary->pmin.GetNumberOfReturns(),
+		pSummary->pmax.GetNumberOfReturns()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Return Count:\t\t\t%d, %d"),
-									pSummary->pmin.GetNumberOfReturns(),
-									pSummary->pmax.GetNumberOfReturns()), true);
+	Message_Fmt("\n  %s:\t\t\t%d, %d", _TL("Flightline Edge"),
+		pSummary->pmin.GetFlightLineEdge(),
+		pSummary->pmax.GetFlightLineEdge()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Flightline Edge:\t\t\t%d, %d"),
-									pSummary->pmin.GetFlightLineEdge(),
-									pSummary->pmax.GetFlightLineEdge()), true);
+	Message_Fmt("\n  %s:\t\t\t%d, %d", _TL("Intensity"),
+		pSummary->pmin.GetIntensity(),
+		pSummary->pmax.GetIntensity()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Intensity:\t\t\t%d, %d"),
-									pSummary->pmin.GetIntensity(),
-									pSummary->pmax.GetIntensity()), true);
+	Message_Fmt("\n  %s:\t\t%d, %d", _TL("Scan Direction Flag"),
+		pSummary->pmin.GetScanDirection(),
+		pSummary->pmax.GetScanDirection()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Scan Direction Flag:\t\t%d, %d"),
-									pSummary->pmin.GetScanDirection(),
-									pSummary->pmax.GetScanDirection()), true);
+	Message_Fmt("\n  %s:\t\t%d, %d", _TL("Scan Angle Rank"),
+		pSummary->pmin.GetScanAngleRank(),
+		pSummary->pmax.GetScanAngleRank()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Scan Angle Rank:\t\t%d, %d"),
-									pSummary->pmin.GetScanAngleRank(),
-									pSummary->pmax.GetScanAngleRank()), true);
+	Message_Fmt("\n  %s:\t\t\t%d, %d", _TL("Classification"),
+		pSummary->pmin.GetClassification(),
+		pSummary->pmax.GetClassification()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Classification:\t\t\t%d, %d"),
-									pSummary->pmin.GetClassification(),
-									pSummary->pmax.GetClassification()), true);
+	Message_Fmt("\n  %s:\t\t%d, %d", _TL("Point Source Id"),
+		pSummary->pmin.GetPointSourceID(),
+		pSummary->pmax.GetPointSourceID()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Point Source Id:\t\t%d, %d"),
-									pSummary->pmin.GetPointSourceID(),
-									pSummary->pmax.GetPointSourceID()), true);
+	Message_Fmt("\n  %s:\t\t\t%d %d %d", _TL("Minimum Color"),
+		pSummary->pmin.GetColor().GetRed(),
+		pSummary->pmin.GetColor().GetGreen(),
+		pSummary->pmin.GetColor().GetBlue()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Minimum Color:\t\t\t%d %d %d"),
-									pSummary->pmin.GetColor().GetRed(),
-									pSummary->pmin.GetColor().GetGreen(),
-									pSummary->pmin.GetColor().GetBlue()), true);
+	Message_Fmt("\n  %s:\t\t%d %d %d", _TL("Maximum Color"),
+		pSummary->pmax.GetColor().GetRed(),
+		pSummary->pmax.GetColor().GetGreen(),
+		pSummary->pmax.GetColor().GetBlue()
+	);
 
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Maximum Color:\t\t%d %d %d"),
-									pSummary->pmax.GetColor().GetRed(),
-									pSummary->pmax.GetColor().GetGreen(),
-									pSummary->pmax.GetColor().GetBlue()), true);
-
-	
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(_TL("  Number of Points by Return"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Add("\n");
+	SG_UI_Msg_Add(_TL("Number of Points by Return"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
 	for( i=0; i<5; i++ )
 	{
 		pbretsum = pbretsum + pSummary->number_of_points_by_return[i];
-		SG_UI_Msg_Add(CSG_String::Format(SG_T("\t(%d) %d"),
-										i,
-										pSummary->number_of_points_by_return[i]), true);
+
+		Message_Fmt("\n  \t(%d) %d", i, pSummary->number_of_points_by_return[i]);
 	}
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Points:\t%ld"),
-									pbretsum), true);
 
+	Message_Fmt("\n  %s:\t%ld", _TL("Total Points"), pbretsum);
 
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(_TL("  Number of Returns by Pulse"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Add("\n");
+	SG_UI_Msg_Add(_TL("Number of Returns by Pulse"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
-	for( i=0; i<8; i++ )
+	for(i=0; i<8; i++)
 	{
 		rgpsum = rgpsum + pSummary->number_of_returns_of_given_pulse[i];
-		SG_UI_Msg_Add(CSG_String::Format(SG_T("\t(%d) %d"),
-										i,
-										pSummary->number_of_returns_of_given_pulse[i]), true);
+
+		Message_Fmt("\n  \t(%d) %d", i, pSummary->number_of_returns_of_given_pulse[i]);
 	}
-	SG_UI_Msg_Add(CSG_String::Format(_TL("  Total Pulses:\t%ld"),
-									rgpsum), true);
+
+	Message_Fmt("\n  %s:\t%ld", _TL("Total Pulses"), rgpsum);
 
 
 	for( i=0; i<5; i++ )
 	{
 		if( header.GetPointRecordsByReturnCount().at(i) != pSummary->number_of_points_by_return[i] )
 		{
-			SG_UI_Msg_Add(CSG_String::Format(_TL("  Actual number of points by return is different from header (actual, header):")), true);
+			Message_Fmt("\n  %s:", _TL("Actual number of points by return is different from header (actual, header)"));
+
 			for( int j=0; i<5; i++ )
 			{
-				SG_UI_Msg_Add(CSG_String::Format(SG_T("\t(%d, %d"),
-												pSummary->number_of_points_by_return[j],
-												header.GetPointRecordsByReturnCount().at(j)), true);
+				Message_Fmt("\n  \t(%d, %d",
+					pSummary->number_of_points_by_return[j],
+					header.GetPointRecordsByReturnCount().at(j)
+				);
 			}
 		}
 	}
 
 
-	SG_UI_Msg_Add(SG_T(""), true);
-	SG_UI_Msg_Add(_TL("  Point Classifications"), true, SG_UI_MSG_STYLE_BOLD);
-	SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+	Message_Add("\n");
+	SG_UI_Msg_Add(_TL("Point Classifications"), true, SG_UI_MSG_STYLE_BOLD);
+	Message_Add("\n---------------------------------------------------------");
 
 	for( i=0; i<32; i++ )
 	{
 		if( pSummary->classification[i] )
 		{
-			SG_UI_Msg_Add(CSG_String::Format(SG_T("\t%d\t\t%s (%d)"),
-											pSummary->classification[i],
-											gLASPointClassification_Key_Name[i],
-											i), true);
+			Message_Fmt("\n  \t%d\t\t%s (%d)", 
+				pSummary->classification[i],
+				gLASPointClassification_Key_Name[i],
+				i
+			);
 		}
 	}
 
 	if( pSummary->classification_synthetic || pSummary->classification_keypoint || pSummary->classification_withheld )
 	{
-		SG_UI_Msg_Add(SG_T(""), true);
-		SG_UI_Msg_Add(_TL("  Point Classification Histogram"), true, SG_UI_MSG_STYLE_BOLD);
-		SG_UI_Msg_Add(SG_T("---------------------------------------------------------"), true);
+		Message_Add("\n");
+		SG_UI_Msg_Add(_TL("Point Classification Histogram"), true, SG_UI_MSG_STYLE_BOLD);
+		Message_Add("\n---------------------------------------------------------");
 
 		if( pSummary->classification_synthetic )
-			SG_UI_Msg_Add(CSG_String::Format(_TL("  +-> flagged as synthetic:\t%d"),
-											pSummary->classification_synthetic), true);
+			Message_Fmt("\n  +-> %s:\t%d", _TL("flagged as synthetic"),
+				pSummary->classification_synthetic
+			);
 		if( pSummary->classification_keypoint )
-			SG_UI_Msg_Add(CSG_String::Format(_TL("  +-> flagged as keypoints:\t%d"),
-											pSummary->classification_keypoint), true);
+			Message_Fmt("\n  +-> %s:\t%d", _TL("flagged as keypoints"),
+				pSummary->classification_keypoint
+			);
 		if( pSummary->classification_withheld )
-			SG_UI_Msg_Add(CSG_String::Format(_TL("  +-> flagged as withheld:\t%d"),
-											pSummary->classification_withheld), true);
+			Message_Fmt("\n  +-> %s:\t%d", _TL("flagged as withheld"),
+				pSummary->classification_withheld
+			);
 	}
 
 	return (true);

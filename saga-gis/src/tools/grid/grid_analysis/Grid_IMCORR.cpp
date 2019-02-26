@@ -51,6 +51,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/*	This implementation is based on the original FORTRAN code
+available from <http://nsidc.org/data/velmap/imcorr.html>.
+This implementation extends the functionality by introducing
+the possibility to derive 3D displacement vectors once DTM
+datasets are provided.
+*/
+//---------------------------------------------------------
 
 
 ///////////////////////////////////////////////////////////
@@ -69,110 +76,104 @@
 //														 //
 ///////////////////////////////////////////////////////////
 
-/*	This implementation is based on the original FORTRAN code
-	available from <http://nsidc.org/data/velmap/imcorr.html>.
-	This implementation extends the functionality by introducing
-	the possibility to derive 3D displacement vectors once DTM
-	datasets are provided.
-*/
-
 //---------------------------------------------------------
 CGrid_IMCORR::CGrid_IMCORR(void)
 {
 	Set_Name		(_TL("IMCORR - Feature Tracking"));
 
-	Set_Author		(SG_T("Magnus Bremer (c) 2012"));
+	Set_Author		("Magnus Bremer (c) 2012");
 
 	Set_Description	(_TW(
-		"The tool performs an image correlation "
-		"based on two raster data sets.\n"
-		"Additionally, two DTMs can be given and used to optain 3D displacement vectors.\n\n"
-		"This is a SAGA implementation of the standalone "
-		"IMCORR software provided by the "
-		"National Snow and Ice Data Center in Boulder, Colorado / US.\n\n"
-		"The standalone software and documentation is available from:\n"
-		"<a href=\"http://nsidc.org/data/velmap/imcorr.html\">http://nsidc.org/data/velmap/imcorr.html</a>\n\n"
-		"References:\n"
-		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and R. A. Bindschadler (1992): "
-		"Application of image cross-correlation to the measurement of glacier velocity "
-		"using satellite image data. Remote Sensing Environ., 42(3), 177-186.\n\n"
-		"Fahnestock, M. A., Scambos, T.A., and R. A. Bindschadler (1992): "
-		"Semi-automated ice velocity determination from satellite imagery. Eos, 73, 493.\n\n"
+		"The tool performs an image correlation based on two raster data sets. "
+		"Additionally, two DTMs can be given and used to optain 3D displacement vectors.\n"
+		"This is a SAGA implementation of the standalone IMCORR software provided by the "
+		"National Snow and Ice Data Center in Boulder, Colorado / US."
 	));
 
+	Add_Reference(
+		"Scambos, T. A., Dutkiewicz, M. J., Wilson, J. C., and R. A. Bindschadler", "1992",
+		"Application of image cross-correlation to the measurement of glacier velocity using satellite image data",
+		"Remote Sensing Environ., 42(3), 177-186."
+	);
+
+	Add_Reference(
+		"Fahnestock, M. A., Scambos, T.A., and R. A. Bindschadler", "1992",
+		"Semi-automated ice velocity determination from satellite imagery",
+		"Eos, 73, 493."
+	);
+
+	Add_Reference(
+		"http://nsidc.org/data/velmap/imcorr.html", SG_T("standalone software and documentation")
+	);
+
 	Parameters.Add_Grid(
-		NULL	, "GRID_1", _TL("Grid 1"),
+		"", "GRID_1", _TL("Grid 1"),
 		_TL("The first grid to correlate"),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "GRID_2"	, _TL("Grid 2"),
+		"", "GRID_2"	, _TL("Grid 2"),
 		_TL("The second grid to correlate"),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DTM_1", _TL("DTM 1"),
+		"", "DTM_1", _TL("DTM 1"),
 		_TL("The first DTM used to assign height information to grid 1"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DTM_2"	, _TL("DTM 2"),
+		"", "DTM_2"	, _TL("DTM 2"),
 		_TL("The second DTM used to assign height information to grid 2"),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "CORRPOINTS"	, _TL("Correlated Points"),
+		"", "CORRPOINTS", _TL("Correlated Points"),
 		_TL("Correlated points with displacement and correlation information"),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "CORRLINES"	, _TL("Displacement Vector"),
+		"", "CORRLINES"	, _TL("Displacement Vector"),
 		_TL("Displacement vectors between correlated points"),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "SEARCH_CHIPSIZE"		, _TL("Search Chip Size (Cells)"),
+		"", "SEARCH_CHIPSIZE", _TL("Search Chip Size (Cells)"),
 		_TL("Chip size of search chip, used to find correlating reference chip"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("16x16"),
-			_TL("32x32"),
-			_TL("64x64"),
-			_TL("128x128"),
-			_TL("256x256")
-			), 2	
-		);
-
-	Parameters.Add_Choice(
-		NULL	, "REF_CHIPSIZE"		, _TL("Reference Chip Size (Cells)"),
-		_TL("Chip size of reference chip to be found in search chip"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
-			_TL("16x16"),
-			_TL("32x32"),
-			_TL("64x64"),
-			_TL("128x128")
-			), 1	
-		);
-
-
-	Parameters.Add_Value(
-		NULL	, "GRID_SPACING"	, _TL("Grid Spacing (Map Units)"),
-		_TL("Grid spacing used for the construction of correlated points [map units]"),
-		PARAMETER_TYPE_Double, 10.0, 0.1, true, 256.0, true
+		CSG_String::Format("%s|%s|%s|%s|%s",
+			SG_T("16x16"),
+			SG_T("32x32"),
+			SG_T("64x64"),
+			SG_T("128x128"),
+			SG_T("256x256")
+		), 2	
 	);
 
+	Parameters.Add_Choice(
+		"", "REF_CHIPSIZE"	, _TL("Reference Chip Size (Cells)"),
+		_TL("Chip size of reference chip to be found in search chip"),
+		CSG_String::Format("%s|%s|%s|%s",
+			SG_T("16x16"),
+			SG_T("32x32"),
+			SG_T("64x64"),
+			SG_T("128x128")
+		), 1	
+	);
 
+	Parameters.Add_Double(
+		"", "GRID_SPACING"	, _TL("Grid Spacing (Map Units)"),
+		_TL("Grid spacing used for the construction of correlated points [map units]"),
+		10.0, 0.1, true, 256.0, true
+	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -200,105 +201,105 @@ bool CGrid_IMCORR::On_Execute(void)
 	if (Search_Chipsize < Ref_Chipsize)
 		Search_Chipsize = Ref_Chipsize;
 
-	CSG_String	Message = CSG_String::Format(_TL("Search chip size set to %d"), Search_Chipsize);
+	CSG_String	Message = CSG_String::Format("%s: %d", _TL("Search chip size"), Search_Chipsize);
 	SG_UI_Msg_Add(Message,true);
-	Message = CSG_String::Format(_TL("Reference chip size set to %d"), Ref_Chipsize);
+	Message = CSG_String::Format("%s: %d", _TL("Reference chip size"), Ref_Chipsize);
 	SG_UI_Msg_Add(Message,true);
 
 
 	if (pDTM1 == NULL || pDTM2 == NULL)
 	{
-		CSG_String	name = CSG_String::Format(_TL("%s_CORRPOINTS"), pGrid1->Get_Name());
+		CSG_String	name = CSG_String::Format("%s_CORRPOINTS", pGrid1->Get_Name());
 		pCorrPts->Create(SHAPE_TYPE_Point, name.c_str(), pCorrPts);
-		pCorrPts->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pCorrPts->Add_Field(SG_T("GX"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("GY"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("REALX"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("REALY"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("DISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("STRENGTH"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("FLAG"), SG_DATATYPE_Int);
-		pCorrPts->Add_Field(SG_T("XDISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YDISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XTARG"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YTARG"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XERR"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YERR"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("ASPECT"), SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ID"          , SG_DATATYPE_Int);
+		pCorrPts->Add_Field("GX"          , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("GY"          , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("REALX"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("REALY"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("DISP"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("STRENGTH"    , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("FLAG"        , SG_DATATYPE_Int);
+		pCorrPts->Add_Field("XDISP"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YDISP"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XDISP_UNIT"  , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YDISP_UNIT"  , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XTARG"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YTARG"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XERR"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YERR"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ASPECT"      , SG_DATATYPE_Double);
 
-		CSG_String	name2 = CSG_String::Format(_TL("%s_DISP_VEC"), pGrid1->Get_Name());
+		CSG_String	name2 = CSG_String::Format("%s_DISP_VEC", pGrid1->Get_Name());
 		pCorrLines->Create(SHAPE_TYPE_Line, name2.c_str(), pCorrLines);
-		pCorrLines->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pCorrLines->Add_Field(SG_T("GX"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("GY"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("REALX"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("REALY"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("DISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("STRENGTH"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("FLAG"), SG_DATATYPE_Int);
-		pCorrLines->Add_Field(SG_T("XDISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YDISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XTARG"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YTARG"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XERR"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YERR"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("ASPECT"), SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ID"        , SG_DATATYPE_Int);
+		pCorrLines->Add_Field("GX"        , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("GY"        , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("REALX"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("REALY"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("DISP"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("STRENGTH"  , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("FLAG"      , SG_DATATYPE_Int);
+		pCorrLines->Add_Field("XDISP"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YDISP"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XDISP_UNIT", SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YDISP_UNIT", SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XTARG"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YTARG"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XERR"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YERR"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ASPECT"    , SG_DATATYPE_Double);
 	}
 	else // If DTM is given the Output gets 3D
 	{
-		CSG_String	name = CSG_String::Format(_TL("%s_CORRPOINTS"), pGrid1->Get_Name());
+		CSG_String	name = CSG_String::Format("%s_CORRPOINTS", pGrid1->Get_Name());
 		pCorrPts->Create(SHAPE_TYPE_Point, name.c_str(), pCorrPts, SG_VERTEX_TYPE_XYZ);
-		pCorrPts->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pCorrPts->Add_Field(SG_T("GX"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("GY"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("REALX"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("REALY"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("REALZ"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("DISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("DISP_REAL"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("STRENGTH"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("FLAG"), SG_DATATYPE_Int);
-		pCorrPts->Add_Field(SG_T("XDISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YDISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("ZDISP"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XTARG"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YTARG"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("ZTARG"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("XERR"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("YERR"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("ASPECT"), SG_DATATYPE_Double);
-		pCorrPts->Add_Field(SG_T("SLOPE"), SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ID"          , SG_DATATYPE_Int);
+		pCorrPts->Add_Field("GX"          , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("GY"          , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("REALX"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("REALY"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("REALZ"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("DISP"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("DISP_REAL"   , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("STRENGTH"    , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("FLAG"        , SG_DATATYPE_Int);
+		pCorrPts->Add_Field("XDISP"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YDISP"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ZDISP"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XDISP_UNIT"  , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YDISP_UNIT"  , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XTARG"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YTARG"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ZTARG"       , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("XERR"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("YERR"        , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("ASPECT"      , SG_DATATYPE_Double);
+		pCorrPts->Add_Field("SLOPE"       , SG_DATATYPE_Double);
 
-		CSG_String	name2 = CSG_String::Format(_TL("%s_DISP_VEC"), pGrid1->Get_Name());
+		CSG_String	name2 = CSG_String::Format("%s_DISP_VEC", pGrid1->Get_Name());
 		pCorrLines->Create(SHAPE_TYPE_Line, name2.c_str(), pCorrLines, SG_VERTEX_TYPE_XYZ);
-		pCorrLines->Add_Field(SG_T("ID"), SG_DATATYPE_Int);
-		pCorrLines->Add_Field(SG_T("GX"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("GY"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("REALX"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("REALY"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("REALZ"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("DISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("DISP_REAL"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("STRENGTH"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("FLAG"), SG_DATATYPE_Int);
-		pCorrLines->Add_Field(SG_T("XDISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YDISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("ZDISP"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YDISP_UNIT"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XTARG"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YTARG"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("ZTARG"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("XERR"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("YERR"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("ASPECT"), SG_DATATYPE_Double);
-		pCorrLines->Add_Field(SG_T("SLOPE"), SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ID"        , SG_DATATYPE_Int);
+		pCorrLines->Add_Field("GX"        , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("GY"        , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("REALX"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("REALY"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("REALZ"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("DISP"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("DISP_REAL" , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("STRENGTH"  , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("FLAG"      , SG_DATATYPE_Int);
+		pCorrLines->Add_Field("XDISP"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YDISP"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ZDISP"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XDISP_UNIT", SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YDISP_UNIT", SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XTARG"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YTARG"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ZTARG"     , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("XERR"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("YERR"      , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("ASPECT"    , SG_DATATYPE_Double);
+		pCorrLines->Add_Field("SLOPE"     , SG_DATATYPE_Double);
 	}
 
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -391,14 +388,13 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 	signa[COVER] = ((double)count[COLD]) / ((double)count[TOTAL]);
 
 /*	G_message(_TL("Preliminary scene analysis:"));
-	G_message(_TL("* Desert index: %.2lf"), idesert);
-	G_message(_TL("* Snow cover: %.2lf %%"), 100. * value[SNOW]);
-	G_message(_TL("* Cloud cover: %.2lf %%"), 100. * signa[COVER]);
-	G_message(_TL("* Temperature of clouds:"));
-	G_message(_TL("** Maximum: %.2lf K"), signa[KMAX]);
-	G_message(_TL("** Mean (%s cloud): %.2lf K"),
-		(review_warm ? "cold" : "all"), signa[KMEAN]);
-	G_message(_TL("** Minimum: %.2lf K"), signa[KMIN]);
+	G_message(("* Desert index: %.2lf"), idesert);
+	G_message(("* Snow cover: %.2lf %%"), 100. * value[SNOW]);
+	G_message(("* Cloud cover: %.2lf %%"), 100. * signa[COVER]);
+	G_message(("* Temperature of clouds:"));
+	G_message(("** Maximum: %.2lf K"), signa[KMAX]);
+	G_message(("** Mean (%s cloud): %.2lf K"), (review_warm ? "cold" : "all"), signa[KMEAN]);
+	G_message(("** Minimum: %.2lf K"), signa[KMIN]);
 /**/
 	/* WARNING: re-use of the variable 'value' with new meaning */
 
@@ -414,10 +410,10 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 		value[DSTD]	= sqrt(moment(2, hist_cold, 1));
 		value[SKEW]	= moment(3, hist_cold, 3) / pow(value[DSTD], 3);
 
-	/*	G_message(_TL("* Mean temperature: %.2lf K"), value[MEAN]);
-		G_message(_TL("* Standard deviation: %.2lf"), value[DSTD]);
-		G_message(_TL("* Skewness: %.2lf"), value[SKEW]);
-		G_message(_TL("* Histogram classes: %d"), hist_n);
+	/*	G_message(("* Mean temperature: %.2lf K"), value[MEAN]);
+		G_message(("* Standard deviation: %.2lf"), value[DSTD]);
+		G_message(("* Skewness: %.2lf"), value[SKEW]);
+		G_message(("* Histogram classes: %d"), hist_n);
 	/**/
 		shift = value[SKEW];
 		if (shift > 1.)
@@ -429,9 +425,9 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 		value[KUPPER] = quantile(0.975, hist_cold) + K_BASE;
 		value[KLOWER] = quantile(0.835, hist_cold) + K_BASE;
 
-	/*	G_message(_TL("* 98.75 percentile: %.2lf K"), max);
-		G_message(_TL("* 97.50 percentile: %.2lf K"), value[KUPPER]);
-		G_message(_TL("* 83.50 percentile: %.2lf K"), value[KLOWER]);
+	/*	G_message(("* 98.75 percentile: %.2lf K"), max);
+		G_message(("* 97.50 percentile: %.2lf K"), value[KUPPER]);
+		G_message(("* 83.50 percentile: %.2lf K"), value[KLOWER]);
 	/**/
 		/* step 17 & 18 */
 		if (shift > 0.)
@@ -458,9 +454,9 @@ void acca_algorithm(CSG_Grid *pCloud, CSG_Grid *band[], int single_pass, int wit
 			}
 		}
 
-	/*	G_message(_TL("Maximum temperature:"));
-		G_message(_TL("* Cold cloud: %.2lf K"), value[KUPPER]);
-		G_message(_TL("* Warm cloud: %.2lf K"), value[KLOWER]);
+	/*	G_message(("Maximum temperature:"));
+		G_message(("* Cold cloud: %.2lf K"), value[KUPPER]);
+		G_message(("* Warm cloud: %.2lf K"), value[KLOWER]);
 	/**/
 	}
 	else if( signa[KMEAN] < 295. )

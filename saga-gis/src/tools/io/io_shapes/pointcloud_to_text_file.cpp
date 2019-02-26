@@ -105,10 +105,10 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
 	Parameters.Add_FilePath(
 		NULL	, "FILE"	, _TL("Text File"),
 		_TL("The file to write the point cloud to."),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s"),
-			_TL("Text Files (*.txt)")	, SG_T("*.txt"),
-			_TL("CSV Files (*.csv)")	, SG_T("*.csv"),
-			_TL("All Files")			, SG_T("*.*")
+		CSG_String::Format("%s (*.txt)|*.txt|%s (*.csv)|*.csv|%s|*.*",
+			_TL("Text Files"),
+			_TL("CSV Files"),
+			_TL("All Files")
 		), NULL, true
 	);
 
@@ -121,7 +121,7 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
     Parameters.Add_Choice(
         NULL	, "FIELDSEP" , _TL("Field Separator"),
         _TL("Field Separator"),
-        CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
             _TL("tabulator"),
             _TL("space"),
             _TL("comma")
@@ -194,13 +194,13 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 		for(int iField=0; iField<pPoints->Get_Field_Count(); iField++)
 		{
-			s.Printf(SG_T("NODE_%03d") , iField + 1);
-			pNode	= P.Add_Node(NULL, s, CSG_String::Format(_TL("%d. %s"), iField + 1, _TL("Field")), _TL(""));
+			s.Printf("NODE_%03d"     , iField + 1);
+			pNode	= P.Add_Node(NULL, s, CSG_String::Format("%d. %s", iField + 1, _TL("Field")), _TL(""));
 
-			s.Printf(SG_T("FIELD_%03d"), iField);
-			P.Add_Value(pNode, s, CSG_String::Format(SG_T("%s"), pPoints->Get_Field_Name(iField)), _TL(""), PARAMETER_TYPE_Bool, false);
+			s.Printf("FIELD_%03d"    , iField);
+			P.Add_Value(pNode, s, CSG_String::Format("%s", pPoints->Get_Field_Name(iField)), _TL(""), PARAMETER_TYPE_Bool, false);
 
-			s.Printf(SG_T("PRECISION_%03d"), iField);
+			s.Printf("PRECISION_%03d", iField);
 			P.Add_Value(pNode, s, _TL("Decimal Precision"), _TL(""), PARAMETER_TYPE_Int, 2.0, 0.0, true);
 		}
 
@@ -213,10 +213,10 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 			for(int iField=0; iField<pPoints->Get_Field_Count(); iField++)
 			{
-				if( P(CSG_String::Format(SG_T("FIELD_%03d" ), iField).c_str())->asBool() )
+				if( P(CSG_String::Format("FIELD_%03d", iField).c_str())->asBool() )
 				{
 					vCol.push_back(iField);
-					vPrecision.push_back(P(CSG_String::Format(SG_T("PRECISION_%03d" ), iField).c_str())->asInt());
+					vPrecision.push_back(P(CSG_String::Format("PRECISION_%03d", iField).c_str())->asInt());
 				}
 			}
 		}
@@ -308,7 +308,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 
 		for(size_t i=0; i<vCol.size(); i++)
 		{
-		    sHeader += CSG_String::Format(SG_T("%s"), pPoints->Get_Field_Name(vCol.at(i)));
+		    sHeader += pPoints->Get_Field_Name(vCol.at(i));
 
 		    if( i < vCol.size()-1 )
                 sHeader += fieldSep.c_str();
@@ -337,7 +337,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 				sLine += SG_Get_String(pPoints->Get_Value(iPoint, vCol.at(i)), vPrecision.at(i));
 				break;
 			default:
-				sLine += CSG_String::Format(SG_T("%d"), (int)pPoints->Get_Value(iPoint, vCol.at(i)));
+				sLine += CSG_String::Format("%d", (int)pPoints->Get_Value(iPoint, vCol.at(i)));
 				break;
 			}
 
