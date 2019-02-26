@@ -288,15 +288,14 @@ void	Replace_Special_Chars(CSG_String &String)
 		{ "ñ",	"%c3%b1" },	{ "ò",	"%c3%b2" },	{ "ó",	"%c3%b3" },	{ "ô",	"%c3%b4" },
 		{ "õ",	"%c3%b5" },	{ "ö",	"%c3%b6" },	{ "÷",	"%c3%b7" },	{ "ø",	"%c3%b8" },
 		{ "ù",	"%c3%b9" },	{ "ú",	"%c3%ba" },	{ "û",	"%c3%bb" },	{ "ü",	"%c3%bc" },
-		{ "ý",	"%c3%bd" },	{ "þ",	"%c3%be" },	{ "ÿ",	"%c3%bf" },	{ "" ,	""       }
+		{ "ý",	"%c3%bd" },	{ "þ",	"%c3%be" },	{ "ÿ",	"%c3%bf" }, { " ",	  "%%20" },	// String.Replace(" ", "+");
+		{ "" ,	""       }
 	};
 
-	for(int i=0; !UTF8[i][0].is_Empty(); i++)
+	for(int i=0; !UTF8[i][1].is_Empty(); i++)
 	{
 		String.Replace(UTF8[i][0], UTF8[i][1]);
 	}
-
-	String.Replace(" ", "%%20");	// String.Replace(" ", "+");
 }
 
 
