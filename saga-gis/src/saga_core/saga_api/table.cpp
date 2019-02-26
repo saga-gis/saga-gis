@@ -97,12 +97,6 @@ CSG_Table * SG_Create_Table(const CSG_Table &Table)
 }
 
 //---------------------------------------------------------
-CSG_Table * SG_Create_Table(const CSG_String &File_Name)
-{
-	return( new CSG_Table(File_Name) );
-}
-
-//---------------------------------------------------------
 CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 {
 	if( pTemplate )
@@ -122,6 +116,18 @@ CSG_Table * SG_Create_Table(CSG_Table *pTemplate)
 	}
 
 	return( new CSG_Table() );
+}
+
+//---------------------------------------------------------
+CSG_Table * SG_Create_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, int Encoding)
+{
+	return( new CSG_Table(File_Name, Format, Encoding) );
+}
+
+//---------------------------------------------------------
+CSG_Table * SG_Create_Table(const CSG_String &File_Name, TSG_Table_File_Type Format, const SG_Char Separator, int Encoding)
+{
+	return( new CSG_Table(File_Name, Format, Encoding) );
 }
 
 

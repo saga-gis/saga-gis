@@ -220,14 +220,14 @@ public:
 									CSG_Table			(const CSG_Table &Table);
 	bool							Create				(const CSG_Table &Table);
 
+									CSG_Table			(const CSG_Table *pTemplate);
+	bool							Create				(const CSG_Table *pTemplate);
+
 									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 									CSG_Table			(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
 	bool							Create				(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
-
-									CSG_Table			(const CSG_Table *pTemplate);
-	bool							Create				(const CSG_Table *pTemplate);
 
 	virtual ~CSG_Table(void);
 
@@ -426,10 +426,13 @@ SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(void);
 SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_Table &Table);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &FileName);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pTemplate);
 
 /** Safe table construction */
-SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(CSG_Table *pTemplate);
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &FileName, TSG_Table_File_Type Format = TABLE_FILETYPE_Undefined, int Encoding = SG_FILE_ENCODING_UNDEFINED);
+
+/** Safe table construction */
+SAGA_API_DLL_EXPORT CSG_Table *	SG_Create_Table	(const CSG_String &FileName, TSG_Table_File_Type Format, const SG_Char Separator  , int Encoding = SG_FILE_ENCODING_UNDEFINED);
 
 
 ///////////////////////////////////////////////////////////
