@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSGrid_Statistics.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSGrid_Statistics.h"
 
 
@@ -103,7 +91,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 	Parameters.Add_Choice("WEIGHTS",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -116,6 +104,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 	Parameters.Add_Grid("", "MAX"     , _TL("Maximum"                     ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "RANGE"   , _TL("Range"                       ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "SUM"     , _TL("Sum"                         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "SUM2"    , _TL("Sum2"                        ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "VAR"     , _TL("Variance"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "STDDEV"  , _TL("Standard Deviation"          ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	Parameters.Add_Grid("", "STDDEVLO", _TL("Mean less Standard Deviation"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
@@ -199,13 +188,14 @@ bool CGSGrid_Statistics::On_Execute(void)
 	CSG_Grid	*pMax			= Parameters("MAX"     )->asGrid();
 	CSG_Grid	*pRange			= Parameters("RANGE"   )->asGrid();
 	CSG_Grid	*pSum			= Parameters("SUM"     )->asGrid();
+	CSG_Grid	*pSum2			= Parameters("SUM2"    )->asGrid();
 	CSG_Grid	*pVar			= Parameters("VAR"     )->asGrid();
 	CSG_Grid	*pStdDev		= Parameters("STDDEV"  )->asGrid();
 	CSG_Grid	*pStdDevLo		= Parameters("STDDEVLO")->asGrid();
 	CSG_Grid	*pStdDevHi		= Parameters("STDDEVHI")->asGrid();
 	CSG_Grid	*pPercentile	= Parameters("PCTL"    )->asGrid();
 
-	if( !pMean && !pMin && !pMax && !pRange && !pSum && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi && !pPercentile )
+	if( !pMean && !pMin && !pMax && !pRange && !pSum && !pSum2 && !pVar && !pStdDev && !pStdDevLo && !pStdDevHi && !pPercentile )
 	{
 		Error_Set(_TL("no parameter output specified"));
 
@@ -250,6 +240,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 				if( pMax        )	pMax       ->Set_NoData(x, y);
 				if( pRange      )	pRange     ->Set_NoData(x, y);
 				if( pSum        )	pSum       ->Set_NoData(x, y);
+				if( pSum2       )	pSum2      ->Set_NoData(x, y);
 				if( pVar        )	pVar       ->Set_NoData(x, y);
 				if( pStdDev     )	pStdDev    ->Set_NoData(x, y);
 				if( pStdDevLo   )	pStdDevLo  ->Set_NoData(x, y);
@@ -258,13 +249,14 @@ bool CGSGrid_Statistics::On_Execute(void)
 			}
 			else
 			{
-				if( pMean       )	pMean      ->Set_Value(x, y, s.Get_Mean    ());
-				if( pMin        )	pMin       ->Set_Value(x, y, s.Get_Minimum ());
-				if( pMax        )	pMax       ->Set_Value(x, y, s.Get_Maximum ());
-				if( pRange      )	pRange     ->Set_Value(x, y, s.Get_Range   ());
-				if( pSum        )	pSum       ->Set_Value(x, y, s.Get_Sum     ());
-				if( pVar        )	pVar       ->Set_Value(x, y, s.Get_Variance());
-				if( pStdDev     )	pStdDev    ->Set_Value(x, y, s.Get_StdDev  ());
+				if( pMean       )	pMean      ->Set_Value(x, y, s.Get_Mean          ());
+				if( pMin        )	pMin       ->Set_Value(x, y, s.Get_Minimum       ());
+				if( pMax        )	pMax       ->Set_Value(x, y, s.Get_Maximum       ());
+				if( pRange      )	pRange     ->Set_Value(x, y, s.Get_Range         ());
+				if( pSum        )	pSum       ->Set_Value(x, y, s.Get_Sum           ());
+				if( pSum2       )	pSum2      ->Set_Value(x, y, s.Get_Sum_Of_Squares());
+				if( pVar        )	pVar       ->Set_Value(x, y, s.Get_Variance      ());
+				if( pStdDev     )	pStdDev    ->Set_Value(x, y, s.Get_StdDev        ());
 				if( pStdDevLo   )	pStdDevLo  ->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
 				if( pStdDevHi   )	pStdDevHi  ->Set_Value(x, y, s.Get_Mean() + s.Get_StdDev());
 				if( pPercentile )	pPercentile->Set_Value(x, y, s.Get_Quantile(dRank));
@@ -296,7 +288,6 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 		"it to a table."
 	));
 
-
 	Parameters.Add_Grid_List("",
 		"GRIDS"	, _TL("Grids"),
 		_TL(""),
@@ -316,14 +307,24 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 	Parameters.Add_Bool("", "MIN"         , _TL("Minimum"                     ), _TL(""),  true);
 	Parameters.Add_Bool("", "MAX"         , _TL("Maximum"                     ), _TL(""),  true);
 	Parameters.Add_Bool("", "RANGE"       , _TL("Range"                       ), _TL(""), false);
+	Parameters.Add_Bool("", "SUM"         , _TL("Sum"                         ), _TL(""), false);
+	Parameters.Add_Bool("", "SUM2"        , _TL("Sum of Squares"              ), _TL(""), false);
 	Parameters.Add_Bool("", "VAR"         , _TL("Variance"                    ), _TL(""),  true);
 	Parameters.Add_Bool("", "STDDEV"      , _TL("Standard Deviation"          ), _TL(""),  true);
 	Parameters.Add_Bool("", "STDDEVLO"    , _TL("Mean less Standard Deviation"), _TL(""), false);
 	Parameters.Add_Bool("", "STDDEVHI"    , _TL("Mean plus Standard Deviation"), _TL(""), false);
-	Parameters.Add_Bool("", "PCTL"        , _TL("Percentile"                  ), _TL(""), false);
 
-	Parameters.Add_Double("PCTL", "PCTL_VAL", _TL("Percentile"    ), _TL(""), 50.0, 0.0, true, 100.0, true);
-	Parameters.Add_Bool  ("PCTL", "PCTL_HST", _TL("From Histogram"), _TL(""), true);
+	Parameters.Add_String("",
+		"PCTL_VAL", _TL("Percentiles"),
+		_TL("Separate the desired percentiles by semicolon"),
+		"5; 25; 50; 75; 95"
+	);
+
+	Parameters.Add_Bool("",
+		"PCTL_HST", _TL("From Histogram"),
+		_TL(""),
+		true
+	);
 }
 
 
@@ -334,10 +335,9 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 //---------------------------------------------------------
 int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier("PCTL") )
+	if(	pParameter->Cmp_Identifier("PCTL_VAL") )
 	{
-		pParameters->Set_Enabled("PCTL_VAL", pParameter->asBool());
-		pParameters->Set_Enabled("PCTL_HST", pParameter->asBool());
+		pParameters->Set_Enabled("PCTL_HST", *pParameter->asString() != '\0');
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -375,53 +375,77 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 	if( Parameters("MIN"         )->asBool() )	pTable->Add_Field(_TL("MIN"         ), SG_DATATYPE_Double);
 	if( Parameters("MAX"         )->asBool() )	pTable->Add_Field(_TL("MAX"         ), SG_DATATYPE_Double);
 	if( Parameters("RANGE"       )->asBool() )	pTable->Add_Field(_TL("RANGE"       ), SG_DATATYPE_Double);
+	if( Parameters("SUM"         )->asBool() )	pTable->Add_Field(_TL("SUM"         ), SG_DATATYPE_Double);
+	if( Parameters("SUM2"        )->asBool() )	pTable->Add_Field(_TL("SUM2"        ), SG_DATATYPE_Double);
 	if( Parameters("VAR"         )->asBool() )	pTable->Add_Field(_TL("VAR"         ), SG_DATATYPE_Double);
 	if( Parameters("STDDEV"      )->asBool() )	pTable->Add_Field(_TL("STDDEV"      ), SG_DATATYPE_Double);
 	if( Parameters("STDDEVLO"    )->asBool() )	pTable->Add_Field(_TL("STDDEVLO"    ), SG_DATATYPE_Double);
 	if( Parameters("STDDEVHI"    )->asBool() )	pTable->Add_Field(_TL("STDDEVHI"    ), SG_DATATYPE_Double);
-	if( Parameters("PCTL"        )->asBool() )	pTable->Add_Field(_TL("PCTL"        ), SG_DATATYPE_Double);
 
+	//-----------------------------------------------------
+	CSG_Table	Percentiles;
+
+	Percentiles.Add_Field("FIELD", SG_DATATYPE_Int   );
+	Percentiles.Add_Field("VALUE", SG_DATATYPE_Double);
+
+	for(CSG_String_Tokenizer Values(Parameters("PCTL_VAL")->asString(), ";"); Values.Has_More_Tokens(); )
+	{
+		CSG_String	s(Values.Get_Next_Token()); s.Trim_Both();	double	v;
+
+		if( s.asDouble(v) && v >= 0. && v <= 100. )
+		{
+			int	n	= Percentiles.Get_Count();
+
+			Percentiles.Add_Record();
+
+			Percentiles[n].Set_Value(0, pTable->Get_Field_Count());
+			Percentiles[n].Set_Value(1, v);
+			
+			pTable->Add_Field(CSG_String::Format("%s%02d", _TL("PCTL"), (int)v), SG_DATATYPE_Double);
+		}
+	}
+
+	//-----------------------------------------------------
 	if( pTable->Get_Field_Count() <= 1 )
 	{
-		Error_Set(_TL("no parameter output specified"));
+		Error_Set(_TL("no parameter output has been selected"));
 
 		return( false );
 	}
 
-	double	dRank	= Parameters("PCTL"    )->asBool()
-					? Parameters("PCTL_VAL")->asDouble() / 100. : -1.0;
-	bool	bHist	= Parameters("PCTL_HST")->asBool();
-
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
-		CSG_Grid			*pGrid		= pGrids->Get_Grid(i);
+		CSG_Grid	*pGrid	= pGrids->Get_Grid(i);
+
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
-		pRecord->Set_Value("NAME"        , pGrid->Get_Name());
-		pRecord->Set_Value("DATA_CELLS"  , pGrid->Get_NCells() - pGrid->Get_NoData_Count());
-		pRecord->Set_Value("NODATA_CELLS", pGrid->Get_NoData_Count());
-		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize());
-		pRecord->Set_Value("MEAN"        , pGrid->Get_Mean());
-		pRecord->Set_Value("MIN"         , pGrid->Get_Min());
-		pRecord->Set_Value("MAX"         , pGrid->Get_Max());
-		pRecord->Set_Value("RANGE"       , pGrid->Get_Range());
-		pRecord->Set_Value("VAR"         , pGrid->Get_Variance());
-		pRecord->Set_Value("STDDEV"      , pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVLO"    , pGrid->Get_Mean() - pGrid->Get_StdDev());
-		pRecord->Set_Value("STDDEVHI"    , pGrid->Get_Mean() + pGrid->Get_StdDev());
+		CSG_Simple_Statistics	s	= pGrid->Get_Statistics();
 
-		if( dRank > 0.0 && dRank < 100.0 )
+		pRecord->Set_Value("NAME"        , pGrid->Get_Name            ());
+		pRecord->Set_Value("DATA_CELLS"  , (int)(pGrid->Get_NCells() - pGrid->Get_NoData_Count()));
+		pRecord->Set_Value("NODATA_CELLS", (int)pGrid->Get_NoData_Count());
+		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize        ());
+		pRecord->Set_Value("MEAN"        , s.Get_Mean                 ());
+		pRecord->Set_Value("MIN"         , s.Get_Minimum              ());
+		pRecord->Set_Value("MAX"         , s.Get_Maximum              ());
+		pRecord->Set_Value("RANGE"       , s.Get_Range                ());
+		pRecord->Set_Value("SUM"         , s.Get_Sum                  ());
+		pRecord->Set_Value("SUM2"        , s.Get_Sum_Of_Squares       ());
+		pRecord->Set_Value("VAR"         , s.Get_Variance             ());
+		pRecord->Set_Value("STDDEV"      , s.Get_StdDev               ());
+		pRecord->Set_Value("STDDEVLO"    , s.Get_Mean() - s.Get_StdDev());
+		pRecord->Set_Value("STDDEVHI"    , s.Get_Mean() + s.Get_StdDev());
+
+		for(int j=0; j<Percentiles.Get_Count(); j++)
 		{
-			pRecord->Set_Value("PCTL", pGrid->Get_Quantile(dRank, bHist));
+			pRecord->Set_Value(Percentiles[j].asInt(0),
+				pGrid->Get_Percentile(Percentiles[j].asDouble(1), Parameters("PCTL_HST")->asBool())
+			);
 		}
 	}
 
-	if( dRank > 0.0 && dRank < 100.0 )
-	{
-		pTable->Set_Field_Name(pTable->Get_Field_Count() - 1, CSG_String::Format("%s%02d", _TL("PCTL"), (int)dRank));
-	}
-
+	//-----------------------------------------------------
 	return( true );
 }
 

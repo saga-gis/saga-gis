@@ -2,7 +2,7 @@
 <toolchain saga-version="7.0.0">
 	<group></group>
 	<identifier>grid_statistics_for_directions</identifier>
-	<name>Directional Grid Statitistics</name>
+	<name>Directional Grid Statistics</name>
 	<author>O.Conrad (c) 2018</author>
 	<description></description>
 	<menu absolute="true">Spatial and Geostatistics|Grids</menu>
