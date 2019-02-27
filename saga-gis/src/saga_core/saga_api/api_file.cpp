@@ -372,7 +372,9 @@ size_t CSG_File::Write(const CSG_String &Buffer) const
 {
 	if( m_pConvert )
 	{
-		const wxScopedCharBuffer s(wxString(Buffer.c_str()).mb_str(*((wxMBConv *)m_pConvert)));
+		wxString	_Buffer(Buffer.w_str());
+
+		const wxScopedCharBuffer s(_Buffer.mb_str(*((wxMBConv *)m_pConvert)));
 
 		return( Write((void *)s.data(), sizeof(char), s.length()) );
 	}
