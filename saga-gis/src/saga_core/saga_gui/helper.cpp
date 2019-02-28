@@ -1108,7 +1108,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 	&&  QML["pipe"]["rasterrenderer"]["rastershader"]("colorrampshader")
 	&&  QML["pipe"]["rasterrenderer"]["rastershader"]["colorrampshader"].Get_Children_Count() > 0 )
 	{
-		//-----------------------------------------------------
+		//-------------------------------------------------
 		const CSG_MetaData	&ColorRamp	= QML["pipe"]["rasterrenderer"]["rastershader"]["colorrampshader"];
 
 		bool	bExact	= ColorRamp.Cmp_Property("colorRampType", "EXACT");	// "DISCRETE"
@@ -1123,7 +1123,7 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 
 		CSG_String	Value("-99999");
 
-		//-----------------------------------------------------
+		//-------------------------------------------------
 		for(int i=0; i<ColorRamp.Get_Children_Count(); i++)
 		{
 			CSG_String	minVal(Value); Value = ColorRamp[i].Get_Property("value");
@@ -1138,7 +1138,65 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 			Class.Set_Value(4, Value);	// Maximum
 		}
 
-		//-----------------------------------------------------
+		//-------------------------------------------------
+		return( Classes.Get_Count() > 0 );
+	}
+
+	//-----------------------------------------------------
+	if( QML("rasterproperties")
+	&&  QML["rasterproperties"]("customColorRamp")
+	&&  QML["rasterproperties"]["customColorRamp"]("colorRampType")
+//	&&  QML["rasterproperties"]["customColorRamp"]["colorRampType"].Cmp_Content("DISCRETE")
+	&&  QML["rasterproperties"]["customColorRamp"].Get_Children_Count() > 1 )
+	{
+		//-------------------------------------------------
+		const CSG_MetaData	&ColorRamp	= QML["rasterproperties"]["customColorRamp"];
+
+		bool	bExact	= ColorRamp("colorRampType") && ColorRamp["colorRampType"].Cmp_Content("DISCRETE");
+
+		Classes.Destroy();
+
+		Classes.Add_Field(_TL("COLOR"      ), SG_DATATYPE_Color );
+		Classes.Add_Field(_TL("NAME"       ), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("DESCRIPTION"), SG_DATATYPE_String);
+		Classes.Add_Field(_TL("MINIMUM"    ), SG_DATATYPE_Double);
+		Classes.Add_Field(_TL("MAXIMUM"    ), SG_DATATYPE_Double);
+
+		CSG_String	Value("-99999");
+
+		//-------------------------------------------------
+		for(int i=0; i<ColorRamp.Get_Children_Count(); i++)
+		{
+			if( ColorRamp[i].Cmp_Name("colorRampEntry") )
+			{
+				CSG_Table_Record &Class = *Classes.Add_Record();
+
+				CSG_String	minVal(Value); Value = ColorRamp[i].Get_Property("value");
+
+				Class.Set_Value(1, ColorRamp[i].Get_Property("label"));	// Name
+				Class.Set_Value(3, bExact ? Value : minVal);	// Minimum
+				Class.Set_Value(4, Value);	// Maximum
+
+				if( ColorRamp[i].Get_Property("color", Value) )
+				{
+					wxColour Color; Color.Set(ColorRamp[i].Get_Property("color"));
+
+					Class.Set_Value(0, Get_Color_asInt(Color));	// Color
+				}
+				else
+				{
+					int	r, g, b;
+
+					ColorRamp[i].Get_Property("red"  , r);
+					ColorRamp[i].Get_Property("green", g);
+					ColorRamp[i].Get_Property("blue" , b);
+
+					Class.Set_Value(0, SG_GET_RGB(r, g, b));	// Color
+				}
+			}
+		}
+
+		//-------------------------------------------------
 		return( Classes.Get_Count() > 0 );
 	}
 
