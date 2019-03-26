@@ -635,8 +635,6 @@ bool CPhenIps_Grids::On_Execute(void)
 
 	CSG_Grid	*pOnset		= Parameters("ONSET" )->asGrid(); GRID_INIT(pOnset, true);
 	CSG_Grid	*pNumber	= Parameters("NUMBER")->asGrid();
-	CSG_Colors;
-	
 
 	CSG_Grid	*pOnsets[6], *pStates[6];
 	{
