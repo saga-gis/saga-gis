@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     Shapes_Merge.cpp
     Copyright (C) Victor Olaya
@@ -72,6 +69,12 @@ CShapes_Merge::CShapes_Merge(void) : CTables_Merge()
 		_TL(""),
 		true
 	);
+
+	Parameters.Add_Bool(
+		"", "DELETE"	, _TL("Delete"),
+		_TL("Deletes each input data set immediately after it has been merged, thus saving memory resources."),
+		false
+	);
 }
 
 
@@ -112,6 +115,12 @@ CTables_Merge::CTables_Merge(void)
 		"", "MATCH"		, _TL("Match Fields by Name"),
 		_TL(""),
 		true
+	);
+
+	Parameters.Add_Bool(
+		"", "DELETE"	, _TL("Delete"),
+		_TL("Deletes each input data set immediately after it has been merged, thus saving memory resources."),
+		false
 	);
 }
 
@@ -154,45 +163,17 @@ bool CTables_Merge::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_Table	*pMerged	= Parameters("MERGED")->asTable();
 
-	if( pList->Get_Type() == PARAMETER_TYPE_Shapes_List )
+	if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 	{
-		CSG_Shapes	*pShapesIn = ((CSG_Shapes *)pList->Get_Item(0));
-
-		((CSG_Shapes *)pMerged)->Create(pShapesIn->Get_Type(), pShapesIn->Get_Name(), pShapesIn, pShapesIn->Get_Vertex_Type());
-
-		CSG_Shapes	*pShapesOut = ((CSG_Shapes *)pMerged);
-
-		for(int i=0; i<pShapesIn->Get_Count(); i++)
-		{
-			CSG_Shape	*pShape	= pShapesIn->Get_Shape(i);
-
-			pShapesOut->Add_Shape(pShape);
-
-			if( pShapesIn->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
-			{
-				for(int iPart=0; iPart<pShape->Get_Part_Count(); iPart++)
-				{
-					for(int iPoint=0; iPoint<pShape->Get_Point_Count(iPart); iPoint++)
-					{
-						pShapesOut->Get_Shape(i)->Set_Z(pShape->Get_Z(iPoint, iPart), iPoint, iPart);
-
-						if( pShapesIn->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
-						{
-							pShapesOut->Get_Shape(i)->Set_M(pShape->Get_M(iPoint, iPart), iPoint, iPart);
-						}
-					}
-				}
-			}
-		}
+		pMerged->asShapes()->Create(*((CSG_Shapes *)pList->Get_Item(0)));
 	}
-	else // if( pList->Get_Type() == PARAMETER_TYPE_Table_List )
+	else // if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 	{
-		pMerged->Create(*((CSG_Table *)pList->Get_Item(0)));
+		pMerged->asTable ()->Create(*((CSG_Table  *)pList->Get_Item(0)));
 	}
 
 	pMerged->Set_Name(_TL("Merged Layers"));
 
-	//-----------------------------------------------------
 	bool	bInfo	= Parameters("SRCINFO")->asBool();
 
 	if( bInfo )
@@ -205,17 +186,25 @@ bool CTables_Merge::On_Execute(void)
 		}
 	}
 
-	int		*Index	= NULL;
+	//-----------------------------------------------------
+	bool	bDelete	= Parameters.Get_Manager() && Parameters("DELETE")->asBool();
+
+	if( bDelete )
+	{
+		((CSG_Table *)pList->Get_Item(0))->Del_Records();
+	}
 
 	//-----------------------------------------------------
-	for(int iTable=1; iTable<pList->Get_Item_Count() && Process_Get_Okay(); iTable++)
+	for(int iTable=1; iTable<pList->Get_Item_Count() && Set_Progress(iTable, pList->Get_Item_Count()); iTable++)
 	{
 		CSG_Table	*pTable	= (CSG_Table *)pList->Get_Item(iTable);
 
 		//-------------------------------------------------
+		CSG_Array_Int	Index;
+
 		if( Parameters("MATCH")->asBool() )	// see which fields are in both attributes tables
 		{
-			Index	= (int *)SG_Realloc(Index, pTable->Get_Field_Count() * sizeof(int));
+			Index.Create(pTable->Get_Field_Count());
 
 			for(int i=0; i<pTable->Get_Field_Count(); i++)
 			{
@@ -240,27 +229,7 @@ bool CTables_Merge::On_Execute(void)
 
 			if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 			{
-				CSG_Shape	*pShapeOut;
-
-				pOutput	= pShapeOut = ((CSG_Shapes *)pMerged)->Add_Shape(pInput, SHAPE_COPY_GEOM);
-
-				if( pMerged->asShapes()->Get_Vertex_Type() > SG_VERTEX_TYPE_XY )
-				{
-					CSG_Shape	*pShapeIn = pTable->asShapes()->Get_Shape(iRecord);
-
-					for(int iPart=0; iPart<pShapeIn->Get_Part_Count(); iPart++)
-					{
-						for(int iPoint=0; iPoint<pShapeIn->Get_Point_Count(iPart); iPoint++)
-						{
-							pShapeOut->Set_Z(pShapeIn->Get_Z(iPoint, iPart), iPoint, iPart);
-
-							if( pMerged->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
-							{
-								pShapeOut->Set_M(pShapeIn->Get_M(iPoint, iPart), iPoint, iPart);
-							}
-						}
-					}
-				}
+				pOutput	= ((CSG_Shapes *)pMerged)->Add_Shape(pInput, SHAPE_COPY_GEOM);
 			}
 			else // if( pMerged->Get_ObjectType() == SG_DATAOBJECT_TYPE_Table )
 			{
@@ -272,7 +241,7 @@ bool CTables_Merge::On_Execute(void)
 				pOutput->Set_Value(0, pTable->Get_Name());
 			}
 
-			if( Index )
+			if( Index.Get_Size() > 0 )
 			{
 				for(int i=0; i<pTable->Get_Field_Count(); i++)
 				{
@@ -290,10 +259,39 @@ bool CTables_Merge::On_Execute(void)
 				}
 			}
 		}
+
+		//-------------------------------------------------
+		if( bDelete )
+		{
+			pTable->Del_Records();
+		}
 	}
 
 	//-----------------------------------------------------
-	SG_FREE_SAFE(Index);
+	if( bDelete )
+	{
+		for(int i=0; i<pList->Get_Item_Count(); i++)
+		{
+			CSG_Data_Object	*pObject	= pList->Get_Item(i);
+
+			Parameters.Get_Manager()->Delete(pObject, true);
+
+			DataObject_Update(pObject);
+
+			switch( pObject->Get_ObjectType() )
+			{
+			case SG_DATAOBJECT_TYPE_Table     : delete(pObject->asTable     ()); break;
+			case SG_DATAOBJECT_TYPE_Shapes    : delete(pObject->asShapes    ()); break;
+			case SG_DATAOBJECT_TYPE_PointCloud: delete(pObject->asPointCloud()); break;
+			case SG_DATAOBJECT_TYPE_TIN       : delete(pObject->asTIN       ()); break;
+			default:	break;
+			}
+		}
+
+		pList->Del_Items();
+
+		DataObject_Add(pMerged);
+	}
 
 	return( true );
 }
