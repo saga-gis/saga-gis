@@ -913,7 +913,11 @@ bool CSG_String::to_ASCII(char **pString, char Replace)	const
 {
 	if( !is_Empty() )
 	{
-		const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+		#if wxVERSION_NUMBER < 3100
+			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii();
+		#else
+			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+		#endif
 
 		if( (*pString = (char *)SG_Malloc(Buffer.length())) != NULL )
 		{
@@ -933,7 +937,11 @@ CSG_Buffer CSG_String::to_ASCII(char Replace) const
 
 	if( !is_Empty() )
 	{
-		const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+		#if wxVERSION_NUMBER < 3100
+			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii();
+		#else
+			const wxScopedCharBuffer	Buffer	= m_pString->ToAscii(Replace);
+		#endif
 
 		String.Set_Data(Buffer.data(), Buffer.length());
 	}
