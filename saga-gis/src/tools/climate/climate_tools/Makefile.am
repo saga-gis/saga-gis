@@ -20,6 +20,7 @@ frost_change_frequency.cpp\
 grid_levels_interpolation.cpp\
 growing_degree_days.cpp\
 milankovic.cpp\
+phenips.cpp\
 MLB_Interface.cpp\
 snow_cover.cpp\
 thermal_belts.cpp\
@@ -34,6 +35,7 @@ frost_change_frequency.h\
 grid_levels_interpolation.h\
 growing_degree_days.h\
 milankovic.h\
+phenips.h\
 MLB_Interface.h\
 snow_cover.h\
 thermal_belts.h\

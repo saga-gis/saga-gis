@@ -92,7 +92,7 @@ CSG_String CSG_TimeSpan::Format(const CSG_String &Format)	const
 //---------------------------------------------------------
 CSG_DateTime::CSG_DateTime(void)
 {
-	m_pDateTime	= new wxDateTime();
+	m_pDateTime	= new wxDateTime(wxDateTime::Now());
 }
 
 //---------------------------------------------------------
