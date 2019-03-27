@@ -17,7 +17,7 @@ def grid_tpi(File):
 
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool(saga_api.CSG_String('ta_morphometry'), 19)
     Parm = Tool.Get_Parameters()
-    Parm.Get_Grid_System().Destroy() # grid tool needs to use conformant grid system!
+    Parm.Reset_Grid_System() # grid tool needs to use conformant grid system!
     Parm('DEM'         ).Set_Value(Grid)
     Parm('DW_WEIGHTING').Set_Value(0)
     Parm('RADIUS_A'    ).asRange().Set_Range(0,  2 * Grid.Get_Cellsize())

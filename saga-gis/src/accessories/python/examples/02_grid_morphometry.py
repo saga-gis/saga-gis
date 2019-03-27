@@ -19,7 +19,7 @@ def run_morphometry(File):
 
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', 0)
     Parm = Tool.Get_Parameters()
-    Parm.Get_Grid_System().Destroy()
+    Parm.Reset_Grid_System()
     Parm('ELEVATION').Set_Value(Grid)
     Parm('C_CROS'   ).Set_Value(saga_api.SG_Get_Create_Pointer()) # optional grid output
     Parm('C_LONG'   ).Set_Value(saga_api.SG_Get_Create_Pointer()) # optional grid output
@@ -38,7 +38,7 @@ def run_morphometry(File):
 
     Tool = saga_api.SG_Get_Tool_Library_Manager().Get_Tool('ta_morphometry', 4)
     Parm = Tool.Get_Parameters()
-    Parm.Get_Grid_System().Destroy()
+    Parm.Reset_Grid_System()
     Parm('DEM').Set_Value(Grid)
 
     if Tool.Execute() == False:
