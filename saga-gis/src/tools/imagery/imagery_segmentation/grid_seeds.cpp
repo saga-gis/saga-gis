@@ -76,7 +76,8 @@ CGrid_Seeds::CGrid_Seeds(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		""
+		"The tool allows one to create seed points from a stack of input features. Such seed "
+		"points can be used, for example, as input in the 'Seeded Region Growing' tool.\n\n"
 	));
 
 	//-----------------------------------------------------
@@ -130,7 +131,7 @@ CGrid_Seeds::CGrid_Seeds(void)
 
 	Parameters.Add_Bool(
 		"", "NORMALIZE"		, _TL("Normalize Features"),
-		_TL(""),
+		_TL("Standardize the input features, i.e. rescale the input data (features) such that the mean equals 0 and the standard deviation equals 1. This is helpful when the input features have different scales, units or outliers."),
 		false
 	);
 

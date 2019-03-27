@@ -351,7 +351,10 @@ CRGA_Basic::CRGA_Basic(void)
 	Set_Author		("B. Bechtel, O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"Seeded Region Growing"
+		"The tool allows one to apply a seeded region growing algorithm to a stack of input features "
+		"and thus to segmentize the data for object extraction. The required seed points can be created "
+		"with the 'Seed Generation' tool, for example. The derived segments can be used, for example, "
+		"for object based classification.\n\n"
 	));
 
 	Add_Reference("Adams, R. & Bischof, L.", "1994",
@@ -399,8 +402,8 @@ CRGA_Basic::CRGA_Basic(void)
 	);
 
 	Parameters.Add_Bool("",
-		"NORMALIZE"	, _TL("Normalize"),
-		_TL(""),
+		"NORMALIZE"	, _TL("Normalize Features"),
+		_TL("Standardize the input features, i.e. rescale the input data (features) such that the mean equals 0 and the standard deviation equals 1. This is helpful when the input features have different scales, units or outliers."),
 		false
 	);
 
