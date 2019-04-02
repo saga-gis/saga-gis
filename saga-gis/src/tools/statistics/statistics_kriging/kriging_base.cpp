@@ -146,7 +146,7 @@ CKriging_Base::CKriging_Base(void)
 
 	Parameters.Add_Double("BLOCK",
 		"DBLOCK"	, _TL("Block Size"),
-		_TL(""),
+		_TL("Edge length [map units]"),
 		100.0, 0.0, true
 	);
 
