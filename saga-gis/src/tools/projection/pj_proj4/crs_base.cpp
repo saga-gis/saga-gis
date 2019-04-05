@@ -520,9 +520,9 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	// Ellipsoids -----------------------------------------
 	for(TPJ_ELLPS *pEllipse=PJ_GET_ELLPS; pEllipse->id; ++pEllipse)
 	{
-		CSG_String	id(pEllipse->id), name(pEllipse->name), major(pEllipse->major), ell(pEllipse->ell);
+		CSG_String	id(pEllipse->id), name(pEllipse->name), _major(pEllipse->major), ell(pEllipse->ell);
 
-		Ellipsoids	+= CSG_String::Format("{%s}%s (%s, %s)|", id.c_str(), name.c_str(), major.c_str(), ell.c_str());
+		Ellipsoids	+= CSG_String::Format("{%s}%s (%s, %s)|", id.c_str(), name.c_str(), _major.c_str(), ell.c_str());
 	}
 
 	// Units ----------------------------------------------
