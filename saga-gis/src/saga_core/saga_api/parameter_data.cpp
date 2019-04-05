@@ -920,6 +920,11 @@ bool CSG_Parameter_Choice::Get_Data(CSG_String &Value)	const
 	return( !Value.is_Empty() );
 }
 
+CSG_String CSG_Parameter_Choice::Get_Data(void)	const
+{
+	return( Get_Item_Data(m_Value) );
+}
+
 //---------------------------------------------------------
 int CSG_Parameter_Choice::_Set_Value(int               Value)
 {

@@ -651,6 +651,7 @@ public:
 	bool						Get_Data				(int        &Value)	const;
 	bool						Get_Data				(double     &Value)	const;
 	bool						Get_Data				(CSG_String &Value)	const;
+	CSG_String					Get_Data				(void)				const;
 
 	int							Get_Count				(void)	const	{	return( m_Items.Get_Count() );	}
 
