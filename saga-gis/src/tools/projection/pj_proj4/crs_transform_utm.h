@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,22 +46,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__crs_transform_utm_H
 #define HEADER_INCLUDED__crs_transform_utm_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "crs_transform_grid.h"
 #include "crs_transform_shapes.h"
-#include "crs_transform_pointcloud.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -98,26 +92,6 @@ class CCRS_Transform_UTM_Shapes : public CCRS_Transform_Shapes
 {
 public:
 	CCRS_Transform_UTM_Shapes(bool bList);
-
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("UTM Projection") );	}
-
-
-protected:
-
-	virtual int					On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CCRS_Transform_UTM_PointCloud : public CCRS_Transform_PointCloud
-{
-public:
-	CCRS_Transform_UTM_PointCloud(bool bList);
 
 	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("UTM Projection") );	}
 

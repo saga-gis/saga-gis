@@ -32,15 +32,6 @@
     <ClCompile Include="crs_transform_shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PROJ4_Base.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PROJ4_Grid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PROJ4_Shapes.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gcs_lon_range.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,9 +42,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crs_grid_geogcoords.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="crs_transform_pointcloud.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crs_distance.cpp">
@@ -67,9 +55,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -136,15 +121,6 @@
     <ClInclude Include="crs_transform_shapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PROJ4_Base.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PROJ4_Grid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PROJ4_Shapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gcs_lon_range.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -155,9 +131,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_grid_geogcoords.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="crs_transform_pointcloud.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_distance.h">

@@ -335,7 +335,6 @@ bool CGDAL_Import_WMS::Get_System(CSG_Grid_System &System, CSG_Grid *pTarget)
 	if( SG_TOOL_PARAMETER_SET("CRS_PROJ4", SG_T("+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +k=1.0"))
 	&&  SG_TOOL_PARAMETER_SET("SOURCE"   , &rTarget)
 	&&  SG_TOOL_PARAMETER_SET("TARGET"   , &rSource)
-	&&  SG_TOOL_PARAMETER_SET("PRECISE"  , true)
 	&&  pTool->Execute() )
 	{
 		Extent	= rSource.Get_Extent();

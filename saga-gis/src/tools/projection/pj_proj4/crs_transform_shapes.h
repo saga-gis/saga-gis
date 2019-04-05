@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,17 +46,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__crs_transform_shapes_H
 #define HEADER_INCLUDED__crs_transform_shapes_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "crs_base.h"
@@ -72,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class pj_proj4_EXPORT CCRS_Transform_Shapes : public CCRS_Transform
+class CCRS_Transform_Shapes : public CCRS_Transform
 {
 public:
 	CCRS_Transform_Shapes(bool bList);
@@ -80,9 +75,11 @@ public:
 
 protected:
 
+	virtual int				On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 	virtual bool			On_Execute_Transformation	(void);
 
-	bool					Transform					(CSG_Shapes *pSource, CSG_Shapes *pTarget);
+	bool					Transform					(CSG_Shapes *pShapes);
 
 
 private:

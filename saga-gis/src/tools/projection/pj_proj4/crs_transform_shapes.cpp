@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -115,7 +112,55 @@ CCRS_Transform_Shapes::CCRS_Transform_Shapes(bool bList)
 			_TL(""),
 			PARAMETER_OUTPUT
 		);
+
+		Parameters.Add_PointCloud("",
+			"TARGET_PC"	, _TL("Target"),
+			_TL(""),
+			PARAMETER_OUTPUT
+		);
 	}
+
+	//-----------------------------------------------------
+	Parameters.Add_Bool("",
+		"TRANSFORM_Z"	, _TL("Z Transformation"),
+		_TL("Transform elevation (z) values, if appropriate."),
+		true
+	);
+
+	Parameters.Add_Bool("",
+		"COPY"			, _TL("Copy"),
+		_TL("If set the projected data will be created as a copy of the orignal, if not vertices will be projected in place thus reducing memory requirements."),
+		true
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CCRS_Transform_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( !m_bList )
+	{
+		if( pParameter->Cmp_Identifier("SOURCE")
+		||  pParameter->Cmp_Identifier("COPY"  ) )
+		{
+			CSG_Parameter	*pSource	= (*pParameters)("SOURCE");
+
+			bool	bCreate	= (*pParameters)("COPY")->asBool() && pSource->asDataObject();
+
+			pParameters->Set_Enabled("TARGET"   , bCreate && pSource->asPointCloud() == NULL);
+			pParameters->Set_Enabled("TARGET_PC", bCreate && pSource->asPointCloud() != NULL);
+
+			pParameters->Set_Enabled("TRANSFORM_Z", pSource->asDataObject() &&
+				((CSG_Shapes *)pSource->asDataObject())->Get_Vertex_Type() >= SG_VERTEX_TYPE_XYZ
+			);
+		}
+	}
+
+	return( CCRS_Transform::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -128,58 +173,58 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 {
 	if( m_bList )
 	{
-		CSG_Parameter_Shapes_List	*pSources, *pTargets;
-
-		pSources	= Parameters("SOURCE")->asShapesList();
-		pTargets	= Parameters("TARGET")->asShapesList();
+		CSG_Parameter_Shapes_List	*pSources	= Parameters("SOURCE")->asShapesList();
+		CSG_Parameter_Shapes_List	*pTargets	= Parameters("TARGET")->asShapesList();
 
 		pTargets->Del_Items();
 
+		bool	bResult	= true;
+
 		for(int i=0; i<pSources->Get_Item_Count() && Process_Get_Okay(false); i++)
 		{
-			CSG_Shapes	*pSource	= pSources->Get_Shapes(i);
-			CSG_Shapes	*pTarget	= SG_Create_Shapes(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
+			CSG_Shapes	*pTarget	= pSources->Get_Shapes(i);
 
-			if( Transform(pSource, pTarget) )
+			if( Parameters("COPY")->asBool() )
 			{
-				pTargets->Add_Item(pTarget);
+				pTarget	= SG_Create_Shapes(*pTarget);
 			}
-			else
+
+			pTargets->Add_Item(pTarget);
+
+			if( !Transform(pTarget) )
 			{
-				delete(pTarget);
+				bResult	= false;
 			}
 		}
 
-		return( pTargets->Get_Item_Count() > 0 );
+		return( bResult );
 	}
+
+	//-----------------------------------------------------
 	else
 	{
-		CSG_Shapes	*pSource	= Parameters("SOURCE")->asShapes();
-		CSG_Shapes	*pTarget	= Parameters("TARGET")->asShapes();
+		CSG_Shapes	*pSource	= Parameters("SOURCE"   )->asShapes();
+		CSG_Shapes	*pTarget	= Parameters("COPY"     )->asBool() == false ? NULL : pSource->asPointCloud()
+								? Parameters("TARGET_PC")->asShapes()
+								: Parameters("TARGET"   )->asShapes();
 
-		if( pSource == pTarget )
+		if( pTarget && pTarget != pSource )
 		{
-			pTarget	= SG_Create_Shapes(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
-
-			if( Transform(pSource, pTarget) )
-			{
-				pSource->Assign(pTarget);
-
-				return( true );
-			}
-			else
-			{
-				delete(pTarget);
-
-				return( false );
-			}
+			pTarget->Create(*pSource);
 		}
 		else
 		{
-			pTarget->Create(pSource->Get_Type(), pSource->Get_Name(), pSource, pSource->Get_Vertex_Type());
+			pTarget	= pSource;
 		}
 
-		return( Transform(pSource, pTarget) );
+		bool	bResult	= Transform(pTarget);
+
+		if( pTarget == pSource )
+		{
+			DataObject_Update(pSource);
+		}
+
+		return( bResult );
 	}
 }
 
@@ -189,80 +234,88 @@ bool CCRS_Transform_Shapes::On_Execute_Transformation(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pSource, CSG_Shapes *pTarget)
+bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 {
-	if( !pTarget || !pSource || !pSource->is_Valid() )
+	if( !pShapes || !pShapes->is_Valid() )
 	{
 		return( false );
 	}
 
-	if( !m_Projector.Set_Source(pSource->Get_Projection()) )
+	if( !m_Projector.Set_Source(pShapes->Get_Projection()) )
 	{
 		return( false );
 	}
 
-	int		nDropped	= 0;
+	bool	bTransform_Z	= Parameters("TRANSFORM_Z")->asBool() && pShapes->Get_Vertex_Type() >= SG_VERTEX_TYPE_XYZ;
 
-	Process_Set_Text("%s: %s", _TL("Processing"), pSource->Get_Name());
+	Process_Set_Text("%s: %s", _TL("Processing"), pShapes->Get_Name());
 
-	for(int iShape=0; iShape<pSource->Get_Count() && Set_Progress(iShape, pSource->Get_Count()); iShape++)
+	int	nDropped = 0, nShapes = pShapes->Get_Count();
+
+	for(int i=0, j=nShapes-1; i<nShapes && Set_Progress(i, nShapes); i++, j--)
 	{
-		CSG_Shape	*pShape_Source	= pSource->Get_Shape(iShape);
-		CSG_Shape	*pShape_Target	= pTarget->Add_Shape(pShape_Source, SHAPE_COPY_ATTR);
-
-		for(int iPart=0; iPart<pShape_Source->Get_Part_Count() && pShape_Target; iPart++)
+		if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 		{
-			for(int iPoint=0; iPoint<pShape_Source->Get_Point_Count(iPart) && pShape_Target; iPoint++)
+			TSG_Point_Z	p	= pShapes->asPointCloud()->Get_Point(j);
+
+			if( bTransform_Z ? m_Projector.Get_Projection(p.x, p.y, p.z) : m_Projector.Get_Projection(p.x, p.y) )
 			{
-				TSG_Point	Point	= pShape_Source->Get_Point(iPoint, iPart);
+				pShapes->asPointCloud()->Set_Point(j, p);
+			}
+			else
+			{
+				pShapes->asPointCloud()->Del_Point(j);
 
-				bool bSuccess = false;
+				nDropped++;
+			}
+		}
+		else
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape(j);
 
-				if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XY )
+			bool	bOkay	= true;
+
+			for(int iPart=0; bOkay && iPart<pShape->Get_Part_Count(); iPart++)
+			{
+				for(int iPoint=0; bOkay && iPoint<pShape->Get_Point_Count(iPart); iPoint++)
 				{
-					if( m_Projector.Get_Projection(Point.x, Point.y) )
-					{
-						pShape_Target->Add_Point(Point.x, Point.y, iPart);
-						bSuccess = true;
-					}
-				}
-				else
-				{
-					double z = pShape_Source->Get_Z(iPoint, iPart);
+					TSG_Point	p	= pShape->Get_Point(iPoint, iPart);
 
-					if( m_Projector.Get_Projection(Point.x, Point.y, z) )
+					if( bTransform_Z )
 					{
-						pShape_Target->Add_Point(Point.x, Point.y, iPart);
-						pShape_Target->Set_Z(z, iPoint, iPart);
-						bSuccess = true;
+						double	z	= pShape->Get_Z(iPoint, iPart);
 
-						if( pShape_Source->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
+						if( (bOkay = m_Projector.Get_Projection(p.x, p.y, z)) == true )
 						{
-							pShape_Target->Set_M(pShape_Source->Get_M(iPoint, iPart), iPoint, iPart);
+							pShape->Set_Z(z, iPoint, iPart);
+
+							pShape->Set_Point(p.x, p.y, iPoint, iPart);
 						}
 					}
+					else if( (bOkay = m_Projector.Get_Projection(p.x, p.y)) == true )
+					{
+						pShape->Set_Point(p.x, p.y, iPoint, iPart);
+					}
 				}
+			}
 
-				if (!bSuccess)
-				{
-					nDropped++;
+			if( !bOkay )
+			{
+				pShapes->Del_Shape(j);
 
-					pTarget->Del_Shape(pShape_Target);
-
-					pShape_Target	= NULL;
-				}
+				nDropped++;
 			}
 		}
 	}
 
 	if( nDropped > 0 )
 	{
-		Message_Fmt("\n%s: %d %s", pTarget->Get_Name(), nDropped, _TL("shapes have been dropped"));
+		Message_Fmt("\n%s: %s [%d]", pShapes->Get_Name(), _TL("not all features have been projected"), nDropped, nShapes);
 	}
 
-	pTarget->Get_Projection() = m_Projector.Get_Target();
+	pShapes->Get_Projection() = m_Projector.Get_Target();
 
-	return( pTarget->Get_Count() > 0 );
+	return( pShapes->Get_Count() > 0 );
 }
 
 

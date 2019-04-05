@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -100,12 +97,8 @@ CSG_String Get_Info(int i)
 
 #include "crs_transform_shapes.h"
 #include "crs_transform_grid.h"
-#include "crs_transform_pointcloud.h"
 #include "crs_transform_point.h"
 #include "crs_transform_utm.h"
-
-#include "PROJ4_Shapes.h"
-#include "PROJ4_Grid.h"
 
 #include "gcs_lon_range.h"
 
@@ -128,19 +121,15 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 29:	return( new CCRS_Transform_Point() );
 
-	case  1:	return( new CCRS_Transform_Shapes        (true ) );
-	case  2:	return( new CCRS_Transform_Shapes        (false) );
-	case  3:	return( new CCRS_Transform_Grid          (true ) );
-	case  4:	return( new CCRS_Transform_Grid          (false) );
-	case 18:	return( new CCRS_Transform_PointCloud    (true ) );
-	case 19:	return( new CCRS_Transform_PointCloud    (false) );
+	case  1:	return( new CCRS_Transform_Shapes    (true ) );
+	case  2:	return( new CCRS_Transform_Shapes    (false) );
+	case  3:	return( new CCRS_Transform_Grid      (true ) );
+	case  4:	return( new CCRS_Transform_Grid      (false) );
 
-	case 23:	return( new CCRS_Transform_UTM_Grids     (true ) );
-	case 24:	return( new CCRS_Transform_UTM_Grids     (false) );
-	case 25:	return( new CCRS_Transform_UTM_Shapes    (true ) );
-	case 26:	return( new CCRS_Transform_UTM_Shapes    (false) );
-	case 27:	return( new CCRS_Transform_UTM_PointCloud(true ) );
-	case 28:	return( new CCRS_Transform_UTM_PointCloud(false) );
+	case 23:	return( new CCRS_Transform_UTM_Grids (true ) );
+	case 24:	return( new CCRS_Transform_UTM_Grids (false) );
+	case 25:	return( new CCRS_Transform_UTM_Shapes(true ) );
+	case 26:	return( new CCRS_Transform_UTM_Shapes(false) );
 
 	case 15:	return( new CCRS_Picker() );
 
@@ -153,15 +142,6 @@ CSG_Tool *		Create_Tool(int i)
 	case 20:	return( new CCRS_Distance_Lines() );
 	case 21:	return( new CCRS_Distance_Points() );
 	case 22:	return( new CCRS_Distance_Interactive() );
-
-	case  5:	return( new CPROJ4_Shapes(PROJ4_INTERFACE_SIMPLE, false) );
-	case  6:	return( new CPROJ4_Shapes(PROJ4_INTERFACE_DIALOG, false) );
-	case  7:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_SIMPLE, false) );
-	case  8:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_DIALOG, false) );
-	case  9:	return( new CPROJ4_Shapes(PROJ4_INTERFACE_SIMPLE, true ) );
-	case 10:	return( new CPROJ4_Shapes(PROJ4_INTERFACE_DIALOG, true ) );
-	case 11:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_SIMPLE, true ) );
-	case 12:	return( new CPROJ4_Grid  (PROJ4_INTERFACE_DIALOG, true ) );
 
 	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

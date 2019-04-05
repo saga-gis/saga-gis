@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -60,15 +57,57 @@
 //---------------------------------------------------------
 #include "crs_base.h"
 
-extern "C" {
-#include <projects.h>
-}
+//---------------------------------------------------------
+#ifndef PROJ6
+	extern "C" {
+		#include <projects.h>
+	}
+
+	#define PJ_GET_PROJS	pj_get_list_ref()
+	#define PJ_GET_DATUMS	pj_get_datums_ref()
+	#define PJ_GET_ELLPS	pj_get_ellps_ref()
+	#define PJ_GET_UNITS	pj_get_units_ref()
+
+	#define TPJ_PROJS		struct PJ_LIST
+	#define TPJ_DATUMS		struct PJ_DATUMS
+	#define TPJ_ELLPS		struct PJ_ELLPS
+	#define TPJ_UNITS		struct PJ_UNITS
 
 //---------------------------------------------------------
-#define PJ_GET_PROJS	pj_get_list_ref()
-#define PJ_GET_DATUMS	pj_get_datums_ref()
-#define PJ_GET_ELLPS	pj_get_ellps_ref()
-#define PJ_GET_UNITS	pj_get_units_ref()
+#else
+	#include <proj.h>
+
+	#define PJ_GET_PROJS	proj_list_operations()
+	#define PJ_GET_ELLPS	proj_list_ellps()
+	#define PJ_GET_UNITS	proj_list_units()
+
+	#define TPJ_PROJS		const PJ_OPERATIONS
+	#define TPJ_ELLPS		const PJ_ELLPS
+	#define TPJ_UNITS		const PJ_UNITS
+
+	struct PJ_DATUMS
+	{
+		char	*id, *comments;
+	};
+
+	#define TPJ_DATUMS	struct PJ_DATUMS
+
+	struct PJ_DATUMS	PJ_GET_DATUMS[]	=
+	{
+		{ "WGS84"        , "WGS84"                                },
+		{ "GGRS87"       , "Greek Geodetic Reference System 1987" },
+		{ "NAD83"        , "North American Datum 1983"            },
+		{ "NAD27"        , "North American Datum 1927"            },
+		{ "potsdam"      , "Potsdam Rauenberg 1950 DHDN"          },
+		{ "carthage"     , "Carthage 1934 Tunisia"                },
+		{ "hermannskogel", "Hermannskogel"                        },
+		{ "ire65"        , "Ireland 1965"                         },
+		{ "nzgd49"       , "New Zealand Geodetic Datum 1949"      },
+		{ "OSGB36"       , "Airy 1830"                            },
+		{ NULL           , NULL                                   }
+	};
+
+#endif
 
 
 ///////////////////////////////////////////////////////////
@@ -163,11 +202,13 @@ CCRS_Base::CCRS_Base(void)
 	)->Set_UseInCMD(false);
 
 	//-----------------------------------------------------
+#ifndef PROJ6
 	Parameters.Add_Bool("",
 		"PRECISE"		, _TL("Precise Datum Conversion"),
 		_TL("avoids precision problems when source and target crs use different geodedtic datums."),
 		false
 	);
+#endif
 }
 
 
@@ -195,15 +236,45 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	CSG_Projection	Projection;
 
 	//-----------------------------------------------------
-	if( pParameter->Cmp_Identifier("CRS_PROJ4") )
+	if( pParameter->Cmp_Identifier("CRS_PROJ4" )
+	||  pParameter->Cmp_Identifier("CRS_DIALOG") )
 	{
-		Projection.Create(pParameter->asString(), SG_PROJ_FMT_Proj4);
-	}
+		CSG_String	sProj4;
 
-	//-----------------------------------------------------
-	if(	pParameter->Cmp_Identifier("CRS_DIALOG") )
-	{
-		Projection.Create(Get_User_Definition(*pParameter->asParameters()), SG_PROJ_FMT_Proj4);
+		if( pParameter->Cmp_Identifier("CRS_PROJ4") )
+			sProj4 = pParameter->asString();
+		else
+			sProj4 = Get_User_Definition(*pParameter->asParameters());
+
+		Projection.Create(sProj4, SG_PROJ_FMT_Proj4);
+
+		if( !Projection.is_Okay() )
+		{
+			#define WKT_GCS_WGS84	"GEOGCS[\"WGS 84\"],DATUM[\"WGS_1984\"],SPHEROID[\"WGS 84\",6378137,298.257223563],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433]"
+
+			Projection.Create(WKT_GCS_WGS84, sProj4);
+		}
+
+//#ifdef PROJ6
+//		if( !Projection.is_Okay() )
+//		{
+//			PJ	*Proj4	= proj_create(PJ_DEFAULT_CTX, sProj4);
+//
+//			if( Proj4 )
+//			{
+//				const char	*WKT	= proj_as_wkt(PJ_DEFAULT_CTX, Proj4, PJ_WKT2_2015_SIMPLIFIED, NULL);
+//
+//				if( WKT )
+//				{
+//					Projection.Create(WKT, pParameter->asString());
+//
+//					Message_Fmt("\n___\n%s:\n%s", sProj4.c_str(), CSG_String(WKT).c_str());
+//				}
+//
+//				proj_destroy(Proj4);
+//			}
+//		}
+//#endif
 	}
 
 	//-----------------------------------------------------
@@ -278,7 +349,7 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 	{
 		if(	pParameter->Cmp_Identifier("PROJ_TYPE") )
 		{
-			CSG_String	ID	= PJ_GET_PROJS[pParameter->asInt()].id;
+			CSG_String	ID; pParameter->asChoice()->Get_Data(ID);
 
 			for(int i=0; i<pParameters->Get_Count(); i++)
 			{
@@ -410,20 +481,22 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 
 	Description	= _TL("Available Projections:");
 
-	for(struct PJ_LIST *pProjection=PJ_GET_PROJS; pProjection->id; ++pProjection)
+	for(TPJ_PROJS *pProjection=PJ_GET_PROJS; pProjection->id; ++pProjection)
 	{
-		CSG_String	ID, Name, Args;
+		CSG_String	ID(pProjection->id), Args(*pProjection->descr), Name;
 
-		ID		=  pProjection->id;
-		Args	= *pProjection->descr;
 		Name	= Args.BeforeFirst('\n');
 		Args	= Args.AfterFirst ('\n').AfterFirst('\n').AfterFirst('\t');
 
+	//	CSG_Projection	Projection("+proj=" + ID, SG_PROJ_FMT_Proj4); if( !Projection.is_Okay() ) continue;
+
 		Projections	+=   "{" + ID + "}"  + Name + "|";
-		Description	+= "\n[" + ID + "] " + Name + " (" + Args + ")";
+		Description	+= "\n[" + ID + "] " + Name;
 
 		if( !Args.is_Empty() )
 		{
+			Description	+= " (" + Args + ")";
+
 			Add_User_Projection(P, ID, Args);
 		}
 	}
@@ -437,24 +510,27 @@ bool CCRS_Base::Set_User_Parameters(CSG_Parameters &P)
 	P("PROJ_TYPE")->Set_Description(Description);
 
 	// Datums ---------------------------------------------
-	for(struct PJ_DATUMS *pDatum=PJ_GET_DATUMS; pDatum->id; ++pDatum)
+	for(TPJ_DATUMS *pDatum=PJ_GET_DATUMS; pDatum->id; ++pDatum)
 	{
-		CSG_String	id      (pDatum->id);
-		CSG_String	comments(pDatum->comments);
+		CSG_String	id(pDatum->id), comments(pDatum->comments);
 
-		Datums	+= CSG_String::Format("{%s}%s|", id.c_str(), comments.Length() ? comments.c_str() : id.c_str());
+		Datums		+= CSG_String::Format("{%s}%s|", id.c_str(), comments.Length() ? comments.c_str() : id.c_str());
 	}
 
 	// Ellipsoids -----------------------------------------
-	for(struct PJ_ELLPS *pEllipse=PJ_GET_ELLPS; pEllipse->id; ++pEllipse)
+	for(TPJ_ELLPS *pEllipse=PJ_GET_ELLPS; pEllipse->id; ++pEllipse)
 	{
-		Ellipsoids	+= CSG_String::Format("{%s}%s (%s, %s)|", SG_STR_MBTOSG(pEllipse->id), SG_STR_MBTOSG(pEllipse->name), SG_STR_MBTOSG(pEllipse->major), SG_STR_MBTOSG(pEllipse->ell));
+		CSG_String	id(pEllipse->id), name(pEllipse->name), major(pEllipse->major), ell(pEllipse->ell);
+
+		Ellipsoids	+= CSG_String::Format("{%s}%s (%s, %s)|", id.c_str(), name.c_str(), major.c_str(), ell.c_str());
 	}
 
 	// Units ----------------------------------------------
-	for(struct PJ_UNITS *pUnit=PJ_GET_UNITS; pUnit->id; ++pUnit)
+	for(TPJ_UNITS *pUnit=PJ_GET_UNITS; pUnit->id; ++pUnit)
 	{
-		Units	+= CSG_String::Format("{%s}%s (%s)|", SG_STR_MBTOSG(pUnit->id), SG_STR_MBTOSG(pUnit->name), SG_STR_MBTOSG(pUnit->to_meter));
+		CSG_String	id(pUnit->id), name(pUnit->name), to_meter(pUnit->to_meter);
+
+		Units		+= CSG_String::Format("{%s}%s (%s)|", id.c_str(), name.c_str(), to_meter.c_str());
 	}
 
 
@@ -566,7 +642,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 		PRM_ADD_DBL("lat_ts", _TL("True Scale Latitude"), 0.0);
 	}
 
-	if(	!ID.CmpNoCase("utm" ) )	// Universal Transverse Mercator (UTM)
+	if(	!ID.CmpNoCase("utm" ) )		// Universal Transverse Mercator (UTM)
 	{
 		PRM_ADD_INT("zone" , _TL("Zone" ), 32);
 		PRM_ADD_BOL("south", _TL("South"), false);
@@ -599,7 +675,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 		PRM_ADD_DBL("n", "n", 1.0);
 	}
 
-	if(	!ID.CmpNoCase("urm5") )	// Urmaev V
+	if(	!ID.CmpNoCase("urm5") )		// Urmaev V
 	{
 		PRM_ADD_DBL("n"    , "n"    ,  1.0);
 		PRM_ADD_DBL("q"    , "q"    ,  1.0);
@@ -621,15 +697,15 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 	//-----------------------------------------------------
 	// Conic Projections...
 
-	if(	!ID.CmpNoCase("aea"   )	// Albers Equal Area
-	||	!ID.CmpNoCase("eqdc"  )	// Equidistant Conic
-	||	!ID.CmpNoCase("euler" )	// Euler 
-	||	!ID.CmpNoCase("imw_p" )	// International Map of the World Polyconic 
-	||	!ID.CmpNoCase("murd1" )	// Murdoch I 
-	||	!ID.CmpNoCase("murd2" )	// Murdoch II 
-	||	!ID.CmpNoCase("murd3" )	// Murdoch III 
-	||	!ID.CmpNoCase("pconic")	// Perspective Conic 
-	||	!ID.CmpNoCase("tissot")	// Tissot 
+	if(	!ID.CmpNoCase("aea"   ) 	// Albers Equal Area
+	||	!ID.CmpNoCase("eqdc"  ) 	// Equidistant Conic
+	||	!ID.CmpNoCase("euler" ) 	// Euler 
+	||	!ID.CmpNoCase("imw_p" ) 	// International Map of the World Polyconic 
+	||	!ID.CmpNoCase("murd1" ) 	// Murdoch I 
+	||	!ID.CmpNoCase("murd2" ) 	// Murdoch II 
+	||	!ID.CmpNoCase("murd3" ) 	// Murdoch III 
+	||	!ID.CmpNoCase("pconic") 	// Perspective Conic 
+	||	!ID.CmpNoCase("tissot") 	// Tissot 
 	||	!ID.CmpNoCase("vitk1" ) )	// Vitkovsky I 
 	{
 		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 33.0);
@@ -642,7 +718,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 		PRM_ADD_DBL("lat_2", _TL("Latitude 2"), 45.0);
 	}
 
-	if( !ID.CmpNoCase("leac") )	// Lambert Equal Area Conic
+	if( !ID.CmpNoCase("leac") )		// Lambert Equal Area Conic
 	{
 		PRM_ADD_DBL("lat_1", _TL("Latitude 1"), 45.0);
 		PRM_ADD_BOL("south", _TL("South"     ), false);
@@ -761,9 +837,9 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 
 	if(	!ID.CmpNoCase("tpers") )	// Tilted perspective
 	{
-		PRM_ADD_DBL("tilt", _TL("Tilt"  ),   45.0);
-		PRM_ADD_DBL("azi", _TL("Azimuth"),   45.0);
-		PRM_ADD_DBL("h"  , _TL("h"      ), 1000.0);
+		PRM_ADD_DBL("tilt", _TL("Tilt"   ),   45.0);
+		PRM_ADD_DBL("azi" , _TL("Azimuth"),   45.0);
+		PRM_ADD_DBL("h"   , _TL("h"      ), 1000.0);
 	}
 
 	if(	!ID.CmpNoCase("ob_tran") )	// General Oblique Transformation
@@ -791,7 +867,7 @@ bool CCRS_Base::Add_User_Projection(CSG_Parameters &P, const CSG_String &ID, con
 //---------------------------------------------------------
 CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 {
-	CSG_String	Proj4, ID = PJ_GET_PROJS[P("PROJ_TYPE")->asInt()].id;	// P("PROJ_TYPE")->asChoice()->Get_Data(ID);
+	CSG_String	Proj4, ID	= P("PROJ_TYPE")->asChoice()->Get_Data();
 
 	//-----------------------------------------------------
 	PROJ4_ADD_STR("proj", ID);
@@ -807,14 +883,14 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		PROJ4_ADD_DBL("k_0", P("K_0")->asDouble());
 	}
 
-	PROJ4_ADD_STR("units", PJ_GET_UNITS[P("UNIT")->asInt()].id);
+	PROJ4_ADD_STR("units", P("UNIT")->asChoice()->Get_Data());
 
 	//-----------------------------------------------------
 	switch( P("DATUM_DEF")->asInt() )
 	{
 	case 0:	// predefined datum
 
-		PROJ4_ADD_STR("datum", PJ_GET_DATUMS[P("DATUM")->asInt()].id);
+		PROJ4_ADD_STR("datum", P("DATUM")->asChoice()->Get_Data());
 
 		break;
 
@@ -824,7 +900,7 @@ CSG_String CCRS_Base::Get_User_Definition(CSG_Parameters &P)
 		switch( P("ELLIPSOID")->asInt() )
 		{
 		case 0:	// Predefined Ellipsoid
-			PROJ4_ADD_STR("ellps", PJ_GET_ELLPS[P("ELLPS_DEF")->asInt()].id);
+			PROJ4_ADD_STR("ellps", P("ELLPS_DEF")->asChoice()->Get_Data());
 			break;
 
 		case 1:	// Semiminor axis
@@ -1013,7 +1089,7 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	ID	= PJ_GET_PROJS[P("PROJ_TYPE")->asInt()].id;
+	CSG_String	ID;	P("PROJ_TYPE")->asChoice()->Get_Data(ID);
 
 	if( P(ID) )
 	{
