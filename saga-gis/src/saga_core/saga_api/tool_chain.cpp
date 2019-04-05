@@ -331,7 +331,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_Font             : break;
 		case PARAMETER_TYPE_Color            : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Color, Value.asInt());	break;
 		case PARAMETER_TYPE_Colors           : Parameters.Add_Colors         (ParentID, ID, Name, Desc);	break;
-		case PARAMETER_TYPE_FixedTable       : break;	// to do ?
+		case PARAMETER_TYPE_FixedTable       : Parameters.Add_FixedTable     (ParentID, ID, Name, Desc)->Serialize(*Parameter("option"), false);	break;
 
 		case PARAMETER_TYPE_Grid_System      : Parameters.Add_Grid_System    (ParentID, ID, Name, Desc);	break;
 
@@ -1453,43 +1453,58 @@ bool CSG_Tool_Chain::Tool_Initialize(const CSG_MetaData &Tool, CSG_Tool *pTool)
 
 			if( IS_TRUE_PROPERTY(Parameter, "varname") )
 			{	// does option want a value from tool chain parameters and do these provide one ?
-				pParameter->Set_Value(Parameters(Parameter.Get_Content()));
-			}
-			else switch( pParameter->Get_Type() )
-			{
-			default:
-				pParameter->Set_Value(Parameter.Get_Content());
-
-				if( pOwner )
+				switch( pParameter->Get_Type() )
 				{
-					pOwner->has_Changed();
-				}
-				break;
+				default:
+					pParameter->Set_Value(Parameters(Parameter.Get_Content()));
+					break;
 
-			case PARAMETER_TYPE_FixedTable:
-				if( Parameter("OPTION") )
-				{
-					pParameter->Serialize(*Parameter("OPTION"), false);
-				}
-				break;
-
-			case PARAMETER_TYPE_String:
-				{
-					CSG_String	Value(Parameter.Get_Content());
-
-					for(int j=0; j<Parameters.Get_Count(); j++)
+				case PARAMETER_TYPE_FixedTable:
+					if( m_Data(Parameter.Get_Content()) && pParameter->asTable()->Assign_Values(m_Data(Parameter.Get_Content())->asTable()) )
 					{
-						CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
-
-						if( Value.Find(Var) >= 0 )
-						{
-							Value.Replace(Var, Parameters(j)->asString());
-						}
+						pParameter->has_Changed();
 					}
-
-					pParameter->Set_Value(Value);
+					break;
 				}
-				break;
+			}
+			else
+			{
+				switch( pParameter->Get_Type() )
+				{
+				default:
+					pParameter->Set_Value(Parameter.Get_Content());
+
+					if( pOwner )
+					{
+						pOwner->has_Changed();
+					}
+					break;
+
+				case PARAMETER_TYPE_FixedTable:
+					if( Parameter("OPTION") )
+					{
+						pParameter->Serialize(*Parameter("OPTION"), false);
+					}
+					break;
+
+				case PARAMETER_TYPE_String:
+					{
+						CSG_String	Value(Parameter.Get_Content());
+
+						for(int j=0; j<Parameters.Get_Count(); j++)
+						{
+							CSG_String	Var; Var.Printf("$(%s)", Parameters(j)->Get_Identifier());
+
+							if( Value.Find(Var) >= 0 )
+							{
+								Value.Replace(Var, Parameters(j)->asString());
+							}
+						}
+
+						pParameter->Set_Value(Value);
+					}
+					break;
+				}
 			}
 		}
 	}
