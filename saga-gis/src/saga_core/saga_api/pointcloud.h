@@ -180,6 +180,8 @@ public:
 
 	TSG_Point_Z						Get_Point			(void)			const;
 	TSG_Point_Z						Get_Point			(int iPoint)	const;
+	virtual bool					Set_Point			(            const TSG_Point_Z &Point);
+	virtual bool					Set_Point			(int iPoint, const TSG_Point_Z &Point);
 
 	virtual void					Set_Modified		(bool bModified = true)		{	CSG_Data_Object::Set_Modified(bModified);	}
 

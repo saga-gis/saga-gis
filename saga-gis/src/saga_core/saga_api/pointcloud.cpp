@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -144,14 +141,7 @@ CSG_PointCloud::CSG_PointCloud(const CSG_PointCloud &PointCloud)
 
 bool CSG_PointCloud::Create(const CSG_PointCloud &PointCloud)
 {
-	if( Assign((CSG_Data_Object *)&PointCloud) )
-	{
-		Set_Name(PointCloud.Get_Name());
-
-		return( true );
-	}
-
-	return( false );
+	return( Assign((CSG_Data_Object *)&PointCloud) );
 }
 
 //---------------------------------------------------------
@@ -555,7 +545,11 @@ bool CSG_PointCloud::Assign(CSG_Data_Object *pObject)
 
 		CSG_PointCloud	*pPointCloud	= (CSG_PointCloud *)pObject;
 
+		Set_Name(pPointCloud->Get_Name());
+
 		Get_History()	= pPointCloud->Get_History();
+
+		Get_Projection().Create(pPointCloud->Get_Projection());
 
 		for(int iField=0; iField<pPointCloud->m_nFields; iField++)
 		{
@@ -740,6 +734,13 @@ bool CSG_PointCloud::_Set_Field_Value(char *pPoint, int iField, double Value)
 
 		m_Field_Stats[iField]->Invalidate();
 
+		Set_Modified();
+
+		if( iField < 3 )
+		{
+			Set_Update_Flag();	// extent might have changed
+		}
+
 		return( true );
 	}
 
@@ -876,10 +877,33 @@ TSG_Point_Z CSG_PointCloud::Get_Point(int iPoint)	const
 	}
 	else
 	{
-		p.x	= p.y	= p.z	= 0.0;
+		p.x = p.y = p.z = 0.0;
 	}
 
 	return( p );
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Set_Point(const TSG_Point_Z &Point)
+{
+	return( _Set_Field_Value(m_Cursor, 0, Point.x)
+		&&  _Set_Field_Value(m_Cursor, 1, Point.y)
+		&&  _Set_Field_Value(m_Cursor, 2, Point.z)
+	);
+}
+
+//---------------------------------------------------------
+bool CSG_PointCloud::Set_Point(int iPoint, const TSG_Point_Z &Point)
+{
+	if( iPoint >= 0 && iPoint < m_nRecords )
+	{
+		return( _Set_Field_Value(m_Points[iPoint], 0, Point.x)
+			&&  _Set_Field_Value(m_Points[iPoint], 1, Point.y)
+			&&  _Set_Field_Value(m_Points[iPoint], 2, Point.z)
+		);
+	}
+
+	return( false );
 }
 
 

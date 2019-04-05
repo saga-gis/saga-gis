@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -373,16 +370,14 @@ bool CSG_Shapes::Assign(CSG_Data_Object *pObject)
 
 		Create(pShapes->Get_Type(), pShapes->Get_Name(), pShapes, pShapes->Get_Vertex_Type());
 
-		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+		Get_History()	= pShapes->Get_History();
+
+		Get_Projection().Create(pShapes->Get_Projection());
+
+		for(int iShape=0; iShape<pShapes->Get_Count() && SG_UI_Process_Get_Okay(); iShape++)
 		{
 			Add_Shape(pShapes->Get_Shape(iShape));
 		}
-
-		SG_UI_Process_Set_Ready();
-
-		Update();
-
-		Get_History()	= pObject->Get_History();
 
 		return( true );
 	}
