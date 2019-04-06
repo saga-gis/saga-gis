@@ -23,7 +23,10 @@ AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
 AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
-AC_CHECK_LIB([proj], [pj_is_latlong], PROJFOUND=1,,)
+# pj_get_release
+# AC_CHECK_LIB([proj], [proj_info], PROJFOUND=1,,)
+AC_CHECK_HEADER([projects.h],[AC_CHECK_LIB([proj], [pj_get_release], PROJFOUND=1,,)])
+AC_CHECK_HEADER([proj.h],[AC_CHECK_LIB([proj], [proj_info], PROJ6FOUND=1,,)])
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
 AC_CHECK_LIB([gomp], [omp_get_num_threads], GOMPFOUND=1,,)
 AC_CHECK_HEADER([libsvm/svm.h],[AC_CHECK_LIB([svm], [svm_get_svm_type], SVMFOUND=1,,)])
@@ -168,6 +171,16 @@ AC_ARG_ENABLE(openmp,
 
 AC_SUBST(GOMPFLAGS)
 
+# proj.4
+if test -n "$PROJ6FOUND" ; then 
+  AC_MSG_RESULT([        using proj.4 version >= 6])
+  PROJ6FLAGS="-DPROJ6 -std=c++0x"
+else 
+  AC_MSG_RESULT([        using proj.4 version 4]) 
+  PROJ6FLAGS=""
+fi
+
+AC_SUBST(PROJ6FLAGS)
 
 # gdal
 AX_LIB_GDAL([1.7])
@@ -253,7 +266,7 @@ if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then
 fi
 
 if test -n "$HARUFOUND" ; then 
-  AC_MSG_RESULT([        using lhpdf (libharu) from system libs.])
+  AC_MSG_RESULT([        using lhpdf (libharu) from system libs])
   DISABLELIBHARU=""
   HARU_LIB="-lhpdf"
 else 
