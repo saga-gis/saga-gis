@@ -23,8 +23,6 @@ AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
 AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
-# pj_get_release
-# AC_CHECK_LIB([proj], [proj_info], PROJFOUND=1,,)
 AC_CHECK_HEADER([projects.h],[AC_CHECK_LIB([proj], [pj_get_release], PROJFOUND=1,,)])
 AC_CHECK_HEADER([proj.h],[AC_CHECK_LIB([proj], [proj_info], PROJ6FOUND=1,,)])
 AC_CHECK_LIB([vigraimpex], [VIGRA_RGBE_ReadPixels_Raw],VIGRAFOUND=1,)
@@ -175,9 +173,14 @@ AC_SUBST(GOMPFLAGS)
 if test -n "$PROJ6FOUND" ; then 
   AC_MSG_RESULT([        using proj.4 version >= 6])
   PROJ6FLAGS="-DPROJ6 -std=c++0x"
-else 
-  AC_MSG_RESULT([        using proj.4 version 4]) 
-  PROJ6FLAGS=""
+else
+  if test -n "$PROJFOUND" ; then 
+    AC_MSG_RESULT([        using proj.4 version 4]) 
+    PROJ6FLAGS=""
+  else
+    AC_MSG_ERROR(SAGA requires the proj4 library)
+    exit
+  fi
 fi
 
 AC_SUBST(PROJ6FLAGS)
@@ -275,11 +278,11 @@ else
   HARU_LIB=""
 fi
 
-AC_CHECK_DEFINE(HAVE_LIBCURL, AC_MSG_RESULT([        Building with libcurl]), AC_MSG_RESULT([        libcurl was not found: garden webservices will be build without https support]))
-
-
 AC_SUBST(HARU_LIB)
 AC_SUBST(DISABLELIBHARU)
+
+AC_CHECK_DEFINE(HAVE_LIBCURL, AC_MSG_RESULT([        Building with libcurl]), AC_MSG_RESULT([        libcurl was not found: garden webservices will be build without https support]))
+
 
 AC_ARG_ENABLE(python,
     [  --enable-python    Build python bindings for the saga api],
