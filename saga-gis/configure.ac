@@ -198,20 +198,20 @@ if test -n "$PROJ_INC_DIR"; then
 fi
 
 if test -n "$PROJ5FOUND" ; then 
-  AC_MSG_ERROR(PROJ version 5 is not supported, please change to version 4 or 6]) 
-  exit
-fi
-
-if test -n "$PROJ6FOUND" ; then 
-  AC_MSG_RESULT([        using PROJ version 6])
-  PROJ6FLAGS="-DPROJ6 -std=c++0x"
+  AC_MSG_RESULT([        using PROJ version 5])
+  PROJ6FLAGS=""
 else
-  if test -n "$PROJ4FOUND" ; then 
-    AC_MSG_RESULT([        using PROJ version 4]) 
-    PROJ6FLAGS=""
+  if test -n "$PROJ6FOUND" ; then 
+    AC_MSG_RESULT([        using PROJ version 6]) 
+    PROJ6FLAGS="-DPROJ6 -std=c++0x"
   else
-    AC_MSG_ERROR(SAGA requires the PROJ library)
-    exit
+    if test -n "$PROJ4FOUND" ; then 
+      AC_MSG_RESULT([        using PROJ version 4]) 
+      PROJ6FLAGS=""
+    else
+      AC_MSG_ERROR(SAGA requires the PROJ library)
+      exit
+    fi
   fi
 fi
 
