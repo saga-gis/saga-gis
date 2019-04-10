@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: treeline.cpp 1380 2012-04-26 12:02:19Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -137,7 +134,7 @@ bool CCT_Growing_Season::Calculate(double SWC, double Latitude)
 {
 	CCT_Water_Balance::Calculate(SWC, Latitude);
 
-	return( Get_T_Season(m_Daily[DAILY_T], m_Snow, m_Soil.Get_SW_0(), m_Soil.Get_SW_1()) );
+	return( Get_T_Season(m_Daily, m_Snow, m_Soil.Get_SW_0(), m_Soil.Get_SW_1()) );
 }
 
 
@@ -207,7 +204,7 @@ bool CCT_Growing_Season::is_Growing(double SWC, double Latitude, double Height)
 
 	CT_Get_Daily_Splined(m_Daily[DAILY_T], T);
 
-	if( !Get_T_Season(m_Daily[DAILY_T]) )
+	if( !Get_T_Season(m_Daily) )
 	{
 		return( false );	// above tree line
 	}
@@ -219,7 +216,7 @@ bool CCT_Growing_Season::is_Growing(double SWC, double Latitude, double Height)
 
 	m_Snow.Calculate(m_Daily[DAILY_T], m_Daily[DAILY_P]);
 
-	if( !Get_T_Season(m_Daily[DAILY_T], m_Snow) )
+	if( !Get_T_Season(m_Daily, m_Snow) )
 	{
 		return( false );	// above tree line
 	}
@@ -232,7 +229,7 @@ bool CCT_Growing_Season::is_Growing(double SWC, double Latitude, double Height)
 
 	m_Soil.Calculate(m_Daily[DAILY_T], m_Daily[DAILY_P], Set_ETpot(Latitude, Tmin, Tmax), m_Snow);
 
-	if( !Get_T_Season(m_Daily[DAILY_T], m_Snow, m_Soil.Get_SW_0(), m_Soil.Get_SW_1()) )
+	if( !Get_T_Season(m_Daily, m_Snow, m_Soil.Get_SW_0(), m_Soil.Get_SW_1()) )
 	{
 		return( false );	// above tree line
 	}
@@ -247,9 +244,10 @@ bool CCT_Growing_Season::is_Growing(double SWC, double Latitude, double Height)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CCT_Growing_Season::Get_T_Season(const double *T, const double *Snow, const double *S0, const double *S1)
+bool CCT_Growing_Season::Get_T_Season(const CSG_Vector *Weather, const double *Snow, const double *S0, const double *S1)
 {
-	m_T_Season.Create();
+	m_T_Season.Create(); const double *T = Weather[DAILY_T];
+	m_P_Season.Create(); const double *P = Weather[DAILY_P];
 
 	m_GDay_First = m_GDay_Last = -1;	// invalidate first and last growing day
 
@@ -265,6 +263,7 @@ bool CCT_Growing_Season::Get_T_Season(const double *T, const double *Snow, const
 		if( bGrowing[i] )
 		{
 			m_T_Season	+= T[i];
+			m_P_Season	+= P[i];
 
 			if( m_GDay_First < 0 && !bGrowing[(365 + i - 1) % 365] )	// is the previous day a not growing day ?
 			{
@@ -305,6 +304,12 @@ CTree_Growth::CTree_Growth(void)
 		"and precipitation. Internally a soil water balance model is run on a daily basis. "
 		"Using the given thresholds a relative tree line height can optionally be estimated."
 	));
+
+	Add_Reference("Karger, D.N., Kessler, M., Conrad, O., Weigelt, P., Kreft, H., König, C., Zimmermann, N.E.", "2019",
+		"Why tree lines are lower on islands - Climatic and biogeographic effects hold the answer",
+		"Global Ecol. Biogeogr., 00:1–12, doi:10.1111/geb.12897.",
+		SG_T("https://onlinelibrary.wiley.com/doi/full/10.1111/geb.12897"), _TL("online")
+	);
 
 	Add_Reference("Paulsen, J. / Körner, C.", "2014",
 		"A climate-based model to predict potential treeline position around the globe",
@@ -348,6 +353,12 @@ CTree_Growth::CTree_Growth(void)
 		"SMT"		, _TL("Mean Temperature"),
 		_TL("Mean temperature of the growing season."),
 		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid("",
+		"SMP"		, _TL("Precipitation Sum"),
+		_TL("Precipitation sum of the growing season."),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid("",
@@ -455,11 +466,17 @@ bool CTree_Growth::On_Execute(void)
 
 	//-----------------------------------------------------
 	CSG_Grid	*pSMT	= Parameters("SMT"  )->asGrid();
+	CSG_Grid	*pSMP	= Parameters("SMP"  )->asGrid();
 	CSG_Grid	*pLGS	= Parameters("LGS"  )->asGrid();
 	CSG_Grid	*pFirst	= Parameters("FIRST")->asGrid();
 	CSG_Grid	*pLast	= Parameters("LAST" )->asGrid();
 	CSG_Grid	*pTLH	= Parameters("TLH"  )->asGrid();
 
+	CSG_Colors	Colors(3);
+
+	Colors.Set_Color(0, 255, 255,   0); Colors.Set_Color(1,   0, 191, 127); Colors.Set_Color(2,   0,   0, 191);
+
+	DataObject_Set_Colors(pSMP, Colors);
 	DataObject_Set_Colors(pLGS, 11, SG_COLORS_GREEN_GREY_BLUE, true);
 	DataObject_Set_Colors(pTLH, 11, SG_COLORS_GREEN_GREY_BLUE, true);
 
@@ -481,6 +498,7 @@ bool CTree_Growth::On_Execute(void)
 		{
 			SG_GRID_PTR_SAFE_SET_NODATA(pLGS  , x, y);
 			SG_GRID_PTR_SAFE_SET_NODATA(pSMT  , x, y);
+			SG_GRID_PTR_SAFE_SET_NODATA(pSMP  , x, y);
 			SG_GRID_PTR_SAFE_SET_NODATA(pFirst, x, y);
 			SG_GRID_PTR_SAFE_SET_NODATA(pLast , x, y);
 			SG_GRID_PTR_SAFE_SET_NODATA(pTLH  , x, y);
@@ -502,6 +520,11 @@ bool CTree_Growth::On_Execute(void)
 				if( Model.Get_LGS() > 0 )
 				{
 					pSMT->Set_Value(x, y, Model.Get_SMT());
+
+					if( pSMP )
+					{
+						pSMP->Set_Value(x, y, Model.Get_SMP());
+					}
 				}
 
 				if( pFirst && Model.Get_GDay_First() >= 0 )

@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__treeline_H
 #define HEADER_INCLUDED__treeline_H
 
@@ -98,6 +89,7 @@ public:
 
 	int							Get_LGS					(void)		{	return( (int)m_T_Season.Get_Count() );	}
 	double						Get_SMT					(void)		{	return(      m_T_Season.Get_Mean () );	}
+	double						Get_SMP					(void)		{	return(      m_P_Season.Get_Sum  () );	}
 	int							Get_GDay_First			(void)		{	return( m_GDay_First );	}
 	int							Get_GDay_Last			(void)		{	return( m_GDay_Last  );	}
 
@@ -108,12 +100,12 @@ private:
 
 	double						m_DT_min, m_SMT_min, m_SW_min;
 
-	CSG_Simple_Statistics		m_T_Season;
+	CSG_Simple_Statistics		m_T_Season, m_P_Season;
 
 
 	bool						is_Growing				(double SWC, double Latitude, double Height);
 
-	bool						Get_T_Season			(const double *T, const double *Snow = NULL, const double *S0 = NULL, const double *S1 = NULL);
+	bool						Get_T_Season			(const CSG_Vector *Weather, const double *Snow = NULL, const double *S0 = NULL, const double *S1 = NULL);
 
 };
 
