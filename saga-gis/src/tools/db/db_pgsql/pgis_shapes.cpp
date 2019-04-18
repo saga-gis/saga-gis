@@ -335,15 +335,8 @@ bool CShapes_Save::On_Execute(void)
 				switch( pShapes->Get_Field_Type(iField) )
 				{
 				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date:
-					if( 1 )
-					{
-						char	*_s	= NULL; if( s.to_ASCII(&_s) ) s = _s; SG_FREE_SAFE(_s);
-					}
-
-					s.Replace("'", "\"");
-
-					s	= "'" + s + "'";
+				case SG_DATATYPE_Date  :
+					s.Replace("'", "\"");	s	= "'" + s + "'";
 					break;
 				}
 

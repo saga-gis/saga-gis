@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Data_Source.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -159,9 +156,8 @@ static	wxString	g_Password	= "postgres";
 	{\
 		SG_UI_Msg_Lock(true);\
 		pTool->On_Before_Execution();\
-		pTool->Settings_Push(bManager ? &SG_Get_Data_Manager() : NULL);\
+		if( !bManager ) pTool->Set_Manager(NULL);\
 		bResult	= (CONDITION) && pTool->Execute();\
-		pTool->Settings_Pop();\
 		SG_UI_Msg_Lock(false);\
 		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 	}\
