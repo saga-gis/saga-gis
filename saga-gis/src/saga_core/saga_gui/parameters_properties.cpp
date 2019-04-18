@@ -152,7 +152,10 @@ void CParameters_PG_Choice::_Create(void)
 			RecreateEditor();
 		}
 
-		SetChoiceSelection(iSelection);
+		if( iSelection >= 0 )
+		{
+			SetChoiceSelection(iSelection);
+		}
 	}
 }
 
