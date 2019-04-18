@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: KinWav_D8.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,16 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__KinWav_D8_H
 #define HEADER_INCLUDED__KinWav_D8_H
 
@@ -72,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -90,6 +77,7 @@ public:
 
 protected:
 
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool		On_Execute				(void);
@@ -97,11 +85,13 @@ protected:
 
 private:
 
+	bool				m_bDynamic;
+
 	int					m_Routing, m_MaxIter;
 
-	double				m_dTime, m_Epsilon;
+	double				m_dt, m_Epsilon, m_Manning, m_Flow_Out, m_Flow_Sum;
 
-	CSG_Grid			*m_pDEM, *m_pFlow, m_Flow_t0, m_dFlow[8], m_Length, m_Alpha;
+	CSG_Grid			*m_pDEM, *m_pManning, *m_pFlow, m_Flow, m_dFlow[8], m_dx, m_Q;
 
 	CSG_Table			*m_pGauges_Flow;
 
@@ -111,13 +101,23 @@ private:
 	bool				Initialize				(void);
 	bool				Finalize				(void);
 
+	void				Set_Flow				(void);
+
+	double				Get_Surface				(int x, int y, double dz[8]);
+
 	void				Set_D8					(int x, int y);
 	void				Set_MFD					(int x, int y);
 
-	void				Set_Flow				(double Time);
+	double				Get_Surface				(int x, int y);
+	double				Get_Gradient			(int x, int y);
+	double				Get_Manning				(int x, int y);
+	double				Get_Alpha				(int x, int y);
+	double				Get_Q					(int x, int y);
+
+	void				Get_Upslope				(int x, int y, double &F, double &Q);
 
 	void				Set_Runoff				(int x, int y);
-	void				Set_Runoff				(int x, int y, double Q);
+	void				Set_Runoff				(int x, int y, double dF);
 
 	bool				Gauges_Initialise		(void);
 	bool				Gauges_Set_Flow			(double Time);

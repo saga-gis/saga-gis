@@ -851,16 +851,10 @@ bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
 
 bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
 {
-	if( !pDataObject )
-	{
-		return( false );
-	}
-
-	CSG_Parameters	Parameters;
-
-	Parameters.Add_Range("", "METRIC_ZRANGE", "", "", Parm_1, Parm_2);
-
-	return( SG_UI_DataObject_Update(pDataObject, Show, &Parameters) );
+	return( DataObject_Set_Parameter(pDataObject, "STRETCH_DEFAULT", 3)
+		&&  DataObject_Set_Parameter(pDataObject, "METRIC_ZRANGE"  , Parm_1, Parm_2)
+		&&  SG_UI_DataObject_Update (pDataObject, Show, NULL)
+	);
 }
 
 //---------------------------------------------------------

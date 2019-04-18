@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: KinWav_D8.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -78,7 +75,7 @@ CKinWav_D8::CKinWav_D8(void)
 	Set_Author		("O. Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"This is a simple tool that simulates overland flow by a kinematic wave approach. "
+		"This is a simple tool that simulates overland flow with a kinematic wave approach. "
 		"It is not designed for operational usage. Rather it should give an idea about "
 		"some principles of dynamic simulation techniques and thus it might become a "
 		"starting point for more sophisticated and applicable simulation tools. "
@@ -88,6 +85,12 @@ CKinWav_D8::CKinWav_D8(void)
 		"A spatially distributed hydrological model utilizing raster data structures",
 		"Computers & Geosciences, Vol.23, No.3, pp.267-272.",
 		SG_T("http://www.sciencedirect.com/science/article/pii/S0098300496000842")
+	);
+
+	Add_Reference("MacArthur, R., DeVries, J.J.", "1993",
+		"Introduction and Application of Kinematic Wave Routing Techniques Using HEC-1",
+		"US Army Corps of Engineers, Institute for Water Resources, Hydrologic Engineering Center (HEC).",
+		SG_T("https://www.hec.usace.army.mil/publications/TrainingDocuments/TD-10.pdf"), SG_T("online")
 	);
 
 	//-----------------------------------------------------
@@ -109,12 +112,6 @@ CKinWav_D8::CKinWav_D8(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Bool("FLOW",
-		"FLOW_RESET"	, _TL("Reset"),
-		_TL(""),
-		true
-	);
-
 	//-----------------------------------------------------
 	Parameters.Add_Table("",
 		"GAUGES_FLOW"	, _TL("Flow at Gauges"),
@@ -132,18 +129,25 @@ CKinWav_D8::CKinWav_D8(void)
 	Parameters.Add_Double("",
 		"TIME_SPAN"		, _TL("Simulation Time [h]"),
 		_TL(""),
-		24.0, 0.0, true
+		1.0, 0.0, true
 	);
 
 	Parameters.Add_Double("",
-		"TIME_STEP"		, _TL("Simulation Time Step [h]"),
+		"TIME_STEP"		, _TL("Simulation Time Step [min]"),
 		_TL(""),
-		0.1, 0.0, true
+		1.0, 0.0, true
+	);
+
+	Parameters.Add_Double("",
+		"TIME_UPDATE"	, _TL("Map Update Frequency [min]"),
+		_TL("If zero each simulation time step will update the flow map."),
+		1.0, 0.0, true
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Node("",
-		"MODEL"			, _TL("Model Options"), _TL("")
+		"MODEL"			, _TL("Model Options"),
+		_TL("")
 	);
 
 	Parameters.Add_Int("MODEL",
@@ -167,8 +171,26 @@ CKinWav_D8::CKinWav_D8(void)
 		), 1
 	);
 
+	Parameters.Add_Bool("MODEL",
+		"DYNAMIC"		, _TL("Dynamic Water Surface"),
+		_TL(""),
+		true
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Choice("",
+	Parameters.Add_Bool("FLOW",
+		"FLOW_RESET"	, _TL("Reset"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Double("FLOW",
+		"P_RATE"		, _TL("Precipitation [mm]"),
+		_TL(""),
+		10.0
+	);
+
+	Parameters.Add_Choice("P_RATE",
 		"P_DISTRIB"		, _TL("Precipitation"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
@@ -178,16 +200,10 @@ CKinWav_D8::CKinWav_D8(void)
 		)
 	);
 
-	Parameters.Add_Double("P_DISTRIB",
+	Parameters.Add_Double("P_RATE",
 		"P_THRESHOLD"	, _TL("Above Elevation"),
 		_TL(""),
 		0.0
-	);
-
-	Parameters.Add_Double("P_DISTRIB",
-		"P_RATE"		, _TL("Precipitation [mm]"),
-		_TL(""),
-		10.0
 	);
 }
 
@@ -197,11 +213,27 @@ CKinWav_D8::CKinWav_D8(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CKinWav_D8::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("DEM") && pParameter->asGrid() )
+	{
+		pParameters->Set_Parameter("P_THRESHOLD", pParameter->asGrid()->Get_Mean());
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CKinWav_D8::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GAUGES_FLOW") )
+	if( pParameter->Cmp_Identifier("FLOW") )
 	{
-		pParameters->Set_Enabled("GAUGES", pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("FLOW_RESET" , pParameter->asGrid() != NULL);
+	}
+
+	if( pParameter->Cmp_Identifier("FLOW_RESET") )
+	{
+		pParameters->Set_Enabled("P_RATE"     , pParameter->asBool());
 	}
 
 	if( pParameter->Cmp_Identifier("P_DISTRIB") )
@@ -209,7 +241,29 @@ int CKinWav_D8::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 		pParameters->Set_Enabled("P_THRESHOLD", pParameter->asInt() == 1);
 	}
 
+	if( pParameter->Cmp_Identifier("GAUGES_FLOW") )
+	{
+		pParameters->Set_Enabled("GAUGES"     , pParameter->asTable() != NULL);
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_String	Get_Time_String(double Hour)
+{
+	double	t	= Hour;
+
+	int	h	= (int)t;	t	= (t - h) *   60;	// to minutes
+	int	m	= (int)t;	t	= (t - m) *   60;	// to seconds
+	int	s	= (int)t;	t	= (t - s) * 1000;	// to milliseconds
+
+	return( CSG_String::Format("%02d:%02d:%02d.%03d", h, m, s, (int)t) );
 }
 
 
@@ -227,29 +281,30 @@ bool CKinWav_D8::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	Time_Span	= Parameters("TIME_SPAN")->asDouble();
+	double	Time_Span	= Parameters("TIME_SPAN"  )->asDouble();
+	double	Time_Step	= Parameters("TIME_STEP"  )->asDouble() / 60.;	// from minutes to hours
+	double	Update		= Parameters("TIME_UPDATE")->asDouble() / 60.;	// from minutes to hours
+	double	Update_Last	= 0.0;
 
-	m_dTime	= Parameters("TIME_STEP")->asDouble();
+	m_dt	=  Time_Step * 60;	// minutes >> seconds
 
-	for(double Time=0.0; Time<=Time_Span && Set_Progress(Time, Time_Span); Time+=m_dTime)
+	for(double Time=0.0; Time<=Time_Span && Set_Progress(Time, Time_Span); Time+=Time_Step)
 	{
-		Process_Set_Text("%s [h]: %0.2f (%0.2f)", _TL("Simulation Time"), Time, Time_Span);
+		Process_Set_Text("%s: %s (%sh)", _TL("Simulation Time"), Get_Time_String(Time).c_str(), Get_Time_String(Time_Span).c_str());
 
 		SG_UI_ProgressAndMsg_Lock(true);
 
-		Set_Flow(Time);
+		Set_Flow();
 
-		for(sLong n=0; n<Get_NCells(); n++)
+		if( Process_Get_Okay() && Time >= Update_Last )
 		{
-			int	x, y;
-
-			if( m_pDEM->Get_Sorted(n, x, y) )
+			if( Update > 0.0 )
 			{
-				Set_Runoff(x, y);
+				Update_Last	= Update * (1.0 + floor(Time / Update));
 			}
-		}
 
-		DataObject_Update(m_pFlow, 0.0, 100.0);
+			DataObject_Update(m_pFlow, 0.0, 100.0);
+		}
 
 		Gauges_Set_Flow(Time);
 
@@ -268,181 +323,51 @@ bool CKinWav_D8::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CKinWav_D8::Set_Flow(double Time)
-{
-	int		P_Distribution	= Parameters("P_DISTRIB")->asInt();
-	double	P_Threshold		= Parameters("P_THRESHOLD")->asDouble();
-
-	double	P	= Time > 0.0 ? 0.0 : Parameters("P_RATE")->asDouble();
-
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
-	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			if( !m_pDEM->is_NoData(x, y) )
-			{
-				double	Flow	= m_pFlow->asDouble(x, y);
-
-				if( P > 0.0 )
-				{
-					switch( P_Distribution )
-					{
-					default:
-						Flow	+= P;
-						break;
-
-					case  1:
-						if( P_Threshold <= m_pDEM->asDouble(x, y) )
-						{
-							Flow	+= P;
-						}
-						break;
-
-					case  2:
-						if( x <= Get_NX() / 2 )
-						{
-							Flow	+= P;
-						}
-						break;
-					}
-				}
-
-				m_Flow_t0.Set_Value(x, y, Flow);
-				m_pFlow ->Set_Value(x, y, 0.0);
-			}
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-void CKinWav_D8::Set_Runoff(int x, int y)
-{
-	const double	m	= (5.0 / 3.0);
-
-	//-----------------------------------------------------
-	if( m_pFlow->is_NoData(x, y) )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	double	Q		= m_pFlow ->asDouble(x, y);
-	double	Q_t0	= m_Flow_t0.asDouble(x, y);
-
-	if( Q_t0 + Q <= 0.0 )
-	{
-		return;
-	}
-
-	//-----------------------------------------------------
-	// 1. Initial estimation of q...
-
-	double	Alpha	= m_Alpha.asDouble(x, y);
-	double	dt_dl	= m_dTime / m_Length.asDouble(x, y);
-	double	dQ;
-
-	dQ	= Alpha * m * pow((Q_t0 + Q) / 2, m - 1);
-	dQ	= (dt_dl * Q + Q_t0 * dQ) / (dt_dl + dQ);
-
-	//-----------------------------------------------------
-	// 2. Newton-Raphson...
-
-	double	C	= dt_dl * Q + Alpha * pow(Q_t0, m);
-
-	for(int i=0; dQ>0.0 && i<m_MaxIter; i++)
-	{
-		double	r	= dt_dl * dQ + Alpha     * pow(dQ, m    ) - C;
-		double	d	= dt_dl      + Alpha * m * pow(dQ, m - 1);
-
-		dQ	-= (d = r / d);
-
-		if( fabs(d) < m_Epsilon )
-		{
-			break;
-		}
-	}
-
-	//-----------------------------------------------------
-	dQ	*= m_dTime;
-
-	Set_Runoff(x, y, dQ);
-
-	Q	= Q + Q_t0 - dQ;
-
-	m_pFlow->Set_Value(x, y, Q > 0.0 ? Q : 0.0);
-}
-
-//---------------------------------------------------------
-void CKinWav_D8::Set_Runoff(int x, int y, double Q)
-{
-	if( Q > 0.0 )
-	{
-		switch( m_Routing )
-		{
-		default:
-			{
-				int	i	= m_dFlow->asInt(x, y);
-
-				if( i >= 0 )
-				{
-					m_pFlow->Add_Value(Get_xTo(i, x), Get_yTo(i, y), Q);
-				}
-			}
-			break;
-
-		case  1:
-			{
-				for(int i=0; i<8; i++)
-				{
-					double	d	= m_dFlow[i].asDouble(x, y);
-
-					if( d > 0.0 )
-					{
-						m_pFlow->Add_Value(Get_xTo(i, x), Get_yTo(i, y), d * Q);
-					}
-				}
-			}
-			break;
-		}
-	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 bool CKinWav_D8::Initialize(void)
 {
-	const double	m	= (5.0 / 3.0);
+	//-----------------------------------------------------
+	m_pDEM		= Parameters("DEM"      )->asGrid  ();
+	m_pFlow		= Parameters("FLOW"     )->asGrid  ();
+
+	m_MaxIter	= Parameters("MAXITER"  )->asInt   ();
+	m_Epsilon	= Parameters("EPSILON"  )->asDouble();
+	m_Routing	= Parameters("ROUTING"  )->asInt   ();
+
+	m_pManning	= Parameters("ROUGHNESS")->asGrid  ();
+	m_Manning	= Parameters("ROUGHNESS")->asDouble();
+
+	m_bDynamic	= Parameters("DYNAMIC"  )->asBool  ();
 
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM" )->asGrid();
-	m_pFlow		= Parameters("FLOW")->asGrid();
-
-	m_MaxIter	= Parameters("MAXITER")->asInt   ();
-	m_Epsilon	= Parameters("EPSILON")->asDouble();
-	m_Routing	= Parameters("ROUTING")->asInt   ();
-
-	//-----------------------------------------------------
-	if( !m_pDEM->Set_Index() )
+	if( Parameters("FLOW_RESET")->asBool() )
 	{
-		Error_Set(_TL("index creation failed"));
+		int		P_Distribution	= Parameters("P_DISTRIB"  )->asInt();
+		double	P_Threshold		= Parameters("P_THRESHOLD")->asDouble();
+		double	P				= Parameters("P_RATE"     )->asDouble() / 1000.0;	// mm >> m
 
-		return( false );
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+		{
+			if( m_pDEM->is_NoData(x, y) )
+			{
+				m_pFlow->Set_Value(x, y, 0.0);
+			}
+			else switch( P_Distribution )
+			{
+			default: m_pFlow->Set_Value(x, y, P); break;
+			case  1: m_pFlow->Set_Value(x, y, P_Threshold <= m_pDEM->asDouble(x, y) ? P : 0.0); break;
+			case  2: m_pFlow->Set_Value(x, y, x <= Get_NX() / 2 ? P : 0.0); break;
+			}
+		}
+
+		DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
+		DataObject_Update(m_pFlow, 0.0, 100.0, SG_UI_DATAOBJECT_SHOW);
 	}
 
 	//-----------------------------------------------------
-	m_Flow_t0.Create(Get_System(), SG_DATATYPE_Float);
-	m_Length .Create(Get_System(), SG_DATATYPE_Float);
-	m_Alpha  .Create(Get_System(), SG_DATATYPE_Float);
+	m_Flow.Create(Get_System(), SG_DATATYPE_Float);
+	m_dx  .Create(Get_System(), SG_DATATYPE_Float);
+	m_Q   .Create(Get_System(), SG_DATATYPE_Float);
 
 	switch( m_Routing )
 	{
@@ -459,41 +384,25 @@ bool CKinWav_D8::Initialize(void)
 	}
 
 	//-----------------------------------------------------
-	if( Parameters("FLOW_RESET")->asBool() )
+	if( !m_bDynamic )
 	{
-		m_pFlow->Assign(0.0);
-		DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-		DataObject_Update(m_pFlow, 0.0, 100.0, SG_UI_DATAOBJECT_SHOW);
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++) if( !m_pDEM->is_NoData(x, y) )
+		{
+			switch( m_Routing )
+			{
+			default: Set_D8 (x, y); break;
+			case  1: Set_MFD(x, y); break;
+			}
+		}
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pRoughness	= Parameters("ROUGHNESS")->asGrid  ();
-	double		  Roughness	= Parameters("ROUGHNESS")->asDouble();
+	m_Flow_Sum = m_Flow_Out = 0.0;
 
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
-		{
-			double	Slope, Aspect;
-
-			if( !m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
-			{
-				m_pFlow->Set_NoData(x, y);
-			}
-			else
-			{
-				double	n	= pRoughness && !pRoughness->is_NoData(x, y) ? pRoughness->asDouble(x, y) : Roughness;
-
-				m_Alpha.Set_Value(x, y, pow(sqrt(tan(Slope)) / (n < 0.001 ? 0.001 : n), m));
-
-				switch( m_Routing )
-				{
-				default: Set_D8 (x, y); break;
-				case  1: Set_MFD(x, y); break;
-				}
-			}
-		}
+		m_Flow_Sum	+= m_pFlow->asDouble(x, y);
 	}
 
 	//-----------------------------------------------------
@@ -510,10 +419,29 @@ bool CKinWav_D8::Finalize(void)
 		m_dFlow[i].Destroy();
 	}
 
-	m_Flow_t0.Destroy();
-	m_Length .Destroy();
-	m_Alpha  .Destroy();
+	m_Flow.Destroy();
+	m_dx  .Destroy();
+	m_Q   .Destroy();
 
+	//-----------------------------------------------------
+	double	Flow_Sum	= 0.0;
+
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+	{
+		Flow_Sum	+= m_pFlow->asDouble(x, y);
+	}
+
+	double	Flow_Loss	= m_Flow_Sum - (Flow_Sum + m_Flow_Out);
+
+	Message_Fmt("\n%s", _TL("Flow Accumulation"));
+	Message_Fmt("\n%s\t:%f"  , _TL("initial"), m_Flow_Sum);
+	Message_Fmt("\n%s\t:%f"  , _TL("current"), m_Flow_Out + Flow_Sum);
+	Message_Fmt("\n%s\t:%f"  , _TL("outflow"), m_Flow_Out);
+	Message_Fmt("\n%s\t:%f"  , _TL("in area"),   Flow_Sum);
+	Message_Fmt("\n%s\t:%f"  , _TL("loss"   ),   Flow_Loss);
+	Message_Fmt("\n%s\t:%f%%", _TL("balance"),   Flow_Loss * 100 / m_Flow_Sum);
+
+	//-----------------------------------------------------
 	return( true );
 }
 
@@ -523,63 +451,349 @@ bool CKinWav_D8::Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+double CKinWav_D8::Get_Surface(int x, int y, double dz[8])
+{
+	double	dzSum	= 0.0;
+
+	if( !m_pDEM->is_NoData(x, y) )
+	{
+		double	z	= Get_Surface(x, y);
+
+		for(int i=0, ix, iy; i<8; i++)
+		{
+			if( m_pDEM->is_InGrid(ix = Get_xTo(i, x), iy = Get_yTo(i, y)) )
+			{
+				dz[i]	= z > (dz[i] = Get_Surface(ix, iy)) ? (z - dz[i]) / Get_Length(i) : 0.0;
+			}
+			else if( m_pDEM->is_InGrid(ix = Get_xFrom(i, x), iy = Get_yFrom(i, y)) )
+			{
+				dz[i]	= z < (dz[i] = Get_Surface(ix, iy)) ? (dz[i] - z) / Get_Length(i) : 0.0;
+			}
+			else
+			{
+				dz[i]	= 0.0;
+			}
+
+			dzSum	+= dz[i];
+		}
+	}
+
+	return( dzSum );
+}
+
+//---------------------------------------------------------
 void CKinWav_D8::Set_D8(int x, int y)
 {
-	int		iMax = -1;
-	double	d, dMax = 0.0, z = m_pDEM->asDouble(x, y);
+	double	dz[8], dx = 0.0;
+	
+	if( Get_Surface(x, y, dz) > 0.0 )
+	{
+		int		iMax	= -1;
+		double	dMax	= 0.0;
+
+		for(int i=0; i<8; i++)
+		{
+			if( dz[i] > dMax )
+			{
+				iMax = i; dMax = dz[i];
+			}
+		}
+
+		m_dFlow->Set_Value(x, y, iMax);
+
+		if( iMax >= 0 )
+		{
+			dx	= Get_Length(iMax);
+		}
+	}
+
+	m_dx.Set_Value(x, y, dx);
+}
+
+//---------------------------------------------------------
+void CKinWav_D8::Set_MFD(int x, int y)
+{
+	double	dz[8], dx = 0.0, dzSum;
+
+	if( (dzSum = Get_Surface(x, y, dz)) > 0.0 )
+	{
+		if( dzSum > 0.0 )
+		{
+			for(int i=0; i<8; i++)
+			{
+				dx	+= Get_Length(i) * dz[i] / dzSum;
+
+				m_dFlow[i].Set_Value(x, y, dz[i] / dzSum);
+			}
+		}
+	}
+
+	m_dx.Set_Value(x, y, dx);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CKinWav_D8::Set_Flow(void)
+{
+	int	y;
+
+	#pragma omp parallel for private(y)
+	for(y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++) if( !m_pDEM->is_NoData(x, y) )
+	{
+		m_Flow  .Set_Value(x, y, m_pFlow->asDouble(x, y));
+		m_pFlow->Set_Value(x, y, 0.0);
+
+		m_Q     .Set_Value(x, y, Get_Q(x, y));
+
+		if( m_bDynamic )
+		{
+			switch( m_Routing )
+			{
+			default: Set_D8 (x, y); break;
+			case  1: Set_MFD(x, y); break;
+			}
+		}
+	}
+
+	#pragma omp parallel for private(y)
+	for(y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++) if( !m_pDEM->is_NoData(x, y) )
+	{
+		Set_Runoff(x, y);
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CKinWav_D8::Get_Surface(int x, int y)
+{
+	return( m_bDynamic ? m_pDEM->asDouble(x, y) + m_Flow.asDouble(x, y) : m_pDEM->asDouble(x, y) );
+}
+
+//---------------------------------------------------------
+inline double CKinWav_D8::Get_Gradient(int x, int y)
+{
+	#define GET_DZ(i)	{ int ix, iy, ii = 2 * i; dz[i]\
+		= m_pDEM->is_InGrid(ix = Get_xTo  (ii), iy = Get_yTo  (ii)) ?     Get_Surface(ix, iy) - z\
+		: m_pDEM->is_InGrid(ix = Get_xFrom(ii), iy = Get_yFrom(ii)) ? z - Get_Surface(ix, iy) : 0.0; }
+
+	double	z	= Get_Surface(x, y), dz[4];
+
+	GET_DZ(0); GET_DZ(1); GET_DZ(2); GET_DZ(3);
+
+	double	G	= (dz[0] - dz[2]) / (2. * Get_Cellsize());
+    double	H	= (dz[1] - dz[3]) / (2. * Get_Cellsize());
+
+	z	= sqrt(G*G + H*H);
+
+	return( z );
+}
+
+//---------------------------------------------------------
+inline double CKinWav_D8::Get_Manning(int x, int y)
+{
+	double	Manning	= m_pManning && !m_pManning->is_NoData(x, y) ? m_pManning->asDouble(x, y) : m_Manning;
+
+	return( Manning <= 0.001 ? 0.001 : Manning );
+}
+
+//---------------------------------------------------------
+inline double CKinWav_D8::Get_Alpha(int x, int y)
+{
+	const double	Manning_k	= 1.;	// 1.4859 for English units: pow(1 m, 1/3) / s = pow(3.2808399 ft, 1/3) / s = 1.4859 * pow(1 ft, 1/3) / s
+
+	double	Manning	= m_pManning && !m_pManning->is_NoData(x, y) ? m_pManning->asDouble(x, y) : m_Manning;
+
+	return( (Manning_k / Manning) * sqrt(Get_Gradient(x, y)) );
+}
+
+//---------------------------------------------------------
+inline double CKinWav_D8::Get_Q(int x, int y)
+{
+	double	Flow	= m_Flow.asDouble(x, y);
+
+	return( Flow > 0.0 ? Get_Alpha(x, y) * pow(Flow, 5./3.) : 0.0 );
+}
+
+//---------------------------------------------------------
+void CKinWav_D8::Get_Upslope(int x, int y, double &F, double &Q)
+{
+	double	n	= F = Q = 0.0;
 
 	for(int i=0; i<8; i++)
 	{
 		int	ix	= Get_xTo(i, x);
 		int	iy	= Get_yTo(i, y);
 
-		if( m_pDEM->is_InGrid(ix, iy) && (d = (z - m_pDEM->asDouble(ix, iy)) / Get_Length(i)) > dMax )
+		if( m_pDEM->is_InGrid(ix, iy) )
 		{
-			dMax	= d;
-			iMax	= i;
+			switch( m_Routing )
+			{
+			default:
+			{
+				if( m_dFlow->asInt(ix, iy) == (i + 4) % 8 )
+				{
+					F	+= m_Flow.asDouble(ix, iy);
+					Q	+= m_Q   .asDouble(ix, iy);
+					n	++;
+				}
+			}
+			break;
+
+			case  1:
+			{
+				double	d	= m_dFlow[(i + 4) % 8].asDouble(x, y);
+
+				if( d > 0.0 )
+				{
+					F	+= d * m_Flow.asDouble(ix, iy);
+					Q	+= d * m_Q   .asDouble(ix, iy);
+					n	+= d;
+				}
+			}
+			break;
+			}
 		}
 	}
 
-	m_dFlow->Set_Value(x, y, iMax);
-
-	m_Length.Set_Value(x, y, Get_Length(iMax));
+	if( n > 0.0 )
+	{
+		F	/= n;
+		Q	/= n;
+	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-void CKinWav_D8::Set_MFD(int x, int y)
+void CKinWav_D8::Set_Runoff(int x, int y)
 {
-	int		i;
-	double	d, dz[8], dzSum = 0.0, z = m_pDEM->asDouble(x, y);
+	const double	m	= 5./3.;
 
-	for(i=0; i<8; i++)
+	//-----------------------------------------------------
+	double	Fup, F	= m_Flow.asDouble(x, y);
+	double	Qup, Q	= m_Q   .asDouble(x, y);
+
+	if( F <= 0.0 )
 	{
-		int	ix	= Get_xTo(i, x);
-		int	iy	= Get_yTo(i, y);
+		return;
+	}
 
-		if( m_pDEM->is_InGrid(ix, iy) && (d = z - m_pDEM->asDouble(ix, iy)) > 0.0 )
+	double	dx	= m_dx.asDouble(x, y);
+
+	if( dx <= 0.0 )
+	{
+		m_pFlow->Add_Value(x, y, F);
+
+		return;
+	}
+
+	Get_Upslope(x, y, Fup, Qup);
+
+	//-----------------------------------------------------
+	// 1. Initial estimation of q...
+
+	double	a		= Get_Alpha(x, y);
+	double	dtdx	= m_dt / dx;
+	double	q		= (Q + Qup) / 2.0;
+
+//	double	F0	= q * m_dt + F - a * m * dtdx * pow((F + Fup) / 2, m - 1) * (F - Fup);
+
+	//-----------------------------------------------------
+	// 2. Newton-Raphson...
+
+	double	C	= a * pow(F, m);
+
+	for(int i=0; q>0.0 && i<m_MaxIter; i++)
+	{
+		double	r	= m_dt * q + a     * pow(q, m    ) - C;
+		double	d	= m_dt     + a * m * pow(q, m - 1);
+
+		q	-= (d = r / d);
+
+		if( fabs(d) < m_Epsilon )
 		{
-			dzSum	+=	(dz[i] = d / Get_Length(i));
-		}
-		else
-		{
-			dz[i]	= 0.0;
+			break;
 		}
 	}
 
-	if( dzSum > 0.0 )
+	//-----------------------------------------------------
+	if( q <= 0.0 )
 	{
-		for(i=0, d=0.0; i<8; i++)
-		{
-			d	+= Get_Length(i) * dz[i] / dzSum;
-
-			m_dFlow[i].Set_Value(x, y, dz[i] / dzSum);
-		}
-
-		m_Length.Set_Value(x, y, d);
+		m_pFlow->Add_Value(x, y, F);
 	}
 	else
 	{
-		m_Length.Set_Value(x, y, Get_Cellsize());
+		double	dF	= q * dtdx;
+
+		if( F > dF )
+		{
+			m_pFlow->Add_Value(x, y, F - dF);
+		}
+		else
+		{
+			dF	= F;
+		}
+
+		Set_Runoff(x, y, dF);
+	}
+}
+
+//---------------------------------------------------------
+void CKinWav_D8::Set_Runoff(int x, int y, double dF)
+{
+	switch( m_Routing )
+	{
+	default: {
+		int	i	= m_dFlow->asInt(x, y);
+
+		if( i >= 0 )
+		{
+			int	ix	= Get_xTo(i, x);
+			int	iy	= Get_yTo(i, y);
+
+			if( m_pDEM->is_InGrid(ix, iy) )
+			{
+				m_pFlow->Add_Value(Get_xTo(i, x), Get_yTo(i, y), dF);
+			}
+			else
+			{
+				m_Flow_Out	+= dF;
+			}
+		}
+	}	break;
+
+	case  1: {
+		for(int i=0; i<8; i++)
+		{
+			double	d	= m_dFlow[i].asDouble(x, y);
+
+			if( d > 0.0 )
+			{
+				int	ix	= Get_xTo(i, x);
+				int	iy	= Get_yTo(i, y);
+
+				if( m_pDEM->is_InGrid(ix, iy) )
+				{
+					m_pFlow->Add_Value(Get_xTo(i, x), Get_yTo(i, y), d * dF);
+				}
+				else
+				{
+					m_Flow_Out	+= d * dF;
+				}
+			}
+		}
+	}	break;
 	}
 }
 
