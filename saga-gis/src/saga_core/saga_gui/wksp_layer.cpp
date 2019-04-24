@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -434,6 +431,8 @@ void CWKSP_Layer::ColorsParms_Add(void)
 	if( m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid
 	||  m_pObject->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 	{
+		m_Parameters.Add_Bool("", "STRETCH_UPDATE", "update flag, for internal use only", "", true)->Set_Enabled(false);
+
 		m_Parameters.Add_Choice("NODE_METRIC",
 			"STRETCH_DEFAULT"	, _TL("Adjustment"),
 			_TL("Specify how to adjust histogram stretch."),

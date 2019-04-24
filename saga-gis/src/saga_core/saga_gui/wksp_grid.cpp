@@ -477,7 +477,11 @@ void CWKSP_Grid::On_DataObject_Changed(void)
 	m_Parameters.Set_Parameter("FILE_CACHE"     , Get_Grid()->is_Cached  ());
 
 	//-----------------------------------------------------
-	if( m_Parameters("STRETCH_DEFAULT")->asInt() >= 3 )	// manual
+	if( m_Parameters("STRETCH_UPDATE")->asBool() == false )	// internal update flag, set by CSG_Tool::DataObject_Update()
+	{
+		m_Parameters.Set_Parameter("STRETCH_UPDATE", true);
+	}
+	else if( m_Parameters("STRETCH_DEFAULT")->asInt() >= 3 )	// manual
 	{
 		m_Parameters.Set_Parameter("STRETCH_DEFAULT", m_Fit_Colors);
 	}

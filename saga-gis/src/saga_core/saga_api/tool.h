@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,14 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__SAGA_API__tool_H
 #define HEADER_INCLUDED__SAGA_API__tool_H
 
@@ -84,7 +73,7 @@
 //---------------------------------------------------------
 typedef enum ESG_Summary_Format
 {
-	SG_SUMMARY_FMT_FLAT	= 0,
+	SG_SUMMARY_FMT_FLAT		= 0,
 	SG_SUMMARY_FMT_HTML,
 	SG_SUMMARY_FMT_XML
 }
@@ -252,8 +241,8 @@ protected:
 
 	//-----------------------------------------------------
 	bool						DataObject_Add				(CSG_Data_Object *pDataObject, bool bUpdate = false);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
 
 	void						DataObject_Update_All		(void);
 
@@ -416,12 +405,12 @@ typedef enum ESG_Tool_Interactive_DragMode
 TSG_Tool_Interactive_DragMode;
 
 //---------------------------------------------------------
-#define TOOL_INTERACTIVE_KEY_LEFT		0x01
+#define TOOL_INTERACTIVE_KEY_LEFT	0x01
 #define TOOL_INTERACTIVE_KEY_MIDDLE	0x02
 #define TOOL_INTERACTIVE_KEY_RIGHT	0x04
 #define TOOL_INTERACTIVE_KEY_SHIFT	0x08
-#define TOOL_INTERACTIVE_KEY_ALT		0x10
-#define TOOL_INTERACTIVE_KEY_CTRL		0x20
+#define TOOL_INTERACTIVE_KEY_ALT	0x10
+#define TOOL_INTERACTIVE_KEY_CTRL	0x20
 
 //---------------------------------------------------------
 /**

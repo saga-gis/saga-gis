@@ -303,7 +303,7 @@ bool CKinWav_D8::On_Execute(void)
 				Update_Last	= Update * (1.0 + floor(Time / Update));
 			}
 
-			DataObject_Update(m_pFlow, 0.0, 100.0);
+			DataObject_Update(m_pFlow);
 		}
 
 		Gauges_Set_Flow(Time);
@@ -361,7 +361,7 @@ bool CKinWav_D8::Initialize(void)
 		}
 
 		DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-		DataObject_Update(m_pFlow, 0.0, 100.0, SG_UI_DATAOBJECT_SHOW);
+		DataObject_Update    (m_pFlow, SG_UI_DATAOBJECT_SHOW);
 	}
 
 	//-----------------------------------------------------

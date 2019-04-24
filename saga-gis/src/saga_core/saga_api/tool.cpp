@@ -849,11 +849,16 @@ bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
 	return( SG_UI_DataObject_Update(pDataObject, Show, NULL) );
 }
 
-bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Parm_1, double Parm_2, int Show)
+bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show)
 {
-	return( DataObject_Set_Parameter(pDataObject, "STRETCH_DEFAULT", 3)
-		&&  DataObject_Set_Parameter(pDataObject, "METRIC_ZRANGE"  , Parm_1, Parm_2)
-		&&  SG_UI_DataObject_Update (pDataObject, Show, NULL)
+	CSG_Parameters	P;
+
+	return( DataObject_Get_Parameters(pDataObject, P)
+		&&  P.Set_Parameter("STRETCH_UPDATE"   , false  )	// internal update flag
+		&&  P.Set_Parameter("STRETCH_DEFAULT"  , 3      )	// manual
+		&&  P.Set_Parameter("METRIC_ZRANGE.MIN", Minimum)
+		&&  P.Set_Parameter("METRIC_ZRANGE.MAX", Maximum)
+		&&  SG_UI_DataObject_Update(pDataObject, Show, &P)
 	);
 }
 
@@ -917,18 +922,15 @@ bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_
 		return( true );
 	}
 
-	CSG_Parameters	Parms;
-	
-	if( DataObject_Get_Parameters(pCopy, Parms) )
-	{
-		if( 1 )
-		{
-			Parms.Del_Parameter("OBJECT_NODATA"  );
-			Parms.Del_Parameter("OBJECT_Z_FACTOR");
-			Parms.Del_Parameter("OBJECT_Z_OFFSET");
-		}
+	CSG_Parameters	P;
 
-		return( DataObject_Set_Parameters(pDataObject, Parms) );
+	if( DataObject_Get_Parameters(pCopy, P) )
+	{
+		P.Del_Parameter("OBJECT_NODATA"  );
+		P.Del_Parameter("OBJECT_Z_FACTOR");
+		P.Del_Parameter("OBJECT_Z_OFFSET");
+
+		return( DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
@@ -937,9 +939,9 @@ bool CSG_Tool::DataObject_Set_Parameters(CSG_Data_Object *pDataObject, CSG_Data_
 //---------------------------------------------------------
 CSG_Parameter * CSG_Tool::DataObject_Get_Parameter(CSG_Data_Object *pDataObject, const CSG_String &ID)
 {
-	static CSG_Parameters	sParameters;
+	static CSG_Parameters	P;
 
-	return( DataObject_Get_Parameters(pDataObject, sParameters) ? sParameters(ID) : NULL );
+	return( DataObject_Get_Parameters(pDataObject, P) ? P(ID) : NULL );
 }
 
 bool CSG_Tool::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter)
@@ -958,11 +960,11 @@ bool CSG_Tool::DataObject_Set_Parameter(CSG_Data_Object *pDataObject, CSG_Data_O
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value)
 {
-	CSG_Parameters	Parameters;
+	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
@@ -970,11 +972,11 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value)
 {
-	CSG_Parameters	Parameters;
+	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
@@ -982,11 +984,11 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value)
 {
-	CSG_Parameters	Parameters;
+	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
@@ -994,11 +996,11 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value)
 {
-	CSG_Parameters	Parameters;
+	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) )
+	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( Parameters(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, Parameters) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
@@ -1006,11 +1008,11 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal)	// Range Parameter
 {
-	CSG_Parameters	Parameters;
+	CSG_Parameters	P;
 
-	if( DataObject_Get_Parameters(pDataObject, Parameters) && Parameters(ID) && Parameters(ID)->Get_Type() == PARAMETER_TYPE_Range )
+	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) && P(ID)->Get_Type() == PARAMETER_TYPE_Range )
 	{
-		return( Parameters(ID)->asRange()->Set_Range(loVal, hiVal) && DataObject_Set_Parameters(pDataObject, Parameters) );
+		return( P(ID)->asRange()->Set_Range(loVal, hiVal) && DataObject_Set_Parameters(pDataObject, P) );
 	}
 
 	return( false );
