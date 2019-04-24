@@ -127,7 +127,10 @@ CSG_String		SG_Colors_Get_Name	(int Identifier)
 	case SG_COLORS_GREEN_RED_BLUE :	return( _TL("green > red > blue") );
 	case SG_COLORS_RAINBOW        :	return( _TL("rainbow") );
 	case SG_COLORS_NEON           :	return( _TL("neon") );
-	case SG_COLORS_TOPOGRAPHY     :	return( _TL("topography") );
+	case SG_COLORS_TOPOGRAPHY     :	return( _TL("topography 1") );
+	case SG_COLORS_TOPOGRAPHY_2   :	return( _TL("topography 2") );
+	case SG_COLORS_TOPOGRAPHY_3   :	return( _TL("topography 3") );
+	case SG_COLORS_PRECIPITATION  :	return( _TL("precipitation") );
 	case SG_COLORS_ASPECT_1       :	return( _TL("aspect 1") );
 	case SG_COLORS_ASPECT_2       :	return( _TL("aspect 2") );
 	case SG_COLORS_ASPECT_3       :	return( _TL("aspect 3") );
@@ -149,7 +152,7 @@ CSG_Colors::CSG_Colors(void)
 	m_Colors	= NULL;
 	m_nColors	= 0;
 
-	Set_Count(11);
+	Create();
 }
 
 //---------------------------------------------------------
@@ -158,7 +161,7 @@ CSG_Colors::CSG_Colors(const CSG_Colors &Colors)
 	m_Colors	= NULL;
 	m_nColors	= 0;
 
-	Assign(Colors);
+	Create(Colors);
 }
 
 //---------------------------------------------------------
@@ -167,14 +170,7 @@ CSG_Colors::CSG_Colors(int nColors, int Palette, bool bRevert)
 	m_Colors	= NULL;
 	m_nColors	= 0;
 
-	if( nColors <= 1 )
-	{
-		nColors	= 11;
-	}
-
-	Set_Count(nColors);
-
-	Set_Palette(Palette, bRevert, nColors);
+	Create(nColors, Palette, bRevert);
 }
 
 //---------------------------------------------------------
@@ -186,9 +182,44 @@ CSG_Colors::~CSG_Colors(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Colors::Create(void)
+{
+	return( Create(11) );
+}
+
+//---------------------------------------------------------
+bool CSG_Colors::Create(const CSG_Colors &Colors)
+{
+	if( Colors.m_nColors > 0 )
+	{
+		m_nColors	= Colors.m_nColors;
+		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
+
+		memcpy(m_Colors, Colors.m_Colors, m_nColors * sizeof(long));
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Colors::Create(int nColors, int Palette, bool bRevert)
+{
+	if( nColors <= 1 )
+	{
+		nColors	= 11;
+	}
+
+	Set_Count(nColors);
+
+	Set_Palette(Palette, bRevert, nColors);
+
+	return( true );
+}
 
 //---------------------------------------------------------
 void CSG_Colors::Destroy(void)
@@ -473,9 +504,9 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 
 	case SG_COLORS_YELLOW_BLUE:
 		Set_Count(3);
-		Set_Color(0, SG_GET_RGB(255, 255, 127));
-		Set_Color(1, SG_GET_RGB(127, 127, 255));
-		Set_Color(2, SG_GET_RGB(  0,   0, 127));
+		Set_Color(2, SG_GET_RGB(  0,  64, 127));
+		Set_Color(1, SG_GET_RGB(127, 192, 255));
+		Set_Color(0, SG_GET_RGB(255, 255, 200));
 		break;
 
 	case SG_COLORS_RED_GREEN:
@@ -579,6 +610,52 @@ bool CSG_Colors::Set_Palette(int Index, bool bRevert, int nColors)
 		Set_Color(2, SG_GET_RGB(255, 255, 127));
 		Set_Color(3, SG_GET_RGB(191, 127,   0));
 		Set_Color(4, SG_GET_RGB(127,  63,   0));
+		break;
+
+	case SG_COLORS_TOPOGRAPHY_2:
+		Set_Count(3);
+		Set_Color(0, SG_GET_RGB(  0, 128,   0));
+		Set_Color(1, SG_GET_RGB(255, 255, 127));
+		Set_Color(2, SG_GET_RGB(127,  63,  63));
+		break;
+
+	case SG_COLORS_TOPOGRAPHY_3:
+		Set_Count(9);
+		Set_Color(0, SG_GET_RGB(177, 242, 212));
+		Set_Color(1, SG_GET_RGB(248, 252, 179));
+		Set_Color(2, SG_GET_RGB( 11, 128, 064));
+		Set_Color(3, SG_GET_RGB(248, 202,  80));
+		Set_Color(4, SG_GET_RGB(158,  30,   0));
+		Set_Color(5, SG_GET_RGB(128, 064, 064));
+		Set_Color(6, SG_GET_RGB(185, 121, 076));
+		Set_Color(7, SG_GET_RGB(179, 179, 179));
+		Set_Color(8, SG_GET_RGB(255, 255, 255));
+		break;
+
+	case SG_COLORS_PRECIPITATION:	// juergen's favorite precipition colour ramp
+		Set_Count(22);
+		Set_Color( 0, SG_GET_RGB(216, 204, 131));
+		Set_Color( 1, SG_GET_RGB(196, 208, 111));
+		Set_Color( 2, SG_GET_RGB(184, 210, 101));
+		Set_Color( 3, SG_GET_RGB(172, 212,  91));
+		Set_Color( 4, SG_GET_RGB(139, 212,  99));
+		Set_Color( 5, SG_GET_RGB(107, 212, 107));
+		Set_Color( 6, SG_GET_RGB( 75, 212, 119));
+		Set_Color( 7, SG_GET_RGB( 42, 212, 131));
+		Set_Color( 8, SG_GET_RGB( 26, 212, 151));
+		Set_Color( 9, SG_GET_RGB( 10, 212, 172));
+		Set_Color(10, SG_GET_RGB( 30, 192, 192));
+		Set_Color(11, SG_GET_RGB( 50, 172, 212));
+		Set_Color(12, SG_GET_RGB( 70, 151, 214));
+		Set_Color(13, SG_GET_RGB( 91, 131, 216));
+		Set_Color(14, SG_GET_RGB( 75, 115, 198));
+		Set_Color(15, SG_GET_RGB( 58,  99, 180));
+		Set_Color(16, SG_GET_RGB( 42,  83, 184));
+		Set_Color(17, SG_GET_RGB( 26, 066, 188));
+		Set_Color(18, SG_GET_RGB( 26, 046, 180));
+		Set_Color(19, SG_GET_RGB( 26, 026, 166));
+		Set_Color(20, SG_GET_RGB( 38,  18, 151));
+		Set_Color(21, SG_GET_RGB( 50, 010, 131));
 		break;
 
 	case SG_COLORS_ASPECT_1:
@@ -792,7 +869,7 @@ bool CSG_Colors::Greyscale(void)
 //---------------------------------------------------------
 CSG_Colors & CSG_Colors::operator = (const CSG_Colors &Colors)
 {
-	Assign(Colors);
+	Create(Colors);
 
 	return( *this );
 }
@@ -800,23 +877,13 @@ CSG_Colors & CSG_Colors::operator = (const CSG_Colors &Colors)
 //---------------------------------------------------------
 bool CSG_Colors::Assign(const CSG_Colors &Colors)
 {
-	if( Colors.m_nColors > 0 )
-	{
-		m_nColors	= Colors.m_nColors;
-		m_Colors	= (long *)SG_Realloc(m_Colors, m_nColors * sizeof(long));
-
-		memcpy(m_Colors, Colors.m_Colors, m_nColors * sizeof(long));
-
-		return( true );
-	}
-
-	return( false );
+	return( Create(Colors) );
 }
 
 //---------------------------------------------------------
 bool CSG_Colors::Assign(CSG_Colors *pColors)
 {
-	return( pColors ? Assign(*pColors) : false );
+	return( pColors ? Create(*pColors) : false );
 }
 
 

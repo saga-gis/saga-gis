@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_Base_H
 #define _HEADER_INCLUDED__SAGA_GUI__DLG_Base_H
 
@@ -98,6 +86,9 @@ public:
 
 protected:
 
+	class wxPanel *				Get_Controls	(void)	{	return( m_pPanel_Controls );	}
+
+	void						Add_Control		(wxControl *pControl);
 	class wxButton *			Add_Button		(int Button_ID);
 
 	void						Set_Positions	(void);
@@ -108,9 +99,9 @@ protected:
 
 private:
 
-	int							m_btn_height, m_nButtons;
+	int							m_btn_height, m_nControls;
 
-	class wxPanel				*m_pPanel_Buttons;
+	class wxPanel				*m_pPanel_Controls;
 
 
 	void						_Exit			(bool bOk);

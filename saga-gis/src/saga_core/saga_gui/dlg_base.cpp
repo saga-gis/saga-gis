@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/panel.h>
 #include <wx/button.h>
@@ -70,10 +58,6 @@
 #include "helper.h"
 
 #include "dlg_base.h"
-
-//---------------------------------------------------------
-#define BUTTON_WIDTH	70
-#define CONTROL_DIST	5
 
 
 ///////////////////////////////////////////////////////////
@@ -88,16 +72,14 @@ IMPLEMENT_CLASS(CDLG_Base, wxDialog)
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Base, wxDialog)
 	EVT_SIZE			(CDLG_Base::On_Size)
-	EVT_KEY_DOWN		(CDLG_Base::On_Key)
+	EVT_KEY_DOWN		(CDLG_Base::On_Key )
 
-	EVT_BUTTON			(wxID_OK		, CDLG_Base::On_Ok)
-	EVT_BUTTON			(wxID_CANCEL	, CDLG_Base::On_Cancel)
+	EVT_BUTTON			(wxID_OK    , CDLG_Base::On_Ok    )
+	EVT_BUTTON			(wxID_CANCEL, CDLG_Base::On_Cancel)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -107,9 +89,9 @@ CDLG_Base::CDLG_Base(int id, wxString Caption, bool bCancelBtn)
 {
 	MDI_Top_Window_Push(this);
 
-	m_pPanel_Buttons	= new wxPanel(this);
+	m_pPanel_Controls	= new wxPanel(this);
 
-	m_nButtons	= 0;
+	m_nControls	= 0;
 
 	Add_Button(wxID_OK);
 
@@ -118,7 +100,7 @@ CDLG_Base::CDLG_Base(int id, wxString Caption, bool bCancelBtn)
 		Add_Button(wxID_CANCEL);
 	}
 
-	m_nButtons++;
+	m_nControls++;
 }
 
 //---------------------------------------------------------
@@ -173,15 +155,46 @@ void CDLG_Base::On_Key(wxKeyEvent &event)
 	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define CONTROL_HEIGHT	wxButton::GetDefaultSize().y
+#define CONTROL_WIDTH	70
+#define CONTROL_DIST	5
+
+//---------------------------------------------------------
+void CDLG_Base::Add_Control(wxControl *pControl)
+{
+	if( pControl )
+	{
+		pControl->SetSize(0, CONTROL_DIST + m_nControls * (CONTROL_DIST + CONTROL_HEIGHT), CONTROL_WIDTH, CONTROL_HEIGHT);
+	}
+
+	m_nControls++;
+}
+
+//---------------------------------------------------------
+wxButton * CDLG_Base::Add_Button(int Button_ID)
+{
+	wxButton	*pButton	= Button_ID > 0 ? new wxButton(m_pPanel_Controls, Button_ID, CTRL_Get_Name(Button_ID)) : NULL;
+
+	Add_Control(pButton);
+
+	return( pButton );
+}
+
 //---------------------------------------------------------
 void CDLG_Base::Set_Positions(void)
 {
 	int		xDivide, yTotal;
 
-	xDivide	= GetClientSize().GetWidth() - BUTTON_WIDTH - 2 * CONTROL_DIST;
+	xDivide	= GetClientSize().GetWidth() - CONTROL_WIDTH - 2 * CONTROL_DIST;
 	yTotal	= GetClientSize().GetHeight() - 2 * CONTROL_DIST;
 
-	m_pPanel_Buttons->SetSize(wxRect(xDivide + CONTROL_DIST, CONTROL_DIST, BUTTON_WIDTH, yTotal));
+	m_pPanel_Controls->SetSize(wxRect(xDivide + CONTROL_DIST, CONTROL_DIST, CONTROL_WIDTH, yTotal));
 
 	Set_Position(wxRect(CONTROL_DIST, CONTROL_DIST, xDivide - 2 * CONTROL_DIST, yTotal));
 }
@@ -216,28 +229,6 @@ void CDLG_Base::_Exit(bool bOk)
 	{
 		EndModal(wxID_CANCEL);
 	}
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-wxButton * CDLG_Base::Add_Button(int Button_ID)
-{
-	wxButton	*pButton	= NULL;
-
-	if( Button_ID > 0 )
-	{
-		pButton	= new wxButton(m_pPanel_Buttons, Button_ID, CTRL_Get_Name(Button_ID));
-
-		pButton->SetSize(0, CONTROL_DIST + m_nButtons * (CONTROL_DIST + pButton->GetDefaultSize().y), BUTTON_WIDTH, pButton->GetDefaultSize().y);
-	}
-
-	m_nButtons++;
-
-	return( pButton );
 }
 
 

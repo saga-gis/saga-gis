@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_Colors_H
 #define _HEADER_INCLUDED__SAGA_GUI__DLG_Colors_H
 
@@ -93,16 +81,17 @@ public:
 	void						On_Save			(wxCommandEvent &event);
 
 	void						On_Count		(wxCommandEvent &event);
-	void						On_Miror		(wxCommandEvent &event);
+	void						On_Mirror		(wxCommandEvent &event);
 	void						On_Invert		(wxCommandEvent &event);
 	void						On_Greyscale	(wxCommandEvent &event);
 	void						On_Random		(wxCommandEvent &event);
 	void						On_Preset		(wxCommandEvent &event);
+	void						On_ComboBox		(wxCommandEvent &event);
 
 
 protected:
 
-	class CSG_Colors				*m_pColors, *m_pOriginal;
+	class CSG_Colors			*m_pColors, *m_pOriginal;
 
 	class CDLG_Colors_Control	*m_pControl;
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/textdlg.h>
 
@@ -67,11 +55,9 @@
 
 #include "helper.h"
 #include "dc_helper.h"
+#include "res_dialogs.h"
 
 #include "dlg_colors_control.h"
-
-//---------------------------------------------------------
-#define BOX_DISTANCE	10
 
 
 ///////////////////////////////////////////////////////////
@@ -97,8 +83,6 @@ END_EVENT_TABLE()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -117,42 +101,31 @@ CDLG_Colors_Control::~CDLG_Colors_Control(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CDLG_Colors_Control::Set_Positions(void)
 {
-	int		Height, Position;
+	#define BOX_DISTANCE	10
+
 	wxRect	r(wxPoint(0, 0), GetClientSize());
 
 	r.Deflate(BOX_DISTANCE);
 
-	Height	= (int)(r.GetHeight() / (4 + 0.25));
+	int	h	= (int)(r.GetHeight() / (4 + 0.25));
+	int	p	= r.GetTop();
 
-	Position	= r.GetTop();
-	m_red		= wxRect(r.GetX(), Position, r.GetWidth(), Height - BOX_DISTANCE);
-
-	Position	+= Height;
-	m_green		= wxRect(r.GetX(), Position, r.GetWidth(), Height - BOX_DISTANCE);
-
-	Position	+= Height;
-	m_blue		= wxRect(r.GetX(), Position, r.GetWidth(), Height - BOX_DISTANCE);
-
-	Position	+= Height;
-	m_sum		= wxRect(r.GetX(), Position, r.GetWidth(), Height - BOX_DISTANCE);
-
-	Position	+= Height;
-	m_rgb		= wxRect(r.GetX(), Position, r.GetWidth(), (int)(Height * 0.25));
+	m_red	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
+	m_green	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
+	m_blue	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
+	m_sum	= wxRect(r.GetX(), p, r.GetWidth(), h - BOX_DISTANCE); p += h;
+	m_rgb	= wxRect(r.GetX(), p, r.GetWidth(), (int)(h * 0.25));
 
 	Refresh();
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -252,8 +225,6 @@ void CDLG_Colors_Control::Draw_Line(wxPoint pA, wxPoint pB)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -299,8 +270,6 @@ void CDLG_Colors_Control::On_Mouse_LUp(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-#include "res_dialogs.h"
-
 void CDLG_Colors_Control::On_Mouse_RUp(wxMouseEvent &event)
 {
 	wxPoint	P	= event.GetPosition();
@@ -323,8 +292,6 @@ void CDLG_Colors_Control::On_Mouse_RUp(wxMouseEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -384,8 +351,6 @@ void CDLG_Colors_Control::Set_Colors(wxPoint A, wxPoint B, int BoxID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

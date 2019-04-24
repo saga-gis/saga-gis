@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__DLG_Colors_Control_H
 #define _HEADER_INCLUDED__SAGA_GUI__DLG_Colors_Control_H
 
@@ -89,7 +77,7 @@ public:
 	CDLG_Colors_Control(wxWindow *pParent, class CSG_Colors *pColors);
 	virtual ~CDLG_Colors_Control(void);
 
-	void						On_Size				(wxSizeEvent &event);
+	void						On_Size				(wxSizeEvent  &event);
 	void						On_Paint			(wxPaintEvent &event);
 
 	void						On_Mouse_LDown		(wxMouseEvent &event);
@@ -108,7 +96,7 @@ protected:
 
 	wxRect						m_red, m_green, m_blue, m_sum, m_rgb;
 
-	class CSG_Colors				*m_pColors;
+	class CSG_Colors			*m_pColors;
 
 
 	void						Draw_Box			(wxDC &dc, int BoxID);
@@ -117,10 +105,10 @@ protected:
 	wxPoint						Get_ColorPosition	(wxPoint p, int BoxID);
 	void						Set_Colors			(wxPoint pA, wxPoint pB, int BoxID) ;
 
-	int							Get_SelBox			(wxPoint p);
-	bool						IsInBoxRect			(wxPoint p, int BoxID);
+	int							Get_SelBox			(wxPoint  p);
+	bool						IsInBoxRect			(wxPoint  p, int BoxID);
 	void						KeepInBoxRect		(wxPoint &p, int BoxID);
-	bool						Get_BoxRect			(wxRect &r, int BoxID);
+	bool						Get_BoxRect			(wxRect  &r, int BoxID);
 
 
 //---------------------------------------------------------

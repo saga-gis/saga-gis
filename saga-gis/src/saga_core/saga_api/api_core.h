@@ -1178,7 +1178,7 @@ SAGA_API_DLL_EXPORT bool			SG_Set_Environment			(const CSG_String &Variable, con
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_GET_RGB(r, g, b)		((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
+#define SG_GET_RGB( r, g, b   )	((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16)))
 #define SG_GET_RGBA(r, g, b, a)	((DWORD) (((BYTE)(r) | ((WORD)(g) << 8)) | (((DWORD)(BYTE)(b)) << 16) | (((DWORD)(BYTE)(a)) << 24)))
 
 #define SG_GET_R(rgb)			((BYTE) ((rgb)      ))
@@ -1234,6 +1234,9 @@ enum ESG_Colors
 	SG_COLORS_RAINBOW,
 	SG_COLORS_NEON,
 	SG_COLORS_TOPOGRAPHY,
+	SG_COLORS_TOPOGRAPHY_2,
+	SG_COLORS_TOPOGRAPHY_3,
+	SG_COLORS_PRECIPITATION,
 	SG_COLORS_ASPECT_1,
 	SG_COLORS_ASPECT_2,
 	SG_COLORS_ASPECT_3,
@@ -1249,9 +1252,15 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Identifier);
 class SAGA_API_DLL_EXPORT CSG_Colors
 {
 public:
-	CSG_Colors(void);
-	CSG_Colors(const CSG_Colors &Colors);
-	CSG_Colors(int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+									CSG_Colors			(void);
+	bool							Create				(void);
+
+									CSG_Colors			(const CSG_Colors &Colors);
+	bool							Create				(const CSG_Colors &Colors);
+
+									CSG_Colors			(int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+	bool							Create				(int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+
 	virtual ~CSG_Colors(void);
 
 	void							Destroy				(void);
