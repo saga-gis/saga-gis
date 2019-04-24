@@ -25,8 +25,8 @@ before_build:
     #small fix because wxwindows paths are different when downloading than when compiling yourself
   - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
-  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2019-04-05_x64.zip
-  - cmd: 7z x libs4saga_2019-04-05_x64.zip -oc:\deps\
+  - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2019-04-18_x64.zip
+  - cmd: 7z x libs4saga_2019-04-18_x64.zip -oc:\deps\
   # disable riegl import as it requires an SDK
   - cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
 
