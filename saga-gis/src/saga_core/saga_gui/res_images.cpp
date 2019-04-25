@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/image.h>
 
@@ -84,7 +72,7 @@
 #include "./res/xpm/nb_active_legend.xpm"
 #include "./res/xpm/nb_active_history.xpm"
 #include "./res/xpm/nb_active_parameters.xpm"
-#include "./res/xpm/nb_active_htmlextrainfo.xpm"
+#include "./res/xpm/nb_active_info.xpm"
 #include "./res/xpm/nb_info_error.xpm"
 #include "./res/xpm/nb_info_execution.xpm"
 #include "./res/xpm/nb_info_messages.xpm"
@@ -226,9 +214,9 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_NB_ACTIVE_PARAMETERS     :	return( nb_active_parameters_xpm );
 	case ID_IMG_NB_ACTIVE_DESCRIPTION    :	return( nb_active_description_xpm );
 	case ID_IMG_NB_ACTIVE_HISTORY        :	return( nb_active_history_xpm );
-	case ID_IMG_NB_ACTIVE_ATTRIBUTES     :	return( nb_active_attributes_xpm );
 	case ID_IMG_NB_ACTIVE_LEGEND         :	return( nb_active_legend_xpm );
-	case ID_IMG_NB_ACTIVE_HTMLEXTRAINFO  :	return( nb_active_htmlextrainfo_xpm );
+	case ID_IMG_NB_ACTIVE_ATTRIBUTES     :	return( nb_active_attributes_xpm );
+	case ID_IMG_NB_ACTIVE_INFO           :	return( nb_active_info_xpm );
 
 	case ID_IMG_NB_DATA_SOURCE_FILES     :	return( tb_wksp_xpm );
 	case ID_IMG_NB_DATA_SOURCE_DATABASE  :	return( wksp_odbc_sources_xpm );

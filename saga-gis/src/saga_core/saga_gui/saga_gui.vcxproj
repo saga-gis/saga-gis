@@ -405,6 +405,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="active_history.cpp" />
+    <ClCompile Include="active_info.cpp" />
     <ClCompile Include="active_legend.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -1142,6 +1143,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <ClInclude Include="active_attributes_control.h" />
     <ClInclude Include="active_Description.h" />
     <ClInclude Include="active_history.h" />
+    <ClInclude Include="active_info.h" />
     <ClInclude Include="active_legend.h" />
     <ClInclude Include="active_parameters.h" />
     <ClInclude Include="callback.h" />

@@ -441,13 +441,13 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		break;
 
 	case ID_CMD_MAP_ZOOM_ACTIVE:
-		event.Enable(g_pACTIVE->Get_Active_Layer() != NULL);
+		event.Enable(g_pActive->Get_Active_Layer() != NULL);
 		break;
 
 	case ID_CMD_MAP_ZOOM_SELECTION:
-		event.Enable(g_pACTIVE->Get_Active_Layer()
-			&& g_pACTIVE->Get_Active_Layer()->Get_Object()->asShapes()
-			&& g_pACTIVE->Get_Active_Layer()->Get_Object()->asShapes()->Get_Selection_Count() > 0
+		event.Enable(g_pActive->Get_Active_Layer()
+			&& g_pActive->Get_Active_Layer()->Get_Object()->asShapes()
+			&& g_pActive->Get_Active_Layer()->Get_Object()->asShapes()->Get_Selection_Count() > 0
 		);
 		break;
 

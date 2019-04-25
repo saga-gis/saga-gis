@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -809,7 +797,7 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, i
 			rWorld.Inflate(2.0 * ClientToWorld, false);
 		}
 
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		Get_PointCloud()->Select(rWorld, (Key & TOOL_INTERACTIVE_KEY_CTRL) != 0);
 
@@ -830,7 +818,7 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, i
 		}
 
 		//-----------------------------------------------------
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		if( m_pTable->Get_View() )
 		{

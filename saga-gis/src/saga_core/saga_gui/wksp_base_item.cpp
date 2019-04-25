@@ -136,9 +136,9 @@ CWKSP_Base_Item::CWKSP_Base_Item(void)
 //---------------------------------------------------------
 CWKSP_Base_Item::~CWKSP_Base_Item(void)
 {
-	if( g_pACTIVE && g_pACTIVE->Get_Active() == this )
+	if( g_pActive && g_pActive->Get_Active() == this )
 	{
-		g_pACTIVE->Set_Active(NULL);
+		g_pActive->Set_Active(NULL);
 	}
 
 	if( m_pManager )
@@ -315,9 +315,9 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 		Get_Control()->SetItemText(GetId(), Get_Name());
 	}
 
-	if( g_pACTIVE )
+	if( g_pActive )
 	{
-		g_pACTIVE->Update(this, false);
+		g_pActive->Update(this, false);
 	}
 }
 
@@ -338,9 +338,9 @@ int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 				return( pItem->On_Parameter_Changed(pParameters, pParameter, Flags) );
 			}
 		}
-		else if( g_pACTIVE )
+		else if( g_pActive )
 		{
-			return( g_pACTIVE->Get_Parameters()->Update_Parameters(pParameters, false) );
+			return( g_pActive->Get_Parameters()->Update_Parameters(pParameters, false) );
 		}
 	}
 

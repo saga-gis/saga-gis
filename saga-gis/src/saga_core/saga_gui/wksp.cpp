@@ -240,7 +240,7 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 {
 	event.Skip();
 
-	if( event.GetSelection() >= 0 && g_pACTIVE )
+	if( event.GetSelection() >= 0 && g_pActive )
 	{
 		CWKSP_Base_Item	*pItem	= NULL;
 
@@ -259,7 +259,7 @@ void CWKSP::On_Page_Changed(wxNotebookEvent &event)
 
 		if( pItem )
 		{
-			g_pACTIVE->Set_Active(pItem);
+			g_pActive->Set_Active(pItem);
 		}
 	}
 }
@@ -286,7 +286,7 @@ void CWKSP::On_Command(wxCommandEvent &event)
 	else switch( event.GetId() )
 	{
 	default:
-		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command(event.GetId()) )
+		if( !g_pActive->Get_Active() || !g_pActive->Get_Active()->On_Command(event.GetId()) )
 		{
 			if( GetCurrentPage() )
 			{
@@ -347,7 +347,7 @@ void CWKSP::On_Command_UI(wxUpdateUIEvent &event)
 	switch( event.GetId() )
 	{
 	default:
-		if( !g_pACTIVE->Get_Active() || !g_pACTIVE->Get_Active()->On_Command_UI(event) )
+		if( !g_pActive->Get_Active() || !g_pActive->Get_Active()->On_Command_UI(event) )
 		{
 			m_pTools->On_Command_UI(event);
 			m_pData ->On_Command_UI(event);

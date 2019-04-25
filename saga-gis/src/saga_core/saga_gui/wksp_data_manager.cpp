@@ -1227,7 +1227,7 @@ bool CWKSP_Data_Manager::Close(bool bSilent)
 	{
 		m_pProject->Clr_File_Name();
 
-		g_pACTIVE->Get_Parameters()->Restore_Parameters();
+		g_pActive->Get_Parameters()->Restore_Parameters();
 
 		g_pSAGA_Frame->Close_Children();
 
@@ -1565,9 +1565,9 @@ bool CWKSP_Data_Manager::MultiSelect_Check(void)
 		{
 			m_Sel_Parms[1]	= m_Sel_Parms[0];
 
-			if( g_pACTIVE->Get_Active() == this )
+			if( g_pActive->Get_Active() == this )
 			{
-				g_pACTIVE->Get_Parameters()->Update_Parameters(&m_Sel_Parms[0], false);
+				g_pActive->Get_Parameters()->Update_Parameters(&m_Sel_Parms[0], false);
 			}
 
 			return( true );

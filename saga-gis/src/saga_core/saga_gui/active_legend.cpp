@@ -92,21 +92,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CACTIVE_Legend, wxScrolledWindow)
+IMPLEMENT_CLASS(CActive_Legend, wxScrolledWindow)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CACTIVE_Legend, wxScrolledWindow)
-	EVT_KEY_DOWN		(CACTIVE_Legend::On_Key_Down)
-	EVT_RIGHT_DOWN		(CACTIVE_Legend::On_Mouse_RDown)
+BEGIN_EVENT_TABLE(CActive_Legend, wxScrolledWindow)
+	EVT_KEY_DOWN		(CActive_Legend::On_Key_Down)
+	EVT_RIGHT_DOWN		(CActive_Legend::On_Mouse_RDown)
 
-	EVT_MENU			(ID_CMD_DATA_LEGEND_COPY				, CACTIVE_Legend::On_Copy)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CACTIVE_Legend::On_Copy)
-	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_INC			, CACTIVE_Legend::On_Size_Inc)
-	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_DEC			, CACTIVE_Legend::On_Size_Dec)
+	EVT_MENU			(ID_CMD_DATA_LEGEND_COPY				, CActive_Legend::On_Copy)
+	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CActive_Legend::On_Copy)
+	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_INC			, CActive_Legend::On_Size_Inc)
+	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_DEC			, CActive_Legend::On_Size_Dec)
 END_EVENT_TABLE()
 
 //---------------------------------------------------------
-double CACTIVE_Legend::m_Zoom	= 1.0;
+double CActive_Legend::m_Zoom	= 1.0;
 
 
 ///////////////////////////////////////////////////////////
@@ -116,7 +116,7 @@ double CACTIVE_Legend::m_Zoom	= 1.0;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CACTIVE_Legend::CACTIVE_Legend(wxWindow *pParent)
+CActive_Legend::CActive_Legend(wxWindow *pParent)
 	: wxScrolledWindow(pParent, ID_WND_ACTIVE_LEGEND, wxDefaultPosition, wxDefaultSize, wxSUNKEN_BORDER|wxFULL_REPAINT_ON_RESIZE)
 {
 	SYS_Set_Color_BG(this, wxSYS_COLOUR_WINDOW);
@@ -135,7 +135,7 @@ CACTIVE_Legend::CACTIVE_Legend(wxWindow *pParent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Legend::Set_Item(CWKSP_Base_Item *pItem)
+void CActive_Legend::Set_Item(CWKSP_Base_Item *pItem)
 {
 	m_pItem	= pItem;
 
@@ -150,13 +150,13 @@ void CACTIVE_Legend::Set_Item(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Legend::On_Key_Down(wxKeyEvent &event)
+void CActive_Legend::On_Key_Down(wxKeyEvent &event)
 {
 	event.Skip();
 }
 
 //---------------------------------------------------------
-void CACTIVE_Legend::On_Mouse_RDown(wxMouseEvent &event)
+void CActive_Legend::On_Mouse_RDown(wxMouseEvent &event)
 {
 	if( !m_pItem || !m_pItem->GetId().IsOk() )
 	{
@@ -178,7 +178,7 @@ void CACTIVE_Legend::On_Mouse_RDown(wxMouseEvent &event)
 //---------------------------------------------------------
 #include <wx/clipbrd.h>
 
-void CACTIVE_Legend::On_Copy(wxCommandEvent &event)
+void CActive_Legend::On_Copy(wxCommandEvent &event)
 {
 	if( !m_pItem || !m_pItem->GetId().IsOk() )
 	{
@@ -227,7 +227,7 @@ void CACTIVE_Legend::On_Copy(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CACTIVE_Legend::On_Size_Inc(wxCommandEvent &event)
+void CActive_Legend::On_Size_Inc(wxCommandEvent &event)
 {
 	m_Zoom	*= 1.25;
 
@@ -235,7 +235,7 @@ void CACTIVE_Legend::On_Size_Inc(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CACTIVE_Legend::On_Size_Dec(wxCommandEvent &event)
+void CActive_Legend::On_Size_Dec(wxCommandEvent &event)
 {
 	m_Zoom	/= 1.25;
 
@@ -250,7 +250,7 @@ void CACTIVE_Legend::On_Size_Dec(wxCommandEvent &event)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Legend::OnDraw(wxDC &dc)
+void CActive_Legend::OnDraw(wxDC &dc)
 {
 	wxPoint	p(5, 5);
 	wxSize	s(0, 0);

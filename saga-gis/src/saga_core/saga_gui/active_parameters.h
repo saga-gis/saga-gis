@@ -81,13 +81,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Parameters : public wxPanel
+class CActive_Parameters : public wxPanel
 {
-	DECLARE_CLASS(CACTIVE_Parameters)
+	DECLARE_CLASS(CActive_Parameters)
 
 public:
-	CACTIVE_Parameters(wxWindow *pParent);
-	virtual ~CACTIVE_Parameters(void);
+	CActive_Parameters(wxWindow *pParent);
+	virtual ~CActive_Parameters(void);
 
 	void						On_Size				(wxSizeEvent     &event);
 	void						On_Key				(wxKeyEvent      &event);

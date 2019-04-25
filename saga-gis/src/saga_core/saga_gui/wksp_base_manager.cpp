@@ -133,7 +133,7 @@ bool CWKSP_Base_Manager::Add_Item(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
 			g_pData_Ctrl->Add_Item(this, pItem);
-			g_pACTIVE->Update_DataObjects();
+			g_pActive->Update_DataObjects();
 			break;
 
 		case WKSP_ITEM_Map_Manager:
@@ -185,9 +185,9 @@ bool CWKSP_Base_Manager::Del_Item(CWKSP_Base_Item *pItem)
 		case WKSP_ITEM_PointCloud_Manager:
 		case WKSP_ITEM_Grid_Manager:
 		case WKSP_ITEM_Grid_System:
-			if( g_pACTIVE )
+			if( g_pActive )
 			{
-				g_pACTIVE->Update_DataObjects();
+				g_pActive->Update_DataObjects();
 			}
 			break;
 		}

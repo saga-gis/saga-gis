@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Description_H
 #define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Description_H
 
@@ -81,13 +69,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Description : public wxHtmlWindow
+class CActive_Description : public wxHtmlWindow
 {
-	DECLARE_CLASS(CACTIVE_Description)
+	DECLARE_CLASS(CActive_Description)
 
 public:
-	CACTIVE_Description(wxWindow *pParent);
-	virtual ~CACTIVE_Description(void);
+	CActive_Description(wxWindow *pParent);
+	virtual ~CActive_Description(void);
 
 	void						On_Key_Down		(wxKeyEvent &event);
 
@@ -96,9 +84,8 @@ public:
 
 private:
 
+	DECLARE_EVENT_TABLE()
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
 };
 
 

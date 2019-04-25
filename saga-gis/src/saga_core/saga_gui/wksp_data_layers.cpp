@@ -365,7 +365,7 @@ void CWKSP_Data_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 {
 	g_pData_Ctrl->UnselectAll();
 
-	g_pACTIVE->Set_Active(NULL);
+	g_pActive->Set_Active(NULL);
 
 	Refresh(false);
 }

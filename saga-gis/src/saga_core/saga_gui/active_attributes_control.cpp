@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: active_attributes_control.cpp 2665 2015-10-28 12:55:25Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -164,8 +152,6 @@ void CActive_Attributes_Control::Set_Row_Labeling(bool bOn)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -308,8 +294,6 @@ bool CActive_Attributes_Control::_Set_Record(int iRecord)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -335,7 +319,7 @@ void CActive_Attributes_Control::On_Key(wxKeyEvent &event)
 	{
 		event.Skip(false);
 
-		g_pACTIVE->Get_Attributes()->Save_Changes(false);
+		((CActive_Attributes *)GetParent())->Save_Changes(false);
 	}
 }
 
@@ -398,9 +382,9 @@ void CActive_Attributes_Control::On_Autosize_Rows(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pActive->Get_Active_Data_Item() || g_pActive->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
-	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pActive->Get_Active_Data_Item())->Get_Grids();
 
 	//-----------------------------------------------------
 	CSG_String	Fields;
@@ -491,9 +475,9 @@ void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Del(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pActive->Get_Active_Data_Item() || g_pActive->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
-	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pActive->Get_Active_Data_Item())->Get_Grids();
 
 	//-----------------------------------------------------
 	int				i;
@@ -527,9 +511,9 @@ void CActive_Attributes_Control::On_Field_Del(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Rename(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pActive->Get_Active_Data_Item() || g_pActive->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
-	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pActive->Get_Active_Data_Item())->Get_Grids();
 
 	//-----------------------------------------------------
 	int				i;
@@ -564,9 +548,9 @@ void CActive_Attributes_Control::On_Field_Rename(wxCommandEvent &event)
 //---------------------------------------------------------
 void CActive_Attributes_Control::On_Field_Type(wxCommandEvent &event)
 {
-	if( !g_pACTIVE->Get_Active_Data_Item() || g_pACTIVE->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
+	if( !g_pActive->Get_Active_Data_Item() || g_pActive->Get_Active_Data_Item()->Get_Type() != WKSP_ITEM_Grids )	{	return;	}
 
-	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pACTIVE->Get_Active_Data_Item())->Get_Grids();
+	CSG_Grids	*pGrids	= ((CWKSP_Grids *)g_pActive->Get_Active_Data_Item())->Get_Grids();
 
 	//-----------------------------------------------------
 	int				i, *Types	= new int[m_pTable->Get_Field_Count()];
@@ -814,9 +798,9 @@ bool CActive_Attributes_Control::_Get_DataSource(wxString &Source)
 		return( true );
 	}
 
-	if( g_pACTIVE->Get_Active_Data_Item() && g_pACTIVE->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false) )
+	if( g_pActive->Get_Active_Data_Item() && g_pActive->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false) )
 	{
-		wxFileName	fn(Source), dir(g_pACTIVE->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false));
+		wxFileName	fn(Source), dir(g_pActive->Get_Active_Data_Item()->Get_Object()->Get_File_Name(false));
 
 		if( fn.MakeAbsolute(dir.GetPath()) && fn.Exists() )
 		{
@@ -860,7 +844,7 @@ void CActive_Attributes_Control::On_RClick_Label(wxGridEvent &event)
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_TO_CLIPBOARD);
 		CMD_Menu_Add_Item(&Menu, false, ID_CMD_TABLE_AUTOSIZE_COLS);
 
-		if( g_pACTIVE->Get_Active_Data_Item() && g_pACTIVE->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )
+		if( g_pActive->Get_Active_Data_Item() && g_pActive->Get_Active_Data_Item()->Get_Type() == WKSP_ITEM_Grids )
 		{
 			Menu.AppendSeparator();
 

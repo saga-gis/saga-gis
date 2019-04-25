@@ -106,16 +106,16 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CACTIVE_History, wxTreeCtrl)
+IMPLEMENT_CLASS(CActive_History, wxTreeCtrl)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CACTIVE_History, wxTreeCtrl)
-	EVT_RIGHT_DOWN		(CACTIVE_History::On_Mouse_RDown)
+BEGIN_EVENT_TABLE(CActive_History, wxTreeCtrl)
+	EVT_RIGHT_DOWN		(CActive_History::On_Mouse_RDown)
 
-	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR           , CACTIVE_History::On_Clear)
-	EVT_MENU			(ID_CMD_DATA_HISTORY_TO_MODEL        , CACTIVE_History::On_SaveAs_Model)
-	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE, CACTIVE_History::On_Options_Expand)
-	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_EXPAND  , CACTIVE_History::On_Options_Expand)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_CLEAR           , CActive_History::On_Clear)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_TO_MODEL        , CActive_History::On_SaveAs_Model)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_COLLAPSE, CActive_History::On_Options_Expand)
+	EVT_MENU			(ID_CMD_DATA_HISTORY_OPTIONS_EXPAND  , CActive_History::On_Options_Expand)
 END_EVENT_TABLE()
 
 
@@ -126,7 +126,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CACTIVE_History::CACTIVE_History(wxWindow *pParent)
+CActive_History::CActive_History(wxWindow *pParent)
 	: wxTreeCtrl(pParent, ID_WND_ACTIVE_HISTORY , wxDefaultPosition, wxDefaultSize, wxTR_HAS_BUTTONS)
 {
 	AssignImageList(new wxImageList(IMG_SIZE_TREECTRL, IMG_SIZE_TREECTRL, true, 0));
@@ -153,7 +153,7 @@ CACTIVE_History::CACTIVE_History(wxWindow *pParent)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
+bool CActive_History::Set_Item(CWKSP_Base_Item *pItem)
 {
 	m_pItem	= pItem;
 
@@ -161,7 +161,7 @@ bool CACTIVE_History::Set_Item(CWKSP_Base_Item *pItem)
 }
 
 //---------------------------------------------------------
-bool CACTIVE_History::_Set_History(void)
+bool CActive_History::_Set_History(void)
 {
 	Freeze();
 
@@ -197,7 +197,7 @@ bool CACTIVE_History::_Set_History(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
+void CActive_History::On_Mouse_RDown(wxMouseEvent &event)
 {
 	wxMenu	Menu(_TL("History"));
 
@@ -218,7 +218,7 @@ void CACTIVE_History::On_Mouse_RDown(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-void CACTIVE_History::On_Clear(wxCommandEvent &event)
+void CActive_History::On_Clear(wxCommandEvent &event)
 {
 	CSG_Data_Object	*pObject	= _Get_Object();
 
@@ -229,12 +229,12 @@ void CACTIVE_History::On_Clear(wxCommandEvent &event)
 		pObject->Get_History().Del_Children(Depth, Depth > 0 ? SG_T("TOOL") : SG_T(""));
 		pObject->Set_Modified(true);
 
-		Set_Item(g_pACTIVE->Get_Active());
+		Set_Item(g_pActive->Get_Active());
 	}
 }
 
 //---------------------------------------------------------
-void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
+void CActive_History::On_SaveAs_Model(wxCommandEvent &event)
 {
 	const wxString	Filter	= wxString::Format("%s|*.xml|%s|*.*",
 		_TL("XML Files"), _TL("All Files")
@@ -253,13 +253,13 @@ void CACTIVE_History::On_SaveAs_Model(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CACTIVE_History::On_Options_Expand(wxCommandEvent &event)
+void CActive_History::On_Options_Expand(wxCommandEvent &event)
 {
 	_Expand(GetRootItem(), "Options", event.GetId() == ID_CMD_DATA_HISTORY_OPTIONS_EXPAND);
 }
 
 //---------------------------------------------------------
-void CACTIVE_History::_Expand(wxTreeItemId Node, const wxString &Name, bool bExpand)
+void CActive_History::_Expand(wxTreeItemId Node, const wxString &Name, bool bExpand)
 {
 	if( !GetItemText(Node).Cmp(Name) )
 	{
@@ -295,7 +295,7 @@ void CACTIVE_History::_Expand(wxTreeItemId Node, const wxString &Name, bool bExp
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Data_Object * CACTIVE_History::_Get_Object(void)
+CSG_Data_Object * CActive_History::_Get_Object(void)
 {
 	if( m_pItem && m_pItem->GetId().IsOk() )
 	{
@@ -319,7 +319,7 @@ CSG_Data_Object * CACTIVE_History::_Get_Object(void)
 }
 
 //---------------------------------------------------------
-int CACTIVE_History::_Get_Image(TSG_Parameter_Type Type)
+int CActive_History::_Get_Image(TSG_Parameter_Type Type)
 {
 	switch( Type )
 	{
@@ -340,7 +340,7 @@ int CACTIVE_History::_Get_Image(TSG_Parameter_Type Type)
 }
 
 //---------------------------------------------------------
-int CACTIVE_History::_Get_Image(const CSG_String &Type)
+int CActive_History::_Get_Image(const CSG_String &Type)
 {
 	return( _Get_Image(SG_Parameter_Type_Get_Type(Type)) );
 }
@@ -353,7 +353,7 @@ int CACTIVE_History::_Get_Image(const CSG_String &Type)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
+bool CActive_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 {
 	if( !Parent.IsOk() )
 	{
@@ -486,7 +486,7 @@ bool CACTIVE_History::_Add_History(wxTreeItemId Parent, CSG_MetaData &Data)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
+bool CActive_History::_Add_History_OLD(wxTreeItemId Parent, CSG_MetaData &Data)
 {
 	if( !Parent.IsOk() )
 	{

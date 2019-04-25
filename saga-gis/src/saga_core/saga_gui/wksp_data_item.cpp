@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: wksp_data_item.cpp 1493 2012-10-19 11:31:13Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "res_commands.h"
 #include "res_dialogs.h"
 
@@ -67,7 +55,6 @@
 
 #include "active.h"
 #include "active_parameters.h"
-#include "active_attributes.h"
 
 #include "wksp_base_control.h"
 
@@ -208,7 +195,7 @@ bool CWKSP_Data_Item::On_Command(int Cmd_ID)
 	case ID_CMD_DATA_DEL_FILES:
 		if( m_pObject->Delete() )
 		{
-			g_pACTIVE->Update_Description();
+			g_pActive->Update_Description();
 		}
 		break;
 
@@ -411,7 +398,7 @@ bool CWKSP_Data_Item::DataObject_Changed(void)
 	//-----------------------------------------------------
 	On_DataObject_Changed();
 
-	g_pACTIVE->Update(this, false);
+	g_pActive->Update(this, false);
 
 	Parameters_Changed();
 
@@ -485,10 +472,11 @@ bool CWKSP_Data_Item::Update_Views(bool bAll)
 			}
 		}
 
-		if( g_pACTIVE->Get_Active_Data_Item() == this )
+		if( g_pActive->Get_Active_Data_Item() == this )
 		{
-			g_pACTIVE->Update_Description();
-			g_pACTIVE->Get_Attributes()->Set_Attributes();
+			g_pActive->Update_Description();
+			g_pActive->Update_Attributes();
+			g_pActive->Update_Info();
 		}
 
 		m_bUpdating	= false;

@@ -120,7 +120,7 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 
 	m_pParameters	= pParameters;
 
-	g_pACTIVE->Get_Parameters()->Update_Parameters(m_pParameters, true);
+	g_pActive->Get_Parameters()->Update_Parameters(m_pParameters, true);
 
 	m_pControl->Set_Parameters(m_pParameters);
 
@@ -140,7 +140,7 @@ CDLG_Parameters::CDLG_Parameters(CSG_Parameters *pParameters, const wxString &Ca
 		wxString	_Info(Info); _Info.Replace("\n", "<br>");
 
 		m_pInfo_Button	= Add_Button(ID_BTN_DESCRIPTION);
-		m_pInfo			= new CACTIVE_Description(this);
+		m_pInfo			= new CActive_Description(this);
 		m_pInfo->SetPage(_Info);
 
 		Show_Info(m_bInfo);

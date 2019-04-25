@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/treectrl.h>
 #include <wx/imaglist.h>
@@ -79,8 +67,9 @@
 #include "active_parameters.h"
 #include "active_description.h"
 #include "active_history.h"
-#include "active_attributes.h"
 #include "active_legend.h"
+#include "active_attributes.h"
+#include "active_info.h"
 
 #include "wksp_tool.h"
 
@@ -89,6 +78,7 @@
 #include "wksp_map_buttons.h"
 
 #include "wksp_layer.h"
+#include "wksp_shapes.h"
 #include "wksp_map_layer.h"
 
 
@@ -114,8 +104,9 @@ enum
 	IMG_PARAMETERS	= 0,
 	IMG_DESCRIPTION,
 	IMG_HISTORY,
+	IMG_LEGEND,
 	IMG_ATTRIBUTES,
-	IMG_LEGEND
+	IMG_INFO
 };
 
 
@@ -126,7 +117,7 @@ enum
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CACTIVE	*g_pACTIVE	= NULL;
+CActive	*g_pActive	= NULL;
 
 
 ///////////////////////////////////////////////////////////
@@ -136,39 +127,39 @@ CACTIVE	*g_pACTIVE	= NULL;
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CACTIVE, wxNotebook)
+BEGIN_EVENT_TABLE(CActive, wxNotebook)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CACTIVE::CACTIVE(wxWindow *pParent)
+CActive::CActive(wxWindow *pParent)
 	: wxNotebook(pParent, ID_WND_ACTIVE, wxDefaultPosition, wxDefaultSize, wxNB_TOP|wxNB_MULTILINE, _TL("Properties"))
 {
-	g_pACTIVE		= this;
+	g_pActive		= this;
 
 	m_pItem			= NULL;
 
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
 
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_PARAMETERS);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_PARAMETERS );
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_DESCRIPTION);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HISTORY);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_HISTORY    );
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_LEGEND     );
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_ATTRIBUTES );
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_ACTIVE_INFO       );
 
 	//-----------------------------------------------------
-	m_pParameters	= new CACTIVE_Parameters (this); m_pParameters ->SetName(_TL("Settings"   ));
-	m_pDescription	= new CACTIVE_Description(this); m_pDescription->SetName(_TL("Description"));
-	m_pHistory		= new CACTIVE_History    (this); m_pHistory    ->SetName(_TL("History"    ));
-	m_pLegend		= new CACTIVE_Legend     (this); m_pLegend     ->SetName(_TL("Legend"     ));
-	m_pAttributes	= new CACTIVE_Attributes (this); m_pAttributes ->SetName(_TL("Attributes" ));
+	m_pParameters	= new CActive_Parameters (this); m_pParameters ->SetName(_TL("Settings"   ));
+	m_pDescription	= new CActive_Description(this); m_pDescription->SetName(_TL("Description"));
+	m_pHistory		= new CActive_History    (this); m_pHistory    ->SetName(_TL("History"    ));
+	m_pLegend		= new CActive_Legend     (this); m_pLegend     ->SetName(_TL("Legend"     ));
+	m_pAttributes	= new CActive_Attributes (this); m_pAttributes ->SetName(_TL("Attributes" ));
+	m_pInfo			= new CActive_Info       (this); m_pInfo       ->SetName(_TL("Information"));
 
 #if defined(_SAGA_MSW)
 	m_pParameters ->Hide();
@@ -176,25 +167,27 @@ CACTIVE::CACTIVE(wxWindow *pParent)
 	m_pHistory    ->Hide();
 	m_pLegend     ->Hide();
 	m_pAttributes ->Hide();
+	m_pInfo       ->Hide();
 #endif
 }
 
 //---------------------------------------------------------
-void CACTIVE::Add_Pages(void)
+void CActive::Add_Pages(void)
 {
-	_Show_Page(m_pParameters);
+	_Show_Page(m_pParameters );
 	_Show_Page(m_pDescription);
 #ifdef ACTIVE_SHOW_ALL_PAGES
-	_Show_Page(m_pHistory);
-	_Show_Page(m_pLegend);
-	_Show_Page(m_pAttributes);
+	_Show_Page(m_pHistory    );
+	_Show_Page(m_pLegend     );
+	_Show_Page(m_pAttributes );
+	_Show_Page(m_pInfo       );
 #endif
 }
 
 //---------------------------------------------------------
-CACTIVE::~CACTIVE(void)
+CActive::~CActive(void)
 {
-	g_pACTIVE		= NULL;
+	g_pActive	= NULL;
 }
 
 
@@ -203,25 +196,22 @@ CACTIVE::~CACTIVE(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
+CWKSP_Data_Item * CActive::Get_Active_Data_Item(void)
 {
 	if( m_pItem && m_pItem->GetId().IsOk() )
 	{
 		switch( m_pItem->Get_Type() )
 		{
-		default:
-			break;
-
-		case WKSP_ITEM_Map_Layer:
-			return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer() );
-
-		case WKSP_ITEM_Table:
-		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_Table     :
+		case WKSP_ITEM_Shapes    :
 		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_Grid:
-		case WKSP_ITEM_Grids:
-			return( (CWKSP_Data_Item *)m_pItem );
+		case WKSP_ITEM_TIN       :
+		case WKSP_ITEM_Grid      :
+		case WKSP_ITEM_Grids     : return( (CWKSP_Data_Item  *)m_pItem );
+
+		case WKSP_ITEM_Map_Layer : return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer() );
+
+		default: break;
 		}
 	}
 
@@ -229,7 +219,7 @@ CWKSP_Data_Item * CACTIVE::Get_Active_Data_Item(void)
 }
 
 //---------------------------------------------------------
-CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
+CWKSP_Layer * CActive::Get_Active_Layer(void)
 {
 	CWKSP_Data_Item	*pItem	= Get_Active_Data_Item();
 
@@ -242,7 +232,25 @@ CWKSP_Layer * CACTIVE::Get_Active_Layer(void)
 }
 
 //---------------------------------------------------------
-CWKSP_Map * CACTIVE::Get_Active_Map(void)
+CWKSP_Shapes * CActive::Get_Active_Shapes(bool bWithInfo)
+{
+	CWKSP_Layer	*pLayer	= Get_Active_Layer();
+
+	if( pLayer && pLayer->Get_Type() == WKSP_ITEM_Shapes )
+	{
+		CWKSP_Shapes	*pShapes	= (CWKSP_Shapes *)pLayer;
+
+		if( !bWithInfo || pShapes->Get_Field_Info() >= 0 )
+		{
+			return( pShapes );
+		}
+	}
+
+	return( NULL );
+}
+
+//---------------------------------------------------------
+CWKSP_Map * CActive::Get_Active_Map(void)
 {
 	if( m_pItem && m_pItem->GetId().IsOk() && m_pItem->Get_Type() == WKSP_ITEM_Map )
 	{
@@ -258,7 +266,7 @@ CWKSP_Map * CACTIVE::Get_Active_Map(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
+bool CActive::Set_Active(CWKSP_Base_Item *pItem)
 {
 	if( pItem == m_pItem )
 	{
@@ -284,9 +292,10 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 		if( g_pData_Buttons )	g_pData_Buttons->Refresh();
 		if( g_pMap_Buttons  )	g_pMap_Buttons ->Refresh();
 
-		_Hide_Page(m_pHistory);
-		_Hide_Page(m_pLegend);
+		_Hide_Page(m_pHistory   );
+		_Hide_Page(m_pLegend    );
 		_Hide_Page(m_pAttributes);
+		_Hide_Page(m_pInfo      );
 
 		SendSizeEvent();
 
@@ -297,14 +306,10 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 	if( g_pSAGA_Frame )	g_pSAGA_Frame->Set_Pane_Caption(this, wxString(_TL("Properties")) + ": " + m_pItem->Get_Name());
 
 	//-----------------------------------------------------
-	if( Get_Active_Data_Item() )
-	{	_Show_Page(m_pHistory   );	}	else	{	_Hide_Page(m_pHistory   );	}
-
-	if( Get_Active_Layer() || Get_Active_Map() )
-	{	_Show_Page(m_pLegend    );	}	else	{	_Hide_Page(m_pLegend    );	}
-
-	if( Get_Active_Layer() )
-	{	_Show_Page(m_pAttributes);	}	else	{	_Hide_Page(m_pAttributes);	}
+	_Show_Page(m_pHistory   , Get_Active_Data_Item () != NULL);
+	_Show_Page(m_pLegend    , Get_Active_Layer     () != NULL || Get_Active_Map() != NULL);
+	_Show_Page(m_pAttributes, Get_Active_Layer     () != NULL);
+	_Show_Page(m_pInfo      , Get_Active_Shapes(true) != NULL);
 
 	//-----------------------------------------------------
 	if( g_pData_Buttons )	g_pData_Buttons->Refresh(false);
@@ -335,7 +340,13 @@ bool CACTIVE::Set_Active(CWKSP_Base_Item *pItem)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::_Show_Page(wxWindow *pPage)
+bool CActive::_Show_Page(wxWindow *pPage, bool bShow)
+{
+	return( bShow ? _Show_Page(pPage) : _Hide_Page(pPage) );
+}
+
+//---------------------------------------------------------
+bool CActive::_Show_Page(wxWindow *pPage)
 {
 	int		Image_ID	= -1;
 
@@ -345,11 +356,13 @@ bool CACTIVE::_Show_Page(wxWindow *pPage)
 	if( pPage == m_pHistory     )	Image_ID	= IMG_HISTORY;
 	if( pPage == m_pLegend      )	Image_ID	= IMG_LEGEND;
 	if( pPage == m_pAttributes  )	Image_ID	= IMG_ATTRIBUTES;
+	if( pPage == m_pInfo        )	Image_ID	= IMG_INFO;
 
 	//-----------------------------------------------------
 	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(Get_Active_Data_Item());
 	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : Get_Active_Map() ? m_pItem : NULL);
 	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(Get_Active_Layer());
+	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(Get_Active_Layer());
 
 	//-----------------------------------------------------
 	if( pPage )
@@ -371,7 +384,7 @@ bool CACTIVE::_Show_Page(wxWindow *pPage)
 }
 
 //---------------------------------------------------------
-bool CACTIVE::_Hide_Page(wxWindow *pPage)
+bool CActive::_Hide_Page(wxWindow *pPage)
 {
 #ifdef ACTIVE_SHOW_ALL_PAGES
 	return( true );
@@ -381,6 +394,7 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(NULL);
 	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(NULL);
 	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(NULL);
+	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(NULL);
 
 	//-----------------------------------------------------
 	for(int i=0; i<(int)GetPageCount(); i++)
@@ -407,7 +421,41 @@ bool CACTIVE::_Hide_Page(wxWindow *pPage)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CACTIVE::Update_Description(void)
+bool CActive::Update(CWKSP_Base_Item *pItem, bool bSave)
+{
+	if( m_pItem && m_pItem == pItem )
+	{
+		if( m_pParameters )
+		{
+			m_pParameters->Update_Parameters(pItem->Get_Parameters(), bSave);
+		}
+
+		if( !bSave )
+		{
+			Update_Description();
+
+			m_pHistory->Set_Item(pItem);
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CActive::Update_DataObjects(void)
+{
+	if( m_pParameters )
+	{
+		m_pParameters->Update_DataObjects();
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CActive::Update_Description(void)
 {
 	if( m_pDescription == NULL )
 	{
@@ -437,41 +485,27 @@ bool CACTIVE::Update_Description(void)
 	return( true );
 }
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-bool CACTIVE::Update(CWKSP_Base_Item *pItem, bool bSave)
+bool CActive::Update_Attributes(bool bSave)
 {
-	if( m_pItem && m_pItem == pItem )
+	if( bSave )
 	{
-		if( m_pParameters )
-		{
-			m_pParameters->Update_Parameters(pItem->Get_Parameters(), bSave);
-		}
-
-		if( !bSave )
-		{
-			Update_Description();
-
-			m_pHistory->Set_Item(pItem);
-		}
-
-		return( true );
+		m_pAttributes->Save_Changes(true);
+	}
+	else
+	{
+		m_pAttributes->Set_Attributes();
 	}
 
-	return( false );
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CACTIVE::Update_DataObjects(void)
+bool CActive::Update_Info(void)
 {
-	if( m_pParameters )
-	{
-		m_pParameters->Update_DataObjects();
-	}
+	_Show_Page(m_pInfo, Get_Active_Shapes(true) != NULL);
+
+//	m_pInfo->Set_Info();
 
 	return( true );
 }

@@ -299,7 +299,7 @@ void CWKSP_Map_Buttons::On_Mouse_LDown(wxMouseEvent &event)
 {
 	g_pMap_Ctrl->UnselectAll();
 
-	g_pACTIVE->Set_Active(NULL);
+	g_pActive->Set_Active(NULL);
 
 	Refresh(false);
 }

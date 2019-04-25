@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/dcclient.h>
 
 #include "res_commands.h"
@@ -69,7 +57,6 @@
 #include "dc_helper.h"
 
 #include "active.h"
-#include "active_attributes.h"
 
 #include "wksp_shapes.h"
 
@@ -354,7 +341,7 @@ bool CWKSP_Shapes::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int K
 	//-----------------------------------------------------
 	else if( m_Edit_Mode == EDIT_SHAPE_MODE_Normal )
 	{
-		g_pACTIVE->Get_Attributes()->Save_Changes(true);
+		g_pActive->Update_Attributes(true);
 
 		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 

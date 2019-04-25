@@ -231,10 +231,10 @@ bool CWKSP_Tool::On_Command(int Cmd_ID)
 	case ID_CMD_TOOL_CHAIN_RELOAD:
 		if( m_pTool->Get_Type() == TOOL_TYPE_Chain
 		&&  g_pTools->Open(m_pTool->Get_File_Name().c_str())
-		&&  g_pACTIVE->Get_Active() == this )
+		&&  g_pActive->Get_Active() == this )
 		{
-			g_pACTIVE->Set_Active(NULL);
-			g_pACTIVE->Set_Active(this);
+			g_pActive->Set_Active(NULL);
+			g_pActive->Set_Active(this);
 		}
 		break;
 
@@ -353,7 +353,7 @@ bool CWKSP_Tool::Execute(bool bDialog)
 
 			m_pTool->On_After_Execution();
 
-			g_pACTIVE->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
+			g_pActive->Get_Parameters()->Update_Parameters(m_pTool->Get_Parameters(), false);
 
 			if( m_pTool->is_Interactive() )
 			{

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "res_commands.h"
 #include "res_dialogs.h"
 
 #include "helper.h"
 #include "dc_helper.h"
+
+#include "active.h"
 
 #include "wksp_layer_classify.h"
 
@@ -87,6 +77,8 @@ CWKSP_Shapes::CWKSP_Shapes(CSG_Shapes *pShapes)
 	: CWKSP_Layer(pShapes)
 {
 	m_pTable		= new CWKSP_Table(pShapes);
+
+	m_fInfo			= -1;
 
 	m_Edit_Shapes.Create(pShapes->Get_Type());
 	m_Edit_pShape	= NULL;
@@ -354,6 +346,15 @@ void CWKSP_Shapes::On_Create_Parameters(void)
 	CWKSP_Layer::On_Create_Parameters();
 
 	//-----------------------------------------------------
+	// General...
+
+	m_Parameters.Add_Choice("NODE_GENERAL",
+		"INFO_ATTRIB"	, _TL("Additional Information"),
+		_TL("Field that provides file paths to additional record information (HTML formatted), either absolute or relative to this data set."),
+		_TL("<default>")
+	);
+
+	//-----------------------------------------------------
 	// Display...
 
 	m_Parameters.Add_Parameters("NODE_DISPLAY",
@@ -498,6 +499,7 @@ void CWKSP_Shapes::On_DataObject_Changed(void)
 	AttributeList_Set(m_Parameters("METRIC_NORMAL"       ), true );
 	AttributeList_Set(m_Parameters("LABEL_ATTRIB"        ), true );
 	AttributeList_Set(m_Parameters("LABEL_ATTRIB_SIZE_BY"), true );
+	AttributeList_Set(m_Parameters("INFO_ATTRIB"         ), true );
 
 	_Chart_Set_Options();
 
@@ -550,6 +552,24 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 	);
 
 	m_bNoData	= m_Parameters("NODATA_SHOW")->asBool();
+
+	//-----------------------------------------------------
+	int	fInfo	= m_Parameters("INFO_ATTRIB")->asInt();
+
+	if( fInfo >= Get_Shapes()->Get_Field_Count() )
+	{
+		fInfo	= -1;
+	}
+
+	if( m_fInfo != fInfo )
+	{
+		m_fInfo	= fInfo;
+
+		if( g_pActive->Get_Active() == this )
+		{
+			g_pActive->Update_Info();
+		}
+	}
 
 	//-----------------------------------------------------
 	if( (m_fLabel = m_Parameters("LABEL_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )

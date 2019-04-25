@@ -81,12 +81,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_History : public wxTreeCtrl
+class CActive_History : public wxTreeCtrl
 {
-	DECLARE_CLASS(CACTIVE_History)
+	DECLARE_CLASS(CActive_History)
 
 public:
-	CACTIVE_History(wxWindow *pParent);
+	CActive_History(wxWindow *pParent);
 
 	bool					Set_Item				(class CWKSP_Base_Item *pItem);
 

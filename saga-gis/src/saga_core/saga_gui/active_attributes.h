@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
 #define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Attributes_H
 
@@ -81,13 +69,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Attributes : public wxPanel
+class CActive_Attributes : public wxPanel
 {
-	DECLARE_CLASS(CACTIVE_Attributes)
+	DECLARE_CLASS(CActive_Attributes)
 
 public:
-	CACTIVE_Attributes(wxWindow *pParent);
-	virtual ~CACTIVE_Attributes(void);
+	CActive_Attributes(wxWindow *pParent);
+	virtual ~CActive_Attributes(void);
 
 	void								On_Size				(wxSizeEvent     &event);
 
@@ -123,8 +111,8 @@ protected:
 	class CSG_Table *					_Get_Table			(void);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
+
 };
 
 

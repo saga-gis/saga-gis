@@ -1280,13 +1280,13 @@ void CWKSP_Map::View_Refresh(bool bMapOnly)
 	if( m_pView_3D )	m_pView_3D->Do_Update();
 	if( m_pLayout  )	m_pLayout ->Do_Update();
 
-	if( !bMapOnly && g_pACTIVE )
+	if( !bMapOnly && g_pActive )
 	{
-		g_pACTIVE->Update_Description();
+		g_pActive->Update_Description();
 
-		if( g_pACTIVE->Get_Legend() )
+		if( g_pActive->Get_Legend() )
 		{
-			g_pACTIVE->Get_Legend()->Refresh(true);
+			g_pActive->Get_Legend()->Refresh(true);
 		}
 	}
 

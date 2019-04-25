@@ -301,9 +301,9 @@ bool CWKSP_Base_Control::_Del_Item(CWKSP_Base_Item *pItem, bool bSilent)
 	}
 
 	//-----------------------------------------------------
-	if( m_pManager == g_pACTIVE->Get_Active() && Get_Selection_Count() > 1 )
+	if( m_pManager == g_pActive->Get_Active() && Get_Selection_Count() > 1 )
 	{
-		g_pACTIVE->Set_Active(NULL);
+		g_pActive->Set_Active(NULL);
 	}
 
 	//-----------------------------------------------------
@@ -868,7 +868,7 @@ bool CWKSP_Base_Control::_Search_Item(void)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_LClick(wxMouseEvent &event)
 {
-	g_pACTIVE->Set_Active(Get_Item_Selected());
+	g_pActive->Set_Active(Get_Item_Selected());
 
 	event.Skip();
 }
@@ -891,7 +891,7 @@ void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 	{
 	//	SelectItem(event.GetItem());
 
-		g_pACTIVE->Set_Active(Get_Item_Selected());
+		g_pActive->Set_Active(Get_Item_Selected());
 	}
 
 	wxMenu	*pMenu	= Get_Context_Menu();
@@ -933,13 +933,13 @@ void CWKSP_Base_Control::On_Item_KeyDown(wxTreeEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_SelChanged(wxTreeEvent &event)
 {
-	if( g_pACTIVE )
+	if( g_pActive )
 	{
 		CWKSP_Base_Item	*pItem	= Get_Item_Selected(true);
 
 		if( pItem )
 		{
-			g_pACTIVE->Set_Active(pItem);
+			g_pActive->Set_Active(pItem);
 		}
 	}
 

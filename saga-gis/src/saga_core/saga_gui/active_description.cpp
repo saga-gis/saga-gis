@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -77,40 +74,36 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-IMPLEMENT_CLASS(CACTIVE_Description, wxHtmlWindow)
+IMPLEMENT_CLASS(CActive_Description, wxHtmlWindow)
 
 //---------------------------------------------------------
-BEGIN_EVENT_TABLE(CACTIVE_Description, wxHtmlWindow)
-	EVT_KEY_DOWN		(CACTIVE_Description::On_Key_Down)
+BEGIN_EVENT_TABLE(CActive_Description, wxHtmlWindow)
+	EVT_KEY_DOWN		(CActive_Description::On_Key_Down)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CACTIVE_Description::CACTIVE_Description(wxWindow *pParent)
+CActive_Description::CActive_Description(wxWindow *pParent)
 	: wxHtmlWindow(pParent, ID_WND_ACTIVE_DESCRIPTION , wxDefaultPosition, wxDefaultSize, wxHW_SCROLLBAR_AUTO|wxSUNKEN_BORDER)
 {
 }
 
 //---------------------------------------------------------
-CACTIVE_Description::~CACTIVE_Description(void)
+CActive_Description::~CActive_Description(void)
 {
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CACTIVE_Description::On_Key_Down(wxKeyEvent &event)
+void CActive_Description::On_Key_Down(wxKeyEvent &event)
 {
 	if( event.ControlDown() )
 	{
@@ -134,7 +127,7 @@ void CACTIVE_Description::On_Key_Down(wxKeyEvent &event)
 }
 
 //---------------------------------------------------------
-void CACTIVE_Description::OnLinkClicked(const wxHtmlLinkInfo &Link)
+void CActive_Description::OnLinkClicked(const wxHtmlLinkInfo &Link)
 {
 	Open_WebBrowser(Link.GetHref());
 }

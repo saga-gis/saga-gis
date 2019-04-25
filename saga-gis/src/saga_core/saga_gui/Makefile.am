@@ -22,6 +22,7 @@ active_attributes.cpp\
 active_attributes_control.cpp\
 active_description.cpp\
 active_history.cpp\
+active_info.cpp\
 active_legend.cpp\
 active_parameters.cpp\
 callback.cpp\
@@ -118,6 +119,7 @@ active_attributes.h\
 active_attributes_control.h\
 active_description.h\
 active_history.h\
+active_info.h\
 active_legend.h\
 active_parameters.h\
 callback.h\

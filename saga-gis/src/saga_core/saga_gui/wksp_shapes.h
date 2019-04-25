@@ -123,6 +123,7 @@ public:
 
 	int							Get_Field_Value			(void)	{	return( m_fValue  );	}
 	int							Get_Field_Normal		(void)	{	return( m_fNormal );	}
+	int							Get_Field_Info			(void)	{	return( m_fInfo   );	}
 	int							Get_Field_Label			(void)	{	return( m_fLabel  );	}
 
 	wxString					Get_Name_Attribute		(void);
@@ -143,7 +144,7 @@ protected:
 
 	bool						m_bNoData, m_Edit_bGleam;
 
-	int							m_fValue, m_fNormal, m_bVertices,
+	int							m_fValue, m_fNormal, m_bVertices, m_fInfo,
 								m_fLabel, m_Label_Prec, m_Label_Eff, m_Label_Eff_Size,
 								m_Edit_Mode, m_Edit_iPart, m_Edit_iPoint;
 

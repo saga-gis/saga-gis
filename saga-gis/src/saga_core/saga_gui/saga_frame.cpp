@@ -316,7 +316,7 @@ CSAGA_Frame::CSAGA_Frame(void)
 	_Bar_Add(m_pINFO        = new CINFO       (this), 0, 0); m_pINFO       ->Add_Pages();
 	_Bar_Add(m_pWKSP        = new CWKSP       (this), 2, 1); m_pWKSP       ->Add_Pages();
 	_Bar_Add(m_pData_Source = new CData_Source(this), 2, 1); m_pData_Source->Add_Pages();
-	_Bar_Add(m_pActive      = new CACTIVE     (this), 2, 0); m_pActive     ->Add_Pages();
+	_Bar_Add(m_pActive      = new CActive     (this), 2, 0); m_pActive     ->Add_Pages();
 
 	//-----------------------------------------------------
 	_Create_MenuBar();

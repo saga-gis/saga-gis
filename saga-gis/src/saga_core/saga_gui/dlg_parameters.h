@@ -108,7 +108,7 @@ private:
 
 	class CParameters_Control	*m_pControl;
 
-	class CACTIVE_Description	*m_pInfo;
+	class CActive_Description	*m_pInfo;
 
 	class wxButton				*m_pInfo_Button;
 

@@ -930,7 +930,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 {
 	if( Key & TOOL_INTERACTIVE_KEY_LEFT )
 	{
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		m_Edit_Attributes.Destroy();
 
@@ -986,7 +986,7 @@ bool CWKSP_Grid::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key
 			}
 		}
 
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		Update_Views();
 
@@ -1038,7 +1038,7 @@ bool CWKSP_Grid::_Edit_Clr_Selection(void)
 	{
 		m_Edit_Attributes.Destroy();
 
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		Update_Views();
 
@@ -1063,7 +1063,7 @@ bool CWKSP_Grid::_Edit_Del_Selection(void)
 			}
 		}
 
-		g_pACTIVE->Get_Attributes()->Set_Attributes();
+		g_pActive->Update_Attributes();
 
 		Update_Views();
 

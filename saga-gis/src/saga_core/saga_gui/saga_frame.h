@@ -200,7 +200,7 @@ private:
 
 	class CData_Source			*m_pData_Source;
 
-	class CACTIVE				*m_pActive;
+	class CActive				*m_pActive;
 
 	class CWKSP					*m_pWKSP;
 

@@ -81,12 +81,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CACTIVE_Legend : public wxScrolledWindow
+class CActive_Legend : public wxScrolledWindow
 {
-	DECLARE_CLASS(CACTIVE_Legend)
+	DECLARE_CLASS(CActive_Legend)
 
 public:
-	CACTIVE_Legend(wxWindow *pParent);
+	CActive_Legend(wxWindow *pParent);
 
 	void						On_Key_Down		(wxKeyEvent   &event);
 	void						On_Mouse_RDown	(wxMouseEvent &event);
