@@ -1732,7 +1732,7 @@ int CSG_Parameter_Grid_System::_Set_Value(void *Value)
 				}
 			}
 
-			if( bInvalid )
+			if( bInvalid && pObject != DATAOBJECT_CREATE )
 			{
 				pParameter->Set_Value(DATAOBJECT_NOTSET);
 			}
