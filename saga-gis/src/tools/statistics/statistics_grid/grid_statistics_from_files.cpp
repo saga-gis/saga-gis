@@ -405,23 +405,23 @@ CSG_Grids * CGrid_Statistics_from_Files::Get_Histogram(const CSG_Strings &Files,
 
 	pQuantiles->Del_Items();
 
-	CSG_String_Tokenizer	Values(Parameters("QUANTVALS")->asString(), ";");
-
-	while( Values.Has_More_Tokens() )
 	{
-		CSG_String	s(Values.Get_Next_Token()); s.Trim(true); s.Trim(false);
-		
-		double	v;
+		CSG_Strings	Values	= SG_String_Tokenize(Parameters("QUANTVALS")->asString(), ";");
 
-		if( s.asDouble(v) && v >= 0.0 && v <= 100.0 )
+		for(int i=0; i<Values.Get_Count(); i++)
 		{
-			Quantiles.Add_Row(v / 100.0);
+			double	Value;
 
-			CSG_Grid	*pQuantile	= SG_Create_Grid(System);
+			if( Values[i].asDouble(Value) && Value >= 0. && Value <= 100. )
+			{
+				Quantiles.Add_Row(Value / 100.);
 
-			pQuantile->Fmt_Name("%s [%s]", _TL("Percentile"), s.c_str());
+				CSG_Grid	*pQuantile	= SG_Create_Grid(System);
 
-			pQuantiles->Add_Item(pQuantile);
+				pQuantile->Fmt_Name("%s [%s]", _TL("Percentile"), SG_Get_String(Value, -2).c_str());
+
+				pQuantiles->Add_Item(pQuantile);
+			}
 		}
 	}
 

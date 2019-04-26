@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -55,15 +52,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Statistics_AddTo_Polygon.h"
 
 
@@ -101,7 +89,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	Parameters.Add_Choice(
 		"", "NAMING"		, _TL("Field Naming"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("grid number"),
 			_TL("grid name")
 		), 1
@@ -110,7 +98,7 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 	Parameters.Add_Choice(
 		"", "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("simple and fast"),
 			_TL("polygon wise (cell centers)"),
 			_TL("polygon wise (cell area)"),
@@ -131,18 +119,18 @@ CGrid_Statistics_AddTo_Polygon::CGrid_Statistics_AddTo_Polygon(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_Bool("RESULT", "COUNT"   , _TL("Number of Cells"   ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "MIN"     , _TL("Minimum"           ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "MAX"     , _TL("Maximum"           ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "RANGE"   , _TL("Range"             ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "SUM"     , _TL("Sum"               ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "MEAN"    , _TL("Mean"              ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "VAR"     , _TL("Variance"          ), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "STDDEV"  , _TL("Standard Deviation"), _TL(""), true);
-	Parameters.Add_Bool("RESULT", "GINI"    , _TL("Gini"              ), _TL(""), false);
-	Parameters.Add_Int ("RESULT", "QUANTILE", _TL("Quantile"          ), 
-		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
-		0, 0, true, 50, true
+	Parameters.Add_Bool  ("RESULT", "COUNT"    , _TL("Number of Cells"   ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "MIN"      , _TL("Minimum"           ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "MAX"      , _TL("Maximum"           ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "RANGE"    , _TL("Range"             ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "SUM"      , _TL("Sum"               ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "MEAN"     , _TL("Mean"              ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "VAR"      , _TL("Variance"          ), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "STDDEV"   , _TL("Standard Deviation"), _TL(""),  true);
+	Parameters.Add_Bool  ("RESULT", "GINI"     , _TL("Gini"              ), _TL(""), false);
+	Parameters.Add_String("RESULT", "QUANTILES", _TL("Percentiles"       ),
+		_TL("Separate the desired percentiles by semicolon, e.g. \"5; 25; 50; 75; 95\""),
+		""
 	);
 }
 
@@ -201,20 +189,40 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	Quantile	= Parameters("QUANTILE")->asInt();
 	int	nFields		= 0;
 
-	int	fCOUNT		= Parameters("COUNT"   )->asBool() ? nFields++ : -1;
-	int	fMIN		= Parameters("MIN"     )->asBool() ? nFields++ : -1;
-	int	fMAX		= Parameters("MAX"     )->asBool() ? nFields++ : -1;
-	int	fRANGE		= Parameters("RANGE"   )->asBool() ? nFields++ : -1;
-	int	fSUM		= Parameters("SUM"     )->asBool() ? nFields++ : -1;
-	int	fMEAN		= Parameters("MEAN"    )->asBool() ? nFields++ : -1;
-	int	fVAR		= Parameters("VAR"     )->asBool() ? nFields++ : -1;
-	int	fSTDDEV		= Parameters("STDDEV"  )->asBool() ? nFields++ : -1;
-	int	fGINI		= Parameters("GINI"    )->asBool() ? nFields++ : -1;
-	int	fQUANTILE	= Quantile > 0                     ? nFields++ : -1;
+	int	fCOUNT		= Parameters("COUNT" )->asBool() ? nFields++ : -1;
+	int	fMIN		= Parameters("MIN"   )->asBool() ? nFields++ : -1;
+	int	fMAX		= Parameters("MAX"   )->asBool() ? nFields++ : -1;
+	int	fRANGE		= Parameters("RANGE" )->asBool() ? nFields++ : -1;
+	int	fSUM		= Parameters("SUM"   )->asBool() ? nFields++ : -1;
+	int	fMEAN		= Parameters("MEAN"  )->asBool() ? nFields++ : -1;
+	int	fVAR		= Parameters("VAR"   )->asBool() ? nFields++ : -1;
+	int	fSTDDEV		= Parameters("STDDEV")->asBool() ? nFields++ : -1;
+	int	fGINI		= Parameters("GINI"  )->asBool() ? nFields++ : -1;
 
+	//-----------------------------------------------------
+	CSG_Vector	Quantiles;
+
+	{
+		CSG_Strings	Values	= SG_String_Tokenize(Parameters("QUANTILES")->asString(), ";");
+
+		for(int i=0; i<Values.Get_Count(); i++)
+		{
+			double	Value;
+
+			if( Values[i].asDouble(Value) && Value >= 0. && Value <= 100. )
+			{
+				Quantiles.Add_Row(Value);
+			}
+		}
+	}
+
+	int	fQUANTILE	= Quantiles.Get_N() > 0 ? nFields : -1;
+
+	nFields	+= Quantiles.Get_N();
+
+	//-----------------------------------------------------
 	if( nFields == 0 )
 	{
 		Error_Set(_TL("no output parameter in selection"));
@@ -226,7 +234,6 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	bool	bParallelized	= Parameters("PARALLELIZED")->is_Enabled() && Parameters("PARALLELIZED")->asBool();
 
 	int		Naming			= Parameters("NAMING")->asInt();
-
 	int		Method			= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
@@ -254,8 +261,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		Process_Set_Text("[%d/%d] %s", 1 + iGrid, pGrids->Get_Grid_Count(), pGrids->Get_Grid(iGrid)->Get_Name());
 
-		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, Index))
-		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantile > 0 || fGINI > 0, bParallelized)) )
+		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantiles.Get_N() > 0 || fGINI > 0, Index        ))
+		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantiles.Get_N() > 0 || fGINI > 0, bParallelized)) )
 		{
 			nFields	= pPolygons->Get_Field_Count();
 
@@ -270,9 +277,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			if (fGINI     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("GINI"    )), SG_DATATYPE_Double);
 			if( fQUANTILE >= 0 )
 			{
-				for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
+				for(int iQuantile=0; iQuantile<Quantiles.Get_N(); iQuantile++)
 				{
-					pPolygons->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", iQuantile).c_str()), SG_DATATYPE_Double);
+					pPolygons->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", (int)Quantiles[iQuantile]).c_str()), SG_DATATYPE_Double);
 				}
 			}
 
@@ -294,7 +301,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fGINI     >= 0 )	pPolygon->Set_NoData(nFields + fGINI  );
 					if( fQUANTILE >= 0 )
 					{
-						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
+						for(int iQuantile=0, iField=nFields + fQUANTILE; iQuantile<Quantiles.Get_N(); iQuantile++, iField++)
 						{
 							pPolygon->Set_NoData(iField);
 						}
@@ -313,9 +320,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fGINI     >= 0 )	pPolygon->Set_Value(nFields + fGINI  , Statistics[i].Get_Gini    ());
 					if( fQUANTILE >= 0 )
 					{
-						for(int iQuantile=Quantile, iField=nFields + fQUANTILE; iQuantile<100; iQuantile+=Quantile, iField++)
+						for(int iQuantile=0, iField=nFields + fQUANTILE; iQuantile<Quantiles.Get_N(); iQuantile++, iField++)
 						{
-							pPolygon->Set_Value(iField, Statistics[i].Get_Quantile(iQuantile));
+							pPolygon->Set_Value(iField, Statistics[i].Get_Quantile(Quantiles[iQuantile]));
 						}
 					}
 				}
