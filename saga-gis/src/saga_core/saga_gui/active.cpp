@@ -362,7 +362,7 @@ bool CActive::_Show_Page(wxWindow *pPage)
 	if( pPage == m_pHistory     )	m_pHistory   ->Set_Item(Get_Active_Data_Item());
 	if( pPage == m_pLegend      )	m_pLegend    ->Set_Item(Get_Active_Layer() ? Get_Active_Layer() : Get_Active_Map() ? m_pItem : NULL);
 	if( pPage == m_pAttributes  )	m_pAttributes->Set_Item(Get_Active_Layer());
-	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(Get_Active_Layer());
+	if( pPage == m_pInfo        )	m_pInfo      ->Set_Item(Get_Active_Shapes(true));
 
 	//-----------------------------------------------------
 	if( pPage )
@@ -427,14 +427,14 @@ bool CActive::Update(CWKSP_Base_Item *pItem, bool bSave)
 	{
 		if( m_pParameters )
 		{
-			m_pParameters->Update_Parameters(pItem->Get_Parameters(), bSave);
+			m_pParameters->Update_Parameters(m_pItem->Get_Parameters(), bSave);
 		}
 
 		if( !bSave )
 		{
 			Update_Description();
 
-			m_pHistory->Set_Item(pItem);
+			m_pHistory->Set_Item(Get_Active_Data_Item());
 		}
 
 		return( true );
@@ -497,6 +497,8 @@ bool CActive::Update_Attributes(bool bSave)
 		m_pAttributes->Set_Attributes();
 	}
 
+	m_pInfo->Set_Info();
+
 	return( true );
 }
 
@@ -504,8 +506,6 @@ bool CActive::Update_Attributes(bool bSave)
 bool CActive::Update_Info(void)
 {
 	_Show_Page(m_pInfo, Get_Active_Shapes(true) != NULL);
-
-//	m_pInfo->Set_Info();
 
 	return( true );
 }

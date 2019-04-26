@@ -245,7 +245,7 @@ bool CActive_Attributes_Control::Update_Table(void)
 		}
 	}
 
-	Show(GetNumberRows() > 0);
+	Enable(GetNumberRows() > 0);
 
 	m_pTable->Set_Modified(false);
 

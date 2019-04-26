@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -121,8 +109,6 @@ END_EVENT_TABLE()
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -148,12 +134,10 @@ CActive_History::CActive_History(wxWindow *pParent)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CActive_History::Set_Item(CWKSP_Base_Item *pItem)
+bool CActive_History::Set_Item(CWKSP_Data_Item *pItem)
 {
 	m_pItem	= pItem;
 
@@ -192,8 +176,6 @@ bool CActive_History::_Set_History(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -229,7 +211,7 @@ void CActive_History::On_Clear(wxCommandEvent &event)
 		pObject->Get_History().Del_Children(Depth, Depth > 0 ? SG_T("TOOL") : SG_T(""));
 		pObject->Set_Modified(true);
 
-		Set_Item(g_pActive->Get_Active());
+		Set_Item(g_pActive->Get_Active_Data_Item());
 	}
 }
 
@@ -290,32 +272,12 @@ void CActive_History::_Expand(wxTreeItemId Node, const wxString &Name, bool bExp
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CSG_Data_Object * CActive_History::_Get_Object(void)
 {
-	if( m_pItem && m_pItem->GetId().IsOk() )
-	{
-		if( m_pItem->Get_Type() == WKSP_ITEM_Table
-		||  m_pItem->Get_Type() == WKSP_ITEM_TIN
-		||  m_pItem->Get_Type() == WKSP_ITEM_PointCloud
-		||  m_pItem->Get_Type() == WKSP_ITEM_Shapes
-		||  m_pItem->Get_Type() == WKSP_ITEM_Grid
-		||  m_pItem->Get_Type() == WKSP_ITEM_Grids )
-		{
-			return( ((CWKSP_Data_Item *)m_pItem)->Get_Object() );
-		}
-
-		if( m_pItem->Get_Type() == WKSP_ITEM_Map_Layer )
-		{
-			return( ((CWKSP_Map_Layer *)m_pItem)->Get_Layer()->Get_Object() );
-		}
-	}
-
-	return( NULL );
+	return( m_pItem && m_pItem->GetId().IsOk() ? m_pItem->Get_Object() : NULL );
 }
 
 //---------------------------------------------------------
@@ -347,8 +309,6 @@ int CActive_History::_Get_Image(const CSG_String &Type)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

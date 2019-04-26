@@ -584,6 +584,15 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 
 				if( sx > 0 && sy > 0 )
 				{
+					wxRect	r(p.x - sx, p.y - sy, 2 * sx, 2 * sy);
+
+					if( Selection )
+					{
+						r.Inflate(1);
+
+						dc_Map.dc.DrawRectangle(r);
+					}
+
 					dc_Map.dc.DrawBitmap(wxBitmap(pSymbol->Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
 				}
 			}

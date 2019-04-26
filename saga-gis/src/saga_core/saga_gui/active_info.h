@@ -73,27 +73,24 @@ class CActive_Info : public wxPanel
 
 public:
 	CActive_Info(wxWindow *pParent);
-	virtual ~CActive_Info(void);
-
-	void								On_Size				(wxSizeEvent     &event);
 
 	void								On_Choice			(wxCommandEvent  &event);
 
-	void								Set_Item			(class CWKSP_Layer *pItem);
+	void								Set_Item			(class CWKSP_Shapes *pItem);
 
 	void								Set_Info			(void);
 
 
 private:
 
+	class CWKSP_Shapes					*m_pItem;
+
 	class wxChoice						*m_pSelections;
 
 	class CActive_Info_Control			*m_pControl;
 
-	class CWKSP_Layer					*m_pItem;
 
-
-	void								_Set_Positions		(void);
+	CSG_Shapes *						_Get_Shapes			(void);
 
 	void								_Set_Info			(void);
 

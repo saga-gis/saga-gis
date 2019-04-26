@@ -73,14 +73,11 @@ IMPLEMENT_CLASS(CActive_Attributes, wxPanel)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CActive_Attributes, wxPanel)
-	EVT_SIZE		(CActive_Attributes::On_Size)
-
-	EVT_CHOICE		(ID_COMBOBOX_SELECT, CActive_Attributes::On_Choice)
-
-	EVT_BUTTON		(ID_BTN_APPLY      , CActive_Attributes::On_Apply)
-	EVT_UPDATE_UI	(ID_BTN_APPLY      , CActive_Attributes::On_Apply_UI)
-	EVT_BUTTON		(ID_BTN_RESTORE    , CActive_Attributes::On_Restore)
-	EVT_UPDATE_UI	(ID_BTN_RESTORE    , CActive_Attributes::On_Restore_UI)
+	EVT_CHOICE   (ID_COMBOBOX_SELECT, CActive_Attributes::On_Choice   )
+	EVT_BUTTON   (ID_BTN_APPLY      , CActive_Attributes::On_Button   )
+	EVT_BUTTON   (ID_BTN_RESTORE    , CActive_Attributes::On_Button   )
+	EVT_UPDATE_UI(ID_BTN_APPLY      , CActive_Attributes::On_Button_UI)
+	EVT_UPDATE_UI(ID_BTN_RESTORE    , CActive_Attributes::On_Button_UI)
 END_EVENT_TABLE()
 
 
@@ -94,64 +91,24 @@ CActive_Attributes::CActive_Attributes(wxWindow *pParent)
 {
 	m_pItem			= NULL;
 
+	m_pSelections	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0);
+
 	m_pControl		= new CActive_Attributes_Control(this);
 
-	m_Btn_Apply		= new wxButton(this, ID_BTN_APPLY	, CTRL_Get_Name(ID_BTN_APPLY)	, wxPoint(0, 0));
-	m_Btn_Restore	= new wxButton(this, ID_BTN_RESTORE	, CTRL_Get_Name(ID_BTN_RESTORE)	, wxPoint(0, 0));
+	//-----------------------------------------------------
+	wxBoxSizer	*pButtons	= new wxBoxSizer(wxHORIZONTAL);
 
-	m_Btn_Height	= m_Btn_Apply->GetDefaultSize().y;
+	pButtons->Add(new wxButton(this, ID_BTN_APPLY  , CTRL_Get_Name(ID_BTN_APPLY  ), wxPoint(0, 0)), 1, wxEXPAND|wxLEFT|wxRIGHT);
+	pButtons->Add(new wxButton(this, ID_BTN_RESTORE, CTRL_Get_Name(ID_BTN_RESTORE), wxPoint(0, 0)), 1, wxEXPAND|wxLEFT|wxRIGHT);
 
-	m_pSelections	= new wxChoice(this, ID_COMBOBOX_SELECT, wxDefaultPosition, wxDefaultSize, 0, NULL, 0);
-}
+	//-----------------------------------------------------
+	wxBoxSizer	*pSizer		= new wxBoxSizer(wxVERTICAL  );
 
-//---------------------------------------------------------
-CActive_Attributes::~CActive_Attributes(void)
-{}
+	pSizer->Add(m_pSelections, 0, wxEXPAND|wxLEFT|wxRIGHT);
+	pSizer->Add(m_pControl   , 1, wxEXPAND|wxALL);
+	pSizer->Add(  pButtons   , 0, wxEXPAND|wxLEFT|wxRIGHT|wxALIGN_BOTTOM);
 
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define BUTTON_DIST			1
-#define BUTTON_DIST2		2 * BUTTON_DIST
-
-#define SET_BTN_POS(BTN)	if( BTN->IsShown() ) { BTN->SetSize(r); r.SetLeft(r.GetLeft() + r.GetWidth() + BUTTON_DIST2); }
-
-//---------------------------------------------------------
-void CActive_Attributes::_Set_Positions(void)
-{
-	int		nButtons	= 2;
-	wxRect	r(GetClientSize());
-
-	if( m_pSelections->GetCount() > 0 )
-	{
-		m_pSelections->SetSize(0, 0, r.GetWidth(), m_Btn_Height - BUTTON_DIST);
-
-		r.SetTop(m_Btn_Height);
-		r.SetHeight(r.GetHeight() - m_Btn_Height * 2);
-	}
-	else
-	{
-		r.SetHeight(r.GetHeight() - m_Btn_Height);
-	}
-
-	m_pControl->SetSize(r);
-
-	r.SetTop(r.GetBottom() + BUTTON_DIST2);
-	r.SetHeight(m_Btn_Height - BUTTON_DIST);
-	r.SetWidth(r.GetWidth() / nButtons - BUTTON_DIST2);
-	r.SetLeft(BUTTON_DIST);
-
-	SET_BTN_POS(m_Btn_Apply);
-	SET_BTN_POS(m_Btn_Restore);
-}
-
-//---------------------------------------------------------
-void CActive_Attributes::On_Size(wxSizeEvent &WXUNUSED(event))
-{
-	_Set_Positions();
+	SetSizer(pSizer);
 }
 
 
@@ -160,23 +117,21 @@ void CActive_Attributes::On_Size(wxSizeEvent &WXUNUSED(event))
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CActive_Attributes::On_Apply(wxCommandEvent &event)
+void CActive_Attributes::On_Button(wxCommandEvent &event)
 {
-	Save_Changes(false);
+	switch( event.GetId() )
+	{
+	case ID_BTN_APPLY  :
+		Save_Changes(false);
+		break;
+
+	case ID_BTN_RESTORE:
+		Set_Attributes();
+		break;
+	}
 }
 
-void CActive_Attributes::On_Apply_UI(wxUpdateUIEvent &event)
-{
-	event.Enable(m_pControl->Get_Table()->is_Modified());
-}
-
-//---------------------------------------------------------
-void CActive_Attributes::On_Restore(wxCommandEvent &event)
-{
-	Set_Attributes();
-}
-
-void CActive_Attributes::On_Restore_UI(wxUpdateUIEvent &event)
+void CActive_Attributes::On_Button_UI(wxUpdateUIEvent &event)
 {
 	event.Enable(m_pControl->Get_Table()->is_Modified());
 }
@@ -208,12 +163,10 @@ inline CSG_Table * CActive_Attributes::_Get_Table(void)
 {
 	switch( m_pItem ? m_pItem->Get_Type() : WKSP_ITEM_Undefined )
 	{
-	default:
-		return( NULL );
+	case WKSP_ITEM_Shapes    :
+	case WKSP_ITEM_PointCloud: return( (CSG_Table *)m_pItem->Get_Object() );
 
-	case WKSP_ITEM_Shapes:
-	case WKSP_ITEM_PointCloud:
-		return( (CSG_Table *)m_pItem->Get_Object() );
+	default                  : return( NULL );
 	}
 }
 
@@ -262,7 +215,7 @@ void CActive_Attributes::Set_Attributes(void)
 
 	m_pSelections->Show(m_pSelections->GetCount() > 1);
 
-	_Set_Positions();
+	GetSizer()->Layout();
 
 	Thaw();
 }
