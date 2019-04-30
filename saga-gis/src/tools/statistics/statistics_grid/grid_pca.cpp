@@ -99,8 +99,14 @@ CGrid_PCA::CGrid_PCA(void)
 	);
 
 	Parameters.Add_Table("",
+		"EIGEN_INPUT", _TL("Eigen Vectors"),
+		_TL("Use Eigen vectors from this table instead of calculating these from the input grids."),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Table("",
 		"EIGEN"		, _TL("Eigen Vectors"),
-		_TL(""),
+		_TL("Store calculated Eigen vectors to this table, e.g. for later use with forward or inverse PCA."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
@@ -133,41 +139,54 @@ CGrid_PCA::CGrid_PCA(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CGrid_PCA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("EIGEN_INPUT") )
+	{
+		pParameters->Set_Enabled("EIGEN" , pParameter->asTable() == NULL);
+		pParameters->Set_Enabled("METHOD", pParameter->asTable() == NULL);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGrid_PCA::On_Execute(void)
 {
-	CSG_Vector	Eigen_Values;
-	CSG_Matrix	Eigen_Vectors, Matrix;
-
 	//-----------------------------------------------------
-	m_pGrids	= Parameters("GRIDS" )->asGridList();
-	m_Method	= Parameters("METHOD")->asInt();
+	m_pGrids	= Parameters("GRIDS")->asGridList();
 
 	m_nFeatures	= m_pGrids->Get_Grid_Count();
 
 	//-----------------------------------------------------
-	if( !Get_Matrix(Matrix) )
-	{
-		Error_Set(_TL("matrix initialisation failed"));
+	CSG_Matrix	Eigen_Vectors;
 
-		return( false );
+	if( Parameters("EIGEN_INPUT")->asTable() )
+	{
+		if( !Get_Eigen_Vectors(Eigen_Vectors) )
+		{
+			return( false );
+		}
+	}
+	else
+	{
+		if( !Get_Eigen_Reduction(Eigen_Vectors) )
+		{
+			return( false );
+		}
 	}
 
 	//-----------------------------------------------------
-	if( !SG_Matrix_Eigen_Reduction(Matrix, Eigen_Vectors, Eigen_Values) )
+	if( !Get_Components(Eigen_Vectors) )
 	{
-		Error_Set(_TL("Eigen reduction failed"));
-
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	Print_Eigen_Values (Eigen_Values );
-
-//	Print_Eigen_Vectors(Eigen_Vectors);
-
-	Get_Components(Eigen_Vectors);
-
-	//-----------------------------------------------------
 	return( true );
 }
 
@@ -217,6 +236,8 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 	}
 
 	Matrix.Set_Zero();
+
+	m_Method	= Parameters("METHOD")->asInt();
 
 	int		j1, j2;
 	sLong	iCell;
@@ -276,6 +297,49 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 	return( true );
 }
 
+//---------------------------------------------------------
+bool CGrid_PCA::Get_Eigen_Reduction(CSG_Matrix &Eigen_Vectors)
+{
+	CSG_Matrix	Matrix;
+
+	if( !Get_Matrix(Matrix) )
+	{
+		Error_Set(_TL("matrix initialisation failed"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Vector	 Eigen_Values;
+	CSG_Matrix	_Eigen_Vectors;
+
+	if( !SG_Matrix_Eigen_Reduction(Matrix, _Eigen_Vectors, Eigen_Values) )
+	{
+		Error_Set(_TL("Eigen reduction failed"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	Eigen_Vectors.Create(m_nFeatures, m_nFeatures);
+
+	for(int i=0; i<m_nFeatures; i++)
+	{
+		for(int j=0, k=m_nFeatures-1; j<m_nFeatures; j++, k--)
+		{
+			Eigen_Vectors[j][i]	= _Eigen_Vectors[i][k];
+		}
+	}
+
+	//-----------------------------------------------------
+	Print_Eigen_Values (Eigen_Values );
+//	Print_Eigen_Vectors(Eigen_Vectors);
+
+	Set_Eigen_Vectors(Eigen_Vectors);
+
+	return( true );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -285,9 +349,10 @@ bool CGrid_PCA::Get_Matrix(CSG_Matrix &Matrix)
 void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 {
 	int		i;
-	double	Sum, Cum;
 
-	for(i=0, Sum=0.0, Cum=0.0; i<m_nFeatures; i++)
+	double	Sum	= 0.0;
+
+	for(i=0; i<Eigen_Values.Get_N(); i++)
 	{
 		Sum	+= Eigen_Values[i];
 	}
@@ -296,7 +361,9 @@ void CGrid_PCA::Print_Eigen_Values(CSG_Vector &Eigen_Values)
 
 	Message_Fmt("\n%s, %s, %s", _TL("explained variance"), _TL("explained cumulative variance"), _TL("Eigenvalue"));
 
-	for(i=m_nFeatures-1; i>=0; i--)
+	double	Cum	= 0.0;
+
+	for(i=Eigen_Values.Get_N()-1; i>=0; i--)
 	{
 		Cum	+= Eigen_Values[i];
 
@@ -314,16 +381,16 @@ void CGrid_PCA::Print_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 {
 	Message_Fmt("\n%s:", _TL("Eigenvectors"));
 
-	for(int i=0; i<m_nFeatures; i++)
+	for(int j=0; j<Eigen_Vectors.Get_NCols(); j++)
 	{
-		Message_Add("\n", false);
+		Message_Fmt("\n");
 
-		for(int j=m_nFeatures-1; j>=0; j--)
+		for(int i=0; i<Eigen_Vectors.Get_NRows(); i++)
 		{
 			Message_Fmt("%.4f\t", Eigen_Vectors[i][j]);
 		}
 
-		Message_Add(m_pGrids->Get_Grid(i)->Get_Name(), false);
+		Message_Add(m_pGrids->Get_Grid(j)->Get_Name(), false);
 	}
 }
 
@@ -333,28 +400,65 @@ void CGrid_PCA::Print_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
+bool CGrid_PCA::Get_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
 {
-	int		i;
+	CSG_Table	*pEigen	= Parameters("EIGEN_INPUT")->asTable();
 
-	///////////////////////////////////////////////////////
-	//-----------------------------------------------------
-	CSG_Matrix	E(m_nFeatures, m_nFeatures);
+	int	nFeatures	= pEigen->Get_Count();
 
-	for(i=0; i<m_nFeatures; i++)
+	if( nFeatures != pEigen->Get_Field_Count() )
 	{
-		for(int j=0, k=m_nFeatures-1; j<m_nFeatures; j++, k--)
+		Error_Set(_TL("warning: number of Eigen vectors and components differs."));
+
+		if( nFeatures > pEigen->Get_Field_Count() )
 		{
-			E[j][i]	= Eigen_Vectors[i][k];
+			nFeatures	= pEigen->Get_Field_Count();
 		}
 	}
 
-	///////////////////////////////////////////////////////
+	if( nFeatures != m_nFeatures )
+	{
+		Error_Set(_TL("warning: number of component grids and components differs."));
+
+		if( nFeatures > m_nFeatures )
+		{
+			nFeatures	= m_nFeatures;
+		}
+	}
+
+	if( nFeatures < 2 )
+	{
+		Error_Set(_TL("nothing to do. transformation needs at least two components."));
+
+		return( false );
+	}
+
 	//-----------------------------------------------------
+	Eigen_Vectors.Create(nFeatures, nFeatures);
+
+	for(int j=0; j<nFeatures; j++)
+	{
+		CSG_Table_Record	*pRecord	= pEigen->Get_Record(j);
+
+		for(int i=0; i<nFeatures; i++)
+		{
+			Eigen_Vectors[i][j]	= pRecord->asDouble(i);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGrid_PCA::Set_Eigen_Vectors(CSG_Matrix &Eigen_Vectors)
+{
 	CSG_Table	*pEigen	= Parameters("EIGEN")->asTable();
 
-	if( pEigen )
+	if( Eigen_Vectors.Get_NCols() >= m_nFeatures
+	&&  Eigen_Vectors.Get_NRows() >= m_nFeatures && pEigen )
 	{
+		int		i;
+
 		pEigen->Destroy();
 		pEigen->Set_Name(_TL("PCA Eigen Vectors"));
 
@@ -369,12 +473,26 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 
 			for(int j=0; j<m_nFeatures; j++)
 			{
-				pRecord->Set_Value(j, E[j][i]);
+				pRecord->Set_Value(j, Eigen_Vectors[j][i]);
 			}
 		}
+
+		return( true );
 	}
 
-	///////////////////////////////////////////////////////
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrid_PCA::Get_Components(const CSG_Matrix &Eigen_Vectors)
+{
+	int		i;
+
 	//-----------------------------------------------------
 	int	nComponents	= Parameters("COMPONENTS")->asInt();
 
@@ -441,7 +559,7 @@ bool CGrid_PCA::Get_Components(CSG_Matrix &Eigen_Vectors)
 			}
 			else
 			{
-				CSG_Vector	Y	= E * X;
+				CSG_Vector	Y	= Eigen_Vectors * X;
 
 				for(i=0; i<nComponents; i++)
 				{
@@ -505,18 +623,14 @@ CGrid_PCA_Inverse::CGrid_PCA_Inverse(void)
 //---------------------------------------------------------
 bool CGrid_PCA_Inverse::On_Execute(void)
 {
-	int			i, nFeatures;
-	CSG_Table	*pEigen;
+	//-----------------------------------------------------
+	CSG_Parameter_Grid_List	*pPCA	= Parameters("PCA"  )->asGridList();
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
 	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pPCA, *pGrids;
+	CSG_Table	*pEigen	= Parameters("EIGEN")->asTable();
 
-	pPCA	= Parameters("PCA"  )->asGridList();
-	pGrids	= Parameters("GRIDS")->asGridList();
-	pEigen	= Parameters("EIGEN")->asTable();
-
-	//-----------------------------------------------------
-	nFeatures	= pEigen->Get_Count();
+	int	nFeatures	= pEigen->Get_Count();
 
 	if( nFeatures != pEigen->Get_Field_Count() )
 	{
@@ -546,6 +660,8 @@ bool CGrid_PCA_Inverse::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	int		i;
+
 	CSG_Matrix	E(nFeatures, nFeatures);
 
 	for(i=0; i<nFeatures; i++)
