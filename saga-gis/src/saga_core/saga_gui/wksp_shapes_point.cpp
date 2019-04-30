@@ -142,10 +142,8 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
-	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "DISPLAY_SYMBOL_IMGFIELD", _TL("Image Field"), _TL("Field that provides image file path, either absolute or relative to this data set."), _TL("<default>"));
-
 	m_Parameters.Add_FilePath("DISPLAY_SYMBOL_TYPE",
-		"DISPLAY_SYMBOL_IMAGE"	, _TL("Image File"),
+		"DISPLAY_SYMBOL_IMAGE"	, _TL("Image Symbol File"),
 		_TL(""),
 		CSG_String::Format(
 			"%s|*.bmp;*.ico;*.gif;*.jpg;*.jif;*.jpeg;*.pcx;*.png;*.pnm;*.tif;*.tiff;*.xpm|"
@@ -172,6 +170,58 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_STRIKE", _TL("Strike"), _TL(""), _TL("<default>"));
 	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_DIP"   , _TL("Dip"   ), _TL(""), _TL("<default>"));
 	m_Parameters.Add_Choice("DISPLAY_SYMBOL_TYPE", "BEACHBALL_RAKE"  , _TL("Rake"  ), _TL(""), _TL("<default>"));
+
+
+	//-----------------------------------------------------
+	// Images...
+
+	m_Parameters.Add_Choice("NODE_DISPLAY",
+		"IMAGE_FIELD"			, _TL("Image Field"),
+		_TL("Field that provides file paths (either absolute or relative to this data set) to images to be displayed besides the points."),
+		_TL("<default>")
+	);
+
+	m_Parameters.Add_Choice("IMAGE_FIELD",
+		"IMAGE_ALIGN_X"			, _TL("Horizontal Align"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("left"),
+			_TL("center"),
+			_TL("right")
+		), 0
+	);
+
+	m_Parameters.Add_Choice("IMAGE_FIELD",
+		"IMAGE_ALIGN_Y"			, _TL("Vertical Align"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("top"),
+			_TL("center"),
+			_TL("bottom")
+		), 0
+	);
+
+	m_Parameters.Add_Double("IMAGE_FIELD",
+		"IMAGE_OFFSET"			, _TL("Offset"),
+		_TL("Offset distance to symbol relative to symbol's size."),
+		1., 0., true
+	);
+
+	m_Parameters.Add_Double("IMAGE_FIELD",
+		"IMAGE_SCALE"			, _TL("Size Scaling"),
+		_TL("Scales image size relative to symbol's size."),
+		10., 0.1, true
+	);
+
+	m_Parameters.Add_Choice("IMAGE_FIELD",
+		"IMAGE_FIT"				, _TL("Fit Size to..."),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("overall"),
+			_TL("width"),
+			_TL("height")
+		), 0
+	);
 
 
 	//-----------------------------------------------------
@@ -268,12 +318,12 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 //---------------------------------------------------------
 void CWKSP_Shapes_Point::On_DataObject_Changed(void)
 {
-	AttributeList_Set(m_Parameters("DISPLAY_SYMBOL_IMGFIELD"),  true);
-	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"       ), false);
-	AttributeList_Set(m_Parameters("BEACHBALL_DIP"          ), false);
-	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"         ), false);
-	AttributeList_Set(m_Parameters("SIZE_ATTRIB"            ),  true);
-	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"     ),  true);
+	AttributeList_Set(m_Parameters("IMAGE_FIELD"       ),  true);
+	AttributeList_Set(m_Parameters("BEACHBALL_STRIKE"  ), false);
+	AttributeList_Set(m_Parameters("BEACHBALL_DIP"     ), false);
+	AttributeList_Set(m_Parameters("BEACHBALL_RAKE"    ), false);
+	AttributeList_Set(m_Parameters("SIZE_ATTRIB"       ),  true);
+	AttributeList_Set(m_Parameters("LABEL_ANGLE_ATTRIB"),  true);
 
 	CWKSP_Shapes::On_DataObject_Changed();
 }
@@ -293,13 +343,6 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 		{
 			m_Symbol	= IMG_Get_Image(ID_IMG_DEFAULT);
 		}
-
-		m_Symbol_Field	= m_Parameters("DISPLAY_SYMBOL_IMGFIELD")->asInt();
-
-		if( m_Symbol_Field >= Get_Shapes()->Get_Field_Count() )
-		{
-			m_Symbol_Field	= -1;
-		}
 	}
 
 	if( m_Symbol_Type == SYMBOL_TYPE_Beachball )
@@ -308,6 +351,32 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 		m_Beachball[1]	= m_Parameters("BEACHBALL_DIP"   )->asInt();
 		m_Beachball[2]	= m_Parameters("BEACHBALL_RAKE"  )->asInt();
 	}
+
+	//-----------------------------------------------------
+	m_Image_Field	= m_Parameters("IMAGE_FIELD"  )->asInt();
+
+	if( m_Image_Field >= Get_Shapes()->Get_Field_Count() )
+	{
+		m_Image_Field	= -1;
+	}
+
+	switch( m_Parameters("IMAGE_ALIGN_X")->asInt() )
+	{
+	default: m_Image_Align  = TEXTALIGN_LEFT   ; break;
+	case  1: m_Image_Align  = TEXTALIGN_XCENTER; break;
+	case  2: m_Image_Align  = TEXTALIGN_RIGHT  ; break;
+	}
+
+	switch( m_Parameters("IMAGE_ALIGN_Y")->asInt() )
+	{
+	default: m_Image_Align |= TEXTALIGN_TOP    ; break;
+	case  1: m_Image_Align |= TEXTALIGN_YCENTER; break;
+	case  2: m_Image_Align |= TEXTALIGN_BOTTOM ; break;
+	}
+
+	m_Image_Offset	= m_Parameters("IMAGE_OFFSET")->asDouble();
+	m_Image_Scale	= m_Parameters("IMAGE_SCALE" )->asDouble();
+	m_Image_Fit		= m_Parameters("IMAGE_FIT"   )->asInt();
 
 	//-----------------------------------------------------
 	m_Size_Type		= m_Parameters("SIZE_TYPE" )->asInt();
@@ -337,16 +406,16 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 
 	switch( m_Parameters("LABEL_ALIGN_X")->asInt() )
 	{
-	case 0:	m_Label_Align	 = TEXTALIGN_LEFT;		break;
-	case 1:	m_Label_Align	 = TEXTALIGN_XCENTER;	break;
-	case 2:	m_Label_Align	 = TEXTALIGN_RIGHT;		break;
+	default: m_Label_Align  = TEXTALIGN_LEFT   ; break;
+	case  1: m_Label_Align  = TEXTALIGN_XCENTER; break;
+	case  2: m_Label_Align  = TEXTALIGN_RIGHT  ; break;
 	}
 
 	switch( m_Parameters("LABEL_ALIGN_Y")->asInt() )
 	{
-	case 0:	m_Label_Align	|= TEXTALIGN_TOP;		break;
-	case 1:	m_Label_Align	|= TEXTALIGN_YCENTER;	break;
-	case 2:	m_Label_Align	|= TEXTALIGN_BOTTOM;	break;
+	default: m_Label_Align |= TEXTALIGN_TOP    ; break;
+	case  1: m_Label_Align |= TEXTALIGN_YCENTER; break;
+	case  2: m_Label_Align |= TEXTALIGN_BOTTOM ; break;
 	}
 
 	//-----------------------------------------------------
@@ -403,6 +472,13 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("LABEL_ALIGN_Y"       , Value);
 		}
 
+		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
+		{
+			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
+
+			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
+		}
+
 		if(	pParameter->Cmp_Identifier("SIZE_ATTRIB") )
 		{
 			bool	Value	= pParameter->asInt() < Get_Shapes()->Get_Field_Count();
@@ -412,11 +488,9 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pParameters->Set_Enabled("SIZE_DEFAULT"        , Value == false);
 		}
 
-		if(	pParameter->Cmp_Identifier("LABEL_ANGLE_ATTRIB") )
+		if(	pParameter->Cmp_Identifier("IMAGE_FIELD") )
 		{
-			bool	Value	= pParameter->asInt() >= Get_Shapes()->Get_Field_Count();
-
-			pParameters->Set_Enabled("LABEL_ANGLE"         , Value);
+			pParameter->Set_Children_Enabled(pParameter->asInt() >= 0);
 		}
 	}
 
@@ -555,29 +629,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 			//---------------------------------------------
 			else if( m_Symbol_Type == SYMBOL_TYPE_Image )
 			{
-				wxImage	Symbol, *pSymbol	= NULL;
-
-				if( m_Symbol_Field >= 0 )
-				{
-					wxFileName	fn(pShape->asString(m_Symbol_Field));
-
-					if( fn.IsRelative() )
-					{
-						fn.MakeAbsolute(SG_File_Get_Path(Get_Shapes()->Get_File_Name()).c_str());
-					}
-
-					if( fn.Exists() && Symbol.LoadFile(fn.GetFullPath()) )
-					{
-						pSymbol	= &Symbol;
-					}
-				}
-
-				if( pSymbol == NULL )
-				{
-					pSymbol	= &m_Symbol;
-				}
-
-				double	d	= (double)pSymbol->GetWidth() / (double)pSymbol->GetHeight();
+				double	d	= (double)m_Symbol.GetWidth() / (double)m_Symbol.GetHeight();
 
 				int	sx	= d >  1.0 ? Size : (int)(0.5 + Size * d);
 				int	sy	= d <= 1.0 ? Size : (int)(0.5 + Size / d);
@@ -593,7 +645,7 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 						dc_Map.dc.DrawRectangle(r);
 					}
 
-					dc_Map.dc.DrawBitmap(wxBitmap(pSymbol->Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
+					dc_Map.dc.DrawBitmap(wxBitmap(m_Symbol.Scale(2 * sx, 2 * sy)), p.x - sx, p.y - sy, true);
 				}
 			}
 
@@ -603,6 +655,13 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 				Draw_Symbol(dc_Map.dc, p.x, p.y, Size);
 			}
 
+			//---------------------------------------------
+			if( m_Image_Field >= 0 )
+			{
+				_Image_Draw(dc_Map.dc, p.x, p.y, Size, pShape->asString(m_Image_Field));
+			}
+
+			//---------------------------------------------
 			if( Selection )
 			{
 				dc_Map.dc.SetBrush(m_Brush);
@@ -686,6 +745,66 @@ void CWKSP_Shapes_Point::Draw_Symbol(wxDC &dc, int x, int y, int Size)
 	case 10: DRAW_RHOMBUS      ; DRAW_CIRCLE(0.7)  ; break;	// circle in rhombus
 	case 11: DRAW_TRIANGLE_UP  ; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle up
 	case 12: DRAW_TRIANGLE_DOWN; DRAW_CIRCLE(0.5)  ; break;	// circle in triangle down
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CWKSP_Shapes_Point::_Image_Draw(wxDC &dc, int x, int y, int size, const wxString &file)
+{
+	wxFileName	fn(file);
+
+	if( fn.IsRelative() )
+	{
+		fn.MakeAbsolute(SG_File_Get_Path(Get_Shapes()->Get_File_Name()).c_str());
+	}
+
+	wxImage	Symbol;
+
+	if( fn.Exists() && Symbol.LoadFile(fn.GetFullPath()) )
+	{
+		double	s	= m_Image_Scale  * size;
+		double	o	= m_Image_Offset * size;
+
+		int		sx	= Symbol.GetWidth ();
+		int		sy	= Symbol.GetHeight();
+
+		double	d	= (double)sx / (double)sy;
+
+		switch( m_Image_Fit )
+		{
+		default:
+			sx	= d >  1.0 ? s : (int)(0.5 + s * d);
+			sy	= d <= 1.0 ? s : (int)(0.5 + s / d);
+			break;
+
+		case  1:	// width
+			sx	= s;
+			sy	= (int)(0.5 + s / d);
+			break;
+
+		case  2:	// height
+			sx	= (int)(0.5 + s * d);
+			sy	= s;
+			break;
+		}
+
+		if( sx > 1 && sy > 1 )
+		{
+			if( m_Image_Align & TEXTALIGN_LEFT    ) { x += o     ; } else
+			if( m_Image_Align & TEXTALIGN_XCENTER ) { x -= sx / 2; } else
+			if( m_Image_Align & TEXTALIGN_RIGHT   ) { x	-= o + sx; }
+
+			if( m_Image_Align & TEXTALIGN_TOP     ) { y += o     ; } else
+			if( m_Image_Align & TEXTALIGN_YCENTER ) { y -= sy / 2; } else
+			if( m_Image_Align & TEXTALIGN_BOTTOM  ) { y -= o + sy; }
+
+			dc.DrawBitmap(wxBitmap(Symbol.Scale(sx, sy)), x, y, true);
+		}
 	}
 }
 

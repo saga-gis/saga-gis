@@ -87,9 +87,10 @@ protected:
 
 	bool						m_bOutline;
 
-	int							m_iSize, m_Size_Type, m_Size_Scale, m_Symbol_Type, m_Symbol_Field, m_iLabel_Angle, m_Label_Align, m_Beachball[3];
+	int							m_iSize, m_Size_Type, m_Size_Scale, m_Symbol_Type, m_iLabel_Angle, m_Label_Align,
+								m_Image_Field, m_Image_Align, m_Image_Fit, m_Beachball[3];
 
-	double						m_Size, m_dSize, m_Size_Min, m_Label_Angle;
+	double						m_Size, m_dSize, m_Size_Min, m_Label_Angle, m_Image_Offset, m_Image_Scale;
 
 	wxColour					m_Sel_Color_Fill;
 
@@ -114,7 +115,9 @@ protected:
 
 private:
 
-	void						_Beachball_Draw			(wxDC &dc_Map, int x, int y, int size, double strike, double dip, double rake);
+	void						_Image_Draw				(wxDC &dc, int x, int y, int size, const wxString &file);
+
+	void						_Beachball_Draw			(wxDC &dc, int x, int y, int size, double strike, double dip, double rake);
 	void						_Beachball_Get_Plane	(CSG_Shape *pPlane, CSG_Shape *pCircle, const CSG_Vector &Normal);
 	void						_Beachball_Get_Scaled	(CSG_Shape *pShape, double x, double y, double size);
 

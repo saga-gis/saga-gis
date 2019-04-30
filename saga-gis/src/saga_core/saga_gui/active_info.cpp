@@ -238,7 +238,7 @@ void CActive_Info::_Set_Info(void)
 			}
 		}
 
-		if( Page.Find("http") >= 0 )
+		if( Page.Find("http://") >= 0 )	// https is currently not supported by wxHtmlWindow!
 		{
 			if( m_pControl->LoadPage(Page) )
 			{
