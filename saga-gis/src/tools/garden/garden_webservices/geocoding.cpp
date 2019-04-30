@@ -354,7 +354,7 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 
 	if( !m_Answer("place") )
 	{
-		Message_Fmt("\n%s [%s]", _TL("Error"), SG_T("place"));
+		Message_Fmt("\n%s [%s: %s]", _TL("Error"), SG_T("place"), Address.c_str());
 
 		return( false );
 	}
