@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_ml.h 0001 2016-05-24
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,15 +41,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -292,28 +280,55 @@ protected:
 
 ///////////////////////////////////////////////////////////
 //														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COpenCV_ML_LogR : public COpenCV_ML
+{
+public:
+	COpenCV_ML_LogR(void);
+
+
+protected:
+
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual const char *		Get_Model_ID			(void)	const	{	return( "logr" );	}
+
+	virtual Ptr<StatModel>		Get_Model				(const CSG_String &File);
+	virtual Ptr<StatModel>		Get_Model				(void);
+
+	virtual Ptr<TrainData>		Get_Training			(const CSG_Matrix &Data);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define new_COpenCV_ML_NBayes	new COpenCV_ML_NBayes
-#define new_COpenCV_ML_KNN		new COpenCV_ML_KNN
-#define new_COpenCV_ML_SVM		new COpenCV_ML_SVM
-#define new_COpenCV_ML_DTrees	new COpenCV_ML_DTrees
-#define new_COpenCV_ML_Boost	new COpenCV_ML_Boost
-#define new_COpenCV_ML_RTrees	new COpenCV_ML_RTrees
-#define new_COpenCV_ML_ANN		new COpenCV_ML_ANN
+#define new_COpenCV_ML_NBayes new COpenCV_ML_NBayes
+#define new_COpenCV_ML_KNN    new COpenCV_ML_KNN
+#define new_COpenCV_ML_SVM    new COpenCV_ML_SVM
+#define new_COpenCV_ML_DTrees new COpenCV_ML_DTrees
+#define new_COpenCV_ML_Boost  new COpenCV_ML_Boost
+#define new_COpenCV_ML_RTrees new COpenCV_ML_RTrees
+#define new_COpenCV_ML_ANN    new COpenCV_ML_ANN
+#define new_COpenCV_ML_LogR   new COpenCV_ML_LogR
 
 #else // CV_MAJOR_VERSION == 3
 
-#define new_COpenCV_ML_NBayes	TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_KNN		TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_SVM		TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_DTrees	TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_Boost	TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_RTrees	TLB_INTERFACE_SKIP_TOOL
-#define new_COpenCV_ML_ANN		TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_NBayes TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_KNN    TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_SVM    TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_DTrees TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_Boost  TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_RTrees TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_ANN    TLB_INTERFACE_SKIP_TOOL
+#define new_COpenCV_ML_LogR   TLB_INTERFACE_SKIP_TOOL
 
 #endif
 

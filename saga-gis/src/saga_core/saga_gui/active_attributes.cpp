@@ -106,7 +106,7 @@ CActive_Attributes::CActive_Attributes(wxWindow *pParent)
 
 	pSizer->Add(m_pSelections, 0, wxEXPAND|wxLEFT|wxRIGHT);
 	pSizer->Add(m_pControl   , 1, wxEXPAND|wxALL);
-	pSizer->Add(  pButtons   , 0, wxEXPAND|wxLEFT|wxRIGHT|wxALIGN_BOTTOM);
+	pSizer->Add(  pButtons   , 0, wxEXPAND|wxLEFT|wxRIGHT);
 
 	SetSizer(pSizer);
 }

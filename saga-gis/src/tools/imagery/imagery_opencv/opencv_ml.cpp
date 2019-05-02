@@ -387,7 +387,6 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 
 	CSG_Shapes	*pPolygons	= Parameters("TRAIN_AREAS")->asShapes();
 	int			Field		= Parameters("TRAIN_CLASS")->asInt();
-	bool		bLabelAsId	= false;//Parameters("LABEL_AS_ID")->asBool();
 
 	pPolygons->Set_Index(Field, TABLE_INDEX_Ascending);
 
@@ -397,33 +396,29 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	//-----------------------------------------------------
 	for(int iPolygon=0, ID=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
 	{
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape_byIndex(iPolygon);
 
-		if( !pClass || (bLabelAsId && ID != pPolygon->asInt(Field)) || Label.Cmp(pPolygon->asString(Field)) )
+		if( !pClass || Label.Cmp(pPolygon->asString(Field)) )
 		{
-			Label	= pPolygon->asString(Field);
+			pClass	= m_Classes.Add_Record();
 
-			if( !pClass || pClass->asInt(CLASS_COUNT) > 0 )
-			{
-				pClass	= m_Classes.Add_Record();
-
-				ID	= bLabelAsId ? pPolygon->asInt(Field) : ID + 1;
-			}
-
-			pClass->Set_Value(CLASS_ID  , ID   );
-			pClass->Set_Value(CLASS_NAME, Label);
+			pClass->Set_Value(CLASS_ID  , ID++);
+			pClass->Set_Value(CLASS_NAME, Label = pPolygon->asString(Field));
 		}
 
 		_Get_Training(Data, pClass, pPolygon);
 	}
 
 	//-----------------------------------------------------
-	if( m_Classes.Get_Count() > 0 && m_Classes[m_Classes.Get_Count() - 1].asInt(CLASS_COUNT) <= 0 )
+	for(int iClass=m_Classes.Get_Count()-1; iClass>=0; iClass--)
 	{
-		m_Classes.Del_Record(m_Classes.Get_Count() - 1);
+		if( m_Classes[iClass].asInt(CLASS_COUNT) < 1 )
+		{
+			m_Classes.Del_Record(iClass);
+		}
 	}
 
-	return( m_Classes.Get_Count() > 0 );
+	return( m_Classes.Get_Count() > 1 );
 }
 
 //---------------------------------------------------------
@@ -542,7 +537,16 @@ bool COpenCV_ML::On_Execute(void)
 
 		Model	= Get_Model();
 
-		Model->train(tData);
+		try
+		{
+			Model->train(tData);
+		}
+		catch(...)
+		{
+			Error_Set(_TL("Failed to train the model."));
+
+			return( false );
+		}
 
 		if( *Parameters("MODEL_SAVE")->asString() )
 		{

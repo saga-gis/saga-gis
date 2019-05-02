@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_ml_normalbayes.cpp 0001 2016-05-24
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -777,8 +765,8 @@ Ptr<StatModel> COpenCV_ML_ANN::Get_Model(void)
 //---------------------------------------------------------
 Ptr<TrainData> COpenCV_ML_ANN::Get_Training(const CSG_Matrix &Data)
 {
-	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1 , CV_32F);
-	Mat	Response(Data.Get_NRows(), Get_Class_Count()    , CV_32F);
+	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1, CV_32F);
+	Mat	Response(Data.Get_NRows(), Get_Class_Count()   , CV_32F);
 
 	for(int i=0; i<Data.Get_NRows(); i++)
 	{
@@ -795,6 +783,157 @@ Ptr<TrainData> COpenCV_ML_ANN::Get_Training(const CSG_Matrix &Data)
 		}
 	}
 
+	return( TrainData::create(Samples, ROW_SAMPLE, Response) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+COpenCV_ML_LogR::COpenCV_ML_LogR(void)
+	: COpenCV_ML(false)
+{
+	Set_Name		(_TL("Logistic Regression (OpenCV)"));
+
+	Set_Author		("O.Conrad (c) 2019");
+
+	Set_Description	(_TW(
+		"Integration of the OpenCV Machine Learning library for "
+		"Logistic Regression based classification of gridded features. "
+		"\n\n"
+		"Optimization algorithms like <i>Batch Gradient Descent</i> and "
+		"<i>Mini-Batch Gradient Descent</i> are supported in Logistic Regression. "
+		"It is important that we mention the number of iterations these "
+		"optimization algorithms have to run. The number of iterations can be "
+		"thought as number of steps taken and learning rate specifies if it is "
+		"a long step or a short step. This and previous parameter define how fast "
+		"we arrive at a possible solution. "
+		"\n\n"
+		"In order to compensate for overfitting regularization can be performed. "
+		"(L1 or L2 norm). "
+		"\n\n"
+		"Logistic regression implementation provides a choice of two training "
+		"methods with <i>Batch Gradient Descent</i> or the <i>Mini-Batch Gradient "
+		"Descent</i>. "
+	));
+
+	Add_Reference(SG_T("http://docs.opencv.org"), SG_T("Open Source Computer Vision"));
+
+	//-----------------------------------------------------
+	Parameters.Add_Double("MODEL_TRAIN",
+		"LOGR_LEARNING_RATE", _TL("Learning Rate"),
+		_TL("The learning rate determines how fast we approach the solution."),
+		1, FLT_EPSILON, true
+	);
+
+	Parameters.Add_Int("MODEL_TRAIN",
+		"LOGR_ITERATIONS"	, _TL("Number of Iterations"),
+		_TL(""),
+		300, 1, true
+	);
+
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"LOGR_REGULARIZATION", _TL("Regularization"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("disabled"),	
+			_TL("L1 norm"),
+			_TL("L2 norm")
+		), 0
+	);
+
+	Parameters.Add_Choice("MODEL_TRAIN",
+		"LOGR_TRAIN_METHOD"	, _TL("Training Method"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Batch Gradient Descent"),
+			_TL("Mini-Batch Gradient Descent")
+		), 0
+	);
+
+	Parameters.Add_Int("MODEL_TRAIN",
+		"LOGR_MINIBATCH_SIZE", _TL("Mini-Batch Size"),
+		_TL(""),
+		1, 1, true
+	);
+}
+
+//---------------------------------------------------------
+int COpenCV_ML_LogR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("LOGR_TRAIN_METHOD") )
+	{
+		pParameters->Set_Enabled("LOGR_MINIBATCH_SIZE", pParameter->asInt() == 1);
+	}
+
+	//-----------------------------------------------------
+	return( COpenCV_ML::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_LogR::Get_Model(const CSG_String &File)
+{
+	if( Check_Model_File(File) )
+	{
+		return( StatModel::load<LogisticRegression>(File.b_str()) );
+	}
+
+	//-----------------------------------------------------
+	return( LogisticRegression::create() );
+}
+
+//---------------------------------------------------------
+Ptr<StatModel> COpenCV_ML_LogR::Get_Model(void)
+{
+	Ptr<LogisticRegression>	Model	= LogisticRegression::create();
+
+	//-----------------------------------------------------
+	Model->setLearningRate(Parameters("LOGR_LEARNING_RATE")->asDouble());
+
+	Model->setIterations(Parameters("LOGR_ITERATIONS")->asInt());
+
+	switch( Parameters("LOGR_REGULARIZATION")->asInt() )
+	{
+	default: Model->setRegularization(LogisticRegression::REG_DISABLE); break;
+	case  1: Model->setRegularization(LogisticRegression::REG_L1     ); break;
+	case  2: Model->setRegularization(LogisticRegression::REG_L2     ); break;
+	}
+
+	switch( Parameters("LOGR_TRAIN_METHOD")->asInt() )
+	{
+	default: Model->setRegularization(LogisticRegression::     BATCH); break;
+	case  1: Model->setRegularization(LogisticRegression::MINI_BATCH); break;
+	}
+
+	Model->setMiniBatchSize(Parameters("LOGR_MINIBATCH_SIZE")->asInt());
+
+//	Model->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 1000, 0.01));
+
+	//-----------------------------------------------------
+	return( Model );
+}
+
+//---------------------------------------------------------
+Ptr<TrainData> COpenCV_ML_LogR::Get_Training(const CSG_Matrix &Data)
+{
+	Mat	Samples (Data.Get_NRows(), Data.Get_NCols() - 1, CV_32F);
+	Mat	Response(Data.Get_NRows(),                    1, CV_32F);
+
+	for(int i=0; i<Data.Get_NRows(); i++)
+	{
+		Response.at<float>(i)	= (float)Data[i][Data.Get_NCols() - 1];
+
+		for(int j=0; j<Samples.cols; j++)
+		{
+			Samples.at<float>(i, j)	= (float)Data[i][j];
+		}
+	}
+
+	//-----------------------------------------------------
 	return( TrainData::create(Samples, ROW_SAMPLE, Response) );
 }
 

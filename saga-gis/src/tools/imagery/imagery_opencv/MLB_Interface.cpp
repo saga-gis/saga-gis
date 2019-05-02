@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -125,14 +122,15 @@ CSG_Tool *		Create_Tool(int i)
 	case  4:	return( new_COpenCV_Stereo_Match );
 
 	case  5:	return( new_COpenCV_ML_NBayes );
-	case  6:	return( new_COpenCV_ML_KNN );
-	case  7:	return( new_COpenCV_ML_SVM );
+	case  6:	return( new_COpenCV_ML_KNN    );
+	case  7:	return( new_COpenCV_ML_SVM    );
 	case  8:	return( new_COpenCV_ML_DTrees );
-	case  9:	return( new_COpenCV_ML_Boost );
+	case  9:	return( new_COpenCV_ML_Boost  );
 	case 10:	return( new_COpenCV_ML_RTrees );
-	case 11:	return( new_COpenCV_ML_ANN );
+	case 11:	return( new_COpenCV_ML_ANN    );
+	case 12:	return( new_COpenCV_ML_LogR   );
 
-	case 12:	return( NULL );
+	case 13:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }
