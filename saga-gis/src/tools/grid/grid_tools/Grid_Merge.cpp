@@ -78,14 +78,35 @@ CGrid_Merge::CGrid_Merge(void)
 	Set_Author		("O.Conrad (c) 2003-17");
 
 	Set_Description	(_TW(
-		"Merges multiple grids into one single grid."
+		"The tool allows one to merge multiple grids into one single grid. This "
+		"involves resampling if the input grids have different cell sizes or are "
+		"not aligned to each other. Besides different resampling methods, the tool "
+		"provides several options on how to handle overlapping areas. It is also "
+		"possible to apply a histogram matching.\n\n"
+		"In order to be able to also merge a large amount of grids, which, for "
+		"example, would exceed the maximum command line length, the tools has "
+		"the option to provide a file list as input (instead of using the input "
+		"grid list). This is a text file with the full path to an input grid "
+		"on each line. Please note the limitiations: (i) the target grid system "
+		"is set automatically in this case (the extent is calculated from all "
+		"inputs and the cell size is set to the smallest one detected) and (ii) "
+		"the input grids must still fit into memory, i.e. are all loaded at once.\n\n"
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_FilePath("",
+		"INPUT_FILE_LIST"	, _TL("Input File List"),
+		_TL("A text file with the full path to an input grid on each line"),
+		CSG_String::Format(SG_T("%s|%s|%s|%s"),
+			_TL("Text Files")	, SG_T("*.txt"),
+            _TL("All Files")	, SG_T("*.*")
+        ), NULL, false, false, false
 	);
 
 	Add_Parameters(Parameters);
@@ -307,11 +328,29 @@ bool CGrid_Merge::Initialize(void)
 
 	if( m_pGrids->Get_Grid_Count() < 1 )
 	{
-		Error_Set(_TL("nothing to do, input list is empty."));
+		SG_UI_Msg_Add(_TL("input grid list is empty, trying to open input file list."), true);
 
-		return( false );
+		CSG_Table	*pTable = new CSG_Table();
+
+		if( !pTable->Create(Parameters("INPUT_FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
+		{
+			SG_UI_Msg_Add_Error(_TL("input file list could not be opened or is empty!"));
+			delete( pTable );
+			return( false );
+		}
+
+		for(int i=0; i<pTable->Get_Record_Count(); i++)
+		{
+			CSG_Grid *pGrid = SG_Create_Grid(pTable->Get_Record(i)->asString(0));
+
+			m_pGrids->Add_Item(pGrid);
+		}
+
+		delete( pTable );
+
+		Set_Target(&Parameters, m_pGrids, m_Grid_Target);
 	}
-
+	
 	//-----------------------------------------------------
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
