@@ -96,6 +96,8 @@ protected:
 
 private:
 
+	bool						m_bFileList;
+
 	int							m_Overlap;
 
 	double						m_dBlend;

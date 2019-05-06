@@ -309,6 +309,17 @@ bool CGrid_Merge::On_Execute(void)
 	m_Weight .Destroy();
 	m_Weights.Destroy();
 
+	if( m_bFileList )
+	{
+		for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
+		{
+			delete( m_pGrids->Get_Grid(i) );
+		}
+
+		m_pGrids->Del_Items();
+	}
+
+
 	return( true );
 }
 
@@ -322,6 +333,7 @@ bool CGrid_Merge::Initialize(void)
 {
 	//-----------------------------------------------------
 	m_pMosaic	= NULL;
+	m_bFileList	= false;
 	m_Overlap	= Parameters("OVERLAP"   )->asInt();
 	m_pGrids	= Parameters("GRIDS"     )->asGridList();
 	m_dBlend	= Parameters("BLEND_DIST")->asDouble();
@@ -349,6 +361,8 @@ bool CGrid_Merge::Initialize(void)
 		delete( pTable );
 
 		Set_Target(&Parameters, m_pGrids, m_Grid_Target);
+
+		m_bFileList = true;
 	}
 	
 	//-----------------------------------------------------
