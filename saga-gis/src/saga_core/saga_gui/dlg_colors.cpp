@@ -74,11 +74,11 @@ class CColorPresets : public wxOwnerDrawnComboBox
 public:
 	CColorPresets(wxWindow *pParent)
 	{
-		wxArrayString	Items;
+		wxArrayString	Items;	CSG_Colors	Colors;
 
-		for(int i=0; i<SG_COLORS_COUNT; i++)
+		for(int i=0; Colors.Set_Predefined(i); i++)
 		{
-			Items.Add(SG_Colors_Get_Name(i).c_str());
+			Items.Add(CSG_Colors::Get_Predefined_Name(i));
 		}
 
 		Create(pParent, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, Items, wxCB_READONLY); //wxNO_BORDER|wxCB_READONLY);
@@ -100,7 +100,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual void OnDrawItem(wxDC &dc, const wxRect &rect, int item, int flags) const // wxOVERRIDE
+	virtual void OnDrawItem(wxDC &dc, const wxRect &rect, int item, int flags) const
 	{
 		if( item != wxNOT_FOUND )
 		{
@@ -111,7 +111,7 @@ public:
 	}
 
 	//-----------------------------------------------------
-	virtual void OnDrawBackground( wxDC& dc, const wxRect &rect, int item, int flags ) const wxOVERRIDE
+	virtual void OnDrawBackground( wxDC& dc, const wxRect &rect, int item, int flags ) const
 	{
 		if( (flags & (wxODCB_PAINTING_CONTROL|wxODCB_PAINTING_SELECTED)) )
 		{
@@ -128,12 +128,12 @@ public:
 		dc.DrawRectangle(rect);
 	}
 
-	virtual wxCoord OnMeasureItem(size_t WXUNUSED(item)) const wxOVERRIDE
+	virtual wxCoord OnMeasureItem(size_t WXUNUSED(item)) const
 	{
 		return( (wxCoord)( 0.8 * GetSize().GetHeight()) );
 	}
 
-	virtual wxCoord OnMeasureItemWidth(size_t WXUNUSED(item)) const wxOVERRIDE
+	virtual wxCoord OnMeasureItemWidth(size_t WXUNUSED(item)) const
 	{
 		return( (wxCoord)(10.0 * GetSize().GetWidth ()) ); // return( -1 ); // will be measured from text width
 	}
@@ -151,16 +151,16 @@ IMPLEMENT_CLASS(CDLG_Colors, CDLG_Base)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CDLG_Colors, CDLG_Base)
-	EVT_BUTTON			(ID_BTN_LOAD            , CDLG_Colors::On_Load     )
-	EVT_BUTTON			(ID_BTN_SAVE            , CDLG_Colors::On_Save     )
-	EVT_BUTTON			(ID_BTN_COLORS_COUNT    , CDLG_Colors::On_Count    )
-	EVT_BUTTON			(ID_BTN_COLORS_MIRROR   , CDLG_Colors::On_Mirror   )
-	EVT_BUTTON			(ID_BTN_COLORS_INVERT   , CDLG_Colors::On_Invert   )
-	EVT_BUTTON			(ID_BTN_COLORS_GREYSCALE, CDLG_Colors::On_Greyscale)
-	EVT_BUTTON			(ID_BTN_COLORS_RANDOM   , CDLG_Colors::On_Random   )
-	EVT_BUTTON			(ID_BTN_COLORS_PRESET   , CDLG_Colors::On_Preset   )
+	EVT_BUTTON(ID_BTN_LOAD            , CDLG_Colors::On_Load     )
+	EVT_BUTTON(ID_BTN_SAVE            , CDLG_Colors::On_Save     )
+	EVT_BUTTON(ID_BTN_COLORS_COUNT    , CDLG_Colors::On_Count    )
+	EVT_BUTTON(ID_BTN_COLORS_MIRROR   , CDLG_Colors::On_Mirror   )
+	EVT_BUTTON(ID_BTN_COLORS_INVERT   , CDLG_Colors::On_Invert   )
+	EVT_BUTTON(ID_BTN_COLORS_GREYSCALE, CDLG_Colors::On_Greyscale)
+	EVT_BUTTON(ID_BTN_COLORS_RANDOM   , CDLG_Colors::On_Random   )
+	EVT_BUTTON(ID_BTN_COLORS_PRESET   , CDLG_Colors::On_Preset   )
 
-	EVT_COMBOBOX		(wxID_ANY               , CDLG_Colors::On_ComboBox )
+	EVT_COMBOBOX(wxID_ANY             , CDLG_Colors::On_ComboBox )
 END_EVENT_TABLE()
 
 
@@ -261,9 +261,9 @@ void CDLG_Colors::On_Save(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Colors::On_Count(wxCommandEvent &event)
 {
-	int		Count;
+	int	Count	= m_pColors->Get_Count();
 
-	if( DLG_Get_Number(Count = m_pColors->Get_Count()) )
+	if( DLG_Get_Number(Count ) )
 	{
 		m_pColors->Set_Count(Count);
 
@@ -306,7 +306,7 @@ void CDLG_Colors::On_Random(wxCommandEvent &event)
 //---------------------------------------------------------
 void CDLG_Colors::On_Preset(wxCommandEvent &event)
 {
-	int		Palette;
+	int	Palette;
 
 	if( DLG_Colors(Palette) )
 	{
@@ -320,7 +320,9 @@ void CDLG_Colors::On_Preset(wxCommandEvent &event)
 void CDLG_Colors::On_ComboBox(wxCommandEvent &event)
 {
 	if( !event.GetEventObject()->IsKindOf(CLASSINFO(wxComboCtrl)) )	// Don't show messages for the log output window (it'll crash)
+	{
 		return;
+	}
 
 	if( event.GetEventType() == wxEVT_COMBOBOX )
 	{

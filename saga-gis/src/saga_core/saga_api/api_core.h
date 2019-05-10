@@ -1246,7 +1246,7 @@ enum ESG_Colors
 //---------------------------------------------------------
 SAGA_API_DLL_EXPORT long			SG_Color_Get_Random	(void);
 
-SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Identifier);
+SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Index);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Colors
@@ -1299,8 +1299,11 @@ public:
 		);
 	}
 
+	static int						Get_Predefined_Count(void);
+	static const SG_Char *			Get_Predefined_Name	(int Identifier);
+	bool							Set_Predefined		(int Index, bool bRevert = false, int nColors = 11);
+	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11)	{	return( Set_Predefined(Index, bRevert, nColors) );	}
 	bool							Set_Default			(int nColors = 11);
-	bool							Set_Palette			(int Index, bool bRevert = false, int nColors = 11);
 	bool							Set_Ramp			(long Color_A, long Color_B);
 	bool							Set_Ramp			(long Color_A, long Color_B, int iColor_A, int iColor_B);
 	bool							Set_Ramp_Brighness	(int Brightness_A, int Brightness_B);
