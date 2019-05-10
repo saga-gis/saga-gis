@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Merge.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGrid_Merge::CGrid_Merge(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Mosaicking"));
 
 	Set_Author		("O.Conrad (c) 2003-17");
@@ -103,9 +90,9 @@ CGrid_Merge::CGrid_Merge(void)
 	Parameters.Add_FilePath("",
 		"INPUT_FILE_LIST"	, _TL("Input File List"),
 		_TL("A text file with the full path to an input grid on each line"),
-		CSG_String::Format(SG_T("%s|%s|%s|%s"),
-			_TL("Text Files")	, SG_T("*.txt"),
-            _TL("All Files")	, SG_T("*.*")
+		CSG_String::Format("%s|*.txt|%s|*.*",
+			_TL("Text Files"),
+            _TL("All Files")
         ), NULL, false, false, false
 	);
 
@@ -127,7 +114,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("1 bit"),
 			_TL("1 byte unsigned integer"),
 			_TL("1 byte signed integer"),
@@ -144,7 +131,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Choice("",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -155,7 +142,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Choice("",
 		"OVERLAP"	, _TL("Overlapping Areas"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
 			_TL("first"),
 			_TL("last"),
 			_TL("minimum"),
@@ -175,7 +162,7 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Choice("",
 		"MATCH"		, _TL("Match"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("match histogram of first grid in list"),
 			_TL("match histogram of overlapping area"),
@@ -313,12 +300,11 @@ bool CGrid_Merge::On_Execute(void)
 	{
 		for(int i=0; i<m_pGrids->Get_Grid_Count(); i++)
 		{
-			delete( m_pGrids->Get_Grid(i) );
+			delete(m_pGrids->Get_Grid(i));
 		}
 
 		m_pGrids->Del_Items();
 	}
-
 
 	return( true );
 }
@@ -331,38 +317,38 @@ bool CGrid_Merge::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Merge::Initialize(void)
 {
-	//-----------------------------------------------------
 	m_pMosaic	= NULL;
-	m_bFileList	= false;
+
 	m_Overlap	= Parameters("OVERLAP"   )->asInt();
 	m_pGrids	= Parameters("GRIDS"     )->asGridList();
 	m_dBlend	= Parameters("BLEND_DIST")->asDouble();
 
+	//-----------------------------------------------------
 	if( m_pGrids->Get_Grid_Count() < 1 )
 	{
 		SG_UI_Msg_Add(_TL("input grid list is empty, trying to open input file list."), true);
 
-		CSG_Table	*pTable = new CSG_Table();
+		CSG_Table	Table;
 
-		if( !pTable->Create(Parameters("INPUT_FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
+		if( !Table.Create(Parameters("INPUT_FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
 		{
-			SG_UI_Msg_Add_Error(_TL("input file list could not be opened or is empty!"));
-			delete( pTable );
+			Error_Set(_TL("input file list could not be opened or is empty!"));
+
 			return( false );
 		}
 
-		for(int i=0; i<pTable->Get_Record_Count(); i++)
+		for(int i=0; i<Table.Get_Count(); i++)
 		{
-			CSG_Grid *pGrid = SG_Create_Grid(pTable->Get_Record(i)->asString(0));
-
-			m_pGrids->Add_Item(pGrid);
+			m_pGrids->Add_Item(SG_Create_Grid(Table[i].asString(0)));
 		}
-
-		delete( pTable );
 
 		Set_Target(&Parameters, m_pGrids, m_Grid_Target);
 
-		m_bFileList = true;
+		m_bFileList	= true;
+	}
+	else
+	{
+		m_bFileList	= false;
 	}
 	
 	//-----------------------------------------------------
@@ -839,7 +825,6 @@ void CGrid_Merge::Get_Match(CSG_Grid *pGrid)
 //---------------------------------------------------------
 CGrids_Merge::CGrids_Merge(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Mosaicking (Grid Collections)"));
 
 	Set_Author		("O.Conrad (c) 2017");
@@ -863,7 +848,7 @@ CGrids_Merge::CGrids_Merge(void)
 	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
-	m_Grid_Target.Add_Grid("MOSAIC", _TL("Mosaic"), false, true);
+	m_Grid_Target.Add_Grids("MOSAIC", _TL("Mosaic"), false);
 }
 
 

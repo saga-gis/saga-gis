@@ -1545,26 +1545,29 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_Grid_Target
 public:
 	CSG_Parameters_Grid_Target(void);
 
-	bool						Create					(CSG_Parameters *pParameters, bool bAddDefaultGrid       , CSG_Parameter   *pParent       , const CSG_String &Prefix = "");
-	bool						Create					(CSG_Parameters *pParameters, bool bAddDefaultGrid = true, const CSG_String &ParentID = "", const CSG_String &Prefix = "");
+	bool						Create						(CSG_Parameters *pParameters, bool bAddDefaultGrid       , CSG_Parameter   *pParent       , const CSG_String &Prefix = "");
+	bool						Create						(CSG_Parameters *pParameters, bool bAddDefaultGrid = true, const CSG_String &ParentID = "", const CSG_String &Prefix = "");
 
-	bool						Add_Grid				(const CSG_String &ID, const CSG_String &Name, bool bOptional, bool bGrids = false);
+	bool						Add_Grid					(const CSG_String &ID, const CSG_String &Name, bool bOptional);
+	bool						Add_Grids					(const CSG_String &ID, const CSG_String &Name, bool bOptional, bool bZLevels = false);
 
-	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						On_Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						On_Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, int Rounding = 2);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , int Rounding = 2);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny);
-	bool						Set_User_Defined		(CSG_Parameters *pParameters, const CSG_Grid_System &System);
+	bool						Set_User_Defined			(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows = 0, int Rounding = 2);
+	bool						Set_User_Defined			(CSG_Parameters *pParameters, CSG_Shapes *pPoints, int Scale = 4  , int Rounding = 2);
+	bool						Set_User_Defined			(CSG_Parameters *pParameters, double xMin, double yMin, double Size, int nx, int ny);
+	bool						Set_User_Defined			(CSG_Parameters *pParameters, const CSG_Grid_System &System);
 
-	CSG_Grid_System				Get_System				(void);
+	bool						Set_User_Defined_ZLevels	(CSG_Parameters *pParameters, double zMin, double zMax, int nLevels, int Rounding = 2);
 
-	CSG_Grid *					Get_Grid				(const CSG_String &ID, TSG_Data_Type Type = SG_DATATYPE_Float);
-	CSG_Grid *					Get_Grid				(                      TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid_System				Get_System					(void);
 
-	CSG_Grids *					Get_Grids				(const CSG_String &ID, TSG_Data_Type Type = SG_DATATYPE_Float);
-	CSG_Grids *					Get_Grids				(                      TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_Grid					(const CSG_String &ID, TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grid *					Get_Grid					(                      TSG_Data_Type Type = SG_DATATYPE_Float);
+
+	CSG_Grids *					Get_Grids					(const CSG_String &ID, TSG_Data_Type Type = SG_DATATYPE_Float);
+	CSG_Grids *					Get_Grids					(                      TSG_Data_Type Type = SG_DATATYPE_Float);
 
 
 private:
