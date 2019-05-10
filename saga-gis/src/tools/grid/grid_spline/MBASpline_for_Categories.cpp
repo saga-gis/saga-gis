@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: MBASpline_for_Categories.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "MBASpline_for_Categories.h"
 
 
@@ -70,28 +58,38 @@
 //---------------------------------------------------------
 CMBASpline_for_Categories::CMBASpline_for_Categories(void)
 {
-	Set_Name		(_TL("Multilevel B-Spline Interpolation for Categories"));
+	Set_Name		(_TL("Multilevel B-Spline for Categories"));
 
 	Set_Author		("O.Conrad (c) 2015");
 
 	Set_Description	(_TW(
-		""
+		"The 'Multilevel B-Spline for Categories' tool is comparable to "
+		"indicator Kriging except that uses the Multilevel B-spline "
+		"algorithm for interpolation. "
 	));
 
+	Add_Reference(
+		"Lee, S., Wolberg, G., Shin, S.Y.", "1997",
+		"Scattered Data Interpolation with Multilevel B-Splines",
+		"IEEE Transactions On Visualisation And Computer Graphics, Vol.3, No.3., p.228-244.",
+		SG_T("https://www.researchgate.net/profile/George_Wolberg/publication/3410822_Scattered_Data_Interpolation_with_Multilevel_B-Splines/links/00b49518719ac9f08a000000/Scattered-Data-Interpolation-with-Multilevel-B-Splines.pdf"),
+		SG_T("ResearchGate")
+	);
+
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"	, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS", _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD" , _TL("Attribute"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("CATEGORIES" , _TL("Categories" ), false);
 	m_Grid_Target.Add_Grid("PROPABILITY", _TL("Propability"), false);

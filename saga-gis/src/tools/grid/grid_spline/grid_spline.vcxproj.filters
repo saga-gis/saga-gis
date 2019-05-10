@@ -44,11 +44,11 @@
     <ClCompile Include="MBASpline_for_Categories.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Gridding_Spline_MBA_3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -125,6 +125,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MBASpline_for_Categories.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gridding_Spline_MBA_3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

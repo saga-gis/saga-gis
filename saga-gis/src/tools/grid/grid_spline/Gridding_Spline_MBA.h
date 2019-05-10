@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Gridding_Spline_MBA_H
 #define HEADER_INCLUDED__Gridding_Spline_MBA_H
 
@@ -81,7 +69,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_spline_EXPORT CGridding_Spline_MBA : public CGridding_Spline_Base
+class CGridding_Spline_MBA : public CGridding_Spline_Base
 {
 public:
 	CGridding_Spline_MBA(void);
@@ -89,31 +77,29 @@ public:
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool					m_bUpdate;
-
-	int						m_Level_Max;
-
-	double					m_Epsilon, m_Resolution;
+	double					m_Epsilon;
 
 	CSG_Points_Z			m_Points;
 
 
-	bool					_Set_MBA			(double dCell);
-	bool					_Set_MBA_Refinement	(double dCell);
-	bool					_Set_MBA_Refinement	(CSG_Grid *Psi, CSG_Grid *Phi);
+	bool					_Set_MBA				(double dCell);
 
-	bool					_Get_Phi			(CSG_Grid &Phi, double dCell, int nCells);
-	bool					_Get_Difference		(CSG_Grid &Phi);
+	bool					_Set_MBA_Refinement		(double dCell);
+	bool					_Set_MBA_Refinement		(const CSG_Grid &Psi_0, CSG_Grid &Phi_1);
 
-	void					BA_Set_Grid			(CSG_Grid &Phi, bool bAdd = false);
-	double					BA_Get_Value		(double x, double y, CSG_Grid &Phi);
-	bool					BA_Get_Phi			(CSG_Grid &Phi);
-	double					BA_Get_B			(int i, double d);
+	bool					_Get_Difference			(const CSG_Grid &Phi, int Level);
+
+	double					BA_Get_B				(int i, double d)	const;
+	bool					BA_Set_Phi				(CSG_Grid &Phi, double Cellsize);
+	double					BA_Get_Phi				(const CSG_Grid &Phi, double x, double y)	const;
+	void					BA_Set_Grid				(const CSG_Grid &Phi, bool bAdd = false);
 
 };
 

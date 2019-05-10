@@ -16,6 +16,7 @@ Gridding_Spline_BA.cpp\
 Gridding_Spline_Base.cpp\
 Gridding_Spline_CSA.cpp\
 Gridding_Spline_MBA.cpp\
+Gridding_Spline_MBA_3D.cpp\
 Gridding_Spline_MBA_Grid.cpp\
 Gridding_Spline_TPS_Local.cpp\
 Gridding_Spline_TPS_TIN.cpp\
@@ -24,13 +25,13 @@ MLB_Interface.cpp\
 csa.h\
 Gridding_Spline_BA.h\
 Gridding_Spline_Base.h\
-Gridding_Spline_MBA.h\
 Gridding_Spline_CSA.h\
+Gridding_Spline_MBA.h\
+Gridding_Spline_MBA_3D.h\
 Gridding_Spline_MBA_Grid.h\
 Gridding_Spline_TPS_Local.h\
 Gridding_Spline_TPS_TIN.h\
-MBASpline_for_Categories.h\
-MLB_Interface.h
+MBASpline_for_Categories.h
 
 libgrid_spline_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 

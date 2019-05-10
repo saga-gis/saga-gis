@@ -306,6 +306,7 @@
     <ClCompile Include="Gridding_Spline_Base.cpp" />
     <ClCompile Include="Gridding_Spline_CSA.cpp" />
     <ClCompile Include="Gridding_Spline_MBA.cpp" />
+    <ClCompile Include="Gridding_Spline_MBA_3D.cpp" />
     <ClCompile Include="Gridding_Spline_MBA_Grid.cpp" />
     <ClCompile Include="Gridding_Spline_TPS_Local.cpp" />
     <ClCompile Include="Gridding_Spline_TPS_TIN.cpp" />
@@ -333,11 +334,11 @@
     <ClInclude Include="Gridding_Spline_Base.h" />
     <ClInclude Include="Gridding_Spline_CSA.h" />
     <ClInclude Include="Gridding_Spline_MBA.h" />
+    <ClInclude Include="Gridding_Spline_MBA_3D.h" />
     <ClInclude Include="Gridding_Spline_MBA_Grid.h" />
     <ClInclude Include="Gridding_Spline_TPS_Local.h" />
     <ClInclude Include="Gridding_Spline_TPS_TIN.h" />
     <ClInclude Include="MBASpline_for_Categories.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />

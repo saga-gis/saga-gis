@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -13,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                Gridding_Spline_MBA_3D.h               //
 //                                                       //
-//                 Copyright (C) 2006 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,33 +40,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__grid_spline_H
-#define HEADER_INCLUDED__grid_spline_H
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-//---------------------------------------------------------
-#ifdef grid_spline_EXPORTS
-	#define	grid_spline_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	grid_spline_EXPORT	_SAGA_DLL_IMPORT
-#endif
+#ifndef HEADER_INCLUDED__Gridding_Spline_MBA_3D_H
+#define HEADER_INCLUDED__Gridding_Spline_MBA_3D_H
 
 
 ///////////////////////////////////////////////////////////
@@ -79,4 +57,62 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__grid_spline_H
+#include "Gridding_Spline_Base.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGridding_Spline_MBA_3D : public CSG_Tool
+{
+public:
+	CGridding_Spline_MBA_3D(void);
+
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid Collection|Interpolation") );	}
+
+
+protected:
+
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	double						m_Epsilon, m_zCellsize;
+
+	CSG_Matrix					m_Points;
+
+	CSG_Grids					*m_pGrids;
+
+	CSG_Parameters_Grid_Target	m_Grid_Target;
+
+
+	bool						Initialize				(void);
+
+	bool						_Set_MBA				(double dCell);
+
+	bool						_Get_Difference			(const CSG_Grids &Phi, int Level);
+
+	double						BA_Get_B				(int i, double d)	const;
+	bool						BA_Set_Phi				(CSG_Grids &Phi, double Cellsize);
+	double						BA_Get_Phi				(const CSG_Grids &Phi, double x, double y, double z)	const;
+	void						BA_Set_Grids			(const CSG_Grids &Phi, bool bAdd = false);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__Gridding_Spline_MBA_3D_H

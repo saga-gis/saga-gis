@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -62,7 +59,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -104,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "Gridding_Spline_BA.h"
 #include "Gridding_Spline_MBA.h"
 #include "Gridding_Spline_MBA_Grid.h"
+#include "Gridding_Spline_MBA_3D.h"
 #include "Gridding_Spline_CSA.h"
 
 #include "MBASpline_for_Categories.h"
@@ -121,6 +119,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 3:		return( new CGridding_Spline_BA );
 	case 4:		return( new CGridding_Spline_MBA );
 	case 5:		return( new CGridding_Spline_MBA_Grid );
+	case 8:		return( new CGridding_Spline_MBA_3D );
 	case 6:		return( new CGridding_Spline_CSA );
 
 	case 7:		return( new CMBASpline_for_Categories );

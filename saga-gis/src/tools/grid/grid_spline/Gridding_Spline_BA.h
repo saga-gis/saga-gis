@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Gridding_Spline_BA_H
 #define HEADER_INCLUDED__Gridding_Spline_BA_H
 
@@ -81,11 +69,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class grid_spline_EXPORT CGridding_Spline_BA : public CGridding_Spline_Base
+class CGridding_Spline_BA : public CGridding_Spline_Base
 {
 public:
 	CGridding_Spline_BA(void);
-	virtual ~CGridding_Spline_BA(void);
 
 
 protected:
@@ -98,10 +85,10 @@ private:
 	CSG_Points_Z			m_Points;
 
 
-	void					BA_Set_Grid		(CSG_Grid &Phi, bool bAdd = false);
-	double					BA_Get_Value	(double x, double y, CSG_Grid &Phi);
-	bool					BA_Get_Phi		(CSG_Grid &Phi);
-	double					BA_Get_B		(int i, double d);
+	double					BA_Get_B		(int i, double d)	const;
+	bool					BA_Set_Phi		(CSG_Grid &Phi, double Cellsize);
+	double					BA_Get_Phi		(const CSG_Grid &Phi, double px, double py)	const;
+	void					BA_Set_Grid		(const CSG_Grid &Phi, bool bAdd = false);
 
 };
 

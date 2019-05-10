@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -90,7 +87,7 @@ CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 	//-----------------------------------------------------
 	Set_Name		(_TL("Cubic Spline Approximation"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"This tool approximates irregular scalar 2D data in specified points using "
@@ -121,49 +118,41 @@ CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 		"\n"
  		"Purpose:        2D data approximation with bivariate C1 cubic spline."
  		"                A set of library functions + standalone utility.\n"
- 		"\n"
- 		"Description:    See J. Haber, F. Zeilfelder, O.Davydov and H.-P. Seidel,"
- 		"                Smooth approximation and rendering of large scattered data"
- 		"                sets, in 'Proceedings of IEEE Visualization 2001'"
- 		"                (Th.Ertl, K.Joy and A.Varshney, Eds.), pp.341-347, 571,"
- 		"                IEEE Computer Society, 2001.\n"
- 		"<a target=\"_blank\" href=\"http://www.uni-giessen.de/www-Numerische-Mathematik/davydov/VIS2001.ps.gz\">"
-		"www.uni-giessen.de/www-Numerische-Mathematik/davydov/VIS2001.ps.gz</a>\n"
-
- 		"<a target=\"_blank\" href=\"http://www.math.uni-mannheim.de/~lsmath4/paper/VIS2001.pdf.gz\">"
-		"www.math.uni-mannheim.de/~lsmath4/paper/VIS2001.pdf.gz</a>\n"
 	));
 
+	Add_Reference("Haber, J., Zeilfelder, F., Davydov, O., Seidel, H.-P.", "2001",
+ 		"Smooth approximation and rendering of large scattered data sets",
+		"In Ertl, T., Joy, K., Varshney, A. [Eds.]: Proceedings of IEEE Visualization. pp.341-347, 571, IEEE Computer Society."
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NPMIN"		, _TL("Minimal Number of Points"),
+	Parameters.Add_Int(
+		"", "NPMIN"	, _TL("Minimal Number of Points"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 3, 0, true
+		3, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NPMAX"		, _TL("Maximal Number of Points"),
+	Parameters.Add_Int(
+		"", "NPMAX"	, _TL("Maximal Number of Points"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 20, 11, true, 59, true
+		20, 11, true, 59, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NPPC"		, _TL("Points per Square"),
+	Parameters.Add_Double(
+		"", "NPPC"	, _TL("Points per Square"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5, 1, true
+		5, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "K"			, _TL("Tolerance"),
+	Parameters.Add_Int(
+		"", "K"		, _TL("Tolerance"),
 		_TL("Spline sensitivity, reduce to get smoother results, recommended: 80 < Tolerance < 200"),
-		PARAMETER_TYPE_Int		, 140, 0, true
+		140, 0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -177,8 +166,9 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int			i, x, y;
-	TSG_Point	p;
+	int			y;
+	CSG_Array	Array;
+	point		*Points;
 
 	csa			*pCSA	= csa_create();
 
@@ -188,50 +178,78 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	csa_setnppc	(pCSA, Parameters("NPPC" )->asDouble());
 
 	//-----------------------------------------------------
-	point	*pSrc	= (point *)SG_Malloc(m_Points.Get_Count() * sizeof(point));
-
-	for(i=0; i<m_Points.Get_Count() && Set_Progress(i, m_Points.Get_Count()); i++)
+	if( !Array.Create(sizeof(point), m_Points.Get_Count()) )
 	{
-		pSrc[i].x	= m_Points[i].x;
-		pSrc[i].y	= m_Points[i].y;
-		pSrc[i].z	= m_Points[i].z;
+		Error_Set(_TL("failed to allocate memory for input points"));
+
+		return( false );
 	}
 
-	csa_addpoints(pCSA, m_Points.Get_Count(), pSrc);
+	Points	= (point *)Array.Get_Array();
+
+	#pragma omp parallel for
+	for(int i=0; i<m_Points.Get_Count(); i++)
+	{
+		Points[i].x	= m_Points[i].x;
+		Points[i].y	= m_Points[i].y;
+		Points[i].z	= m_Points[i].z;
+	}
 
 	m_Points.Clear();
 
-	//-----------------------------------------------------
-	point	*pDst	= (point *)SG_Malloc(m_pGrid->Get_NCells() * sizeof(point));
+	csa_addpoints(pCSA, (int)Array.Get_Size(), Points);
 
-	for(y=0, i=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+	//-----------------------------------------------------
+	Process_Set_Text(_TL("calculating splines..."));
+
+	csa_calculatespline(pCSA);
+
+	//-----------------------------------------------------
+	if( !Array.Create(sizeof(point), m_pGrid->Get_NCells()) )
 	{
-		for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize(), i++)
+		Error_Set(_TL("failed to allocate memory for output points"));
+
+		return( false );
+	}
+
+	Points	= (point *)Array.Get_Array();
+
+	#pragma omp parallel for private(y)
+	for(y=0; y<m_pGrid->Get_NY(); y++)
+	{
+		int	i	= y * m_pGrid->Get_NX();
+		double	py	= m_pGrid->Get_YMin() + y * m_pGrid->Get_Cellsize();
+		double	px	= m_pGrid->Get_XMin();
+
+		for(int x=0; x<m_pGrid->Get_NX(); x++, px+=m_pGrid->Get_Cellsize(), i++)
 		{
-			pDst[i].x	= p.x;
-			pDst[i].y	= p.y;
+			Points[i].x	= px;
+			Points[i].y	= py;
 		}
 	}
 
 	//-----------------------------------------------------
-	Process_Set_Text(_TL("calculating splines..."));
-	csa_calculatespline		(pCSA);
-
 	Process_Set_Text(_TL("approximating points..."));
-	csa_approximate_points	(pCSA, m_pGrid->Get_NCells(), pDst);
+
+	csa_approximate_points(pCSA, m_pGrid->Get_NCells(), Points);
 
 	//-----------------------------------------------------
-	for(y=0, i=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+	#pragma omp parallel for private(y)
+	for(y=0; y<m_pGrid->Get_NY(); y++)
 	{
-		for(x=0; x<m_pGrid->Get_NX(); x++, i++)
+		int	i	= y * m_pGrid->Get_NX();
+
+		for(int x=0; x<m_pGrid->Get_NX(); x++, i++)
 		{
-			if( isnan(pDst[i].z) )
+			double	z	= Points[i].z;
+
+			if( isnan(z) )
 			{
 				m_pGrid->Set_NoData(x, y);
 			}
 			else
 			{
-				m_pGrid->Set_Value(x, y, pDst[i].z);
+				m_pGrid->Set_Value(x, y, z);
 			}
 		}
 	}
@@ -239,10 +257,6 @@ bool CGridding_Spline_CSA::On_Execute(void)
 	//-----------------------------------------------------
 	csa_destroy(pCSA);
 
-	SG_Free(pSrc);
-	SG_Free(pDst);
-
-	//-----------------------------------------------------
 	return( true );
 }
 
