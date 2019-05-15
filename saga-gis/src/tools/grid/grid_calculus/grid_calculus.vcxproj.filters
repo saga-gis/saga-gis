@@ -68,6 +68,9 @@
     <ClCompile Include="..\grid_filter\geodesic_morph_rec\storeorg.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="grid_histogram_match.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -173,6 +176,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\grid_filter\geodesic_morph_rec\storeorg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_histogram_match.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

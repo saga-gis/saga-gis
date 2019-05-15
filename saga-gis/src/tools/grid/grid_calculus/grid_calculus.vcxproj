@@ -311,6 +311,7 @@
     <ClCompile Include="Grid_Calculator.cpp" />
     <ClCompile Include="grid_difference.cpp" />
     <ClCompile Include="Grid_Geometric_Figures.cpp" />
+    <ClCompile Include="grid_histogram_match.cpp" />
     <ClCompile Include="grid_metric_conversion.cpp" />
     <ClCompile Include="Grid_Normalise.cpp" />
     <ClCompile Include="Grid_Plotter.cpp" />
@@ -347,6 +348,7 @@
     <ClInclude Include="Grid_Calculator.h" />
     <ClInclude Include="grid_difference.h" />
     <ClInclude Include="Grid_Geometric_Figures.h" />
+    <ClInclude Include="grid_histogram_match.h" />
     <ClInclude Include="grid_metric_conversion.h" />
     <ClInclude Include="Grid_Normalise.h" />
     <ClInclude Include="Grid_Plotter.h" />

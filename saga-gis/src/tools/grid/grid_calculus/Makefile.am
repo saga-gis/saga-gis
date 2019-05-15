@@ -22,6 +22,7 @@ grid_metric_conversion.cpp\
 Grid_Calculator.cpp\
 grid_difference.cpp\
 Grid_Geometric_Figures.cpp\
+grid_histogram_match.cpp\
 Grid_Normalise.cpp\
 Grid_Plotter.cpp\
 Grid_Random_Field.cpp\
@@ -41,6 +42,7 @@ grid_metric_conversion.h\
 Grid_Calculator.h\
 grid_difference.h\
 Grid_Geometric_Figures.h\
+grid_histogram_match.h\
 Grid_Normalise.h\
 Grid_Plotter.h\
 Grid_Random_Field.h\

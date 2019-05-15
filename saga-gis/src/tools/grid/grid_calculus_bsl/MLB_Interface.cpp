@@ -32,7 +32,7 @@ CSG_String Get_Info(int i)
 		return( SG_T("1.0") );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("Grid|Calculus") );
+		return( _TL("Grid|Calculus|BSL") );
 	}
 }
 
