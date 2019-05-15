@@ -1194,14 +1194,14 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	);
 
 	//-----------------------------------------------------
-	m_pParameters->Add_Double    (TargetID, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), 1.0, 0.0, true);
-	m_pParameters->Add_Double    (TargetID, m_Prefix + "USER_XMIN", _TL("Left"    ), _TL(""),   0.0);
-	m_pParameters->Add_Double    (TargetID, m_Prefix + "USER_XMAX", _TL("Right"   ), _TL(""), 100.0);
-	m_pParameters->Add_Double    (TargetID, m_Prefix + "USER_YMIN", _TL("Bottom"  ), _TL(""),   0.0);
-	m_pParameters->Add_Double    (TargetID, m_Prefix + "USER_YMAX", _TL("Top"     ), _TL(""), 100.0);
-	m_pParameters->Add_Info_Value(TargetID, m_Prefix + "USER_COLS", _TL("Columns" ), _TL(""), PARAMETER_TYPE_Int, 100);
-	m_pParameters->Add_Info_Value(TargetID, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL(""), PARAMETER_TYPE_Int, 100);
-	m_pParameters->Add_Choice    (TargetID, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
+	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_SIZE", _TL("Cellsize"), _TL(""), 1.0, 0.0, true);
+	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_XMIN", _TL("West"    ), _TL(""),   0.0);
+	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_XMAX", _TL("East"    ), _TL(""), 100.0);
+	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_YMIN", _TL("South"   ), _TL(""),   0.0);
+	m_pParameters->Add_Double(TargetID, m_Prefix + "USER_YMAX", _TL("North"   ), _TL(""), 100.0);
+	m_pParameters->Add_Int   (TargetID, m_Prefix + "USER_COLS", _TL("Columns" ), _TL("Number of cells in East-West direction."  ), 100, 1, true);
+	m_pParameters->Add_Int   (TargetID, m_Prefix + "USER_ROWS", _TL("Rows"    ), _TL("Number of cells in North-South direction."), 100, 1, true);
+	m_pParameters->Add_Choice(TargetID, m_Prefix + "USER_FITS", _TL("Fit"     ), _TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("nodes"),
 			_TL("cells")
@@ -1412,21 +1412,18 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 		return( false );
 	}
 
-	pParameters->Set_Enabled(m_Prefix + "SYSTEM"    , pParameter->asInt() == 1);
+	pParameters->Set_Enabled(m_Prefix + "SYSTEM"   , pParameter->asInt() == 1);
 
-	pParameters->Set_Enabled(m_Prefix + "USER_SIZE" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_XMIN" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_XMAX" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_YMIN" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_YMAX" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ROWS" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_COLS" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_FITS" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_OPTS" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ZSIZE", pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ZMIN" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ZMAX" , pParameter->asInt() == 0);
-	pParameters->Set_Enabled(m_Prefix + "USER_ZNUM" , pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_SIZE", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_XMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_XMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_YMIN", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_YMAX", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_ROWS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_COLS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_FITS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_OPTS", pParameter->asInt() == 0);
+	pParameters->Set_Enabled(m_Prefix + "USER_Z"   , pParameter->asInt() == 0);
 
 	return( true );
 }
@@ -1597,7 +1594,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined_ZLevels(CSG_Parameters *pParam
 		return( false );
 	}
 
-	if( nLevels < 1 && (nLevels = (*m_pParameters)(m_Prefix + "USER_ROWS")->asInt()) < 1 )
+	if( nLevels < 1 )
 	{
 		nLevels	= 100;
 	}
@@ -1720,10 +1717,12 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 
 	if( bZLevels )
 	{
-		m_pParameters->Add_Double    (pTarget, m_Prefix + "USER_ZSIZE", _TL("Level Size"  ), _TL(""), 1.0, 0.0, true);
-		m_pParameters->Add_Double    (pTarget, m_Prefix + "USER_ZMIN" , _TL("Level Bottom"), _TL(""),   0.0);
-		m_pParameters->Add_Double    (pTarget, m_Prefix + "USER_ZMAX" , _TL("Level Top"   ), _TL(""), 100.0);
-		m_pParameters->Add_Info_Value(pTarget, m_Prefix + "USER_ZNUM" , _TL("Levels"      ), _TL(""), PARAMETER_TYPE_Int, 100);
+		pTarget	= m_pParameters->Add_Node(pTarget, "USER_Z", _TL("Z Levels"), _TL(""));
+
+		m_pParameters->Add_Double(pTarget, m_Prefix + "USER_ZSIZE", _TL("Cellsize"), _TL(""), 1.0, 0.0, true);
+		m_pParameters->Add_Double(pTarget, m_Prefix + "USER_ZMIN" , _TL("Bottom"  ), _TL(""),   0.0);
+		m_pParameters->Add_Double(pTarget, m_Prefix + "USER_ZMAX" , _TL("Top"     ), _TL(""), 100.0);
+		m_pParameters->Add_Int   (pTarget, m_Prefix + "USER_ZNUM" , _TL("Levels"  ), _TL(""), 100, 1, true);
 	}
 
 	return( true );
@@ -1827,6 +1826,11 @@ CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(const CSG_String &Identifier, TS
 	return( pGrid );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 CSG_Grid * CSG_Parameters_Grid_Target::Get_Grid(TSG_Data_Type Type)
 {
@@ -1878,6 +1882,23 @@ CSG_Grids * CSG_Parameters_Grid_Target::Get_Grids(const CSG_String &Identifier, 
 	if( pGrids && pGrids != pParameter->asGrids() )
 	{
 		pParameter->Set_Value(pGrids);
+	}
+
+	if( pGrids
+	&&  (*m_pParameters)(m_Prefix + "USER_ZSIZE")
+	&&  (*m_pParameters)(m_Prefix + "USER_ZMIN" )
+	&&  (*m_pParameters)(m_Prefix + "USER_ZNUM" ) )
+	{
+		int		nz	= (*m_pParameters)(m_Prefix + "USER_ZNUM" )->asInt   ();
+		double	z	= (*m_pParameters)(m_Prefix + "USER_ZMIN" )->asDouble();
+		double	dz	= (*m_pParameters)(m_Prefix + "USER_ZSIZE")->asDouble();
+
+		pGrids->Del_Grids();
+
+		for(int iz=0; iz<nz; iz++, z+=dz)
+		{
+			pGrids->Add_Grid(z);
+		}
 	}
 
 	return( pGrids );

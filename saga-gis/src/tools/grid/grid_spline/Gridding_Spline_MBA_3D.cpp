@@ -96,11 +96,11 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 		_TL("")
 	);
 
-	Parameters.Add_Double("Z_FIELD",
-		"Z_SCALE"	, _TL("Z Factor"),
-		_TL(""),
-		1., 0., true
-	);
+	//Parameters.Add_Double("Z_FIELD",
+	//	"Z_SCALE"	, _TL("Z Factor"),
+	//	_TL(""),
+	//	1., 0., true
+	//);
 
 	Parameters.Add_Table_Field("POINTS",
 		"V_FIELD"	, _TL("Value"),
@@ -110,14 +110,7 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, false, "", "TARGET_"); 
 
-	m_Grid_Target.Add_Grids("GRIDS", _TL("Grid Collection"), false);
-
-	Parameters.Add_Node("", "Z_NODE", _TL("Z Levels"), _TL(""));
-
-	Parameters.Add_Double("Z_NODE", "ZSIZE"  , _TL("Cellsize"), _TL(""), 1., 0., true);
-	Parameters.Add_Double("Z_NODE", "ZMIN"   , _TL("Minimum" ), _TL(""),   0.0);
-	Parameters.Add_Double("Z_NODE", "ZMAX"   , _TL("Maximum" ), _TL(""), 100.0);
-	Parameters.Add_Int   ("Z_NODE", "ZLEVELS", _TL("Levels"  ), _TL(""), 100, 1, true);
+	m_Grid_Target.Add_Grids("GRIDS", _TL("Grid Collection"), false, true);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double(
@@ -141,51 +134,21 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 //---------------------------------------------------------
 int CGridding_Spline_MBA_3D::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes(); int zField = (*pParameters)("Z_FIELD")->asInt();
-
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Grid_Target.Set_User_Defined(pParameters, pPoints);
+		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
 
-	if( pPoints && zField >= 0 && zField < pPoints->Get_Field_Count() )
+	if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("Z_FIELD") )
 	{
-		int	zNum	= (*pParameters)("ZLEVELS")->asInt();
+		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes(); int zField = (*pParameters)("Z_FIELD")->asInt();
 
-		if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("Z_FIELD") )
+		if( pPoints && zField >= 0 && zField < pPoints->Get_Field_Count() )
 		{
-			double	zMin	= pPoints->Get_Minimum(zField);
-			double	zMax	= pPoints->Get_Maximum(zField);
-
-			pParameters->Set_Parameter("ZMIN" , zMin);
-			pParameters->Set_Parameter("ZMAX" , zMax);
-			pParameters->Set_Parameter("ZSIZE", (zMax - zMin) / zNum);
-		}
-		else
-		{
-			double	zMin	= (*pParameters)("ZMIN" )->asDouble();
-			double	zMax	= (*pParameters)("ZMAX" )->asDouble();
-			double	zSize	= (*pParameters)("ZSIZE")->asDouble();
-
-			if( pParameter->Cmp_Identifier("ZSIZE") )
-			{
-				pParameters->Set_Parameter("ZMAX", zMin + zSize * zNum);
-			}
-
-			if( pParameter->Cmp_Identifier("ZMIN") )
-			{
-				pParameters->Set_Parameter("ZMAX", zMin + zSize * zNum);
-			}
-
-			if( pParameter->Cmp_Identifier("ZMAX") )
-			{
-				pParameters->Set_Parameter("ZMIN", zMax - zSize * zNum);
-			}
-
-			if( pParameter->Cmp_Identifier("ZLEVELS") )
-			{
-				pParameters->Set_Parameter("ZSIZE", (zMax - zMin) / zNum);
-			}
+			m_Grid_Target.Set_User_Defined_ZLevels(pParameters,
+				pPoints->Get_Minimum(zField),
+				pPoints->Get_Maximum(zField), 10
+			);
 		}
 	}
 
@@ -225,6 +188,16 @@ bool CGridding_Spline_MBA_3D::On_Execute(void)
 
 	m_Points.Destroy();
 
+	//double	zScale	= Parameters("Z_SCALE")->asDouble();
+
+	//if( zScale != 1.0 )
+	//{
+	//	for(int iz=m_pGrids->Get_NZ()-1; iz>=0; iz--)
+	//	{
+	//		m_pGrids->Set_Z(iz, m_pGrids->Get_Z(iz) / zScale);
+	//	}
+	//}
+
 	return( bResult );
 }
 
@@ -248,19 +221,24 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 	m_pGrids->Fmt_Name("%s.%s [%s]", pPoints->Get_Name(), Parameters("V_FIELD")->asString(), Get_Name().c_str());
 
-	m_pGrids->Del_Grids();
+	m_zCellsize		= Parameters("TARGET_" "USER_ZSIZE")->asDouble();
 
-	double	zScale	= Parameters("Z_SCALE")->asDouble();
-	int		zLevels	= Parameters("ZLEVELS")->asInt   ();
-//	double	zMin	= Parameters("ZMIN"   )->asDouble() * zScale;
-//	double	zMax	= Parameters("ZMAX"   )->asDouble() * zScale;
-	double	z		= Parameters("ZMIN"   )->asDouble() * zScale;
-	m_zCellsize		= Parameters("ZSIZE"  )->asDouble() * zScale;
+	//double	zScale	= Parameters("Z_SCALE")->asDouble();
 
-	for(int iz=0; iz<zLevels; iz++, z+=m_zCellsize)
-	{
-		m_pGrids->Add_Grid(z);
-	}
+	//if( zScale != 1.0 )
+	//{
+	//	if( zScale == 0.0 )
+	//	{
+	//		return( false );
+	//	}
+
+	//	m_zCellsize	*= zScale;
+
+	//	for(int iz=m_pGrids->Get_NZ()-1; iz>=0; iz--)
+	//	{
+	//		m_pGrids->Set_Z(iz, m_pGrids->Get_Z(iz) * zScale);
+	//	}
+	//}
 
 	//-----------------------------------------------------
 	m_Points.Destroy();
@@ -269,13 +247,13 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		if( m_pGrids->Get_Extent().Contains(pPoint->Get_Point(0)) )
+	//	if( m_pGrids->Get_Extent().Contains(pPoint->Get_Point(0)) )
 		{
 			CSG_Vector	p(4);
 
 			p[0]	= pPoint->Get_Point(0).x;
 			p[1]	= pPoint->Get_Point(0).y;
-			p[2]	= pPoint->asDouble(zField) * zScale;
+			p[2]	= pPoint->asDouble(zField);// * zScale;
 			p[3]	= pPoint->asDouble(vField);
 
 			m_Points.Add_Row(p);
