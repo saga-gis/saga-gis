@@ -143,7 +143,6 @@
 			<option id="MEAN"    >TRUE</option>
 			<option id="VAR"     >FALSE</option>
 			<option id="STDDEV"  >FALSE</option>
-			<option id="QUANTILE">0</option>
 			<input  id="GRIDS"   >FEATURES</input>
 			<input  id="POLYGONS">SEGMENTS</input>
 			<output id="RESULT"  >OBJECTS</output>
