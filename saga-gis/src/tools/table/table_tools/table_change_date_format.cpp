@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_change_date_format.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -221,7 +209,7 @@ bool CTable_Change_Date_Format::On_Execute(void)
 	{
 		CSG_DateTime	Date;
 
-		CSG_String	s(pTable->Get_Record(iRecord)->asString(Field));
+		CSG_String	s(pTable->Get_Record(iRecord)->asString(Field));	s.Trim_Both();
 
 		switch( fmt_In )
 		{
@@ -458,7 +446,7 @@ bool CTable_Change_Time_Format::On_Execute(void)
 	{
 		CSG_Table_Record	*pRecord	= pTable->Get_Record(iRecord);
 
-		CSG_String	sTime	= pRecord->asString(fTime);
+		CSG_String	sTime	= pRecord->asString(fTime);	sTime.Trim_Both();
 
 		double	s;
 
