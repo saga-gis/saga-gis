@@ -16,6 +16,7 @@ MLB_Interface.cpp\
 Polygon_Centroids.cpp\
 Polygon_Clip.cpp\
 polygon_flatten.cpp\
+polygon_generalization.cpp\
 Polygon_Geometrics.cpp\
 Polygon_Intersection.cpp\
 Polygon_SelfIntersection.cpp\
@@ -33,6 +34,7 @@ MLB_Interface.h\
 Polygon_Centroids.h\
 Polygon_Clip.h\
 polygon_flatten.h\
+polygon_generalization.h\
 Polygon_Geometrics.h\
 Polygon_Intersection.h\
 Polygon_SelfIntersection.h\
