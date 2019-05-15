@@ -1249,6 +1249,7 @@ void CSG_Histogram::_On_Construction(void)
 	m_Cumulative	= NULL;
 	m_Minimum		= 0.0;
 	m_Maximum		= 0.0;
+	m_ClassWidth	= 1.0;
 }
 
 //---------------------------------------------------------
@@ -1263,9 +1264,10 @@ bool CSG_Histogram::_Create(size_t nClasses, double Minimum, double Maximum)
 
 		if( m_Elements && m_Cumulative )
 		{
-			m_nClasses	= nClasses;
-			m_Minimum	= Minimum;
-			m_Maximum	= Maximum;
+			m_nClasses		= nClasses;
+			m_Minimum		= Minimum;
+			m_Maximum		= Maximum;
+			m_ClassWidth	= (Maximum - Minimum) / (double)m_nClasses;
 
 			return( true );
 		}
@@ -1283,7 +1285,7 @@ void CSG_Histogram::Add_Value(double Value)
 
 	if( m_Minimum <= Value && Value <= m_Maximum )
 	{
-		size_t	Class	= (size_t)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
+		size_t	Class	= (size_t)((Value - m_Minimum) / m_ClassWidth);
 
 		if( Class >= m_nClasses )
 		{
@@ -1331,7 +1333,7 @@ bool CSG_Histogram::Update(void)
 			}
 		}
 
-		return( m_Cumulative[m_nClasses - 1] > 0 );
+		return( Get_Element_Count() > 0 );
 	}
 
 	return( false );
@@ -1356,33 +1358,87 @@ bool CSG_Histogram::_Update(sLong nElements)
 }
 
 //---------------------------------------------------------
+/**
+  * Returns the correspondend value for the requested quantile.
+*/
 double CSG_Histogram::Get_Quantile(double Quantile)	const
 {
-	if( m_nClasses > 1 )
+	if( m_nClasses < 2 ) { return( 0. ); }
+
+	if( Quantile <= 0. ) { return( m_Minimum ); }
+	if( Quantile >= 1. ) { return( m_Maximum ); }
+
+	size_t	n = (size_t)(Quantile * Get_Element_Count());	// number of elements
+
+	for(size_t i=0, n0=0; i<m_nClasses; n0=m_Cumulative[i++])
 	{
-		if( Quantile <= 0. ) { return( m_Minimum ); }
-		if( Quantile >= 1. ) { return( m_Maximum ); }
-
-		size_t	n	= (size_t)(0.5 + Quantile * m_Cumulative[m_nClasses - 1]);	// number of elements
-
-		for(size_t i=0; i<m_nClasses-1; i++)
+		if( n < m_Cumulative[i] )
 		{
-			if( n <= m_Cumulative[i] )
+			if( m_Cumulative[i] >= n0 )
 			{
-				return( (Get_Center(i) + Get_Center(i + 1)) / 2. );
+				return( Get_Center(i) );
 			}
-		}
 
-		return( m_Maximum );
+			double	d	= (n - n0) / (double)(m_Cumulative[i] - n0);
+
+			return( Get_Break(i) + d * m_ClassWidth );
+		}
+		else if( n == m_Cumulative[i] )
+		{
+			return( Get_Break(i + 1) );
+		}
 	}
 
-	return( 0.0 );
+	return( m_Maximum );
 }
 
 //---------------------------------------------------------
-double CSG_Histogram::Get_Percentile(double Percentile)	const
+/**
+  * Returns the correspondend value for the requested percentile.
+*/
+double CSG_Histogram::Get_Percentile(double Percentile) const
 {
-	return( Get_Quantile(0.01 * Percentile) );
+	return( Get_Quantile(Percentile / 100.) );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the correspondend quantile for the requested value.
+*/
+double CSG_Histogram::Get_Quantile_Value(double Value) const
+{
+	if( m_nClasses < 2 ) { return( 0. ); }
+
+	if( Value <= m_Minimum ) { return( 0. ); }
+	if( Value >= m_Maximum ) { return( 1. ); }
+
+	size_t	Class	= (size_t)(m_nClasses * (Value - m_Minimum) / (m_Maximum - m_Minimum));
+
+	if( Class >= m_nClasses )
+	{
+		return( 1. );
+	}
+
+	if( Class < 1 )
+	{
+		double	dq	= m_Cumulative[Class] / (double)Get_Element_Count();
+
+		return( dq * (Value - m_Minimum) / m_ClassWidth );
+	}
+
+	double	q0	=  m_Cumulative[Class - 1] / (double)Get_Element_Count();
+	double	dq	= (m_Cumulative[Class    ] / (double)Get_Element_Count()) - q0;
+
+	return( q0 + dq * (Value - Get_Break(Class)) / m_ClassWidth );
+}
+
+//---------------------------------------------------------
+/**
+  * Returns the correspondend percentile for the requested value.
+*/
+double CSG_Histogram::Get_Percentile_Value(double Value) const
+{
+	return( Get_Quantile_Value(Value) * 100. );
 }
 
 
@@ -1760,7 +1816,7 @@ bool CSG_Natural_Breaks::_Calculate(int nClasses)
 		return( false );
 	}
 
-	int		nValues	= m_Histogram.Get_Class_Count() > 0 ? m_Histogram.Get_Class_Count() : m_Values.Get_N();
+	int		nValues	= m_Histogram.Get_Class_Count() > 0 ? (int)m_Histogram.Get_Class_Count() : m_Values.Get_N();
 
 	CSG_Matrix	mv(nClasses, nValues); mv.Assign(FLT_MAX);
 

@@ -871,7 +871,7 @@ public:
 	size_t			Get_Cumulative		(int    i)	const	{	return( Get_Cumulative((size_t)i) );	}
 	size_t			Get_Cumulative		(size_t i)	const	{	return( i < m_nClasses ? m_Cumulative[i] : 0 );	}
 
-	double			Get_Value			(double i)	const	{	return( m_nClasses > 0 ? m_Minimum + i * (m_Maximum - m_Minimum) / m_nClasses : m_Minimum );	}
+	double			Get_Value			(double i)	const	{	return( m_nClasses < 1 ? m_Minimum : m_Minimum + i * m_ClassWidth );	}
 
 	double			Get_Break			(int    i)	const	{	return( Get_Value((double)(i)) );	}
 	double			Get_Break			(size_t i)	const	{	return( Get_Value((double)(i)) );	}
@@ -886,7 +886,10 @@ public:
 	size_t			operator []			(size_t i)	const	{	return( Get_Elements(i) );	}
 
 	double			Get_Quantile		(double   Quantile)	const;
+	double			Get_Quantile_Value	(double      Value)	const;
+
 	double			Get_Percentile		(double Percentile)	const;
+	double			Get_Percentile_Value(double      Value)	const;
 
 	const CSG_Simple_Statistics &	Get_Statistics	(void)	const	{	return( m_Statistics );	}
 
@@ -895,7 +898,7 @@ private:
 
 	size_t					m_nClasses, m_nMaximum, *m_Elements, *m_Cumulative;
 
-	double					m_Minimum, m_Maximum;
+	double					m_Minimum, m_Maximum, m_ClassWidth;
 
 	CSG_Simple_Statistics	m_Statistics;
 

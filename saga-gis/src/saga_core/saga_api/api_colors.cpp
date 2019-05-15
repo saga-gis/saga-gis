@@ -705,12 +705,27 @@ bool CSG_Colors::Set_Predefined(int Index, bool bRevert, int nColors)
 		break;
 
 	case SG_COLORS_COUNT + 8:
+		Set_Count(6);
+		Set_Color(0, SG_GET_RGB(127, 255, 255));
+		Set_Color(1, SG_GET_RGB(  0,   0, 255));
+		Set_Color(2, SG_GET_RGB(127,   0, 255));
+		Set_Color(3, SG_GET_RGB(255,   0,   0));
+		Set_Color(4, SG_GET_RGB(255, 255,   0));
+		Set_Color(5, SG_GET_RGB(255, 255, 127));
+		break;
+
+	case SG_COLORS_COUNT + 9:
 		Set_Count(5);
 		Set_Color(0, SG_GET_RGB(  0,   0, 127));
 		Set_Color(1, SG_GET_RGB(  0, 127, 255));
 		Set_Color(2, SG_GET_RGB(  0, 191,   0));
 		Set_Color(3, SG_GET_RGB(191, 255,   0));
 		Set_Color(4, SG_GET_RGB(255, 255, 127));
+		break;
+
+	case SG_COLORS_COUNT + 10:
+		Set_Count(nColors);
+		Random();
 		break;
 
 	default:
