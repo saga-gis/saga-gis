@@ -877,6 +877,8 @@ public:
 
 	virtual TSG_Parameter_Type	Get_Type				(void)	const	{	return( PARAMETER_TYPE_Color );		}
 
+	virtual int					_Set_Value				(const CSG_String &Value);
+
 
 protected:
 

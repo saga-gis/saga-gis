@@ -1473,6 +1473,26 @@ CSG_Parameter_Color::CSG_Parameter_Color(CSG_Parameters *pOwner, CSG_Parameter *
 }
 
 //---------------------------------------------------------
+int CSG_Parameter_Color::_Set_Value(const CSG_String &Value)
+{
+	long	l;
+
+	if( SG_Color_From_Text(Value, l) )
+	{
+		return( CSG_Parameter_Int::_Set_Value(l) );
+	}
+
+	int		i;
+
+	if( Value.asInt(i) )
+	{
+		return( CSG_Parameter_Int::_Set_Value(i) );
+	}
+
+	return( SG_PARAMETER_DATA_SET_FALSE );
+}
+
+//---------------------------------------------------------
 bool CSG_Parameter_Color::_Serialize(CSG_MetaData &Entry, bool bSave)
 {
 	if( bSave )

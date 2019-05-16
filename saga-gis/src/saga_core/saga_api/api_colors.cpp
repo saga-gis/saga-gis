@@ -64,15 +64,56 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-long	SG_Color_Get_Random(void)
+CSG_String	SG_Colors_Get_Name	(int Index)
+{
+	return( CSG_Colors::Get_Predefined_Name(Index) );
+}
+
+//---------------------------------------------------------
+long		SG_Color_Get_Random	(void)
 {
 	return(	SG_GET_RGB(CSG_Random::Get_Uniform(0, 255), CSG_Random::Get_Uniform(0, 255), CSG_Random::Get_Uniform(0, 255)) );
 }
 
 //---------------------------------------------------------
-CSG_String		SG_Colors_Get_Name	(int Index)
-{
-	return( CSG_Colors::Get_Predefined_Name(Index) );
+bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
+{	// from wx/colourmng.cpp, hexadecimal prefixed with # ("HTML syntax") see https://drafts.csswg.org/css-color/#hex-notation
+
+	const char	*s	= Text.b_str();	unsigned long	c;
+
+	if( sscanf(s + 1, "%lx", &c) == 1 )
+	{
+		switch( Text.Length() - 1 )
+		{
+		case 6: // #rrggbb
+			Color	= (long)((c << 8) + 0xFF);
+			return( true );
+
+		case 8: // #rrggbbaa
+			Color	= SG_GET_RGBA(
+				(unsigned char)((c >> 24) & 0xFF),
+				(unsigned char)((c >> 16) & 0xFF),
+				(unsigned char)((c >>  8) & 0xFF),
+				(unsigned char)((c      ) & 0xFF)
+			);
+			return( true );
+
+		case 3: // #rgb
+			Color	= (long)((c << 4) + 0xF);
+			return( true );
+
+		case 4: // #rgba
+			Color	= SG_GET_RGBA(
+				(unsigned char)(((c >> 12) & 0xF) * 0x11),
+				(unsigned char)(((c >>  8) & 0xF) * 0x11),
+				(unsigned char)(((c >>  4) & 0xF) * 0x11),
+				(unsigned char)(((c      ) & 0xF) * 0x11)
+			);
+			return( true );
+		}
+	}
+
+	return( false );
 }
 
 
