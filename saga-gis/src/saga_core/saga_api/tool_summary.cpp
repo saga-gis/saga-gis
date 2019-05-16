@@ -67,39 +67,41 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define SG_XML_SYSTEM				SG_T("system")
-#define SG_XML_SYSTEM_VER			SG_T("version")
-#define SG_XML_SYSTEM_MLP			SG_T("library-path")
-#define SG_XML_LIBRARY				SG_T("library")
-#define SG_XML_LIBRARY_PATH			SG_T("path")
-#define SG_XML_LIBRARY_NAME			SG_T("name")
-#define SG_XML_LIBRARY_CATEGORY		SG_T("category")
-#define SG_XML_TOOL					SG_T("module")
-#define SG_XML_TOOL_ATT_NAME		SG_T("name")
-#define SG_XML_TOOL_ATT_ID			SG_T("id")
-#define SG_XML_TOOL_ATT_VERSION		SG_T("version")
-#define SG_XML_TOOL_ATT_AUTHOR		SG_T("author")
-#define SG_XML_SPECIFICATION		SG_T("specification")
-#define SG_XML_SPEC_ATT_GRID		SG_T("grid")
-#define SG_XML_SPEC_ATT_INTERA		SG_T("interactive")
-#define SG_XML_MENU					SG_T("menu")
-#define SG_XML_DESCRIPTION			SG_T("description")
-#define SG_XML_PARAM				SG_T("parameter")
-#define SG_XML_PARAM_ATT_NAME		SG_T("name")
-#define SG_XML_PARAM_ATT_CLASS		SG_T("class")
-#define SG_XML_PARAM_MANDATORY		SG_T("mandatory")
-#define SG_XML_PARAM_TYPE			SG_T("type")
-#define SG_XML_PARAM_IDENTIFIER		SG_T("identifier")
-#define SG_XML_PARAM_PARENT			SG_T("parent")
-#define SG_XML_PARAM_LIST			SG_T("list")
-#define SG_XML_PARAM_ITEM			SG_T("item")
-#define SG_XML_PARAM_TABLE			SG_T("table")
-#define SG_XML_PARAM_FIELD			SG_T("field")
-#define SG_XML_PARAM_FIELD_ATT_NAME	SG_T("name")
-#define SG_XML_PARAM_FIELD_ATT_TYPE	SG_T("type")
-#define SG_XML_PARAM_MIN			SG_T("min")
-#define SG_XML_PARAM_MAX			SG_T("max")
-#define SG_XML_PARAM_DEFAULT		SG_T("default")
+#define SG_XML_SYSTEM				"system"
+#define SG_XML_SYSTEM_VER			"version"
+#define SG_XML_SYSTEM_MLP			"library-path"
+#define SG_XML_LIBRARY				"library"
+#define SG_XML_LIBRARY_PATH			"path"
+#define SG_XML_LIBRARY_NAME			"name"
+#define SG_XML_LIBRARY_CATEGORY		"category"
+#define SG_XML_TOOL					"module"
+#define SG_XML_TOOL_ATT_NAME		"name"
+#define SG_XML_TOOL_ATT_ID			"id"
+#define SG_XML_TOOL_ATT_VERSION		"version"
+#define SG_XML_TOOL_ATT_AUTHOR		"author"
+#define SG_XML_SPECIFICATION		"specification"
+#define SG_XML_SPEC_ATT_GRID		"grid"
+#define SG_XML_SPEC_ATT_INTERA		"interactive"
+#define SG_XML_MENU					"menu"
+#define SG_XML_DESCRIPTION			"description"
+#define SG_XML_PARAM				"parameter"
+#define SG_XML_PARAM_ATT_NAME		"name"
+#define SG_XML_PARAM_ATT_CLASS		"class"
+#define SG_XML_PARAM_MANDATORY		"mandatory"
+#define SG_XML_PARAM_WITH_GUI		"with_gui"
+#define SG_XML_PARAM_WITH_CMD		"with_cmd"
+#define SG_XML_PARAM_TYPE			"type"
+#define SG_XML_PARAM_IDENTIFIER		"identifier"
+#define SG_XML_PARAM_PARENT			"parent"
+#define SG_XML_PARAM_LIST			"list"
+#define SG_XML_PARAM_ITEM			"item"
+#define SG_XML_PARAM_TABLE			"table"
+#define SG_XML_PARAM_FIELD			"field"
+#define SG_XML_PARAM_FIELD_ATT_NAME	"name"
+#define SG_XML_PARAM_FIELD_ATT_TYPE	"type"
+#define SG_XML_PARAM_MIN			"min"
+#define SG_XML_PARAM_MAX			"max"
+#define SG_XML_PARAM_DEFAULT		"default"
 
 //---------------------------------------------------------
 #define SG_GET_XML_TAGGED_STR(value, tag)	CSG_String::Format("<%s>%s</%s>", tag, value, tag)
@@ -137,8 +139,15 @@ void SG_XML_Add_Parameter(CSG_MetaData *pParent, CSG_Parameter *pParameter, CSG_
 	    pItem->Add_Child(SG_XML_PARAM_TYPE , pParameter->Get_Type_Name().Make_Lower());
     }
 
-	pItem->Add_Child(SG_XML_PARAM_MANDATORY, pParameter->is_Optional() ? SG_T("false") : SG_T("true"));
 	pItem->Add_Child(SG_XML_DESCRIPTION, pParameter->Get_Description());
+
+	if( !pParameter->is_Option() )
+	{
+		pItem->Add_Child(SG_XML_PARAM_MANDATORY, pParameter->is_Optional() ? "false" : "true");
+	}
+
+	if( !pParameter->do_UseInGUI() ) pItem->Add_Child(SG_XML_PARAM_WITH_GUI, "false");
+	if( !pParameter->do_UseInCMD() ) pItem->Add_Child(SG_XML_PARAM_WITH_CMD, "false");
 
 	switch( pParameter->Get_Type() )
 	{
@@ -286,7 +295,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 			{
 				for(i=0; i<Parameters.Get_Count(); i++)
 				{
-					if( SUMMARY_DO_ADD && Parameters(i)->is_Input() )
+					if( Parameters(i)->is_Input() )
  					{
 						SG_XML_Add_Parameter(&m, Parameters(i));
 					}
@@ -294,7 +303,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 				for(i=0; i<Parameters.Get_Count(); i++)
 				{
-					if( SUMMARY_DO_ADD && Parameters(i)->is_Output() )
+					if( Parameters(i)->is_Output() )
  					{
 						SG_XML_Add_Parameter(&m, Parameters(i));
 					}
@@ -302,7 +311,7 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 
 				for(i=0; i<Parameters.Get_Count(); i++)
 				{
-					if( SUMMARY_DO_ADD && Parameters(i)->is_Option()
+					if( Parameters(i)->is_Option()
 					&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Node
 					&&  Parameters(i)->Get_Type() != PARAMETER_TYPE_Grid_System )
  					{

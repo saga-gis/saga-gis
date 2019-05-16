@@ -332,6 +332,14 @@ bool CCMD_Tool::_Set_Parameters(CSG_Parameters *pParameters)
 				m_CMD.AddOption(_Get_ID(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
+			case PARAMETER_TYPE_Color:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
+			case PARAMETER_TYPE_Colors:
+				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
+				break;
+
 			case PARAMETER_TYPE_String:
 			case PARAMETER_TYPE_Text:
 			case PARAMETER_TYPE_FilePath:
@@ -506,6 +514,20 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 					pParameter->asRange()->Set_Max(d);
 
 					pParameter->has_Changed();
+				}
+				break;
+
+			case PARAMETER_TYPE_Color:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					pParameter->Set_Value(CSG_String(&s));
+				}
+				break;
+
+			case PARAMETER_TYPE_Colors:
+				if( m_CMD.Found(_Get_ID(pParameter), &s) )
+				{
+					pParameter->asColors()->Load(CSG_String(&s));
 				}
 				break;
 
