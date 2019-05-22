@@ -97,6 +97,8 @@ protected:
 
 private:
 
+	CSG_Projection				_Get_Projection		(const CSG_String &FileName);
+		
 };
 
 
