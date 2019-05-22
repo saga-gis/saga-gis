@@ -127,6 +127,8 @@ public:
 
 	void							Set_XYZ_Precision	(bool bDouble)			{	m_bXYZPrecDbl	= bDouble;	}
 
+	static bool						Get_Header_Content	(const CSG_String &FileName, CSG_MetaData &Header);
+
 	//-----------------------------------------------------
 	virtual bool					is_Valid			(void)	const			{	return( m_nFields > 0 );	}
 	bool							is_Compatible		(CSG_PointCloud *pPointCloud)	const;
@@ -243,6 +245,7 @@ private:
 	bool							_Load				(const CSG_String &File_Name);
 	bool							_Load				(CSG_File &Stream);
 	bool							_Save				(CSG_File &Stream);
+	CSG_MetaData					_Create_Header		(void)	const;
 
 	bool							_Add_Field			(const SG_Char *Name, TSG_Data_Type Type, int iField = -1);
 	bool							_Set_Field_Value	(char *pPoint, int iField, double         Value);
@@ -277,7 +280,6 @@ SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(const CSG_String &Fil
 
 /** Safe Point Cloud construction */
 SAGA_API_DLL_EXPORT CSG_PointCloud *	SG_Create_PointCloud	(CSG_PointCloud *pStructure);
-
 
 ///////////////////////////////////////////////////////////
 //														 //

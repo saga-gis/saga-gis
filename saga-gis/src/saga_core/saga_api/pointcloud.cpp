@@ -105,7 +105,6 @@ CSG_PointCloud * SG_Create_PointCloud(CSG_PointCloud *pStructure)
 	return( new CSG_PointCloud(pStructure) );
 }
 
-
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
@@ -353,6 +352,11 @@ bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 
 			if( Stream.Add_File(Name + "sg-pts") && _Save(Stream) )
 			{
+				if( Stream.Add_File(Name + "sg-pts-hdr") )
+				{
+					CSG_MetaData	Header = _Create_Header();		Header.Save(Stream);
+				}
+
 				if( Stream.Add_File(Name + "sg-info") )
 				{
 					Save_MetaData(Stream);
@@ -379,6 +383,8 @@ bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 
 			if( _Save(Stream) )
 			{
+				CSG_MetaData	Header = _Create_Header();		Header.Save(SG_File_Make_Path("", FileName, "sg-pts-hdr"));
+
 				Save_MetaData(FileName);
 
 				if( Get_Projection().is_Okay() )
@@ -411,6 +417,29 @@ bool CSG_PointCloud::Save(const CSG_String &_FileName, int Format)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CSG_PointCloud::Get_Header_Content(const CSG_String &FileName, CSG_MetaData &Header)
+{
+	bool	bResult	= false;
+
+	if( SG_File_Cmp_Extension(FileName, "sg-pts-z") ) // POINTCLOUD_FILE_FORMAT_Compressed
+	{
+		CSG_File_Zip	Stream(FileName, SG_FILE_R);
+
+		CSG_String	_FileName(SG_File_Get_Name(FileName, false) + ".");
+
+		if( Stream.Get_File(_FileName + "sg-pts-hdr") )
+		{
+			bResult = Header.Load(Stream);
+		}
+	}
+	else // if( SG_File_Cmp_Extension(FileName, "sg-pts"/"spc") ) // POINTCLOUD_FILE_FORMAT_Normal
+	{
+		bResult = Header.Load(FileName, SG_T("sg-pts-hdr"));
+	}
+
+	return( bResult );
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -529,6 +558,39 @@ bool CSG_PointCloud::_Save(CSG_File &Stream)
 	return( true );
 }
 
+//---------------------------------------------------------
+CSG_MetaData CSG_PointCloud::_Create_Header(void) const
+{
+	CSG_MetaData	Header;
+
+	Header.Set_Name("PointCloudHeaderFile");
+	Header.Add_Property("Version", "1.0");
+
+	CSG_MetaData	*pPoints	= Header.Add_Child("Points");
+	CSG_MetaData	*pBBox		= Header.Add_Child("BBox");
+	CSG_MetaData	*pNoData	= Header.Add_Child("NoData");
+	CSG_MetaData	*pAttr		= Header.Add_Child("Attributes");
+
+	pPoints	->Add_Property("Value"	, CSG_String::Format("%d", Get_Point_Count()));
+	pBBox	->Add_Property("XMin"	, Get_Minimum(0));
+	pBBox	->Add_Property("YMin"	, Get_Minimum(1));
+	pBBox	->Add_Property("ZMin"	, Get_Minimum(2));
+	pBBox	->Add_Property("XMax"	, Get_Maximum(0));
+	pBBox	->Add_Property("YMax"	, Get_Maximum(1));
+	pBBox	->Add_Property("ZMax"	, Get_Maximum(2));
+	pNoData	->Add_Property("Value"	, Get_NoData_Value());
+	pAttr	->Add_Property("Count"	, Get_Field_Count());
+
+	for(int iField=0; iField<Get_Field_Count(); iField++)
+	{
+		CSG_MetaData	*pField = pAttr->Add_Child(CSG_String::Format("Field_%d", iField + 1));
+
+		pField->Add_Property("Name", Get_Field_Name(iField));
+		pField->Add_Property("Type", gSG_Data_Type_Identifier[Get_Field_Type(iField)]);
+	}
+
+	return (Header);
+}
 
 ///////////////////////////////////////////////////////////
 //														 //
