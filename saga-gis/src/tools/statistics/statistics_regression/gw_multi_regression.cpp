@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gw_multi_regression.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gw_multi_regression.h"
 
 
@@ -70,9 +58,6 @@
 //---------------------------------------------------------
 CGW_Multi_Regression::CGW_Multi_Regression(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("GWR for Multiple Predictors (Gridded Model Output)"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -80,31 +65,38 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	Set_Description	(_TW(
 		"Geographically Weighted Regression for multiple predictors. "
 		"Predictors have to be supplied as attributes of ingoing points data. "
-		"Regression model parameters are generated as continuous fields, i.e. as grids.\n"
-		"Reference:\n"
-	) + GWR_References);
+		"Regression model parameters are generated as continuous fields, i.e. as grids. "
+	));
+
+	GWR_Add_References(false);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field("POINTS",
+		"DEPENDENT"	, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Table_Fields("POINTS",
+		"PREDICTORS", _TL("Predictors"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Shapes("",
+		"REGRESSION"	, _TL("Regression"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
+	);
+
+	Parameters.Add_Bool("",
+		"LOGISTIC"	, _TL("Logistic Regression"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
@@ -113,8 +105,8 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
 
-	Parameters.Add_Grid_List(
-		NULL	, "SLOPES"		, _TL("Slopes"),
+	Parameters.Add_Grid_List("",
+		"SLOPES"		, _TL("Slopes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -124,7 +116,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -257,13 +249,16 @@ bool CGW_Multi_Regression::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
 	for(int y=0; y<m_pIntercept->Get_NY() && Set_Progress(y, m_pIntercept->Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<m_pIntercept->Get_NX(); x++)
 		{
 			CSG_Regression_Weighted	Model;
 
-			if( Get_Model(x, y, Model) )
+			if( Get_Model(x, y, Model, bLogistic) )
 			{
 				m_pQuality  ->Set_Value(x, y, Model.Get_R2());
 				m_pIntercept->Set_Value(x, y, Model[0]);
@@ -298,7 +293,7 @@ bool CGW_Multi_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
+bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
 	//-----------------------------------------------------
 	TSG_Point	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
@@ -343,7 +338,7 @@ bool CGW_Multi_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Mode
 	}
 
 	//-----------------------------------------------------
-	return( Model.Calculate() );
+	return( Model.Calculate(bLogistic) );
 }
 
 

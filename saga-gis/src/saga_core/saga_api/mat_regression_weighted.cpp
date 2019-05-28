@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "mat_tools.h"
 
 
@@ -75,6 +63,10 @@
 CSG_Regression_Weighted::CSG_Regression_Weighted(void)
 {
 	m_r2	= -1.0;
+
+	m_Log_maxIter		= 30;
+	m_Log_Epsilon		= 0.001;
+	m_Log_Difference	= 1000.;
 }
 
 //---------------------------------------------------------
@@ -88,9 +80,9 @@ bool CSG_Regression_Weighted::Destroy(void)
 {
 	m_r2	= -1.0;
 
-	m_x.Destroy();
+	m_y.Destroy();
 	m_w.Destroy();
-	m_Y.Destroy();
+	m_X.Destroy();
 	m_b.Destroy();
 
 	return( true );
@@ -104,13 +96,13 @@ bool CSG_Regression_Weighted::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Regression_Weighted::Add_Sample(double Weight, double Dependent, const CSG_Vector &Predictors)
 {
-	if( m_Y.Get_NRows() == 0 )
+	if( m_X.Get_NRows() == 0 )
 	{
-		m_Y.Create(Predictors.Get_N() + 1, 1);
+		m_X.Create(Predictors.Get_N() + 1, 1);
 	}
-	else if( m_Y.Get_NCols() == Predictors.Get_N() + 1 )
+	else if( m_X.Get_NCols() == Predictors.Get_N() + 1 )
 	{
-		m_Y.Add_Row();
+		m_X.Add_Row();
 	}
 	else
 	{
@@ -118,9 +110,9 @@ bool CSG_Regression_Weighted::Add_Sample(double Weight, double Dependent, const 
 	}
 
 	m_w.Add_Row(Weight   );
-	m_x.Add_Row(Dependent);
+	m_y.Add_Row(Dependent);
 
-	double	*y	= m_Y[m_Y.Get_NRows() - 1];
+	double	*y	= m_X[m_X.Get_NRows() - 1];
 
 	y[0]	= 1.0;
 
@@ -138,7 +130,7 @@ bool CSG_Regression_Weighted::Add_Sample(double Weight, double Dependent, const 
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Regression_Weighted::Calculate(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors)
+bool CSG_Regression_Weighted::Calculate(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors, bool bLogistic)
 {
 	Destroy();
 
@@ -148,7 +140,7 @@ bool CSG_Regression_Weighted::Calculate(const CSG_Vector &Weights, const CSG_Vec
 		{
 			Add_Sample(Weights[i], Dependents[i], Predictors.Get_Row(i));
 
-			return( Calculate() );
+			return( Calculate(bLogistic) );
 		}
 	}
 
@@ -156,56 +148,70 @@ bool CSG_Regression_Weighted::Calculate(const CSG_Vector &Weights, const CSG_Vec
 }
 
 //---------------------------------------------------------
-bool CSG_Regression_Weighted::Calculate(void)
+bool CSG_Regression_Weighted::Calculate(bool bLogistic)
 {
 	//-----------------------------------------------------
-	int			i, nSamples, nPredictors;
+	int	i, nSamples, nPredictors;
 
-	if( (nSamples = m_w.Get_N()) <= (nPredictors = m_Y.Get_NCols() - 1) || nSamples < 2 )
+	if( (nSamples = m_w.Get_N()) <= (nPredictors = m_X.Get_NCols() - 1) || nSamples < 2 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Matrix	YtW(nSamples, 1 + nPredictors);
-
-	double	xMean	= 0.0;
-
-	for(i=0; i<nSamples; i++)
+	if( bLogistic )
 	{
-		xMean		+= m_x[i];
-		YtW[0][i]	 = m_w[i];
+		m_b	= _Log_Get_Beta(m_X, m_y, m_w);
 
-		for(int j=1; j<=nPredictors; j++)
+		if( m_b.Get_N() == 0 )
 		{
-			YtW[j][i]	= m_w[i] * m_Y[i][j];
+			return( false );
 		}
 	}
+	else
+	{
+		CSG_Matrix	YtW(nSamples, 1 + nPredictors);
 
-	xMean	/= nSamples;
+		for(i=0; i<nSamples; i++)
+		{
+			YtW[0][i]	= m_w[i];
 
-	m_b		 = (YtW * m_Y).Get_Inverse() * (YtW * m_x);
+			for(int j=1; j<=nPredictors; j++)
+			{
+				YtW[j][i]	= m_w[i] * m_X[i][j];
+			}
+		}
+
+		m_b	= (YtW * m_X).Get_Inverse() * (YtW * m_y);
+	}
 
 	//-----------------------------------------------------
+	CSG_Simple_Statistics	yStats(m_y);
+
 	double	rss	= 0.0, tss	= 0.0;
 
 	for(i=0; i<nSamples; i++)
 	{
-		double	xr	= m_b[0];
+		double	yr	= m_b[0];
 
 		for(int j=1; j<=nPredictors; j++)
 		{
-			xr	+= m_b[j] * m_Y[i][j];
+			yr	+= m_b[j] * m_X[i][j];
 		}
 
-		rss	+= m_w[i] * SG_Get_Square(m_x[i] - xr);
-		tss	+= m_w[i] * SG_Get_Square(m_x[i] - xMean);
+		if( bLogistic )
+		{
+			yr	= 1. / (1. + exp(-yr));
+		}
+
+		rss	+= m_w[i] * SG_Get_Square(m_y[i] - yr);
+		tss	+= m_w[i] * SG_Get_Square(m_y[i] - yStats.Get_Mean());
 	}
 
 	//-----------------------------------------------------
 	if( tss > 0.0 && tss >= rss )
 	{
-		m_r2	= (tss - rss) / tss;
+		m_r2	= fabs(tss - rss) / tss;
 
 		return( true );
 	}
@@ -213,6 +219,202 @@ bool CSG_Regression_Weighted::Calculate(void)
 	m_r2	= -1.0;
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+// Zhang, D., Ren, N., and Hou, X. (2018):
+// An improved logistic regression model based on a spatially weighted technique
+// (ILRBSWT v1.0) and its application to mineral prospectivity mapping.
+// Geosci. Model Dev., 11, 2525-2539, https://doi.org/10.5194/gmd-11-2525-2018.
+
+//---------------------------------------------------------
+bool CSG_Regression_Weighted::Set_Log_maxIter(int maxIter)
+{
+	if( maxIter > 0 )
+	{
+		m_Log_maxIter	= maxIter;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Weighted::Set_Log_Epsilon(double Epsilon)
+{
+	if( Epsilon >= 0. )
+	{
+		m_Log_Epsilon	= Epsilon;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Weighted::Set_Log_Difference(double Difference)
+{
+	if( Difference > 0. )
+	{
+		m_Log_Difference	= Difference;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Regression_Weighted::_Log_Get_Beta(const CSG_Matrix &X, const CSG_Vector &y, const CSG_Vector &w)
+{
+	CSG_Vector	b(X.Get_NCols()), b_best;
+
+	CSG_Vector	p	= _Log_Get_Props(X, b);
+
+	for(int i=0; i<m_Log_maxIter; ++i)
+	{
+		CSG_Vector	b_new = _Log_Get_Beta(b, X, y, w, p);
+
+		if( b_new.Get_N() == 0 )
+		{
+			return( b_best );
+		}
+
+		for(int j=0; j<b_new.Get_N(); ++j)
+		{
+			if( SG_is_NaN(b_new[j]) )
+			{
+				return( b_best );
+			}
+		}
+
+		if( _Log_NoChange(b, b_new) )
+		{
+			return( b_new );
+		}
+
+		if( _Log_OutOfControl(b, b_new) ) 
+		{
+			return( b_best );
+		}
+
+		p		= _Log_Get_Props(X, b_new);
+		b		= b_new;
+		b_best	= b;
+	}
+
+	return( b_best );
+} 
+
+//---------------------------------------------------------
+CSG_Vector CSG_Regression_Weighted::_Log_Get_Beta(const CSG_Vector &b, const CSG_Matrix &X, const CSG_Vector &y, const CSG_Vector &w, const CSG_Vector &p)
+{
+	CSG_Matrix Xt	= X.Get_Transpose()         ;	//     X'
+	CSG_Matrix M	= Xt * _Log_Get_Xwp(p, X, w);	//     X'* w * V(t-1) * X
+	CSG_Matrix N	= M.Get_Inverse() * Xt      ;	// inv(X'* w * V(t-1) * X) * X'
+	CSG_Vector v	= N  * _Log_Get_Ywp(p, y, w);	// inv(X'* w * V(t-1) * X) * X' * w * (y - p(t-1))
+
+	if( v.Get_N() == b.Get_N() )
+	{
+		return( b + v );
+	}
+
+	return( CSG_Vector() );
+}
+
+//---------------------------------------------------------
+CSG_Matrix CSG_Regression_Weighted::_Log_Get_Xwp(const CSG_Vector &p, const CSG_Matrix &X, const CSG_Vector &w)
+{
+	CSG_Matrix	Xwp;
+
+	if( p.Get_N() == X.Get_NRows() && Xwp.Create(X.Get_NCols(), X.Get_NRows()) )
+	{
+		for(int i=0; i<X.Get_NRows(); ++i)
+		{
+			for(int j=0; j<X.Get_NCols(); ++j)
+			{
+				Xwp[i][j]	= w[i] * p[i] * (1. - p[i]) * X[i][j];	// compute W(u) * V(u) * X
+			}
+		}
+	}
+
+	return( Xwp );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Regression_Weighted::_Log_Get_Ywp(const CSG_Vector &p, const CSG_Vector &y, const CSG_Vector &w)
+{
+	CSG_Vector	Ywp(y.Get_N());
+
+	if( y.Get_N() == p.Get_N() && Ywp.Create(y.Get_N()) )
+	{
+		for(int i=0; i<Ywp.Get_N(); i++)
+		{
+			Ywp[i]	= w[i] * (y[i] - p[i]);	// compute W(u) * (y - p)
+		}
+	}
+
+	return( Ywp );
+}
+
+//---------------------------------------------------------
+CSG_Vector CSG_Regression_Weighted::_Log_Get_Props(const CSG_Matrix &X, const CSG_Vector &b)
+{
+	CSG_Vector p(X.Get_NRows());
+
+	for(int i=0; i<X.Get_NRows(); ++i)
+	{
+		double	z	= 0.;
+
+		for(int j=0; j<X.Get_NCols(); ++j)
+		{
+			z	+= X[i][j] * b[j];
+		}
+
+		p[i]	= 1. / (1. + exp(-z));
+	}
+
+	return( p );
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Weighted::_Log_NoChange(const CSG_Vector &b_old, const CSG_Vector &b_new)
+{
+	for(int i=0; i<b_old.Get_N(); ++i)
+	{
+		if( fabs(b_old[i] - b_new[i]) > m_Log_Epsilon )
+		{
+			return( false );
+		}
+	}
+
+	return( true );	// if the new beta is equal to the old one under certain accuracy
+}
+
+//---------------------------------------------------------
+bool CSG_Regression_Weighted::_Log_OutOfControl(const CSG_Vector &b_old, const CSG_Vector &b_new)
+{
+	for(int i=0; i<b_old.Get_N(); ++i)
+	{
+		if( b_old[i] == 0.0 )
+		{
+			return( false );
+		}
+
+		if( fabs(b_old[i] - b_new[i]) / fabs(b_old[i]) > m_Log_Difference )
+		{
+			return( true );
+		}
+	}
+
+	return( false );	// if the new beta has obvious difference with the old one
 }
 
 
@@ -246,8 +448,8 @@ bool CSG_Regression_Weighted::Get_CrossValidation(int nSubSamples)
 		for(i=0; i<m_Samples_Model.Get_NRows() && SG_UI_Process_Get_Okay(); i++)
 		{
 			CSG_Vector	w(m_w);	w.Del_Row(i);	Model
-			CSG_Vector	x(m_x);	x.Del_Row(i);
-			CSG_Matrix	Y(m_Y);	Y.Del_Row(i);
+			CSG_Vector	x(m_y);	x.Del_Row(i);
+			CSG_Matrix	Y(m_X);	Y.Del_Row(i);
 
 			if( Model.Calculate(w, x, Y) )
 			{

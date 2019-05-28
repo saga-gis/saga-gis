@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__statistics_regression_H
+#define HEADER_INCLUDED__statistics_regression_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,32 +59,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__statistics_regression_H
-#define HEADER_INCLUDED__statistics_regression_H
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-const CSG_String	GWR_References =
-	"- Fotheringham, S.A., Brunsdon, C., Charlton, M. (2002):"
-	"  Geographically Weighted Regression: the analysis of spatially varying relationships. John Wiley & Sons."
-	"  <a target=\"_blank\" href=\"http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract\">online</a>.\n"
-	"\n"
-	"- Fotheringham, S.A., Charlton, M., Brunsdon, C. (1998):"
-	"  Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis."
-	"  Environment and Planning A 30(11), 1905–1927."
-	"  <a target=\"_blank\" href=\"http://www.envplan.com/abstract.cgi?id=a301905\">online</a>.\n"
-	"\n"
-	"- Lloyd, C. (2010):"
-	"  Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n";
+#define GWR_Add_References(bLogistic)	\
+	Add_Reference("Fotheringham, S.A., Brunsdon, C., Charlton, M.", "2002",\
+		"Geographically Weighted Regression: the analysis of spatially varying relationships",\
+		"John Wiley & Sons.",\
+		SG_T("http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract"), SG_T("online"));\
+	Add_Reference("Fotheringham, S.A., Charlton, M., Brunsdon, C.", "1998",\
+		"Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis",\
+		"Environment and Planning A 30(11), 1905–1927.",\
+		SG_T("http://www.envplan.com/abstract.cgi?id=a301905"), SG_T("online"));\
+	Add_Reference("Lloyd, C.", "2010",\
+		"Spatial Data Analysis - An Introduction for GIS Users",\
+		"Oxford, 206p.");\
+	if( bLogistic ) {\
+	Add_Reference("Zhang, D., Ren, N., and Hou, X.", "2018",\
+		"An improved logistic regression model based on a spatially weighted technique (ILRBSWT v1.0) and its application to mineral prospectivity mapping",\
+		"Geosci. Model Dev., 11, 2525-2539.",\
+		SG_T("https://doi.org/10.5194/gmd-11-2525-2018"), SG_T("doi:10.5194/gmd-11-2525-2018"));\
+	}
 
 //---------------------------------------------------------
 double	GWR_Fit_To_Density(CSG_Shapes *pPoints, double Bandwidth, int Rounding = 1);

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gwr_grid_downscaling.cpp 1633 2013-03-22 13:35:15Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gwr_grid_downscaling.h"
 
 
@@ -76,28 +64,10 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		""
+		"Geographically Weighted Regression for grid downscaling. "
 	));
 
-	Add_Reference(
-		"Fotheringham, S.A., Brunsdon, C., Charlton, M", "2002",
-		"Geographically weighted regression: the analysis of spatially varying relationships",
-		"John Wiley & Sons.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.1111/j.1538-4632.2003.tb01114.x/abstract")
-	);
-
-	Add_Reference(
-		"Fotheringham, S.A., Charlton, M., Brunsdon, C.", "1998",
-		"Geographically weighted regression: a natural evolution of the expansion method for spatial data analysis.",
-		"Environment and Planning A 30(11), 1905–1927.",
-		SG_T("http://www.envplan.com/abstract.cgi?id=a301905")
-	);
-
-	Add_Reference(
-		"Lloyd, C.", "2010",
-		"Spatial data analysis - an introduction for GIS users",
-		"Oxford, 206p."
-	);
+	GWR_Add_References(true);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -149,6 +119,12 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 	);
 
 	Parameters.Add_Bool("",
+		"LOGISTIC"		, _TL("Logistic Regression"),
+		_TL(""),
+		false
+	);
+
+	Parameters.Add_Bool("",
 		"MODEL_OUT"		, _TL("Output of Model Parameters"),
 		_TL(""),
 		false
@@ -158,7 +134,7 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 	Parameters.Add_Choice("",
 		"SEARCH_RANGE"	, _TL("Search Range"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("local"),
 			_TL("global")
 		)
@@ -290,6 +266,134 @@ bool CGWR_Grid_Downscaling::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CGWR_Grid_Downscaling::Get_Model(void)
+{
+	//-----------------------------------------------------
+	m_pQuality		= Parameters("QUALITY"  )->asGrid();
+	m_pQuality		->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Quality"));
+
+	m_pResiduals	= Parameters("RESIDUALS")->asGrid();
+	m_pResiduals	->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Residuals"));
+
+	//-----------------------------------------------------
+	m_Search.Get_Weighting().Set_Parameters(&Parameters);
+
+	m_Search.Set_Radius(Parameters("SEARCH_RANGE")->asInt() == 0
+		? Parameters("SEARCH_RADIUS")->asInt() : 1 + (int)(SG_Get_Length(m_pDependent->Get_NX(), m_pDependent->Get_NY()))
+	);
+
+	//-----------------------------------------------------
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
+	CSG_Grid_System	System(m_pDependent->Get_System());
+
+	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<System.Get_NX(); x++)
+		{
+			CSG_Regression_Weighted	Model;
+
+			if( Get_Model(x, y, Model, bLogistic) )
+			{
+				m_pQuality->Set_Value(x, y, Model.Get_R2());
+
+				m_pModel[m_nPredictors]->Set_Value(x, y, Model[0]);	// intercept
+
+				for(int i=0; i<m_nPredictors; i++)
+				{
+					m_pModel[i]->Set_Value(x, y, Model[i + 1]);
+				}
+			}
+			else
+			{
+				m_pQuality->Set_NoData(x, y);
+
+				for(int i=0; i<=m_nPredictors; i++)
+				{
+					m_pModel[i]->Set_NoData(x, y);
+				}
+
+				m_pResiduals->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	m_Search.Destroy();
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CGWR_Grid_Downscaling::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
+{
+	CSG_Vector	Predictors(m_nPredictors);
+
+	Model.Destroy();
+
+	//-----------------------------------------------------
+	for(int i=0, ix, iy; i<m_Search.Get_Count(); i++)
+	{
+		double	Distance, Weight;
+
+		if( m_Search.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && m_pDependent->is_InGrid(ix, iy) )
+		{
+			for(int iPredictor=0; iPredictor<m_nPredictors && Weight>0.0; iPredictor++)
+			{
+				if( !m_pPredictors[iPredictor]->is_NoData(ix, iy) )
+				{
+					Predictors[iPredictor]	= m_pPredictors[iPredictor]->asDouble(ix, iy);
+				}
+				else
+				{
+					Weight	= 0.0;
+				}
+			}
+
+			if( Weight > 0.0 )
+			{
+				Model.Add_Sample(Weight, m_pDependent->asDouble(ix, iy), Predictors);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Model.Calculate(bLogistic) )
+	{
+		m_pResiduals->Set_NoData(x, y);
+
+		if( m_pDependent->is_NoData(x, y) )
+		{
+			return( true );
+		}
+
+		double	Value	= Model[0];
+
+		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
+		{
+			if( m_pPredictors[iPredictor]->is_NoData(x, y) )
+			{
+				return( true );
+			}
+
+			Value	+= Model[1 + iPredictor] * m_pPredictors[iPredictor]->asDouble(x, y);
+		}
+
+		m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - Value);
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGWR_Grid_Downscaling::Set_Model(double x, double y, double &Value, double &Residual)
 {
 	if( !m_pModel[m_nPredictors]->Get_Value(x, y, Value, GRID_RESAMPLING_BSpline) )
@@ -331,6 +435,8 @@ bool CGWR_Grid_Downscaling::Set_Model(void)
 		pReg_ResCorr->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Residual Correction"));
 	}
 
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
 		double	p_y	= Get_YMin() + y * Get_Cellsize();
@@ -342,6 +448,11 @@ bool CGWR_Grid_Downscaling::Set_Model(void)
 
 			if( Set_Model(p_x, p_y, Value, Residual) )
 			{
+				if( bLogistic )
+				{
+					Value	= 1. / (1. + exp(-Value));
+				}
+
 				pRegression->Set_Value(x, y, Value);
 
 				if( pReg_ResCorr )
@@ -362,138 +473,6 @@ bool CGWR_Grid_Downscaling::Set_Model(void)
 	}
 
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGWR_Grid_Downscaling::Get_Model(void)
-{
-	//-----------------------------------------------------
-	m_pQuality		= Parameters("QUALITY"  )->asGrid();
-	m_pQuality		->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Quality"));
-
-	m_pResiduals	= Parameters("RESIDUALS")->asGrid();
-	m_pResiduals	->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Residuals"));
-
-	//-----------------------------------------------------
-	m_Search.Get_Weighting().Set_Parameters(&Parameters);
-
-	m_Search.Set_Radius(Parameters("SEARCH_RANGE")->asInt() == 0
-		? Parameters("SEARCH_RADIUS")->asInt() : 1 + (int)(SG_Get_Length(m_pDependent->Get_NX(), m_pDependent->Get_NY()))
-	);
-
-	//-----------------------------------------------------
-	CSG_Grid_System	System(m_pDependent->Get_System());
-
-	for(int y=0; y<System.Get_NY() && Set_Progress(y, System.Get_NY()); y++)
-	{
-		#pragma omp parallel for
-		for(int x=0; x<System.Get_NX(); x++)
-		{
-			CSG_Regression_Weighted	Model;
-
-			if( Get_Model(x, y, Model) )
-			{
-				m_pQuality->Set_Value(x, y, Model.Get_R2());
-
-				m_pModel[m_nPredictors]->Set_Value(x, y, Model[0]);	// intercept
-
-				for(int i=0; i<m_nPredictors; i++)
-				{
-					m_pModel[i]->Set_Value(x, y, Model[i + 1]);
-				}
-			}
-			else
-			{
-				m_pQuality->Set_NoData(x, y);
-
-				for(int i=0; i<=m_nPredictors; i++)
-				{
-					m_pModel[i]->Set_NoData(x, y);
-				}
-
-				m_pResiduals->Set_NoData(x, y);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	m_Search.Destroy();
-
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGWR_Grid_Downscaling::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
-{
-	//-----------------------------------------------------
-	CSG_Vector	Predictors(m_nPredictors);
-
-	Model.Destroy();
-
-	//-----------------------------------------------------
-	for(int i=0, ix, iy; i<m_Search.Get_Count(); i++)
-	{
-		double	Distance, Weight;
-
-		if( m_Search.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && m_pDependent->is_InGrid(ix, iy) )
-		{
-			for(int iPredictor=0; iPredictor<m_nPredictors && Weight>0.0; iPredictor++)
-			{
-				if( !m_pPredictors[iPredictor]->is_NoData(ix, iy) )
-				{
-					Predictors[iPredictor]	= m_pPredictors[iPredictor]->asDouble(ix, iy);
-				}
-				else
-				{
-					Weight	= 0.0;
-				}
-			}
-
-			if( Weight > 0.0 )
-			{
-				Model.Add_Sample(Weight, m_pDependent->asDouble(ix, iy), Predictors);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( Model.Calculate() )
-	{
-		m_pResiduals->Set_NoData(x, y);
-
-		if( m_pDependent->is_NoData(x, y) )
-		{
-			return( true );
-		}
-
-		double	Value	= Model[0];
-
-		for(int iPredictor=0; iPredictor<m_nPredictors; iPredictor++)
-		{
-			if( m_pPredictors[iPredictor]->is_NoData(x, y) )
-			{
-				return( true );
-			}
-
-			Value	+= Model[1 + iPredictor] * m_pPredictors[iPredictor]->asDouble(x, y);
-		}
-
-		m_pResiduals->Set_Value(x, y, m_pDependent->asDouble(x, y) - Value);
-
-		return( true );
-	}
-
-	return( false );
 }
 
 

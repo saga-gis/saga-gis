@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gwr_grid_downscaling.h 1549 2012-11-29 16:38:50Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,17 +46,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__gwr_grid_downscaling_H
 #define HEADER_INCLUDED__gwr_grid_downscaling_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -96,11 +91,11 @@ private:
 	CSG_Grid						*m_pDependent, **m_pPredictors, **m_pModel, *m_pQuality, *m_pResiduals;
 
 
+	bool							Get_Model				(void);
+	bool							Get_Model				(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic);
+
 	bool							Set_Model				(double x, double y, double &Value, double &Residual);
 	bool							Set_Model				(void);
-
-	bool							Get_Model				(void);
-	bool							Get_Model				(int x, int y, CSG_Regression_Weighted &Model);
 
 };
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -171,24 +168,24 @@ CSG_Tool *		Create_Tool(int i)
 //---------------------------------------------------------
 double	GWR_Fit_To_Density(CSG_Shapes *pPoints, double Bandwidth, int Rounding)
 {
-	if (pPoints && pPoints->Get_Count() > 0 && pPoints->Get_Extent().Get_Area() > 0.0)
+	if( pPoints && pPoints->Get_Count() > 0 && pPoints->Get_Extent().Get_Area() > 0.0 )
 	{
 		double	d = sqrt(pPoints->Get_Extent().Get_Area() / pPoints->Get_Count());	// get a rough estimation of point density for band width suggestion
 
-		if (Bandwidth > 0.0)
+		if( Bandwidth > 0. )
 		{
 			d *= Bandwidth;
 		}
 
-		if (Rounding > 0)
+		if( Rounding > 0 )
 		{
-			d = SG_Get_Rounded_To_SignificantFigures(d, Rounding);
+			d  = SG_Get_Rounded_To_SignificantFigures(d, Rounding);
 		}
 
-		return(d);
+		return( d );
 	}
 
-	return(-1.0);
+	return( -1. );
 }
 
 

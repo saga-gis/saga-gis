@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gw_multi_regression_grid.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gw_multi_regression_grid.h"
 
 
@@ -70,80 +58,86 @@
 //---------------------------------------------------------
 CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("GWR for Multiple Predictor Grids"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"References:\n"
-	) + GWR_References);
+		"Geographically Weighted Regression for a multiple predictors supplied as grids, "
+		"to which the regression model is applied. Further details can be stored optionally."
+	));
+
+	GWR_Add_References(true);
 
 	//-----------------------------------------------------
-	pNode = Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field("POINTS",
+		"DEPENDENT"	, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Shapes("",
+		"RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "PREDICTORS"	, _TL("Predictors"),
+	Parameters.Add_Grid_List("",
+		"PREDICTORS", _TL("Predictors"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Grid("",
+		"REGRESSION", _TL("Regression"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "QUALITY"		, _TL("Coefficient of Determination"),
+	Parameters.Add_Grid("",
+		"QUALITY"	, _TL("Coefficient of Determination"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "MODEL"		, _TL("Regression Parameters"),
+	Parameters.Add_Grid_List("",
+		"MODEL"		, _TL("Regression Parameters"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MODEL_OUT"	, _TL("Output of Regression Parameters"),
+	Parameters.Add_Bool("",
+		"LOGISTIC"	, _TL("Logistic Regression"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
+	);
+
+	Parameters.Add_Bool("",
+		"MODEL_OUT"	, _TL("Output of Regression Parameters"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Choice(
-		NULL	, "RESOLUTION"	, _TL("Model Resolution"),
+	Parameters.Add_Choice("",
+		"RESOLUTION", _TL("Model Resolution"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("same as predictors"),
 			_TL("user defined")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RESOLUTION_VAL"	, _TL("Resolution"),
+	Parameters.Add_Double("",
+		"RESOLUTION_VAL", _TL("Resolution"),
 		_TL("map units"),
-		PARAMETER_TYPE_Double	, 1.0, 0.0, true
+		1., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -151,7 +145,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -169,26 +163,26 @@ int CGW_Multi_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters,
 	{
 		m_Search.On_Parameter_Changed(pParameters, pParameter);
 
-		pParameters->Set_Parameter("RESOLUTION_VAL", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
-		pParameters->Set_Parameter("DW_BANDWIDTH"  , GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
+		pParameters->Set_Parameter("RESOLUTION_VAL", GWR_Fit_To_Density(pParameter->asShapes(), 4., 1));
+		pParameters->Set_Parameter("DW_BANDWIDTH"  , GWR_Fit_To_Density(pParameter->asShapes(), 4., 1));
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("RESOLUTION")) )
+	if(	pParameter->Cmp_Identifier("RESOLUTION") )
 	{
-		pParameters->Get_Parameter("RESOLUTION_VAL")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("RESOLUTION_VAL", pParameter->asInt() == 1);
 	}
 
 	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -393,14 +387,17 @@ void CGW_Multi_Regression_Grid::Finalize(void)
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Get_Model(void)
 {
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
 	//-----------------------------------------------------
 	for(int y=0; y<m_dimModel.Get_NY() && Set_Progress(y, m_dimModel.Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<m_dimModel.Get_NX(); x++)
 		{
 			CSG_Regression_Weighted	Model;
 
-			if( Get_Model(x, y, Model) )
+			if( Get_Model(x, y, Model, bLogistic) )
 			{
 				m_pQuality->Set_Value(x, y, Model.Get_R2());
 
@@ -428,9 +425,8 @@ bool CGW_Multi_Regression_Grid::Get_Model(void)
 }
 
 //---------------------------------------------------------
-bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
+bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
-	//-----------------------------------------------------
 	TSG_Point	Point	= m_dimModel.Get_Grid_to_World(x, y);
 	int			nPoints = m_Search.Set_Location(Point);
 
@@ -438,6 +434,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 
 	Model.Destroy();
 
+	//-----------------------------------------------------
 	for(int iPoint=0; iPoint<nPoints; iPoint++)
 	{
 		double	ix, iy, iz;
@@ -459,7 +456,7 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 	}
 
 	//-----------------------------------------------------
-	return( Model.Calculate() );
+	return( Model.Calculate(bLogistic) );
 }
 
 
@@ -470,6 +467,8 @@ bool CGW_Multi_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted 
 //---------------------------------------------------------
 bool CGW_Multi_Regression_Grid::Set_Model(void)
 {
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
 	CSG_Grid	*pRegression	= Parameters("REGRESSION")->asGrid();
 	CSG_Grid	*pQuality		= Parameters("QUALITY"   )->asGrid();
 
@@ -493,7 +492,7 @@ bool CGW_Multi_Regression_Grid::Set_Model(void)
 
 			if( Set_Model(p_x, p_y, Value) )
 			{
-				SG_GRID_PTR_SAFE_SET_VALUE(pRegression, x, y, Value);
+				SG_GRID_PTR_SAFE_SET_VALUE(pRegression, x, y, bLogistic ? 1. / (1. + exp(-Value)) : Value);
 				SG_GRID_PTR_SAFE_SET_VALUE(pQuality   , x, y, m_pQuality->Get_Value(p_x, p_y));
 			}
 			else

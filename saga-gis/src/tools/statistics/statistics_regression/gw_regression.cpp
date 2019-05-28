@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gw_regression.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gw_regression.h"
 
 
@@ -70,36 +58,42 @@
 //---------------------------------------------------------
 CGW_Regression::CGW_Regression(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("GWR for Single Predictor (Gridded Model Output)"));
 
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Reference:\n"
-	) + GWR_References);
+		"This Geographically Weighted Regression tool for a single predictor creates gridded model output."
+	));
+
+	GWR_Add_References(true);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field("POINTS",
+		"DEPENDENT"	, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "PREDICTOR"	, _TL("Predictor"),
+	Parameters.Add_Table_Field("POINTS",
+		"PREDICTOR"	, _TL("Predictor"),
 		_TL("")
+	);
+
+	Parameters.Add_Bool("",
+		"LOGISTIC"	, _TL("Logistic Regression"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);
 	m_Grid_Target.Add_Grid("SLOPE"    , _TL("Slope"    ), false);
@@ -110,9 +104,9 @@ CGW_Regression::CGW_Regression(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
-	Parameters("SEARCH_RANGE")->Set_Value(1);
+	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
 }
 
@@ -186,14 +180,17 @@ bool CGW_Regression::On_Execute(void)
 	m_pSlope    ->Fmt_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Slope"    ));
 	m_pQuality  ->Fmt_Name("%s (%s)", Parameters("DEPENDENT")->asString(), _TL("GWR Quality"  ));
 
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
+
 	//-----------------------------------------------------
 	for(int y=0; y<m_pIntercept->Get_NY() && Set_Progress(y, m_pIntercept->Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<m_pIntercept->Get_NX(); x++)
 		{
 			CSG_Regression_Weighted	Model;
 
-			if( Get_Model(x, y, Model) )
+			if( Get_Model(x, y, Model, bLogistic) )
 			{
 				m_pIntercept->Set_Value(x, y, Model[0]);
 				m_pSlope    ->Set_Value(x, y, Model[1]);
@@ -212,8 +209,8 @@ bool CGW_Regression::On_Execute(void)
 	m_Search.Finalize();
 
 	DataObject_Update(m_pIntercept);
-	DataObject_Update(m_pSlope);
-	DataObject_Update(m_pQuality);
+	DataObject_Update(m_pSlope    );
+	DataObject_Update(m_pQuality  );
 
 	return( true );
 }
@@ -224,7 +221,7 @@ bool CGW_Regression::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
+bool CGW_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
 	//-----------------------------------------------------
 	TSG_Point	Point	= m_pIntercept->Get_System().Get_Grid_to_World(x, y);
@@ -250,7 +247,7 @@ bool CGW_Regression::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
 	}
 
 	//-----------------------------------------------------
-	return( Model.Calculate() );
+	return( Model.Calculate(bLogistic) );
 }
 
 

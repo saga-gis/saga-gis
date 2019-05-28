@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1625,16 +1613,25 @@ public:
 	bool						Destroy				(void);
 
 	bool						Add_Sample			(double Weight, double Dependent, const CSG_Vector &Predictors);
-	int							Get_Sample_Count	(void)	const	{	return( m_Y.Get_NRows()     );	}
-	int							Get_Predictor_Count	(void)	const	{	return( m_Y.Get_NCols() - 1 );	}
+	int							Get_Sample_Count	(void)	const	{	return( m_X.Get_NRows()     );	}
+	int							Get_Predictor_Count	(void)	const	{	return( m_X.Get_NCols() - 1 );	}
 
-	bool						Calculate			(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors);
-	bool						Calculate			(void);
+	bool						Calculate			(const CSG_Vector &Weights, const CSG_Vector &Dependents, const CSG_Matrix &Predictors, bool bLogistic = false);
+	bool						Calculate			(bool bLogistic = false);
 
 	double						Get_R2				(void)	const	{	return( m_r2   );	}
 	const CSG_Vector &			Get_RCoeff			(void)	const	{	return( m_b    );	}
 	double						Get_RCoeff			(int i)	const	{	return( m_b[i] );	}
 	double						operator []			(int i)	const	{	return( m_b[i] );	}
+
+	//-----------------------------------------------------
+	int							Get_Log_maxIter		(void)	const	{	return( m_Log_maxIter    );	}
+	double						Get_Log_Epsilon		(void)	const	{	return( m_Log_Epsilon    );	}
+	double						Get_Log_Difference	(void)	const	{	return( m_Log_Difference );	}
+
+	bool						Set_Log_maxIter		(int    maxIter   );
+	bool						Set_Log_Epsilon		(double Epsilon   );
+	bool						Set_Log_Difference	(double Difference);
 
 	//-----------------------------------------------------
 	bool						Get_CrossValidation	(int nSubSamples = 0);
@@ -1647,13 +1644,22 @@ public:
 
 private:
 
-	int							m_CV_nSamples;
+	int							m_Log_maxIter, m_CV_nSamples;
 
-	double						m_r2, m_CV_RMSE, m_CV_NRMSE, m_CV_R2;
+	double						m_r2, m_Log_Epsilon, m_Log_Difference, m_CV_RMSE, m_CV_NRMSE, m_CV_R2;
 
-	CSG_Vector					m_x, m_w, m_b;
+	CSG_Vector					m_y, m_w, m_b;
 
-	CSG_Matrix					m_Y;
+	CSG_Matrix					m_X;
+
+
+	CSG_Vector					_Log_Get_Beta		(const CSG_Matrix &X, const CSG_Vector &y, const CSG_Vector &w);
+	CSG_Vector					_Log_Get_Beta		(const CSG_Vector &b, const CSG_Matrix &X, const CSG_Vector &y, const CSG_Vector &w, const CSG_Vector &p);
+	CSG_Matrix					_Log_Get_Xwp		(const CSG_Vector &p, const CSG_Matrix &X, const CSG_Vector &w);
+	CSG_Vector					_Log_Get_Ywp		(const CSG_Vector &p, const CSG_Vector &y, const CSG_Vector &w);
+	CSG_Vector					_Log_Get_Props		(const CSG_Matrix &X, const CSG_Vector &b);
+	bool						_Log_NoChange		(const CSG_Vector &b_old, const CSG_Vector &b_new);
+	bool						_Log_OutOfControl	(const CSG_Vector &b_old, const CSG_Vector &b_new);
 
 };
 

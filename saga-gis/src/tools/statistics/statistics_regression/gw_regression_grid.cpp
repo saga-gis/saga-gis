@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gw_regression_grid.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,26 +46,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gw_regression_grid.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define GRID_INIT(g, s)		if( g ) { g->Fmt_Name("%s (%s - %s)", Parameters("DEPENDENT")->asString(), s, m_pPredictor->Get_Name()); }
 
 
 ///////////////////////////////////////////////////////////
@@ -80,8 +58,6 @@
 //---------------------------------------------------------
 CGW_Regression_Grid::CGW_Regression_Grid(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
 	Set_Name		(_TL("GWR for Single Predictor Grid"));
 
@@ -89,57 +65,64 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 
 	Set_Description	(_TW(
 		"Geographically Weighted Regression for a single predictor supplied as grid, "
-		"to which the regression model is applied. Further details can be stored optionally.\n"
-		"Reference:\n"
-	) + GWR_References);
+		"to which the regression model is applied. Further details can be stored optionally."
+	));
+
+	GWR_Add_References(true);
 
 	//-----------------------------------------------------
-	pNode = Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "DEPENDENT"	, _TL("Dependent Variable"),
+	Parameters.Add_Table_Field("POINTS",
+		"DEPENDENT"	, _TL("Dependent Variable"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Shapes("",
+		"RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "PREDICTOR"	, _TL("Predictor"),
+	Parameters.Add_Grid("",
+		"PREDICTOR"	, _TL("Predictor"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "REGRESSION"	, _TL("Regression"),
+	Parameters.Add_Grid("",
+		"REGRESSION", _TL("Regression"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "QUALITY"		, _TL("Coefficient of Determination"),
+	Parameters.Add_Grid("",
+		"QUALITY"	, _TL("Coefficient of Determination"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "INTERCEPT"	, _TL("Intercept"),
+	Parameters.Add_Grid("",
+		"INTERCEPT"	, _TL("Intercept"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Slope"),
+	Parameters.Add_Grid("",
+		"SLOPE"		, _TL("Slope"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Bool("",
+		"LOGISTIC"	, _TL("Logistic Regression"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
@@ -147,7 +130,7 @@ CGW_Regression_Grid::CGW_Regression_Grid(void)
 	m_Weighting.Create_Parameters(&Parameters, false);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 
 	Parameters("SEARCH_RANGE"     )->Set_Value(1);
 	Parameters("SEARCH_POINTS_ALL")->Set_Value(1);
@@ -168,7 +151,7 @@ int CGW_Regression_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 		pParameters->Set_Parameter("DW_BANDWIDTH", GWR_Fit_To_Density(pParameter->asShapes(), 4.0, 1));
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -178,7 +161,7 @@ int CGW_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 	m_Weighting.Enable_Parameters(pParameters);
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -207,21 +190,28 @@ bool CGW_Regression_Grid::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	#define GRID_INIT(g, s)	if( g ) { g->Fmt_Name("%s (%s - %s)", Parameters("DEPENDENT")->asString(), s, m_pPredictor->Get_Name()); }
+
 	GRID_INIT(m_pRegression, _TL("GWR Regression"));
-	GRID_INIT(m_pQuality   , _TL("GWR Quality"));
-	GRID_INIT(m_pIntercept , _TL("GWR Intercept"));
-	GRID_INIT(m_pSlope     , _TL("GWR Slope"));
+	GRID_INIT(m_pQuality   , _TL("GWR Quality"   ));
+	GRID_INIT(m_pIntercept , _TL("GWR Intercept" ));
+	GRID_INIT(m_pSlope     , _TL("GWR Slope"     ));
+
+	bool	bLogistic	= Parameters("LOGISTIC")->asBool();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
 			CSG_Regression_Weighted	Model;
 
-			if (!m_pPredictor->is_NoData(x, y) && Get_Model(x, y, Model))
+			if( !m_pPredictor->is_NoData(x, y) && Get_Model(x, y, Model, bLogistic) )
 			{
-				SG_GRID_PTR_SAFE_SET_VALUE(m_pRegression, x, y, Model[0] + Model[1] * m_pPredictor->asDouble(x, y));
+				double	Value	= Model[0] + Model[1] * m_pPredictor->asDouble(x, y);
+
+				SG_GRID_PTR_SAFE_SET_VALUE(m_pRegression, x, y, bLogistic ? 1. / (1. + exp(-Value)) : Value);
 				SG_GRID_PTR_SAFE_SET_VALUE(m_pIntercept , x, y, Model[0]);
 				SG_GRID_PTR_SAFE_SET_VALUE(m_pSlope     , x, y, Model[1]);
 				SG_GRID_PTR_SAFE_SET_VALUE(m_pQuality   , x, y, Model.Get_CV_R2());
@@ -242,8 +232,8 @@ bool CGW_Regression_Grid::On_Execute(void)
 	m_Search.Finalize();
 
 	DataObject_Update(m_pIntercept);
-	DataObject_Update(m_pSlope);
-	DataObject_Update(m_pQuality);
+	DataObject_Update(m_pSlope    );
+	DataObject_Update(m_pQuality  );
 
 	return( true );
 }
@@ -254,7 +244,7 @@ bool CGW_Regression_Grid::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model)
+bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model, bool bLogistic)
 {
 	//-----------------------------------------------------
 	TSG_Point	Point	= Get_System().Get_Grid_to_World(x, y);
@@ -280,7 +270,7 @@ bool CGW_Regression_Grid::Get_Model(int x, int y, CSG_Regression_Weighted &Model
 	}
 
 	//-----------------------------------------------------
-	return( Model.Calculate() );
+	return( Model.Calculate(bLogistic) );
 }
 
 
@@ -299,7 +289,7 @@ bool CGW_Regression_Grid::Set_Residuals(void)
 	}
 
 	//-----------------------------------------------------
-	pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pPoints->Get_Name(), _TL("Residuals")));
+	pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pPoints->Get_Name(), _TL("Residuals")));
 	pResiduals->Add_Field(m_pPoints->Get_Field_Name(m_iDependent), SG_DATATYPE_Double);
 	pResiduals->Add_Field("TREND"	, SG_DATATYPE_Double);
 	pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
