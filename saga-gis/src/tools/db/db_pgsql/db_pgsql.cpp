@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: db_pgsql.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "db_pgsql.h"
 
 extern "C" {
@@ -80,6 +68,12 @@ CSG_PG_Connections	g_Connections;
 CSG_PG_Connections &	SG_PG_Get_Connection_Manager(void)
 {
 	return( g_Connections );
+}
+
+//---------------------------------------------------------
+bool	SG_PG_is_Supported(void)
+{
+	return( true );
 }
 
 
@@ -759,14 +753,12 @@ CSG_String CSG_PG_Connection::Make_Table_Name(const CSG_String &Table_Name)
 {
 	CSG_String	Name(Table_Name);
 
-	Name.Make_Lower();
-
-	Name.Replace("ä", "ae");
-	Name.Replace("ö", "oe");
-	Name.Replace("ü", "ue");
-	Name.Replace("ß", "sz");
-
 	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
+
+	Name.Replace("ä", "ae"); Name.Replace("Ä", "AE");
+	Name.Replace("ö", "oe"); Name.Replace("Ö", "OE");
+	Name.Replace("ü", "ue"); Name.Replace("Ü", "UE");
+	Name.Replace("ß", "sz");
 
 	if( !Name.is_Empty() && isdigit(Name[0]) )
 	{
@@ -781,14 +773,12 @@ CSG_String CSG_PG_Connection::Make_Table_Field_Name(const CSG_Table &Table, int 
 {
 	CSG_String	Name(Table.Get_Field_Name(Field));
 
-	Name.Make_Lower();
-
-	Name.Replace("ä", "ae"); //Name.Replace("Ä", "Ae");
-	Name.Replace("ö", "oe"); //Name.Replace("Ö", "Oe");
-	Name.Replace("ü", "ue"); //Name.Replace("Ü", "Ue");
-	Name.Replace("ß", "sz");
-
 	SG_String_Replace_Characters(Name, ".,;:({[]})#+-", '_');
+
+	Name.Replace("ä", "ae"); Name.Replace("Ä", "Ae");
+	Name.Replace("ö", "oe"); Name.Replace("Ö", "Oe");
+	Name.Replace("ü", "ue"); Name.Replace("Ü", "Ue");
+	Name.Replace("ß", "sz");
 
 	return( Name );
 }
@@ -910,7 +900,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	int		 *paramFormats	= (int   *)SG_Malloc(nFields * sizeof(int   ));
 //	Oid		 *paramTypes	= (Oid   *)SG_Malloc(nFields * sizeof(Oid   ));
 
-	CSG_String	Insert("INSERT INTO " + Table_Name + " VALUES(");
+	CSG_String	Insert("INSERT INTO \"" + Table_Name + "\" VALUES(");
 
 	for(iField=0; iField<nFields; iField++)
 	{
@@ -1166,7 +1156,7 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Table_Nam
 }
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct)
+bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where, const CSG_String &Group, const CSG_String &Having, const CSG_String &Order, bool bDistinct, bool bVerbose)
 {
 	CSG_String	Select("SELECT");
 
@@ -1201,6 +1191,11 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 	if( Order.Length() )
 	{
 		Select	+= " ORDER BY " + Order;
+	}
+
+	if( bVerbose )
+	{
+		SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: '%s'", _TL("SQL Query"), Select.c_str()), false);
 	}
 
 	if( _Table_Load(Table, Select, Table.Get_Name()) )
@@ -1283,7 +1278,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	//-----------------------------------------------------
 	CSG_String	Select;
 
-	Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM %s ",
+	Select.Printf("SELECT %s, ST_As%s(%s) AS %s FROM \"%s\" ",
 		Fields.c_str(),
 		bBinary ? SG_T("Binary") : SG_T("Text"),
 		geoField.c_str(),

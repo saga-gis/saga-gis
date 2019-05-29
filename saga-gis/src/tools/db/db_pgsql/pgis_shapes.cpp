@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: pgis_shapes.cpp 1646 2013-04-10 16:29:00Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -293,14 +281,14 @@ bool CShapes_Save::On_Execute(void)
 
 	int		iShape, iField, nAdded;
 
-	CSG_String	Insert	= "INSERT INTO \"" + Name + "\" (" + Field;
+	CSG_String	Insert	= "INSERT INTO \"" + Name + "\" (\"" + Field;
 
 	for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
 	{
-		Insert	+= CSG_String(", ") + CSG_PG_Connection::Make_Table_Field_Name(pShapes, iField);
+		Insert	+= CSG_String("\", \"") + CSG_PG_Connection::Make_Table_Field_Name(pShapes, iField);
 	}
 
-	Insert	+= ") VALUES (";
+	Insert	+= "\") VALUES (";
 
 	//-----------------------------------------------------
 	for(iShape=0, nAdded=0; iShape==nAdded && iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
@@ -551,7 +539,7 @@ void CShapes_Join::Update_Fields(CSG_Parameters *pParameters, bool bGeoTable)
 
 	CSG_String	FieldList, geoField, Table(pParameters->Get_Parameter(bGeoTable ? "GEO_TABLE" : "JOIN_TABLE")->asString());
 	CSG_Table	t	= Get_Connection()->Get_Field_Desc(Table);
-	CSG_Parameter	*pNode	= Fields.Add_Bool(NULL, Table, Table, "");
+	CSG_Parameter	*pNode	= Fields.Add_Bool("", Table, Table, "");
 
 	Get_Connection()->Shapes_Geometry_Info(Table, &geoField, NULL);
 
@@ -583,7 +571,7 @@ bool CShapes_Join::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String	Join, Where	= Parameters("WHERE")->asString();
 
-	Join.Printf("%s.%s=%s.%s",
+	Join.Printf("\"%s\".\"%s\"=\"%s\".\"%s\"",
 		 geoTable.c_str(), Parameters( "GEO_KEY")->asString(),
 		joinTable.c_str(), Parameters("JOIN_KEY")->asString()
 	);
@@ -607,12 +595,21 @@ bool CShapes_Join::On_Execute(void)
 				Fields	+= ",";
 			}
 
-			Fields	+= P[i].Get_Identifier();
+			CSG_String	ID	= P[i].Get_Identifier();
+
+			if( ID.Find('.') < 0 )	// table
+			{
+				Fields	+= "\"" + ID + "\"";
+			}
+			else					// field
+			{
+				Fields	+= "\"" + ID.BeforeFirst('.') + "\".\"" + ID.AfterFirst('.') + "\"";
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	if( !Get_Connection()->Shapes_Load(Parameters("SHAPES")->asShapes(), geoTable + "." + joinTable, geoTable, joinTable, Fields, Join) )
+	if( !Get_Connection()->Shapes_Load(Parameters("SHAPES")->asShapes(), geoTable + "." + joinTable, geoTable, "\"" + joinTable + "\"", Fields, Join) )
 	{
 		Error_Set(_TL("unable to load vector data from PostGIS database") + CSG_String(":\n") + geoTable + "." + joinTable);
 

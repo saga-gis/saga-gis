@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table.cpp 1508 2012-11-01 16:13:43Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -451,7 +439,7 @@ bool CTable_Query::On_Execute(void)
 		 Parameters("GROUP"   )->asString(),
 		 Parameters("HAVING"  )->asString(),
 		 Parameters("ORDER"   )->asString(),
-		 Parameters("DISTINCT")->asBool  ()
+		 Parameters("DISTINCT")->asBool  (), true
 	));
 }
 
@@ -505,8 +493,8 @@ void CTable_Query_GUI::On_Connection_Changed(CSG_Parameters *pParameters)
 		}
 	}
 
-	pParameters->Get_Parameter("FIELDS")->asParameters()->Del_Parameters();
-	pParameters->Get_Parameter("GROUP" )->asParameters()->Del_Parameters();
+	(*pParameters)("FIELDS")->asParameters()->Del_Parameters();
+	(*pParameters)("GROUP" )->asParameters()->Del_Parameters();
 
 	On_Parameter_Changed(pParameters, pParameters->Get_Parameter("TABLES"));
 }
@@ -553,7 +541,6 @@ int CTable_Query_GUI::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 //---------------------------------------------------------
 int CTable_Query_GUI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-
 	return( CSG_PG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -568,7 +555,7 @@ bool CTable_Query_GUI::On_Execute(void)
 		 Get_Selection("GROUP"   ),
 		 Parameters   ("HAVING"  )->asString(),
 		 Parameters   ("ORDER"   )->asString(),
-		 Parameters   ("DISTINCT")->asBool  ()
+		 Parameters   ("DISTINCT")->asBool  (), true
 	));
 }
 
@@ -590,7 +577,16 @@ CSG_String CTable_Query_GUI::Get_Selection(const CSG_String &Parameter)
 					s	+= ",";
 				}
 
-				s	+= P[i].Get_Identifier();
+				CSG_String	ID	= P[i].Get_Identifier();
+
+				if( ID.Find('.') < 0 )	// table
+				{
+					s	+= "\"" + ID + "\"";
+				}
+				else					// field
+				{
+					s	+= "\"" + ID.BeforeFirst('.') + "\".\"" + ID.AfterFirst('.') + "\"";
+				}
 			}
 		}
 	}

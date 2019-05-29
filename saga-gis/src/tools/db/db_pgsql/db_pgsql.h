@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: db_pgsql.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,25 +46,21 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__db_pgsql_H
 #define HEADER_INCLUDED__db_pgsql_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -78,8 +71,6 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,7 +135,7 @@ public:
 	bool						Table_Save				(const CSG_String &Table_Name, const CSG_Table &Table, const CSG_Buffer &Flags = 0, bool bCommit = true);
 
 	bool						Table_Load				(CSG_Table &Data, const CSG_String &Table );
-	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false);
+	bool						Table_Load				(CSG_Table &Data, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where = "", const CSG_String &Group = "", const CSG_String &Having = "", const CSG_String &Order = "", bool bDistinct = false, bool bVerbose = false);
 
 	bool						Shapes_Geometry_Info	(const CSG_String &geoTable, CSG_String *geoField, int *SRID);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &geoTable);
@@ -176,8 +167,6 @@ private:
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -219,8 +208,6 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -253,13 +240,10 @@ private:
 
 	CSG_PG_Connection			*m_pConnection;
 
-
 };
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

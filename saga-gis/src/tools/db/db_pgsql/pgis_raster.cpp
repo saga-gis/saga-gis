@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: pgis_raster.cpp 1646 2013-04-10 16:29:00Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "pgis_raster.h"
 
 
@@ -99,7 +87,7 @@ CRaster_Load::CRaster_Load(void)
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Multiple Bands Output"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("single grids"),
 			_TL("grid collection"),
 			_TL("automatic")
@@ -507,7 +495,7 @@ CRaster_Collection_Save::CRaster_Collection_Save(void)
 	Parameters.Add_Choice("",
 		"EXISTS"	, _TL("If table exists..."),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("abort"),
 			_TL("replace")
 		), 0
