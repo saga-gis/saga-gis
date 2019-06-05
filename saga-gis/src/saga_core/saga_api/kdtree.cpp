@@ -220,9 +220,7 @@ CSG_KDTree::CSG_KDTree(void)
 
 //---------------------------------------------------------
 CSG_KDTree::~CSG_KDTree(void)
-{
-	Destroy();
-}
+{}
 
 //---------------------------------------------------------
 void CSG_KDTree::_On_Construction(void)

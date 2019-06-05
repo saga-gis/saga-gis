@@ -63,9 +63,16 @@
 //---------------------------------------------------------
 #include "table.h"
 
+//---------------------------------------------------------
+#ifndef SWIG
+
 #include <vector>
 
+#ifdef _SAGA_MSW
 #pragma warning(disable: 4251)	// avoiding noise: 'class 'std::vector<_Ty>' needs to have dll-interface to be used by clients of class CSG_KDTree...'
+#endif
+
+#endif	// #ifdef SWIG
 
 
 ///////////////////////////////////////////////////////////
@@ -1203,7 +1210,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points
 public:
 	CSG_Parameters_Search_Points(void);
 
-	bool						Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent = NULL, int nPoints_Min = -1);
+	bool						Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
 	bool						Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
 
 	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
