@@ -59,6 +59,7 @@ grid_memory.cpp\
 grid_operation.cpp\
 grid_pyramid.cpp\
 grid_system.cpp\
+kdtree.cpp\
 mat_formula.cpp\
 mat_grid_radius.cpp\
 mat_indexing.cpp\
@@ -117,6 +118,7 @@ grid.h\
 grid_pyramid.h\
 mat_tools.h\
 metadata.h\
+nanoflann.hpp\
 parameters.h\
 pointcloud.h\
 saga_api.h\

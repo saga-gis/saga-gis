@@ -552,6 +552,7 @@ copy tin.h $(OutDir)include\saga_api
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="kdtree.cpp" />
     <ClCompile Include="mat_formula.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -883,6 +884,7 @@ copy tin.h $(OutDir)include\saga_api
     <ClInclude Include="grid_pyramid.h" />
     <ClInclude Include="mat_tools.h" />
     <ClInclude Include="metadata.h" />
+    <ClInclude Include="nanoflann.hpp" />
     <ClInclude Include="tool.h" />
     <ClInclude Include="tool_chain.h" />
     <ClInclude Include="tool_library.h" />

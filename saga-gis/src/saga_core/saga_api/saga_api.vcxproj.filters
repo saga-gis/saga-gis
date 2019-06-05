@@ -215,6 +215,9 @@
     <ClCompile Include="tool_summary.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kdtree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="api_core.h">
@@ -281,6 +284,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="grids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nanoflann.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

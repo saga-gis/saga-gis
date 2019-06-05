@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -303,8 +291,6 @@ void CSG_PRQuadTree::Destroy(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -328,8 +314,6 @@ bool CSG_PRQuadTree::Add_Point(const TSG_Point &p, double z)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -387,8 +371,6 @@ bool CSG_PRQuadTree::_Check_Root(double x, double y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -484,8 +466,6 @@ inline bool CSG_PRQuadTree::_Radius_Intersects(double x, double y, double r, int
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -577,8 +557,6 @@ CSG_PRQuadTree_Leaf	* CSG_PRQuadTree::_Get_Nearest_Point(CSG_PRQuadTree_Item *pI
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -764,8 +742,6 @@ void CSG_PRQuadTree::_Select_Nearest_Points(CSG_Array &Selection, CSG_PRQuadTree
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -817,7 +793,15 @@ CSG_Parameters_Search_Points::CSG_Parameters_Search_Points(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Parameter *pNode, int nPoints_Min)
+bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Parameter *pParent, int nPoints_Min)
+{
+	CSG_String Parent; if( pParent ) { pParent->Get_Identifier(); }
+
+	return( Create(pParameters, Parent, nPoints_Min) );
+}
+
+//---------------------------------------------------------
+bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, const CSG_String &Parent, int nPoints_Min)
 {
 	if( pParameters == NULL || m_pParameters != NULL )
 	{
@@ -827,27 +811,25 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 	m_pParameters	= pParameters;
 
 	//-----------------------------------------------------
-	CSG_String		ParentID(pNode ? pNode->Get_Identifier() : SG_T(""));
-
-	pNode	= m_pParameters->Add_Choice(ParentID,
+	m_pParameters->Add_Choice(Parent,
 		"SEARCH_RANGE"		, _TL("Search Range"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("local"),
 			_TL("global")
 		), 1
 	);
 
-	m_pParameters->Add_Double(pNode->Get_Identifier(),
+	m_pParameters->Add_Double("SEARCH_RANGE",
 		"SEARCH_RADIUS"		, _TL("Maximum Search Distance"),
 		_TL("local maximum search distance given in map units"),
-		1000.0, 0, true
+		1000., 0., true
 	);
 
-	pNode	= m_pParameters->Add_Choice(ParentID,
+	m_pParameters->Add_Choice(Parent,
 		"SEARCH_POINTS_ALL"	, _TL("Number of Points"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("maximum number of nearest points"),
 			_TL("all points within search distance")
 		), 1
@@ -855,23 +837,23 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 
 	if( m_nPoints_Min >= 0 )
 	{
-		m_pParameters->Add_Int(pNode->Get_Identifier(),
+		m_pParameters->Add_Int("SEARCH_POINTS_ALL",
 			"SEARCH_POINTS_MIN"	, _TL("Minimum"),
 			_TL("minimum number of points to use"),
 			nPoints_Min, 1, true
 		);
 	}
 
-	m_pParameters->Add_Int(pNode->Get_Identifier(),
+	m_pParameters->Add_Int("SEARCH_POINTS_ALL",
 		"SEARCH_POINTS_MAX"	, _TL("Maximum"),
 		_TL("maximum number of nearest points"),
 		20, 1, true
 	);
 
-	m_pParameters->Add_Choice(pNode->Get_Identifier(),
+	m_pParameters->Add_Choice("SEARCH_POINTS_ALL",
 		"SEARCH_DIRECTION"	, _TL("Direction"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("all directions"),
 			_TL("quadrants")
 		)
@@ -888,8 +870,8 @@ bool CSG_Parameters_Search_Points::Create(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 bool CSG_Parameters_Search_Points::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier()) || !pParameter
-		|| !pParameter->asShapes() )
+	if( !m_pParameters || !pParameters || m_pParameters->Get_Identifier().Cmp(pParameters->Get_Identifier())
+	||  !pParameter || !pParameter->asShapes() )
 	{
 		return( false );
 	}

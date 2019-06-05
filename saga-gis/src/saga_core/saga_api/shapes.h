@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__SAGA_API__shapes_H
 #define HEADER_INCLUDED__SAGA_API__shapes_H
 
@@ -74,6 +62,10 @@
 
 //---------------------------------------------------------
 #include "table.h"
+
+#include <vector>
+
+#pragma warning(disable: 4251)	// avoiding noise: 'class 'std::vector<_Ty>' needs to have dll-interface to be used by clients of class CSG_KDTree...'
 
 
 ///////////////////////////////////////////////////////////
@@ -1100,6 +1092,107 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_KDTree
+{
+public:
+	CSG_KDTree(void);
+	virtual ~CSG_KDTree(void);
+
+	virtual bool				Destroy				(void);
+
+	size_t						Get_Match_Count		(void    )	const	{	return( m_Matches   .size() );	}
+	size_t						Get_Match_Index		(size_t i)	const	{	return( m_Matches[i].first  );	}
+	double						Get_Match_Distance	(size_t i)	const	{	return( m_Matches[i].second );	}
+	CSG_Shape *					Get_Match_Shape		(size_t i)	const;
+
+
+protected:
+
+	class CSG_KDTree_Adaptor	*m_pAdaptor;
+
+	void						*m_pKDTree;
+
+	std::vector<std::pair<size_t, double>>	m_Matches;
+
+
+	void						_On_Construction	(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_KDTree_2D : public CSG_KDTree
+{
+public:
+	CSG_KDTree_2D(void);
+	virtual ~CSG_KDTree_2D(void);
+
+								CSG_KDTree_2D		(CSG_Shapes *pPoints);
+	bool						Create				(CSG_Shapes *pPoints);
+
+	virtual bool				Destroy				(void);
+
+	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, size_t *Indices, double *Distances);
+	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index, double &Distance);
+	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index);
+	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[2]);
+
+	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, size_t *Indices, double *Distances);
+	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index, double &Distance);
+	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index);
+	virtual CSG_Shape *			Get_Nearest_Shape	(double x, double y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_KDTree_3D : public CSG_KDTree
+{
+public:
+	CSG_KDTree_3D(void);
+	virtual ~CSG_KDTree_3D(void);
+
+								CSG_KDTree_3D		(CSG_Shapes     *pPoints, int zField = -1, double zScale = 1.);
+	bool						Create				(CSG_Shapes     *pPoints, int zField = -1, double zScale = 1.);
+
+								CSG_KDTree_3D		(CSG_PointCloud *pPoints);
+	bool						Create				(CSG_PointCloud *pPoints);
+
+	virtual bool				Destroy				(void);
+
+	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius);
+
+	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, size_t *Indices, double *Distances);
+	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index, double &Distance);
+	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index);
+	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[3]);
+
+	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, size_t *Indices, double *Distances);
+	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index, double &Distance);
+	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index);
+	virtual CSG_Shape *			Get_Nearest_Shape	(double x, double y, double z);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //					Search Engine						 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -1110,10 +1203,11 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points
 public:
 	CSG_Parameters_Search_Points(void);
 
-	bool						Create					(CSG_Parameters *pParameters, CSG_Parameter *pNode = NULL, int nPoints_Min = -1);
+	bool						Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent = NULL, int nPoints_Min = -1);
+	bool						Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
 
-	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
+	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
 
 	bool						Initialize				(CSG_Shapes *pPoints, int zField);
 	bool						Finalize				(void);

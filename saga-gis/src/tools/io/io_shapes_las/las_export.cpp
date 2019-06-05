@@ -59,14 +59,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "las_export.h"
-
 #include <liblas/laspoint.hpp>
 #include <liblas/laswriter.hpp>
 #include <liblas/capi/las_version.h>
 #include <fstream>
 #include <iostream>
 #include <cstddef>
+
+#include "las_export.h"
 
 
 //---------------------------------------------------------

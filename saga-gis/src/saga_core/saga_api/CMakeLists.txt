@@ -48,6 +48,7 @@ set(SAGA_API_SOURCES
 	grid_pyramid.cpp
 	grid_system.cpp
 	grids.cpp
+	kdtree.cpp
 	mat_formula.cpp
 	mat_grid_radius.cpp
 	mat_indexing.cpp
@@ -106,6 +107,7 @@ set(SAGA_API_SOURCES
 	grid_pyramid.h
 	mat_tools.h
 	metadata.h
+	nanoflann.hpp
 	parameters.h
 	pointcloud.h
 	saga_api.h
