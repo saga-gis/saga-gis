@@ -318,9 +318,11 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="gridding3d_nearest_neighbour.h" />
     <ClInclude Include="grid_collection.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="gridding3d_nearest_neighbour.cpp" />
     <ClCompile Include="grid_collection.cpp" />
     <ClCompile Include="TLB_Interface.cpp" />
   </ItemGroup>

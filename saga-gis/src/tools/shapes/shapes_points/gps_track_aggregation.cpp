@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gps_track_aggregation.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gps_track_aggregation.h"
 
 
@@ -96,120 +84,113 @@ enum
 //---------------------------------------------------------
 CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Aggregate Point Observations"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		""
+		"Aggregate Point Observations"
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "REFERENCE"		, _TL("Reference Points"),
+	Parameters.Add_Shapes("",
+		"REFERENCE"		, _TL("Reference Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "REFERENCE_ID"	, _TL("ID"),
+	Parameters.Add_Table_Field("REFERENCE",
+		"REFERENCE_ID"	, _TL("ID"),
 		_TL("")
 	);
 
-	pNode	= Parameters.Add_Table(
-		NULL	, "OBSERVATIONS"	, _TL("Observations"),
+	Parameters.Add_Table("",
+		"OBSERVATIONS"	, _TL("Observations"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "X"				, _TL("X"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"X"				, _TL("X"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "Y"				, _TL("Y"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"Y"				, _TL("Y"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "TRACK"			, _TL("Track"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"TRACK"			, _TL("Track"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "DATE"			, _TL("Date"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"DATE"			, _TL("Date"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "TIME"			, _TL("Time"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"TIME"			, _TL("Time"),
 		_TL("expected to be the second of day")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "PARAMETER"		, _TL("Parameter"),
+	Parameters.Add_Table_Field("OBSERVATIONS",
+		"PARAMETER"		, _TL("Parameter"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "AGGREGATED"		, _TL("Aggregated"),
+	Parameters.Add_Table("",
+		"AGGREGATED"	, _TL("Aggregated"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TIME_SPAN"		, _TL("Time Span Aggregation"),
+	Parameters.Add_Choice("",
+		"TIME_SPAN"		, _TL("Time Span Aggregation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("ignore"),
 			_TL("floating"),
 			_TL("fixed")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FIX_TIME"		, _TL("Fixed Time Span (minutes)"),
+	Parameters.Add_Double("",
+		"FIX_TIME"		, _TL("Fixed Time Span (minutes)"),
 		_TL("ignored if set to zero"),
-		PARAMETER_TYPE_Double, 20.0, 0.0, true
+		20., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "OFF_TIME"		, _TL("Fixed Time Span Offset (minutes)"),
+	Parameters.Add_Double("",
+		"OFF_TIME"		, _TL("Fixed Time Span Offset (minutes)"),
 		_TL("offset in minutes relative to 00:00 (midnight)"),
-		PARAMETER_TYPE_Double, -10.0
+		 -10.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPS_TIME"		, _TL("Maximum Time Span (Seconds)"),
+	Parameters.Add_Double("",
+		"EPS_TIME"		, _TL("Maximum Time Span (Seconds)"),
 		_TL("ignored if set to zero"),
-		PARAMETER_TYPE_Double, 60.0, 0.0, true
+		60., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPS_SPACE"		, _TL("Maximum Distance"),
+	Parameters.Add_Double("",
+		"EPS_SPACE"		, _TL("Maximum Distance"),
 		_TL("given as map units or meters if polar coordinates switch is on; ignored if set to zero"),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true
+		100., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "VERBOSE"			, _TL("Verbose"),
+	Parameters.Add_Bool("",
+		"VERBOSE"		, _TL("Verbose"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "POLAR"			, _TL("Polar Coordinates"),
+	Parameters.Add_Bool("",
+		"POLAR"			, _TL("Polar Coordinates"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -221,14 +202,14 @@ CGPS_Track_Aggregation::CGPS_Track_Aggregation(void)
 //---------------------------------------------------------
 int CGPS_Track_Aggregation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("TIME_SPAN")) )
+	if(	pParameter->Cmp_Identifier("TIME_SPAN") )
 	{
-		pParameters->Get_Parameter("FIX_TIME")->Set_Enabled(pParameter->asInt() == 2);
-		pParameters->Get_Parameter("OFF_TIME")->Set_Enabled(pParameter->asInt() == 2);
-		pParameters->Get_Parameter("EPS_TIME")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("FIX_TIME", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("OFF_TIME", pParameter->asInt() == 2);
+		pParameters->Set_Enabled("EPS_TIME", pParameter->asInt() == 1);
 	}
 
-	return( -1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -248,29 +229,28 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	CSG_Shape				*pReference, *pNearest;
 	CSG_Simple_Statistics	Statistic, Time;
 	CSG_Table				*pObservations, *pAggregated, Observations;
-	CSG_Shapes_Search		Reference;
 
 	//-----------------------------------------------------
-	pObservations	= Parameters("OBSERVATIONS")	->asTable ();
-	pAggregated		= Parameters("AGGREGATED")		->asTable ();
-	fRefID			= Parameters("REFERENCE_ID")	->asInt   ();
-	fX				= Parameters("X")				->asInt   ();
-	fY				= Parameters("Y")				->asInt   ();
-	fTrack			= Parameters("TRACK")			->asInt   ();
-	fDate			= Parameters("DATE")			->asInt   ();
-	fTime			= Parameters("TIME")			->asInt   ();
-	fParameter		= Parameters("PARAMETER")		->asInt   ();
-	Time_Span		= Parameters("TIME_SPAN")		->asInt   ();
-	eps_Space		= Parameters("EPS_SPACE")		->asDouble();
-	off_Time		= Parameters("OFF_TIME")		->asDouble() * 60.0;
-	bVerbose		= Parameters("VERBOSE")			->asBool  ();
-	bPolar			= Parameters("POLAR")			->asBool  ();
+	pObservations	= Parameters("OBSERVATIONS")->asTable ();
+	pAggregated		= Parameters("AGGREGATED"  )->asTable ();
+	fRefID			= Parameters("REFERENCE_ID")->asInt   ();
+	fX				= Parameters("X"           )->asInt   ();
+	fY				= Parameters("Y"           )->asInt   ();
+	fTrack			= Parameters("TRACK"       )->asInt   ();
+	fDate			= Parameters("DATE"        )->asInt   ();
+	fTime			= Parameters("TIME"        )->asInt   ();
+	fParameter		= Parameters("PARAMETER"   )->asInt   ();
+	Time_Span		= Parameters("TIME_SPAN"   )->asInt   ();
+	eps_Space		= Parameters("EPS_SPACE"   )->asDouble();
+	off_Time		= Parameters("OFF_TIME"    )->asDouble() * 60.0;
+	bVerbose		= Parameters("VERBOSE"     )->asBool  ();
+	bPolar			= Parameters("POLAR"       )->asBool  ();
 
 	switch( Time_Span )
 	{
-	default:	eps_Time	= 0.0;											break;
-	case  1:	eps_Time	= Parameters("EPS_TIME")->asDouble();			break;
-	case  2:	eps_Time	= Parameters("FIX_TIME")->asDouble() * 60.0;	break;
+	default: eps_Time = 0.                                      ; break;
+	case  1: eps_Time = Parameters("EPS_TIME")->asDouble()      ; break;
+	case  2: eps_Time = Parameters("FIX_TIME")->asDouble() * 60.; break;
 	}
 
 	if( eps_Time <= 0.0 )
@@ -279,7 +259,9 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !Reference.Create(Parameters("REFERENCE")->asShapes()) )
+	CSG_KDTree_2D	Search;
+
+	if( !Search.Create(Parameters("REFERENCE")->asShapes()) )
 	{
 		Error_Set(_TL("could not initialize reference point search engine"));
 
@@ -290,7 +272,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 	if( Time_Span == 2 )	// pre-processing for 'fix' time span
 	{
 		Observations.Create(*pObservations);
-		Observations.Add_Field(SG_T("REF_ID"), SG_DATATYPE_String);
+		Observations.Add_Field("REF_ID", SG_DATATYPE_String);
 
 		fTrack			= pObservations->Get_Field_Count();
 		pObservations	= &Observations;
@@ -298,7 +280,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 		for(Observation=0; Observation<pObservations->Get_Count() && Set_Progress(Observation, pObservations->Get_Count()); Observation++)
 		{
 			pObservation	= pObservations->Get_Record(Observation);
-			pNearest		= Reference.Get_Point_Nearest(pObservation->asDouble(fX), pObservation->asDouble(fY));
+			pNearest		= Search.Get_Nearest_Shape(pObservation->asDouble(fX), pObservation->asDouble(fY));
 			pObservation	->Set_Value(fTrack, pNearest->asString(fRefID));
 		}
 	}
@@ -355,7 +337,7 @@ bool CGPS_Track_Aggregation::On_Execute(void)
 
 		Position.x	= pObservation->asDouble(fX);
 		Position.y	= pObservation->asDouble(fY);
-		pNearest	= Reference.Get_Point_Nearest(Position.x, Position.y);
+		pNearest	= Search.Get_Nearest_Shape(Position.x, Position.y);
 
 		if( eps_Space > 0.0 && eps_Space <= (bPolar ? SG_Get_Distance_Polar(Position, pNearest->Get_Point(0)) : SG_Get_Distance(Position, pNearest->Get_Point(0))) )
 		{

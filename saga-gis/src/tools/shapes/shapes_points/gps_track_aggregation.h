@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gps_track_aggregation.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__gps_track_aggregation_H
 #define HEADER_INCLUDED__gps_track_aggregation_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,14 +72,12 @@ class CGPS_Track_Aggregation : public CSG_Tool
 public:
 	CGPS_Track_Aggregation(void);
 
-//	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Import") );	}
-
 
 protected:
 
-	virtual bool			On_Execute				(void);
-
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:

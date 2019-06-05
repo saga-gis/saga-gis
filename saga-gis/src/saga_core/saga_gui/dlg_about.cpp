@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,17 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 #include <saga_api/clipper.hpp>
+#include <saga_api/nanoflann.hpp>
 
 #include <wx/notebook.h>
 
@@ -227,9 +216,17 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= wxVERSION_STRING	+ wxString("\n");
 	s	+= "http://www.wxwidgets.org/\n";
 	s	+= "\n";
-	s	+= "SAGA API includes the polygon clipping and offsetting library\n";
+	s	+= "SAGA API includes:\n";
+	s	+= "The polygon clipping and offsetting library\n";
 	s	+= "Clipper " + wxString(CLIPPER_VERSION) + "\n";
 	s	+= "http://sourceforge.net/projects/polyclipping/\n";
+	s	+= "\n";
+	s	+= "The Nearest Neighbor (NN) search with KD-trees library\n";
+	s	+= "nanoflann " + wxString::Format("%d.%d.%d",
+			(NANOFLANN_VERSION&0xf00)/0xf0,
+			(NANOFLANN_VERSION&0x0f0)/0x0f,
+			(NANOFLANN_VERSION&0x00f)) + "\n";
+	s	+= "http://github.com/jlblancoc/nanoflann/\n";
 
 	s	+= "_______________________\n\n";
 
