@@ -223,9 +223,9 @@ wxString CDLG_About::_Get_Version(void)
 	s	+= "\n";
 	s	+= "The Nearest Neighbor (NN) search with KD-trees library\n";
 	s	+= "nanoflann " + wxString::Format("%d.%d.%d",
-			(NANOFLANN_VERSION&0xf00)/0xf0,
-			(NANOFLANN_VERSION&0x0f0)/0x0f,
-			(NANOFLANN_VERSION&0x00f)) + "\n";
+			(NANOFLANN_VERSION&0xf00)/0x100,
+			(NANOFLANN_VERSION&0x0f0)/0x010,
+			(NANOFLANN_VERSION&0x00f)/0x001) + "\n";
 	s	+= "http://github.com/jlblancoc/nanoflann/\n";
 
 	s	+= "_______________________\n\n";

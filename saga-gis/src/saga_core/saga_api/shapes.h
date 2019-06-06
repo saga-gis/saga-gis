@@ -63,17 +63,6 @@
 //---------------------------------------------------------
 #include "table.h"
 
-//---------------------------------------------------------
-#ifndef SWIG
-
-#include <vector>
-
-#ifdef _SAGA_MSW
-#pragma warning(disable: 4251)	// avoiding noise: 'class 'std::vector<_Ty>' needs to have dll-interface to be used by clients of class CSG_KDTree...'
-#endif
-
-#endif	// #ifdef SWIG
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1112,9 +1101,11 @@ public:
 
 	virtual bool				Destroy				(void);
 
-	size_t						Get_Match_Count		(void    )	const	{	return( m_Matches   .size() );	}
-	size_t						Get_Match_Index		(size_t i)	const	{	return( m_Matches[i].first  );	}
-	double						Get_Match_Distance	(size_t i)	const	{	return( m_Matches[i].second );	}
+	bool						is_Okay				(void)		const	{	return( m_pKDTree != NULL );	}
+
+	size_t						Get_Match_Count		(void    )	const	{	return( m_Indices.Get_Size() );	}
+	size_t						Get_Match_Index		(size_t i)	const	{	return( m_Indices  [i]       );	}
+	double						Get_Match_Distance	(size_t i)	const	{	return( m_Distances[i]       );	}
 	CSG_Shape *					Get_Match_Shape		(size_t i)	const;
 
 
@@ -1124,7 +1115,9 @@ protected:
 
 	void						*m_pKDTree;
 
-	std::vector<std::pair<size_t, double>>	m_Matches;
+	CSG_Array_Int				m_Indices;
+
+	CSG_Vector					m_Distances;
 
 
 	void						_On_Construction	(void);
@@ -1149,12 +1142,14 @@ public:
 	virtual bool				Destroy				(void);
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double Coordinate[2], size_t &Index);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[2]);
 
 	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double x, double y, size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double x, double y, size_t &Index);
@@ -1185,11 +1180,13 @@ public:
 	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius);
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, size_t *Indices, double *Distances);
+	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
 	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double Coordinate[3], size_t &Index);
 	virtual CSG_Shape *			Get_Nearest_Shape	(double Coordinate[3]);
 
 	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius);
+	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
 	virtual size_t				Get_Nearest_Points	(double x, double y, double z, size_t Count, size_t *Indices, double *Distances);
 	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index, double &Distance);
 	virtual bool				Get_Nearest_Point	(double x, double y, double z, size_t &Index);
@@ -1205,16 +1202,45 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points
+class SAGA_API_DLL_EXPORT CSG_Parameters_PointSearch
+{
+public:
+	CSG_Parameters_PointSearch(void);
+
+	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String &Parent = "", size_t minPoints = 0);
+
+	virtual bool				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				Update					(void);
+
+	bool						Do_Use_All				(bool bUpdate = false);
+
+	size_t						Get_Min_Points			(void)	const	{	return( m_minPoints );	}
+	size_t						Get_Max_Points			(void)	const	{	return( m_maxPoints );	}
+	double						Get_Radius				(void)	const	{	return( m_Radius    );	}
+
+
+protected:
+
+	size_t						m_minPoints, m_maxPoints;
+
+	double						m_Radius;
+
+	CSG_Parameters				*m_pParameters;
+
+};
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points : public CSG_Parameters_PointSearch
 {
 public:
 	CSG_Parameters_Search_Points(void);
 
-	bool						Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
-	bool						Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
+	virtual bool				Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
+	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
 
-	bool						On_Parameter_Changed	(CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
-	bool						On_Parameters_Enable	(CSG_Parameters *pParameters, class CSG_Parameter *pParameter);
+	virtual bool				Update					(void);
 
 	bool						Initialize				(CSG_Shapes *pPoints, int zField);
 	bool						Finalize				(void);
@@ -1228,18 +1254,12 @@ public:
 	bool						Get_Points				(double x, double y, CSG_Points_Z &Points);
 	bool						Get_Points				(const TSG_Point &p, CSG_Points_Z &Points);
 
-	bool						Do_Use_All				(bool bUpdate = false);
-
 
 private:
 
-	int							m_zField, m_nPoints, m_nPoints_Min, m_nPoints_Max, m_Quadrant;
-
-	double						m_Radius;
+	int							m_zField, m_nPoints, m_Quadrant;
 
 	CSG_Shapes					*m_pPoints;
-
-	CSG_Parameters				*m_pParameters;
 
 	CSG_PRQuadTree				m_Search;
 

@@ -234,7 +234,8 @@ bool CSG_KDTree::Destroy(void)
 {
 	SG_DELETE_SAFE(m_pAdaptor);
 
-	m_Matches.clear();
+	m_Indices  .Destroy();
+	m_Distances.Destroy();
 
 	return( true );
 }
@@ -315,18 +316,61 @@ bool CSG_KDTree_2D::Destroy(void)
 //---------------------------------------------------------
 size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, double Radius)
 {
-	nanoflann::SearchParams	SearchParams;
+	return( Get_Nearest_Points(Coordinate, Count, Radius, m_Indices, m_Distances) );
+}
 
-	SearchParams.sorted	= Count > 0;
-
-	((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->radiusSearch(Coordinate, Radius, m_Matches, SearchParams);
-
-	if( Count > 0 && m_Matches.size() > Count )
+//---------------------------------------------------------
+size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+{
+	if( Radius > 0. )
 	{
-		m_Matches.resize(Count);
+		nanoflann::SearchParams	SearchParams;
+
+		SearchParams.sorted	= Count > 0;
+
+		std::vector<std::pair<size_t, double>>	Matches;
+
+		((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->radiusSearch(Coordinate, Radius*Radius, Matches, SearchParams);
+
+		if( Count == 0 || Count > Matches.size() )
+		{
+			Count	= Matches.size();
+		}
+
+		Indices  .Create(Count);
+		Distances.Create(Count);
+
+		for(size_t i=0; i<Count; i++)
+		{
+			Indices  [i]	=      Matches[i]. first;
+			Distances[i]	= sqrt(Matches[i].second);
+		}
+	}
+	else if( Count > 0 )
+	{
+		size_t	*_Indices	= new size_t[Count];
+
+		Distances.Create(Count);
+
+		Count	= Get_Nearest_Points(Coordinate, Count, _Indices, Distances.Get_Data());
+
+		if( Count < (size_t)Distances.Get_N() )
+		{
+			Distances.Set_Rows(Count);
+		}
+
+		Indices.Create(Count);
+
+		for(size_t i=0; i<Count; i++)
+		{
+			Indices  [i]	=       _Indices[i];
+			Distances[i]	= sqrt(Distances[i]);
+		}
+
+		delete[](_Indices);
 	}
 
-	return( m_Matches.size() );
+	return( Count );
 }
 
 //---------------------------------------------------------
@@ -365,6 +409,13 @@ size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, 
 	double	c[2]; c[0] = x; c[1] = y;
 
 	return( Get_Nearest_Points(c, Count, Radius) );
+}
+
+size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+{
+	double	c[2]; c[0] = x; c[1] = y;
+
+	return( Get_Nearest_Points(c, Count, Radius, Indices, Distances) );
 }
 
 size_t      CSG_KDTree_2D::Get_Nearest_Points(double x, double y, size_t Count, size_t *Indices, double *Distances)
@@ -475,19 +526,61 @@ bool CSG_KDTree_3D::Destroy(void)
 //---------------------------------------------------------
 size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, double Radius)
 {
-	nanoflann::SearchParams	SearchParams;
+	return( Get_Nearest_Points(Coordinate, Count, Radius, m_Indices, m_Distances) );
+}
 
-	SearchParams.sorted	= Count > 0;
-
-	const size_t nMatches	=
-	((CSG_KDTree_Adaptor::kd_tree_3d *)m_pKDTree)->radiusSearch(Coordinate, Radius, m_Matches, SearchParams);
-
-	if( Count > 0 && m_Matches.size() > Count )
+//---------------------------------------------------------
+size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+{
+	if( Radius > 0. )
 	{
-		m_Matches.resize(Count);
+		nanoflann::SearchParams	SearchParams;
+
+		SearchParams.sorted	= Count > 0;
+
+		std::vector<std::pair<size_t, double>>	Matches;
+
+		((CSG_KDTree_Adaptor::kd_tree_3d *)m_pKDTree)->radiusSearch(Coordinate, Radius*Radius, Matches, SearchParams);
+
+		if( Count == 0 || Count > Matches.size() )
+		{
+			Count	= Matches.size();
+		}
+
+		Indices  .Create(Count);
+		Distances.Create(Count);
+
+		for(size_t i=0; i<Count; i++)
+		{
+			Indices  [i]	=      Matches[i]. first;
+			Distances[i]	= sqrt(Matches[i].second);
+		}
+	}
+	else if( Count > 0 )
+	{
+		size_t	*_Indices	= new size_t[Count];
+
+		Distances.Create(Count);
+
+		Count	= Get_Nearest_Points(Coordinate, Count, _Indices, Distances.Get_Data());
+
+		if( Count < (size_t)Distances.Get_N() )
+		{
+			Distances.Set_Rows(Count);
+		}
+
+		Indices.Create(Count);
+
+		for(size_t i=0; i<Count; i++)
+		{
+			Indices  [i]	=       _Indices[i];
+			Distances[i]	= sqrt(Distances[i]);
+		}
+
+		delete[](_Indices);
 	}
 
-	return( m_Matches.size() );
+	return( Count );
 }
 
 //---------------------------------------------------------
@@ -523,35 +616,42 @@ CSG_Shape * CSG_KDTree_3D::Get_Nearest_Shape(double Coordinate[3])
 //---------------------------------------------------------
 size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size_t Count, double Radius)
 {
-	double	c[2]; c[0] = x; c[1] = y;
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
 
 	return( Get_Nearest_Points(c, Count, Radius) );
 }
 
+size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances)
+{
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
+
+	return( Get_Nearest_Points(c, Count, Radius, Indices, Distances) );
+}
+
 size_t      CSG_KDTree_3D::Get_Nearest_Points(double x, double y, double z, size_t Count, size_t *Indices, double *Distances)
 {
-	double	c[2]; c[0] = x; c[1] = y;
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
 
 	return( Get_Nearest_Points(c, Count, Indices, Distances) );
 }
 
 bool        CSG_KDTree_3D::Get_Nearest_Point(double x, double y, double z, size_t &Index, double &Distance)
 {
-	double	c[2]; c[0] = x; c[1] = y;
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
 
 	return( Get_Nearest_Point(c, Index, Distance) );
 }
 
 bool        CSG_KDTree_3D::Get_Nearest_Point(double x, double y, double z, size_t &Index)
 {
-	double	c[2]; c[0] = x; c[1] = y;
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
 
 	return( Get_Nearest_Point(c, Index) );
 }
 
 CSG_Shape * CSG_KDTree_3D::Get_Nearest_Shape(double x, double y, double z)
 {
-	double	c[2]; c[0] = x; c[1] = y;
+	double	c[3]; c[0] = x; c[1] = y; c[2] = z;
 
 	return( Get_Nearest_Shape(c) );
 }
