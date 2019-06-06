@@ -71,6 +71,9 @@
     <ClInclude Include="gridding3d_nearest_neighbour.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gridding3d_idw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="grid_collection.cpp">
@@ -80,6 +83,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gridding3d_nearest_neighbour.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gridding3d_idw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -83,7 +83,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	));
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")));
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")));
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
@@ -107,7 +107,7 @@ int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParame
 
 		if( pParameter->asShapes() && pParameter->asShapes()->Get_Count() > 1 )
 		{	// get a rough estimation of point density for band width suggestion
-			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+			pParameters->Set_Parameter("DW_BANDWIDTH", SG_Get_Rounded_To_SignificantFigures(
 				0.5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
 			));
 		}

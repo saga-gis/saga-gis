@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                     climate_tools                     //
+//                     Tool Library:                     //
+//                      grids_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    gridding3d_idw.h                   //
 //                                                       //
-//                 Copyright (C) 2017 by                 //
-//                      Olaf Conrad                      //
+//                  Olaf Conrad (C) 2019                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,77 +45,64 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__gridding3d_idw_H
+#define HEADER_INCLUDED__gridding3d_idw_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGridding3D_IDW : public CSG_Tool
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Grid Collection Tools") );
+public:
+	CGridding3D_IDW(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Grid Collection") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2017" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for grid collections.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Grid|Grid Collection") );
-	}
-}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Interpolation") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "grid_collection.h"
-#include "gridding3d_nearest_neighbour.h"
-#include "gridding3d_idw.h"
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0: 	return( new CGrids_Create );
-	case  4: 	return( new CGrids_Add_Grid );
-	case  1: 	return( new CGrids_Extract );
-	case  3: 	return( new CGrids_Extract_Grid );
-	case  2: 	return( new CGrids_Delete );
+	CSG_Parameters_Grid_Target		m_Grid_Target;
 
-	case  5: 	return( new CGridding3D_Nearest_Neighbour );
-	case  6:	return( new CGridding3D_IDW );
-		
-	//-----------------------------------------------------
-	case 10:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+	CSG_Parameters_PointSearch		m_Searching;
+
+	CSG_Distance_Weighting			m_Weighting;
+
+	CSG_KDTree_3D					m_Search;
+
+	int								m_zField, m_vField;
+
+	CSG_Shapes						*m_pPoints;
+
+
+	bool							Get_Value				(double Coordinate[3], double zScale, double &Value);
+
+	double							Get_Distance			(double Coordinate[3], CSG_Shape *pPoint);
+	bool							is_Identical			(double Coordinate[3], CSG_Shape *pPoint);
+
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -126,8 +112,5 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__gridding3d_idw_H
 
-	TLB_INTERFACE
-
-//}}AFX_SAGA
