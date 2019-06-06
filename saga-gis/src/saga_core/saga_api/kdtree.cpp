@@ -63,6 +63,8 @@
 class CSG_KDTree_Adaptor
 {
 public:
+	CSG_KDTree_Adaptor(void) {}
+	virtual ~CSG_KDTree_Adaptor(void) {}
 
 	typedef nanoflann::KDTreeSingleIndexAdaptor<nanoflann::L2_Simple_Adaptor<double, CSG_KDTree_Adaptor>,
 		CSG_KDTree_Adaptor, 2> kd_tree_2d;
@@ -71,8 +73,8 @@ public:
 		CSG_KDTree_Adaptor, 3> kd_tree_3d;
 
 	//-----------------------------------------------------
-	inline virtual size_t		kdtree_get_point_count	(void)								const	= 0;
-	inline virtual double		kdtree_get_pt			(const size_t Index, int Dimension)	const	= 0;
+	virtual size_t				kdtree_get_point_count	(void)								const	= 0;
+	virtual double				kdtree_get_pt			(const size_t Index, int Dimension)	const	= 0;
 
 	template <class BBOX> bool	kdtree_get_bbox			(BBOX &bb)	const
 	{
@@ -113,7 +115,6 @@ protected:
 class CSG_KDTree_Adaptor_Points : public CSG_KDTree_Adaptor
 {
 public:
-
 	CSG_KDTree_Adaptor_Points(CSG_Shapes *pPoints, int zField = -1, double zScale = 1.)
 	{
 		m_pData		= m_pPoints	= pPoints;
@@ -121,12 +122,14 @@ public:
 		m_zScale	= zScale;
 	}
 
-	inline virtual size_t	kdtree_get_point_count	(void)	const
+	virtual ~CSG_KDTree_Adaptor_Points(void) {}
+
+	virtual size_t			kdtree_get_point_count	(void)	const
 	{
 		return( m_pPoints->Get_Count() );
 	}
 
-	inline virtual double	kdtree_get_pt			(const size_t Index, int Dimension)	const
+	virtual double			kdtree_get_pt			(const size_t Index, int Dimension)	const
 	{
 		if( Dimension == 0 ) { return( m_pPoints->Get_Shape(Index)->Get_Point(0).x ); }
 		if( Dimension == 1 ) { return( m_pPoints->Get_Shape(Index)->Get_Point(0).y ); }
@@ -164,19 +167,20 @@ protected:
 class CSG_KDTree_Adaptor_PointCloud : public CSG_KDTree_Adaptor
 {
 public:
-
 	CSG_KDTree_Adaptor_PointCloud(CSG_PointCloud *pPoints, double zScale = 1.)
 	{
 		m_pData		= m_pPoints	= pPoints;
 		m_zScale	= zScale;
 	}
 
-	inline virtual size_t	kdtree_get_point_count	(void)	const
+	virtual ~CSG_KDTree_Adaptor_PointCloud(void) {}
+
+	virtual size_t			kdtree_get_point_count	(void)	const
 	{
 		return( m_pPoints->Get_Count() );
 	}
 
-	inline virtual double	kdtree_get_pt			(const size_t Index, int Dimension)	const
+	virtual double			kdtree_get_pt			(const size_t Index, int Dimension)	const
 	{
 		if( Dimension == 0 ) { return( m_pPoints->Get_X(Index)            ); }
 		if( Dimension == 1 ) { return( m_pPoints->Get_Y(Index)            ); }
