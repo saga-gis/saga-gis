@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     OWA.cpp
     Copyright (C) Victor Olaya
@@ -20,133 +17,179 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/
 
+//---------------------------------------------------------
 #include "owa.h"
 
-COWA::COWA(void){
 
-	Parameters.Set_Name(_TL("Ordered Weighted Averaging (OWA)"));
-	Parameters.Set_Description(_TW(
-		"(c) 2006 by Victor Olaya. Ordered Weighted Averaging (OWA)"));
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Parameters.Add_Grid_List(NULL,
-						"GRIDS", 
-						_TL("Input Grids"),
-						_TL("Input Grids"),
-						PARAMETER_INPUT);
+//---------------------------------------------------------
+COWA::COWA(void)
+{
+	Set_Name		(_TL("Ordered Weighted Averaging"));
 
-	Parameters.Add_FixedTable(NULL, 
-							"WEIGHTS", 
-							_TL("Weights"),
-							_TL(""));
+	Set_Author		("Victor Olaya (c) 2006");
 
-	Parameters.Add_Grid(NULL,
-						"OUTPUT",
-						_TL("Output Grid"),
-						_TL(""),
-						PARAMETER_OUTPUT);
+	Set_Description	(_TW(
+		"The ordered weighted averaging tool calculates for each cell "
+		"the weighted average from the values of the supplied grids. "
+		"The weighting factor for each grid has to be defined in the 'Weights' "
+		"table. The order of the weights in this table has to correspond to "
+		"the grids' order in the input list. "
+	));
 
-	CSG_Table_Record *pRecord;
-	CSG_Table *pWeights = Parameters("WEIGHTS")->asTable();
+	//-----------------------------------------------------
+	Parameters.Add_Grid_List("",
+		"GRIDS"		, _TL("Input Grids"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	pWeights->Set_Name(_TL("Weights"));
+	Parameters.Add_Grid("",
+		"OUTPUT"	, _TL("Output Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
 
-	pWeights->Add_Field(_TL("Weight")	, SG_DATATYPE_Double);
+	Parameters.Add_FixedTable("", 
+		"WEIGHTS"	, _TL("Weights"),
+		_TL("")
+	);
 
-	pRecord	= pWeights->Add_Record();
-	pRecord->Set_Value(0, 1);
+	CSG_Table	*pWeights	= Parameters("WEIGHTS")->asTable();
 
-}//constructor
+	pWeights->Add_Field(_TL("Weight"), SG_DATATYPE_Double);
+	pWeights->Add_Field(_TL("Grid"  ), SG_DATATYPE_String);
+}
 
 
-COWA::~COWA(void){}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool COWA::On_Execute(void){
+//---------------------------------------------------------
+int COWA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("GRIDS") && pParameter->asGridList()->Get_Grid_Count() > 1 )
+	{
+		CSG_Table	&Table	= *(*pParameters)("WEIGHTS")->asTable();
 
-	bool bAllValuesAreOK;
-	int i;	
-	int x,y;	
-	double *pCoefs;
-	double *pOrderedValues;
-	double dValue;
-	double dSum = 0;
-	CSG_Grid *pOutputGrid;
-// OC:	CSG_Grid **pGrids;
-	CSG_Table_Record *pRecord;
-	CSG_Table *pTable;
-	CSG_Parameter_Grid_List* pGridsList;
+		Table.Set_Record_Count(pParameter->asGridList()->Get_Grid_Count());
 
-	pTable = Parameters("WEIGHTS")->asTable();
-	pOutputGrid = Parameters("OUTPUT")->asGrid();
+		for(int i=0; i<pParameter->asGridList()->Get_Grid_Count(); i++)
+		{
+			Table[i].Set_Value(0, 1.0);
+			Table[i].Set_Value(1, pParameter->asGridList()->Get_Grid(i)->Get_Name());
+		}
+	}
 
-	if( (pGridsList = Parameters("GRIDS")->asGridList()) != 
-			NULL && pGridsList->Get_Grid_Count() > 0 ){
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
 
-		if (pTable->Get_Record_Count() < pGridsList->Get_Grid_Count()){
-			Message_Add(_TL("Error : Wrong weights table. Check table dimensions"));
-			return false;
-		}//if
-		pCoefs			= new double [pGridsList->Get_Grid_Count()];
-		pOrderedValues	= new double [pGridsList->Get_Grid_Count()];	// OC:
-		for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
-			pRecord = pTable->Get_Record(i);
-			pCoefs[i] = pRecord->asDouble(0);
-			dSum += pRecord->asDouble(0);
-		}//for
-		for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
-			pCoefs[i] = pCoefs[i] / dSum;	
-		}//for
-		for(y=0; y<Get_NY() && Set_Progress(y); y++){
-			for(x=0; x<Get_NX(); x++){
-				dValue = 0;
-				bAllValuesAreOK = true;
-				for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
-// OC:				if (!pGrids[i]->is_NoData(x,y)){
-					if (!pGridsList->Get_Grid(i)->is_NoData(x,y)){
-// OC:					pOrderedValues[i] = pGrids[i]->asDouble(x,y);
-						pOrderedValues[i] = pGridsList->Get_Grid(i)->asDouble(x,y);
-					}//if
-					else{
-						bAllValuesAreOK = false;
-						break;
-					}//else
-				}//for
-				if (bAllValuesAreOK){
-					Sort(pOrderedValues, pGridsList->Get_Grid_Count());
-					for (i = 0; i<pGridsList->Get_Grid_Count(); i++){
-						dValue += pCoefs[i] * pOrderedValues[i];
-					}//for
-					pOutputGrid->Set_Value(x,y,dValue);
-				}//if
-				else{
-					pOutputGrid->Set_NoData(x,y);
-				}//else
-			}//for
-		}//for
 
-	delete [] pCoefs;
-	delete [] pOrderedValues;
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	}//if
-	return true;
+//---------------------------------------------------------
+bool COWA::On_Execute(void)
+{
+	CSG_Grid	*pOWA = Parameters("OUTPUT")->asGrid();
 
-}//method
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-#define SWAP(a,b)	{dTemp=(a);(a)=(b);(b)=dTemp;}
+	if( pGrids->Get_Grid_Count() < 2 )
+	{
+		Error_Set(_TL("Nothing to do! There are less than two grids in input list!"));
 
-void COWA::Sort(double *arr, int size){
+		return( false );
+	}
 
-     int indexOfMin, pass, j;
-	 double dTemp;
+	//-----------------------------------------------------
+	CSG_Table	&Table	= *Parameters("WEIGHTS")->asTable();
 
-     for (pass = 0; pass < size - 1; pass++){
-           indexOfMin = pass;
+	if( Table.Get_Count() < pGrids->Get_Grid_Count() )
+	{
+		Error_Set(_TL("Wrong weights table, check table dimensions."));
 
-           for (j = pass + 1; j < size; j++)
-                 if (arr[j] < arr[indexOfMin])
-                       indexOfMin = j;
+		return( false );
+	}
 
-           SWAP(arr[pass], arr[indexOfMin]);
-     }//for
+	//-----------------------------------------------------
+	int		i;	
 
-}// method
+	CSG_Vector	Weights(pGrids->Get_Grid_Count());
 
+	double	Sum	= 0.0;
+
+	for(i=0; i<pGrids->Get_Grid_Count(); i++)
+	{
+		if( Table[i].asDouble(0) > 0.0 )
+		{
+			Sum	+= (Weights[i] = Table[i].asDouble(0));
+		}
+		else
+		{
+			Error_Set(_TL("All weights have to be a positive number."));
+
+			return( false );
+		}
+	}
+
+	for(i=0; i<pGrids->Get_Grid_Count(); i++)
+	{
+		Weights[i]	/= Sum;	
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for private(i)
+		for(int x=0; x<Get_NX(); x++)
+		{
+			CSG_Vector	Values(pGrids->Get_Grid_Count());
+
+			bool	bOkay	= true;
+
+			for(i=0; bOkay && i<pGrids->Get_Grid_Count(); i++)
+			{
+				if( (bOkay = !pGrids->Get_Grid(i)->is_NoData(x, y)) == true )
+				{
+					Values[i]	= pGrids->Get_Grid(i)->asDouble(x, y);
+				}
+			}
+
+			if( bOkay == false || !Values.Sort() )
+			{
+				pOWA->Set_NoData(x, y);
+			}
+			else
+			{
+				double	Value	= 0.0;
+
+				for(i=0; i<pGrids->Get_Grid_Count(); i++)
+				{
+					Value	+= Weights[i] * Values[i];
+				}
+
+				pOWA->Set_Value(x, y, Value);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

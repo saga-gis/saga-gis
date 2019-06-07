@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 /*******************************************************************************
     owa.h
     Copyright (C) Victor Olaya
@@ -20,23 +17,44 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-#include "MLB_Interface.h"
+//---------------------------------------------------------
+#include <saga_api/saga_api.h>
 
-class COWA : public CSG_Tool_Grid {
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class COWA : public CSG_Tool_Grid
+{
 public:
 	COWA(void);
-	virtual ~COWA(void);
 
-private:
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Grid|Calculus") );	}
 
-	void Sort(double *arr, int size);
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual int			On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
 
 };
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
