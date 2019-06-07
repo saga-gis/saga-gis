@@ -71,7 +71,7 @@
 
 //---------------------------------------------------------
 CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
-	: CInterpolation(true, false)
+	: CInterpolation(true, true)
 {
 	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Distance Weighted"));
@@ -83,9 +83,8 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	));
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")));
+	m_Searching.Create(&Parameters, "NODE_SEARCH", 1);
 
-	//-----------------------------------------------------
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
 	m_Weighting.Set_IDW_Offset(false);
 	m_Weighting.Set_IDW_Power (2.0);
@@ -103,7 +102,7 @@ int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParame
 {
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Search.On_Parameter_Changed(pParameters, pParameter);
+		m_Searching.On_Parameter_Changed(pParameters, pParameter);
 
 		if( pParameter->asShapes() && pParameter->asShapes()->Get_Count() > 1 )
 		{	// get a rough estimation of point density for band width suggestion
@@ -119,7 +118,7 @@ int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParame
 //---------------------------------------------------------
 int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Search.On_Parameters_Enable(pParameters, pParameter);
+	m_Searching.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
@@ -134,15 +133,20 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::On_Initialize(void)
 {
-	return(	m_Search.Initialize(Get_Points(), Get_Field())
-		&&  m_Weighting.Set_Parameters(&Parameters) 
-	);
+	if( !m_Searching.Do_Use_All(true) && !m_Search.Create(Get_Points()) )
+	{
+		Error_Set(_TL("failed to initialize search engine"));
+
+		return( false );
+	}
+
+	return(	m_Weighting.Set_Parameters(&Parameters) );
 }
 
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::On_Finalize(void)
 {
-	m_Search.Finalize();
+	m_Search.Destroy();
 
 	return(	true );
 }
@@ -153,36 +157,98 @@ bool CInterpolation_InverseDistance::On_Finalize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &z)
+bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value)
 {
-	int		n	= m_Search.Set_Location(x, y);
+	CSG_Shapes *pPoints = Get_Points(); int Field = Get_Field();
 
-	if( n <= 0 )
+	CSG_Simple_Statistics	s;
+
+	if( m_Search.is_Okay() )
 	{
-		return( false );
+		CSG_Array_Int	Index;	CSG_Vector	Distance;
+
+		if( m_Search.Get_Nearest_Points(x, y, m_Searching.Get_Max_Points(),
+			m_Searching.Get_Radius(), Index, Distance) < m_Searching.Get_Min_Points() )
+		{
+			return( false );
+		}
+
+		for(size_t i=0; i<Index.Get_Size(); i++)
+		{
+			double	v	= pPoints->Get_Shape(Index[i])->asDouble(Field);
+			double	d	= Distance[i];
+
+			if( d <= 0. )
+			{
+				s.Create();
+
+				s	+= v;
+
+				for(++i; i<Index.Get_Size(); i++)
+				{
+					if( Distance[i] <= 0. )
+					{
+						s	+= v;
+					}
+				}
+			}
+			else
+			{
+				s.Add_Value(v, m_Weighting.Get_Weight(d));
+			}
+		}
+
+		Value	= s.Get_Mean();
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	CSG_Simple_Statistics	s;
-
-	double	ix, iy, w;
-
-	for(int i=0; i<n; i++)
+	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
-		if( m_Search.Get_Point(i, ix, iy, z) )
-		{
-			if( (w = m_Weighting.Get_Weight(SG_Get_Distance(x, y, ix, iy))) < 0.0 )
-			{
-				return( true );
-			}
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-			s.Add_Value(z, w);
+		double	v	= pPoint->asDouble(Field);
+		double	d	= Get_Distance(x, y, pPoint->Get_Point(0));
+
+		if( d <= 0. )
+		{
+			s.Create();
+
+			s	+= v;
+
+			for(++i; i<pPoints->Get_Count(); i++)
+			{
+				if( is_Identical(x, y, pPoints->Get_Shape(i)->Get_Point(0)) )
+				{
+					s	+= v;
+				}
+			}
+		}
+		else
+		{
+			s.Add_Value(v, m_Weighting.Get_Weight(d));
 		}
 	}
 
-	z	= s.Get_Mean();
+	Value	= s.Get_Mean();
 
 	return( true );
+}
+
+//---------------------------------------------------------
+inline double CInterpolation_InverseDistance::Get_Distance(double x, double y, const TSG_Point &Point)
+{
+	double	dx	= x - Point.x;
+	double	dy	= y - Point.y;
+
+	return( sqrt(dx*dx + dy*dy) );
+}
+
+//---------------------------------------------------------
+inline bool CInterpolation_InverseDistance::is_Identical(double x, double y, const TSG_Point &Point)
+{
+	return( x == Point.x && y == Point.y );
 }
 
 

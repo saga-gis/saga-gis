@@ -51,15 +51,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			Interpolation_InverseDistance.h				 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Interpolation_InverseDistance_H
 #define HEADER_INCLUDED__Interpolation_InverseDistance_H
 
@@ -89,20 +80,26 @@ public:
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Initialize			(void);
-	virtual bool			On_Finalize				(void);
+	virtual bool					On_Initialize			(void);
+	virtual bool					On_Finalize				(void);
 
-	virtual bool			Get_Value				(double x, double y, double &z);
+	virtual bool					Get_Value				(double x, double y, double &z);
 
 
 private:
 
-	CSG_Parameters_Search_Points	m_Search;
+	CSG_KDTree_2D					m_Search;
+
+	CSG_Parameters_PointSearch		m_Searching;
 
 	CSG_Distance_Weighting			m_Weighting;
+
+
+	double							Get_Distance			(double x, double y, const TSG_Point &Point);
+	bool							is_Identical			(double x, double y, const TSG_Point &Point);
 
 };
 

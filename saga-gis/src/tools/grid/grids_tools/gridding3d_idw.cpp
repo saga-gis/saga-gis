@@ -106,7 +106,7 @@ CGridding3D_IDW::CGridding3D_IDW(void)
 	m_Grid_Target.Add_Grids("GRIDS", _TL("Grid Collection"), false, true);
 
 	//-----------------------------------------------------
-	m_Searching.Create(&Parameters, "NODE_SEARCH");
+	m_Searching.Create(&Parameters, "NODE_SEARCH", 1);
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);

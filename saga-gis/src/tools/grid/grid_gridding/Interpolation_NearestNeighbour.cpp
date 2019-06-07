@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Interpolation_NearestNeighbour.h"
 
 
@@ -77,8 +65,8 @@ CInterpolation_NearestNeighbour::CInterpolation_NearestNeighbour(void)
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Nearest Neighbour method for grid interpolation from irregular distributed points.")
-	);
+		"Nearest Neighbour method for grid interpolation from irregular distributed points."
+	));
 }
 
 

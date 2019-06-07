@@ -784,7 +784,7 @@ CSG_Parameters_PointSearch::CSG_Parameters_PointSearch(void)
 {
 	m_pParameters	= NULL;
 
-	m_minPoints		= 0;
+	m_minPoints		= 1;
 	m_maxPoints		= 0;
 	m_Radius		= 0.;
 }
@@ -834,7 +834,7 @@ bool CSG_Parameters_PointSearch::Create(CSG_Parameters *pParameters, const CSG_S
 		m_pParameters->Add_Int("SEARCH_POINTS_ALL",
 			"SEARCH_POINTS_MIN"	, _TL("Minimum"),
 			_TL("minimum number of points to use"),
-			minPoints, 1, true
+			(int)minPoints, 1, true
 		);
 	}
 
@@ -1014,7 +1014,8 @@ bool CSG_Parameters_Search_Points::Finalize(void)
 	m_zField	= -1;
 
 	m_Radius	= 0.0;
-	m_nPoints	= m_minPoints = m_maxPoints = 0;
+	m_minPoints	= m_maxPoints = 0;
+	m_nPoints	= 0;
 	m_Quadrant	= -1;
 
 	m_Search.Destroy();
