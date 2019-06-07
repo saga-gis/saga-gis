@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: opencv_ml.cpp 0001 2016-05-24
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "opencv_ml.h"
 
 #if CV_MAJOR_VERSION >= 3
@@ -103,10 +91,10 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 		false
 	);
 
-	Parameters.Add_Value("FEATURES",
+	Parameters.Add_Bool("FEATURES",
 		"RGB_COLORS"	, _TL("Update Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
-		PARAMETER_TYPE_Bool, true
+		true
 	)->Set_UseInCMD(false);
 
 	if( bProbability )
@@ -141,12 +129,18 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 	Parameters.Add_Shapes("MODEL_TRAIN",
 		"TRAIN_AREAS"	, _TL("Training Areas"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Polygon
+		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table_Field("TRAIN_AREAS",
 		"TRAIN_CLASS"	, _TL("Class Identifier"),
 		_TL("")
+	);
+
+	Parameters.Add_Double("TRAIN_AREAS",
+		"TRAIN_BUFFER"	, _TL("Buffer Size"),
+		_TL("For non-polygon type training areas, creates a buffer with a diameter of specified size."),
+		1., 0., true
 	);
 
 	Parameters.Add_FilePath("MODEL_TRAIN",
@@ -167,6 +161,14 @@ COpenCV_ML::COpenCV_ML(bool bProbability)
 //---------------------------------------------------------
 int COpenCV_ML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("PARAMETERS_GRID_SYSTEM") )
+	{
+		if( pParameter->asGrid_System()->is_Valid() )
+		{
+			pParameters->Set_Parameter("TRAIN_BUFFER", pParameter->asGrid_System()->Get_Cellsize());
+		}
+	}
+
 	//-----------------------------------------------------
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
 }
@@ -190,6 +192,11 @@ int COpenCV_ML::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 		pParameters->Set_Enabled("MODEL_TRAIN", !bOkay);
 		pParameters->Set_Enabled("RGB_COLORS" , !bOkay);
+	}
+
+	if( pParameter->Cmp_Identifier("TRAIN_AREAS") )
+	{
+		pParameters->Set_Enabled("TRAIN_BUFFER", pParameter->asShapes() && pParameter->asShapes()->Get_Type() != SHAPE_TYPE_Polygon);
 	}
 
 	//-----------------------------------------------------
@@ -385,9 +392,39 @@ bool COpenCV_ML::_Get_Training(CSG_Matrix &Data)
 	m_Classes.Add_Field("GREEN", SG_DATATYPE_Double);	// CLASS_G
 	m_Classes.Add_Field("BLUE" , SG_DATATYPE_Double);	// CLASS_B
 
-	CSG_Shapes	*pPolygons	= Parameters("TRAIN_AREAS")->asShapes();
-	int			Field		= Parameters("TRAIN_CLASS")->asInt();
+	//-----------------------------------------------------
+	int	Field	= Parameters("TRAIN_CLASS")->asInt();
 
+	CSG_Shapes	Polygons, *pPolygons	= Parameters("TRAIN_AREAS")->asShapes();
+
+	if( pPolygons->Get_Type() != SHAPE_TYPE_Polygon )
+	{
+		double	Buffer	= Parameters("TRAIN_BUFFER")->asDouble() / 2.;	// diameter, not radius!
+
+		if( Buffer <= 0. )
+		{
+			Error_Set(_TL("buffer size must not be zero"));
+
+			return( false );
+		}
+
+		Polygons.Create(SHAPE_TYPE_Polygon);
+		Polygons.Add_Field(pPolygons->Get_Field_Name(Field), pPolygons->Get_Field_Type(Field));
+
+		for(int iShape=0; iShape<pPolygons->Get_Count(); iShape++)
+		{
+			CSG_Shape	*pShape		= pPolygons->Get_Shape(iShape);
+			CSG_Shape	*pBuffer	= Polygons.Add_Shape();
+
+			*pBuffer->Get_Value(0)	= *pShape->Get_Value(Field);
+
+			SG_Polygon_Offset(pShape, Buffer, 5 * M_DEG_TO_RAD, pBuffer);
+		}
+
+		pPolygons = &Polygons; Field = 0;
+	}
+
+	//-----------------------------------------------------
 	pPolygons->Set_Index(Field, TABLE_INDEX_Ascending);
 
 	CSG_String			Label;
