@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -96,6 +93,7 @@ CSG_String Get_Info(int i)
 #include "topographic_correction.h"
 #include "topographic_openness.h"
 #include "Visibility_Points.h"
+#include "geomorphons.h"
 
 //---------------------------------------------------------
 CSG_Tool * Create_Tool(int i)
@@ -110,8 +108,9 @@ CSG_Tool * Create_Tool(int i)
 	case  4:	return( new CTopographic_Correction );
 	case  5:	return( new CTopographic_Openness );
 	case  6:	return( new CVisibility_Points );
-		 
-	case  8:	return( NULL );
+	case  8:	return( new CGeomorphons );
+
+	case  9:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 

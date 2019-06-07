@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,27 +41,23 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__topographic_openness_H
 #define HEADER_INCLUDED__topographic_openness_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,7 +75,9 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
@@ -100,11 +95,11 @@ private:
 
 	bool					Initialise				(int nDirections);
 
+	bool					Get_Openness			(int x, int y, double &Pos, double &Neg);
+
 	bool					Get_Angles_Multi_Scale	(int x, int y, CSG_Vector &Max, CSG_Vector &Min);
 	bool					Get_Angles_Sectoral		(int x, int y, CSG_Vector &Max, CSG_Vector &Min);
 	bool					Get_Angle_Sectoral		(int x, int y, int i, double &Max, double &Min);
-
-	bool					Get_Openness			(int x, int y, double &Pos, double &Neg);
 
 };
 

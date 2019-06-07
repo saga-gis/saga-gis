@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libta_lighting.la
 libta_lighting_la_SOURCES =\
+geomorphons.cpp\
 HillShade.cpp\
 MLB_Interface.cpp\
 SolarRadiation.cpp\
@@ -21,6 +22,7 @@ view_shed.cpp\
 Visibility_BASE.cpp\
 Visibility_Point.cpp\
 Visibility_Points.cpp\
+geomorphons.h\
 HillShade.h\
 MLB_Interface.h\
 SolarRadiation.h\

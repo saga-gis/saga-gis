@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: tpi.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -276,7 +264,7 @@ CTPI_Classification::CTPI_Classification(void)
 	Parameters.Add_Grid(
 		"", "LANDFORMS"	, _TL("Landforms"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Range(
@@ -303,7 +291,7 @@ CTPI_Classification::CTPI_Classification(void)
 //---------------------------------------------------------
 enum
 {
-	LF_CANYON		= 0,
+	LF_CANYON	= 1,
 	LF_MID_SLOPE,
 	LF_UPLAND,
 	LF_VALLEY,
@@ -313,7 +301,7 @@ enum
 	LF_LOCAL_RIDGE,
 	LF_MIDSLOPE_RIDGE,
 	LF_HIGH_RIDGE,
-	LF_COUNT
+	LF_COUNT	= LF_HIGH_RIDGE
 };
 
 
@@ -341,6 +329,62 @@ bool CTPI_Classification::On_Execute(void)
 	CSG_Grid	*pDEM		= Parameters("DEM"      )->asGrid();
 	CSG_Grid	*pLandforms	= Parameters("LANDFORMS")->asGrid();
 
+	pLandforms->Set_NoData_Value(0);
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pLandforms, "LUT");
+
+	if( pLUT )
+	{
+		const int LF_Colors[LF_COUNT]	=
+		{
+			SG_GET_RGB(  0,   0, 127),	// LF_CANYON
+			SG_GET_RGB(200, 200, 255),	// LF_MID_SLOPE
+			SG_GET_RGB(  0, 200, 255),	// LF_UPLAND
+			SG_GET_RGB(127, 127, 255),	// LF_VALLEY
+			SG_GET_RGB(255, 255, 128),	// LF_PLAIN
+			SG_GET_RGB(128, 255,   0),	// LF_OPEN_SLOPE
+			SG_GET_RGB(  0, 255,   0),	// LF_UPPER_SLOPE
+			SG_GET_RGB(255, 200, 127),	// LF_LOCAL_RIDGE
+			SG_GET_RGB(255, 127,   0),	// LF_MIDSLOPE_RIDGE
+			SG_GET_RGB(255,   0,   0)	// LF_HIGH_RIDGE
+		};
+
+		//-------------------------------------------------
+		CSG_Strings	Name, Desc;
+
+		Name	+= _TL("Streams"           );	Desc	+= _TL("Canyons, Deeply Incised Streams"       );
+		Name	+= _TL("Midslope Drainages");	Desc	+= _TL("Midslope Drainages, Shallow Valleys"   );
+		Name	+= _TL("Upland Drainages"  );	Desc	+= _TL("Upland Drainages, Headwaters"          );
+		Name	+= _TL("Valleys"           );	Desc	+= _TL("U-shaped Valleys"                      );
+		Name	+= _TL("Plains"            );	Desc	+= _TL("Plains"                                );
+		Name	+= _TL("Open Slopes"       );	Desc	+= _TL("Open Slopes"                           );
+		Name	+= _TL("Upper Slopes"      );	Desc	+= _TL("Upper Slopes, Mesas"                   );
+		Name	+= _TL("Local Ridges"      );	Desc	+= _TL("Local Ridges, Hills in Valleys"        );
+		Name	+= _TL("Midslope Ridges"   );	Desc	+= _TL("Midslope Ridges, Small Hills in Plains");
+		Name	+= _TL("High Ridges"       );	Desc	+= _TL("Mountain Tops, High Ridges"            );
+
+		//-------------------------------------------------
+		CSG_Table	*pTable	= pLUT->asTable();
+
+		pLUT->asTable()->Del_Records();
+
+		for(int i=0; i<LF_COUNT; i++)
+		{
+			CSG_Table_Record	*pRecord	= pLUT->asTable()->Add_Record();
+
+			pRecord->Set_Value(0, LF_Colors[i]);
+			pRecord->Set_Value(1, Name[i].c_str());
+			pRecord->Set_Value(2, Desc[i].c_str());
+			pRecord->Set_Value(3, i + 1);
+			pRecord->Set_Value(4, i + 1);
+		}
+
+		DataObject_Set_Parameter(pLandforms, pLUT);
+		DataObject_Set_Parameter(pLandforms, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
 	CTPI	Calculator;	Calculator.Set_Manager(NULL);
 
 	Calculator.Get_Parameters()->Assign_Values(&Parameters);	// set DEM and Weighting scheme
@@ -377,7 +421,7 @@ bool CTPI_Classification::On_Execute(void)
 		{
 			if( pDEM->is_NoData(x, y) )
 			{
-				pLandforms->Set_Value(x, y, -1.0);
+				pLandforms->Set_Value(x, y, 0.);
 			}
 			else
 			{
@@ -442,60 +486,6 @@ bool CTPI_Classification::On_Execute(void)
 				}
 			}
 		}
-	}
-
-	//-----------------------------------------------------
-	CSG_Parameters	P;
-
-	if( DataObject_Get_Parameters(pLandforms, P) && P("COLORS_TYPE") && P("LUT") )
-	{
-		int LF_Colors[LF_COUNT]	=
-		{
-			SG_GET_RGB(  0,   0, 127),	// LF_CANYON
-			SG_GET_RGB(200, 200, 255),	// LF_MID_SLOPE
-			SG_GET_RGB(  0, 200, 255),	// LF_UPLAND
-			SG_GET_RGB(127, 127, 255),	// LF_VALLEY
-			SG_GET_RGB(255, 255, 128),	// LF_PLAIN
-			SG_GET_RGB(128, 255,   0),	// LF_OPEN_SLOPE
-			SG_GET_RGB(  0, 255,   0),	// LF_UPPER_SLOPE
-			SG_GET_RGB(255, 200, 127),	// LF_LOCAL_RIDGE
-			SG_GET_RGB(255, 127,   0),	// LF_MIDSLOPE_RIDGE
-			SG_GET_RGB(255,   0,   0)	// LF_HIGH_RIDGE
-		};
-
-		//-------------------------------------------------
-		CSG_Strings	Name, Desc;
-
-		Name	+= _TL("Streams"           );	Desc	+= _TL("Canyons, Deeply Incised Streams"       );
-		Name	+= _TL("Midslope Drainages");	Desc	+= _TL("Midslope Drainages, Shallow Valleys"   );
-		Name	+= _TL("Upland Drainages"  );	Desc	+= _TL("Upland Drainages, Headwaters"          );
-		Name	+= _TL("Valleys"           );	Desc	+= _TL("U-shaped Valleys"                      );
-		Name	+= _TL("Plains"            );	Desc	+= _TL("Plains"                                );
-		Name	+= _TL("Open Slopes"       );	Desc	+= _TL("Open Slopes"                           );
-		Name	+= _TL("Upper Slopes"      );	Desc	+= _TL("Upper Slopes, Mesas"                   );
-		Name	+= _TL("Local Ridges"      );	Desc	+= _TL("Local Ridges, Hills in Valleys"        );
-		Name	+= _TL("Midslope Ridges"   );	Desc	+= _TL("Midslope Ridges, Small Hills in Plains");
-		Name	+= _TL("High Ridges"       );	Desc	+= _TL("Mountain Tops, High Ridges"            );
-
-		//-------------------------------------------------
-		CSG_Table	*pTable	= P("LUT")->asTable();
-
-		pTable->Del_Records();
-
-		for(int i=0; i<LF_COUNT; i++)
-		{
-			CSG_Table_Record	*pRecord	= pTable->Add_Record();
-
-			pRecord->Set_Value(0, LF_Colors[i]);
-			pRecord->Set_Value(1, Name[i].c_str());
-			pRecord->Set_Value(2, Desc[i].c_str());
-			pRecord->Set_Value(3, i);
-			pRecord->Set_Value(4, i);
-		}
-
-		P("COLORS_TYPE")->Set_Value(1);	// Color Classification Type: Lookup Table
-
-		DataObject_Set_Parameters(pLandforms, P);
 	}
 
 	//-----------------------------------------------------

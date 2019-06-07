@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                topographic_openness.cpp               //
+//                    geomorphons.cpp                    //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,67 +46,111 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "topographic_openness.h"
+#include "geomorphons.h"
 
 
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//-----------------------------------------------------
+enum
+{
+	id_fl	= 1,
+	id_pk,
+	id_ri,
+	id_sh,
+	id_sp,
+	id_sl,
+	id_hl,
+	id_fs,
+	id_vl,
+	id_pt,
+	id_count = id_pt
+};
+
+//-----------------------------------------------------
+const int id_color[id_count]	=
+{
+	SG_GET_RGB(220, 220, 220),	// flat
+	SG_GET_RGB(100,   0,   0),	// summit
+	SG_GET_RGB(200,   0,   0),	// ridge
+	SG_GET_RGB(255,  80,  20),	// shoulder
+	SG_GET_RGB(250, 210,  60),	// spur
+	SG_GET_RGB(255, 255,  60),	// slope
+	SG_GET_RGB(180, 230,  20),	// hollow
+	SG_GET_RGB( 60, 250, 150),	// footslope
+	SG_GET_RGB(  0,   0, 255),	// valley
+	SG_GET_RGB(  0,   0, 100)	// depression
+};
+
+//-----------------------------------------------------
+const CSG_String id_name[id_count]	=
+{
+	_TL("Flat"      ),
+	_TL("Summit"    ),
+	_TL("Ridge"     ),
+	_TL("Shoulder"  ),
+	_TL("Spur"      ),
+	_TL("Slope"     ),
+	_TL("Hollow"    ),
+	_TL("Footslope" ),
+	_TL("Valley"    ),
+	_TL("Depression"),
+};
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CTopographic_Openness::CTopographic_Openness(void)
+CGeomorphons::CGeomorphons(void)
 {
-	Set_Name		(_TL("Topographic Openness"));
+	Set_Name		(_TL("Geomorphons"));
 
-	Set_Author		("O.Conrad (c) 2012");
+	Set_Author		("O.Conrad (c) 2019");
 
 	Set_Description	(_TW(
-		"Topographic openness expresses the dominance (positive) or enclosure (negative) "
-		"of a landscape location. See Yokoyama et al. (2002) for a precise definition. "
-		"Openness has been related to how wide a landscape can be viewed from any position. "
-		"It has been proven to be a meaningful input for computer aided geomorphological mapping. "
+		"This tool derives so called geomorphons, which represent categories of terrain forms, "
+		"from a digital elevation model using a machine vision approach. "
 	));
 
-	Add_Reference("Anders, N. S. / Seijmonsbergen, A. C. / Bouten, W.", "2009",
-		"Multi-Scale and Object-Oriented Image Analysis of High-Res LiDAR Data for Geomorphological Mapping in Alpine Mountains",
-		"Proceedings of Geomorphometry 2009.",
-		SG_T("http://geomorphometry.org/system/files/anders2009geomorphometry.pdf"), SG_T("pdf at geomorphometry.org")
+	Add_Reference("Jasiewicz, J. / Stepinski, T.F.", "2013",
+		"Geomorphons — a pattern recognition approach to classification and mapping of landforms",
+		"Geomorphology, 182, 147-156.",
+		SG_T("https://www.sciencedirect.com/science/article/pii/S0169555X12005028"), SG_T("ScienceDirect")
 	);
 
-	Add_Reference("Prima, O.D.A / Echigo, A. / Yokoyama, R. / Yoshida, T.", "2006",
-		"Supervised landform classification of Northeast Honshu from DEM-derived thematic maps",
-		"Geomorphology, vol.78, pp.373-386."
-	);
-
-	Add_Reference("Yokoyama, R. / Shirasawa, M. / Pike, R.J.", "2002",
-		"Visualizing topography by openness: A new application of image processing to digital elevation models",
-		"Photogrammetric Engineering and Remote Sensing, Vol.68, pp.251-266",
-		SG_T("http://www.asprs.org/a/publications/pers/2002journal/march/2002_mar_257-265.pdf"), SG_T("pdf at ASPRS")
+	Add_Reference("Stepinski, T.F. / Jasiewicz, J.", "2011",
+		"Geomorphons — a pattern recognition approach to classification and mapping of landforms",
+		"In: Hengl, T. / Evans, I.S. / Wilson, J.P. / Gould, M. [Eds.]: Proceedings of Geomorphometry 2011, Redlands, 109-112.",
+		SG_T("http://geomorphometry.org/system/files/StepinskiJasiewicz2011geomorphometry.pdf"), SG_T("pdf at geomorphometry.org")
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "DEM"		, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "POS"		, _TL("Positive Openness"),
+		"", "GEOMORPHONS"	, _TL("Geomorphons"),
 		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
-	Parameters.Add_Grid(
-		"", "NEG"		, _TL("Negative Openness"),
-		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Byte
 	);
 
 	Parameters.Add_Double(
-		"", "RADIUS"	, _TL("Radial Limit"),
+		"", "THRESHOLD"		, _TL("Threshold Angle"),
+		_TL("Flatness threshold angle (degrees)."),
+		1., 0., true
+	);
+
+	Parameters.Add_Double(
+		"", "RADIUS"		, _TL("Radial Limit"),
 		_TL(""),
 		10000., 0., true
 	);
@@ -125,12 +169,6 @@ CTopographic_Openness::CTopographic_Openness(void)
 		_TL(""),
 		3., 1.25, true
 	);
-
-	Parameters.Add_Int(
-		"", "NDIRS"		, _TL("Number of Sectors"),
-		_TL(""),
-		8, 2, true
-	);
 }
 
 
@@ -139,7 +177,7 @@ CTopographic_Openness::CTopographic_Openness(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CTopographic_Openness::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CGeomorphons::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("METHOD") )
 	{
@@ -155,19 +193,15 @@ int CTopographic_Openness::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::On_Execute(void)
+bool CGeomorphons::On_Execute(void)
 {
-	CSG_Grid	*pPos, *pNeg;
+	m_pDEM		= Parameters("DEM")->asGrid();
 
-	m_pDEM		= Parameters("DEM"   )->asGrid();
-	pPos		= Parameters("POS"   )->asGrid();
-	pNeg		= Parameters("NEG"   )->asGrid();
+	m_Threshold	= Parameters("THRESHOLD")->asDouble() * M_DEG_TO_RAD;
 
 	m_Radius	= Parameters("RADIUS")->asDouble();
-	m_Method	= Parameters("METHOD")->asInt();
 
-	DataObject_Set_Colors(pPos, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(pNeg, 11, SG_COLORS_RED_GREY_BLUE, false);
+	m_Method	= Parameters("METHOD")->asInt();
 
 	//-----------------------------------------------------
 	if( m_Method == 0 )	// multi scale
@@ -195,55 +229,53 @@ bool CTopographic_Openness::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bResult	= Initialise(Parameters("NDIRS")->asInt());
+	CSG_Grid	*pGeomorphons	= Parameters("GEOMORPHONS")->asGrid();
 
-	if( bResult )
+	pGeomorphons->Set_NoData_Value(0);
+
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pGeomorphons, "LUT");
+
+	if( pLUT )
 	{
-		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-		{
-			#pragma omp parallel for
-			for(int x=0; x<Get_NX(); x++)
-			{
-				double	Pos, Neg;
+		CSG_Table	*pTable	= pLUT->asTable();
 
-				if( !m_pDEM->is_NoData(x, y) && Get_Openness(x, y, Pos, Neg) )
-				{
-					if( pPos )	pPos->Set_Value(x, y, Pos);
-					if( pNeg )	pNeg->Set_Value(x, y, Neg);
-				}
-				else
-				{
-					if( pPos )	pPos->Set_NoData(x, y);
-					if( pNeg )	pNeg->Set_NoData(x, y);
-				}
+		pLUT->asTable()->Del_Records();
+
+		for(int i=0; i<id_count; i++)
+		{
+			CSG_Table_Record	*pRecord	= pLUT->asTable()->Add_Record();
+
+			pRecord->Set_Value(0, id_color[i]);
+			pRecord->Set_Value(1, id_name [i].c_str());
+			pRecord->Set_Value(2, id_name [i].c_str());
+			pRecord->Set_Value(3, i + 1);
+			pRecord->Set_Value(4, i + 1);
+		}
+
+		DataObject_Set_Parameter(pGeomorphons, pLUT);
+		DataObject_Set_Parameter(pGeomorphons, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int	Geomorphon;
+
+			if( !m_pDEM->is_NoData(x, y) && Get_Geomorphon(x, y, Geomorphon) )
+			{
+				if( pGeomorphons )	pGeomorphons->Set_Value(x, y, Geomorphon);
+			}
+			else
+			{
+				if( pGeomorphons )	pGeomorphons->Set_NoData(x, y);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	m_Pyramid  .Destroy();
-	m_Direction.Clear  ();
-
-	return( bResult );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CTopographic_Openness::Initialise(int nDirections)
-{
-	m_Direction.Set_Count(nDirections);
-
-	for(int i=0; i<nDirections; i++)
-	{
-		m_Direction[i].z	= (M_PI_360 * i) / nDirections;
-		m_Direction[i].x	= sin(m_Direction[i].z);
-		m_Direction[i].y	= cos(m_Direction[i].z);
-	}
-
 	return( true );
 }
 
@@ -253,9 +285,9 @@ bool CTopographic_Openness::Initialise(int nDirections)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
+bool CGeomorphons::Get_Geomorphon(int x, int y, int &Geomorphon)
 {
-	CSG_Vector	Max(m_Direction.Get_Count()), Min(m_Direction.Get_Count());
+	CSG_Vector	Max(8), Min(8);
 
 	switch( m_Method )
 	{
@@ -264,17 +296,69 @@ bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 	}
 
 	//-----------------------------------------------------
-	Pos	= 0.0;
-	Neg	= 0.0;
+	int	t[8], pos = 0, neg = 0;
 
-	for(int i=0; i<m_Direction.Get_Count(); i++)
+	for(int i=0; i<8; i++)
 	{
-		Pos	+= M_PI_090 - atan(Max[i]);
-		Neg	+= M_PI_090 + atan(Min[i]);
+		double	phi	= M_PI_090 - atan(Max[i]);
+		double	psi	= M_PI_090 + atan(Min[i]);
+
+		if     ( psi - phi > m_Threshold )
+		{
+			t[i]	=  1;	pos++;
+		}
+		else if( phi - psi > m_Threshold )
+		{
+			t[i]	= -1;	neg++;
+		}
+		else
+		{
+			t[i]	=  0;
+		}
 	}
 
-	Pos	/= m_Direction.Get_Count();
-	Neg	/= m_Direction.Get_Count();
+	//-----------------------------------------------------
+	switch( pos )
+	{
+	case  0:
+		Geomorphon	= neg < 3 ? id_fl : neg < 5 ? id_sh : neg < 8 ? id_ri : id_pk;
+		break;
+
+	case  1:
+		Geomorphon	= neg < 2 ? id_fl : neg < 5 ? id_sh : id_ri;
+		break;
+
+	case  2:
+		Geomorphon	= neg < 1 ? id_fl : neg < 2 ? id_fs : neg < 4 ? id_sl : neg < 6 ? id_sp : id_ri;
+		break;
+
+	case  3:
+		Geomorphon	= neg < 2 ? id_fs : neg < 5 ? id_sl : id_sp;
+		break;
+
+	case  4:
+		Geomorphon	= neg < 2 ? id_fs : neg < 3 ? id_hl : id_sl;
+		break;
+
+	case  5:
+		Geomorphon	= neg < 2 ? id_vl : id_hl;
+		break;
+
+	case  6:
+		Geomorphon	= id_vl;
+		break;
+
+	case  7:
+		Geomorphon	= id_vl;
+		break;
+
+	case  8:
+		Geomorphon	= id_pt;
+		break;
+
+	default:
+		return( false );
+	}
 
 	return( true );
 }
@@ -285,7 +369,7 @@ bool CTopographic_Openness::Get_Openness(int x, int y, double &Pos, double &Neg)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
+bool CGeomorphons::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
 {
 	double		z, d;
 	TSG_Point	p, q;
@@ -299,10 +383,10 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max
 		bool		bOkay	= false;
 		CSG_Grid	*pGrid	= m_Pyramid.Get_Grid(iGrid);
 
-		for(int i=0; i<m_Direction.Get_Count(); i++)
+		for(int i=0; i<8; i++)
 		{
-			q.x	= p.x + pGrid->Get_Cellsize() * m_Direction[i].x;
-			q.y	= p.y + pGrid->Get_Cellsize() * m_Direction[i].y;
+			q.x	= p.x + pGrid->Get_Cellsize() * m_dx[i];
+			q.y	= p.y + pGrid->Get_Cellsize() * m_dy[i];
 
 			if( pGrid->Get_Value(q, d) )
 			{
@@ -339,9 +423,9 @@ bool CTopographic_Openness::Get_Angles_Multi_Scale(int x, int y, CSG_Vector &Max
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Angles_Sectoral(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
+bool CGeomorphons::Get_Angles_Sectoral(int x, int y, CSG_Vector &Max, CSG_Vector &Min)
 {
-	for(int i=0; i<m_Direction.Get_Count(); i++)
+	for(int i=0; i<8; i++)
 	{
 		if(0|| Get_Angle_Sectoral(x, y, i, Max[i], Min[i]) == false )
 		{
@@ -353,13 +437,13 @@ bool CTopographic_Openness::Get_Angles_Sectoral(int x, int y, CSG_Vector &Max, C
 }
 
 //---------------------------------------------------------
-bool CTopographic_Openness::Get_Angle_Sectoral(int x, int y, int i, double &Max, double &Min)
+bool CGeomorphons::Get_Angle_Sectoral(int x, int y, int i, double &Max, double &Min)
 {
 	double	iDistance, dDistance, dx, dy, ix, iy, d, z;
 
 	z			= m_pDEM->asDouble(x, y);
-	dx			= m_Direction[i].x;
-	dy			= m_Direction[i].y;
+	dx			= m_dx[i];
+	dy			= m_dy[i];
 	ix			= x;
 	iy			= y;
 	iDistance	= 0.0;

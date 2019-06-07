@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    ta_morphometry                     //
+//                      ta_lighting                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  tc_iwahashi_pike.h                   //
+//                     geomorphons.h                     //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,13 +46,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__tc_iwahashi_pike_H
-#define HEADER_INCLUDED__tc_iwahashi_pike_H
+#ifndef HEADER_INCLUDED__geomorphons_H
+#define HEADER_INCLUDED__geomorphons_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -62,94 +62,15 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTC_Parameter_Base : public CSG_Tool_Grid
+class CGeomorphons : public CSG_Tool_Grid
 {
 public:
-	CTC_Parameter_Base(void);
-
-
-protected:
-
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	void					On_Construction			(void);
-
-	bool					Get_Parameter			(CSG_Grid *pValues, CSG_Grid *pParameter);
-
-
-private:
-
-	CSG_Grid_Cell_Addressor	m_Kernel;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTC_Texture : public CTC_Parameter_Base
-{
-public:
-	CTC_Texture(void);
-
-
-protected:
-
-	virtual bool			On_Execute				(void);
-
-
-private:
-
-	CSG_Grid				*m_pDEM;
-
-
-	int						Get_Noise				(int x, int y, double Epsilon = 0.0);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTC_Convexity : public CTC_Parameter_Base
-{
-public:
-	CTC_Convexity(void);
-
-
-protected:
-
-	virtual bool			On_Execute				(void);
-
-
-private:
-
-	CSG_Grid				*m_pDEM;
-
-
-	int						Get_Laplace				(int x, int y, const double Kernel[2], int Type, double Epsilon);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CTC_Classification : public CSG_Tool_Grid
-{
-public:
-	CTC_Classification(void);
+	CGeomorphons(void);
 
 	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
 
@@ -163,26 +84,34 @@ protected:
 
 private:
 
-	double					m_Mean_Slope, m_Mean_Convexity, m_Mean_Texture;
+	const double			m_dx[8]	= { 0, 1, 1, 1, 0,-1,-1,-1 };
+	const double			m_dy[8]	= { 1, 1, 0,-1,-1,-1, 0, 1 };
 
-	CSG_Simple_Statistics	m_Stat_Slope, m_Stat_Convexity, m_Stat_Texture;
+	int						m_Method, m_nLevels;
 
-	CSG_Grid				*m_pSlope, *m_pConvexity, *m_pTexture;
+	double					m_Radius, m_Threshold;
+
+	CSG_Grid_Pyramid		m_Pyramid;
+
+	CSG_Grid				*m_pDEM;
 
 
-	bool					Get_Classes				(void);
-	int						Get_Class				(int Level, int x, int y, bool bLastLevel);
+	bool					Get_Geomorphon			(int x, int y, int &Geomorphon);
 
-	void					Set_LUT					(CSG_Grid *pLandforms, int nLevels);
+	bool					Get_Angles_Multi_Scale	(int x, int y, CSG_Vector &Max, CSG_Vector &Min);
+	bool					Get_Angles_Sectoral		(int x, int y, CSG_Vector &Max, CSG_Vector &Min);
+	bool					Get_Angle_Sectoral		(int x, int y, int i, double &Max, double &Min);
+
+	bool					Set_Classification		(CSG_Grid *pGeomorphons);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__tc_iwahashi_pike_H
+#endif // #ifndef HEADER_INCLUDED__geomorphons_H
