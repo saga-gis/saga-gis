@@ -126,7 +126,7 @@ bool CAddCoordinates::On_Execute(void)
 
 	if( Parameters("Z")->asBool() && pPoints->Get_Vertex_Type() != SG_VERTEX_TYPE_XY )
 	{
-		xField = pPoints->Get_Field_Count(); pPoints->Add_Field("Z", SG_DATATYPE_Double);
+		zField = pPoints->Get_Field_Count(); pPoints->Add_Field("Z", SG_DATATYPE_Double);
 	}
 
 	if( Parameters("M")->asBool() && pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZM )
