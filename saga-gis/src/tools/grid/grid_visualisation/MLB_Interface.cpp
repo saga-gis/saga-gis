@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -62,7 +59,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -126,8 +123,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  8:	return( new CGrid_Terrain_Map );
 	case  9:	return( new CGrid_RGB_Split );
 	case 10:	return( new CGrid_LUT_Assign );
+	case 11:	return( new CLUT_Create );
 
-	case 11:	return( NULL );
+	case 12:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 

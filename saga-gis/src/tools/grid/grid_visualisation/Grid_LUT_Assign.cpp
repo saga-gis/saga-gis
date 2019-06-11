@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grid_lut_assign.cpp 2463 2015-04-02 09:02:26Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_LUT_Assign.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_LUT_Assign::CGrid_LUT_Assign(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Select Look-up Table for Grid Visualization"));
 
 	Set_Author		("O.Conrad (c) 2015");
@@ -82,13 +69,13 @@ CGrid_LUT_Assign::CGrid_LUT_Assign(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+		"", "GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Table(
-		NULL	, "LUT"		, _TL("Look-up Table"),
+		"", "LUT"	, _TL("Look-up Table"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -102,7 +89,6 @@ CGrid_LUT_Assign::CGrid_LUT_Assign(void)
 //---------------------------------------------------------
 bool CGrid_LUT_Assign::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
 	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pGrid, "LUT");
@@ -119,6 +105,61 @@ bool CGrid_LUT_Assign::On_Execute(void)
 
 	//-----------------------------------------------------
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CLUT_Create::CLUT_Create(void)
+{
+	Set_Name		(_TL("Create a Table fron Look-up Table"));
+
+	Set_Author		("O.Conrad (c) 2019");
+
+	Set_Description	(_TW(
+		"Creates a table object from a look-up table for visual data object classifications. "
+		"Useful in combination with tool chains. "
+	));
+
+	//-----------------------------------------------------
+	Parameters.Add_Table(
+		"", "TABLE"	, _TL("Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Table(
+		"", "LUT"	, _TL("Look-up Table"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	//-----------------------------------------------------
+	CSG_Table	*pLUT	= Parameters("LUT")->asTable();
+
+	pLUT->Add_Field("COLOR"      , SG_DATATYPE_Color );
+	pLUT->Add_Field("NAME"       , SG_DATATYPE_String);
+	pLUT->Add_Field("DESCRIPTION", SG_DATATYPE_String);
+	pLUT->Add_Field("MINIMUM"    , SG_DATATYPE_Double);
+	pLUT->Add_Field("MAXIMUM"    , SG_DATATYPE_Double);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CLUT_Create::On_Execute(void)
+{
+	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
+
+	return( pTable->Create(*Parameters("LUT")->asTable()) );
 }
 
 
