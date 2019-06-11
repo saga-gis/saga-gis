@@ -35,11 +35,14 @@ COWA::COWA(void)
 	Set_Author		("Victor Olaya (c) 2006");
 
 	Set_Description	(_TW(
-		"The ordered weighted averaging tool calculates for each cell "
+		"The ordered weighted averaging (OWA) tool calculates for each cell "
 		"the weighted average from the values of the supplied grids. "
-		"The weighting factor for each grid has to be defined in the 'Weights' "
-		"table. The order of the weights in this table has to correspond to "
-		"the grids' order in the input list. "
+		"The weighting factor for each grid value is defined with the "
+		"'Weights' table. If the 'Ordered' flag is unchecked, the order of "
+		"the weights correspond to the order of the grids in the input list. "
+		"If the 'Ordered' flag is checked, the grid values will be sorted "
+		"and the weights will be assigned to the values in their ascending order, "
+		"i.e. from the lowest to the highest value. "
 	));
 
 	//-----------------------------------------------------
@@ -55,6 +58,12 @@ COWA::COWA(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Bool("",
+		"ORDERED"	, _TL("Ordered"),
+		_TL(""),
+		true
+	);
+
 	Parameters.Add_FixedTable("", 
 		"WEIGHTS"	, _TL("Weights"),
 		_TL("")
@@ -63,7 +72,6 @@ COWA::COWA(void)
 	CSG_Table	*pWeights	= Parameters("WEIGHTS")->asTable();
 
 	pWeights->Add_Field(_TL("Weight"), SG_DATATYPE_Double);
-	pWeights->Add_Field(_TL("Grid"  ), SG_DATATYPE_String);
 }
 
 
@@ -78,13 +86,12 @@ int COWA::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 	{
 		CSG_Table	&Table	= *(*pParameters)("WEIGHTS")->asTable();
 
-		Table.Set_Record_Count(pParameter->asGridList()->Get_Grid_Count());
-
-		for(int i=0; i<pParameter->asGridList()->Get_Grid_Count(); i++)
+		for(int i=Table.Get_Count(); i<pParameter->asGridList()->Get_Grid_Count(); i++)
 		{
-			Table[i].Set_Value(0, 1.0);
-			Table[i].Set_Value(1, pParameter->asGridList()->Get_Grid(i)->Get_Name());
+			Table.Add_Record()->Set_Value(0, 1.);
 		}
+
+		Table.Set_Record_Count(pParameter->asGridList()->Get_Grid_Count());
 	}
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
@@ -104,7 +111,7 @@ bool COWA::On_Execute(void)
 
 	if( pGrids->Get_Grid_Count() < 2 )
 	{
-		Error_Set(_TL("Nothing to do! There are less than two grids in input list!"));
+		Error_Set(_TL("Nothing to do! There are less than two grids in the input list!"));
 
 		return( false );
 	}
@@ -114,7 +121,9 @@ bool COWA::On_Execute(void)
 
 	if( Table.Get_Count() < pGrids->Get_Grid_Count() )
 	{
-		Error_Set(_TL("Wrong weights table, check table dimensions."));
+		Error_Fmt("%s [%d < %d]", _TL("Not enough entries in the weights table!"),
+			Table.Get_Count(), pGrids->Get_Grid_Count()
+		);
 
 		return( false );
 	}
@@ -145,6 +154,8 @@ bool COWA::On_Execute(void)
 		Weights[i]	/= Sum;	
 	}
 
+	bool	bOrdered	= Parameters("ORDERED")->asBool();
+
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
@@ -163,7 +174,7 @@ bool COWA::On_Execute(void)
 				}
 			}
 
-			if( bOkay == false || !Values.Sort() )
+			if( bOkay == false || (bOrdered && !Values.Sort()) )
 			{
 				pOWA->Set_NoData(x, y);
 			}
