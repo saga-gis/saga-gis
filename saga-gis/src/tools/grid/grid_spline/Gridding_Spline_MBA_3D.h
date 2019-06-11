@@ -72,7 +72,7 @@ class CGridding_Spline_MBA_3D : public CSG_Tool
 public:
 	CGridding_Spline_MBA_3D(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Grid Collection|Interpolation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Gridding|Interpolation (3D)") );	}
 
 
 protected:
@@ -84,6 +84,8 @@ protected:
 
 
 private:
+
+	int							m_zField;
 
 	double						m_Epsilon, m_zCellsize;
 

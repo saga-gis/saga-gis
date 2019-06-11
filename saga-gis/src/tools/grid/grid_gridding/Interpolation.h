@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Interpolation_H
 #define HEADER_INCLUDED__Interpolation_H
 
@@ -86,7 +74,7 @@ class CInterpolation : public CSG_Tool
 public:
 	CInterpolation(bool bCrossValidation = true, bool bMultiThreading = true);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Interpolation from Points") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Interpolation") );	}
 
 
 protected:

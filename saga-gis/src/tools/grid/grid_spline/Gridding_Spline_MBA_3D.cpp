@@ -96,11 +96,11 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 		_TL("")
 	);
 
-	//Parameters.Add_Double("Z_FIELD",
-	//	"Z_SCALE"	, _TL("Z Factor"),
-	//	_TL(""),
-	//	1., 0., true
-	//);
+	Parameters.Add_Double("POINTS",
+		"Z_SCALE"	, _TL("Z Factor"),
+		_TL(""),
+		1., 0., true
+	);
 
 	Parameters.Add_Table_Field("POINTS",
 		"V_FIELD"	, _TL("Value"),
@@ -141,13 +141,15 @@ int CGridding_Spline_MBA_3D::On_Parameter_Changed(CSG_Parameters *pParameters, C
 
 	if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("Z_FIELD") )
 	{
-		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes(); int zField = (*pParameters)("Z_FIELD")->asInt();
+		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes();
 
-		if( pPoints && zField >= 0 && zField < pPoints->Get_Field_Count() )
+		if( pPoints )
 		{
+			int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? (*pParameters)("Z_FIELD")->asInt() : -1;
+
 			m_Grid_Target.Set_User_Defined_ZLevels(pParameters,
-				pPoints->Get_Minimum(zField),
-				pPoints->Get_Maximum(zField), 10
+				zField < 0 ? pPoints->Get_ZMin() : pPoints->Get_Minimum(zField),
+				zField < 0 ? pPoints->Get_ZMax() : pPoints->Get_Maximum(zField), 10
 			);
 		}
 	}
@@ -160,6 +162,11 @@ int CGridding_Spline_MBA_3D::On_Parameter_Changed(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 int CGridding_Spline_MBA_3D::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("POINTS") )
+	{
+		pParameters->Set_Enabled("Z_FIELD", pParameter->asShapes() && pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
+	}
+
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -188,15 +195,15 @@ bool CGridding_Spline_MBA_3D::On_Execute(void)
 
 	m_Points.Destroy();
 
-	//double	zScale	= Parameters("Z_SCALE")->asDouble();
+	if( m_zField >= 0 && m_zField != m_pGrids->Get_Z_Attribute() )	// z factor != 1 !!
+	{
+		int	zField	= m_pGrids->Get_Z_Attribute();
 
-	//if( zScale != 1.0 )
-	//{
-	//	for(int iz=m_pGrids->Get_NZ()-1; iz>=0; iz--)
-	//	{
-	//		m_pGrids->Set_Z(iz, m_pGrids->Get_Z(iz) / zScale);
-	//	}
-	//}
+		m_pGrids->Set_Z_Attribute (m_zField);
+		m_pGrids->Set_Z_Name_Field(m_zField);
+
+		m_pGrids->Del_Attribute(zField);
+	}
 
 	return( bResult );
 }
@@ -211,7 +218,8 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 {
 	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-	int	zField	= Parameters("Z_FIELD")->asInt();
+	int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
+
 	int	vField	= Parameters("V_FIELD")->asInt();
 
 	if( (m_pGrids = m_Grid_Target.Get_Grids("GRIDS")) == NULL )
@@ -223,22 +231,30 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 	m_zCellsize		= Parameters("TARGET_" "USER_ZSIZE")->asDouble();
 
-	//double	zScale	= Parameters("Z_SCALE")->asDouble();
+	double	zScale	= Parameters("Z_SCALE")->asDouble();
 
-	//if( zScale != 1.0 )
-	//{
-	//	if( zScale == 0.0 )
-	//	{
-	//		return( false );
-	//	}
+	if( zScale == 0.0 )
+	{
+		Error_Set(_TL("Z factor is zero! Please use 2D instead of 3D interpolation."));
 
-	//	m_zCellsize	*= zScale;
+		return( false );
+	}
 
-	//	for(int iz=m_pGrids->Get_NZ()-1; iz>=0; iz--)
-	//	{
-	//		m_pGrids->Set_Z(iz, m_pGrids->Get_Z(iz) * zScale);
-	//	}
-	//}
+	m_zField	= zScale == 1.0 ? -1 : m_pGrids->Get_Z_Attribute();
+
+	if( m_zField >= 0 )
+	{
+		m_pGrids->Add_Attribute("Z_Scaled", SG_DATATYPE_Double);
+
+		for(int iz=0; iz<m_pGrids->Get_NZ(); iz++)
+		{
+			m_pGrids->Get_Attributes(iz).Set_Value("Z_Scaled", m_pGrids->Get_Z(iz) * zScale);
+		}
+
+		m_pGrids->Set_Z_Attribute(m_pGrids->Get_Attributes().Get_Field_Count() - 1);
+
+		m_zCellsize	*= zScale;
+	}
 
 	//-----------------------------------------------------
 	m_Points.Destroy();
@@ -247,13 +263,14 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 	{
 		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-	//	if( m_pGrids->Get_Extent().Contains(pPoint->Get_Point(0)) )
+		if( (zField < 0 || !pPoint->is_NoData(zField)) && !pPoint->is_NoData(vField) )
 		{
 			CSG_Vector	p(4);
 
 			p[0]	= pPoint->Get_Point(0).x;
 			p[1]	= pPoint->Get_Point(0).y;
-			p[2]	= pPoint->asDouble(zField);// * zScale;
+			p[2]	= zScale * (zField < 0 ? pPoint->Get_Z(0)
+					: pPoint->asDouble(zField));
 			p[3]	= pPoint->asDouble(vField);
 
 			m_Points.Add_Row(p);

@@ -89,7 +89,7 @@ CGridding3D_IDW::CGridding3D_IDW(void)
 		_TL("")
 	);
 
-	Parameters.Add_Double("Z_FIELD",
+	Parameters.Add_Double("POINTS",
 		"Z_SCALE"	, _TL("Z Factor"),
 		_TL(""),
 		1.
@@ -131,15 +131,15 @@ int CGridding3D_IDW::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 	if( pParameter->Cmp_Identifier("POINTS") || pParameter->Cmp_Identifier("Z_FIELD") )
 	{
-		m_Searching.On_Parameter_Changed(pParameters, pParameter);
+		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes();
 
-		CSG_Shapes	*pPoints = (*pParameters)("POINTS")->asShapes(); int zField = (*pParameters)("Z_FIELD")->asInt();
-
-		if( pPoints && zField >= 0 && zField < pPoints->Get_Field_Count() )
+		if( pPoints )
 		{
+			int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? (*pParameters)("Z_FIELD")->asInt() : -1;
+
 			m_Grid_Target.Set_User_Defined_ZLevels(pParameters,
-				pPoints->Get_Minimum(zField),
-				pPoints->Get_Maximum(zField), 10
+				zField < 0 ? pPoints->Get_ZMin() : pPoints->Get_Minimum(zField),
+				zField < 0 ? pPoints->Get_ZMax() : pPoints->Get_Maximum(zField), 10
 			);
 		}
 	}
@@ -152,6 +152,11 @@ int CGridding3D_IDW::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 //---------------------------------------------------------
 int CGridding3D_IDW::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("POINTS") )
+	{
+		pParameters->Set_Enabled("Z_FIELD", pParameter->asShapes() && pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
+	}
+
 	m_Searching.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
@@ -171,8 +176,9 @@ bool CGridding3D_IDW::On_Execute(void)
 {
 	m_pPoints	= Parameters("POINTS")->asShapes();
 
+	m_zField	= m_pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
+
 	m_vField	= Parameters("V_FIELD")->asInt();
-	m_zField	= Parameters("Z_FIELD")->asInt();
 
 	CSG_Grids	*pGrids	= m_Grid_Target.Get_Grids("GRIDS");
 
@@ -185,6 +191,13 @@ bool CGridding3D_IDW::On_Execute(void)
 
 	//-----------------------------------------------------
 	double	zScale	= Parameters("Z_SCALE")->asDouble();
+
+	if( zScale == 0.0 )
+	{
+		Error_Set(_TL("Z factor is zero! Please use 2D instead of 3D interpolation."));
+
+		return( false );
+	}
 
 	if( !m_Searching.Do_Use_All(true) && !m_Search.Create(m_pPoints, m_zField, zScale) )
 	{
@@ -316,7 +329,7 @@ inline double CGridding3D_IDW::Get_Distance(double Coordinate[3], CSG_Shape *pPo
 {
 	double	dx	= Coordinate[0] - pPoint->Get_Point(0).x;
 	double	dy	= Coordinate[1] - pPoint->Get_Point(0).y;
-	double	dz	= Coordinate[2] - pPoint->asDouble(m_zField);
+	double	dz	= Coordinate[2] - (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField));
 
 	return( sqrt(dx*dx + dy*dy + dz*dz) );
 }
@@ -326,7 +339,7 @@ inline bool CGridding3D_IDW::is_Identical(double Coordinate[3], CSG_Shape *pPoin
 {
 	return( Coordinate[0] == pPoint->Get_Point(0).x
 		&&  Coordinate[1] == pPoint->Get_Point(0).y
-		&&  Coordinate[2] == pPoint->asDouble(m_zField)
+		&&  Coordinate[2] == (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField))
 	);
 }
 

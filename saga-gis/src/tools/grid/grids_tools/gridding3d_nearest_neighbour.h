@@ -71,7 +71,7 @@ class CGridding3D_Nearest_Neighbour : public CSG_Tool
 public:
 	CGridding3D_Nearest_Neighbour(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Interpolation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Gridding|Interpolation (3D)") );	}
 
 
 protected:

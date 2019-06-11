@@ -71,36 +71,36 @@ class CGridding3D_IDW : public CSG_Tool
 public:
 	CGridding3D_IDW(void);
 
-	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Interpolation") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Gridding|Interpolation (3D)") );	}
 
 
 protected:
 
-	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool					On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Parameters_Grid_Target		m_Grid_Target;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Parameters_PointSearch		m_Searching;
+	CSG_Parameters_PointSearch	m_Searching;
 
-	CSG_Distance_Weighting			m_Weighting;
+	CSG_Distance_Weighting		m_Weighting;
 
-	CSG_KDTree_3D					m_Search;
+	CSG_KDTree_3D				m_Search;
 
-	int								m_zField, m_vField;
+	int							m_zField, m_vField;
 
-	CSG_Shapes						*m_pPoints;
+	CSG_Shapes					*m_pPoints;
 
 
-	bool							Get_Value				(double Coordinate[3], double zScale, double &Value);
+	bool						Get_Value				(double Coordinate[3], double zScale, double &Value);
 
-	double							Get_Distance			(double Coordinate[3], CSG_Shape *pPoint);
-	bool							is_Identical			(double Coordinate[3], CSG_Shape *pPoint);
+	double						Get_Distance			(double Coordinate[3], CSG_Shape *pPoint);
+	bool						is_Identical			(double Coordinate[3], CSG_Shape *pPoint);
 
 };
 
