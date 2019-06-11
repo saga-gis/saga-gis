@@ -594,11 +594,39 @@ bool CSG_Vector::Set_Unity(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Vector::Sort(void)
+bool CSG_Vector::Flip_Values(void)
+{
+	if( Get_Size() > 1 )
+	{
+		double	*v	= Get_Data();
+
+		for(size_t i=0, j=Get_Size()-1; i<j; i++, j--)
+		{
+			double d = v[i]; v[i] = v[j]; v[j] = d;
+		}
+
+		return( true );
+	}
+
+	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Vector::Sort(bool bAscending)
 {
 	if( Get_Size() > 0 )
 	{
 		qsort(Get_Data(), Get_Size(), sizeof(double), SG_Compare_Double);
+
+		if( bAscending == false )
+		{
+			Flip_Values();
+		}
 
 		return( true );
 	}

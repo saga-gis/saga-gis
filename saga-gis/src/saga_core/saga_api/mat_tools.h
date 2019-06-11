@@ -270,7 +270,9 @@ public:
 	bool						Set_Zero			(void);
 	bool						Set_Unity			(void);
 
-	bool						Sort				(void);
+	bool						Flip_Values			(void);
+
+	bool						Sort				(bool bAscending = true);
 
 	double						Get_Length			(void)						const;
 	double						Get_Angle			(const CSG_Vector &Vector)	const;
@@ -287,7 +289,6 @@ public:
 private:
 
 	CSG_Array					m_Array;
-
 
 };
 
