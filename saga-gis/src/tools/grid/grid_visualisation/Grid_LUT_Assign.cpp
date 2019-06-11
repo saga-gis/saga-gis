@@ -117,7 +117,7 @@ bool CGrid_LUT_Assign::On_Execute(void)
 //---------------------------------------------------------
 CLUT_Create::CLUT_Create(void)
 {
-	Set_Name		(_TL("Create a Table fron Look-up Table"));
+	Set_Name		(_TL("Create a Table from Look-up Table"));
 
 	Set_Author		("O.Conrad (c) 2019");
 
@@ -130,13 +130,12 @@ CLUT_Create::CLUT_Create(void)
 	Parameters.Add_Table(
 		"", "TABLE"	, _TL("Table"),
 		_TL(""),
-		PARAMETER_INPUT
+		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Table(
+	Parameters.Add_FixedTable(
 		"", "LUT"	, _TL("Look-up Table"),
-		_TL(""),
-		PARAMETER_INPUT
+		_TL("")
 	);
 
 	//-----------------------------------------------------

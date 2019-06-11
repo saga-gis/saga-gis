@@ -71,71 +71,111 @@
 	</parameters>
 	
 	<tools>
-		<tool library="io_gdal" module="3" name="OGR: Import Vector Data">
+		<tool library="io_gdal" tool="3" name="OGR: Import Vector Data">
 			<output id="SHAPES">TRAINING_SINGLE</output>
 			<option id="FILES" varname="true">FILE_TRAINING</option>
 			<option id="GEOM_TYPE">9</option>
 		</tool>
-		<tool library="shapes_tools" module="2" name="Merge Layers">
+
+		<tool library="shapes_tools" tool="2" name="Merge Layers">
 			<input  id="INPUT">TRAINING_SINGLE</input>
 			<option id="SRCINFO">TRUE</option>
 			<option id="MATCH">TRUE</option>
 			<output id="MERGED">TRAINING_MERGED</output>
 		</tool>
-		<tool library="shapes_polygons" module="7" name="Polygon Shape Indices">
+
+		<tool library="shapes_polygons" tool="7" name="Polygon Shape Indices">
 			<input id="SHAPES">TRAINING_MERGED</input>
 		</tool>
-		<tool library="grid_tools" module="32" name="Select Grid from List">
+
+		<tool library="grid_tools" tool="32" name="Select Grid from List">
 			<input  id="GRIDS">FEATURES</input>
 			<output id="GRID">FEATURE</output>
 			<option id="INDEX">0</option>
 		</tool>
 
-		<!-- with GUI - pick definition from Grid -->
-		<condition type="has_gui" variable="true">
-			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+		<condition type="has_gui" variable="true"><if>
+			<!-- with GUI - pick definition from Grid -->
+			<tool library="pj_proj4" tool="2" name="Coordinate Transformation (Shapes)">
 				<input	id="PICK" parms="CRS_GRID">FEATURE</input>
 				<input	id="SOURCE">TRAINING_MERGED</input>
 				<output id="TARGET">TRAINING_PROJ</output>
 			</tool>
-		</condition>
-		<!-- without GUI - pick definition from prj file -->
-		<condition type="has_gui" variable="false">
-			<tool library="pj_proj4" module="2" name="Coordinate Transformation (Shapes)">
+		</if><else>
+			<!-- without GUI - pick definition from prj file -->
+			<tool library="pj_proj4" tool="2" name="Coordinate Transformation (Shapes)">
 				<option	id="CRS_METHOD">2</option>
 				<option	id="CRS_FILE" varname="true">GRIDDEFILE</option>
 				<input	id="SOURCE">TRAINING_MERGED</input>
 				<output id="TARGET">TRAINING_PROJ</output>
 			</tool>
-		</condition>
+		</else></condition>
 
-		<tool library="imagery_vigra" module="9" name="Random Forest Classification (ViGrA)">
+		<!-- perform the random forest classification -->
+		<tool library="imagery_vigra" tool="9" name="Random Forest Classification (ViGrA)">
 			<input	id="FEATURES">FEATURES</input>
 			<input	id="TRAINING">TRAINING_PROJ</input>
 			<option id="FIELD">Source</option>
 			<option id="LABEL_AS_ID">TRUE</option>
 			<option id="DO_MRMR">FALSE</option>
 			<option id="RF_TREE_COUNT" varname="true">RF_TREE_COUNT</option>
-			<option id="RF_TREE_SAMPLES">1.000000</option>
+			<option id="RF_TREE_SAMPLES">1</option>
 			<output id="CLASSES">LCZC</output>
 		</tool>
+
+		<!-- create look-up table for classification -->
+		<condition variable="FILE_CLASS_DEF" type="not_equal" value="">
+			<tool library="io_table" tool="1" name="Import Text Table">
+				<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
+				<output id="TABLE">CLASS_DEF</output>
+			</tool>
+		</condition>
+		
+		<condition type="not_exists" variable="CLASS_DEF">
+			<tool library="grid_visualisation" tool="11" name="Create a Table fron Look-up Table">
+				<output id="TABLE">CLASS_DEF</output>
+				<option id="LUT"><OPTION type="static_table" id="LUT" name="Lookup Table">
+					<FIELDS>
+						<FIELD type="COLOR" >Color</FIELD>
+						<FIELD type="STRING">Name</FIELD>
+						<FIELD type="STRING">Description</FIELD>
+						<FIELD type="DOUBLE">Minimum</FIELD>
+						<FIELD type="DOUBLE">Maximum</FIELD>
+					</FIELDS><RECORDS>
+						<RECORD><FIELD>     140</FIELD><FIELD >1</FIELD><FIELD   >compHR</FIELD><FIELD>  1</FIELD><FIELD>  1</FIELD></RECORD>
+						<RECORD><FIELD>     209</FIELD><FIELD >2</FIELD><FIELD   >compMR</FIELD><FIELD>  2</FIELD><FIELD>  2</FIELD></RECORD>
+						<RECORD><FIELD>     255</FIELD><FIELD >3</FIELD><FIELD   >compLR</FIELD><FIELD>  3</FIELD><FIELD>  3</FIELD></RECORD>
+						<RECORD><FIELD>   19903</FIELD><FIELD >4</FIELD><FIELD   >openHR</FIELD><FIELD>  4</FIELD><FIELD>  4</FIELD></RECORD>
+						<RECORD><FIELD>   26367</FIELD><FIELD >5</FIELD><FIELD   >openMR</FIELD><FIELD>  5</FIELD><FIELD>  5</FIELD></RECORD>
+						<RECORD><FIELD> 5609983</FIELD><FIELD >6</FIELD><FIELD   >openLR</FIELD><FIELD>  6</FIELD><FIELD>  6</FIELD></RECORD>
+						<RECORD><FIELD>  388858</FIELD><FIELD >7</FIELD><FIELD    >light</FIELD><FIELD>  7</FIELD><FIELD>  7</FIELD></RECORD>
+						<RECORD><FIELD>12369084</FIELD><FIELD >8</FIELD><FIELD >largeLow</FIELD><FIELD>  8</FIELD><FIELD>  8</FIELD></RECORD>
+						<RECORD><FIELD>11193599</FIELD><FIELD >9</FIELD><FIELD   >sparse</FIELD><FIELD>  9</FIELD><FIELD>  9</FIELD></RECORD>
+						<RECORD><FIELD> 5592405</FIELD><FIELD>10</FIELD><FIELD  >industr</FIELD><FIELD> 10</FIELD><FIELD> 10</FIELD></RECORD>
+						<RECORD><FIELD>   27136</FIELD><FIELD >A</FIELD><FIELD>denseTree</FIELD><FIELD>101</FIELD><FIELD>101</FIELD></RECORD>
+						<RECORD><FIELD>   43520</FIELD><FIELD >B</FIELD><FIELD >scatTree</FIELD><FIELD>102</FIELD><FIELD>102</FIELD></RECORD>
+						<RECORD><FIELD> 2458980</FIELD><FIELD >C</FIELD><FIELD     >bush</FIELD><FIELD>103</FIELD><FIELD>103</FIELD></RECORD>
+						<RECORD><FIELD> 7986105</FIELD><FIELD >D</FIELD><FIELD >lowPlant</FIELD><FIELD>104</FIELD><FIELD>104</FIELD></RECORD>
+						<RECORD><FIELD>       0</FIELD><FIELD >E</FIELD><FIELD    >paved</FIELD><FIELD>105</FIELD><FIELD>105</FIELD></RECORD>
+						<RECORD><FIELD>11466747</FIELD><FIELD >F</FIELD><FIELD     >soil</FIELD><FIELD>106</FIELD><FIELD>106</FIELD></RECORD>
+						<RECORD><FIELD>16738922</FIELD><FIELD >G</FIELD><FIELD    >water</FIELD><FIELD>107</FIELD><FIELD>107</FIELD></RECORD>
+					</RECORDS>
+				</OPTION></option>
+			</tool>
+		</condition>
+			
+		<!-- LCZC visualization and storing to file -->
 		<condition type="has_gui" variable="true">
-			<condition type="not_equal" value="" variable="FILE_CLASS_DEF">
-				<tool library="io_table" module="1" name="Import Text Table">
-					<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
-					<output id="TABLE">CLASS_DEF</output>
-				</tool>
-				<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
-					<input id="GRID">LCZC</input>
-					<input id="LUT">CLASS_DEF</input>
-				</tool>
-			</condition>
+			<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
+				<input id="GRID">LCZC</input>
+				<input id="LUT">CLASS_DEF</input>
+			</tool>
 		</condition>
 
-		<condition type="not_equal" value="" variable="FILE_LCZC">
-			<tool library="io_grid_image" module="2" name="Export Grid to KML">
+		<condition variable="FILE_LCZC" type="not_equal" value="">
+			<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 				<input	id="GRID">LCZC</input>
-				<input	id="LUT">CLASS_DEF</input>
+				<option	id="LUT"  varname="true">CLASS_DEF</option>
 				<option id="FILE" varname="true">FILE_LCZC</option>
 				<option id="COLOURING">3</option>
 				<option id="RESAMPLING">false</option>
@@ -143,22 +183,25 @@
 			</tool>
 		</condition>
 
+		<!-- LCZC majority filtering, visualization and storing to file -->
 		<condition type="exists" variable="LCZC_FILTERED">
-			<tool library="grid_filter" module="6" name="Majority Filter">
+			<tool library="grid_filter" tool="6" name="Majority Filter">
 				<input	id="INPUT">LCZC</input>
 				<option id="KERNEL_RADIUS" varname="true">FILTER_RADIUS</option>
 				<output id="RESULT">LCZC_FILTERED</output>
 			</tool>
+
 			<condition type="has_gui" variable="true">
-				<tool library="grid_visualisation" module="10" name="Select Look-up Table for Grid Visualization">
+				<tool library="grid_visualisation" tool="10" name="Select Look-up Table for Grid Visualization">
 					<input id="GRID">LCZC_FILTERED</input>
 					<input id="LUT">CLASS_DEF</input>
 				</tool>
 			</condition>
+
 			<condition type="not_equal" value="" variable="FILE_LCZC_FILTERED">
-				<tool library="io_grid_image" module="2" name="Export Grid to KML">
+				<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 					<input	id="GRID">LCZC_FILTERED</input>
-					<input	id="LUT">CLASS_DEF</input>
+					<option	id="LUT"  varname="true">CLASS_DEF</option>
 					<option id="FILE" varname="true">FILE_LCZC_FILTERED</option>
 					<option id="COLOURING">3</option>
 					<option id="RESAMPLING">false</option>
