@@ -69,7 +69,8 @@ CGrid_Merge::CGrid_Merge(void)
 		"involves resampling if the input grids have different cell sizes or are "
 		"not aligned to each other. Besides different resampling methods, the tool "
 		"provides several options on how to handle overlapping areas. It is also "
-		"possible to apply a histogram matching.\n\n"
+		"possible to apply a histogram matching. "
+		"\n\n"
 		"In order to be able to also merge a large amount of grids, which, for "
 		"example, would exceed the maximum command line length, the tools has "
 		"the option to provide a file list as input (instead of using the input "
@@ -88,13 +89,13 @@ CGrid_Merge::CGrid_Merge(void)
 	);
 
 	Parameters.Add_FilePath("",
-		"INPUT_FILE_LIST"	, _TL("Input File List"),
+		"FILE_LIST"	, _TL("Input File List"),
 		_TL("A text file with the full path to an input grid on each line"),
 		CSG_String::Format("%s|*.txt|%s|*.*",
 			_TL("Text Files"),
             _TL("All Files")
         ), NULL, false, false, false
-	);
+	)->Set_UseInGUI(false);
 
 	Add_Parameters(Parameters);
 
@@ -115,15 +116,15 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 		"TYPE"		, _TL("Data Storage Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-			_TL("1 bit"),
-			_TL("1 byte unsigned integer"),
-			_TL("1 byte signed integer"),
-			_TL("2 byte unsigned integer"),
-			_TL("2 byte signed integer"),
-			_TL("4 byte unsigned integer"),
-			_TL("4 byte signed integer"),
-			_TL("4 byte floating point"),
-			_TL("8 byte floating point"),
+			_TL("1 bit"                     ),
+			_TL("1 byte unsigned integer"   ),
+			_TL("1 byte signed integer"     ),
+			_TL("2 byte unsigned integer"   ),
+			_TL("2 byte signed integer"     ),
+			_TL("4 byte unsigned integer"   ),
+			_TL("4 byte signed integer"     ),
+			_TL("4 byte floating point"     ),
+			_TL("8 byte floating point"     ),
 			_TL("same as first grid in list")
 		), 9
 	);
@@ -132,10 +133,10 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
-			_TL("Nearest Neighbour"),
-			_TL("Bilinear Interpolation"),
+			_TL("Nearest Neighbour"           ),
+			_TL("Bilinear Interpolation"      ),
 			_TL("Bicubic Spline Interpolation"),
-			_TL("B-Spline Interpolation")
+			_TL("B-Spline Interpolation"      )
 		), 3
 	);
 
@@ -143,13 +144,13 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 		"OVERLAP"	, _TL("Overlapping Areas"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s",
-			_TL("first"),
-			_TL("last"),
-			_TL("minimum"),
-			_TL("maximum"),
-			_TL("mean"),
+			_TL("first"         ),
+			_TL("last"          ),
+			_TL("minimum"       ),
+			_TL("maximum"       ),
+			_TL("mean"          ),
 			_TL("blend boundary"),
-			_TL("feathering")
+			_TL("feathering"    )
 		), 1
 	);
 
@@ -160,13 +161,24 @@ void CGrid_Merge::Add_Parameters(CSG_Parameters &Parameters)
 	);
 
 	Parameters.Add_Choice("",
+		"BLEND_BND"	, _TL("Blending Boundary"),
+		_TL("blending boundary for distance calculation"),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("valid data cells"          ),
+			_TL("grid boundaries"           ),
+			_TL("vertical grid boundaries"  ),
+			_TL("horizontal grid boundaries")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
 		"MATCH"		, _TL("Match"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s",
-			_TL("none"),
+			_TL("none"                                 ),
 			_TL("match histogram of first grid in list"),
-			_TL("match histogram of overlapping area"),
-			_TL("regression")
+			_TL("match histogram of overlapping area"  ),
+			_TL("regression"                           )
 		), 0
 	);
 }
@@ -190,9 +202,15 @@ int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("GRIDS") )
+	{
+		pParameters->Set_Enabled("FILE_LIST" , pParameter->asGridList()->Get_Grid_Count() < 1);
+	}
+
 	if(	pParameter->Cmp_Identifier("OVERLAP") )
 	{
 		pParameters->Set_Enabled("BLEND_DIST", pParameter->asInt() == 5 || pParameter->asInt() == 6);
+		pParameters->Set_Enabled("BLEND_BND" , pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
 
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
@@ -293,6 +311,8 @@ bool CGrid_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	DataObject_Add(SG_Create_Grid(m_Weights));
+
 	m_Weight .Destroy();
 	m_Weights.Destroy();
 
@@ -330,7 +350,7 @@ bool CGrid_Merge::Initialize(void)
 
 		CSG_Table	Table;
 
-		if( !Table.Create(Parameters("INPUT_FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
+		if( !Table.Create(Parameters("FILE_LIST")->asString(), TABLE_FILETYPE_Text_NoHeadLine) )
 		{
 			Error_Set(_TL("input file list could not be opened or is empty!"));
 
@@ -651,59 +671,108 @@ bool CGrid_Merge::Set_Weight(CSG_Grid *pGrid)
 		}
 	}
 
-	//-----------------------------------------------------
-	int		x, y, d;
-
-	for(y=0; y<pGrid->Get_NY() && Process_Get_Okay(); y++)
+	switch( Parameters("BLEND_BND")->asInt() )
 	{
-		for(x=0, d=1; x<pGrid->Get_NX(); x++)
+	//-----------------------------------------------------------
+	case  1: {	// grid boundaries
+		for(int iy=0, jy=pGrid->Get_NY()-1; iy<=jy; iy++, jy--)
 		{
-			if( pGrid->is_NoData(x, y) )
-				m_Weight.Set_Value(x, y, d = 0);
-			else //if( m_Weight.asInt(x, y) > d )
-				m_Weight.Set_Value(x, y, d);
+			for(int ix=0, jx=pGrid->Get_NX()-1; ix<=jx; ix++, jx--)
+			{
+				int	d	= 1 + (ix < iy ? ix : iy);	if( dBlend > 0 && d > dBlend )	{	d = dBlend;	}
 
-			if( dBlend <= 0 || d < dBlend )	d++;
+				m_Weight.Set_Value(ix, iy, d);
+				m_Weight.Set_Value(ix, jy, d);
+				m_Weight.Set_Value(jx, iy, d);
+				m_Weight.Set_Value(jx, jy, d);
+			}
+		}
+	} break;
+
+	//-----------------------------------------------------------
+	case  2: {	// vertical grid boundaries
+		for(int ix=0, jx=pGrid->Get_NX()-1; ix<=jx; ix++, jx--)
+		{
+			int	d	= 1 + ix;	if( dBlend > 0 && d > dBlend )	{	d = dBlend;	}
+
+			for(int y=0; y<pGrid->Get_NY(); y++)
+			{
+				m_Weight.Set_Value(ix, y, d);
+				m_Weight.Set_Value(jx, y, d);
+			}
+		}
+	} break;
+
+	//-----------------------------------------------------------
+	case  3: {	// horizontal grid boundaries
+		for(int iy=0, jy=pGrid->Get_NY()-1; iy<=jy; iy++, jy--)
+		{
+			int	d	= 1 + iy;	if( dBlend > 0 && d > dBlend )	{	d = dBlend;	}
+
+			for(int x=0; x<pGrid->Get_NX(); x++)
+			{
+				m_Weight.Set_Value(x, iy, d);
+				m_Weight.Set_Value(x, jy, d);
+			}
+		}
+	} break;
+
+	//-----------------------------------------------------------
+	default: {	// valid data cells
+		int		x, y, d;
+
+		for(y=0; y<pGrid->Get_NY(); y++)
+		{
+			for(x=0, d=1; x<pGrid->Get_NX(); x++)
+			{
+				if( pGrid->is_NoData(x, y) )
+					m_Weight.Set_Value(x, y, d = 0);
+				else //if( m_Weight.asInt(x, y) > d )
+					m_Weight.Set_Value(x, y, d);
+
+				if( dBlend <= 0 || d < dBlend )	d++;
+			}
+
+			for(x=pGrid->Get_NX()-1, d=1; x>=0; x--)
+			{
+				if( pGrid->is_NoData(x, y) )
+					m_Weight.Set_Value(x, y, d = 0);
+				else if( m_Weight.asInt(x, y) > d )
+					m_Weight.Set_Value(x, y, d);
+				else
+					d	= m_Weight.asInt(x, y);
+
+				if( dBlend <= 0 || d < dBlend )	d++;
+			}
 		}
 
-		for(x=pGrid->Get_NX()-1, d=1; x>=0; x--)
+		for(x=0; x<pGrid->Get_NX(); x++)
 		{
-			if( pGrid->is_NoData(x, y) )
-				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asInt(x, y) > d )
-				m_Weight.Set_Value(x, y, d);
-			else
-				d	= m_Weight.asInt(x, y);
+			for(y=0, d=1; y<pGrid->Get_NY(); y++)
+			{
+				if( pGrid->is_NoData(x, y) )
+					m_Weight.Set_Value(x, y, d = 0);
+				else if( m_Weight.asInt(x, y) > d )
+					m_Weight.Set_Value(x, y, d);
+				else
+					d	= m_Weight.asInt(x, y);
 
-			if( dBlend <= 0 || d < dBlend )	d++;
+				if( dBlend <= 0 || d < dBlend )	d++;
+			}
+
+			for(y=pGrid->Get_NY()-1, d=1; y>=0; y--)
+			{
+				if( pGrid->is_NoData(x, y) )
+					m_Weight.Set_Value(x, y, d = 0);
+				else if( m_Weight.asInt(x, y) > d )
+					m_Weight.Set_Value(x, y, d);
+				else
+					d	= m_Weight.asInt(x, y);
+
+				if( dBlend <= 0 || d < dBlend )	d++;
+			}
 		}
-	}
-
-	for(x=0; x<pGrid->Get_NX() && Process_Get_Okay(); x++)
-	{
-		for(y=0, d=1; y<pGrid->Get_NY(); y++)
-		{
-			if( pGrid->is_NoData(x, y) )
-				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asInt(x, y) > d )
-				m_Weight.Set_Value(x, y, d);
-			else
-				d	= m_Weight.asInt(x, y);
-
-			if( dBlend <= 0 || d < dBlend )	d++;
-		}
-
-		for(y=pGrid->Get_NY()-1, d=1; y>=0; y--)
-		{
-			if( pGrid->is_NoData(x, y) )
-				m_Weight.Set_Value(x, y, d = 0);
-			else if( m_Weight.asInt(x, y) > d )
-				m_Weight.Set_Value(x, y, d);
-			else
-				d	= m_Weight.asInt(x, y);
-
-			if( dBlend <= 0 || d < dBlend )	d++;
-		}
+	} break;
 	}
 
 	//-----------------------------------------------------
@@ -873,6 +942,7 @@ int CGrids_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	pParameter->Cmp_Identifier("OVERLAP") )
 	{
 		pParameters->Set_Enabled("BLEND_DIST", pParameter->asInt() == 5 || pParameter->asInt() == 6);
+		pParameters->Set_Enabled("BLEND_BND" , pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
 
 	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
