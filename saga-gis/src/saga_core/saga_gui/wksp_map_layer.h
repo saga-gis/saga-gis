@@ -94,6 +94,7 @@ public:
 
 	bool						do_Show				(void)	{	return( m_bShow    );	}
 	bool						do_Project			(void)	{	return( m_bProject );	}
+	bool						do_Project			(bool bProject)	{	m_bProject = bProject; return( !bProject );	}
 
 	bool						Fit_Colors			(const CSG_Rect &rWorld);
 

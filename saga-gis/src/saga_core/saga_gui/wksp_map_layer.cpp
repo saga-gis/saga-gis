@@ -374,17 +374,17 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 {
 	CSG_Projection	prj_Layer, prj_Map;
 
-	if( m_bProject && _Get_Projections(prj_Layer, prj_Map) )
+	if( !m_bProject || !_Get_Projections(prj_Layer, prj_Map) )
 	{
-		TSG_Rect	rMap(m_pLayer->Get_Extent());
-
-		SG_Get_Projected(prj_Layer, prj_Map, rMap);
-
-		return( rMap );
+		return( m_pLayer->Get_Extent() );
 	}
 
 	//-----------------------------------------------------
-	return( m_pLayer->Get_Extent() );
+	TSG_Rect	rMap(m_pLayer->Get_Extent());
+
+	SG_Get_Projected(prj_Layer, prj_Map, rMap);
+
+	return( rMap );
 }
 
 
@@ -395,7 +395,9 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 //---------------------------------------------------------
 bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( !m_bProject )
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( !m_bProject || !_Get_Projections(prj_Layer, prj_Map) )
 	{
 		if( m_pLayer->do_Show(dc_Map.m_rWorld) )
 		{
@@ -403,14 +405,6 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		}
 
 		return( true );
-	}
-
-	//-----------------------------------------------------
-	CSG_Projection	prj_Layer, prj_Map;
-
-	if( !_Get_Projections(prj_Layer, prj_Map) )
-	{
-		return( false );
 	}
 
 	//-----------------------------------------------------

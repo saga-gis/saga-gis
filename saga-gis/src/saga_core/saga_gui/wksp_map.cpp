@@ -791,6 +791,8 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 	}
 
 	//-----------------------------------------------------
+	bool	bProject	= false;
+
 	if( m_Parameters("CRS_CHECK")->asBool()
 	&&  m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay()
 	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false )
@@ -802,10 +804,20 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
 		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
 		s	+= "\n\n";
-		s	+= _TL("Do you really want to proceed?");
+		s	+= _TL("Do you want to activate on-the-fly projection for this layer in the map?");
+		s	+= "\n";
+		s	+= _TL("(Press cancel if you decide not to add the layer at all!)");
 
-		if( DLG_Message_Confirm(s, _TL("Add Layer to Map")) == false )
+		switch( DLG_Message_YesNoCancel(s, _TL("Add Layer to Map")) )
 		{
+		case  0: // yes
+			bProject	= true;
+			break;
+
+		case  1: // no
+			break;
+
+		default: // cancel
 			return( NULL );
 		}
 	}
@@ -819,6 +831,8 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 	CWKSP_Map_Layer	*pMapLayer	= new CWKSP_Map_Layer(pLayer);
 
 	Add_Item(pMapLayer);
+
+	pMapLayer->do_Project(bProject);
 
 	if( Get_Count() == 1 )
 	{
