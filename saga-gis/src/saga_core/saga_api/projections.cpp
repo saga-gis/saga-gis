@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -2057,14 +2045,14 @@ bool CSG_Projections::_Set_Dictionary(CSG_Translator &Dictionary, int Direction)
 //---------------------------------------------------------
 bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Projection &Target)
 {
-	if( !pSource || !pSource->is_Valid() || !pTarget )
+	if( !pSource || !pSource->is_Valid() )
 	{
 		return( false );
 	}
 
 	if( pSource->Get_Projection() == Target )
 	{
-		return( pTarget->Create(*pSource) );
+		return( pTarget ? pTarget->Create(*pSource) : true );
 	}
 
 	if( !pSource->Get_Projection().is_Okay() || !Target.is_Okay() )
@@ -2074,7 +2062,7 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 
 	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
 
-	if( !pTool || pTool->is_Executing() )
+	if( !pTool )
 	{
 		return( false );
 	}
@@ -2087,6 +2075,7 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 	    pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
 	&&  pTool->Set_Parameter("SOURCE"   , pSource)
 	&&  pTool->Set_Parameter("TARGET"   , pTarget)
+	&&  pTool->Set_Parameter("COPY"     , pTarget ? true : false)
 	&&  pTool->Execute();
 
 	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);

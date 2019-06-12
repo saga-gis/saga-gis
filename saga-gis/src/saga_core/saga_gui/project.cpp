@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,14 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -111,11 +100,13 @@
 //---------------------------------------------------------
 CWKSP_Project::CWKSP_Project(void)
 {
+	// nop
 }
 
 //---------------------------------------------------------
 CWKSP_Project::~CWKSP_Project(void)
 {
+	// nop
 }
 
 
@@ -816,10 +807,10 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	TSG_Rect	Extent;
 
 	if( !Entry.Cmp_Name("MAP")
-	||	!Entry.Get_Child("XMIN") || !Entry.Get_Child("XMIN")->Get_Content().asDouble(Extent.xMin)
-	||	!Entry.Get_Child("XMAX") || !Entry.Get_Child("XMAX")->Get_Content().asDouble(Extent.xMax)
-	||	!Entry.Get_Child("YMIN") || !Entry.Get_Child("YMIN")->Get_Content().asDouble(Extent.yMin)
-	||	!Entry.Get_Child("YMAX") || !Entry.Get_Child("YMAX")->Get_Content().asDouble(Extent.yMax) )
+	||	!Entry("XMIN") || !Entry("XMIN")->Get_Content().asDouble(Extent.xMin)
+	||	!Entry("XMAX") || !Entry("XMAX")->Get_Content().asDouble(Extent.xMax)
+	||	!Entry("YMIN") || !Entry("YMIN")->Get_Content().asDouble(Extent.yMin)
+	||	!Entry("YMAX") || !Entry("YMAX")->Get_Content().asDouble(Extent.yMax) )
 	{
 		return( false );
 	}
@@ -837,9 +828,11 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 
 	for(i=0, n=0; i<pNode->Get_Children_Count(); i++)
 	{
-		if( pNode->Get_Child(i)->Cmp_Name("FILE") )
+		CSG_MetaData	&Layer	= *pNode->Get_Child(i);
+
+		if( Layer.Cmp_Name("FILE") )
 		{
-			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
+			wxString	FileName(Layer.Get_Content().w_str());
 
 			if( FileName.Find("PGSQL") != 0 )
 			{
@@ -868,13 +861,22 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 	//-----------------------------------------------------
 	CWKSP_Map	*pMap	= new CWKSP_Map;
 
+	g_pMaps->Add(pMap);
+
+	if( Entry("PROJECTION") )
+	{
+		pMap->Get_Projection().Load(Entry["PROJECTION"]);
+	}
+
 	pMap->Get_Parameter("CRS_CHECK")->Set_Value(false);
 
 	for(int i=0; i<pNode->Get_Children_Count(); i++)
 	{
-		if( pNode->Get_Child(i)->Cmp_Name("FILE") )
+		CSG_MetaData	&Layer	= *pNode->Get_Child(i);
+
+		if( Layer.Cmp_Name("FILE") )
 		{
-			wxString	FileName(pNode->Get_Child(i)->Get_Content().w_str());
+			wxString	FileName(Layer.Get_Content().w_str());
 
 			if( FileName.Find("PGSQL") != 0 )
 			{
@@ -890,19 +892,21 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 			||  pItem->Get_Type() == WKSP_ITEM_PointCloud
 			||  pItem->Get_Type() == WKSP_ITEM_Shapes) )
 			{
-				g_pMaps->Add((CWKSP_Layer *)pItem, pMap);
+				CWKSP_Map_Layer	*pLayer	= pMap->Add_Layer((CWKSP_Layer *)pItem);
+
+				pLayer->Load_Settings(&Layer);
 			}
 		}
-		else if( pNode->Get_Child(i)->Cmp_Name("PARAMETERS") )
+		else if( Layer.Cmp_Name("PARAMETERS") )
 		{
-			if( pNode->Get_Child(i)->Cmp_Property("name", "GRATICULE") )
+			if( Layer.Cmp_Property("name", "GRATICULE") )
 			{
-				pMap->Add_Graticule(pNode->Get_Child(i));
+				pMap->Add_Graticule(&Layer);
 			}
 
-			if( pNode->Get_Child(i)->Cmp_Property("name", "BASEMAP") )
+			if( Layer.Cmp_Property("name", "BASEMAP") )
 			{
-				pMap->Add_BaseMap  (pNode->Get_Child(i));
+				pMap->Add_BaseMap  (&Layer);
 			}
 		}
 	}
@@ -932,6 +936,11 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 	CSG_MetaData	*pEntry	= Entry.Add_Child("MAP");
 
+	if( pMap->Get_Projection().is_Okay() )
+	{
+		pMap->Get_Projection().Save(*pEntry->Add_Child("PROJECTION"));
+	}
+
 	pEntry->Add_Child("XMIN", pMap->Get_Extent().Get_XMin());
 	pEntry->Add_Child("XMAX", pMap->Get_Extent().Get_XMax());
 	pEntry->Add_Child("YMIN", pMap->Get_Extent().Get_YMin());
@@ -939,13 +948,14 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 	pMap->Get_Parameters()->Serialize(*pEntry->Add_Child("PARAMETERS"), true);
 
-	pEntry	= pEntry->Add_Child("LAYERS");
+	CSG_MetaData	&Layers	= *pEntry->Add_Child("LAYERS");
 
 	for(int i=pMap->Get_Count()-1; i>=0; i--)
 	{
 		if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			CSG_Data_Object	*pObject	= ((CWKSP_Map_Layer *)pMap->Get_Item(i))->Get_Layer()->Get_Object();
+			CWKSP_Map_Layer	*pLayer		= (CWKSP_Map_Layer *)pMap->Get_Item(i);
+			CSG_Data_Object	*pObject	= pLayer->Get_Layer()->Get_Object();
 
 			if( pObject && pObject->Get_File_Name(false) && *pObject->Get_File_Name(false) )
 			{
@@ -953,23 +963,27 @@ bool CWKSP_Project::_Save_Map(CSG_MetaData &Entry, const wxString &ProjectDir, C
 
 				if( FileName.Find("PGSQL") == 0 )
 				{
-					pEntry->Add_Child("FILE", &FileName);
+					pLayer->Save_Settings(
+						Layers.Add_Child("FILE", &FileName)
+					);
 				}
 				else if( wxFileExists(FileName) )
 				{
-					pEntry->Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName));
+					pLayer->Save_Settings(
+						Layers.Add_Child("FILE", SG_File_Get_Path_Relative(&ProjectDir, &FileName))
+					);
 				}
 			}
 		}
 
 		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Graticule )
 		{
-			((CWKSP_Map_Graticule *)pMap->Get_Item(i))->Save(*pEntry);
+			((CWKSP_Map_Graticule *)pMap->Get_Item(i))->Save(Layers);
 		}
 
 		else if( pMap->Get_Item(i)->Get_Type() == WKSP_ITEM_Map_BaseMap )
 		{
-			((CWKSP_Map_BaseMap   *)pMap->Get_Item(i))->Save(*pEntry);
+			((CWKSP_Map_BaseMap   *)pMap->Get_Item(i))->Save(Layers);
 		}
 	}
 

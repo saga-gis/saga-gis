@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 
 #include <saga_api/saga_api.h>
@@ -88,7 +76,7 @@ CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 	m_pLayer		= pLayer;
 
 	m_bShow			= true;
-
+	m_bProject		= false;
 	m_bFitColors	= false;
 }
 
@@ -116,6 +104,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 
 	pMenu	= new wxMenu(m_pLayer->Get_Name());
 
+	//-----------------------------------------------------
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 	CMD_Menu_Add_Item(pMenu,  true, ID_CMD_MAPS_LAYER_SHOW);
 	pMenu->AppendSeparator();
@@ -124,6 +113,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_MOVE_DOWN);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAPS_MOVE_BOTTOM);
 
+	//-----------------------------------------------------
 	switch( m_pLayer->Get_Type() )
 	{
 	default:
@@ -136,12 +126,22 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 		break;
 	}
 
+	//-----------------------------------------------------
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( _Get_Projections(prj_Layer, prj_Map) )
+	{
+		CMD_Menu_Add_Item(pMenu, true, ID_CMD_MAPS_PROJECT);
+	}
+
+	//-----------------------------------------------------
 	if( (pMenu_Edit = m_pLayer->Edit_Get_Menu()) != NULL )
 	{
 		pMenu->AppendSeparator();
 		pMenu->Append(ID_CMD_WKSP_FIRST, _TL("Edit"), pMenu_Edit);
 	}
 
+	//-----------------------------------------------------
 	return( pMenu );
 }
 
@@ -201,6 +201,13 @@ bool CWKSP_Map_Layer::On_Command(int Cmd_ID)
 			Fit_Colors(((CWKSP_Map *)Get_Manager())->Get_Extent());
 		}
 		break;
+
+	case ID_CMD_MAPS_PROJECT:
+		if( (m_bProject = !m_bProject) == true )
+		{
+			((CWKSP_Map *)Get_Manager())->View_Refresh(false);
+		}
+		break;
 	}
 
 	return( true );
@@ -241,9 +248,48 @@ bool CWKSP_Map_Layer::On_Command_UI(wxUpdateUIEvent &event)
 	case ID_CMD_MAPS_GRID_FITCOLORS:
 		event.Check(m_bFitColors);
 		break;
+
+	case ID_CMD_MAPS_PROJECT:
+		event.Check(m_bProject);
+		break;
 	}
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::Load_Settings(CSG_MetaData *pEntry)
+{
+	if( pEntry )
+	{
+		m_bShow      = !(*pEntry)("SHOW"     ) || (*pEntry)["SHOW"     ].Get_Content().CmpNoCase("true") == 0;
+		m_bProject   =  (*pEntry)("PROJECT"  ) && (*pEntry)["PROJECT"  ].Get_Content().CmpNoCase("true") == 0;
+		m_bFitColors =  (*pEntry)("FITCOLORS") && (*pEntry)["FITCOLORS"].Get_Content().CmpNoCase("true") == 0;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::Save_Settings(CSG_MetaData *pEntry)
+{
+	if( pEntry )
+	{
+		pEntry->Add_Child("SHOW"     , m_bShow      ? "true" : "false");
+		pEntry->Add_Child("PROJECT"  , m_bProject   ? "true" : "false");
+		pEntry->Add_Child("FITCOLORS", m_bFitColors ? "true" : "false");
+
+		return( true );
+	}
+
+	return( false );
 }
 
 
@@ -307,6 +353,240 @@ bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 	}
 
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::_Get_Projections(CSG_Projection &prj_Layer, CSG_Projection &prj_Map)
+{
+	prj_Layer	= m_pLayer    ->Get_Object () ->Get_Projection();
+	prj_Map		= ((CWKSP_Map *)Get_Manager())->Get_Projection();
+
+	return( prj_Layer.is_Okay() && prj_Map.is_Okay() && prj_Layer.is_Equal(prj_Map) == false );
+}
+
+//---------------------------------------------------------
+CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
+{
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( m_bProject && _Get_Projections(prj_Layer, prj_Map) )
+	{
+		TSG_Rect	rMap(m_pLayer->Get_Extent());
+
+		SG_Get_Projected(prj_Layer, prj_Map, rMap);
+
+		return( rMap );
+	}
+
+	//-----------------------------------------------------
+	return( m_pLayer->Get_Extent() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
+{
+	if( !m_bProject )
+	{
+		if( m_pLayer->do_Show(dc_Map.m_rWorld) )
+		{
+			m_pLayer->Draw(dc_Map, Flags);
+		}
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( !_Get_Projections(prj_Layer, prj_Map) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Rect	rLayer(dc_Map.m_rWorld);
+
+	SG_Get_Projected(prj_Map, prj_Layer, rLayer.m_rect);
+
+	if( !m_pLayer->do_Show(rLayer) )
+	{
+		return( true );
+	}
+
+	switch( m_pLayer->Get_Object()->Get_ObjectType() )
+	{
+	//-----------------------------------------------------
+	case SG_DATAOBJECT_TYPE_Shapes: {
+		CSG_Shapes	*pShapes	= m_pLayer->Get_Object()->asShapes();
+		CSG_Shapes	  Shapes(pShapes->Get_Type(), SG_T(""), pShapes);
+
+		Shapes.Get_Projection().Create(pShapes->Get_Projection());
+
+		for(int i=0; i<pShapes->Get_Count(); i++)
+		{
+			if( pShapes->Get_Shape(i)->Intersects(rLayer) )
+			{
+				Shapes.Add_Shape(pShapes->Get_Shape(i));
+			}
+		}
+
+		SG_Get_Projected(&Shapes, NULL, prj_Map);
+
+		m_pLayer->Draw(dc_Map, Flags, &Shapes);
+
+	}	break;
+
+	//-----------------------------------------------------
+	case SG_DATAOBJECT_TYPE_PointCloud: {
+		CSG_PointCloud	*pPoints	= m_pLayer->Get_Object()->asPointCloud();
+		CSG_PointCloud	 Points(pPoints);
+
+		Points.Get_Projection().Create(pPoints->Get_Projection());
+
+		for(int i=0; i<pPoints->Get_Count(); i++)
+		{
+			if( rLayer.Contains(pPoints->Get_X(i), pPoints->Get_Y(i)) )
+			{
+				Points.Add_Shape(pPoints->Get_Record(i));
+			}
+		}
+
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 2);	// Coordinate Transformation (Shapes)
+
+		if( !pTool )
+		{
+			return( false );
+		}
+
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		pTool->Set_Manager(NULL);
+
+		bool	bResult	=
+			pTool->Set_Parameter("CRS_PROJ4", prj_Map.Get_Proj4())
+		&&  pTool->Set_Parameter("SOURCE"   , &Points)
+		&&  pTool->Set_Parameter("COPY"     , false)
+		&&  pTool->Execute();
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		m_pLayer->Draw(dc_Map, Flags, &Points);
+
+	}	break;
+
+	//-----------------------------------------------------
+	case SG_DATAOBJECT_TYPE_Grid: {
+		CSG_Grid	Grid, *pGrid = m_pLayer->Get_Object()->asGrid();
+
+		if( !pGrid->Get_Extent().Intersects(rLayer) )	// == INTERSECTION_None
+		{
+			return( true );
+		}
+
+		CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.dc.GetSize().GetWidth(), dc_Map.dc.GetSize().GetHeight());
+
+		if( !System.is_Valid() || !Grid.Create(System, pGrid->Get_Type()) )
+		{
+			return( false );
+		}
+
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
+
+		if(	pTool == NULL )
+		{
+			return( false );
+		}
+
+		pTool->Set_Manager(NULL);
+
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		if( pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+		&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
+		&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
+		&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
+		&&  pTool->Set_Parameter("SOURCE"           , pGrid)
+		&&  pTool->Set_Parameter("GRID"             , &Grid)
+		&&  pTool->Execute() )
+		{
+			m_pLayer->Draw(dc_Map, Flags, &Grid);
+		}
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	}	break;
+
+	//-----------------------------------------------------
+	case SG_DATAOBJECT_TYPE_Grids: {
+		CSG_Grids	*pGrids = m_pLayer->Get_Object()->asGrids();
+
+		if( !pGrids->Get_Extent().Intersects(rLayer) )	// == INTERSECTION_None
+		{
+			return( true );
+		}
+
+		CSG_Grid_System	System(dc_Map.m_DC2World, dc_Map.m_rWorld.Get_XMin(), dc_Map.m_rWorld.Get_YMin(), dc_Map.dc.GetSize().GetWidth(), dc_Map.dc.GetSize().GetHeight());
+
+		if( !System.is_Valid() )
+		{
+			return( false );
+		}
+
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
+
+		if(	pTool == NULL )
+		{
+			return( false );
+		}
+
+		pTool->Set_Manager(NULL);
+
+		SG_UI_ProgressAndMsg_Lock(true);
+
+		if( pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+		&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
+		&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
+		&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
+		&&  pTool->Set_Parameter("TARGET_USER_SIZE" , System.Get_Cellsize())
+		&&  pTool->Set_Parameter("TARGET_USER_XMIN" , System.Get_XMin())
+		&&  pTool->Set_Parameter("TARGET_USER_YMIN" , System.Get_YMin())
+		&&  pTool->Set_Parameter("TARGET_USER_XMAX" , System.Get_XMax())
+		&&  pTool->Set_Parameter("TARGET_USER_YMAX" , System.Get_YMax())
+		&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
+		&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
+		{
+			m_pLayer->Draw(dc_Map, Flags, pGrids);
+
+			delete(pGrids);
+		}
+
+		SG_UI_ProgressAndMsg_Lock(false);
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	}	break;
+
+	//-----------------------------------------------------
+	default:
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

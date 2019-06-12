@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -802,61 +790,66 @@ CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 		return( NULL );
 	}
 
+	//-----------------------------------------------------
 	if( m_Parameters("CRS_CHECK")->asBool()
 	&&  m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay()
 	&&  m_Projection.is_Equal(    pLayer->Get_Object()->Get_Projection()) == false )
 	{
-		wxString	msg;
+		wxString	s;
 
-		msg	+= _TL("The coordinate system used by the layer is not identical with the one of the map!");
-		msg	+= "\n";
-		msg	+= wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
-		msg	+= wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
-		msg	+= "\n\n";
-		msg	+= _TL("Do you really want to proceed?");
+		s	+= _TL("The coordinate system used by the layer is not identical with the one of the map!");
+		s	+= "\n";
+		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Map"  ),                         m_Projection  .Get_Proj4().c_str());
+		s	+= wxString::Format("\n%s:\n  [%s]", _TL("Layer"), pLayer->Get_Object()->Get_Projection().Get_Proj4().c_str());
+		s	+= "\n\n";
+		s	+= _TL("Do you really want to proceed?");
 
-		if( DLG_Message_Confirm(msg, _TL("Add Layer to Map")) == false )
+		if( DLG_Message_Confirm(s, _TL("Add Layer to Map")) == false )
 		{
 			return( NULL );
 		}
 	}
-
-	if( Get_Count() == 0 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
-	{
-		switch( pLayer->Get_Object()->Get_ObjectType() )
-		{
-		case SG_DATAOBJECT_TYPE_Shapes    :
-		case SG_DATAOBJECT_TYPE_PointCloud:
-		case SG_DATAOBJECT_TYPE_TIN       :
-			if( ((CSG_Table *)pLayer->Get_Object())->Get_Count() <= 0 )
-			{
-				break;
-			}
-
-		default:
-			Set_Extent(pLayer->Get_Extent());
-			break;
-		}
-	}
-
-	if( Get_Count() == 0 )
-	{
-		m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
-
-		Parameters_Changed();
-	}
-
-	CWKSP_Map_Layer	*pItem	= new CWKSP_Map_Layer(pLayer);
-
-	Add_Item(pItem);
-	Move_Top(pItem);
 
 	if( !m_Projection.is_Okay() && pLayer->Get_Object()->Get_Projection().is_Okay() )
 	{
 		m_Projection	= pLayer->Get_Object()->Get_Projection();
 	}
 
-	return( pItem );
+	//-----------------------------------------------------
+	CWKSP_Map_Layer	*pMapLayer	= new CWKSP_Map_Layer(pLayer);
+
+	Add_Item(pMapLayer);
+
+	if( Get_Count() == 1 )
+	{
+		m_Parameters("NAME")->Set_Value(pLayer->Get_Name().wx_str());
+
+		Parameters_Changed();
+	}
+	else
+	{
+		Move_Top(pMapLayer);
+	}
+
+	if( Get_Count() == 1 || (m_Parameters("GOTO_NEWLAYER")->asBool() && pLayer->Get_Object()->is_Valid()) )
+	{
+		switch( pLayer->Get_Object()->Get_ObjectType() )
+		{
+		case SG_DATAOBJECT_TYPE_Shapes    :
+		case SG_DATAOBJECT_TYPE_PointCloud:
+		case SG_DATAOBJECT_TYPE_TIN       :
+			if( ((CSG_Table *)pLayer->Get_Object())->Get_Count() < 1 )
+			{
+				break;
+			}
+
+		default:
+			Set_Extent(pMapLayer->Get_Extent());
+			break;
+		}
+	}
+
+	return( pMapLayer );
 }
 
 //---------------------------------------------------------
@@ -1052,7 +1045,7 @@ bool CWKSP_Map::Set_Extent_Full(void)
 	{
 		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
 		{
-			CWKSP_Layer	*pLayer	= ((CWKSP_Map_Layer *)Get_Item(i))->Get_Layer();
+			CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
 
 			if( n++ == 0 )
 			{
@@ -1071,7 +1064,20 @@ bool CWKSP_Map::Set_Extent_Full(void)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Active(void)
 {
-	return( Get_Active_Layer() && Set_Extent(Get_Active_Layer()->Get_Extent()) );
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
+		{
+			CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
+
+			if( pLayer->Get_Layer() == Get_Active_Layer() )
+			{
+				return( Set_Extent(pLayer->Get_Extent()) );
+			}
+		}
+	}
+	
+	return( false );
 }
 
 //---------------------------------------------------------
@@ -1926,18 +1932,18 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 		{
 		case WKSP_ITEM_Map_Layer:
 			{
-				CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
+				CWKSP_Map_Layer     *pLayer	= (CWKSP_Map_Layer     *)Get_Item(i);
 
-				if( pLayer->do_Show() && pLayer->Get_Layer()->do_Show(Get_Extent()) )
+				if( pLayer->do_Show() )
 				{
-					pLayer->Get_Layer()->Draw(dc_Map, !(Flags & LAYER_DRAW_FLAG_NOEDITS) && pLayer->Get_Layer() == Get_Active_Layer() ? Flags : Flag_Labels);
+					pLayer->Draw(dc_Map, !(Flags & LAYER_DRAW_FLAG_NOEDITS) && pLayer->Get_Layer() == Get_Active_Layer() ? Flags : Flag_Labels);
 				}
 			}
 			break;
 
 		case WKSP_ITEM_Map_Graticule:
 			{
-				CWKSP_Map_Graticule	*pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
+				CWKSP_Map_Graticule *pLayer	= (CWKSP_Map_Graticule *)Get_Item(i);
 
 				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
 				{
@@ -1948,9 +1954,9 @@ void CWKSP_Map::Draw_Map(wxDC &dc, const CSG_Rect &rWorld, double Zoom, const wx
 
 		case WKSP_ITEM_Map_BaseMap:
 			{
-				CWKSP_Map_BaseMap	*pLayer	= (CWKSP_Map_BaseMap *)Get_Item(i);
+				CWKSP_Map_BaseMap   *pLayer	= (CWKSP_Map_BaseMap   *)Get_Item(i);
 
-				if( pLayer->do_Show() )//&& pLayer->Get_Graticule(Get_Extent()) )
+				if( pLayer->do_Show() )
 				{
 					pLayer->Draw(dc_Map);
 				}
@@ -2076,8 +2082,8 @@ bool CWKSP_Map::Draw_North_Arrow(CWKSP_Map_DC &dc_Map, const CSG_Rect &rWorld, c
 	const double	Arrow[3][2]	= { { 0.0, 1.0 }, { 0.5, -1.0 }, { 0.0, -0.50 } };
 
 	wxRect	r	= !m_Parameters("NORTH_EXTENT")->asBool() ? wxRect(0, 0, rClient.GetWidth(), rClient.GetHeight()) : wxRect(
-		(int)dc_Map.xWorld2DC(Get_Extent().Get_XMin()),
-		(int)dc_Map.yWorld2DC(Get_Extent().Get_YMax()),
+		(int)(dc_Map.xWorld2DC   (Get_Extent().Get_XMin  ())),
+		(int)(dc_Map.yWorld2DC   (Get_Extent().Get_YMax  ())),
 		(int)(dc_Map.m_World2DC * Get_Extent().Get_XRange()),
 		(int)(dc_Map.m_World2DC * Get_Extent().Get_YRange())
 	);

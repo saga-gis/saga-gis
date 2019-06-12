@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -142,7 +130,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_TOOL_OPEN:				return( _TL("Load Tool Library") );
 	case ID_CMD_TOOL_RELOAD:			return( _TL("Reload Standard Tool Libraries") );
 	case ID_CMD_TOOL_SEARCH:			return( _TL("Find and Run Tool") );
-	case ID_CMD_TOOL_SAVE_DOCS:		return( _TL("Create Tool Description Files") );
+	case ID_CMD_TOOL_SAVE_DOCS:			return( _TL("Create Tool Description Files") );
 	case ID_CMD_TOOL_SAVE_SCRIPT:		return( _TL("Save to Script File") );
 	case ID_CMD_TOOL_SAVE_TO_CLIPBOARD:	return( _TL("Copy to Clipboard") );
 	case ID_CMD_TOOL_CHAIN_RELOAD:		return( _TL("Reload") );
@@ -254,6 +242,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_MAPS_MOVE_UP:					return( _TL("Move Up") );
 	case ID_CMD_MAPS_MOVE_DOWN:					return( _TL("Move Down") );
 	case ID_CMD_MAPS_GRID_FITCOLORS:			return( _TL("Adjust Histogram Stretch to Map Extent") );
+	case ID_CMD_MAPS_PROJECT:					return( _TL("On-The-Fly Projection") );
 
 	//-----------------------------------------------------
 	// Views...
@@ -383,9 +372,9 @@ int CMD_Get_ImageID(int Cmd_ID)
 	case ID_CMD_FRAME_HELP:				return( ID_IMG_TB_HELP );
 	case ID_CMD_DATA_OPEN:				return( ID_IMG_TB_OPEN );
 	case ID_CMD_DATA_PROJECT_SAVE:		return( ID_IMG_TB_SAVE );
-	case ID_CMD_TOOL_OPEN:			return( ID_IMG_TB_OPEN_TOOL );
+	case ID_CMD_TOOL_OPEN:				return( ID_IMG_TB_OPEN_TOOL );
 	case ID_CMD_TOOL_SEARCH:			return( ID_IMG_NB_WKSP_TOOLS );
-	case ID_CMD_TABLE_OPEN:			return( ID_IMG_TB_OPEN_TABLE );
+	case ID_CMD_TABLE_OPEN:				return( ID_IMG_TB_OPEN_TABLE );
 	case ID_CMD_SHAPES_OPEN:			return( ID_IMG_TB_OPEN_SHAPES );
 	case ID_CMD_GRID_OPEN:				return( ID_IMG_TB_OPEN_GRID );
 	case ID_CMD_GRIDS_OPEN:				return( ID_IMG_TB_OPEN_GRID );

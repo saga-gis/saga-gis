@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_Layer_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Map_Layer_H
 
@@ -101,16 +89,27 @@ public:
 
 	class CWKSP_Layer *			Get_Layer			(void)	{	return( m_pLayer );	}
 
-	bool						do_Show				(void)	{	return( m_bShow );	}
+	bool						Load_Settings		(CSG_MetaData *pEntry);
+	bool						Save_Settings		(CSG_MetaData *pEntry);
+
+	bool						do_Show				(void)	{	return( m_bShow    );	}
+	bool						do_Project			(void)	{	return( m_bProject );	}
 
 	bool						Fit_Colors			(const CSG_Rect &rWorld);
+
+	CSG_Rect					Get_Extent			(void);
+
+	bool						Draw				(CWKSP_Map_DC &dc_Map, int Flags);
 
 
 private:
 
-	bool						m_bShow, m_bFitColors;
+	bool						m_bShow, m_bProject, m_bResample, m_bFitColors;
 
 	class CWKSP_Layer			*m_pLayer;
+
+
+	bool						_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
 
 };
 
