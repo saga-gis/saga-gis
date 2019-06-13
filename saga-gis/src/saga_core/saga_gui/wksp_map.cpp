@@ -783,6 +783,14 @@ CWKSP_Map_Layer * CWKSP_Map::Find_Layer(CWKSP_Layer *pLayer)
 }
 
 //---------------------------------------------------------
+CWKSP_Map_Layer * CWKSP_Map::Find_Active(bool bEditable)
+{
+	CWKSP_Map_Layer	*pLayer	= Find_Layer(Get_Active_Layer());
+
+	return( pLayer && !(bEditable && pLayer->is_Projecting()) ? pLayer : NULL );
+}
+
+//---------------------------------------------------------
 CWKSP_Map_Layer * CWKSP_Map::Add_Layer(CWKSP_Layer *pLayer)
 {
 	if( Get_Layer(pLayer) >= 0 )	// don't load a layer more than once

@@ -95,6 +95,7 @@ public:
 	bool						do_Show				(void)	{	return( m_bShow    );	}
 	bool						do_Project			(void)	{	return( m_bProject );	}
 	bool						do_Project			(bool bProject)	{	m_bProject = bProject; return( !bProject );	}
+	bool						is_Projecting		(void);
 
 	bool						Fit_Colors			(const CSG_Rect &rWorld);
 
@@ -111,6 +112,7 @@ private:
 
 
 	bool						_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
+	bool						_Get_Clip_Extent	(const CSG_Rect &rMap, CSG_Shapes &Clip);
 
 };
 

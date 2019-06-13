@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 #include <wx/image.h>
 #include <wx/dcclient.h>
@@ -85,12 +73,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_KEYS(e)	((e.LeftIsDown()   ? TOOL_INTERACTIVE_KEY_LEFT   : 0)\
-					|(e.MiddleIsDown() ? TOOL_INTERACTIVE_KEY_MIDDLE : 0)\
-					|(e.RightIsDown()  ? TOOL_INTERACTIVE_KEY_RIGHT  : 0)\
-					|(e.ShiftDown()    ? TOOL_INTERACTIVE_KEY_SHIFT  : 0)\
-					|(e.AltDown()      ? TOOL_INTERACTIVE_KEY_ALT    : 0)\
-					|(e.ControlDown()  ? TOOL_INTERACTIVE_KEY_CTRL   : 0))
+#define GET_KEYS(e)	\
+	((e.LeftIsDown  () ? TOOL_INTERACTIVE_KEY_LEFT   : 0)\
+	|(e.MiddleIsDown() ? TOOL_INTERACTIVE_KEY_MIDDLE : 0)\
+	|(e.RightIsDown () ? TOOL_INTERACTIVE_KEY_RIGHT  : 0)\
+	|(e.ShiftDown   () ? TOOL_INTERACTIVE_KEY_SHIFT  : 0)\
+	|(e.AltDown     () ? TOOL_INTERACTIVE_KEY_ALT    : 0)\
+	|(e.ControlDown () ? TOOL_INTERACTIVE_KEY_CTRL   : 0))
 
 //---------------------------------------------------------
 #define STANDARD_ZOOM_FACTOR	50
@@ -225,7 +214,11 @@ inline void CVIEW_Map_Control::_Set_StatusBar(const TSG_Point &Point)
 		}
 		else if( Get_Active_Layer() )
 		{
-			STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(Point, _Get_Client2World(2.0)).c_str()), STATUSBAR_VIEW_Z);
+			TSG_Point	p(Point);
+
+			SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), p);
+
+			STATUSBAR_Set_Text(wxString::Format("Z %s", Get_Active_Layer()->Get_Value(p, _Get_Client2World(2.)).c_str()), STATUSBAR_VIEW_Z);
 		}
 		else
 		{
@@ -254,16 +247,27 @@ inline wxPoint CVIEW_Map_Control::_Get_World2Client(const TSG_Point &Point)
 }
 
 //---------------------------------------------------------
-inline CSG_Point CVIEW_Map_Control::_Get_Client2World(const wxPoint &Point)
+inline CSG_Point CVIEW_Map_Control::_Get_Client2World(const wxPoint &Point, bool bToActive)
 {
-	return( m_pMap->Get_World(wxRect(GetClientSize()), Point) );
+	TSG_Point	pWorld	= m_pMap->Get_World(wxRect(GetClientSize()), Point);
+
+	if( bToActive && m_pMap->Find_Active() )
+	{
+		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), pWorld);
+	}
+
+	return( pWorld );
 }
 
 //---------------------------------------------------------
-inline double CVIEW_Map_Control::_Get_Client2World(double Length)
+inline double CVIEW_Map_Control::_Get_Client2World(double Length, bool bToActive)
 {
-	wxRect		rClient(GetClientSize());
-	CSG_Rect	rWorld(m_pMap->Get_World(rClient));
+	wxRect	rClient(GetClientSize());	CSG_Rect	rWorld(m_pMap->Get_World(rClient));
+
+	if( bToActive && m_pMap->Find_Active() )
+	{
+		SG_Get_Projected(m_pMap->Get_Projection(), Get_Active_Layer()->Get_Object()->Get_Projection(), rWorld.m_rect);
+	}
 
 	return( Length * rWorld.Get_XRange() / (double)rClient.GetWidth() );
 }
@@ -562,7 +566,7 @@ void CVIEW_Map_Control::Refresh_Map(void)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 {
-	if( m_pMap->Find_Layer(Get_Active_Layer()) && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
+	if( m_pMap->Find_Active() && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
 	{
 		return;
 	}
@@ -660,7 +664,7 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 			m_Drag_Mode		= ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
 			bCaptureMouse	= !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		else if( m_pMap->Find_Active() )
 		{
 			switch(	Get_Active_Layer()->Get_Type() )
 			{
@@ -680,7 +684,15 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 				break;
 			}
 
-			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_Client2World(event.GetPosition()), _Get_Client2World(1.0), GET_KEYS(event));
+			Get_Active_Layer()->Edit_On_Mouse_Down(
+				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
+				GET_KEYS(event)
+			);
+
+			if( !m_pMap->Find_Active(true) )
+			{
+				bCaptureMouse	= false;
+			}
 		}
 		break;
 
@@ -741,9 +753,12 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		else if( m_pMap->Find_Active() )
 		{
-			Get_Active_Layer()->Edit_On_Mouse_Up(_Get_Client2World(event.GetPosition()), _Get_Client2World(1.0), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT);
+			Get_Active_Layer()->Edit_On_Mouse_Up(
+				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
+				GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT
+			);
 		}
 		break;
 
@@ -811,9 +826,12 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		else if( m_pMap->Find_Active() )
 		{
-			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_Client2World(event.GetPosition()), _Get_Client2World(1.0), GET_KEYS(event));
+			Get_Active_Layer()->Edit_On_Mouse_Down(
+				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
+				GET_KEYS(event)
+			);
 		}
 		break;
 
@@ -838,7 +856,9 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) && !Get_Active_Layer()->Edit_On_Mouse_Up(_Get_Client2World(event.GetPosition()), _Get_Client2World(1.0), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
+		else if( m_pMap->Find_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
+			_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
+			GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
 		{
 			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
 		}
@@ -1024,7 +1044,7 @@ void CVIEW_Map_Control::On_Mouse_Motion(wxMouseEvent &event)
 
 			g_pTool->Execute(_Get_Client2World(Point), iMode, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Layer(Get_Active_Layer()) )
+		else if( m_pMap->Find_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Move(
 				this, m_pMap->Get_World(GetClientSize()),

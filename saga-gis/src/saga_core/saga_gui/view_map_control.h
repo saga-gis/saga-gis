@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,8 +142,8 @@ private:
 	void						_Set_StatusBar		(const TSG_Point &Point);
 
 	wxPoint						_Get_World2Client	(const TSG_Point &Point);
-	CSG_Point					_Get_Client2World	(const   wxPoint &Point);
-	double						_Get_Client2World	(double Length);
+	CSG_Point					_Get_Client2World	(const   wxPoint &Point, bool bToActive = false);
+	double						_Get_Client2World	(double Length         , bool bToActive = false);
 
 	bool						_Draw_CrossHair		(const wxPoint &Point);
 
