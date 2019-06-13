@@ -232,7 +232,7 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	m_loCurve		= Parameters("T_CURVE")->asRange()->Get_Min();
 	m_hiCurve		= Parameters("T_CURVE")->asRange()->Get_Max();
 
-	m_bSlopeToDeg	= Parameters("BSLOPE" )->asInt() == 1;
+	m_bSlopeToDeg	= Parameters("SLOPETODEG" )->asInt() == 1;
 
 	for(i=0; i<IN_COUNT; i++)
 	{
