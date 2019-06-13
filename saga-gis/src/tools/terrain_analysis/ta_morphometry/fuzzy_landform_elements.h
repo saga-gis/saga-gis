@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: fuzzy_landform_elements.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,14 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//                                                       //												
-//                                                       //												
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__fuzzy_landform_elements_H
 #define HEADER_INCLUDED__fuzzy_landform_elements_H
 
@@ -68,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -83,17 +72,19 @@ class CFuzzy_Landform_Elements : public CSG_Tool_Grid
 public:
 	CFuzzy_Landform_Elements(void);
 
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification" ));	}
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("A:Terrain Analysis|Terrain Classification") );	}
 
 
 protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool		On_Execute				(void);
 
 
 private:
 
-	bool				m_bSlopeToDeg;
+	bool				m_bToDegree;
 
 	double				m_loSlope, m_hiSlope, m_loCurve, m_hiCurve;
 
