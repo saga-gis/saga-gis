@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -362,8 +350,13 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 		Stream.Seek_Start();
 	}
 
-	while( Stream.Read_Line(sLine) && sLine.Length() > 0 && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
+	while( Stream.Read_Line(sLine) && SG_UI_Process_Set_Progress((double)Stream.Tell(), (double)fLength) )
 	{
+		if( sLine.Length() < 1 )
+		{
+			continue;
+		}
+
 		CSG_Table_Record	*pRecord	= Table.Add_Record();
 
 		_Load_Text_Trim(sLine, Separator);
