@@ -497,7 +497,7 @@ void CSG_Tool::Set_Callback(bool bActive)
 }
 
 //---------------------------------------------------------
-void CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
+bool CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
 {
 	Parameters.Set_Manager(pManager);
 
@@ -505,6 +505,8 @@ void CSG_Tool::Set_Manager(class CSG_Data_Manager *pManager)
 	{
 		m_pParameters[i]->Set_Manager(pManager);
 	}
+
+	return( true );
 }
 
 
