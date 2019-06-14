@@ -950,20 +950,22 @@ bool CWKSP_Layer::do_Legend(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Layer::do_Show(CSG_Rect const &rMap)
+bool CWKSP_Layer::do_Show(CSG_Rect const &Map_Extent, bool bIntersects)
 {
-	if( !rMap.Intersects(Get_Extent()) )
+	if( bIntersects && !Map_Extent.Intersects(Get_Extent()) )
 	{
 		return( false );
 	}
 
 	if( !m_Parameters("SHOW_ALWAYS")->asBool() )
 	{
-		double	d	= rMap.Get_XRange() > rMap.Get_YRange() ? rMap.Get_XRange() : rMap.Get_YRange();
+		double	d	= Map_Extent.Get_XRange() > Map_Extent.Get_YRange()
+			? Map_Extent.Get_XRange()
+			: Map_Extent.Get_YRange();
 
-		CSG_Parameter_Range	*pRange	= m_Parameters("SHOW_RANGE")->asRange();
-
-		return( pRange->Get_Min() <= d && d <= pRange->Get_Max() );
+		return( m_Parameters("SHOW_RANGE.MIN")->asDouble() <= d
+			&&  m_Parameters("SHOW_RANGE.MAX")->asDouble() >= d 
+		);
 	}
 
 	return( true );

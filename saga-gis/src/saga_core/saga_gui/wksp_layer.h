@@ -103,7 +103,7 @@ public:
 
 	class CWKSP_Layer_Legend *		Get_Legend				(void)	{	return( m_pLegend );	}
 	bool							do_Legend				(void);
-	bool							do_Show					(CSG_Rect const &rMap);
+	bool							do_Show					(CSG_Rect const &Map_Extent, bool bIntersects = true);
 
 	virtual bool					Show					(class CWKSP_Map *pMap);
 	virtual bool					Show					(int Flags = 0);

@@ -111,8 +111,10 @@ private:
 	class CWKSP_Layer			*m_pLayer;
 
 
-	bool						_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
-	bool						_Get_Clip_Extent	(const CSG_Rect &rMap, CSG_Shapes &Clip);
+	bool						_Projected_Get_Projections	(CSG_Projection &prj_Layer, CSG_Projection &prj_Map);
+	CSG_Rect					_Projected_Get_Layer_Extent	(const CSG_Rect &rMap);
+	bool						_Projected_Shapes_Clipped	(const CSG_Rect &rMap, CSG_Shapes *pShapes, CSG_Shapes &Clipped);
+	bool						_Projected_Shapes_Draw		(CWKSP_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection = false);
 
 };
 

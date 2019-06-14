@@ -566,7 +566,7 @@ void CVIEW_Map_Control::Refresh_Map(void)
 //---------------------------------------------------------
 void CVIEW_Map_Control::On_Key_Down(wxKeyEvent &event)
 {
-	if( m_pMap->Find_Active() && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
+	if( m_pMap->Find_Active(true) && Get_Active_Layer()->Edit_On_Key_Down(event.GetKeyCode()) )
 	{
 		return;
 	}
@@ -664,34 +664,23 @@ void CVIEW_Map_Control::On_Mouse_LDown(wxMouseEvent &event)
 			m_Drag_Mode		= ((CSG_Tool_Interactive *)g_pTool->Get_Tool())->Get_Drag_Mode();
 			bCaptureMouse	= !g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active() )
+		else if( m_pMap->Find_Active(false) )
 		{
 			switch(	Get_Active_Layer()->Get_Type() )
 			{
-			default:
-				m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_NONE;
-				break;
-
-			case WKSP_ITEM_Grid:
-			case WKSP_ITEM_PointCloud:
-				m_Drag_Mode		= TOOL_INTERACTIVE_DRAG_BOX;
-				break;
-
-			case WKSP_ITEM_Shapes:
-				m_Drag_Mode		= ((CWKSP_Shapes *)Get_Active_Layer())->is_Editing()
-								? TOOL_INTERACTIVE_DRAG_NONE
-								: TOOL_INTERACTIVE_DRAG_BOX;
-				break;
+			default                  : m_Drag_Mode = TOOL_INTERACTIVE_DRAG_NONE; break;
+			case WKSP_ITEM_Grid      :
+			case WKSP_ITEM_PointCloud: m_Drag_Mode = TOOL_INTERACTIVE_DRAG_BOX ; break;
+			case WKSP_ITEM_Shapes    : m_Drag_Mode = ((CWKSP_Shapes *)Get_Active_Layer())->is_Editing()
+												   ? TOOL_INTERACTIVE_DRAG_NONE
+												   : TOOL_INTERACTIVE_DRAG_BOX ; break;
 			}
 
-			Get_Active_Layer()->Edit_On_Mouse_Down(
-				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
-				GET_KEYS(event)
-			);
-
-			if( !m_pMap->Find_Active(true) )
+			if( m_pMap->Find_Active(true) )
 			{
-				bCaptureMouse	= false;
+				Get_Active_Layer()->Edit_On_Mouse_Down(
+					_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)
+				);
 			}
 		}
 		break;
@@ -753,12 +742,18 @@ void CVIEW_Map_Control::On_Mouse_LUp(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_LUP, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active() )
+		else if( m_pMap->Find_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Up(
-				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
-				GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT
+				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT
 			);
+		}
+		else if( m_pMap->Find_Active() )	// on-the-fly projected layer !
+		{
+			double	d	= _Get_Client2World(1., true);
+
+			Get_Active_Layer()->Edit_On_Mouse_Down(_Get_Client2World(m_Mouse_Down       , true), d, GET_KEYS(event));
+			Get_Active_Layer()->Edit_On_Mouse_Up  (_Get_Client2World(event.GetPosition(), true), d, GET_KEYS(event)|TOOL_INTERACTIVE_KEY_LEFT);
 		}
 		break;
 
@@ -826,11 +821,10 @@ void CVIEW_Map_Control::On_Mouse_RDown(wxMouseEvent &event)
 		{
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RDOWN, GET_KEYS(event));
 		}
-		else if( m_pMap->Find_Active() )
+		else if( m_pMap->Find_Active(true) )
 		{
 			Get_Active_Layer()->Edit_On_Mouse_Down(
-				_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
-				GET_KEYS(event)
+				_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)
 			);
 		}
 		break;
@@ -857,8 +851,7 @@ void CVIEW_Map_Control::On_Mouse_RUp(wxMouseEvent &event)
 			g_pTool->Execute(_Get_Client2World(event.GetPosition()), TOOL_INTERACTIVE_RUP, GET_KEYS(event));
 		}
 		else if( m_pMap->Find_Active(true) && !Get_Active_Layer()->Edit_On_Mouse_Up(
-			_Get_Client2World(event.GetPosition(), true), _Get_Client2World(1., true),
-			GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
+			_Get_Client2World(event.GetPosition()), _Get_Client2World(1.), GET_KEYS(event)|TOOL_INTERACTIVE_KEY_RIGHT) )
 		{
 			pMenu	= Get_Active_Layer()->Edit_Get_Menu();
 		}

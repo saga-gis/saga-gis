@@ -129,7 +129,7 @@ wxMenu * CWKSP_Map_Layer::Get_Menu(void)
 	//-----------------------------------------------------
 	CSG_Projection	prj_Layer, prj_Map;
 
-	if( _Get_Projections(prj_Layer, prj_Map) )
+	if( _Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
 		CMD_Menu_Add_Item(pMenu, true, ID_CMD_MAPS_PROJECT);
 	}
@@ -365,11 +365,11 @@ bool CWKSP_Map_Layer::is_Projecting(void)
 {
 	CSG_Projection	prj_Layer, prj_Map;
 
-	return( m_bProject && _Get_Projections(prj_Layer, prj_Map) );
+	return( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) );
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Layer::_Get_Projections(CSG_Projection &prj_Layer, CSG_Projection &prj_Map)
+bool CWKSP_Map_Layer::_Projected_Get_Projections(CSG_Projection &prj_Layer, CSG_Projection &prj_Map)
 {
 	prj_Layer	= m_pLayer    ->Get_Object () ->Get_Projection();
 	prj_Map		= ((CWKSP_Map *)Get_Manager())->Get_Projection();
@@ -378,41 +378,49 @@ bool CWKSP_Map_Layer::_Get_Projections(CSG_Projection &prj_Layer, CSG_Projection
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map_Layer::_Get_Clip_Extent(const CSG_Rect &rMap, CSG_Shapes &Clip)
-{
-	CSG_Projection	prj_Layer, prj_Map;
-
-	if( !m_bProject || !_Get_Projections(prj_Layer, prj_Map) )
-	{
-		return( false );
-	}
-
-	//-----------------------------------------------------
-	Clip.Create(SHAPE_TYPE_Polygon);
-
-	Clip.Get_Projection().Create(prj_Map);
-
-	CSG_Shape	*pExtent	= Clip.Add_Shape();
-
-	double	x, y, d	= (rMap.Get_XRange() + rMap.Get_YRange()) / 100.;
-
-	for(x=rMap.Get_XMin(), y=rMap.Get_YMin(); y<rMap.Get_YMax(); y+=d) { pExtent->Add_Point(x, y); }
-	for(x=rMap.Get_XMin(), y=rMap.Get_YMax(); x<rMap.Get_XMax(); x+=d) { pExtent->Add_Point(x, y); }
-	for(x=rMap.Get_XMax(), y=rMap.Get_YMax(); y>rMap.Get_YMin(); y-=d) { pExtent->Add_Point(x, y); }
-	for(x=rMap.Get_XMax(), y=rMap.Get_YMin(); x>rMap.Get_XMin(); x-=d) { pExtent->Add_Point(x, y); }
-
-	return( SG_Get_Projected(&Clip, NULL, prj_Layer) );
-}
-
-//---------------------------------------------------------
 CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 {
 	CSG_Projection	prj_Layer, prj_Map;
 
-	if( !m_bProject || !_Get_Projections(prj_Layer, prj_Map) )
+	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
 		return( m_pLayer->Get_Extent() );
 	}
+
+	//-----------------------------------------------------
+	CSG_Rect	rLayer	= m_pLayer->Get_Extent();
+
+	if( rLayer.Get_XRange() == 0. || rLayer.Get_YRange() == 0. )
+	{
+		if( m_pLayer->Get_Object()->asShapes()
+			&&  m_pLayer->Get_Object()->asShapes()->Get_Count() == 1
+			&&  m_pLayer->Get_Object()->asShapes()->Get_Type() == SHAPE_TYPE_Point )
+		{
+			rLayer.Inflate(1., false);
+		}
+
+		if( m_pLayer->Get_Object()->asPointCloud()
+			&&  m_pLayer->Get_Object()->asPointCloud()->Get_Count() == 1 )
+		{
+			rLayer.Inflate(1., false);
+		}
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	Extent(SHAPE_TYPE_Point);
+
+	Extent.Get_Projection().Create(prj_Layer);
+
+	double	x, y, d	= (rLayer.Get_XRange() + rLayer.Get_YRange()) / 100.;
+
+	for(x=rLayer.Get_XMin(), y=rLayer.Get_YMin(); y<rLayer.Get_YMax(); y+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rLayer.Get_XMin(), y=rLayer.Get_YMax(); x<rLayer.Get_XMax(); x+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rLayer.Get_XMax(), y=rLayer.Get_YMax(); y>rLayer.Get_YMin(); y-=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rLayer.Get_XMax(), y=rLayer.Get_YMin(); x>rLayer.Get_XMin(); x-=d) { Extent.Add_Shape()->Add_Point(x, y); }
+
+	SG_Get_Projected(&Extent, NULL, prj_Map);
+
+	return( Extent.Get_Extent() );
 
 	//-----------------------------------------------------
 	//CSG_Rect	rLayer(m_pLayer->Get_Extent());
@@ -420,26 +428,152 @@ CSG_Rect CWKSP_Map_Layer::Get_Extent(void)
 	//SG_Get_Projected(prj_Layer, prj_Map, rLayer.m_rect);
 
 	//return( rLayer );
+}
+
+//---------------------------------------------------------
+CSG_Rect CWKSP_Map_Layer::_Projected_Get_Layer_Extent(const CSG_Rect &rMap)
+{
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
+	{
+		return( m_pLayer->Get_Extent() );
+	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rLayer	= m_pLayer->Get_Extent();
+	CSG_Shapes	Extent(SHAPE_TYPE_Point);
 
-	CSG_Shapes	Extent(SHAPE_TYPE_Polygon);
+	Extent.Get_Projection().Create(prj_Map);
 
-	Extent.Get_Projection().Create(prj_Layer);
+	double	x, y, d	= (rMap.Get_XRange() + rMap.Get_YRange()) / 100.;
 
-	CSG_Shape	*pExtent	= Extent.Add_Shape();
+	for(x=rMap.Get_XMin(), y=rMap.Get_YMin(); y<rMap.Get_YMax(); y+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMin(), y=rMap.Get_YMax(); x<rMap.Get_XMax(); x+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMax(), y=rMap.Get_YMax(); y>rMap.Get_YMin(); y-=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMax(), y=rMap.Get_YMin(); x>rMap.Get_XMin(); x-=d) { Extent.Add_Shape()->Add_Point(x, y); }
 
-	double	x, y, d	= (rLayer.Get_XRange() + rLayer.Get_YRange()) / 100.;
+	SG_Get_Projected(&Extent, NULL, prj_Layer);
 
-	for(x=rLayer.Get_XMin(), y=rLayer.Get_YMin(); y<rLayer.Get_YMax(); y+=d) { pExtent->Add_Point(x, y); }
-	for(x=rLayer.Get_XMin(), y=rLayer.Get_YMax(); x<rLayer.Get_XMax(); x+=d) { pExtent->Add_Point(x, y); }
-	for(x=rLayer.Get_XMax(), y=rLayer.Get_YMax(); y>rLayer.Get_YMin(); y-=d) { pExtent->Add_Point(x, y); }
-	for(x=rLayer.Get_XMax(), y=rLayer.Get_YMin(); x>rLayer.Get_XMin(); x-=d) { pExtent->Add_Point(x, y); }
+	TSG_Rect	rLayer	= Extent.Get_Extent();
 
-	SG_Get_Projected(&Extent, NULL, prj_Map);
+	if( isinf(rLayer.xMin) ) rLayer.xMin = m_pLayer->Get_Extent().Get_XMin();
+	if( isinf(rLayer.xMax) ) rLayer.xMax = m_pLayer->Get_Extent().Get_XMax();
+	if( isinf(rLayer.yMin) ) rLayer.yMin = m_pLayer->Get_Extent().Get_YMin();
+	if( isinf(rLayer.yMax) ) rLayer.yMax = m_pLayer->Get_Extent().Get_YMax();
 
-	return( Extent.Get_Extent() );
+	return( rLayer );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes *pShapes, CSG_Shapes &Clipped)
+{
+	CSG_Projection	prj_Layer, prj_Map;
+
+	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Shapes	Shapes, Extent(SHAPE_TYPE_Point);	Extent.Get_Projection().Create(prj_Map);
+
+	double	x, y, d	= (rMap.Get_XRange() + rMap.Get_YRange()) / 100.;
+
+	for(x=rMap.Get_XMin(), y=rMap.Get_YMin(); y<rMap.Get_YMax(); y+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMin(), y=rMap.Get_YMax(); x<rMap.Get_XMax(); x+=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMax(), y=rMap.Get_YMax(); y>rMap.Get_YMin(); y-=d) { Extent.Add_Shape()->Add_Point(x, y); }
+	for(x=rMap.Get_XMax(), y=rMap.Get_YMin(); x>rMap.Get_XMin(); x-=d) { Extent.Add_Shape()->Add_Point(x, y); }
+
+	if( !SG_Get_Projected(&Extent, NULL, prj_Layer) || Extent.Get_Extent().Get_Area() == 0 )
+	{
+		return( false );
+	}
+
+	if( isfinite(Extent.Get_Extent().Get_XMin()) && isfinite(Extent.Get_Extent().Get_XMax())
+	&&  isfinite(Extent.Get_Extent().Get_YMin()) && isfinite(Extent.Get_Extent().Get_YMax()) )
+	{
+		CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	CSG_Shape	*pClip	= Clip.Add_Shape();
+
+		for(int i=0; i<Extent.Get_Count(); i++)
+		{
+			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point(0);
+
+			if( isinf(p.x) ) p.x = signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
+			if( isinf(p.y) ) p.y = signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
+
+			if( isfinite(p.x) && isfinite(p.y) )
+			{
+				pClip->Add_Point(p);
+			}
+		}
+
+		//-------------------------------------------------
+		if( ((CSG_Shape_Polygon *)pClip)->Get_Area() > 0.0 )
+		{
+			Shapes.Create(pShapes->Get_Type(), SG_T(""), pShapes);	Shapes.Get_Projection().Create(prj_Layer);
+
+			for(int i=0; i<pShapes->Get_Count(); i++)
+			{
+				if( pClip->Intersects(pShapes->Get_Shape(i)) )
+				{
+					Shapes.Add_Shape(pShapes->Get_Shape(i));
+				}
+			}
+
+			pShapes	= &Shapes;	//	SG_UI_DataObject_Add(SG_Create_Shapes(Clip), 0);
+		}
+	}
+
+	//-----------------------------------------------------
+	SG_Get_Projected(pShapes, pShapes == &Shapes ? NULL : &Shapes, prj_Map);
+
+	//-----------------------------------------------------
+	CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	Clip.Get_Projection().Create(prj_Map);
+	CSG_Shape	*pClip	= Clip.Add_Shape();
+	pClip->Add_Point(rMap.Get_XMin(), rMap.Get_YMin());
+	pClip->Add_Point(rMap.Get_XMin(), rMap.Get_YMax());
+	pClip->Add_Point(rMap.Get_XMax(), rMap.Get_YMax());
+	pClip->Add_Point(rMap.Get_XMax(), rMap.Get_YMin());
+
+	SG_UI_ProgressAndMsg_Lock(true);
+
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 11);	// Polygon Clipping
+
+	bool	bResult	= pTool && pTool->Set_Manager(NULL)
+	&&  pTool->Set_Parameter("CLIP"    , &Clip)
+	&&  pTool->Set_Parameter("S_INPUT" , &Shapes)
+	&&  pTool->Set_Parameter("S_OUTPUT", &Clipped)
+	&&  pTool->Set_Parameter("DISSOLVE", false)
+	&&  pTool->Set_Parameter("MULTIPLE", false)
+	&&  pTool->Execute();
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	SG_UI_ProgressAndMsg_Lock(false);
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
+bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CWKSP_Map_DC &dc_Map, int Flags, CSG_Shapes *pShapes, bool bSelection)
+{
+	CSG_Shapes	Shapes;
+
+	if( pShapes->Get_Type() != SHAPE_TYPE_Polygon )
+	{
+		SG_Get_Projected(pShapes, &Shapes, ((CWKSP_Map *)Get_Manager())->Get_Projection());
+	}
+	else
+	{
+		_Projected_Shapes_Clipped(dc_Map.m_rWorld, pShapes, Shapes);
+	}
+
+	if( bSelection )
+	{
+		Shapes.Inv_Selection();
+	}
+
+	return( m_pLayer->Draw(dc_Map, Flags, &Shapes) );
 }
 
 
@@ -452,7 +586,7 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
 	CSG_Projection	prj_Layer, prj_Map;
 
-	if( !m_bProject || !_Get_Projections(prj_Layer, prj_Map) )
+	if( !m_bProject || !_Projected_Get_Projections(prj_Layer, prj_Map) )
 	{
 		if( m_pLayer->do_Show(dc_Map.m_rWorld) )
 		{
@@ -463,18 +597,9 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	CSG_Rect	rLayer(Get_Extent());	bool	bGlobal	= false;
+	CSG_Rect	rLayer(_Projected_Get_Layer_Extent(dc_Map.m_rWorld));
 
-	SG_Get_Projected(prj_Map, prj_Layer, rLayer.m_rect);
-
-	if( (SG_is_NaN(fabs(rLayer.Get_XRange())) || SG_is_NaN(fabs(rLayer.Get_YRange()))) )
-	{
-		rLayer	= m_pLayer->Get_Extent();
-
-		bGlobal	= true;
-	}
-
-	if( !m_pLayer->do_Show(rLayer) )
+	if( !m_pLayer->do_Show(rLayer, false) )
 	{
 		return( true );
 	}
@@ -483,37 +608,22 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	{
 	//-----------------------------------------------------
 	case SG_DATAOBJECT_TYPE_Shapes: {
-		CSG_Shapes	Clip, Shapes, *pShapes = m_pLayer->Get_Object()->asShapes();
+		CSG_Shapes	*pShapes	= m_pLayer->Get_Object()->asShapes();
 
-		if( bGlobal || dc_Map.m_rWorld.Intersects(Get_Extent()) == INTERSECTION_Contains )
+		_Projected_Shapes_Draw(dc_Map, Flags, pShapes);
+
+		if( pShapes->Get_Selection_Count() > 0 )
 		{
-			SG_Get_Projected(pShapes, &Shapes, prj_Map);
+			CSG_Shapes	Selection(pShapes->Get_Type(), pShapes->Get_Name(), pShapes);
 
-			m_pLayer->Draw(dc_Map, Flags, &Shapes);
-		}
-		else
-		{
-			SG_UI_ProgressAndMsg_Lock(true);
-
-			CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 11);	// Polygon Clipping
-
-			if( pTool && pTool->Set_Manager(NULL) && _Get_Clip_Extent(dc_Map.m_rWorld, Clip)
-				&&  pTool->Set_Parameter("CLIP"    , &Clip)
-				&&  pTool->Set_Parameter("S_INPUT" , pShapes)
-				&&  pTool->Set_Parameter("S_OUTPUT", &Shapes)
-				&&  pTool->Set_Parameter("DISSOLVE", false)
-				&&  pTool->Set_Parameter("MULTIPLE", false)
-				&&  pTool->Execute() )
+			for(int i=0; i<pShapes->Get_Selection_Count(); i++)
 			{
-				SG_Get_Projected(&Shapes, NULL, prj_Map);
-
-				m_pLayer->Draw(dc_Map, Flags, &Shapes);
+				Selection.Add_Shape(pShapes->Get_Selection(i));
 			}
 
-			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
-
-			SG_UI_ProgressAndMsg_Lock(false);
+			_Projected_Shapes_Draw(dc_Map, Flags, &Selection, true);
 		}
+
 	}	break;
 
 	//-----------------------------------------------------
@@ -559,13 +669,13 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 4);	// Coordinate Transformation (Grid)
 
 		if( pTool && pTool->Set_Manager(NULL)
-		&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
-		&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
-		&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
-		&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
-		&&  pTool->Set_Parameter("SOURCE"           , pGrid)
-		&&  pTool->Set_Parameter("GRID"             , &Grid)
-		&&  pTool->Execute() )
+			&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
+			&&  pTool->Set_Parameter("TARGET_DEFINITION", 1)
+			&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
+			&&  pTool->Set_Parameter("SOURCE"           , pGrid)
+			&&  pTool->Set_Parameter("GRID"             , &Grid)
+			&&  pTool->Execute() )
 		{
 			m_pLayer->Draw(dc_Map, Flags, &Grid);
 		}
@@ -598,17 +708,17 @@ bool CWKSP_Map_Layer::Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 3);	// Coordinate Transformation (Grid List)
 
 		if( pTool && pTool->Set_Manager(NULL)
-		&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
-		&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
-		&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
-		&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
-		&&  pTool->Set_Parameter("TARGET_USER_SIZE" , System.Get_Cellsize())
-		&&  pTool->Set_Parameter("TARGET_USER_XMIN" , System.Get_XMin())
-		&&  pTool->Set_Parameter("TARGET_USER_YMIN" , System.Get_YMin())
-		&&  pTool->Set_Parameter("TARGET_USER_XMAX" , System.Get_XMax())
-		&&  pTool->Set_Parameter("TARGET_USER_YMAX" , System.Get_YMax())
-		&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
-		&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
+			&&  pTool->Set_Parameter("CRS_PROJ4"        , prj_Map.Get_Proj4())
+			&&  pTool->Set_Parameter("RESAMPLING"       , m_pLayer->Get_Parameter("DISPLAY_RESAMPLING")->asInt() ? 3 : 0)
+			&&  pTool->Set_Parameter("KEEP_TYPE"        , true)
+			&&  pTool->Set_Parameter("TARGET_DEFINITION", 0)
+			&&  pTool->Set_Parameter("TARGET_USER_SIZE" , System.Get_Cellsize())
+			&&  pTool->Set_Parameter("TARGET_USER_XMIN" , System.Get_XMin())
+			&&  pTool->Set_Parameter("TARGET_USER_YMIN" , System.Get_YMin())
+			&&  pTool->Set_Parameter("TARGET_USER_XMAX" , System.Get_XMax())
+			&&  pTool->Set_Parameter("TARGET_USER_YMAX" , System.Get_YMax())
+			&&  pTool->Get_Parameter("SOURCE")->asList()->Add_Item(pGrids)
+			&&  pTool->Execute() && (pGrids = (CSG_Grids *)pTool->Get_Parameter("GRIDS")->asList()->Get_Item(0)) != NULL )
 		{
 			m_pLayer->Draw(dc_Map, Flags, pGrids);
 
