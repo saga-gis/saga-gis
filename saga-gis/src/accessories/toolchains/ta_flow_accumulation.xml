@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.3.0">
+	<group>terrain_analysis</group>
+	<identifier>ta_flow_accumulation</identifier>
+	<name>Flow Accumulation (One Step)</name>
+	<author>O.Conrad (c) 2019</author>
+	<menu>Hydrology|Flow Accumulation</menu>
+	<description>
+	This is a simple to use one step tool to derive flow accumulation from a Digital Terrain Model. It includes a preprocessing followed by a call to 'Flow Accumulation (Top-Down) exposing only the most important options.
+	</description>
+
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+		<input varname="DEM" type="grid" parent="GRID_SYSTEM">
+			<name>Elevation</name>
+		</input>
+		<output varname="TCA" type="grid" parent="GRID_SYSTEM">
+			<name>Flow Accumulation</name>
+			<description>The flow accumulation, a.k.a. Total Catchment Area (TCA)</description>
+		</output>
+		<output varname="SCA" type="grid" optional="true" parent="GRID_SYSTEM">
+			<name>Specific Catchment Area</name>
+		</output>
+		<option varname="PREPROCESSING" type="choice">
+			<name>Preprocessing</name>
+			<choices>Fill Sinks (Wang &amp; Liu)|Sink Removal|</choices>
+			<value>1</value>
+		</option>
+		<option varname="FLOW_ROUTING" type="choice">
+			<name>Flow Routing</name>
+			<choices>Deterministic 8|Rho 8|Braunschweiger Reliefmodell|Deterministic Infinity|Multiple Flow Direction|Multiple Triangular Flow Direction|Multiple Maximum Downslope Gradient Based Flow Direction|</choices>
+			<value>4</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<!-- Preprocessing -->
+		<condition value="0" type="=" variable="PREPROCESSING"><if>
+			<tool library="ta_preprocessor" tool="5" name="Fill Sinks XXL (Wang &amp; Liu)">
+				<input  id="ELEV">DEM</input>
+				<output id="FILLED">DEM_PREPROC</output>
+				<option id="MINSLOPE">0.0001</option>
+			</tool>
+		</if><else>
+			<tool library="ta_preprocessor" tool="2" name="Sink Removal">
+				<input  id="DEM">DEM</input>
+				<output id="DEM_PREPROC">DEM_PREPROC</output>
+			</tool>
+		</else></condition>
+
+		<!-- Flow Accumulation -->
+		<tool library="ta_hydrology" tool="0" name="Catchment Area (Top-Down)">
+			<input  id="ELEVATION">DEM_PREPROC</input>
+			<output id="FLOW">TCA</output>
+			<option id="METHOD" varname="true">FLOW_ROUTING</option>
+			<option id="FLOW_UNIT">1</option>
+			<option id="LINEAR_DO">false</option>
+		</tool>
+
+		<!-- Specific Catchment Area -->
+		<condition type="exists" variable="SCA">
+			<tool library="ta_hydrology" tool="19" name="Flow Width and Specific Catchment Area">
+				<input  id="DEM">DEM_PREPROC</input>
+				<input  id="TCA">TCA</input>
+				<output id="SCA">SCA</output>
+				<option id="METHOD">2</option>
+			</tool>
+		</condition>
+	</tools>
+</toolchain>

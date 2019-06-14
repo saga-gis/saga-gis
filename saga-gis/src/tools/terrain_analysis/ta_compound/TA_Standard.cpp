@@ -167,12 +167,12 @@ bool CTA_Standard::On_Execute(void)
 	)
 
 	//-----------------------------------------------------
-	SG_RUN_TOOL_ExitOnError("ta_hydrology"       , 19,
+	SG_RUN_TOOL_ExitOnError("ta_hydrology"       , 19,		// Flow Width and Specific Catchment Area
 			SG_TOOL_PARAMETER_SET("DEM"          , &DEMP)
 		&&	SG_TOOL_PARAMETER_SET("TCA"          , Parameters("FLOW"))
 		&&	SG_TOOL_PARAMETER_SET("WIDTH"        , &TMP2)
 		&&	SG_TOOL_PARAMETER_SET("SCA"          , &TMP1)	// >> specific catchment area
-		&&	SG_TOOL_PARAMETER_SET("METHOD"       , 1)
+		&&	SG_TOOL_PARAMETER_SET("METHOD"       , 2)		// Aspect
 	)
 
 	//-----------------------------------------------------
