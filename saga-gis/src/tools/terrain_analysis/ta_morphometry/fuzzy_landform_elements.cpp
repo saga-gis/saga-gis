@@ -113,26 +113,23 @@ enum
 };
 
 //---------------------------------------------------------
-#define MAKE_RGB(r, g, b)	SG_GET_RGB((int)(r * 255.0), (int)(g * 255.0), (int)(b * 255.0))
-
-//---------------------------------------------------------
 const struct SForm_Def Form_Def[FE_COUNT]	= 
 {
-	{	"PLAIN"     , _TL("Plain"          ), MAKE_RGB(0.820, 0.820, 0.820), 100	},
-	{	"PIT"       , _TL("Pit"            ), MAKE_RGB(0.824, 0.706, 0.549), 111	},
-	{	"PEAK"      , _TL("Peak"           ), MAKE_RGB(0.647, 0.165, 0.165), 122	},
-	{	"RIDGE"     , _TL("Ridge"          ), MAKE_RGB(0.627, 0.125, 0.941), 120	},
-	{	"CHANNEL"   , _TL("Channel"        ), MAKE_RGB(0.933, 0.510, 0.933), 101	},
-	{	"SADDLE"    , _TL("Saddle"         ), MAKE_RGB(0.000, 0.000, 0.000), 121	},
-	{	"BSLOPE"    , _TL("Back Slope"     ), MAKE_RGB(0.000, 1.000, 0.000),   0	},
-	{	"FSLOPE"    , _TL("Foot Slope"     ), MAKE_RGB(0.596, 0.984, 0.596),  10	},
-	{	"SSLOPE"    , _TL("Shoulder Slope" ), MAKE_RGB(0.000, 0.392, 0.000),  20	},
-	{	"HOLLOW"    , _TL("Hollow"         ), MAKE_RGB(0.000, 0.000, 1.000),   1	},
-	{	"FHOLLOW"   , _TL("Foot Hollow"    ), MAKE_RGB(0.000, 1.000, 1.000),  11	},
-	{	"SHOLLOW"   , _TL("Shoulder Hollow"), MAKE_RGB(0.000, 0.000, 0.392),  21	},
-	{	"SPUR"      , _TL("Spur"           ), MAKE_RGB(1.000, 0.000, 0.000),   2	},
-	{	"FSPUR"     , _TL("Foot Spur"      ), MAKE_RGB(1.000, 0.714, 0.757),  12	},
-	{	"SSPUR"     , _TL("Shoulder Spur"  ), MAKE_RGB(0.392, 0.000, 0.000),  22	}
+	{	"PLAIN"     , _TL("Plain"          ), SG_GET_RGB(220, 220, 220), 100	},
+	{	"PIT"       , _TL("Pit"            ), SG_GET_RGB(  0,   0, 100), 111	},
+	{	"PEAK"      , _TL("Peak"           ), SG_GET_RGB(100,   0,   0), 122	},
+	{	"RIDGE"     , _TL("Ridge"          ), SG_GET_RGB(200,   0,   0), 120	},
+	{	"CHANNEL"   , _TL("Channel"        ), SG_GET_RGB(  0,   0, 255), 101	},
+	{	"SADDLE"    , _TL("Saddle"         ), SG_GET_RGB(  0, 200, 255), 121	},
+	{	"BSLOPE"    , _TL("Back Slope"     ), SG_GET_RGB(255, 255,   0),   0	},
+	{	"FSLOPE"    , _TL("Foot Slope"     ), SG_GET_RGB(240, 220,   0),  10	},
+	{	"SSLOPE"    , _TL("Shoulder Slope" ), SG_GET_RGB(255, 255, 150),  20	},
+	{	"HOLLOW"    , _TL("Hollow"         ), SG_GET_RGB(180, 230,   0),   1	},
+	{	"FHOLLOW"   , _TL("Foot Hollow"    ), SG_GET_RGB(100, 230,   0),  11	},
+	{	"SHOLLOW"   , _TL("Shoulder Hollow"), SG_GET_RGB(180, 255,   0),  21	},
+	{	"SPUR"      , _TL("Spur"           ), SG_GET_RGB(250, 210,   0),   2	},
+	{	"FSPUR"     , _TL("Foot Spur"      ), SG_GET_RGB(250, 170,   0),  12	},
+	{	"SSPUR"     , _TL("Shoulder Spur"  ), SG_GET_RGB(255, 120,   0),  22	}
 };
 
 
@@ -159,7 +156,8 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 	Add_Reference("Schmidt, J. & Hewitt, A.", "2004",
 		"Fuzzy land element classification from DTMs based on geometry and terrain position",
 		"Geoderma, 121(3-4), 243-256.",
-		SG_T("https://www.sciencedirect.com/science/article/pii/S0016706103003720"), SG_T("ScienceDirect")
+		SG_T("http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.472.3485&rep=rep1&type=pdf"), SG_T("CiteSeerX")
+	//	SG_T("https://www.sciencedirect.com/science/article/pii/S0016706103003720"), SG_T("ScienceDirect")
 	);
 
 	//-----------------------------------------------------
@@ -173,9 +171,9 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 	}
 
 	Parameters.Add_Grid("", "FORM"     , _TL("Landform"          ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "MEM"      , _TL("Maximum Membership"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "ENTROPY"  , _TL("Entropy"           ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "CI"       , _TL("Confusion Index"   ), _TL(""), PARAMETER_OUTPUT);
+	Parameters.Add_Grid("", "MEM"      , _TL("Maximum Membership"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "ENTROPY"  , _TL("Entropy"           ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "CI"       , _TL("Confusion Index"   ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 
 	for(i=0; i<FE_COUNT; i++)
 	{
@@ -192,6 +190,12 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 		), 0
 	);
 
+	Parameters.Add_Bool("",
+		"MEMBERSHIP", _TL("Memberships"),
+		_TL(""),
+		false
+	);
+
 	Parameters.Add_Choice("SLOPE",
 		"SLOPETODEG", _TL("Slope Grid Units"),
 		_TL(""),
@@ -204,13 +208,13 @@ CFuzzy_Landform_Elements::CFuzzy_Landform_Elements(void)
 	Parameters.Add_Range("",
 		"T_SLOPE"	, _TL("Slope Thresholds [Degree]"),
 		_TL("lower and upper thresholds for semantic import model, planar vs. sloped areas"),
-		5.0, 15.0, 0.0, true, 90.0, true
+		2., 7., 0., true, 90., true
 	);
 
 	Parameters.Add_Range("",
-		"T_CURVE"	, _TL("Curvature Thresholds [1 / m]"),
+		"T_CURVE"	, _TL("Curvature Thresholds [1000 / m]"),
 		_TL("lower and upper thresholds for semantic import model, straight vs. curved areas"),
-		1.0 / 500000.0, 1.0 / 20000.0
+		0.02, 0.5
 	);
 }
 
@@ -230,6 +234,14 @@ int CFuzzy_Landform_Elements::On_Parameters_Enable(CSG_Parameters *pParameters, 
 		}
 
 		pParameters->Set_Enabled("ELEVATION", pParameter->asInt() == 0);
+	}
+
+	if( pParameter->Cmp_Identifier("MEMBERSHIP") )
+	{
+		for(int i=0; i<FE_COUNT; i++)
+		{
+			pParameters->Set_Enabled(Form_Def[i].ID, pParameter->asBool());
+		}
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -296,8 +308,8 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 	m_loSlope	= Parameters("T_SLOPE.MIN")->asDouble();// * M_DEG_TO_RAD;
 	m_hiSlope	= Parameters("T_SLOPE.MAX")->asDouble();// * M_DEG_TO_RAD;
 
-	m_loCurve	= Parameters("T_CURVE.MIN")->asDouble();
-	m_hiCurve	= Parameters("T_CURVE.MAX")->asDouble();
+	m_loCurve	= Parameters("T_CURVE.MIN")->asDouble() / 1000.;
+	m_hiCurve	= Parameters("T_CURVE.MAX")->asDouble() / 1000.;
 
 	//-----------------------------------------------------
 	pForm		= Parameters("FORM"   )->asGrid();
@@ -307,7 +319,7 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 
 	for(i=0; i<FE_COUNT; i++)
 	{
-		pMembership[i]	= Parameters(Form_Def[i].ID)->asGrid();
+		pMembership[i]	= Parameters("MEMBERSHIP")->asBool() ? Parameters(Form_Def[i].ID)->asGrid() : NULL;
 
 		DataObject_Set_Colors(pMembership[i], 11, SG_COLORS_WHITE_RED);
 	}
@@ -358,33 +370,27 @@ bool CFuzzy_Landform_Elements::On_Execute(void)
 
 			if( bOkay && Get_Memberships(Input, Membership, Element, MaxMem, Entropy, CI) )
 			{
+				if( pForm    ) pForm   ->Set_Value(x, y, Element);	// hard classification according to highest membership value
+				if( pMem     ) pMem    ->Set_Value(x, y, MaxMem );
+				if( pEntropy ) pEntropy->Set_Value(x, y, Entropy);
+				if( pCI      ) pCI     ->Set_Value(x, y, CI     );	// confusion index
+
 				for(i=0; i<FE_COUNT; i++)
 				{
-					if( pMembership[i] )
-					{
-						pMembership[i]->Set_Value(x, y, Membership[i]);
-					}
+					if( pMembership[i] ) pMembership[i]->Set_Value(x, y, Membership[i]);
 				}
-
-				pForm   ->Set_Value(x, y, Element);	// hard classification according to highest membership value
-				pMem    ->Set_Value(x, y, MaxMem );
-				pEntropy->Set_Value(x, y, Entropy);
-				pCI     ->Set_Value(x, y, CI     );	// confusion index
 			}
 			else
 			{
+				if( pForm    ) pForm   ->Set_NoData(x, y);
+				if( pMem     ) pMem    ->Set_NoData(x, y);
+				if( pEntropy ) pEntropy->Set_NoData(x, y);
+				if( pCI      ) pCI     ->Set_NoData(x, y);
+
 				for(i=0; i<FE_COUNT; i++)
 				{
-					if( pMembership[i] )
-					{
-						pMembership[i]->Set_NoData(x, y);
-					}
+					if( pMembership[i] ) pMembership[i]->Set_NoData(x, y);
 				}
-
-				pForm   ->Set_NoData(x, y);
-				pMem    ->Set_NoData(x, y);
-				pEntropy->Set_NoData(x, y);
-				pCI     ->Set_NoData(x, y);
 			}
 		}
 	}
