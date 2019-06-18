@@ -1263,19 +1263,46 @@ void CWKSP_Map::Set_Projection(void)
 {
 	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
 
-	if(	pTool && pTool->Get_Parameters()->Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4())
-	&&	pTool->On_Before_Execution() && DLG_Parameters(pTool->Get_Parameters()) )
+	if(	pTool )
 	{
-		pTool->Set_Manager(NULL);
+		CSG_Parameters	P(*pTool->Get_Parameters());
 
-		pTool->Execute();
+		P.Set_Parameter("CRS_PROJ4", m_Projection.Get_Proj4());
 
-		m_Projection.Create(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+		P.Add_Bool("", "ONTHEFLY", _TL("On-The-Fly Projection"),
+			_TL("Turn on the on-the-fly projection for all layers in the map."),
+			true
+		);
 
-		View_Refresh(false);
+		if(	DLG_Parameters(&P) && pTool->Get_Parameters()->Assign_Values(&P)
+		&&  pTool->Set_Manager(NULL) && pTool->On_Before_Execution() && pTool->Execute() )
+		{
+			CSG_Projection	Projection(pTool->Get_Parameter("CRS_PROJ4")->asString(), SG_PROJ_FMT_Proj4);
+
+			if( P("ONTHEFLY")->asBool() )
+			{
+				for(int i=0; i<Get_Count(); i++)
+				{
+					if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
+					{
+						((CWKSP_Map_Layer *)Get_Item(i))->do_Project(true);
+					}
+				}
+
+				CSG_Rect	r(Get_Extent());
+
+				SG_Get_Projected(m_Projection, Projection, r.m_rect);
+
+				Set_Extent(r, true);
+			}
+
+			m_Projection.Create(Projection);
+
+			View_Refresh(false);
+		}
+
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 	}
-
-	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 }
 
 

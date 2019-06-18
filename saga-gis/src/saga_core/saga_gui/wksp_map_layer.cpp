@@ -317,35 +317,41 @@ void CWKSP_Map_Layer::Parameters_Changed(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define	FIT_OVERLAY_GRID_COLORS(band, extent)	{\
-	CWKSP_Grid	*pGrid	= (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter(band)->asGrid());\
-	if( pGrid && m_pLayer->Get_Parameter(band)->is_Enabled() )\
-	{	pGrid->Fit_Colors(extent);	}\
-}
-
-//---------------------------------------------------------
 bool CWKSP_Map_Layer::Fit_Colors(const CSG_Rect &rWorld)
 {
 	if( m_bFitColors )
 	{
+		CSG_Rect	_rWorld(rWorld);	CSG_Projection	prj_Layer, prj_Map;
+
+		if( m_bProject && _Projected_Get_Projections(prj_Layer, prj_Map) )
+		{
+			SG_Get_Projected(prj_Map, prj_Layer, _rWorld.m_rect);
+		}
+
 		switch( m_pLayer->Get_Type() )
 		{
 		default:
 			return( false );
 
+		case WKSP_ITEM_Grids:
+			((CWKSP_Grids *)m_pLayer)->Fit_Colors(_rWorld);
+			break;
+
 		case WKSP_ITEM_Grid :
-			((CWKSP_Grid  *)m_pLayer)->Fit_Colors(rWorld);
+			((CWKSP_Grid  *)m_pLayer)->Fit_Colors(_rWorld);
 
 			if( m_pLayer->Get_Parameter("COLORS_TYPE")->asInt() == CLASSIFY_OVERLAY )
 			{
+				#define	FIT_OVERLAY_GRID_COLORS(band, extent)	{\
+					CWKSP_Grid	*pGrid	= (CWKSP_Grid *)g_pData->Get(m_pLayer->Get_Parameter(band)->asGrid());\
+					if( pGrid && m_pLayer->Get_Parameter(band)->is_Enabled() )\
+					{	pGrid->Fit_Colors(extent);	}\
+				}
+
 				FIT_OVERLAY_GRID_COLORS("OVERLAY_R", rWorld);
 				FIT_OVERLAY_GRID_COLORS("OVERLAY_G", rWorld);
 				FIT_OVERLAY_GRID_COLORS("OVERLAY_B", rWorld);
 			}
-			break;
-
-		case WKSP_ITEM_Grids:
-			((CWKSP_Grids *)m_pLayer)->Fit_Colors(rWorld);
 			break;
 		}
 
@@ -565,7 +571,9 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Draw(CWKSP_Map_DC &dc_Map, int Flags, CS
 	}
 	else
 	{
-		_Projected_Shapes_Clipped(dc_Map.m_rWorld, pShapes, Shapes);
+		CSG_Rect	rMap(dc_Map.m_rWorld);	rMap.Inflate(dc_Map.m_DC2World, false);	// inflate by one pixel
+
+		_Projected_Shapes_Clipped(rMap, pShapes, Shapes);
 	}
 
 	if( bSelection )
