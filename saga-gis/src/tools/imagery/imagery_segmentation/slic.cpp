@@ -110,6 +110,7 @@ CSLIC::CSLIC(void)
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
+	//-----------------------------------------------------
 	Parameters.Add_Int("",
 		"MAX_ITERATIONS", _TL("Maximum Iterations"),
 		_TL(""),
@@ -134,6 +135,7 @@ CSLIC::CSLIC(void)
 		1, 1, true
 	);
 
+	//-----------------------------------------------------
 	Parameters.Add_Bool("",
 		"SUPERPIXELS_DO", _TL("Create Superpixel Grids"),
 		_TL(""),
@@ -144,6 +146,28 @@ CSLIC::CSLIC(void)
 		"SUPERPIXELS"	, _TL("Superpixels"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"POSTPROCESSING", _TL("Post-Processing"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("none"),
+			_TL("unsupervised classification")
+		), 0
+	);
+
+	Parameters.Add_Int("POSTPROCESSING",
+		"NCLUSTER"		, _TL("Number of Clusters"),
+		_TL(""),
+		12, 2, true
+	);
+
+	Parameters.Add_Bool("POSTPROCESSING",
+		"SPLIT_CLUSTERS", _TL("Split Clusters"),
+		_TL(""),
+		true
 	);
 
 	//-----------------------------------------------------
@@ -164,6 +188,11 @@ int CSLIC::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPar
 //---------------------------------------------------------
 int CSLIC::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("POSTPROCESSING") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asInt() == 1);
+	}
+
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -195,6 +224,8 @@ bool CSLIC::On_Execute(void)
 	Get_Grids(Segments);
 
 	bool	bResult	= Get_Polygons(Segments);
+
+	Parameters("POLYGONS")->asShapes()->Set_Name(_TL("Segments"));
 
 	Del_Centroids();
 
@@ -247,51 +278,111 @@ inline int CSLIC::Fit_To_Grid_System(double Value, int Coordinate)
 //---------------------------------------------------------
 bool CSLIC::Get_Polygons(CSG_Grid &Segments)
 {
-	CSG_Shapes	*pSegments	= Parameters("POLYGONS")->asShapes();
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
 	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("shapes_grid", 6);	// Vectorising Grid Classes
 
-	if( pSegments && pTool && pTool->Set_Manager(NULL)
+	if( (pPolygons && pTool && pTool->Set_Manager(NULL)
 		&&  pTool->Set_Parameter("CLASS_ALL"  , 1        )
 		&&  pTool->Set_Parameter("SPLIT"      , 0        )
 		&&  pTool->Set_Parameter("ALLVERTICES", false    )
 		&&  pTool->Set_Parameter("GRID"       , &Segments)
-		&&  pTool->Set_Parameter("POLYGONS"   , pSegments)
-		&&  pTool->Execute() && SG_Get_Tool_Library_Manager().Delete_Tool(pTool) )
+		&&  pTool->Set_Parameter("POLYGONS"   , pPolygons)
+		&&  pTool->Execute()) == false )
 	{
-		pSegments->Set_Name(_TL("Segments"));
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
-		pSegments->Del_Field(pSegments->Get_Field("NAME"));
-		pSegments->Del_Field(pSegments->Get_Field("ID"  ));
+		return( false );
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	//-----------------------------------------------------
+	pPolygons->Del_Field(pPolygons->Get_Field("NAME"));
+	pPolygons->Del_Field(pPolygons->Get_Field("ID"  ));
+
+	for(int k=0; k<Get_Feature_Count(); k++)
+	{
+		pPolygons->Add_Field(m_pGrids->Get_Grid(k)->Get_Name(), SG_DATATYPE_Double);
+	}
+
+	for(int i=0; i<pPolygons->Get_Count(); i++)
+	{
+		CSG_Shape	*pPolygon	= pPolygons->Get_Shape(i);
+
+		sLong	ID	= pPolygon->asInt(0);
 
 		for(int k=0; k<Get_Feature_Count(); k++)
 		{
-			pSegments->Add_Field(m_pGrids->Get_Grid(k)->Get_Name(), SG_DATATYPE_Double);
-		}
-
-		for(int i=0; i<pSegments->Get_Count(); i++)
-		{
-			CSG_Shape	*pSegment	= pSegments->Get_Shape(i);
-
-			sLong	ID	= pSegment->asInt(0);
-
-			for(int k=0; k<Get_Feature_Count(); k++)
+			if( ID >= 0 && ID < m_Centroid->Get_NCells() )
 			{
-				if( ID >= 0 && ID < m_Centroid->Get_NCells() )
-				{
-					pSegment->Set_Value(1 + k, m_Centroid[2 + k].asDouble(ID));
-				}
-				else
-				{
-					pSegment->Set_NoData(1 + k);
-				}
+				pPolygon->Set_Value(1 + k, m_Centroid[2 + k].asDouble(ID));
+			}
+			else
+			{
+				pPolygon->Set_NoData(1 + k);
 			}
 		}
+	}
 
+	//-----------------------------------------------------
+	if( Parameters("POSTPROCESSING")->asInt() == 0 )
+	{
 		return( true );
 	}
 
-	return( false );
+	CSG_Table	Statistics;
+
+	if( ((pTool = SG_Get_Tool_Library_Manager().Create_Tool("table_calculus", 14)) && pTool->Set_Manager(NULL) // Cluster Analysis (Shapes)
+		&&  pTool->Set_Parameter("NCLUSTER"  , Parameters("NCLUSTER" ))
+		&&  pTool->Set_Parameter("NORMALISE" , Parameters("NORMALIZE"))
+		&&  pTool->Set_Parameter("STATISTICS", &Statistics)
+		&&  pTool->Set_Parameter("INPUT"     , pPolygons)
+		&&  pTool->Set_Parameter("FIELDS"    , "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32")
+		&&  pTool->Execute()) == false )
+	{
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( false );
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	//-----------------------------------------------------
+	CSG_Shapes	Polygons(SHAPE_TYPE_Polygon);
+
+	if( ((pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 5)) && pTool->Set_Manager(NULL) // Polygon Dissolve
+		&&  pTool->Set_Parameter("POLYGONS"  , pPolygons)
+		&&  pTool->Set_Parameter("DISSOLVED" , &Polygons)
+		&&  pTool->Set_Parameter("FIELDS"    , "CLUSTER")
+		&&  pTool->Execute()) == false )
+	{
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( false );
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	//-----------------------------------------------------
+	if( Parameters("SPLIT_CLUSTERS")->asBool() == false )
+	{
+		return( pPolygons->Create(Polygons) );
+	}
+
+	if( ((pTool = SG_Get_Tool_Library_Manager().Create_Tool("shapes_polygons", 10)) && pTool->Set_Manager(NULL) // Polygon Parts to Separate Polygons
+		&&  pTool->Set_Parameter("POLYGONS"  , &Polygons)
+		&&  pTool->Set_Parameter("PARTS"     , pPolygons)
+		&&  pTool->Execute()) == false )
+	{
+		SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+		return( false );
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -349,6 +440,13 @@ bool CSLIC::Get_Grids(CSG_Grid &Segments)
 				}
 			}
 		}
+	}
+
+	//-----------------------------------------------------
+	for(int i=0; i<m_pGrids->Get_Item_Count(); i++)
+	{
+		DataObject_Add           (pGrids->Get_Item(i));
+		DataObject_Set_Parameters(pGrids->Get_Item(i), m_pGrids->Get_Item(i));
 	}
 
 	return( true );
