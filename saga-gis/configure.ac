@@ -61,6 +61,9 @@ AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([floor memmove memset modf pow sqrt strchr strdup strerror strrchr strstr strtol])
 
+# make sure C++ 2011 extensions are enabled
+AX_CXX_COMPILE_STDCXX_11()
+
 # add a local directory as base for libs and include files
 AC_MSG_CHECKING([for local include/lib path])
 
