@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: skeletonization.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,16 +48,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "skeletonization.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #define	skNE			1
@@ -82,34 +77,35 @@ CSkeletonization::CSkeletonization(void)
 {
 	Set_Name		(_TL("Grid Skeletonization"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2002"));
+	Set_Author		("O.Conrad (c) 2002");
 
 	Set_Description	(_TW(
-		"Simple skeletonisation methods for grids.\n"
+		"Simple skeletonisation methods for grids. "
 	));
 
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "INPUT"			, _TL("Grid"),
+		"", "INPUT"			, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"			, _TL("Skeleton"),
+		"", "RESULT"		, _TL("Skeleton"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Char
 	);
 
 	Parameters.Add_Shapes(
-		NULL, "VECTOR"			, _TL("Skeleton"),
-		_TL(""), PARAMETER_OUTPUT_OPTIONAL
+		"", "VECTOR"		, _TL("Skeleton"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
-		NULL, "METHOD"			, _TL("Method"),
+		"", "METHOD"		, _TL("Method"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("Standard"),
 			_TL("Hilditch's Algorithm"),
 			_TL("Channel Skeleton")
@@ -117,69 +113,61 @@ CSkeletonization::CSkeletonization(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL, "INIT_METHOD"		, _TL("Initialisation"),
+		"", "INIT_METHOD"	, _TL("Initialisation"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Less than"),
 			_TL("Greater than")
 		),1
 	);
 
-	Parameters.Add_Value(
-		NULL, "INIT_THRESHOLD"	, _TL("Threshold (Init.)"),
-		_TL(""),
-		PARAMETER_TYPE_Double
+	Parameters.Add_Double(
+		"", "INIT_THRESHOLD", _TL("Threshold (Init.)"),
+		_TL("")
 	);
 
-	Parameters.Add_Value(
-		NULL, "CONVERGENCE"		, _TL("Convergence"),
+	Parameters.Add_Int(
+		"", "CONVERGENCE"	, _TL("Convergence"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 3
+		3, 0, true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSkeletonization::On_Execute(void)
 {
-	int			Initiation;
-	sLong		n;
-	double		Threshold;
-	CSG_Grid	*pInput;
+	m_pResult	= Parameters("RESULT")->asGrid();
+
+	m_pResult->Assign(0.);
+
+	DataObject_Set_Colors(m_pResult, 2, SG_COLORS_BLACK_WHITE, true);
 
 	//-----------------------------------------------------
-	pInput		= Parameters("INPUT")			->asGrid();
-	pResult		= Parameters("RESULT")			->asGrid();
+	CSG_Grid	*pInput	= Parameters("INPUT")->asGrid();
 
-	Initiation	= Parameters("INIT_METHOD")		->asInt();
-	Threshold	= Parameters("INIT_THRESHOLD")	->asDouble();
+	int		Initiation	= Parameters("INIT_METHOD"   )->asInt   ();
+	double	Threshold	= Parameters("INIT_THRESHOLD")->asDouble();
 
-	DataObject_Set_Colors(pResult, 3, SG_COLORS_BLACK_WHITE, true);
-	pResult->Assign(0.0);
-
-	//-----------------------------------------------------
-	for(n=0; n<Get_NCells(); n++)
+	for(sLong n=0; n<Get_NCells(); n++)
 	{
 		switch( Initiation )
 		{
-		case 0: default:
+		default:
 			if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
 			{
-				pResult->Set_Value(n, 1);
+				m_pResult->Set_Value(n, 1);
 			}
 			break;
 
-		case 1:
+		case  1:
 			if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
 			{
-				pResult->Set_Value(n, 1);
+				m_pResult->Set_Value(n, 1);
 			}
 			break;
 		}
@@ -188,12 +176,12 @@ bool CSkeletonization::On_Execute(void)
 	//-----------------------------------------------------
 	switch( Parameters("METHOD")->asInt() )
 	{
-	default:	Standard_Execute();		break;
-	case  1:	Hilditch_Execute();		break;
-	case  2:	SK_Execute();			break;
+	default: Standard_Execute(); break;
+	case  1: Hilditch_Execute(); break;
+	case  2: SK_Execute      (); break;
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	if( Parameters("VECTOR")->asShapes() )
 	{
 		Vectorize(Parameters("VECTOR")->asShapes());
@@ -201,21 +189,21 @@ bool CSkeletonization::On_Execute(void)
 
 	if( 1 )
 	{
-		for(n=0; n<Get_NCells(); n++)
+		for(sLong n=0; n<Get_NCells(); n++)
 		{
 			switch( Initiation )
 			{
-			case 0: default:
+			default:
 				if( !pInput->is_NoData(n) && pInput->asDouble(n) < Threshold )
 				{
-					pResult->Add_Value(n, 1);
+					m_pResult->Add_Value(n, 1);
 				}
 				break;
 
-			case 1:
+			case  1:
 				if( !pInput->is_NoData(n) && pInput->asDouble(n) > Threshold )
 				{
-					pResult->Add_Value(n, 1);
+					m_pResult->Add_Value(n, 1);
 				}
 				break;
 			}
@@ -228,8 +216,6 @@ bool CSkeletonization::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//						Helpers							 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -261,8 +247,6 @@ int CSkeletonization::Get_Neighbours(int x, int y, CSG_Grid *pGrid, bool Neighbo
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					Vectorization						 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -287,9 +271,9 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 	{
 		for(x=0; x<Get_NX(); x++)
 		{
-			if( pResult->asByte(x, y) )
+			if( m_pResult->asByte(x, y) )
 			{
-				n	= Get_Neighbours(x, y, pResult, z);
+				n	= Get_Neighbours(x, y, m_pResult, z);
 
 				if( n == 1 )
 				{
@@ -323,10 +307,10 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 
 	for(y=0; y<Get_NY() && Process_Get_Okay(false); y++)
 	{
-		dx			= pResult->Get_Cellsize();
-		xMin		= pResult->Get_XMin();// + 0.5 * dx;
-		dy			= pResult->Get_Cellsize();
-		yMin		= pResult->Get_YMin();// + 0.5 * dy;
+		dx			= m_pResult->Get_Cellsize();
+		xMin		= m_pResult->Get_XMin();// + 0.5 * dx;
+		dy			= m_pResult->Get_Cellsize();
+		yMin		= m_pResult->Get_YMin();// + 0.5 * dy;
 
 		for(x=0; x<Get_NX(); x++)
 		{
@@ -339,7 +323,7 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 					ix	= Get_xTo(i, x);
 					iy	= Get_yTo(i, y);
 
-					if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && !Lock_Get(ix, iy) )
+					if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && !Lock_Get(ix, iy) )
 					{
 						pShape	= pShapes->Add_Shape();
 						pShape->Set_Value(0, ++nSegments);
@@ -355,7 +339,7 @@ int CSkeletonization::Vectorize(CSG_Shapes *pShapes)
 	//-----------------------------------------------------
 	Lock_Destroy();
 
-	Message_Dlg(CSG_String::Format(SG_T("%d %s\n"), nSegments, _TL("segments identified")), Get_Name());
+	Message_Dlg(CSG_String::Format("%d %s\n", nSegments, _TL("segments identified")), Get_Name());
 
 	return( nSegments );
 }
@@ -370,10 +354,10 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 	double	xMin, yMin, dx, dy;
 
 	//-----------------------------------------------------
-	dx			= pResult->Get_Cellsize();
-	xMin		= pResult->Get_XMin();// + 0.5 * dx;
-	dy			= pResult->Get_Cellsize();
-	yMin		= pResult->Get_YMin();// + 0.5 * dy;
+	dx			= m_pResult->Get_Cellsize();
+	xMin		= m_pResult->Get_XMin();// + 0.5 * dx;
+	dy			= m_pResult->Get_Cellsize();
+	yMin		= m_pResult->Get_YMin();// + 0.5 * dy;
 
 	bContinue	= true;
 
@@ -396,7 +380,7 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 				ix	= Get_xTo(i, x);
 				iy	= Get_yTo(i, y);
 
-				if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
+				if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 				{
 					iNext	= i;
 
@@ -414,7 +398,7 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 					ix	= Get_xTo(i, x);
 					iy	= Get_yTo(i, y);
 
-					if( pResult->is_InGrid(ix, iy) && pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
+					if( m_pResult->is_InGrid(ix, iy) && m_pResult->asByte(ix, iy) && Lock_Get(ix, iy) != SEGMENT_LOCKED )
 					{
 						iNext	= i;
 
@@ -446,8 +430,6 @@ bool CSkeletonization::Vectorize_Trace(int x, int y, CSG_Shape *pShape)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Standard						 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -458,13 +440,13 @@ void CSkeletonization::Standard_Execute(void)
 	CSG_Grid	*pPrev, *pNext, *pTemp;
 
 	//-----------------------------------------------------
-	pPrev		= pResult;
+	pPrev		= m_pResult;
 	pNext		= SG_Create_Grid(pPrev);
 
 	//-----------------------------------------------------
 	do
 	{
-		DataObject_Update(pResult, 0, 1, true);
+		DataObject_Update(m_pResult, 0, 1, true);
 
 		nChanges	= 0;
 
@@ -480,13 +462,13 @@ void CSkeletonization::Standard_Execute(void)
 	while( nChanges > 0 && Process_Get_Okay(true) );
 
 	//-----------------------------------------------------
-	if( pNext == pResult )
+	if( pNext == m_pResult )
 	{
 		delete(pPrev);
 	}
 	else
 	{
-		pResult->Assign(pNext);
+		m_pResult->Assign(pNext);
 
 		delete(pNext);
 	}
@@ -590,8 +572,6 @@ inline bool CSkeletonization::Standard_Check(int iDir, bool z[8])
 
 ///////////////////////////////////////////////////////////
 //														 //
-//						Hilditch						 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -602,14 +582,14 @@ void CSkeletonization::Hilditch_Execute(void)
 	CSG_Grid	*pPrev, *pNext, *pTemp, *pNC_Gaps;
 
 	//-----------------------------------------------------
-	pPrev		= pResult;
+	pPrev		= m_pResult;
 	pNext		= SG_Create_Grid(pPrev);
 	pNC_Gaps	= SG_Create_Grid(pPrev, SG_DATATYPE_Char);
 
 	//-----------------------------------------------------
 	do
 	{
-		DataObject_Update(pResult, 0, 1, true);
+		DataObject_Update(m_pResult, 0, 1, true);
 
 		nChanges	= Hilditch_Step(pPrev, pNext, pNC_Gaps);
 
@@ -622,13 +602,13 @@ void CSkeletonization::Hilditch_Execute(void)
 	//-----------------------------------------------------
 	delete(pNC_Gaps);
 
-	if( pNext == pResult )
+	if( pNext == m_pResult )
 	{
 		delete(pPrev);
 	}
 	else
 	{
-		pResult->Assign(pNext);
+		m_pResult->Assign(pNext);
 
 		delete(pNext);
 	}
@@ -743,8 +723,6 @@ inline bool CSkeletonization::Hilditch_Check(CSG_Grid *pNC_Gaps, int x, int y, i
 
 ///////////////////////////////////////////////////////////
 //														 //
-//					Channel Detection					 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -763,7 +741,7 @@ void CSkeletonization::SK_Execute(void)
 
 	Convergence	= Parameters("CONVERGENCE")->asInt();
 
-	pResult->Assign();
+	m_pResult->Assign();
 
 
 	//-----------------------------------------------------
@@ -789,7 +767,7 @@ void CSkeletonization::SK_Execute(void)
 
 			if( Convergence > n )
 			{
-				pResult->Set_Value(x, y, 2);
+				m_pResult->Set_Value(x, y, 2);
 			}
 		}
 	}
@@ -821,7 +799,7 @@ void CSkeletonization::SK_Execute(void)
 					{
 						NB[i]	= skNE;
 					}
-					else if( iz > z && pResult->asByte(ix, iy) )
+					else if( iz > z && m_pResult->asByte(ix, iy) )
 					{
 						NB[i]	= skJA;
 					}
@@ -834,7 +812,7 @@ void CSkeletonization::SK_Execute(void)
 
 			if( SK_Connectivity(NB) )
 			{
-				pResult->Set_Value(x, y, 1);
+				m_pResult->Set_Value(x, y, 1);
 			}
 		}
 	}
@@ -859,7 +837,7 @@ void CSkeletonization::SK_Execute(void)
 		{
 			if( Lock_Get(x, y) )
 			{
-				pResult->Set_Value(x, y, 0);
+				m_pResult->Set_Value(x, y, 0);
 			}
 		}
 	}
@@ -924,7 +902,7 @@ bool CSkeletonization::SK_Filter(int x, int y)
 {
 	bool	z[8];
 
-	if( !pResult->asByte(x, y) && Get_Neighbours(x, y, pResult, z) == 4 )
+	if( !m_pResult->asByte(x, y) && Get_Neighbours(x, y, m_pResult, z) == 4 )
 	{
 		if( z[0] && z[2] && z[4] && z[6] )
 		{

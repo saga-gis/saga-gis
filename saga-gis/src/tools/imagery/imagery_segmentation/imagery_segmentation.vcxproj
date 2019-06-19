@@ -314,6 +314,7 @@
     </ClCompile>
     <ClCompile Include="rga_basic.cpp" />
     <ClCompile Include="skeletonization.cpp" />
+    <ClCompile Include="slic.cpp" />
     <ClCompile Include="watershed_segmentation.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -324,7 +325,6 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="grid_seeds.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
@@ -338,6 +338,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="rga_basic.h" />
     <ClInclude Include="skeletonization.h" />
+    <ClInclude Include="slic.h" />
     <ClInclude Include="watershed_segmentation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

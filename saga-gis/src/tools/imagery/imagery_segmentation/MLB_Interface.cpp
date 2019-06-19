@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -58,7 +55,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -96,6 +93,7 @@ CSG_String Get_Info(int i)
 #include "skeletonization.h"
 #include "grid_seeds.h"
 #include "rga_basic.h"
+#include "slic.h"
 
 
 //---------------------------------------------------------
@@ -109,9 +107,12 @@ CSG_Tool *		Create_Tool(int i)
 	case  1:	return( new CSkeletonization );
 	case  2:	return( new CGrid_Seeds );
 	case  3:	return( new CRGA_Basic );
-	}
+	case  4:	return( new CSLIC );
 
-	return( NULL );
+	//-----------------------------------------------------
+	case  5:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

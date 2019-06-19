@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: watershed_segmentation.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "watershed_segmentation.h"
 
 
@@ -89,94 +77,88 @@ enum
 //---------------------------------------------------------
 CWatershed_Segmentation::CWatershed_Segmentation(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Watershed Segmentation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2002"));
+	Set_Author		("O.Conrad (c) 2002");
 
 	Set_Description	(_TW(
-		"Watershed segmentation."
+		"Watershed segmentation. "
 	));
 
-
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "SEGMENTS"	, _TL("Segments"),
+	Parameters.Add_Grid("",
+		"SEGMENTS"	, _TL("Segments"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "SEEDS"		, _TL("Seed Points"),
+	Parameters.Add_Shapes("",
+		"SEEDS"		, _TL("Seed Points"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Grid_Output(
-		NULL	, "BORDERS"		, _TL("Borders"),
+	Parameters.Add_Grid_Output("",
+		"BORDERS"	, _TL("Borders"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		pNode	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Choice("SEGMENTS",
+		"OUTPUT"	, _TL("Output"),
 		_TL("The values of the resultant grid can be either the seed value (e.g. the local maximum) or the enumerated segment id."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Seed Value"),
 			_TL("Segment ID")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DOWN"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"DOWN"		, _TL("Method"),
 		_TL("Choose if you want to segmentate either on minima or on maxima."),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Minima"),
 			_TL("Maxima")
 		), 1
 	);
 
-	pNode	= Parameters.Add_Choice(
-		NULL	, "JOIN"		, _TL("Join Segments based on Threshold Value"),
+	Parameters.Add_Choice("",
+		"JOIN"		, _TL("Join Segments based on Threshold Value"),
 		_TL("Join segments based on threshold value."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("do not join"),
 			_TL("seed to saddle difference"),
 			_TL("seeds difference")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "THRESHOLD"	, _TL("Threshold"),
+	Parameters.Add_Double("JOIN",
+		"THRESHOLD"	, _TL("Threshold"),
 		_TL("Specify a threshold value as minimum difference between neighboured segments."),
-		PARAMETER_TYPE_Double, 0.0, 0.0, true
+		0., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EDGE"		, _TL("Allow Edge Pixels to be Seeds"),
+	Parameters.Add_Bool("",
+		"EDGE"		, _TL("Allow Edge Pixels to be Seeds"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "BBORDERS"	, _TL("Borders"),
+	Parameters.Add_Bool("",
+		"BBORDERS"	, _TL("Borders"),
 		_TL("Create borders between segments as new grid."),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -184,13 +166,13 @@ CWatershed_Segmentation::CWatershed_Segmentation(void)
 bool CWatershed_Segmentation::On_Execute(void)
 {
 	//-----------------------------------------------------
-	m_pGrid		= Parameters("GRID")		->asGrid();
-	m_pSeeds	= Parameters("SEEDS")		->asShapes();
-	m_pSegments	= Parameters("SEGMENTS")	->asGrid();
-	m_bDown		= Parameters("DOWN")		->asInt() == 1;
+	m_pGrid		= Parameters("GRID"    )->asGrid();
+	m_pSeeds	= Parameters("SEEDS"   )->asShapes();
+	m_pSegments	= Parameters("SEGMENTS")->asGrid();
+	m_bDown		= Parameters("DOWN"    )->asInt() == 1;
 
 	//-----------------------------------------------------
-	m_pSeeds->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), m_pGrid->Get_Name(), _TL("Seeds")));
+	m_pSeeds->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", m_pGrid->Get_Name(), _TL("Seeds")));
 
 	m_pSeeds->Add_Field("XCELL"  , SG_DATATYPE_Int   );	// SEED_X
 	m_pSeeds->Add_Field("YCELL"  , SG_DATATYPE_Int   );	// SEED_Y
@@ -247,8 +229,6 @@ bool CWatershed_Segmentation::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -288,7 +268,7 @@ bool CWatershed_Segmentation::Get_Seeds(void)
 					}
 				}
 
-				//---------------------------------------------
+				//-----------------------------------------
 				m_Dir.Set_Value(x, y, iMax);
 
 				if( iMax < 0 && (bEdge_Seeds || !bEdge) )
@@ -320,8 +300,6 @@ bool CWatershed_Segmentation::Get_Seeds(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -401,8 +379,6 @@ bool CWatershed_Segmentation::Get_Segments(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -469,8 +445,6 @@ bool CWatershed_Segmentation::Segment_Change(int ID, int new_ID)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

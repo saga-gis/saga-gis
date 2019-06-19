@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
+//                     Tool Library:                     //
 //                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   skeletonization.h                   //
+//                        slic.h                         //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                  Olaf Conrad (C) 2019                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,21 +39,19 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__skeletonization_H
-#define HEADER_INCLUDED__skeletonization_H
+#ifndef HEADER_INCLUDED__slic_H
+#define HEADER_INCLUDED__slic_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -64,52 +61,63 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSkeletonization : public CSG_Tool_Grid
+class CSLIC : public CSG_Tool_Grid
 {
 public:
-	CSkeletonization(void);
+	CSLIC(void);
+
+//	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Segmentation") );	}
 
 
 protected:
 
-	virtual bool		On_Execute			(void);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	CSG_Grid			*m_pResult;
+	bool							m_bNormalize;
+
+	CSG_Parameter_Grid_List			*m_pGrids;
+
+	CSG_Grid						*m_Centroid;
 
 
-	int					Get_Neighbours		(int x, int y, CSG_Grid *pGrid, bool Neighbours[8]);
+	int								Get_Feature_Count		(void);
+	double							Get_Feature				(int k, int x, int y);
 
-	int					Vectorize			(CSG_Shapes *pShapes);
-	bool				Vectorize_Trace		(int x, int y, CSG_Shape *pShape);
+	int								Fit_To_Grid_System		(double Value, int Coordinate);
 
-	void				Standard_Execute	(void);
-	int					Standard_Step		(int iDir, CSG_Grid *pPrev, CSG_Grid *pNext);
-	bool				Standard_Check		(int iDir, bool z[8]);
 
-	void				Hilditch_Execute	(void);
-	int					Hilditch_Step		(CSG_Grid *pPrev, CSG_Grid *pNext, CSG_Grid *pNC_Gaps);
-	bool				Hilditch_Check		(CSG_Grid *pNC_Gaps, int x, int y, int i0, bool z[8]);
+	bool							Get_Polygons			(CSG_Grid &Segments);
+	bool							Get_Grids				(CSG_Grid &Segments);
 
-	void				SK_Execute			(void);
-	int					SK_Connectivity		(int NB[8]);
-	bool				SK_Filter			(int x, int y);
+	bool							Get_Segments			(CSG_Grid &Segments);
+
+	bool							Get_Edge				(CSG_Grid &Edge);
+
+	bool							Get_Centroids			(int Size);
+	bool							Del_Centroids			(void);
+
+	bool							Get_Generalized			(CSG_Grid &Segments);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__skeletonization_H
+#endif // #ifndef HEADER_INCLUDED__slic_H
+

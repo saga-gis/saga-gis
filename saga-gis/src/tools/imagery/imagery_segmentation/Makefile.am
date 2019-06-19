@@ -15,11 +15,13 @@ grid_seeds.cpp\
 MLB_Interface.cpp\
 rga_basic.cpp\
 skeletonization.cpp\
+slic.cpp\
 watershed_segmentation.cpp\
 grid_seeds.h\
 MLB_Interface.h\
 rga_basic.h\
 skeletonization.h\
+slic.h\
 watershed_segmentation.h
 
 libimagery_segmentation_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
