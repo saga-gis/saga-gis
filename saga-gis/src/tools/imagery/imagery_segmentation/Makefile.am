@@ -18,7 +18,6 @@ skeletonization.cpp\
 slic.cpp\
 watershed_segmentation.cpp\
 grid_seeds.h\
-MLB_Interface.h\
 rga_basic.h\
 skeletonization.h\
 slic.h\
