@@ -393,7 +393,7 @@ bool CSG_File::Read_Line(CSG_String &sLine)	const
 		wxString	s(Stream.ReadLine());	sLine	= CSG_String(&s);
 	}
 
-	return( !is_EOF() );
+	return( !sLine.is_Empty() || !is_EOF() );
 }
 
 //---------------------------------------------------------
