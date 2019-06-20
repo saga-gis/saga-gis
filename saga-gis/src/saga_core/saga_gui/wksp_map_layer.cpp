@@ -495,8 +495,8 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 		return( false );
 	}
 
-	if( isfinite(Extent.Get_Extent().Get_XMin()) && isfinite(Extent.Get_Extent().Get_XMax())
-	&&  isfinite(Extent.Get_Extent().Get_YMin()) && isfinite(Extent.Get_Extent().Get_YMax()) )
+	if( std::isfinite(Extent.Get_Extent().Get_XMin()) && std::isfinite(Extent.Get_Extent().Get_XMax())
+	&&  std::isfinite(Extent.Get_Extent().Get_YMin()) && std::isfinite(Extent.Get_Extent().Get_YMax()) )
 	{
 		CSG_Shapes	Clip(SHAPE_TYPE_Polygon);	CSG_Shape	*pClip	= Clip.Add_Shape();
 
@@ -504,10 +504,10 @@ bool CWKSP_Map_Layer::_Projected_Shapes_Clipped(const CSG_Rect &rMap, CSG_Shapes
 		{
 			TSG_Point	p	= Extent.Get_Shape(i)->Get_Point(0);
 
-			if( isinf(p.x) ) p.x = signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
-			if( isinf(p.y) ) p.y = signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
+			if( isinf(p.x) ) p.x = std::signbit(p.x) ? Extent.Get_Extent().Get_XMin() : Extent.Get_Extent().Get_XMax();
+			if( isinf(p.y) ) p.y = std::signbit(p.y) ? Extent.Get_Extent().Get_YMin() : Extent.Get_Extent().Get_YMax();
 
-			if( isfinite(p.x) && isfinite(p.y) )
+			if( std::isfinite(p.x) && std::isfinite(p.y) )
 			{
 				pClip->Add_Point(p);
 			}
