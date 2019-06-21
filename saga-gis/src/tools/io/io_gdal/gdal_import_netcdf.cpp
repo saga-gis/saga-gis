@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gdal_import_netcdf.cpp 1379 2012-04-26 11:58:47Z manfred-e $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,13 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "gdal_import_netcdf.h"
 
@@ -76,10 +66,13 @@ CGDAL_Import_NetCDF::CGDAL_Import_NetCDF(void)
 	Set_Description	(_TW(
 		"This tool imports grids NetCDF Format using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
 	));
+
+	Add_Reference("GDAL/OGR contributors", "2019",
+		"GDAL/OGR Geospatial Data Abstraction software Library",
+		"A translator library for raster and vector geospatial data formats. Open Source Geospatial Foundation.",
+		SG_T("https://gdal.org"), SG_T("Link")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
@@ -178,7 +171,7 @@ int CGDAL_Import_NetCDF::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Variable(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME");
+	const char	     *s = DataSet.Get_MetaData_Item(iBand, "NETCDF_VARNAME"        );
 
 	return( s );
 }
@@ -186,8 +179,8 @@ const char * CGDAL_Import_NetCDF::Get_Variable(CSG_GDAL_DataSet &DataSet, int iB
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Time(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_time");
-	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_time");
+	const char	     *s = DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_time" );
+	if( !s || !(*s) ) s = DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_time"       );
 
 	return( s );
 }
@@ -195,9 +188,9 @@ const char * CGDAL_Import_NetCDF::Get_Time(CSG_GDAL_DataSet &DataSet, int iBand)
 //---------------------------------------------------------
 const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand)
 {
-	const char *s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_level");
-	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_level");
-	if( !s )    s	= DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_lev");
+	const char       *s = DataSet.Get_MetaData_Item(iBand, "NETCDF_DIMENSION_level");
+	if( !s || !(*s) ) s = DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_level"      );
+	if( !s || !(*s) ) s = DataSet.Get_MetaData_Item(iBand, "NETCDF_DIM_lev"        );
 
 	return( s );
 }
@@ -210,13 +203,15 @@ const char * CGDAL_Import_NetCDF::Get_Level(CSG_GDAL_DataSet &DataSet, int iBand
 //---------------------------------------------------------
 CSG_String CGDAL_Import_NetCDF::Get_Time_String(const CSG_String &Time, int Format)
 {
-	CSG_DateTime	Date;
-
 	switch( Format )
 	{
-	case  0:
+	case  0: {
+		CSG_DateTime	Date;
+
 		Date.Set_Hours_AD(Time.asInt());
+
 		return( Date.Format_ISOCombined() );
+	}
 
 	default:
 		return( Time );

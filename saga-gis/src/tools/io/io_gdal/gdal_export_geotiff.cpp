@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gdal_export_geotiff.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,13 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "gdal_export_geotiff.h"
 
@@ -77,10 +67,13 @@ CGDAL_Export_GeoTIFF::CGDAL_Export_GeoTIFF(void)
 	Set_Description	(_TW(
 		"The \"GDAL GeoTIFF Export\" tool exports one or more grids to a Geocoded Tagged Image File Format using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
 	));
+
+	Add_Reference("GDAL/OGR contributors", "2019",
+		"GDAL/OGR Geospatial Data Abstraction software Library",
+		"A translator library for raster and vector geospatial data formats. Open Source Geospatial Foundation.",
+		SG_T("https://gdal.org"), SG_T("Link")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",

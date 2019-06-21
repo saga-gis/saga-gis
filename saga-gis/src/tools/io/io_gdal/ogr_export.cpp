@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: ogr_export.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,13 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "ogr_export.h"
 
@@ -72,14 +62,17 @@ COGR_Export::COGR_Export(void)
 
 	Set_Author	("O.Conrad (c) 2008");
 
+	Add_Reference("GDAL/OGR contributors", "2019",
+		"GDAL/OGR Geospatial Data Abstraction software Library",
+		"A translator library for raster and vector geospatial data formats. Open Source Geospatial Foundation.",
+		SG_T("https://gdal.org"), SG_T("Link")
+	);
+
 	CSG_String	Description, Formats, Filter;
 
 	Description	= _TW(
 		"The \"OGR Vector Data Export\" tool exports vector data to various file formats using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
 	);
 
 	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_OGR_Drivers().Get_Version().c_str());

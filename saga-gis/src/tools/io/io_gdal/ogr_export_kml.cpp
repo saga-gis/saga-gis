@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: ogr_export_kml.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,13 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "ogr_export_kml.h"
 
@@ -75,14 +65,16 @@ COGR_Export_KML::COGR_Export_KML(void)
 	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
-		"This tool exports a vector layer to a Google Earth KML Format using "
+		"This tool exports a vector layer to the Google Earth KML format using "
 		"Frank Warmerdam's \"Geospatial Data Abstraction Library\" (GDAL/OGR). "
-		"Output file will automatically re-projected to geographic coordinates "
-		"if necessary and possible. "
-		"For more information on GDAL/OGR have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
+		"The output file is projected to geographic coordinates if necessary and possible. "
 	));
+
+	Add_Reference("GDAL/OGR contributors", "2019",
+		"GDAL/OGR Geospatial Data Abstraction software Library",
+		"A translator library for raster and vector geospatial data formats. Open Source Geospatial Foundation.",
+		SG_T("https://gdal.org"), SG_T("Link")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",

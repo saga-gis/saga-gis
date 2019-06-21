@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gdal_driver.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,13 +43,6 @@
 //                D-20146 Hamburg                        //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -397,6 +387,32 @@ CSG_Strings CSG_GDAL_DataSet::Get_SubDataSets(bool bDescription) const
 }
 
 //---------------------------------------------------------
+bool CSG_GDAL_DataSet::_Get_Transformation(double Transform[6])
+{
+	if( GDALGetGeoTransform(m_pDataSet, Transform) == CE_None )
+	{
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	Transform[0]	= 0.;
+	Transform[1]	= 1.;
+	Transform[2]	= 0.;
+	Transform[3]	= 0.;
+	Transform[4]	= 0.;
+	Transform[5]	= 1.;
+
+	bool	bResult	= false;	CSG_String	Data;
+
+	if( Get_MetaData_Item(Data, "XORIG") && Data.asDouble(Transform[0]) ) { bResult = true; }
+	if( Get_MetaData_Item(Data, "XCELL") && Data.asDouble(Transform[1]) ) { bResult = true; }
+	if( Get_MetaData_Item(Data, "YORIG") && Data.asDouble(Transform[3]) ) { bResult = true; }
+	if( Get_MetaData_Item(Data, "YCELL") && Data.asDouble(Transform[5]) ) { bResult = true; }
+
+	return( bResult );
+}
+
+//---------------------------------------------------------
 bool CSG_GDAL_DataSet::_Set_Transformation(void)
 {
 	if( !m_pDataSet )
@@ -409,7 +425,7 @@ bool CSG_GDAL_DataSet::_Set_Transformation(void)
 	m_NX	= GDALGetRasterXSize(m_pDataSet);
 	m_NY	= GDALGetRasterYSize(m_pDataSet);
 
-	if( GDALGetGeoTransform(m_pDataSet, Transform) != CE_None )
+	if( _Get_Transformation(Transform) == false )
 	{
 		m_bTransform	= false;
 		m_Cellsize		= 1.0;
@@ -612,9 +628,9 @@ CSG_String CSG_GDAL_DataSet::Get_File_Name(void)	const
 //---------------------------------------------------------
 const char * CSG_GDAL_DataSet::Get_MetaData_Item(const char *pszName, const char *pszDomain)	const
 {
-	const char	*Item	= GDALGetMetadataItem(m_pDataSet, pszName, pszDomain);
+	const char	*s	= GDALGetMetadataItem(m_pDataSet, pszName, pszDomain);
 
-	return( Item ? Item : "" );
+	return( s ? s : "" );
 }
 
 //---------------------------------------------------------
@@ -626,16 +642,39 @@ const char ** CSG_GDAL_DataSet::Get_MetaData(const char *pszDomain)	const
 //---------------------------------------------------------
 bool CSG_GDAL_DataSet::Get_MetaData_Item(CSG_String &MetaData, const char *pszName, const char *pszDomain)		const
 {
-	const char	*Item	= Get_MetaData_Item(pszName, pszDomain);
+	const char	*s	= Get_MetaData_Item(pszName, pszDomain);
 
-	if( Item && *Item )
+	if( s && *s )
 	{
-		MetaData	= Item;
+		MetaData	= s;
 
 		return( true );
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+CSG_Strings CSG_GDAL_DataSet::Get_MetaData_Domains(void)	const
+{
+	CSG_Strings	Domains;
+
+	if( m_pDataSet && is_Reading() )
+	{
+		char	**pDomains	= GDALGetMetadataDomainList(m_pDataSet);
+
+		if( pDomains )
+		{
+			while( *pDomains )
+			{
+				Domains	+= *pDomains;
+
+				pDomains++;
+			}
+		}
+	}
+
+	return( Domains );
 }
 
 //---------------------------------------------------------
@@ -885,12 +924,27 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 
 	CPLFree(SRef);
 
+	if( pGrid->Get_Projection().is_Okay() == false )
+	{
+		CSG_String	Data;	int	EPSG;
+
+		if( !Get_MetaData_Item(Data, "EPSG") || !Data.asInt(EPSG) || !pGrid->Get_Projection().Create(EPSG) )
+		{
+			if( Get_MetaData_Item(Data, "proj4_string") )
+			{
+				pGrid->Get_Projection().Create(Data, SG_PROJ_FMT_Proj4);
+			}
+		}
+	}
+
 	//-------------------------------------------------
 	CSG_MetaData	&MetaData	= pGrid->Get_MetaData();
 
-	Get_MetaData(i, MetaData);
-
 	MetaData.Add_Child("GDAL_DRIVER", Get_DriverID());
+
+	Get_MetaData(MetaData);
+
+	Get_MetaData(i, *MetaData.Add_Child("Band"));
 
 	//-------------------------------------------------
 	double	zNoData	= GDALGetRasterNoDataValue(pBand, &bSuccess);

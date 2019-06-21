@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gdal_import_wms.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,13 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "gdal_import_wms.h"
 
@@ -78,14 +68,17 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Description	= _TW(
 		"The \"Import TMS Image\" tool imports a map image from a Tile Mapping Service (TMS) using the "
 		"\"Geospatial Data Abstraction Library\" (GDAL) by Frank Warmerdam. "
-		"For more information have a look at the GDAL homepage:\n"
-		"  <a target=\"_blank\" href=\"http://www.gdal.org/\">"
-		"  http://www.gdal.org</a>\n"
 	);
 
 	Description	+= CSG_String::Format("\nGDAL %s:%s\n\n", _TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str());
 
 	Set_Description(Description);
+
+	Add_Reference("GDAL/OGR contributors", "2019",
+		"GDAL/OGR Geospatial Data Abstraction software Library",
+		"A translator library for raster and vector geospatial data formats. Open Source Geospatial Foundation.",
+		SG_T("https://gdal.org"), SG_T("Link")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
@@ -109,7 +102,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Parameters.Add_Choice("",
 		"SERVER"	, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Open Street Map"),
 			_TL("Google Map"),
 			_TL("Google Satellite"),

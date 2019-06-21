@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: gdal_driver.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,16 +45,16 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__gdal_driver_H
 #define HEADER_INCLUDED__gdal_driver_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include "MLB_Interface.h"
@@ -162,6 +159,7 @@ public:
 	bool						Get_MetaData_Item	(CSG_String   &MetaData, const char *pszName, const char *pszDomain = "")	const;
 	bool						Get_MetaData		(CSG_MetaData &MetaData)													const;
 	bool						Get_MetaData		(CSG_MetaData &MetaData, const char *pszDomain)								const;
+	CSG_Strings					Get_MetaData_Domains(void)																		const;
 
 	int							Get_Count			(void)	const;
 	CSG_String					Get_Name			(int i)	const;
@@ -193,8 +191,7 @@ private:
 	GDALDatasetH				m_pDataSet, m_pVrtSource;
 
 
-	bool						_Get_SubDataSets	(void);
-
+	bool						_Get_Transformation	(double Transform[6]);
 	bool						_Set_Transformation	(void);
 
 
