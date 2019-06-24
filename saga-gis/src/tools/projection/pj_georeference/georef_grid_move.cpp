@@ -78,7 +78,12 @@ CGeoref_Grid_Move::CGeoref_Grid_Move(void)
 	Set_Author		(SG_T("O.Conrad (c) 2008"));
 
 	Set_Description	(_TW(
-		""
+		"This tool allows one to interactively move a grid to a new location. Once the tool is "
+		"running, use the 'Action' tool to drag a line from a point you've located in the grid to "
+		"the new location to which you like to move that point. This will shift the grid "
+		"temporarily by this amount (vector). Once you are finished and stop the tool, you will "
+		"get asked if you like to apply the transformation. If you apply it, a new and shifted "
+		"output grid will be created.\n\n"
 	));
 
 	//-----------------------------------------------------
