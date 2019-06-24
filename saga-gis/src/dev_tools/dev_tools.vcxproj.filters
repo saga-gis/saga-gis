@@ -17,10 +17,13 @@
     <ClCompile Include="MLB_Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tl_merge.cpp">
+    <ClCompile Include="arctoolbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tl_extract.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tl_merge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tl_union.cpp">
@@ -29,78 +32,24 @@
     <ClCompile Include="tool_counter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="arctoolbox.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tool_py_updater.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\grid.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\mat_tools.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\tool.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\parameters.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\saga_api.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\table.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\tin.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\grid_pyramid.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\metadata.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\tool_library.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
-      <Filter>Include</Filter>
-    </ClInclude>
-    <ClInclude Include="tl_merge.h">
+    <ClInclude Include="arctoolbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tl_extract.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tl_merge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tl_union.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tool_counter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="arctoolbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tool_py_updater.h">
