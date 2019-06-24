@@ -7,7 +7,7 @@ REM ###################################
 
 REM ___________________________________
 SET SAGA_VER_MAJOR=7
-SET SAGA_VER_MINOR=3
+SET SAGA_VER_MINOR=4
 SET SAGA_VER_RELEASE=0
 SET SAGA_VER_TEXT=%SAGA_VER_MAJOR%.%SAGA_VER_MINOR%.%SAGA_VER_RELEASE%
 SET SAGA_VERSION=saga-%SAGA_VER_TEXT%
@@ -104,7 +104,7 @@ REM GIT Source Code Repository
 PUSHD %SAGA_VERSION%_src
 REM Create a branch (better do manually)
 REM %GITEXE% branch release-%SAGA_VER_TEXT%
-%GITEXE% checkout release-%SAGA_VER_TEXT%
+REM %GITEXE% checkout release-%SAGA_VER_TEXT%
 RMDIR /S/Q .git
 POPD
 
