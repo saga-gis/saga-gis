@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Completion.h"
 
 
@@ -72,43 +60,38 @@
 //---------------------------------------------------------
 CGrid_Completion::CGrid_Completion(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Patching"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Fill gaps of a grid with data from another grid. "
+		"If the target is not set, the changes will be stored to the original grid. "
 	));
 
-
 	//-----------------------------------------------------
-	// 2. Standard in- and output...
-
 	Parameters.Add_Grid(
-		NULL	, "ORIGINAL"		, _TL("Grid"),
+		"", "ORIGINAL"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "ADDITIONAL"		, _TL("Patch Grid"),
+		"", "COMPLETED"		, _TL("Patched Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Grid(
+		"", "ADDITIONAL"	, _TL("Patch Grid"),
 		_TL(""),
 		PARAMETER_INPUT, false
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "COMPLETED"		, _TL("Completed Grid"),
-		_TL(""),
-		PARAMETER_OUTPUT
-	);
-
 	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"		, _TL("Resampling"),
+		"", "RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -116,10 +99,6 @@ CGrid_Completion::CGrid_Completion(void)
 		), 3
 	);
 }
-
-//---------------------------------------------------------
-CGrid_Completion::~CGrid_Completion(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -130,7 +109,7 @@ CGrid_Completion::~CGrid_Completion(void)
 bool CGrid_Completion::On_Execute(void)
 {
 	CSG_Grid	*pPatch	= Parameters("ADDITIONAL")->asGrid();
-	CSG_Grid	*pGrid	= Parameters("COMPLETED" )->asGrid();
+	CSG_Grid	*pGrid	= Parameters("ORIGINAL"  )->asGrid();
 
 	if( !pGrid->is_Intersecting(pPatch->Get_Extent()) )
 	{
@@ -139,36 +118,49 @@ bool CGrid_Completion::On_Execute(void)
 		return( false );
 	}
 
-	if( pGrid != Parameters("ORIGINAL")->asGrid() )
+	//-----------------------------------------------------
+	if( pGrid != Parameters("COMPLETED")->asGrid() && Parameters("COMPLETED")->asGrid() )
 	{
 		Process_Set_Text(_TL("Copying original data..."));
 
-		pGrid->Assign(Parameters("ORIGINAL")->asGrid());
+		CSG_Grid	*pResult	= Parameters("COMPLETED")->asGrid();
+
+		pResult->Create(*pGrid);
+
+		pResult->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Patched"));
+
+		DataObject_Set_Parameters(pResult, pGrid);
+
+		pGrid	= pResult;
 	}
 
+	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
+	//-----------------------------------------------------
 	Process_Set_Text(_TL("Data completion..."));
 
-	int		x, y;
-	double	xWorld, yWorld, Value;
-
-	for(y=0, yWorld=Get_YMin(); y<Get_NY() && yWorld<=pPatch->Get_YMax() && Set_Progress(y, Get_NY()); y++, yWorld+=Get_Cellsize())
+	for(int y=0; y<Get_NY() && Set_Progress(y, Get_NY()); y++)
 	{
-		if( yWorld >= pPatch->Get_YMin() )
+		double	yWorld	= Get_YMin() + y * Get_Cellsize();
+
+		if( pPatch->Get_YMin() <= yWorld && yWorld <= pPatch->Get_YMax() )
 		{
-			for(x=0, xWorld=Get_XMin(); x<Get_NX() && xWorld<=pPatch->Get_XMax(); x++, xWorld+=Get_Cellsize())
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( pGrid->is_NoData(x, y) && xWorld >= pPatch->Get_XMin() )
+				if( pGrid->is_NoData(x, y) )
 				{
+					double	Value, xWorld	= Get_XMin() + x * Get_Cellsize();
+
+				//	if( pPatch->Get_XMin() <= xWorld && xWorld <= pPatch->Get_XMax() )
 					if( pPatch->Get_Value(xWorld, yWorld, Value, Resampling) )
 					{
 						pGrid->Set_Value(x, y, Value);
@@ -176,6 +168,12 @@ bool CGrid_Completion::On_Execute(void)
 				}
 			}
 		}
+	}
+
+	//-----------------------------------------------------
+	if( pGrid == Parameters("ORIGINAL")->asGrid() )
+	{
+		DataObject_Update(pGrid);
 	}
 
 	return( true );

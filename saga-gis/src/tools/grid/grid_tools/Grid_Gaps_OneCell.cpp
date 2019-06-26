@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Gaps_OneCell.h"
 
 
@@ -88,7 +79,7 @@ CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Changed Grid"),
 		_TL(""),
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice("",
@@ -120,13 +111,24 @@ CGrid_Gaps_OneCell::CGrid_Gaps_OneCell(void)
 //---------------------------------------------------------
 bool CGrid_Gaps_OneCell::On_Execute(void)
 {
-	CSG_Grid	*pInput		= Parameters("INPUT" )->asGrid();
-	CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
+	CSG_Grid	*pGrid	= Parameters("INPUT")->asGrid();
 
-	DataObject_Set_Parameters(pResult, pInput);
+	if( pGrid != Parameters("RESULT")->asGrid() && Parameters("RESULT")->asGrid() )
+	{
+		Process_Set_Text(_TL("Copying original data..."));
 
-	pResult->Fmt_Name("%s [%s]", pInput->Get_Name(), _TL("Close Gaps"));
+		CSG_Grid	*pResult	= Parameters("RESULT")->asGrid();
 
+		pResult->Create(*pGrid);
+
+		pResult->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Close Gaps"));
+
+		DataObject_Set_Parameters(pResult, pGrid);
+
+		pGrid	= pResult;
+	}
+
+	//-----------------------------------------------------
 	int	iStep	= Parameters("MODE")->asInt() == 0 ? 2 : 1;
 
 	int	Method	= Parameters("METHOD")->asInt();
@@ -137,11 +139,7 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( !pInput->is_NoData(x, y) )
-			{
-				pResult->Set_Value(x, y, pInput->asDouble(x, y));
-			}
-			else
+			if( pGrid->is_NoData(x, y) )
 			{
 				bool	bClose	= true;	double	Value;
 
@@ -154,12 +152,11 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 
 					for(int i=0; i<8 && bClose; i+=iStep)
 					{
-						int	ix	= Get_xTo(i, x);
-						int	iy	= Get_yTo(i, y);
+						int	ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-						if( (bClose = pInput->is_InGrid(ix, iy)) == true )
+						if( (bClose = pGrid->is_InGrid(ix, iy)) == true )
 						{
-							s	+= pInput->asDouble(ix, iy);
+							s	+= pGrid->asDouble(ix, iy);
 						}
 					}
 
@@ -173,12 +170,11 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 
 					for(int i=0; i<8 && bClose; i+=iStep)
 					{
-						int	ix	= Get_xTo(i, x);
-						int	iy	= Get_yTo(i, y);
+						int	ix = Get_xTo(i, x), iy = Get_yTo(i, y);
 
-						if( (bClose = pInput->is_InGrid(ix, iy)) == true )
+						if( (bClose = pGrid->is_InGrid(ix, iy)) == true )
 						{
-							s	+= pInput->asDouble(ix, iy);
+							s	+= pGrid->asDouble(ix, iy);
 						}
 					}
 
@@ -189,17 +185,18 @@ bool CGrid_Gaps_OneCell::On_Execute(void)
 				//-----------------------------------------
 				if( bClose )
 				{
-					pResult->Set_Value(x, y, Value);
-				}
-				else
-				{
-					pResult->Set_NoData(x, y);
+					pGrid->Set_Value(x, y, Value);
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
+	if( pGrid == Parameters("INPUT")->asGrid() )
+	{
+		DataObject_Update(pGrid);
+	}
+
 	return( true );
 }
 
