@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: io_table_txt.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "io_table_txt.h"
 
 
@@ -78,7 +66,7 @@ CTable_Text_Export::CTable_Text_Export(void)
 	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		""
+		"Export text table with options. "
 	));
 
 	//-----------------------------------------------------
@@ -103,7 +91,7 @@ CTable_Text_Export::CTable_Text_Export(void)
 	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format("%s|;|,|%s|%s|",
+		CSG_String::Format("%s|;|,|%s|%s",
 			_TL("tabulator"),
 			_TL("space"),
 			_TL("other")
@@ -229,7 +217,7 @@ CTable_Text_Import::CTable_Text_Import(void)
 	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		""
+		"Import a text table with options. "
 	));
 
 	//-----------------------------------------------------
@@ -248,10 +236,25 @@ CTable_Text_Import::CTable_Text_Import(void)
 	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format("%s|;|,|%s|%s|",
+		CSG_String::Format("%s|;|,|%s|%s",
 			_TL("tabulator"),
 			_TL("space"),
 			_TL("other")
+		), 0
+	);
+
+	Parameters.Add_Choice("",
+		"ENCODING"	, _TL("Encoding"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
+			SG_T("ANSI"),
+			SG_T("UTF-7"),
+			SG_T("UTF-8"),
+			SG_T("UTF-16 (Little Endian)"),
+			SG_T("UTF-16 (Big Endian)"),
+			SG_T("UTF-32 (Little Endian)"),
+			SG_T("UTF-32 (Big Endian)"),
+			_TL("default")
 		), 0
 	);
 
@@ -297,22 +300,39 @@ int CTable_Text_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 bool CTable_Text_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("TABLE")->asTable();
 
+	TSG_Table_File_Type	Type	= Parameters("HEADLINE")->asBool() ? TABLE_FILETYPE_Text : TABLE_FILETYPE_Text_NoHeadLine;
+
+	//-----------------------------------------------------
 	SG_Char	Separator;
 
 	switch( Parameters("SEPARATOR")->asInt() )
 	{
-	case  0:	Separator	= '\t';	break;
-	case  1:	Separator	=  ';';	break;
-	case  2:	Separator	=  ',';	break;
-	case  3:	Separator	=  ' ';	break;
-	default:	Separator	= *Parameters("SEP_OTHER")->asString();	break;
+	case  0: Separator	= '\t'; break;
+	case  1: Separator	=  ';'; break;
+	case  2: Separator	=  ','; break;
+	case  3: Separator	=  ' '; break;
+	default: Separator	= *Parameters("SEP_OTHER")->asString(); break;
 	}
 
 	//-----------------------------------------------------
-	if( !pTable->Create(Parameters("FILENAME")->asString(), Parameters("HEADLINE")->asBool() ? TABLE_FILETYPE_Text : TABLE_FILETYPE_Text_NoHeadLine, Separator) )
+	int	Encoding;
+
+	switch( Parameters("ENCODING")->asInt() )
+	{
+	case  0: Encoding	= SG_FILE_ENCODING_ANSI     ; break;
+	case  1: Encoding	= SG_FILE_ENCODING_UTF7     ; break;
+	case  2: Encoding	= SG_FILE_ENCODING_UTF8     ; break;
+	case  3: Encoding	= SG_FILE_ENCODING_UTF16LE  ; break;
+	case  4: Encoding	= SG_FILE_ENCODING_UTF16BE  ; break;
+	case  5: Encoding	= SG_FILE_ENCODING_UTF32LE  ; break;
+	case  6: Encoding	= SG_FILE_ENCODING_UTF32BE  ; break;
+	default: Encoding	= SG_FILE_ENCODING_UNDEFINED; break;
+	}
+
+	//-----------------------------------------------------
+	if( !pTable->Create(Parameters("FILENAME")->asString(), Type, Separator, Encoding) )
 	{
 		Error_Set(_TL("table could not be opened."));
 
@@ -363,7 +383,7 @@ CTable_Text_Import_Numbers::CTable_Text_Import_Numbers(void)
 	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
-		CSG_String::Format("%s|;|,|%s|%s|",
+		CSG_String::Format("%s|;|,|%s|%s",
 			_TL("tabulator"),
 			_TL("space"),
 			_TL("other")
@@ -587,7 +607,7 @@ CTable_Text_Import_Fixed_Cols::CTable_Text_Import_Fixed_Cols(void)
 	Parameters.Add_Choice("",
 		"FIELDDEF"	, _TL("Field Definition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("mark breaks in first line"),
 			_TL("specify fields with type"),
 			_TL("from list")
@@ -766,7 +786,7 @@ bool CTable_Text_Import_Fixed_Cols::On_Execute(void)
 				pFields->Add_Node("", "NODE" + s, _TL("Field") + s, _TL(""));
 				pFields->Add_Int   ("NODE" + s, "LENGTH" + s, _TL("Length"), _TL(""), 1, 1, true);
 			//	pFields->Add_Bool  ("NODE" + s, "IMPORT" + s, _TL("Import"), _TL(""), true);
-				pFields->Add_Choice("NODE" + s, "TYPE"   + s, _TL("Type"  ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s|",
+				pFields->Add_Choice("NODE" + s, "TYPE"   + s, _TL("Type"  ), _TL(""), CSG_String::Format("%s|%s|%s|%s|%s",
 					_TL("text"),
 					_TL("2 byte integer"),
 					_TL("4 byte integer"),
