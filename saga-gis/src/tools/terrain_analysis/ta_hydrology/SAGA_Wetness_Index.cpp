@@ -176,12 +176,6 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		_TL("weighting factor for slope in index calculation"),
 		1.0, 0.0, true
 	);
-
-	Parameters.Add_Double("",
-		"SLOPE_FACTOR", _TL("Slope Factor"),
-		_TL(""),
-		1.0, 1.0, true
-	);
 }
 
 
@@ -472,7 +466,6 @@ bool CSAGA_Wetness_Index::Get_TWI(void)
 	int		Slope_Type	= Parameters("SLOPE_TYPE")->asInt();
 	double	Slope_Min	= Parameters("SLOPE_MIN" )->asDouble() * M_DEG_TO_RAD;
 	double	Slope_Off	= Parameters("SLOPE_OFF" )->asDouble() * M_DEG_TO_RAD;
-	double	Slope_Fac	= Parameters("SLOPE_FACTOR")->asDouble();
 
 	Process_Set_Text(_TL("topographic wetness index..."));
 
@@ -500,7 +493,7 @@ bool CSAGA_Wetness_Index::Get_TWI(void)
 					m_pDEM->Get_Gradient(x, y, s, a);
 				}
 
-				s	= Slope_Fac * tan(M_GET_MAX(Slope_Min, s + Slope_Off));
+				s	= tan(M_GET_MAX(Slope_Min, s + Slope_Off));
 
 				a	= m_pAreaMod->asDouble(x, y);
 
