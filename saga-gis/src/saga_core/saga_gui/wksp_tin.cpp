@@ -247,7 +247,7 @@ void CWKSP_TIN::On_DataObject_Changed(void)
 
 	for(int i=0; i<asTIN()->Get_Field_Count(); i++)
 	{
-		Choices	+= asTIN()->Get_Field_Name(i) + '|';
+		Choices	+= CSG_String(asTIN()->Get_Field_Name(i)) + '|';
 	}
 
 	m_Parameters("METRIC_ATTRIB")->asChoice()->Set_Items(Choices);
