@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Interpolation.h"
 
 
@@ -75,13 +63,13 @@ CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 	m_bMultiThreading	= bMultiThreading;
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(Parameters("POINTS"),
+	Parameters.Add_Table_Field("POINTS",
 		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
@@ -89,10 +77,10 @@ CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 	//-----------------------------------------------------
 	if( bCrossValidation )
 	{
-		Parameters.Add_Choice(NULL,
+		Parameters.Add_Choice("",
 			"CV_METHOD"		, _TL("Cross Validation"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("none"),
 				_TL("leave one out"),
 				_TL("2-fold"),
@@ -100,19 +88,19 @@ CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 			), 0
 		);
 
-		Parameters.Add_Table(Parameters("CV_METHOD"),
+		Parameters.Add_Table("CV_METHOD",
 			"CV_SUMMARY"	, _TL("Cross Validation Summary"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL
 		);
 
-		Parameters.Add_Shapes(Parameters("CV_METHOD"),
+		Parameters.Add_Shapes("CV_METHOD",
 			"CV_RESIDUALS"	, _TL("Cross Validation Residuals"),
 			_TL(""),
 			PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 		);
 
-		Parameters.Add_Int(Parameters("CV_METHOD"),
+		Parameters.Add_Int("CV_METHOD",
 			"CV_SAMPLES"	, _TL("Cross Validation Subsamples"),
 			_TL("number of subsamples for k-fold cross validation"),
 			10, 2, true
@@ -120,7 +108,7 @@ CInterpolation::CInterpolation(bool bCrossValidation, bool bMultiThreading)
 	}
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
 }
 
 
@@ -183,7 +171,7 @@ bool CInterpolation::On_Execute(void)
 		return( false );
 	}
 
-	m_pGrid->Fmt_Name("%s [%s]", Parameters("FIELD")->asString(), Get_Name().c_str());
+	m_pGrid->Fmt_Name("%s.%s [%s]", m_pPoints->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
 
 	//-----------------------------------------------------
 	if( !Interpolate() )
