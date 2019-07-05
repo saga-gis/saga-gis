@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -59,7 +56,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -82,7 +79,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Tools for the manipulation of point vector data.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Shapes|Points") );
@@ -140,12 +137,13 @@ CSG_Tool *		Create_Tool(int i)
 	case 15:	return( new CPoints_From_MultiPoints );
 	case 16:	return( new CThiessen_Polygons );
 	case 17:	return( new CGPS_Track_Aggregation );
-	case 18:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Point) );
-	case 19:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Line) );
+	case 18:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Point  ) );
+	case 19:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Line   ) );
+	case 22:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Polygon) );
 	case 20:	return( new CSnap_Points_to_Grid() );
 	case 21:	return( new CRandom_Points() );
 
-	case 22:	return( NULL );
+	case 23:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

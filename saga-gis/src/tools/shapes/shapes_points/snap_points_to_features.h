@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: snap_points_to_features.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,18 +45,18 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__snap_points_to_features_H
 #define HEADER_INCLUDED__snap_points_to_features_H
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,9 +78,9 @@ protected:
 
 private:
 
-	void				Snap_To_Point		(const TSG_Point &Point, CSG_Shape *pPoint, TSG_Point &snap_Point, double &snap_Dist);
-
-	void				Snap_To_Line		(const TSG_Point &Point, CSG_Shape *pLine , TSG_Point &snap_Point, double &snap_Dist);
+	void				Snap_To_Point		(const TSG_Point &Point, CSG_Shape *pFeature, TSG_Point &snap_Point, double &snap_Dist);
+	void				Snap_To_Line		(const TSG_Point &Point, CSG_Shape *pFeature, TSG_Point &snap_Point, double &snap_Dist);
+	void				Snap_To_Polygon		(const TSG_Point &Point, CSG_Shape *pFeature, TSG_Point &snap_Point, double &snap_Dist);
 
 };
 
