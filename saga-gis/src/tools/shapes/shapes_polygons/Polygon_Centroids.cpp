@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Polygon_Centroids.h"
 
 
@@ -72,93 +60,129 @@
 //---------------------------------------------------------
 CPolygon_Centroids::CPolygon_Centroids(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Centroids"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Creates a points layer containing the centroids of the input polygon layer."
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes(
+		"", "POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Polygon
 	);
 
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "CENTROIDS"	, _TL("Centroids"),
+	Parameters.Add_Shapes(
+		"", "CENTROIDS"	, _TL("Centroids"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Point
 	);
 
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Value(
-		NULL	, "METHOD"		, _TL("Centroids for each part"),
+	Parameters.Add_Bool(
+		"", "METHOD"	, _TL("Centroids for each part"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	//-----------------------------------------------------
+	Parameters.Add_Bool(
+		"", "INSIDE"	, _TL("Force Inside"),
+		_TL("If a centroid falls outside its polygon, then move it to the closest boundary."),
+		false
+	);
 }
-
-//---------------------------------------------------------
-CPolygon_Centroids::~CPolygon_Centroids(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPolygon_Centroids::On_Execute(void)
 {
-	bool			bPart;
-	int				iShape, iPart;
-	CSG_Shape			*pCentroid;
-	CSG_Shape_Polygon	*pPolygon;
-	CSG_Shapes			*pPolygons, *pCentroids;
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
-	pPolygons	= Parameters("POLYGONS")	->asShapes();
-	pCentroids	= Parameters("CENTROIDS")	->asShapes();
-	bPart		= Parameters("METHOD")		->asBool();
-
-	if(	pPolygons->Get_Type() == SHAPE_TYPE_Polygon && pPolygons->Get_Count() > 0 )
+	if( !pPolygons->is_Valid() || pPolygons->Get_Count() < 1 || pPolygons->Get_Type() != SHAPE_TYPE_Polygon )
 	{
-		pCentroids->Create(SHAPE_TYPE_Point, pPolygons->Get_Name(), pPolygons);
+		Error_Set(_TL("Invalid input polygons."));
 
-		//-------------------------------------------------
-		for(iShape=0; iShape<pPolygons->Get_Count(); iShape++)
-		{
-			pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iShape);
-
-			if( bPart )
-			{
-				for(iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
-				{
-					pCentroid	= pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
-					pCentroid->Add_Point(pPolygon->Get_Centroid(iPart));
-				}
-			}
-			else
-			{
-				pCentroid	= pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR);
-				pCentroid->Add_Point(pPolygon->Get_Centroid());
-			}
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	CSG_Shapes	*pCentroids	= Parameters("CENTROIDS")	->asShapes();
+
+	pCentroids->Create(SHAPE_TYPE_Point, pPolygons->Get_Name(), pPolygons);
+
+	bool	bParts	= Parameters("METHOD")->asBool();
+	bool	bInside	= Parameters("INSIDE")->asBool();
+
+	//-----------------------------------------------------
+	for(int iPolygon=0; iPolygon<pPolygons->Get_Count(); iPolygon++)
+	{
+		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)pPolygons->Get_Shape(iPolygon);
+
+		if( !bParts )
+		{
+			TSG_Point	Centroid	= pPolygon->Get_Centroid();
+
+			if( bInside ) { Force_Inside(Centroid, pPolygon); }
+
+			pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->Add_Point(Centroid);
+		}
+		else for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+		{
+			TSG_Point	Centroid	= pPolygon->Get_Centroid(iPart);
+
+			if( bInside ) { Force_Inside(Centroid, pPolygon); }
+
+			pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->Add_Point(Centroid);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPolygon_Centroids::Force_Inside(TSG_Point &Centroid, CSG_Shape_Polygon *pPolygon)
+{
+	TSG_Point	cMin;	double	dMin	= -1.;
+
+	for(int iPart=0; iPart<pPolygon->Get_Part_Count(); iPart++)
+	{
+		TSG_Point	A	= pPolygon->Get_Point(0, iPart, false);
+
+		for(int iPoint=0; iPoint<pPolygon->Get_Point_Count(iPart); iPoint++)
+		{
+			TSG_Point	C, B = A; A = pPolygon->Get_Point(iPoint, iPart);
+
+			double	d	= SG_Get_Nearest_Point_On_Line(Centroid, A, B, C, true);
+
+			if( d >= 0. && (dMin < 0. || d < dMin) )
+			{
+				dMin	= d;
+				cMin	= C;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( dMin < 0. )
+	{
+		return( false );
+	}
+
+	Centroid	= cMin;
+
+	return( true );
 }
 
 
