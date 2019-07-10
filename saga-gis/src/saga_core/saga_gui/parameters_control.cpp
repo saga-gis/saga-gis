@@ -303,9 +303,13 @@ bool CParameters_Control::Load(void)
 	{
 		CSG_File	File(&File_Path);
 
+		m_pParameters->Set_Callback(false);
+
 		if(	m_pParameters->Serialize_Compatibility(File)
 		||	m_pParameters->Serialize(&File_Path, false) )
 		{
+			m_pParameters->Set_Callback(true);
+
 			_Init_Pararameters();
 
 			_Update_Parameters();
@@ -314,6 +318,8 @@ bool CParameters_Control::Load(void)
 
 			return( true );
 		}
+
+		m_pParameters->Set_Callback(true);
 
 		DLG_Message_Show(_TL("Parameters file could not be imported."), _TL("Load Parameters"));
 	}
