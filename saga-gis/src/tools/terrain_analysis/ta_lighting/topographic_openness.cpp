@@ -131,6 +131,21 @@ CTopographic_Openness::CTopographic_Openness(void)
 		_TL(""),
 		8, 2, true
 	);
+
+	Parameters.Add_Choice(
+		"", "UNIT"		, _TL("Unit"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Radians"),
+			_TL("Degree")
+		), 0
+	);
+
+	Parameters.Add_Bool(
+		"", "NADIR"		, _TL("Difference from Nadir"),
+		_TL("If set, output angles are the mean difference from nadir, or else from a plane."),
+		true
+	);
 }
 
 
@@ -157,17 +172,19 @@ int CTopographic_Openness::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CTopographic_Openness::On_Execute(void)
 {
-	CSG_Grid	*pPos, *pNeg;
-
-	m_pDEM		= Parameters("DEM"   )->asGrid();
-	pPos		= Parameters("POS"   )->asGrid();
-	pNeg		= Parameters("NEG"   )->asGrid();
+	m_pDEM	= Parameters("DEM")->asGrid();
 
 	m_Radius	= Parameters("RADIUS")->asDouble();
 	m_Method	= Parameters("METHOD")->asInt();
 
-	DataObject_Set_Colors(pPos, 11, SG_COLORS_RED_GREY_BLUE,  true);
-	DataObject_Set_Colors(pNeg, 11, SG_COLORS_RED_GREY_BLUE, false);
+	bool	bPlane	= Parameters("NADIR")->asBool() == false;
+	bool	bDegree	= Parameters("UNIT" )->asInt() == 1;
+
+	CSG_Grid	*pPos	= Parameters("POS")->asGrid();
+	CSG_Grid	*pNeg	= Parameters("NEG")->asGrid();
+
+	DataObject_Set_Colors(pPos, 11, SG_COLORS_RED_GREY_BLUE, !bPlane);	pPos->Set_Unit(bDegree ? _TL("Degree") : _TL("Radians"));
+	DataObject_Set_Colors(pNeg, 11, SG_COLORS_RED_GREY_BLUE,  bPlane);	pNeg->Set_Unit(bDegree ? _TL("Degree") : _TL("Radians"));
 
 	//-----------------------------------------------------
 	if( m_Method == 0 )	// multi scale
@@ -208,6 +225,18 @@ bool CTopographic_Openness::On_Execute(void)
 
 				if( !m_pDEM->is_NoData(x, y) && Get_Openness(x, y, Pos, Neg) )
 				{
+					if( bPlane )
+					{
+						Pos	= M_PI_090 - Pos;
+						Neg	= M_PI_090 - Neg;
+					}
+
+					if( bDegree )
+					{
+						Pos	*= M_RAD_TO_DEG;
+						Neg	*= M_RAD_TO_DEG;
+					}
+
 					if( pPos )	pPos->Set_Value(x, y, Pos);
 					if( pNeg )	pNeg->Set_Value(x, y, Neg);
 				}
