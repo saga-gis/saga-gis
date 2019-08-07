@@ -152,8 +152,9 @@
     </Bscmake>
     <PostBuildEvent>
       <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
-copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga.bra.txt $(OutDir)saga.bra.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
+copy res\saga.rus.txt $(OutDir)saga.rus.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -222,8 +223,9 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     </Bscmake>
     <PostBuildEvent>
       <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
-copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga.bra.txt $(OutDir)saga.bra.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
+copy res\saga.rus.txt $(OutDir)saga.rus.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -292,8 +294,9 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     </Bscmake>
     <PostBuildEvent>
       <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
-copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga.bra.txt $(OutDir)saga.bra.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
+copy res\saga.rus.txt $(OutDir)saga.rus.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
@@ -361,8 +364,9 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     </Bscmake>
     <PostBuildEvent>
       <Command>copy res\saga.lng.txt $(OutDir)saga.lng.txt
-copy res\saga.ger.txt $(OutDir)saga.ger.txt
 copy res\saga.bra.txt $(OutDir)saga.bra.txt
+copy res\saga.ger.txt $(OutDir)saga.ger.txt
+copy res\saga.rus.txt $(OutDir)saga.rus.txt
 copy res\saga_tip.txt $(OutDir)saga_gui.tip
 copy res\saga_srs.txt $(OutDir)saga_prj.srs
 copy res\saga_dic.txt $(OutDir)saga_prj.dic
