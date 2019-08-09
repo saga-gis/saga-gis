@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                        pts.cpp                        //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,113 +40,144 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include <saga_api/saga_api.h>
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Shapes") );
-
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case TLB_INFO_Author:
-		return( SG_T("SAGA User Group Associaton (c) 2002-10") );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for the import and export of vector data.") );
-
-	case TLB_INFO_Version:
-		return( SG_T("1.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Shapes") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "gstat.h"
-#include "xyz.h"
-#include "generate.h"
-#include "surfer_bln.h"
-#include "atlas_bna.h"
-#include "wasp_map.h"
-#include "stl.h"
-#include "gpx.h"
-#include "pointcloud_from_file.h"
-#include "pointcloud_from_text_file.h"
-#include "svg.h"
-#include "pointcloud_to_text_file.h"
-#include "wktb.h"
-#include "citygml_import.h"
-#include "html_imagemap.h"
 #include "pts.h"
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+///////////////////////////////////////////////////////////
+//														 //
+//						Import							 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_Tool *		Create_Tool(int i)
+//---------------------------------------------------------
+CPTS_Import::CPTS_Import(void)
 {
-	switch( i )
-	{
-	case  0:	return( new CGStat_Export );
-	case  1:	return( new CGStat_Import );
-	case  2:	return( new CXYZ_Export );
-	case  3:	return( new CXYZ_Import );
-	case  4:	return( new CGenerate_Export );
-	case  5:	return( new CSurfer_BLN_Export );
-	case  6:	return( new CSurfer_BLN_Import );
-	case  7:	return( new CAtlas_BNA_Export );
-	case  8:	return( new CAtlas_BNA_Import );
-	case  9:	return( new CWASP_MAP_Export );
-	case 10:	return( new CWASP_MAP_Import );
-	case 11:	return( new CSTL_Import );
-	case 12:	return( new CSTL_Export );
-	case 13:	return( new CGPX_Import );
-	case 14:	return( new CGPX_Export );
-	case 15:	return( new CPointCloud_From_File );
-	case 16:	return( new CPointCloud_From_Text_File );
-	case 17:	return( new CSVG_Export );
-	case 18:	return( new CPointcloud_To_Text_File );
-	case 19:	return( new CWKT_Import );
-	case 20:	return( new CWKT_Export );
-	case 21:	return( new CCityGML_Import );
-	case 22:	return( new CHTML_ImageMap );
-	case 23:	return( new CPTS_Import );
+	//-----------------------------------------------------
+	Set_Name		(_TL("Import Point Cloud from PTS File"));
+
+	Set_Author		("O.Conrad (c) 2019");
+
+	Set_Description	(_TW(
+		"Imports point cloud data from a PTS file."
+	));
 
 	//-----------------------------------------------------
-	case 24:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	Parameters.Add_FilePath("",
+		"FILENAME"	, _TL("File"),
+		_TL(""),
+		CSG_String::Format("%s (*.pts)|*.pts|%s|*.*",
+			_TL("pts Files"),
+			_TL("All Files")
+		), NULL, false
+	);
+
+	Parameters.Add_PointCloud("",
+		"POINTS"	, _TL("Points"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Choice("",
+		"RGB"		, _TL("Import RGB Values as..."),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("separate values"),
+			_TL("single rgb-coded integer value")
+		), 1
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPTS_Import::On_Execute(void)
+{
+	CSG_File	Stream;
+
+	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R) )
+	{
+		Error_Set(_TL("file could not be opened"));
+
+		return( false );
 	}
+
+	//-----------------------------------------------------
+	int	RGB	= Parameters("RGB")->asInt();
+
+	CSG_PointCloud	*pPoints	= Parameters("POINTS")->asPointCloud();
+
+	pPoints->Destroy();
+
+	pPoints->Set_Name(Stream.Get_File_Name());
+
+	pPoints->Add_Field("INTENSITY", SG_DATATYPE_Short);
+
+	if( RGB == 0 )
+	{
+		pPoints->Add_Field("R", SG_DATATYPE_Byte);
+		pPoints->Add_Field("G", SG_DATATYPE_Byte);
+		pPoints->Add_Field("B", SG_DATATYPE_Byte);
+	}
+	else
+	{
+		pPoints->Add_Field("RGB", SG_DATATYPE_DWord);
+	}
+
+	//-----------------------------------------------------
+	CSG_String	sLine;
+
+	int	nPoints;
+
+	if( !Stream.Read_Line(sLine) || !sLine.asInt(nPoints) )
+	{
+		Error_Set(_TL("could not read headline"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	for(int iPoint=0; iPoint<nPoints && !Stream.is_EOF() && Set_Progress(iPoint, nPoints); iPoint++)
+	{
+		if( Stream.Read_Line(sLine) )
+		{
+			double x, y, z; int i, r, g, b;
+
+			CSG_Strings	s	= SG_String_Tokenize(sLine);
+
+		//	if( sscanf(sLine.b_str(), "%lf %lf %lf %d %d %d %d", &x, &y, &z, &i, &r, &g, &b) == 7 )
+			if( s.Get_Count() == 7
+			&&  s[0].asDouble(x) && s[1].asDouble(y) && s[2].asDouble(z)
+			&&  s[3].asInt(i) && s[4].asInt(r) && s[5].asInt(g) && s[6].asInt(b) )
+			{
+				pPoints->Add_Point(x, y, z);
+
+				pPoints->Set_Attribute(0, i);
+
+				if( RGB == 0 )
+				{
+					pPoints->Set_Attribute(1, r);
+					pPoints->Set_Attribute(2, g);
+					pPoints->Set_Attribute(3, b);
+				}
+				else
+				{
+					pPoints->Set_Attribute(1, SG_GET_RGB(r, g, b));
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( pPoints->Get_Count() > 0 );
 }
 
 
@@ -157,8 +188,3 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA

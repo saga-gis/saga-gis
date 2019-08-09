@@ -24,6 +24,7 @@ MLB_Interface.cpp\
 pointcloud_from_file.cpp\
 pointcloud_from_text_file.cpp\
 pointcloud_to_text_file.cpp\
+pts.cpp\
 stl.cpp\
 surfer_bln.cpp\
 svg.cpp\
@@ -40,6 +41,7 @@ MLB_Interface.h\
 pointcloud_from_file.h\
 pointcloud_from_text_file.h\
 pointcloud_to_text_file.h\
+pts.h\
 stl.h\
 surfer_bln.h\
 svg.h\

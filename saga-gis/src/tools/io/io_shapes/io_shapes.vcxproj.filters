@@ -62,6 +62,9 @@
     <ClCompile Include="html_imagemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -161,6 +164,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="html_imagemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

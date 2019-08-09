@@ -320,6 +320,7 @@
     <ClCompile Include="pointcloud_from_file.cpp" />
     <ClCompile Include="pointcloud_from_text_file.cpp" />
     <ClCompile Include="pointcloud_to_text_file.cpp" />
+    <ClCompile Include="pts.cpp" />
     <ClCompile Include="stl.cpp" />
     <ClCompile Include="surfer_bln.cpp" />
     <ClCompile Include="svg.cpp" />
@@ -355,6 +356,7 @@
     <ClInclude Include="pointcloud_from_file.h" />
     <ClInclude Include="pointcloud_from_text_file.h" />
     <ClInclude Include="pointcloud_to_text_file.h" />
+    <ClInclude Include="pts.h" />
     <ClInclude Include="stl.h" />
     <ClInclude Include="surfer_bln.h" />
     <ClInclude Include="svg.h" />
