@@ -12,7 +12,7 @@
 //                                                       //
 //                     my_tool.cpp                       //
 //                                                       //
-//                 Copyright (C) 2017 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Hein Bloed                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "my_tool.h"
 
 
@@ -69,11 +60,18 @@ CMy_Tool::CMy_Tool(void)
 {
 	Set_Name		(_TL("My Tool"));
 
-	Set_Author		("H.Bloed (c) 2017");
+	Set_Author		("H.Bloed (c) 2019");
 
 	Set_Description	(_TW(
 		"My tool description. "
 	));
+
+	Add_Reference(
+		"Conrad, O., Bechtel, B., Bock, M., Dietrich, H., Fischer, E., Gerlitz, L., Wehberg, J., Wichmann, V., and Boehner, J.",
+		"2015", "System for Automated Geoscientific Analyses (SAGA) v. 2.1.4",
+		"Geosci. Model Dev., 8, 1991-2007.",
+		SG_T("https://www.geosci-model-dev.net/8/1991/2015/gmd-8-1991-2015.html"), SG_T("doi:10.5194/gmd-8-1991-2015.")
+	);
 
 	Parameters.Add_Double("",
 		"VALUE"	, _TL("Value"),

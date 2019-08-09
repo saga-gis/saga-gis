@@ -12,7 +12,7 @@
 //                                                       //
 //                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2017 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Hein Bloed                       //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//             The Tool Library Interface                //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include "TLB_Interface.h"
@@ -74,7 +65,7 @@ CSG_String Get_Info(int i)
 		return( _TL("My Tool Libraries") );
 
 	case TLB_INFO_Author:
-		return( "Hein Bloed (c) 2017" );
+		return( "Hein Bloed (c) 2019" );
 
 	case TLB_INFO_Description:
 		return( _TL("Hein Bloed's tools.") );
@@ -83,7 +74,7 @@ CSG_String Get_Info(int i)
 		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
-		return( _TL("My Tools|My Submenu") );
+		return( _TL("My Tools|My Tools Submenu") );
 	}
 }
 
