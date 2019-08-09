@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_viewer_pointcloud.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -129,7 +117,7 @@ END_EVENT_TABLE()
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_PointCloud *pPoints, int cField)
+C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_PointCloud *pPoints, int Field_Color)
 	: CSG_3DView_Panel(pParent)
 {
 	m_pPoints	= pPoints;
@@ -144,88 +132,83 @@ C3D_Viewer_PointCloud_Panel::C3D_Viewer_PointCloud_Panel(wxWindow *pParent, CSG_
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode, *pNode_1;
-
-	//-----------------------------------------------------
-	pNode	= m_Parameters("NODE_GENERAL");
-
-	m_Parameters.Add_Value(
-		pNode	, "Z_SCALE"			, _TL("Exaggeration"),
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"Z_SCALE"		, _TL("Exaggeration"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0
+		1.
 	);
 
 	//-----------------------------------------------------
-	pNode	= m_Parameters.Add_Node(
-		NULL	, "NODE_VIEW"		, _TL("Point View Settings"),
+	m_Parameters.Add_Node("",
+		"NODE_VIEW"		, _TL("Point View Settings"),
 		_TL("")
 	);
 
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "DETAIL"			, _TL("Level of Detail"),
+	m_Parameters.Add_Double("NODE_VIEW",
+		"DETAIL"		, _TL("Level of Detail"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 100.0, 0.0, true, 100.0, true
+		100., 0., true, 100., true
 	);
 
-	pNode_1	= m_Parameters.Add_Choice(
-		pNode	, "COLORS_ATTR"		, _TL("Colour Attribute"),
+	m_Parameters.Add_Choice("NODE_VIEW",
+		"COLORS_ATTR"	, _TL("Colour Attribute"),
 		_TL(""),
-		Attributes, cField
+		Attributes, Field_Color
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "VAL_AS_RGB"		, _TL("RGB Values"),
+	m_Parameters.Add_Bool("COLORS_ATTR",
+		"VAL_AS_RGB"	, _TL("RGB Values"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Colors(
-		pNode_1	, "COLORS"			, _TL("Colours"),
+	m_Parameters.Add_Colors("COLORS_ATTR",
+		"COLORS"		, _TL("Colours"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Value(
-		pNode_1	, "COLORS_GRAD"		, _TL("Graduated"),
+	m_Parameters.Add_Bool("COLORS_ATTR",
+		"COLORS_GRAD"	, _TL("Graduated"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	m_Parameters.Add_Range(
-		pNode_1	, "COLORS_RANGE"	, _TL("Value Range"),
+	m_Parameters.Add_Range("COLORS_ATTR",
+		"COLORS_RANGE"	, _TL("Value Range"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	pNode_1	= m_Parameters.Add_Value(
-		pNode	, "DIM"				, _TL("Dim"),
+	m_Parameters.Add_Bool("NODE_VIEW",
+		"DIM"			, _TL("Dim"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 
-	m_Parameters.Add_Range(
-		pNode_1	, "DIM_RANGE"		, _TL("Distance Range"),
+	m_Parameters.Add_Range("DIM",
+		"DIM_RANGE"		, _TL("Distance Range"),
 		_TL(""),
-		0.0, 1.0, 0.0, true
-	);
-
-	//-----------------------------------------------------
-	m_Parameters.Add_Value(
-		pNode	, "SIZE"			, _TL("Size"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 2, 1, true
-	);
-
-	m_Parameters.Add_Value(
-		pNode	, "SIZE_SCALE"		, _TL("Size Scaling"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 250.0, 0.0, true
+		0., 1., 0., true
 	);
 
 	//-----------------------------------------------------
-	m_Parameters.Add_Choice(
-		pNode	, "OVERVIEW_ATTR"	, _TL("Overview Content"),
+	m_Parameters.Add_Int("NODE_VIEW",
+		"SIZE"			, _TL("Size"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		2, 1, true
+	);
+
+	m_Parameters.Add_Double("NODE_VIEW",
+		"SIZE_SCALE"	, _TL("Size Scaling"),
+		_TL(""),
+		250., 0., true
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Choice("NODE_VIEW",
+		"OVERVIEW_ATTR"	, _TL("Overview Content"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
 			_TL("average value"),
 			_TL("number of points")
 		), 0
@@ -249,13 +232,13 @@ int C3D_Viewer_PointCloud_Panel::On_Parameters_Enable(CSG_Parameters *pParameter
 {
 	if( pParameter->Cmp_Identifier("VAL_AS_RGB") )
 	{
-		pParameters->Get_Parameter("COLORS"      )->Set_Enabled(pParameter->asBool() == false);
-		pParameters->Get_Parameter("COLORS_RANGE")->Set_Enabled(pParameter->asBool() == false);
+		pParameters->Set_Enabled("COLORS"      , pParameter->asBool() == false);
+		pParameters->Set_Enabled("COLORS_RANGE", pParameter->asBool() == false);
 	}
 
 	if( pParameter->Cmp_Identifier("DIM") )
 	{
-		pParameters->Get_Parameter("DIM_RANGE")->Set_Enabled(pParameter->asBool());
+		pParameters->Set_Enabled("DIM_RANGE"   , pParameter->asBool());
 	}
 
 	return( CSG_3DView_Panel::On_Parameters_Enable(pParameters, pParameter) );
@@ -440,9 +423,9 @@ bool C3D_Viewer_PointCloud_Panel::On_Draw(void)
 
 	m_Colors		= *m_Parameters("COLORS")->asColors();
 	m_Color_bGrad	= m_Parameters("COLORS_GRAD")->asBool();
-	m_Color_Min		= m_Parameters("COLORS_RANGE")->asRange()->Get_Min();
-	m_Color_Scale	= m_Parameters("VAL_AS_RGB")->asBool() ? 0.0 :
-		m_Colors.Get_Count() / (m_Parameters("COLORS_RANGE")->asRange()->Get_Max() - m_Color_Min);
+	m_Color_Min		= m_Parameters("COLORS_RANGE.MIN")->asDouble();
+	m_Color_Scale	= m_Parameters("COLORS_RANGE.MAX")->asDouble() - m_Color_Min;
+	m_Color_Scale	= m_Parameters("VAL_AS_RGB")->asBool() || m_Color_Scale <= 0.0 ? 0.0 : m_Colors.Get_Count() / m_Color_Scale;
 
 	if( m_Parameters("DIM")->asBool() )
 	{
@@ -947,14 +930,14 @@ C3D_Viewer_PointCloud::C3D_Viewer_PointCloud(void)
 	));
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_PointCloud(
-		NULL	, "POINTS"	, _TL("Point Cloud"),
+	Parameters.Add_PointCloud("",
+		"POINTS"	, _TL("Point Cloud"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "COLOR"	, _TL("Color"),
+	Parameters.Add_Table_Field("POINTS",
+		"COLOR"		, _TL("Color"),
 		_TL("")
 	);
 }
