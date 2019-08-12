@@ -15,6 +15,9 @@ Cost_Isotropic.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
 diversity_analysis.cpp\
+diversity_raos_q.cpp\
+diversity_shannon.cpp\
+diversity_simpson.cpp\
 fragmentation_base.cpp\
 fragmentation_classify.cpp\
 fragmentation_resampling.cpp\
@@ -35,6 +38,9 @@ Cost_Isotropic.h\
 CoveredDistance.h\
 CrossClassification.h\
 diversity_analysis.h\
+diversity_raos_q.h\
+diversity_shannon.h\
+diversity_simpson.h\
 fragmentation_base.h\
 fragmentation_classify.h\
 fragmentation_resampling.h\

@@ -332,6 +332,9 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="diversity_analysis.cpp" />
+    <ClCompile Include="diversity_raos_q.cpp" />
+    <ClCompile Include="diversity_shannon.cpp" />
+    <ClCompile Include="diversity_simpson.cpp" />
     <ClCompile Include="fragmentation_base.cpp" />
     <ClCompile Include="fragmentation_classify.cpp" />
     <ClCompile Include="fragmentation_resampling.cpp" />
@@ -426,6 +429,9 @@
     <ClInclude Include="CoveredDistance.h" />
     <ClInclude Include="CrossClassification.h" />
     <ClInclude Include="diversity_analysis.h" />
+    <ClInclude Include="diversity_raos_q.h" />
+    <ClInclude Include="diversity_shannon.h" />
+    <ClInclude Include="diversity_simpson.h" />
     <ClInclude Include="fragmentation_base.h" />
     <ClInclude Include="fragmentation_classify.h" />
     <ClInclude Include="fragmentation_resampling.h" />

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -57,7 +54,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -114,6 +111,9 @@ CSG_String Get_Info(int i)
 #include "Grid_IMCORR.h"
 
 #include "diversity_analysis.h"
+#include "diversity_shannon.h"
+#include "diversity_simpson.h"
+#include "diversity_raos_q.h"
 
 
 //---------------------------------------------------------
@@ -148,8 +148,12 @@ CSG_Tool *		Create_Tool(int i)
 	case 19:	return( new CGrid_IMCORR );
 
 	case 21:	return( new CDiversity_Analysis );
+	case 22:	return( new CDiversity_Shannon );
+	case 23:	return( new CDiversity_Simpson );
+	case 24:	return( new CDiversity_Raos_Q_Classic );
+	case 25:	return( new CDiversity_Raos_Q );
 
-	case 22:	return( NULL );
+	case 26:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

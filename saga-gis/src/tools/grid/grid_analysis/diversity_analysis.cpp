@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: diversity_analysis.cpp 2476 2015-04-22 18:41:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "diversity_analysis.h"
 
 
@@ -83,70 +71,56 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "CATEGORIES"		, _TL("Categories"),
+	Parameters.Add_Grid("",
+		"CATEGORIES"	, _TL("Categories"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "COUNT"			, _TL("Number of Categories"),
+	Parameters.Add_Grid("",
+		"COUNT"			, _TL("Number of Categories"),
 		_TL("number of different categories (unique values) within search area"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DIVERSITY"		, _TL("Diversity"),
+	Parameters.Add_Grid("",
+		"DIVERSITY"		, _TL("Diversity"),
 		_TL("distance weighted average of the number of different categories for distance classes"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CONNECTIVITY"	, _TL("Connectivity"),
+	Parameters.Add_Grid("",
+		"CONNECTIVITY"	, _TL("Connectivity"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "CONNECTEDAVG"	, _TL("Averaged Connectivity"),
+	Parameters.Add_Grid("",
+		"CONNECTEDAVG"	, _TL("Averaged Connectivity"),
 		_TL("average size of the area covered by each category that occurs within search area"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SEARCH_MODE"		, _TL("Search Mode"),
+	Parameters.Add_Choice("",
+		"NB_CASE"		, _TL("Connectivity Neighbourhood"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Value(
-		NULL	, "SEARCH_RADIUS"	, _TL("Search Distance"),
-		_TL("Search distance given as number cells."),
-		PARAMETER_TYPE_Int, 3, 1, true
-	);
-
-	Parameters.Add_Choice(
-		NULL	, "NB_CASE"			, _TL("Connectivity Neighbourhood"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Rook's case"),
 			_TL("Queen's case")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "NORMALIZE"		, _TL("Normalize"),
+	Parameters.Add_Choice("",
+		"NORMALIZE"		, _TL("Normalize"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
 			_TL("by number of cells"),
 			_TL("by area size")
 		), 0
 	);
 
+	m_Search.Add_Parameters(Parameters);
 	m_Search.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
 	m_Search.Get_Weighting().Set_BandWidth(0.7);
 	m_Search.Get_Weighting().Create_Parameters(&Parameters, false);
@@ -192,8 +166,8 @@ bool CDiversity_Analysis::On_Execute(void)
 
 	//-----------------------------------------------------
 	m_Search.Get_Weighting().Set_Parameters(&Parameters);
-	m_Search.Get_Weighting().Set_BandWidth(Parameters("SEARCH_RADIUS")->asDouble() * m_Search.Get_Weighting().Get_BandWidth());
-	m_Search.Set_Radius(m_Radius = Parameters("SEARCH_RADIUS")->asInt(), Parameters("SEARCH_MODE")->asInt() == 0);
+	m_Search.Set_Parameters(Parameters);
+	m_Search.Get_Weighting().Set_BandWidth(m_Search.Get_Radius() * m_Search.Get_Weighting().Get_BandWidth());
 
 	m_NB_Step	= Parameters("NB_CASE"  )->asInt() == 0 ? 2 : 1;
 	m_Normalize	= Parameters("NORMALIZE")->asInt();
@@ -201,7 +175,9 @@ bool CDiversity_Analysis::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#ifndef _DEBUG
 		#pragma omp parallel for
+		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
 			if( !Get_Diversity(x, y) )
@@ -244,14 +220,15 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 	}
 
 	//-----------------------------------------------------
-	CCounter	*Counters	= new CCounter[m_Radius + 1];
-	int			iRadius		= 0;
+	int	iRadius = 0, Radius = (int)m_Search.Get_Radius();
+
+	CCounter	*Counters	= new CCounter[Radius + 1];
 
 	CSG_Unique_Number_Statistics	Classes;
 
 	for(int iCell=0; iCell<m_Search.Get_Count(); iCell++)
 	{
-		if( iRadius < m_Search.Get_Distance(iCell) && iRadius < m_Radius )
+		if( iRadius < m_Search.Get_Distance(iCell) && iRadius < Radius )
 		{
 			Counters[iRadius++].m_nClasses	= Classes.Get_Count();
 		}
@@ -292,7 +269,7 @@ bool CDiversity_Analysis::Get_Diversity(int x, int y)
 
 	CSG_Simple_Statistics	sClasses, sConnectivity;
 
-	for(iRadius=0; iRadius<=m_Radius; iRadius++)
+	for(iRadius=0; iRadius<=Radius; iRadius++)
 	{
 		if( Counters[iRadius].m_nClasses > 0 )
 		{

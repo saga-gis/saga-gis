@@ -3,22 +3,22 @@
 //                                                       //
 //                         SAGA                          //
 //                                                       //
-//    System for an Automated Geo-Scientific Analysis    //
+//      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    grid_analysis                      //
+//                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    Soil_Texture.h                     //
+//                  diversity_simpson.h                  //
 //                                                       //
-//                 Copyright (C) 2007 by                 //
-//                   Gianluca Massei                     //
+//                 Copyright (C) 2019 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-// This file is part of 'SAGA - System for an Automated  //
-// Geo-Scientific Analysis'. SAGA is free software; you  //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
 // can redistribute it and/or modify it under the terms  //
 // of the GNU General Public License as published by the //
 // Free Software Foundation, either version 2 of the     //
@@ -36,23 +36,23 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     g_massa@libero.it				     	 //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Gianluca Massei                        //
-//                Department of Economics and Appraisal  //
-//                University of Perugia - Italy			 //
-//                www.unipg.it                           //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Soil_Texture_H
-#define HEADER_INCLUDED__Soil_Texture_H
+#ifndef HEADER_INCLUDED__diversity_simpson_H
+#define HEADER_INCLUDED__diversity_simpson_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -62,57 +62,43 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CSoil_Texture : public CSG_Tool_Grid
+class CDiversity_Simpson : public CSG_Tool_Grid
 {
 public:
-	CSoil_Texture(void);
+	CDiversity_Simpson(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Soil Analysis") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Diversity") );	}
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
+
+
+private:
+
+	CSG_Grid					*m_pClasses;
+
+	CSG_Grid_Cell_Addressor		m_Kernel;
+
+
+	bool						Get_Index				(int x, int y, int &Count, double &Index);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CSoil_Texture_Table : public CSG_Tool
-{
-public:
-	CSoil_Texture_Table(void);
-
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Soil Analysis") );	}
-
-
-protected:
-
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool			On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Soil_Texture_H
+#endif // #ifndef HEADER_INCLUDED__diversity_simpson_H

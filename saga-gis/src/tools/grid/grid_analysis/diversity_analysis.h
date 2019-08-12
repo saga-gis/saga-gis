@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: diversity_analysis.h 2476 2015-04-22 18:41:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__diversity_analysis_H
 #define HEADER_INCLUDED__diversity_analysis_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -84,6 +72,8 @@ class CDiversity_Analysis : public CSG_Tool_Grid
 public:
 	CDiversity_Analysis(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Diversity") );	}
+
 
 protected:
 
@@ -94,11 +84,11 @@ protected:
 
 private:
 
-	int							m_Radius, m_NB_Step, m_Normalize;
-
-	CSG_Grid					*m_pClasses, *m_pCount, *m_pDiversity, *m_pConnectivity, *m_pConnectedAvg;
+	int							m_NB_Step, m_Normalize;
 
 	CSG_Grid_Cell_Addressor		m_Search;
+
+	CSG_Grid					*m_pClasses, *m_pCount, *m_pDiversity, *m_pConnectivity, *m_pConnectedAvg;
 
 
 	bool						Get_Diversity			(int x, int y);
