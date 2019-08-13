@@ -105,7 +105,7 @@ private:
 
 	bool						Get_Graticule			(const CSG_Rect &Extent);
 
-	CSG_String					Get_Unit				(double Value, int Unit, bool bLatitude);
+	CSG_String					Get_Unit				(CSG_Shape *pPoint, int Units, int Decimals, bool bLatitude);
 
 };
 

@@ -176,10 +176,17 @@ CWKSP_Map_Graticule::CWKSP_Map_Graticule(CSG_MetaData *pEntry)
 	m_Parameters.Add_Choice("LABEL",
 		"LABEL_UNITS"	, _TL("Units"),
 		_TL(""),
-		CSG_String::Format("%s|%s",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Decimal Degrees"),
-			_TL("Degrees, Minutes, Seconds")
+			_TL("Degrees, Minutes, Seconds"),
+			_TL("Degrees, Minutes, Seconds (significant)")
 		), 0
+	);
+
+	m_Parameters.Add_Int("LABEL",
+		"LABEL_DECIMALS", _TL("Decimals"),
+		_TL("Maximum number of decimals of a second to be printed."),
+		2, 1, true
 	);
 
 	m_Parameters.Add_Font("LABEL",
@@ -390,10 +397,7 @@ int CWKSP_Map_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 
 		if(	pParameter->Cmp_Identifier("LABEL") )
 		{
-			pParameters->Set_Enabled("LABEL_FONT"  , pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_SIZE"  , pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_EFFECT", pParameter->asBool());
-			pParameters->Set_Enabled("LABEL_EFFCOL", pParameter->asBool());
+			pParameter->Set_Children_Enabled(pParameter->asBool());
 		}
 	}
 
@@ -535,7 +539,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 
 		if( Size > 2 )
 		{
-			int			Effect, Units	= m_Parameters("LABEL_UNITS")->asInt();
+			int			Effect, Units	= m_Parameters("LABEL_UNITS")->asInt(), Decimals = m_Parameters("LABEL_DECIMALS")->asInt();
 			wxColour	Effect_Color	= Get_Color_asWX(m_Parameters("LABEL_EFFCOL")->asInt());
 			wxFont		Font	= Get_Font(m_Parameters("LABEL_FONT"));
 
@@ -571,12 +575,7 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 							: !Type.Cmp("LON_MAX") ? TEXTALIGN_TOPCENTER
 							: TEXTALIGN_CENTER;
 
-				CSG_String	Coordinate;
-				
-				if( Units == 0 )
-					Coordinate	= pPoint->asString(1);
-				else
-					Coordinate	= Get_Unit(pPoint->asDouble(1), Units, (Align & TEXTALIGN_YCENTER) != 0);
+				CSG_String	Coordinate(Get_Unit(pPoint, Units, Decimals, (Align & TEXTALIGN_YCENTER) != 0));
 
 				Draw_Text(dc.dc, Align, p.x, p.y, 0.0, Coordinate.c_str(), Effect, Effect_Color);
 			}
@@ -596,57 +595,62 @@ bool CWKSP_Map_Graticule::Draw(CWKSP_Map_DC &dc_Map)
 
 
 //---------------------------------------------------------
-CSG_String CWKSP_Map_Graticule::Get_Unit(double Value, int Unit, bool bLatitude)
+CSG_String CWKSP_Map_Graticule::Get_Unit(CSG_Shape *pPoint, int Units, int Decimals, bool bLatitude)
 {
-	//-----------------------------------------------------
-	if( Unit == 0 )	// decimal degrees
-	{
-		return( SG_Get_String(Value, -99) );
-	}
+	double	Value	= pPoint->asDouble(1);
 
-	//-----------------------------------------------------
-	SG_Char	c;
+	const SG_Char	*D	= SG_T("\xb0");
 
-	if( Value < 0. )
-	{
-		Value	= -Value;
-		c		= bLatitude ? SG_T('S') : SG_T('W');
-	}
-	else
-	{
-		c		= bLatitude ? SG_T('N') : SG_T('E');
-	}
-
-	Value	= fmod(Value, 360.);
-	int d	= (int)Value;
-	Value	= (Value - d) * 60.;
-	int h	= (int)Value;
-	Value	= (Value - h) * 60.;
-	int s	= (int)Value;
-	Value	= (Value - s);
+	const SG_Char	*C	= bLatitude
+		? (Value < 0. ? SG_T("S") : SG_T("N"))
+		: (Value > 0. ? SG_T("E") : SG_T("W"));
 
 	CSG_String	String;
 
-	if( Value > 0. )
+	//-----------------------------------------------------
+	if( Units == 0 )	// decimal degrees
 	{
-		int	n	= SG_Get_Significant_Decimals(Value, 4);
-
-		String.Printf("%d\xb0%02d'%02d.%d''", d, h, s, (int)(Value * pow(10, n)));
-	}
-	else if( s > 0 )
-	{
-		String.Printf("%d\xb0%02d'%02d''"   , d, h, s);
-	}
-	else if( h > 0 )
-	{
-		String.Printf("%d\xb0%02d'"         , d, h);
-	}
-	else
-	{
-		String.Printf("%d\xb0"              , d);
+		String.Printf("%s%s", pPoint->asString(1) + (Value < 0 ? 1 : 0), D);
 	}
 
-	String	+= c;
+	//-----------------------------------------------------
+	else				// degrees, minutes, seconds
+	{
+		if( Value < 0. )
+		{
+			Value	= -Value;
+		}
+
+		Value	= fmod(Value, 360.);
+		int d	= (int)Value;
+		Value	= (Value - d) * 60.;
+		int h	= (int)Value;
+		Value	= (Value - h) * 60.;
+		int s	= (int)Value;
+		Value	= (Value - s);
+
+		//-------------------------------------------------
+		if( Value > 0. )	// floating point remainder
+		{
+			int	n	= SG_Get_Significant_Decimals(Value, Decimals);
+
+			String.Printf("%d%s%02d'%02d.%d''", d, D, h, s, (int)(Value * pow(10, n)));
+		}
+		else if( s > 0 || Units == 1 )
+		{
+			String.Printf("%d%s%02d'%02d''"   , d, D, h, s);
+		}
+		else if( h > 0 )
+		{
+			String.Printf("%d%s%02d'"         , d, D, h);
+		}
+		else
+		{
+			String.Printf("%d%s"              , d, D);
+		}
+	}
+
+	String	+= C;
 
 	return( String );
 }
