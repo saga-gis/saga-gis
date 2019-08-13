@@ -90,7 +90,7 @@ protected:
 	int							m_iSize, m_Size_Type, m_Size_Scale, m_Symbol_Type, m_iLabel_Angle, m_Label_Align,
 								m_Image_Field, m_Image_Align, m_Image_Fit, m_Beachball[3];
 
-	double						m_Size, m_dSize, m_Size_Min, m_Label_Angle, m_Image_Offset, m_Image_Scale;
+	double						m_Size, m_dSize, m_Size_Min, m_Label_Offset, m_Label_Angle, m_Image_Offset, m_Image_Scale;
 
 	wxColour					m_Sel_Color_Fill;
 

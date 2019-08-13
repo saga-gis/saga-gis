@@ -259,6 +259,12 @@ void CWKSP_Shapes_Point::On_Create_Parameters(void)
 		), 0
 	);
 
+	m_Parameters.Add_Double("LABEL_ATTRIB",
+		"LABEL_OFFSET"		, _TL("Offset"),
+		_TL("Offset distance to symbol (either screen or map units)."),
+		0., 0., true
+	);
+
 
 	//-----------------------------------------------------
 	// Size...
@@ -397,13 +403,6 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	}
 
 	//-----------------------------------------------------
-	m_Label_Angle	= m_Parameters("LABEL_ANGLE")->asDouble();
-
-	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
-	{
-		m_iLabel_Angle	= -1;
-	}
-
 	switch( m_Parameters("LABEL_ALIGN_X")->asInt() )
 	{
 	default: m_Label_Align  = TEXTALIGN_LEFT   ; break;
@@ -416,6 +415,13 @@ void CWKSP_Shapes_Point::On_Parameters_Changed(void)
 	default: m_Label_Align |= TEXTALIGN_TOP    ; break;
 	case  1: m_Label_Align |= TEXTALIGN_YCENTER; break;
 	case  2: m_Label_Align |= TEXTALIGN_BOTTOM ; break;
+	}
+
+	m_Label_Angle	= m_Parameters("LABEL_ANGLE" )->asDouble();
+
+	if( (m_iLabel_Angle	= m_Parameters("LABEL_ANGLE_ATTRIB")->asInt()) >= Get_Shapes()->Get_Field_Count() )
+	{
+		m_iLabel_Angle	= -1;
 	}
 
 	//-----------------------------------------------------
@@ -490,7 +496,7 @@ int CWKSP_Shapes_Point::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 
 		if(	pParameter->Cmp_Identifier("IMAGE_FIELD") )
 		{
-			pParameter->Set_Children_Enabled(pParameter->asInt() >= 0);
+			pParameter->Set_Children_Enabled(pParameter->asInt() < Get_Shapes()->Get_Field_Count());
 		}
 	}
 
@@ -580,6 +586,18 @@ inline bool CWKSP_Shapes_Point::Draw_Initialize(CWKSP_Map_DC &dc_Map, int &Size,
 		if( !m_bOutline )
 		{
 			wxPen	Pen  (m_Pen  );	Pen  .SetColour(SG_GET_R(Color), SG_GET_G(Color), SG_GET_B(Color)); dc_Map.dc.SetPen(Pen);
+		}
+	}
+
+	//-----------------------------------------------------
+	m_Label_Offset	= m_Parameters("LABEL_OFFSET")->asDouble();
+
+	if( m_Label_Offset > 0. )
+	{
+		switch( m_Parameters("LABEL_ATTRIB_SIZE_TYPE")->asInt() )
+		{
+		default: m_Label_Offset *= dc_Map.m_Scale   ; break;
+		case  1: m_Label_Offset *= dc_Map.m_World2DC; break;
 		}
 	}
 
@@ -675,6 +693,15 @@ void CWKSP_Shapes_Point::Draw_Shape(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, int
 void CWKSP_Shapes_Point::Draw_Label(CWKSP_Map_DC &dc_Map, CSG_Shape *pShape, const wxString &Label)
 {
 	TSG_Point_Int	p(dc_Map.World2DC(pShape->Get_Point(0)));
+
+	if( m_Label_Offset > 0. )
+	{
+		if( (m_Label_Align  & TEXTALIGN_LEFT   ) != 0 ) p.x += m_Label_Offset; else
+		if( (m_Label_Align  & TEXTALIGN_RIGHT  ) != 0 ) p.x -= m_Label_Offset;
+
+		if( (m_Label_Align  & TEXTALIGN_TOP    ) != 0 ) p.y += m_Label_Offset; else
+		if( (m_Label_Align  & TEXTALIGN_BOTTOM ) != 0 ) p.y -= m_Label_Offset;
+	}
 
 	double	Angle	= m_iLabel_Angle < 0 ? m_Label_Angle : pShape->asDouble(m_iLabel_Angle);
 
