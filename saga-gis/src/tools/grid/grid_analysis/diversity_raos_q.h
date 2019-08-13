@@ -131,7 +131,7 @@ private:
 
 	bool						Get_Values				(int x, int y, CSG_Vector &Values);
 
-	double						Get_Distance			(const CSG_Vector Values[2]);
+	double						Get_Distance			(double *A, double *B);
 
 	bool						Get_Index				(int x, int y, int &Count, double &Index);
 

@@ -193,31 +193,28 @@ bool CDiversity_Raos_Q_Classic::Get_Index(int x, int y, int &Count, double &Inde
 	}
 
 	//-----------------------------------------------------
+	Index	= 0.;
 	Count	= Values.Get_Count();
 
-	if( Count <= 1 )
+	if( Count < 2 )
 	{
-		Index	= 0.;
-
 		return( true );
 	}
 
 	//-----------------------------------------------------
-	Index	= 0.;
-
-	for(int i=0; i<Values.Get_Count(); i++)
+	for(int i=0; i<Count-1; i++)
 	{
 		double	pi	= Values.Get_Count(i) / (double)nTotal;	// relative proportion of class members
 		double	vi	= Values.Get_Value(i);
 
-		for(int j=i+1; j<Values.Get_Count(); j++)
+		for(int j=i+1; j<Count; j++)
 		{
 			double	pj	= Values.Get_Count(j) / (double)nTotal;	// relative proportion of class members
 			double	vj	= Values.Get_Value(j);
 
 			double	d	= fabs(vi - vj);
 
-			Index	+= d * pi * pj;
+			Index	+= 2. * d * pi * pj;
 		}
 	}
 
@@ -403,14 +400,14 @@ inline bool CDiversity_Raos_Q::Get_Values(int x, int y, CSG_Vector &Values)
 }
 
 //---------------------------------------------------------
-inline double CDiversity_Raos_Q::Get_Distance(const CSG_Vector V[2])
+inline double CDiversity_Raos_Q::Get_Distance(double *A, double *B)
 {
 	double	Distance	= 0.;
 
-	for(int i=0; i<V->Get_N(); i++)
+	for(int i=0; i<m_pValues->Get_Grid_Count(); i++)
 	{
-		double	a	= V[0][i];
-		double	b	= V[1][i];
+		double	a	= A[i];
+		double	b	= B[i];
 
 		switch( m_Distance )
 		{
@@ -454,43 +451,45 @@ inline double CDiversity_Raos_Q::Get_Distance(const CSG_Vector V[2])
 //---------------------------------------------------------
 bool CDiversity_Raos_Q::Get_Index(int x, int y, int &Count, double &Index)
 {
-	CSG_Vector	Values[2];
+	CSG_Vector	v;
 
-	if( !Get_Values(x, y, Values[0]) )	// no-data at x, y ?!
+	if( !Get_Values(x, y, v) )	// no-data at x, y ?!
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	int	nTotal	= 0;
+	CSG_Matrix	Values;
 
-	Index	= 0.;
-
-	for(int i=0; i<m_Kernel.Get_Count(); i++)
+	for(int iCell=0; iCell<m_Kernel.Get_Count(); iCell++)
 	{
-		if( Get_Values(m_Kernel.Get_X(i, x), m_Kernel.Get_Y(i, y), Values[0]) )
+		if( Get_Values(m_Kernel.Get_X(iCell, x), m_Kernel.Get_Y(iCell, y), v) )
 		{
-			for(int j=i+1; j<m_Kernel.Get_Count(); j++)
-			{
-				if( Get_Values(m_Kernel.Get_X(j, x), m_Kernel.Get_Y(j, y), Values[1]) )
-				{
-					Index	+= Get_Distance(Values);
-
-					nTotal	++;
-				}
-			}
+			Values.Add_Row(v);
 		}
 	}
 
 	//-----------------------------------------------------
-	if( nTotal > 0 )
-	{
-		Index	/= SG_Get_Square(nTotal);
+	Index	= 0.;
 
+	if( Values.Get_NRows() < 2 )
+	{
 		return( true );
 	}
 
-	return( false );
+	//-----------------------------------------------------
+	double	d	= 2. / SG_Get_Square(Values.Get_NRows());
+
+	for(int i=0; i<Values.Get_NRows()-1; i++)
+	{
+		for(int j=i+1; j<Values.Get_NRows(); j++)
+		{
+			Index	+= d * Get_Distance(Values[i], Values[j]);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
