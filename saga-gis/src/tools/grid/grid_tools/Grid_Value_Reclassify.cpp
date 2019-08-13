@@ -76,110 +76,106 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	//-----------------------------------------------------
 	Set_Name(_TL("Reclassify Grid Values"));
 
-	Set_Author(_TL("Copyrights (c) 2005 by Volker Wichmann"));
+	Set_Author(_TL("V. Wichmann (c) 2005-19"));
 
 	Set_Description	(_TW(
 		"The tool can be used to reclassify the values of a grid. It provides three different options:\n"
 		"(a) reclassification of single values\n"
 		"(b) reclassification of a range of values\n"
-		"(c) reclassification of value ranges specified in a lookup table\n\n"
-		"In addition to these methods, two special cases (NoData values and values not included in the "
+		"(c) reclassification of value ranges specified in a lookup table (simple or user supplied table)\n\n"
+		"In addition to these methods, two special cases (No Data values and values not included in the "
 		"reclassification setup) are supported.\n"
-		"With reclassification mode (a) and (b), the 'NoData option' is evaluated before the 'Method' "
-		"settings. In reclassification mode (c) the option is evaluated only if the NoData value is not "
+		"With reclassification mode (a) and (b), the 'No Data' option is evaluated before the 'Method' "
+		"settings. In reclassification mode (c) the option is evaluated only if the No Data value is not "
 		"included in the lookup table.\n"
-		"The 'other values' option is always evaluated after checking the 'Method' settings.\n\n"
-		"The tool allows one to define the NoData value of the output grid (header): by default, the "
-		"output grid gets assigned the NoData value of the input grid. But it is also possible to "
-		"assign a user defined NoData value.\n\n"
+		"The 'Other Values' option is always evaluated after checking the 'Method' settings.\n\n"
+		"The tool also provides options to control the data storage type and No Data value of the "
+		"output grid.\n\n"
 	));
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "INPUT"		,_TL("Grid"),
-		_TL("Grid to reclassify"),
+	Parameters.Add_Grid("",
+		"INPUT"		,_TL("Grid"),
+		_TL("Grid to reclassify."),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Reclassified Grid"),
+	Parameters.Add_Grid("",
+		"RESULT"	, _TL("Reclassified Grid"),
 		_TL("Reclassified grid."),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
-		_TL("Select the desired method: 1. a single value or a range defined by a single value is reclassified, 2. a range of values is reclassified, 3. the lookup table is used to reclassify the grid."),
-		_TL("single|range|simple table|user supplied table|"), 0
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Method"),
+		_TL("Select the desired method: (1) a single value or a range defined by a single value is reclassified, (2) a range of values is reclassified, (3) and (4) a lookup table is used to reclassify the grid."),
+		_TL("single|range|simple table|user supplied table"), 0
 	);
 
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "OLD"			, _TL("old value"),
+	Parameters.Add_Value("",
+		"OLD"	, _TL("Old Value"),
 		_TL("Value to reclassify."),
-		PARAMETER_TYPE_Double, 0
+		PARAMETER_TYPE_Double, 0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NEW"			, _TL("new value"),
-		_TL("New value."),
-		PARAMETER_TYPE_Double, 1
+	Parameters.Add_Value("",
+		"NEW"	, _TL("New Value"),
+		_TL("The value to assign (with method 'single value')."),
+		PARAMETER_TYPE_Double, 1.0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SOPERATOR"	, _TL("operator"),
-		_TL("Select the desired operator (<;.;=; >;.); it is possible to define a range above or below the old value."),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("="),
-			_TL("<"),
-			_TL("<="),
-			_TL(">="),
-			_TL(">")
+	Parameters.Add_Choice("",
+		"SOPERATOR"	, _TL("Operator"),
+		_TL("Select the desired operator; it is possible to define a range above or below the old value."),
+		CSG_String::Format(SG_T("%s|%s|%s|%s|%s"),
+			SG_T("="),
+			SG_T("<"),
+			SG_T("<="),
+			SG_T(">="),
+			SG_T(">")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "MIN"			, _TL("minimum value"),
-		_TL("Minimum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 0
+	Parameters.Add_Value("",
+		"MIN"	, _TL("Minimum Value"),
+		_TL("The minimum value of the range to be reclassified."),
+		PARAMETER_TYPE_Double, 0.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "MAX"			, _TL("maximum value"),
-		_TL("Maximum value of the range to be reclassified."),
-		PARAMETER_TYPE_Double, 10
+	Parameters.Add_Value("",
+		"MAX"	, _TL("Maximum Value"),
+		_TL("The maximum value of the range to be reclassified."),
+		PARAMETER_TYPE_Double, 10.0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RNEW"		, _TL("new value"),
-		_TL("new value"),
-		PARAMETER_TYPE_Double, 5
+	Parameters.Add_Value("",
+		"RNEW"	, _TL("New Value"),
+		_TL("The value to assign (with method 'range')."),
+		PARAMETER_TYPE_Double, 5.0
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "ROPERATOR"	, _TL("operator"),
-		_TL("Select operator: eg. min < value < max."),
-
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("<="),
-			_TL("<")
+	Parameters.Add_Choice("",
+		"ROPERATOR"	, _TL("Operator"),
+		_TL("Select the desired operator (for method 'range'): eg. min < value < max."),
+		CSG_String::Format(SG_T("%s|%s"),
+			SG_T("<="),
+			SG_T("<")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_FixedTable(
-		NULL	, "RETAB"		, _TL("Lookup Table"),
-		_TL("Lookup table used in method \"table\"")
+	Parameters.Add_FixedTable("",
+		"RETAB"		, _TL("Lookup Table"),
+		_TL("The lookup table used with method 'table'.")
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TOPERATOR"	, _TL("operator"),
-		_TL("Select the desired operator (min < value < max; min . value < max; min .value . max; min < value . max)."),
-
+	Parameters.Add_Choice("",
+		"TOPERATOR"	, _TL("Operator"),
+		_TL("Select the desired operator (for method 'table')."),
 		CSG_String::Format(SG_T("%s|%s|%s|%s|"),
 			_TL("min <= value < max"),
 			_TL("min <= value <= max"),
@@ -189,76 +185,94 @@ CGrid_Value_Reclassify::CGrid_Value_Reclassify(void)
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "RETAB_2"		, _TL("Lookup Table"),
-		_TL("Lookup table used in method \"user supplied table\""),
+	pNode	= Parameters.Add_Table("",
+		"RETAB_2"	, _TL("Lookup Table"),
+		_TL("The lookup table used with method 'user supplied table'."),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_MIN"		, _TL("minimum value"),
-		_TL("")
+	Parameters.Add_Table_Field(pNode,
+		"F_MIN"		, _TL("Minimum Value"),
+		_TL("The table field with the minimum value.")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_MAX"		, _TL("maximum value"),
-		_TL("")
+	Parameters.Add_Table_Field(pNode,
+		"F_MAX"		, _TL("Maximum Value"),
+		_TL("The table field with the maximum value.")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "F_CODE"		, _TL("new value"),
-		_TL("")
-	);
-
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL, "OPTIONS"			, _TL("Special cases"),
-		_TL("Parameter settings for No-Data and all other values.")
-	);
-
-	Parameters.Add_Value(
-		pNode	, "NODATAOPT"	, _TL("no data values"),
-		_TL("Use this option to reclassify No-Data values independently of the method settings."),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Value(
-		Parameters("NODATAOPT")	, "NODATA"		, _TL("new value"),
-		_TL("new value"),
-		PARAMETER_TYPE_Double, 0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "OTHEROPT"	, _TL("other values"),
-		_TL("Use this option to reclassify all other values that are not specified in the options above."),
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Value(
-		Parameters("OTHEROPT")	, "OTHERS"		, _TL("new value"),
-		_TL("new value"),
-		PARAMETER_TYPE_Double, 0
+	Parameters.Add_Table_Field(pNode,
+		"F_CODE"	, _TL("New Value"),
+		_TL("The table field with the value to assign.")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL, "OPT_RESULT"			, _TL("NoData Output Grid"),
-		_TL("Parameter settings for the NoData value of the output grid (header).")
+	pNode	= Parameters.Add_Node("",
+		"OPTIONS"	, _TL("Special Cases"),
+		_TL("Parameter settings for the special cases (a) No-Data values and (b) values not included in the reclassification setup.")
 	);
 
-	Parameters.Add_Choice(
-		pNode	, "RESULT_NODATA_CHOICE"	, _TL("Assign ..."),
-		_TL("Choose how to handle the NoData value of the output grid."),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("NoData value of input grid"),
-			_TL("user defined NoData value")
+	Parameters.Add_Value(pNode,
+		"NODATAOPT"	, _TL("No Data Values"),
+		_TL("Use this option to reclassify No Data values independently of the method settings."),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(Parameters("NODATAOPT"),
+		"NODATA"	, _TL("New Value"),
+		_TL("The value to assign to No Data values."),
+		PARAMETER_TYPE_Double, 0.0
+	);
+
+	Parameters.Add_Value(pNode,
+		"OTHEROPT"	, _TL("Other Values"),
+		_TL("Use this option to reclassify all values that are not included in the reclassification setup."),
+		PARAMETER_TYPE_Bool, false
+	);
+
+	Parameters.Add_Value(Parameters("OTHEROPT"),
+		"OTHERS"	, _TL("New Value"),
+		_TL("The value to assign to all values not included in the reclassification setup."),
+		PARAMETER_TYPE_Double, 0.0
+	);
+
+	//-----------------------------------------------------
+	pNode	= Parameters.Add_Node("",
+		"OPT_RESULT"	, _TL("Output Grid"),
+		_TL("The parameter settings for the output grid.")
+	);
+
+	Parameters.Add_Choice(pNode,
+		"RESULT_TYPE"	, _TL("Data Storage Type"),
+		_TL("The data storage type of the output grid."),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			_TL("1 bit"                     ),
+			_TL("1 byte unsigned integer"   ),
+			_TL("1 byte signed integer"     ),
+			_TL("2 byte unsigned integer"   ),
+			_TL("2 byte signed integer"     ),
+			_TL("4 byte unsigned integer"   ),
+			_TL("4 byte signed integer"     ),
+			_TL("4 byte floating point"     ),
+			_TL("8 byte floating point"     ),
+			_TL("same as input grid"		)
+		), 9
+	);
+
+	Parameters.Add_Choice(pNode,
+		"RESULT_NODATA_CHOICE"	, _TL("No Data Value"),
+		_TL("Choose how to handle the No Data value of the output grid."),
+		CSG_String::Format(SG_T("%s|%s|%s"),
+			_TL("No Data value of input grid"),
+			_TL("user defined No Data value"),
+			_TL("No Data value of data storage type")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		Parameters("RESULT_NODATA_CHOICE")	, "RESULT_NODATA_VALUE"		, _TL("NoData Value"),
-		_TL("User defined NoData value for output grid."),
-		PARAMETER_TYPE_Double, -99999
+	Parameters.Add_Value(Parameters("RESULT_NODATA_CHOICE"),
+		"RESULT_NODATA_VALUE"		, _TL("No Data Value"),
+		_TL("User defined No Data value for output grid."),
+		PARAMETER_TYPE_Double, -99999.0
 	);
 
 	//-----------------------------------------------------
@@ -296,27 +310,60 @@ bool CGrid_Value_Reclassify::On_Execute(void)
 	pResult		= Parameters("RESULT")->asGrid();
 	method		= Parameters("METHOD")->asInt();
 
-	//-----------------------------------------------------
-	switch( method )
+	//---------------------------------------------------------
+	switch( Parameters("RESULT_TYPE")->asInt() )
 	{
-    default:
-	case 0:	bSuccess = ReclassSingle();     break;
-	case 1:	bSuccess = ReclassRange();      break;
-	case 2:	bSuccess = ReclassTable(false); break;
-	case 3:	bSuccess = ReclassTable(true);  break;
+	case 0:		pResult->Create(pInput, SG_DATATYPE_Bit);		break;
+	case 1:		pResult->Create(pInput, SG_DATATYPE_Byte);		break;
+	case 2:		pResult->Create(pInput, SG_DATATYPE_Char);		break;
+	case 3:		pResult->Create(pInput, SG_DATATYPE_Word);		break;
+	case 4:		pResult->Create(pInput, SG_DATATYPE_Short);		break;
+	case 5:		pResult->Create(pInput, SG_DATATYPE_DWord);		break;
+	case 6:		pResult->Create(pInput, SG_DATATYPE_Int);		break;
+	case 7:		pResult->Create(pInput, SG_DATATYPE_Float);		break;
+	case 8:		pResult->Create(pInput, SG_DATATYPE_Double);	break;
+	case 9:
+	default:	pResult->Create(pInput, pInput->Get_Type());	break;
 	}
 
-	//-----------------------------------------------------
+
+	//---------------------------------------------------------
+	switch( method )
+	{
+	case 0:
+	default:	bSuccess = ReclassSingle();			break;
+	case 1:		bSuccess = ReclassRange();			break;
+	case 2:		bSuccess = ReclassTable(false);		break;
+	case 3:		bSuccess = ReclassTable(true);		break;
+	}
+
+
+	//---------------------------------------------------------
 	if( bSuccess )
 	{
-		if( Parameters("RESULT_NODATA_CHOICE") == 0 )
+		switch( Parameters("RESULT_NODATA_CHOICE")->asInt() )
 		{
-			pResult->Set_NoData_Value(pInput->Get_NoData_Value());
+		case 0:
+		default:		pResult->Set_NoData_Value(pInput->Get_NoData_Value());							break;
+		case 1:			pResult->Set_NoData_Value(Parameters("RESULT_NODATA_VALUE")->asDouble());		break;
+		case 2:			
+						switch( pResult->Get_Type() )
+						{
+						case 0:		pResult->Set_NoData_Value(                       0.0);				break;
+						case 1:		pResult->Set_NoData_Value(                       0.0);				break;
+						case 2:		pResult->Set_NoData_Value(                    -127.0);				break;
+						case 3:		pResult->Set_NoData_Value(                   65535.0);				break;
+						case 4:		pResult->Set_NoData_Value(                  -32767.0);				break;
+						case 5:		pResult->Set_NoData_Value(              4294967295.0);				break;
+						case 6:		pResult->Set_NoData_Value(             -2147483647.0);				break;
+						case 7:		pResult->Set_NoData_Value(                  -99999.0);				break;
+						case 8:		pResult->Set_NoData_Value(                  -99999.0);				break;
+						default:	pResult->Set_NoData_Value(pInput->Get_NoData_Value());				break;
+						}
+			
+						break;
 		}
-		else
-		{
-			pResult->Set_NoData_Value(Parameters("RESULT_NODATA_VALUE")->asDouble());
-		}
+
 
 	    pResult->Fmt_Name("%s (%s)", pInput->Get_Name(), _TL("Reclassified"));
 
@@ -652,7 +699,7 @@ int CGrid_Value_Reclassify::On_Parameters_Enable(CSG_Parameters *pParameters, CS
 
 	if(	pParameter->Cmp_Identifier(SG_T("RESULT_NODATA_CHOICE")) )
 	{
-		pParameters->Get_Parameter("RESULT_NODATA_VALUE")->Set_Enabled(pParameter->asInt() > 0);
+		pParameters->Get_Parameter("RESULT_NODATA_VALUE")->Set_Enabled(pParameter->asInt() == 1);
 	}
 	
 	//-----------------------------------------------------
