@@ -26,6 +26,7 @@ Grid_Gaps.cpp\
 Grid_Gaps_OneCell.cpp\
 Grid_Gaps_Resampling.cpp\
 Grid_Gaps_Spline_Fill.cpp\
+Grid_Interpolate_Value_Along_Line.cpp\
 Grid_InvertNoData.cpp\
 Grid_Mask.cpp\
 Grid_Merge.cpp\
@@ -61,6 +62,7 @@ Grid_Gaps.h\
 Grid_Gaps_OneCell.h\
 Grid_Gaps_Resampling.h\
 Grid_Gaps_Spline_Fill.h\
+Grid_Interpolate_Value_Along_Line.h\
 Grid_InvertNoData.h\
 Grid_Mask.h\
 Grid_Merge.h\

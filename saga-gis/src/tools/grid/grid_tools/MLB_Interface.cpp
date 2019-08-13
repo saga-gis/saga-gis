@@ -62,7 +62,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,7 +79,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Grid") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-11") );
+		return( SG_T("O. Conrad, V. Olaya, V. Wichmann (c) 2002-19") );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the manipulation of gridded data.") );
@@ -139,6 +139,7 @@ CSG_String Get_Info(int i)
 
 #include "Grid_Support_Tool_Chains.h"
 #include "Grid_Combine_Classes.h"
+#include "Grid_Interpolate_Value_Along_Line.h"
 
 
 //---------------------------------------------------------
@@ -200,7 +201,9 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 37:	return( new CGrid_Combine_Classes );
 
-	case 40:	return( NULL );
+	case 40:	return( new CGrid_Interpolate_Value_Along_Line );
+
+	case 41:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

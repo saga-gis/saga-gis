@@ -317,6 +317,7 @@
     <ClCompile Include="Grid_Gaps_OneCell.cpp" />
     <ClCompile Include="Grid_Gaps_Resampling.cpp" />
     <ClCompile Include="Grid_Gaps_Spline_Fill.cpp" />
+    <ClCompile Include="Grid_Interpolate_Value_Along_Line.cpp" />
     <ClCompile Include="Grid_InvertNoData.cpp" />
     <ClCompile Include="Grid_Mask.cpp" />
     <ClCompile Include="Grid_Merge.cpp" />
@@ -369,6 +370,7 @@
     <ClInclude Include="Grid_Gaps_OneCell.h" />
     <ClInclude Include="Grid_Gaps_Resampling.h" />
     <ClInclude Include="Grid_Gaps_Spline_Fill.h" />
+    <ClInclude Include="Grid_Interpolate_Value_Along_Line.h" />
     <ClInclude Include="Grid_InvertNoData.h" />
     <ClInclude Include="Grid_Mask.h" />
     <ClInclude Include="Grid_Merge.h" />
