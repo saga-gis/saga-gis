@@ -183,7 +183,7 @@ int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Param
 
 			if( Connection.is_Connected() && Connection.Execute("SELECT datname FROM pg_database", &DBs) )
 			{
-				CSG_String	List;
+				CSG_String	List;	DBs.Set_Index(0, TABLE_INDEX_Ascending);
 
 				for(int i=0; i<DBs.Get_Count(); i++)
 				{

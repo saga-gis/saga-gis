@@ -832,7 +832,7 @@ CSG_Buffer CSG_String::to_UTF8(void) const
 	{
 		const wxScopedCharBuffer	Buffer	= m_pString->utf8_str();
 
-		String.Set_Data(Buffer.data(), Buffer.length());
+		String.Set_Data(Buffer.data(), Buffer.length() + 1);
 	}
 
 	return( String );

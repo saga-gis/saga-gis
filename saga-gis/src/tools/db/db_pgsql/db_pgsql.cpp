@@ -160,6 +160,8 @@ bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_Strin
 		return( false );
 	}
 
+//	SG_UI_Msg_Add_Execution(CSG_String("\nEncoding: ") + pg_encoding_to_char(PQclientEncoding(m_pgConnection)), false);
+
 	return( true );
 }
 
@@ -894,11 +896,12 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	//-----------------------------------------------------
 	int		iField, nFields	= Table.Get_Field_Count();
 
-	char	**Values		= (char **)SG_Malloc(nFields * sizeof(char *));
 	char	**paramValues	= (char **)SG_Malloc(nFields * sizeof(char *));
 	int		 *paramLengths	= (int   *)SG_Malloc(nFields * sizeof(int   ));
 	int		 *paramFormats	= (int   *)SG_Malloc(nFields * sizeof(int   ));
 //	Oid		 *paramTypes	= (Oid   *)SG_Malloc(nFields * sizeof(Oid   ));
+
+	CSG_Buffer	*Values	= new CSG_Buffer[nFields];
 
 	CSG_String	Insert("INSERT INTO \"" + Table_Name + "\" VALUES(");
 
@@ -910,12 +913,12 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 
 		switch( Table.Get_Field_Type(iField) )
 		{
+		case SG_DATATYPE_Binary:
 		case SG_DATATYPE_String:
-			Values[iField]	= (char *)SG_Malloc((1 + Table.Get_Field_Length(iField)) * sizeof(char));
 			break;
 
 		case SG_DATATYPE_Date  :
-			Values[iField]	= (char *)SG_Malloc(16);
+			Values[iField].Set_Size(16);
 			break;
  
 		default                :
@@ -926,10 +929,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 		case SG_DATATYPE_Long  :
 		case SG_DATATYPE_Float :
 		case SG_DATATYPE_Double:
-			Values[iField]	= (char *)SG_Malloc(256);
-			break;
-
-		case SG_DATATYPE_Binary:
+			Values[iField].Set_Size(256);
 			break;
 		}
 	}
@@ -956,27 +956,16 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 			{
 				CSG_String	Value	= pRecord->asString(iField);
 
-				if( 0 && Table.Get_Field_Type(iField) == SG_DATATYPE_String )
+				if( Table.Get_Field_Type(iField) == SG_DATATYPE_String )
 				{
-					char	*s	= NULL;
-
-					if( Value.to_ASCII(&s) && s && *s )
-					{
-						sprintf(Values[iField], "%s", s);
-					}
-					else
-					{
-						Values[iField][0]	= '\0';
-					}
-
-					SG_FREE_SAFE(s);
+					Values[iField]	= Value.to_UTF8();
 				}
 				else
 				{
-					sprintf(Values[iField], "%s", Value.b_str());
+					strcpy(Values[iField].Get_Data(), Value.b_str());
 				}
 
-				paramValues [iField]	= Values[iField];
+				paramValues[iField]	= Values[iField].Get_Data();
 			}
 		}
 
@@ -984,7 +973,7 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 
 		if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
 		{
-			_Error_Message(_TL("SQL execution failed"), m_pgConnection);
+			_Error_Message(CSG_String::Format("%s (record: %d)", _TL("Record insertion failed"), 1 + iRecord), m_pgConnection);
 
 			bResult	= false;
 		}
@@ -993,21 +982,14 @@ bool CSG_PG_Connection::Table_Insert(const CSG_String &_Table_Name, const CSG_Ta
 	}
 
 	//-----------------------------------------------------
-	for(iField=0; iField<nFields; iField++)
-	{
-		if( Table.Get_Field_Type(iField) != SG_DATATYPE_Binary )
-		{
-			SG_Free(Values[iField]);
-		}
-	}
+	delete[](Values);
 
-	SG_Free(Values);
-	SG_Free(paramValues);
+	SG_Free(paramValues );
 	SG_Free(paramLengths);
 	SG_Free(paramFormats);
-//	SG_Free(paramTypes);
+//	SG_Free(paramTypes  );
 
-	SG_UI_Process_Set_Progress(0.0, 0.0);
+	SG_UI_Process_Set_Progress(0., 0.);
 
 	return( bResult );
 }
@@ -1121,15 +1103,15 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 				pRecord->Set_Value(iField, PQgetvalue(pResult, iRecord, iField));
 				break;
 
-			case SG_DATATYPE_Binary:
-				{
-					CSG_Bytes	Binary;
-					
-					Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
-
-					pRecord->Set_Value(iField, Binary);
-				}
+			case SG_DATATYPE_String:
+				pRecord->Set_Value(iField, CSG_String::from_UTF8(PQgetvalue(pResult, iRecord, iField)));
 				break;
+
+			case SG_DATATYPE_Binary: {
+				CSG_Bytes	Binary; Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
+
+				pRecord->Set_Value(iField, Binary);
+			   }break;
 			}
 		}
 	}
