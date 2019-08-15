@@ -160,7 +160,21 @@ bool CSG_PG_Connection::Create(const CSG_String &Host, int Port, const CSG_Strin
 		return( false );
 	}
 
-//	SG_UI_Msg_Add_Execution(CSG_String("\nEncoding: ") + pg_encoding_to_char(PQclientEncoding(m_pgConnection)), false);
+	CSG_String	Encoding	= pg_encoding_to_char(PQclientEncoding(m_pgConnection));
+
+	if( Encoding.CmpNoCase("UTF8") )
+	{
+		SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s: %s", _TL("client encoding"), Encoding.c_str()), false);
+
+		if( !PQsetClientEncoding(m_pgConnection, "UTF8") )
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s", _TL("client encoding changed to UTF-8")), false);
+		}
+		else
+		{
+			SG_UI_Msg_Add_Execution(CSG_String::Format("\n%s", _TL("failed to change client encoding to UTF-8")), false);
+		}
+	}
 
 	return( true );
 }
@@ -584,11 +598,22 @@ CSG_String CSG_PG_Connection::Get_Field_Names(const CSG_String &Table_Name) cons
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable)
+bool CSG_PG_Connection::Execute(const CSG_String &SQL, CSG_Table *pTable, bool bToUTF8)
 {
 	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
 
-	PGresult	*pResult	= PQexec(m_pgConnection, SQL);
+	PGresult	*pResult;
+
+	if( bToUTF8 )
+	{
+		CSG_Buffer	SQL_UTF8	= SQL.to_UTF8();
+
+		pResult	= PQexec(m_pgConnection, SQL_UTF8.Get_Data());
+	}
+	else
+	{
+		pResult	= PQexec(m_pgConnection, SQL);
+	}
 
 	bool	bResult;
 
@@ -1111,7 +1136,7 @@ bool CSG_PG_Connection::_Table_Load(CSG_Table &Table, void *_pResult) const
 				CSG_Bytes	Binary; Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
 
 				pRecord->Set_Value(iField, Binary);
-			   }break;
+				break; }
 			}
 		}
 	}
@@ -1153,7 +1178,26 @@ bool CSG_PG_Connection::Table_Load(CSG_Table &Table, const CSG_String &Tables, c
 		Select	+= " " + Fields;
 	}
 
-	Select	+= " FROM " + Tables;
+	Select	+= " FROM ";
+
+	CSG_Strings	s	= SG_String_Tokenize(Tables, ",");
+
+	for(int i=0; i<s.Get_Count(); i++)
+	{
+		s[i].Trim_Both();
+
+		if( s[i][0] != '\"')
+		{
+			s[i].Prepend("\"").Append("\"");
+		}
+
+		if( i > 0 )
+		{
+			Select	+= ",";
+		}
+
+		Select	+= s[i];
+	}
 
 	if( Where.Length() )
 	{
@@ -1347,11 +1391,10 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 
 	//-----------------------------------------------------
 	TSG_Shape_Type	Type;
-	CSG_Bytes		Binary;
 
 	if( bBinary )
 	{
-		Binary.fromHexString(PQgetvalue(pResult, 0, gField) + 2);
+		CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, 0, gField) + 2);
 
 		Type	= CSG_Shapes_OGIS_Converter::to_ShapeType(Binary.asDWord(1, false));
 	}
@@ -1389,7 +1432,7 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 
 		if( bBinary )
 		{
-			Binary.fromHexString(PQgetvalue(pResult, iRecord, gField) + 2);
+			CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, iRecord, gField) + 2);
 
 			CSG_Shapes_OGIS_Converter::from_WKBinary(Binary, pRecord);
 		}
@@ -1412,11 +1455,15 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 					pRecord->Set_Value(jField++, PQgetvalue(pResult, iRecord, iField));
 					break;
 
-				case SG_DATATYPE_Binary:
-					Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
+				case SG_DATATYPE_String:
+					pRecord->Set_Value(jField++, CSG_String::from_UTF8(PQgetvalue(pResult, iRecord, iField)));
+					break;
+
+				case SG_DATATYPE_Binary: {
+					CSG_Bytes	Binary;	Binary.fromHexString(PQgetvalue(pResult, iRecord, iField) + 2);
 
 					pRecord->Set_Value(jField++, Binary);
-					break;
+					break; }
 				}
 			}
 		}
@@ -1430,6 +1477,183 @@ bool CSG_PG_Connection::Shapes_Load(CSG_Shapes *pShapes, const CSG_String &Name,
 	SG_UI_Process_Set_Progress(0.0, 0.0);
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_PG_Connection::Shapes_Insert(CSG_Shapes *pShapes, const CSG_String &_geoTable)
+{
+	if( !is_Connected() )	{	_Error_Message(_TL("no database connection"));	return( false );	}
+	if( !has_PostGIS () )	{	_Error_Message(_TL("not a PostGIS database"));	return( false );	}
+
+	CSG_String	geoTable(Make_Table_Name(_geoTable));
+
+	if( !Table_Exists(geoTable) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_String	geoField;	int	geoSRID;
+
+	if( !Shapes_Geometry_Info(geoTable, &geoField, &geoSRID) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	int		iField, nFields	= pShapes->Get_Field_Count();
+
+	char	**paramValues	= (char **)SG_Malloc((1 + nFields) * sizeof(char *));
+	int		 *paramLengths	= (int   *)SG_Malloc((1 + nFields) * sizeof(int   ));
+	int		 *paramFormats	= (int   *)SG_Malloc((1 + nFields) * sizeof(int   ));
+//	Oid		 *paramTypes	= (Oid   *)SG_Malloc((1 + nFields) * sizeof(Oid   ));
+
+	CSG_Buffer	*Values	= new CSG_Buffer[1 + nFields];
+
+	CSG_String	Insert("INSERT INTO \"" + geoTable + "\" (");
+
+	for(iField=0; iField<nFields; iField++)
+	{
+		Insert	+= "\"" + Make_Table_Field_Name(pShapes, iField) + "\", ";
+	}
+
+	Insert	+= "\"" + geoField + "\") VALUES (";
+
+	for(iField=0; iField<nFields; iField++)
+	{
+		Insert	+= CSG_String::Format("$%d, ", 1 + iField);
+
+		paramFormats[iField]	= pShapes->Get_Field_Type(iField) == SG_DATATYPE_Binary ? 1 : 0;
+
+		switch( pShapes->Get_Field_Type(iField) )
+		{
+		case SG_DATATYPE_Binary:
+		case SG_DATATYPE_String:
+			break;
+
+		case SG_DATATYPE_Date  :
+			Values[iField].Set_Size(16);
+			break;
+
+		default                :
+		case SG_DATATYPE_Byte  :
+		case SG_DATATYPE_Short :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_Color :
+		case SG_DATATYPE_Long  :
+		case SG_DATATYPE_Float :
+		case SG_DATATYPE_Double:
+			Values[iField].Set_Size(256);
+			break;
+		}
+	}
+
+	bool	bBinary	= has_Version(9);
+
+	if( bBinary )
+	{
+		Insert	+= CSG_String::Format("ST_GeomFromWKB($%d, %d))" , 1 + nFields, geoSRID);
+
+		paramFormats[nFields]	= 1;
+	}
+	else
+	{
+		Insert	+= CSG_String::Format("ST_GeomFromText($%d, %d))", 1 + nFields, geoSRID);
+
+		paramFormats[nFields]	= 0;
+	}
+
+	//-----------------------------------------------------
+	bool	bResult	= true;
+
+	for(int iShape=0; iShape<pShapes->Get_Count() && bResult && SG_UI_Process_Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	{
+		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+
+		if( !pShape->is_Valid() )
+		{
+			bResult	= false;
+
+			continue;
+		}
+
+		//-------------------------------------------------
+		for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+		{
+			if( pShape->is_NoData(iField) )
+			{
+				paramValues [iField]	= NULL;
+			}
+			else if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_Binary )
+			{
+				paramValues [iField]	= (char *)pShape->Get_Value(iField)->asBinary().Get_Bytes();
+				paramLengths[iField]	=         pShape->Get_Value(iField)->asBinary().Get_Count();
+			}
+			else
+			{
+				CSG_String	Value	= pShape->asString(iField);
+
+				if( pShapes->Get_Field_Type(iField) == SG_DATATYPE_String )
+				{
+					Values[iField]	= Value.to_UTF8();
+				}
+				else
+				{
+					strcpy(Values[iField].Get_Data(), Value.b_str());
+				}
+
+				paramValues[iField]	= Values[iField].Get_Data();
+			}
+		}
+
+		//-------------------------------------------------
+		CSG_Bytes	WKB;
+		CSG_String	WKT;
+
+		if( bBinary )
+		{
+			CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
+
+			paramValues [nFields]	= (char *)WKB.Get_Bytes();
+			paramLengths[nFields]	=         WKB.Get_Count();
+		}
+		else
+		{
+			CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
+
+			Values[nFields].Set_Data(WKT.b_str(), WKT.Length() + 1);	WKT.Clear();
+			paramValues[nFields]	= Values[nFields].Get_Data();
+		}
+
+		//-------------------------------------------------
+		PGresult *pResult = PQexecParams(m_pgConnection, Insert, 1 + nFields, NULL, paramValues, paramLengths, paramFormats, 0);
+
+		if( PQresultStatus(pResult) != PGRES_COMMAND_OK )
+		{
+			_Error_Message(CSG_String::Format("%s (record: %d)", _TL("Record insertion failed"), 1 + iShape), m_pgConnection);
+
+			bResult	= false;
+		}
+
+		PQclear(pResult);
+	}
+
+	//-----------------------------------------------------
+	delete[](Values);
+
+	SG_Free(paramValues );
+	SG_Free(paramLengths);
+	SG_Free(paramFormats);
+//	SG_Free(paramTypes  );
+
+	SG_UI_Process_Set_Progress(0., 0.);
+
+	return( bResult );
 }
 
 
@@ -1742,7 +1966,10 @@ bool CSG_PG_Connection::Raster_Save(CSG_Grid *pGrid, int SRID, const CSG_String 
 
 	if( !Name.is_Empty() && Info.Get_Count() > 2 && !SG_STR_CMP("varchar", Info[2].asString(1)) )
 	{
-		Execute(CSG_String::Format("UPDATE %s SET %s='%s' WHERE rid=%d", Table.c_str(), Info[2].asString(0), Name.c_str(), rid));
+		if( !Execute(CSG_String::Format("UPDATE \"%s\" SET %s='%s' WHERE rid=%d", Table.c_str(), Info[2].asString(0), Name.c_str(), rid), NULL, true) )
+		{
+			return( false );
+		}
 	}
 
 	Add_MetaData(*pGrid, Table + CSG_String::Format(":rid=%d", rid));

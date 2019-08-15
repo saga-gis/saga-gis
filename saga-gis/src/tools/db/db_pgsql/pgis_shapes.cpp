@@ -66,13 +66,13 @@ CShapes_Load::CShapes_Load(void)
 		"Imports shapes from a PostGIS database."
 	));
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
@@ -132,7 +132,7 @@ CShapes_Save::CShapes_Save(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
@@ -140,13 +140,13 @@ CShapes_Save::CShapes_Save(void)
 
 	Set_Constraints(&Parameters, "SHAPES");
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"NAME"		, _TL("Table Name"),
 		_TL("if empty shapes layers's name is used as table name"),
 		""
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"EXISTS"	, _TL("If table exists..."),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
@@ -197,18 +197,14 @@ bool CShapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Shapes	*pShapes;
-	CSG_String	SQL, Name, Type, Field, SavePoint;
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-	pShapes		= Parameters("SHAPES")->asShapes();
-	Name		= Parameters("NAME"  )->asString();	if( Name.Length() == 0 )	Name	= pShapes->Get_Name();
-
-	Field		= "geometry";
-
-	int	SRID	= Get_SRID();
+	CSG_String	Name	= Parameters("NAME")->asString(); if( Name.Length() == 0 ) { Name = pShapes->Get_Name(); }
 
 	//-----------------------------------------------------
-	if( !CSG_Shapes_OGIS_Converter::from_ShapeType(Type, pShapes->Get_Type(), pShapes->Get_Vertex_Type()) )
+	CSG_String	geoType;
+
+	if( !CSG_Shapes_OGIS_Converter::from_ShapeType(geoType, pShapes->Get_Type(), pShapes->Get_Vertex_Type()) )
 	{
 		Error_Set(_TL("invalid or unsupported shape or vertex type"));
 
@@ -216,31 +212,34 @@ bool CShapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	Get_Connection()->Begin(SavePoint = Get_Connection()->is_Transaction() ? "SHAPES_SAVE" : "");
+	CSG_String	SavePoint	= Get_Connection()->is_Transaction() ? "SHAPES_SAVE" : "";
+
+	Get_Connection()->Begin(SavePoint);
 
 	//-----------------------------------------------------
 	if( Get_Connection()->Table_Exists(Name) )
 	{
-		Message_Add(_TL("table already exists") + CSG_String(": ") + Name);
+		Message_Fmt("\n%s: %s", _TL("table already exists"), Name.c_str());
 
 		switch( Parameters("EXISTS")->asInt() )
 		{
-		case 0:	// abort export
+		default:	// abort export
 			return( false );
 
-		case 1:	// replace existing table
-			Message_Add(_TL("trying to drop table") + CSG_String(": ") + Name);
+		case  2:	// append records, if table structure allows it
+			break;
+
+		case  1:	// replace existing table
+			Message_Fmt("\n%s: %s...", _TL("trying to drop table"), Name.c_str());
 
 			if( !Get_Connection()->Table_Drop(Name, false) )
 			{
-				Message_Add(CSG_String(" ...") + _TL("failed") + "!");
+				Message_Fmt(_TL("failed"));
 
 				return( false );
 			}
 
-			break;
-
-		case 2:	// append records, if table structure allows
+			Message_Fmt(_TL("okay"));
 			break;
 		}
 	}
@@ -258,10 +257,10 @@ bool CShapes_Save::On_Execute(void)
 		}
 
 		//-------------------------------------------------
-		// SELECT AddGeometryColumn(<table_name>, <column_name>, <srid>, <type>, <dimension>)
+		CSG_String	SQL;	// SELECT AddGeometryColumn(<table_name>, <column_name>, <srid>, <type>, <dimension>)
 
 		SQL.Printf("SELECT AddGeometryColumn('%s', '%s', %d, '%s', %d)",
-			Name.c_str(), Field.c_str(), SRID, Type.c_str(),
+			Name.c_str(), SG_T("geometry"), Get_SRID(), geoType.c_str(),
 			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XY  ? 2 :
 			pShapes->Get_Vertex_Type() == SG_VERTEX_TYPE_XYZ ? 3 : 4
 		);
@@ -277,78 +276,8 @@ bool CShapes_Save::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	bool	bBinary	= Get_Connection()->has_Version(9);
-
-	int		iShape, iField, nAdded;
-
-	CSG_String	Insert	= "INSERT INTO \"" + Name + "\" (\"" + Field;
-
-	for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
+	if( !Get_Connection()->Shapes_Insert(pShapes, Name) )
 	{
-		Insert	+= CSG_String("\", \"") + CSG_PG_Connection::Make_Table_Field_Name(pShapes, iField);
-	}
-
-	Insert	+= "\") VALUES (";
-
-	//-----------------------------------------------------
-	for(iShape=0, nAdded=0; iShape==nAdded && iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
-	{
-		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
-
-		if( pShape->is_Valid() )
-		{
-			SQL	= Insert;
-
-			if( bBinary )
-			{
-				CSG_Bytes	WKB;
-
-				CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
-
-				SQL	+= "ST_GeomFromWKB(E'\\\\x" + WKB.toHexString() + CSG_String::Format("', %d)", SRID);
-			}
-			else
-			{
-				CSG_String	WKT;
-
-				CSG_Shapes_OGIS_Converter::to_WKText(pShape, WKT);
-
-				SQL	+= "ST_GeomFromText('" + WKT + CSG_String::Format("', %d)", SRID);
-			}
-
-			for(iField=0; iField<pShapes->Get_Field_Count(); iField++)
-			{
-				CSG_String	s = pShape->asString(iField);
-
-				switch( pShapes->Get_Field_Type(iField) )
-				{
-				case SG_DATATYPE_String:
-				case SG_DATATYPE_Date  :
-					s.Replace("'", "\"");	s	= "'" + s + "'";
-					break;
-				}
-
-				SQL	+= ", "  + s;
-			}
-
-			SQL	+= ")";
-
-			if( Get_Connection()->Execute(SQL) )
-			{
-				nAdded++;
-			}
-			else
-			{
-				Message_Fmt("\n%s [%d/%d]", _TL("could not save shape"), 1 + iShape, pShapes->Get_Count());
-			}
-		}
-	}
-
-	//-----------------------------------------------------
-	if( nAdded < pShapes->Get_Count() )
-	{
-		Message_Add(SQL);
-
 		Get_Connection()->Rollback(SavePoint);
 
 		return( false );
@@ -363,6 +292,71 @@ bool CShapes_Save::On_Execute(void)
 	pShapes->Set_Modified(false);
 
 	return( true );
+
+//---------------------------------------------------------
+//	bool	bBinary	= Get_Connection()->has_Version(9);
+//
+//	CSG_String	Insert	= "INSERT INTO \"" + Name + "\" (\"geometry";
+//
+//	for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
+//	{
+//		Insert	+= CSG_String("\", \"") + CSG_PG_Connection::Make_Table_Field_Name(pShapes, iField);
+//	}
+//
+//	Insert	+= "\") VALUES (";
+//
+//	//-----------------------------------------------------
+//	bool	bResult	= true;
+//
+//	for(int iShape=0; iShape<pShapes->Get_Count() && bResult && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+//	{
+//		CSG_Shape	*pShape	= pShapes->Get_Shape(iShape);
+//
+//		if( !pShape->is_Valid() )
+//		{
+//			bResult	= false;
+//
+//			continue;
+//		}
+//
+//		//-------------------------------------------------
+//		CSG_String	SQL	= Insert;
+//
+//		if( bBinary )
+//		{
+//			CSG_Bytes	WKB;	CSG_Shapes_OGIS_Converter::to_WKBinary(pShape, WKB);
+//
+//			SQL	+= "ST_GeomFromWKB(E'\\\\x" + WKB.toHexString() + CSG_String::Format("', %d)", Get_SRID());
+//		}
+//		else
+//		{
+//			CSG_String	WKT;	CSG_Shapes_OGIS_Converter::to_WKText  (pShape, WKT);
+//
+//			SQL	+= "ST_GeomFromText('" + WKT + CSG_String::Format("', %d)", Get_SRID());
+//		}
+//
+//		for(int iField=0; iField<pShapes->Get_Field_Count(); iField++)
+//		{
+//			CSG_String	s = pShape->asString(iField);
+//
+//			switch( pShapes->Get_Field_Type(iField) )
+//			{
+//			case SG_DATATYPE_String:
+//			case SG_DATATYPE_Date  :
+//				s.Replace("'", "\"");	s	= "'" + s + "'";
+//				break;
+//			}
+//
+//			SQL	+= ", "  + s;
+//		}
+//
+//		SQL	+= ")";
+//
+//		if( !Get_Connection()->Execute(SQL) )
+//		{
+//			bResult	= false;
+//		}
+//	}
 }
 
 
@@ -383,7 +377,7 @@ CShapes_SRID_Update::CShapes_SRID_Update(void)
 		" Change the SRID of all geometries in the user-specified column and table."
 	));
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		""
@@ -458,7 +452,7 @@ CShapes_Join::CShapes_Join(void)
 		"Imports shapes with joined data from a PostGIS database."
 	));
 
-	Parameters.Add_Shapes(NULL,
+	Parameters.Add_Shapes("",
 		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT
@@ -470,12 +464,12 @@ CShapes_Join::CShapes_Join(void)
 	Parameters.Add_Choice(NULL                    , "JOIN_TABLE", _TL("Join Table"    ), _TL(""), "");
 	Parameters.Add_Choice(Parameters("JOIN_TABLE"), "JOIN_KEY"  , _TL("Key"           ), _TL(""), "");
 
-	Parameters.Add_Parameters(NULL,
+	Parameters.Add_Parameters("",
 		"FIELDS"	, _TL("Fields"),
 		_TL("")
 	);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"WHERE"		, _TL("Where"),
 		_TL(""),
 		""

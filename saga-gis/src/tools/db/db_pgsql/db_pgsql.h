@@ -118,7 +118,7 @@ public:
 	static CSG_String			Make_Table_Name			(const CSG_String &Table_Name);
 	static CSG_String			Make_Table_Field_Name	(const CSG_Table &Table, int Field);
 
-	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL);
+	bool						Execute					(const CSG_String &SQL, CSG_Table *pTable = NULL, bool bToUTF8 = false);
 
 	bool						Begin					(const CSG_String &SavePoint = "");
 	bool						Rollback				(const CSG_String &SavePoint = "");
@@ -141,6 +141,7 @@ public:
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &geoTable);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &geoTable, const CSG_String &Tables, const CSG_String &Fields, const CSG_String &Where);
 	bool						Shapes_Load				(CSG_Shapes *pShapes, const CSG_String &Name, const CSG_String &Select, const CSG_String &Geometry_Field, bool bBinary, int SRID = -1);
+	bool						Shapes_Insert			(CSG_Shapes *pShapes, const CSG_String &geoTable);
 
 	bool						Raster_Load				(CSG_Data_Manager         &Grids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", CSG_Table *pInfo = NULL);
 	bool						Raster_Load				(CSG_Parameter_Grid_List *pGrids, const CSG_String &Table, const CSG_String &Where = "", const CSG_String &Order = "", int OutputType = 0);
