@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: wksp_map_basemap.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -102,7 +99,7 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Choice("NODE_GENERAL",
 		"SERVER"	, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Open Street Map"),
 			_TL("Google Map"),
 			_TL("Google Satellite"),
@@ -110,6 +107,7 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 			_TL("Google Terrain"),
 			_TL("Google Terrain, Streets and Water"),
 			_TL("ArcGIS MapServer Tiles"),
+			_TL("TopPlusOpen"),
 			_TL("user defined")
 		), 0
 	);
@@ -176,7 +174,7 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Choice("NODE_DISPLAY",
 		"POSITION"	, _TL("Position"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("top"),
 			_TL("bottom")
 		), 1
@@ -248,9 +246,10 @@ wxString CWKSP_Map_BaseMap::Get_Description(void)
 	s	+= _TL("Be sure to read and understand the usage agreement or terms of service before you use a base map server.");
 	s	+= "<ul>";
 	s	+= "<li><a href=\"www.openstreetmap.org\">Open Street Map</a></li>";
-	s	+= "<li><a href=\"open.mapquest.co.uk\">MapQuest</a></li>";
+//	s	+= "<li><a href=\"open.mapquest.co.uk\">MapQuest</a></li>";
 	s	+= "<li><a href=\"maps.google.com/intl/en/help/terms_maps.html\">Google Maps</a></li>";
 	s	+= "<li><a href=\"services.arcgisonline.com\">ArcGIS MapServer</a></li>";
+	s	+= "<li><a href=\"www.geodatenzentrum.de/geodaten/gdz_rahmen.gdz_div\">TopPlusOpen</a></li>";
 	s	+= "</ul>";
 
 	//-----------------------------------------------------

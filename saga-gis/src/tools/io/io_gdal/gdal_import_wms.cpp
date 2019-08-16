@@ -102,7 +102,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 	Parameters.Add_Choice("",
 		"SERVER"	, _TL("Server"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Open Street Map"),
 			_TL("Google Map"),
 			_TL("Google Satellite"),
@@ -110,6 +110,7 @@ CGDAL_Import_WMS::CGDAL_Import_WMS(void)
 			_TL("Google Terrain"),
 			_TL("Google Terrain, Streets and Water"),
 			_TL("ArcGIS MapServer Tiles"),
+			_TL("TopPlusOpen"),
 			_TL("user defined")
 		), 0
 	);
@@ -503,15 +504,16 @@ CSG_String CGDAL_Import_WMS::Get_Request(void)
 
 	switch( Parameters("SERVER")->asInt() )
 	{
-	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                    ;	break;	// Open Street Map
-	case  1:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Map
-	case  2:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Satellite
-	case  3:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Hybrid
-	case  4:	Server	= "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain
-	case  5:	Server	= "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                 ;	break;	// Google Terrain, Streets and Water
-	case  6:	Server	= "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}";	break;	// ArcGIS MapServer Tiles
-	case  7:	Server	= Parameters("SERVER_USER")->asString()                                                          ;	break;	// user defined
-//	case  x:	Server	= "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                              ;	break;	// Blue Marble
+	default:	Server	= "tile.openstreetmap.org/${z}/${x}/${y}.png"                                                     ;	break;	// Open Street Map
+	case  1:	Server	= "mt.google.com/vt/lyrs=m&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Map
+	case  2:	Server	= "mt.google.com/vt/lyrs=s&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Satellite
+	case  3:	Server	= "mt.google.com/vt/lyrs=y&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Hybrid
+	case  4:	Server	= "mt.google.com/vt/lyrs=t&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Terrain
+	case  5:	Server	= "mt.google.com/vt/lyrs=p&x=${x}&y=${y}&z=${z}"                                                  ;	break;	// Google Terrain, Streets and Water
+	case  6:	Server	= "services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}" ;	break;	// ArcGIS MapServer Tiles
+	case  7:	Server	= "sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web/default/WEBMERCATOR/${z}/${y}/${x}.png";	break;	// TopPlusOpen
+	case  8:	Server	= Parameters("SERVER_USER")->asString()                                                           ;	break;	// user defined
+//	case  x:	Server	= "s3.amazonaws.com/com.modestmaps.bluemarble/${z}-r${y}-c${x}.jpg"                               ;	break;	// Blue Marble
 	}
 
 	//-----------------------------------------------------
