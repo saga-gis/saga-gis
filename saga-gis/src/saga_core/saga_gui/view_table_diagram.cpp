@@ -561,20 +561,20 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 				m_Parameters.Add_Bool ("NODE_FIELDS", ID, m_pTable->Get_Field_Name(iField), _TL("Show"), false);
 				m_Parameters.Add_Color(ID, CSG_String::Format("COLOR_%d", iField), "", _TL("Color"), m_Colors.Get_Color(iField));
 
-				sFields_Num	+= m_pTable->Get_Field_Name(iField) + CSG_String("|");
+				sFields_Num	+= CSG_String::Format("%s|", m_pTable->Get_Field_Name(iField));
 			}
 
-			sFields_All	+= m_pTable->Get_Field_Name(iField) + CSG_String("|");
+			sFields_All	+= CSG_String::Format("%s|", m_pTable->Get_Field_Name(iField));
 		}
 
-		sFields_Num	+= _TL("<none>") + CSG_String("|");
-		sFields_All	+= _TL("<none>") + CSG_String("|");
+		sFields_Num	+= CSG_String::Format("<%s>", _TL("none"));
+		sFields_All	+= CSG_String::Format("<%s>", _TL("none"));
 
 		//-------------------------------------------------
 		m_Parameters.Add_Choice("NODE_GENERAL",
 			"TYPE"		, _TL("Type"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s",
 				_TL("Bars"),
 				_TL("Lines"),
 				_TL("Lines and Points"),
@@ -627,13 +627,13 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		m_Parameters.Add_Choice("NODE_X",
 			"X_FIELD"	, _TL("Values"),
 			_TL(""),
-			sFields_Num, m_pTable->Get_Field_Count() + 1
+			sFields_Num, m_pTable->Get_Field_Count()
 		);
 
 		m_Parameters.Add_Choice("NODE_X",
 			"X_LABEL"	, _TL("Label"),
 			_TL(""),
-			sFields_All, m_pTable->Get_Field_Count() + 1
+			sFields_All, m_pTable->Get_Field_Count()
 		);
 
 		//-------------------------------------------------
@@ -937,8 +937,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Legend(wxDC &dc, wxRect r)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define DRAW_GET_XPOS(i)	(r.GetLeft  () + (int)(dx * (m_xField >= 0 ? (m_pTable->Get_Record_byIndex(i)->asDouble(m_xField) - m_xMin) : (double)i)))
-#define DRAW_GET_YPOS(i)	(r.GetBottom() - (int)(dy * (                (m_pTable->Get_Record_byIndex(i)->asDouble(  iField) - m_yMin)            )))
+#define DRAW_GET_XPOS	(r.GetLeft  () + (int)(dx * (m_xField >= 0 ? (pRecord->asDouble(m_xField) - m_xMin) : (double)iRecord)))
+#define DRAW_GET_YPOS	(r.GetBottom() - (int)(dy * (                (pRecord->asDouble(  iField) - m_yMin)                  )))
 
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, double dy, int iField)
@@ -956,9 +956,11 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			if( !m_pTable->Get_Record_byIndex(iRecord)->is_NoData(iField) )
+			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+
+			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
-				dc.DrawCircle(DRAW_GET_XPOS(iRecord), DRAW_GET_YPOS(iRecord), Size);
+				dc.DrawCircle(DRAW_GET_XPOS, DRAW_GET_YPOS, Size);
 			}
 		}
 	}
@@ -975,9 +977,11 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 		for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			if( !m_pTable->Get_Record_byIndex(iRecord)->is_NoData(iField) )
+			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
+
+			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
 			{
-				int			iz	= (int)(dz * (m_pTable->Get_Record_byIndex(iRecord)->asDouble(zField) - zMin));
+				int			iz	= (int)(dz * (pRecord->asDouble(zField) - zMin));
 				wxColour	ic	= Get_Color_asWX(pColors->Get_Color(iz < 0 ? 0 : (iz >= 255 ? 255 : iz)));
 
 				if( !bOutline )
@@ -987,7 +991,7 @@ void CVIEW_Table_Diagram_Control::_Draw_Points(wxDC &dc, wxRect r, double dx, do
 
 				dc.SetBrush(wxBrush(ic));
 
-				dc.DrawCircle(DRAW_GET_XPOS(iRecord), DRAW_GET_YPOS(iRecord), Size);
+				dc.DrawCircle(DRAW_GET_XPOS, DRAW_GET_YPOS, Size);
 			}
 		}
 	}
@@ -1003,20 +1007,27 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 		dc.SetPen  (wxPen  (Get_Color_asWX(m_Colors.Get_Color(iField)), 0, wxPENSTYLE_SOLID));
 		dc.SetBrush(wxBrush(Get_Color_asWX(m_Colors.Get_Color(iField)), wxBRUSHSTYLE_SOLID));
 
-		int	jx, ix	= DRAW_GET_XPOS(0);
-		int	jy, iy	= DRAW_GET_YPOS(0);
-
-		for(int i=1; i<m_pTable->Get_Count(); i++)
+		for(int iRecord=0, bLast=0, xLast, yLast; iRecord<m_pTable->Get_Count(); iRecord++)
 		{
-			if( !m_pTable->Get_Record_byIndex(i)->is_NoData(iField) )
-			{
-				jx	= ix;	ix	= DRAW_GET_XPOS(i);
-				jy	= iy;	iy	= DRAW_GET_YPOS(i);
+			CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
 
-				if( !m_pTable->Get_Record_byIndex(i - 1)->is_NoData(iField) )
+			if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
+			{
+				int	x	= DRAW_GET_XPOS;
+				int	y	= DRAW_GET_YPOS;
+
+				if( bLast )
 				{
-					dc.DrawLine(jx, jy, ix, iy);
+					dc.DrawLine(xLast, yLast, x, y);
 				}
+
+				xLast	= x;
+				yLast	= y;
+				bLast	= 1;
+			}
+			else
+			{
+				bLast	= 0;
 			}
 		}
 	}
@@ -1025,10 +1036,8 @@ void CVIEW_Table_Diagram_Control::_Draw_Lines(wxDC &dc, wxRect r, double dx, dou
 //---------------------------------------------------------
 void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, double dy, int iField)
 {
-	int		x, y, xa, xb, dxa, dxb;
-
-	dxb		= m_xField < 0 ? (int)(dx / m_nFields)			: iField + 1;
-	dxa		= m_xField < 0 ? (int)(dx / m_nFields * iField)	: iField + 0;
+	int	dxa	= m_xField < 0 ? (int)(dx / m_nFields * iField)	: iField + 0;
+	int	dxb	= m_xField < 0 ? (int)(dx / m_nFields)			: iField + 1;
 
 	iField	= m_Fields[iField];
 
@@ -1036,12 +1045,14 @@ void CVIEW_Table_Diagram_Control::_Draw_Bars(wxDC &dc, wxRect r, double dx, doub
 
 	for(int iRecord=0; iRecord<m_pTable->Get_Count(); iRecord++)
 	{
-		if( !m_pTable->Get_Record_byIndex(iRecord)->is_NoData(iField) )
-		{
-			xa	= DRAW_GET_XPOS(iRecord) + dxa;	xb	= dxb + xa;
-			y	= DRAW_GET_YPOS(iRecord);
+		CSG_Table_Record	*pRecord	= m_pTable->Get_Record_byIndex(iRecord);
 
-			for(x=xa; x<=xb; x++)
+		if( !pRecord->is_NoData(iField) && (m_pTable->Get_Selection_Count() < 1 || pRecord->is_Selected()) )
+		{
+			int	x	= DRAW_GET_XPOS + dxa;
+			int	y	= DRAW_GET_YPOS;
+
+			for(int xb=x+dxb; x<=xb; x++)
 			{
 				dc.DrawLine(x, r.GetBottom(), x, y);
 			}
