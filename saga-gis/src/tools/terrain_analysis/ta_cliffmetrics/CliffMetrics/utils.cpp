@@ -30,6 +30,7 @@
    #include <io.h>                  // for isatty()
 #else
    #include <sys/resource.h>        // needed for CalcProcessStats()
+   #include <unistd.h>
 #endif
 
 #include <iostream>
@@ -46,7 +47,7 @@ using std::setw;
 
 #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 #include <gdal_priv.h>
-#else if defined(_OPENMP)
+#elif defined(_OPENMP)
 #include <omp.h>
 #endif
 
@@ -595,6 +596,7 @@ void CDelineation::UpdateGrandTotals(void)
  Returns a string, hopefully giving the name of the computer on which the simulation is running
 
 ==============================================================================================================================*/
+
 string CDelineation::strGetComputerName(void)
 {
    string strComputerName;

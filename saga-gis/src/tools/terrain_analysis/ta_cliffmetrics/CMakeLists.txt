@@ -1,6 +1,6 @@
 option(WITH_TOOL_TA_CLIFFMETRICS "Check to install tool ta_cliffmetrics" OFF)
 
-if (WITH_TOOL_TA_LIGHTING OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
+if (WITH_TOOL_TA_CLIFFMETRICS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 	project(ta_cliffmetrics)
 
 	# add files in sudirectories
