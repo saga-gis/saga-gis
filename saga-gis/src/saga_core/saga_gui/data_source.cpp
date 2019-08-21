@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Data_Source.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -136,8 +124,8 @@ CData_Source::CData_Source(wxWindow *pParent)
 	//-----------------------------------------------------
 	AssignImageList(new wxImageList(IMG_SIZE_NOTEBOOK, IMG_SIZE_NOTEBOOK, true, 0));
 
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_FILES);
-	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_DATABASE);
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_FILES     );
+	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_DATABASE  );
 	IMG_ADD_TO_NOTEBOOK(ID_IMG_NB_DATA_SOURCE_WEBSERVICE);
 
 	//-----------------------------------------------------
@@ -166,7 +154,7 @@ CData_Source::CData_Source(wxWindow *pParent)
 void CData_Source::Add_Pages(void)
 {
 	_Show_Page(m_pFiles);
-	_Show_Page(m_pODBC);
+	_Show_Page(m_pODBC );
 	_Show_Page(m_pPgSQL);
 
 	long	lValue;
@@ -187,8 +175,6 @@ CData_Source::~CData_Source(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -211,19 +197,19 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 	{
 		switch( pItem->Get_Type() )
 		{
-		case WKSP_ITEM_Table:
-			m_pFiles->SetPath(((CWKSP_Table        *)pItem)->Get_Table()->Get_File_Name());
-			break;
-
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
-		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:
-		case WKSP_ITEM_Grids:
+		case WKSP_ITEM_Shapes      :
+		case WKSP_ITEM_TIN         :
+		case WKSP_ITEM_PointCloud  :
+		case WKSP_ITEM_Grid        :
+		case WKSP_ITEM_Grids       :
 			m_pFiles->SetPath(((CWKSP_Layer        *)pItem)->Get_Object()->Get_File_Name(false));
 			break;
 
-		case WKSP_ITEM_Map_Layer:
+		case WKSP_ITEM_Table       :
+			m_pFiles->SetPath(((CWKSP_Table        *)pItem)->Get_Table()->Get_File_Name());
+			break;
+
+		case WKSP_ITEM_Map_Layer   :
 			m_pFiles->SetPath(((CWKSP_Map_Layer    *)pItem)->Get_Layer()->Get_Object()->Get_File_Name(false));
 			break;
 
@@ -231,7 +217,7 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 		//	m_pFiles->SetPath(((CWKSP_Tool_Library *)pItem)->Get_File_Name());
 			break;
 
-		case WKSP_ITEM_Tool:
+		case WKSP_ITEM_Tool        :
 		//	m_pFiles->SetPath(((CWKSP_Tool         *)pItem)->Get_File_Name());
 			break;
 
@@ -246,8 +232,6 @@ bool CData_Source::Set_Data_Source(CWKSP_Base_Item *pItem)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -261,8 +245,6 @@ bool CData_Source::Update_Database(const wxString &Server)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

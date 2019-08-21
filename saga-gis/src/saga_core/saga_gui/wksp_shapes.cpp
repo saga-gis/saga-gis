@@ -1165,7 +1165,7 @@ void CWKSP_Shapes::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 			}
 		}
 
-		for(iShape=0; iShape<Get_Shapes()->Get_Selection_Count(); iShape++)
+		for(iShape=0; iShape<(int)Get_Shapes()->Get_Selection_Count(); iShape++)
 		{
 			if( iShape != m_Edit_Index )
 			{

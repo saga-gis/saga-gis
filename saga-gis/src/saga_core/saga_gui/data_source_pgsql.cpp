@@ -67,6 +67,7 @@
 #include "wksp.h"
 #include "wksp_data_manager.h"
 
+#include "data_source.h"
 #include "data_source_pgsql.h"
 
 
@@ -193,6 +194,13 @@ bool	PGSQL_Connect			(const CSG_String &Host, const CSG_String &Port, const CSG_
 		&&	SET_PARAMETER("PG_USER", CSG_String(&g_Username))
 		&&	SET_PARAMETER("PG_PWD" , CSG_String(&g_Password))
 	);
+
+	if( bResult )
+	{
+		CSG_String	Server	= DBName + " [" + Host + ":" + Port + "]";
+
+		g_pData_Source->Get_PgSQL()->Update_Source(Server.c_str(), g_Username, g_Password);
+	}
 
 	return( bResult );
 }
@@ -764,7 +772,7 @@ void CData_Source_PgSQL::Update_Item(const wxTreeItemId &Item)
 
 	switch( pData->Get_Type() )
 	{
-	case TYPE_ROOT:		Update_Sources();		break;
+	case TYPE_ROOT  :	Update_Sources(    );	break;
 	case TYPE_SERVER:	Update_Sources(Item);	break;
 	case TYPE_SOURCE:	Update_Source (Item);	break;
 	}
@@ -819,7 +827,7 @@ void CData_Source_PgSQL::Update_Sources(void)
 }
 
 //---------------------------------------------------------
-void CData_Source_PgSQL::Update_Source(const wxString &Server)
+void CData_Source_PgSQL::Update_Source(const wxString &Server, const wxString &Username, const wxString &Password)
 {
 	if( Server.IsEmpty() )
 	{
@@ -830,11 +838,24 @@ void CData_Source_PgSQL::Update_Source(const wxString &Server)
 
 	wxTreeItemId	Item	= Find_Source(Server);
 
-	if( !Item.IsOk() && PGSQL_is_Connected(&Server) )
+	if( PGSQL_is_Connected(&Server) )
 	{
-		CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server);
+		if( !Item.IsOk() )
+		{
+			CData_Source_PgSQL_Data	*pData	= new CData_Source_PgSQL_Data(TYPE_SOURCE, &Server, &Server, &Username, &Password);
 
-		Item	= AppendItem(Get_Server_Item(Server, true), pData->Get_DBName().c_str(), IMG_SRC_OPENED, IMG_SRC_OPENED, pData);
+			Item	= AppendItem(Get_Server_Item(Server, true), pData->Get_DBName().c_str(), IMG_SRC_OPENED, IMG_SRC_OPENED, pData);
+		}
+		else if( !Username.IsEmpty() )	// if( Item.isOk() ))
+		{
+			CData_Source_PgSQL_Data	*pData	= (CData_Source_PgSQL_Data *)GetItemData(Item);
+
+			if( pData )
+			{
+				pData->Set_Username(Username);
+				pData->Set_Password(Password);
+			}
+		}
 	}
 
 	Update_Source(Item);
@@ -872,7 +893,8 @@ void CData_Source_PgSQL::Update_Source(const wxTreeItemId &Item)
 			&&	SET_PARAMETER("TABLES"    , &Tables)
 		);
 
-		Tables.Set_Index(1, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);
+	//	Tables.Set_Index(1, TABLE_INDEX_Ascending, 0, TABLE_INDEX_Ascending);	// sort by geometry type, then by name
+		Tables.Set_Index(0, TABLE_INDEX_Ascending);	// sort by name
 
 		bool	bSkipPostGISTables	= true;
 

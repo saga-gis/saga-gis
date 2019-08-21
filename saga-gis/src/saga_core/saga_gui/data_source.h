@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Data_Source.h 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
 #define _HEADER_INCLUDED__SAGA_GUI__Data_Source_H
 
@@ -90,6 +78,8 @@ public:
 	void							Autoconnect_DB			(void);
 
 	class CData_Source_Files *		Get_Files				(void)	{	return( m_pFiles );	}
+	class CData_Source_ODBC *		Get_ODBC				(void)	{	return( m_pODBC  );	}
+	class CData_Source_PgSQL *		Get_PgSQL				(void)	{	return( m_pPgSQL );	}
 
 	bool							Set_Data_Source			(class CWKSP_Base_Item *pItem);
 	bool							Update_Database			(const wxString &Server);
