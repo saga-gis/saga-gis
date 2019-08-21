@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,14 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                 Geostatistics_Kriging                 //
+//                     Tool Library:                     //
+//                     CliffMetrics                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -43,9 +40,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -54,24 +49,78 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
+//                                                       //
+//             The Tool Library Interface                //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__geostatistics_kriging_H
-#define HEADER_INCLUDED__geostatistics_kriging_H
+// 1. Include the appropriate SAGA-API header...
 
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+//---------------------------------------------------------
+// 2. Place general tool library informations here...
+
+CSG_String Get_Info(int i)
+{
+	switch( i )
+	{
+	case TLB_INFO_Name:	default:
+		return( _TL("CliffMetrics") );
+
+	case TLB_INFO_Category:
+		return( _TL("Terrain Analysis") );
+
+	case TLB_INFO_Author:
+		return( "SAGA Interface by O.Conrad (c) 2019, CliffMetrics by Payo et al. (c) 2018" );
+
+	case TLB_INFO_Description:
+		return( _TW(
+			"CliffMetrics (Automatic Cliff Metrics delineation) delineates the location of the "
+			"coastline, coastline normals, and cliff top and toe location along these normals. "
+		));
+
+	case TLB_INFO_Version:
+		return( "1.0" );
+
+	case TLB_INFO_Menu_Path:
+		return( _TL("Terrain Analysis|Coastal Morphology") );
+	}
+}
+
+
+//---------------------------------------------------------
+// 3. Include the headers of your tools here...
+
+#include "CliffMetrics_tool.h"
+
+
+//---------------------------------------------------------
+// 4. Allow your tools to be created here...
+
+CSG_Tool *		Create_Tool(int i)
+{
+	switch( i )
+	{
+	case  0:	return( new CCliffMetrics_Tool );
+
+	case 11:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
+}
+
+
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //
+//                                                       //
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__geostatistics_kriging_H
+//{{AFX_SAGA
+
+	TLB_INTERFACE
+
+//}}AFX_SAGA

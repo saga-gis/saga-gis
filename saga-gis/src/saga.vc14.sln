@@ -403,6 +403,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_landscape_evolution", "
 		{2FECD6E9-B83B-4BC3-BE78-9DA2698E456B} = {2FECD6E9-B83B-4BC3-BE78-9DA2698E456B}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ta_cliffmetrics", "tools\terrain_analysis\ta_cliffmetrics\ta_cliffmetrics.vcxproj", "{304E7FD6-0DFF-4418-970A-2649956C01CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1053,6 +1055,14 @@ Global
 		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|Win32.Build.0 = Release|Win32
 		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|x64.ActiveCfg = Release|x64
 		{E7B5BF01-B779-4039-930B-FD1772931EAF}.Release|x64.Build.0 = Release|x64
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Debug|Win32.Build.0 = Debug|Win32
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Debug|x64.ActiveCfg = Debug|x64
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Debug|x64.Build.0 = Debug|x64
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Release|Win32.ActiveCfg = Release|Win32
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Release|Win32.Build.0 = Release|Win32
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Release|x64.ActiveCfg = Release|x64
+		{304E7FD6-0DFF-4418-970A-2649956C01CB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

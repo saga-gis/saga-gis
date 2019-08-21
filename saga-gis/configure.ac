@@ -429,6 +429,7 @@ AC_OUTPUT(Makefile \
 	src/tools/table/table_tools/Makefile \
 	src/tools/terrain_analysis/Makefile \
 	src/tools/terrain_analysis/ta_channels/Makefile \
+	src/tools/terrain_analysis/ta_cliffmetrics/Makefile \
 	src/tools/terrain_analysis/ta_compound/Makefile \
 	src/tools/terrain_analysis/ta_hydrology/Makefile \
 	src/tools/terrain_analysis/ta_lighting/Makefile \

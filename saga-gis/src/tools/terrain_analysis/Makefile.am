@@ -1,1 +1,1 @@
-SUBDIRS = ta_slope_stability ta_profiles ta_preprocessor ta_morphometry ta_lighting ta_hydrology ta_compound ta_channels
+SUBDIRS = ta_slope_stability ta_profiles ta_preprocessor ta_morphometry ta_lighting ta_hydrology ta_compound ta_cliffmetrics ta_channels

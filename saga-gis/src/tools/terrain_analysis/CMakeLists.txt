@@ -1,6 +1,7 @@
 message("folder: tools/terrain_analysis")
 
 add_subdirectory(ta_channels)
+add_subdirectory(ta_cliffmetrics)
 add_subdirectory(ta_compound)
 add_subdirectory(ta_hydrology)
 add_subdirectory(ta_lighting)
