@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: kriging_base.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//            geostatistics_kriging_variogram            //
+//                    Tool Library                       //
+//                Geostatistics_Kriging                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   kriging_base.cpp                    //
+//                  kriging_base.cpp                     //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//                Copyright (C) 2008 by                  //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "variogram_dialog.h"
 
 #include "kriging_base.h"
@@ -76,21 +64,21 @@ CKriging_Base::CKriging_Base(void)
 {
 	//-----------------------------------------------------
 	Parameters.Add_Shapes("",
-		"POINTS"	, _TL("Points"),
+		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
 	Parameters.Add_Table_Field("POINTS",
-		"FIELD"		, _TL("Attribute"),
+		"FIELD"			, _TL("Attribute"),
 		_TL("")
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
-	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"), true);
+	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"),  true);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double("",
@@ -119,33 +107,33 @@ CKriging_Base::CKriging_Base(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Node("",
-		"NODE_KRG"	, _TL("Kriging"),
+		"NODE_KRG"		, _TL("Kriging"),
 		_TL("")
 	);
 
 	Parameters.Add_Choice("NODE_KRG",
-		"TQUALITY"	, _TL("Type of Quality Measure"),
+		"TQUALITY"		, _TL("Type of Quality Measure"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Standard Deviation"),
 			_TL("Variance")
 		), 0
 	);
 
 	Parameters.Add_Bool("NODE_KRG",
-		"LOG"		, _TL("Logarithmic Transformation"),
+		"LOG"			, _TL("Logarithmic Transformation"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Bool("NODE_KRG",
-		"BLOCK"		, _TL("Block Kriging"),
+		"BLOCK"			, _TL("Block Kriging"),
 		_TL(""),
 		false
 	);
 
 	Parameters.Add_Double("BLOCK",
-		"DBLOCK"	, _TL("Block Size"),
+		"DBLOCK"		, _TL("Block Size"),
 		_TL("Edge length [map units]"),
 		100.0, 0.0, true
 	);
@@ -154,7 +142,7 @@ CKriging_Base::CKriging_Base(void)
 	Parameters.Add_Choice("NODE_KRG",
 		"CV_METHOD"		, _TL("Cross Validation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("leave one out"),
 			_TL("2-fold"),

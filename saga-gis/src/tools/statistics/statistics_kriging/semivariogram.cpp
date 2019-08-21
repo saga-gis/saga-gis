@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: semivariogram.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,15 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                 Geostatistics_Points                  //
+//                    Tool Library                       //
+//                Geostatistics_Kriging                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  semivariogram.cpp                    //
+//                 semivariogram.cpp                     //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                Copyright (C) 2009 by                  //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "semivariogram.h"
 
 #include "variogram_dialog.h"
@@ -82,49 +70,49 @@ CSemiVariogram::CSemiVariogram(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(NULL,
-		"POINTS"	, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(Parameters("POINTS"),
-		"ATTRIBUTE"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"ATTRIBUTE"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(NULL,
-		"VARIOGRAM"	, _TL("Variogram"),
+	Parameters.Add_Table("",
+		"VARIOGRAM"		, _TL("Variogram"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(NULL,
-		"LOG"		, _TL("Logarithmic Transformation"),
+	Parameters.Add_Bool("",
+		"LOG"			, _TL("Logarithmic Transformation"),
 		_TL(""),
-		PARAMETER_TYPE_Bool
+		false
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"VAR_MAXDIST"	, _TL("Maximum Distance"),
 		_TL(""),
 		-1.0
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"VAR_NCLASSES"	, _TL("Lag Distance Classes"),
 		_TL("initial number of lag distance classes"),
 		100, 1, true
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_Int(NULL,
+	Parameters.Add_Int("",
 		"VAR_NSKIP"		, _TL("Skip"),
 		_TL(""),
 		1, 1, true
 	)->Set_UseInGUI(false);
 
-	Parameters.Add_String(NULL,
+	Parameters.Add_String("",
 		"VAR_MODEL"		, _TL("Model"),
 		_TL(""),
 		"a + b * x"
