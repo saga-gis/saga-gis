@@ -79,10 +79,10 @@ CDelineation::CDelineation(void)
    m_nCoastMax                                     =
    m_nCoastMin                                     = 0;
    
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    m_GDALWriteIntDataType                          =
    m_GDALWriteFloatDataType                        = GDT_Unknown;
-#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
    m_lGDALMaxCanWrite                              =
    m_lGDALMinCanWrite                              = 0;
@@ -180,7 +180,7 @@ int CDelineation::nGetGridYMax(void) const
  The nDoSimulation member function of CDelineation sets up and runs the simulation
 
 ==============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
 {
 #ifdef RANDCHECK
@@ -345,7 +345,7 @@ int CDelineation::nDoDelineation(int nArg, char* pcArgv[])
    return RTN_OK;
 } // end DoDelineation
 
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 {
 	m_pParameters	= pParameters;	CSG_Parameters	&Parameters	= *pParameters;
@@ -501,4 +501,4 @@ int CDelineation::nDoDelineation(CSG_Parameters *pParameters)
 
 	return RTN_OK;
 } // end DoDelineation
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)

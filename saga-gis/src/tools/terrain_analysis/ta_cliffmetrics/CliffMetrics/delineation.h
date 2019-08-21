@@ -34,11 +34,11 @@ using std::string;
 #include <utility>
 using std::pair;
 
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 #include <gdal_priv.h>
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 #include <saga_api/saga_api.h>
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 
 #include "line.h"
 #include "i_line.h"
@@ -94,11 +94,11 @@ private:
       m_nCoastMax,
       m_nCoastMin;
    
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    GDALDataType
       m_GDALWriteIntDataType,
       m_GDALWriteFloatDataType;
-#endif //  // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif //  // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
    long
       m_lGDALMaxCanWrite,
@@ -333,17 +333,17 @@ private:
    bool bWriteProfileData(int const, int const, int const, vector<double>* const, vector<double>* const, vector<C2DIPoint>* const, vector<double>* const);
 
    // GIS input and output stuff
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    int nReadDTMData(void);
    bool bWriteRasterGISFloat(int const, string const*);
    bool bWriteRasterGISInt(int const, string const*, double const = 0);
    bool bWriteVectorGIS(int const, string const*);
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
    int	nReadDTMData(CSG_Grid *pGrid);
    bool	bWriteRasterGISFloat(int const, CSG_Grid *pGrid);
    bool	bWriteRasterGISInt  (int const, CSG_Grid *pGrid, double const = 0);
    bool	bWriteVectorGIS     (int const, CSG_Shapes *pShapes);
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
    void GetRasterOutputMinMax(int const, double&, double&);
    void SetRasterFileCreationDefaults(void);
 
@@ -486,13 +486,13 @@ public:
    int nGetGridYMax(void) const;
 
    //! Runs the simulation
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    int nDoDelineation(int, char*[]);
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
    CSG_Parameters	*m_pParameters;
 
    int	nDoDelineation(CSG_Parameters *pParameters);
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 
    //! Carries out end-of-simulation tidying (error messages etc.)
    void DoDelineationEnd(int const);

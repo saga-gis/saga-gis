@@ -29,10 +29,10 @@ using std::cerr;
 using std::endl;
 using std::ios;
 
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 #include <gdal_priv.h>
 #include <ogrsf_frmts.h>
-#endif // #if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 
 #include "cliffmetrics.h"
 #include "delineation.h"
@@ -43,7 +43,7 @@ using std::ios;
  Writes vector GIS files using OGR
 
 ===============================================================================================================================*/
-#if !defined(_SAGA_MSW) && !defined(SAGA_LINUX)
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
 bool CDelineation::bWriteVectorGIS(int const nDataItem, string const* strPlotTitle)
 {
    // Begin constructing the file name for this save
@@ -516,7 +516,7 @@ bool CDelineation::bWriteVectorGIS(int const nDataItem, string const* strPlotTit
    return true;
 }
 
-#else // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#else // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
 bool CDelineation::bWriteVectorGIS(int const nDataItem, CSG_Shapes *pShapes)
 {
 	if( !pShapes )
@@ -710,4 +710,4 @@ bool CDelineation::bWriteVectorGIS(int const nDataItem, CSG_Shapes *pShapes)
 	return( true );
 }
 
-#endif // #if defined(_SAGA_MSW) || defined(SAGA_LINUX)
+#endif // #if defined(_SAGA_MSW) || defined(_SAGA_LINUX)
