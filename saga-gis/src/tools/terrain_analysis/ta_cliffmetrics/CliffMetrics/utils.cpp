@@ -1293,10 +1293,12 @@ void CDelineation::DoDelineationEnd(int const nRtn)
 #ifdef __GNUG__
    if (isatty(1))
    {
+#if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
       // Stdout is connected to a tty, so not running as a background job
       cout << endl << PRESSKEY;
       cout.flush();
       getchar();
+#endif // #if !defined(_SAGA_MSW) && !defined(_SAGA_LINUX)
    }
    else
    {
