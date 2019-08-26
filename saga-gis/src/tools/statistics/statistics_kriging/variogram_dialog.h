@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                       image_io                        //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Variogram_Dialog.h                   //
+//                  variogram_dialog.h                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2008                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -83,11 +82,15 @@ public:
 		FIELD_VAR_MODEL
 	};
 
-	CSG_Variogram(void);
+	CSG_Variogram(void)	{}
 
-	static bool		Calculate			(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, int nClasses = 25, double maxDistance = 0.0, int nSkip = 1);
+	static bool		Calculate			(const CSG_Matrix &Points, CSG_Table *pVariogram, int nClasses = 25, double maxDistance = 0.0, int nSkip = 1);
 
-	static double	Get_Lag_Distance	(CSG_Shapes *pPoints, int Method, int nSkip = 1);
+	static bool		Get_Extent			(const CSG_Matrix &Points, CSG_Matrix &Extent);
+
+	static double	Get_Diagonal		(const CSG_Matrix &Points);
+
+	static double	Get_Lag_Distance	(const CSG_Matrix &Points, int Method, int nSkip = 1);
 
 };
 
@@ -104,7 +107,7 @@ class CVariogram_Dialog : public CSGDI_Dialog
 public:
 	CVariogram_Dialog(void);
 
-	bool						Execute		(CSG_Shapes *pPoints, int Attribute, bool bLog, CSG_Table *pVariogram, CSG_Trend *pModel);
+	bool						Execute		(const CSG_Matrix &Points, CSG_Table *pVariogram, CSG_Trend *pModel);
 
 
 private:
@@ -127,15 +130,15 @@ private:
 
 	CSG_Table					*m_pVariogram;
 
-	CSG_Shapes					*m_pPoints;
+	const CSG_Matrix			*m_pPoints;
 
 	CSG_Rect					m_Extent;
 
 	bool						m_bLog;
 
-	int							m_Attribute, m_nPoints;
+	int							m_Field, m_zField, m_nPoints;
 
-	double						m_Distance;
+	double						m_Distance, m_Diagonal;
 
 
 	void						On_Update_Control		(wxCommandEvent &event);

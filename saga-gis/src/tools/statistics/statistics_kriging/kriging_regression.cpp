@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                 Geostatistics_Kriging                 //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                 kriging_regression.cpp                //
 //                                                       //
-//                 Copyright (C) 2015 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2015                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -106,10 +105,20 @@ CKriging_Regression::CKriging_Regression(void)
 	);
 
 	Parameters.Add_Grid("",
-		"VARIANCE"	, _TL("Quality Measure"),
+		"VARIANCE"	, _TL("Prediction Error"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
+
+	Parameters.Add_Choice("VARIANCE",
+		"TQUALITY"	, _TL("Error Measure"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("standard deviation"),
+			_TL("variance")
+		), 0
+	);
+
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
@@ -129,7 +138,7 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Choice("NODE_REG",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -146,13 +155,14 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Choice("NODE_REG",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
 		), 3
 	);
+
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
@@ -180,6 +190,7 @@ CKriging_Regression::CKriging_Regression(void)
 		"a + b * x"
 	)->Set_UseInGUI(false);
 
+
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
 	Parameters.Add_Node("",
@@ -190,19 +201,10 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Choice("NODE_KRG",
 		"KRIGING"	, _TL("Kriging Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Simple Kriging"),
 			_TL("Ordinary Kriging")
 		)
-	);
-
-	Parameters.Add_Choice("NODE_KRG",
-		"TQUALITY"	, _TL("Type of Quality Measure"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("standard deviation"),
-			_TL("variance")
-		), 0
 	);
 
 	Parameters.Add_Bool("NODE_KRG",
@@ -222,6 +224,7 @@ CKriging_Regression::CKriging_Regression(void)
 		_TL(""),
 		100.0, 0.0, true
 	);
+
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
@@ -248,6 +251,11 @@ int CKriging_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 int CKriging_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("VARIANCE") )
+	{
+		pParameters->Set_Enabled("TQUALITY", pParameter->asPointer() != NULL);
+	}
+
 	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
 	//-----------------------------------------------------

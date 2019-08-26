@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                 Geostatistics_Kriging                 //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Kriging_Universal.cpp                 //
+//                 kriging_universal.cpp                 //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2008                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -84,7 +83,7 @@ CKriging_Universal::CKriging_Universal(void)
 	Parameters.Add_Choice("NODE_UK",
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -105,77 +104,54 @@ CKriging_Universal::CKriging_Universal(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Universal::On_Initialize(void)
+bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field)
 {
-	m_pGrids		= Parameters("PREDICTORS")->asGridList();
-	m_bCoords		= Parameters("COORDS"    )->asBool();
+	m_pPredictors	= Parameters("PREDICTORS")->asGridList();
+
+	m_bCoords	= Parameters("COORDS")->asBool();
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	m_Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	m_Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	m_Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	m_Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: m_Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: m_Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: m_Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: m_Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	if( m_Search.Do_Use_All(true) )	// global
+	m_Points.Create(3, pPoints->Get_Count());
+
+	int	n	= 0;	bool bLog = Parameters("LOG")->asBool();
+
+	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
-		m_Data.Clear();
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		bool	bOkay	= !pPoint->is_NoData(Field);	// for better performance, make sure all predictors supply a value now
+
+		for(int j=0; bOkay && j<m_pPredictors->Get_Grid_Count(); j++)
 		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
-
-			if( !pPoint->is_NoData(m_zField) )
-			{
-				bool	bAdd	= true;	// for better performance, make sure all predictors supply a value now
-
-				for(int j=0; bAdd && j<m_pGrids->Get_Grid_Count(); j++)
-				{
-					bAdd	= m_pGrids->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
-				}
-
-				if( bAdd )
-				{
-					m_Data.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
-				}
-			}
+			bOkay	= m_pPredictors->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
 		}
 
-		return( Get_Weights(m_Data, m_W) );
-	}
-
-	//-----------------------------------------------------
-	if( m_bLog )
-	{
-		CSG_Shapes	Points(SHAPE_TYPE_Point); Points.Add_Field("Z", SG_DATATYPE_Double);
-
-		for(int iPoint=0; iPoint<m_pPoints->Get_Count() && Set_Progress(iPoint, m_pPoints->Get_Count()); iPoint++)
+		if( bOkay )
 		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(iPoint);
+			m_Points[n][0]	= pPoint->Get_Point(0).x;
+			m_Points[n][1]	= pPoint->Get_Point(0).y;
+			m_Points[n][2]	= bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
 
-			if( !pPoint->is_NoData(m_zField) )
-			{
-				bool	bAdd	= true;	// for better performance, make sure all predictors supply a value now
-
-				for(int j=0; bAdd && j<m_pGrids->Get_Grid_Count(); j++)
-				{
-					bAdd	= m_pGrids->Get_Grid(j)->is_InGrid_byPos(pPoint->Get_Point(0));
-				}
-
-				if( bAdd )
-				{
-					Points.Add_Shape(pPoint, SHAPE_COPY_GEOM)->Set_Value(0, log(pPoint->asDouble(m_zField)));
-				}
-			}
+			n++;
 		}
-
-		return( m_Search.Initialize(&Points, 0) );
 	}
 
-	//-----------------------------------------------------
-	return( m_Search.Initialize(m_pPoints, m_zField) );
+	if( n < 2 )
+	{
+		return( false );
+	}
+
+	m_Points.Set_Rows(n);	// resize if there are no-data values
+
+	return( true );
 }
 
 
@@ -184,53 +160,48 @@ bool CKriging_Universal::On_Initialize(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Universal::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
+bool CKriging_Universal::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	n	= Points.Get_Count();
+	int	i, j, k, n	= Points.Get_NRows();
 
-	if( n > 0 )
+	int	nCoords	= m_bCoords ? 2 : 0;
+	int	nGrids	= m_pPredictors->Get_Grid_Count();
+
+	if( n < 1 || !W.Create(n + 1 + nGrids + nCoords, n + 1 + nGrids + nCoords) )
 	{
-		int	i, j, k;
+		return( false );
+	}
 
-		int	nCoords	= m_bCoords ? 2 : 0;
-		int	nGrids	= m_pGrids->Get_Grid_Count();
+	for(i=0; i<n; i++)
+	{
+		W[i][i]           = 0.;	// diagonal...
+		W[i][n] = W[n][i] = 1.;	// edge...
 
-		W.Create(n + 1 + nGrids + nCoords, n + 1 + nGrids + nCoords);
-
-		//-------------------------------------------------
-		for(i=0; i<n; i++)
+		for(j=i+1; j<n; j++)
 		{
-			W[i][i]	= 0.0;				// diagonal...
-			W[i][n]	= W[n][i]	= 1.0;	// edge...
-
-			for(j=i+1; j<n; j++)
-			{
-				W[i][j]	= W[j][i]	= Get_Weight(Points.Get_X(i), Points.Get_Y(i), Points.Get_X(j), Points.Get_Y(j));
-			}
-
-			for(k=0, j=n+1; k<nGrids; k++, j++)
-			{
-				W[i][j]	= W[j][i]	= m_pGrids->Get_Grid(k)->Get_Value(Points.Get_X(i), Points.Get_Y(i), m_Resampling);
-			}
-
-			for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
-			{
-				W[i][j]	= W[j][i]	= k == 0 ? Points.Get_X(i) : Points.Get_Y(i);
-			}
+			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
 		}
 
-		for(i=n; i<=n+nGrids+nCoords; i++)
+		for(k=0, j=n+1; k<nGrids; k++, j++)
 		{
-			for(j=n; j<=n+nGrids+nCoords; j++)
-			{
-				W[i][j]	= 0.0;
-			}
+			W[i][j] = W[j][i] = m_pPredictors->Get_Grid(k)->Get_Value(Points[i][0], Points[i][1], m_Resampling);
 		}
 
-		return( W.Set_Inverse(!m_Search.Do_Use_All(), n + 1 + nGrids + nCoords) );
-	}	
+		for(k=0, j=n+nGrids+1; k<nCoords; k++, j++)
+		{
+			W[i][j] = W[j][i] = k == 0 ? Points[i][0] : Points[i][1];
+		}
+	}
 
-	return( false );
+	for(i=n; i<=n+nGrids+nCoords; i++)
+	{
+		for(j=n; j<=n+nGrids+nCoords; j++)
+		{
+			W[i][j] = 0.;
+		}
+	}
+
+	return( W.Set_Inverse(m_Search.is_Okay(), n + 1 + nGrids + nCoords) );
 }
 
 
@@ -239,77 +210,70 @@ bool CKriging_Universal::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Universal::Get_Value(const TSG_Point &p, double &z, double &v)
+bool CKriging_Universal::Get_Value(double x, double y, double &v, double &e)
 {
-	//-----------------------------------------------------
-	int				i, j, n;
-	double			**W;
-	CSG_Matrix		_W;
-	CSG_Points_Z	_Data, *pData;
+	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, j, n = 0;
 
-	if( m_Search.Do_Use_All() )	// global
+	if( !m_Search.is_Okay() )	// global
 	{
-		pData	= &m_Data;
-		W		= m_W.Get_Data();
+		n	= m_Points.Get_NRows();
+		P	= m_Points.Get_Data ();
+		W	= m_W     .Get_Data ();
 	}
-	else if( m_Search.Get_Points(p, _Data) && Get_Weights(_Data, _W) )	// local
+	else if( Get_Points(x, y, __Points) && Get_Weights(__Points, __W) )	// local
 	{
-		pData	= &_Data;
-		W		= _W.Get_Data();
+		n	= __Points.Get_NRows();
+		P	= __Points.Get_Data ();
+		W	= __W     .Get_Data ();
 	}
-	else
+
+	if( n < 1 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if(	(n = pData->Get_Count()) > 0 )
+	int	nCoords	= m_bCoords ? 2 : 0;
+	int	nGrids	= m_pPredictors->Get_Grid_Count();
+
+	CSG_Vector	G(n + 1 + nGrids + nCoords);
+
+	for(i=0; i<n; i++)
 	{
-		int	nCoords	= m_bCoords ? 2 : 0;
-		int	nGrids	= m_pGrids->Get_Grid_Count();
-
-		CSG_Vector	G(n + 1 + nGrids + nCoords);
-
-		for(i=0; i<n; i++)
-		{
-			G[i]	= Get_Weight(p, pData->Get_Point(i));
-		}
-
-		G[n]	= 1.0;
-
-		for(i=0, j=n+1; i<nGrids; i++, j++)
-		{
-			if( !m_pGrids->Get_Grid(i)->Get_Value(p, G[j], m_Resampling) )
-			{
-				return( false );
-			}
-		}
-
-		if( m_bCoords )
-		{
-			G[n + 1 + nGrids]	= p.x;
-			G[n + 2 + nGrids]	= p.y;
-		}
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			double	Lambda	= 0.0;
-
-			for(j=0; j<=n+nGrids+nCoords; j++)
-			{
-				Lambda	+= W[i][j] * G[j];
-			}
-
-			z	+= Lambda * pData->Get_Z(i);
-			v	+= Lambda * G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
+		G[i]	= Get_Weight(x, y, P[i][0], P[i][1]);
 	}
 
-	return( false );
+	G[n]	= 1.;
+
+	for(i=0, j=n+1; i<nGrids; i++, j++)
+	{
+		if( !m_pPredictors->Get_Grid(i)->Get_Value(x, y, G[j], m_Resampling) )
+		{
+			return( false );
+		}
+	}
+
+	if( m_bCoords )
+	{
+		G[n + 1 + nGrids]	= x;
+		G[n + 2 + nGrids]	= y;
+	}
+
+	for(i=0, v=0., e=0.; i<n; i++)
+	{
+		double	Lambda	= 0.;
+
+		for(j=0; j<=n+nGrids+nCoords; j++)
+		{
+			Lambda	+= W[i][j] * G[j];
+		}
+
+		v	+= Lambda * P[i][2];
+		e	+= Lambda * G[i];
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//            geostatistics_kriging_variogram            //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  Kriging_Ordinary.h                   //
+//                  kriging_ordinary.h                   //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2008                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -77,9 +76,9 @@ public:
 
 protected:
 
-	virtual bool			Get_Weights			(const CSG_Points_Z &Points, CSG_Matrix &W);
+	virtual bool			Get_Weights			(const CSG_Matrix &Points, CSG_Matrix &W);
 
-	virtual bool			Get_Value			(const TSG_Point &p, double &z, double &v);
+	virtual bool			Get_Value			(double x, double y, double &v, double &e);
 
 };
 

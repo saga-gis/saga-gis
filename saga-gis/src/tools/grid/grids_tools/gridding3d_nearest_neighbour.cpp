@@ -184,16 +184,16 @@ bool CGridding3D_Nearest_Neighbour::On_Execute(void)
 		#pragma omp parallel for
 		for(int y=0; y<pGrids->Get_NY(); y++)
 		{
-			double	p[3], d;	size_t	i;
+			double	c[3], d;	size_t	i;
 
-			p[0]	= pGrids->Get_XMin() + x * pGrids->Get_Cellsize();
-			p[1]	= pGrids->Get_YMin() + y * pGrids->Get_Cellsize();
+			c[0]	= pGrids->Get_XMin() + x * pGrids->Get_Cellsize();
+			c[1]	= pGrids->Get_YMin() + y * pGrids->Get_Cellsize();
 
 			for(int z=0; z<pGrids->Get_NZ(); z++)
 			{
-				p[2]	= pGrids->Get_Z(z) * zScale;
+				c[2]	= pGrids->Get_Z(z) * zScale;
 
-				if( Search.Get_Nearest_Point(p, i, d) )
+				if( Search.Get_Nearest_Point(c, i, d) )
 				{
 					pGrids->Set_Value(x, y, z, pPoints->Get_Shape((int)i)->asDouble(vField));
 				}

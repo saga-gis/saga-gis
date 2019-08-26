@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Tool Library                       //
-//                Geostatistics_Kriging                  //
+//                     Tool Library                      //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                  kriging_base.cpp                     //
 //                                                       //
-//                Copyright (C) 2008 by                  //
-//                     Olaf Conrad                       //
+//                 Olaf Conrad (C) 2008                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -41,8 +40,6 @@
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
 //                University of Hamburg                  //
-//                Bundesstr. 55                          //
-//                20146 Hamburg                          //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -77,8 +74,17 @@ CKriging_Base::CKriging_Base(void)
 	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
-	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"     ), false);
-	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Quality Measure"),  true);
+	m_Grid_Target.Add_Grid("PREDICTION", _TL("Prediction"      ), false);
+	m_Grid_Target.Add_Grid("VARIANCE"  , _TL("Prediction Error"),  true);
+
+	Parameters.Add_Choice("VARIANCE",
+		"TQUALITY"		, _TL("Error Measure"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("Standard Deviation"),
+			_TL("Variance")
+		), 1
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Double("",
@@ -109,15 +115,6 @@ CKriging_Base::CKriging_Base(void)
 	Parameters.Add_Node("",
 		"NODE_KRG"		, _TL("Kriging"),
 		_TL("")
-	);
-
-	Parameters.Add_Choice("NODE_KRG",
-		"TQUALITY"		, _TL("Type of Quality Measure"),
-		_TL(""),
-		CSG_String::Format("%s|%s",
-			_TL("Standard Deviation"),
-			_TL("Variance")
-		), 0
 	);
 
 	Parameters.Add_Bool("NODE_KRG",
@@ -169,7 +166,7 @@ CKriging_Base::CKriging_Base(void)
 	);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 16);
 
 	//-----------------------------------------------------
 	if( !SG_UI_Get_Window_Main() )
@@ -181,11 +178,6 @@ CKriging_Base::CKriging_Base(void)
 		m_pVariogram	= new CVariogram_Dialog;
 	}
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
@@ -208,7 +200,7 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 {
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Search.On_Parameter_Changed(pParameters, pParameter);
+		m_Search_Options.On_Parameter_Changed(pParameters, pParameter);
 
 		m_Grid_Target.Set_User_Defined(pParameters, pParameter->asShapes());
 	}
@@ -221,6 +213,11 @@ int CKriging_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if(	pParameter->Cmp_Identifier("VARIANCE") )
+	{
+		pParameters->Set_Enabled("TQUALITY"    , pParameter->asPointer() != NULL);
+	}
+
 	if(	pParameter->Cmp_Identifier("BLOCK") )
 	{
 		pParameters->Set_Enabled("DBLOCK"      , pParameter->asBool());	// block size
@@ -233,8 +230,8 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 		pParameters->Set_Enabled("CV_SAMPLES"  , pParameter->asInt() == 3);	// k-fold
 	}
 
-	m_Search     .On_Parameters_Enable(pParameters, pParameter);
-	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
+	m_Grid_Target   .On_Parameters_Enable(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -247,71 +244,96 @@ int CKriging_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CKriging_Base::On_Execute(void)
 {
-	bool	bResult	= false;
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	m_Block		= Parameters("BLOCK"   )->asBool() ? Parameters("DBLOCK")->asDouble() / 2.0 : 0.0;
-	m_bStdDev	= Parameters("TQUALITY")->asInt() == 0;
-	m_bLog		= Parameters("LOG"     )->asBool();
-
-	m_pPoints	= Parameters("POINTS"  )->asShapes();
-	m_zField	= Parameters("FIELD"   )->asInt();
-
-	if( m_pPoints->Get_Count() <= 1 )
+	if( pPoints->Get_Count() < 2 )
 	{
-		SG_UI_Msg_Add(_TL("not enough points for interpolation"), true);
+		Error_Set(_TL("not enough points for interpolation"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	Variogram;
+	int	Field	= Parameters("FIELD")->asInt();
 
-	if( m_pVariogram )
+	m_Block		= Parameters("BLOCK")->asBool() ? Parameters("DBLOCK")->asDouble() / 2. : 0.;
+
+	bool	bLog	= Parameters("LOG")->asBool();
+
+	//-----------------------------------------------------
+	bool	bResult	= Init_Points(pPoints, Field, bLog);	
+
+	//-----------------------------------------------------
+	if( bResult )
 	{
-		if( m_pVariogram->Execute(m_pPoints, m_zField, m_bLog, &Variogram, &m_Model) )
+		CSG_Table	Variogram;
+
+		if( m_pVariogram )
 		{
-			bResult	= true;
+			bResult	= m_pVariogram->Execute   (m_Points, &Variogram, &m_Model);
 		}
-	}
-	else
-	{
-		int		nSkip		= Parameters("VAR_NSKIP"   )->asInt();
-		int		nClasses	= Parameters("VAR_NCLASSES")->asInt();
-		double	maxDistance	= Parameters("VAR_MAXDIST" )->asDouble();
-
-		m_Model.Set_Formula(Parameters("VAR_MODEL")->asString());
-
-		if( CSG_Variogram::Calculate(m_pPoints, m_zField, m_bLog, &Variogram, nClasses, maxDistance, nSkip) )
+		else
 		{
-			m_Model.Clr_Data();
+			bResult	= CSG_Variogram::Calculate(m_Points, &Variogram,
+				Parameters("VAR_NCLASSES")->asInt   (),
+				Parameters("VAR_MAXDIST" )->asDouble(),
+				Parameters("VAR_NSKIP"   )->asInt   ()
+			);
 
-			for(int i=0; i<Variogram.Get_Count(); i++)
+			if( bResult )
 			{
-				CSG_Table_Record	*pRecord	= Variogram.Get_Record(i);
+				m_Model.Clr_Data();
 
-				m_Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
+				for(int i=0; i<Variogram.Get_Count(); i++)
+				{
+					CSG_Table_Record	*pRecord	= Variogram.Get_Record(i);
+
+					m_Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
+				}
+
+				bResult	= m_Model.Set_Formula(Parameters("VAR_MODEL")->asString())
+					&& (m_Model.Get_Trend() || m_Model.Get_Parameter_Count() == 0);
 			}
-
-			bResult	= m_Model.Get_Trend() || m_Model.Get_Parameter_Count() == 0;
 		}
 	}
 
 	//-----------------------------------------------------
-	if( bResult && (bResult = _Initialise_Grids() && On_Initialize()) )
+	if( bResult )
 	{
+		bResult	= _Init_Grids() && _Init_Search(true);
+	}
+
+	//-----------------------------------------------------
+	if( bResult )
+	{
+		bool	bStdDev	= Parameters("TQUALITY")->asInt() == 0;
+
 		Message_Fmt("\n%s: %s", _TL("Variogram Model"), m_Model.Get_Formula(SG_TREND_STRING_Formula_Parameters).c_str());
 
-		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
+		for(int y=0; y<m_pValue->Get_NY() && Set_Progress(y, m_pValue->Get_NY()); y++)
 		{
-			#pragma omp parallel for
-			for(int x=0; x<m_pGrid->Get_NX(); x++)
-			{
-				double	z, v;
+			double	py = m_pValue->Get_YMin() + y * m_pValue->Get_Cellsize();
 
-				if( Get_Value(m_pGrid->Get_System().Get_Grid_to_World(x, y), z, v) )
+			#ifndef _DEBUG
+			#pragma omp parallel for
+			#endif // !_DEBUG
+			for(int x=0; x<m_pValue->Get_NX(); x++)
+			{
+				double	v, e, px = m_pValue->Get_XMin() + x * m_pValue->Get_Cellsize();
+
+				if( Get_Value(px, py, v, e) )
 				{
-					Set_Value(x, y, z, v);
+					if( bLog )
+					{
+						v	= exp(v) - 1. + pPoints->Get_Minimum(Field);
+					}
+
+					if( bStdDev )
+					{
+						e	= sqrt(e);
+					}
+
+					Set_Value(x, y, v, e);
 				}
 				else
 				{
@@ -324,10 +346,11 @@ bool CKriging_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Model .Clr_Data();
-	m_Search.Finalize();
-	m_Data  .Clear();
+	m_Model.Clr_Data();
+
+	m_Search.Destroy();
 	m_W     .Destroy();
+	m_Points.Destroy();
 
 	return( bResult );
 }
@@ -338,15 +361,15 @@ bool CKriging_Base::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Base::_Initialise_Grids(void)
+bool CKriging_Base::_Init_Grids(void)
 {
-	if( (m_pGrid = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
+	if( (m_pValue = m_Grid_Target.Get_Grid("PREDICTION")) != NULL )
 	{
-		m_pGrid->Fmt_Name("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
+		m_pValue->Fmt_Name("%s.%s [%s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str());
 
-		if( (m_pVariance = m_Grid_Target.Get_Grid("VARIANCE")) != NULL )
+		if( (m_pError = m_Grid_Target.Get_Grid("VARIANCE")) != NULL )
 		{
-			m_pVariance->Fmt_Name("%s.%s [%s %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), m_bStdDev ? _TL("Standard Deviation") : _TL("Variance"));
+			m_pError->Fmt_Name("%s.%s [%s %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), _TL("Error"));
 		}
 
 		return( true );
@@ -355,52 +378,75 @@ bool CKriging_Base::_Initialise_Grids(void)
 	return( false );
 }
 
+//---------------------------------------------------------
+bool CKriging_Base::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
+{
+	m_Points.Create(3, pPoints->Get_Count());
+
+	int	n	= 0;
+
+	for(int i=0; i<pPoints->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+
+		if( !pPoint->is_NoData(Field) )
+		{
+			m_Points[n][0]	= pPoint->Get_Point(0).x;
+			m_Points[n][1]	= pPoint->Get_Point(0).y;
+			m_Points[n][2]	= bLog ? log(1. + pPoint->asDouble(Field) - pPoints->Get_Minimum(Field))
+							: pPoint->asDouble(Field);
+
+			n++;
+		}
+	}
+
+	if( n < 2 )
+	{
+		return( false );
+	}
+
+	m_Points.Set_Rows(n);	// resize if there are no-data values
+
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CKriging_Base::_Init_Search(bool bUpdate)
+{
+	if( m_Search_Options.Do_Use_All(bUpdate) )	// global
+	{
+		return( Get_Weights(m_Points, m_W) );
+	}
+
+	return( m_Search.Create(m_Points) );	// local
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Base::On_Initialize(void)
+bool CKriging_Base::Get_Points(double x, double y, CSG_Matrix &Points)
 {
-	//-----------------------------------------------------
-	if( m_Search.Do_Use_All(true) )	// global
+	if( m_Search.is_Okay() )
 	{
-		m_Data.Clear();
+		CSG_Array_Int	Index;	CSG_Vector	Distance;
 
-		for(int i=0; i<m_pPoints->Get_Count(); i++)
+		m_Search.Get_Nearest_Points(x, y, m_Search_Options.Get_Max_Points(), m_Search_Options.Get_Radius(), Index, Distance);
+		
+		if( Index.Get_Size() >= m_Search_Options.Get_Min_Points() && Points.Create(3, (int)Index.Get_Size()) )
 		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
-
-			if( !pPoint->is_NoData(m_zField) )
+			for(size_t i=0; i<Index.Get_Size(); i++)
 			{
-				m_Data.Add(pPoint->Get_Point(0).x, pPoint->Get_Point(0).y, m_bLog ? log(pPoint->asDouble(m_zField)) : pPoint->asDouble(m_zField));
+				Points.Set_Row(i, m_Points[Index[i]]);
 			}
-		}
 
-		return( Get_Weights(m_Data, m_W) );
+			return( true );
+		}
 	}
 
-	//-----------------------------------------------------
-	if( m_bLog )
-	{
-		CSG_Shapes	Points(SHAPE_TYPE_Point); Points.Add_Field("Z", SG_DATATYPE_Double);
-
-		for(int i=0; i<m_pPoints->Get_Count() && Set_Progress(i, m_pPoints->Get_Count()); i++)
-		{
-			CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
-
-			if( !pPoint->is_NoData(m_zField) )
-			{
-				Points.Add_Shape(pPoint, SHAPE_COPY_GEOM)->Set_Value(0, log(pPoint->asDouble(m_zField)));
-			}
-		}
-
-		return( m_Search.Initialize(&Points, 0) );
-	}
-
-	//-----------------------------------------------------
-	return( m_Search.Initialize(m_pPoints, m_zField) );
+	return( false );
 }
 
 
@@ -437,62 +483,56 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 
 	CSG_Simple_Statistics	SFull, SR, SE;
 
-	CSG_Shapes	*pFull	= m_pPoints;
-
 	int		i, nSamples	= 0;
 
-	for(i=0; i<pFull->Get_Count(); i++)
+	for(i=0; i<m_Points.Get_NRows(); i++)
 	{
-		CSG_Shape	*pPoint	= pFull->Get_Shape(i);
-
-		if( !pPoint->is_NoData(m_zField) )
-		{
-			SFull	+= pPoint->asDouble(m_zField);
-		}
+		SFull	+= m_Points[i][2];
 	}
 
 	//-----------------------------------------------------
 	// leave-one-out cross validation (LOOCV)
 
-	if( nSubSets <= 1 || nSubSets > pFull->Get_Count() / 2 )
+	if( nSubSets < 2 || nSubSets > m_Points.Get_NRows() / 2. )
 	{
-		CSG_Shapes	Sample(*pFull), *pResiduals;	m_pPoints	= &Sample;
+		CSG_Shapes	*pResiduals	= Parameters("CV_RESIDUALS")->asShapes();
 
-		if( (pResiduals = Parameters("CV_RESIDUALS")->asShapes()) != NULL )
+		if( pResiduals )
 		{
-			pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s, %s]", m_pPoints->Get_Name(), Get_Name().c_str(), _TL("Residuals")));
-			pResiduals->Add_Field(pFull->Get_Field_Name(m_zField), SG_DATATYPE_Double);
+			pResiduals->Create(SHAPE_TYPE_Point);
+			pResiduals->Fmt_Name("%s [%s, %s]", Parameters("PREDICTION")->asShapes()->Get_Name(), Get_Name().c_str(), _TL("Residuals"));
+			pResiduals->Add_Field("ORIGINALS", SG_DATATYPE_Double);
 			pResiduals->Add_Field("PREDICTED", SG_DATATYPE_Double);
-			pResiduals->Add_Field("RESIDUALS" , SG_DATATYPE_Double);
+			pResiduals->Add_Field("RESIDUALS", SG_DATATYPE_Double);
 		}
 
-		for(i=pFull->Get_Count()-1; i>=0 && Set_Progress(pFull->Get_Count()-1-i, pFull->Get_Count()); i--)
+		for(i=m_Points.Get_NRows()-1; i>=0; i--)
 		{
-			CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+			CSG_Vector	Point	= m_Points.Get_Row(i);
 
-			Sample.Del_Shape(i);
+			m_Points.Del_Row(i);
 
-			double	z, v;
+			double	v, e;
 
-			if( !pPoint->is_NoData(m_zField) && On_Initialize() && Get_Value(pPoint->Get_Point(0), z, v) )
+			if( _Init_Search() && Get_Value(Point, v, e) )
 			{
 				nSamples++;
 
-				SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
-				SR	+= SG_Get_Square(z - (SFull.Get_Sum() - pPoint->asDouble(m_zField)) / Sample.Get_Count());
+				SE	+= SG_Get_Square(v - Point[2]);
+				SR	+= SG_Get_Square(v - (SFull.Get_Sum() - Point[2]) / (1. + m_Points.Get_NRows()));
 
 				if( pResiduals )
 				{
 					CSG_Shape	*pResidual	= pResiduals->Add_Shape();
 
-					pResidual->Add_Point(pPoint->Get_Point(0));
-					pResidual->Set_Value(0, pPoint->asDouble(m_zField));
-					pResidual->Set_Value(1, z);
-					pResidual->Set_Value(2, pPoint->asDouble(m_zField) - z);
+					pResidual->Set_Point(   Point[0], Point[1], 0);
+					pResidual->Set_Value(0, Point[2]    );
+					pResidual->Set_Value(1,            v);
+					pResidual->Set_Value(2, Point[2] - v);
 				}
 			}
 
-			Sample.Add_Shape(pPoint);
+			m_Points.Add_Row(Point);
 		}
 	}
 
@@ -501,9 +541,11 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 
 	else
 	{
-		CSG_Array_Int	SubSet(pFull->Get_Count());
+		CSG_Matrix	Points_All(m_Points);
 
-		for(i=0; i<pFull->Get_Count(); i++)
+		CSG_Array_Int	SubSet(Points_All.Get_NRows());
+
+		for(i=0; i<Points_All.Get_NRows(); i++)
 		{
 			SubSet[i]	= i % nSubSets;
 		}
@@ -513,45 +555,37 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 		{
 			CSG_Simple_Statistics	iSFull;
 
-			CSG_Shapes	Sample[2];
+			CSG_Matrix	Points; m_Points.Destroy();
 
-			Sample[0].Create(SHAPE_TYPE_Point, SG_T(""), pFull); m_pPoints = &Sample[0];
-			Sample[1].Create(SHAPE_TYPE_Point, SG_T(""), pFull);
-
-			for(i=0; i<pFull->Get_Count(); i++)
+			for(i=0; i<Points_All.Get_NRows(); i++)
 			{
-				CSG_Shape	*pPoint	= pFull->Get_Shape(i);
+				CSG_Vector	Point	= Points_All.Get_Row(i);
 
-				if( !pPoint->is_NoData(m_zField) )
+				if( SubSet[i] == iSubSet )
 				{
-					if( SubSet[i] == iSubSet )
-					{
-						Sample[1].Add_Shape(pPoint);
-					}
-					else
-					{
-						Sample[0].Add_Shape(pPoint);
+					Points  .Add_Row(Point);
+				}
+				else
+				{
+					m_Points.Add_Row(Point);
 
-						iSFull	+= pPoint->asDouble(m_zField);
-					}
+					iSFull	+= Point[2];
 				}
 			}
 
 			//---------------------------------------------
-			if( On_Initialize() )
+			if( _Init_Search() )
 			{
 				nSamples++;
 
-				for(i=0; i<Sample[1].Get_Count(); i++)
+				for(i=0; i<Points.Get_NRows(); i++)
 				{
-					CSG_Shape	*pPoint	= Sample[1].Get_Shape(i);
+					double	v, e, *Point = Points[i];
 
-					double	z, v;
-
-					if( Get_Value(pPoint->Get_Point(0), z, v) )
+					if( Get_Value(Point, v, e) )
 					{
-						SE	+= SG_Get_Square(z - pPoint->asDouble(m_zField));
-						SR	+= SG_Get_Square(z - iSFull.Get_Mean());
+						SE	+= SG_Get_Square(v - Point[2]);
+						SR	+= SG_Get_Square(v - iSFull.Get_Mean());
 					}
 				}
 			}
@@ -565,17 +599,17 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table	*pSummary	= Parameters("CV_SUMMARY")->asTable();
-
-	if( pSummary )
+	if( Parameters("CV_SUMMARY")->asTable() )
 	{
-		pSummary->Destroy();
-		pSummary->Set_Name(_TL("Cross Validation"));
+		CSG_Table	&Summary	= *Parameters("CV_SUMMARY")->asTable();
 
-		pSummary->Add_Field(_TL("Parameter"), SG_DATATYPE_String);
-		pSummary->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+		Summary.Destroy();
+		Summary.Set_Name(_TL("Cross Validation"));
 
-		#define CV_ADD_SUMMARY(name, value)	{ CSG_Table_Record *pR = pSummary->Add_Record();\
+		Summary.Add_Field(_TL("Parameter"), SG_DATATYPE_String);
+		Summary.Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
+
+		#define CV_ADD_SUMMARY(name, value)	{ CSG_Table_Record *pR = Summary.Add_Record();\
 			pR->Set_Value(0, name);\
 			pR->Set_Value(1, value);\
 		}
@@ -583,22 +617,18 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 		CV_ADD_SUMMARY("SAMPLES", nSamples);
 		CV_ADD_SUMMARY("MSE"    ,      SE.Get_Mean());
 		CV_ADD_SUMMARY("RMSE"   , sqrt(SE.Get_Mean()));
-		CV_ADD_SUMMARY("NRMSE"  , sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.0);
-		CV_ADD_SUMMARY("R2"     , SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.0);
+		CV_ADD_SUMMARY("NRMSE"  , sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.);
+		CV_ADD_SUMMARY("R2"     , SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.);
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Message;
-
-	Message	+= CSG_String::Format("\n%s:\n"      , _TL("Cross Validation"));
-	Message	+= CSG_String::Format("\t%s:\t%s\n"  , _TL("Method" ), Parameters("CV_METHOD")->asString());
-	Message	+= CSG_String::Format("\t%s:\t%d\n"  , _TL("Samples"), nSamples);
-	Message	+= CSG_String::Format("\t%s:\t%f\n"  , _TL("MSE"    ),      SE.Get_Mean());
-	Message	+= CSG_String::Format("\t%s:\t%f\n"  , _TL("RMSE"   ), sqrt(SE.Get_Mean()));
-	Message	+= CSG_String::Format("\t%s:\t%.2f\n", _TL("NRMSE"  ), sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.0);
-	Message	+= CSG_String::Format("\t%s:\t%.2f\n", _TL("R2"     ), SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.0);
-
-	Message_Add(Message, false);
+	Message_Fmt("\n%s:\n"      , _TL("Cross Validation"));
+	Message_Fmt("\t%s:\t%s\n"  , _TL("Method" ), Parameters("CV_METHOD")->asString());
+	Message_Fmt("\t%s:\t%d\n"  , _TL("Samples"), nSamples);
+	Message_Fmt("\t%s:\t%f\n"  , _TL("MSE"    ),      SE.Get_Mean());
+	Message_Fmt("\t%s:\t%f\n"  , _TL("RMSE"   ), sqrt(SE.Get_Mean()));
+	Message_Fmt("\t%s:\t%.2f\n", _TL("NRMSE"  ), sqrt(SE.Get_Mean()) / SFull.Get_Range() * 100.);
+	Message_Fmt("\t%s:\t%.2f\n", _TL("R2"     ), SR.Get_Sum() / (SR.Get_Sum() + SE.Get_Sum()) * 100.);
 
 	//-----------------------------------------------------
 	return( true );

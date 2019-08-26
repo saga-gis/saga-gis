@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                 Geostatistics_Points                  //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                   semivariogram.h                     //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2009                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                 Geostatistics_Kriging                 //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
 //                  kriging_simple.cpp                   //
 //                                                       //
-//                 Copyright (C) 2015 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2015                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -76,30 +75,26 @@ CKriging_Simple::CKriging_Simple(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Simple::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
+bool CKriging_Simple::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	n	= Points.Get_Count();
+	int	n	= Points.Get_NRows();
 
-	if( n > 0 )
+	if( n < 1 || !W.Create(n, n) )
 	{
-		int	n	= Points.Get_Count();
-
-		W.Create(n, n);
-
-		for(int i=0; i<n; i++)
-		{
-			W[i][i]	= 0.0;				// diagonal...
-
-			for(int j=i+1; j<n; j++)
-			{
-				W[i][j]	= W[j][i]	= Get_Weight(Points.Get_X(i), Points.Get_Y(i), Points.Get_X(j), Points.Get_Y(j));
-			}
-		}
-
-		return( W.Set_Inverse(!m_Search.Do_Use_All(), n) );
+		return( false );
 	}
 
-	return( false );
+	for(int i=0; i<n; i++)
+	{
+		W[i][i] = 0.;	// diagonal...
+
+		for(int j=i+1; j<n; j++)
+		{
+			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
+		}
+	}
+
+	return( W.Set_Inverse(m_Search.is_Okay(), n) );
 }
 
 
@@ -108,58 +103,51 @@ bool CKriging_Simple::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Simple::Get_Value(const TSG_Point &p, double &z, double &v)
+bool CKriging_Simple::Get_Value(double x, double y, double &v, double &e)
 {
-	//-----------------------------------------------------
-	int				i, n;
-	double			**W;
-	CSG_Matrix		_W;
-	CSG_Points_Z	_Data, *pData;
+	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, n = 0;
 
-	if( m_Search.Do_Use_All() )	// global
+	if( !m_Search.is_Okay() )	// global
 	{
-		pData	= &m_Data;
-		W		= m_W.Get_Data();
+		n	= m_Points.Get_NRows();
+		P	= m_Points.Get_Data ();
+		W	= m_W     .Get_Data ();
 	}
-	else if( m_Search.Get_Points(p, _Data) && Get_Weights(_Data, _W) )	// local
+	else if( Get_Points(x, y, __Points) && Get_Weights(__Points, __W) )	// local
 	{
-		pData	= &_Data;
-		W		= _W.Get_Data();
+		n	= __Points.Get_NRows();
+		P	= __Points.Get_Data ();
+		W	= __W     .Get_Data ();
 	}
-	else
+
+	if( n < 1 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if(	(n = pData->Get_Count()) > 0 )
+	CSG_Vector	G(n);
+
+	for(i=0; i<n; i++)
 	{
-		CSG_Vector	G(n);
-
-		for(i=0; i<n; i++)
-		{
-			G[i]	= Get_Weight(p, pData->Get_Point(i));
-		}
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			double	Lambda	= 0.0;
-
-			for(int j=0; j<n; j++)
-			{
-				Lambda	+= W[i][j] * G[j];
-			}
-
-			z	+= Lambda * pData->Get_Z(i);
-			v	+= Lambda * G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
+		G[i]	= Get_Weight(x, y, P[i][0], P[i][1]);
 	}
 
-	return( false );
+	for(i=0, v=0., e=0.; i<n; i++)
+	{
+		double	Lambda	= 0.;
+
+		for(int j=0; j<n; j++)
+		{
+			Lambda	+= W[i][j] * G[j];
+		}
+
+		v	+= Lambda * P[i][2];
+		e	+= Lambda * G[i];
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 

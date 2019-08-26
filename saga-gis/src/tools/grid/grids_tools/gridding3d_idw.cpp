@@ -97,7 +97,7 @@ CGridding3D_IDW::CGridding3D_IDW(void)
 	m_Grid_Target.Add_Grids("GRIDS", _TL("Grid Collection"), false, true);
 
 	//-----------------------------------------------------
-	m_Searching.Create(&Parameters, "NODE_SEARCH", 1);
+	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 1);
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
@@ -148,11 +148,11 @@ int CGridding3D_IDW::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("Z_FIELD", pParameter->asShapes() && pParameter->asShapes()->Get_Vertex_Type() == SG_VERTEX_TYPE_XY);
 	}
 
-	m_Searching.On_Parameters_Enable(pParameters, pParameter);
+	m_Grid_Target   .On_Parameters_Enable(pParameters, pParameter);
+
+	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
-
-	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -167,9 +167,7 @@ bool CGridding3D_IDW::On_Execute(void)
 {
 	m_pPoints	= Parameters("POINTS")->asShapes();
 
-	m_zField	= m_pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
-
-	m_vField	= Parameters("V_FIELD")->asInt();
+	m_Field		= Parameters("V_FIELD")->asInt();
 
 	CSG_Grids	*pGrids	= m_Grid_Target.Get_Grids("GRIDS");
 
@@ -181,16 +179,18 @@ bool CGridding3D_IDW::On_Execute(void)
 	pGrids->Fmt_Name("%s.%s [%s]", m_pPoints->Get_Name(), Parameters("V_FIELD")->asString(), Get_Name().c_str());
 
 	//-----------------------------------------------------
-	double	zScale	= Parameters("Z_SCALE")->asDouble();
+	m_zField	= m_pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
 
-	if( zScale == 0.0 )
+	m_zScale	= Parameters("Z_SCALE")->asDouble();
+
+	if( m_zScale == 0. )
 	{
 		Error_Set(_TL("Z factor is zero! Please use 2D instead of 3D interpolation."));
 
 		return( false );
 	}
 
-	if( !m_Searching.Do_Use_All(true) && !m_Search.Create(m_pPoints, m_zField, zScale) )
+	if( !m_Search_Options.Do_Use_All(true) && !m_Search.Create(m_pPoints, m_zField, m_zScale) )
 	{
 		Error_Set(_TL("failed to initialize search engine"));
 
@@ -210,9 +210,9 @@ bool CGridding3D_IDW::On_Execute(void)
 
 			for(int z=0; z<pGrids->Get_NZ(); z++)
 			{
-				c[2]	= pGrids->Get_Z(z);
+				c[2]	= pGrids->Get_Z(z) * m_zScale;
 
-				if( Get_Value(c, zScale, v) )
+				if( Get_Value(c, v) )
 				{
 					pGrids->Set_Value(x, y, z, v);
 				}
@@ -236,77 +236,47 @@ bool CGridding3D_IDW::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding3D_IDW::Get_Value(double Coordinate[3], double zScale, double &Value)
+bool CGridding3D_IDW::Get_Value(double Coordinate[3], double &Value)
 {
-	CSG_Simple_Statistics	s;
-
-	Coordinate[2]	*= zScale;
+	CSG_Array_Int	Index;	CSG_Vector	Distance;
 
 	if( m_Search.is_Okay() )
 	{
-		CSG_Array_Int	Index;	CSG_Vector	Distance;
-
-		if( m_Search.Get_Nearest_Points(Coordinate, m_Searching.Get_Max_Points(),
-			m_Searching.Get_Radius(), Index, Distance) < m_Searching.Get_Min_Points() )
+		if( m_Search.Get_Nearest_Points(
+			Coordinate, m_Search_Options.Get_Max_Points(), m_Search_Options.Get_Radius(), Index, Distance
+		) < m_Search_Options.Get_Min_Points() )
 		{
 			return( false );
 		}
-
-		for(size_t i=0; i<Index.Get_Size(); i++)
-		{
-			double	v	= m_pPoints->Get_Shape(Index[i])->asDouble(m_vField);
-			double	d	= Distance[i];
-
-			if( d <= 0. )
-			{
-				s.Create();
-				
-				s	+= v;
-
-				for(++i; i<Index.Get_Size(); i++)
-				{
-					if( Distance[i] <= 0. )
-					{
-						s	+= v;
-					}
-				}
-			}
-			else
-			{
-				s.Add_Value(v, m_Weighting.Get_Weight(d));
-			}
-		}
-
-		Value	= s.Get_Mean();
-
-		return( true );
 	}
 
-	//-----------------------------------------------------
-	for(int i=0; i<m_pPoints->Get_Count(); i++)
+	CSG_Simple_Statistics	s;
+
+	int	nPoints	= m_Search.is_Okay() ? (int)Index.Get_Size() : m_pPoints->Get_Count();
+
+	for(int i=0; i<nPoints; i++)
 	{
-		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(i);
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(m_Search.is_Okay() ? Index[i] : i);
 
-		double	v	= pPoint->asDouble(m_vField);
-		double	d	= Get_Distance(Coordinate, pPoint);
+		double	d	= m_Search.is_Okay() ? Distance[i] : Get_Distance(Coordinate, pPoint);
 
-		if( d <= 0. )
+		if( d > 0. )
 		{
-			s.Create();
+			s.Add_Value(pPoint->asDouble(m_Field), m_Weighting.Get_Weight(d));
+		}
+		else	// d == 0! there is a point at the requested coordinate!
+		{
+			s.Create();	s	+= pPoint->asDouble(m_Field);
 
-			s	+= v;
-
-			for(++i; i<m_pPoints->Get_Count(); i++)
+			for(++i; i<nPoints; i++)	// is there more than one point?!
 			{
-				if( is_Identical(Coordinate, m_pPoints->Get_Shape(i)) )
+				if( Distance[i] <= 0. )
 				{
-					s	+= v;
+					s	+= pPoint->asDouble(m_Field);
 				}
 			}
-		}
-		else
-		{
-			s.Add_Value(v, m_Weighting.Get_Weight(d));
+
+			break;
 		}
 	}
 
@@ -320,7 +290,7 @@ inline double CGridding3D_IDW::Get_Distance(double Coordinate[3], CSG_Shape *pPo
 {
 	double	dx	= Coordinate[0] - pPoint->Get_Point(0).x;
 	double	dy	= Coordinate[1] - pPoint->Get_Point(0).y;
-	double	dz	= Coordinate[2] - (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField));
+	double	dz	= Coordinate[2] - m_zScale * (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField));
 
 	return( sqrt(dx*dx + dy*dy + dz*dz) );
 }

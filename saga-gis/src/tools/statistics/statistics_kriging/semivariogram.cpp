@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                    Tool Library                       //
-//                Geostatistics_Kriging                  //
+//                     Tool Library                      //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 semivariogram.cpp                     //
+//                  semivariogram.cpp                    //
 //                                                       //
-//                Copyright (C) 2009 by                  //
-//                     Olaf Conrad                       //
+//                 Olaf Conrad (C) 2009                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -146,33 +145,58 @@ bool CSemiVariogram::On_Execute(void)
 
 	CSG_Trend	Model;
 
-	bool	bResult	= false;
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
+
+	int	Field	= Parameters("ATTRIBUTE")->asInt();
+
+	bool	bLog	= Parameters("LOG")->asBool();
 
 	//-----------------------------------------------------
+	CSG_Matrix	Points(3, pPoints->Get_Count());
+
+	int	n	= 0;
+
+	for(int i=0; i<pPoints->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+
+		if( !pPoint->is_NoData(Field) )
+		{
+			Points[n][0]	= pPoint->Get_Point(0).x;
+			Points[n][1]	= pPoint->Get_Point(0).y;
+			Points[n][2]	= bLog ? log(pPoint->asDouble(Field)) : pPoint->asDouble(Field);
+
+			n++;
+		}
+	}
+
+	if( n < 2 )
+	{
+		return( false );
+	}
+
+	Points.Set_Rows(n);	// resize if there are no-data values
+
+	//-----------------------------------------------------
+	bool	bResult	= false;
+
+	pVariogram->Set_Name(pPoints->Get_Name());
+
 	if( m_pVariogram )
 	{
-		if( m_pVariogram->Execute(
-			Parameters("POINTS"      )->asShapes(),
-			Parameters("ATTRIBUTE"   )->asInt   (),
-			Parameters("LOG"         )->asBool  (),
-			pVariogram, &Model) )
-		{
-			bResult	= true;
-		}
+		bResult	= m_pVariogram->Execute   (Points, pVariogram, &Model);
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		Model.Set_Formula(Parameters("VAR_MODEL")->asString());
-
-		if( CSG_Variogram::Calculate(
-			Parameters("POINTS"      )->asShapes(),
-			Parameters("ATTRIBUTE"   )->asInt   (),
-			Parameters("LOG"         )->asBool  (), pVariogram,
+		bResult	= CSG_Variogram::Calculate(Points, pVariogram,
 			Parameters("VAR_NCLASSES")->asInt   (),
 			Parameters("VAR_MAXDIST" )->asDouble(),
-			Parameters("VAR_NSKIP"   )->asInt   ()) )
+			Parameters("VAR_NSKIP"   )->asInt   ()
+		);
+
+		if( bResult )
 		{
 			Model.Clr_Data();
 
@@ -183,9 +207,12 @@ bool CSemiVariogram::On_Execute(void)
 				Model.Add_Data(pRecord->asDouble(CSG_Variogram::FIELD_DISTANCE), pRecord->asDouble(CSG_Variogram::FIELD_VAR_EXP));
 			}
 
-			bResult	= Model.Get_Trend() || Model.Get_Parameter_Count() == 0;
+			bResult	= Model.Set_Formula(Parameters("VAR_MODEL")->asString())
+				&& (Model.Get_Trend() || Model.Get_Parameter_Count() == 0);
 		}
 	}
+
+	pVariogram->Fmt_Name("%s [%s]", _TL("Variogram"), pPoints->Get_Name());
 
 	//-----------------------------------------------------
 	if( bResult )

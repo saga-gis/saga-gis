@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                 Geostatistics_Kriging                 //
+//                  statistics_kriging                   //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 Kriging_Ordinary.cpp                  //
+//                 kriging_ordinary.cpp                  //
 //                                                       //
-//                 Copyright (C) 2008 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2008                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -78,31 +77,29 @@ CKriging_Ordinary::CKriging_Ordinary(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
+bool CKriging_Ordinary::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
 {
-	int	n	= Points.Get_Count();
-
-	if( n > 0 )
+	int	n	= Points.Get_NRows();
+	
+	if( n < 1 || !W.Create(n + 1, n + 1) )
 	{
-		W.Create(n + 1, n + 1);
-
-		for(int i=0; i<n; i++)
-		{
-			W[i][i]	= 0.0;				// diagonal...
-			W[i][n]	= W[n][i]	= 1.0;	// edge...
-
-			for(int j=i+1; j<n; j++)
-			{
-				W[i][j]	= W[j][i]	= Get_Weight(Points.Get_X(i), Points.Get_Y(i), Points.Get_X(j), Points.Get_Y(j));
-			}
-		}
-
-		W[n][n]	= 0.0;
-
-		return( W.Set_Inverse(!m_Search.Do_Use_All(), n + 1) );
+		return( false );
 	}
 
-	return( false );
+	for(int i=0; i<n; i++)
+	{
+		W[i][i]           = 0.;	// diagonal...
+		W[i][n] = W[n][i] = 1.;	// edge...
+
+		for(int j=i+1; j<n; j++)
+		{
+			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
+		}
+	}
+
+	W[n][n]	= 0.;
+
+	return( W.Set_Inverse(m_Search.is_Okay(), n + 1) );
 }
 
 
@@ -111,60 +108,53 @@ bool CKriging_Ordinary::Get_Weights(const CSG_Points_Z &Points, CSG_Matrix &W)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Ordinary::Get_Value(const TSG_Point &p, double &z, double &v)
+bool CKriging_Ordinary::Get_Value(double x, double y, double &v, double &e)
 {
-	//-----------------------------------------------------
-	int				i, n;
-	double			**W;
-	CSG_Matrix		_W;
-	CSG_Points_Z	_Data, *pData;
+	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, n = 0;
 
-	if( m_Search.Do_Use_All() )	// global
+	if( !m_Search.is_Okay() )	// global
 	{
-		pData	= &m_Data;
-		W		= m_W.Get_Data();
+		n	= m_Points.Get_NRows();
+		P	= m_Points.Get_Data ();
+		W	= m_W     .Get_Data ();
 	}
-	else if( m_Search.Get_Points(p, _Data) && Get_Weights(_Data, _W) )	// local
+	else if( Get_Points(x, y, __Points) && Get_Weights(__Points, __W) )	// local
 	{
-		pData	= &_Data;
-		W		= _W.Get_Data();
+		n	= __Points.Get_NRows();
+		P	= __Points.Get_Data ();
+		W	= __W     .Get_Data ();
 	}
-	else
+
+	if( n < 1 )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	if(	(n = pData->Get_Count()) > 0 )
+	CSG_Vector	G(n + 1);
+
+	for(i=0; i<n; i++)
 	{
-		CSG_Vector	G(n + 1);
-
-		for(i=0; i<n; i++)
-		{
-			G[i]	= Get_Weight(p, pData->Get_Point(i));
-		}
-
-		G[n]	= 1.0;
-
-		//-------------------------------------------------
-		for(i=0, z=0.0, v=0.0; i<n; i++)
-		{
-			double	Lambda	= 0.0;
-
-			for(int j=0; j<=n; j++)
-			{
-				Lambda	+= W[i][j] * G[j];
-			}
-
-			z	+= Lambda * pData->Get_Z(i);
-			v	+= Lambda * G[i];
-		}
-
-		//-------------------------------------------------
-		return( true );
+		G[i]	= Get_Weight(x, y, P[i][0], P[i][1]);
 	}
 
-	return( false );
+	G[n]	= 1.;
+
+	for(i=0, v=0., e=0.; i<n; i++)
+	{
+		double	Lambda	= 0.;
+
+		for(int j=0; j<=n; j++)
+		{
+			Lambda	+= W[i][j] * G[j];
+		}
+
+		v	+= Lambda * P[i][2];
+		e	+= Lambda * G[i];
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
