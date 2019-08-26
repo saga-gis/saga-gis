@@ -817,7 +817,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "    # Using SAGA's central data manager instance for such jobs is an easy way to go...\n";
 		s	+= "    Data = saga_api.SG_Get_Data_Manager().Add(File)\n";
 		s	+= "    if Data == None or Data.is_Valid() == False:\n";
-		s	+= "        print 'Failed to load dataset [' + File + ']'\n";
+        s	+= "        print('Failed to load dataset [' + File + ']')\n";
 		s	+= "        return False\n";
 		s	+= "\n";
 	}
@@ -826,7 +826,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	s	+= "    # Create a new instance of tool '" + m_pTool->Get_Name() + "'\n";
 	s	+= "    Tool = saga_api.SG_Get_Tool_Library_Manager().Create_Tool('" + m_pTool->Get_Library() + "', '" + m_pTool->Get_ID() + "')\n";
 	s	+= "    if Tool == None:\n";
-	s	+= "        print 'Failed to create tool: " + m_pTool->Get_Name() + "'\n";
+    s	+= "        print('Failed to create tool: " + m_pTool->Get_Name() + "')\n";
 	s	+= "        return False\n";
 	s	+= "\n";
 	s	+= "    Parm = Tool.Get_Parameters()\n";
@@ -848,11 +848,11 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	//-------------------------------------------------
 	s	+= "\n";
-	s	+= "    print 'Executing tool: ' + Tool.Get_Name().c_str()\n";
+    s	+= "    print('Executing tool: ' + Tool.Get_Name().c_str())\n";
 	s	+= "    if Tool.Execute() == False:\n";
-	s	+= "        print 'failed'\n";
+    s	+= "        print('failed')\n";
 	s	+= "        return False\n";
-	s	+= "    print 'okay'\n";
+    s	+= "    print('okay')\n";
 	s	+= "\n";
 	s	+= "    #_____________________________________\n";
 	s	+= "    # Save results to file:\n";
@@ -924,15 +924,15 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
 		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
 		s	+= "\n";
-		s	+= "    print 'Python - Version ' + sys.version\n";
-		s	+= "    print saga_api.SAGA_API_Get_Version()\n";
-		s	+= "    print 'number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count())\n";
-		s	+= "    print\n";
+        s	+= "    print('Python - Version ' + sys.version)\n";
+        s	+= "    print(saga_api.SAGA_API_Get_Version())\n";
+        s	+= "    print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
+        s	+= "    print()\n";
 		s	+= "\n";
 		s	+= "    #____________________________________\n";
-		s	+= "    print 'Usage: %s <in: filename>'\n";
-		s	+= "    print 'This is a simple template for using a SAGA tool through Python.'\n";
-		s	+= "    print 'Please edit the script to make it work properly before using it!'\n";
+        s	+= "    print('Usage: %s <in: filename>')\n";
+        s	+= "    print('This is a simple template for using a SAGA tool through Python.')\n";
+        s	+= "    print('Please edit the script to make it work properly before using it!')\n";
 		s	+= "    sys.exit()\n";
 		s	+= "    # For a single file based input it might look like following:\n";
 		s	+= "    File = sys.argv[1]\n";
