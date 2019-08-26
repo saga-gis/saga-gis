@@ -1139,6 +1139,12 @@ public:
 								CSG_KDTree_2D		(CSG_Shapes *pPoints);
 	bool						Create				(CSG_Shapes *pPoints);
 
+								CSG_KDTree_2D		(const CSG_Matrix &Points);
+	bool						Create				(const CSG_Matrix &Points);
+
+								CSG_KDTree_2D		(const double **Points, size_t nPoints);
+	bool						Create				(const double **Points, size_t nPoints);
+
 	virtual bool				Destroy				(void);
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius);
@@ -1174,6 +1180,12 @@ public:
 
 								CSG_KDTree_3D		(CSG_PointCloud *pPoints);
 	bool						Create				(CSG_PointCloud *pPoints);
+
+								CSG_KDTree_3D		(const CSG_Matrix &Points);
+	bool						Create				(const CSG_Matrix &Points);
+
+								CSG_KDTree_3D		(const double **Points, size_t nPoints);
+	bool						Create				(const double **Points, size_t nPoints);
 
 	virtual bool				Destroy				(void);
 
