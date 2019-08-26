@@ -38,11 +38,17 @@
     <ClCompile Include="kriging_regression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kriging3d_base.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kriging3d_ordinary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kriging3d_simple.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -113,6 +119,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="kriging_regression.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kriging3d_base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kriging3d_ordinary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kriging3d_simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

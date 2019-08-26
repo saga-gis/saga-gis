@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  TLB_Interface.cpp                    //
+//                 kriging3d_ordinary.h                  //
 //                                                       //
-//                 Olaf Conrad (C) 2003                  //
+//                 Olaf Conrad (C) 2019                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,88 +39,46 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__kriging3d_ordinary_H
+#define HEADER_INCLUDED__kriging3d_ordinary_H
+
+
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#include "kriging3d_base.h"
 
-#include <saga_api/saga_api.h>
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
+class CKriging3D_Ordinary : public CKriging3D_Base
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Kriging") );
-
-	case TLB_INFO_Category:
-		return( _TL("Spatial and Geostatistics") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2003-19" );
-
-	case TLB_INFO_Description:
-		return( _TL("Kriging - tools for the geostatistical interpolation of irregularly distributed point data." ));
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Spatial and Geostatistics|Kriging" ));
-	}
-}
+public:
+	CKriging3D_Ordinary(void);
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "kriging_simple.h"
-#include "kriging_ordinary.h"
-#include "kriging_universal.h"
-#include "kriging_regression.h"
+	virtual bool			Get_Weights			(const CSG_Matrix &Points, CSG_Matrix &W);
 
-#include "kriging3d_simple.h"
-#include "kriging3d_ordinary.h"
+	virtual bool			Get_Value			(double x, double y, double z, double &v, double &e);
 
-#include "semivariogram.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  1:	return( new CKriging_Simple     );
-	case  0:	return( new CKriging_Ordinary   );
-	case  2:	return( new CKriging_Universal  );
-	case  3:	return( new CKriging_Regression );
-
-	case  5:	return( new CKriging3D_Simple   );
-	case  6:	return( new CKriging3D_Ordinary );
-
-	case  4:	return( new CSemiVariogram      );
-
-	case  7:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -130,8 +88,5 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__kriging3d_ordinary_H
 
-	TLB_INTERFACE
-
-//}}AFX_SAGA

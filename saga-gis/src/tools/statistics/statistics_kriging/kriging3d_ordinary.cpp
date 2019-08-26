@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                  TLB_Interface.cpp                    //
+//                kriging3d_ordinary.cpp                 //
 //                                                       //
-//                 Olaf Conrad (C) 2003                  //
+//                 Olaf Conrad (C) 2019                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,87 +39,122 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include <saga_api/saga_api.h>
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Kriging") );
-
-	case TLB_INFO_Category:
-		return( _TL("Spatial and Geostatistics") );
-
-	case TLB_INFO_Author:
-		return( "O.Conrad (c) 2003-19" );
-
-	case TLB_INFO_Description:
-		return( _TL("Kriging - tools for the geostatistical interpolation of irregularly distributed point data." ));
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Spatial and Geostatistics|Kriging" ));
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "kriging_simple.h"
-#include "kriging_ordinary.h"
-#include "kriging_universal.h"
-#include "kriging_regression.h"
-
-#include "kriging3d_simple.h"
 #include "kriging3d_ordinary.h"
 
-#include "semivariogram.h"
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
+CKriging3D_Ordinary::CKriging3D_Ordinary(void)
 {
-	switch( i )
+	//-----------------------------------------------------
+	Set_Name		(_TL("Ordinary Kriging (3D)"));
+
+	Set_Author		("O.Conrad (c) 2019");
+
+	Set_Description	(_TW(
+		"Ordinary Kriging interpolation for 3-dimensional data points. "
+		"Output will be a grid collection with evenly spaced Z-levels "
+		"representing the 3rd dimension. "
+	));
+
+	//-----------------------------------------------------
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging3D_Ordinary::Get_Weights(const CSG_Matrix &Points, CSG_Matrix &W)
+{
+	int	n	= Points.Get_NRows();
+
+	if( n < 1 || !W.Create(n + 1, n + 1) )
 	{
-	case  1:	return( new CKriging_Simple     );
-	case  0:	return( new CKriging_Ordinary   );
-	case  2:	return( new CKriging_Universal  );
-	case  3:	return( new CKriging_Regression );
-
-	case  5:	return( new CKriging3D_Simple   );
-	case  6:	return( new CKriging3D_Ordinary );
-
-	case  4:	return( new CSemiVariogram      );
-
-	case  7:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
+		return( false );
 	}
+
+	for(int i=0; i<n; i++)
+	{
+		W[i][i]           = 0.;	// diagonal...
+		W[i][n] = W[n][i] = 1.;	// edge...
+
+		for(int j=i+1; j<n; j++)
+		{
+			W[i][j] = W[j][i] = Get_Weight(Points[i], Points[j]);
+		}
+	}
+
+	W[n][n]	= 0.;
+
+	return( W.Set_Inverse(m_Search.is_Okay(), n + 1) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CKriging3D_Ordinary::Get_Value(double x, double y, double z, double &v, double &e)
+{
+	CSG_Matrix	__Points, __W;	double	**P, **W;	int	i, n = 0;
+
+	if( !m_Search.is_Okay() )	// global
+	{
+		n	= m_Points.Get_NRows();
+		P	= m_Points.Get_Data ();
+		W	= m_W     .Get_Data ();
+	}
+	else if( Get_Points(x, y, z, __Points) && Get_Weights(__Points, __W) )	// local
+	{
+		n	= __Points.Get_NRows();
+		P	= __Points.Get_Data ();
+		W	= __W     .Get_Data ();
+	}
+
+	if( n < 1 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Vector	G(n + 1);
+
+	for(i=0; i<n; i++)
+	{
+		G[i]	= Get_Weight(x, y, z, P[i][0], P[i][1], P[i][2]);
+	}
+
+	G[n]	= 1.;
+
+	for(i=0, v=0., e=0.; i<n; i++)
+	{
+		double	Lambda	= 0.;
+
+		for(int j=0; j<=n; j++)
+		{
+			Lambda	+= W[i][j] * G[j];
+		}
+
+		v	+= Lambda * P[i][3];
+		e	+= Lambda * G[i];
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
 
 
@@ -130,8 +165,3 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA

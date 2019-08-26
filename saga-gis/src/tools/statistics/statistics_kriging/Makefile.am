@@ -11,6 +11,9 @@ AM_CXXFLAGS        = $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) $(GOMPFLAGS
 AM_LDFLAGS         = $(DEP_LFLG) -avoid-version
 pkglib_LTLIBRARIES = libstatistics_kriging.la
 libstatistics_kriging_la_SOURCES =\
+kriging3d_base.cpp\
+kriging3d_ordinary.cpp\
+kriging3d_simple.cpp\
 kriging_base.cpp\
 kriging_ordinary.cpp\
 kriging_regression.cpp\
@@ -19,12 +22,14 @@ kriging_universal.cpp\
 MLB_Interface.cpp\
 semivariogram.cpp\
 variogram_dialog.cpp\
+kriging3d_base.h\
+kriging3d_ordinary.h\
+kriging3d_simple.h\
 kriging_base.h\
 kriging_ordinary.h\
 kriging_regression.h\
 kriging_simple.h\
 kriging_universal.h\
-MLB_Interface.h\
 semivariogram.h\
 variogram_dialog.h
 
