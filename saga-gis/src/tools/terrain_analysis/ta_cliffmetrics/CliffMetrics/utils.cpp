@@ -1348,7 +1348,10 @@ void CDelineation::DoDelineationEnd(int const nRtn)
             strCmd.append(m_strMailAddress);
          }
          int nRet = system(strCmd.c_str());
-         if (WEXITSTATUS(nRet) != 0)
+		 #ifndef WEXITSTATUS	// FreeBSD/clang build
+		 #define WEXITSTATUS(x) ((x) & 0xff)
+		 #endif
+		 if (WEXITSTATUS(nRet) != 0)
             cerr << ERR << EMAILERROR << endl;
       }
    }
