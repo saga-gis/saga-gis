@@ -921,7 +921,10 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "    else:                  # Linux\n";
 		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory('/usr/local/lib/saga' , False)\n";
 		s	+= "\n";
-		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
+        s   += "    try:\n";
+        s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
+        s   += "    except KeyError:\n";
+        s   += "        print(\"SAGA_TLB environment variable not set\")\n";
 		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
 		s	+= "\n";
         s	+= "    print('Python - Version ' + sys.version)\n";
