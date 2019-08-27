@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Interpolation_AngularDistance.h 1482 2012-10-08 16:15:45Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//			Interpolation_AngularDistance.h				 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Interpolation_AngularDistance_H
 #define HEADER_INCLUDED__Interpolation_AngularDistance_H
 
@@ -89,20 +77,24 @@ public:
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Initialize			(void);
-	virtual bool			On_Finalize				(void);
+	virtual bool					On_Initialize			(void);
+	virtual bool					On_Finalize				(void);
 
-	virtual bool			Get_Value				(double x, double y, double &z);
+	virtual bool					Get_Value				(double x, double y, double &z);
 
 
 private:
 
-	CSG_Parameters_Search_Points	m_Search;
+	CSG_KDTree_2D					m_Search;
+
+	CSG_Parameters_PointSearch		m_Search_Options;
 
 	CSG_Distance_Weighting			m_Weighting;
+
+	CSG_Matrix						m_Points;
 
 };
 

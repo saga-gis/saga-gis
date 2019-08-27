@@ -61,7 +61,6 @@
 CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	: CInterpolation(true, true)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Inverse Distance Weighted"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -71,11 +70,11 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	));
 
 	//-----------------------------------------------------
-	m_Searching.Create(&Parameters, "NODE_SEARCH", 1);
+	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 1);
 
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
 	m_Weighting.Set_IDW_Offset(false);
-	m_Weighting.Set_IDW_Power (2.0);
+	m_Weighting.Set_IDW_Power (2.);
 
 	m_Weighting.Create_Parameters(&Parameters, false);
 }
@@ -90,7 +89,7 @@ int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParame
 {
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Searching.On_Parameter_Changed(pParameters, pParameter);
+		m_Search_Options.On_Parameter_Changed(pParameters, pParameter);
 
 		if( pParameter->asShapes() && pParameter->asShapes()->Get_Count() > 1 )
 		{	// get a rough estimation of point density for band width suggestion
@@ -106,7 +105,7 @@ int CInterpolation_InverseDistance::On_Parameter_Changed(CSG_Parameters *pParame
 //---------------------------------------------------------
 int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Searching.On_Parameters_Enable(pParameters, pParameter);
+	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
@@ -121,7 +120,7 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::On_Initialize(void)
 {
-	if( !m_Searching.Do_Use_All(true) && !m_Search.Create(Get_Points()) )
+	if( !m_Search_Options.Do_Use_All(true) && !m_Search.Create(Get_Points(), Get_Field()) )
 	{
 		Error_Set(_TL("failed to initialize search engine"));
 
@@ -147,78 +146,78 @@ bool CInterpolation_InverseDistance::On_Finalize(void)
 //---------------------------------------------------------
 bool CInterpolation_InverseDistance::Get_Value(double x, double y, double &Value)
 {
-	CSG_Shapes *pPoints = Get_Points(); int Field = Get_Field();
-
 	CSG_Simple_Statistics	s;
 
-	if( m_Search.is_Okay() )
+	//-----------------------------------------------------
+	if( m_Search.is_Okay() )	// local
 	{
 		CSG_Array_Int	Index;	CSG_Vector	Distance;
 
-		if( m_Search.Get_Nearest_Points(x, y, m_Searching.Get_Max_Points(),
-			m_Searching.Get_Radius(), Index, Distance) < m_Searching.Get_Min_Points() )
+		if( m_Search.Get_Nearest_Points(x, y,
+			m_Search_Options.Get_Max_Points(),
+			m_Search_Options.Get_Radius(), Index, Distance
+		) < m_Search_Options.Get_Min_Points() )
 		{
 			return( false );
 		}
 
 		for(size_t i=0; i<Index.Get_Size(); i++)
 		{
-			double	v	= pPoints->Get_Shape(Index[i])->asDouble(Field);
-			double	d	= Distance[i];
-
-			if( d <= 0. )
+			if( Distance[i] > 0. )
 			{
-				s.Create();
-
-				s	+= v;
+				s.Add_Value(m_Search.Get_Point_Value(Index[i]), m_Weighting.Get_Weight(Distance[i]));
+			}
+			else
+			{
+				s.Create();	s	+= m_Search.Get_Point_Value(Index[i]);
 
 				for(++i; i<Index.Get_Size(); i++)
 				{
 					if( Distance[i] <= 0. )
 					{
-						s	+= v;
+						s	+= m_Search.Get_Point_Value(Index[i]);
 					}
 				}
 			}
-			else
-			{
-				s.Add_Value(v, m_Weighting.Get_Weight(d));
-			}
 		}
-
-		Value	= s.Get_Mean();
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	for(int i=0; i<pPoints->Get_Count(); i++)
+	else						// global
 	{
-		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+		CSG_Shapes	*pPoints	= Get_Points();	int	Field	= Get_Field();
 
-		double	v	= pPoint->asDouble(Field);
-		double	d	= Get_Distance(x, y, pPoint->Get_Point(0));
-
-		if( d <= 0. )
+		for(int i=0; i<pPoints->Get_Count(); i++)
 		{
-			s.Create();
+			CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-			s	+= v;
-
-			for(++i; i<pPoints->Get_Count(); i++)
+			if( !pPoint->is_NoData(Field) )
 			{
-				if( is_Identical(x, y, pPoints->Get_Shape(i)->Get_Point(0)) )
+				double	d	= Get_Distance(x, y, pPoint->Get_Point(0));
+
+				if( d > 0. )
 				{
-					s	+= v;
+					s.Add_Value(pPoint->asDouble(Field), m_Weighting.Get_Weight(d));
+				}
+				else
+				{
+					s.Create();	s	+= pPoint->asDouble(Field);
+
+					for(++i; i<pPoints->Get_Count(); i++)
+					{
+						pPoint	= pPoints->Get_Shape(i);
+
+						if( !pPoint->is_NoData(Field) && is_Identical(x, y, pPoint->Get_Point(0)) )
+						{
+							s	+= pPoint->asDouble(Field);
+						}
+					}
 				}
 			}
 		}
-		else
-		{
-			s.Add_Value(v, m_Weighting.Get_Weight(d));
-		}
 	}
 
+	//-----------------------------------------------------
 	Value	= s.Get_Mean();
 
 	return( true );

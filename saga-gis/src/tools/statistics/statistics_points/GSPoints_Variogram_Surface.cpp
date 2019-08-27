@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSPoints_Variogram_Surface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSPoints_Variogram_Surface.h"
 
 
@@ -70,126 +58,103 @@
 //---------------------------------------------------------
 CGSPoints_Variogram_Surface::CGSPoints_Variogram_Surface(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Variogram Surface"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description(
-		_TL("")
+		_TL("Calculates a variogram surface.")
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"FIELD"		, _TL("Attribute"),
 		_TL("")
 	);
 
-	//-----------------------------------------------------
-	Parameters.Add_Grid_Output(
-		NULL	, "COUNT"		, _TL("Number of Pairs"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "VARIANCE"	, _TL("Variogram Surface"),
-		_TL("")
-	);
-
-	Parameters.Add_Grid_Output(
-		NULL	, "COVARIANCE"	, _TL("Covariance Surface"),
-		_TL("")
-	);
-
-	Parameters.Add_Value(
-		NULL	, "DISTCOUNT"	, _TL("Number of Distance Classes"),
+	Parameters.Add_Int("",
+		"DISTCOUNT"	, _TL("Number of Distance Classes"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 10, 1, true
+		10, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NSKIP"		, _TL("Skip Number"),
+	Parameters.Add_Int("",
+		"NSKIP"		, _TL("Skip Number"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
+
+	Parameters.Add_Grid_Output("", "COUNT"     , _TL("Number of Pairs"   ), _TL(""));
+	Parameters.Add_Grid_Output("", "VARIANCE"  , _TL("Variogram Surface" ), _TL(""));
+	Parameters.Add_Grid_Output("", "COVARIANCE", _TL("Covariance Surface"), _TL(""));
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGSPoints_Variogram_Surface::On_Execute(void)
 {
-	sLong				i;
-	int					j, x, y, n, nx, ny, nSkip, Attribute, nDistances;
-	double				zi, zj, zMean, v, c, lagDistance;
-	TSG_Point			Pt_i, Pt_j;
-	CSG_Shape			*pPoint;
-	CSG_Shapes			*pPoints;
-	CSG_Grid			*pVariance, *pCovariance, *pCount;
+	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
 
-	//-----------------------------------------------------
-	pPoints		= Parameters("POINTS")		->asShapes();
-	Attribute	= Parameters("FIELD")		->asInt();
-	nSkip		= Parameters("NSKIP")		->asInt();
-	nDistances	= Parameters("DISTCOUNT")	->asInt();
+	int	Field		= Parameters("FIELD"    )->asInt();
+	int	nSkip		= Parameters("NSKIP"    )->asInt();
+	int	nDistances	= Parameters("DISTCOUNT")->asInt();
 
-	lagDistance	= pPoints->Get_Extent().Get_XRange() < pPoints->Get_Extent().Get_YRange()
+	double	Lag	= pPoints->Get_Extent().Get_XRange() < pPoints->Get_Extent().Get_YRange()
 				? pPoints->Get_Extent().Get_XRange() / nDistances
 				: pPoints->Get_Extent().Get_YRange() / nDistances;
 
-	nx			= 1 + (int)(pPoints->Get_Extent().Get_XRange() / lagDistance);
-	ny			= 1 + (int)(pPoints->Get_Extent().Get_YRange() / lagDistance);
-	zMean		= pPoints->Get_Mean(Attribute);
+	int	nx	= 1 + (int)(pPoints->Get_Extent().Get_XRange() / Lag);
+	int	ny	= 1 + (int)(pPoints->Get_Extent().Get_YRange() / Lag);
 
-	pCount		= SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
-	pVariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
-	pCovariance	= SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, lagDistance, -nx * lagDistance, -ny * lagDistance);
+	CSG_Grid	*pCount      = SG_Create_Grid(SG_DATATYPE_Int  , 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid	*pVariance   = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
+	CSG_Grid	*pCovariance = SG_Create_Grid(SG_DATATYPE_Float, 1 + 2 * nx, 1 + 2 * ny, Lag, -nx * Lag, -ny * Lag);
 
-	pCount		->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"));
-	pVariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface") , pPoints->Get_Field_Name(Attribute));
-	pCovariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Attribute));
+	pCount		->Fmt_Name("%s [%s]"    , pPoints->Get_Name(), _TL("Count"             ));
+	pVariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Variogram Surface" ), pPoints->Get_Field_Name(Field));
+	pCovariance	->Fmt_Name("%s [%s: %s]", pPoints->Get_Name(), _TL("Covariance Surface"), pPoints->Get_Field_Name(Field));
+
+	Parameters("COUNT"     )->Set_Value(pCount     );
+	Parameters("VARIANCE"  )->Set_Value(pVariance  );
+	Parameters("COVARIANCE")->Set_Value(pCovariance);
 
 	//-----------------------------------------------------
-	for(i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, SG_Get_Square(pPoints->Get_Count()/nSkip)/2); i+=nSkip)
+	for(int i=0, n=0; i<pPoints->Get_Count() && Set_Progress(n, 0.5 * SG_Get_Square(pPoints->Get_Count() / nSkip)); i+=nSkip)
 	{
-		pPoint	= pPoints->Get_Shape(i);
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
 
-		if( !pPoint->is_NoData(Attribute) )
+		if( !pPoint->is_NoData(Field) )
 		{
-			Pt_i	= pPoint->Get_Point(0);
-			zi		= pPoint->asDouble(Attribute);
+			TSG_Point	pi	= pPoint->Get_Point(0);
+			double		zi	= pPoint->asDouble(Field);
 
-			for(j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
+			for(int j=i+nSkip; j<pPoints->Get_Count(); j+=nSkip, n++)
 			{
 				pPoint	= pPoints->Get_Shape(j);
 
-				if( !pPoint->is_NoData(Attribute) )
+				if( !pPoint->is_NoData(Field) )
 				{
-					Pt_j	= pPoint->Get_Point(0);
+					TSG_Point	pj	= pPoint->Get_Point(0);
+					double		zj	= pPoint->asDouble(Field);
 
-					zj	= pPoint->asDouble(Attribute);
+					double	v	= SG_Get_Square(zi - zj);
+					double	c	= (zi - pPoints->Get_Mean(Field)) * (zj - pPoints->Get_Mean(Field));
 
-					v	= SG_Get_Square(zi - zj);
-					c	= (zi - zMean) * (zj - zMean);
+					pj.x	= (pi.x - pj.x) / Lag;
+					pj.y	= (pi.y - pj.y) / Lag;
 
-					Pt_j.x	= (Pt_i.x - Pt_j.x) / lagDistance;
-					Pt_j.y	= (Pt_i.y - Pt_j.y) / lagDistance;
-
-					x	= (int)(Pt_j.x + (Pt_j.x > 0.0 ? 0.5 : -0.5));
-					y	= (int)(Pt_j.y + (Pt_j.y > 0.0 ? 0.5 : -0.5));
+					int	x	= (int)(pj.x + (pj.x > 0. ? 0.5 : -0.5));
+					int	y	= (int)(pj.y + (pj.y > 0. ? 0.5 : -0.5));
 
 					pCount     ->Add_Value(nx + x, ny + y, 1);
 					pCount     ->Add_Value(nx - x, ny - y, 1);
@@ -203,23 +168,19 @@ bool CGSPoints_Variogram_Surface::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	for(i=0; i<pCount->Get_NCells(); i++)
+	for(sLong iCell=0; iCell<pCount->Get_NCells(); iCell++)
 	{
-		if( pCount->asInt(i) > 0 )
+		if( pCount->asInt(iCell) > 0 )
 		{
-			pVariance  ->Mul_Value(i, 0.5 / pCount->asInt(i));
-			pCovariance->Mul_Value(i, 1.0 / pCount->asInt(i));
+			pVariance  ->Mul_Value(iCell, 0.5 / pCount->asDouble(iCell));
+			pCovariance->Mul_Value(iCell, 1.0 / pCount->asDouble(iCell));
 		}
 		else
 		{
-			pVariance  ->Set_NoData(i);
-			pCovariance->Set_NoData(i);
+			pVariance  ->Set_NoData(iCell);
+			pCovariance->Set_NoData(iCell);
 		}
 	}
-
-	DataObject_Add(pCount);
-	DataObject_Add(pVariance);
-	DataObject_Add(pCovariance);
 
 	//-----------------------------------------------------
 	return( true );

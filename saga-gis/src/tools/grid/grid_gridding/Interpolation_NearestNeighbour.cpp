@@ -96,8 +96,7 @@ bool CInterpolation_NearestNeighbour::On_Finalize(void)
 //---------------------------------------------------------
 bool CInterpolation_NearestNeighbour::Get_Value(const TSG_Point &p, double &z)
 {
-	double		Distance;
-	TSG_Point	Point;
+	TSG_Point	Point;	double	Distance;
 
 	return( m_Search.Get_Nearest_Point(p, Point, z, Distance) );
 }

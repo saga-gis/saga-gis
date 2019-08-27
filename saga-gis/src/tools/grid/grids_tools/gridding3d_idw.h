@@ -92,17 +92,16 @@ private:
 
 	CSG_KDTree_3D				m_Search;
 
-	int							m_zField, m_Field;
+	CSG_Matrix					m_Points;
 
-	double						m_zScale;
 
-	CSG_Shapes					*m_pPoints;
-
+	bool						Initialize				(void);
+	bool						Finalize				(void);
 
 	bool						Get_Value				(double Coordinate[3], double &Value);
 
-	double						Get_Distance			(double Coordinate[3], CSG_Shape *pPoint);
-	bool						is_Identical			(double Coordinate[3], CSG_Shape *pPoint);
+	double						Get_Distance			(double Coordinate[3], double Point[3]);
+	bool						is_Identical			(double Coordinate[3], double Point[3]);
 
 };
 

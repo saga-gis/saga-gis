@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Interpolation_AngularDistance.cpp 1482 2012-10-08 16:15:45Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Interpolation_AngularDistance.h"
 
 
@@ -71,29 +59,32 @@
 
 //---------------------------------------------------------
 CInterpolation_AngularDistance::CInterpolation_AngularDistance(void)
-	: CInterpolation(true, false)
+	: CInterpolation(true, true)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Angular Distance Weighted"));
 
 	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
-		"Angular Distance Weighted (ADW) grid interpolation from irregular distributed points.\n"
-		"\n"
-		"References:\n"
-		"Shepard, D. (1968): A Two-Dimensional Interpolation Function for Irregularly-Spaced Data. "
-		"Proceedings of the 1968 23rd ACM National Conference, pp.517-524, "
-		"<a target=\"_blank\" href=\"http://champs.cecs.ucf.edu/Library/Conference_Papers/pdfs/A%20two-dimentional%20intepolation%20function%20for%20irregalarly-spaced%20data.pdf\">online</a>.\n"
+		"Angular Distance Weighted (ADW) grid interpolation from irregular distributed points."
 	));
 
-	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")));
+	Add_Reference("Shepard, D.", "1968",
+		"A Two-Dimensional Interpolation Function for Irregularly-Spaced Data",
+		"Proceedings of the 1968 23rd ACM National Conference, pp.517-524, ",
+		SG_T("http://champs.cecs.ucf.edu/Library/Conference_Papers/pdfs/A%20two-dimentional%20intepolation%20function%20for%20irregalarly-spaced%20data.pdf"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
+	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 1);
+
+	Parameters("SEARCH_POINTS_ALL")->Set_Value( 0);	// maximum number of nearest points
+	Parameters("SEARCH_POINTS_MIN")->Set_Value( 4);
+	Parameters("SEARCH_POINTS_MAX")->Set_Value(40);
+
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
 	m_Weighting.Set_IDW_Offset(false);
-	m_Weighting.Set_IDW_Power (2.0);
+	m_Weighting.Set_IDW_Power (2.);
 
 	m_Weighting.Create_Parameters(&Parameters, false);
 }
@@ -108,11 +99,11 @@ int CInterpolation_AngularDistance::On_Parameter_Changed(CSG_Parameters *pParame
 {
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Search.On_Parameter_Changed(pParameters, pParameter);
+		m_Search_Options.On_Parameter_Changed(pParameters, pParameter);
 
 		if( pParameter->asShapes() && pParameter->asShapes()->Get_Count() > 1 )
 		{	// get a rough estimation of point density for band width suggestion
-			pParameters->Get_Parameter("DW_BANDWIDTH")->Set_Value(SG_Get_Rounded_To_SignificantFigures(
+			pParameters->Set_Parameter("DW_BANDWIDTH", SG_Get_Rounded_To_SignificantFigures(
 				0.5 * sqrt(pParameter->asShapes()->Get_Extent().Get_Area() / pParameter->asShapes()->Get_Count()), 1
 			));
 		}
@@ -124,7 +115,7 @@ int CInterpolation_AngularDistance::On_Parameter_Changed(CSG_Parameters *pParame
 //---------------------------------------------------------
 int CInterpolation_AngularDistance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Search.On_Parameters_Enable(pParameters, pParameter);
+	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
 	m_Weighting.Enable_Parameters(pParameters);
 
@@ -139,15 +130,49 @@ int CInterpolation_AngularDistance::On_Parameters_Enable(CSG_Parameters *pParame
 //---------------------------------------------------------
 bool CInterpolation_AngularDistance::On_Initialize(void)
 {
-	return(	m_Search.Initialize(Get_Points(), Get_Field())
-		&&  m_Weighting.Set_Parameters(&Parameters) 
-	);
+	CSG_Shapes	*pPoints	= Get_Points();	int	Field	= Get_Field();
+
+	m_Points.Create(3, pPoints->Get_Count());
+
+	int	n	= 0;
+
+	for(int i=0; i<pPoints->Get_Count(); i++)
+	{
+		CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+
+		if( !pPoint->is_NoData(Field) )
+		{
+			m_Points[n][0]	= pPoint->Get_Point(0).x;
+			m_Points[n][1]	= pPoint->Get_Point(0).y;
+			m_Points[n][2]	= pPoint->asDouble(Field);
+
+			n++;
+		}
+	}
+
+	m_Points.Set_Rows(n);	// resize if there are no-data values
+
+	if( n < 1 )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( !m_Search_Options.Do_Use_All(true) && !m_Search.Create(m_Points) )
+	{
+		Error_Set(_TL("failed to initialize search engine"));
+
+		return( false );
+	}
+
+	return(	m_Weighting.Set_Parameters(&Parameters) );
 }
 
 //---------------------------------------------------------
 bool CInterpolation_AngularDistance::On_Finalize(void)
 {
-	m_Search.Finalize();
+	m_Search.Destroy();
+	m_Points.Destroy();
 
 	return(	true );
 }
@@ -160,26 +185,45 @@ bool CInterpolation_AngularDistance::On_Finalize(void)
 //---------------------------------------------------------
 bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 {
-	int		i, j, n;
+	int	nPoints;	const double	**Points;	CSG_Array_Pointer	__Points;
 
-	if( (n = m_Search.Set_Location(x, y)) <= 0 )
+	if( m_Search.is_Okay() )	// local
 	{
-		return( false );
+		CSG_Array_Int	Index;	CSG_Vector	Distance;
+
+		if( m_Search.Get_Nearest_Points(x, y,
+			m_Search_Options.Get_Max_Points(),
+			m_Search_Options.Get_Radius(), Index, Distance
+		) < m_Search_Options.Get_Min_Points() )
+		{
+			return( false );
+		}
+
+		nPoints	= (int)Index.Get_Size();
+		Points	= (const double **)__Points.Create(Index.Get_Size());
+
+		for(size_t i=0; i<Index.Get_Size(); i++)
+		{
+			Points[i]	= m_Points[Index[i]];
+		}
+	}
+	else	// global
+	{
+		nPoints	= m_Points.Get_NRows();
+		Points	= m_Points;
 	}
 
 	//-----------------------------------------------------
-	CSG_Vector	X(n), Y(n), D(n), W(n), Z(n);
+	CSG_Vector	D(nPoints), W(nPoints);
 
-	for(i=0; i<n; i++)
+	for(int i=0; i<nPoints; i++)
 	{
-		m_Search.Get_Point(i, X[i], Y[i], Z[i]);
-
-		D[i]	= SG_Get_Distance(x, y, X[i], Y[i]);
+		D[i]	= SG_Get_Distance(x, y, Points[i][0], Points[i][1]);
 		W[i]	= m_Weighting.Get_Weight(D[i]);
 
-		if( D[i] <= 0.0 )
+		if( D[i] <= 0. )
 		{
-			z	= Z[i];
+			z	= Points[i][2];
 
 			return( true );
 		}
@@ -188,20 +232,28 @@ bool CInterpolation_AngularDistance::Get_Value(double x, double y, double &z)
 	//-----------------------------------------------------
 	CSG_Simple_Statistics	s;
 
-	for(i=0; i<n; i++)
+	for(int i=0; i<nPoints; i++)
 	{
-		double	w	= 0.0, t	= 0.0;
+		double	xi	= Points[i][0];
+		double	yi	= Points[i][1];
+		double	zi	= Points[i][2];
 
-		for(j=0; j<n; j++)
+		double	w = 0., t = 0.;
+
+		for(int j=0; j<nPoints; j++)
 		{
 			if( j != i )
 			{
-				t	+= W[j] * (1.0 - ((x - X[i]) * (x - X[j]) + (y - Y[i]) * (y - Y[j])) / (D[i] * D[j]));
+				double	xj	= Points[j][0];
+				double	yj	= Points[j][1];
+				double	zj	= Points[j][2];
+
+				t	+= W[j] * (1. - ((x - xi) * (x - xj) + (y - yi) * (y - yj)) / (D[i] * D[j]));
 				w	+= W[j];
 			}
 		}
 
-		s.Add_Value(Z[i], W[i] * (1.0 + t / w));
+		s.Add_Value(zi, W[i] * (1. + t / w));
 	}
 
 	//-----------------------------------------------------

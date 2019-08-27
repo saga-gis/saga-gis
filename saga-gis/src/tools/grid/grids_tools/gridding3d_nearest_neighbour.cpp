@@ -155,7 +155,7 @@ bool CGridding3D_Nearest_Neighbour::On_Execute(void)
 
 	int	zField	= pPoints->Get_Vertex_Type() == SG_VERTEX_TYPE_XY ? Parameters("Z_FIELD")->asInt() : -1;
 
-	int	vField	= Parameters("V_FIELD")->asInt();
+	int	Field	= Parameters("V_FIELD")->asInt();
 
 	CSG_Grids	*pGrids	= m_Grid_Target.Get_Grids("GRIDS");
 
@@ -169,14 +169,14 @@ bool CGridding3D_Nearest_Neighbour::On_Execute(void)
 	//-----------------------------------------------------
 	double	zScale	= Parameters("Z_SCALE")->asDouble();
 
-	if( zScale == 0.0 )
+	if( zScale == 0. )
 	{
 		Error_Set(_TL("Z factor is zero! Please use 2D instead of 3D interpolation."));
 
 		return( false );
 	}
 
-	CSG_KDTree_3D	Search(pPoints, zField, zScale);
+	CSG_KDTree_3D	Search(pPoints, Field, zField, zScale);
 
 	//-----------------------------------------------------
 	for(int x=0; x<pGrids->Get_NX() && Set_Progress(x, pGrids->Get_NX()); x++)
@@ -195,7 +195,7 @@ bool CGridding3D_Nearest_Neighbour::On_Execute(void)
 
 				if( Search.Get_Nearest_Point(c, i, d) )
 				{
-					pGrids->Set_Value(x, y, z, pPoints->Get_Shape((int)i)->asDouble(vField));
+					pGrids->Set_Value(x, y, z, Search.Get_Point_Value(i));
 				}
 				else
 				{
