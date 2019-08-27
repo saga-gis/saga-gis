@@ -1236,6 +1236,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_PointSearch
 {
 public:
 	CSG_Parameters_PointSearch(void);
+	virtual ~CSG_Parameters_PointSearch(void)	{}
 
 	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String &Parent = "", size_t minPoints = 0);
 
@@ -1266,6 +1267,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameters_Search_Points : public CSG_Parameters_P
 {
 public:
 	CSG_Parameters_Search_Points(void);
+	virtual ~CSG_Parameters_Search_Points(void)	{}
 
 	virtual bool				Create					(CSG_Parameters *pParameters, class CSG_Parameter *pParent       , int nPoints_Min = -1);
 	virtual bool				Create					(CSG_Parameters *pParameters, const CSG_String     &Parent = ""  , int nPoints_Min = -1);
