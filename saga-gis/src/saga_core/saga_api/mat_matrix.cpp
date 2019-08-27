@@ -111,6 +111,19 @@ CSG_Vector::CSG_Vector(int n, double *Data)
 
 bool CSG_Vector::Create(int n, double *Data)
 {
+	return( n > 0 && Create((size_t)n, Data) );
+}
+
+//---------------------------------------------------------
+CSG_Vector::CSG_Vector(size_t n, double *Data)
+{
+	m_Array.Create(sizeof(double), 0, SG_ARRAY_GROWTH_2);
+
+	Create(n, Data);
+}
+
+bool CSG_Vector::Create(size_t n, double *Data)
+{
 	if( n > 0 )
 	{
 		if( m_Array.Set_Array(n) )
@@ -151,14 +164,19 @@ bool CSG_Vector::Destroy(void)
 */
 bool CSG_Vector::Set_Rows(int nRows)
 {
-	if( nRows > Get_N() )
+	return( Set_Rows((size_t)nRows) );
+}
+
+bool CSG_Vector::Set_Rows(size_t nRows)
+{
+	if( nRows > Get_Size() )
 	{
-		return( Add_Rows(nRows - Get_N()) );
+		return( Add_Rows(nRows - Get_Size()) );
 	}
 
-	if( nRows < Get_N() )
+	if( nRows < Get_Size() )
 	{
-		return( Del_Rows(Get_N() - nRows) );
+		return( Del_Rows(Get_Size() - nRows) );
 	}
 
 	return( true );
@@ -167,11 +185,16 @@ bool CSG_Vector::Set_Rows(int nRows)
 //---------------------------------------------------------
 bool CSG_Vector::Add_Rows(int nRows)
 {
-	if( nRows > 0 && m_Array.Set_Array(Get_N() + nRows) )
+	return( Set_Rows((int)nRows) );
+}
+
+bool CSG_Vector::Add_Rows(size_t nRows)
+{
+	if( nRows > 0 && m_Array.Set_Array(Get_Size() + nRows) )
 	{
-		for(int i=Get_N()-nRows; i<Get_N(); i++)
+		for(size_t i=Get_Size()-nRows; i<Get_Size(); i++)
 		{
-			Get_Data()[i]	= 0.0;
+			Get_Data()[i]	= 0.;
 		}
 
 		return( true );
@@ -188,17 +211,17 @@ bool CSG_Vector::Add_Rows(int nRows)
 */
 bool CSG_Vector::Del_Rows(int nRows)
 {
-	if( nRows <= 0 )
-	{
-		return( true );
-	}
+	return( nRows < 1 || Del_Rows((int)nRows) );
+}
 
-	if( nRows >= Get_N() )
+bool CSG_Vector::Del_Rows(size_t nRows)
+{
+	if( nRows >= Get_Size() )
 	{
 		return( Destroy() );
 	}
 
-	return( m_Array.Set_Array(Get_N() - nRows) );
+	return( m_Array.Set_Array(Get_Size() - nRows) );
 }
 
 //---------------------------------------------------------
@@ -217,15 +240,27 @@ bool CSG_Vector::Add_Row(double Value)
 //---------------------------------------------------------
 bool CSG_Vector::Del_Row(int iRow)
 {
-	if( iRow >= 0 && iRow < Get_N() - 1 )
+	if( iRow < 0 )	// just remove last entry
 	{
-		for(int i=iRow, j=iRow+1; j<Get_N(); i++, j++)
+		return( m_Array.Dec_Array() );
+	}
+
+	return( iRow < Get_N() && Del_Row((int)iRow) );
+}
+
+bool CSG_Vector::Del_Row(size_t iRow)
+{
+	if( iRow < Get_Size() )
+	{
+		for(size_t i=iRow, j=iRow+1; j<Get_Size(); i++, j++)
 		{
 			Get_Data()[i]	= Get_Data()[j];
 		}
+
+		return( m_Array.Dec_Array() );
 	}
 
-	return( m_Array.Dec_Array() );
+	return( false );
 }
 
 

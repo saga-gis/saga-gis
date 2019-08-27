@@ -284,31 +284,33 @@ public:
 	//-----------------------------------------------------
 	virtual CSG_Table_Record *		Add_Record			(             CSG_Table_Record *pCopy = NULL);
 	virtual CSG_Table_Record *		Ins_Record			(int iRecord, CSG_Table_Record *pCopy = NULL);
-	virtual bool					Set_Record			(int iRecord, CSG_Table_Record *pCopy);
+	virtual bool					Set_Record			(int iRecord, CSG_Table_Record *pCopy       );
 	virtual bool					Del_Record			(int iRecord);
 	virtual bool					Del_Records			(void);
+
+	virtual bool					Set_Count			(int nRecords);
 	virtual bool					Set_Record_Count	(int nRecords);
 
 	int								Get_Count			(void)			const	{	return( m_nRecords );	}
 	int								Get_Record_Count	(void)			const	{	return( m_nRecords );	}
-	virtual CSG_Table_Record *		Get_Record			(int iRecord)	const	{	return( iRecord >= 0 && iRecord < m_nRecords ? m_Records[iRecord] : NULL );	}
-	virtual CSG_Table_Record &		operator []			(int iRecord)	const	{	return( *Get_Record_byIndex(iRecord) );	}
 
-	int								Get_Index			(int Index)		const	{	return( Index >= 0 && Index < m_nRecords ? (m_Index ? m_Index[Index] : Index) : -1 );	}
+	virtual CSG_Table_Record *		Get_Record			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
+	virtual CSG_Table_Record *		Get_Record			(size_t Index)	const	{	return(          (int)Index < m_nRecords ? m_Records[Index] : NULL );	}
+	virtual CSG_Table_Record *		Get_Record			(sLong  Index)	const	{	return( Index >= 0 && Index < m_nRecords ? m_Records[Index] : NULL );	}
 
-	CSG_Table_Record *				Get_Record_byIndex	(int Index)		const
+	virtual CSG_Table_Record &		operator []			(int    Index)	const	{	return( *Get_Record_byIndex(Index) );	}
+	virtual CSG_Table_Record &		operator []			(size_t Index)	const	{	return( *Get_Record_byIndex(Index) );	}
+	virtual CSG_Table_Record &		operator []			(sLong  Index)	const	{	return( *Get_Record_byIndex(Index) );	}
+
+	int								Get_Index			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (m_Index ? m_Index[Index] : Index) : -1 );	}
+	int								Get_Index			(size_t Index)	const	{	return( Get_Index((int)Index) );	}
+	int								Get_Index			(sLong  Index)	const	{	return( Get_Index((int)Index) );	}
+
+	CSG_Table_Record *				Get_Record_byIndex	(sLong  Index)	const	{	return( Get_Record_byIndex((int)Index) ); }
+	CSG_Table_Record *				Get_Record_byIndex	(size_t Index)	const	{	return( Get_Record_byIndex((int)Index) ); }
+	CSG_Table_Record *				Get_Record_byIndex	(int    Index)	const
 	{
-		if( Index >= 0 && Index < m_nRecords )
-		{
-			if( m_Index != NULL )
-			{
-				return( Get_Record(m_Index[Index]) );
-			}
-
-			return( Get_Record(Index) );
-		}
-
-		return( NULL );
+		return( Index >= 0 && Index < m_nRecords ? Get_Record(m_Index ? m_Index[Index] : Index) : NULL );
 	}
 
 	//-----------------------------------------------------

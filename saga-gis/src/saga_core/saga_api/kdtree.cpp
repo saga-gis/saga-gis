@@ -131,12 +131,11 @@ public:
 
 	virtual double			kdtree_get_pt			(const size_t Index, int Dimension)	const
 	{
-		if( Dimension == 0 ) { return( m_pPoints->Get_Shape(Index)->Get_Point(0).x ); }
-		if( Dimension == 1 ) { return( m_pPoints->Get_Shape(Index)->Get_Point(0).y ); }
-		if( Dimension == 2 ) { return( m_zScale * (m_zField >= 0
-			? m_pPoints->Get_Shape(Index)->asDouble(m_zField)
-			: m_pPoints->Get_Shape(Index)->Get_Z(0)	));
-		}
+		CSG_Shape	*pPoint	= m_pPoints->Get_Shape(Index);
+
+		if( Dimension == 0 ) { return( pPoint->Get_Point(0).x ); }
+		if( Dimension == 1 ) { return( pPoint->Get_Point(0).y ); }
+		if( Dimension == 2 ) { return( (m_zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(m_zField)) * m_zScale); }
 
 		return( 0. );
 	}
@@ -182,9 +181,9 @@ public:
 
 	virtual double			kdtree_get_pt			(const size_t Index, int Dimension)	const
 	{
-		if( Dimension == 0 ) { return( m_pPoints->Get_X(Index)            ); }
-		if( Dimension == 1 ) { return( m_pPoints->Get_Y(Index)            ); }
-		if( Dimension == 2 ) { return( m_pPoints->Get_Z(Index) * m_zScale ); }
+		if( Dimension == 0 ) { return( m_pPoints->Get_X((int)Index)            ); }
+		if( Dimension == 1 ) { return( m_pPoints->Get_Y((int)Index)            ); }
+		if( Dimension == 2 ) { return( m_pPoints->Get_Z((int)Index) * m_zScale ); }
 
 		return( 0. );
 	}
@@ -269,6 +268,7 @@ bool CSG_KDTree::Destroy(void)
 {
 	SG_DELETE_SAFE(m_pAdaptor);
 
+	m_Points   .Destroy();
 	m_Indices  .Destroy();
 	m_Distances.Destroy();
 
@@ -284,7 +284,7 @@ CSG_Shape * CSG_KDTree::Get_Match_Shape(size_t i) const
 
 		if( pShapes )
 		{
-			return( pShapes->Get_Shape((int)Get_Match_Index(i)) );
+			return( pShapes->Get_Shape(Get_Match_Index(i)) );
 		}
 	}
 
@@ -315,21 +315,66 @@ CSG_KDTree_2D::~CSG_KDTree_2D(void)
 }
 
 //---------------------------------------------------------
-CSG_KDTree_2D::CSG_KDTree_2D(CSG_Shapes *pPoints)
+/**
+* Creates a spatial index for the given points. If 'Field'
+* refers to a valid field, an internal points arrray is created
+* which omits points with no-data entries for the given field.
+*/
+//---------------------------------------------------------
+CSG_KDTree_2D::CSG_KDTree_2D(CSG_Shapes *pPoints, int Field)
 {
 	_On_Construction();
 
-	Create(pPoints);
+	Create(pPoints, Field);
 }
 
-bool CSG_KDTree_2D::Create(CSG_Shapes *pPoints)
+bool CSG_KDTree_2D::Create(CSG_Shapes *pPoints, int Field)
 {
+	Destroy();
+
+	//-----------------------------------------------------
+	if( Field >= 0 && Field < pPoints->Get_Field_Count() )
+	{
+		m_Points.Create(3, pPoints->Get_Count());
+
+		int	n	= 0;
+
+		for(int i=0; i<pPoints->Get_Count(); i++)
+		{
+			CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+
+			if( !pPoint->is_NoData(Field) )
+			{
+				m_Points[n][0]	= pPoint->Get_Point(0).x;
+				m_Points[n][1]	= pPoint->Get_Point(0).y;
+				m_Points[n][2]	= pPoint->asDouble(Field);
+
+				n++;
+			}
+		}
+
+		m_Points.Set_Rows(n);	// resize if there are no-data values
+
+		if( n < 1 )
+		{
+			Destroy();
+
+			return( false );
+		}
+
+		m_pAdaptor	= new CSG_KDTree_Adaptor_Coordinates(m_Points, m_Points.Get_NRows());
+		m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_2d(2, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+
+		((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->buildIndex();
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	if( pPoints->Get_Count() < 1 )
 	{
 		return( false );
 	}
-
-	Destroy();
 
 	m_pAdaptor	= new CSG_KDTree_Adaptor_Points(pPoints);
 	m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_2d(2, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
@@ -354,19 +399,12 @@ CSG_KDTree_2D::CSG_KDTree_2D(const CSG_Matrix &Points)
 
 bool CSG_KDTree_2D::Create(const CSG_Matrix &Points)
 {
-	if( Points.Get_NRows() < 1 || Points.Get_NCols() < 2 )
+	if( Points.Get_NCols() < 2 )
 	{
 		return( false );
 	}
 
-	Destroy();
-
-	m_pAdaptor	= new CSG_KDTree_Adaptor_Coordinates((const double **)Points.Get_Data(), Points.Get_NRows());
-	m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_2d(2, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
-
-	((CSG_KDTree_Adaptor::kd_tree_2d *)m_pKDTree)->buildIndex();
-
-	return( true );
+	return( Create((const double **)Points.Get_Data(), Points.Get_NRows()) );
 }
 
 //---------------------------------------------------------
@@ -446,7 +484,7 @@ size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, dou
 
 		for(size_t i=0; i<Count; i++)
 		{
-			Indices  [i]	=      Matches[i]. first;
+			Indices  [i]	= (int)Matches[i]. first ;
 			Distances[i]	= sqrt(Matches[i].second);
 		}
 	}
@@ -467,7 +505,7 @@ size_t CSG_KDTree_2D::Get_Nearest_Points(double Coordinate[2], size_t Count, dou
 
 		for(size_t i=0; i<Count; i++)
 		{
-			Indices[i]	= _Indices[i];
+			Indices[i]	= (int)_Indices[i];
 		}
 
 		delete[](_Indices);
@@ -576,21 +614,70 @@ CSG_KDTree_3D::~CSG_KDTree_3D(void)
 }
 
 //---------------------------------------------------------
-CSG_KDTree_3D::CSG_KDTree_3D(CSG_Shapes *pPoints, int zField, double zScale)
+/**
+* Creates a spatial index for the given points. If 'Field'
+* refers to a valid field, an internal points arrray is created
+* which omits points with no-data entries for the given field.
+* If 'zField' refers to a valid field, its values are taken as
+* coordinate of the 3rd dimension. Else it is expected that the
+* points provide 3 dimensional coordinates (i.e. x-y-z or x-y-z-m).
+*/
+//---------------------------------------------------------
+CSG_KDTree_3D::CSG_KDTree_3D(CSG_Shapes *pPoints, int Field, int zField, double zScale)
 {
 	_On_Construction();
 
-	Create(pPoints, zField, zScale);
+	Create(pPoints, Field, zField, zScale);
 }
 
-bool CSG_KDTree_3D::Create(CSG_Shapes *pPoints, int zField, double zScale)
+bool CSG_KDTree_3D::Create(CSG_Shapes *pPoints, int Field, int zField, double zScale)
 {
+	Destroy();
+
+	//-----------------------------------------------------
+	if( Field >= 0 && Field < pPoints->Get_Field_Count() )
+	{
+		m_Points.Create(4, pPoints->Get_Count());
+
+		int	n	= 0;
+
+		for(int i=0; i<pPoints->Get_Count(); i++)
+		{
+			CSG_Shape	*pPoint	= pPoints->Get_Shape(i);
+
+			if( !pPoint->is_NoData(Field) )
+			{
+				m_Points[n][0]	= pPoint->Get_Point(0).x;
+				m_Points[n][1]	= pPoint->Get_Point(0).y;
+				m_Points[n][2]	= zScale * (zField < 0 ? pPoint->Get_Z(0) : pPoint->asDouble(zField));
+				m_Points[n][3]	= pPoint->asDouble(Field);
+
+				n++;
+			}
+		}
+
+		m_Points.Set_Rows(n);	// resize if there are no-data values
+
+		if( n < 1 )
+		{
+			Destroy();
+
+			return( false );
+		}
+
+		m_pAdaptor	= new CSG_KDTree_Adaptor_Coordinates(m_Points, m_Points.Get_NRows());
+		m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_3d(3, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+
+		((CSG_KDTree_Adaptor::kd_tree_3d *)m_pKDTree)->buildIndex();
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
 	if( pPoints->Get_Count() < 1 )
 	{
 		return( false );
 	}
-
-	Destroy();
 
 	m_pAdaptor	= new CSG_KDTree_Adaptor_Points(pPoints, zField, zScale);
 	m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_3d(3, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
@@ -640,19 +727,12 @@ CSG_KDTree_3D::CSG_KDTree_3D(const CSG_Matrix &Points)
 
 bool CSG_KDTree_3D::Create(const CSG_Matrix &Points)
 {
-	if( Points.Get_NRows() < 1 || Points.Get_NCols() < 3 )
+	if( Points.Get_NCols() < 3 )
 	{
 		return( false );
 	}
 
-	Destroy();
-
-	m_pAdaptor	= new CSG_KDTree_Adaptor_Coordinates((const double **)Points.Get_Data(), Points.Get_NRows());
-	m_pKDTree	= new CSG_KDTree_Adaptor::kd_tree_3d(3, *m_pAdaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10));
-
-	((CSG_KDTree_Adaptor::kd_tree_3d *)m_pKDTree)->buildIndex();
-
-	return( true );
+	return( Create((const double **)Points.Get_Data(), Points.Get_NRows()) );
 }
 
 //---------------------------------------------------------
@@ -732,7 +812,7 @@ size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, dou
 
 		for(size_t i=0; i<Count; i++)
 		{
-			Indices  [i]	=      Matches[i]. first;
+			Indices  [i]	= (int)Matches[i]. first ;
 			Distances[i]	= sqrt(Matches[i].second);
 		}
 	}
@@ -753,7 +833,7 @@ size_t CSG_KDTree_3D::Get_Nearest_Points(double Coordinate[3], size_t Count, dou
 
 		for(size_t i=0; i<Count; i++)
 		{
-			Indices[i]	= _Indices[i];
+			Indices[i]	= (int)_Indices[i];
 		}
 
 		delete[](_Indices);

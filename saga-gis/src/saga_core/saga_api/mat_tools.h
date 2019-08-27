@@ -216,24 +216,32 @@ public:
 								CSG_Vector			(const CSG_Vector &Vector);
 	bool						Create				(const CSG_Vector &Vector);
 
-								CSG_Vector			(int n, double *Data = NULL);
-	bool						Create				(int n, double *Data = NULL);
+								CSG_Vector			(int    n, double *Data = NULL);
+	bool						Create				(int    n, double *Data = NULL);
+
+								CSG_Vector			(size_t n, double *Data = NULL);
+	bool						Create				(size_t n, double *Data = NULL);
 
 	bool						Destroy				(void);
 
-	bool						Set_Rows			(int nRows);
-	bool						Add_Rows			(int nRows);
-	bool						Del_Rows			(int nRows);
-	bool						Add_Row				(double Value = 0.0);
-	bool						Del_Row				(int iRow = -1);
+	bool						Set_Rows			(int    nRows);
+	bool						Set_Rows			(size_t nRows);
+	bool						Add_Rows			(int    nRows);
+	bool						Add_Rows			(size_t nRows);
+	bool						Del_Rows			(int    nRows);
+	bool						Del_Rows			(size_t nRows);
+	bool						Add_Row				(double Value = 0.);
+	bool						Del_Row				(int    iRow = -1);
+	bool						Del_Row				(size_t iRow);
 
-	int							Get_N				(void)	const	{	return( (int)Get_Size() );					}
-	size_t						Get_Size			(void)	const	{	return( m_Array.Get_Size() );				}
-	double *					Get_Data			(void)	const	{	return( (double *)m_Array.Get_Array() );	}
-	double						Get_Data			(int x)	const	{	return( Get_Data()[x] );	}
-	double						operator ()			(int x)	const	{	return( Get_Data()[x] );	}
-	double &					operator []			(int x)			{	return( Get_Data()[x] );	}
-	operator const double *							(void)	const	{	return( Get_Data() );		}
+	int							Get_N				(void)		const	{	return(    (int)Get_Size() );	}
+	size_t						Get_Size			(void)		const	{	return( m_Array.Get_Size() );	}
+	double *					Get_Data			(void)		const	{	return( (double *)m_Array.Get_Array() );	}
+	double						Get_Data			(int    x)	const	{	return( Get_Data()[x] );	}
+	double						operator ()			(int    x)	const	{	return( Get_Data()[x] );	}
+	double &					operator []			(int    x)			{	return( Get_Data()[x] );	}
+	double &					operator []			(size_t x)			{	return( Get_Data()[x] );	}
+	operator const double *							(void)		const	{	return( Get_Data() );		}
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
@@ -357,7 +365,8 @@ public:
 	operator const double **						(void)			const	{	return( (const double **)m_z );	}
 	double **					Get_Data			(void)			const	{	return( m_z );			}
 	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
-	double *					operator []			(int y)			const	{	return( m_z[y] );		}
+	double *					operator []			(int    y)		const	{	return( m_z[y] );		}
+	double *					operator []			(size_t y)		const	{	return( m_z[y] );		}
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);

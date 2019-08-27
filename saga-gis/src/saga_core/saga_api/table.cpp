@@ -917,7 +917,7 @@ bool CSG_Table::Del_Records(void)
 }
 
 //---------------------------------------------------------
-bool CSG_Table::Set_Record_Count(int nRecords)
+bool CSG_Table::Set_Count(int nRecords)
 {
 	if( m_nRecords < nRecords )
 	{
@@ -929,6 +929,12 @@ bool CSG_Table::Set_Record_Count(int nRecords)
 	}
 
 	return( m_nRecords == nRecords );
+}
+
+//---------------------------------------------------------
+bool CSG_Table::Set_Record_Count(int nRecords)
+{
+	return( Set_Count(nRecords) );
 }
 
 

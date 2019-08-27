@@ -708,9 +708,13 @@ public:
 	virtual bool					Del_Shape				(CSG_Shape *pShape);
 	virtual bool					Del_Shapes				(void)					{	return( Del_Records() );	}
 
-	virtual CSG_Shape *				Get_Shape				(TSG_Point Point, double Epsilon = 0.0);
-	virtual CSG_Shape *				Get_Shape				(int iShape)	const	{	return( (CSG_Shape *)Get_Record(iShape) );	}
-	virtual CSG_Shape *				Get_Shape_byIndex		(int Index)		const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
+	virtual CSG_Shape *				Get_Shape				(const TSG_Point &Point, double Epsilon = 0.);
+	virtual CSG_Shape *				Get_Shape				(int    Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
+	virtual CSG_Shape *				Get_Shape				(size_t Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
+	virtual CSG_Shape *				Get_Shape				(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record        (Index) );	}
+	virtual CSG_Shape *				Get_Shape_byIndex		(int    Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
+	virtual CSG_Shape *				Get_Shape_byIndex		(size_t Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
+	virtual CSG_Shape *				Get_Shape_byIndex		(sLong  Index)	const	{	return( (CSG_Shape *)Get_Record_byIndex(Index) );	}
 
 	//-----------------------------------------------------
 	bool							Make_Clean				(void);
@@ -1108,6 +1112,14 @@ public:
 	double						Get_Match_Distance	(size_t i)	const	{	return( m_Distances[i]       );	}
 	CSG_Shape *					Get_Match_Shape		(size_t i)	const;
 
+	int							Get_Point_Count		(void)		const	{	return( m_Points.Get_NRows() );	}
+	double *					Get_Point			(int    i)	const	{	return( m_Points[i]          );	}
+	double *					Get_Point			(size_t i)	const	{	return( m_Points[i]          );	}
+	double *					operator []			(int    i)	const	{	return( m_Points[i]          );	}
+	double *					operator []			(size_t i)	const	{	return( m_Points[i]          );	}
+	virtual double				Get_Point_Value		(int    i)	const = 0;
+	virtual double				Get_Point_Value		(size_t i)	const	{	return( Get_Point_Value((int)i) );	}
+
 
 protected:
 
@@ -1118,6 +1130,8 @@ protected:
 	CSG_Array_Int				m_Indices;
 
 	CSG_Vector					m_Distances;
+
+	CSG_Matrix					m_Points;
 
 
 	void						_On_Construction	(void);
@@ -1136,8 +1150,8 @@ public:
 	CSG_KDTree_2D(void);
 	virtual ~CSG_KDTree_2D(void);
 
-								CSG_KDTree_2D		(CSG_Shapes *pPoints);
-	bool						Create				(CSG_Shapes *pPoints);
+								CSG_KDTree_2D		(CSG_Shapes *pPoints, int Field = -1);
+	bool						Create				(CSG_Shapes *pPoints, int Field = -1);
 
 								CSG_KDTree_2D		(const CSG_Matrix &Points);
 	bool						Create				(const CSG_Matrix &Points);
@@ -1146,6 +1160,8 @@ public:
 	bool						Create				(const double **Points, size_t nPoints);
 
 	virtual bool				Destroy				(void);
+
+	virtual double				Get_Point_Value		(int i)	const	{	return( m_Points[i][2] );	}
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius);
 	virtual size_t				Get_Nearest_Points	(double Coordinate[2], size_t Count, double Radius, CSG_Array_Int &Indices, CSG_Vector &Distances);
@@ -1175,8 +1191,8 @@ public:
 	CSG_KDTree_3D(void);
 	virtual ~CSG_KDTree_3D(void);
 
-								CSG_KDTree_3D		(CSG_Shapes     *pPoints, int zField = -1, double zScale = 1.);
-	bool						Create				(CSG_Shapes     *pPoints, int zField = -1, double zScale = 1.);
+								CSG_KDTree_3D		(CSG_Shapes *pPoints, int Field = -1, int zField = -1, double zScale = 1.);
+	bool						Create				(CSG_Shapes *pPoints, int Field = -1, int zField = -1, double zScale = 1.);
 
 								CSG_KDTree_3D		(CSG_PointCloud *pPoints);
 	bool						Create				(CSG_PointCloud *pPoints);
@@ -1188,6 +1204,8 @@ public:
 	bool						Create				(const double **Points, size_t nPoints);
 
 	virtual bool				Destroy				(void);
+
+	virtual double				Get_Point_Value		(int i)	const	{	return( m_Points[i][3] );	}
 
 	virtual size_t				Get_Nearest_Points	(double Coordinate[3], size_t Count, double Radius);
 
