@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: GSGrid_Residuals.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "GSGrid_Residuals.h"
 
 
@@ -72,14 +60,15 @@
 //---------------------------------------------------------
 CGSGrid_Residuals::CGSGrid_Residuals(void)
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Residual Analysis (Grid)"));
+	Set_Name		(_TL("Focal Statistics"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Relations of each grid cell to its neighborhood. "
-		"Wilson & Gallant (2000) used this type of calculation in terrain analysis."
+		"Based on its neighbourhood this tool calculates for each grid cell "
+		"various statistical measures. "
+		"According to Wilson & Gallant (2000) this tool was named "
+		"'Residual Analysis (Grid)' in earlier versions. "
 	));
 
 	Add_Reference(
@@ -89,31 +78,12 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "GRID"   , _TL("Grid"                      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "GRID", _TL("Grid"), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Grid("", "MEAN"   , _TL("Mean Value"                ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "DIFF"   , _TL("Difference from Mean Value"), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STDDEV" , _TL("Standard Deviation"        ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "RANGE"  , _TL("Value Range"               ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "MIN"    , _TL("Minimum Value"             ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "MAX"    , _TL("Maximum Value"             ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "DEVMEAN", _TL("Deviation from Mean Value" ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "PERCENT", _TL("Percentile"                ), _TL(""), PARAMETER_OUTPUT);
-
-	Parameters.Add_Choice("",
-		"MODE"		, _TL("Search Mode"),
-		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("Square"),
-			_TL("Circle")
-		), 1
-	);
-
-	Parameters.Add_Int("",
-		"RADIUS"	, _TL("Radius (Cells)"),
-		_TL(""),
-		7, 1, true
-	);
+	for(int i=0; i<COUNT; i++)
+	{
+		Parameters.Add_Grid("", Results[i][0], Results[i][1], _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	}
 
 	Parameters.Add_Bool("",
 		"BCENTER"	, _TL("Include Center Cell"),
@@ -121,10 +91,25 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 		true
 	);
 
-	Parameters.Add_Parameters("",
-		"WEIGHTING"	, _TL("Weighting"),
-		_TL("")
-	)->asParameters()->Assign(m_Cells.Get_Weighting().Get_Parameters());
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters, NULL,
+		SG_GRIDCELLADDR_PARM_SQUARE|SG_GRIDCELLADDR_PARM_CIRCLE|SG_GRIDCELLADDR_PARM_ANNULUS|SG_GRIDCELLADDR_PARM_SECTOR
+	);
+
+	m_Kernel.Get_Weighting().Set_BandWidth(75.);	// 75%
+	m_Kernel.Get_Weighting().Create_Parameters(&Parameters, false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Residuals::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Kernel.Enable_Parameters(*pParameters);
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -135,34 +120,36 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 //---------------------------------------------------------
 bool CGSGrid_Residuals::On_Execute(void)
 {
-	m_pGrid		= Parameters("GRID"   )->asGrid();
+	m_pGrid		= Parameters("GRID")->asGrid();
 
-	m_pMean		= Parameters("MEAN"   )->asGrid();
-	m_pDiff		= Parameters("DIFF"   )->asGrid();
-	m_pStdDev	= Parameters("STDDEV" )->asGrid();
-	m_pRange	= Parameters("RANGE"  )->asGrid();
-	m_pMin		= Parameters("MIN"    )->asGrid();
-	m_pMax		= Parameters("MAX"    )->asGrid();
-	m_pDevMean	= Parameters("DEVMEAN")->asGrid();
-	m_pPercent	= Parameters("PERCENT")->asGrid();
+	int	nResults	= 0;
 
-	DataObject_Set_Colors(m_pDiff	, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pStdDev	, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pRange	, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pMin	, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pMax	, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pDevMean, 100, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pPercent, 100, SG_COLORS_RED_GREY_BLUE, true);
-
-	//-----------------------------------------------------
-	bool	bSquare = Parameters("MODE")->asBool() ? false : true;
-
-	m_Cells.Get_Weighting().Set_Parameters(Parameters("WEIGHTING")->asParameters());
-
-	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), bSquare) )
+	for(int i=0; i<COUNT; i++)
 	{
+		if( (m_pResult[i] = Parameters(Results[i][0])->asGrid()) != NULL )
+		{
+			nResults++;
+
+			m_pResult[i]->Fmt_Name("%s [%s]", m_pGrid->Get_Name(), Results[i][1].c_str());
+		}
+	}
+
+	if( nResults < 1 )
+	{
+		Error_Set(_TL("no result has been selected"));
+
 		return( false );
 	}
+
+	//-----------------------------------------------------
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
+
+		return( false );
+	}
+
+	m_Kernel.Get_Weighting().Set_BandWidth(m_Kernel.Get_Radius() * m_Kernel.Get_Weighting().Get_BandWidth());
 
 	bool	bCenter	= Parameters("BCENTER")->asBool();
 
@@ -177,7 +164,7 @@ bool CGSGrid_Residuals::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Cells.Destroy();
+	m_Kernel.Destroy();
 
 	return( true );
 }
@@ -195,46 +182,65 @@ bool CGSGrid_Residuals::Get_Statistics(int x, int y, bool bCenter)
 		int		i, ix, iy, nLower;
 		double	z, iz, id, iw;
 
-		CSG_Simple_Statistics	Statistics;
+		CSG_Simple_Statistics	s(m_pResult[MEDIAN] != NULL);
 
-		for(i=0, nLower=0, z=m_pGrid->asDouble(x, y); i<m_Cells.Get_Count(); i++)
+		CSG_Unique_Number_Statistics	u(m_Kernel.Get_Weighting().Get_Weighting() != SG_DISTWGHT_None);
+
+		for(i=0, nLower=0, z=m_pGrid->asDouble(x, y); i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, id, iw, true) && (bCenter || id > 0.0) && m_pGrid->is_InGrid(ix, iy) )
+			if( m_Kernel.Get_Values(i, ix = x, iy = y, id, iw, true) && (bCenter || id > 0.) && m_pGrid->is_InGrid(ix, iy) )
 			{
-				Statistics.Add_Value(iz = m_pGrid->asDouble(ix, iy), iw);
+				double	iz	= m_pGrid->asDouble(ix, iy);
+
+				s.Add_Value(iz, iw);
 
 				if( z > iz )
 				{
 					nLower++;
 				}
+
+				if( m_pResult[MINORITY] || m_pResult[MAJORITY] )
+				{
+					u.Add_Value(iz, iw);
+				}
 			}
 		}
 
 		//-------------------------------------------------
-		if( Statistics.Get_Weights() > 0.0 )
+		if( s.Get_Weights() > 0. )
 		{
-			m_pMean   ->Set_Value(x, y, Statistics.Get_Mean());
-			m_pDiff   ->Set_Value(x, y, z - Statistics.Get_Mean());
-			m_pStdDev ->Set_Value(x, y, Statistics.Get_StdDev());
-			m_pRange  ->Set_Value(x, y, Statistics.Get_Range());
-			m_pMin    ->Set_Value(x, y, Statistics.Get_Minimum());
-			m_pMax    ->Set_Value(x, y, Statistics.Get_Maximum());
-			m_pDevMean->Set_Value(x, y, Statistics.Get_StdDev() > 0.0 ? ((z - Statistics.Get_Mean()) / Statistics.Get_StdDev()) : 0.0);
-			m_pPercent->Set_Value(x, y, 100.0 * nLower / (double)Statistics.Get_Count());
+			#define SET_VALUE(key, value)	if( m_pResult[key] ) { m_pResult[key]->Set_Value(x, y, value); }
 
-			return( true );
+			SET_VALUE(MEAN    , s.Get_Mean    ());
+			SET_VALUE(MEDIAN  , s.Get_Median  ());
+			SET_VALUE(MIN     , s.Get_Minimum ());
+			SET_VALUE(MAX     , s.Get_Maximum ());
+			SET_VALUE(RANGE   , s.Get_Range   ());
+			SET_VALUE(STDDEV  , s.Get_StdDev  ());
+			SET_VALUE(VARIANCE, s.Get_Variance());
+			SET_VALUE(SUM     , s.Get_Sum     ());
+			SET_VALUE(DIFF    , z - s.Get_Mean());
+			SET_VALUE(DEVMEAN , s.Get_StdDev() <= 0. ? 0. : (z - s.Get_Mean()) / s.Get_StdDev());
+			SET_VALUE(PERCENT , nLower * 100. / s.Get_Count());
 		}
+
+		if( u.Get_Count() > 0. )
+		{
+			if( m_pResult[MINORITY] && u.Get_Minority(z) ) { m_pResult[MINORITY]->Set_Value(x, y, z); }
+			if( m_pResult[MAJORITY] && u.Get_Majority(z) ) { m_pResult[MAJORITY]->Set_Value(x, y, z); }
+		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
-	m_pMean   ->Set_NoData(x, y);
-	m_pDiff   ->Set_NoData(x, y);
-	m_pStdDev ->Set_NoData(x, y);
-	m_pRange  ->Set_NoData(x, y);
-	m_pMin    ->Set_NoData(x, y);
-	m_pMax    ->Set_NoData(x, y);
-	m_pDevMean->Set_NoData(x, y);
-	m_pPercent->Set_NoData(x, y);
+	for(int i=0; i<COUNT; i++)
+	{
+		if( m_pResult[i] )
+		{
+			m_pResult[i]->Set_NoData(x, y);
+		}
+	}
 
 	return( false );
 }

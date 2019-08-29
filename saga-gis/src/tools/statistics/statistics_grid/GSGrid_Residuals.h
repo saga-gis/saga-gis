@@ -51,6 +51,13 @@
 #ifndef HEADER_INCLUDED__GSGrid_Residuals_H
 #define HEADER_INCLUDED__GSGrid_Residuals_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
@@ -58,6 +65,48 @@
 ///////////////////////////////////////////////////////////
 //														 //
 //                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+enum
+{
+	MEAN	= 0,
+	MIN,
+	MAX,
+	RANGE,
+	STDDEV,
+	VARIANCE,
+	SUM,
+	DIFF,
+	DEVMEAN,
+	PERCENT,
+	MEDIAN,
+	MINORITY,
+	MAJORITY,
+	COUNT
+};
+
+//---------------------------------------------------------
+const CSG_String	Results[COUNT][2]	=
+{
+	{	"MEAN"    , _TL("Mean Value"                )	},
+	{	"MIN"     , _TL("Minimum Value"             )	},
+	{	"MAX"     , _TL("Maximum Value"             )	},
+	{	"RANGE"   , _TL("Value Range"               )	},
+	{	"STDDEV"  , _TL("Standard Deviation"        )	},
+	{	"VARIANCE", _TL("Variance"                  )	},
+	{	"SUM"     , _TL("Sum"                       )	},
+	{	"DIFF"    , _TL("Difference from Mean Value")	},
+	{	"DEVMEAN" , _TL("Deviation from Mean Value" )	},
+	{	"PERCENT" , _TL("Percentile"                )	},
+	{	"MEDIAN"  , _TL("Median"                    )	},
+	{	"MINORITY", _TL("Minority"                  )	},
+	{	"MAJORITY", _TL("Majority"                  )	}
+};
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -70,17 +119,19 @@ public:
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Grid_Cell_Addressor	m_Cells;
+	CSG_Grid_Cell_Addressor	m_Kernel;
 
-	CSG_Grid				*m_pGrid, *m_pMean, *m_pDiff, *m_pStdDev, *m_pRange, *m_pMin, *m_pMax, *m_pDevMean, *m_pPercent;
+	CSG_Grid				*m_pGrid, *m_pResult[COUNT];
 
 
-	bool					Get_Statistics	(int x, int y, bool bCenter);
+	bool					Get_Statistics			(int x, int y, bool bCenter);
 
 };
 
