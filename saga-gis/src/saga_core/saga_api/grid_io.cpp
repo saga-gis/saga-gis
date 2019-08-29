@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//				Grid: File Operations					 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -166,6 +154,7 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 		if( SG_File_Cmp_Extension(FileName, "sg-grd-z") )	Format	= GRID_FILE_FORMAT_Compressed;
 		if( SG_File_Cmp_Extension(FileName, "sg-grd"  ) )	Format	= GRID_FILE_FORMAT_Binary    ;
 		if( SG_File_Cmp_Extension(FileName, "sgrd"    ) )	Format	= GRID_FILE_FORMAT_Binary_old;
+		if( SG_File_Cmp_Extension(FileName, "tif"     ) )	Format	= GRID_FILE_FORMAT_GeoTIFF   ;
 	}
 
 	//-----------------------------------------------------
@@ -179,6 +168,13 @@ bool CSG_Grid::Save(const CSG_String &FileName, int Format)
 
 	case GRID_FILE_FORMAT_Compressed:
 		bResult = _Save_Compressed(FileName);
+		break;
+
+	case GRID_FILE_FORMAT_GeoTIFF:
+		SG_RUN_TOOL(bResult, "io_gdal", 2,	// Export GeoTIFF
+			    SG_TOOL_PARAMLIST_ADD("GRIDS", this)
+			&&	SG_TOOL_PARAMETER_SET("FILE" , FileName)
+		);
 		break;
 	}
 
