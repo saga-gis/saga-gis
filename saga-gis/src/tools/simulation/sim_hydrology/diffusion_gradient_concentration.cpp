@@ -44,15 +44,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "diffusion_gradient_concentration.h"
 
 
@@ -77,14 +68,13 @@ static const CSG_String	Description	= _TW(
 	"example nutrients like nitrate, which is reduced by denitrification process inside "
 	"the water body.\n"
 	"Values of mask grid are expected to be 1 for water area, 2 for inlet, 3 for outlet and "
-	"0 for non water.\n"
-	"\n"
-	"References:\n<ul>"
-	"<li>Heinrich, R. / Conrad, O. (2008):"
-	" Diffusion, Flow and Concentration Gradient Simulation with SAGA GIS using Cellular Automata Methods."
-	" In: Boehner, J. / Blaschke, T. / Montanarella, L. [Eds.]:"
-	" SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, Vol.19, p59-70,"
-	" <a href=\"http://downloads.sourceforge.net/saga-gis/hbpl19_07.pdf\">online</a>.</li></ul>\n"
+	"0 for non water."
+);
+
+#define ADD_REFERENCE	Add_Reference("Heinrich, R. & Conrad, O.", "2008",\
+	"Diffusion, Flow and Concentration Gradient Simulation with SAGA GIS using Cellular Automata Methods",\
+	"In: Boehner, J., Blaschke, T., Montanarella, L. [Eds.]: SAGA - Seconds Out. Hamburger Beitraege zur Physischen Geographie und Landschaftsoekologie, Vol.19, p59-70.",\
+	SG_T("http://downloads.sourceforge.net/saga-gis/hbpl19_07.pdf")\
 );
 
 
@@ -103,6 +93,8 @@ CSim_Diffusion_Gradient::CSim_Diffusion_Gradient(void)
 	Set_Author		("R.Heinrich, O.Conrad (c) 2007");
 
 	Set_Description	(Description);
+
+	ADD_REFERENCE
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -358,7 +350,7 @@ bool CSim_Diffusion_Gradient::Surface_Get_Gradient(CSG_Grid *pSurface, CSG_Grid 
 //---------------------------------------------------------
 CSim_Diffusion_Concentration::CSim_Diffusion_Concentration(void)
 {
-	Parameters.Create(NULL, SG_T(""), SG_T(""), SG_T(""), true);
+	Parameters.Create("", SG_T(""), SG_T(""), SG_T(""), true);
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Concentration"));
@@ -366,6 +358,8 @@ CSim_Diffusion_Concentration::CSim_Diffusion_Concentration(void)
 	Set_Author		("R.Heinrich, O.Conrad (c) 2007");
 
 	Set_Description	(Description);
+
+	ADD_REFERENCE
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
@@ -682,7 +676,7 @@ bool CSim_Diffusion_Concentration::_Concentration_Initialise(CSG_Grid *pConcentr
 //---------------------------------------------------------
 CSim_Diffusion_Gradient_And_Concentration::CSim_Diffusion_Gradient_And_Concentration(void)
 {
-	Parameters.Create(NULL, SG_T(""), SG_T(""), SG_T(""), true);
+	Parameters.Create("", SG_T(""), SG_T(""), SG_T(""), true);
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Surface, Gradient and Concentration"));
@@ -690,6 +684,8 @@ CSim_Diffusion_Gradient_And_Concentration::CSim_Diffusion_Gradient_And_Concentra
 	Set_Author		("R.Heinrich, O.Conrad (c) 2007");
 
 	Set_Description	(Description);
+
+	ADD_REFERENCE
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(

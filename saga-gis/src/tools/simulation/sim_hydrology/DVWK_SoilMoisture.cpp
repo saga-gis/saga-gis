@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: DVWK_SoilMoisture.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "DVWK_SoilMoisture.h"
 
 
@@ -72,110 +60,106 @@
 //---------------------------------------------------------
 CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	Set_Name	(_TL("Soil Moisture Content"));
+	Set_Name		(_TL("Soil Moisture Content"));
 
-	Set_Author		(SG_T("(c) 2002 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2002");
 
 	Set_Description	(_TW(
 		"The WEELS (Wind Erosion on European Light Soils) soil moisture "
 		"model dynamically calculates the soil moisture based on the rules "
-		"proposed by the DVWK (1996) with input data about:\n"
+		"proposed by the DVWK (1996) with input data about\n"
 		"- soil properties (grids: field capacity and permanent wilting point)\n"
 		"- land use (grid: crop types)\n"
-		"- climate (table: daily values of precipitation, temperature, air humidity)\n\n"
+		"- climate (table: daily values of precipitation, temperature, air humidity)"
+	));
 
-		"References:\n"
+	Add_Reference("DVWK - Deutscher Verband fuer Wasserwirtschaft und Kulturbau e.V.", "1996",
+		"Ermittlung der Verdunstung von Land- und Wasserflaechen",
+		"DVWK Merkblaetter 238/1996, Bonn, 135p."
+	);
 
-		"- DVWK - Deutscher Verband fuer Wasserwirtschaft und Kulturbau e.V. (1996): "
-		"'Ermittlung der Verdunstung von Land- und Wasserflaechen', "
-		"DVWK Merkblaetter 238/1996, Bonn, 135p.\n"
-
-		"- Boehner, J., Schaefer, W., Conrad, O., Gross, J., Ringeler, A. (2001): "
-		"'The WEELS Model: methods, results and limits of wind erosion modelling', "
-		"In: Catena, Special Issue\n")
+	Add_Reference("Boehner, J., Schaefer, W., Conrad, O., Gross, J., Ringeler, A.", "2001",
+		"The WEELS Model: methods, results and limits of wind erosion modelling",
+		"In: Catena, Special Issue."
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
-		NULL	, "STA_FC"		, _TL("Field Capacity [mm]"),
+	Parameters.Add_Grid("",
+		"STA_FC"		, _TL("Field Capacity [mm]"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "STA_FC_DEF"	, _TL("Default"),
+	Parameters.Add_Double("STA_FC",
+		"STA_FC_DEF"	, _TL("Default"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 20.0	, 0.0, true
+		20., 0., true
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "STA_PWP"		, _TL("Permanent Wilting Point [mm]"),
+	Parameters.Add_Grid("",
+		"STA_PWP"		, _TL("Permanent Wilting Point [mm]"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "STA_PWP_DEF"	, _TL("Default"),
+	Parameters.Add_Double("STA_PWP",
+		"STA_PWP_DEF"	, _TL("Default"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 2.0	, 0.0, true
+		2., 0., true
 	);
 
-	pNode	= Parameters.Add_Grid(
-		NULL	, "LANDUSE"		, _TL("Land Use"),
+	Parameters.Add_Grid("",
+		"LANDUSE"		, _TL("Land Use"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		pNode	, "LANDUSE_DEF"	, _TL("Default"),
+	Parameters.Add_Int("LANDUSE",
+		"LANDUSE_DEF"	, _TL("Default"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, -1.0
+		-1
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DYN_W"		, _TL("Soil Moisture"),
+	Parameters.Add_Grid("",
+		"DYN_W"		, _TL("Soil Moisture"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_FixedTable(
-		NULL	, "DYN_CLIMATE"	, _TL("Climate Data"),
+	pClimate	= Parameters.Add_FixedTable("",
+		"DYN_CLIMATE"	, _TL("Climate Data"),
 		_TL("")
-	);
+	)->asTable();
 
-	pClimate	= pNode->asTable();
 	pClimate->Set_Name(_TL("Climate Data"));
-	pClimate->Add_Field(_TL("Precipitation (mm)")	, SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Precipitation (mm)"         ), SG_DATATYPE_Double);
 	pClimate->Add_Field(_TL("Temperature (2pm) (DegreeC)"), SG_DATATYPE_Double);
-	pClimate->Add_Field(_TL("Air Humidity (2pm) (%%)"), SG_DATATYPE_Double);
+	pClimate->Add_Field(_TL("Air Humidity (2pm) (%%)"    ), SG_DATATYPE_Double);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_FixedTable(
-		NULL	, "STA_KC"		, _TL("Crop Coefficients"),
+	pCropCoeff	= Parameters.Add_FixedTable("",
+		"STA_KC"		, _TL("Crop Coefficients"),
 		_TL("")
-	);
+	)->asTable();
 
-	pCropCoeff	= pNode->asTable();
 	pCropCoeff->Set_Name(_TL("Crop Coefficients"));
-	pCropCoeff->Add_Field(_TL("Land Use ID")	, SG_DATATYPE_Int);
-	pCropCoeff->Add_Field(_TL("Name")		, SG_DATATYPE_String);
-	pCropCoeff->Add_Field(_TL("January")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("February")	, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("March")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("April")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("May")			, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("June")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("July")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("August")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("September")	, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("October")		, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("November")	, SG_DATATYPE_Double);
-	pCropCoeff->Add_Field(_TL("December")	, SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("Land Use ID"), SG_DATATYPE_Int   );
+	pCropCoeff->Add_Field(_TL("Name"       ), SG_DATATYPE_String);
+	pCropCoeff->Add_Field(_TL("January"    ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("February"   ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("March"      ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("April"      ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("May"        ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("June"       ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("July"       ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("August"     ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("September"  ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("October"    ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("November"   ), SG_DATATYPE_Double);
+	pCropCoeff->Add_Field(_TL("December"   ), SG_DATATYPE_Double);
 
 	CSG_Table_Record	*pRec;
 
@@ -198,10 +182,6 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	ADD_RECORD(0.0, _TL("Unknown")		, 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   );
 #undef ADD_RECORD
 }
-
-//---------------------------------------------------------
-CDVWK_SoilMoisture::~CDVWK_SoilMoisture(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -570,3 +550,12 @@ void CDVWK_SoilMoisture::Step_Day(int Day)
 		}
 	}
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

@@ -16,6 +16,7 @@ diffuse_pollution_risk.cpp\
 diffusion_gradient_concentration.cpp\
 KinWav_D8.cpp\
 MLB_Interface.cpp\
+timed_flow_accumulation.cpp\
 topmodel.cpp\
 topmodel_values.cpp\
 WaterRetentionCapacity.cpp\
@@ -23,7 +24,7 @@ diffuse_pollution_risk.h\
 diffusion_gradient_concentration.h\
 DVWK_SoilMoisture.h\
 KinWav_D8.h\
-MLB_Interface.h\
+timed_flow_accumulation.h\
 topmodel.h\
 topmodel_values.h\
 WaterRetentionCapacity.h

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: topmodel.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "topmodel.h"
 
 
@@ -72,14 +60,10 @@
 //---------------------------------------------------------
 CTOPMODEL::CTOPMODEL(void)
 {
-	CSG_Parameter	*pNode;
-
 	//-----------------------------------------------------
-	// Place information about your module here...
-
 	Set_Name		(_TL("TOPMODEL"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Simple Subcatchment Version of TOPMODEL\n\n"
@@ -126,155 +110,147 @@ CTOPMODEL::CTOPMODEL(void)
 		"initial value together with any volume filling effect of daily "
 		"inputs.  Also baseflow at start of time step is used to update "
 		"SBAR at end of time step."
-
-		"\n\nReferences\n"
-		"- Beven, K., Kirkby, M.J., Schofield, N., Tagg, A.F. (1984): "
-		"  Testing a physically-based flood forecasting model (TOPMODEL) for threee U.K. catchments, "
-		"  Journal of Hydrology, H.69, S.119-143.\n"
-		"\n"
-		"- Beven, K. (1997): "
-		"  TOPMODEL - a critique, "
-		"  Hydrological Processes, Vol.11, pp.1069-1085.\n"
 	));
 
+	Add_Reference("Beven, K., Kirkby, M.J., Schofield, N., Tagg, A.F.", "1984",
+		"Testing a physically-based flood forecasting model (TOPMODEL) for threee U.K. catchments",
+		"Journal of Hydrology, H.69, S.119-143."
+	);
+
+	Add_Reference("Beven, K.", "1997",
+		"TOPMODEL - a critique",
+		"Hydrological Processes, Vol.11, pp.1069-1085."
+	);
 
 	//-----------------------------------------------------
 
-	Parameters.Add_Grid(
-		NULL	, "ATANB"		, _TL("Topographic Wetness Index"),
+	Parameters.Add_Grid("",
+		"ATANB"			, _TL("Topographic Wetness Index"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "MOIST"		, _TL("Soil Moisture Deficit"),
+	Parameters.Add_Grid("",
+		"MOIST"			, _TL("Soil Moisture Deficit"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	pNode	= Parameters.Add_Table(
-		NULL	, "WEATHER"		, _TL("Weather Records"),
+	Parameters.Add_Table("",
+		"WEATHER"		, _TL("Weather Records"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "RECORD_P"	, _TL("Precipitation [m / dt]"),
+	Parameters.Add_Table_Field("WEATHER",
+		"RECORD_P"		, _TL("Precipitation [m / dt]"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "RECORD_ET"	, _TL("Evapotranspiration [m / dt]"),
+	Parameters.Add_Table_Field("WEATHER",
+		"RECORD_ET"		, _TL("Evapotranspiration [m / dt]"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "RECORD_DATE"	, _TL("Date/Time"),
+	Parameters.Add_Table_Field("WEATHER",
+		"RECORD_DATE"	, _TL("Date/Time"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Simulation Output"),
+	Parameters.Add_Table("",
+		"TABLE"			, _TL("Simulation Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DTIME"		, _TL("Time Step [h]"),
+	Parameters.Add_Double("",
+		"DTIME"			, _TL("Time Step [h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0
+		1.
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NCLASSES"	, _TL("Number of Classes"),
+	Parameters.Add_Int("",
+		"NCLASSES"		, _TL("Number of Classes"),
 		_TL(""),
-		PARAMETER_TYPE_Int		, 30	, 1	, true
+		30, 1, true
 	);
 
-	pNode	= NULL;	// = Parameters("MOIST");
-
-	Parameters.Add_Value(
-		pNode, "P_QS0"			, _TL("Initial subsurface flow per unit area [m/h]"),
+	Parameters.Add_Double("",
+		"P_QS0"			, _TL("Initial subsurface flow per unit area [m/h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 3.28e-05
+		3.28e-05
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_LNTE"			, _TL("Areal average of ln(T0) = ln(Te) [ln(m^2/h)]"),
+	Parameters.Add_Double("",
+		"P_LNTE"		, _TL("Areal average of ln(T0) = ln(Te) [ln(m^2/h)]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5.0
+		5.0
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_MODEL"		, _TL("Model parameter [m]"),
+	Parameters.Add_Double("",
+		"P_MODEL"		, _TL("Model parameter [m]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.032
+		0.032
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_SR0"			, _TL("Initial root zone storage deficit [m]"),
+	Parameters.Add_Double("",
+		"P_SR0"			, _TL("Initial root zone storage deficit [m]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.002
+		0.002
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_SRZMAX"		, _TL("Maximum root zone storage deficit [m]"),
+	Parameters.Add_Double("",
+		"P_SRZMAX"		, _TL("Maximum root zone storage deficit [m]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.05
+		0.05
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_SUZ_TD"		, _TL("Unsaturated zone time delay per unit storage deficit [h]"),
+	Parameters.Add_Double("",
+		"P_SUZ_TD"		, _TL("Unsaturated zone time delay per unit storage deficit [h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 50.0
+		50.0
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_VCH"			, _TL("Main channel routing velocity [m/h]"),
+	Parameters.Add_Double("",
+		"P_VCH"			, _TL("Main channel routing velocity [m/h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 3600.0
+		3600.0
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_VR"			, _TL("Internal subcatchment routing velocity [m/h]"),
+	Parameters.Add_Double("",
+		"P_VR"			, _TL("Internal subcatchment routing velocity [m/h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 3600.0
+		3600.0
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_K0"			, _TL("Surface hydraulic conductivity [m/h]"),
+	Parameters.Add_Double("",
+		"P_K0"			, _TL("Surface hydraulic conductivity [m/h]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 1.0
+		1.0
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_PSI"			, _TL("Wetting front suction [m]"),
+	Parameters.Add_Double("",
+		"P_PSI"			, _TL("Wetting front suction [m]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.02
+		0.02
 	);
 
-	Parameters.Add_Value(
-		pNode, "P_DTHETA"		, _TL("Water content change across the wetting front"),
+	Parameters.Add_Double("",
+		"P_DTHETA"		, _TL("Water content change across the wetting front"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.1
+		0.1
 	);
 
-	Parameters.Add_Value(
-		pNode, "BINF"			, _TL("Green-Ampt Infiltration"),
+	Parameters.Add_Bool("",
+		"BINF"			, _TL("Green-Ampt Infiltration"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 }
 
-//---------------------------------------------------------
-CTOPMODEL::~CTOPMODEL(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

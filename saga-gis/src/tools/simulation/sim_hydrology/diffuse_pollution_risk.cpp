@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: diffuse_pollution_risk.cpp 911 2011-11-11 11:11:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "diffuse_pollution_risk.h"
 
 
@@ -80,74 +68,80 @@ CDiffuse_Pollution_Risk::CDiffuse_Pollution_Risk(void)
 	Set_Description	(_TW(
 		"Diffuse Pollution Risk Mapping.\n"
 		"This tool tries to reproduce in parts the methodology of the "
-		"<a target=\"_blank\" href=\"http://www.scimap.org.uk/\">SCIMAP - Diffuse Pollution Risk Mapping - Framework</a>.\n"
-		"\nReferences:\n"
-		"Lane, S.N.; Brookes, C.J.; Kirkby, M.J.; Holden, J. (2004): "
-		"A network-index-based version of TOPMODEL for use with high-resolution digital topographic data. "
-		"In: Hydrological processes. Vol. 18, S. 191-201.\n"
-		"\n"
-		"Milledge, D.G.; Lane, N.S.; Heathwait, A.L.; Reaney, S.M. (2012): "
-		"A monte carlo approach to the invers problem of diffuse pollution risk in agricultural catchments. "
-		"In: Science of the Total Environment. Vol. 433, S. 434-449.\n"
+		"SCIMAP - Diffuse Pollution Risk Mapping - Framework."
 	));
+
+	Add_Reference("Lane, S.N.; Brookes, C.J.; Kirkby, M.J.; Holden, J.", "2004",
+		"A network-index-based version of TOPMODEL for use with high-resolution digital topographic data",
+		"In: Hydrological processes. Vol. 18, S. 191-201."
+	);
+
+	Add_Reference("Milledge, D.G.; Lane, N.S.; Heathwait, A.L.; Reaney, S.M.", "2012",
+		"A monte carlo approach to the invers problem of diffuse pollution risk in agricultural catchments",
+		"In: Science of the Total Environment. Vol. 433, S. 434-449."
+	);
+
+	Add_Reference("http://www.scimap.org.uk/",
+		SG_T("SCIMAP - Diffuse Pollution Risk Mapping-Framework")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"				, _TL("Elevation"),
+		"", "DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CHANNEL"			, _TL("Channel Network"),
+		"", "CHANNEL"		, _TL("Channel Network"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid_or_Const(
-		NULL	, "WEIGHT"			, _TL("Land Cover Weights"),
+		"", "WEIGHT"		, _TL("Land Cover Weights"),
 		_TL(""),
 		1.0, 0.0, true
 	);
 
 	Parameters.Add_Grid_or_Const(
-		NULL	, "RAIN"			, _TL("Rainfall"),
+		"", "RAIN"			, _TL("Rainfall"),
 		_TL(""),
 		500.0, 0.0, true
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DELIVERY"		, _TL("Delivery Index"),
+		"", "DELIVERY"		, _TL("Delivery Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RISK_POINT"		, _TL("Locational Risk"),
+		"", "RISK_POINT"	, _TL("Locational Risk"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RISK_DIFFUSE"	, _TL("Diffuse Pollution Risk"),
+		"", "RISK_DIFFUSE"	, _TL("Diffuse Pollution Risk"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "METHOD"			, _TL("Flow Direction Algorithm"),
+		"", "METHOD"		, _TL("Flow Routing"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
-			_TL("single"),
-			_TL("multiple")
+		CSG_String::Format("%s|%s",
+			SG_T("D8"),
+			SG_T("MFD")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "CHANNEL_START"	, _TL("Channel Initiation Threshold"),
+	Parameters.Add_Int(
+		"", "CHANNEL_START"	, _TL("Channel Initiation Threshold"),
 		_TL("minimum number of upslope contributing cells to start a channel"),
-		PARAMETER_TYPE_Int, 150, 1, true
+		150, 1, true
 	);
 }
 

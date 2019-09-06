@@ -38,11 +38,11 @@
     <ClCompile Include="diffusion_gradient_concentration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="timed_flow_accumulation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -113,6 +113,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="diffusion_gradient_concentration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timed_flow_accumulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

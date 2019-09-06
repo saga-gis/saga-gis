@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: topmodel.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__topmodel_H
 #define HEADER_INCLUDED__topmodel_H
 
@@ -85,12 +73,11 @@ class CTOPMODEL : public CSG_Tool_Grid
 {
 public:
 	CTOPMODEL(void);
-	virtual ~CTOPMODEL(void);
 
 
 protected:
 
-	virtual bool		On_Execute(void);
+	virtual bool		On_Execute			(void);
 
 
 private:
@@ -104,10 +91,10 @@ private:
 	CTOPMODEL_Values	Vals;
 
 
-	void				Run(double Evaporation, double Infiltration, double Infiltration_Excess);
+	void				Run					(double Evaporation, double Infiltration, double Infiltration_Excess);
 
-	bool				Get_Weather(int iTimeStep, double &Precipitation, double &Evaporation, CSG_String &Date);
-	double				Get_Infiltration(double t, double R);
+	bool				Get_Weather			(int iTimeStep, double &Precipitation, double &Evaporation, CSG_String &Date);
+	double				Get_Infiltration	(double t, double R);
 
 };
 

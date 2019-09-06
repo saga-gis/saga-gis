@@ -315,6 +315,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="timed_flow_accumulation.cpp" />
     <ClCompile Include="topmodel.cpp" />
     <ClCompile Include="topmodel_values.cpp" />
     <ClCompile Include="WaterRetentionCapacity.cpp" />
@@ -330,7 +331,6 @@
     <ClInclude Include="diffusion_gradient_concentration.h" />
     <ClInclude Include="DVWK_SoilMoisture.h" />
     <ClInclude Include="KinWav_D8.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
@@ -342,6 +342,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\shapes.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
+    <ClInclude Include="timed_flow_accumulation.h" />
     <ClInclude Include="topmodel.h" />
     <ClInclude Include="topmodel_values.h" />
     <ClInclude Include="WaterRetentionCapacity.h" />
