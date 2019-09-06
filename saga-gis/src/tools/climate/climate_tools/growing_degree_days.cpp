@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "climate_tools.h"
 
 #include "growing_degree_days.h"
@@ -75,7 +66,8 @@ CGrowing_Degree_Days::CGrowing_Degree_Days(void)
 	Set_Author		("D.N. Karger (c) 2017");
 
 	Set_Description(_TW(
-		"This tool calculates growing degree days from daily or from spline interpolated monthly observations."
+		"This tool calculates growing degree days from daily or from spline interpolated monthly observations "
+		"for a given threshold. It also calculates the julian day at which a specific target temperature sum is reached. "
 	));
 
 	//-----------------------------------------------------
@@ -88,7 +80,7 @@ CGrowing_Degree_Days::CGrowing_Degree_Days(void)
 	Parameters.Add_Double("",
 		"TBASE"	, _TL("Base Temperature"),
 		_TL("Base temperature in degree Celsius"),
-		0.0
+		10.
 	);
 
 	Parameters.Add_Grid("",
@@ -114,6 +106,34 @@ CGrowing_Degree_Days::CGrowing_Degree_Days(void)
 		_TL("Last growing degree day of the year (1-365)."),
 		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
 	);
+
+	Parameters.Add_Grid("",
+		"TARGET", _TL("Degree Sum Target Day"),
+		_TL("Day of the year at which temperature sum is reached (1-365)."),
+		PARAMETER_OUTPUT_OPTIONAL, true, SG_DATATYPE_Short
+	);
+
+	Parameters.Add_Double("TARGET",
+		"TTARGET", _TL("Degree Sum"),
+		_TL("Target temperature sum in degree Celsius."),
+		100.
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrowing_Degree_Days::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("TARGET") )
+	{
+		pParameters->Set_Enabled("TTARGET", pParameter->asPointer() != NULL);
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -133,12 +153,14 @@ bool CGrowing_Degree_Days::On_Execute(void)
 		return( false );
 	}
 
-	CSG_Grid	*pNGDD	= Parameters("NGDD" )->asGrid();
-	CSG_Grid	*pTSum	= Parameters("TSUM" )->asGrid();
-	CSG_Grid	*pFirst	= Parameters("FIRST")->asGrid();
-	CSG_Grid	*pLast	= Parameters("LAST" )->asGrid();
+	CSG_Grid	*pNGDD   = Parameters("NGDD"  )->asGrid();
+	CSG_Grid	*pTSum   = Parameters("TSUM"  )->asGrid();
+	CSG_Grid	*pFirst  = Parameters("FIRST" )->asGrid();
+	CSG_Grid	*pLast   = Parameters("LAST"  )->asGrid();
+	CSG_Grid	*pTarget = Parameters("TARGET")->asGrid();
 
-	double	Tbase	= Parameters("TBASE")->asDouble();
+	double	Tbase   = Parameters("TBASE"  )->asDouble();
+	double	Ttarget = Parameters("TTARGET")->asDouble();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -194,8 +216,9 @@ bool CGrowing_Degree_Days::On_Execute(void)
 			//---------------------------------------------
 			// 2. analyze the temperatures
 
-			if( pFirst ) pFirst->Set_NoData(x, y);
-			if( pLast  ) pLast ->Set_NoData(x, y);
+			if( pFirst  ) pFirst ->Set_NoData(x, y);
+			if( pLast   ) pLast  ->Set_NoData(x, y);
+			if( pTarget ) pTarget->Set_NoData(x, y);
 
 			if( T.Get_N() < 365 )	// insufficient data !
 			{
@@ -206,7 +229,7 @@ bool CGrowing_Degree_Days::On_Execute(void)
 			{
 				T	-= Tbase;	// we only need temperatures relative to Tbase
 
-				CSG_Simple_Statistics	Tgrow;
+				CSG_Simple_Statistics Tgrow;	bool bTarget = false;
 
 				for(int i=0; i<365; i++)
 				{
@@ -214,14 +237,21 @@ bool CGrowing_Degree_Days::On_Execute(void)
 					{
 						Tgrow	+= T[i];
 
-						if( pFirst && T[(365 + i - 1) % 365] <= 0.0 )	// is the previous day a not growing day ?
+						if( pFirst  && T[(365 + i - 1) % 365] <= 0.0 )	// is the previous day a not growing day ?
 						{
-							pFirst->Set_Value(x, y, 1 + i);
+							pFirst ->Set_Value(x, y, 1 + i);
 						}
 
-						if( pLast  && T[(365 + i + 1) % 365] <= 0.0 )	// is the following day a not growing day ?
+						if( pLast   && T[(365 + i + 1) % 365] <= 0.0 )	// is the following day a not growing day ?
 						{
-							pLast ->Set_Value(x, y, 1 + i);	// in the end this will be the last growing degree day !
+							pLast  ->Set_Value(x, y, 1 + i);	// in the end this will be the last growing degree day !
+						}
+
+						if( pTarget && bTarget == false && Tgrow.Get_Sum() >= Ttarget )
+						{
+							bTarget	= true;	// target degree sum has been reached, don't overwrite with the following days !
+
+							pTarget->Set_Value(x, y, 1 + i);	// the day when the target degree sum has been reached !
 						}
 					}
 				}

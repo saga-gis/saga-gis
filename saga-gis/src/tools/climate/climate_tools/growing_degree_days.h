@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__growing_degree_days_H
 #define HEADER_INCLUDED__growing_degree_days_H
 
@@ -80,12 +71,14 @@ class CGrowing_Degree_Days : public CSG_Tool_Grid
 public:
 	CGrowing_Degree_Days(void);
 
-	virtual CSG_String			Get_MenuPath		(void)	{	return( _TL("Bioclimatology") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Bioclimatology") );	}
 
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 };
 
