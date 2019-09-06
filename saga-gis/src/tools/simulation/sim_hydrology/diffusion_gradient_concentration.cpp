@@ -350,7 +350,7 @@ bool CSim_Diffusion_Gradient::Surface_Get_Gradient(CSG_Grid *pSurface, CSG_Grid 
 //---------------------------------------------------------
 CSim_Diffusion_Concentration::CSim_Diffusion_Concentration(void)
 {
-	Parameters.Create("", SG_T(""), SG_T(""), SG_T(""), true);
+	Parameters.Del_Parameters();
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Concentration"));
@@ -676,7 +676,7 @@ bool CSim_Diffusion_Concentration::_Concentration_Initialise(CSG_Grid *pConcentr
 //---------------------------------------------------------
 CSim_Diffusion_Gradient_And_Concentration::CSim_Diffusion_Gradient_And_Concentration(void)
 {
-	Parameters.Create("", SG_T(""), SG_T(""), SG_T(""), true);
+	Parameters.Del_Parameters();
 
 	//-----------------------------------------------------
 	Set_Name		(_TL("Surface, Gradient and Concentration"));
