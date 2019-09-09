@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "vigra_random_forest.h"
 
 //---------------------------------------------------------
@@ -131,52 +122,50 @@ bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 	//-----------------------------------------------------
 #if defined(WITH_HDF5)
 	Parameters.Add_FilePath("",
-		"RF_IMPORT"			, _TL("Import from File"),
+		"RF_IMPORT"			, _TL("Load Model"),
 		_TL(""),
 		NULL, NULL, false
 	);
-#endif
 
-	//-----------------------------------------------------
-	Parameters.Add_Node("",
-		"RF_OPTIONS"			, _TL("Random Forest Options"),
-		_TL("")
-	);
-
-#if defined(WITH_HDF5)
-	Parameters.Add_FilePath(
-		"RF_OPTIONS", "RF_EXPORT"			, _TL("Export to File"),
+	Parameters.Add_FilePath("RF_OPTIONS",
+		"RF_EXPORT"			, _TL("Save Model"),
 		_TL(""),
 		NULL, NULL, true
 	);
 #endif
 
-	Parameters.Add_Int(
-		"RF_OPTIONS", "RF_TREE_COUNT"		, _TL("Tree Count"),
+	//-----------------------------------------------------
+	Parameters.Add_Node("",
+		"RF_OPTIONS"		, _TL("Random Forest Options"),
+		_TL("")
+	);
+
+	Parameters.Add_Int("RF_OPTIONS",
+		"RF_TREE_COUNT"		, _TL("Tree Count"),
 		_TL("How many trees to create?"),
 		32, 1, true
 	);
 
-	Parameters.Add_Double(
-		"RF_OPTIONS", "RF_TREE_SAMPLES"		, _TL("Samples per Tree"),
+	Parameters.Add_Double("RF_OPTIONS",
+		"RF_TREE_SAMPLES"	, _TL("Samples per Tree"),
 		_TL("Specifies the fraction of the total number of samples used per tree for learning."),
-		1.0, 0.0, true, 1.0, true
+		1., 0., true, 1., true
 	);
 
-	Parameters.Add_Bool(
-		"RF_OPTIONS", "RF_REPLACE"			, _TL("Sample with Replacement"),
+	Parameters.Add_Bool("RF_OPTIONS",
+		"RF_REPLACE"		, _TL("Sample with Replacement"),
 		_TL("Sample from training population with or without replacement?"),
 		true
 	);
 
-	Parameters.Add_Int(
-		"RF_OPTIONS", "RF_SPLIT_MIN_SIZE"	, _TL("Minimum Node Split Size"),
+	Parameters.Add_Int("RF_OPTIONS",
+		"RF_SPLIT_MIN_SIZE"	, _TL("Minimum Node Split Size"),
 		_TL("Number of examples required for a node to be split. Choose 1 for complete growing."),
 		1, 1, true
 	);
 
-	Parameters.Add_Choice(
-		"RF_OPTIONS", "RF_NODE_FEATURES"	, _TL("Features per Node"),
+	Parameters.Add_Choice("RF_OPTIONS",
+		"RF_NODE_FEATURES"	, _TL("Features per Node"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s",
 			_TL("logarithmic"),
@@ -185,8 +174,8 @@ bool CRandom_Forest::Parameters_Create(CSG_Parameters &Parameters)
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		"RF_OPTIONS", "RF_STRATIFICATION"	, _TL("Stratification"),
+	Parameters.Add_Choice("RF_OPTIONS",
+		"RF_STRATIFICATION"	, _TL("Stratification"),
 		_TL("Specifies stratification strategy. Either none, equal amount of class samples, or proportional to fraction of class samples."),
 		CSG_String::Format("%s|%s|%s",
 			_TL("none"),

@@ -26,7 +26,6 @@ vigra_random_forest.h\
 vigra_watershed.h\
 MLB_Interface.cpp\
 vigra.cpp\
-MLB_Interface.h\
 vigra_distance.cpp\
 vigra_fft.cpp\
 vigra_smoothing.cpp\

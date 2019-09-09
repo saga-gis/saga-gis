@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__vigra_random_forest_H
 #define HEADER_INCLUDED__vigra_random_forest_H
 
@@ -122,7 +113,7 @@ class CViGrA_RF_Presence : public CSG_Tool_Grid
 public:
 	CViGrA_RF_Presence(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:Grid|Analysis|Macroecology") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("A:Grid|Analysis|Macroecology") );	}
 
 
 protected:
