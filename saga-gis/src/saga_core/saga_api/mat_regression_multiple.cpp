@@ -286,7 +286,7 @@ bool CSG_Regression_Multiple::_Initialize(bool bInclude)
 	else
 	{
 		m_nPredictors	= 0;
-		m_Samples_Model.Create(1, m_Samples.Get_NRows(), m_Samples.Get_Col(0).Get_Data());
+		m_Samples_Model.Set_Col(m_Samples.Get_Col(0));
 	}
 
 	for(i=0; i<nPredictors; i++)

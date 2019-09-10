@@ -231,8 +231,8 @@ public:
 	bool						Del_Rows			(int    nRows);
 	bool						Del_Rows			(size_t nRows);
 	bool						Add_Row				(double Value = 0.);
-	bool						Del_Row				(int    iRow = -1);
-	bool						Del_Row				(size_t iRow);
+	bool						Del_Row				(int    Row = -1);
+	bool						Del_Row				(size_t Row);
 
 	int							Get_N				(void)		const	{	return(    (int)Get_Size() );	}
 	size_t						Get_Size			(void)		const	{	return( m_Array.Get_Size() );	}
@@ -328,8 +328,11 @@ public:
 								CSG_Matrix			(const CSG_Matrix &Matrix);
 	bool						Create				(const CSG_Matrix &Matrix);
 
-								CSG_Matrix			(int nx, int ny, double *Data = NULL);
-	bool						Create				(int nx, int ny, double *Data = NULL);
+								CSG_Matrix			(int nCols, int nRows, double *Data = NULL);
+	bool						Create				(int nCols, int nRows, double *Data = NULL);
+
+								CSG_Matrix			(int nCols, int nRows, double **Data);
+	bool						Create				(int nCols, int nRows, double **Data);
 
 	bool						Destroy				(void);
 
@@ -340,33 +343,37 @@ public:
 	bool						Add_Rows			(int nRows);
 	bool						Del_Cols			(int nCols);
 	bool						Del_Rows			(int nRows);
-	bool						Add_Col				(          double *Data = NULL);
-	bool						Add_Col				(          const CSG_Vector &Data);
-	bool						Add_Row				(          double *Data = NULL);
-	bool						Add_Row				(          const CSG_Vector &Data);
-	bool						Ins_Col				(int iCol, double *Data = NULL);
-	bool						Ins_Col				(int iCol, const CSG_Vector &Data);
-	bool						Ins_Row				(int iRow, double *Data = NULL);
-	bool						Ins_Row				(int iRow, const CSG_Vector &Data);
-	bool						Set_Col				(int iCol, double *Data);
-	bool						Set_Col				(int iCol, const CSG_Vector &Data);
-	bool						Set_Row				(int iRow, double *Data);
-	bool						Set_Row				(int iRow, const CSG_Vector &Data);
-	bool						Del_Col				(int iCol);
-	bool						Del_Row				(int iRow);
-	CSG_Vector					Get_Col				(int iCol)		const;
-	CSG_Vector					Get_Row				(int iRow)		const;
+	bool						Add_Col				(         double *Data = NULL);
+	bool						Add_Col				(         const CSG_Vector &Data);
+	bool						Add_Row				(         double *Data = NULL);
+	bool						Add_Row				(         const CSG_Vector &Data);
+	bool						Ins_Col				(int Col, double *Data = NULL);
+	bool						Ins_Col				(int Col, const CSG_Vector &Data);
+	bool						Ins_Row				(int Row, double *Data = NULL);
+	bool						Ins_Row				(int Row, const CSG_Vector &Data);
+	bool						Set_Col				(int Col, double *Data);
+	bool						Set_Col				(int Col, const CSG_Vector &Data);
+	bool						Set_Col				(         const CSG_Vector &Data);
+	bool						Set_Row				(int Row, double *Data);
+	bool						Set_Row				(int Row, const CSG_Vector &Data);
+	bool						Set_Row				(         const CSG_Vector &Data);
+	bool						Del_Col				(int Col);
+	bool						Del_Row				(int Row);
+	CSG_Vector					Get_Col				(int Col)	const;
+	CSG_Vector					Get_Row				(int Row)	const;
 
-	int							Get_NX				(void)			const	{	return( m_nx );			}
-	int							Get_NCols			(void)			const	{	return( m_nx );			}
-	int							Get_NY				(void)			const	{	return( m_ny );			}
-	int							Get_NRows			(void)			const	{	return( m_ny );			}
+	int							Get_NX				(void)		const	{	return( m_nx );			}
+	int							Get_NY				(void)		const	{	return( m_ny );			}
+	int							Get_NCols			(void)		const	{	return( m_nx );			}
+	int							Get_NRows			(void)		const	{	return( m_ny );			}
 
-	operator const double **						(void)			const	{	return( (const double **)m_z );	}
-	double **					Get_Data			(void)			const	{	return( m_z );			}
-	double						operator ()			(int y, int x)	const	{	return( m_z[y][x] );	}
-	double *					operator []			(int    y)		const	{	return( m_z[y] );		}
-	double *					operator []			(size_t y)		const	{	return( m_z[y] );		}
+	operator const double **						(void)		const	{	return( (const double **)m_z );	}
+	double **					Get_Data			(void)		const	{	return( m_z );			}
+
+	double						operator ()			(int    Row, int    Col)	const	{	return( m_z[Row][Col] );	}
+	double						operator ()			(size_t Row, size_t Col)	const	{	return( m_z[Row][Col] );	}
+	double *					operator []			(int    Row)				const	{	return( m_z[Row]      );	}
+	double *					operator []			(size_t Row)				const	{	return( m_z[Row]      );	}
 
 	CSG_String					to_String			(int Width = -1, int Precision = -1, bool bScientific = false, const SG_Char *Separator = NULL)	const;
 	bool						from_String			(const CSG_String &String);
