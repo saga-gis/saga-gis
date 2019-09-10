@@ -952,7 +952,7 @@ bool CWKSP_Layer::do_Legend(void)
 //---------------------------------------------------------
 bool CWKSP_Layer::do_Show(CSG_Rect const &Map_Extent, bool bIntersects)
 {
-	if( bIntersects && !Map_Extent.Intersects(Get_Extent()) )
+	if( bIntersects && !Map_Extent.Intersects(Get_Extent()) && !Map_Extent.Intersects(Edit_Get_Extent()) )
 	{
 		return( false );
 	}
