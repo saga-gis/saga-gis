@@ -215,13 +215,7 @@ protected:
 	bool						Dlg_Parameters				(const CSG_String &Identifier);
 	bool						Dlg_Parameters				(CSG_Parameters *pParameters, const CSG_String &Caption);
 
-
 	//-----------------------------------------------------
-	static bool					Process_Get_Okay			(bool bBlink = false);
-	static void					Process_Set_Text			(const CSG_String &Text);
-	static void					Process_Set_Text			(const char    *Format, ...);
-	static void					Process_Set_Text			(const wchar_t *Format, ...);
-
 	virtual bool				Set_Progress				(double Percent)				const;
 	virtual bool				Set_Progress				(double Position, double Range)	const;
 
@@ -229,43 +223,52 @@ protected:
 
 	void						Message_Dlg					(const CSG_String &Text, const SG_Char *Caption = NULL);
 	bool						Message_Dlg_Confirm			(const CSG_String &Text, const SG_Char *Caption = NULL);
-	static void					Message_Add					(const CSG_String &Text, bool bNewLine = true);
-	static void					Message_Fmt					(const char    *Format, ...);
-	static void					Message_Fmt					(const wchar_t *Format, ...);
 
 	bool						Error_Set					(TSG_Tool_Error Error_ID = TOOL_ERROR_Unknown);
 	bool						Error_Set					(const CSG_String &Error_Text);
 	bool						Error_Fmt					(const char    *Format, ...);
 	bool						Error_Fmt					(const wchar_t *Format, ...);
 
-
 	//-----------------------------------------------------
 	bool						DataObject_Add				(CSG_Data_Object *pDataObject, bool bUpdate = false);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
-	bool						DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
 
 	void						DataObject_Update_All		(void);
-
-	bool						DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
-	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
-	bool						DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
-
-	bool						DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
-	bool						DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy);
-
-	CSG_Parameter *				DataObject_Get_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
-	bool						DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
 	bool						DataObject_Set_History		(CSG_Parameter *pParameter, CSG_MetaData *pHistory = NULL);
 
 	bool						Get_Projection				(CSG_Projection &Projection)	const;
+
+
+public:	// static functions...
+
+	static bool					Process_Get_Okay			(bool bBlink = false);
+	static void					Process_Set_Text			(const CSG_String &Text);
+	static void					Process_Set_Text			(const char    *Format, ...);
+	static void					Process_Set_Text			(const wchar_t *Format, ...);
+
+	static void					Message_Add					(const CSG_String &Text, bool bNewLine = true);
+	static void					Message_Fmt					(const char    *Format, ...);
+	static void					Message_Fmt					(const wchar_t *Format, ...);
+
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject                                , int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+	static bool					DataObject_Update			(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show = SG_UI_DATAOBJECT_UPDATE_ONLY);
+
+	static bool					DataObject_Get_Colors		(CSG_Data_Object *pDataObject, CSG_Colors &Colors);
+	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, const CSG_Colors &Colors);
+	static bool					DataObject_Set_Colors		(CSG_Data_Object *pDataObject, int nColors, int Palette = SG_COLORS_DEFAULT, bool bRevert = false);
+
+	static bool					DataObject_Get_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
+	static bool					DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Parameters &Parameters);
+	static bool					DataObject_Set_Parameters	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy);
+
+	static CSG_Parameter *		DataObject_Get_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Parameter *pParameter);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, CSG_Data_Object *pCopy, const CSG_String &ID);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, int            Value);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double         Value);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, void          *Value);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, const SG_Char *Value);
+	static bool					DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG_String &ID, double loVal, double hiVal);	// Range Parameter
 
 
 private:

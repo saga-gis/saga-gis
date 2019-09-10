@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,8 +108,6 @@ CSG_Tool::~CSG_Tool(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -134,8 +120,6 @@ void CSG_Tool::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -243,13 +227,6 @@ CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 
 	return( m_Library_Menu + "|" + Menu );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////
@@ -581,68 +558,6 @@ void CSG_Tool::Set_Show_Progress(bool bOn)
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::Process_Get_Okay(bool bBlink)
-{
-	return( SG_UI_Process_Get_Okay(bBlink) );
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Process_Set_Text(const CSG_String &Text)
-{
-	SG_UI_Process_Set_Text(Text);
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Process_Set_Text(const char    *Format, ...)
-{
-	wxString	_s;
-
-	va_list	argptr;
-
-	#ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
-	#else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
-	#endif
-
-	va_end(argptr);
-
-	CSG_String	s(&_s);
-
-	SG_UI_Process_Set_Text(s);
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Process_Set_Text(const wchar_t *Format, ...)
-{
-	wxString	_s;
-
-	va_list	argptr;
-
-	#ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
-	#else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
-	#endif
-
-	va_end(argptr);
-
-	CSG_String	s(&_s);
-
-	SG_UI_Process_Set_Text(s);
-}
-
-//---------------------------------------------------------
 bool CSG_Tool::Set_Progress(double Percent)	const
 {
 	return( Set_Progress(Percent, 100.0) );
@@ -679,62 +594,6 @@ void CSG_Tool::Message_Dlg(const CSG_String &Text, const SG_Char *Caption)
 bool CSG_Tool::Message_Dlg_Confirm(const CSG_String &Text, const SG_Char *Caption)
 {
 	return( SG_UI_Dlg_Continue(Text, Caption && Caption[0] != '\0' ? Caption : Get_Name().c_str()) );
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Message_Add(const CSG_String &Text, bool bNewLine)
-{
-	SG_UI_Msg_Add_Execution(Text, bNewLine);
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Message_Fmt(const char *Format, ...)
-{
-	wxString	_s;
-
-	va_list	argptr;
-	
-#ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
-#else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
-#endif
-
-	va_end(argptr);
-
-	CSG_String	s(&_s);
-
-	SG_UI_Msg_Add_Execution(s, false);
-}
-
-//---------------------------------------------------------
-void CSG_Tool::Message_Fmt(const wchar_t *Format, ...)
-{
-	wxString	_s;
-
-	va_list	argptr;
-	
-#ifdef _SAGA_LINUX
-	// workaround as we only use wide characters
-	// since wx 2.9.4 so interpret strings as multibyte
-	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
-	va_start(argptr, _Format);
-	_s.PrintfV(_Format, argptr);
-#else
-	va_start(argptr, Format);
-	_s.PrintfV(Format, argptr);
-#endif
-
-	va_end(argptr);
-
-	CSG_String	s(&_s);
-
-	SG_UI_Msg_Add_Execution(s, false);
 }
 
 //---------------------------------------------------------
@@ -846,25 +705,6 @@ bool CSG_Tool::DataObject_Add(CSG_Data_Object *pDataObject, bool bUpdate)
 }
 
 //---------------------------------------------------------
-bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
-{
-	return( SG_UI_DataObject_Update(pDataObject, Show, NULL) );
-}
-
-bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show)
-{
-	CSG_Parameters	P;
-
-	return( DataObject_Get_Parameters(pDataObject, P)
-		&&  P.Set_Parameter("STRETCH_UPDATE"   , false  )	// internal update flag
-		&&  P.Set_Parameter("STRETCH_DEFAULT"  , 3      )	// manual
-		&&  P.Set_Parameter("METRIC_ZRANGE.MIN", Minimum)
-		&&  P.Set_Parameter("METRIC_ZRANGE.MAX", Maximum)
-		&&  SG_UI_DataObject_Update(pDataObject, Show, &P)
-	);
-}
-
-//---------------------------------------------------------
 void CSG_Tool::DataObject_Update_All(void)
 {
 	for(int i=0; i<Parameters.Get_Count(); i++)
@@ -884,6 +724,157 @@ void CSG_Tool::DataObject_Update_All(void)
 			}
 		}
 	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//		Static Data Message/Progress Functions			 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Tool::Process_Get_Okay(bool bBlink)
+{
+	return( SG_UI_Process_Get_Okay(bBlink) );
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Process_Set_Text(const CSG_String &Text)
+{
+	SG_UI_Process_Set_Text(Text);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Process_Set_Text(const char    *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Process_Set_Text(s);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Process_Set_Text(const wchar_t *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Process_Set_Text(s);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Message_Add(const CSG_String &Text, bool bNewLine)
+{
+	SG_UI_Msg_Add_Execution(Text, bNewLine);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Message_Fmt(const char *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Msg_Add_Execution(s, false);
+}
+
+//---------------------------------------------------------
+void CSG_Tool::Message_Fmt(const wchar_t *Format, ...)
+{
+	wxString	_s;
+
+	va_list	argptr;
+
+	#ifdef _SAGA_LINUX
+	// workaround as we only use wide characters
+	// since wx 2.9.4 so interpret strings as multibyte
+	wxString	_Format(Format);	_Format.Replace("%s", "%ls");
+	va_start(argptr, _Format);
+	_s.PrintfV(_Format, argptr);
+	#else
+	va_start(argptr, Format);
+	_s.PrintfV(Format, argptr);
+	#endif
+
+	va_end(argptr);
+
+	CSG_String	s(&_s);
+
+	SG_UI_Msg_Add_Execution(s, false);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//		Static Data Object Property Functions			 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, int Show)
+{
+	return( SG_UI_DataObject_Update(pDataObject, Show, NULL) );
+}
+
+bool CSG_Tool::DataObject_Update(CSG_Data_Object *pDataObject, double Minimum, double Maximum, int Show)
+{
+	CSG_Parameters	P;
+
+	return( DataObject_Get_Parameters(pDataObject, P)
+		&&  P.Set_Parameter("STRETCH_UPDATE"   , false  )	// internal update flag
+		&&  P.Set_Parameter("STRETCH_DEFAULT"  , 3      )	// manual
+		&&  P.Set_Parameter("METRIC_ZRANGE.MIN", Minimum)
+		&&  P.Set_Parameter("METRIC_ZRANGE.MAX", Maximum)
+		&&  SG_UI_DataObject_Update(pDataObject, Show, &P)
+		);
 }
 
 //---------------------------------------------------------
