@@ -103,6 +103,7 @@ CSG_String Get_Info(int i)
 #include "growing_degree_days.h"
 #include "climate_classification.h"
 #include "phenips.h"
+#include "soil_water_balance.h"
 
 
 //---------------------------------------------------------
@@ -146,8 +147,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 22:	return( new CPhenIps_Grids_Annual );
 	case 23:	return( new CPhenIps_Grids_Days );
 
+	case 24:	return( new CSoil_Water_Balance );
 	//-----------------------------------------------------
-	case 24:	return( NULL );
+	case 25:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

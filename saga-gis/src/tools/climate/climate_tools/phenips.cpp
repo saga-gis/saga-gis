@@ -965,7 +965,7 @@ CPhenIps_Grids_Days::CPhenIps_Grids_Days(void)
 	);
 
 	Parameters.Add_Date("",
-		"DAY"		, _TL("Day of Year"),
+		"DAY"		, _TL("Start Day"),
 		_TL("")
 	);
 }
@@ -985,7 +985,7 @@ bool CPhenIps_Grids_Days::On_Execute(void)
 		return( false );
 	}
 
-	int	Day_Start	= Parameters("DAY")->asInt();
+	int	Day_Start	= Parameters("DAY")->asDate()->Get_Date().Get_DayOfYear();
 
 	int	nDays	= m_pATmean->Get_Grid_Count();
 
@@ -995,6 +995,8 @@ bool CPhenIps_Grids_Days::On_Execute(void)
 	if( nDays < 1 )
 	{
 		Error_Set(_TL("there has to be a minimum of one day's input for each weather variable"));
+
+		Finalize();
 
 		return( false );
 	}

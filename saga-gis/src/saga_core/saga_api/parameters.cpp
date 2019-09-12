@@ -371,6 +371,11 @@ CSG_Parameter * CSG_Parameters::Add_Degree(const CSG_String &ParentID, const CSG
 
 CSG_Parameter * CSG_Parameters::Add_Date  (const CSG_String &ParentID, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, double Value)	// Julian Day Number
 {
+	if( !Value )
+	{
+		Value	= CSG_DateTime::Now().Get_JDN();
+	}
+
 	return( Add_Value(ParentID, ID, Name, Description, PARAMETER_TYPE_Date  , Value) );
 }
 
