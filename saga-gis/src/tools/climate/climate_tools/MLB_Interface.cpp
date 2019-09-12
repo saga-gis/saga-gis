@@ -143,10 +143,11 @@ CSG_Tool *		Create_Tool(int i)
 	case 19:	return( new CClimate_Classification );
 
 	case 21:	return( new CPhenIps_Table );
-	case 22:	return( new CPhenIps_Grids );
+	case 22:	return( new CPhenIps_Grids_Annual );
+	case 23:	return( new CPhenIps_Grids_Days );
 
 	//-----------------------------------------------------
-	case 23:	return( NULL );
+	case 24:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

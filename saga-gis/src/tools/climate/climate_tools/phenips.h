@@ -67,6 +67,16 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define NGENERATIONS	3
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class CPhenIps_Table : public CSG_Tool
 {
 public:
@@ -98,7 +108,43 @@ public:
 
 protected:
 
+	CSG_Grid				*m_pOnset, *m_pGenerations, *m_pOnsets[NGENERATIONS][2], *m_pStates[NGENERATIONS][2];
+
+	CSG_Parameter_Grid_List	*m_pATmean, *m_pATmax, *m_pSIrel;
+
+
 	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	bool					Initialize				(bool bReset);
+	bool					Finalize				(void);
+
+	double					Get_DayLength			(int x, int y, int Day);
+
+	bool					Set_NoData				(int x, int y);
+	bool					Set_Values				(int x, int y, const class CPhenIps &PhenIps);
+
+
+private:
+
+	double					m_Lat_const;
+
+	CSG_Grid				m_Lat_Grid, *m_pLat_Grid;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPhenIps_Grids_Annual : public CPhenIps_Grids
+{
+public:
+	CPhenIps_Grids_Annual	(void);
+
+
+protected:
 
 	virtual bool			On_Execute				(void);
 
@@ -106,6 +152,24 @@ protected:
 private:
 
 	bool					Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pValues, CSG_Vector &Values);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CPhenIps_Grids_Days : public CPhenIps_Grids
+{
+public:
+	CPhenIps_Grids_Days(void);
+
+
+protected:
+
+	virtual bool			On_Execute				(void);
 
 };
 
