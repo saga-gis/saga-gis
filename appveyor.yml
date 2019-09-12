@@ -9,7 +9,7 @@ environment:
   LIBLAS: C:\deps\libs4saga_x64\liblas-1.2.1
   OPENCV: C:\deps\libs4saga_x64\opencv-3.4.0
   PGSQL: C:\deps\libs4saga_x64\pgsql-9.5.3
-  VIGRA: c:\deps\libs4saga_x64\vigra-1.11.0
+  VIGRA: c:\deps\libs4saga_x64\vigra-1.11.1
   WXWIN: c:\deps\wxWidgets-3.1.2
   PROJ: c:\deps\libs4saga_x64\proj-6.0.0
 
@@ -26,7 +26,7 @@ before_build:
   - cmd: move %WXWIN%\lib\vc140_x64_dll %WXWIN%\lib\vc_x64_dll
   #get libs4saga
   - ps: Start-FileDownload https://downloads.sourceforge.net/project/saga-gis/For%20Developers/libs4saga/libs4saga_2019-04-18_x64.zip
-  - cmd: 7z x libs4saga_2019-04-18_x64.zip -oc:\deps\
+  - cmd: 7z x libs4saga_2019-09-09_x64.zip -oc:\deps\
   # disable riegl import as it requires an SDK
   - cmd: sed -i '/{A89FB596-3D86-4BF0-A57B-DAC3A7D2E740}.*Build\.0.*/d' saga-gis/src/saga.vc14.sln
 
