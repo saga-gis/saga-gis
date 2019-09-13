@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__geo_tools_H
+#define HEADER_INCLUDED__SAGA_API__geo_tools_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__geo_tools_H
-#define HEADER_INCLUDED__SAGA_API__geo_tools_H
+/** \file geo_tools.h
+* Tools for geometric/geographic data types and related functions.
+* @see CSG_Point
+* @see CSG_Rect
+* @see CSG_Projections
+*/
 
 
 ///////////////////////////////////////////////////////////
@@ -846,6 +849,9 @@ SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(class CSG_Shapes *pSource, class 
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Point &Point    );
 SAGA_API_DLL_EXPORT bool		SG_Get_Projected				(const CSG_Projection &Source, const CSG_Projection &Target, TSG_Rect  &Rectangle);
+
+//---------------------------------------------------------
+SAGA_API_DLL_EXPORT bool		SG_Grid_Get_Geographic_Coordinates		(CSG_Grid *pGrid, CSG_Grid *pLon, CSG_Grid *pLat);
 
 
 ///////////////////////////////////////////////////////////
