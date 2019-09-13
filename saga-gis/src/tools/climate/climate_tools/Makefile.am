@@ -22,6 +22,7 @@ growing_degree_days.cpp\
 milankovic.cpp\
 phenips.cpp\
 MLB_Interface.cpp\
+soil_water_balance.cpp\
 snow_cover.cpp\
 thermal_belts.cpp\
 treeline.cpp\
@@ -37,6 +38,7 @@ growing_degree_days.h\
 milankovic.h\
 phenips.h\
 MLB_Interface.h\
+soil_water_balance.h\
 snow_cover.h\
 thermal_belts.h\
 treeline.h\

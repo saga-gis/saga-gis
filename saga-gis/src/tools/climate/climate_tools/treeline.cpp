@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "treeline.h"
 
 
@@ -406,7 +397,7 @@ CTree_Growth::CTree_Growth(void)
 
 	Parameters.Add_Double("",
 		"SMT_MIN"		, _TL("Minimum Mean Temperature"),
-		_TL("Minimum mean temperature (C) for all days of the growing season."),
+		_TL("Minimum mean temperature (Celsius) for all days of the growing season."),
 		6.4
 	);
 
@@ -569,7 +560,7 @@ bool CTree_Growth::On_Execute(void)
 CWater_Balance::CWater_Balance(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Soil Water Balance"));
+	Set_Name		(_TL("Soil Water Balance (Annual)"));
 
 	Set_Author		("O.Conrad, L.Landschreiber (c) 2016");
 
@@ -748,7 +739,7 @@ bool CWater_Balance::On_Execute(void)
 CWater_Balance_Interactive::CWater_Balance_Interactive(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Soil Water Balance"));
+	Set_Name		(_TL("Soil Water Balance (Annual)"));
 
 	Set_Author		("O.Conrad, L.Landschreiber (c) 2018");
 

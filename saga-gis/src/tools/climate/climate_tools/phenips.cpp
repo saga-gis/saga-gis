@@ -59,6 +59,7 @@
 class CPhenIps
 {
 public:
+
 	enum
 	{
 		BROOD_STATE_BEFORE	= 0,
@@ -81,16 +82,25 @@ public:
 	static bool					Add_Parameters		(CSG_Parameters &Parameters);
 	bool						Set_Parameters		(CSG_Parameters &Parameters);
 
-	bool						Add_Day				(int Day, double ATmean, double ATmax, double SIrel, double DayLength = 24.0);
+	bool						Add_Day				(int Day, double ATmean, double ATmax, double SIrel, double DayLength = 24.);
 
-	int							Get_Onset_Parent	(void)	const	{	return( m_YD_Onset[0] );	}
-	double						Get_State_Parent	(bool bLimit = false)	const	{	return( bLimit && m_ATsum_eff >= m_DDminimum ? 1.0 : m_ATsum_eff / m_DDminimum );	}
+	void						Set_ATsum_eff		(double Value)	{	m_ATsum_eff = Value;	}
+	double						Get_ATsum_eff		(void)	const	{	return( m_ATsum_eff );	}
 
-	double						Get_State_Filial	(size_t Generation, bool bLimit = false)	const	{	return( Get_State(Generation, 0, bLimit) );	}
-	int							Get_Onset_Filial	(size_t Generation)	const	{	return( m_YD_Onset[1 + 2 * Generation] ); }
+	double						Get_Parent_State	(                   bool bLimit = false)	const	{	return( bLimit && m_ATsum_eff >= m_DDminimum ? 1. : m_ATsum_eff / m_DDminimum );	}
+	double						Get_Filial_State	(size_t Generation, bool bLimit = false)	const	{	return( _Get_State(Generation, 0, bLimit) );	}
+	double						Get_Sister_State	(size_t Generation, bool bLimit = false)	const	{	return( _Get_State(Generation, 1, bLimit) );	}
 
-	double						Get_State_Sister	(size_t Generation, bool bLimit = false)	const	{	return( Get_State(Generation, 1, bLimit) );	}
-	int							Get_Onset_Sister	(size_t Generation)	const	{	return( m_YD_Onset[2 + 2 * Generation] ); }
+	int							Get_Parent_Onset	(void)				const	{	return( m_YD_Onset[0                 ] );	}
+	int							Get_Filial_Onset	(size_t Generation)	const	{	return( m_YD_Onset[1 + 2 * Generation] );	}
+	int							Get_Sister_Onset	(size_t Generation)	const	{	return( m_YD_Onset[2 + 2 * Generation] );	}
+
+	void						Set_Filial_State	(size_t Generation, double Value)	{	_Set_State(Generation, 0, Value);	}
+	void						Set_Sister_State	(size_t Generation, double Value)	{	_Set_State(Generation, 1, Value);	}
+
+	void						Set_Parent_Onset	(                   int Day);
+	void						Set_Filial_Onset	(size_t Generation, int Day)	{	m_YD_Onset[1 + 2 * Generation] = Day;	}
+	void						Set_Sister_Onset	(size_t Generation, int Day)	{	m_YD_Onset[2 + 2 * Generation] = Day;	}
 
 	int							Get_Generations		(double minState = 0.6)	const;
 
@@ -105,7 +115,7 @@ private:
 	//-----------------------------------------------------
 	// state variables
 
-	int					m_State, m_YD_Begin, m_YD_End, m_YD_End_Onset;
+	int					m_Brood_State, m_YD_Begin, m_YD_End, m_YD_End_Onset;
 
 	double				m_ATsum_eff;
 
@@ -114,11 +124,30 @@ private:
 	CSG_Matrix			m_BTsum_eff;
 
 
-	double				Get_State			(int Generation, int Sister, bool bLimit)	const
-	{
-		double	BTsum_eff	= Generation < 3 ? m_BTsum_eff[Sister][Generation] : 0.0;
+	void				Add_Filial_State	(size_t Generation, double Value)	{	_Add_State(Generation, 0, Value);	}
+	void				Add_Sister_State	(size_t Generation, double Value)	{	_Add_State(Generation, 1, Value);	}
 
-		return( BTsum_eff < 0.0 ? 0.0 : bLimit && BTsum_eff >= m_DDtotal ? 1.0 : BTsum_eff / m_DDtotal );
+	void				_Add_State			(size_t Generation, size_t Sister, double Value)
+	{
+		if( Generation < NGENERATIONS )
+		{
+			m_BTsum_eff[Generation][Sister]	+= Value;
+		}
+	}
+
+	void				_Set_State			(size_t Generation, size_t Sister, double Value)
+	{
+		if( Generation < NGENERATIONS )
+		{
+			m_BTsum_eff[Generation][Sister]	= Value;
+		}
+	}
+
+	double				_Get_State			(size_t Generation, size_t Sister, bool bLimit)	const
+	{
+		double	BTsum_eff	= Generation < NGENERATIONS ? m_BTsum_eff[Generation][Sister] : 0.;
+
+		return( BTsum_eff < 0. ? (bLimit ? 0. : -1.) : (bLimit && BTsum_eff >= m_DDtotal ? 1. : BTsum_eff / m_DDtotal) );
 	}
 
 
@@ -137,7 +166,7 @@ private:
 	{
 		double	BTsum_Diff	= (-310.667 + 9.603 * BTmax) / 24.;
 
-		return( BTsum_Diff > 0.0 ? BTsum_Diff : 0.0 );
+		return( BTsum_Diff > 0. ? BTsum_Diff : 0. );
 	}
 
 	//---------------------------------------------------------
@@ -150,7 +179,6 @@ private:
 
 		return( ATmax > m_FAminimum && m_ATsum_eff >= m_DDminimum );
 	}
-
 };
 
 
@@ -176,13 +204,13 @@ bool CPhenIps::Create(void)
 	m_YD_End_Onset  = 212;
 	m_YD_End        = 273;
 
-	m_State			= BROOD_STATE_BEFORE;
-	m_YD_Onset.Create(1 + 2 * 3);
+	m_Brood_State	= BROOD_STATE_BEFORE;
+	m_YD_Onset.Create(1 + 2 * NGENERATIONS);
 	m_YD_Onset		= 0;
 
-	m_ATsum_eff		= 0.0;
-	m_BTsum_eff.Create(3, 2);
-	m_BTsum_eff		= -1.0;
+	m_ATsum_eff		= 0.;
+	m_BTsum_eff.Create(2, NGENERATIONS);
+	m_BTsum_eff		= -1.;
 
 	return( true );
 }
@@ -205,7 +233,7 @@ bool CPhenIps::Create(const CPhenIps &PhenIps)
 	m_YD_End_Onset	= PhenIps.m_YD_End_Onset;
 	m_YD_End		= PhenIps.m_YD_End;
 
-	m_State			= PhenIps.m_State;
+	m_Brood_State	= PhenIps.m_Brood_State;
 	m_YD_Onset.Create(PhenIps.m_YD_Onset);
 
 	m_ATsum_eff		= PhenIps.m_ATsum_eff;
@@ -222,11 +250,10 @@ CPhenIps::~CPhenIps(void)
 
 bool CPhenIps::Destroy(void)
 {
-	m_State			= BROOD_STATE_BEFORE;
+	m_Brood_State	= BROOD_STATE_BEFORE;
 	m_YD_Onset		= 0;	// invalid day
-
-	m_ATsum_eff		= 0.0;
-	m_BTsum_eff		= -1.0;
+	m_ATsum_eff		= 0.;
+	m_BTsum_eff		= -1.;
 
 	return( true );
 }
@@ -264,8 +291,8 @@ bool CPhenIps::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Double("", "DToptimum", _TL("Developmental Optimum Temperature"      ), _TL("Degree Celsius"),  30.4);
 	Parameters.Add_Double("", "DTminimum", _TL("Developmental Minimum Temperature"      ), _TL("Degree Celsius"),   8.3);
 	Parameters.Add_Double("", "FAminimum", _TL("Minimum Temperature for Flight Activity"), _TL("Degree Celsius"),  16.5);
-	Parameters.Add_Double("", "DDminimum", _TL("Minimum Thermal Sum for Infestation"    ), _TL("Degree Days"), 140, 0.0, true);
-	Parameters.Add_Double("", "DDtotal"  , _TL("Thermal Sum for Total Development"      ), _TL("Degree Days"), 557, 0.0, true);
+	Parameters.Add_Double("", "DDminimum", _TL("Minimum Thermal Sum for Infestation"    ), _TL("Degree Days"), 140, 0., true);
+	Parameters.Add_Double("", "DDtotal"  , _TL("Thermal Sum for Total Development"      ), _TL("Degree Days"), 557, 0., true);
 
 	//-----------------------------------------------------
 	CSG_DateTime Date; Date.Set_Month(CSG_DateTime::Jan); Date.Set_Day(1);
@@ -300,6 +327,32 @@ bool CPhenIps::Set_Parameters(CSG_Parameters &Parameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+void CPhenIps::Set_Parent_Onset(int DayOfYear)
+{
+	if( DayOfYear < 1 )
+	{
+		m_YD_Onset[0]	= 0;
+		m_Brood_State	= BROOD_STATE_BEFORE;
+
+		for(size_t i=0; i<NGENERATIONS; i++)
+		{
+			Set_Filial_State(i, -1.);
+			Set_Sister_State(i, -1.);
+		}
+	}
+	else
+	{
+		m_YD_Onset[0]	= DayOfYear;
+		m_Brood_State	= BROOD_STATE_BREEDING;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CPhenIps::Add_Day(int Day, double ATmean, double ATmax, double SIrel, double DayLength)
 {
 	if( Day < m_YD_Begin )
@@ -310,21 +363,17 @@ bool CPhenIps::Add_Day(int Day, double ATmean, double ATmax, double SIrel, doubl
 	//-----------------------------------------------------
 	if( Day >= m_YD_End_Onset )
 	{
-		m_State	= BROOD_STATE_AFTER;
+		m_Brood_State	= BROOD_STATE_AFTER;
 	}
 
 	//-----------------------------------------------------
-	if( m_State == BROOD_STATE_BEFORE && Get_Onset(ATmax) )	// Compute the day of year of the onset of swarming of 'Ips typographus'.
+	if( m_Brood_State == BROOD_STATE_BEFORE && Get_Onset(ATmax) )	// Compute the day of year of the onset of swarming of 'Ips typographus'.
 	{
-		m_State	= BROOD_STATE_BREEDING;
-
-		m_YD_Onset[0]	= Day;
-
-		m_BTsum_eff[0][0]	= 0.0;
+		Set_Parent_Onset(Day);
 	}
 
 	//-----------------------------------------------------
-	if( m_State > BROOD_STATE_BEFORE )
+	if( m_Brood_State > BROOD_STATE_BEFORE )
 	{
 		double	BTeff	= Get_BTmean(ATmean, SIrel) - m_DTminimum;
 		double	BTmax	= Get_BTmax (ATmax , SIrel);
@@ -334,38 +383,40 @@ bool CPhenIps::Add_Day(int Day, double ATmean, double ATmax, double SIrel, doubl
 			BTeff	-= Get_BTsum_Diff(BTmax);
 		}
 
-		if( BTeff < 0.0 )
+		if( BTeff < 0. )
 		{
-			BTeff	= 0.0;
+			BTeff	= 0.;
 		}
 
+		bool	bCanHatch	= ATmax > m_FAminimum && DayLength >= 14.5;
+
 		//-------------------------------------------------
-		for(int i=0; i<3; i++)
+		for(size_t i=0; i<NGENERATIONS; i++)
 		{
-			if( m_BTsum_eff[0][i] < 0.0 && Get_State_Filial(i - 1) > 1.0 && ATmax > m_FAminimum && DayLength >= 14.5 )
+			if( Get_Filial_State(i) < 0. && bCanHatch && (i < 1 || Get_Filial_State(i - 1) > 1.) )
 			{
-				m_BTsum_eff[0][i]	= BTeff;
+				Set_Filial_State(i, BTeff);
 			}
-			else if( m_BTsum_eff[0][i] >= 0.0 )
+			else if( Get_Filial_State(i) >= 0. )
 			{
-				m_BTsum_eff[0][i]	+= BTeff;
+				Add_Filial_State(i, BTeff);
 
-				if( m_YD_Onset[1 + 2 * i] == 0 && m_BTsum_eff[0][i] >= 1.0 )
+				if( !Get_Filial_Onset(i) && Get_Filial_State(i) >= 1. )
 				{
-					m_YD_Onset[1 + 2 * i]	= Day;
+					Set_Filial_Onset(i, Day);
 				}
 
-				if( m_BTsum_eff[1][i] < 0.0 && Get_State_Filial(i) > 0.5 && ATmax > m_FAminimum && DayLength >= 14.5 )
+				if( Get_Sister_State(i) < 0. && bCanHatch && Get_Filial_State(i) > 0.5 )
 				{
-					m_BTsum_eff[1][i]	= BTeff;
+					Set_Sister_State(i, BTeff);
 				}
-				else if( m_BTsum_eff[1][i] >= 0.0 )
+				else if( Get_Sister_State(i) >= 0. )
 				{
-					m_BTsum_eff[1][i]	+= BTeff;
+					Add_Sister_State(i, BTeff);
 
-					if( m_YD_Onset[2 + 2 * i] == 0 && m_BTsum_eff[1][i] >= 1.0 )
+					if( !Get_Sister_Onset(i) && Get_Sister_State(i) >= 1. )
 					{
-						m_YD_Onset[2 + 2 * i]	= Day;
+						Set_Sister_Onset(i, Day);
 					}
 				}
 			}
@@ -386,10 +437,10 @@ int CPhenIps::Get_Generations(double minState)	const
 {
 	int	n	= 0;
 
-	for(int i=0; i<3; i++)
+	for(int i=0; i<NGENERATIONS; i++)
 	{
-		if( Get_State_Filial(i) >= minState )	{	n++;	}
-		if( Get_State_Sister(i) >= minState )	{	n++;	}
+		if( Get_Filial_State(i) >= minState )	{	n++;	}
+		if( Get_Sister_State(i) >= minState )	{	n++;	}
 	}
 
 	return( n );
@@ -426,7 +477,7 @@ CPhenIps_Table::CPhenIps_Table(void)
 	Parameters.Add_Double("",
 		"LATITUDE"	, _TL("Latitude"),
 		_TL(""),
-		50.0, -90.0, true, 90.0, true
+		50., -90., true, 90., true
 	);
 
 	Parameters.Add_Bool("",
@@ -497,13 +548,13 @@ bool CPhenIps_Table::On_Execute(void)
 
 		pRecord->Set_Value(0, Day + 1);
 		pRecord->Set_Value(1, DayLength);
-		pRecord->Set_Value(2, PhenIps.Get_State_Parent(   bLimit));
-		pRecord->Set_Value(3, PhenIps.Get_State_Filial(0, bLimit));
-		pRecord->Set_Value(4, PhenIps.Get_State_Sister(0, bLimit));
-		pRecord->Set_Value(5, PhenIps.Get_State_Filial(1, bLimit));
-		pRecord->Set_Value(6, PhenIps.Get_State_Sister(1, bLimit));
-		pRecord->Set_Value(7, PhenIps.Get_State_Filial(2, bLimit));
-		pRecord->Set_Value(8, PhenIps.Get_State_Sister(2, bLimit));
+		pRecord->Set_Value(2, PhenIps.Get_Parent_State(   bLimit));
+		pRecord->Set_Value(3, PhenIps.Get_Filial_State(0, bLimit));
+		pRecord->Set_Value(4, PhenIps.Get_Sister_State(0, bLimit));
+		pRecord->Set_Value(5, PhenIps.Get_Filial_State(1, bLimit));
+		pRecord->Set_Value(6, PhenIps.Get_Sister_State(1, bLimit));
+		pRecord->Set_Value(7, PhenIps.Get_Filial_State(2, bLimit));
+		pRecord->Set_Value(8, PhenIps.Get_Sister_State(2, bLimit));
 	}
 
 	//-----------------------------------------------------
@@ -516,31 +567,31 @@ bool CPhenIps_Table::On_Execute(void)
 	pSummary->Add_Field("VARIABLE", SG_DATATYPE_String);
 	pSummary->Add_Field("VALUE"   , SG_DATATYPE_Double);
 
-	ADD_SUMMARY(_TL("Day of Infestion"), PhenIps.Get_Onset_Parent());
+	ADD_SUMMARY(_TL("Day of Infestion"), PhenIps.Get_Parent_Onset());
 
 	int	i, n	= 0;
 
-	for(i=0; i<3; i++)
+	for(i=0; i<NGENERATIONS; i++)
 	{
-		if( PhenIps.Get_State_Filial(i) > 0.6 )
+		if( PhenIps.Get_Filial_State(i) > 0.6 )
 		{
 			n++;
 		}
 	}
 
-	ADD_SUMMARY(_TL("1st Filial State"), PhenIps.Get_State_Filial(0, false));
-	ADD_SUMMARY(_TL("1st Sister State"), PhenIps.Get_State_Sister(0, false));
-	ADD_SUMMARY(_TL("2nd Filial State"), PhenIps.Get_State_Filial(1, false));
-	ADD_SUMMARY(_TL("2nd Sister State"), PhenIps.Get_State_Sister(1, false));
-	ADD_SUMMARY(_TL("3rd Filial State"), PhenIps.Get_State_Filial(2, false));
-	ADD_SUMMARY(_TL("3rd Sister State"), PhenIps.Get_State_Sister(2, false));
+	ADD_SUMMARY(_TL("1st Filial State"), PhenIps.Get_Filial_State(0, false));
+	ADD_SUMMARY(_TL("1st Sister State"), PhenIps.Get_Sister_State(0, false));
+	ADD_SUMMARY(_TL("2nd Filial State"), PhenIps.Get_Filial_State(1, false));
+	ADD_SUMMARY(_TL("2nd Sister State"), PhenIps.Get_Sister_State(1, false));
+	ADD_SUMMARY(_TL("3rd Filial State"), PhenIps.Get_Filial_State(2, false));
+	ADD_SUMMARY(_TL("3rd Sister State"), PhenIps.Get_Sister_State(2, false));
 
-	ADD_SUMMARY(_TL("1st Filial Grown"), PhenIps.Get_Onset_Filial(0));
-	ADD_SUMMARY(_TL("1st Sister Grown"), PhenIps.Get_Onset_Sister(0));
-	ADD_SUMMARY(_TL("2nd Filial Grown"), PhenIps.Get_Onset_Filial(1));
-	ADD_SUMMARY(_TL("2nd Sister Grown"), PhenIps.Get_Onset_Sister(1));
-	ADD_SUMMARY(_TL("3rd Filial Grown"), PhenIps.Get_Onset_Filial(2));
-	ADD_SUMMARY(_TL("3rd Sister Grown"), PhenIps.Get_Onset_Sister(2));
+	ADD_SUMMARY(_TL("1st Filial Grown"), PhenIps.Get_Filial_Onset(0));
+	ADD_SUMMARY(_TL("1st Sister Grown"), PhenIps.Get_Sister_Onset(0));
+	ADD_SUMMARY(_TL("2nd Filial Grown"), PhenIps.Get_Filial_Onset(1));
+	ADD_SUMMARY(_TL("2nd Sister Grown"), PhenIps.Get_Sister_Onset(1));
+	ADD_SUMMARY(_TL("3rd Filial Grown"), PhenIps.Get_Filial_Onset(2));
+	ADD_SUMMARY(_TL("3rd Sister Grown"), PhenIps.Get_Sister_Onset(2));
 
 	//-----------------------------------------------------
 	return( true );
@@ -556,8 +607,6 @@ bool CPhenIps_Table::On_Execute(void)
 //---------------------------------------------------------
 CPhenIps_Grids::CPhenIps_Grids(void)
 {
-	Set_Name		(CSG_String::Format("PhenIps (%s)", _TL("Grids")));
-
 	Set_Author		("O.Conrad (c) 2019");
 
 	Set_Description	(CPhenIps::Get_Description());
@@ -569,24 +618,23 @@ CPhenIps_Grids::CPhenIps_Grids(void)
 	Parameters.Add_Grid_List("", "ATmax" , _TL("Maximum Temperature"), _TL("Degree Celsius"), PARAMETER_INPUT);
 	Parameters.Add_Grid_List("", "SIrel" , _TL("Solar Irradiation"  ), _TL("Wh/m^2"        ), PARAMETER_INPUT);
 
-	Parameters.Add_Grid("", "ONSET" , _TL("Onset Day of Infestation"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "NUMBER", _TL("Potential Number of Generations"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
+	Parameters.Add_Grid("", "GENERATIONS", _TL("Potential Number of Generations"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
+	Parameters.Add_Grid("", "ONSET"      , _TL("Onset Day of Infestation"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 
-	Parameters.Add_Grid("", "ONSET_FILIAL_1", _TL("Onset Day of 1st Filial Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "ONSET_SISTER_1", _TL("Onset Day of 1st Sister Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "ONSET_FILIAL_2", _TL("Onset Day of 2nd Filial Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "ONSET_SISTER_2", _TL("Onset Day of 2nd Sister Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "ONSET_FILIAL_3", _TL("Onset Day of 3rd Filial Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
-	Parameters.Add_Grid("", "ONSET_SISTER_3", _TL("Onset Day of 3rd Sister Generation"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
+	for(int i=0; i<NGENERATIONS; i++)
+	{
+		Parameters.Add_Grid("", CSG_String::Format("ONSET_FILIAL_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("Onset Day"), i + 1, _TL("Filial Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
+		Parameters.Add_Grid("", CSG_String::Format("ONSET_SISTER_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("Onset Day"), i + 1, _TL("Sister Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
+	}
 
-	Parameters.Add_Grid("", "STATE_FILIAL_1", _TL("State of 1st Filial Generation"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STATE_SISTER_1", _TL("State of 1st Sister Generation"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STATE_FILIAL_2", _TL("State of 2nd Filial Generation"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STATE_SISTER_2", _TL("State of 2nd Sister Generation"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STATE_FILIAL_3", _TL("State of 3rd Filial Generation"    ), _TL(""), PARAMETER_OUTPUT);
-	Parameters.Add_Grid("", "STATE_SISTER_3", _TL("State of 3rd Sister Generation"    ), _TL(""), PARAMETER_OUTPUT);
+	for(int i=0; i<NGENERATIONS; i++)
+	{
+		Parameters.Add_Grid("", CSG_String::Format("STATE_FILIAL_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("State"    ), i + 1, _TL("Filial Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Float);
+		Parameters.Add_Grid("", CSG_String::Format("STATE_SISTER_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("State"    ), i + 1, _TL("Sister Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Float);
+	}
 
-	Parameters.Add_Double("", "LATITUDE", _TL("Latitude"), _TL(""), 50.0, -90.0, true, 90.0, true);
+	Parameters.Add_Grid  ("", "LAT_GRID" , _TL("Latitude"), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Double("", "LAT_CONST", _TL("Latitude"), _TL(""), 50., -90., true, 90., true);
 
 	//-----------------------------------------------------
 	CPhenIps::Add_Parameters(Parameters);
@@ -600,11 +648,6 @@ CPhenIps_Grids::CPhenIps_Grids(void)
 //---------------------------------------------------------
 int CPhenIps_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("ATmean") )
-	{
-		pParameters->Set_Enabled("LATITUDE", pParameter->asGrid() && !pParameter->asGrid()->Get_Projection().is_Okay());
-	}
-
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -614,42 +657,41 @@ int CPhenIps_Grids::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPhenIps_Grids::On_Execute(void)
+bool CPhenIps_Grids::Initialize(bool bReset)
 {
-	//-----------------------------------------------------
-	CSG_Parameter_Grid_List	*pATmean = Parameters("ATmean")->asGridList();
-	CSG_Parameter_Grid_List	*pATmax  = Parameters("ATmax" )->asGridList();
-	CSG_Parameter_Grid_List	*pSIrel  = Parameters("SIrel" )->asGridList();
+	m_pATmean = Parameters("ATmean")->asGridList();
+	m_pATmax  = Parameters("ATmax" )->asGridList();
+	m_pSIrel  = Parameters("SIrel" )->asGridList();
 
-	if( pATmean->Get_Grid_Count() != 12
-	||  pATmax ->Get_Grid_Count() != 12
-	||  pSIrel ->Get_Grid_Count() != 12 )
+	if( m_pATmean->Get_Grid_Count() < 1
+	||  m_pATmax ->Get_Grid_Count() < 1
+	||  m_pSIrel ->Get_Grid_Count() < 1 )
 	{
-		Error_Set(_TL("there has to be one input grid for each month"));
+		Error_Set(_TL("missing input data"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	#define GRID_INIT(g, b)	if( g ) { g->Set_NoData_Value(0.0); DataObject_Set_Colors(g, 11, SG_COLORS_RAINBOW, b); }
+	#define GRID_RESET(g, b)	if( bReset && g ) { DataObject_Set_Colors(g, 11, SG_COLORS_RAINBOW, b); g->Set_NoData_Value_Range(-2., 0.); }
 
-	CSG_Grid	*pOnset		= Parameters("ONSET" )->asGrid(); GRID_INIT(pOnset, true);
-	CSG_Grid	*pNumber	= Parameters("NUMBER")->asGrid();
+	m_pOnset	= Parameters("ONSET" )->asGrid(); GRID_RESET(m_pOnset, true);
 
-	CSG_Grid	*pOnsets[6], *pStates[6];
+	for(int i=0; i<NGENERATIONS; i++)
 	{
-		for(int i=1, f=0, s=1; i<=3; i++, f+=2, s+=2)
-		{
-			pOnsets[f]	= Parameters(CSG_String::Format("ONSET_FILIAL_%d", i))->asGrid(); GRID_INIT(pOnsets[f],  true);
-			pOnsets[s]	= Parameters(CSG_String::Format("ONSET_SISTER_%d", i))->asGrid(); GRID_INIT(pOnsets[s],  true);
-			pStates[f]	= Parameters(CSG_String::Format("STATE_FILIAL_%d", i))->asGrid(); GRID_INIT(pStates[f], false);
-			pStates[s]	= Parameters(CSG_String::Format("STATE_SISTER_%d", i))->asGrid(); GRID_INIT(pStates[s], false);
-		}
+		m_pOnsets[i][0]	= Parameters(CSG_String::Format("ONSET_FILIAL_%d", i + 1))->asGrid(); GRID_RESET(m_pOnsets[i][0],  true);
+		m_pStates[i][0]	= Parameters(CSG_String::Format("STATE_FILIAL_%d", i + 1))->asGrid(); GRID_RESET(m_pStates[i][0], false);
+
+		m_pOnsets[i][1]	= Parameters(CSG_String::Format("ONSET_SISTER_%d", i + 1))->asGrid(); GRID_RESET(m_pOnsets[i][1],  true);
+		m_pStates[i][1]	= Parameters(CSG_String::Format("STATE_SISTER_%d", i + 1))->asGrid(); GRID_RESET(m_pStates[i][1], false);
 	}
 
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pNumber, "LUT");
+	//-----------------------------------------------------
+	m_pGenerations	= Parameters("GENERATIONS")->asGrid();
 
-	if( pLUT && pLUT->asTable() )
+	CSG_Parameter	*pLUT	= CSG_Tool::DataObject_Get_Parameter(m_pGenerations, "LUT");
+
+	if( bReset && pLUT && pLUT->asTable() )
 	{
 		#define ADD_LUT_CLASS(id, color, name)	{ CSG_Table_Record *pClass = pLUT->asTable()->Add_Record();\
 			pClass->Set_Value(0, color);\
@@ -661,43 +703,139 @@ bool CPhenIps_Grids::On_Execute(void)
 
 		pLUT->asTable()->Del_Records();
 
-		ADD_LUT_CLASS(0, SG_GET_RGB(  0, 127,   0), _TL("no generation"));
-		ADD_LUT_CLASS(1, SG_GET_RGB(255, 255,   0), _TL("1 generation"));
-		ADD_LUT_CLASS(2, SG_GET_RGB(255, 191,   0), _TL("1 generation + sister brood"));
-		ADD_LUT_CLASS(3, SG_GET_RGB(255, 127,   0), _TL("2 generations"));
-		ADD_LUT_CLASS(4, SG_GET_RGB(255,   0,   0), _TL("2 generations + sister brood"));
-		ADD_LUT_CLASS(5, SG_GET_RGB(191,   0,  63), _TL("3 generations"));
-		ADD_LUT_CLASS(6, SG_GET_RGB(127,   0, 127), _TL("3 generations + sister brood"));
+		CSG_Colors	Colors(2 * NGENERATIONS, SG_COLORS_YELLOW_RED);
 
-		DataObject_Set_Parameter(pNumber, pLUT);
-		DataObject_Set_Parameter(pNumber, "COLORS_TYPE", 1);	// Classified
+		ADD_LUT_CLASS(0, SG_GET_RGB(000, 127, 000), _TL("no generation"));
+
+		for(int i=1, j=1; i<=NGENERATIONS; i++, j+=2)
+		{
+			ADD_LUT_CLASS(j + 0, Colors[j - 1], CSG_String::Format("%s %d"     , _TL("generation"), i                     ));
+			ADD_LUT_CLASS(j + 1, Colors[j - 0], CSG_String::Format("%s %d + %s", _TL("generation"), i, _TL("sister brood")));
+		}
+
+		CSG_Tool::DataObject_Set_Parameter(m_pGenerations, pLUT);
+		CSG_Tool::DataObject_Set_Parameter(m_pGenerations, "COLORS_TYPE", 1);	// Classified
 	}
 
 	//-----------------------------------------------------
-	double	Latitude	= Parameters("LATITUDE")->asDouble();
-
-	CSG_Grid	Lat, *pLat	= NULL;
+	m_Lat_const	= Parameters("LAT_CONST")->asDouble();
+	m_pLat_Grid	= Parameters("LAT_GRID" )->asGrid  ();
 
 	CSG_Projection	Projection;
 
-	if( Get_Projection(Projection) && Projection.is_Okay() )
+	if( !m_pLat_Grid && Get_Projection(Projection) && Projection.is_Okay() )
 	{
 		bool	bResult;
 
-		CSG_Grid	Lon(Get_System()); Lon.Get_Projection().Create(Projection);
+		CSG_Grid	Lon_Grid(Get_System()); Lon_Grid.Get_Projection().Create(Projection);
 
-		Lat.Create(Get_System());
+		m_Lat_Grid.Create(Get_System());
 
 		SG_RUN_TOOL(bResult, "pj_proj4", 17,	// geographic coordinate grids
-			    SG_TOOL_PARAMETER_SET("GRID", &Lon)
-			&&	SG_TOOL_PARAMETER_SET("LON" , &Lon)
-			&&	SG_TOOL_PARAMETER_SET("LAT" , &Lat)
-		)
+			   SG_TOOL_PARAMETER_SET("GRID", &  Lon_Grid)
+			&& SG_TOOL_PARAMETER_SET("LON" , &  Lon_Grid)
+			&& SG_TOOL_PARAMETER_SET("LAT" , &m_Lat_Grid)
+		);
 
 		if( bResult )
 		{
-			pLat	= &Lat;
+			m_pLat_Grid	= &m_Lat_Grid;
 		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+//---------------------------------------------------------
+bool CPhenIps_Grids::Finalize(void)
+{
+	m_Lat_Grid.Destroy();
+
+	return( true );
+}
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+inline double CPhenIps_Grids::Get_DayLength(int x, int y, int Day)
+{
+	return( SG_Get_Day_Length(Day, m_pLat_Grid ? m_pLat_Grid->asDouble(x, y) : m_Lat_const) );
+}
+
+//---------------------------------------------------------
+inline bool CPhenIps_Grids::Set_NoData(int x, int y)
+{
+	if( m_pOnset ) m_pOnset->Set_NoData(x, y);
+
+	for(int i=0; i<NGENERATIONS; i++)
+	{
+		if( m_pOnsets[i][0] ) m_pOnsets[i][0]->Set_NoData(x, y);
+		if( m_pOnsets[i][1] ) m_pOnsets[i][1]->Set_NoData(x, y);
+		if( m_pStates[i][0] ) m_pStates[i][0]->Set_NoData(x, y);
+		if( m_pStates[i][1] ) m_pStates[i][1]->Set_NoData(x, y);
+	}
+
+	if( m_pGenerations ) m_pGenerations->Set_NoData(x, y);
+
+	return( true );
+}
+
+//---------------------------------------------------------
+inline bool CPhenIps_Grids::Set_Values(int x, int y, const CPhenIps &PhenIps)
+{
+	if( m_pOnset && m_pOnset->asInt(x, y) < 1 ) m_pOnset->Set_Value(x, y, PhenIps.Get_Parent_Onset());
+
+	for(int i=0; i<NGENERATIONS; i++)
+	{
+		if( m_pOnsets[i][0] && m_pOnsets[i][0]->asInt(x, y) < 1 ) m_pOnsets[i][0]->Set_Value(x, y, PhenIps.Get_Filial_Onset(i));
+		if( m_pOnsets[i][1] && m_pOnsets[i][1]->asInt(x, y) < 1 ) m_pOnsets[i][1]->Set_Value(x, y, PhenIps.Get_Sister_Onset(i));
+
+		if( m_pStates[i][0] ) m_pStates[i][0]->Set_Value(x, y, PhenIps.Get_Filial_State(i));
+		if( m_pStates[i][1] ) m_pStates[i][1]->Set_Value(x, y, PhenIps.Get_Sister_State(i));
+	}
+
+	if( m_pGenerations ) m_pGenerations->Set_Value(x, y, PhenIps.Get_Generations(0.6));
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPhenIps_Grids_Annual::CPhenIps_Grids_Annual(void)
+{
+	Set_Name		(CSG_String::Format("PhenIps (%s, %s)", _TL("Grids"), _TL("Annual")));
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPhenIps_Grids_Annual::On_Execute(void)
+{
+	if( !Initialize(true) )
+	{
+		Finalize();
+
+		return( false );
+	}
+
+	if( ((m_pATmean->Get_Grid_Count() ==  12 && m_pATmax->Get_Grid_Count() ==  12 && m_pSIrel->Get_Grid_Count() ==  12)
+	||   (m_pATmean->Get_Grid_Count() >= 365 && m_pATmax->Get_Grid_Count() >= 365 && m_pSIrel->Get_Grid_Count() >= 365)) == false )
+	{
+		Error_Set(_TL("There has to be either one input grid for each month (12) or for each day (365) of a year."));
+
+		return( false );
 	}
 
 	//-----------------------------------------------------
@@ -715,18 +853,11 @@ bool CPhenIps_Grids::On_Execute(void)
 		{
 			CSG_Vector	ATmean, ATmax, SIrel;
 
-			if( !Get_Daily(x, y, pATmean, ATmean)
-			||  !Get_Daily(x, y, pATmax , ATmax )
-			||  !Get_Daily(x, y, pSIrel , SIrel ) )
+			if( !Get_Daily(x, y, m_pATmean, ATmean)
+			||  !Get_Daily(x, y, m_pATmax , ATmax )
+			||  !Get_Daily(x, y, m_pSIrel , SIrel ) )
 			{
-				pOnset ->Set_NoData(x, y);
-				pNumber->Set_NoData(x, y);
-
-				for(int i=0; i<6; i++)
-				{
-					if( pOnsets[i] ) pOnsets[i]->Set_NoData(x, y);
-					if( pStates[i] ) pStates[i]->Set_NoData(x, y);
-				}
+				Set_NoData(x, y);
 
 				continue;
 			}
@@ -734,28 +865,18 @@ bool CPhenIps_Grids::On_Execute(void)
 			//---------------------------------------------
 			CPhenIps	PhenIps(_PhenIps);
 
-			for(int Day=0; Day<365; Day++)
+			for(int Day=0, DayOfYear=1; Day<365; Day++, DayOfYear++)
 			{
-				double	DayLength	= SG_Get_Day_Length(1 + Day, pLat ? pLat->asDouble(x, y) : Latitude);
-
-				PhenIps.Add_Day(1 + Day, ATmean[Day], ATmax[Day], SIrel[Day], DayLength);
+				PhenIps.Add_Day(DayOfYear, ATmean[Day], ATmax[Day], SIrel[Day], Get_DayLength(x, y, DayOfYear));
 			}
 
-			//---------------------------------------------
-			pOnset ->Set_Value(x, y, PhenIps.Get_Onset_Parent());
-			pNumber->Set_Value(x, y, PhenIps.Get_Generations(0.6));
-
-			for(int i=0, f=0, s=1; i<3; i++, f+=2, s+=2)
-			{
-				if( pOnsets[f] ) pOnsets[f]->Set_Value(x, y, PhenIps.Get_Onset_Filial(i));
-				if( pOnsets[s] ) pOnsets[s]->Set_Value(x, y, PhenIps.Get_Onset_Sister(i));
-				if( pStates[f] ) pStates[f]->Set_Value(x, y, PhenIps.Get_State_Filial(i));
-				if( pStates[s] ) pStates[s]->Set_Value(x, y, PhenIps.Get_State_Sister(i));
-			}
+			Set_Values(x, y, PhenIps);
 		}
 	}
 
 	//-----------------------------------------------------
+	Finalize();
+
 	return( true );
 }
 
@@ -765,9 +886,8 @@ bool CPhenIps_Grids::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CPhenIps_Grids::Get_Daily(int x, int y, CSG_Parameter_Grid_List *pValues, CSG_Vector &Values)
+bool CPhenIps_Grids_Annual::Get_Daily(int x, int y, CSG_Parameter_Grid_List *pValues, CSG_Vector &Values)
 {
-	//-----------------------------------------------------
 	if( pValues->Get_Grid_Count() == 12 )
 	{
 		CSG_Spline	Spline;
@@ -817,6 +937,151 @@ bool CPhenIps_Grids::Get_Daily(int x, int y, CSG_Parameter_Grid_List *pValues, C
 
 	//-----------------------------------------------------
 	return( false );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CPhenIps_Grids_Days::CPhenIps_Grids_Days(void)
+{
+	Set_Name		(CSG_String::Format("PhenIps (%s, %s)", _TL("Grids"), _TL("Days")));
+
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"ATSUM_EFF"	, _TL("Air Temperature Sum"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Bool("",
+		"RESET"		, _TL("Reset"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Date("",
+		"DAY"		, _TL("Start Day"),
+		_TL("")
+	);
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CPhenIps_Grids_Days::On_Execute(void)
+{
+	if( !Initialize(Parameters("RESET")->asBool()) )
+	{
+		Finalize();
+
+		return( false );
+	}
+
+	int	Day_Start	= Parameters("DAY")->asDate()->Get_Date().Get_DayOfYear();
+
+	int	nDays	= m_pATmean->Get_Grid_Count();
+
+	if( nDays > m_pATmax->Get_Grid_Count() ) nDays = m_pATmax->Get_Grid_Count();
+	if( nDays > m_pSIrel->Get_Grid_Count() ) nDays = m_pSIrel->Get_Grid_Count();
+
+	if( nDays < 1 )
+	{
+		Error_Set(_TL("there has to be a minimum of one day's input for each weather variable"));
+
+		Finalize();
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	CSG_Grid	*pATsum_eff	= Parameters("ATSUM_EFF")->asGrid();
+
+	if( Parameters("RESET")->asBool() )
+	{
+		pATsum_eff->Assign(0.);
+	}
+
+	//-----------------------------------------------------
+	CPhenIps	_PhenIps;
+
+	_PhenIps.Set_Parameters(Parameters);
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#ifndef _DEBUG
+		#pragma omp parallel for
+		#endif
+		for(int x=0; x<Get_NX(); x++)
+		{
+			bool	bOkay	= pATsum_eff->is_NoData(x, y) == false;
+
+			if( bOkay )
+			{
+				CPhenIps	PhenIps(_PhenIps);
+
+				PhenIps.Set_ATsum_eff(pATsum_eff->asDouble(x, y));
+
+				PhenIps.Set_Parent_Onset(m_pOnset->asInt(x, y));
+
+				if( m_pOnset->asInt(x, y) > 0 )
+				{
+					for(int i=0; i<NGENERATIONS; i++)
+					{
+						PhenIps.Set_Filial_State(i, m_pStates[i][0]->asDouble(x, y));
+						PhenIps.Set_Sister_State(i, m_pStates[i][1]->asDouble(x, y));
+					}
+				}
+
+				//-----------------------------------------
+				for(int Day=0, DayOfYear=Day_Start; bOkay && Day<nDays; Day++, DayOfYear++)
+				{
+					if( m_pATmean->Get_Grid(Day)->is_NoData(x, y)
+					||  m_pATmax ->Get_Grid(Day)->is_NoData(x, y)
+					||  m_pSIrel ->Get_Grid(Day)->is_NoData(x, y) )
+					{
+						bOkay	= false;
+
+						continue;
+					}
+
+					PhenIps.Add_Day(DayOfYear,
+						m_pATmean->Get_Grid(Day)->asDouble(x, y),
+						m_pATmax ->Get_Grid(Day)->asDouble(x, y),
+						m_pSIrel ->Get_Grid(Day)->asDouble(x, y), Get_DayLength(x, y, DayOfYear)
+					);
+				}
+
+				//-----------------------------------------
+				if( bOkay )
+				{
+					Set_Values(x, y, PhenIps);
+
+					pATsum_eff->Set_Value(x, y, PhenIps.Get_ATsum_eff());
+				}
+			}
+
+			if( !bOkay )
+			{
+				Set_NoData(x, y);
+
+				pATsum_eff->Set_NoData(x, y);
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	Finalize();
+
+	return( true );
 }
 
 

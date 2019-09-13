@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                       ips-pro                         //
+//                    climate_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                      phenips.h                        //
+//                 soil_water_balance.h                  //
 //                                                       //
 //                 Copyrights (C) 2019                   //
 //                     Olaf Conrad                       //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__phenips_H
-#define HEADER_INCLUDED__phenips_H
+#ifndef HEADER_INCLUDED__soil_water_balance_H
+#define HEADER_INCLUDED__soil_water_balance_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,109 +67,37 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NGENERATIONS	3
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPhenIps_Table : public CSG_Tool
+class CSoil_Water_Balance : public CSG_Tool_Grid
 {
 public:
-	CPhenIps_Table(void);
+	CSoil_Water_Balance(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Bioclimatology|Phenology") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Soils") );	}
 
 
 protected:
 
-	virtual bool			On_Execute				(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPhenIps_Grids : public CSG_Tool_Grid
-{
-public:
-	CPhenIps_Grids(void);
-
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Bioclimatology|Phenology") );	}
-
-
-protected:
-
-	CSG_Grid				*m_pOnset, *m_pGenerations, *m_pOnsets[NGENERATIONS][2], *m_pStates[NGENERATIONS][2];
-
-	CSG_Parameter_Grid_List	*m_pATmean, *m_pATmax, *m_pSIrel;
-
-
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	bool					Initialize				(bool bReset);
-	bool					Finalize				(void);
-
-	double					Get_DayLength			(int x, int y, int Day);
-
-	bool					Set_NoData				(int x, int y);
-	bool					Set_Values				(int x, int y, const class CPhenIps &PhenIps);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	double					m_Lat_const;
+	double						m_Lat_const, m_SWC, m_SWC_0, m_SWT_Resist[2];
 
-	CSG_Grid				m_Lat_Grid, *m_pLat_Grid;
+	CSG_Grid					m_Lat_Grid, *m_pLat_Grid, *m_pSWC, *m_pSnow, *m_pSW[2];
 
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPhenIps_Grids_Annual : public CPhenIps_Grids
-{
-public:
-	CPhenIps_Grids_Annual	(void);
+	CSG_Parameter_Grid_List		*m_pTavg, *m_pTmin, *m_pTmax, *m_pPsum;
 
 
-protected:
+	bool						Initialize				(void);
+	bool						Finalize				(void);
 
-	virtual bool			On_Execute				(void);
-
-
-private:
-
-	bool					Get_Daily				(int x, int y, CSG_Parameter_Grid_List *pValues, CSG_Vector &Values);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPhenIps_Grids_Days : public CPhenIps_Grids
-{
-public:
-	CPhenIps_Grids_Days(void);
-
-
-protected:
-
-	virtual bool			On_Execute				(void);
+	bool						Get_SW_Capacity			(int x, int y, double SWC[2]);
+	double						Get_Snow_Storage		(int x, int y, double T, double P);
+	bool						Get_Weather				(int x, int y, int Day, const CSG_DateTime &Date, double &T, double &P, double &ETpot);
+	bool						Set_Day					(int x, int y, int Day, const CSG_DateTime &Date);
 
 };
 
@@ -181,4 +109,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__phenips_H
+#endif // #ifndef HEADER_INCLUDED__soil_water_balance_H
