@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__tool_library_H
+#define HEADER_INCLUDED__SAGA_API__tool_library_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__tool_library_H
-#define HEADER_INCLUDED__SAGA_API__tool_library_H
+/** \file tool_library.h
+* The definitions needed for any SAGA tool library and the
+* tool library management, including the SAGA API's default
+* tool library manager.
+* @see SG_Get_Tool_Library_Manager
+* @see CSG_Tool_Library_Manager
+* @see CSG_Tool_Library
+*/
 
 
 ///////////////////////////////////////////////////////////

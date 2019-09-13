@@ -75,10 +75,10 @@ CSoil_Water_Balance::CSoil_Water_Balance(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List("", "TAVG"     , _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "TMIN"     , _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "TMAX"     , _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid_List("", "PSUM"     , _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TAVG", _TL("Mean Temperature"   ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMIN", _TL("Minimum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "TMAX", _TL("Maximum Temperature"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid_List("", "PSUM", _TL("Precipitation"      ), _TL(""), PARAMETER_INPUT);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("", "SNOW" , _TL("Snow Depth"              ), _TL(""), PARAMETER_OUTPUT);

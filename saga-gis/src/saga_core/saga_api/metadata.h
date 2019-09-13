@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__metadata_H
+#define HEADER_INCLUDED__SAGA_API__metadata_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,8 +59,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__metadata_H
-#define HEADER_INCLUDED__SAGA_API__metadata_H
+/** \file metadata.h
+* A flexible class for the storage and management of meta data.
+* Standard storage format is the extended markup language (XML).
+* @see CSG_MetaData
+* @see CSG_HTTP
+*/
 
 
 ///////////////////////////////////////////////////////////

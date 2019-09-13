@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__tin_H
+#define HEADER_INCLUDED__SAGA_API__tin_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,15 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__tin_H
-#define HEADER_INCLUDED__SAGA_API__tin_H
+/** \file tin.h
+* Classes for the construction and management of Triangulated
+* Irregular Networks (TIN) from point data. The core class
+* CSG_TIN is derived from CSG_Shapes.
+* @see CSG_TIN
+* @see CSG_Shapes
+* @see CSG_Table
+* @see CSG_Data_Object
+*/
 
 
 ///////////////////////////////////////////////////////////

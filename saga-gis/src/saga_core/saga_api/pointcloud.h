@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__pointcloud_H
+#define HEADER_INCLUDED__SAGA_API__pointcloud_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,8 +59,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__pointcloud_H
-#define HEADER_INCLUDED__SAGA_API__pointcloud_H
+/** \file pointcloud.h
+* The point cloud data container, a specialized CSG_Shapes class.
+* @see CSG_PointCloud
+* @see CSG_Shapes
+* @see CSG_Table
+* @see CSG_Data_Object
+*/
 
 
 ///////////////////////////////////////////////////////////

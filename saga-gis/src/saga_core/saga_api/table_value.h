@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__table_value_H
+#define HEADER_INCLUDED__SAGA_API__table_value_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__table_value_H
-#define HEADER_INCLUDED__SAGA_API__table_value_H
+/** \file table_value.h
+* Lightweight classes for storing a table record's attribute
+* data.
+* @see CSG_Table_Value
+* @see CSG_Table_Record
+* @see CSG_Table
+* @see CSG_Data_Object
+*/
 
 
 ///////////////////////////////////////////////////////////

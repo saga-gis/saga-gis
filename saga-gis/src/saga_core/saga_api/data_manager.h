@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: data_manager.h 1428 2012-06-06 14:33:41Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__data_manager_H
+#define HEADER_INCLUDED__SAGA_API__data_manager_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,8 +59,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__data_manager_H
-#define HEADER_INCLUDED__SAGA_API__data_manager_H
+/** \file data_manager.h
+* Classes for data object management and declaration of the
+* SAGA API's default data manager.
+* @see SG_Get_Data_Manager
+* @see CSG_Data_Manager
+* @see CSG_Data_Object
+*/
 
 
 ///////////////////////////////////////////////////////////

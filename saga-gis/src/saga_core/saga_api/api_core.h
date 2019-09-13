@@ -61,6 +61,24 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/** \file api_core.h
+* Classes, functions, type definitions for basic helpers 
+* like data types, memory allocation, string handling, file
+* access, translations, colors and user interface communication.
+* @see CSG_String
+* @see CSG_File
+* @see CSG_Array
+* @see CSG_Bytes
+*/
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #ifdef _SAGA_MSW
 	#define	_SAGA_DLL_EXPORT		__declspec( dllexport )
 	#define	_SAGA_DLL_IMPORT		__declspec( dllimport )

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__grid_pyramid_H
+#define HEADER_INCLUDED__SAGA_API__grid_pyramid_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__grid_pyramid_H
-#define HEADER_INCLUDED__SAGA_API__grid_pyramid_H
+/** \file grid_pyramid.h
+* A class for the automated construction of pyramids for a
+* given raster data set, i.e. a set of aggregated raster cell
+* values for increasing raster cell sizes.
+* @see CSG_Grid_Pyramid
+*/
 
 
 ///////////////////////////////////////////////////////////
