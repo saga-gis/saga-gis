@@ -146,7 +146,7 @@ bool CTable_Enumerate::On_Execute(void)
 
 		if( pCopy->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
-			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pTable));	// copy constructor
+			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pCopy));	// copy constructor
 		}
 		else
 		{
