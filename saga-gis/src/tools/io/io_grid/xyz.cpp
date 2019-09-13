@@ -77,22 +77,23 @@ CXYZ_Export::CXYZ_Export(void)
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Export grid to a table (text format), that contains for each grid cell "
-		"the x/y-coordinates and additionally data from selected grids.\n"
-		"Optionally, it is possible to skip NoData cells from the output. In this "
-		"case, the first input grid will perform like a mask."
+		"The tool allows one to export a grid or several grids to a table (text format), "
+		"which stores the x/y-coordinates and the cell values of the input grid(s).\n"
+		"By default, No-Data cells are not written to the output. This can be changed "
+		"with the \"Write No-Data\" parameter. If No-Data cells are skipped, these "
+		"are detected for the first input grid which operates like a mask.\n\n"
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_List("",
 		"GRIDS"		, _TL("Grids"),
-		_TL(""),
+		_TL("The grid(s) to export."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_FilePath("",
 		"FILENAME"	, _TL("File"),
-		_TL(""),
+		_TL("The output file."),
 		CSG_String::Format(
 			"%s|*.xyz|%s|*.txt|%s|*.*",
 			_TL("XYZ files (*.xyz)"),
@@ -102,14 +103,14 @@ CXYZ_Export::CXYZ_Export(void)
 	);
 
 	Parameters.Add_Bool("",
-		"HEADER"	, _TL("Header"),
-		_TL(""),
+		"HEADER"	, _TL("Write Header"),
+		_TL("Write a header to the .xyz file."),
 		true
 	);
 
 	Parameters.Add_Bool("",
-		"NODATA"	, _TL("No-Data"),
-		_TL(""),
+		"NODATA"	, _TL("Write No-Data"),
+		_TL("Write No-Data cells to the .xyz file."),
 		false
 	);
 }
@@ -196,24 +197,26 @@ CXYZ_Import::CXYZ_Import(void)
 	Set_Author		("O.Conrad (c) 2009");
 
 	Set_Description	(_TW(
-		"Import grid from a table (text format), that contains for each grid cell "
-		"the x/y/z-coordinates and additional data from selected grids."
+		"The tool allows one to import gridded data from a table (text format), "
+		"which contains for each grid cell the x/y-coordinates and the cell "
+		"value. If several values end up in a single grid cell, the mean value "
+		"of all input values is written to that cell.\n\n"
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid_Output("",
 		"GRID"		, _TL("Grid"),
-		_TL("")
+		_TL("The imported grid.")
 	);
 
 	Parameters.Add_Grid_Output("",
 		"COUNT"		, _TL("Count"),
-		_TL("")
+		_TL("The number of values detected in each grid cell.")
 	);
 
 	Parameters.Add_FilePath("",
 		"FILENAME"	, _TL("File"),
-		_TL(""),
+		_TL("The input file."),
 		CSG_String::Format(
 			"%s|*.xyz;*.txt|%s|*.xyz|%s|*.txt|%s|*.*",
 			_TL("Recognized Files"),
@@ -225,13 +228,13 @@ CXYZ_Import::CXYZ_Import(void)
 
 	Parameters.Add_Int("",
 		"SKIP"		, _TL("Skip Leading Lines"),
-		_TL(""),
+		_TL("The number of leading lines to skip (usually header data)."),
 		0, 0, true
 	);
 
 	Parameters.Add_Double("",
 		"CELLSIZE"	, _TL("Cell Size"),
-		_TL(""),
+		_TL("The cell size of the output grid."),
 		1.0, 0.0, true
 	);
 
@@ -248,7 +251,7 @@ CXYZ_Import::CXYZ_Import(void)
 
 	Parameters.Add_String("SEPARATOR",
 		"USER"		, _TL("User Defined"),
-		_TL(""),
+		_TL("The user defined delimiter."),
 		"*"
 	);
 }
