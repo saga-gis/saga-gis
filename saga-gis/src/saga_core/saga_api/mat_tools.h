@@ -61,6 +61,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+/** \file mat_tools.h
+* A set of basic mathematical, numerical, statistical tools.
+* @see CSG_Vector
+* @see CSG_Matrix
+* @see CSG_Formula
+* @see CSG_Random
+* @see CSG_Index
+* @see CSG_Histogram
+* @see CSG_Simple_Statistics
+* @see CSG_Unique_Value_Statistics
+* @see CSG_Regression
+* @see CSG_Trend
+* @see CSG_Spline
+*/
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "geo_tools.h"
 
 
@@ -155,11 +178,22 @@ SAGA_API_DLL_EXPORT	void		SG_Decimal_To_Degree	(double Value, double &Deg, doubl
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef int (* TSG_PFNC_Compare) (const int iElement_1, const int iElement_2);
+typedef int (* TSG_PFNC_Compare) (const int a, const int b);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Index
 {
+public:
+	class CSG_Index_Compare
+	{
+	public:
+		CSG_Index_Compare(void) {}
+		virtual ~CSG_Index_Compare(void) {}
+
+		virtual int				Compare				(const int a, const int b)	= 0;
+	};
+
+
 public:
 	CSG_Index(void);
 	virtual ~CSG_Index(void);
@@ -170,8 +204,11 @@ public:
 								CSG_Index			(int nValues, double *Values, bool bAscending = true);
 	bool						Create				(int nValues, double *Values, bool bAscending = true);
 
-								CSG_Index			(int nValues, TSG_PFNC_Compare fCompare, bool bAscending = true);
-	bool						Create				(int nValues, TSG_PFNC_Compare fCompare, bool bAscending = true);
+								CSG_Index			(int nValues, TSG_PFNC_Compare   fCompare);
+	bool						Create				(int nValues, TSG_PFNC_Compare   fCompare);
+
+								CSG_Index			(int nValues, CSG_Index_Compare *pCompare);
+	bool						Create				(int nValues, CSG_Index_Compare *pCompare);
 
 	bool						Destroy				(void);
 
@@ -183,19 +220,19 @@ public:
 
 private:
 
-	void						*m_Values;
-
-	int							m_nValues, *m_Index, m_iCompare;
+	int							m_nValues, *m_Index;
 
 	TSG_PFNC_Compare			m_fCompare;
+
+	CSG_Index_Compare			*m_pCompare;
 
 
 	void						_On_Construction	(void);
 
 	bool						_Set_Array			(int nValues);
-	bool						_Set_Index			(bool bAscending);
+	bool						_Set_Index			(void);
 
-	int							_Compare			(const int iElement_1, const int iElement_2);
+	int							_Compare			(const int a, const int b);
 
 };
 

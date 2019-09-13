@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,6 +50,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__SAGA_API__table_H
+#define HEADER_INCLUDED__SAGA_API__table_H
 
 
 ///////////////////////////////////////////////////////////
@@ -62,8 +61,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__SAGA_API__table_H
-#define HEADER_INCLUDED__SAGA_API__table_H
+/** \file table.h
+* The table data container, a specialized CSG_Table class
+* following a geometry object based approach.
+* @see CSG_Table_Value
+* @see CSG_Table_Record
+* @see CSG_Table
+* @see CSG_Data_Object
+*/
 
 
 ///////////////////////////////////////////////////////////
@@ -302,7 +307,7 @@ public:
 	virtual CSG_Table_Record &		operator []			(size_t Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 	virtual CSG_Table_Record &		operator []			(sLong  Index)	const	{	return( *Get_Record_byIndex(Index) );	}
 
-	int								Get_Index			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (m_Index ? m_Index[Index] : Index) : -1 );	}
+	int								Get_Index			(int    Index)	const	{	return( Index >= 0 && Index < m_nRecords ? (is_Indexed() ? m_Index[Index] : Index) : -1 );	}
 	int								Get_Index			(size_t Index)	const	{	return( Get_Index((int)Index) );	}
 	int								Get_Index			(sLong  Index)	const	{	return( Get_Index((int)Index) );	}
 
@@ -310,7 +315,7 @@ public:
 	CSG_Table_Record *				Get_Record_byIndex	(size_t Index)	const	{	return( Get_Record_byIndex((int)Index) ); }
 	CSG_Table_Record *				Get_Record_byIndex	(int    Index)	const
 	{
-		return( Index >= 0 && Index < m_nRecords ? Get_Record(m_Index ? m_Index[Index] : Index) : NULL );
+		return( Index >= 0 && Index < m_nRecords ? Get_Record(is_Indexed() ? m_Index[Index] : Index) : NULL );
 	}
 
 	//-----------------------------------------------------
@@ -342,14 +347,17 @@ public:
 	virtual int						Inv_Selection		(void);
 
 	//-----------------------------------------------------
-	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	bool							Set_Index			(CSG_Index &Index, int Field                  , bool bAscending = true);
+	bool							Set_Index			(CSG_Index &Index, int Fields[], int   nFields, bool bAscending = true);
+	bool							Set_Index			(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending = true);
 	bool							Del_Index			(void);
 	bool							Toggle_Index		(int iField);
 
-	bool							is_Indexed			(void)	const		{	return( m_Index != NULL );	}
+	bool							is_Indexed			(void)	const		{	return( m_Index.Get_Count() == m_nRecords );	}
 
-	int								Get_Index_Field		(int i)	const		{	return( i >= 0 && i < 3 ? m_Index_Field[i] : -1 );	}
-	TSG_Table_Index_Order			Get_Index_Order		(int i)	const		{	return( i >= 0 && i < 3 ? m_Index_Order[i] : TABLE_INDEX_None );	}
+	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
+	int								Get_Index_Field		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}
+	TSG_Table_Index_Order			Get_Index_Order		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? TABLE_INDEX_None : m_Index_Fields[i] > 0 ? TABLE_INDEX_Ascending : TABLE_INDEX_Descending );	}
 
 
 protected:
@@ -378,6 +386,7 @@ protected:
 	virtual bool					_Stats_Update		(int iField)	const;
 
 	virtual bool					On_NoData_Changed	(void);
+	virtual bool					On_Update			(void);
 
 	virtual bool					On_Reload			(void);
 	virtual bool					On_Delete			(void);
@@ -385,9 +394,9 @@ protected:
 
 private:
 
-	int								*m_Index, m_Index_Field[3];
+	CSG_Index						m_Index;
 
-	TSG_Table_Index_Order			m_Index_Order[3];
+	CSG_Array_Int					m_Index_Fields;
 
 	CSG_Table_Record				**m_Records;
 
@@ -406,10 +415,7 @@ private:
 	bool							_Load_DBase			(const CSG_String &FileName);
 	bool							_Save_DBase			(const CSG_String &FileName);
 
-	void							_Index_Create		(void);
-	void							_Index_Destroy		(void);
-	int								_Index_Compare		(int a, int b);
-	int								_Index_Compare		(int a, int b, int Field);
+	void							_Index_Update		(void);
 
 };
 

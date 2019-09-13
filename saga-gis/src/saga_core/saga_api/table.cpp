@@ -317,8 +317,6 @@ void CSG_Table::_On_Construction(void)
 
 	m_Encoding		= SG_FILE_ENCODING_UTF8;
 
-	m_Index			= NULL;
-
 	m_Selection.Create(sizeof(size_t), 0, SG_ARRAY_GROWTH_3);
 
 	Set_Update_Flag();
@@ -668,34 +666,20 @@ int CSG_Table::Get_Field(const CSG_String &Name) const
 //---------------------------------------------------------
 bool CSG_Table::_Inc_Array(void)
 {
-	if( m_nRecords >= m_nBuffer )
+	if( m_nRecords < m_nBuffer )
 	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords )
-		{
-			m_Records	= pRecords;
-			m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
-
-			if( is_Indexed() )
-			{
-				int		*Index	= (int *)SG_Realloc(m_Index, m_nBuffer * sizeof(int));
-
-				if( Index )
-				{
-					m_Index	= Index;
-				}
-				else
-				{
-					_Index_Destroy();
-				}
-			}
-		}
-		else
-		{
-			return( false );
-		}
+		return( true );
 	}
+
+	CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer + GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
+
+	if( pRecords == NULL )
+	{
+		return( false );
+	}
+
+	m_Records	= pRecords;
+	m_nBuffer	+= GET_GROW_SIZE(m_nBuffer);
 
 	return( true );
 }
@@ -703,34 +687,20 @@ bool CSG_Table::_Inc_Array(void)
 //---------------------------------------------------------
 bool CSG_Table::_Dec_Array(void)
 {
-	if( m_nRecords >= 0 && m_nRecords < m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
+	if( m_nRecords < 0 || m_nRecords >= m_nBuffer - GET_GROW_SIZE(m_nBuffer) )
 	{
-		CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
-
-		if( pRecords )
-		{
-			m_Records	= pRecords;
-			m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
-
-			if( is_Indexed() )
-			{
-				int		*Index	= (int *)SG_Realloc(m_Index, m_nBuffer * sizeof(int));
-
-				if( Index )
-				{
-					m_Index	= Index;
-				}
-				else
-				{
-					_Index_Destroy();
-				}
-			}
-		}
-		else
-		{
-			return( false );
-		}
+		return( true );
 	}
+
+	CSG_Table_Record	**pRecords	= (CSG_Table_Record **)SG_Realloc(m_Records, (m_nBuffer - GET_GROW_SIZE(m_nBuffer)) * sizeof(CSG_Table_Record *));
+
+	if( pRecords == NULL )
+	{
+		return( false );
+	}
+
+	m_Records	= pRecords;
+	m_nBuffer	-= GET_GROW_SIZE(m_nBuffer);
 
 	return( true );
 }
@@ -744,9 +714,9 @@ CSG_Table_Record * CSG_Table::_Get_New_Record(int Index)
 //---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 {
-	CSG_Table_Record	*pRecord;
-
-	if( _Inc_Array() && (pRecord = _Get_New_Record(m_nRecords)) != NULL )
+	CSG_Table_Record	*pRecord	= _Inc_Array() ? _Get_New_Record(m_nRecords) : NULL;
+	
+	if( pRecord )
 	{
 		if( pCopy )
 		{
@@ -760,11 +730,6 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 			}
 		}
 
-		if( is_Indexed() )
-		{
-			m_Index[m_nRecords]	= m_nRecords;
-		}
-
 		m_Records[m_nRecords]	= pRecord;
 		m_nRecords++;
 
@@ -773,11 +738,9 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 		Set_Update_Flag();
 
 		_Stats_Invalidate();
-
-		return( pRecord );
 	}
 
-	return( NULL );
+	return( pRecord );
 }
 
 //---------------------------------------------------------
@@ -793,9 +756,9 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 	}
 
 	//-----------------------------------------------------
-	CSG_Table_Record	*pRecord;
+	CSG_Table_Record	*pRecord	= _Inc_Array() ? _Get_New_Record(m_nRecords) : NULL;
 
-	if( _Inc_Array() && (pRecord = _Get_New_Record(m_nRecords)) != NULL )
+	if( pRecord )
 	{
 		if( pCopy )
 		{
@@ -804,18 +767,8 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 
 		for(int i=m_nRecords; i>iRecord; i--)
 		{
-			if( is_Indexed() )
-			{
-				m_Index[i]	= m_Index[i - 1];
-			}
-
 			m_Records[i]			= m_Records[i - 1];
 			m_Records[i]->m_Index	= i;
-		}
-
-		if( is_Indexed() )
-		{
-			m_Index[iRecord]	= iRecord;
 		}
 
 		pRecord->m_Index	= iRecord;
@@ -827,11 +780,9 @@ CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
 		Set_Update_Flag();
 
 		_Stats_Invalidate();
-
-		return( pRecord );
 	}
 
-	return( NULL );
+	return( pRecord );
 }
 
 //---------------------------------------------------------
@@ -850,38 +801,14 @@ bool CSG_Table::Del_Record(int iRecord)
 {
 	if( iRecord >= 0 && iRecord < m_nRecords )
 	{
-		int		i;
-
 		delete(m_Records[iRecord]);
 
 		m_nRecords--;
 
-		for(i=iRecord; i<m_nRecords; i++)
+		for(int i=iRecord; i<m_nRecords; i++)
 		{
 			m_Records[i]			= m_Records[i + 1];
 			m_Records[i]->m_Index	= i;
-		}
-
-		if( is_Indexed() )
-		{
-			for(i=0; i<m_nRecords; i++)
-			{
-				if( m_Index[i] == iRecord )
-				{
-					for(; i<m_nRecords; i++)
-					{
-						m_Index[i]	= m_Index[i + 1];
-					}
-				}
-			}
-
-			for(i=0; i<m_nRecords; i++)
-			{
-				if( m_Index[i] > iRecord )
-				{
-					m_Index[i]--;
-				}
-			}
 		}
 
 		_Dec_Array();
@@ -901,7 +828,7 @@ bool CSG_Table::Del_Record(int iRecord)
 //---------------------------------------------------------
 bool CSG_Table::Del_Records(void)
 {
-	_Index_Destroy();
+	Del_Index();
 
 	for(int iRecord=0; iRecord<m_nRecords; iRecord++)
 	{
@@ -1263,6 +1190,19 @@ bool CSG_Table::On_NoData_Changed(void)
 	return( CSG_Data_Object::On_NoData_Changed() );
 }
 
+//---------------------------------------------------------
+bool CSG_Table::On_Update(void)
+{
+	_Stats_Invalidate();
+
+	if( m_Index.is_Okay() )
+	{
+		_Index_Update();
+	}
+
+	return( CSG_Data_Object::On_Update() );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -1273,31 +1213,27 @@ bool CSG_Table::On_NoData_Changed(void)
 //---------------------------------------------------------
 bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_2, TSG_Table_Index_Order Order_2, int Field_3, TSG_Table_Index_Order Order_3)
 {
-	m_Index_Field[0]	= m_Index_Field[1]	= m_Index_Field[2]	= -1;
-	m_Index_Order[0]	= m_Index_Order[1]	= m_Index_Order[2]	= TABLE_INDEX_None;
+	m_Index_Fields.Destroy();
 
 	if( Field_1 >= 0 && Field_1 < m_nFields && Order_1 != TABLE_INDEX_None )
 	{
-		m_Index_Field[0]	= Field_1;
-		m_Index_Order[0]	= Order_1;
+		Field_1++; m_Index_Fields += Order_1 == TABLE_INDEX_Ascending ? Field_1 : -Field_1;
 
 		if( Field_2 >= 0 && Field_2 < m_nFields && Order_2 != TABLE_INDEX_None )
 		{
-			m_Index_Field[1]	= Field_2;
-			m_Index_Order[1]	= Order_2;
+			Field_2++; m_Index_Fields += Order_2 == TABLE_INDEX_Ascending ? Field_2 : -Field_2;
 
 			if( Field_3 >= 0 && Field_3 < m_nFields && Order_3 != TABLE_INDEX_None )
 			{
-				m_Index_Field[2]	= Field_3;
-				m_Index_Order[2]	= Order_3;
+				Field_3++; m_Index_Fields += Order_3 == TABLE_INDEX_Ascending ? Field_3 : -Field_3;
 			}
 		}
 
-		_Index_Create();
+		_Index_Update();
 	}
 	else
 	{
-		_Index_Destroy();
+		Del_Index();
 	}
 
 	//-----------------------------------------------------
@@ -1316,213 +1252,225 @@ bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_
 		}
 	}
 
+	//-----------------------------------------------------
 	return( is_Indexed() );
 }
 
 //---------------------------------------------------------
 bool CSG_Table::Del_Index(void)
 {
-	_Index_Destroy();
+	m_Index.Destroy();
+	
+	m_Index_Fields.Destroy();
 
-	return( is_Indexed() );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Table::Toggle_Index(int iField)
 {
-	if( iField >= 0 && iField < m_nFields )
+	if( iField < 0 || iField >= m_nFields )
 	{
-		if( iField != m_Index_Field[0] )
+		return( false );
+	}
+
+	if( iField != Get_Index_Field(0) )
+	{
+		return( Set_Index(iField, TABLE_INDEX_Ascending) );
+	}
+
+	if( Get_Index_Order(0) == TABLE_INDEX_Ascending )
+	{
+		return( Set_Index(iField, TABLE_INDEX_Descending) );
+	}
+
+	return( Del_Index() );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+void CSG_Table::_Index_Update(void)
+{
+	CSG_Array_Int	Fields;
+
+	bool	Ascending	= Get_Index_Order(0) != TABLE_INDEX_Descending;
+
+	for(size_t i=0; i<m_Index_Fields.Get_Size(); i++)
+	{
+		int	Field	= abs(m_Index_Fields[i]) - 1;
+
+		if( Ascending )
 		{
-			return( Set_Index(iField, TABLE_INDEX_Ascending) );
-		}
-		else if( m_Index_Order[0] == TABLE_INDEX_Ascending )
-		{
-			return( Set_Index(iField, TABLE_INDEX_Descending) );
+			Fields	+= m_Index_Fields[i] > 0 ? Field : -Field;
 		}
 		else
 		{
-			return( Set_Index(iField, TABLE_INDEX_None) );
+			Fields	+= m_Index_Fields[i] < 0 ? Field : -Field;
 		}
 	}
 
-	return( false );
+	if( Fields.Get_Size() < 1 || !Set_Index(m_Index, Fields, Ascending) )
+	{
+		Del_Index();
+	}
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#define SORT_SWAP(a,b)	{itemp=(a);(a)=(b);(b)=itemp;}
-
-void CSG_Table::_Index_Create(void)
+class CSG_Table_Record_Compare_Field : public CSG_Index::CSG_Index_Compare
 {
-	const int	M	= 7;
-
-	int		indxt, itemp, *istack,
-			i, j, k, a,
-			l		= 0,
-			ir		= m_nRecords - 1,
-			nstack	= 64,
-			jstack	= 0;
-
-	//-----------------------------------------------------
-	if( m_Index == NULL || m_nBuffer < m_nRecords )
+public:
+	CSG_Table_Record_Compare_Field(CSG_Table *pTable, int Field, bool Ascending)
 	{
-		m_Index	= (int *)SG_Realloc(m_Index, (m_nBuffer < m_nRecords ? m_nRecords : m_nBuffer) * sizeof(int));
-	}
+		m_pTable	= pTable;
+		m_Field		= Field;
+		m_Ascending	= Ascending;
 
-	for(j=0; j<m_nRecords; j++)
-	{
-		m_Index[j]	= j;
-	}
-
-	istack	= (int *)SG_Malloc(nstack * sizeof(int));
-
-	//-----------------------------------------------------
-	for(;;)
-	{
-		if( ir - l < M )
+		if( !m_pTable || m_Field < 0 || m_Field >= m_pTable->Get_Field_Count() )
 		{
-			for(j=l+1; j<=ir; j++)
+			m_pTable	= NULL;
+		}
+	}
+
+	bool				is_Okay		(void)	const	{	return( m_pTable != NULL );	}
+
+	virtual int			Compare		(const int _a, const int _b)
+	{
+		int	a	= m_Ascending ? _a : _b;
+		int	b	= m_Ascending ? _b : _a;
+
+		switch( m_pTable->Get_Field_Type(m_Field) )
+		{
+		default: {
+			double	d	=
+				m_pTable->Get_Record(a)->asDouble(m_Field) -
+				m_pTable->Get_Record(b)->asDouble(m_Field);
+
+			return( d < 0. ? -1 : d > 0. ? 1 : 0 );
+		}
+
+		case SG_DATATYPE_String:
+		case SG_DATATYPE_Date  :
+			return( SG_STR_CMP(
+				m_pTable->Get_Record(a)->asString(m_Field),
+				m_pTable->Get_Record(b)->asString(m_Field))
+			);
+		}
+	}
+
+
+private:
+
+	bool				m_Ascending;
+
+	int					m_Field;
+
+	CSG_Table			*m_pTable;
+
+};
+
+//---------------------------------------------------------
+bool CSG_Table::Set_Index(CSG_Index &Index, int Field, bool bAscending)
+{
+	CSG_Table_Record_Compare_Field	Compare(this, Field, bAscending);
+
+	return( Compare.is_Okay() && Index.Create(Get_Count(), &Compare) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CSG_Table_Record_Compare_Fields : public CSG_Index::CSG_Index_Compare
+{
+public:
+	CSG_Table_Record_Compare_Fields(CSG_Table *pTable, int Fields[], int nFields, bool Ascending)
+	{
+		m_pTable	= pTable;
+		m_Fields	= Fields;
+		m_nFields	= nFields;
+		m_Ascending	= Ascending;
+
+		for(int i=0; m_pTable && i<m_nFields; i++)
+		{
+			if( abs(m_Fields[i]) >= m_pTable->Get_Field_Count() )
 			{
-				a		= indxt	= m_Index[j];
-
-				for(i=j-1; i>=0; i--)
-				{
-					if( _Index_Compare(m_Index[i], a) <= 0 )
-					{
-						break;
-					}
-
-					m_Index[i + 1]	= m_Index[i];
-				}
-
-				m_Index[i + 1]	= indxt;
+				m_pTable	= NULL;
 			}
+		}
+	}
 
-			if( jstack == 0 )
+	bool				is_Okay		(void)	const	{	return( m_pTable != NULL );	}
+
+	virtual int			Compare		(const int _a, const int _b)
+	{
+		int	Difference	= 0;
+
+		for(int i=0; !Difference && i<m_nFields; i++)
+		{
+			int	Field	= m_Ascending ? m_Fields[i] : -m_Fields[i];
+
+			int	a	= Field >= 0 ? _a : _b;
+			int	b	= Field >= 0 ? _b : _a;
+
+			Field	= abs(Field);
+
+			switch( m_pTable->Get_Field_Type(Field) )
 			{
+			default: {
+				double	d	=
+					m_pTable->Get_Record(a)->asDouble(Field) -
+					m_pTable->Get_Record(b)->asDouble(Field);
+
+				Difference	= d < 0. ? -1 : d > 0. ? 1 : 0;
+			}	break;
+
+			case SG_DATATYPE_String:
+			case SG_DATATYPE_Date  :
+				Difference	= SG_STR_CMP(
+					m_pTable->Get_Record(a)->asString(Field),
+					m_pTable->Get_Record(b)->asString(Field)
+				);
 				break;
 			}
-
-			ir		= istack[jstack--];
-			l		= istack[jstack--];
 		}
-		else
-		{
-			k		= (l + ir) >> 1;
-			SORT_SWAP(m_Index[k], m_Index[l + 1]);
 
-			if( _Index_Compare(m_Index[l + 1], m_Index[ir]) > 0 )
-				SORT_SWAP(     m_Index[l + 1], m_Index[ir]);
-
-			if( _Index_Compare(m_Index[l    ], m_Index[ir]) > 0 )
-				SORT_SWAP(     m_Index[l    ], m_Index[ir]);
-
-			if( _Index_Compare(m_Index[l + 1], m_Index[l ]) > 0 )
-				SORT_SWAP(     m_Index[l + 1], m_Index[l ]);
-
-			i		= l + 1;
-			j		= ir;
-			a		= indxt	= m_Index[l];
-
-			for(;;)
-			{
-				do	i++;	while( _Index_Compare(m_Index[i], a) < 0 );
-				do	j--;	while( _Index_Compare(m_Index[j], a) > 0 );
-
-				if( j < i )
-				{
-					break;
-				}
-
-				SORT_SWAP(m_Index[i], m_Index[j]);
-			}
-
-			m_Index[l]	= m_Index[j];
-			m_Index[j]	= indxt;
-			jstack		+= 2;
-
-			if( jstack >= nstack )
-			{
-				nstack	+= 64;
-				istack	= (int *)SG_Realloc(istack, nstack * sizeof(int));
-			}
-
-			if( ir - i + 1 >= j - l )
-			{
-				istack[jstack]		= ir;
-				istack[jstack - 1]	= i;
-				ir					= j - 1;
-			}
-			else
-			{
-				istack[jstack]		= j - 1;
-				istack[jstack - 1]	= l;
-				l					= i;
-			}
-		}
+		return( Difference );
 	}
 
-	SG_Free(istack);
-}
 
-#undef SORT_SWAP
+private:
+
+	bool				m_Ascending;
+
+	int					*m_Fields, m_nFields;
+
+	CSG_Table			*m_pTable;
+
+};
 
 //---------------------------------------------------------
-void CSG_Table::_Index_Destroy(void)
+bool CSG_Table::Set_Index(CSG_Index &Index, int Fields[], int nFields, bool bAscending)
 {
-	m_Index_Field[0]	= -1;
+	CSG_Table_Record_Compare_Fields	Compare(this, Fields, nFields, bAscending);
 
-	if( m_Index )
-	{
-		SG_Free(m_Index);
-
-		m_Index	= NULL;
-	}
+	return( Compare.is_Okay() && Index.Create(Get_Count(), &Compare) );
 }
 
 //---------------------------------------------------------
-inline int CSG_Table::_Index_Compare(int a, int b)
+bool CSG_Table::Set_Index(CSG_Index &Index, const CSG_Array_Int &Fields, bool bAscending)
 {
-	int		Result	= _Index_Compare(a, b, 0);
-
-	if( Result == 0 && m_Index_Field[1] >= 0 )
-	{
-		Result	= _Index_Compare(a, b, 1);
-
-		if( Result == 0 && m_Index_Field[2] >= 0 )
-		{
-			Result	= _Index_Compare(a, b, 2);
-		}
-	}
-
-	return( Result );
-}
-
-//---------------------------------------------------------
-inline int CSG_Table::_Index_Compare(int a, int b, int Field)
-{
-	double	Result;
-
-	switch( m_Field_Type[m_Index_Field[Field]] )
-	{
-	case SG_DATATYPE_String:
-	case SG_DATATYPE_Date:
-		Result	= SG_STR_CMP(
-				  Get_Record(a)->asString(m_Index_Field[Field]),
-				  Get_Record(b)->asString(m_Index_Field[Field])
-				);
-		break;
-
-	default:
-		Result	= Get_Record(a)->asDouble(m_Index_Field[Field])
-				- Get_Record(b)->asDouble(m_Index_Field[Field]);
-		break;
-	}
-
-	return( m_Index_Order[Field] == TABLE_INDEX_Ascending
-		? (Result < 0.0 ? -1 : (Result > 0.0 ? 1 : 0))
-		: (Result > 0.0 ? -1 : (Result < 0.0 ? 1 : 0))
-	);
+	return( Set_Index(Index, Fields.Get_Array(), (int)Fields.Get_Size(), bAscending) );
 }
 
 
