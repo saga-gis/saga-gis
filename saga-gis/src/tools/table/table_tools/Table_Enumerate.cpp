@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -108,6 +96,21 @@ CTable_Enumerate::CTable_Enumerate(bool bShapes)
 		_TL(""),
 		true
 	);
+
+	Parameters.Add_String("ENUM",
+		"NAME"	, _TL("Enumeration Field Name"),
+		_TL(""),
+		"ENUM"
+	);
+
+	Parameters.Add_Choice("",
+		"ORDER"	, _TL("Order"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("ascending"),
+			_TL("descending")
+		), 0
+	);
 }
 
 //---------------------------------------------------------
@@ -127,9 +130,26 @@ CSG_String CTable_Enumerate::Get_MenuPath(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CTable_Enumerate::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("ENUM") )
+	{
+		CSG_Table	*pTable	= (*pParameters)("INPUT")->asTable();
+
+		pParameters->Set_Enabled("NAME", pTable && pParameter->asInt() >= pTable->Get_Field_Count());
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CTable_Enumerate::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Table	*pTable	= Parameters("INPUT")->asTable();
 
 	if( pTable->Get_Record_Count() <= 0 )
@@ -142,74 +162,81 @@ bool CTable_Enumerate::On_Execute(void)
 	//-----------------------------------------------------
 	if( Parameters("OUTPUT")->asTable() && Parameters("OUTPUT")->asTable() != pTable )
 	{
-		CSG_Table	*pCopy	= pTable;	pTable	= Parameters("OUTPUT")->asTable();
+		CSG_Table	*pInput	= pTable;	pTable	= Parameters("OUTPUT")->asTable();
 
-		if( pCopy->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
+		if( pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes )
 		{
-			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pTable));	// copy constructor
+			((CSG_Shapes *)pTable)->Create(*((CSG_Shapes *)pInput));	// copy constructor
 		}
 		else
 		{
-			pTable->Create(*pCopy);	// copy constructor
+			pTable->Create(*pInput);	// copy constructor
 		}
 
 		pTable->Fmt_Name("%s [%s]", pTable->Get_Name(), _TL("Enumerated"));
 	}
 
 	//-----------------------------------------------------
-	int	nFields	= Parameters("ENUM")->asInt();
-	
+	bool	bAscending	= Parameters("ORDER")->asInt() != 1;
 
 	int	Field	= Parameters("FIELD")->asInt();
+	int	Enum	= Parameters("ENUM" )->asInt();
+
+	if( Enum < 0 )
+	{
+		Enum	= pTable->Get_Field_Count();
+
+		CSG_String	Name	= Parameters("NAME")->asString();
+
+		if( Name.is_Empty() )
+		{
+			Name	= "NR";
+		}
+
+		if( Field >= 0 )
+		{
+			Name	+= CSG_String("_") + pTable->Get_Field_Name(Field);
+		}
+
+		pTable->Add_Field(Name, SG_DATATYPE_Int);
+	}
 
 	//-----------------------------------------------------
 	if( Field < 0 )
 	{
-		if( nFields < 0 )
+		for(int i=0; i<pTable->Get_Count(); i++)
 		{
-			nFields	= pTable->Get_Field_Count();
-
-			pTable->Add_Field("NR", SG_DATATYPE_Int);
-		}
-
-		for(int i=0; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
-		{
-			pTable->Get_Record_byIndex(i)->Set_Value(nFields, i + 1);
+			pTable->Get_Record_byIndex(i)->Set_Value(Enum, bAscending ? 1 + i : pTable->Get_Count() - i);
 		}
 	}
 
 	//-----------------------------------------------------
 	else
 	{
-		if( nFields < 0 )
-		{
-			nFields	= pTable->Get_Field_Count();
+		CSG_Index	Index;
 
-			pTable->Add_Field(CSG_String::Format("NR-%s", pTable->Get_Field_Name(Field)), SG_DATATYPE_Int);
+		if( !pTable->Set_Index(Index, Field, bAscending) )
+		{
+			Error_Fmt("%s (%s)", _TL("failed to create index on field"), pTable->Get_Field_Name(Field));
+
+			return( false );
 		}
 
-		TSG_Table_Index_Order	old_Order	= pTable->Get_Index_Order(0);
-		int						old_Field	= pTable->Get_Index_Field(0);
+		CSG_String	Value(pTable->Get_Record(Index[0])->asString(Field));
 
-		pTable->Set_Index(Field, TABLE_INDEX_Descending);
-
-		CSG_String	Value	= pTable->Get_Record_byIndex(0)->asString(Field);
-
-		for(int i=0, ID=1; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
+		for(int i=0, n=1; i<pTable->Get_Count() && Set_Progress(i, pTable->Get_Count()); i++)
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(i);
+			CSG_Table_Record	*pRecord	= pTable->Get_Record(Index[i]);
 
 			if( Value.Cmp(pRecord->asString(Field)) )
 			{
 				Value	= pRecord->asString(Field);
 
-				ID++;
+				n++;
 			}
 
-			pRecord->Set_Value(nFields, ID);
+			pRecord->Set_Value(Enum, n);
 		}
-
-		pTable->Set_Index(old_Field, old_Order);
 	}
 
 	//-----------------------------------------------------

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                      Table_Tools                      //
+//                     Table_Tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -51,14 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Table_Enumerate_H
 #define HEADER_INCLUDED__Table_Enumerate_H
 
@@ -70,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -83,12 +72,14 @@ class CTable_Enumerate : public CSG_Tool
 public:
 	CTable_Enumerate(bool bShapes);
 
-	virtual CSG_String		Get_MenuPath		(void);
+	virtual CSG_String		Get_MenuPath			(void);
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
