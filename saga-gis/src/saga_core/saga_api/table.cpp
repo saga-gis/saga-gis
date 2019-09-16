@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -714,8 +702,16 @@ CSG_Table_Record * CSG_Table::_Get_New_Record(int Index)
 //---------------------------------------------------------
 CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 {
+	return( Ins_Record(m_nRecords, pCopy) );
+}
+
+//---------------------------------------------------------
+CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
+{
+	if( iRecord < 0 ) { iRecord = 0; } else if( iRecord > m_nRecords ) { iRecord = m_nRecords; }
+
 	CSG_Table_Record	*pRecord	= _Inc_Array() ? _Get_New_Record(m_nRecords) : NULL;
-	
+
 	if( pRecord )
 	{
 		if( pCopy )
@@ -730,50 +726,38 @@ CSG_Table_Record * CSG_Table::Add_Record(CSG_Table_Record *pCopy)
 			}
 		}
 
-		m_Records[m_nRecords]	= pRecord;
-		m_nRecords++;
-
-		Set_Modified();
-
-		Set_Update_Flag();
-
-		_Stats_Invalidate();
-	}
-
-	return( pRecord );
-}
-
-//---------------------------------------------------------
-CSG_Table_Record * CSG_Table::Ins_Record(int iRecord, CSG_Table_Record *pCopy)
-{
-	if( iRecord >= m_nRecords )
-	{
-		return( Add_Record(pCopy) );
-	}
-	else if( iRecord < 0 )
-	{
-		iRecord	= 0;
-	}
-
-	//-----------------------------------------------------
-	CSG_Table_Record	*pRecord	= _Inc_Array() ? _Get_New_Record(m_nRecords) : NULL;
-
-	if( pRecord )
-	{
-		if( pCopy )
+		//-------------------------------------------------
+		if( iRecord < m_nRecords )
 		{
-			pRecord->Assign(pCopy);
+			if( Get_Selection_Count() > 0 )	// update selection index
+			{
+				size_t	*Selection	= (size_t *)m_Selection.Get_Array();
+
+				for(size_t i=0; i<m_Selection.Get_Size(); i++)
+				{
+					if( Selection[i] > (size_t)iRecord )
+					{
+						Selection[i]++;
+					}
+				}
+			}
+
+			for(int i=m_nRecords; i>iRecord; i--)
+			{
+				m_Records[i] = m_Records[i - 1]; m_Records[i]->m_Index = i;
+			}
+
+			pRecord->m_Index	= iRecord;
 		}
 
-		for(int i=m_nRecords; i>iRecord; i--)
-		{
-			m_Records[i]			= m_Records[i - 1];
-			m_Records[i]->m_Index	= i;
-		}
-
-		pRecord->m_Index	= iRecord;
 		m_Records[iRecord]	= pRecord;
 		m_nRecords++;
+
+		//-------------------------------------------------
+		if( m_Index.is_Okay() )
+		{
+			m_Index.Add_Entry(iRecord);
+		}
 
 		Set_Modified();
 
@@ -801,17 +785,27 @@ bool CSG_Table::Del_Record(int iRecord)
 {
 	if( iRecord >= 0 && iRecord < m_nRecords )
 	{
+		if( m_Records[iRecord]->is_Selected() )
+		{
+			_Del_Selection(iRecord);
+		}
+
 		delete(m_Records[iRecord]);
 
 		m_nRecords--;
 
 		for(int i=iRecord; i<m_nRecords; i++)
 		{
-			m_Records[i]			= m_Records[i + 1];
-			m_Records[i]->m_Index	= i;
+			m_Records[i] = m_Records[i + 1]; m_Records[i]->m_Index = i;
 		}
 
 		_Dec_Array();
+
+		//-------------------------------------------------
+		if( m_Index.is_Okay() )
+		{
+			m_Index.Del_Entry(iRecord);
+		}
 
 		Set_Modified();
 
@@ -992,18 +986,18 @@ bool CSG_Table::Find_Record(int &iRecord, int iField, double Value, bool bCreate
 
 		double	d;
 
-		if( (d = Value - GET_RECORD(0             )->asDouble(iField)) < 0.0 ) { return( false ); } else if( d == 0.0 ) { return( true ); }
-		if( (d = Value - GET_RECORD(m_nRecords - 1)->asDouble(iField)) > 0.0 ) { return( false ); } else if( d == 0.0 ) { return( true ); }
+		if( (d = Value - GET_RECORD(0             )->asDouble(iField)) < 0. ) { return( false ); } else if( d == 0. ) { return( true ); }
+		if( (d = Value - GET_RECORD(m_nRecords - 1)->asDouble(iField)) > 0. ) { return( false ); } else if( d == 0. ) { return( true ); }
 
 		for(int a=0, b=m_nRecords-1; b-a > 1; )
 		{
 			d	= Value - GET_RECORD(a + (b - a) / 2)->asDouble(iField);
 
-			if( d > 0.0 )
+			if( d > 0. )
 			{
 				a	= iRecord;
 			}
-			else if( d < 0.0 )
+			else if( d < 0. )
 			{
 				b	= iRecord;
 			}
@@ -1236,23 +1230,6 @@ bool CSG_Table::Set_Index(int Field_1, TSG_Table_Index_Order Order_1, int Field_
 		Del_Index();
 	}
 
-	//-----------------------------------------------------
-	if( Get_Selection_Count() > 0 )
-	{
-		size_t	n	= 0;
-
-		for(int i=0; i<m_nRecords && n<Get_Selection_Count(); i++)
-		{
-			CSG_Table_Record	*pRecord	= Get_Record_byIndex(i);
-
-			if( pRecord && pRecord->is_Selected() )
-			{
-				_Set_Selection(pRecord->Get_Index(), n++);
-			}
-		}
-	}
-
-	//-----------------------------------------------------
 	return( is_Indexed() );
 }
 
@@ -1286,11 +1263,6 @@ bool CSG_Table::Toggle_Index(int iField)
 
 	return( Del_Index() );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_Table::_Index_Update(void)
@@ -1418,10 +1390,12 @@ public:
 
 		for(int i=0; !Difference && i<m_nFields; i++)
 		{
-			int	Field	= m_Ascending ? m_Fields[i] : -m_Fields[i];
+			int	Field	= m_Fields[i];
 
-			int	a	= Field >= 0 ? _a : _b;
-			int	b	= Field >= 0 ? _b : _a;
+			bool	Ascending	= i == 0 ? m_Ascending : m_Ascending ? Field > 0 : Field < 0;
+
+			int	a	= Ascending ? _a : _b;
+			int	b	= Ascending ? _b : _a;
 
 			Field	= abs(Field);
 

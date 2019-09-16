@@ -132,15 +132,15 @@
 #define M_SET_SIGN(x, sign)			((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
 
 //---------------------------------------------------------
-#define SG_ROUND_TO_BYTE(x)		((BYTE )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_CHAR(x)		((char )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_WORD(x)		((WORD )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SHORT(x)	((short)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_DWORD(x)	((DWORD)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_INT(x)		((int  )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_LONG(x)		((long )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_ULONG(x)	((uLong)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SLONG(x)	((sLong)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_BYTE(x)			((BYTE )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_CHAR(x)			((char )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_WORD(x)			((WORD )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SHORT(x)		((short)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_DWORD(x)		((DWORD)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_INT(x)			((int  )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_LONG(x)			((long )(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_ULONG(x)		((uLong)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SLONG(x)		((sLong)(x < 0.0 ? x - 0.5 : x + 0.5))
 
 
 ///////////////////////////////////////////////////////////
@@ -198,41 +198,50 @@ public:
 	CSG_Index(void);
 	virtual ~CSG_Index(void);
 
+								CSG_Index			(int nValues, CSG_Index_Compare *pCompare);
+	bool						Create				(int nValues, CSG_Index_Compare *pCompare);
+
 								CSG_Index			(int nValues, int    *Values, bool bAscending = true);
 	bool						Create				(int nValues, int    *Values, bool bAscending = true);
 
 								CSG_Index			(int nValues, double *Values, bool bAscending = true);
 	bool						Create				(int nValues, double *Values, bool bAscending = true);
 
-								CSG_Index			(int nValues, TSG_PFNC_Compare   fCompare);
-	bool						Create				(int nValues, TSG_PFNC_Compare   fCompare);
-
-								CSG_Index			(int nValues, CSG_Index_Compare *pCompare);
-	bool						Create				(int nValues, CSG_Index_Compare *pCompare);
+								CSG_Index			(int nValues, TSG_PFNC_Compare fCompare);
+	bool						Create				(int nValues, TSG_PFNC_Compare fCompare);
 
 	bool						Destroy				(void);
 
-	bool						is_Okay				(void)						const	{	return( m_nValues > 0 );	}
-	int							Get_Count			(void)						const	{	return( m_nValues );		}
-	int							Get_Index			(int i, bool bInv = false)	const	{	return( i >= 0 && i < m_nValues ? m_Index[bInv ? m_nValues-1-i : i] : -1 );	}
-	int							operator []			(int i)						const	{	return( i >= 0 && i < m_nValues ? m_Index[i] : -1 );	}
+	void						Show_Progress		(bool bProgress = true);
+
+	bool						Add_Entry			(int Position = -1);
+	bool						Del_Entry			(int Position = -1);
+
+	bool						is_Okay				(void)	const	{	return( m_nValues > 0 );	}
+	int							Get_Count			(void)	const	{	return( m_nValues     );	}
+
+	int							Get_Index			(int Position, bool Ascending = true)	const
+	{
+		return( Position < 0 || Position >= m_nValues ? -1 : m_Index[Ascending ? Position : m_nValues - 1 - Position] );
+	}
+
+	int							operator []			(int Position)	const
+	{
+		return( Position < 0 || Position >= m_nValues ? -1 : m_Index[Position] );
+	}
 
 
 private:
 
+	bool						m_bProgress;
+
 	int							m_nValues, *m_Index;
-
-	TSG_PFNC_Compare			m_fCompare;
-
-	CSG_Index_Compare			*m_pCompare;
 
 
 	void						_On_Construction	(void);
 
 	bool						_Set_Array			(int nValues);
-	bool						_Set_Index			(void);
-
-	int							_Compare			(const int a, const int b);
+	bool						_Set_Index			(CSG_Index_Compare *pCompare);
 
 };
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -116,8 +104,6 @@ CSG_Table_Record::~CSG_Table_Record(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -150,8 +136,6 @@ CSG_Table_Value * CSG_Table_Record::_Create_Value(TSG_Data_Type Type)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -214,8 +198,6 @@ int CSG_Table_Record::_Get_Field(const CSG_String &Field) const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -257,8 +239,6 @@ void CSG_Table_Record::Set_Modified(bool bOn)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -369,8 +349,6 @@ bool CSG_Table_Record::Mul_Value(const CSG_String &Field, double Value)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -386,17 +364,17 @@ bool CSG_Table_Record::Set_NoData(int iField)
 				return( false );
 			break;
 
-		case SG_DATATYPE_Date:
-		case SG_DATATYPE_Color:
-		case SG_DATATYPE_Byte:
-		case SG_DATATYPE_Char:
-		case SG_DATATYPE_Word:
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_DWord:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_ULong:
-		case SG_DATATYPE_Long:
-		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Date  :
+		case SG_DATATYPE_Color :
+		case SG_DATATYPE_Byte  :
+		case SG_DATATYPE_Char  :
+		case SG_DATATYPE_Word  :
+		case SG_DATATYPE_Short :
+		case SG_DATATYPE_DWord :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_ULong :
+		case SG_DATATYPE_Long  :
+		case SG_DATATYPE_Float :
 		case SG_DATATYPE_Double:
 			if( !m_Values[iField]->Set_Value(m_pTable->Get_NoData_Value()) )
 				return( false );
@@ -434,19 +412,19 @@ bool CSG_Table_Record::is_NoData(int iField) const
 		case SG_DATATYPE_String:
 			return( !m_Values[iField]->asString() || !*m_Values[iField]->asString() );
 
-		case SG_DATATYPE_Date:
-		case SG_DATATYPE_Color:
-		case SG_DATATYPE_Byte:
-		case SG_DATATYPE_Char:
-		case SG_DATATYPE_Word:
-		case SG_DATATYPE_Short:
-		case SG_DATATYPE_DWord:
-		case SG_DATATYPE_Int:
-		case SG_DATATYPE_ULong:
-		case SG_DATATYPE_Long:
+		case SG_DATATYPE_Date  :
+		case SG_DATATYPE_Color :
+		case SG_DATATYPE_Byte  :
+		case SG_DATATYPE_Char  :
+		case SG_DATATYPE_Word  :
+		case SG_DATATYPE_Short :
+		case SG_DATATYPE_DWord :
+		case SG_DATATYPE_Int   :
+		case SG_DATATYPE_ULong :
+		case SG_DATATYPE_Long  :
 			return( m_pTable->is_NoData_Value(m_Values[iField]->asInt()) );
 
-		case SG_DATATYPE_Float:
+		case SG_DATATYPE_Float :
 		case SG_DATATYPE_Double:
 			return( m_pTable->is_NoData_Value(m_Values[iField]->asDouble()) );
 
@@ -465,8 +443,6 @@ bool CSG_Table_Record::is_NoData(const CSG_String &Field) const
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -517,8 +493,6 @@ double CSG_Table_Record::asDouble(const CSG_String &Field) const
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -526,8 +500,8 @@ bool CSG_Table_Record::Assign(CSG_Table_Record *pRecord)
 {
 	if( pRecord )
 	{
-		int		nFields	= m_pTable->Get_Field_Count() < pRecord->m_pTable->Get_Field_Count()
-						? m_pTable->Get_Field_Count() : pRecord->m_pTable->Get_Field_Count();
+		int	nFields	= m_pTable->Get_Field_Count() < pRecord->m_pTable->Get_Field_Count()
+					? m_pTable->Get_Field_Count() : pRecord->m_pTable->Get_Field_Count();
 
 		for(int iField=0; iField<nFields; iField++)
 		{

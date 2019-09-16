@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: remove_duplicates.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,12 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -321,44 +312,76 @@ bool CConvex_Hull::Get_Bounding_Box(CSG_Shape *pHull, CSG_Shape *pBox)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class CIndex_Compare_Points : public CSG_Index::CSG_Index_Compare
+{
+public:
+	CSG_Shapes	*m_pPoints;
+
+	CIndex_Compare_Points(CSG_Shapes *pPoints) : m_pPoints(pPoints) {}
+
+	virtual int			Compare		(const int _a, const int _b)
+	{
+		TSG_Point	a	= m_pPoints->Get_Shape(_a)->Get_Point(0);
+		TSG_Point	b	= m_pPoints->Get_Shape(_b)->Get_Point(0);
+
+		if( a.x < b.x )	{	return( -1 );	}
+		if( a.x > b.x )	{	return(  1 );	}
+
+		if( a.y < b.y )	{	return( -1 );	}
+		if( a.y > b.y )	{	return(  1 );	}
+
+		return( 0 );
+	}
+};
+
+//---------------------------------------------------------
 bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_Shape *pAttributes, bool bConvexity)
 {
-	int			i, n;
-	CSG_Points	Points, Hull;
-
 	//-----------------------------------------------------
 	if( pPoints->Get_Count() < 3 )
 	{
+		Error_Set(_TL("less than three points"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_pPoints	= pPoints;
+	CSG_Points	Points;
 
-	CSG_Index	Index(m_pPoints->Get_Count(), (TSG_PFNC_Compare)CConvex_Hull::Compare);
+	CIndex_Compare_Points	Compare(pPoints);
 
-	m_pPoints	= NULL;
+	CSG_Index	Index(pPoints->Get_Count(), &Compare);
 
 	if( !Index.is_Okay() )
 	{
+		Error_Set(_TL("index creation failed"));
+
 		return( false );
 	}
 
-	for(i=0; i<pPoints->Get_Count(); i++)
+	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
 		Points.Add(pPoints->Get_Shape(Index[i])->Get_Point(0));
 	}
 
+	Index.Destroy();
+
 	//-----------------------------------------------------
-	if( (n = Get_Chain_Hull(Points, Hull)) < 3 )
+	CSG_Points	Hull;
+
+	int	nHullPoints	= Get_Chain_Hull(Points, Hull);
+
+	if( nHullPoints < 3 )
 	{
+		Error_Set(_TL("convex hull creation failed"));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
 	CSG_Shape_Polygon	*pHull	= (CSG_Shape_Polygon *)pHulls->Add_Shape();
 
-	for(i=0; i<n && Process_Get_Okay(); i++)
+	for(int i=0; i<nHullPoints && Process_Get_Okay(); i++)
 	{
 		pHull->Add_Point(Hull[i]);
 	}
@@ -374,7 +397,7 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 			pHull->Set_Value(3, ((CSG_Shape_Polygon *)pAttributes)->Get_Area() / pHull->Get_Area());
 		}
 
-		for(i=bConvexity?4:3, n=0; i<pHulls->Get_Field_Count(); i++, n++)
+		for(int i=bConvexity?4:3, n=0; i<pHulls->Get_Field_Count(); i++, n++)
 		{
 			*pHull->Get_Value(i)	= *pAttributes->Get_Value(n);
 		}
@@ -382,29 +405,6 @@ bool CConvex_Hull::Get_Chain_Hull(CSG_Shapes *pPoints, CSG_Shapes *pHulls, CSG_S
 
 	//-----------------------------------------------------
 	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-CSG_Shapes * CConvex_Hull::m_pPoints	= NULL;
-
-//---------------------------------------------------------
-int CConvex_Hull::Compare(const int iElement_1, const int iElement_2)
-{
-	TSG_Point	a	= m_pPoints->Get_Shape(iElement_1)->Get_Point(0);
-	TSG_Point	b	= m_pPoints->Get_Shape(iElement_2)->Get_Point(0);
-
-	if( a.x < b.x )	{	return( -1 );	}
-	if( a.x > b.x )	{	return(  1 );	}
-
-	if( a.y < b.y )	{	return( -1 );	}
-	if( a.y > b.y )	{	return(  1 );	}
-
-	return( 0 );
 }
 
 
