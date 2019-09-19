@@ -1023,70 +1023,63 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, CSG_Parameter *pValue)
-{
-	return( Parameters.Set_Parameter(Identifier, pValue) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, CSG_Parameter *pValue) { return( Parameters.Set_Parameter(ID, pValue) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, CSG_Parameter *pValue) { return( Parameters.Set_Parameter(ID, pValue) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, CSG_Parameter *pValue) { return( Parameters.Set_Parameter(ID, pValue) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, int Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, int               Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, int               Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, int               Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, double Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, double            Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, double            Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, double            Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, void *Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, void             *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, void             *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, void             *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, const CSG_String &Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, const CSG_String &Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, const CSG_String &Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, const CSG_String &Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, const char *Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, const char       *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, const char       *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, const char       *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 //---------------------------------------------------------
 /**
   * Direct 'set a value' access to this tool's default parameters list.
 */
 //---------------------------------------------------------
-bool CSG_Tool::Set_Parameter(const CSG_String &Identifier, const wchar_t *Value, int Type)
-{
-	return( Parameters.Set_Parameter(Identifier, Value, Type) );
-}
+bool CSG_Tool::Set_Parameter(const CSG_String &ID, const wchar_t    *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const char       *ID, const wchar_t    *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
+bool CSG_Tool::Set_Parameter(const wchar_t    *ID, const wchar_t    *Value, int Type) { return( Parameters.Set_Parameter(ID, Value, Type) ); }
 
 
 ///////////////////////////////////////////////////////////
