@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,21 +48,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/config.h>
 #include <wx/fileconf.h>
 #include <wx/image.h>
 #include <wx/splash.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
+#include <wx/wfstream.h>
 
 #include <saga_api/saga_api.h>
 
@@ -87,6 +76,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define SAGA_GUI_BUILD	"20140214"
+
+//---------------------------------------------------------
 CSAGA	*g_pSAGA	= NULL;
 
 //---------------------------------------------------------
@@ -94,23 +86,11 @@ IMPLEMENT_APP(CSAGA)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CSAGA, wxApp)
-	EVT_KEY_DOWN		(CSAGA::On_Key_Down)
+	EVT_KEY_DOWN(CSAGA::On_Key_Down)
 END_EVENT_TABLE()
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define SAGA_GUI_BUILD	"20140214"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -124,8 +104,6 @@ CSAGA::~CSAGA(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,9 +122,9 @@ bool CSAGA::OnInit(void)
 
 	m_App_Path	= App_Path.GetPath();
 
-#if !defined(_DEBUG)
-	wxSetAssertHandler(NULL);		// disable all wx asserts in SAGA release builds
-#endif
+	#if !defined(_DEBUG)
+		wxSetAssertHandler(NULL);	// disable all wx asserts in SAGA release builds
+	#endif
 
 	/* workaround: wxwidgets 2.9.3 is complaining about setlocale
 	 * mismatch between c setlocale and wxLocale. since saga has its own
@@ -177,21 +155,22 @@ bool CSAGA::OnInit(void)
 	wxYield();
 
 	//-----------------------------------------------------
-#if defined(_SAGA_MSW)
-	wxString	Path;
+	#if defined(_SAGA_MSW)
+		wxString	Path, DLL_Path	= Get_App_Path() + "\\dll";
 
-	if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
-	{
-		wxSetEnv("PATH", Get_App_Path() + "\\dll;" + Path);
-	}
-	else
-	{
-		wxSetEnv("PATH", Get_App_Path() + "\\dll");
-	}
+		if( wxGetEnv("PATH", &Path) && Path.Length() > 0 )
+		{
+			wxSetEnv("PATH", DLL_Path + ";" + Path);
+		}
+		else
+		{
+			wxSetEnv("PATH", DLL_Path);
+		}
 
-	wxSetEnv("GDAL_DRIVER_PATH", Get_App_Path() + "\\dll");
-	wxSetEnv("GDAL_DATA"       , Get_App_Path() + "\\dll\\gdal-data");
-#endif // defined(_SAGA_MSW)
+		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
+		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
+		wxSetEnv("PROJ_LIB"        , DLL_Path);
+	#endif // defined(_SAGA_MSW)
 
 	//-----------------------------------------------------
 	wxString	File;
@@ -214,12 +193,11 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/TOOLS", "CRS_FILE_DIC", File) || !wxFileExists(File) )
 	{
-#if defined(_SAGA_LINUX)
-		File	= wxFileName(SHARE_PATH, "saga_prj", "dic").GetFullPath();
-#endif
-#if defined(_SAGA_MSW)
+	#if defined(_SAGA_LINUX)
+		File	= wxFileName(SHARE_PATH    , "saga_prj", "dic").GetFullPath();
+	#else //#if defined(_SAGA_MSW)
 		File	= wxFileName(Get_App_Path(), "saga_prj", "dic").GetFullPath();
-#endif
+	#endif
 	}
 
 	if( !SG_Get_Projections().Load_Dictionary(&File) )
@@ -230,12 +208,11 @@ bool CSAGA::OnInit(void)
 	//-----------------------------------------------------
 	if( !CONFIG_Read("/TOOLS", "CRS_FILE_SRS", File) || !wxFileExists(File) )
 	{
-#if defined(_SAGA_LINUX)
-		File	= wxFileName(SHARE_PATH, "saga_prj", "srs").GetFullPath();
-#endif
-#if defined(_SAGA_MSW)
+	#if defined(_SAGA_LINUX)
+		File	= wxFileName(SHARE_PATH    , "saga_prj", "srs").GetFullPath();
+	#else // #if defined(_SAGA_MSW)
 		File	= wxFileName(Get_App_Path(), "saga_prj", "srs").GetFullPath();
-#endif
+	#endif
 	}
 
 	if( !SG_Get_Projections().Load_DB(&File) )
@@ -284,48 +261,43 @@ int CSAGA::OnExit(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <wx/wfstream.h>
 
 //---------------------------------------------------------
 void CSAGA::_Init_Config(void)
 {
 	wxConfigBase	*pConfig;
 
-#if defined(_SAGA_MSW)
-	wxFileName	fLocal(Get_App_Path(), "saga_gui", "ini");
+	#if defined(_SAGA_MSW)
+		wxFileName	fLocal(Get_App_Path(), "saga_gui", "ini");
 
-	if( ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
-	||  (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ())) )
-	{
-		wxFileName	fUser (wxGetHomeDir(), "saga_gui", "ini");
-	//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
-
-		if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fUser.FileExists() )	// create a copy in user's home directory
+		if( ( fLocal.FileExists() && (!fLocal.IsFileReadable() || !fLocal.IsFileWritable()))
+		||  (!fLocal.FileExists() && (!fLocal.IsDirReadable () || !fLocal.IsDirWritable ())) )
 		{
-			wxFileInputStream	is(fLocal.GetFullPath());
-			wxFileOutputStream	os(fUser .GetFullPath());
-			wxFileConfig		ic(is);	ic.Save(os);
+			wxFileName	fUser (wxGetHomeDir(), "saga_gui", "ini");
+		//	wxFileName	fUser (wxStandardPaths::Get().GetUserConfigDir(), "saga_gui", "ini");
+
+			if(	fLocal.FileExists() && fLocal.IsFileReadable() && !fUser.FileExists() )	// create a copy in user's home directory
+			{
+				wxFileInputStream	is(fLocal.GetFullPath());
+				wxFileOutputStream	os(fUser .GetFullPath());
+				wxFileConfig		ic(is);	ic.Save(os);
+			}
+
+			fLocal	= fUser;
 		}
 
-		fLocal	= fUser;
-	}
-
-	if( (fLocal.FileExists() && fLocal.IsFileWritable()) || (!fLocal.FileExists() && fLocal.IsDirWritable()) )
-	{
-		pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fLocal.GetFullPath(), fLocal.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
-	}
-	else
-	{
-		pConfig	= new wxConfig;	// this might go to registry
-	}
-#else
-	pConfig	= new wxConfig;
-#endif
+		if( (fLocal.FileExists() && fLocal.IsFileWritable()) || (!fLocal.FileExists() && fLocal.IsDirWritable()) )
+		{
+			pConfig = new wxFileConfig(wxEmptyString, wxEmptyString, fLocal.GetFullPath(), fLocal.GetFullPath(), wxCONFIG_USE_LOCAL_FILE|wxCONFIG_USE_GLOBAL_FILE|wxCONFIG_USE_RELATIVE_PATH);
+		}
+		else
+		{
+			pConfig	= new wxConfig;	// this might go to registry !
+		}
+	#else
+		pConfig	= new wxConfig;
+	#endif
 
 	wxConfigBase::Set(pConfig);
 
@@ -351,8 +323,6 @@ void CSAGA::_Init_Config(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

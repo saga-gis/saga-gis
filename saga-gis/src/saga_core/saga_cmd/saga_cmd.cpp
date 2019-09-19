@@ -394,11 +394,11 @@ bool		Load_Libraries(void)
 		Load_Libraries(MODULE_LIBRARY_PATH);
 		Load_Libraries(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")));	// look for tool chains
 	#else
-		wxString	DLL_Path	= SG_File_Make_Path(&CMD_Path, "dll").c_str();
+		wxString	DLL_Path	= CMD_Path + "\\dll";
 
 		if( wxGetEnv("PATH", &Path) && !Path.IsEmpty() )
 		{
-			wxSetEnv("PATH", DLL_Path + wxT(";") + Path);
+			wxSetEnv("PATH", DLL_Path + ";" + Path);
 		}
 		else
 		{
@@ -407,6 +407,7 @@ bool		Load_Libraries(void)
 
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
 		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
+		wxSetEnv("PROJ_LIB"        , DLL_Path);
 
 		Load_Libraries(SG_File_Make_Path(&CMD_Path, "tools"));
     #endif
