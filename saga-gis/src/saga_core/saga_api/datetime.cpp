@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,14 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -108,6 +97,14 @@ CSG_DateTime::CSG_DateTime(double JDN)
 }
 
 //---------------------------------------------------------
+CSG_DateTime::CSG_DateTime(const CSG_String &ISODate)
+{
+	m_pDateTime	= new wxDateTime(wxDateTime::Now());
+
+	Set(ISODate);
+}
+
+//---------------------------------------------------------
 CSG_DateTime::CSG_DateTime(TSG_DateTime Hour, TSG_DateTime Minute, TSG_DateTime Second, TSG_DateTime Millisec)
 {
 	m_pDateTime	= new wxDateTime(Hour, Minute, Second, Millisec);
@@ -142,6 +139,24 @@ CSG_DateTime & CSG_DateTime::Set(const CSG_DateTime &DateTime)
 CSG_DateTime & CSG_DateTime::Set(double JDN)
 {
 	m_pDateTime->Set(JDN);
+
+	return( *this );
+}
+
+//---------------------------------------------------------
+CSG_DateTime & CSG_DateTime::Set(const CSG_String &ISODate)
+{
+	// 0123456789
+	// YYYY-MM-DD
+
+	if( ISODate.Length() >= 10 && ISODate[4] == '-' && ISODate[7] == '-' )
+	{
+		int	y	= ISODate.Left (   4).asInt();
+		int	m	= ISODate.Mid  (5, 2).asInt();
+		int	d	= ISODate.Right(   2).asInt();
+
+		Set((TSG_DateTime)d, (Month)(m - 1), y);
+	}
 
 	return( *this );
 }

@@ -219,6 +219,7 @@ public:
 	//-----------------------------------------------------
 	CSG_DateTime(void);
 	CSG_DateTime(const CSG_DateTime &DateTime);
+	CSG_DateTime(const CSG_String &ISODate);
 	CSG_DateTime(double JDN);
 	CSG_DateTime(                                                    TSG_DateTime Hour    , TSG_DateTime Minute = 0, TSG_DateTime Second = 0, TSG_DateTime Millisec = 0);
 	CSG_DateTime(TSG_DateTime Day, Month Month, int Year = Inv_Year, TSG_DateTime Hour = 0, TSG_DateTime Minute = 0, TSG_DateTime Second = 0, TSG_DateTime Millisec = 0);
@@ -228,6 +229,7 @@ public:
 
 	//-----------------------------------------------------
 	CSG_DateTime &				Set						(const CSG_DateTime &DateTime);
+	CSG_DateTime &				Set						(const CSG_String &ISODate);
 	CSG_DateTime &				Set						(double JDN);
 	CSG_DateTime &				Set						(                                                    TSG_DateTime Hour    , TSG_DateTime Minute = 0, TSG_DateTime Second = 0, TSG_DateTime Millisec = 0);
 	CSG_DateTime &				Set						(TSG_DateTime Day, Month Month, int Year = Inv_Year, TSG_DateTime Hour = 0, TSG_DateTime Minute = 0, TSG_DateTime Second = 0, TSG_DateTime Millisec = 0);
