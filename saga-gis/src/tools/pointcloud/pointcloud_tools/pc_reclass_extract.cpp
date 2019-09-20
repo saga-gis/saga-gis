@@ -731,13 +731,12 @@ int CPC_Reclass_Extract::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 		// simple table
 		pParameters->Get_Parameter("RETAB"		)->Set_Enabled(Value == 2);
-		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value == 2);
 
 		// user supplied table
 		pParameters->Get_Parameter("RETAB_2"	)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MIN"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_MAX"		)->Set_Enabled(Value == 3);
-		//pParameters->Get_Parameter("F_CODE"		)->Set_Enabled(Value == 3);
+
+		// lookup table
+		pParameters->Get_Parameter("TOPERATOR"	)->Set_Enabled(Value >= 2);
 
 		// other options
 		pParameters->Get_Parameter("NODATAOPT"	)->Set_Enabled(iMode == 0);
