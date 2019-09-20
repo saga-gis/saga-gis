@@ -148,7 +148,7 @@ int CSoil_Water_Balance::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 
 //---------------------------------------------------------
 bool CSoil_Water_Balance::Initialize(void)
-{
+{CSG_DateTime d; d.is_LeapYear(2016); CSG_Grids g; g.Get_Attributes_Ptr()->Set_Field_Type(0, SG_DATATYPE_Date);
 	m_pTavg	= Parameters("TAVG")->asGridList();
 	m_pTmin	= Parameters("TMIN")->asGridList();
 	m_pTmax	= Parameters("TMAX")->asGridList();
