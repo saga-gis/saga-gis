@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#include <wx/clipbrd.h>
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "res_controls.h"
 #include "res_commands.h"
 
@@ -96,22 +86,32 @@ IMPLEMENT_CLASS(CActive_Legend, wxScrolledWindow)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CActive_Legend, wxScrolledWindow)
-	EVT_KEY_DOWN		(CActive_Legend::On_Key_Down)
-	EVT_RIGHT_DOWN		(CActive_Legend::On_Mouse_RDown)
+	EVT_KEY_DOWN  (CActive_Legend::On_Key_Down)
+	EVT_RIGHT_DOWN(CActive_Legend::On_Mouse_RDown)
 
-	EVT_MENU			(ID_CMD_DATA_LEGEND_COPY				, CActive_Legend::On_Copy)
-	EVT_MENU			(ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND	, CActive_Legend::On_Copy)
-	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_INC			, CActive_Legend::On_Size_Inc)
-	EVT_MENU			(ID_CMD_DATA_LEGEND_SIZE_DEC			, CActive_Legend::On_Size_Dec)
+	EVT_MENU     (ID_CMD_DATA_LEGEND_COPY             , CActive_Legend::On_Copy       )
+	EVT_MENU     (ID_CMD_MAPS_SAVE_TO_CLIPBOARD_LEGEND, CActive_Legend::On_Copy       )
+
+	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_INC         , CActive_Legend::On_Size_Inc   )
+	EVT_MENU     (ID_CMD_DATA_LEGEND_SIZE_DEC         , CActive_Legend::On_Size_Dec   )
+
+	EVT_MENU     (ID_CMD_DATA_LEGEND_BG_BLACK         , CActive_Legend::On_BG_Black   )
+	EVT_UPDATE_UI(ID_CMD_DATA_LEGEND_BG_BLACK         , CActive_Legend::On_BG_Black_UI)
 END_EVENT_TABLE()
-
-//---------------------------------------------------------
-double CActive_Legend::m_Zoom	= 1.0;
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool   CActive_Legend::m_BG_Black = false;
+
+//---------------------------------------------------------
+double CActive_Legend::m_Zoom     = 1.;
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -130,8 +130,6 @@ CActive_Legend::CActive_Legend(wxWindow *pParent)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -144,8 +142,6 @@ void CActive_Legend::Set_Item(CWKSP_Base_Item *pItem)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -169,6 +165,8 @@ void CActive_Legend::On_Mouse_RDown(wxMouseEvent &event)
 	Menu.AppendSeparator();
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_INC);
 	CMD_Menu_Add_Item(&Menu, false, ID_CMD_DATA_LEGEND_SIZE_DEC);
+	Menu.AppendSeparator();
+	CMD_Menu_Add_Item(&Menu,  true, ID_CMD_DATA_LEGEND_BG_BLACK);
 
 	PopupMenu(&Menu, event.GetPosition());
 
@@ -176,8 +174,6 @@ void CActive_Legend::On_Mouse_RDown(wxMouseEvent &event)
 }
 
 //---------------------------------------------------------
-#include <wx/clipbrd.h>
-
 void CActive_Legend::On_Copy(wxCommandEvent &event)
 {
 	if( !m_pItem || !m_pItem->GetId().IsOk() )
@@ -210,7 +206,18 @@ void CActive_Legend::On_Copy(wxCommandEvent &event)
 
 	BMP.Create(s.GetWidth() + p.x, s.GetHeight() + p.y);
 	dc.SelectObject(BMP);
-	dc.SetBackground(*wxWHITE_BRUSH);
+
+	if( m_BG_Black )
+	{
+		dc.SetTextForeground(*wxWHITE      );
+		dc.SetBackground    (*wxBLACK_BRUSH);
+	}
+	else
+	{
+		dc.SetTextForeground(*wxBLACK      );
+		dc.SetBackground    (*wxWHITE_BRUSH);
+	}
+
 	dc.Clear();
 
 	((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p);
@@ -242,10 +249,30 @@ void CActive_Legend::On_Size_Dec(wxCommandEvent &event)
 	Refresh();
 }
 
+//---------------------------------------------------------
+void CActive_Legend::On_BG_Black(wxCommandEvent &event)
+{
+	m_BG_Black = !m_BG_Black;
+
+	if( m_BG_Black )
+	{
+		SetBackgroundColour(*wxBLACK);
+	}
+	else
+	{
+		SYS_Set_Color_BG(this, wxSYS_COLOUR_WINDOW);
+	}
+
+	Refresh();
+}
+
+void CActive_Legend::On_BG_Black_UI(wxUpdateUIEvent &event)
+{
+	event.Check(m_BG_Black);
+}
+
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -257,21 +284,26 @@ void CActive_Legend::OnDraw(wxDC &dc)
 
 	if( m_pItem && m_pItem->GetId().IsOk() )
 	{
+		if( m_BG_Black )
+		{
+			dc.SetTextForeground(*wxWHITE);
+		}
+
 		switch( m_pItem->Get_Type() )
 		{
-		default:
-			break;
-
-		case WKSP_ITEM_Grid:
-		case WKSP_ITEM_Grids:
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_Grid      :
+		case WKSP_ITEM_Grids     :
+		case WKSP_ITEM_Shapes    :
+		case WKSP_ITEM_TIN       :
 		case WKSP_ITEM_PointCloud:
 			((CWKSP_Layer *)m_pItem)->Get_Legend()->Draw(dc, m_Zoom, 1.0, p, &s);
 			break;
 
-		case WKSP_ITEM_Map:
+		case WKSP_ITEM_Map       :
 			((CWKSP_Map   *)m_pItem)->Draw_Legend(dc, 1.0, m_Zoom, p, &s);
+			break;
+
+		default:
 			break;
 		}
 	}

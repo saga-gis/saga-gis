@@ -148,6 +148,7 @@ wxString CMD_Get_Name(int Cmd_ID)
 	case ID_CMD_DATA_LEGEND_COPY:		return( _TL("Copy Legend to Clipboard") );
 	case ID_CMD_DATA_LEGEND_SIZE_INC:	return( _TL("Increase Legend Size") );
 	case ID_CMD_DATA_LEGEND_SIZE_DEC:	return( _TL("Decrease Legend Size") );
+	case ID_CMD_DATA_LEGEND_BG_BLACK:	return( _TL("Black Background") );
 
 	case ID_CMD_DATA_HISTORY_CLEAR:		return( _TL("Clear History") );
 	case ID_CMD_DATA_HISTORY_TO_MODEL:	return( _TL("Save as Tool Chain") );

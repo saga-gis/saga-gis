@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -175,9 +163,9 @@ void CWKSP_Layer_Legend::Draw(wxDC &dc, double Zoom, double Zoom_Map, wxPoint Po
 	m_Zoom_Map	= Zoom_Map;
 
 	//-----------------------------------------------------
-	m_oldPen	= dc.GetPen();
+	m_oldPen	= dc.GetPen  ();
 	m_oldBrush	= dc.GetBrush();
-	m_oldFont	= dc.GetFont();
+	m_oldFont	= dc.GetFont ();
 
 	//-----------------------------------------------------
 	m_xBox		= m_Position.x;
@@ -244,20 +232,17 @@ inline void CWKSP_Layer_Legend::_Set_Size(int xSet, int yAdd)
 //---------------------------------------------------------
 inline void CWKSP_Layer_Legend::_Set_Font(wxDC &dc, int Style)
 {
+	wxFont	Font;
+
 	switch( Style )
 	{
-	case FONT_TITLE:
-		dc.SetFont(wxFont(FONT_SIZE_TITLE   , wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false));
-		break;
-
-	case FONT_SUBTITLE:
-		dc.SetFont(wxFont(FONT_SIZE_SUBTITLE, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD));
-		break;
-
-	case FONT_LABEL:	default:
-		dc.SetFont(wxFont(FONT_SIZE_LABEL   , wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL));
-		break;
+	default:
+	case FONT_LABEL   : Font.Create(FONT_SIZE_LABEL   , wxFONTFAMILY_SWISS, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL); break;
+	case FONT_SUBTITLE: Font.Create(FONT_SIZE_SUBTITLE, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD  ); break;
+	case FONT_TITLE   : Font.Create(FONT_SIZE_TITLE   , wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD  ); break;
 	}
+
+	dc.SetFont(Font);
 }
 
 //---------------------------------------------------------
@@ -311,7 +296,7 @@ inline void CWKSP_Layer_Legend::_Draw_Label(wxDC &dc, int y, wxString Text, int 
 //---------------------------------------------------------
 inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, int Style, int LineColor, int FillColor, wxString Text)
 {
-	if( (Style & BOX_STYLE_OUTL) == 0 )
+	if( (Style & BOX_STYLE_OUTL) != 0 )
 	{
 		wxPen	Pen		= dc.GetPen();
 		Pen		.SetColour(Get_Color_asWX(LineColor));
@@ -356,8 +341,8 @@ inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, int Style, in
 //---------------------------------------------------------
 inline void CWKSP_Layer_Legend::_Draw_Box(wxDC &dc, int y, int dy, int Style, int iClass)
 {
-	int	LineColor	= Get_Color_asInt(dc.GetPen  ().IsOk() ? dc.GetPen  ().GetColour() : *wxBLACK);
-	int	FillColor	= Get_Color_asInt(dc.GetBrush().IsOk() ? dc.GetBrush().GetColour() : *wxWHITE);
+	int	LineColor	= Get_Color_asInt(dc.GetTextForeground());
+	int	FillColor	= Get_Color_asInt(dc.GetBrush().IsOk() ? dc.GetBrush().GetColour() : dc.GetTextBackground());
 
 	wxString	Text;
 
@@ -618,7 +603,7 @@ void CWKSP_Layer_Legend::_Draw_Continuum(wxDC &dc, int y, double zFactor)
 		int		dxFont, dyFont;
 		double	yToDC, dz;
 
-		dc.SetPen(*wxBLACK_PEN);
+		dc.SetPen(dc.GetTextForeground());
 
 		_Set_Font(dc, FONT_LABEL);
 		dc.GetTextExtent(wxString::Format(wxT("01234567")), &dxFont, &dyFont);

@@ -348,7 +348,7 @@ bool CPhenIps::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Double("", "DDtotal"   , _TL("Thermal Sum for Total Development"      ), _TL("Degree Days"   ), 557., 0., true);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double("", "Risk_DayMax", _TL("Day of Maximum Risk after Onset"        ), _TL("Days"          ),   5., 1., true);
+	Parameters.Add_Double("", "Risk_DayMax", _TL("Day of Maximum Risk after Onset"        ), _TL("Days"          ),   5., 0., true);
 	Parameters.Add_Double("", "Risk_Decay" , _TL("Decay of Risk after Maximum"            ), _TL("Days"          ),  10., 1., true);
 
 	//-----------------------------------------------------

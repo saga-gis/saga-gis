@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Legend_H
 #define _HEADER_INCLUDED__SAGA_GUI__ACTIVE_Legend_H
 
@@ -88,12 +76,16 @@ class CActive_Legend : public wxScrolledWindow
 public:
 	CActive_Legend(wxWindow *pParent);
 
-	void						On_Key_Down		(wxKeyEvent   &event);
-	void						On_Mouse_RDown	(wxMouseEvent &event);
+	void						On_Key_Down		(wxKeyEvent      &event);
+	void						On_Mouse_RDown	(wxMouseEvent    &event);
 
-	void						On_Copy			(wxCommandEvent &event);
-	void						On_Size_Inc		(wxCommandEvent &event);
-	void						On_Size_Dec		(wxCommandEvent &event);
+	void						On_Copy			(wxCommandEvent  &event);
+
+	void						On_Size_Inc		(wxCommandEvent  &event);
+	void						On_Size_Dec		(wxCommandEvent  &event);
+
+	void						On_BG_Black		(wxCommandEvent  &event);
+	void						On_BG_Black_UI	(wxUpdateUIEvent &event);
 
 	virtual void				OnDraw			(wxDC &dc);
 
@@ -102,16 +94,17 @@ public:
 
 private:
 
-	int							m_xScroll, m_yScroll;
+	static bool					m_BG_Black;
 
 	static double				m_Zoom;
+
+	int							m_xScroll, m_yScroll;
 
 
 	class CWKSP_Base_Item		*m_pItem;
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
 
