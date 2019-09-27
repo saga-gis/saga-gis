@@ -150,8 +150,8 @@ bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent)
 		int		nx	= 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
 		int		ny	= 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
 
-		double	x	= !fmod(Extent.Get_XRange(), Cellsize) ? Extent.Get_XMin() : Extent.Get_Center().Get_X() - Cellsize * nx / 2.;
-		double	y	= !fmod(Extent.Get_YRange(), Cellsize) ? Extent.Get_YMin() : Extent.Get_Center().Get_Y() - Cellsize * ny / 2.;
+		double	x	= fabs(Cellsize - Extent.Get_XRange() / (nx - 1.)) <= 0. ? Extent.Get_XMin() : Extent.Get_Center().Get_X() - Cellsize * (nx - 1.) / 2.;
+		double	y	= fabs(Cellsize - Extent.Get_YRange() / (ny - 1.)) <= 0. ? Extent.Get_YMin() : Extent.Get_Center().Get_Y() - Cellsize * (ny - 1.) / 2.;
 
 		return( Create(Cellsize, x, y, nx, ny) );
 	}
