@@ -86,6 +86,9 @@
     <ClCompile Include="Curvature_UpDownSlope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wind_shelter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -209,6 +212,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Curvature_UpDownSlope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wind_shelter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -35,6 +35,7 @@ tc_iwahashi_pike.cpp\
 top_hat.cpp\
 tpi.cpp\
 wind_effect.cpp\
+wind_shelter.cpp\
 Convergence.h\
 Convergence_Radius.h\
 Curvature_Classification.h\
@@ -58,7 +59,8 @@ ruggedness.h\
 tc_iwahashi_pike.h\
 top_hat.h\
 tpi.h\
-wind_effect.h
+wind_effect.h\
+wind_shelter.h
 
 libta_morphometry_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la
 

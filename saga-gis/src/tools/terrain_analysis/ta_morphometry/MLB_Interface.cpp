@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,16 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -75,7 +63,7 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( SG_T("Various Authors") );
+		return( "Various Authors" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for (grid based) digital terrain analysis.") );
@@ -113,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "top_hat.h"
 #include "fuzzy_landform_elements.h"
 #include "Curvature_UpDownSlope.h"
+#include "wind_shelter.h"
 
 
 //---------------------------------------------------------
@@ -149,6 +138,7 @@ CSG_Tool *		Create_Tool(int i)
 	case 26:	return( new CCurvature_UpDownSlope );
 	case 27:	return( new CWind_Exposition );
 	case 28:	return( new CTPI_MultiScale );
+	case 29:	return( new CWind_Shelter );
 
 	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
