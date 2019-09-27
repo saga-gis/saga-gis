@@ -55,10 +55,12 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
-// Crop evapotranspiration: guidelines for computing crop water requirements.
-// FAO Irrigation and Drainage Paper 56. FAO, Rome
-// http://www.fao.org/docrep/X0490E/x0490e07.htm#radiation
+/**
+* Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+* Crop evapotranspiration: guidelines for computing crop water requirements.
+* FAO Irrigation and Drainage Paper 56. FAO, Rome
+* http://www.fao.org/docrep/X0490E/x0490e07.htm#radiation
+*/
 //---------------------------------------------------------
 double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, bool bWaterEquivalent)
 {
@@ -73,7 +75,7 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 	double	SunDec	= 0.4093 * sin(JD - 1.405);	// solar declination
 
 	double	d		= -tanLat * tan(SunDec);	// sunset hour angle
-	double	SunSet	= acos(d < -1 ? -1 : d < 1 ? d : 1);
+	double	SunSet	= acos(d < -1. ? -1. : d < 1. ? d : 1.);
 
 //	double	R0		= dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet)) * Gsc * 24 * 60 / M_PI; // Gsc (solar constant) = 0.0820 [MJ m-2 min-1]
 	double	R0		= dR * (SunSet * sinLat * sin(SunDec) + cosLat * cos(SunDec) * sin(SunSet)) * 37.58603136;
@@ -87,43 +89,108 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
-// Crop evapotranspiration: guidelines for computing crop water requirements.
-// FAO Irrigation and Drainage Paper 56. FAO, Rome
-// http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing
+/**
+* DVWK (1996): Ermittlung der Verdunstung von Land- u. Wasserflaechen. Merkblaetter 238/1996.
+* Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+* Crop evapotranspiration: guidelines for computing crop water requirements.
+* FAO Irrigation and Drainage Paper 56. FAO, Rome
+* http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing
+*/
 //---------------------------------------------------------
-double	CT_Get_ETpot_Hargreave	(double R0, double T, double Tmin, double Tmax)
+double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
 {
+	if( T < 0. || Tmin > Tmax )
+	{
+		return( 0. );
+	}
+
 	double	ETpot	= 0.0023 * R0 * (T + 17.8) * sqrt(Tmax - Tmin);	// reference crop evapotranspiration mm per day
 
-	return( ETpot > 0.0 ? ETpot : 0.0 );
+	return( ETpot < 0. ? 0. : ETpot );
 }
 
 //---------------------------------------------------------
-double	CT_Get_ETpot_Hargreave	(int DayOfYear, double Latitude, double T, double Tmin, double Tmax)
+double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, int DayOfYear, double Latitude)
 {
 	double	R0	= CT_Get_Radiation_Daily_TopOfAtmosphere(DayOfYear, Latitude);
 
-	return( CT_Get_ETpot_Hargreave(R0, T, Tmin, Tmax) );
+	return( CT_Get_ETpot_Hargreave(T, Tmin, Tmax, R0) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+* Daily potential evapotranspiration (ETpot) after Turc:
+* T  = daily mean of temperature [°C]
+* Rg = daily sum of global radiation [J/cm^2]
+* rH = daily mean relative humidity [%]
+* DVWK (1996): Ermittlung der Verdunstung von Land- u. Wasserflaechen. Merkblaetter 238/1996.
+*/
+//---------------------------------------------------------
+double	CT_Get_ETpot_Turc	(double T, double Rg, double rH)
+{
+	if( T < 0. )
+	{
+		return( 0. );
+	}
+
+	double	ETpot	= 0.0031 * (Rg + 209.) * T / (T + 15.);
+
+	if( rH < 50. )
+	{
+		ETpot	*= 1. + (50. - rH) / 70.;
+	}
+
+	return( ETpot < 0. ? 0. : ETpot );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+/**
+* Daily potential evapotranspiration (ETpot) after Penman (simplified):
+* T  = daily mean of temperature [°C]
+* Rg = daily sum of global radiation [J/cm^2]
+* rH = daily mean relative humidity [%]
+* V  = daily mean of wind speed at 2m above ground [m/s]
+* S0 = day length [h] (= astronomically possible sun shine duration in hours)
+* DVWK (1996): Ermittlung der Verdunstung von Land- u. Wasserflaechen. Merkblaetter 238/1996.
+* Allen R.G., Pereira L.S., Raes D., Smith M. (1998):
+* Crop evapotranspiration: guidelines for computing crop water requirements.
+* FAO Irrigation and Drainage Paper 56. FAO, Rome
+* http://www.fao.org/3/X0490E/x0490e00.htm
+*/
+//---------------------------------------------------------
+double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, double S0)
+{
+	if( T < 0. || S0 < 0. || Rg < 0. )
+	{
+		return( 0. );
+	}
+
+	// Latent heat of vaporization. As L varies only slightly over normal
+	// temperature ranges a single value of 2.45 MJ/kg is taken in the
+	// simplification of the FAO Penman-Monteith equation (T of about 20°C).
+	const double	L	= 245.;	// Latent heat of vaporization [J/cm^2]
+
+	double	gT	= 2.3 * (T + 22.) / (T + 123.);
+
+	double	ETpot	= gT * ((0.6 * Rg / L) + 0.66 * (1. + 1.08 * V) * (1. - rH / 100.) * S0 / 12.);
+
+	return( ETpot < 0. ? 0. : ETpot );
 }
 
 //---------------------------------------------------------
-bool	CT_Get_ETpot_Hargreave_DailyFromMonthly	(CSG_Vector &ETpot, double Latitude, const double T[12], const double Tmin[12], const double Tmax[12])
+double	CT_Get_ETpot_Penman	(double T, double Rg, double rH, double V, int DayOfYear, double Latitude)
 {
-	CSG_Vector	dT, dTmin, dTmax;
-
-	CT_Get_Daily_Splined(dT   , T   );
-	CT_Get_Daily_Splined(dTmin, Tmin);
-	CT_Get_Daily_Splined(dTmax, Tmax);
-
-	ETpot.Create(365);
-
-	for(int i=0; i<365; i++)
-	{
-		ETpot[i]	= CT_Get_ETpot_Hargreave(i + 1, Latitude, dT[i], dTmin[i], dTmax[i]);
-	}
-
-	return( true );
+	return( CT_Get_ETpot_Penman(T, Rg, rH, V, SG_Get_Day_Length(DayOfYear, Latitude)) );
 }
 
 
@@ -673,7 +740,7 @@ const double * CCT_Water_Balance::Set_ETpot(double Latitude, const double Tmin[1
 
 	for(int i=0; i<365; i++)
 	{
-		m_Daily[DAILY_ETpot][i]	= CT_Get_ETpot_Hargreave(i + 1, Latitude, m_Daily[DAILY_T][i], dTmin[i], dTmax[i]);
+		m_Daily[DAILY_ETpot][i]	= CT_Get_ETpot_Hargreave(m_Daily[DAILY_T][i], dTmin[i], dTmax[i], i + 1, Latitude);
 	}
 
 	return( m_Daily[DAILY_ETpot] );

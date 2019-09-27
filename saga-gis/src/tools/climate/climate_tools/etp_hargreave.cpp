@@ -104,7 +104,7 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 	Parameters.Add_Choice("",
 		"TIME"	, _TL("Time"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("day"),
 			_TL("month")
 		), 0
@@ -156,7 +156,7 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 	CSG_Grid	*pTavg	= Parameters("T"    )->asGrid();
 	CSG_Grid	*pTmin	= Parameters("T_MIN")->asGrid();
 	CSG_Grid	*pTmax	= Parameters("T_MAX")->asGrid();
-	CSG_Grid	*pPET	= Parameters("PET"  )->asGrid();
+	CSG_Grid	*pETpot	= Parameters("PET"  )->asGrid();
 
 	//-----------------------------------------------------
 	CSG_Grid	Lat, *pLat	= NULL;
@@ -204,17 +204,18 @@ bool CPET_Hargreave_Grid::On_Execute(void)
 		{
 			if( pTavg->is_NoData(x, y) || pTmin->is_NoData(x, y) || pTmax->is_NoData(x, y) || (pLat && pLat->is_NoData(x, y)) )
 			{
-				pPET->Set_NoData(x, y);
+				pETpot->Set_NoData(x, y);
 			}
 			else
 			{
-				double	PET	= CT_Get_ETpot_Hargreave(pLat ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const,
+				double	PET	= CT_Get_ETpot_Hargreave(
 					pTavg->asDouble(x, y),
 					pTmin->asDouble(x, y),
-					pTmax->asDouble(x, y)
+					pTmax->asDouble(x, y),
+					pLat ? CT_Get_Radiation_Daily_TopOfAtmosphere(Day, pLat->asDouble(x, y)) : R0_const
 				);
 
-				pPET->Set_Value(x, y, bDaily ? PET : PET * nDays);
+				pETpot->Set_Value(x, y, bDaily ? PET : PET * nDays);
 			}
 		}
 	}
@@ -330,12 +331,12 @@ bool CPET_Hargreave_Table::On_Execute(void)
 		}
 		else
 		{
-			pRecord->Set_Value(fET, CT_Get_ETpot_Hargreave(CT_Get_Radiation_Daily_TopOfAtmosphere(
-				pRecord->asInt   (fDay ), Lat),
+			pRecord->Set_Value(fET, CT_Get_ETpot_Hargreave(
 				pRecord->asDouble(fT   ),
 				pRecord->asDouble(fTmin),
-				pRecord->asDouble(fTmax))
-			);
+				pRecord->asDouble(fTmax),
+				pRecord->asInt   (fDay ), Lat
+			));
 		}
 	}
 

@@ -68,11 +68,19 @@
 //---------------------------------------------------------
 double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, bool bWaterEquivalent = true);
 
-//---------------------------------------------------------
-double	CT_Get_ETpot_Hargreave					(double R0                     , double T, double Tmin, double Tmax);
-double	CT_Get_ETpot_Hargreave					(int DayOfYear, double Latitude, double T, double Tmin, double Tmax);
 
-bool	CT_Get_ETpot_Hargreave_DailyFromMonthly	(CSG_Vector &ETpot, double Latitude, const double T[12], const double Tmin[12], const double Tmax[12]);
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+double	CT_Get_ETpot_Hargreave					(double T, double Tmin, double Tmax, double R0);
+double	CT_Get_ETpot_Hargreave					(double T, double Tmin, double Tmax, int DayOfYear, double Latitude);
+
+double	CT_Get_ETpot_Turc						(double T, double Rg, double rH);
+
+double	CT_Get_ETpot_Penman						(double T, double Rg, double rH, double V, double S0);
+double	CT_Get_ETpot_Penman						(double T, double Rg, double rH, double V, int DayOfYear, double Latitude);
 
 
 ///////////////////////////////////////////////////////////
