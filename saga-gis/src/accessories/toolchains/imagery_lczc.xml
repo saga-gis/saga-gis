@@ -21,52 +21,75 @@
 	</reference>
 
 	<parameters>
+		<!-- Input Grids -->
 		<option varname="GRID_SYSTEM" type="grid_system">
 			<name>Grid System</name>
 		</option>
+		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
+			<name>Features</name>
+		</input>
+
+		<option varname="GRIDDEFILE" type="file">
+			<condition type="has_gui" variable="false"></condition>
+			<name>grid definition for KML2shp conversion</name>
+			<description>well known text, prj file - workaround for command line</description>
+			<filter>Well known text|*.prj;|All Files|*.*</filter>
+		</option>
+
+		<!-- Training Areas -->
 		<option varname="FILE_TRAINING" type="file">
 			<name>Training Areas</name>
 			<filter>KML/KMZ Files|*.kml;*.kmz|All Files|*.*</filter>
 		</option>
+
+		<!-- for debugging purposes, uncomment this to access the imported training polygons - ->
+		<output varname="TRAINING_PROJ" type="shapes" feature_type="polygon" optional="true">
+			<name>Training Polygons</name>
+		</output>-->
+		
+		<!-- Random Forest Options -->
 		<option varname="RF_TREE_COUNT" type="integer">
 			<name>Random Forest Tree Count</name>
 			<value min="1">32</value>
 			<description>How many trees to create?</description>
 		</option>
-		<option varname="FILTER_RADIUS" type="integer">
-			<condition type="exists">LCZC_FILTERED</condition>
-			<name>Majority Filter Radius</name>
-			<value min="1">3</value>
+
+		<!-- Results -->
+		<option varname="CLASS_DEF_SRC" type="choice">
+			<name>Class Definition</name>
+			<choices>built-in|from file</choices>
+			<value>0</value>
 		</option>
-		<option varname="FILE_CLASS_DEF" type="file">
+		<option varname="CLASS_DEF_FILE" type="file" parent="CLASS_DEF_SRC">
+			<condition value="1" type="=">CLASS_DEF_SRC</condition>
 			<name>Class Definition File</name>
 			<filter>Table Files|*.txt;*.dbf;*csv|All Files|*.*</filter>
 		</option>
-		<option varname="FILE_LCZC" type="file" save="true">
-			<name>Save LCZC as...</name>
-			<value></value>
-			<filter>KMZ Files|*.kmz|All Files|*.*</filter>
-		</option>
-		<option varname="FILE_LCZC_FILTERED" type="file" save="true">
-			<condition type="exists">LCZC_FILTERED</condition>
-			<name>Save LCZC (Filtered) as...</name>
-			<value></value>
-			<filter>KMZ Files|*.kmz|All Files|*.*</filter>
-		</option>
-		<input varname="FEATURES" type="grid_list" parent="GRID_SYSTEM">
-			<name>Features</name>
-		</input>
+
 		<output varname="LCZC" type="grid" parent="GRID_SYSTEM">
 			<name>LCZC</name>
+			<output_name>LCZC</output_name>
 		</output>
+		<option varname="LCZC_FILE" type="file" save="true" parent="LCZC">
+			<name>KMZ File</name>
+			<description>Export to KMZ file (Google Earth). Ignored if empty.</description>
+			<filter>KMZ Files|*.kmz|All Files|*.*</filter>
+		</option>
+
 		<output varname="LCZC_FILTERED" type="grid" optional="true" parent="GRID_SYSTEM">
 			<name>LCZC (Filtered)</name>
+			<output_name>LCZC (Filtered)</output_name>
 		</output>
-		<option varname="GRIDDEFILE" type="file">
-		  <condition type="has_gui" variable="false"></condition>
-		  <name>grid definition for KML2shp conversion</name>
-		  <description>well known text, prj file - workaround for command line</description>
-		<filter>Well known text|*.prj;|All Files|*.*</filter>
+		<option varname="FILE_FILTERED_LCZC" type="file" save="true" parent="LCZC_FILTERED">
+			<condition type="exists">LCZC_FILTERED</condition>
+			<name>KMZ File</name>
+			<description>Export to KMZ file (Google Earth). Ignored if empty.</description>
+			<filter>KMZ Files|*.kmz|All Files|*.*</filter>
+		</option>
+		<option varname="FILTER_RADIUS" type="integer" parent="LCZC_FILTERED">
+			<condition type="exists">LCZC_FILTERED</condition>
+			<name>Majority Filter Radius</name>
+			<value min="1">3</value>
 		</option>
 	</parameters>
 	
@@ -124,15 +147,17 @@
 		</tool>
 
 		<!-- create look-up table for classification -->
-		<condition variable="FILE_CLASS_DEF" type="not_equal" value="">
-			<tool library="io_table" tool="1" name="Import Text Table">
-				<option id="FILENAME" varname="true">FILE_CLASS_DEF</option>
-				<output id="TABLE">CLASS_DEF</output>
-			</tool>
+		<condition variable="CLASS_DEF_SRC" type="=" value="1">
+			<condition variable="CLASS_DEF_FILE" type="not_equal" value="">
+				<tool library="io_table" tool="1" name="Import Text Table">
+					<option id="FILENAME" varname="true">CLASS_DEF_FILE</option>
+					<output id="TABLE">CLASS_DEF</output>
+				</tool>
+			</condition>
 		</condition>
 		
 		<condition type="not_exists" variable="CLASS_DEF">
-			<tool library="grid_visualisation" tool="11" name="Create a Table fron Look-up Table">
+			<tool library="grid_visualisation" tool="11" name="Create a Table from Look-up Table">
 				<output id="TABLE">CLASS_DEF</output>
 				<option id="LUT"><OPTION type="static_table" id="LUT" name="Lookup Table">
 					<FIELDS>
@@ -142,23 +167,23 @@
 						<FIELD type="DOUBLE">Minimum</FIELD>
 						<FIELD type="DOUBLE">Maximum</FIELD>
 					</FIELDS><RECORDS>
-						<RECORD><FIELD>     140</FIELD><FIELD >1</FIELD><FIELD   >compHR</FIELD><FIELD>  1</FIELD><FIELD>  1</FIELD></RECORD>
-						<RECORD><FIELD>     209</FIELD><FIELD >2</FIELD><FIELD   >compMR</FIELD><FIELD>  2</FIELD><FIELD>  2</FIELD></RECORD>
-						<RECORD><FIELD>     255</FIELD><FIELD >3</FIELD><FIELD   >compLR</FIELD><FIELD>  3</FIELD><FIELD>  3</FIELD></RECORD>
-						<RECORD><FIELD>   19903</FIELD><FIELD >4</FIELD><FIELD   >openHR</FIELD><FIELD>  4</FIELD><FIELD>  4</FIELD></RECORD>
-						<RECORD><FIELD>   26367</FIELD><FIELD >5</FIELD><FIELD   >openMR</FIELD><FIELD>  5</FIELD><FIELD>  5</FIELD></RECORD>
-						<RECORD><FIELD> 5609983</FIELD><FIELD >6</FIELD><FIELD   >openLR</FIELD><FIELD>  6</FIELD><FIELD>  6</FIELD></RECORD>
-						<RECORD><FIELD>  388858</FIELD><FIELD >7</FIELD><FIELD    >light</FIELD><FIELD>  7</FIELD><FIELD>  7</FIELD></RECORD>
-						<RECORD><FIELD>12369084</FIELD><FIELD >8</FIELD><FIELD >largeLow</FIELD><FIELD>  8</FIELD><FIELD>  8</FIELD></RECORD>
-						<RECORD><FIELD>11193599</FIELD><FIELD >9</FIELD><FIELD   >sparse</FIELD><FIELD>  9</FIELD><FIELD>  9</FIELD></RECORD>
-						<RECORD><FIELD> 5592405</FIELD><FIELD>10</FIELD><FIELD  >industr</FIELD><FIELD> 10</FIELD><FIELD> 10</FIELD></RECORD>
-						<RECORD><FIELD>   27136</FIELD><FIELD >A</FIELD><FIELD>denseTree</FIELD><FIELD>101</FIELD><FIELD>101</FIELD></RECORD>
-						<RECORD><FIELD>   43520</FIELD><FIELD >B</FIELD><FIELD >scatTree</FIELD><FIELD>102</FIELD><FIELD>102</FIELD></RECORD>
-						<RECORD><FIELD> 2458980</FIELD><FIELD >C</FIELD><FIELD     >bush</FIELD><FIELD>103</FIELD><FIELD>103</FIELD></RECORD>
-						<RECORD><FIELD> 7986105</FIELD><FIELD >D</FIELD><FIELD >lowPlant</FIELD><FIELD>104</FIELD><FIELD>104</FIELD></RECORD>
-						<RECORD><FIELD>       0</FIELD><FIELD >E</FIELD><FIELD    >paved</FIELD><FIELD>105</FIELD><FIELD>105</FIELD></RECORD>
-						<RECORD><FIELD>11466747</FIELD><FIELD >F</FIELD><FIELD     >soil</FIELD><FIELD>106</FIELD><FIELD>106</FIELD></RECORD>
-						<RECORD><FIELD>16738922</FIELD><FIELD >G</FIELD><FIELD    >water</FIELD><FIELD>107</FIELD><FIELD>107</FIELD></RECORD>
+						<RECORD><FIELD>     140</FIELD><FIELD >1. compHR   </FIELD><FIELD   >compHR</FIELD><FIELD>  1</FIELD><FIELD>  1</FIELD></RECORD>
+						<RECORD><FIELD>     209</FIELD><FIELD >2. compMR   </FIELD><FIELD   >compMR</FIELD><FIELD>  2</FIELD><FIELD>  2</FIELD></RECORD>
+						<RECORD><FIELD>     255</FIELD><FIELD >3. compLR   </FIELD><FIELD   >compLR</FIELD><FIELD>  3</FIELD><FIELD>  3</FIELD></RECORD>
+						<RECORD><FIELD>   19903</FIELD><FIELD >4. openHR   </FIELD><FIELD   >openHR</FIELD><FIELD>  4</FIELD><FIELD>  4</FIELD></RECORD>
+						<RECORD><FIELD>   26367</FIELD><FIELD >5. openMR   </FIELD><FIELD   >openMR</FIELD><FIELD>  5</FIELD><FIELD>  5</FIELD></RECORD>
+						<RECORD><FIELD> 5609983</FIELD><FIELD >6. openLR   </FIELD><FIELD   >openLR</FIELD><FIELD>  6</FIELD><FIELD>  6</FIELD></RECORD>
+						<RECORD><FIELD>  388858</FIELD><FIELD >7. light    </FIELD><FIELD    >light</FIELD><FIELD>  7</FIELD><FIELD>  7</FIELD></RECORD>
+						<RECORD><FIELD>12369084</FIELD><FIELD >8. largeLow </FIELD><FIELD >largeLow</FIELD><FIELD>  8</FIELD><FIELD>  8</FIELD></RECORD>
+						<RECORD><FIELD>11193599</FIELD><FIELD >9. sparse   </FIELD><FIELD   >sparse</FIELD><FIELD>  9</FIELD><FIELD>  9</FIELD></RECORD>
+						<RECORD><FIELD> 5592405</FIELD><FIELD>10. industr  </FIELD><FIELD  >industr</FIELD><FIELD> 10</FIELD><FIELD> 10</FIELD></RECORD>
+						<RECORD><FIELD>   27136</FIELD><FIELD >A. denseTree</FIELD><FIELD>denseTree</FIELD><FIELD>101</FIELD><FIELD>101</FIELD></RECORD>
+						<RECORD><FIELD>   43520</FIELD><FIELD >B. scatTree </FIELD><FIELD >scatTree</FIELD><FIELD>102</FIELD><FIELD>102</FIELD></RECORD>
+						<RECORD><FIELD> 2458980</FIELD><FIELD >C. bush     </FIELD><FIELD     >bush</FIELD><FIELD>103</FIELD><FIELD>103</FIELD></RECORD>
+						<RECORD><FIELD> 7986105</FIELD><FIELD >D. lowPlant </FIELD><FIELD >lowPlant</FIELD><FIELD>104</FIELD><FIELD>104</FIELD></RECORD>
+						<RECORD><FIELD>       0</FIELD><FIELD >E. paved    </FIELD><FIELD    >paved</FIELD><FIELD>105</FIELD><FIELD>105</FIELD></RECORD>
+						<RECORD><FIELD>11466747</FIELD><FIELD >F. soil     </FIELD><FIELD     >soil</FIELD><FIELD>106</FIELD><FIELD>106</FIELD></RECORD>
+						<RECORD><FIELD>16738922</FIELD><FIELD >G. water    </FIELD><FIELD    >water</FIELD><FIELD>107</FIELD><FIELD>107</FIELD></RECORD>
 					</RECORDS>
 				</OPTION></option>
 			</tool>
@@ -172,11 +197,11 @@
 			</tool>
 		</condition>
 
-		<condition variable="FILE_LCZC" type="not_equal" value="">
+		<condition variable="LCZC_FILE" type="not_equal" value="">
 			<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 				<input	id="GRID">LCZC</input>
 				<option	id="LUT"  varname="true">CLASS_DEF</option>
-				<option id="FILE" varname="true">FILE_LCZC</option>
+				<option id="FILE" varname="true">LCZC_FILE</option>
 				<option id="COLOURING">3</option>
 				<option id="RESAMPLING">false</option>
 				<option id="OUTPUT">2</option>
@@ -198,11 +223,11 @@
 				</tool>
 			</condition>
 
-			<condition type="not_equal" value="" variable="FILE_LCZC_FILTERED">
+			<condition type="not_equal" value="" variable="FILE_FILTERED_LCZC">
 				<tool library="io_grid_image" tool="2" name="Export Grid to KML">
 					<input	id="GRID">LCZC_FILTERED</input>
 					<option	id="LUT"  varname="true">CLASS_DEF</option>
-					<option id="FILE" varname="true">FILE_LCZC_FILTERED</option>
+					<option id="FILE" varname="true">FILE_FILTERED_LCZC</option>
 					<option id="COLOURING">3</option>
 					<option id="RESAMPLING">false</option>
 					<option id="OUTPUT">2</option>

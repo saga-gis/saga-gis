@@ -627,7 +627,14 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 	{
 		CSG_Shape	*pArea	= pTraining->Get_Shape(iTraining);
 
-		if( !pClass || (bLabelAsId && ID != pArea->asInt(Field)) || Label.Cmp(pArea->asString(Field)) )
+		if( !pArea->is_Valid() )
+		{
+			continue;
+		}
+
+		if( !pClass
+		|| ( bLabelAsId && ID !=     pArea->asInt   (Field) )
+		|| (!bLabelAsId && Label.Cmp(pArea->asString(Field))) )
 		{
 			Label	= pArea->asString(Field);
 
@@ -638,9 +645,9 @@ bool CViGrA_Random_Forest::Get_Training(CSG_Matrix &Data, CSG_Table &Classes)
 				ID	= bLabelAsId ? pArea->asInt(Field) : ID + 1;
 			}
 
-			pClass->Set_Value(CLASS_ID   , ID);
+			pClass->Set_Value(CLASS_ID   , ID   );
 			pClass->Set_Value(CLASS_NAME , Label);
-			pClass->Set_Value(CLASS_COUNT, 0);
+			pClass->Set_Value(CLASS_COUNT, 0    );
 		}
 
 		pClass->Add_Value(CLASS_COUNT, Get_Training(Data, ID, (CSG_Shape_Polygon *)pArea));

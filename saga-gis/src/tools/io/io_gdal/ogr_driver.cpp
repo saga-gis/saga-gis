@@ -765,7 +765,7 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 			}
 
 			//---------------------------------------------
-			if( _Read_Geometry(pShape, pGeometry) == false )
+			if( _Read_Geometry(pShape, pGeometry) == false || !pShape->is_Valid() )
 			{
 				pShapes->Del_Shape(pShape);
 			}
@@ -774,7 +774,15 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 		OGR_F_Destroy(pFeature);
 	}
 
-	return( pShapes );
+	//-----------------------------------------------------
+	if( pShapes->is_Valid() && pShapes->Get_Count() > 0 )
+	{
+		return( pShapes );
+	}
+
+	delete(pShapes);
+
+	return( NULL );
 }
 
 //---------------------------------------------------------
