@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -157,7 +145,7 @@ bool CSG_Grid_System::Create(const CSG_Grid_System &System)
 //---------------------------------------------------------
 bool CSG_Grid_System::Create(double Cellsize, const CSG_Rect &Extent)
 {
-	if( Cellsize > 0.0 && Extent.Get_XRange() >= 0.0 && Extent.Get_YRange() >= 0.0 )
+	if( Cellsize > 0. && Extent.Get_XRange() >= 0. && Extent.Get_YRange() >= 0. )
 	{
 		int		nx	= 1 + (int)(0.5 + Extent.Get_XRange() / Cellsize);
 		int		ny	= 1 + (int)(0.5 + Extent.Get_YRange() / Cellsize);
@@ -182,13 +170,13 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, double x
 //---------------------------------------------------------
 bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, int NY)
 {
-	if( Cellsize > 0.0 && NX > 0 && NY > 0 )
+	if( Cellsize > 0. && NX > 0 && NY > 0 )
 	{
 		Cellsize	= SG_Get_Rounded(Cellsize, m_Precision);
 		xMin		= SG_Get_Rounded(xMin    , m_Precision);
 		yMin		= SG_Get_Rounded(yMin    , m_Precision);
 
-		if( Cellsize > 0.0 )
+		if( Cellsize > 0. )
 		{
 			m_NX		= NX;
 			m_NY		= NY;
@@ -196,12 +184,12 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 
 			m_Cellsize	= Cellsize;
 			m_Cellarea	= Cellsize * Cellsize;
-			m_Diagonal	= Cellsize * sqrt(2.0);
+			m_Diagonal	= Cellsize * sqrt(2.);
 
 			m_Extent.m_rect.xMin	= xMin;
 			m_Extent.m_rect.yMin	= yMin;
-			m_Extent.m_rect.xMax	= xMin + (NX - 1.0) * Cellsize;
-			m_Extent.m_rect.yMax	= yMin + (NY - 1.0) * Cellsize;
+			m_Extent.m_rect.xMax	= xMin + (NX - 1.) * Cellsize;
+			m_Extent.m_rect.yMax	= yMin + (NY - 1.) * Cellsize;
 
 			m_Extent_Cells	= m_Extent;
 			m_Extent_Cells.Inflate(0.5 * Cellsize, false);
@@ -215,12 +203,12 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 	m_NY			= 0;
 	m_NCells		= 0;
 
-	m_Cellsize		= 0.0;
-	m_Cellarea		= 0.0;
-	m_Diagonal		= 0.0;
+	m_Cellsize		= 0.;
+	m_Cellarea		= 0.;
+	m_Diagonal		= 0.;
 
-	m_Extent		.Assign(0.0, 0.0, 0.0, 0.0);
-	m_Extent_Cells	.Assign(0.0, 0.0, 0.0, 0.0);
+	m_Extent		.Assign(0., 0., 0., 0.);
+	m_Extent_Cells	.Assign(0., 0., 0., 0.);
 
 	return( false );
 }
@@ -228,7 +216,7 @@ bool CSG_Grid_System::Create(double Cellsize, double xMin, double yMin, int NX, 
 //---------------------------------------------------------
 bool CSG_Grid_System::Destroy(void)
 {
-	Create(0.0, 0.0, 0.0, 0, 0);
+	Create(0., 0., 0., 0, 0);
 
 	return( true );
 }
@@ -254,7 +242,7 @@ bool CSG_Grid_System::Assign(double Cellsize, double xMin, double yMin, int NX, 
 //---------------------------------------------------------
 bool CSG_Grid_System::is_Valid(void) const
 {
-	return( m_Cellsize > 0.0 );
+	return( m_Cellsize > 0. );
 }
 
 //---------------------------------------------------------
@@ -291,8 +279,6 @@ const SG_Char * CSG_Grid_System::Get_Name(bool bShort)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -309,8 +295,6 @@ void CSG_Grid_System::operator = (const CSG_Grid_System &System)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -378,7 +362,7 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 	}
 	else
 	{
-		Parameters.Add_Double("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1.0, 0.0, true);
+		Parameters.Add_Double("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1., 0., true);
 	}
 
 	//-----------------------------------------------------
@@ -410,6 +394,8 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 	}
 
 	Parameters("KERNEL_TYPE")->asChoice()->Set_Items(Types);
+
+	Parameters.Set_Enabled("KERNEL_TYPE", Parameters("KERNEL_TYPE")->asChoice()->Get_Count() > 1);
 
 	return( true );
 }
@@ -445,8 +431,8 @@ bool CSG_Grid_Cell_Addressor::Set_Parameters(CSG_Parameters &Parameters, int Typ
 	case SG_GRIDCELLADDR_PARM_SECTOR:
 		return( Set_Sector(
 			Parameters("KERNEL_RADIUS"   )->asDouble(),
-			Parameters("KERNEL_DIRECTION")->asDouble(),
-			Parameters("KERNEL_TOLERANCE")->asDouble()
+			Parameters("KERNEL_DIRECTION")->asDouble() * M_DEG_TO_RAD,
+			Parameters("KERNEL_TOLERANCE")->asDouble() * M_DEG_TO_RAD
 		));
 	}
 
@@ -511,13 +497,13 @@ bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius, bool bSquare)
 	m_Parms[0]	= Radius;
 
 	//-----------------------------------------------------
-	if( Radius > 0.0 )
+	if( Radius > 0. )
 	{
-		ADD_CELL(0.0, 0.0, 0.0);
+		ADD_CELL(0., 0., 0.);
 
-		for(double y=1.0; y<=Radius; y++)
+		for(double y=1.; y<=Radius; y++)
 		{
-			for(double x=0.0; x<=Radius; x++)
+			for(double x=0.; x<=Radius; x++)
 			{
 				double	d	= SG_Get_Length(x, y);
 
@@ -555,14 +541,14 @@ bool CSG_Grid_Cell_Addressor::Set_Annulus(double inner_Radius, double outer_Radi
 	//-----------------------------------------------------
 	if( inner_Radius <= outer_Radius )
 	{
-		if( inner_Radius <= 0.0 )
+		if( inner_Radius <= 0. )
 		{
-			ADD_CELL(0.0, 0.0, 0.0);
+			ADD_CELL(0., 0., 0.);
 		}
 
-		for(double y=1.0; y<=outer_Radius; y++)
+		for(double y=1.; y<=outer_Radius; y++)
 		{
-			for(double x=0.0; x<=outer_Radius; x++)
+			for(double x=0.; x<=outer_Radius; x++)
 			{
 				double	d	= SG_Get_Length(x, y);
 
@@ -599,11 +585,11 @@ bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double
 	m_Parms[3]	= Tolerance;
 
 	//-----------------------------------------------------
-	if( Radius > 0.0 )
+	if( Radius > 0. )
 	{
 		TSG_Point	a, b;
 
-		Direction	= fmod(Direction, M_PI_360); if( Direction < 0.0 ) Direction += M_PI_360;
+		Direction	= fmod(Direction, M_PI_360); if( Direction < 0. ) Direction += M_PI_360;
 
 		if( Direction < M_PI_090 )
 		{
@@ -626,7 +612,7 @@ bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double
 			a.y	= -0.5;	b.y	=  0.5;
 		}
 
-		double	d	= 10.0 * SG_Get_Length(Radius, Radius);
+		double	d	= 10. * SG_Get_Length(Radius, Radius);
 
 		CSG_Shapes	Polygons(SHAPE_TYPE_Polygon);
 		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
@@ -634,13 +620,13 @@ bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double
 		pPolygon->Add_Point(b.x, b.y);
 		pPolygon->Add_Point(a.x, a.y);
 		pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
-		pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction));
+		pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction            ));
 		pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
 
 		//-------------------------------------------------
-		for(double y=1.0; y<=Radius; y++)
+		for(double y=1.; y<=Radius; y++)
 		{
-			for(double x=0.0; x<=Radius; x++)
+			for(double x=0.; x<=Radius; x++)
 			{
 				if( (d = SG_Get_Length(x, y)) <= Radius )
 				{

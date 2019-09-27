@@ -67,12 +67,10 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define NGENERATIONS	3
+#define MAX_GENERATIONS	3
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -108,7 +106,7 @@ public:
 
 protected:
 
-	CSG_Grid				*m_pOnset, *m_pGenerations, *m_pOnsets[NGENERATIONS][2], *m_pBTsums[NGENERATIONS][2];
+	CSG_Grid				*m_pOnset, *m_pGenerations, *m_pOnsets[MAX_GENERATIONS][2], *m_pBTsums[MAX_GENERATIONS][2];
 
 	CSG_Parameter_Grid_List	*m_pATmean, *m_pATmax, *m_pSIrel;
 

@@ -363,10 +363,10 @@ inline bool CSoil_Water_Balance::Get_Weather(int x, int y, int Day, const CSG_Da
 	T	= m_pTavg->Get_Grid(Day)->asDouble(x, y);
 	P	= m_pPsum->Get_Grid(Day)->asDouble(x, y);
 
-	ETpot	= CT_Get_ETpot_Hargreave(Date.Get_DayOfYear(),
-		m_pLat_Grid ? m_pLat_Grid->asDouble(x, y) : m_Lat_const, T,
+	ETpot	= CT_Get_ETpot_Hargreave(T,
 		m_pTmin->Get_Grid(Day)->asDouble(x, y),
-		m_pTmax->Get_Grid(Day)->asDouble(x, y)
+		m_pTmax->Get_Grid(Day)->asDouble(x, y),
+		Date.Get_DayOfYear(), m_pLat_Grid ? m_pLat_Grid->asDouble(x, y) : m_Lat_const
 	);
 
 	return( true );
@@ -419,9 +419,8 @@ bool CSoil_Water_Balance::Set_Day(int x, int y, int Day, const CSG_DateTime &Dat
 		SW[0]	= SWC[0];
 	}
 	else if( SW[0] < 0. )	// evapotranspiration exceeds available water
-	{
-	//	dSW		= SWC[1] > 0. ? (SW[0] > -SW[1] ? SW[0] : -SW[1]) * sqrt(SW[1] / SWC[1]) : 0.;
-		dSW		= SWC[1] > 0. ? SW[0] * pow(SW[1] / SWC[1], m_SWT_Resist[1]) : 0.;	// positive: runoff, negative: loss by evapotranspiration not covered by upper layer, with water loss resistance;
+	{	// positive: runoff, negative: loss by evapotranspiration not covered by upper layer, with water loss resistance;
+		dSW		= SWC[1] > 0. ? SW[0] * pow(SW[1] / SWC[1], m_SWT_Resist[1]) : 0.;
 		SW[0]	= 0.;
 	}
 	else

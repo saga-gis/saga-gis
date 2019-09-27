@@ -114,7 +114,7 @@ CGSGrid_Statistics::CGSGrid_Statistics(void)
 	Parameters.Add_Double("",
 		"PCTL_VAL"	, _TL("Percentile"),
 		_TL(""),
-		50.0, 0.0, true, 100.0, true
+		50., 0., true, 100., true
 	);
 }
 
@@ -218,9 +218,9 @@ bool CGSGrid_Statistics::On_Execute(void)
 				{
 					if( pWeights )
 					{
-						double	w = 0.0;
+						double	w = 0.;
 
-						if( pWeights->Get_Grid(i)->Get_Value(Get_System().Get_Grid_to_World(x, y), w, Resampling) && w > 0.0 )
+						if( pWeights->Get_Grid(i)->Get_Value(Get_System().Get_Grid_to_World(x, y), w, Resampling) && w > 0. )
 						{
 							s.Add_Value(pGrids->Get_Grid(i)->asDouble(x, y), w);
 						}
@@ -259,7 +259,7 @@ bool CGSGrid_Statistics::On_Execute(void)
 				if( pStdDev     )	pStdDev    ->Set_Value(x, y, s.Get_StdDev        ());
 				if( pStdDevLo   )	pStdDevLo  ->Set_Value(x, y, s.Get_Mean() - s.Get_StdDev());
 				if( pStdDevHi   )	pStdDevHi  ->Set_Value(x, y, s.Get_Mean() + s.Get_StdDev());
-				if( pPercentile )	pPercentile->Set_Value(x, y, s.Get_Quantile(dRank));
+				if( pPercentile )	pPercentile->Set_Value(x, y, s.Get_Percentile(dRank));
 			}
 		}
 	}

@@ -121,7 +121,7 @@ public:
 	{
 		double	risk	= 0.;
 
-		for(size_t i=0; m_YD>0 && m_YD_Onset[i]>0 && i<1+2*NGENERATIONS; i++)
+		for(size_t i=0; m_YD>0 && m_YD_Onset[i]>0 && i<1+2*MAX_GENERATIONS; i++)
 		{
 			double	r	= m_YD - m_YD_Onset[i];	// days after onset
 
@@ -159,9 +159,9 @@ private:
 	//-----------------------------------------------------
 	// state variables
 
-	int					m_YD, m_YD_Begin, m_YD_End, m_YD_End_Onset, m_YD_Onset[1 + 2 * NGENERATIONS], m_Brood_State;
+	int					m_YD, m_YD_Begin, m_YD_End, m_YD_End_Onset, m_YD_Onset[1 + 2 * MAX_GENERATIONS], m_Brood_State;
 
-	double				m_ATsum_eff, m_BTsum_eff[NGENERATIONS][2];
+	double				m_ATsum_eff, m_BTsum_eff[MAX_GENERATIONS][2];
 
 
 	void				Add_Filial_BTsum	(size_t Generation, double BTsum)	{	m_BTsum_eff[Generation][0]	+= BTsum;	}
@@ -169,7 +169,7 @@ private:
 
 	void				_Set_BTsum			(size_t Generation, size_t Sister, double BTsum, bool bNorm)
 	{
-		if( Generation < NGENERATIONS )
+		if( Generation < MAX_GENERATIONS )
 		{
 			m_BTsum_eff[Generation][Sister]	= !bNorm ? BTsum : BTsum * m_DDtotal;
 		}
@@ -177,7 +177,7 @@ private:
 
 	double				_Get_BTsum			(size_t Generation, size_t Sister, bool bNorm)	const
 	{
-		double	BTsum	= Generation < NGENERATIONS ? m_BTsum_eff[Generation][Sister] : 0.;
+		double	BTsum	= Generation < MAX_GENERATIONS ? m_BTsum_eff[Generation][Sister] : 0.;
 
 		return( !bNorm ? BTsum : BTsum / m_DDtotal );
 	}
@@ -241,13 +241,13 @@ bool CPhenIps::Create(void)
 
 	m_ATsum_eff		= 0.;
 
-	for(size_t i=0; i<NGENERATIONS; i++)
+	for(size_t i=0; i<MAX_GENERATIONS; i++)
 	{
 		m_BTsum_eff[i][0]	= -1.;
 		m_BTsum_eff[i][1]	= -1.;
 	}
 
-	memset(m_YD_Onset, 0, (1 + 2 * NGENERATIONS) * sizeof(int));
+	memset(m_YD_Onset, 0, (1 + 2 * MAX_GENERATIONS) * sizeof(int));
 
 	return( true );
 }
@@ -278,13 +278,13 @@ bool CPhenIps::Create(const CPhenIps &PhenIps)
 
 	m_ATsum_eff		= PhenIps.m_ATsum_eff;
 
-	for(size_t i=0; i<NGENERATIONS; i++)
+	for(size_t i=0; i<MAX_GENERATIONS; i++)
 	{
 		m_BTsum_eff[i][0]	= PhenIps.m_BTsum_eff[i][0];
 		m_BTsum_eff[i][1]	= PhenIps.m_BTsum_eff[i][1];
 	}
 
-	memcpy(m_YD_Onset, PhenIps.m_YD_Onset, (1 + 2 * NGENERATIONS) * sizeof(int));
+	memcpy(m_YD_Onset, PhenIps.m_YD_Onset, (1 + 2 * MAX_GENERATIONS) * sizeof(int));
 
 	return( true );
 }
@@ -300,13 +300,13 @@ bool CPhenIps::Destroy(void)
 	m_Brood_State	= BROOD_STATE_BEFORE;
 	m_ATsum_eff		= 0.;
 
-	for(size_t i=0; i<NGENERATIONS; i++)
+	for(size_t i=0; i<MAX_GENERATIONS; i++)
 	{
 		m_BTsum_eff[i][0]	= -1.;
 		m_BTsum_eff[i][1]	= -1.;
 	}
 
-	memset(m_YD_Onset, 0, (1 + 2 * NGENERATIONS) * sizeof(int));
+	memset(m_YD_Onset, 0, (1 + 2 * MAX_GENERATIONS) * sizeof(int));
 
 	return( true );
 }
@@ -449,7 +449,7 @@ bool CPhenIps::Add_Day(int DayOfYear, double ATmean, double ATmax, double SIrel,
 		bool	bCanHatch	= ATmax > m_FAminimum && DayLength >= 14.5;
 
 		//-------------------------------------------------
-		for(size_t i=0; i<NGENERATIONS; i++)
+		for(size_t i=0; i<MAX_GENERATIONS; i++)
 		{
 			if( Get_Filial_BTsum(i) < 0. && bCanHatch && (i < 1 || Get_Filial_BTsum(i - 1, true) > 1.) )
 			{
@@ -495,7 +495,7 @@ int CPhenIps::Get_Generations(double minState)	const
 {
 	int	n	= 0;
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		if( Get_Filial_BTsum(i, true) >= minState )	{	n++;	}
 		if( Get_Sister_BTsum(i, true) >= minState )	{	n++;	}
@@ -523,11 +523,11 @@ CPhenIps_Table::CPhenIps_Table(void)
 	ADD_REFERENCES;
 
 	//-----------------------------------------------------
-	Parameters.Add_Table("",   "CLIMATE", _TL("Climate Data"), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Table("",   "WEATHER", _TL("Weather Data"), _TL(""), PARAMETER_INPUT);
 
-	Parameters.Add_Table_Field("CLIMATE", "ATmean", _TL("Mean Temperature"   ), _TL("Degree Celsius"));
-	Parameters.Add_Table_Field("CLIMATE", "ATmax" , _TL("Maximum Temperature"), _TL("Degree Celsius"));
-	Parameters.Add_Table_Field("CLIMATE", "SIrel" , _TL("Solar Irradiation"  ), _TL("Wh/m^2"        ));
+	Parameters.Add_Table_Field("WEATHER", "ATmean", _TL("Mean Temperature"   ), _TL("Degree Celsius"));
+	Parameters.Add_Table_Field("WEATHER", "ATmax" , _TL("Maximum Temperature"), _TL("Degree Celsius"));
+	Parameters.Add_Table_Field("WEATHER", "SIrel" , _TL("Solar Irradiation"  ), _TL("Wh/m^2"        ));
 
 	Parameters.Add_Table("", "PHENOLOGY", _TL("Phenology"), _TL(""), PARAMETER_OUTPUT);
 	Parameters.Add_Table("", "SUMMARY"  , _TL("Summary"  ), _TL(""), PARAMETER_OUTPUT);
@@ -557,15 +557,15 @@ CPhenIps_Table::CPhenIps_Table(void)
 bool CPhenIps_Table::On_Execute(void)
 {
 	//-----------------------------------------------------
-	CSG_Table	&Climate	= *Parameters("CLIMATE")->asTable();
+	CSG_Table	&Weather	= *Parameters("WEATHER")->asTable();
 
 	int	ATmean	= Parameters("ATmean")->asInt();
 	int	ATmax	= Parameters("ATmax" )->asInt();
 	int	SIrel	= Parameters("SIrel" )->asInt();
 
-	if( Climate.Get_Count() < 365 )
+	if( Weather.Get_Count() < 365 )
 	{
-		Error_Set(_TL("There have to be at least 365 climate records, one for each day of the year."));
+		Error_Set(_TL("There have to be at least 365 weather records, one for each day of the year."));
 
 		return( false );
 	}
@@ -581,7 +581,7 @@ bool CPhenIps_Table::On_Execute(void)
 	pPhenology->Add_Field("Risk"     , SG_DATATYPE_Double);
 	pPhenology->Add_Field("Parental" , SG_DATATYPE_Double);
 
-	for(size_t i=0; i<NGENERATIONS; i++)
+	for(size_t i=0; i<MAX_GENERATIONS; i++)
 	{
 		pPhenology->Add_Field(CSG_String::Format("Filial %d", i + 1), SG_DATATYPE_Double);
 		pPhenology->Add_Field(CSG_String::Format("Sister %d", i + 1), SG_DATATYPE_Double);
@@ -594,14 +594,14 @@ bool CPhenIps_Table::On_Execute(void)
 	CPhenIps	PhenIps;	PhenIps.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	for(int iDay=0, Day=1; iDay<Climate.Get_Count() && Set_Progress(iDay, Climate.Get_Count()); iDay++, Day++)
+	for(int iDay=0, Day=1; iDay<Weather.Get_Count() && Set_Progress(iDay, Weather.Get_Count()); iDay++, Day++)
 	{
 		double	DayLength	= SG_Get_Day_Length(Day, Latitude);
 
 		PhenIps.Add_Day(Day,
-			Climate[iDay].asDouble(ATmean),
-			Climate[iDay].asDouble(ATmax ),
-			Climate[iDay].asDouble(SIrel ), DayLength
+			Weather[iDay].asDouble(ATmean),
+			Weather[iDay].asDouble(ATmax ),
+			Weather[iDay].asDouble(SIrel ), DayLength
 		);
 
 		CSG_Table_Record	*pRecord	= pPhenology->Add_Record();
@@ -614,7 +614,7 @@ bool CPhenIps_Table::On_Execute(void)
 
 		pRecord->Set_Value(3, BTsum > 1. ? 1. : BTsum);
 
-		for(size_t i=0, j=4; i<NGENERATIONS; i++, j+=2)
+		for(size_t i=0, j=4; i<MAX_GENERATIONS; i++, j+=2)
 		{
 			pRecord->Set_Value((int)j + 0, (BTsum = PhenIps.Get_Filial_BTsum(i, true)) < 0. ? 0. : BTsum > 1. ? 1. : BTsum);
 			pRecord->Set_Value((int)j + 1, (BTsum = PhenIps.Get_Sister_BTsum(i, true)) < 0. ? 0. : BTsum > 1. ? 1. : BTsum);
@@ -634,7 +634,7 @@ bool CPhenIps_Table::On_Execute(void)
 	ADD_SUMMARY(_TL("Day of Infestion"     ), PhenIps.Get_Parent_Onset());
 	ADD_SUMMARY(_TL("Potential Generations"), PhenIps.Get_Generations(0.6));
 
-	for(size_t i=0; i<NGENERATIONS; i++)
+	for(size_t i=0; i<MAX_GENERATIONS; i++)
 	{
 		ADD_SUMMARY(CSG_String::Format("%d. %s, %s", i + 1, _TL("Filial Generation"), _TL("Onset Day")), PhenIps.Get_Filial_Onset(i      ));
 		ADD_SUMMARY(CSG_String::Format("%d. %s, %s", i + 1, _TL("Filial Generation"), _TL("State"    )), PhenIps.Get_Filial_BTsum(i, true));
@@ -670,13 +670,13 @@ CPhenIps_Grids::CPhenIps_Grids(void)
 	Parameters.Add_Grid("", "GENERATIONS", _TL("Potential Number of Generations"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 	Parameters.Add_Grid("", "ONSET"      , _TL("Onset Day of Infestation"       ), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		Parameters.Add_Grid("", CSG_String::Format("ONSET_FILIAL_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("Onset Day"), i + 1, _TL("Filial Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 		Parameters.Add_Grid("", CSG_String::Format("ONSET_SISTER_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("Onset Day"), i + 1, _TL("Sister Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Short);
 	}
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		Parameters.Add_Grid("", CSG_String::Format("BTSUM_FILIAL_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("State"    ), i + 1, _TL("Filial Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Float);
 		Parameters.Add_Grid("", CSG_String::Format("BTSUM_SISTER_%d", i + 1), CSG_String::Format("%s, %d. %s", _TL("State"    ), i + 1, _TL("Sister Generation")), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Float);
@@ -726,7 +726,7 @@ bool CPhenIps_Grids::Initialize(bool bReset)
 
 	m_pOnset	= Parameters("ONSET")->asGrid(); GRID_RESET(m_pOnset, true);
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		m_pOnsets[i][0]	= Parameters(CSG_String::Format("ONSET_FILIAL_%d", i + 1))->asGrid(); GRID_RESET(m_pOnsets[i][0],  true);
 		m_pBTsums[i][0]	= Parameters(CSG_String::Format("BTSUM_FILIAL_%d", i + 1))->asGrid(); GRID_RESET(m_pBTsums[i][0], false);
@@ -754,11 +754,11 @@ bool CPhenIps_Grids::Initialize(bool bReset)
 
 		pLUT->asTable()->Del_Records();
 
-		CSG_Colors	Colors(2 * NGENERATIONS, SG_COLORS_YELLOW_RED);
+		CSG_Colors	Colors(2 * MAX_GENERATIONS, SG_COLORS_YELLOW_RED);
 
 		ADD_LUT_CLASS(0, SG_GET_RGB(000, 127, 000), _TL("no generation"));
 
-		for(int i=1, j=1; i<=NGENERATIONS; i++, j+=2)
+		for(int i=1, j=1; i<=MAX_GENERATIONS; i++, j+=2)
 		{
 			ADD_LUT_CLASS(j + 0, Colors[j - 1], CSG_String::Format("%s %d"     , _TL("generation"), i                     ));
 			ADD_LUT_CLASS(j + 1, Colors[j - 0], CSG_String::Format("%s %d + %s", _TL("generation"), i, _TL("sister brood")));
@@ -821,7 +821,7 @@ inline bool CPhenIps_Grids::Set_NoData(int x, int y)
 {
 	if( m_pOnset ) m_pOnset->Set_NoData(x, y);
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		if( m_pOnsets[i][0] ) m_pOnsets[i][0]->Set_NoData(x, y);
 		if( m_pOnsets[i][1] ) m_pOnsets[i][1]->Set_NoData(x, y);
@@ -839,7 +839,7 @@ inline bool CPhenIps_Grids::Set_Values(int x, int y, const CPhenIps &PhenIps)
 {
 	if( m_pOnset && m_pOnset->asInt(x, y) < 1 ) m_pOnset->Set_Value(x, y, PhenIps.Get_Parent_Onset());
 
-	for(int i=0; i<NGENERATIONS; i++)
+	for(int i=0; i<MAX_GENERATIONS; i++)
 	{
 		if( m_pOnsets[i][0] && m_pOnsets[i][0]->asInt(x, y) < 1 ) m_pOnsets[i][0]->Set_Value(x, y, PhenIps.Get_Filial_Onset(i));
 		if( m_pOnsets[i][1] && m_pOnsets[i][1]->asInt(x, y) < 1 ) m_pOnsets[i][1]->Set_Value(x, y, PhenIps.Get_Sister_Onset(i));
@@ -1096,7 +1096,7 @@ bool CPhenIps_Grids_Days::On_Execute(void)
 
 				if( m_pOnset->asInt(x, y) > 0 )
 				{
-					for(int i=0; i<NGENERATIONS; i++)
+					for(int i=0; i<MAX_GENERATIONS; i++)
 					{
 						PhenIps.Set_Filial_Onset(i, m_pOnsets[i][0]->asInt   (x, y));
 						PhenIps.Set_Sister_Onset(i, m_pOnsets[i][1]->asInt   (x, y));

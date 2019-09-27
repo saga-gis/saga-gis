@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,18 +50,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <time.h>
 #include <cfloat>
-//---------------------------------------------------------
+
 #include "mat_tools.h"
 
 #include "table.h"
@@ -610,10 +598,10 @@ void CSG_Simple_Statistics::_Evaluate(int Level)
 
 //---------------------------------------------------------
 /**
-  * Skewness after Pearson, i.e. the difference of mean and
-  * median divided by standard deviation.
-  * Remark: Skewness calculation is only possible, if statistics
-  * has been created with the bHoldValues flag set to true.
+* Skewness after Pearson, i.e. the difference of mean and
+* median divided by standard deviation.
+* Remark: Skewness calculation is only possible, if statistics
+* has been created with the bHoldValues flag set to true.
 */
 double CSG_Simple_Statistics::Get_SkewnessPearson(void)
 {
@@ -622,10 +610,10 @@ double CSG_Simple_Statistics::Get_SkewnessPearson(void)
 
 //---------------------------------------------------------
 /**
-  * The quantile is expected to be given as percentage.
-  * A percentage of 50 returns the median. Remark:
-  * Quantile calculation is only possible, if statistics
-  * has been created with the bHoldValues option set to true.
+* Returns the requested quantile (value between 0 and 1).
+* The 0.5 quantile returns the median. Remark:
+* Remark: any quantile calculation is only possible, if statistics
+* has been created with the bHoldValues option set to true.
 */
 double CSG_Simple_Statistics::Get_Quantile(double Quantile)
 {
@@ -646,10 +634,33 @@ double CSG_Simple_Statistics::Get_Quantile(double Quantile)
 
 //---------------------------------------------------------
 /**
-  * The Gini coefficient is a measure of statistical dispersion
-  * intended to represent the income or wealth distribution of 
-  * a nation's residents, and is the most commonly used measure
-  * of inequality.
+* Returns the requested percentile (i.e. the quantile requested as
+* percentage, the 50 percentile is the medium value).
+* Remark: any quantile calculation is only possible, if statistics
+* has been created with the bHoldValues option set to true.
+*/
+double CSG_Simple_Statistics::Get_Percentile(double Percentile)
+{
+	return( Get_Quantile(Percentile / 100.) );
+}
+
+//---------------------------------------------------------
+/**
+* Returns the medium (i.e. thee 50 percentile or 0.5 quantile).
+* Remark: any quantile calculation is only possible, if statistics
+* has been created with the bHoldValues option set to true.
+*/
+double CSG_Simple_Statistics::Get_Median(void)
+{
+	return( Get_Quantile(0.5) );
+}
+
+//---------------------------------------------------------
+/**
+* The Gini coefficient is a measure of statistical dispersion
+* intended to represent the income or wealth distribution of 
+* a nation's residents, and is the most commonly used measure
+* of inequality.
 */
 double CSG_Simple_Statistics::Get_Gini(void)
 {
@@ -677,8 +688,8 @@ double CSG_Simple_Statistics::Get_Gini(void)
 
 //---------------------------------------------------------
 /**
-  * Returns the index of the minimum value in the order values have been added to the statistics.
-  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+* Returns the index of the minimum value in the order values have been added to the statistics.
+* This is only supported for statistics that have been created with the bHoldValues option set to true.
 */
 sLong CSG_Simple_Statistics::Get_IndexOfMinimum(void)
 {
@@ -701,8 +712,8 @@ sLong CSG_Simple_Statistics::Get_IndexOfMinimum(void)
 
 //---------------------------------------------------------
 /**
-  * Returns the index of the maximum value in the order values have been added to the statistics.
-  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+* Returns the index of the maximum value in the order values have been added to the statistics.
+* This is only supported for statistics that have been created with the bHoldValues option set to true.
 */
 sLong CSG_Simple_Statistics::Get_IndexOfMaximum(void)
 {
@@ -725,8 +736,8 @@ sLong CSG_Simple_Statistics::Get_IndexOfMaximum(void)
 
 //---------------------------------------------------------
 /**
-  * Returns the number of values greater than the threshold value.
-  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+* Returns the number of values greater than the threshold value.
+* This is only supported for statistics that have been created with the bHoldValues option set to true.
 */
 sLong CSG_Simple_Statistics::Get_nValues_Above(double Threshold, bool bEquals)
 {
@@ -747,8 +758,8 @@ sLong CSG_Simple_Statistics::Get_nValues_Above(double Threshold, bool bEquals)
 
 //---------------------------------------------------------
 /**
-  * Returns the number of values lower than the threshold value.
-  * This is only supported for statistics that have been created with the bHoldValues option set to true.
+* Returns the number of values lower than the threshold value.
+* This is only supported for statistics that have been created with the bHoldValues option set to true.
 */
 sLong CSG_Simple_Statistics::Get_nValues_Below(double Threshold, bool bEquals)
 {
@@ -1359,7 +1370,7 @@ bool CSG_Histogram::_Update(sLong nElements)
 
 //---------------------------------------------------------
 /**
-  * Returns the correspondend value for the requested quantile.
+* Returns the correspondend value for the requested quantile.
 */
 double CSG_Histogram::Get_Quantile(double Quantile)	const
 {
@@ -1394,7 +1405,7 @@ double CSG_Histogram::Get_Quantile(double Quantile)	const
 
 //---------------------------------------------------------
 /**
-  * Returns the correspondend value for the requested percentile.
+* Returns the correspondend value for the requested percentile.
 */
 double CSG_Histogram::Get_Percentile(double Percentile) const
 {
@@ -1403,7 +1414,7 @@ double CSG_Histogram::Get_Percentile(double Percentile) const
 
 //---------------------------------------------------------
 /**
-  * Returns the correspondend quantile for the requested value.
+* Returns the correspondend quantile for the requested value.
 */
 double CSG_Histogram::Get_Quantile_Value(double Value) const
 {
@@ -1434,7 +1445,7 @@ double CSG_Histogram::Get_Quantile_Value(double Value) const
 
 //---------------------------------------------------------
 /**
-  * Returns the correspondend percentile for the requested value.
+* Returns the correspondend percentile for the requested value.
 */
 double CSG_Histogram::Get_Percentile_Value(double Value) const
 {
@@ -1963,13 +1974,13 @@ bool CSG_Cluster_Analysis::Set_Feature(int iElement, int iFeature, double Value)
 
 //---------------------------------------------------------
 /**
-  * Performs the cluster analysis using the features added prior
-  * to this step. Method is minimum distance (= default), hill
-  * climbing (= 1), or both methods in combination. If nMaxIterations
-  * is set to zero, the analysis is iterated until it converges.
-  * Initilization is done randomely (= default), periodically (= 1),
-  * or skipped (= 2). The latter case allows to start the clustering
-  * with user supplied start partitions.
+* Performs the cluster analysis using the features added prior
+* to this step. Method is minimum distance (= default), hill
+* climbing (= 1), or both methods in combination. If nMaxIterations
+* is set to zero, the analysis is iterated until it converges.
+* Initilization is done randomely (= default), periodically (= 1),
+* or skipped (= 2). The latter case allows to start the clustering
+* with user supplied start partitions.
 */
 //---------------------------------------------------------
 bool CSG_Cluster_Analysis::Execute(int Method, int nClusters, int nMaxIterations, int Initialization)

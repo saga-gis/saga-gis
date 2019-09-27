@@ -46,14 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_record_statistics.h"
 
 
@@ -189,7 +181,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	Quantile	= Parameters("PCTL_VAL")->asDouble();
+	double	Percentile	= Parameters("PCTL_VAL")->asDouble();
 
 	int	offResult	= pTable->Get_Field_Count();
 
@@ -240,7 +232,7 @@ bool CTable_Record_Statistics_Base::On_Execute(void)
 			if( bStats[STATS_NUM  ]	)	pRecord->Set_Value(iField++, s.Get_Count   ());
 			if( bStats[STATS_VAR  ]	)	pRecord->Set_Value(iField++, s.Get_Variance());
 			if( bStats[STATS_STDV ]	)	pRecord->Set_Value(iField++, s.Get_StdDev  ());
-			if( bStats[STATS_PCTL ]	)	pRecord->Set_Value(iField++, s.Get_Quantile(Quantile));
+			if( bStats[STATS_PCTL ]	)	pRecord->Set_Value(iField++, s.Get_Percentile(Percentile));
 		}
 		else
 		{

@@ -202,7 +202,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	int	fGINI		= Parameters("GINI"  )->asBool() ? nFields++ : -1;
 
 	//-----------------------------------------------------
-	CSG_Vector	Quantiles;
+	CSG_Vector	Percentiles;
 
 	{
 		CSG_Strings	Values	= SG_String_Tokenize(Parameters("QUANTILES")->asString(), ";");
@@ -213,14 +213,14 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 
 			if( Values[i].asDouble(Value) && Value >= 0. && Value <= 100. )
 			{
-				Quantiles.Add_Row(Value);
+				Percentiles.Add_Row(Value);
 			}
 		}
 	}
 
-	int	fQUANTILE	= Quantiles.Get_N() > 0 ? nFields : -1;
+	int	fQUANTILE	= Percentiles.Get_N() > 0 ? nFields : -1;
 
-	nFields	+= Quantiles.Get_N();
+	nFields	+= Percentiles.Get_N();
 
 	//-----------------------------------------------------
 	if( nFields == 0 )
@@ -261,8 +261,8 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 	{
 		Process_Set_Text("[%d/%d] %s", 1 + iGrid, pGrids->Get_Grid_Count(), pGrids->Get_Grid(iGrid)->Get_Name());
 
-		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantiles.Get_N() > 0 || fGINI > 0, Index        ))
-		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Quantiles.Get_N() > 0 || fGINI > 0, bParallelized)) )
+		if( (Method == 0 && Get_Simple (pGrids->Get_Grid(iGrid), pPolygons, Statistics, Percentiles.Get_N() > 0 || fGINI > 0, Index        ))
+		||  (Method != 0 && Get_Precise(pGrids->Get_Grid(iGrid), pPolygons, Statistics, Percentiles.Get_N() > 0 || fGINI > 0, bParallelized)) )
 		{
 			nFields	= pPolygons->Get_Field_Count();
 
@@ -277,9 +277,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 			if (fGINI     >= 0 )	pPolygons->Add_Field(GET_FIELD_NAME(_TL("GINI"    )), SG_DATATYPE_Double);
 			if( fQUANTILE >= 0 )
 			{
-				for(int iQuantile=0; iQuantile<Quantiles.Get_N(); iQuantile++)
+				for(int iPercentile=0; iPercentile<Percentiles.Get_N(); iPercentile++)
 				{
-					pPolygons->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", (int)Quantiles[iQuantile]).c_str()), SG_DATATYPE_Double);
+					pPolygons->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", (int)Percentiles[iPercentile]).c_str()), SG_DATATYPE_Double);
 				}
 			}
 
@@ -301,7 +301,7 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fGINI     >= 0 )	pPolygon->Set_NoData(nFields + fGINI  );
 					if( fQUANTILE >= 0 )
 					{
-						for(int iQuantile=0, iField=nFields + fQUANTILE; iQuantile<Quantiles.Get_N(); iQuantile++, iField++)
+						for(int iPercentile=0, iField=nFields + fQUANTILE; iPercentile<Percentiles.Get_N(); iPercentile++, iField++)
 						{
 							pPolygon->Set_NoData(iField);
 						}
@@ -320,9 +320,9 @@ bool CGrid_Statistics_AddTo_Polygon::On_Execute(void)
 					if( fGINI     >= 0 )	pPolygon->Set_Value(nFields + fGINI  , Statistics[i].Get_Gini    ());
 					if( fQUANTILE >= 0 )
 					{
-						for(int iQuantile=0, iField=nFields + fQUANTILE; iQuantile<Quantiles.Get_N(); iQuantile++, iField++)
+						for(int iPercentile=0, iField=nFields + fQUANTILE; iPercentile<Percentiles.Get_N(); iPercentile++, iField++)
 						{
-							pPolygon->Set_Value(iField, Statistics[i].Get_Quantile(Quantiles[iQuantile]));
+							pPolygon->Set_Value(iField, Statistics[i].Get_Percentile(Percentiles[iPercentile]));
 						}
 					}
 				}

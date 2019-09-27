@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Statistics_For_Points.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Statistics_For_Points.h"
 
 
@@ -80,60 +68,60 @@ CGrid_Statistics_For_Points::CGrid_Statistics_For_Points(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"			, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"		, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "KERNEL_TYPE"	, _TL("Kernel Type"),
+	Parameters.Add_Choice("",
+		"KERNEL_TYPE"	, _TL("Kernel Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("square"),
 			_TL("circle")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "KERNEL_SIZE"	, _TL("Kernel Size"),
+	Parameters.Add_Int("",
+		"KERNEL_SIZE"	, _TL("Kernel Size"),
 		_TL("kernel size defined as radius number of cells"),
-		PARAMETER_TYPE_Int, 1, 1, true
+		1, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "NAMING"		, _TL("Field Naming"),
+	Parameters.Add_Choice("",
+		"NAMING"		, _TL("Field Naming"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("grid number"),
 			_TL("grid name")
 		), 1
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Shapes(
-		NULL	, "RESULT"		, _TL("Statistics"),
+	Parameters.Add_Shapes("",
+		"RESULT"		, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Value(pNode, "COUNT"   , _TL("Number of Cells"   ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MIN"     , _TL("Minimum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MAX"     , _TL("Maximum"           ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "RANGE"   , _TL("Range"             ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "SUM"     , _TL("Sum"               ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "MEAN"    , _TL("Mean"              ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "VAR"     , _TL("Variance"          ), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "STDDEV"  , _TL("Standard Deviation"), _TL(""), PARAMETER_TYPE_Bool, true);
-	Parameters.Add_Value(pNode, "QUANTILE", _TL("Quantile"          ), 
-		_TL("Calculate distribution quantiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit quantile calculation."),
-		PARAMETER_TYPE_Int, 0, 0, true, 50, true
+	Parameters.Add_Bool("RESULT", "COUNT"   , _TL("Number of Cells"   ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MIN"     , _TL("Minimum"           ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MAX"     , _TL("Maximum"           ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "RANGE"   , _TL("Range"             ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "SUM"     , _TL("Sum"               ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "MEAN"    , _TL("Mean"              ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "VAR"     , _TL("Variance"          ), _TL(""), true);
+	Parameters.Add_Bool("RESULT", "STDDEV"  , _TL("Standard Deviation"), _TL(""), true);
+	Parameters.Add_Int ("RESULT", "QUANTILE", _TL("Percentile"        ), 
+		_TL("Calculate distribution percentiles. Value specifies interval (median=50, quartiles=25, deciles=10, ...). Set to zero to omit percentile calculation."),
+		0, 0, true, 50, true
 	);
 }
 
@@ -233,7 +221,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 			{
 				for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile)
 				{
-					pPoints->Add_Field(GET_FIELD_NAME(CSG_String::Format(SG_T("Q%02d"), iQuantile).c_str()), SG_DATATYPE_Double);
+					pPoints->Add_Field(GET_FIELD_NAME(CSG_String::Format("Q%02d", iQuantile).c_str()), SG_DATATYPE_Double);
 
 					if( iGrid == 0 && iQuantile > Quantile )
 					{
@@ -287,7 +275,7 @@ bool CGrid_Statistics_For_Points::On_Execute(void)
 				{
 					for(int iQuantile=Quantile; iQuantile<100; iQuantile+=Quantile, iField++)
 					{
-						pPoint->Set_Value(iField + fQUANTILE, Statistics.Get_Quantile(iQuantile));
+						pPoint->Set_Value(iField + fQUANTILE, Statistics.Get_Percentile(iQuantile));
 					}
 				}
 			}

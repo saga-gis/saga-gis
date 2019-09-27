@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "snow_cover.h"
 
 
@@ -103,14 +94,14 @@ CSnow_Cover::CSnow_Cover(void)
 	//-----------------------------------------------------
 	Parameters.Add_Double("QUANTILE",
 		"QUANT_VAL"	, _TL("Value"),
-		_TL(""),
+		_TL("Quantile specified as percentage."),
 		50.0, 0.0, true, 100.0, true
 	);
 
 	Parameters.Add_Choice("",
 		"TIME"		, _TL("Time"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 			_TL("Year"),
 			_TL("January - March"),
 			_TL("April - June"),
@@ -123,7 +114,7 @@ CSnow_Cover::CSnow_Cover(void)
 	Parameters.Add_Choice("TIME",
 		"MONTH"		, _TL("Month"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("January"),
 			_TL("February"),
 			_TL("March"),
@@ -200,7 +191,7 @@ bool CSnow_Cover::On_Execute(void)
 	DataObject_Set_Colors(pMaximum , Colors);
 	DataObject_Set_Colors(pQuantile, Colors);
 
-	double	Quantile	= Parameters("QUANT_VAL")->asDouble();
+	double	Percentile	= Parameters("QUANT_VAL")->asDouble();
 
 	//-----------------------------------------------------
 	const int Month[]	= {
@@ -260,7 +251,7 @@ bool CSnow_Cover::On_Execute(void)
 			{
 				SG_GRID_PTR_SAFE_SET_VALUE(pMean    , x, y, Statistics.Get_Mean    ());
 				SG_GRID_PTR_SAFE_SET_VALUE(pMaximum , x, y, Statistics.Get_Maximum ());
-				SG_GRID_PTR_SAFE_SET_VALUE(pQuantile, x, y, Statistics.Get_Quantile(Quantile));
+				SG_GRID_PTR_SAFE_SET_VALUE(pQuantile, x, y, Statistics.Get_Percentile(Percentile));
 			}
 			else
 			{
