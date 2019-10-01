@@ -93,28 +93,28 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 	Set_Author		("V.Wichmann & O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
-		"Regions with valid data in the input grid can be shrunk or expanded by a certain amount (radius). "
-		"Shrinking just sets the border of regions with valid data to NoData, expanding sets NoData "
-		"cells along the border of regions with valid data to a new valid value, computed by the method "
-		"selected (min, max, mean, majority)."
+		"The tool allows one to shrink or expand regions with valid data by a certain distance (defined by the kernel radius). "
+		"Shrinking just invalidates cells with valid data at the border to No Data regions, expanding sets No Data "
+		"cells along the border of regions with valid data to a new valid value. The tool provides several options "
+		"how to calculate this new value: minimum, maximum, mean or majority of the valid cells within the kernel.\n\n"
 	));
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
 		"", "INPUT"		, _TL("Grid"),
-		_TL(""),
+		_TL("The input grid."),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
 		"", "RESULT"	, _TL("Result Grid"),
-		_TL(""),
+		_TL("The output grid."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
 		"", "OPERATION"	, _TL("Operation"),
-		_TL(""),
+		_TL("Choose the type of operation."),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("shrink"),
 			_TL("expand"),
@@ -125,7 +125,7 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 
 	Parameters.Add_Choice(
 		"", "CIRCLE"	, _TL("Search Mode"),
-		_TL(""),
+		_TL("Choose the shape of the kernel."),
 		CSG_String::Format("%s|%s",
 			_TL("Square"),
 			_TL("Circle")
@@ -134,13 +134,13 @@ CGrid_Shrink_Expand::CGrid_Shrink_Expand(void)
 
 	Parameters.Add_Int(
 		"", "RADIUS"	, _TL("Radius"),
-		_TL(""),
+		_TL("The kernel radius [cells]."),
 		1, 1, true
 	);
 
 	Parameters.Add_Choice(
 		"", "EXPAND"	, _TL("Method"),
-		_TL(""),
+		_TL("Choose how to fill No Data cells."),
 		CSG_String::Format("%s|%s|%s|%s",
 			_TL("minimum"),
 			_TL("maximum"),
