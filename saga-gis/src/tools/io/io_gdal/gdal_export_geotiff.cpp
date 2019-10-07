@@ -125,19 +125,19 @@ int CGDAL_Export_GeoTIFF::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CGDAL_Export_GeoTIFF::On_Execute(void)
 {
-	CSG_String				File_Name, Options;
-	CSG_Projection			Projection;
-	CSG_Parameter_Grid_List	*pGrids;
-	CSG_GDAL_DataSet		DataSet;
+	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-	//-----------------------------------------------------
-	pGrids		= Parameters("GRIDS"  )->asGridList();
-	File_Name	= Parameters("FILE"   )->asString();
-	Options		= Parameters("OPTIONS")->asString();
-	Get_Projection(Projection);
+	if( pGrids->Get_Grid_Count() < 1 )
+	{
+		return( false );
+	}
 
-	//-----------------------------------------------------
-	if( !DataSet.Open_Write(File_Name, "GTiff", Options, SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), Get_System(), Projection) )
+	CSG_Projection	Projection;	Get_Projection(Projection);
+
+	CSG_GDAL_DataSet	DataSet;
+
+	if( !DataSet.Open_Write(Parameters("FILE")->asString(), "GTiff", Parameters("OPTIONS")->asString(),
+		SG_Get_Grid_Type(pGrids), pGrids->Get_Grid_Count(), Get_System(), Projection) )
 	{
 		return( false );
 	}
@@ -150,12 +150,8 @@ bool CGDAL_Export_GeoTIFF::On_Execute(void)
 		DataSet.Write(i, pGrids->Get_Grid(i));
 	}
 
-	if( !DataSet.Close() )
-	{
-		return( false );
-	}
-
-	return( true );
+	//-----------------------------------------------------
+	return( DataSet.Close() );
 }
 
 

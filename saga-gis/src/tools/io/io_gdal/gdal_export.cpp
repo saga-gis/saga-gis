@@ -131,7 +131,7 @@ CGDAL_Export::CGDAL_Export(void)
 	Parameters.Add_Choice("",
 		"TYPE"		, _TL("Data Type"),
 		_TL("The GDAL datatype of the created dataset."),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("match input data"),
 			_TL("8 bit unsigned integer"),
 			_TL("16 bit unsigned integer"),
@@ -192,15 +192,14 @@ bool CGDAL_Export::On_Execute(void)
 
 	switch( Parameters("TYPE")->asInt() )
 	{
-	default:
-	case 0:	Type	= SG_Get_Grid_Type(pGrids);	break;	// match input data
-	case 1:	Type	= SG_DATATYPE_Byte        ;	break;	// Eight bit unsigned integer
-	case 2:	Type	= SG_DATATYPE_Word        ;	break;	// Sixteen bit unsigned integer
-	case 3:	Type	= SG_DATATYPE_Short       ;	break;	// Sixteen bit signed integer
-	case 4:	Type	= SG_DATATYPE_DWord       ;	break;	// Thirty two bit unsigned integer
-	case 5:	Type	= SG_DATATYPE_Int         ;	break;	// Thirty two bit signed integer
-	case 6:	Type	= SG_DATATYPE_Float       ;	break;	// Thirty two bit floating point
-	case 7:	Type	= SG_DATATYPE_Double      ;	break;	// Sixty four bit floating point
+	default: Type = SG_Get_Grid_Type(pGrids); break;	// match input data
+	case  1: Type = SG_DATATYPE_Byte        ; break;	// Eight bit unsigned integer
+	case  2: Type = SG_DATATYPE_Word        ; break;	// Sixteen bit unsigned integer
+	case  3: Type = SG_DATATYPE_Short       ; break;	// Sixteen bit signed integer
+	case  4: Type = SG_DATATYPE_DWord       ; break;	// Thirty two bit unsigned integer
+	case  5: Type = SG_DATATYPE_Int         ; break;	// Thirty two bit signed integer
+	case  6: Type = SG_DATATYPE_Float       ; break;	// Thirty two bit floating point
+	case  7: Type = SG_DATATYPE_Double      ; break;	// Sixty four bit floating point
 	}
 
 	//-----------------------------------------------------
@@ -229,7 +228,7 @@ bool CGDAL_Export::On_Execute(void)
 	{
 		Process_Set_Text("%s %d", _TL("Band"), i + 1);
 
-		if ( Parameters("SET_NODATA")->asBool() )
+		if( Parameters("SET_NODATA")->asBool() )
 		{
 			DataSet.Write(i, pGrids->Get_Grid(i), Parameters("NODATA")->asDouble());
 		}

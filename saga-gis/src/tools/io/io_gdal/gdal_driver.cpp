@@ -469,31 +469,11 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	Close();
 
 	//--------------------------------------------------------
-	char	**pOptions	= NULL;
-	
-	if( !Options.is_Empty() )
-	{
-		char	**pTokens	= CSLTokenizeString2(Options, " ", CSLT_STRIPLEADSPACES);
-	  
-		for(int i=0; pTokens && pTokens[i]; i++)
-		{
-			pOptions	= CSLAddString(pOptions, pTokens[i]);
-		}
-	}
-
-	//--------------------------------------------------------
 	GDALDriverH	pDriver;
 
 	if( (pDriver = gSG_GDAL_Drivers.Get_Driver(Driver)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("driver not found."), Driver.c_str()));
-
-		return( false );
-	}
-
-	if( !GDALValidateCreationOptions(pDriver, pOptions) )
-	{
-		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("Creation option(s) not supported by the driver"), Options.c_str()));
 
 		return( false );
 	}
@@ -505,12 +485,28 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 		return( false );
 	}
 
+	//--------------------------------------------------------
+	char	**pOptions	= Options.is_Empty() ? NULL : CSLTokenizeString2(Options, " ", CSLT_STRIPLEADSPACES);
+
+	if( !GDALValidateCreationOptions(pDriver, pOptions) )
+	{
+		SG_UI_Msg_Add_Error(CSG_String::Format("%s: %s", _TL("Creation option(s) not supported by the driver"), Options.c_str()));
+
+		CSLDestroy(pOptions);
+
+		return( false );
+	}
+
 	if( (m_pDataSet = GDALCreate(pDriver, File_Name, System.Get_NX(), System.Get_NY(), NBands, (GDALDataType)gSG_GDAL_Drivers.Get_GDAL_Type(Type), pOptions)) == NULL )
 	{
 		SG_UI_Msg_Add_Error(_TL("Could not create dataset."));
 
+		CSLDestroy(pOptions);
+
 		return( false );
 	}
+
+	CSLDestroy(pOptions);
 
 	//--------------------------------------------------------
 	m_File_Name	= File_Name;
