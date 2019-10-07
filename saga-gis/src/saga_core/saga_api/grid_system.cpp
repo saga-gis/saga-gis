@@ -405,7 +405,7 @@ bool CSG_Grid_Cell_Addressor::Set_Parameters(CSG_Parameters &Parameters, int Typ
 {
 	if( Type == 0 && Parameters("KERNEL_TYPE") )
 	{
-		Type	= Parameters("KERNEL_TYPE")->asChoice()->Get_Item_Data(Parameters("KERNEL_TYPE")->asInt()).asInt();
+		Parameters("KERNEL_TYPE")->asChoice()->Get_Data(Type);
 	}
 
 	switch( Type )
