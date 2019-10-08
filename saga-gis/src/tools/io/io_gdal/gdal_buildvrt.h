@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    gdal_buildvrt.h                    //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                        Author                         //
+//                 Copyright (C) 2019 by                 //
+//                    Volker Wichmann                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,123 +36,56 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     wichmann@laserdata                     //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street 7                        //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Volker Wichmann                        //
+//                LASERDATA GmbH                         //
+//                Innsbruck, Austria                     //
 //                                                       //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#ifndef HEADER_INCLUDED__gdal_buildvrt_H
+#define HEADER_INCLUDED__gdal_buildvrt_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//           The Tool Link Library Interface             //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#include "MLB_Interface.h"
 
+//---------------------------------------------------------
+#ifdef GDAL_V2_1_OR_NEWER
+
+#include <cpl_string.h>
+#include <gdal_utils.h>
 #include "gdal_driver.h"
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CGDAL_BuildVRT : public CSG_Tool
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("GDAL/OGR") );
+public:
+	CGDAL_BuildVRT(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case TLB_INFO_Author:
-		return( _TL("SAGA User Group Associaton (c) 2008-19" ));
-
-	case TLB_INFO_Description:
-		return( CSG_String::Format(SG_T("%s\n%s %s\n%s: %s"),
-			_TL("Interface to Frank Warmerdam's Geospatial Data Abstraction Library (GDAL)."),
-			_TL("Version"), SG_Get_GDAL_Drivers().Get_Version().c_str(),
-			_TL("Homepage"), SG_T("<a target=\"_blank\" href=\"http://www.gdal.org/\">www.gdal.org</a>\n")
-		));
-
-	case TLB_INFO_Version:
-		return( SG_T("2.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File") );
-	}
-}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid") );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "gdal_import.h"
-#include "gdal_export.h"
-#include "gdal_export_geotiff.h"
-#include "gdal_import_netcdf.h"
-#include "gdal_import_wms.h"
-#include "gdal_import_aster.h"
-#include "gdal_catalogue.h"
+	virtual bool				On_Execute				(void);
 
-#ifdef GDAL_V2_1_OR_NEWER
-#include "gdal_buildvrt.h"
-#endif
-
-#include "ogr_import.h"
-#include "ogr_export.h"
-#include "ogr_export_kml.h"
-
-#include "gdal_formats.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-
-	case  0:	return( new CGDAL_Import );
-	case  1:	return( new CGDAL_Export );
-	case  2:	return( new CGDAL_Export_GeoTIFF );
-
-	case  7:	return( new CGDAL_Catalogue );
-	case  8:	return( new CGDAL_Catalogues );
-
-	case  3:	return( new COGR_Import );
-	case  4:	return( new COGR_Export );
-
-	case  5:	return( new COGR_Export_KML );
-
-	case  6:	return( SG_Get_GDAL_Drivers().Get_Driver("netCDF") ? new CGDAL_Import_NetCDF : TLB_INTERFACE_SKIP_TOOL );
-
-	case  9:	return( new CGDAL_Import_WMS );
-	case 11:	return( new CGDAL_Import_ASTER );
-
-	#ifdef USE_GDAL_V2
-	case 12:	return( new CGDAL_BuildVRT );
-	#endif
-	
-	case 10:	return( new CGDAL_Formats );
-
-
-	//-----------------------------------------------------
-	case 13:	// initializations
-
-		CPLSetErrorHandler(CPLQuietErrorHandler);
-
-		return( NULL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -162,8 +95,7 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#endif // GDAL_V2_1_OR_NEWER
 
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__gdal_buildvrt_H
