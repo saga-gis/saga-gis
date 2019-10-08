@@ -1068,55 +1068,49 @@ public:
 
 	bool						Destroy				(void);
 
-	static bool					Add_Parameters		(class CSG_Parameters &Parameters, const SG_Char *Parent = NULL, int Style = SG_GRIDCELLADDR_PARM_DEFAULT);
+	static bool					Enable_Parameters	(class CSG_Parameters &Parameters);
+	static bool					Add_Parameters		(class CSG_Parameters &Parameters, const CSG_String &Parent = "", int Style = SG_GRIDCELLADDR_PARM_DEFAULT);
 	bool						Set_Parameters		(class CSG_Parameters &Parameters, int Type = 0);
+
 	bool						Set_Square			(class CSG_Parameters &Parameters);
 	bool						Set_Circle			(class CSG_Parameters &Parameters);
 	bool						Set_Annulus			(class CSG_Parameters &Parameters);
 	bool						Set_Sector			(class CSG_Parameters &Parameters);
-	static bool					Enable_Parameters	(class CSG_Parameters &Parameters);
 
 	CSG_Distance_Weighting &	Get_Weighting		(void)			{	return( m_Weighting );		}
 
-	bool						is_Square			(void)	const	{	return( m_Type == 1 );	}
+	bool						is_Square			(void)	const	{	return( m_Type == 0 );	}
+	bool						is_Circle			(void)	const	{	return( m_Type == 1 );	}
 	bool						is_Annulus			(void)	const	{	return( m_Type == 2 );	}
 	bool						is_Sector			(void)	const	{	return( m_Type == 3 );	}
 
 	bool						Set_Radius			(double Radius, bool bSquare = false);
-	bool						Set_Annulus			(double inner_Radius, double outer_Radius);
+	bool						Set_Square			(double Radius);
+	bool						Set_Circle			(double Radius);
+	bool						Set_Annulus			(double Radius_Inner, double Radius_Outer);
 	bool						Set_Sector			(double Radius, double Direction, double Tolerance);
 
-	double						Get_Radius			(bool bOuter = true)		const	{	return( m_Parms[bOuter ? 0 : 1] );	}
-	double						Get_Direction		(void)						const	{	return( m_Parms[2] );	}
-	double						Get_Tolerance		(void)						const	{	return( m_Parms[3] );	}
+	double						Get_Radius			(bool bOuter = true)		const	{	return( bOuter ? m_Radius : m_Radius_0 );	}
+	double						Get_Radius_Inner	(void)						const	{	return( m_Radius_0  );	}
+	double						Get_Radius_Outer	(void)						const	{	return( m_Radius    );	}
+	double						Get_Direction		(void)						const	{	return( m_Direction );	}
+	double						Get_Tolerance		(void)						const	{	return( m_Tolerance );	}
 
-	int							Get_Count			(void)	const						{	return( m_Cells.Get_Count() );	}
-
-	int							Get_X				(int Index, int Offset = 0)	const	{	return( Offset + (Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asInt(0) : 0) );	}
-	int							Get_Y				(int Index, int Offset = 0)	const	{	return( Offset + (Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asInt(1) : 0) );	}
-
-	double						Get_Distance		(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(2) : -1.0 );	}
-	double						Get_Weight			(int Index)	const					{	return( Index >= 0 && Index < Get_Count() ? m_Cells.Get_Record_byIndex(Index)->asDouble(3) :  0.0 );	}
-
+	int							Get_Count			(void)						const	{	return( m_Kernel.Get_Count() );	}
+	int							Get_X				(int Index, int Offset = 0)	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asInt   (0) + Offset : Offset );	}
+	int							Get_Y				(int Index, int Offset = 0)	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asInt   (1) + Offset : Offset );	}
+	double						Get_Distance		(int Index                )	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asDouble(2)          : -1.    );	}
+	double						Get_Weight			(int Index                )	const	{	return( Index >= 0 && Index < m_Kernel.Get_Count() ? m_Kernel[Index].asDouble(3)          :  0.    );	}
 	bool						Get_Values			(int Index, int &x, int &y, double &Distance, double &Weight, bool bOffset = false)	const
 	{
-		if( Index >= 0 && Index < Get_Count() )
+		if( Index >= 0 && Index < m_Kernel.Get_Count() )
 		{
-			CSG_Table_Record	*pCell	= m_Cells.Get_Record_byIndex(Index);
+			CSG_Table_Record	&Cell	= m_Kernel[Index];
 
-			if( bOffset )
-			{
-				x	+= pCell->asInt(0);
-				y	+= pCell->asInt(1);
-			}
-			else
-			{
-				x	 = pCell->asInt(0);
-				y	 = pCell->asInt(1);
-			}
-
-			Distance	= pCell->asDouble(2);
-			Weight		= pCell->asDouble(3);
+			x			= bOffset ? x + Cell.asInt(0) : Cell.asInt(0);
+			y			= bOffset ? y + Cell.asInt(1) : Cell.asInt(1);
+			Distance	= Cell.asDouble(2);
+			Weight		= Cell.asDouble(3);
 
 			return( true );
 		}
@@ -1129,11 +1123,14 @@ private:
 
 	int							m_Type;
 
-	double						m_Parms[4];
+	double						m_Radius, m_Radius_0, m_Direction, m_Tolerance;
 
 	CSG_Distance_Weighting		m_Weighting;
 
-	CSG_Table					m_Cells;
+	CSG_Table					m_Kernel;
+
+
+	bool						_Set_Kernel			(int Type, double Radius, double Radius_Inner, double Direction, double Tolerance);
 
 };
 

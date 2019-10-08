@@ -325,16 +325,21 @@ bool CSG_Grid_System::is_Equal(double Cellsize, const TSG_Rect &Extent) const
 //---------------------------------------------------------
 CSG_Grid_Cell_Addressor::CSG_Grid_Cell_Addressor(void)
 {
-	m_Cells.Add_Field("X", SG_DATATYPE_Int   );
-	m_Cells.Add_Field("Y", SG_DATATYPE_Int   );
-	m_Cells.Add_Field("D", SG_DATATYPE_Double);
-	m_Cells.Add_Field("W", SG_DATATYPE_Double);
+	m_Kernel.Add_Field("X", SG_DATATYPE_Int   );
+	m_Kernel.Add_Field("Y", SG_DATATYPE_Int   );
+	m_Kernel.Add_Field("D", SG_DATATYPE_Double);
+	m_Kernel.Add_Field("W", SG_DATATYPE_Double);
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Destroy(void)
 {
-	m_Cells.Del_Records();
+	m_Kernel.Del_Records();
+
+	m_Radius	= 1.;
+	m_Radius_0	= 0.;
+	m_Direction	= 0.;
+	m_Tolerance	= 0.;
 
 	return( true );
 }
@@ -345,11 +350,11 @@ bool CSG_Grid_Cell_Addressor::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const SG_Char *Parent, int Style)
+bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const CSG_String &Parent, int Style)
 {
-	Parameters.Add_Choice("", "KERNEL_TYPE", _TL("Kernel Type"),
-		_TL("The shape of the filter kernel."),
-		"0|1|", 1
+	Parameters.Add_Choice(Parent, "KERNEL_TYPE", _TL("Kernel Type"),
+		_TL("The kernel's shape."),
+		"0|1", 1
 	);
 
 	CSG_String	Unit	= (Style & SG_GRIDCELLADDR_PARM_MAPUNIT) == 0
@@ -358,11 +363,11 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 
 	if( (Style & SG_GRIDCELLADDR_PARM_SIZEDBL) == 0 )
 	{
-		Parameters.Add_Int   ("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2  , 1  , true);
+		Parameters.Add_Int   (Parent, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2 , 1 , true);
 	}
 	else
 	{
-		Parameters.Add_Double("", "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1., 0., true);
+		Parameters.Add_Double(Parent, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1., 0., true);
 	}
 
 	//-----------------------------------------------------
@@ -370,12 +375,12 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 
 	if( (Style & SG_GRIDCELLADDR_PARM_SQUARE) != 0 )
 	{
-		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SQUARE , _TL("Square"));
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SQUARE , _TL("Square" ));
 	}
 
 	if( (Style & SG_GRIDCELLADDR_PARM_CIRCLE) != 0 )
 	{
-		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_CIRCLE , _TL("Circle"));
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_CIRCLE , _TL("Circle" ));
 	}
 
 	if( (Style & SG_GRIDCELLADDR_PARM_ANNULUS) != 0 )
@@ -387,10 +392,10 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const S
 
 	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR) != 0 )
 	{
-		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SECTOR , _TL("Sector"));
+		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SECTOR , _TL("Sector" ));
 
-		Parameters.Add_Double("", "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
-		Parameters.Add_Double("", "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
+		Parameters.Add_Double(Parent, "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
+		Parameters.Add_Double(Parent, "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
 	}
 
 	Parameters("KERNEL_TYPE")->asChoice()->Set_Items(Types);
@@ -480,174 +485,129 @@ bool CSG_Grid_Cell_Addressor::Enable_Parameters(CSG_Parameters &Parameters)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define	ADD_CELL(x, y, d)	{\
-	CSG_Table_Record	*pRecord	= m_Cells.Add_Record();\
-	pRecord->Set_Value(0, x);\
-	pRecord->Set_Value(1, y);\
-	pRecord->Set_Value(2, d);\
-	pRecord->Set_Value(3, m_Weighting.Get_Weight(d));\
+bool CSG_Grid_Cell_Addressor::_Set_Kernel(int Type, double Radius, double Radius_Inner, double Direction, double Tolerance)
+{
+	Destroy();
+
+	m_Type		= Type;
+	m_Radius	= Radius;
+	m_Radius_0	= Radius_Inner;
+	m_Direction	= fmod(Direction, M_PI_360); if( Direction < 0. ) Direction += M_PI_360;
+	m_Tolerance	= fmod(Tolerance, M_PI_180); if( Tolerance < 0. ) Tolerance += M_PI_180;
+
+	if( m_Radius < 0. || m_Radius < m_Radius_0 )
+	{
+		return( false );
+	}
+
+	double	Sector[2];
+
+	if( m_Type == 3 )	// sector
+	{
+		Sector[0]	= fmod(Direction - Tolerance, M_PI_360); if( Sector[0] < 0. ) Sector[0] += M_PI_360;
+		Sector[1]	= fmod(Direction + Tolerance, M_PI_360); if( Sector[1] < 0. ) Sector[1] += M_PI_360;
+	}
+
+	//-----------------------------------------------------
+	#define	ADD_CELL(x, y, Distance)	{\
+		CSG_Table_Record	&Cell	= *Kernel.Add_Record();\
+		Cell.Set_Value(0, x);\
+		Cell.Set_Value(1, y);\
+		Cell.Set_Value(2, Distance);\
+		Cell.Set_Value(3, m_Weighting.Get_Weight(d));\
+	}
+
+	CSG_Table	Kernel(&m_Kernel);
+
+	int	Size	= (int)ceil(m_Radius);
+
+	//-----------------------------------------------------
+	for(int y=-Size; y<=Size; y++)
+	{
+		if( abs(y) > m_Radius )
+			continue;
+
+		for(int x=-Size; x<=Size; x++)
+		{
+			if( abs(x) > m_Radius )
+				continue;
+
+			double	d	= SG_Get_Length(x, y);
+
+			switch( m_Type )
+			{
+			default:	// square
+				ADD_CELL(x, y, d);
+				break;
+
+			case  1:	// circle
+				if( d <= m_Radius )
+				{
+					ADD_CELL(x, y, d);
+				}
+				break;
+
+			case  2:	// annulus
+				if( d <= m_Radius && d >= m_Radius_0 )
+				{
+					ADD_CELL(x, y, d);
+				}
+				break;
+
+			case  3:	// sector
+				if( d <= m_Radius && d >= m_Radius_0 && ((x == 0 && y == 0) || SG_is_Angle_Between(SG_Get_Angle_Of_Direction(x, y), Sector[0], Sector[1], false)) )
+				{
+					ADD_CELL(x, y, d);
+				}
+				break;
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Kernel.Get_Count() < 1 )
+	{
+		return( false );
+	}
+
+	Kernel.Set_Index(2, TABLE_INDEX_Ascending);
+
+	for(int i=0; i<Kernel.Get_Count(); i++)
+	{
+		m_Kernel.Add_Record(Kernel.Get_Record_byIndex(i));
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Set_Radius(double Radius, bool bSquare)
 {
-	Destroy();
-
-	m_Type		= bSquare ? 1 : 0;
-	m_Parms[0]	= Radius;
-
-	//-----------------------------------------------------
-	if( Radius > 0. )
-	{
-		ADD_CELL(0., 0., 0.);
-
-		for(double y=1.; y<=Radius; y++)
-		{
-			for(double x=0.; x<=Radius; x++)
-			{
-				double	d	= SG_Get_Length(x, y);
-
-				if( bSquare || d <= Radius )
-				{
-					ADD_CELL( x,  y, d);
-					ADD_CELL( y, -x, d);
-					ADD_CELL(-x, -y, d);
-					ADD_CELL(-y,  x, d);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( m_Cells.Get_Count() > 0 )
-		{
-			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
-
-			return( true );
-		}
-	}
-
-	return( false );
+	return( bSquare ? Set_Square(Radius) : Set_Circle(Radius) );
 }
 
 //---------------------------------------------------------
-bool CSG_Grid_Cell_Addressor::Set_Annulus(double inner_Radius, double outer_Radius)
+bool CSG_Grid_Cell_Addressor::Set_Square(double Radius)
 {
-	Destroy();
+	return( _Set_Kernel(0, Radius, 0., 0., 0.) );
+}
 
-	m_Type		= 2;
-	m_Parms[0]	= outer_Radius;
-	m_Parms[1]	= inner_Radius;
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Circle(double Radius)
+{
+	return( _Set_Kernel(1, Radius, 0., 0., 0.) );
+}
 
-	//-----------------------------------------------------
-	if( inner_Radius <= outer_Radius )
-	{
-		if( inner_Radius <= 0. )
-		{
-			ADD_CELL(0., 0., 0.);
-		}
-
-		for(double y=1.; y<=outer_Radius; y++)
-		{
-			for(double x=0.; x<=outer_Radius; x++)
-			{
-				double	d	= SG_Get_Length(x, y);
-
-				if( inner_Radius <= d && d <= outer_Radius )
-				{
-					ADD_CELL( x,  y, d);
-					ADD_CELL( y, -x, d);
-					ADD_CELL(-x, -y, d);
-					ADD_CELL(-y,  x, d);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( m_Cells.Get_Count() > 0 )
-		{
-			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
-
-			return( true );
-		}
-	}
-
-	return( false );
+//---------------------------------------------------------
+bool CSG_Grid_Cell_Addressor::Set_Annulus(double Radius_Inner, double Radius_Outer)
+{
+	return( _Set_Kernel(2, Radius_Outer, Radius_Inner, 0., 0.) );
 }
 
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Set_Sector(double Radius, double Direction, double Tolerance)
 {
-	Destroy();
-
-	m_Type		= 3;
-	m_Parms[0]	= Radius;
-	m_Parms[2]	= Direction;
-	m_Parms[3]	= Tolerance;
-
-	//-----------------------------------------------------
-	if( Radius > 0. )
-	{
-		TSG_Point	a, b;
-
-		Direction	= fmod(Direction, M_PI_360); if( Direction < 0. ) Direction += M_PI_360;
-
-		if( Direction < M_PI_090 )
-		{
-			a.x	= -0.5;	b.x	=  0.5;
-			a.y	=  0.5;	b.y	= -0.5;
-		}
-		else if( Direction < M_PI_180 )
-		{
-			a.x	=  0.5;	b.x	= -0.5;
-			a.y	=  0.5;	b.y	= -0.5;
-		}
-		else if( Direction < M_PI_270 )
-		{
-			a.x	=  0.5;	b.x	= -0.5;
-			a.y	= -0.5;	b.y	=  0.5;
-		}
-		else // if( Direction < M_PI_360 )
-		{
-			a.x	= -0.5;	b.x	=  0.5;
-			a.y	= -0.5;	b.y	=  0.5;
-		}
-
-		double	d	= 10. * SG_Get_Length(Radius, Radius);
-
-		CSG_Shapes	Polygons(SHAPE_TYPE_Polygon);
-		CSG_Shape_Polygon	*pPolygon	= (CSG_Shape_Polygon *)Polygons.Add_Shape();
-
-		pPolygon->Add_Point(b.x, b.y);
-		pPolygon->Add_Point(a.x, a.y);
-		pPolygon->Add_Point(a.x + d * sin(Direction - Tolerance), a.y + d * cos(Direction - Tolerance));
-		pPolygon->Add_Point(      d * sin(Direction)            ,       d * cos(Direction            ));
-		pPolygon->Add_Point(b.x + d * sin(Direction + Tolerance), a.y + d * cos(Direction + Tolerance));
-
-		//-------------------------------------------------
-		for(double y=1.; y<=Radius; y++)
-		{
-			for(double x=0.; x<=Radius; x++)
-			{
-				if( (d = SG_Get_Length(x, y)) <= Radius )
-				{
-					if( pPolygon->Contains( x,  y) ) ADD_CELL( x,  y, d);
-					if( pPolygon->Contains( y, -x) ) ADD_CELL( y, -x, d);
-					if( pPolygon->Contains(-x, -y) ) ADD_CELL(-x, -y, d);
-					if( pPolygon->Contains(-y,  x) ) ADD_CELL(-y,  x, d);
-				}
-			}
-		}
-
-		//-------------------------------------------------
-		if( m_Cells.Get_Count() > 0 )
-		{
-			m_Cells.Set_Index(2, TABLE_INDEX_Ascending);
-
-			return( true );
-		}
-	}
-
-	return( false );
+	return( _Set_Kernel(3, Radius, 0., Direction, Tolerance) );
 }
 
 
