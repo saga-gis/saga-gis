@@ -480,6 +480,8 @@ CSG_String CSG_Tool::Get_Summary(bool bParameters, const CSG_String &Menu, const
 				{
 					s	+= CSG_String::Format("(*) <i>%s</i>", _TL("optional"));
 				}
+
+				s.Replace("\n", "<br>");
 			}
 		}
 		break;
