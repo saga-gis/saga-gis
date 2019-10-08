@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//					Tools - Functions					 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,15 +142,15 @@ double	SG_Get_Distance_Polar(double aLon, double aLat, double bLon, double bLat,
 		bLat	*= M_DEG_TO_RAD;
 	}
 
-	if( e <= 0.0 )
+	if( e <= 0. )
 	{
 		return(	a * acos(sin(aLat) * sin(bLat) + cos(aLat) * cos(bLat) * cos(bLon - aLon)) );
 	}
 	else
 	{
-		double	F	= (aLat + bLat) / 2.0;
-		double	G	= (aLat - bLat) / 2.0;
-		double	l	= (aLon - bLon) / 2.0;
+		double	F	= (aLat + bLat) / 2.;
+		double	G	= (aLat - bLat) / 2.;
+		double	l	= (aLon - bLon) / 2.;
 
 		double	sin2_F	= SG_Get_Square(sin(F));
 		double	cos2_F	= SG_Get_Square(cos(F));
@@ -175,15 +163,15 @@ double	SG_Get_Distance_Polar(double aLon, double aLat, double bLon, double bLat,
 		double	C	= cos2_G * cos2_l + sin2_F * sin2_l;
 
 		double	w	= atan(sqrt(S / C));
-		double	D	= 2.0 * w * a;
+		double	D	= 2. * w * a;
 
 		double	R	= sqrt(S * C) / w;
-		double	H1	= (3.0 * R - 1.0) / (2.0 * C);
-		double	H2	= (3.0 * R + 1.0) / (2.0 * S);
+		double	H1	= (3. * R - 1.) / (2. * C);
+		double	H2	= (3. * R + 1.) / (2. * S);
 
-		double	f	= 1.0 / e;
+		double	f	= 1. / e;
 
-		double	d	= D * (1.0 + f * H1 * sin2_F * cos2_G - f * H2 * cos2_F * sin2_G);
+		double	d	= D * (1. + f * H1 * sin2_F * cos2_G - f * H2 * cos2_F * sin2_G);
 
 		return( d );
 	}
@@ -205,14 +193,14 @@ double	SG_Get_Distance_Polar(const TSG_Point &A, const TSG_Point &B, double a, d
 //---------------------------------------------------------
 double		SG_Get_Angle_Of_Direction(double dx, double dy)
 {
-	if( dx == 0.0 )
+	if( dx == 0. )
 	{
-		return( dy > 0.0 ? 0.0 : M_PI_180 );
+		return( dy > 0. ? 0. : dy < 0. ? M_PI_180 : -M_PI_360 );
 	}
 
 	dx	= M_PI_090 - atan2(dy, dx);
 
-	return( dx < 0.0 ? M_PI_360 + dx : dx );
+	return( dx < 0. ? M_PI_360 + dx : dx );
 }
 
 //---------------------------------------------------------
@@ -238,9 +226,25 @@ double		SG_Get_Angle_Difference(double a, double b)
 {
 	double	d	= fmod(b - a, M_PI_360);
 
-	if( d < 0.0 )	d	+= M_PI_360;
+	if( d < 0. )	d	+= M_PI_360;
 
 	return( d > M_PI_180 ? d - M_PI_180 : d );
+}
+
+//---------------------------------------------------------
+bool		SG_is_Angle_Between(double Angle, double Angle_Min, double Angle_Max, bool bCheckRange)
+{
+	if( bCheckRange )
+	{
+		Angle     = fmod(Angle    , M_PI_360); if( Angle     < 0. ) Angle     += M_PI_360;
+		Angle_Min = fmod(Angle_Min, M_PI_360); if( Angle_Min < 0. ) Angle_Min += M_PI_360;
+		Angle_Max = fmod(Angle_Max, M_PI_360); if( Angle_Max < 0. ) Angle_Max += M_PI_360;
+	}
+
+	return( Angle_Min <= Angle_Max
+		? Angle_Min <= Angle && Angle <= Angle_Max
+		: Angle_Min <= Angle || Angle <= Angle_Max
+	);
 }
 
 
@@ -287,7 +291,7 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 	b_dx	= b2.x - b1.x;
 	b_dy	= b2.y - b1.y;
 
-	if( (div = a_dx * b_dy - b_dx * a_dy) != 0.0 )
+	if( (div = a_dx * b_dy - b_dx * a_dy) != 0. )
 	{
 		lambda		= ((b1.x - a1.x) * b_dy - b_dx * (b1.y - a1.y)) / div;
 
@@ -298,11 +302,11 @@ bool	SG_Get_Crossing(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &
 		{
 			return( true );
 		}
-		else if( 0.0 <= lambda && lambda <= 1.0 )
+		else if( 0. <= lambda && lambda <= 1. )
 		{
 			lambda	= ((b1.x - a1.x) * a_dy - a_dx * (b1.y - a1.y)) / div;
 
-			if( 0.0 <= lambda && lambda <= 1.0 )
+			if( 0. <= lambda && lambda <= 1. )
 			{
 				return( true );
 			}
@@ -424,7 +428,7 @@ double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln
 		return( Distance );
 	}
 
-	return( -1.0 );
+	return( -1. );
 }
 
 
@@ -435,26 +439,26 @@ double		SG_Get_Nearest_Point_On_Line(const TSG_Point &Point, const TSG_Point &Ln
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define A	Triangle[0]
-#define B	Triangle[1]
-#define C	Triangle[2]
-
-//---------------------------------------------------------
 bool		SG_Get_Triangle_CircumCircle(TSG_Point Triangle[3], TSG_Point &Point, double &Radius)
 {
+	#define A	Triangle[0]
+	#define B	Triangle[1]
+	#define C	Triangle[2]
+
+	//-----------------------------------------------------
 	TSG_Point	AB, AC, AB_M, AC_M, AB_N, AC_N;
 
 	AB.x	= B.x - A.x;
 	AB.y	= B.y - A.y;
-	AB_M.x	= A.x + AB.x / 2.0;
-	AB_M.y	= A.y + AB.y / 2.0;
+	AB_M.x	= A.x + AB.x / 2.;
+	AB_M.y	= A.y + AB.y / 2.;
 	AB_N.x	= AB_M.x - AB.y;
 	AB_N.y	= AB_M.y + AB.x;
 
 	AC.x	= C.x - A.x;
 	AC.y	= C.y - A.y;
-	AC_M.x	= A.x + AC.x / 2.0;
-	AC_M.y	= A.y + AC.y / 2.0;
+	AC_M.x	= A.x + AC.x / 2.;
+	AC_M.y	= A.y + AC.y / 2.;
 	AC_N.x	= AC_M.x - AC.y;
 	AC_N.y	= AC_M.y + AC.x;
 
@@ -469,12 +473,12 @@ bool		SG_Get_Triangle_CircumCircle(TSG_Point Triangle[3], TSG_Point &Point, doub
 	}
 
 	return( false );
-}
 
-//---------------------------------------------------------
-#undef A
-#undef B
-#undef C
+	//-----------------------------------------------------
+	#undef A
+	#undef B
+	#undef C
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -486,7 +490,7 @@ bool		SG_Get_Triangle_CircumCircle(TSG_Point Triangle[3], TSG_Point &Point, doub
 //---------------------------------------------------------
 double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 {
-	double	Area	= 0.0;
+	double	Area	= 0.;
 
 	if( nPoints >= 3 )
 	{
@@ -498,7 +502,7 @@ double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 			Area	+= (jP->x * iP->y) - (iP->x * jP->y);
 		}
 
-		Area	/= 2.0;
+		Area	/= 2.;
 	}
 
 	return( Area );
@@ -507,7 +511,7 @@ double		SG_Get_Polygon_Area(TSG_Point *Points, int nPoints)
 //---------------------------------------------------------
 double		SG_Get_Polygon_Area(const CSG_Points &Points)
 {
-	double	Area	= 0.0;
+	double	Area	= 0.;
 
 	if( Points.Get_Count() >= 3 )
 	{
@@ -517,7 +521,7 @@ double		SG_Get_Polygon_Area(const CSG_Points &Points)
 					 - (Points.Get_X(i) * Points.Get_Y(j));
 		}
 
-		Area	/= 2.0;
+		Area	/= 2.;
 	}
 
 	return( Area );

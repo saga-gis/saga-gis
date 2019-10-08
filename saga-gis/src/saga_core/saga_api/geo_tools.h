@@ -877,6 +877,7 @@ SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(double ax, double ay, do
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Of_Direction		(const TSG_Point &A, const TSG_Point &B);
 SAGA_API_DLL_EXPORT double		SG_Get_Angle_Difference			(double a, double b);
+SAGA_API_DLL_EXPORT bool		SG_is_Angle_Between				(double Angle, double Angle_Min, double Angle_Max, bool bCheckRange = true);
 
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing					(TSG_Point &Crossing, const TSG_Point &a1, const TSG_Point &a2, const TSG_Point &b1, const TSG_Point &b2, bool bExactMatch = true);
 SAGA_API_DLL_EXPORT bool		SG_Get_Crossing_InRegion		(TSG_Point &Crossing, const TSG_Point &a , const TSG_Point & b, const TSG_Rect &Region);
