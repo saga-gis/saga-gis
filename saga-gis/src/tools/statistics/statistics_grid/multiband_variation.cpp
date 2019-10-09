@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: multiband_variation.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -116,7 +104,7 @@ CMultiBand_Variation::CMultiBand_Variation(void)
 		1, 1, true
 	);
 
-	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Cells.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -127,7 +115,9 @@ CMultiBand_Variation::CMultiBand_Variation(void)
 //---------------------------------------------------------
 int CMultiBand_Variation::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Cells.Get_Weighting().Enable_Parameters(pParameters) );
+	m_Cells.Get_Weighting().Enable_Parameters(*pParameters);
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -153,7 +143,7 @@ bool CMultiBand_Variation::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
+	m_Cells.Get_Weighting().Set_Parameters(Parameters);
 
 	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt()) )
 	{

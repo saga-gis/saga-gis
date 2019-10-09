@@ -102,9 +102,9 @@ CGridding3D_IDW::CGridding3D_IDW(void)
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting (SG_DISTWGHT_IDW);
 	m_Weighting.Set_IDW_Offset(false);
-	m_Weighting.Set_IDW_Power (2.0);
+	m_Weighting.Set_IDW_Power (2.);
 
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Create_Parameters(Parameters);
 }
 
 
@@ -152,7 +152,7 @@ int CGridding3D_IDW::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }

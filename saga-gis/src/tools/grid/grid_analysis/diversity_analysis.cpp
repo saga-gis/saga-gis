@@ -123,7 +123,7 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 	m_Search.Add_Parameters(Parameters);
 	m_Search.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
 	m_Search.Get_Weighting().Set_BandWidth(0.7);
-	m_Search.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Search.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -134,7 +134,7 @@ CDiversity_Analysis::CDiversity_Analysis(void)
 //---------------------------------------------------------
 int CDiversity_Analysis::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Search.Get_Weighting().Enable_Parameters(pParameters);
+	m_Search.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -165,7 +165,7 @@ bool CDiversity_Analysis::On_Execute(void)
 	DataObject_Set_Colors(m_pConnectedAvg, 11, SG_COLORS_RAINBOW,  true);
 
 	//-----------------------------------------------------
-	m_Search.Get_Weighting().Set_Parameters(&Parameters);
+	m_Search.Get_Weighting().Set_Parameters(Parameters);
 	m_Search.Set_Parameters(Parameters);
 	m_Search.Get_Weighting().Set_BandWidth(m_Search.Get_Radius() * m_Search.Get_Weighting().Get_BandWidth());
 

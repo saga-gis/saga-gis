@@ -142,7 +142,7 @@ CGW_Multi_Regression_Grid::CGW_Multi_Regression_Grid(void)
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
@@ -180,7 +180,7 @@ int CGW_Multi_Regression_Grid::On_Parameters_Enable(CSG_Parameters *pParameters,
 
 	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -367,7 +367,7 @@ bool CGW_Multi_Regression_Grid::Initialize(CSG_Shapes *pPoints, int iDependent, 
 	}
 
 	//-----------------------------------------------------
-	m_Weighting.Set_Parameters(&Parameters);
+	m_Weighting.Set_Parameters(Parameters);
 
 	return( m_Points.Get_Count() > m_nPredictors && m_Search.Initialize(&m_Points, -1) );
 }

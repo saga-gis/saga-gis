@@ -92,11 +92,14 @@ CGSGrid_Residuals::CGSGrid_Residuals(void)
 	);
 
 	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters, "",
-		SG_GRIDCELLADDR_PARM_SQUARE|SG_GRIDCELLADDR_PARM_CIRCLE|SG_GRIDCELLADDR_PARM_ANNULUS|SG_GRIDCELLADDR_PARM_SECTOR
+		SG_GRIDCELLADDR_PARM_SQUARE  |
+		SG_GRIDCELLADDR_PARM_CIRCLE  |
+		SG_GRIDCELLADDR_PARM_ANNULUS |
+		SG_GRIDCELLADDR_PARM_SECTOR  |
+		SG_GRIDCELLADDR_PARM_WEIGHTING
 	);
 
 	m_Kernel.Get_Weighting().Set_BandWidth(75.);	// 75%
-	m_Kernel.Get_Weighting().Create_Parameters(&Parameters, false);
 }
 
 

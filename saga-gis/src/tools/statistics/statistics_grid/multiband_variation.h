@@ -49,6 +49,13 @@
 #ifndef HEADER_INCLUDED__multiband_variation_H
 #define HEADER_INCLUDED__multiband_variation_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 

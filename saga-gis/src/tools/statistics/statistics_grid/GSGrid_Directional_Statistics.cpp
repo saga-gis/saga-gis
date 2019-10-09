@@ -139,7 +139,7 @@ CGSGrid_Directional_Statistics::CGSGrid_Directional_Statistics(void)
 	m_Cells.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
 	m_Cells.Get_Weighting().Set_BandWidth(25);
 
-	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Cells.Get_Weighting().Create_Parameters(Parameters);
 
 	Parameters("DW_BANDWIDTH")->Set_Description("Bandwidth specified as number of cells.");
 }
@@ -200,7 +200,7 @@ bool CGSGrid_Directional_Statistics::On_Execute(void)
 		Radius	= 1 + (int)SG_Get_Length(Get_NX(), Get_NY());
 	}
 
-	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
+	m_Cells.Get_Weighting().Set_Parameters(Parameters);
 
 	if( !m_Cells.Set_Sector(Radius, Direction, Tolerance) )
 	{

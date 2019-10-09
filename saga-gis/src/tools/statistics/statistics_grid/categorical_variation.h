@@ -46,6 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__categorical_variation_H
+#define HEADER_INCLUDED__categorical_variation_H
 
 
 ///////////////////////////////////////////////////////////
@@ -53,10 +55,6 @@
 //                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__categorical_variation_H
-#define HEADER_INCLUDED__categorical_variation_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>

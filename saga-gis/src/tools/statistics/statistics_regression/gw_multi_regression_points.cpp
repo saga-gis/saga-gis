@@ -100,7 +100,7 @@ CGW_Multi_Regression_Points::CGW_Multi_Regression_Points(void)
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
@@ -132,7 +132,7 @@ int CGW_Multi_Regression_Points::On_Parameters_Enable(CSG_Parameters *pParameter
 {
 	m_Search.On_Parameters_Enable(pParameters, pParameter);
 
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -148,7 +148,7 @@ bool CGW_Multi_Regression_Points::Initialize(void)
 	//-----------------------------------------------------
 	m_pPoints	= Parameters("REGRESSION")->asShapes();
 
-	m_Weighting.Set_Parameters(&Parameters);
+	m_Weighting.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	int			iDependent	= Parameters("DEPENDENT")->asInt   ();

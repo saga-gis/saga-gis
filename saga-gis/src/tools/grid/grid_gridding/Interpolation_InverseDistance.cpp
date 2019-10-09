@@ -76,7 +76,7 @@ CInterpolation_InverseDistance::CInterpolation_InverseDistance(void)
 	m_Weighting.Set_IDW_Offset(false);
 	m_Weighting.Set_IDW_Power (2.);
 
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Create_Parameters(Parameters);
 }
 
 
@@ -107,7 +107,7 @@ int CInterpolation_InverseDistance::On_Parameters_Enable(CSG_Parameters *pParame
 {
 	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	return( CInterpolation::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -127,7 +127,7 @@ bool CInterpolation_InverseDistance::On_Initialize(void)
 		return( false );
 	}
 
-	return(	m_Weighting.Set_Parameters(&Parameters) );
+	return(	m_Weighting.Set_Parameters(Parameters) );
 }
 
 //---------------------------------------------------------

@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "local_statistical_measures.h"
 
 
@@ -170,7 +161,7 @@ bool CLocal_Statistical_Measures::On_Execute(void)
 	DataObject_Set_Colors(m_pVariance   , 11, SG_COLORS_RAINBOW);
 
 	//-----------------------------------------------------
-	m_Kernel.Get_Weighting().Set_Parameters(&Parameters);
+	m_Kernel.Get_Weighting().Set_Parameters(Parameters);
 	m_Kernel.Set_Radius(m_Radius = Parameters("RADIUS")->asInt(), Parameters("TYPE")->asInt() == 0);
 
 	//-----------------------------------------------------

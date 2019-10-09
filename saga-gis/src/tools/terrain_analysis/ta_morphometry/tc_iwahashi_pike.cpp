@@ -62,10 +62,10 @@ CTC_Parameter_Base::CTC_Parameter_Base(void)
 //---------------------------------------------------------
 void CTC_Parameter_Base::On_Construction(void)
 {
-	Parameters.Add_Value("",
+	Parameters.Add_Int("",
 		"SCALE"		, _TL("Scale (Cells)"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 10, 1, true
+		10, 1, true
 	);
 
 	Parameters.Add_Choice("",
@@ -79,7 +79,7 @@ void CTC_Parameter_Base::On_Construction(void)
 
 	m_Kernel.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
 	m_Kernel.Get_Weighting().Set_BandWidth(0.7);
-	m_Kernel.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Kernel.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -95,7 +95,7 @@ int CTC_Parameter_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 		pParameters->Set_Enabled("DISTANCE_WEIGHTING", pParameter->asInt() == 0);
 	}
 
-	m_Kernel.Get_Weighting().Enable_Parameters(pParameters);
+	m_Kernel.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -113,7 +113,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 	//-----------------------------------------------------
 	if( Parameters("METHOD")->asInt() == 0 )
 	{
-		m_Kernel.Get_Weighting().Set_Parameters(&Parameters);
+		m_Kernel.Get_Weighting().Set_Parameters(Parameters);
 		m_Kernel.Get_Weighting().Set_BandWidth(Parameters("SCALE")->asDouble() * m_Kernel.Get_Weighting().Get_BandWidth());
 		m_Kernel.Set_Radius(Parameters("SCALE")->asDouble());
 
@@ -128,7 +128,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 				}
 				else
 				{
-					double	d, w, nTotal = 0.0, nValid = 0.0;
+					double	d, w, nTotal = 0., nValid = 0.;
 
 					for(int i=0, ix, iy; i<m_Kernel.Get_Count(); i++)
 					{
@@ -143,7 +143,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 						}
 					}
 
-					pParameter->Set_Value(x, y, nTotal > 0.0 ? 100.0 * nValid / nTotal : 0.0);	// make percentage
+					pParameter->Set_Value(x, y, nTotal > 0. ? 100. * nValid / nTotal : 0.);	// make percentage
 				}
 			}
 		}
@@ -182,7 +182,7 @@ bool CTC_Parameter_Base::Get_Parameter(CSG_Grid *pValues, CSG_Grid *pParameter)
 				}
 				else
 				{
-					pParameter->Set_Value(x, y, 100.0 * z);	// make percentage
+					pParameter->Set_Value(x, y, 100. * z);	// make percentage
 				}
 			}
 		}
@@ -233,7 +233,7 @@ CTC_Texture::CTC_Texture(void)
 	Parameters.Add_Double("",
 		"EPSILON"	, _TL("Flat Area Threshold"),
 		_TL("maximum difference between original and median filtered elevation (3x3 moving window) that still is recognized flat"),
-		1.0, 0.0, true
+		1., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -345,7 +345,7 @@ CTC_Convexity::CTC_Convexity(void)
 	Parameters.Add_Choice("",
 		"KERNEL"	, _TL("Laplacian Filter Kernel"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("conventional four-neighbourhood"),
 			_TL("conventional eight-neihbourhood"),
 			_TL("eight-neihbourhood (distance based weighting)")
@@ -364,7 +364,7 @@ CTC_Convexity::CTC_Convexity(void)
 	Parameters.Add_Double("",
 		"EPSILON"	, _TL("Flat Area Threshold"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -380,7 +380,7 @@ CTC_Convexity::CTC_Convexity(void)
 bool CTC_Convexity::On_Execute(void)
 {
 	//-----------------------------------------------------
-	const double	Kernels[3][2]	= { { 1, 0 }, { 1, 1 }, { 1, 1 / sqrt(2.0) } };
+	const double	Kernels[3][2]	= { { 1, 0 }, { 1, 1 }, { 1, 1 / sqrt(2.) } };
 
 	int	Kernel	= Parameters("KERNEL")->asInt();
 
@@ -559,7 +559,7 @@ CTC_Classification::CTC_Classification(void)
 	Parameters.Add_Double("CONV_NODE",
 		"CONV_EPSILON"	, _TL("Flat Area Threshold"),
 		_TL(""),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -577,7 +577,7 @@ CTC_Classification::CTC_Classification(void)
 	Parameters.Add_Double("TEXT_NODE",
 		"TEXT_EPSILON"	, _TL("Flat Area Threshold"),
 		_TL("maximum difference between original and median filtered elevation (3x3 moving window) that still is recognized flat"),
-		1.0, 0.0, true
+		1., 0., true
 	);
 }
 
@@ -719,7 +719,7 @@ bool CTC_Classification::Get_Classes(void)
 
 	CSG_Grid	*pLandforms	= Parameters("LANDFORMS")->asGrid();
 
-	pLandforms->Assign(0.0);
+	pLandforms->Assign(0.);
 	pLandforms->Set_NoData_Value(CLASS_FLAG_NODATA);
 
 	Set_LUT(pLandforms, nLevels);

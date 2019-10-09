@@ -90,13 +90,13 @@ CTPI::CTPI(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "TPI"			, _TL("Topographic Position Index"),
+		"", "TPI"		, _TL("Topographic Position Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -108,13 +108,13 @@ CTPI::CTPI(void)
 	);
 
 	Parameters.Add_Range(
-		"", "RADIUS"		, _TL("Scale"),
-		_TL("kernel radius in map units"),
-		0.0, 100.0, 0.0, true
+		"", "RADIUS"	, _TL("Scale"),
+		_TL("kernel radius in map units; defines an annulus if inner radius is greater than zero"),
+		0., 100., 0., true
 	);
 
-	m_Kernel.Get_Weighting().Set_BandWidth(75.0);	// 75%
-	m_Kernel.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Kernel.Get_Weighting().Set_BandWidth(75.);	// 75%
+	m_Kernel.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -125,7 +125,7 @@ CTPI::CTPI(void)
 //---------------------------------------------------------
 int CTPI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Kernel.Get_Weighting().Enable_Parameters(pParameters);
+	m_Kernel.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -147,8 +147,8 @@ bool CTPI::On_Execute(void)
 	double	r_inner	= Parameters("RADIUS")->asRange()->Get_Min() / Get_Cellsize();
 	double	r_outer	= Parameters("RADIUS")->asRange()->Get_Max() / Get_Cellsize();
 
-	m_Kernel.Get_Weighting().Set_Parameters(&Parameters);
-	m_Kernel.Get_Weighting().Set_BandWidth(r_outer * m_Kernel.Get_Weighting().Get_BandWidth() / 100.0);
+	m_Kernel.Get_Weighting().Set_Parameters(Parameters);
+	m_Kernel.Get_Weighting().Set_BandWidth(r_outer * m_Kernel.Get_Weighting().Get_BandWidth() / 100.);
 
 	if( !m_Kernel.Set_Annulus(r_inner, r_outer) )
 	{
@@ -193,14 +193,14 @@ bool CTPI::Get_Statistics(int x, int y)
 
 		for(i=0, z=m_pDEM->asDouble(x, y); i<m_Kernel.Get_Count(); i++)
 		{
-			if( m_Kernel.Get_Values(i, ix = x, iy = y, id, iw, true) && id >= 0.0 && m_pDEM->is_InGrid(ix, iy) )
+			if( m_Kernel.Get_Values(i, ix = x, iy = y, id, iw, true) && id >= 0. && m_pDEM->is_InGrid(ix, iy) )
 			{
 				Statistics.Add_Value(m_pDEM->asDouble(ix, iy), iw);
 			}
 		}
 
 		//-------------------------------------------------
-		if( Statistics.Get_Weights() > 0.0 )
+		if( Statistics.Get_Weights() > 0. )
 		{
 			m_pTPI->Set_Value(x, y, z - Statistics.Get_Mean());
 
@@ -256,7 +256,7 @@ CTPI_Classification::CTPI_Classification(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
@@ -269,18 +269,18 @@ CTPI_Classification::CTPI_Classification(void)
 
 	Parameters.Add_Range(
 		"", "RADIUS_A"	, _TL("Small Scale"),
-		_TL("radius in map units"),
-		0.0, 100.0, 0.0, true
+		_TL("kernel radius in map units; defines an annulus if inner radius is greater than zero"),
+		0., 100., 0., true
 	);
 
 	Parameters.Add_Range(
 		"", "RADIUS_B"	, _TL("Large Scale"),
-		_TL("kernel radius in map units"),
-		0.0, 1000.0, 0.0, true
+		_TL("kernel radius in map units; defines an annulus if inner radius is greater than zero"),
+		0., 1000., 0., true
 	);
 
-	m_Weighting.Set_BandWidth(75.0);	// 75%
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Set_BandWidth(75.);	// 75%
+	m_Weighting.Create_Parameters(Parameters);
 }
 
 
@@ -312,7 +312,7 @@ enum
 //---------------------------------------------------------
 int CTPI_Classification::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -428,34 +428,34 @@ bool CTPI_Classification::On_Execute(void)
 				double	A	= gA.asDouble(x, y);
 				double	B	= gB.asDouble(x, y);
 
-				if( A <= -1.0 )
+				if( A <= -1. )
 				{
-					if( B <= -1.0 )
+					if( B <= -1. )
 					{	// Canyons, Deeply Incised Streams
 						pLandforms->Set_Value(x, y, LF_CANYON);
 					}
-					else if( B < 1.0 )
+					else if( B < 1. )
 					{	// Midslope Drainages, Shallow Valleys
 						pLandforms->Set_Value(x, y, LF_MID_SLOPE);
 					}
-					else // if( B >= 1.0 )
+					else // if( B >= 1. )
 					{	// Upland Drainages, Headwaters
 						pLandforms->Set_Value(x, y, LF_UPLAND);
 					}
 				}
-				else if( A < 1.0 )
+				else if( A < 1. )
 				{
-					if( B <= -1.0 )
+					if( B <= -1. )
 					{	// U-shaped Valleys
 						pLandforms->Set_Value(x, y, LF_VALLEY);
 					}
-					else if( B < 1.0 )
+					else if( B < 1. )
 					{
 						double	Slope, Aspect;
 
 						pDEM->Get_Gradient(x, y, Slope, Aspect);
 
-						if( Slope <= 5.0 * M_DEG_TO_RAD )
+						if( Slope <= 5. * M_DEG_TO_RAD )
 						{	// Plains
 							pLandforms->Set_Value(x, y, LF_PLAIN);
 						}
@@ -464,22 +464,22 @@ bool CTPI_Classification::On_Execute(void)
 							pLandforms->Set_Value(x, y, LF_OPEN_SLOPE);
 						}
 					}
-					else // if( B >= 1.0 )
+					else // if( B >= 1. )
 					{	// Upper Slopes, Mesas
 						pLandforms->Set_Value(x, y, LF_UPPER_SLOPE);
 					}
 				}
-				else // if( A >= 1.0 )
+				else // if( A >= 1. )
 				{
-					if( B <= -1.0 )
+					if( B <= -1. )
 					{	// Local Ridges, Hills in Valleys
 						pLandforms->Set_Value(x, y, LF_LOCAL_RIDGE);
 					}
-					else if( B < 1.0 )
+					else if( B < 1. )
 					{	// Midslope Ridges, Small Hills in Plains
 						pLandforms->Set_Value(x, y, LF_MIDSLOPE_RIDGE);
 					}
-					else // if( B >= 1.0 )
+					else // if( B >= 1. )
 					{	// Mountain Tops, High Ridges
 						pLandforms->Set_Value(x, y, LF_HIGH_RIDGE);
 					}
@@ -542,13 +542,13 @@ CTPI_MultiScale::CTPI_MultiScale(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		"", "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		"", "TPI"			, _TL("Topographic Position Index"),
+		"", "TPI"		, _TL("Topographic Position Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -572,7 +572,7 @@ CTPI_MultiScale::CTPI_MultiScale(void)
 	);
 
 	Parameters.Add_Bool(
-		"", "UPDATE"		, _TL("Update"),
+		"", "UPDATE"	, _TL("Update"),
 		_TL("update view for each integration step"),
 		false
 	)->Set_UseInCMD(false);
@@ -648,9 +648,9 @@ bool CTPI_MultiScale::On_Execute(void)
 	}
 
 	double	Scale	= Get_Cellsize() *  Scale_Max;
-	double	dScale	= Get_Cellsize() * (Scale_Max - Scale_Min) / (nScales - 1.0);
+	double	dScale	= Get_Cellsize() * (Scale_Max - Scale_Min) / (nScales - 1.);
 
-	if( dScale <= 0.0 )
+	if( dScale <= 0. )
 	{
 		nScales	= 1;
 	}
@@ -664,7 +664,7 @@ bool CTPI_MultiScale::On_Execute(void)
 	Calculator.Set_Parameter("TPI"     , pTPI);
 	Calculator.Set_Parameter("STANDARD", true);
 
-	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_Min(  0.0);
+	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_Min(  0.);
 	Calculator.Get_Parameters()->Get_Parameter("RADIUS")->asRange()->Set_Max(Scale);
 
 	Process_Set_Text(  "%s: %.*f [%d/%d]", _TL("Scale"), SG_Get_Significant_Decimals(Scale), Scale, 1, nScales);

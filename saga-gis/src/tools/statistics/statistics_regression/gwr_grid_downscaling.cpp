@@ -148,7 +148,7 @@ CGWR_Grid_Downscaling::CGWR_Grid_Downscaling(void)
 
 	m_Search.Get_Weighting().Set_Weighting(SG_DISTWGHT_GAUSS);
 	m_Search.Get_Weighting().Set_BandWidth(7.0);
-	m_Search.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Search.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -164,7 +164,7 @@ int CGWR_Grid_Downscaling::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		pParameters->Set_Enabled("SEARCH_RADIUS", pParameter->asInt() == 0);	// local
 	}
 
-	m_Search.Get_Weighting().Enable_Parameters(pParameters);
+	m_Search.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -276,7 +276,7 @@ bool CGWR_Grid_Downscaling::Get_Model(void)
 	m_pResiduals	->Fmt_Name("%s [%s, %s]", m_pDependent->Get_Name(), _TL("GWR"), _TL("Residuals"));
 
 	//-----------------------------------------------------
-	m_Search.Get_Weighting().Set_Parameters(&Parameters);
+	m_Search.Get_Weighting().Set_Parameters(Parameters);
 
 	m_Search.Set_Radius(Parameters("SEARCH_RANGE")->asInt() == 0
 		? Parameters("SEARCH_RADIUS")->asInt() : 1 + (int)(SG_Get_Length(m_pDependent->Get_NX(), m_pDependent->Get_NY()))

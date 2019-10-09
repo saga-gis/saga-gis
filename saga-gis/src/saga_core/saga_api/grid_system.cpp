@@ -352,33 +352,14 @@ bool CSG_Grid_Cell_Addressor::Destroy(void)
 //---------------------------------------------------------
 bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const CSG_String &Parent, int Style)
 {
-	Parameters.Add_Choice(Parent, "KERNEL_TYPE", _TL("Kernel Type"),
-		_TL("The kernel's shape."),
-		"0|1", 1
-	);
-
-	CSG_String	Unit	= (Style & SG_GRIDCELLADDR_PARM_MAPUNIT) == 0
-		? _TL("The kernel radius in cells.")
-		: _TL("The kernel radius in map units.");
-
-	if( (Style & SG_GRIDCELLADDR_PARM_SIZEDBL) == 0 )
-	{
-		Parameters.Add_Int   (Parent, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 2 , 1 , true);
-	}
-	else
-	{
-		Parameters.Add_Double(Parent, "KERNEL_RADIUS", _TL("Kernel Radius"), Unit, 1., 0., true);
-	}
-
-	//-----------------------------------------------------
 	CSG_String	Types;
 
-	if( (Style & SG_GRIDCELLADDR_PARM_SQUARE) != 0 )
+	if( (Style & SG_GRIDCELLADDR_PARM_SQUARE ) != 0 )
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SQUARE , _TL("Square" ));
 	}
 
-	if( (Style & SG_GRIDCELLADDR_PARM_CIRCLE) != 0 )
+	if( (Style & SG_GRIDCELLADDR_PARM_CIRCLE ) != 0 )
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_CIRCLE , _TL("Circle" ));
 	}
@@ -386,21 +367,55 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const C
 	if( (Style & SG_GRIDCELLADDR_PARM_ANNULUS) != 0 )
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_ANNULUS, _TL("Annulus"));
-
-		Parameters.Add_Double("", "KERNEL_INNER", _TL("Inner Kernel Radius"), _TL(""));
 	}
 
-	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR) != 0 )
+	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR ) != 0 )
 	{
 		Types	+= CSG_String::Format("{%d}%s|", SG_GRIDCELLADDR_PARM_SECTOR , _TL("Sector" ));
-
-		Parameters.Add_Double(Parent, "KERNEL_DIRECTION", _TL("Kernel Direction"), _TL(""));
-		Parameters.Add_Double(Parent, "KERNEL_TOLERANCE", _TL("Kernel Tolerance"), _TL(""));
 	}
 
-	Parameters("KERNEL_TYPE")->asChoice()->Set_Items(Types);
+	Parameters.Add_Choice(Parent, "KERNEL_TYPE", _TL("Kernel Type"),
+		_TL("The kernel's shape."),
+		Types, 1
+	);
 
 	Parameters.Set_Enabled("KERNEL_TYPE", Parameters("KERNEL_TYPE")->asChoice()->Get_Count() > 1);
+
+	//-----------------------------------------------------
+	CSG_String	Unit_Radius((Style & SG_GRIDCELLADDR_PARM_MAPUNIT) == 0 ? _TL("cells") : _TL("map units"));
+
+	if( (Style & SG_GRIDCELLADDR_PARM_SIZEDBL) != 0 )
+	{
+		if( (Style & SG_GRIDCELLADDR_PARM_ANNULUS) != 0 )
+		{
+			Parameters.Add_Double("KERNEL_TYPE", "KERNEL_INNER" , _TL("Inner Radius"), Unit_Radius, 0., 0., true);
+		}
+
+		Parameters    .Add_Double("KERNEL_TYPE", "KERNEL_RADIUS", _TL(      "Radius"), Unit_Radius, 1., 0., true);
+	}
+	else
+	{
+		if( (Style & SG_GRIDCELLADDR_PARM_ANNULUS) != 0 )
+		{
+			Parameters.Add_Int   ("KERNEL_TYPE", "KERNEL_INNER" , _TL("Inner Radius"), Unit_Radius, 0 , 0 , true);
+		}
+
+		Parameters    .Add_Int   ("KERNEL_TYPE", "KERNEL_RADIUS", _TL(      "Radius"), Unit_Radius, 2 , 0 , true);
+	}
+
+	//-----------------------------------------------------
+	if( (Style & SG_GRIDCELLADDR_PARM_SECTOR) != 0 )
+	{
+		Parameters.Add_Double("KERNEL_TYPE", "KERNEL_DIRECTION", _TL("Direction"), _TL("degree"), 0., -360., true, 360., true);
+		Parameters.Add_Double("KERNEL_TYPE", "KERNEL_TOLERANCE", _TL("Tolerance"), _TL("degree"), 5.,    0., true, 180., true);
+	}
+
+	if( (Style & SG_GRIDCELLADDR_PARM_WEIGHTING) != 0 )
+	{
+		CSG_Distance_Weighting::Create_Parameters(Parameters,
+			Parameters("KERNEL_TYPE")->is_Enabled() ? CSG_String("KERNEL_TYPE") : Parent
+		);
+	}
 
 	return( true );
 }
@@ -467,14 +482,7 @@ bool CSG_Grid_Cell_Addressor::Enable_Parameters(CSG_Parameters &Parameters)
 		Parameters.Set_Enabled("KERNEL_TOLERANCE", Type == SG_GRIDCELLADDR_PARM_SECTOR );
 	}
 
-	if( Parameters("DW_WEIGHTING") )
-	{
-		int	Method	= Parameters("DW_WEIGHTING")->asInt();
-
-		Parameters.Set_Enabled("DW_IDW_OFFSET", Method == 1);
-		Parameters.Set_Enabled("DW_IDW_POWER" , Method == 1);
-		Parameters.Set_Enabled("DW_BANDWIDTH" , Method >= 2);
-	}
+	CSG_Distance_Weighting::Enable_Parameters(Parameters);
 
 	return( true );
 }

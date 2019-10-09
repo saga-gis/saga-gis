@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: categorical_variation.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "categorical_variation.h"
 
 
@@ -79,43 +67,43 @@ CCategorical_Variation::CCategorical_Variation(void)
 		"which can be useful to compare different classifications."
 	));
 
-	Parameters.Add_Grid_List(
-		"", "GRIDS"		, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS"			, _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "CATEGORIES"	, _TL("Number of Categories"),
+	Parameters.Add_Grid("",
+		"CATEGORIES"	, _TL("Number of Categories"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Short
 	);
 
-	Parameters.Add_Grid(
-		"", "COINCIDENCE"	, _TL("Coincidence"),
+	Parameters.Add_Grid("",
+		"COINCIDENCE"	, _TL("Coincidence"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "MAJ_COUNT"	, _TL("Dominance of Majority"),
+	Parameters.Add_Grid("",
+		"MAJ_COUNT"		, _TL("Dominance of Majority"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		"", "MAJ_VALUE"	, _TL("Value of Majority"),
+	Parameters.Add_Grid("",
+		"MAJ_VALUE"		, _TL("Value of Majority"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Int(
-		"", "RADIUS"		, _TL("Radius [Cells]"),
+	Parameters.Add_Int("",
+		"RADIUS"		, _TL("Radius [Cells]"),
 		_TL(""),
 		0, 0, true
 	);
 
-//	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+//	m_Cells.Get_Weighting().Create_Parameters(Parameters, false);
 }
 
 

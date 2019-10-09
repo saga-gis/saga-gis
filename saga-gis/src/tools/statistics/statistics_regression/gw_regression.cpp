@@ -101,7 +101,7 @@ CGW_Regression::CGW_Regression(void)
 
 	//-----------------------------------------------------
 	m_Weighting.Set_Weighting(SG_DISTWGHT_GAUSS);
-	m_Weighting.Create_Parameters(&Parameters, false);
+	m_Weighting.Create_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
@@ -135,7 +135,7 @@ int CGW_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CGW_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Weighting.Enable_Parameters(pParameters);
+	m_Weighting.Enable_Parameters(*pParameters);
 
 	m_Search     .On_Parameters_Enable(pParameters, pParameter);
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
@@ -156,7 +156,7 @@ bool CGW_Regression::On_Execute(void)
 	m_iDependent	= Parameters("DEPENDENT")->asInt   ();
 	m_iPredictor	= Parameters("PREDICTOR")->asInt   ();
 
-	m_Weighting.Set_Parameters(&Parameters);
+	m_Weighting.Set_Parameters(Parameters);
 
 	//-----------------------------------------------------
 	if( !m_Search.Initialize(m_pPoints, -1) )

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: ruggedness.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "ruggedness.h"
 
@@ -72,43 +63,45 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"Riley, S.J., De Gloria, S.D., Elliot, R. (1999): "
-		"A Terrain Ruggedness that Quantifies Topographic Heterogeneity. "
-		"Intermountain Journal of Science, Vol.5, No.1-4, pp.23-27. "
-		"<a href=\"http://www.fw.msu.edu/~rileysh2/Terrain%20Ruggedness%20Index.pdf\">online</a>.\n"
+		"Terrain Ruggedness Index (TRI)"
 	));
+
+	Add_Reference("Riley, S.J., De Gloria, S.D., Elliot, R.", "1999",
+		"A Terrain Ruggedness that Quantifies Topographic Heterogeneity",
+		"Intermountain Journal of Science, Vol.5, No.1-4, pp.23-27.",
+		SG_T("http://www.fw.msu.edu/~rileysh2/Terrain%20Ruggedness%20Index.pdf"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "TRI"			, _TL("Terrain Ruggedness Index (TRI)"),
+		"", "TRI"		, _TL("Terrain Ruggedness Index (TRI)"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
+		"", "MODE"		, _TL("Search Mode"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
 	);
 
 	Parameters.Add_Int(
-		NULL	, "RADIUS"		, _TL("Search Radius"),
+		"", "RADIUS"	, _TL("Search Radius"),
 		_TL("radius in cells"),
 		1, 1, true
 	);
 
-	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
-	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Cells.Get_Weighting().Set_BandWidth(75.);	// 75%
+	m_Cells.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -119,7 +112,7 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 //---------------------------------------------------------
 int CRuggedness_TRI::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+	m_Cells.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -138,8 +131,8 @@ bool CRuggedness_TRI::On_Execute(void)
 
 	DataObject_Set_Colors(m_pTRI, 11, SG_COLORS_RED_GREY_BLUE, true);
 
-	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
-	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
+	m_Cells.Get_Weighting().Set_Parameters(Parameters);
+	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.);
 
 	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0) )
 	{
@@ -175,9 +168,9 @@ bool CRuggedness_TRI::Set_Index(int x, int y)
 		int		i, ix, iy;
 		double	z, iz, Distance, Weight, n, s;
 
-		for(i=0, n=s=0.0, z=m_pDEM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
+		for(i=0, n=s=0., z=m_pDEM->asDouble(x, y); i<m_Cells.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0.0 && m_pDEM->is_InGrid(ix, iy) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0. && m_pDEM->is_InGrid(ix, iy) )
 			{
 				iz	 = m_pDEM->asDouble(ix, iy);
 				s	+= SG_Get_Square((z - iz) * Weight);
@@ -186,7 +179,7 @@ bool CRuggedness_TRI::Set_Index(int x, int y)
 		}
 
 		//-------------------------------------------------
-		if( n > 0.0 )
+		if( n > 0. )
 		{
 			m_pTRI->Set_Value(x, y, sqrt(s / n));
 
@@ -215,29 +208,30 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"References:\n"
-		"Sappington, J.M., Longshore, K.M., Thompson, D.B. (2007): "
-		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert. "
-		"Journal of Wildlife Management 71(5):1419–1426.\n"
-		"<a href=\"http://onlinelibrary.wiley.com/doi/10.2193/2005-723/abstract\">online</a>.\n"
-		"\n"
+		"Vector Ruggedness Measure (VRM)"
 	));
+
+	Add_Reference("Sappington, J.M., Longshore, K.M., Thompson, D.B.", "2007",
+		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert",
+		"Journal of Wildlife Management 71(5):1419–1426.",
+		SG_T("http://onlinelibrary.wiley.com/doi/10.2193/2005-723/abstract"), SG_T("online")
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "VRM"			, _TL("Vector Terrain Ruggedness (VRM)"),
+		"", "VRM"		, _TL("Vector Terrain Ruggedness (VRM)"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "MODE"		, _TL("Search Mode"),
+		"", "MODE"		, _TL("Search Mode"),
 		_TL(""),
 		CSG_String::Format("%s|%s|",
 			_TL("Square"),
@@ -246,13 +240,13 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 	);
 
 	Parameters.Add_Int(
-		NULL	, "RADIUS"		, _TL("Search Radius"),
+		"", "RADIUS"	, _TL("Search Radius"),
 		_TL("radius in cells"),
 		1, 1, true
 	);
 
-	m_Cells.Get_Weighting().Set_BandWidth(75.0);	// 75%
-	m_Cells.Get_Weighting().Create_Parameters(&Parameters, false);
+	m_Cells.Get_Weighting().Set_BandWidth(75.);	// 75%
+	m_Cells.Get_Weighting().Create_Parameters(Parameters);
 }
 
 
@@ -263,7 +257,7 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 //---------------------------------------------------------
 int CRuggedness_VRM::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	m_Cells.Get_Weighting().Enable_Parameters(pParameters);
+	m_Cells.Get_Weighting().Enable_Parameters(*pParameters);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
@@ -282,8 +276,8 @@ bool CRuggedness_VRM::On_Execute(void)
 
 	DataObject_Set_Colors(m_pVRM, 11, SG_COLORS_RED_GREY_BLUE, true);
 
-	m_Cells.Get_Weighting().Set_Parameters(&Parameters);
-	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.0);
+	m_Cells.Get_Weighting().Set_Parameters(Parameters);
+	m_Cells.Get_Weighting().Set_BandWidth(Parameters("RADIUS")->asInt() * m_Cells.Get_Weighting().Get_BandWidth() / 100.);
 
 	if( !m_Cells.Set_Radius(Parameters("RADIUS")->asInt(), Parameters("MODE")->asInt() == 0) )
 	{
@@ -306,8 +300,8 @@ bool CRuggedness_VRM::On_Execute(void)
 
 			if( m_pDEM->Get_Gradient(x, y, slope, aspect) )
 			{
-				m_X.Set_Value(x, y, aspect < 0.0 ? 0.0 : sin(slope) * sin(aspect));
-				m_Y.Set_Value(x, y, aspect < 0.0 ? 0.0 : sin(slope) * cos(aspect));
+				m_X.Set_Value(x, y, aspect < 0. ? 0. : sin(slope) * sin(aspect));
+				m_Y.Set_Value(x, y, aspect < 0. ? 0. : sin(slope) * cos(aspect));
 				m_Z.Set_Value(x, y, cos(slope));
 			}
 			else
@@ -350,9 +344,9 @@ bool CRuggedness_VRM::Set_Index(int x, int y)
 		int		i, ix, iy;
 		double	Distance, Weight, n, sx, sy, sz;
 
-		for(i=0, n=sx=sy=sz=0.0; i<m_Cells.Get_Count(); i++)
+		for(i=0, n=sx=sy=sz=0.; i<m_Cells.Get_Count(); i++)
 		{
-			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0.0 && m_X.is_InGrid(ix, iy) )
+			if( m_Cells.Get_Values(i, ix = x, iy = y, Distance, Weight, true) && Weight > 0. && m_X.is_InGrid(ix, iy) )
 			{
 				sx	+= Weight * m_X.asDouble(ix, iy);
 				sy	+= Weight * m_Y.asDouble(ix, iy);
@@ -362,9 +356,9 @@ bool CRuggedness_VRM::Set_Index(int x, int y)
 		}
 
 		//-------------------------------------------------
-		if( n > 0.0 )
+		if( n > 0. )
 		{
-			m_pVRM->Set_Value(x, y, 1.0 - sqrt(sx*sx + sy*sy + sz*sz) / n);
+			m_pVRM->Set_Value(x, y, 1. - sqrt(sx*sx + sy*sy + sz*sz) / n);
 
 			return( true );
 		}
