@@ -104,6 +104,7 @@ CSG_String Get_Info(int i)
 #ifdef GDAL_V2_1_OR_NEWER
 #include "gdal_buildvrt.h"
 #endif
+#include "gdal_import_vrt.h"
 
 #include "ogr_import.h"
 #include "ogr_export.h"
@@ -141,12 +142,13 @@ CSG_Tool *		Create_Tool(int i)
 	#ifdef USE_GDAL_V2
 	case 12:	return( new CGDAL_BuildVRT );
 	#endif
-	
+	case 13:	return( new CGDAL_Import_VRT );
+
 	case 10:	return( new CGDAL_Formats );
 
 
 	//-----------------------------------------------------
-	case 13:	// initializations
+	case 14:	// initializations
 
 		CPLSetErrorHandler(CPLQuietErrorHandler);
 
