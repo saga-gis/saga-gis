@@ -21,6 +21,7 @@ gdal_formats.cpp\
 gdal_import.cpp\
 gdal_import_aster.cpp\
 gdal_import_netcdf.cpp\
+gdal_import_vrt.cpp\
 gdal_import_wms.cpp\
 MLB_Interface.cpp\
 ogr_driver.cpp\
@@ -36,6 +37,7 @@ gdal_formats.h\
 gdal_import.h\
 gdal_import_aster.h\
 gdal_import_netcdf.h\
+gdal_import_vrt.h\
 gdal_import_wms.h\
 MLB_Interface.h\
 ogr_driver.h\

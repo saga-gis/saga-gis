@@ -303,6 +303,7 @@
   <ItemGroup>
     <ClCompile Include="gdal_buildvrt.cpp" />
     <ClCompile Include="gdal_catalogue.cpp" />
+    <ClCompile Include="gdal_import_vrt.cpp" />
     <ClCompile Include="gdal_driver.cpp" />
     <ClCompile Include="gdal_export.cpp" />
     <ClCompile Include="gdal_export_geotiff.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
     <ClInclude Include="gdal_buildvrt.h" />
     <ClInclude Include="gdal_catalogue.h" />
+    <ClInclude Include="gdal_import_vrt.h" />
     <ClInclude Include="gdal_driver.h" />
     <ClInclude Include="gdal_export.h" />
     <ClInclude Include="gdal_export_geotiff.h" />
