@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,14 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -207,6 +196,12 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 		"LOOK_TB_SIZE"	, _TL("Tool Bar Button Size"),
 		_TL("Tool bar button sizes. You need to restart SAGA to apply the changes."),
 		16, 16, true
+	);
+
+	m_Parameters.Add_Int("NODE_LOOK",
+		"FLOAT_PRECISION", _TL("Floating Point Precision"),
+		_TL("Sets the (max) precision used when floating point values are rendered as text in settings controls. The value set to -1 means infinite precision."),
+		10, -1, true
 	);
 }
 

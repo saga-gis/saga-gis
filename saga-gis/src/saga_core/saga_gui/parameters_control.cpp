@@ -58,6 +58,7 @@
 
 #include "helper.h"
 
+#include "wksp_tool_manager.h"
 #include "wksp_data_manager.h"
 
 #include "parameters_control.h"
@@ -441,6 +442,8 @@ void CParameters_Control::_Add_Properties(CSG_Parameters *pParameters)
 	wxPGProperty *pPointClouds = NULL;
 	wxPGProperty *pOptions     = NULL;
 
+	m_Precision	= g_pTools->Get_Parameter("FLOAT_PRECISION")->asInt();
+
 	for(int i=0; i<pParameters->Get_Count(); i++)
 	{
 		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
@@ -579,7 +582,7 @@ wxPGProperty * CParameters_Control::_Get_Property(wxPGProperty *pParent, CSG_Par
 
 	case PARAMETER_TYPE_Double          :
 		ADD_PROPERTY(new wxFloatProperty      (Name, ID, pParameter->asDouble()), false);
-		pProperty->SetAttribute(wxPG_FLOAT_PRECISION, -1);
+		pProperty->SetAttribute(wxPG_FLOAT_PRECISION, m_Precision);
 		break;
 
 	case PARAMETER_TYPE_Range           :

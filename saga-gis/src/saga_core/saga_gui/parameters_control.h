@@ -77,55 +77,55 @@ public:
 	CParameters_Control(wxWindow *pParent, bool bDialog = false);
 	virtual ~CParameters_Control(void);
 
-	void						On_Size				(wxSizeEvent         &event);
-	void						On_Key				(wxKeyEvent          &event);
-	void						On_PG_Selected		(wxPropertyGridEvent &event);
-	void						On_PG_Changed		(wxPropertyGridEvent &event);
+	void							On_Size				(wxSizeEvent         &event);
+	void							On_Key				(wxKeyEvent          &event);
+	void							On_PG_Selected		(wxPropertyGridEvent &event);
+	void							On_PG_Changed		(wxPropertyGridEvent &event);
 
-	bool						Update_DataObjects	(void);
+	bool							Update_DataObjects	(void);
 
-	bool						Set_Parameters		(class CSG_Parameters *pParameters);
-	class CSG_Parameters *		Get_Parameters		(void)	{	return( m_pParameters );	}
+	bool							Set_Parameters		(class CSG_Parameters *pParameters);
+	class CSG_Parameters *			Get_Parameters		(void)	{	return( m_pParameters );	}
 
-	bool						is_Modified			(void)	{	return( m_bModified );	}
+	bool							is_Modified			(void)	{	return( m_bModified );	}
 
-	bool						Save_Changes		(bool bSilent);
-	bool						Restore				(void);
-	bool						Restore_Defaults	(void);
+	bool							Save_Changes		(bool bSilent);
+	bool							Restore				(void);
+	bool							Restore_Defaults	(void);
 
-	bool						Load				(void);
-	bool						Save				(void);
+	bool							Load				(void);
+	bool							Save				(void);
 
 
 private:
 
-	bool						m_bModified;
+	bool							m_bModified;
 	
-	int							m_bFocus;
+	int								m_bFocus, m_Precision;
 
-	class CSG_Parameters		*m_pParameters, *m_pOriginal;
+	class CSG_Parameters			*m_pParameters, *m_pOriginal;
 
 	class CParameters_Grid_Manager	*m_pPGM;
 
-	class wxPropertyGrid		*m_pPG;
+	class wxPropertyGrid			*m_pPG;
 
 
-	wxString					_Get_Identifier		(class CSG_Parameter *pParameter);
-	bool						_Get_Enabled		(class CSG_Parameter *pParameter);
+	wxString						_Get_Identifier		(class CSG_Parameter *pParameter);
+	bool							_Get_Enabled		(class CSG_Parameter *pParameter);
 
-	void						_Add_Properties		(class CSG_Parameters *pParameters);
-	void						_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
-	class wxPGProperty *		_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
+	void							_Add_Properties		(class CSG_Parameters *pParameters);
+	void							_Add_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
+	class wxPGProperty *			_Get_Property		(class wxPGProperty *pParent, class CSG_Parameter *pParameter);
 
-	void						_Set_Parameter		(wxPGProperty *pProperty);
-	class CSG_Parameter *		_Get_Parameter		(wxPGProperty *pProperty);
-	void						_Update_Parameters	(void);
-	void						_Update_Parameter	(class CSG_Parameter *pParameter);
-	void						_Init_Pararameters	(void);
+	void							_Set_Parameter		(wxPGProperty *pProperty);
+	class CSG_Parameter *			_Get_Parameter		(wxPGProperty *pProperty);
+	void							_Update_Parameters	(void);
+	void							_Update_Parameter	(class CSG_Parameter *pParameter);
+	void							_Init_Pararameters	(void);
 
 
-//---------------------------------------------------------
-DECLARE_EVENT_TABLE()
+	//-----------------------------------------------------
+	DECLARE_EVENT_TABLE()
 };
 
 
