@@ -242,6 +242,21 @@ bool CGDAL_Import_VRT::On_Execute(void)
 	Extent.Set_BottomLeft(minX, minY);
 	Extent.Set_TopRight(maxX, maxY);
 
+	//--------------------------------------------------------
+	// check if we query outside the VRT extent, and if so, set these
+	// areas to No Data in the result later; currently the used
+	// VRTAddSimpleSource() in Open_Read does not support the masking
+	// of these cells; this work around does not help with empty areas
+	// within the VRT extent
+
+	bool	bMaskOutsideVRT = false;
+
+	if( Extent.Get_XMin() < SystemVRT.Get_XMin(true) || Extent.Get_XMax() > SystemVRT.Get_XMax(true) ||
+		Extent.Get_YMin() < SystemVRT.Get_YMin(true) || Extent.Get_YMax() > SystemVRT.Get_YMax(true) )
+	{
+		bMaskOutsideVRT = true;
+	}
+
 
 	//--------------------------------------------------------
 	// read subset
@@ -303,6 +318,26 @@ bool CGDAL_Import_VRT::On_Execute(void)
 
 		if( pGrid != NULL )
 		{
+			if( bMaskOutsideVRT )
+			{
+				for(int y=0; y<pGrid->Get_NY() && Set_Progress(y); y++)
+				{
+					double yWorld = pGrid->Get_System().Get_yGrid_to_World(y);
+
+					#pragma omp parallel for
+					for(int x=0; x<pGrid->Get_NX(); x++)
+					{
+						double xWorld = pGrid->Get_System().Get_xGrid_to_World(x);
+
+						if( xWorld < SystemVRT.Get_XMin(true) || xWorld > SystemVRT.Get_XMax(true) ||
+							yWorld < SystemVRT.Get_YMin(true) || yWorld > SystemVRT.Get_YMax(true) )
+						{
+							pGrid->Set_NoData(x, y);
+						}
+					}
+				}
+			}
+
 			if( bTransform )
 			{
 				Process_Set_Text(Message.c_str(), _TL("translation"));
