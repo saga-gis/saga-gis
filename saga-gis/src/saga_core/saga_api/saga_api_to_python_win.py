@@ -8,26 +8,18 @@ saga_module = Extension(
 	],
 
 	include_dirs = [
-		os.environ['WXWIN'] + '/include',
-		os.environ['WXWIN'] + '/include/msvc',
 		'./'
 	],
 
 	library_dirs = [
-		os.environ['WXWINLIB'],
 		os.environ['SAGA_LIB']
 	],
 
 	libraries = [
-		'wxbase31u',
-		'wxbase31u_xml',
-		'wxbase31u_net',
 		'saga_api'
 	],
 
 	extra_compile_args = [
-		'-D__WXMSW__',
-		'-DWXUSINGDLL',
 		'-D_FILE_OFFSET_BITS=64',
 		'-D_LARGE_FILES',
 		'-D_LARGEFILE_SOURCE=1',
@@ -40,7 +32,7 @@ saga_module = Extension(
 
 setup(
 	name 		= 'SAGA Python API',
-	version 	= '0.1',
+	version 	= '1.0',
 	description = '',
 	ext_modules = [saga_module]
 )

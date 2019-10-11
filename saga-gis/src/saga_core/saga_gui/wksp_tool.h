@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_H
 #define _HEADER_INCLUDED__SAGA_GUI__WKSP_Tool_H
 
@@ -87,7 +75,7 @@ public:
 	CWKSP_Tool(class CSG_Tool *pTool, const wxString &Menu_Library);
 	virtual ~CWKSP_Tool(void);
 
-	virtual TWKSP_Item				Get_Type			(void)			{	return( WKSP_ITEM_Tool );	}
+	virtual TWKSP_Item				Get_Type			(void)	{	return( WKSP_ITEM_Tool );	}
 
 	virtual wxString				Get_Name			(void);
 	virtual wxString				Get_Description		(void);
@@ -98,10 +86,10 @@ public:
 
 	virtual class CSG_Parameters *	Get_Parameters		(void);
 
-	class CSG_Tool *				Get_Tool			(void)			{	return( m_pTool );	}
+	class CSG_Tool *				Get_Tool			(void)	{	return( m_pTool );	}
 
 	void							Set_Menu_ID			(int Menu_ID);
-	int								Get_Menu_ID			(void)			{	return( m_Menu_ID );	}
+	int								Get_Menu_ID			(void)	{	return( m_Menu_ID );	}
 
 	bool							is_Interactive		(void);
 	bool							is_Executing		(void);
@@ -114,20 +102,20 @@ private:
 
 	int								m_Menu_ID;
 
-	class CSG_Tool				*m_pTool;
+	class CSG_Tool					*m_pTool;
 
 
-	void							_Save_to_Clipboard		(void);
-	void							_Save_to_Script			(void);
+	void							_Save_to_Clipboard	(void);
+	void							_Save_to_Script		(void);
 
-	CSG_String						_Get_XML				(bool bHeader);
-	void							_Get_XML				(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
+	CSG_String						_Get_XML			(bool bHeader);
+	void							_Get_XML			(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
 
-	CSG_String						_Get_CMD				(bool bHeader, int Type = -1);
-	void							_Get_CMD				(CSG_String &Command, CSG_Parameters *pParameters);
+	CSG_String						_Get_CMD			(bool bHeader, int Type = -1);
+	void							_Get_CMD			(CSG_String &Command, CSG_Parameters *pParameters);
 
-	CSG_String						_Get_Python				(bool bHeader);
-	void							_Get_Python				(CSG_String &Command, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
+	CSG_String						_Get_Python			(bool bHeader);
+	void							_Get_Python			(CSG_String &Command, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
 
 };
 

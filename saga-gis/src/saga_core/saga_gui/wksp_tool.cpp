@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/utils.h>
 #include <wx/filename.h>
 
@@ -72,7 +60,6 @@
 #include "active_parameters.h"
 
 #include "wksp_data_manager.h"
-
 #include "wksp_tool_manager.h"
 #include "wksp_tool_library.h"
 #include "wksp_tool.h"
@@ -97,7 +84,7 @@ CWKSP_Tool	*g_pTool	= NULL;
 //---------------------------------------------------------
 CWKSP_Tool::CWKSP_Tool(CSG_Tool *pTool, const wxString &Menu_Library)
 {
-	m_pTool	= pTool;
+	m_pTool		= pTool;
 	m_Menu_ID	= -1;
 }
 
@@ -121,8 +108,6 @@ CWKSP_Tool::~CWKSP_Tool(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -137,7 +122,6 @@ wxString CWKSP_Tool::Get_Name(void)
 //---------------------------------------------------------
 wxString CWKSP_Tool::Get_Description(void)
 {
-	//-----------------------------------------------------
 	if( !m_pTool->Get_File_Name().is_Empty() )
 	{
 		CSG_String	Lib_Name	= SG_File_Get_Name(m_pTool->Get_File_Name(), false);
@@ -204,8 +188,6 @@ CSG_Parameters * CWKSP_Tool::Get_Parameters(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -252,20 +234,16 @@ bool CWKSP_Tool::On_Command(int Cmd_ID)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-void CWKSP_Tool::Set_Menu_ID(int aMenu_ID)
+void CWKSP_Tool::Set_Menu_ID(int Menu_ID)
 {
-	m_Menu_ID	= aMenu_ID;
+	m_Menu_ID	= Menu_ID;
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -283,8 +261,6 @@ bool CWKSP_Tool::is_Executing(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -673,8 +649,6 @@ CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
 }
 
 //---------------------------------------------------------
-#include "wksp_data_manager.h"
-
 #define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
 						? CSG_String::Format("%s_%s", p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: CSG_String::Format(p->Get_Identifier())).c_str()
@@ -803,9 +777,20 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	{
 		s	+= "#! /usr/bin/env python\n";
 		s	+= "\n";
-		s	+= "import saga_api, sys, os\n";
+		s	+= "import os\n";
+		s	+= "\n";
+		s	+= "if os.name == 'nt': # Windows\n";
+		s	+= "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
+		s	+= "        os.environ['SAGA_PATH'] = 'D:/saga/saga-code/master/saga-gis/bin/saga_vc_win32'\n";
+		s	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep +    ';' + os.environ['PATH']\n";
+		s	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']\n";
+		s	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll'\n";
+		s	+= "    os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'\n";
+		s	+= "\n";
+		s	+= "import sys, saga_api\n";
 		s	+= "\n";
 		s	+= "##########################################\n";
+		s	+= "\n";
 	}
 
 	//-----------------------------------------------------
@@ -830,11 +815,11 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
     s	+= "        print('Failed to create tool: " + m_pTool->Get_Name() + "')\n";
 	s	+= "        return False\n";
 	s	+= "\n";
-	s	+= "    Parm = Tool.Get_Parameters()\n";
 
 	if( m_pTool->Get_Type() == TOOL_TYPE_Grid )
 	{
-		s	+= "    Parm.Reset_Grid_System()\n";
+		s	+= "    Tool.Get_Parameters().Reset_Grid_System()\n";
+		s	+= "\n";
 	}
 
 	//-------------------------------------------------
@@ -842,9 +827,7 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 
 	for(int iParameters=0; iParameters<m_pTool->Get_Parameters_Count(); iParameters++)
 	{
-		s	+= CSG_String::Format("\n    Parm = Tool.Get_Parameters(%d) # additional parameter list\n", iParameters);
-
-		_Get_Python(s, m_pTool->Get_Parameters(iParameters));
+		_Get_Python(s, m_pTool->Get_Parameters(iParameters), m_pTool->Get_Parameters(iParameters)->Get_Identifier());
 	}
 
 	//-------------------------------------------------
@@ -858,7 +841,6 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	s	+= "    #_____________________________________\n";
 	s	+= "    # Save results to file:\n";
 	s	+= "    Path = os.path.split(File)[0] + os.sep\n";
-	s	+= "    Parm = Tool.Get_Parameters()\n";
 
 	for(int iParameter=0; iParameter<m_pTool->Get_Parameters()->Get_Count(); iParameter++)
 	{
@@ -879,14 +861,17 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 			default                           : ext = ""              ; break;
 			}
 
+			s	+= "\n";
+
 			if( p->is_DataObject() )
 			{
-				s	+= "    Parm('" +  id + "').asDataObject().Save(Path + Parm('" +  id + "').asDataObject().Get_Name()" + ext + ")\n";
+				s	+= "    Data = Tool.Get_Parameter('" +  id + "').asDataObject()\n";
+				s	+= "    Data.Save(Path + Data.Get_Name()" + ext + ")\n";
 			}
 			else if( p->is_DataObject_List() )
 			{
-				s	+= "    List = Parm('" +  id + "').asList()\n";
-				s	+= "    Name = Path + Parm('" +  id + "').Get_Name()\n";
+				s	+= "    List = Tool.Get_Parameter('" +  id + "').asList()\n";
+				s	+= "    Name = Path + List.Get_Name()\n";
 				s	+= "    for i in range(0, List.Get_Data_Count()):\n";
 				s	+= "        List.Get_Data(i).Save(Name + str(i)" + ext + ")\n";
 			}
@@ -911,24 +896,25 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "##########################################\n";
 		s	+= "if __name__ == '__main__':\n";
 		s	+= "    #____________________________________\n";
-		s	+= "    # The following will load all tools from the SAGA installation directory (adjust the path to your system)\n";
-		s	+= "    # and if available the directory defined by the environment variable SAGA_TLB\n";
+		s	+= "    # The next lines will try to load all tools from the SAGA installation directory\n";
+		s	+= "    # and - if available - from the directory defined by the SAGA_TLB environment variable.\n";
+		s	+= "\n";
+		s	+= "    if os.name == 'nt': # Windows\n";
+		s	+= "        Dir_Tools = os.environ['SAGA_PATH'] + os.sep + 'tools'\n";
+		s	+= "    else:               # Linux\n";
+		s	+= "        Dir_Tools = '/usr/local/lib/saga' # you might have to adjust this path to your system\n";
+		s	+= "\n";
 		s	+= "    saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
 		s	+= "\n";
-		s	+= "    if os.name == 'nt':    # Windows\n";
-		s	+= "        saga_path = os.environ['SAGA_32'] # e.g. import SAGA installation directory from an environment variable\n";
-		s	+= "        os.environ['PATH'] = os.environ['PATH'] + ';' + saga_path + '/dll' # library dependencies\n";
-		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(saga_path + '/tools', False)\n";
-		s	+= "    else:                  # Linux\n";
-		s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory('/usr/local/lib/saga' , False)\n";
+		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(Dir_Tools, False)\n";
 		s	+= "\n";
-        s   += "    try:\n";
+		s   += "    if os.getenv('SAGA_TLB') is not None:\n";
         s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
-        s   += "    except KeyError:\n";
-        s   += "        print(\"SAGA_TLB environment variable not set\")\n";
+		s	+= "\n";
 		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
 		s	+= "\n";
-        s	+= "    print('Python - Version ' + sys.version)\n";
+		s	+= "    #____________________________________\n";
+		s	+= "    print('Python - Version ' + sys.version)\n";
         s	+= "    print(saga_api.SAGA_API_Get_Version())\n";
         s	+= "    print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
         s	+= "    print()\n";
@@ -973,45 +959,45 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, c
 			break;
 
 		case PARAMETER_TYPE_Bool           :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%s)\n", ID.c_str(), p->asBool() ? SG_T("True") : SG_T("False"));
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', %s)\n", ID.c_str(), p->asBool() ? SG_T("True") : SG_T("False"));
 			break;
 
 		case PARAMETER_TYPE_Int            :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%d)\n", ID.c_str(), p->asInt());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', %d)\n", ID.c_str(), p->asInt());
 			break;
 
 		case PARAMETER_TYPE_Choice         :
 		case PARAMETER_TYPE_Choices        :
 		case PARAMETER_TYPE_Table_Field    :
 		case PARAMETER_TYPE_Table_Fields   :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asString());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_Double         :
 		case PARAMETER_TYPE_Degree         :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(%f)\n", ID.c_str(), p->asDouble());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', %f)\n", ID.c_str(), p->asDouble());
 			break;
 
 		case PARAMETER_TYPE_Range          :
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Min(%f)\n", ID.c_str(), p->asRange()->Get_Min());
-			Command	+= CSG_String::Format("    Parm('%s').asRange().Set_Max(%f)\n", ID.c_str(), p->asRange()->Get_Max());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s.MIN', %f)\n", ID.c_str(), p->asRange()->Get_Min());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s.MAX', %f)\n", ID.c_str(), p->asRange()->Get_Max());
 			break;
 
 		case PARAMETER_TYPE_Date           :
 		case PARAMETER_TYPE_String         :
 		case PARAMETER_TYPE_Text           :
 		case PARAMETER_TYPE_FilePath       :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s')\n", ID.c_str(), p->asString());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s')\n", ID.c_str(), p->asString());
 			break;
 
 		case PARAMETER_TYPE_FixedTable     :
-			Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Create_Table('table.txt'))\n", ID.c_str());
+			Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Create_Table('table.txt'))\n", ID.c_str());
 			break;
 
 		case PARAMETER_TYPE_Grid_System    :
 			if( p->Get_Children_Count() == 0 )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", ID.c_str(),
+				Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.CSG_Grid_System(%f, %f, %f, %d, %d))\n", ID.c_str(),
 					p->asGrid_System()->Get_Cellsize(),
 					p->asGrid_System()->Get_XMin(), p->asGrid_System()->Get_YMin(),
 					p->asGrid_System()->Get_NX  (), p->asGrid_System()->Get_NY  ()
@@ -1027,13 +1013,13 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, c
 
 			if( p->is_Input() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value('%s input%s')\n", ID.c_str(),
+				Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', '%s input%s')\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}
 			else if( p->is_Output() && p->is_Optional() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').Set_Value(saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
+				Command	+= CSG_String::Format("    Tool.Set_Parameter('%s', saga_api.SG_Get_Create_Pointer()) # optional output, remove this line, if you don't want to create it\n", ID.c_str());
 			}
 			break;
 
@@ -1045,7 +1031,7 @@ void CWKSP_Tool::_Get_Python(CSG_String &Command, CSG_Parameters *pParameters, c
 		case PARAMETER_TYPE_PointCloud_List:
 			if( p->is_Input() )
 			{
-				Command	+= CSG_String::Format("    Parm('%s').asList().Add_Item('%s input list%s')\n", ID.c_str(),
+				Command	+= CSG_String::Format("    Tool.Get_Parameter('%s').asList().Add_Item('%s input list%s')\n", ID.c_str(),
 					SG_Get_DataObject_Name(p->Get_DataObject_Type()).c_str(), p->is_Optional() ? SG_T(", optional") : SG_T("")
 				);
 			}

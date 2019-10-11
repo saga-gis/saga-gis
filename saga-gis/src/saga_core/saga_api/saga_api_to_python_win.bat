@@ -4,9 +4,7 @@ rem #########################################
 set SWIG=D:\libs\swigwin-3.0.7
 set PYTHONPATH=D:\libs\Python-2.7
 
-set WXWINLIB=%WXWIN%\lib\vc_dll
 set SAGA_LIB=%SAGA%\bin\saga_vc_Win32
-rem set WXWINLIB=%WXWIN%\lib\vc_x64_dll
 rem set SAGA_LIB=%SAGA%\bin\saga_vc_x64
 
 rem #########################################
