@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: line_split_with_lines.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "line_split_with_lines.h"
 
 
@@ -70,38 +58,37 @@
 //---------------------------------------------------------
 CLine_Split_with_Lines::CLine_Split_with_Lines(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Split Lines with Lines"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2014"));
+	Set_Author		("O. Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"Split Lines with Lines."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Lines"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Line
+		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "SPLIT"		, _TL("Split Features"),
+	Parameters.Add_Shapes("",
+		"SPLIT"		, _TL("Split Features"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Line
+		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "INTERSECT"	, _TL("Intersection"),
+	Parameters.Add_Shapes("",
+		"INTERSECT"	, _TL("Intersection"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Choice("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("polylines"),
 			_TL("separate lines")
 		), 1
@@ -116,11 +103,9 @@ CLine_Split_with_Lines::CLine_Split_with_Lines(void)
 //---------------------------------------------------------
 bool CLine_Split_with_Lines::On_Execute(void)
 {
-	CSG_Shapes	*pLines, *pSplit, *pIntersect;
-
-	pLines		= Parameters("LINES"    )->asShapes();
-	pSplit		= Parameters("SPLIT"    )->asShapes();
-	pIntersect	= Parameters("INTERSECT")->asShapes();
+	CSG_Shapes	*pLines		= Parameters("LINES"    )->asShapes();
+	CSG_Shapes	*pSplit		= Parameters("SPLIT"    )->asShapes();
+	CSG_Shapes	*pIntersect	= Parameters("INTERSECT")->asShapes();
 
 	if(	!pLines->is_Valid() || pLines->Get_Count() < 1
 	||	!pSplit->is_Valid() || pSplit->Get_Count() < 1
@@ -133,14 +118,14 @@ bool CLine_Split_with_Lines::On_Execute(void)
 
 	//--------------------------------------------------------
 	pIntersect->Create(SHAPE_TYPE_Line,
-		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Split"), pSplit->Get_Name()),
+		CSG_String::Format("%s [%s: %s]", pLines->Get_Name(), _TL("Split"), pSplit->Get_Name()),
 		pLines
 	);
 
 	//--------------------------------------------------------
 	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		CSG_Shape	*pLine	= pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
+		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
 
 		for(int iSplit=0; iSplit<pSplit->Get_Count(); iSplit++)
 		{
@@ -160,16 +145,13 @@ bool CLine_Split_with_Lines::On_Execute(void)
 
 		if( Parameters("OUTPUT")->asInt() == 1 )
 		{
-			while( pLine->Get_Part_Count() > 1 )
+			for(int iPart=pLine->Get_Part_Count()-1; iPart>1; iPart--)
 			{
 				CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
 
-				for(int iPoint=0; iPoint<pLine->Get_Point_Count(1); iPoint++)
-				{
-					pAdd->Add_Point(pLine->Get_Point(iPoint, 1));
-				}
+				pAdd->Add_Part(pLine->Get_Part(iPart));
 
-				pLine->Del_Part(1);
+				pLine->Del_Part(iPart);
 			}
 		}
 	}
@@ -183,7 +165,7 @@ bool CLine_Split_with_Lines::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLine_Split_with_Lines::Get_Intersection(CSG_Shape *pLine, CSG_Shape_Part *pSplit)
+bool CLine_Split_with_Lines::Get_Intersection(CSG_Shape_Line *pLine, CSG_Shape_Part *pSplit)
 {
 	CSG_Shapes	New(SHAPE_TYPE_Line);
 	CSG_Shape	*pNew	= New.Add_Shape();
@@ -234,47 +216,46 @@ bool CLine_Split_with_Lines::Get_Intersection(CSG_Shape *pLine, CSG_Shape_Part *
 //---------------------------------------------------------
 CLine_Split_at_Points::CLine_Split_at_Points(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Split Lines at Points"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2015"));
+	Set_Author		("O. Conrad (c) 2015");
 
 	Set_Description	(_TW(
 		"Split Lines at Points."
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"		, _TL("Lines"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Line
+		PARAMETER_INPUT , SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "SPLIT"		, _TL("Split Features"),
+	Parameters.Add_Shapes("",
+		"SPLIT"		, _TL("Split Features"),
 		_TL(""),
-		PARAMETER_INPUT, SHAPE_TYPE_Point
+		PARAMETER_INPUT , SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "INTERSECT"	, _TL("Intersection"),
+	Parameters.Add_Shapes("",
+		"INTERSECT"	, _TL("Intersection"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Output"),
+	Parameters.Add_Choice("",
+		"OUTPUT"	, _TL("Output"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("polylines"),
 			_TL("separate lines")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "EPSILON"		, _TL("Epsilon"),
+	Parameters.Add_Double("",
+		"EPSILON"	, _TL("Epsilon"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0, true
+		0., true
 	);
 }
 
@@ -286,15 +267,13 @@ CLine_Split_at_Points::CLine_Split_at_Points(void)
 //---------------------------------------------------------
 bool CLine_Split_at_Points::On_Execute(void)
 {
-	CSG_Shapes	*pLines, *pSplit, *pIntersect;
+	CSG_Shapes	*pLines		= Parameters("LINES"    )->asShapes();
+	CSG_Shapes	*pPoints	= Parameters("SPLIT"    )->asShapes();
+	CSG_Shapes	*pIntersect	= Parameters("INTERSECT")->asShapes();
 
-	pLines		= Parameters("LINES"    )->asShapes();
-	pSplit		= Parameters("SPLIT"    )->asShapes();
-	pIntersect	= Parameters("INTERSECT")->asShapes();
-
-	if(	!pLines->is_Valid() || pLines->Get_Count() < 1
-	||	!pSplit->is_Valid() || pSplit->Get_Count() < 1
-	||	pLines->Get_Extent().Intersects(pSplit->Get_Extent()) == INTERSECTION_None )
+	if(	!pLines ->is_Valid() || pLines ->Get_Count() < 1
+	||	!pPoints->is_Valid() || pPoints->Get_Count() < 1
+	||	pLines->Get_Extent().Intersects(pPoints->Get_Extent()) == INTERSECTION_None )
 	{
 		Error_Set(_TL("no lines for splitting"));
 
@@ -303,7 +282,7 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 	//--------------------------------------------------------
 	pIntersect->Create(SHAPE_TYPE_Line,
-		CSG_String::Format(SG_T("%s [%s: %s]"), pLines->Get_Name(), _TL("Split"), pSplit->Get_Name()),
+		CSG_String::Format("%s [%s: %s]", pLines->Get_Name(), _TL("Split"), pPoints->Get_Name()),
 		pLines
 	);
 
@@ -312,13 +291,13 @@ bool CLine_Split_at_Points::On_Execute(void)
 	//--------------------------------------------------------
 	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
 	{
-		CSG_Shape	*pLine	= pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
+		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLines->Get_Shape(iLine), SHAPE_COPY);
 
 		CSG_Rect	Extent	= pLine->Get_Extent();	Extent.Inflate(Epsilon, false);
 
-		for(int iSplit=0; iSplit<pSplit->Get_Count(); iSplit++)
+		for(int iPoint=0; iPoint<pPoints->Get_Count(); iPoint++)
 		{
-			TSG_Point	Point	= pSplit->Get_Shape(iSplit)->Get_Point(0);
+			TSG_Point	Point	= pPoints->Get_Shape(iPoint)->Get_Point(0);
 
 			if( Extent.Contains(Point) )
 			{
@@ -328,16 +307,13 @@ bool CLine_Split_at_Points::On_Execute(void)
 
 		if( Parameters("OUTPUT")->asInt() == 1 )
 		{
-			while( pLine->Get_Part_Count() > 1 )
+			for(int iPart=pLine->Get_Part_Count()-1; iPart>1; iPart--)
 			{
 				CSG_Shape_Line	*pAdd	= (CSG_Shape_Line *)pIntersect->Add_Shape(pLine, SHAPE_COPY_ATTR);	// only attributes
 
-				for(int iPoint=0; iPoint<pLine->Get_Point_Count(1); iPoint++)
-				{
-					pAdd->Add_Point(pLine->Get_Point(iPoint, 1));
-				}
+				pAdd->Add_Part(pLine->Get_Part(iPart));
 
-				pLine->Del_Part(1);
+				pLine->Del_Part(iPart);
 			}
 		}
 	}
@@ -351,56 +327,51 @@ bool CLine_Split_at_Points::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CLine_Split_at_Points::Get_Intersection(CSG_Shape *pLine, TSG_Point Point, double Epsilon)
+bool CLine_Split_at_Points::Get_Intersection(CSG_Shape_Line *pLine, TSG_Point Point, double Epsilon)
 {
-	int			min_iPart, min_iPoint;
-	double		min_Dist	= 1.1 * Epsilon;
-	TSG_Point	min_C;
-
-	for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+	for(int iPart=pLine->Get_Part_Count()-1; iPart>=0; iPart--)
 	{
-		TSG_Point	C, B, A	= pLine->Get_Point(0, iPart);
+		CSG_Shape_Part	*pPart	= pLine->Get_Part(iPart);
 
-		for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
+		TSG_Point	min_C, C, B, A	= pLine->Get_Point(0, iPart);
+
+		int min_iPoint; double min_Dist = 1. + Epsilon;
+
+		for(int iPoint=1; iPoint<pPart->Get_Count(); iPoint++)
 		{
-			B	= A;	A	= pLine->Get_Point(iPoint, iPart);
+			B = A; A = pPart->Get_Point(iPoint);
 
 			double	Dist	= SG_Get_Nearest_Point_On_Line(Point, A, B, C, true);
 
-			if( Dist < min_Dist )
+			if( min_Dist > Dist && Dist >= 0. )
 			{
 				min_Dist	= Dist;
-				min_C		= C;
-				min_iPart	= iPart;
 				min_iPoint	= iPoint;
+				min_C		= C;
 			}
 		}
+
+		if( min_Dist <= Epsilon )
+		{
+			int	addPart	= pLine->Get_Part_Count();
+
+			pLine->Add_Point(min_C, addPart);
+
+			for(int iPoint=min_iPoint; iPoint<pPart->Get_Count(); iPoint++)
+			{
+				pLine->Add_Point(pPart->Get_Point(iPoint), addPart);
+			}
+
+			for(int iPoint=pPart->Get_Count()-1; iPoint>=min_iPoint; iPoint--)
+			{
+				pPart->Del_Point(iPoint);
+			}
+
+			pPart->Add_Point(min_C);
+		}
 	}
 
-	if( min_Dist <= Epsilon )
-	{
-		int		iPoint;
-
-		CSG_Shape_Part	*pPart	= ((CSG_Shape_Line *)pLine)->Get_Part(min_iPart);
-
-		pLine->Add_Point(min_C, min_iPart = pLine->Get_Part_Count());
-
-		for(iPoint=min_iPoint; iPoint<pPart->Get_Count(); iPoint++)
-		{
-			pLine->Add_Point(pPart->Get_Point(iPoint), min_iPart);
-		}
-
-		for(iPoint=pPart->Get_Count()-1; iPoint>=min_iPoint; iPoint--)
-		{
-			pPart->Del_Point(iPoint);
-		}
-
-		pPart->Add_Point(min_C);
-
-		return( true );
-	}
-
-	return( false );
+	return( true );
 }
 
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: line_split_with_lines.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__line_split_with_lines_H
 #define HEADER_INCLUDED__line_split_with_lines_H
 
@@ -69,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -92,7 +80,7 @@ protected:
 
 private:
 
-	bool					Get_Intersection	(CSG_Shape *pLine, CSG_Shape_Part *pSplit);
+	bool					Get_Intersection	(CSG_Shape_Line *pLine, CSG_Shape_Part *pSplit);
 
 };
 
@@ -115,7 +103,7 @@ protected:
 
 private:
 
-	bool					Get_Intersection	(CSG_Shape *pLine, TSG_Point Point, double Epsilon);
+	bool					Get_Intersection	(CSG_Shape_Line *pLine, TSG_Point Point, double Epsilon);
 
 };
 

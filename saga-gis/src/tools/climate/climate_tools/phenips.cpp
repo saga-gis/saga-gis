@@ -182,16 +182,19 @@ private:
 		return( !bNorm ? BTsum : BTsum / m_DDtotal );
 	}
 
-
 	//---------------------------------------------------------
 	static double		Get_BTmean			(double ATmean, double SIrel)	// Formula (A.3) (Baier et al. 2007)
 	{
-		return( -0.173 + 0.0008518 * SIrel + 1.054 * ATmean );
+		double	BTmean	=  -0.173 + 0.0008518 * SIrel + 1.054 * ATmean;
+
+		return( BTmean > 0. ? BTmean : 0. );
 	}
 
 	static double		Get_BTmax			(double ATmax, double SIrel)	// Formula (A.4) (Baier et al. 2007)
 	{
-		return( 1.656 + 0.002955 * SIrel + 0.534 * ATmax + 0.01884 * ATmax*ATmax );
+		double	BTmax	= 1.656 + 0.002955 * (SIrel > 0. ? SIrel : 0.) + 0.534 * ATmax + 0.01884 * ATmax*ATmax;
+
+		return( BTmax > 0. ? BTmax : 0. );
 	}
 
 	static double		Get_BTsum_Diff		(double BTmax)					// Formula (A.5) (Baier et al. 2007)
@@ -204,7 +207,10 @@ private:
 	//---------------------------------------------------------
 	bool				Get_Onset			(double ATmax)					// Formula (A.8) (Baier et al. 2007)
 	{
-		m_ATsum_eff	+= ATmax - m_DTminimum;	// add to effective maximum air temperature sum
+		if( ATmax > m_DTminimum )
+		{
+			m_ATsum_eff	+= ATmax - m_DTminimum;	// add to effective maximum air temperature sum
+		}
 
 		return( ATmax > m_FAminimum && m_ATsum_eff >= m_DDminimum );	// maximum air temperature above development minimum (= effective maximum air temperature)
 	}
@@ -722,7 +728,7 @@ bool CPhenIps_Grids::Initialize(bool bReset)
 	}
 
 	//-----------------------------------------------------
-	#define GRID_RESET(g, b)	if( bReset && g ) { DataObject_Set_Colors(g, 11, SG_COLORS_RAINBOW, b); g->Set_NoData_Value_Range(-2., 0.); }
+	#define GRID_RESET(g, b) if( bReset && g ) { DataObject_Set_Colors(g, 11, SG_COLORS_RAINBOW, b); g->Assign(0.); g->Set_NoData_Value_Range(-2., 0.); }
 
 	m_pOnset	= Parameters("ONSET")->asGrid(); GRID_RESET(m_pOnset, true);
 
