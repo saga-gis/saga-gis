@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -322,10 +310,12 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				"%s (*.sg-grd-z)|*.sg-grd-z|"
 				"%s (*.sg-grd)|*.sg-grd|"
 				"%s (*.sgrd)|*.sgrd|"
+				"%s (*.tif)|*.tif;*.tiff|"
 				"%s|*.*",
 				_TL("SAGA Compressed Grid Files"),
 				_TL("SAGA Grid Files"),
 				_TL("SAGA Grid Files (old extension)"),
+				_TL("GeoTIFF"),
 				_TL("All Files")
 			));
 
@@ -334,10 +324,12 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				"%s (*.sg-grd)|*.sg-grd|"
 				"%s (*.sg-grd-z)|*.sg-grd-z|"
 				"%s (*.sgrd)|*.sgrd|"
+				"%s (*.tif)|*.tif;*.tiff|"
 				"%s|*.*",
 				_TL("SAGA Grid Files"),
 				_TL("SAGA Compressed Grid Files"),
 				_TL("SAGA Grid Files (old extension)"),
+				_TL("GeoTIFF"),
 				_TL("All Files")
 			));
 
@@ -346,7 +338,23 @@ wxString DLG_Get_FILE_Filter(int ID_DLG)
 				"%s (*.sgrd)|*.sgrd|"
 				"%s (*.sg-grd-z)|*.sg-grd-z|"
 				"%s (*.sg-grd)|*.sg-grd|"
+				"%s (*.tif)|*.tif;*.tiff|"
 				"%s|*.*",
+				_TL("SAGA Grid Files (old extension)"),
+				_TL("SAGA Compressed Grid Files"),
+				_TL("SAGA Grid Files"),
+				_TL("GeoTIFF"),
+				_TL("All Files")
+			));
+
+		case GRID_FILE_FORMAT_GeoTIFF:	// GeoTIFF
+			return( wxString::Format(
+				"%s (*.tif)|*.tif;*.tiff|"
+				"%s (*.sgrd)|*.sgrd|"
+				"%s (*.sg-grd-z)|*.sg-grd-z|"
+				"%s (*.sg-grd)|*.sg-grd|"
+				"%s|*.*",
+				_TL("GeoTIFF"),
 				_TL("SAGA Grid Files (old extension)"),
 				_TL("SAGA Compressed Grid Files"),
 				_TL("SAGA Grid Files"),

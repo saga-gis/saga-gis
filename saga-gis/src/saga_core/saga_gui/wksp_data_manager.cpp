@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,14 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -256,10 +245,11 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Choice("NODE_GRID",
 		"GRID_FMT_DEFAULT"		, _TL("Default Output Format"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s",
-			_TL("SAGA Compressed Grid File (*.sg-grd-z)"),
-			_TL("SAGA Grid File (*.sg-grd)"),
-			_TL("SAGA Grid File (*.sgrd)")
+		CSG_String::Format("%s (*.sg-grd-z)|%s (*.sg-grd)|%s (*.sgrd)|%s (*.tif)",
+			_TL("SAGA Compressed Grid Files"),
+			_TL("SAGA Grid Files"),
+			_TL("SAGA Grid Files (old extension)"),
+			_TL("GeoTIFF")
 		), 2
 	);
 
@@ -366,6 +356,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	default: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Compressed); break;
 	case  1: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary    ); break;
 	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary_old); break;
+	case  3: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
 	}
 
 	switch( m_Parameters("SHAPES_FMT_DEFAULT")->asInt() )
@@ -717,6 +708,7 @@ void CWKSP_Data_Manager::Parameters_Changed(void)
 	default: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Compressed); break;
 	case  1: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary    ); break;
 	case  2: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_Binary_old); break;
+	case  3: SG_Grid_Set_File_Format_Default(GRID_FILE_FORMAT_GeoTIFF   ); break;
 	}
 
 	switch( m_Parameters("SHAPES_FMT_DEFAULT")->asInt() )

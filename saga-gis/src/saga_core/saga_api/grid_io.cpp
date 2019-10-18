@@ -111,6 +111,7 @@ bool					SG_Grid_Set_File_Format_Default	(int Format)
 	case GRID_FILE_FORMAT_Binary    :
 	case GRID_FILE_FORMAT_Compressed:
 	case GRID_FILE_FORMAT_ASCII     :
+	case GRID_FILE_FORMAT_GeoTIFF   :
 		gSG_Grid_File_Format_Default	= (TSG_Grid_File_Format)Format;
 		return( true );
 	}
@@ -130,9 +131,10 @@ CSG_String				SG_Grid_Get_File_Extension_Default	(void)
 	switch( gSG_Grid_File_Format_Default )
 	{
 	default:
-	case GRID_FILE_FORMAT_Binary_old:	return( "sgrd"     );
-	case GRID_FILE_FORMAT_Binary    :	return( "sg-grd"   );
 	case GRID_FILE_FORMAT_Compressed:	return( "sg-grd-z" );
+	case GRID_FILE_FORMAT_Binary    :	return( "sg-grd"   );
+	case GRID_FILE_FORMAT_Binary_old:	return( "sgrd"     );
+	case GRID_FILE_FORMAT_GeoTIFF   :	return( "tif"      );
 	}
 }
 
