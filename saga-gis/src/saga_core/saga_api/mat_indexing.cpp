@@ -313,7 +313,7 @@ bool CSG_Index::_Set_Array(int nValues)
 					}
 				}
 
-				int	c = m_Index[i]; m_Index[i] = m_Index[i] = m_Index[j]; m_Index[j] = c;
+				int	c = m_Index[i]; m_Index[i] = m_Index[j]; m_Index[j] = c;
 			}
 		}
 	}
