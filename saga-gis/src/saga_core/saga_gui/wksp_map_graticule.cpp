@@ -261,12 +261,7 @@ wxString CWKSP_Map_Graticule::Get_Name(void)
 {
 	wxString	Name(m_Parameters("NAME")->asString());
 
-	if( !m_bShow )
-	{
-		return( "[" + Name + "]" );
-	}
-
-	return( Name );
+	return( !m_bShow ? "* " + Name : Name );
 }
 
 //---------------------------------------------------------

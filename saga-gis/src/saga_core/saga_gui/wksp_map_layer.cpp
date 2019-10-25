@@ -88,7 +88,9 @@ CWKSP_Map_Layer::CWKSP_Map_Layer(CWKSP_Layer *pLayer)
 //---------------------------------------------------------
 wxString CWKSP_Map_Layer::Get_Name(void)
 {
-	return( m_bShow ? m_pLayer->Get_Name() : wxString::Format("[%s]", m_pLayer->Get_Name().c_str()) );
+	wxString	Name(m_pLayer->Get_Name());
+
+	return( !m_bShow ? "* " + Name : Name );
 }
 
 //---------------------------------------------------------
@@ -270,6 +272,11 @@ bool CWKSP_Map_Layer::Load_Settings(CSG_MetaData *pEntry)
 		m_bShow      = !(*pEntry)("SHOW"     ) || (*pEntry)["SHOW"     ].Get_Content().CmpNoCase("true") == 0;
 		m_bProject   =  (*pEntry)("PROJECT"  ) && (*pEntry)["PROJECT"  ].Get_Content().CmpNoCase("true") == 0;
 		m_bFitColors =  (*pEntry)("FITCOLORS") && (*pEntry)["FITCOLORS"].Get_Content().CmpNoCase("true") == 0;
+
+		if( !m_bShow )
+		{
+			((wxTreeCtrl *)Get_Control())->SetItemText(GetId(), Get_Name());
+		}
 
 		return( true );
 	}
