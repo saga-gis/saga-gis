@@ -246,53 +246,42 @@ void CSG_Index::Show_Progress(bool bProgress)
 //---------------------------------------------------------
 bool CSG_Index::Add_Entry(int Position)
 {
-	if( Position < 0 || Position >= m_nValues )
+	if( Position < 0 || Position >= m_nValues - 1 )
 	{
-		Position	= m_nValues;
+		return( _Set_Array(m_nValues + 1) );
 	}
 
-	if( !_Set_Array(m_nValues + 1) )
-	{
-		return( false );
-	}
-
-	if( Position < m_nValues - 1 )
+	if( _Set_Array(m_nValues + 1) )
 	{
 		for(int i=Position, Value=m_nValues-1; i<m_nValues; i++)
 		{
-			int	nextValue = m_Index[i]; m_Index[i] = Value; Value = nextValue;
+			int	v = m_Index[i]; m_Index[i] = Value; Value = v;
 		}
+
+		return( true );
 	}
 
-	return( true );
+	return( false );
 }
 
 //---------------------------------------------------------
 bool CSG_Index::Del_Entry(int Position)
 {
-	if( m_nValues < 1 )
+	if( Position < 0 || Position >= m_nValues - 1 )
 	{
-		return( Destroy() );
+		return( _Set_Array(m_nValues - 1) );
 	}
 
-	if( Position < 0 || Position >= m_nValues )
-	{
-		Position	= m_nValues - 1;
-	}
+	int	Value	= m_Index[Position];
 
 	for(int i=Position; i<m_nValues-1; i++)
 	{
 		m_Index[i]	= m_Index[i + 1];
 	}
 
-	if( !_Set_Array(m_nValues - 1) )
-	{
-		m_nValues--;
+	m_Index[m_nValues - 1]	= Value;
 
-		return( true );
-	}
-
-	return( true );
+	return( _Set_Array(m_nValues - 1) );
 }
 
 //---------------------------------------------------------
@@ -308,6 +297,27 @@ bool CSG_Index::_Set_Array(int nValues)
 		return( true );
 	}
 
+	if( m_nValues > nValues )	// keep current sorting as far as possible...
+	{
+		for(int i=0, j=nValues; i<nValues && j<m_nValues; i++)
+		{
+			if( m_Index[i] >= nValues )
+			{
+				while( m_Index[j] >= nValues )
+				{
+					j++;
+
+					if( j >= m_nValues )
+					{
+						return( false ); // this should never happen!
+					}
+				}
+
+				int	c = m_Index[i]; m_Index[i] = m_Index[i] = m_Index[j]; m_Index[j] = c;
+			}
+		}
+	}
+
 	int	*Index	= (int *)SG_Realloc(m_Index, nValues * sizeof(int));
 
 	if( !Index )
@@ -315,13 +325,17 @@ bool CSG_Index::_Set_Array(int nValues)
 		return( false );
 	}
 
-	for(int i=m_nValues; i<nValues; i++)
+	m_Index	= Index;
+
+	if( m_nValues < nValues )	// keep current sorting as far as possible...
 	{
-		Index[i]	= i;
+		for(int i=m_nValues; i<nValues; i++)
+		{
+			m_Index[i]	= i;
+		}
 	}
 
 	m_nValues	= nValues;
-	m_Index		= Index;
 
 	return( true );
 }
