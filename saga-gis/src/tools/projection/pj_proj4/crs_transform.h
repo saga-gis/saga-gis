@@ -71,6 +71,7 @@ class CSG_CRSProjector
 {
 public:
 	CSG_CRSProjector(void);
+	CSG_CRSProjector(const CSG_CRSProjector &Projector);
 	virtual ~CSG_CRSProjector(void);
 
 	bool					Destroy						(void);
@@ -98,14 +99,17 @@ public:
 	bool					Get_Projection				(TSG_Point_Z &Point)				const;
 	bool					Get_Projection				(CSG_Point_Z &Point)				const;
 
+
 private:
 
 	bool					m_bInverse;
 
-	void					*m_pSource, *m_pTarget, *m_pGCS;
+	void					*m_pContext, *m_pSource, *m_pTarget, *m_pGCS;
 
 	CSG_Projection			m_Source, m_Target;
 
+
+	void					_On_Construction			(void);
 
 	bool					_Set_Projection				(const CSG_Projection &Projection, void **ppProjection, bool bInverse);
 

@@ -85,7 +85,7 @@ protected:
 
 private:
 
-	bool						m_bList;
+	bool						m_bList, m_bByteWise;
 
 	TSG_Grid_Resampling			m_Resampling;
 
