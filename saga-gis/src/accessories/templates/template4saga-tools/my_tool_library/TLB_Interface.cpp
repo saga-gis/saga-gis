@@ -48,7 +48,7 @@
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "TLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
