@@ -5,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                     climate_tools                     //
+//                     Tool Library:                     //
+//                 imagery_segmentation                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               grid_Levels_interpolation.h             //
+//                   cloud_overlap.h                     //
 //                                                       //
-//                 Copyright (C) 2012 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2019                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,8 +45,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__grid_Levels_interpolation_H
-#define HEADER_INCLUDED__grid_Levels_interpolation_H
+#ifndef HEADER_INCLUDED__cloud_overlap_H
+#define HEADER_INCLUDED__cloud_overlap_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,89 +66,27 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Levels_Interpolation : public CSG_Tool_Grid
+class CCloud_Overlap : public CSG_Tool_Grid
 {
 public:
-	CGrid_Levels_Interpolation(void);
+	CCloud_Overlap(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	bool						Initialize				(const CSG_Rect &Extent);
-	bool						Finalize				(void);
-
-	bool						Get_Value				(double x, double y, double z, double &Value);
-	bool						Get_Value				(const TSG_Point &p, double z, double &Value);
+	virtual bool					On_Execute				(void);
 
 
 private:
 
-	bool						m_Linear_bSorted, m_Spline_bAll;
-
-	int							m_xSource, m_vMethod, m_Trend_Order;
-
-	TSG_Grid_Resampling			m_hMethod;
-
-	CSG_Table					*m_pXTable;
-
-	CSG_Grid					*m_Coeff;
-
-	CSG_Parameter_Grid_List		*m_pXGrids, *m_pVariables;
+	CSG_Parameter_Grid_List			*m_pCovers, *m_pHeights;
 
 
-	double						Get_Variable			(double x, double y, int iLevel);
-	bool						Get_Variable			(double x, double y, int iLevel, double &Variable);
-	double						Get_Height				(double x, double y, int iLevel);
-	bool						Get_Height				(double x, double y, int iLevel, double &Height);
-
-	bool						Get_Values				(double x, double y, double z, int &iLevel, CSG_Table &Values);
-
-	bool						Get_Linear				(double x, double y, double z, double &Value);
-	bool						Get_Linear_Coeff		(double x, double y, double z, double Value[2], double Height[2]);
-	bool						Get_Spline_All			(double x, double y, double z, double &Value);
-	bool						Get_Spline				(double x, double y, double z, double &Value);
-	bool						Get_Trend				(double x, double y, double z, double &Value);
-	bool						Get_Trend_Coeff			(double x, double y, double z, double &Value);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CGrid_Levels_to_Surface : public CGrid_Levels_Interpolation
-{
-public:
-	CGrid_Levels_to_Surface(void);
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CGrid_Levels_to_Points : public CGrid_Levels_Interpolation
-{
-public:
-	CGrid_Levels_to_Points(void);
-
-
-protected:
-
-	virtual bool				On_Execute				(void);
+	double							Get_Value				(const CSG_Table &Values, double z);
+	bool							Get_Values				(double xWorld, double yWorld, CSG_Table &Values);
+	bool							Get_Values				(double xWorld, double yWorld, double zGround, double zInterval, CSG_Vector &Coverage);
 
 };
 
@@ -161,4 +98,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__grid_Levels_interpolation_H
+#endif // #ifndef HEADER_INCLUDED__cloud_overlap_H

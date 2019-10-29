@@ -304,6 +304,7 @@
     <ClCompile Include="bioclimatic_vars.cpp" />
     <ClCompile Include="climate_classification.cpp" />
     <ClCompile Include="climate_tools.cpp" />
+    <ClCompile Include="cloud_overlap.cpp" />
     <ClCompile Include="daily_sun.cpp" />
     <ClCompile Include="etp_hargreave.cpp" />
     <ClCompile Include="frost_change_frequency.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="bioclimatic_vars.h" />
     <ClInclude Include="climate_classification.h" />
     <ClInclude Include="climate_tools.h" />
+    <ClInclude Include="cloud_overlap.h" />
     <ClInclude Include="daily_sun.h" />
     <ClInclude Include="etp_hargreave.h" />
     <ClInclude Include="frost_change_frequency.h" />

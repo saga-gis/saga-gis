@@ -14,6 +14,7 @@ libclimate_tools_la_SOURCES =\
 bioclimatic_vars.cpp\
 climate_classification.cpp\
 climate_tools.cpp\
+cloud_overlap.cpp\
 daily_sun.cpp\
 etp_hargreave.cpp\
 frost_change_frequency.cpp\
@@ -30,6 +31,7 @@ windeffect_correction.cpp\
 bioclimatic_vars.h\
 climate_classification.h\
 climate_tools.h\
+cloud_overlap.h\
 daily_sun.h\
 etp_hargreave.h\
 frost_change_frequency.h\
