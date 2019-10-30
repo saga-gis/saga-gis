@@ -605,7 +605,8 @@ CSG_String CWKSP_Map_Graticule::Get_Unit(CSG_Shape *pPoint, int Units, int Decim
 	//-----------------------------------------------------
 	if( Units == 0 )	// decimal degrees
 	{
-		String.Printf("%s%s", pPoint->asString(1) + (Value < 0 ? 1 : 0), D);
+	//	String.Printf("%s%s", pPoint->asString(1) + (Value < 0 ? 1 : 0), D); // no! label already includes degree symbol
+		String.Printf("%s", pPoint->asString(1) + (Value < 0 ? 1 : 0));
 	}
 
 	//-----------------------------------------------------

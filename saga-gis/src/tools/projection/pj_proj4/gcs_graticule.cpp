@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "gcs_graticule.h"
 
 
@@ -90,12 +81,9 @@ enum
 //---------------------------------------------------------
 CGCS_Graticule::CGCS_Graticule(void)
 {
-	CSG_Parameter	*pNode_0, *pNode_1;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Latitude/Longitude Graticule"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2014"));
+	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"Creates a longitude/latitude graticule for the extent and projection of the input shapes layer. "
@@ -104,56 +92,56 @@ CGCS_Graticule::CGCS_Graticule(void)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "GRATICULE"	, _TL("Graticule"),
+	Parameters.Add_Shapes("",
+		"GRATICULE"	, _TL("Graticule"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "COORDS"		, _TL("Frame Coordinates"),
+	Parameters.Add_Shapes("",
+		"COORDS"	, _TL("Frame Coordinates"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	pNode_0	= Parameters.Add_Node(
-		NULL	, "NODE_GRID"	, _TL("Graticule"),
+	Parameters.Add_Node("",
+		"NODE_GRID"	, _TL("Graticule"),
 		_TL("")
 	);
 
-	pNode_1 = Parameters.Add_Node(pNode_0, "NODE_X"		, _TL("X Range"), _TL(""));
-	Parameters.Add_Value(pNode_1, "XMIN", _TL("Minimum"), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode_1, "XMAX", _TL("Maximum"), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Node("NODE_GRID", "NODE_X", _TL("X Range"), _TL(""));
+	Parameters.Add_Double("NODE_X" , "XMIN"  , _TL("Minimum"), _TL(""));
+	Parameters.Add_Double("NODE_X" , "XMAX"  , _TL("Maximum"), _TL(""));
 
-	pNode_1 = Parameters.Add_Node(pNode_0, "NODE_Y"		, _TL("Y Range"), _TL(""));
-	Parameters.Add_Value(pNode_1, "YMIN", _TL("Minimum"), _TL(""), PARAMETER_TYPE_Double);
-	Parameters.Add_Value(pNode_1, "YMAX", _TL("Maximum"), _TL(""), PARAMETER_TYPE_Double);
+	Parameters.Add_Node("NODE_GRID", "NODE_Y", _TL("Y Range"), _TL(""));
+	Parameters.Add_Double("NODE_Y" , "YMIN"  , _TL("Minimum"), _TL(""));
+	Parameters.Add_Double("NODE_Y" , "YMAX"  , _TL("Maximum"), _TL(""));
 
-	Parameters.Add_Choice(
-		pNode_0	, "INTERVAL"	, _TL("Interval"),
+	Parameters.Add_Choice("NODE_GRID",
+		"INTERVAL"	, _TL("Interval"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("fixed interval"),
 			_TL("fitted interval")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode_0	, "FIXED"		, _TL("Fixed Interval (Degree)"),
+	Parameters.Add_Double("NODE_GRID",
+		"FIXED"		, _TL("Fixed Interval (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true, 20.0
+		1., 0., true, 20.
 	);
 
-	Parameters.Add_Value(
-		pNode_0	, "FITTED"		, _TL("Number of Intervals"),
+	Parameters.Add_Int("NODE_GRID",
+		"FITTED"	, _TL("Number of Intervals"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 10, 1, true
+		10, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode_0	, "RESOLUTION"	, _TL("Minimum Resolution (Degree)"),
+	Parameters.Add_Double("NODE_GRID",
+		"RESOLUTION", _TL("Minimum Resolution (Degree)"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.5, 0.0, true
+		0.5, 0., true
 	);
 }
 
@@ -165,15 +153,15 @@ CGCS_Graticule::CGCS_Graticule(void)
 //---------------------------------------------------------
 int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("CRS_GRID"  ))
-	||	pParameter->Cmp_Identifier(SG_T("CRS_SHAPES")) )
+	if(	pParameter->Cmp_Identifier("CRS_GRID"  )
+	||	pParameter->Cmp_Identifier("CRS_SHAPES") )
 	{
-		CSG_Rect	r(pParameter->Cmp_Identifier(SG_T("CRS_GRID"))
+		CSG_Rect	r(pParameter->Cmp_Identifier("CRS_GRID")
 			? pParameter->asParameters()->Get_Parameter("PICK")->asGrid  ()->Get_Extent()
 			: pParameter->asParameters()->Get_Parameter("PICK")->asShapes()->Get_Extent()
 		);
 
-		if( r.Get_XRange() > 0.0 && r.Get_YRange() > 0.0 )
+		if( r.Get_XRange() > 0. && r.Get_YRange() > 0. )
 		{
 			pParameters->Get_Parameter("XMIN")->Set_Value(r.Get_XMin());
 			pParameters->Get_Parameter("XMAX")->Set_Value(r.Get_XMax());
@@ -188,7 +176,7 @@ int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CGCS_Graticule::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("INTERVAL")) )
+	if(	pParameter->Cmp_Identifier("INTERVAL") )
 	{
 		pParameters->Get_Parameter("FIXED" )->Set_Enabled(pParameter->asInt() == 0);
 		pParameters->Get_Parameter("FITTED")->Set_Enabled(pParameter->asInt() == 1);
@@ -255,7 +243,7 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 	double		x, y, Interval;
 	CSG_Rect	r;
 
-	if( !Get_Extent(Extent, r) || (Interval = Get_Interval(r)) <= 0.0 )
+	if( !Get_Extent(Extent, r) || (Interval = Get_Interval(r)) <= 0. )
 	{
 		return( false );
 	}
@@ -268,13 +256,13 @@ bool CGCS_Graticule::Get_Graticule(const CSG_Rect &Extent)
 
 	r.Inflate(Interval, false);
 
-	if( r.Get_XMin() < -180.0 )	r.m_rect.xMin	= -180.0;
-	if( r.Get_XMax() >  180.0 )	r.m_rect.xMax	=  180.0;
-	if( r.Get_YMin() <  -90.0 )	r.m_rect.yMin	=  -90.0;
-	if( r.Get_YMax() >   90.0 )	r.m_rect.yMax	=   90.0;
+	if( r.Get_XMin() < -180. )	r.m_rect.xMin	= -180.;
+	if( r.Get_XMax() >  180. )	r.m_rect.xMax	=  180.;
+	if( r.Get_YMin() <  -90. )	r.m_rect.yMin	=  -90.;
+	if( r.Get_YMax() >   90. )	r.m_rect.yMax	=   90.;
 
 	//-----------------------------------------------------
-	double	Resolution	= Parameters("RESOLUTION")->asDouble();	if( Resolution <= 0.0 )	Resolution	= Interval;
+	double	Resolution	= Parameters("RESOLUTION")->asDouble();	if( Resolution <= 0. )	Resolution	= Interval;
 
 	if( Interval > Resolution )
 	{
@@ -462,14 +450,14 @@ double CGCS_Graticule::Get_Interval(const CSG_Rect &Extent)
 
 	double	Interval	= Extent.Get_XRange() > Extent.Get_YRange() ? Extent.Get_XRange() : Extent.Get_YRange();
 
-	if( Interval > 360 )
+	if( Interval > 360. )
 	{
-		Interval	= 360;
+		Interval	= 360.;
 	}
 
 	Interval	= Interval / Parameters("FITTED")->asInt();
 
-	double	d	= pow(10.0, (int)(log10(Interval)) - (Interval < 1.0 ? 1.0 : 0.0));
+	double	d	= pow(10., (int)(log10(Interval)) - (Interval < 1. ? 1. : 0.));
 
 	Interval	= (int)(Interval / d) * d;
 
@@ -492,7 +480,7 @@ bool CGCS_Graticule::Get_Extent(const CSG_Rect &Extent, CSG_Rect &r)
 		
 		m_Projector.Get_Projection(p);	r.Assign(p, p);
 
-		d	= Extent.Get_XRange() / 10.0;
+		d	= Extent.Get_XRange() / 10.;
 
 		for(y=Extent.Get_YMin(), x=Extent.Get_XMin(); x<=Extent.Get_XMax(); x+=d)
 		{
@@ -504,7 +492,7 @@ bool CGCS_Graticule::Get_Extent(const CSG_Rect &Extent, CSG_Rect &r)
 			p.Assign(x, y);	m_Projector.Get_Projection(p);	r.Union(p);
 		}
 
-		d	= Extent.Get_YRange() / 10.0;
+		d	= Extent.Get_YRange() / 10.;
 
 		for(x=Extent.Get_XMin(), y=Extent.Get_YMin(); y<=Extent.Get_YMax(); y+=d)
 		{
@@ -518,10 +506,10 @@ bool CGCS_Graticule::Get_Extent(const CSG_Rect &Extent, CSG_Rect &r)
 
 		m_Projector.Set_Inverse(false);
 
-		if( r.Get_XMin() < -180 ) r.m_rect.xMin = -180; else if( r.Get_XMax() > 180 ) r.m_rect.xMax = 180;
-		if( r.Get_YMin() <  -90 ) r.m_rect.yMin =  -90; else if( r.Get_YMax() >  90 ) r.m_rect.yMax =  90;
+		if( r.Get_XMin() < -180. ) r.m_rect.xMin = -180.; else if( r.Get_XMax() > 180. ) r.m_rect.xMax = 180.;
+		if( r.Get_YMin() <  -90. ) r.m_rect.yMin =  -90.; else if( r.Get_YMax() >  90. ) r.m_rect.yMax =  90.;
 
-		return( r.Get_XRange() > 0.0 && r.Get_YRange() > 0.0 );
+		return( r.Get_XRange() > 0. && r.Get_YRange() > 0. );
 	}
 
 	return( false );
@@ -545,34 +533,34 @@ CSG_String CGCS_Graticule::Get_Degree(double Value, int Precision)
 	double		s;
 	CSG_String	String;
 
-	if( Value < 0.0 )
+	if( Value < 0. )
 	{
 		Value	= -Value;
-		c		= SG_T('-');
+		c		= '-';
 	}
 	else
 	{
-		c		= SG_T('+');
+		c		= '+';
 	}
 
-	Value	= fmod(Value, 360.0);
+	Value	= fmod(Value, 360.);
 	d		= (int)Value;
-	Value	= 60.0 * (Value - d);
+	Value	= 60. * (Value - d);
 	h		= (int)Value;
-	Value	= 60.0 * (Value - h);
+	Value	= 60. * (Value - h);
 	s		= Value;
 
-	if( s > 0.0 || Precision == DEG_PREC_FULL )
+	if( s > 0. || Precision == DEG_PREC_FULL )
 	{
-		String.Printf(SG_T("%c%d\xb0%02d'%02.*f''"), c, d, h, SG_Get_Significant_Decimals(s), s);
+		String.Printf("%c%d\xb0%02d'%02.*f''", c, d, h, SG_Get_Significant_Decimals(s), s);
 	}
 	else if( h > 0 || Precision == DEG_PREC_MIN )
 	{
-		String.Printf(SG_T("%c%d\xb0%02d'"        ), c, d, h);
+		String.Printf("%c%d\xb0%02d'"        , c, d, h);
 	}
 	else
 	{
-		String.Printf(SG_T("%c%d\xb0"             ), c, d);
+		String.Printf("%c%d\xb0"             , c, d);
 	}
 
 	return( String );
