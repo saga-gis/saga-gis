@@ -142,6 +142,11 @@ public:
 	TSG_Shape_Type				Get_Type			(void)	const;
 	TSG_Vertex_Type				Get_Vertex_Type		(void)	const;
 
+	class CSG_Shape_Point   *	asPoint				(void)	{	return( Get_Type() == SHAPE_TYPE_Point   ? (CSG_Shape_Point   *)this : NULL );	}
+	class CSG_Shape_Points  *	asPoints			(void)	{	return( Get_Type() == SHAPE_TYPE_Points  ? (CSG_Shape_Points  *)this : NULL );	}
+	class CSG_Shape_Line    *	asLine				(void)	{	return( Get_Type() == SHAPE_TYPE_Line    ? (CSG_Shape_Line    *)this : NULL );	}
+	class CSG_Shape_Polygon *	asPolygon			(void)	{	return( Get_Type() == SHAPE_TYPE_Polygon ? (CSG_Shape_Polygon *)this : NULL );	}
+
 	virtual bool				is_Valid			(void)											= 0;
 
 	//-----------------------------------------------------
