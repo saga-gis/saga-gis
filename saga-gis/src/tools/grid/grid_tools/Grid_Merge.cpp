@@ -196,7 +196,9 @@ int CGrid_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		Set_Target(pParameters, pParameter->asList(), m_Grid_Target);
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -213,7 +215,9 @@ int CGrid_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Set_Enabled("BLEND_BND" , pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -311,8 +315,6 @@ bool CGrid_Merge::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Add(SG_Create_Grid(m_Weights));
-
 	m_Weight .Destroy();
 	m_Weights.Destroy();
 
@@ -933,7 +935,9 @@ int CGrids_Merge::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramete
 		CGrid_Merge::Set_Target(pParameters, pParameter->asList(), m_Grid_Target);
 	}
 
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
@@ -945,7 +949,9 @@ int CGrids_Merge::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 		pParameters->Set_Enabled("BLEND_BND" , pParameter->asInt() == 5 || pParameter->asInt() == 6);
 	}
 
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -991,7 +997,7 @@ bool CGrids_Merge::On_Execute(void)
 	Mosaic.Get_Parameters()->Assign_Values(&Parameters);
 	Mosaic.Set_Parameter("TARGET_DEFINITION", 1);	// grid or grid system
 
-	CSG_Parameter_Grid_List	*pList_Grid	= (*Mosaic.Get_Parameters())("GRIDS")->asGridList();
+	CSG_Parameter_Grid_List	*pList_Grid	= Mosaic.Get_Parameter("GRIDS")->asGridList();
 
 	for(int z=0; z<pGrids->Get_NZ(); z++)
 	{
@@ -1011,7 +1017,7 @@ bool CGrids_Merge::On_Execute(void)
 
 		pMosaic->Get_Attributes(z).Assign(&pGrids->Get_Attributes(z));
 
-		Mosaic.Get_Parameters()->Set_Parameter("TARGET_OUT_GRID", (void *)pMosaic->Get_Grid_Ptr(z));
+		Mosaic.Set_Parameter("TARGET_OUT_GRID", (void *)pMosaic->Get_Grid_Ptr(z));
 
 		if( !Mosaic.Execute() )
 		{
