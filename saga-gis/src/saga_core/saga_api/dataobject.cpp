@@ -189,8 +189,8 @@ CSG_Data_Object::CSG_Data_Object(void)
 	m_File_Type			= 0;
 	m_bModified			= true;
 
-	m_NoData_Value		= -99999.0;
-	m_NoData_hiValue	= -99999.0;
+	m_NoData_Value		= -99999.;
+	m_NoData_hiValue	= -99999.;
 
 	m_Max_Samples		= gSG_DataObject_Max_Samples;
 
@@ -441,7 +441,9 @@ bool CSG_Data_Object::On_NoData_Changed(void)
 //---------------------------------------------------------
 bool CSG_Data_Object::Set_Max_Samples(sLong Max_Samples)
 {
-	if( m_Max_Samples != Max_Samples )
+	#define	Min_Samples	100
+
+	if( m_Max_Samples != Max_Samples && Max_Samples >= Min_Samples )
 	{
 		m_Max_Samples	= Max_Samples;
 

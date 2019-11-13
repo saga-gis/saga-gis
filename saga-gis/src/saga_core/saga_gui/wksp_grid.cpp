@@ -320,22 +320,22 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Double("DISPLAY_SHADING", "SHADING_AZIMUTH", _TL("Azimuth"),
 		_TL("Direction of the light source, measured in degree clockwise from the North direction."),
-		315.0, 0.0, true, 360.0, true
+		315., 0., true, 360., true
 	);
 
 	m_Parameters.Add_Double("DISPLAY_SHADING", "SHADING_HEIGHT"	, _TL("Height"),
 		_TL("Height of the light source, measured in degree above the horizon."),
-		45.0, 0.0, true, 90.0, true
+		45., 0., true, 90., true
 	);
 
 	m_Parameters.Add_Double("DISPLAY_SHADING", "SHADING_EXAGG"	, _TL("Exaggeration"),
 		_TL(""),
-		1.0
+		1.
 	);
 
 	m_Parameters.Add_Double("DISPLAY_SHADING", "SHADING_MIN"	, _TL("Minimum"),
 		_TL(""),
-		0.0
+		0.
 	);
 
 	m_Parameters.Add_Double("DISPLAY_SHADING", "SHADING_MAX"	, _TL("Maximum"),
@@ -402,7 +402,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 
 	m_Parameters.Add_Double("VALUES_SHOW", "VALUES_SIZE"	, _TL("Size"),
 		_TL(""),
-		15, 0, true , 100.0, true
+		15, 0, true , 100., true
 	);
 
 	m_Parameters.Add_Int("VALUES_SHOW", "VALUES_DECIMALS"	, _TL("Decimals"),
@@ -437,7 +437,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"MAX_SAMPLES"	, _TL("Maximum Samples"),
 		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
-		100.0 * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
+		100. * (double)Get_Grid()->Get_Max_Samples() / (double)Get_Grid()->Get_NCells(), 0., true, 100., true
 	);
 
 	m_Parameters.Add_Bool("NODE_GENERAL",
@@ -570,7 +570,7 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
 			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
-			if( newFactor != 0.0 && oldFactor != 0.0 )
+			if( newFactor != 0. && oldFactor != 0. )
 			{
 				CSG_Parameter_Range	*newRange	= (*pParameters)("METRIC_ZRANGE")->asRange();
 				CSG_Parameter_Range	*oldRange	=  m_Parameters ("METRIC_ZRANGE")->asRange();
@@ -731,7 +731,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_Max() + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grid()->Get_Max() + 1.;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -755,7 +755,7 @@ void CWKSP_Grid::_LUT_Create(void)
 				Colors.Set_Count(Get_Grid()->Get_NCells());
 			}
 
-			double	Minimum, Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(0.0);
+			double	Minimum, Maximum	= Get_Grid()->Get_Histogram().Get_Quantile(0.);
 
 			double	Step	= 1. / Colors.Get_Count();
 
@@ -893,10 +893,10 @@ TSG_Rect CWKSP_Grid::Edit_Get_Extent(void)
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
 		return( CSG_Rect(
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count()))
 		);
 	}
 
@@ -1138,7 +1138,7 @@ bool CWKSP_Grid::_Save_Image(void)
 	{
 		P.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""), true);
 		P.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), true);
-		P.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1.0, 0.0, true);
+		P.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1., 0., true);
 	}
 
 	//-----------------------------------------------------
@@ -1181,8 +1181,7 @@ bool CWKSP_Grid::_Save_Image(void)
 		if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 		{
 			Stream.Printf("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n",
-				 Get_Grid()->Get_Cellsize(),
-				 0.0, 0.0,
+				 Get_Grid()->Get_Cellsize(), 0., 0.,
 				-Get_Grid()->Get_Cellsize(),
 				 Get_Grid()->Get_XMin(),
 				 Get_Grid()->Get_YMax()
@@ -1225,7 +1224,7 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 
 		wxMemoryDC		dc;
 		wxRect			r(0, 0, BMP.GetWidth(), BMP.GetHeight());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
+		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1., SG_GET_RGB(255, 255, 255));
 
 		On_Draw(dc_Map, false);
 
@@ -1248,10 +1247,10 @@ bool CWKSP_Grid::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 //---------------------------------------------------------
 bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 {
-	if( Zoom > 0.0 )
+	if( Zoom > 0. )
 	{
 		wxMemoryDC	dc;
-		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.0));
+		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.));
 
 		BMP.Create(s.GetWidth(), s.GetHeight());
 
@@ -1259,7 +1258,7 @@ bool CWKSP_Grid::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Get_Legend()->Draw(dc, Zoom, 1.0, wxPoint(0, 0));
+		Get_Legend()->Draw(dc, Zoom, 1., wxPoint(0, 0));
 
 		dc.SelectObject(wxNullBitmap);
 
@@ -1287,9 +1286,9 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 	switch( m_pClassify->Get_Mode() )
 	{
-	default            :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;	break;
-	case CLASSIFY_RGB  :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;	if( Transparency <= 0.0 )	Transparency	= 3.0;	break;
-	case CLASSIFY_SHADE:	Transparency	= 2.0;	break;
+	default            :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; break;
+	case CLASSIFY_RGB  :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; if( Transparency <= 0. ) Transparency = 3.; break;
+	case CLASSIFY_SHADE:	Transparency	= 2.;	break;
 	}
 
 	if( !dc_Map.IMG_Draw_Begin(Transparency) )
@@ -1316,10 +1315,10 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	m_Shade_Mode	= m_Parameters("COLORS_TYPE"    )->asInt() != CLASSIFY_SHADE
 					? m_Parameters("DISPLAY_SHADING")->asInt() : 0;
 
-	if( m_Shade_Mode && Get_Grid()->Get_Range() > 0.0 )
+	if( m_Shade_Mode && Get_Grid()->Get_Range() > 0. )
 	{
 	//	m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / Get_Grid()->Get_StdDev();
-		m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / 25.0;
+		m_Shade_Parms[0]	= m_Parameters("SHADING_EXAGG")->asDouble() * Get_Grid()->Get_Cellsize() / 25.;
 		m_Shade_Parms[1]	= sin(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
 		m_Shade_Parms[2]	= cos(M_DEG_TO_RAD * m_Parameters("SHADING_HEIGHT")->asDouble());
 		m_Shade_Parms[3]	=     M_DEG_TO_RAD * m_Parameters("SHADING_AZIMUTH")->asDouble();
@@ -1513,8 +1512,8 @@ void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 	if( xa < 0 )	xa	= 0;	if( xb >= Get_Grid()->Get_NX() )	xb	= Get_Grid()->Get_NX() - 1;
 	if( ya < 0 )	ya	= 0;	if( yb >= Get_Grid()->Get_NY() )	yb	= Get_Grid()->Get_NY() - 1;
 
-	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.0;
-	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.0;
+	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
+	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
 
 	//-----------------------------------------------------
 	for(y=ya, yDC=ayDC, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
@@ -1534,8 +1533,8 @@ inline void CWKSP_Grid::_Set_Shading(double Shade, int &Color)
 {
 	switch( m_Shade_Mode )
 	{
-	default:	Shade	=       Shade / M_PI_090;	break;
-	case  1:	Shade	= 1.0 - Shade / M_PI_090;	break;
+	default:	Shade	=      Shade / M_PI_090;	break;
+	case  1:	Shade	= 1. - Shade / M_PI_090;	break;
 	}
 
 	Shade	= m_Shade_Parms[5] * (Shade - m_Shade_Parms[4]);
@@ -1600,7 +1599,7 @@ void CWKSP_Grid::_Draw_Values(CWKSP_Map_DC &dc_Map)
 	dDC			= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
 	Decimals	= m_Parameters("VALUES_DECIMALS")->asInt();
 	Font		= Get_Font(m_Parameters("VALUES_FONT"));
-	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.0));
+	Font.SetPointSize((int)(dDC * m_Parameters("VALUES_SIZE")->asDouble() / 100.));
 	dc_Map.dc.SetFont(Font);
 	dc_Map.dc.SetTextForeground(Get_Color_asWX(m_Parameters("VALUES_FONT")->asColor()));
 
@@ -1671,10 +1670,10 @@ void CWKSP_Grid::_Draw_Edit(CWKSP_Map_DC &dc_Map)
 	if( m_Edit_Attributes.Get_Count() > 0 )
 	{
 		CSG_Rect	r(
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
-			-Get_Grid()->Get_Cellsize() / 2.0 + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count())
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_xGrid_to_World(m_xSel + m_Edit_Attributes.Get_Field_Count()),
+			-Get_Grid()->Get_Cellsize() / 2. + Get_Grid()->Get_System().Get_yGrid_to_World(m_ySel + m_Edit_Attributes.Get_Count())
 		);
 
 		TSG_Point_Int	a(dc_Map.World2DC(r.Get_TopLeft    ()));

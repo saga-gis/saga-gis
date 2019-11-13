@@ -268,7 +268,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	m_Parameters.Add_Double("NODE_GENERAL",
 		"MAX_SAMPLES"	, _TL("Maximum Samples"),
 		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
-		100.0 * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells(), 0., true, 100., true
+		100. * (double)Get_Grids()->Get_Max_Samples() / (double)Get_Grids()->Get_NCells(), 0., true, 100., true
 	);
 
 	//-----------------------------------------------------
@@ -538,7 +538,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			double	newFactor	= (*pParameters)("OBJECT_Z_FACTOR")->asDouble(), oldFactor	= m_Parameters("OBJECT_Z_FACTOR")->asDouble();
 			double	newOffset	= (*pParameters)("OBJECT_Z_OFFSET")->asDouble(), oldOffset	= m_Parameters("OBJECT_Z_OFFSET")->asDouble();
 
-			if( newFactor != 0.0 && oldFactor != 0.0 )
+			if( newFactor != 0. && oldFactor != 0. )
 			{
 				CSG_Parameter_Range	*newRange	= (*pParameters)("METRIC_ZRANGE")->asRange();
 				CSG_Parameter_Range	*oldRange	=  m_Parameters ("METRIC_ZRANGE")->asRange();
@@ -701,7 +701,7 @@ void CWKSP_Grids::_LUT_Create(void)
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grids()->Get_Max() + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_Grids()->Get_Max() + 1.;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -725,7 +725,7 @@ void CWKSP_Grids::_LUT_Create(void)
 				Colors.Set_Count(Get_Grids()->Get_NCells());
 			}
 
-			double	Minimum, Maximum	= Get_Grids()->Get_Histogram().Get_Quantile(0.0);
+			double	Minimum, Maximum	= Get_Grids()->Get_Histogram().Get_Quantile(0.);
 
 			double	Step	= 1. / Colors.Get_Count();
 
@@ -981,7 +981,7 @@ void CWKSP_Grids::_Save_Image(void)
 
 	Parms.Add_Bool  ("", "WORLD", _TL("Save Georeference"), _TL(""), true);
 	Parms.Add_Bool  ("", "LG"   , _TL("Legend: Save"     ), _TL(""), true);
-	Parms.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1.0, 0.0, true);
+	Parms.Add_Double("", "LZ"   , _TL("Legend: Zoom"     ), _TL(""), 1., 0., true);
 
 	//-----------------------------------------------------
 	if( DLG_Image_Save(file, type) && DLG_Parameters(&Parms) )
@@ -1017,8 +1017,7 @@ void CWKSP_Grids::_Save_Image(void)
 			if( Stream.Open(fn.GetFullPath().wx_str(), SG_FILE_W, false) )
 			{
 				Stream.Printf("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n",
-					 Get_Grids()->Get_Cellsize(),
-					 0.0, 0.0,
+					 Get_Grids()->Get_Cellsize(), 0., 0.,
 					-Get_Grids()->Get_Cellsize(),
 					 Get_Grids()->Get_XMin(),
 					 Get_Grids()->Get_YMax()
@@ -1042,7 +1041,7 @@ bool CWKSP_Grids::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 
 		wxMemoryDC		dc;
 		wxRect			r(0, 0, BMP.GetWidth(), BMP.GetHeight());
-		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1.0, SG_GET_RGB(255, 255, 255));
+		CWKSP_Map_DC	dc_Map(Get_Extent(), r, 1., SG_GET_RGB(255, 255, 255));
 
 		On_Draw(dc_Map, false);
 
@@ -1065,10 +1064,10 @@ bool CWKSP_Grids::Get_Image_Grid(wxBitmap &BMP, bool bFitSize)
 //---------------------------------------------------------
 bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 {
-	if( Zoom > 0.0 )
+	if( Zoom > 0. )
 	{
 		wxMemoryDC	dc;
-		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.0));
+		wxSize		s(Get_Legend()->Get_Size(Zoom, 1.));
 
 		BMP.Create(s.GetWidth(), s.GetHeight());
 
@@ -1076,7 +1075,7 @@ bool CWKSP_Grids::Get_Image_Legend(wxBitmap &BMP, double Zoom)
 		dc.SetBackground(*wxWHITE_BRUSH);
 		dc.Clear();
 
-		Get_Legend()->Draw(dc, Zoom, 1.0, wxPoint(0, 0));
+		Get_Legend()->Draw(dc, Zoom, 1., wxPoint(0, 0));
 
 		dc.SelectObject(wxNullBitmap);
 
@@ -1100,7 +1099,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0;
+	double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.;
 
 	if( !dc_Map.IMG_Draw_Begin(Transparency) )
 	{
@@ -1215,15 +1214,15 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 
 				if( bBandWise )
 				{
-					c[0]	= (int)(255.0 * m_Classify[0].Get_MetricToRelative(z[0]));
-					c[1]	= (int)(255.0 * m_Classify[1].Get_MetricToRelative(z[1]));
-					c[2]	= (int)(255.0 * m_Classify[2].Get_MetricToRelative(z[2]));
+					c[0]	= (int)(255. * m_Classify[0].Get_MetricToRelative(z[0]));
+					c[1]	= (int)(255. * m_Classify[1].Get_MetricToRelative(z[1]));
+					c[2]	= (int)(255. * m_Classify[2].Get_MetricToRelative(z[2]));
 				}
 				else
 				{
-					c[0]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(z[0]));
-					c[1]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(z[1]));
-					c[2]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(z[2]));
+					c[0]	= (int)(255. * m_pClassify ->Get_MetricToRelative(z[0]));
+					c[1]	= (int)(255. * m_pClassify ->Get_MetricToRelative(z[1]));
+					c[2]	= (int)(255. * m_pClassify ->Get_MetricToRelative(z[2]));
 				}
 
 				if( c[0] < 0 ) c[0] = 0; else if( c[0] > 255 ) c[0] = 255;
@@ -1269,8 +1268,8 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 	if( xa < 0 )	xa	= 0;	if( xb >= Get_Grids()->Get_NX() )	xb	= Get_Grids()->Get_NX() - 1;
 	if( ya < 0 )	ya	= 0;	if( yb >= Get_Grids()->Get_NY() )	yb	= Get_Grids()->Get_NY() - 1;
 
-	axDC	= dc_Map.xWorld2DC(Get_Grids()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.0;
-	ayDC	= dc_Map.yWorld2DC(Get_Grids()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.0;
+	axDC	= dc_Map.xWorld2DC(Get_Grids()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
+	ayDC	= dc_Map.yWorld2DC(Get_Grids()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
 
 	//-----------------------------------------------------
 	for(y=ya, yDC=ayDC, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
@@ -1294,15 +1293,15 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 
 					if( bBandWise )
 					{
-						c[0]	= (int)(255.0 * m_Classify[0].Get_MetricToRelative(pBands[0]->asDouble(x, y)));
-						c[1]	= (int)(255.0 * m_Classify[1].Get_MetricToRelative(pBands[1]->asDouble(x, y)));
-						c[2]	= (int)(255.0 * m_Classify[2].Get_MetricToRelative(pBands[2]->asDouble(x, y)));
+						c[0]	= (int)(255. * m_Classify[0].Get_MetricToRelative(pBands[0]->asDouble(x, y)));
+						c[1]	= (int)(255. * m_Classify[1].Get_MetricToRelative(pBands[1]->asDouble(x, y)));
+						c[2]	= (int)(255. * m_Classify[2].Get_MetricToRelative(pBands[2]->asDouble(x, y)));
 					}
 					else
 					{
-						c[0]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(pBands[0]->asDouble(x, y)));
-						c[1]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(pBands[1]->asDouble(x, y)));
-						c[2]	= (int)(255.0 * m_pClassify ->Get_MetricToRelative(pBands[2]->asDouble(x, y)));
+						c[0]	= (int)(255. * m_pClassify ->Get_MetricToRelative(pBands[0]->asDouble(x, y)));
+						c[1]	= (int)(255. * m_pClassify ->Get_MetricToRelative(pBands[1]->asDouble(x, y)));
+						c[2]	= (int)(255. * m_pClassify ->Get_MetricToRelative(pBands[2]->asDouble(x, y)));
 					}
 
 					if( c[0] < 0 ) c[0] = 0; else if( c[0] > 255 ) c[0] = 255;
