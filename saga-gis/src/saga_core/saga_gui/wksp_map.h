@@ -137,7 +137,7 @@ public:
 	bool						is_North_Arrow			(void);
 	void						Set_North_Arrow			(bool bOn);
 
-	bool						is_ScaleBar				(void);
+	bool						is_ScaleBar				(bool bFrame = false);
 	void						Set_ScaleBar			(bool bOn);
 
 	bool						is_Image_Save_Mode		(void)	{	return( m_Img_bSave );		}

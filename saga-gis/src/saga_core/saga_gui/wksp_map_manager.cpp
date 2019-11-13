@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -127,7 +115,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	m_Parameters.Add_Choice("",
 		"CROSSHAIR"	, _TL("Cross Hair"),
 		_TL("Display a cross hair of a map's current mouse position in all maps."),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("no"),
 			_TL("yes"),
 			_TL("projected")
@@ -140,7 +128,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
 		"GOTO_NEWLAYER"	, _TL("Zoom to added layer"),
 		_TL(""),
-		true
+		false
 	);
 
 	m_Parameters.Add_Bool("NODE_DEFAULTS",
@@ -164,7 +152,7 @@ CWKSP_Map_Manager::CWKSP_Map_Manager(void)
 	m_Parameters.Add_Int("FRAME_SHOW",
 		"FRAME_WIDTH"	, _TL("Width"),
 		_TL(""),
-		17, 5, true
+		17, 10, true
 	);
 
 	//-----------------------------------------------------

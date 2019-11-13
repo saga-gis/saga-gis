@@ -142,8 +142,6 @@ CVIEW_Map::CVIEW_Map(CWKSP_Map *pMap, int Frame_Width)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -223,8 +221,6 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -235,8 +231,6 @@ void CVIEW_Map::Do_Update(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -310,8 +304,6 @@ void CVIEW_Map::On_Key_Down(wxKeyEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -365,8 +357,8 @@ void CVIEW_Map::Ruler_Refresh(void)
 	{
 		CSG_Rect	rWorld(m_pMap->Get_World(m_pControl->GetRect()));
 
-		m_pRuler_X2->Set_Mode(m_pMap->is_ScaleBar() ? RULER_MODE_NORMAL : RULER_MODE_SCALE);
-		m_pRuler_Y2->Set_Mode(m_pMap->is_ScaleBar() ? RULER_MODE_NORMAL : RULER_MODE_SCALE);
+		m_pRuler_X2->Set_Mode(m_pMap->is_ScaleBar(true) ? RULER_MODE_SCALE : RULER_MODE_NORMAL);
+		m_pRuler_Y2->Set_Mode(m_pMap->is_ScaleBar(true) ? RULER_MODE_SCALE : RULER_MODE_NORMAL);
 
 		m_pRuler_X1->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());
 		m_pRuler_X2->Set_Range(rWorld.Get_XMin(), rWorld.Get_XMax());
@@ -377,8 +369,6 @@ void CVIEW_Map::Ruler_Refresh(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -461,8 +451,6 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -515,8 +503,6 @@ void CVIEW_Map::On_Map_Save_Image_ClipboardL(wxCommandEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
