@@ -272,11 +272,16 @@ CSG_GDAL_DataSet::~CSG_GDAL_DataSet(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name)
+bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const char *Drivers[])
 {
 	Close();
 
-	if( (m_pDataSet = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
+	if( Drivers )
+	{
+		m_pDataSet	= GDALOpenEx(File_Name, GA_ReadOnly, Drivers, NULL, NULL);
+	}
+
+	if( !m_pDataSet && (m_pDataSet = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
 	{
 		return( false );
 	}

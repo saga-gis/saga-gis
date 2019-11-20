@@ -415,7 +415,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 
 		for(size_t i=0; i<pGrids.Get_Size(); i++)
 		{
-			pCollection->Add_Grid(i, (CSG_Grid *)pGrids.Get(i), true);
+			pCollection->Add_Grid((double)i, (CSG_Grid *)pGrids.Get(i), true);
 		}
 
 		pList->Add_Item(pCollection);

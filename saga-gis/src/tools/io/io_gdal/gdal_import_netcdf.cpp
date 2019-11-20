@@ -241,9 +241,11 @@ bool CGDAL_Import_NetCDF::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	const char *Drivers[] = { "netCDF", NULL };
+
 	CSG_GDAL_DataSet		DataSet;
 
-	if( !DataSet.Open_Read(Parameters("FILE")->asString()) )
+	if( !DataSet.Open_Read(Parameters("FILE")->asString(), Drivers) )
 	{
 		Error_Fmt("%s [%s]", _TL("could not open file"), Parameters("FILE")->asString());
 
