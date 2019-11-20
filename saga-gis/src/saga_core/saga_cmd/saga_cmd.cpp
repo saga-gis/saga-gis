@@ -406,8 +406,8 @@ bool		Load_Libraries(void)
 		}
 
 		wxSetEnv("GDAL_DRIVER_PATH", DLL_Path);
+		wxSetEnv("PROJ_LIB"        , DLL_Path + "\\proj-data");
 		wxSetEnv("GDAL_DATA"       , DLL_Path + "\\gdal-data");
-		wxSetEnv("PROJ_LIB"        , DLL_Path);
 
 		Load_Libraries(SG_File_Make_Path(&CMD_Path, "tools"));
     #endif

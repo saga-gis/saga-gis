@@ -781,10 +781,10 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "\n";
 		s	+= "if os.name == 'nt': # Windows\n";
 		s	+= "    if os.getenv('SAGA_PATH') is None: # in case you did not define a 'SAGA_PATH' environment variable pointing to your SAGA installation directory\n";
-		s	+= "        os.environ['SAGA_PATH'] = 'D:/saga/saga-code/master/saga-gis/bin/saga_vc_win32'\n";
+		s	+= "        os.environ['SAGA_PATH'] = 'C:/saga_win32'\n";
 		s	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep +    ';' + os.environ['PATH']\n";
 		s	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']\n";
-		s	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll'\n";
+		s	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'proj-data'\n";
 		s	+= "    os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'\n";
 		s	+= "\n";
 		s	+= "import sys, saga_api\n";

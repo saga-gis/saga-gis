@@ -7,7 +7,7 @@ if os.name == 'nt': # Windows
 		os.environ['SAGA_PATH'] = 'D:/saga/saga-code/master/saga-gis/bin/saga_vc_win32'
 	os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep +    ';' + os.environ['PATH']
 	os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']
-	os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll'
+	os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'proj-data'
 	os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'
 
 import sys, saga_api
