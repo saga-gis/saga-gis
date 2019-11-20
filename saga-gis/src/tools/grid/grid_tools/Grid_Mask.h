@@ -83,8 +83,8 @@ protected:
 
 private:
 
-	bool					Mask_Grid				(CSG_Grid *pMask);
-	bool					Mask_Grids				(CSG_Grid *pMask);
+	bool					Mask_Grid				(CSG_Grid *pMask, bool bNoData);
+	bool					Mask_Grids				(CSG_Grid *pMask, bool bNoData);
 
 };
 

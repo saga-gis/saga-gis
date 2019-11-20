@@ -93,8 +93,8 @@ CGrid_Mask::CGrid_Mask(void)
 	);
 
 	Parameters.Add_Bool("GRIDS",
-		"GRIDS_CREATE"	, _TL("Mask a Copy"),
-		_TL(""),
+		"GRIDS_CREATE"	, _TL("Create Copies"),
+		_TL("Work on copies instead of overwriting the originals."),
 		false
 	);
 
@@ -108,6 +108,15 @@ CGrid_Mask::CGrid_Mask(void)
 		"MASK"			, _TL("Mask"),
 		_TL(""),
 		PARAMETER_INPUT, false
+	);
+
+	Parameters.Add_Choice("MASK",
+		"NODATA"		, _TL("Mask Cells"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("no-data cells"),
+			_TL("data cells")
+		), 0
 	);
 }
 
@@ -148,10 +157,12 @@ bool CGrid_Mask::On_Execute(void)
 		return( false );
 	}
 
+	bool	bNoData	= Parameters("NODATA")->asInt() == 0;
+
 	//-----------------------------------------------------
 	return( Parameters("LIST")->asBool()
-		? Mask_Grids(pMask)
-		: Mask_Grid (pMask)
+		? Mask_Grids(pMask, bNoData)
+		: Mask_Grid (pMask, bNoData)
 	);
 }
 
@@ -161,7 +172,7 @@ bool CGrid_Mask::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Mask::Mask_Grid(CSG_Grid *pMask)
+bool CGrid_Mask::Mask_Grid(CSG_Grid *pMask, bool bNoData)
 {
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
@@ -187,7 +198,7 @@ bool CGrid_Mask::Mask_Grid(CSG_Grid *pMask)
 			{
 				double	px	= Get_XMin() + x * Get_Cellsize();
 
-				if( !pMask->is_InGrid_byPos(px, py) )
+				if( bNoData != pMask->is_InGrid_byPos(px, py) )
 				{
 					pGrid->Set_NoData(x, y);
 				}
@@ -212,7 +223,7 @@ bool CGrid_Mask::Mask_Grid(CSG_Grid *pMask)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Mask::Mask_Grids(CSG_Grid *pMask)
+bool CGrid_Mask::Mask_Grids(CSG_Grid *pMask, bool bNoData)
 {
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
@@ -257,7 +268,7 @@ bool CGrid_Mask::Mask_Grids(CSG_Grid *pMask)
 		{
 			double	px	= Get_XMin() + x * Get_Cellsize();
 
-			if( !pMask->is_InGrid_byPos(px, py) )
+			if( bNoData != pMask->is_InGrid_byPos(px, py) )
 			{
 				for(int i=0; i<pGrids->Get_Grid_Count(); i++)
 				{
