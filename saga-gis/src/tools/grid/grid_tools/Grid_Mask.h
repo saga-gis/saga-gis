@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -75,12 +72,19 @@ class CGrid_Mask : public CSG_Tool_Grid
 public:
 	CGrid_Mask(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("A:Grid|Values") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:Grid|Values") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+private:
+
+	bool					Mask_Grid				(CSG_Grid *pMask);
+	bool					Mask_Grids				(CSG_Grid *pMask);
 
 };
 
