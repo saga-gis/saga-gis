@@ -96,6 +96,7 @@ CSG_String Get_Info(int i)
 #include "phenips.h"
 #include "soil_water_balance.h"
 #include "cloud_overlap.h"
+#include "temperature_lapse_rates.h"
 
 
 //---------------------------------------------------------
@@ -142,9 +143,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 24:	return( new CSoil_Water_Balance );
 
 	case 25:	return( new CCloud_Overlap );
+	case 26:	return( new CTemperature_Lapse_Rates );
 
 	//-----------------------------------------------------
-	case 26:	return( NULL );
+	case 30:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

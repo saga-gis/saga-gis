@@ -94,6 +94,12 @@ CCloud_Overlap::CCloud_Overlap(void)
 	);
 
 	Parameters.Add_Grid("",
+		"CBASE"		, _TL("Cloud Base"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid("",
 		"COVER"		, _TL("Total Cloud Cover"),
 		_TL("statistics"),
 		PARAMETER_OUTPUT
@@ -109,12 +115,6 @@ CCloud_Overlap::CCloud_Overlap(void)
 		"INTERVAL"	, _TL("Interval"),
 		_TL("Vertical resolution for internal interpolation given in meters."),
 		100., 1., true
-	);
-
-	Parameters.Add_Double("",
-		"ALPHA"		, _TL("Alpha"),
-		_TL(""),
-		1., 0., true, 1., true
 	);
 
 	Parameters.Add_Double("",
@@ -139,7 +139,7 @@ double CCloud_Overlap::Get_Value(const CSG_Table &Values, double z)
 	{
 		for(int i=1; i<Values.Get_Count(); i++)
 		{
-			double	z0 = z1; z1 = Values[i].asDouble(1);
+			double	z0 = z1; z1 = Values[i].asDouble(0);
 			double	c0 = c1; c1 = Values[i].asDouble(1);
 
 			if( z < z1 )
@@ -216,10 +216,10 @@ bool CCloud_Overlap::On_Execute(void)
 
 	CSG_Grid	*pGround = Parameters("GROUND")->asGrid();
 	CSG_Grid	*pWind   = Parameters("WIND"  )->asGrid();
+	CSG_Grid	*pBase   = Parameters("CBASE" )->asGrid();
 	CSG_Grid	*pCover  = Parameters("COVER" )->asGrid();
 	CSG_Grid	*pBlocks = Parameters("BLOCKS")->asGrid();
 
-	double	Alpha    = Parameters("ALPHA"   )->asDouble();
 	double	minCover = Parameters("MINCOVER")->asDouble();
 	double	Interval = Parameters("INTERVAL")->asDouble();
 
@@ -234,10 +234,11 @@ bool CCloud_Overlap::On_Execute(void)
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	xWorld	= Get_XMin() + x * Get_Cellsize();
+			double  Ground  = pGround->asDouble(x, y);
 
 			CSG_Vector Covers;
 
-			if( !Get_Values(xWorld, yWorld, pGround->asDouble(x, y), Interval, Covers) )
+			if( !Get_Values(xWorld, yWorld, Ground, Interval, Covers) )
 			{
 				if( pBlocks ) pBlocks->Set_NoData(x, y);
 				if( pCover  ) pCover ->Set_NoData(x, y);
@@ -249,14 +250,18 @@ bool CCloud_Overlap::On_Execute(void)
 			CSG_Vector Blocks;
 
 			double  Wind	= pWind->asDouble(x, y);
+			double  Base	= pBase->asDouble(x, y);
 
 			for(size_t i=0, bCloud=false; i<Covers.Get_Size(); i++)
 			{
-			//	double	H = m_Interval * i, Hmax = m_Interval * (Covers.Get_Size() - 1);
-			//	double	wind_cor = Wind + (1. - Wind) * H / Hmax;	// adjust the wind effect by distance to ground
-				double	wind_cor = Wind + (1. - Wind) * i / (Covers.Get_Size() - 1.);	// adjust the wind effect by distance to ground
+				double	Wind_cor = Wind + (1. - Wind) * i / (Covers.Get_Size() - 1.);	// adjust the wind effect by distance to ground
 
-				double Cover	= wind_cor * Covers[i];
+				if( Ground < Base )
+				{
+					Wind_cor	-= (1. - Wind_cor) * (Ground - Base) / Base;
+				}					
+
+				double Cover	= Wind_cor * Covers[i];
 
 				if( Cover > minCover ) // yes, it's a cloud!
 				{
@@ -290,27 +295,17 @@ bool CCloud_Overlap::On_Execute(void)
 			}
 			else // if( Blocks.Get_Size() > 1 )
 			{
-				double	Csum, Cprod, Cmax;
-
-				Csum = Cprod = Cmax = Blocks[0];
+				double	Cprod	= Blocks[0];
 
 				for(size_t i=1; i<Blocks.Get_Size(); i++)
 				{
-					Csum    += Blocks[i];
-					Cprod   *= Blocks[i];
-
-					if( Cmax < Blocks[i] )
-					{
-						Cmax = Blocks[i];
-					}
+					Cprod   *= 1. - Blocks[i];
 				}
 
-				double Crnd = Csum - Cprod;
-
-				Cover	= Alpha * Cmax + (1. - Alpha) * Crnd;
+				Cover	= 1. - Cprod;
 			}
 
-			if( pBlocks ) pBlocks->Set_Value(x, y, Blocks.Get_Size());	// number of blocks
+			if( pBlocks ) pBlocks->Set_Value(x, y, (double)Blocks.Get_Size());	// number of blocks
 			if( pCover  ) pCover ->Set_Value(x, y, Cover);
 		}
 	}
