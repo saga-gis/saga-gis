@@ -412,7 +412,7 @@ bool CSG_Grid_Cell_Addressor::Add_Parameters(CSG_Parameters &Parameters, const C
 
 	if( (Style & SG_GRIDCELLADDR_PARM_WEIGHTING) != 0 )
 	{
-		CSG_Distance_Weighting::Create_Parameters(Parameters,
+		CSG_Distance_Weighting::Add_Parameters(Parameters,
 			Parameters("KERNEL_TYPE")->is_Enabled() ? CSG_String("KERNEL_TYPE") : Parent
 		);
 	}

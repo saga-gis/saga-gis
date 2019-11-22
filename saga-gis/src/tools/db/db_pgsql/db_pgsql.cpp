@@ -1849,8 +1849,8 @@ bool CSG_PG_Connection::Raster_Load(CSG_Parameter_Grid_List *pGrids, const CSG_S
 
 					CSG_Table_Record	*pInfo	= Info.Find_Record(0, rid);
 
-					if( pInfo ? pCollection->Add_Grid(*pInfo, pGrid, true)
-							  : pCollection->Add_Grid( iGrid, pGrid, true) )
+					if( pInfo ? pCollection->Add_Grid(       *pInfo, pGrid, true)
+							  : pCollection->Add_Grid((double)iGrid, pGrid, true) )
 					{
 						bAdded[iGrid]	= true;
 						nAdded++;

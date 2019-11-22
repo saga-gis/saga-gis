@@ -558,21 +558,21 @@ public:
 	CSG_Distance_Weighting(void);
 	virtual ~CSG_Distance_Weighting(void);
 
-	static bool				Create_Parameters	(class CSG_Parameters &Parameters, const CSG_String &Parent = "");
 	static bool				Enable_Parameters	(class CSG_Parameters &Parameters);
+	bool					Create_Parameters	(class CSG_Parameters &Parameters, const CSG_String &Parent = "", bool bIDW_Offset = false);
+	static bool				Add_Parameters		(class CSG_Parameters &Parameters, const CSG_String &Parent = "", bool bIDW_Offset = false);
 	bool					Set_Parameters		(class CSG_Parameters &Parameters);
-	class CSG_Parameters *	Get_Parameters		(void)	const		{	return( m_pParameters );	}
 
-	TSG_Distance_Weighting	Get_Weighting		(void)	const		{	return( m_Weighting );		}
+	TSG_Distance_Weighting	Get_Weighting		(void)	const	{	return( m_Weighting   );	}
 	bool					Set_Weighting		(TSG_Distance_Weighting Weighting);
 
-	double					Get_IDW_Power		(void)	const		{	return( m_IDW_Power );		}
+	double					Get_IDW_Power		(void)	const	{	return( m_IDW_Power   );	}
 	bool					Set_IDW_Power		(double Value);
 
-	bool					Get_IDW_Offset		(void)	const		{	return( m_IDW_bOffset );	}
+	bool					Get_IDW_Offset		(void)	const	{	return( m_IDW_bOffset );	}
 	bool					Set_IDW_Offset		(bool bOn = true);
 
-	double					Get_BandWidth		(void)	const		{	return( m_Bandwidth );		}
+	double					Get_BandWidth		(void)	const	{	return( m_Bandwidth   );	}
 	bool					Set_BandWidth		(double Value);
 
 	//-----------------------------------------------------
@@ -585,22 +585,21 @@ public:
 
 		switch( m_Weighting )
 		{
-		case SG_DISTWGHT_None: default:
-			return( 1. );
+		case SG_DISTWGHT_IDW  :
+			return( m_IDW_bOffset
+				? pow(1. + Distance, -m_IDW_Power) : Distance > 0.
+				? pow(     Distance, -m_IDW_Power) : 0.
+			);
 
-		case SG_DISTWGHT_IDW:
-			if( m_IDW_bOffset )
-				return( pow(1. + Distance, -m_IDW_Power) );
-			else
-				return( Distance > 0. ? pow(Distance, -m_IDW_Power) : 0. );
-
-		case SG_DISTWGHT_EXP:
+		case SG_DISTWGHT_EXP  :
 			return( exp(-Distance / m_Bandwidth) );
 
 		case SG_DISTWGHT_GAUSS:
 			Distance	/= m_Bandwidth;
 			return( exp(-0.5 * Distance*Distance) );
 		}
+
+		return( 1. );
 	}
 
 
@@ -611,8 +610,6 @@ private:
 	double					m_IDW_Power, m_Bandwidth;
 
 	TSG_Distance_Weighting	m_Weighting;
-
-	class CSG_Parameters	*m_pParameters;
 
 };
 
