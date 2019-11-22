@@ -597,9 +597,10 @@ public:
 		case SG_DISTWGHT_GAUSS:
 			Distance	/= m_Bandwidth;
 			return( exp(-0.5 * Distance*Distance) );
-		}
 
-		return( 1. );
+		default: // case SG_DISTWGHT_None:
+			return( 1. );
+		}
 	}
 
 

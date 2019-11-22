@@ -213,7 +213,7 @@ bool CSG_Grid::_Load_External(const CSG_String &FileName, bool bCached, bool bLo
 
 	CSG_Data_Manager	Data;
 
-	CSG_Tool	*pTool;
+	CSG_Tool	*pTool	= NULL;
 
 	SG_UI_Msg_Lock(true);
 

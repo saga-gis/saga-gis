@@ -508,7 +508,7 @@ bool CSG_Grid_Cell_Addressor::_Set_Kernel(int Type, double Radius, double Radius
 		return( false );
 	}
 
-	double	Sector[2];
+	CSG_Vector	Sector(2);
 
 	if( m_Type == 3 )	// sector
 	{
