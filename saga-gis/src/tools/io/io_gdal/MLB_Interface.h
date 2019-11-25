@@ -68,14 +68,14 @@
 #include <gdal.h>
 
 //---------------------------------------------------------
-#if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR == 2
+#if defined(GDAL_VERSION_MAJOR) && GDAL_VERSION_MAJOR >= 2
 #define USE_GDAL_V2
 #endif
 
 //---------------------------------------------------------
 #if defined(GDAL_VERSION_MAJOR) && defined(GDAL_VERSION_MINOR) && GDAL_VERSION_MAJOR == 1 && GDAL_VERSION_MINOR < 8
 #define GDAL_OLDER_THAN_V1_8
-#elif defined(GDAL_VERSION_MAJOR) && defined(GDAL_VERSION_MINOR) && GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR >= 1
+#elif defined(GDAL_VERSION_MAJOR) && defined(GDAL_VERSION_MINOR) && ((GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR >= 1) || GDAL_VERSION_MAJOR > 2)
 #define GDAL_V2_1_OR_NEWER
 #endif
 
