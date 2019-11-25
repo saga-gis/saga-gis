@@ -614,7 +614,7 @@ void CWKSP_Shapes::On_Parameters_Changed(void)
 //---------------------------------------------------------
 bool CWKSP_Shapes::Set_Metrics(int zField, int nField)
 {
-	if( zField < Get_Shapes()->Get_Field_Count() )
+	if( zField >= 0 && zField < Get_Shapes()->Get_Field_Count() )
 	{
 		if( nField < Get_Shapes()->Get_Field_Count() )
 		{
@@ -1324,7 +1324,7 @@ void CWKSP_Shapes::AttributeList_Set(CSG_Parameter *pFields, bool bAddNoField)
 			Items	+= CSG_String(Get_Shapes()->Get_Field_Name(i)) + "|";
 		}
 
-		if( bAddNoField )
+		if( bAddNoField || Get_Shapes()->Get_Field_Count() == 0 )
 		{
 			Items	+= CSG_String(_TL("<none>")) + "|";
 		}
