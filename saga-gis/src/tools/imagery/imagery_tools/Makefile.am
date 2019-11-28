@@ -20,6 +20,7 @@ landsat_toar_core.cpp\
 local_statistical_measures.cpp\
 MLB_Interface.cpp\
 pansharpening.cpp\
+sentinel_2_scene_import.cpp\
 tasseled_cap.cpp\
 textural_features.cpp\
 evi.h\
@@ -32,8 +33,8 @@ landsat_scene_import.h\
 landsat_toar.h\
 landsat_toar_core.h\
 local_statistical_measures.h\
-MLB_Interface.h\
 pansharpening.h\
+sentinel_2_scene_import.h\
 tasseled_cap.h\
 textural_features.h
 

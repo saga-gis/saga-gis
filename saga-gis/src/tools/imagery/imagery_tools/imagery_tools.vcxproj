@@ -322,6 +322,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="pansharpening.cpp" />
+    <ClCompile Include="sentinel_2_scene_import.cpp" />
     <ClCompile Include="tasseled_cap.cpp" />
     <ClCompile Include="textural_features.cpp" />
   </ItemGroup>
@@ -342,7 +343,6 @@
     <ClInclude Include="landsat_toar.h" />
     <ClInclude Include="landsat_toar_core.h" />
     <ClInclude Include="local_statistical_measures.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
@@ -355,6 +355,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="pansharpening.h" />
+    <ClInclude Include="sentinel_2_scene_import.h" />
     <ClInclude Include="tasseled_cap.h" />
     <ClInclude Include="textural_features.h" />
   </ItemGroup>

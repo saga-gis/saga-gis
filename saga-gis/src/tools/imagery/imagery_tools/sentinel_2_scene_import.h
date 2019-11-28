@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -8,15 +5,14 @@
 //                                                       //
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
-//                     Tool Library                      //
-//                    imagery_tools                      //
+//                    Module Library:                    //
+//                     image_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//               sentinel_2_scene_import.h               //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                 SAGA User Group Assoc.                //
+//                 Olaf Conrad (C) 2019                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,29 +35,68 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     author@email.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Author                                 //
-//                Sesame Street. 7                       //
-//                12345 Metropolis                       //
-//                Nirwana                                //
+//    contact:    Olaf Conrad                            //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
+//                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__imagery_tools_H
-#define HEADER_INCLUDED__imagery_tools_H
+#ifndef HEADER_INCLUDED__sentinel_2_scene_import_H
+#define HEADER_INCLUDED__sentinel_2_scene_import_H
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__imagery_tools_H
+class CSentinel_2_Scene_Import : public CSG_Tool
+{
+public:
+	CSentinel_2_Scene_Import(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("A:File|Satellite Imagery") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	static CSG_Table		Get_Info_Bands			(void);
+
+	bool					Load_Metadata			(const CSG_String &File, CSG_MetaData &General, CSG_MetaData &Granule);
+
+	CSG_Grid *				Load_Band				(const CSG_String &Path, const CSG_MetaData &Granule);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__sentinel_2_scene_import_H

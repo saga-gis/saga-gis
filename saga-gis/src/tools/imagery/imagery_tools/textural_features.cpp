@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -45,15 +42,6 @@
 //                Institute of Geography                 //
 //                University of Hamburg                  //
 //                Germany                                //
-//                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
@@ -119,15 +107,14 @@ CTextural_Features::CTextural_Features(void)
 	Set_Author		("O.Conrad (c) 2016");
 
 	Set_Description	(_TW(
-		"Textural features.\n"
-		"This tool is based on the GRASS GIS implementation by Carmine Basco (r.texture)."
-		"\n"
-		"<h3>References</h3><ul><li>"
-		"<b>Haralick, R.M.; Shanmugam, K.; Dinstein, I. (1973):</b> Textural Features for Image Classification. "
-		"IEEE Transactions on Systems, Man, and Cybernetics. SMC-3 (6): 610–621. "
-		"<a target=\"_blank\" href=\"http://haralick.org/journals/TexturalFeatures.pdf\">online</a>"
-		"</li></ul>"
+		"Textural features. This tool is based on the GRASS GIS implementation by Carmine Basco (r.texture). "
 	));
+
+	Add_Reference("Haralick, R.M.; Shanmugam, K.; Dinstein, I.", "1973",
+		"Textural Features for Image Classification",
+		"IEEE Transactions on Systems, Man, and Cybernetics. SMC-3 (6): 610–621.",
+		SG_T("http://haralick.org/journals/TexturalFeatures.pdf"), SG_T("online")
+	);
 
 	Parameters.Add_Grid("",
 		"GRID"		, _TL("Grid"),
@@ -137,13 +124,13 @@ CTextural_Features::CTextural_Features(void)
 
 	for(int i=0; i<g_nFeatures; i++)
 	{
-		Parameters.Add_Grid(NULL, g_Features[i][0], g_Features[i][1], _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Grid("", g_Features[i][0], g_Features[i][1], _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
 	Parameters.Add_Choice("",
 		"DIRECTION"	, _TL("Direction"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("all"),
 			_TL("N-S"),
 			_TL("NE-SW"),

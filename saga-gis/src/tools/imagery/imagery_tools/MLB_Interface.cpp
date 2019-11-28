@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,17 +45,10 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -107,6 +97,7 @@ CSG_String Get_Info(int i)
 #include "textural_features.h"
 #include "local_statistical_measures.h"
 #include "image_quality_index.h"
+#include "sentinel_2_scene_import.h"
 
 
 //---------------------------------------------------------
@@ -135,8 +126,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 12:	return( new CLocal_Statistical_Measures );
 	case 13:	return( new CImage_Quality_Index );
 
+	case 15:	return( new CSentinel_2_Scene_Import );
+
 	//-----------------------------------------------------
-	case 15:	return( NULL );
+	case 16:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

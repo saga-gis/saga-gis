@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: landsat_import.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "landsat_import.h"
 
 
@@ -84,7 +72,7 @@ CLandsat_Import::CLandsat_Import(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_FilePath(NULL,
+	Parameters.Add_FilePath("",
 		"FILES"		, _TL("Files"),
 		_TL(""),
 		CSG_String::Format("%s|*.tif;*.tiff|%s|*.*",
@@ -93,16 +81,16 @@ CLandsat_Import::CLandsat_Import(void)
 		), NULL, false, false, true
 	);
 
-	Parameters.Add_Grid_List(NULL,
+	Parameters.Add_Grid_List("",
 		"BANDS"		, _TL("Bands"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"PROJECTION", _TL("Coordinate System"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("UTM North"),
 			_TL("UTM South"),
 			_TL("Geographic Coordinates")
@@ -112,7 +100,7 @@ CLandsat_Import::CLandsat_Import(void)
 	Parameters.Add_Choice(Parameters("PROJECTION"),
 		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -120,15 +108,15 @@ CLandsat_Import::CLandsat_Import(void)
 		), 3
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Value(NULL,
+	Parameters.Add_Bool("",
 		"SHOW_RGB"	, _TL("Show a Composite"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
-	Parameters.Add_Choice(pNode, "SHOW_R", _TL("Red"  ), _TL(""), _TL("no choice available"));
-	Parameters.Add_Choice(pNode, "SHOW_G", _TL("Green"), _TL(""), _TL("no choice available"));
-	Parameters.Add_Choice(pNode, "SHOW_B", _TL("Blue" ), _TL(""), _TL("no choice available"));
+	Parameters.Add_Choice("SHOW_RGB", "SHOW_R", _TL("Red"  ), _TL(""), _TL("no choice available"));
+	Parameters.Add_Choice("SHOW_RGB", "SHOW_G", _TL("Green"), _TL(""), _TL("no choice available"));
+	Parameters.Add_Choice("SHOW_RGB", "SHOW_B", _TL("Blue" ), _TL(""), _TL("no choice available"));
 }
 
 
@@ -158,13 +146,13 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 				Choices	+= SG_File_Get_Name(Files[i], false) + "|";
 			}
 
-			int	iR	= pParameters->Get_Parameter("SHOW_R")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_R")->asInt() : 2;
-			int	iG	= pParameters->Get_Parameter("SHOW_G")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_G")->asInt() : 1;
-			int	iB	= pParameters->Get_Parameter("SHOW_B")->asChoice()->Get_Count() > 1 ? pParameters->Get_Parameter("SHOW_B")->asInt() : 0;
+			int	iR	= (*pParameters)("SHOW_R")->asChoice()->Get_Count() > 1 ? (*pParameters)("SHOW_R")->asInt() : 2;
+			int	iG	= (*pParameters)("SHOW_G")->asChoice()->Get_Count() > 1 ? (*pParameters)("SHOW_G")->asInt() : 1;
+			int	iB	= (*pParameters)("SHOW_B")->asChoice()->Get_Count() > 1 ? (*pParameters)("SHOW_B")->asInt() : 0;
 
-			pParameters->Get_Parameter("SHOW_R")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_R")->Set_Value(iR);
-			pParameters->Get_Parameter("SHOW_G")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_G")->Set_Value(iG);
-			pParameters->Get_Parameter("SHOW_B")->asChoice()->Set_Items(Choices); pParameters->Get_Parameter("SHOW_B")->Set_Value(iB);
+			(*pParameters)("SHOW_R")->asChoice()->Set_Items(Choices); (*pParameters)("SHOW_R")->Set_Value(iR);
+			(*pParameters)("SHOW_G")->asChoice()->Set_Items(Choices); (*pParameters)("SHOW_G")->Set_Value(iG);
+			(*pParameters)("SHOW_B")->asChoice()->Set_Items(Choices); (*pParameters)("SHOW_B")->Set_Value(iB);
 		}
 	}
 
@@ -180,7 +168,7 @@ int CLandsat_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 		pParameters->Set_Enabled("SHOW_B", pParameter->asBool());
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
