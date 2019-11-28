@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: point_multi_grid_regression.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -147,7 +135,7 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Choice("",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -176,7 +164,7 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("include all"),
 			_TL("forward"),
 			_TL("backward"),
@@ -187,13 +175,13 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Double("",
 		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		5.0, 0.0, true, 100.0, true
+		5., 0., true, 100., true
 	);
 
 	Parameters.Add_Choice("",
 		"CROSSVAL"		, _TL("Cross Validation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("none"),
 			_TL("leave one out"),
 			_TL("2-fold"),
@@ -210,7 +198,7 @@ CPoint_Multi_Grid_Regression::CPoint_Multi_Grid_Regression(void)
 	Parameters.Add_Choice("",
 		"RESIDUAL_COR"	, _TL("Residual Interpolation"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Multilevel B-Spline Interpolation"),
 			_TL("Inverse Distance Weighted")
 		), 0
@@ -265,7 +253,7 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	pRegression	= Parameters("REGRESSION")->asGrid();
 	pPoints		= Parameters("POINTS"    )->asShapes();
 	iAttribute	= Parameters("ATTRIBUTE" )->asInt();
-	P			= Parameters("P_VALUE"   )->asDouble() / 100.0;
+	P			= Parameters("P_VALUE"   )->asDouble() / 100.;
 
 	//-----------------------------------------------------
 	if( !Get_Samples(pGrids, pPoints, iAttribute, Samples, Names) )
@@ -308,11 +296,11 @@ bool CPoint_Multi_Grid_Regression::On_Execute(void)
 	if( CrossVal > 0 && m_Regression.Get_CrossValidation(CrossVal) )
 	{
 		Message_Fmt("\n%s:", _TL("Cross Validation"));
-		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString() );
-		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), m_Regression.Get_CV_nSamples()     );
-		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), m_Regression.Get_CV_RMSE()         );
-		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.0);
-		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.0);
+		Message_Fmt("\n\t%s:\t%s"  , _TL("Type"   ), Parameters("CROSSVAL")->asString());
+		Message_Fmt("\n\t%s:\t%d"  , _TL("Samples"), m_Regression.Get_CV_nSamples()    );
+		Message_Fmt("\n\t%s:\t%f"  , _TL("RMSE"   ), m_Regression.Get_CV_RMSE()        );
+		Message_Fmt("\n\t%s:\t%.2f", _TL("NRMSE"  ), m_Regression.Get_CV_NRMSE() * 100.);
+		Message_Fmt("\n\t%s:\t%.2f", _TL("R2"     ), m_Regression.Get_CV_R2()    * 100.);
 	}
 
 	//-----------------------------------------------------
@@ -679,7 +667,7 @@ bool CPoint_Multi_Grid_Regression::Set_Residual_Corr(CSG_Grid *pRegression, CSG_
 //	Parameters.Add_Choice(
 //		NULL	,"CORRECTION"	, _TL("Adjustment"),
 //		_TL(""),
-//		CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+//		CSG_String::Format("%s|%s|%s|%s|%s|%s",
 //			_TL("Smith"),
 //			_TL("Wherry 1"),
 //			_TL("Wherry 2"),

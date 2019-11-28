@@ -87,7 +87,7 @@ private:
 
 	CKriging_Ordinary				m_OK;
 
-	CSG_Parameters_Search_Points	m_Search;
+	CSG_Parameters_PointSearch		m_Search_Options;
 
 };
 

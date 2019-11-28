@@ -149,7 +149,7 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Double("NODE_REG",
 		"P_VALUE"		, _TL("Significance Level"),
 		_TL("Significance level (aka p-value) as threshold for automated predictor selection, given as percentage"),
-		5.0, 0.0, true, 100.0, true
+		5., 0., true, 100., true
 	);
 
 	Parameters.Add_Choice("NODE_REG",
@@ -169,7 +169,7 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Double("",
 		"VAR_MAXDIST"	, _TL("Maximum Distance"),
 		_TL("maximum distance for variogram estimation, ignored if set to zero"),
-		0.0, 0.0, true
+		0., 0., true
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_Int("",
@@ -222,13 +222,13 @@ CKriging_Regression::CKriging_Regression(void)
 	Parameters.Add_Double("BLOCK",
 		"DBLOCK"	, _TL("Block Size"),
 		_TL(""),
-		100.0, 0.0, true
+		100., 0., true
 	);
 
 
 	///////////////////////////////////////////////////////
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 16);
 }
 
 
@@ -241,7 +241,7 @@ int CKriging_Regression::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_P
 {
 	if( pParameter->Cmp_Identifier("POINTS") )
 	{
-		m_Search.On_Parameter_Changed(pParameters, pParameter);
+		m_Search_Options.On_Parameter_Changed(pParameters, pParameter);
 	}
 
 	//-----------------------------------------------------
@@ -256,7 +256,12 @@ int CKriging_Regression::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 		pParameters->Set_Enabled("TQUALITY", pParameter->asPointer() != NULL);
 	}
 
-	m_Search.On_Parameters_Enable(pParameters, pParameter);
+	if(	pParameter->Cmp_Identifier("METHOD") )
+	{
+		pParameters->Set_Enabled("P_VALUE" , pParameter->asInt() > 0);
+	}
+
+	m_Search_Options.On_Parameters_Enable(pParameters, pParameter);
 
 	//-----------------------------------------------------
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -319,7 +324,6 @@ bool CKriging_Regression::On_Execute(void)
 	||  !pK->Set_Parameter("SEARCH_POINTS_ALL", Parameters("SEARCH_POINTS_ALL"))
 	||  !pK->Set_Parameter("SEARCH_POINTS_MIN", Parameters("SEARCH_POINTS_MIN"))
 	||  !pK->Set_Parameter("SEARCH_POINTS_MAX", Parameters("SEARCH_POINTS_MAX"))
-	||  !pK->Set_Parameter("SEARCH_DIRECTION" , Parameters("SEARCH_DIRECTION" ))
 	||  !pK->Set_Parameter("TARGET_DEFINITION", 1)	// grid or grid system
 	||  !pK->Set_Parameter("PREDICTION"       , pResiduals)
 	||  !pK->Set_Parameter("VARIANCE"         , pVariance )
