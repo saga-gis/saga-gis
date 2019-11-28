@@ -90,7 +90,7 @@ CKriging_Base::CKriging_Base(void)
 	Parameters.Add_Double("",
 		"VAR_MAXDIST"	, _TL("Maximum Distance"),
 		_TL("maximum distance for variogram estimation, ignored if set to zero"),
-		0.0, 0.0, true
+		0., 0., true
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_Int("",
@@ -132,7 +132,7 @@ CKriging_Base::CKriging_Base(void)
 	Parameters.Add_Double("BLOCK",
 		"DBLOCK"		, _TL("Block Size"),
 		_TL("Edge length [map units]"),
-		100.0, 0.0, true
+		100., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -500,7 +500,7 @@ bool CKriging_Base::_Get_Cross_Validation(void)
 		if( pResiduals )
 		{
 			pResiduals->Create(SHAPE_TYPE_Point);
-			pResiduals->Fmt_Name("%s [%s, %s]", Parameters("PREDICTION")->asShapes()->Get_Name(), Get_Name().c_str(), _TL("Residuals"));
+			pResiduals->Fmt_Name("%s.%s [%s, CV %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), _TL("Residuals"));
 			pResiduals->Add_Field("ORIGINALS", SG_DATATYPE_Double);
 			pResiduals->Add_Field("PREDICTED", SG_DATATYPE_Double);
 			pResiduals->Add_Field("RESIDUALS", SG_DATATYPE_Double);
