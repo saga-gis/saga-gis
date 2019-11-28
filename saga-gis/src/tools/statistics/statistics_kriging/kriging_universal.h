@@ -76,7 +76,7 @@ public:
 
 protected:
 
-	virtual bool			Init_Points			(CSG_Shapes *pPoints, int Field);
+	virtual bool			Init_Points			(CSG_Shapes *pPoints, int Field, bool bLog);
 
 	virtual bool			Get_Weights			(const CSG_Matrix &Points, CSG_Matrix &W);
 

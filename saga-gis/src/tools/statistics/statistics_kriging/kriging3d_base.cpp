@@ -550,7 +550,7 @@ bool CKriging3D_Base::_Get_Cross_Validation(void)
 		if( pResiduals )
 		{
 			pResiduals->Create(SHAPE_TYPE_Point, NULL, NULL, SG_VERTEX_TYPE_XYZ);
-			pResiduals->Fmt_Name("%s [%s, %s]", Parameters("PREDICTION")->asShapes()->Get_Name(), Get_Name().c_str(), _TL("Residuals"));
+			pResiduals->Fmt_Name("%s.%s [%s, CV %s]", Parameters("POINTS")->asShapes()->Get_Name(), Parameters("FIELD")->asString(), Get_Name().c_str(), _TL("Residuals"));
 			pResiduals->Add_Field("ORIGINALS", SG_DATATYPE_Double);
 			pResiduals->Add_Field("PREDICTED", SG_DATATYPE_Double);
 			pResiduals->Add_Field("RESIDUALS", SG_DATATYPE_Double);

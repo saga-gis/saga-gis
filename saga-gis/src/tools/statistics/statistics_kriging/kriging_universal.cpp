@@ -104,7 +104,7 @@ CKriging_Universal::CKriging_Universal(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field)
+bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field, bool bLog)
 {
 	m_pPredictors	= Parameters("PREDICTORS")->asGridList();
 
@@ -121,7 +121,7 @@ bool CKriging_Universal::Init_Points(CSG_Shapes *pPoints, int Field)
 	//-----------------------------------------------------
 	m_Points.Create(3, pPoints->Get_Count());
 
-	int	n	= 0;	bool bLog = Parameters("LOG")->asBool();
+	int	n	= 0;
 
 	for(int i=0; i<pPoints->Get_Count(); i++)
 	{
