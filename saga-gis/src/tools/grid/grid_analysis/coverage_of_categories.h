@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Grid_Gridding                     //
+//                     grid_analysis                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     Shapes2Grid.h                     //
+//                coverage_of_categories.h               //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -40,21 +40,19 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Shapes2Grid_H
-#define HEADER_INCLUDED__Shapes2Grid_H
+#ifndef HEADER_INCLUDED__coverage_of_categories_H
+#define HEADER_INCLUDED__coverage_of_categories_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -64,20 +62,19 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CShapes2Grid : public CSG_Tool  
+class CCoverage_of_Categories : public CSG_Tool_Grid
 {
 public:
-	CShapes2Grid(void);
+	CCoverage_of_Categories(void);
 
 
 protected:
 
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool				On_Execute				(void);
@@ -85,73 +82,28 @@ protected:
 
 private:
 
-	int							m_Multiple;
-
 	CSG_Parameters_Grid_Target	m_Grid_Target;
 
-	CSG_Grid					*m_pGrid, *m_pCount;
+	CSG_Grid					*m_pClasses;
+
+	CSG_Table					m_Classes;
 
 
-	TSG_Data_Type				Get_Data_Type			(int Field);
+	bool						Initialize				(const CSG_Grid_System &System);
 
-	void						Set_Value				(int x, int y, double Value);
+	bool						Cmp_Class				(int x, int y, int iClass);
 
-	void						Set_Points				(CSG_Shape *pShape, double Value);
-
-	void						Set_Line				(CSG_Shape *pShape, bool bFat, double Value);
-	void						Set_Line_Thin			(TSG_Point a, TSG_Point b, double Value);
-	void						Set_Line_Fat			(TSG_Point a, TSG_Point b, double Value);
-
-	void						Set_Polygon				(CSG_Shape *pShape, bool bFat, double Value);
-	void						Set_Polygon				(CSG_Shape_Polygon *pPolygon, double Value);
+	double						Get_Coverage			(const CSG_Rect &Cell, int x, int y);
+	double						Get_Coverage			(const CSG_Rect &Cell, int iClass);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPolygons2Grid : public CSG_Tool  
-{
-public:
-	CPolygons2Grid(void);
-
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Polygons") );	}
-
-
-protected:
-
-	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool				On_Execute				(void);
-
-
-private:
-
-	int							m_Multiple;
-
-	CSG_Parameters_Grid_Target	m_Grid_Target;
-
-	CSG_Grid					*m_pGrid, *m_pCoverage;
-
-
-	TSG_Data_Type				Get_Data_Type			(int Field);
-
-	void						Set_Value				(int x, int y, double Value, double Coverage);
-
-	void						Set_Polygon				(CSG_Shape_Polygon *pPolygon, double Value);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Shapes2Grid_H
+#endif // #ifndef HEADER_INCLUDED__coverage_of_categories_H

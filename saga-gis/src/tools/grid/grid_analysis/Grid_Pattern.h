@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Grid_Pattern.h
     Copyright (C) Victor Olaya
@@ -20,32 +18,62 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Pattern_H
 #define HEADER_INCLUDED__Grid_Pattern_H
 
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGrid_Pattern : public CSG_Tool_Grid {
+#include <saga_api/saga_api.h>
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGrid_Pattern : public CSG_Tool_Grid
+{
 public:
 	CGrid_Pattern(void);
-	virtual ~CGrid_Pattern(void);
 
-private:
-	CSG_Grid* m_pInput;
-	int m_iWinSize;
-	int m_iNumClasses;
-	
-	double getDiversity(int, int);
-	int getCVN(int, int);
-	int getNumberOfClasses(int, int);
 
 protected:
-	virtual bool On_Execute(void);
+
+	virtual bool			On_Execute			(void);
+
+
+private:
+
+	CSG_Grid_Cell_Addressor	m_Kernel;
+
+	CSG_Grid				*m_pInput;
+
+
+	bool					Get_Pattern			(int x, int y, int &nCells, int &nClasses, int &nCVN, double &Diversity);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__Grid_Pattern_H

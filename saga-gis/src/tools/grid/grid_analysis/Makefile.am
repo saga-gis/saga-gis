@@ -12,6 +12,7 @@ AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libgrid_analysis.la
 libgrid_analysis_la_SOURCES =\
 Cost_Isotropic.cpp\
+coverage_of_categories.cpp\
 CoveredDistance.cpp\
 CrossClassification.cpp\
 diversity_analysis.cpp\
@@ -35,6 +36,7 @@ MLB_Interface.cpp\
 owa.cpp\
 Soil_Texture.cpp\
 Cost_Isotropic.h\
+coverage_of_categories.h\
 CoveredDistance.h\
 CrossClassification.h\
 diversity_analysis.h\

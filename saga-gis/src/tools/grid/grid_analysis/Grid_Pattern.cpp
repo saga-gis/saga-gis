@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Grid_Pattern.cpp
     Copyright (C) Victor Olaya
@@ -20,223 +18,204 @@
     Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
 *******************************************************************************/ 
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include "Grid_Pattern.h"
 
 
-CGrid_Pattern::CGrid_Pattern(void){
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-	Set_Name(_TL("Pattern Analysis"));
-	Set_Author(_TL("Copyrights (c) 2004 by Victor Olaya"));
+//---------------------------------------------------------
+CGrid_Pattern::CGrid_Pattern(void)
+{
+	Set_Name		(_TL("Pattern Analysis"));
+
+	Set_Author		("Victor Olaya (c) 2004");
+
 	Set_Description	(_TW(
-		"(c) 2004 by Victor Olaya. Pattern Analysis"));
+		"Pattern Analysis"
+	));
 
-	Parameters.Add_Grid(NULL, 
-						"INPUT", 
-						_TL("Input Grid"), 
-						_TL(""), 
-						PARAMETER_INPUT);
+	//-----------------------------------------------------
+	Parameters.Add_Grid("",
+		"INPUT"			, _TL("Input Grid"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 	
-	Parameters.Add_Grid(NULL, 
-						"RELATIVE", 
-						_TL("Relative Richness"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
+	Parameters.Add_Grid("",
+		"NDC"			, _TL("Number of Classes"),
+		_TL(""),
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"DIVERSITY", 
-						_TL("Diversity"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
+	Parameters.Add_Grid("",
+		"RELATIVE"		, _TL("Relative Richness"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"DOMINANCE", 
-						_TL("Dominance"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
+	Parameters.Add_Grid("",
+		"FRAGMENTATION"	, _TL("Fragmentation"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"FRAGMENTATION", 
-						_TL("Fragmentation"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Double);
+	Parameters.Add_Grid("",
+		"CVN"			, _TL("Center vs. Neighbours"),
+		_TL(""), 
+		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"NDC", 
-						_TL("Number of Different Classes"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Int);
+	Parameters.Add_Grid("",
+		"DIVERSITY"		, _TL("Diversity"),
+		_TL(""),
+		PARAMETER_OUTPUT 
+	);
 
-	Parameters.Add_Grid(NULL, 
-						"CVN", 
-						_TL("Center Versus Neighbours"), 
-						_TL(""), 
-						PARAMETER_OUTPUT, 
-						true, 
-						SG_DATATYPE_Int);
+	Parameters.Add_Grid("",
+		"DOMINANCE"		, _TL("Dominance"),
+		_TL(""),
+		PARAMETER_OUTPUT 
+	);
 
-	Parameters.Add_Choice(NULL, 
-						"WINSIZE", 
-						_TL("Size of Analysis Window"), 
-						_TL(""),
+	Parameters.Add_Int("",
+		"MAXNUMCLASS"	, _TL("Max. Number of Classes"),
+		_TL("Maximum number of classes in entire grid."),
+		10
+	);
 
-						CSG_String::Format(SG_T("%s|%s|%s|"),
-							_TL("3 X 3"),
-							_TL("5 X 5"),
-							_TL("7 X 7")
-						), 0
-					);
-
-	Parameters.Add_Value(NULL, 
-						"MAXNUMCLASS", 
-						_TL("Max. Number of Classes"), 
-						_TL("Maximum number of classes in entire grid."), 
-						PARAMETER_TYPE_Int, 
-						10);
-
-}//constructor
+	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
+}
 
 
-CGrid_Pattern::~CGrid_Pattern(void)
-{}
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-bool CGrid_Pattern::On_Execute(void){
-	
+//---------------------------------------------------------
+bool CGrid_Pattern::On_Execute(void)
+{	
 	m_pInput = Parameters("INPUT")->asGrid(); 	
-	CSG_Grid *pRelative = Parameters("RELATIVE")->asGrid();
-	CSG_Grid *pDominance = Parameters("DOMINANCE")->asGrid();
-	CSG_Grid *pDiversity = Parameters("DIVERSITY")->asGrid();
-	CSG_Grid *pFragmentation = Parameters("FRAGMENTATION")->asGrid();
-	CSG_Grid *pNDC = Parameters("NDC")->asGrid();
-	CSG_Grid *pCVN = Parameters("CVN")->asGrid();
-	m_iWinSize = Parameters("WINSIZE")->asInt()*2+3;
-	m_iNumClasses = Parameters("MAXNUMCLASS")->asInt();
-	
-    for(int y=m_iWinSize-2; y<Get_NY()-m_iWinSize+2 && Set_Progress(y); y++){		
-		for(int x=m_iWinSize-2; x<Get_NX()-m_iWinSize+2; x++){
-			double dDiversity = getDiversity(x,y);
-			int iNumClasses = getNumberOfClasses(x,y);
-			pRelative->Set_Value(x,y,((double)iNumClasses)/((double)m_iNumClasses)*100.0);
-			pDominance->Set_Value(x,y,log((double)iNumClasses)-dDiversity);
-			pDiversity->Set_Value(x,y,dDiversity);
-			pFragmentation->Set_Value(x,y,((double)(iNumClasses-1))/((double)(m_iWinSize*m_iWinSize-1)));
-			pNDC->Set_Value(x,y,iNumClasses);
-			pCVN->Set_Value(x,y,getCVN(x,y));
-        }// for
-    }// for
 
-	return true;
+	CSG_Grid	*pnClasses      = Parameters("NDC"          )->asGrid();
+	CSG_Grid	*pDiversity     = Parameters("DIVERSITY"    )->asGrid();
+	CSG_Grid	*pRelative	    = Parameters("RELATIVE"     )->asGrid();
+	CSG_Grid	*pDominance     = Parameters("DOMINANCE"    )->asGrid();
+	CSG_Grid	*pFragmentation = Parameters("FRAGMENTATION")->asGrid();
+	CSG_Grid	*pCVN           = Parameters("CVN"          )->asGrid();
 
-}//method
+	if( !m_Kernel.Set_Parameters(Parameters) )
+	{
+		Error_Set(_TL("could not initialize kernel"));
 
+		return( false );
+	}
 
-int CGrid_Pattern::getNumberOfClasses(int iX, int iY){
+	int	maxClasses	= Parameters("MAXNUMCLASS")->asInt();
 
-	int iValues[9];
-	int iNumClasses =0;
-	int i,j,k;
-	int iValue;
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		#ifndef _DEBUG
+		#pragma omp parallel for
+		#endif
+		for(int x=0; x<Get_NX(); x++)
+		{
+			int	nCells, nClasses, nCVN;	double Diversity;
 
-	for (i =0; i<9; i++){
-		iValues[i] = (int)m_pInput->Get_NoData_Value();
-	}//for
+			if( Get_Pattern(x, y, nCells, nClasses, nCVN, Diversity) )
+			{
+				SG_GRID_PTR_SAFE_SET_VALUE (pnClasses     , x, y, nClasses);
+				SG_GRID_PTR_SAFE_SET_VALUE (pRelative     , x, y, 100. * nClasses / (double)maxClasses);
+				SG_GRID_PTR_SAFE_SET_VALUE (pFragmentation, x, y,        nClasses / (double)nCells);
+				SG_GRID_PTR_SAFE_SET_VALUE (pCVN          , x, y, nCVN);
+				SG_GRID_PTR_SAFE_SET_VALUE (pDiversity    , x, y, Diversity);
+				SG_GRID_PTR_SAFE_SET_VALUE (pDominance    , x, y, log((double)nClasses) - Diversity);
+			}
+			else
+			{
+				SG_GRID_PTR_SAFE_SET_NODATA(pnClasses     , x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pRelative     , x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pDiversity    , x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pDominance    , x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pFragmentation, x, y);
+				SG_GRID_PTR_SAFE_SET_NODATA(pCVN          , x, y);
+			}
+        }
+    }
 
-	for (i=-m_iWinSize+2; i<m_iWinSize-1; i++){
-		for (j=-m_iWinSize+2; j<m_iWinSize-1; j++){
-			iValue=m_pInput->asInt(iX+i,iY+j);
-			if (iValue!=m_pInput->Get_NoData_Value()){
-				for (k=0; k<9; k++){
-					if (iValue==iValues[k]){
-						continue;
-					}//if
-					if (iValues[k]==m_pInput->Get_NoData_Value()){
-						iValues[k]=iValue;
-						iNumClasses++;
-						continue;
-					}//if
-				}//for
-			}//if
-		}//for
-	}//for
+	//-----------------------------------------------------
+	m_Kernel.Destroy();
 
-	return iNumClasses;
-
-}//method
+	return( true );
+}
 
 
-double CGrid_Pattern::getDiversity(int iX, int iY){
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
 
-	int iValues[9][2];
-	int iMaxClass=0;
-	int i,j,k;
-	int iValue;
-	double dDiversity=0;
-	double dProp;
+//---------------------------------------------------------
+bool CGrid_Pattern::Get_Pattern(int x, int y, int &nCells, int &nClasses, int &nCVN, double &Diversity)
+{
+	if( m_pInput->is_NoData(x, y) )
+	{
+		return( false );
+	}
 
-	for (i =0; i<9; i++){
-		iValues[i][0] = (int)m_pInput->Get_NoData_Value();
-		iValues[i][1] = 0;
-	}//for
+	nCells = nCVN = 0;
 
-	for (i=-m_iWinSize+2; i<m_iWinSize-1; i++){
-		for (j=-m_iWinSize+2; j<m_iWinSize-1; j++){
-			iValue=m_pInput->asInt(iX+i,iY+j);
-			if (iValue!=m_pInput->Get_NoData_Value()){
-				for (k=0; k<9; k++){
-					if (iValue==iValues[k][0]){
-						iValues[k][1]++;
-						goto out;
-					}//if
-					if (iValues[k][0]==m_pInput->Get_NoData_Value()){
-						iValues[k][0]=iValue;
-						iValues[k][1]++;
-						iMaxClass=k+1;
-						goto out;
-					}//if
-				}//for
-out:;
-			}//if
-		}//for
-	}//for
+	CSG_Unique_Number_Statistics	Classes;
 
-	for (i=0; i<iMaxClass; i++){
-		dProp = ((double)iValues[i][1])/8.0;
-		dDiversity += (dProp*log(dProp));
-	}//for
-	
-	//TRACE(dProp);
-	
-	return dDiversity;
+	double	iz, z	= m_pInput->asDouble(x, y);
+
+	for(int i=0; i<m_Kernel.Get_Count(); i++)
+	{
+		int	ix	= m_Kernel.Get_X(i, x);
+		int	iy	= m_Kernel.Get_Y(i, y);
+
+		if( m_pInput->is_InGrid(ix, iy) )
+		{
+			nCells++;
+
+			Classes	+= (iz = m_pInput->asDouble(ix, iy));
+
+			if( z != iz )
+			{
+				nCVN++;
+			}
+		}
+	}
+
+	nClasses	= Classes.Get_Count();
+
+	Diversity	= 0.;	// the Shannon index !!!
+
+	for(int i=0; i<Classes.Get_Count(); i++)
+	{
+		double	p	= Classes.Get_Count(i) / (double)nCells;
+
+		Diversity	-= p * log(p);
+	}
+
+	return( true );
+}
 
 
-}//method
+ ///////////////////////////////////////////////////////////
+ //														 //
+ //														 //
+ //														 //
+ ///////////////////////////////////////////////////////////
 
-int CGrid_Pattern::getCVN(int iX, int iY){
-
-	int iValue2;
-	int iValue = m_pInput->asInt(iX,iY);
-	int iCVN=0;
-	
-	for (int i=-m_iWinSize+2; i<m_iWinSize-1; i++){
-		for (int j=-m_iWinSize+2; j<m_iWinSize-1; j++){
-			iValue2=m_pInput->asInt(iX+i,iY+j);
-			if (iValue2!=m_pInput->Get_NoData_Value()){
-				if (iValue!=iValue2){
-					iCVN++;
-				}//if
-			}//if
-		}//for
-	}//for
-
-	return iCVN;
-
-}//method
+ //---------------------------------------------------------

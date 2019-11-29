@@ -311,6 +311,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="coverage_of_categories.cpp" />
     <ClCompile Include="CoveredDistance.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -426,6 +427,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Isotropic.h" />
+    <ClInclude Include="coverage_of_categories.h" />
     <ClInclude Include="CoveredDistance.h" />
     <ClInclude Include="CrossClassification.h" />
     <ClInclude Include="diversity_analysis.h" />

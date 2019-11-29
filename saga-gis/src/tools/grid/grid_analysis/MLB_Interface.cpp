@@ -115,6 +115,8 @@ CSG_String Get_Info(int i)
 #include "diversity_simpson.h"
 #include "diversity_raos_q.h"
 
+#include "coverage_of_categories.h"
+
 
 //---------------------------------------------------------
 // 4. Allow your tools to be created here...
@@ -153,7 +155,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 24:	return( new CDiversity_Raos_Q_Classic );
 	case 25:	return( new CDiversity_Raos_Q );
 
-	case 26:	return( NULL );
+	case 26:	return( new CCoverage_of_Categories );
+
+	case 27:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

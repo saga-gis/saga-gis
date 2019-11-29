@@ -83,6 +83,9 @@
     <ClCompile Include="diversity_raos_q.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="coverage_of_categories.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cost_Isotropic.h">
@@ -185,6 +188,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="diversity_raos_q.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="coverage_of_categories.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
