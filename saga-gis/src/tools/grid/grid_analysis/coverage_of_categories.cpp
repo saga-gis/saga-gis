@@ -58,7 +58,6 @@
 //---------------------------------------------------------
 CCoverage_of_Categories::CCoverage_of_Categories(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Coverage of Categories"));
 
 	Set_Author		("O.Conrad (c) 2019");
@@ -82,6 +81,47 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 		PARAMETER_OUTPUT
 	);
 
+	Parameters.Add_Table("",
+		"LUT"		, _TL("Classification"),
+		_TL(""),
+		PARAMETER_INPUT_OPTIONAL
+	);
+
+	Parameters.Add_Table_Field("LUT",
+		"LUT_VAL"	, _TL("Value"),
+		_TL("The class value or - in combination with value 2 - the minimum/maximum value specifying a value range."),
+		false
+	);
+
+	Parameters.Add_Table_Field("LUT",
+		"LUT_MAX"	, _TL("Maximum Value"),
+		_TL("Use this option to specify a value range equal or greater than previous value and less than this (maximum) value."),
+		true
+	);
+
+	Parameters.Add_Table_Field("LUT",
+		"LUT_NAME"	, _TL("Class name"),
+		_TL("Optional, a class name used for the naming of the target coverage rasters."),
+		true
+	);
+
+	Parameters.Add_Bool("",
+		"NO_DATA"	, _TL("Mark No Coverage as No-Data"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Choice("",
+		"DATADEPTH"	, _TL("Data Depth"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("1-byte"),
+			_TL("2-byte"),
+			_TL("4-byte"),
+			_TL("8-byte")
+		), 1
+	);
+
 	//-----------------------------------------------------
 	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 }
@@ -94,6 +134,11 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 //---------------------------------------------------------
 int CCoverage_of_Categories::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("LUT") )
+	{
+		pParameter->Set_Children_Enabled(pParameter->asTable() != NULL);
+	}
+
 	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -107,7 +152,6 @@ int CCoverage_of_Categories::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CCoverage_of_Categories::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_pClasses	= Parameters("CLASSES")->asGrid();
 
 	CSG_Grid_System	System	= m_Grid_Target.Get_System();
@@ -124,6 +168,8 @@ bool CCoverage_of_Categories::On_Execute(void)
 
 	if( !Initialize(System) )
 	{
+		m_Classes.Destroy();
+
 		return( false );
 	}
 
@@ -169,51 +215,105 @@ bool CCoverage_of_Categories::On_Execute(void)
 //---------------------------------------------------------
 bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 {
-	CSG_Unique_Number_Statistics	Classes;
+	m_Classes.Destroy();
 
-	for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+	m_Classes.Add_Field("NAM", SG_DATATYPE_String);
+	m_Classes.Add_Field("VAL", m_pClasses->Get_Type());
+
+	//-----------------------------------------------------
+	if( Parameters("LUT")->asTable() )
 	{
-		if( !m_pClasses->is_NoData(iCell) )
+		CSG_Table	&Classes	= *Parameters("LUT")->asTable();
+
+		int	fVal	= Parameters("LUT_VAL" )->asInt();
+		int	fMax	= Parameters("LUT_MAX" )->asInt();
+		int	fNam	= Parameters("LUT_NAME")->asInt();
+
+		if( fMax >= 0 )
 		{
-			Classes	+= m_pClasses->asDouble(iCell);
+			m_Classes.Add_Field("MAX", m_pClasses->Get_Type());
+		}
+
+		m_Classes.Set_Count(Classes.Get_Count());
+
+		for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+		{
+			m_Classes[iClass].Set_Value(1, Classes[iClass].asDouble(fVal));
+
+			if( fMax >= 0 )
+			{
+				m_Classes[iClass].Set_Value(2, Classes[iClass].asDouble(fMax));
+			}
+
+			if( fNam >= 0 )
+			{
+				m_Classes[iClass].Set_Value(0, Classes[iClass].asString(fNam));
+			}
+			else
+			{
+				m_Classes[iClass].Set_Value(0, SG_Get_String(Classes[iClass].asDouble(fVal), -6));
+			}
 		}
 	}
 
 	//-----------------------------------------------------
-	Message_Fmt("\n%s: %d", _TL("Number of Classes"), Classes.Get_Count());
+	else
+	{
+		CSG_Unique_Number_Statistics	Classes;
 
-	if( Classes.Get_Count() < 1 )
+		for(sLong iCell=0; iCell<Get_NCells() && Set_Progress_NCells(iCell); iCell++)
+		{
+			if( !m_pClasses->is_NoData(iCell) )
+			{
+				Classes	+= m_pClasses->asDouble(iCell);
+			}
+		}
+
+		//-------------------------------------------------
+		m_Classes.Set_Count(Classes.Get_Count());
+
+		for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+		{
+			m_Classes[iClass].Set_Value(0, SG_Get_String(Classes.Get_Value(iClass), -6));
+			m_Classes[iClass].Set_Value(1,               Classes.Get_Value(iClass)     );
+		}
+
+		m_Classes.Set_Index(1, TABLE_INDEX_Ascending);
+	}
+
+	//-----------------------------------------------------
+	Message_Fmt("\n%s: %d", _TL("Number of Classes"), m_Classes.Get_Count());
+
+	if( m_Classes.Get_Count() < 1 )
 	{
 		Error_Set(_TL("No valid cells found"));
 
 		return( false );
 	}
 
-	if( Classes.Get_Count() > 32 && !Message_Dlg_Confirm(CSG_String::Format("%s: %s [%d]!", _TL("Warning"), _TL("There are many unique values"), Classes.Get_Count()), _TL("Do you really want to proceed?")) )
+	if( m_Classes.Get_Count() > 32 && !Message_Dlg_Confirm(CSG_String::Format("%s: %s [%d]!", _TL("Warning"), _TL("There are many unique values"), m_Classes.Get_Count()), _TL("Do you really want to proceed?")) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	m_Classes.Destroy();
-	m_Classes.Add_Field("VALUE", m_pClasses->Get_Type());
-	m_Classes.Set_Count(Classes.Get_Count());
+	TSG_Data_Type	Type;	double	Scaling;
 
-	for(int iClass=0; iClass<Classes.Get_Count(); iClass++)
+	switch( Parameters("DATADEPTH")->asInt() )
 	{
-		m_Classes[iClass].Set_Value(0, Classes.Get_Value(iClass));
+	case  0: Type = SG_DATATYPE_Byte  ; Scaling = 1. /   255.; break;
+	default: Type = SG_DATATYPE_Word  ; Scaling = 1. / 65535.; break;
+	case  2: Type = SG_DATATYPE_Float ; Scaling = 1.         ; break;
+	case  3: Type = SG_DATATYPE_Double; Scaling = 1.         ; break;
 	}
 
-	m_Classes.Set_Index(0, TABLE_INDEX_Ascending);
-
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pCoverages	= Parameters("COVERAGES")->asGridList();
 
 	pCoverages->Del_Items();
 
 	for(int iClass=0; iClass<m_Classes.Get_Count(); iClass++)
 	{
-		CSG_Grid	*pGrid	= SG_Create_Grid(System);
+		CSG_Grid	*pGrid	= SG_Create_Grid(System, Type);
 
 		if( !pGrid )
 		{
@@ -222,8 +322,9 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 			return( false );
 		}
 
-		pGrid->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), SG_Get_String(m_Classes[iClass].asDouble(0), -6).c_str());
-		pGrid->Set_NoData_Value(0.);
+		pGrid->Fmt_Name("%s [%s]", m_pClasses->Get_Name(), m_Classes[iClass].asString(0));
+		pGrid->Set_NoData_Value(Parameters("NO_DATA")->asBool() ? 0. : -1.);
+		pGrid->Set_Scaling(Scaling);
 
 		pCoverages->Add_Item(pGrid);
 	}
@@ -240,7 +341,21 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 //---------------------------------------------------------
 inline bool CCoverage_of_Categories::Cmp_Class(int x, int y, int iClass)
 {
-	return( m_pClasses->is_InGrid(x, y) && m_pClasses->asDouble(x, y) == m_Classes[iClass].asDouble(0) );
+	if( m_pClasses->is_InGrid(x, y) )
+	{
+		double	Value	= m_pClasses->asDouble(x, y);
+		
+		if( m_Classes.Get_Field_Count() > 2 )
+		{
+			return( Value >= m_Classes[iClass].asDouble(1)
+				&&  Value <  m_Classes[iClass].asDouble(2)
+			);
+		}
+
+		return( Value == m_Classes[iClass].asDouble(1) );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

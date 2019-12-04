@@ -51,20 +51,22 @@ class CGrid_Pattern : public CSG_Tool_Grid
 public:
 	CGrid_Pattern(void);
 
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Diversity") );	}
+
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Grid_Cell_Addressor	m_Kernel;
+	CSG_Grid_Cell_Addressor		m_Kernel;
 
-	CSG_Grid				*m_pInput;
+	CSG_Grid					*m_pInput;
 
 
-	bool					Get_Pattern			(int x, int y, int &nCells, int &nClasses, int &nCVN, double &Diversity);
+	bool						Get_Pattern				(int x, int y, int &nCells, int &nClasses, int &nCVN, double &Diversity);
 
 };
 
