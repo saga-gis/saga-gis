@@ -39,15 +39,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -90,6 +81,7 @@ CSG_String Get_Info(int i)
 #include "georef_grid_move.h"
 #include "direct_georeferencing.h"
 #include "set_grid_georeference.h"
+#include "georef_with_coordinate_grids.h"
 
 
 //---------------------------------------------------------
@@ -106,6 +98,7 @@ CSG_Tool *		Create_Tool(int i)
 	case  4:	return( new CDirect_Georeferencing );
 	case  6:	return( new CDirect_Georeferencing_WorldFile );
 	case  5:	return( new CSet_Grid_Georeference );
+	case  7:	return( new CGeoRef_with_Coordinate_Grids );
 
 	case 10:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

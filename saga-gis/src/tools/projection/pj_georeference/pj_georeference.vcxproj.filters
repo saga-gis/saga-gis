@@ -38,6 +38,9 @@
     <ClCompile Include="set_grid_georeference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="georef_with_coordinate_grids.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -113,6 +116,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="set_grid_georeference.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="georef_with_coordinate_grids.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

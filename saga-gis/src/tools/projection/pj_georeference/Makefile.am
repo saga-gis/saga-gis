@@ -17,6 +17,7 @@ Georef_Engine.cpp\
 Georef_Grid.cpp\
 georef_grid_move.cpp\
 Georef_Shapes.cpp\
+georef_with_coordinate_grids.cpp\
 MLB_Interface.cpp\
 set_grid_georeference.cpp\
 Collect_Points.h\
@@ -25,6 +26,7 @@ Georef_Engine.h\
 Georef_Grid.h\
 georef_grid_move.h\
 Georef_Shapes.h\
+georef_with_coordinate_grids.h\
 MLB_Interface.h\
 set_grid_georeference.h
 

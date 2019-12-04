@@ -6,13 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Grid_Gridding                     //
+//                    pj_georeference                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//             Interpolation_Triangulation.h             //
+//             georef_with_coordinate_grids.h            //
 //                                                       //
-//                 Copyright (C) 2004 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -36,20 +36,18 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.org                   //
+//    e-mail:     oconrad@saga-gis.de                    //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__Interpolation_Triangulation_H
-#define HEADER_INCLUDED__Interpolation_Triangulation_H
+#ifndef HEADER_INCLUDED__georef_with_coordinate_grids_H
+#define HEADER_INCLUDED__georef_with_coordinate_grids_H
 
 
 ///////////////////////////////////////////////////////////
@@ -59,7 +57,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "Interpolation.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -69,26 +67,29 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CInterpolation_Triangulation : public CInterpolation  
+class CGeoRef_with_Coordinate_Grids : public CSG_Tool_Grid
 {
 public:
-	CInterpolation_Triangulation(void);
+	CGeoRef_with_Coordinate_Grids(void);
 
 
 protected:
 
-	virtual bool				Interpolate					(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
-	CSG_Grid					*m_pGrid;
+	CSG_Parameters_Grid_Target	m_Grid_Target;
 
 
-	bool						Get_TIN						(CSG_TIN &TIN);
+	bool						Get_Coordinates			(CSG_Grid Coords[2]);
 
-	void						Set_Triangle				(TSG_Point_Z p[3]);
-	void						Set_Triangle_Line			(int y, double xa, double za, double xb, double zb);
+	void						Set_Triangle			(CSG_Grid &Coords, TSG_Point_Z p[3]);
+	void						Set_Triangle_Line		(CSG_Grid &Coords, int y, double xa, double za, double xb, double zb);
 
 };
 
@@ -100,4 +101,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__Interpolation_Triangulation_H
+#endif // #ifndef HEADER_INCLUDED__georef_with_coordinate_grids_H

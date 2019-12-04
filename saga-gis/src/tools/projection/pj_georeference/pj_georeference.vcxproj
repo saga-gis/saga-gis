@@ -307,6 +307,7 @@
     <ClCompile Include="Georef_Grid.cpp" />
     <ClCompile Include="georef_grid_move.cpp" />
     <ClCompile Include="Georef_Shapes.cpp" />
+    <ClCompile Include="georef_with_coordinate_grids.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -332,6 +333,7 @@
     <ClInclude Include="Georef_Grid.h" />
     <ClInclude Include="georef_grid_move.h" />
     <ClInclude Include="Georef_Shapes.h" />
+    <ClInclude Include="georef_with_coordinate_grids.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
