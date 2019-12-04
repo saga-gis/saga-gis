@@ -359,7 +359,7 @@ bool CSentinel_2_Scene_Import::Load_Metadata(const CSG_String &File, CSG_MetaDat
 //---------------------------------------------------------
 CSG_Grid * CSentinel_2_Scene_Import::Load_Band(const CSG_String &Path, const CSG_MetaData &Granule)
 {
-	Process_Set_Text("%s: %s", _TL("loading"), Granule.Get_Content().AfterLast('_'));
+	Process_Set_Text("%s: %s", _TL("loading"), Granule.Get_Content().AfterLast('_').c_str());
 
 	CSG_String	File	= Path + "/" + Granule.Get_Content() + ".jp2";
 
