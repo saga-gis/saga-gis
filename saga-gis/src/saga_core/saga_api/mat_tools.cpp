@@ -626,7 +626,7 @@ double CSG_Simple_Statistics::Get_Quantile(double Quantile)
 			m_bSorted	= true;
 		}
 
-		return( Get_Value((sLong)(0.5 + (m_Values.Get_Size() - 1) * Quantile / 100.0)) );
+		return( Get_Value((sLong)(0.5 + (m_Values.Get_Size() - 1.) * Quantile)) );
 	}
 
 	return( m_Mean );
