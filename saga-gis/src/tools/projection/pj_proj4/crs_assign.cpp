@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "crs_assign.h"
 
 
@@ -67,10 +58,9 @@
 //---------------------------------------------------------
 CCRS_Assign::CCRS_Assign(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Set Coordinate Reference System"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
 		"The tool allows one to define the Coordinate Reference System (CRS) "
@@ -82,20 +72,20 @@ CCRS_Assign::CCRS_Assign(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "GRIDS"	, _TL("Grids"),
+	Parameters.Add_Grid_List("",
+		"GRIDS" , _TL("Grids"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"	, _TL("Shapes"),
+	Parameters.Add_Shapes_List("",
+		"SHAPES", _TL("Shapes"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
-//	Parameters.Add_TIN_List(
-//		NULL	, "TINS"	, _TL("TINs"),
+//	Parameters.Add_TIN_List("",
+//		"TINS"  , _TL("TINs"),
 //		_TL(""),
 //		PARAMETER_INPUT_OPTIONAL
 //	);
@@ -133,7 +123,7 @@ bool CCRS_Assign::On_Execute(void)
 
 	nProjected	+= Set_Projections(Projection, Parameters("GRIDS" )->asList());
 	nProjected	+= Set_Projections(Projection, Parameters("SHAPES")->asList());
-//	nProjected	+= Set_Projections(Projection, Parameters("TINS")  ->asList());
+//	nProjected	+= Set_Projections(Projection, Parameters("TINS"  )->asList());
 
 	//-----------------------------------------------------
 	return( nProjected > 0 );

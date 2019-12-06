@@ -46,16 +46,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "crs_base.h"
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #ifndef PROJ6
@@ -232,7 +230,18 @@ bool CCRS_Base::On_Before_Execution(void)
 //---------------------------------------------------------
 int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	//-----------------------------------------------------
+	CSG_Projection	Projection	= Parameter_Changed(pParameters, pParameter);
+
+	if( Projection.is_Okay() )
+	{
+		m_Projection	= Projection;
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+CSG_Projection CCRS_Base::Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
 	CSG_Projection	Projection;
 
 	//-----------------------------------------------------
@@ -326,24 +335,29 @@ int CCRS_Base::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *
 	//-----------------------------------------------------
 	if( Projection.is_Okay() )
 	{
-		m_Projection	= Projection;
-
-		pParameters->Set_Parameter("CRS_PROJ4"    , m_Projection.Get_Proj4       ());
-		pParameters->Set_Parameter("CRS_EPSG"     , m_Projection.Get_Authority_ID());
-		pParameters->Set_Parameter("CRS_EPSG_AUTH", m_Projection.Get_Authority   ());
+		pParameters->Set_Parameter("CRS_PROJ4"    , Projection.Get_Proj4       ());
+		pParameters->Set_Parameter("CRS_EPSG"     , Projection.Get_Authority_ID());
+		pParameters->Set_Parameter("CRS_EPSG_AUTH", Projection.Get_Authority   ());
 
 		if( (*pParameters)("CRS_DIALOG") )
 		{
-			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), m_Projection.Get_Proj4());
+			Set_User_Definition(*(*pParameters)("CRS_DIALOG")->asParameters(), Projection.Get_Proj4());
 		}
 	}
 
 	//-----------------------------------------------------
-	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+	return( Projection );
 }
 
 //---------------------------------------------------------
 int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+bool CCRS_Base::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if(	pParameters->Cmp_Identifier("CRS_DIALOG") )
 	{
@@ -378,32 +392,32 @@ int CCRS_Base::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("ELLPS_DEF", Value == 0);
-			pParameters->Set_Enabled("ELLPS_A"  , Value != 0);
-			pParameters->Set_Enabled("ELLPS_B"  , Value == 1);
-			pParameters->Set_Enabled("ELLPS_F"  , Value == 2);
-			pParameters->Set_Enabled("ELLPS_RF" , Value == 3);
-			pParameters->Set_Enabled("ELLPS_E"  , Value == 4);
-			pParameters->Set_Enabled("ELLPS_ES" , Value == 5);
+			pParameters->Set_Enabled("ELLPS_DEF"  , Value == 0);
+			pParameters->Set_Enabled("ELLPS_A"    , Value != 0);
+			pParameters->Set_Enabled("ELLPS_B"    , Value == 1);
+			pParameters->Set_Enabled("ELLPS_F"    , Value == 2);
+			pParameters->Set_Enabled("ELLPS_RF"   , Value == 3);
+			pParameters->Set_Enabled("ELLPS_E"    , Value == 4);
+			pParameters->Set_Enabled("ELLPS_ES"   , Value == 5);
 		}
 
 		if(	pParameter->Cmp_Identifier("DATUM_SHIFT") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("DS_DX"     , Value == 1 || Value == 2);
-			pParameters->Set_Enabled("DS_DY"     , Value == 1 || Value == 2);
-			pParameters->Set_Enabled("DS_DZ"     , Value == 1 || Value == 2);
-			pParameters->Set_Enabled("DS_RX"     , Value == 2);
-			pParameters->Set_Enabled("DS_RY"     , Value == 2);
-			pParameters->Set_Enabled("DS_RZ"     , Value == 2);
-			pParameters->Set_Enabled("DS_SC"     , Value == 2);
-			pParameters->Set_Enabled("DATUM_GRID", Value == 3);
+			pParameters->Set_Enabled("DS_DX"      , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_DY"      , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_DZ"      , Value == 1 || Value == 2);
+			pParameters->Set_Enabled("DS_RX"      , Value == 2);
+			pParameters->Set_Enabled("DS_RY"      , Value == 2);
+			pParameters->Set_Enabled("DS_RZ"      , Value == 2);
+			pParameters->Set_Enabled("DS_SC"      , Value == 2);
+			pParameters->Set_Enabled("DATUM_GRID" , Value == 3);
 		}
 	}
 
 	//-----------------------------------------------------
-	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+	return( true );
 }
 
 
@@ -1020,26 +1034,26 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 {
 	P.Restore_Defaults();
 
-	PROJ4_SET_CHC("proj" , "PROJ_TYPE");
-	PROJ4_SET_CHC("datum", "DATUM"    );
-	PROJ4_SET_CHC("ellps", "ELLPS_DEF");
-	PROJ4_SET_CHC("units", "UNIT"     );
+	PROJ4_SET_CHC("proj"   , "PROJ_TYPE");
+	PROJ4_SET_CHC("datum"  , "DATUM"    );
+	PROJ4_SET_CHC("ellps"  , "ELLPS_DEF");
+	PROJ4_SET_CHC("units"  , "UNIT"     );
 
-	PROJ4_SET_FLT("lon_0", "LON_0"    );
-	PROJ4_SET_FLT("lat_0", "LAT_0"    );
-	PROJ4_SET_FLT("x_0"  , "X_0"      );
-	PROJ4_SET_FLT("y_0"  , "Y_0"      );
-	PROJ4_SET_FLT("k_0"  , "K_0"      );
+	PROJ4_SET_FLT("lon_0"  , "LON_0"    );
+	PROJ4_SET_FLT("lat_0"  , "LAT_0"    );
+	PROJ4_SET_FLT("x_0"    , "X_0"      );
+	PROJ4_SET_FLT("y_0"    , "Y_0"      );
+	PROJ4_SET_FLT("k_0"    , "K_0"      );
 
-	PROJ4_SET_FLT("a"    , "ELLPS_A"  );
-	PROJ4_SET_FLT("b"    , "ELLPS_B"  );
-	PROJ4_SET_FLT("f"    , "ELLPS_F"  );
-	PROJ4_SET_FLT("rf"   , "ELLPS_RF" );
-	PROJ4_SET_FLT("e"    , "ELLPS_E"  );
-	PROJ4_SET_FLT("es"   , "ELLPS_ES" );
+	PROJ4_SET_FLT("a"      , "ELLPS_A"  );
+	PROJ4_SET_FLT("b"      , "ELLPS_B"  );
+	PROJ4_SET_FLT("f"      , "ELLPS_F"  );
+	PROJ4_SET_FLT("rf"     , "ELLPS_RF" );
+	PROJ4_SET_FLT("e"      , "ELLPS_E"  );
+	PROJ4_SET_FLT("es"     , "ELLPS_ES" );
 
-	PROJ4_SET_BOL("no_defs", "NO_DEFS");
-	PROJ4_SET_BOL("over"   , "OVER"   );
+	PROJ4_SET_BOL("no_defs", "NO_DEFS"  );
+	PROJ4_SET_BOL("over"   , "OVER"     );
 
 	//-----------------------------------------------------
 //	switch( P("DATUM_DEF")->asInt() )
@@ -1106,11 +1120,12 @@ bool CCRS_Base::Set_User_Definition(CSG_Parameters &P, const CSG_String &Proj4)
 			case PARAMETER_TYPE_Bool  : p.Set_Value(PROJ4_HAS_KEY(key) ? 1 : 0   );	break;
 			case PARAMETER_TYPE_Int   : p.Set_Value(PROJ4_GET_VAL(key).asInt   ());	break;
 			case PARAMETER_TYPE_Double: p.Set_Value(PROJ4_GET_VAL(key).asDouble());	break;
+			default: break;
 			}
 		}
 	}
 
-	On_Parameters_Enable(&P, P("PROJ_TYPE"));
+	Parameters_Enable(&P, P("PROJ_TYPE"));
 
 	//-----------------------------------------------------
 	return( true );

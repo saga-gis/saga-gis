@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Projection_Proj4                    //
+//                       pj_proj4                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "crs_grid_geogcoords.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CCRS_Grid_GeogCoords::CCRS_Grid_GeogCoords(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Geographic Coordinate Grids"));
 
 	Set_Author		("O. Conrad (c) 2014");
@@ -81,20 +71,20 @@ CCRS_Grid_GeogCoords::CCRS_Grid_GeogCoords(void)
 	Set_Description	(Get_Description() + "\n" + CSG_CRSProjector::Get_Description());
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LON"		, _TL("Longitude"),
+	Parameters.Add_Grid("",
+		"LON"	, _TL("Longitude"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "LAT"		, _TL("Latitude"),
+	Parameters.Add_Grid("",
+		"LAT"	, _TL("Latitude"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);

@@ -53,6 +53,9 @@
     <ClCompile Include="crs_transform_point.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="crs_transform_coords.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -140,6 +143,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="crs_transform_point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="crs_transform_coords.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

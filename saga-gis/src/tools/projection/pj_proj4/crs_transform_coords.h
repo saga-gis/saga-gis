@@ -10,9 +10,9 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 crs_grid_geogcoords.h                 //
+//                 crs_transform_coords.h                //
 //                                                       //
-//                 Copyright (C) 2014 by                 //
+//                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__crs_grid_geogcoords_H
-#define HEADER_INCLUDED__crs_grid_geogcoords_H
+#ifndef HEADER_INCLUDED__crs_transform_coords_H
+#define HEADER_INCLUDED__crs_transform_coords_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,17 +67,43 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CCRS_Grid_GeogCoords : public CSG_Tool_Grid
+class CCRS_Transform_Coords_Grid : public CSG_Tool_Grid
 {
 public:
-	CCRS_Grid_GeogCoords(void);
+	CCRS_Transform_Coords_Grid(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Tools") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CCRS_Transform_Coords_Table : public CSG_Tool
+{
+public:
+	CCRS_Transform_Coords_Table(void);
+
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 };
 
@@ -89,4 +115,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__crs_grid_geogcoords_H
+#endif // #ifndef HEADER_INCLUDED__crs_transform_coords_H

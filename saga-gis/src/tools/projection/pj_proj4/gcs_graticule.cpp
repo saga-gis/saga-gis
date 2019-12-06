@@ -163,10 +163,10 @@ int CGCS_Graticule::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 
 		if( r.Get_XRange() > 0. && r.Get_YRange() > 0. )
 		{
-			pParameters->Get_Parameter("XMIN")->Set_Value(r.Get_XMin());
-			pParameters->Get_Parameter("XMAX")->Set_Value(r.Get_XMax());
-			pParameters->Get_Parameter("YMIN")->Set_Value(r.Get_YMin());
-			pParameters->Get_Parameter("YMAX")->Set_Value(r.Get_YMax());
+			pParameters->Set_Parameter("XMIN", r.Get_XMin());
+			pParameters->Set_Parameter("XMAX", r.Get_XMax());
+			pParameters->Set_Parameter("YMIN", r.Get_YMin());
+			pParameters->Set_Parameter("YMAX", r.Get_YMax());
 		}
 	}
 
@@ -178,8 +178,8 @@ int CGCS_Graticule::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 {
 	if(	pParameter->Cmp_Identifier("INTERVAL") )
 	{
-		pParameters->Get_Parameter("FIXED" )->Set_Enabled(pParameter->asInt() == 0);
-		pParameters->Get_Parameter("FITTED")->Set_Enabled(pParameter->asInt() == 1);
+		pParameters->Set_Enabled("FIXED" , pParameter->asInt() == 0);
+		pParameters->Set_Enabled("FITTED", pParameter->asInt() == 1);
 	}
 
 	return( CCRS_Base::On_Parameters_Enable(pParameters, pParameter) );

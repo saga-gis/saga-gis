@@ -307,6 +307,7 @@
     <ClCompile Include="crs_grid_geogcoords.cpp" />
     <ClCompile Include="crs_indicatrix.cpp" />
     <ClCompile Include="crs_transform.cpp" />
+    <ClCompile Include="crs_transform_coords.cpp" />
     <ClCompile Include="crs_transform_grid.cpp" />
     <ClCompile Include="crs_transform_point.cpp" />
     <ClCompile Include="crs_transform_shapes.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="crs_grid_geogcoords.h" />
     <ClInclude Include="crs_indicatrix.h" />
     <ClInclude Include="crs_transform.h" />
+    <ClInclude Include="crs_transform_coords.h" />
     <ClInclude Include="crs_transform_grid.h" />
     <ClInclude Include="crs_transform_point.h" />
     <ClInclude Include="crs_transform_shapes.h" />

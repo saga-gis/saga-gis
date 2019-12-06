@@ -74,6 +74,9 @@ public:
 
 	virtual bool			do_Sync_Projections		(void)	const	{	return( false );	}
 
+	static CSG_Projection	Parameter_Changed		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	static bool				Parameters_Enable		(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
 
 protected:
 
@@ -93,8 +96,8 @@ private:
 	bool					Set_User_Parameters		(CSG_Parameters &Parameters);
 	bool					Add_User_Projection		(CSG_Parameters &Parameters, const CSG_String &ID, const CSG_String &Args);
 
-	CSG_String				Get_User_Definition		(CSG_Parameters &Parameters);
-	bool					Set_User_Definition		(CSG_Parameters &Parameters, const CSG_String &Proj4);
+	static CSG_String		Get_User_Definition		(CSG_Parameters &Parameters);
+	static bool				Set_User_Definition		(CSG_Parameters &Parameters, const CSG_String &Proj4);
 
 };
 
