@@ -1411,17 +1411,29 @@ bool CSG_Parameters::Assign_Parameters(CSG_Parameters *pSource)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	int		i;
-
 	Del_Parameters();
 
-	for(i=0; i<pSource->m_nParameters; i++)
+	//-----------------------------------------------------
+	for(int i=0; i<pSource->m_nParameters; i++)
 	{
-		_Add(pSource->m_Parameters[i]);
+		CSG_Parameter	*pParameter	= pSource->m_Parameters[i];
+
+		if( pParameter->Get_Type() == PARAMETER_TYPE_Parameters )
+		{
+			Add_Parameters("",
+				pParameter->Get_Identifier (),
+				pParameter->Get_Name       (),
+				pParameter->Get_Description()
+			)->asParameters()->Assign_Parameters(pParameter->asParameters());
+		}
+		else
+		{
+			_Add(pParameter);
+		}
 	}
 
-	for(i=0; i<pSource->m_nParameters; i++)
+	//-----------------------------------------------------
+	for(int i=0; i<pSource->m_nParameters; i++)
 	{
 		if( Get_Parameter(i) && pSource->m_Parameters[i]->m_pParent )
 		{
