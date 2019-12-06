@@ -666,7 +666,11 @@ bool CSG_Grids::Add_Grid(CSG_Table_Record &Attributes)
 	//-----------------------------------------------------
 	int	n	= Get_NZ();
 
-	if( n > 0 )	// else use dummy grid (m_pGrids[0] is always present)
+	if( n < 1 )	// do some initializations
+	{
+		_Synchronize(m_pGrids[0]);
+	}
+	else // use dummy grid (m_pGrids[0] is always present)
 	{
 		CSG_Grid	*pGrid	= SG_Create_Grid(Get_System(), Get_Type());
 

@@ -105,11 +105,11 @@ CLandsat_ACCA::CLandsat_ACCA(void)
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "BAND2", _TL("Landsat Band 2"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND3", _TL("Landsat Band 3"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND4", _TL("Landsat Band 4"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND5", _TL("Landsat Band 5"), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "BAND6", _TL("Landsat Band 6"), _TL(""), PARAMETER_INPUT, false);
+	Parameters.Add_Grid("", "BAND2", _TL("Green"  ), _TL("Landsat band 2 reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND3", _TL("Red"    ), _TL("Landsat band 3 reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND4", _TL("NIR"    ), _TL("Landsat band 4 reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND5", _TL("SWIR"   ), _TL("Landsat band 5 reflectance"), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "BAND6", _TL("Thermal"), _TL("Landsat band 6 temperature [Kelvin]"), PARAMETER_INPUT, false);
 
 	Parameters.Add_Grid("",
 		"CLOUD"		, _TL("Cloud Cover"),
@@ -183,8 +183,6 @@ bool CLandsat_ACCA::On_Execute(void)
 	CSG_Grid	*pCloud, *pBand[5];
 
 	//-----------------------------------------------------
-	// Get parameter settings...
-
 	pBand[0]	= Parameters("BAND2")->asGrid();
 	pBand[1]	= Parameters("BAND3")->asGrid();
 	pBand[2]	= Parameters("BAND4")->asGrid();
@@ -192,7 +190,24 @@ bool CLandsat_ACCA::On_Execute(void)
 	pBand[4]	= Parameters("BAND6")->asGrid();
 
 	pCloud		= Parameters("CLOUD")->asGrid();
-	pCloud		->Set_NoData_Value(0);
+
+	//-----------------------------------------------------
+	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCloud, "LUT");
+
+	if( pLUT && pLUT->asTable() )
+	{
+		pLUT->asTable()->Del_Records();
+
+		LUT_SET_CLASS(IS_SHADOW    , _TL("Shadow"    ), SG_COLOR_RED);
+		LUT_SET_CLASS(IS_COLD_CLOUD, _TL("Cold Cloud"), SG_COLOR_BLUE);
+		LUT_SET_CLASS(IS_WARM_CLOUD, _TL("Warm Cloud"), SG_COLOR_BLUE_LIGHT);
+
+		DataObject_Set_Parameter(pCloud, pLUT);
+
+		DataObject_Set_Parameter(pCloud, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
+	}
+
+	pCloud->Set_NoData_Value(0.);
 
 	//-----------------------------------------------------
 //	int	hist_n		= Parameters("HIST_N")->asInt();
@@ -210,30 +225,14 @@ bool CLandsat_ACCA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pLUT	= DataObject_Get_Parameter(pCloud, "LUT");
-
-	if( pLUT && pLUT->asTable() )
-	{
-		pLUT->asTable()->Del_Records();
-
-		LUT_SET_CLASS(IS_SHADOW    , _TL("Shadow"    ), SG_COLOR_BLUE_DARK);
-		LUT_SET_CLASS(IS_COLD_CLOUD, _TL("Cold Cloud"), SG_COLOR_BLUE);
-		LUT_SET_CLASS(IS_WARM_CLOUD, _TL("Warm Cloud"), SG_COLOR_BLUE_LIGHT);
-
-		DataObject_Set_Parameter(pCloud, pLUT);
-
-		DataObject_Set_Parameter(pCloud, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
-	}
-
-	//-----------------------------------------------------
 	return( true );
 }
 
 
 ///////////////////////////////////////////////////////////
-//													   //
-//													   //
-//													   //
+//														 //
+//														 //
+//														 //
 ///////////////////////////////////////////////////////////
 
 /****************************************************************************

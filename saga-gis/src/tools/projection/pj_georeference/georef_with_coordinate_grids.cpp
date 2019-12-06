@@ -204,24 +204,36 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 		switch( pObject->Get_ObjectType() )
 		{
 		default:
-		{
-			CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
+			{
+				CSG_Grid	*pGrid	= (CSG_Grid  *)pObject;
 
-			pOutput	= SG_Create_Grid (Coords[0].Get_System(),
-				bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
-			);
-		}
-		break;
+				pOutput	= SG_Create_Grid (Coords[0].Get_System(),
+					bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
+				);
 
-		case SG_DATAOBJECT_TYPE_Grids:
-		{
-			CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+				if( bKeepType )
+				{
+					((CSG_Grid  *)pOutput)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
+					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				}
+			}
+			break;
 
-			pOutput	= SG_Create_Grids(Coords[0].Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
-				bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
-			);
-		}
-		break;
+			case SG_DATAOBJECT_TYPE_Grids:
+			{
+				CSG_Grids	*pGrids	= (CSG_Grids *)pObject;
+
+				pOutput	= SG_Create_Grids(Coords[0].Get_System(), pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(),
+					bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
+				);
+
+				if( bKeepType )
+				{
+					((CSG_Grids *)pOutput)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+					pOutput->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				}
+			}
+			break;
 		}
 
 		if( !pOutput )
@@ -231,9 +243,9 @@ bool CGeoRef_with_Coordinate_Grids::On_Execute(void)
 			return( false );
 		}
 
-		pOutput->Set_Name(pObject->Get_Name());
-		pOutput->Set_Description(pObject->Get_Description());
-		pOutput->Get_MetaData().Assign(pObject->Get_MetaData());
+		pOutput->Set_Name             (pObject->Get_Name       ());
+		pOutput->Set_Description      (pObject->Get_Description());
+		pOutput->Get_MetaData().Assign(pObject->Get_MetaData   ());
 
 		pGrids[1]->Add_Item(pOutput);
 	}

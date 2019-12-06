@@ -176,7 +176,6 @@ int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 bool CGrid_Resample::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pInput	= Parameters("INPUT")->asGridList();
 
 	if( pInput->Get_Grid_Count() <= 0 )
@@ -194,7 +193,7 @@ bool CGrid_Resample::On_Execute(void)
 		return( false );
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
 
 	if( Get_Cellsize() < System.Get_Cellsize() )	// Up-Scaling...
@@ -212,7 +211,7 @@ bool CGrid_Resample::On_Execute(void)
 		case  8: Resampling = GRID_RESAMPLING_Majority        ; break;
 		}
 	}
-	else	// Down-Scaling...
+	else // Get_Cellsize() >= System.Get_Cellsize()	// Down-Scaling...
 	{
 		switch( Parameters("SCALE_DOWN")->asInt() )
 		{
@@ -223,7 +222,7 @@ bool CGrid_Resample::On_Execute(void)
 		}
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	bool	bKeepType	= Parameters("KEEP_TYPE")->asBool();
 
 	Parameters("OUTPUT")->asGridList()->Del_Items();
@@ -242,6 +241,12 @@ bool CGrid_Resample::On_Execute(void)
 					bKeepType ? pGrid->Get_Type() : SG_DATATYPE_Undefined
 				);
 
+				if( bKeepType )
+				{
+					((CSG_Grid  *)pResampled)->Set_Scaling(pGrid->Get_Scaling(), pGrid->Get_Offset());
+					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				}
+
 				((CSG_Grid  *)pResampled)->Assign(pGrid, Resampling);
 			}
 			break;
@@ -254,14 +259,20 @@ bool CGrid_Resample::On_Execute(void)
 					bKeepType ? pGrids->Get_Type() : SG_DATATYPE_Undefined, true
 				);
 
+				if( bKeepType )
+				{
+					((CSG_Grids *)pResampled)->Set_Scaling(pGrids->Get_Scaling(), pGrids->Get_Offset());
+					pResampled->Set_NoData_Value_Range(pObject->Get_NoData_Value(), pObject->Get_NoData_hiValue());
+				}
+
 				((CSG_Grids *)pResampled)->Assign(pGrids, Resampling);
 			}
 			break;
 		}
 
-		pResampled->Set_Name(pObject->Get_Name());
-		pResampled->Set_Description(pObject->Get_Description());
-		pResampled->Get_MetaData().Assign(pObject->Get_MetaData());
+		pResampled->Set_Name             (pObject->Get_Name       ());
+		pResampled->Set_Description      (pObject->Get_Description());
+		pResampled->Get_MetaData().Assign(pObject->Get_MetaData   ());
 
 		Parameters("OUTPUT")->asGridList()->Add_Item(pResampled);
 
@@ -269,7 +280,7 @@ bool CGrid_Resample::On_Execute(void)
 		DataObject_Set_Parameters(pResampled, pObject);
 	}
 
-	//-------------------------------------------------
+	//-----------------------------------------------------
 	return( true );
 }
 
