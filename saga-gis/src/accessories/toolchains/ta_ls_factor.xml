@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.5.0">
+	<group>terrain_analysis</group>
+	<identifier>ta_ls_factor</identifier>
+	<author>O.Conrad (c) 2019</author>
+	<menu>Hydrology|Topographic Indices</menu>
+	<name>LS Factor (One Step)</name>
+	<description>
+	This is a simple to use one step tool to derive the LS Factor of the Universal Soil Loss Equation (USLE) from a Digital Elevatin Model (DEM). It combines DEM preprocessing (sink removal), flow accumulation and specific catchment area (SCA) derivation, slope and final LS factor calculation exposing only the most important options.
+	</description>
+	<reference>
+		<authors>Moore, I.D., Grayson, R.B., Ladson, A.R.</authors>
+		<year>1991</year>
+		<title>Digital terrain modelling: a review of hydrogical, geomorphological, and biological applications</title>
+		<where>Hydrological Processes, Vol.5, No.1.</where>
+	</reference>
+	<reference>
+		<authors>Desmet &amp; Govers</authors>
+		<year>1996</year>
+		<title>A GIS Procedure for Automatically Calculating the USLE LS Factor on Topographically Complex Landscape Units</title>
+		<where>Journal of Soil and Water Conservation, 51(5):427.433.</where>
+	</reference>
+
+	<parameters>
+		<option varname="GRID_SYSTEM" type="grid_system">
+			<name>Grid System</name>
+		</option>
+
+		<input  varname="DEM" type="grid" parent="GRID_SYSTEM">
+			<name>DEM</name>
+		</input>
+
+		<output varname="LS_FACTOR" type="grid" parent="GRID_SYSTEM">
+			<name>LS Factor</name> <colours revert="true">12</colours>
+		</output>
+
+		<option varname="LS_METHOD" type="choice">
+			<name>Method</name>
+			<choices>Moore et al. 1991|Desmond &amp; Govers 1996</choices>
+			<value>0</value>
+		</option>
+
+		<option varname="PREPROCESSING" type="choice">
+			<name>Preprocessing</name>
+			<choices>none|Fill Sinks (Wang &amp; Liu)|Sink Removal</choices>
+			<value>2</value>
+		</option>
+
+		<option varname="MINSLOPE" type="double" parent="PREPROCESSING">
+			<condition  type="=" value="0">PREPROCESSING</condition>
+			<name>Minimum Slope</name>
+			<description>Minimum slope (degree) for filled areas.</description>
+			<value min="0">0.0001</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<condition variable="PREPROCESSING" type="equal" value="0"><if>
+			<!-- Flow Accumulation -->
+			<tool library="ta_hydrology" tool= "0" name="Flow Accumulation (Top-Down)">
+				<option id="METHOD">4</option>
+				<option id="LINEAR_DO">false</option>
+				<input  id="ELEVATION">DEM</input>
+				<output id="FLOW">TCA</output>
+			</tool>
+		</if><else>
+
+			<!-- Preprocessing -->
+			<condition variable="PREPROCESSING" type="equal" value="1"><if>
+				<tool library="ta_preprocessor" tool="5" name="Fill Sinks XXL (Wang &amp; Liu)">
+					<input  id="ELEV">DEM</input>
+					<output id="FILLED">DEM_NOSINKS</output>
+					<option id="MINSLOPE" varname="true">MINSLOPE</option>
+				</tool>
+			</if><else>
+				<tool library="ta_preprocessor" tool="2" name="Sink Removal">
+					<input  id="DEM">DEM</input>
+					<output id="DEM_PREPROC">DEM_NOSINKS</output>
+				</tool>
+			</else></condition>
+
+			<!-- Flow Accumulation -->
+			<tool library="ta_hydrology" tool= "0" name="Flow Accumulation (Top-Down)">
+				<option id="METHOD">4</option>
+				<option id="LINEAR_DO">false</option>
+				<input  id="ELEVATION">DEM_NOSINKS</input>
+				<output id="FLOW">TCA</output>
+			</tool>
+		</else></condition>
+
+		<!-- Specific Catchment Area -->
+		<tool library="ta_hydrology" tool="19" name="Flow Width and Specific Catchment Area">
+			<option id="METHOD">2</option>
+			<input  id="DEM">DEM</input>
+			<input  id="TCA">TCA</input>
+			<output id="SCA">SCA</output>
+		</tool>
+
+		<!-- Slope -->
+		<tool library="ta_morphometry" tool= "0" name="Slope, Aspect, Curvature">
+			<input  id="ELEVATION">DEM</input>
+			<output id="SLOPE">SLOPE</output>
+		</tool>
+
+		<!-- LS Factor -->
+		<tool library="ta_hydrology" tool="22" name="LS Factor">
+			<option id="CONV">0</option>
+			<option id="METHOD" varname="true">LS_METHOD</option>
+			<option id="EROSIVITY">1.0</option>
+			<option id="STABILITY">0</option>
+			<input  id="SLOPE">SLOPE</input>
+			<input  id="AREA">SCA</input>
+			<output id="LS">LS_FACTOR</output>
+		</tool>
+	</tools>
+</toolchain>
