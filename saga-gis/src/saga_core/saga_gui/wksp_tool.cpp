@@ -103,6 +103,8 @@ CWKSP_Tool::~CWKSP_Tool(void)
 			((CSG_Tool_Interactive *)m_pTool)->Execute_Finish();
 		}
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(m_pTool);
 }
 
 

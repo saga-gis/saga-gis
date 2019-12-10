@@ -1701,14 +1701,11 @@ CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name)
 //---------------------------------------------------------
 bool CSG_Tool_Chains::Delete_Tool(CSG_Tool *pTool)
 {
-	for(size_t i=0; i<m_xTools.Get_Size(); i++)
+	if( m_xTools.Del(pTool) || m_Tools.Del(pTool) )
 	{
-		if( pTool == m_xTools.Get(i) && m_xTools.Del(i) )
-		{
-			delete(pTool);
+		delete((CSG_Tool_Chain *)pTool);
 
-			return( true );
-		}
+		return( true );
 	}
 
 	return( false );
