@@ -159,24 +159,26 @@ wxString CWKSP_Tool::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Tool::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(Get_Name());
+	wxMenu	*pMenu	= new wxMenu(Get_Name());
 
 	pMenu->AppendCheckItem(Get_Menu_ID(), _TL("Execute"), _TL("Execute Tool"));
 
 	pMenu->AppendSeparator();
-
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_SCRIPT);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_SAVE_TO_CLIPBOARD);
 
 	if( m_pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
 		pMenu->AppendSeparator();
-
+		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_CHAIN_RELOAD);
 		CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_CHAIN_EDIT);
 	}
+
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 
 	return( pMenu );
 }

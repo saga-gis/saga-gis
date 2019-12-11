@@ -107,20 +107,20 @@ IMPLEMENT_CLASS(CWKSP_Base_Control, wxTreeCtrl)
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CWKSP_Base_Control, wxTreeCtrl)
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_TOOLS	, CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_RClick)
+	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_Delete)
+	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_TOOLS, CWKSP_Base_Control::On_Item_KeyDown)
 
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_DATA		, CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_RClick)
+	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_Delete)
+	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_DATA , CWKSP_Base_Control::On_Item_KeyDown)
 
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_RClick)
-	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_Delete)
-	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_SelChanged)
-	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_MAPS		, CWKSP_Base_Control::On_Item_KeyDown)
+	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_RClick)
+	EVT_TREE_DELETE_ITEM		(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_Delete)
+	EVT_TREE_SEL_CHANGED		(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_SelChanged)
+	EVT_TREE_KEY_DOWN			(ID_WND_WKSP_MAPS , CWKSP_Base_Control::On_Item_KeyDown)
 
 	EVT_LEFT_DOWN				(CWKSP_Base_Control::On_Item_LClick)
 	EVT_LEFT_DCLICK				(CWKSP_Base_Control::On_Item_LDClick)
@@ -150,8 +150,6 @@ CWKSP_Base_Control::~CWKSP_Base_Control(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -161,9 +159,9 @@ bool CWKSP_Base_Control::_Set_Manager(CWKSP_Base_Manager *pManager)
 	{
 		m_pManager	= pManager;
 
-		AddRoot		(m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
-		AppendItem	(m_pManager->GetId(), _TL("<no items>"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
-		Expand		(m_pManager->GetId());
+		AddRoot   (m_pManager->Get_Name(), IMG_ROOT, IMG_ROOT, m_pManager);
+		AppendItem(m_pManager->GetId(), _TL("<no items>"), IMG_NO_ITEMS, IMG_NO_ITEMS, NULL);
+		Expand    (m_pManager->GetId());
 
 		return( true );
 	}
@@ -445,17 +443,7 @@ wxMenu * CWKSP_Base_Control::Get_Context_Menu(void)
 {
 	CWKSP_Base_Item	*pItem	= Get_Item_Selected();
 
-	if( pItem )
-	{
-		return(	pItem->Get_Menu() );
-	}
-
-	//-----------------------------------------------------
-	wxMenu	*pMenu	= new wxMenu;
-
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-
-	return( pMenu );
+	return( pItem ?	pItem->Get_Menu() : NULL );
 }
 
 
@@ -625,6 +613,7 @@ void	DLG_Copy_Settings(CSG_Table &List, CWKSP_Base_Item *pItem)
 	}
 }
 
+//---------------------------------------------------------
 CSG_Parameters *	DLG_Copy_Settings(void)
 {
 	CSG_Table	List;
@@ -875,10 +864,13 @@ void CWKSP_Base_Control::On_Item_LDClick(wxMouseEvent &event)
 //---------------------------------------------------------
 void CWKSP_Base_Control::On_Item_RClick(wxTreeEvent &event)
 {
+	if( m_pManager->Get_Type() != WKSP_ITEM_Data_Manager )
+	{
+		SelectItem(event.GetItem());
+	}
+
 	if( Get_Selection_Count() <= 1 )
 	{
-	//	SelectItem(event.GetItem());
-
 		g_pActive->Set_Active(Get_Item_Selected());
 	}
 

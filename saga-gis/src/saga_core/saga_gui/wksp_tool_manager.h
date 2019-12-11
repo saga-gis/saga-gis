@@ -99,7 +99,7 @@ public:
 	class CWKSP_Tool_Group *		Get_Group			(int i)		{	return( (class CWKSP_Tool_Group *)Get_Item(i) );	}
 	class CWKSP_Tool_Group *		Get_Group			(const wxString &Group);
 
-	class CWKSP_Tool_Library *	Get_Library				(CSG_Tool_Library *pLibrary);
+	class CWKSP_Tool_Library *		Get_Library			(CSG_Tool_Library *pLibrary);
 
 	bool							Update				(void);
 
@@ -144,6 +144,8 @@ public:
 
 	virtual wxString				Get_Name			(void)		{	return( m_Name );	}
 	virtual wxString				Get_Description		(void);
+
+	virtual wxMenu *				Get_Menu			(void);
 
 	virtual bool					On_Command			(int Cmd_ID);
 	virtual bool					On_Command_UI		(wxUpdateUIEvent &event);

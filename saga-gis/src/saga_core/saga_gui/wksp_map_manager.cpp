@@ -249,16 +249,16 @@ wxString CWKSP_Map_Manager::Get_Description(void)
 //---------------------------------------------------------
 wxMenu * CWKSP_Map_Manager::Get_Menu(void)
 {
-	wxMenu	*pMenu;
-
-	pMenu	= new wxMenu(_TL("Maps"));
-
-	if( Get_Count() > 0 )
+	if( Get_Count() < 1 )
 	{
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
-		pMenu->AppendSeparator();
-		CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
+		return( NULL );
 	}
+
+	wxMenu	*pMenu	= new wxMenu(Get_Name());
+
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 
 	return( pMenu );
 }
