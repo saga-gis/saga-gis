@@ -169,24 +169,22 @@ CDVWK_SoilMoisture::CDVWK_SoilMoisture(void)
 	pRec->Set_Value( 6, m05); pRec->Set_Value( 7, m06); pRec->Set_Value( 8, m07); pRec->Set_Value( 9, m08);\
 	pRec->Set_Value(10, m09); pRec->Set_Value(11, m10); pRec->Set_Value(12, m11); pRec->Set_Value(13, m12);
 
-	//         ID   NAME              Jan   Feb   Mar   Apr   Mai   Jun   Jul   Aug   Sep   Okt   Nov   Dec
-	ADD_RECORD(1.0, _TL("Maehweide")		, 1   , 1   , 1   , 1   , 1.05, 1.10, 1.10, 1.05, 1.05, 1   , 1   , 1   );
-	ADD_RECORD(2.0, _TL("Winterweizen")	, 0.65, 0.65, 0.80, 0.85, 1.15, 1.45, 1.40, 1   , 0.80, 0.70, 0.65, 0.65);
-	ADD_RECORD(3.0, _TL("Wintergerste")	, 1   , 1   , 0.85, 0.95, 1.30, 1.35, 1.25, 1   , 1   , 1   , 1   , 1   );
-	ADD_RECORD(4.0, _TL("Sommergerste")	, 1   , 1   , 0.80, 0.90, 1.20, 1.35, 1.20, 1   , 1   , 1   , 1   , 1   );
-	ADD_RECORD(5.0, _TL("Winterroggen")	, 0.65, 0.65, 0.85, 0.90, 1.20, 1.30, 1.25, 0.95, 0.80, 0.70, 0.65, 0.65);
-	ADD_RECORD(6.0, _TL("Hafer"	)		, 1   , 1   , 0.65, 0.70, 1.10, 1.45, 1.35, 0.95, 1   , 1   , 1   , 1   );
-	ADD_RECORD(7.0, _TL("Zuckerrueben")	, 1   , 1   , 1   , 0.50, 0.75, 1.05, 1.40, 1.30, 1.10, 0.85, 1   , 1   );
-	ADD_RECORD(8.0, _TL("Kartoffeln")	, 1   , 1   , 1   , 0.50, 0.90, 1.05, 1.45, 1.20, 0.90, 1   , 1   , 1   );
-	ADD_RECORD(9.0, _TL("Winterraps")	, 0.65, 0.65, 0.85, 1   , 1.35, 1.35, 1.10, 0.85, 1   , 1   , 0.65, 0.65);
-	ADD_RECORD(0.0, _TL("Unknown")		, 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   );
+	//         ID       NAME            Jan   Feb   Mar   Apr   Mai   Jun   Jul   Aug   Sep   Okt   Nov   Dec
+	ADD_RECORD(1., _TL("Maehweide"   ), 1   , 1   , 1   , 1   , 1.05, 1.10, 1.10, 1.05, 1.05, 1   , 1   , 1   );
+	ADD_RECORD(2., _TL("Winterweizen"), 0.65, 0.65, 0.80, 0.85, 1.15, 1.45, 1.40, 1   , 0.80, 0.70, 0.65, 0.65);
+	ADD_RECORD(3., _TL("Wintergerste"), 1   , 1   , 0.85, 0.95, 1.30, 1.35, 1.25, 1   , 1   , 1   , 1   , 1   );
+	ADD_RECORD(4., _TL("Sommergerste"), 1   , 1   , 0.80, 0.90, 1.20, 1.35, 1.20, 1   , 1   , 1   , 1   , 1   );
+	ADD_RECORD(5., _TL("Winterroggen"), 0.65, 0.65, 0.85, 0.90, 1.20, 1.30, 1.25, 0.95, 0.80, 0.70, 0.65, 0.65);
+	ADD_RECORD(6., _TL("Hafer"       ), 1   , 1   , 0.65, 0.70, 1.10, 1.45, 1.35, 0.95, 1   , 1   , 1   , 1   );
+	ADD_RECORD(7., _TL("Zuckerrueben"), 1   , 1   , 1   , 0.50, 0.75, 1.05, 1.40, 1.30, 1.10, 0.85, 1   , 1   );
+	ADD_RECORD(8., _TL("Kartoffeln"  ), 1   , 1   , 1   , 0.50, 0.90, 1.05, 1.45, 1.20, 0.90, 1   , 1   , 1   );
+	ADD_RECORD(9., _TL("Winterraps"  ), 0.65, 0.65, 0.85, 1   , 1.35, 1.35, 1.10, 0.85, 1   , 1   , 0.65, 0.65);
+	ADD_RECORD(0., _TL("Unknown"     ), 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   , 1   );
 #undef ADD_RECORD
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -199,14 +197,14 @@ bool CDVWK_SoilMoisture::On_Execute(void)
 	//-----------------------------------------------------
 	if( pClimate->Get_Record_Count() > 0 )
 	{
-		pFK_mm		= Parameters("STA_FC")		->asGrid();
-		FK_mm_Def	= Parameters("STA_FC_DEF")	->asDouble();
+		pFK_mm		= Parameters("STA_FC"     )->asGrid();
+		FK_mm_Def	= Parameters("STA_FC_DEF" )->asDouble();
 
-		pPWP_mm		= Parameters("STA_PWP")		->asGrid();
-		PWP_mm_Def	= Parameters("STA_PWP_DEF")	->asDouble();
+		pPWP_mm		= Parameters("STA_PWP"    )->asGrid();
+		PWP_mm_Def	= Parameters("STA_PWP_DEF")->asDouble();
 
-		pWi_mm		= Parameters("DYN_W")		->asGrid();
-		DataObject_Set_Colors(pWi_mm, 100, SG_COLORS_YELLOW_BLUE);
+		pWi_mm		= Parameters("DYN_W"      )->asGrid();
+		DataObject_Set_Colors(pWi_mm, 11, SG_COLORS_YELLOW_BLUE);
 
 		//-------------------------------------------------
 		pLandUse	= SG_Create_Grid(pWi_mm, pCropCoeff->Get_Record_Count() < 127 ? SG_DATATYPE_Char : SG_DATATYPE_Int);

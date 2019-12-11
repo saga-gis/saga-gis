@@ -60,7 +60,6 @@
 //---------------------------------------------------------
 CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("SAGA Wetness Index"));
 
 	Set_Author		("J.Boehner, O.Conrad (c) 2001");
@@ -90,7 +89,6 @@ CSAGA_Wetness_Index::CSAGA_Wetness_Index(void)
 		"Goettinger Geographische Abhandlungen, Goettingen: 13-28.",
 		SG_T("http://downloads.sourceforge.net/saga-gis/gga115_02.pdf")
 	);
-
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
@@ -193,10 +191,10 @@ bool CSAGA_Wetness_Index::On_Execute(void)
 	m_pAreaMod	= Parameters("AREA_MOD")->asGrid();
 	m_pTWI		= Parameters("TWI"     )->asGrid();
 
-	DataObject_Set_Colors(m_pArea   , 100, SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Colors(m_pAreaMod, 100, SG_COLORS_WHITE_BLUE);
-	DataObject_Set_Colors(m_pSlope  , 100, SG_COLORS_YELLOW_RED);
-	DataObject_Set_Colors(m_pTWI    , 100, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(m_pArea   , 11, SG_COLORS_WHITE_BLUE     );
+	DataObject_Set_Colors(m_pAreaMod, 11, SG_COLORS_WHITE_BLUE     );
+	DataObject_Set_Colors(m_pSlope  , 11, SG_COLORS_RED_GREEN, true);
+	DataObject_Set_Colors(m_pTWI    , 11, SG_COLORS_RED_GREY_BLUE  );
 
 	m_pSlope->Set_Unit		(_TL("radians"));
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_Distance.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flow_Distance.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CFlow_Distance::CFlow_Distance(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Flow Path Length"));
 
 	Set_Author		("O.Conrad (c) 2005");
@@ -133,7 +120,7 @@ CFlow_Distance::CFlow_Distance(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Flow Routing Algorithm"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Deterministic 8 (D8)"),
 			_TL("Multiple Flow Direction (FD8)")
 		), 1
@@ -168,8 +155,8 @@ bool CFlow_Distance::On_Execute(void)
 	Method		= Parameters("METHOD"     )	->asInt();
 
 	m_pWeight	= SG_Create_Grid(m_pLength, SG_DATATYPE_Float);
-	m_pWeight	->Assign(0.0);
-	m_pLength	->Assign(0.0);
+	m_pWeight	->Assign(0.);
+	m_pLength	->Assign(0.);
 
 	if( !m_pDTM->Set_Index() )
 	{
@@ -201,15 +188,15 @@ bool CFlow_Distance::On_Execute(void)
 
 		switch( Method )
 		{
-		case 0:	Set_Length_D8	(x, y);	break;
-		case 1:	Set_Length_MFD	(x, y);	break;
+		case  0: Set_Length_D8 (x, y); break;
+		default: Set_Length_MFD(x, y); break;
 		}
 	}
 
 	//-------------------------------------------------
 	delete(m_pWeight);
 
-	DataObject_Set_Colors(m_pLength, 100, SG_COLORS_WHITE_BLUE);
+	DataObject_Set_Colors(m_pLength, 11, SG_COLORS_WHITE_BLUE);
 
 	return( true );
 }

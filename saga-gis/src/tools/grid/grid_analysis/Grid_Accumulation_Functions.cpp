@@ -404,10 +404,10 @@ bool CGrid_Accumulation_Functions::On_Execute(void)
 		}// NoData
 	}// for
 
-	DataObject_Set_Colors(pFlux, 100, SG_COLORS_WHITE_BLUE);
+	DataObject_Set_Colors(pFlux, 11, SG_COLORS_WHITE_BLUE);
 
 	if( pStateOut != NULL )
-		DataObject_Set_Colors(pStateOut, 100, SG_COLORS_WHITE_RED);
+		DataObject_Set_Colors(pStateOut, 11, SG_COLORS_WHITE_RED);
 
 	//-----------------------------------------------------
 	return( true );

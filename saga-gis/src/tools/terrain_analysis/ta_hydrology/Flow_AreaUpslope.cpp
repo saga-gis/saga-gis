@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_AreaUpslope.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flow_AreaUpslope.h"
 
 
@@ -102,7 +90,7 @@ CSG_String CFlow_AreaUpslope::Get_Description(void)
 //---------------------------------------------------------
 CSG_String CFlow_AreaUpslope::Get_Methods(void)
 {
-	return( CSG_String::Format("%s|%s|%s|",
+	return( CSG_String::Format("%s|%s|%s",
 		_TL("Deterministic 8"),
 		_TL("Deterministic Infinity"),
 		_TL("Multiple Flow Direction")
@@ -423,7 +411,7 @@ bool CFlow_AreaUpslope_Interactive::On_Execute(void)
 		Parameters("AREA"     )->asGrid  (),
 		Parameters("CONVERGE" )->asDouble()	) )
 	{
-		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 100, SG_COLORS_WHITE_BLUE);
+		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
 
 		return( true );
 	}
@@ -596,7 +584,7 @@ bool CFlow_AreaUpslope_Area::On_Execute(void)
 			{
 				m_Calculator.Get_Area();
 
-				DataObject_Set_Colors(Parameters("AREA")->asGrid(), 100, SG_COLORS_WHITE_BLUE);
+				DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
 			}
 		}
 	}

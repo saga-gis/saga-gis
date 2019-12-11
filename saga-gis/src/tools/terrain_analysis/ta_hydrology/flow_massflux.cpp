@@ -115,7 +115,7 @@ CFlow_MassFlux::CFlow_MassFlux(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Flow Split Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("flow width (original)"),
 			_TL("cell area")
 		), 0
@@ -238,11 +238,11 @@ bool CFlow_MassFlux::On_Execute(void)
 			Parameters("G_AREA")->Set_Value(SG_Create_Grid(m_Area));
 		}
 
-		m_Area	.Destroy();
-		m_dif	.Destroy();
-		m_dir	.Destroy();
+		m_Area.Destroy();
+		m_dif .Destroy();
+		m_dir .Destroy();
 
-		DataObject_Set_Colors(pArea, 100, SG_COLORS_WHITE_BLUE);
+		DataObject_Set_Colors(pArea, 11, SG_COLORS_WHITE_BLUE);
 
 		return( true );
 	}
@@ -253,8 +253,6 @@ bool CFlow_MassFlux::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

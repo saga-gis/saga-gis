@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Color_Triangle.h"
 
 
@@ -70,172 +58,62 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#define METHOD_STRING	CSG_String::Format("%s|%s|%s|%s|%s",\
+	_TL("0 - 1"),\
+	_TL("Rescale to 0 - 1"),\
+	_TL("User defined rescale"),\
+	_TL("Percentiles"),\
+	_TL("Percentage of standard deviation")\
+), 4
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 CGrid_Color_Triangle::CGrid_Color_Triangle(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Color Triangle Composite"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		"Similar to 'RGB Composite', but the three colors representing intensity of each data set can be chosen by user. "
 	));
 
 	//-----------------------------------------------------
-	pNode	= NULL;
+	Parameters.Add_Grid  (""      , "A_GRID"   , _TL("A"                               ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Color ("A_GRID", "A_COLOR"  , _TL("Color"                           ), _TL(""), SG_COLOR_RED);
+	Parameters.Add_Choice("A_GRID", "A_METHOD" , _TL("Value Preparation"               ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("A_GRID", "A_RANGE"  , _TL("Rescale Range"                   ), _TL(""), 0., 1.);
+	Parameters.Add_Range ("A_GRID", "A_PERCTL" , _TL("Percentiles"                     ), _TL(""), 1., 99., 0., true, 100., true);
+	Parameters.Add_Double("A_GRID", "A_PERCENT", _TL("Percentage of Standard Deviation"), _TL(""), 150., 0., true);
 
-	pNode	= Parameters.Add_Grid(
-		pNode	, "A_GRID"		, _TL("A"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	Parameters.Add_Grid  (""      , "B_GRID"   , _TL("B"                               ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Color ("B_GRID", "B_COLOR"  , _TL("Color"                           ), _TL(""), SG_COLOR_GREEN);
+	Parameters.Add_Choice("B_GRID", "B_METHOD" , _TL("Value Preparation"               ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("B_GRID", "B_RANGE"  , _TL("Rescale Range"                   ), _TL(""), 0., 1.);
+	Parameters.Add_Range ("B_GRID", "B_PERCTL" , _TL("Percentiles"                     ), _TL(""), 1., 99., 0., true, 100., true);
+	Parameters.Add_Double("B_GRID", "B_PERCENT", _TL("Percentage of standard deviation"), _TL(""), 150., 0., true);
 
-	Parameters.Add_Value(
-		pNode	, "A_COLOR"		, _TL("Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color	, SG_COLOR_RED
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "A_METHOD"	,	_TL("Value Preparation"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("0 - 1"),
-			_TL("Rescale to 0 - 1"),
-			_TL("User defined rescale"),
-			_TL("Percentiles"),
-			_TL("Percentage of standard deviation")
-		), 4
-	);
-
-	Parameters.Add_Range(
-		pNode	, "A_RANGE"		, _TL("Rescale Range"),
-		_TL(""),
-		0, 1
-	);
-
-	Parameters.Add_Range(
-		pNode	, "A_PERCTL"	, _TL("Percentiles"),
-		_TL(""),
-		1.0, 99.0, 0.0, true, 100.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "A_PERCENT"	, _TL("Percentage of standard deviation"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 150.0, 0.0, true
-	);
+	Parameters.Add_Grid  (""      , "C_GRID"   , _TL("C"                               ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Color ("C_GRID", "C_COLOR"  , _TL("Color"                           ), _TL(""), SG_COLOR_BLUE);
+	Parameters.Add_Choice("C_GRID", "C_METHOD" , _TL("Value Preparation"               ), _TL(""), METHOD_STRING);
+	Parameters.Add_Range ("C_GRID", "C_RANGE"  , _TL("Rescale Range"                   ), _TL(""), 0., 1.);
+	Parameters.Add_Range ("C_GRID", "C_PERCTL" , _TL("Percentiles"                     ), _TL(""), 1., 99., 0., true, 100., true);
+	Parameters.Add_Double("C_GRID", "C_PERCENT", _TL("Percentage of Standard Deviation"), _TL(""), 150., 0., true);
 
 	//-----------------------------------------------------
-	pNode	= NULL;
-
-	pNode	= Parameters.Add_Grid(
-		pNode	, "B_GRID"		, _TL("B"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Value(
-		pNode	, "B_COLOR"		, _TL("Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color	, SG_COLOR_GREEN
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "B_METHOD"	, _TL("Value Preparation"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("0 - 1"),
-			_TL("Rescale to 0 - 1"),
-			_TL("User defined rescale"),
-			_TL("Percentiles"),
-			_TL("Percentage of standard deviation")
-		), 4
-	);
-
-	Parameters.Add_Range(
-		pNode	, "B_RANGE"		, _TL("Rescale Range"),
-		_TL(""),
-		0, 1
-	);
-
-	Parameters.Add_Range(
-		pNode	, "B_PERCTL"	, _TL("Percentiles"),
-		_TL(""),
-		1.0, 99.0, 0.0, true, 100.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "B_PERCENT"	, _TL("Percentage of standard deviation"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 150.0, 0.0, true
-	);
-
-	//-----------------------------------------------------
-	pNode	= NULL;
-
-	pNode	= Parameters.Add_Grid(
-		pNode	, "C_GRID"		, _TL("C"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
-
-	Parameters.Add_Value(
-		pNode	, "C_COLOR"		, _TL("Color"),
-		_TL(""),
-		PARAMETER_TYPE_Color	, SG_COLOR_BLUE
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "C_METHOD"	, _TL("Value Preparation"),
-		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
-			_TL("0 - 1.0"),
-			_TL("Rescale to 0 - 1.0"),
-			_TL("User defined rescale"),
-			_TL("Percentiles"),
-			_TL("Percentage of standard deviation")
-		), 4
-	);
-
-	Parameters.Add_Range(
-		pNode	, "C_RANGE"		, _TL("Rescale Range"),
-		_TL(""),
-		0, 1
-	);
-
-	Parameters.Add_Range(
-		pNode	, "C_PERCTL"	, _TL("Percentiles"),
-		_TL(""),
-		1.0, 99.0, 0.0, true, 100.0, true
-	);
-
-	Parameters.Add_Value(
-		pNode	, "C_PERCENT"	, _TL("Percentage of standard deviation"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 150.0, 0.0, true
-	);
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Composite"),
+	Parameters.Add_Grid("",
+		"GRID"	, _TL("Composite"),
 		_TL(""),
 		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
 	);
 }
 
-//---------------------------------------------------------
-CGrid_Color_Triangle::~CGrid_Color_Triangle(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -272,7 +150,7 @@ bool CGrid_Color_Triangle::On_Execute(void)
 	//-----------------------------------------------------
 	pRGB	= Parameters("GRID")->asGrid();
 	pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
-	DataObject_Set_Colors(pRGB, 100, SG_COLORS_BLACK_WHITE);
+	DataObject_Set_Colors(pRGB, 11, SG_COLORS_BLACK_WHITE);
 
 	CSG_Parameters	Parms;
 
@@ -294,9 +172,9 @@ bool CGrid_Color_Triangle::On_Execute(void)
 			}
 			else
 			{
-				a	= aRange * (pA->asDouble(x, y) - aMin);	if( a > 1.0 )	a	= 1.0;	else if( a < 0.0 )	a	= 0.0;
-				b	= bRange * (pB->asDouble(x, y) - bMin);	if( b > 1.0 )	b	= 1.0;	else if( b < 0.0 )	b	= 0.0;
-				c	= cRange * (pC->asDouble(x, y) - cMin);	if( c > 1.0 )	c	= 1.0;	else if( c < 0.0 )	c	= 0.0;
+				a	= aRange * (pA->asDouble(x, y) - aMin);	if( a > 1. )	a	= 1.;	else if( a < 0. )	a	= 0.;
+				b	= bRange * (pB->asDouble(x, y) - bMin);	if( b > 1. )	b	= 1.;	else if( b < 0. )	b	= 0.;
+				c	= cRange * (pC->asDouble(x, y) - cMin);	if( c > 1. )	c	= 1.;	else if( c < 0. )	c	= 0.;
 
 				Color[0]	= (int)((a * aC[0] + b * bC[0] + c * cC[0]));	CHK_COLOR(Color[0]);
 				Color[1]	= (int)((a * aC[1] + b * bC[1] + c * cC[1]));	CHK_COLOR(Color[1]);
@@ -329,37 +207,37 @@ CSG_Grid * CGrid_Color_Triangle::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Para
 		{
 		default:
 		case 0:	// 0 - 1
-			Min		= 0.0;
-			Range	= 1.0;
+			Min		= 0.;
+			Range	= 1.;
 			break;
 
 		case 1:	// Rescale to 0 - 1
 			Min		= pGrid->Get_Min();
 			Range	= pGrid->Get_Range();
-			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
+			Range	= Range > 0. ? 1. / Range : 0.;
 			break;
 
 		case 2:	// User defined rescale
 			Min		= pRange->Get_Min();
 			Range	= pRange->Get_Range();
-			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
+			Range	= Range > 0. ? 1. / Range : 0.;
 			break;
 
 		case 3:	// Normalise
-			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Min() / 100.0);
+			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Min() / 100.);
 			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
 			Min		= pGrid->asDouble(x, y);
-			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Max() / 100.0);
+			n		= (sLong)(pGrid->Get_NCells() * pPerctl->Get_Max() / 100.);
 			pGrid->Get_Sorted(n < 0 ? 0 : (n >= pGrid->Get_NCells() ? pGrid->Get_NCells() - 1 : n), x, y, false, false);
 			Range	= pGrid->asDouble(x, y) - Min;
-			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
+			Range	= Range > 0. ? 1. / Range : 0.;
 			break;
 
 		case 4:	// Standard deviation
-			Range	= sqrt(pGrid->Get_Variance()) * Percent / 100.0;
+			Range	= sqrt(pGrid->Get_Variance()) * Percent / 100.;
 			Min		= pGrid->Get_Mean() - Range;
-			Range	= Range * 2.0;
-			Range	= Range > 0.0 ? 1.0 / Range : 0.0;
+			Range	= Range * 2.;
+			Range	= Range > 0. ? 1. / Range : 0.;
 			break;
 		}
 	}

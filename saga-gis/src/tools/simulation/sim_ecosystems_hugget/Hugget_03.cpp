@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Hugget_03.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Hugget_03.h"
 
 
@@ -72,71 +60,67 @@
 //---------------------------------------------------------
 CHugget_03::CHugget_03(void)
 {
-	Set_Name	(_TL("03: Spatially Distributed Simulation of Soil Nitrogen Dynamics"));
+	Set_Name		(_TL("03: Spatially Distributed Simulation of Soil Nitrogen Dynamics"));
 
-	Set_Author		(SG_T("(c) 2003 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
 		"Spatially Distributed Simulation of Soil Nitrogen Dynamics. "
+	));
 
-		"\nReference:"
-		"\nHugget, R.J. (1993): 'Modelling the Human Impact on Nature', Oxford University Press.\n")
+	Add_Reference("Hugget, R.J.", "1993",
+		"Modelling the Human Impact on Nature",
+		"Oxford University Press."
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "NSTORE"		, _TL("Soil Nitrogen"),
+		"", "NSTORE"	, _TL("Soil Nitrogen"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "TIME_SPAN"	, _TL("Time Span [a]"),
+	Parameters.Add_Double(
+		"", "TIME_SPAN"	, _TL("Time Span [a]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 100.0, 0.0, true
+		100., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TIME_STEP"	, _TL("Time Interval [a]"),
+	Parameters.Add_Double(
+		"", "TIME_STEP"	, _TL("Time Interval [a]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.1, 0.0, true
+		0.1, 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "UPDATE"		, _TL("Update View"),
+	Parameters.Add_Bool(
+		"", "UPDATE"	, _TL("Update View"),
 		_TL(""),
-		PARAMETER_TYPE_Bool		, true
+		true
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "NINIT"		, _TL("Initial Nitrogen Content [kg/ha]"),
+	Parameters.Add_Double(
+		"", "NINIT"		, _TL("Initial Nitrogen Content [kg/ha]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5000.0, 0.0, true
+		5000., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NRAIN"		, _TL("Nitrogen in Rainfall [kg/ha/a]"),
+	Parameters.Add_Double(
+		"", "NRAIN"		, _TL("Nitrogen in Rainfall [kg/ha/a]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 16.0, 0.0, true
+		16., 0., true
 	);
 }
 
-//---------------------------------------------------------
-CHugget_03::~CHugget_03(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -150,21 +134,21 @@ bool CHugget_03::On_Execute(void)
 	CSG_String	s;
 
 	//-----------------------------------------------------
-	sTime	= Parameters("TIME_SPAN")	->asDouble();
-	dTime	= Parameters("TIME_STEP")	->asDouble();
+	sTime	= Parameters("TIME_SPAN")->asDouble();
+	dTime	= Parameters("TIME_STEP")->asDouble();
 	nSteps	= (int)(sTime / dTime);
 
-	bUpdate	= Parameters("UPDATE")		->asBool();
+	bUpdate	= Parameters("UPDATE"   )->asBool();
 
-	N_Init	= Parameters("NINIT")		->asDouble();
-	N_Rain	= Parameters("NRAIN")		->asDouble();
+	N_Init	= Parameters("NINIT"    )->asDouble();
+	N_Rain	= Parameters("NRAIN"    )->asDouble();
 
-	pDEM	= Parameters("DEM")			->asGrid();
+	pDEM	= Parameters("DEM"      )->asGrid();
 
-	pN		= Parameters("NSTORE")		->asGrid();
+	pN		= Parameters("NSTORE"   )->asGrid();
 	pN->Assign(N_Init);
 
-	DataObject_Set_Colors(pN, 100, SG_COLORS_YELLOW_GREEN);
+	DataObject_Set_Colors(pN, 11, SG_COLORS_YELLOW_GREEN);
 
 	N_1.Create(pN, SG_DATATYPE_Float);
 
@@ -173,8 +157,7 @@ bool CHugget_03::On_Execute(void)
 	//-----------------------------------------------------
 	for(iStep=0; iStep<=nSteps && Set_Progress(iStep, nSteps); iStep++)
 	{
-		s.Printf(SG_T("%s: %f (%f)"), _TL("Time [a]"), dTime * iStep, sTime);
-		Process_Set_Text(s);
+		Process_Set_Text(CSG_String::Format("%s [a]: %f (%f)", _TL("Time"), dTime * iStep, sTime));
 
 		if( bUpdate )
 		{
@@ -232,7 +215,7 @@ bool CHugget_03::Init_Slopes(CSG_Grid *pDEM, CSG_Grid S[8])
 					}
 					else
 					{
-						S[i].Set_Value(x, y, 0.0);
+						S[i].Set_Value(x, y, 0.);
 					}
 				}
 			}
@@ -256,11 +239,11 @@ bool CHugget_03::Step(CSG_Grid S[8], CSG_Grid *pN, CSG_Grid *pN_1, double N_Rain
 		{
 			if( !S[0].is_NoData(x, y) )
 			{
-				for(i=0, dN=0.0; i<8; i++)
+				for(i=0, dN=0.; i<8; i++)
 				{
-					if( (s = S[i].asDouble(x, y)) != 0.0 )
+					if( (s = S[i].asDouble(x, y)) != 0. )
 					{
-						if( s < 0.0 )
+						if( s < 0. )
 						{
 							dN	+= s * pN->asDouble(x, y);
 						}
@@ -273,7 +256,7 @@ bool CHugget_03::Step(CSG_Grid S[8], CSG_Grid *pN, CSG_Grid *pN_1, double N_Rain
 
 				s	= pN->asDouble(x, y) + (dN + N_Rain) * dTime;
 
-				if( s < 0.0 )
+				if( s < 0. )
 				{
 					s	= N_Rain * dTime;
 				}

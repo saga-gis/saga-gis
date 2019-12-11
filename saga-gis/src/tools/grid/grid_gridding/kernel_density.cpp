@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "kernel_density.h"
 
 
@@ -81,58 +69,58 @@
 //---------------------------------------------------------
 CKernel_Density::CKernel_Density(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Kernel Density Estimation"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Kernel density estimation. If any point is currently in selection only selected points are taken into account.\n"
-		"\n"
-		"References:\n"
-		"- Fotheringham, A.S., Brunsdon, C., Charlton, M. (2000): Quantitative Geography. Sage. 270p.\n"
-		"- Lloyd, C.D. (2010): Spatial data analysis - An introduction for GIS users. Oxford. 206p.\n"
+		"Kernel density estimation. If any point is currently in selection only selected points are taken into account. "
 	));
 
+	Add_Reference("Fotheringham, A.S., Brunsdon, C., Charlton, M.", "2000",
+		"Quantitative Geography",
+		"Sage. 270p."
+	);
+
+	Add_Reference("Lloyd, C.D.", "2010",
+		"Spatial data analysis - An introduction for GIS users",
+		"Oxford. 206p."
+	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "POPULATION"	, _TL("Population"),
+	Parameters.Add_Table_Field("POINTS",
+		"POPULATION", _TL("Population"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"		, _TL("Radius"),
+	Parameters.Add_Double("",
+		"RADIUS"	, _TL("Radius"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 1.0, 0.0, true
+		1., 0., true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "KERNEL"		, _TL("Kernel"),
+	Parameters.Add_Choice("",
+		"KERNEL"	, _TL("Kernel"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("quartic kernel"),
 			_TL("gaussian kernel")
 		), 0
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -165,8 +153,6 @@ int CKernel_Density::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Param
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -194,10 +180,10 @@ bool CKernel_Density::On_Execute(void)
 	}
 
 	m_pGrid->Fmt_Name("%s [%s]", pPoints->Get_Name(), _TL("Kernel Density"));
-	m_pGrid->Set_NoData_Value(0.0);
-	m_pGrid->Assign(0.0);
+	m_pGrid->Set_NoData_Value(0.);
+	m_pGrid->Assign(0.);
 
-	DataObject_Set_Colors(m_pGrid, 100, SG_COLORS_BLACK_WHITE, true);
+	DataObject_Set_Colors(m_pGrid, 11, SG_COLORS_BLACK_WHITE, true);
 
 	m_dRadius	= Radius / m_pGrid->Get_Cellsize();
 	m_iRadius	= 1 + (int)m_dRadius;
@@ -209,7 +195,7 @@ bool CKernel_Density::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Selection(iPoint);
 
-			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1.0 : pPoint->asDouble(Population));
+			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1. : pPoint->asDouble(Population));
 		}
 	}
 	else
@@ -218,7 +204,7 @@ bool CKernel_Density::On_Execute(void)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Shape(iPoint);
 
-			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1.0 : pPoint->asDouble(Population));
+			Set_Kernel(pPoint->Get_Point(0), Population < 0 ? 1. : pPoint->asDouble(Population));
 		}
 	}
 
@@ -260,7 +246,7 @@ inline double CKernel_Density::Get_Kernel(double dx, double dy)
 
 	if( d >= m_dRadius )
 	{
-		return( 0.0 );
+		return( 0. );
 	}
 
 	d	/= m_dRadius;
@@ -269,18 +255,18 @@ inline double CKernel_Density::Get_Kernel(double dx, double dy)
 	{
 	default:
 	case 0:	// quartic kernel
-		return( (3.0 / (M_PI * m_dRadius*m_dRadius)) * SG_Get_Square(1.0 - d*d) );
+		return( (3. / (M_PI * m_dRadius*m_dRadius)) * SG_Get_Square(1. - d*d) );
 
 	case 1:	// gaussian kernel
-		d	*= 2.0;
+		d	*= 2.;
 		return( exp(-0.5 * d*d) );
 
 	case 2:	// exponential
-		d	*= 2.0;
+		d	*= 2.;
 		return( exp(-d) );
 
 	case 3:	// inverse distance
-		return( pow(1.0 + d, -1.0) );
+		return( pow(1. + d, -1.) );
 	}
 }
 

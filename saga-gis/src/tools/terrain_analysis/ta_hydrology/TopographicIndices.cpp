@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TopographicIndices.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "TopographicIndices.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CTWI::CTWI(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Topographic Wetness Index (TWI)"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -128,7 +115,7 @@ CTWI::CTWI(void)
 	Parameters.Add_Choice("",
 		"CONV"	, _TL("Area Conversion"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (pseudo specific catchment area)")
 		), 0
@@ -137,7 +124,7 @@ CTWI::CTWI(void)
 	Parameters.Add_Choice("",
 		"METHOD", _TL("Method (TWI)"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Standard"),
 			_TL("TOPMODEL")
 		), 0
@@ -166,16 +153,16 @@ bool CTWI::On_Execute(void)
 	bConvert	= Parameters("CONV"  )->asInt() == 1;
 	bTopmodel	= Parameters("METHOD")->asInt() == 1;
 
-	DataObject_Set_Colors(pTWI, 100, SG_COLORS_RED_GREY_BLUE);
+	DataObject_Set_Colors(pTWI, 11, SG_COLORS_RED_GREY_BLUE);
 
 	//-----------------------------------------------------
-	Kf			= 1.0;
+	Kf			= 1.;
 
 	if( bTopmodel )
 	{
-		Mean_TWI	= 0.0;
-		Mean_Kf		= 0.0;
-		Area		= 0.0;
+		Mean_TWI	= 0.;
+		Mean_Kf		= 0.;
+		Area		= 0.;
 
 		for(y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
@@ -196,7 +183,7 @@ bool CTWI::On_Execute(void)
 						}
 						else
 						{
-							Kf	= 0.0;
+							Kf	= 0.;
 						}
 					}
 
@@ -206,13 +193,13 @@ bool CTWI::On_Execute(void)
 						Slope	= M_ALMOST_ZERO;
 
 					Area		++;
-					Mean_TWI	+= log((pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.0)) / Slope);
+					Mean_TWI	+= log((pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.)) / Slope);
 					Mean_Kf		+= Kf;
 				}
 			}
 		}
 
-		if( Area > 0.0 )
+		if( Area > 0. )
 		{
 			Area		*= pArea->Get_Cellarea();
 			Mean_TWI	/= Area;
@@ -274,7 +261,6 @@ bool CTWI::On_Execute(void)
 //---------------------------------------------------------
 CStream_Power::CStream_Power(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Stream Power Index"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -312,7 +298,7 @@ CStream_Power::CStream_Power(void)
 	Parameters.Add_Choice("",
 		"CONV"	, _TL("Area Conversion"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (pseudo specific catchment area)")
 		), 0
@@ -336,7 +322,7 @@ bool CStream_Power::On_Execute(void)
 	pSPI		= Parameters("SPI"  )->asGrid();
 	bConvert	= Parameters("CONV" )->asInt() == 1;
 
-	DataObject_Set_Colors(pSPI, 100, SG_COLORS_RED_GREY_GREEN, true);
+	DataObject_Set_Colors(pSPI, 11, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -350,7 +336,7 @@ bool CStream_Power::On_Execute(void)
 			}
 			else
 			{
-				pSPI->Set_Value(x, y, (pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.0)) * tan(pSlope->asDouble(x, y)));
+				pSPI->Set_Value(x, y, (pArea->asDouble(x, y) / (bConvert ? Get_Cellsize() : 1.)) * tan(pSlope->asDouble(x, y)));
 			}
 		}
 	}
@@ -368,7 +354,6 @@ bool CStream_Power::On_Execute(void)
 //---------------------------------------------------------
 CLS_Factor::CLS_Factor(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("LS Factor"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -432,7 +417,7 @@ CLS_Factor::CLS_Factor(void)
 	Parameters.Add_Choice("",
 		"CONV"		, _TL("Area to Length Conversion"),
 		_TL("Derivation of slope lengths from catchment areas. These are rough approximations! Applies not to Desmet & Govers' method."),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("no conversion (areas already given as specific catchment area)"),
 			_TL("1 / cell size (specific catchment area)"),
 			_TL("square root (catchment length)")
@@ -443,7 +428,7 @@ CLS_Factor::CLS_Factor(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method (LS)"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Moore et al. 1991"),
 			_TL("Desmet & Govers 1996"),
 			_TL("Boehner & Selige 2006")
@@ -458,13 +443,13 @@ CLS_Factor::CLS_Factor(void)
 	Parameters.Add_Double("NODE_DG",
 		"EROSIVITY"	, _TL("Rill/Interrill Erosivity"),
 		_TL(""),
-		1.0, 0.0, true
+		1., 0., true
 	);
 
 	Parameters.Add_Choice("NODE_DG",
 		"STABILITY"	, _TL("Stability"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("stable"),
 			_TL("instable (thawing)")
 		), 0
@@ -492,7 +477,7 @@ bool CLS_Factor::On_Execute(void)
 	m_Erosivity	= Parameters("EROSIVITY")->asInt();
 	m_Stability	= Parameters("STABILITY")->asInt();
 
-	DataObject_Set_Colors(pLS, 100, SG_COLORS_RED_GREY_GREEN, true);
+	DataObject_Set_Colors(pLS, 11, SG_COLORS_RED_GREY_GREEN, true);
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -546,22 +531,22 @@ double CLS_Factor::Get_LS(double Slope, double Area)
 
 			d			= Get_Cellsize();
 
-			m			= m_Erosivity * (sinSlope / 0.0896) / (3.0 * pow(sinSlope, 0.8) + 0.56);
-			m			= m / (1.0 + m);
+			m			= m_Erosivity * (sinSlope / 0.0896) / (3. * pow(sinSlope, 0.8) + 0.56);
+			m			= m / (1. + m);
 
-		//	x			= Aspect < 0.0 ? 0.0 : fmod(Aspect, M_PI_090);
+		//	x			= Aspect < 0. ? 0. : fmod(Aspect, M_PI_090);
 		//	x			= sin(x) + cos(x);
-			x			= 1.0;
+			x			= 1.;
 
 			// x : coefficient that adjusts for width of flow at the center of the cell.
-			//     It has a value of 1.0 when the flow is toward a side and sqrt(2.0) when
+			//     It has a value of 1. when the flow is toward a side and sqrt(2.) when
 			//     the flow is toward a corner.
 			//     (Peter I. A. Kinnell: 'ALTERNATIVE APPROACHES FOR DETERMINING THE
 			//     USLE-M SLOPE LENGTH FACTOR FOR GRID CELLS'
 			//     https://www.soils.org/publications/sssaj/abstracts/69/3/0674)
 
-			L			= (pow(Area + d*d, m + 1.0) - pow(Area, m + 1.0))
-						/ (pow(d, m + 2.0) * pow(22.13, m) * pow(x, m));
+			L			= (pow(Area + d*d, m + 1.) - pow(Area, m + 1.))
+						/ (pow(d, m + 2.) * pow(22.13, m) * pow(x, m));
 
 			//-----------------------------------------------------
 			if( Slope < 0.08975817419 )		// < 9% Steigung := atan(0.09), ca. 5 Degree
@@ -593,7 +578,7 @@ double CLS_Factor::Get_LS(double Slope, double Area)
 			}
 			else					// <= ca. 3 Degree
 			{
-				LS		= pow (Area / 22.13, 3.0 * pow(Slope, 0.6))
+				LS		= pow (Area / 22.13, 3. * pow(Slope, 0.6))
 						* (65.41 * sinSlope * sinSlope + 4.56 * sinSlope + 0.065);
 			}
 		}
@@ -613,7 +598,6 @@ double CLS_Factor::Get_LS(double Slope, double Area)
 //---------------------------------------------------------
 CTCI_Low::CTCI_Low(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("TCI Low"));
 
 	Set_Author		("O.Conrad (c) 2012");
@@ -664,12 +648,12 @@ bool CTCI_Low::On_Execute(void)
 	CSG_Grid	*pTWI		= Parameters("TWI"     )->asGrid();
 	CSG_Grid	*pTCI_Low	= Parameters("TCILOW"  )->asGrid();
 
-	DataObject_Set_Colors(pTCI_Low, 100, SG_COLORS_RED_GREY_BLUE, false);
+	DataObject_Set_Colors(pTCI_Low, 11, SG_COLORS_RED_GREY_BLUE, false);
 
 	double	dMax	= pDistance->Get_Max();
 	double	dRange	= pDistance->Get_Range();
 	double	wMin	= pTWI->Get_Min();
-	double	wRange	= log(1.0 + pTWI->Get_Range());
+	double	wRange	= log(1. + pTWI->Get_Range());
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -684,9 +668,9 @@ bool CTCI_Low::On_Execute(void)
 			else
 			{
 				double	d	= (dMax - pDistance->asDouble(x, y)) / dRange;			// inverted, normalized [0...1]
-				double	w	= log(1.0 + (pTWI->asDouble(x, y) - wMin)) / wRange;	// natural logarithm, normalized [0...1]
+				double	w	= log(1. + (pTWI->asDouble(x, y) - wMin)) / wRange;	// natural logarithm, normalized [0...1]
 
-				pTCI_Low->Set_Value(x, y, (2.0 * d + w) / 3.0);
+				pTCI_Low->Set_Value(x, y, (2. * d + w) / 3.);
 			}
 		}
 	}

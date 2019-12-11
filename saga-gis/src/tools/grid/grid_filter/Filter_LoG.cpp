@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Filter_LoG.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CFilter_LoG::CFilter_LoG(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Laplacian Filter"));
 
 	Set_Author		("A.Ringeler (c) 2003, O.Conrad (c) 2008");
@@ -104,22 +91,22 @@ CFilter_LoG::CFilter_LoG(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"RESULT"	, _TL("Filtered Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("standard kernel 1"),
 			_TL("standard kernel 2"),
 			_TL("Standard kernel 3"),
@@ -127,10 +114,10 @@ CFilter_LoG::CFilter_LoG(void)
 		), 3
 	);
 
-	Parameters.Add_Double(NULL,
+	Parameters.Add_Double("",
 		"SIGMA"		, _TL("Standard Deviation"),
 		_TL("The standard deviation, expressed as a percentage of the radius."),
-		50.0, 0.00001, true
+		50., 0.00001, true
 	);
 
 	CSG_Grid_Cell_Addressor::Add_Parameters(Parameters);
@@ -178,7 +165,6 @@ bool CFilter_LoG::On_After_Execution(void)
 //---------------------------------------------------------
 bool CFilter_LoG::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Initialise() )
 	{
 		return( false );
@@ -232,7 +218,7 @@ bool CFilter_LoG::On_Execute(void)
 		Parameters("RESULT")->Set_Value(m_pInput);
 	}
 
-	DataObject_Set_Colors(pResult, 100, SG_COLORS_BLACK_WHITE);
+	DataObject_Set_Colors(pResult, 11, SG_COLORS_BLACK_WHITE);
 
 	m_Kernel.Destroy();
 
@@ -280,7 +266,7 @@ bool CFilter_LoG::Initialise(void)
 	case 3:	default:
 		m_Radius	= Parameters("KERNEL_RADIUS")->asInt();
 
-		if( Sigma <= 0.0 )
+		if( Sigma <= 0. )
 		{
 			return( false );
 		}
@@ -301,7 +287,7 @@ bool CFilter_LoG::Initialise(void)
 				}
 				else
 				{
-					m_Kernel.Set_Value(ix, iy, 1.0 / (M_PI * Sigma*Sigma) * (1.0 - d / (2.0 * Sigma)) * exp(-d / (2.0 * Sigma)));
+					m_Kernel.Set_Value(ix, iy, 1. / (M_PI * Sigma*Sigma) * (1. - d / (2. * Sigma)) * exp(-d / (2. * Sigma)));
 				}
 			}
 		}
@@ -322,9 +308,8 @@ bool CFilter_LoG::Initialise(void)
 //---------------------------------------------------------
 double CFilter_LoG::Get_Value(int x, int y)
 {
-	double	s	= 0.0;
+	double	s	= 0.;
 
-	//-----------------------------------------------------
 	for(int ky=0, iy=y-m_Radius; ky<m_Kernel.Get_NY(); ky++, iy++)
  	{
 		for(int kx=0, ix=x-m_Radius; kx<m_Kernel.Get_NX(); kx++, ix++)
@@ -336,7 +321,6 @@ double CFilter_LoG::Get_Value(int x, int y)
 		}
 	}
 
-	//-----------------------------------------------------
 	return( s );
 }
 

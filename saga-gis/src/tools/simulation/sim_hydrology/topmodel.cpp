@@ -123,7 +123,6 @@ CTOPMODEL::CTOPMODEL(void)
 	);
 
 	//-----------------------------------------------------
-
 	Parameters.Add_Grid("",
 		"ATANB"			, _TL("Topographic Wetness Index"),
 		_TL(""),
@@ -270,21 +269,21 @@ bool CTOPMODEL::On_Execute(void)
 	//-----------------------------------------------------
 	// Get user inputs from the 'Parameters' object...
 
-	pAtanB			= Parameters("ATANB")		->asGrid();
-	m_pWeather		= Parameters("WEATHER")		->asTable();
-	m_fP			= Parameters("RECORD_P")	->asInt();
-	m_fET			= Parameters("RECORD_ET")	->asInt();
-	m_fTime			= Parameters("RECORD_DATE")	->asInt();
-	dTime			= Parameters("DTIME")		->asDouble();
-	nClasses		= Parameters("NCLASSES")	->asInt();
-	bInfiltration	= Parameters("BINF")		->asBool();
+	pAtanB			= Parameters("ATANB"      )->asGrid  ();
+	m_pWeather		= Parameters("WEATHER"    )->asTable ();
+	m_fP			= Parameters("RECORD_P"   )->asInt   ();
+	m_fET			= Parameters("RECORD_ET"  )->asInt   ();
+	m_fTime			= Parameters("RECORD_DATE")->asInt   ();
+	dTime			= Parameters("DTIME"      )->asDouble();
+	nClasses		= Parameters("NCLASSES"   )->asInt   ();
+	bInfiltration	= Parameters("BINF"       )->asBool  ();
 
 	nTimeSteps		= m_pWeather->Get_Record_Count();
 
 	if( (pMoist = Parameters("MOIST")->asGrid()) != NULL )
 	{
 		pMoist->Set_Name(_TL("Soil Moisture Deficit"));
-		DataObject_Set_Colors(pMoist, 100, SG_COLORS_RED_GREY_BLUE, true);
+		DataObject_Set_Colors(pMoist, 11, SG_COLORS_RED_GREY_BLUE, true);
 	}
 
 

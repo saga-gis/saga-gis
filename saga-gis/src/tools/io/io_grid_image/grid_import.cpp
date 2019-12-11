@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/filename.h>
 #include <wx/image.h>
 
@@ -75,7 +63,6 @@
 //---------------------------------------------------------
 CGrid_Import::CGrid_Import(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Import Image (bmp, jpg, png, tif, gif, pnm, xpm)"));
 
 	Set_Author		("O.Conrad (c) 2005");
@@ -124,7 +111,7 @@ CGrid_Import::CGrid_Import(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Options"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("Standard"),
 			_TL("Split Channels"),
 			_TL("Enforce True Color")
@@ -295,7 +282,7 @@ bool CGrid_Import::On_Execute(void)
 			pImage->Set_Name(Name);
 			pImage->Get_Projection().Load(SG_File_Make_Path("", fImage, "prj"));
 			Parameters("OUT_GRID")->Set_Value(pImage);
-			DataObject_Set_Colors(pImage, 100, SG_COLORS_BLACK_WHITE);
+			DataObject_Set_Colors(pImage, 11, SG_COLORS_BLACK_WHITE);
 			DataObject_Set_Parameter(pImage, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 		}
 
@@ -334,9 +321,9 @@ bool CGrid_Import::On_Execute(void)
 			Parameters("OUT_GREEN")->Set_Value(pG);
 			Parameters("OUT_BLUE" )->Set_Value(pB);
 
-			DataObject_Set_Colors(pR, 100, SG_COLORS_BLACK_RED);
-			DataObject_Set_Colors(pG, 100, SG_COLORS_BLACK_GREEN);
-			DataObject_Set_Colors(pB, 100, SG_COLORS_BLACK_BLUE);
+			DataObject_Set_Colors(pR, 11, SG_COLORS_WHITE_RED  );
+			DataObject_Set_Colors(pG, 11, SG_COLORS_WHITE_GREEN);
+			DataObject_Set_Colors(pB, 11, SG_COLORS_WHITE_BLUE );
 		}
 	}
 

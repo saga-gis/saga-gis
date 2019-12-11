@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Morphometry.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -139,89 +127,89 @@ CMorphometry::CMorphometry(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+		"", "ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Slope"),
+		"", "SLOPE"		, _TL("Slope"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "ASPECT"		, _TL("Aspect"),
+		"", "ASPECT"	, _TL("Aspect"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_GENE"		, _TL("General Curvature"),
+		"", "C_GENE"	, _TL("General Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_PROF"		, _TL("Profile Curvature"),
+		"", "C_PROF"	, _TL("Profile Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_PLAN"		, _TL("Plan Curvature"),
+		"", "C_PLAN"	, _TL("Plan Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_TANG"		, _TL("Tangential Curvature"),
+		"", "C_TANG"	, _TL("Tangential Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_LONG"		, _TL("Longitudinal Curvature"),
+		"", "C_LONG"	, _TL("Longitudinal Curvature"),
 		_TL("Zevenbergen & Thorne (1987) refer to this as profile curvature"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_CROS"		, _TL("Cross-Sectional Curvature"),
+		"", "C_CROS"	, _TL("Cross-Sectional Curvature"),
 		_TL("Zevenbergen & Thorne (1987) refer to this as plan curvature"),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_MINI"		, _TL("Minimal Curvature"),
+		"", "C_MINI"	, _TL("Minimal Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_MAXI"		, _TL("Maximal Curvature"),
+		"", "C_MAXI"	, _TL("Maximal Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_TOTA"		, _TL("Total Curvature"),
+		"", "C_TOTA"	, _TL("Total Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "C_ROTO"		, _TL("Flow Line Curvature"),
+		"", "C_ROTO"	, _TL("Flow Line Curvature"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		"", "METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("maximum slope (Travis et al. 1975)"),
 			_TL("maximum triangle slope (Tarboton 1997)"),
 			_TL("least squares fitted plane (Horn 1981, Costa-Cabral & Burgess 1996)"),
@@ -234,19 +222,19 @@ CMorphometry::CMorphometry(void)
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "UNIT_SLOPE"	, _TL("Slope Units"),
+		"SLOPE" , "UNIT_SLOPE"	, _TL("Unit"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("radians"),
 			_TL("degree"),
-			_TL("percent")
+			_TL("percent rise")
 		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "UNIT_ASPECT"	, _TL("Aspect Units"),
+		"ASPECT", "UNIT_ASPECT"	, _TL("Unit"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("radians"),
 			_TL("degree")
 		), 0
@@ -256,47 +244,40 @@ CMorphometry::CMorphometry(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CMorphometry::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("METHOD")) )
+	if(	pParameter->Cmp_Identifier("METHOD") )
 	{
 		bool	bOn;
 		
 		bOn	= pParameter->asInt() >= 3 || pParameter->asInt() == 0;
-		pParameters->Get_Parameter("C_GENE")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_PROF")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_PLAN")->Set_Enabled(bOn);
+		pParameters->Set_Enabled("C_GENE", bOn);
+		pParameters->Set_Enabled("C_PROF", bOn);
+		pParameters->Set_Enabled("C_PLAN", bOn);
 
 		bOn	= pParameter->asInt() >= 3;
-		pParameters->Get_Parameter("C_TANG")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_LONG")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_CROS")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_MINI")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_MAXI")->Set_Enabled(bOn);
-		pParameters->Get_Parameter("C_TOTA")->Set_Enabled(bOn);
+		pParameters->Set_Enabled("C_TANG", bOn);
+		pParameters->Set_Enabled("C_LONG", bOn);
+		pParameters->Set_Enabled("C_CROS", bOn);
+		pParameters->Set_Enabled("C_MINI", bOn);
+		pParameters->Set_Enabled("C_MAXI", bOn);
+		pParameters->Set_Enabled("C_TOTA", bOn);
 	}
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CMorphometry::On_Execute(void)
 {
-	//-----------------------------------------------------
-	int	Method	= Parameters("METHOD"   )->asInt ();
-
 	m_pDTM		= Parameters("ELEVATION")->asGrid();
 
 	m_pSlope	= Parameters("SLOPE"    )->asGrid();
@@ -313,6 +294,8 @@ bool CMorphometry::On_Execute(void)
 	m_pC_Tota	= Parameters("C_TOTA"   )->asGrid();
 	m_pC_Roto	= Parameters("C_ROTO"   )->asGrid();
 
+	int	Method	= Parameters("METHOD"   )->asInt ();
+
 	if( Method == 0 )
 	{
 		m_pC_Tang = m_pC_Long = m_pC_Cros = m_pC_Mini = m_pC_Maxi = m_pC_Tota = m_pC_Roto = NULL;
@@ -324,18 +307,18 @@ bool CMorphometry::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	DataObject_Set_Colors(m_pSlope , 11, SG_COLORS_YELLOW_RED   , false);
+	DataObject_Set_Colors(m_pSlope , 11, SG_COLORS_RED_GREEN    ,  true);
 	DataObject_Set_Colors(m_pAspect, 11, SG_COLORS_ASPECT_3     , false);
-	DataObject_Set_Colors(m_pC_Gene, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Prof, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Plan, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Tang, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Long, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Cros, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Mini, 11, SG_COLORS_RED_GREY_BLUE, true);
-	DataObject_Set_Colors(m_pC_Maxi, 11, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pC_Gene, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Prof, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Plan, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Tang, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Long, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Cros, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Mini, 11, SG_COLORS_RED_GREY_BLUE,  true);
+	DataObject_Set_Colors(m_pC_Maxi, 11, SG_COLORS_RED_GREY_BLUE,  true);
 	DataObject_Set_Colors(m_pC_Tota, 11, SG_COLORS_YELLOW_RED   , false);
-	DataObject_Set_Colors(m_pC_Roto, 11, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(m_pC_Roto, 11, SG_COLORS_RED_GREY_BLUE,  true);
 
 	//-----------------------------------------------------
 	m_Unit_Slope	= Parameters("UNIT_SLOPE" )->asInt();
@@ -377,14 +360,14 @@ bool CMorphometry::On_Execute(void)
 			}
 			else switch( Method )
 			{
-			case 0:	Set_MaximumSlope (x, y);	break;
-			case 1:	Set_Tarboton     (x, y);	break;
-			case 2:	Set_LeastSquare  (x, y);	break;
-			case 3:	Set_Evans        (x, y);	break;
-			case 4:	Set_Heerdegen    (x, y);	break;
-			case 5:	Set_BRM          (x, y);	break;
-			case 6:	Set_Zevenbergen  (x, y);	break;
-			case 7:	Set_Haralick     (x, y);	break;
+			case  0: Set_MaximumSlope(x, y); break;
+			case  1: Set_Tarboton    (x, y); break;
+			case  2: Set_LeastSquare (x, y); break;
+			case  3: Set_Evans       (x, y); break;
+			case  4: Set_Heerdegen   (x, y); break;
+			case  5: Set_BRM         (x, y); break;
+			default: Set_Zevenbergen (x, y); break;
+			case  7: Set_Haralick    (x, y); break;
 			}
 		}
 	}
@@ -470,8 +453,6 @@ inline void CMorphometry::Get_SubMatrix5x5(int x, int y, double Z[25])
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -498,7 +479,6 @@ inline void CMorphometry::Set_NoData(int x, int y)
 //---------------------------------------------------------
 inline void CMorphometry::Set_Gradient(int x, int y, double Slope, double Aspect)
 {
-	//-----------------------------------------------------
 	if( m_Unit_Slope == 1 )
 	{
 		SET_VALUE(m_pSlope, Slope * M_RAD_TO_DEG);
@@ -525,8 +505,6 @@ inline void CMorphometry::Set_Gradient(int x, int y, double Slope, double Aspect
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

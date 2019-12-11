@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: mass_balance_index.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "mass_balance_index.h"
 
@@ -72,8 +63,6 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -81,89 +70,84 @@ CMass_Balance_Index::CMass_Balance_Index(void)
 {
 	Set_Name		(_TL("Mass Balance Index"));
 
-	Set_Author		(SG_T("(c) 2008 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		"\n"
-		"References:\n"
-		"\n"
-		"Friedrich, K. (1996): "
-		"Digitale Reliefgliederungsverfahren zur Ableitung bodenkundlich relevanter Flaecheneinheiten. "
-		"Frankfurter Geowissenschaftliche Arbeiten D 21, Frankfurt/M., "
-		"<a href=\"http://user.uni-frankfurt.de/~relief/fga21/\">online</a>.\n"
-		"\n"
-		"Friedrich, K. (1998): "
-		"Multivariate distance methods for geomorphographic relief classification. "
-		"in Heinecke, H., Eckelmann, W., Thomasson, A., Jones, J., Montanarella, L., Buckley, B. (eds.): "
-		"Land Inforamtion Systems - Developments for planning the sustainable use of land resources. "
-		"European Soil Bureau - Research Report 4, EUR 17729 EN, Office for oficial publications of the European Communities, Ispra, pp. 259-266, "
-		"<a href=\"http://eusoils.jrc.it/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/contents.html\">online</a>.\n"
-		"\n"
-		"Moeller, M., Volk, M., Friedrich, K., Lymburner, L. (2008): "
-		"Placing soil-genesis and transport processes into a landscape context: A multiscale terrain-analysis approach. "
-		"Journal of Plant Nutrition and Soil Science, 171, pp. 419-430, DOI: 10.1002/jpln.200625039\n"
-		"\n"
+		"A mass balance index. "
 	));
+
+	Add_Reference("Friedrich, K.", "1996",
+		"Digitale Reliefgliederungsverfahren zur Ableitung bodenkundlich relevanter Flaecheneinheiten",
+		"Frankfurter Geowissenschaftliche Arbeiten D 21, Frankfurt/M.",
+		SG_T("http://user.uni-frankfurt.de/~relief/fga21/"), SG_T("online")
+	);
+
+	Add_Reference("Friedrich, K.", "1998",
+		"Multivariate distance methods for geomorphographic relief classification",
+		"In: Heinecke, H., Eckelmann, W., Thomasson, A., Jones, J., Montanarella, L., Buckley, B. (eds.): "
+		"Land Inforamtion Systems - Developments for planning the sustainable use of land resources. "
+		"European Soil Bureau - Research Report 4, EUR 17729 EN, Office for oficial publications of the European Communities, Ispra, pp. 259-266.",
+		SG_T("http://eusoils.jrc.it/ESDB_Archive/eusoils_docs/esb_rr/n04_land_information_systems/contents.html"), SG_T("online")
+	);
+
+	Add_Reference("Moeller, M., Volk, M., Friedrich, K., Lymburner, L.", "2008",
+		"Placing soil-genesis and transport processes into a landscape context: A multiscale terrain-analysis approach",
+		"Journal of Plant Nutrition and Soil Science, 171, pp. 419-430, DOI: 10.1002/jpln.200625039."
+	);
 
 	//-----------------------------------------------------
 #ifdef MBI_LEVEL_2
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 #else
 	Parameters.Add_Grid(
-		NULL	, "SLOPE"		, _TL("Slope"),
+		"", "SLOPE"		, _TL("Slope"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "CURVE"		, _TL("Curvature"),
+		"", "CURVE"		, _TL("Curvature"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 #endif
 	Parameters.Add_Grid(
-		NULL	, "HREL"		, _TL("Vertical Distance to Channel Network"),
+		"", "HREL"		, _TL("Vertical Distance to Channel Network"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "MBI"			, _TL("Mass Balance Index"),
+		"", "MBI"		, _TL("Mass Balance Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TSLOPE"		, _TL("T Slope"),
+	Parameters.Add_Double(
+		"", "TSLOPE"	, _TL("T Slope"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 15.0, 0.0, true
+		15., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "TCURVE"		, _TL("T Curvature"),
+	Parameters.Add_Double(
+		"", "TCURVE"	, _TL("T Curvature"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 0.01, 0.0, true
+		0.01, 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THREL"		, _TL("T Vertical Distance to Channel Network"),
+	Parameters.Add_Double(
+		"", "THREL"		, _TL("T Vertical Distance to Channel Network"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 15.0, 0.0, true
+		15., 0., true
 	);
 }
 
-//---------------------------------------------------------
-CMass_Balance_Index::~CMass_Balance_Index(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -175,20 +159,20 @@ bool CMass_Balance_Index::On_Execute(void)
 
 	//-----------------------------------------------------
 #ifdef MBI_LEVEL_2
-	CSG_Grid	*pDEM		= Parameters("DEM")		->asGrid();
+	CSG_Grid	*pDEM		= Parameters("DEM"  )->asGrid();
 #else
-	CSG_Grid	*pSlope		= Parameters("SLOPE")	->asGrid();
-	CSG_Grid	*pCurve		= Parameters("CURVE")	->asGrid();
+	CSG_Grid	*pSlope		= Parameters("SLOPE")->asGrid();
+	CSG_Grid	*pCurve		= Parameters("CURVE")->asGrid();
 #endif
-	CSG_Grid	*pHRel		= Parameters("HREL")	->asGrid();
-	CSG_Grid	*pMBI		= Parameters("MBI")		->asGrid();
+	CSG_Grid	*pHRel		= Parameters("HREL" )->asGrid();
+	CSG_Grid	*pMBI		= Parameters("MBI"  )->asGrid();
 
-	TSlope		= Parameters("TSLOPE")	->asDouble();
-	TCurve		= Parameters("TCURVE")	->asDouble();
-	THRel		= Parameters("THREL")	->asDouble();
+	TSlope		= Parameters("TSLOPE")->asDouble();
+	TCurve		= Parameters("TCURVE")->asDouble();
+	THRel		= Parameters("THREL" )->asDouble();
 
 	//-----------------------------------------------------
-	DataObject_Set_Colors(pMBI, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pMBI, 11, SG_COLORS_RED_GREY_BLUE, true);
 
 	//-----------------------------------------------------
 	for(y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -212,9 +196,9 @@ bool CMass_Balance_Index::On_Execute(void)
 					fCurve	= Get_Transformed(fCurve, TCurve);
 					fHRel	= Get_Transformed(fHRel	, THRel);
 
-					pMBI	->Set_Value(x, y, fCurve < 0.0
-						? fCurve * (1.0 - fSlope) * (1.0 - fHRel)
-						: fCurve * (1.0 + fSlope) * (1.0 + fHRel)
+					pMBI	->Set_Value(x, y, fCurve < 0.
+						? fCurve * (1. - fSlope) * (1. - fHRel)
+						: fCurve * (1. + fSlope) * (1. + fHRel)
 					);
 				}
 				else
@@ -222,9 +206,9 @@ bool CMass_Balance_Index::On_Execute(void)
 					fSlope	= Get_Transformed(fSlope, TSlope);
 					fCurve	= Get_Transformed(fCurve, TCurve);
 
-					pMBI	->Set_Value(x, y, fCurve < 0.0
-						? fCurve * (1.0 - fSlope)
-						: fCurve * (1.0 + fSlope)
+					pMBI	->Set_Value(x, y, fCurve < 0.
+						? fCurve * (1. - fSlope)
+						: fCurve * (1. + fSlope)
 					);
 				}
 			}
@@ -242,8 +226,6 @@ bool CMass_Balance_Index::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -251,13 +233,11 @@ inline double CMass_Balance_Index::Get_Transformed(double x, double t)
 {
 	t	+= fabs(x);
 
-	return( t > 0.0 ? x / t : 0.0 );
+	return( t > 0. ? x / t : 0. );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -291,25 +271,25 @@ bool CMass_Balance_Index::Get_Morphometry(int x, int y, CSG_Grid *pDEM, double &
 				}
 				else
 				{
-					zm[i]	= 0.0;
+					zm[i]	= 0.;
 				}
 			}
 		}
 
-		D		= ((zm[0] + zm[4]) / 2.0) / pDEM->Get_Cellarea();
-		E		= ((zm[2] + zm[6]) / 2.0) / pDEM->Get_Cellarea();
-	//	F		=  (zm[5] - zm[7] - zm[3] + zm[1]) / (4.0 * pDEM->Get_Cellarea());
-		G		=  (zm[0] - zm[4]) / (2.0 * pDEM->Get_Cellsize());
-        H		=  (zm[2] - zm[6]) / (2.0 * pDEM->Get_Cellsize());
+		D		= ((zm[0] + zm[4]) / 2.) / pDEM->Get_Cellarea();
+		E		= ((zm[2] + zm[6]) / 2.) / pDEM->Get_Cellarea();
+	//	F		=  (zm[5] - zm[7] - zm[3] + zm[1]) / (4. * pDEM->Get_Cellarea());
+		G		=  (zm[0] - zm[4]) / (2. * pDEM->Get_Cellsize());
+        H		=  (zm[2] - zm[6]) / (2. * pDEM->Get_Cellsize());
 
 		Slope	= atan(sqrt(G*G + H*H));
-		Curve	= -2.0 * (E + D);
+		Curve	= -2. * (E + D);
 
 		return( true );
 	}
 
-	Slope	= 0.0;
-	Curve	= 0.0;
+	Slope	= 0.;
+	Curve	= 0.;
 
 	return( false );
 }

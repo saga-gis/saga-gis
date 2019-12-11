@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: distance_gradient.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "distance_gradient.h"
 
@@ -71,48 +62,46 @@ CDistance_Gradient::CDistance_Gradient(void)
 {
 	Set_Name		(_TL("Downslope Distance Gradient"));
 
-	Set_Author		(SG_T("(c) 2006 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
 		"Calculation of a new topographic index to quantify downslope controls on local drainage. "
-		"\n\n"
-		"References:\n"
-		"- Hjerdt, K.N., McDonnell, J.J., Seibert, J. Rodhe, A. (2004): "
-		"  'A new topographic index to quantify downslope controls on local drainage', "
-		"  Water Resources Research, 40\n"
-		"\n"
 	));
+
+	Add_Reference("Hjerdt, K.N., McDonnell, J.J., Seibert, J. Rodhe, A.", "2004",
+		"A new topographic index to quantify downslope controls on local drainage",
+		"Water Resources Research, 40."
+	);
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+		"", "DEM"		, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "GRADIENT"	, _TL("Gradient"),
+		"", "GRADIENT"	, _TL("Gradient"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "DIFFERENCE"	, _TL("Gradient Difference"),
+		"", "DIFFERENCE", _TL("Gradient Difference"),
 		_TL("Difference to local gradient."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DISTANCE"	, _TL("Vertical Distance"),
+	Parameters.Add_Double(
+		"", "DISTANCE"	, _TL("Vertical Distance"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 10.0, 0.0, true
+		10., 0., true
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "OUTPUT"		, _TL("Output"),
+		"", "OUTPUT"	, _TL("Output"),
 		_TL(""),
-
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("distance"),
 			_TL("gradient (tangens)"),
 			_TL("gradient (degree)")
@@ -120,75 +109,73 @@ CDistance_Gradient::CDistance_Gradient(void)
 	);
 }
 
-//---------------------------------------------------------
-CDistance_Gradient::~CDistance_Gradient(void)
-{}
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CDistance_Gradient::On_Execute(void)
 {
-	int			x, y, Output;
-	double		vDistance, hDistance, s, a;
+	int			Output;
+	double		vDistance;
 	CSG_Grid	*pGradient, *pDifference;
 
 	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")			->asGrid();
-	pGradient	= Parameters("GRADIENT")	->asGrid();
-	pDifference	= Parameters("DIFFERENCE")	->asGrid();
-	vDistance	= Parameters("DISTANCE")	->asDouble();
-	Output		= Parameters("OUTPUT")		->asInt();
+	m_pDEM		= Parameters("DEM"       )->asGrid();
+	pGradient	= Parameters("GRADIENT"  )->asGrid();
+	pDifference	= Parameters("DIFFERENCE")->asGrid();
+	vDistance	= Parameters("DISTANCE"  )->asDouble();
+	Output		= Parameters("OUTPUT"    )->asInt();
 
 	//-----------------------------------------------------
-	if( vDistance > 0.0 )
+	if( vDistance > 0. )
 	{
 		switch( Output )
 		{
 		case 0:	// distance
-			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, false);
+			DataObject_Set_Colors(pGradient, 11, SG_COLORS_YELLOW_BLUE, false);
 			pGradient->Set_Unit(_TL("m"));
 			break;
 
 		case 1:	// gradient (ratio)
-			DataObject_Set_Colors(pGradient, 100, SG_COLORS_WHITE_BLUE	, true);
+			DataObject_Set_Colors(pGradient, 11, SG_COLORS_YELLOW_BLUE,  true);
 			pGradient->Set_Unit(_TL(""));
 			break;
 
 		case 2:	// gradient (degree)
-			DataObject_Set_Colors(pGradient, 100, SG_COLORS_YELLOW_RED	, false);
+			DataObject_Set_Colors(pGradient, 11, SG_COLORS_RED_GREEN  ,  true);
 			pGradient->Set_Unit(_TL("radians"));
 			break;
 		}
 
 		if( pDifference )
 		{
-			DataObject_Set_Colors(pDifference, 100, SG_COLORS_RED_GREY_BLUE	, false);
+			DataObject_Set_Colors(pDifference, 11, SG_COLORS_RED_GREY_BLUE, false);
 			pDifference->Set_Unit(_TL("radians"));
 		}
 
 		//-------------------------------------------------
 		m_Dir.Create(m_pDEM, SG_DATATYPE_Char);
 
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
 				m_Dir.Set_Value(x, y, m_pDEM->Get_Gradient_NeighborDir(x, y));
 			}
 		}
 
 		//-------------------------------------------------
-		for(y=0; y<Get_NY() && Set_Progress(y); y++)
+		for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 		{
-			for(x=0; x<Get_NX(); x++)
+			#pragma omp parallel for
+			for(int x=0; x<Get_NX(); x++)
 			{
-				if( (hDistance = Get_hDistance(x, y, vDistance)) > 0.0 )
+				double	hDistance	= Get_hDistance(x, y, vDistance);
+
+				if( hDistance > 0. )
 				{
 					switch( Output )
 					{
@@ -207,10 +194,16 @@ bool CDistance_Gradient::On_Execute(void)
 
 					if( pDifference )
 					{
-						if( m_pDEM->Get_Gradient(x, y, s, a) )
-							pDifference->Set_Value (x, y, s - atan(vDistance / hDistance));
+						double	Slope, Aspect;
+
+						if( m_pDEM->Get_Gradient(x, y, Slope, Aspect) )
+						{
+							pDifference->Set_Value (x, y, Slope - atan(vDistance / hDistance));
+						}
 						else
+						{
 							pDifference->Set_NoData(x, y);
+						}
 					}
 				}
 				else
@@ -218,7 +211,9 @@ bool CDistance_Gradient::On_Execute(void)
 					pGradient->Set_NoData(x, y);
 
 					if( pDifference )
+					{
 						pDifference->Set_NoData(x, y);
+					}
 				}
 			}
 		}
@@ -235,8 +230,6 @@ bool CDistance_Gradient::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -245,7 +238,7 @@ double CDistance_Gradient::Get_hDistance(int x, int y, double vDistance)
 	int		Dir;
 	double	zStart, zStop, z, zLast, hDistance;
 
-	hDistance	= 0.0;
+	hDistance	= 0.;
 
 	if( m_pDEM->is_InGrid(x, y) )
 	{
@@ -279,7 +272,7 @@ double CDistance_Gradient::Get_hDistance(int x, int y, double vDistance)
 
 		if( !m_pDEM->is_InGrid(x, y) )
 		{
-			if( (z = zStart - z) > 0.0 )
+			if( (z = zStart - z) > 0. )
 			{
 				hDistance	*= vDistance / z;
 			}

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Convergence.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Convergence.h"
 
 
@@ -74,49 +62,50 @@ CConvergence::CConvergence(void)
 {
 	Set_Name		(_TL("Convergence Index"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2001"));
+	Set_Author		("O.Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		"Reference:\n"
-		"Koethe, R. & Lehmeier, F. (1996): SARA - System zur Automatischen Relief-Analyse. "
-		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]\n\n"
+		"The convergence/divergence index. "
 	));
 
+	Add_Reference("Koethe, R. & Lehmeier, F.", "1996",
+		"SARA - System zur Automatischen Relief-Analyse",
+		"User Manual, 2. Edition [Dept. of Geography, University of Goettingen, unpublished]"
+	);
+
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+		"", "ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "RESULT"		, _TL("Convergence Index"),
+		"", "RESULT"	, _TL("Convergence Index"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+		"", "METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Aspect"),
 			_TL("Gradient")
-		),0
+		), 0
 	);
 
 	Parameters.Add_Choice(
-		NULL	, "NEIGHBOURS"	, _TL("Gradient Calculation"),
+		"", "NEIGHBOURS", _TL("Gradient Calculation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
-			_TL("2 x 2"),
-			_TL("3 x 3")
+		CSG_String::Format("%s|%s",
+			SG_T("2 x 2"),
+			SG_T("3 x 3")
 		), 0
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -127,28 +116,26 @@ bool CConvergence::On_Execute(void)
 	int			Neighbours;
 	CSG_Grid	*pConvergence;
 
-	m_pDTM			= Parameters("ELEVATION")	->asGrid();
-	pConvergence	= Parameters("RESULT")		->asGrid();
-	Neighbours		= Parameters("NEIGHBOURS")	->asInt();
-	bGradient		= Parameters("METHOD")		->asInt() == 1;
+	m_pDTM			= Parameters("ELEVATION" )->asGrid();
+	pConvergence	= Parameters("RESULT"    )->asGrid();
+	Neighbours		= Parameters("NEIGHBOURS")->asInt();
+	bGradient		= Parameters("METHOD"    )->asInt() == 1;
 
-	DataObject_Set_Colors(pConvergence, 100, SG_COLORS_RED_GREY_BLUE, true);
+	DataObject_Set_Colors(pConvergence, 11, SG_COLORS_RED_GREY_BLUE, true);
 
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( m_pDTM->is_InGrid(x, y) )
-			{
-				switch( Neighbours )
-				{
-				case 0: default:	pConvergence->Set_Value(x, y, Get_2x2(x, y, bGradient));	break;
-				case 1:				pConvergence->Set_Value(x, y, Get_9x9(x, y, bGradient));	break;
-				}
-			}
-			else
+			if( m_pDTM->is_NoData(x, y) )
 			{
 				pConvergence->Set_NoData(x, y);
+			}
+			else switch( Neighbours )
+			{
+			default: pConvergence->Set_Value(x, y, Get_2x2(x, y, bGradient)); break;
+			case  1: pConvergence->Set_Value(x, y, Get_9x9(x, y, bGradient)); break;
 			}
 		}
 	}
@@ -158,8 +145,6 @@ bool CConvergence::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -199,22 +184,22 @@ inline bool CConvergence::Get_2x2_Gradient(int x, int y, int i, double &Slope, d
 		break;
 	}
 
-	double	a = ((z[1] + z[0]) - (z[3] + z[2])) / (2.0 * Get_Cellsize());
-	double	b = ((z[3] + z[1]) - (z[2] + z[0])) / (2.0 * Get_Cellsize());
+	double	a = ((z[1] + z[0]) - (z[3] + z[2])) / (2. * Get_Cellsize());
+	double	b = ((z[3] + z[1]) - (z[2] + z[0])) / (2. * Get_Cellsize());
 
-	Height	= (z[0] + z[1] + z[2] + z[3]) / 4.0;
+	Height	= (z[0] + z[1] + z[2] + z[3]) / 4.;
 
 	Slope	= atan(sqrt(a*a + b*b));
 
-	if( a != 0.0 )
+	if( a != 0. )
 	{
 		Aspect	= M_PI_180 + atan2(b, a);
 	}
-	else if( b > 0.0 )
+	else if( b > 0. )
 	{
 		Aspect	= M_PI_270;
 	}
-	else if( b < 0.0 )
+	else if( b < 0. )
 	{
 		Aspect	= M_PI_090;
 	}
@@ -232,7 +217,7 @@ double CConvergence::Get_2x2(int x, int y, bool bGradient)
 	int		i, n;
 	double	Height, Slope, Aspect, iSlope, iAspect, d, dSum;
 
-	for(i=0, n=0, dSum=0.0, iAspect=-M_PI_135; i<4; i++, iAspect+=M_PI_090)
+	for(i=0, n=0, dSum=0., iAspect=-M_PI_135; i<4; i++, iAspect+=M_PI_090)
 	{
 		if( Get_2x2_Gradient(x, y, i, Slope, Aspect, Height) )
 		{
@@ -260,13 +245,11 @@ double CConvergence::Get_2x2(int x, int y, bool bGradient)
 		}
 	}
 
-	return( n > 0 ? (dSum / (double)n - M_PI_090) * 100.0 / M_PI_090 : 0.0 );
+	return( n > 0 ? (dSum / (double)n - M_PI_090) * 100. / M_PI_090 : 0. );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -276,12 +259,12 @@ double CConvergence::Get_9x9(int x, int y, bool bGradient)
 	int		i, ix, iy, n;
 	double	Slope, Aspect, iSlope, iAspect, d, dSum;
 
-	for(i=0, n=0, dSum=0.0, iAspect=-M_PI_180; i<8; i++, iAspect+=M_PI_045)
+	for(i=0, n=0, dSum=0., iAspect=-M_PI_180; i<8; i++, iAspect+=M_PI_045)
 	{
 		ix	= Get_xTo(i, x);
 		iy	= Get_yTo(i, y);
 
-		if( m_pDTM->is_InGrid(ix, iy) && m_pDTM->Get_Gradient(ix, iy, Slope, Aspect) && Aspect >= 0.0 )
+		if( m_pDTM->is_InGrid(ix, iy) && m_pDTM->Get_Gradient(ix, iy, Slope, Aspect) && Aspect >= 0. )
 		{
 			d		= Aspect - iAspect;
 
@@ -307,7 +290,7 @@ double CConvergence::Get_9x9(int x, int y, bool bGradient)
 		}
 	}
 
-	return( n > 0 ? (dSum / (double)n - M_PI_090) * 100.0 / M_PI_090 : 0.0 );
+	return( n > 0 ? (dSum / (double)n - M_PI_090) * 100. / M_PI_090 : 0. );
 }
 
 
