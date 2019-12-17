@@ -101,7 +101,7 @@ CSG_String Get_Info(int i)
 #include "gdal_import_aster.h"
 #include "gdal_catalogue.h"
 
-#ifdef GDAL_V2_1_OR_NEWER
+#ifdef USE_GDAL_V2
 #include "gdal_buildvrt.h"
 #endif
 #include "gdal_import_vrt.h"
