@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
 #define HEADER_INCLUDED__Grid_Class_Statistics_For_Polygons_H
 
@@ -96,11 +87,11 @@ private:
 	CSG_Grid				m_Classes;
 
 
+	bool					Get_Cells				(const CSG_Rect &Extent, int xCells[2], int yCells[2]);
+	double					Get_Intersection		(CSG_Shape_Polygon *pPolygon, double x, double y, bool bCenter);
+
 	bool					Get_Classes				(CSG_Grid *pGrid, CSG_Shapes *pPolygons);
-
 	int						Get_Class				(double Value, const CSG_Table &LUT, int fMin, int fMax);
-
-	double					Get_Intersection		(CSG_Shape_Polygon *pPolygon, TSG_Point p, bool bCenter);
 
 };
 
