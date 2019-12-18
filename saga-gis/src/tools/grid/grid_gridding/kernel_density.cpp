@@ -191,7 +191,7 @@ bool CKernel_Density::On_Execute(void)
 	//-----------------------------------------------------
 	if( pPoints->Get_Selection_Count() > 0 )
 	{
-		for(int iPoint=0; iPoint<pPoints->Get_Selection_Count() && Set_Progress(iPoint, pPoints->Get_Selection_Count()); iPoint++)
+		for(int iPoint=0; iPoint<(int)pPoints->Get_Selection_Count() && Set_Progress(iPoint, pPoints->Get_Selection_Count()); iPoint++)
 		{
 			CSG_Shape	*pPoint	= pPoints->Get_Selection(iPoint);
 

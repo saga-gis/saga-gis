@@ -15,6 +15,7 @@ bmp_export.cpp\
 erdas_lan.cpp\
 esri_arcinfo.cpp\
 grid_table.cpp\
+gvmd.cpp\
 import_clip_resample.cpp\
 MLB_Interface.cpp\
 mola.cpp\
@@ -28,6 +29,7 @@ bmp_export.h\
 erdas_lan.h\
 esri_arcinfo.h\
 grid_table.h\
+gvmd.h\
 import_clip_resample.h\
 MLB_Interface.h\
 mola.h\

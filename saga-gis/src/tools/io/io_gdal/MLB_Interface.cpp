@@ -101,7 +101,7 @@ CSG_String Get_Info(int i)
 #include "gdal_import_aster.h"
 #include "gdal_catalogue.h"
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_1_OR_NEWER
 #include "gdal_buildvrt.h"
 #endif
 #include "gdal_import_vrt.h"
@@ -139,9 +139,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  9:	return( new CGDAL_Import_WMS );
 	case 11:	return( new CGDAL_Import_ASTER );
 
-	#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_1_OR_NEWER
 	case 12:	return( new CGDAL_BuildVRT );
-	#endif
+#endif
 	case 13:	return( new CGDAL_Import_VRT );
 
 	case 10:	return( new CGDAL_Formats );

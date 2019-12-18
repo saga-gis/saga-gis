@@ -104,7 +104,7 @@ public:
 
 	int							Get_Count			(void)						const;
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	GDALDriverH					Get_Driver			(const CSG_String &Name)	const;
 	GDALDriverH					Get_Driver			(int Index)					const;
 #else
@@ -170,7 +170,7 @@ public:
 
 private:
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	GDALDatasetH				m_pDataSet;
 #else
 	OGRDataSourceH				m_pDataSet;

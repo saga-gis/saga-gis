@@ -141,13 +141,13 @@ bool COGR_Export::On_Execute(void)
 
 	CSG_String Driver;
 
-#ifdef USE_GDAL_V2
+#ifndef GDAL_V2_0_OR_NEWER
+	Driver	= Parameters("FORMAT")->asString();
+#else
 	if( !Parameters("FORMAT")->asChoice()->Get_Data(Driver) )
 	{
 		return( false );
 	}
-#else
-	Driver = Parameters("FORMAT")->asString();
 #endif
 
 	if( !DataSource.Create(Parameters("FILE")->asString(), Driver) )

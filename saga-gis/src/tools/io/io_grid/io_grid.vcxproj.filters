@@ -53,6 +53,9 @@
     <ClCompile Include="import_clip_resample.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gvmd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="import_clip_resample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gvmd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -87,7 +87,7 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-io_gdal_EXPORT	bool			SG_OGR_Import	(const CSG_String &File_Name);
+bool			SG_OGR_Import	(const CSG_String &File_Name);
 
 
 ///////////////////////////////////////////////////////////

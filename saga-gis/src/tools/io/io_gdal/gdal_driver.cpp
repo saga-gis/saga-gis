@@ -158,7 +158,7 @@ bool CSG_GDAL_Drivers::has_Capability(GDALDriverH pDriver, const char *Capapilit
 //---------------------------------------------------------
 bool CSG_GDAL_Drivers::is_Raster(int Index) const
 {
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	return( has_Capability(Get_Driver(Index), GDAL_DCAP_RASTER) );
 #else
 	return( true );

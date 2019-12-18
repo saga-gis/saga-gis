@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                                                       //
-//                       io_gdal                         //
+//                        io_grid                        //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                 gdal_import_netcdf.h                  //
+//                        gvmd.h                         //
 //                                                       //
-//            Copyright (C) 2012 O. Conrad               //
+//                 Copyright (C) 2019 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,77 +36,71 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
-//                Bundesstr. 55                          //
-//                D-20146 Hamburg                        //
+//                Institute of Geography                 //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gdal_import_netcdf_H
-#define HEADER_INCLUDED__gdal_import_netcdf_H
+#ifndef HEADER_INCLUDED__gvmd_H
+#define HEADER_INCLUDED__gvmd_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "gdal_driver.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGDAL_Import_NetCDF : public CSG_Tool
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGVMD_Import : public CSG_Tool
 {
 public:
-	CGDAL_Import_NetCDF(void);
+	CGVMD_Import(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Import") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
 
 protected:
 
-	virtual bool				On_Execute				(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	bool						m_bSaveFile;
-
-	CSG_String					m_SavePath;
-
-	CSG_Parameter_Grid_List		*m_pGrids;
+	int						m_Fields[2][3];
 
 
-	bool						Load					(CSG_GDAL_DataSet &DataSet, const CSG_String &Name, const CSG_String &Description);
+	bool					Get_Table				(CSG_Table &Table, CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
 
-	const char *				Get_Variable			(CSG_GDAL_DataSet &DataSet, int iBand);
-	const char *				Get_Time				(CSG_GDAL_DataSet &DataSet, int iBand);
-	const char *				Get_Level				(CSG_GDAL_DataSet &DataSet, int iBand);
+	bool					Set_Grids				(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
 
-	CSG_String					Get_Time_String			(const CSG_String &Time, int Format);
+	bool					Set_Points				(const CSG_Table &Table);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gdal_import_netcdf_H
+#endif // #ifndef HEADER_INCLUDED__gvmd_H

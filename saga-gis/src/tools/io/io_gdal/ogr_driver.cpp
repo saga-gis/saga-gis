@@ -142,7 +142,7 @@ const CSG_OGR_Drivers &	SG_Get_OGR_Drivers	(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 CSG_OGR_Drivers::CSG_OGR_Drivers(void)
 {
 	GDALAllRegister();
@@ -177,7 +177,7 @@ int CSG_OGR_Drivers::Get_Count(void) const
 	return( GDALGetDriverCount() );
 }
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 //---------------------------------------------------------
 GDALDriverH CSG_OGR_Drivers::Get_Driver(int Index) const
 {
@@ -302,7 +302,7 @@ bool CSG_OGR_Drivers::Can_Write(int Index) const
 	return( Get_Driver(Index) );
 }
 
-#endif // #ifndef USE_GDAL_V2
+#endif // #ifndef GDAL_V2_0_OR_NEWER
 
 
 ///////////////////////////////////////////////////////////
@@ -457,7 +457,7 @@ CSG_OGR_DataSet::~CSG_OGR_DataSet(void)
 	Destroy();
 }
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 //---------------------------------------------------------
 bool CSG_OGR_DataSet::Create(const CSG_String &File)
 {
@@ -593,7 +593,7 @@ CSG_String CSG_OGR_DataSet::Get_Description(int i)	const	{	return( "" );	}
 //---------------------------------------------------------
 int CSG_OGR_DataSet::Get_Count(void)	const
 {
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	return( m_pDataSet ? GDALDatasetGetLayerCount(m_pDataSet) : 0 );
 #else
 	return( m_pDataSet ? OGR_DS_GetLayerCount(m_pDataSet) : 0 );
@@ -605,7 +605,7 @@ OGRLayerH CSG_OGR_DataSet::Get_Layer(int iLayer)	const
 {
 	if( m_pDataSet && iLayer >= 0 && iLayer < Get_Count() )
 	{
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 		return( GDALDatasetGetLayer(m_pDataSet, iLayer) );
 #else
 		return( OGR_DS_GetLayer(m_pDataSet, iLayer) );
@@ -721,7 +721,7 @@ CSG_Shapes * CSG_OGR_DataSet::Read(int iLayer, int iGeomTypeChoice)
 	}
 
 	//-----------------------------------------------------
-#ifdef GDAL_OLDER_THAN_V1_8
+#ifdef GDAL_V1_8_OR_OLDER
 	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_FD_GetName(OGR_L_GetLayerDefn(pLayer))), NULL, Get_Coordinate_Type(iLayer));
 #else
 	CSG_Shapes	*pShapes	= SG_Create_Shapes(Get_Type(iLayer), CSG_String(OGR_L_GetName(pLayer)), NULL, Get_Coordinate_Type(iLayer));
@@ -904,7 +904,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
 	}
 
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	OGRLayerH	pLayer	= GDALDatasetCreateLayer(m_pDataSet, CSG_String(pShapes->Get_Name()), pSRS,
 		(OGRwkbGeometryType)gSG_OGR_Drivers.Get_Shape_Type(pShapes->Get_Type(), pShapes->Get_Vertex_Type() != SG_VERTEX_TYPE_XY), NULL
 	);
@@ -920,7 +920,7 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 	}
 
 	//-------------------------------------------------
-#ifdef USE_GDAL_V2
+#ifdef GDAL_V2_0_OR_NEWER
 	if( SG_STR_CMP(GDALGetDescription(GDALGetDatasetDriver(m_pDataSet)), "DXF") )
 	{
 		// the dxf driver does not support arbitrary field creation and returns OGRERR_FAILURE;

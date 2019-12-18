@@ -305,6 +305,7 @@
     <ClCompile Include="erdas_lan.cpp" />
     <ClCompile Include="esri_arcinfo.cpp" />
     <ClCompile Include="grid_table.cpp" />
+    <ClCompile Include="gvmd.cpp" />
     <ClCompile Include="import_clip_resample.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -335,6 +336,7 @@
     <ClInclude Include="erdas_lan.h" />
     <ClInclude Include="esri_arcinfo.h" />
     <ClInclude Include="grid_table.h" />
+    <ClInclude Include="gvmd.h" />
     <ClInclude Include="import_clip_resample.h" />
     <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,18 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -108,6 +96,7 @@ CSG_String Get_Info(int i)
 #include "grid_table.h"
 #include "wrf.h"
 #include "import_clip_resample.h"
+#include "gvmd.h"
 
 
 //---------------------------------------------------------
@@ -134,9 +123,10 @@ CSG_Tool *		Create_Tool(int i)
 	case 14:	return( new CWRF_Export );
 	case 16:	return( new CImport_Clip_Resample );
 	case 17:	return( new CCRU_Table_Import );
+	case 18:	return( new CGVMD_Import );
 
 	//-----------------------------------------------------
-	case 18:	return( NULL );
+	case 19:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

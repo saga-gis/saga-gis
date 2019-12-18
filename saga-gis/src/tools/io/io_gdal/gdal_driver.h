@@ -67,7 +67,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CSG_GDAL_Drivers
+class CSG_GDAL_Drivers
 {
 public:
 	CSG_GDAL_Drivers(void);
@@ -101,7 +101,7 @@ private:
 };
 
 //---------------------------------------------------------
-io_gdal_EXPORT const CSG_GDAL_Drivers &	SG_Get_GDAL_Drivers	(void);
+const CSG_GDAL_Drivers &	SG_Get_GDAL_Drivers	(void);
 
 
 ///////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ io_gdal_EXPORT const CSG_GDAL_Drivers &	SG_Get_GDAL_Drivers	(void);
 #define SG_GDAL_IO_READWRITE	(SG_GDAL_IO_READ|IO_WRITE)
 
 //---------------------------------------------------------
-class io_gdal_EXPORT CSG_GDAL_DataSet
+class CSG_GDAL_DataSet
 {
 public:
 	CSG_GDAL_DataSet(void);
@@ -236,7 +236,7 @@ public:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-io_gdal_EXPORT TSG_Data_Type			SG_Get_Grid_Type	(CSG_Parameter_Grid_List *pGrids);
+TSG_Data_Type			SG_Get_Grid_Type	(CSG_Parameter_Grid_List *pGrids);
 
 
 ///////////////////////////////////////////////////////////
