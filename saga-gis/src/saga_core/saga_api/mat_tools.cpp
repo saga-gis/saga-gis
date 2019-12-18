@@ -882,6 +882,20 @@ void CSG_Unique_Number_Statistics::Add_Value(double Value, double Weight)
 	}
 }
 
+//---------------------------------------------------------
+int CSG_Unique_Number_Statistics::Get_Class_Index(double Value) const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Value == m_Value[i] )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -921,6 +935,20 @@ void CSG_Unique_String_Statistics::Add_Value(const CSG_String &Value, double Wei
 	{
 		m_Weight.Add_Row(Weight);
 	}
+}
+
+//---------------------------------------------------------
+int CSG_Unique_String_Statistics::Get_Class_Index(const CSG_String &Value) const
+{
+	for(int i=0; i<Get_Count(); i++)
+	{
+		if( Value.Cmp(m_Value[i]) == 0 )
+		{
+			return( i );
+		}
+	}
+
+	return( -1 );
 }
 
 

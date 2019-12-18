@@ -98,17 +98,17 @@
 #define M_PI						3.141592653589793
 #endif
 
-#define M_PI_045					(M_PI / 4.0)
-#define M_PI_090					(M_PI / 2.0)
-#define M_PI_135					(M_PI * 3.0 / 4.0)
+#define M_PI_045					(M_PI / 4.)
+#define M_PI_090					(M_PI / 2.)
+#define M_PI_135					(M_PI * 3. / 4.)
 #define M_PI_180					(M_PI)
-#define M_PI_225					(M_PI * 5.0 / 4.0)
-#define M_PI_270					(M_PI * 3.0 / 2.0)
-#define M_PI_315					(M_PI * 7.0 / 4.0)
-#define M_PI_360					(M_PI * 2.0)
+#define M_PI_225					(M_PI * 5. / 4.)
+#define M_PI_270					(M_PI * 3. / 2.)
+#define M_PI_315					(M_PI * 7. / 4.)
+#define M_PI_360					(M_PI * 2.)
 
-#define M_RAD_TO_DEG				(180.0 / M_PI)
-#define M_DEG_TO_RAD				(M_PI / 180.0)
+#define M_RAD_TO_DEG				(180. / M_PI)
+#define M_DEG_TO_RAD				(M_PI / 180.)
 
 //---------------------------------------------------------
 #define M_EULER						2.718281828459045
@@ -132,15 +132,15 @@
 #define M_SET_SIGN(x, sign)			((sign) < 0 ? (x < 0 ? x : -x) : (x > 0 ? x : -x))
 
 //---------------------------------------------------------
-#define SG_ROUND_TO_BYTE(x)			((BYTE )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_CHAR(x)			((char )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_WORD(x)			((WORD )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SHORT(x)		((short)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_DWORD(x)		((DWORD)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_INT(x)			((int  )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_LONG(x)			((long )(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_ULONG(x)		((uLong)(x < 0.0 ? x - 0.5 : x + 0.5))
-#define SG_ROUND_TO_SLONG(x)		((sLong)(x < 0.0 ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_BYTE(x)			((BYTE )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_CHAR(x)			((char )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_WORD(x)			((WORD )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SHORT(x)		((short)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_DWORD(x)		((DWORD)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_INT(x)			((int  )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_LONG(x)			((long )(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_ULONG(x)		((uLong)(x < 0. ? x - 0.5 : x + 0.5))
+#define SG_ROUND_TO_SLONG(x)		((sLong)(x < 0. ? x - 0.5 : x + 0.5))
 
 
 ///////////////////////////////////////////////////////////
@@ -516,14 +516,14 @@ public:
 			return( m_Points[iPoint].d );				// Distance...
 		}
 
-		return( -1.0 );
+		return( -1. );
 	}
 
 	double						Get_Point			(int iPoint, int xOffset, int yOffset, int &x, int &y)
 	{
 		double	d;
 
-		if( (d = Get_Point(iPoint, x, y)) >= 0.0 )
+		if( (d = Get_Point(iPoint, x, y)) >= 0. )
 		{
 			x	+= xOffset;
 			y	+= yOffset;
@@ -542,14 +542,14 @@ public:
 			return( m_Points_R[iRadius][iPoint].d );	// Distance...
 		}
 
-		return( -1.0 );
+		return( -1. );
 	}
 
 	double						Get_Point			(int iRadius, int iPoint, int xOffset, int yOffset, int &x, int &y)
 	{
 		double	d;
 
-		if( (d = Get_Point(iRadius, iPoint, x, y)) >= 0.0 )
+		if( (d = Get_Point(iRadius, iPoint, x, y)) >= 0. )
 		{
 			x	+= xOffset;
 			y	+= yOffset;
@@ -656,7 +656,7 @@ public:
 
 	void						Add					(const CSG_Simple_Statistics &Statistics);
 
-	void						Add_Value			(double Value, double Weight = 1.0);
+	void						Add_Value			(double Value, double Weight = 1.);
 
 	double *					Get_Values			(void)		const	{	return( (double *)m_Values.Get_Array() );	}
 	double						Get_Value			(sLong i)	const	{	return( i >= 0 && i < (sLong)m_Values.Get_Size() ? Get_Values()[i] : m_Mean );	}
@@ -729,14 +729,15 @@ public:
 	virtual void			Create				(bool bWeights = false);
 
 	void					operator +=			(double Value)	{	Add_Value(Value);	}
-	void					Add_Value			(double Value, double Weight = 1.0);
-	double					Get_Value			(int i)	const	{	return( m_Value[i] );	}
-	bool					Get_Class			(int i, double &Value, int &Count)	const
+	void					Add_Value			(double Value, double Weight = 1.);
+	double					Get_Value			(int Index)	const	{	return( m_Value[Index] );	}
+	int						Get_Class_Index		(double Value)	const;
+	bool					Get_Class			(int Index, double &Value, int &Count)	const
 	{
-		if( i < 0 || i >= Get_Count() )	return( false );
+		if( Index < 0 || Index >= Get_Count() )	return( false );
 
-		Count	= m_Count[i];
-		Value	= m_Value[i];
+		Count	= m_Count[Index];
+		Value	= m_Value[Index];
 
 		return( true );
 	}
@@ -763,14 +764,15 @@ public:
 	virtual void			Create				(bool bWeights = false);
 
 	void					operator +=			(const CSG_String &Value)	{	Add_Value(Value);	}
-	void					Add_Value			(const CSG_String &Value, double Weight = 1.0);
-	const SG_Char *			Get_Value			(int i)	const	{	return( m_Value[i] );	}
-	bool					Get_Class			(int i, CSG_String &Value, int &Count)	const
+	void					Add_Value			(const CSG_String &Value, double Weight = 1.);
+	const SG_Char *			Get_Value			(int Index)	const	{	return( m_Value[Index] );	}
+	int						Get_Class_Index		(const CSG_String &Value)	const;
+	bool					Get_Class			(int Index, CSG_String &Value, int &Count)	const
 	{
-		if( i < 0 || i >= Get_Count() )	return( false );
+		if( Index < 0 || Index >= Get_Count() )	return( false );
 
-		Count	= m_Count[i];
-		Value	= m_Value[i];
+		Count	= m_Count[Index];
+		Value	= m_Value[Index];
 
 		return( true );
 	}
@@ -1233,8 +1235,8 @@ public: ////// public members and functions: //////////////
 
 	bool						Set_Data			(CSG_Table  &Data, int ClassField, class CSG_Parameters *pParameters);
 	bool						Set_Data			(CSG_Matrix &Data, int ClassField, class CSG_Parameters *pParameters);
-	bool						Set_Data			(CSG_Table  &Data, int ClassField = 0, double Threshold = -1.0);
-	bool						Set_Data			(CSG_Matrix &Data, int ClassField = 0, double Threshold = -1.0);
+	bool						Set_Data			(CSG_Table  &Data, int ClassField = 0, double Threshold = -1.);
+	bool						Set_Data			(CSG_Matrix &Data, int ClassField = 0, double Threshold = -1.);
 
 	bool						Get_Selection		(class CSG_Parameters *pParameters);
 	bool						Get_Selection		(int nFeatures, int Method);
@@ -1303,10 +1305,10 @@ public:
 	void						Add					(double x, double y);
 
 	int							Get_Count			(void)	const	{	return( m_x.Get_N() );	}
-	double						Get_xMin			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(0              ) : 0.0 );	}
-	double						Get_xMax			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(m_x.Get_N() - 1) : 0.0 );	}
-	double						Get_x				(int i)	const	{	return( i >= 0 && i < m_x.Get_N() ? m_x(i) : 0.0 );	}
-	double						Get_y				(int i)	const	{	return( i >= 0 && i < m_y.Get_N() ? m_y(i) : 0.0 );	}
+	double						Get_xMin			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(0              ) : 0. );	}
+	double						Get_xMax			(void)	const	{	return( m_x.Get_N() > 0 ? m_x(m_x.Get_N() - 1) : 0. );	}
+	double						Get_x				(int i)	const	{	return( i >= 0 && i < m_x.Get_N() ? m_x(i) : 0. );	}
+	double						Get_y				(int i)	const	{	return( i >= 0 && i < m_y.Get_N() ? m_y(i) : 0. );	}
 
 	bool						Get_Value			(double x, double &y);
 	double						Get_Value			(double x);
@@ -1356,7 +1358,7 @@ public:
 
 	bool					Set_Point			(int Index, const TSG_Point &p, double z)	{	return( Set_Point(Index, p.x, p.y, z) );	}
 
-	bool					Create				(double Regularization = 0.0, bool bSilent = true);
+	bool					Create				(double Regularization = 0., bool bSilent = true);
 
 	bool					is_Okay				(void)	{	return( m_V.Get_N() > 0 );		}
 
@@ -1488,8 +1490,8 @@ public:
 
 	int							Get_Count			(void)			const	{	return( m_nValues );	}
 
-	double						Get_xValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_x[iValue] : 0.0 );	}
-	double						Get_yValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_y[iValue] : 0.0 );	}
+	double						Get_xValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_x[iValue] : 0. );	}
+	double						Get_yValue			(int iValue)	const	{	return( iValue >= 0 && iValue < m_nValues ? m_y[iValue] : 0. );	}
 	bool						Get_Values			(int iValue, double &x, double &y)	const
 	{
 		if( iValue >= 0 && iValue < m_nValues )
@@ -1889,10 +1891,10 @@ public:
 
 	CSG_String					Get_Error			(void);
 
-	double						Get_ChiSquare		(void)	const	{	return( m_bOkay ? m_ChiSqr   : 0.0 );	}
-	double						Get_R2				(void)	const	{	return( m_bOkay ? m_ChiSqr_o : 0.0 );	}
+	double						Get_ChiSquare		(void)	const	{	return( m_bOkay ? m_ChiSqr   : 0. );	}
+	double						Get_R2				(void)	const	{	return( m_bOkay ? m_ChiSqr_o : 0. );	}
 
-	double						Get_Value			(double x)	const	{	return( m_bOkay ? m_Formula.Get_Value(x) : 0.0 );	}
+	double						Get_Value			(double x)	const	{	return( m_bOkay ? m_Formula.Get_Value(x) : 0. );	}
 
 
 private:
