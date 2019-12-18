@@ -326,6 +326,7 @@
     <ClCompile Include="points_thinning.cpp" />
     <ClCompile Include="random_points.cpp" />
     <ClCompile Include="remove_duplicates.cpp" />
+    <ClCompile Include="select_3d_points.cpp" />
     <ClCompile Include="select_points.cpp" />
     <ClCompile Include="separate_by_direction.cpp" />
     <ClCompile Include="snap_points_to_features.cpp" />
@@ -366,6 +367,7 @@
     <ClInclude Include="points_thinning.h" />
     <ClInclude Include="random_points.h" />
     <ClInclude Include="remove_duplicates.h" />
+    <ClInclude Include="select_3d_points.h" />
     <ClInclude Include="select_points.h" />
     <ClInclude Include="separate_by_direction.h" />
     <ClInclude Include="snap_points_to_features.h" />

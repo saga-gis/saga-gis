@@ -27,6 +27,7 @@ Points_From_Table.cpp\
 points_thinning.cpp\
 random_points.cpp\
 remove_duplicates.cpp\
+select_3d_points.cpp\
 select_points.cpp\
 separate_by_direction.cpp\
 snap_points_to_features.cpp\
@@ -48,6 +49,7 @@ Points_From_Table.h\
 points_thinning.h\
 random_points.h\
 remove_duplicates.h\
+select_3d_points.h\
 select_points.h\
 separate_by_direction.h\
 snap_points_to_features.h\

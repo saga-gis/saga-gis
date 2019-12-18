@@ -77,6 +77,9 @@
     <ClCompile Include="random_points.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="select_3d_points.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MLB_Interface.h">
@@ -191,6 +194,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="random_points.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="select_3d_points.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

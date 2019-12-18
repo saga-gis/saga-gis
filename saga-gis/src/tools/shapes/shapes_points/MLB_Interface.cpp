@@ -45,15 +45,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -110,6 +101,7 @@ CSG_String Get_Info(int i)
 #include "snap_points_to_features.h"
 #include "snap_points_to_grid.h"
 #include "random_points.h"
+#include "select_3d_points.h"
 
 
 //---------------------------------------------------------
@@ -142,8 +134,9 @@ CSG_Tool *		Create_Tool(int i)
 	case 22:	return( new CSnap_Points_to_Features(SHAPE_TYPE_Polygon) );
 	case 20:	return( new CSnap_Points_to_Grid() );
 	case 21:	return( new CRandom_Points() );
+	case 23:	return( new CSelect_3D_Points() );
 
-	case 23:	return( NULL );
+	case 24:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

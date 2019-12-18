@@ -98,6 +98,22 @@ CGVMD_Import::CGVMD_Import(void)
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
+	Parameters.Add_Bool("",
+		"BLAYERS"	, _TL("Layers Grid Collection"),
+		_TL("")
+	);
+
+	Parameters.Add_Int("BLAYERS",
+		"NLAYERS"	, _TL("Number of Grids"),
+		_TL(""),
+		10, 2, true
+	);
+
+	Parameters.Add_Grids_Output("",
+		"LAYERS"	, _TL("Layers"),
+		_TL("")
+	);
+
 	Parameters.Add_Grids_List("",
 		"GRIDS"		, _TL("Grids"),
 		_TL(""),
@@ -113,6 +129,11 @@ CGVMD_Import::CGVMD_Import(void)
 //---------------------------------------------------------
 int CGVMD_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
+	if( pParameter->Cmp_Identifier("BLAYERS") )
+	{
+		pParameters->Set_Enabled("NLAYERS", pParameter->asBool());
+	}
+
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
@@ -135,77 +156,12 @@ bool CGVMD_Import::On_Execute(void)
 		return( false );
 	}
 
+	//-----------------------------------------------------
 	Set_Points(Table);
 
+	Set_Layers(Table, Layers, LayerName);
+
 	Set_Grids(Table, Layers, LayerName);
-
-	//-----------------------------------------------------
-	return( true );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool CGVMD_Import::Set_Grids(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName)
-{
-	double	Cellsize	= Table[0].asDouble(m_Fields[1][0]) - Table[0].asDouble(m_Fields[0][0]);
-
-	CSG_Grid_System	System(Cellsize,
-		Table.Get_Minimum(m_Fields[0][0]) + Cellsize / 2.,
-		Table.Get_Minimum(m_Fields[0][1]) + Cellsize / 2.,
-		Table.Get_Maximum(m_Fields[1][0]) - Cellsize / 2.,
-		Table.Get_Maximum(m_Fields[1][1]) - Cellsize / 2.
-	);
-
-	int	id	= Table.Get_Field(LayerName);
-
-	//-----------------------------------------------------
-	for(int iLayer=0; iLayer<Layers.Get_Count() && Process_Get_Okay(); iLayer++)
-	{
-		CSG_String	Layer(Layers.Get_Value(iLayer));
-
-		Process_Set_Text(CSG_String::Format("%s: %s", _TL("grids"), Layer.c_str()));
-
-		CSG_Grids	*pGrids	= SG_Create_Grids(System, 2);
-
-		if( !pGrids )
-		{
-			Error_Set(_TL("failed to allocate memory for grid collection"));
-
-			return( false );
-		}
-
-		Parameters("GRIDS")->asGridsList()->Add_Item(pGrids);
-
-		pGrids->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false) + "." + Layer);
-		pGrids->Assign_NoData();
-
-		for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
-		{
-			CSG_Table_Record	*pRecord	= Table.Get_Record(i);
-
-			if( !Layer.Cmp(pRecord->asString(id)) )
-			{
-				TSG_Point_Z	P[2];
-
-				P[0].x = pRecord->asDouble(m_Fields[0][0]); P[1].x = pRecord->asDouble(m_Fields[1][0]);
-				P[0].y = pRecord->asDouble(m_Fields[0][1]); P[1].y = pRecord->asDouble(m_Fields[1][1]);
-				P[0].z = pRecord->asDouble(m_Fields[0][2]); P[1].z = pRecord->asDouble(m_Fields[1][2]);
-
-				int	x	= System.Get_xWorld_to_Grid((P[1].x + P[0].x) / 2.);
-				int	y	= System.Get_yWorld_to_Grid((P[1].y + P[0].y) / 2.);
-
-				if( System.is_InGrid(x, y) )
-				{
-					pGrids->Set_Value(x, y, 0, P[0].z);
-					pGrids->Set_Value(x, y, 1, P[1].z);
-				}
-			}
-		}
-	}
 
 	//-----------------------------------------------------
 	return( true );
@@ -254,27 +210,27 @@ bool CGVMD_Import::Get_Table(CSG_Table &Table, CSG_Unique_String_Statistics &Lay
 	//-----------------------------------------------------
 	Table.Destroy();
 
-	m_Fields[0][0] = m_Fields[1][0] =
-	m_Fields[0][1] = m_Fields[1][1] =
-	m_Fields[0][2] = m_Fields[1][2] = -1;
+	m_xField[0] = m_xField[1] =
+		m_yField[0] = m_yField[1] =
+		m_zField[0] = m_zField[1] = -1;
 
 	for(int i=0; i<Names.Get_Count(); i++)
 	{
 		Table.Add_Field(Names[i], !Types[i].CmpNoCase("float") ? SG_DATATYPE_Double : SG_DATATYPE_String);
 
-		if( !Names[i].CmpNoCase("xmin") ) m_Fields[0][0] = i;
-		if( !Names[i].CmpNoCase("xmax") ) m_Fields[1][0] = i;
+		if( !Names[i].CmpNoCase("xmin") ) m_xField[0] = i;
+		if( !Names[i].CmpNoCase("xmax") ) m_xField[1] = i;
 
-		if( !Names[i].CmpNoCase("ymin") ) m_Fields[0][1] = i;
-		if( !Names[i].CmpNoCase("ymax") ) m_Fields[1][1] = i;
+		if( !Names[i].CmpNoCase("ymin") ) m_yField[0] = i;
+		if( !Names[i].CmpNoCase("ymax") ) m_yField[1] = i;
 
-		if( !Names[i].CmpNoCase("zmin") ) m_Fields[0][2] = i;
-		if( !Names[i].CmpNoCase("zmax") ) m_Fields[1][2] = i;
+		if( !Names[i].CmpNoCase("zmin") ) m_zField[0] = i;
+		if( !Names[i].CmpNoCase("zmax") ) m_zField[1] = i;
 	}
 
-	if( m_Fields[0][0] < 0 || m_Fields[1][0] < 0
-	||  m_Fields[0][1] < 0 || m_Fields[1][1] < 0
-	||  m_Fields[0][2] < 0 || m_Fields[1][2] < 0 )
+	if( m_xField[0] < 0 || m_xField[1] < 0
+		||  m_yField[0] < 0 || m_yField[1] < 0
+		||  m_zField[0] < 0 || m_zField[1] < 0 )
 	{
 		Error_Set(_TL("missing coordinate fields"));
 
@@ -320,6 +276,160 @@ bool CGVMD_Import::Get_Table(CSG_Table &Table, CSG_Unique_String_Statistics &Lay
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool CGVMD_Import::Set_Grids(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName)
+{
+	double	Cellsize	= Table[0].asDouble(m_xField[1]) - Table[0].asDouble(m_xField[0]);
+
+	CSG_Grid_System	System(Cellsize,
+		Table.Get_Minimum(m_xField[0]) + Cellsize / 2.,
+		Table.Get_Minimum(m_yField[0]) + Cellsize / 2.,
+		Table.Get_Maximum(m_xField[1]) - Cellsize / 2.,
+		Table.Get_Maximum(m_yField[1]) - Cellsize / 2.
+	);
+
+	int	id	= Table.Get_Field(LayerName);
+
+	//-----------------------------------------------------
+	for(int iLayer=0; iLayer<Layers.Get_Count() && Process_Get_Okay(); iLayer++)
+	{
+		CSG_String	Layer(Layers.Get_Value(iLayer));
+
+		Process_Set_Text(CSG_String::Format("%s: %s", _TL("grids"), Layer.c_str()));
+
+		CSG_Grids	*pGrids	= SG_Create_Grids(System, 2);
+
+		if( !pGrids )
+		{
+			Error_Set(_TL("failed to allocate memory for grid collection"));
+
+			return( false );
+		}
+
+		Parameters("GRIDS")->asGridsList()->Add_Item(pGrids);
+
+		pGrids->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false) + "." + Layer);
+		pGrids->Assign_NoData();
+		pGrids->Set_Z(1, 1.);
+		pGrids->Add_Attribute("NAME", SG_DATATYPE_String);
+		pGrids->Set_Z_Name_Field(1);
+		pGrids->Get_Attributes()[0].Set_Value(1, "min");
+		pGrids->Get_Attributes()[1].Set_Value(1, "max");
+
+		for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+		{
+			CSG_Table_Record	&r	= *Table.Get_Record(i);
+
+			if( !Layer.Cmp(r.asString(id)) )
+			{
+				TSG_Point_Z	P[2];
+
+				P[0].x = r.asDouble(m_xField[0]); P[1].x = r.asDouble(m_xField[1]);
+				P[0].y = r.asDouble(m_yField[0]); P[1].y = r.asDouble(m_yField[1]);
+				P[0].z = r.asDouble(m_zField[0]); P[1].z = r.asDouble(m_zField[1]);
+
+				int	x	= System.Get_xWorld_to_Grid((P[1].x + P[0].x) / 2.);
+				int	y	= System.Get_yWorld_to_Grid((P[1].y + P[0].y) / 2.);
+
+				if( System.is_InGrid(x, y) )
+				{
+					pGrids->Set_Value(x, y, 0, P[0].z);
+					pGrids->Set_Value(x, y, 1, P[1].z);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGVMD_Import::Set_Layers(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName)
+{
+	if( !Parameters("BLAYERS")->asBool() )
+	{
+		return( true );
+	}
+
+	double	Cellsize	= Table[0].asDouble(m_xField[1]) - Table[0].asDouble(m_xField[0]);
+
+	CSG_Grid_System	System(Cellsize,
+		Table.Get_Minimum(m_xField[0]) + Cellsize / 2.,
+		Table.Get_Minimum(m_yField[0]) + Cellsize / 2.,
+		Table.Get_Maximum(m_xField[1]) - Cellsize / 2.,
+		Table.Get_Maximum(m_yField[1]) - Cellsize / 2.
+	);
+
+	int	id	= Table.Get_Field(LayerName);
+
+	//-----------------------------------------------------
+	CSG_Grids	*pGrids	= SG_Create_Grids(System);
+
+	if( !pGrids )
+	{
+		Error_Set(_TL("failed to allocate memory for grid collection"));
+
+		return( false );
+	}
+
+	Parameters("LAYERS")->Set_Value(pGrids);
+
+	int		nz	= Parameters("NLAYERS")->asInt();
+	double	az	=  Table.Get_Minimum(m_zField[0]);
+	double	dz	= (Table.Get_Maximum(m_zField[1]) - az) / (nz - 1.);
+
+	for(int iz=0; iz<nz; iz++)
+	{
+		pGrids->Add_Grid(az + iz * dz);
+	}
+
+	pGrids->Set_Name(SG_File_Get_Name(Parameters("FILE")->asString(), false) + "." + _TL("Layers"));
+	pGrids->Assign_NoData();
+
+	//-----------------------------------------------------
+	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
+	{
+		CSG_Table_Record	&r	= *Table.Get_Record(i);
+
+		int	Layer	= Layers.Get_Class_Index(r.asString(id));
+
+		if( Layer < 0 )
+		{
+			continue;
+		}
+
+		int	x = System.Get_xWorld_to_Grid((r.asDouble(m_xField[0]) + r.asDouble(m_xField[1])) / 2.);
+		int	y = System.Get_yWorld_to_Grid((r.asDouble(m_yField[0]) + r.asDouble(m_yField[1])) / 2.);
+
+		if( !System.is_InGrid(x, y) )
+		{
+			continue;
+		}
+
+		int	zMin = (int)floor(0.5 + (r.asDouble(m_zField[0]) - az) / dz); if( zMin <                0 ) zMin =                0;
+		int zMax = (int)ceil (0.5 + (r.asDouble(m_zField[1]) - az) / dz); if( zMax > pGrids->Get_NZ() ) zMax = pGrids->Get_NZ();
+
+		for(int z=zMin; z<zMax; z++)
+		{
+			pGrids->Set_Value(x, y, z, Layer);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool CGVMD_Import::Set_Points(const CSG_Table &Table)
 {
 	CSG_Shapes	*pPoints	= Parameters("POINTS")->asShapes();
@@ -337,9 +447,9 @@ bool CGVMD_Import::Set_Points(const CSG_Table &Table)
 
 		TSG_Point_Z	P[2];
 
-		P[0].x = pRecord->asDouble(m_Fields[0][0]); P[1].x = pRecord->asDouble(m_Fields[1][0]);
-		P[0].y = pRecord->asDouble(m_Fields[0][1]); P[1].y = pRecord->asDouble(m_Fields[1][1]);
-		P[0].z = pRecord->asDouble(m_Fields[0][2]); P[1].z = pRecord->asDouble(m_Fields[1][2]);
+		P[0].x = pRecord->asDouble(m_xField[0]); P[1].x = pRecord->asDouble(m_xField[1]);
+		P[0].y = pRecord->asDouble(m_yField[0]); P[1].y = pRecord->asDouble(m_yField[1]);
+		P[0].z = pRecord->asDouble(m_zField[0]); P[1].z = pRecord->asDouble(m_zField[1]);
 
 		CSG_Shape	*pPoint	= pPoints->Add_Shape(pRecord, SHAPE_COPY_ATTR);
 
