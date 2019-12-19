@@ -758,5 +758,15 @@ tools = [
 ['statistics_kriging', 5, 'Simple Kriging (3D)'],
 ['statistics_kriging', 6, 'Ordinary Kriging (3D)'],
 ['ta_cliffmetrics', 0, 'CliffMetrics'],
-['ta_morphometry', 29, 'Wind Shelter Index']
+['ta_morphometry', 29, 'Wind Shelter Index'],
+['climate_tools', 25, 'Cloud Overlap'],
+['climate_tools', 26, 'Temperature Lapse Rates'],
+['grids_tools', 7, 'Grid Collection Masking'],
+['grid_analysis', 26, 'Coverage of Categories'],
+['imagery_tools', 15, 'Import Sentinel-2 Scene'],
+['io_grid', 18, 'Import Regular SubsurfaceViewer Grid'],
+['pj_georeference', 7, 'Georeference with Coordinate Grids'],
+['pj_proj4', 30, 'Coordinate Conversion (Grids)'],
+['pj_proj4', 31, 'Coordinate Conversion (Table)'],
+['shapes_points', 23, '3D Points Selection']
 ]
