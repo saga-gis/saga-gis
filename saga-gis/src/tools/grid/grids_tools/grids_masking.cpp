@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                        io_grid                        //
+//                      grids_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                        gvmd.h                         //
+//                   grids_masking.cpp                   //
 //                                                       //
 //                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
@@ -46,65 +46,155 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gvmd_H
-#define HEADER_INCLUDED__gvmd_H
+#include "grids_masking.h"
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
 //														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include <saga_api/saga_api.h>
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGVMD_Import : public CSG_Tool
+CGrids_Masking::CGrids_Masking(void)
 {
-public:
-	CGVMD_Import(void);
+	Set_Name		(_TL("Grid Collection Masking"));
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+	Set_Author		("O.Conrad (c) 2019");
 
+	Set_Description	(_TW(
+		"A masking tool for grid collections. "
+		"Cells of the input grid collection will be set to no-data, "
+		"depending on the masking option, if their location is either "
+		"between or not between the lower and upper surface. "
+	));
 
-protected:
+	Parameters.Add_Grids("",
+		"GRIDS"		, _TL("Grid Collection"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	Parameters.Add_Grids("",
+		"MASKED"	, _TL("Masked Grid Collection"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
 
-	virtual bool			On_Execute				(void);
+	Parameters.Add_Grid_System("",
+		"SURFACES"	, _TL("Grid System"),
+		_TL("")
+	);
 
+	Parameters.Add_Grid("SURFACES",
+		"LOWER"		, _TL("Lower Surface"),
+		_TL(""),
+		PARAMETER_INPUT, false
+	);
 
-private:
+	Parameters.Add_Grid("SURFACES",
+		"UPPER"		, _TL("Upper Surface"),
+		_TL(""),
+		PARAMETER_INPUT, false
+	);
 
-	int						m_xField[2], m_yField[2], m_zField[2];
-
-	static CSG_String		Get_Fields				(const CSG_String &File);
-
-	bool					Get_Table				(CSG_Table &Table, CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Grids				(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Layers				(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Points				(const CSG_Table &Table);
-
-};
+	Parameters.Add_Choice("",
+		"MASKING"	, _TL("Masking"),
+		_TL(""),
+		CSG_String::Format("%s|%s",
+			_TL("not between upper and lower surface"),
+			_TL("between upper and lower surface")
+		), 0
+	);
+}
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gvmd_H
+int CGrids_Masking::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CGrids_Masking::On_Execute(void)
+{
+	CSG_Grids	*pGrids	= Parameters("GRIDS")->asGrids();
+
+	CSG_Grid	*pLower	= Parameters("LOWER")->asGrid();
+	CSG_Grid	*pUpper	= Parameters("UPPER")->asGrid();
+
+	if( !Get_System().Get_Extent().Intersects(pLower->Get_Extent())
+	||  !Get_System().Get_Extent().Intersects(pUpper->Get_Extent()) )
+	{
+		Error_Set(_TL("lower and/or upper surface layers are covering distinct areas"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("MASKED")->asGrids() && Parameters("MASKED")->asGrids() != pGrids )
+	{
+		CSG_Grids	*pMasked	= Parameters("MASKED")->asGrids();
+
+		pMasked->Create(*pGrids);
+		pMasked->Fmt_Name("%s [%s]", pGrids->Get_Name(), _TL("masked"));
+
+		pGrids	= pMasked;
+	}
+
+	bool	bMaskBetween	= Parameters("MASKING")->asInt() == 1;
+
+	//-----------------------------------------------------
+	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+	{
+		double	py	= Get_YMin() + y * Get_Cellsize();
+
+		#pragma omp parallel for
+		for(int x=0; x<Get_NX(); x++)
+		{
+			double	px	= Get_XMin() + x * Get_Cellsize(), zMin, zMax;
+
+			if( pLower->Get_Value(px, py, zMin)
+			&&  pUpper->Get_Value(px, py, zMax) )
+			{
+				for(int z=0; z<pGrids->Get_NZ(); z++)
+				{
+					double	pz	= pGrids->Get_Z(z);
+
+					bool	bBetween	= zMin <= pz && pz < zMax;
+
+					if( bMaskBetween == bBetween )
+					{
+						pGrids->Set_NoData(x, y, z);
+					}
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	if( pGrids == Parameters("GRIDS")->asGrids() )
+	{
+		DataObject_Update(pGrids);
+	}
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

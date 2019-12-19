@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -94,6 +85,7 @@ CSG_String Get_Info(int i)
 #include "grid_collection.h"
 #include "gridding3d_nearest_neighbour.h"
 #include "gridding3d_idw.h"
+#include "grids_masking.h"
 
 
 //---------------------------------------------------------
@@ -112,6 +104,8 @@ CSG_Tool *		Create_Tool(int i)
 	case  5: 	return( new CGridding3D_Nearest_Neighbour );
 	case  6:	return( new CGridding3D_IDW );
 		
+	case  7:	return( new CGrids_Masking );
+
 	//-----------------------------------------------------
 	case 10:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

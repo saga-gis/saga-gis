@@ -6,11 +6,11 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                        io_grid                        //
+//                      grids_tools                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                        gvmd.h                         //
+//                    grids_masking.h                    //
 //                                                       //
 //                 Copyright (C) 2019 by                 //
 //                      Olaf Conrad                      //
@@ -46,13 +46,13 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__gvmd_H
-#define HEADER_INCLUDED__gvmd_H
+#ifndef HEADER_INCLUDED__grids_masking_H
+#define HEADER_INCLUDED__grids_masking_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -62,49 +62,36 @@
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CGVMD_Import : public CSG_Tool
+class CGrids_Masking : public CSG_Tool_Grid
 {
 public:
-	CGVMD_Import(void);
+	CGrids_Masking(void);
 
-	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Import") );	}
+//	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Tools") );	}
 
 
 protected:
 
-	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Execute				(void);
+	virtual bool				On_Execute				(void);
 
 
 private:
-
-	int						m_xField[2], m_yField[2], m_zField[2];
-
-	static CSG_String		Get_Fields				(const CSG_String &File);
-
-	bool					Get_Table				(CSG_Table &Table, CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Grids				(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Layers				(const CSG_Table &Table, const CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName);
-
-	bool					Set_Points				(const CSG_Table &Table);
 
 };
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//                                                       //
+//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__gvmd_H
+#endif // #ifndef HEADER_INCLUDED__grids_masking_H

@@ -80,8 +80,8 @@ CGVMD_Import::CGVMD_Import(void)
 		), NULL, false
 	);
 
-	Parameters.Add_String("",
-		"FIELD"		, _TL("Layer Field Name"),
+	Parameters.Add_Choice("",
+		"FIELD"		, _TL("Layer Field"),
 		_TL(""),
 		"name"
 	);
@@ -125,6 +125,22 @@ CGVMD_Import::CGVMD_Import(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGVMD_Import::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("FILE") )
+	{
+		CSG_String	Fields	= Get_Fields(pParameter->asString());
+
+		if( !Fields.is_Empty() )
+		{
+			(*pParameters)("FIELD")->asChoice()->Set_Items(Fields);
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CGVMD_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -173,6 +189,38 @@ bool CGVMD_Import::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_String CGVMD_Import::Get_Fields(const CSG_String &File)
+{
+	CSG_File	Stream;
+
+	if( !Stream.Open(File, SG_FILE_R, false) )
+	{
+		return( "" );
+	}
+
+	CSG_String	sLine;
+
+	while( Stream.Read_Line(sLine) && sLine.Find("XY_irregular") < 0 )	{}
+
+	if( Stream.is_EOF() || sLine.Find("XY_irregular") < 0 || sLine.AfterFirst('=').CmpNoCase("false") )
+	{
+		return( "" );
+	}
+
+	//-----------------------------------------------------
+	Stream.Read_Line(sLine); CSG_Strings Names(SG_String_Tokenize(sLine));
+
+	CSG_String	Fields;
+
+	for(int i=0; i<Names.Get_Count(); i++)
+	{
+		Fields	+= Names[i] + "|";
+	}
+
+	return( Fields );
+}
+
+//---------------------------------------------------------
 bool CGVMD_Import::Get_Table(CSG_Table &Table, CSG_Unique_String_Statistics &Layers, const CSG_String &LayerName)
 {
 	CSG_File	Stream;
@@ -211,8 +259,8 @@ bool CGVMD_Import::Get_Table(CSG_Table &Table, CSG_Unique_String_Statistics &Lay
 	Table.Destroy();
 
 	m_xField[0] = m_xField[1] =
-		m_yField[0] = m_yField[1] =
-		m_zField[0] = m_zField[1] = -1;
+	m_yField[0] = m_yField[1] =
+	m_zField[0] = m_zField[1] = -1;
 
 	for(int i=0; i<Names.Get_Count(); i++)
 	{

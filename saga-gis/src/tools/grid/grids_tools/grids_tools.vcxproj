@@ -320,11 +320,13 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\tin.h" />
     <ClInclude Include="gridding3d_idw.h" />
     <ClInclude Include="gridding3d_nearest_neighbour.h" />
+    <ClInclude Include="grids_masking.h" />
     <ClInclude Include="grid_collection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gridding3d_idw.cpp" />
     <ClCompile Include="gridding3d_nearest_neighbour.cpp" />
+    <ClCompile Include="grids_masking.cpp" />
     <ClCompile Include="grid_collection.cpp" />
     <ClCompile Include="TLB_Interface.cpp" />
   </ItemGroup>
