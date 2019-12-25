@@ -276,10 +276,14 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const char *Driver
 {
 	Close();
 
+	#ifdef GDAL_V2_0_OR_NEWER
 	if( Drivers )
 	{
 		m_pDataSet	= GDALOpenEx(File_Name, GA_ReadOnly, Drivers, NULL, NULL);
 	}
+	#else
+	m_pDataSet = NULL;
+	#endif
 
 	if( !m_pDataSet && (m_pDataSet = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
 	{
