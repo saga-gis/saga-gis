@@ -242,10 +242,10 @@ bool CHillShade::On_Execute(void)
 	{
 	default: bResult = Get_Shading(false, false); break; // Standard
 	case  1: bResult = Get_Shading( true, false); break; // Limited Maximum
-	case  5: bResult = Get_Shading(false,  true); break; // With Shadows
-	case  2: bResult = Get_Shadows(false       ); break; // Shadows Only
-	case  3: bResult = Get_Shadows( true       ); break; // Ambient Occlusion
-	case  4: bResult = AmbientOcclusion(       ); break; // Combined Shading
+	case  5: bResult = Get_Shading(false,  true); break; // Combined Shading
+	case  2: bResult = Get_Shadows(false       ); break; // With Shadows
+	case  3: bResult = Get_Shadows( true       ); break; // Shadows Only
+	case  4: bResult = AmbientOcclusion(       ); break; // Ambient Occlusion
 	}
 
 	if( !bResult )
