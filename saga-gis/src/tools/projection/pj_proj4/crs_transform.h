@@ -74,7 +74,11 @@ public:
 	CSG_CRSProjector(const CSG_CRSProjector &Projector);
 	virtual ~CSG_CRSProjector(void);
 
+	bool					Create						(const CSG_CRSProjector &Projector);
 	bool					Destroy						(void);
+
+	bool					Set_Copies					(int nCopies = 0);
+	CSG_CRSProjector &		operator []					(int iCopy);
 
 	static CSG_String		Get_Version					(void);
 	static CSG_String		Get_Description				(void);
@@ -108,11 +112,14 @@ private:
 
 	CSG_Projection			m_Source, m_Target;
 
+	int						m_nCopies;
+
+	CSG_CRSProjector		*m_Copies;
+
 
 	void					_On_Construction			(void);
 
 	bool					_Set_Projection				(const CSG_Projection &Projection, void **ppProjection, bool bInverse);
-
 
 };
 

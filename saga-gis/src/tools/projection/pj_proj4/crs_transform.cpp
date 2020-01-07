@@ -57,17 +57,21 @@
 
 //---------------------------------------------------------
 #ifndef PROJ6
-extern "C" {
-	#include <projects.h>
-}
+	extern "C" {
+		#include <projects.h>
+	}
 
-#define PROJ4_FREE(p)	if( p )	{	pj_free((PJ *)p);	p	= NULL;	}
+	#define PROJ4_FREE(p)	if( p )	{	pj_free((PJ *)p);	p	= NULL;	}
 
 //---------------------------------------------------------
 #else
-#include <proj.h>
+	#include <proj.h>
 
-#define PROJ4_FREE(p)	if( p )	{	proj_destroy((PJ *)p);	p	= NULL;	}
+	#if PROJ_VERSION_MINOR < 2
+		#define PROJ4_FREE(p)	if( p )	{	proj_destroy((PJ *)p);	p	= NULL;	}
+	#else
+		#define PROJ4_FREE(p)	if( p )	{	proj_destroy((PJ *)p);	p	= NULL; proj_cleanup();	}
+	#endif
 #endif
 
 
@@ -79,8 +83,6 @@ extern "C" {
 CSG_CRSProjector::CSG_CRSProjector(void)
 {
 	_On_Construction();
-
-	m_bInverse	= false;
 }
 
 //---------------------------------------------------------
@@ -88,23 +90,7 @@ CSG_CRSProjector::CSG_CRSProjector(const CSG_CRSProjector &Projector)
 {
 	_On_Construction();
 
-	m_bInverse	= Projector.m_bInverse;
-
-	Set_Source(Projector.m_Source);
-	Set_Target(Projector.m_Target);
-}
-
-//---------------------------------------------------------
-void CSG_CRSProjector::_On_Construction(void)
-{
-	m_pSource	= NULL;
-	m_pTarget	= NULL;
-	m_pGCS		= NULL;
-	m_pContext	= NULL;
-
-	#ifdef PROJ6
-	m_pContext	= proj_context_create();
-	#endif
+	Create(Projector);
 }
 
 //---------------------------------------------------------
@@ -113,8 +99,46 @@ CSG_CRSProjector::~CSG_CRSProjector(void)
 	Destroy();
 
 	#ifdef PROJ6
-	proj_context_destroy((PJ_CONTEXT *)m_pContext);
+		proj_context_destroy((PJ_CONTEXT *)m_pContext);
+
+		#if PROJ_VERSION_MINOR >= 2
+			proj_cleanup();
+		#endif
 	#endif
+}
+
+//---------------------------------------------------------
+void CSG_CRSProjector::_On_Construction(void)
+{
+	m_pSource	= NULL;
+	m_pTarget	= NULL;
+	m_pGCS		= NULL;
+
+	m_bInverse	= false;
+
+	m_Copies	= NULL;
+	m_nCopies	= 0;
+
+	#ifndef PROJ6
+		m_pContext	= NULL;
+	#else
+		m_pContext	= proj_context_create();
+	#endif
+}
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Create(const CSG_CRSProjector &Projector)
+{
+	Destroy();
+
+	Set_Source(Projector.m_Source);
+	Set_Target(Projector.m_Target);
+
+	Set_Inverse(Projector.m_bInverse);
+
+	Set_Precise_Mode(Projector.Get_Precise_Mode());
+
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -124,9 +148,51 @@ bool CSG_CRSProjector::Destroy(void)
 
 	PROJ4_FREE(m_pSource);
 	PROJ4_FREE(m_pTarget);
-	PROJ4_FREE(m_pGCS);
+	PROJ4_FREE(m_pGCS   );
+
+	Set_Copies();
 
 	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CSG_CRSProjector::Set_Copies(int nCopies)
+{
+	if( m_Copies )
+	{
+		delete[](m_Copies);
+
+		m_Copies	= NULL;
+		m_nCopies	= 0;
+	}
+
+	if( nCopies > 1 )
+	{
+		m_Copies	= new CSG_CRSProjector[m_nCopies = nCopies - 1];
+
+		for(int i=0; i<m_nCopies; i++)
+		{
+			m_Copies[i].Create(*this);
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+CSG_CRSProjector & CSG_CRSProjector::operator [] (int iCopy)
+{
+	if( iCopy > 0 && iCopy <= m_nCopies )
+	{
+		return( m_Copies[iCopy - 1] );
+	}
+
+	return( *this );
 }
 
 
@@ -138,9 +204,9 @@ bool CSG_CRSProjector::Destroy(void)
 CSG_String CSG_CRSProjector::Get_Version(void)
 {
 	#ifndef PROJ6
-	return( pj_release );
+		return( pj_release );
 	#else
-	return( CSG_String::Format("%d.%d.%d", PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH) );
+		return( CSG_String::Format("%d.%d.%d", PROJ_VERSION_MAJOR, PROJ_VERSION_MINOR, PROJ_VERSION_PATCH) );
 	#endif
 }
 

@@ -48,6 +48,10 @@
 //---------------------------------------------------------
 #include "crs_transform_grid.h"
 
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -343,6 +347,8 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	pTarget->Get_Projection().Create(m_Projector.Get_Target());
 	pTarget->Assign_NoData();
 
+	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
+
 	//-----------------------------------------------------
 	for(int y=0; y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++)
 	{
@@ -353,34 +359,48 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 		#endif
 		for(int x=0; x<pTarget->Get_NX(); x++)
 		{
+			if( !is_In_Target_Area(x, y) )
+			{
+				continue;
+			}
+
 			double	z, ySource, xSource	= pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
 
-			if( is_In_Target_Area(x, y) && m_Projector.Get_Projection(xSource, ySource = yTarget) )
+			//---------------------------------------------------------
+			#ifdef _OPENMP
+			if( !m_Projector[omp_get_thread_num()].Get_Projection(xSource, ySource = yTarget) )
+			#else
+			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
+			#endif
 			{
-				if( bGeogCS_Adjust )
-				{
-					if( xSource < 0. )
-					{
-						xSource	+= 360.;
-					}
-					else if( xSource >= 360. )
-					{
-						xSource	-= 360.;
-					}
-				}
+				continue;
+			}
 
-				if( pX ) pX->Set_Value(x, y, xSource);
-				if( pY ) pY->Set_Value(x, y, ySource);
-
-				if( pGrid->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
+			if( bGeogCS_Adjust )
+			{
+				if( xSource < 0. )
 				{
-					pTarget->Set_Value(x, y, z);
+					xSource	+= 360.;
 				}
+				else if( xSource >= 360. )
+				{
+					xSource	-= 360.;
+				}
+			}
+
+			if( pX ) pX->Set_Value(x, y, xSource);
+			if( pY ) pY->Set_Value(x, y, ySource);
+
+			if( pGrid->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
+			{
+				pTarget->Set_Value(x, y, z);
 			}
 		}
 	}
 
 	//-----------------------------------------------------
+	m_Projector.Set_Copies();
+
 	m_Target_Area.Destroy();
 
 	DataObject_Add(pTarget); DataObject_Set_Parameters(pTarget, pGrid);
@@ -481,6 +501,8 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 	}
 
 	//-------------------------------------------------
+	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
+
 	for(int y=0; y<Target_System.Get_NY() && Set_Progress(y, Target_System.Get_NY()); y++)
 	{
 		double	yTarget	= Target_System.Get_YMin() + y * Target_System.Get_Cellsize();
@@ -490,48 +512,59 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 		#endif
 		for(int x=0; x<Target_System.Get_NX(); x++)
 		{
+			if( !is_In_Target_Area(x, y) )
+			{
+				continue;
+			}
+
 			double	z, ySource, xSource	= Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
 
-			if( is_In_Target_Area(x, y) && m_Projector.Get_Projection(xSource, ySource = yTarget) )
+			#ifdef _OPENMP
+			if( !m_Projector[omp_get_thread_num()].Get_Projection(xSource, ySource = yTarget) )
+			#else
+			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
+			#endif
 			{
-				if( bGeogCS_Adjust )
+				continue;
+			}
+
+			if( bGeogCS_Adjust )
+			{
+				if( xSource < 0. )
 				{
-					if( xSource < 0. )
+					xSource	+= 360.;
+				}
+				else if( xSource >= 360. )
+				{
+					xSource	-= 360.;
+				}
+			}
+
+			if( pX ) pX->Set_Value(x, y, xSource);
+			if( pY ) pY->Set_Value(x, y, ySource);
+
+			for(size_t i=0, j=n; i<nSources; i++, j++)
+			{
+				if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
+				{
+					CSG_Grid	*pSource	= (CSG_Grid *)pSources[i];
+					CSG_Grid	*pTarget	= (CSG_Grid *)pTargets->Get_Item((int)j);
+
+					if( pSource->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
 					{
-						xSource	+= 360.;
-					}
-					else if( xSource >= 360. )
-					{
-						xSource	-= 360.;
+						pTarget->Set_Value(x, y, z);
 					}
 				}
-
-				if( pX ) pX->Set_Value(x, y, xSource);
-				if( pY ) pY->Set_Value(x, y, ySource);
-
-				for(size_t i=0, j=n; i<nSources; i++, j++)
+				else // if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
 				{
-					if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid )
-					{
-						CSG_Grid	*pSource	= (CSG_Grid *)pSources[i];
-						CSG_Grid	*pTarget	= (CSG_Grid *)pTargets->Get_Item((int)j);
+					CSG_Grids	*pSource	= (CSG_Grids *)pSources[i];
+					CSG_Grids	*pTarget	= (CSG_Grids *)pTargets->Get_Item((int)j);
 
-						if( pSource->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
-						{
-							pTarget->Set_Value(x, y, z);
-						}
-					}
-					else // if( pSources[i]->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+					for(int k=0; k<pTarget->Get_Grid_Count(); k++)
 					{
-						CSG_Grids	*pSource	= (CSG_Grids *)pSources[i];
-						CSG_Grids	*pTarget	= (CSG_Grids *)pTargets->Get_Item((int)j);
-
-						for(int k=0; k<pTarget->Get_Grid_Count(); k++)
+						if( pSource->Get_Grid_Ptr(k)->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
 						{
-							if( pSource->Get_Grid_Ptr(k)->Get_Value(xSource, ySource, z, m_Resampling, false, m_bByteWise) )
-							{
-								pTarget->Get_Grid_Ptr(k)->Set_Value(x, y, z);	// pTarget->Set_Value(x, y, k, z);
-							}
+							pTarget->Get_Grid_Ptr(k)->Set_Value(x, y, z);	// pTarget->Set_Value(x, y, k, z);
 						}
 					}
 				}
@@ -540,6 +573,8 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 	}
 
 	//-----------------------------------------------------
+	m_Projector.Set_Copies();
+
 	m_Target_Area.Destroy();
 
 	return( true );
