@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: classify_supervised.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "classify_supervised.h"
 
 
@@ -72,10 +60,6 @@
 //---------------------------------------------------------
 CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 {
-	int				i;
-	CSG_String		s;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Supervised Classification for Grids"));
 
 	Set_Author		("O.Conrad (c) 2005");
@@ -134,39 +118,41 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	);
 
 	//-----------------------------------------------------
-	for(i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
+	CSG_String	Methods;
+
+	for(int i=0; i<=SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
-		s	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
+		Methods	+= CSG_Classifier_Supervised::Get_Name_of_Method(i) + "|";
 	}
 
 	Parameters.Add_Choice("",
 		"METHOD"		, _TL("Method"),
 		_TL(""),
-		s, SG_CLASSIFY_SUPERVISED_MinimumDistance
+		Methods, SG_CLASSIFY_SUPERVISED_MinimumDistance
 	);
 
 	Parameters.Add_Double("",
 		"THRESHOLD_DIST", _TL("Distance Threshold"),
 		_TL("Let pixel stay unclassified, if minimum euclidian or mahalanobis distance is greater than threshold."),
-		0.0, 0.0, true
+		0., 0., true
 	);
 
 	Parameters.Add_Double("",
 		"THRESHOLD_ANGLE", _TL("Spectral Angle Threshold (Degree)"),
 		_TL("Let pixel stay unclassified, if spectral angle distance is greater than threshold."),
-		0.0, 0.0, true, 90.0, true
+		0., 0., true, 90., true
 	);
 
 	Parameters.Add_Double("",
 		"THRESHOLD_PROB", _TL("Probability Threshold"),
 		_TL("Let pixel stay unclassified, if maximum likelihood probability value is less than threshold."),
-		0.0, 0.0, true, 100.0, true
+		0., 0., true, 100., true
 	);
 
 	Parameters.Add_Choice("",
 		"RELATIVE_PROB"	, _TL("Probability Reference"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("absolute"),
 			_TL("relative")
 		), 1
@@ -177,7 +163,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 		_TL("")
 	);
 
-	for(i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
+	for(int i=0; i<SG_CLASSIFY_SUPERVISED_WTA; i++)
 	{
 		Parameters.Add_Bool("WTA", CSG_String::Format("WTA_%d", i), CSG_Classifier_Supervised::Get_Name_of_Method(i), _TL(""), false);
 	}
@@ -185,7 +171,7 @@ CGrid_Classify_Supervised::CGrid_Classify_Supervised(void)
 	Parameters.Add_Bool("",
 		"RGB_COLORS"	, _TL("Update Colors from Features"),
 		_TL("Use the first three features in list to obtain blue, green, red components for class colour in look-up table."),
-		true
+		false
 	)->Set_UseInCMD(false);
 }
 
@@ -229,7 +215,6 @@ int CGrid_Classify_Supervised::On_Parameters_Enable(CSG_Parameters *pParameters,
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Get_Features() )
 	{
 		Error_Set(_TL("invalid features"));
@@ -250,7 +235,7 @@ bool CGrid_Classify_Supervised::On_Execute(void)
 	CSG_Grid	*pQuality	= Parameters("QUALITY")->asGrid();
 
 	pClasses->Set_NoData_Value(0);
-	pClasses->Assign(0.0);
+	pClasses->Assign(0.);
 
 	//-----------------------------------------------------
 	Process_Set_Text(_TL("prediction"));
@@ -296,7 +281,7 @@ bool CGrid_Classify_Supervised::Get_Features(void)
 
 	for(int i=m_pFeatures->Get_Grid_Count()-1; i>=0; i--)
 	{
-		if( m_pFeatures->Get_Grid(i)->Get_Range() <= 0.0 )
+		if( m_pFeatures->Get_Grid(i)->Get_Range() <= 0. )
 		{
 			Message_Fmt("\n%s: %s", _TL("feature has been dropped"), m_pFeatures->Get_Grid(i)->Get_Name());
 
@@ -421,7 +406,6 @@ bool CGrid_Classify_Supervised::Set_Classifier(CSG_Classifier_Supervised &Classi
 //---------------------------------------------------------
 bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Classifier)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pClasses	= Parameters("CLASSES")->asGrid();
 
 	//-----------------------------------------------------
@@ -431,35 +415,44 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 	{
 		CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
-		bool	bRGB	= pGrids->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool();
+		CSG_Colors	Colors(Classifier.Get_Class_Count());	Colors.Random();
 
-		for(int iClass=0; iClass<Classifier.Get_Class_Count(); iClass++)
+		for(int i=0; i<Classifier.Get_Class_Count(); i++)
 		{
-			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(iClass);
-
-			if( !pClass )
+			if( pGrids->Get_Grid_Count() >= 3 && Parameters("RGB_COLORS")->asBool() )
 			{
-				(pClass	= pLUT->asTable()->Add_Record())->Set_Value(0, SG_Color_Get_Random());
-			}
-
-			pClass->Set_Value(1, Classifier.Get_Class_ID(iClass).c_str());
-			pClass->Set_Value(2, "");
-			pClass->Set_Value(3, iClass + 1);
-			pClass->Set_Value(4, iClass + 1);
-
-			if( bRGB )
-			{
-				#define SET_COLOR_COMPONENT(c, i)	c = (int)(127 + (Classifier.Get_Class_Mean(iClass, i) - pGrids->Get_Grid(i)->Get_Mean()) * 127 / pGrids->Get_Grid(i)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
+				#define SET_COLOR_COMPONENT(c, b)	c = (int)(127 + (Classifier.Get_Class_Mean(i, b) - pGrids->Get_Grid(b)->Get_Mean()) * 127 / pGrids->Get_Grid(b)->Get_StdDev()); if( c < 0 ) c = 0; else if( c > 255 ) c = 255;
 
 				int	r; SET_COLOR_COMPONENT(r, 2);
 				int	g; SET_COLOR_COMPONENT(g, 1);
 				int	b; SET_COLOR_COMPONENT(b, 0);
 
-				pClass->Set_Value(0, SG_GET_RGB(r, g, b));
+				Colors.Set_Color(i, SG_GET_RGB(r, g, b));
+			}
+			else
+			{
+				CSG_Table_Record	*pClass	= pLUT->asTable()->Find_Record(1, Classifier.Get_Class_ID(i));
+
+				if( pClass )
+				{
+					Colors.Set_Color(i, pClass->asInt(0));
+				}
 			}
 		}
 
+		//-------------------------------------------------
 		pLUT->asTable()->Set_Record_Count(Classifier.Get_Class_Count());
+
+		for(int i=0; i<Classifier.Get_Class_Count(); i++)
+		{
+			CSG_Table_Record	*pClass	= pLUT->asTable()->Get_Record(i);
+
+			pClass->Set_Value(0, Colors[i]);
+			pClass->Set_Value(1, Classifier.Get_Class_ID(i).c_str());
+			pClass->Set_Value(2, "");
+			pClass->Set_Value(3, i + 1);
+			pClass->Set_Value(4, i + 1);
+		}
 
 		DataObject_Set_Parameter(pClasses, pLUT);
 		DataObject_Set_Parameter(pClasses, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
@@ -472,7 +465,7 @@ bool CGrid_Classify_Supervised::Set_Classification(CSG_Classifier_Supervised &Cl
 
 	if( pQuality )
 	{
-		DataObject_Set_Colors(pQuality, 11, SG_COLORS_YELLOW_GREEN);
+		DataObject_Set_Colors(pQuality, 11, SG_COLORS_YELLOW_GREEN, true);
 
 		pQuality->Fmt_Name("%s [%s]", _TL("Classification Quality"), CSG_Classifier_Supervised::Get_Name_of_Quality(Parameters("METHOD")->asInt()).c_str());
 	}
