@@ -2064,12 +2064,18 @@ bool	SG_Get_Projected	(CSG_Shapes *pSource, CSG_Shapes *pTarget, const CSG_Proje
 
 	SG_UI_ProgressAndMsg_Lock(true);
 
-	bool	bResult	= pTool && pTool->Set_Manager(NULL)
-	&&  pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4())
-	&&  pTool->Set_Parameter("SOURCE"   , pSource)
-	&&  pTool->Set_Parameter("TARGET"   , pTarget)
-	&&  pTool->Set_Parameter("COPY"     , pTarget ? true : false)
-	&&  pTool->Execute();
+	bool	bResult	= pTool && pTool->Set_Manager(NULL);
+
+	if( bResult )
+	{
+		pTool->Set_Parameter("CRS_PROJ4", Target.Get_Proj4());
+		pTool->Set_Parameter("SOURCE"   , pSource);
+		pTool->Set_Parameter("TARGET"   , pTarget);
+		pTool->Set_Parameter("COPY"     , pTarget ? true : false);
+		pTool->Set_Parameter("PARALLEL" , true);
+
+		bResult	= pTool->Execute();
+	}
 
 	SG_UI_ProgressAndMsg_Lock(false);
 

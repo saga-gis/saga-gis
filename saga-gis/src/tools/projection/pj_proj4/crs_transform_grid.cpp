@@ -347,9 +347,11 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 	pTarget->Get_Projection().Create(m_Projector.Get_Target());
 	pTarget->Assign_NoData();
 
-	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
-
 	//-----------------------------------------------------
+	#ifdef PROJ6	// proj.4 is not parallelizable?!
+	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
+	#endif
+
 	for(int y=0; y<pTarget->Get_NY() && Set_Progress(y, pTarget->Get_NY()); y++)
 	{
 		double	yTarget	= pTarget->Get_YMin() + y * pTarget->Get_Cellsize();
@@ -367,11 +369,7 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 			double	z, ySource, xSource	= pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
 
 			//---------------------------------------------------------
-			#ifdef _OPENMP
 			if( !m_Projector[omp_get_thread_num()].Get_Projection(xSource, ySource = yTarget) )
-			#else
-			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
-			#endif
 			{
 				continue;
 			}
@@ -501,7 +499,9 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 	}
 
 	//-------------------------------------------------
+	#ifdef PROJ6	// proj.4 is not parallelizable?!
 	m_Projector.Set_Copies(SG_OMP_Get_Max_Num_Threads());
+	#endif
 
 	for(int y=0; y<Target_System.Get_NY() && Set_Progress(y, Target_System.Get_NY()); y++)
 	{
