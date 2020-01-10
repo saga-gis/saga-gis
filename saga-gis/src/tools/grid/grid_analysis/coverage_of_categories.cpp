@@ -132,6 +132,19 @@ CCoverage_of_Categories::CCoverage_of_Categories(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int CCoverage_of_Categories::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter == pParameters->Get_Grid_System_Parameter() && pParameter->asGrid_System() )
+	{
+		m_Grid_Target.Set_User_Defined(pParameters, *pParameter->asGrid_System());
+	}
+
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
 int CCoverage_of_Categories::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
 	if( pParameter->Cmp_Identifier("LUT") )
