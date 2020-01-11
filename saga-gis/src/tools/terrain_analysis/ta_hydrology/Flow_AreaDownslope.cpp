@@ -205,7 +205,7 @@ bool CFlow_AreaDownslope::On_Execute(void)
 
 		case 1:	// Rho 8...
 			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(0.0);
+			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(1);
 			break;
 
 		case 2:	// BRM...
