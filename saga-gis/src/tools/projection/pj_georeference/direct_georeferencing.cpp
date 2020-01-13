@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: direct_georeferencing.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "direct_georeferencing.h"
 
 
@@ -79,87 +67,51 @@ CSG_Direct_Georeferencer::CSG_Direct_Georeferencer(void)
 //---------------------------------------------------------
 bool CSG_Direct_Georeferencer::Add_Parameters(CSG_Parameters &Parameters)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_POS"	, _TL("Position"),
+	Parameters.Add_Node("",
+		"NODE_POS"	, _TL("Position"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "X"			, _TL("X"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "Y"			, _TL("Y"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "Z"			, _TL("Flying Height"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 1000.0
-	);
+	Parameters.Add_Double("NODE_POS", "X", _TL("X"     ), _TL(""),    0.);
+	Parameters.Add_Double("NODE_POS", "Y", _TL("Y"     ), _TL(""),    0.);
+	Parameters.Add_Double("NODE_POS", "Z", _TL("Height"), _TL(""), 1000.);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_DIR"	, _TL("Orientation"),
-		_TL("")
-	);
-
-	Parameters.Add_Choice(
-		pNode	, "ORIENTATION"	, _TL("Orientation"),
+	Parameters.Add_Choice("NODE_DIR",
+		"ORIENTATION"	, _TL("Orientation"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("BLUH"),
 			_TL("PATB")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		pNode	, "OMEGA"		, _TL("Omega [degree]"),
-		_TL("rotation around the X axis (roll)"),
-		PARAMETER_TYPE_Double	, 0.0
-	);
+	Parameters.Add_Double("ORIENTATION", "OMEGA", _TL("Omega"), _TL("rotation angle [degree] around the X axis (roll)"   ), 0.);
+	Parameters.Add_Double("ORIENTATION", "PHI"  , _TL("Phi"  ), _TL("rotation angle [degree] around the Y axis (pitch)"  ), 0.);
+	Parameters.Add_Double("ORIENTATION", "KAPPA", _TL("Kappa"), _TL("rotation angle [degree] around the Z axis (heading)"), 0.);
 
-	Parameters.Add_Value(
-		pNode	, "PHI"			, _TL("Phi [degree]"),
-		_TL("rotation around the Y axis (pitch)"),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "KAPPA"		, _TL("Kappa [degree]"),
-		_TL("rotation around the Z axis (heading)"),
-		PARAMETER_TYPE_Double	, 0.0
-	);
-
-	Parameters.Add_Value(
-		pNode	, "KAPPA_OFF"	, _TL("Kappa Offset [degree]"),
-		_TL("origin adjustment for Z axis (heading)"),
-		PARAMETER_TYPE_Double	, 90.0
+	Parameters.Add_Double("KAPPA",
+		"KAPPA_OFF"		, _TL("Kappa Offset"),
+		_TL("origin adjustment angle [degree] for kappa (Z axis, heading)"),
+		90.
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_CAMERA"	, _TL("Camera"),
+	Parameters.Add_Node("",
+		"NODE_CAMERA"	, _TL("Camera"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "CFL"			, _TL("Focal Length [mm]"),
+	Parameters.Add_Double("NODE_CAMERA",
+		"CFL"			, _TL("Focal Length [mm]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 80, 0.0, true
+		80., 0., true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "PXSIZE"		, _TL("CCD Physical Pixel Size [micron]"),
+	Parameters.Add_Double("NODE_CAMERA",
+		"PXSIZE"		, _TL("CCD Physical Pixel Size [micron]"),
 		_TL(""),
-		PARAMETER_TYPE_Double	, 5.2, 0.0, true
+		5.2, 0., true
 	);
 
 	//-----------------------------------------------------
@@ -177,11 +129,11 @@ bool CSG_Direct_Georeferencer::Set_Transformation(CSG_Parameters &Parameters, in
 	//-----------------------------------------------------
 	m_O.Create(2);
 
-	m_O[0]	= nCols / 2.0;
-	m_O[1]	= nRows / 2.0;
+	m_O[0]	= nCols / 2.;
+	m_O[1]	= nRows / 2.;
 
-	m_f		= Parameters("CFL"   )->asDouble() / 1000;		// [mm]     -> [m]
-	m_s		= Parameters("PXSIZE")->asDouble() / 1000000;	// [micron] -> [m]
+	m_f		= Parameters("CFL"   )->asDouble() / 1000.   ;	// [mm]     -> [m]
+	m_s		= Parameters("PXSIZE")->asDouble() / 1000000.;	// [micron] -> [m]
 
 	//-----------------------------------------------------
 	m_T.Create(3);
@@ -211,8 +163,8 @@ bool CSG_Direct_Georeferencer::Set_Transformation(CSG_Parameters &Parameters, in
 
 	switch( Parameters("ORIENTATION")->asInt() )
 	{
-	case 0:	default:	m_R	= Rz * Rx * Ry;	break;	// BLUH
-	case 1:				m_R	= Rx * Ry * Rz;	break;	// PATB
+	default: m_R = Rz * Rx * Ry; break;	// BLUH
+	case  1: m_R = Rx * Ry * Rz; break;	// PATB
 	}
 
 	m_Rinv	= m_R.Get_Inverse();
@@ -274,65 +226,57 @@ inline TSG_Point CSG_Direct_Georeferencer::Image_to_World(double x_i, double y_i
 //---------------------------------------------------------
 CDirect_Georeferencing::CDirect_Georeferencing(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Direct Georeferencing of Airborne Photographs"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2012"));
+	Set_Author		("O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"Direct georeferencing of aerial photographs uses extrinsic "
 		"(position, attitude) and intrinsic (focal length, physical "
 		"pixel size) camera parameters. Orthorectification routine supports "
 		"additional data from a Digital Elevation Model (DEM).\n"
-		"\nReferences:\n"
-		"Baumker, M. / Heimes, F.J. (2001): "
-		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System. "
-		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001. "
-		"<a target=\"_blank\" href=\"http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf\">online</a>.\n"
 	));
 
+	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
+		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
+		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
+		SG_T("http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf"), SG_T("online")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "INPUT"		, _TL("Unreferenced Grids"),
+	Parameters.Add_Grid_List("",
+		"INPUT"		, _TL("Unreferenced Grids"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "OUTPUT"		, _TL("Referenced Grids"),
+	Parameters.Add_Grid_List("",
+		"OUTPUT"	, _TL("Referenced Grids"),
 		_TL(""),
 		PARAMETER_OUTPUT, false
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "EXTENT"		, _TL("Extent"),
+	Parameters.Add_Shapes("",
+		"EXTENT"	, _TL("Extent"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Grid(
-		NULL	, "DEM"			, _TL("Elevation"),
+	Parameters.Add_Grid_or_Const("",
+		"DEM"		, _TL("Elevation"),
 		_TL(""),
-		PARAMETER_INPUT_OPTIONAL, false
-	);
-
-	Parameters.Add_Value(
-		pNode	, "ZREF"		, _TL("Default Reference Height"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 0.0
+		0., 0., false, 0., false, false
 	);
 
 	//-----------------------------------------------------
 	m_Georeferencer.Add_Parameters(Parameters);
 
 	//-----------------------------------------------------
-	Parameters.Add_Choice(
-		NULL	, "RESAMPLING"		, _TL("Resampling"),
+	Parameters.Add_Choice("",
+		"RESAMPLING", _TL("Resampling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
@@ -340,10 +284,10 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 3
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "DATA_TYPE"	, _TL("Data Storage Type"),
+	Parameters.Add_Choice("",
+		"DATA_TYPE"	, _TL("Data Storage Type"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("1 byte unsigned integer"),
 			_TL("1 byte signed integer"),
 			_TL("2 byte unsigned integer"),
@@ -356,10 +300,10 @@ CDirect_Georeferencing::CDirect_Georeferencing(void)
 		), 8
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "ROW_ORDER"	, _TL("Row Order"),
+	Parameters.Add_Choice("",
+		"ROW_ORDER"	, _TL("Row Order"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("top down"),
 			_TL("bottom up")
 		), 0
@@ -405,8 +349,9 @@ bool CDirect_Georeferencing::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pDEM	= Parameters("DEM"      )->asGrid();
-	double		zRef	= Parameters("ZREF"     )->asDouble();
+	CSG_Grid	*pDEM	= Parameters("DEM")->asGrid();
+	double		zRef	= Parameters("DEM")->asDouble();
+
 	bool		bFlip	= Parameters("ROW_ORDER")->asInt() == 1;
 
 	//-----------------------------------------------------
@@ -414,10 +359,10 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
@@ -471,45 +416,66 @@ bool CDirect_Georeferencing::On_Execute(void)
 
 	pOutput->Del_Items();
 
-	if( pInput->Get_Grid_Count() <= 0 )
+	if( pInput->Get_Grid_Count() < 1 )
 	{
+		Error_Set(_TL("no grids in input list"));
+
 		return( false );
 	}
-	else
+
+	TSG_Data_Type	Type;
+
+	switch( Parameters("DATA_TYPE")->asInt() )
 	{
-		TSG_Data_Type	Type;
+	case  0: Type = SG_DATATYPE_Byte     ; break;
+	case  1: Type = SG_DATATYPE_Char     ; break;
+	case  2: Type = SG_DATATYPE_Word     ; break;
+	case  3: Type = SG_DATATYPE_Short    ; break;
+	case  4: Type = SG_DATATYPE_DWord    ; break;
+	case  5: Type = SG_DATATYPE_Int      ; break;
+	case  6: Type = SG_DATATYPE_Float    ; break;
+	case  7: Type = SG_DATATYPE_Double   ; break;
+	default: Type = SG_DATATYPE_Undefined; break;
+	}
 
-		switch( Parameters("DATA_TYPE")->asInt() )
+	//-----------------------------------------------------
+	for(int i=0; i<pInput->Get_Item_Count(); i++)
+	{
+		CSG_Data_Object	*_pOutput, *_pInput	= pInput->Get_Item(i);
+
+		switch( _pInput->Get_ObjectType() )
 		{
-		case 0:		Type	= SG_DATATYPE_Byte;			break;
-		case 1:		Type	= SG_DATATYPE_Char;			break;
-		case 2:		Type	= SG_DATATYPE_Word;			break;
-		case 3:		Type	= SG_DATATYPE_Short;		break;
-		case 4:		Type	= SG_DATATYPE_DWord;		break;
-		case 5:		Type	= SG_DATATYPE_Int;			break;
-		case 6: 	Type	= SG_DATATYPE_Float;		break;
-		case 7:		Type	= SG_DATATYPE_Double;		break;
-		default:	Type	= SG_DATATYPE_Undefined;	break;
-		}
+		default:	{
+			CSG_Grid	*pGrid	= (CSG_Grid  *)_pInput;
 
-		for(int i=0; i<pInput->Get_Grid_Count(); i++)
-		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type());
-
-			if( !pGrid || !pGrid->is_Valid() )
+			if( !(_pOutput = SG_Create_Grid(System, Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type())) )
 			{
-				if( pGrid )
-				{
-					delete(pGrid);
-				}
+				Error_Set(_TL("failed to allocate memory"));
+
+				return( false );
+			}
+			break;	}
+
+		case SG_DATAOBJECT_TYPE_Grids:	{
+			CSG_Grids	*pGrids	= (CSG_Grids *)_pInput;
+
+			if( !(_pOutput = SG_Create_Grids(System, pGrids->Get_Attributes(), pGrids->Get_Z_Attribute(), Type != SG_DATATYPE_Undefined ? Type : pInput->Get_Grid(i)->Get_Type(), true)) )
+			{
+				Error_Set(_TL("failed to allocate memory"));
 
 				return( false );
 			}
 
-			pOutput->Add_Item(pGrid);
+			((CSG_Grids *)_pOutput)->Set_Z_Name_Field(pGrids->Get_Z_Name_Field());
 
-			pGrid->Set_Name(pInput->Get_Grid(i)->Get_Name());
+			break;	}
 		}
+
+		_pOutput->Set_Name       (_pInput->Get_Name());
+		_pOutput->Set_Description(_pInput->Get_Description());
+		_pOutput->Get_MetaData().Assign(_pInput->Get_MetaData());
+
+		pOutput->Add_Item(_pOutput);
 	}
 
 	//-----------------------------------------------------
@@ -562,12 +528,9 @@ bool CDirect_Georeferencing::On_Execute(void)
 //---------------------------------------------------------
 CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("World File from Flight and Camera Settings"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2014"));
+	Set_Author		("O.Conrad (c) 2014");
 
 	Set_Description	(_TW(
 		"Creates a world file (RST = rotation, scaling, translation) "
@@ -575,41 +538,42 @@ CDirect_Georeferencing_WorldFile::CDirect_Georeferencing_WorldFile(void)
 		"Direct georeferencing uses extrinsic "
 		"(position, attitude) and intrinsic (focal length, physical "
 		"pixel size) camera parameters.\n"
-		"\nReferences:\n"
-		"Baumker, M. / Heimes, F.J. (2001): "
-		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System. "
-		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001. "
-		"<a target=\"_blank\" href=\"http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf\">online</a>.\n"
 	));
 
+	Add_Reference("Baumker, M. & Heimes, F.J.", "2001",
+		"New Calibration and Computing Method for Direct Georeferencing of Image and Scanner Data Using the Position and Angular Data of an Hybrid Inertial Navigation System",
+		"OEEPE Workshop, Integrated Sensor Orientation, Hannover 2001.",
+		SG_T("http://www.hochschule-bochum.de/fileadmin/media/fb_v/veroeffentlichungen/baeumker/baheimesoeepe.pdf"), SG_T("online")
+	);
+
 	//-----------------------------------------------------
-	Parameters.Add_Shapes(
-		NULL	, "EXTENT"		, _TL("Extent"),
+	Parameters.Add_Shapes("",
+		"EXTENT"	, _TL("Extent"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Polygon
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("World File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("World File"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|*.*"), _TL("All Files")), NULL, true
+		CSG_String::Format("%s|*.*|", _TL("All Files")), NULL, true
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_IMAGE"	, _TL("Image Properties"),
+	Parameters.Add_Node("",
+		"NODE_IMAGE", _TL("Image Properties"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NX"			, _TL("Number of Columns"),
+	Parameters.Add_Int("NODE_IMAGE",
+		"NX"		, _TL("Number of Columns"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "NY"			, _TL("Number of Columns"),
+	Parameters.Add_Int("NODE_IMAGE",
+		"NY"		, _TL("Number of Columns"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 100, 1, true
+		100, 1, true
 	);
 
 	//-----------------------------------------------------
@@ -656,7 +620,7 @@ bool CDirect_Georeferencing_WorldFile::On_Execute(void)
 
 	TSG_Point	p	= m_Georeferencer.Image_to_World(0, ny);
 
-	Stream.Printf(SG_T("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n"),
+	Stream.Printf("%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n%.10f\n",
 		 R[0][0],	// A: pixel size in the x-direction in map units/pixel
 		 R[1][0],	// D: rotation about y-axis
 		-R[0][1],	// B: rotation about x-axis
