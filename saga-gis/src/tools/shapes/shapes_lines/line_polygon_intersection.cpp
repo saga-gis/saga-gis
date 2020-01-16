@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "line_polygon_intersection.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Line-Polygon Intersection"));
 
 	Set_Author		("O.Conrad (c) 2010");
@@ -101,7 +88,7 @@ CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 	Parameters.Add_Shapes(
 		"", "DIFFERENCE", _TL("Difference"),
 		_TL(""),
-		PARAMETER_OUTPUT, SHAPE_TYPE_Line
+		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Line
 	);
 
 	Parameters.Add_Choice(
@@ -123,26 +110,38 @@ CLine_Polygon_Intersection::CLine_Polygon_Intersection(void)
 //---------------------------------------------------------
 bool CLine_Polygon_Intersection::On_Execute(void)
 {
-	CSG_Shapes	*pLines			= Parameters("LINES"     )->asShapes();
-	CSG_Shapes	*pPolygons		= Parameters("POLYGONS"  )->asShapes();
-	CSG_Shapes	*pIntersection	= Parameters("INTERSECT" )->asShapes();
-	CSG_Shapes	*pDifference	= Parameters("DIFFERENCE")->asShapes();
+	CSG_Shapes	*pLines	= Parameters("LINES")->asShapes();
 
-	if(	pLines->Get_Count() < 1 || pPolygons->Get_Count() < 1 )
+	if(	pLines->Get_Count() < 1 )
 	{
-		Error_Set(_TL("empty input layer"));
+		Error_Set(_TL("no features in lines layer"));
+
+		return( false );
+	}
+
+	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
+
+	if(	pPolygons->Get_Count() < 1 )
+	{
+		Error_Set(_TL("no features in polygons layer"));
 
 		return( false );
 	}
 
 	//-----------------------------------------------------
+	CSG_Shapes	*pIntersection	= Parameters("INTERSECT" )->asShapes();
+	CSG_Shapes	*pDifference	= Parameters("DIFFERENCE")->asShapes();
+
 	int	Attributes	= Parameters("ATTRIBUTES")->asInt();
 
 	pIntersection->Create(SHAPE_TYPE_Line, NULL, Attributes == 0 ? pPolygons : pLines);
-	pDifference  ->Create(SHAPE_TYPE_Line, NULL,                               pLines);
-
 	pIntersection->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Intersection"), pPolygons->Get_Name());
-	pDifference  ->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Difference"  ), pPolygons->Get_Name());
+
+	if( pDifference )
+	{
+		pDifference->Create(SHAPE_TYPE_Line, NULL, pLines);
+		pDifference->Fmt_Name("%s [%s: %s]", pLines->Get_Name(), _TL("Difference"), pPolygons->Get_Name());
+	}
 
 	if( Attributes == 2 )
 	{
@@ -154,9 +153,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 
 	if( !pLines->Get_Extent().Intersects(pPolygons->Get_Extent()) )	// no intersection >> difference == lines
 	{
-		pDifference->Assign(pLines);
-
-		return( true );
+		return( pDifference ? pDifference->Assign(pLines) : true );
 	}
 
 	//-----------------------------------------------------
@@ -205,7 +202,7 @@ bool CLine_Polygon_Intersection::On_Execute(void)
 			}
 		}
 
-		if( pLine->is_Valid() )
+		if( pDifference && pLine->is_Valid() )
 		{
 			pDifference->Add_Shape(pLine);
 		}
