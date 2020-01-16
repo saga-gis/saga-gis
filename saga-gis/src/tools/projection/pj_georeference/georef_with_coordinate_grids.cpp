@@ -69,13 +69,13 @@ CGeoRef_with_Coordinate_Grids::CGeoRef_with_Coordinate_Grids(void)
 
 	//-----------------------------------------------------
 	Parameters.Add_Grid("",
-		"GRID_X"	, _TL("X m_Coords"),
+		"GRID_X"	, _TL("X Coordinates"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid("",
-		"GRID_Y"	, _TL("Y m_Coords"),
+		"GRID_Y"	, _TL("Y Coordinates"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
