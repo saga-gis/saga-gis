@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,8 +117,7 @@ CShapes_Split_Randomly::CShapes_Split_Randomly(void)
 //---------------------------------------------------------
 bool CShapes_Split_Randomly::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pSplit[2], *pShapes	= Parameters("SHAPES")->asShapes();
+	CSG_Shapes	*pSplit[2], *pShapes = Parameters("SHAPES")->asShapes();
 
 	if( !pShapes->is_Valid() )
 	{
@@ -196,7 +186,6 @@ bool CShapes_Split_Randomly::On_Execute(void)
 //---------------------------------------------------------
 void CShapes_Split_Randomly::Split(CSG_Shapes *pShapes, CSG_Shapes *pSplit[2], double Percent)
 {
-	//-----------------------------------------------------
 	if( !Parameters("EXACT")->asBool() )
 	{
 		for(int i=0; i<pShapes->Get_Count() && Set_Progress(i, pShapes->Get_Count()); i++)

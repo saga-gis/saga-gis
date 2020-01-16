@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -215,7 +206,7 @@ CSG_Shapes * Cut_Shapes(CSG_Rect Extent, int Method, CSG_Shapes *pShapes)
 //---------------------------------------------------------
 CSG_String Cut_Methods_Str(void)
 {
-	return( CSG_String::Format("%s|%s|%s|",
+	return( CSG_String::Format("%s|%s|%s",
 		_TL("completely contained"),
 		_TL("intersects"),
 		_TL("center")
@@ -292,7 +283,7 @@ CShapes_Cut::CShapes_Cut(void)
 	Parameters.Add_Choice(
 		""	, "EXTENT"		, _TL("Region"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("user defined"),
 			_TL("grid project"),
 			_TL("shapes layer extent"),

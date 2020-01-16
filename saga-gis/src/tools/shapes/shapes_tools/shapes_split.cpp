@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,12 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -123,55 +114,54 @@ CShapes_Split::CShapes_Split(void)
 //---------------------------------------------------------
 bool CShapes_Split::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 	CSG_Shapes	*pExtent	= Parameters("EXTENT")->asShapes();
+	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
+
+	if( pShapes->is_Valid() )
+	{
+		return( false );
+	}
 
 	int	Method	= Parameters("METHOD")->asInt();
 
-	int	nx	= Parameters("NX")->asInt();
-	int	ny	= Parameters("NY")->asInt();
+	int		nx	= Parameters("NX")->asInt();
+	int		ny	= Parameters("NY")->asInt();
+
+	double	dx	= pShapes->Get_Extent().Get_XRange() / nx;
+	double	dy	= pShapes->Get_Extent().Get_YRange() / ny;
 
 	Parameters("CUTS")->asShapesList()->Del_Items();
 
 	//-----------------------------------------------------
-	if( pShapes->is_Valid() )
+	for(int y=0; y<ny && Process_Get_Okay(false); y++)
 	{
-		double	dx	= pShapes->Get_Extent().Get_XRange() / nx;
-		double	dy	= pShapes->Get_Extent().Get_YRange() / ny;
+		TSG_Rect	r;
 
-		for(int y=0; y<ny && Process_Get_Okay(false); y++)
+		r.yMin	= pShapes->Get_Extent().Get_YMin() + y * dy;
+		r.yMax	= r.yMin + dy;
+
+		for(int x=0; x<nx && Process_Get_Okay(false); x++)
 		{
-			TSG_Rect	r;
+			r.xMin	= pShapes->Get_Extent().Get_XMin() + x * dx;
+			r.xMax	= r.xMin + dx;
 
-			r.yMin	= pShapes->Get_Extent().Get_YMin() + y * dy;
-			r.yMax	= r.yMin + dy;
+			Cut_Set_Extent(r, pExtent, y == 0 && x == 0);
 
-			for(int x=0; x<nx && Process_Get_Okay(false); x++)
+			Process_Set_Text("%d/%d", y * nx + (x + 1), nx * ny);
+
+			CSG_Shapes	*pCut	= Cut_Shapes(r, Method, pShapes);
+
+			if( pCut )
 			{
-				r.xMin	= pShapes->Get_Extent().Get_XMin() + x * dx;
-				r.xMax	= r.xMin + dx;
+				pCut->Fmt_Name("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y);
 
-				Cut_Set_Extent(r, pExtent, y == 0 && x == 0);
-
-				Process_Set_Text("%d/%d", y * nx + (x + 1), nx * ny);
-
-				CSG_Shapes	*pCut	= Cut_Shapes(r, Method, pShapes);
-
-				if( pCut )
-				{
-					pCut->Fmt_Name("%s [%d][%d]", pShapes->Get_Name(), 1 + x, 1 + y);
-
-					Parameters("CUTS")->asShapesList()->Add_Item(pCut);
-				}
+				Parameters("CUTS")->asShapesList()->Add_Item(pCut);
 			}
 		}
-
-		return( true );
 	}
 
 	//-----------------------------------------------------
-	return( false );
+	return( true );
 }
 
 

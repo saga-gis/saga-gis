@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     SeparateShapes.cpp
     Copyright (C) Victor Olaya
@@ -39,37 +37,35 @@
 //---------------------------------------------------------
 CSeparateShapes::CSeparateShapes(void)
 {
-	CSG_Parameter	*pNode;
-
 	Set_Name		(_TL("Split Shapes Layer Completely"));
 
-	Set_Author		(SG_T("Victor Olaya (c) 2005"));
+	Set_Author		("V.Olaya (c) 2005");
 
 	Set_Description	(_TW(
 		"Copies each shape of given layer to a separate target layer."
 	));
 
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "SHAPES"	, _TL("Input"),
+	Parameters.Add_Shapes("",
+		"SHAPES", _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("SHAPES",
+		"FIELD"	, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "LIST"	, _TL("Output"),
+	Parameters.Add_Shapes_List("",
+		"LIST"	, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 	
-	Parameters.Add_Choice(
-		NULL	, "NAMING"	, _TL("Name by..."),
+	Parameters.Add_Choice("",
+		"NAMING", _TL("Name by..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("number of order"),
 			_TL("attribute")
 		), 0
@@ -79,41 +75,52 @@ CSeparateShapes::CSeparateShapes(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CSeparateShapes::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("NAMING") )
+	{
+		pParameters->Set_Enabled("FIELD", pParameter->asInt() == 1);
+	}
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CSeparateShapes::On_Execute(void)
 {
-	int							Naming, Field;
-	CSG_Shapes					*pShapes;
-	CSG_Parameter_Shapes_List	*pList;
+	CSG_Shapes	&Shapes	= *Parameters("SHAPES")->asShapes();
 
-	pShapes	= Parameters("SHAPES")	->asShapes();
-	pList	= Parameters("LIST")	->asShapesList();
-	Naming	= Parameters("NAMING")	->asInt();
-	Field	= Parameters("FIELD")	->asInt();
-
-	for(int iShape=0; iShape<pShapes->Get_Count() && Set_Progress(iShape, pShapes->Get_Count()); iShape++)
+	if( !Shapes.is_Valid() || Shapes.Get_Count() < 1 )
 	{
-		CSG_String	Name;
+		return( false );
+	}
+
+	CSG_Parameter_Shapes_List	&List	= *Parameters("LIST")->asShapesList();
+
+	int	Naming	= Parameters("NAMING")->asInt();
+	int	Field	= Parameters("FIELD" )->asInt();
+
+	for(int i=0; i<Shapes.Get_Count() && Set_Progress(i, Shapes.Get_Count()); i++)
+	{
+		CSG_Shapes	*pShapes	= SG_Create_Shapes(Shapes.Get_Type(), NULL, &Shapes);
+
+		pShapes->Add_Shape(Shapes.Get_Shape(i));
 
 		switch( Naming )
 		{
-		case 0:	default:
-			Name.Printf(SG_T("%s [%04d]"), pShapes->Get_Name(), iShape + 1);
-			break;
-
-		case 1:
-			Name.Printf(SG_T("%s [%s]")  , pShapes->Get_Name(), pShapes->Get_Record(iShape)->asString(Field));
-			break;
+		default: pShapes->Fmt_Name("%s [%04d]", Shapes.Get_Name(), 1 +    i                 ); break;
+		case  1: pShapes->Fmt_Name("%s [%s]"  , Shapes.Get_Name(), Shapes[i].asString(Field)); break;
 		}
 
-		CSG_Shapes	*pShape	= SG_Create_Shapes(pShapes->Get_Type(), Name, pShapes);
-
-		pList	->Add_Item(pShape);
-		pShape	->Add_Shape(pShapes->Get_Shape(iShape));
+		List.Add_Item(pShapes);
 	}
 
 	return( true );

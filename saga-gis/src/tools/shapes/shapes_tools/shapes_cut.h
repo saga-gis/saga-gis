@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,18 +47,19 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Shapes_Cut_H
 #define HEADER_INCLUDED__Shapes_Cut_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -71,8 +69,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Shapes *	Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes                  , double Overlap = 0.0);
-bool			Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut, double Overlap = 0.0);
+CSG_Shapes *	Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes                  , double Overlap = 0.);
+bool			Cut_Shapes		(CSG_Shapes *pPolygons, int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut, double Overlap = 0.);
 
 CSG_Shapes *	Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes);
 bool			Cut_Shapes		(CSG_Rect    Extent   , int Method, CSG_Shapes *pShapes, CSG_Shapes *pCut);

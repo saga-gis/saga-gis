@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "shapes_split_by_attribute.h"
 
@@ -69,32 +60,29 @@
 //---------------------------------------------------------
 CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Split Table/Shapes by Attribute"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2008"));
+	Set_Author		("O. Conrad (c) 2008");
 
 	Set_Description	(_TW(
 		""
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "TABLE"		, _TL("Table / Shapes"),
+	Parameters.Add_Table("",
+		"TABLE"	, _TL("Table / Shapes"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "FIELD"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("TABLE",
+		"FIELD"	, _TL("Attribute"),
 		_TL(""),
 		false
 	);
 
-	Parameters.Add_Table_List(
-		NULL	, "CUTS"		, _TL("Cuts"),
+	Parameters.Add_Table_List("",
+		"CUTS"	, _TL("Cuts"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -103,56 +91,60 @@ CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CShapes_Split_by_Attribute::On_Execute(void)
 {
-	int			iField;
-	CSG_Table	*pTable;
+	CSG_Table	&Table	= *Parameters("TABLE")->asTable();
+
+	if( !Table.is_Valid() || Table.Get_Count() < 1 )
+	{
+		Error_Set(_TL("invalid or empty table"));
+
+		return( false );
+	}
 
 	//-----------------------------------------------------
-	pTable	= Parameters("TABLE")	->asTable();
-	iField	= Parameters("FIELD")	->asInt();
+	int	Field	= Parameters("FIELD")->asInt();
+
+	CSG_Index	Index;
+
+	if( !Table.Set_Index(Index, Field) )
+	{
+		Error_Set(_TL("index creation failed"));
+
+		return( false );
+	}
 
 	Parameters("CUTS")->asTableList()->Del_Items();
 
 	//-----------------------------------------------------
-	if( pTable->is_Valid() && pTable->Set_Index(iField, TABLE_INDEX_Ascending) )
+	CSG_Table	*pSplit	= NULL;	CSG_String	Value;
+
+	for(int i=0; i<Table.Get_Count() && Set_Progress(i, Table.Get_Count()); i++)
 	{
-		CSG_String	sValue;
-		CSG_Table	*pCut	= NULL;
+		CSG_Table_Record	*pRecord	= Table.Get_Record(Index[i]);
 
-		for(int iRecord=0; iRecord<pTable->Get_Count() && Set_Progress(iRecord, pTable->Get_Count()); iRecord++)
+		if( !pSplit || Value.Cmp(pRecord->asString(Field)) )
 		{
-			CSG_Table_Record	*pRecord	= pTable->Get_Record_byIndex(iRecord);
+			Value	= pRecord->asString(Field);
 
-			if( !pCut || sValue.Cmp(pRecord->asString(iField)) )
-			{
-				pCut	= pTable->Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
-						? SG_Create_Shapes(((CSG_Shapes *)pTable)->Get_Type(), SG_T(""), pTable)
-						: SG_Create_Table(pTable);
+			pSplit	= Table.Get_ObjectType() == SG_DATAOBJECT_TYPE_Shapes
+					? SG_Create_Shapes(Table.asShapes()->Get_Type(), NULL, &Table)
+					: SG_Create_Table(&Table);
 
-				pCut->Fmt_Name("%s [%s = %s]",
-					pTable->Get_Name(),
-					pTable->Get_Field_Name(iField),
-					pRecord->asString(iField)
-				);
+			pSplit->Fmt_Name("%s [%s = %s]",
+				Table.Get_Name(), Table.Get_Field_Name(Field), Value.c_str()
+			);
 
-				Parameters("CUTS")->asTableList()->Add_Item(pCut);
-
-				sValue	= pRecord->asString(iField);
-			}
-
-			pCut->Add_Record(pRecord);
+			Parameters("CUTS")->asTableList()->Add_Item(pSplit);
 		}
 
-		return( pCut != NULL );
+		pSplit->Add_Record(pRecord);
 	}
 
-	return( false );
+	return( pSplit != NULL );
 }
 
 
