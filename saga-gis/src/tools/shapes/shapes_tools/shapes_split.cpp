@@ -117,7 +117,7 @@ bool CShapes_Split::On_Execute(void)
 	CSG_Shapes	*pExtent	= Parameters("EXTENT")->asShapes();
 	CSG_Shapes	*pShapes	= Parameters("SHAPES")->asShapes();
 
-	if( pShapes->is_Valid() )
+	if( !pShapes->is_Valid() )
 	{
 		return( false );
 	}
