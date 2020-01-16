@@ -167,17 +167,17 @@ bool CGVMD_Import::On_Execute(void)
 
 	CSG_Table Table, *pTable = Parameters("TABLE")->asTable(); if( !pTable ) pTable = &Table;
 
-	if( !Get_Table(Table, Layers, LayerName) )
+	if( !Get_Table(*pTable, Layers, LayerName) )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	Set_Points(Table);
+	Set_Points(*pTable);
 
-	Set_Layers(Table, Layers, LayerName);
+	Set_Layers(*pTable, Layers, LayerName);
 
-	Set_Grids(Table, Layers, LayerName);
+	Set_Grids(*pTable, Layers, LayerName);
 
 	//-----------------------------------------------------
 	return( true );
