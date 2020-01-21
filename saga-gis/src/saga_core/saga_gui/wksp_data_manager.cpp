@@ -221,7 +221,7 @@ CWKSP_Data_Manager::CWKSP_Data_Manager(void)
 	m_Parameters.Add_Int("NODE_THUMBNAILS",
 		"THUMBNAIL_SIZE"		, _TL("Thumbnail Size"),
 		_TL(""),
-		75, 10, true
+		50, 10, true
 	);
 
 	m_Parameters.Add_Bool("NODE_THUMBNAILS",
