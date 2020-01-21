@@ -124,6 +124,7 @@ public:
 
 	bool						Open_Read			(const CSG_String &File_Name, const char *Drivers[] = NULL);
 	bool						Open_Read			(const CSG_String &File_Name, const CSG_Grid_System &System);
+	bool						Open_Read			(const CSG_String &File_Name, const TSG_Rect &Extent);
 	bool						Open_Write			(const CSG_String &File_Name, const CSG_String &Driver, const CSG_String &Options, TSG_Data_Type Type, int NBands, const CSG_Grid_System &System, const CSG_Projection &Projection);
 	bool						Close				(void);
 

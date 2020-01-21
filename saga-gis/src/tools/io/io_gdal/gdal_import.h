@@ -72,7 +72,9 @@ class CGDAL_Import : public CSG_Tool
 public:
 	CGDAL_Import(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Import") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid") );	}
+
+	virtual bool				do_Sync_Projections		(void)	const	{	return( false  );	}
 
 
 protected:

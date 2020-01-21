@@ -72,7 +72,7 @@ class COGR_Import : public CSG_Tool
 public:
 	COGR_Import(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Shapes|Import") );	}
+	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Shapes") );	}
 
 
 protected:

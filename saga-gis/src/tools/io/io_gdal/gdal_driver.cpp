@@ -282,7 +282,7 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const char *Driver
 		m_pDataSet	= GDALOpenEx(File_Name, GA_ReadOnly, Drivers, NULL, NULL);
 	}
 	#else
-	m_pDataSet = NULL;
+		m_pDataSet	= NULL;
 	#endif
 
 	if( !m_pDataSet && (m_pDataSet = GDALOpen(File_Name, GA_ReadOnly)) == NULL )
@@ -290,7 +290,6 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const char *Driver
 		return( false );
 	}
 
-	//-----------------------------------------------------
 	m_File_Name	= File_Name;
 
 	m_Access	= SG_GDAL_IO_READ;
@@ -320,8 +319,8 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 
 	double	Transform[6]	=
 	{
-		System.Get_XMin(true), System.Get_Cellsize(), 0.0,
-		System.Get_YMax(true), 0.0, -System.Get_Cellsize()
+		System.Get_XMin(true), System.Get_Cellsize(), 0.,
+		System.Get_YMax(true), 0., -System.Get_Cellsize()
 	};
 
 	GDALSetGeoTransform(m_pDataSet, Transform);
@@ -329,7 +328,7 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 	//-----------------------------------------------------
 	GDALGetGeoTransform(m_pVrtSource, Transform);
 
-	if( Transform[2] != 0.0 || Transform[4] != 0.0 )
+	if( Transform[2] != 0. || Transform[4] != 0. )
 	{
 		return( false );	// geotransform is rotated, this configuration is not supported...
 	}
@@ -352,6 +351,13 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 			xOff, yOff, xSize, ySize, 0, 0, System.Get_NX(), System.Get_NY(), "near", VRT_NODATA_UNSET
 		);
 
+		int	bSuccess; double zNoData = GDALGetRasterNoDataValue(pSrcBand, &bSuccess);
+
+		if( bSuccess )
+		{
+			GDALSetRasterNoDataValue(pVrtBand, zNoData);
+		}
+
 //#if GDAL_VERSION_MAJOR >= 2	// instead of pVrtBand->AddSimpleSource(...)
 //		VRTSimpleSource	*pSrcSimple = new VRTSimpleSource();
 //
@@ -371,6 +377,29 @@ bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const CSG_Grid_Sys
 	m_Access	= SG_GDAL_IO_READ;
 
 	return( _Set_Transformation() );
+}
+
+//---------------------------------------------------------
+bool CSG_GDAL_DataSet::Open_Read(const CSG_String &File_Name, const TSG_Rect &Extent)
+{
+	CSG_GDAL_DataSet	DataSet;
+
+	if( DataSet.Open_Read(File_Name) == false )
+	{
+		return( false );
+	}
+
+	double		c	= DataSet.Get_System().Get_Cellsize();
+	TSG_Rect	r	= DataSet.Get_System().Get_Extent(true);
+
+	r.xMin	= r.xMin + (floor((Extent.xMin - r.xMin) / c) + 0.5) * c;
+	r.xMax	= r.xMax + (ceil ((Extent.xMax - r.xMax) / c) - 0.5) * c;
+	r.yMin	= r.yMin + (floor((Extent.yMin - r.yMin) / c) + 0.5) * c;
+	r.yMax	= r.yMax + (ceil ((Extent.yMax - r.yMax) / c) - 0.5) * c;
+
+	CSG_Grid_System	System(c, r);
+
+	return( System.is_Valid() && System.Get_Extent(true).Intersects(DataSet.Get_System().Get_Extent(true)) && Open_Read(File_Name, System) );
 }
 
 //---------------------------------------------------------
@@ -437,11 +466,11 @@ bool CSG_GDAL_DataSet::_Set_Transformation(void)
 	if( _Get_Transformation(Transform) == false )
 	{
 		m_bTransform	= false;
-		m_Cellsize		= 1.0;
-		m_xMin			= 0.0;
-		m_yMin			= 0.0;
+		m_Cellsize		= 1.;
+		m_xMin			= 0.;
+		m_yMin			= 0.;
 	}
-	else if( Transform[1] == -Transform[5] && Transform[2] == 0.0 && Transform[4] == 0.0 )	// nothing to transform
+	else if( Transform[1] == -Transform[5] && Transform[2] == 0. && Transform[4] == 0. )	// nothing to transform
 	{
 		m_bTransform	= false;
 		m_Cellsize		= Transform[1];								// pixel width (== pixel height)
@@ -451,7 +480,7 @@ bool CSG_GDAL_DataSet::_Set_Transformation(void)
 	else
 	{
 		m_bTransform	= true;
-		m_Cellsize		= 1.0;
+		m_Cellsize		= 1.;
 		m_xMin			= 0.5;
 		m_yMin			= 0.5;
 	}
@@ -529,8 +558,8 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 
 	double	Transform[6]	=
 	{
-		System.Get_XMin() - 0.5 * System.Get_Cellsize(), System.Get_Cellsize(), 0.0,
-		System.Get_YMax() + 0.5 * System.Get_Cellsize(), 0.0, -System.Get_Cellsize()
+		System.Get_XMin() - 0.5 * System.Get_Cellsize(), System.Get_Cellsize(), 0.,
+		System.Get_YMax() + 0.5 * System.Get_Cellsize(), 0., -System.Get_Cellsize()
 	};
 
 	GDALSetGeoTransform(m_pDataSet, Transform);
@@ -539,7 +568,7 @@ bool CSG_GDAL_DataSet::Open_Write(const CSG_String &File_Name, const CSG_String 
 	m_NY			= GDALGetRasterYSize(m_pDataSet);
 
 	m_bTransform	= false;
-	m_Cellsize		= 1.0;
+	m_Cellsize		= 1.;
 	m_xMin			= 0.5;
 	m_yMin			= 0.5;
 
@@ -876,7 +905,6 @@ bool CSG_GDAL_DataSet::Get_MetaData_Item(int i, const char *pszName, CSG_String 
 //---------------------------------------------------------
 CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 {
-	//-------------------------------------------------
 	if( !is_Reading() )
 	{
 		return( NULL );
@@ -903,8 +931,8 @@ CSG_Grid * CSG_GDAL_DataSet::Read(int i)
 	//-------------------------------------------------
 	int		bSuccess;
 
-	double	zScale	= GDALGetRasterScale (pBand, &bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.0;
-	double	zOffset	= GDALGetRasterOffset(pBand, &bSuccess);	if( !bSuccess            )	zOffset	= 0.0;
+	double	zScale	= GDALGetRasterScale (pBand, &bSuccess);	if( !bSuccess || !zScale )	zScale	= 1.;
+	double	zOffset	= GDALGetRasterOffset(pBand, &bSuccess);	if( !bSuccess            )	zOffset	= 0.;
 
 	pGrid->Set_Name			(Get_Name       (i));
 	pGrid->Set_Description	(Get_Description(i));

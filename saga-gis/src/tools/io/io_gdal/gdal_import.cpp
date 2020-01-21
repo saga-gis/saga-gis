@@ -128,7 +128,7 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Choice("",
 		"MULTIPLE"		, _TL("Multiple Bands Output"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("single grids"),
 			_TL("grid collection"),
 			_TL("automatic")
@@ -163,12 +163,46 @@ CGDAL_Import::CGDAL_Import(void)
 	Parameters.Add_Choice("TRANSFORM",
 		"RESAMPLING"	, _TL("Resampling"),
 		_TL("Resampling type to be used, if grid needs to be aligned to coordinate system."),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("Nearest Neighbour"),
 			_TL("Bilinear Interpolation"),
 			_TL("Bicubic Spline Interpolation"),
 			_TL("B-Spline Interpolation")
 		), 0
+	);
+
+	//-----------------------------------------------------
+	Parameters.Add_Choice("",
+		"EXTENT"		, _TL("Extent"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("original"),
+			_TL("user defined"),
+			_TL("grid system"),
+			_TL("shapes extent")
+		), 0
+	);
+
+	Parameters.Add_Double("EXTENT", "EXTENT_XMIN", _TL("Left"  ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_XMAX", _TL("Right" ), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMIN", _TL("Bottom"), _TL(""));
+	Parameters.Add_Double("EXTENT", "EXTENT_YMAX", _TL("Top"   ), _TL(""));
+
+	Parameters.Add_Grid_System("EXTENT",
+		"EXTENT_GRID"	, _TL("Grid System"),
+		_TL("")
+	);
+
+	Parameters.Add_Shapes("EXTENT",
+		"EXTENT_SHAPES"	, _TL("Shapes Extent"),
+		_TL(""),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Double("EXTENT",
+		"EXTENT_BUFFER"	, _TL("Buffer"),
+		_TL(""),
+		0., 0., true
 	);
 }
 
@@ -188,6 +222,17 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 	if(	pParameter->Cmp_Identifier("SELECT") )
 	{
 		pParameters->Set_Enabled("SELECT_SORT", pParameter->asBool());
+	}
+
+	if(	pParameter->Cmp_Identifier("EXTENT") )
+	{
+		pParameters->Set_Enabled("EXTENT_XMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_XMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMIN"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_YMAX"  , pParameter->asInt() == 1);
+		pParameters->Set_Enabled("EXTENT_GRID"  , pParameter->asInt() == 2);
+		pParameters->Set_Enabled("EXTENT_SHAPES", pParameter->asInt() == 3);
+		pParameters->Set_Enabled("EXTENT_BUFFER", pParameter->asInt() >= 2);
 	}
 
 	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
@@ -252,15 +297,48 @@ bool CGDAL_Import::On_Execute(void)
 //---------------------------------------------------------
 bool CGDAL_Import::Load(const CSG_String &File)
 {
-	//-----------------------------------------------------
-	CSG_GDAL_DataSet	DataSet;
+	CSG_Rect	Extent;
 
-	if( DataSet.Open_Read(File) == false )
+	switch( Parameters("EXTENT")->asInt() )
 	{
-		return( false );
+	case  1:
+		Extent.Assign(
+			Parameters("EXTENT_XMIN")->asDouble(),
+			Parameters("EXTENT_YMIN")->asDouble(),
+			Parameters("EXTENT_XMAX")->asDouble(),
+			Parameters("EXTENT_YMAX")->asDouble()
+		);
+		break;
+
+	case  2:
+		Extent = Parameters("EXTENT_GRID"  )->asGrid_System()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
+
+	case  3:
+		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
+		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		break;
 	}
 
 	//-----------------------------------------------------
+	CSG_GDAL_DataSet	DataSet;
+
+	if( Extent.Get_Area() > 0. )
+	{
+		if( DataSet.Open_Read(File, Extent) == false )
+		{
+			return( false );
+		}
+	}
+	else
+	{
+		if( DataSet.Open_Read(File) == false )
+		{
+			return( false );
+		}
+	}
+
 	if( DataSet.Get_Count() < 1 )
 	{
 		return( Load_Subset(DataSet) );
@@ -269,11 +347,9 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	//-----------------------------------------------------
 	CSG_Table	Bands;	Bands.Add_Field("NAME", SG_DATATYPE_String);
 
+	for(int i=0; i<DataSet.Get_Count(); i++)
 	{
-		for(int i=0; i<DataSet.Get_Count(); i++)
-		{
-			Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
-		}
+		Bands.Add_Record()->Set_Value(0, DataSet.Get_Name(i));
 	}
 
 	if( Parameters("SELECT_SORT")->asBool() )
@@ -286,15 +362,13 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	{
 		if( !SG_UI_Get_Window_Main() )
 		{
-			CSG_String_Tokenizer	Indexes(Parameters("SELECTION")->asString(), ";,");
+			CSG_Strings	Indexes	= SG_String_Tokenize(Parameters("SELECTION")->asString(), ";,");
 
-			while( Indexes.Has_More_Tokens() )
+			for(int i=0, Index; i<Indexes.Get_Count(); i++)
 			{
-				int	i;
-
-				if( Indexes.Get_Next_Token().asInt(i) && i >= 0 && i < Bands.Get_Count() )
+				if( Indexes[i].asInt(Index) && Index >= 0 && Index < Bands.Get_Count() )
 				{
-					Bands.Select(Bands[i].Get_Index(), true);
+					Bands.Select(Bands[Index].Get_Index(), true);
 				}
 			}
 		}

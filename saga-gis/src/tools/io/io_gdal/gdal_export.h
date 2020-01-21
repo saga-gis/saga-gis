@@ -72,7 +72,7 @@ class CGDAL_Export : public CSG_Tool_Grid
 public:
 	CGDAL_Export(void);
 
-	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid|Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Grid") );	}
 
 
 protected:
