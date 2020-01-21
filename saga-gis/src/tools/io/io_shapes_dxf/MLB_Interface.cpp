@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,18 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +67,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Import/Export") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2007") );
+		return( "O. Conrad (c) 2007" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the import and export of DXF files.") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("File|Shapes") );
@@ -97,7 +85,6 @@ CSG_String Get_Info(int i)
 // 3. Include the headers of your tools here...
 
 #include "dxf_import.h"
-//#include "dxf_export.h"
 
 
 //---------------------------------------------------------
@@ -108,11 +95,9 @@ CSG_Tool *		Create_Tool(int i)
 	switch( i )
 	{
 	case  0:	return( new CDXF_Import );
-//	case  1:	return( new CDXF_Export );
+
 	default:	return( NULL );
 	}
-
-	return( NULL );
 }
 
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: dxf_import.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "dxf_import.h"
 
 #ifdef SYSTEM_DXFLIB
@@ -80,8 +68,6 @@
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -156,168 +142,175 @@ enum
 //---------------------------------------------------------
 CDXF_Import::CDXF_Import(void)
 {
-	//-----------------------------------------------------
-	// 1. Info...
-
 	Set_Name		(_TL("Import DXF Files"));
 
-	Set_Author		(SG_T("(c) 2007 by O.Conrad"));
+	Set_Author		("O.Conrad (c) 2007");
 
 	Set_Description	(_TW(
 		"This tool imports DXF files using the free \"dxflib\" library. Get more information "
-		"about this library from the RibbonSoft homepage at:\n"
-		"<a href=\"http://www.ribbonsoft.com/dxflib.html\">http://www.ribbonsoft.com/dxflib.html</a>"
 	));
-
+	
+	Add_Reference(
+		"http://www.ribbonsoft.com/dxflib.html", SG_T("RibbonSoft")
+	);
 
 	//-----------------------------------------------------
-	// 2. Parameters...
-
-	Parameters.Add_Shapes_List(
-		NULL	, "SHAPES"		, _TL("Shapes"),
+	Parameters.Add_Shapes_List("",
+		"SHAPES"	, _TL("Shapes"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Shapes_List(
-		NULL	, "TABLES"		, _TL("Tables"),
+	Parameters.Add_Table_List("",
+		"TABLES"	, _TL("Tables"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_FilePath(
-		NULL	, "FILE"		, _TL("File"),
+	Parameters.Add_FilePath("",
+		"FILE"		, _TL("File"),
 		_TL(""),
-		_TL("DXF Files (*.dxf)|*.dxf|All Files|*.*")
+		CSG_String::Format("DXF %s (*.dxf)|*.dxf|%s|*.*",
+			_TL("Files"),
+			_TL("All Files")
+		)
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "FILTER"		, _TL("Import Filter"),
+	Parameters.Add_Choice("",
+		"FILTER"	, _TL("Import Filter"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("all entities"),
 			_TL("only entities with layer definition"),
 			_TL("only entities without layer definition")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "DCIRCLE"		, _TL("Circle Point Distance [Degree]"),
+	Parameters.Add_Double("",
+		"DCIRCLE"	, _TL("Circle Point Distance [Degree]"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 5.0, 0.01, true, 45.0, true
+		5., 0.01, true, 45., true
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CDXF_Import::On_Execute(void)
 {
-	CSG_String	fName	= Parameters("FILE")->asString();
+	CSG_String	File(Parameters("FILE")->asString());
 
-	Parameters("TABLES")->asTableList() ->Del_Items();
-	Parameters("SHAPES")->asShapesList()->Del_Items();
-
-	m_Filter	= Parameters("FILTER")	->asInt();
-	m_dArc		= Parameters("DCIRCLE")	->asDouble() * M_DEG_TO_RAD;
-
-	//-----------------------------------------------------
-	if( SG_File_Exists(fName) )
+	if( !SG_File_Exists(File) )
 	{
-		m_pLayers		= SG_Create_Table();
-		m_pLayers		->Fmt_Name("%s [%s]", SG_File_Get_Name(fName, false).c_str(), _TL("Layers"));
-		m_pLayers		->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pLayers		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
+		Error_Fmt("%s [%s]", _TL("file does not exist"), File.c_str());
 
-		m_pBlocks		= SG_Create_Table();
-		m_pBlocks		->Fmt_Name("%s [%s]", SG_File_Get_Name(fName, false).c_str(), _TL("Blocks"));
-		m_pBlocks		->Add_Field("BLOCK"	, SG_DATATYPE_String);
-		m_pBlocks		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
-		m_pBlocks		->Add_Field("X"		, SG_DATATYPE_Double);
-		m_pBlocks		->Add_Field("Y"		, SG_DATATYPE_Double);
-		m_pBlocks		->Add_Field("Z"		, SG_DATATYPE_Double);
-
-		m_pPoints		= SG_Create_Shapes(SHAPE_TYPE_Point		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Points")));
-		m_pPoints		->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pPoints		->Add_Field("Z"		, SG_DATATYPE_Double);
-
-		m_pLines		= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Lines")));
-		m_pLines		->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pLines		->Add_Field("Z1"	, SG_DATATYPE_Double);
-		m_pLines		->Add_Field("Z2"	, SG_DATATYPE_Double);
-
-		m_pPolyLines	= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Polylines")));
-		m_pPolyLines	->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pPolyLines	->Add_Field("FLAGS"	, SG_DATATYPE_Int);
-
-		m_pPolygons		= SG_Create_Shapes(SHAPE_TYPE_Polygon	, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Polygons")));
-		m_pPolygons		->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pPolygons		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
-
-		m_pCircles		= SG_Create_Shapes(SHAPE_TYPE_Line		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Circles")));
-		m_pCircles		->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pCircles		->Add_Field("FLAGS"	, SG_DATATYPE_Int);
-
-		m_pTriangles	= SG_Create_Shapes(SHAPE_TYPE_Polygon	, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Triangles")));
-		m_pTriangles	->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pTriangles	->Add_Field("THICK"	, SG_DATATYPE_Int);
-		m_pTriangles	->Add_Field("Z1"	, SG_DATATYPE_Double);
-		m_pTriangles	->Add_Field("Z2"	, SG_DATATYPE_Double);
-		m_pTriangles	->Add_Field("Z3"	, SG_DATATYPE_Double);
-
-		m_pText			= SG_Create_Shapes(SHAPE_TYPE_Point		, CSG_String::Format(SG_T("%s [%s]"), SG_File_Get_Name(fName, false).c_str(), _TL("Text")));
-		m_pText			->Add_Field("LAYER"	, SG_DATATYPE_String);
-		m_pText			->Add_Field("Z"		, SG_DATATYPE_Double);
-		m_pText			->Add_Field("TEXT"	, SG_DATATYPE_String);
-		m_pText			->Add_Field("HEIGHT", SG_DATATYPE_Int);
-		m_pText			->Add_Field("ANGLE"	, SG_DATATYPE_Double);
-		m_pText			->Add_Field("APX"	, SG_DATATYPE_Double);
-		m_pText			->Add_Field("APY"	, SG_DATATYPE_Double);
-		m_pText			->Add_Field("APZ"	, SG_DATATYPE_Double);
-		m_pText			->Add_Field("SCALE"	, SG_DATATYPE_Double);
-		m_pText			->Add_Field("HJUST"	, SG_DATATYPE_Int);
-		m_pText			->Add_Field("VJUST"	, SG_DATATYPE_Int);
-		m_pText			->Add_Field("STYLE"	, SG_DATATYPE_String);
-		m_pText			->Add_Field("FLAGS"	, SG_DATATYPE_Int);
-
-		//-------------------------------------------------
-		m_Offset.x		= 0.0;
-		m_Offset.y		= 0.0;
-		m_Offset.z		= 0.0;
-
-		m_pPolyLine		= NULL;
-
-		DL_Dxf	*pDXF	= new DL_Dxf();
-
-		pDXF->in(fName.b_str(), this);
-
-		delete(pDXF);
-
-		//-------------------------------------------------
-		ADD_RESULT("TABLES", m_pLayers);
-		ADD_RESULT("TABLES", m_pBlocks);
-		ADD_RESULT("SHAPES", m_pPoints);
-		ADD_RESULT("SHAPES", m_pLines);
-		ADD_RESULT("SHAPES", m_pPolyLines);
-		ADD_RESULT("SHAPES", m_pPolygons);
-		ADD_RESULT("SHAPES", m_pCircles);
-		ADD_RESULT("SHAPES", m_pTriangles);
-		ADD_RESULT("SHAPES", m_pText);
+		return( false );
 	}
 
+	Parameters("TABLES")->asTableList ()->Del_Items();
+	Parameters("SHAPES")->asShapesList()->Del_Items();
+
+	m_Filter = Parameters("FILTER" )->asInt();
+	m_dArc   = Parameters("DCIRCLE")->asDouble() * M_DEG_TO_RAD;
+
 	//-----------------------------------------------------
+	CSG_String	Name(SG_File_Get_Name(File, false));
+
+	m_pLayers    = SG_Create_Table();
+	m_pLayers    ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Layers"   ));
+	m_pLayers    ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pLayers    ->Add_Field("FLAGS"    , SG_DATATYPE_Int);
+
+	m_pBlocks    = SG_Create_Table();
+	m_pBlocks    ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Blocks"   ));
+	m_pBlocks    ->Add_Field("BLOCK"    , SG_DATATYPE_String);
+	m_pBlocks    ->Add_Field("FLAGS"    , SG_DATATYPE_Int   );
+	m_pBlocks    ->Add_Field("X"        , SG_DATATYPE_Double);
+	m_pBlocks    ->Add_Field("Y"        , SG_DATATYPE_Double);
+	m_pBlocks    ->Add_Field("Z"        , SG_DATATYPE_Double);
+
+	m_pPoints    = SG_Create_Shapes(SHAPE_TYPE_Point);
+	m_pPoints    ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Points"   ));
+	m_pPoints    ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pPoints    ->Add_Field("Z"        , SG_DATATYPE_Double);
+
+	m_pLines     = SG_Create_Shapes(SHAPE_TYPE_Line);
+	m_pLines     ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Lines"    ));
+	m_pLines     ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pLines     ->Add_Field("Z1"	    , SG_DATATYPE_Double);
+	m_pLines     ->Add_Field("Z2"       , SG_DATATYPE_Double);
+
+	m_pPolyLines = SG_Create_Shapes(SHAPE_TYPE_Line);
+	m_pPolyLines ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Polylines"));
+	m_pPolyLines ->Add_Field("LAYER"	, SG_DATATYPE_String);
+	m_pPolyLines ->Add_Field("FLAGS"	, SG_DATATYPE_Int   );
+
+	m_pPolygons  = SG_Create_Shapes(SHAPE_TYPE_Polygon);
+	m_pPolygons  ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Polygons" ));
+	m_pPolygons  ->Add_Field("LAYER"	, SG_DATATYPE_String);
+	m_pPolygons  ->Add_Field("FLAGS"	, SG_DATATYPE_Int);
+
+	m_pCircles   = SG_Create_Shapes(SHAPE_TYPE_Line);
+	m_pCircles   ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Circles"  ));
+	m_pCircles   ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pCircles   ->Add_Field("FLAGS"    , SG_DATATYPE_Int   );
+
+	m_pTriangles = SG_Create_Shapes(SHAPE_TYPE_Polygon);
+	m_pTriangles ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Triangles"));
+	m_pTriangles ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pTriangles ->Add_Field("THICK"    , SG_DATATYPE_Int   );
+	m_pTriangles ->Add_Field("Z1"       , SG_DATATYPE_Double);
+	m_pTriangles ->Add_Field("Z2"       , SG_DATATYPE_Double);
+	m_pTriangles ->Add_Field("Z3"       , SG_DATATYPE_Double);
+
+	m_pText      = SG_Create_Shapes(SHAPE_TYPE_Point);
+	m_pText      ->Fmt_Name("%s [%s]"   , Name.c_str(), _TL("Text"     ));
+	m_pText      ->Add_Field("LAYER"    , SG_DATATYPE_String);
+	m_pText      ->Add_Field("Z"        , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("TEXT"     , SG_DATATYPE_String);
+	m_pText      ->Add_Field("HEIGHT"   , SG_DATATYPE_Int   );
+	m_pText      ->Add_Field("ANGLE"    , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("APX"      , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("APY"      , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("APZ"      , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("SCALE"    , SG_DATATYPE_Double);
+	m_pText      ->Add_Field("HJUST"    , SG_DATATYPE_Int   );
+	m_pText      ->Add_Field("VJUST"    , SG_DATATYPE_Int   );
+	m_pText      ->Add_Field("STYLE"    , SG_DATATYPE_String);
+	m_pText      ->Add_Field("FLAGS"    , SG_DATATYPE_Int   );
+
+	//-----------------------------------------------------
+	m_Offset.x	= 0.;
+	m_Offset.y	= 0.;
+	m_Offset.z	= 0.;
+
+	m_pPolyLine	= NULL;
+
+	DL_Dxf	*pDXF	= new DL_Dxf();
+
+	pDXF->in(File.b_str(), this);
+
+	delete(pDXF);
+
+	//-----------------------------------------------------
+	ADD_RESULT("TABLES", m_pLayers   );
+	ADD_RESULT("TABLES", m_pBlocks   );
+	ADD_RESULT("SHAPES", m_pPoints   );
+	ADD_RESULT("SHAPES", m_pLines    );
+	ADD_RESULT("SHAPES", m_pPolyLines);
+	ADD_RESULT("SHAPES", m_pPolygons );
+	ADD_RESULT("SHAPES", m_pCircles  );
+	ADD_RESULT("SHAPES", m_pTriangles);
+	ADD_RESULT("SHAPES", m_pText     );
+
 	return( Parameters("SHAPES")->asShapesList()->Get_Item_Count() > 0 );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -339,11 +332,10 @@ inline bool CDXF_Import::Check_Layer(const CSG_String &Name)
 
 	switch( m_Filter )
 	{
-	case 1:	return( Name.Cmp(SG_T("0")) != 0 );
-	case 2:	return( Name.Cmp(SG_T("0")) == 0 );
+	case  1: return( Name.Cmp("0") != 0 );
+	case  2: return( Name.Cmp("0") == 0 );
+	default: return( true );
 	}
-
-	return( true );
 }
 
 //---------------------------------------------------------
@@ -379,8 +371,6 @@ void CDXF_Import::Add_Arc(CSG_Shape *pShape, double cx, double cy, double d, dou
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -388,8 +378,8 @@ void CDXF_Import::addLayer(const DL_LayerData &data)
 {
 	CSG_Table_Record	*pRecord	= m_pLayers->Add_Record();
 
-	pRecord->Set_Value(TBL_LAYERS_NAME	, CSG_String(data.name.c_str()));
-	pRecord->Set_Value(TBL_LAYERS_FLAGS	, data.flags);
+	pRecord->Set_Value(TBL_LAYERS_NAME , CSG_String(data.name.c_str()));
+	pRecord->Set_Value(TBL_LAYERS_FLAGS, data.flags);
 }
 
 //---------------------------------------------------------
@@ -397,11 +387,11 @@ void CDXF_Import::addBlock(const DL_BlockData &data)
 {
 	CSG_Table_Record	*pRecord	= m_pBlocks->Add_Record();
 
-	pRecord->Set_Value(TBL_BLOCKS_NAME	, CSG_String(data.name.c_str()));
-	pRecord->Set_Value(TBL_BLOCKS_FLAGS	, data.flags);
-	pRecord->Set_Value(TBL_BLOCKS_X		, data.bpx);
-	pRecord->Set_Value(TBL_BLOCKS_Y		, data.bpy);
-	pRecord->Set_Value(TBL_BLOCKS_Z		, data.bpz);
+	pRecord->Set_Value(TBL_BLOCKS_NAME , CSG_String(data.name.c_str()));
+	pRecord->Set_Value(TBL_BLOCKS_FLAGS, data.flags);
+	pRecord->Set_Value(TBL_BLOCKS_X    , data.bpx);
+	pRecord->Set_Value(TBL_BLOCKS_Y    , data.bpy);
+	pRecord->Set_Value(TBL_BLOCKS_Z    , data.bpz);
 }
 
 //---------------------------------------------------------
@@ -419,8 +409,8 @@ void CDXF_Import::addPoint(const DL_PointData &data)
 
 	pPoint->Add_Point(m_Offset.x + data.x, m_Offset.y + data.y);
 
-	pPoint->Set_Value(TBL_POINTS_LAYER	, CSG_String(attributes.getLayer().c_str()));
-	pPoint->Set_Value(TBL_POINTS_Z		, m_Offset.z + data.z);
+	pPoint->Set_Value(TBL_POINTS_LAYER, CSG_String(attributes.getLayer().c_str()));
+	pPoint->Set_Value(TBL_POINTS_Z    , m_Offset.z + data.z);
 }
 
 //---------------------------------------------------------
@@ -434,9 +424,9 @@ void CDXF_Import::addLine(const DL_LineData &data)
 	pLine->Add_Point(m_Offset.x + data.x1, m_Offset.y + data.y1);
 	pLine->Add_Point(m_Offset.x + data.x2, m_Offset.y + data.y2);
 
-	pLine->Set_Value(TBL_LINES_LAYER	, CSG_String(attributes.getLayer().c_str()));
-	pLine->Set_Value(TBL_LINES_Z1		, m_Offset.z + data.z1);
-	pLine->Set_Value(TBL_LINES_Z2		, m_Offset.z + data.z2);
+	pLine->Set_Value(TBL_LINES_LAYER, CSG_String(attributes.getLayer().c_str()));
+	pLine->Set_Value(TBL_LINES_Z1   , m_Offset.z + data.z1);
+	pLine->Set_Value(TBL_LINES_Z2   , m_Offset.z + data.z2);
 }
 
 //---------------------------------------------------------
@@ -447,9 +437,8 @@ void CDXF_Import::addPolyline(const DL_PolylineData &data)
 
 	switch( data.flags )
 	{
-	default:
-	case 0:	m_pPolyLine	= m_pPolyLines	->Add_Shape();	break;
-	case 1:	m_pPolyLine	= m_pPolygons	->Add_Shape();	break;
+	default: m_pPolyLine = m_pPolyLines->Add_Shape(); break;
+	case  1: m_pPolyLine = m_pPolygons ->Add_Shape(); break;
 	}
 
 	m_pPolyLine->Set_Value(TBL_POLYOBJ_LAYER, CSG_String(attributes.getLayer().c_str()));
@@ -481,73 +470,73 @@ void CDXF_Import::endSequence(void)
 //---------------------------------------------------------
 void CDXF_Import::addCircle(const DL_CircleData &data)
 {
-	if( !Check_Layer(attributes.getLayer().c_str()) )
-		return;
+	if( Check_Layer(attributes.getLayer().c_str()) )
+	{
+		CSG_Shape	*pCircle	= m_pCircles->Add_Shape();
 
-	CSG_Shape	*pCircle	= m_pCircles->Add_Shape();
-
-	Add_Arc(pCircle, data.cx, data.cy, data.radius, 0.0, 360.0);
+		Add_Arc(pCircle, data.cx, data.cy, data.radius, 0., 360.);
+	}
 }
 
 //---------------------------------------------------------
 void CDXF_Import::addArc(const DL_ArcData &data)
 {
-	if( !Check_Layer(attributes.getLayer().c_str()) )
-		return;
-
-	CSG_Shape	*pArc	= m_pPolyLine ? m_pPolyLine : m_pPolyLines->Add_Shape();
-
-	Add_Arc(pArc, data.cx, data.cy, data.radius, data.angle1, data.angle2);
-
-	if( pArc != m_pPolyLine )
+	if( Check_Layer(attributes.getLayer().c_str()) )
 	{
-		pArc->Set_Value(TBL_POLYOBJ_LAYER, CSG_String(attributes.getLayer().c_str()));
+		CSG_Shape	*pArc	= m_pPolyLine ? m_pPolyLine : m_pPolyLines->Add_Shape();
+
+		Add_Arc(pArc, data.cx, data.cy, data.radius, data.angle1, data.angle2);
+
+		if( pArc != m_pPolyLine )
+		{
+			pArc->Set_Value(TBL_POLYOBJ_LAYER, CSG_String(attributes.getLayer().c_str()));
+		}
 	}
 }
 
 //---------------------------------------------------------
 void CDXF_Import::add3dFace(const DL_3dFaceData &data)
 {
-	if( !Check_Layer(attributes.getLayer().c_str()) )
-		return;
-
-	CSG_Shape	*pTriangle	= m_pTriangles->Add_Shape();
-
-	for(int i=0; i<3; i++)
+	if( Check_Layer(attributes.getLayer().c_str()) )
 	{
-		pTriangle->Add_Point(m_Offset.x + data.x[i], m_Offset.y + data.y[i]);
-	}
+		CSG_Shape	*pTriangle	= m_pTriangles->Add_Shape();
 
-	pTriangle->Set_Value(TBL_TRIANGLE_LAYER	, CSG_String(attributes.getLayer().c_str()));
-	pTriangle->Set_Value(TBL_TRIANGLE_THICK	, data.thickness);
-	pTriangle->Set_Value(TBL_TRIANGLE_Z1	, m_Offset.z + data.z[0]);
-	pTriangle->Set_Value(TBL_TRIANGLE_Z2	, m_Offset.z + data.z[1]);
-	pTriangle->Set_Value(TBL_TRIANGLE_Z3	, m_Offset.z + data.z[2]);
+		for(int i=0; i<3; i++)
+		{
+			pTriangle->Add_Point(m_Offset.x + data.x[i], m_Offset.y + data.y[i]);
+		}
+
+		pTriangle->Set_Value(TBL_TRIANGLE_LAYER, CSG_String(attributes.getLayer().c_str()));
+		pTriangle->Set_Value(TBL_TRIANGLE_THICK, data.thickness);
+		pTriangle->Set_Value(TBL_TRIANGLE_Z1   , m_Offset.z + data.z[0]);
+		pTriangle->Set_Value(TBL_TRIANGLE_Z2   , m_Offset.z + data.z[1]);
+		pTriangle->Set_Value(TBL_TRIANGLE_Z3   , m_Offset.z + data.z[2]);
+	}
 }
 
 //---------------------------------------------------------
 void CDXF_Import::addText(const DL_TextData &data)
 {
-	if( !Check_Layer(attributes.getLayer().c_str()) )
-		return;
+	if( Check_Layer(attributes.getLayer().c_str()) )
+	{
+		CSG_Shape	*pText	= m_pText->Add_Shape();
 
-	CSG_Shape	*pText	= m_pText->Add_Shape();
+		pText->Add_Point(m_Offset.x + data.ipx, m_Offset.y + data.ipy);
 
-	pText->Add_Point(m_Offset.x + data.ipx, m_Offset.y + data.ipy);
-
-	pText->Set_Value(TBL_TEXT_LAYER	, CSG_String(attributes.getLayer().c_str()));
-	pText->Set_Value(TBL_TEXT_Z		, m_Offset.z + data.ipz);
-	pText->Set_Value(TBL_TEXT_TEXT	, CSG_String(data.text.c_str()));
-	pText->Set_Value(TBL_TEXT_HEIGHT, data.height);
-	pText->Set_Value(TBL_TEXT_ANGLE	, data.angle * M_RAD_TO_DEG);
-	pText->Set_Value(TBL_TEXT_APX	, m_Offset.z + data.apx);
-	pText->Set_Value(TBL_TEXT_APY	, m_Offset.z + data.apy);
-	pText->Set_Value(TBL_TEXT_APZ	, m_Offset.z + data.apz);
-	pText->Set_Value(TBL_TEXT_SCALE	, data.xScaleFactor);
-	pText->Set_Value(TBL_TEXT_HJUST	, data.hJustification);
-	pText->Set_Value(TBL_TEXT_VJUST	, data.vJustification);
-	pText->Set_Value(TBL_TEXT_STYLE	, CSG_String(data.style.c_str()));
-	pText->Set_Value(TBL_TEXT_SCALE	, data.textGenerationFlags);
+		pText->Set_Value(TBL_TEXT_LAYER , CSG_String(attributes.getLayer().c_str()));
+		pText->Set_Value(TBL_TEXT_Z     , m_Offset.z + data.ipz);
+		pText->Set_Value(TBL_TEXT_TEXT  , CSG_String(data.text.c_str()));
+		pText->Set_Value(TBL_TEXT_HEIGHT, data.height);
+		pText->Set_Value(TBL_TEXT_ANGLE	, data.angle * M_RAD_TO_DEG);
+		pText->Set_Value(TBL_TEXT_APX   , m_Offset.z + data.apx);
+		pText->Set_Value(TBL_TEXT_APY   , m_Offset.z + data.apy);
+		pText->Set_Value(TBL_TEXT_APZ   , m_Offset.z + data.apz);
+		pText->Set_Value(TBL_TEXT_SCALE , data.xScaleFactor);
+		pText->Set_Value(TBL_TEXT_HJUST , data.hJustification);
+		pText->Set_Value(TBL_TEXT_VJUST , data.vJustification);
+		pText->Set_Value(TBL_TEXT_STYLE , CSG_String(data.style.c_str()));
+		pText->Set_Value(TBL_TEXT_SCALE , data.textGenerationFlags);
+	}
 }
 
 

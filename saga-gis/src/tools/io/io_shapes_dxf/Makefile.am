@@ -13,8 +13,7 @@ pkglib_LTLIBRARIES = libio_shapes_dxf.la
 libio_shapes_dxf_la_SOURCES =\
 dxf_import.cpp\
 MLB_Interface.cpp\
-dxf_import.h\
-MLB_Interface.h
+dxf_import.h
 
 if SYSTEM_DXFLIB
 AM_LDFLAGS       += -ldxflib
