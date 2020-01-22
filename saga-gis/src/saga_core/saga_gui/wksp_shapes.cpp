@@ -982,6 +982,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 	if( Classes.Get_Count() > 0 )
 	{
 		m_Parameters("LUT")->asTable()->Assign(&Classes);
+		m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
 
 		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 		m_Parameters("LUT_ATTRIB" )->Set_Value(Field);
@@ -1007,6 +1008,7 @@ void CWKSP_Shapes::_LUT_Import(void)
 			m_Parameters.Set_Parameter("LUT_ATTRIB", Attribute);
 
 			m_Parameters("LUT")->asTable()->Assign(&Classes);
+			m_Parameters("LUT")->asTable()->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
 
 			m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 

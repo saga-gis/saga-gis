@@ -894,7 +894,10 @@ bool CWKSP_Project::_Load_Map(CSG_MetaData &Entry, const wxString &ProjectDir)
 			{
 				CWKSP_Map_Layer	*pLayer	= pMap->Add_Layer((CWKSP_Layer *)pItem);
 
-				pLayer->Load_Settings(&Layer);
+				if( pLayer )
+				{
+					pLayer->Load_Settings(&Layer);
+				}
 			}
 		}
 		else if( Layer.Cmp_Name("PARAMETERS") )

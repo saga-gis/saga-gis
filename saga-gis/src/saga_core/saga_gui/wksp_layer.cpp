@@ -361,13 +361,15 @@ void CWKSP_Layer::On_Create_Parameters(void)
 		_TL("")
 	)->asTable();
 
+	pLUT->Get_MetaData().Add_Child("SAGA_GUI_LUT_TYPE", m_pObject->Get_ObjectType());
+
 	pLUT->Add_Field(_TL("Color"      ), SG_DATATYPE_Color );
 	pLUT->Add_Field(_TL("Name"       ), SG_DATATYPE_String);
 	pLUT->Add_Field(_TL("Description"), SG_DATATYPE_String);
 	pLUT->Add_Field(_TL("Minimum"    ), SG_DATATYPE_Double);
 	pLUT->Add_Field(_TL("Maximum"    ), SG_DATATYPE_Double);
 
-	m_pClassify->Initialise(this, m_Parameters("LUT")->asTable(), g_pData->Get_Parameter("COLORS_DEFAULT")->asColors());
+	m_pClassify->Initialise(this, pLUT, g_pData->Get_Parameter("COLORS_DEFAULT")->asColors());
 
 	//-----------------------------------------------------
 	// Classification: Colors...

@@ -1209,7 +1209,48 @@ bool QGIS_Styles_Import(const CSG_String &File, CSG_Table &Classes, CSG_String &
 //---------------------------------------------------------
 bool QGIS_Styles_Export(const CSG_String &File, const CSG_Table &Classes, const CSG_String &Attribute)
 {
-	return( false );
+	if( Classes.Get_Count() < 1 )
+	{
+		return( false );
+	}
+
+	CSG_MetaData	QML; QML.Set_Name("qgis");
+
+	//-----------------------------------------------------
+	if( Attribute.is_Empty() )	// raster
+	{
+		CSG_MetaData	&RasterProp	= *QML.Add_Child("rasterproperties");
+
+		RasterProp.Add_Child("mDrawingStyle"         , "SingleBandPseudoColor");
+		RasterProp.Add_Child("mColorShadingAlgorithm", "ColorRampShader"      );
+		RasterProp.Add_Child("mGrayBandName"         , "Band 1"               );
+
+		CSG_MetaData	&ColorRamp	= *RasterProp.Add_Child("customColorRamp");
+
+		ColorRamp.Add_Child("colorRampType", "DISCRETE");
+
+		for(int i=0; i<Classes.Get_Count(); i++)
+		{
+			CSG_Table_Record &Class = Classes[i];
+
+			CSG_MetaData &Entry	= *ColorRamp.Add_Child("colorRampEntry");
+
+			Entry.Add_Property("red"  , SG_GET_R(Class.asInt(0)));
+			Entry.Add_Property("blue" , SG_GET_B(Class.asInt(0)));
+			Entry.Add_Property("green", SG_GET_G(Class.asInt(0)));
+			Entry.Add_Property("value", Class.asDouble(4));
+			Entry.Add_Property("label", Class.asString(1));
+
+			//Entry.Add_Property("color", CSG_String::Format("#%02X%02X%02X",
+			//	SG_GET_R(Class.asInt(0)),
+			//	SG_GET_G(Class.asInt(0)),
+			//	SG_GET_B(Class.asInt(0)))
+			//);
+		}
+	}
+
+	//-----------------------------------------------------
+	return( QML.Save(File) );	// return( QML.Save(File, SG_T("qml")) );
 }
 
 

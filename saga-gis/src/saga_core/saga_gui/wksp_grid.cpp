@@ -810,7 +810,7 @@ void CWKSP_Grid::_LUT_Create(void)
 
 	if( Classes.Get_Count() > 0 )
 	{
-		m_Parameters("LUT")->asTable()->Assign(&Classes);
+		m_Parameters("LUT")->asTable()->Assign_Values(&Classes);
 
 		m_Parameters("COLORS_TYPE")->Set_Value(CLASSIFY_LUT);	// Lookup Table
 

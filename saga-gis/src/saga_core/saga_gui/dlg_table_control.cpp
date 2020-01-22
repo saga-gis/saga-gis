@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: dlg_table_control.cpp 2665 2015-10-28 12:55:25Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -126,10 +114,18 @@ CDLG_Table_Control::CDLG_Table_Control(wxWindow *pParent, CSG_Table *pTable)
 	m_pTable	= new CSG_Table(*pTable);
 	m_bEditing	= false;
 
-	m_bLUT		= pTable->Get_Field_Count() == 5
-		&& pTable->Get_Field_Type(0) == SG_DATATYPE_Color
-		&& pTable->Get_Field_Type(1) == SG_DATATYPE_String
-		&& pTable->Get_Field_Type(2) == SG_DATATYPE_String;
+	if( pTable->Get_MetaData()("SAGA_GUI_LUT_TYPE")
+	&&  pTable->Get_Field_Count() == 5
+	&&  pTable->Get_Field_Type(0) == SG_DATATYPE_Color
+	&&  pTable->Get_Field_Type(1) == SG_DATATYPE_String
+	&&  pTable->Get_Field_Type(2) == SG_DATATYPE_String )
+	{
+		m_LUT_Type	= pTable->Get_MetaData()["SAGA_GUI_LUT_TYPE"].Get_Content().asInt();
+	}
+	else
+	{
+		m_LUT_Type	= SG_DATAOBJECT_TYPE_Undefined;
+	}
 
 	CreateGrid(0, m_pTable->Get_Field_Count(), wxGrid::wxGridSelectRows);
 
@@ -356,7 +352,7 @@ bool CDLG_Table_Control::Load(void)
 
 	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
 
-	if( m_bLUT )
+	if( m_LUT_Type != SG_DATAOBJECT_TYPE_Undefined )
 	{
 		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
@@ -368,7 +364,7 @@ bool CDLG_Table_Control::Load(void)
 	{
 		CSG_Table	Table;
 
-		if( m_bLUT && SG_File_Cmp_Extension(&File, "qml") )
+		if( m_LUT_Type != SG_DATAOBJECT_TYPE_Undefined && SG_File_Cmp_Extension(&File, "qml") )
 		{
 			QGIS_Styles_Import(&File, Table);
 		}
@@ -396,7 +392,7 @@ bool CDLG_Table_Control::Save(void)
 
 	Filter	+= wxString::Format("%s (*.txt, *.csv, *.dbf)|*.txt;*.csv;*.dbf|", _TL("Tables"));
 
-	if(0&& m_bLUT )
+	if( m_LUT_Type == SG_DATAOBJECT_TYPE_Grid )
 	{
 		Filter	+= wxString::Format("%s (*.qml)|*.qml|", _TL("QGIS Layer Style File"));
 	}
@@ -406,7 +402,7 @@ bool CDLG_Table_Control::Save(void)
 	//-----------------------------------------------------
 	if( DLG_Save(File, _TL("Save Table"), Filter) )
 	{
-		if( m_bLUT && SG_File_Cmp_Extension(&File, "qml") )
+		if( m_LUT_Type == SG_DATAOBJECT_TYPE_Grid && SG_File_Cmp_Extension(&File, "qml") )
 		{
 			bResult	= QGIS_Styles_Export(&File, *m_pTable);
 		}
