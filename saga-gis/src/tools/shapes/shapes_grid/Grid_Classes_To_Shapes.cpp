@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Classes_To_Shapes.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Vectorising Grid Classes"));
 
 	Set_Author		("O.Conrad (c) 2008");
@@ -82,46 +69,46 @@ CGrid_Classes_To_Shapes::CGrid_Classes_To_Shapes(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		NULL	, "GRID"		, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "POLYGONS"	, _TL("Polygons"),
+	Parameters.Add_Shapes("",
+		"POLYGONS"	, _TL("Polygons"),
 		_TL(""),
 		PARAMETER_OUTPUT, SHAPE_TYPE_Polygon
 	);
 
-	CSG_Parameter	*pNode	= Parameters.Add_Choice(
-		NULL	, "CLASS_ALL"	, _TL("Class Selection"),
+	Parameters.Add_Choice("",
+		"CLASS_ALL"	, _TL("Class Selection"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("one single class specified by class identifier"),
 			_TL("all classes")
 		), 1
 	);
 
-	Parameters.Add_Double(
-		pNode	, "CLASS_ID"	, _TL("Class Identifier"),
+	Parameters.Add_Double("CLASS_ALL",
+		"CLASS_ID"	, _TL("Class Identifier"),
 		_TL(""),
-		1.0
+		1.
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "SPLIT"		, _TL("Vectorised class as..."),
+	Parameters.Add_Choice("",
+		"SPLIT"		, _TL("Vectorised class as..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("one single (multi-)polygon object"),
 			_TL("each island as separated polygon")
 		), 0
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ALLVERTICES"	, _TL("Keep Vertices on Straight Lines"),
+	Parameters.Add_Bool("",
+		"ALLVERTICES", _TL("Keep Vertices on Straight Lines"),
 		_TL(""),
-		PARAMETER_TYPE_Bool, false
+		false
 	);
 }
 
@@ -149,7 +136,6 @@ int CGrid_Classes_To_Shapes::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( !Get_Classes() || !Get_Edges() )
 	{
 		m_Classes.Destroy();
@@ -176,7 +162,6 @@ bool CGrid_Classes_To_Shapes::On_Execute(void)
 //---------------------------------------------------------
 bool CGrid_Classes_To_Shapes::Get_Classes(void)
 {
-	//-----------------------------------------------------
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
 	m_pPolygons	= Parameters("POLYGONS")->asShapes();
@@ -187,6 +172,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	m_pPolygons->Add_Field("VALUE", pGrid->Get_Type ());
 	m_pPolygons->Add_Field("NAME" , SG_DATATYPE_String);
 
+	DataObject_Add          (m_pPolygons);
 	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "COLORS_TYPE"));	// Color Classification Type: Lookup Table
 	DataObject_Set_Parameter(m_pPolygons, DataObject_Get_Parameter(pGrid, "LUT"        ));	// Lookup Table
 	DataObject_Set_Parameter(m_pPolygons, "LUT_ATTRIB", 1);
@@ -196,15 +182,11 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	//-----------------------------------------------------
 	CSG_Table	*pLUT	= NULL;
 
-	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE") )
+	if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")
+	&&  DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1	// Color Classification Type: Lookup Table == 1
+	&&  DataObject_Get_Parameter(pGrid, "LUT") )
 	{
-		if( DataObject_Get_Parameter(pGrid, "COLORS_TYPE")->asInt() == 1 )	// Color Classification Type: Lookup Table == 1
-		{
-			if( DataObject_Get_Parameter(pGrid, "LUT") )
-			{
-				pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
-			}
-		}
+		pLUT	= DataObject_Get_Parameter(pGrid, "LUT")->asTable();
 	}
 
 	//-----------------------------------------------------
@@ -214,7 +196,7 @@ bool CGrid_Classes_To_Shapes::Get_Classes(void)
 	m_Classes.Set_NoData_Value(-1);
 	m_Classes.Assign_NoData();
 
-	double	Value	= 0.0;
+	double	Value	= 0.;
 
 	//-----------------------------------------------------
 	if( Parameters("CLASS_ALL")->asInt() == 1 )
