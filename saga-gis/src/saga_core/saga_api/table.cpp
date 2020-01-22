@@ -390,7 +390,8 @@ bool CSG_Table::Assign(CSG_Data_Object *pObject)
 		Add_Record(pTable->Get_Record(i));
 	}
 
-	Get_History()	= pTable->Get_History();
+	Get_MetaData()	= pTable->Get_MetaData();
+//	Get_History ()	= pTable->Get_History ();
 
 	return( true );
 }
