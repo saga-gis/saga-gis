@@ -957,7 +957,7 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameter(pDataObject, P(ID)) );
 	}
 
 	return( false );
@@ -969,7 +969,7 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameter(pDataObject, P(ID)) );
 	}
 
 	return( false );
@@ -981,7 +981,7 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameter(pDataObject, P(ID)) );
 	}
 
 	return( false );
@@ -993,7 +993,7 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) )
 	{
-		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameters(pDataObject, P) );
+		return( P(ID)->Set_Value(Value) && DataObject_Set_Parameter(pDataObject, P(ID)) );
 	}
 
 	return( false );
@@ -1005,7 +1005,7 @@ bool CSG_Tool::DataObject_Set_Parameter	(CSG_Data_Object *pDataObject, const CSG
 
 	if( DataObject_Get_Parameters(pDataObject, P) && P(ID) && P(ID)->Get_Type() == PARAMETER_TYPE_Range )
 	{
-		return( P(ID)->asRange()->Set_Range(loVal, hiVal) && DataObject_Set_Parameters(pDataObject, P) );
+		return( P(ID)->asRange()->Set_Range(loVal, hiVal) && DataObject_Set_Parameter(pDataObject, P(ID)) );
 	}
 
 	return( false );
