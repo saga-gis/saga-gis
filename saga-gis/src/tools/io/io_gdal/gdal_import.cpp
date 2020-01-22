@@ -297,7 +297,7 @@ bool CGDAL_Import::On_Execute(void)
 //---------------------------------------------------------
 bool CGDAL_Import::Load(const CSG_String &File)
 {
-	CSG_Rect	Extent;
+	CSG_Rect	Extent;	CSG_Projection	Projection;
 
 	switch( Parameters("EXTENT")->asInt() )
 	{
@@ -318,6 +318,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	case  3:
 		Extent = Parameters("EXTENT_SHAPES")->asShapes     ()->Get_Extent();
 		Extent.Inflate(Parameters("EXTENT_BUFFER")->asDouble(), false);
+		Projection	= Parameters("EXTENT_SHAPES")->asShapes()->Get_Projection();
 		break;
 	}
 
@@ -458,8 +459,17 @@ bool CGDAL_Import::Load(const CSG_String &File)
 					DataSet.Get_Transformation(&pGrid, Resampling, true);
 				}
 
-				pGrid->Set_File_Name(DataSet.Get_File_Name());
+				if( !Extent.Get_Area() ) // don't associate it with the original file if it's only a subset!
+				{
+					pGrid->Set_File_Name(DataSet.Get_File_Name());
+				}
+
 				pGrid->Set_Name(SG_File_Get_Name(File, false) + (DataSet.Get_Count() == 1 ? CSG_String("") : CSG_String::Format(" [%s]", Bands[i].asString(0))));
+
+				if( !pGrid->Get_Projection().is_Okay() && Projection.is_Okay() )
+				{
+					pGrid->Get_Projection().Create(Projection);
+				}
 
 				pGrids.Add(pGrid);
 			}
@@ -480,7 +490,10 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	{
 		CSG_Grids	*pCollection	= SG_Create_Grids();
 
-		pCollection->Set_File_Name(DataSet.Get_File_Name());
+		if( !Extent.Get_Area() ) // don't associate it with the original file if it's only a subset!
+		{
+			pCollection->Set_File_Name(DataSet.Get_File_Name());
+		}
 
 		pCollection->Set_Name(SG_File_Get_Name(File, false));
 		pCollection->Set_Description(DataSet.Get_Description());
