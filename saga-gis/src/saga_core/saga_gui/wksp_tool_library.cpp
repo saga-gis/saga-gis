@@ -202,8 +202,11 @@ wxMenu * CWKSP_Tool_Library::Get_Menu(void)
 {
 	wxMenu	*pMenu	= new wxMenu(Get_Name());
 
-	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_OPEN);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_TOOL_RELOAD);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_CLOSE);
+	pMenu->AppendSeparator();
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_WKSP_ITEM_SEARCH);
 
 	return( pMenu );
 }

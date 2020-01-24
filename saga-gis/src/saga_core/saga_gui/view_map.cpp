@@ -98,7 +98,8 @@ BEGIN_EVENT_TABLE(CVIEW_Map, CVIEW_Base)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_FULL					, CVIEW_Map::On_Map_Zoom_Full)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_BACK					, CVIEW_Map::On_Map_Zoom_Back)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_FORWARD				, CVIEW_Map::On_Map_Zoom_Forward)
-	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE					, CVIEW_Map::On_Map_Zoom_Layer)
+	EVT_MENU			(ID_CMD_MAP_ZOOM_ACTIVE					, CVIEW_Map::On_Map_Zoom_Active)
+	EVT_MENU			(ID_CMD_MAP_PAN_ACTIVE					, CVIEW_Map::On_Map_PanTo_Active)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_SELECTION				, CVIEW_Map::On_Map_Zoom_Selection)
 	EVT_MENU			(ID_CMD_MAP_ZOOM_EXTENT					, CVIEW_Map::On_Map_Zoom_Extent)
 	EVT_MENU			(ID_CMD_MAP_SYNCHRONIZE					, CVIEW_Map::On_Map_Zoom_Synchronize)
@@ -172,6 +173,7 @@ wxMenu * CVIEW_Map::_Create_Menu(void)
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_FORWARD);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_FULL);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_ACTIVE);
+	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_PAN_ACTIVE);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_SELECTION);
 	CMD_Menu_Add_Item(pMenu, false, ID_CMD_MAP_ZOOM_EXTENT);
 	pMenu->AppendSeparator();
@@ -195,6 +197,7 @@ wxToolBarBase * CVIEW_Map::_Create_ToolBar(void)
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_FORWARD);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_FULL);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_ACTIVE);
+	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_PAN_ACTIVE);
 	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_SELECTION);
 //	CMD_ToolBar_Add_Item(pToolBar, false, ID_CMD_MAP_ZOOM_EXTENT);
 	CMD_ToolBar_Add_Separator(pToolBar);
@@ -422,6 +425,10 @@ void CVIEW_Map::On_Command_UI(wxUpdateUIEvent &event)
 		event.Enable(g_pActive->Get_Active_Layer() != NULL);
 		break;
 
+	case ID_CMD_MAP_PAN_ACTIVE:
+		event.Enable(g_pActive->Get_Active_Layer() != NULL);
+		break;
+
 	case ID_CMD_MAP_ZOOM_SELECTION:
 		event.Enable(g_pActive->Get_Active_Layer()
 			&& g_pActive->Get_Active_Layer()->Get_Object()->asShapes()
@@ -525,9 +532,15 @@ void CVIEW_Map::On_Map_Zoom_Forward(wxCommandEvent &event)
 }
 
 //---------------------------------------------------------
-void CVIEW_Map::On_Map_Zoom_Layer(wxCommandEvent &event)
+void CVIEW_Map::On_Map_Zoom_Active(wxCommandEvent &event)
 {
-	m_pMap->Set_Extent_Active();
+	m_pMap->Set_Extent_Active(false);
+}
+
+//---------------------------------------------------------
+void CVIEW_Map::On_Map_PanTo_Active(wxCommandEvent &event)
+{
+	m_pMap->Set_Extent_Active(true);
 }
 
 //---------------------------------------------------------

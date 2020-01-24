@@ -129,7 +129,8 @@ private:
 	void							On_Map_Zoom_Full			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Back			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Forward			(wxCommandEvent  &event);
-	void							On_Map_Zoom_Layer			(wxCommandEvent  &event);
+	void							On_Map_Zoom_Active			(wxCommandEvent  &event);
+	void							On_Map_PanTo_Active			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Selection		(wxCommandEvent  &event);
 	void							On_Map_Zoom_Extent			(wxCommandEvent  &event);
 	void							On_Map_Zoom_Synchronize		(wxCommandEvent  &event);

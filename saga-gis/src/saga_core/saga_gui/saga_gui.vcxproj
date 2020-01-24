@@ -1313,6 +1313,7 @@ copy ..\..\accessories\toolchains\*.xml $(OutDir)\tools\toolchains
     <None Include="RES\XPM\TB_MAP_MODE_PAN.xpm" />
     <None Include="RES\XPM\TB_MAP_MODE_SELECT.xpm" />
     <None Include="RES\XPM\TB_MAP_MODE_ZOOM.xpm" />
+    <None Include="res\xpm\tb_map_pan_active.xpm" />
     <None Include="RES\XPM\TB_MAP_SYNCHRONIZE.xpm" />
     <None Include="RES\XPM\TB_MAP_ZOOM_ACTIVE.xpm" />
     <None Include="RES\XPM\TB_MAP_ZOOM_FULL.xpm" />

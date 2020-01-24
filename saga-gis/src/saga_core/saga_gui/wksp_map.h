@@ -121,11 +121,11 @@ public:
 	virtual void				Parameters_Changed		(void);
 
 	const CSG_Rect &			Get_Extent				(void)		{	return( m_Extents.Get_Extent() );	}
-	bool						Set_Extent				(const CSG_Rect &Extent, bool bReset = false);
-	bool						Set_Extent				(const CSG_Rect &Extent, const CSG_Projection &Projection);
+	bool						Set_Extent				(const CSG_Rect &Extent, bool bReset = false, bool bPan = false);
+	bool						Set_Extent				(const CSG_Rect &Extent, const CSG_Projection &Projection, bool bPan = false);
 	bool						Set_Extent				(void);
 	bool						Set_Extent_Full			(void);
-	bool						Set_Extent_Active		(void);
+	bool						Set_Extent_Active		(bool bPan);
 	bool						Set_Extent_Selection	(void);
 	bool						Set_Extent_Back			(bool bCheck_Only = false);
 	bool						Set_Extent_Forward		(bool bCheck_Only = false);

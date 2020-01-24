@@ -147,6 +147,7 @@
 #include "./res/xpm/tb_map_north_arrow.xpm"
 #include "./res/xpm/tb_map_synchronize.xpm"
 #include "./res/xpm/tb_map_zoom_active.xpm"
+#include "./res/xpm/tb_map_pan_active.xpm"
 #include "./res/xpm/tb_map_zoom_full.xpm"
 #include "./res/xpm/tb_map_zoom_last.xpm"
 #include "./res/xpm/tb_map_zoom_next.xpm"
@@ -297,6 +298,7 @@ const char ** IMG_Get_XPM(int ID_IMG)
 	case ID_IMG_TB_MAP_NORTH_ARROW:	return( tb_map_north_arrow_xpm );
 	case ID_IMG_TB_MAP_SYNCHRONIZE:	return( tb_map_synchronize_xpm );
 	case ID_IMG_TB_MAP_ZOOM_ACTIVE:	return( tb_map_zoom_active_xpm );
+	case ID_IMG_TB_MAP_PAN_ACTIVE:	return( tb_map_pan_active_xpm );
 	case ID_IMG_TB_MAP_ZOOM_FULL:	return( tb_map_zoom_full_xpm );
 	case ID_IMG_TB_MAP_ZOOM_LAST:	return( tb_map_zoom_last_xpm );
 	case ID_IMG_TB_MAP_ZOOM_NEXT:	return( tb_map_zoom_next_xpm );

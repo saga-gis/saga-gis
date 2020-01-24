@@ -987,25 +987,34 @@ bool CWKSP_Map::_Set_Extent(const CSG_Rect &Extent)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
+bool CWKSP_Map::Set_Extent(const CSG_Rect &_Extent, bool bReset, bool bPan)
 {
-	CSG_Rect	r(Extent);
+	CSG_Rect	Extent(_Extent);
 
-	if( r.Get_XRange() == 0. )
+	if( Extent.Get_XRange() == 0. )
 	{
-		r.m_rect.xMin	-= 1.;
-		r.m_rect.xMax	+= 1.;
+		Extent.m_rect.xMin	-= 1.;
+		Extent.m_rect.xMax	+= 1.;
 	}
 
-	if( r.Get_YRange() == 0. )
+	if( Extent.Get_YRange() == 0. )
 	{
-		r.m_rect.yMin	-= 1.;
-		r.m_rect.yMax	+= 1.;
+		Extent.m_rect.yMin	-= 1.;
+		Extent.m_rect.yMax	+= 1.;
 	}
 
-	if( m_Extents.Add_Extent(r, bReset) )
+	if( bPan )
 	{
-		_Set_Extent(r);
+		Extent	= Get_Extent();
+
+		CSG_Point	Difference	= _Extent.Get_Center() - Get_Extent().Get_Center();
+
+		Extent.Move(Difference);
+	}
+
+	if( m_Extents.Add_Extent(Extent, bReset) )
+	{
+		_Set_Extent(Extent);
 
 		return( true );
 	}
@@ -1014,11 +1023,11 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, bool bReset)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Projection)
+bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Projection, bool bPan)
 {
 	if( Projection == m_Projection )
 	{
-		return( Set_Extent(Extent) );
+		return( Set_Extent(Extent, false, bPan) );
 	}
 
 	if( Projection.is_Okay() )
@@ -1027,7 +1036,7 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Project
 
 		if( SG_Get_Projected(Projection, m_Projection, r) )
 		{
-			return( Set_Extent(r) );
+			return( Set_Extent(r, false, bPan) );
 		}
 	}
 
@@ -1079,22 +1088,12 @@ bool CWKSP_Map::Set_Extent_Full(void)
 }
 
 //---------------------------------------------------------
-bool CWKSP_Map::Set_Extent_Active(void)
+bool CWKSP_Map::Set_Extent_Active(bool bPan)
 {
-	for(int i=0; i<Get_Count(); i++)
-	{
-		if( Get_Item(i)->Get_Type() == WKSP_ITEM_Map_Layer )
-		{
-			CWKSP_Map_Layer	*pLayer	= (CWKSP_Map_Layer *)Get_Item(i);
-
-			if( pLayer->Get_Layer() == Get_Active_Layer() )
-			{
-				return( Set_Extent(pLayer->Get_Extent()) );
-			}
-		}
-	}
-	
-	return( false );
+	return( Get_Active_Layer() && Set_Extent(
+		Get_Active_Layer()->Get_Extent(),
+		Get_Active_Layer()->Get_Object()->Get_Projection(), bPan)
+	);
 }
 
 //---------------------------------------------------------

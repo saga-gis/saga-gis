@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1235,17 +1223,12 @@ bool QGIS_Styles_Export(const CSG_String &File, const CSG_Table &Classes, const 
 
 			CSG_MetaData &Entry	= *ColorRamp.Add_Child("colorRampEntry");
 
+		//	Entry.Add_Property("color", SG_Color_To_Text(Class.asInt(0)));
 			Entry.Add_Property("red"  , SG_GET_R(Class.asInt(0)));
 			Entry.Add_Property("blue" , SG_GET_B(Class.asInt(0)));
 			Entry.Add_Property("green", SG_GET_G(Class.asInt(0)));
 			Entry.Add_Property("value", Class.asDouble(4));
 			Entry.Add_Property("label", Class.asString(1));
-
-			//Entry.Add_Property("color", CSG_String::Format("#%02X%02X%02X",
-			//	SG_GET_R(Class.asInt(0)),
-			//	SG_GET_G(Class.asInt(0)),
-			//	SG_GET_B(Class.asInt(0)))
-			//);
 		}
 	}
 
