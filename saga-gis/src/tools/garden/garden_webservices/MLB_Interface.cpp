@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
 #include <saga_api/saga_api.h>
@@ -93,7 +84,6 @@ CSG_String Get_Info(int i)
 
 #include "wms_import.h"
 #include "osm_import.h"
-#include "geocoding.h"
 
 
 //---------------------------------------------------------
@@ -105,7 +95,6 @@ CSG_Tool *		Create_Tool(int i)
 	{
 	case  0:	return( new CWMS_Import );
 	case  1:	return( new COSM_Import );
-	case  2:	return( new CGeoCoding );
 
 	case  3:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );

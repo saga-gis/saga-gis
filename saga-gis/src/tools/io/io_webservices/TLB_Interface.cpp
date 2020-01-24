@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                  garden_webservices                   //
+//                    io_webservices                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                     geocoding.h                       //
+//                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyrights (C) 2018                   //
-//                     Olaf Conrad                       //
+//                 Copyright (C) 2020 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,65 +46,58 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// 1. Include the appropriate SAGA-API header...
 
+#include <saga_api/saga_api.h>
 
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__geocoding_H
-#define HEADER_INCLUDED__geocoding_H
+// 2. Place general tool library informations here...
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "sg_curl.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CGeoCoding : public CSG_Tool
+CSG_String Get_Info(int i)
 {
-public:
-	CGeoCoding(void);
+	switch( i )
+	{
+	case TLB_INFO_Name:	default:
+		return( _TL("Web Services" ) );
 
-//	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("") );	}
+	case TLB_INFO_Category:
+		return( _TL("Import/Export") );
+
+	case TLB_INFO_Author:
+		return( "SAGA User Group Associaton (c) 2020" );
+
+	case TLB_INFO_Description:
+		return( _TW("Web Services") );
+
+	case TLB_INFO_Version:
+		return( "1.0" );
+
+	case TLB_INFO_Menu_Path:
+		return( _TL("File|Web Services") );
+	}
+}
 
 
-protected:
+//---------------------------------------------------------
+// 3. Include the headers of your tools here...
 
-	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
-
-	virtual bool			On_Execute				(void);
-
-
-private:
-
-	CSG_String				m_API_Key;
-
-	CSG_MetaData			m_Answer;
+#include "geocoding.h"
 
 
-	bool					Request_Nominatim		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_DSTK			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_Google			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_Bing			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
-	bool					Request_MapQuest		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+//---------------------------------------------------------
+// 4. Allow your tools to be created here...
 
-};
+CSG_Tool *		Create_Tool(int i)
+{
+	switch( i )
+	{
+	case  0:	return( new CGeoCoding );
+
+	case  1:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -114,4 +107,8 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__geocoding_H
+//{{AFX_SAGA
+
+	TLB_INTERFACE
+
+//}}AFX_SAGA

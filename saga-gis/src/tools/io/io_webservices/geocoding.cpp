@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                  garden_webservices                   //
+//                    io_webservices                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "geocoding.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CGeoCoding::CGeoCoding(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Geocoding"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -176,7 +166,6 @@ int CGeoCoding::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 //---------------------------------------------------------
 bool CGeoCoding::On_Execute(void)
 {
-	//-----------------------------------------------------
 	int	Field	= Parameters("FIELD")->asInt();
 
 	CSG_Table	Table, *pTable	= Parameters("ADDRESSES")->asTable();
@@ -306,7 +295,6 @@ void	Replace_Special_Chars(CSG_String &String)
 //---------------------------------------------------------
 bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
-	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
 	if( Request.Find('=') < 0 )
@@ -381,7 +369,6 @@ bool CGeoCoding::Request_Nominatim(CWebClient &Connection, TSG_Point &Location, 
 //---------------------------------------------------------
 bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
-	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
 	Replace_Special_Chars(Request);
@@ -460,7 +447,6 @@ bool CGeoCoding::Request_DSTK(CWebClient &Connection, TSG_Point &Location, CSG_S
 //---------------------------------------------------------
 bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
-	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
 	Replace_Special_Chars(Request);
@@ -538,7 +524,6 @@ bool CGeoCoding::Request_Google(CWebClient &Connection, TSG_Point &Location, CSG
 //---------------------------------------------------------
 bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
-	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
 //	http://dev.virtualearth.net/REST/v1/Locations?q=1%20Microsoft%20Way%20Redmond%20WA%2098052&o=xml&key=BingMapsKey
@@ -611,7 +596,6 @@ bool CGeoCoding::Request_Bing(CWebClient &Connection, TSG_Point &Location, CSG_S
 //---------------------------------------------------------
 bool CGeoCoding::Request_MapQuest(CWebClient &Connection, TSG_Point &Location, CSG_String &Address)
 {
-	//-----------------------------------------------------
 	CSG_String	Request(Address);
 
 	Replace_Special_Chars(Request);

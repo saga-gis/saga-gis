@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                       io_virtual                       //
+//                    io_webservices                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                      sg_curl.h                        //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (C) 2018                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,76 +40,82 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__sg_curl_H
+#define HEADER_INCLUDED__sg_curl_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+#if defined(_SAGA_MSW) || defined(HAVE_LIBCURL)
+#define SG_USE_CURL
+#endif
+
+#ifndef SG_USE_CURL
+	#define CWebClient	CSG_HTTP
+#else
+	#define CWebClient	CSG_CURL
+
+//---------------------------------------------------------
+class CSG_CURL
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Virtual") );
+public:
+								CSG_CURL		(void);
+	bool						Create			(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
+								CSG_CURL		(const CSG_String &Server, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
+	bool						Create			(const CSG_String &Server, const SG_Char *Username = NULL, const SG_Char *Password = NULL);
 
-	case TLB_INFO_Author:
-		return( "SAGA User Group Associaton (c) 2014" );
+	virtual						~CSG_CURL		(void);
+	bool						Destroy			(void);
 
-	case TLB_INFO_Description:
-		return( _TL("Tools for the handling of virtual datasets.") );
+	bool						is_Connected	(void)	const;
 
-	case TLB_INFO_Version:
-		return( "1.0" );
+	const CSG_String &			Get_Error		(void)	const	{	return( m_Error );	}
 
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Virtual") );
-	}
-}
+	bool						Request			(const CSG_String &Request, CSG_Bytes    &Answer);
+	bool						Request			(const CSG_String &Request, CSG_MetaData &Answer);
+	bool						Request			(const CSG_String &Request, CSG_String   &Answer);
+	bool						Request			(const CSG_String &Request, const SG_Char *File);
 
+
+private:
+
+	CSG_String					m_Server, m_Error;
+
+	void						*m_pCURL;
+
+
+	bool						_Perform		(void);
+
+	static size_t				_Callback_Write_Bytes	(char *Bytes, size_t Size, size_t nBytes, void *pBuffer);
+	static size_t				_Callback_Write_String	(char *Bytes, size_t Size, size_t nBytes, void *pBuffer);
+	static size_t				_Callback_Write_File	(char *Bytes, size_t Size, size_t nBytes, void *pBuffer);
+
+};
 
 //---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "pc_create_spcvf.h"
-#include "pc_get_subset_spcvf.h"
-#include "pc_tileshape_from_spcvf.h"
-#include "pc_get_grid_spcvf.h"
-#include "pc_remove_overlap_from_spcvf.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPointCloud_Create_SPCVF );
-	case  1:	return( new CPointCloud_Get_Subset_SPCVF );
-	case  2:	return( new CPointCloud_Create_Tileshape_From_SPCVF );
-	case  3:	return( new CPointCloud_Get_Subset_SPCVF_Interactive );
-	case  4:	return( new CPointCloud_Get_Grid_SPCVF );
-	case  5:	return( new CPointCloud_Get_Grid_SPCVF_Interactive );
-	case  6:	return( new CPointCloud_Remove_Overlap_From_SPCVF );
-
-	case  7:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#endif // #ifdef SG_USE_CURL
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +125,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__sg_curl_H

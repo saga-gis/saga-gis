@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                       io_virtual                       //
+//                    io_webservices                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                     geocoding.h                       //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (C) 2018                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,76 +40,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include <saga_api/saga_api.h>
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Virtual") );
-
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
-
-	case TLB_INFO_Author:
-		return( "SAGA User Group Associaton (c) 2014" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for the handling of virtual datasets.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Virtual") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "pc_create_spcvf.h"
-#include "pc_get_subset_spcvf.h"
-#include "pc_tileshape_from_spcvf.h"
-#include "pc_get_grid_spcvf.h"
-#include "pc_remove_overlap_from_spcvf.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CPointCloud_Create_SPCVF );
-	case  1:	return( new CPointCloud_Get_Subset_SPCVF );
-	case  2:	return( new CPointCloud_Create_Tileshape_From_SPCVF );
-	case  3:	return( new CPointCloud_Get_Subset_SPCVF_Interactive );
-	case  4:	return( new CPointCloud_Get_Grid_SPCVF );
-	case  5:	return( new CPointCloud_Get_Grid_SPCVF_Interactive );
-	case  6:	return( new CPointCloud_Remove_Overlap_From_SPCVF );
-
-	case  7:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#ifndef HEADER_INCLUDED__geocoding_H
+#define HEADER_INCLUDED__geocoding_H
 
 
 ///////////////////////////////////////////////////////////
@@ -119,8 +57,52 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#include "sg_curl.h"
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGeoCoding : public CSG_Tool
+{
+public:
+	CGeoCoding(void);
+
+//	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("") );	}
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	CSG_String				m_API_Key;
+
+	CSG_MetaData			m_Answer;
+
+
+	bool					Request_Nominatim		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+	bool					Request_DSTK			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Google			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+	bool					Request_Bing			(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+	bool					Request_MapQuest		(CWebClient &Connection, TSG_Point &Location, CSG_String &Address);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__geocoding_H

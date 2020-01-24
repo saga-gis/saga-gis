@@ -390,6 +390,7 @@ AC_OUTPUT(Makefile \
 	src/tools/io/io_shapes_las/Makefile \
 	src/tools/io/io_table/Makefile \
 	src/tools/io/io_virtual/Makefile \
+	src/tools/io/io_webservices/Makefile \
 	src/tools/pointcloud/Makefile \
 	src/tools/pointcloud/pointcloud_tools/Makefile \
 	src/tools/pointcloud/pointcloud_viewer/Makefile \
