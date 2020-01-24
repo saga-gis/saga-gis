@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -439,7 +427,7 @@ bool CSG_Vector::Multiply(const CSG_Vector &Vector)
 //---------------------------------------------------------
 double CSG_Vector::Multiply_Scalar(const CSG_Vector &Vector) const
 {
-	double	z	= 0.0;
+	double	z	= 0.;
 
 	if( Get_N() == Vector.Get_N() )
 	{
@@ -610,7 +598,7 @@ bool CSG_Vector::Set_Unity(void)
 {
 	double	Length;
 
-	if( (Length = Get_Length()) > 0.0 )
+	if( (Length = Get_Length()) > 0. )
 	{
 		for(int i=0; i<Get_N(); i++)
 		{
@@ -679,7 +667,7 @@ double CSG_Vector::Get_Length(void) const
 {
 	if( Get_N() > 0 )
 	{
-		double	z	= 0.0, *Z	= Get_Data();
+		double	z	= 0., *Z	= Get_Data();
 
 		for(int i=0; i<Get_N(); i++)
 		{
@@ -689,7 +677,7 @@ double CSG_Vector::Get_Length(void) const
 		return( sqrt(z) );
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 //---------------------------------------------------------
@@ -700,17 +688,18 @@ double CSG_Vector::Get_Angle(const CSG_Vector &Vector) const
 		return( Vector.Get_Angle(*this) );
 	}
 
-	int		i;
-	double	A, B, z, *Z	= Get_Data();
+	double	A, B;
 
-	if( (A = Get_Length()) > 0.0 && (B = Vector.Get_Length()) > 0.0 )
+	if( (A = Get_Length()) > 0. && (B = Vector.Get_Length()) > 0. )
 	{
-		for(i=0, z=0.0; i<Get_N(); i++)
+		double	z = 0., *Z = Get_Data();
+
+		for(int i=0; i<Get_N(); i++)
 		{
 			z	+= Vector[i] * Z[i];
 		}
 
-		for(i=Get_N(); i<Vector.Get_N(); i++)
+		for(int i=Get_N(); i<Vector.Get_N(); i++)
 		{
 			z	+= Vector[i];
 		}
@@ -718,7 +707,7 @@ double CSG_Vector::Get_Angle(const CSG_Vector &Vector) const
 		return( acos(z / (A * B)) );
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 //---------------------------------------------------------
@@ -1523,7 +1512,7 @@ CSG_Vector CSG_Matrix::Multiply(const CSG_Vector &Vector) const
 	{
 		for(int y=0; y<m_ny; y++)
 		{
-			double	z	= 0.0;
+			double	z	= 0.;
 
 			for(int x=0; x<m_nx; x++)
 			{
@@ -1547,7 +1536,7 @@ CSG_Matrix CSG_Matrix::Multiply(const CSG_Matrix &Matrix) const
 		{
 			for(int x=0; x<m.m_nx; x++)
 			{
-				double	z	= 0.0;
+				double	z	= 0.;
 
 				for(int n=0; n<m_nx; n++)
 				{
@@ -1716,7 +1705,7 @@ bool CSG_Matrix::Set_Identity(void)
 		{
 			for(int x=0; x<m_nx; x++)
 			{
-				m_z[y][x]	= x == y ? 1.0 : 0.0;
+				m_z[y][x]	= x == y ? 1. : 0.;
 			}
 		}
 
@@ -1778,7 +1767,7 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 			for(int j=0; j<n && (bSilent || SG_UI_Process_Set_Progress(j, n)); j++)
 			{
 				v.Set_Zero();
-				v[j]	= 1.0;
+				v[j]	= 1.;
 
 				SG_Matrix_LU_Solve(n, (int *)p.Get_Array(), m, v.Get_Data(), true);
 
@@ -1803,7 +1792,7 @@ bool CSG_Matrix::Set_Inverse(bool bSilent, int nSubSquare)
 //---------------------------------------------------------
 double CSG_Matrix::Get_Determinant(void) const
 {
-	double	d	= 0.0;
+	double	d	= 0.;
 
 	if( is_Square() )	// det is only defined for squared matrices !
 	{
@@ -1813,7 +1802,7 @@ double CSG_Matrix::Get_Determinant(void) const
 
 		if( SG_Matrix_LU_Decomposition(m_nx, (int *)p.Get_Array(), m.Get_Data(), true, &n) )
 		{
-			d	= n % 2 ? -1.0 : 1.0;
+			d	= n % 2 ? -1. : 1.;
 
 			for(int i=0; i<m_nx; i++)
 			{
@@ -1911,7 +1900,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 
 	for(i=0, iMax=0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); i++)
 	{
-		dMax	= 0.0;
+		dMax	= 0.;
 
 		for(j=0; j<n; j++)
 		{
@@ -1921,12 +1910,12 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 			}
 		}
 
-		if( dMax <= 0.0 )	// singular matrix !!!...
+		if( dMax <= 0. )	// singular matrix !!!...
 		{
 			return( false );
 		}
 
-		Vector[i]	= 1.0 / dMax;
+		Vector[i]	= 1. / dMax;
 	}
 
 	for(j=0; j<n && (bSilent || SG_UI_Process_Set_Progress(j, n)); j++)
@@ -1943,7 +1932,7 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 			Matrix[i][j]	= Sum;
 		}
 
-		for(i=j, dMax=0.0; i<n; i++)
+		for(i=j, dMax=0.; i<n; i++)
 		{
 			Sum		= Matrix[i][j];
 
@@ -1977,14 +1966,14 @@ bool		SG_Matrix_LU_Decomposition(int n, int *Permutation, double **Matrix, bool 
 
 		Permutation[j]	= iMax;
 
-		if( Matrix[j][j] == 0.0 )
+		if( Matrix[j][j] == 0. )
 		{
 			Matrix[j][j]	= M_TINY;
 		}
 
 		if( j != n )
 		{
-			d	= 1.0 / (Matrix[j][j]);
+			d	= 1. / (Matrix[j][j]);
 
 			for(i=j+1; i<n; i++)
 			{
@@ -2068,7 +2057,7 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 	for(i=n-1; i>=1; i--)
 	{
 		l	= i - 1;
-		h	= scale = 0.0;
+		h	= scale = 0.;
 
 		if( l > 0 )
 		{
@@ -2077,7 +2066,7 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 				scale	+= fabs(A[i][k]);
 			}
 
-			if( scale == 0.0 )
+			if( scale == 0. )
 			{
 				e[i]	= A[i][l];
 			}
@@ -2090,16 +2079,16 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 				}
 
 				f		= A[i][l];
-				g		= f > 0.0 ? -sqrt(h) : sqrt(h);
+				g		= f > 0. ? -sqrt(h) : sqrt(h);
 				e[i]	= scale * g;
 				h		-= f * g;
 				A[i][l]	= f - g;
-				f		= 0.0;
+				f		= 0.;
 
 				for(j=0; j<=l; j++)
 				{
 					A[j][i]	= A[i][j]/h;
-					g		= 0.0;
+					g		= 0.;
 
 					for(k=0; k<=j; k++)
 					{
@@ -2137,8 +2126,8 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 		d[i]	= h;
 	}
 
-	d[0]	= 0.0;
-	e[0]	= 0.0;
+	d[0]	= 0.;
+	e[0]	= 0.;
 
 	for(i=0; i<n; i++)
 	{
@@ -2148,7 +2137,7 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 		{	
 			for(j=0; j<=l; j++)
 			{
-				g	= 0.0;
+				g	= 0.;
 
 				for(k=0; k<=l; k++)
 				{
@@ -2163,11 +2152,11 @@ bool SG_Matrix_Triangular_Decomposition(CSG_Matrix &A, CSG_Vector &d, CSG_Vector
 		}
 
 		d[i]	= A[i][i];
-		A[i][i]	= 1.0;
+		A[i][i]	= 1.;
 
 		for(j=0; j<=l; j++)
 		{
-			A[j][i]	= A[i][j] = 0.0;
+			A[j][i]	= A[i][j] = 0.;
 		}
 	}
 
@@ -2199,7 +2188,7 @@ bool SG_Matrix_Tridiagonal_QL(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e)
 		e[i - 1]	= e[i];
 	}
 
-	e[n - 1]	= 0.0;
+	e[n - 1]	= 0.;
 
 	for(l=0; l<n; l++)
 	{
@@ -2224,11 +2213,11 @@ bool SG_Matrix_Tridiagonal_QL(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e)
 					return( false );	// erhand("No convergence in TLQI.");
 				}
 
-				g	= (d[l+1] - d[l]) / (2.0 * e[l]);
-				r	= sqrt((g * g) + 1.0);
+				g	= (d[l+1] - d[l]) / (2. * e[l]);
+				r	= sqrt((g * g) + 1.);
 				g	= d[m] - d[l] + e[l] / (g + M_SET_SIGN(r, g));
-				s	= c = 1.0;
-				p	= 0.0;
+				s	= c = 1.;
+				p	= 0.;
 
 				for(i = m-1; i >= l; i--)
 				{
@@ -2238,20 +2227,20 @@ bool SG_Matrix_Tridiagonal_QL(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e)
 					if (fabs(f) >= fabs(g))
 					{
 						c = g / f;
-						r = sqrt((c * c) + 1.0);
+						r = sqrt((c * c) + 1.);
 						e[i+1] = f * r;
-						c *= (s = 1.0/r);
+						c *= (s = 1. / r);
 					}
 					else
 					{
 						s = f / g;
-						r = sqrt((s * s) + 1.0);
+						r = sqrt((s * s) + 1.);
 						e[i+1] = g * r;
-						s *= (c = 1.0/r);
+						s *= (c = 1. / r);
 					}
 
 					g		= d[i+1] - p;
-					r		= (d[i] - g) * s + 2.0 * c * b;
+					r		= (d[i] - g) * s + 2. * c * b;
 					p		= s * r;
 					d[i+1]	= g + p;
 					g		= c * r - b;
@@ -2266,7 +2255,7 @@ bool SG_Matrix_Tridiagonal_QL(CSG_Matrix &Q, CSG_Vector &d, CSG_Vector &e)
 
 				d[l] = d[l] - p;
 				e[l] = g;
-				e[m] = 0.0;
+				e[m] = 0.;
 			}
 		}
 		while( m != l );

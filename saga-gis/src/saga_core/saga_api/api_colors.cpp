@@ -116,6 +116,27 @@ bool		SG_Color_From_Text	(const CSG_String &Text, long &Color)
 	return( false );
 }
 
+//---------------------------------------------------------
+CSG_String	SG_Color_To_Text	(long Color, bool bHexadecimal)
+{
+	CSG_String	Text;
+
+	if( bHexadecimal )
+	{
+		Text.Printf("#%02X%02X%02X",
+			SG_GET_R(Color),
+			SG_GET_G(Color),
+			SG_GET_B(Color)
+		);
+	}
+	else
+	{
+		Text.Printf("%ld", Color);
+	}
+
+	return( Text );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //

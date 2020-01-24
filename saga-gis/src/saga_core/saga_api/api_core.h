@@ -1256,6 +1256,7 @@ SAGA_API_DLL_EXPORT CSG_String		SG_Colors_Get_Name	(int Index);
 SAGA_API_DLL_EXPORT long			SG_Color_Get_Random	(void);
 
 SAGA_API_DLL_EXPORT bool			SG_Color_From_Text	(const CSG_String &Text, long &Color);
+SAGA_API_DLL_EXPORT CSG_String		SG_Color_To_Text	(long Color, bool bHexadecimal = true);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Colors
