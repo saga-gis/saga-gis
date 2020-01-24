@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Grid_CVA.cpp
     Copyright (C) Victor Olaya
@@ -41,7 +39,7 @@ CGrid_CVA::CGrid_CVA(void)
 {
 	Set_Name		(_TL("Change Vector Analysis"));
 
-	Set_Author		(SG_T("V.Olaya (c) 2004, O.Conrad (c) 2012"));
+	Set_Author		("V.Olaya (c) 2004, O.Conrad (c) 2012");
 
 	Set_Description	(_TW(
 		"This tool performs a change vector analysis (CVA) for the given input features. "
@@ -52,44 +50,32 @@ CGrid_CVA::CGrid_CVA(void)
 		"the quadrant it points to in terms of feature space. "
 	));
 
-	Parameters.Add_Grid_List(
-		NULL	, "A"		, _TL("Initial State"), 
+	Parameters.Add_Grid_List("",
+		"A"		, _TL("Initial State"), 
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "B"		, _TL("Final State"),
+	Parameters.Add_Grid_List("",
+		"B"		, _TL("Final State"),
 		_TL(""), 
 		PARAMETER_INPUT
 	);
-	
-	Parameters.Add_Grid(
-		NULL	, "DIST"	, _TL("Distance"), 
+
+	Parameters.Add_Grid("",
+		"DIST"	, _TL("Distance"), 
 		_TL(""), 
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "DIR"		, _TL("Direction"), 
+	Parameters.Add_Grid("",
+		"DIR"	, _TL("Angle"), 
 		_TL(""), 
-		PARAMETER_OUTPUT
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ANGLE"	, _TL("Angle Calculation"), 
-		_TL("angle calculation is only available when exact two features are compared"), 
-		PARAMETER_TYPE_Bool, true
-	);
-
-	Parameters.Add_Value(
-		NULL	, "C_OUT"	, _TL("Output of Change Vector"), 
-		_TL(""), 
-		PARAMETER_TYPE_Bool, false
-	);
-
-	Parameters.Add_Grid_List(
-		NULL	, "C"		, _TL("Change Vector"),
+	Parameters.Add_Grids("",
+		"C"		, _TL("Change Vector"),
 		_TL(""), 
 		PARAMETER_OUTPUT_OPTIONAL
 	);
@@ -98,49 +84,44 @@ CGrid_CVA::CGrid_CVA(void)
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                                                       //
-//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 int CGrid_CVA::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("A"))
-	||	pParameter->Cmp_Identifier(SG_T("B")) )
+	if(	pParameter->Cmp_Identifier("A")
+	||	pParameter->Cmp_Identifier("B") )
 	{
-		pParameters->Get_Parameter("ANGLE")->Set_Enabled(
-				pParameters->Get_Parameter("A")->asInt() == 2
-			&&	pParameters->Get_Parameter("B")->asInt() == 2
+		pParameters->Set_Enabled("ANGLE",
+				(*pParameters)("A")->asInt() == 2
+			&&	(*pParameters)("B")->asInt() == 2
 		);
 	}
 
-	//-----------------------------------------------------
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
 ///////////////////////////////////////////////////////////
-//                                                       //
-//                                                       //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_CVA::On_Execute(void)
 {	
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pA	= Parameters("A")->asGridList();
 	CSG_Parameter_Grid_List	*pB	= Parameters("B")->asGridList();
-	CSG_Parameter_Grid_List	*pC	= Parameters("C")->asGridList();
 
-	if( pA->Get_Grid_Count() != pB->Get_Grid_Count() )
+	int	nFeatures	= pA->Get_Grid_Count();
+
+	if( nFeatures != pB->Get_Grid_Count() )
 	{
 		Error_Set(_TL("number of initial and final state grids differs"));
 
 		return( false );
 	}
 
-	if( pA->Get_Grid_Count() == 0 )
+	if( nFeatures == 0 )
 	{
 		Error_Set(_TL("no grids in list"));
 
@@ -148,75 +129,43 @@ bool CGrid_CVA::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	int	n	= pA->Get_Grid_Count();
+	CSG_Grids	*pC	= Parameters("C")->asGrids();
 
-	bool		bAngle	= Parameters("ANGLE")->asBool() && n == 2;
-	bool		bC_Out	= Parameters("C_OUT")->asBool();
-
-	CSG_Grid	*pDist	= Parameters("DIST")->asGrid();
-	CSG_Grid	*pDir	= Parameters("DIR" )->asGrid();
-
-	//-----------------------------------------------------
-	pC->Del_Items();
-
-	if( bC_Out )
+	if( pC )
 	{
-		for(int i=0; i<n; i++)
+		if( !pC->Create(Get_System(), nFeatures) || !pC->is_Valid() || pC->Get_NZ() < nFeatures )
 		{
-			CSG_Grid	*pGrid	= SG_Create_Grid(Get_System());
-			pGrid->Fmt_Name("%s %01d", _TL("Change Vector"), i + 1);
-			pC->Add_Item(pGrid);
+			pC	= NULL;
 		}
-	}
-
-	//-----------------------------------------------------
-	CSG_Parameter	*pLUT;
-	CSG_Colors		Colors;
-
-	Colors.Set_Count(100);
-	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(  0, 127, 127), 0, Colors.Get_Count() / 2);
-	Colors.Set_Ramp(SG_GET_RGB(  0, 127, 127), SG_GET_RGB(255,   0,   0),    Colors.Get_Count() / 2, Colors.Get_Count());
-	DataObject_Set_Colors(pDist, Colors);
-
-	if( (pLUT = DataObject_Get_Parameter(pDir, "LUT")) == NULL || pLUT->asTable() == NULL || bAngle )
-	{
-		Colors.Set_Default(100);
-		Colors.Set_Ramp_Brighness(255,   0, 0, Colors.Get_Count() / 2);
-		Colors.Set_Ramp_Brighness(  0, 255,    Colors.Get_Count() / 2, Colors.Get_Count());
-		DataObject_Set_Colors(pDir, Colors);
-
-		DataObject_Set_Parameter(pDir, "COLORS_TYPE", 2);
-	}
-	else
-	{
-		pLUT->asTable()->Del_Records();
-
-		for(int i=0, nClasses=(int)pow(2.0, n); i<nClasses; i++)
+		else
 		{
-			CSG_String	s;
+			pC->Set_Name(_TL("Change Vector"));
 
-			for(int j=0; j<n; j++)
+			pC->Add_Attribute("A", SG_DATATYPE_String);
+			pC->Add_Attribute("B", SG_DATATYPE_String);
+
+			for(int i=0; i<nFeatures; i++)
 			{
-				s	+= i & (int)pow(2.0, j) ? '+' : '-';
+				pC->Set_Z(i, i + 1);
+
+				pC->Get_Attributes()[i].Set_Value(1, pA->Get_Grid(i)->Get_Name());
+				pC->Get_Attributes()[i].Set_Value(2, pB->Get_Grid(i)->Get_Name());
 			}
 
-			CSG_Table_Record	*pClass	= pLUT->asTable()->Add_Record();
-			pClass->Set_Value(1, s);
-			pClass->Set_Value(3, i);
-			pClass->Set_Value(4, i);
+			pC->Get_Attributes_Ptr()->Set_Field_Type(0, SG_DATATYPE_Word);
 		}
-
-		Colors.Set_Count(pLUT->asTable()->Get_Count());
-		Colors.Random();
-
-		for(int c=0; c<pLUT->asTable()->Get_Count(); c++)
-		{
-			pLUT->asTable()->Get_Record(c)->Set_Value(0, Colors.Get_Color(c));
-		}
-
-		DataObject_Set_Parameter(pDir, pLUT);
-		DataObject_Set_Parameter(pDir, "COLORS_TYPE", 1);	// Color Classification Type: Lookup Table
 	}
+
+	//-----------------------------------------------------
+	CSG_Colors	Colors;
+	Colors.Set_Ramp(SG_GET_RGB(255, 255, 255), SG_GET_RGB(  0, 127, 127), 0, Colors.Get_Count() / 2);
+	Colors.Set_Ramp(SG_GET_RGB(  0, 127, 127), SG_GET_RGB(255,   0,   0),    Colors.Get_Count() / 2, Colors.Get_Count());
+
+	CSG_Grid	*pLength = Parameters("DIST")->asGrid();
+	CSG_Grid	*pAngle  = Parameters("DIR" )->asGrid();
+
+	DataObject_Set_Colors(pLength, Colors);
+	DataObject_Set_Colors(pAngle , Colors);
 
 	//-----------------------------------------------------
     for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -224,61 +173,44 @@ bool CGrid_CVA::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			bool		bOkay;
-			int			i, j;
-			double		d;
-			CSG_Vector	v(n);
+			bool	bOkay	= true;	CSG_Vector	a(nFeatures), b(nFeatures);
 
-			for(i=0, bOkay=true; i<n && bOkay; i++)
+			for(int i=0; bOkay && i<nFeatures; i++)
 			{
-				if( pA->Get_Grid(i)->is_NoData(x, y) || pB->Get_Grid(i)->is_NoData(x, y) )
+				if( (bOkay = !pA->Get_Grid(i)->is_NoData(x, y) && !pB->Get_Grid(i)->is_NoData(x, y)) == true )
 				{
-					bOkay	= false;
-				}
-				else
-				{
-					v[i]	= pB->Get_Grid(i)->asDouble(x, y) - pA->Get_Grid(i)->asDouble(x, y);
+					a[i]	= pA->Get_Grid(i)->asDouble(x, y);
+					b[i]	= pB->Get_Grid(i)->asDouble(x, y);
 				}
 			}
 
 			//---------------------------------------------
-			if( bOkay )
+			if( bOkay == false )
 			{
-				if( bAngle )
-				{
-					d	= atan2(v[0], v[1]);
-				}
-				else for(i=0, j=1, d=0.0; i<n; i++, j*=2)
-				{
-					if( v[i] >= 0.0 )
-					{
-						d	+= j;
-					}
-				}
+				if( pLength ) pLength->Set_NoData(x, y);
+				if( pAngle  ) pAngle ->Set_NoData(x, y);
 
-				pDist->Set_Value(x, y, v.Get_Length());
-				pDir ->Set_Value(x, y, d);
-
-				for(i=0; i<n && bC_Out; i++)
+				for(int i=0; pC && i<nFeatures; i++)
 				{
-					pC->Get_Grid(i)->Set_Value(x, y, v[i]);
+					pC->Set_NoData(x, y, i);
 				}
 			}
-
-			//---------------------------------------------
 			else
 			{
-				pDist->Set_NoData(x, y);
-				pDir ->Set_NoData(x, y);
+				CSG_Vector	c	= b - a;
 
-				for(i=0; i<n && bC_Out; i++)
+				if( pLength ) pLength->Set_Value(x, y, c.Get_Length());
+				if( pAngle  ) pAngle ->Set_Value(x, y, a.Get_Angle(b) * M_RAD_TO_DEG);
+
+				for(int i=0; pC && i<nFeatures; i++)
 				{
-					pC->Get_Grid(i)->Set_NoData(x, y);
+					pC->Set_Value(x, y, i, c[i]);
 				}
 			}
         }
     }
 
+	//-----------------------------------------------------
 	return( true );
 }
 
