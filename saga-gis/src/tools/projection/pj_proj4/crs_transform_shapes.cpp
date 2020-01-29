@@ -314,6 +314,11 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		{
 			int	Thread	= omp_get_thread_num();
 
+			if( !Thread )
+			{
+				Set_Progress(i * SG_OMP_Get_Max_Num_Threads(), pShapes->Get_Count());
+			}
+
 			if( pShapes->Get_ObjectType() == SG_DATAOBJECT_TYPE_PointCloud )
 			{
 				TSG_Point_Z	p	= pShapes->asPointCloud()->Get_Point(i);

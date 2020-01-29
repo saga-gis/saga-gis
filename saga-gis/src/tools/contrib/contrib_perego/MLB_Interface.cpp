@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1514 2012-11-06 09:47:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -27,18 +24,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -60,12 +48,12 @@ CSG_String Get_Info(int i)
 	case TLB_INFO_Description:
 		return( _TW(
 			"Contributions from Alessandro Perego. Go to "
-			"<a target=\"_blank\" href=\"http://www.webalice.it/alper78/saga_mod/saga_mod.html\">"
-			"www.webalice.it/alper78/saga_mod</a> for further information."
+			"<a href=\"http://www.alspergis.altervista.org/software/software.html#saga\">www.alspergis.altervista.org</a> "
+			"for further information."
 		));
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Grid|Filter") );
@@ -93,17 +81,19 @@ CSG_Tool *		Create_Tool(int i)
 {
 	switch( i )
 	{
-	case 0:		return( new CA1WiTh );
-	case 1:		return( new CA2WiTh );
-	case 2:		return( new CA3WiTh );
-	case 3:		return( new CAvWiMa1 );
-	case 4:		return( new CAvWiMa2 );
-	case 5:		return( new Cdestriping1 );
-	case 6:		return( new Cdestriping2 );
-	case 7:		return( new Cdirectional1 );
-	}
+	case  0:	return( new CA1WiTh );
+	case  1:	return( new CA2WiTh );
+	case  2:	return( new CA3WiTh );
+	case  3:	return( new CAvWiMa1 );
+	case  4:	return( new CAvWiMa2 );
+	case  5:	return( new Cdestriping1 );
+	case  6:	return( new Cdestriping2 );
+	case  7:	return( new Cdirectional1 );
 
-	return( NULL );
+	//-----------------------------------------------------
+	case  8:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

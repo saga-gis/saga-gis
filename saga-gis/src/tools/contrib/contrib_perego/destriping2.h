@@ -1,10 +1,7 @@
-/**********************************************************
- * Version $Id: destriping2.h 1514 2012-11-06 09:47:38Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
-//                        Tool:                        //
+//                        Tool:                          //
 //                      destriping                       //
 //                                                       //
 //                       for SAGA                        //
@@ -25,33 +22,46 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__destriping2_H
 #define HEADER_INCLUDED__destriping2_H
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
+
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 class Cdestriping2 : public CSG_Tool_Grid
 {
-public: ////// public members and functions: //////////////
-
-	Cdestriping2(void);					// constructor
-	virtual ~Cdestriping2(void);				// destructor
+public:
+	Cdestriping2(void);
 
 
-protected: /// protected members and functions: ///////////
+protected:
 
-	virtual bool		On_Execute(void);		// always override this function
-
-
-private: ///// private members and functions: /////////////
-
+	virtual bool		On_Execute		(void);
 
 };
 
+
+///////////////////////////////////////////////////////////
+//                                                       //
+//                                                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__destriping2_H
