@@ -29,6 +29,7 @@ PROJ4	DIR	WKT	DESC
 "eck4"	" "	"Eckert_IV"	"Eckert IV"
 "eck5"	" "	"Eckert_V"	"*) Eckert V"
 "eck6"	" "	"Eckert_VI"	"Eckert VI"
+"eqearth"	""	"Equal_Earth"	"*) Equal Earth"
 "eqc"	" "	"Equirectangular"	"Equidistant Cylindrical (Plate Caree)"
 "eqc"	"<"	"Equidistant_Cylindrical"	"[ESRI] Equidistant Cylindrical (Plate Caree)"
 "eqc"	"<"	"Plate_Carree"	"[ESRI] Equidistant Cylindrical (Plate Caree)"
