@@ -237,6 +237,36 @@ bool	CT_Get_Daily_Splined(CSG_Vector &Daily, const double Monthly[12])
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+bool	CT_Get_Daily_Precipitation(CSG_Vector &Daily_P, const double Monthly_P[12])	// linear interpolation
+{
+	static const int	nDaysOfMonth[13]	=
+	// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC  JAN
+	{	31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31,  31	};
+
+	static const int	MidOfMonth[13]	=
+	// JAN  FEB  MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV  DEC  JAN
+	//	 0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365
+	{	15,  45,  74, 105, 135, 166, 196, 227, 258, 288, 319, 349, 380	};
+
+	Daily_P.Create(365);
+
+	for(int iMonth=0, jMonth=1; iMonth<12; iMonth++, jMonth++)
+	{
+		int	Day0	= MidOfMonth[iMonth     ];
+		int	nDays	= MidOfMonth[jMonth     ] - Day0;
+		double	P0	= Monthly_P [iMonth     ] / nDaysOfMonth[iMonth];
+		double	dP	= Monthly_P [jMonth % 12] / nDaysOfMonth[jMonth] - P0;
+
+		for(int iDay=0; iDay<=nDays; iDay++)
+		{
+			Daily_P[(Day0 + iDay) % 365]	= P0 + iDay * dP / nDays;
+		}
+	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
 bool	CT_Get_Daily_Precipitation(CSG_Vector &Daily_P, const double Monthly_P[12], const double Monthly_T[12])
 {
 	static const int	nDaysOfMonth[12]	=

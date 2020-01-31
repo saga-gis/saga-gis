@@ -116,6 +116,18 @@ CLandsat_Scene_Import::CLandsat_Scene_Import(void)
 		true
 	);
 
+	Parameters.Add_Bool("",
+		"SKIP_AEROSOL"	, _TL("Skip Aerosol Band"),
+		_TL(""),
+		true
+	);
+
+	Parameters.Add_Bool("",
+		"SKIP_CIRRUS"	, _TL("Skip Cirrus Band"),
+		_TL(""),
+		true
+	);
+
 	Parameters.Add_Choice("",
 		"CALIBRATION"	, _TL("Radiometric Calibration"),
 		_TL(""),
@@ -184,7 +196,9 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		{
 			int	Sensor	= Get_Info_Sensor(Metadata);
 
-			pParameters->Set_Enabled("SKIP_PAN", Sensor == SENSOR_ETM || Sensor == SENSOR_OLI_TIRS);
+			pParameters->Set_Enabled("SKIP_PAN"    , Sensor == SENSOR_OLI_TIRS || Sensor == SENSOR_ETM);
+			pParameters->Set_Enabled("SKIP_AEROSOL", Sensor == SENSOR_OLI_TIRS);
+			pParameters->Set_Enabled("SKIP_CIRRUS" , Sensor == SENSOR_OLI_TIRS);
 
 			const CSG_Table_Record	&Info_Band	= Info_Bands[0];
 
@@ -208,8 +222,10 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 		}
 		else
 		{
-			pParameters->Set_Enabled("SKIP_PAN"   , false);
-			pParameters->Set_Enabled("CALIBRATION", false);
+			pParameters->Set_Enabled("SKIP_PAN"    , false);
+			pParameters->Set_Enabled("SKIP_AEROSOL", false);
+			pParameters->Set_Enabled("SKIP_CIRRUS" , false);
+			pParameters->Set_Enabled("CALIBRATION" , false);
 		}
 	}
 
@@ -235,7 +251,6 @@ int CLandsat_Scene_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG
 //---------------------------------------------------------
 bool CLandsat_Scene_Import::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_MetaData	Metadata;
 
 	if( !Load_Metadata(Metadata, Parameters("METAFILE")->asString()) )
@@ -273,7 +288,6 @@ bool CLandsat_Scene_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String	Path	= SG_File_Get_Path(Parameters("METAFILE")->asString());
 
-	bool	bSkipPan	= Parameters("SKIP_PAN"   )->asBool();
 	bool	bMultiGrids	= Parameters("MULTI2GRIDS")->asBool();
 	int		Calibration	= Parameters("CALIBRATION")->asInt ();
 
@@ -291,7 +305,9 @@ bool CLandsat_Scene_Import::On_Execute(void)
 
 	for(int i=0; i<File_Bands.Get_Count() && Process_Get_Okay(); i++)
 	{
-		if( bSkipPan && is_Panchromatic(Sensor, i) )
+		if( (is_Panchromatic(Sensor, i) && Parameters("SKIP_PAN"    )->asBool())
+		||  (is_Aerosol     (Sensor, i) && Parameters("SKIP_AEROSOL")->asBool())
+		||  (is_Cirrus      (Sensor, i) && Parameters("SKIP_CIRRUS" )->asBool()) )
 		{
 			continue;
 		}
@@ -324,7 +340,7 @@ bool CLandsat_Scene_Import::On_Execute(void)
 			pBand->Get_MetaData().Add_Child(Info_Scene)->Set_Name("LANDSAT");
 			pBand->Set_Description(Info_Scene.asText());
 
-			if( bMultiGrids && is_Multispectral(Sensor, i) && !is_Cirrus(Sensor, i) )
+			if( bMultiGrids && is_Multispectral(Sensor, i) && !is_Aerosol(Sensor, i) && !is_Cirrus(Sensor, i) )
 			{
 				if( pBands == NULL )
 				{
@@ -390,6 +406,12 @@ bool CLandsat_Scene_Import::is_Multispectral(int Sensor, int Band)
 	}
 
 	return( false );
+}
+
+//---------------------------------------------------------
+bool CLandsat_Scene_Import::is_Aerosol(int Sensor, int Band)
+{
+	return( (Sensor == SENSOR_OLI_TIRS && Band == 0) );
 }
 
 //---------------------------------------------------------

@@ -100,6 +100,7 @@ private:
 
 	bool					is_Panchromatic			(int Sensor, int Band);
 	bool					is_Multispectral		(int Sensor, int Band);
+	bool					is_Aerosol				(int Sensor, int Band);
 	bool					is_Cirrus				(int Sensor, int Band);
 	bool					is_Thermal				(int Sensor, int Band);
 
