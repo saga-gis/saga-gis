@@ -72,12 +72,14 @@ class COGR_Export_KML : public CSG_Tool
 public:
 	COGR_Export_KML(void);
 
-	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("Shapes|Export") );	}
+	virtual CSG_String			Get_MenuPath			(void)	{	return( _TL("Shapes|Export") );	}
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 };
 

@@ -100,6 +100,24 @@ COGR_Export_KML::COGR_Export_KML(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int COGR_Export_KML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asShapes()->Get_Name(), "kml"));
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool COGR_Export_KML::On_Execute(void)
 {
 	CSG_Shapes	Shapes, *pShapes	= Parameters("SHAPES")->asShapes();

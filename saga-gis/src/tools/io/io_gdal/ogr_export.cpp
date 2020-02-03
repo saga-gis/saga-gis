@@ -135,6 +135,38 @@ COGR_Export::COGR_Export(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+int COGR_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
+	{
+		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
+
+		CSG_String	Extension(SG_Get_OGR_Drivers().Get_Extension((*pParameters)("FORMAT")->asChoice()->Get_Data()));
+
+		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asShapes()->Get_Name(), Extension));
+	}
+
+	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("FORMAT") )
+	{
+		CSG_String	File((*pParameters)["FILE"].asString());
+
+		if( !File.is_Empty() )
+		{
+			SG_File_Set_Extension(File, SG_Get_OGR_Drivers().Get_Extension((*pParameters)("FORMAT")->asChoice()->Get_Data()));
+
+			pParameters->Set_Parameter("FILE", File);
+		}
+	}
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 bool COGR_Export::On_Execute(void)
 {
 	CSG_OGR_DataSet	DataSource;

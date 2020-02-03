@@ -919,7 +919,7 @@ bool			SG_File_Cmp_Extension(const CSG_String &FileName, const CSG_String &Exten
 //---------------------------------------------------------
 bool			SG_File_Set_Extension(CSG_String &FileName, const CSG_String &Extension)
 {
-	if( FileName.Length() > 0 && Extension.Length() > 0 )
+	if( FileName.Length() > 0 )
 	{
 		wxFileName	fn(FileName.c_str());
 

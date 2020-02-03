@@ -207,6 +207,11 @@ CSG_String CSG_OGR_Drivers::Get_Extension(int Index) const
 	return( GDALGetMetadataItem(Get_Driver(Index), GDAL_DMD_EXTENSION, "") );
 }
 
+CSG_String CSG_OGR_Drivers::Get_Extension(const CSG_String &Name) const
+{
+	return( GDALGetMetadataItem(Get_Driver(Name), GDAL_DMD_EXTENSION, "") );
+}
+
 //---------------------------------------------------------
 bool CSG_OGR_Drivers::is_Vector(int Index) const
 {
@@ -280,6 +285,11 @@ CSG_String CSG_OGR_Drivers::Get_Description(int Index) const
 
 //---------------------------------------------------------
 CSG_String CSG_OGR_Drivers::Get_Extension(int Index) const
+{
+	return( "" );
+}
+
+CSG_String CSG_OGR_Drivers::Get_Extension(const CSG_String &Name) const
 {
 	return( "" );
 }
@@ -898,10 +908,17 @@ bool CSG_OGR_DataSet::Write(CSG_Shapes *pShapes)
 
 	if( pShapes->Get_Projection().is_Okay() )
 	{
-		pSRS	= OSRNewSpatialReference(pShapes->Get_Projection().Get_WKT());
-	//	pSRS	= new OGRSpatialReference(pShapes->Get_Projection().Get_WKT());
-	//	pSRS	= new OGRSpatialReference();
-	//	pSRS	->importFromProj4(pShapes->Get_Projection().Get_Proj4());
+		if( pShapes->Get_Projection().Get_EPSG() > 0
+		&&  OSRImportFromEPSG (pSRS = OSRNewSpatialReference(NULL), pShapes->Get_Projection().Get_EPSG ()) != OGRERR_NONE )
+		{
+			OSRDestroySpatialReference(pSRS); pSRS = NULL;
+		}
+
+		if( !pSRS
+		&&  OSRImportFromProj4(pSRS = OSRNewSpatialReference(NULL), pShapes->Get_Projection().Get_Proj4()) != OGRERR_NONE )
+		{
+			OSRDestroySpatialReference(pSRS); pSRS = NULL;
+		}
 	}
 
 #ifdef GDAL_V2_0_OR_NEWER
