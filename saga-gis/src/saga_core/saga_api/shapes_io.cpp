@@ -147,8 +147,8 @@ bool CSG_Shapes::_Save_GDAL(const CSG_String &File_Name, const CSG_String &Drive
 
 	SG_RUN_TOOL(bResult, "io_gdal", 4,	// Export Shapes
 		    SG_TOOL_PARAMETER_SET("SHAPES", this)
-		&&	SG_TOOL_PARAMETER_SET("FILE"  , File_Name)
 		&&	SG_TOOL_PARAMETER_SET("FORMAT", Driver)
+		&&	SG_TOOL_PARAMETER_SET("FILE"  , File_Name)
 	);
 
 	return( bResult );
