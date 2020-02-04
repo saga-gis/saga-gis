@@ -1025,22 +1025,14 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &_Extent, bool bReset, bool bPan)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Projection, bool bPan)
 {
-	if( Projection == m_Projection )
-	{
-		return( Set_Extent(Extent, false, bPan) );
-	}
-
-	if( Projection.is_Okay() )
+	if( Projection.is_Okay() && m_Projection.is_Okay() && !(Projection == m_Projection) )
 	{
 		TSG_Rect	r	= Extent;
 
-		if( SG_Get_Projected(Projection, m_Projection, r) )
-		{
-			return( Set_Extent(r, false, bPan) );
-		}
+		return( SG_Get_Projected(Projection, m_Projection, r) && Set_Extent(r, false, bPan) );
 	}
 
-	return( false );
+	return( Set_Extent(Extent, false, bPan) );
 }
 
 //---------------------------------------------------------
@@ -1099,7 +1091,10 @@ bool CWKSP_Map::Set_Extent_Active(bool bPan)
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent_Selection(void)
 {
-	return( Get_Active_Layer() && Set_Extent(Get_Active_Layer()->Edit_Get_Extent()) );
+	return( Get_Active_Layer() && Set_Extent(
+		Get_Active_Layer()->Edit_Get_Extent(),
+		Get_Active_Layer()->Get_Object()->Get_Projection())
+	);
 }
 
 //---------------------------------------------------------
