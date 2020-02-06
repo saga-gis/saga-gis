@@ -119,8 +119,10 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_FilePath("",
 		"FILES"		, _TL("Input Files"),
 		_TL(""),
-		_TL("LAS Files (*.las)|*.las|LAS Files (*.LAS)|*.LAS|All Files|*.*"),
-		NULL, false, false, true
+		CSG_String::Format("%s (*.las)|*.las|%s|*.*",
+			_TL("LAS Files"),
+			_TL("All Files")
+		), NULL, false, false, true
 	);
 
 	Parameters.Add_PointCloud_List("",
@@ -129,9 +131,14 @@ CLAS_Import::CLAS_Import(void)
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Node("",
-		"VARS"		, _TL("Attributes to import besides x, y, z..."),
+	Parameters.Add_Bool("",
+		"VALID"		, _TL("Check Point Validity"),
 		_TL("")
+	);
+
+	Parameters.Add_Node("",
+		"VARS"		, _TL("Import Additional Attributes"),
+		_TL("Select additional attributes to become imported, if these are available.")
 	);
 
 	Parameters.Add_Bool("VARS", "T", _TL("gps-time"                        ), _TL(""));
@@ -141,20 +148,15 @@ CLAS_Import::CLAS_Import(void)
 	Parameters.Add_Bool("VARS", "c", _TL("classification"                  ), _TL(""));
 	Parameters.Add_Bool("VARS", "u", _TL("user data"                       ), _TL(""));
 	Parameters.Add_Bool("VARS", "n", _TL("number of returns of given pulse"), _TL(""));
-	Parameters.Add_Bool("VARS", "R", _TL("red channel color"               ), _TL(""));
-	Parameters.Add_Bool("VARS", "G", _TL("green channel color"             ), _TL(""));
-	Parameters.Add_Bool("VARS", "B", _TL("blue channel color"              ), _TL(""));
 	Parameters.Add_Bool("VARS", "e", _TL("edge of flight line flag"        ), _TL(""));
 	Parameters.Add_Bool("VARS", "d", _TL("direction of scan flag"          ), _TL(""));
 	Parameters.Add_Bool("VARS", "p", _TL("point source ID"                 ), _TL(""));
+	Parameters.Add_Bool("VARS", "R", _TL("red channel color"               ), _TL(""));
+	Parameters.Add_Bool("VARS", "G", _TL("green channel color"             ), _TL(""));
+	Parameters.Add_Bool("VARS", "B", _TL("blue channel color"              ), _TL(""));
 	Parameters.Add_Bool("VARS", "C", _TL("rgb color"                       ), _TL(""));
 
-	Parameters.Add_Bool("",
-		"VALID"		, _TL("Check Point Validity"),
-		_TL("")
-	);
-
-	Parameters.Add_Choice("",
+	Parameters.Add_Choice("C",
 		"RGB_RANGE"	, _TL("RGB value range"),
 		_TL("Range of Red, Green, Blue values in LAS file."),
 		CSG_String::Format("%s|%s",
@@ -183,7 +185,7 @@ bool CLAS_Import::On_Execute(void)
 	Parameters("POINTS")->asPointCloudList()->Del_Items();
 
 	bool	bValidate	= Parameters("VALID")->asBool();
-	int		RGBrange	= Parameters("RGB_RANGE")->asInt();
+	bool	bRGB_Range	= Parameters("RGB_RANGE")->asInt() == 0;
 	int		nInvalid	= 0;
 
 	//-----------------------------------------------------
@@ -263,32 +265,32 @@ bool CLAS_Import::On_Execute(void)
 
 				pPoints->Add_Point(Point.GetX(), Point.GetY(), Point.GetZ());
 
-				if( Field[VAR_T] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_T], Point.GetTime            ());
-				if( Field[VAR_i] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_i], Point.GetIntensity       ());
-				if( Field[VAR_a] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_a], Point.GetScanAngleRank   ());
-				if( Field[VAR_r] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_r], Point.GetReturnNumber    ());
-				if( Field[VAR_c] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_c], Point.GetClassification  ());
-				if( Field[VAR_u] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_u], Point.GetUserData        ());
-				if( Field[VAR_n] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_n], Point.GetNumberOfReturns ());
-				if( Field[VAR_R] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_R], Point.GetColor().GetRed  ());
-				if( Field[VAR_G] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_G], Point.GetColor().GetGreen());
-				if( Field[VAR_B] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_B], Point.GetColor().GetBlue ());
-				if( Field[VAR_e] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_e], Point.GetFlightLineEdge  ());
-				if( Field[VAR_d] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_d], Point.GetScanDirection   ());
-				if( Field[VAR_p] > 0 )	pPoints->Set_Value(iPoint, Field[VAR_p], Point.GetPointSourceID   ());
+				if( Field[VAR_T] > 0 )	pPoints->Set_Value(Field[VAR_T], Point.GetTime            ());
+				if( Field[VAR_i] > 0 )	pPoints->Set_Value(Field[VAR_i], Point.GetIntensity       ());
+				if( Field[VAR_a] > 0 )	pPoints->Set_Value(Field[VAR_a], Point.GetScanAngleRank   ());
+				if( Field[VAR_r] > 0 )	pPoints->Set_Value(Field[VAR_r], Point.GetReturnNumber    ());
+				if( Field[VAR_c] > 0 )	pPoints->Set_Value(Field[VAR_c], Point.GetClassification  ());
+				if( Field[VAR_u] > 0 )	pPoints->Set_Value(Field[VAR_u], Point.GetUserData        ());
+				if( Field[VAR_n] > 0 )	pPoints->Set_Value(Field[VAR_n], Point.GetNumberOfReturns ());
+				if( Field[VAR_R] > 0 )	pPoints->Set_Value(Field[VAR_R], Point.GetColor().GetRed  ());
+				if( Field[VAR_G] > 0 )	pPoints->Set_Value(Field[VAR_G], Point.GetColor().GetGreen());
+				if( Field[VAR_B] > 0 )	pPoints->Set_Value(Field[VAR_B], Point.GetColor().GetBlue ());
+				if( Field[VAR_e] > 0 )	pPoints->Set_Value(Field[VAR_e], Point.GetFlightLineEdge  ());
+				if( Field[VAR_d] > 0 )	pPoints->Set_Value(Field[VAR_d], Point.GetScanDirection   ());
+				if( Field[VAR_p] > 0 )	pPoints->Set_Value(Field[VAR_p], Point.GetPointSourceID   ());
 				if( Field[VAR_C] > 0 )
 				{
 					double	r	= Point.GetColor().GetRed  ();
 					double	g	= Point.GetColor().GetGreen();
 					double	b	= Point.GetColor().GetBlue ();
 
-					if( RGBrange == 0 )	// 16 bit
+					if( bRGB_Range )	// 16 bit
 					{
 						r = r / 65535 * 255;
 						g = g / 65535 * 255;
 						b = b / 65535 * 255;
 					}
-			
+
 					pPoints->Set_Value(iPoint, Field[VAR_C], SG_GET_RGB(r, g, b));
 				}
 
@@ -317,10 +319,8 @@ bool CLAS_Import::On_Execute(void)
 		DataObject_Add(pPoints);
 
 		DataObject_Set_Parameter(pPoints, "DISPLAY_VALUE_AGGREGATE", 3);	// highest z
-		DataObject_Set_Parameter(pPoints, "COLORS_TYPE"            , 2);	// graduated color
+		DataObject_Set_Parameter(pPoints, "COLORS_TYPE"            , 3);	// graduated color
 		DataObject_Set_Parameter(pPoints, "METRIC_ATTRIB"          , 2);	// z attrib
-		DataObject_Set_Parameter(pPoints, "METRIC_ZRANGE.MIN"      , pPoints->Get_Minimum(2));
-		DataObject_Set_Parameter(pPoints, "METRIC_ZRANGE.MAX"      , pPoints->Get_Maximum(2));
 
 		Message_Add(_TL("okay"), false);
 	}

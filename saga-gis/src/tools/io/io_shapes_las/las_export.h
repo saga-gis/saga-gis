@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: las_export.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__las_export_H
 #define HEADER_INCLUDED__las_export_H
 
@@ -70,8 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -86,17 +73,14 @@ class CLAS_Export : public CSG_Tool
 public:
 	CLAS_Export(void);
 
-	virtual CSG_String		Get_MenuPath	(void)		{	return( _TL("Export") );	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Export") );	}
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
-	virtual int				On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-
-private:
-
+	virtual bool			On_Execute				(void);
 
 };
 

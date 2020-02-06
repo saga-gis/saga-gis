@@ -385,6 +385,7 @@ AC_OUTPUT(Makefile \
 	src/tools/io/io_gps/Makefile \
 	src/tools/io/io_grid/Makefile \
 	src/tools/io/io_grid_image/Makefile \
+	src/tools/io/io_pdal/Makefile \
 	src/tools/io/io_shapes/Makefile \
 	src/tools/io/io_shapes_dxf/Makefile \
 	src/tools/io/io_shapes_las/Makefile \

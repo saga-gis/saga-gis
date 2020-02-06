@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -581,7 +569,24 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 
 		if( pImport->Execute() )
 		{
-			pData	= pImport->Get_Parameter("POINTS")->asDataObject();
+			pData	= pImport->Get_Parameter("POINTS")->asList()->Get_Item(0);
+		}
+	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pImport);
+
+	//-----------------------------------------------------
+	// LAZ Import
+
+	if( !pData && SG_File_Cmp_Extension(File, "laz")
+	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_pdal", 0)) != NULL
+	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
+	{
+		pImport->Set_Manager(this);
+
+		if( pImport->Execute() )
+		{
+			pData	= pImport->Get_Parameter("POINTS")->asList()->Get_Item(0);
 		}
 	}
 

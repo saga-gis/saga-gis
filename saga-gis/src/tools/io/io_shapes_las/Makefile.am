@@ -19,8 +19,7 @@ las_info.cpp\
 MLB_Interface.cpp\
 las_export.h\
 las_import.h\
-las_info.h\
-MLB_Interface.h
+las_info.h
 
 libio_shapes_las_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
 endif

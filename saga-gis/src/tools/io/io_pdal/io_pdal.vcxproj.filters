@@ -14,20 +14,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MLB_Interface.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="las_export.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="las_import.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="las_info.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -79,14 +65,16 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="las_export.h">
+    <ClInclude Include="pdal_reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="las_import.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="las_info.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pdal_reader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TLB_Interface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

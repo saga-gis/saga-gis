@@ -6,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Shapes_IO_LAS                     //
+//                       io_pdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    pdal_reader.h                      //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (C) 2020                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,63 +46,49 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
+#ifndef HEADER_INCLUDED__pdal_reader_H
+#define HEADER_INCLUDED__pdal_reader_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
 
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
 
-CSG_String Get_Info(int i)
+//---------------------------------------------------------
+class CPDAL_Reader : public CSG_Tool
 {
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("LAS") );
+public:
+	CPDAL_Reader(void);
 
-	case TLB_INFO_Category:
-		return( _TL("Import/Export") );
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Import") );	}
 
-	case TLB_INFO_Author:
-		return( "O. Conrad, V. Wichmann (c) 2009-10" );
-
-	case TLB_INFO_Description:
-		return( _TL("Tools for the import and export of ASPRS LAS files.") );
-
-	case TLB_INFO_Version:
-		return( "1.0" );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("File|Shapes") );
-	}
-}
+	virtual bool					do_Sync_Projections		(void)	const	{	return( false );	}
 
 
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
+protected:
 
-#include "las_export.h"
-#include "las_import.h"
-#include "las_info.h"
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
 
 
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
+private:
 
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CLAS_Export );
-	case  1:	return( new CLAS_Import );
-	case  2:	return( new CLAS_Info );
+	CSG_PointCloud *				Read_Points				(const CSG_String &File);
 
-	//-----------------------------------------------------
-	case  3:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+};
 
 
 ///////////////////////////////////////////////////////////
@@ -112,8 +98,4 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
-
-	TLB_INTERFACE
-
-//}}AFX_SAGA
+#endif // #ifndef HEADER_INCLUDED__pdal_reader_H

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1922 2014-01-09 10:28:46Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     Shapes_IO_LAS                     //
+//                       io_pdal                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                   TLB_Interface.cpp                   //
 //                                                       //
-//                 Copyright (C) 2009 by                 //
-//                      Olaf Conrad                      //
+//                 Copyrights (C) 2020                   //
+//                     Olaf Conrad                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -49,27 +46,63 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+// 1. Include the appropriate SAGA-API header...
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__io_shapes_las_H
-#define HEADER_INCLUDED__io_shapes_las_H
-
-//---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
+#include <pdal/pdal_config.hpp>
+
+
 //---------------------------------------------------------
-#ifdef io_shapes_las_EXPORTS
-	#define	io_shapes_las_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	io_shapes_las_EXPORT	_SAGA_DLL_IMPORT
-#endif
+// 2. Place general module library informations here...
+
+CSG_String Get_Info(int i)
+{
+	switch( i )
+	{
+	case TLB_INFO_Name:	default:
+		return( _TL("PDAL") );
+
+	case TLB_INFO_Category:
+		return( "Import/Export" );
+
+	case TLB_INFO_Author:
+		return( "O.Conrad (c) 2020" );
+
+	case TLB_INFO_Description:
+		return( CSG_String::Format("%s\nPDAL %s ", _TL("Tools utilizing the Point Data Abstraction Library (PDAL)."), _TL("Version"))
+			+ CSG_String(pdal::Config::versionString().c_str())
+		);
+
+	case TLB_INFO_Version:
+		return( "1.0" );
+
+	case TLB_INFO_Menu_Path:
+		return( "File|Shapes" );
+	}
+}
+
+
+//---------------------------------------------------------
+// 3. Include the headers of your modules here...
+
+#include "pdal_reader.h"
+
+
+//---------------------------------------------------------
+// 4. Allow your modules to be created here...
+
+CSG_Tool *		Create_Tool(int i)
+{
+	switch( i )
+	{
+	case  0:	return( new CPDAL_Reader );
+
+	//-----------------------------------------------------
+	case 10:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
+}
 
 
 ///////////////////////////////////////////////////////////
@@ -79,4 +112,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__io_shapes_las_H
+//{{AFX_SAGA
+
+	TLB_INTERFACE
+
+//}}AFX_SAGA
