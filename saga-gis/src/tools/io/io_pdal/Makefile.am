@@ -2,8 +2,6 @@ if DEBUG
 DBGFLAGS = -g -DDEBUG
 endif
 
-if HAVE_PDAL
-
 DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags`
 DEP_LFLG = -fPIC -shared `wx-config --unicode=yes --static=no --libs`
 
@@ -18,5 +16,3 @@ TLB_Interface.cpp\
 pdal_reader.h
 
 libio_pdal_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la $(ADD_MLBS)
-
-endif
