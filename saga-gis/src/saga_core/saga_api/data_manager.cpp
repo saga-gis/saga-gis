@@ -578,7 +578,7 @@ CSG_Data_Object * CSG_Data_Manager::_Add_External(const CSG_String &File)
 	//-----------------------------------------------------
 	// LAZ Import
 
-	if( !pData && SG_File_Cmp_Extension(File, "laz")
+	if( !pData && (SG_File_Cmp_Extension(File, "las") || SG_File_Cmp_Extension(File, "laz"))
 	&&  (pImport = SG_Get_Tool_Library_Manager().Create_Tool("io_pdal", 0)) != NULL
 	&&   pImport->Set_Parameter("FILES", File, PARAMETER_TYPE_FilePath) )
 	{
