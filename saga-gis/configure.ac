@@ -21,6 +21,7 @@ AC_CHECK_LIB([opencv_core], [cvGetRows], CVFOUND=1,,)
 AC_CHECK_LIB([geotrans], [Set_Mercator_Coordinates])
 AC_CHECK_LIB([fftw3],[fftw_execute],FFTWFOUND=1,)
 AC_CHECK_LIB([las], [LAS_GetVersion], LASFOUND=1,,)
+AC_CHECK_LIB([pdal], [versionString], PDALFOUND=1,,)
 AC_CHECK_LIB(hpdf, HPDF_Pages_New, HARUFOUND=1,,)
 AC_CHECK_LIB([odbc], [SQLFetch], ODBCFOUND=1,[ODBC \(libodbc\) library not found])
 # PROJ4 has projects.h and old API function:
@@ -284,6 +285,7 @@ AM_CONDITIONAL([SYSTEM_SVM], [test x$SYSTEM_SVM = xyes])
 #AM_CONDITIONAL(X86_64, test "`uname -m`" = "x86_64")
 AM_CONDITIONAL(HAVE_CV, test -n "$CVFOUND")
 AM_CONDITIONAL(HAVE_LLAS, test -n "$LASFOUND")
+AM_CONDITIONAL(HAVE_PDAL, test -n "$PDALFOUND")
 AM_CONDITIONAL(HAVE_VIGRA, test -n "$VIGRAFOUND" -a -n "$FFTWFOUND")
 AM_CONDITIONAL(HAVE_HARU, test -n "$HARUFOUND")
 AM_CONDITIONAL(HAVE_HDF5, test -n "$LIBHDF5FOUND")
@@ -295,6 +297,10 @@ fi
 
 if test -n "$LASFOUND" ; then 
   AC_MSG_RESULT([        Building with libLAS])
+fi
+
+if test -n "$PDALFOUND" ; then 
+  AC_MSG_RESULT([        Building with PDAL])
 fi
 
 if test -n "$VIGRAFOUND" -a -n "$FFTWFOUND" ; then 
