@@ -140,6 +140,7 @@ public:
 	//-----------------------------------------------------
 	virtual bool					Add_Field			(const CSG_String &Name, TSG_Data_Type Type, int iField = -1);
 	virtual bool					Del_Field			(int iField);
+	virtual bool					Set_Field_Type		(int iField, TSG_Data_Type Type);
 
 	//-----------------------------------------------------
 	int								Get_Attribute_Count	(void)			const	{	return( m_nFields - 3 );	}

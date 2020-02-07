@@ -564,34 +564,34 @@ bool CSG_Table::Set_Field_Name(int iField, const SG_Char *Name)
 //---------------------------------------------------------
 bool CSG_Table::Set_Field_Type(int iField, TSG_Data_Type Type)
 {
-	if( iField >= 0 && iField < m_nFields )
+	if( iField < 0 || iField >= m_nFields )
 	{
-		if( m_Field_Type[iField] != Type )
-		{
-			m_Field_Type[iField]	= Type;
+		return( false );
+	}
 
-			for(int i=0; i<m_nRecords; i++)
-			{
-				CSG_Table_Record	*pRecord	= m_Records[i];
-
-				CSG_Table_Value	*pNew	= CSG_Table_Record::_Create_Value(Type);
-
-				(*pNew)	= *pRecord->m_Values[iField];
-
-				delete(pRecord->m_Values[iField]);
-
-				pRecord->m_Values[iField]	= pNew;
-
-				pRecord->Set_Modified();
-			}
-
-			Set_Modified();
-		}
-
+	if( m_Field_Type[iField] == Type )
+	{
 		return( true );
 	}
 
-	return( false );
+	m_Field_Type[iField]	= Type;
+
+	for(int i=0; i<m_nRecords; i++)
+	{
+		CSG_Table_Record	*pRecord	= m_Records[i];
+
+		CSG_Table_Value	*pNew	= CSG_Table_Record::_Create_Value(Type);
+
+		(*pNew)	= *pRecord->m_Values[iField];
+
+		delete(pRecord->m_Values[iField]);
+
+		pRecord->m_Values[iField]	= pNew;
+
+		pRecord->Set_Modified();
+	}
+
+	return( true );
 }
 
 //---------------------------------------------------------
