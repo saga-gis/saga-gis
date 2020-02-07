@@ -59,10 +59,16 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 		"<li>Thiam's Transformed Vegetation Index (Thiam, 1997)\n"
 		"    RVI = [abs(NDVI) + 0.5]^0.5</li>\n"
 		"<li>Soil Adjusted Vegetation Index (Huete, 1988)\n"
-		"    SAVI = [(NIR - R) / (NIR + R)] * (1 + S)</li>\n"
+		"    SAVI = [(NIR - R) / (NIR + R + L)] * (1 + L)</li>\n"
 		"</ul>(NIR = near infrared, R = red, S = soil adjustment factor)\n"
 		"\n\n"
 	));
+
+	Add_Reference("Huete, A.R.", "1988",
+		"A soil-adjusted vegetation index (SAVI)",
+		"Remote Sensing of Environment, vol. 25, issue 3, pp. 259-309.",
+		SG_T("https://doi.org/10.1016/0034-4257(88)90106-X")
+	);
 
 	Add_Reference("McCloy, K.R.", "2006",
 		"Resource Management Information Systems: Remote Sensing, GIS and Modelling",
@@ -144,7 +150,7 @@ CImage_VI_Slope::CImage_VI_Slope(void)
 	Parameters.Add_Double(
 		"SAVI", "SOIL"	, _TL("Soil Adjustment Factor"), 
 		_TL("For SAVI, suggested values (after Silleos et al. 2006): 1.0 = very low, 0.5 = intermediate, 0.25 = high densitity vegetation."),
-		0.5, 0.0, true, 1.0, true
+		0.5, 0., true, 1., true
 	);
 }
 
@@ -249,7 +255,7 @@ inline bool CImage_VI_Slope::Get_DVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_NDVI(double R, double NIR, double &Value)
 {
-	if( R + NIR != 0.0 )
+	if( R + NIR != 0. )
 	{
 		Value	= (NIR - R) / (NIR + R);
 
@@ -262,7 +268,7 @@ inline bool CImage_VI_Slope::Get_NDVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_RVI(double R, double NIR, double &Value)
 {
-	if( R != 0.0 )
+	if( R != 0. )
 	{
 		Value	= NIR / R;
 
@@ -275,9 +281,9 @@ inline bool CImage_VI_Slope::Get_RVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_NRVI(double R, double NIR, double &Value)
 {
-	if( Get_RVI(R, NIR, Value) && Value + 1.0 != 0.0 )
+	if( Get_RVI(R, NIR, Value) && Value + 1. != 0. )
 	{
-		Value	= (Value - 1.0) / (Value + 1.0);
+		Value	= (Value - 1.) / (Value + 1.);
 
 		return( true );
 	}
@@ -288,7 +294,7 @@ inline bool CImage_VI_Slope::Get_NRVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_TVI(double R, double NIR, double &Value)
 {
-	if( Get_NDVI(R, NIR, Value) && Value + 0.5 >= 0.0 )
+	if( Get_NDVI(R, NIR, Value) && Value + 0.5 >= 0. )
 	{
 		Value	= sqrt(Value + 0.5);
 
@@ -305,7 +311,7 @@ inline bool CImage_VI_Slope::Get_CTVI(double R, double NIR, double &Value)
 	{
 		Value	+= 0.5;
 
-		Value	= Value > 0.0 ? sqrt(fabs(Value)) : -sqrt(fabs(Value));
+		Value	= Value > 0. ? sqrt(fabs(Value)) : -sqrt(fabs(Value));
 
 		return( true );
 	}
@@ -329,9 +335,11 @@ inline bool CImage_VI_Slope::Get_TTVI(double R, double NIR, double &Value)
 //---------------------------------------------------------
 inline bool CImage_VI_Slope::Get_SAVI(double R, double NIR, double &Value)
 {
-	if( Get_NDVI(R, NIR, Value) )
+	Value = NIR + R + m_Soil;
+
+	if( Value != 0. )
 	{
-		Value	= Value * (1.0 + m_Soil);
+		Value	= (1. + m_Soil) * (NIR - R) / Value;
 
 		return( true );
 	}
