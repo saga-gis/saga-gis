@@ -183,7 +183,7 @@ CSG_Grid::CSG_Grid(const CSG_Grid_System &System, TSG_Data_Type Type, bool bCach
 /**
   * Create a grid with specified parameters.
   * This constructor initializes the grid's data space with 'NX' x 'NY' cells of the size indicated by 'Type'.
-  * If 'DX/DY' are equal or less zero then both will be set to 1.0. 'xMin/yMin' specify the coordinates of the
+  * If 'DX/DY' are equal or less zero then both will be set to 1.. 'xMin/yMin' specify the coordinates of the
   * lower left corner of the grid.
 */
 //---------------------------------------------------------
@@ -211,8 +211,8 @@ void CSG_Grid::_On_Construction(void)
 	m_Cache_bSwap	= false;
 	m_Cache_bFlip	= false;
 
-	m_zScale		= 1.0;
-	m_zOffset		= 0.0;
+	m_zScale		= 1.;
+	m_zOffset		= 0.;
 
 	m_Index			= NULL;
 
@@ -350,12 +350,12 @@ bool CSG_Grid::Destroy(void)
 
 	m_Type		= SG_DATATYPE_Undefined;
 
-	m_zScale	= 1.0;
-	m_zOffset	= 0.0;
+	m_zScale	= 1.;
+	m_zOffset	= 0.;
 
 	m_Unit		.Clear();
 
-	m_System	.Assign(0.0, 0.0, 0.0, 0, 0);
+	m_System	.Assign(0., 0., 0., 0, 0);
 
 	return( CSG_Data_Object::Destroy() );
 }
@@ -374,24 +374,24 @@ void CSG_Grid::_Set_Properties(TSG_Data_Type Type, int NX, int NY, double Cellsi
 
 	switch( m_Type )
 	{
-	case SG_DATATYPE_Bit   : Set_NoData_Value(          0.0);	break;
-	case SG_DATATYPE_Byte  : Set_NoData_Value(          0.0);	break;
-	case SG_DATATYPE_Char  : Set_NoData_Value(       -127.0);	break;
-	case SG_DATATYPE_Word  : Set_NoData_Value(      65535.0);	break;
-	case SG_DATATYPE_Short : Set_NoData_Value(     -32767.0);	break;
-	case SG_DATATYPE_DWord : Set_NoData_Value( 4294967295.0);	break;
-	case SG_DATATYPE_Int   : Set_NoData_Value(-2147483647.0);	break;
-	case SG_DATATYPE_ULong : Set_NoData_Value( 4294967295.0);	break;
-	case SG_DATATYPE_Long  : Set_NoData_Value(-2147483647.0);	break;
-	case SG_DATATYPE_Float : Set_NoData_Value(     -99999.0);	break;
-	case SG_DATATYPE_Double: Set_NoData_Value(     -99999.0);	break;
-	case SG_DATATYPE_Color : Set_NoData_Value( 4294967295.0);	break;
+	case SG_DATATYPE_Bit   : Set_NoData_Value(          0.);	break;
+	case SG_DATATYPE_Byte  : Set_NoData_Value(          0.);	break;
+	case SG_DATATYPE_Char  : Set_NoData_Value(       -127.);	break;
+	case SG_DATATYPE_Word  : Set_NoData_Value(      65535.);	break;
+	case SG_DATATYPE_Short : Set_NoData_Value(     -32767.);	break;
+	case SG_DATATYPE_DWord : Set_NoData_Value( 4294967295.);	break;
+	case SG_DATATYPE_Int   : Set_NoData_Value(-2147483647.);	break;
+	case SG_DATATYPE_ULong : Set_NoData_Value( 4294967295.);	break;
+	case SG_DATATYPE_Long  : Set_NoData_Value(-2147483647.);	break;
+	case SG_DATATYPE_Float : Set_NoData_Value(     -99999.);	break;
+	case SG_DATATYPE_Double: Set_NoData_Value(     -99999.);	break;
+	case SG_DATATYPE_Color : Set_NoData_Value( 4294967295.);	break;
 
 	default:
-	m_Type = SG_DATATYPE_Float;	Set_NoData_Value(  -99999.0);	break;
+	m_Type = SG_DATATYPE_Float;	Set_NoData_Value(  -99999.);	break;
 	}
 
-	m_System.Assign(Cellsize > 0.0 ? Cellsize : 1.0, xMin, yMin, NX, NY);
+	m_System.Assign(Cellsize > 0. ? Cellsize : 1., xMin, yMin, NX, NY);
 
 	m_Statistics.Invalidate();
 
@@ -410,9 +410,9 @@ void CSG_Grid::Set_Unit(const CSG_String &Unit)
 //---------------------------------------------------------
 void CSG_Grid::Set_Scaling(double Scale, double Offset)
 {
-	if( (Scale != m_zScale && Scale != 0.0) || Offset != m_zOffset )
+	if( (Scale != m_zScale && Scale != 0.) || Offset != m_zOffset )
 	{
-		if( Scale != 0.0 )
+		if( Scale != 0. )
 		{
 			m_zScale	= Scale;
 		}
@@ -626,14 +626,14 @@ inline bool CSG_Grid::_Get_ValAtPos_BiLinear(double &Value, int x, int y, double
 {
 	if( !bByteWise )
 	{
-		double	z = 0.0, n = 0.0;
+		double	z = 0., n = 0.;
 
-		BILINEAR_ADD(x    , y    , (1.0 - dx) * (1.0 - dy));
-		BILINEAR_ADD(x + 1, y    , (      dx) * (1.0 - dy));
-		BILINEAR_ADD(x    , y + 1, (1.0 - dx) * (      dy));
-		BILINEAR_ADD(x + 1, y + 1, (      dx) * (      dy));
+		BILINEAR_ADD(x    , y    , (1. - dx) * (1. - dy));
+		BILINEAR_ADD(x + 1, y    , (     dx) * (1. - dy));
+		BILINEAR_ADD(x    , y + 1, (1. - dx) * (     dy));
+		BILINEAR_ADD(x + 1, y + 1, (     dx) * (     dy));
 
-		if( n > 0.0 )
+		if( n > 0. )
 		{
 			Value	= z / n;
 
@@ -644,15 +644,15 @@ inline bool CSG_Grid::_Get_ValAtPos_BiLinear(double &Value, int x, int y, double
 	//-----------------------------------------------------
 	else
 	{
-		double	n = 0.0;
+		double	n = 0.;
 		CSG_Vector	z(4);
 
-		BILINEAR_ADD_BYTE(x    , y    , (1.0 - dx) * (1.0 - dy));
-		BILINEAR_ADD_BYTE(x + 1, y    , (      dx) * (1.0 - dy));
-		BILINEAR_ADD_BYTE(x    , y + 1, (1.0 - dx) * (      dy));
-		BILINEAR_ADD_BYTE(x + 1, y + 1, (      dx) * (      dy));
+		BILINEAR_ADD_BYTE(x    , y    , (1. - dx) * (1. - dy));
+		BILINEAR_ADD_BYTE(x + 1, y    , (     dx) * (1. - dy));
+		BILINEAR_ADD_BYTE(x    , y + 1, (1. - dx) * (     dy));
+		BILINEAR_ADD_BYTE(x + 1, y + 1, (     dx) * (     dy));
 
-		if( n > 0.0 )
+		if( n > 0. )
 		{
 			z	*= 1. / n;
 
@@ -733,24 +733,24 @@ inline double CSG_Grid::_Get_ValAtPos_BSpline(double dx, double dy, double v_xy[
 	{
 		double	d, s;
 
-		s	= 0.0;
-		if( (d = i - dx + 1.0) > 0.0 )	s	+=        d*d*d;
-		if( (d = i - dx + 0.0) > 0.0 )	s	+= -4.0 * d*d*d;
-		if( (d = i - dx - 1.0) > 0.0 )	s	+=  6.0 * d*d*d;
-		if( (d = i - dx - 2.0) > 0.0 )	s	+= -4.0 * d*d*d;
-	//	if( (d = i - dx - 3.0) > 0.0 )	s	+=        d*d*d;
-		Rx[i]	= s / 6.0;
+		s	= 0.;
+		if( (d = i - dx + 1.) > 0. ) s +=       d*d*d;
+		if( (d = i - dx + 0.) > 0. ) s += -4. * d*d*d;
+		if( (d = i - dx - 1.) > 0. ) s +=  6. * d*d*d;
+		if( (d = i - dx - 2.) > 0. ) s += -4. * d*d*d;
+	//	if( (d = i - dx - 3.) > 0. ) s +=       d*d*d;
+		Rx[i]	= s / 6.;
 
-		s	= 0.0;
-		if( (d = i - dy + 1.0) > 0.0 )	s	+=        d*d*d;
-		if( (d = i - dy + 0.0) > 0.0 )	s	+= -4.0 * d*d*d;
-		if( (d = i - dy - 1.0) > 0.0 )	s	+=  6.0 * d*d*d;
-		if( (d = i - dy - 2.0) > 0.0 )	s	+= -4.0 * d*d*d;
-	//	if( (d = i - dy - 3.0) > 0.0 )	s	+=        d*d*d;
-		Ry[i]	= s / 6.0;
+		s	= 0.;
+		if( (d = i - dy + 1.) > 0. ) s +=       d*d*d;
+		if( (d = i - dy + 0.) > 0. ) s += -4. * d*d*d;
+		if( (d = i - dy - 1.) > 0. ) s +=  6. * d*d*d;
+		if( (d = i - dy - 2.) > 0. ) s += -4. * d*d*d;
+	//	if( (d = i - dy - 3.) > 0. ) s +=       d*d*d;
+		Ry[i]	= s / 6.;
 	}
 
-	double	z	= 0.0;
+	double	z	= 0.;
 
 	for(int iy=0; iy<4; iy++)
 	{
@@ -840,7 +840,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4
 			if( is_NoData_Value(t_xy[ix][iy]) )
 			{
 				int		n	= 0;
-				double	s	= 0.0;
+				double	s	= 0.;
 
 				for(jy=iy-1; jy<=iy+1; jy++)	for(jx=ix-1; jx<=ix+1; jx++)
 				{
@@ -916,7 +916,7 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4
 			if( t_xy[0][ix][iy] < 0 )
 			{
 				int		n	= 0;
-				double	s[4]; s[0] = s[1] = s[2] = s[3] = 0.0;
+				double	s[4]; s[0] = s[1] = s[2] = s[3] = 0.;
 
 				for(jy=iy-1; jy<=iy+1; jy++)	for(jx=ix-1; jx<=ix+1; jx++)
 				{
@@ -967,50 +967,52 @@ inline bool CSG_Grid::_Get_ValAtPos_Fill4x4Submatrix(int x, int y, double v_xy[4
 //---------------------------------------------------------
 bool CSG_Grid::On_Update(void)
 {
-	if( is_Valid() )
+	if( !is_Valid() )
 	{
-		SG_FREE_SAFE(m_Index);
+		return( false );
+	}
 
-		m_Statistics.Invalidate();
-		m_Histogram.Destroy();
+	SG_FREE_SAFE(m_Index);
 
-		double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+	m_Statistics.Invalidate();
+	m_Histogram.Destroy();
 
-		if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
+	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
+
+	if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_NCells() )
+	{
+		double	d	= (double)Get_NCells() / (double)Get_Max_Samples();
+
+		for(double i=0; i<(double)Get_NCells(); i+=d)
 		{
-			double	d	= (double)Get_NCells() / (double)Get_Max_Samples();
+			double	Value	= asDouble((sLong)i, false);
 
-			for(double i=0; i<(double)Get_NCells(); i+=d)
+			if( !is_NoData_Value(Value) )
 			{
-				double	Value	= asDouble((sLong)i, false);
+				m_Statistics	+= Scaling ? Offset + Scaling * Value : Value;
+			}
+		}
+
+		m_Statistics.Set_Count(m_Statistics.Get_Count() >= Get_Max_Samples() ? Get_NCells()	// any no-data cells ?
+			: (sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)Get_Max_Samples())
+		);
+	}
+	else
+	{
+		for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				double	Value	= asDouble(x, y, false);
 
 				if( !is_NoData_Value(Value) )
 				{
 					m_Statistics	+= Scaling ? Offset + Scaling * Value : Value;
 				}
 			}
-
-			m_Statistics.Set_Count(m_Statistics.Get_Count() >= Get_Max_Samples() ? Get_NCells()	// any no-data cells ?
-				: (sLong)(Get_NCells() * (double)m_Statistics.Get_Count() / (double)Get_Max_Samples())
-			);
 		}
-		else
-		{
-			for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
-			{
-				for(int x=0; x<Get_NX(); x++)
-				{
-					double	Value	= asDouble(x, y, false);
 
-					if( !is_NoData_Value(Value) )
-					{
-						m_Statistics	+= Scaling ? Offset + Scaling * Value : Value;
-					}
-				}
-			}
-
-			SG_UI_Process_Set_Ready();
-		}
+		SG_UI_Process_Set_Ready();
 	}
 
 	return( true );
@@ -1129,7 +1131,7 @@ bool CSG_Grid::Get_Statistics(const CSG_Rect &rWorld, CSG_Simple_Statistics &Sta
 	int		ny		= 1 + (yMax - yMin);
 	sLong	nCells	= nx * ny;
 
-	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
 
 	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{
@@ -1218,7 +1220,7 @@ bool CSG_Grid::Get_Histogram(const CSG_Rect &rWorld, CSG_Histogram &Histogram, s
 	int		ny		= 1 + (yMax - yMin);
 	sLong	nCells	= nx * ny;
 
-	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.0;
+	double	Offset = Get_Offset(), Scaling = is_Scaled() ? Get_Scaling() : 0.;
 
 	if( Get_Max_Samples() > 0 && Get_Max_Samples() < nCells )
 	{

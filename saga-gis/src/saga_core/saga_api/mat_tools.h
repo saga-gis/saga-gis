@@ -892,6 +892,9 @@ public:
 
 	bool			Destroy				(void);
 
+	CSG_Histogram						(const CSG_Histogram &Histogram);
+	bool			Create				(const CSG_Histogram &Histogram);
+
 	CSG_Histogram						(size_t nClasses, double Minimum, double Maximum);
 	bool			Create				(size_t nClasses, double Minimum, double Maximum);
 
@@ -934,6 +937,8 @@ public:
 	double			Get_Center			(size_t i)	const	{	return( Get_Value((double)(i + 0.5)) );	}
 
 	//-----------------------------------------------------
+	CSG_Histogram &	operator =			(const CSG_Histogram &Histogram);
+
 	void			operator +=			(double Value)		{	Add_Value(Value);	}
 
 	size_t			operator []			(int    i)	const	{	return( Get_Elements(i) );	}

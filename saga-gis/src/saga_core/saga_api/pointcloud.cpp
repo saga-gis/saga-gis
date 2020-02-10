@@ -1179,31 +1179,52 @@ bool CSG_PointCloud::On_Update(void)
 //---------------------------------------------------------
 bool CSG_PointCloud::_Stats_Update(int iField) const
 {
-	if( iField >= 0 && iField < m_nFields && Get_Count() > 0 )
+	if( iField < 0 || iField >= m_nFields || Get_Count() < 1 )
 	{
-		CSG_Simple_Statistics	*pStatistics	= m_Field_Stats[iField];
+		return( false );
+	}
 
-		if( !pStatistics->is_Evaluated() )
-		{
-			char	**pPoint	= m_Points;
+	CSG_Simple_Statistics	&Statistics	= *m_Field_Stats[iField];
 
-			for(int iPoint=0; iPoint<Get_Count(); iPoint++, pPoint++)
-			{
-				double	Value	= _Get_Field_Value(*pPoint, iField);
-
-				if( iField < 3 || is_NoData_Value(Value) == false )
-				{
-					pStatistics->Add_Value(Value);
-				}
-			}
-
-			pStatistics->Get_Mean();	// evaluate! prevent values to be added more than once!
-		}
-
+	if( Statistics.is_Evaluated() )
+	{
 		return( true );
 	}
 
-	return( false );
+	if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_Count() )
+	{
+		double	d	= (double)Get_Count() / (double)Get_Max_Samples();
+
+		for(double i=0; i<(double)Get_Count(); i+=d)
+		{
+			double	Value	= Get_Value((int)i, iField);
+
+			if( iField < 3 || is_NoData_Value(Value) == false )
+			{
+				Statistics	+= Value;
+			}
+		}
+
+		Statistics.Set_Count(Statistics.Get_Count() >= Get_Max_Samples() ? Get_Count()	// any no-data cells ?
+			: (sLong)(Get_Count() * (double)Statistics.Get_Count() / (double)Get_Max_Samples())
+		);
+	}
+	else
+	{
+		char	**pPoint	= m_Points;
+
+		for(int i=0; i<Get_Count(); i++, pPoint++)
+		{
+			double	Value	= _Get_Field_Value(*pPoint, iField);
+
+			if( iField < 3 || is_NoData_Value(Value) == false )
+			{
+				Statistics	+= Value;
+			}
+		}
+	}
+
+	return( Statistics.Evaluate() );	// evaluate! prevent values to be added more than once!
 }
 
 

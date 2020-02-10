@@ -770,6 +770,43 @@ bool CWKSP_Layer_Classify::_Histogram_Update(CSG_Shapes *pShapes, int Attribute,
 		return( false );
 	}
 
+	if( pShapes->Get_Max_Samples() > 0 && pShapes->Get_Max_Samples() < pShapes->Get_Count() )
+	{
+		double	d	= (double)pShapes->Get_Count() / (double)pShapes->Get_Max_Samples();
+
+		for(double i=0; i<(double)pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, (double)pShapes->Get_Count()); i+=d)
+		{
+			CSG_Shape	*pShape	= pShapes->Get_Shape((int)i);
+
+			if( m_Mode == CLASSIFY_LUT )
+			{
+				m_Histogram	+= SG_Data_Type_is_Numeric(m_pLUT->Get_Field_Type(LUT_MIN))
+					? Get_Class(pShape->asDouble(Attribute))
+					: Get_Class(pShape->asString(Attribute));
+			}
+			else if( !pShape->is_NoData(Attribute) )
+			{
+				if( Normalize < 0 )
+				{
+					m_Histogram	+= Get_Class(pShape->asDouble(Attribute));
+				}
+				else if( !pShape->is_NoData(Normalize) && pShape->asDouble(Normalize) )
+				{
+					m_Histogram	+= Get_Class(pShape->asDouble(Attribute) / pShape->asDouble(Normalize));
+				}
+			}
+		}
+
+		if( m_Histogram.Update() && m_Histogram.Get_Element_Count() < pShapes->Get_Max_Samples() )	// any no-data cells ?
+		{
+			d	*= (double)m_Histogram.Get_Element_Count() / (double)pShapes->Get_Max_Samples();
+		}
+
+		m_Histogram.Scale_Element_Count(d);
+
+		return( true );
+	}
+
 	for(int i=0; i<pShapes->Get_Count() && PROGRESSBAR_Set_Position(i, pShapes->Get_Count()); i++)
 	{
 		CSG_Shape	*pShape	= pShapes->Get_Shape(i);

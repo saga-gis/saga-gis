@@ -142,7 +142,7 @@ CPDAL_Reader::CPDAL_Reader(void)
 		CSG_String::Format("%s|%s",
 			_TL ("8 bit"),
 			_TL("16 bit")
-		), 0
+		), 1
 	);
 
 	Parameters.Add_PointCloud_List("",

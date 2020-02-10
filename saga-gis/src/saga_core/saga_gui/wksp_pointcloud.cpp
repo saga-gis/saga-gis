@@ -332,6 +332,15 @@ void CWKSP_PointCloud::On_Create_Parameters(void)
 		_TL(""),
 		_TL("<default>")
 	);
+
+	//-----------------------------------------------------
+	// Memory...
+
+	m_Parameters.Add_Double("NODE_GENERAL",
+		"MAX_SAMPLES"	, _TL("Maximum Samples"),
+		_TL("Maximum number of samples used to build statistics and histograms expressed as percent of the total number of cells."),
+		100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count(), 0., true, 100., true
+	);
 }
 
 
@@ -357,6 +366,9 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 	_AttributeList_Set(m_Parameters("LUT_ATTRIB"   ), false);
 	_AttributeList_Set(m_Parameters("METRIC_ATTRIB"), false);
 	_AttributeList_Set(m_Parameters("RGB_ATTRIB"   ), false);
+
+	//-----------------------------------------------------
+	m_Parameters.Set_Parameter("MAX_SAMPLES", 100. * m_pObject->Get_Max_Samples() / (double)Get_PointCloud()->Get_Count());
 
 	//-----------------------------------------------------
 	CWKSP_Layer::On_DataObject_Changed();
@@ -389,6 +401,8 @@ void CWKSP_PointCloud::On_Parameters_Changed(void)
 	{
 		m_pClassify->Set_Mode(CLASSIFY_RGB);
 	}
+
+	m_pObject->Set_Max_Samples(Get_PointCloud()->Get_Count() * (m_Parameters("MAX_SAMPLES")->asDouble() / 100.) );
 
 	//-----------------------------------------------------
 	long	DefColor	= m_Parameters("UNISYMBOL_COLOR")->asColor();

@@ -1145,29 +1145,50 @@ bool CSG_Table::_Stats_Invalidate(int iField) const
 //---------------------------------------------------------
 bool CSG_Table::_Stats_Update(int iField) const
 {
-	if( iField >= 0 && iField < m_nFields && m_nRecords > 0 )
+	if( iField < 0 || iField >= m_nFields || Get_Count() < 1 )
 	{
-		CSG_Simple_Statistics	*pStatistics	= m_Field_Stats[iField];
+		return( false );
+	}
 
-		if( !pStatistics->is_Evaluated() )
-		{
-			for(int iRecord=0; iRecord<m_nRecords; iRecord++)
-			{
-				CSG_Table_Record	*pRecord	= m_Records[iRecord];
+	CSG_Simple_Statistics	&Statistics	= *m_Field_Stats[iField];
 
-				if( !pRecord->is_NoData(iField) )
-				{
-					pStatistics->Add_Value(pRecord->asDouble(iField));
-				}
-			}
-
-			pStatistics->Evaluate();	// evaluate! prevent values to be added more than once!
-		}
-
+	if( Statistics.is_Evaluated() )
+	{
 		return( true );
 	}
 
-	return( false );
+	if( Get_Max_Samples() > 0 && Get_Max_Samples() < Get_Count() )
+	{
+		double	d	= (double)Get_Count() / (double)Get_Max_Samples();
+
+		for(double i=0; i<(double)Get_Count(); i+=d)
+		{
+			CSG_Table_Record	*pRecord	= m_Records[(int)i];
+
+			if( !pRecord->is_NoData(iField) )
+			{
+				Statistics	+= pRecord->asDouble(iField);
+			}
+		}
+
+		Statistics.Set_Count(Statistics.Get_Count() >= Get_Max_Samples() ? Get_Count()	// any no-data cells ?
+			: (sLong)(Get_Count() * (double)Statistics.Get_Count() / (double)Get_Max_Samples())
+		);
+	}
+	else
+	{
+		for(int i=0; i<Get_Count(); i++)
+		{
+			CSG_Table_Record	*pRecord	= m_Records[i];
+
+			if( !pRecord->is_NoData(iField) )
+			{
+				Statistics	+= pRecord->asDouble(iField);
+			}
+		}
+	}
+
+	return( Statistics.Evaluate() );	// evaluate! prevent values to be added more than once!
 }
 
 
