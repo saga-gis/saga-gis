@@ -221,7 +221,7 @@ CSG_PointCloud * CPDAL_Reader::Read_Points(const CSG_String &File)
 	{
 		Message_Fmt("\n%s, %s: %s", _TL("Warning"), _TL("invalid or empty file"), File.c_str());
 
-		return( false );
+		return( NULL );
 	}
 
 	//-----------------------------------------------------
