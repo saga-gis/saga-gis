@@ -70,8 +70,9 @@ CSG_String Get_Info(int i)
 		return( "O.Conrad (c) 2020" );
 
 	case TLB_INFO_Description:
-		return( CSG_String::Format("%s\nPDAL %s ", _TL("Tools utilizing the Point Data Abstraction Library (PDAL)."), _TL("Version"))
-			+ CSG_String(pdal::Config::versionString().c_str())
+		return( CSG_String::Format(_TL("Tools utilizing the Point Data Abstraction Library (PDAL)."))
+		//	+ CSG_String::Format("\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::GetVersionString     ().c_str())
+		//	+ CSG_String::Format("\nPDAL %s: ", _TL("Version")) + CSG_String(pdal::Config::versionString().c_str())
 		);
 
 	case TLB_INFO_Version:

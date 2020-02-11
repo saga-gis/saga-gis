@@ -4,13 +4,10 @@ endif
 
 if HAVE_PDAL
 
-DEP_DEFS = -fPIC `wx-config --unicode=yes --static=no --cxxflags`
-DEP_LFLG = -fPIC -shared `wx-config --unicode=yes --static=no --libs`
-
 DEF_SAGA           = -D_SAGA_LINUX -D_TYPEDEF_BYTE -D_TYPEDEF_WORD
 CXX_INCS           = -I$(top_srcdir)/src/saga_core
-AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DEP_DEFS) $(DBGFLAGS) $(GOMPFLAGS)
-AM_LDFLAGS         = -fPIC -shared -avoid-version $(DEP_LFLG)
+AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
+AM_LDFLAGS         = -fPIC -shared -avoid-version -lpdalcpp -lpdal_util
 pkglib_LTLIBRARIES = libio_pdal.la
 libio_pdal_la_SOURCES =\
 pdal_reader.cpp\
