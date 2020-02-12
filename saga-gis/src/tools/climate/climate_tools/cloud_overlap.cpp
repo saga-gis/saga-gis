@@ -120,7 +120,7 @@ CCloud_Overlap::CCloud_Overlap(void)
 	Parameters.Add_Double("",
 		"MINCOVER"	, _TL("Minimum Cloud Cover Fraction"),
 		_TL("Minimum cloud cover fraction at which a cloud is identified as such"),
-		0.1, 0., true, 1., true
+		0.1, -1., true, 1., true
 	);
 }
 

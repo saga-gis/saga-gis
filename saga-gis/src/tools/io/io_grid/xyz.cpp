@@ -255,13 +255,13 @@ CXYZ_Import::CXYZ_Import(void)
 
 	Parameters.Add_Double("",
 		"CELLSIZE"	, _TL("Cell Size"),
-		_TL("The cell size of the output grid."),
+		_TL("The cell size of the output grid. Set to zero to let the tool suggest an appropriate cellsize."),
 		1., 0., true
 	);
 
 	Parameters.Add_Bool("",
-		"COUNT_CREATE", _TL("Count"),
-		_TL("Create a grid with the number of values detected in each grid cell."),
+		"COUNT_CREATE", _TL("Count Grid"),
+		_TL("Create a grid with the number of values falling into each target grid cell."),
 		false
 	);
 }
