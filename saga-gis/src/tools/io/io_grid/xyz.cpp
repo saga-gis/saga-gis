@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: xyz.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -210,7 +198,7 @@ CXYZ_Import::CXYZ_Import(void)
 	);
 
 	Parameters.Add_Grid_Output("",
-		"COUNT"		, _TL("Count"),
+		"COUNT"		, _TL("Count Grid"),
 		_TL("The number of values detected in each grid cell.")
 	);
 
@@ -232,12 +220,6 @@ CXYZ_Import::CXYZ_Import(void)
 		0, 0, true
 	);
 
-	Parameters.Add_Double("",
-		"CELLSIZE"	, _TL("Cell Size"),
-		_TL("The cell size of the output grid."),
-		1.0, 0.0, true
-	);
-
 	Parameters.Add_Choice("",
 		"SEPARATOR"	, _TL("Separator"),
 		_TL(""),
@@ -253,6 +235,34 @@ CXYZ_Import::CXYZ_Import(void)
 		"USER"		, _TL("User Defined"),
 		_TL("The user defined delimiter."),
 		"*"
+	);
+
+	Parameters.Add_Choice("",
+		"TYPE"		, _TL("Data Storage Type"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
+			_TL("1 bit"                     ),
+			_TL("1 byte unsigned integer"   ),
+			_TL("1 byte signed integer"     ),
+			_TL("2 byte unsigned integer"   ),
+			_TL("2 byte signed integer"     ),
+			_TL("4 byte unsigned integer"   ),
+			_TL("4 byte signed integer"     ),
+			_TL("4 byte floating point"     ),
+			_TL("8 byte floating point"     )
+		), 7	// defaults to '4 byte floating point'
+	);
+
+	Parameters.Add_Double("",
+		"CELLSIZE"	, _TL("Cell Size"),
+		_TL("The cell size of the output grid."),
+		1., 0., true
+	);
+
+	Parameters.Add_Bool("",
+		"COUNT_CREATE", _TL("Count"),
+		_TL("Create a grid with the number of values detected in each grid cell."),
+		false
 	);
 }
 
@@ -280,16 +290,6 @@ int CXYZ_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CXYZ_Import::On_Execute(void)
 {
-	double	Cellsize	= Parameters("CELLSIZE")->asDouble();
-
-	if( Cellsize <= 0.0 )
-	{
-		Error_Set(_TL("cell size has to be greater than zero"));
-
-		return( false );
-	}
-
-	//-----------------------------------------------------
 	CSG_File	Stream;
 
 	if( !Stream.Open(Parameters("FILENAME")->asString(), SG_FILE_R, false) )
@@ -313,24 +313,23 @@ bool CXYZ_Import::On_Execute(void)
 	//-----------------------------------------------------
 	CSG_String	sLine;
 
+	for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
 	{
-		for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
-		{
-			Stream.Read_Line(sLine);
-		}
+		Stream.Read_Line(sLine);
 	}
 
 	//-----------------------------------------------------
-	sLong		fLength = Stream.Length(), nValues = 0;
-	double		z;
-	TSG_Point	p;
-	CSG_Rect	Extent;
+	CSG_Points_Z Points; CSG_Rect Extent;
 
-	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), (double)fLength) )
+	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), (double)Stream.Length()) )
 	{
+		TSG_Point p; double z;
+
 		if( Read_Values(Stream, p.x, p.y, z) )
 		{
-			if( nValues++ == 0 )
+			Points.Add(p.x, p.y, z);
+
+			if( Points.Get_Count() <= 1 )
 			{
 				Extent.Assign(p, p);
 			}
@@ -341,16 +340,61 @@ bool CXYZ_Import::On_Execute(void)
 		}
 	}
 
-	if( !Process_Get_Okay() || !(Extent.Get_XRange() > 0.0 || Extent.Get_YRange() > 0.0) )
+	if( Points.Get_Count() < 2 || !(Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0.) )
 	{
+		Error_Set(_TL("failed to read coordinates from file."));
+
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= SG_Create_Grid(CSG_Grid_System(Cellsize, Extent), SG_DATATYPE_Float);
+	double	Cellsize	= Parameters("CELLSIZE")->asDouble();
+
+	if( Cellsize <= 0. )
+	{
+		Cellsize	= Extent.Get_XRange() / (1. + sqrt(Points.Get_Count() * Extent.Get_XRange() / Extent.Get_YRange()));
+
+		double	d	= fabs(Points[0].x - Points[1].x); if( d > 0. && d < Cellsize ) { Cellsize	= d; }
+
+		CSG_Parameters	P;	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Cellsize, 0., true);
+
+		if( !SG_UI_Dlg_Parameters(&P, _TL("Continue?")) )
+		{
+			return( false );
+		}
+
+		Cellsize	= P("CELLSIZE")->asDouble();
+	}
+
+	if( Cellsize <= 0. )
+	{
+		Error_Set(_TL("cell size has to be greater than zero"));
+
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	TSG_Data_Type	Type;
+
+	switch( Parameters("TYPE")->asInt() )
+	{
+	case  0: Type = SG_DATATYPE_Bit   ; break;
+	case  1: Type = SG_DATATYPE_Byte  ; break;
+	case  2: Type = SG_DATATYPE_Char  ; break;
+	case  3: Type = SG_DATATYPE_Word  ; break;
+	case  4: Type = SG_DATATYPE_Short ; break;
+	case  5: Type = SG_DATATYPE_DWord ; break;
+	case  6: Type = SG_DATATYPE_Int   ; break;
+	default: Type = SG_DATATYPE_Float ; break;
+	case  8: Type = SG_DATATYPE_Double; break;
+	}
+
+	CSG_Grid	*pGrid	= SG_Create_Grid(CSG_Grid_System(Cellsize, Extent), Type);
 
 	if( !pGrid )
 	{
+		Error_Set(_TL("failed to allocate memory for grid."));
+
 		return( false );
 	}
 
@@ -359,48 +403,42 @@ bool CXYZ_Import::On_Execute(void)
 	pGrid->Set_Name(SG_File_Get_Name(Parameters("FILENAME")->asString(), false));
 
 	//-----------------------------------------------------
-	CSG_Grid	*pCount	= SG_Create_Grid(pGrid->Get_System(), SG_DATATYPE_Byte);
-
-	if( !pCount )
+	CSG_Grid	Count, *pCount;
+	
+	if( Parameters("COUNT_CREATE")->asBool() )
 	{
-		return( false );
+		pCount	= SG_Create_Grid();
+
+		Parameters("COUNT")->Set_Value(pCount);
+	}
+	else
+	{
+		pCount	= &Count;
 	}
 
-	Parameters("COUNT")->Set_Value(pCount);
+	pCount->Create(pGrid->Get_System(), SG_DATATYPE_Byte);
 
 	pCount->Fmt_Name("%s [%s]", pGrid->Get_Name(), _TL("Count"));
 
 	//-----------------------------------------------------
-	Stream.Seek_Start();
-
+	for(int i=0; i<Points.Get_Count() && Set_Progress(i, Points.Get_Count()); i++)
 	{
-		for(int Skip=Parameters("SKIP")->asInt(); Skip>0; Skip--)
-		{
-			Stream.Read_Line(sLine);
-		}
-	}
+		int	x, y;
 
-	//-----------------------------------------------------
-	while( !Stream.is_EOF() && Set_Progress((double)Stream.Tell(), (double)fLength) )
-	{
-		if( Read_Values(Stream, p.x, p.y, z) )
+		if( pGrid->Get_System().Get_World_to_Grid(x, y, Points[i].x, Points[i].y) )
 		{
-			int	x, y;
-
-			if( pGrid->Get_System().Get_World_to_Grid(x, y, p) )
-			{
-				pGrid ->Add_Value(x, y, z);
-				pCount->Add_Value(x, y, 1);
-			}
+			pGrid ->Add_Value(x, y, Points[i].z);
+			pCount->Add_Value(x, y, 1);
 		}
 	}
 
 	//-----------------------------------------------------
 	for(int y=0; y<pGrid->Get_NY() && Set_Progress(y, pGrid->Get_NY()); y++)
 	{
+		#pragma omp parallel for
 		for(int x=0; x<pGrid->Get_NX(); x++)
 		{
-			nValues	= pCount->asInt(x, y);
+			int	nValues	= pCount->asInt(x, y);
 
 			if( nValues == 0 )
 			{
@@ -408,7 +446,7 @@ bool CXYZ_Import::On_Execute(void)
 			}
 			else if( nValues > 1 )
 			{
-				pGrid->Mul_Value(x, y, 1.0 / nValues);
+				pGrid->Mul_Value(x, y, 1. / nValues);
 			}
 		}
 	}
@@ -436,7 +474,8 @@ inline bool CXYZ_Import::Read_Values(CSG_File &Stream, double &x, double &y, dou
 
 	return( Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(x)
 		&&  Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(y)
-		&&  Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(z) );
+		&&  Tokenizer.Has_More_Tokens() && Tokenizer.Get_Next_Token().asDouble(z)
+	);
 }
 
 
