@@ -86,19 +86,19 @@ CPET_Hargreave_Grid::CPET_Hargreave_Grid(void)
 	Add_Reference("Allen, R.G., Pereira, L.S., Raes, D., Smith, M.", "1998",
 		"Crop evapotranspiration - Guidelines for computing crop water requirements.",
 		"FAO Irrigation and drainage paper 56.",
-		SG_T("http://www.fao.org/docrep/X0490E/x0490e00.htm#Contents")
+		SG_T("http://www.fao.org/docrep/X0490E/x0490e07.htm#an%20alternative%20equation%20for%20eto%20when%20weather%20data%20are%20missing")
 	);
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid("", "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Grid("", "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "T"    , _TL("Mean Temperature"            ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "T_MIN", _TL("Minimum Temperature"         ), _TL(""), PARAMETER_INPUT );
+	Parameters.Add_Grid("", "T_MAX", _TL("Maximum Temperature"         ), _TL(""), PARAMETER_INPUT );
 	Parameters.Add_Grid("", "PET"  , _TL("Potential Evapotranspiration"), _TL(""), PARAMETER_OUTPUT);
 
 	Parameters.Add_Double("",
 		"LAT"	, _TL("Latitude [Degree]"),
 		_TL(""),
-		53.0, -90.0, true, 90.0, true
+		53., -90., true, 90., true
 	);
 
 	Parameters.Add_Choice("",
@@ -293,7 +293,7 @@ CPET_Hargreave_Table::CPET_Hargreave_Table(void)
 	Parameters.Add_Double("TABLE",
 		"LAT"	, _TL("Latitude"),
 		_TL(""),
-		53.0, -90.0, true, 90.0, true
+		53., -90., true, 90., true
 	);
 }
 
@@ -403,7 +403,7 @@ CPET_Day_To_Hour::CPET_Day_To_Hour(void)
 	Parameters.Add_Double("DAYS",
 		"LAT"	, _TL("Latitude"),
 		_TL(""),
-		53.0, -90.0, true, 90.0, true
+		53., -90., true, 90., true
 	);
 }
 
@@ -428,7 +428,7 @@ bool CPET_Day_To_Hour::On_Execute(void)
 
 	sinLat	= sin(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
 	cosLat	= cos(Parameters("LAT")->asDouble() * M_DEG_TO_RAD);
-	sinHgt	= 0.0;	// -0.0145;	// >> -50'' desired height of horizon
+	sinHgt	= 0.;	// -0.0145;	// >> -50'' desired height of horizon
 
 	pHours->Destroy();
 	pHours->Fmt_Name("%s [%s]", pDays->Get_Name(), _TL("h"));
@@ -458,11 +458,11 @@ bool CPET_Day_To_Hour::On_Execute(void)
 		}
 
 		D		= 0.40954 * sin(0.0172 * (JD - 79.349740));	// sun's declination
-		dT		= 12.0 * acos((sinHgt - sinLat * sin(D)) / (cosLat * cos(D))) / M_PI;
+		dT		= 12. * acos((sinHgt - sinLat * sin(D)) / (cosLat * cos(D))) / M_PI;
 
 		fT		= -0.1752 * sin(0.033430 * JD + 0.5474) - 0.1340 * sin(0.018234 * JD - 0.1939);
-		sRise	= 12.0 - dT - fT;
-		sSet	= 12.0 + dT - fT;
+		sRise	= 12. - dT - fT;
+		sSet	= 12. + dT - fT;
 
 		for(int iHour=0; iHour<24; iHour++)
 		{
@@ -473,12 +473,12 @@ bool CPET_Day_To_Hour::On_Execute(void)
 
 			if( fP >= 0 )
 			{
-				pHour->Set_Value(3, P / 24.0);
+				pHour->Set_Value(3, P / 24.);
 			}
 
 			if( sRise <= iHour && iHour <= sSet )
 			{
-				pHour->Set_Value(2, ET * (1.0 - cos(2.0 * M_PI * (iHour - sRise) / (sSet - sRise))) / 2.0);
+				pHour->Set_Value(2, ET * (1. - cos(2. * M_PI * (iHour - sRise) / (sSet - sRise))) / 2.);
 			}
 		}
 	}

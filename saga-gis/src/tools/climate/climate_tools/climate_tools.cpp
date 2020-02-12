@@ -99,7 +99,7 @@ double	CT_Get_Radiation_Daily_TopOfAtmosphere	(int DayOfYear, double Latitude, b
 //---------------------------------------------------------
 double	CT_Get_ETpot_Hargreave	(double T, double Tmin, double Tmax, double R0)
 {
-	if( T < 0. || Tmin > Tmax )
+	if( (T + 17.8) <= 0. || Tmin >= Tmax )
 	{
 		return( 0. );
 	}
@@ -340,9 +340,9 @@ bool CCT_Snow_Accumulation::Calculate(const double T[365], const double P[365])
 
 	if( iStart < 0 )	// no frost/non-frost change
 	{
-		if( T[0] < 0.0 )	// no day without frost
+		if( T[0] < 0. )	// no day without frost
 		{
-			double	Snow	= 0.0;
+			double	Snow	= 0.;
 
 			for(int i=0; i<365; i++)
 			{
@@ -354,7 +354,7 @@ bool CCT_Snow_Accumulation::Calculate(const double T[365], const double P[365])
 		}
 		else				// no frost at all
 		{
-			m_Snow	= 0.0;
+			m_Snow	= 0.;
 			m_nSnow	= 0;
 		}
 
@@ -364,9 +364,9 @@ bool CCT_Snow_Accumulation::Calculate(const double T[365], const double P[365])
 	//-----------------------------------------------------
 	int	nSnow, iPass = 0, maxIter = 64;
 
-	double	Snow	= 0.0;
+	double	Snow	= 0.;
 
-	m_Snow	= 0.0;
+	m_Snow	= 0.;
 	m_nSnow	= 0;	// days with snow cover
 
 	do
@@ -377,16 +377,16 @@ bool CCT_Snow_Accumulation::Calculate(const double T[365], const double P[365])
 		{
 			int	i	= iDay % 365;
 
-			if( T[i] < 0.0 )		// snow accumulation
+			if( T[i] < 0. )		// snow accumulation
 			{
 				Snow	+= P[i];
 			}
-			else if( Snow > 0.0 )	// snow melt
+			else if( Snow > 0. )	// snow melt
 			{
 				Snow	-= Get_SnowMelt(Snow, T[i], P[i]);
 			}
 
-			if( Snow > 0.0 )
+			if( Snow > 0. )
 			{
 				m_nSnow++;
 			}
@@ -412,11 +412,11 @@ int CCT_Snow_Accumulation::Get_Start(const double *T)
 
 	for(int iDay=0; iDay<365; iDay++)
 	{
-		if( T[iDay] <= 0.0 )
+		if( T[iDay] <= 0. )
 		{
 			int	i = iDay + 1, n = 0;
 
-			while( T[i % 365] > 0.0 )	{	i++; n++;	}
+			while( T[i % 365] > 0. )	{	i++; n++;	}
 
 			if( nMax < n )
 			{
@@ -437,14 +437,14 @@ int CCT_Snow_Accumulation::Get_Start(const double *T)
 //---------------------------------------------------------
 double CCT_Snow_Accumulation::Get_SnowMelt(double Snow, double T, double P)
 {
-	if( T > 0.0 && Snow > 0.0 )
+	if( T > 0. && Snow > 0. )
 	{
 		double	dSnow	= T * (0.84 + 0.125 * P);
 
 		return( dSnow > Snow ? Snow : dSnow );
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 
@@ -460,8 +460,8 @@ CCT_Soil_Water::CCT_Soil_Water(void)
 	m_SW_Capacity  [0]	=  20;
 	m_SW_Capacity  [1]	= 200;
 
-	m_SW_Resistance[0]	= 0.0;
-	m_SW_Resistance[1]	= 1.0;
+	m_SW_Resistance[0]	= 0.;
+	m_SW_Resistance[1]	= 1.;
 }
 
 //---------------------------------------------------------
@@ -494,7 +494,7 @@ CCT_Soil_Water::~CCT_Soil_Water(void)
 //---------------------------------------------------------
 bool CCT_Soil_Water::Set_Capacity(int Layer, double Value)
 {
-	if( Layer >= 0 && Layer <= 1 && Value >= 0.0 )
+	if( Layer >= 0 && Layer <= 1 && Value >= 0. )
 	{
 		m_SW_Capacity[Layer]	= Value;
 
@@ -507,7 +507,7 @@ bool CCT_Soil_Water::Set_Capacity(int Layer, double Value)
 //---------------------------------------------------------
 bool CCT_Soil_Water::Set_ET_Resistance(int Layer, double Value)
 {
-	if( Layer >= 0 && Layer <= 1 && Value > 0.0 )
+	if( Layer >= 0 && Layer <= 1 && Value > 0. )
 	{
 		m_SW_Resistance[Layer]	= Value;
 
@@ -533,10 +533,10 @@ bool CCT_Soil_Water::Calculate(const double T[365], const double P[365], const d
 	m_SW[0].Create(365);
 	m_SW[1].Create(365);
 
-	if( m_SW_Capacity[0] + m_SW_Capacity[1] <= 0.0 )
+	if( m_SW_Capacity[0] + m_SW_Capacity[1] <= 0. )
 	{
-		m_SW[0]	= 0.0;
-		m_SW[1]	= 0.0;
+		m_SW[0]	= 0.;
+		m_SW[1]	= 0.;
 
 		return( true );
 	}
@@ -553,14 +553,14 @@ bool CCT_Soil_Water::Calculate(const double T[365], const double P[365], const d
 		{
 			int	i	= iDay % 365;
 
-			if( T[i] > 0.0 )
+			if( T[i] > 0. )
 			{
 				//---------------------------------------------
 				// upper soil layer
 
 				double	dSW	= P[i];
 
-				if( Snow[i] > 0.0 )
+				if( Snow[i] > 0. )
 				{
 					dSW	+= CCT_Snow_Accumulation::Get_SnowMelt(Snow[i], T[i], P[i]);
 				}
@@ -576,15 +576,15 @@ bool CCT_Soil_Water::Calculate(const double T[365], const double P[365], const d
 					dSW		= SW[0] - m_SW_Capacity[0];
 					SW[0]	= m_SW_Capacity[0];
 				}
-				else if( SW[0] < 0.0 )	// evapotranspiration exceeds available water
+				else if( SW[0] < 0. )	// evapotranspiration exceeds available water
 				{
-				//	dSW		= m_SW_Capacity[1] > 0.0 ? (SW[0] > -SW[1] ? SW[0] : -SW[1]) * sqrt(SW[1] / m_SW_Capacity[1]) : 0.0;
-					dSW		= m_SW_Capacity[1] > 0.0 ? SW[0] * pow(SW[1] / m_SW_Capacity[1], m_SW_Resistance[1]) : 0.0;	// positive: runoff, negative: loss by evapotranspiration not covered by upper layer, with water loss resistance;
-					SW[0]	= 0.0;
+				//	dSW		= m_SW_Capacity[1] > 0. ? (SW[0] > -SW[1] ? SW[0] : -SW[1]) * sqrt(SW[1] / m_SW_Capacity[1]) : 0.;
+					dSW		= m_SW_Capacity[1] > 0. ? SW[0] * pow(SW[1] / m_SW_Capacity[1], m_SW_Resistance[1]) : 0.;	// positive: runoff, negative: loss by evapotranspiration not covered by upper layer, with water loss resistance;
+					SW[0]	= 0.;
 				}
 				else
 				{
-					dSW		= 0.0;
+					dSW		= 0.;
 				}
 
 				//---------------------------------------------
@@ -596,9 +596,9 @@ bool CCT_Soil_Water::Calculate(const double T[365], const double P[365], const d
 				{
 					SW[1]	= m_SW_Capacity[1];
 				}
-				else if( SW[1] < 0.0 )	// evapotranspiration exceeds available water
+				else if( SW[1] < 0. )	// evapotranspiration exceeds available water
 				{
-					SW[1]	= 0.0;
+					SW[1]	= 0.;
 				}
 			}
 
@@ -625,11 +625,11 @@ int CCT_Soil_Water::Get_Start(const double *P, const double *ETpot)
 
 	for(int iDay=0; iDay<365; iDay++)
 	{
-		if( P[iDay] <= 0.0 )
+		if( P[iDay] <= 0. )
 		{
 			int	i = iDay + 1, n = 0;
 
-			while( P[i % 365] > 0.0 )	{	i++; n++;	}
+			while( P[i % 365] > 0. )	{	i++; n++;	}
 
 			if( nMax < n )
 			{
@@ -745,7 +745,7 @@ bool CCT_Water_Balance::Set_Soil_Capacity(double SWC)
 	if( SWC < m_Soil.Get_Capacity(0) )
 	{
 		m_Soil.Set_Capacity(0, SWC);
-		m_Soil.Set_Capacity(1, 0.0);
+		m_Soil.Set_Capacity(1, 0. );
 	}
 	else
 	{
