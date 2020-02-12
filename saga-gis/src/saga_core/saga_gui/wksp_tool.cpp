@@ -781,6 +781,9 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	{
 		s	+= "#! /usr/bin/env python\n";
 		s	+= "\n";
+		s	+= "#_________________________________________\n";
+		s	+= "# Initialize the environment...\n";
+		s	+= "\n";
 		s	+= "import os\n";
 		s	+= "\n";
 		s	+= "if os.name == 'nt': # Windows\n";
@@ -790,11 +793,34 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 		s	+= "    os.environ['PATH'     ] = os.environ['SAGA_PATH'] + os.sep + 'dll;' + os.environ['PATH']\n";
 		s	+= "    os.environ['PROJ_LIB' ] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'proj-data'\n";
 		s	+= "    os.environ['GDAL-DATA'] = os.environ['SAGA_PATH'] + os.sep + 'dll' + os.sep + 'gdal-data'\n";
+		s	+= "    Dir_Tools = os.environ['SAGA_PATH'] + os.sep + 'tools'\n";
+		s	+= "else:               # Linux\n";
+		s	+= "    Dir_Tools = '/usr/local/lib/saga' # you might have to adjust this path to your system\n";
 		s	+= "\n";
 		s	+= "import sys, saga_api\n";
 		s	+= "\n";
-		s	+= "##########################################\n";
 		s	+= "\n";
+		s	+= "#_________________________________________\n";
+		s	+= "# Load the tools...\n";
+		s	+= "\n";
+		s	+= "saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
+		s	+= "saga_api.SG_Get_Tool_Library_Manager().Add_Directory(Dir_Tools, False)\n";
+		s	+= "if os.getenv('SAGA_TLB') is not None:\n";
+		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
+		s	+= "saga_api.SG_UI_Msg_Lock(False)\n";
+		s	+= "\n";
+		s	+= "\n";
+		s	+= "#_________________________________________\n";
+		s	+= "# Print versions and number of loaded tools...\n";
+		s	+= "\n";
+		s	+= "print('Python - Version ' + sys.version)\n";
+		s	+= "print(saga_api.SAGA_API_Get_Version())\n";
+		s	+= "print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
+		s	+= "print()\n";
+		s	+= "\n";
+		s	+= "\n";
+		s	+= "#_________________________________________\n";
+		s	+= "##########################################\n";
 	}
 
 	//-----------------------------------------------------
@@ -897,33 +923,9 @@ CSG_String CWKSP_Tool::_Get_Python(bool bHeader)
 	if( bHeader )
 	{
 		s	+= "\n";
+		s	+= "#_________________________________________\n";
 		s	+= "##########################################\n";
 		s	+= "if __name__ == '__main__':\n";
-		s	+= "    #____________________________________\n";
-		s	+= "    # The next lines will try to load all tools from the SAGA installation directory\n";
-		s	+= "    # and - if available - from the directory defined by the SAGA_TLB environment variable.\n";
-		s	+= "\n";
-		s	+= "    if os.name == 'nt': # Windows\n";
-		s	+= "        Dir_Tools = os.environ['SAGA_PATH'] + os.sep + 'tools'\n";
-		s	+= "    else:               # Linux\n";
-		s	+= "        Dir_Tools = '/usr/local/lib/saga' # you might have to adjust this path to your system\n";
-		s	+= "\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(True) # avoid too much noise\n";
-		s	+= "\n";
-		s	+= "    saga_api.SG_Get_Tool_Library_Manager().Add_Directory(Dir_Tools, False)\n";
-		s	+= "\n";
-		s   += "    if os.getenv('SAGA_TLB') is not None:\n";
-        s	+= "        saga_api.SG_Get_Tool_Library_Manager().Add_Directory(os.environ['SAGA_TLB'], False)\n";
-		s	+= "\n";
-		s	+= "    saga_api.SG_UI_Msg_Lock(False)\n";
-		s	+= "\n";
-		s	+= "    #____________________________________\n";
-		s	+= "    print('Python - Version ' + sys.version)\n";
-        s	+= "    print(saga_api.SAGA_API_Get_Version())\n";
-        s	+= "    print('number of loaded libraries: ' + str(saga_api.SG_Get_Tool_Library_Manager().Get_Count()))\n";
-        s	+= "    print()\n";
-		s	+= "\n";
-		s	+= "    #____________________________________\n";
         s	+= "    print('Usage: %s <in: filename>')\n";
         s	+= "    print('This is a simple template for using a SAGA tool through Python.')\n";
         s	+= "    print('Please edit the script to make it work properly before using it!')\n";
