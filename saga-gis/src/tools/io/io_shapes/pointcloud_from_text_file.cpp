@@ -328,7 +328,7 @@ bool CPointCloud_From_Text_File::On_Execute(void)
 	CSG_Array_Int	Fields;
 
     //-----------------------------------------------------
-    if( SG_UI_Get_Window_Main() )
+    if( has_GUI() )
     {
 		CSG_Parameters	&Fields	= *Parameters("FIELDSPECS")->asParameters();
 
