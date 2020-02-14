@@ -58,20 +58,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define METHOD_STRING	CSG_String::Format("%s|%s|%s|%s|%s",\
-	_TL("take original value (0 - 255)"),\
-	_TL("rescale to 0 - 255"),\
-	_TL("user defined"),\
-	_TL("percentiles"),\
-	_TL("standard deviation")\
-), 4
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 {
 	Set_Name		(_TL("RGB Composite"));
@@ -83,35 +69,46 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid  (""        , "R_GRID"  , _TL("Red"               ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Choice("R_GRID"  , "R_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range ("R_METHOD", "R_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range ("R_METHOD", "R_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Double("R_METHOD", "R_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
+	Parameters.Add_Grid("", "R_GRID"  , _TL("Red"      ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "G_GRID"  , _TL("Green"    ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "B_GRID"  , _TL("Blue"     ), _TL(""), PARAMETER_INPUT);
+	Parameters.Add_Grid("", "A_GRID"  , _TL("Alpha"    ), _TL(""), PARAMETER_INPUT_OPTIONAL);
+	Parameters.Add_Grid("", "RGB"     , _TL("Composite"), _TL(""), PARAMETER_OUTPUT, true, SG_DATATYPE_Int);
 
-	Parameters.Add_Grid  (""        , "G_GRID"  , _TL("Green"             ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Choice("G_GRID"  , "G_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range ("G_METHOD", "G_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range ("G_METHOD", "G_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Double("G_METHOD", "G_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
-
-	Parameters.Add_Grid  (""        , "B_GRID"  , _TL("Blue"              ), _TL(""), PARAMETER_INPUT);
-	Parameters.Add_Choice("B_GRID"  , "B_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range ("B_METHOD", "B_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range ("B_METHOD", "B_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Double("B_METHOD", "B_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
-
-	Parameters.Add_Grid  (""        , "A_GRID"  , _TL("Alpha"             ), _TL(""), PARAMETER_INPUT_OPTIONAL);
-	Parameters.Add_Choice("A_GRID"  , "A_METHOD", _TL("Value Preparation" ), _TL(""), METHOD_STRING);
-	Parameters.Add_Range ("A_METHOD", "A_RANGE" , _TL("Rescale Range"     ), _TL(""), 0, 255);
-	Parameters.Add_Range ("A_METHOD", "A_PERCTL", _TL("Percentiles"       ), _TL(""), 1.0, 99.0, 0.0, true, 100.0, true);
-	Parameters.Add_Double("A_METHOD", "A_STDDEV", _TL("Standard Deviation"), _TL(""), 2.0, 0.0, true);
-
-	//-----------------------------------------------------
-	Parameters.Add_Grid("",
-		"RGB"	, _TL("Composite"),
+	Parameters.Add_Choice("",
+		"METHOD"	, _TL("Value Preparation"),
 		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Int
+		CSG_String::Format("%s|%s|%s|%s|%s",
+			_TL("take original value (0 - 255)"),
+			_TL("rescale to 0 - 255"),
+			_TL("user defined"),
+			_TL("percentiles"),
+			_TL("standard deviation")
+		), 0
+	);
+
+	Parameters.Add_Range("METHOD",
+		"RANGE"		, _TL("Rescale Range"),
+		_TL(""),
+		0., 255.
+	);
+
+	Parameters.Add_Range ("METHOD",
+		"PERCTL"	, _TL("Percentiles"),
+		_TL(""),
+		1., 99., 0., true, 100., true
+	);
+
+	Parameters.Add_Double("METHOD",
+		"STDDEV"	, _TL("Standard Deviation"),
+		_TL(""),
+		2., 0., true
+	);
+
+	Parameters.Add_Bool("",
+		"NODATA"	, _TL("Ignore No Data Cells"),
+		_TL(""),
+		true
 	);
 }
 
@@ -123,52 +120,11 @@ CGrid_RGB_Composite::CGrid_RGB_Composite(void)
 //---------------------------------------------------------
 int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("R_GRID") )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		pParameters->Set_Enabled("R_METHOD", pParameter->asPointer() != NULL);
-	}
-
-	if( pParameter->Cmp_Identifier("R_METHOD") )
-	{
-		pParameters->Set_Enabled("R_RANGE" , pParameter->asInt() == 2);	// User defined rescale
-		pParameters->Set_Enabled("R_PERCTL", pParameter->asInt() == 3);	// Percentiles
-		pParameters->Set_Enabled("R_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
-	}
-
-	if( pParameter->Cmp_Identifier("G_GRID") )
-	{
-		pParameters->Set_Enabled("G_METHOD", pParameter->asPointer() != NULL);
-	}
-
-	if( pParameter->Cmp_Identifier("G_METHOD") )
-	{
-		pParameters->Set_Enabled("G_RANGE" , pParameter->asInt() == 2);	// User defined rescale
-		pParameters->Set_Enabled("G_PERCTL", pParameter->asInt() == 3);	// Percentiles
-		pParameters->Set_Enabled("G_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
-	}
-
-	if( pParameter->Cmp_Identifier("B_GRID") )
-	{
-		pParameters->Set_Enabled("B_METHOD", pParameter->asPointer() != NULL);
-	}
-
-	if( pParameter->Cmp_Identifier("B_METHOD") )
-	{
-		pParameters->Set_Enabled("B_RANGE" , pParameter->asInt() == 2);	// User defined rescale
-		pParameters->Set_Enabled("B_PERCTL", pParameter->asInt() == 3);	// Percentiles
-		pParameters->Set_Enabled("B_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
-	}
-
-	if( pParameter->Cmp_Identifier("A_GRID") )
-	{
-		pParameters->Set_Enabled("A_METHOD", pParameter->asPointer() != NULL);
-	}
-
-	if( pParameter->Cmp_Identifier("A_METHOD") )
-	{
-		pParameters->Set_Enabled("A_RANGE" , pParameter->asInt() == 2);	// User defined rescale
-		pParameters->Set_Enabled("A_PERCTL", pParameter->asInt() == 3);	// Percentiles
-		pParameters->Set_Enabled("A_STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
+		pParameters->Set_Enabled("RANGE" , pParameter->asInt() == 2);	// User defined rescale
+		pParameters->Set_Enabled("PERCTL", pParameter->asInt() == 3);	// Percentiles
+		pParameters->Set_Enabled("STDDEV", pParameter->asInt() == 4);	// Percentage of standard deviation
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -182,13 +138,12 @@ int CGrid_RGB_Composite::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CGrid_RGB_Composite::On_Execute(void)
 {
-	double		rMin, rRange, gMin, gRange, bMin, bRange, aMin, aRange;
+	CSG_Grid	*pBand[4];	double	Offset[4], Scale[4];
 
-	//-----------------------------------------------------
-	CSG_Grid	*pR	= _Get_Grid(Parameters("R_GRID")->asGrid(), Parameters("R_METHOD")->asInt(), Parameters("R_RANGE")->asRange(), Parameters("R_PERCTL")->asRange(), Parameters("R_STDDEV")->asDouble(), rMin, rRange);
-	CSG_Grid	*pG	= _Get_Grid(Parameters("G_GRID")->asGrid(), Parameters("G_METHOD")->asInt(), Parameters("G_RANGE")->asRange(), Parameters("G_PERCTL")->asRange(), Parameters("G_STDDEV")->asDouble(), gMin, gRange);
-	CSG_Grid	*pB	= _Get_Grid(Parameters("B_GRID")->asGrid(), Parameters("B_METHOD")->asInt(), Parameters("B_RANGE")->asRange(), Parameters("B_PERCTL")->asRange(), Parameters("B_STDDEV")->asDouble(), bMin, bRange);
-	CSG_Grid	*pA	= _Get_Grid(Parameters("A_GRID")->asGrid(), Parameters("A_METHOD")->asInt(), Parameters("A_RANGE")->asRange(), Parameters("A_PERCTL")->asRange(), Parameters("A_STDDEV")->asDouble(), aMin, aRange);
+	pBand[0]	= _Get_Grid(Parameters("R_GRID")->asGrid(), Offset[0], Scale[0]);
+	pBand[1]	= _Get_Grid(Parameters("G_GRID")->asGrid(), Offset[1], Scale[1]);
+	pBand[2]	= _Get_Grid(Parameters("B_GRID")->asGrid(), Offset[2], Scale[2]);
+	pBand[3]	= _Get_Grid(Parameters("A_GRID")->asGrid(), Offset[3], Scale[3]);
 
 	//-----------------------------------------------------
 	CSG_Grid	*pRGB	= Parameters("RGB")->asGrid();
@@ -196,51 +151,49 @@ bool CGrid_RGB_Composite::On_Execute(void)
 	pRGB->Create(pRGB->Get_System(), SG_DATATYPE_Int);
 	pRGB->Set_Name(_TL("Composite"));
 
-	CSG_String	s;
-
-	s	+= CSG_String(_TL("Red"  )) + ": " + pR->Get_Name() + "\n";
-	s	+= CSG_String(_TL("Green")) + ": " + pG->Get_Name() + "\n";
-	s	+= CSG_String(_TL("Blue" )) + ": " + pB->Get_Name() + "\n";
-
-	if( pA )
-	{
-		s	+= CSG_String(_TL("Alpha")) + ": " + pA->Get_Name() + "\n";
-	}
-
-	pRGB->Set_Description(s);
-
-	DataObject_Set_Colors   (pRGB, 11, SG_COLORS_BLACK_WHITE);
-	DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
+	bool	bNoData	= Parameters("NODATA")->asBool() == false;
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
+		#ifndef _DEBUG
 		#pragma omp parallel for
+		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
-			if( pR->is_NoData(x, y) || pG->is_NoData(x, y) || pB->is_NoData(x, y) || (pA && pA->is_NoData(x, y)) )
+			if( bNoData
+			&& ((pBand[0] && pBand[0]->is_NoData(x, y))
+			||  (pBand[1] && pBand[1]->is_NoData(x, y))
+			||  (pBand[2] && pBand[2]->is_NoData(x, y))
+			||  (pBand[3] && pBand[3]->is_NoData(x, y))) )
 			{
 				pRGB->Set_NoData(x, y);
 			}
 			else
 			{
-				int	r	= (int)(rRange * (pR->asDouble(x, y) - rMin)); if( r > 255 ) r = 255; else if( r < 0 ) r = 0;
-				int	g	= (int)(gRange * (pG->asDouble(x, y) - gMin)); if( g > 255 ) g = 255; else if( g < 0 ) g = 0;
-				int	b	= (int)(bRange * (pB->asDouble(x, y) - bMin)); if( b > 255 ) b = 255; else if( b < 0 ) b = 0;
+				BYTE c[4];
 
-				if( pA )
+				for(int i=0; i<4; i++)
 				{
-					int	a	= (int)(aRange * (pA->asDouble(x, y) - aMin)); if( a > 255 ) a = 255; else if( a < 0 ) a = 0;
+					if( pBand[i] )
+					{
+						double	d	= Scale[i] * (pBand[i]->asDouble(x, y) - Offset[i]);
+						
+						c[i]	= d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
+					}
+					else
+					{
+						c[i]	= 255;
+					}
+				}
 
-					pRGB->Set_Value(x, y, SG_GET_RGBA(r, g, b, a));
-				}
-				else
-				{
-					pRGB->Set_Value(x, y, SG_GET_RGB (r, g, b));
-				}
+				pRGB->Set_Value(x, y, *((int *)c));
 			}
 		}
 	}
+
+	//-----------------------------------------------------
+	DataObject_Set_Parameter(pRGB, "COLORS_TYPE", 5);	// Color Classification Type: RGB Coded Values
 
 	return( true );
 }
@@ -251,41 +204,41 @@ bool CGrid_RGB_Composite::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double StdDev, double &Min, double &Range)
+CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, double &Offset, double &Scale)
 {
 	if( pGrid )
 	{
-		switch( Method )
+		switch( Parameters("METHOD")->asInt() )
 		{
-		default:
-		case 0:	// 0 - 255
-			Min		=   0.0;
-			Range	= 255.0;
+		default:	// 0 - 255
+			Offset	=   0.;
+			Scale	= 255.;
 			break;
 
-		case 1:	// Rescale to 0 - 255
-			Min		= pGrid->Get_Min  ();
-			Range	= pGrid->Get_Range();
+		case  1:	// Rescale to 0 - 255
+			Offset	= pGrid->Get_Min();
+			Scale	= pGrid->Get_Max() - Offset;
 			break;
 
-		case 2:	// User defined rescale
-			Min		= pRange->Get_Min  ();
-			Range	= pRange->Get_Range();
+		case  2:	// User defined rescale
+			Offset	= Parameters("RANGE.MIN")->asDouble();
+			Scale	= Parameters("RANGE.MIN")->asDouble() - Offset;
 			break;
 
-		case 3:	// Percentile
-			Min		= pGrid->Get_Percentile(pPerctl->Get_Min());
-			Range	= pGrid->Get_Percentile(pPerctl->Get_Max()) - Min;
+		case  3:	// Percentile
+			Offset	= pGrid->Get_Percentile(Parameters("PERCTL.MIN")->asDouble());
+			Scale	= pGrid->Get_Percentile(Parameters("PERCTL.MAX")->asDouble()) - Offset;
 			break;
 
-		case 4:	// Standard deviation
-			Min		= pGrid->Get_Mean() - StdDev * pGrid->Get_StdDev();
-			if( Min < 0.0 ) Min = 0.0;
-			Range	= 2.0 * StdDev * pGrid->Get_StdDev();
+		case  4:	// Standard deviation
+			Scale	= Parameters("STDDEV")->asDouble();
+			Offset	= pGrid->Get_Mean() - pGrid->Get_StdDev() * Scale;
+			if( Offset < 0. ) Offset = 0.;
+			Scale	*= 2. * pGrid->Get_StdDev();
 			break;
 		}
 
-		Range	= Range > 0.0 ? 255.0 / Range : 0.0;
+		Scale	= Scale > 0. ? 255. / Scale : 0.;
 	}
 
 	return( pGrid );
@@ -301,7 +254,6 @@ CSG_Grid * CGrid_RGB_Composite::_Get_Grid(CSG_Grid *pGrid, int Method, CSG_Param
 //---------------------------------------------------------
 CGrid_RGB_Split::CGrid_RGB_Split(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Split RGB Composite"));
 
 	Set_Author		("O.Conrad (c) 2014");

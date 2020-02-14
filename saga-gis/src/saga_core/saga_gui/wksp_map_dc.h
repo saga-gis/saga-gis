@@ -154,28 +154,33 @@ public:
 			switch( m_img_mode )
 			{
 			case IMG_MODE_OPAQUE: default: {
-				} break;
+				break; }
 
 			case IMG_MODE_SHADING: {
-				r = (int)(r * m_img_dc_rgb[n + 0] / 255.);
-				g = (int)(g * m_img_dc_rgb[n + 1] / 255.);
-				b = (int)(b * m_img_dc_rgb[n + 2] / 255.);
-				} break;
+				r = (BYTE)(r * m_img_dc_rgb[n + 0] / 255.);
+				g = (BYTE)(g * m_img_dc_rgb[n + 1] / 255.);
+				b = (BYTE)(b * m_img_dc_rgb[n + 2] / 255.);
+				break; }
 
 			case IMG_MODE_TRANSPARENT: {
-				r = (int)(r * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 0]);
-				g = (int)(g * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 1]);
-				b = (int)(b * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 2]);
-				} break;
+				if( m_Transparency <= 0. ) { return; }
+				if( m_Transparency <  1. )
+				{
+					r = (BYTE)(r * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 0]);
+					g = (BYTE)(g * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 1]);
+					b = (BYTE)(b * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 2]);
+				}
+				break; }
 
 			case IMG_MODE_TRANSPARENT_ALPHA: {
-				double	Alpha	= SG_GET_A(Color);
+				double	Alpha	= SG_GET_A(Color) / 255.;
 
-				if( Alpha >= 0. && Alpha < 1. )
+				if( Alpha <= 0. ) { return; }
+				if( Alpha <  1. )
 				{
-					r = (int)(r * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 0]);
-					g = (int)(g * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 1]);
-					b = (int)(b * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 2]);
+					r = (BYTE)(r * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 0]);
+					g = (BYTE)(g * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 1]);
+					b = (BYTE)(b * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 2]);
 				}
 				break; }
 			}

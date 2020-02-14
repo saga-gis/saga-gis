@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_RGB_Composite_H
 #define HEADER_INCLUDED__Grid_RGB_Composite_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -96,7 +84,7 @@ protected:
 
 private:
 
-	CSG_Grid *			_Get_Grid	(CSG_Grid *pGrid, int Method, CSG_Parameter_Range *pRange, CSG_Parameter_Range *pPerctl, double StdDev, double &Min, double &Range);
+	CSG_Grid *			_Get_Grid				(CSG_Grid *pGrid, double &Offset, double &Scale);
 
 };
 
@@ -114,10 +102,7 @@ public:
 
 protected:
 
-	virtual bool		On_Execute	(void);
-
-
-private:
+	virtual bool		On_Execute				(void);
 
 };
 

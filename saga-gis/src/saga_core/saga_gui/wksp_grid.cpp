@@ -1286,9 +1286,9 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 
 	switch( m_pClassify->Get_Mode() )
 	{
-	default            :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; break;
-	case CLASSIFY_RGB  :	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; if( Transparency <= 0. ) Transparency = 3.; break;
-	case CLASSIFY_SHADE:	Transparency	= 2.;	break;
+	default            : Transparency = m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; break;
+	case CLASSIFY_RGB  : Transparency = m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; if( Transparency <= 0. ) Transparency = 3.; break;
+	case CLASSIFY_SHADE: Transparency = 2.;	break;
 	}
 
 	if( !dc_Map.IMG_Draw_Begin(Transparency) )
