@@ -1193,7 +1193,9 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 
 	bool	bBandWise	= m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
 
+	#ifndef _DEBUG
 	#pragma omp parallel for
+	#endif
 	for(int iyDC=0; iyDC<=nyDC; iyDC++)
 	{
 		_Draw_Grid_Nodes(dc_Map, Resampling, pBands, bBandWise, ayDC - iyDC, axDC, bxDC);
@@ -1224,14 +1226,25 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 		}
 		else
 		{
-			double	z[4];
+			double	z[4];	bool	bOkay;
 
-			if( pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, false)
-			&&  pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, false)
-			&&  pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, false)
-			&& (pBands[3] == NULL || pBands[3]->Get_Value(xMap, yMap, z[3], Resampling, false)) )
+			if( pBands[3] == NULL )
 			{
-				BYTE c[4];
+				bOkay	= pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, false)
+					&&    pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, false)
+					&&    pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, false);
+				z[3]	= 255.;
+			}
+			else if( (bOkay = pBands[3]->Get_Value(xMap, yMap, z[3], Resampling, true) && z[3] > 0.) == true )
+			{
+				pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, true);
+				pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, true);
+				pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, true);
+			}
+
+			if( bOkay )
+			{
+				BYTE c[4];	c[3] = (BYTE)z[3];
 
 				for(int i=0; i<3; i++)
 				{
@@ -1241,8 +1254,6 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 
 					c[i] = d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
 				}
-
-				c[3] = pBands[3] == NULL ? 255 : (BYTE)z[3];
 
 				dc_Map.IMG_Set_Pixel(xDC, yDC, *(int *)&c);
 			}
@@ -1299,10 +1310,10 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 					dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, c);
 				}
 			}
-			else if( pBands[0]->is_InGrid(x, y)
-				&&   pBands[1]->is_InGrid(x, y)
-				&&   pBands[2]->is_InGrid(x, y)
-				&& (!pBands[3] || pBands[3]->is_InGrid(x, y)) )
+			else if( pBands[0]->is_InGrid(x, y, !pBands[3])
+				&&   pBands[1]->is_InGrid(x, y, !pBands[3])
+				&&   pBands[2]->is_InGrid(x, y, !pBands[3])
+				&& (!pBands[3] || pBands[3]->is_InGrid(x, y, false)) )
 			{
 				BYTE c[4];
 
