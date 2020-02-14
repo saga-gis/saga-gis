@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/menu.h>
 
 #include "helper.h"
@@ -151,7 +142,7 @@ static	wxString	g_Password	= "postgres";
 //---------------------------------------------------------
 #define RUN_TOOL(TOOL, bManager, bVerbose, CONDITION)	bool bResult = false;\
 {\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", TOOL, true);\
 	\
 	if(	pTool )\
 	{\
@@ -270,7 +261,7 @@ bool	PGSQL_has_Connections	(double vPostGIS)
 //---------------------------------------------------------
 bool	PGSQL_Save_Table	(CSG_Table *pTable)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Save, true);
 
 	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("TABLE", pTable)
 		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
@@ -283,7 +274,7 @@ bool	PGSQL_Save_Table	(CSG_Table *pTable)
 //---------------------------------------------------------
 bool	PGSQL_Save_Shapes	(CSG_Shapes *pShapes)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Shapes_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Shapes_Save, true);
 
 	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("SHAPES", pShapes)
 		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
@@ -298,7 +289,7 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 {
 	bool	bResult	= false;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Raster_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Raster_Save, true);
 
 	if(	pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("NAME", pGrid->Get_Name()) )
 	{
@@ -317,7 +308,7 @@ bool	PGSQL_Save_Grid		(CSG_Grid *pGrid)
 //---------------------------------------------------------
 bool	PGSQL_Save_Grids		(CSG_Grids *pGrids)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Rasters_Save);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Rasters_Save, true);
 
 	bool	bResult	= pTool && pTool->On_Before_Execution() && pTool->Set_Parameter("GRIDS", pGrids)
 		&&  DLG_Parameters(pTool->Get_Parameters()) && pTool->Execute();
@@ -375,22 +366,22 @@ private:
 
 //---------------------------------------------------------
 BEGIN_EVENT_TABLE(CData_Source_PgSQL, wxTreeCtrl)
-	EVT_MENU					(ID_CMD_DB_REFRESH				, CData_Source_PgSQL::On_Refresh)
-	EVT_MENU					(ID_CMD_DB_SOURCE_CREATE		, CData_Source_PgSQL::On_Source_Create)
-	EVT_MENU					(ID_CMD_DB_SOURCE_DROP			, CData_Source_PgSQL::On_Source_Drop)
-	EVT_MENU					(ID_CMD_DB_SOURCE_OPEN			, CData_Source_PgSQL::On_Source_Open)
-	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE			, CData_Source_PgSQL::On_Source_Close)
-	EVT_MENU					(ID_CMD_DB_SOURCE_CLOSE_ALL		, CData_Source_PgSQL::On_Sources_Close)
-	EVT_MENU					(ID_CMD_DB_SOURCE_DELETE		, CData_Source_PgSQL::On_Source_Delete)
-	EVT_MENU					(ID_CMD_DB_TABLE_OPEN			, CData_Source_PgSQL::On_Table_Open)
-	EVT_MENU					(ID_CMD_DB_TABLE_FROM_QUERY		, CData_Source_PgSQL::On_Table_From_Query)
-	EVT_MENU					(ID_CMD_DB_TABLE_RENAME			, CData_Source_PgSQL::On_Table_Rename)
-	EVT_MENU					(ID_CMD_DB_TABLE_INFO			, CData_Source_PgSQL::On_Table_Info)
-	EVT_MENU					(ID_CMD_DB_TABLE_DELETE			, CData_Source_PgSQL::On_Table_Drop)
+	EVT_MENU                 (ID_CMD_DB_REFRESH          , CData_Source_PgSQL::On_Refresh         )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_CREATE    , CData_Source_PgSQL::On_Source_Create   )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_DROP      , CData_Source_PgSQL::On_Source_Drop     )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_OPEN      , CData_Source_PgSQL::On_Source_Open     )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE     , CData_Source_PgSQL::On_Source_Close    )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_CLOSE_ALL , CData_Source_PgSQL::On_Sources_Close   )
+	EVT_MENU                 (ID_CMD_DB_SOURCE_DELETE    , CData_Source_PgSQL::On_Source_Delete   )
+	EVT_MENU                 (ID_CMD_DB_TABLE_OPEN       , CData_Source_PgSQL::On_Table_Open      )
+	EVT_MENU                 (ID_CMD_DB_TABLE_FROM_QUERY , CData_Source_PgSQL::On_Table_From_Query)
+	EVT_MENU                 (ID_CMD_DB_TABLE_RENAME     , CData_Source_PgSQL::On_Table_Rename    )
+	EVT_MENU                 (ID_CMD_DB_TABLE_INFO       , CData_Source_PgSQL::On_Table_Info      )
+	EVT_MENU                 (ID_CMD_DB_TABLE_DELETE     , CData_Source_PgSQL::On_Table_Drop      )
 
-	EVT_TREE_ITEM_ACTIVATED		(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_PgSQL::On_Item_Activated)
-	EVT_TREE_ITEM_RIGHT_CLICK	(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_PgSQL::On_Item_RClick)
-	EVT_TREE_ITEM_MENU			(ID_WND_DATA_SOURCE_DATABASE	, CData_Source_PgSQL::On_Item_Menu)
+	EVT_TREE_ITEM_ACTIVATED  (ID_WND_DATA_SOURCE_DATABASE, CData_Source_PgSQL::On_Item_Activated  )
+	EVT_TREE_ITEM_RIGHT_CLICK(ID_WND_DATA_SOURCE_DATABASE, CData_Source_PgSQL::On_Item_RClick     )
+	EVT_TREE_ITEM_MENU       (ID_WND_DATA_SOURCE_DATABASE, CData_Source_PgSQL::On_Item_Menu       )
 END_EVENT_TABLE()
 
 
@@ -490,8 +481,6 @@ CData_Source_PgSQL::~CData_Source_PgSQL(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -528,8 +517,6 @@ void CData_Source_PgSQL::Autoconnect(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -607,8 +594,6 @@ void CData_Source_PgSQL::On_Table_Drop(wxCommandEvent &WXUNUSED(event))
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -712,8 +697,6 @@ void CData_Source_PgSQL::On_Item_Menu(wxTreeEvent &event)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -968,8 +951,6 @@ void CData_Source_PgSQL::Append_Table(const wxTreeItemId &Parent, const SG_Char 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -980,7 +961,7 @@ bool CData_Source_PgSQL::Source_Create(const wxTreeItemId &Item)
 	if( pData->Get_Type() == TYPE_ROOT
 	||  pData->Get_Type() == TYPE_SERVER )
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_DB_Create);
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_DB_Create, true);
 
 		if(	pTool && pTool->On_Before_Execution() )
 		{
@@ -1081,7 +1062,7 @@ void CData_Source_PgSQL::Source_Open(const wxTreeItemId &Item)
 	if( pData->Get_Type() == TYPE_ROOT
 	||  pData->Get_Type() == TYPE_SERVER )
 	{
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Get_Connection);	// CGet_Connection
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Get_Connection, true);	// CGet_Connection
 
 		if(	pTool && pTool->On_Before_Execution() )
 		{
@@ -1138,8 +1119,6 @@ void CData_Source_PgSQL::Sources_Close(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1204,7 +1183,7 @@ void CData_Source_PgSQL::Table_From_Query(const wxTreeItemId &Item)
 {
 	CData_Source_PgSQL_Data	*pData	= Item.IsOk() ? (CData_Source_PgSQL_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", DB_PGSQL_Table_Query, true);
 
 	if(	pTool && pTool->On_Before_Execution() )
 	{

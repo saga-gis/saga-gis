@@ -1037,7 +1037,7 @@ CSaLEM::CSaLEM(void)
 	);
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		Parameters.Add_Int("", "UPDATE", _TL("Display Update Frequency"),
 			_TL("The frequency (simulation time steps) with which associated maps will be updated. Set to zero to switch off."),

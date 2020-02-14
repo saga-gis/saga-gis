@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: saga_odbc.cpp 1513 2012-11-06 08:33:32Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,13 +47,6 @@
 
 //---------------------------------------------------------
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "odbc.h"
 
 #include <stdio.h>
@@ -1470,7 +1460,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 {
 	m_pConnection	= NULL;
 
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		m_pConnection	= SG_ODBC_Get_Connection_Manager().Add_Connection(
 			Parameters("ODBC_DSN")->asString(),
@@ -1526,7 +1516,7 @@ bool CSG_ODBC_Tool::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CSG_ODBC_Tool::On_After_Execution(void)
 {
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		SG_ODBC_Get_Connection_Manager().Del_Connection(m_pConnection, true);
 	}
@@ -1537,7 +1527,7 @@ bool CSG_ODBC_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("CONNECTION") )
+	if( has_GUI() && pParameter->Cmp_Identifier("CONNECTION") )
 	{
 		m_pConnection	= SG_ODBC_Get_Connection_Manager().Get_Connection(pParameter->asString());
 
@@ -1545,9 +1535,11 @@ int CSG_ODBC_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Paramet
 		{
 			On_Connection_Changed(pParameters);
 		}
+
+		return( 1 );
 	}
 
-	return( -1 );
+	return( 0 );
 }
 
 

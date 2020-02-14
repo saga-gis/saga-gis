@@ -395,18 +395,18 @@ void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters	P(NULL, _TL("Add Field"), SG_T(""));
+	CSG_Parameters	P(_TL("Add Field"));
 
 	P.Add_String(
-		NULL	, "NAME"	, _TL("Name"),
+		"", "NAME"	, _TL("Name"),
 		_TL(""),
 		_TL("Field")
 	);
 
 	P.Add_Choice(
-		NULL	, "TYPE"	, _TL("Field Type"),
+		"", "TYPE"	, _TL("Field Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
@@ -425,15 +425,15 @@ void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 	);
 
 	P.Add_Choice(
-		NULL	, "FIELD"	, _TL("Insert Position"),
+		"", "FIELD"	, _TL("Insert Position"),
 		_TL(""),
 		Fields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
-		NULL	, "INSERT"	, _TL("Insert Method"),
+		"", "INSERT"	, _TL("Insert Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("before"),
 			_TL("after")
 		), 1
@@ -447,8 +447,7 @@ void CActive_Attributes_Control::On_Field_Add(wxCommandEvent &event)
 
 		switch( P("TYPE")->asInt() )
 		{
-		default:
-		case  0:	Type	= SG_DATATYPE_String;	break;
+		default:	Type	= SG_DATATYPE_String;	break;
 		case  1:	Type	= SG_DATATYPE_Date  ;	break;
 		case  2:	Type	= SG_DATATYPE_Color ;	break;
 		case  3:	Type	= SG_DATATYPE_Byte  ;	break;

@@ -88,7 +88,7 @@ CPoints_View_Dialog::CPoints_View_Dialog(CSG_PointCloud *pPoints)
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
 
 	//-----------------------------------------------------
-	m_Settings.Create(NULL, _TL("Point Cloud Viewer Settings"), _TL(""));
+	m_Settings.Create(_TL("Point Cloud Viewer Settings"));
 
 	m_pView		= new CPoints_View_Control	(this, pPoints, m_Settings);
 	m_pExtent	= new CPoints_View_Extent	(this, pPoints, m_Settings, wxSize(200, 200));

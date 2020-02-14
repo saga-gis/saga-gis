@@ -653,8 +653,8 @@ CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
 }
 
 //---------------------------------------------------------
-#define GET_ID1(p)		(p->Get_Owner()->Get_Identifier().Length() > 0 \
-						? CSG_String::Format("%s_%s", p->Get_Owner()->Get_Identifier().c_str(), p->Get_Identifier()) \
+#define GET_ID1(p)		(p->Get_Parameters()->Get_Identifier().Length() > 0 \
+						? CSG_String::Format("%s_%s", p->Get_Parameters()->Get_Identifier().c_str(), p->Get_Identifier()) \
 						: CSG_String::Format(p->Get_Identifier())).c_str()
 
 #define GET_ID2(p, s)	CSG_String::Format("%s_%s", GET_ID1(p), s).c_str()

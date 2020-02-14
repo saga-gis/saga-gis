@@ -492,7 +492,7 @@ void CDLG_Table_Control::On_Field_Sort(wxCommandEvent &event)
 	sOrder.Printf("%s|%s|%s", _TL("unsorted"), _TL("ascending"), _TL("descending") );
 
 	//-----------------------------------------------------
-	CSG_Parameters	P(NULL, _TL("Sort Table"), _TL(""));
+	CSG_Parameters	P(_TL("Sort Table"));
 
 	P.Add_Choice(""       , "FIELD_1", _TL("Sort first by" ), _TL(""), sFields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
 	P.Add_Choice("FIELD_1", "ORDER_1", _TL("Direction"     ), _TL(""), sOrder , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));

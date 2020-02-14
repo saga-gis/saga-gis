@@ -119,7 +119,7 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 //---------------------------------------------------------
 int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() && SG_UI_Get_Window_Main() )
+	if( pParameter->Cmp_Identifier("GRID") && pParameter->asGrid() && has_GUI() )
 	{
 		CSG_Grid	*pGrid	= pParameter->asGrid();
 

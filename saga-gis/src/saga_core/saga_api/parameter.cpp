@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "parameters.h"
 #include "data_manager.h"
 
@@ -73,9 +61,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter::CSG_Parameter(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
+CSG_Parameter::CSG_Parameter(CSG_Parameters *pParameters, CSG_Parameter *pParent, const CSG_String &Identifier, const CSG_String &Name, const CSG_String &Description, int Constraint)
 {
-	m_pOwner		= pOwner;
+	m_pParameters	= pParameters;
 	m_pParent		= pParent;
 	m_Identifier	= Identifier;
 	m_Name			= Name;
@@ -116,9 +104,9 @@ CSG_Parameter::~CSG_Parameter(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameters * CSG_Parameter::Get_Owner(void)	const
+CSG_Parameters * CSG_Parameter::Get_Parameters(void)	const
 {
-	return( m_pOwner );	
+	return( m_pParameters );	
 }
 
 //---------------------------------------------------------
@@ -130,7 +118,7 @@ CSG_Parameter * CSG_Parameter::Get_Parent(void)	const
 //---------------------------------------------------------
 CSG_Data_Manager * CSG_Parameter::Get_Manager(void)	const
 {
-	return( m_pOwner ? m_pOwner->Get_Manager() : NULL );
+	return( m_pParameters ? m_pParameters->Get_Manager() : NULL );
 }
 
 
@@ -855,7 +843,7 @@ bool CSG_Parameter::has_Changed(int Check_Flags)
 {
 	_Set_String();
 
-	return( m_pOwner && m_pOwner->_On_Parameter_Changed(this, Check_Flags) );
+	return( m_pParameters && m_pParameters->_On_Parameter_Changed(this, Check_Flags) );
 }
 
 //---------------------------------------------------------
@@ -927,7 +915,7 @@ bool CSG_Parameter::Check(bool bSilent)
 	//-----------------------------------------------------
 	if( Get_Type() == PARAMETER_TYPE_Grid_System )
 	{
-		if( m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(*asGrid_System()) )
+		if( m_pParameters->Get_Manager() && !m_pParameters->Get_Manager()->Exists(*asGrid_System()) )
 		{
 			Set_Value((void *)NULL);
 		}
@@ -940,7 +928,7 @@ bool CSG_Parameter::Check(bool bSilent)
 	{
 		if( is_Input() || (is_Output() && asDataObject() != DATAOBJECT_CREATE) )
 		{
-			if( m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(asDataObject()) )
+			if( m_pParameters->Get_Manager() && !m_pParameters->Get_Manager()->Exists(asDataObject()) )
 			{
 				Set_Value(DATAOBJECT_NOTSET);
 			}
@@ -956,7 +944,7 @@ bool CSG_Parameter::Check(bool bSilent)
 		{
 			CSG_Data_Object	*pDataObject	= asList()->Get_Item(j);
 
-			if( !pDataObject || (m_pOwner->Get_Manager() && !m_pOwner->Get_Manager()->Exists(pDataObject)) )
+			if( !pDataObject || (m_pParameters->Get_Manager() && !m_pParameters->Get_Manager()->Exists(pDataObject)) )
 			{
 				asList()->Del_Item(j, false);
 			}
@@ -1126,10 +1114,10 @@ bool CSG_Parameter::Serialize(CSG_MetaData &MetaData, bool bSave)
 			is_DataObject_List() ? "DATA_LIST" : "PARAMETER"
 		);
 
-		Child.Add_Property("type" , Get_Type_Identifier        ());
-		Child.Add_Property("id"   , Get_Identifier             ());
-		Child.Add_Property("name" , Get_Name                   ());
-		Child.Add_Property("parms", Get_Owner()->Get_Identifier());
+		Child.Add_Property("type" , Get_Type_Identifier             ());
+		Child.Add_Property("id"   , Get_Identifier                  ());
+		Child.Add_Property("name" , Get_Name                        ());
+		Child.Add_Property("parms", Get_Parameters()->Get_Identifier());
 
 		_Serialize(Child, bSave);
 

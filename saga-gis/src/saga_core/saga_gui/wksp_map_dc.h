@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -120,14 +108,14 @@ public:
 	{
 		x	= (x - m_rWorld.Get_XMin()) * m_World2DC;
 
-		return( bRound ? (int)(x < 0.0 ? x - 0.5 : x + 0.5) : x );
+		return( bRound ? (int)(x < 0. ? x - 0.5 : x + 0.5) : x );
 	}
 
 	double						yWorld2DC				(double y, bool bRound = true)
 	{
 		y	= (m_rWorld.Get_YMax() - y) * m_World2DC - 1;
 
-		return( bRound ? (int)(y < 0.0 ? y - 0.5 : y + 0.5) : y );
+		return( bRound ? (int)(y < 0. ? y - 0.5 : y + 0.5) : y );
 	}
 
 	TSG_Point_Int				World2DC				(TSG_Point p)	{	TSG_Point_Int _p; _p.x = (int)xWorld2DC(p.x), _p.y = (int)yWorld2DC(p.y); return( _p );	}
@@ -159,39 +147,42 @@ public:
 	{
 		if( n >= 0 && n < m_img_nBytes )
 		{
-			BYTE	r	= SG_GET_R(Color), g	= SG_GET_G(Color), b	= SG_GET_B(Color);
-			double	d;
+			BYTE r = SG_GET_R(Color);
+			BYTE g = SG_GET_G(Color);
+			BYTE b = SG_GET_B(Color);
 
 			switch( m_img_mode )
 			{
-			case IMG_MODE_OPAQUE: default:
-				m_img_rgb[n + 0]	= r;
-				m_img_rgb[n + 1]	= g;
-				m_img_rgb[n + 2]	= b;
-				break;
+			case IMG_MODE_OPAQUE: default: {
+				} break;
 
-			case IMG_MODE_SHADING:
-				m_img_rgb[n + 0]	= (int)(r / 255.0 * m_img_dc_rgb[n + 0]);
-				m_img_rgb[n + 1]	= (int)(g / 255.0 * m_img_dc_rgb[n + 1]);
-				m_img_rgb[n + 2]	= (int)(b / 255.0 * m_img_dc_rgb[n + 2]);
-				break;
+			case IMG_MODE_SHADING: {
+				r = (int)(r * m_img_dc_rgb[n + 0] / 255.);
+				g = (int)(g * m_img_dc_rgb[n + 1] / 255.);
+				b = (int)(b * m_img_dc_rgb[n + 2] / 255.);
+				} break;
 
-			case IMG_MODE_TRANSPARENT:
-				d					= 1.0 - m_Transparency;
-				m_img_rgb[n + 0]	= (int)(d * r + m_Transparency * m_img_dc_rgb[n + 0]);
-				m_img_rgb[n + 1]	= (int)(d * g + m_Transparency * m_img_dc_rgb[n + 1]);
-				m_img_rgb[n + 2]	= (int)(d * b + m_Transparency * m_img_dc_rgb[n + 2]);
-				break;
+			case IMG_MODE_TRANSPARENT: {
+				r = (int)(r * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 0]);
+				g = (int)(g * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 1]);
+				b = (int)(b * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 2]);
+				} break;
 
-			case IMG_MODE_TRANSPARENT_ALPHA:
-				if( (d = SG_GET_A(Color) / 256.0) < 1.0 )
+			case IMG_MODE_TRANSPARENT_ALPHA: {
+				double	Alpha	= SG_GET_A(Color);
+
+				if( Alpha >= 0. && Alpha < 1. )
 				{
-					m_img_rgb[n + 0]	= (int)((1.0 - d) * r + d * m_img_dc_rgb[n + 0]);
-					m_img_rgb[n + 1]	= (int)((1.0 - d) * g + d * m_img_dc_rgb[n + 1]);
-					m_img_rgb[n + 2]	= (int)((1.0 - d) * b + d * m_img_dc_rgb[n + 2]);
+					r = (int)(r * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 0]);
+					g = (int)(g * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 1]);
+					b = (int)(b * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 2]);
 				}
-				break;
+				break; }
 			}
+
+			m_img_rgb[n + 0] = r;
+			m_img_rgb[n + 1] = g;
+			m_img_rgb[n + 2] = b;
 		}
 	}
 
@@ -225,10 +216,6 @@ private:
 	wxImage						m_img, m_img_dc;
 
 	wxBitmap					dc_BMP;
-
-
-	void						TEST_Draw_Polygon		(CSG_Shape_Polygon *pPolygon);
-	void						TEST_Draw_Polygon_Line	(CSG_Grid &Mask, int ax, int ay, int bx, int by, bool bDirChanged);
 
 };
 

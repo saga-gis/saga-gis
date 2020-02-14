@@ -147,7 +147,7 @@ CGDAL_Import::CGDAL_Import(void)
 		false
 	)->Set_UseInCMD(false);
 
-	Parameters.Add_Bool(SG_UI_Get_Window_Main() ? "SELECT" : "",
+	Parameters.Add_Bool(has_GUI() ? "SELECT" : "",
 		"SELECT_SORT"	, _TL("Alphanumeric Sorting"),
 		_TL(""),
 		true
@@ -241,13 +241,13 @@ int CGDAL_Import::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 int CGDAL_Import::On_Selection_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	if( pParameter && pParameter->Get_Parameters() && pParameter->Get_Parameters()->Cmp_Identifier("SELECTION") )
 	{
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
 			if( pParameter->Cmp_Identifier("ALL") )
 			{
-				pParameter->Get_Owner()->Set_Enabled("BANDS", pParameter->asBool() == false);
+				pParameter->Get_Parameters()->Set_Enabled("BANDS", pParameter->asBool() == false);
 			}
 		}
 
@@ -361,7 +361,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 	//-----------------------------------------------------
 	if( DataSet.Get_Count() > 1 )
 	{
-		if( !SG_UI_Get_Window_Main() )
+		if( !has_GUI() )
 		{
 			CSG_Strings	Indexes	= SG_String_Tokenize(Parameters("SELECTION")->asString(), ";,");
 
@@ -375,7 +375,7 @@ bool CGDAL_Import::Load(const CSG_String &File)
 		}
 		else if( Parameters("SELECT")->asBool() )
 		{
-			CSG_Parameters	P(this, _TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
+			CSG_Parameters	P(_TL("Select from Multiple Bands"), _TL(""), SG_T("SELECTION"));
 
 			P.Set_Callback_On_Parameter_Changed(&On_Selection_Changed);
 
@@ -541,7 +541,7 @@ bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 			Subsets.Add_Bool("",
 				MetaData.Get_Content(ID + "NAME"),
 				MetaData.Get_Content(ID + "DESC"),
-				"", SG_UI_Get_Window_Main() == NULL
+				"", has_GUI() == NULL
 			);
 		}
 		else
@@ -551,7 +551,7 @@ bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 	}
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() && !Dlg_Parameters(&Subsets, _TL("Select from Subdatasets...")) )	// with gui
+	if( has_GUI() && !Dlg_Parameters(&Subsets, _TL("Select from Subdatasets...")) )	// with gui
 	{
 		return( false );
 	}

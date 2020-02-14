@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Data_Source.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -173,8 +161,6 @@ CData_Source_ODBC::CData_Source_ODBC(wxWindow *pParent)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -216,8 +202,6 @@ void CData_Source_ODBC::On_Table_Delete(wxCommandEvent &WXUNUSED(event))
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -227,9 +211,9 @@ void CData_Source_ODBC::On_Item_Activated(wxTreeEvent &event)
 
 	switch( pData->Get_Type() )
 	{
-	case ODBC_ITEM_TYPE_ROOT:			Update_Sources();	break;
-	case ODBC_ITEM_TYPE_SOURCE_CLOSED:	Source_Open (event.GetItem());	break;
-	case ODBC_ITEM_TYPE_TABLE:			Table_Open  (event.GetItem());	break;
+	case ODBC_ITEM_TYPE_ROOT         : Update_Sources();             break;
+	case ODBC_ITEM_TYPE_SOURCE_CLOSED: Source_Open(event.GetItem()); break;
+	case ODBC_ITEM_TYPE_TABLE        : Table_Open (event.GetItem()); break;
 	}
 }
 
@@ -281,8 +265,6 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -290,7 +272,7 @@ void CData_Source_ODBC::On_Item_Menu(wxTreeEvent &event)
 	\
 	bRetVal	= false;\
 	\
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", TOOL);\
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", TOOL, true);\
 	\
 	if(	pTool )\
 	{\
@@ -444,14 +426,12 @@ void CData_Source_ODBC::Update_Source(const wxTreeItemId &Item)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CData_Source_ODBC::Source_Close_All(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 11);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 11, true);
 
 	if( pTool )
 	{
@@ -467,7 +447,7 @@ void CData_Source_ODBC::Source_Close(const wxTreeItemId &Item)
 {
 	CData_Source_ODBC_Data	*pData	= Item.IsOk() ? (CData_Source_ODBC_Data *)GetItemData(Item) : NULL; if( pData == NULL )	return;
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 1);
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_odbc", 1, true);
 
 	if( pTool )
 	{

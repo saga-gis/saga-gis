@@ -187,17 +187,17 @@ CSG_Tool * CSG_Tool_Library::Get_Tool(const CSG_String &Name, TSG_Tool_Type Type
   * a tool simultaneously with different settings.
 */
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(int Index)
+CSG_Tool * CSG_Tool_Library::Create_Tool(int Index, bool bWithGUI)
 {
-	return( m_pInterface ? m_pInterface->Create_Tool(Index) : NULL );
+	return( m_pInterface ? m_pInterface->Create_Tool(Index, bWithGUI) : NULL );
 }
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name)	{	return( Create_Tool(CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name)	{	return( Create_Tool(CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name)
+CSG_Tool * CSG_Tool_Library::Create_Tool(const char       *Name, bool bWithGUI)	{	return( Create_Tool(CSG_String(Name), bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const wchar_t    *Name, bool bWithGUI)	{	return( Create_Tool(CSG_String(Name), bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library::Create_Tool(const CSG_String &Name, bool bWithGUI)
 {
-	int	Index;	return( Name.asInt(Index) ? Create_Tool(Index) : NULL );
+	int	Index;	return( Name.asInt(Index) ? Create_Tool(Index, bWithGUI) : NULL );
 }
 
 //---------------------------------------------------------
@@ -637,17 +637,17 @@ CSG_Tool * CSG_Tool_Library_Manager::Get_Tool(const CSG_String &Library, const C
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int              Index)	const	{	return( Create_Tool(CSG_String(Library), Index) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index)	const	{	return( Create_Tool(CSG_String(Library), Index) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index)	const
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, int              Index, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, int              Index, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), Index, bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, int              Index, bool bWithGUI)	const
 {
-	return( Create_Tool(Library, CSG_String::Format("%d", Index)) );
+	return( Create_Tool(Library, CSG_String::Format("%d", Index), bWithGUI) );
 }
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, const char       *Name)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, const wchar_t    *Name)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name)) );	}
-CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, const CSG_String &Name)	const
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const char       *Library, const char       *Name, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI)	const	{	return( Create_Tool(CSG_String(Library), CSG_String(Name), bWithGUI) );	}
+CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, const CSG_String &Name, bool bWithGUI)	const
 {
 	for(int i=0; i<Get_Count(); i++)
 	{
@@ -655,7 +655,7 @@ CSG_Tool * CSG_Tool_Library_Manager::Create_Tool(const CSG_String &Library, cons
 
 		if( pLibrary->Get_Library_Name().Cmp(Library) == 0 )
 		{
-			CSG_Tool	*pTool	= pLibrary->Create_Tool(Name);
+			CSG_Tool	*pTool	= pLibrary->Create_Tool(Name, bWithGUI);
 
 			if( pTool )
 			{

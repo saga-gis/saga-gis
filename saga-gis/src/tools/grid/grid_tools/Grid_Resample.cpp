@@ -141,7 +141,7 @@ int CGrid_Resample::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parame
 //---------------------------------------------------------
 int CGrid_Resample::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		double	Scaling	= 0.;
 

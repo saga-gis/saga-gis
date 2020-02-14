@@ -71,12 +71,14 @@ CSG_Tool::CSG_Tool(void)
 
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
+	m_bHasGUI		= false;
 
 	m_pParameters	= NULL;
 	m_npParameters	= 0;
 
-	Parameters.Create(this, SG_T(""), SG_T(""));
+	Parameters.Create(this, SG_T("Tool"));
 	Parameters.Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+	Parameters.m_pTool	= this;
 
 	Set_Show_Progress(true);
 }
@@ -367,18 +369,16 @@ bool CSG_Tool::Get_Projection(CSG_Projection &Projection)	const
 //---------------------------------------------------------
 int CSG_Tool::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	if( pParameter && pParameter->Get_Parameters() && pParameter->Get_Parameters()->Get_Tool() )
 	{
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
-			((CSG_Tool *)pParameter->Get_Owner()->Get_Owner())->
-				On_Parameter_Changed(pParameter->Get_Owner(), pParameter);
+			pParameter->Get_Parameters()->Get_Tool()->On_Parameter_Changed(pParameter->Get_Parameters(), pParameter);
 		}
 
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			((CSG_Tool *)pParameter->Get_Owner()->Get_Owner())->
-				On_Parameters_Enable(pParameter->Get_Owner(), pParameter);
+			pParameter->Get_Parameters()->Get_Tool()->On_Parameters_Enable(pParameter->Get_Parameters(), pParameter);
 		}
 
 		return( 1 );
@@ -390,13 +390,13 @@ int CSG_Tool::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 //---------------------------------------------------------
 int CSG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( true );
+	return( 1 );
 }
 
 //---------------------------------------------------------
 int CSG_Tool::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( true );
+	return( 1 );
 }
 
 
@@ -416,6 +416,7 @@ CSG_Parameters * CSG_Tool::Add_Parameters(const CSG_String &Identifier, const CS
 
 	pParameters->Create(this, Name, Description, Identifier);
 	pParameters->Set_Callback_On_Parameter_Changed(&_On_Parameter_Changed);
+	pParameters->m_pTool	= this;
 
 	return( pParameters );
 }
@@ -1203,7 +1204,7 @@ void CSG_Tool::_Set_Output_History(void)
 		{
 			CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
 
-			if( pParameter->is_Output() )//&& (pParameter->is_Enabled() || !SG_UI_Get_Window_Main()) )
+			if( pParameter->is_Output() )//&& (pParameter->is_Enabled() || !has_GUI()) )
 			{
 				DataObject_Set_History(pParameter, &History);
 			}

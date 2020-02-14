@@ -128,7 +128,7 @@ CPointcloud_To_Text_File::CPointcloud_To_Text_File(void)
         ), 0
     );
 
-	if (!SG_UI_Get_Window_Main())
+	if (!has_GUI())
 	{
 		Parameters.Add_String(
             NULL	, "FIELDS"    , _TL("Fields"),
@@ -188,7 +188,7 @@ bool CPointcloud_To_Text_File::On_Execute(void)
 	}
 
 
-	if (SG_UI_Get_Window_Main())
+	if (has_GUI() )
 	{
 		P.Set_Name(_TL("Check the fields to export"));
 

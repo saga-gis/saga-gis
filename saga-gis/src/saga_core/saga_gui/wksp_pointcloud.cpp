@@ -520,7 +520,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, _TL("Classify"), _TL(""));
+		Parameters.Create(_TL("Classify"));
 		Parameters.Add_Choice("", "FIELD" , _TL("Attribute"     ), _TL(""), "");
 		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
 		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),

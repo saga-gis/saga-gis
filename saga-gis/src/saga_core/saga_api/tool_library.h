@@ -134,10 +134,10 @@ public:
 	virtual CSG_Tool *				Get_Tool			(const char       *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 	virtual CSG_Tool *				Get_Tool			(const wchar_t    *Name, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_Tool *				Create_Tool			(int              Index);
-	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name);
-	virtual CSG_Tool *				Create_Tool			(const char       *Name);
-	virtual CSG_Tool *				Create_Tool			(const wchar_t    *Name);
+	virtual CSG_Tool *				Create_Tool			(int              Index, bool bWithGUI = false);
+	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name, bool bWithGUI = false);
+	virtual CSG_Tool *				Create_Tool			(const char       *Name, bool bWithGUI = false);
+	virtual CSG_Tool *				Create_Tool			(const wchar_t    *Name, bool bWithGUI = false);
 
 	virtual bool					Delete_Tool			(CSG_Tool *pTool);
 	virtual bool					Delete_Tools		(void);
@@ -210,12 +210,12 @@ public:
 	CSG_Tool *					Get_Tool			(const char       *Library, const char       *Name)	const;
 	CSG_Tool *					Get_Tool			(const wchar_t    *Library, const wchar_t    *Name)	const;
 
-	CSG_Tool *					Create_Tool			(const CSG_String &Library, int              Index)	const;
-	CSG_Tool *					Create_Tool			(const char       *Library, int              Index)	const;
-	CSG_Tool *					Create_Tool			(const wchar_t    *Library, int              Index)	const;
-	CSG_Tool *					Create_Tool			(const CSG_String &Library, const CSG_String &Name)	const;
-	CSG_Tool *					Create_Tool			(const char       *Library, const char       *Name)	const;
-	CSG_Tool *					Create_Tool			(const wchar_t    *Library, const wchar_t    *Name)	const;
+	CSG_Tool *					Create_Tool			(const CSG_String &Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool			(const char       *Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool			(const wchar_t    *Library, int              Index, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool			(const CSG_String &Library, const CSG_String &Name, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool			(const char       *Library, const char       *Name, bool bWithGUI = false)	const;
+	CSG_Tool *					Create_Tool			(const wchar_t    *Library, const wchar_t    *Name, bool bWithGUI = false)	const;
 	bool						Delete_Tool			(CSG_Tool *pTool)	const;
 
 	CSG_String					Get_Summary			(int Format = SG_SUMMARY_FMT_HTML)	const;

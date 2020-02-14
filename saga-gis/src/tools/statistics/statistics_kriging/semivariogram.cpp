@@ -118,7 +118,7 @@ CSemiVariogram::CSemiVariogram(void)
 	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
-	m_pVariogram	= SG_UI_Get_Window_Main() ? new CVariogram_Dialog : NULL;
+	m_pVariogram	= has_GUI() ? new CVariogram_Dialog : NULL;
 }
 
 //---------------------------------------------------------

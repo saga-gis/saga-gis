@@ -117,7 +117,7 @@ CWKSP_Base_Item::CWKSP_Base_Item(void)
 	m_pManager	= NULL;
 	m_ID		= 0;
 
-	m_Parameters.Create(this, _TL(""), _TL(""));
+	m_Parameters.Create(this, _TL(""));
 	m_Parameters.Set_Callback_On_Parameter_Changed(&Parameter_Callback);
 }
 
@@ -167,33 +167,33 @@ CWKSP_Base_Control * CWKSP_Base_Item::Get_Control(void)
     default:
         return( NULL );
 
-	case WKSP_ITEM_Tool_Manager:
-	case WKSP_ITEM_Tool_Group:
-	case WKSP_ITEM_Tool_Library:
-	case WKSP_ITEM_Tool:
+	case WKSP_ITEM_Tool_Manager      :
+	case WKSP_ITEM_Tool_Group        :
+	case WKSP_ITEM_Tool_Library      :
+	case WKSP_ITEM_Tool              :
 		return( g_pTool_Ctrl );
 
-	case WKSP_ITEM_Data_Manager:
-	case WKSP_ITEM_Table_Manager:
-	case WKSP_ITEM_Table:
-	case WKSP_ITEM_Shapes_Manager:
-	case WKSP_ITEM_Shapes_Type:
-	case WKSP_ITEM_Shapes:
-	case WKSP_ITEM_TIN_Manager:
-	case WKSP_ITEM_TIN:
+	case WKSP_ITEM_Data_Manager      :
+	case WKSP_ITEM_Table_Manager     :
+	case WKSP_ITEM_Table             :
+	case WKSP_ITEM_Shapes_Manager    :
+	case WKSP_ITEM_Shapes_Type       :
+	case WKSP_ITEM_Shapes            :
+	case WKSP_ITEM_TIN_Manager       :
+	case WKSP_ITEM_TIN               :
 	case WKSP_ITEM_PointCloud_Manager:
-	case WKSP_ITEM_PointCloud:
-	case WKSP_ITEM_Grid_Manager:
-	case WKSP_ITEM_Grid_System:
-	case WKSP_ITEM_Grid:
-	case WKSP_ITEM_Grids:
+	case WKSP_ITEM_PointCloud        :
+	case WKSP_ITEM_Grid_Manager      :
+	case WKSP_ITEM_Grid_System       :
+	case WKSP_ITEM_Grid              :
+	case WKSP_ITEM_Grids             :
 		return( g_pData_Ctrl );
 
-	case WKSP_ITEM_Map_Manager:
-	case WKSP_ITEM_Map:
-	case WKSP_ITEM_Map_Layer:
-	case WKSP_ITEM_Map_Graticule:
-	case WKSP_ITEM_Map_BaseMap:
+	case WKSP_ITEM_Map_Manager       :
+	case WKSP_ITEM_Map               :
+	case WKSP_ITEM_Map_Layer         :
+	case WKSP_ITEM_Map_Graticule     :
+	case WKSP_ITEM_Map_BaseMap       :
 		return( g_pMap_Ctrl );
 	}
 }
@@ -312,23 +312,20 @@ void CWKSP_Base_Item::Parameters_Changed(void)
 //---------------------------------------------------------
 int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter )
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+
+	if( pParameters )
 	{
-		CSG_Parameters	*pParameters	= pParameter->Get_Owner();
+		CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)pParameters->Get_Owner();
 
-		if( pParameters->Get_Owner() )
+		if( pItem->GetId().IsOk() )
 		{
-			CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)pParameters->Get_Owner();
-
-			if( pItem->GetId().IsOk() )
-			{
-				return( pItem->On_Parameter_Changed(pParameters, pParameter, Flags) );
-			}
+			return( pItem->On_Parameter_Changed(pParameters, pParameter, Flags) );
 		}
-		else if( g_pActive )
-		{
-			return( g_pActive->Get_Parameters()->Update_Parameters(pParameters, false) );
-		}
+	}
+	else if( g_pActive )
+	{
+		return( g_pActive->Get_Parameters()->Update_Parameters(pParameters, false) );
 	}
 
 	return( 0 );

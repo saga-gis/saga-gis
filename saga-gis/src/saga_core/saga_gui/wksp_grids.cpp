@@ -631,7 +631,7 @@ void CWKSP_Grids::_LUT_Create(void)
 
 	if( Parameters.Get_Count() == 0 )
 	{
-		Parameters.Create(NULL, _TL("Classify"), _TL(""));
+		Parameters.Create(_TL("Classify"));
 		Parameters.Add_Colors("", "COLOR" , _TL("Colors"        ), _TL(""))->asColors()->Set_Count(11);
 		Parameters.Add_Choice("", "METHOD", _TL("Classification"), _TL(""),
 			CSG_String::Format("%s|%s|%s|%s",
@@ -1099,9 +1099,7 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	double	Transparency	= m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.;
-
-	if( !dc_Map.IMG_Draw_Begin(Transparency) )
+	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
 		return;
 	}

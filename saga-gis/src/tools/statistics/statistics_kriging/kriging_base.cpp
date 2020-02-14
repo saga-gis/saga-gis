@@ -169,7 +169,7 @@ CKriging_Base::CKriging_Base(void)
 	m_Search_Options.Create(&Parameters, "NODE_SEARCH", 16);
 
 	//-----------------------------------------------------
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		m_pVariogram	= NULL;
 	}
@@ -182,7 +182,7 @@ CKriging_Base::CKriging_Base(void)
 //---------------------------------------------------------
 CKriging_Base::~CKriging_Base(void)
 {
-	if( m_pVariogram && SG_UI_Get_Window_Main() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
+	if( m_pVariogram && has_GUI() )	// don't destroy dialog, if gui is closing (i.e. main window == NULL)
 	{
 		m_pVariogram->Destroy();
 

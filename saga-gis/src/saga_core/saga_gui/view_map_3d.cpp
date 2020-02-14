@@ -323,10 +323,10 @@ void CVIEW_Map_3D::On_Command(wxCommandEvent &event)
 		{
 			int				FileType;
 			wxString		FileName;
-			CSG_Parameters	P(NULL, _TL("Image Resolution"), _TL(""));
+			CSG_Parameters	P(_TL("Image Resolution"));
 
-			P.Add_Value(NULL, "NX", _TL("Width" ), _TL(""), PARAMETER_TYPE_Int, m_pPanel->GetSize().x, 1, true);
-			P.Add_Value(NULL, "NY", _TL("Height"), _TL(""), PARAMETER_TYPE_Int, m_pPanel->GetSize().y, 1, true);
+			P.Add_Int("", "NX", _TL("Width" ), _TL(""), m_pPanel->GetSize().x, 1, true);
+			P.Add_Int("", "NY", _TL("Height"), _TL(""), m_pPanel->GetSize().y, 1, true);
 
 			if( DLG_Image_Save(FileName, FileType) && DLG_Parameters(&P) )
 			{
@@ -533,7 +533,7 @@ void CVIEW_Map_3D::Parameters_Update(bool bFromPanel)
 //---------------------------------------------------------
 void CVIEW_Map_3D::Parameters_Create(void)
 {
-	m_Parameters.Create(NULL, _TL("3D-View"), _TL(""));
+	m_Parameters.Create(_TL("3D-View"));
 
 	m_Parameters.Add_Grid  (""   , "DEM"     , _TL("Elevation"   ), _TL(""), PARAMETER_INPUT);
 	m_Parameters.Add_Int   ("DEM", "DEM_RES" , _TL("Resolution"  ), _TL(""), 100, 2, true);
@@ -543,7 +543,7 @@ void CVIEW_Map_3D::Parameters_Create(void)
 	m_Parameters.Add_Node  (""   , "MAP"       , _TL("Map"                      ), _TL(""));
 	m_Parameters.Add_Int   ("MAP", "MAP_RES"   , _TL("Resolution"               ), _TL(""), 1000, 2, true);
 	m_Parameters.Add_Choice("MAP", "DRAPE_MODE", _TL("Map Draping Interpolation"), _TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("None"),
 			_TL("Bilinear"),
 			_TL("Inverse Distance"),

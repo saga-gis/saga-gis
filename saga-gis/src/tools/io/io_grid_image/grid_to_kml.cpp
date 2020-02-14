@@ -106,7 +106,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		), 2
 	);
 
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		Parameters.Add_Choice("",
 			"COLOURING"		, _TL("Colouring"),
@@ -199,7 +199,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		true
 	);
 
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		Parameters.Add_Range("",
 			"SHADE_BRIGHT", _TL("Shade Brightness"),
@@ -341,7 +341,7 @@ bool CGrid_to_KML::On_Execute(void)
 	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"      ))
 	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"     ))
 	&&  pTool->Set_Parameter("LUT"         , Parameters("LUT"         ))
-	&&  (SG_UI_Get_Window_Main()
+	&&  (has_GUI()
 	||  pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pTool->Execute() )
 	{

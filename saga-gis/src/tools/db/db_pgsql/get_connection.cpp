@@ -164,7 +164,7 @@ CGet_Connection::CGet_Connection(void)
 //---------------------------------------------------------
 int CGet_Connection::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		if( pParameter->Cmp_Identifier("PG_HOST")
 		||  pParameter->Cmp_Identifier("PG_PORT")

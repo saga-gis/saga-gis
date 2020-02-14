@@ -1505,7 +1505,7 @@ bool CSG_Histogram::Create(const CSG_Histogram &Histogram)
 	m_ClassWidth = Histogram.m_ClassWidth;
 	m_nMaximum   = Histogram.m_nMaximum  ;
 
-	for(int i=0; i<m_nClasses; i++)
+	for(size_t i=0; i<m_nClasses; i++)
 	{
 		m_Cumulative[i]	= Histogram.m_Cumulative[i];
 		m_Elements  [i]	= Histogram.m_Elements  [i];

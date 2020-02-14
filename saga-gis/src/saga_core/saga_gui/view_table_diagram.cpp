@@ -364,12 +364,12 @@ void CVIEW_Table_Diagram_Control::SaveToClipboard(void)
 //---------------------------------------------------------
 int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( !pParameter || !pParameter->Get_Owner() )
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+
+	if( !pParameters )
 	{
 		return( 0 );
 	}
-
-	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
 
 	CSG_String	s(pParameter->Get_Identifier());
 
@@ -427,7 +427,7 @@ int CVIEW_Table_Diagram_Control::_On_Parameter_Changed(CSG_Parameter *pParameter
 	}
 
 	//-----------------------------------------------------
-	return( 0 );
+	return( 1 );
 }
 
 
@@ -542,7 +542,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 
 		m_Colors.Set_Count(m_pTable->Get_Field_Count());
 
-		m_Parameters.Create(NULL, _TL("Properties"), _TL(""));
+		m_Parameters.Create(_TL("Properties"));
 		m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
 		m_Parameters.Add_Node("", "NODE_GENERAL", _TL("General"   ), _TL(""));

@@ -1038,7 +1038,7 @@ bool CWKSP_Map::Set_Extent(const CSG_Rect &Extent, const CSG_Projection &Project
 //---------------------------------------------------------
 bool CWKSP_Map::Set_Extent(void)
 {
-	CSG_Parameters	P(NULL, _TL("Map Extent"), _TL(""));
+	CSG_Parameters	P(_TL("Map Extent"));
 
 	P.Add_Range("", "X", _TL("West-East"  ), _TL(""), Get_Extent().Get_XMin(), Get_Extent().Get_XMax());
 	P.Add_Range("", "Y", _TL("South-North"), _TL(""), Get_Extent().Get_YMin(), Get_Extent().Get_YMax());
@@ -1613,7 +1613,7 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	//-----------------------------------------------------
 	CSG_Rect		Extent(Get_Extent());
 
-	CSG_Parameters	P(NULL, _TL("Save Map to KMZ"), _TL(""));
+	CSG_Parameters	P(_TL("Save Map to KMZ"));
 
 	P.Add_FilePath("", "FILE"    , _TL("File"    ), _TL(""), CSG_String::Format("%s|*.kmz|%s|*.*", _TL("KMZ Files"), _TL("All Files")), NULL, true);
 	P.Add_Double  ("", "CELLSIZE", _TL("Cellsize"), _TL(""), SG_Get_Rounded_To_SignificantFigures(Extent.Get_XRange() / (double)nx, 2), 0., true);
@@ -1689,7 +1689,7 @@ void CWKSP_Map::SaveAs_Image_To_Memory(int nx, int ny)
 
 	CSG_Rect		Extent(Get_Extent());
 
-	CSG_Parameters	P(NULL, _TL("Save To Memory Grid"), _TL(""));
+	CSG_Parameters	P(_TL("Save To Memory Grid"));
 
 	P.Add_Double("", "CELLSIZE", _TL("Cellsize"), _TL(""), Extent.Get_XRange() / (double)nx, 0., true);
 

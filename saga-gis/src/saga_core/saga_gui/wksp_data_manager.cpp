@@ -862,7 +862,7 @@ bool CWKSP_Data_Manager::Open(int DataType)
 	case SG_DATAOBJECT_TYPE_PointCloud: ID = ID_DLG_POINTCLOUD_OPEN; break;
 	case SG_DATAOBJECT_TYPE_Grid      : ID = ID_DLG_GRID_OPEN      ; break;
 	case SG_DATAOBJECT_TYPE_Grids     : ID = ID_DLG_GRIDS_OPEN     ; break;
-	default                        : return( false );
+	default                           : return( false );
 	}
 
 	//-----------------------------------------------------
@@ -971,9 +971,9 @@ bool CWKSP_Data_Manager::Open_Browser(wxArrayString &Projects, const wxString &D
 //---------------------------------------------------------
 bool CWKSP_Data_Manager::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 {
-	CSG_Parameters	Parameters(this, _TL("Save Modified Data"), _TL(""));
+	CSG_Parameters	Parameters(_TL("Save Modified Data"));
 
-	Parameters.Add_Bool(NULL, "SAVE_ALL", _TL("Save all"), _TL(""), false);
+	Parameters.Add_Bool("", "SAVE_ALL", _TL("Save all"), _TL(""), false);
 
 	wxFileName	Directory(m_pProject->Get_File_Name());
 
@@ -1004,42 +1004,41 @@ bool CWKSP_Data_Manager::Save_Modified(CWKSP_Base_Item *pItem, bool bSelections)
 //---------------------------------------------------------
 int CWKSP_Data_Manager::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( !pParameter || !pParameter->Get_Owner() || !pParameter->Get_Owner()->Get_Owner() )
-	{
-		return( 0 );
-	}
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
 
-	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
-
-	if( pParameter->Cmp_Identifier("SAVE_ALL") )
+	if( pParameters && pParameters->Get_Owner() )
 	{
-		for(int i=0; i<pParameters->Get_Count(); i++)
+		if( pParameter->Cmp_Identifier("SAVE_ALL") )
 		{
-			CSG_Parameter	*pFile	= pParameters->Get_Parameter(i);
-
-			if( pFile->Get_Type() == PARAMETER_TYPE_Bool )
+			for(int i=0; i<pParameters->Get_Count(); i++)
 			{
-				pFile->Set_Value(pParameter->asBool());
+				CSG_Parameter	*pFile	= pParameters->Get_Parameter(i);
 
-				for(int j=0; j<pFile->Get_Children_Count(); j++)
+				if( pFile->Get_Type() == PARAMETER_TYPE_Bool )
 				{
-					pFile->Get_Child(j)->Set_Enabled(pParameter->asBool());
+					pFile->Set_Value(pParameter->asBool());
+
+					for(int j=0; j<pFile->Get_Children_Count(); j++)
+					{
+						pFile->Get_Child(j)->Set_Enabled(pParameter->asBool());
+					}
 				}
 			}
 		}
-	}
-
-	else if( pParameter->Get_Type() == PARAMETER_TYPE_Bool )
-	{
-		if( !pParameter->asBool() && pParameters->Get_Parameter("SAVE_ALL") )
+		else if( pParameter->Get_Type() == PARAMETER_TYPE_Bool )
 		{
-			pParameters->Get_Parameter("SAVE_ALL")->Set_Value(0);
+			if( !pParameter->asBool() && pParameters->Get_Parameter("SAVE_ALL") )
+			{
+				pParameters->Get_Parameter("SAVE_ALL")->Set_Value(0);
+			}
+
+			for(int j=0; j<pParameter->Get_Children_Count(); j++)
+			{
+				pParameter->Get_Child(j)->Set_Enabled(pParameter->asBool());
+			}
 		}
 
-		for(int j=0; j<pParameter->Get_Children_Count(); j++)
-		{
-			pParameter->Get_Child(j)->Set_Enabled(pParameter->asBool());
-		}
+		return( 1 );
 	}
 
 	return( 0 );
@@ -1058,14 +1057,14 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 			break;
 
 		//-------------------------------------------------
-		case WKSP_ITEM_Data_Manager:
-		case WKSP_ITEM_Table_Manager:
-		case WKSP_ITEM_Shapes_Manager:
-		case WKSP_ITEM_Shapes_Type:
-		case WKSP_ITEM_TIN_Manager:
+		case WKSP_ITEM_Data_Manager      :
+		case WKSP_ITEM_Table_Manager     :
+		case WKSP_ITEM_Shapes_Manager    :
+		case WKSP_ITEM_Shapes_Type       :
+		case WKSP_ITEM_TIN_Manager       :
 		case WKSP_ITEM_PointCloud_Manager:
-		case WKSP_ITEM_Grid_Manager:
-		case WKSP_ITEM_Grid_System:
+		case WKSP_ITEM_Grid_Manager      :
+		case WKSP_ITEM_Grid_System       :
 			for(i=0; i<((CWKSP_Base_Manager *)pItem)->Get_Count(); i++)
 			{
 				_Modified_Get(pParameters, ((CWKSP_Base_Manager *)pItem)->Get_Item(i), Directory, bSelections && !pItem->is_Selected());
@@ -1080,11 +1079,11 @@ bool CWKSP_Data_Manager::_Modified_Get(CSG_Parameters *pParameters, CWKSP_Base_I
 			}
 			break;
 
-		case WKSP_ITEM_Shapes:
-		case WKSP_ITEM_TIN:
+		case WKSP_ITEM_Shapes    :
+		case WKSP_ITEM_TIN       :
 		case WKSP_ITEM_PointCloud:
-		case WKSP_ITEM_Grid:
-		case WKSP_ITEM_Grids:
+		case WKSP_ITEM_Grid      :
+		case WKSP_ITEM_Grids     :
 			if( !bSelections || pItem->is_Selected() )
 			{
 				_Modified_Get(pParameters, pItem, Directory, ((CWKSP_Layer *)pItem)->Get_Object());

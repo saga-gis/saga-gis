@@ -1061,18 +1061,18 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	}
 
 	//-----------------------------------------------------
-	CSG_Parameters	P(NULL, _TL("Add Field"), SG_T(""));
+	CSG_Parameters	P(_TL("Add Field"));
 
 	P.Add_String(
-		NULL	, "NAME"	, _TL("Name"),
+		"", "NAME"	, _TL("Name"),
 		_TL(""),
 		_TL("Field")
 	);
 
 	P.Add_Choice(
-		NULL	, "TYPE"	, _TL("Field Type"),
+		"", "TYPE"	, _TL("Field Type"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			SG_Data_Type_Get_Name(SG_DATATYPE_String).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Date  ).c_str(),
 			SG_Data_Type_Get_Name(SG_DATATYPE_Color ).c_str(),
@@ -1091,15 +1091,15 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 	);
 
 	P.Add_Choice(
-		NULL	, "FIELD"	, _TL("Insert Position"),
+		"", "FIELD"	, _TL("Insert Position"),
 		_TL(""),
 		Fields, m_pTable->Get_Field_Count() - 1
 	);
 
 	P.Add_Choice(
-		NULL	, "INSERT"	, _TL("Insert Method"),
+		"", "INSERT"	, _TL("Insert Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("before"),
 			_TL("after")
 		), 1
@@ -1113,8 +1113,7 @@ void CVIEW_Table_Control::On_Field_Add(wxCommandEvent &event)
 
 		switch( P("TYPE")->asInt() )
 		{
-		default:
-		case  0:	Type	= SG_DATATYPE_String;	break;
+		default:	Type	= SG_DATATYPE_String;	break;
 		case  1:	Type	= SG_DATATYPE_Date  ;	break;
 		case  2:	Type	= SG_DATATYPE_Color ;	break;
 		case  3:	Type	= SG_DATATYPE_Byte  ;	break;
@@ -1332,18 +1331,16 @@ void CVIEW_Table_Control::On_Field_Sort(wxCommandEvent &event)
 	);
 
 	//-----------------------------------------------------
-	CSG_Parameters	P(NULL, _TL("Sort Table"), SG_T(""));
+	CSG_Parameters	P(_TL("Sort Table"));
 
-	CSG_Parameter	*pNode;
+	P.Add_Choice(""       , "FIELD_1", _TL("Sort first by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
+	P.Add_Choice("FIELD_1", "ORDER_1", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_1", _TL("Sort first by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(0));
-	pNode	= P.Add_Choice(pNode, "ORDER_1", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 1 : m_pTable->Get_Index_Order(0));
+	P.Add_Choice(""       , "FIELD_2", _TL("Sort second by"), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
+	P.Add_Choice("FIELD_2", "ORDER_2", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
 
-	pNode	= P.Add_Choice(NULL , "FIELD_2", _TL("Sort second by"), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(1));
-	pNode	= P.Add_Choice(pNode, "ORDER_2", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(1));
-
-	pNode	= P.Add_Choice(NULL , "FIELD_3", _TL("Sort third by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
-	pNode	= P.Add_Choice(pNode, "ORDER_3", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
+	P.Add_Choice(""       , "FIELD_3", _TL("Sort third by" ), _TL(""), Fields, !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Field(2));
+	P.Add_Choice("FIELD_3", "ORDER_3", _TL("Direction"     ), _TL(""), Order , !m_pTable->is_Indexed() ? 0 : m_pTable->Get_Index_Order(2));
 
 	//-----------------------------------------------------
 	if( DLG_Parameters(&P) )
@@ -1421,20 +1418,19 @@ void CVIEW_Table_Control::On_Field_Calc_UI(wxUpdateUIEvent &event)
 //---------------------------------------------------------
 int CVIEW_Table_Control::_Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 {
-	CSG_Parameters	*pParameters	= pParameter && pParameter->Get_Owner() ? pParameter->Get_Owner() : NULL;
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
 
-	if( pParameters )
+	if( pParameters && pParameters->Cmp_Identifier("FIELD_CALCULATOR") )
 	{
-		if( pParameters->Cmp_Identifier("FIELD_CALCULATOR") )
+		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			if( Flags & PARAMETER_CHECK_ENABLE )
+			if( pParameter->Cmp_Identifier("FIELD") )
 			{
-				if( pParameter->Cmp_Identifier("FIELD") )
-				{
-					pParameters->Set_Enabled("NAME", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
-				}
+				pParameters->Set_Enabled("NAME", pParameter->asInt() >= pParameter->asChoice()->Get_Count() - 1);
 			}
 		}
+
+		return( 1 );
 	}
 
 	return( 0 );

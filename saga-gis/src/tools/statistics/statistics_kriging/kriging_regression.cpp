@@ -328,7 +328,7 @@ bool CKriging_Regression::On_Execute(void)
 	||  !pK->Set_Parameter("PREDICTION"       , pResiduals)
 	||  !pK->Set_Parameter("VARIANCE"         , pVariance )
 
-	|| (!SG_UI_Get_Window_Main() && (	// saga_cmd
+	|| (!has_GUI() && (	// saga_cmd
 	    !pK->Set_Parameter("VAR_MAXDIST"      , Parameters("VAR_MAXDIST"      ))
 	||  !pK->Set_Parameter("VAR_NCLASSES"     , Parameters("VAR_NCLASSES"     ))
 	||  !pK->Set_Parameter("VAR_NSKIP"        , Parameters("VAR_NSKIP"        ))

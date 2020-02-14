@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: 3d_view_panel.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -47,15 +44,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -114,7 +102,7 @@ END_EVENT_TABLE()
 CSG_3DView_Panel::CSG_3DView_Panel(wxWindow *pParent, CSG_Grid *pDrape)
 	: wxPanel(pParent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL|wxSUNKEN_BORDER|wxNO_FULL_REPAINT_ON_RESIZE)
 {
-	m_Parameters.Create(this, _TL("Properties"), _TL(""));
+	m_Parameters.Create(this, _TL("Properties"));
 
 	m_Parameters.Set_Callback_On_Parameter_Changed(_On_Parameter_Changed);
 
@@ -245,18 +233,20 @@ bool CSG_3DView_Panel::Update_Parameters(bool bSave)
 //---------------------------------------------------------
 int CSG_3DView_Panel::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( pParameter && pParameter->Get_Owner() && pParameter->Get_Owner()->Get_Owner() )
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+
+	if( pParameters )
 	{
+		CSG_3DView_Panel	*pPanel	= (CSG_3DView_Panel *)pParameters->Get_Owner();
+
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
-			((CSG_3DView_Panel *)pParameter->Get_Owner()->Get_Owner())->
-				On_Parameter_Changed(pParameter->Get_Owner(), pParameter);
+			pPanel->On_Parameter_Changed(pParameters, pParameter);
 		}
 
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			((CSG_3DView_Panel *)pParameter->Get_Owner()->Get_Owner())->
-				On_Parameters_Enable(pParameter->Get_Owner(), pParameter);
+			pPanel->On_Parameters_Enable(pParameters, pParameter);
 		}
 
 		return( 1 );

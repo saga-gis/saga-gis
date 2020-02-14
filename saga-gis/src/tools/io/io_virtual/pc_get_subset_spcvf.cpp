@@ -832,7 +832,7 @@ bool CPointCloud_Get_Subset_SPCVF::On_Execute(void)
 	bool bResult = m_Get_Subset_SPCVF.Get_Subset(bCopyAttr);
 
 	//---------------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		for(int i=0; i<pPointCloudList->Get_Item_Count(); i++)
 		{

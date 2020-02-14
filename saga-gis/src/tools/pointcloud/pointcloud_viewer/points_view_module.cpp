@@ -107,7 +107,7 @@ CPoints_View_Module::CPoints_View_Module(void)
 //---------------------------------------------------------
 bool CPoints_View_Module::On_Execute(void)
 {
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		Message_Add(_TL("point cloud viewer can only be run from graphical user interface"));
 

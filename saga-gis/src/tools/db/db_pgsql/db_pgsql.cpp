@@ -2299,37 +2299,37 @@ int CSG_PG_Connections::Get_Connections(CSG_String &Connections)
 CSG_PG_Tool::CSG_PG_Tool(void)
 {
 	Parameters.Add_String(
-		NULL	, "PG_HOST"		, _TL("Host"),
+		"", "PG_HOST"		, _TL("Host"),
 		_TL("Password"),
 		""
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_Value(
-		NULL	, "PG_PORT"		, _TL("Port"),
+		"", "PG_PORT"		, _TL("Port"),
 		_TL(""),
 		PARAMETER_TYPE_Int, 5432, 0, true
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_String(
-		NULL	, "PG_NAME"		, _TL("Database"),
+		"", "PG_NAME"		, _TL("Database"),
 		_TL("Database Name"),
 		""
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_String(
-		NULL	, "PG_USER"		, _TL("User"),
+		"", "PG_USER"		, _TL("User"),
 		_TL("User Name"),
 		""
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_String(
-		NULL	, "PG_PWD"		, _TL("Password"),
+		"", "PG_PWD"		, _TL("Password"),
 		_TL("Password"),
 		""
 	)->Set_UseInGUI(false);
 
 	Parameters.Add_Choice(
-		NULL	, "CONNECTION"	, _TL("Available Connections"),
+		"", "CONNECTION"	, _TL("Available Connections"),
 		_TL(""),
 		""
 	)->Set_UseInCMD(false);
@@ -2340,7 +2340,7 @@ CSG_PG_Tool::CSG_PG_Tool(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_Before_Execution(void)
 {
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		m_pConnection	= SG_PG_Get_Connection_Manager().Add_Connection(
 			Parameters("PG_NAME")->asString(),
@@ -2391,7 +2391,7 @@ bool CSG_PG_Tool::On_Before_Execution(void)
 //---------------------------------------------------------
 bool CSG_PG_Tool::On_After_Execution(void)
 {
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		SG_PG_Get_Connection_Manager().Del_Connection(m_pConnection, true);
 	}
@@ -2402,7 +2402,7 @@ bool CSG_PG_Tool::On_After_Execution(void)
 //---------------------------------------------------------
 int CSG_PG_Tool::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		//-------------------------------------------------
 		if(	pParameter->Cmp_Identifier("CRS_EPSG_GEOGCS")
@@ -2452,22 +2452,22 @@ bool CSG_PG_Tool::Add_SRID_Picker(CSG_Parameters *pParameters)
 		return( false );	// don't add twice ...
 	}
 
-	CSG_Parameter	*pNode	= pParameters->Add_Value(
-		NULL	, "CRS_EPSG"	, _TL("EPSG Code"),
+	pParameters->Add_Int(
+		"", "CRS_EPSG", _TL("EPSG Code"),
 		_TL(""),
-		PARAMETER_TYPE_Int, -1, -1, true
+		-1, -1, true
 	);
 
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		pParameters->Add_Choice(
-			pNode	, "CRS_EPSG_GEOGCS"	, _TL("Geographic Coordinate Systems"),
+			"CRS_EPSG", "CRS_EPSG_GEOGCS", _TL("Geographic Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Geographic)
 		);
 
 		pParameters->Add_Choice(
-			pNode	, "CRS_EPSG_PROJCS"	, _TL("Projected Coordinate Systems"),
+			"CRS_EPSG", "CRS_EPSG_PROJCS", _TL("Projected Coordinate Systems"),
 			_TL(""),
 			SG_Get_Projections().Get_Names_List(SG_PROJ_TYPE_CS_Projected)
 		);

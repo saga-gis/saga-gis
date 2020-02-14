@@ -237,7 +237,7 @@ bool CRaster_Load_Band::On_Execute(void)
 		pGrid	= SG_Create_Grid();
 	}
 
-	if( !SG_UI_Get_Window_Main() || *Parameters("RID")->asString() )
+	if( !has_GUI() || *Parameters("RID")->asString() )
 	{
 		Where.Printf("rid=%s", Parameters("RID")->asString());
 	}

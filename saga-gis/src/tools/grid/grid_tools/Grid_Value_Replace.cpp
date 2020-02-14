@@ -187,7 +187,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 	default:	LUT.Create(*Parameters("IDENTITY")->asTable());	break;
 	case  1:	LUT.Create(*Parameters("RANGE"   )->asTable());	break;
 	case  2:	LUT.Create( Parameters("RANGE"   )->asTable());
-		if( SG_UI_Get_Window_Main()	// gui only
+		if( has_GUI()	// gui only
 		&&  DataObject_Get_Parameter(Parameters("GRID" )->asGrid(), "LUT")
 		&&  DataObject_Get_Parameter(Parameters("INPUT")->asGrid(), "LUT") )
 		{

@@ -629,15 +629,15 @@ bool		DLG_Text(const wxString &Caption, wxString &Text)
 //---------------------------------------------------------
 bool		DLG_Login(wxString &Username, wxString &Password, const wxString &Caption)
 {
-	CSG_Parameters	Login(NULL, _TL("Login"), _TL(""));
+	CSG_Parameters	Login(_TL("Login"));
 
 	if( Caption.Length() > 0 )
 	{
 		Login.Set_Name(&Caption);
 	}
 
-	Login.Add_String(NULL, "USERNAME", _TL("Username"), _TL(""), &Username, false, false);
-	Login.Add_String(NULL, "PASSWORD", _TL("Password"), _TL(""), &Password, false, true );
+	Login.Add_String("", "USERNAME", _TL("Username"), _TL(""), &Username, false, false);
+	Login.Add_String("", "PASSWORD", _TL("Password"), _TL(""), &Password, false, true );
 
 	if( DLG_Parameters(&Login) )
 	{

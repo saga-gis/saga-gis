@@ -794,7 +794,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 	if( PStatic.Get_Count() == 0 )
 	{
-		PStatic.Create(NULL, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+		PStatic.Create(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 		PStatic.Add_Choice("", "FIELD"   , _TL("Attribute"                ), _TL(""), "");
 		PStatic.Add_Colors("", "COLORS"  , _TL("Colors"                   ), _TL(""));
 		PStatic.Add_Int   ("", "COUNT"   , _TL("Number of Classes"        ), _TL(""),   10, 1, true);
@@ -811,7 +811,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 	AttributeList_Set(PStatic("FIELD"), false);
 
-	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+	CSG_Parameters	Parameters(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
 	Parameters.Assign_Parameters(&PStatic);
 

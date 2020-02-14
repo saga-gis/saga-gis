@@ -137,7 +137,7 @@ COGR_Export::COGR_Export(void)
 //---------------------------------------------------------
 int COGR_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
+	if( has_GUI() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
 	{
 		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
 
@@ -146,7 +146,7 @@ int COGR_Export::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 		pParameters->Set_Parameter("FILE", SG_File_Make_Path(Path, pParameter->asShapes()->Get_Name(), Extension));
 	}
 
-	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("FORMAT") )
+	if( has_GUI() && pParameter->Cmp_Identifier("FORMAT") )
 	{
 		CSG_String	File((*pParameters)["FILE"].asString());
 

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 
 #include <wx/clipbrd.h>
@@ -102,50 +90,50 @@
 //---------------------------------------------------------
 int Scatter_Plot_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	if( !pParameter || !pParameter->Get_Owner() )
+	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
+
+	if( pParameters )
 	{
-		return( -1 );
-	}
-
-	CSG_Parameters	*pParameters	= pParameter->Get_Owner();
-
-	if( Flags & PARAMETER_CHECK_ENABLE )
-	{
-		if( pParameter->Cmp_Identifier("CMP_WITH") )
+		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			pParameters->Get_Parameter("GRID")->Get_Parent()->Set_Enabled(pParameter->asInt() == 0);
-			pParameters->Set_Enabled("GRID"       , pParameter->asInt() == 0);
-			pParameters->Set_Enabled("POINTS"     , pParameter->asInt() == 1);
+			if( pParameter->Cmp_Identifier("CMP_WITH") )
+			{
+				pParameters->Get_Parameter("GRID")->Get_Parent()->Set_Enabled(pParameter->asInt() == 0);
+				pParameters->Set_Enabled("GRID"       , pParameter->asInt() == 0);
+				pParameters->Set_Enabled("POINTS"     , pParameter->asInt() == 1);
+			}
+
+			if( pParameter->Cmp_Identifier("REG_SHOW") )
+			{
+				pParameters->Set_Enabled("REG_FORMULA", pParameter->asBool());
+				pParameters->Set_Enabled("REG_COLOR"  , pParameter->asBool());
+				pParameters->Set_Enabled("REG_SIZE"   , pParameter->asBool());
+				pParameters->Set_Enabled("REG_INFO"   , pParameter->asBool());
+			}
+
+			if( pParameter->Cmp_Identifier("DISPLAY") )
+			{
+				pParameters->Set_Enabled("DENSITY_RES", pParameter->asInt() == 1);
+				pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 1);
+				pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 1);
+			}
 		}
 
-		if( pParameter->Cmp_Identifier("REG_SHOW") )
+		if( Flags & PARAMETER_CHECK_VALUES )
 		{
-			pParameters->Set_Enabled("REG_FORMULA", pParameter->asBool());
-			pParameters->Set_Enabled("REG_COLOR"  , pParameter->asBool());
-			pParameters->Set_Enabled("REG_SIZE"   , pParameter->asBool());
-			pParameters->Set_Enabled("REG_INFO"   , pParameter->asBool());
+			if( pParameter->Cmp_Identifier("CMP_WITH") )
+			{
+				//	pParameters->Get_Parameter("OPTIONS")->asParameters()->
+				//	             Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
+				pParameters->Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
+
+				pParameters->Set_Enabled("DENSITY_RES", pParameter->asInt() == 0);
+				pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 0);
+				pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 0);
+			}
 		}
 
-		if( pParameter->Cmp_Identifier("DISPLAY") )
-		{
-			pParameters->Set_Enabled("DENSITY_RES", pParameter->asInt() == 1);
-			pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 1);
-			pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 1);
-		}
-	}
-
-	if( Flags & PARAMETER_CHECK_VALUES )
-	{
-		if( pParameter->Cmp_Identifier("CMP_WITH") )
-		{
-		//	pParameters->Get_Parameter("OPTIONS")->asParameters()->
-		//	             Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
-			pParameters->Get_Parameter("DISPLAY")->Set_Value(pParameter->asInt() == 0 ? 1 : 0);
-
-			pParameters->Set_Enabled("DENSITY_RES", pParameter->asInt() == 0);
-			pParameters->Set_Enabled("DENSITY_PAL", pParameter->asInt() == 0);
-			pParameters->Set_Enabled("DENSITY_LEG", pParameter->asInt() == 0);
-		}
+		return( 1 );
 	}
 
 	return( 0 );

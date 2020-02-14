@@ -206,7 +206,7 @@ class SAGA_API_DLL_EXPORT CSG_Parameter
 {
 public:	///////////////////////////////////////////////////
 
-	CSG_Parameters *				Get_Owner				(void)	const;
+	CSG_Parameters *				Get_Parameters			(void)	const;
 	CSG_Parameter *					Get_Parent				(void)	const;
 	class CSG_Data_Manager *		Get_Manager				(void)	const;
 
@@ -356,7 +356,7 @@ private: //////////////////////////////////////////////////
 
 	CSG_Parameter					*m_pParent;
 
-	CSG_Parameters					*m_pOwner;
+	CSG_Parameters					*m_pParameters;
 
 };
 
@@ -1608,15 +1608,20 @@ public:
 								CSG_Parameters			(const CSG_Parameters &Parameters);
 	bool						Create					(const CSG_Parameters &Parameters);
 
-								CSG_Parameters			(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
-	bool						Create					(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+								CSG_Parameters			(const SG_Char *Name, const SG_Char *Description = NULL, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+	bool						Create					(const SG_Char *Name, const SG_Char *Description = NULL, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+
+								CSG_Parameters			(void *pOwner, const SG_Char *Name, const SG_Char *Description = NULL, const SG_Char *Identifier = NULL, bool bGrid_System = false);
+	bool						Create					(void *pOwner, const SG_Char *Name, const SG_Char *Description = NULL, const SG_Char *Identifier = NULL, bool bGrid_System = false);
 
 	void						Destroy					(void);
 
 	//-----------------------------------------------------
-	void *						Get_Owner				(void)	const	{	return( m_pOwner );			}
+	void *						Get_Owner				(void)	const	{	return( m_pOwner      );	}
 
-	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager );		}
+	class CSG_Tool *			Get_Tool				(void)	const	{	return( m_pTool       );	}
+
+	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager    );	}
 	void						Set_Manager				(class CSG_Data_Manager *pManager);
 
 	int							Get_Count				(void)	const	{	return( m_nParameters );	}
@@ -1781,6 +1786,8 @@ public:
 private:
 
 	void						*m_pOwner;
+
+	class CSG_Tool				*m_pTool;
 
 	class CSG_Data_Manager		*m_pManager;
 

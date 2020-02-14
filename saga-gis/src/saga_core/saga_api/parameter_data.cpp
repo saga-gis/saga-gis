@@ -1860,7 +1860,7 @@ bool CSG_Parameter_Table_Field::Add_Default(double Value, double Minimum, bool b
 	{
 		m_Default	= Get_Children_Count();
 
-		Get_Owner()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
+		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
 			_TL("Default"), _TL("default value if no attribute has been selected"),
 			Value, Minimum, bMinimum, Maximum, bMaximum
 		);
@@ -2381,7 +2381,7 @@ bool CSG_Parameter_Grid::Add_Default(double Value, double Minimum, bool bMinimum
 	{
 		m_Default	= Get_Children_Count();
 
-		Get_Owner()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
+		Get_Parameters()->Add_Double(Get_Identifier(), CSG_String::Format("%s_DEFAULT", Get_Identifier()),
 			_TL("Default"), _TL("default value if no grid has been selected"),
 			Value, Minimum, bMinimum, Maximum, bMaximum
 		);
@@ -3072,10 +3072,10 @@ CSG_Parameter_PointCloud_List::CSG_Parameter_PointCloud_List(CSG_Parameters *pOw
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Parameter_Parameters::CSG_Parameter_Parameters(CSG_Parameters *pOwner, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
-	: CSG_Parameter(pOwner, pParent, ID, Name, Description, Constraint)
+CSG_Parameter_Parameters::CSG_Parameter_Parameters(CSG_Parameters *pParameters, CSG_Parameter *pParent, const CSG_String &ID, const CSG_String &Name, const CSG_String &Description, int Constraint)
+	: CSG_Parameter(pParameters, pParent, ID, Name, Description, Constraint)
 {
-	m_pParameters	= new CSG_Parameters(Get_Owner()->Get_Owner(), Name, Description, ID);
+	m_pParameters	= new CSG_Parameters(pParameters->Get_Owner(), Name, Description, ID);
 }
 
 CSG_Parameter_Parameters::~CSG_Parameter_Parameters(void)

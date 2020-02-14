@@ -229,7 +229,7 @@ bool CCMD_Tool::Execute(int argc, char *argv[])
 //---------------------------------------------------------
 wxString CCMD_Tool::_Get_ID(CSG_Parameter *pParameter, const wxString &Modifier)
 {
-	wxString	ID(pParameter->Get_Owner()->Get_Identifier().c_str());
+	wxString	ID(pParameter->Get_Parameters()->Get_Identifier().c_str());
 
 	if( ID.Length() > 0 )
 	{

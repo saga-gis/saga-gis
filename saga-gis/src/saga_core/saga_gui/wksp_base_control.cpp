@@ -756,7 +756,7 @@ bool CWKSP_Base_Control::_Search_Get_List(CSG_Table *pList, CWKSP_Base_Item *pIt
 //---------------------------------------------------------
 CWKSP_Base_Item * CWKSP_Base_Control::Search_Item(const wxString &Caption, TWKSP_Item Type)
 {
-	static CSG_Parameters	Search(NULL, Caption, _TL(""));
+	static CSG_Parameters	Search(Caption);
 
 	if( Search.Get_Count() == 0 )
 	{

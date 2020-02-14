@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: tin_view_dialog.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "tin_view_control.h"
 #include "tin_view_dialog.h"
 
@@ -87,7 +75,7 @@ CTIN_View_Dialog::CTIN_View_Dialog(CSG_TIN *pTIN, int Field_Z, int Field_Color, 
 	SetWindowStyle(wxDEFAULT_FRAME_STYLE|wxNO_FULL_REPAINT_ON_RESIZE);
 
 	//-----------------------------------------------------
-	m_Settings.Create(NULL, _TL("TIN Viewer Settings"), _TL(""));
+	m_Settings.Create(_TL("TIN Viewer Settings"));
 
 	m_pView		= new CTIN_View_Control	(this, pTIN, Field_Z, Field_Color, m_Settings, pRGB);
 

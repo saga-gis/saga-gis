@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "parameters.h"
 #include "data_manager.h"
 
@@ -87,6 +75,14 @@ CSG_Parameters::CSG_Parameters(const CSG_Parameters &Parameters)
 }
 
 //---------------------------------------------------------
+CSG_Parameters::CSG_Parameters(const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
+{
+	_On_Construction();
+
+	Create(Name, Description, Identifier, bGrid_System);
+}
+
+//---------------------------------------------------------
 CSG_Parameters::CSG_Parameters(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
 {
 	_On_Construction();
@@ -103,24 +99,22 @@ CSG_Parameters::~CSG_Parameters(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 void CSG_Parameters::_On_Construction(void)
 {
-	m_pOwner			= NULL;
+	m_pOwner		= NULL;
+	m_pTool			= NULL;
+	m_pManager		= &SG_Get_Data_Manager();
 
-	m_pManager			= &SG_Get_Data_Manager();
+	m_Parameters	= NULL;
+	m_nParameters	= 0;
 
-	m_Parameters		= NULL;
-	m_nParameters		= 0;
+	m_Callback		= NULL;
+	m_bCallback		= true;
 
-	m_Callback			= NULL;
-	m_bCallback			= true;
-
-	m_pGrid_System		= NULL;
+	m_pGrid_System	= NULL;
 }
 
 //---------------------------------------------------------
@@ -129,13 +123,14 @@ bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
 	Destroy();
 
 	m_pOwner		= Parameters.m_pOwner;
+	m_pTool			= Parameters.m_pTool;
 	m_pManager		= Parameters.m_pManager;
 
 	m_Callback		= Parameters.m_Callback;
 	m_bCallback		= Parameters.m_bCallback;
 
-	Set_Identifier	(Parameters.Get_Identifier());
-	Set_Name		(Parameters.Get_Name());
+	Set_Identifier	(Parameters.Get_Identifier ());
+	Set_Name		(Parameters.Get_Name       ());
 	Set_Description	(Parameters.Get_Description());
 
 	//-----------------------------------------------------
@@ -153,28 +148,40 @@ bool CSG_Parameters::Create(const CSG_Parameters &Parameters)
 }
 
 //---------------------------------------------------------
-bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
+bool CSG_Parameters::Create(const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
 {
 	Destroy();
 
-	m_pOwner		= pOwner;
-
 	Set_Identifier	(Identifier);
 	Set_Name		(Name);
-	Set_Description	(Description);
+	Set_Description	(Description ? Description : SG_T(""));
 
 	if( bGrid_System )
 	{
-		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid system"), _TL(""));
+		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid System"), _TL(""));
 	}
 
 	return( true );
 }
 
 //---------------------------------------------------------
+bool CSG_Parameters::Create(void *pOwner, const SG_Char *Name, const SG_Char *Description, const SG_Char *Identifier, bool bGrid_System)
+{
+	if( Create(Name, Description, Identifier, bGrid_System) )
+	{
+		m_pOwner	= pOwner;
+
+		return( true );
+	}
+
+	return( false );
+}
+
+//---------------------------------------------------------
 void CSG_Parameters::Destroy(void)
 {
 	m_pOwner		= NULL;
+	m_pTool			= NULL;
 	m_pGrid_System	= NULL;
 
 	Del_Parameters();
@@ -184,8 +191,6 @@ void CSG_Parameters::Destroy(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -312,8 +317,6 @@ void CSG_Parameters::Set_Enabled(const CSG_String &Identifier, bool bEnabled)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1261,8 +1264,6 @@ bool CSG_Parameters::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1338,8 +1339,6 @@ bool CSG_Parameters::Set_Parameter(const wchar_t    *ID, const wchar_t *Value, i
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1367,8 +1366,6 @@ bool CSG_Parameters::Restore_Defaults(bool bClearData)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1451,8 +1448,6 @@ bool CSG_Parameters::Assign_Parameters(CSG_Parameters *pSource)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -1751,8 +1746,6 @@ bool CSG_Parameters::DataObjects_Set_Projection(const CSG_Projection &Projection
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -1799,8 +1792,6 @@ bool CSG_Parameters::Msg_String(bool bOptionsOnly)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

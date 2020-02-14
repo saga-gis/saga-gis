@@ -428,7 +428,7 @@ bool CCRS_Base::Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pP
 //---------------------------------------------------------
 bool CCRS_Base::Get_Projection(CSG_Projection &Projection)
 {
-	if( SG_UI_Get_Window_Main() )	// gui? projection is also updated on parameter changed event!
+	if( has_GUI() )	// gui? projection is also updated on parameter changed event!
 	{
 		Projection	= m_Projection;
 	}

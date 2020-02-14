@@ -146,7 +146,7 @@ bool CGrid_Import::On_Execute(void)
 	//-----------------------------------------------------
 	wxImageHandler	*pImgHandler = NULL;
 
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		CSG_String	fName = SG_File_Get_Name(fImage, true);
 
@@ -328,7 +328,7 @@ bool CGrid_Import::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL)
+	if( !has_GUI() && pImgHandler != NULL)
 	{
 		wxImage::RemoveHandler(pImgHandler->GetName());
 	}

@@ -112,7 +112,7 @@ CGrid_Export::CGrid_Export(void)
 	);
 
 	//-----------------------------------------------------
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		Parameters.Add_Choice("",
 			"COLOURING"		, _TL("Colouring"),
@@ -418,7 +418,7 @@ bool CGrid_Export::On_Execute(void)
 	//-----------------------------------------------------
 	wxImageHandler	*pImgHandler = NULL;
 
-	if( !SG_UI_Get_Window_Main() )
+	if( !has_GUI() )
 	{
 		if     ( SG_File_Cmp_Extension(fName, "jpg") )	pImgHandler = new wxJPEGHandler;
 		else if( SG_File_Cmp_Extension(fName, "pcx") )	pImgHandler = new wxPCXHandler ;
@@ -433,7 +433,7 @@ bool CGrid_Export::On_Execute(void)
 
 	bool	bOkay	= Image.SaveFile(fName.c_str());
 
-	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL )
+	if( !has_GUI() && pImgHandler != NULL )
 	{
 		wxImage::RemoveHandler(pImgHandler->GetName());
 	}
@@ -505,7 +505,7 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 	//-----------------------------------------------------
 	CSG_Colors	Colors;
 
-	if( SG_UI_Get_Window_Main() )
+	if( has_GUI() )
 	{
 		Colors.Assign(Parameters("COL_PALETTE")->asColors());
 	}

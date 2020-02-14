@@ -128,7 +128,7 @@ bool CPolygon_Centroids::On_Execute(void)
 		{
 			TSG_Point	Centroid	= pPolygon->Get_Centroid();
 
-			if( bInside ) { Force_Inside(Centroid, pPolygon); }
+			if( bInside && !pPolygon->Contains(Centroid       ) ) { Force_Inside(Centroid, pPolygon); }
 
 			pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->Add_Point(Centroid);
 		}
@@ -136,7 +136,7 @@ bool CPolygon_Centroids::On_Execute(void)
 		{
 			TSG_Point	Centroid	= pPolygon->Get_Centroid(iPart);
 
-			if( bInside ) { Force_Inside(Centroid, pPolygon); }
+			if( bInside && !pPolygon->Contains(Centroid, iPart) ) { Force_Inside(Centroid, pPolygon); }
 
 			pCentroids->Add_Shape(pPolygon, SHAPE_COPY_ATTR)->Add_Point(Centroid);
 		}

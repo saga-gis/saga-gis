@@ -102,7 +102,7 @@ COGR_Export_KML::COGR_Export_KML(void)
 //---------------------------------------------------------
 int COGR_Export_KML::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( SG_UI_Get_Window_Main() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
+	if( has_GUI() && pParameter->Cmp_Identifier("SHAPES") && pParameter->asShapes() )
 	{
 		CSG_String	Path(SG_File_Get_Path((*pParameters)["FILE"].asString()));
 
