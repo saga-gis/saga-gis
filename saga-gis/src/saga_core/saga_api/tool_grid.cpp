@@ -65,7 +65,7 @@ CSG_Tool_Grid::CSG_Tool_Grid(void)
 {
 	m_pLock		= NULL;
 
-	Parameters.Create(this, SG_T(""), SG_T(""), SG_T(""), true);
+	Parameters.Use_Grid_System();
 }
 
 //---------------------------------------------------------

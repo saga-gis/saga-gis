@@ -152,13 +152,13 @@ bool CSG_Parameters::Create(const SG_Char *Name, const SG_Char *Description, con
 {
 	Destroy();
 
-	Set_Identifier	(Identifier);
-	Set_Name		(Name);
-	Set_Description	(Description ? Description : SG_T(""));
+	Set_Identifier (Identifier);
+	Set_Name       (Name);
+	Set_Description(Description ? Description : SG_T(""));
 
 	if( bGrid_System )
 	{
-		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid System"), _TL(""));
+		Use_Grid_System();
 	}
 
 	return( true );
@@ -213,6 +213,23 @@ void CSG_Parameters::Set_Manager(CSG_Data_Manager *pManager)
 			m_Parameters[i]->asParameters()->Set_Manager(pManager);
 		}
 	}
+}
+
+//---------------------------------------------------------
+/**
+* Let parameters list provide a default grid system after construction.
+*/
+//---------------------------------------------------------
+bool CSG_Parameters::Use_Grid_System(void)
+{
+	if( !m_pGrid_System )
+	{
+		m_pGrid_System	= Add_Grid_System("", "PARAMETERS_GRID_SYSTEM", _TL("Grid System"), _TL(""));
+
+		return( true );
+	}
+
+	return( false );
 }
 
 //---------------------------------------------------------

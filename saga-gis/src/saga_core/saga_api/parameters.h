@@ -1624,6 +1624,8 @@ public:
 	class CSG_Data_Manager *	Get_Manager				(void)	const	{	return( m_pManager    );	}
 	void						Set_Manager				(class CSG_Data_Manager *pManager);
 
+	bool						Use_Grid_System			(void);
+
 	int							Get_Count				(void)	const	{	return( m_nParameters );	}
 
 	void						Set_Identifier			(const CSG_String &Identifier);
