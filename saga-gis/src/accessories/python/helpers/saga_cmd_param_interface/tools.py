@@ -769,5 +769,6 @@ tools = [
 ['pj_proj4', 30, 'Coordinate Conversion (Grids)'],
 ['pj_proj4', 31, 'Coordinate Conversion (Table)'],
 ['shapes_points', 23, '3D Points Selection'],
-['io_webservices', 0, 'Geocoding']
+['io_webservices', 0, 'Geocoding'],
+['pj_proj4', 32, 'Globe Gores']
 ]
