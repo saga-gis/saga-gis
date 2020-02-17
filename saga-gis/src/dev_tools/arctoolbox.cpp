@@ -245,7 +245,7 @@ CSG_String CArcToolBox::Get_Description(CSG_Tool *pTool, int Type)
 //---------------------------------------------------------
 CSG_String CArcToolBox::Get_ID(CSG_Parameter *pParameter, const CSG_String &Modifier)
 {
-	CSG_String	ID(pParameter->Get_Owner()->Get_Identifier());
+	CSG_String	ID(pParameter->Get_Parameters()->Get_Identifier());
 
 	if( ID.Length() > 0 )
 	{

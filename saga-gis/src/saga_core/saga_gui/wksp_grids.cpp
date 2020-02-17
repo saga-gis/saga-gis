@@ -299,8 +299,13 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	// Transparency...
 
 	m_Parameters.Add_Choice("DISPLAY_TRANSPARENCY", "BAND_A", _TL("Alpha Channel"),
-		_TL(""),
+		_TL("Alpha channel values are adjusted to the specified range minimum (full transparency) and maximum (full opacity)"),
 		""
+	);
+
+	m_Parameters.Add_Range("BAND_A", "BAND_A_RANGE", _TL("Adjustment"),
+		_TL(""),
+		0., 255.
 	);
 
 	//-----------------------------------------------------
@@ -629,6 +634,11 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("METRIC_ZRANGE_R"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
 			pParameters->Set_Enabled("METRIC_ZRANGE_G"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
 			pParameters->Set_Enabled("METRIC_ZRANGE_B"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
+		}
+
+		if( pParameter->Cmp_Identifier("BAND_A") )
+		{
+			pParameters->Set_Enabled("BAND_A_RANGE", pParameter->asInt() < pParameter->asChoice()->Get_Count() - 1);
 		}
 	}
 
@@ -1124,6 +1134,9 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 		return;
 	}
 
+	m_Alpha[0] = m_Parameters("BAND_A_RANGE.MIN")->asDouble();
+	m_Alpha[1] = m_Parameters("BAND_A_RANGE.MAX")->asDouble() - m_Alpha[0]; m_Alpha[1] = m_Alpha[1] ? 255. / m_Alpha[1] : 1.;
+
 	//-----------------------------------------------------
 	switch( m_Parameters("COLORS_TYPE")->asInt() )
 	{
@@ -1193,9 +1206,7 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 
 	bool	bBandWise	= m_Parameters("OVERLAY_FIT")->asInt() != 0;	// bandwise statistics
 
-	#ifndef _DEBUG
 	#pragma omp parallel for
-	#endif
 	for(int iyDC=0; iyDC<=nyDC; iyDC++)
 	{
 		_Draw_Grid_Nodes(dc_Map, Resampling, pBands, bBandWise, ayDC - iyDC, axDC, bxDC);
@@ -1235,11 +1246,21 @@ void CWKSP_Grids::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Res
 					&&    pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, false);
 				z[3]	= 255.;
 			}
-			else if( (bOkay = pBands[3]->Get_Value(xMap, yMap, z[3], Resampling, true) && z[3] > 0.) == true )
+			else
 			{
-				pBands[0]->Get_Value(xMap, yMap, z[0], Resampling, true);
-				pBands[1]->Get_Value(xMap, yMap, z[1], Resampling, true);
-				pBands[2]->Get_Value(xMap, yMap, z[2], Resampling, true);
+				z[3]	= (pBands[3]->Get_Value(xMap, yMap, Resampling) - m_Alpha[0]) * m_Alpha[1];
+
+				if( (bOkay = z[3] > 0.) == true )
+				{
+					if( z[3] > 255. )
+					{
+						z[3]	= 255.;
+					}
+
+					z[0]	= pBands[0]->Get_Value(xMap, yMap, Resampling);
+					z[1]	= pBands[1]->Get_Value(xMap, yMap, Resampling);
+					z[2]	= pBands[2]->Get_Value(xMap, yMap, Resampling);
+				}
 			}
 
 			if( bOkay )
@@ -1282,7 +1303,7 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	int	xa	= Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin()); if( xa <  0                     ) xa = 0;
+	int xa	= Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin()); if( xa <  0                     ) xa = 0;
 	int	ya	= Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin()); if( ya <  0                     ) ya = 0;
 	int	xb	= Get_Grids()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax()); if( xb >= Get_Grids()->Get_NX() ) xb = Get_Grids()->Get_NX() - 1;
 	int	yb	= Get_Grids()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax()); if( yb >= Get_Grids()->Get_NY() ) yb = Get_Grids()->Get_NY() - 1;
@@ -1326,9 +1347,21 @@ void CWKSP_Grids::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 					c[i] = d < 0. ? 0 : d > 255. ? 255 : (BYTE)d;
 				}
 
-				c[3] = !pBands[3] ? 255 : (BYTE)pBands[3]->asDouble(x, y);
+				if( pBands[3] )
+				{
+					double	d	= (pBands[3]->asDouble(x, y) - m_Alpha[0]) * m_Alpha[1];
 
-				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
+					if( d > 0. )
+					{
+						c[3] = d < 255. ? (BYTE)d : 255;
+
+						dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
+					}
+				}
+				else
+				{
+					dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, *(int *)&c);
+				}
 			}
 		}
 	}

@@ -1414,7 +1414,7 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 		}
 
 		for(int i=0; i<2; i++)
-		{
+		{	
 			if( !SG_Get_Data_Manager().Exists(pOverlay[i]) )
 			{
 				pOverlay[i]	= NULL;
@@ -1461,7 +1461,7 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 		{
 			if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 			{
-				int		c;
+				int  c;
 
 				if( m_pClassify->Get_Class_Color_byValue(Value, c) )
 				{
@@ -1498,28 +1498,27 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Cells(CWKSP_Map_DC &dc_Map)
 {
-	int		x, y, xa, ya, xb, yb, xaDC, yaDC, xbDC, ybDC, Color;
-	double	xDC, yDC, axDC, ayDC, dDC;
+	int	xa	= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin()); if( xa <  0                    ) xa = 0;
+	int	ya	= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin()); if( ya <  0                    ) ya = 0;
+	int	xb	= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax()); if( xb >= Get_Grid()->Get_NX() ) xb = Get_Grid()->Get_NX() - 1;
+	int	yb	= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax()); if( yb >= Get_Grid()->Get_NY() ) yb = Get_Grid()->Get_NY() - 1;
+
+	double	dDC	 = Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
+
+	double	axDC = dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
+	double	ayDC = dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
 
 	//-----------------------------------------------------
-	dDC		= Get_Grid()->Get_Cellsize() * dc_Map.m_World2DC;
+	double	yDC	= ayDC;
 
-	xa		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMin());
-	ya		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMin());
-	xb		= Get_Grid()->Get_System().Get_xWorld_to_Grid(dc_Map.m_rWorld.Get_XMax());
-	yb		= Get_Grid()->Get_System().Get_yWorld_to_Grid(dc_Map.m_rWorld.Get_YMax());
-
-	if( xa < 0 )	xa	= 0;	if( xb >= Get_Grid()->Get_NX() )	xb	= Get_Grid()->Get_NX() - 1;
-	if( ya < 0 )	ya	= 0;	if( yb >= Get_Grid()->Get_NY() )	yb	= Get_Grid()->Get_NY() - 1;
-
-	axDC	= dc_Map.xWorld2DC(Get_Grid()->Get_System().Get_xGrid_to_World(xa)) + dDC / 2.;
-	ayDC	= dc_Map.yWorld2DC(Get_Grid()->Get_System().Get_yGrid_to_World(ya)) - dDC / 2.;
-
-	//-----------------------------------------------------
-	for(y=ya, yDC=ayDC, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
+	for(int y=ya, yaDC=(int)(ayDC), ybDC=(int)(ayDC+dDC); y<=yb; y++, ybDC=yaDC, yaDC=(int)(yDC-=dDC))
 	{
-		for(x=xa, xDC=axDC, xaDC=(int)(axDC-dDC), xbDC=(int)(axDC); x<=xb; x++, xaDC=xbDC, xbDC=(int)(xDC+=dDC))
+		double	xDC	= axDC;
+
+		for(int x=xa, xaDC=(int)(axDC-dDC), xbDC=(int)(axDC); x<=xb; x++, xaDC=xbDC, xbDC=(int)(xDC+=dDC))
 		{
+			int	Color;
+
 			if( Get_Grid()->is_InGrid(x, y) && m_pClassify->Get_Class_Color_byValue(Get_Grid()->asDouble(x, y), Color) )
 			{
 				dc_Map.IMG_Set_Rect(xaDC, yaDC, xbDC, ybDC, _Get_Shading(x, y, Color));
@@ -1533,8 +1532,8 @@ inline void CWKSP_Grid::_Set_Shading(double Shade, int &Color)
 {
 	switch( m_Shade_Mode )
 	{
-	default:	Shade	=      Shade / M_PI_090;	break;
-	case  1:	Shade	= 1. - Shade / M_PI_090;	break;
+	default: Shade =      Shade / M_PI_090; break;
+	case  1: Shade = 1. - Shade / M_PI_090; break;
 	}
 
 	Shade	= m_Shade_Parms[5] * (Shade - m_Shade_Parms[4]);
