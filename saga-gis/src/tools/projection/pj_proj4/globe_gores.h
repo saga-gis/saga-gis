@@ -6,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Projection_Proj4                    //
+//                       pj_proj                         //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                   TLB_Interface.cpp                   //
+//                    globe_gores.h                      //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                 Olaf Conrad (C) 2020                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -40,112 +39,14 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-// 1. Include the appropriate SAGA-API header...
-
-#include "crs_transform.h"
-
-
-//---------------------------------------------------------
-// 2. Place general tool library informations here...
-
-CSG_String Get_Info(int i)
-{
-	switch( i )
-	{
-	case TLB_INFO_Name:	default:
-		return( _TL("Proj.4") );
-
-	case TLB_INFO_Category:
-		return( _TL("Projection") );
-
-	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2004-14") );
-
-	case TLB_INFO_Description:
-		return( CSG_CRSProjector::Get_Description() );
-
-	case TLB_INFO_Version:
-		return( _TL("2.0") );
-
-	case TLB_INFO_Menu_Path:
-		return( _TL("Projection") );
-	}
-}
-
-
-//---------------------------------------------------------
-// 3. Include the headers of your tools here...
-
-#include "crs_assign.h"
-
-#include "crs_transform_shapes.h"
-#include "crs_transform_grid.h"
-#include "crs_transform_point.h"
-#include "crs_transform_utm.h"
-#include "crs_transform_coords.h"
-
-#include "gcs_lon_range.h"
-
-#include "gcs_graticule.h"
-
-#include "crs_indicatrix.h"
-#include "crs_grid_geogcoords.h"
-
-#include "crs_distance.h"
-
-#include "globe_gores.h"
-
-
-//---------------------------------------------------------
-// 4. Allow your tools to be created here...
-
-CSG_Tool *		Create_Tool(int i)
-{
-	switch( i )
-	{
-	case  0:	return( new CCRS_Assign() );
-
-	case 29:	return( new CCRS_Transform_Point() );
-
-	case  1:	return( new CCRS_Transform_Shapes    (true ) );
-	case  2:	return( new CCRS_Transform_Shapes    (false) );
-	case  3:	return( new CCRS_Transform_Grid      (true ) );
-	case  4:	return( new CCRS_Transform_Grid      (false) );
-
-	case 23:	return( new CCRS_Transform_UTM_Grids (true ) );
-	case 24:	return( new CCRS_Transform_UTM_Grids (false) );
-	case 25:	return( new CCRS_Transform_UTM_Shapes(true ) );
-	case 26:	return( new CCRS_Transform_UTM_Shapes(false) );
-
-	case 15:	return( new CCRS_Picker() );
-
-	case 13:	return( new CGCS_Grid_Longitude_Range() );
-
-	case 14:	return( new CGCS_Graticule() );
-
-	case 16:	return( new CCRS_Indicatrix() );
-	case 17:	return( new CCRS_Grid_GeogCoords() );
-	case 20:	return( new CCRS_Distance_Lines() );
-	case 21:	return( new CCRS_Distance_Points() );
-	case 22:	return( new CCRS_Distance_Interactive() );
-
-	case 30:	return( new CCRS_Transform_Coords_Grid () );
-	case 31:	return( new CCRS_Transform_Coords_Table() );
-
-	case 32:	return( new CGlobe_Gores() );
-
-	case 33:	return( NULL );
-	default:	return( TLB_INTERFACE_SKIP_TOOL );
-	}
-}
+#ifndef HEADER_INCLUDED__globe_gores_H
+#define HEADER_INCLUDED__globe_gores_H
 
 
 ///////////////////////////////////////////////////////////
@@ -155,8 +56,50 @@ CSG_Tool *		Create_Tool(int i)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//{{AFX_SAGA
+#include <saga_api/saga_api.h>
 
-	TLB_INTERFACE
 
-//}}AFX_SAGA
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CGlobe_Gores : public CSG_Tool_Grid
+{
+public:
+	CGlobe_Gores(void);
+
+	virtual CSG_String				Get_MenuPath			(void)	{	return( _TL("Tools") );	}
+
+	virtual bool					do_Sync_Projections		(void)	const	{	return( false );	}
+
+
+protected:
+
+	virtual int						On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool					On_Execute				(void);
+
+
+private:
+
+	CSG_Grid						*m_pGores;
+
+
+	bool							Add_Gore				(int iGore, int nGores);
+
+	bool							Add_Gore				(int iGore, int nGores, CSG_Grid *pGore);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__globe_gores_H
