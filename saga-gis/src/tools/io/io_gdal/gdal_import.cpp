@@ -541,7 +541,7 @@ bool CGDAL_Import::Load_Subset(CSG_GDAL_DataSet &DataSet)
 			Subsets.Add_Bool("",
 				MetaData.Get_Content(ID + "NAME"),
 				MetaData.Get_Content(ID + "DESC"),
-				"", has_GUI() == NULL
+				"", has_GUI()
 			);
 		}
 		else
