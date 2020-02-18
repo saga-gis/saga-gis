@@ -314,8 +314,8 @@ bool CCoverage_of_Categories::Initialize(const CSG_Grid_System &System)
 
 	switch( Parameters("DATADEPTH")->asInt() )
 	{
-	case  0: Type = SG_DATATYPE_Byte  ; Scaling = 1. /   255.; break;
-	default: Type = SG_DATATYPE_Word  ; Scaling = 1. / 65535.; break;
+	case  0: Type = SG_DATATYPE_Byte  ; Scaling = 1. /   250.; break; // 0.004
+	default: Type = SG_DATATYPE_Word  ; Scaling = 1. / 62500.; break; // 0.000016
 	case  2: Type = SG_DATATYPE_Float ; Scaling = 1.         ; break;
 	case  3: Type = SG_DATATYPE_Double; Scaling = 1.         ; break;
 	}
