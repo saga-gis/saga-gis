@@ -74,9 +74,9 @@
 //---------------------------------------------------------
 enum
 {
-	IMG_MODE_OPAQUE			= 0,
-	IMG_MODE_TRANSPARENT,
+	IMG_MODE_OPAQUE	= 0,
 	IMG_MODE_SHADING,
+	IMG_MODE_TRANSPARENT,
 	IMG_MODE_TRANSPARENT_ALPHA
 };
 
@@ -139,13 +139,13 @@ public:
 	void						Draw_Polygon			(CSG_Shape_Polygon *pPolygon);
 
 	//-----------------------------------------------------
-	bool						IMG_Draw_Begin			(double Transparency);
+	bool						IMG_Draw_Begin			(double Transparency, int Mode = IMG_MODE_TRANSPARENT);
 	bool						IMG_Draw_End			(void);
 
 	//-----------------------------------------------------
-	void						IMG_Set_Pixel_Direct	(int n, int Color)
+	void						IMG_Set_Pixel_Direct	(int i, int Color)
 	{
-		if( n >= 0 && n < m_img_nBytes )
+		if( i >= 0 && i < m_img_nBytes )
 		{
 			BYTE r = SG_GET_R(Color);
 			BYTE g = SG_GET_G(Color);
@@ -157,43 +157,43 @@ public:
 				break; }
 
 			case IMG_MODE_SHADING: {
-				r = (BYTE)(r * m_img_dc_rgb[n + 0] / 255.);
-				g = (BYTE)(g * m_img_dc_rgb[n + 1] / 255.);
-				b = (BYTE)(b * m_img_dc_rgb[n + 2] / 255.);
+				r = (BYTE)(r * m_img_dc_rgb[i + 0] / 255.);
+				g = (BYTE)(g * m_img_dc_rgb[i + 1] / 255.);
+				b = (BYTE)(b * m_img_dc_rgb[i + 2] / 255.);
 				break; }
 
 			case IMG_MODE_TRANSPARENT: {
-				if( m_Transparency <= 0. ) { return; }
-				if( m_Transparency <  1. )
+				if( m_Opacity <= 0. ) { return; }
+				if( m_Opacity <  1. )
 				{
-					r = (BYTE)(r * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 0]);
-					g = (BYTE)(g * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 1]);
-					b = (BYTE)(b * (1. - m_Transparency) + m_Transparency * m_img_dc_rgb[n + 2]);
+					r = (BYTE)(r * m_Opacity + (1. - m_Opacity) * m_img_dc_rgb[i + 0]);
+					g = (BYTE)(g * m_Opacity + (1. - m_Opacity) * m_img_dc_rgb[i + 1]);
+					b = (BYTE)(b * m_Opacity + (1. - m_Opacity) * m_img_dc_rgb[i + 2]);
 				}
 				break; }
 
 			case IMG_MODE_TRANSPARENT_ALPHA: {
-				double	Alpha	= SG_GET_A(Color) / 255.;
+				double	Opacity	= m_Opacity * SG_GET_A(Color) / 255.;
 
-				if( Alpha <= 0. ) { return; }
-				if( Alpha <  1. )
+				if( Opacity <= 0. ) { return; }
+				if( Opacity <  1. )
 				{
-					r = (BYTE)(r * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 0]);
-					g = (BYTE)(g * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 1]);
-					b = (BYTE)(b * (1. - Alpha) + Alpha * m_img_dc_rgb[n + 2]);
+					r = (BYTE)(r *   Opacity + (1. -   Opacity) * m_img_dc_rgb[i + 0]);
+					g = (BYTE)(g *   Opacity + (1. -   Opacity) * m_img_dc_rgb[i + 1]);
+					b = (BYTE)(b *   Opacity + (1. -   Opacity) * m_img_dc_rgb[i + 2]);
 				}
 				break; }
 			}
 
-			m_img_rgb[n + 0] = r;
-			m_img_rgb[n + 1] = g;
-			m_img_rgb[n + 2] = b;
+			m_img_rgb[i + 0] = r;
+			m_img_rgb[i + 1] = g;
+			m_img_rgb[i + 2] = b;
 		}
 	}
 
-	void						IMG_Set_Pixel			(int n, int Color)
+	void						IMG_Set_Pixel			(int i, int Color)
 	{
-		IMG_Set_Pixel_Direct(3 * n, Color);
+		IMG_Set_Pixel_Direct(3 * i, Color);
 	}
 
 	void						IMG_Set_Pixel			(int x, int y, int Color)
@@ -216,7 +216,7 @@ private:
 
 	int							m_img_nx, m_img_nBytes, m_img_mode;
 
-	double						m_Transparency;
+	double						m_Opacity;
 
 	wxImage						m_img, m_img_dc;
 

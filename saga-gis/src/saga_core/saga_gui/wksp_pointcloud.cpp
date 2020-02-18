@@ -233,8 +233,8 @@ bool CWKSP_PointCloud::On_Command(int Cmd_ID)
 
 	case ID_CMD_POINTCLOUD_RANGE_STDDEV200:
 		Set_Color_Range(
-			Get_PointCloud()->Get_Mean(m_fValue) - 2.0 * Get_PointCloud()->Get_StdDev(m_fValue),
-			Get_PointCloud()->Get_Mean(m_fValue) + 2.0 * Get_PointCloud()->Get_StdDev(m_fValue)
+			Get_PointCloud()->Get_Mean(m_fValue) - 2. * Get_PointCloud()->Get_StdDev(m_fValue),
+			Get_PointCloud()->Get_Mean(m_fValue) + 2. * Get_PointCloud()->Get_StdDev(m_fValue)
 		);
 		break;
 
@@ -358,7 +358,7 @@ void CWKSP_PointCloud::On_DataObject_Changed(void)
 		}
 
 		double	m	= Get_PointCloud()->Get_Mean  (m_fValue);
-		double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.0;
+		double	s	= Get_PointCloud()->Get_StdDev(m_fValue) * 2.;
 
 		m_Parameters("METRIC_ZRANGE")->asRange()->Set_Range(m - s, m + s);
 	}
@@ -433,7 +433,7 @@ int CWKSP_PointCloud::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Para
 			int		zField	= pParameter->asInt();
 
 			double	m	= Get_PointCloud()->Get_Mean  (zField);
-			double	s	= Get_PointCloud()->Get_StdDev(zField) * 2.0;
+			double	s	= Get_PointCloud()->Get_StdDev(zField) * 2.;
 			double	min	= m - s;	if( min < Get_PointCloud()->Get_Minimum(zField) )	min	= Get_PointCloud()->Get_Minimum(zField);
 			double	max	= m + s;	if( max > Get_PointCloud()->Get_Maximum(zField) )	max	= Get_PointCloud()->Get_Maximum(zField);
 
@@ -608,7 +608,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, Minimum+=Interval)
 			{
-				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_PointCloud()->Get_Maximum(Field) + 1.0;
+				Maximum	= iClass < Colors.Get_Count() - 1 ? Minimum + Interval : Get_PointCloud()->Get_Maximum(Field) + 1.;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -648,7 +648,7 @@ void CWKSP_PointCloud::_LUT_Create(void)
 			for(int iClass=0; iClass<Colors.Get_Count(); iClass++, iRecord+=Count)
 			{
 				Minimum	= Maximum;
-				Maximum	= iRecord < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Record_byIndex((int)iRecord)->asDouble(Field) : Get_PointCloud()->Get_Maximum(Field) + 1.0;
+				Maximum	= iRecord < Get_PointCloud()->Get_Count() ? Get_PointCloud()->Get_Record_byIndex((int)iRecord)->asDouble(Field) : Get_PointCloud()->Get_Maximum(Field) + 1.;
 
 				CSG_String	Name	= SG_Get_String(Minimum, -2)
 							+ " - " + SG_Get_String(Maximum, -2);
@@ -750,11 +750,11 @@ wxString CWKSP_PointCloud::Get_Value(CSG_Point ptWorld, double Epsilon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CWKSP_PointCloud::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Minimum(m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Maximum(m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Range  (m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_Mean   (m_fValue) );	}
-double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : Get_PointCloud()->Get_StdDev (m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Minimum(m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Maximum(m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Range  (m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_Mean   (m_fValue) );	}
+double CWKSP_PointCloud::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0. : Get_PointCloud()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -806,9 +806,9 @@ bool CWKSP_PointCloud::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, i
 	{
 		CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
-		if( rWorld.Get_XRange() == 0.0 && rWorld.Get_YRange() == 0.0 )
+		if( rWorld.Get_XRange() == 0. && rWorld.Get_YRange() == 0. )
 		{
-			rWorld.Inflate(2.0 * ClientToWorld, false);
+			rWorld.Inflate(2. * ClientToWorld, false);
 		}
 
 		g_pActive->Update_Attributes();
@@ -905,7 +905,7 @@ bool CWKSP_PointCloud::Edit_Set_Attributes(void)
 //---------------------------------------------------------
 void CWKSP_PointCloud::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 {
-	if( Get_Extent().Intersects(dc_Map.m_rWorld) && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
+	if( Get_Extent().Intersects(dc_Map.m_rWorld) && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
 		if( (Flags & LAYER_DRAW_FLAG_THUMBNAIL) == 0 )
 		{

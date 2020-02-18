@@ -346,11 +346,11 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	m_Parameters.Add_Node("NODE_COLORS", "NODE_SHADE"	, _TL("Shade"),
+	m_Parameters.Add_Node("NODE_COLORS"	, "NODE_SHADE"		, _TL("Shade"),
 		_TL("")
 	);
 
-	m_Parameters.Add_Choice("NODE_SHADE", "SHADE_MODE"	, _TL("Coloring"),
+	m_Parameters.Add_Choice("NODE_SHADE", "SHADE_MODE"		, _TL("Coloring"),
 		_TL(""),
 		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("bright - dark"  ),
@@ -362,6 +362,12 @@ void CWKSP_Grid::On_Create_Parameters(void)
 			_TL("white - yellow" ),
 			_TL("yellow - white" )
 		), 0
+	);
+
+	//-----------------------------------------------------
+	m_Parameters.Add_Bool("NODE_COLORS"	, "RGB_ALPHA"		, _TL("Alpha Channel"),
+		_TL(""),
+		false
 	);
 
 	//-----------------------------------------------------
@@ -597,11 +603,12 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Value == CLASSIFY_UNIQUE);
-			pParameters->Set_Enabled("NODE_LUT"          , Value == CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Value == CLASSIFY_UNIQUE );
+			pParameters->Set_Enabled("NODE_LUT"          , Value == CLASSIFY_LUT    );
 			pParameters->Set_Enabled("NODE_METRIC"       , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_SHADE"        , Value == CLASSIFY_SHADE);
+			pParameters->Set_Enabled("NODE_SHADE"        , Value == CLASSIFY_SHADE  );
 			pParameters->Set_Enabled("NODE_OVERLAY"      , Value == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("RGB_ALPHA"         , Value == CLASSIFY_RGB    );
 
 			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Value != CLASSIFY_LUT);
 			pParameters->Set_Enabled("DISPLAY_SHADING"   , Value != CLASSIFY_SHADE);
@@ -1282,16 +1289,11 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	double	Transparency;
+	int	Mode	= m_pClassify->Get_Mode() == CLASSIFY_SHADE ? IMG_MODE_SHADING
+				: m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA")->asBool() ? IMG_MODE_TRANSPARENT_ALPHA
+				: IMG_MODE_TRANSPARENT;
 
-	switch( m_pClassify->Get_Mode() )
-	{
-	default            : Transparency = m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; break;
-	case CLASSIFY_RGB  : Transparency = m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.; if( Transparency <= 0. ) Transparency = 3.; break;
-	case CLASSIFY_SHADE: Transparency = 2.;	break;
-	}
-
-	if( !dc_Map.IMG_Draw_Begin(Transparency) )
+	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
 	{
 		return;
 	}
@@ -1305,10 +1307,10 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 	else switch( m_Parameters("DISPLAY_RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear        ;	break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline   ;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline         ;	break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------

@@ -315,11 +315,11 @@ wxString CWKSP_TIN::Get_Value(CSG_Point ptWorld, double Epsilon)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-double CWKSP_TIN::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0.0 : asTIN()->Get_Minimum(m_fValue) );	}
-double CWKSP_TIN::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0.0 : asTIN()->Get_Maximum(m_fValue) );	}
-double CWKSP_TIN::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0.0 : asTIN()->Get_Range  (m_fValue) );	}
-double CWKSP_TIN::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0.0 : asTIN()->Get_Mean   (m_fValue) );	}
-double CWKSP_TIN::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0.0 : asTIN()->Get_StdDev (m_fValue) );	}
+double CWKSP_TIN::Get_Value_Minimum(void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Minimum(m_fValue) );	}
+double CWKSP_TIN::Get_Value_Maximum(void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Maximum(m_fValue) );	}
+double CWKSP_TIN::Get_Value_Range  (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Range  (m_fValue) );	}
+double CWKSP_TIN::Get_Value_Mean   (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_Mean   (m_fValue) );	}
+double CWKSP_TIN::Get_Value_StdDev (void)	{	return( m_fValue < 0 ? 0. : asTIN()->Get_StdDev (m_fValue) );	}
 
 
 ///////////////////////////////////////////////////////////
@@ -348,9 +348,9 @@ bool CWKSP_TIN::Edit_On_Mouse_Up(CSG_Point Point, double ClientToWorld, int Key)
 {
 	CSG_Rect	rWorld(m_Edit_Mouse_Down, Point);
 
-	if( rWorld.Get_XRange() == 0.0 && rWorld.Get_YRange() == 0.0 )
+	if( rWorld.Get_XRange() == 0. && rWorld.Get_YRange() == 0. )
 	{
-		rWorld.Inflate(2.0 * ClientToWorld, false);
+		rWorld.Inflate(2. * ClientToWorld, false);
 	}
 
 	return( true );
@@ -423,7 +423,7 @@ void CWKSP_TIN::_Draw_Edges(CWKSP_Map_DC &dc_Map)
 //---------------------------------------------------------
 void CWKSP_TIN::_Draw_Triangles(CWKSP_Map_DC &dc_Map)
 {
-	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.0) )
+	if(	m_Parameters("DISPLAY_TRIANGES")->asBool() && dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.) )
 	{
 		for(int iTriangle=0; iTriangle<asTIN()->Get_Triangle_Count(); iTriangle++)
 		{
@@ -515,7 +515,7 @@ void CWKSP_TIN::_Draw_Triangle(CWKSP_Map_DC &dc_Map, TPoint p[3])
 
 		for(i=0, j=1; i<2; i++, j++)
 		{
-			if( (dy	=  p[j].y - p[i].y) > 0.0 )
+			if( (dy	=  p[j].y - p[i].y) > 0. )
 			{
 				dx		= (p[j].x - p[i].x) / dy;
 				dz		= (p[j].z - p[i].z) / dy;
@@ -558,7 +558,7 @@ inline void CWKSP_TIN::_Draw_Triangle_Line(CWKSP_Map_DC &dc_Map, int xa, int xb,
 	int		Color;
 	double	dz;
 
-	if( (dz = xb - xa) > 0.0 )
+	if( (dz = xb - xa) > 0. )
 	{
 		dz	= (zb - za) / dz;
 

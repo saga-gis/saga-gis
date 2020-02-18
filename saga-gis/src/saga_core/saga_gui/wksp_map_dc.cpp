@@ -187,13 +187,29 @@ void CWKSP_Map_DC::Set_Font(wxFont &Font)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency)
+bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency, int Mode)
 {
 	if( m_DC2World <= 0. || m_rDC.GetWidth() <= 0 || m_rDC.GetHeight() <= 0 )
 	{
 		return( false );
 	}
 
+	m_Opacity	= Transparency < 0. ? 1. : Transparency > 1. ? 0. : 1. - Transparency;
+
+	if( m_Opacity <= 0. && (Mode == IMG_MODE_TRANSPARENT || Mode == IMG_MODE_TRANSPARENT_ALPHA) )
+	{
+		return( false );
+	}
+
+	switch( Mode )
+	{
+	case IMG_MODE_OPAQUE:   default: m_img_mode = IMG_MODE_OPAQUE                                        ; break;
+	case IMG_MODE_SHADING          : m_img_mode = IMG_MODE_SHADING                                       ; break;
+	case IMG_MODE_TRANSPARENT      : m_img_mode = m_Opacity < 1. ? IMG_MODE_TRANSPARENT : IMG_MODE_OPAQUE; break;
+	case IMG_MODE_TRANSPARENT_ALPHA: m_img_mode = IMG_MODE_TRANSPARENT_ALPHA                             ; break;
+	}
+
+	//-----------------------------------------------------
 	m_img.Create(m_rDC.GetWidth(), m_rDC.GetHeight());
 	m_img.SetMask(true);
 	m_img.SetMaskColour(m_Background[0], m_Background[1], m_Background[2]);
@@ -210,7 +226,8 @@ bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency)
 		*pRGB++	= m_Background[2];
 	}
 
-	if( Transparency > 0. )
+	//-----------------------------------------------------
+	if( m_img_mode != IMG_MODE_OPAQUE )
 	{
 		wxBitmap	tmp_BMP(m_rDC.GetWidth(), m_rDC.GetHeight());
 		wxMemoryDC	tmp_dc;
@@ -221,13 +238,6 @@ bool CWKSP_Map_DC::IMG_Draw_Begin(double Transparency)
 
 		m_img_dc		= tmp_BMP.ConvertToImage();
 		m_img_dc_rgb	= m_img_dc.GetData();
-
-		m_Transparency	= Transparency;
-		m_img_mode		= Transparency <= 1. ? IMG_MODE_TRANSPARENT : (Transparency <= 2. ? IMG_MODE_SHADING : IMG_MODE_TRANSPARENT_ALPHA);
-	}
-	else
-	{
-		m_img_mode		= IMG_MODE_OPAQUE;
 	}
 
 	return( true );

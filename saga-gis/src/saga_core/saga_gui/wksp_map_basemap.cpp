@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/window.h>
 
 #include <saga_api/saga_api.h>
@@ -140,7 +131,7 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Range("NODE_GENERAL",
 		"SHOW_RANGE"	, _TL("Scale Range"),
 		_TL("only show within scale range; values are given as extent measured in map units"),
-		100.0, 1000.0, 0.0, true
+		100., 1000., 0., true
 	);
 
 	//-----------------------------------------------------
@@ -149,13 +140,13 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Double("NODE_DISPLAY",
 		"TRANSPARENCY"	, _TL("Transparency [%]"),
 		_TL(""),
-		0.0, 0.0, true, 100.0, true
+		0., 0., true, 100., true
 	);
 
 	m_Parameters.Add_Double("NODE_DISPLAY",
 		"BRIGHTNESS"	, _TL("Maximum Brightness [%]"),
 		_TL("Brightness threshold below a pixel is displayed. Set to 100% to display all (default)."),
-		100.0, 0.0, true, 100.0, true
+		100., 0., true, 100., true
 	);
 
 	m_Parameters.Add_Bool("NODE_DISPLAY",
@@ -167,7 +158,7 @@ CWKSP_Map_BaseMap::CWKSP_Map_BaseMap(CSG_MetaData *pEntry)
 	m_Parameters.Add_Double("NODE_DISPLAY",
 		"RESOLUTION"	, _TL("Resolution"),
 		_TL("resolution measured in screen pixels"),
-		1.0, 1.0, true
+		1., 1., true
 	);
 
 	//-----------------------------------------------------
@@ -415,7 +406,7 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 	//-----------------------------------------------------
 	CSG_Grid	BaseMap;
 
-	if( m_Parameters("RESOLUTION")->asDouble() > 1.0 )
+	if( m_Parameters("RESOLUTION")->asDouble() > 1. )
 	{
 		BaseMap.Create(CSG_Grid_System(m_Parameters("RESOLUTION")->asDouble() * System.Get_Cellsize(), System.Get_Extent(true)), SG_DATATYPE_Int);
 	}
@@ -460,9 +451,9 @@ bool CWKSP_Map_BaseMap::Set_BaseMap(const CSG_Grid_System &System)
 			}
 		}
 
-		if( m_Parameters("BRIGHTNESS")->asDouble() < 100.0 )
+		if( m_Parameters("BRIGHTNESS")->asDouble() < 100. )
 		{
-			int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.0);
+			int	Threshold	= (int)(0.5 + 3 * 255 * m_Parameters("BRIGHTNESS")->asDouble() / 100.);
 
 			#pragma omp parallel for
 			for(int i=0; i<m_BaseMap.Get_NCells(); i++)
@@ -519,7 +510,7 @@ bool CWKSP_Map_BaseMap::Draw(CWKSP_Map_DC &dc_Map)
 	}
 
 	//-----------------------------------------------------
-	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble() / 100.0) )
+	if( dc_Map.IMG_Draw_Begin(m_Parameters("TRANSPARENCY")->asDouble() / 100.) )
 	{
 		#pragma omp parallel for
 		for(int y=0; y<m_BaseMap.Get_NY(); y++)	for(int x=0, yy=m_BaseMap.Get_NY()-y-1; x<m_BaseMap.Get_NX(); x++)

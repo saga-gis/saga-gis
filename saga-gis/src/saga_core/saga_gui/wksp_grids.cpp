@@ -629,7 +629,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 			pParameters->Set_Enabled("BAND_R"            , Type == CLASSIFY_OVERLAY);
 			pParameters->Set_Enabled("BAND_G"            , Type == CLASSIFY_OVERLAY);
 			pParameters->Set_Enabled("BAND_B"            , Type == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("BAND_A"            , Type == CLASSIFY_OVERLAY && (*pParameters)["DISPLAY_TRANSPARENCY"].asDouble() <= 0.);
+			pParameters->Set_Enabled("BAND_A"            , Type == CLASSIFY_OVERLAY);
 			pParameters->Set_Enabled("OVERLAY_FIT"       , Type == CLASSIFY_OVERLAY);
 			pParameters->Set_Enabled("METRIC_ZRANGE_R"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
 			pParameters->Set_Enabled("METRIC_ZRANGE_G"   , Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1);
@@ -1126,10 +1126,9 @@ void CWKSP_Grids::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	double	Transparency = m_pClassify->Get_Mode() == CLASSIFY_OVERLAY && Get_Grid(3) && m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() <= 0.
-		? 3. : m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100.;
+	int	Mode = m_pClassify->Get_Mode() == CLASSIFY_OVERLAY && Get_Grid(3) ? IMG_MODE_TRANSPARENT_ALPHA : IMG_MODE_TRANSPARENT;
 
-	if( !dc_Map.IMG_Draw_Begin(Transparency) )
+	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
 	{
 		return;
 	}
