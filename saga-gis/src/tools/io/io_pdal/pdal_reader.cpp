@@ -140,7 +140,7 @@ CPDAL_Reader::CPDAL_Reader(void)
 		"RGB_RANGE"	, _TL("RGB Value Range"),
 		_TL("Data depth of red, green, blue values in LAS file."),
 		CSG_String::Format("%s|%s",
-			_TL ("8 bit"),
+			_TL( "8 bit"),
 			_TL("16 bit")
 		), 1
 	);
@@ -252,7 +252,7 @@ CSG_PointCloud * CPDAL_Reader::Read_Points(const CSG_String &File)
 	int	RGB_Field	= Parameters("VAR_COLOR")->asBool() && Reader.header().hasColor() ? pPoints->Get_Field_Count() : 0;
 	if( RGB_Field )
 	{
-		pPoints->Add_Field("Color", SG_DATATYPE_Color);
+		pPoints->Add_Field("Color", SG_DATATYPE_Int);
 	}
 
 	//-----------------------------------------------------
@@ -271,9 +271,9 @@ CSG_PointCloud * CPDAL_Reader::Read_Points(const CSG_String &File)
 
 		if( RGB_Field )
 		{
-			double	r	= pView->getFieldAs<int>(pdal::Dimension::Id::Red  , i); if( RGB_Range ) { r = r / 65535 * 255; }
-			double	g	= pView->getFieldAs<int>(pdal::Dimension::Id::Green, i); if( RGB_Range ) { g = g / 65535 * 255; }
-			double	b	= pView->getFieldAs<int>(pdal::Dimension::Id::Blue , i); if( RGB_Range ) { b = b / 65535 * 255; }
+			double	r	= pView->getFieldAs<double>(pdal::Dimension::Id::Red  , i); if( RGB_Range ) { r *= 255. / 65535.; }
+			double	g	= pView->getFieldAs<double>(pdal::Dimension::Id::Green, i); if( RGB_Range ) { g *= 255. / 65535.; }
+			double	b	= pView->getFieldAs<double>(pdal::Dimension::Id::Blue , i); if( RGB_Range ) { b *= 255. / 65535.; }
 
 			pPoints->Set_Value(RGB_Field, SG_GET_RGB(r, g, b));
 		}
