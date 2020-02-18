@@ -45,20 +45,20 @@ for tool in range(len(tools.tools)):
         shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         
         for line in cmd.stdout:
-            if 'Error:' in line:
+            if b'Error:' in line:
                 break
-            if 'Usage:' in line:
+            if b'Usage:' in line:
                 bPrint = True
-                outfile.write('<TOOL>\n')
-                outfile.write(tools.tools[tool][2] + '\n')
+                outfile.write(b'<TOOL>\n')
+                outfile.write(bytes(tools.tools[tool][2] + '\n', 'utf-8'))
             if bPrint:
-                outfile.write(' '.join(line.split()) + '\n')
+                outfile.write(b' '.join(line.split()) + b'\n')
                 
         if bPrint:
-            outfile.write('</TOOL>\n\n')
+            outfile.write(b'</TOOL>\n\n')
         
-    except Exception, e:
-        print 'ERROR: Could not execute command - %s\n' % e
+    except Exception as e:
+        print('ERROR: Could not execute command - %s\n' % e)
         sys.exit(1)
 
 outfile.close
