@@ -311,7 +311,7 @@ void CWKSP_Grids::On_Create_Parameters(void)
 	//-----------------------------------------------------
 	// Classification...
 
-	Set_Grid_Choices(&m_Parameters, true);
+	Set_Grid_Choices(&m_Parameters);
 
 	//-----------------------------------------------------
 	m_Fit_Colors	= g_pData->Get_Parameter("GRID_STRETCH_DEFAULT")->asInt();
@@ -323,21 +323,23 @@ void CWKSP_Grids::On_Create_Parameters(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CWKSP_Grids::Set_Grid_Choices(CSG_Parameters *pParameters, bool bInitialize)
+bool CWKSP_Grids::Set_Grid_Choices(CSG_Parameters *pParameters)
 {
 	CSG_String	List(_Get_List_Bands((*pParameters)("DIM_NAME")->asInt()));
 
+	bool	bReset	= (*pParameters)("BAND")->asChoice()->Get_Count() != Get_Grids()->Get_NZ();
+
 	if( (*pParameters)("BAND"  ) ) { (*pParameters)("BAND"  )->asChoice()->Set_Items(List); }
 
-	if( (*pParameters)("BAND_R") ) { (*pParameters)("BAND_R")->asChoice()->Set_Items(List); if( bInitialize ) (*pParameters)("BAND_R")->Set_Value(0); }
-	if( (*pParameters)("BAND_G") ) { (*pParameters)("BAND_G")->asChoice()->Set_Items(List); if( bInitialize ) (*pParameters)("BAND_G")->Set_Value(1); }
-	if( (*pParameters)("BAND_B") ) { (*pParameters)("BAND_B")->asChoice()->Set_Items(List); if( bInitialize ) (*pParameters)("BAND_B")->Set_Value(2); }
+	if( (*pParameters)("BAND_R") ) { (*pParameters)("BAND_R")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_R")->Set_Value(0); }
+	if( (*pParameters)("BAND_G") ) { (*pParameters)("BAND_G")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_G")->Set_Value(1); }
+	if( (*pParameters)("BAND_B") ) { (*pParameters)("BAND_B")->asChoice()->Set_Items(List); if( bReset ) (*pParameters)("BAND_B")->Set_Value(2); }
 
 	if( (*pParameters)("BAND_A") )
 	{
 		(*pParameters)("BAND_A")->asChoice()->Set_Items(List + "|<" + _TL("not set") + ">");
 
-		if( bInitialize )
+		if( bReset )
 		{
 			(*pParameters)("BAND_A")->Set_Value((*pParameters)("BAND_A")->asChoice()->Get_Count() - 1);
 		}
@@ -450,7 +452,7 @@ void CWKSP_Grids::On_DataObject_Changed(void)
 	m_Parameters("DIM_NAME"     )->Set_Value(Get_Grids()->Get_Z_Name_Field());
 
 	//-----------------------------------------------------
-	Set_Grid_Choices(&m_Parameters, false);
+	Set_Grid_Choices(&m_Parameters);
 
 	if( m_Parameters("BAND_R")->asInt() == 0
 	&&  m_Parameters("BAND_G")->asInt() == 0
@@ -488,7 +490,7 @@ void CWKSP_Grids::On_Parameters_Changed(void)
 	{
 		Get_Grids()->Set_Z_Name_Field(m_Parameters("DIM_NAME")->asInt());
 
-		Set_Grid_Choices(&m_Parameters, false);
+		Set_Grid_Choices(&m_Parameters);
 	}
 
 	//-----------------------------------------------------
@@ -575,7 +577,7 @@ int CWKSP_Grids::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter
 
 		if( pParameter->Cmp_Identifier("DIM_NAME") )
 		{
-			Set_Grid_Choices(pParameters, false);
+			Set_Grid_Choices(pParameters);
 		}
 
 		if( Type == CLASSIFY_OVERLAY && (*pParameters)["OVERLAY_FIT"].asInt() == 1

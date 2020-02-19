@@ -282,11 +282,11 @@ void CWKSP_Map_DC::IMG_Set_Rect(int x_a, int y_a, int x_b, int y_b, int Color)
 	//-----------------------------------------------------
 	for(int y=y_a; y<y_b; y++)
 	{
-		int	n	= 3 * (y * m_img_nx + x_a);
+		int	i	= 3 * (y * m_img_nx + x_a);
 
-		for(int x=x_a; x<x_b; x++, n+=3)
+		for(int x=x_a; x<x_b; x++, i+=3)
 		{
-			IMG_Set_Pixel_Direct(n, Color);
+			IMG_Set_Pixel_Direct(i, Color);
 		}
 	}
 }

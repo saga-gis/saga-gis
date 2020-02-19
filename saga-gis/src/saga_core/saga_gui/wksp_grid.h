@@ -122,7 +122,9 @@ private:
 
 	int							m_Fit_Colors, m_Shade_Mode, m_xSel, m_ySel;
 
-	double						m_Shade_Parms[6];
+	double						m_Shade_Parms[6], m_Alpha[2];
+
+	CSG_Grid					*m_pAlpha;
 
 
 	void						_LUT_Create				(void);

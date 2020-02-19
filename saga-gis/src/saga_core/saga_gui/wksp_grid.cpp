@@ -299,7 +299,7 @@ void CWKSP_Grid::On_Create_Parameters(void)
 	m_Parameters.Add_Double("NODE_GENERAL", "OBJECT_Z_OFFSET", _TL("Z-Offset"), _TL(""), Get_Grid()->Get_Offset ());
 
 	//-----------------------------------------------------
-	// Display...
+	// Resampling...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_RESAMPLING", _TL("Resampling"),
 		_TL(""),
@@ -310,6 +310,22 @@ void CWKSP_Grid::On_Create_Parameters(void)
 			_TL("B-Spline Interpolation")
 		), 0
 	);
+
+	//-----------------------------------------------------
+	// Transparency...
+
+	m_Parameters.Add_Grid("DISPLAY_TRANSPARENCY", "DISPLAY_ALPHA", _TL("Alpha Channel"),
+		_TL("Alpha channel values are adjusted to the specified range minimum (full transparency) and maximum (full opacity)"),
+		PARAMETER_INPUT_OPTIONAL, false
+	)->Get_Parent()->Set_Value((void *)&Get_Grid()->Get_System());
+
+	m_Parameters.Add_Range("DISPLAY_ALPHA", "ALPHA_RANGE", _TL("Adjustment"),
+		_TL(""),
+		0., 255.
+	);
+
+	//-----------------------------------------------------
+	// Shading...
 
 	m_Parameters.Add_Choice("NODE_DISPLAY", "DISPLAY_SHADING"	, _TL("Shading"),
 		_TL(""),
@@ -592,26 +608,46 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 	{
 		if(	pParameter->Cmp_Identifier("DISPLAY_SHADING") )
 		{
-			pParameters->Set_Enabled("SHADING_AZIMUTH", pParameter->asInt() != 0);
-			pParameters->Set_Enabled("SHADING_HEIGHT" , pParameter->asInt() != 0);
-			pParameters->Set_Enabled("SHADING_EXAGG"  , pParameter->asInt() != 0);
-			pParameters->Set_Enabled("SHADING_MIN"    , pParameter->asInt() != 0);
-			pParameters->Set_Enabled("SHADING_MAX"    , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_AZIMUTH"    , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_HEIGHT"     , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_EXAGG"      , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_MIN"        , pParameter->asInt() != 0);
+			pParameters->Set_Enabled("SHADING_MAX"        , pParameter->asInt() != 0);
 		}
 
 		if(	pParameter->Cmp_Identifier("COLORS_TYPE") )
 		{
 			int		Value	= pParameter->asInt();
 
-			pParameters->Set_Enabled("NODE_UNISYMBOL"    , Value == CLASSIFY_UNIQUE );
-			pParameters->Set_Enabled("NODE_LUT"          , Value == CLASSIFY_LUT    );
-			pParameters->Set_Enabled("NODE_METRIC"       , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
-			pParameters->Set_Enabled("NODE_SHADE"        , Value == CLASSIFY_SHADE  );
-			pParameters->Set_Enabled("NODE_OVERLAY"      , Value == CLASSIFY_OVERLAY);
-			pParameters->Set_Enabled("RGB_ALPHA"         , Value == CLASSIFY_RGB    );
+			pParameters->Set_Enabled("NODE_UNISYMBOL"     , Value == CLASSIFY_UNIQUE );
+			pParameters->Set_Enabled("NODE_LUT"           , Value == CLASSIFY_LUT    );
+			pParameters->Set_Enabled("NODE_METRIC"        , Value != CLASSIFY_UNIQUE && Value != CLASSIFY_LUT);
+			pParameters->Set_Enabled("NODE_SHADE"         , Value == CLASSIFY_SHADE  );
+			pParameters->Set_Enabled("NODE_OVERLAY"       , Value == CLASSIFY_OVERLAY);
+			pParameters->Set_Enabled("RGB_ALPHA"          , Value == CLASSIFY_RGB    );
 
-			pParameters->Set_Enabled("DISPLAY_RESAMPLING", Value != CLASSIFY_LUT);
-			pParameters->Set_Enabled("DISPLAY_SHADING"   , Value != CLASSIFY_SHADE);
+			pParameters->Set_Enabled("DISPLAY_RESAMPLING" , Value != CLASSIFY_LUT    );
+			pParameters->Set_Enabled("DISPLAY_SHADING"    , Value != CLASSIFY_SHADE  );
+
+			pParameters->Set_Enabled("DISPLAY_ALPHA"      , Value != CLASSIFY_RGB    );
+		}
+
+		if( pParameter->Cmp_Identifier("DISPLAY_ALPHA") )
+		{
+			pParameters->Set_Enabled("ALPHA_RANGE"        , pParameter->asGrid() != NULL);
+		}
+
+		if(	pParameter->Cmp_Identifier("VALUES_SHOW") )
+		{
+			pParameters->Set_Enabled("VALUES_FONT"        , pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_SIZE"        , pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_DECIMALS"    , pParameter->asBool());
+			pParameters->Set_Enabled("VALUES_EFFECT"      , pParameter->asBool());
+		}
+
+		if(	pParameter->Cmp_Identifier("VALUES_EFFECT") )
+		{
+			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
 		}
 
 		if( pParameter->Cmp_Identifier("OVERLAY_MODE") )
@@ -619,19 +655,6 @@ int CWKSP_Grid::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter 
 			(*pParameters)("OVERLAY_R")->Get_Parent()->Set_Enabled(pParameter->asInt() != 0);
 			(*pParameters)("OVERLAY_G")->Get_Parent()->Set_Enabled(pParameter->asInt() != 1);
 			(*pParameters)("OVERLAY_B")->Get_Parent()->Set_Enabled(pParameter->asInt() != 2);
-		}
-
-		if(	pParameter->Cmp_Identifier("VALUES_SHOW") )
-		{
-			pParameters->Set_Enabled("VALUES_FONT"    , pParameter->asBool());
-			pParameters->Set_Enabled("VALUES_SIZE"    , pParameter->asBool());
-			pParameters->Set_Enabled("VALUES_DECIMALS", pParameter->asBool());
-			pParameters->Set_Enabled("VALUES_EFFECT"  , pParameter->asBool());
-		}
-
-		if(	pParameter->Cmp_Identifier("VALUES_EFFECT") )
-		{
-			pParameters->Set_Enabled("VALUES_EFFECT_COLOR", pParameter->asInt() > 0);
 		}
 	}
 
@@ -1289,14 +1312,20 @@ void CWKSP_Grid::On_Draw(CWKSP_Map_DC &dc_Map, int Flags)
 	}
 
 	//-----------------------------------------------------
-	int	Mode	= m_pClassify->Get_Mode() == CLASSIFY_SHADE ? IMG_MODE_SHADING
-				: m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA")->asBool() ? IMG_MODE_TRANSPARENT_ALPHA
+	int	Mode	= m_pClassify->Get_Mode() == CLASSIFY_SHADE                                          ? IMG_MODE_SHADING
+				: m_pClassify->Get_Mode() == CLASSIFY_RGB && m_Parameters("RGB_ALPHA"    )->asBool() ? IMG_MODE_TRANSPARENT_ALPHA
+				: m_pClassify->Get_Mode() != CLASSIFY_RGB && m_Parameters("DISPLAY_ALPHA")->asGrid() ? IMG_MODE_TRANSPARENT_ALPHA
 				: IMG_MODE_TRANSPARENT;
 
 	if( !dc_Map.IMG_Draw_Begin(m_Parameters("DISPLAY_TRANSPARENCY")->asDouble() / 100., Mode) )
 	{
 		return;
 	}
+
+	//-----------------------------------------------------
+	m_pAlpha   = m_Parameters("DISPLAY_ALPHA"  )->asGrid  ();
+	m_Alpha[0] = m_Parameters("ALPHA_RANGE.MIN")->asDouble();
+	m_Alpha[1] = m_Parameters("ALPHA_RANGE.MAX")->asDouble() - m_Alpha[0]; m_Alpha[1] = m_Alpha[1] ? 255. / m_Alpha[1] : 1.;
 
 	//-----------------------------------------------------
 	TSG_Grid_Resampling	Resampling;
@@ -1450,7 +1479,14 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 //---------------------------------------------------------
 void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resampling, int yDC, int axDC, int bxDC, CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 {
-	int	Overlay	= m_Parameters("OVERLAY_MODE")->asInt();
+	int	Overlay[3];
+
+	switch( m_Parameters("OVERLAY_MODE")->asInt() )
+	{
+	default: Overlay[0] = 0; Overlay[1] = 1; Overlay[2] = 2; break;
+	case  1: Overlay[0] = 1; Overlay[1] = 0; Overlay[2] = 2; break;
+	case  2: Overlay[0] = 1; Overlay[1] = 2; Overlay[2] = 0; break;
+	}
 
 	double	xMap	= dc_Map.xDC2World(axDC);
 	double	yMap	= dc_Map.yDC2World( yDC);
@@ -1463,35 +1499,27 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 		{
 			if( m_pClassify->Get_Mode() != CLASSIFY_OVERLAY )
 			{
-				int  c;
+				int  Color;
 
-				if( m_pClassify->Get_Class_Color_byValue(Value, c) )
+				if( m_pClassify->Get_Class_Color_byValue(Value, Color) )
 				{
-					dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, c, Resampling));
+					dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, Color, Resampling));
 				}
 			}
 			else
 			{
-				int		c[3];
+				BYTE Color[4]; Color[3] = 0;
 
-				c[0]	= (int)(255. * m_pClassify->Get_MetricToRelative(Value));
+				Value = m_pClassify->Get_MetricToRelative(Value);
+				Color[Overlay[0]] = Value <= 0. ? 0 : Value >= 1. ? 255 : (BYTE)(255. * Value);
 
-				c[1]	= pOverlay[0] && pOverlay[0]->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255. * Scaler[0].to_Relative(Value)) : 255;
+				Value = pOverlay[0] && pOverlay[0]->Get_Value(xMap, yMap, Value, Resampling) ? Scaler[0].to_Relative(Value) : 1.;
+				Color[Overlay[1]] = Value <= 0. ? 0 : Value >= 1. ? 255 : (BYTE)(255. * Value);
 
-				c[2]	= pOverlay[1] && pOverlay[1]->Get_Value(xMap, yMap, Value, Resampling)
-						? (int)(255. * Scaler[1].to_Relative(Value)) : 255;
+				Value = pOverlay[1] && pOverlay[1]->Get_Value(xMap, yMap, Value, Resampling) ? Scaler[1].to_Relative(Value) : 1.;
+				Color[Overlay[2]] = Value <= 0. ? 0 : Value >= 1. ? 255 : (BYTE)(255. * Value);
 
-				if( c[0] < 0 ) c[0] = 0; else if( c[0] > 255 ) c[0] = 255;
-				if( c[1] < 0 ) c[1] = 0; else if( c[1] > 255 ) c[1] = 255;
-				if( c[2] < 0 ) c[2] = 0; else if( c[2] > 255 ) c[2] = 255;
-
-				switch( Overlay )
-				{
-				case 0:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[0], c[1], c[2]), Resampling));	break;
-				case 1:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[1], c[0], c[2]), Resampling));	break;
-				case 2:	dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, SG_GET_RGB(c[1], c[2], c[0]), Resampling));	break;
-				}
+				dc_Map.IMG_Set_Pixel(xDC, yDC, _Get_Shading(xMap, yMap, *(int *)Color, Resampling));
 			}
 		}
 	}
@@ -1562,6 +1590,15 @@ inline int CWKSP_Grid::_Get_Shading(int x, int y, int Color)
 		}
 	}
 
+	if( m_pAlpha )
+	{
+		double	Alpha;	TSG_Point	p	= Get_Grid()->Get_System().Get_Grid_to_World(x, y);
+
+		Alpha	= m_pAlpha->Get_Value(p, Alpha) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
+
+		((BYTE *)&Color)[3] = Alpha <= 0. ? 0 : Alpha >= 255. ? 255 : (BYTE)Alpha;
+	}
+
 	return( Color );
 }
 
@@ -1578,6 +1615,15 @@ inline int CWKSP_Grid::_Get_Shading(double x, double y, int Color, TSG_Grid_Resa
 
 			_Set_Shading(acos(sin(s) * m_Shade_Parms[1] + cos(s) * m_Shade_Parms[2] * cos(a - m_Shade_Parms[3])), Color);
 		}
+	}
+
+	if( m_pAlpha )
+	{
+		double	Alpha;
+		
+		Alpha	= m_pAlpha->Get_Value(x, y, Alpha, Resampling) ? (Alpha - m_Alpha[0]) * m_Alpha[1] : 1.;
+
+		((BYTE *)&Color)[3] = Alpha <= 0. ? 0 : Alpha >= 255. ? 255 : (BYTE)Alpha;
 	}
 
 	return( Color );

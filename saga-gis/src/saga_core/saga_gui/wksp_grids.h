@@ -109,7 +109,7 @@ protected:
 	bool						Get_Image_Grid			(wxBitmap &BMP, bool bFitSize = true);
 	bool						Get_Image_Legend		(wxBitmap &BMP, double Zoom);
 
-	bool						Set_Grid_Choices		(CSG_Parameters *pParameters, bool bInitialize);
+	bool						Set_Grid_Choices		(CSG_Parameters *pParameters);
 
 	virtual void				On_Create_Parameters	(void);
 	virtual void				On_DataObject_Changed	(void);
