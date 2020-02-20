@@ -91,7 +91,7 @@ private:
 
 	//-----------------------------------------------------
 	void					Get_SubMatrix3x3		(int x, int y, double Z[ 9], int Orientation = 0);
-	void					Get_SubMatrix5x5		(int x, int y, double Z[25]);
+	void					Get_SubMatrix5x5		(int x, int y, double Z[25], int Orientation = 0);
 
 	//-----------------------------------------------------
 	void					Set_NoData				(int x, int y);
@@ -108,6 +108,7 @@ private:
 	void					Set_BRM					(int x, int y);
 	void					Set_Zevenbergen			(int x, int y);
 	void					Set_Haralick			(int x, int y);
+	void					Set_Florinsky			(int x, int y);
 
 };
 
