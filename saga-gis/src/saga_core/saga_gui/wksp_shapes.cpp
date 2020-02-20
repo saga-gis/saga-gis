@@ -811,7 +811,7 @@ void CWKSP_Shapes::_LUT_Create(void)
 
 	AttributeList_Set(PStatic("FIELD"), false);
 
-	CSG_Parameters	Parameters(_TL("Classify"), _TL(""), SG_T("CLASSIFY"));
+	CSG_Parameters	Parameters(this, _TL("Classify"), _TL(""), SG_T("CLASSIFY"));
 
 	Parameters.Assign_Parameters(&PStatic);
 
