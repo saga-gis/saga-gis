@@ -318,7 +318,7 @@ int CWKSP_Base_Item::Parameter_Callback(CSG_Parameter *pParameter, int Flags)
 	{
 		CWKSP_Base_Item	*pItem	= (CWKSP_Base_Item *)pParameters->Get_Owner();
 
-		if( pItem->GetId().IsOk() )
+		if( pItem && pItem->GetId().IsOk() )
 		{
 			return( pItem->On_Parameter_Changed(pParameters, pParameter, Flags) );
 		}
