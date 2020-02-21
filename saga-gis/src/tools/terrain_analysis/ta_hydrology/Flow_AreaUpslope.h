@@ -94,13 +94,15 @@ private:
 
 	double					m_MFD_Converge;
 
-	CSG_Grid				*m_pDTM, *m_pRoute, *m_pFlow;
+	CSG_Grid				*m_pDEM, *m_pRoute, *m_pFlow;
 
 
 	void					Set_Value			(int x, int y);
 	void					Set_D8				(int x, int y);
 	void					Set_DInf			(int x, int y);
 	void					Set_MFD				(int x, int y);
+	void					Set_MDInf			(int x, int y);
+	void					Set_MMDGFD			(int x, int y);
 
 };
 
@@ -115,14 +117,16 @@ class CFlow_AreaUpslope_Interactive : public CSG_Tool_Grid_Interactive
 public:
 	CFlow_AreaUpslope_Interactive(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Flow Accumulation" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+	virtual bool			On_Execute_Finish		(void);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:
@@ -137,12 +141,14 @@ class CFlow_AreaUpslope_Area : public CSG_Tool_Grid
 public:
 	CFlow_AreaUpslope_Area(void);
 
-	virtual CSG_String		Get_MenuPath		(void)	{	return( _TL("Flow Accumulation" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:

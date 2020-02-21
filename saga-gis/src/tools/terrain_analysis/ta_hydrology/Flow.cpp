@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Flow.h"
 
 
@@ -85,9 +73,6 @@
 //---------------------------------------------------------
 CFlow::CFlow(void)
 {
-	m_bPoint	= false;
-
-	//-----------------------------------------------------
 	Parameters.Add_Grid("", "ELEVATION"    , _TL("Elevation"                        ), _TL(""), PARAMETER_INPUT);
 	Parameters.Add_Grid("", "SINKROUTE"    , _TL("Sink Routes"                      ), _TL(""), PARAMETER_INPUT_OPTIONAL);
 	Parameters.Add_Grid("", "WEIGHTS"      , _TL("Weights"                          ), _TL(""), PARAMETER_INPUT_OPTIONAL);
@@ -103,7 +88,6 @@ CFlow::CFlow(void)
 	Parameters.Add_Grid("", "ACCU_LEFT"    , _TL("Accumulated Material (Left Side)" ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
 	Parameters.Add_Grid("", "ACCU_RIGHT"   , _TL("Accumulated Material (Right Side)"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);		
 	
-	//-----------------------------------------------------
 	Parameters.Add_Int("",
 		"STEP"		, _TL("Step"),
 		_TL("For testing purposes. Only generate flow at cells with step distance (each step row/column)."),
@@ -113,11 +97,14 @@ CFlow::CFlow(void)
 	Parameters.Add_Choice("",
 		"FLOW_UNIT"	, _TL("Flow Accumulation Unit"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("number of cells"),
 			_TL("cell area")
 		), 1
 	);
+
+	//-----------------------------------------------------
+	m_bPoint	= false;
 }
 
 
@@ -166,7 +153,6 @@ int CFlow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 //---------------------------------------------------------
 bool CFlow::On_Execute(void)
 {
-	//-------------------------------------------------
 	m_pDTM				= Parameters("ELEVATION"    )->asGrid();
 	m_pRoute			= Parameters("SINKROUTE"    )->asGrid();
 	m_pWeights			= Parameters("WEIGHTS"      )->asGrid();
@@ -198,12 +184,12 @@ bool CFlow::On_Execute(void)
 	//-----------------------------------------------------
 	On_Initialize();
 
-	SET_GRID_TO(m_pFlow       , 0.0);
-	SET_GRID_TO(m_pFlow_Length, 0.0);
-	SET_GRID_TO(m_pVal_Mean   , 0.0);
-	SET_GRID_TO(m_pAccu_Total , 1.0);
-	SET_GRID_TO(m_pAccu_Left  , 1.0);
-	SET_GRID_TO(m_pAccu_Right , 1.0);
+	SET_GRID_TO(m_pFlow       , 0.);
+	SET_GRID_TO(m_pFlow_Length, 0.);
+	SET_GRID_TO(m_pVal_Mean   , 0.);
+	SET_GRID_TO(m_pAccu_Total , 1.);
+	SET_GRID_TO(m_pAccu_Left  , 1.);
+	SET_GRID_TO(m_pAccu_Right , 1.);
 
 	DataObject_Set_Colors   (m_pFlow, 11, SG_COLORS_WHITE_BLUE);
 	DataObject_Set_Parameter(m_pFlow, "METRIC_SCALE_MODE",   1);	// increasing geometrical intervals
@@ -220,7 +206,7 @@ bool CFlow::On_Execute(void)
 
 			On_Finalize();
 
-			m_pFlow->Multiply(100.0);	// output as percentage
+			m_pFlow->Multiply(100.);	// output as percentage
 
 			return( true );
 		}
@@ -256,7 +242,7 @@ bool CFlow::On_Execute(void)
 //---------------------------------------------------------
 void CFlow::Init_Cell(int x, int y)
 {
-	double	Weight	= !m_pWeights ? 1.0 : m_pWeights->is_NoData(x, y) ? 0.0 : m_pWeights->asDouble(x, y);
+	double	Weight	= !m_pWeights ? 1. : m_pWeights->is_NoData(x, y) ? 0. : m_pWeights->asDouble(x, y);
 
 	ADD_GRID_CELL_VAL(x, y, m_pFlow, Weight);
 
@@ -265,7 +251,7 @@ void CFlow::Init_Cell(int x, int y)
 		ADD_GRID_CELL_VAL(x, y, m_pVal_Mean, Weight * m_pVal_Input->asDouble(x, y));
 	}
 
-	Weight	*= m_pAccu_Material ? m_pAccu_Material->asDouble(x, y) : 1.0;
+	Weight	*= m_pAccu_Material ? m_pAccu_Material->asDouble(x, y) : 1.;
 
 	SET_GRID_CELL_VAL(x, y, m_pAccu_Total, Weight);
 	SET_GRID_CELL_VAL(x, y, m_pAccu_Left , Weight);
@@ -274,8 +260,6 @@ void CFlow::Init_Cell(int x, int y)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -306,15 +290,15 @@ void CFlow::_Finalize(void)
 				m_pFlow->Set_Value(n, Flow * Get_Cellarea());
 			}
 
-			if( Flow > 0.0 )
+			if( Flow > 0. )
 			{
-				if( m_pFlow_Length )	{	m_pFlow_Length->Mul_Value(n, 1.0 / Flow);	}
-				if( m_pVal_Mean    )	{	m_pVal_Mean   ->Mul_Value(n, 1.0 / Flow);	}
+				if( m_pFlow_Length )	{	m_pFlow_Length->Mul_Value(n, 1. / Flow);	}
+				if( m_pVal_Mean    )	{	m_pVal_Mean   ->Mul_Value(n, 1. / Flow);	}
 			}
 			else
 			{
-				if( m_pFlow_Length )	{	m_pFlow_Length->Set_Value(n, 0.0);	}
-				if( m_pVal_Mean    )	{	m_pVal_Mean   ->Set_Value(n, 0.0);	}
+				if( m_pFlow_Length )	{	m_pFlow_Length->Set_Value(n, 0.);	}
+				if( m_pVal_Mean    )	{	m_pVal_Mean   ->Set_Value(n, 0.);	}
 			}
 
 			//---------------------------------------------
@@ -327,8 +311,8 @@ void CFlow::_Finalize(void)
 				}
 				else
 				{
-					double	Material	= m_pAccu_Material ? m_pAccu_Material->asDouble(n) : 1.0;
-					double	Weight		= !m_pWeights ? 1.0 : m_pWeights->is_NoData(n) ? 0.0 : m_pWeights->asDouble(n);
+					double	Material	= m_pAccu_Material ? m_pAccu_Material->asDouble(n) : 1.;
+					double	Weight		= !m_pWeights ? 1. : m_pWeights->is_NoData(n) ? 0. : m_pWeights->asDouble(n);
 
 					if( m_pAccu_Left  )	{	m_pAccu_Left ->Add_Value(n, - 0.5 * Weight * Material);	}
 					if( m_pAccu_Right )	{	m_pAccu_Right->Add_Value(n, - 0.5 * Weight * Material);	}
@@ -585,18 +569,18 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 	// Write the direction of the flow line as vector:
 	FL_Vec[0]	= Get_xTo( FL_Dir );
 	FL_Vec[1]	= Get_yTo( FL_Dir );
-	FL_Vec[2]	= 0.0; //z-component is normally 0
+	FL_Vec[2]	= 0.; //z-component is normally 0
 	
 	// Write the streamflow directon as vector:
 	stream1_Vec[0]		= Get_xTo( stream1_Dir );
 	stream1_Vec[1]		= Get_yTo( stream1_Dir );
-	stream1_Vec[2]		= 0.0;//z-component is normally 0
+	stream1_Vec[2]		= 0.;//z-component is normally 0
 
 	// Initialize the upstream streamflow direction vector
 	// and set all components to zero 
-	stream2_Vec[0]		= 0.0;
-	stream2_Vec[1]		= 0.0;
-	stream2_Vec[2]		= 0.0;
+	stream2_Vec[0]		= 0.;
+	stream2_Vec[1]		= 0.;
+	stream2_Vec[2]		= 0.;
 	
 	// Calculate the scalar product
 	SP					= FL_Vec[0] * stream1_Vec[0] + FL_Vec[1] * stream1_Vec[1];
@@ -664,7 +648,7 @@ void CFlow::Find_Sides(int x, int y, int Direction, bool &left, bool &right)
 						// Convert the upstream streamflow direction to a vector
 						stream2_Vec[0]	= Get_xTo( stream2_Dir );
 						stream2_Vec[1]	= Get_yTo( stream2_Dir );
-						stream2_Vec[2]	= 0.0;
+						stream2_Vec[2]	= 0.;
 						
 						//Calculate only z-component of the vector-cross-product
 						Zcp_b			= FL_Vec[0]*stream2_Vec[1] - FL_Vec[1]*stream2_Vec[0];

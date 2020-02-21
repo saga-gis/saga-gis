@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_AreaDownslope.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                37077 Goettingen                       //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -154,7 +142,7 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s",
 			_TL("Deterministic 8"),
 			_TL("Rho 8"),
 			_TL("Braunschweiger Reliefmodell"),
@@ -174,7 +162,9 @@ CFlow_AreaDownslope::CFlow_AreaDownslope(void)
 	);
 
 	//-----------------------------------------------------
-	pFlow	= NULL;
+	Set_Drag_Mode(TOOL_INTERACTIVE_DRAG_NONE);
+
+	m_pTool	= NULL;
 }
 
 //---------------------------------------------------------
@@ -189,77 +179,94 @@ CFlow_AreaDownslope::~CFlow_AreaDownslope(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CFlow_AreaDownslope::On_Execute(void)
+int CFlow_AreaDownslope::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	CSG_Parameters	*pParameters;
-
-	if( On_Execute_Finish() )
+	if( pParameter->Cmp_Identifier("METHOD") )
 	{
-		switch( Parameters("METHOD")->asInt() )
-		{
-		// Parallel...
-		case 0:	// Deterministic 8...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(0.0);
-			break;
-
-		case 1:	// Rho 8...
-			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(0.0);
-			break;
-
-		case 2:	// BRM...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(2);
-			break;
-
-		case 3:	// Deterministic Infinity...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(3);
-			break;
-
-		case 4:	// MFD...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(4);
-			break;
-
-		case 5:	// Triangular MFD...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(5);
-			break;
-
-		case 6:	// Multiple Maximum Downslope Gradient Based Flow Directon...
-			pFlow	= new CFlow_Parallel;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(6);
-			break;
-
-		// Downward Recursive...
-		case 7:	// KRA...
-			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(1);
-			break;
-
-		case 8:	// DEMON...
-			pFlow	= new CFlow_RecursiveDown;
-			pFlow->Get_Parameters()->Get_Parameter("METHOD")->Set_Value(2);
-			//pFlow->Parameters(DEMON_minDQV)-Set_Value(0)	 = 0;
-			break;
-		}
-
-		//-------------------------------------------------
-		if( pFlow )
-		{
-			pParameters	= pFlow->Get_Parameters();
-
-			pFlow->Set_System(Parameters("ELEVATION")->asGrid()->Get_System());
-
-			pParameters->Get_Parameter("ELEVATION")->Set_Value(Parameters("ELEVATION")->asGrid());
-			pParameters->Get_Parameter("SINKROUTE")->Set_Value(Parameters("SINKROUTE")->asGrid());
-			pParameters->Get_Parameter("FLOW"     )->Set_Value(Parameters("AREA"     )->asGrid());
-		}
+		pParameters->Set_Enabled("CONVERG", pParameter->asInt() == 4 || pParameter->asInt() == 5);
 	}
 
-	return( pFlow != NULL );
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool CFlow_AreaDownslope::On_Execute(void)
+{
+	On_Execute_Finish();
+
+	switch( Parameters("METHOD")->asInt() )
+	{
+	case 0:	// Deterministic 8...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 0.);
+		break;
+
+	case 1:	// Rho 8...
+		m_pTool	= new CFlow_RecursiveDown;
+		m_pTool->Set_Parameter("METHOD", 0.);
+		break;
+
+	case 2:	// BRM...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 2);
+		break;
+
+	case 3:	// Deterministic Infinity...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 3);
+		break;
+
+	case 4:	// MFD...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 4);
+		break;
+
+	case 5:	// Triangular MFD...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 5);
+		break;
+
+	case 6:	// Multiple Maximum Downslope Gradient Based Flow Directon...
+		m_pTool	= new CFlow_Parallel;
+		m_pTool->Set_Parameter("METHOD", 6);
+		break;
+
+	case 7:	// KRA...
+		m_pTool	= new CFlow_RecursiveDown;
+		m_pTool->Set_Parameter("METHOD", 1);
+		break;
+
+	case 8:	// DEMON...
+		m_pTool	= new CFlow_RecursiveDown;
+		m_pTool->Set_Parameter("METHOD", 2);
+		break;
+	}
+
+	//-----------------------------------------------------
+	if( m_pTool )
+	{
+		m_pTool->Set_Manager(NULL);
+
+		m_pTool->Set_System(Parameters("ELEVATION")->asGrid()->Get_System());
+
+		m_Weights.Create(m_pTool->Get_System(), SG_DATATYPE_Byte);
+
+		m_pTool->Set_Parameter("WEIGHTS"    , &m_Weights);
+		m_pTool->Set_Parameter("ELEVATION"  , Parameters("ELEVATION")->asGrid  ());
+		m_pTool->Set_Parameter("SINKROUTE"  , Parameters("SINKROUTE")->asGrid  ());
+		m_pTool->Set_Parameter("FLOW"       , Parameters("AREA"     )->asGrid  ());
+		m_pTool->Set_Parameter("CONVERGENCE", Parameters("CONVERG"  )->asDouble());
+
+		DataObject_Set_Colors(Parameters("AREA")->asGrid(), 11, SG_COLORS_WHITE_BLUE);
+		DataObject_Update    (Parameters("AREA")->asGrid(), SG_UI_DATAOBJECT_SHOW);
+	}
+
+	return( m_pTool != NULL );
 }
 
 
@@ -270,28 +277,42 @@ bool CFlow_AreaDownslope::On_Execute(void)
 //---------------------------------------------------------
 bool CFlow_AreaDownslope::On_Execute_Finish(void)
 {
-	if( pFlow )
-	{
-		delete( pFlow );
+	m_Weights.Destroy();
 
-		pFlow	= NULL;
+	if( m_pTool )
+	{
+		delete(m_pTool);
+
+		m_pTool	= NULL;
 	}
 
-	return( pFlow == NULL );
+	return( true );
 }
 
 //---------------------------------------------------------
 bool CFlow_AreaDownslope::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
 {
-	if( pFlow && Mode == TOOL_INTERACTIVE_LDOWN )
+	if( m_pTool && Get_System().Get_Extent().Contains(ptWorld) )
 	{
-		pFlow->Set_Point(Get_xGrid(), Get_yGrid());
+		switch( Mode )
+		{
+		case TOOL_INTERACTIVE_LDOWN:
+			m_Weights.Assign(0.);
+			m_Weights.Set_Value(Get_xGrid(), Get_yGrid(), 1.);
+			break;
 
-		pFlow->Execute();
+		case TOOL_INTERACTIVE_MOVE_LDOWN:
+			m_Weights.Set_Value(Get_xGrid(), Get_yGrid(), 1.);
+			break;
 
-		DataObject_Update(Parameters("AREA")->asGrid(), 0.0, 100.0, true);
-
-		return( true );
+		case TOOL_INTERACTIVE_LUP:
+			m_Weights.Set_Value(Get_xGrid(), Get_yGrid(), 1.);
+			SG_UI_ProgressAndMsg_Lock(true);
+			m_pTool->Execute();
+			SG_UI_ProgressAndMsg_Lock(false);
+			DataObject_Update(Parameters("AREA")->asGrid());
+			break;
+		}
 	}
 
 	return( false );

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Flow_AreaDownslope.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Flow_AreaDownslope_H
 #define HEADER_INCLUDED__Flow_AreaDownslope_H
 
@@ -87,19 +75,23 @@ public:
 	CFlow_AreaDownslope(void);
 	virtual ~CFlow_AreaDownslope(void);
 
-	virtual CSG_String		Get_MenuPath	(void)	{	return( _TL("Flow Accumulation" ));	}
+	virtual CSG_String		Get_MenuPath			(void)	{	return( _TL("Flow Accumulation" ));	}
 
 
 protected:
 
-	virtual bool			On_Execute			(void);
-	virtual bool			On_Execute_Finish	(void);
-	virtual bool			On_Execute_Position	(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+	virtual bool			On_Execute_Finish		(void);
+	virtual bool			On_Execute_Position		(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode);
 
 
 private:
 
-	CFlow					*pFlow;
+	CSG_Grid				m_Weights;
+
+	CFlow					*m_pTool;
 
 };
 

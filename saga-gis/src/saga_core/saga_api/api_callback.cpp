@@ -557,7 +557,7 @@ bool		SG_UI_DataObject_Params_Get	(CSG_Data_Object *pDataObject, CSG_Parameters 
 //---------------------------------------------------------
 bool		SG_UI_DataObject_Params_Set	(CSG_Data_Object *pDataObject, CSG_Parameters *pParameters)
 {
-	if( gSG_UI_Callback && pDataObject && pParameters )
+	if( gSG_UI_Progress_Lock == 0 && gSG_UI_Callback && pDataObject && pParameters )
 	{
 		CSG_UI_Parameter	p1(pDataObject), p2(pParameters);
 
