@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -48,15 +45,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -416,13 +404,13 @@ CSAGA_Frame::~CSAGA_Frame(void)
 	//-----------------------------------------------------
 	On_Child_Activates(-1);
 
-	delete(m_pMN_Table);
-	delete(m_pMN_Diagram);
-	delete(m_pMN_Map);
-	delete(m_pMN_Map_3D);
-	delete(m_pMN_Histogram);
+	delete(m_pMN_Table      );
+	delete(m_pMN_Diagram    );
+	delete(m_pMN_Map        );
+	delete(m_pMN_Map_3D     );
+	delete(m_pMN_Histogram  );
 	delete(m_pMN_ScatterPlot);
-	delete(m_pMN_Layout);
+	delete(m_pMN_Layout     );
 
 	//-----------------------------------------------------
 	if( m_pTopWindows )
@@ -445,31 +433,42 @@ CSAGA_Frame::~CSAGA_Frame(void)
 //---------------------------------------------------------
 void CSAGA_Frame::On_Close(wxCloseEvent &event)
 {
-	if( event.CanVeto() )
-	{
-		if( !g_pTool && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
-		{
-			g_pTools->Finalise();
-
-			Destroy();
-		}
-		else
-		{
-			if( g_pTool )
-			{
-				DLG_Message_Show(_TL("Please stop tool execution before exiting SAGA."), _TL("Exit SAGA"));
-			}
-
-			event.Veto();
-		}
-	}
-	else
+	if( event.CanVeto() == false )
 	{
 		g_pTools->Finalise();
 
 		g_pData->Close(true);
 
 		event.Skip();
+
+		return;
+	}
+
+	if( g_pTool )
+	{
+		if( g_pTool->is_Executing() )
+		{
+			DLG_Message_Show(wxString::Format("[%s]\n%s", g_pTool->Get_Name().c_str(),
+				_TL("Please wait until the tool has terminated its execution.")), _TL("Exit SAGA")
+			);
+
+			event.Veto();
+
+			return;
+		}
+
+		g_pTool->Execute(false);
+	}
+
+	if( !g_pTool && DLG_Message_Confirm(ID_DLG_CLOSE) && g_pData->Finalise() && g_pData->Close(true) )
+	{
+		g_pTools->Finalise();
+
+		Destroy();
+	}
+	else
+	{
+		event.Veto();
 	}
 }
 
