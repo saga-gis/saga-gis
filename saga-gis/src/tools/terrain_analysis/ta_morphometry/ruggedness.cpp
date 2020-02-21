@@ -69,7 +69,7 @@ CRuggedness_TRI::CRuggedness_TRI(void)
 	Add_Reference("Riley, S.J., De Gloria, S.D., Elliot, R.", "1999",
 		"A Terrain Ruggedness that Quantifies Topographic Heterogeneity",
 		"Intermountain Journal of Science, Vol.5, No.1-4, pp.23-27.",
-		SG_T("http://www.fw.msu.edu/~rileysh2/Terrain%20Ruggedness%20Index.pdf"), SG_T("online")
+		SG_T("http://download.osgeo.org/qgis/doc/reference-docs/Terrain_Ruggedness_Index.pdf"), SG_T("online")
 	);
 
 	//-----------------------------------------------------
@@ -214,7 +214,7 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 	Add_Reference("Sappington, J.M., Longshore, K.M., Thompson, D.B.", "2007",
 		"Quantifying Landscape Ruggedness for Animal Habitat Analysis: A Case Study Using Bighorn Sheep in the Mojave Desert",
 		"Journal of Wildlife Management 71(5):1419–1426.",
-		SG_T("http://onlinelibrary.wiley.com/doi/10.2193/2005-723/abstract"), SG_T("online")
+		SG_T("https://wildlife.onlinelibrary.wiley.com/doi/abs/10.2193/2005-723"), SG_T("online")
 	);
 
 	//-----------------------------------------------------
@@ -233,7 +233,7 @@ CRuggedness_VRM::CRuggedness_VRM(void)
 	Parameters.Add_Choice(
 		"", "MODE"		, _TL("Search Mode"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Square"),
 			_TL("Circle")
 		), 1
