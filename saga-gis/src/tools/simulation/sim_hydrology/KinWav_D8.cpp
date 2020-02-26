@@ -234,7 +234,7 @@ int CKinWav_D8::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter 
 
 	if( pParameter->Cmp_Identifier("GAUGES_FLOW") )
 	{
-		pParameters->Set_Enabled("GAUGES"     , pParameter->asTable() != NULL);
+		pParameters->Set_Enabled("GAUGES"     , pParameter->asPointer() != NULL);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -848,6 +848,8 @@ bool CKinWav_D8::Gauges_Initialise(void)
 				}
 			}
 		}
+
+		DataObject_Update(m_pGauges);
 	}
 
 	//-----------------------------------------------------
