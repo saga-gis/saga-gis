@@ -1826,7 +1826,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 		}
 
 		//-------------------------------------------------
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
 
 		if(	pTool != NULL )
 		{
@@ -1853,7 +1853,7 @@ bool CSG_Grids::_Load_PGSQL(const CSG_String &FileName)
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 30)) != NULL) == true )	// CPGIS_Raster_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 30, true)) != NULL) == true )	// CPGIS_Raster_Load
 			{
 				CSG_Data_Manager	Grids;
 

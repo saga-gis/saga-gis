@@ -236,7 +236,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 		s	= s.AfterFirst(':');	CSG_String	DBName(s.BeforeFirst(':'));
 		s	= s.AfterFirst(':');	CSG_String	Table (s.BeforeFirst(':'));
 
-		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0);	// CGet_Connections
+		CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 0, true);	// CGet_Connections
 
 		if(	pTool != NULL )
 		{
@@ -263,7 +263,7 @@ bool CSG_Shapes::Create(const CSG_String &File_Name)
 			SG_Get_Tool_Library_Manager().Delete_Tool(pTool);
 
 			//---------------------------------------------
-			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20)) != NULL) == true )	// CPGIS_Shapes_Load
+			if( bResult && (bResult = (pTool = SG_Get_Tool_Library_Manager().Create_Tool("db_pgsql", 20, true)) != NULL) == true )	// CPGIS_Shapes_Load
 			{
 				pTool->Set_Manager(NULL);
 				pTool->On_Before_Execution();
