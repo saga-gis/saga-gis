@@ -83,7 +83,7 @@ CSG_String Get_Info(int i)
 
 #include "grid_levels_interpolation.h"
 #include "milankovic.h"
-#include "etp_hargreave.h"
+#include "evapotranspiration.h"
 #include "daily_sun.h"
 #include "bioclimatic_vars.h"
 #include "treeline.h"
@@ -114,9 +114,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  4:	return( new CMilankovic_SR_Day_Location );
 	case  5:	return( new CMilankovic_SR_Monthly_Global );
 
-	case  8:	return( new CPET_Hargreave_Grid );
-	case  6:	return( new CPET_Hargreave_Table );
-	case  7:	return( new CPET_Day_To_Hour );
+	case  7:	return( new CETpot_Day_To_Hour );
+	case  6:	return( new CETpot_Table );
+	case  8:	return( new CETpot_Grid );
 
 	case  9:	return( new CDaily_Sun );
 

@@ -306,7 +306,7 @@
     <ClCompile Include="climate_tools.cpp" />
     <ClCompile Include="cloud_overlap.cpp" />
     <ClCompile Include="daily_sun.cpp" />
-    <ClCompile Include="etp_hargreave.cpp" />
+    <ClCompile Include="evapotranspiration.cpp" />
     <ClCompile Include="frost_change_frequency.cpp" />
     <ClCompile Include="grid_levels_interpolation.cpp" />
     <ClCompile Include="growing_degree_days.cpp" />
@@ -341,7 +341,7 @@
     <ClInclude Include="climate_tools.h" />
     <ClInclude Include="cloud_overlap.h" />
     <ClInclude Include="daily_sun.h" />
-    <ClInclude Include="etp_hargreave.h" />
+    <ClInclude Include="evapotranspiration.h" />
     <ClInclude Include="frost_change_frequency.h" />
     <ClInclude Include="grid_levels_interpolation.h" />
     <ClInclude Include="growing_degree_days.h" />

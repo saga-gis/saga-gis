@@ -10,7 +10,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    etp_hargreave.h                    //
+//                 evapotranspiration.h                  //
 //                                                       //
 //                 Copyright (C) 2011 by                 //
 //                      Olaf Conrad                      //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__etp_hargreave_H
-#define HEADER_INCLUDED__etp_hargreave_H
+#ifndef HEADER_INCLUDED__evapotranspiration_H
+#define HEADER_INCLUDED__evapotranspiration_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,10 +67,30 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Grid : public CSG_Tool_Grid
+class CETpot_Day_To_Hour : public CSG_Tool
 {
 public:
-	CPET_Hargreave_Grid(void);
+	CETpot_Day_To_Hour(void);
+
+	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
+
+
+protected:
+
+	virtual bool		On_Execute				(void);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class CETpot_Table : public CSG_Tool
+{
+public:
+	CETpot_Table(void);
 
 	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
 
@@ -89,35 +109,17 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CPET_Hargreave_Table : public CSG_Tool
+class CETpot_Grid : public CSG_Tool_Grid
 {
 public:
-	CPET_Hargreave_Table(void);
+	CETpot_Grid(void);
 
 	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
 
 
 protected:
 
-	virtual bool		On_Execute				(void);
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CPET_Day_To_Hour : public CSG_Tool
-{
-public:
-	CPET_Day_To_Hour(void);
-
-	virtual CSG_String	Get_MenuPath			(void)	{	return( _TL("Evapotranspiration") );	}
-
-
-protected:
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 	virtual bool		On_Execute				(void);
 
@@ -131,4 +133,4 @@ protected:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__etp_hargreave_H
+#endif // #ifndef HEADER_INCLUDED__evapotranspiration_H

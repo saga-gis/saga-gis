@@ -16,7 +16,7 @@ climate_classification.cpp\
 climate_tools.cpp\
 cloud_overlap.cpp\
 daily_sun.cpp\
-etp_hargreave.cpp\
+evapotranspiration.cpp\
 frost_change_frequency.cpp\
 grid_levels_interpolation.cpp\
 growing_degree_days.cpp\
@@ -34,7 +34,7 @@ climate_classification.h\
 climate_tools.h\
 cloud_overlap.h\
 daily_sun.h\
-etp_hargreave.h\
+evapotranspiration.h\
 frost_change_frequency.h\
 grid_levels_interpolation.h\
 growing_degree_days.h\
