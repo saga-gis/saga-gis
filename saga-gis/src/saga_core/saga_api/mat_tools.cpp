@@ -1001,43 +1001,25 @@ TSG_Data_Type CSG_Category_Statistics::Get_Category_Type(void)	const
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(int Value)	const
 {
-	for(int i=0; i<m_pTable->Get_Count(); i++)
-	{
-		if( Value == m_pTable->Get_Record_byIndex(i)->asInt(0) )
-		{
-			return( i );
-		}
-	}
+	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( -1 );
+	return( pRecord ? pRecord->Get_Index() : -1);
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(double Value)	const
 {
-	for(int i=0; i<m_pTable->Get_Count(); i++)
-	{
-		if( Value == m_pTable->Get_Record_byIndex(i)->asDouble(0) )
-		{
-			return( i );
-		}
-	}
+	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( -1 );
+	return( pRecord ? pRecord->Get_Index() : -1);
 }
 
 //---------------------------------------------------------
 int CSG_Category_Statistics::Get_Category(const CSG_String &Value)	const
 {
-	for(int i=0; i<m_pTable->Get_Count(); i++)
-	{
-		if( Value.Cmp(m_pTable->Get_Record_byIndex(i)->asString(0)) == 0 )
-		{
-			return( i );
-		}
-	}
+	CSG_Table_Record	*pRecord	= m_pTable->Find_Record(0, Value, m_pTable->Get_Count() > 10);
 
-	return( -1 );
+	return( pRecord ? pRecord->Get_Index() : -1);
 }
 
 
