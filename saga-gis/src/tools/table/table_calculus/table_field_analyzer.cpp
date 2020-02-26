@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: table_field_analyzer.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_field_analyzer.h"
 
 
@@ -70,12 +58,9 @@
 //---------------------------------------------------------
 CTable_Field_Extreme::CTable_Field_Extreme(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Find Field of Extreme Value"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2013"));
+	Set_Author		("O.Conrad (c) 2013");
 
 	Set_Description	(_TW(
 		"Identifies from the selected attributes that one, "
@@ -83,48 +68,48 @@ CTable_Field_Extreme::CTable_Field_Extreme(void)
 	));
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Table(
-		NULL	, "INPUT"			, _TL("Input"),
+	Parameters.Add_Table("",
+		"INPUT"			, _TL("Input"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"			, _TL("Attributes"),
+	Parameters.Add_Table_Fields("INPUT",
+		"FIELDS"		, _TL("Attributes"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "EXTREME_ID"		, _TL("Attribute"),
+	Parameters.Add_Table_Field("INPUT",
+		"EXTREME_ID"	, _TL("Attribute"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "EXTREME_VALUE"	, _TL("Value"),
+	Parameters.Add_Table_Field("INPUT",
+		"EXTREME_VALUE"	, _TL("Value"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "OUTPUT"			, _TL("Output"),
+	Parameters.Add_Table("",
+		"OUTPUT"		, _TL("Output"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "TYPE"			, _TL("TYPE"),
+	Parameters.Add_Choice("",
+		"TYPE"			, _TL("TYPE"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("minimum"),
 			_TL("maximum")
 		), 1
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "IDENTIFY"		, _TL("Attribute Identification"),
+	Parameters.Add_Choice("",
+		"IDENTIFY"		, _TL("Attribute Identification"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("name"),
 			_TL("index")
 		), 0

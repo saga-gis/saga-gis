@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="confusion_matrix.cpp" />
     <ClCompile Include="Fit.cpp" />
     <ClCompile Include="LMFit.cpp" />
     <ClCompile Include="MLB_Interface.cpp">
@@ -331,9 +332,9 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="confusion_matrix.h" />
     <ClInclude Include="Fit.h" />
     <ClInclude Include="LMFit.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />

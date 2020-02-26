@@ -53,11 +53,11 @@
     <ClCompile Include="table_aggregate_by_field.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="confusion_matrix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MLB_Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
       <Filter>Include</Filter>
     </ClInclude>
@@ -143,6 +143,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="table_aggregate_by_field.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="confusion_matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

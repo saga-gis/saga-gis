@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libtable_calculus.la
 libtable_calculus_la_SOURCES =\
+confusion_matrix.cpp\
 Fit.cpp\
 LMFit.cpp\
 MLB_Interface.cpp\
@@ -24,6 +25,7 @@ table_mRMR.cpp\
 table_pca.cpp\
 table_record_statistics.cpp\
 table_running_average.cpp\
+confusion_matrix.h\
 Fit.h\
 LMFit.h\
 MLB_Interface.h\

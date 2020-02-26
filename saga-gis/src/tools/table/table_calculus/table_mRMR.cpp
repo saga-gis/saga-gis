@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: mrmr.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_mRMR.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CTable_mRMR::CTable_mRMR(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Minimum Redundancy Feature Selection"));
 
 	Set_Author		("O.Conrad (c) 2014");
@@ -81,27 +68,27 @@ CTable_mRMR::CTable_mRMR(void)
 	) + CSG_mRMR::Get_Description());
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_Table(
-		NULL	, "DATA"		, _TL("Data"),
+	Parameters.Add_Table("",
+		"DATA"		, _TL("Data"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "CLASS"		, _TL("Class Identifier"),
+	Parameters.Add_Table_Field("DATA",
+		"CLASS"		, _TL("Class Identifier"),
 		_TL("")
 	);
 
-	Parameters.Add_Table(
-		NULL	, "SELECTION"	, _TL("Feature Selection"),
+	Parameters.Add_Table("",
+		"SELECTION"	, _TL("Feature Selection"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "VERBOSE"		, _TL("Verbose Output"),
+	Parameters.Add_Bool("",
+		"VERBOSE"	, _TL("Verbose Output"),
 		_TL("output of intermediate results to execution message window"),
-		PARAMETER_TYPE_Bool, true
+		true
 	);
 
 	CSG_mRMR::Parameters_Add(&Parameters);
@@ -117,7 +104,7 @@ int CTable_mRMR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 {
 	CSG_mRMR::Parameters_Enable(pParameters, pParameter);
 
-	return( 1 );
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -128,7 +115,6 @@ int CTable_mRMR::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter
 //---------------------------------------------------------
 bool CTable_mRMR::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_mRMR	mRMR;
 
 	mRMR.Set_Verbose(Parameters("VERBOSE")->asBool());

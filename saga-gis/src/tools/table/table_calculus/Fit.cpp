@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -176,9 +173,6 @@ int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pPara
 
 	return( 0 );
 }
-
-CFit::~CFit(void)
-{}
 
 void FitFunc(double x, vector < double> ca, double &y, vector < double> &dyda, int na)
 {

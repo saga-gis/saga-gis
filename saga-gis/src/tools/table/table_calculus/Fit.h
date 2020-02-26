@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,6 +48,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__CFit_H
+#define HEADER_INCLUDED__CFit_H
 
 
 ///////////////////////////////////////////////////////////
@@ -60,11 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__CFit_H
-#define HEADER_INCLUDED__CFit_H
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -79,19 +74,23 @@ class CFit : public CSG_Tool
 {
 public:
 	CFit(void);
-	virtual ~CFit(void);
 
 
 protected:
 
-	virtual bool			On_Execute(void);
-	virtual int				On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool			On_Initialize_Parameters(void)	{	return( true );	}
-	virtual void			On_Finalize_Parameters(void)	{					}
+	virtual bool			On_Execute				(void);
 
-private:
 
 };
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 #endif // #ifndef HEADER_INCLUDED__CFit_H

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "table_cluster_analysis.h"
 
 
@@ -70,89 +58,80 @@
 //---------------------------------------------------------
 CTable_Cluster_Analysis::CTable_Cluster_Analysis(bool bShapes)
 {
-	m_bShapes	= bShapes;
-
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Author		("O. Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Cluster Analysis for tables.\n\nReferences:\n\n"
-		                                                                                                                                                                                                                  
-		"Iterative Minimum Distance:\n"
-		"- Forgy, E. (1965):\n"
-		"  'Cluster Analysis of multivariate data: efficiency vs. interpretability of classifications',\n"
-		"  Biometrics 21:768\n\n"
-
-		"Hill-Climbing:"
-		"- Rubin, J. (1967):\n"
-		"  'Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem',\n"
-		"  J. Theoretical Biology, 15:103-144\n\n"
+		"Cluster Analysis for tables."
 	));
 
+	Add_Reference("Forgy, E.", "1965",
+		"Cluster Analysis of multivariate data: efficiency vs. interpretability of classifications",
+		"Biometrics 21:768."
+	);
+
+	Add_Reference("Rubin, J.", "1967",
+		"Optimal Classification into Groups: An Approach for Solving the Taxonomy Problem",
+		"J. Theoretical Biology, 15:103-144."
+	);
+
 	//-----------------------------------------------------
-	if( m_bShapes )
+	if( (m_bShapes = bShapes) == true )
 	{
 		Set_Name		(_TL("Cluster Analysis (Shapes)"));
 
-		pNode	= 
-		Parameters.Add_Shapes(NULL, "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Shapes(NULL, "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Shapes("", "INPUT" , _TL("Shapes"), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Shapes("", "RESULT", _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 	else
 	{
 		Set_Name		(_TL("Cluster Analysis"));
 
-		pNode	=
-		Parameters.Add_Table(NULL, "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
-		Parameters.Add_Table(NULL, "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+		Parameters.Add_Table("", "INPUT"  , _TL("Table" ), _TL(""), PARAMETER_INPUT);
+		Parameters.Add_Table("", "RESULT" , _TL("Result"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
 	}
 
-	Parameters.Add_Table_Fields(
-		pNode	, "FIELDS"		, _TL("Attributes"),
+	Parameters.Add_Table_Fields("INPUT",
+		"FIELDS"		, _TL("Attributes"),
 		_TL("")
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "CLUSTER"		, _TL("Cluster"),
+	Parameters.Add_Table_Field("INPUT",
+		"CLUSTER"		, _TL("Cluster"),
 		_TL(""),
 		true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "STATISTICS"	, _TL("Statistics"),
+	Parameters.Add_Table("",
+		"STATISTICS"	, _TL("Statistics"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "METHOD"		, _TL("Method"),
+	Parameters.Add_Choice("",
+		"METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("Iterative Minimum Distance (Forgy 1965)"),
 			_TL("Hill-Climbing (Rubin 1967)"),
 			_TL("Combined Minimum Distance / Hillclimbing") 
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NCLUSTER"	, _TL("Clusters"),
-		_TL("Number of clusters"),
-		PARAMETER_TYPE_Int, 10, 2, true
+	Parameters.Add_Int("",
+		"NCLUSTER"	, _TL("Number of Clusters"),
+		_TL(""),
+		10, 2, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "NORMALISE"	, _TL("Normalise"),
-		_TL("Automatically normalise grids by standard deviation before clustering."),
-		PARAMETER_TYPE_Bool, false
+	Parameters.Add_Bool("",
+		"NORMALISE"	, _TL("Normalise"),
+		_TL(""),
+		false
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -280,8 +259,6 @@ bool CTable_Cluster_Analysis::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -300,7 +277,7 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 	pStatistics->Add_Field(_TL("Elements")	, SG_DATATYPE_Int);
 	pStatistics->Add_Field(_TL("Std.Dev.")	, SG_DATATYPE_Double);
 
-	s.Printf(SG_T("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s"),
+	s.Printf("\n%s:\t%ld \n%s:\t%d \n%s:\t%d \n%s:\t%f\n\n%s\t%s\t%s",
 		_TL("Number of Elements")		, Analysis.Get_nElements(),
 		_TL("Number of Variables")		, Analysis.Get_nFeatures(),
 		_TL("Number of Clusters")		, Analysis.Get_nClusters(),
@@ -310,7 +287,7 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 
 	for(iFeature=0; iFeature<Analysis.Get_nFeatures(); iFeature++)
 	{
-		s	+= CSG_String::Format(SG_T("\t%s"), pTable->Get_Field_Name(Features[iFeature]));
+		s	+= CSG_String::Format("\t%s", pTable->Get_Field_Name(Features[iFeature]));
 
 		pStatistics->Add_Field(pTable->Get_Field_Name(Features[iFeature]), SG_DATATYPE_Double);
 	}
@@ -319,7 +296,7 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 
 	for(iCluster=0; iCluster<Analysis.Get_nClusters(); iCluster++)
 	{
-		s.Printf(SG_T("\n%d\t%d\t%f"), iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
+		s.Printf("\n%d\t%d\t%f", iCluster, Analysis.Get_nMembers(iCluster), sqrt(Analysis.Get_Variance(iCluster)));
 
 		CSG_Table_Record	*pRecord	= pStatistics->Add_Record();
 
@@ -336,7 +313,7 @@ void CTable_Cluster_Analysis::Save_Statistics(CSG_Table *pTable, int *Features, 
 				Centroid	= pTable->Get_Mean(Features[iFeature]) + Centroid * pTable->Get_StdDev(Features[iFeature]);
 			}
 
-			s	+= CSG_String::Format(SG_T("\t%f"), Centroid);
+			s	+= CSG_String::Format("\t%f", Centroid);
 
 			pRecord->Set_Value(iFeature + 3, Centroid);
 		}

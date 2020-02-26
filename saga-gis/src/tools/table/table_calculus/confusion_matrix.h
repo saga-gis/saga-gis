@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,14 +6,14 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    Table_Calculus                     //
+//                    table_calculus                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    TLB_Interface.h                    //
+//                   confusion_matrix.h                  //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                    Andre Ringeler                     //
+//                 Copyright (C) 2020 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -39,46 +36,62 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     aringel@gwdg.de                        //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-//    contact:    Andre Ringeler                         //
+//    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__confusion_matrix_H
+#define HEADER_INCLUDED__confusion_matrix_H
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//				Include the SAGA-API here				 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__table_calculus_H
-#define HEADER_INCLUDED__table_calculus_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-//---------------------------------------------------------
-#ifdef table_calculus_EXPORTS
-	#define	table_calculus_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	table_calculus_EXPORT	_SAGA_DLL_IMPORT
-#endif
-
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+//                                                       //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__table_calculus_H
+class CConfusion_Matrix : public CSG_Tool
+{
+public:
+	CConfusion_Matrix(void);
+
+
+protected:
+
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
+
+
+private:
+
+	bool					Get_Quality				(CSG_Table &Confusion);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//                                                       //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__confusion_matrix_H
