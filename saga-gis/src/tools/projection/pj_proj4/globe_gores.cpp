@@ -102,6 +102,12 @@ CGlobe_Gores::CGlobe_Gores(void)
 		_TL("Number of cells/pixels from pole to pole (i.e. in North-South direction)."),
 		1000, 100, true
 	);
+
+	Parameters.Add_Bool("",
+		"BYTEWISE"	, _TL("Bytewise Interpolation"),
+		_TL("To be used for RGB and CMYK coded values (i.e. images)."),
+		false
+	);
 }
 
 
@@ -184,6 +190,7 @@ bool CGlobe_Gores::Add_Gore(int iGore, int nGores)
 	pTool->Set_Parameter("GRID"             , &Grid);
 	pTool->Set_Parameter("RESAMPLING"       , 3);	// B-Spline Interpolation
 	pTool->Set_Parameter("KEEP_TYPE"        , false);
+	pTool->Set_Parameter("BYTEWISE"         , Parameters("BYTEWISE"));
 	pTool->Set_Parameter("TARGET_AREA"      , false);
 	pTool->Set_Parameter("TARGET_DEFINITION", 1);
 

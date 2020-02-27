@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Georef_Grid.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CGeoref_Grid::CGeoref_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Rectify Grid"));
 
 	Set_Author		("O.Conrad (c) 2006");
@@ -262,13 +252,16 @@ bool CGeoref_Grid::Get_Conversion(void)
 
 	switch( Parameters("RESAMPLING")->asInt() )
 	{
-	default:	Resampling	= GRID_RESAMPLING_NearestNeighbour;	break;
-	case  1:	Resampling	= GRID_RESAMPLING_Bilinear;			break;
-	case  2:	Resampling	= GRID_RESAMPLING_BicubicSpline;	break;
-	case  3:	Resampling	= GRID_RESAMPLING_BSpline;			break;
+	default: Resampling = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: Resampling = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: Resampling = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: Resampling = GRID_RESAMPLING_BSpline         ; break;
 	}
 
-	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(Resampling == GRID_RESAMPLING_NearestNeighbour ? pSource->Get_Type() : SG_DATATYPE_Float);
+	CSG_Grid	*pReferenced	= m_Grid_Target.Get_Grid(
+		Resampling == GRID_RESAMPLING_NearestNeighbour || Parameters("BYTEWISE")->asBool()
+		? pSource->Get_Type() : SG_DATATYPE_Float
+	);
 
 	if( !pReferenced )
 	{
@@ -315,8 +308,8 @@ bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
 	//-----------------------------------------------------
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	Extent.m_rect.xMin	= Extent.m_rect.yMin	= 1.0;
-	Extent.m_rect.xMax	= Extent.m_rect.yMax	= 0.0;
+	Extent.m_rect.xMin	= Extent.m_rect.yMin	= 1.;
+	Extent.m_rect.xMax	= Extent.m_rect.yMax	= 0.;
 
 	//-----------------------------------------------------
 	if( bEdge )
@@ -351,7 +344,7 @@ bool CGeoref_Grid::Get_Target_Extent(CSG_Rect &Extent, bool bEdge)
 		}
 	}
 
-	return( is_Progress() && Extent.Get_XRange() > 0.0 && Extent.Get_YRange() > 0.0 );
+	return( is_Progress() && Extent.Get_XRange() > 0. && Extent.Get_YRange() > 0. );
 }
 
 //---------------------------------------------------------
@@ -359,7 +352,7 @@ inline void CGeoref_Grid::Add_Target_Extent(CSG_Rect &Extent, double x, double y
 {
 	if( m_Engine.Get_Converted(x, y) )
 	{
-		if( Extent.Get_XRange() >= 0.0 && Extent.Get_YRange() >= 0.0 )
+		if( Extent.Get_XRange() >= 0. && Extent.Get_YRange() >= 0. )
 		{
 			Extent.Union(CSG_Point(x, y));
 		}
