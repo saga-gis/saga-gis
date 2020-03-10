@@ -1006,7 +1006,7 @@ int CWKSP_Data_Manager::_Modified_Changed(CSG_Parameter *pParameter, int Flags)
 {
 	CSG_Parameters	*pParameters	= pParameter ? pParameter->Get_Parameters() : NULL;
 
-	if( pParameters && pParameters->Get_Owner() )
+	if( pParameters )
 	{
 		if( pParameter->Cmp_Identifier("SAVE_ALL") )
 		{
