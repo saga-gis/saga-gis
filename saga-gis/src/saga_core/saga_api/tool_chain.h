@@ -178,7 +178,7 @@ public:
 
 	virtual CSG_Tool *				Get_Tool			(int Index, TSG_Tool_Type Type = TOOL_TYPE_Base)	const;
 
-	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name);
+	virtual CSG_Tool *				Create_Tool			(const CSG_String &Name, bool bWithGUI = false);
 	virtual bool					Delete_Tool			(CSG_Tool *pTool);
 	virtual bool					Delete_Tools		(void);
 

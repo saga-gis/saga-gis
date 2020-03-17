@@ -1684,7 +1684,7 @@ CSG_Tool * CSG_Tool_Chains::Get_Tool(int Index, TSG_Tool_Type Type) const
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name)
+CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name, bool bWithGUI)
 {
 	CSG_Tool	*pTool	= CSG_Tool_Library::Get_Tool(Name);
 
