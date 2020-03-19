@@ -549,7 +549,7 @@ inline void CMorphometry::Set_From_Polynom(int x, int y, double r, double t, dou
 	//-----------------------------------------------------
 	if( p2_q2 )
 	{
-		double	spq = s * p * q, p2 = p*p, q2 = q*q;	r	*= 2;	t	*= 2;
+		double	spq = s * p * q, p2 = p*p, q2 = q*q;
 
 		SET_VALUE(m_pC_Gene, -2 * (r + t));
 		SET_VALUE(m_pC_Prof, -(r * p2 + t * q2 + 2 * spq) / (p2_q2 * pow(1 + p2_q2, 1.5)));
