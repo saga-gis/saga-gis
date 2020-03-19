@@ -71,7 +71,7 @@ CSG_Tool::CSG_Tool(void)
 
 	m_bError_Ignore	= false;
 	m_bExecutes		= false;
-	m_bHasGUI		= false;
+	m_bWithGUI		= true;
 
 	m_pParameters	= NULL;
 	m_npParameters	= 0;
@@ -228,6 +228,12 @@ CSG_String CSG_Tool::Get_MenuPath(bool bSolved)
 	}
 
 	return( m_Library_Menu + "|" + Menu );
+}
+
+//---------------------------------------------------------
+bool CSG_Tool::has_GUI(void) const
+{
+	return( m_bWithGUI && SG_UI_Get_Window_Main() != NULL );
 }
 
 

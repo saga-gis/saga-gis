@@ -79,9 +79,9 @@ CSG_Tool_Chain::CSG_Tool_Chain(void)
 }
 
 //---------------------------------------------------------
-CSG_Tool_Chain::CSG_Tool_Chain(const CSG_Tool_Chain &Tool)
+CSG_Tool_Chain::CSG_Tool_Chain(const CSG_Tool_Chain &Tool, bool bWithGUI)
 {
-	Create(Tool);
+	Create(Tool, bWithGUI);
 }
 
 //---------------------------------------------------------
@@ -126,14 +126,18 @@ void CSG_Tool_Chain::Set_Library_Menu(const CSG_String &Menu)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool)
+bool CSG_Tool_Chain::Create(const CSG_Tool_Chain &Tool, bool bWithGUI)
 {
 	if( !Create(Tool.m_Chain) )
 	{
 		return( false );
 	}
 
-	m_File_Name	= Tool.m_File_Name;
+	m_ID           = Tool.m_ID;
+	m_Library      = Tool.m_Library;
+	m_Library_Menu = Tool.m_Library_Menu;
+	m_File_Name	   = Tool.m_File_Name;
+	m_bWithGUI     = bWithGUI;
 
 	return( true );
 }
@@ -1205,13 +1209,15 @@ bool CSG_Tool_Chain::Tool_Run(const CSG_MetaData &Tool, bool bShowError)
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Name(Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module"));
+	const SG_Char *Name	= Tool.Get_Property("tool") ? Tool.Get_Property("tool") : Tool.Get_Property("module");
 
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(Tool.Get_Property("library"), Name.c_str());
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool(Tool.Get_Property("library"), Name,
+		IS_TRUE_PROPERTY(Tool, "with_gui")	// this option allows to run a tool in 'gui-mode', e.g. to popup variogram dialogs for kriging interpolation
+	);
 
 	if(	!pTool )
 	{
-		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name.c_str());
+		if( bShowError ) Error_Fmt("%s [%s].[%s]", _TL("could not find tool"), Tool.Get_Property("library"), Name);
 
 		return( false );
 	}
@@ -1690,7 +1696,7 @@ CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name, bool bWithGUI)
 
 	if( pTool && pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
-		m_xTools.Add(pTool = new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool)));
+		m_xTools.Add(new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool), bWithGUI));
 
 		return( pTool );
 	}

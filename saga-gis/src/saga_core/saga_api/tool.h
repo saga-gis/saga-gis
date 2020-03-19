@@ -204,8 +204,8 @@ public:
 
 	virtual bool				do_Sync_Projections			(void)	const	{	return( true  );	}
 
-	virtual bool				needs_GUI					(void)	const	{	return( false     );	}
-	bool						has_GUI						(void)	const	{	return( m_bHasGUI );	}
+	virtual bool				needs_GUI					(void)	const	{	return( false );	}
+	bool						has_GUI						(void)	const;
 
 	virtual bool				is_Grid						(void)	const	{	return( false );	}
 	virtual bool				is_Interactive				(void)	const	{	return( false );	}
@@ -307,7 +307,7 @@ public:	// static functions...
 
 private:
 
-	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bHasGUI;
+	bool						m_bExecutes, m_bError_Ignore, m_bShow_Progress, m_bWithGUI;
 
 	int							m_npParameters;
 

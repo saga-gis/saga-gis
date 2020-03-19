@@ -80,8 +80,8 @@ public:
 	CSG_Tool_Chain(void);
 	virtual ~CSG_Tool_Chain(void);
 
-								CSG_Tool_Chain			(const CSG_Tool_Chain &Tool);
-	bool						Create					(const CSG_Tool_Chain &Tool);
+								CSG_Tool_Chain			(const CSG_Tool_Chain &Tool, bool bWithGUI);
+	bool						Create					(const CSG_Tool_Chain &Tool, bool bWithGUI);
 
 								CSG_Tool_Chain			(const CSG_String &File);
 	bool						Create					(const CSG_String &File);
