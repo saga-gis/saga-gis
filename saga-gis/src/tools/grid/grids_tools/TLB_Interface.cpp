@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     climate_tools                     //
+//                     grids_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

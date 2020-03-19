@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                     climate_tools                     //
+//                     grids_tools                       //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "grid_collection.h"
 
 
@@ -76,7 +67,6 @@
 //---------------------------------------------------------
 CGrids_Create::CGrids_Create(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Create a Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2017");
@@ -114,7 +104,7 @@ CGrids_Create::CGrids_Create(void)
 	Parameters.Add_Choice("",
 		"ATTRIBUTES", _TL("Attribute Definition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s|%s",
 			_TL("index and name"),
 			_TL("user defined structure"),
 			_TL("table with values"),
@@ -384,16 +374,24 @@ bool CGrids_Create::On_Execute(void)
 	{
 		for(int i=0; i<pList->Get_Item_Count(); i++)
 		{
-			if( Parameters.Get_Manager() )
-			{
-				Parameters.Get_Manager()->Delete(pList->Get_Item(i), true);
+			CSG_Data_Object	*pItem	= pList->Get_Item(i);
 
-				DataObject_Update(pList->Get_Item(i));
+			if( (pItem->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grid  && ((CSG_Grid  *)pItem)->Get_Type() != pGrids->Get_Type())
+			||  (pItem->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids && ((CSG_Grids *)pItem)->Get_Type() != pGrids->Get_Type()) )
+			{
+				continue;
 			}
 
-			if( pList->Get_Item(i)->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+			if( Parameters.Get_Manager() )
 			{
-				((CSG_Grids *)pList->Get_Item(i))->Del_Grids(true);
+				Parameters.Get_Manager()->Delete(pItem, true);
+
+				DataObject_Update(pItem);
+			}
+
+			if( pItem->Get_ObjectType() == SG_DATAOBJECT_TYPE_Grids )
+			{
+				((CSG_Grids *)pItem)->Del_Grids(true);
 
 				delete(pList->Get_Item(i));
 			}
@@ -402,6 +400,13 @@ bool CGrids_Create::On_Execute(void)
 
 	for(int i=0; i<pList->Get_Grid_Count() && Set_Progress(i, pList->Get_Grid_Count()); i++)
 	{
+		if( pList->Get_Grid(i)->Get_Type() != pGrids->Get_Type() )
+		{
+			Message_Fmt("\n%s: %s [%s]", _TL("Warning"), _TL("data type mismatch, grid will be skipped"), pList->Get_Grid(i)->Get_Name());
+
+			continue;
+		}
+
 		if( pTable && i < pTable->Get_Count() )
 		{
 			pGrids->Add_Grid(*pTable->Get_Record_byIndex(i), pList->Get_Grid(i), bDelete);
@@ -445,7 +450,6 @@ bool CGrids_Create::On_Execute(void)
 //---------------------------------------------------------
 CGrids_Add_Grid::CGrids_Add_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Add a Grid to a Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -564,7 +568,6 @@ bool CGrids_Add_Grid::On_Execute(void)
 //---------------------------------------------------------
 CGrids_Extract::CGrids_Extract(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Extract Grids from a Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2017");
@@ -676,7 +679,6 @@ bool CGrids_Extract::On_Execute(void)
 //---------------------------------------------------------
 CGrids_Extract_Grid::CGrids_Extract_Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Extract a Grid from a Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -820,7 +822,6 @@ bool CGrids_Extract_Grid::On_Execute(void)
 //---------------------------------------------------------
 CGrids_Delete::CGrids_Delete(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Delete Grids from a Grid Collection"));
 
 	Set_Author		("O.Conrad (c) 2017");
