@@ -1696,7 +1696,7 @@ CSG_Tool * CSG_Tool_Chains::Create_Tool(const CSG_String &Name, bool bWithGUI)
 
 	if( pTool && pTool->Get_Type() == TOOL_TYPE_Chain )
 	{
-		m_xTools.Add(new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool), bWithGUI));
+		m_xTools.Add(pTool = new CSG_Tool_Chain(*((CSG_Tool_Chain *)pTool), bWithGUI));
 
 		return( pTool );
 	}
