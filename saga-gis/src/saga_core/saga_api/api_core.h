@@ -178,6 +178,7 @@
 SAGA_API_DLL_EXPORT void			SG_OMP_Set_Max_Num_Threads	(int iCores);
 SAGA_API_DLL_EXPORT int				SG_OMP_Get_Max_Num_Threads	(void);
 SAGA_API_DLL_EXPORT int				SG_OMP_Get_Max_Num_Procs	(void);
+SAGA_API_DLL_EXPORT int				SG_OMP_Get_Thread_Num		(void);
 
 
 ///////////////////////////////////////////////////////////

@@ -48,10 +48,6 @@
 //---------------------------------------------------------
 #include "crs_transform_shapes.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -312,7 +308,7 @@ bool CCRS_Transform_Shapes::Transform(CSG_Shapes *pShapes)
 		#pragma omp parallel for
 		for(int i=0; i<pShapes->Get_Count(); i++)
 		{
-			int	Thread	= omp_get_thread_num();
+			int	Thread	= SG_OMP_Get_Thread_Num();
 
 			if( !Thread )
 			{
