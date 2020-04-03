@@ -982,7 +982,7 @@ bool CSG_Strings::Destroy(void)
 {
 	for(size_t i=0; i<Get_Size(); i++)
 	{
-		delete(m_Strings[i]);
+		delete((CSG_String *)m_Strings[i]);
 	}
 
 	m_Strings.Destroy();
@@ -1024,7 +1024,7 @@ bool CSG_Strings::Del(size_t Index)
 		return( false );
 	}
 
-	delete(m_Strings[Index]);
+	delete((CSG_String *)m_Strings[Index]);
 
 	for(size_t i=Index+1; i<Get_Size(); i++)
 	{
@@ -1074,7 +1074,9 @@ bool CSG_Strings::Sort(bool Ascending)
 		return( true );
 	}
 
-	CSG_Index	Index(Get_Count(), CSG_Index_Compare_Strings((CSG_String **)m_Strings.Get_Array(), Ascending));
+	CSG_Index_Compare_Strings	Compare((CSG_String **)m_Strings.Get_Array(), Ascending);
+
+	CSG_Index	Index(Get_Count(), Compare);
 
 	return( true );
 }
