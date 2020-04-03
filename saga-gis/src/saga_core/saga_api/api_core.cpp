@@ -77,7 +77,7 @@
 int		g_SG_OMP_Max_Num_Threads	= omp_get_num_procs();
 
 //---------------------------------------------------------
-void	SG_OMP_Set_Max_Num_Threads		(int iCores)
+void	SG_OMP_Set_Max_Num_Threads	(int iCores)
 {
 	if( iCores < 1 )
 	{
@@ -92,15 +92,21 @@ void	SG_OMP_Set_Max_Num_Threads		(int iCores)
 }
 
 //---------------------------------------------------------
-int		SG_OMP_Get_Max_Num_Threads		(void)
+int		SG_OMP_Get_Max_Num_Threads	(void)
 {
 	return( g_SG_OMP_Max_Num_Threads );
 }
 
 //---------------------------------------------------------
-int		SG_OMP_Get_Max_Num_Procs		(void)
+int		SG_OMP_Get_Max_Num_Procs	(void)
 {
 	return( omp_get_num_procs() );
+}
+
+//---------------------------------------------------------
+int		SG_OMP_Get_Thread_Num		(void)
+{
+	return( omp_get_thread_num() );
 }
 
 //---------------------------------------------------------
@@ -108,6 +114,7 @@ int		SG_OMP_Get_Max_Num_Procs		(void)
 void	SG_OMP_Set_Max_Num_Threads	(int iCores)	{}
 int		SG_OMP_Get_Max_Num_Threads	(void)	{	return( 1 );	}
 int		SG_OMP_Get_Max_Num_Procs	(void)	{	return( 1 );	}
+int		SG_OMP_Get_Thread_Num		(void)	{	return( 0 );	}
 #endif
 
 
