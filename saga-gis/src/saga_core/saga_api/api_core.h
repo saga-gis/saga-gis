@@ -280,6 +280,198 @@ private:
 
 ///////////////////////////////////////////////////////////
 //														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+typedef enum ESG_Array_Growth
+{
+	SG_ARRAY_GROWTH_0	= 0,
+	SG_ARRAY_GROWTH_1,
+	SG_ARRAY_GROWTH_2,
+	SG_ARRAY_GROWTH_3
+}
+TSG_Array_Growth;
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Array
+{
+public:
+	CSG_Array(void);
+	~CSG_Array(void);
+
+	CSG_Array		(const CSG_Array &Array);
+	void *				Create			(const CSG_Array &Array);
+
+	CSG_Array		(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+	void *				Create			(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+
+	void				Destroy			(void);
+
+	CSG_Array &			operator =		(const CSG_Array &Array)	{	Create(Array);	return( *this );	}
+
+	bool				Set_Growth		(TSG_Array_Growth Growth);
+	int					Get_Growth		(void)	const			{	return( m_Growth );		}
+
+	size_t				Get_Value_Size	(void)	const			{	return( m_Value_Size );	}
+	size_t				Get_Size		(void)	const			{	return( m_nValues );	}
+
+	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
+	void *				Get_Entry		(size_t Index)	const	{	return( Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );	}
+	void *				operator []		(size_t Index)	const	{	return( Get_Entry(Index) );	}
+
+	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
+	void *				Get_Entry		(int    Index)	const	{	return( Index >= 0 ? Get_Entry((size_t)Index) : NULL );	}
+	void *				operator []		(int    Index)	const	{	return( Get_Entry(Index) );	}
+
+	void *				Get_Array		(void)	const			{	return( m_Values );		}
+	void *				Get_Array		(size_t nValues)		{	Set_Array(nValues);	return( m_Values );	}
+
+	bool				Set_Array		(size_t nValues, bool bShrink = true);
+	bool				Set_Array		(size_t nValues, void **pArray, bool bShrink = true);
+
+	bool				Inc_Array		(size_t nValues = 1);
+	bool				Inc_Array		(void **pArray);
+
+	bool				Dec_Array		(bool bShrink = true);
+	bool				Dec_Array		(void **pArray, bool bShrink = true);
+
+
+private:
+
+	TSG_Array_Growth	m_Growth;
+
+	size_t				m_nValues, m_nBuffer, m_Value_Size;
+
+	void				*m_Values;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Array_Pointer
+{
+public:
+	CSG_Array_Pointer					(const CSG_Array_Pointer &Array)			{	Create(Array);	}
+	void **				Create			(const CSG_Array_Pointer &Array);
+
+	CSG_Array_Pointer					(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	void **				Create			(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+
+	void				Destroy			(void)									{	m_Array.Destroy();	}
+
+	bool				Set_Growth		(TSG_Array_Growth Growth)				{	return( m_Array.Set_Growth(Growth) );	}
+	int					Get_Growth		(void)	const							{	return( m_Array.Get_Growth()       );	}
+
+	size_t				Get_Size		(void)	const							{	return( m_Array.Get_Size() );	}
+
+	void **				Get_Array		(void)	const							{	return( (void **)m_Array.Get_Array()        );	}
+	void **				Get_Array		(size_t nValues)						{	return( (void **)m_Array.Get_Array(nValues) );	}
+
+	bool				Set_Array		(size_t nValues, bool bShrink = true)	{	return( m_Array.Set_Array(nValues, bShrink) );	}
+	bool				Inc_Array		(size_t nValues = 1)					{	return( m_Array.Inc_Array(nValues) );	}
+	bool				Dec_Array		(                bool bShrink = true)	{	return( m_Array.Dec_Array(bShrink) );	}
+
+	bool				Add				(void *Value);
+	bool				Add				(const CSG_Array_Pointer &Array);
+
+	bool				Del				(int    Index);
+	bool				Del				(size_t Index);
+	size_t				Del				(void  *Value);
+
+	bool				Set				(size_t Index, void *Value)				{	if( Index >= Get_Size() ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	bool				Set				(int    Index, void *Value)				{	return( Set((size_t)Index, Value) );	}
+
+	void *&				Get				(size_t Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				Get				(size_t Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *&				Get				(int    Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+	void *				Get				(int    Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
+
+	CSG_Array_Pointer &	operator =		(const CSG_Array_Pointer &Array)		{	Create(Array);	return( *this );	}
+
+	void *&				operator []		(size_t Index)							{	return( Get(Index) );	}
+	void *				operator []		(size_t Index)	const					{	return( Get(Index) );	}
+	void *&				operator []		(int    Index)							{	return( Get(Index) );	}
+	void *				operator []		(int    Index)	const					{	return( Get(Index) );	}
+
+	CSG_Array_Pointer &	operator +=		(void *Value)							{	Add(Value);	return( *this );	}
+	CSG_Array_Pointer &	operator +=		(const CSG_Array_Pointer &Array)		{	Add(Array);	return( *this );	}
+
+
+private:
+
+	CSG_Array			m_Array;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_Array_Int
+{
+public:
+	CSG_Array_Int						(const CSG_Array_Int &Array)			{	Create(Array);	}
+	int *				Create			(const CSG_Array_Int &Array);
+
+	CSG_Array_Int						(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
+	int *				Create			(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
+
+	void				Destroy			(void)									{	m_Array.Destroy();	}
+
+	bool				Set_Growth		(TSG_Array_Growth Growth)				{	return( m_Array.Set_Growth(Growth) );	}
+	int					Get_Growth		(void)	const							{	return( m_Array.Get_Growth()       );	}
+
+	size_t				Get_Size		(void)	const							{	return( m_Array.Get_Size() );	}
+
+	int *				Get_Array		(void)	const							{	return( (int *)m_Array.Get_Array()        );	}
+	int *				Get_Array		(size_t nValues)						{	return( (int *)m_Array.Get_Array(nValues) );	}
+
+	bool				Set_Array		(size_t nValues, bool bShrink = true)	{	return( m_Array.Set_Array(nValues, bShrink) );	}
+	bool				Inc_Array		(size_t nValues = 1)					{	return( m_Array.Inc_Array(nValues) );	}
+	bool				Dec_Array		(                bool bShrink = true)	{	return( m_Array.Dec_Array(bShrink) );	}
+
+	bool				Add				(int Value);
+	bool				Add				(const CSG_Array_Int &Array);
+
+	bool				Set				(size_t Index, int Value)				{	if( Index >= Get_Size() ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
+	bool				Set				(int    Index, int Value)				{	return( Set((size_t)Index, Value) );	}
+
+	int &				Get				(size_t Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int	 				Get				(size_t Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int &				Get				(int    Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+	int	 				Get				(int    Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
+
+	bool				Assign			(int Value);
+
+	CSG_Array_Int &		operator =		(const CSG_Array_Int &Array)			{	Create(Array);	return( *this );	}
+	CSG_Array_Int &		operator =		(int Value)								{	Assign(Value);	return( *this );	}
+
+	int &				operator []		(size_t Index)							{	return( Get(Index) );	}
+	int  				operator []		(size_t Index)	const					{	return( Get(Index) );	}
+	int &				operator []		(int    Index)							{	return( Get(Index) );	}
+	int  				operator []		(int    Index)	const					{	return( Get(Index) );	}
+
+	CSG_Array_Int &		operator +=		(int Value)								{	Add(Value);	return( *this );	}
+	CSG_Array_Int &		operator +=		(const CSG_Array_Int &Array)			{	Add(Array);	return( *this );	}
+
+
+private:
+
+	CSG_Array			m_Array;
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
 //						String							 //
 //														 //
 ///////////////////////////////////////////////////////////
@@ -452,28 +644,38 @@ public:
 
 	virtual ~CSG_Strings(void);
 
-	void							Clear				(void);
+	bool							Create				(const CSG_Strings &Strings);
+	bool							Destroy				(void);
 
-	CSG_Strings &					operator  =			(const CSG_Strings &Strings);
-	bool							Assign				(const CSG_Strings &Strings);
+	bool							Set_Count			(int    Count)	{	return( Set_Count((size_t)Count) );	}
+	bool							Set_Count			(size_t Count);
+	int								Get_Count			(void)	const	{	return( (int)m_Strings.Get_Size() );	}
+	size_t							Get_Size			(void)	const	{	return(      m_Strings.Get_Size() );	}
 
-	bool							Add					(const CSG_String &String);
-	CSG_Strings &					operator +=			(const CSG_String &String);
+	bool							Add					(const CSG_Strings &Strings);
+	bool							Add					(const CSG_String  &String );
+	bool							Del					(int    Index)	{	return( Del((size_t)Index) );	}
+	bool							Del					(size_t Index);
 
-	bool							Del					(int Index);
+	CSG_String &					Get_String			(int    Index) const	{	return( *((CSG_String *)m_Strings[Index]) );	}
+	CSG_String &					Get_String			(size_t Index) const	{	return( *((CSG_String *)m_Strings[Index]) );	}
 
-	bool							Set_Count			(int nStrings);
-	int								Get_Count			(void)		const	{	return( m_nStrings );	}
+	CSG_String &					operator []			(int    Index) const	{	return( Get_String(Index) );	}
+	CSG_String &					operator []			(size_t Index) const	{	return( Get_String(Index) );	}
 
-	CSG_String &					operator []			(int Index) const	{	return( *m_Strings[Index]   );	}
-	CSG_String &					Get_String			(int Index) const	{	return( *m_Strings[Index]   );	}
+	CSG_Strings &					operator  =			(const CSG_Strings &Strings)	{	Create(Strings); return( *this );	}
+	CSG_Strings &					operator +=			(const CSG_Strings &Strings)	{	Add   (Strings); return( *this );	}
+	CSG_Strings &					operator +=			(const CSG_String  &String )	{	Add   (String ); return( *this );	}
+
+	bool							Sort				(bool Ascending = true);
+
+	void							Clear				(void)	{	Destroy();	}
+	bool							Assign				(const CSG_Strings &Strings)	{	return( Create(Strings) );	}
 
 
 protected:
 
-	int								m_nStrings;
-
-	CSG_String						**m_Strings;
+	CSG_Array_Pointer				m_Strings;
 
 };
 
@@ -541,198 +743,6 @@ SAGA_API_DLL_EXPORT void			SG_Flip_Decimal_Separators		(CSG_String &String);
 
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(double Value, int Precision = -99);
 SAGA_API_DLL_EXPORT CSG_String		SG_Get_String					(int    Value, int Precision = 0);
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef enum ESG_Array_Growth
-{
-	SG_ARRAY_GROWTH_0	= 0,
-	SG_ARRAY_GROWTH_1,
-	SG_ARRAY_GROWTH_2,
-	SG_ARRAY_GROWTH_3
-}
-TSG_Array_Growth;
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Array
-{
-public:
-	CSG_Array(void);
-	~CSG_Array(void);
-
-						CSG_Array		(const CSG_Array &Array);
-	void *				Create			(const CSG_Array &Array);
-
-						CSG_Array		(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
-	void *				Create			(size_t Value_Size, size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
-
-	void				Destroy			(void);
-
-	CSG_Array &			operator =		(const CSG_Array &Array)	{	Create(Array);	return( *this );	}
-
-	bool				Set_Growth		(TSG_Array_Growth Growth);
-	int					Get_Growth		(void)	const			{	return( m_Growth );		}
-
-	size_t				Get_Value_Size	(void)	const			{	return( m_Value_Size );	}
-	size_t				Get_Size		(void)	const			{	return( m_nValues );	}
-
-	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
-	void *				Get_Entry		(size_t Index)	const	{	return( Index < m_nValues ? (char *)m_Values + Index * m_Value_Size : NULL );	}
-	void *				operator []		(size_t Index)	const	{	return( Get_Entry(Index) );	}
-
-	/// Returns a pointer to the memory address of the requested variable. You have to type cast and dereference the pointer to get access to the variable itself.
-	void *				Get_Entry		(int    Index)	const	{	return( Index >= 0 ? Get_Entry((size_t)Index) : NULL );	}
-	void *				operator []		(int    Index)	const	{	return( Get_Entry(Index) );	}
-
-	void *				Get_Array		(void)	const			{	return( m_Values );		}
-	void *				Get_Array		(size_t nValues)		{	Set_Array(nValues);	return( m_Values );	}
-
-	bool				Set_Array		(size_t nValues, bool bShrink = true);
-	bool				Set_Array		(size_t nValues, void **pArray, bool bShrink = true);
-
-	bool				Inc_Array		(size_t nValues = 1);
-	bool				Inc_Array		(void **pArray);
-
-	bool				Dec_Array		(bool bShrink = true);
-	bool				Dec_Array		(void **pArray, bool bShrink = true);
-
-
-private:
-
-	TSG_Array_Growth	m_Growth;
-
-	size_t				m_nValues, m_nBuffer, m_Value_Size;
-
-	void				*m_Values;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Array_Pointer
-{
-public:
-	CSG_Array_Pointer					(const CSG_Array_Pointer &Array)			{	Create(Array);	}
-	void **				Create			(const CSG_Array_Pointer &Array);
-
-	CSG_Array_Pointer					(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
-	void **				Create			(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
-
-	void				Destroy			(void)									{	m_Array.Destroy();	}
-
-	bool				Set_Growth		(TSG_Array_Growth Growth)				{	return( m_Array.Set_Growth(Growth) );	}
-	int					Get_Growth		(void)	const							{	return( m_Array.Get_Growth()       );	}
-
-	size_t				Get_Size		(void)	const							{	return( m_Array.Get_Size() );	}
-
-	void **				Get_Array		(void)	const							{	return( (void **)m_Array.Get_Array()        );	}
-	void **				Get_Array		(size_t nValues)						{	return( (void **)m_Array.Get_Array(nValues) );	}
-
-	bool				Set_Array		(size_t nValues, bool bShrink = true)	{	return( m_Array.Set_Array(nValues, bShrink) );	}
-	bool				Inc_Array		(size_t nValues = 1)					{	return( m_Array.Inc_Array(nValues) );	}
-	bool				Dec_Array		(                bool bShrink = true)	{	return( m_Array.Dec_Array(bShrink) );	}
-
-	bool				Add				(void *Value);
-	bool				Add				(const CSG_Array_Pointer &Array);
-
-	bool				Del				(int    Index);
-	bool				Del				(size_t Index);
-	size_t				Del				(void  *Value);
-
-	bool				Set				(size_t Index, void *Value)				{	if( Index >= Get_Size() ) return( false ); *((void **)m_Array.Get_Entry(Index)) = Value; return( true );	}
-	bool				Set				(int    Index, void *Value)				{	return( Set((size_t)Index, Value) );	}
-
-	void *&				Get				(size_t Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *				Get				(size_t Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *&				Get				(int    Index)							{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-	void *				Get				(int    Index)	const					{	return( *((void **)m_Array.Get_Entry(Index)) );	}
-
-	CSG_Array_Pointer &	operator =		(const CSG_Array_Pointer &Array)		{	Create(Array);	return( *this );	}
-
-	void *&				operator []		(size_t Index)							{	return( Get(Index) );	}
-	void *				operator []		(size_t Index)	const					{	return( Get(Index) );	}
-	void *&				operator []		(int    Index)							{	return( Get(Index) );	}
-	void *				operator []		(int    Index)	const					{	return( Get(Index) );	}
-
-	CSG_Array_Pointer &	operator +=		(void *Value)							{	Add(Value);	return( *this );	}
-	CSG_Array_Pointer &	operator +=		(const CSG_Array_Pointer &Array)		{	Add(Array);	return( *this );	}
-
-
-private:
-
-	CSG_Array			m_Array;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class SAGA_API_DLL_EXPORT CSG_Array_Int
-{
-public:
-	CSG_Array_Int						(const CSG_Array_Int &Array)			{	Create(Array);	}
-	int *				Create			(const CSG_Array_Int &Array);
-
-	CSG_Array_Int						(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0)	{	Create(nValues, Growth);	}
-	int *				Create			(size_t nValues = 0, TSG_Array_Growth Growth = SG_ARRAY_GROWTH_0);
-
-	void				Destroy			(void)									{	m_Array.Destroy();	}
-
-	bool				Set_Growth		(TSG_Array_Growth Growth)				{	return( m_Array.Set_Growth(Growth) );	}
-	int					Get_Growth		(void)	const							{	return( m_Array.Get_Growth()       );	}
-
-	size_t				Get_Size		(void)	const							{	return( m_Array.Get_Size() );	}
-
-	int *				Get_Array		(void)	const							{	return( (int *)m_Array.Get_Array()        );	}
-	int *				Get_Array		(size_t nValues)						{	return( (int *)m_Array.Get_Array(nValues) );	}
-
-	bool				Set_Array		(size_t nValues, bool bShrink = true)	{	return( m_Array.Set_Array(nValues, bShrink) );	}
-	bool				Inc_Array		(size_t nValues = 1)					{	return( m_Array.Inc_Array(nValues) );	}
-	bool				Dec_Array		(                bool bShrink = true)	{	return( m_Array.Dec_Array(bShrink) );	}
-
-	bool				Add				(int Value);
-	bool				Add				(const CSG_Array_Int &Array);
-
-	bool				Set				(size_t Index, int Value)				{	if( Index >= Get_Size() ) return( false ); *((int *)m_Array.Get_Entry(Index)) = Value; return( true );	}
-	bool				Set				(int    Index, int Value)				{	return( Set((size_t)Index, Value) );	}
-
-	int &				Get				(size_t Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int	 				Get				(size_t Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int &				Get				(int    Index)							{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-	int	 				Get				(int    Index)	const					{	return( *((int *)m_Array.Get_Entry(Index)) );	}
-
-	bool				Assign			(int Value);
-
-	CSG_Array_Int &		operator =		(const CSG_Array_Int &Array)			{	Create(Array);	return( *this );	}
-	CSG_Array_Int &		operator =		(int Value)								{	Assign(Value);	return( *this );	}
-
-	int &				operator []		(size_t Index)							{	return( Get(Index) );	}
-	int  				operator []		(size_t Index)	const					{	return( Get(Index) );	}
-	int &				operator []		(int    Index)							{	return( Get(Index) );	}
-	int  				operator []		(int    Index)	const					{	return( Get(Index) );	}
-
-	CSG_Array_Int &		operator +=		(int Value)								{	Add(Value);	return( *this );	}
-	CSG_Array_Int &		operator +=		(const CSG_Array_Int &Array)			{	Add(Array);	return( *this );	}
-
-
-private:
-
-	CSG_Array			m_Array;
-
-};
 
 
 ///////////////////////////////////////////////////////////

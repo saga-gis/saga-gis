@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <math.h>
 
 #include <wx/string.h>
@@ -72,6 +60,7 @@
 #include <wx/convauto.h>
 
 #include "api_core.h"
+#include "mat_tools.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -958,26 +947,24 @@ CSG_Buffer CSG_String::to_ASCII(char Replace) const
 
 //---------------------------------------------------------
 CSG_Strings::CSG_Strings(void)
-{
-	m_nStrings	= 0;
-	m_Strings	= NULL;
-}
+{}
 
 //---------------------------------------------------------
 CSG_Strings::CSG_Strings(const CSG_Strings &Strings)
 {
-	m_nStrings	= 0;
-	m_Strings	= NULL;
+	Create(Strings);
+}
 
-	Assign(Strings);
+bool CSG_Strings::Create(const CSG_Strings &Strings)
+{
+	Destroy();
+
+	return( Add(Strings) );
 }
 
 //---------------------------------------------------------
 CSG_Strings::CSG_Strings(int nStrings, const SG_Char **Strings)
 {
-	m_nStrings	= 0;
-	m_Strings	= NULL;
-
 	for(int i=0; i<nStrings; i++)
 	{
 		Add(Strings[i]);
@@ -991,28 +978,22 @@ CSG_Strings::~CSG_Strings(void)
 }
 
 //---------------------------------------------------------
-void CSG_Strings::Clear(void)
+bool CSG_Strings::Destroy(void)
 {
-	if( m_Strings )
+	for(size_t i=0; i<Get_Size(); i++)
 	{
-		for(int i=0; i<m_nStrings; i++)
-		{
-			delete(m_Strings[i]);
-		}
-
-		SG_Free(m_Strings);
-
-		m_nStrings	= 0;
-		m_Strings	= NULL;
+		delete(m_Strings[i]);
 	}
+
+	m_Strings.Destroy();
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Strings::Assign(const CSG_Strings &Strings)
+bool CSG_Strings::Add(const CSG_Strings &Strings)
 {
-	Clear();
-
-	for(int i=0; i<Strings.m_nStrings; i++)
+	for(size_t i=0; i<Strings.Get_Size(); i++)
 	{
 		Add(Strings[i]);
 	}
@@ -1021,37 +1002,13 @@ bool CSG_Strings::Assign(const CSG_Strings &Strings)
 }
 
 //---------------------------------------------------------
-CSG_Strings & CSG_Strings::operator  = (const CSG_Strings &Strings)
-{
-	Assign(Strings);
-
-	return( *this );
-}
-
-//---------------------------------------------------------
 bool CSG_Strings::Add(const CSG_String &String)
 {
-	m_Strings	= (CSG_String **)SG_Realloc(m_Strings, (m_nStrings + 1) * sizeof(CSG_String *));
-	m_Strings[m_nStrings++]	= new CSG_String(String);
+	size_t	i	= Get_Size();
 
-	return( true );
-}
-
-//---------------------------------------------------------
-bool CSG_Strings::Del(int Index)
-{
-	if( Index >= 0 && Index < m_nStrings )
+	if( m_Strings.Inc_Array() )
 	{
-		delete(m_Strings[Index]);
-
-		m_nStrings--;
-
-		for(int i=Index; i<m_nStrings; i++)
-		{
-			m_Strings[i]	= m_Strings[i + 1];
-		}
-
-		m_Strings	= (CSG_String **)SG_Realloc(m_Strings, m_nStrings * sizeof(CSG_String *));
+		m_Strings[i]	=  new CSG_String(String);
 
 		return( true );
 	}
@@ -1060,22 +1017,64 @@ bool CSG_Strings::Del(int Index)
 }
 
 //---------------------------------------------------------
-CSG_Strings & CSG_Strings::operator  += (const CSG_String &String)
+bool CSG_Strings::Del(size_t Index)
 {
-	Add(String);
+	if( Index >= Get_Size() )
+	{
+		return( false );
+	}
 
-	return( *this );
+	delete(m_Strings[Index]);
+
+	for(size_t i=Index+1; i<Get_Size(); i++)
+	{
+		m_Strings[i - 1]	= m_Strings[i];
+	}
+
+	m_Strings.Dec_Array();
+
+	return( true );
 }
 
 //---------------------------------------------------------
-bool CSG_Strings::Set_Count(int nStrings)
+bool CSG_Strings::Set_Count(size_t Count)
 {
-	Clear();
+	while( Del(Count) )	{}
 
-	for(int i=0; i<nStrings; i++)
+	for(size_t i=Get_Size(); i<Count; i++)
 	{
-		Add(SG_T(""));
+		Add("");
 	}
+
+	return( true );
+}
+
+//---------------------------------------------------------
+class CSG_Index_Compare_Strings : public CSG_Index::CSG_Index_Compare
+{
+public:
+	CSG_String **m_Values; bool m_Ascending;
+
+	CSG_Index_Compare_Strings(CSG_String **Values, bool Ascending) : m_Values(Values), m_Ascending(Ascending) {}
+
+	virtual int			Compare		(const int _a, const int _b)
+	{
+		int	a	= m_Ascending ? _a : _b;
+		int	b	= m_Ascending ? _b : _a;
+
+		return( m_Values[a]->Cmp(*m_Values[b]) );
+	}
+};
+
+//---------------------------------------------------------
+bool CSG_Strings::Sort(bool Ascending)
+{
+	if( Get_Size() < 2 )
+	{
+		return( true );
+	}
+
+	CSG_Index	Index(Get_Count(), CSG_Index_Compare_Strings((CSG_String **)m_Strings.Get_Array(), Ascending));
 
 	return( true );
 }
