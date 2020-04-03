@@ -99,6 +99,27 @@ bool CSG_Index::Destroy(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+CSG_Index::CSG_Index(int nValues, CSG_Index_Compare &Compare)
+{
+	_On_Construction();
+
+	Create(nValues, Compare);
+}
+
+//---------------------------------------------------------
+bool CSG_Index::Create(int nValues, CSG_Index_Compare &Compare)
+{
+	if( _Set_Array(nValues) && _Set_Index(&Compare) )
+	{
+		return( true );
+	}
+
+	Destroy();
+
+	return( false );
+}
+
+//---------------------------------------------------------
 CSG_Index::CSG_Index(int nValues, CSG_Index_Compare *pCompare)
 {
 	_On_Construction();

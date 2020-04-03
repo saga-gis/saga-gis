@@ -198,6 +198,9 @@ public:
 	CSG_Index(void);
 	virtual ~CSG_Index(void);
 
+								CSG_Index			(int nValues, CSG_Index_Compare &Compare);
+	bool						Create				(int nValues, CSG_Index_Compare &Compare);
+
 								CSG_Index			(int nValues, CSG_Index_Compare *pCompare);
 	bool						Create				(int nValues, CSG_Index_Compare *pCompare);
 
