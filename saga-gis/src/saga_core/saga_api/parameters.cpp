@@ -52,6 +52,7 @@
 //---------------------------------------------------------
 #include "parameters.h"
 #include "data_manager.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -234,6 +235,17 @@ bool CSG_Parameters::Use_Grid_System(void)
 
 //---------------------------------------------------------
 /**
+* If parameters are owned by a tool the function returns the
+* tool's GUI mode, or the presence of a GUI frame otherwise.
+*/
+//---------------------------------------------------------
+bool CSG_Parameters::has_GUI(void) const
+{
+	return( Get_Tool() ? Get_Tool()->has_GUI() : SG_UI_Get_Window_Main() != NULL );
+}
+
+//---------------------------------------------------------
+/**
   * Change the identifier of this parameter list after construction.
 */
 //---------------------------------------------------------
@@ -292,6 +304,8 @@ void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &
 	{
 		m_References	+= Reference;
 	}
+
+	m_References.Sort();
 }
 
 //---------------------------------------------------------
@@ -302,6 +316,8 @@ void CSG_Parameters::Add_Reference(const CSG_String &Authors, const CSG_String &
 void CSG_Parameters::Add_Reference(const CSG_String &Link, const SG_Char *Link_Text)
 {
 	m_References	+= CSG_String::Format("<a href=\"%s\">%s</a>", Link.c_str(), Link_Text && *Link_Text ? Link_Text : Link.c_str());
+
+	m_References.Sort();
 }
 
 //---------------------------------------------------------

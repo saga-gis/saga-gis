@@ -52,6 +52,7 @@
 //---------------------------------------------------------
 #include "parameters.h"
 #include "data_manager.h"
+#include "tool.h"
 
 
 ///////////////////////////////////////////////////////////
@@ -79,13 +80,6 @@ CSG_Parameter::CSG_Parameter(CSG_Parameters *pParameters, CSG_Parameter *pParent
 	if( m_pParent )
 	{
 		m_pParent->_Add_Child(this);
-	}
-
-	//-----------------------------------------------------
-	if( m_pParent )
-	{
-		Set_UseInCMD(m_pParent->do_UseInCMD());
-		Set_UseInGUI(m_pParent->do_UseInGUI());
 	}
 }
 
@@ -154,11 +148,6 @@ void CSG_Parameter::Set_UseInGUI(bool bDoUse)
 	{
 		m_Constraint	|=  PARAMETER_NOT_FOR_GUI;
 	}
-
-	for(int i=0; i<Get_Children_Count(); i++)
-	{
-		Get_Child(i)->Set_UseInGUI(bDoUse);
-	}
 }
 
 //---------------------------------------------------------
@@ -172,11 +161,6 @@ void CSG_Parameter::Set_UseInCMD(bool bDoUse)
 	{
 		m_Constraint	|=  PARAMETER_NOT_FOR_CMD;
 	}
-
-	for(int i=0; i<Get_Children_Count(); i++)
-	{
-		Get_Child(i)->Set_UseInCMD(bDoUse);
-	}
 }
 
 //---------------------------------------------------------
@@ -188,7 +172,7 @@ bool CSG_Parameter::do_UseInGUI(void)	const
 //---------------------------------------------------------
 bool CSG_Parameter::do_UseInCMD(void)	const
 {
-	return( !(m_Constraint & PARAMETER_NOT_FOR_CMD) && (Get_Parent() == NULL || Get_Parent()->do_UseInGUI()) );
+	return( !(m_Constraint & PARAMETER_NOT_FOR_CMD) && (Get_Parent() == NULL || Get_Parent()->do_UseInCMD()) );
 }
 
 //---------------------------------------------------------
@@ -225,17 +209,17 @@ bool CSG_Parameter::Set_Enabled(bool bEnabled)
 //---------------------------------------------------------
 bool CSG_Parameter::is_Enabled(void) const
 {
-	if( do_UseInGUI() == false && SG_UI_Get_Window_Main() != NULL )
+	if( !do_UseInGUI() &&  m_pParameters->has_GUI() )
 	{
 		return( false );
 	}
 
-	if( do_UseInCMD() == false && SG_UI_Get_Window_Main() == NULL )
+	if( !do_UseInCMD() && !m_pParameters->has_GUI() )
 	{
 		return( false );
 	}
 
-	return( m_bEnabled && (Get_Parent() == NULL || Get_Parent()->is_Enabled()) );
+	return( m_bEnabled && (m_pParent == NULL || m_pParent->is_Enabled()) );
 }
 
 //---------------------------------------------------------
@@ -635,20 +619,17 @@ CSG_String CSG_Parameter::Get_Description(int Flags, const SG_Char *Separator)	c
 
 		if( is_DataObject() || is_DataObject_List() )
 		{
-			if( is_Input() )
+			s	+= CSG_String::Format(", %s", is_Input() ? _TL("input") : _TL("output"));
+
+			if( is_Optional() )
 			{
-				if( is_Optional() )
-					s	+= CSG_String::Format(" (%s)", _TL("optional input"));
-				else
-					s	+= CSG_String::Format(" (%s)", _TL("input"));
+				s	+= CSG_String::Format(", %s", _TL("optional"));
 			}
-			else if( is_Output() )
-			{
-				if( is_Optional() )
-					s	+= CSG_String::Format(" (%s)", _TL("optional output"));
-				else
-					s	+= CSG_String::Format(" (%s)", _TL("output"));
-			}
+		}
+
+		if( do_UseInGUI() != do_UseInCMD() )
+		{
+			s	+= CSG_String::Format(", %s", do_UseInGUI() ? SG_T("GUI") : SG_T("CMD"));
 		}
 	}
 
@@ -1199,10 +1180,9 @@ bool CSG_Parameters_Grid_Target::Create(CSG_Parameters *pParameters, bool bAddDe
 	//-----------------------------------------------------
 	m_pParameters->Add_Grid_System(TargetID, m_Prefix + "SYSTEM", _TL("Grid System"), _TL(""));
 
-	if( !SG_UI_Get_Window_Main() )
-	{
-		m_pParameters->Add_Grid(m_Prefix + "SYSTEM", m_Prefix + "TEMPLATE", _TL("Target System"), _TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false);
-	}
+	m_pParameters->Add_Grid(m_Prefix + "SYSTEM", m_Prefix + "TEMPLATE", _TL("Target System"),
+		_TL("use this grid's system for output grids"), PARAMETER_INPUT_OPTIONAL, false
+	)->Set_UseInGUI(false);
 
 	//-----------------------------------------------------
 	if( bAddDefaultGrid )
@@ -1427,7 +1407,7 @@ bool CSG_Parameters_Grid_Target::On_Parameters_Enable(CSG_Parameters *pParameter
 */
 bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, const TSG_Rect &Extent, int Rows, int Rounding)
 {
-	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
+	if( !m_pParameters->Get_Tool()->has_GUI() )	// no cancel button, so set parameters directly
 	{
 		pParameters	= m_pParameters;
 	}
@@ -1572,7 +1552,7 @@ bool CSG_Parameters_Grid_Target::Set_User_Defined(CSG_Parameters *pParameters, d
 */
 bool CSG_Parameters_Grid_Target::Set_User_Defined_ZLevels(CSG_Parameters *pParameters, double zMin, double zMax, int nLevels, int Rounding)
 {
-	if( !SG_UI_Get_Window_Main() )	// no cancel button, so set parameters directly
+	if( !m_pParameters->Get_Tool()->has_GUI() )	// no cancel button, so set parameters directly
 	{
 		pParameters	= m_pParameters;
 	}
@@ -1655,7 +1635,7 @@ bool CSG_Parameters_Grid_Target::Add_Grid(const CSG_String &Identifier, const CS
 
 	m_pParameters->Add_Grid (pSystem ? pSystem->Get_Identifier() : SG_T(""), Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
-	if( bOptional && SG_UI_Get_Window_Main() )
+	if( bOptional && m_pParameters->Get_Tool()->has_GUI() )
 	{
 		CSG_Parameter	*pNode	= (*m_pParameters)(m_Prefix + "USER_OPTS");
 
@@ -1691,7 +1671,7 @@ bool CSG_Parameters_Grid_Target::Add_Grids(const CSG_String &Identifier, const C
 
 	m_pParameters->Add_Grids(pSystem ? pSystem->Get_Identifier() : SG_T(""), Identifier, Name, _TL(""), bOptional ? PARAMETER_OUTPUT_OPTIONAL : PARAMETER_OUTPUT, false);
 
-	if( bOptional && SG_UI_Get_Window_Main() )
+	if( bOptional && m_pParameters->Get_Tool()->has_GUI() )
 	{
 		CSG_Parameter	*pNode	= (*m_pParameters)(m_Prefix + "USER_OPTS");
 

@@ -242,12 +242,12 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 			continue;
 		}
 
-		if( Parameter.Get_Property("with_gui") && !IS_TRUE_PROPERTY(Parameter, "with_gui") && SG_UI_Get_Window_Main() == NULL )
+		if( Parameter.Get_Property("with_gui") && !IS_TRUE_PROPERTY(Parameter, "with_gui") && has_GUI() == false )
 		{
 			continue;
 		}
 
-		if( Parameter.Get_Property("with_cmd") && !IS_TRUE_PROPERTY(Parameter, "with_cmd") && SG_UI_Get_Window_Main() != NULL )
+		if( Parameter.Get_Property("with_cmd") && !IS_TRUE_PROPERTY(Parameter, "with_cmd") && has_GUI() != false )
 		{
 			continue;
 		}
@@ -793,7 +793,7 @@ bool CSG_Tool_Chain::Check_Condition(const CSG_MetaData &Condition, CSG_Paramete
 	//-----------------------------------------------------
 	if( !Type.CmpNoCase("has_gui"   ) )	// executed from saga_gui ? (tool might offer different parameters if called from saga_cmd, python etc.)
 	{
-		return( IS_TRUE_STRING(Variable) ? SG_UI_Get_Window_Main() != NULL : SG_UI_Get_Window_Main() == NULL );
+		return( IS_TRUE_STRING(Variable) ? has_GUI() != false : has_GUI() == false );
 	}
 
 	//-----------------------------------------------------

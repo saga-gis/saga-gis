@@ -1626,6 +1626,8 @@ public:
 
 	bool						Use_Grid_System			(void);
 
+	bool						has_GUI					(void)	const;
+
 	int							Get_Count				(void)	const	{	return( m_nParameters );	}
 
 	void						Set_Identifier			(const CSG_String &Identifier);
