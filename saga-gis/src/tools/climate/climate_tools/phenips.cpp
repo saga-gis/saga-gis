@@ -154,7 +154,7 @@ private:
 	//-----------------------------------------------------
 	// model parameters
 
-	double				m_DTminimum, m_DToptimum, m_FAminimum, m_DDminimum, m_DDtotal, m_Risk_DayMax, m_Risk_Decay;
+	double				m_DTminimum, m_DToptimum, m_FAminimum, m_DayLength, m_DDminimum, m_DDtotal, m_Risk_DayMax, m_Risk_Decay;
 
 	//-----------------------------------------------------
 	// state variables
@@ -232,6 +232,7 @@ bool CPhenIps::Create(void)
 	m_DToptimum		=  30.4;
 	m_DTminimum		=   8.3;
 	m_FAminimum		=  16.5;
+	m_DayLength		=  14.5;
 	m_DDminimum		= 140.0;
 	m_DDtotal		= 557.0;
 
@@ -269,6 +270,7 @@ bool CPhenIps::Create(const CPhenIps &PhenIps)
 	m_DToptimum		= PhenIps.m_DToptimum;
 	m_DTminimum		= PhenIps.m_DTminimum;
 	m_FAminimum		= PhenIps.m_FAminimum;
+	m_DayLength		= PhenIps.m_DayLength;
 	m_DDminimum		= PhenIps.m_DDminimum;
 	m_DDtotal		= PhenIps.m_DDtotal;
 
@@ -350,12 +352,13 @@ bool CPhenIps::Add_Parameters(CSG_Parameters &Parameters)
 	Parameters.Add_Double("", "DToptimum" , _TL("Developmental Optimum Temperature"      ), _TL("Degree Celsius"),  30.4);
 	Parameters.Add_Double("", "DTminimum" , _TL("Developmental Minimum Temperature"      ), _TL("Degree Celsius"),   8.3);
 	Parameters.Add_Double("", "FAminimum" , _TL("Minimum Temperature for Flight Activity"), _TL("Degree Celsius"),  16.5);
-	Parameters.Add_Double("", "DDminimum" , _TL("Minimum Thermal Sum for Infestation"    ), _TL("Degree Days"   ), 140., 0., true);
-	Parameters.Add_Double("", "DDtotal"   , _TL("Thermal Sum for Total Development"      ), _TL("Degree Days"   ), 557., 0., true);
+	Parameters.Add_Double("", "DayLength" , _TL("Minimum Day Length for Flight Activity" ), _TL("Hours"         ),  14.5, 0., true, 24., true);
+	Parameters.Add_Double("", "DDminimum" , _TL("Minimum Thermal Sum for Infestation"    ), _TL("Degree Days"   ), 140. , 0., true);
+	Parameters.Add_Double("", "DDtotal"   , _TL("Thermal Sum for Total Development"      ), _TL("Degree Days"   ), 557. , 0., true);
 
 	//-----------------------------------------------------
-	Parameters.Add_Double("", "Risk_DayMax", _TL("Day of Maximum Risk after Onset"        ), _TL("Days"          ),   5., 0., true);
-	Parameters.Add_Double("", "Risk_Decay" , _TL("Decay of Risk after Maximum"            ), _TL("Days"          ),  10., 1., true);
+	Parameters.Add_Double("", "Risk_DayMax", _TL("Day of Maximum Risk after Onset"        ), _TL("Days"         ),   5. , 0., true);
+	Parameters.Add_Double("", "Risk_Decay" , _TL("Decay of Risk after Maximum"            ), _TL("Days"         ),  10. , 1., true);
 
 	//-----------------------------------------------------
 	CSG_DateTime Date; Date.Set_Month(CSG_DateTime::Jan); Date.Set_Day(1);
@@ -373,6 +376,7 @@ bool CPhenIps::Set_Parameters(CSG_Parameters &Parameters)
 	m_DToptimum		= Parameters("DToptimum"   )->asDouble();
 	m_DTminimum		= Parameters("DTminimum"   )->asDouble();
 	m_FAminimum		= Parameters("FAminimum"   )->asDouble();
+	m_DayLength		= Parameters("DayLength"   )->asDouble();
 	m_DDminimum		= Parameters("DDminimum"   )->asDouble();
 	m_DDtotal		= Parameters("DDtotal"     )->asDouble();
 
@@ -452,7 +456,7 @@ bool CPhenIps::Add_Day(int DayOfYear, double ATmean, double ATmax, double SIrel,
 			BTeff	= 0.;
 		}
 
-		bool	bCanHatch	= ATmax > m_FAminimum && DayLength >= 14.5;
+		bool	bCanHatch	= ATmax > m_FAminimum && DayLength >= m_DayLength;
 
 		//-------------------------------------------------
 		for(size_t i=0; i<MAX_GENERATIONS; i++)
