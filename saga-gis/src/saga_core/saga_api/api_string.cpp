@@ -1078,6 +1078,13 @@ bool CSG_Strings::Sort(bool Ascending)
 
 	CSG_Index	Index(Get_Count(), Compare);
 
+	CSG_Array_Pointer	Strings(m_Strings);
+
+	for(size_t i=0; i<Get_Size(); i++)
+	{
+		m_Strings[i]	= Strings[Index[i]];
+	}
+
 	return( true );
 }
 
