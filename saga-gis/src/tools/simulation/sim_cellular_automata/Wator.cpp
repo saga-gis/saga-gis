@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Wator.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Cellular_Automata                   //
+//                sim_cellular_automata                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Wator.h"
 
 //---------------------------------------------------------
@@ -76,9 +64,6 @@
 //---------------------------------------------------------
 CWator::CWator(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Wa-Tor"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -89,52 +74,57 @@ CWator::CWator(void)
 		"in the December 1984 issue of Scientific American."
 	));
 
+	Add_Reference("Dewdney, A.K.", "1984",
+		"Sharks and fish Wage an ecological War on the toroidal planet Wa-Tor",
+		"Scientific American. pp. I4—22."
+	);
+
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("GRID", _TL("Wa-Tor"), false);
 
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Value(
-		NULL	, "REFRESH"			, _TL("Refresh"),
+	Parameters.Add_Bool("",
+		"REFRESH"		, _TL("Refresh"),
 		_TL(""),
-		PARAMETER_TYPE_Bool			, true
+		true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "INIT_FISH"		, _TL("Initial Number of Fishes [%]"),
+	Parameters.Add_Double("REFRESH",
+		"INIT_FISH"		, _TL("Initial Number of Fishes [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 30.0, 0.0, true, 100.0, true
+		30., 0., true, 100., true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "INIT_SHARK"		, _TL("Initial Number of Sharks [%]"),
+	Parameters.Add_Double("REFRESH",
+		"INIT_SHARK"	, _TL("Initial Number of Sharks [%]"),
 		_TL(""),
-		PARAMETER_TYPE_Double		, 7.5, 0.0, true, 100.0, true
+		7.5, 0., true, 100., true
 	);
 
-	Parameters.Add_Table(
-		NULL	, "TABLE"			, _TL("Cycles"),
+	Parameters.Add_Table("",
+		"TABLE"			, _TL("Cycles"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "FISH_BIRTH"		, _TL("Birth Rate of Fishes"),
+	Parameters.Add_Int("",
+		"FISH_BIRTH"	, _TL("Birth Rate of Fishes"),
 		_TL(""),
-		PARAMETER_TYPE_Int			,  3.0, 0.0, true
+		3, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SHARK_BIRTH"		, _TL("Birth Rate of Sharks"),
+	Parameters.Add_Int("",
+		"SHARK_BIRTH"	, _TL("Birth Rate of Sharks"),
 		_TL(""),
-		PARAMETER_TYPE_Int			, 12.0, 0.0, true
+		12, 0, true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "SHARK_STARVE"	, _TL("Max. Starvation Time for Sharks"),
+	Parameters.Add_Int("",
+		"SHARK_STARVE"	, _TL("Max. Starvation Time for Sharks"),
 		_TL(""),
-		PARAMETER_TYPE_Int			,  4.0, 0.0, true
+		4, 0, true
 	);
 }
 
@@ -142,6 +132,14 @@ CWator::CWator(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CWator::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CWator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -159,7 +157,6 @@ int CWator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPa
 //---------------------------------------------------------
 bool CWator::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_pWator	= m_Grid_Target.Get_Grid("GRID", SG_DATATYPE_Byte);
 
 	if( !m_pWator )
@@ -239,12 +236,12 @@ bool CWator::On_Execute(void)
 			switch( m_pWator->asByte(x, y) )
 			{
 			case FISH:
-				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Fish_Birth  ));
+				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0., m_Fish_Birth  ));
 				break;
 
 			case SHARK:
-				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Shark_Birth ));
-				m_Starve.Set_Value(x, y, CSG_Random::Get_Uniform(0.0, m_Shark_Starve));
+				m_Age   .Set_Value(x, y, CSG_Random::Get_Uniform(0., m_Shark_Birth ));
+				m_Starve.Set_Value(x, y, CSG_Random::Get_Uniform(0., m_Shark_Starve));
 				break;
 			}
 		}
@@ -287,17 +284,19 @@ bool CWator::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define GET_NEIGHBOR			{	ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
-									iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;	}
+#define GET_NEIGHBOR			{\
+	ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
+	iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;\
+}
 
-#define GET_NEIGHBOR_RANDOMLY	{	i = iNeighbor[(int)((double)rand() * nNeighbors / (double)RAND_MAX)];\
-									ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
-									iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;	}
+#define GET_NEIGHBOR_RANDOMLY	{\
+	i  = iNeighbor[(int)((double)rand() * nNeighbors / (double)RAND_MAX)];\
+	ix = m_pWator->Get_System().Get_xTo(i, x); if( ix < 0 ) ix = m_pWator->Get_NX() - 1; else if( ix >= m_pWator->Get_NX() ) ix = 0;\
+	iy = m_pWator->Get_System().Get_yTo(i, y); if( iy < 0 ) iy = m_pWator->Get_NY() - 1; else if( iy >= m_pWator->Get_NY() ) iy = 0;\
+}
 
 //---------------------------------------------------------
 bool CWator::Next_Cycle(void)
@@ -312,7 +311,7 @@ bool CWator::Next_Cycle(void)
 	m_nFishes	= 0;
 	m_nSharks	= 0;
 
-	m_Next.Assign(0.0);
+	m_Next.Assign(0.);
 
 	switch( iDir )
 	{

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Life.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Cellular_Automata                   //
+//                sim_cellular_automata                  //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Life.h"
 
 
@@ -72,30 +60,35 @@
 //---------------------------------------------------------
 CLife::CLife(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Conway's Game of Life"));
 
 	Set_Author		("O.Conrad (c) 2003");
 
 	Set_Description	(_TW(
-		"Conway's Game of Life - a classical cellular automat.\n"
-		"\n"
-		"Reference:\n"
-		"- Eigen, M., Winkler, R. (1985): "
-		"'Das Spiel - Naturgesetze steuern den Zufall', "
-		"Muenchen, 404p.\n"
+		"Conway's Game of Life - a classical cellular automat."
 	));
 
+	Add_Reference("Eigen, M., Winkler, R.", "1985",
+		"Das Spiel - Naturgesetze steuern den Zufall",
+		"Muenchen, 404p."
+	);
+
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("LIFE", _TL("Life"), false);
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL	, "FADECOLOR"	, _TL("Fade Color Count"),
+	Parameters.Add_Bool("",
+		"REFRESH"	, _TL("Refresh"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 64, 1, true, 255, true
+		true
+	);
+
+	Parameters.Add_Int("",
+		"FADECOLOR"	, _TL("Fade Color Count"),
+		_TL(""),
+		64, 1, true, 255, true
 	);
 }
 
@@ -103,6 +96,14 @@ CLife::CLife(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CLife::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CLife::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -120,7 +121,6 @@ int CLife::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pPar
 //---------------------------------------------------------
 bool CLife::On_Execute(void)
 {
-	//-----------------------------------------------------
 	m_pLife	= m_Grid_Target.Get_Grid("LIFE", SG_DATATYPE_Byte);
 
 	if( !m_pLife )
@@ -130,33 +130,36 @@ bool CLife::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	m_nColors	= Parameters("FADECOLOR")->asInt();
-
-	for(int y=0; y<m_pLife->Get_NY(); y++)
-	{
-		for(int x=0; x<m_pLife->Get_NX(); x++)
-		{
-			m_pLife->Set_Value(x, y, CSG_Random::Get_Uniform(0, 100) < 50 ? 0 : m_nColors);
-		}
-	}
-
-	//-----------------------------------------------------
 	m_pLife->Set_Name(_TL("Conway's Game of Life"));
 	m_pLife->Set_NoData_Value(-1);
 
-	DataObject_Add       (m_pLife);
-	DataObject_Set_Colors(m_pLife, 11, SG_COLORS_WHITE_BLUE);
-	DataObject_Update    (m_pLife, 0, m_nColors, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Add(m_pLife);
 
 	//-----------------------------------------------------
-	int		i;
+	m_nColors	= Parameters("FADECOLOR")->asInt();
+
+	if( Parameters("REFRESH")->asBool() )
+	{
+		for(int y=0; y<m_pLife->Get_NY(); y++)
+		{
+			for(int x=0; x<m_pLife->Get_NX(); x++)
+			{
+				m_pLife->Set_Value(x, y, CSG_Random::Get_Uniform(0, 100) < 50 ? 0 : m_nColors);
+			}
+		}
+
+		DataObject_Set_Colors(m_pLife, 11, SG_COLORS_WHITE_BLUE);
+		DataObject_Update    (m_pLife, 0, m_nColors, SG_UI_DATAOBJECT_SHOW);
+	}
+
+	//-----------------------------------------------------
+	int	Cycle;
 
 	m_Count.Create(m_pLife->Get_System(), SG_DATATYPE_Byte);
 
-	for(i=1; Process_Get_Okay(true) && Next_Cycle(i > m_nColors); i++)
+	for(Cycle=1; Process_Get_Okay(true) && Next_Cycle(Cycle > m_nColors); Cycle++)
 	{
-		Process_Set_Text("%s: %d", _TL("Life Cycle"), i);
+		Process_Set_Text("%s: %d", _TL("Life Cycle"), Cycle);
 
 		DataObject_Update(m_pLife, 0, m_nColors);
 	}
@@ -166,7 +169,7 @@ bool CLife::On_Execute(void)
 	//-----------------------------------------------------
 	if( is_Progress() )
 	{
-		Message_Fmt("\n%s %d %s\n", _TL("Dead after"), i, _TL("Life Cycles"));
+		Message_Fmt("\n%s %d %s\n", _TL("Dead after"), Cycle, _TL("Life Cycles"));
 	}
 
 	return( true );
@@ -180,23 +183,20 @@ bool CLife::On_Execute(void)
 //---------------------------------------------------------
 bool CLife::Next_Cycle(bool bCheck4Change)
 {
-	//-----------------------------------------------------
 	bool	bContinue	= bCheck4Change ? false : true;
 
-	int		y;
-
 	//-----------------------------------------------------
-	#pragma omp parallel for private(y)
-	for(y=0; y<m_pLife->Get_NY(); y++)
+	#pragma omp parallel for
+	for(int y=0; y<m_pLife->Get_NY(); y++)
 	{
 		for(int x=0; x<m_pLife->Get_NX(); x++)
 		{
-			int		n	= 0;
+			int	n	= 0;
 
 			for(int i=0; i<8; i++)
 			{
-				int	ix	= CSG_Grid_System::Get_xTo(i, x);;
-				int iy	= CSG_Grid_System::Get_yTo(i, y);;
+				int	ix	= CSG_Grid_System::Get_xTo(i, x);
+				int iy	= CSG_Grid_System::Get_yTo(i, y);
 
 				if( ix < 0 ) ix = m_pLife->Get_NX() - 1; else if( ix >= m_pLife->Get_NX() ) ix = 0;
 				if( iy < 0 ) iy = m_pLife->Get_NY() - 1; else if( iy >= m_pLife->Get_NY() ) iy = 0;
@@ -217,14 +217,12 @@ bool CLife::Next_Cycle(bool bCheck4Change)
 	}
 
 	//-----------------------------------------------------
-	#pragma omp parallel for private(y)
-	for(y=0; y<m_pLife->Get_NY(); y++)
+	#pragma omp parallel for
+	for(int y=0; y<m_pLife->Get_NY(); y++)
 	{
 		for(int x=0; x<m_pLife->Get_NX(); x++)
 		{
-			int		n	= m_Count.asByte(x, y);
-
-			switch( n )
+			switch( m_Count.asByte(x, y) )
 			{
 			case  2:	// keep status
 				if( m_pLife->asByte(x, y) > 0 && m_pLife->asByte(x, y) < m_nColors )

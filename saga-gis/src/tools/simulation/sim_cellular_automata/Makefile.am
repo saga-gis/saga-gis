@@ -11,11 +11,12 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version
 pkglib_LTLIBRARIES = libsim_cellular_automata.la
 libsim_cellular_automata_la_SOURCES =\
+Hodgepodge.cpp\
 Life.cpp\
 MLB_Interface.cpp\
 Wator.cpp\
+Hodgepodge.h\
 Life.h\
-MLB_Interface.h\
 Wator.h
 
 libsim_cellular_automata_la_LIBADD = $(top_srcdir)/src/saga_core/saga_api/libsaga_api.la

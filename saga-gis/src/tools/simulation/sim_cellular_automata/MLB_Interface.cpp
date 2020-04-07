@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,18 +48,9 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 //---------------------------------------------------------
@@ -79,13 +67,13 @@ CSG_String Get_Info(int i)
 		return( _TL("Simulation") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2002") );
+		return( "O. Conrad (c) 2002" );
 
 	case TLB_INFO_Description:
 		return( _TL("Cellular Automata") );
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Simulation|Cellular Automata") );
@@ -98,6 +86,7 @@ CSG_String Get_Info(int i)
 
 #include "Life.h"
 #include "Wator.h"
+#include "Hodgepodge.h"
 
 
 //---------------------------------------------------------
@@ -105,29 +94,15 @@ CSG_String Get_Info(int i)
 
 CSG_Tool *		Create_Tool(int i)
 {
-	// Don't forget to continuously enumerate the case switches
-	// when adding new tools! Also bear in mind that the
-	// enumeration always has to start with [case 0:] and
-	// that [default:] must return NULL!...
-
-	CSG_Tool	*pTool;
-
 	switch( i )
 	{
-	case 0:
-		pTool	= new CLife;
-		break;
+	case  0: return( new CLife );
+	case  1: return( new CWator );
+	case  2: return( new CHodgepodge );
 
-	case 1:
-		pTool	= new CWator;
-		break;
-
-	default:
-		pTool	= NULL;
-		break;
+	case  3: return( NULL );
+	default: return( TLB_INTERFACE_SKIP_TOOL );
 	}
-
-	return( pTool );
 }
 
 
