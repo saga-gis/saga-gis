@@ -353,7 +353,7 @@ public:
 	bool							Del_Index			(void);
 	bool							Toggle_Index		(int iField);
 
-	bool							is_Indexed			(void)	const		{	return( m_Index.Get_Count() == m_nRecords );	}
+	bool							is_Indexed			(void)	const		{	return( m_nRecords > 0 && m_Index.Get_Count() == m_nRecords );	}
 
 	bool							Set_Index			(int Field_1, TSG_Table_Index_Order Order_1, int Field_2 = -1, TSG_Table_Index_Order Order_2 = TABLE_INDEX_None, int Field_3 = -1, TSG_Table_Index_Order Order_3 = TABLE_INDEX_None);
 	int								Get_Index_Field		(size_t i)	const	{	return( i >= m_Index_Fields.Get_Size() ? -1 : abs(m_Index_Fields[i]) - 1 );	}

@@ -407,7 +407,7 @@ bool CSG_Table::_Load_Text(const CSG_String &FileName, bool bHeadline, const SG_
 	}
 
 	//-----------------------------------------------------
-	if( Table.Get_Count() > 0 )
+	if( Table.Get_Field_Count() > 0 )
 	{
 		for(iField=0; iField<Table.Get_Field_Count(); iField++)
 		{
