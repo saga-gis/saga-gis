@@ -315,15 +315,21 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 	Parameters.Add_Bool("", "STDDEVHI"    , _TL("Mean plus Standard Deviation"), _TL(""), false);
 
 	Parameters.Add_String("",
-		"PCTL_VAL", _TL("Percentiles"),
+		"PCTL_VAL"	, _TL("Percentiles"),
 		_TL("Separate the desired percentiles by semicolon"),
 		"5; 25; 50; 75; 95"
 	);
 
-	Parameters.Add_Bool("",
-		"PCTL_HST", _TL("From Histogram"),
+	Parameters.Add_Bool("PCTL_VAL",
+		"PCTL_HST"	, _TL("From Histogram"),
 		_TL(""),
 		true
+	);
+
+	Parameters.Add_Double("",
+		"SAMPLES"	, _TL("Sample Size"),
+		_TL("Minimum sample size [percent] used to calculate statistics. Ignored, if set to zero."),
+		0., 0., true, 100., true
 	);
 }
 
@@ -331,6 +337,12 @@ CGSGrid_Statistics_To_Table::CGSGrid_Statistics_To_Table(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGSGrid_Statistics_To_Table::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
 
 //---------------------------------------------------------
 int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
@@ -351,7 +363,6 @@ int CGSGrid_Statistics_To_Table::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CGSGrid_Statistics_To_Table::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Parameter_Grid_List	*pGrids	= Parameters("GRIDS")->asGridList();
 
 	if( pGrids->Get_Grid_Count() < 1 )
@@ -413,6 +424,8 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 		return( false );
 	}
 
+	sLong nSamples[2]; nSamples[0] = (sLong)(pGrids->Get_System()->Get_NCells() * Parameters("SAMPLES")->asDouble() / 100.);
+
 	//-----------------------------------------------------
 	for(int i=0; i<pGrids->Get_Grid_Count() && Process_Get_Okay(); i++)
 	{
@@ -420,22 +433,33 @@ bool CGSGrid_Statistics_To_Table::On_Execute(void)
 
 		CSG_Table_Record	*pRecord	= pTable->Add_Record();
 
-		CSG_Simple_Statistics	s	= pGrid->Get_Statistics();
+		CSG_Simple_Statistics	s;
 
-		pRecord->Set_Value("NAME"        , pGrid->Get_Name            ());
+		if( nSamples[0] > (nSamples[1] = pGrid->Get_Max_Samples()) )
+		{
+			pGrid->Set_Max_Samples(nSamples[0]);
+			s	= pGrid->Get_Statistics();
+			pGrid->Set_Max_Samples(nSamples[1]);	// restore old sample size
+		}
+		else
+		{
+			s	= pGrid->Get_Statistics();
+		}
+
+		pRecord->Set_Value("NAME"        , pGrid->Get_Name             ());
 		pRecord->Set_Value("DATA_CELLS"  , (int)(pGrid->Get_NCells() - pGrid->Get_NoData_Count()));
-		pRecord->Set_Value("NODATA_CELLS", (int)pGrid->Get_NoData_Count());
-		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize        ());
-		pRecord->Set_Value("MEAN"        , s.Get_Mean                 ());
-		pRecord->Set_Value("MIN"         , s.Get_Minimum              ());
-		pRecord->Set_Value("MAX"         , s.Get_Maximum              ());
-		pRecord->Set_Value("RANGE"       , s.Get_Range                ());
-		pRecord->Set_Value("SUM"         , s.Get_Sum                  ());
-		pRecord->Set_Value("SUM2"        , s.Get_Sum_Of_Squares       ());
-		pRecord->Set_Value("VAR"         , s.Get_Variance             ());
-		pRecord->Set_Value("STDDEV"      , s.Get_StdDev               ());
-		pRecord->Set_Value("STDDEVLO"    , s.Get_Mean() - s.Get_StdDev());
-		pRecord->Set_Value("STDDEVHI"    , s.Get_Mean() + s.Get_StdDev());
+		pRecord->Set_Value("NODATA_CELLS", (int)(                      pGrid->Get_NoData_Count()));
+		pRecord->Set_Value("CELLSIZE"    , pGrid->Get_Cellsize         ());
+		pRecord->Set_Value("MEAN"        , s.Get_Mean                  ());
+		pRecord->Set_Value("MIN"         , s.Get_Minimum               ());
+		pRecord->Set_Value("MAX"         , s.Get_Maximum               ());
+		pRecord->Set_Value("RANGE"       , s.Get_Range                 ());
+		pRecord->Set_Value("SUM"         , s.Get_Sum                   ());
+		pRecord->Set_Value("SUM2"        , s.Get_Sum_Of_Squares        ());
+		pRecord->Set_Value("VAR"         , s.Get_Variance              ());
+		pRecord->Set_Value("STDDEV"      , s.Get_StdDev                ());
+		pRecord->Set_Value("STDDEVLO"    , s.Get_Mean() - s.Get_StdDev ());
+		pRecord->Set_Value("STDDEVHI"    , s.Get_Mean() + s.Get_StdDev ());
 
 		for(int j=0; j<Percentiles.Get_Count(); j++)
 		{
