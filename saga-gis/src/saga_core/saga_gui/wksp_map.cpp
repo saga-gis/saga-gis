@@ -1250,7 +1250,7 @@ void CWKSP_Map::Set_CrossHair_Off(void)
 //---------------------------------------------------------
 void CWKSP_Map::Set_Projection(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
 
 	if(	pTool )
 	{

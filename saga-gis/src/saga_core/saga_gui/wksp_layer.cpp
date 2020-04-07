@@ -893,7 +893,7 @@ CSG_Rect CWKSP_Layer::Get_Extent(void)
 //---------------------------------------------------------
 void CWKSP_Layer::_Set_Projection(void)
 {
-	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15);	// CCRS_Picker
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("pj_proj4", 15, true);	// CCRS_Picker
 
 	CSG_Projection	Projection(Get_Object()->Get_Projection());
 
