@@ -6,7 +6,7 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                    Kinematic_Wave                     //
+//                     sim_hydrology                     //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //

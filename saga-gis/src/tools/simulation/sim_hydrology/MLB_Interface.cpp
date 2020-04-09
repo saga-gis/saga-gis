@@ -47,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 // 1. Include the appropriate SAGA-API header...
 
@@ -97,6 +91,7 @@ CSG_String Get_Info(int i)
 #include "diffuse_pollution_risk.h"
 #include "diffusion_gradient_concentration.h"
 #include "timed_flow_accumulation.h"
+#include "overland_flow.h"
 
 
 //---------------------------------------------------------
@@ -115,8 +110,9 @@ CSG_Tool *		Create_Tool(int i)
 	case  6:	return( new CSim_Diffusion_Concentration );
 	case  7:	return( new CSim_Diffusion_Gradient_And_Concentration );
 	case  8:	return( new CTimed_Flow_Accumulation );
+	case  9:	return( new COverland_Flow );
 
-	case  9:	return( NULL );
+	case 10:	return( NULL );
 	default:	return( TLB_INTERFACE_SKIP_TOOL );
 	}
 }

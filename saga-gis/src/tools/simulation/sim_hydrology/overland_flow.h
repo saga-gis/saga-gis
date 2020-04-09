@@ -10,10 +10,10 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//               timed_flow_accumulation.h               //
+//                    overland_flow.h                    //
 //                                                       //
-//                 Copyright (C) 2019 by                 //
-//                     Olaf Conrad                       //
+//                 Copyright (C) 2020 by                 //
+//                      Olaf Conrad                      //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -36,7 +36,7 @@
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//    e-mail:     oconrad@saga-gis.de                    //
+//    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
@@ -46,8 +46,8 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#ifndef HEADER_INCLUDED__timed_flow_accumulation_H
-#define HEADER_INCLUDED__timed_flow_accumulation_H
+#ifndef HEADER_INCLUDED__overland_flow_H
+#define HEADER_INCLUDED__overland_flow_H
 
 
 ///////////////////////////////////////////////////////////
@@ -67,42 +67,41 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class CTimed_Flow_Accumulation : public CSG_Tool_Grid
+class COverland_Flow : public CSG_Tool_Grid
 {
 public:
-	CTimed_Flow_Accumulation(void);
-
-//	virtual CSG_String			Get_MenuPath	(void)	{	return( _TL("A:timed_flow_accumulation") );	}
+	COverland_Flow(void);
 
 
 protected:
 
-	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
-	virtual bool				On_Execute				(void);
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	double						m_K, m_R, m_Time;
+	double					m_dTime, m_Roughness, m_dt_Max;
 
-	CSG_Grid					*m_pDEM, *m_pK, *m_pAccu, *m_pFlow, *m_pTime, *m_pConc;
+	CSG_Grid				*m_pDEM, *m_pRoughness, *m_pFlow, m_Flow;
 
 
-	double						Get_K					(int x, int y);
-	double						Get_R					(int x, int y);
-	double						Get_Velocity			(double k, double R, double I);
-	double						Get_Velocity			(int x, int y);
-	double						Get_Travel_Time			(int x, int y);
-	double						Get_Travel_Time			(int x, int y, int Direction);
+	bool					Initialize				(void);
+	bool					Finalize				(void);
 
-	void						Add_Flow				(int x, int y, int Direction, double Proportion = 1.);
+	bool					Set_Time_Stamp			(double Time);
 
-	bool						Get_D8					(int x, int y, int &Direction);
-	bool						Set_D8					(int x, int y);
+	bool					Do_Time_Step			(void);
 
-	bool						Get_MFD					(int x, int y, double Flow[8]);
-	bool						Set_MFD					(int x, int y);
+	double					Get_Surface				(int x, int y);
+	double					Get_Roughness			(int x, int y);
+	double					Get_Velocity			(double Depth, double Slope, double Roughness);
+
+	bool					Get_Neighbour			(int x, int y, int i, int &ix, int &iy);
+
+	bool					Set_Flow				(void);
+	bool					Set_Flow				(int x, int y);
 
 };
 
@@ -114,4 +113,4 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__timed_flow_accumulation_H
+#endif // #ifndef HEADER_INCLUDED__overland_flow_H

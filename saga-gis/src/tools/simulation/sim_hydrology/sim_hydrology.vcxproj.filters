@@ -41,6 +41,9 @@
     <ClCompile Include="timed_flow_accumulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="overland_flow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -116,6 +119,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="timed_flow_accumulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="overland_flow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
