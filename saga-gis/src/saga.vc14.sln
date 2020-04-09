@@ -409,6 +409,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_webservices", "tools\io\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "io_pdal", "tools\io\io_pdal\io_pdal.vcxproj", "{FF9D12B1-9773-401E-9927-3E7395DF2975}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sim_air_flow", "tools\simulation\sim_air_flow\sim_air_flow.vcxproj", "{19F5D2BA-E929-498B-AB0D-903958AE6855}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -1081,6 +1083,14 @@ Global
 		{FF9D12B1-9773-401E-9927-3E7395DF2975}.Release|Win32.ActiveCfg = Release|Win32
 		{FF9D12B1-9773-401E-9927-3E7395DF2975}.Release|x64.ActiveCfg = Release|x64
 		{FF9D12B1-9773-401E-9927-3E7395DF2975}.Release|x64.Build.0 = Release|x64
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Debug|Win32.ActiveCfg = Debug|Win32
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Debug|Win32.Build.0 = Debug|Win32
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Debug|x64.ActiveCfg = Debug|x64
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Debug|x64.Build.0 = Debug|x64
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|Win32.ActiveCfg = Release|Win32
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|Win32.Build.0 = Release|Win32
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|x64.ActiveCfg = Release|x64
+		{19F5D2BA-E929-498B-AB0D-903958AE6855}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

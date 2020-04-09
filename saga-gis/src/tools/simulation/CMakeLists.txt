@@ -1,5 +1,6 @@
 message("folder: tools/simulation")
 
+add_subdirectory(sim_air_flow)
 add_subdirectory(sim_cellular_automata)
 add_subdirectory(sim_ecosystems_hugget)
 add_subdirectory(sim_erosion)

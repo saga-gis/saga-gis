@@ -412,6 +412,7 @@ AC_OUTPUT(Makefile \
 	src/tools/shapes/shapes_tools/Makefile \
 	src/tools/shapes/shapes_transect/Makefile \
 	src/tools/simulation/Makefile \
+	src/tools/simulation/sim_air_flow/Makefile \
 	src/tools/simulation/sim_cellular_automata/Makefile \
 	src/tools/simulation/sim_ecosystems_hugget/Makefile \
 	src/tools/simulation/sim_erosion/Makefile \
