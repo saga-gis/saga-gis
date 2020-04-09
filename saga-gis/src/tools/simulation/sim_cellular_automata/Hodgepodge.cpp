@@ -208,6 +208,8 @@ bool CHodgepodge::On_Execute(void)
 	//-----------------------------------------------------
 	m_States.Destroy();
 
+	SG_UI_Process_Set_Okay();
+
 	return( true );
 }
 

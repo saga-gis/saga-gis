@@ -79,16 +79,21 @@ CLife::CLife(void)
 	m_Grid_Target.Add_Grid("LIFE", _TL("Life"), false);
 
 	//-----------------------------------------------------
-	Parameters.Add_Bool("",
+	Parameters.Add_Choice("",
 		"REFRESH"	, _TL("Refresh"),
 		_TL(""),
-		true
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("no refresh"),
+			_TL("random"),
+			_TL("virus 1"),
+			_TL("virus 2")
+		), 1
 	);
 
 	Parameters.Add_Int("",
 		"FADECOLOR"	, _TL("Fade Color Count"),
 		_TL(""),
-		64, 1, true, 255, true
+		64, 3, true, 255, true
 	);
 }
 
@@ -138,13 +143,32 @@ bool CLife::On_Execute(void)
 	//-----------------------------------------------------
 	m_nColors	= Parameters("FADECOLOR")->asInt();
 
-	if( Parameters("REFRESH")->asBool() )
+	if( Parameters("REFRESH")->asInt() > 0 )
 	{
+		int	Method	= Parameters("REFRESH")->asInt(), cx = m_pLife->Get_NX() / 2, cy = m_pLife->Get_NY() / 2;
+
 		for(int y=0; y<m_pLife->Get_NY(); y++)
 		{
 			for(int x=0; x<m_pLife->Get_NX(); x++)
 			{
-				m_pLife->Set_Value(x, y, CSG_Random::Get_Uniform(0, 100) < 50 ? 0 : m_nColors);
+				bool	bAlive;
+
+				switch( Method )
+				{
+				default:
+					bAlive = CSG_Random::Get_Uniform(0, 100) < 50;
+					break;
+
+				case  2:
+					bAlive = ((cx - x) % 3 && (cy - y) % 3) || (x == cx && y == cy - 1);
+					break;
+
+				case  3:
+					bAlive = ((cx - x) % 3 && (cy - y) % 3) || (x == cx && y == cy - 1) || (x == cx - 1 && y == cy);
+					break;
+				}
+
+				m_pLife->Set_Value(x, y, bAlive ? m_nColors : 0);
 			}
 		}
 
@@ -171,6 +195,8 @@ bool CLife::On_Execute(void)
 	{
 		Message_Fmt("\n%s %d %s\n", _TL("Dead after"), Cycle, _TL("Life Cycles"));
 	}
+
+	SG_UI_Process_Set_Okay();
 
 	return( true );
 }
