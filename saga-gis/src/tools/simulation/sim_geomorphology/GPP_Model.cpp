@@ -89,7 +89,16 @@ CGPP_Model::CGPP_Model(void)
                          "the modeling approaches and precursor implementations of the tool have proven their "
                          "applicability in numerous studies, also including geomorphological research questions "
                          "such as the delineation of sediment cascades or the study of process connectivity.<br/><br/>"
-						 "Please provide the following reference in your work if you are using the GPP model:"
+						 "Please provide the reference cited below in your work if you are using the GPP model.<br/><br/>"
+                         "Addendum:<br/>"
+                         "The article is not clear about the way the impact on the slope is exactly modelled when the 'Shadow Angle' "
+                         "or '1-parameter' friction model is used. Besides the 'Threshold Angle Free Fall' criterion to determine the "
+                         "location of the first impact, it is also assumed that the particle must leave its own release "
+                         "area (given by its ID) in order to impact. This is actually a conceptual design, taking into "
+                         "account that free fall usually occurs in steep rock faces (release areas), and the fact, that "
+                         "such rockfaces are not characterised very well in a 2.5D elevation model. You can work around that "
+                         "conceptual design by providing a grid describing the 'slope impact areas' as input. Using such a "
+                         "grid disables the 'Threshold Angle Free Fall' parameter."
 	));
 
 	Add_Reference("Wichmann, V.", "2017",
