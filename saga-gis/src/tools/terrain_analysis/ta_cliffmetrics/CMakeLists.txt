@@ -60,4 +60,8 @@ if (WITH_TOOL_TA_CLIFFMETRICS OR WITH_ALL_STANDARD_TOOLS OR WITH_ALL_TOOLS)
 
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake )
+
+    if(UNIX)
+        add_definitions(-DCPU -Dx86)
+    endif()
 endif()
