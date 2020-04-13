@@ -32,6 +32,7 @@ if (WITH_TOOL_GRID_GRIDDING OR WITH_ALL_TOOLS)
 			nn/triangle.c)
 		list(APPEND SAGA_TOOL_CUSTOM_HEADER_LIST
 			nn/triangle.h)
+        message(STATUS "building with triangle")
 	endif()
 	# load common tool template
 	include(../../CMakePluginTemplate.cmake )
@@ -40,7 +41,14 @@ if (WITH_TOOL_GRID_GRIDDING OR WITH_ALL_TOOLS)
 		# link Qhull library
 		# on Ubuntu 16.04 package libqhull-dev
 		find_package(Qhull REQUIRED)
-		target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_QHULL)
+        find_file(LIBQHULL_HEADER NAMES libqhull/libqhull.h)
+        if(LIBQHULL_HEADER)
+		    target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_QHULL -DHAVE_LIBQHULL_QHULL_A_H)
+            message(STATUS "LIBQHULL header found")
+        else()
+            target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_QHULL -DHAVE_QHULL_QHULL_A_H)
+            message(STATUS "QHULL header found")
+        endif()
 		target_include_directories(${PROJECT_NAME} PRIVATE ${Qhull_INCLUDE_DIRS})
 		target_link_libraries(${PROJECT_NAME} ${Qhull_LIBRARIES})
 	endif()

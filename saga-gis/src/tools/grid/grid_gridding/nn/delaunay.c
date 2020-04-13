@@ -323,7 +323,15 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
 //---------------------------------------------------------
 #else /* USE_QHULL */
 
-#include <qhull/qhull_a.h>
+#ifdef HAVE_LIBQHULL_QHULL_A_H
+    #include <libqhull/qhull_a.h>
+#else
+    #ifdef HAVE_QHULL_QHULL_A_H
+        #include <qhull/qhull_a.h>
+    #else
+        #error Failed to include qhull_a.h. Is Qhull installed?
+    #endif
+#endif
 
 /* returns 1 if a,b,c are clockwise ordered */
 static int cw(delaunay *d, triangle *t)

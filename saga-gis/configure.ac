@@ -235,11 +235,29 @@ AC_ARG_ENABLE(triangle,
 
 AM_CONDITIONAL(TRIANGLE, [test x$use_triangle = xyes])
 
+QHULLFLAGS=""
+
 if test "x$use_triangle" != xyes; then
     AC_MSG_RESULT([        Triangle disabled])
-    AC_CHECK_LIB(qhull, qh_qhull, , 
-      AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed]))
+    AC_CHECK_HEADER([qhull/qhull_a.h],[AC_CHECK_LIB([qhull], [qh_qhull], QHULLFOUND=1,,)])
+    AC_CHECK_HEADER([libqhull/qhull_a.h],[AC_CHECK_LIB([qhull], [qh_qhull], LIBQHULLFOUND=1,,)])
+    if test -n "$LIBQHULLFOUND" ; then 
+      AC_MSG_RESULT([        Building with libqhull])
+      QHULLFLAGS="-DHAVE_LIBQHULL_QHULL_A_H"
+    elif test -n "$QHULLFOUND" ; then 
+      AC_MSG_RESULT([        Building with qhull])
+      QHULLFLAGS="-DHAVE_QHULL_QHULL_A_H"
+    else
+      AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed])
+    fi
+#    AC_CHECK_LIB(qhull, qh_qhull, , 
+#      AC_MSG_FAILURE([--disable-triangle was given but test for qhull failed]))
+#    AC_CHECK_HEADERS([qhull/qhull_a.h libqhull/qhull_a.h])
+#    AC_SUBST([HAVE_QHULL_QHULL_A_H])
+#    AC_SUBST([HAVE_LIBQHULL_QHULL_A_H])
  fi
+
+AC_SUBST(QHULLFLAGS)
 
 AC_ARG_ENABLE(libfire,
         AS_HELP_STRING([--disable-libfire],[ Compile without libfire (only free for non-commercial usage)]),
