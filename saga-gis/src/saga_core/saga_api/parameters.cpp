@@ -897,7 +897,8 @@ CSG_Parameter * CSG_Parameters::Add_Parameters(const CSG_String &ParentID, const
 
 	pParameter	= _Add(ParentID, ID, Name, Description, PARAMETER_TYPE_Parameters, 0);
 
-	pParameter->asParameters()->m_Callback	= m_Callback;
+	pParameter->asParameters()->m_Callback = m_Callback;
+	pParameter->asParameters()->m_pTool    = m_pTool;
 
 	return( pParameter );
 }
