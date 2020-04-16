@@ -199,7 +199,7 @@ bool COverland_Flow::Initialize(void)
 	if( Parameters("RESET")->asBool() )
 	{
 		CSG_Grid *pFlow = Parameters("FLOW_INIT")->asGrid  ();
-		double     Flow = Parameters("FLOW_INIT")->asDouble() / 1000.;
+		double     Flow = Parameters("FLOW_INIT")->asDouble() / 1000.;	// convert mm to m
 
 		#pragma omp parallel
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
@@ -217,7 +217,7 @@ bool COverland_Flow::Initialize(void)
 				double	Value;
 
 				m_pFlow->Set_Value(x, y, pFlow->Get_Value(Get_System().Get_Grid_to_World(x, y), Value)
-					? Value / 1000. : 0.
+					? Value / 1000. : 0.	// convert mm to m
 				);
 			}
 		}
@@ -268,7 +268,7 @@ bool COverland_Flow::Set_Time_Stamp(double Time)
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Surface(int x, int y)
 {
-	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) / 1000. );
+	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) );
 }
 
 //---------------------------------------------------------
@@ -312,9 +312,7 @@ bool COverland_Flow::Do_Time_Step(void)
 		{
 			m_dTime	/= 2.;
 
-			SG_UI_ProgressAndMsg_Lock(false);
-			Message_Fmt("\n<< time step change: %g\t[%g]", 60. * m_dTime, m_dt_Max);
-			SG_UI_ProgressAndMsg_Lock(true);
+		//	Message_Fmt("\n<< time step change: %g\t[%g]", 60. * m_dTime, m_dt_Max);
 		}
 	}
 	while( m_dt_Max > 0.75 && Process_Get_Okay() );
@@ -323,9 +321,7 @@ bool COverland_Flow::Do_Time_Step(void)
 	{
 		m_dTime	*= 2.;
 
-		SG_UI_ProgressAndMsg_Lock(false);
-		Message_Fmt("\n>> time step change: %g\t[%g]", 60. * m_dTime, m_dt_Max);
-		SG_UI_ProgressAndMsg_Lock(true);
+	//	Message_Fmt("\n>> time step change: %g\t[%g]", 60. * m_dTime, m_dt_Max);
 	}
 
 	m_pFlow->Assign(&m_Flow);
@@ -361,84 +357,71 @@ bool COverland_Flow::Set_Flow(void)
 //---------------------------------------------------------
 bool COverland_Flow::Set_Flow(int x, int y)
 {
-	int		i, ix, iy;
-	double	z, iz, dz[8], dzSum;
-
-	z	= Get_Surface(x, y);
-
-	for(i=0, dzSum=0.; i<8; i++)
-	{
-		if( !Get_Neighbour(x, y, i, ix, iy) || m_pDEM->is_NoData(ix, iy) )
-		{
-			return( true );
-		}
-
-		if( z > (iz = Get_Surface(ix, iy)) )
-		{
-			dzSum	+= dz[i] = pow((z - iz) / Get_Length(i), 1.1);
-		}
-		else
-		{
-			dz[i]	= 0.;
-		}
-	}
-
-	//-------------------------------------------------
 	double	Q	= m_pFlow->asDouble(x, y);
 
-	if( dzSum > 0. )
+	if( Q > 0. )
 	{
-		double	Qi, QiSum, dt;
+		double	dz[8], dzSum = 0., z = Get_Surface(x, y);
 
-		dzSum	= Q / dzSum;
-
-		for(i=0, QiSum=0.0; i<8; i++)
+		for(int i=0, ix, iy; i<8; i++)
 		{
-			if( dz[i] > 0. && Get_Neighbour(x, y, i, ix, iy) )
+			if     ( Get_Neighbour(x, y, i    , ix, iy) )
 			{
-				Qi	= dz[i] * dzSum;
-				dt	= (3600. * m_dTime * Get_Velocity(Qi, dz[i], Get_Roughness(x, y))) / Get_Cellsize();
+				dz[i]	= z - Get_Surface(ix, iy);
+			}
+			else if( Get_Neighbour(x, y, i + 4, ix, iy) )
+			{
+				dz[i]	= Get_Surface(ix, iy) - z;
+			}
+			else
+			{
+				dz[i]	= 0.;
+			}
 
-				if( m_dt_Max < dt )
-				{
-					m_dt_Max	= dt;
-				}
-
-				Qi	*= dt;
-
-				QiSum	+= dz[i]	= Qi;
+			if( dz[i] > 0. )
+			{
+				dzSum	+= dz[i] = dz[i] / Get_Length(i);
+			}
+			else
+			{
+				dz[i]	= 0.;
 			}
 		}
 
-		Q	= Q - QiSum;
-		z	= m_pDEM->asDouble(x, y) + Q;
-
-		for(i=0; i<8; i++)
+		//-------------------------------------------------
+		if( dzSum > 0. )
 		{
-			if( dz[i] > 0. && Get_Neighbour(x, y, i, ix, iy) )
+			double	dQSum = 0.;
+
+			for(int i=0; i<8; i++)
 			{
-				if( z < (iz = m_pDEM->asDouble(ix, iy) + dz[i]) )
+				if( dz[i] > 0. )
 				{
-					iz	= iz - (z + iz) / 2.;
+					double	dQ	= Q * dz[i] / dzSum;
+					double	dt	= 3600. * m_dTime * Get_Velocity(dQ, dz[i], Get_Roughness(x, y)) / Get_Length(i);
 
-					if( dz[i] < iz )
+					if( m_dt_Max < dt )
 					{
-						Q		+= dz[i];
-						dz[i]	 = 0.;
+						m_dt_Max	= dt;
 					}
-					else
-					{
-						Q		+= iz;
-						dz[i]	-= iz;
-					}
+
+					dQSum	+= dz[i] = dQ * dt;
 				}
+			}
 
-				m_Flow.Add_Value(ix, iy, dz[i]);
+			Q	= Q - dQSum;
+
+			for(int i=0, ix, iy; i<8; i++)
+			{
+				if( dz[i] > 0. && Get_Neighbour(x, y, i, ix, iy) )
+				{
+					m_Flow.Add_Value(ix, iy, dz[i]);
+				}
 			}
 		}
+
+		m_Flow.Add_Value(x, y, Q);
 	}
-
-	m_Flow.Add_Value(x, y, Q);
 
 	return( true );
 }
