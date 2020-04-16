@@ -375,18 +375,19 @@ bool CSG_Tool::Get_Projection(CSG_Projection &Projection)	const
 //---------------------------------------------------------
 int CSG_Tool::_On_Parameter_Changed(CSG_Parameter *pParameter, int Flags)
 {
-	CSG_Tool	*pTool	= pParameter && pParameter->Get_Parameters() ? pParameter->Get_Parameters()->Get_Tool() : NULL;
+	CSG_Parameters *pParameters = pParameter  ? pParameter ->Get_Parameters() : NULL;
+	CSG_Tool       *pTool       = pParameters ? pParameters->Get_Tool      () : NULL;
 
 	if( pTool )
 	{
 		if( Flags & PARAMETER_CHECK_VALUES )
 		{
-			pTool->On_Parameter_Changed(pParameter->Get_Parameters(), pParameter);
+			pTool->On_Parameter_Changed(pParameters, pParameter);
 		}
 
 		if( Flags & PARAMETER_CHECK_ENABLE )
 		{
-			pTool->On_Parameters_Enable(pParameter->Get_Parameters(), pParameter);
+			pTool->On_Parameters_Enable(pParameters, pParameter);
 		}
 
 		return( 1 );
