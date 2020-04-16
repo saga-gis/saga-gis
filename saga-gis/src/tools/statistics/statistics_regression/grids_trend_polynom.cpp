@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: grids_trend_polynom.cpp 911 2011-02-14 16:38:15Z reklov_w $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "grids_trend_polynom.h"
 
 
@@ -70,10 +58,9 @@
 //---------------------------------------------------------
 CGrids_Trend::CGrids_Trend(void)
 {
-	//-----------------------------------------------------
-	Set_Name		(_TL("Polynomial Trend from Grids"));
+	Set_Name		(_TL("Cellwise Trend for Grids"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2011"));
+	Set_Author		("O.Conrad (c) 2011");
 
 	Set_Description	(_TW(
 		"Fits for each cell a polynomial trend function. "
@@ -82,71 +69,55 @@ CGrids_Trend::CGrids_Trend(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid_List(
-		NULL	, "Y_GRIDS"	, _TL("Dependent Variables"),
+	Parameters.Add_Grid_List("",
+		"Y_GRIDS"	, _TL("Dependent Variables"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid_List(
-		NULL	, "COEFF"	, _TL("Polynomial Coefficients"),
+	Parameters.Add_Grid_List("",
+		"COEFF"		, _TL("Polynomial Coefficients"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Grid(
-		NULL	, "R2"		, _TL("Coefficient of Determination"),
+	Parameters.Add_Grid("", "R2"    , _TL("Determination Coefficient"         ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "R2ADJ" , _TL("Adjusted Determination Coefficient"), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "STDERR", _TL("Standard Error"                    ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+	Parameters.Add_Grid("", "P"     , _TL("Significance Level"                ), _TL(""), PARAMETER_OUTPUT_OPTIONAL);
+
+	Parameters.Add_Bool("",
+		"LINEAR"	, _TL("Linear Trend"),
 		_TL(""),
-		PARAMETER_OUTPUT_OPTIONAL
+		true
 	);
 
-	Parameters.Add_Value(
-		NULL	, "ORDER"	, _TL("Polynomial Order"),
-		_TL(""),
-		PARAMETER_TYPE_Int, 1, 1, true
+	Parameters.Add_Int("",
+		"ORDER"		, _TL("Polynomial Order"),
+		_TL("Order of the polynomial trend function."),
+		2, 1, true
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "XSOURCE"	, _TL("Get Independent Variable from ..."),
+	Parameters.Add_Choice("",
+		"XSOURCE"	, _TL("Get Independent Variable from ..."),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s",
 			_TL("list order"),
 			_TL("table"),
 			_TL("grid list")
 		), 0
 	);
 
-	Parameters.Add_FixedTable(
-		NULL	, "X_TABLE"	, _TL("Independent Variable (per Grid)"),
+	Parameters.Add_FixedTable("",
+		"X_TABLE"	, _TL("Independent Variable (per Grid)"),
 		_TL("")
 	)->asTable()->Add_Field(_TL("Value"), SG_DATATYPE_Double);
 
-	Parameters.Add_Grid_List(
-		NULL	, "X_GRIDS"	, _TL("Independent Variable (per Grid and Cell)"),
+	Parameters.Add_Grid_List("",
+		"X_GRIDS"	, _TL("Independent Variable (per Grid and Cell)"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
-
-	//-----------------------------------------------------
-	CSG_Table	*pTable	= Parameters("X_TABLE")->asTable();
-
-	pTable->Add_Record()->Set_Value(0, 1000.0);
-	pTable->Add_Record()->Set_Value(0,  925.0);
-	pTable->Add_Record()->Set_Value(0,  850.0);
-	pTable->Add_Record()->Set_Value(0,  700.0);
-	pTable->Add_Record()->Set_Value(0,  600.0);
-	pTable->Add_Record()->Set_Value(0,  500.0);
-	pTable->Add_Record()->Set_Value(0,  400.0);
-	pTable->Add_Record()->Set_Value(0,  300.0);
-	pTable->Add_Record()->Set_Value(0,  250.0);
-	pTable->Add_Record()->Set_Value(0,  200.0);
-	pTable->Add_Record()->Set_Value(0,  150.0);
-	pTable->Add_Record()->Set_Value(0,  100.0);
-	pTable->Add_Record()->Set_Value(0,   70.0);
-	pTable->Add_Record()->Set_Value(0,   50.0);
-	pTable->Add_Record()->Set_Value(0,   30.0);
-	pTable->Add_Record()->Set_Value(0,   20.0);
-	pTable->Add_Record()->Set_Value(0,   10.0);
 }
 
 
@@ -155,15 +126,45 @@ CGrids_Trend::CGrids_Trend(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-int CGrids_Trend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+int CGrids_Trend::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if(	pParameter->Cmp_Identifier(SG_T("XSOURCE")) )
+	if(	pParameter->Cmp_Identifier("Y_GRIDS") )
 	{
-		pParameters->Get_Parameter("X_TABLE")->Set_Enabled(pParameter->asInt() == 1);	// table
-		pParameters->Get_Parameter("X_GRIDS")->Set_Enabled(pParameter->asInt() == 2);	// grid list
+		int	nGrids	= (*pParameters)["Y_GRIDS"].asGridList()->Get_Grid_Count();
+
+		CSG_Table	*pTable	= (*pParameters)["X_TABLE"].asTable();
+
+		if( nGrids < pTable->Get_Count() )
+		{
+			pTable->Set_Count(nGrids);
+		}
+		else for(int i=pTable->Get_Count(); i<nGrids; i++)
+		{
+			pTable->Add_Record()->Set_Value(0, i + 1);
+		}
 	}
 
-	return( 1 );
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+//---------------------------------------------------------
+int CGrids_Trend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if(	pParameter->Cmp_Identifier("LINEAR") )
+	{
+		pParameters->Set_Enabled("ORDER"  , pParameter->asBool() == false);
+		pParameters->Set_Enabled("R2ADJ"  , pParameter->asBool() ==  true);
+		pParameters->Set_Enabled("STDERR" , pParameter->asBool() ==  true);
+		pParameters->Set_Enabled("P"      , pParameter->asBool() ==  true);
+	}
+
+	if(	pParameter->Cmp_Identifier("XSOURCE") )
+	{
+		pParameters->Set_Enabled("X_TABLE", pParameter->asInt() == 1);	// table
+		pParameters->Set_Enabled("X_GRIDS", pParameter->asInt() == 2);	// grid list
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -174,22 +175,39 @@ int CGrids_Trend::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramete
 //---------------------------------------------------------
 bool CGrids_Trend::On_Execute(void)
 {
-	int						Order, xSource, nGrids;
-	CSG_Table				*pXTable;
-	CSG_Grid				*pR2;
-	CSG_Parameter_Grid_List	*pYGrids, *pCoeff, *pXGrids;
+	CSG_Parameter_Grid_List *pYGrids = Parameters("Y_GRIDS")->asGridList();
+
+	CSG_Parameter_Grid_List *pXGrids = Parameters("X_GRIDS")->asGridList();
+	CSG_Table               *pXTable = Parameters("X_TABLE")->asTable();
 
 	//-----------------------------------------------------
-	pYGrids	= Parameters("Y_GRIDS")->asGridList();
-	pCoeff	= Parameters("COEFF"  )->asGridList();
-	pR2		= Parameters("R2"     )->asGrid();
-	pXGrids	= Parameters("X_GRIDS")->asGridList();
-	pXTable	= Parameters("X_TABLE")->asTable();
-	Order	= Parameters("ORDER"  )->asInt();
-	xSource	= Parameters("XSOURCE")->asInt();
+	int	nGrids, xSource	= Parameters("XSOURCE")->asInt();
+
+	switch( xSource )
+	{
+	default: nGrids = pYGrids->Get_Grid_Count(); break;	// list order
+	case  1: nGrids = pXTable->Get_Count     (); break;	// table
+	case  2: nGrids = pXGrids->Get_Grid_Count(); break;	// grid list
+	}
+
+	if( nGrids < pYGrids->Get_Grid_Count() )
+	{
+		Error_Set(_TL("There are less predictor variables then dependent ones."));
+
+		return( false );
+	}
+
+	if( nGrids > pYGrids->Get_Grid_Count() )
+	{
+		Message_Add(_TL("Warning: there are more predictor variables then dependent ones, surplus will be ignored."));
+
+		nGrids	= pYGrids->Get_Grid_Count();
+	}
 
 	//-----------------------------------------------------
-	nGrids	= pYGrids->Get_Grid_Count();
+	bool	bLinear	= Parameters("LINEAR")->asBool();
+
+	int	Order	= bLinear ? 1 : Parameters("ORDER")->asInt();
 
 	if( nGrids <= Order )
 	{
@@ -198,41 +216,38 @@ bool CGrids_Trend::On_Execute(void)
 		return( false );
 	}
 
-	//-----------------------------------------------------
-	switch( xSource )
+	Message_Fmt("\nTrend function: a0 + a1*x");
+
+	for(int i=2; i<=Order; i++)
 	{
-	case 0:	nGrids	= pYGrids->Get_Grid_Count();	break;	// list order
-	case 1:	nGrids	= pXTable->Get_Count     ();	break;	// table
-	case 2:	nGrids	= pXGrids->Get_Grid_Count();	break;	// grid list
-	}
-
-	if( nGrids < pXGrids->Get_Grid_Count() )
-	{
-		Error_Set(_TL("There are less predictor variables then dependent ones."));
-
-		return( false );
-	}
-
-	if( nGrids > pXGrids->Get_Grid_Count() )
-	{
-		Message_Add(_TL("Warning: there are more predictor variables then dependent ones, surplus will be ignored."));
-
-		nGrids	= pYGrids->Get_Grid_Count();
+		Message_Fmt(" + a%d*x^%d", i, i);
 	}
 
 	//-----------------------------------------------------
-	pCoeff->Del_Items();
+	CSG_Parameter_Grid_List	*pCoeffs	= Parameters("COEFF")->asGridList();
+
+	pCoeffs->Del_Items();
 
 	for(int i=0; i<=Order; i++)
 	{
-		pCoeff->Add_Item(SG_Create_Grid(Get_System()));
-		pCoeff->Get_Grid(i)->Fmt_Name("%s [%d]", _TL("Polynomial Coefficient"), i + 1);
+		CSG_Grid	*pCoeff	= SG_Create_Grid(Get_System());
+
+		if( i == 0 )
+		{
+			pCoeff->Fmt_Name("%s [a0]", _TL("Intercept"));
+		}
+		else
+		{
+			pCoeff->Fmt_Name("%s %d [a%d]", _TL("Coefficient"), i, i);
+		}
+
+		pCoeffs->Add_Item(pCoeff);
 	}
 
-	if( pR2 )
-	{
-		pR2->Fmt_Name("%s", _TL("Determination Coefficients"));
-	}
+	CSG_Grid *pR2     = Parameters("R2"    )->asGrid();
+	CSG_Grid *pR2adj  = Parameters("R2ADJ" )->asGrid();
+	CSG_Grid *pStdErr = Parameters("STDERR")->asGrid();
+	CSG_Grid *pP      = Parameters("P"     )->asGrid();
 
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
@@ -240,51 +255,88 @@ bool CGrids_Trend::On_Execute(void)
 		#pragma omp parallel for
 		for(int x=0; x<Get_NX(); x++)
 		{
-			CSG_Trend_Polynom	Trend;
-
-			Trend.Set_Order(Order);
+			CSG_Matrix	Samples;
 
 			for(int i=0; i<nGrids; i++)
 			{
 				if( !pYGrids->Get_Grid(i)->is_NoData(x, y) )
 				{
+					CSG_Vector	Sample; Sample.Add_Row(pYGrids->Get_Grid(i)->asDouble(x, y));
+
 					switch( xSource )
 					{
-					case 0:	// list order
-						Trend.Add_Data(i, pYGrids->Get_Grid(i)->asDouble(x, y));
-						break;
+					default: {
+						Sample.Add_Row(i);
+						break; }	// list order
 
-					case 1:	// table
-						Trend.Add_Data(pXTable->Get_Record(i)->asDouble(0), pYGrids->Get_Grid(i)->asDouble(x, y));
-						break;
+					case  1: {
+						Sample.Add_Row(pXTable->Get_Record(i)->asDouble(0));
+						break; }	// table
 
-					case 2:	// grid list
-						if( !pXGrids->Get_Grid(i)->is_NoData(x, y) )
-						{
-							Trend.Add_Data(pXGrids->Get_Grid(i)->asDouble(x, y), pYGrids->Get_Grid(i)->asDouble(x, y));
-						}
-						break;
+					case  2: if( !pXGrids->Get_Grid(i)->is_NoData(x, y) ) {
+						Sample.Add_Row(pXGrids->Get_Grid(i)->asDouble(x, y));
+						break; }	// grid list
+					}
+
+					if( Sample.Get_Size() == 2 )
+					{
+						Samples.Add_Row(Sample);
 					}
 				}
 			}
 
-			if( Trend.Get_Trend() )
-			{
-				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
-				{
-					pCoeff->Get_Grid(iOrder)->Set_Value(x, y, Trend.Get_Coefficient(iOrder));
-				}
+			//---------------------------------------------
+			bool	bOkay	= false;
 
-				if( pR2 )	pR2->Set_Value(x, y, Trend.Get_R2());
+			if( Samples.Get_NRows() > Order )
+			{
+				if( bLinear )
+				{
+					CSG_Regression_Multiple	Trend;
+
+					if( (bOkay = Trend.Get_Model(Samples)) )
+					{
+						pCoeffs->Get_Grid(0) ->Set_Value(x, y, Trend.Get_RConst  ());
+						pCoeffs->Get_Grid(1) ->Set_Value(x, y, Trend.Get_RCoeff (0));
+						if( pR2     ) pR2    ->Set_Value(x, y, Trend.Get_R2      ());
+						if( pR2adj  ) pR2adj ->Set_Value(x, y, Trend.Get_R2_Adj  ());
+						if( pStdErr ) pStdErr->Set_Value(x, y, Trend.Get_StdError());
+						if( pP      ) pP     ->Set_Value(x, y, Trend.Get_P       ());
+					}
+				}
+				else // if( !bLinear )
+				{
+					CSG_Trend_Polynom	Trend; Trend.Set_Order(Order);
+
+					for(int i=0; i<Samples.Get_NRows(); i++)
+					{
+						Trend.Add_Data(Samples[i][1], Samples[i][0]);
+					}
+
+					if( (bOkay = Trend.Get_Trend()) )
+					{
+						for(int i=0; i<=Order; i++)
+						{
+							pCoeffs->Get_Grid(i)->Set_Value(x, y, Trend.Get_Coefficient(i));
+						}
+
+						if( pR2 ) pR2->Set_Value(x, y, Trend.Get_R2());
+					}
+				}
 			}
-			else
+
+			//---------------------------------------------
+			if( !bOkay )
 			{
-				for(int iOrder=0; iOrder<Trend.Get_nCoefficients(); iOrder++)
+				for(int i=0; i<=Order; i++)
 				{
-					pCoeff->Get_Grid(iOrder)->Set_NoData(x, y);
+					pCoeffs->Get_Grid(i)->Set_NoData(x, y);
 				}
 
-				if( pR2 )	pR2->Set_NoData(x, y);
+				if( pR2     ) pR2    ->Set_NoData(x, y);
+				if( pR2adj  ) pR2adj ->Set_NoData(x, y);
+				if( pStdErr ) pStdErr->Set_NoData(x, y);
+				if( pP      ) pP     ->Set_NoData(x, y);
 			}
 		}
 	}
