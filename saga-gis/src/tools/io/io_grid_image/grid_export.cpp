@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -46,15 +43,6 @@
 //                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -210,7 +198,7 @@ CGrid_Export::CGrid_Export(void)
 	Parameters.Add_Double("SCALE_MODE",
 		"SCALE_LOG"		, _TL("Geometrical Interval Factor"),
 		_TL(""),
-		10.0, 0.001, true
+		10., 0.001, true
 	);
 
 	//-----------------------------------------------------
@@ -433,7 +421,7 @@ bool CGrid_Export::On_Execute(void)
 
 	bool	bOkay	= Image.SaveFile(fName.c_str());
 
-	if( !has_GUI() && pImgHandler != NULL )
+	if( !SG_UI_Get_Window_Main() && pImgHandler != NULL )
 	{
 		wxImage::RemoveHandler(pImgHandler->GetName());
 	}
@@ -457,7 +445,7 @@ bool CGrid_Export::On_Execute(void)
 	if( Stream.is_Open() )
 	{
 		Stream.Printf("%.10f\n%f\n%f\n%.10f\n%.10f\n%.10f\n",
-			 Get_Cellsize(), 0.0, 0.0, -Get_Cellsize(), Get_XMin(), Get_YMax()
+			 Get_Cellsize(), 0., 0., -Get_Cellsize(), Get_XMin(), Get_YMax()
 		);
 	}
 
@@ -543,7 +531,7 @@ bool CGrid_Export::Set_Metric(CSG_Grid &Grid)
 		break;
 	}
 
-	if( Minimum >= Maximum || pGrid->Get_Range() <= 0.0 )
+	if( Minimum >= Maximum || pGrid->Get_Range() <= 0. )
 	{
 		Error_Set(_TL("invalid user specified value range."));
 
@@ -683,13 +671,13 @@ bool CGrid_Export::Add_Shading(CSG_Grid &Grid)
 {
 	CSG_Grid	*pShade	= Parameters("SHADE")->asGrid();
 
-	if( !pShade || pShade->Get_Range() <= 0.0 || Parameters("SHADE_BRIGHT.MIN")->asDouble() >= Parameters("SHADE_BRIGHT.MAX")->asDouble() )
+	if( !pShade || pShade->Get_Range() <= 0. || Parameters("SHADE_BRIGHT.MIN")->asDouble() >= Parameters("SHADE_BRIGHT.MAX")->asDouble() )
 	{
 		return( false );
 	}
 
 	//-----------------------------------------------------
-	double	Minimum, Maximum, Scale, Transparency	= Parameters("SHADE_TRANS")->asDouble() / 100.0;
+	double	Minimum, Maximum, Scale, Transparency	= Parameters("SHADE_TRANS")->asDouble() / 100.;
 
 	switch( Parameters("SHADE_COLOURING")->asInt() )
 	{

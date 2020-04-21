@@ -111,7 +111,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Choice("",
 			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s|%s|%s",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -131,7 +131,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Choice("",
 			"COLOURING"		, _TL("Colouring"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s|%s",
 				_TL("stretch to grid's standard deviation"),
 				_TL("stretch to grid's value range"),
 				_TL("stretch to specified value range"),
@@ -143,7 +143,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Choice("",
 			"COL_PALETTE"	, _TL("Color Palette"),
 			_TL(""),
-			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|",
+			CSG_String::Format("%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 				_TL("DEFAULT"       ),	_TL("DEFAULT_BRIGHT" ),	_TL("BLACK_WHITE"   ),	_TL("BLACK_RED"     ),
 				_TL("BLACK_GREEN"   ),	_TL("BLACK_BLUE"     ),	_TL("WHITE_RED"     ),	_TL("WHITE_GREEN"   ),
 				_TL("WHITE_BLUE"    ),	_TL("YELLOW_RED"     ),	_TL("YELLOW_GREEN"  ),	_TL("YELLOW_BLUE"   ),
@@ -170,13 +170,13 @@ CGrid_to_KML::CGrid_to_KML(void)
 	Parameters.Add_Double("",
 		"STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		2.0, 0.0, true
+		2., 0., true
 	);
 
 	Parameters.Add_Range("",
 		"STRETCH"	, _TL("Stretch to Value Range"),
         _TL(""),
-        0.0, 100.0
+        0., 100.
     );
 
 	//-----------------------------------------------------
@@ -204,7 +204,7 @@ CGrid_to_KML::CGrid_to_KML(void)
 		Parameters.Add_Range("",
 			"SHADE_BRIGHT", _TL("Shade Brightness"),
 			_TL("Allows one to scale shade brightness [percent]"),
-			0.0, 100.0, 0.0, true, 100.0, true
+			0., 100., 0., true, 100., true
 		);
 	}
 }
@@ -323,7 +323,7 @@ bool CGrid_to_KML::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 0)) == NULL )	// Export Image
+	if(	(pTool = SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 0, has_GUI())) == NULL )	// Export Image
 	{
 		return( false );
 	}
@@ -341,7 +341,7 @@ bool CGrid_to_KML::On_Execute(void)
 	&&  pTool->Set_Parameter("STDDEV"      , Parameters("STDDEV"      ))
 	&&  pTool->Set_Parameter("STRETCH"     , Parameters("STRETCH"     ))
 	&&  pTool->Set_Parameter("LUT"         , Parameters("LUT"         ))
-	&&  (has_GUI()
+	&&  (has_GUI() || !Parameters("SHADE_BRIGHT")
 	||  pTool->Set_Parameter("SHADE_BRIGHT", Parameters("SHADE_BRIGHT")))
 	&&  pTool->Execute() )
 	{

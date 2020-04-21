@@ -611,7 +611,7 @@ void CWKSP_Map::On_Create_Parameters(void)
 	);
 
 	m_Img_Parms.Add_Bool("NODE_MAP",
-		"KML"		, _TL("Save KML file"),
+		"KML"		, _TL("Export Map to Google Earth"),
 		_TL(""),
 		true
 	);
@@ -1613,7 +1613,7 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	//-----------------------------------------------------
 	CSG_Rect		Extent(Get_Extent());
 
-	CSG_Parameters	P(_TL("Save Map to KMZ"));
+	CSG_Parameters	P(_TL("Export Map to Google Earth"));
 
 	P.Add_FilePath("", "FILE"    , _TL("File"    ), _TL(""), CSG_String::Format("%s|*.kmz|%s|*.*", _TL("KMZ Files"), _TL("All Files")), NULL, true);
 	P.Add_Double  ("", "CELLSIZE", _TL("Cellsize"), _TL(""), SG_Get_Rounded_To_SignificantFigures(Extent.Get_XRange() / (double)nx, 2), 0., true);
@@ -1633,7 +1633,7 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 
 		if( !FileName.IsOk() )
 		{
-			DLG_Message_Show_Error(_TL("invalid file name"), _TL("Save Map to KMZ"));
+			DLG_Message_Show_Error(_TL("invalid file name"), _TL("Export Map to Google Earth"));
 
 			return;
 		}
@@ -1666,19 +1666,19 @@ void CWKSP_Map::SaveAs_Image_To_KMZ(int nx, int ny)
 	}
 
 	//-----------------------------------------------------
-	bool	bResult;
+	CSG_Tool	*pTool	= SG_Get_Tool_Library_Manager().Create_Tool("io_grid_image", 2, true);
 
-	SG_RUN_TOOL(bResult, "io_grid_image", 2,
-			SG_TOOL_PARAMETER_SET("GRID"     , &Map)
-		&&	SG_TOOL_PARAMETER_SET("FILE"     , FileName.GetFullPath().wc_str())
-		&&	SG_TOOL_PARAMETER_SET("COLOURING", 4)	// rgb coded values
-		&&	SG_TOOL_PARAMETER_SET("OUTPUT"   , 2)	// kmz file
-	);
-
-	if( bResult && P("LOAD")->asBool() )
+	if(	pTool && pTool->Settings_Push()
+	&&  pTool->Set_Parameter("GRID"     , &Map)
+	&&  pTool->Set_Parameter("FILE"     , FileName.GetFullPath().wc_str())
+	&&  pTool->Set_Parameter("COLOURING", 4)	// rgb coded values
+	&&  pTool->Set_Parameter("OUTPUT"   , 2)	// kmz file
+	&&  pTool->Execute() && P("LOAD")->asBool() )
 	{
 		Open_Application(FileName.GetFullPath());
 	}
+
+	SG_Get_Tool_Library_Manager().Delete_Tool(pTool);\
 }
 
 //---------------------------------------------------------
