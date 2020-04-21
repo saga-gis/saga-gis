@@ -1428,17 +1428,17 @@ void CWKSP_Grid::_Get_Overlay(CSG_Grid *pOverlay[2], CSG_Scaler Scaler[2])
 	{
 		switch( m_Parameters("OVERLAY_MODE")->asInt() )
 		{
-		default:
+		default:	// this = red
 			pOverlay[0]	= m_Parameters("OVERLAY_G")->asGrid();
 			pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
 			break;
 
-		case  1:
+		case  1:	// this = green
 			pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
 			pOverlay[1]	= m_Parameters("OVERLAY_B")->asGrid();
 			break;
 
-		case  2:
+		case  2:	// this = blue
 			pOverlay[0]	= m_Parameters("OVERLAY_R")->asGrid();
 			pOverlay[1]	= m_Parameters("OVERLAY_G")->asGrid();
 			break;
@@ -1483,9 +1483,9 @@ void CWKSP_Grid::_Draw_Grid_Nodes(CWKSP_Map_DC &dc_Map, TSG_Grid_Resampling Resa
 
 	switch( m_Parameters("OVERLAY_MODE")->asInt() )
 	{
-	default: Overlay[0] = 0; Overlay[1] = 1; Overlay[2] = 2; break;
-	case  1: Overlay[0] = 1; Overlay[1] = 0; Overlay[2] = 2; break;
-	case  2: Overlay[0] = 1; Overlay[1] = 2; Overlay[2] = 0; break;
+	default: Overlay[0] = 0; Overlay[1] = 1; Overlay[2] = 2; break;	// this = r, pOverlay[0] = g, pOverlay[1] = r
+	case  1: Overlay[0] = 1; Overlay[1] = 0; Overlay[2] = 2; break;	// this = g, pOverlay[0] = r, pOverlay[1] = b
+	case  2: Overlay[0] = 2; Overlay[1] = 0; Overlay[2] = 1; break;	// this = b, pOverlay[0] = r, pOverlay[1] = g
 	}
 
 	double	xMap	= dc_Map.xDC2World(axDC);
