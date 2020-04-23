@@ -82,9 +82,11 @@ protected:
 
 private:
 
-	double					m_dTime, m_Roughness, m_dt_Max;
+	double					m_dTime, m_Roughness, m_vMax;
 
 	CSG_Grid				*m_pDEM, *m_pRoughness, *m_pFlow, m_Flow;
+
+	CSG_Grids				m_v;
 
 
 	bool					Initialize				(void);
@@ -100,7 +102,9 @@ private:
 
 	bool					Get_Neighbour			(int x, int y, int i, int &ix, int &iy);
 
-	bool					Set_Flow				(void);
+	double					Get_Gradient			(int x, int y, int i);
+	bool					Get_Gradient			(int x, int y);
+
 	bool					Set_Flow				(int x, int y);
 
 };

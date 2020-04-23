@@ -61,7 +61,7 @@
 CKinWav_D8::CKinWav_D8(void)
 {
 	//-----------------------------------------------------
-	Set_Name		(_TL("Kinematic Wave Overland Flow"));
+	Set_Name		(_TL("Overland Flow (Kinematic Wave)"));
 
 	Set_Author		("O. Conrad (c) 2003");
 
