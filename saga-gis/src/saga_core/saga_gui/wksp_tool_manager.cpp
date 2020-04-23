@@ -136,7 +136,7 @@ CWKSP_Tool_Manager::CWKSP_Tool_Manager(void)
 	m_Parameters.Add_Choice("NODE_TOOLS",
 		"HELP_SOURCE"	, _TL("Tool Description Source"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("built-in"),
 			_TL("online")
 		), 0
@@ -233,18 +233,55 @@ bool CWKSP_Tool_Manager::Initialise(void)
 
 	g_pSAGA->Process_Set_Frequency(m_Parameters("PROCESS_UPDATE")->asInt());
 
-#ifdef _OPENMP
-	SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
-#endif
+	#ifdef _OPENMP
+		SG_OMP_Set_Max_Num_Threads(m_Parameters("OMP_THREADS_MAX")->asInt());
+	#endif
+
+	//-----------------------------------------------------
+	#ifdef _SAGA_MSW
+		wxString	Default_Path(g_pSAGA->Get_App_Path() + "\\tools");
+	#else
+		wxString	Default_Path(MODULE_LIBRARY_PATH);
+	#endif
+
+	//-----------------------------------------------------
+	bool	bCompatible	= true;
+
+	#ifdef __GNUC__
+		long	Version;
+		if( CONFIG_Read("/VERSION", "GNUC" , Version) && Version != __GNUC__ )
+		{
+			bCompatible	= false;
+		}
+		#ifdef __GNUC_MINOR__
+			else if( CONFIG_Read("/VERSION", "GNUC_MINOR" , Version) && Version != __GNUC_MINOR__ )
+			{
+				bCompatible	= false;
+			}
+			#ifdef __GNUC_PATCHLEVEL__
+				else if( CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Version) && Version != __GNUC_PATCHLEVEL__ )
+				{
+					bCompatible	= false;
+				}
+			#endif
+		#endif
+	#endif
 
 	//-----------------------------------------------------
 	wxString	Library;
 
 	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
 	{
+		if( !bCompatible && wxFileExists(Library) && !SG_File_Cmp_Extension(&Library, "xml") )
+		{
+			continue;	// gcc builds: don't load from absolute path when there is no abi compatibility assured!
+		}
+
 		if( !wxFileExists(Library) )
 		{
-			wxFileName	fn(Library);	fn.MakeAbsolute(g_pSAGA->Get_App_Path());
+			wxFileName	fn(Library);
+
+			fn.MakeAbsolute(Default_Path);
 
 			Library	= fn.GetFullPath();
 		}
@@ -254,13 +291,13 @@ bool CWKSP_Tool_Manager::Initialise(void)
 		SG_UI_Progress_Lock(false);
 	}
 
+	//-----------------------------------------------------
 	if( SG_Get_Tool_Library_Manager().Get_Count() == 0 )
 	{
-#if defined(_SAGA_LINUX)
-	if( (SG_Get_Tool_Library_Manager().Add_Directory(CSG_String(MODULE_LIBRARY_PATH), false)
-	   + SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(CSG_String(SHARE_PATH), SG_T("toolchains")), false)) == 0 )
-#endif
-		SG_Get_Tool_Library_Manager().Add_Directory(&g_pSAGA->Get_App_Path(), true);
+		SG_Get_Tool_Library_Manager().Add_Directory(&Default_Path, true);
+		#ifdef _SAGA_LINUX
+		SG_Get_Tool_Library_Manager().Add_Directory(SG_File_Make_Path(SHARE_PATH, "toolchains"), false);
+		#endif
 	}
 
 	_Update(false);
@@ -269,18 +306,30 @@ bool CWKSP_Tool_Manager::Initialise(void)
 }
 
 //---------------------------------------------------------
-#ifdef _SAGA_MSW
-	#define GET_LIBPATH(path)	Get_FilePath_Relative(g_pSAGA->Get_App_Path().c_str(), path.c_str())
-#else
-	#define GET_LIBPATH(path)	path.c_str()
-#endif
-
-//---------------------------------------------------------
 bool CWKSP_Tool_Manager::Finalise(void)
 {
+	CONFIG_Write("/VERSION", "SAGA", SAGA_VERSION);
+
+	#ifdef __GNUC__
+		CONFIG_Write("/VERSION", "GNUC", __GNUC__);
+		#ifdef __GNUC_MINOR__
+			CONFIG_Write("/VERSION", "GNUC_MINOR", __GNUC_MINOR__);
+			#ifdef __GNUC_PATCHLEVEL__
+				CONFIG_Write("/VERSION", "GNUC_PATCHLEVEL", __GNUC_PATCHLEVEL__);
+			#endif
+		#endif
+	#endif
+
 	CONFIG_Write("/TOOLS", "DLG_INFO", CDLG_Parameters::m_bInfo);
 
 	CONFIG_Write("/TOOLS", &m_Parameters);
+
+	//-----------------------------------------------------
+	#ifdef _SAGA_MSW
+		wxString	Default_Path(g_pSAGA->Get_App_Path());
+	#else
+		wxString	Default_Path(MODULE_LIBRARY_PATH);
+	#endif
 
 	CONFIG_Delete(CFG_LIBS);
 
@@ -296,12 +345,16 @@ bool CWKSP_Tool_Manager::Finalise(void)
 			{
 				for(int j=0; j<pLibrary->Get_Count(); j++)
 				{
-					CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name(j)));
+					CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++),
+						Get_FilePath_Relative(Default_Path.c_str(), pLibrary->Get_File_Name(j).c_str())
+					);
 				}
 			}
 			else
 			{
-				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++), GET_LIBPATH(pLibrary->Get_File_Name()));
+				CONFIG_Write(CFG_LIBS, wxString::Format(CFG_LIBF, n++),
+					Get_FilePath_Relative(Default_Path.c_str(), pLibrary->Get_File_Name().c_str())
+				);
 			}
 		}
 	}
