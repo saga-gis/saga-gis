@@ -249,17 +249,17 @@ bool CWKSP_Tool_Manager::Initialise(void)
 
 	#ifdef __GNUC__
 		long	Version;
-		if( CONFIG_Read("/VERSION", "GNUC" , Version) && Version != __GNUC__ )
+		if( !CONFIG_Read("/VERSION", "GNUC" , Version) || Version != __GNUC__ )
 		{
 			bCompatible	= false;
 		}
 		#ifdef __GNUC_MINOR__
-			else if( CONFIG_Read("/VERSION", "GNUC_MINOR" , Version) && Version != __GNUC_MINOR__ )
+			else if( !CONFIG_Read("/VERSION", "GNUC_MINOR" , Version) || Version != __GNUC_MINOR__ )
 			{
 				bCompatible	= false;
 			}
 			#ifdef __GNUC_PATCHLEVEL__
-				else if( CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Version) && Version != __GNUC_PATCHLEVEL__ )
+				else if( !CONFIG_Read("/VERSION", "GNUC_PATCHLEVEL" , Version) || Version != __GNUC_PATCHLEVEL__ )
 				{
 					bCompatible	= false;
 				}
