@@ -311,11 +311,11 @@ bool CWKSP_Tool_Manager::Finalise(void)
 	CONFIG_Write("/VERSION", "SAGA", SAGA_VERSION);
 
 	#ifdef __GNUC__
-		CONFIG_Write("/VERSION", "GNUC", __GNUC__);
+		CONFIG_Write("/VERSION", "GNUC", (long)__GNUC__);
 		#ifdef __GNUC_MINOR__
-			CONFIG_Write("/VERSION", "GNUC_MINOR", __GNUC_MINOR__);
+			CONFIG_Write("/VERSION", "GNUC_MINOR", (long)__GNUC_MINOR__);
 			#ifdef __GNUC_PATCHLEVEL__
-				CONFIG_Write("/VERSION", "GNUC_PATCHLEVEL", __GNUC_PATCHLEVEL__);
+				CONFIG_Write("/VERSION", "GNUC_PATCHLEVEL", (long)__GNUC_PATCHLEVEL__);
 			#endif
 		#endif
 	#endif
