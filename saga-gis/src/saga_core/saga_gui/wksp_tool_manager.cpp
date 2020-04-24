@@ -239,7 +239,7 @@ bool CWKSP_Tool_Manager::Initialise(void)
 
 	//-----------------------------------------------------
 	#ifdef _SAGA_MSW
-		wxString	Default_Path(g_pSAGA->Get_App_Path() + "\\tools");
+		wxString	Default_Path(g_pSAGA->Get_App_Path());
 	#else
 		wxString	Default_Path(MODULE_LIBRARY_PATH);
 	#endif
@@ -268,27 +268,25 @@ bool CWKSP_Tool_Manager::Initialise(void)
 	#endif
 
 	//-----------------------------------------------------
-	wxString	Library;
-
-	for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
+	if( bCompatible )	// gcc builds: don't load stored libraries when there is no abi compatibility assured!
 	{
-		if( !bCompatible && wxFileExists(Library) && !SG_File_Cmp_Extension(&Library, "xml") )
+		wxString	Library;
+
+		for(int i=0; CONFIG_Read(CFG_LIBS, wxString::Format(CFG_LIBF, i), Library); i++)
 		{
-			continue;	// gcc builds: don't load from absolute path when there is no abi compatibility assured!
+			if( !wxFileExists(Library) )
+			{
+				wxFileName	fn(Library);
+
+				fn.MakeAbsolute(Default_Path);
+
+				Library	= fn.GetFullPath();
+			}
+
+			SG_UI_Progress_Lock(true);
+			SG_Get_Tool_Library_Manager().Add_Library(&Library);
+			SG_UI_Progress_Lock(false);
 		}
-
-		if( !wxFileExists(Library) )
-		{
-			wxFileName	fn(Library);
-
-			fn.MakeAbsolute(Default_Path);
-
-			Library	= fn.GetFullPath();
-		}
-
-		SG_UI_Progress_Lock(true);
-		SG_Get_Tool_Library_Manager().Add_Library(&Library);
-		SG_UI_Progress_Lock(false);
 	}
 
 	//-----------------------------------------------------
