@@ -86,9 +86,15 @@ COverland_Flow::COverland_Flow(void)
 	);
 
 	Parameters.Add_Grid("",
-		"FLOW"		, _TL("Runoff Flow [m]"),
+		"FLOW"		, _TL("Flow [m]"),
 		_TL(""),
 		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid("",
+		"VELOCITY"	, _TL("Velocity [m/s]"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Bool("",
@@ -104,9 +110,9 @@ COverland_Flow::COverland_Flow(void)
 	);
 
 	Parameters.Add_Double("",
-		"TIME_STEP"	, _TL("Initial Simulation Time Step [min]"),
-		_TL(""),
-		1., 0.01, true
+		"TIME_STEP"	, _TL("Time Step Adjustment"),
+		_TL("Choosing a lower value will result in a better numerical precision but also in a longer calculation time."),
+		0.5, 0.01, true, 1., true
 	);
 
 	Parameters.Add_Double("",
@@ -166,6 +172,7 @@ bool COverland_Flow::On_Execute(void)
 			}
 
 			DataObject_Update(m_pFlow);
+			DataObject_Update(m_pVelocity, 0., 10.);
 		}
 
 		SG_UI_ProgressAndMsg_Lock(false);
@@ -188,12 +195,12 @@ bool COverland_Flow::On_Execute(void)
 bool COverland_Flow::Initialize(void)
 {
 	m_pDEM			= Parameters("DEM"      )->asGrid  ();
+
 	m_pFlow			= Parameters("FLOW"     )->asGrid  ();
+	m_pVelocity		= Parameters("VELOCITY" )->asGrid  ();
 
 	m_pRoughness	= Parameters("ROUGHNESS")->asGrid  ();
 	m_Roughness		= Parameters("ROUGHNESS")->asDouble();
-
-	m_dTime			= Parameters("TIME_STEP")->asDouble() / 60.; // convert minutes to hours
 
 	//-----------------------------------------------------
 	if( Parameters("RESET")->asBool() )
@@ -325,7 +332,7 @@ bool COverland_Flow::Do_Time_Step(void)
 		return( false );
 	}
 
-	m_dTime	= 0.5 / m_vMax;
+	m_dTime	= Parameters("TIME_STEP")->asDouble() / m_vMax;
 
 	//-----------------------------------------------------
 	m_Flow.Assign(0.);
@@ -377,7 +384,7 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 
 	if( Q > 0. )
 	{
-		double	dz[8], dzSum = 0., z = Get_Surface(x, y);
+		double	dz[8], dzSum = 0., z = Get_Surface(x, y), vMax = 0.;
 
 		for(int i=0; i<8; i++)
 		{
@@ -393,9 +400,9 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 				{
 					double	v	= 3600. * Get_Velocity(Q * dz[i] / dzSum, dz[i], Get_Roughness(x, y)) / Get_Length(i);
 
-					if( m_vMax  < v )
+					if( vMax < v )
 					{
-						m_vMax	= v;
+						vMax = v;
 					}
 
 					m_v[i].Set_Value(x, y, v);
@@ -406,7 +413,17 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 				}
 			}
 
+			if( m_vMax < vMax )
+			{
+				m_vMax = vMax;
+			}
+
 			m_v[8].Set_Value(x, y, dzSum);
+
+			if( m_pVelocity )
+			{
+				m_pVelocity->Set_Value(x, y, vMax);
+			}
 
 			return( true );
 		}
@@ -414,6 +431,11 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 
 	//-----------------------------------------------------
 	m_v[8].Set_Value(x, y, 0.);
+
+	if( m_pVelocity )
+	{
+		m_pVelocity->Set_Value(x, y, 0.);
+	}
 
 	return( true );
 }

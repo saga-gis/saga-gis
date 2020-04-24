@@ -84,7 +84,7 @@ private:
 
 	double					m_dTime, m_Roughness, m_vMax;
 
-	CSG_Grid				*m_pDEM, *m_pRoughness, *m_pFlow, m_Flow;
+	CSG_Grid				*m_pDEM, *m_pRoughness, m_Flow, *m_pFlow, *m_pVelocity;
 
 	CSG_Grids				m_v;
 
