@@ -291,7 +291,7 @@ inline double COverland_Flow::Get_Roughness(int x, int y)
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Velocity(double Depth, double Slope, double Roughness)
 {
-	return( pow(Depth, 2. / 3.) * sqrt(Slope) / Roughness );
+	return( 3600. * pow(Depth, 2. / 3.) * sqrt(Slope) / Roughness );
 }
 
 //---------------------------------------------------------
@@ -311,42 +311,50 @@ inline bool COverland_Flow::Get_Neighbour(int x, int y, int i, int &ix, int &iy)
 //---------------------------------------------------------
 bool COverland_Flow::Do_Time_Step(void)
 {
-	m_vMax	= 0.;
+	m_vMax.Create(SG_OMP_Get_Max_Num_Threads());
+	m_vMax.Assign(0.);
 
 	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(int x=0; x<Get_NX(); x++)
+		if( !m_pDEM->is_NoData(x, y) )
 		{
-			if( !m_pDEM->is_NoData(x, y) )
-			{
-				Get_Gradient(x, y);
-			}
+			Get_Gradient(x, y);
 		}
 	}
 
-	if( m_vMax <= 0. )
+	for(int i=1; i<SG_OMP_Get_Max_Num_Threads(); i++)
+	{
+		if( m_vMax[0] < m_vMax[i] )
+		{
+			m_vMax[0] = m_vMax[i];
+		}
+	}
+
+	if( m_vMax[0] <= 0. )
 	{
 		m_dTime	= 1. / 60.;
 
 		return( false );
 	}
 
-	m_dTime	= Parameters("TIME_STEP")->asDouble() / m_vMax;
+	m_dTime	= Parameters("TIME_STEP")->asDouble() / m_vMax[0];
 
 	//-----------------------------------------------------
-	m_Flow.Assign(0.);
-
 	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++)
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 	{
-		for(int x=0; x<Get_NX(); x++)
-		{
-			Set_Flow(x, y);
-		}
+		Set_Flow(x, y);
 	}
 
-	m_pFlow->Assign(&m_Flow);
+	if( Process_Get_Okay() )
+	{
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+		{
+			m_pFlow->Set_Value(x, y, m_Flow.asDouble(x, y));
+		}
+	}
 
 	return( true );
 }
@@ -384,49 +392,44 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 
 	if( Q > 0. )
 	{
-		double	dz[8], dzSum = 0., z = Get_Surface(x, y), vMax = 0.;
+		double	dzSum = 0., vMax = 0.;
 
 		for(int i=0; i<8; i++)
 		{
-			dzSum += dz[i] = Get_Gradient(x, y, i);
+			double	dz	= Get_Gradient(x, y, i);
+
+			if( dz > 0. )
+			{
+				dzSum	+= dz;
+
+				double	v	= Get_Velocity(Q, dz, Get_Roughness(x, y)) / Get_Length(i);
+
+				if( vMax < v )
+				{
+					vMax = v;
+				}
+
+				m_v[i].Set_Value(x, y, v);
+			}
+			else
+			{
+				m_v[i].Set_Value(x, y, 0.);
+			}
 		}
 
-		//-------------------------------------------------
-		if( dzSum > 0. )
+		if( m_vMax[SG_OMP_Get_Thread_Num()] < vMax )
 		{
-			for(int i=0; i<8; i++)
-			{
-				if( dz[i] > 0. )
-				{
-					double	v	= 3600. * Get_Velocity(Q * dz[i] / dzSum, dz[i], Get_Roughness(x, y)) / Get_Length(i);
-
-					if( vMax < v )
-					{
-						vMax = v;
-					}
-
-					m_v[i].Set_Value(x, y, v);
-				}
-				else
-				{
-					m_v[i].Set_Value(x, y, 0.);
-				}
-			}
-
-			if( m_vMax < vMax )
-			{
-				m_vMax = vMax;
-			}
-
-			m_v[8].Set_Value(x, y, dzSum);
-
-			if( m_pVelocity )
-			{
-				m_pVelocity->Set_Value(x, y, vMax);
-			}
-
-			return( true );
+			m_vMax[SG_OMP_Get_Thread_Num()] = vMax;
 		}
+
+		m_v[8].Set_Value(x, y, dzSum);
+
+		if( m_pVelocity )
+		{
+			m_pVelocity->Set_Value(x, y, vMax);
+		}
+
+		return( true );
 	}
 
 	//-----------------------------------------------------
@@ -440,43 +443,54 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 	return( true );
 }
 
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-bool COverland_Flow::Set_Flow(int x, int y)
+inline double COverland_Flow::Get_Flow(int x, int y, int i, bool bInverse)
 {
-	double	dzSum = m_v[8].asDouble(x, y), Q = m_pFlow->asDouble(x, y);
-
-	if( dzSum > 0. )
+	if( bInverse )
 	{
-		double	dQ[8], dQSum = 0.;
+		x	= Get_xTo(i, x);
+		y	= Get_yTo(i, y);
+		i	= (i + 4) % 8;
+	}
 
-		for(int i=0; i<8; i++)
+	if( m_pDEM->is_InGrid(x, y) )
+	{
+		double	v	= m_v[i].asDouble(x, y);
+
+		if( v > 0. )
 		{
-			double	v	= m_v[i].asDouble(x, y);
-
-			if( v > 0. )
-			{
-				double	d	= Get_Gradient(x, y, i) / dzSum;
-
-				dQSum	+= dQ[i] = d * Q * m_dTime * v;
-			}
-			else
-			{
-				dQ[i]	= 0.;
-			}
-		}
-
-		Q	= Q - dQSum;
-
-		for(int i=0, ix, iy; i<8; i++)
-		{
-			if( dQ[i] > 0. && Get_Neighbour(x, y, i, ix, iy) )
-			{
-				m_Flow.Add_Value(ix, iy, dQ[i]);
-			}
+			return( v * m_pFlow->asDouble(x, y) * Get_Gradient(x, y, i) / m_v[8].asDouble(x, y) );
 		}
 	}
 
-	m_Flow.Add_Value(x, y, Q);
+	return( 0. );
+}
+
+//---------------------------------------------------------
+bool COverland_Flow::Set_Flow(int x, int y)
+{
+	double	Q = m_pFlow->asDouble(x, y);
+
+	for(int i=0; i<8; i++)
+	{
+		double	dQ	= Get_Flow(x, y, i, false);
+
+		if( dQ > 0. )
+		{
+			Q	-= m_dTime * dQ;
+		}
+		else if( (dQ = Get_Flow(x, y, i, true)) > 0. )
+		{
+			Q	+= m_dTime * dQ;
+		}
+	}
+
+	m_Flow.Set_Value(x, y, Q);
 
 	return( true );
 }

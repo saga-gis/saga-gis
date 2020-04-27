@@ -82,7 +82,9 @@ protected:
 
 private:
 
-	double					m_dTime, m_Roughness, m_vMax;
+	double					m_dTime, m_Roughness;
+
+	CSG_Vector				m_vMax;
 
 	CSG_Grid				*m_pDEM, *m_pRoughness, m_Flow, *m_pFlow, *m_pVelocity;
 
@@ -105,6 +107,7 @@ private:
 	double					Get_Gradient			(int x, int y, int i);
 	bool					Get_Gradient			(int x, int y);
 
+	double					Get_Flow				(int x, int y, int i, bool bInverse);
 	bool					Set_Flow				(int x, int y);
 
 };
