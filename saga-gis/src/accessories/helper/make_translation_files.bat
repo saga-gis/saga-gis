@@ -21,6 +21,7 @@ REM ___________________________________
 
 %SAGA_CMD% -f=s dev_tools 1 -MASTER="%RESPATH%\saga.lng.txt" -IMPORT="%RESPATH%\saga.ger.txt" -UNION="%RESPATH%\saga.ger.txt" -METHOD=1
 %SAGA_CMD% -f=s dev_tools 1 -MASTER="%RESPATH%\saga.lng.txt" -IMPORT="%RESPATH%\saga.bra.txt" -UNION="%RESPATH%\saga.bra.txt" -METHOD=1
+%SAGA_CMD% -f=s dev_tools 1 -MASTER="%RESPATH%\saga.lng.txt" -IMPORT="%RESPATH%\saga.rus.txt" -UNION="%RESPATH%\saga.rus.txt" -METHOD=1
 
 DEL "%RESPATH%\*.mtab"
 
