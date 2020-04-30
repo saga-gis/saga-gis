@@ -48,10 +48,6 @@
 //---------------------------------------------------------
 #include "crs_transform_grid.h"
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -369,7 +365,11 @@ bool CCRS_Transform_Grid::Transform(CSG_Grid *pGrid, CSG_Grid *pTarget)
 			double	z, ySource, xSource	= pTarget->Get_XMin() + x * pTarget->Get_Cellsize();
 
 			//---------------------------------------------------------
-			if( !m_Projector[omp_get_thread_num()].Get_Projection(xSource, ySource = yTarget) )
+			#ifdef PROJ6
+			if( !m_Projector[SG_OMP_Get_Thread_Num()].Get_Projection(xSource, ySource = yTarget) )
+			#else
+			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
+			#endif
 			{
 				continue;
 			}
@@ -519,8 +519,8 @@ bool CCRS_Transform_Grid::Transform(const CSG_Array_Pointer &Grids, CSG_Paramete
 
 			double	z, ySource, xSource	= Target_System.Get_XMin() + x * Target_System.Get_Cellsize();
 
-			#ifdef _OPENMP
-			if( !m_Projector[omp_get_thread_num()].Get_Projection(xSource, ySource = yTarget) )
+			#ifdef PROJ6
+			if( !m_Projector[SG_OMP_Get_Thread_Num()].Get_Projection(xSource, ySource = yTarget) )
 			#else
 			if( !m_Projector.Get_Projection(xSource, ySource = yTarget) )
 			#endif
