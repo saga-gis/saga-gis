@@ -424,12 +424,15 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 	//-----------------------------------------------------
 	wxArrayString	Formulas;
 
-	Formulas.Add("linear"            );
 	Formulas.Add("linear (no nugget)");
+	Formulas.Add("linear"            );
+	Formulas.Add("power"             );
 	Formulas.Add("square root"       );
 	Formulas.Add("logarithmic"       );
 	Formulas.Add("exponential"       );
+	Formulas.Add("stable (0 < k < 2)");
 	Formulas.Add("gaussian"          );
+	Formulas.Add("cubic"             );
 	Formulas.Add("spherical"         );
 
 	//-----------------------------------------------------
@@ -438,14 +441,14 @@ CVariogram_Dialog::CVariogram_Dialog(void)
 
 	Add_Spacer(); m_pSettings   = Add_Button  (_TL("Settings"              ), wxID_ANY);
 	Add_Spacer(); m_pPairs      = Add_CheckBox(_TL("Number of Pairs"       ), false);
-	Add_Spacer(); m_pFormulas   = Add_Choice  (_TL("Predefined Functions"  ), Formulas, 0);
+	Add_Spacer(); m_pFormulas   = Add_Choice  (_TL("Predefined Functions"  ), Formulas, 1);
 	Add_Spacer(); m_pDistance   = Add_Slider  (_TL("Function Fitting Range"), 1, 0, 1);
 	Add_Spacer(); m_pSummary    = Add_TextCtrl(_TL("Summary"               ), wxTE_MULTILINE|wxTE_READONLY);
 
 	//-----------------------------------------------------
 	Add_Output(
 		m_pDiagram = new CVariogram_Diagram(this),
-		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(0), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
+		m_pFormula = new wxTextCtrl(this, wxID_ANY, Get_Formula(1), wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER),
 		1, 0
 	);
 
@@ -610,13 +613,16 @@ const char * CVariogram_Dialog::Get_Formula(int Index)
 {
 	switch( Index )
 	{
-	default: return( "a + b * x"                                                                    );	// linear
-	case  1: return( "b * x"                                                                        );	// linear (no nugget)
-	case  2: return( "a + b * sqrt(x)"                                                              );	// square root
-	case  3: return( "a + b * ln(1 + x)"                                                            );	// logarithmic
-	case  4: return( "n + (s - n) * (1 - exp(-(x / r)); n=n; s=s; r=r"                              );	// exponential
-	case  5: return( "n + (s - n) * (1 - exp(-(x / r)^2)); n=n; s=s; r=r"                           );	// gaussian
-	case  6: return( "n + (s - n) * ifelse(x > r, 1, 1.5 * x / r - 0.5 * x^3 / r^3); n=n; s=s; r=r" );	// spherical
+	default: return(     "b * x"                                                                                 );	// linear (no nugget)
+	case  1: return( "a + b * x"                                                                                 );	// linear
+	case  2: return( "a + b * x^k"                                                                               );	// power
+	case  3: return( "a + b * sqrt(x)"                                                                           );	// square root
+	case  4: return( "a + b * ln(1 + x)"                                                                         );	// logarithmic
+	case  5: return( "n + (s-n) * (1 - exp(-k * x/r)); n=n; s=s; r=r; k=3"                                       );	// exponential
+	case  6: return( "n + (s-n) * (1 - exp(-(x/r)^k)); n=n; s=s; r=r; k=1"                                       );	// stable (0 < k <= 2), a.k.a. powered exponential
+	case  7: return( "n + (s-n) * (1 - exp(-(x/r)^2)); n=n; s=s; r=r"                                            );	// gaussian
+	case  8: return( "n + (s-n) * ifelse(x>r, 1, 7*d^2 - 8.75*d^3 + 3.5*d^5 - 0.75*d^7); n=n; s=s; r=r; d=(x/r)" );	// cubic
+	case  9: return( "n + (s-n) * ifelse(x>r, 1, 1.5*d - 0.5*d^3); n=n; s=s; r=r; d=(x/r)"                       );	// spherical
 	}
 }
 
