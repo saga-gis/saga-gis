@@ -100,14 +100,15 @@ private:
 
 	double					Get_Surface				(int x, int y);
 	double					Get_Roughness			(int x, int y);
-	double					Get_Velocity			(double Depth, double Slope, double Roughness);
+	double					Get_Velocity			(double Flow, double Slope, double Roughness);
 
 	bool					Get_Neighbour			(int x, int y, int i, int &ix, int &iy);
 
 	double					Get_Gradient			(int x, int y, int i);
-	bool					Get_Gradient			(int x, int y);
 
-	double					Get_Flow				(int x, int y, int i, bool bInverse);
+	bool					Get_Velocity			(int x, int y);
+
+	double					Get_dFlow				(int x, int y, int i, bool bInverse);
 	bool					Set_Flow				(int x, int y);
 
 };

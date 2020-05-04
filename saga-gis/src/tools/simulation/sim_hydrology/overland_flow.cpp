@@ -86,7 +86,7 @@ COverland_Flow::COverland_Flow(void)
 	);
 
 	Parameters.Add_Grid("",
-		"FLOW"		, _TL("Flow [m]"),
+		"FLOW"		, _TL("Flow [mm]"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
@@ -206,7 +206,7 @@ bool COverland_Flow::Initialize(void)
 	if( Parameters("RESET")->asBool() )
 	{
 		CSG_Grid *pFlow = Parameters("FLOW_INIT")->asGrid  ();
-		double     Flow = Parameters("FLOW_INIT")->asDouble() / 1000.;	// convert mm to m
+		double     Flow = Parameters("FLOW_INIT")->asDouble();
 
 		#pragma omp parallel
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
@@ -224,7 +224,7 @@ bool COverland_Flow::Initialize(void)
 				double	Value;
 
 				m_pFlow->Set_Value(x, y, pFlow->Get_Value(Get_System().Get_Grid_to_World(x, y), Value)
-					? Value / 1000. : 0.	// convert mm to m
+					? Value : 0.
 				);
 			}
 		}
@@ -277,7 +277,7 @@ bool COverland_Flow::Set_Time_Stamp(double Time)
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Surface(int x, int y)
 {
-	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) );
+	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) / 1000. );
 }
 
 //---------------------------------------------------------
@@ -289,9 +289,9 @@ inline double COverland_Flow::Get_Roughness(int x, int y)
 }
 
 //---------------------------------------------------------
-inline double COverland_Flow::Get_Velocity(double Depth, double Slope, double Roughness)
+inline double COverland_Flow::Get_Velocity(double Flow, double Slope, double Roughness)
 {
-	return( 3600. * pow(Depth, 2. / 3.) * sqrt(Slope) / Roughness );
+	return( 3600. * pow(Flow / 1000., 2. / 3.) * sqrt(Slope) / Roughness );
 }
 
 //---------------------------------------------------------
@@ -319,7 +319,7 @@ bool COverland_Flow::Do_Time_Step(void)
 	{
 		if( !m_pDEM->is_NoData(x, y) )
 		{
-			Get_Gradient(x, y);
+			Get_Velocity(x, y);
 		}
 	}
 
@@ -347,6 +347,7 @@ bool COverland_Flow::Do_Time_Step(void)
 		Set_Flow(x, y);
 	}
 
+	//-----------------------------------------------------
 	if( Process_Get_Okay() )
 	{
 		#pragma omp parallel for
@@ -386,11 +387,11 @@ inline double COverland_Flow::Get_Gradient(int x, int y, int i)
 }
 
 //---------------------------------------------------------
-bool COverland_Flow::Get_Gradient(int x, int y)
+bool COverland_Flow::Get_Velocity(int x, int y)
 {
-	double	Q = m_pFlow->asDouble(x, y);
+	double	Flow = m_pFlow->asDouble(x, y);
 
-	if( Q > 0. )
+	if( Flow > 0. )
 	{
 		double	dzSum = 0., vMax = 0.;
 
@@ -402,7 +403,7 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 			{
 				dzSum	+= dz;
 
-				double	v	= Get_Velocity(Q, dz, Get_Roughness(x, y)) / Get_Length(i);
+				double	v	= Get_Velocity(Flow, dz, Get_Roughness(x, y)) / Get_Length(i);
 
 				if( vMax < v )
 				{
@@ -449,7 +450,7 @@ bool COverland_Flow::Get_Gradient(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double COverland_Flow::Get_Flow(int x, int y, int i, bool bInverse)
+inline double COverland_Flow::Get_dFlow(int x, int y, int i, bool bInverse)
 {
 	if( bInverse )
 	{
@@ -474,23 +475,23 @@ inline double COverland_Flow::Get_Flow(int x, int y, int i, bool bInverse)
 //---------------------------------------------------------
 bool COverland_Flow::Set_Flow(int x, int y)
 {
-	double	Q = m_pFlow->asDouble(x, y);
+	double	Flow = m_pFlow->asDouble(x, y);
 
 	for(int i=0; i<8; i++)
 	{
-		double	dQ	= Get_Flow(x, y, i, false);
+		double	dFlow	= Get_dFlow(x, y, i, false);
 
-		if( dQ > 0. )
+		if( dFlow > 0. )
 		{
-			Q	-= m_dTime * dQ;
+			Flow	-= m_dTime * dFlow;
 		}
-		else if( (dQ = Get_Flow(x, y, i, true)) > 0. )
+		else if( (dFlow = Get_dFlow(x, y, i, true)) > 0. )
 		{
-			Q	+= m_dTime * dQ;
+			Flow	+= m_dTime * dFlow;
 		}
 	}
 
-	m_Flow.Set_Value(x, y, Q);
+	m_Flow.Set_Value(x, y, Flow);
 
 	return( true );
 }
