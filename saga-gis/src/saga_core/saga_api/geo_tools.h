@@ -184,6 +184,10 @@ SAGA_API_DLL_EXPORT bool		SG_Is_Between		(const TSG_Point &Point, const TSG_Poin
 class SAGA_API_DLL_EXPORT CSG_Point
 {
 public:
+
+	double						x, y;
+
+
 	CSG_Point(void);
 	CSG_Point(const CSG_Point &Point);
 	CSG_Point(const TSG_Point &Point);
@@ -193,35 +197,46 @@ public:
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( SG_POINT_TYPE_XY );	}
 
-	operator TSG_Point							(void)	const	{	TSG_Point p; p.x = m_x; p.y = m_y; return( p );	}
+	operator TSG_Point							(void)	const	{	TSG_Point p; p.x = x; p.y = y; return( p );	}
 
-	double						Get_X			(void)	const	{	return( m_x );	}
-	void						Set_X			(double x)		{	m_x	= x;		}
-	double						Get_Y			(void)	const	{	return( m_y );	}
-	void						Set_Y			(double y)		{	m_y	= y;		}
+	double						Get_X			(void)	const	{	return( x );	}
+	void						Set_X			(double Value)	{	x	= Value;	}
+	double						Get_Y			(void)	const	{	return( y );	}
+	void						Set_Y			(double Value)	{	y	= Value;	}
 
 	virtual bool				operator ==		(const CSG_Point &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point &Point)	const	{	return( !is_Equal(Point) );	}
 
-	virtual CSG_Point			operator +		(const CSG_Point &Point)	const	{	return( CSG_Point(m_x + Point.m_x, m_y + Point.m_y)	);	}
-	virtual CSG_Point			operator -		(const CSG_Point &Point)	const	{	return( CSG_Point(m_x - Point.m_x, m_y - Point.m_y)	);	}
+	virtual CSG_Point			operator +		(const CSG_Point &Point)	const	{	return( CSG_Point(x + Point.x, y + Point.y)	);	}
+	virtual CSG_Point			operator -		(const CSG_Point &Point)	const	{	return( CSG_Point(x - Point.x, y - Point.y)	);	}
 
 	virtual CSG_Point &			operator  =		(const CSG_Point &Point)			{	Assign  (Point);	return( *this );	}
 	virtual CSG_Point &			operator +=		(const CSG_Point &Point)			{	Add     (Point);	return( *this );	}
 	virtual CSG_Point &			operator -=		(const CSG_Point &Point)			{	Subtract(Point);	return( *this );	}
+	virtual CSG_Point &			operator *=		(const CSG_Point &Point)			{	Multiply(Point);	return( *this );	}
+
+	CSG_Point					operator *		(double Value)				const	{	return( CSG_Point(x * Value, y * Value)	);	}
+	CSG_Point					operator /		(double Value)				const	{	return( CSG_Point(x / Value, y / Value)	);	}
+	virtual CSG_Point &			operator *=		(double Value)						{	Multiply(Value);	return( *this );	}
+	virtual CSG_Point &			operator /=		(double Value)						{	Divide  (Value);	return( *this );	}
 
 	virtual void				Assign			(double x, double y);
 	virtual void				Assign			(const CSG_Point &Point);
+
 	virtual void				Add				(const CSG_Point &Point);
 	virtual void				Subtract		(const CSG_Point &Point);
+	virtual void				Multiply		(const CSG_Point &Point);
 
-	virtual bool				is_Equal		(double x, double y    , double epsilon = 0.)	const	{	return( SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) );	}
-	virtual bool				is_Equal		(const CSG_Point &Point, double epsilon = 0.)	const	{	return(	is_Equal(Point.m_x, Point.m_y, epsilon) );	}
+	virtual void				Multiply		(double Value);
+	virtual void				Divide			(double Value);
 
+	virtual double				Get_Length		(void)	const;
 
-protected:
-
-	double						m_x, m_y;
+	virtual bool				is_Equal		(double _x, double _y  , double epsilon = 0.)	const	{	return( is_Equal(CSG_Point(x, y), epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point &Point, double epsilon = 0.)	const
+	{	return(	SG_Is_Equal(x, Point.x, epsilon)
+		     && SG_Is_Equal(y, Point.y, epsilon) );
+	}
 
 };
 
@@ -229,6 +244,10 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Point_Z : public CSG_Point
 {
 public:
+
+	double						z;
+
+
 	CSG_Point_Z(void);
 	CSG_Point_Z(const CSG_Point_Z &Point);
 	CSG_Point_Z(const TSG_Point_Z &Point);
@@ -238,33 +257,45 @@ public:
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( SG_POINT_TYPE_XYZ );	}
 
-	operator TSG_Point_Z						(void)	const	{	TSG_Point_Z p; p.x = m_x; p.y = m_y; p.z = m_z; return( p );	}
+	operator TSG_Point_Z						(void)	const	{	TSG_Point_Z p; p.x = x; p.y = y; p.z = z; return( p );	}
 
-	double						Get_Z			(void)	const	{	return( m_z );	}
-	void						Set_Z			(double z)		{	m_z	= z;		}
+	double						Get_Z			(void)	const	{	return( z );	}
+	void						Set_Z			(double Value)	{	z	= Value;	}
 
 	virtual bool				operator ==		(const CSG_Point_Z &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point_Z &Point)	const	{	return( !is_Equal(Point) );	}
 
-	virtual CSG_Point_Z			operator +		(const CSG_Point_Z &Point)	const	{	return( CSG_Point_Z(m_x + Point.m_x, m_y + Point.m_y, m_z + Point.m_z)	);	}
-	virtual CSG_Point_Z			operator -		(const CSG_Point_Z &Point)	const	{	return( CSG_Point_Z(m_x - Point.m_x, m_y - Point.m_y, m_z - Point.m_z)	);	}
+	virtual CSG_Point_Z			operator +		(const CSG_Point_Z &Point)	const	{	return( CSG_Point_Z(x + Point.x, y + Point.y, z + Point.z)	);	}
+	virtual CSG_Point_Z			operator -		(const CSG_Point_Z &Point)	const	{	return( CSG_Point_Z(x - Point.x, y - Point.y, z - Point.z)	);	}
 
 	virtual CSG_Point_Z &		operator  =		(const CSG_Point_Z &Point)			{	Assign  (Point);	return( *this );	}
 	virtual CSG_Point_Z &		operator +=		(const CSG_Point_Z &Point)			{	Add     (Point);	return( *this );	}
 	virtual CSG_Point_Z &		operator -=		(const CSG_Point_Z &Point)			{	Subtract(Point);	return( *this );	}
+	virtual CSG_Point_Z &		operator *=		(const CSG_Point_Z &Point)			{	Multiply(Point);	return( *this );	}
+
+	CSG_Point_Z					operator *		(double Value)				const	{	return( CSG_Point_Z(x * Value, y * Value, z * Value)	);	}
+	CSG_Point_Z					operator /		(double Value)				const	{	return( CSG_Point_Z(x / Value, y / Value, z / Value)	);	}
+	virtual CSG_Point_Z &		operator *=		(double Value)						{	Multiply(Value);	return( *this );	}
+	virtual CSG_Point_Z &		operator /=		(double Value)						{	Divide  (Value);	return( *this );	}
 
 	virtual void				Assign			(double x, double y, double z);
 	virtual void				Assign			(const CSG_Point_Z &Point);
+
 	virtual void				Add				(const CSG_Point_Z &Point);
 	virtual void				Subtract		(const CSG_Point_Z &Point);
+	virtual void				Multiply		(const CSG_Point_Z &Point);
 
-	virtual bool				is_Equal		(double x, double y, double z, double epsilon = 0.)	const	{	return(	SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) && SG_Is_Equal(m_z, z, epsilon) );	}
-	virtual bool				is_Equal		(const CSG_Point_Z &Point    , double epsilon = 0.)	const	{	return(	is_Equal(Point.m_x, Point.m_y, Point.m_z, epsilon) );	}
+	virtual void				Multiply		(double Value);
+	virtual void				Divide			(double Value);
 
+	virtual double				Get_Length		(void)	const;
 
-protected:
-
-	double						m_z;
+	virtual bool				is_Equal		(double _x, double _y, double _z, double epsilon = 0.)	const	{	return(	is_Equal(CSG_Point_Z(x, y, z), epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point_Z &Point       , double epsilon = 0.)	const
+	{	return(	SG_Is_Equal(x, Point.x, epsilon)
+		     && SG_Is_Equal(y, Point.y, epsilon)
+		     && SG_Is_Equal(z, Point.z, epsilon) );
+	}
 
 };
 
@@ -272,6 +303,10 @@ protected:
 class SAGA_API_DLL_EXPORT CSG_Point_ZM : public CSG_Point_Z
 {
 public:
+
+	double						m;
+
+
 	CSG_Point_ZM(void);
 	CSG_Point_ZM(const CSG_Point_ZM &Point);
 	CSG_Point_ZM(const TSG_Point_ZM &Point);
@@ -281,33 +316,46 @@ public:
 
 	virtual TSG_Point_Type		Get_Type		(void)	const	{	return( SG_POINT_TYPE_XYZM );	}
 
-	operator TSG_Point_ZM						(void)	const	{	TSG_Point_ZM p; p.x = m_x; p.y = m_y; p.z = m_z; p.m = m_m; return( p );	}
+	operator TSG_Point_ZM						(void)	const	{	TSG_Point_ZM p; p.x = x; p.y = y; p.z = z; p.m = m; return( p );	}
 
-	double						Get_M			(void)	const	{	return( m_m );	}
-	void						Set_M			(double m)		{	m_m	= m;		}
+	double						Get_M			(void)	const	{	return( m );	}
+	void						Set_M			(double Value)	{	m	= Value;	}
 
 	virtual bool				operator ==		(const CSG_Point_ZM &Point)	const	{	return(  is_Equal(Point) );	}
 	virtual bool				operator !=		(const CSG_Point_ZM &Point)	const	{	return( !is_Equal(Point) );	}
 
-	virtual CSG_Point_ZM		operator +		(const CSG_Point_ZM &Point)	const	{	return( CSG_Point_ZM(m_x + Point.m_x, m_y + Point.m_y, m_z + Point.m_z, m_m + Point.m_m) );	}
-	virtual CSG_Point_ZM		operator -		(const CSG_Point_ZM &Point)	const	{	return( CSG_Point_ZM(m_x - Point.m_x, m_y - Point.m_y, m_z - Point.m_z, m_m - Point.m_m) );	}
+	virtual CSG_Point_ZM		operator +		(const CSG_Point_ZM &Point)	const	{	return( CSG_Point_ZM(x + Point.x, y + Point.y, z + Point.z, m + Point.m) );	}
+	virtual CSG_Point_ZM		operator -		(const CSG_Point_ZM &Point)	const	{	return( CSG_Point_ZM(x - Point.x, y - Point.y, z - Point.z, m - Point.m) );	}
+
+	CSG_Point_ZM				operator *		(double Value)				const	{	return( CSG_Point_ZM(x * Value, y * Value, z * Value, m * Value)	);	}
+	CSG_Point_ZM				operator /		(double Value)				const	{	return( CSG_Point_ZM(x / Value, y / Value, z / Value, m * Value)	);	}
+	virtual CSG_Point_ZM &		operator *=		(double Value)						{	Multiply(Value);	return( *this );	}
+	virtual CSG_Point_ZM &		operator /=		(double Value)						{	Divide  (Value);	return( *this );	}
 
 	virtual CSG_Point_ZM &		operator  =		(const CSG_Point_ZM &Point)			{	Assign  (Point);	return( *this );	}
 	virtual CSG_Point_ZM &		operator +=		(const CSG_Point_ZM &Point)			{	Add     (Point);	return( *this );	}
 	virtual CSG_Point_ZM &		operator -=		(const CSG_Point_ZM &Point)			{	Subtract(Point);	return( *this );	}
+	virtual CSG_Point_ZM &		operator *=		(const CSG_Point_ZM &Point)			{	Multiply(Point);	return( *this );	}
 
 	virtual void				Assign			(double x, double y, double z, double m);
 	virtual void				Assign			(const CSG_Point_ZM &Point);
+
 	virtual void				Add				(const CSG_Point_ZM &Point);
 	virtual void				Subtract		(const CSG_Point_ZM &Point);
+	virtual void				Multiply		(const CSG_Point_ZM &Point);
 
-	virtual bool				is_Equal		(double x, double y, double z, double m, double epsilon = 0.)	const	{	return(	SG_Is_Equal(m_x, x, epsilon) && SG_Is_Equal(m_y, y, epsilon) && SG_Is_Equal(m_z, z, epsilon) && SG_Is_Equal(m_m, m, epsilon) );	}
-	virtual bool				is_Equal		(const CSG_Point_ZM &Point             , double epsilon = 0.)	const	{	return(	is_Equal(Point.m_x, Point.m_y, Point.m_z, Point.m_m, epsilon) );	}
+	virtual void				Multiply		(double Value);
+	virtual void				Divide			(double Value);
 
+	virtual double				Get_Length		(void)	const;
 
-protected:
-
-	double						m_m;
+	virtual bool				is_Equal		(double x, double y, double z, double m, double epsilon = 0.)	const	{	return(	is_Equal(CSG_Point_ZM(x, y, z, m), epsilon) );	}
+	virtual bool				is_Equal		(const CSG_Point_ZM &Point             , double epsilon = 0.)	const
+	{	return(	SG_Is_Equal(x, Point.x, epsilon)
+		     && SG_Is_Equal(y, Point.y, epsilon)
+		     && SG_Is_Equal(z, Point.z, epsilon)
+		     && SG_Is_Equal(m, Point.m, epsilon) );
+	}
 
 };
 

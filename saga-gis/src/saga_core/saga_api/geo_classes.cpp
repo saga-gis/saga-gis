@@ -87,35 +87,59 @@ CSG_Point::CSG_Point(const TSG_Point &Point)
 	Assign(Point.x, Point.y);
 }
 
-CSG_Point::CSG_Point(double x, double y)
+CSG_Point::CSG_Point(double _x, double _y)
 {
-	Assign(x, y);
+	Assign(_x, _y);
+}
+
+//---------------------------------------------------------
+void CSG_Point::Assign(double _x, double _y)
+{
+	x	= _x;
+	y	= _y;
+}
+
+void CSG_Point::Assign(const CSG_Point &Point)
+{
+	x	= Point.x;
+	y	= Point.y;
 }
 
 //---------------------------------------------------------
 void CSG_Point::Add(const CSG_Point &Point)
 {
-	m_x	+= Point.m_x;
-	m_y	+= Point.m_y;
+	x	+= Point.x;
+	y	+= Point.y;
 }
 
 void CSG_Point::Subtract(const CSG_Point &Point)
 {
-	m_x	-= Point.Get_X();
-	m_y	-= Point.Get_Y();
+	x	-= Point.x;
+	y	-= Point.y;
+}
+
+void CSG_Point::Multiply(const CSG_Point &Point)
+{
+	x	*= Point.x;
+	y	*= Point.y;
+}
+
+void CSG_Point::Multiply(double Value)
+{
+	x	*= Value;
+	y	*= Value;
+}
+
+void CSG_Point::Divide(double Value)
+{
+	x	/= Value;
+	y	/= Value;
 }
 
 //---------------------------------------------------------
-void CSG_Point::Assign(double x, double y)
+double CSG_Point::Get_Length(void)	const
 {
-	m_x	= x;
-	m_y	= y;
-}
-
-void CSG_Point::Assign(const CSG_Point &Point)
-{
-	m_x	= Point.m_x;
-	m_y	= Point.m_y;
+	return( sqrt(x*x + y*y) );
 }
 
 
@@ -139,39 +163,66 @@ CSG_Point_Z::CSG_Point_Z(const TSG_Point_Z &Point)
 	Assign(Point.x, Point.y, Point.z);
 }
 
-CSG_Point_Z::CSG_Point_Z(double x, double y, double z)
+CSG_Point_Z::CSG_Point_Z(double _x, double _y, double _z)
 {
-	Assign(x, y, z);
+	Assign(_x, _y, _z);
+}
+
+//---------------------------------------------------------
+void CSG_Point_Z::Assign(double _x, double _y, double _z)
+{
+	x	= _x;
+	y	= _y;
+	z	= _z;
+}
+
+void CSG_Point_Z::Assign(const CSG_Point_Z &Point)
+{
+	x	= Point.x;
+	y	= Point.y;
+	z	= Point.z;
 }
 
 //---------------------------------------------------------
 void CSG_Point_Z::Add(const CSG_Point_Z &Point)
 {
-	m_x	+= Point.m_x;
-	m_y	+= Point.m_y;
-	m_z	+= Point.m_z;
+	x	+= Point.x;
+	y	+= Point.y;
+	z	+= Point.z;
 }
 
 void CSG_Point_Z::Subtract(const CSG_Point_Z &Point)
 {
-	m_x	-= Point.m_x;
-	m_y	-= Point.m_y;
-	m_z	-= Point.m_z;
+	x	-= Point.x;
+	y	-= Point.y;
+	z	-= Point.z;
+}
+
+void CSG_Point_Z::Multiply(const CSG_Point_Z &Point)
+{
+	x	*= Point.x;
+	y	*= Point.y;
+	z	*= Point.z;
+}
+
+void CSG_Point_Z::Multiply(double Value)
+{
+	x	*= Value;
+	y	*= Value;
+	z	*= Value;
+}
+
+void CSG_Point_Z::Divide(double Value)
+{
+	x	/= Value;
+	y	/= Value;
+	z	/= Value;
 }
 
 //---------------------------------------------------------
-void CSG_Point_Z::Assign(double x, double y, double z)
+double CSG_Point_Z::Get_Length(void)	const
 {
-	m_x	= x;
-	m_y	= y;
-	m_z	= z;
-}
-
-void CSG_Point_Z::Assign(const CSG_Point_Z &Point)
-{
-	m_x	= Point.m_x;
-	m_y	= Point.m_y;
-	m_z	= Point.m_z;
+	return( sqrt(x*x + y*y + z*z) );
 }
 
 
@@ -195,43 +246,73 @@ CSG_Point_ZM::CSG_Point_ZM(const TSG_Point_ZM &Point)
 	Assign(Point.x, Point.y, Point.z, Point.m);
 }
 
-CSG_Point_ZM::CSG_Point_ZM(double x, double y, double z, double m)
+CSG_Point_ZM::CSG_Point_ZM(double _x, double _y, double _z, double _m)
 {
-	Assign(x, y, z, m);
+	Assign(_x, _y, _z, _m);
+}
+
+//---------------------------------------------------------
+void CSG_Point_ZM::Assign(double _x, double _y, double _z, double _m)
+{
+	x	= _x;
+	y	= _y;
+	z	= _z;
+	m	= _m;
+}
+
+void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
+{
+	x	= Point.x;
+	y	= Point.y;
+	z	= Point.z;
+	m	= Point.m;
 }
 
 //---------------------------------------------------------
 void CSG_Point_ZM::Add(const CSG_Point_ZM &Point)
 {
-	m_x	+= Point.m_x;
-	m_y	+= Point.m_y;
-	m_z	+= Point.m_z;
-	m_m	+= Point.m_m;
+	x	+= Point.x;
+	y	+= Point.y;
+	z	+= Point.z;
+	m	+= Point.m;
 }
 
 void CSG_Point_ZM::Subtract(const CSG_Point_ZM &Point)
 {
-	m_x	-= Point.m_x;
-	m_y	-= Point.m_y;
-	m_z	-= Point.m_z;
-	m_m	-= Point.m_m;
+	x	-= Point.x;
+	y	-= Point.y;
+	z	-= Point.z;
+	m	-= Point.m;
+}
+
+void CSG_Point_ZM::Multiply(const CSG_Point_ZM &Point)
+{
+	x	*= Point.x;
+	y	*= Point.y;
+	z	*= Point.z;
+	m	*= Point.m;
+}
+
+void CSG_Point_ZM::Multiply(double Value)
+{
+	x	*= Value;
+	y	*= Value;
+	z	*= Value;
+	m	*= Value;
+}
+
+void CSG_Point_ZM::Divide(double Value)
+{
+	x	/= Value;
+	y	/= Value;
+	z	/= Value;
+	m	/= Value;
 }
 
 //---------------------------------------------------------
-void CSG_Point_ZM::Assign(double x, double y, double z, double m)
+double CSG_Point_ZM::Get_Length(void)	const
 {
-	m_x	= x;
-	m_y	= y;
-	m_z	= z;
-	m_m	= m;
-}
-
-void CSG_Point_ZM::Assign(const CSG_Point_ZM &Point)
-{
-	m_x	= Point.m_x;
-	m_y	= Point.m_y;
-	m_z	= Point.m_z;
-	m_m	= Point.m_m;
+	return( sqrt(x*x + y*y + z*z + m*m) );
 }
 
 
