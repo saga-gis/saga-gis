@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Cross_Profiles.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,26 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Cross_Profiles.h"
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#define OFFSET	3
 
 
 ///////////////////////////////////////////////////////////
@@ -84,256 +62,254 @@ CGrid_Cross_Profiles::CGrid_Cross_Profiles(void)
 {
 	Set_Name		(_TL("Cross Profiles"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2006"));
+	Set_Author		("O.Conrad (c) 2006");
 
 	Set_Description	(_TW(
-		"Create cross profiles from a grid based DEM for given lines.\n"
+		"Create cross profiles from a grid based DEM for given lines."
 	));
 
-	Parameters.Add_Grid(
-		NULL, "DEM"			, _TL("DEM"),
+	Parameters.Add_Grid("",
+		"DEM"			, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "LINES"		, _TL("Lines"),
+	Parameters.Add_Shapes("",
+		"LINES"			, _TL("Lines"),
 		_TL(""),
-		PARAMETER_INPUT		, SHAPE_TYPE_Line
+		PARAMETER_INPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Shapes(
-		NULL, "PROFILES"	, _TL("Cross Profiles"),
+	Parameters.Add_Shapes("",
+		"PROFILES"		, _TL("Cross Profiles"),
 		_TL(""),
-		PARAMETER_OUTPUT	, SHAPE_TYPE_Line
+		PARAMETER_OUTPUT, SHAPE_TYPE_Line
 	);
 
-	Parameters.Add_Value(
-		NULL, "DIST_LINE"	, _TL("Profile Distance"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+	Parameters.Add_Double("",
+		"DIST_LINE"		, _TL("Profile Distance"),
+		_TL("The distance of each cross profile along the lines."),
+		10., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL, "DIST_PROFILE", _TL("Profile Length"),
-		_TL(""),
-		PARAMETER_TYPE_Double, 10.0, 0.0, true
+	Parameters.Add_Double("",
+		"DIST_PROFILE"	, _TL("Profile Length"),
+		_TL("The length of each cross profile."),
+		10., 0., true
 	);
 
-	Parameters.Add_Value(
-		NULL, "NUM_PROFILE"	, _TL("Profile Samples"),
+	Parameters.Add_Int("",
+		"NUM_PROFILE"	, _TL("Profile Samples"),
+		_TL("The number of profile points per cross profile."),
+		11, 3, true
+	);
+
+	Parameters.Add_Choice("",
+		"INTERPOLATION"	, _TL("Interpolation"),
 		_TL(""),
-		PARAMETER_TYPE_Int	, 10.0, 3.0, true
+		CSG_String::Format("%s|%s|%s|%s",
+			_TL("Nearest Neighbour"           ),
+			_TL("Bilinear Interpolation"      ),
+			_TL("Bicubic Spline Interpolation"),
+			_TL("B-Spline Interpolation"      )
+		), 3
+	);
+
+	Parameters.Add_Choice("",
+		"OUTPUT"		, _TL("Output"),
+		_TL(""),
+		CSG_String::Format("%s|%s|%s",
+			_TL("vertices"),
+			_TL("attributes"),
+			_TL("vertices and attributes")
+		), 2
 	);
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CGrid_Cross_Profiles::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("DEM") )
+	{
+		CSG_Grid	*pDEM	= (*pParameters)("DEM")->asGrid();
+
+		if( pDEM )
+		{
+			if( (*pParameters)("DIST_LINE")->asDouble() < pDEM->Get_Cellsize() )
+			{
+				pParameters->Set_Parameter("DIST_LINE", pDEM->Get_Cellsize());
+			}
+
+			int	nSamples	= (*pParameters)("NUM_PROFILE")->asInt() - 1;
+
+			if( (*pParameters)("DIST_PROFILE")->asDouble() < nSamples * pDEM->Get_Cellsize() )
+			{
+				pParameters->Set_Parameter("DIST_PROFILE", nSamples * pDEM->Get_Cellsize());
+			}
+		}
+	}
+
+	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CGrid_Cross_Profiles::On_Execute(void)
 {
-	int			iLine, iPart, iPoint, nSamples;
-	double		Distance, Length, dLine, dist, dx, dy;
-	TSG_Point	iPt, jPt, dPt, aPt, bPt;
-	CSG_Shapes	*pLines, *pProfiles;
-	CSG_Shape	*pLine, *pProfile;
+	CSG_Shapes	*pLines	= Parameters("LINES")->asShapes();
 
-	//-----------------------------------------------------
-	m_pDEM		= Parameters("DEM")			->asGrid();
-	pProfiles	= Parameters("PROFILES")	->asShapes();
-	pLines		= Parameters("LINES")		->asShapes();
-	Distance	= Parameters("DIST_LINE")	->asDouble();
-	Length		= Parameters("DIST_PROFILE")->asDouble();
-	nSamples	= Parameters("NUM_PROFILE")	->asInt();
+	double	Step	= Parameters("DIST_LINE"   )->asDouble();
+	double	Length	= Parameters("DIST_PROFILE")->asDouble() / 2.;
 
-	//-----------------------------------------------------
-	pProfiles->Create(SHAPE_TYPE_Line, _TL("Profiles"));
-	pProfiles->Add_Field("ID"	, SG_DATATYPE_Int);
-	pProfiles->Add_Field("LINE"	, SG_DATATYPE_Int);
-	pProfiles->Add_Field("PART"	, SG_DATATYPE_Int);
+	int	nSamples	= Parameters("NUM_PROFILE")->asInt();
 
-	for(iPoint=0; iPoint<nSamples; iPoint++)
+	m_Output	= Parameters("OUTPUT")->asInt();
+
+	m_pDEM	= Parameters("DEM")->asGrid();
+
+	switch( Parameters("INTERPOLATION")->asInt() )
 	{
-		pProfiles->Add_Field(CSG_String::Format(SG_T("X%03d"), iPoint), SG_DATATYPE_Double);
+	default: m_Interpolation = GRID_RESAMPLING_NearestNeighbour; break;
+	case  1: m_Interpolation = GRID_RESAMPLING_Bilinear        ; break;
+	case  2: m_Interpolation = GRID_RESAMPLING_BicubicSpline   ; break;
+	case  3: m_Interpolation = GRID_RESAMPLING_BSpline         ; break;
 	}
 
 	//-----------------------------------------------------
-	for(iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	m_pProfiles	= Parameters("PROFILES")->asShapes();
+
+	m_pProfiles->Create(SHAPE_TYPE_Line, _TL("Profiles"), NULL, m_Output == 1 ? SG_VERTEX_TYPE_XY : SG_VERTEX_TYPE_XYZ);
+	m_pProfiles->Add_Field("ID", SG_DATATYPE_Int);
+
+	if( m_Output != 0 )	// NOT vertices only
 	{
-		pLine	= pLines->Get_Shape(iLine);
+		int	n	= nSamples < 10 ? 1 : nSamples < 100 ? 2 : nSamples < 1000 ? 3 : 4;
 
-		for(iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		for(int iPoint=0; iPoint<nSamples; iPoint++)
 		{
-			if( pLine->Get_Point_Count(iPart) > 1 )
+			m_pProfiles->Add_Field(CSG_String::Format("P%0*d", n, 1 + iPoint), SG_DATATYPE_Double);
+		}
+	}
+
+	//-----------------------------------------------------
+	for(int iLine=0; iLine<pLines->Get_Count() && Set_Progress(iLine, pLines->Get_Count()); iLine++)
+	{
+		CSG_Shape_Line	*pLine	= (CSG_Shape_Line *)pLines->Get_Shape(iLine);
+
+		for(int iPart=0; iPart<pLine->Get_Part_Count(); iPart++)
+		{
+			if( pLine->Get_Length(iPart) > 0. )
 			{
-				dist	= 0.0;
-				iPt		= pLine->Get_Point(0, iPart);
+				double	dStep	= 0.;
 
-				for(iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
+				for(int iPoint=1; iPoint<pLine->Get_Point_Count(iPart); iPoint++)
 				{
-					jPt		= iPt;
-					iPt		= pLine->Get_Point(iPoint, iPart);
-					dx		= iPt.x - jPt.x;
-					dy		= iPt.y - jPt.y;
-					dLine	= sqrt(dx*dx + dy*dy);
-					dx		/= dLine;
-					dy		/= dLine;
+					CSG_Point	A	= pLine->Get_Point(iPoint - 1, iPart);
+					CSG_Point	B	= pLine->Get_Point(iPoint    , iPart);	B	-= A;
 
-					while( dist < dLine )
+					double	dSegment	= B.Get_Length();
+
+					if( dSegment > 0. )
 					{
-						dPt.x	= jPt.x + dist * dx;
-						dPt.y	= jPt.y + dist * dy;
+						B	/= dSegment;
 
-						if( m_pDEM->is_InGrid_byPos(dPt) )
+						while( dStep < dSegment )
 						{
-							aPt.x	= dPt.x + dy * Length;
-							aPt.y	= dPt.y - dx * Length;
-							bPt.x	= dPt.x - dy * Length;
-							bPt.y	= dPt.y + dx * Length;
+							CSG_Point	P(A.x + dStep * B.x, A.y + dStep * B.y);
 
-							pProfile	= pProfiles->Add_Shape();
-							pProfile->Add_Point(aPt);
-							pProfile->Add_Point(bPt);
-							pProfile->Set_Value(0, pProfiles->Get_Count());
-							pProfile->Set_Value(1, iLine);
-							pProfile->Set_Value(2, iPart);
+							Add_Profile(P, B, Length, nSamples);
 
-							Get_Profile(pProfile, aPt, bPt, nSamples);
+							dStep	+= Step;
 						}
 
-						dist	+= Distance;
+						dStep	-= dSegment;
 					}
-
-					dist	-= dLine;
 				}
 			}
 		}
 	}
 
 	//-----------------------------------------------------
-	return( pProfiles->Get_Count() > 0 );
+	return( m_pProfiles->Get_Count() > 0 );
 }
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGrid_Cross_Profiles::Get_Profile(CSG_Shape *pProfile, TSG_Point A, TSG_Point B, int nSamples)
+bool CGrid_Cross_Profiles::Add_Profile(const TSG_Point &P, const TSG_Point &N, double Length, int nSamples)
 {
-	if( 1 )
+	if( !m_pDEM->is_InGrid_byPos(P) )
 	{
-		double	d, dx, dy, z;
-
-		dx	= B.x - A.x;
-		dy	= B.y - A.y;
-	//	d	= sqrt(dx*dx + dy*dy) / (nSamples - 1);
-		d	= (nSamples - 1);
-		dx	/= d;
-		dy	/= d;
-
-		for(int i=0; i<nSamples; i++)
-		{
-			if( m_pDEM->Get_Value(A, z) )
-			{
-				pProfile->Set_Value	(OFFSET + i, z);
-			}
-			else
-			{
-				pProfile->Set_NoData	(OFFSET + i);
-			}
-
-			A.x	+= dx;
-			A.y	+= dy;
-		}
-
-		return( true );
+		return( false );
 	}
 
-	return( false );
+	CSG_Shape	*pProfile	= m_pProfiles->Add_Shape();
+
+	pProfile->Set_Value(0, m_pProfiles->Get_Count());
+
+	CSG_Point	A(P.x + N.y * Length, P.y - N.x * Length);
+	CSG_Point	B(P.x - N.y * Length, P.y + N.x * Length);
+
+	if( m_Output == 1 )	// attributes only
+	{
+		pProfile->Add_Point(A);
+		pProfile->Add_Point(B);
+	}
+
+	B	-= A;
+	B	/= nSamples - 1.;
+
+	//-----------------------------------------------------
+	for(int i=0; i<nSamples; i++)
+	{
+		double	z;
+
+		if( m_pDEM->Get_Value(A, z, m_Interpolation) )
+		{
+			if( m_Output != 1 )	// NOT attributes only
+			{
+				pProfile->Add_Point(A);
+				pProfile->Set_Z(z, i);
+			}
+
+			if( m_Output != 0 )	// NOT vertices only
+			{
+				pProfile->Set_Value(1 + i, z);
+			}
+		}
+		else
+		{
+			if( m_Output != 0 )	// NOT vertices only
+			{
+				pProfile->Set_NoData(1 + i);
+			}
+		}
+
+		A	+= B;
+	}
+
+	//-----------------------------------------------------
+	if( pProfile->Get_Point_Count() < 2 )
+	{
+		m_pProfiles->Del_Shape(pProfile);
+
+		return( false );
+	}
+
+	return( true );
 }
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-/*/---------------------------------------------------------
-#include <saga_api/doc_pdf.h>
-
-//---------------------------------------------------------
-#define NBOXES	4
-
-//---------------------------------------------------------
-void CGrid_Cross_Profiles::Make_Report(const SG_Char *FileName, CSG_Grid *pDEM, CSG_Shapes *pLines, CSG_Shapes *pProfiles, double Distance)
-{
-	if( FileName )
-	{
-		int				iProfile, iPoint, nSamples, iBox;
-		CSG_Rect		r;
-		CSG_Shape			*pProfile, *pLine;
-		CSG_Shapes			Profile;
-		CSG_Doc_PDF	pdf;
-
-		pdf.Open(PDF_PAGE_SIZE_A4, PDF_PAGE_ORIENTATION_PORTRAIT, _TL("Cross Profiles"));
-		pdf.Layout_Add_Box(5,  5, 95, 20);
-		pdf.Layout_Add_Box(5, 25, 95, 45);
-		pdf.Layout_Add_Box(5, 50, 95, 70);
-		pdf.Layout_Add_Box(5, 75, 95, 90);
-
-		nSamples	= pProfiles->Get_Field_Count() - OFFSET;
-		Distance	= Distance / (nSamples - 1);
-		iBox		= 0;
-
-		for(iProfile=0; iProfile<pProfiles->Get_Count() && Set_Progress(iProfile, pProfiles->Get_Count()); iProfile++)
-		{
-			pProfile	= pProfiles->Get_Shape(iProfile);
-
-			Profile.Create(SHAPE_TYPE_Line);
-			pLine		= Profile.Add_Shape();
-
-			for(iPoint=0; iPoint<nSamples; iPoint++)
-			{
-				if( !pProfile->is_NoData(OFFSET + iPoint) )
-				{
-					pLine->Add_Point(
-						(iPoint - nSamples / 2) * Distance,
-						pProfile->asDouble(OFFSET + iPoint)
-					);
-				}
-			}
-
-			if( pLine->Get_Point_Count(0) > 1 )
-			{
-				if( iBox >= NBOXES )
-				{
-					pdf.Add_Page();
-					iBox	= 0;
-				}
-
-//				pdf.Draw_Graticule	(pdf.Layout_Get_Box(iBox),  Profile.Get_Extent(), 20);
-//				pdf.Draw_Shapes		(pdf.Layout_Get_Box(iBox), &Profile);
-				r	= pLine->Get_Extent();	r.Inflate(10);
-				pdf.Draw_Graticule	(pdf.Layout_Get_Box(iBox), r, 15);
-				pdf.Draw_Shape		(pdf.Layout_Get_Box(iBox), pLine, PDF_STYLE_POLYGON_FILLSTROKE, SG_COLOR_GREEN, SG_COLOR_BLACK, 1, &r);
-
-				iBox++;
-			}
-		}
-
-		pdf.Save(Parameters("DOCUMENT")->asString());
-	}
-}/**/
 
 
 ///////////////////////////////////////////////////////////

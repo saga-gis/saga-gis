@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Cross_Profiles.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,20 +48,18 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Grid_Cross_Profiles_H
 #define HEADER_INCLUDED__Grid_Cross_Profiles_H
 
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -82,15 +77,23 @@ public:
 
 protected:
 
-	virtual bool				On_Execute			(void);
+	virtual int					On_Parameter_Changed	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
 
+	int							m_Output;
+
+	TSG_Grid_Resampling			m_Interpolation;
+
 	CSG_Grid					*m_pDEM;
 
+	CSG_Shapes					*m_pProfiles;
 
-	bool						Get_Profile			(CSG_Shape *pProfile, TSG_Point A, TSG_Point B, int nSamples);
+
+	bool						Add_Profile				(const TSG_Point &P, const TSG_Point &B, double Length, int nSamples);
 
 };
 
