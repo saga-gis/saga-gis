@@ -97,11 +97,11 @@ CTOBIA::CTOBIA(void)
 	));
 
 	Parameters.Add_Grid(
-		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "A", "Slope grid (rad)", "A slope angle grid (in radians)", PARAMETER_INPUT
 		);
 	
 	Parameters.Add_Grid(
-		NULL, "B", "Aspect grid (rad)", "A aspect angle grid (in radíans)", PARAMETER_INPUT
+		NULL, "B", "Aspect grid (rad)", "A aspect angle grid (in radians)", PARAMETER_INPUT
 		);
 	
 	Parameters.Add_Grid(
