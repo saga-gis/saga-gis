@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -53,15 +50,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <memory.h>
 
 #include "grid.h"
@@ -93,7 +81,7 @@ bool CSG_Grid::Assign(double Value)
 		return( false );
 	}
 
-	if( Value == 0.0 && !is_Cached() )
+	if( Value == 0. && !is_Cached() )
 	{
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
@@ -115,7 +103,6 @@ bool CSG_Grid::Assign(double Value)
 
 	//-----------------------------------------------------
 	Get_History().Destroy();
-	Get_History().Add_Child("GRID_OPERATION", Value)->Add_Property("NAME", _TL("Assign"));
 
 	m_Statistics.Invalidate();
 
@@ -171,8 +158,8 @@ bool CSG_Grid::Assign(CSG_Grid *pGrid, TSG_Grid_Resampling Interpolation)
 	}
 
 	else if(  Get_Cellsize() == pGrid->Get_Cellsize()	// No-Scaling...
-	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.0
-	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.0	)
+	&&	fmod(Get_XMin() - pGrid->Get_XMin(), Get_Cellsize()) == 0.
+	&&	fmod(Get_YMin() - pGrid->Get_YMin(), Get_Cellsize()) == 0.	)
 	{
 		bResult	= _Assign_Interpolated(pGrid, GRID_RESAMPLING_NearestNeighbour);
 	}
@@ -400,12 +387,12 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 	Assign_NoData();
 
 	//-----------------------------------------------------
-	int	ay, by	= (int)(1.0 + (((0 - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+	int	ay, by	= (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
 
 	for(int y=0; y<Get_NY() && SG_UI_Process_Set_Progress(y, Get_NY()); y++)
 	{
 		ay	= by;
-		by	= (int)(1.0 + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
+		by	= (int)(1. + (((y + 0.5) * Get_Cellsize() + Get_YMin()) - pGrid->Get_YMin()) / pGrid->Get_Cellsize());
 
 		if( ay < pGrid->Get_NY() && by > 0 )
 		{
@@ -419,12 +406,12 @@ bool CSG_Grid::_Assign_Majority(CSG_Grid *pGrid)
 				by	= pGrid->Get_NY();
 			}
 
-			int	ax, bx	= (int)(1.0 + (((0 - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+			int	ax, bx	= (int)(1. + (((0 - 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
 			for(int x=0; x<Get_NX(); x++)
 			{
 				ax	= bx;
-				bx	= (int)(1.0 + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
+				bx	= (int)(1. + (((x + 0.5) * Get_Cellsize() + Get_XMin()) - pGrid->Get_XMin()) / pGrid->Get_Cellsize());
 
 				if( ax < pGrid->Get_NX() && bx > 0 )
 				{
@@ -641,8 +628,8 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 	if( is_Intersecting(Grid.Get_Extent()) )
 	{
 		TSG_Grid_Resampling	Interpolation	=
-			Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.0
-		&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.0
+			Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_XMin() - Grid.Get_XMin(), Get_Cellsize()) == 0.
+		&&	Get_Cellsize() == Grid.Get_Cellsize() && fmod(Get_YMin() - Grid.Get_YMin(), Get_Cellsize()) == 0.
 		?	GRID_RESAMPLING_NearestNeighbour
 		:	GRID_RESAMPLING_BSpline;
 
@@ -665,9 +652,9 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 						case GRID_OPERATION_Subtraction   :	Add_Value(x, y, -Value);	break;
 						case GRID_OPERATION_Multiplication:	Mul_Value(x, y,  Value);	break;
 						case GRID_OPERATION_Division      :
-							if( Value != 0.0 )
+							if( Value != 0. )
 							{
-								Mul_Value(x, y, 1.0 / Value);
+								Mul_Value(x, y, 1. / Value);
 							}
 							else
 							{
@@ -692,10 +679,6 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(const CSG_Grid &Grid, TSG_Grid_Operat
 		case GRID_OPERATION_Multiplication:	Name	= _TL("Multiplication");	break;
 		case GRID_OPERATION_Division      :	Name	= _TL("Division"      );	break;
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", Grid.Get_Name())->Add_Property("NAME", Name);
-
-		Get_History().Add_Children(((CSG_Grid *)&Grid)->Get_History());
 	}
 
 	return( *this );
@@ -711,32 +694,30 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 	{
 	case GRID_OPERATION_Addition      :
 		Name	=  _TL("Addition");
-		if( Value == 0.0 )
+		if( Value == 0. )
 			return( *this );
 		break;
 
 	case GRID_OPERATION_Subtraction   :
 		Name	=  _TL("Subtraction");
-		if( Value == 0.0 )
+		if( Value == 0. )
 			return( *this );
 		Value	= -Value;
 		break;
 
 	case GRID_OPERATION_Multiplication:
 		Name	=  _TL("Multiplication");
-		if( Value == 1.0 )
+		if( Value == 1. )
 			return( *this );
 		break;
 
 	case GRID_OPERATION_Division      :
 		Name	=  _TL("Division");
-		if( Value == 0.0 )
+		if( Value == 0. )
 			return( *this );
-		Value	= 1.0 / Value;
+		Value	= 1. / Value;
 		break;
 	}
-
-	Get_History().Add_Child("GRID_OPERATION", Value)->Add_Property("NAME", Name);
 
 	//-----------------------------------------------------
 	#pragma omp parallel for
@@ -772,7 +753,7 @@ CSG_Grid & CSG_Grid::_Operation_Arithmetic(double Value, TSG_Grid_Operation Oper
 //---------------------------------------------------------
 void CSG_Grid::Invert(void)
 {
-	if( is_Valid() && Get_Range() > 0.0 )
+	if( is_Valid() && Get_Range() > 0. )
 	{
 		double	Min	= Get_Min();
 		double	Max	= Get_Max();
@@ -788,8 +769,6 @@ void CSG_Grid::Invert(void)
 				}
 			}
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", _TL("Inverted"));
 	}
 }
 
@@ -808,8 +787,6 @@ void CSG_Grid::Flip(void)
 				Set_Value(x, yB, d);
 			}
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", _TL("Mirrored vertically"));
 	}
 }
 
@@ -828,8 +805,6 @@ void CSG_Grid::Mirror(void)
 				Set_Value(xB, y, d);
 			}
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", _TL("Mirrored horizontally"));
 	}
 }
 
@@ -843,7 +818,7 @@ void CSG_Grid::Mirror(void)
 //---------------------------------------------------------
 bool CSG_Grid::Normalise(void)
 {
-	if( is_Valid() && Get_Range() > 0.0 )
+	if( is_Valid() && Get_Range() > 0. )
 	{
 		double	Min		= Get_Min  ();
 		double	Range	= Get_Range();
@@ -859,8 +834,6 @@ bool CSG_Grid::Normalise(void)
 				}
 			}
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", _TL("Normalisation"));
 
 		return( true );
 	}
@@ -885,8 +858,6 @@ bool CSG_Grid::DeNormalise(double Minimum, double Maximum)
 			}
 		}
 
-		Get_History().Add_Child("GRID_OPERATION", _TL("Denormalisation"));
-
 		return( true );
 	}
 
@@ -896,7 +867,7 @@ bool CSG_Grid::DeNormalise(double Minimum, double Maximum)
 //---------------------------------------------------------
 bool CSG_Grid::Standardise(void)
 {
-	if( is_Valid() && Get_StdDev() > 0.0 )
+	if( is_Valid() && Get_StdDev() > 0. )
 	{
 		double	Mean	= Get_Mean  ();
 		double	StdDev	= Get_StdDev();
@@ -913,8 +884,6 @@ bool CSG_Grid::Standardise(void)
 			}
 		}
 
-		Get_History().Add_Child("GRID_OPERATION", _TL("Standardisation"));
-
 		return( true );
 	}
 
@@ -924,7 +893,7 @@ bool CSG_Grid::Standardise(void)
 //---------------------------------------------------------
 bool CSG_Grid::DeStandardise(double Mean, double StdDev)
 {
-	if( is_Valid() && StdDev > 0.0 )
+	if( is_Valid() && StdDev > 0. )
 	{
 		#pragma omp parallel for
 		for(int y=0; y<Get_NY(); y++)
@@ -937,8 +906,6 @@ bool CSG_Grid::DeStandardise(double Mean, double StdDev)
 				}
 			}
 		}
-
-		Get_History().Add_Child("GRID_OPERATION", _TL("Destandardisation"));
 
 		return( true );
 	}
@@ -972,7 +939,7 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bDown, bool bNoEdges)	
 
 	if( is_InGrid(x, y) )
 	{
-		double	z	= asDouble(x, y), dzMax	= 0.0;
+		double	z	= asDouble(x, y), dzMax	= 0.;
 
 		for(int i=0; i<8; i++)
 		{
@@ -983,7 +950,7 @@ int CSG_Grid::Get_Gradient_NeighborDir(int x, int y, bool bDown, bool bNoEdges)	
 			{
 				double	dz	= (z - asDouble(ix, iy)) / m_System.Get_Length(i);
 
-				if( (!bDown || dz > 0.0) && (Direction < 0 || dzMax < dz) )
+				if( (!bDown || dz > 0.) && (Direction < 0 || dzMax < dz) )
 				{
 					dzMax		= dz;
 					Direction	= i;
@@ -1030,21 +997,21 @@ bool CSG_Grid::Get_Gradient(int x, int y, double &Slope, double &Aspect) const
 			}
 			else
 			{
-				dz[i]	= 0.0;
+				dz[i]	= 0.;
 			}
 		}
 
-		double G	= (dz[0] - dz[2]) / (2.0 * Get_Cellsize());
-        double H	= (dz[1] - dz[3]) / (2.0 * Get_Cellsize());
+		double G	= (dz[0] - dz[2]) / (2. * Get_Cellsize());
+        double H	= (dz[1] - dz[3]) / (2. * Get_Cellsize());
 
 		Slope	= atan(sqrt(G*G + H*H));
-		Aspect	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
+		Aspect	= G != 0. ? M_PI_180 + atan2(H, G) : H > 0. ? M_PI_270 : H < 0. ? M_PI_090 : -1.;
 
 		return( true );
 	}
 
-	Slope	=  0.0;
-	Aspect	= -1.0;
+	Slope	=  0.;
+	Aspect	= -1.;
 
 	return( false );
 }
@@ -1079,21 +1046,21 @@ bool CSG_Grid::Get_Gradient(double x, double y, double &Slope, double &Aspect, T
 			}
 			else
 			{
-				dz[i]	= 0.0;
+				dz[i]	= 0.;
 			}
 		}
 
-		double G	= (dz[0] - dz[2]) / (2.0 * Get_Cellsize());
-        double H	= (dz[1] - dz[3]) / (2.0 * Get_Cellsize());
+		double G	= (dz[0] - dz[2]) / (2. * Get_Cellsize());
+        double H	= (dz[1] - dz[3]) / (2. * Get_Cellsize());
 
 		Slope	= atan(sqrt(G*G + H*H));
-		Aspect	= G != 0.0 ? M_PI_180 + atan2(H, G) : H > 0.0 ? M_PI_270 : H < 0.0 ? M_PI_090 : -1.0;
+		Aspect	= G != 0. ? M_PI_180 + atan2(H, G) : H > 0. ? M_PI_270 : H < 0. ? M_PI_090 : -1.;
 
 		return( true );
 	}
 
-	Slope	=  0.0;
-	Aspect	= -1.0;
+	Slope	=  0.;
+	Aspect	= -1.;
 
 	return( false );
 }
