@@ -48,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Gridding_Spline_CSA.h"
 
 #include "csa.h"
@@ -84,7 +75,6 @@
 CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 	: CGridding_Spline_Base()
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Cubic Spline Approximation"));
 
 	Set_Author		("O. Conrad (c) 2008");
@@ -160,7 +150,7 @@ CGridding_Spline_CSA::CGridding_Spline_CSA(void)
 bool CGridding_Spline_CSA::On_Execute(void)
 {
 	//-----------------------------------------------------
-	if( Initialise(m_Points, true) == false )
+	if( Initialize(m_Points, true) == false )
 	{
 		return( false );
 	}

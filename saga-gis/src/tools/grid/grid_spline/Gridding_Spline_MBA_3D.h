@@ -97,6 +97,7 @@ private:
 
 
 	bool						Initialize				(void);
+	bool						Finalize				(void);
 
 	bool						_Set_MBA				(double dCell);
 

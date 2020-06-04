@@ -116,7 +116,7 @@ CGridding_Spline_MBA_3D::CGridding_Spline_MBA_3D(void)
 	Parameters.Add_Double(
 		"", "EPSILON"	, _TL("Threshold Error"),
 		_TL(""),
-		0.0001, 0.0, true
+		0.0001, 0., true
 	);
 
 	Parameters.Add_Int(
@@ -205,6 +205,8 @@ bool CGridding_Spline_MBA_3D::On_Execute(void)
 		m_pGrids->Del_Attribute(zField);
 	}
 
+	Finalize();
+
 	return( bResult );
 }
 
@@ -233,14 +235,14 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 
 	double	zScale	= Parameters("Z_SCALE")->asDouble();
 
-	if( zScale == 0.0 )
+	if( zScale == 0. )
 	{
 		Error_Set(_TL("Z factor is zero! Please use 2D instead of 3D interpolation."));
 
 		return( false );
 	}
 
-	m_zField	= zScale == 1.0 ? -1 : m_pGrids->Get_Z_Attribute();
+	m_zField	= zScale == 1. ? -1 : m_pGrids->Get_Z_Attribute();
 
 	if( m_zField >= 0 )
 	{
@@ -271,13 +273,26 @@ bool CGridding_Spline_MBA_3D::Initialize(void)
 			p[1]	= pPoint->Get_Point(0).y;
 			p[2]	= zScale * (zField < 0 ? pPoint->Get_Z(0)
 					: pPoint->asDouble(zField));
-			p[3]	= pPoint->asDouble(vField);
+			p[3]	= pPoint->asDouble(vField) - pPoints->Get_Mean(vField);	// detrend!
 
 			m_Points.Add_Row(p);
 		}
 	}
 
 	return( m_Points.Get_NRows() > 0 );
+}
+
+//---------------------------------------------------------
+bool CGridding_Spline_MBA_3D::Finalize(void)
+{
+	double	Mean	= Parameters("POINTS")->asShapes()->Get_Mean(Parameters("V_FIELD")->asInt());
+
+	if( Mean )	// detrend!
+	{
+		m_pGrids->Add(Mean);
+	}
+
+	return( true );
 }
 
 
@@ -393,7 +408,7 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 
 		if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 && z >= 0 && z < Phi.Get_NZ() - 3 )
 		{
-			int	iz;	double	W[4][4][4], SW2	= 0.0;
+			int	iz;	double	W[4][4][4], SW2	= 0.;
 
 			for(iz=0; iz<4; iz++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
 			{
@@ -410,7 +425,7 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 				}
 			}
 
-			if( SW2 > 0.0 )
+			if( SW2 > 0. )
 			{
 				double	dz	= p[3] / SW2;
 
@@ -456,7 +471,7 @@ bool CGridding_Spline_MBA_3D::BA_Set_Phi(CSG_Grids &Phi, double Cellsize)
 //---------------------------------------------------------
 double CGridding_Spline_MBA_3D::BA_Get_Phi(const CSG_Grids &Phi, double px, double py, double pz) const
 {
-	double	v	= 0.0;
+	double	v	= 0.;
 
 	int	x	= (int)px;	px	-= x;
 	int	y	= (int)py;	py	-= y;

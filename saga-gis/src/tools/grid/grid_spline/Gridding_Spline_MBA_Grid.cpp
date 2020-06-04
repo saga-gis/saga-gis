@@ -100,7 +100,7 @@ CGridding_Spline_MBA_Grid::CGridding_Spline_MBA_Grid(void)
 	Parameters.Add_Double("",
 		"EPSILON"	, _TL("Threshold Error"),
 		_TL(""),
-		0.0001, 0.0, true
+		0.0001, 0., true
 	);
 
 	Parameters.Add_Int("",
@@ -151,7 +151,7 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 {
 	bool	bResult	= false;
 
-	if( Initialise() )
+	if( Initialize() )
 	{
 		if( Parameters("DATATYPE")->asInt() == 0 )
 		{
@@ -162,6 +162,8 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 			m_Points.Create(Parameters("GRID")->asGrid(), SG_DATATYPE_Float);
 			m_Points.Assign(Parameters("GRID")->asGrid());
 		}
+
+		m_Points.Add(-Parameters("GRID")->asGrid()->Get_Mean());	// detrend
 
 		m_Epsilon	= Parameters("EPSILON")->asDouble();
 
@@ -174,6 +176,8 @@ bool CGridding_Spline_MBA_Grid::On_Execute(void)
 		}
 
 		m_Points.Destroy();
+
+		Finalize(true);
 	}
 
 	return( bResult );
@@ -258,7 +262,7 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_G
 			{
 				for(int ix=0, jx=x-1; ix<3; ix++, jx++)
 				{
-					a[ix][iy]	= Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.0;
+					a[ix][iy]	= Psi_0.is_InGrid(jx, jy, false) ? Psi_0.asDouble(jx, jy) : 0.;
 				}
 			}
 
@@ -266,26 +270,26 @@ bool CGridding_Spline_MBA_Grid::_Set_MBA_Refinement(const CSG_Grid &Psi_0, CSG_G
 
 			SET_PSI(xx + 0, yy + 0,
 				(  a[0][0] + a[0][2] + a[2][0] + a[2][2]
-				+ (a[0][1] + a[1][0] + a[1][2] + a[2][1]) * 6.0
-				+  a[1][1] * 36.0
-				) / 64.0
+				+ (a[0][1] + a[1][0] + a[1][2] + a[2][1]) * 6.
+				+  a[1][1] * 36.
+				) / 64.
 			);
 
 			SET_PSI(xx + 0, yy + 1,
 				(  a[0][1] + a[0][2] + a[2][1] + a[2][2]
-				+ (a[1][1] + a[1][2]) * 6.0
-				) / 16.0
+				+ (a[1][1] + a[1][2]) * 6.
+				) / 16.
 			);
 
 			SET_PSI(xx + 1, yy + 0,
 				(  a[1][0] + a[1][2] + a[2][0] + a[2][2]
-				+ (a[1][1] + a[2][1]) * 6.0
-				) / 16.0
+				+ (a[1][1] + a[2][1]) * 6.
+				) / 16.
 			);
 
 			SET_PSI(xx + 1, yy + 1,
 				(  a[1][1] + a[1][2] + a[2][1] + a[2][2]
-				) /  4.0
+				) /  4.
 			);
 		}
 	}
@@ -383,7 +387,7 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 
 		if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 )
 		{
-			int	iy;	double	W[4][4], SW2	= 0.0;
+			int	iy;	double	W[4][4], SW2	= 0.;
 
 			for(iy=0; iy<4; iy++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
 			{
@@ -395,7 +399,7 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 				}
 			}
 
-			if( SW2 > 0.0 )
+			if( SW2 > 0. )
 			{
 				p_z	/= SW2;
 
@@ -435,7 +439,7 @@ bool CGridding_Spline_MBA_Grid::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 //---------------------------------------------------------
 double CGridding_Spline_MBA_Grid::BA_Get_Phi(const CSG_Grid &Phi, double px, double py) const
 {
-	double	z	= 0.0;
+	double	z	= 0.;
 
 	int	x	= (int)px;
 	int	y	= (int)py;

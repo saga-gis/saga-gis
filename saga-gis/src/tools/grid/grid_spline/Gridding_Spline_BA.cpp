@@ -98,7 +98,7 @@ bool CGridding_Spline_BA::On_Execute(void)
 {
 	bool	bResult	= false;
 
-	if( Initialise(m_Points, true) )
+	if( Initialize(m_Points, true) )
 	{
 		double	Cellsize	= m_pGrid->Get_Cellsize() * Parameters("LEVEL")->asDouble();
 
@@ -159,7 +159,7 @@ bool CGridding_Spline_BA::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 
 		if(	x >= 0 && x < Phi.Get_NX() - 3 && y >= 0 && y < Phi.Get_NY() - 3 )
 		{
-			int	iy;	double	W[4][4], SW2	= 0.0;
+			int	iy;	double	W[4][4], SW2	= 0.;
 
 			for(iy=0; iy<4; iy++)	// compute W[k,l] and Sum[a=0-3, b=0-3](W²[a,b])
 			{
@@ -171,7 +171,7 @@ bool CGridding_Spline_BA::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 				}
 			}
 
-			if( SW2 > 0.0 )
+			if( SW2 > 0. )
 			{
 				p.z	/= SW2;
 
@@ -216,7 +216,7 @@ bool CGridding_Spline_BA::BA_Set_Phi(CSG_Grid &Phi, double Cellsize)
 //---------------------------------------------------------
 double CGridding_Spline_BA::BA_Get_Phi(const CSG_Grid &Phi, double px, double py) const
 {
-	double	z	= 0.0;
+	double	z	= 0.;
 
 	int	x	= (int)px;
 	int	y	= (int)py;

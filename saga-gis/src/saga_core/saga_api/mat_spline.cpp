@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,15 +47,6 @@
 //                                                       //
 //    e-mail:     oconrad@saga-gis.org                   //
 //                                                       //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -165,38 +153,38 @@ bool CSG_Spline::_Create(double yA, double yB)
 
 	if( yA > 0.99e30 )
 	{
-		m_z[0]	= u[0] = 0.0;
+		m_z[0]	= u[0] = 0.;
 	}
 	else
 	{
 		m_z[0]	= -0.5;
-		u  [0]	= (3.0 / (m_x[1] - m_x[0])) * ((m_y[1] - m_y[0]) / (m_x[1] - m_x[0]) - yA);
+		u  [0]	= (3. / (m_x[1] - m_x[0])) * ((m_y[1] - m_y[0]) / (m_x[1] - m_x[0]) - yA);
 	}
 
 	//-----------------------------------------------------
 	for(i=1; i<n-1; i++)
 	{
 		sig		= (m_x[i] - m_x[i - 1]) / (m_x[i + 1] - m_x[i - 1]);
-		p		= sig * m_z[i - 1] + 2.0;
-		m_z[i]	= (sig - 1.0) / p;
+		p		= sig * m_z[i - 1] + 2.;
+		m_z[i]	= (sig - 1.) / p;
 		u  [i]	= (m_y[i + 1] - m_y[i    ]) / (m_x[i + 1] - m_x[i    ])
 				- (m_y[i    ] - m_y[i - 1]) / (m_x[i    ] - m_x[i - 1]);
-		u  [i]	= (6.0 * u[i] / (m_x[i + 1] - m_x[i - 1]) - sig * u[i - 1]) / p;
+		u  [i]	= (6. * u[i] / (m_x[i + 1] - m_x[i - 1]) - sig * u[i - 1]) / p;
 	}
 
 	if( yB > 0.99e30 )
 	{
-		qn = un	= 0.0;
+		qn = un	= 0.;
 	}
 	else
 	{
 		qn		= 0.5;
-		un		= (3.0 / (m_x[n - 1] - m_x[n - 2]))
-				* (yB  - (m_y[n - 1] - m_y[n - 2])
-				       / (m_x[n - 1] - m_x[n - 2]));
+		un		= (3. / (m_x[n - 1] - m_x[n - 2]))
+				* (yB - (m_y[n - 1] - m_y[n - 2])
+				      / (m_x[n - 1] - m_x[n - 2]));
 	}
 
-	m_z[n - 1]	= (un - qn * u[n - 2]) / (qn * m_z[n - 2] + 1.0);
+	m_z[n - 1]	= (un - qn * u[n - 2]) / (qn * m_z[n - 2] + 1.);
 
 	for(k=n-2; k>=0; k--)
 	{
@@ -241,13 +229,13 @@ bool CSG_Spline::Get_Value(double x, double &y)
 
 		h	= m_x[khi] - m_x[klo];
 
-		if( h != 0.0 )
+		if( h != 0. )
 		{
 			a	= (m_x[khi] - x) / h;
 			b	= (x - m_x[klo]) / h;
 
 			y	= a * m_y[klo] + b * m_y[khi]
-				+ ((a*a*a - a) * m_z[klo] + (b*b*b - b) * m_z[khi]) * (h*h) / 6.0;
+				+ ((a*a*a - a) * m_z[klo] + (b*b*b - b) * m_z[khi]) * (h*h) / 6.;
 
 			return( true );
 		}
@@ -340,7 +328,7 @@ double CSG_Thin_Plate_Spline::_Get_hDistance(TSG_Point_Z A, TSG_Point_Z B)
 //---------------------------------------------------------
 double CSG_Thin_Plate_Spline::_Get_Base_Funtion(double x)
 {
-	return( x > 0.0 ? x*x * log(x) : 0.0 );
+	return( x > 0. ? x*x * log(x) : 0. );
 }
 
 //---------------------------------------------------------
@@ -348,9 +336,10 @@ double CSG_Thin_Plate_Spline::_Get_Base_Funtion(TSG_Point_Z A, double x, double 
 {
 	x	-= A.x;
 	y	-= A.y;
-	x	= sqrt(x*x + y*y);
+	
+	double	d	= sqrt(x*x + y*y);
 
-	return( x > 0.0 ? x*x * log(x) : 0.0 );
+	return( d > 0. ? d*d * log(d) : 0. );
 }
 
 
@@ -381,14 +370,14 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 		//
 		// K is symmetrical so we really have to
 		// calculate only about half of the coefficients.
-		for(i=0, a=0.0; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i )
+		for(i=0, a=0.; i<n && (bSilent || SG_UI_Process_Set_Progress(i, n)); ++i )
 		{
 			Point	= m_Points[i];
 
 			for(j=i+1; j<n; ++j)
 			{
 				b		 = _Get_hDistance(Point, m_Points[j]);
-				a		+= b * 2.0;	// same for upper & lower tri
+				a		+= b * 2.;	// same for upper & lower tri
 				M[i][j]	 = (M[j][i]	= _Get_Base_Funtion(b));
 			}
 		}
@@ -403,12 +392,12 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 			M[i][i]		= Regularization * (a*a);
 
 			// P (n x 3, upper right)
-			M[i][n + 0]	= 1.0;
+			M[i][n + 0]	= 1.;
 			M[i][n + 1]	= m_Points[i].x;
 			M[i][n + 2]	= m_Points[i].y;
 
 			// P transposed (3 x n, bottom left)
-			M[n + 0][i]	= 1.0;
+			M[n + 0][i]	= 1.;
 			M[n + 1][i]	= m_Points[i].x;
 			M[n + 2][i]	= m_Points[i].y;
 		}
@@ -419,7 +408,7 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 		{
 			for(j=n; j<n+3; ++j)
 			{
-				M[i][j]	= 0.0;
+				M[i][j]	= 0.;
 			}
 		}
 
@@ -430,7 +419,7 @@ bool CSG_Thin_Plate_Spline::Create(double Regularization, bool bSilent)
 			m_V[i]	= m_Points[i].z;
 		}
 
-		m_V[n + 0]	= m_V[n + 1]	= m_V[n + 2]	= 0.0;
+		m_V[n + 0] = m_V[n + 1] = m_V[n + 2] = 0.;
 
 		//-------------------------------------------------
 		// Solve the linear system "inplace"
@@ -467,7 +456,7 @@ double CSG_Thin_Plate_Spline::Get_Value(double x, double y)
 		return( z );
 	}
 
-	return( 0.0 );
+	return( 0. );
 }
 
 

@@ -86,10 +86,9 @@ protected:
 	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
 
 
-	bool						Initialise				(void);
-	bool						Initialise				(CSG_Points_Z &Points, bool bInGridOnly = false);
-
-	virtual bool				On_Initialise			(void)	{	return( true );	}
+	bool						Initialize				(CSG_Points_Z &Points, bool bInGridOnly = false, bool bDetrend = false);
+	bool						Initialize				(void);
+	bool						Finalize				(bool bDetrend);
 
 
 private:
@@ -98,7 +97,7 @@ private:
 
 
 	bool						_Get_Grid				(void);
-	bool						_Get_Points				(CSG_Points_Z &Points, bool bInGridOnly);
+	bool						_Get_Points				(CSG_Points_Z &Points, bool bInGridOnly, bool bDetrend);
 
 };
 

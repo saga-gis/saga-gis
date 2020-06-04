@@ -85,14 +85,10 @@ protected:
 
 private:
 
-	double							m_Regularisation;
-
-	CSG_Thin_Plate_Spline			m_Spline;
-
 	CSG_Parameters_Search_Points	m_Search;
 
 
-	bool							Set_Value				(int x, int y, const TSG_Point &p);
+	bool							Set_Value				(int x, int y, double xWorld, double yWorld, double Regularization);
 
 };
 

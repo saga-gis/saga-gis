@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Gridding_Spline_TPS_TIN.h"
 
 
@@ -106,13 +94,13 @@ CGridding_Spline_TPS_TIN::CGridding_Spline_TPS_TIN(void)
 	Parameters.Add_Double("",
 		"REGULARISATION"	, _TL("Regularisation"),
 		_TL(""),
-		0.0001, 0.0, true
+		0.0001, 0., true
 	);
 
 	Parameters.Add_Choice("",
 		"LEVEL"				, _TL("Neighbourhood"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("immediate"),
 			_TL("level 1"),
 			_TL("level 2")
@@ -140,7 +128,7 @@ bool CGridding_Spline_TPS_TIN::_Initialise(void)
 	m_Points			= NULL;
 	m_nPoints_Buf		= 0;
 
-	return( CGridding_Spline_Base::On_Initialise() );
+	return( true );
 }
 
 //---------------------------------------------------------
@@ -169,7 +157,7 @@ bool CGridding_Spline_TPS_TIN::On_Execute(void)
 
 	CSG_TIN	TIN;
 
-	if( Initialise() && _Initialise() && _Get_TIN(TIN) )
+	if( Initialize() && _Initialise() && _Get_TIN(TIN) )
 	{
 		for(int i=0; i<TIN.Get_Triangle_Count() && Set_Progress(i, TIN.Get_Triangle_Count()); i++)
 		{
@@ -309,10 +297,10 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 
 	double	x[4], y[4], z[4], dMin[4];
 
-	x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.0;
-	x[1]	= m_pGrid->Get_Extent().Get_XMin();	y[1]	= m_pGrid->Get_Extent().Get_YMax();	dMin[1]	= -1.0;
-	x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.0;
-	x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.0;
+	x[0]	= m_pGrid->Get_Extent().Get_XMin();	y[0]	= m_pGrid->Get_Extent().Get_YMin();	dMin[0]	= -1.;
+	x[1]	= m_pGrid->Get_Extent().Get_XMin();	y[1]	= m_pGrid->Get_Extent().Get_YMax();	dMin[1]	= -1.;
+	x[2]	= m_pGrid->Get_Extent().Get_XMax();	y[2]	= m_pGrid->Get_Extent().Get_YMax();	dMin[2]	= -1.;
+	x[3]	= m_pGrid->Get_Extent().Get_XMax();	y[3]	= m_pGrid->Get_Extent().Get_YMin();	dMin[3]	= -1.;
 
 	TIN.Add_Field("Z", pShapes->Get_Field_Type(zField));
 
@@ -336,7 +324,7 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 						{
 							double d	= SG_Get_Distance(p.x, p.y, x[iCorner], y[iCorner]);
 
-							if( dMin[iCorner] < 0.0 || d < dMin[iCorner] )
+							if( dMin[iCorner] < 0. || d < dMin[iCorner] )
 							{
 								dMin[iCorner]	= d;
 								z   [iCorner]	= pShape->asDouble(zField);
@@ -353,7 +341,7 @@ bool CGridding_Spline_TPS_TIN::_Get_TIN(CSG_TIN &TIN)
 	{
 		for(int iCorner=0; iCorner<4; iCorner++)
 		{
-			if( dMin[iCorner] >= 0.0 )
+			if( dMin[iCorner] >= 0. )
 			{
 				CSG_Point	p(x[iCorner], y[iCorner]);
 

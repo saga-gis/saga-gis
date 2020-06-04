@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Gridding_Spline_TPS_Local.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Thin Plate Spline"));
 
 	Set_Author		("O.Conrad (c) 2006");
@@ -81,32 +68,30 @@ CGridding_Spline_TPS_Local::CGridding_Spline_TPS_Local(void)
 		"Creates a 'Thin Plate Spline' function for each grid point "
 		"based on all of the scattered data points that are within a "
 		"given distance. The number of points can be limited to a "
-		"maximum number of closest points. "
-		"\n\n"
-		"References:\n"
-		"- Donato G., Belongie S. (2002):"
-		" 'Approximation Methods for Thin Plate Spline Mappings and Principal Warps',"
-		" In Heyden, A., Sparr, G., Nielsen, M., Johansen, P. (Eds.):"
-		" 'Computer Vision - ECCV 2002: 7th European Conference on Computer Vision, Copenhagen, Denmark, May 28-31, 2002',"
-		" Proceedings, Part III, Lecture Notes in Computer Science."
-		" Springer-Verlag Heidelberg; pp.21-31."
-		"\n"
-		"\n"
-		"- Elonen, J. (2005):"
-		" 'Thin Plate Spline editor - an example program in C++',"
-		" <a target=\"_blank\" href=\"http://elonen.iki.fi/code/tpsdemo/index.html\">http://elonen.iki.fi/code/tpsdemo/index.html</a>."
-		"\n"
+		"maximum number of closest points."
+	));
+
+	Add_Reference("Donato G., Belongie S.", "2002",
+		"Approximation Methods for Thin Plate Spline Mappings and Principal Warps",
+		"In Heyden, A., Sparr, G., Nielsen, M., Johansen, P. (Eds.): Computer Vision - ECCV 2002: 7th European Conference on Computer Vision, Copenhagen, Denmark, May 28-31, 2002, "
+		"Proceedings, Part III, Lecture Notes in Computer Science., Springer-Verlag Heidelberg; pp.21-31."
+	);
+
+	Add_Reference("Elonen, J.", "2005",
+		"Thin Plate Spline editor - an example program in C++",
+		"",
+		SG_T("http://elonen.iki.fi/code/tpsdemo/index.html"
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Value(
-		NULL, "REGULARISATION"	, _TL("Regularisation"),
+	Parameters.Add_Double(
+		"", "REGULARISATION"	, _TL("Regularisation"),
 		_TL(""),
-		PARAMETER_TYPE_Double, 0.0001, 0.0, true
+		0.0001, 0., true
 	);
 
 	//-----------------------------------------------------
-	m_Search.Create(&Parameters, Parameters.Add_Node(NULL, "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
+	m_Search.Create(&Parameters, Parameters.Add_Node("", "NODE_SEARCH", _TL("Search Options"), _TL("")), 16);
 }
 
 
@@ -141,24 +126,28 @@ int CGridding_Spline_TPS_Local::On_Parameters_Enable(CSG_Parameters *pParameters
 //---------------------------------------------------------
 bool CGridding_Spline_TPS_Local::On_Execute(void)
 {
-	int			x, y;
-	TSG_Point	p;
-
-	m_Regularisation	= Parameters("REGULARISATION")->asDouble();
+	double	Regularization	= Parameters("REGULARISATION")->asDouble();
 
 	//-----------------------------------------------------
 	if( m_Search.Do_Use_All(true) )	// global
 	{
-		if( !Initialise(m_Spline.Get_Points()) || !m_Spline.Create(m_Regularisation, false) )
+		CSG_Thin_Plate_Spline	Spline;
+
+		if( !Initialize(Spline.Get_Points()) || !Spline.Create(Regularization, false) )
 		{
-			return(false);
+			return( false );
 		}
 
-		for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 		{
-			for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
+			double	yWorld	= m_pGrid->Get_YMin() + y * m_pGrid->Get_Cellsize();
+
+			#pragma omp parallel for
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
 			{
-				m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
+				double	xWorld	= m_pGrid->Get_XMin() + x * m_pGrid->Get_Cellsize();
+
+				m_pGrid->Set_Value(x, y, Spline.Get_Value(xWorld, yWorld));
 			}
 		}
 	}
@@ -166,16 +155,21 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 	//-----------------------------------------------------
 	else
 	{
-		if( !Initialise() || !m_Search.Initialize(Parameters("SHAPES")->asShapes(), Parameters("FIELD")->asInt()) )
+		if( !Initialize() || !m_Search.Initialize(Parameters("SHAPES")->asShapes(), Parameters("FIELD")->asInt()) )
 		{
-			return(false);
+			return( false );
 		}
 
-		for(y=0, p.y=m_pGrid->Get_YMin(); y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++, p.y+=m_pGrid->Get_Cellsize())
+		for(int y=0; y<m_pGrid->Get_NY() && Set_Progress(y, m_pGrid->Get_NY()); y++)
 		{
-			for(x=0, p.x=m_pGrid->Get_XMin(); x<m_pGrid->Get_NX(); x++, p.x+=m_pGrid->Get_Cellsize())
+			double	yWorld	= m_pGrid->Get_YMin() + y * m_pGrid->Get_Cellsize();
+
+			#pragma omp parallel for
+			for(int x=0; x<m_pGrid->Get_NX(); x++)
 			{
-				Set_Value(x, y, p);
+				double	xWorld	= m_pGrid->Get_XMin() + x * m_pGrid->Get_Cellsize();
+
+				Set_Value(x, y, xWorld, yWorld, Regularization);
 			}
 		}
 
@@ -183,8 +177,6 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	m_Spline.Destroy();
-
 	return( true );
 }
 
@@ -194,26 +186,22 @@ bool CGridding_Spline_TPS_Local::On_Execute(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, const TSG_Point &p)
+bool CGridding_Spline_TPS_Local::Set_Value(int x, int y, double xWorld, double yWorld, double Regularization)
 {
-	if( m_Search.Set_Location(p) && m_Search.Get_Count() >= 3 )
+	CSG_Points_Z	Points;
+
+	if( m_Search.Get_Points(xWorld, yWorld, Points) && Points.Get_Count() > 2 )
 	{
-		m_Spline.Destroy();
+		CSG_Thin_Plate_Spline	Spline;
 
-		for(int i=0; i<m_Search.Get_Count(); i++)
+		for(int i=0; i<Points.Get_Count(); i++)
 		{
-			double	ix, iy, iz;
-
-			if( m_Search.Get_Point(i, ix, iy, iz) )
-			{
-				m_Spline.Add_Point(ix, iy, iz);
-			}
+			Spline.Add_Point(Points[i].x, Points[i].y, Points[i].z);
 		}
 
-		//-------------------------------------------------
-		if( m_Spline.Create(m_Regularisation, true) )
+		if( Spline.Create(Regularization, true) )
 		{
-			m_pGrid->Set_Value(x, y, m_Spline.Get_Value(p.x, p.y));
+			m_pGrid->Set_Value(x, y, Spline.Get_Value(xWorld, yWorld));
 
 			return( true );
 		}

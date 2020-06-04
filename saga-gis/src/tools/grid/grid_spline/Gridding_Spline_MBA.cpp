@@ -142,7 +142,7 @@ bool CGridding_Spline_MBA::On_Execute(void)
 {
 	bool	bResult	= false;
 
-	if( Initialise(m_Points, true) )
+	if( Initialize(m_Points, true, true) )
 	{
 		m_Epsilon	= Parameters("EPSILON")->asDouble();
 
@@ -153,9 +153,11 @@ bool CGridding_Spline_MBA::On_Execute(void)
 		case  0: bResult = _Set_MBA           (Cellsize); break;
 		default: bResult = _Set_MBA_Refinement(Cellsize); break;
 		}
-	}
 
-	m_Points.Clear();
+		m_Points.Clear();
+
+		Finalize(true);
+	}
 
 	return( bResult );
 }
