@@ -1,24 +1,39 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
-/*******************************************************************************
-    IsochronesVar.cpp
-    Copyright (C) Victor Olaya
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, 5th Floor, Boston, MA 02110-1301, USA
-*******************************************************************************/
+///////////////////////////////////////////////////////////
+//                                                       //
+//                         SAGA                          //
+//                                                       //
+//      System for Automated Geoscientific Analyses      //
+//                                                       //
+//                     Tool Library                      //
+//                     ta_hydrology                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+//                   IsochronesVar.cpp                   //
+//                                                       //
+//                 Copyright (C) 2004 by                 //
+//                     Victor Olaya                      //
+//                                                       //
+//-------------------------------------------------------//
+//                                                       //
+// This file is part of 'SAGA - System for Automated     //
+// Geoscientific Analyses'. SAGA is free software; you   //
+// can redistribute it and/or modify it under the terms  //
+// of the GNU General Public License as published by the //
+// Free Software Foundation, either version 2 of the     //
+// License, or (at your option) any later version.       //
+//                                                       //
+// SAGA is distributed in the hope that it will be       //
+// useful, but WITHOUT ANY WARRANTY; without even the    //
+// implied warranty of MERCHANTABILITY or FITNESS FOR A  //
+// PARTICULAR PURPOSE. See the GNU General Public        //
+// License for more details.                             //
+//                                                       //
+// You should have received a copy of the GNU General    //
+// Public License along with this program; if not, see   //
+// <http://www.gnu.org/licenses/>.                       //
+//                                                       //
+///////////////////////////////////////////////////////////
 
 //-----------------------------------------------------
 #include "IsochronesVar.h"
@@ -29,8 +44,30 @@
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #endif
 
+//---------------------------------------------------------
+#define ADD_REFERENCES	{\
+    Add_Reference("Al-Smadi, Mohammad", "1998",\
+		"Incorporating spatial and temporal variation of watershed response in a gis-based hydrologic model",\
+		"Faculty of the Virginia Polythecnic Insitute and State University. MsC Thesis.",\
+		SG_T("scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"),\
+		SG_T("online")\
+	);\
+\
+	Add_Reference("Martínez Álvarez, V.; Dal-Ré Tenreiro, R.; García García, A. I.; Ayuga Téllez, F.", "",\
+		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG",\
+		"Evaluación experimental."\
+	);\
+\
+	Add_Reference("Olaya, V.", "2004",\
+		"Hidrologia computacional y modelos digitales del terreno",\
+		"Alqua. 536 pp."\
+	);\
+}
+
+
 //-----------------------------------------------------
-CIsochronesVar::CIsochronesVar(void){
+CIsochronesVar_Tool_Interactive::CIsochronesVar_Tool_Interactive(void)
+{
 
 	Set_Name		(_TL("Isochrones Variable Speed"));
 
@@ -39,117 +76,346 @@ CIsochronesVar::CIsochronesVar(void){
 	Set_Description	(_TW(
 		"Calculation of isochrones with variable speed.\n"
 		"In case a cell in an optional input grid is NoData, the corresponding parameter value will "
-		"be used instead of skipping this cell.\n\n"
+		"be used instead of skipping this cell.\n"
+        "This is the interactive tool version, where a left mouse click will trigger the calculation "
+        "for the selected cell.\n\n"
 	));
 
-	Add_Reference("Al-Smadi, Mohammad", "1998",
-		"Incorporating spatial and temporal variation of watershed response in a gis-based hydrologic model",
-		"Faculty of the Virginia Polythecnic Insitute and State University. MsC Thesis.",
-		SG_T("scholar.lib.vt.edu/theses/available/etd-121698-112858/unrestricted/smadi.pdf"),
-		SG_T("online")
-	);
+    ADD_REFERENCES
 
-	Add_Reference("Martínez Álvarez, V.; Dal-Ré Tenreiro, R.; García García, A. I.; Ayuga Téllez, F.", "",
-		"Modelación distribuida de la escorrentía superficial en pequeñas cuencas mediante SIG",
-		"Evaluación experimental."
-	);
+    Add_Tool_Parameters(Parameters, true);
 
-	Add_Reference("Olaya, V.", "2004",
-		"Hidrologia computacional y modelos digitales del terreno",
-		"Alqua. 536 pp."
-	);
+}
 
-	//-------------------------------------------------
-	Parameters.Add_Grid("",
-		"DEM", _TL("Elevation"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
 
-	Parameters.Add_Grid("",
-		"SLOPE", _TL("Slope"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+//-----------------------------------------------------
+bool CIsochronesVar_Tool_Interactive::On_Execute(void)
+{
+    m_Calculator.Initialise(    Parameters("DEM")->asGrid(),
+	                            Parameters("TIME")->asGrid(),
+	                            Parameters("SPEED")->asGrid(),
+	                            Parameters("MANNING")->asGrid(),
+	                            Parameters("SLOPE")->asGrid(),
+	                            Parameters("FLOWACC")->asGrid(),
+	                            Parameters("CN")->asGrid(),
+	                            Parameters("THRSMIXED")->asDouble(),
+	                            Parameters("THRSCHANNEL")->asDouble(),
+	                            Parameters("AVGCN")->asDouble(),
+	                            Parameters("AVGMANNING")->asDouble(),
+	                            Parameters("AVGRAINFALL")->asDouble(),
+	                            Parameters("CHANSLOPE")->asDouble(),
+	                            Parameters("MINSPEED")->asDouble()
+    );
 
-	Parameters.Add_Grid("",
-		"FLOWACC", _TL("Catchment Area"),
-		_TL(""),
-		PARAMETER_INPUT
-	);
+	
+	return( true );
+}
 
-	Parameters.Add_Grid("",
-		"CN", _TL("Curve Number"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
 
-	Parameters.Add_Grid("",
-		"MANNING", _TL("Manning's N"),
-		_TL(""),
-		PARAMETER_INPUT_OPTIONAL
-	);
+//-----------------------------------------------------
+bool CIsochronesVar_Tool_Interactive::On_Execute_Finish()
+{
+	m_Calculator.Finalise();
 
-	Parameters.Add_Grid("",
-		"TIME", _TL("Time Out(h)"),
-		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Double
-	);
+	return( true );
+}
 
-	Parameters.Add_Grid("",
-		"SPEED", _TL("Speed (m/s)"),
-		_TL(""),
-		PARAMETER_OUTPUT, true, SG_DATATYPE_Double
-	);
 
-	//-------------------------------------------------
-	Parameters.Add_Double("",
-		"AVGMANNING", _TL("Avg. Manning's N"),
-		_TL(""),
-		0.15
-	);
+//-----------------------------------------------------
+bool CIsochronesVar_Tool_Interactive::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
+{
+	int iX, iY;
 
-	Parameters.Add_Double("",
-		"AVGCN", _TL("Avg. Curve Number"),
-		_TL(""),
-		75
-	);
+	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
+	{
+		return( false );
+	}
+	
 
-	Parameters.Add_Double("",
-		"THRSMIXED", _TL("Mixed Flow Threshold (ha)"),
-		_TL(""),
-		18
-	);
+    m_Calculator.Calculate(iX, iY);
+	
 
-	Parameters.Add_Double("",
-		"THRSCHANNEL", _TL("Channel Definition Threshold (ha)"),
-		_TL(""),
-		360
-	);
+	DataObject_Update(Parameters("TIME")->asGrid(), SG_UI_DATAOBJECT_SHOW_LAST_MAP);
 
-	Parameters.Add_Double("",
-		"AVGRAINFALL", _TL("Avg. Rainfall Intensity (mm/h)"),
-		_TL(""),
-		1
-	);
+	return( true );
+}
 
-	Parameters.Add_Double("",
-		"CHANSLOPE", _TL("Channel side slope(m/m)"),
-		_TL(""),
-		0.5
-	);
 
-	Parameters.Add_Double("",
-		"MINSPEED", _TL("Min. Flow Speed (m/s)"),
-		_TL(""),
-		0.05
-	);
+//-----------------------------------------------------
+CIsochronesVar_Tool::CIsochronesVar_Tool(void)
+{
+
+    Set_Name		(_TL("Isochrones Variable Speed"));
+
+    Set_Author		("V.Olaya (c) 2004, V.Wichmann (c) 2015");
+
+    Set_Description	(_TW(
+        "Calculation of isochrones with variable speed.\n"
+        "In case a cell in an optional input grid is NoData, the corresponding parameter value will "
+        "be used instead of skipping this cell.\n"
+        "This is the non-interactive tool version, where the target point can be specified either as "
+        "point shapefile (the first point in the file will be used) or by target coordinates.\n\n"
+    ));
+
+    ADD_REFERENCES
+
+    Add_Tool_Parameters(Parameters, false);
+}
+
+
+//-----------------------------------------------------
+bool CIsochronesVar_Tool::On_Execute(void)
+{
+    m_Calculator.Initialise(    Parameters("DEM")->asGrid(),
+                                Parameters("TIME")->asGrid(),
+                                Parameters("SPEED")->asGrid(),
+                                Parameters("MANNING")->asGrid(),
+                                Parameters("SLOPE")->asGrid(),
+                                Parameters("FLOWACC")->asGrid(),
+                                Parameters("CN")->asGrid(),
+                                Parameters("THRSMIXED")->asDouble(),
+                                Parameters("THRSCHANNEL")->asDouble(),
+                                Parameters("AVGCN")->asDouble(),
+                                Parameters("AVGMANNING")->asDouble(),
+                                Parameters("AVGRAINFALL")->asDouble(),
+                                Parameters("CHANSLOPE")->asDouble(),
+                                Parameters("MINSPEED")->asDouble()
+    );
+
+    int iX, iY;
+
+    CSG_Shapes *pPoint = Parameters("TARGET_PT")->asShapes();
+
+    if (pPoint != NULL)
+    {
+        if (pPoint->Get_Count() < 1)
+        {
+            SG_UI_Msg_Add_Error(_TL("Input shapefile is empty!"));
+
+            m_Calculator.Finalise();
+
+            return (false);
+        }
+
+        TSG_Point p = pPoint->Get_Shape(0)->Get_Point(0);
+
+        iX = Parameters("DEM")->asGrid()->Get_System().Get_xWorld_to_Grid(p.x);
+        iY = Parameters("DEM")->asGrid()->Get_System().Get_yWorld_to_Grid(p.y);
+    }
+    else
+    {
+        iX = Parameters("DEM")->asGrid()->Get_System().Get_xWorld_to_Grid(Parameters("TARGET_PT_X")->asDouble());
+        iY = Parameters("DEM")->asGrid()->Get_System().Get_yWorld_to_Grid(Parameters("TARGET_PT_Y")->asDouble());
+    }
+
+    if (!Parameters("DEM")->asGrid()->Get_System().is_InGrid(iX, iY))
+    {
+        SG_UI_Msg_Add_Error(_TL("Target point is outside grid system!"));
+
+        m_Calculator.Finalise();
+
+        return (false);
+    }
+    
+    
+    //-----------------------------------------------------
+    m_Calculator.Calculate(iX, iY);
+
+    m_Calculator.Finalise();
+
+
+    return( true );
+}
+
+
+//-----------------------------------------------------
+void Add_Tool_Parameters(CSG_Parameters &Parameters, bool bInteractive)
+{
+    Parameters.Add_Grid("",
+        "DEM", _TL("Elevation"),
+        _TL(""),
+        PARAMETER_INPUT
+    );
+
+    Parameters.Add_Grid("",
+        "SLOPE", _TL("Slope"),
+        _TL(""),
+        PARAMETER_INPUT
+    );
+
+    Parameters.Add_Grid("",
+        "FLOWACC", _TL("Catchment Area"),
+        _TL(""),
+        PARAMETER_INPUT
+    );
+
+    Parameters.Add_Grid("",
+        "CN", _TL("Curve Number"),
+        _TL(""),
+        PARAMETER_INPUT_OPTIONAL
+    );
+
+    Parameters.Add_Grid("",
+        "MANNING", _TL("Manning's N"),
+        _TL(""),
+        PARAMETER_INPUT_OPTIONAL
+    );
+
+    Parameters.Add_Grid("",
+        "TIME", _TL("Time Out(h)"),
+        _TL(""),
+        PARAMETER_OUTPUT, true, SG_DATATYPE_Double
+    );
+
+    Parameters.Add_Grid("",
+        "SPEED", _TL("Speed (m/s)"),
+        _TL(""),
+        PARAMETER_OUTPUT, true, SG_DATATYPE_Double
+    );
+
+    //-------------------------------------------------
+    Parameters.Add_Double("",
+        "AVGMANNING", _TL("Avg. Manning's N"),
+        _TL(""),
+        0.15
+    );
+
+    Parameters.Add_Double("",
+        "AVGCN", _TL("Avg. Curve Number"),
+        _TL(""),
+        75
+    );
+
+    Parameters.Add_Double("",
+        "THRSMIXED", _TL("Mixed Flow Threshold (ha)"),
+        _TL(""),
+        18
+    );
+
+    Parameters.Add_Double("",
+        "THRSCHANNEL", _TL("Channel Definition Threshold (ha)"),
+        _TL(""),
+        360
+    );
+
+    Parameters.Add_Double("",
+        "AVGRAINFALL", _TL("Avg. Rainfall Intensity (mm/h)"),
+        _TL(""),
+        1
+    );
+
+    Parameters.Add_Double("",
+        "CHANSLOPE", _TL("Channel side slope(m/m)"),
+        _TL(""),
+        0.5
+    );
+
+    Parameters.Add_Double("",
+        "MINSPEED", _TL("Min. Flow Speed (m/s)"),
+        _TL(""),
+        0.05
+    );
+
+    //-------------------------------------------------
+    if (!bInteractive)
+    {
+        Parameters.Add_Double("",
+            "TARGET_PT_X", _TL("Target X Coordinate"),
+            _TL("The x-coordinate of the target point in world coordinates [map units]"),
+            0.
+        );
+
+        Parameters.Add_Double("",
+            "TARGET_PT_Y", _TL("Target Y Coordinate"),
+            _TL("The y-coordinate of the target point in world coordinates [map units]"),
+            0.
+        );
+
+        Parameters.Add_Shapes("",
+            "TARGET_PT", _TL("Target Point"),
+            _TL("A point shapefile with the target point."),
+            PARAMETER_INPUT_OPTIONAL, SHAPE_TYPE_Point
+        );
+    }
+}
+
+
+//---------------------------------------------------------
+CIsochronesVar::CIsochronesVar(void)
+{
+    m_pDEM              = NULL;
+    m_pTime             = NULL;
+    m_pSpeed            = NULL;
+    m_pManning          = NULL;
+    m_pSlope            = NULL;
+    m_pCatchArea        = NULL;
+    m_pCN               = NULL;
+}
+
+//---------------------------------------------------------
+CIsochronesVar::~CIsochronesVar(void)
+{
+    Finalise();
+}
+
+
+//-----------------------------------------------------
+void CIsochronesVar::Initialise(CSG_Grid *pDEM, CSG_Grid *pTime, CSG_Grid *pSpeed, CSG_Grid *pManning, CSG_Grid *pSlope, CSG_Grid *pCatchArea, CSG_Grid *pCN,
+                                double dMixedThresh, double dChannelThresh, double dCN, double dManning, double dRainfall, double dChannelSlope, double dMinSpeed)
+{
+    m_pDEM              = pDEM;
+    m_pTime             = pTime;
+    m_pSpeed            = pSpeed;
+    m_pManning          = pManning;
+    m_pSlope            = pSlope;
+    m_pCatchArea        = pCatchArea;
+    m_pCN               = pCN;
+    m_dMixedThresh      = dMixedThresh * 10000;
+    m_dChannelThresh    = dChannelThresh * 10000;
+    m_dCN               = dCN;
+    m_dManning          = dManning;
+    m_dRainfall         = dRainfall;
+    m_dChannelSlope     = dChannelSlope;
+    m_dMinSpeed         = dMinSpeed;
+
+    m_Direction.Create(m_pDEM->Get_System(), SG_DATATYPE_Char);
+    m_Direction.Set_NoData_Value(-1);
+
+    Init_FlowDirectionsD8(m_pDEM, &m_Direction);
 }
 
 //-----------------------------------------------------
-CIsochronesVar::~CIsochronesVar(void)
+void CIsochronesVar::Finalise(void)
 {
-	Execute_Finish();
+    m_pDEM              = NULL;
+    m_pTime             = NULL;
+    m_pSpeed            = NULL;
+    m_pManning          = NULL;
+    m_pSlope            = NULL;
+    m_pCatchArea        = NULL;
+    m_pCN               = NULL;
+
+    m_Direction.Destroy();
+}
+
+//-----------------------------------------------------
+void CIsochronesVar::Calculate(int x, int y)
+{
+    m_pTime->Assign(0.0);
+
+	_CalculateTime(x, y);
+
+	for(int y=0; y<m_pDEM->Get_System().Get_NY() && SG_UI_Process_Set_Progress(y, m_pDEM->Get_System().Get_NY()); y++)
+	{
+		#pragma omp parallel for
+		for(int x=0; x<m_pDEM->Get_System().Get_NX(); x++)
+		{
+			m_pTime->Set_Value(x, y, m_pTime->asDouble(x,y) / 3600.0);
+        }
+    }
+
+	ZeroToNoData();
+
 }
 
 //-----------------------------------------------------
@@ -178,7 +444,7 @@ void CIsochronesVar::_CalculateTime(int x, int y)
 	Stack.Push(x, y);
 
 	//-----------------------------------------------------
-	while( Stack.Get_Size() > 0 && Process_Get_Okay() )
+	while( Stack.Get_Size() > 0 && SG_UI_Process_Get_Okay() )
 	{
 		Stack.Pop(x, y);
 
@@ -196,7 +462,7 @@ void CIsochronesVar::_CalculateTime(int x, int y)
         dI /= 1000.0;	// m/s of runoff;
 
 		iDir  = m_Direction.asInt(x, y);
-		dDist = Get_Length(iDir);	// length to previous, i.e. successor cell
+		dDist = m_pDEM->Get_System().Get_Length(iDir);	// length to previous, i.e. successor cell
 
 		dSlope = m_pSlope->asDouble(x, y);
 		dSlope = fabs(tan(dSlope));
@@ -262,8 +528,8 @@ void CIsochronesVar::_CalculateTime(int x, int y)
             dSpeed = max(m_dMinSpeed, dQ / dArea);
         }
 
-		int ix = Get_xTo(iDir, x);
-		int iy = Get_yTo(iDir, y);
+		int ix = m_pDEM->Get_System().Get_xTo(iDir, x);
+		int iy = m_pDEM->Get_System().Get_yTo(iDir, y);
 
 		m_pTime->Set_Value(x, y, m_pTime->asDouble(ix, iy) + dDist / dSpeed);
 		m_pSpeed->Set_Value(x, y, dSpeed);
@@ -271,8 +537,8 @@ void CIsochronesVar::_CalculateTime(int x, int y)
 		//-------------------------------------------------
 		for(int i=0; i<8; i++)
 		{
-			ix	= Get_xFrom(i, x);
-			iy	= Get_yFrom(i, y);
+			ix	= m_pDEM->Get_System().Get_xFrom(i, x);
+			iy	= m_pDEM->Get_System().Get_yFrom(i, y);
 
 			if( m_pDEM->is_InGrid(ix, iy) && i == m_Direction.asInt(ix, iy) )
 			{
@@ -286,10 +552,8 @@ void CIsochronesVar::_CalculateTime(int x, int y)
 
 
 //-----------------------------------------------------
-double CIsochronesVar::Runoff(
-        double dRainfall,
-        double dCN) {
-
+double CIsochronesVar::Runoff(double dRainfall, double dCN)
+{
     double dS;
     double dRunoff;
 
@@ -304,17 +568,17 @@ double CIsochronesVar::Runoff(
 
     return dRunoff;
 
-}// method
+}
 
 
 //-----------------------------------------------------
 void CIsochronesVar::ZeroToNoData(void){
 
 
-    for(int y=0; y<Get_NY() && Set_Progress(y); y++)
+    for(int y=0; y<m_pDEM->Get_System().Get_NY() && SG_UI_Process_Set_Progress(y, m_pDEM->Get_System().Get_NY()); y++)
 	{
 		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
+		for(int x=0; x<m_pDEM->Get_System().Get_NX(); x++)
 		{
             if (m_pTime->asDouble(x, y) == 0)
 			{
@@ -328,75 +592,5 @@ void CIsochronesVar::ZeroToNoData(void){
         }// for
     }// for
 
-}//method
-
-
-//-----------------------------------------------------
-bool CIsochronesVar::On_Execute(void){
-
-	m_pDEM = Parameters("DEM")->asGrid();
-	m_pTime = Parameters("TIME")->asGrid();
-	m_pSpeed = Parameters("SPEED")->asGrid();
-	m_pManning = Parameters("MANNING")->asGrid();
-	m_pSlope = Parameters("SLOPE")->asGrid();
-	m_pCatchArea = Parameters("FLOWACC")->asGrid();
-	m_pCN = Parameters("CN")->asGrid();
-	m_dMixedThresh = Parameters("THRSMIXED")->asDouble() * 10000;
-	m_dChannelThresh = Parameters("THRSCHANNEL")->asDouble() * 10000;
-	m_dCN = Parameters("AVGCN")->asDouble();
-	m_dManning = Parameters("AVGMANNING")->asDouble();
-	m_dRainfall = Parameters("AVGRAINFALL")->asDouble();
-	m_dChannelSlope = Parameters("CHANSLOPE")->asDouble();
-	m_dMinSpeed = Parameters("MINSPEED")->asDouble();
-
-	m_pTime->Assign(0.0);
-
-	m_Direction.Create(Get_System(), SG_DATATYPE_Char);
-	m_Direction.Set_NoData_Value(-1);
-
-	Init_FlowDirectionsD8(m_pDEM, &m_Direction);
-
-	return( true );
-
-}//method
-
-
-//-----------------------------------------------------
-bool CIsochronesVar::On_Execute_Finish()
-{
-	m_Direction.Destroy();
-
-	return( true );
 }
 
-
-//-----------------------------------------------------
-bool CIsochronesVar::On_Execute_Position(CSG_Point ptWorld, TSG_Tool_Interactive_Mode Mode)
-{
-	int iX, iY;
-
-	if(	Mode != TOOL_INTERACTIVE_LDOWN || !Get_Grid_Pos(iX, iY) )
-	{
-		return( false );
-	}
-	
-	m_pTime->Assign(0.0);
-
-	_CalculateTime(iX, iY);
-
-	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
-	{
-		#pragma omp parallel for
-		for(int x=0; x<Get_NX(); x++)
-		{
-			m_pTime->Set_Value(x, y, m_pTime->asDouble(x,y)/3600.0);
-        }
-    }
-
-	ZeroToNoData();
-
-	DataObject_Update(m_pTime, SG_UI_DATAOBJECT_SHOW_LAST_MAP);
-
-	return( true );
-
-}//method
