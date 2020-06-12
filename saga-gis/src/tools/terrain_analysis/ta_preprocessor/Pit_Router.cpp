@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Pit_Router.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Pit_Router.h"
 
 
@@ -70,7 +58,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#define	IS_Flat(a,b)		(a==b)
+#define	IS_Flat(a, b)	(a==b)
 
 
 ///////////////////////////////////////////////////////////
@@ -84,45 +72,56 @@ CPit_Router::CPit_Router(void)
 {
 	Set_Name		(_TL("Sink Drainage Route Detection"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2001"));
+	Set_Author		("O. Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		""
+		"Sink drainage route detection. "
 	));
 
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL	, "ELEVATION"	, _TL("Elevation"),
+		"", "ELEVATION"	, _TL("Elevation"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL	, "SINKROUTE"	, _TL("Sink Route"),
+		"", "SINKROUTE"	, _TL("Sink Route"),
 		_TL(""),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Threshold"),
+	Parameters.Add_Bool(
+		"", "THRESHOLD"	, _TL("Threshold"),
 		_TL(""),
-		PARAMETER_TYPE_Bool
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRSHEIGHT"	, _TL("Threshold Height"),
-		_TL(""),
-		PARAMETER_TYPE_Double	, 100
+	Parameters.Add_Double(
+		"", "THRSHEIGHT", _TL("Threshold Height"),
+		_TL("The maximum depth to which a sink is considered for removal."),
+		100., 0., true
 	);
 }
-
-//---------------------------------------------------------
-CPit_Router::~CPit_Router(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPit_Router::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("THRESHOLD") )
+	{	
+		pParameters->Set_Enabled("THRSHEIGHT", pParameter->asBool());
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -138,8 +137,6 @@ bool CPit_Router::On_Execute(void)
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 

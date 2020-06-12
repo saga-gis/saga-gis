@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: FillSinks_WL.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -43,13 +40,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #ifndef HEADER_INCLUDED__FillSinks_WL_H
 #define HEADER_INCLUDED__FillSinks_WL_H
@@ -62,11 +52,14 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
+
 #include <iostream>
 #include <queue>
 #include <vector>
+
 using namespace std;
+
 
 ///////////////////////////////////////////////////////////
 //														 //
@@ -79,7 +72,7 @@ class CFillSinks_WL_Node
 {
 public:
 	CFillSinks_WL_Node() : spill( 0 ) {}
-		~CFillSinks_WL_Node(){}
+	virtual ~CFillSinks_WL_Node() {}
 
 	struct Greater : public binary_function< CFillSinks_WL_Node, CFillSinks_WL_Node, bool >
 	{
@@ -94,10 +87,8 @@ public:
 	double	spill;
 };
 
-
-
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CFillSinks_WL : public CSG_Tool_Grid
+class CFillSinks_WL : public CSG_Tool_Grid
 {
 public:
 	CFillSinks_WL(void);
@@ -121,7 +112,7 @@ private:
 };
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CFillSinks_WL_XXL : public CSG_Tool_Grid
+class CFillSinks_WL_XXL : public CSG_Tool_Grid
 {
 public:
 	CFillSinks_WL_XXL(void);

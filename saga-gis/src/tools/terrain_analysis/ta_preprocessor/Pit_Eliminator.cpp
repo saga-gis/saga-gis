@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Pit_Eliminator.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Pit_Eliminator.h"
 #include "Pit_Router.h"
 
@@ -75,61 +63,71 @@ CPit_Eliminator::CPit_Eliminator(void)
 {
 	Set_Name		(_TL("Sink Removal"));
 
-	Set_Author		(SG_T("O. Conrad (c) 2001"));
+	Set_Author		("O. Conrad (c) 2001");
 
 	Set_Description	(_TW(
-		""
+		"Sink removal. "
 	));
 
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "DEM"			, _TL("DEM"),
+		"", "DEM"			, _TL("DEM"),
 		_TL("Digital Elevation Model that has to be processed"),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "SINKROUTE"	, _TL("Sink Route"),
+		"", "SINKROUTE"		, _TL("Sink Route"),
 		_TL(""),
 		PARAMETER_INPUT_OPTIONAL
 	);
 
 	Parameters.Add_Grid(
-		NULL, "DEM_PREPROC", _TL("Preprocessed DEM"),
+		"", "DEM_PREPROC"	, _TL("Preprocessed DEM"),
 		_TL("Preprocessed DEM. If this is not set changes will be stored in the original DEM grid."),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
 	Parameters.Add_Choice(
-		NULL, "METHOD"		, _TL("Method"),
+		"", "METHOD"		, _TL("Method"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|"),
+		CSG_String::Format("%s|%s",
 			_TL("Deepen Drainage Routes"),
 			_TL("Fill Sinks")
 		), 1
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRESHOLD"	, _TL("Threshold"),
+	Parameters.Add_Bool(
+		"", "THRESHOLD"		, _TL("Threshold"),
 		_TL(""),
-		PARAMETER_TYPE_Bool
+		false
 	);
 
-	Parameters.Add_Value(
-		NULL	, "THRSHEIGHT"	, _TL("Threshold Height"),
-		_TW("The parameter describes the maximum depth of a sink to be considered for removal [map units]. "
-			"This makes it possible to exclude deeper sinks from filling."),
-		PARAMETER_TYPE_Double	, 100
+	Parameters.Add_Double(
+		"", "THRSHEIGHT"	, _TL("Threshold Height"),
+		_TL("The maximum depth to which a sink is considered for removal."),
+		100., 0., true
 	);
 }
-
-//---------------------------------------------------------
-CPit_Eliminator::~CPit_Eliminator(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+int CPit_Eliminator::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
+{
+	if( pParameter->Cmp_Identifier("THRESHOLD") )
+	{	
+		pParameters->Set_Enabled("THRSHEIGHT", pParameter->asBool());
+	}
+
+	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
+}
+
+
+///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 

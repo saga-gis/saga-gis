@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -9,14 +6,13 @@
 //      System for Automated Geoscientific Analyses      //
 //                                                       //
 //                     Tool Library                      //
-//                   Terrain_Analysis                    //
+//                   ta_preprocessing                    //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
-//                    ta_preprocessor                    //
+//                  breach_depressions.h                 //
 //                                                       //
-//                 Copyright (C) 2003 by                 //
-//                      Olaf Conrad                      //
+//                  Olaf Conrad (C) 2020                 //
 //                                                       //
 //-------------------------------------------------------//
 //                                                       //
@@ -43,42 +39,58 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+#ifndef HEADER_INCLUDED__breach_depressions_H
+#define HEADER_INCLUDED__breach_depressions_H
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//				Include the SAGA-API here				 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#ifndef HEADER_INCLUDED__ta_preprocessor_H
-#define HEADER_INCLUDED__ta_preprocessor_H
 
 //---------------------------------------------------------
 #include <saga_api/saga_api.h>
 
-//---------------------------------------------------------
-#ifdef ta_preprocessor_EXPORTS
-	#define	ta_preprocessor_EXPORT	_SAGA_DLL_EXPORT
-#else
-	#define	ta_preprocessor_EXPORT	_SAGA_DLL_IMPORT
-#endif
-
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
+//                                                       //												
+//                                                       //												
+//                                                       //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#endif // #ifndef HEADER_INCLUDED__ta_preprocessor_H
+class CBreach_Depressions : public CSG_Tool_Grid
+{
+public:
+	CBreach_Depressions(void);
+
+
+protected:
+
+	virtual int			On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool		On_Execute				(void);
+
+
+private:
+
+	bool				is_Pit					(CSG_Grid *pDEM, int x, int y);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//                                                       //												
+//                                                       //												
+//                                                       //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#endif // #ifndef HEADER_INCLUDED__breach_depressions_H

@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: FillSinks.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -44,15 +41,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "FillSinks.h"
 
 
@@ -65,41 +53,38 @@
 //---------------------------------------------------------
 CFillSinks::CFillSinks(void)
 {
-	Set_Name(_TL("Fill Sinks (Planchon/Darboux, 2001)"));
+	Set_Name		(_TL("Fill Sinks (Planchon/Darboux, 2001)"));
 
-	Set_Author(_TL("Copyrights (c) 2003 by Volker Wichmann"));
+	Set_Author		("Volker Wichmann (c) 2003");
 
 	Set_Description	(_TW(
-		"Depression filling algorithm after Olivier Planchon & Frederic Darboux (2001)\n\n\n"
-		"References:\n"
-		"Planchon, O. & F. Darboux (2001): "
-		"A fast, simple and versatile algorithm to fill the depressions of digital elevation models. "
-		"Catena 46: 159-176\n\n")
+		"Depression filling algorithm after Olivier Planchon & Frederic Darboux (2001). "
+	));
+
+	Add_Reference("Planchon, O. & F. Darboux", "2001",
+		"A fast, simple and versatile algorithm to fill the depressions of digital elevation models",
+		"Catena 46: 159-176."
 	);
 
-
+	//-----------------------------------------------------
 	Parameters.Add_Grid(
-		NULL, "DEM"		, _TL("DEM"),
+		"", "DEM"		, _TL("DEM"),
 		_TL("digital elevation model [m]"),
 		PARAMETER_INPUT
 	);
 
 	Parameters.Add_Grid(
-		NULL, "RESULT"	, _TL("Filled DEM"),
+		"", "RESULT"	, _TL("Filled DEM"),
 		_TL("processed DEM"),
 		PARAMETER_OUTPUT
 	);
 
-	Parameters.Add_Value(
-		NULL, "MINSLOPE", _TL("Minimum Slope [Degree]"),
+	Parameters.Add_Double(
+		"", "MINSLOPE"	, _TL("Minimum Slope [Degree]"),
 		_TL("minimum slope angle preserved from one cell to the next, zero results in flat areas [Degree]"),
-		PARAMETER_TYPE_Double, 0.01, 0.0, true
+		0.01, 0., true
 	);
 }
-
-//---------------------------------------------------------
-CFillSinks::~CFillSinks(void)
-{}
 
 
 ///////////////////////////////////////////////////////////
@@ -111,6 +96,7 @@ CFillSinks::~CFillSinks(void)
 //														 //
 ///////////////////////////////////////////////////////////
 
+//---------------------------------------------------------
 bool CFillSinks::On_Execute(void)
 {
 	bool	something_done;
@@ -205,6 +191,7 @@ bool CFillSinks::On_Execute(void)
 	return( true );
 }
 
+//---------------------------------------------------------
 void CFillSinks::Dry_upward_cell(int x, int y)
 {
 	int const	MAX_DEPTH = 32000;													// recursion stack, maybe not needed??
@@ -234,9 +221,8 @@ void CFillSinks::Dry_upward_cell(int x, int y)
 	depth -= 1;
 }
 
-
-
-void CFillSinks::Init_Altitude()
+//---------------------------------------------------------
+void CFillSinks::Init_Altitude(void)
 {
 	bool	border;
 	int		x, y, i, ix, iy;
@@ -272,11 +258,9 @@ void CFillSinks::Init_Altitude()
 	}
 }
 
-
-
+//---------------------------------------------------------
 bool CFillSinks::Next_Cell(int i)
 {
-
 	R	= R + dR[i];
 	C	= C + dC[i];
 
@@ -286,8 +270,19 @@ bool CFillSinks::Next_Cell(int i)
 		C	= C + fC[i];
 
 		if( R < 0 || C < 0 || R >= Get_NY() || C >= Get_NX() )
-			return (false);
+		{
+			return( false );
+		}
 	}
 
-	return (true);
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------

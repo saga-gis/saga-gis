@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: TLB_Interface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,17 +48,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//           The Tool Link Library Interface             //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-#include "MLB_Interface.h"
-
+#include <saga_api/saga_api.h>
 
 //---------------------------------------------------------
 CSG_String Get_Info(int i)
@@ -75,30 +62,27 @@ CSG_String Get_Info(int i)
 		return( _TL("Terrain Analysis") );
 
 	case TLB_INFO_Author:
-		return( SG_T("O. Conrad (c) 2001, V. Wichmann (c) 2003") );
+		return( "O. Conrad (c) 2001, V. Wichmann (c) 2003" );
 
 	case TLB_INFO_Description:
 		return( _TL("Tools for the preprocessing of digital terrain models." ));
 
 	case TLB_INFO_Version:
-		return( SG_T("1.0") );
+		return( "1.0" );
 
 	case TLB_INFO_Menu_Path:
 		return( _TL("Terrain Analysis|Preprocessing" ));
 	}
 }
 
-
 //---------------------------------------------------------
 #include "Flat_Detection.h"
 #include "Pit_Router.h"
 #include "Pit_Eliminator.h"
-
 #include "FillSinks.h"
 #include "FillSinks_WL.h"
-
 #include "burn_in_streams.h"
-
+#include "breach_depressions.h"
 
 //---------------------------------------------------------
 CSG_Tool *		Create_Tool(int i)
@@ -108,15 +92,15 @@ CSG_Tool *		Create_Tool(int i)
 	case  0:	return( new CFlat_Detection );
 	case  1:	return( new CPit_Router );
 	case  2:	return( new CPit_Eliminator );
-
 	case  3:	return( new CFillSinks );
 	case  4:	return( new CFillSinks_WL );
 	case  5:	return( new CFillSinks_WL_XXL );
-
 	case  6:	return( new CBurnIn_Streams );
-	}
+	case  7:	return( new CBreach_Depressions );
 
-	return( NULL );
+	case  8:	return( NULL );
+	default:	return( TLB_INTERFACE_SKIP_TOOL );
+	}
 }
 
 

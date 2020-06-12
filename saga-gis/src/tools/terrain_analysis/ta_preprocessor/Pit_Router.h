@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Pit_Router.h 1922 2014-01-09 10:28:46Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Pit_Router_H
 #define HEADER_INCLUDED__Pit_Router_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,18 +69,19 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CPit_Router : public CSG_Tool_Grid
+class CPit_Router : public CSG_Tool_Grid
 {
 public:
 	CPit_Router(void);
-	virtual ~CPit_Router(void);
 
-	int							Get_Routes		(CSG_Grid *pDEM, CSG_Grid *pRoutes, double Threshold = -1.0);
+	int							Get_Routes				(CSG_Grid *pDEM, CSG_Grid *pRoutes, double Threshold = -1.0);
 
 
 protected:
 
-	virtual bool				On_Execute		(void);
+	virtual int					On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool				On_Execute				(void);
 
 
 private:
@@ -133,20 +122,20 @@ private:
 	TPit_Outlet					*m_Outlets;
 
 
-	bool						Initialize		(void);
-	void						Finalize		(void);
+	bool						Initialize			(void);
+	void						Finalize			(void);
 
-	int							Find_Pits		(void);
-	int							Find_Outlets	(int nPits);
-	int							Find_Route		(TPit_Outlet *pOutlet);
+	int							Find_Pits			(void);
+	int							Find_Outlets		(int nPits);
+	int							Find_Route			(TPit_Outlet *pOutlet);
 
-	void						Add_Junction	(int iID, int jID);
-	bool						Get_Junction	(int iID, int jID);
+	void						Add_Junction		(int iID, int jID);
+	bool						Get_Junction		(int iID, int jID);
 
-	void						Drain_Pit		(int x, int y, int Pit_ID);
-	void						Drain_Flat		(int x, int y );
+	void						Drain_Pit			(int x, int y, int Pit_ID);
+	void						Drain_Flat			(int x, int y );
 
-	void						Mark_Flat		(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pit_ID);
+	void						Mark_Flat			(int x, int y, TGEO_iRect *pFlat, int Flat_ID, int Pit_ID);
 
 
 	int							Process_Threshold	(void);

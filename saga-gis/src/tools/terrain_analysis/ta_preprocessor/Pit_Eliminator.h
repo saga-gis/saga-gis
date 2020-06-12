@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Pit_Eliminator.h 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//                                                       //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #ifndef HEADER_INCLUDED__Pit_Eliminator_H
 #define HEADER_INCLUDED__Pit_Eliminator_H
 
@@ -71,7 +59,7 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-#include "MLB_Interface.h"
+#include <saga_api/saga_api.h>
 
 
 ///////////////////////////////////////////////////////////
@@ -81,31 +69,32 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-class ta_preprocessor_EXPORT CPit_Eliminator : public CSG_Tool_Grid
+class CPit_Eliminator : public CSG_Tool_Grid
 {
 public:
 	CPit_Eliminator(void);
-	virtual ~CPit_Eliminator(void);
 
 
 protected:
 
-	virtual bool			On_Execute		(void);
+	virtual int				On_Parameters_Enable	(CSG_Parameters *pParameters, CSG_Parameter *pParameter);
+
+	virtual bool			On_Execute				(void);
 
 
 private:
 
-	CSG_Grid					*pDTM, *pRoute, *goRoute;
+	CSG_Grid				*pDTM, *pRoute, *goRoute;
 
 
-	void					Create_goRoute	(void);
+	void					Create_goRoute			(void);
 
-	bool					Dig_Channels	(void);
-	void					Dig_Channel		(int x, int y);
+	bool					Dig_Channels			(void);
+	void					Dig_Channel				(int x, int y);
 
-	bool					Fill_Sinks		(void);
-	void					Fill_Check		(int x, int y);
-	void					Fill_Sink		(int x, int y, int j, double z);
+	bool					Fill_Sinks				(void);
+	void					Fill_Check				(int x, int y);
+	void					Fill_Sink				(int x, int y, int j, double z);
 
 };
 

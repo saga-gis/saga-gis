@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="breach_depressions.cpp" />
     <ClCompile Include="burn_in_streams.cpp" />
     <ClCompile Include="FillSinks.cpp" />
     <ClCompile Include="FillSinks_WL.cpp" />
@@ -326,11 +327,11 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="breach_depressions.h" />
     <ClInclude Include="burn_in_streams.h" />
     <ClInclude Include="FillSinks.h" />
     <ClInclude Include="FillSinks_WL.h" />
     <ClInclude Include="Flat_Detection.h" />
-    <ClInclude Include="MLB_Interface.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\dataobject.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\geo_tools.h" />
