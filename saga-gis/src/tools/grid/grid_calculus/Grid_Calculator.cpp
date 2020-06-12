@@ -158,7 +158,7 @@ CGrid_Calculator_Base::CGrid_Calculator_Base(void)
 	);
 
 	//-----------------------------------------------------
-	m_Formula.Add_Function(SG_T("nodata"), (TSG_PFNC_Formula_1)CGrid_Calculator_Base::Get_NoData_Value, 0, 0);
+	m_Formula.Add_Function("nodata", (TSG_Formula_Function_1)CGrid_Calculator_Base::Get_NoData_Value, 0, false);
 }
 
 

@@ -148,15 +148,15 @@ CFit::CFit(void)
 	
 	Parameters.Add_Value(NULL, "LAMDA", _TL("Max Lamda"), _TL(""), PARAMETER_TYPE_Double, 10000, 1, true);
 
-	Formel.Add_Function(SG_T("NUG"), (TSG_PFNC_Formula_1) NUG, 1, 0);
-	Formel.Add_Function(SG_T("SPH"), (TSG_PFNC_Formula_1) SPH, 2, 0);
-	Formel.Add_Function(SG_T("EXP"), (TSG_PFNC_Formula_1) EXP, 2, 0);
-	Formel.Add_Function(SG_T("LIN"), (TSG_PFNC_Formula_1) LIN, 2, 0);
+	Formel.Add_Function("NUG", (TSG_Formula_Function_1) NUG, 1, false);
+	Formel.Add_Function("SPH", (TSG_Formula_Function_1) SPH, 2, false);
+	Formel.Add_Function("EXP", (TSG_Formula_Function_1) EXP, 2, false);
+	Formel.Add_Function("LIN", (TSG_Formula_Function_1) LIN, 2, false);
 }
 
 int CFit::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if (pParameter->Cmp_Identifier(SG_T("FORMEL")) )
+	if (pParameter->Cmp_Identifier("FORMEL") )
 	{
 		CSG_String Msg;
 
@@ -220,13 +220,10 @@ bool CFit::On_Execute(void)
 		return false;
 	}
 	
-	const SG_Char *uservars = NULL;
-	
-	uservars = Formel.Get_Used_Variables();
-	
+	const char *uservars = Formel.Get_Used_Variables();
 
 	NrVars	=	0;
-	for (i = 0; i < SG_STR_LEN(uservars); i++)
+	for (i = 0; i < strlen(uservars); i++)
 	{
 		if (uservars[i] >='a' && uservars[i] <= 'z')
 		{

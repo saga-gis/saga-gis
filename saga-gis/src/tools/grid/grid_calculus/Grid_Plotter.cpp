@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -50,12 +47,6 @@
 //                                                       //
 ///////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
 //---------------------------------------------------------
 #include "Grid_Plotter.h"
 
@@ -84,26 +75,26 @@ CGrid_Plotter::CGrid_Plotter(void)
 	Set_Description(s);
 
 	//-----------------------------------------------------
-	CSG_Parameter	*pNode	= Parameters.Add_String(
-		NULL	, "FORMULA"	, _TL("Formula"),
+	Parameters.Add_String("",
+		"FORMULA"	, _TL("Formula"),
 		_TL(""),
 		"sin(x*x + y*y)"
 	);
 
-	Parameters.Add_Range(
-		pNode	, "X_RANGE"	, _TL("X Range"),
+	Parameters.Add_Range("FORMULA",
+		"X_RANGE"	, _TL("X Range"),
 		_TL(""),
 		0.0, 10.0
 	);
 
-	Parameters.Add_Range(
-		pNode	, "Y_RANGE"	, _TL("Y Range"),
+	Parameters.Add_Range("FORMULA",
+		"Y_RANGE"	, _TL("Y Range"),
 		_TL(""),
-		0.0, 10.0
+		0., 10.
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("FUNCTION", _TL("Function"), false);
 }
@@ -129,7 +120,6 @@ int CGrid_Plotter::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Paramet
 //---------------------------------------------------------
 bool CGrid_Plotter::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Formula	Formula;
 	
 	if( !Formula.Set_Formula(Parameters("FORMULA")->asString()) )
@@ -157,23 +147,21 @@ bool CGrid_Plotter::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double xMin		= Parameters("X_RANGE")->asRange()->Get_Min();
-	double xRange	= Parameters("X_RANGE")->asRange()->Get_Max() - xMin;
+	double xMin		= Parameters("X_RANGE.MIN")->asDouble();
+	double xRange	= Parameters("X_RANGE.MAX")->asDouble() - xMin;
 
-	double yMin		= Parameters("Y_RANGE")->asRange()->Get_Min();
-	double yRange	= Parameters("Y_RANGE")->asRange()->Get_Max() - yMin;
+	double yMin		= Parameters("Y_RANGE.MIN")->asDouble();
+	double yRange	= Parameters("Y_RANGE.MAX")->asDouble() - yMin;
 
 	//-----------------------------------------------------
 	for(int y=0; y<pFunction->Get_NY() && Set_Progress(y); y++)
 	{
-		double	py	= yMin + yRange * (y / (double)pFunction->Get_NY());
+		Formula.Set_Variable('y', yMin + yRange * (y / (double)pFunction->Get_NY()));
 
 		#pragma omp parallel for
 		for(int x=0; x<pFunction->Get_NX(); x++)
 		{
-			double	px	= xMin + xRange * (x / (double)pFunction->Get_NX());
-
-			pFunction->Set_Value(x, y, Formula.Get_Value(SG_T("xy"), px, py));
+			pFunction->Set_Value(x, y, Formula.Get_Value(xMin + xRange * (x / (double)pFunction->Get_NX())));
 		}
 	}
 

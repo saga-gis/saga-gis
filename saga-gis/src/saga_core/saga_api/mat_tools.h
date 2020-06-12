@@ -1745,10 +1745,10 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-typedef double (*TSG_PFNC_Formula_0)(void);
-typedef double (*TSG_PFNC_Formula_1)(double);
-typedef double (*TSG_PFNC_Formula_2)(double, double);
-typedef double (*TSG_PFNC_Formula_3)(double, double, double);
+typedef double (*TSG_Formula_Function_0)(void);
+typedef double (*TSG_Formula_Function_1)(double);
+typedef double (*TSG_Formula_Function_2)(double, double);
+typedef double (*TSG_Formula_Function_3)(double, double, double);
 
 //---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Formula
@@ -1763,42 +1763,46 @@ public:
 
 	bool						Get_Error			(CSG_String &Message);
 
-	int							Add_Function		(const SG_Char *Name, TSG_PFNC_Formula_1 f, int N_of_Pars, int Varying);
+	bool						Add_Function		(const char *Name, TSG_Formula_Function_1 Function, int nParameters, bool bVarying = false);
 
 	bool						Set_Formula			(const CSG_String &Formula);
 	CSG_String					Get_Formula			(void)	const	{	return( m_sFormula );	}
 
-	void						Set_Variable		(SG_Char Variable, double Value);
+	void						Set_Variable		(char Variable, double Value);
 
-	double						Get_Value			(void)							const;
-	double						Get_Value			(double x)						const;
-	double						Get_Value			(const CSG_Vector &Values)		const;
+	double						Get_Value			(void                       )	const;
+	double						Get_Value			(double x                   )	const;
+	double						Get_Value			(const CSG_Vector &Values   )	const;
 	double						Get_Value			(double *Values, int nValues)	const;
-	double						Get_Value			(SG_Char *Arguments, ...)		const;
+	double						Get_Value			(const char *Arguments, ... )	const;
 
-	const SG_Char *				Get_Used_Variables	(void);
+	const char *				Get_Used_Variables	(void);
 
 
 	//-----------------------------------------------------
-	typedef struct SSG_Formula_Item
+	typedef struct SSG_Function
 	{
-		const SG_Char		*name;
-		TSG_PFNC_Formula_1	f;
-		int					n_pars;		
-		int					varying;	// Does the result of the function vary even when the parameters stay the same? varying = 1 for e.g. random - number generators.
+		const char				*Name;
+
+		TSG_Formula_Function_1	Function;
+
+		int						nParameters;
+		
+		bool					bVarying;
 	}
-	TSG_Formula_Item;
+	TSG_Function;
 
 
 private:
 
 	//-----------------------------------------------------
-	typedef struct SMAT_Formula
+	typedef struct SSG_Formula
 	{
-		SG_Char					*code;
+		char					*code;
+
 		double					*ctable;
 	}
-	TMAT_Formula;
+	TSG_Formula;
 
 
 	//-----------------------------------------------------
@@ -1806,38 +1810,37 @@ private:
 
 	int							m_Error_Position, m_Length;
 
-	TMAT_Formula				m_Formula;
+	TSG_Formula					m_Formula;
 
-	TSG_Formula_Item			*m_Functions;
+	TSG_Function				*m_Functions;
 
 
 	CSG_String					m_sFormula, m_sError;
 
-	const SG_Char				*i_error;
+	const char					*m_error;
 
-	int							i_pctable;			// number of items in a table of constants - used only by the translating functions
+	int							m_pctable;
 
-	double						m_Parameters[32],
-								*i_ctable;			// current table of constants - used only by the translating functions
+	double						m_Parameters[32], *m_ctable;
 
 
-	void						_Set_Error			(const SG_Char *Error = NULL);
+	void						_Set_Error			(const CSG_String &Error = "");
 
-	double						_Get_Value			(const double *Parameters, TMAT_Formula Function)	const;
+	double						_Get_Value			(const double *Parameters, TSG_Formula Function)	const;
 
-	int							_is_Operand			(SG_Char c);
-	int							_is_Operand_Code	(SG_Char c);
-	int							_is_Number			(SG_Char c);
+	int							_is_Operand			(char c);
+	int							_is_Operand_Code	(char c);
+	int							_is_Number			(char c);
 
-	int							_Get_Function		(int i, SG_Char *name, int *n_pars, int *varying);
-	int							_Get_Function		(SG_Char *name);
+	int							_Get_Function		(int i, char *Name, int *nParameters, int *bVarying);
+	int							_Get_Function		(const char *Name);
 
-	TMAT_Formula				_Translate			(const SG_Char *source, const SG_Char *args, int *length, int *error);
+	TSG_Formula					_Translate			(const char *source, const char *args, int *length, int *error);
 
-	int							max_size(const SG_Char *source);
-	SG_Char *					my_strtok(SG_Char *s);
-	SG_Char *					i_trans(SG_Char *function, SG_Char *begin, SG_Char *end);
-	SG_Char *					comp_time(SG_Char *function, SG_Char *fend, int npars);
+	char *						_i_trans			(char *function, char *begin, char *end);
+	char *						_comp_time			(char *function, char *fend, int npars);
+	int							_max_size			(const char *source);
+	char *						_my_strtok			(char *s);
 
 };
 

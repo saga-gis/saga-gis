@@ -86,8 +86,8 @@ CTable_Calculator_Base::CTable_Calculator_Base(bool bShapes)
 		{	"", ""	}
 	};
 
-	m_Formula.Add_Function(SG_T("nodata"  ), (TSG_PFNC_Formula_1)fnc_NoData_Value   , 0, 0);
-	m_Formula.Add_Function(SG_T("isnodata"), (TSG_PFNC_Formula_1)fnc_is_NoData_Value, 1, 0);
+	m_Formula.Add_Function("nodata"  , (TSG_Formula_Function_1)fnc_NoData_Value   , 0, false);
+	m_Formula.Add_Function("isnodata", (TSG_Formula_Function_1)fnc_is_NoData_Value, 1, false);
 
 	s	+= CSG_Formula::Get_Help_Operators(true, Operators);
 
