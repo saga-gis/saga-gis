@@ -190,6 +190,10 @@ bool CBreach_Depressions::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
+	#ifndef FLT_MAX
+	#define FLT_MAX          3.402823466e+38F        // max value
+	#endif
+
 	double	Large_Value	= FLT_MAX;
 
 	int		Dist_max	= Parameters("MAX_LENGTH")->asInt();
