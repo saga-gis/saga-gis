@@ -105,7 +105,7 @@ CSG_Tool_Chain::~CSG_Tool_Chain(void)
 //---------------------------------------------------------
 void CSG_Tool_Chain::Reset(void)
 {
-	Parameters.Create(this, SG_T(""), SG_T(""));
+	Parameters.Del_Parameters();
 
 	m_Chain.Destroy();
 
@@ -256,7 +256,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		int			Constraint	= 0;
 		CSG_String	Value;
 		bool		bMin = false, bMax = false;
-		double		 Min = 0.0  ,  Max = 0.0;
+		double		 Min = 0.   ,  Max = 0.;
 
 		if( Parameter.Cmp_Name("input") )
 		{
@@ -305,7 +305,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 		case PARAMETER_TYPE_Double           : Parameters.Add_Double         (ParentID, ID, Name, Desc, Value.asDouble(),      Min, bMin,      Max, bMax);	break;
 		case PARAMETER_TYPE_Degree           : Parameters.Add_Degree         (ParentID, ID, Name, Desc, Value.asDouble(),      Min, bMin,      Max, bMax);	break;
 
-		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (ParentID, ID, Name, Desc, 0.0)->Set_Value(Value);	break;
+		case PARAMETER_TYPE_Date             : Parameters.Add_Date           (ParentID, ID, Name, Desc, 0.)->Set_Value(Value);	break;
 
 		case PARAMETER_TYPE_Range            : Parameters.Add_Range          (ParentID, ID, Name, Desc, Value.BeforeFirst(';').asDouble(), Value.AfterFirst(';').asDouble(), Min, bMin, Max, bMax);	break;
 		case PARAMETER_TYPE_Choice           : Parameters.Add_Choice         (ParentID, ID, Name, Desc, Parameter.Get_Content("choices"))->Set_Value(Value);	break;
@@ -944,8 +944,8 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 	//-----------------------------------------------------
 	CSG_String	s;
 
-	double	begin	= Commands.Get_Property("begin", s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.0;
-	double	end		= Commands.Get_Property("end"  , s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.0;
+	double	begin	= Commands.Get_Property("begin", s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
+	double	end		= Commands.Get_Property("end"  , s) ? (Parameters(s) ? Parameters[s].asDouble() : s.asDouble()) : 0.;
 
 	if( begin >= end )
 	{
@@ -954,7 +954,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 		return( false );
 	}
 
-	double	step	= 1.0;
+	double	step	= 1.;
 
 	if( Commands.Get_Property("steps", s) )
 	{
@@ -970,7 +970,7 @@ bool CSG_Tool_Chain::ForEach_Iterator(const CSG_MetaData &Commands, const CSG_St
 		 step	= Parameters(s) ? Parameters[s].asDouble() : s.asDouble();
 	}
 
-	if( step <= 0.0 )
+	if( step <= 0. )
 	{
 		Error_Set("foreach iterator statement with invalid step size (define step > 0 or steps > 0)");
 
