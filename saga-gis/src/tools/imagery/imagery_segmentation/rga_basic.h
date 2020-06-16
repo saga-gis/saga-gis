@@ -40,9 +40,7 @@
 //                                                       //
 //    contact:    Olaf Conrad                            //
 //                Institute of Geography                 //
-//                University of Goettingen               //
-//                Goldschmidtstr. 5                      //
-//                37077 Goettingen                       //
+//                University of Hamburg                  //
 //                Germany                                //
 //                                                       //
 ///////////////////////////////////////////////////////////
@@ -65,54 +63,6 @@
 ///////////////////////////////////////////////////////////
 //														 //
 //														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-typedef struct SCandidate
-{
-	int						x, y, Segment;
-
-	double					Similarity;
-}
-TCandidate;
-
-//---------------------------------------------------------
-class CCandidates
-{
-public:
-	CCandidates(void);
-	CCandidates(int nMax);
-	~CCandidates(void);
-
-	void					Create			(void);
-	void					Create			(int nMax);
-	void					Destroy			(void);
-
-	void					Add				(int x, int y, int Segment, double Similarity);
-	bool					Get				(int &x, int &y, int &Segment);
-
-	int						Get_Count		(void)	{	return( m_nCandidates );	}
-
-	double					Get_Minimum		(void);
-	double					Get_Maximum		(void);
-
-
-private:
-
-	int						m_nCandidates, m_nMax;
-
-	TCandidate				*m_Candidates;
-
-	CCandidates				*m_pLow, *m_pHigh;
-
-
-	int						_Find			(double Similarity);
-
-};
-
-
-///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -144,7 +94,7 @@ private:
 
 	CSG_Parameter_Grid_List	*m_pFeatures;
 
-	CCandidates				m_Candidates;
+	CSG_PriorityQueue		m_Candidates;
 
 
 	double					Get_Feature				(int  x, int  y, int iFeature);
