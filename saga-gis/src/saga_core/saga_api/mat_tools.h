@@ -256,6 +256,91 @@ private:
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
+class SAGA_API_DLL_EXPORT CSG_PriorityQueue
+{
+public:
+
+	//-----------------------------------------------------
+	class CSG_PriorityQueueItem
+	{
+	public:
+		CSG_PriorityQueueItem(void)	{}
+
+		virtual int			Compare		(CSG_PriorityQueueItem *pItem)	= 0;
+
+	};
+
+	//-----------------------------------------------------
+	CSG_PriorityQueue(size_t maxSize = 256);
+
+	virtual ~CSG_PriorityQueue(void);
+
+	void						Create			(size_t maxSize = 256);
+	void						Destroy			(void);
+
+	//-----------------------------------------------------
+	bool						is_Empty		(void)		const	{	return( m_nItems == 0 );	}
+	size_t						Get_Size		(void)		const	{	return( m_nItems      );	}
+	CSG_PriorityQueueItem *		Get_Item		(size_t i)	const	{	return( m_Items[i]    );	}
+
+	void						Add				(CSG_PriorityQueueItem *pItem);
+
+	CSG_PriorityQueueItem *		Peek			(void)		const	{	return( Minimum() );	}
+	CSG_PriorityQueueItem *		Poll			(void);
+
+	//-----------------------------------------------------
+	CSG_PriorityQueueItem *		Minimum			(void)		const
+	{
+		if( m_nItems )
+		{
+			if( m_pLeaf[0] )
+			{
+				return( m_pLeaf[0]->Minimum() );
+			}
+
+			return( m_Items[0] );
+		}
+
+		return( NULL );
+	}
+
+	CSG_PriorityQueueItem *		Maximum			(void)		const
+	{
+		if( m_nItems )
+		{
+			if( m_pLeaf[1] )
+			{
+				return( m_pLeaf[1]->Maximum() );
+			}
+
+			return( m_Items[m_nItems - 1] );
+		}
+
+		return( NULL );
+	}
+
+
+private:
+
+	size_t						m_nItems, m_maxSize;
+
+	CSG_PriorityQueue			*m_pLeaf[2];
+
+	CSG_PriorityQueueItem		**m_Items;
+
+
+	size_t						_Insert_Position	(CSG_PriorityQueueItem *pItem);
+
+};
+
+
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
 class SAGA_API_DLL_EXPORT CSG_Vector
 {
 public:

@@ -489,6 +489,200 @@ bool CSG_Index::_Set_Index(CSG_Index_Compare *pCompare)
 	return( true );
 }
 
+///////////////////////////////////////////////////////////
+//														 //
+//														 //
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_PriorityQueue::CSG_PriorityQueue(size_t maxSize) : m_Items(NULL), m_nItems(0), m_maxSize(0)
+{
+	m_pLeaf[0] = m_pLeaf[1] = NULL;
+
+	Create(maxSize);
+}
+
+//---------------------------------------------------------
+CSG_PriorityQueue::~CSG_PriorityQueue(void)
+{
+	Destroy();
+}
+
+//---------------------------------------------------------
+void CSG_PriorityQueue::Create(size_t maxSize)
+{
+	Destroy();
+
+	if( maxSize > 1 )
+	{
+		m_maxSize	= maxSize;
+
+		m_Items	= (CSG_PriorityQueueItem **)SG_Malloc(m_maxSize * sizeof(CSG_PriorityQueueItem *));
+	}
+}
+
+//---------------------------------------------------------
+void CSG_PriorityQueue::Destroy(void)
+{
+	if( m_Items )
+	{
+		SG_Free(m_Items);
+
+		m_Items	= NULL;
+	}
+
+	if( m_pLeaf[0] )
+	{
+		delete(m_pLeaf[0]);
+
+		m_pLeaf[0]	= NULL;
+	}
+
+	if( m_pLeaf[1] )
+	{
+		delete(m_pLeaf[1]);
+
+		m_pLeaf[1]	= NULL;
+	}
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+size_t CSG_PriorityQueue::_Insert_Position(CSG_PriorityQueueItem *pItem)
+{
+	if( m_nItems == 0 )
+	{
+		return( 0 );
+	}
+
+	size_t	a	= 0;
+	size_t	b	= m_nItems - 1;
+
+	if( pItem->Compare(m_Items[a]) < 0 )
+	{
+		return( a );
+	}
+
+	if( pItem->Compare(m_Items[b]) > 0 )
+	{
+		return( b + 1 );
+	}
+
+	for(size_t d=(b-a)/2 ; d>0; d/=2)
+	{
+		size_t	i	= a + d;
+
+		if( pItem->Compare(m_Items[i]) > 0 )
+		{
+			a	= a < i ? i : a + 1;
+		}
+		else
+		{
+			b	= b > i ? i : b - 1;
+		}
+	}
+
+	for(size_t i=a; i<=b; i++)
+	{
+		if( pItem->Compare(m_Items[i]) < 0 )
+		{
+			return( i );
+		}
+	}
+
+	return( b );
+}
+
+//---------------------------------------------------------
+void CSG_PriorityQueue::Add(CSG_PriorityQueueItem *pItem)
+{
+	if( m_Items && m_nItems < m_maxSize )
+	{
+		size_t	Position	= _Insert_Position(pItem);
+
+		memmove(m_Items + Position + 1, m_Items + Position, sizeof(CSG_PriorityQueueItem *) * (m_nItems - Position));
+
+		m_Items[Position]	= pItem;
+	}
+	else
+	{
+		if( !m_pLeaf[0] )
+		{
+			size_t	Divide	= m_maxSize / 2;
+
+			m_pLeaf[0]	= new CSG_PriorityQueue(m_maxSize);
+			m_pLeaf[1]	= new CSG_PriorityQueue(m_maxSize);
+
+			m_pLeaf[0]->m_nItems	= Divide;
+			m_pLeaf[1]->m_nItems	= m_maxSize - Divide;
+
+			memcpy(m_pLeaf[0]->m_Items, m_Items                       , m_pLeaf[0]->m_nItems * sizeof(CSG_PriorityQueueItem *));
+			memcpy(m_pLeaf[1]->m_Items, m_Items + m_pLeaf[0]->m_nItems, m_pLeaf[1]->m_nItems * sizeof(CSG_PriorityQueueItem *));
+
+			SG_Free(m_Items);
+			m_Items	= NULL;
+		}
+
+		if( pItem->Compare(m_pLeaf[1]->Minimum()) > 0 )
+		{
+			m_pLeaf[1]->Add(pItem);
+		}
+		else
+		{
+			m_pLeaf[0]->Add(pItem);
+		}
+	}
+
+	m_nItems++;
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+CSG_PriorityQueue::CSG_PriorityQueueItem * CSG_PriorityQueue::Poll(void)
+{
+	if( m_nItems > 0 )
+	{
+		m_nItems--;
+
+		if( m_Items )
+		{
+			return( m_Items[m_nItems] );
+		} // else if( m_pLeaf[0] )
+
+		CSG_PriorityQueueItem	*pItem	= m_pLeaf[1]->Poll();
+
+		if( m_pLeaf[1]->m_nItems == 0 )
+		{
+			delete(m_pLeaf[1]);
+
+			CSG_PriorityQueue	*pLeaf	= m_pLeaf[0];
+
+		//	m_nItems   = pLeaf->m_nItems;
+			m_Items    = pLeaf->m_Items;
+			m_pLeaf[0] = pLeaf->m_pLeaf[0];
+			m_pLeaf[1] = pLeaf->m_pLeaf[1];
+
+			pLeaf->m_Items    = NULL;
+			pLeaf->m_pLeaf[0] = NULL;
+			pLeaf->m_pLeaf[1] = NULL;
+			delete(pLeaf);
+		}
+
+		return( pItem );
+	}
+
+	return( NULL );
+}
+
 
 ///////////////////////////////////////////////////////////
 //														 //
