@@ -63,249 +63,38 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-//class SAGA_API_DLL_EXPORT CSG_PriorityQueue
-//{
-//public:
-//
-//	//-----------------------------------------------------
-//	class CSG_PriorityQueueItem
-//	{
-//	public:
-//		CSG_PriorityQueueItem(void)	{}
-//
-//		virtual int			Compare		(CSG_PriorityQueueItem *pItem)	= 0;
-//
-//	};
-//
-//	//-----------------------------------------------------
-//	CSG_PriorityQueue(void)	{}
-//
-//	virtual ~CSG_PriorityQueue(void)	{}
-//
-//	//-----------------------------------------------------
-//	bool					is_Empty	(void)		const	{	return( m_Items.Get_Size() == 0 );	}
-//	size_t					Get_Size	(void)		const	{	return( m_Items.Get_Size()      );	}
-//	void *					Get_Item	(size_t i)	const	{	return( m_Items[i]              );	}
-//
-//	void *					Peek		(void)		const	{	return( m_Items.Get_Size() ? m_Items[m_Items.Get_Size() - 1] : NULL );	}
-//
-//	//-----------------------------------------------------
-//	void *					Poll		(void)
-//	{
-//		void	*pFirst	= Peek();
-//
-//		if( pFirst )
-//		{
-//			m_Items.Dec_Array(false);
-//		}
-//
-//		return( pFirst );
-//	}
-//
-//	//-----------------------------------------------------
-//	void					Clear		(void)
-//	{
-//		for(size_t i=0; i<m_Items.Get_Size(); i++)
-//		{
-//			delete(m_Items[i]);
-//		}
-//
-//		m_Items.Destroy();
-//	}
-//
-//	//-----------------------------------------------------
-//	bool					Add			(CSG_PriorityQueueItem *pItem, bool bAllowDuplicates = true)
-//	{
-//		if( bAllowDuplicates == false )
-//		{
-//			for(size_t i=0; i<m_Items.Get_Size(); i++)
-//			{
-//				if( pItem->Compare((CSG_PriorityQueueItem *)m_Items[i]) == 0 )
-//				{
-//					delete(m_Items[i]);
-//
-//					m_Items[i]	= pItem;
-//
-//					return( false );
-//				}
-//			}
-//		}
-//
-//		if( !m_Items.Inc_Array() )
-//		{
-//			return( false );
-//		}
-//
-//		//-------------------------------------------------
-//		CSG_PriorityQueueItem	**Items	= (CSG_PriorityQueueItem **)m_Items.Get_Array();
-//
-//		if( m_Items.Get_Size() > 1 )
-//		{
-//			for(size_t i=m_Items.Get_Size()-1; i>0; i--)
-//			{
-//				if( pItem->Compare(Items[i - 1]) < 0 )
-//				{
-//					Items[i]	= pItem;
-//
-//					return( true );
-//				}
-//
-//				Items[i]	= Items[i - 1];
-//			}
-//		}
-//
-//		Items[0]	= pItem;
-//
-//		return( true );
-//	}
-//
-//private:
-//
-//	CSG_Array_Pointer		m_Items;
-//
-//};
+#include <queue>
 
 //---------------------------------------------------------
-class CSG_PriorityQueue
-{
-public:
-
-	//-----------------------------------------------------
-	class CSG_PriorityQueueItem
-	{
-	public:
-		CSG_PriorityQueueItem(void)	{}
-
-		virtual int			Compare		(CSG_PriorityQueueItem *pItem)	= 0;
-
-	};
-
-	//-----------------------------------------------------
-	CSG_PriorityQueue(void)	{}
-
-	virtual ~CSG_PriorityQueue(void)	{}
-
-	//-----------------------------------------------------
-	bool					is_Empty	(void)		const	{	return( m_Items.Get_Size() == 0 );	}
-	size_t					Get_Size	(void)		const	{	return( m_Items.Get_Size()      );	}
-	void *					Get_Item	(size_t i)	const	{	return( m_Items[i]              );	}
-
-	void *					Peek		(void)		const	{	return( m_Items.Get_Size() ? m_Items[0] : NULL );	}
-
-	//-----------------------------------------------------
-	void *					Poll		(void)
-	{
-		void	*pFirst	= Peek();
-
-		if( pFirst )
-		{
-			void	**Items	= m_Items.Get_Array();
-
-			for(size_t i=0, j=1; j<m_Items.Get_Size(); i++, j++)
-			{
-				Items[i]	= Items[j];
-			}
-
-			m_Items.Dec_Array(false);
-		}
-
-		return( pFirst );
-	}
-
-	//-----------------------------------------------------
-	void					Clear		(void)
-	{
-		for(size_t i=0; i<m_Items.Get_Size(); i++)
-		{
-			delete(m_Items[i]);
-		}
-
-		m_Items.Destroy();
-	}
-
-	//-----------------------------------------------------
-	bool					Add			(CSG_PriorityQueueItem *pItem, bool bAllowDuplicates = true)
-	{
-		if( bAllowDuplicates == false )
-		{
-			for(size_t i=0; i<m_Items.Get_Size(); i++)
-			{
-				if( pItem->Compare((CSG_PriorityQueueItem *)m_Items[i]) == 0 )
-				{
-					delete(m_Items[i]);
-
-					m_Items[i]	= pItem;
-
-					return( false );
-				}
-			}
-		}
-
-		if( !m_Items.Inc_Array() )
-		{
-			return( false );
-		}
-
-		CSG_PriorityQueueItem	**Items	= (CSG_PriorityQueueItem **)m_Items.Get_Array();
-
-		for(size_t i=m_Items.Get_Size()-1; i>0; i--)
-		{
-			if( pItem->Compare(Items[i - 1]) > 0 )
-			{
-				Items[i]	= pItem;
-
-				return( true );
-			}
-
-			Items[i]	= Items[i - 1];
-		}
-
-		Items[0]	= pItem;
-
-		return( true );
-	}
-
-private:
-
-	CSG_Array_Pointer		m_Items;
-
-};
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-class CCell : public CSG_PriorityQueue::CSG_PriorityQueueItem
+class CCell
 {
 public:
 
 	int		m_x, m_y, m_backLink;	double	m_Cost;
 
+	CCell(void)
+		: m_x(0), m_y(0), m_Cost(0.), m_backLink(0)
+	{}
+
 	CCell(int x, int y, double Cost, int backLink)
 		: m_x(x), m_y(y), m_Cost(Cost), m_backLink(backLink % 8)
 	{}
 
-	virtual int				Compare		(CSG_PriorityQueueItem *pItem)
+	virtual int		Compare			(const CCell &Cell)
 	{
-		if( pItem )
-		{
-			CCell	&Cell	= *((CCell *)pItem);
+		if( m_Cost < Cell.m_Cost ) { return( -1 ); }
+		if( m_Cost > Cell.m_Cost ) { return(  1 ); }
+		if( m_y    < Cell.m_y    ) { return( -1 ); }
+		if( m_y    > Cell.m_y    ) { return(  1 ); }
+		if( m_x    < Cell.m_x    ) { return( -1 ); }
+		if( m_x    > Cell.m_x    ) { return(  1 ); }
 
-			if( m_Cost < Cell.m_Cost ) { return( -1 ); }
-			if( m_Cost > Cell.m_Cost ) { return(  1 ); }
-			if( m_y    < Cell.m_y    ) { return( -1 ); }
-			if( m_y    > Cell.m_y    ) { return(  1 ); }
-			if( m_x    < Cell.m_x    ) { return( -1 ); }
-			if( m_x    > Cell.m_x    ) { return(  1 ); }
+		return( 0 );
+	}
 
-			return( 0 );
-		}
-
-		return( -1 );
+	bool			operator ()		(CCell *pA, CCell *pB)
+	{
+		return( pA->Compare(*pB) > 0 );
 	}
 };
 
@@ -332,8 +121,8 @@ CBreach_Depressions::CBreach_Depressions(void)
 		"and for determining the breach path itself "
 		"(from the WhiteBox GAT documentation).\n"
 		"\n"
-		"This is a reimplementation of the 'Breach Depressions' Java code "
-		"provided by Dr. John Lindsay's WhiteBox GAT software. "
+		"This is a re-implementation of the 'Breach Depressions' Java code "
+		"as provided by Dr. John Lindsay's WhiteBox GAT software. "
 	));
 
 	Add_Reference("https://jblindsay.github.io/ghrg/Whitebox/", SG_T("WhiteBox GAT"));
@@ -401,7 +190,7 @@ bool CBreach_Depressions::On_Execute(void)
 	}
 
 	//-----------------------------------------------------
-	double	Large_Value	= pDEM->Get_Max() + 1.;	// FLT_MAX
+	double	Large_Value	= FLT_MAX;
 
 	int		Dist_max	= Parameters("MAX_LENGTH")->asInt();
 	int		nKernel		= 1 + 2 * Dist_max;
@@ -529,7 +318,7 @@ bool CBreach_Depressions::On_Execute(void)
 		//-------------------------------------------------
 		if( nSourceCells > 0 )	// is there at least one source cell? else there are no lower cells, therefore no target can be found.
 		{
-			CSG_PriorityQueue	Cells;
+			std::priority_queue<CCell *, std::vector<CCell *>, CCell>	Cells;
 
 			for(int iy=0; iy<nKernel; iy++)	// find all the cells that neighbour the target cells and add them to the candidates list
 			{
@@ -550,7 +339,7 @@ bool CBreach_Depressions::On_Execute(void)
 								{
 									double	Cost_new = (iCost + Cost[jx][jy]) / 2. * Get_UnitLength(Dir);
 
-									Cells.Add(new CCell(ix, iy, Cost_new, Dir));
+									Cells.push(new CCell(ix, iy, Cost_new, Dir));
 								}
 							}
 						}
@@ -559,11 +348,11 @@ bool CBreach_Depressions::On_Execute(void)
 			}
 
 			//---------------------------------------------
-			if( !Cells.is_Empty() ) // else active cell list is empty. I think this occurs when there are rounding errors and the only lower cell is the centre cell itself. It is an unusal occurrance.
+			if( !Cells.empty() ) // else active cell list is empty. I think this occurs when there are rounding errors and the only lower cell is the centre cell itself. It is an unusal occurrance.
 			{
-				while( !Cells.is_Empty() )
+				while( !Cells.empty() )
 				{
-					CCell	*pCell	= (CCell *)Cells.Poll(); // get the current active cell with the lowest accumulated cost value
+					CCell	*pCell	= Cells.top(); Cells.pop();	// get the current active cell with the lowest accumulated cost value
 
 					int	ix = pCell->m_x;
 					int	iy = pCell->m_y;
@@ -586,7 +375,7 @@ bool CBreach_Depressions::On_Execute(void)
 
 								if( Cost_new < Cost_acc[jx][jy] )
 								{
-									Cells.Add(new CCell(jx, jy, Cost_new, Dir + 4));
+									Cells.push(new CCell(jx, jy, Cost_new, Dir + 4));
 								}
 							}
 						}
@@ -629,8 +418,8 @@ bool CBreach_Depressions::On_Execute(void)
 
 						if( (bContinue = (Dir >= 0)) == true )
 						{
-							ix += Get_xTo(Dir);	x  += Get_xTo(Dir);
-							iy += Get_yTo(Dir);	y  += Get_yTo(Dir);						
+							ix += Get_xTo(Dir); x += Get_xTo(Dir);
+							iy += Get_yTo(Dir); y += Get_yTo(Dir);						
 
 							if( pDEM->asDouble(x, y) > (z - zDrop))
 							{
@@ -655,7 +444,7 @@ bool CBreach_Depressions::On_Execute(void)
 
 	if( bCost_max )
 	{
-		Message_Fmt("\n%s:\t%f", _TL("Maximum decrement" ), Cost_max);
+		Message_Fmt("\n%s:\t%f", _TL("Maximum decrement"), Cost_max);
 	}
 
 	//-----------------------------------------------------
