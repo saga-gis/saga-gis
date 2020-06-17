@@ -321,7 +321,7 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 											); break;
 
 		case PARAMETER_TYPE_Font             : break;
-		case PARAMETER_TYPE_Color            : Parameters.Add_Value          (ParentID, ID, Name, Desc, PARAMETER_TYPE_Color, Value.asInt());	break;
+		case PARAMETER_TYPE_Color            : Parameters.Add_Color          (ParentID, ID, Name, Desc, Value.asInt());	break;
 		case PARAMETER_TYPE_Colors           : Parameters.Add_Colors         (ParentID, ID, Name, Desc);	break;
 		case PARAMETER_TYPE_FixedTable       : Parameters.Add_FixedTable     (ParentID, ID, Name, Desc)->Serialize(*Parameter("option"), false);	break;
 

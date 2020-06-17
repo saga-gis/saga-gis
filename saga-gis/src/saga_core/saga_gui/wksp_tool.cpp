@@ -432,7 +432,7 @@ void CWKSP_Tool::_Save_to_Script(void)
 
 		if( SG_File_Cmp_Extension(&FileName, "xml") )
 		{
-			Script	= _Get_XML(true);
+			Script	= _Get_XML(true, &FileName);
 		}
 
 		if( SG_File_Cmp_Extension(&FileName, "bat") )
@@ -465,7 +465,7 @@ void CWKSP_Tool::_Save_to_Script(void)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CWKSP_Tool::_Get_XML(bool bHeader)
+CSG_String CWKSP_Tool::_Get_XML(bool bHeader, const CSG_String &FileName)
 {
 	CSG_MetaData	Tool;	Tool.Set_Name("tool");
 
@@ -473,58 +473,186 @@ CSG_String CWKSP_Tool::_Get_XML(bool bHeader)
 	Tool.Add_Property("tool"   , m_pTool->Get_ID     ());
 	Tool.Add_Property("name"   , m_pTool->Get_Name   ());
 
-	_Get_XML(Tool, m_pTool->Get_Parameters());
+	_Get_XML_Tool(Tool, m_pTool->Get_Parameters(), "", bHeader);
 
 	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		_Get_XML(Tool, m_pTool->Get_Parameters(i), m_pTool->Get_Parameters(i)->Get_Identifier() + '.');
+		_Get_XML_Tool(Tool, m_pTool->Get_Parameters(i), m_pTool->Get_Parameters(i)->Get_Identifier() + '.', bHeader);
 	}
 
 	if( !bHeader )
 	{
 		return( Tool.asText(1) );
 	}
-	else
+
+	//-----------------------------------------------------
+	CSG_MetaData	Parameters;
+
+	_Get_XML_Parameters(Parameters, m_pTool->Get_Parameters(), "");
+
+	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		CSG_MetaData	Tools;	Tools.Set_Name("toolchain");
+		_Get_XML_Parameters(Parameters, m_pTool->Get_Parameters(i), m_pTool->Get_Parameters(i)->Get_Identifier() + '.');
+	}
 
-		Tools.Add_Property("saga-version", SAGA_VERSION);
+	//-----------------------------------------------------
+	CSG_MetaData	Tools;	Tools.Set_Name("toolchain");
 
-		Tools.Add_Child("group");
-		Tools.Add_Child("identifier");
-		Tools.Add_Child("name");
-		Tools.Add_Child("author");
-		Tools.Add_Child("description");
-		Tools.Add_Child("menu");
-		Tools.Add_Child("parameters");
-		Tools.Add_Child("tools")->Add_Child(Tool);
+	Tools.Add_Property("saga-version", SAGA_VERSION);
 
-		return( Tools.asText(1) );
+	Tools.Add_Child("group"      );
+	Tools.Add_Child("identifier" , SG_File_Get_Name(FileName, false));
+	Tools.Add_Child("name"       , m_pTool->Get_Name() + " [Tool Chain]");
+	Tools.Add_Child("author"     );
+	Tools.Add_Child("description");
+	Tools.Add_Child("menu"       , m_pTool->Get_MenuPath(true))->Add_Property("absolute", "true");
+	Tools.Add_Child("parameters" )->Add_Children(Parameters);
+	Tools.Add_Child("tools"      )->Add_Child(Tool);
+
+	return( Tools.asText(1) );
+}
+
+//---------------------------------------------------------
+void CWKSP_Tool::_Get_XML_Parameters(CSG_MetaData &Parameters, CSG_Parameters *pParameters, const CSG_String &Prefix)
+{
+	for(int i=0; i<pParameters->Get_Count(); i++)
+	{
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(i);
+
+		if( pParameter->Get_Type() == PARAMETER_TYPE_Parameters )
+		{
+			_Get_XML_Parameters(Parameters, pParameter->asParameters(), Prefix + pParameter->Get_Identifier() + '.');
+
+			continue;	// no support for sub-parameter-lists in here
+		}
+
+		CSG_MetaData	&Parameter	= *Parameters.Add_Child(
+			pParameter->is_Option() ? "option" :
+			pParameter->is_Output() ? "output" : "input"
+		);
+
+		Parameter.Add_Property("varname"    , pParameter->Get_Identifier ());
+		Parameter.Add_Property("type"       , SG_Parameter_Type_Get_Identifier(pParameter->Get_Type()));
+		Parameter.Add_Child   ("name"       , pParameter->Get_Name       ());
+		Parameter.Add_Child   ("description", pParameter->Get_Description());
+
+		if( pParameter->Get_Parent() )
+		{
+			Parameter.Add_Property("parent", pParameter->Get_Parent()->Get_Identifier());
+		}
+
+		if( pParameter->Get_Type() == PARAMETER_TYPE_Node
+			||  pParameter->Get_Type() == PARAMETER_TYPE_Grid_System )
+		{
+			continue;	// nothing more to do for these types
+		}
+
+		if( pParameter->is_Option() )
+		{
+			CSG_MetaData	&Value	= *Parameter.Add_Child("value", pParameter->asString());
+
+			if( pParameter->asValue() )
+			{
+				if( pParameter->asValue()->has_Minimum() ) Value.Add_Property("min", pParameter->asValue()->Get_Minimum());
+				if( pParameter->asValue()->has_Maximum() ) Value.Add_Property("max", pParameter->asValue()->Get_Maximum());
+			}
+
+			if( pParameter->asChoice () ) Parameter.Add_Child("choices", pParameter->asChoice ()->Get_Items());
+			if( pParameter->asChoices() ) Parameter.Add_Child("choices", pParameter->asChoices()->Get_Items());
+
+			if( pParameter->asFilePath() )
+			{
+				Parameter.Add_Property("save"     , pParameter->asFilePath()->is_Save     () ? "true" : "false");
+				Parameter.Add_Property("directory", pParameter->asFilePath()->is_Directory() ? "true" : "false");
+				Parameter.Add_Property("multiple" , pParameter->asFilePath()->is_Multiple () ? "true" : "false");
+				Parameter.Add_Child   ("filter"   , pParameter->asFilePath()->Get_Filter());
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_FixedTable )
+			{
+				pParameter->Serialize(Parameter, true);
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_Table_Field )
+			{
+				Value.Set_Content(pParameter->is_Optional() ? "true" : "false");
+			}
+		}
+		else	// data objects
+		{
+			if( pParameter->is_Optional() )
+			{
+				Parameter.Add_Property("optional", "true");
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_DataObject_Output )
+			{
+				switch( ((CSG_Parameter_Data_Object_Output *)pParameter)->Get_DataObject_Type() )
+				{
+				case SG_DATAOBJECT_TYPE_Grid:
+					Parameter.Set_Property("type"  , SG_Parameter_Type_Get_Identifier(PARAMETER_TYPE_Grid));
+					Parameter.Add_Property("target", "none");
+					break;
+
+				case SG_DATAOBJECT_TYPE_Grids:
+					Parameter.Set_Property("type"  , SG_Parameter_Type_Get_Identifier(PARAMETER_TYPE_Grids));
+					Parameter.Add_Property("target", "none");
+					break;
+
+				default:
+					break;
+				}
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_Shapes )
+			{
+				switch( ((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type() )
+				{
+				case SHAPE_TYPE_Point  : Parameter.Add_Property("feature_type", "point"  ); break;
+				case SHAPE_TYPE_Points : Parameter.Add_Property("feature_type", "points" ); break;
+				case SHAPE_TYPE_Line   : Parameter.Add_Property("feature_type", "line"   ); break;
+				case SHAPE_TYPE_Polygon: Parameter.Add_Property("feature_type", "polygon"); break;
+				default:                                                                    break;
+				}
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_Grid_List
+				&&  !((CSG_Parameter_Grid_List *)pParameter)->Get_System() )
+			{
+				Parameter.Add_Property("no_system", "true");
+			}
+
+			if( pParameter->Get_Type() == PARAMETER_TYPE_Grids_List
+				&&  !((CSG_Parameter_Grid_List *)pParameter)->Get_System() )
+			{
+				Parameter.Add_Property("no_system", "true");
+			}
+		}
 	}
 }
 
 //---------------------------------------------------------
-void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix)
+void CWKSP_Tool::_Get_XML_Tool(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix, bool bVarNames)
 {
 	for(int iParameter=0; iParameter<pParameters->Get_Count(); iParameter++)
 	{
-		CSG_Parameter	*p	= pParameters->Get_Parameter(iParameter);
+		CSG_Parameter	*pParameter	= pParameters->Get_Parameter(iParameter);
 
-		if( !p->is_Enabled() || p->is_Information() )
+		if( !pParameter->is_Enabled() || pParameter->is_Information() )
 		{
 			continue;
 		}
 
 		CSG_MetaData	*pChild	= NULL;
 
-		switch( p->Get_Type() )
+		switch( pParameter->Get_Type() )
 		{
 		case PARAMETER_TYPE_Parameters  :
-			_Get_XML(Tool, p->asParameters(), Prefix + p->Get_Identifier() + '.');
+			_Get_XML_Tool(Tool, pParameter->asParameters(), Prefix + pParameter->Get_Identifier() + '.', true);
 			break;
 
 		case PARAMETER_TYPE_Bool        :
-			pChild	= Tool.Add_Child("option", p->asBool() ? "true" : "false");
+			pChild	= Tool.Add_Child("option", pParameter->asBool() ? "true" : "false");
 			break;
 
 		case PARAMETER_TYPE_Int         :
@@ -538,44 +666,52 @@ void CWKSP_Tool::_Get_XML(CSG_MetaData &Tool, CSG_Parameters *pParameters, const
 		case PARAMETER_TYPE_Choices     :
 		case PARAMETER_TYPE_Table_Field :
 		case PARAMETER_TYPE_Table_Fields:
-			pChild	= Tool.Add_Child("option", p->asString());
+			pChild	= Tool.Add_Child("option", pParameter->asString());
 			break;
 
 		case PARAMETER_TYPE_Choice      :
-			pChild	= Tool.Add_Child("option", p->asInt());
+			pChild	= Tool.Add_Child("option", pParameter->asInt());
 			break;
 
 		case PARAMETER_TYPE_FixedTable  :
 			pChild	= Tool.Add_Child("option");
-			p->Serialize(*pChild, true);
+			pParameter->Serialize(*pChild, true);
 			break;
 
 		case PARAMETER_TYPE_Grid_System :
-			if( p->Get_Children_Count() == 0 )
+			if( pParameter->Get_Children_Count() == 0 )
 			{
-				pChild	= Tool.Add_Child("option", p->asString());
+				pChild	= Tool.Add_Child("option", pParameter->asString());
 			}
 			break;
 
 		default:
-			if( p->is_Input() )
+			if( pParameter->is_Input() )
 			{
 				pChild	= Tool.Add_Child("input");
-				pChild->Set_Content(p->is_Optional() ? "input_optional" : "input");
+				pChild->Set_Content(pParameter->is_Optional() ? "INPUT_OPTIONAL" : "INPUT");
 			}
-			else if( p->is_Output() )
+			else if( pParameter->is_Output() )
 			{
 				pChild	= Tool.Add_Child("output");
-				pChild->Set_Content("output");
+				pChild->Set_Content("OUTPUT");
 			}
 			break;
 		}
 
 		if( pChild )
 		{
-		//	pChild->Add_Property("parms", pParameters->Get_Identifier());
-		//	pChild->Add_Property("id"   , p          ->Get_Identifier());
-			pChild->Add_Property("id", Prefix + p->Get_Identifier());
+			pChild->Add_Property("id", Prefix + pParameter->Get_Identifier());
+
+			if( bVarNames )
+			{
+				if( pParameter->is_Option() )
+				{
+					pChild->Add_Property("varname", "true");
+				}
+
+				pChild->Set_Content(Prefix + pParameter->Get_Identifier());
+			}
 		}
 	}
 }

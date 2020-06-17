@@ -108,8 +108,9 @@ private:
 	void							_Save_to_Clipboard	(void);
 	void							_Save_to_Script		(void);
 
-	CSG_String						_Get_XML			(bool bHeader);
-	void							_Get_XML			(CSG_MetaData &Tool, CSG_Parameters *pParameters, const CSG_String &Prefix = "");
+	CSG_String						_Get_XML			(bool bHeader, const CSG_String &FileName = "");
+	void							_Get_XML_Parameters	(CSG_MetaData &Parameters, CSG_Parameters *pParameters, const CSG_String &Prefix);
+	void							_Get_XML_Tool		(CSG_MetaData &Tool      , CSG_Parameters *pParameters, const CSG_String &Prefix, bool bVarNames);
 
 	CSG_String						_Get_CMD			(bool bHeader, int Type = -1);
 	void							_Get_CMD			(CSG_String &Command, CSG_Parameters *pParameters);
