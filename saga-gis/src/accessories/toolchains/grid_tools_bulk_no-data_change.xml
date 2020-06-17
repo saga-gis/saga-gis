@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.7.0">
+	<group>Grid Tools</group>
+	<identifier>grid_tools_bulk_no-data_change</identifier>
+	<name>Change a Grid's No-Data Value [Bulk Processing]</name>
+	<author>O.Conrad (c) 2020</author>
+	<description>This is the bulk processing version of the likewise named tool for single grid processing.</description>
+	<menu absolute="true">Grid|Values</menu>
+
+	<parameters>
+		<input varname="GRIDS" type="grid_list">
+			<name>Grids</name>
+		</input>
+		<option varname="COPY" type="boolean">
+			<name>Create Copies</name>
+			<value>true</value>
+		</option>
+		<output varname="OUTPUT" type="grid_list">
+			<name>Changed Grids</name>
+		</output>
+		<option varname="TYPE" type="choice">
+			<name>Type</name>
+			<value>single value</value>
+			<choices>single value|value range</choices>
+		</option>
+		<option varname="VALUE" type="double">
+			<condition value="0" type="=">TYPE</condition>
+			<name>No-Data Value</name>
+			<value>-99999</value>
+		</option>
+		<option varname="RANGE" type="range">
+			<condition value="1" type="=">TYPE</condition>
+			<name>No-Data Value Range</name>
+			<value>-99999; -99999</value>
+		</option>
+		<option varname="CHANGE" type="boolean">
+			<name>Change Values</name>
+			<value>false</value>
+		</option>
+	</parameters>
+
+	<tools>
+		<condition value="true" type="=" variable="COPY"><if>
+			<foreach input="GRIDS">
+				<tool library="grid_tools" tool="36" name="Change a Grid's No-Data Value">
+					<option id="TYPE"   varname="true">TYPE</option>
+					<option id="VALUE"  varname="true">VALUE</option>
+					<option id="RANGE"  varname="true">RANGE</option>
+					<option id="CHANGE" varname="true">CHANGE</option>
+					<input  id="GRID"  >GRIDS</input>
+					<output id="OUTPUT">OUTPUT</output>
+				</tool>
+			</foreach>
+		</if><else>
+			<foreach input="GRIDS">
+				<tool library="grid_tools" tool="36" name="Change a Grid's No-Data Value">
+					<option id="TYPE"   varname="true">TYPE</option>
+					<option id="VALUE"  varname="true">VALUE</option>
+					<option id="RANGE"  varname="true">RANGE</option>
+					<option id="CHANGE" varname="true">CHANGE</option>
+					<input  id="GRID"  >GRIDS</input>
+				</tool>
+			</foreach>
+		</else></condition>
+	</tools>
+</toolchain>
