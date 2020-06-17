@@ -414,6 +414,8 @@ bool CSG_Data_Object::Set_NoData_Value_Range(double loValue, double hiValue)
 		m_NoData_Value		= loValue;
 		m_NoData_hiValue	= hiValue;
 
+		Set_Modified();
+
 		On_NoData_Changed();
 
 		return( true );
