@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: Grid_Value_NoData.cpp 2871 2016-03-30 11:32:35Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Value_NoData.h"
 
 
@@ -70,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Value_NoData::CGrid_Value_NoData(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Change a Grid's No-Data Value"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -79,18 +66,26 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 		"This tool allows changing a grid's no-data value or value range "
 		"definition. It does not change the cell values of the grid. "
 		"Its main purpose is to support this type of operation for tool "
-		"chains and scripting environments."
+		"chains and scripting environments. "
+		"If the change value option is set all no-data cells will be "
+		"changed to the new no-data value. "
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(
-		"", "GRID"	, _TL("Grid"),
+	Parameters.Add_Grid("",
+		"GRID"	, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Choice(
-		"", "TYPE"	, _TL("Type"),
+	Parameters.Add_Grid("",
+		"OUTPUT", _TL("Changed Grid"),
+		_TL(""),
+		PARAMETER_OUTPUT_OPTIONAL
+	);
+
+	Parameters.Add_Choice("",
+		"TYPE"	, _TL("Type"),
 		_TL(""),
 		CSG_String::Format("%s|%s",
 			_TL("single value"),
@@ -98,16 +93,22 @@ CGrid_Value_NoData::CGrid_Value_NoData(void)
 		), 0
 	);
 
-	Parameters.Add_Double(
-		"", "VALUE"	, _TL("No-Data Value"),
+	Parameters.Add_Double("",
+		"VALUE"	, _TL("No-Data Value"),
 		_TL(""),
 		-99999.
 	);
 
-	Parameters.Add_Range(
-		"", "RANGE"	, _TL("No-Data Value Range"),
+	Parameters.Add_Range("",
+		"RANGE"	, _TL("No-Data Value Range"),
 		_TL(""),
 		-99999., -99999.
+	);
+
+	Parameters.Add_Bool("",
+		"CHANGE", _TL("Change Values"),
+		_TL(""),
+		false
 	);
 }
 
@@ -135,7 +136,7 @@ int CGrid_Value_NoData::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Pa
 			pGrid->Get_NoData_Value() < pGrid->Get_NoData_hiValue() ? 1 : 0
 		);
 
-		On_Parameters_Enable(pParameters, pParameters->Get_Parameter("TYPE"));
+		On_Parameters_Enable(pParameters, (*pParameters)("TYPE"));
 	}
 
 	return( CSG_Tool_Grid::On_Parameter_Changed(pParameters, pParameter) );
@@ -161,33 +162,60 @@ int CGrid_Value_NoData::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Pa
 //---------------------------------------------------------
 bool CGrid_Value_NoData::On_Execute(void)
 {
-	//-----------------------------------------------------
-	bool	bUpdate;
-
 	CSG_Grid	*pGrid	= Parameters("GRID")->asGrid();
 
-	if( Parameters("TYPE")->asInt() == 0 )
+	if( Parameters("OUTPUT")->asGrid() && Parameters("OUTPUT")->asGrid() != pGrid )
 	{
-		bUpdate	= pGrid->Set_NoData_Value(
-			Parameters("VALUE")->asDouble()
-		);
-	}
-	else
-	{
-		bUpdate	= pGrid->Set_NoData_Value_Range(
-			Parameters("RANGE")->asRange()->Get_Min(),
-			Parameters("RANGE")->asRange()->Get_Max()
-		);
+		Parameters("OUTPUT")->asGrid()->Create(*pGrid);
+
+		pGrid	= Parameters("OUTPUT")->asGrid();
+
+		DataObject_Set_Parameters(pGrid, Parameters("GRID")->asGrid());
+
+		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed"));
 	}
 
-	if( bUpdate )
-	{
-		pGrid->Set_Modified();
+	//-----------------------------------------------------
+	double	nodata_min	= Parameters("TYPE")->asInt() == 0
+		? Parameters("VALUE"    )->asDouble()
+		: Parameters("RANGE.MIN")->asDouble();
 
+	double	nodata_max	= Parameters("TYPE")->asInt() == 0
+		? Parameters("VALUE"    )->asDouble()
+		: Parameters("RANGE.MAX")->asDouble();
+
+	if( nodata_min == pGrid->Get_NoData_Value  ()
+	&&  nodata_max == pGrid->Get_NoData_hiValue() )
+	{
+		Message_Fmt("\n%s\n%s", _TL("Nothing to do!"), _TL("Targeted no-data value (range) is already present."));
+
+		return( true );
+	}
+
+	//-----------------------------------------------------
+	if( Parameters("CHANGE")->asBool() )
+	{
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++)
+		{
+			for(int x=0; x<Get_NX(); x++)
+			{
+				if( pGrid->is_NoData(x, y) )
+				{
+					pGrid->Set_Value(x, y, nodata_min);
+				}
+			}
+		}
+	}
+
+	//-----------------------------------------------------
+	pGrid->Set_NoData_Value_Range(nodata_min, nodata_max);
+
+	if( pGrid == Parameters("GRID")->asGrid() )
+	{
 		DataObject_Update(pGrid);
 	}
 
-	//-------------------------------------------------
 	return( true );
 }
 
