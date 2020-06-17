@@ -845,6 +845,24 @@ void CSG_Parameter_Choice::Set_Items(const SG_Char *String)
 }
 
 //---------------------------------------------------------
+CSG_String CSG_Parameter_Choice::Get_Items(void) const
+{
+	CSG_String	Items;
+
+	for(int i=0; i<m_Items.Get_Count(); i++)
+	{
+		if( i > 0 )
+		{
+			Items	+= "|";
+		}
+
+		Items	+= m_Items[i];
+	}
+
+	return( Items );
+}
+
+//---------------------------------------------------------
 const SG_Char * CSG_Parameter_Choice::Get_Item(int Index)	const
 {
 	if( Index >= 0 && Index < m_Items.Get_Count() )
@@ -1066,6 +1084,24 @@ void CSG_Parameter_Choices::Set_Items(const CSG_Strings &Items)
 	{
 		Add_Item(Items[i]);
 	}
+}
+
+//---------------------------------------------------------
+CSG_String CSG_Parameter_Choices::Get_Items(void) const
+{
+	CSG_String	Items;
+
+	for(int i=0; i<m_Items[0].Get_Count(); i++)
+	{
+		if( i > 0 )
+		{
+			Items	+= "|";
+		}
+
+		Items	+= m_Items[0][i];
+	}
+
+	return( Items );
 }
 
 //---------------------------------------------------------
