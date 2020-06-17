@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Value_Replace.h"
 
 
@@ -72,7 +60,6 @@
 //---------------------------------------------------------
 CGrid_Value_Replace::CGrid_Value_Replace(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Change Grid Values"));
 
 	Set_Author		("O.Conrad (c) 2001");
@@ -84,22 +71,28 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 	));
 
 	//-----------------------------------------------------
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
 		"INPUT"		, _TL("Grid"),
 		_TL(""),
 		PARAMETER_INPUT
 	);
 
-	Parameters.Add_Grid(NULL,
+	Parameters.Add_Grid("",
+		"GRID"		, _TL("Classified Grid"),
+		_TL("Synchronize with look-up table classification of another grid (gui only)."),
+		PARAMETER_INPUT
+	);
+
+	Parameters.Add_Grid("",
 		"OUTPUT"	, _TL("Changed Grid"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL
 	);
 
-	Parameters.Add_Choice(NULL,
+	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Replace Condition"),
 		_TL(""),
-		CSG_String::Format("%s|%s|%s|",
+		CSG_String::Format("%s|%s|%s",
 			_TL("identity"),
 			_TL("range"),
 			_TL("synchronize look-up table classification")
@@ -109,30 +102,16 @@ CGrid_Value_Replace::CGrid_Value_Replace(void)
 	//-----------------------------------------------------
 	CSG_Table	*pLUT;
 
-	pLUT	= Parameters.Add_FixedTable(NULL,
-		"IDENTITY"	, _TL("Lookup Table"),
-		_TL("")
-	)->asTable();
-
+	pLUT	= Parameters.Add_FixedTable("", "IDENTITY", _TL("Lookup Table"), _TL(""))->asTable();
 	pLUT->Add_Field(_TL("New Value"), SG_DATATYPE_Double);
 	pLUT->Add_Field(_TL("Value"    ), SG_DATATYPE_Double);
 	pLUT->Add_Record();
 
-	pLUT	= Parameters.Add_FixedTable(NULL,
-		"RANGE"		, _TL("Lookup Table"),
-		_TL("")
-	)->asTable();
-
+	pLUT	= Parameters.Add_FixedTable("", "RANGE"   , _TL("Lookup Table"), _TL(""))->asTable();
 	pLUT->Add_Field(_TL("New Value"), SG_DATATYPE_Double);
 	pLUT->Add_Field(_TL("Minimum"  ), SG_DATATYPE_Double);
 	pLUT->Add_Field(_TL("Maximum"  ), SG_DATATYPE_Double);
 	pLUT->Add_Record();
-
-	Parameters.Add_Grid(NULL,
-		"GRID"		, _TL("Grid Classification"),
-		_TL("Synchronize with look-up table classification of another grid (gui only)."),
-		PARAMETER_INPUT
-	);
 }
 
 
@@ -161,18 +140,15 @@ int CGrid_Value_Replace::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_P
 //---------------------------------------------------------
 bool CGrid_Value_Replace::On_Execute(void)
 {
-	//-----------------------------------------------------
-	CSG_Grid	*pGrid	= Parameters("OUTPUT")->asGrid();
+	CSG_Grid	*pGrid	= Parameters("INPUT")->asGrid();
 
-	if( !pGrid || pGrid == Parameters("INPUT")->asGrid() )
+	if( Parameters("OUTPUT")->asGrid() && Parameters("OUTPUT")->asGrid() != pGrid )
 	{
-		pGrid	= Parameters("INPUT")->asGrid();
-	}
-	else
-	{
-		pGrid->Assign(Parameters("INPUT")->asGrid());
+		Parameters("OUTPUT")->asGrid()->Create(*pGrid);
 
-		DataObject_Set_Parameters(pGrid, Parameters("INPUT")->asGrid());
+		pGrid	= Parameters("OUTPUT")->asGrid();
+
+		DataObject_Set_Parameters(pGrid, Parameters("GRID")->asGrid());
 
 		pGrid->Fmt_Name("%s [%s]", Parameters("INPUT")->asGrid()->Get_Name(), _TL("Changed"));
 	}
@@ -184,9 +160,9 @@ bool CGrid_Value_Replace::On_Execute(void)
 
 	switch( Method )
 	{
-	default:	LUT.Create(*Parameters("IDENTITY")->asTable());	break;
-	case  1:	LUT.Create(*Parameters("RANGE"   )->asTable());	break;
-	case  2:	LUT.Create( Parameters("RANGE"   )->asTable());
+	default: LUT.Create(*Parameters("IDENTITY")->asTable()); break;
+	case  1: LUT.Create(*Parameters("RANGE"   )->asTable()); break;
+	case  2: LUT.Create( Parameters("RANGE"   )->asTable());
 		if( has_GUI()	// gui only
 		&&  DataObject_Get_Parameter(Parameters("GRID" )->asGrid(), "LUT")
 		&&  DataObject_Get_Parameter(Parameters("INPUT")->asGrid(), "LUT") )
@@ -233,7 +209,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 	//-----------------------------------------------------
 	if( LUT.Get_Count() == 0 )
 	{
-		Error_Set(_TL("empty look-up table, nothing to replace"));
+		Error_Fmt("%s %s", _TL("Nothing to do!"), _TL("Look-up table is empty."));
 
 		return( false );
 	}
@@ -241,9 +217,7 @@ bool CGrid_Value_Replace::On_Execute(void)
 	//-----------------------------------------------------
 	for(int y=0; y<Get_NY() && Set_Progress(y); y++)
 	{
-		#ifndef _DEBUG
 		#pragma omp parallel for
-		#endif
 		for(int x=0; x<Get_NX(); x++)
 		{
 			double	Value	= pGrid->asDouble(x, y);
