@@ -82,11 +82,14 @@ protected:
 
 private:
 
-	double					m_dTime, m_Roughness;
+	double					m_dTime;
 
 	CSG_Vector				m_vMax;
 
-	CSG_Grid				*m_pDEM, *m_pRoughness, m_Flow, *m_pFlow, *m_pVelocity;
+	CSG_Grid				*m_pDEM, m_Flow, *m_pFlow, *m_pVelocity, *m_pIntercept, *m_pPonding, *m_pInfiltrat;
+
+	double					  m_Roughness,   m_Precipitation,   m_ETpot,   m_Intercept_max,   m_Ponding_max,   m_Infiltrat_max;
+	CSG_Grid				*m_pRoughness, *m_pPrecipitation, *m_pETpot, *m_pIntercept_max, *m_pPonding_max, *m_pInfiltrat_max;
 
 	CSG_Grids				m_v;
 
@@ -94,12 +97,20 @@ private:
 	bool					Initialize				(void);
 	bool					Finalize				(void);
 
+	bool					Do_Updates				(void);
+
 	bool					Set_Time_Stamp			(double Time);
 
 	bool					Do_Time_Step			(void);
 
-	double					Get_Surface				(int x, int y);
 	double					Get_Roughness			(int x, int y);
+	double					Get_Precipitation		(int x, int y);
+	double					Get_ETpot				(int x, int y);
+	double					Get_Intercept_max		(int x, int y);
+	double					Get_Ponding				(int x, int y);
+	double					Get_Infiltration		(int x, int y);
+
+	double					Get_Surface				(int x, int y);
 	double					Get_Velocity			(double Flow, double Slope, double Roughness);
 
 	bool					Get_Neighbour			(int x, int y, int i, int &ix, int &iy);
@@ -108,8 +119,10 @@ private:
 
 	bool					Get_Velocity			(int x, int y);
 
-	double					Get_dFlow				(int x, int y, int i, bool bInverse);
-	bool					Set_Flow				(int x, int y);
+	double					Get_Flow_Lateral		(int x, int y, int i, bool bInverse);
+	bool					Set_Flow_Lateral		(int x, int y);
+
+	bool					Set_Flow_Vertical		(int x, int y);
 
 };
 

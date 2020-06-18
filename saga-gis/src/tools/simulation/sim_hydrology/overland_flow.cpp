@@ -80,9 +80,51 @@ COverland_Flow::COverland_Flow(void)
 	);
 
 	Parameters.Add_Grid_or_Const("",
-		"FLOW_INIT"	, _TL("Initial Flow [mm]"),
+		"PRECIP"	, _TL("Precipitation [mm/h]"),
 		_TL(""),
-		10., 0., true
+		0., 0., true
+	);
+
+	Parameters.Add_Grid_or_Const("",
+		"ET_POT"	, _TL("Potential Evapotranspiration [mm/h]"),
+		_TL(""),
+		0., 0., true
+	);
+
+	Parameters.Add_Grid_or_Const("",
+		"INTER_MAX"	, _TL("Interception Capacity [mm]"),
+		_TL(""),
+		0., 0., true
+	);
+
+	Parameters.Add_Grid_or_Const("",
+		"POND_MAX"	, _TL("Ponding Capacity [mm]"),
+		_TL(""),
+		0., 0., true
+	);
+
+	Parameters.Add_Grid_or_Const("",
+		"INFIL_MAX"	, _TL("Infiltration Capacity [mm/h]"),
+		_TL(""),
+		0., 0., true
+	);
+
+	Parameters.Add_Grid("",
+		"INTERCEPT"	, _TL("Interception [mm]"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid("",
+		"PONDING"	, _TL("Ponding [mm]"),
+		_TL(""),
+		PARAMETER_OUTPUT
+	);
+
+	Parameters.Add_Grid("",
+		"INFILTRAT"	, _TL("Infiltration [mm]"),
+		_TL(""),
+		PARAMETER_OUTPUT
 	);
 
 	Parameters.Add_Grid("",
@@ -99,7 +141,7 @@ COverland_Flow::COverland_Flow(void)
 
 	Parameters.Add_Bool("",
 		"RESET"	, _TL("Reset"),
-		_TL(""),
+		_TL("If checked flow and interception storage will be set to zero."),
 		true
 	);
 
@@ -130,9 +172,19 @@ COverland_Flow::COverland_Flow(void)
 //---------------------------------------------------------
 int COverland_Flow::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	if( pParameter->Cmp_Identifier("RESET") )
+	if( pParameter->Cmp_Identifier("INTER_MAX") )
 	{
-		pParameters->Set_Enabled("FLOW_INIT", pParameter->asBool());
+		pParameters->Set_Enabled("INTERCEPT", pParameter->asGrid() || pParameter->asDouble() > 0.);
+	}
+
+	if( pParameter->Cmp_Identifier("POND_MAX" ) )
+	{
+		pParameters->Set_Enabled("PONDING"  , pParameter->asGrid() || pParameter->asDouble() > 0.);
+	}
+
+	if( pParameter->Cmp_Identifier("INFIL_MAX") )
+	{
+		pParameters->Set_Enabled("INFILTRAT", pParameter->asGrid() || pParameter->asDouble() > 0.);
 	}
 
 	return( CSG_Tool_Grid::On_Parameters_Enable(pParameters, pParameter) );
@@ -171,8 +223,7 @@ bool COverland_Flow::On_Execute(void)
 				Update_Last	= Update * (1. + floor(Time / Update));
 			}
 
-			DataObject_Update(m_pFlow);
-			DataObject_Update(m_pVelocity, 0., 10.);
+			Do_Updates();
 		}
 
 		SG_UI_ProgressAndMsg_Lock(false);
@@ -180,8 +231,6 @@ bool COverland_Flow::On_Execute(void)
 
 	//-----------------------------------------------------
 	Finalize();
-
-	SG_UI_Process_Set_Okay();
 
 	return( true );
 }
@@ -194,44 +243,66 @@ bool COverland_Flow::On_Execute(void)
 //---------------------------------------------------------
 bool COverland_Flow::Initialize(void)
 {
-	m_pDEM			= Parameters("DEM"      )->asGrid  ();
+	m_pDEM           = Parameters("DEM"      )->asGrid  ();
 
-	m_pFlow			= Parameters("FLOW"     )->asGrid  ();
-	m_pVelocity		= Parameters("VELOCITY" )->asGrid  ();
+	m_pRoughness     = Parameters("ROUGHNESS")->asGrid  ();
+	m_Roughness      = Parameters("ROUGHNESS")->asDouble();
 
-	m_pRoughness	= Parameters("ROUGHNESS")->asGrid  ();
-	m_Roughness		= Parameters("ROUGHNESS")->asDouble();
+	m_pPrecipitation = Parameters("PRECIP"   )->asGrid  ();
+	m_Precipitation  = Parameters("PRECIP"   )->asDouble();
+
+	m_pETpot         = Parameters("ET_POT"   )->asGrid  ();
+	m_ETpot          = Parameters("ET_POT"   )->asDouble();
+
+	m_pIntercept_max = Parameters("INTER_MAX")->asGrid  ();
+	m_Intercept_max  = Parameters("INTER_MAX")->asDouble();
+	m_pIntercept     = m_pIntercept_max || m_Intercept_max > 0.
+	                 ? Parameters("INTERCEPT")->asGrid  () : NULL;
+
+	m_pPonding_max   = Parameters("POND_MAX" )->asGrid  ();
+	m_Ponding_max    = Parameters("POND_MAX" )->asDouble();
+	m_pPonding       = m_pPonding_max   || m_Ponding_max   > 0.
+	                 ? Parameters("PONDING"  )->asGrid  () : NULL;
+
+	m_pInfiltrat_max = Parameters("INFIL_MAX")->asGrid  ();
+	m_Infiltrat_max  = Parameters("INFIL_MAX")->asDouble();
+	m_pInfiltrat     = m_pInfiltrat_max || m_Infiltrat_max > 0.
+	                 ? Parameters("INFILTRAT")->asGrid  () : NULL;
+
+	m_pFlow          = Parameters("FLOW"     )->asGrid  ();
+	m_pVelocity      = Parameters("VELOCITY" )->asGrid  ();
 
 	//-----------------------------------------------------
 	if( Parameters("RESET")->asBool() )
 	{
-		CSG_Grid *pFlow = Parameters("FLOW_INIT")->asGrid  ();
-		double     Flow = Parameters("FLOW_INIT")->asDouble();
-
 		#pragma omp parallel
 		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
 		{
 			if( m_pDEM->is_NoData(x, y) )
 			{
-				m_pFlow->Set_NoData(x, y);
-			}
-			else if( !pFlow )
-			{
-				m_pFlow->Set_Value(x, y, Flow);
+				if( m_pIntercept ) m_pIntercept->Set_NoData(x, y);
+				if( m_pPonding   ) m_pPonding  ->Set_NoData(x, y);
+				if( m_pInfiltrat ) m_pInfiltrat->Set_NoData(x, y);
+				if( m_pFlow      ) m_pFlow     ->Set_NoData(x, y);
 			}
 			else
 			{
-				double	Value;
-
-				m_pFlow->Set_Value(x, y, pFlow->Get_Value(Get_System().Get_Grid_to_World(x, y), Value)
-					? Value : 0.
-				);
+				if( m_pIntercept ) m_pIntercept->Set_Value(x, y, 0.);
+				if( m_pPonding   ) m_pPonding  ->Set_Value(x, y, 0.);
+				if( m_pInfiltrat ) m_pInfiltrat->Set_Value(x, y, 0.);
+				if( m_pFlow      ) m_pFlow     ->Set_Value(x, y, 0.);
 			}
 		}
+
+		CSG_Colors	Colors(5, SG_COLORS_WHITE_BLUE); Colors.Set_Color(0, 240, 240, 240);
+
+		DataObject_Set_Colors(m_pIntercept, Colors);
+		DataObject_Set_Colors(m_pPonding  , Colors);
+		DataObject_Set_Colors(m_pInfiltrat, Colors);
+		DataObject_Set_Colors(m_pFlow     , Colors);
 	}
 
-	DataObject_Set_Colors(m_pFlow, 11, SG_COLORS_WHITE_BLUE);
-	DataObject_Update    (m_pFlow, SG_UI_DATAOBJECT_SHOW);
+	DataObject_Update(m_pFlow, SG_UI_DATAOBJECT_SHOW);	// show in new map
 
 	//-----------------------------------------------------
 	m_Flow.Create(Get_System()       , SG_DATATYPE_Float);
@@ -246,6 +317,16 @@ bool COverland_Flow::Finalize(void)
 	m_Flow.Destroy();
 	m_v   .Destroy();
 
+	if( !Process_Get_Okay() )
+	{
+		SG_UI_Process_Set_Okay();
+
+		if( m_pIntercept ) m_pIntercept->Update(true);
+		if( m_pPonding   ) m_pPonding  ->Update(true);
+		if( m_pInfiltrat ) m_pInfiltrat->Update(true);
+		if( m_pFlow      ) m_pFlow     ->Update(true);
+	}
+
 	return( true );
 }
 
@@ -253,6 +334,17 @@ bool COverland_Flow::Finalize(void)
 ///////////////////////////////////////////////////////////
 //														 //
 ///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool COverland_Flow::Do_Updates(void)
+{
+	DataObject_Update(m_pIntercept);
+	DataObject_Update(m_pInfiltrat);
+	DataObject_Update(m_pFlow     );
+	DataObject_Update(m_pVelocity, 0., 10.);
+
+	return( true );
+}
 
 //---------------------------------------------------------
 bool COverland_Flow::Set_Time_Stamp(double Time)
@@ -275,17 +367,112 @@ bool COverland_Flow::Set_Time_Stamp(double Time)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double COverland_Flow::Get_Surface(int x, int y)
+bool COverland_Flow::Do_Time_Step(void)
 {
-	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) / 1000. );
+	m_vMax.Create(SG_OMP_Get_Max_Num_Threads());
+	m_vMax.Assign(0.);
+
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+	{
+		Get_Velocity(x, y);
+	}
+
+	for(int i=1; i<SG_OMP_Get_Max_Num_Threads(); i++)
+	{
+		if( m_vMax[0] < m_vMax[i] )
+		{
+			m_vMax[0] = m_vMax[i];
+		}
+	}
+
+	//-----------------------------------------------------
+	if( m_vMax[0] > 0. )
+	{
+		m_dTime	= Parameters("TIME_STEP")->asDouble() / m_vMax[0];	// Courant–Friedrichs–Lewy (CFL) condition
+
+		#pragma omp parallel for
+		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+		{
+			Set_Flow_Lateral(x, y);
+		}
+	}
+	else
+	{
+		m_dTime	= 1. / 60.;
+	}
+
+	//-----------------------------------------------------
+	#pragma omp parallel for
+	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
+	{
+		Set_Flow_Vertical(x, y);
+	}
+
+	//-----------------------------------------------------
+	return( true );
 }
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+#define GET_GRID_OR_CONST(g, c)	(g && !g->is_NoData(x, y) ? g->asDouble(x, y) : c)
 
 //---------------------------------------------------------
 inline double COverland_Flow::Get_Roughness(int x, int y)
 {
-	double	Roughness	= m_pRoughness && !m_pRoughness->is_NoData(x, y) ? m_pRoughness->asDouble(x, y) : m_Roughness;
+	double	Roughness	  = GET_GRID_OR_CONST(m_pRoughness, m_Roughness);
 
 	return( Roughness > 0. ? Roughness : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Precipitation(int x, int y)
+{
+	double	Precipitation = GET_GRID_OR_CONST(m_pPrecipitation, m_Precipitation);
+
+	return( Precipitation > 0. ? m_dTime * Precipitation : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_ETpot(int x, int y)
+{
+	double	ETpot	      = GET_GRID_OR_CONST(m_pETpot, m_ETpot);
+
+	return( ETpot > 0. ? m_dTime * ETpot : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Intercept_max(int x, int y)
+{
+	double	Intercept_max = GET_GRID_OR_CONST(m_pIntercept_max, m_Intercept_max);
+
+	return( Intercept_max > 0. ? Intercept_max : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Ponding(int x, int y)
+{
+	double	Ponding_max = GET_GRID_OR_CONST(m_pPonding_max, m_Ponding_max);
+
+	return( Ponding_max > 0. ? Ponding_max : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Infiltration(int x, int y)
+{
+	double	Infiltrat_max = GET_GRID_OR_CONST(m_pInfiltrat_max, m_Infiltrat_max);
+
+	return( Infiltrat_max > 0. ? m_dTime * Infiltrat_max : 0. );
+}
+
+//---------------------------------------------------------
+inline double COverland_Flow::Get_Surface(int x, int y)
+{
+	return( m_pDEM->asDouble(x, y) + m_pFlow->asDouble(x, y) / 1000. );
 }
 
 //---------------------------------------------------------
@@ -301,63 +488,6 @@ inline bool COverland_Flow::Get_Neighbour(int x, int y, int i, int &ix, int &iy)
 	iy	= Get_yTo(i, y);
 
 	return( m_pDEM->is_InGrid(ix, iy) );
-}
-
-
-///////////////////////////////////////////////////////////
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
-bool COverland_Flow::Do_Time_Step(void)
-{
-	m_vMax.Create(SG_OMP_Get_Max_Num_Threads());
-	m_vMax.Assign(0.);
-
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
-	{
-		if( !m_pDEM->is_NoData(x, y) )
-		{
-			Get_Velocity(x, y);
-		}
-	}
-
-	for(int i=1; i<SG_OMP_Get_Max_Num_Threads(); i++)
-	{
-		if( m_vMax[0] < m_vMax[i] )
-		{
-			m_vMax[0] = m_vMax[i];
-		}
-	}
-
-	if( m_vMax[0] <= 0. )
-	{
-		m_dTime	= 1. / 60.;
-
-		return( false );
-	}
-
-	m_dTime	= Parameters("TIME_STEP")->asDouble() / m_vMax[0];
-
-	//-----------------------------------------------------
-	#pragma omp parallel for
-	for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
-	{
-		Set_Flow(x, y);
-	}
-
-	//-----------------------------------------------------
-	if( Process_Get_Okay() )
-	{
-		#pragma omp parallel for
-		for(int y=0; y<Get_NY(); y++) for(int x=0; x<Get_NX(); x++)
-		{
-			m_pFlow->Set_Value(x, y, m_Flow.asDouble(x, y));
-		}
-	}
-
-	return( true );
 }
 
 
@@ -389,6 +519,11 @@ inline double COverland_Flow::Get_Gradient(int x, int y, int i)
 //---------------------------------------------------------
 bool COverland_Flow::Get_Velocity(int x, int y)
 {
+	if( m_pDEM->is_NoData(x, y) )
+	{
+		return( false );
+	}
+
 	double	Flow = m_pFlow->asDouble(x, y);
 
 	if( Flow > 0. )
@@ -450,7 +585,7 @@ bool COverland_Flow::Get_Velocity(int x, int y)
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-inline double COverland_Flow::Get_dFlow(int x, int y, int i, bool bInverse)
+inline double COverland_Flow::Get_Flow_Lateral(int x, int y, int i, bool bInverse)
 {
 	if( bInverse )
 	{
@@ -473,25 +608,137 @@ inline double COverland_Flow::Get_dFlow(int x, int y, int i, bool bInverse)
 }
 
 //---------------------------------------------------------
-bool COverland_Flow::Set_Flow(int x, int y)
+bool COverland_Flow::Set_Flow_Lateral(int x, int y)
 {
 	double	Flow = m_pFlow->asDouble(x, y);
 
 	for(int i=0; i<8; i++)
 	{
-		double	dFlow	= Get_dFlow(x, y, i, false);
+		double	dFlow	= Get_Flow_Lateral(x, y, i, false);
 
 		if( dFlow > 0. )
 		{
 			Flow	-= m_dTime * dFlow;
 		}
-		else if( (dFlow = Get_dFlow(x, y, i, true)) > 0. )
+		else if( (dFlow = Get_Flow_Lateral(x, y, i, true)) > 0. )
 		{
 			Flow	+= m_dTime * dFlow;
 		}
 	}
 
 	m_Flow.Set_Value(x, y, Flow);
+
+	return( true );
+}
+
+
+///////////////////////////////////////////////////////////
+//														 //
+///////////////////////////////////////////////////////////
+
+//---------------------------------------------------------
+bool COverland_Flow::Set_Flow_Vertical(int x, int y)
+{
+	if( m_pDEM->is_NoData(x, y) )
+	{
+		return( false );
+	}
+
+	//-----------------------------------------------------
+	double	P     = Get_Precipitation(x, y);
+
+	double	I     = m_pIntercept ? m_pIntercept->asDouble(x, y) : 0.;
+	double	Imax  = Get_Intercept_max(x, y);
+
+	if( Imax > 0. )
+	{
+		double	Deficit	= Imax - I;
+
+		if( Deficit > P )
+		{
+			I += P;
+			P  = 0.;
+		}
+		else
+		{
+			I += Deficit;
+			P -= Deficit;
+		}
+	}
+
+	double	Q    = P + m_Flow.asDouble(x, y) + (m_pPonding ? m_pPonding->asDouble(x, y) : 0.);
+
+	//-----------------------------------------------------
+	if( Q > 0. )
+	{
+		double	ETpot = Get_ETpot(x, y);
+
+		if( ETpot > I + Q )
+		{
+			I  = 0.;
+			Q  = 0.;
+		}
+		else
+		{
+			double	dIQ =  I / Q;
+			double	sIQ = (I + Q) - ETpot;
+
+			I    = sIQ * (     dIQ);
+			Q    = sIQ * (1. - dIQ);
+		}
+	}
+	else if( I > .0 )
+	{
+		double	ETpot = Get_ETpot(x, y);
+
+		I    = I > ETpot ? I - ETpot : 0.;
+	}
+
+	if( m_pIntercept )
+	{
+		m_pIntercept->Set_Value(x, y, I);
+	}
+
+	//-----------------------------------------------------
+	if( Q > 0. )
+	{
+		double	Infiltration	= Get_Infiltration(x, y);
+
+		if( Infiltration > Q )
+		{
+			m_pInfiltrat->Add_Value(x, y, Q);
+
+			Q	= 0.;
+		}
+		else if( Infiltration > 0. )
+		{
+			m_pInfiltrat->Add_Value(x, y, Infiltration);
+
+			Q	-= Infiltration;
+		}
+	}
+
+	//-----------------------------------------------------
+	if( Q > 0. )
+	{
+		double	Ponding_max	= Get_Ponding(x, y);
+
+		if( Ponding_max > Q )
+		{
+			m_pPonding->Set_Value(x, y, Q);
+
+			Q	= 0.;
+		}
+		else if( Ponding_max > 0. )
+		{
+			m_pPonding->Set_Value(x, y, Ponding_max);
+
+			Q	-= Ponding_max;
+		}
+	}
+
+	//-----------------------------------------------------
+	m_pFlow->Set_Value(x, y, Q);
 
 	return( true );
 }
