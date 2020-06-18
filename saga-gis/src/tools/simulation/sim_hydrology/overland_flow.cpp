@@ -141,7 +141,7 @@ COverland_Flow::COverland_Flow(void)
 
 	Parameters.Add_Bool("",
 		"RESET"	, _TL("Reset"),
-		_TL("If checked flow and interception storage will be set to zero."),
+		_TL("If checked storages (flow, ponding, interception) and sinks (infiltration) will be set to zero."),
 		true
 	);
 
