@@ -62,10 +62,11 @@ CShapes_Split_by_Attribute::CShapes_Split_by_Attribute(void)
 {
 	Set_Name		(_TL("Split Table/Shapes by Attribute"));
 
-	Set_Author		("O. Conrad (c) 2008");
+	Set_Author		("O.Conrad (c) 2008");
 
 	Set_Description	(_TW(
-		""
+		"Split a table's records or a shapes layer's features "
+		"attribute-wise. "
 	));
 
 	//-----------------------------------------------------
