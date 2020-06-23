@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "arctoolbox.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CArcToolBox::CArcToolBox(void)
 {
-	//-----------------------------------------------------
 	Set_Name	("ArcSAGA Toolboxes");
 
 	Set_Author	("O.Conrad (c) 2015");
@@ -352,7 +342,7 @@ bool CArcToolBox::Get_Parameter(CSG_Parameter *pParameter, CSG_Strings &Infos, C
 
 	case PARAMETER_TYPE_Shapes_List    :
 		Info	+= ArcDataType(ARC_Feature  ,  true);
-		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes *)pParameter)->Get_Shape_Type() : SHAPE_TYPE_Undefined )
+		switch( pParameter->is_Input() ? ((CSG_Parameter_Shapes_List *)pParameter)->Get_Shape_Type() : SHAPE_TYPE_Undefined )
 		{
 		case SHAPE_TYPE_Point  :	Info	+= "\t\tparam.filter.list = [\"Point\"]\n"     ;	break;
 		case SHAPE_TYPE_Points :	Info	+= "\t\tparam.filter.list = [\"Multipoint\"]\n";	break;

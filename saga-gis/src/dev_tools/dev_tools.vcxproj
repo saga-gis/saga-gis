@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="arctoolbox.cpp" />
     <ClCompile Include="MLB_Interface.cpp" />
+    <ClCompile Include="qgistoolbox.cpp" />
     <ClCompile Include="tl_extract.cpp" />
     <ClCompile Include="tl_merge.cpp" />
     <ClCompile Include="tl_union.cpp" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arctoolbox.h" />
+    <ClInclude Include="qgistoolbox.h" />
     <ClInclude Include="tl_extract.h" />
     <ClInclude Include="tl_merge.h" />
     <ClInclude Include="tl_union.h" />

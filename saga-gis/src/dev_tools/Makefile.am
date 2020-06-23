@@ -16,12 +16,14 @@ pkglib_LTLIBRARIES = libdev_tools.la
 libdev_tools_la_SOURCES =\
 arctoolbox.cpp\
 MLB_Interface.cpp\
+qgistoolbox.cpp\
 tl_extract.cpp\
 tl_merge.cpp\
 tl_union.cpp\
 tool_counter.cpp\
 tool_py_updater.cpp\
 arctoolbox.h\
+qgistoolbox.h\
 tl_extract.h\
 tl_merge.h\
 tl_union.h\
