@@ -215,6 +215,11 @@ bool CSG_Tool_Chain::Create(const CSG_MetaData &Chain)
 	Set_Author       (GET_XML_CONTENT(m_Chain, "author"     , _TL("unknown"       ), false));
 	Set_Description  (GET_XML_CONTENT(m_Chain, "description", _TL("no description"),  true));
 
+	if( m_Library.is_Empty() )
+	{
+		m_Library      = "toolchains";
+	}
+
 	Add_References();
 
 	CSG_String	Description	= Get_Description();
@@ -1609,7 +1614,7 @@ CSG_Tool_Chains::CSG_Tool_Chains(const CSG_String &Library_Name, const CSG_Strin
 	m_Library_Name	= Library_Name;
 
 	//-----------------------------------------------------
-	if( m_Library_Name.is_Empty() )
+	if( m_Library_Name.is_Empty() || !m_Library_Name.Cmp("toolchains") )
 	{
 		m_Library_Name	= "toolchains";
 		m_Name			= _TL("Tool Chains");

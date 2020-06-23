@@ -448,7 +448,7 @@ CSG_Tool_Library * CSG_Tool_Library_Manager::_Add_Tool_Chain(const CSG_String &F
 	}
 
 	//-----------------------------------------------------
-	CSG_String	Library	= pTool->Get_Library();	if( Library.is_Empty() )	Library	= "toolchains";
+	CSG_String	Library	= pTool->Get_Library();
 
 	for(int iLibrary=0; !pLibrary && iLibrary<Get_Count(); iLibrary++)
 	{
