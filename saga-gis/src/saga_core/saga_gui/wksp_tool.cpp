@@ -726,63 +726,49 @@ CSG_String CWKSP_Tool::_Get_CMD(bool bHeader, int Type)
 {
 	CSG_String	s;
 
-	if( Type != 0 && Type != 1 )	// default type ??
+	if( bHeader )
 	{
-#ifdef _SAGA_MSW
-		Type	= 0;
-#else
-		Type	= 1;
-#endif
-	}
-
-	//-----------------------------------------------------
-	if( Type == 0 )	// DOS/Windows Batch Script
-	{
-		if( bHeader )
+		switch( Type )
 		{
+		default:	// DOS/Windows Batch Script
 			s	+= "@ECHO OFF\n\n";
-			s	+= "REM SET SAGA_TLB=C:\\SAGA\\Tools\n";
+			s	+= "REM SET SAGA_TLB=C:\\MyTools\n";
 			s	+= "REM SET PATH=%PATH%;C:\\SAGA\n\n";
 			s	+= "REM Tool: ";
-			s	+= m_pTool->Get_Name() + "\n\n";
+			break;
+
+		case  1:	// Bash Shell Script
+			s	+= "#!/bin/bash\n\n";
+			s	+= "# export SAGA_TLB=/home/myhome/mytools\n\n";
+			s	+= "# tool: ";
+			break;
 		}
 
-		s	+= "saga_cmd ";
-		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
-
-		_Get_CMD(s, m_pTool->Get_Parameters());
-
-		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
-		{
-			_Get_CMD(s, m_pTool->Get_Parameters(i));
-		}
-
-		if( bHeader )
-		{
-			s	+= "\n\nPAUSE\n";
-		}
+		s	+= m_pTool->Get_Name() + "\n\n";
 	}
 
 	//-----------------------------------------------------
-	if( Type == 1 )	// Bash Shell Script
+	s	+= "saga_cmd";
+
+	s	+= m_pTool->Get_Library().Contains(" ")	// white space? use quotation marks!
+		? " \"" + m_pTool->Get_Library() + "\""
+		: " "   + m_pTool->Get_Library();
+
+	s	+= m_pTool->Get_ID().Contains     (" ")	// white space? use quotation marks!
+		? " \"" + m_pTool->Get_ID     () + "\""
+		: " "   + m_pTool->Get_ID     ();
+
+	_Get_CMD(s, m_pTool->Get_Parameters());
+
+	for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
 	{
-		if( bHeader )
-		{
-			s	+= "#!/bin/bash\n\n";
-			s	+= "# export SAGA_TLB=/usr/lib/saga\n\n";
-			s	+= "# tool: ";
-			s	+= m_pTool->Get_Name() + "\n\n";
-		}
+		_Get_CMD(s, m_pTool->Get_Parameters(i));
+	}
 
-		s	+= "saga_cmd ";
-		s	+= m_pTool->Get_Library() + " " + m_pTool->Get_ID();
-
-		_Get_CMD(s, m_pTool->Get_Parameters());
-
-		for(int i=0; i<m_pTool->Get_Parameters_Count(); i++)
-		{
-			_Get_CMD(s, m_pTool->Get_Parameters(i));
-		}
+	//-----------------------------------------------------
+	if( bHeader && Type == 0 )	// DOS/Windows Batch Script
+	{
+		s	+= "\n\nPAUSE\n";
 	}
 
 	return( s );
