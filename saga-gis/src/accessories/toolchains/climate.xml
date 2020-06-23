@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchains version="1.0.0">
-  <group>climate</group>
-  <identifier>climate</identifier>
-  <name>Climate</name>
+  <group>climate_tools</group>
+  <identifier>climate_tools</identifier>
+  <name>Climate Tools</name>
 	<menu>Climate|Tools</menu>
 	<description>
 		Tools for the processing and analysis of climate data.

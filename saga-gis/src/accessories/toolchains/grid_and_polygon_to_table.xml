@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<toolchain saga-version="7.7.0">
+	<group></group>
+	<identifier>grid_and_polygon_to_table</identifier>
+	<name>Points Table from Grid and Polygon Data</name>
+	<description>Converts a grid to a points table with additional polygon attributes</description>
+
+	<parameters>
+		<input varname="GRID" type="grid">
+			<name>Grid</name>
+		</input>
+		<input varname="POLYGONS" type="shapes" feature_type="polygon">
+			<name>Polygons</name>
+		</input>
+		<option varname="ATTRIBUTE" type="table_field" parent="POLYGONS">
+			<name>Attribute</name>
+		</option>
+		<output varname="POINTS" type="shapes" feature_type="point">
+			<name>Points Table</name>
+			<output_name>Points Table</output_name>
+		</output>
+	</parameters>
+
+	<tools>
+		<tool library="grid_gridding" tool="0" name="Shapes to Grid">
+			<option id="FIELD" varname="true">ATTRIBUTE</option>
+			<option id="OUTPUT">2</option>
+			<option id="MULTIPLE">1</option>
+			<option id="POLY_TYPE">1</option>
+			<option id="GRID_TYPE">9</option>
+			<option id="TARGET_DEFINITION">1</option>
+		<!--<option id="TARGET_SYSTEM" varname="true">GRID_SYSTEM</option>-->
+			<input  id="TARGET_TEMPLATE">GRID</input>
+			<input  id="INPUT">POLYGONS</input>
+			<output id="GRID" >POLYGONS_GRID</output>
+		</tool>
+
+		<tool library="shapes_grid" tool="3" name="Grid Values to Points">
+			<option id="NODATA">true</option>
+			<option id="TYPE">0</option>
+			<input  id="GRIDS">GRID</input>
+			<input  id="GRIDS">POLYGONS_GRID</input>
+			<output id="SHAPES">POINTS</output>
+		</tool>
+	</tools>
+</toolchain>

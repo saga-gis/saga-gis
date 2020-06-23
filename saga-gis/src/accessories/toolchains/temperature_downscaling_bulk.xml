@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <toolchain saga-version="4.1.0">
-	<group>climate</group>
+	<group>climate_tools</group>
 	<identifier>t_downscale_bulk</identifier>
 	<menu absolute="true">Climate|Tools</menu>
 	<name>Lapse Rate Based Temperature Downscaling (Bulk Processing)</name>
