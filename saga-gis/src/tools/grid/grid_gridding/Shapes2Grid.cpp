@@ -75,7 +75,6 @@
 //---------------------------------------------------------
 CShapes2Grid::CShapes2Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Shapes to Grid"));
 
 	Set_Author		("O.Conrad (c) 2003");
@@ -154,9 +153,9 @@ CShapes2Grid::CShapes2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
-	m_Grid_Target.Add_Grid("GRID" , _TL("Grid")            , false);
+	m_Grid_Target.Add_Grid("GRID" , _TL("Grid"            ), false);
 	m_Grid_Target.Add_Grid("COUNT", _TL("Number of Values"),  true);
 }
 
@@ -731,7 +730,6 @@ void CShapes2Grid::Set_Polygon(CSG_Shape_Polygon *pPolygon, double Value)
 //---------------------------------------------------------
 CPolygons2Grid::CPolygons2Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygons to Grid"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -789,7 +787,7 @@ CPolygons2Grid::CPolygons2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("GRID"    , _TL("Grid"    ), false);
 	m_Grid_Target.Add_Grid("COVERAGE", _TL("Coverage"),  true);

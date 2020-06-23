@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id: point_trend_surface.cpp 1921 2014-01-09 10:24:11Z oconrad $
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -49,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "point_trend_surface.h"
 
 
@@ -70,79 +58,78 @@
 //---------------------------------------------------------
 CPoint_Trend_Surface::CPoint_Trend_Surface(void)
 {
-	CSG_Parameter	*pNode;
-
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polynomial Regression"));
 
-	Set_Author		(SG_T("O.Conrad (c) 2010"));
+	Set_Author		("O.Conrad (c) 2010");
 
 	Set_Description	(_TW(
-		"Reference:\n"
-		" - Lloyd, C. (2010): Spatial Data Analysis - An Introduction for GIS Users. Oxford, 206p.\n"
+		"Polynomial Regression"
 	));
 
+	Add_Reference("Lloyd, C.", "2010",
+		"Spatial Data Analysis - An Introduction for GIS Users",
+		"Oxford, 206p."
+	);
+
 	//-----------------------------------------------------
-	pNode	= Parameters.Add_Shapes(
-		NULL	, "POINTS"		, _TL("Points"),
+	Parameters.Add_Shapes("",
+		"POINTS"	, _TL("Points"),
 		_TL(""),
 		PARAMETER_INPUT, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Table_Field(
-		pNode	, "ATTRIBUTE"	, _TL("Attribute"),
+	Parameters.Add_Table_Field("POINTS",
+		"ATTRIBUTE"	, _TL("Attribute"),
 		_TL("")
 	);
 
-	Parameters.Add_Shapes(
-		NULL	, "RESIDUALS"	, _TL("Residuals"),
+	Parameters.Add_Shapes("",
+		"RESIDUALS"	, _TL("Residuals"),
 		_TL(""),
 		PARAMETER_OUTPUT_OPTIONAL, SHAPE_TYPE_Point
 	);
 
-	Parameters.Add_Choice(
-		NULL	, "POLYNOM"		, _TL("Polynom"),
+	Parameters.Add_Choice("",
+		"POLYNOM"	, _TL("Polynom"),
 		_TL(""),
-		CSG_String::Format(SG_T("%s|%s|%s|%s|%s|"),
+		CSG_String::Format("%s|%s|%s|%s|%s",
 			_TL("simple planar surface"),	// a + bx + cy
-			_TL("bi-linear saddle"),		// a + bx + cy + dxy
-			_TL("quadratic surface"),		// a + bx + cy + dxy + ex2 + fy2
-			_TL("cubic surface"),			// a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
-			_TL("user defined")
+			_TL("bi-linear saddle"     ),	// a + bx + cy + dxy
+			_TL("quadratic surface"    ),	// a + bx + cy + dxy + ex2 + fy2
+			_TL("cubic surface"        ),	// a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
+			_TL("user defined"         )
 		), 0
 	);
 
-	pNode	= Parameters.Add_Node(
-		NULL	, "NODE_USER"	, _TL("User Defined Polynomial"),
+	Parameters.Add_Node("",
+		"NODE_USER"	, _TL("User Defined Polynomial"),
 		_TL("")
 	);
 
-	Parameters.Add_Value(
-		pNode	, "XORDER"		, _TL("Maximum X Order"),
+	Parameters.Add_Int("NODE_USER",
+		"XORDER"	, _TL("Maximum X Order"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 4, 1, true
+		4, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "YORDER"		, _TL("Maximum Y Order"),
+	Parameters.Add_Int("NODE_USER",
+		"YORDER"	, _TL("Maximum Y Order"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 4, 1, true
+		4, 1, true
 	);
 
-	Parameters.Add_Value(
-		pNode	, "TORDER"		, _TL("Maximum Total Order"),
+	Parameters.Add_Int("NODE_USER",
+		"TORDER"	, _TL("Maximum Total Order"),
 		_TL(""),
-		PARAMETER_TYPE_Int, 4, 0, true
+		4, 0, true
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
@@ -175,8 +162,6 @@ int CPoint_Trend_Surface::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
@@ -193,11 +178,11 @@ bool CPoint_Trend_Surface::On_Execute(void)
 
 	switch( Parameters("POLYNOM")->asInt() )
 	{
-	case 0:	m_xOrder = 1; m_yOrder = 1; m_tOrder = 1;	break;	// simple planar surface	// a + bx + cy
-	case 1:	m_xOrder = 1; m_yOrder = 1; m_tOrder = 2;	break;	// bi-linear saddle"),		// a + bx + cy + dxy
-	case 2:	m_xOrder = 2; m_yOrder = 2; m_tOrder = 2;	break;	// quadratic surface"),		// a + bx + cy + dxy + ex2 + fy2
-	case 3:	m_xOrder = 3; m_yOrder = 3; m_tOrder = 3;	break;	// cubic surface"),			// a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
-	case 4:
+	default: m_xOrder = 1; m_yOrder = 1; m_tOrder = 1; break;	// simple planar surface // a + bx + cy
+	case  1: m_xOrder = 1; m_yOrder = 1; m_tOrder = 2; break;	// bi-linear saddle	     // a + bx + cy + dxy
+	case  2: m_xOrder = 2; m_yOrder = 2; m_tOrder = 2; break;	// quadratic surface     // a + bx + cy + dxy + ex2 + fy2
+	case  3: m_xOrder = 3; m_yOrder = 3; m_tOrder = 3; break;	// cubic surface"        // a + bx + cy + dxy + ex2 + fy2 + gx2y + hxy2 + ix3 + iy3
+	case  4:
 		m_xOrder	= Parameters("XORDER")->asInt();
 		m_yOrder	= Parameters("YORDER")->asInt();
 		m_tOrder	= Parameters("TORDER")->asInt();
@@ -233,37 +218,32 @@ bool CPoint_Trend_Surface::On_Execute(void)
 
 ///////////////////////////////////////////////////////////
 //														 //
-//														 //
-//														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-CSG_String CPoint_Trend_Surface::Get_Power(const SG_Char *Value, int Power)
+CSG_String CPoint_Trend_Surface::Get_Power(const CSG_String &Value, int Power)
 {
 	if( Power > 0 )
 	{
 		if( Power > 1 )
 		{
-			return( CSG_String::Format(SG_T("%s%d"), Value, Power) );
+			return( Value + CSG_String::Format("%d", Power) );
 		}
 
 		return( Value );
 	}
 
-	return( SG_T("") );
+	return( "" );
 }
 
 
 ///////////////////////////////////////////////////////////
-//														 //
-//														 //
 //														 //
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
 bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 {
-	//-----------------------------------------------------
 	int		i, j, Field;
 
 	m_Names.Clear();
@@ -272,16 +252,16 @@ bool CPoint_Trend_Surface::Get_Regression(CSG_Shapes *pPoints, int iAttribute)
 
 	for(i=1; i<=m_xOrder; i++)
 	{
-		m_Names	+= Get_Power(SG_T("x"), i);
+		m_Names	+= Get_Power("x", i);
 	}
 
 	for(i=1; i<=m_yOrder; i++)
 	{
-		m_Names	+= Get_Power(SG_T("y"), i);
+		m_Names	+= Get_Power("y", i);
 
 		for(j=1; j<=m_xOrder && i<m_tOrder && j<m_tOrder; j++)
 		{
-			m_Names	+= Get_Power(SG_T("x"), j) + Get_Power(SG_T("y"), i);
+			m_Names	+= Get_Power("x", j) + Get_Power("y", i);
 		}
 	}
 
@@ -394,7 +374,7 @@ bool CPoint_Trend_Surface::Set_Residuals(CSG_Shapes *pPoints, int iAttribute, CS
 	//-----------------------------------------------------
 	if( pResiduals )
 	{
-		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format(SG_T("%s [%s]"), pPoints->Get_Name(), _TL("Residuals")));
+		pResiduals->Create(SHAPE_TYPE_Point, CSG_String::Format("%s [%s]", pPoints->Get_Name(), _TL("Residuals")));
 		pResiduals->Add_Field(pPoints->Get_Field_Name(iAttribute), SG_DATATYPE_Double);
 		pResiduals->Add_Field("POLYNOM" , SG_DATATYPE_Double);
 		pResiduals->Add_Field("RESIDUAL", SG_DATATYPE_Double);
@@ -439,27 +419,27 @@ void CPoint_Trend_Surface::Set_Message(void)
 	CSG_String	s;
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("\n%s:"), _TL("Regression"));
+	s	+= CSG_String::Format("\n%s:", _TL("Regression"));
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("\n z = A"));
+	s	+= CSG_String::Format("\n z = A");
 
 	for(i=1; i<m_Coefficients.Get_N(); i++)
 	{
-		s	+= CSG_String::Format(SG_T(" + %c%s"), 'A' + i, m_Names[i].c_str());
+		s	+= CSG_String::Format(" + %c%s", 'A' + i, m_Names[i].c_str());
 	}
 
-	s	+= SG_T("\n");
+	s	+= "\n";
 
 	//-----------------------------------------------------
-	s	+= CSG_String::Format(SG_T("\n z = %f"), m_Coefficients[0]);
+	s	+= CSG_String::Format("\n z = %f", m_Coefficients[0]);
 
 	for(i=1; i<m_Coefficients.Get_N(); i++)
 	{
-		s	+= CSG_String::Format(SG_T(" %+f*%s"), m_Coefficients[i], m_Names[i].c_str());
+		s	+= CSG_String::Format(" %+f*%s", m_Coefficients[i], m_Names[i].c_str());
 	}
 
-	s	+= SG_T("\n");
+	s	+= "\n";
 
 	//-----------------------------------------------------
 	Message_Add(s, false);

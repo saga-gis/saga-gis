@@ -100,7 +100,7 @@ CGW_Multi_Regression::CGW_Multi_Regression(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("QUALITY"  , _TL("Quality"  ), false);
 	m_Grid_Target.Add_Grid("INTERCEPT", _TL("Intercept"), false);

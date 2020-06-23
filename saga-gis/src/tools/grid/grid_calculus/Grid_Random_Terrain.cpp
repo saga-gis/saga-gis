@@ -1,6 +1,4 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
+
 /*******************************************************************************
     Grid_Random_Terrain.cpp
     Copyright (C) Victor Olaya
@@ -47,20 +45,20 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 		"(c) 2004 by Victor Olaya. Random Terrain Generation"
 	));
 
-	Parameters.Add_Value(
-		NULL	, "RADIUS"	, _TL("Radius (cells)"), 
+	Parameters.Add_Int(
+		"", "RADIUS"    , _TL("Radius (cells)"), 
 		_TL(""), 
-		PARAMETER_TYPE_Int, 25
+		25, 1, true
 	);
 
-	Parameters.Add_Value(
-		NULL,	 "ITERATIONS"	, _TL("Iterations"), 
+	Parameters.Add_Int(
+		"", "ITERATIONS", _TL("Iterations"), 
 		_TL(""),
-		PARAMETER_TYPE_Int, 100
+		100, 1, true
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, true, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, true, "", "TARGET_");
 }
 
 
@@ -71,13 +69,17 @@ CGrid_Random_Terrain::CGrid_Random_Terrain(void)
 //---------------------------------------------------------
 int CGrid_Random_Terrain::On_Parameter_Changed(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameter_Changed(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameter_Changed(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameter_Changed(pParameters, pParameter) );
 }
 
 //---------------------------------------------------------
 int CGrid_Random_Terrain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_Parameter *pParameter)
 {
-	return( m_Grid_Target.On_Parameters_Enable(pParameters, pParameter) ? 1 : 0 );
+	m_Grid_Target.On_Parameters_Enable(pParameters, pParameter);
+
+	return( CSG_Tool::On_Parameters_Enable(pParameters, pParameter) );
 }
 
 
@@ -88,7 +90,6 @@ int CGrid_Random_Terrain::On_Parameters_Enable(CSG_Parameters *pParameters, CSG_
 //---------------------------------------------------------
 bool CGrid_Random_Terrain::On_Execute(void)
 {
-	//-----------------------------------------------------
 	if( (m_pGrid = m_Grid_Target.Get_Grid()) == NULL )
 	{
 		Error_Set(_TL("invalid target grid"));
@@ -98,7 +99,7 @@ bool CGrid_Random_Terrain::On_Execute(void)
 
 	m_pGrid->Set_Name(_TL("Random Terrain"));
 
-	m_pGrid->Assign(0.0);
+	m_pGrid->Assign(0.);
 
 	//-----------------------------------------------------
 	m_Kernel.Set_Radius(m_Radius = Parameters("RADIUS")->asInt());

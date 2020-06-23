@@ -46,15 +46,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "grid_cell_polygon_coverage.h"
 
 
@@ -67,7 +58,6 @@
 //---------------------------------------------------------
 CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Grid Cell Area Covered by Polygons"));
 
 	Set_Author		("O.Conrad (c) 2016");
@@ -87,7 +77,7 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL("Choose cell wise, if you have not many polygons. Polygon wise will show much better performance, if you have many (small) polygons."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("cell wise"),
 			_TL("polygon wise")
 		), 1
@@ -96,7 +86,7 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 	Parameters.Add_Choice("",
 		"OUTPUT"	, _TL("Output"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("area"),
 			_TL("percentage")
 		), 1
@@ -109,7 +99,7 @@ CGrid_Cell_Polygon_Coverage::CGrid_Cell_Polygon_Coverage(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("AREA", _TL("Area of Coverage"), false);
 }
@@ -157,7 +147,6 @@ int CGrid_Cell_Polygon_Coverage::On_Parameters_Enable(CSG_Parameters *pParameter
 //---------------------------------------------------------
 bool CGrid_Cell_Polygon_Coverage::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
 	CSG_Grid	*pArea	= m_Grid_Target.Get_Grid("AREA");
@@ -295,7 +284,6 @@ bool CGrid_Cell_Polygon_Coverage::Get_Area(CSG_Shape_Polygon *pPolygon, CSG_Grid
 //---------------------------------------------------------
 CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 {
-	//-----------------------------------------------------
 	Set_Name		(_TL("Polygon Categories to Grid"));
 
 	Set_Author		("O.Conrad (c) 2018");
@@ -323,7 +311,7 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL("Choose cell wise, if you have not many polygons. Polygon wise will show much better performance, if you have many (small) polygons."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("cell wise"),
 			_TL("polygon wise")
 		), 1
@@ -332,7 +320,7 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 	Parameters.Add_Choice("",
 		"MULTIPLE"	, _TL("Multiple Polygons"),
 		_TL("Output value for cells that intersect wiht more than one polygon."),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("minimum coverage"),
 			_TL("maximum coverage")
 		), 1
@@ -345,7 +333,7 @@ CPolygonCategories2Grid::CPolygonCategories2Grid(void)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, NULL, "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
 
 	m_Grid_Target.Add_Grid("CATEGORY", _TL("Category"), false);
 	m_Grid_Target.Add_Grid("COVERAGE", _TL("Coverage"),  true);
@@ -385,7 +373,6 @@ int CPolygonCategories2Grid::On_Parameters_Enable(CSG_Parameters *pParameters, C
 //---------------------------------------------------------
 bool CPolygonCategories2Grid::On_Execute(void)
 {
-	//-----------------------------------------------------
 	CSG_Shapes	*pPolygons	= Parameters("POLYGONS")->asShapes();
 
 	int		Field	= Parameters("FIELD")->asInt();

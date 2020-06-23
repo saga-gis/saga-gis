@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,14 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include "Grid_Random_Field.h"
 
 
@@ -80,15 +69,10 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	));
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false);
-
-	m_Grid_Target.Add_Grid("OUT_GRID", _TL("Random Field"), false);
-
-	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"METHOD"	, _TL("Method"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("Uniform"),
 			_TL("Gaussian")
 		), 1
@@ -102,7 +86,7 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	Parameters.Add_Range("UNIFORM",
 		"RANGE"		, _TL("Range"),
 		_TL(""),
-		0.0, 1.0
+		0., 1.
 	);
 
 	Parameters.Add_Node("",
@@ -113,14 +97,19 @@ CGrid_Random_Field::CGrid_Random_Field(void)
 	Parameters.Add_Double("GAUSSIAN",
 		"MEAN"		, _TL("Arithmetic Mean"),
 		_TL(""),
-		0.0
+		0.
 	);
 
 	Parameters.Add_Double("GAUSSIAN",
 		"STDDEV"	, _TL("Standard Deviation"),
 		_TL(""),
-		1.0, 0.0, true
+		1., 0., true
 	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
+
+	m_Grid_Target.Add_Grid("OUT_GRID", _TL("Random Field"), false);
 }
 
 
@@ -217,15 +206,10 @@ CGrid_Fractal_Brownian_Noise::CGrid_Fractal_Brownian_Noise(void)
 	));
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false);
-
-	m_Grid_Target.Add_Grid("OUT_GRID", _TL("Fractal Brownian Noise"), false);
-
-	//-----------------------------------------------------
 	Parameters.Add_Choice("",
 		"SCALING"	, _TL("Scaling"),
 		_TL(""),
-		CSG_String::Format("%s|%s|",
+		CSG_String::Format("%s|%s",
 			_TL("linear"),
 			_TL("geometric")
 		), 1
@@ -234,7 +218,7 @@ CGrid_Fractal_Brownian_Noise::CGrid_Fractal_Brownian_Noise(void)
 	Parameters.Add_Double("",
 		"MAX_SCALE"	, _TL("Maximum Scale"),
 		_TL(""),
-		1., 0.0, true
+		1., 0., true
 	);
 
 	Parameters.Add_Int("",
@@ -246,8 +230,13 @@ CGrid_Fractal_Brownian_Noise::CGrid_Fractal_Brownian_Noise(void)
 	Parameters.Add_Range("",
 		"RANGE"		, _TL("Noise Range"),
 		_TL(""),
-		-1.0, 1.0
+		-1., 1.
 	);
+
+	//-----------------------------------------------------
+	m_Grid_Target.Create(&Parameters, false, "", "TARGET_");
+
+	m_Grid_Target.Add_Grid("OUT_GRID", _TL("Fractal Brownian Noise"), false);
 }
 
 
@@ -297,7 +286,7 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 		return( false );
 	}
 
-	pGrid->Assign(0.0);
+	pGrid->Assign(0.);
 	pGrid->Set_Name(_TL("Fractal Brownian Noise"));
 
 	int		Scaling		= Parameters("SCALING"  )->asInt   ();
@@ -339,7 +328,7 @@ bool CGrid_Fractal_Brownian_Noise::On_Execute(void)
 	Offset	= Parameters("RANGE")->asRange()->Get_Min();	
 	Scale	= Parameters("RANGE")->asRange()->Get_Max() - Offset;
 
-	if( Scale <= 0.0 || pGrid->Get_Range() <= 0.0 )
+	if( Scale <= 0. || pGrid->Get_Range() <= 0. )
 	{
 		Error_Set(_TL("grid value and noise range must be greater than zero"));
 

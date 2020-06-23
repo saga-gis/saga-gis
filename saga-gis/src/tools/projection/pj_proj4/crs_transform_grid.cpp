@@ -132,7 +132,7 @@ CCRS_Transform_Grid::CCRS_Transform_Grid(bool bList)
 	);
 
 	//-----------------------------------------------------
-	m_Grid_Target.Create(&Parameters, false, Parameters("TARGET_NODE"), "TARGET_");
+	m_Grid_Target.Create(&Parameters, false, "TARGET_NODE", "TARGET_");
 
 	if( m_bList )
 	{
