@@ -811,9 +811,17 @@ bool CCMD_Tool::_Save_Output(CSG_Parameters *pParameters)
 							CSG_String	fPath	= SG_File_Get_Path     (FileNames[nFileNames]);
 							CSG_String	fName	= SG_File_Get_Name     (FileNames[nFileNames], false);
 							CSG_String	fExt	= SG_File_Get_Extension(FileNames[nFileNames]);
-							CSG_String	fNum	= CSG_String::Format("%0*d", SG_Get_Digit_Count(pParameter->asList()->Get_Item_Count()), 1 + i - nFileNames);
 
-							_Save_Output(pParameter->asList()->Get_Item(i), SG_File_Make_Path(fPath, fName + fNum, fExt));
+							if( fName.is_Empty() || !fName.Cmp("*") )
+							{
+								fName	= pParameter->asList()->Get_Item(i)->Get_Name();
+							}
+							else
+							{
+								fName	+= CSG_String::Format("%0*d", SG_Get_Digit_Count(pParameter->asList()->Get_Item_Count()), 1 + i - nFileNames);
+							}
+
+							_Save_Output(pParameter->asList()->Get_Item(i), SG_File_Make_Path(fPath, fName, fExt));
 						}
 					}
 				}
