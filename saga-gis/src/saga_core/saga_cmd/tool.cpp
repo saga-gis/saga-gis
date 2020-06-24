@@ -296,69 +296,70 @@ bool CCMD_Tool::_Set_Parameters(CSG_Parameters *pParameters)
 		{
 			switch( pParameter->Get_Type() )
 			{
-			default:
-				break;
-
-			case PARAMETER_TYPE_Parameters:
+			case PARAMETER_TYPE_Parameters  :
 				_Set_Parameters(pParameter->asParameters());
 				break;
 
-			case PARAMETER_TYPE_Bool:
+			case PARAMETER_TYPE_Bool        :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Int:
+			case PARAMETER_TYPE_Int         :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Choice:
-			case PARAMETER_TYPE_Choices:
-			case PARAMETER_TYPE_Table_Field:
+			case PARAMETER_TYPE_Choice      :
+			case PARAMETER_TYPE_Choices     :
+			case PARAMETER_TYPE_Table_Field :
 			case PARAMETER_TYPE_Table_Fields:
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Double:
-			case PARAMETER_TYPE_Degree:
+			case PARAMETER_TYPE_Double      :
+			case PARAMETER_TYPE_Degree      :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Date:
+			case PARAMETER_TYPE_Date        :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_DATE  , wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Range:
+			case PARAMETER_TYPE_Range       :
 				m_CMD.AddOption(_Get_ID(pParameter, "MIN"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				m_CMD.AddOption(_Get_ID(pParameter, "MAX"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Color:
+			case PARAMETER_TYPE_Color       :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Colors:
+			case PARAMETER_TYPE_Colors      :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_String:
-			case PARAMETER_TYPE_Text:
-			case PARAMETER_TYPE_FilePath:
+			case PARAMETER_TYPE_String      :
+			case PARAMETER_TYPE_Text        :
+			case PARAMETER_TYPE_FilePath    :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_FixedTable:
+			case PARAMETER_TYPE_FixedTable  :
 				m_CMD.AddOption(_Get_ID(pParameter), wxEmptyString, Description, wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				break;
 
-			case PARAMETER_TYPE_Grid_System:
+			case PARAMETER_TYPE_Grid_System :
 				if( pParameter->Get_Children_Count() == 0 )
 				{
-					m_CMD.AddOption(_Get_ID(pParameter, "NX"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter, "NY"), wxEmptyString, Description, wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "X"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "Y"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
-					m_CMD.AddOption(_Get_ID(pParameter,  "D"), wxEmptyString, Description, wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,    "D"), wxEmptyString, _TL("Cell Size"                          ), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,    "X"), wxEmptyString, _TL("Lower Left Center Cell X-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,    "Y"), wxEmptyString, _TL("Lower Left Center Cell Y-Coordinate"), wxCMD_LINE_VAL_DOUBLE, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,   "NX"), wxEmptyString, _TL("Number of Columns"                  ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter,   "NY"), wxEmptyString, _TL("Number of Rows"                     ), wxCMD_LINE_VAL_NUMBER, wxCMD_LINE_PARAM_OPTIONAL);
+					m_CMD.AddOption(_Get_ID(pParameter, "FILE"), wxEmptyString, _TL("Grid File"                          ), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL);
 				}
+				break;
+
+			default:
 				break;
 			}
 		}
@@ -586,20 +587,23 @@ bool CCMD_Tool::_Get_Options(CSG_Parameters *pParameters, bool bInitialize)
 			case PARAMETER_TYPE_Grid_System:
 				if( pParameter->Get_Children_Count() == 0 )
 				{
-					long	nx, ny;
-					double	 x,  y;
+					CSG_Grid_File_Info Info; double x, y; long nx, ny;
 
-					if(	!m_CMD.Found(_Get_ID(pParameter, "NX"), &nx)
-					||	!m_CMD.Found(_Get_ID(pParameter, "NY"), &ny)
-					||	!m_CMD.Found(_Get_ID(pParameter,  "X"), &x )
-					||	!m_CMD.Found(_Get_ID(pParameter,  "Y"), &y )
-					||	!m_CMD.Found(_Get_ID(pParameter,  "D"), &d ) )
+					if( m_CMD.Found(_Get_ID(pParameter, "FILE"), &s) && Info.Create(&s) )
 					{
-						pParameter->asGrid_System()->Assign(-1, 0.0, 0.0, 0, 0);
+						pParameter->asGrid_System()->Create(Info.m_System);
+					}
+					else if( m_CMD.Found(_Get_ID(pParameter, "NX"), &nx)
+						&&   m_CMD.Found(_Get_ID(pParameter, "NY"), &ny)
+						&&   m_CMD.Found(_Get_ID(pParameter,  "X"), &x )
+						&&   m_CMD.Found(_Get_ID(pParameter,  "Y"), &y )
+						&&   m_CMD.Found(_Get_ID(pParameter,  "D"), &d ) )
+					{
+						pParameter->asGrid_System()->Create(d, x, y, (int)nx, (int)ny);
 					}
 					else
 					{
-						pParameter->asGrid_System()->Assign(d, x, y, (int)nx, (int)ny);
+						pParameter->asGrid_System()->Create(0., 0., 0., 0, 0);
 					}
 				}
 				break;
