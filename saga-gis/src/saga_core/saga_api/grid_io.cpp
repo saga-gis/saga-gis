@@ -1098,7 +1098,9 @@ bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
 {
 	if( !SG_File_Cmp_Extension(FileName, "sg-grd-z") )
 	{
-		return( Create(CSG_File(FileName, SG_FILE_R, false)) );
+		CSG_File	Stream(FileName, SG_FILE_R, false);
+
+		return( Create(Stream) );
 	}
 
 	//-----------------------------------------------------
