@@ -520,15 +520,9 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 			||  SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sg-grd") )
 			{
 				FileName	= SG_File_Get_Name(Stream.Get_File_Name(i), false) + ".";
-
+				Stream.Get_File(Stream.Get_File_Name(i));
 				break;
 			}
-		}
-
-		if( !Stream.Get_File(FileName + "sgrd"  )
-		&&  !Stream.Get_File(FileName + "sg-grd") )
-		{
-			return( false );
 		}
 	}
 
@@ -1102,9 +1096,37 @@ CSG_Grid_File_Info::CSG_Grid_File_Info(const CSG_String &FileName)
 
 bool CSG_Grid_File_Info::Create(const CSG_String &FileName)
 {
-	CSG_File	Stream(FileName, SG_FILE_R, false);
-	
-	return( Create(Stream) );
+	if( !SG_File_Cmp_Extension(FileName, "sg-grd-z") )
+	{
+		return( Create(CSG_File(FileName, SG_FILE_R, false)) );
+	}
+
+	//-----------------------------------------------------
+	CSG_File_Zip	Stream(FileName, SG_FILE_R);
+
+	if( Stream.is_Reading() )
+	{
+		CSG_String	File(SG_File_Get_Name(FileName, false) + ".");
+
+		if( !Stream.Get_File(File + "sgrd"  )
+		&&  !Stream.Get_File(File + "sg-grd") )
+		{
+			for(size_t i=0; i<Stream.Get_File_Count(); i++)
+			{
+				if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sgrd"  )
+				||  SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sg-grd") )
+				{
+					Stream.Get_File(Stream.Get_File_Name(i));
+					break;
+				}
+			}
+		}
+
+		return( Create(Stream) );
+	}
+
+	//-----------------------------------------------------
+	return( false );
 }
 
 //---------------------------------------------------------
