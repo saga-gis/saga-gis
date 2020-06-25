@@ -1,6 +1,3 @@
-/**********************************************************
- * Version $Id$
- *********************************************************/
 
 ///////////////////////////////////////////////////////////
 //                                                       //
@@ -51,15 +48,6 @@
 ///////////////////////////////////////////////////////////
 
 //---------------------------------------------------------
-
-
-///////////////////////////////////////////////////////////
-//														 //
-//														 //
-//														 //
-///////////////////////////////////////////////////////////
-
-//---------------------------------------------------------
 #include <wx/wx.h>
 #include <wx/window.h>
 #include <wx/scrolwin.h>
@@ -103,7 +91,7 @@
 class CVIEW_Table_Diagram_Control : public wxScrolledWindow
 {
 public:
-	CVIEW_Table_Diagram_Control(wxWindow *pParent, class CWKSP_Table *pTable);
+	CVIEW_Table_Diagram_Control(wxWindow *pParent, CWKSP_Table *pTable);
 	virtual ~CVIEW_Table_Diagram_Control(void);
 
 	bool							Update_Diagram		(void);
@@ -536,7 +524,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 	//-----------------------------------------------------
 	if( m_pTable && m_pTable->Get_Field_Count() > 0 && m_pTable->Get_Count() > 0 )
 	{
-		CSG_String	sFields_All, sFields_Num;
+		CSG_String	sFields_All, sFields_Num; int nFields_Num = 0;
 
 		m_Structure.Create(m_pTable);
 
@@ -562,6 +550,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 				m_Parameters.Add_Color(ID, CSG_String::Format("COLOR_%d", iField), "", _TL("Color"), m_Colors.Get_Color(iField));
 
 				sFields_Num	+= CSG_String::Format("%s|", m_pTable->Get_Field_Name(iField));
+				nFields_Num	++;
 			}
 
 			sFields_All	+= CSG_String::Format("%s|", m_pTable->Get_Field_Name(iField));
@@ -615,7 +604,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		m_Parameters.Add_Choice("NODE_POINTS",
 			"POINTS_COLOR_FIELD", _TL("Color by Attribute"),
 			_TL(""),
-			sFields_Num, m_pTable->Get_Field_Count()
+			sFields_Num, nFields_Num
 		);
 
 		m_Parameters.Add_Colors("NODE_POINTS",
@@ -627,7 +616,7 @@ bool CVIEW_Table_Diagram_Control::_Initialize(void)
 		m_Parameters.Add_Choice("NODE_X",
 			"X_FIELD"	, _TL("Values"),
 			_TL(""),
-			sFields_Num, m_pTable->Get_Field_Count()
+			sFields_Num, nFields_Num
 		);
 
 		m_Parameters.Add_Choice("NODE_X",
