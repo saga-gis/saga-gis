@@ -4,42 +4,66 @@
 	<identifier>shapes:select+delete</identifier>
 	<name>Select and Delete</name>
 	<author>M.Bock &amp; O.Conrad (c) 2018</author>
-	<description>This tool selects and deletes all features from a shapes layer which meet the select criterion.</description>
+	<description>This tool selects and deletes all features from a shapes layer, which meet the select criterion defined by the expression.[[br]]
+	If the [[i]]Expression Type[[/i]] is set to [[i]]string expression[[/i]], the selection uses the given character string expression and the chosen [[i]]Select if...[[/i]] option. If an [[i]]Attribute[[/i]] field is selected, only this attribute will be evaluated, or all attributes if not.[[br]]
+	If the [[i]]Expression Type[[/i]] is set to [[i]]numerical expression[[/i]], those records will be selected for deletion, for which the expression evaluates to non-zero. The expression syntax is the same as the one for the table calculator. If an [[i]]Attribute[[/i]] is set, the expression evaluates only this attribute, which can be addressed with the letter 'a' in the expression formula. If no attribute is selected, attributes are addressed by the character 'f' (for 'field') followed by the field number (i.e.: f1, f2, ..., fn) or by the field name in square brackets (e.g.: [Field Name]).[[br]]
+	Examples:[[ul]]
+	[[li]]f1 > f2[[/li]]
+	[[li]]eq([Population] * 2, [Area])[[/li]][[/ul]]
+	</description>
 	<menu absolute="true">Shapes|Selection</menu>
 
 	<parameters>
-		<input varname="POINTS" type="shapes">
+		<input varname="SHAPES" type="shapes">
 			<name>Shapes</name>
 		</input>
-		<option varname="ATTRIBUTE" type="table_field" parent="POINTS">
+		<option varname="ATTRIBUTE" type="table_field" parent="SHAPES">
 			<name>Attribute</name>
 			<value>true</value>
 		</option>
+		<option varname="METHOD" type="choice">
+			<name>Expression Type</name>
+			<choices>string expression|numerical expression</choices>
+			<value>0</value>
+		</option>
 		<option varname="EXPRESSION" type="text">
 			<name>Expression</name>
-		</option>
-		<option varname="CASE" type="boolean">
-			<name>Case Sensitive</name>
-			<value>false</value>
+			<value>expression</value>
 		</option>
 		<option varname="COMPARE" type="choice">
+			<condition value="0" type="=">METHOD</condition>
 			<choices>attribute is identical with search expression|attribute contains search expression|attribute is contained in search expression</choices>
 			<name>Select if...</name>
 			<value>1</value>
 		</option>
+		<option varname="CASE" type="boolean">
+			<condition value="0" type="=">METHOD</condition>
+			<name>Case Sensitive</name>
+			<value>false</value>
+		</option>
 	</parameters>
 
 	<tools>
-		<tool library="shapes_tools" tool="4" name="Select by Attributes... (String Expression)">
-			<option id="FIELD"      varname="true">ATTRIBUTE</option>
-			<option id="EXPRESSION" varname="true">EXPRESSION</option>
-			<option id="CASE"       varname="true">CASE</option>
-			<option id="COMPARE"    varname="true">COMPARE</option>
-			<option id="METHOD">0</option>
-			<input  id="SHAPES">POINTS</input>
-		</tool>
+		<condition value="0" type="=" variable="METHOD"><if>
+			<tool library="shapes_tools" tool="4" name="Select by Attributes... (String Expression)">
+				<option id="FIELD"      varname="true">ATTRIBUTE</option>
+				<option id="EXPRESSION" varname="true">EXPRESSION</option>
+				<option id="CASE"       varname="true">CASE</option>
+				<option id="COMPARE"    varname="true">COMPARE</option>
+				<option id="METHOD">0</option>
+				<input  id="SHAPES">SHAPES</input>
+			</tool>
+		</if><else>
+			<tool library="shapes_tools" tool="3" name="Select by Attributes... (Numerical Expression)">
+				<option id="FIELD"      varname="true">ATTRIBUTE</option>
+				<option id="EXPRESSION" varname="true">EXPRESSION</option>
+				<option id="METHOD">0</option>
+				<input  id="SHAPES">SHAPES</input>
+			</tool>
+		</else></condition>
+
 		<tool library="shapes_tools" tool="7" name="Delete Selection from Shapes Layer">
-			<input id="INPUT">POINTS</input>
+			<input id="INPUT">SHAPES</input>
 		</tool>
 	</tools>
 </toolchain>
