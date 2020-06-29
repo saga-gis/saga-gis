@@ -514,6 +514,8 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 	if( !Stream.Get_File(FileName + "sgrd"  )
 	&&  !Stream.Get_File(FileName + "sg-grd") )
 	{
+		FileName.Clear();
+
 		for(size_t i=0; i<Stream.Get_File_Count(); i++)
 		{
 			if( SG_File_Cmp_Extension(Stream.Get_File_Name(i), "sgrd"  )
@@ -523,6 +525,11 @@ bool CSG_Grid::_Load_Compressed(const CSG_String &_FileName, bool bCached, bool 
 				Stream.Get_File(Stream.Get_File_Name(i));
 				break;
 			}
+		}
+
+		if( FileName.is_Empty() )
+		{
+			return( false );
 		}
 	}
 
