@@ -68,6 +68,9 @@
     <ClCompile Include="evapotranspiration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="air_pressure.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\saga_core\saga_api\api_core.h">
@@ -170,6 +173,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="evapotranspiration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="air_pressure.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

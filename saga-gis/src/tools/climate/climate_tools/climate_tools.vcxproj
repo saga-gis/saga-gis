@@ -301,6 +301,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="air_pressure.cpp" />
     <ClCompile Include="bioclimatic_vars.cpp" />
     <ClCompile Include="climate_classification.cpp" />
     <ClCompile Include="climate_tools.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="..\..\..\saga_core\saga_api\pointcloud.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_dbase.h" />
     <ClInclude Include="..\..\..\saga_core\saga_api\table_value.h" />
+    <ClInclude Include="air_pressure.h" />
     <ClInclude Include="bioclimatic_vars.h" />
     <ClInclude Include="climate_classification.h" />
     <ClInclude Include="climate_tools.h" />

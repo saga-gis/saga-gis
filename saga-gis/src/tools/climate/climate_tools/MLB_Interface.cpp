@@ -97,6 +97,7 @@ CSG_String Get_Info(int i)
 #include "soil_water_balance.h"
 #include "cloud_overlap.h"
 #include "temperature_lapse_rates.h"
+#include "air_pressure.h"
 
 
 //---------------------------------------------------------
@@ -144,6 +145,8 @@ CSG_Tool *		Create_Tool(int i)
 
 	case 25:	return( new CCloud_Overlap );
 	case 26:	return( new CTemperature_Lapse_Rates );
+
+	case 27:	return( new CAirPressure_Scaling );
 
 	//-----------------------------------------------------
 	case 30:	return( NULL );

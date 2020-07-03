@@ -11,6 +11,7 @@ AM_CXXFLAGS        = -fPIC $(CXX_INCS) $(DEF_SAGA) $(DBGFLAGS) $(GOMPFLAGS)
 AM_LDFLAGS         = -fPIC -shared -avoid-version 
 pkglib_LTLIBRARIES = libclimate_tools.la
 libclimate_tools_la_SOURCES =\
+air_pressure.cpp\
 bioclimatic_vars.cpp\
 climate_classification.cpp\
 climate_tools.cpp\
@@ -29,6 +30,7 @@ temperature_lapse_rates.cpp\
 thermal_belts.cpp\
 treeline.cpp\
 windeffect_correction.cpp\
+air_pressure.h\
 bioclimatic_vars.h\
 climate_classification.h\
 climate_tools.h\
